@@ -25,6 +25,9 @@ public interface IConveyor
     float SurfaceSpeed { get; }
 
     bool Carries(ConveyorCargo cargo);
+
+    /// <summary>Server tick of the last start, stop or reversal (replicated).</summary>
+    int ChangeTick { get; }
 }
 
 /// <summary>
@@ -62,6 +65,38 @@ public sealed class ConveyorField
     }
 
     public void Remove(IConveyor conveyor) => _conveyors.Remove(conveyor);
+
+    /// <summary>
+    /// Grows with every start, stop or reversal of a conveyor within <see cref="ConveyorK.RevisionReach"/> of
+    /// <paramref name="location"/> (the sum of those conveyors' change ticks, which only grow). A movement correction
+    /// carries the server's value at the location it puts the pawn; the client works its own out at the same place, so
+    /// a lower value there means the client has not received a change that moved the pawn, while changes elsewhere on
+    /// the map do not count.
+    /// </summary>
+    public uint RevisionNear(FVector location)
+    {
+        const float reach = ConveyorK.RevisionReach;
+        uint sum = 0;
+        for (int i = 0; i < _conveyors.Count; i++)
+        {
+            IConveyor c = _conveyors[i];
+            ConveyorPath path = c.WorldPath;
+            if (path.Length <= 0f)
+            {
+                continue;
+            }
+
+            path.Evaluate(0f, out FVector start, out _);
+            path.Evaluate(path.Length, out FVector end, out _);
+            if (path.Project(location, c.HalfWidth + reach, reach, reach, 0f, out _) ||
+                (location - start).SizeSquared() <= reach * reach || (location - end).SizeSquared() <= reach * reach)
+            {
+                sum += (uint)c.ChangeTick;
+            }
+        }
+
+        return sum;
+    }
 
     /// <summary>
     /// The running conveyor that carries a body of <paramref name="radius"/> whose lowest point is
@@ -107,6 +142,12 @@ public static class ConveyorK
 {
     /// <summary>How far a carried body lifts before it moves along, so joints and small steps do not stop it.</summary>
     public const float CarryStep = 18f;
+
+    /// <summary>
+    /// How near a conveyor (past its edges, ends, surface) a corrected pawn must be for that conveyor's last change to
+    /// count in <see cref="ConveyorField.RevisionNear"/>: further than a fast belt carries a pawn in a round trip.
+    /// </summary>
+    public const float RevisionReach = 512f;
 
     /// <summary>A body still rides with its centre this fraction of its radius past the strip's edge.</summary>
     public const float EdgeOverhang = 0.5f;

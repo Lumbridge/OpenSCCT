@@ -833,7 +833,7 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
         _ambient.Clear();
         if (World is not null)
         {
-            World.CollectAmbient(_ambient);
+            World.CollectAmbient(_ambient, ListenerLocation);
         }
 
         AddStaticAmbient();
@@ -936,7 +936,7 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
             running?.Stop();
             var call = new PlayCall(def, a.ActorId, id, a.Location, playVolume, radius, SoundRules.AmbientPitch(a.SoundPitch),
                 music: false, loop: true, ambient: true, occlusion: a.SoundOcclusion);
-            if (Start(call, follow: a.ActorId > 0) && LastStarted is { } v)
+            if (Start(call, follow: a.ActorId > 0 && a.Follow) && LastStarted is { } v)
             {
                 v.AmbientZoneId = a.IsZone ? a.Id : null;
                 _ambientVoices[a.ActorId] = v;
@@ -1000,7 +1000,7 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
         _ambientVoices.Remove(owner);
         found.ActorId = a.ActorId;
         found.Id = (a.ActorId * 16) + AudioK.AmbientSlotId;
-        found.Follow = a.ActorId > 0;
+        found.Follow = a.ActorId > 0 && a.Follow;
         found.Location = a.Location;
         found.AmbientZoneId = a.IsZone ? a.Id : null;
         _ambientVoices[a.ActorId] = found;

@@ -6,15 +6,16 @@ namespace OpenScct.Game.Svm;
 
 /// <summary>
 /// One item riding a conveyor at some moment: where it is on the surface, the belt's direction there (yaw of travel
-/// and pitch of the climb), the item's own seeded turn about the belt's up, its size (0 when faded out) and its mesh.
+/// and pitch of the climb), the item's own seeded turn about the belt's up, its size (0 when faded out), and its mesh:
+/// an index into the <see cref="Conveyor.ItemMeshes"/> of <paramref name="Origin"/>, the conveyor it came from.
 /// </summary>
-public readonly record struct ConveyorItemPlace(FVector Location, FRotator Belt, int Spin, float Scale, int Mesh);
+public readonly record struct ConveyorItemPlace(FVector Location, FRotator Belt, int Spin, float Scale, int Mesh, Conveyor Origin);
 
 /// <summary>
 /// The parts of a conveyor's look the map builder and the game both need to agree on
 /// (spec/additions/conveyors.md#look): the names and texture scales of the moving parts the editor builds into
-/// render/world.glb, and where each item is at a given belt phase. The game, every client and the editor's preview
-/// place items with the same function, so they all show the same thing.
+/// render/world.glb, and how many items a conveyor starts with. <see cref="ConveyorItemFlow"/> moves the items and
+/// <see cref="ConveyorSteps"/> the escalator steps, for the game, every client and the editor's preview alike.
 /// </summary>
 [Provenance(ProvenanceKind.Estimated, "OpenSCCT addition: design values, spec/additions/conveyors.md#look")]
 public static class ConveyorLayout
@@ -57,7 +58,7 @@ public static class ConveyorLayout
     /// <summary>Height of an escalator's balustrades.</summary>
     public const float BalustradeHeight = 96f;
 
-    /// <summary>The number of items riding the conveyor (none without meshes).</summary>
+    /// <summary>The number of items a conveyor starts with, spread along it (none without meshes).</summary>
     public static int ItemCount(Conveyor conveyor, ConveyorPath path)
     {
         if (conveyor.ItemMeshes.Count == 0 || conveyor.ItemSpacing <= 0f || path.Length <= 0f)
@@ -68,36 +69,8 @@ public static class ConveyorLayout
         return SvmMath.Max(1, SvmMath.Floor(path.Length / conveyor.ItemSpacing));
     }
 
-    /// <summary>
-    /// Item <paramref name="index"/> at belt <paramref name="phase"/> (<see cref="Conveyor.PhaseAt"/>). Items are evenly
-    /// spread along the path and keep their order; on an open path they grow in at the start and shrink away at the end
-    /// over <see cref="Conveyor.ItemFade"/>, then come round again. They tilt with the belt on a slope.
-    /// </summary>
-    public static ConveyorItemPlace PlaceItem(Conveyor conveyor, ConveyorPath path, int index, int count, double phase)
-    {
-        float length = path.Length;
-        float spacing = length / count;
-        uint h = Hash((uint)conveyor.ItemSeed, (uint)index);
-        float jitter = (Unit(h) - 0.5f) * spacing * 0.5f;
-        double along = index * spacing + jitter + phase;
-        float at = (float)(along - length * System.Math.Floor(along / length));
-        path.Evaluate(at, out FVector location, out FVector tangent);
-        float flat = SvmMath.Sqrt(tangent.X * tangent.X + tangent.Y * tangent.Y);
-        var belt = new FRotator(SvmMath.Round(SvmMath.Atan2(tangent.Z, flat) * SvmMath.RadToUnr) & 0xFFFF,
-            SvmMath.Round(SvmMath.Atan2(tangent.Y, tangent.X) * SvmMath.RadToUnr) & 0xFFFF, 0);
-        int spin = (int)(Unit(Hash(h, 1u)) * conveyor.ItemYawJitter) & 0xFFFF;
-        int mesh = (int)(Hash(h, 2u) % (uint)conveyor.ItemMeshes.Count);
-        float scale = conveyor.ItemScale;
-        if (!path.IsLoop && conveyor.ItemFade > 0f)
-        {
-            scale *= SvmMath.Clamp(SvmMath.Min(at, length - at) / conveyor.ItemFade, 0f, 1f);
-        }
-
-        return new ConveyorItemPlace(location, belt, spin, scale, mesh);
-    }
-
     // A small integer hash (no RNG state): the same items on every machine and in the editor.
-    private static uint Hash(uint a, uint b)
+    internal static uint Hash(uint a, uint b)
     {
         uint x = (a * 0x9E3779B1u) ^ (b + 0x7F4A7C15u + (a << 6) + (a >> 2));
         x ^= x >> 16;
@@ -108,5 +81,5 @@ public static class ConveyorLayout
         return x;
     }
 
-    private static float Unit(uint h) => (h >> 8) * (1f / 16777216f);
+    internal static float Unit(uint h) => (h >> 8) * (1f / 16777216f);
 }

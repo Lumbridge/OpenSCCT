@@ -48,6 +48,7 @@ public sealed partial class Conveyor
                 Prop("ScrollTargets", "array<ConveyorScroll>", UcPropertyKind.Array, EditArray),
                 Prop("BeltMaterial", "Material", UcPropertyKind.Asset, Edit),
                 Prop("FrameMaterial", "Material", UcPropertyKind.Asset, Edit),
+                Prop("Next", "Conveyor", UcPropertyKind.Object, Edit),
                 Prop("PhaseAtChange", "float", UcPropertyKind.Float, Net),
                 Prop("ChangeTick", "int", UcPropertyKind.Int, Net),
                 Prop("SpeedBeforeChange", "float", UcPropertyKind.Float, Net),

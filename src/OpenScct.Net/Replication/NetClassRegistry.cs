@@ -238,8 +238,8 @@ public sealed class NetClassRegistry
 /// <summary>Version tag of our wire format, part of the protocol hash.</summary>
 public static class NetProtocol
 {
-    /// <summary>0.5: the gameplay Hello also identifies shared character animation and skeletal content.</summary>
-    public const string Version = "svm-net/0.5";
+    /// <summary>0.6: movement corrections carry the server's prediction input revision (conveyor changes).</summary>
+    public const string Version = "svm-net/0.6";
 }
 
 /// <summary>FNV-1a 64-bit over UTF-16 code units: stable across processes and platforms.</summary>

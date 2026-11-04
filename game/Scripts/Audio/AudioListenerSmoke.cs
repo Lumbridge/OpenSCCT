@@ -126,7 +126,7 @@ public sealed class AudioListenerSmoke : SmokeTest
     {
         public bool TryGetActorLocation(int actorId, out FVector location) { location = default; return true; }
         public bool TryGetBoneLocation(int actorId, Name bone, out FVector location) { location = default; return true; }
-        public void CollectAmbient(List<AmbientSource> into) { }
+        public void CollectAmbient(List<AmbientSource> into, FVector listener) { }
         public string? ZoneIdAt(FVector location) => null;
         public int SurfaceOf(FVector start, FVector end) => 0;
         public int ZoneIndexAt(FVector location) => 0;

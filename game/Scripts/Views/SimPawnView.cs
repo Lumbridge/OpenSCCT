@@ -43,6 +43,16 @@ public partial class SimPawnView : Node3D
     public float DrawAlpha { get; private set; }
     /// <summary>The body origin used by the current rendered pose, including network correction and interpolation.</summary>
     public FVector DrawnLocation { get; private set; }
+
+    /// <summary>
+    /// How far to raise a walking pawn's mesh so its feet rest on what is drawn under them (escalator treads), from its
+    /// feet and radius; null when the map has nothing such.
+    /// </summary>
+    public Func<FVector, float, float>? FeetLift { get; set; }
+
+    // Per second: how fast the drawn lift follows a new tread (a step taken walking up or down is not a jump).
+    private const float FeetLiftEase = 20f;
+    private float _feetLift;
     /// <summary>The actual interpolated channels submitted for the last drawn pose, for pose diagnostics.</summary>
     internal ReadOnlySpan<ChannelPose> DrawnChannels => _channels;
     private uint _networkReset;
@@ -401,7 +411,11 @@ public partial class SimPawnView : Node3D
         // same amount in one tick (the mesh stays put), so both are interpolated together.
         FVector prePivot = _prevPrePivot + (_prePivot - _prevPrePivot) * alpha;
         int yaw = _prevYaw + (int)(FRotator.NormalizeAxis(_yaw - _prevYaw) * alpha);
-        _model.Place(location, new FRotator(0, yaw, 0), prePivot);
+        float lift = _physics == EPhysics.PHYS_Walking && FeetLift is { } feetLift
+            ? feetLift(location - new FVector(0f, 0f, pawn.CollisionHeight), pawn.CollisionRadius)
+            : 0f;
+        _feetLift += (lift - _feetLift) * Math.Min(1f, dt * FeetLiftEase);
+        _model.Place(location + new FVector(0f, 0f, _feetLift), new FRotator(0, yaw, 0), prePivot);
         _drawYaw = yaw;
         SetAim(pawn, yaw, alpha);
         SetDirections(pawn, alpha);

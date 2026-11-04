@@ -245,7 +245,10 @@ stick, which OnLedge reads; the crouch key too). A pawn standing in the way (cyl
 the walk, overlapping its width) is stepped round with a side step away from his side, chosen once per pawn, for up
 to 3 s; a waypoint he stands on is passed. A walker that makes no progress wiggles free (forward, a side step, a jump,
 the jump left out within 90 uu of another pawn: it landed on his head), then plans around the place; a link that
-fails is left out of the side's plans for 60 s.
+fails is left out of the side's plans for 60 s. On a level with conveyors the planner weighs each walk by the belt
+under it (quicker with it, slower against it, all but shut against a belt faster than a bot runs) as the belts run
+when it plans, and on a belt the follower aims so its walk and the belt together head for the waypoint
+(`NavConveyors`, [conveyors](../spec/additions/conveyors.md#bots)).
 
 ## Behaviour
 

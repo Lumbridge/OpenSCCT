@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
@@ -128,6 +129,12 @@ public sealed partial class Conveyor : Actor, IConveyor
     /// <summary>Material of the frame and walls the editor builds (the belt, steps and drums use BeltMaterial).</summary>
     public AssetRef FrameMaterial;
 
+    /// <summary>
+    /// The conveyor this one's open end hands its items to, where the end meets it: chains and merges. Riders walk on
+    /// from one conveyor to the next without it.
+    /// </summary>
+    public Conveyor? Next;
+
     /// <summary>Distance travelled at <see cref="ChangeTick"/> (replicated): the belt's phase is continuous across changes.</summary>
     public float PhaseAtChange;
 
@@ -157,7 +164,21 @@ public sealed partial class Conveyor : Actor, IConveyor
         bBlockZeroExtentTraces = false;
         bBlockNonZeroExtentTraces = false;
         bBlockCamera = false;
+        // The belt's hum, heard from the nearest point of its path while it runs (spec/additions/conveyors.md#sound).
+        AmbientSound = new AssetRef(DefaultSound);
+        SoundRadius = 32f;
+        SoundVolume = 96;
     }
+
+    /// <summary>A stock machine loop: a steady hum with a rattle.</summary>
+    public const string DefaultSound = "Amb_Krauser.Ambiances.Krau_machine1";
+
+    /// <summary>
+    /// Whether the belt plays its <c>AmbientSound</c> while it runs. A driver does not play the default hum: its
+    /// meshes are the map's own machinery, which has its own sounds there; a driver that names a sound plays it.
+    /// </summary>
+    public bool Hums => !AmbientSound.IsNone &&
+                        !(Look == EConveyorLook.CL_Driver && string.Equals(AmbientSound.Path, DefaultSound, StringComparison.OrdinalIgnoreCase));
 
     /// <summary>The path in world space (built at begin play; the actor never moves).</summary>
     public ConveyorPath WorldPath => _worldPath ??= BuildWorldPath();
@@ -168,6 +189,8 @@ public sealed partial class Conveyor : Actor, IConveyor
 
     public bool Carries(ConveyorCargo cargo) => cargo == ConveyorCargo.Pawns ? bCarryPlayers : bCarryObjects;
 
+    int IConveyor.ChangeTick => ChangeTick;
+
     /// <summary>
     /// Distance the belt has travelled at server tick <paramref name="tick"/> (fractional for drawing between ticks):
     /// rollers, treads and items are placed from it. Before the last change it runs at the speed it had then, so a
@@ -175,6 +198,29 @@ public sealed partial class Conveyor : Actor, IConveyor
     /// </summary>
     public double PhaseAt(double tick) =>
         PhaseAtChange + (tick >= ChangeTick ? SurfaceSpeed : SpeedBeforeChange) * (tick - ChangeTick) * Sim.DeltaTime;
+
+    /// <summary>The point of the path nearest <paramref name="point"/> (flat), where the belt's sound comes from.</summary>
+    public FVector NearestOnPath(FVector point) =>
+        WorldPath.Project(point, float.MaxValue, out ConveyorProjection at) ? at.Surface : Location;
+
+    /// <summary>
+    /// The height of the escalator tread under a body of <paramref name="radius"/> whose lowest point is
+    /// <paramref name="feet"/>, at server tick <paramref name="tick"/>; false when this is not an escalator or the
+    /// body is not standing on it. Riders walk on the slope through the steps' inner corners; their meshes are drawn
+    /// with their feet on this tread.
+    /// </summary>
+    public bool TryTreadUnder(FVector feet, float radius, double tick, out float tread)
+    {
+        tread = 0f;
+        if (Look != EConveyorLook.CL_Escalator || !WorldPath.Project(feet, HalfWidth + radius * ConveyorK.EdgeOverhang, ConveyorK.RideBelow,
+                ConveyorK.RideAbove, radius, out ConveyorProjection at))
+        {
+            return false;
+        }
+
+        tread = ConveyorSteps.TreadAt(WorldPath, at.Along, PhaseAt(tick));
+        return true;
+    }
 
     /// <summary>The world path of the stored points (the actor's location and rotation applied).</summary>
     public ConveyorPath BuildWorldPath()
@@ -226,9 +272,14 @@ public sealed partial class Conveyor : Actor, IConveyor
             return;
         }
 
-        PhaseAtChange = (float)PhaseAt(XLevel.TickCount);
-        ChangeTick = (int)XLevel.TickCount;
-        SpeedBeforeChange = SurfaceSpeed;
+        // A second change in the same tick keeps the speed the belt had before the first.
+        if (ChangeTick != (int)XLevel.TickCount)
+        {
+            PhaseAtChange = (float)PhaseAt(XLevel.TickCount);
+            SpeedBeforeChange = SurfaceSpeed;
+            ChangeTick = (int)XLevel.TickCount;
+        }
+
         bOn = on;
         Speed = speed;
     }

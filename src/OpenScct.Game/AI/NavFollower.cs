@@ -4,6 +4,7 @@ using OpenScct.Core;
 using OpenScct.Core.Engine;
 using OpenScct.Game.SBase;
 using OpenScct.Physics.Collision;
+using OpenScct.Physics.Conveyors;
 
 namespace OpenScct.Game.AI;
 
@@ -193,7 +194,8 @@ public sealed class NavFollower
             penalty = n => (_avoid.Contains(n) ? 5000f : 0f) + (inner?.Invoke(n) ?? 0f);
         }
 
-        if (!g.FindPath(from, to, _path, _stealth, penalty, _world.BadLinks(_spy), float.MaxValue, _world.BadEdges(_spy), allowPartial: true))
+        if (!g.FindPath(from, to, _path, _stealth, penalty, _world.BadLinks(_spy), float.MaxValue, _world.BadEdges(_spy), allowPartial: true,
+                BeltCost(g)))
         {
             Failed = true;
             return false;
@@ -215,6 +217,17 @@ public sealed class NavFollower
             _path.Add(new NavStep(to, finalKind, -1, _goal));
         }
         return true;
+    }
+
+    /// <summary>The conveyors' effect on walks (<see cref="NavConveyors.Factor"/>), or null on a level without conveyors.</summary>
+    private Func<int, int, float>? BeltCost(NavGraph g)
+    {
+        if (_world.Level.GetService<ConveyorField>() is not { } field)
+        {
+            return null;
+        }
+
+        return (n, m) => NavConveyors.Factor(field, g.Node(n).Floor, g.Node(m).Floor, AiK.RunSpeed);
     }
 
     // An off-grid interaction point must connect to its final waypoint without crossing a wall.
@@ -345,6 +358,14 @@ public sealed class NavFollower
         step = _path[_next];
         FVector target = step.Point;
         int yaw = YawTo(at, target);
+        // On a running belt: aim so the walk and the belt together head for the waypoint.
+        var way = new FVector(target.X - at.X, target.Y - at.Y, 0f);
+        if (pawn.Physics == EPhysics.PHYS_Walking && way.SizeSquared2D() > 1f && _world.Level.GetService<ConveyorField>() is { } belts &&
+            belts.FindCarrier(feet, pawn.CollisionRadius, ConveyorCargo.Pawns, out FVector belt) is not null)
+        {
+            yaw = YawTo(at, at + NavConveyors.Heading(way.SafeNormal(), belt, AiK.RunSpeed));
+        }
+
         cmd.Yaw = yaw;
         cmd.Tolerance = 9000;
         cmd.Keys.BT_Up = 1;
