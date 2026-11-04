@@ -1,0 +1,933 @@
+diff --git a/bsp.py b/bsp.py
+index 52e7191e..1e0e7cbc 100644
+--- a/bsp.py
++++ b/bsp.py
+@@ -1,6 +1,6 @@
+-"""UModel (BSP) reader for cooked SCCT maps and polygon extraction.
++"""UModel (BSP) reader for SCCT maps, editor and cooked copies, and polygon extraction.
+ 
+-Layout after the tagged properties (which are just None):
++UModel::Serialize (stock editor 0x110D20E0), after the tagged properties (which are just None):
+ 
+     FBox(25) FSphere(16)
+     Vectors: compact n; n x f32x3
+@@ -8,13 +8,20 @@ Layout after the tagged properties (which are just None):
+     Nodes:   compact n; each:
+         f32x4 Plane; u64 ZoneMask; u8 NodeFlags;
+         compact iVertPool, iSurf, iBack, iFront, iPlane, iCollisionBound, iRenderBound;
+-        FSphere x2 (32 bytes); u8 iZone0, u8 iZone1, u8 NumVertices;
++        FSphere x2 (32 bytes; the second is unused); u8 iZone0, u8 iZone1, u8 NumVertices;
+         i32 iLeaf0, i32 iLeaf1, i32 iSection, i32 iFirstVertex, i32 iLightMap
+     Surfs:   compact n; each:
+         compact Material; u32 PolyFlags; compact pBase, vNormal, vTextureU, vTextureV;
+-        f32x4 Plane; f32 LightMapScale; f32 extra;
+-        if PolyFlags & 0x0C000000: embedded FPoly (cooked)      [see read_fpoly]
++        f32x4 Plane; f32 LightMapScalePSX2; f32 LightMapScaleXBOX (the PC scale); then
++        editor copy: FPoly (the source brush face in world space), objref Actor, compact iBrushPoly
++        cooked copy: FPoly only when PolyFlags & 0x0C000000 (portal, mirror)      [see read_fpoly]
+     Verts:   compact n; each: compact pVertex, compact iSide
++    then the tail read by read_model_tail.
++
++Editor or cooked: nothing in the file records it. The editor saves its MapsEd copy with save target 0 and the cooked
++Maps copy with target 2, and the surface, lightmap and StaticMeshInstance serializers branch on that target. Every Model
++export parses in exactly one of the two layouts (checked on all 293,389 of the 572 distinct original map packages), so
++detect_layout parses one in both.
+ 
+ Polygon extraction: for each node with NumVertices >= 3 the polygon is
+ Points[Verts[iVertPool + k].pVertex]; NodeFlags & 0x21 marks non-structural
+@@ -25,8 +32,9 @@ U = dot(P - Points[pBase], Vectors[vTextureU]) / texW, V likewise.
+ 
+ from __future__ import annotations
+ 
++import struct
+ from dataclasses import dataclass, field
+-from typing import List, Tuple
++from typing import List, Optional, Tuple
+ 
+ import numpy as np
+ 
+@@ -45,6 +53,10 @@ PF_UNLIT = 0x00400000       # drawn fullbright (no lightmap): skylight/window gl
+ NF_NOT_CSG = 0x01
+ NF_NOT_VIS_BLOCKING = 0x20
+ 
++EDITOR = "editor"
++COOKED = "cooked"
++FPOLY_MAX_VERTICES = 16     # the editor's limit; every FPoly of the original maps has 3 to 16
++
+ 
+ @dataclass
+ class Node:
+@@ -57,6 +69,9 @@ class Node:
+     iplane: int
+     numverts: int
+     izone: Tuple[int, int]
++    isection: int = -1
++    ifirstvertex: int = -1
++    ilightmap: int = -1
+ 
+ 
+ @dataclass
+@@ -82,6 +97,27 @@ class BspModel:
+     bbox_max: Tuple[float, float, float]
+ 
+ 
++@dataclass
++class BspSectionRecord:
++    vertices: np.ndarray        # (n, 10) float32: pos xyz, normal xyz, u, v, lu, lv
++    lightmap_texture: int       # iLightMapTexture (-1 none)
++
++
++@dataclass
++class LightMapTextureRecord:
++    ids: List[int]              # the lightmaps (node iLightMap) packed into it
++    data: bytes                 # the first lazy byte array (the second is empty in every map)
++    format: int                 # ETextureFormat, 5 = RGBA8 (stored B, G, R, A)
++    width: int
++    height: int
++
++
++@dataclass
++class ModelTail:
++    sections: List[BspSectionRecord]
++    textures: List[LightMapTextureRecord]
++
++
+ @dataclass
+ class BspPolygon:
+     surf_index: int
+@@ -96,9 +132,10 @@ class BspPolygon:
+ 
+ 
+ def read_fpoly(r: Reader) -> None:
+-    """Skip an embedded editor FPoly (cooked portal surfaces keep one)."""
++    """Skip an FPoly (0x110CBDF0): compact NumVertices, Base, Normal, TextureU, TextureV, the vertices, u32 PolyFlags,
++    objref Actor, objref Material, name ItemName, compact iLink, compact iBrushPoly, f32 LightMapScale PSX2 and XBOX."""
+     n = r.compact()
+-    if n < 0 or n > 512:
++    if n < 0 or n > FPOLY_MAX_VERTICES:
+         raise PackageError(f"bad FPoly vertex count {n}")
+     r.raw(12 * 4)            # Base, Normal, TextureU, TextureV
+     r.raw(12 * n)            # vertices
+@@ -108,8 +145,20 @@ def read_fpoly(r: Reader) -> None:
+     r.name()                 # ItemName
+     r.compact()              # iLink
+     r.compact()              # iBrushPoly
+-    r.f32()                  # LightMapScale
+-    r.f32()                  # SCCT extra
++    r.f32()                  # LightMapScale PSX2
++    r.f32()                  # LightMapScale XBOX
++
++
++def skip_surf_tail(r: Reader, polyflags: int, editor: bool) -> None:
++    """What follows a surface's fixed fields (FBspSurf 0x110CD830): in an editor copy every surface keeps its source
++    brush face, an FPoly in world space, and the link to it (objref Actor, compact iBrushPoly); a cooked copy keeps the
++    FPoly of portal and mirror surfaces only."""
++    if editor:
++        read_fpoly(r)
++        r.compact()          # Actor (the Brush)
++        r.compact()          # iBrushPoly
++    elif polyflags & (PF_PORTAL | PF_MIRRORED):
++        read_fpoly(r)
+ 
+ 
+ def _read_vec_array(r: Reader, what: str) -> np.ndarray:
+@@ -121,7 +170,19 @@ def _read_vec_array(r: Reader, what: str) -> np.ndarray:
+     return np.frombuffer(r.raw(n * 12), dtype=np.float32).reshape(n, 3).copy()
+ 
+ 
++def _count(r: Reader, min_bytes: int, what: str) -> int:
++    n = r.compact()
++    if n < 0 or n * min_bytes > r.remaining():
++        raise PackageError(f"bad {what} count {n}")
++    return n
++
++
+ def read_model(pkg: Package, e: Export) -> BspModel:
++    return read_model_geometry(pkg, e, pkg.layout == EDITOR)[0]
++
++
++def read_model_geometry(pkg: Package, e: Export, editor: bool) -> Tuple[BspModel, Reader]:
++    """The model up to and including Verts, and the reader positioned after them (at read_model_tail's start)."""
+     r = pkg.export_reader(e)
+     skip_state_frame(r, e.flags)
+     read_properties(r)
+@@ -151,8 +212,9 @@ def read_model(pkg: Package, e: Export) -> BspModel:
+         z0 = r.u8()
+         z1 = r.u8()
+         numverts = r.u8()
+-        r.raw(20)
+-        nodes.append(Node(plane, flags, ivertpool, isurf, iback, ifront, iplane, numverts, (z0, z1)))
++        _l0, _l1, isection, ifirst, ilightmap = struct.unpack("<5i", r.raw(20))
++        nodes.append(Node(plane, flags, ivertpool, isurf, iback, ifront, iplane, numverts, (z0, z1),
++                          isection, ifirst, ilightmap))
+ 
+     n = r.compact()
+     if n < 0 or n * 20 > r.remaining():
+@@ -166,10 +228,9 @@ def read_model(pkg: Package, e: Export) -> BspModel:
+         vtexu = r.compact()
+         vtexv = r.compact()
+         r.raw(16)
+-        lms = r.f32()
+         r.f32()
+-        if polyflags & 0x0C000000:
+-            read_fpoly(r)
++        lms = r.f32()
++        skip_surf_tail(r, polyflags, editor)
+         surfs.append(Surf(material, polyflags, pbase, vnormal, vtexu, vtexv, lms))
+ 
+     n = r.compact()
+@@ -179,7 +240,133 @@ def read_model(pkg: Package, e: Export) -> BspModel:
+     for i in range(n):
+         verts[i, 0] = r.compact()
+         verts[i, 1] = r.compact()
+-    return BspModel(e.name, vectors, points, nodes, surfs, verts, tuple(bmin), tuple(bmax))
++    return BspModel(e.name, vectors, points, nodes, surfs, verts, tuple(bmin), tuple(bmax)), r
++
++
++def read_model_tail(r: Reader, editor: bool) -> ModelTail:
++    """The rest of a model after Verts, to its last byte:
++
++        i32 NumSharedSides, i32 NumZones (0..64), NumZones x {objref ZoneActor, u64 Connectivity, f32 LastRenderTime},
++        objref Polys, Bounds (compact n, n x FBox), LeafHulls (compact n, n x i32),
++        Leaves (compact n, n x {compact iZone, iPermeating, iVolumetric}), Lights (compact n, n x objref),
++        i32 RootOutside, i32 Linked,
++        Sections (compact n, each: compact m, m x FBspVertex (40 bytes: f32x3 Position, f32x3 Normal, f32 U, V,
++            LightU, LightV), i32, objref Material, i32, u32 PolyFlags, i32 iLightMapTexture),
++        editor copy only: LightMaps (compact n, each: 7 x compact, FMatrix, 3 x FVector,
++            compact k, k x {objref Light, compact b, b bytes, 7 x i32}, objref, i32),
++        LightMapTextures (compact n, each: objref, compact m, m x i32 lightmap ids, u64, i32,
++            2 x {i32, compact b, b bytes}, u8 Format, i32 Width, i32 Height, i32)
++    """
++    r.i32()                  # NumSharedSides
++    zones = r.i32()
++    if not 0 <= zones <= 64:
++        raise PackageError(f"bad zone count {zones}")
++    for _ in range(zones):
++        r.compact()
++        r.raw(12)
++    r.compact()              # Polys
++    r.raw(25 * _count(r, 25, "bounds"))
++    r.raw(4 * _count(r, 4, "leaf hulls"))
++    for _ in range(_count(r, 3, "leaves")):
++        r.compact()
++        r.compact()
++        r.compact()
++    for _ in range(_count(r, 1, "lights")):
++        r.compact()
++    root_outside, linked = r.i32(), r.i32()
++    if root_outside not in (0, 1) or linked not in (0, 1):
++        raise PackageError(f"bad RootOutside/Linked {root_outside}/{linked}")
++    sections: List[BspSectionRecord] = []
++    for _ in range(_count(r, 18, "sections")):
++        nv = _count(r, 40, "section vertices")
++        verts = np.frombuffer(r.raw(40 * nv), dtype=np.float32).reshape(nv, 10).copy()
++        r.i32()
++        r.compact()          # Material
++        r.i32()
++        r.u32()              # PolyFlags
++        sections.append(BspSectionRecord(verts, r.i32()))
++    if editor:
++        for _ in range(_count(r, 100, "lightmaps")):
++            for _ in range(7):
++                r.compact()
++            r.raw(64 + 36)   # WorldToLightMap, 3 x FVector
++            for _ in range(_count(r, 30, "lightmap lights")):
++                r.compact()
++                r.raw(_count(r, 1, "light visibility bits"))
++                r.raw(28)
++            r.compact()
++            r.i32()
++    textures: List[LightMapTextureRecord] = []
++    for _ in range(_count(r, 20, "lightmap textures")):
++        r.compact()
++        m = _count(r, 4, "lightmap ids")
++        ids = list(struct.unpack(f"<{m}i", r.raw(4 * m)))
++        r.raw(12)            # u64, i32
++        r.i32()
++        data = r.raw(_count(r, 1, "lightmap data"))
++        r.i32()
++        r.raw(_count(r, 1, "lightmap data"))
++        fmt = r.u8()
++        width, height = r.i32(), r.i32()
++        r.i32()
++        textures.append(LightMapTextureRecord(ids, data, fmt, width, height))
++    return ModelTail(sections, textures)
++
++
++def detect_layout(pkg: Package) -> str:
++    """EDITOR or COOKED: parse the smallest Model export in both layouts; exactly one ends on the export's last byte.
++    A package without a Model export has no BSP, so its layout does not matter (COOKED)."""
++    models = [e for e in pkg.exports if e.class_name == "Model" and e.size > 0]
++    if not models:
++        return COOKED
++    e = min(models, key=lambda m: m.size)
++    fits = [layout for layout in (EDITOR, COOKED) if _ends_exactly(pkg, e, layout == EDITOR)]
++    if len(fits) != 1:
++        raise PackageError(f"{pkg.path.name}: Model {e.name} parses in {len(fits)} layouts, not one")
++    return fits[0]
++
++
++def _ends_exactly(pkg: Package, e: Export, editor: bool) -> bool:
++    try:
++        _model, r = read_model_geometry(pkg, e, editor)
++        read_model_tail(r, editor)
++    except (PackageError, IndexError, struct.error, ValueError, OverflowError):
++        return False
++    return r.remaining() == 0
++
++
++def level_models(pkg: Package) -> Tuple[int, int]:
++    """(ModelPSX2, ModelXBOX) object references of the map's Level export, 0 when absent. ULevel::Serialize
++    0x11129320: tagged properties, i32 ActorsNum, i32 ActorsMax, the actors, FURL (4 FString, compact n + n FString
++    options, i32 Port, i32 Valid), then i32 bHasModelPSX2 [objref], i32 bHasModelXBOX [objref]."""
++    levels = [e for e in pkg.exports if e.class_name == "Level" and e.size > 0]
++    if not levels:
++        return 0, 0
++    r = pkg.export_reader(levels[0])
++    read_properties(r)
++    num = r.i32()
++    r.i32()
++    if num < 0 or num > r.remaining():
++        raise PackageError(f"bad Level actor count {num}")
++    for _ in range(num):
++        r.compact()
++    for _ in range(4):
++        r.fstring()
++    for _ in range(r.compact()):
++        r.fstring()
++    r.i32()
++    r.i32()
++    psx2 = r.compact() if r.i32() else 0
++    xbox = r.compact() if r.i32() else 0
++    return psx2, xbox
++
++
++def world_model(pkg: Package) -> Optional[Export]:
++    """The world BSP the PC game uses: ModelXBOX, else ModelPSX2 (the stock editor loads them in that order). Cooked
++    copies hold only ModelXBOX; some editor copies also hold a smaller PS2 world."""
++    psx2, xbox = level_models(pkg)
++    ref = xbox or psx2
++    return pkg.exports[ref - 1] if ref > 0 else None
+ 
+ 
+ def point_zone(model: BspModel, p) -> int:
+diff --git a/bsplight.py b/bsplight.py
+index 37383c1e..8cd830a9 100644
+--- a/bsplight.py
++++ b/bsplight.py
+@@ -1,48 +1,36 @@
+-"""BSP render sections and baked lightmaps of cooked SCCT maps.
++"""BSP render sections and baked lightmaps of SCCT maps (editor and cooked copies).
+ 
+-Layout after the Verts array parsed by ``bsp.read_model`` (reverse-engineered on this
+-build; see docs/LIGHTMAPS.md):
++The sections and lightmap textures are read by their exact layout (bsp.read_model_tail; see docs/LIGHTMAPS.md):
+ 
+-    i32 NumSharedSides, i32 NumZones, Zones[NumZones] {compact ZoneActor, u32 Connectivity,
+-    u32 Visibility, f32 LastRenderTime}, compact Polys, Bounds (compact n; n x FBox 25 bytes),
+-    LeafHulls (compact n; n x i32), Leaves (...), Lights (...), u32 RootOutside, u32 Linked,
+     Sections: compact n; each {compact NumVertices; NumVertices x FBspVertex (40 bytes:
+-        f32x3 Position, f32x3 Normal, f32 U, V, f32 LightU, LightV); trailer (17..19 bytes:
+-        u32 Node, compact, u32, u32 PolyFlags, u8, i32 iLightMapTexture)}
+-    LightMapTextures: compact n; each {u16 tag, compact m, m x u32 lightmap ids (ascending),
+-        u32 tag, u32, u32 M, u32 0, TArray<u8> Data (W*H*4 BGRA), u32 0, u8, u8 Format (5 = RGBA8),
+-        u32 W, u32 H, u32 M2}
++        f32x3 Position, f32x3 Normal, f32 U, V, f32 LightU, LightV); i32, objref Material, i32,
++        u32 PolyFlags, i32 iLightMapTexture}
++    LightMapTextures: compact n; each {objref, compact m, m x i32 lightmap ids (ascending), u64, i32,
++        TLazyArray<u8> Data (W*H*4 BGRA), TLazyArray<u8> (empty), u8 Format (5 = RGBA8), i32 W, i32 H, i32}
+ 
+ Node tails (the last 20 bytes of FBspNode) are i32 iLeaf[2], i32 iSection, i32 iFirstVertex,
+ i32 iLightMap. A node's lightmap id maps to a texture through the id lists, and the node's
+ polygon vertices are Sections[iSection].Vertices[iFirstVertex : iFirstVertex + NumVertices]
+ (same order as the node's vertex pool), whose LightU/LightV address that texture directly.
+-
+-The Leaves/Lights records are not decoded; the section table is located by scanning for its
+-count followed by a plausible vertex record, and the texture records are anchored on their
+-trailer signature and walked backwards over the ascending id list.
+ """
+ 
+ from __future__ import annotations
+ 
+-import struct
+ from dataclasses import dataclass, field
+ from typing import Dict, List, Optional
+ 
+ import numpy as np
+ 
+-from .package import Export, Package, PackageError, read_compact
+-from .properties import read_properties, skip_state_frame
+-from .bsp import read_fpoly
++from .bsp import EDITOR, read_model_geometry, read_model_tail
++from .package import Export, Package, PackageError
+ 
+-TRAILER_SIG = bytes([0, 0, 0, 0, 0, 5])   # u32 0, u8 0, u8 TEXF_RGBA8
+-POWS = (32, 64, 128, 256, 512, 1024, 2048, 4096)
++TEXF_RGBA8 = 5
+ 
+ 
+ @dataclass
+ class BspSection:
+     vertices: np.ndarray        # (n, 10) float32: pos xyz, normal xyz, u, v, lu, lv
+-    lightmap_texture: int       # i32 from the trailer (-1 none)
++    lightmap_texture: int       # iLightMapTexture (-1 none)
+ 
+ 
+ @dataclass
+@@ -77,183 +65,24 @@ class BspLighting:
+         return v[f:f + num_vertices]
+ 
+ 
+-def _plausible_run(d: bytes, q: int, nv: int, k: int = 6) -> bool:
+-    """Several consecutive plausible vertices: one alone matches random data too often (StatD section 38)."""
+-    return all(_plausible_vertex(d, q + 40 * i) for i in range(min(nv, k)))
+-
+-
+-def _plausible_vertex(d: bytes, q: int) -> bool:
+-    if q + 40 > len(d):
+-        return False
+-    v = struct.unpack_from("<10f", d, q)
+-    if not all(abs(t) < 200000.0 for t in v[:3]):
+-        return False
+-    n2 = v[3] * v[3] + v[4] * v[4] + v[5] * v[5]
+-    return abs(n2 - 1.0) < 0.05
+-
+-
+ def read_bsp_lighting(pkg: Package, e: Export) -> BspLighting:
+-    r = pkg.export_reader(e)
+-    d = r.d
+-    skip_state_frame(r, e.flags)
+-    read_properties(r)
+-    r.vec3()
+-    r.vec3()
+-    r.u8()
+-    r.raw(16)
+-    for _ in range(2):
+-        n = r.compact()
+-        r.raw(n * 12)
+-    n = r.compact()
+-    node_section = np.zeros(n, np.int32)
+-    node_first = np.zeros(n, np.int32)
+-    node_lm = np.zeros(n, np.int32)
+-    node_nv = np.zeros(n, np.int32)
+-    for i in range(n):
+-        r.raw(16)
+-        r.i64()
+-        r.u8()
+-        for _ in range(7):
+-            r.compact()
+-        r.raw(32)
+-        r.u8()
+-        r.u8()
+-        node_nv[i] = r.u8()
+-        _l0, _l1, isec, ifv, ilm = struct.unpack("<5i", r.raw(20))
+-        node_section[i], node_first[i], node_lm[i] = isec, ifv, ilm
+-    nsurf = r.compact()
+-    for _ in range(nsurf):
+-        r.compact()
+-        pf = r.u32()
+-        for _ in range(4):
+-            r.compact()
+-        r.raw(16)
+-        r.f32()
+-        r.f32()
+-        if pf & 0x0C000000:
+-            read_fpoly(r)
+-    n = r.compact()
+-    for _ in range(n):
+-        r.compact()
+-        r.compact()
+-    r.i32()                      # NumSharedSides
+-    nz = r.i32()
+-    for _ in range(nz):
+-        r.compact()
+-        r.raw(12)
+-    r.compact()                  # Polys
+-    n = r.compact()
+-    r.raw(n * 25)                # Bounds
+-    n = r.compact()
+-    r.raw(n * 4)                 # LeafHulls
+-    leaves_start = r.p
+-
+-    # Locate the section table: count == max(iSection)+1 followed by a plausible vertex stream.
+-    nsec_expected = int(node_section.max()) + 1 if len(node_section) else 0
+-    need: Dict[int, int] = {}
+-    for i in range(len(node_nv)):
+-        if node_nv[i] >= 3 and node_section[i] >= 0:
+-            need[int(node_section[i])] = max(need.get(int(node_section[i]), 0), int(node_first[i]) + int(node_nv[i]))
+-    start = None
+-    for q in range(leaves_start, min(len(d) - 48, leaves_start + 4000000)):   # ClarD: table 66 KB past the leaves
+-        try:
+-            cnt, q2 = read_compact(d, q)
+-            if cnt != nsec_expected:
+-                continue
+-            nv, q3 = read_compact(d, q2)
+-        except Exception:
+-            continue
+-        if nv >= need.get(0, 1) and nv < 200000 and _plausible_run(d, q3, nv):
+-            start = q2
+-            break
+-    if start is None:
+-        raise PackageError("BSP section table not found")
+-
+-    sections: List[BspSection] = []
+-    p = start
+-    for s in range(nsec_expected):
+-        nv, p2 = read_compact(d, p)
+-        if nv < 0 or p2 + nv * 40 > len(d):
+-            raise PackageError(f"bad section {s} vertex count {nv}")
+-        verts = np.frombuffer(d[p2:p2 + nv * 40], dtype=np.float32).reshape(nv, 10).copy()
+-        q = p2 + nv * 40
+-        lm_tex = -1
+-        if s + 1 < nsec_expected:
+-            found = None
+-            for off in range(12, 96):
+-                try:
+-                    v, pp = read_compact(d, q + off)
+-                except Exception:
+-                    continue
+-                if v >= need.get(s + 1, 1) and v < 200000 and _plausible_run(d, pp, v):
+-                    found = off
+-                    break
+-            if found is None:
+-                raise PackageError(f"section {s}: next section not found")
+-            lm_tex = struct.unpack_from("<i", d, q + found - 4)[0]
+-            p = q + found
+-        else:
+-            p = q
+-        sections.append(BspSection(verts, lm_tex))
+-
+-    # Lightmap textures, anchored on their trailer signature.
++    editor = pkg.layout == EDITOR
++    model, r = read_model_geometry(pkg, e, editor)
++    tail = read_model_tail(r, editor)
++    if r.remaining():
++        raise PackageError(f"{e.name}: {r.remaining()} bytes after the model")
++    node_section = np.array([n.isection for n in model.nodes], np.int32)
++    node_first = np.array([n.ifirstvertex for n in model.nodes], np.int32)
++    node_lm = np.array([n.ilightmap for n in model.nodes], np.int32)
++    sections = [BspSection(s.vertices, s.lightmap_texture) for s in tail.sections]
+     textures: List[LightMapTexture] = []
+     id_to_tex: Dict[int, int] = {}
+-    records = []
+-    q = p
+-    while True:
+-        k = d.find(TRAILER_SIG, q)
+-        if k < 0 or k + 18 > len(d):
+-            break
+-        w, h, _m2 = struct.unpack_from("<III", d, k + 6)
+-        if w in POWS and h in POWS and k - w * h * 4 >= p:
+-            records.append((k, w, h))
+-            q = k + 18
+-        else:
+-            q = k + 1
+-    for t, (k, w, h) in enumerate(records):
+-        size = w * h * 4
+-        blob = k - size
+-        data = d[blob:blob + size]
+-        c = blob - 1
+-        while c > blob - 6 and read_compact(d, c)[0] != size:
+-            c -= 1
+-        if read_compact(d, c)[0] != size:
+-            raise PackageError(f"lightmap texture {t}: size compact not found")
+-        pos = c - 16
+-        ids: List[int] = []
+-        prev = None
+-        while pos - 4 >= p:
+-            v = struct.unpack_from("<I", d, pos - 4)[0]
+-            if v > 100000 or (prev is not None and v >= prev):
+-                break
+-            ids.append(v)
+-            prev = v
+-            pos -= 4
+-        ids.reverse()
+-        # The compact count precedes the list; the backwards walk may have swallowed the tag/count bytes
+-        # as a bogus first id, so shrink from the front until the count matches.
+-        while ids:
+-            matched = False
+-            for clen in (1, 2, 3):
+-                cpos = pos - clen
+-                if cpos < p:
+-                    continue
+-                try:
+-                    v, np_ = read_compact(d, cpos)
+-                except Exception:
+-                    continue
+-                if np_ == pos and v == len(ids):
+-                    matched = True
+-                    break
+-            if matched:
+-                break
+-            ids.pop(0)
+-            pos += 4
+-        if not ids:
+-            raise PackageError(f"lightmap texture {t}: id list not found")
+-        textures.append(LightMapTexture(ids, w, h, data))
+-        for i in ids:
++    for t, rec in enumerate(tail.textures):
++        if rec.format != TEXF_RGBA8 or len(rec.data) != rec.width * rec.height * 4:
++            raise PackageError(f"lightmap texture {t}: format {rec.format}, {len(rec.data)} bytes for "
++                               f"{rec.width} x {rec.height}")
++        textures.append(LightMapTexture(rec.ids, rec.width, rec.height, rec.data))
++        for i in rec.ids:
+             id_to_tex[i] = t
+     return BspLighting(node_section, node_first, node_lm, sections, textures, id_to_tex)
+ 
+diff --git a/export_gltf.py b/export_gltf.py
+index 1bf5d686..b9d8b7ad 100644
+--- a/export_gltf.py
++++ b/export_gltf.py
+@@ -20,11 +20,12 @@ import struct
+ from collections import defaultdict
+ from dataclasses import dataclass, field
+ from pathlib import Path
+-from typing import Dict, List, Optional, Tuple
++from typing import Collection, Dict, List, Optional, Tuple
+ 
+ import numpy as np
+ 
+-from .bsp import BspPolygon, extract_polygons, point_zone, read_model, PF_MIRRORED, PF_TWO_SIDED, PF_UNLIT
++from .bsp import (EDITOR, BspPolygon, extract_polygons, point_zone, read_model, world_model, PF_MIRRORED,
++                  PF_TWO_SIDED, PF_UNLIT)
+ from .bsplight import read_bsp_lighting, lightmap_image, BspLighting
+ import hashlib
+ from .level import ActorRecord, extract_level, extract_look
+@@ -43,6 +44,8 @@ def _safe(name: str) -> str:
+ # reflection. So we write UE (x, y, z) as glTF (x/100, z/100, y/100) and keep
+ # the original winding.
+ UE_TO_GLTF_SCALE = 0.01
++# Maps whose world lightmaps the stock cook leaves out (it compares the saved file name with these).
++COOK_DROPS_LIGHTMAPS = ("entry", "lobby")
+ 
+ 
+ def _to_gltf(v: np.ndarray) -> np.ndarray:
+@@ -1129,9 +1132,11 @@ def _perspective_projector_prims(rec: ActorRecord, polys: List[BspPolygon], pkg:
+ 
+ 
+ def export_map(map_path: Path, pset: PackageSet, out_root: Path, include_bsp: bool = True,
+-               max_meshes: Optional[int] = None, extra_mesh_refs: Optional[List[int]] = None) -> dict:
++               max_meshes: Optional[int] = None, extra_mesh_refs: Optional[List[int]] = None,
++               skip_refs: Collection[int] = ()) -> dict:
+     """extra_mesh_refs: static mesh references (relative to the map package) that no actor places but the game can
+-    swap to (SGamePlayObject TriggeredMesh, DamagedMeshes[].StaticMesh); each becomes a library node too."""
++    swap to (SGamePlayObject TriggeredMesh, DamagedMeshes[].StaticMesh); each becomes a library node too.
++    skip_refs: actors (export index + 1) to leave out, see level.extract_level."""
+     pkg = Package.load(map_path)
+     map_name = map_path.stem
+     out_dir = out_root / map_name
+@@ -1148,7 +1153,7 @@ def export_map(map_path: Path, pset: PackageSet, out_root: Path, include_bsp: bo
+     vertex_lit: list = []
+     authored_vc: list = []   # vertex-colour variants from StaticMesh.UseVertexColor (authored colours, not baked light)
+     emitters = _export_emitters(pkg, pset, tex_dir, tex_uri)
+-    records = extract_level(pkg, pset)
++    records = extract_level(pkg, pset, skip_refs)
+     # UE2 sky zone: the zone holding the SkyZoneInfo is rendered behind everything from a camera at the SkyZoneInfo's
+     # location with the player's rotation (seen through fake-backdrop surfaces). Its BSP and actors are exported
+     # separately so the client can draw them as a camera-following backdrop.
+@@ -1159,9 +1164,8 @@ def export_map(map_path: Path, pset: PackageSet, out_root: Path, include_bsp: bo
+     world_polys: List[BspPolygon] = []   # projector receivers
+     # world BSP
+     if include_bsp:
+-        models = [e for e in pkg.exports_of_class("Model") if e.size > 0]
+-        if models:
+-            world = max(models, key=lambda e: e.size)
++        world = world_model(pkg)
++        if world is not None:
+             model = read_model(pkg, world)
+             polys = extract_polygons(model)
+             sky_polys: List[BspPolygon] = []
+@@ -1183,6 +1187,10 @@ def export_map(map_path: Path, pset: PackageSet, out_root: Path, include_bsp: bo
+             lm_uris: List[Optional[str]] = []
+             try:
+                 lighting = read_bsp_lighting(pkg, world)
++                if pkg.layout == EDITOR and map_name.lower() in COOK_DROPS_LIGHTMAPS:
++                    # The stock cook (0x10EE4750) empties the world's lightmap textures when it saves a map of these
++                    # names: the game draws the front-end maps without them, so an editor copy is converted the same way.
++                    lighting.textures, lighting.id_to_texture = [], {}
+                 tex_dir.mkdir(parents=True, exist_ok=True)
+                 for i, lt in enumerate(lighting.textures):
+                     fname = f"{_safe(map_name)}_lightmap{i}.png"
+diff --git a/level.py b/level.py
+index 3c911191..7005b40e 100644
+--- a/level.py
++++ b/level.py
+@@ -11,7 +11,7 @@ import json
+ import struct
+ import os
+ from dataclasses import dataclass, field
+-from typing import Dict, List, Optional, Tuple
++from typing import Collection, Dict, List, Optional, Tuple
+ 
+ from .package import Export, Package
+ from .packageset import PackageSet
+@@ -382,13 +382,14 @@ def softbody_record(pkg: Package, cls: str, props: dict) -> Optional[dict]:
+     }
+ 
+ 
+-def extract_level(pkg: Package, pset: PackageSet) -> List[ActorRecord]:
++def extract_level(pkg: Package, pset: PackageSet, skip_refs: Collection[int] = ()) -> List[ActorRecord]:
++    """skip_refs: actors (export index + 1) to leave out; svmbuild passes the editor-copy actors the stock cook drops."""
+     records: List[ActorRecord] = []
+     zone_ambient = _zone_ambient(pkg)
+     sky_zones = {e.index + 1 for e in pkg.exports if e.class_name == "SkyZoneInfo"}
+     for e in pkg.exports:
+         cls = e.class_name
+-        if cls in SKIP_CLASSES or e.size <= 0:
++        if cls in SKIP_CLASSES or e.size <= 0 or e.index + 1 in skip_refs:
+             continue
+         if not (e.flags & 0x02000000):
+             continue  # not an actor (no state frame)
+@@ -431,7 +432,9 @@ def extract_level(pkg: Package, pset: PackageSet) -> List[ActorRecord]:
+             rec.kind = "mover" if (cls == "Mover" or "Mover" in cls or cls == "SLift") else "staticmesh"
+             if any(w in rec.mesh_key.lower() for w in HIDDEN_MESH_WORDS):
+                 rec.hidden = True
+-            smi = props.get("StaticMeshInstance")
++            # The PC lighting instance: StaticMeshInstance in a cooked copy, StaticMeshInstanceOnXBOX in an editor copy
++            # (AActor::Serialize 0x110B2490 writes it under that name for save target 0).
++            smi = props.get("StaticMeshInstance") or props.get("StaticMeshInstanceOnXBOX")
+             if isinstance(smi, int) and smi > 0:
+                 rec.extra["smi"] = smi
+             # Actor.bUnlit: drawn fullbright (texture only), its baked vertex colours unused - MissE's grass tufts
+diff --git a/package.py b/package.py
+index 17650b51..924cee9c 100644
+--- a/package.py
++++ b/package.py
+@@ -2,9 +2,11 @@
+ 
+ Format notes (verified against the 4.0 Public Beta package set):
+ 
+-* Container: raw packages start with the Unreal tag ``9E 2A 83 C1``. Cooked
+-  maps (``.sdc``) and ``.utc`` textures are a zlib container:
+-  ``uint32 uncompressedSize, uint32 compressedSize, zlib stream``.
++* Container: raw packages start with the Unreal tag ``9E 2A 83 C1``. Maps
++  (``.sdc``) and ``.utc`` textures are a zlib container: a run of chunks
++  ``uint32 uncompressedSize, uint32 compressedSize, zlib stream`` to the end of
++  the file, joined in order. A normal save writes one chunk; the editor's
++  autosaves (``MapsEd/Auto0..9.sdc``) write 15 MiB chunks.
+ * Header: standard UE2 ``FPackageFileSummary`` (tag, version u16, licensee
+   u16, flags, name/export/import count+offset, GUID, generations).
+   Package versions seen: 172, 175 (stock UE2-era) and 300 (SCCT cooked).
+@@ -18,6 +20,10 @@ Format notes (verified against the 4.0 Public Beta package set):
+ * Import record: ClassPackage nref, ClassName nref, Outer int32, ObjectName nref.
+ * Export record: Class compact, Super compact, Outer int32, Name nref,
+   Flags int32, Size compact, Offset compact (offset only present if size > 0).
++* Some editor autosaves were written with all six table counts and offsets left
++  at 0; the tables are still there and ``_recover_tables`` finds them.
++* A map is an editor copy (``Packages/MapsEd``, with its brushes) or a cooked
++  copy (``Packages/Maps``, what the game loads); see ``Package.layout``.
+ """
+ 
+ from __future__ import annotations
+@@ -25,10 +31,14 @@ from __future__ import annotations
+ import struct
+ import zlib
+ from dataclasses import dataclass, field
++from functools import cached_property
+ from pathlib import Path
+ from typing import List, Optional, Tuple
+ 
+ PACKAGE_TAG = 0x9E2A83C1
++# Container sanity limits (the Reloaded editor's SdcBlockModel.h): a damaged size field must not allocate gigabytes.
++MAX_UNPACKED = 1 << 30
++MAX_INFLATE_RATIO = 1032
+ 
+ 
+ class PackageError(Exception):
+@@ -164,6 +174,45 @@ class Reader:
+         return len(self.d) - self.p
+ 
+ 
++def _unpack_chunks(raw: bytes, file_name: str) -> bytes:
++    """The package inside a zlib container: every chunk to the end of the file, each inflating to its stated size."""
++    out: List[bytes] = []
++    total = 0
++    p = 0
++    while p < len(raw):
++        if p + 8 > len(raw):
++            raise PackageError(f"{file_name}: truncated zlib chunk header at {p}")
++        unc, comp = struct.unpack_from("<2I", raw, p)
++        if unc == 0 or p + 8 + comp > len(raw):
++            raise PackageError(f"{file_name}: not an Unreal package" if p == 0 else f"{file_name}: bad zlib chunk at {p}")
++        if unc > comp * MAX_INFLATE_RATIO or total + unc > MAX_UNPACKED:
++            raise PackageError(f"{file_name}: zlib chunk at {p} claims {unc} bytes from {comp}")
++        try:
++            chunk = zlib.decompress(raw[p + 8:p + 8 + comp])
++        except zlib.error as e:
++            raise PackageError(f"{file_name}: zlib container failed at {p}: {e}")
++        if len(chunk) != unc:
++            raise PackageError(f"{file_name}: container size mismatch at {p}")
++        out.append(chunk)
++        total += unc
++        p += 8 + comp
++    data = out[0] if len(out) == 1 else b"".join(out)
++    if struct.unpack_from("<I", data, 0)[0] != PACKAGE_TAG:
++        raise PackageError(f"{file_name}: bad tag after decompression")
++    return data
++
++
++def _encode_compact(v: int) -> bytes:
++    """Inverse of read_compact."""
++    a = abs(v)
++    out = bytearray([(0x80 if v < 0 else 0) | (a & 0x3F) | (0x40 if a > 0x3F else 0)])
++    a >>= 6
++    while a:
++        out.append((a & 0x7F) | (0x80 if a > 0x7F else 0))
++        a >>= 7
++    return bytes(out)
++
++
+ @dataclass
+ class Import:
+     class_package: str
+@@ -199,6 +248,7 @@ class Package:
+     exports: List[Export] = field(default_factory=list)
+     names_obfuscated: bool = True
+     compressed: bool = False
++    recovered_tables: bool = False  # the summary's table counts were 0 and the tables were found by scanning
+ 
+     # ---- construction -------------------------------------------------
+     @classmethod
+@@ -209,18 +259,8 @@ class Package:
+             raise PackageError(f"{path.name}: too small")
+         compressed = False
+         if struct.unpack_from("<I", raw, 0)[0] != PACKAGE_TAG:
+-            unc, comp = struct.unpack_from("<2I", raw, 0)
+-            if comp + 8 > len(raw) or unc == 0:
+-                raise PackageError(f"{path.name}: not an Unreal package")
+-            try:
+-                data = zlib.decompress(raw[8:8 + comp])
+-            except zlib.error as e:
+-                raise PackageError(f"{path.name}: zlib container failed: {e}")
+-            if len(data) != unc:
+-                raise PackageError(f"{path.name}: container size mismatch")
++            data = _unpack_chunks(raw, path.name)
+             compressed = True
+-            if struct.unpack_from("<I", data, 0)[0] != PACKAGE_TAG:
+-                raise PackageError(f"{path.name}: bad tag after decompression")
+         else:
+             data = raw
+         tag, version, licensee, flags = struct.unpack_from("<IHHI", data, 0)
+@@ -238,6 +278,9 @@ class Package:
+     def _read_tables(self) -> None:
+         d = self.data
+         nc, no, ec, eo, ic, io = struct.unpack_from("<6i", d, 12)
++        if (nc, no, ec, eo, ic, io) == (0, 0, 0, 0, 0, 0):
++            self._recover_tables()
++            return
+         # Name table: XOR-obfuscated by position in most packages. Detect plain tables by their first entry, which is
+         # usually "None" but not always (MHOtex_xbox.utx starts with "SpecificScaleCoeff"): a plain entry is printable
+         # text ending in a NUL.
+@@ -279,11 +322,96 @@ class Package:
+             size = r.compact()
+             offset = r.compact() if size > 0 else 0
+             exports.append(Export(i, class_ref, super_ref, outer, name, flags, size, offset))
++        self._set_exports(exports)
++
++    def _set_exports(self, exports: List[Export]) -> None:
+         self.exports = exports
+         for e in exports:
+             e.class_name, e.class_package = self._class_of(e)
+             e.full_name = self.full_name(e.index + 1)
+ 
++    def _recover_tables(self) -> None:
++        """Tables of a package whose summary counts and offsets are all 0 (the MapsEd autosaves of the 4.0 mapping
++        install). The file order is summary, names (at 64), export data, imports, exports, so: read names from 64 while
++        they look like names; find the import table by an import record Core.Package (or Core.Class) with outer 0; read
++        imports one at a time and after each try to read export records from there. The split is right when the export
++        records end exactly at the end of the file and every export's data lies before the import table."""
++        d = self.data
++        names: List[str] = []
++        p = 64
++        while p < len(d):
++            n, q = read_compact(d, p)
++            if not 1 < n <= 64 or q + n + 4 > len(d):
++                break
++            chunk = bytes(v ^ ((q + j) & 0xFF) for j, v in enumerate(d[q:q + n]))
++            if chunk[-1] != 0 or not all(32 <= c < 127 for c in chunk[:-1]):
++                break
++            names.append(chunk[:-1].decode("latin1"))
++            p = q + n + 4
++        self.names, self.names_obfuscated = names, True
++        core = _encode_compact(names.index("Core")) if "Core" in names else None
++        start = p
++        while core is not None:
++            start = d.find(core, start + 1)
++            if start < 0:
++                break
++            r = Reader(d, start, self)
++            try:
++                if r.name() != "Core" or r.name() not in ("Package", "Class") or r.i32() != 0:
++                    continue
++                r.name()
++            except (PackageError, IndexError, struct.error):
++                continue
++            r = Reader(d, start, self)
++            imports: List[Import] = []
++            while True:
++                try:
++                    imp = Import(r.name(), r.name(), r.i32(), r.name())
++                except (PackageError, IndexError, struct.error):
++                    break
++                if imp.outer > 0:  # an import's outer is another import or none
++                    break
++                imports.append(imp)
++                exports = self._exports_to_end(r.p, len(imports), start)
++                if exports is not None:
++                    self.imports = imports
++                    self._set_exports(exports)
++                    self.recovered_tables = True
++                    return
++        raise PackageError(f"{self.path.name}: the summary has no tables and none were found")
++
++    def _exports_to_end(self, p: int, import_count: int, data_end: int) -> Optional[List[Export]]:
++        """Export records from p that end exactly at the end of the file, each with its data before data_end."""
++        d = self.data
++        r = Reader(d, p, self)
++        exports: List[Export] = []
++        try:
++            while r.p < len(d):
++                class_ref = r.compact()
++                super_ref = r.compact()
++                outer = r.i32()
++                name = r.name()
++                flags = r.u32()
++                size = r.compact()
++                offset = r.compact() if size > 0 else 0
++                if class_ref < -import_count or size < 0 or offset < 0 or offset + size > data_end:
++                    return None
++                exports.append(Export(len(exports), class_ref, super_ref, outer, name, flags, size, offset))
++        except (PackageError, IndexError, struct.error):
++            return None
++        if r.p != len(d) or not exports or any(e.class_ref > len(exports) for e in exports):
++            return None
++        return exports
++
++    @cached_property
++    def layout(self) -> str:
++        """"editor" for an editor copy (what the stock editor saves to Packages/MapsEd: brushes, a source FPoly on every
++        BSP surface, the lightmap array) or "cooked" for a cooked copy (Packages/Maps, what the game loads). Nothing in
++        the file records it and folders are only a hint: see bsp.detect_layout."""
++        from .bsp import detect_layout  # noqa: PLC0415 - bsp imports this module
++
++        return detect_layout(self)
++
+     # ---- helpers ------------------------------------------------------
+     def _class_of(self, e: Export) -> Tuple[str, str]:
+         ref = e.class_ref
+diff --git a/properties.py b/properties.py
+index 594dec58..1cfa9a75 100644
+--- a/properties.py
++++ b/properties.py
+@@ -181,8 +181,10 @@ def _read_typed_array(r: Reader, name: str, inner: str, size: int, depth: int):
+             raise PackageError("type")
+         diff = (r.tell() - start) - (r.name_extra - extra0)
+         # Tagged struct elements: the tag size leaves out none, some or all of the elements' None terminators
+-        # (SLift.DoorsAndSwitches: 0 on ClubD, all on FactD, 1 of 2 on OffsD and SkysD, whose lift cars were lost).
+-        if (diff == size or (inner.startswith("Struct:") and size <= diff <= size + count)) and _peek_tag_valid(r):
++        # (SLift.DoorsAndSwitches: 0 on ClubD, all on FactD, 1 of 2 on OffsD and SkysD, whose lift cars were lost),
++        # and in an editor copy also a byte of each object reference that takes two (3 on TME30/32/33's lifts), so
++        # the elements, read by their members to each None, count when the next tag follows.
++        if (diff == size or (inner.startswith("Struct:") and diff >= size)) and _peek_tag_valid(r):
+             return v
+     except Exception:
+         pass

@@ -69,6 +69,34 @@ Synthetic tests run without them.
 writes the textures and static-mesh data it needs. The [map conversion study](../docs/spikes/P4-maps.md)
 records the original all-map validation.
 
+## Editor copies
+
+The `maps` step converts the map file in the install's `Packages/Maps`. That file can be a cooked copy (what the stock
+editor's Save writes to `Packages/Maps` and the game loads) or an editor copy (what it writes to `Packages/MapsEd`:
+the CSG brushes, a source FPoly and brush link on every BSP surface, the lightmap records, PS2 lighting, static
+lights). Nothing in the file says which. `scctpkg` `Package.layout` parses the smallest Model export in both layouts
+and takes the one that ends on the export's last byte (patch 0021); the model, lightmap and surface readers branch on
+it. An editor copy converts to what its cooked twin converts to:
+
+- `mapconv/source.py` leaves out of the actor list what the cook leaves out of `Level.Actors` (CSG brushes and static
+  lights, `MapSource.left_out_by_cook`, decoded from the stock editor) and stores `StaticMeshInstanceOnXBOX` as
+  `StaticMeshInstance`, as the cook does.
+- The render still draws the left-out lights the cooked save writes anyway because a stored object refers to them
+  (`IgnoredEchelonLights`), as it does for a cooked copy (`MapSource.unsaved_refs`).
+- `Entry` and `Lobby` lose their world lightmaps: the cook empties them for those two file names.
+- The world BSP is the Level's XBOX model (the PC one), else its PSX2 model: some editor copies hold both.
+- An editor copy stores sub-emitters ahead of every Emitter actor, where the exporter (which gives a sub-emitter to
+  the nearest preceding Emitter export) skips their textures; `mapconv/render.py` writes those from each Emitter's
+  own `Emitters` array (this also adds the textures missing from the cooked OffsD, PanaD, Cistern and ScheU).
+
+On 22 of 23 editor and cooked copies from the same save (SVM 4.0 mapping install: AquaE, ClubE, DeftD, Entry, Lobby,
+CineS, ShipD, KrauU, MuseD, AeroD, TME30, Cistern; SVM 3.6: AquaE, ClubE, DeftD, CineS, ShipD, StatD, SancD, OffsE,
+OffsD, TME30) the two SVMap folders hold the same files with the same content; the files only differ in the order of
+entries that follows the package's export order, in glTF material indices, and in `src.export` (the actor's export
+index in the file it came from). The exception is the SVM 3.6 `Lobby`, whose cooked copy kept the world lightmap the
+stock cook empties for `Lobby.sdc` (the 3.6 and 4.0 installs ship the same editor executable). The editor's
+unpatched autosaves (`Auto0..9.sdc`, multi-chunk, summary counts 0) convert too.
+
 ## Cache
 
 `graph.py` keys every step run by the sha256 of the canonical JSON of its step name, version, code digest (its own

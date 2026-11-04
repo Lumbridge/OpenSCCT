@@ -181,8 +181,10 @@ def _read_typed_array(r: Reader, name: str, inner: str, size: int, depth: int):
             raise PackageError("type")
         diff = (r.tell() - start) - (r.name_extra - extra0)
         # Tagged struct elements: the tag size leaves out none, some or all of the elements' None terminators
-        # (SLift.DoorsAndSwitches: 0 on ClubD, all on FactD, 1 of 2 on OffsD and SkysD, whose lift cars were lost).
-        if (diff == size or (inner.startswith("Struct:") and size <= diff <= size + count)) and _peek_tag_valid(r):
+        # (SLift.DoorsAndSwitches: 0 on ClubD, all on FactD, 1 of 2 on OffsD and SkysD, whose lift cars were lost),
+        # and in an editor copy also a byte of each object reference that takes two (3 on TME30/32/33's lifts), so
+        # the elements, read by their members to each None, count when the next tag follows.
+        if (diff == size or (inner.startswith("Struct:") and diff >= size)) and _peek_tag_valid(r):
             return v
     except Exception:
         pass

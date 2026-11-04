@@ -10,8 +10,9 @@ Level export layout, package version 300 (all fields little-endian, "compact" = 
     name        None                  (empty tagged property list)
     i32         ActorsNum, i32 ActorsMax, ActorsNum x objref
     FURL        Protocol, Host, Map, Portal (FString), compact nOp + nOp FString, i32 Port, i32 Valid
-    i32 hasA,   objref ModelA if hasA (level+0x144)
-    i32 hasB,   objref ModelB if hasB (level+0x14c); the loaded Model is A when present, else B
+    i32 hasA,   objref ModelA if hasA (level+0x144): the PSX2 world
+    i32 hasB,   objref ModelB if hasB (level+0x14c): the XBOX world, which is the PC one. The stock editor loads B,
+                else A. Cooked copies hold only B; some editor copies (CineE, DeftD, Entry, Lobby...) hold both, A smaller
     f32         ApproxTime
     objref      FirstDeleted
     16 x objref TextBlocks
@@ -160,6 +161,11 @@ class LevelHeader:
     first_deleted: int
     text_blocks: List[int]
     travel: List[Tuple[str, str]] = field(default_factory=list)
+
+    @property
+    def world_model(self) -> int:
+        """The world BSP of the PC game: ModelXBOX (model_b), else ModelPSX2 (model_a)."""
+        return self.model_b or self.model_a
 
 
 # ---- reading ---------------------------------------------------------------------------------
