@@ -15,8 +15,8 @@ public sealed record MapModeSettingsFacts(EGameMode Mode, int TimeLimit, int Spi
 
 /// <summary>
 /// What the menus need from one SVMap folder without loading it: the names and legend of its <c>SMapSettings</c>
-/// (<c>ui/mapinfo.json</c>), and from <c>sim/gameplay.json</c> its player starts per side, its missions per mode and
-/// its per-mode settings. Reads two small JSON files.
+/// (<c>ui/mapinfo.json</c>), its identity (<c>ui/identity.json</c>, SVMap 1.2), and from <c>sim/gameplay.json</c> its
+/// player starts per side, its missions per mode and its per-mode settings. Reads three small JSON files.
 /// </summary>
 public sealed class MapFacts
 {
@@ -29,6 +29,9 @@ public sealed class MapFacts
 
     /// <summary><c>SMapSettings.LegendMap</c> (lines split by <c>|</c>), or null.</summary>
     public string? Legend { get; private init; }
+
+    /// <summary>The map's own identity (<see cref="MapIdentity.Empty"/> when it has none).</summary>
+    public MapIdentity Identity { get; private init; } = MapIdentity.Empty;
 
     /// <summary>Normal player starts of the spies (TeamNumber 0) and the mercs (1), without the Merc Deathmatch set.</summary>
     public int SpyStarts { get; private init; }
@@ -75,11 +78,12 @@ public sealed class MapFacts
     {
         string info = Path.Combine(folder, "ui", "mapinfo.json");
         string gameplay = Path.Combine(folder, "sim", "gameplay.json");
-        return Parse(File.Exists(info) ? File.ReadAllBytes(info) : null, File.Exists(gameplay) ? File.ReadAllBytes(gameplay) : null);
+        return Parse(File.Exists(info) ? File.ReadAllBytes(info) : null, File.Exists(gameplay) ? File.ReadAllBytes(gameplay) : null,
+            MapIdentity.Load(folder));
     }
 
-    /// <summary>Parses the two documents (either may be null).</summary>
-    public static MapFacts Parse(byte[]? mapInfo, byte[]? gameplay)
+    /// <summary>Parses the two documents (either may be null), with the identity read beside them.</summary>
+    public static MapFacts Parse(byte[]? mapInfo, byte[]? gameplay, MapIdentity? identity = null)
     {
         string? name = null;
         string? legend = null;
@@ -148,6 +152,7 @@ public sealed class MapFacts
         {
             MapName = name,
             Legend = legend,
+            Identity = identity ?? MapIdentity.Empty,
             SpyStarts = spy,
             MercStarts = merc,
             MercDeathmatchStarts = mdm,

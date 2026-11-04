@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Godot;
 using OpenScct.Core;
 using OpenScct.Server;
@@ -273,7 +274,9 @@ public partial class MapPickerView : VBoxContainer
         _search.Length == 0 || id.Contains(_search, StringComparison.OrdinalIgnoreCase) ||
         tile.TooltipText.Contains(_search, StringComparison.OrdinalIgnoreCase) ||
         (entry is not null && (entry.Name.Contains(_search, StringComparison.OrdinalIgnoreCase) ||
-            entry.SortName.Contains(_search, StringComparison.OrdinalIgnoreCase)));
+            entry.SortName.Contains(_search, StringComparison.OrdinalIgnoreCase) ||
+            entry.Authors.Any(a => a.Contains(_search, StringComparison.OrdinalIgnoreCase)) ||
+            entry.Tags.Any(t => t.Contains(_search, StringComparison.OrdinalIgnoreCase))));
 
     private void AddTile(string id, string title, MapCatalogEntry? entry, MapCatalog maps)
     {

@@ -7,6 +7,7 @@ using OpenScct.Content;
 using OpenScct.Content.Maps;
 using OpenScct.Core;
 using OpenScct.Game.SBase;
+using OpenScct.Server.Online;
 
 namespace OpenScct.Server;
 
@@ -46,10 +47,13 @@ public sealed record MapCatalogEntry
     /// <summary>The map code and file name (AquaE).</summary>
     public required string Id { get; init; }
 
-    /// <summary>The name the original's menus show: <c>SMapSettings.MapName</c> (ENHANCED AQUARIUS), else the code.</summary>
+    /// <summary>
+    /// The name every page shows, upper case as in the original's menus: the map's own name (<c>ui/identity.json</c>)
+    /// upper-cased, else <c>SMapSettings.MapName</c> (ENHANCED AQUARIUS), else the code.
+    /// </summary>
     public required string DisplayName { get; init; }
 
-    /// <summary>The name Reloaded's lobby shows (Enhanced Aquarius).</summary>
+    /// <summary>The map's own name when it has one, else the name Reloaded's lobby shows (Enhanced Aquarius).</summary>
     public required string Name { get; init; }
 
     /// <summary><see cref="Name"/> without its variant word (Aquarius), as Reloaded sorts.</summary>
@@ -78,8 +82,26 @@ public sealed record MapCatalogEntry
 
     public int MercDeathmatchStarts { get; init; }
 
-    /// <summary>6 for maps of Reloaded's 3v3 playlist, else 4 (the original's Max Players default).</summary>
+    /// <summary>
+    /// The lobby size the map plays best at: the map's own choice (<c>ui/identity.json</c>), else 6 for maps of
+    /// Reloaded's 3v3 playlist or tagged <c>3v3</c>, else 4 (the original's Max Players default).
+    /// </summary>
     public int RecommendedPlayers { get; init; } = 4;
+
+    /// <summary>One or two sentences about the map (its identity's description, else its dossier's summary), or null.</summary>
+    public string? Description { get; init; }
+
+    /// <summary>The map's authors in credit order (empty for converted maps).</summary>
+    public IReadOnlyList<string> Authors { get; init; } = [];
+
+    /// <summary>The author's version of the map, or null.</summary>
+    public string? Version { get; init; }
+
+    /// <summary>The facts the map states about itself (<c>3v3</c>, <c>night</c>...), lowercase.</summary>
+    public IReadOnlyList<string> Tags { get; init; } = [];
+
+    /// <summary>The numbered places of the briefing plan and the strategic map, by number.</summary>
+    public IReadOnlyList<MapPlace> Places { get; init; } = [];
 
     /// <summary>Reloaded playlists the map is in.</summary>
     public IReadOnlyList<string> Playlists { get; init; } = [];
@@ -87,11 +109,23 @@ public sealed record MapCatalogEntry
     /// <summary>The map list picture (PNG path), or null.</summary>
     public string? PreviewImage { get; init; }
 
+    /// <summary>The first of <see cref="LoadingSpyImages"/>, or null.</summary>
     public string? LoadingSpyImage { get; init; }
 
+    /// <summary>The first of <see cref="LoadingMercImages"/>, or null.</summary>
     public string? LoadingMercImage { get; init; }
 
+    /// <summary>Every loading picture of the spies (a map may carry several; one is shown per load).</summary>
+    public IReadOnlyList<string> LoadingSpyImages { get; init; } = [];
+
+    /// <summary>Every loading picture of the mercs.</summary>
+    public IReadOnlyList<string> LoadingMercImages { get; init; } = [];
+
+    /// <summary>The lobby's plan of the map (GetLevelBrief), or null; pages then show the defenders' loading picture.</summary>
     public string? BriefingImage { get; init; }
+
+    /// <summary>True when <see cref="BriefingImage"/> was drawn through the snapshot camera, so <see cref="Places"/> can be marked on it.</summary>
+    public bool BriefingThroughSnapshot { get; init; }
 
     /// <summary><c>SMapSettings.LegendMap</c> (lines split by <c>|</c>), or null.</summary>
     public string? Legend { get; init; }
@@ -438,21 +472,34 @@ public sealed partial class MapCatalog
     private MapCatalogEntry FolderEntry(MapListEntry listed, SvMapManifest? manifest, MapFacts facts, MapCatalogData data,
         Dictionary<string, int> originalIndex, Dictionary<string, List<string>> playlistsOf)
     {
+        // docs/MAPS.md "Map identity": the map's own ui/identity.json first, then the shared catalog (Reloaded's
+        // names, the pictures svmbuild exported), then a downloaded map's catalog/entry.json, then SMapSettings.
         string id = listed.Id;
+        MapIdentity identity = facts.Identity;
         MapKind kind = KindOf(id, manifest, data, originalIndex);
+        IReadOnlyList<MapModeInfo> modes = ModesOf(kind, facts);
+        if (kind == MapKind.Versus && manifest?.Source.Kind == "authored" && !modes.Any(m => m.Playable))
+        {
+            // An authored map no mode can be played on yet stays out of the host list.
+            kind = MapKind.Test;
+            modes = ModesOf(kind, facts);
+        }
+
         string title = string.IsNullOrEmpty(manifest?.Title) ? id : manifest!.Title;
         string? mapName = string.IsNullOrWhiteSpace(facts.MapName) || facts.MapName == "None" ? null : facts.MapName;
-        string name = data.Names.TryGetValue(id, out string? reloaded) && !string.IsNullOrEmpty(reloaded)
+        string name = identity.Name ?? (data.Names.TryGetValue(id, out string? reloaded) && !string.IsNullOrEmpty(reloaded)
             ? reloaded
-            : mapName is not null && kind == MapKind.Versus ? TitleCase(mapName) : title;
-        (string sortName, string? variant) = SplitVariant(name, data.VariantWords);
-        IReadOnlyList<MapModeInfo> modes = ModesOf(kind, facts);
+            : mapName is not null && kind == MapKind.Versus ? TitleCase(mapName) : title);
+        (string sortName, string? variant) = identity.Family is { } family ? (family, identity.Variant) : SplitVariant(name, data.VariantWords);
         playlistsOf.TryGetValue(id, out List<string>? playlists);
-        bool threeVsThree = playlists?.Any(p => p == "3v3") == true;
+        bool threeVsThree = playlists?.Any(p => p == "3v3") == true || identity.Tags.Contains("3v3");
+        MapPictures pictures = identity.Pictures;
+        IReadOnlyList<string> spyLoading = Pictures(pictures.LoadingSpy, data.Image(id, "loading-spy"));
+        IReadOnlyList<string> mercLoading = Pictures(pictures.LoadingMerc, data.Image(id, "loading-merc"));
         return new MapCatalogEntry
         {
             Id = id,
-            DisplayName = mapName ?? id,
+            DisplayName = identity.Name?.ToUpperInvariant() ?? mapName ?? id,
             Name = name,
             SortName = sortName,
             VariantWord = variant,
@@ -463,18 +510,30 @@ public sealed partial class MapCatalog
             SpyStarts = facts.SpyStarts,
             MercStarts = facts.MercStarts,
             MercDeathmatchStarts = facts.MercDeathmatchStarts,
-            RecommendedPlayers = threeVsThree ? 6 : 4,
+            RecommendedPlayers = identity.RecommendedPlayers is { } players ? Math.Min(players, LobbySetup.MaxMaxPlayers) : threeVsThree ? 6 : 4,
+            Description = identity.Description ?? (identity.Dossier?.Summary is { Length: > 0 } summary ? summary : null),
+            Authors = identity.Authors,
+            Version = identity.Version,
+            Tags = identity.Tags,
+            Places = identity.Places,
             Playlists = playlists ?? [],
-            PreviewImage = data.Image(id, "menu"),
-            LoadingSpyImage = data.Image(id, "loading-spy"),
-            LoadingMercImage = data.Image(id, "loading-merc"),
-            BriefingImage = data.Image(id, "briefing"),
+            PreviewImage = pictures.Menu ?? data.Image(id, "menu"),
+            LoadingSpyImage = spyLoading.Count > 0 ? spyLoading[0] : null,
+            LoadingMercImage = mercLoading.Count > 0 ? mercLoading[0] : null,
+            LoadingSpyImages = spyLoading,
+            LoadingMercImages = mercLoading,
+            BriefingImage = pictures.Briefing ?? data.Image(id, "briefing"),
+            BriefingThroughSnapshot = pictures.Briefing is not null && pictures.BriefingThroughSnapshot,
             Legend = string.IsNullOrWhiteSpace(facts.Legend) ? null : facts.Legend,
             Folder = listed.Folder,
             ContentHash = listed.ContentHash,
             CanRender = listed.Folder is { } f && Directory.Exists(Path.Combine(f, "render")),
         };
     }
+
+    /// <summary>The map's own pictures of a slot, else the catalog's one picture, else none.</summary>
+    private static IReadOnlyList<string> Pictures(IReadOnlyList<string> own, string? shared) =>
+        own.Count > 0 ? own : shared is null ? [] : [shared];
 
     private static MapCatalogEntry CodeEntry(string name, ulong hash)
     {
@@ -510,8 +569,9 @@ public sealed partial class MapCatalog
         }
 
         // Maps outside the original's host list (community maps, downloads) are hostable when converted from a real
-        // map; our own (synthetic: the hub, TestBox) are test maps.
-        return manifest?.Source.IsConverted == true ? MapKind.Versus : MapKind.Test;
+        // map or made in the map editor (FolderEntry keeps an authored map with no playable mode out); our own
+        // synthetic levels (the hub, TestBox) are test maps.
+        return manifest?.Source.Kind is "converted" or "authored" ? MapKind.Versus : MapKind.Test;
     }
 
     /// <summary>The original list builder's tutorial patterns (TME**, TSP**: same length, any character for '*').</summary>

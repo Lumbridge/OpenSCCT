@@ -8,7 +8,7 @@ every map. The [1 November map parity report](MAP-PARITY-2026-11-01.md) records 
 check of actors, events, interactions, elevators and destructible effects, with its
 coverage limits.
 
-**On this page:** [The map catalog (API for the menus)](#the-map-catalog-api-for-the-menus) · [The tools](#the-tools) · [Core findings](#core-findings)
+**On this page:** [The map catalog (API for the menus)](#the-map-catalog-api-for-the-menus) · [Map identity](#map-identity) · [Map pictures](#map-pictures) · [The tools](#the-tools) · [Core findings](#core-findings)
 
 ## The map catalog (API for the menus)
 
@@ -29,18 +29,20 @@ IReadOnlyList<MapPlaylist> filters = maps.GetMapFilters(); // All, Enhanced, Sto
 | Field | What | Source |
 |---|---|---|
 | `Id` | the map code and file name (`AquaE`); what `PlaySettings.Map`, `LobbySetup` and `!map` take | folder name |
-| `DisplayName` | the name the original's menus show (`ENHANCED AQUARIUS`) | `SMapSettings.MapName` of `<Map>-i.utc` |
-| `Name` | the name Reloaded's lobby shows (`Enhanced Aquarius`) | Reloaded's map name table, else the manifest title |
-| `SortName`, `VariantWord` | the name without its variant word (`Aquarius`, `Enhanced`), as Reloaded sorts and dims it | Reloaded's variant words |
-| `Kind` | `Versus` (hostable), `Menu` (Entry, Lobby), `Training` (TSP, TME), `Test` (our own TestRange, fixtures) | the original's map list rules |
+| `DisplayName` | the name every page shows, upper case as the original's menus (`ENHANCED AQUARIUS`) | the map's identity name upper-cased, else `SMapSettings.MapName` of `<Map>-i.utc` |
+| `Name` | the name Reloaded's lobby shows (`Enhanced Aquarius`) | the map's identity, else Reloaded's map name table, else the manifest title |
+| `SortName`, `VariantWord` | the name without its variant word (`Aquarius`, `Enhanced`), as Reloaded sorts and dims it | the identity's family and variant, else Reloaded's variant words |
+| `Kind` | `Versus` (hostable), `Menu` (Entry, Lobby), `Training` (TSP, TME), `Test` (our own TestRange, fixtures) | the original's map list rules; outside the original's list, maps converted from a real map and editor maps (`source.kind` `authored`) with a playable mode are `Versus` |
 | `HostOrder`, `OriginalOrder` | index in `GetHostMaps()` (Reloaded order) and in the original's host list (-1 when not listed) | see "Order" |
 | `Modes` | one `MapModeInfo` per mode the original's mode box offers (Story, Disk Hunt, Deathmatch, Merc Deathmatch) | see "Modes" |
 | `DefaultMode` | the mode to preselect: Story when it plays, else the first that plays | |
 | `SpyStarts`, `MercStarts`, `MercDeathmatchStarts` | player starts per side, and the Merc Deathmatch set | the map's `PlayerStart`s |
-| `RecommendedPlayers` | 6 for the maps of Reloaded's 3v3 playlist (its playlist of maps made for more players), else 4 (the original's Max Players default) | |
+| `RecommendedPlayers` | the map's own choice; else 6 for the maps of Reloaded's 3v3 playlist (its playlist of maps made for more players) or tagged `3v3`; else 4 (the original's Max Players default) | identity `players.recommended` |
+| `Description`, `Authors`, `Version`, `Tags`, `Places` | what an editor map says about itself (empty for converted maps) | `ui/identity.json` |
 | `Playlists` | the Reloaded playlists the map is in | |
-| `PreviewImage` | the map list picture (PNG path, null when the map has none) | `<Map>-i.Menu`, as `LevelInfo.GetLevelPicture` loads it |
-| `LoadingSpyImage`, `LoadingMercImage`, `BriefingImage` | the loading screens of each side and the briefing map (PNG paths or null) | `<Map>-i.LoadingATT0`, `LoadingDEF0`, `Briefing` |
+| `PreviewImage` | the map list picture (PNG or JPEG path, null when the map has none) | the map's `ui/pictures`, else `<Map>-i.Menu` as `LevelInfo.GetLevelPicture` loads it |
+| `LoadingSpyImages`, `LoadingMercImages` (`LoadingSpyImage`, `LoadingMercImage` the first of each) | the loading screens of each side; a map may carry several | the map's `ui/pictures`, else `<Map>-i.LoadingATT0`, `LoadingDEF0` |
+| `BriefingImage`, `BriefingThroughSnapshot` | the lobby briefing's plan of the map, and whether it was drawn through the snapshot camera (then the lobby draws the place numbers on it) | the map's `ui/pictures`, else `<Map>-i.Briefing` |
 | `Legend` | the map text under the picture (`LegendMap`, lines split by `|`) | `SMapSettings` |
 | `Folder`, `ContentHash`, `CanRender` | the SVMap folder, its content hash, whether it has the render content the play scene draws | manifest |
 
@@ -60,9 +62,10 @@ Stock is the eleven launch maps: `AquaD`, `BankD`, `ClubD`, `DeftD`, `FactD`, `M
 The launch roster is recorded in [Official Xbox Magazine, March 2005, p. 52](https://datassette.s3.us-west-004.backblazeb2.com/revistas/official_us_xbox_magazine_web_version_2005-03.pdf).
 Enhanced uses the `Enhanced` or `Enh` prefix in the catalog or original menu name and excludes 3v3 variants from its
 filter. Community contains everything outside Stock and the Enhanced family, including community 3v3 maps;
-enhanced 3v3 maps remain in All and 3v3 optimised. The 3v3 group uses Reloaded's `3v3` playlist
-or an explicit `3v3` label in the map's name or code. These groups work without the shared catalog data and
-keep the host map order. Search and the selected mode further narrow the visible results.
+enhanced 3v3 maps remain in All and 3v3 optimised. The 3v3 group uses Reloaded's `3v3` playlist, an explicit `3v3`
+label in the map's name or code, or a map's own identity (a `3v3` tag, or exactly six recommended players). These
+groups work without the shared catalog data and keep the host map order. Search (map name, code, authors and tags)
+and the selected mode further narrow the visible results.
 
 ### Modes
 
@@ -106,6 +109,42 @@ map still lists, with its manifest title as both names, no images and no playlis
 The launcher's **Maps** window downloads ready-to-play [content packs](CONTENT-PACKS.md), whose catalog
 and images are included in the shared packs. Developer builds can still convert original-format addons
 with `--addons <folder>`; a map absent from Reloaded's name table uses its manifest title.
+
+### Map identity
+
+A map made in the map editor carries its identity in its own folder (SVMap 1.2,
+[spec/svmap/1.2/README.md](../spec/svmap/1.2/README.md)): `ui/identity.json` (name, dossier, description, authors,
+version, recommended players, tags, numbered places) and `ui/pictures/` (menu, loading pictures per side, briefing
+plan). `MapIdentity` (src/OpenScct.Content/Maps) reads it; `MapFacts.Load` reads it with the rest, so the catalog
+needs no other file. The catalog takes each value from the map first, then the shared catalog, then a downloaded
+map's `catalog/entry.json`, then `SMapSettings` (the spec's table lists the order per value). Playlists never come
+from a map: a map states facts (tags, recommended players) and the filters above pick it up from them.
+
+The lobby's Briefing shows the map's menu picture on page 1 (the original's level picture, `GetLevelPicture`) and
+its briefing plan on page 2 (`GetLevelBrief`, the mercs' loading picture when there is none). A plan drawn through
+the snapshot camera gets the map's place numbers drawn on it, and the strategic map draws them on each floor.
+
+### Map pictures
+
+`--svm-mapshot=<request.json>` renders map pictures with the game's own renderer and quits: the map editor uses it
+for menu and loading pictures taken from a camera bookmark. The request is the golden camera format
+(`svm.golden-cameras/1`, `GoldenShots`) without pawns:
+
+```json
+{"format": "svm.golden-cameras/1", "map": "MoonD", "folder": "C:/maps/MoonD", "out": "C:/shots", "mode": "Story",
+ "shots": {"menu": {"width": 1024, "height": 1024, "look": "plain",
+                    "camera": {"location": [0, 0, 512], "rotation": [-4096, 8192, 0], "fov": 90}}}}
+```
+
+`folder` is optional (the map is otherwise found by id like any other); `out` defaults to the request's folder;
+`look` is `plain`, `nightvision` or `thermal` (RendMap 5, 34 and 36). Each shot is drawn in an `OffscreenView` at
+twice its size (as far as 4096 pixels allow) and scaled down to it, so edges are smooth where golden renders keep
+hard ones, and saved as `<id>.png` (or its `image`). The run uses default settings, writes none of the player's and
+starts no online presence. It prints one `SVM_MAPSHOT` JSON line per shot and exits 0 when every shot was saved. It
+needs a real renderer: it always runs as a background window and refuses `--headless` (with an `SVM_MAPSHOT` error
+line, which tells a tool the game knows the option). Godot shows the window before any game code runs, so a caller
+that must not take the person's focus starts it off-screen (`--position -32000,-32000`) or, for a local test build,
+beside `game/override.cfg` (local only, docs/TESTING-PLAY.md).
 
 ## The tools
 
