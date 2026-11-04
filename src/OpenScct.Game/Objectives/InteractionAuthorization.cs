@@ -118,14 +118,7 @@ internal static class InteractionAuthorization
         // Mate CanUse performs its own server search, including team, distance, facing and occlusion.
         if (entry is SMateInteraction) return ReferenceEquals(entry.Owner, pc);
         Pawn pawn = pc.Pawn!;
-        FVector delta = entry.Location - pawn.Location;
-        float radius = Math.Max(entry.CollisionRadius, entry.ItRadius) + pawn.CollisionRadius;
-        float height = Math.Max(entry.CollisionHeight, entry.ItHeight) + pawn.CollisionHeight;
-        if (!(delta.X * delta.X + delta.Y * delta.Y <= radius * radius) || !(Math.Abs(delta.Z) <= height)) return false;
-        // We need the nearest obstruction: a BSP surface behind an attached panel must not mask the panel hit.
-        var flags = GadgetWorld.SightFlags & ~OpenScct.Physics.Collision.ETraceFlags.TRACE_StopAtFirstHit;
-        return !GadgetWorld.Line(pawn, entry.Location, pawn.Location, flags, out var hit) ||
-            ReferenceEquals(hit.Actor, entry) || ReferenceEquals(hit.Actor, entry.Owner);
+        return InteractionReach.From(entry, pawn, pawn.Location, pawn.CollisionRadius, pawn.CollisionHeight);
     }
 
     private static void Forget(Session session)
@@ -142,5 +135,31 @@ internal static class InteractionAuthorization
             if (session.Entry.bHackable || session.HoldStarted) session.Entry.eventPostInteract(session.Player, K.SubFailed);
             else session.Entry.GotoState(Name.None);
         }
+    }
+}
+
+/// <summary>
+/// The server's reach test of a use (<see cref="InteractionAuthorization"/>), for any pawn place: the pawn's cylinder
+/// overlaps the entry's (the larger of its collision and interaction cylinders), and the line from the pawn to the entry
+/// is open or stops on the entry or its owner. Tools ask it for floors a pawn could stand on.
+/// </summary>
+public static class InteractionReach
+{
+    /// <summary>
+    /// True when a pawn of <paramref name="pawnRadius"/> by <paramref name="pawnHeight"/> (half height) centred at
+    /// <paramref name="pawnLocation"/> can use <paramref name="entry"/>. <paramref name="source"/> is the actor the line
+    /// leaves out (the pawn; a tool without one passes the entry).
+    /// </summary>
+    public static bool From(SInteractObject entry, Actor source, FVector pawnLocation, float pawnRadius, float pawnHeight)
+    {
+        ArgumentNullException.ThrowIfNull(entry);
+        FVector delta = entry.Location - pawnLocation;
+        float radius = Math.Max(entry.CollisionRadius, entry.ItRadius) + pawnRadius;
+        float height = Math.Max(entry.CollisionHeight, entry.ItHeight) + pawnHeight;
+        if (!(delta.X * delta.X + delta.Y * delta.Y <= radius * radius) || !(Math.Abs(delta.Z) <= height)) return false;
+        // We need the nearest obstruction: a BSP surface behind an attached panel must not mask the panel hit.
+        var flags = GadgetWorld.SightFlags & ~OpenScct.Physics.Collision.ETraceFlags.TRACE_StopAtFirstHit;
+        return !GadgetWorld.Line(source, entry.Location, pawnLocation, flags, out var hit) ||
+            ReferenceEquals(hit.Actor, entry) || ReferenceEquals(hit.Actor, entry.Owner);
     }
 }

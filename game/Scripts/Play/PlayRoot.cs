@@ -44,7 +44,7 @@ public sealed record PlayConfig
     public bool CaptureFrameHistory { get; init; }
 
     /// <summary>A scripted local player instead of the keyboard and mouse, or null.</summary>
-    public ScriptedPilot? Pilot { get; init; }
+    public IPlayPilot? Pilot { get; init; }
 
     /// <summary>The original game folder the key layouts come from, or null for the default.</summary>
     public string? GameRoot { get; init; }
@@ -92,7 +92,8 @@ public sealed record PlayConfig
             settings = settings with { DemoFolder = OpenScctGame.Play.Demo.DemoLibrary.SavedFolder };
         }
 
-        return new PlayConfig { Settings = settings, GameRoot = options.GameRoot };
+        IPlayPilot? pilot = options.PlayRoute is { } route ? new RoutePilot(route, line => GD.Print(line)) : null;
+        return new PlayConfig { Settings = settings, GameRoot = options.GameRoot, Pilot = pilot };
     }
 }
 

@@ -34,7 +34,7 @@ public enum PilotArrival
 /// Turning writes the view rotation directly, as the scenario format's
 /// view step does; everything else goes through the per-tick input. A test driver, not part of the game.
 /// </summary>
-public sealed class ScriptedPilot
+public sealed class ScriptedPilot : IPlayPilot
 {
     private const float ArriveDistance = 18f;
     private const int StuckTicks = 120;

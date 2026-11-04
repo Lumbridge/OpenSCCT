@@ -294,6 +294,27 @@ minute, 37 MB/s allocated. After: max 15 ms, none over 20 ms, 55 gen0 and 5 gen1
 (under 1 ms each), 16 MB/s allocated, nearly all of it the HUD's draw lists (Magma draw items and strings), which die
 young and cost no visible time.
 
+## Routes and online rounds from the command line
+
+The map editor's headless test rounds (`ose play --headless`) use two launch options besides `--svm-play`:
+
+- `--svm-route=x,y,z;x,y,z` with `--svm-play`: the local player walks through the points in order
+  ([RoutePilot](../game/Scripts/Play/Session/RoutePilot.cs): one `ScriptedPilot` leg per point, the pawn's own path
+  planner and keys). It prints `SVM_ROUTE start at (x,y,z), N points`, then `SVM_ROUTE reached i (x,y,z) at T s` per
+  point, or `SVM_ROUTE stuck before i (x,y,z) at (x,y,z) after T s: why` and stops, and last
+  `SVM_ROUTE done: reached k of N`. Offline rounds only.
+- `--svm-lan-host=PORT` with `--svm-play=Map --side=spy|merc [--players=N]` hosts the map as an online round, loopback
+  only, unlisted, no bots and no time limit; `--svm-join=127.0.0.1:PORT --side=...` joins it
+  ([CommandLineRound](../game/Scripts/Online/CommandLineRound.cs)). Each takes its side's team, the client gets ready,
+  and the host launches once the lobby holds `--players` (2 when not given) and the others are ready. Both print
+  `SVM_NET` lines: the client state, the lobby, `launching`, `loaded Map as side`, and every 10 s the pawns their own
+  world holds, so the client's lines show what the host sent it.
+
+```
+OpenSCCT.exe --headless -- --svm-maps=<folder> --svm-play=SteeE --side=merc --svm-lan-host=27100 --players=2
+OpenSCCT.exe --headless -- --svm-maps=<folder> --svm-play=SteeE --side=spy --svm-join=127.0.0.1:27100
+```
+
 ## Test windows stay in the background
 Windowed test runs must not take the focus or the mouse of the person at the machine. Smoke runs, SVM_PLAY_SHOTS runs
 and runs started with `--svm-background` (or SVM_BACKGROUND=1) move their window off-screen, drop its taskbar button and

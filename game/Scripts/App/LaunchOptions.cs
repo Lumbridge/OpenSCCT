@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using OpenScct.Core;
 
 namespace OpenScctGame;
 
@@ -33,6 +34,9 @@ public sealed class LaunchOptions
     public const string PriorityPrefix = "--priority=";
     public const string AffinityPrefix = "--affinity=";
     public const string MapShotPrefix = "--svm-mapshot=";
+    public const string RoutePrefix = "--svm-route=";
+    public const string LanHostPrefix = "--svm-lan-host=";
+    public const string JoinPrefix = "--svm-join=";
     public const double DefaultSmokeTimeoutSeconds = 120.0;
     public const int DefaultBots = 3;
     public const int MaxBots = 15;
@@ -114,6 +118,21 @@ public sealed class LaunchOptions
     /// <summary>A map picture request to render and quit (<c>--svm-mapshot=request.json</c>, <see cref="Render.Golden.MapShot"/>), or null.</summary>
     public string? MapShotRequest { get; private init; }
 
+    /// <summary>
+    /// Points the local player walks through in order in an offline play (<c>--svm-route=x,y,z;x,y,z</c>, where the
+    /// player stands), printing each point reached or where it got stuck (<see cref="Play.Session.RoutePilot"/>), or null.
+    /// </summary>
+    public IReadOnlyList<FVector>? PlayRoute { get; private init; }
+
+    /// <summary>
+    /// Host the <see cref="PlayMap"/> as an online round on this UDP port, loopback only and unlisted, and launch it
+    /// once <see cref="PlayPlayers"/> players (2 when not given) are in the lobby and ready (<c>--svm-lan-host=27100</c>), or null.
+    /// </summary>
+    public int? NetHostPort { get; private init; }
+
+    /// <summary>Join the online round at this address and get ready on <see cref="PlaySide"/>'s team (<c>--svm-join=127.0.0.1:27100</c>), or null.</summary>
+    public string? NetJoin { get; private init; }
+
     /// <summary>Arguments that were not recognised, kept so callers can report them.</summary>
     public IReadOnlyList<string> Unknown { get; private init; } = [];
 
@@ -150,6 +169,9 @@ public sealed class LaunchOptions
         string? priority = null;
         string? affinity = null;
         string? mapShot = null;
+        List<FVector>? route = null;
+        int? lanHost = null;
+        string? join = null;
         foreach (string arg in userArgs)
         {
             if (arg.StartsWith(SmokePrefix, StringComparison.Ordinal))
@@ -255,6 +277,19 @@ public sealed class LaunchOptions
             {
                 mapShot = arg[MapShotPrefix.Length..].Trim('"');
             }
+            else if (arg.StartsWith(RoutePrefix, StringComparison.Ordinal) && ParseRoute(arg[RoutePrefix.Length..]) is { } points)
+            {
+                route = points;
+            }
+            else if (arg.StartsWith(LanHostPrefix, StringComparison.Ordinal)
+                && int.TryParse(arg[LanHostPrefix.Length..], NumberStyles.None, CultureInfo.InvariantCulture, out int port) && port is > 0 and < 65536)
+            {
+                lanHost = port;
+            }
+            else if (arg.StartsWith(JoinPrefix, StringComparison.Ordinal) && arg.Length > JoinPrefix.Length)
+            {
+                join = arg[JoinPrefix.Length..];
+            }
             else
             {
                 unknown.Add(arg);
@@ -286,7 +321,30 @@ public sealed class LaunchOptions
             Priority = priority,
             Affinity = affinity,
             MapShotRequest = mapShot,
+            PlayRoute = route,
+            NetHostPort = lanHost,
+            NetJoin = join,
             Unknown = unknown,
         };
+    }
+
+    /// <summary>Points as <c>x,y,z;x,y,z</c>, or null when any is not three numbers.</summary>
+    private static List<FVector>? ParseRoute(string text)
+    {
+        var points = new List<FVector>();
+        foreach (string part in text.Trim('"').Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+        {
+            string[] c = part.Split(',');
+            if (c.Length != 3 || !float.TryParse(c[0], NumberStyles.Float, CultureInfo.InvariantCulture, out float x) ||
+                !float.TryParse(c[1], NumberStyles.Float, CultureInfo.InvariantCulture, out float y) ||
+                !float.TryParse(c[2], NumberStyles.Float, CultureInfo.InvariantCulture, out float z))
+            {
+                return null;
+            }
+
+            points.Add(new FVector(x, y, z));
+        }
+
+        return points.Count > 0 ? points : null;
     }
 }

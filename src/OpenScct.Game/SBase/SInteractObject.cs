@@ -202,12 +202,19 @@ public partial class SInteractObject
     {
         FVector toPawn = pawn.Location - Location;
         toPawn.Z = 0f;
-        FVector front = Rotation.Vector();
-        front.Z = 0f;
         FVector facing = pawn.Rotation.Vector();
         facing.Z = 0f;
-        return (front.SafeNormal() | toPawn.SafeNormal()) > K.InFrontMinDot &&
-            (facing.SafeNormal() | (-toPawn).SafeNormal()) > K.InFrontMinDot;
+        return IsOnFrontSide(pawn.Location) && (facing.SafeNormal() | (-toPawn).SafeNormal()) > K.InFrontMinDot;
+    }
+
+    /// <summary>The first half of the in-front rule: <paramref name="location"/> is on the object's front side.</summary>
+    public bool IsOnFrontSide(FVector location)
+    {
+        FVector toPawn = location - Location;
+        toPawn.Z = 0f;
+        FVector front = Rotation.Vector();
+        front.Z = 0f;
+        return (front.SafeNormal() | toPawn.SafeNormal()) > K.InFrontMinDot;
     }
 
     // ---- small natives and events ----------------------------------------------------------------------------
