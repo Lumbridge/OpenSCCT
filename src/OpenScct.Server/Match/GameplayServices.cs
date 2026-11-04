@@ -6,6 +6,7 @@ using OpenScct.Game.Equipment;
 using OpenScct.Game.GameFlow;
 using OpenScct.Game.Movement;
 using OpenScct.Physics;
+using OpenScct.Physics.Collision;
 
 namespace OpenScct.Server;
 
@@ -19,10 +20,12 @@ namespace OpenScct.Server;
 public static class GameplayServices
 {
     /// <summary>Installs the services on <paramref name="level"/> (after the map loaded and its physics attached).</summary>
-    public static void Install(Level level, PhysicsWorld? physics, IPawnAnimationSource? animations, IPillPose? pillPose = null)
+    public static void Install(Level level, PhysicsWorld? physics, IPawnAnimationSource? animations, IPillPose? pillPose = null,
+        GadgetCollision? gadgetMeshes = null)
     {
         ArgumentNullException.ThrowIfNull(level);
         DeviceNatives.Install(level, physics?.Driver);
+        if (physics is not null) physics.Collision.GadgetMeshes = gadgetMeshes;
         level.SetService(new MovementService(animations ?? PawnAnimationSource.Default));
         if (pillPose is not null) level.SetService<IPillPose>(pillPose);
         level.SetService<IGameFlowPorts>(new MovementGameFlowPorts(level.GetService<IGameFlowPorts>()));

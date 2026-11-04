@@ -82,7 +82,7 @@ def _safe(name: str) -> str:
 
 class RenderPackStep(Step):
     name = "renderpack"
-    version = 2
+    version = 3
     deps = ()
     per_map = False
     needs_game = True
@@ -201,12 +201,40 @@ def build_pack(game: Path, out_dir: Path) -> dict:
     # ---- gameplay object meshes -----------------------------------------------------------------
     meshes = _gameplay_meshes(pset, game, out_dir / "gameplay")
     stats["gameplayMeshes"] = len(meshes)
+    stats["gadgetCollisionMeshes"] = build_gadget_collision(pset, out_dir / "gameplay" / "collision.json")
 
     doc = {"format": FORMAT, "textures": table, "gameplayMeshes": meshes,
            "notes": {k: TEXTURES[k] for k in sorted(TEXTURES)}}
     (out_dir / "render.json").write_bytes(canonical.dump_file(doc, ascii_keys=False))
     stats["pngs"] = sum(1 for v in tex.by_path.values() if v)
     return stats
+
+
+def build_gadget_collision(pset, path: Path) -> int:
+    """Original mine primitives, kept as converted content rather than source constants.
+
+    UStaticMesh::LineCheck uses the hull tree when present, including for bullets.
+    Sticky cameras deliberately keep their class-default cylinder instead.
+    """
+    cf = env.import_formats()
+    pkg = pset.get(GAMEPLAY_PACKAGE)
+    meshes = {}
+    if pkg is not None:
+        for name in ("proxy_mine", "DEF_poison", "lasertrig_standard"):
+            export = pkg.find_export(name, "StaticMesh")
+            if export is None:
+                raise ValueError(f"missing gadget collision mesh: {name}")
+            mesh = cf.smcollision.read_mesh(pkg, export)
+            collision = mesh.collision
+            hull = len(collision.hull_bsp) > 0
+            verts = collision.hull_verts[:, :3] if hull else mesh.positions
+            tris = collision.hull_tris if hull else collision.pp_tris
+            meshes[_object_path(pkg, export)] = {
+                "vertices": verts.tolist(), "triangles": tris[:, :3].tolist(),
+            }
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(canonical.dump_file({"format": "svm.gadgetcollision/1", "meshes": meshes}, ascii_keys=False))
+    return len(meshes)
 
 
 def _vision_index(pset, tex: _Exporter, game: Path) -> tuple[dict, dict]:

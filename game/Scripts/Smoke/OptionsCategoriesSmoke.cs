@@ -109,6 +109,7 @@ public sealed class OptionsCategoriesSmoke : SmokeTest
         }
         if (_frames < 8) return SmokeResult.Running;
         string where = $"{_sizes[_size].X}x{_sizes[_size].Y} HUD editor role={role} aspect={aspect}";
+        if (_size == 0 && _hudCase == 0) CheckHudMultiSelection(panel);
         _problems.AddRange(LayoutCheck.Problems(_options, _sizes[_size].X).Select(p => where + ": " + p));
         _problems.AddRange(LayoutCheck.BoundsProblems(_options, _sizes[_size]).Select(p => where + ": " + p));
         Rect2 panelBounds = panel.GetGlobalRect().Grow(1f);
@@ -338,6 +339,91 @@ public sealed class OptionsCategoriesSmoke : SmokeTest
                 role.EmitSignal(OptionButton.SignalName.ItemSelected, 0L);
             }
             Expect(!options.HasUnsavedChanges && SettingsStore.Current.ToJson() == applied, "HUD smoke restores both layouts without applying them");
+        }
+    }
+
+    private void CheckHudMultiSelection(HudEditorPanel panel)
+    {
+        var original = _options!.Editing.HudLayout.Clone();
+        string Snapshot() => System.Text.Json.JsonSerializer.Serialize(_options.Editing.HudLayout);
+        var preview = (HudEditorPreview)panel.FindChild("HudEditorPreview", true, false)!;
+        var rows = (Control)panel.FindChild("HudEditorCategoryRows", true, false)!;
+        var search = (LineEdit)panel.FindChild("HudEditorSearch", true, false)!;
+        search.Text = "";
+        search.EmitSignal(LineEdit.SignalName.TextChanged, "");
+        Button Row(string id) => rows.GetChildren().OfType<Button>().Single(b => b.Text == HudEditorSettings.Elements[id]);
+        void Click(string id, bool ctrl = false)
+        {
+            Button row = Row(id);
+            row.EmitSignal(Control.SignalName.GuiInput, new InputEventMouseButton { Pressed = true, ButtonIndex = MouseButton.Left, CtrlPressed = ctrl });
+            row.EmitSignal(BaseButton.SignalName.Pressed);
+        }
+        void History(string text) => panel.FindChildren("*", nameof(Button), true, false).OfType<Button>()
+            .Single(b => b.Text == text).EmitSignal(BaseButton.SignalName.Pressed);
+        try
+        {
+            var layout = _options.Editing.HudLayout;
+            layout.Spy["Vie"] = new HudElementSettings { X = .02f, Y = .03f, Scale = .9f, Opacity = .7f };
+            layout.Spy["Radar"] = new HudElementSettings { X = .15f, Y = .12f, Scale = 1.1f, Opacity = .8f };
+            Click("Vie"); Click("Radar", ctrl: true);
+            Expect(Row("Vie").ButtonPressed && Row("Radar").ButtonPressed && rows.GetChildren().OfType<Button>().Count(b => b.ButtonPressed) == 2,
+                "Ctrl-click in the HUD list keeps both elements selected");
+            Expect(((Label)panel.FindChild("HudEditorSelectedElement", true, false)!).Text.Contains("2 elements selected", StringComparison.Ordinal),
+                "HUD inspector confirms a multiple selection");
+            string beforeMove = Snapshot();
+            preview._GuiInput(new InputEventKey { Pressed = true, Keycode = Key.Right });
+            Expect(Math.Abs(layout.Spy["Vie"].X - .021f) < .00001f && Math.Abs(layout.Spy["Radar"].X - .151f) < .00001f,
+                "arrow nudges move all selected HUD elements by the same amount");
+            History("Undo"); Expect(Snapshot() == beforeMove, "one Undo restores the complete group nudge");
+            History("Redo");
+            string beforeReset = Snapshot();
+            Row("Radar").EmitSignal(Control.SignalName.GuiInput, new InputEventMouseButton { Pressed = true, ButtonIndex = MouseButton.Right });
+            var menu = (PopupMenu)panel.FindChild("HudEditorElementMenu", true, false)!;
+            Expect(menu.Visible && menu.GetItemText(0) == "2 elements selected", "right-click preserves the HUD group and confirms the reset target");
+            menu.EmitSignal(PopupMenu.SignalName.IdPressed, 0L); menu.Hide();
+            Expect(!_options.Editing.HudLayout.Spy.ContainsKey("Vie") && !_options.Editing.HudLayout.Spy.ContainsKey("Radar"),
+                "context Reset restores every selected HUD element");
+            History("Undo"); Expect(Snapshot() == beforeReset, "one Undo restores the complete group reset and keeps other layouts intact");
+
+            // Use a real drawn hit area, including the smallest-area rule for overlapping elements.
+            var target = preview.ElementBounds.Values.Where(r => r.Size.X > 0 && r.Size.Y > 0)
+                .Select(r => r.GetCenter()).Where(p => preview.ScreenRect.HasPoint(p))
+                .Select(p => (Point: p, Id: preview.ElementBounds.Where(e => e.Value.Grow(4).HasPoint(p)).OrderBy(e => e.Value.Area).First().Key))
+                .First(t => t.Id is not "Vie" and not "Radar");
+            preview._GuiInput(new InputEventMouseButton { Pressed = true, ButtonIndex = MouseButton.Left, Position = target.Point, CtrlPressed = true });
+            Expect(Row(target.Id).ButtonPressed && Row("Vie").ButtonPressed && Row("Radar").ButtonPressed,
+                "Ctrl-click in the HUD preview adds the hit element without replacing the group");
+            string beforeDrag = Snapshot();
+            var dragLayout = _options.Editing.HudLayout.Clone();
+            preview._GuiInput(new InputEventMouseButton { Pressed = true, ButtonIndex = MouseButton.Left, Position = target.Point });
+            preview._GuiInput(new InputEventMouseMotion { Relative = new Vector2(12, 9) });
+            preview._GuiInput(new InputEventMouseButton { Pressed = false, ButtonIndex = MouseButton.Left, Position = target.Point + new Vector2(12, 9) });
+            Vector2 Offset(HudEditorSettings settings, string id)
+            {
+                var e = settings.Spy.GetValueOrDefault(id) ?? new HudElementSettings();
+                return new Vector2(e.X, e.Y);
+            }
+            Vector2 moved = Offset(_options.Editing.HudLayout, target.Id) - Offset(dragLayout, target.Id);
+            Expect(moved.Length() > 0 && new[] { "Vie", "Radar" }.All(id => Row(id).ButtonPressed &&
+                (Offset(_options.Editing.HudLayout, id) - Offset(dragLayout, id)).IsEqualApprox(moved)),
+                "dragging a selected HUD element moves the group and grid snapping preserves relative offsets");
+            History("Undo"); Expect(Snapshot() == beforeDrag, "one Undo restores the complete group drag");
+            string beforeDeselect = Snapshot();
+            preview._GuiInput(new InputEventMouseButton { Pressed = true, ButtonIndex = MouseButton.Left, Position = target.Point, CtrlPressed = true });
+            preview._GuiInput(new InputEventMouseMotion { Relative = new Vector2(20, 20) });
+            Expect(!Row(target.Id).ButtonPressed && Row("Vie").ButtonPressed && Row("Radar").ButtonPressed && Snapshot() == beforeDeselect,
+                "Ctrl-click toggles a preview element off without dragging or snapping the remaining group");
+            Click("Radar", ctrl: true); Click("Vie", ctrl: true);
+            Expect(!rows.GetChildren().OfType<Button>().Any(b => b.ButtonPressed) &&
+                ((CheckBox)panel.FindChild("HudEditorVisible", true, false)!).Disabled, "Ctrl-click can clear the HUD selection and disables its inspector");
+            Click("Location");
+            Expect(Row("Location").ButtonPressed && rows.GetChildren().OfType<Button>().Count(b => b.ButtonPressed) == 1,
+                "an ordinary click replaces the HUD selection with one element");
+        }
+        finally
+        {
+            _options.Editing.HudLayout = original;
+            Click("Location");
         }
     }
 

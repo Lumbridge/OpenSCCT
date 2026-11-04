@@ -130,6 +130,12 @@ currently held keys, so opening it while moving does not scroll until a new pres
     (`TempsActivation`, or `Timer` at once when 0) and the gameplay object start (its interaction); `fSpawnedTime =
     now`. `Timer` enters `s_Activated`. `AcceptStickableGPO` false. `Destroyed` (server): the interaction goes and
     the owner's counter drops. `AddMineCounter(n, pc)` (server): the counter of that controller for the mine's kind.
+    **Shooting collision:** the inherited 2 uu radius/half-height is not the bullet target. These actors draw a
+    static mesh without `bUseCylinderCollision`, so zero-extent shots use its collision hull (or per-poly tree
+    when no hull exists), with the placed rotation, scale and PrePivot. Proximity/laser use `proxy_mine`, poison
+    uses `DEF_poison`, and spy traps use `lasertrig_standard`. OpenSCCT converts these three primitives into
+    `shared/render/gameplay/collision.json`; both client prediction and the server install them. Map-placed mines
+    already have map collision. This is a fixed world-space hit shape, not angular snapping or bullet redirection.
 13. **SMineProx** (armed at once): `PostBeginPlay` sets `refloc = Location + 5 X` and the off light. `s_Activated`:
     the light on (`CurrentSkin` replicated) and a 0.5 s looping timer. Native tick (decoded 0x10ac1960) on the server,
     before the actor tick: when not triggered and the timer fires this tick, `CheckArea`; when triggered and more

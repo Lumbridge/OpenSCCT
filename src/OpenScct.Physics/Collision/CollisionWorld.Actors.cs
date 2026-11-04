@@ -8,6 +8,10 @@ namespace OpenScct.Physics.Collision;
 
 public sealed partial class CollisionWorld
 {
+    /// <summary>Shared converted mine primitives for spawned actors; null without that content pack.</summary>
+    public GadgetCollision? GadgetMeshes { get; set; }
+
+    private const int GadgetMeshCollider = -2;
     private readonly List<Actor> _cylinderActors = new(64);
     private long _cylinderTick = long.MinValue;
     private int _cylinderCount = -1;
@@ -268,6 +272,19 @@ public sealed partial class CollisionWorld
             }
 
             GetCylinder(a, out float r, out float h, out bool collide, out bool blockActors, out bool blockPlayers);
+            // A mine's 2 uu cylinder is for placement. The original zero-extent shot uses its static mesh hull.
+            // Keep this ahead of the cylinder broad phase, which would reject valid hits on the hull's edges.
+            if (q.Zero && (q.Flags & ETraceFlags.TRACE_ShadowCast) == 0 &&
+                GadgetMeshes is { } meshes && meshes.TryGet(a, out GadgetCollision.Mesh? mesh))
+            {
+                if (!IsSourceOrOwnerOf(a, q.Source) && ActorPasses(a, ref q, collide, blockActors, blockPlayers) &&
+                    mesh!.LineCheck(a, q.S, q.D, q.Limit, out float meshTime, out FVector meshNormal))
+                {
+                    Consider(ref q, meshTime, ActorKey(a), meshNormal, false, GadgetMeshCollider, -1, -1, a);
+                    if (q.Done) return;
+                }
+                continue;
+            }
             var half = new FVector(r + q.E.X, r + q.E.Y, h + q.E.Z);
             FVector c = a.Location;
             // Reject distant cylinders before their owner chain and detailed trace flags. Read the live shape

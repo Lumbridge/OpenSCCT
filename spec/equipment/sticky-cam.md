@@ -57,6 +57,12 @@ per pack; a cam that is destroyed or picked up comes back as a charge.
 
 ## Rules
 
+The deployed camera's 20 uu radius and 20 uu half-height cylinder is also its shooting target:
+`bUseCylinderCollision` bypasses its mesh hull even for zero-extent bullets. It extends beyond the visible body,
+so a near miss against the model can still destroy it. This behavior already applies to OpenSCCT's camera actors;
+there is no gadget-specific aim snap in the weapon scripts or the decoded TraceBone path. Player controller
+aim snapping is a separate pawn-only feature (`spy-shocker.md`, rule 17).
+
 ### Firing a cam
 1. **Use (gadget, Alt-fire)**: refused while `now - LastUsed < RefireRate` or with the Shocker holstered
    (`WeaponLoaded == 0`). If the pawn already uses a cam (`UsedObject != None`) the next cam gets the class default

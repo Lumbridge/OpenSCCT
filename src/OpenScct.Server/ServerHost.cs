@@ -225,7 +225,7 @@ public sealed partial class ServerHost : INetworkNotify, IDisposable
         LagCompensation.Enabled = Settings.LagCompensation;
         if (Game is not null)
         {
-            GameplayServices.Install(World.Level, Map.Physics, maps.PawnAnimations, maps.PillPose);
+            GameplayServices.Install(World.Level, Map.Physics, maps.PawnAnimations, maps.PillPose, maps.GadgetMeshes);
             Combat = NetCombatBridge.Install(World.Level, Driver);
             DeviceEvents = NetDeviceEvents.InstallServer(World.Level, Driver);
             HearSound = NetHearSound.InstallServer(World, Driver);

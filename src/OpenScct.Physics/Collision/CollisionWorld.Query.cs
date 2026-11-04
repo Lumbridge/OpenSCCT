@@ -281,7 +281,8 @@ public sealed partial class CollisionWorld
     [Provenance(ProvenanceKind.Decoded, "UPrimitive / UModel / UStaticMesh LineCheck pull-backs (spec/native/collision-primitives.md)")]
     private float PullBack(float contact, float len, bool zeroExtent, int collider)
     {
-        return SvmMath.Clamp(contact - PullFraction(len, zeroExtent, collider < 0 ? null : _colliders[collider].Kind), 0f, 1f);
+        ColliderKind? kind = collider == GadgetMeshCollider ? ColliderKind.MeshHull : collider < 0 ? null : _colliders[collider].Kind;
+        return SvmMath.Clamp(contact - PullFraction(len, zeroExtent, kind), 0f, 1f);
     }
 
     /// <summary>The largest pull-back of any primitive for a trace of length <paramref name="len"/>.</summary>

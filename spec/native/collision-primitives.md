@@ -115,6 +115,15 @@ None.
 
 ## Evidence
 
+- 2026-11-04 gadget shooting audit: cached editor TraceBone body `0x110ac5d0` performs a zero-extent world trace
+  followed by a pawn pill pass; it does not redirect shots toward gadgets. `SStickyCam.PostBeginPlay` sets its
+  cylinder to 20 x 20. Mine defaults retain a 2 x 2 cylinder but select static mesh collision. Decoding the shipped
+  `SGameplayObjects` collision tails confirms hull trees for `proxy_mine`, `DEF_poison` and `lasertrig_standard`
+  (12, 14 and 10 triangles respectively). Private source evidence: `local/re-out/c/actions/editor/110ac5d0_FUN_110ac5d0.c`,
+  `local/re-out/c/physics/editor/111b7c70_UStaticMesh__LineCheck.c`, and the converted
+  `.content/shared/render/gameplay/collision.json`. Spawned mine line checks now consume those hulls; non-zero
+  extent and overlap queries keep their existing cylinder fallback.
+
 - Editor: UPrimitive::LineCheck 0x110c2400, UPrimitive::PointCheck 0x110c2200, UModel::LineCheck 0x111943e0,
   UModel::PointCheck 0x11193980, UStaticMesh::LineCheck 0x111b7c70 (tree selector 0x111b47a0, line walk
   0x111b6c50, box walk 0x111b7590), UStaticMesh::PointCheck 0x111b80c0.
