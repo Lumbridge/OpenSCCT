@@ -310,6 +310,7 @@ class RenderBuilder:
         gltf["asset"] = {"version": "2.0", "generator": "svmbuild (scctpkg export_gltf)"}
         instances = []
         vision = self._vision_values()
+        by_name = {info.name: info for info in self.src.actors}
         for a in scene["actors"]:
             if a.get("kind") not in ("staticmesh", "mover") or not a.get("mesh") or not a.get("mesh_available"):
                 continue
@@ -326,6 +327,11 @@ class RenderBuilder:
                                  ("echelon_ignore", "echelonIgnore"), ("ignored_echelon_lights", "ignoredEchelonLights")):
                 if k_src in a:
                     entry[k_dst] = a[k_src]
+            # bSpecialLit (stored, or a class default): the actor takes only the lights that share the flag (game
+            # 0x10a37d86, editor vertex bake Illuminate 0x110e8190). ambientGlow keeps its zone ambient fold.
+            info = by_name.get(a["name"])
+            if a.get("special_lit") or (info is not None and self.src.flag(info, "bSpecialLit")):
+                entry["special_lit"] = True
             if a["name"] in vision:
                 entry["vision"] = vision[a["name"]]
             if "softbody" in a:

@@ -28,6 +28,7 @@ Additive: every 1.0 file reads as before, and 1.0 readers skip what is new.
   original `LeafHulls`, decoded to `HULL` records that belong to no collider (no longer provisional).
 - `render/`: `world.glb` scene roots, library node naming by asset path and the instance table in the document
   extras; new `materials.json`, `lighting.json`, `fx.json` and `textures/*.png`.
+- `render/world.glb`: optional `special_lit` on instances whose actor has bSpecialLit.
 - `ui/mapinfo.json`: map name and briefing texts.
 - `sim/rain.json` (optional): the rain volumes' boxes and falloff, so a server without `render/` knows where pawns are
   wet.

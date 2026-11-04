@@ -1,0 +1,14 @@
+diff --git a/level.py b/level.py
+--- a/level.py
++++ b/level.py
+@@ -465,6 +465,10 @@ def extract_level(pkg: Package, pset: PackageSet, skip_refs: Collection[int] = (
+                 glow = max(glow, zone_ambient.get(region.get("Zone"), 0))
+             if glow > 0:
+                 rec.extra["ambient_glow"] = glow
++            if props.get("bSpecialLit"):
++                # Kept besides the glow fold: the actor gather and the mesh vertex bake skip every light whose
++                # bSpecialLit differs from the actor's (game 0x10a37d86, editor Illuminate 0x110e8190).
++                rec.extra["special_lit"] = True
+             # UE2 stops drawing the actor beyond CullDistance (510 mesh actors in the Versus maps, 1000-5000 uu).
+             if props.get("CullDistance"):
+                 rec.extra["cull_distance"] = float(props["CullDistance"])
