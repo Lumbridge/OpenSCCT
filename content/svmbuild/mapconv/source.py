@@ -10,6 +10,11 @@ Actor categories (decided per actor, in Level.Actors order):
     editor    editor viewports (Camera) and the builder brush (Engine.Brush); not written
     skipped   actors that never exist in the PC game: bDeleteMe / bPendingDelete ghosts and PS2-only actors
               (Platform = PLF_PSX2_Only); not written, counted
+
+An editor copy (Packages/MapsEd, the stock editor's working copy with its brushes) converts like the cooked copy the
+editor saves next to it, which is what the game loads: the actors the cook leaves out of Level.Actors (CSG brushes and
+static lights, see left_out_by_cook) are kept apart in `cooked_out` (category "editor", reason "cooked out"), and actor
+properties are stored the way the cook stores them (see _as_cooked).
 """
 
 from __future__ import annotations
@@ -21,10 +26,12 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from ..sources.classdb import ClassDB
 from ..sources.env import import_formats
-from ..sources.typedprops import Notes, Ref, default_resolver
+from ..sources.typedprops import Notes, Ref, default_resolver, walk_refs
 
 RF_HAS_STACK = 0x02000000
 PLF_PSX2_ONLY = 1
+LE_ESPOT_SHADOW = 22
+COOKED_OUT = "cooked out"
 
 EDITOR_CLASSES = ("Engine.Camera", "Engine.Brush")
 RENDER_CLASSES = ("Engine.StaticMeshActor", "Engine.Light", "Engine.Spotlight", "Engine.SunLight",
@@ -53,6 +60,7 @@ class MapSource:
 
     def __post_init__(self) -> None:
         sf = import_formats()
+        from scctpkg.bsp import EDITOR  # noqa: PLC0415
         from scctpkg.package import Package  # noqa: PLC0415
         from scctpkg.packageset import PackageSet  # noqa: PLC0415
         from scctpkg.properties import skip_state_frame  # noqa: PLC0415
@@ -61,6 +69,7 @@ class MapSource:
 
         self.path = game_file(Path(self.game), f"Packages/Maps/{self.name}.sdc")
         self.pkg = Package.load(self.path)
+        self.editor_copy = self.pkg.layout == EDITOR
         self.pset = PackageSet(package_roots(Path(self.game)))
         self.pset.register(self.pkg)
         self._path_index: Dict[str, dict] = {}
@@ -70,6 +79,7 @@ class MapSource:
         decoder = self.db.decoder
         self.actors: List[ActorInfo] = []
         self.by_ref: Dict[int, ActorInfo] = {}
+        self.cooked_out: List[ActorInfo] = []
         from .localization import apply_text, read_text  # noqa: PLC0415
 
         text = read_text(self.game, self.name)
@@ -95,6 +105,12 @@ class MapSource:
                 except Exception as ex:  # noqa: BLE001 - one bad actor must not stop the map
                     info.error = f"{type(ex).__name__}: {ex}"
                     self.notes.add("decode-error", f"{e.name}: {info.error}")
+            if self.editor_copy:
+                if pos > 0 and self.left_out_by_cook(info):
+                    info.category, info.reason = "editor", COOKED_OUT
+                    self.cooked_out.append(info)
+                    continue
+                self._as_cooked(info)
             self.classify(info)
             self.actors.append(info)
             self.by_ref[ref] = info
@@ -117,6 +133,31 @@ class MapSource:
         elif low in {c.lower() for c in RENDER_CLASSES}:
             info.category = "render"
 
+    def left_out_by_cook(self, info: ActorInfo) -> bool:
+        """True when the stock editor leaves the actor out of the cooked copy it saves next to the editor copy (actor
+        list rebuild 0x10EE13B0, predicate 0x10EDD1E0; offsets mapped through the editor's class reflection):
+        - an actor with a LightType (+0x2D1) is kept only when it matters at run time (0x10EDACF0):
+          bApplyToInGameLighting (+0x2EC 0x800000), bDynamicLight (+0x2E8 0x20000), LightEffect (+0x2D2)
+          LE_ESpotShadow, or both HeatRadius (+0x174) and HeatIntensity (+0x178) non-zero; the static lights are
+          already baked into the lightmaps and vertex colours;
+        - a brush is kept only when it is a volume (Engine.Brush 0x1181B048, Engine.Volume 0x1181B278)."""
+        if int(self.value(info, "LightType", 0) or 0) != 0:
+            return not (self.flag(info, "bApplyToInGameLighting") or self.flag(info, "bDynamicLight")
+                        or int(self.value(info, "LightEffect", 0) or 0) == LE_ESPOT_SHADOW
+                        or (float(self.value(info, "HeatRadius", 0.0) or 0.0) != 0.0
+                            and float(self.value(info, "HeatIntensity", 0.0) or 0.0) != 0.0))
+        return self.db.is_a(info.cls, "Engine.Brush") and not self.db.is_a(info.cls, "Engine.Volume")
+
+    @staticmethod
+    def _as_cooked(info: ActorInfo) -> None:
+        """An editor copy's actor properties as the cooked copy stores them. AActor::Serialize (0x110B2490) writes the PC
+        lighting instance under StaticMeshInstanceOnXBOX for the editor and under StaticMeshInstance for the cook, and
+        the PS2 one (StaticMeshInstanceOnPSX2) only for the editor."""
+        pc = info.props.pop("StaticMeshInstanceOnXBOX", None)
+        info.props.pop("StaticMeshInstanceOnPSX2", None)
+        if pc is not None:
+            info.props["StaticMeshInstance"] = pc
+
     def value(self, info: ActorInfo, name: str, default: Any = None) -> Any:
         if name in info.props:
             return info.props[name]
@@ -131,6 +172,19 @@ class MapSource:
 
     def of(self, *categories: str) -> List[ActorInfo]:
         return [a for a in self.actors if a.category in categories]
+
+    @cached_property
+    def unsaved_refs(self) -> set:
+        """The cooked-out actors the cooked copy does not store at all. The cook only takes an actor out of Level.Actors;
+        its save still writes the actor when a stored object refers to it (an IgnoredEchelonLights entry, say), and a
+        cooked copy's every actor export is drawn (scctpkg level.extract_level), so those stay in the render."""
+        pending = {a.ref: a for a in self.cooked_out}
+        stack = list(self.actors)
+        while stack and pending:
+            for ref in walk_refs(stack.pop().props):
+                if ref.ref in pending and self.own(ref):
+                    stack.append(pending.pop(ref.ref))
+        return set(pending)
 
     @cached_property
     def written_refs(self) -> set:

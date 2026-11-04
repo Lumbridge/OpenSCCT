@@ -1,0 +1,26 @@
+diff --git a/materials.py b/materials.py
+index 82eac710..588eff9f 100644
+--- a/materials.py
++++ b/materials.py
+@@ -523,9 +523,6 @@ class MaterialResolver:
+                 result = replace(frames[0][1], key=result.key, sequences={})
+                 self.cache[ckey] = result
+                 switch_material = any(_sequence_state(frame) != _sequence_state(frames[0][1]) for _, frame in frames[1:])
+-                if switch_material and any(int(item.get("Action", 0)) == 1 for item, _ in frames):
+-                    self.cache.pop(ckey, None)
+-                    raise ValueError(f"MaterialSequence {result.key} fades between incompatible material states")
+                 for slot, texture_field, chain_field in (("diffuse", "texture", "chain"),
+                         ("self_illum", "self_illum", "self_illum_chain"),
+                         ("self_illum_mask", "self_illum_mask", "self_illum_mask_chain")):
+@@ -533,7 +530,10 @@ class MaterialResolver:
+                         result.sequences[slot] = {"source": result.key, "loop": bool(props.get("Loop", True)),
+                             "paused": bool(props.get("Paused", False)), "trigger_action": int(props.get("TriggerAction", 0)),
+                             "switch_material": switch_material and slot == "diffuse",
+-                            "items": [{"time": max(0.0, float(item.get("Time", 0))), "action": int(item.get("Action", 0)),
++                            "items": [{"time": max(0.0, float(item.get("Time", 0))),
++                                # Materials of different states (blending, flags) cannot be blended: a fade
++                                # between them cuts to the next material at its time instead.
++                                "action": 0 if switch_material else int(item.get("Action", 0)),
+                                 "texture": getattr(frame, texture_field), "key": frame.key + "__" + slot,
+                                 "chain": getattr(frame, chain_field), "flipbook": frame.flipbook if slot == "diffuse" else None,
+                                 **({"material": frame} if switch_material and slot == "diffuse" else {})}
