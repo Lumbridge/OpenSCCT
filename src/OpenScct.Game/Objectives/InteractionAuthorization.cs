@@ -141,17 +141,21 @@ internal static class InteractionAuthorization
 /// <summary>
 /// The server's reach test of a use (<see cref="InteractionAuthorization"/>), for any pawn place: the pawn's cylinder
 /// overlaps the entry's (the larger of its collision and interaction cylinders), and the line from the pawn to the entry
-/// is open, stops on the entry or its owner, or stops on the surface the entry is mounted on. Tools ask it for floors a
-/// pawn could stand on.
+/// is open, stops on the entry or its owner, or stops on the surface the entry is mounted on (the pivot lies close to
+/// the hit point, or at most <see cref="MountDepth"/> behind the surface hit). Tools ask it for floors a pawn could
+/// stand on.
 /// </summary>
 public static class InteractionReach
 {
     /// <summary>
-    /// How far short of the entry the line may stop on the surface the entry is mounted on. A wall-mounted entry has its
-    /// pivot a few units inside its wall (SteeE's first aid boxes 1.2 to 1.5, stock switches up to about 15), and the
-    /// original's own use rule, the touch of the two cylinders, has no line to refuse it.
+    /// How far behind the surface it is mounted on an entry's pivot may lie, measured along the hit surface's normal
+    /// (and, as a straight distance, how far short of the pivot the line may stop). A wall-mounted entry has its pivot
+    /// inside its wall: SteeE's first aid boxes 1.2 to 1.5, the largest stock insets about 19 (StroD SInterrupteur36 and
+    /// SInterrupteur37, TSP29 SInfirmary44). A standing pawn's line meets that wall at a slant, often further from the
+    /// pivot than the depth itself, so the depth is taken along the normal. The original's own use rule, the touch of
+    /// the two cylinders, has no line to refuse it.
     /// </summary>
-    public const float MountDepth = 16f;
+    public const float MountDepth = 20f;
 
     /// <summary>
     /// True when a pawn of <paramref name="pawnRadius"/> by <paramref name="pawnHeight"/> (half height) centred at
@@ -169,6 +173,9 @@ public static class InteractionReach
         // We need the nearest obstruction: a BSP surface behind an attached panel must not mask the panel hit.
         var flags = GadgetWorld.SightFlags & ~OpenScct.Physics.Collision.ETraceFlags.TRACE_StopAtFirstHit;
         if (!world.LineCheck(out var hit, pawn, entry.Location, pawnLocation, FVector.Zero, flags) || !hit.bHit) return true;
-        return ReferenceEquals(hit.Actor, entry) || ReferenceEquals(hit.Actor, entry.Owner) || (hit.Location - entry.Location).Size() <= MountDepth;
+        // The hit normal faces the line's start (the pawn), so a pivot behind the surface hit has a positive depth.
+        return ReferenceEquals(hit.Actor, entry) || ReferenceEquals(hit.Actor, entry.Owner) ||
+            (hit.Location - entry.Location).Size() <= MountDepth ||
+            (hit.Time > 0f && ((hit.Location - entry.Location) | hit.Normal) <= MountDepth);
     }
 }
