@@ -79,9 +79,10 @@ root. Entries live in `.content/cache/entries/`, output files once each in `.con
 and mtime memo of file digests in `.content/cache/filehash.json`. A hit restores missing or damaged outputs from the
 objects. With `--jobs`, consecutive per-map steps run map by map in spawned worker processes; each worker hashes
 with its own memo and the parent merges what they computed. A unit whose outputs are not under the content root
-fails before it runs; the check compares absolute paths without resolving them, because resolving a folder another
-worker is creating can return a different form of the same path on Windows. Delete `.content/cache/` to reclaim
-space.
+fails before it runs. The check compares absolute paths, because on Windows resolving a folder that does not exist
+yet while another worker creates its parent can return a different form of the same path; outputs that already
+exist are resolved as well, so a link that leads out of the content root is refused before it is cleared. Delete
+`.content/cache/` to reclaim space.
 
 ## Layout
 

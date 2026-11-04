@@ -74,3 +74,12 @@ def is_within_lexical(path, root) -> bool:
         return os.path.commonpath([p, r]) == r
     except ValueError:  # different drives
         return False
+
+
+def is_output_within(path, root) -> bool:
+    """Whether a step may write (and clear) an output path under an already resolved root.
+
+    Always checked lexically (see is_within_lexical). A path that already exists is also resolved, so a link below
+    root that leads out of it is refused before its target is cleared; resolving an existing path has no race.
+    """
+    return is_within_lexical(path, root) and (not Path(path).exists() or is_within(path, root))
