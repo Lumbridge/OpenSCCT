@@ -217,8 +217,8 @@ public sealed class ConveyorPath
         arcIn = at - (at - prev) * (tangentLength / lenIn);
         arcOut = at + (next - at) * (tangentLength / lenOut);
         float side = cross > 0f ? 1f : -1f;
-        var left = new FVector(-dIn.Y, dIn.X, 0f);
-        FVector centre = arcIn + left * (r * side);
+        var across = new FVector(-dIn.Y, dIn.X, 0f);
+        FVector centre = arcIn + across * (r * side);
         return Piece.Arc(arcIn, arcOut, centre, r, turn * side);
     }
 
@@ -236,7 +236,9 @@ public sealed class ConveyorPath
         public readonly FVector Centre;
         public readonly float Radius;
 
-        /// <summary>Signed turn of an arc in radians: positive turns left (counter-clockwise seen from above).</summary>
+        /// <summary>
+        /// Signed turn of an arc in radians: positive turns from +X towards +Y (to the right in UE's left-handed frame).
+        /// </summary>
         public readonly float Sweep;
 
         private readonly float _startAngle;
@@ -310,7 +312,7 @@ public sealed class ConveyorPath
             float dx = p.X - surface.X;
             float dy = p.Y - surface.Y;
             distance = SvmMath.Sqrt(dx * dx + dy * dy);
-            // Positive to the left of the direction of travel.
+            // Positive towards +Y of the direction of travel (its right-hand side in UE's frame).
             lateral = flatTangent.X * dy - flatTangent.Y * dx;
             along = Length * u;
             tangent = Tangent(flatTangent);

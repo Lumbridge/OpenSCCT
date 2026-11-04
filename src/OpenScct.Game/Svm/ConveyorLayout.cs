@@ -22,7 +22,7 @@ public static class ConveyorLayout
     /// <summary>Instance name suffix of the steps (escalator look); V runs along the path.</summary>
     public const string StepsPart = ".Steps";
 
-    /// <summary>Instance name suffix of the rollers (frame look); U runs once round each roller.</summary>
+    /// <summary>Instance name suffix of the drums at a frame's open ends; U runs once round each drum.</summary>
     public const string RollersPart = ".Rollers";
 
     /// <summary>uu of belt one texture repeat covers along the path.</summary>
@@ -31,13 +31,14 @@ public static class ConveyorLayout
     /// <summary>Length of one escalator step (and of one texture repeat on the steps).</summary>
     public const float StepLength = 40f;
 
-    /// <summary>Rise of one escalator step at most; steeper runs get shorter steps.</summary>
+    /// <summary>
+    /// Highest rise of one escalator step the editor's map check accepts without a warning (a 30 degree slope). Steps
+    /// are always <see cref="StepLength"/> long, so a steeper escalator gets taller steps.
+    /// </summary>
     public const float StepRise = 20f;
 
-    public const float RollerRadius = 6f;
-
-    /// <summary>Distance between roller centres along the path.</summary>
-    public const float RollerPitch = 24f;
+    /// <summary>Radius of a frame's end drums: half of <see cref="FrameDepth"/>, so a drum closes the frame's end.</summary>
+    public const float RollerRadius = 16f;
 
     /// <summary>Height of the frame's side walls above the belt.</summary>
     public const float WallHeight = 24f;

@@ -20,7 +20,7 @@ metadata and the shared look values), `game/Scripts/Views/ConveyorViews.cs` (dra
 | `bOn` | true | Running. |
 | `bCarryPlayers` | true | Carries walking pawns (players and bots). |
 | `bCarryObjects` | true | Carries dropped disks and data drives (server). |
-| `Look` | `CL_Frame` | `CL_Frame` (belt, side walls, rollers), `CL_Driver` (nothing built; the map's own meshes are the look and the floor), `CL_Treadmill` (flat belt, low edges), `CL_Escalator` (steps, balustrades). |
+| `Look` | `CL_Frame` | `CL_Frame` (belt, side walls, end drums), `CL_Driver` (nothing built; the map's own meshes are the look and the floor), `CL_Treadmill` (flat belt, low edges), `CL_Escalator` (steps, balustrades). |
 | `Walls` | `CW_Both` | Which sides of a frame have a wall: `CW_Both`, `CW_Left`, `CW_Right`, `CW_None`. |
 | `TriggerAction` | `CT_Toggle` | What an event does: `CT_Toggle`, `CT_TurnOn`, `CT_TurnOff`, `CT_Reverse`. |
 | `ItemMeshes` | empty | Static meshes riding the belt; each item picks one from the seed. |
@@ -111,10 +111,21 @@ conveyor's id:
 |---|---|---|
 | `<id>.Belt` | frame, treadmill | V runs along the path, one repeat every 128 uu |
 | `<id>.Steps` | escalator | V runs along the path, one repeat per 40 uu step |
-| `<id>.Rollers` | frame | U runs once round each 6 uu roller, rollers every 24 uu |
+| `<id>.Rollers` | frame | the half drums (16 uu radius) at an open path's ends; U runs once round a drum |
 
-The frame (walls 24 uu high and 8 thick, a body 32 uu deep), treadmill edges (4 uu) and escalator balustrades (96 uu)
-are static. `ConveyorLayout` holds these values for the builder and the game.
+The rest is the static `<id>.Frame`: a body 32 uu deep under the riding surface, and on each side `Walls` names a
+wall 8 uu thick, 24 uu high on a frame, 4 uu (edges) on a treadmill and 96 uu (balustrades) on an escalator. Left
+and right are as seen facing the direction of travel (right is +Y when travelling along +X). An open path's ends are
+closed by the drums on a frame, else by a flat end. `ConveyorLayout` holds these values for the builder and the game.
+
+- The belt and the body follow the path: straight runs, arcs cut every 15 degrees, at most 64 uu between
+  cross-sections (lighting is per vertex), widened at a sharp corner so both runs keep their width.
+- Escalator steps are 40 uu along the path each. A step's tread is level at the lower of its two ends and its riser
+  stands at the higher end, so the nosings lie on the slope. The shape does not move; the texture slides one repeat per
+  step. Pawns collide with the slope, not the steps. More than 20 uu rise per step (over 30 degrees) is a map check
+  warning.
+- Textures: the belt and steps use `BeltMaterial` (U across, one repeat per 128 uu), the drums too, and the frame
+  `FrameMaterial`; with none, the editor's default material.
 
 Clients slide the moving parts' textures by the phase at the displayed server time (each node gets its own material
 copies), including every `ScrollTargets` mesh. Items are drawn one node each and lit as actors (they take the actor

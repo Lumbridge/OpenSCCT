@@ -36,8 +36,8 @@ differs from the class defaults, typed as in 1.1. Example:
 
 ## `sim/classes.json`
 
-A map that writes the table includes `Svm.Conveyor` (super `Engine.Actor`) with the class's defaults, as for any
-class an actor uses.
+The table need not list `Svm.Conveyor`. A reader that finds no entry for it uses the class's own defaults (the props
+above and [conveyors](../../additions/conveyors.md)); a map that does list it gives `Engine.Actor` as its super.
 
 ## `sim/collision.bin`
 

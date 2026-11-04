@@ -12,13 +12,13 @@ namespace OpenScct.Game.Svm;
 /// <summary>How a conveyor looks. The editor builds the look into the map; the game moves its belt, rollers and items.</summary>
 public enum EConveyorLook : byte
 {
-    /// <summary>A generated frame: belt, side walls and rollers.</summary>
+    /// <summary>A generated frame: belt, side walls and, at an open path's ends, drums.</summary>
     CL_Frame,
 
     /// <summary>Nothing generated: the author's own meshes are the look and the floor (RE+ "driver" belts).</summary>
     CL_Driver,
 
-    /// <summary>A flat belt surface with low edges and no rollers (travelators).</summary>
+    /// <summary>A flat belt surface with low edges (travelators).</summary>
     CL_Treadmill,
 
     /// <summary>A stepped belt with balustrades (escalators); riders stand on its slope.</summary>
@@ -119,7 +119,7 @@ public sealed partial class Conveyor : Actor, IConveyor
     /// <summary>Material of the belt surface the editor builds (frame, treadmill and escalator looks).</summary>
     public AssetRef BeltMaterial;
 
-    /// <summary>Material of the frame, walls and rollers the editor builds.</summary>
+    /// <summary>Material of the frame and walls the editor builds (the belt, steps and drums use BeltMaterial).</summary>
     public AssetRef FrameMaterial;
 
     /// <summary>Distance travelled at <see cref="ChangeTick"/> (replicated): the belt's phase is continuous across changes.</summary>
