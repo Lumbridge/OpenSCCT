@@ -135,8 +135,8 @@ internal static class GameAdditions
         new("setup", "Installation, hosting and settings", "Install content, connect to a session and adjust the game for your computer.",
         [
             // README.md; committed docs/LAUNCHER.md; launcher Install and Update workflows.
-            new("launcher", "Windows launcher", "The launcher installs the game and checks for updates.",
-                ["Download required content or prepare it from your own game installation.", "Updates download changed files where available, and the launcher updates itself.", "Rebuild content or open the release notes from the launcher."],
+            new("launcher", "Windows and Linux launchers", "Native launchers install the game and keep it up to date on Windows and Linux.",
+                ["Download the game, required content and additional maps from the launcher.", "Updates download changed files where available, and the launcher updates itself.", "Play an installed version offline or open the latest release notes."],
                 "/download", "Download OpenSCCT"),
 
             // docs/CONTENT-PACKS.md; ContentScreen; MapPickerView; committed docs/ONLINE.md, Missing maps.
@@ -164,9 +164,9 @@ internal static class GameAdditions
                 ["Choose windowed or fullscreen modes, monitor, resolution and graphics quality.", "Use a frame-rate limit, match the monitor refresh rate or leave it unlimited.", "Optional performance and connection graphs can appear only when issues occur; music, effects and voice have separate volume controls."],
                 "https://github.com/Lumbridge/OpenSCCT/blob/main/docs/HUD.md#options-and-settings", "Display and sound settings"),
 
-            // docs/LINUX.md: native x86_64 and Flatpak; Steam Deck hardware validation pending.
-            new("linux", "Experimental Linux support", "A native Linux version is available as a standalone build or Flatpak package.",
-                ["First-run setup downloads the content needed to play.", "Steam Deck hardware testing is still pending.", "The Flatpak package is updated by installing a newer bundle."],
+            // docs/LINUX.md: native x86-64 launcher and Flatpak; Steam Deck hardware validation pending.
+            new("linux", "Experimental Linux support", "Install with the native Linux launcher or choose the alternative Flatpak game package.",
+                ["The native launcher installs and updates the game without Wine, Proton or a separate .NET installation.", "Linux gameplay remains experimental; Steam Deck hardware testing is still pending.", "The Flatpak package is updated by installing a newer bundle."],
                 "/download", "Linux download options"),
         ]),
     ];

@@ -11,7 +11,7 @@ This is the website. The in-game social space is covered in the [social hub guid
 
 | Page | What you can do |
 | --- | --- |
-| Download | Get the launcher and installation instructions. |
+| Download | Compare Windows, native Linux and Flatpak downloads side by side, with platform setup instructions. |
 | Servers | Find listed games and hubs by map, mode, region and free space; join the installed game. |
 | Players | Find a player and view rank, stats, achievements, unlocks and recorded rounds. |
 | Leaderboards | Compare lifetime XP, wins or kills from counted rounds. |
@@ -22,7 +22,8 @@ This is the website. The in-game social space is covered in the [social hub guid
 | My account | Manage your name, privacy, sign-ins, prestige, unlocked cosmetics and title. |
 
 **Join** opens `openscct://join/<server-id>`. On Windows, run the launcher once to register the handler;
-launcher 0.8.26 and game 0.8.58 or later are required. Flatpak 0.8.58+ registers it on Linux and Steam Deck.
+launcher 0.8.26 and game 0.8.58 or later are required. On Linux, run `install.sh` from the native launcher
+archive to register the handler. Flatpak 0.8.58+ also registers it on Linux and Steam Deck.
 The link contains only the public server ID. The game uses its own sign-in and asks for a password if needed.
 Browser sign-in does not sign in the game. Active matches are not interrupted; joining waits for the main menu.
 If no app opens, follow the page's installation/update link. Unlisted servers and private connection details

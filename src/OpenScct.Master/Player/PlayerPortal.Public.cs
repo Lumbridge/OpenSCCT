@@ -61,26 +61,6 @@ internal sealed partial class PlayerPortal
     private static string Feature(string step, string title, string description, string url, string label) =>
         $"<article class=\"feature-card\"><span class=\"step\">{H(step)}</span><h3>{H(title)}</h3><p>{H(description)}</p>{Link(url, label, "text-link")}</article>";
 
-    private IResult Download(HttpContext c) => Show(c, "Download OpenSCCT", "download",
-        PageHeader("GET STARTED", "Download OpenSCCT", "Choose the Windows or Linux download below. You do not need to own the original game.") +
-        "<div class=\"grid-two\"><section class=\"panel download-card\"><p class=\"eyebrow\">OPENSCCT FOR WINDOWS</p><h2>Windows launcher</h2>" +
-        "<p class=\"lead\">Download and run the launcher. It installs OpenSCCT, downloads the game files, and handles updates.</p>" +
-        Link("https://github.com/Lumbridge/OpenSCCT/releases/latest/download/OpenSCCT.Launcher.exe", "Download for Windows ↗", "button") +
-        "<span class=\"platform\">Windows 64-bit · Automatic game updates</span><p class=\"account-side-note\">You do not need your own copy of Splinter Cell: Chaos Theory. " +
-        "If you already own it, the launcher can use the files from your installation instead.</p>" +
-        Link("/changelog", "Read update notes →", "text-link") + "</section>" +
-        "<section class=\"panel\"><h2>Install on Windows</h2><ol class=\"download-steps\"><li><strong>Open the launcher</strong><p>Save OpenSCCT.Launcher.exe in a folder such as Downloads, run it, and choose Install.</p></li>" +
-        "<li><strong>Download the game files</strong><p>Choose Download game files and wait for the download and preparation to finish.</p></li>" +
-        "<li><strong>Start playing</strong><p>Choose PLAY. In the game, use Find a Session to join a match, or Hub to visit a social space. You can also practice offline with bots.</p></li></ol></section></div>" +
-        Section("Linux & Steam Deck", "<div class=\"panel download-card\"><p class=\"eyebrow\">EXPERIMENTAL · LINUX · INTEL/AMD 64-BIT</p><h2>Linux and Steam Deck</h2>" +
-            "<p class=\"lead\">Download the Flatpak installation file and follow the Linux setup guide. On Steam Deck, setup starts in Desktop Mode. Steam Deck testing is still pending.</p><div class=\"button-row\">" +
-            Link("https://github.com/Lumbridge/OpenSCCT/releases/latest/download/OpenSCCT-linux-x86_64.flatpak", "Download for Linux ↗", "button secondary") +
-            Link("https://github.com/Lumbridge/OpenSCCT/blob/main/docs/LINUX.md", "Linux setup guide ↗", "text-link") + "</div></div>") +
-        Section("Getting started", "<div class=\"grid-three\">" +
-            Feature("01", "Playing without an account", "You can play offline and join servers marked Guests welcome from inside the game without an account. Sign in with Discord to reserve a name and save your stats.", "/account", "Set up your account →") +
-            Feature("02", "Find people to play with", "See which games have room for more players. Hubs are social spaces where you can meet between matches. Some servers need an account or password.", "/servers", "Browse games and hubs →") +
-            Feature("03", "Need help installing?", "Find setup guides, report a problem or suggest an improvement.", "/help", "Get help →") + "</div>"));
-
     private IResult Servers(HttpContext c)
     {
         List<PublicServer> all = LiveServers();
@@ -101,7 +81,7 @@ internal sealed partial class PlayerPortal
             ", run it once, then try Join again. Sign in inside the game if prompted.</aside>" +
             "<div data-live=\"servers\">" + ServerTable(rows, join: true) + "</div><p class=\"inline-notice\">This list shows servers that have chosen to appear publicly. Player counts refresh automatically and may take a moment to catch up.</p>" +
             Section("Joining from your browser", "<div class=\"panel\"><p>On Windows, install or update the launcher and open it once to enable Join links. " +
-                "On Linux and Steam Deck, install the latest Flatpak. Your browser may ask permission to open OpenSCCT. Website Join links use your Discord sign-in inside the game; signing in on the website does not sign you into the game.</p>" +
+                "On Linux, run install.sh from the native launcher archive to enable Join links, or install the Flatpak. On Steam Deck, start in Desktop Mode. Your browser may ask permission to open OpenSCCT. Website Join links use your Discord sign-in inside the game; signing in on the website does not sign you into the game.</p>" +
                 "<p>If the game is already running, Join uses that window. If you are in a match, it waits until you return to the main menu. Enter any server password in the game.</p>" +
                 "<p class=\"account-side-note\">Join links need game version 0.8.58 or later and, on Windows, launcher version 0.8.26 or later. You can also browse games through Find a Session or visit hubs through Hub in the game.</p>" +
                 Link("/download", "Download or update OpenSCCT →", "text-link") + "</div>"));
