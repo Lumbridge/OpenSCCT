@@ -28,7 +28,7 @@ public partial class RoundScoreboardDialog : Window
         column.AddThemeConstantOverride("separation", 10);
         margin.AddChild(column);
         string outcome = scoreboard.Partial ? "Incomplete" : scoreboard.Winner == 0 ? "Spies win" : scoreboard.Winner == 1 ? "Mercenaries win" : "Round stopped";
-        CareerPanels.Text(column, "Title", scoreboard.Map + " · " + outcome + (scoreboard.Practice ? " · Practice" : ""), size: 22);
+        CareerPanels.Text(column, "Title", MapTitles.WithCode(MapImages.Default, scoreboard.Map) + " · " + outcome + (scoreboard.Practice ? " · Practice" : ""), size: 22);
         CareerPanels.Text(column, "Metadata", $"{scoreboard.StartedUtc.ToLocalTime():dd MMM yyyy HH:mm} · {scoreboard.Server} · {RoundScoreboardModel.Clock(scoreboard.ElapsedSeconds)}", dim: true, size: 14);
         var scroll = new ScrollContainer { SizeFlagsVertical = Control.SizeFlags.ExpandFill, SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
         column.AddChild(scroll);

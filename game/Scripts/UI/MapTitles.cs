@@ -8,6 +8,13 @@ namespace OpenScctGame.UI;
 /// </summary>
 public static class MapTitles
 {
+    public static string WithCode(MapCatalog maps, string? id)
+    {
+        string name = Of(maps, id);
+        return string.Equals(name, id, System.StringComparison.OrdinalIgnoreCase) || string.IsNullOrEmpty(id)
+            ? name : $"{name} ({id})";
+    }
+
     public static string Of(MapCatalog maps, string? id)
     {
         if (string.IsNullOrEmpty(id))

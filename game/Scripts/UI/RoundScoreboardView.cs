@@ -66,7 +66,7 @@ public partial class RoundScoreboardView : VBoxContainer
         var heading = new HBoxContainer { MouseFilter = MouseFilterEnum.Ignore };
         AddChild(heading);
         string subtitle = (board.Practice ? " · Practice" : "") + (board.Partial ? " · Partial" : "");
-        Text(heading, "Map", (string.IsNullOrWhiteSpace(board.Map) ? "Scoreboard" : board.Map) + subtitle, UiStyle.Text, font + 5, 2);
+        Text(heading, "Map", (string.IsNullOrWhiteSpace(board.Map) ? "Scoreboard" : MapTitles.WithCode(MapImages.Default, board.Map)) + subtitle, UiStyle.Text, font + 5, 2);
         Text(heading, "Time", RoundScoreboardModel.Clock(board.ElapsedSeconds), UiStyle.Dim, font, 1, HorizontalAlignment.Right);
         _timing = Text(this, "Timing", RoundScoreboardModel.Timing(board, SnapshotAge), UiStyle.Dim, font);
         int first = RoundScoreboardModel.FirstTeam(board, LocalParticipantId);
