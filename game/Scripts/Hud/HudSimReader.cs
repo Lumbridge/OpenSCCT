@@ -14,7 +14,9 @@ namespace OpenScctGame.Hud;
 /// <summary>
 /// Reads the local player's HUD state from the simulation: the controller, its pawn, its SHud, the GRI and PRIs,
 /// following the native page drivers (docs/HUD.md, spec/hud/*.md), plus the HUD's own effect state
-/// (<see cref="HudEffects"/>). Read only: nothing here writes simulation state.
+/// (<see cref="HudEffects"/>). Read only: nothing here writes simulation state, except that asking an entry's
+/// <c>CanUse</c> for the use list builds a bomb spot's fan the first time (<c>SInteractObject.MaxDistToInteract</c>),
+/// as the original's menu does on this machine.
 /// </summary>
 public sealed class HudSimReader : IHudSource
 {

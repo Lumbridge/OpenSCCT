@@ -278,8 +278,9 @@ so another terminal, disk, or bomb site can be attempted. Terminal approach heig
 at the actual interaction point, and off-grid route endpoints require a clear final walking segment. Bomb sites
 are used only from in front, within the spot's fan (interaction-system.md rule 23), so spies planting and mercs
 defusing walk to a floor on the spot's front axis that passes the fan and the server's reach test
-(`AiBrain.FanFloor`), falling back to the nearest suitable nav floor when there is none. Mercs defuse standing; a
-spy stays crouched unless the spot is out of a crouched pawn's fan reach, then he stands to plant.
+(`AiBrain.FanFloor`), falling back to the nearest suitable nav floor when there is none. Choosing the floor
+measures a fan without storing it, so it does not freeze the entry's own fan. Mercs defuse standing; a spy stays
+crouched unless the spot is out of a crouched pawn's fan reach, then he stands to plant.
 
 | Merc goal | When | What |
 |---|---|---|

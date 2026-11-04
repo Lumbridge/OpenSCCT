@@ -195,7 +195,8 @@ public abstract class AiBrain
     /// A floor in front of a bomb spot (<see cref="SInteractObject.UsesCollisionFan"/>) where this pawn, its centre
     /// <paramref name="centerHeight"/> above the floor, can use it: on the entry's horizontal X axis, nearest first,
     /// with room to stand, inside the entry's fan and the server's reach test. Null when the entry has no fan or no such
-    /// floor is found; the caller then keeps its nav floor.
+    /// floor is found; the caller then keeps its nav floor. The entry's own fan is not built here: it is frozen at the
+    /// first CanUse, so a question asked from afar (a door closed in front then) must not fix it.
     /// </summary>
     protected FVector? FanFloor(SInteractObject entry, float centerHeight)
     {
@@ -209,6 +210,7 @@ public abstract class AiBrain
         }
 
         const ETraceFlags world = ETraceFlags.TRACE_Level | ETraceFlags.TRACE_LevelGeometry | ETraceFlags.TRACE_Movers;
+        float[] fan = entry.MaxDistToInteract[0] == -1f ? entry.MeasureMaxDistToInteract() : entry.MaxDistToInteract;
         float radius = Pawn.CollisionRadius;
         foreach (float distance in FanFloorDistances)
         {
@@ -221,7 +223,7 @@ public abstract class AiBrain
 
             FVector center = floor.Location + new FVector(0f, 0f, centerHeight + 1f);
             if (World.Collision.PointCheck(out _, Pawn, center, new FVector(radius, radius, centerHeight), world) ||
-                !entry.InCollisionFan(center) ||
+                !entry.InCollisionFan(center, fan) ||
                 !Objectives.InteractionReach.From(entry, Pawn, center, radius, centerHeight))
             {
                 continue;
