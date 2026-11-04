@@ -63,7 +63,7 @@ public sealed class MagmaOverride
 /// <summary>
 /// One instance of a Magma area (a page is the root instance). Each instance has its own clock at its area's frame
 /// rate unless it is synchronized with its parent; integer frames fire the keyframe actions (GotoFrame, Stop) while
-/// keyframe values are interpolated at the continuous frame. A hidden instance does not advance.
+/// keyframe values are interpolated at the continuous frame. Hidden instances pause unless their driver keeps them ticking.
 /// </summary>
 public sealed class MagmaNode
 {
@@ -122,6 +122,14 @@ public sealed class MagmaNode
     public bool Playing { get; set; } = true;
 
     public bool Visible { get; private set; } = true;
+
+    /// <summary>Keep an independent animation clock running when hidden, as the original scanner cones do.</summary>
+    public bool TickWhenHidden { get; set; }
+
+    /// <summary>Use original integer image edges and byte color rounding throughout this subtree.</summary>
+    public bool NativeImageRendering { get; set; }
+
+    internal bool UsesNativeImageRendering => NativeImageRendering || Parent?.UsesNativeImageRendering == true;
 
     /// <summary>Instance position in the parent area, replacing the keyframe position (native position writes).</summary>
     public Vector2? PositionOverride { get; set; }
@@ -216,7 +224,7 @@ public sealed class MagmaNode
 
     public void Tick(float dt)
     {
-        if (!Visible)
+        if (!Visible && !TickWhenHidden)
         {
             return;
         }

@@ -16,21 +16,29 @@ public static class RoundScoreboardModel
     public static string Number(int value) => Math.Max(0, value).ToString("N0", CultureInfo.InvariantCulture);
     public static string Stat(RoundScoreboard board, ScoreboardPlayer player, string key)
     {
-        if (player.Stats is null) return !board.Completed && !board.Partial && player.StatsVersion > 0 ? "Pending" : "—";
+        if (player.Stats is null) return !board.Completed && !board.Partial && player.StatsVersion > 0 ? "0" : "—";
         if (player.Stats.TryGetValue(key, out int value)) return Number(value);
         return player.StatsVersion > 0 ? "0" : "—";
     }
 
     public static string Lives(ScoreboardPlayer player) => player.Lives < -1 ? "—" : player.Lives == -1 || player.Lives >= 100 ? "∞" : Number(player.Lives);
     public static string Objectives(ScoreboardPlayer player) => player.Objectives < 0 ? "—" : Number(player.Objectives);
-    public static string Timing(RoundScoreboard board) => board.Completed ? "Final totals"
+    public static string Timing(RoundScoreboard board, double snapshotAge = 0) => board.Completed ? "Final totals"
         : board.Partial && board.EndedUtc is not null && board.AsOfSeconds >= board.ElapsedSeconds ? "Round stopped · final totals" : board.Partial
         ? board.AsOfSeconds is { } released
             ? $"Partial record · combat totals through {Clock(released)}"
             : "Partial record · no combat sample was released before leaving"
-        : board.AsOfSeconds is { } time
-            ? $"Combat stats delayed 30s · through {Clock(time)}"
-            : board.SchemaVersion > 0 ? "Combat stats delayed 30s · waiting for the first sample" : "Detailed stats unavailable on this server";
+        : board.SchemaVersion > 0 ? LiveTiming(board, snapshotAge) : "Detailed stats unavailable on this server";
+
+    private static string LiveTiming(RoundScoreboard board, double snapshotAge)
+    {
+        // Snapshots arrive once per second; the first combat sample must first age for 30 seconds.
+        double remaining = (board.AsOfSeconds is null ? Math.Max(1, 30 - board.ElapsedSeconds) : 1)
+            - Math.Max(0, snapshotAge);
+        return remaining > 0
+            ? "Combat stats delayed 30s · Next update " + (Math.Ceiling(remaining * 10) / 10).ToString("0.0", CultureInfo.InvariantCulture) + "s"
+            : "Combat stats delayed 30s · Awaiting update…";
+    }
     public static string Clock(double seconds)
     {
         int total = (int)Math.Clamp(double.IsFinite(seconds) ? seconds : 0, 0, int.MaxValue);

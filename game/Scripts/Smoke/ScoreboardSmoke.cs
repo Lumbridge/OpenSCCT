@@ -68,7 +68,7 @@ public sealed class ScoreboardSmoke : SmokeTest
             Expect(labels.Contains("Cam sleep") || labels.Contains("Cam KO"), "spy rows have their own columns");
         if (view.Scoreboard.Rows.Any(p => p.Team == 1))
             Expect(labels.Contains("Damage") && labels.Contains("Mines"), "merc rows have their own columns");
-        if (_step % Cases == 1) Expect(labels.Contains("Pending"), "unreleased counters display Pending");
+        if (_step % Cases == 1) Expect(labels.Contains("0") && !labels.Contains("Pending"), "unreleased counters display zero");
         if (_step % Cases == 2) Expect(labels.Contains("—"), "legacy counters display unavailable");
         if (_step % Cases == 3) Expect(labels.Contains("3 earlier participants are included in final details") && !labels.Any(t => t.StartsWith("Earlier player")), "departed rows never displace the 24 active participants");
         MenuPage.Shot(view, $"scoreboard-{Sizes[_step / Cases].X}x{Sizes[_step / Cases].Y}-{_step % Cases}");

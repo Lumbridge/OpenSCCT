@@ -10,7 +10,20 @@ namespace OpenScctGame.UI;
 /// <summary>Role-specific round tables shared by the live overlay, results, lobby and match library.</summary>
 public partial class RoundScoreboardView : VBoxContainer
 {
-    public RoundScoreboard? Scoreboard { get; set; }
+    private RoundScoreboard? _scoreboard;
+    private long _snapshotReceived;
+    private Label? _timing;
+    public RoundScoreboard? Scoreboard
+    {
+        get => _scoreboard;
+        set
+        {
+            if (ReferenceEquals(_scoreboard, value)) return;
+            _scoreboard = value;
+            _snapshotReceived = System.Diagnostics.Stopwatch.GetTimestamp();
+        }
+    }
+    private double SnapshotAge => System.Diagnostics.Stopwatch.GetElapsedTime(_snapshotReceived).TotalSeconds;
     public int LocalParticipantId { get; set; } = -1;
     public bool Detailed { get; set; }
     /// <summary>Available screen height for a passive live board; menus use their normal scroll container.</summary>
@@ -33,12 +46,15 @@ public partial class RoundScoreboardView : VBoxContainer
     {
         bool compact = Size.X < 1000 || !Detailed && LiveHeight < 700;
         if (_compact != compact) { _compact = compact; Refresh(); }
+        if (_timing is not null && Scoreboard is { } board)
+            _timing.Text = RoundScoreboardModel.Timing(board, SnapshotAge);
     }
 
     public void Refresh()
     {
         if (!IsInsideTree()) return;
         CareerPanels.Clear(this);
+        _timing = null;
         _details = null;
         AddThemeConstantOverride("separation", !Detailed && _compact ? 4 : 8);
         if (Scoreboard is not { } board)
@@ -52,7 +68,7 @@ public partial class RoundScoreboardView : VBoxContainer
         string subtitle = (board.Practice ? " · Practice" : "") + (board.Partial ? " · Partial" : "");
         Text(heading, "Map", (string.IsNullOrWhiteSpace(board.Map) ? "Scoreboard" : board.Map) + subtitle, UiStyle.Text, font + 5, 2);
         Text(heading, "Time", RoundScoreboardModel.Clock(board.ElapsedSeconds), UiStyle.Dim, font, 1, HorizontalAlignment.Right);
-        Text(this, "Timing", RoundScoreboardModel.Timing(board), UiStyle.Dim, font);
+        _timing = Text(this, "Timing", RoundScoreboardModel.Timing(board, SnapshotAge), UiStyle.Dim, font);
         int first = RoundScoreboardModel.FirstTeam(board, LocalParticipantId);
         var tableBoard = Detailed ? board : board with { Rows = RoundScoreboardModel.LiveRows(board) };
         TeamTable(tableBoard, first, font);
