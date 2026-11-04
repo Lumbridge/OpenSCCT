@@ -5,6 +5,7 @@ using System.Text.Json;
 using Godot;
 using OpenScct.Core;
 using OpenScct.Physics.Collision;
+using OpenScctGame.Render.Data;
 
 namespace OpenScctGame.Render.Characters;
 
@@ -78,10 +79,12 @@ public static class AnimatedProps
             // for SteeE's crane (DrawScale 10) reach far from its location.
             (FVector center, float radius) = Bounds(model);
             (bool specialLit, IReadOnlySet<string>? ignored) = map.LightFilterOf(id);
-            ActorLeafBounds? box = RestBox(model) is { } rest
-                ? ActorLighting.LeafBounds(rest, (OpenScct.Core.Engine.EPhysics)Int(p, "Physics"), exact: false)
-                : null;
-            model.Light(map.LightActor(center, radius, glow, specialLit, ignored, RenderK.MaxActorLights, box));
+            // MaxLights and Physics over the class defaults, as the game reads them from the runtime actor.
+            GameplayActor? placed = map.Actors.Find(id);
+            int maxLights = placed?.Int("MaxLights", RenderK.MaxActorLights) ?? RenderK.MaxActorLights;
+            var physics = (OpenScct.Core.Engine.EPhysics)(placed?.Int("Physics") ?? Int(p, "Physics"));
+            ActorLeafBounds? box = RestBox(model) is { } rest ? ActorLighting.LeafBounds(rest, physics, exact: false) : null;
+            model.Light(map.LightActor(center, radius, glow, specialLit, ignored, maxLights, box));
             props.Add(new AnimatedProp(id, model, location, drawScale));
         }
 
