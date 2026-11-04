@@ -116,7 +116,7 @@ Fields that drive behaviour (types, class default from `def:Engine.Mover`):
 | `BasePos`, `BaseRot` | vector, rotator | placement Location/Rotation | origin of the keys |
 | `NumKeys` | byte, const | 2 | number of keys used |
 | `KeyNum`, `PrevKeyNum` | byte | 0, set to `KeyNum` at BeginPlay | target key and key it left; equal means at rest |
-| `MoveTime` | float | 1.0 s | time of each leg |
+| `MoveTime` | float | 1.0 s | time of each leg (a map can give each leg its own: [mover legs](../additions/mover-legs.md)) |
 | `StayOpenTime` | float | 4.0 s | wait at the open key (timed states) |
 | `DelayTime`, `DelayTimeLastKey` | float | 0, 0 | wait before opening, before closing |
 | `OtherTime` | float | 0 | TriggerPound wait at open |
