@@ -109,7 +109,7 @@ with `--addons <folder>`; a map absent from Reloaded's name table uses its manif
 
 ### Converter notes
 
-- Cooked lightmap atlases are 256 x 256 after `CompressLightmaps`, which box-filters the baked 512 x 512 atlases
+- Lightmap atlases that went through `CompressLightmaps` are 256 x 256: it box-filters the baked 512 x 512 atlases
   2 x 2 and bleeds light across chart borders. Most shipped maps store uncompressed 512 x 512 atlases; ClarD, CineU,
   MounU, OffsD, PyroD, ShadD and VertU store only 256 x 256 ones ([Lightmaps](LIGHTMAPS.md#charts-and-atlases)).
   The converter keeps each atlas at its stored size.

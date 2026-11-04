@@ -44,9 +44,16 @@ texel's distance over the light's radius. `R = max(radius, 1)` is read from the 
 radius is `25 x (LightRadius + 1)` uu. "cos" below is the incidence, the cosine between the surface normal and the
 direction to the light.
 
+The switch tests the effect with a chain of compares; every effect in the table except the point row has its own
+branch. LE_Searchlight (4, 0x111b0386), LE_SlowWave (5, 0x111b0819), LE_FastWave (6, 0x111b0a06), LE_Shock (9,
+0x111b0bf9), LE_Disco (10, 0x111b0e5e), LE_Interference (16, 0x111b1198), LE_Cylinder (17, 0x111b1054) and LE_Rotor
+(18, 0x111b0649) also have their own branches, several of them using `fpatan`, `fsin` or `fcos`. This page does not
+decode those terms. The point term applies only to the effects that reach the end of the chain (0x111b174f), such as
+LE_None and LE_PointAmbient.
+
 | LightEffect | Term | Where |
 |---|---|---|
-| default (point) | `S(x) x cos` | falloff table below |
+| no branch of its own (point) | `S(x) x cos` | end of the chain at 0x111b174f; falloff table below |
 | LE_StaticSpot (8), LE_Spotlight (12) | point term `x ((cos a - k) / (1 - k))^2` inside the cone, `k = 1 - LightCone / 256`, `a` the angle from the light's direction | compares at 0x111b133a and 0x111b1342, spot path at 0x111b1a2e |
 | LE_Sunlight (19) | `max(0, -Dir . N)`; the absolute value on two-sided polygons (PolyFlags 0x100) | 0x111b0208 |
 | LE_NonIncidence (13) | `max(1 - x, 0)` | 0x111b134a |
@@ -55,7 +62,9 @@ direction to the light.
 
 - **Falloff table.** `S(x) = 1 - 3x^2 + 2x^3`. The bake reads it from a 4096-entry table at 0x11aab038, built at
   0x111af1d0: entry `i` holds `S(x) / x` for `x = sqrt((i + 1) / 4096)`, so it is indexed by squared distance,
-  `round(4093 d^2 / R^2)`, with the index capped at 0x1000.
+  `round(4093 d^2 / R^2)`. Every lookup is guarded by `cmp idx, 0x1000` then `jae` (for example 0x111b06b3,
+  0x111b139b, 0x111b14c9, 0x111b160c), so a texel whose index is 0x1000 or more gets no light from that light; the
+  index is not clamped to the last entry.
 - **The spot cone is the old Unreal cone.** The bake's cone is `((cos a - k) / (1 - k))^2`. The run-time actor
   lights use the Direct3D cone instead (`phi = 1.15 acos(k^2)`, [Rendering](RENDERING.md#actor-lighting)), so a
   baked spot and the same spot lighting a pawn have different edges.
@@ -103,9 +112,11 @@ Each BSP surface gets a chart (decoded, 0x111a0410 and 0x1119ebb0):
 - `CompressLightmaps` (0x1119edf0) box-filters each RGBA8 atlas 2 x 2 down to 256 x 256. That filter crosses chart
   borders, so neighbouring charts bleed into each other.
 
-Measured on the shipped maps: most store 512 x 512 atlases, so they were saved without `CompressLightmaps`. Every
-atlas of ClarD, CineU, MounU, OffsD, PyroD, ShadD and VertU is 256 x 256, and DeftD and DeftS each have two 256 x 256
-atlases among their 512 x 512 ones. What decides whether a map's atlases were compressed is not decoded.
+Measured on the Beta 3 maps: most store 512 x 512 atlases (364 of 394), so they were saved without
+`CompressLightmaps`. Every atlas of ClarD, CineU, MounU, OffsD, PyroD, ShadD and VertU is 256 x 256 (the other 30).
+The same map can differ between releases: the SVM 3.6 copies of DeftD and DeftS store only 256 x 256 atlases (6 and
+7), where the Beta 3 copies store only 512 x 512 ones (8 and 7). What decides whether a map's atlases were
+compressed is not decoded.
 
 ## Which lights bake
 

@@ -5,18 +5,25 @@ cook that turns an editor copy into a shipped map chooses what to keep. The conv
 follows this layout. [Lightmaps](../../docs/LIGHTMAPS.md) describes how the lighting stored here was computed.
 
 Evidence: addresses are in the stock `ChaosTheory_Editor.exe` (image base 0x10e00000; the `editor` entry of
-[re/binaries.lock.json](../../re/binaries.lock.json)). **Decoded** from that binary, then **measured** on all 572
-distinct map packages of the installs we hold (shipped `Maps/` and editor `MapsEd/` copies): every Model export
-parses to its last byte with this layout.
+[re/binaries.lock.json](../../re/binaries.lock.json)). **Decoded** from that binary, then **measured**:
+
+- Every Model export of the 572 distinct map packages of the installs we hold (shipped `Maps/` and editor `MapsEd/`
+  copies) parses to its last byte in exactly one of the two layouts below, editor or cooked.
+- The cooked layout alone parses all 3,346 Model exports of the 83 cooked Beta 3 packages (`Packages/Maps/*.sdc`:
+  81 maps plus Entry and Lobby) to the last byte.
 
 ## Editor and cooked layout
 
 1. Whether a package is written in the editor layout or the cooked layout depends on a run-time save target, the
-   byte at offset 0x80 of the object at `*(0x11691D7C)`: 0 is the editor layout, 1 to 3 are cooked targets. Nothing
+   dword at offset 0x80 of the object at `*(0x11691D7C)` (written as `mov dword ptr [edx + 0x80], 0` at 0x10ee4f37):
+   0 is the editor layout, 1 to 3 are cooked targets. Nothing
    in the file records it; a reader has to know where the package came from (decoded).
 2. One editor Save writes both copies: `MapsEd/` with target 0, then `Maps/` with target 2 (0x10ee4d30, which
    calls 0x10ee4750) (decoded).
-3. Only editor autosaves are multi-chunk zlib containers, in chunks of 15,728,640 bytes. Shipped maps and editor
+3. The two layouts differ in two places: what follows each FBspSurf
+   ([BSP surfaces and polygons](#bsp-surfaces-and-polygons)) and an editor-only LightMaps array in the UModel tail
+   ([UModel](#umodel)). Everything else in a Model export is the same in both.
+4. Only editor autosaves are multi-chunk zlib containers, in chunks of 15,728,640 bytes. Shipped maps and editor
    copies are plain packages (measured).
 
 ## UModel
@@ -39,6 +46,7 @@ Leaves                             compact n, n x FLeaf
 Lights                             compact n, n x light object reference
 i32 RootOutside, i32 Linked
 Sections                           compact n, n x FBspSection
+LightMaps (editor layout only)     compact n, n x FLightMap
 LightMapTextures                   compact n, n x FLightMapTexture
 ```
 
@@ -52,7 +60,7 @@ uses the nodes and LeafHulls.
 - **NodeFlags keeps only bits 0x1F on load** (the mask is applied at 0x110ce08a). Bit 0x20 is NF_IsNew; 0x40 and
   0x80 are scratch bits of the BSP filter. None of the three survives a load.
 - The node's second FSphere is written from an uninitialised stack value; its bytes carry no meaning.
-- Measured: no node carries any bit of 0xE0, neither the 178,101 nodes of the 78 cooked Beta 3 maps nor the 163,547
+- Measured: no node carries any bit of 0xE0, neither the 178,101 nodes of the 83 cooked Beta 3 packages nor the 163,547
   of the 84 shipped world models. Bit 0x01 (NF_NotCsg) is set on 10,004 nodes and 0x04 on 9,169. 0x04 is
   NF_NotVisBlocking in stock Unreal Engine 2; that meaning is not confirmed for SCCT.
 - Because 0x20 is masked off on load, the line check's "not a CSG node" test (`K.Bsp.NotCsgFlags` 0x21 in
@@ -70,7 +78,19 @@ is the one the PC build uses for its lightmap charts ([Lightmaps](../../docs/LIG
 editor's surface properties page has `OnLightMapScaleChangedPSX2` and `OnLightMapScaleChangedXBOX` handlers
 (`WPagePanRotScale`) and no PC variant.
 
-Measured: the two floats differ on 28,880 of 111,460 surfaces, for example 32 against 256.
+What follows a surface's fixed fields depends on the layout (FBspSurf 0x110cd830):
+
+- Editor layout: every surface is followed by its source brush face, an `FPoly` in world space, then an object
+  reference Actor (the brush) and a compact iBrushPoly.
+- Cooked layout: a surface is followed by an `FPoly` only when its PolyFlags has 0x0C000000 set (portal 0x04000000
+  or mirror 0x08000000); other surfaces have nothing after the two scales.
+
+An `FPoly` (0x110cbdf0) is compact NumVertices, f32[3] Base, Normal, TextureU, TextureV, NumVertices x f32[3],
+u32 PolyFlags, object reference Actor, object reference Material, name ItemName, compact iLink, compact iBrushPoly,
+f32 LightMapScalePSX2, f32 LightMapScaleXBOX.
+
+Measured on the 111,460 surfaces of the 83 cooked Beta 3 packages: the two scales differ on 28,880, for example 32
+against 256.
 
 ### FLeaf and the light list
 
@@ -85,6 +105,12 @@ Measured: the two floats differ on 28,880 of 111,460 surfaces, for example 32 ag
 A section is its vertex list (compact count, then 40-byte vertices: f32[3] position, f32[3] normal, f32 U, V,
 f32 lightmap U, V) followed by the trailer (0x110cd3f0): i32, object reference Material, i32, u32 PolyFlags,
 i32 iLightMapTexture.
+
+### FLightMap (editor layout only)
+
+An editor copy keeps the per-surface lightmap records between Sections and LightMapTextures; the cook drops them.
+Each is 7 compact indices, an FMatrix (64 bytes), 3 FVectors, then compact k and k x {object reference Light,
+compact b, b bytes, 7 x i32}, then an object reference and an i32.
 
 ### FLightMapTexture
 
