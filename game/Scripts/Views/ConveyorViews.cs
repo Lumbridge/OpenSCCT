@@ -53,13 +53,13 @@ public sealed class ConveyorViews
             }
 
             var belt = new Belt(record.Id, conveyor);
-            AddScroll(belt, record.Id + ConveyorLayout.BeltPart, ConveyorLayout.BeltTile, 1);
-            AddScroll(belt, record.Id + ConveyorLayout.RollersPart, 2f * MathF.PI * ConveyorLayout.RollerRadius, 0);
+            AddScroll(belt, record.Id + ConveyorLayout.BeltPart, ConveyorLayout.BeltTile, 1, null);
+            AddScroll(belt, record.Id + ConveyorLayout.RollersPart, 2f * MathF.PI * ConveyorLayout.RollerRadius, 0, null);
             foreach (FConveyorScroll target in conveyor.ScrollTargets)
             {
                 if (target.Target is { Length: > 0 } id && target.UnitsPerTile != 0f)
                 {
-                    AddScroll(belt, id, target.UnitsPerTile, target.Axis);
+                    AddScroll(belt, id, target.UnitsPerTile, target.Axis, target.Material.Path);
                 }
             }
 
@@ -198,9 +198,10 @@ public sealed class ConveyorViews
 
     /// <summary>
     /// Gives a map node its own copies of its materials and of their later passes (the vision passes sample the same
-    /// texture), so this conveyor's scroll does not move the same texture on other meshes.
+    /// texture), so this conveyor's scroll does not move the same texture on other meshes. With
+    /// <paramref name="material"/> (an asset path) only the surfaces drawn with that material scroll.
     /// </summary>
-    private void AddScroll(Belt belt, string actorId, float unitsPerTile, byte axis)
+    private void AddScroll(Belt belt, string actorId, float unitsPerTile, byte axis, string? material)
     {
         if (!_map.Gameplay.TryGetValue(actorId, out GameplayMesh? entry) || entry.Node.Mesh is not { } mesh)
         {
@@ -210,13 +211,33 @@ public sealed class ConveyorViews
         var materials = new List<ShaderMaterial>();
         for (int i = 0; i < mesh.GetSurfaceCount(); i++)
         {
-            if ((entry.Node.GetSurfaceOverrideMaterial(i) ?? mesh.SurfaceGetMaterial(i)) is ShaderMaterial shared)
+            if ((entry.Node.GetSurfaceOverrideMaterial(i) ?? mesh.SurfaceGetMaterial(i)) is ShaderMaterial shared &&
+                (material is null || DrawsMaterial(shared, material)))
             {
                 entry.Node.SetSurfaceOverrideMaterial(i, OwnCopy(shared, materials));
             }
         }
 
+        if (materials.Count == 0 && material is not null)
+        {
+            _map.Warnings.Add($"conveyor {belt.Id}: {actorId} has no surface drawn with {material} to scroll");
+        }
+
         belt.Scrolls.Add(new Scroll(materials, unitsPerTile, axis));
+    }
+
+    /// <summary>
+    /// Whether a compiled material is the map's material <paramref name="asset"/> (Package.Group.Name): its name is the
+    /// render material's, Package.Name with the exporter's variant suffixes after "__".
+    /// </summary>
+    private static bool DrawsMaterial(ShaderMaterial shared, string asset)
+    {
+        string name = shared.ResourceName;
+        int cut = name.IndexOf("__", StringComparison.Ordinal);
+        string root = cut >= 0 ? name[..cut] : name;
+        int dot = asset.IndexOf('.', StringComparison.Ordinal);
+        string shortPath = dot < 0 ? asset : asset[..dot] + asset[asset.LastIndexOf('.')..];
+        return string.Equals(root, asset, StringComparison.OrdinalIgnoreCase) || string.Equals(root, shortPath, StringComparison.OrdinalIgnoreCase);
     }
 
     private static ShaderMaterial OwnCopy(ShaderMaterial shared, List<ShaderMaterial> copies)

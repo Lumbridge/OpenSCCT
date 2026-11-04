@@ -62,13 +62,15 @@ public struct FConveyorPoint
 
 /// <summary>
 /// A mesh of the map whose texture scrolls with the conveyor (driver looks): the placed actor's id, the uu one texture
-/// repeat covers along the direction of travel, and the texture axis that runs along it (0 U, 1 V).
+/// repeat covers along the direction of travel (negative where the texture's axis runs against it), the texture axis
+/// that runs along it (0 U, 1 V), and the material that scrolls (None: every material of the mesh).
 /// </summary>
 public struct FConveyorScroll
 {
     public string Target;
     public float UnitsPerTile;
     public byte Axis;
+    public AssetRef Material;
 }
 
 /// <summary>

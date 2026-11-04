@@ -97,10 +97,12 @@ def _sprite_blend(material, style: int) -> str:
 
 
 class RenderBuilder:
-    def __init__(self, src: MapSource, work: Path, gameplay_ids: set):
+    def __init__(self, src: MapSource, work: Path, gameplay_ids: set, item_meshes: Optional[List[Ref]] = None):
         self.src = src
         self.work = Path(work)
         self.gameplay_ids = gameplay_ids
+        # Meshes conveyors carry as items (conveyors.py): library nodes even when no placed actor uses them.
+        self.item_meshes = list(item_meshes or [])
         self.stats: Dict[str, Any] = {}
         self.files: Dict[str, bytes] = {}
         self._particle_refs: Optional[List[Ref]] = None
@@ -119,6 +121,7 @@ class RenderBuilder:
             shutil.rmtree(self.work)
         self.work.mkdir(parents=True)
         extra = [r.ref for r in self._swap_meshes()] + [r.ref for r in self._particle_meshes()]
+        extra += [r.ref for r in self.item_meshes if self.src.own(r)]
         st = export_gltf.export_map(self.src.path, self.src.pset, self.work, include_bsp=True,
                                     extra_mesh_refs=extra, skip_refs=self.src.unsaved_refs)
         out = self.work / self.src.name
@@ -236,6 +239,7 @@ class RenderBuilder:
             refs.append(sm)
         refs.extend(self._swap_meshes())
         refs.extend(self._particle_meshes())
+        refs.extend(self.item_meshes)
         for sm in refs:
             if not isinstance(sm, Ref) or sm.ref == 0 or not sm.path:
                 continue

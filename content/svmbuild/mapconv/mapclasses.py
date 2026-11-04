@@ -12,6 +12,9 @@ Two RE+ families become native data instead, and their actors are not written:
 - SCharacterOutfits (v7) and its older names: the teams' textures and replacement models, to render/outfits.json
   with the textures in render/textures/ and the models in render/chars/<Map>/ (spec/svmap/1.2/outfits.md).
   ReloadedBotController, the do-nothing controller RE+'s Play Level bots used, is dropped with them.
+
+RE+'s conveyor belts (ConveyorBelt and its runtime classes) and AeroD's AerTreadScroll become native Svm.Conveyor
+actors in conveyors.py.
 """
 
 from __future__ import annotations

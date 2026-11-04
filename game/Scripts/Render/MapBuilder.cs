@@ -276,8 +276,8 @@ public sealed class RenderMap
     public Dictionary<string, GameplayMesh> Gameplay { get; } = new(StringComparer.Ordinal);
 
     /// <summary>
-    /// The meshes gameplay objects swap to (TriggeredMesh, DamagedMeshes) that no placed actor shows, by asset path
-    /// (ignoring case), lit by the actor.
+    /// The meshes gameplay objects swap to (TriggeredMesh, DamagedMeshes) that no placed actor shows, and the meshes
+    /// conveyors carry as items (also those a placed actor shows), by asset path (ignoring case), lit by the actor.
     /// </summary>
     public Dictionary<string, ArrayMesh> SwapMeshes { get; } = new(StringComparer.OrdinalIgnoreCase);
 
@@ -567,16 +567,19 @@ public static class MapBuilder
 
         /// <summary>
         /// The library meshes no placed actor uses: the meshes gameplay objects swap to (TriggeredMesh,
-        /// DamagedMeshes[].StaticMesh), which the converter adds to the library. They are built once, lit by the
-        /// actor, for <see cref="RenderMap.SwapMeshes"/>.
+        /// DamagedMeshes[].StaticMesh), which the converter adds to the library; and the conveyors' item meshes, which
+        /// a placed actor may use too (where its baked light does not suit an item moving through the map). They are
+        /// built once, lit by the actor, for <see cref="RenderMap.SwapMeshes"/>.
         /// </summary>
         private void AddSwapMeshes()
         {
+            HashSet<string> items = ConveyorItemMeshes();
             foreach ((string name, int mesh) in _libraryMeshes)
             {
                 bool used = _usedLibraryMeshes.Contains(name);
                 bool particle = _particleMeshes.Contains(name);
-                if ((used && !particle) || name.Contains('#', StringComparison.Ordinal))
+                bool item = items.Contains(name);
+                if ((used && !particle && !item) || name.Contains('#', StringComparison.Ordinal))
                 {
                     continue;
                 }
@@ -596,7 +599,7 @@ public static class MapBuilder
 
                 if (arrayMesh.GetSurfaceCount() > 0)
                 {
-                    if (!used)
+                    if (!used || item)
                     {
                         _map.SwapMeshes[name] = arrayMesh;
                     }
@@ -607,6 +610,31 @@ public static class MapBuilder
                     }
                 }
             }
+        }
+
+        /// <summary>The asset paths of the meshes the map's conveyors carry as items (Svm.Conveyor ItemMeshes).</summary>
+        private HashSet<string> ConveyorItemMeshes()
+        {
+            var names = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (GameplayActor actor in _map.Actors.Actors)
+            {
+                if (!string.Equals(actor.Class, "Svm.Conveyor", StringComparison.OrdinalIgnoreCase) ||
+                    !actor.TryGet("ItemMeshes", out JsonElement meshes) || meshes.ValueKind != JsonValueKind.Array)
+                {
+                    continue;
+                }
+
+                foreach (JsonElement m in meshes.EnumerateArray())
+                {
+                    if (m.ValueKind == JsonValueKind.Object && m.TryGetProperty("$asset", out JsonElement path) &&
+                        path.GetString() is { Length: > 0 } asset)
+                    {
+                        names.Add(asset);
+                    }
+                }
+            }
+
+            return names;
         }
 
         private void ReadMaterials()

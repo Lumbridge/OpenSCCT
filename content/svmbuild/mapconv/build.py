@@ -10,6 +10,7 @@ from .. import canonical
 from ..svmap import LATEST_VERSION, write_svmap
 from ..writers.collision import KINDS, read_collision
 from .collision import CollisionBuilder
+from .conveyors import build_conveyors
 from .gameplay import build_class_table, build_gameplay
 from .mapclasses import build_match, build_outfits, map_script_actors
 from .props import build_skeletal_props
@@ -20,7 +21,7 @@ from .strategicmap import build_strategic_map
 from .traversal import build_traversal
 
 GENERATOR = "svmbuild.maps"
-# A map with sim/match.json or render/outfits.json is SVMap 1.2 (spec/svmap/1.2); every other map stays 1.1.
+# A map with sim/match.json, render/outfits.json or conveyors is SVMap 1.2 (spec/svmap/1.2); every other map stays 1.1.
 MATCH_OUTFITS_VERSION = "1.2.0"
 GENERATOR_VERSION = 1
 
@@ -37,7 +38,8 @@ def build_map(game: Path, name: str, out_dir: Path, db, *, map_sha256: str, clas
     # The RE+ classes lifted into native data are taken out of the actors first (mapclasses.py).
     match, mstats = build_match(src)
     outfit_files, ostats = build_outfits(src, db, Path(out_dir).parent / ".work" / f"{name}-outfits", write=render)
-    gameplay, ui, gstats = build_gameplay(src)
+    conveyors = build_conveyors(src)
+    gameplay, ui, gstats = build_gameplay(src, conveyors.actors)
     class_table = build_class_table(src)
     timings["gameplay"] = time.perf_counter() - t
 
@@ -59,8 +61,10 @@ def build_map(game: Path, name: str, out_dir: Path, db, *, map_sha256: str, clas
             nm = cb.d.name_of(z.actor)
             if nm:
                 zone_index[nm] = i
+        # The meshes converted conveyors scroll are gameplay instances (the client moves their materials); their
+        # items are library meshes the client builds lit as actors.
         rb = RenderBuilder(src, Path(out_dir).parent / ".work" / name, {a["id"] for a in gameplay["actors"]} |
-                           {gameplay["levelInfo"]["id"]})
+                           {gameplay["levelInfo"]["id"]} | conveyors.scroll_targets, conveyors.item_meshes)
         render_files = rb.build(zone_index, ui)
         rstats = rb.stats
         # The skeletal props the map places travel with it (render/chars/): a downloaded map's anim package is often
@@ -69,7 +73,7 @@ def build_map(game: Path, name: str, out_dir: Path, db, *, map_sha256: str, clas
         render_files.update(outfit_files)
         timings["render"] = time.perf_counter() - t
 
-    version = MATCH_OUTFITS_VERSION if match is not None or ostats else LATEST_VERSION
+    version = MATCH_OUTFITS_VERSION if match is not None or ostats or conveyors.actors else LATEST_VERSION
     gameplay["formatVersion"] = traversal["formatVersion"] = version
     title = str(src.level_info.props.get("Title") or ui.get("MapName") or name)
     source = {"kind": "converted", "generator": GENERATOR, "generatorVersion": GENERATOR_VERSION,
@@ -109,7 +113,7 @@ def build_map(game: Path, name: str, out_dir: Path, db, *, map_sha256: str, clas
                       "materials": len(d.materials), "detail": cb.stats},
         "traversal": tstats,
         "mapClasses": {"defined": list(src.map_classes), "scripts": sorted({a.cls for a in map_script_actors(src)}),
-                       "match": mstats, "outfits": ostats},
+                       "match": mstats, "outfits": ostats, "conveyors": conveyors.stats},
         "render": rstats,
         "sizes": sizes,
         "files": len(manifest["files"]),

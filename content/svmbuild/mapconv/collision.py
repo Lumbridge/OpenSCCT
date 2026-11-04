@@ -13,7 +13,7 @@ Colliders, in this order:
    is kept.
 2. brush: every gameplay actor with a Brush (BlockingVolume, Volume, SDamageVolume, PhysicsVolume ...), in brush
    local space with the actor's transform; its nodes go to BSPN and, when the brush is convex, its planes to HULL.
-3. static meshes: every actor (gameplay or render) whose collision primitive is its static mesh: DrawType
+3. static meshes: every actor (gameplay, render or lifted) whose collision primitive is its static mesh: DrawType
    DT_StaticMesh, a StaticMesh, no Brush, bUseCylinderCollision false, and bCollideActors true. One collider per
    collision set the mesh has (per-polygon triangles and the simple-collision triangles from scctformats.smcollision),
    in mesh local space with the actor's transform, sharing vertices between actors of the same mesh. Kind: mover
@@ -601,6 +601,10 @@ class CollisionBuilder:
         src = self.src
         world = self.add_world()
         for info in src.actors:
+            if info.category == "lifted" and self.static_mesh_primitive(info):
+                # A lifted actor's own mesh is world geometry (a drawn RE+ conveyor belt's frame).
+                self.add_mesh_actor(info)
+                continue
             if info.category not in ("gameplay", "render"):
                 continue
             if info.category == "gameplay" and self.add_brush(info):
