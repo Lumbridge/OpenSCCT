@@ -50,10 +50,12 @@ Launcher updates are verified and staged beside the executable. Choose **Restart
 Keep the executable in a user-writable directory so it can replace itself without root. Package-manager
 installations under `/usr` generally cannot self-update and are not the distribution format provided here.
 
-The launcher needs the distribution packages supplying `libX11`, `libICE`, `libSM`, `fontconfig`, OpenSSL,
+The launcher needs the distribution packages supplying `libX11`, `libICE`, `libSM`, `fontconfig`, OpenSSL 3,
 the C/C++ runtimes, zlib and CA certificates. Wayland desktops also need XWayland. The game additionally
 needs working Vulkan/OpenGL drivers and audio libraries. These are normally present on a full desktop;
 minimal installations may need to install them. The launcher bundles .NET and Avalonia's native libraries.
+On Fedora 45, install `openssl3-libs` (`sudo dnf install openssl3-libs`); its default OpenSSL 4 package
+does not provide the OpenSSL 3 libraries used by the bundled .NET runtime.
 
 Launcher data is `${XDG_DATA_HOME:-~/.local/share}/OpenSCCT/`, including `versions/`, `downloads/`,
 `cache/` and `packs/`. Game settings remain separately under
