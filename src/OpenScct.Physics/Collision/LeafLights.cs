@@ -138,13 +138,20 @@ public sealed class LeafLights
     /// <summary>The light ids a leaf lists (empty for an unknown leaf).</summary>
     public ReadOnlySpan<int> LightsOf(int leaf) => (uint)leaf < (uint)_leafLights.Length ? _leafLights[leaf] : [];
 
-    /// <summary>The leaves a sphere touches (each once), a stand-in for the original's actor leaf array.</summary>
-    public void SphereLeaves(FVector center, float radius, List<int> into)
+    /// <summary>
+    /// The leaves a sphere touches (each once): the leaves of an actor that has no bounds box here (pawns, the bots' light
+    /// field, emitters), a stand-in for the original's actor leaf array, which is built from the actor's bounds box
+    /// (<see cref="BoxLeaves"/>).
+    /// </summary>
+    [Provenance(ProvenanceKind.Estimated, "a bounds sphere standing in for the actor's bounds box (actor+0x1c4 in the original)")]
+    public void SphereLeaves(FVector center, float radius, List<int> into) => SphereLeaves(center, radius, into, strict: false);
+
+    private void SphereLeaves(FVector center, float radius, List<int> into, bool strict)
     {
         ArgumentNullException.ThrowIfNull(into);
         List<(int Node, bool Front)> sides = t_sides ??= [];
         sides.Clear();
-        _world.SphereLeafNodes(center, radius, sides);
+        _world.SphereLeafNodes(center, radius, sides, strict);
         foreach ((int node, bool front) in sides)
         {
             int leaf = LeafOf(node, front);
@@ -166,7 +173,7 @@ public sealed class LeafLights
         float max = MathF.Max(ex, MathF.Max(ey, ez));
         if (2f * min > max)
         {
-            SphereLeaves(center, extent.Size(), into);
+            SphereLeaves(center, extent.Size(), into, strict: true);
             return;
         }
 

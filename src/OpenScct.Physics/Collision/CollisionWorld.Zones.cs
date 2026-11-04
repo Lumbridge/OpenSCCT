@@ -79,11 +79,13 @@ public sealed partial class CollisionWorld : IZoneRegions
 
     /// <summary>
     /// Every world BSP leaf side a sphere touches: descends both children where the sphere straddles a node's plane and
-    /// adds (node from the world collider's first node, front) for each empty child reached. A stand-in for the leaves
-    /// an actor touches (the original's actor leaf array, built from its bounds).
+    /// adds (node from the world collider's first node, front) for each empty child reached. The original's actor leaf
+    /// walk takes this branch for a chunky bounds box (a sphere of radius |extent|), with strict tests: the back side when
+    /// the plane distance is below the radius, the front side when its negation is (<paramref name="strict"/>). Without
+    /// <paramref name="strict"/> a sphere exactly touching a plane from the back also reaches the front side.
     /// </summary>
-    [Provenance(ProvenanceKind.Estimated, "sphere descent of the world BSP for the actor's touched leaves (actor+0x1c4 in the original)")]
-    public void SphereLeafNodes(FVector center, float radius, List<(int Node, bool Front)> into)
+    [Provenance(ProvenanceKind.Decoded, "actor leaf walk sphere branch, game 0x10a08320: back when d < r, front when -d < r (0x10a08429, 0x10a0846c)")]
+    public void SphereLeafNodes(FVector center, float radius, List<(int Node, bool Front)> into, bool strict = false)
     {
         ArgumentNullException.ThrowIfNull(into);
         if (_bspRoot < 0)
@@ -101,7 +103,7 @@ public sealed partial class CollisionWorld : IZoneRegions
             stack.RemoveAt(stack.Count - 1);
             CollisionBspNode n = _bsp[at];
             float d = n.Plane.PlaneDot(center);
-            if (d >= -r)
+            if (strict ? -d < r : d >= -r)
             {
                 if (n.Front >= 0) stack.Add(n.Front);
                 else into.Add((at - _bspRoot, true));
@@ -118,10 +120,11 @@ public sealed partial class CollisionWorld : IZoneRegions
     /// <summary>
     /// Every world BSP leaf side an axis-aligned box (<paramref name="center"/>, half size <paramref name="extent"/>)
     /// touches, by the box branch of the original's actor leaf walk: at each node the box reaches
-    /// |Nx ex| + |Ny ey| + |Nz ez| across the plane, and both children are descended where it straddles. Adds
-    /// (node from the world collider's first node, front) for each empty child reached, as <see cref="SphereLeafNodes"/>.
+    /// push = |Nx ex| + |Ny ey| + |Nz ez| across the plane; the back side is descended when the plane distance is below
+    /// push and the front side when its negation is (both strict). Adds (node from the world collider's first node,
+    /// front) for each empty child reached, as <see cref="SphereLeafNodes"/>.
     /// </summary>
-    [Provenance(ProvenanceKind.Decoded, "actor leaf walk, game 0x10a08320: box test per node plane, push = |Nx ex| + |Ny ey| + |Nz ez|")]
+    [Provenance(ProvenanceKind.Decoded, "actor leaf walk, game 0x10a08320: box test per node plane, push = |Nx ex| + |Ny ey| + |Nz ez|, back when d < push, front when -d < push")]
     public void BoxLeafNodes(FVector center, FVector extent, List<(int Node, bool Front)> into)
     {
         ArgumentNullException.ThrowIfNull(into);
@@ -141,7 +144,7 @@ public sealed partial class CollisionWorld : IZoneRegions
             CollisionBspNode n = _bsp[at];
             float d = n.Plane.PlaneDot(center);
             float push = MathF.Abs(n.Plane.Normal.X * ex) + MathF.Abs(n.Plane.Normal.Y * ey) + MathF.Abs(n.Plane.Normal.Z * ez);
-            if (d >= -push)
+            if (-d < push)
             {
                 if (n.Front >= 0) stack.Add(n.Front);
                 else into.Add((at - _bspRoot, true));
