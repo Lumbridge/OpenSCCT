@@ -363,7 +363,7 @@ def level_models(pkg: Package) -> Tuple[int, int]:
 
 def world_model(pkg: Package) -> Optional[Export]:
     """The world BSP the PC game uses: ModelXBOX, else ModelPSX2 (the stock editor loads them in that order). Cooked
-    copies hold only ModelXBOX; some editor copies also hold a smaller PS2 world."""
+    copies hold only ModelXBOX; some editor copies also hold a PS2 world, not always the smaller one."""
     psx2, xbox = level_models(pkg)
     ref = xbox or psx2
     return pkg.exports[ref - 1] if ref > 0 else None

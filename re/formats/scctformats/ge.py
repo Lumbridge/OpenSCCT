@@ -12,7 +12,8 @@ Level export layout, package version 300 (all fields little-endian, "compact" = 
     FURL        Protocol, Host, Map, Portal (FString), compact nOp + nOp FString, i32 Port, i32 Valid
     i32 hasA,   objref ModelA if hasA (level+0x144): the PSX2 world
     i32 hasB,   objref ModelB if hasB (level+0x14c): the XBOX world, which is the PC one. The stock editor loads B,
-                else A. Cooked copies hold only B; some editor copies (CineE, DeftD, Entry, Lobby...) hold both, A smaller
+                else A. Cooked copies hold only B; some editor copies (CineE, DeftD, Entry, Lobby...) hold both, A
+                usually the smaller (not in the 3.6 ScheE and Entry), so the largest Model is not always the world
     f32         ApproxTime
     objref      FirstDeleted
     16 x objref TextBlocks
