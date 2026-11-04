@@ -31,7 +31,9 @@ One entry per gated actor, in any order; an actor has at most one rule.
 - `inside` (optional): the state inside the range: `"normal"` (the default), `"hidden"` or `{"key": n}`.
 
 Key states are for movers only: the validator rejects them on other actors, and a reader that meets one anyway treats
-it as `"hidden"`. For objectives and missions, outside their range always means left out of the round (they come out
+it as `"hidden"`. No rule names an `Svm.Conveyor`: its belt is world collision and `world.glb` instances without an
+actor id, so it draws, collides and carries at every count whatever the rule says ([conveyors.md](conveyors.md)). The
+validator rejects such a rule; gate the trigger or mover that switches the conveyor instead. For objectives and missions, outside their range always means left out of the round (they come out
 of their missions' lists, see the run-time rules).
 
 ## `win`

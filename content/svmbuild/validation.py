@@ -114,6 +114,12 @@ def collision_errors(data: bytes, actor_ids: set[str]) -> list[str]:
     return errs[:200]
 
 
+# OpenSCCT's own classes that a class table need not list: a reader without an entry uses the class's own defaults
+# (spec/svmap/1.2/conveyors.md).
+CONVEYOR_CLASS = "Svm.Conveyor"
+NATIVE_CLASSES = frozenset({CONVEYOR_CLASS})
+
+
 def class_table_errors(table, gameplay: dict) -> list[str]:
     if not isinstance(table, dict) or not isinstance(table.get("classes"), dict):
         return ["sim/classes.json: no classes object"]
@@ -121,6 +127,8 @@ def class_table_errors(table, gameplay: dict) -> list[str]:
     errs = []
     for a in all_actors(gameplay):
         c = classes.get(a["class"])
+        if c is None and a["class"] in NATIVE_CLASSES:
+            continue
         if c is None or "defaults" not in c:
             errs.append(f"sim/classes.json: no defaults for {a['class']} ({a['id']})")
     for path, c in classes.items():
@@ -144,7 +152,8 @@ def _mover_mode_ok(mode) -> bool:
 
 def match_errors(match, gameplay: dict, classes) -> list[str]:
     """sim/match.json (spec/svmap/1.2/match.md): rules name written actors once each, ranges run 0 (any) to 24 with
-    min <= max, key positions only on movers, win targets name missions and list 12 team sizes."""
+    min <= max, key positions only on movers, no rules on conveyors, win targets name missions and list 12 team
+    sizes."""
     where = "sim/match.json"
     if not isinstance(match, dict) or match.get("format") != MATCH_FORMAT:
         return [f"{where}: format is not {MATCH_FORMAT}"]
@@ -186,6 +195,8 @@ def match_errors(match, gameplay: dict, classes) -> list[str]:
         target = actors.get(actor.lower())
         if keyed and target is not None and not is_a(target.get("class", ""), "Engine.Mover"):
             errs.append(f"{at}: key positions apply to movers only ({actor})")
+        if target is not None and target.get("class") == CONVEYOR_CLASS:
+            errs.append(f"{at}: {actor} is a conveyor; a player-count rule cannot take its belt out of the round")
     for i, w in enumerate(match.get("win", [])):
         at = f"{where}: win[{i}]"
         mission = w.get("mission") if isinstance(w, dict) else None
