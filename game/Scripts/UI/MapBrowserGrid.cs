@@ -35,11 +35,32 @@ public partial class MapBrowserGrid : GridContainer
         };
     }
 
+    /// <summary>The tile's tooltip: the name and code, then what an authored map says about itself.</summary>
+    private static string Tooltip(MapCatalogEntry? entry, string id, string title)
+    {
+        var text = new System.Text.StringBuilder(title).Append(" (").Append(id).Append(')');
+        if (entry?.Description is { } description)
+        {
+            text.Append('\n').Append(description);
+        }
+
+        if (entry is { Authors.Count: > 0 })
+        {
+            text.Append("\nBy ").Append(string.Join(", ", entry.Authors));
+            if (entry.Version is { } version)
+            {
+                text.Append(", version ").Append(version);
+            }
+        }
+
+        return text.ToString();
+    }
+
     public Button AddMap(MapCatalog maps, string id, string title)
     {
         var button = new Button
         {
-            Name = "Map_" + id, TooltipText = title + " (" + id + ")", ClipText = true,
+            Name = "Map_" + id, TooltipText = Tooltip(MapImages.Entry(maps, id), id, title), ClipText = true,
             SizeFlagsHorizontal = SizeFlags.ExpandFill, FocusMode = FocusModeEnum.All,
             ThemeTypeVariation = UiStyle.TileVariation,
         };

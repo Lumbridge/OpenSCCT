@@ -31,6 +31,7 @@ public sealed class LaunchOptions
     public const string DemoPrefix = "--svm-demo=";
     public const string PriorityPrefix = "--priority=";
     public const string AffinityPrefix = "--affinity=";
+    public const string MapShotPrefix = "--svm-mapshot=";
     public const double DefaultSmokeTimeoutSeconds = 120.0;
     public const int DefaultBots = 3;
     public const int MaxBots = 15;
@@ -103,6 +104,9 @@ public sealed class LaunchOptions
     /// <summary>A demo file to watch at start (<c>--svm-demo=path</c>), or null.</summary>
     public string? DemoFile { get; private init; }
 
+    /// <summary>A map picture request to render and quit (<c>--svm-mapshot=request.json</c>, <see cref="Render.Golden.MapShot"/>), or null.</summary>
+    public string? MapShotRequest { get; private init; }
+
     /// <summary>Arguments that were not recognised, kept so callers can report them.</summary>
     public IReadOnlyList<string> Unknown { get; private init; } = [];
 
@@ -137,6 +141,7 @@ public sealed class LaunchOptions
         string? demo = null;
         string? priority = null;
         string? affinity = null;
+        string? mapShot = null;
         foreach (string arg in userArgs)
         {
             if (arg.StartsWith(SmokePrefix, StringComparison.Ordinal))
@@ -232,6 +237,10 @@ public sealed class LaunchOptions
             {
                 affinity = arg[AffinityPrefix.Length..];
             }
+            else if (arg.StartsWith(MapShotPrefix, StringComparison.Ordinal) && arg.Length > MapShotPrefix.Length)
+            {
+                mapShot = arg[MapShotPrefix.Length..].Trim('"');
+            }
             else
             {
                 unknown.Add(arg);
@@ -261,6 +270,7 @@ public sealed class LaunchOptions
             DemoFile = demo,
             Priority = priority,
             Affinity = affinity,
+            MapShotRequest = mapShot,
             Unknown = unknown,
         };
     }

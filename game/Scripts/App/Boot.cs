@@ -21,6 +21,11 @@ public partial class Boot : Node
 
         App app = App.From(this);
         OfflinePlayEntry.Register();
+        if (app.IsMapShotRun)
+        {
+            return;
+        }
+
         if (!app.IsSmokeRun && DisplayServer.GetName() != "headless")
             Callable.From(() => Online.ClientPresenceService.Get(GetTree())).CallDeferred();
         if (!app.IsSmokeRun && app.Options.DemoFile is { } demo)

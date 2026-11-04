@@ -52,8 +52,10 @@ public sealed partial class MapCatalog
         name.StartsWith(word, StringComparison.OrdinalIgnoreCase) &&
         (name.Length == word.Length || !char.IsLetterOrDigit(name[word.Length]));
 
+    // A map's own identity counts too: a 3v3 tag, or six or more recommended players.
     private static bool IsThreeVsThreeMap(MapCatalogEntry map) =>
         map.Playlists.Any(name => string.Equals(name, "3v3", StringComparison.OrdinalIgnoreCase)) ||
+        map.Tags.Contains("3v3") || map.RecommendedPlayers >= 6 ||
         HasThreeVsThreeTag(map.Name) || HasThreeVsThreeTag(map.DisplayName) || map.Id.Contains("3v3", StringComparison.OrdinalIgnoreCase);
 
     private static bool HasThreeVsThreeTag(string name)

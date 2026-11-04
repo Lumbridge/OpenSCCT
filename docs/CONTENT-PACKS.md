@@ -107,6 +107,10 @@ catalog/images/*.png
 `MapCatalogData` reads these from every map folder to fill missing names and individual images. Existing shared
 image files take precedence; a missing image kind or a reference to a missing file falls back to the map's entry.
 
+`catalog/entry.json` is outside the SVMap spec and is not hashed. Maps made in the map editor carry their identity
+inside the spec instead (`ui/identity.json` and `ui/pictures/`, SVMap 1.2), which the catalog reads before the shared
+catalog and before `catalog/entry.json` (docs/MAPS.md "Map identity").
+
 ## Where packs install
 
 | Who | Root | Layout |
