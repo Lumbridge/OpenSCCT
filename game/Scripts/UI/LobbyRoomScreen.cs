@@ -147,8 +147,24 @@ public partial class LobbyRoomScreen : MenuPage
         string map = s.Setup.Map;
         BriefingPages pages = BriefingPages.For(s.MapSettings(map), s.Setup.Mode, spy);
         string title = (_mapCatalog is { } maps ? MapTitles.Of(maps, map) : map) + " - " + CreateSessionModel.ModeName(s.Setup.Mode);
-        AddChild(new BriefingPanel(pages, MapImages.Loading(_mapCatalog, map, !spy), title));
+        // Briefing.RefreshText: GetLevelPicture (<Map>-i.Menu); BriefingDeux.InitComponent: GetLevelBrief
+        // (<Map>-i.Briefing). Both show GUIContent's defenseur when the map has no such picture.
+        Texture2D? missing = UiStyle.Assets?.Texture("GUIContent", "defenseur");
+        AddChild(new BriefingPanel(pages, MapImages.Preview(_mapCatalog, map) ?? missing, MapImages.Briefing(_mapCatalog, map) ?? missing,
+            BriefingModePicture(s.Setup.Mode), title));
     }
+
+    /// <summary>
+    /// Briefing.InitComponent's ModeImage: GUIController.ImageMode[0..2] (New_Menu L_Story, L_diskhunt, L_Death) for
+    /// Story, Disk Hunt and both deathmatches; any other mode leaves the image empty.
+    /// </summary>
+    private static Texture2D? BriefingModePicture(OpenScct.Core.EGameMode mode) => mode switch
+    {
+        OpenScct.Core.EGameMode.GM_Multi => UiStyle.Assets?.Texture("common", "L_Story"),
+        OpenScct.Core.EGameMode.GM_DiskHunt => UiStyle.Assets?.Texture("common", "L_diskhunt"),
+        OpenScct.Core.EGameMode.GM_DeathMatch or OpenScct.Core.EGameMode.GM_MercDeathMatch => UiStyle.Assets?.Texture("common", "L_Death"),
+        _ => null,
+    };
 
     /// <summary>"Equipment" (Lobby_Create's Button3, which opens Edit_Profile): the gear picker for the local player's side.</summary>
     public Button? EquipmentButton { get; private set; }

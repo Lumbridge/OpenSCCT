@@ -3,22 +3,30 @@ using Godot;
 namespace OpenScctGame.UI;
 
 /// <summary>
-/// The lobby's Briefing (Lobby_Create's "Briefing" button): <see cref="BriefingPages"/> over the lobby, with the map's
-/// picture, Next on page 1 and Previous on page 2 (the original's A button), and Close.
+/// The lobby's Briefing (Lobby_Create's "Briefing" button): <see cref="BriefingPages"/> over the lobby, laid out as the
+/// original's two pages, with Next on page 1 and Previous on page 2 (the original's A button), and Close. Page 1 is
+/// GUI.Briefing: the level picture (RefreshText: GetLevelPicture, <c>&lt;Map&gt;-i.Menu</c>) beside the main objective
+/// and the mode picture (InitComponent: GUIController.ImageMode) with the objective's name, the map's words below.
+/// Page 2 is GUI.BriefingDeux: the briefing picture (InitComponent: GetLevelBrief, <c>&lt;Map&gt;-i.Briefing</c>) beside
+/// the map legend, the mode's words below. The caller passes GUIContent's defenseur for a map without a picture.
 /// </summary>
 public partial class BriefingPanel : PanelContainer
 {
     private readonly BriefingPages _pages;
     private readonly Texture2D? _picture;
+    private readonly Texture2D? _plan;
+    private readonly Texture2D? _modePicture;
     private readonly string _mapTitle;
     private Control? _first;
     private Control? _second;
     private Button? _flip;
 
-    public BriefingPanel(BriefingPages pages, Texture2D? picture, string mapTitle)
+    public BriefingPanel(BriefingPages pages, Texture2D? picture, Texture2D? plan, Texture2D? modePicture, string mapTitle)
     {
         _pages = pages;
         _picture = picture;
+        _plan = plan;
+        _modePicture = modePicture;
         _mapTitle = mapTitle;
         Name = "Briefing";
     }
@@ -38,28 +46,46 @@ public partial class BriefingPanel : PanelContainer
         AddChild(column);
         column.AddChild(new Label { Name = "Map", Text = _mapTitle, HorizontalAlignment = HorizontalAlignment.Center, Modulate = UiStyle.MenuTitle });
 
-        _first = new HBoxContainer { Name = "Page1", SizeFlagsVertical = SizeFlags.ExpandFill };
-        _first.AddThemeConstantOverride("separation", 16);
+        _first = NewPage("Page1", visible: true);
         column.AddChild(_first);
-        _first.AddChild(Picture());
+        var firstTop = Top(_first);
+        firstTop.AddChild(Picture("Picture", _picture));
         var objective = new VBoxContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill };
-        _first.AddChild(objective);
+        firstTop.AddChild(objective);
         objective.AddChild(new Label { Text = _pages.Title, HorizontalAlignment = HorizontalAlignment.Center, Modulate = UiStyle.MenuFocus });
         objective.AddChild(Words("Objective", _pages.Objective.Length > 0 ? _pages.Objective : "This map has no briefing for this mode."));
-        if (_pages.ObjectiveName.Length > 0)
+        if (_modePicture is not null || _pages.ObjectiveName.Length > 0)
         {
-            objective.AddChild(Words("ObjectiveName", _pages.ObjectiveName));
+            var mode = new HBoxContainer { Name = "ModeRow" };
+            mode.AddThemeConstantOverride("separation", 12);
+            objective.AddChild(mode);
+            if (_modePicture is not null)
+            {
+                mode.AddChild(new TextureRect
+                {
+                    Name = "ModeImage", Texture = _modePicture, CustomMinimumSize = new Vector2(96f, 96f),
+                    ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize, StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered,
+                });
+            }
+
+            if (_pages.ObjectiveName.Length > 0)
+            {
+                Label name = Words("ObjectiveName", _pages.ObjectiveName);
+                name.CustomMinimumSize = new Vector2(160f, 0f);
+                name.VerticalAlignment = VerticalAlignment.Center;
+                name.SizeFlagsVertical = SizeFlags.ShrinkCenter;
+                mode.AddChild(name);
+            }
         }
 
-        objective.AddChild(Words("MapBrief", _pages.MapBrief));
+        _first.AddChild(Words("MapBrief", _pages.MapBrief));
 
-        _second = new HBoxContainer { Name = "Page2", SizeFlagsVertical = SizeFlags.ExpandFill, Visible = false };
-        _second.AddThemeConstantOverride("separation", 16);
+        _second = NewPage("Page2", visible: false);
         column.AddChild(_second);
-        var left = new VBoxContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill };
-        _second.AddChild(left);
-        left.AddChild(Words("ModeBrief", _pages.ModeBrief));
-        _second.AddChild(Words("Legend", _pages.Legend));
+        var secondTop = Top(_second);
+        secondTop.AddChild(Picture("Plan", _plan));
+        secondTop.AddChild(Words("Legend", _pages.Legend));
+        _second.AddChild(Words("ModeBrief", _pages.ModeBrief));
 
         var buttons = new HBoxContainer { Name = "Buttons", Alignment = BoxContainer.AlignmentMode.Center };
         buttons.AddThemeConstantOverride("separation", 16);
@@ -88,11 +114,26 @@ public partial class BriefingPanel : PanelContainer
         QueueFree();
     }
 
-    private TextureRect Picture() => new()
+    private static VBoxContainer NewPage(string name, bool visible)
     {
-        Name = "Picture", Texture = _picture, CustomMinimumSize = new Vector2(320f, 240f), ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
+        var page = new VBoxContainer { Name = name, SizeFlagsVertical = SizeFlags.ExpandFill, Visible = visible };
+        page.AddThemeConstantOverride("separation", 12);
+        return page;
+    }
+
+    private static HBoxContainer Top(Control page)
+    {
+        var top = new HBoxContainer { Name = "Top", SizeFlagsVertical = SizeFlags.ExpandFill };
+        top.AddThemeConstantOverride("separation", 16);
+        page.AddChild(top);
+        return top;
+    }
+
+    private static TextureRect Picture(string name, Texture2D? texture) => new()
+    {
+        Name = name, Texture = texture, CustomMinimumSize = new Vector2(320f, 240f), ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
         StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered, SizeFlagsVertical = SizeFlags.ExpandFill,
-        SizeFlagsHorizontal = SizeFlags.ExpandFill, SizeFlagsStretchRatio = 0.7f,
+        SizeFlagsHorizontal = SizeFlags.ExpandFill, SizeFlagsStretchRatio = 0.9f,
     };
 
     private static Label Words(string name, string text) => new()

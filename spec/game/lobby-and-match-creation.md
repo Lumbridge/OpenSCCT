@@ -160,13 +160,21 @@ Auto balance (Game_Settings, SGameInfo.PickTeam):
 
 ## Briefing
 30. The lobby's "Briefing" opens GUI.Briefing for the local player's side (team 0 spies, anything else the mercs'
-    words): the level picture, "MISSION MAIN OBJECTIVE" with the map's ModesStrings[i].ExplicationModeSpy or
-    ExplicationModeSentry for i = SearchForGameMode(RulesModeFor(mode)), the mode picture (story, disk hunt, or
-    deathmatch for both deathmatches) beside GUIController's TextSpy or TextSentry for the mode, and the map's
-    ExpliMapInBriefSpy or ExpliMapInBriefSentry.
-31. Its A button ("Next") replaces it with BriefingDeux: the level's briefing picture (GetLevelBrief, the defender
-    picture when none), ModesStrings[j].ExpliModeInBriefSpy or ExpliModeInBriefSentry for j = SearchForGameMode(mode)
-    (the mode itself, not its rules mode), and LegendMapInBrief. Its A button ("Previous") goes back.
+    words): the level picture (RefreshText: LevelInfo.GetLevelPicture, native 1159, which loads `<Map>-i.Menu`;
+    GUIContent.New_Menu.defenseur when none), "MISSION MAIN OBJECTIVE" with the map's ModesStrings[i].ExplicationModeSpy
+    or ExplicationModeSentry for i = SearchForGameMode(RulesModeFor(mode)), the mode picture (InitComponent: Controls[5]
+    = GUIController.ImageMode[0..2], New_Menu L_Story for GM_Multi, L_diskhunt for GM_DiskHunt, L_Death for
+    GM_DeathMatch and GM_MercDeathMatch; any other mode leaves it empty) beside GUIController's TextSpy or TextSentry
+    for the mode, and the map's ExpliMapInBriefSpy or ExpliMapInBriefSentry below.
+31. Its A button ("Next") replaces it with BriefingDeux: the level's briefing picture (InitComponent:
+    LevelInfo.GetLevelBrief, native 1652, which loads `<Map>-i.Briefing`; GUIContent.New_Menu.defenseur when none),
+    LegendMapInBrief on its right, and below ModesStrings[j].ExpliModeInBriefSpy or ExpliModeInBriefSentry for
+    j = SearchForGameMode(mode) (the mode itself, not its rules mode). Its A button ("Previous") goes back. The two
+    natives, in the SVM 3.6 editor build (image base 0x10e00000): native 1159 runs exec 0x1118e710, which calls
+    0x1118e5f0 with "%s-i.Menu" (0x11621c0c); native 1652 runs exec 0x1118f320, which calls 0x1118e4d0 with
+    "%s-i.Briefing" (0x11621bf4); the game's own are 0x10a22a10 (wrapping 0x10a228e0) and 0x10a22710. defenseur is a
+    256x256 placeholder (a grey box room); the hostable maps without a briefing picture, which show it on page 2, are CpusS,
+    GhosS, MounU, PanaS, PrisD and StroD.
 
 ## Front-end pages
 

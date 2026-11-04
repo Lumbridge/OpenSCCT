@@ -359,7 +359,11 @@ Offline lobbies use the same team and map positions without online chat, spectat
   the action. Button availability uses existing session capabilities; the server checks launch requests again.
   No new requirement for players on both teams is introduced.
 - Briefing stays in the central menu; Strategic map and Cosmetics sit beside the loadout summary. The briefing uses the
-  map's converted side-specific mode/objective/legend text; spectators read the mercenary briefing.
+  map's converted side-specific mode/objective/legend text; spectators read the mercenary briefing. Its first page
+  shows the map's list picture (`<Map>-i.Menu`) and the mode's picture (Story, Disk Hunt or Deathmatch; none for
+  other modes) as the original's GUI.Briefing does; its second page shows the briefing plan (`<Map>-i.Briefing`)
+  beside the legend, as BriefingDeux does. A map without one of those pictures shows the original's placeholder,
+  GUIContent's defenseur (spec/game/lobby-and-match-creation.md rules 30 and 31).
 
 `--svm-smoke=lobby-layout` checks host/client/offline layouts at nine sizes from 800×600 through ultrawide and 4K,
 including a live resize from 4K to 800×600. It covers settings tabs and map browsing, Apply/Discard and remote changes,
