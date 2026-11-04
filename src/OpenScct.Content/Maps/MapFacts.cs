@@ -73,17 +73,20 @@ public sealed class MapFacts
         return null;
     }
 
-    /// <summary>Reads the facts of an SVMap folder (missing files give empty facts).</summary>
-    public static MapFacts Load(string folder)
+    /// <summary>Reads the facts of an SVMap folder (missing files give empty facts), with its texts in
+    /// <paramref name="language"/> when the map has a translation into it (null: the map's own language).</summary>
+    public static MapFacts Load(string folder, string? language = null)
     {
         string info = Path.Combine(folder, "ui", "mapinfo.json");
         string gameplay = Path.Combine(folder, "sim", "gameplay.json");
+        MapText text = MapText.Load(folder, language);
         return Parse(File.Exists(info) ? File.ReadAllBytes(info) : null, File.Exists(gameplay) ? File.ReadAllBytes(gameplay) : null,
-            MapIdentity.Load(folder));
+            MapIdentity.Load(folder).Translated(text), text);
     }
 
-    /// <summary>Parses the two documents (either may be null), with the identity read beside them.</summary>
-    public static MapFacts Parse(byte[]? mapInfo, byte[]? gameplay, MapIdentity? identity = null)
+    /// <summary>Parses the two documents (either may be null), with the identity read beside them and the translation
+    /// of the map's texts in use.</summary>
+    public static MapFacts Parse(byte[]? mapInfo, byte[]? gameplay, MapIdentity? identity = null, MapText? text = null)
     {
         string? name = null;
         string? legend = null;
@@ -92,6 +95,11 @@ public sealed class MapFacts
             using JsonDocument doc = JsonDocument.Parse(WithoutBom(mapInfo));
             name = OptString(doc.RootElement, "MapName");
             legend = OptString(doc.RootElement, "LegendMap");
+        }
+
+        if (text?.MapInfo.TryGetValue("LegendMap", out string? translated) == true)
+        {
+            legend = translated;
         }
 
         int spy = 0, merc = 0, mdm = 0;

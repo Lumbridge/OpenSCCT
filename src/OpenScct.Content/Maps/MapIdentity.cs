@@ -95,7 +95,11 @@ public sealed class MapIdentity
 
     public MapPictures Pictures { get; private init; } = MapPictures.None;
 
-    /// <summary>Reads <c>ui/identity.json</c> of an SVMap folder.</summary>
+    /// <summary>Reads <c>ui/identity.json</c> of an SVMap folder, in <paramref name="language"/> when the map has a
+    /// translation into it (<see cref="MapText"/>; null: the map's own language).</summary>
+    public static MapIdentity Load(string mapFolder, string? language) => Load(mapFolder).Translated(MapText.Load(mapFolder, language));
+
+    /// <summary>Reads <c>ui/identity.json</c> of an SVMap folder, in the map's own language.</summary>
     public static MapIdentity Load(string mapFolder)
     {
         string path = Path.Combine(mapFolder, "ui", "identity.json");
@@ -151,6 +155,42 @@ public sealed class MapIdentity
         }
     }
 
+    /// <summary>This identity with a translation's texts in place of its own; each text the translation lacks keeps the
+    /// map's own.</summary>
+    public MapIdentity Translated(MapText text)
+    {
+        ArgumentNullException.ThrowIfNull(text);
+        if (ReferenceEquals(text, MapText.None) || !Exists)
+        {
+            return this;
+        }
+
+        var dossier = new MapDossier(text.When ?? Dossier?.When ?? string.Empty, text.Where ?? Dossier?.Where ?? string.Empty,
+            text.Summary ?? Dossier?.Summary ?? string.Empty);
+        var places = new List<MapPlace>(Places.Count);
+        foreach (MapPlace place in Places)
+        {
+            places.Add(text.Places.TryGetValue(place.Number, out string? name) ? place with { Name = name } : place);
+        }
+
+        return new MapIdentity
+        {
+            Exists = true,
+            Name = text.Name ?? Name,
+            Family = text.Name is null ? Family : null,
+            Variant = text.Name is null ? Variant : null,
+            Description = text.Description ?? Description,
+            Dossier = dossier.When.Length + dossier.Where.Length + dossier.Summary.Length == 0 ? null : dossier,
+            Authors = Authors,
+            Version = Version,
+            Language = Language,
+            RecommendedPlayers = RecommendedPlayers,
+            Tags = Tags,
+            Places = places,
+            Pictures = Pictures,
+        };
+    }
+
     /// <summary>A tag as the spec allows it: 1 to 24 of a-z, 0-9 and '-'.</summary>
     public static bool IsTag(string tag)
     {
@@ -170,7 +210,8 @@ public sealed class MapIdentity
         return true;
     }
 
-    private static bool IsLanguage(string tag) => tag.Length is 2 or 3 && tag.AsSpan().IndexOfAnyExceptInRange('a', 'z') < 0;
+    /// <summary>A BCP 47 primary language tag as the spec allows it: 2 or 3 of a-z.</summary>
+    public static bool IsLanguage(string tag) => tag.Length is 2 or 3 && tag.AsSpan().IndexOfAnyExceptInRange('a', 'z') < 0;
 
     private static MapDossier? DossierOf(JsonElement root)
     {

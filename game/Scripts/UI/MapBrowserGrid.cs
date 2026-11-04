@@ -66,10 +66,12 @@ public partial class MapBrowserGrid : GridContainer
         };
         var content = new VBoxContainer { Name = "Column", MouseFilter = MouseFilterEnum.Ignore };
         var picture = new MapThumb(new Vector2(160, 160)) { SizeFlagsHorizontal = SizeFlags.ExpandFill };
-        picture.SetMap(MapImages.Preview(maps, id), title);
+        Texture2D? wide = MapImages.Wide(maps, id);
+        picture.SetMap(_compact ? wide : MapImages.Preview(maps, id), title);
         if (_compact)
         {
-            // Host setup gives the map browser half the page: landscape previews leave room for more choices.
+            // Host setup gives the map browser half the page: landscape previews (the map's banner when it has one)
+            // leave room for more choices.
             TextureRect image = picture.GetNode<TextureRect>("Picture");
             image.StretchMode = TextureRect.StretchModeEnum.KeepAspectCovered;
             image.ClipContents = true;
@@ -94,7 +96,7 @@ public partial class MapBrowserGrid : GridContainer
         {
             SizeFlagsHorizontal = SizeFlags.ShrinkBegin, SizeFlagsVertical = SizeFlags.ShrinkCenter,
         };
-        thumbnail.SetMap(picture.Picture, title);
+        thumbnail.SetMap(wide, title);
         // The adjacent title already labels a missing preview; keep the small frame from wrapping a second title.
         thumbnail.GetNode<Label>("Placeholder").Hide();
         var thumbnailImage = thumbnail.GetNode<TextureRect>("Picture");

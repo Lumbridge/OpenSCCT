@@ -97,7 +97,7 @@ public partial class ConnectingScreen : MenuPage
             if (key != _pictureKey)
             {
                 _pictureKey = key;
-                _mapPicture.SetMap(MapImages.Loading(client.Maps, map, merc), MapTitles.Of(client.Maps, map));
+                _mapPicture.SetMap(MapImages.Loading(client.Maps, map, merc, client.LoadingPictureSeed), MapTitles.Of(client.Maps, map));
             }
 
             _mode.Text = LobbySetup.ModeName(mode);

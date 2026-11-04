@@ -88,6 +88,10 @@ public sealed record MapCatalogEntry
     /// </summary>
     public int RecommendedPlayers { get; init; } = 4;
 
+    /// <summary>The lobby size the map itself recommends (its identity), which a lobby preselects; null when the map
+    /// states none and <see cref="RecommendedPlayers"/> is the catalog's guess.</summary>
+    public int? StatedPlayers { get; init; }
+
     /// <summary>One or two sentences about the map (its identity's description, else its dossier's summary), or null.</summary>
     public string? Description { get; init; }
 
@@ -108,6 +112,9 @@ public sealed record MapCatalogEntry
 
     /// <summary>The map list picture (PNG path), or null.</summary>
     public string? PreviewImage { get; init; }
+
+    /// <summary>The map's 16:9 picture for wide layouts (its identity's banner), or null.</summary>
+    public string? BannerImage { get; init; }
 
     /// <summary>The first of <see cref="LoadingSpyImages"/>, or null.</summary>
     public string? LoadingSpyImage { get; init; }
@@ -408,7 +415,7 @@ public sealed partial class MapCatalog
                 MapFacts facts;
                 try
                 {
-                    facts = MapFacts.Load(dir);
+                    facts = MapFacts.Load(dir, ContentPaths.Language);
                 }
                 catch (Exception e) when (e is IOException or System.Text.Json.JsonException)
                 {
@@ -511,6 +518,7 @@ public sealed partial class MapCatalog
             MercStarts = facts.MercStarts,
             MercDeathmatchStarts = facts.MercDeathmatchStarts,
             RecommendedPlayers = identity.RecommendedPlayers is { } players ? Math.Min(players, LobbySetup.MaxMaxPlayers) : threeVsThree ? 6 : 4,
+            StatedPlayers = identity.RecommendedPlayers is { } stated ? Math.Min(stated, LobbySetup.MaxMaxPlayers) : null,
             Description = identity.Description ?? (identity.Dossier?.Summary is { Length: > 0 } summary ? summary : null),
             Authors = identity.Authors,
             Version = identity.Version,
@@ -518,6 +526,7 @@ public sealed partial class MapCatalog
             Places = identity.Places,
             Playlists = playlists ?? [],
             PreviewImage = pictures.Menu ?? data.Image(id, "menu"),
+            BannerImage = pictures.Banner,
             LoadingSpyImage = spyLoading.Count > 0 ? spyLoading[0] : null,
             LoadingMercImage = mercLoading.Count > 0 ? mercLoading[0] : null,
             LoadingSpyImages = spyLoading,

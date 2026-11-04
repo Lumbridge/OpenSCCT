@@ -97,7 +97,7 @@ public partial class HostScreen : MenuPage
         }
 
         LobbySetup start = StartSetup(s, maps, list);
-        Model = new CreateSessionModel(list, maps.GetMapSettings, start);
+        Model = new CreateSessionModel(list, maps.GetMapSettings, start, map => maps.GetCatalogEntry(map)?.StatedPlayers);
         Model.SetPassword(s.HostPassword);
         Rows = new SessionRowsView(Model, CreateSessionModel.Rows, showPassword: true, form: true);
         Body.AddChild(Rows);

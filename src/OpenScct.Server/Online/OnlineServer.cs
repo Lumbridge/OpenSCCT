@@ -848,7 +848,10 @@ public sealed partial class OnlineServer : IDisposable
             p.Ready = p.IsBot;
         }
 
-        Send(null, SessionProtocol.Line("travel", map, MasterApi.Hex(content)));
+        // The third field picks the map's loading picture on every client alike. It is UI only: the time of the travel
+        // keeps it from repeating from one session to the next, as the match seed alone would.
+        ulong mix = ((Settings.MatchSeed + (ulong)RoundsStarted) * 0x9E3779B97F4A7C15UL) ^ (ulong)_now;
+        Send(null, SessionProtocol.Line("travel", map, MasterApi.Hex(content), (int)(mix >> 33)));
         Host.AcceptingConnections = false;
 
         // The players come back on the same peers (a punched mapping, a relay session): the old map's server lets

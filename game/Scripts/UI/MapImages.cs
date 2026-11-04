@@ -22,13 +22,17 @@ public static class MapImages
     /// <summary>The map's host list picture, or null.</summary>
     public static Texture2D? Preview(MapCatalog? maps, string? map) => First(maps, map, e => Load(e.PreviewImage));
 
+    /// <summary>The map's picture for a wide frame: its 16:9 banner, else its host list picture, or null.</summary>
+    public static Texture2D? Wide(MapCatalog? maps, string? map) => First(maps, map, e => Load(e.BannerImage)) ?? Preview(maps, map);
+
     /// <summary>
     /// The map's loading picture for the side (the other side's, then the host list's, when it lacks one), or null. A
-    /// map with several pictures for a side gives a random one on each call: a loading page asks once per load.
+    /// map with several pictures for a side gives the one <paramref name="seed"/> picks (an online session's, so every
+    /// player sees the same), or a random one on each call without a seed: a loading page asks once per load.
     /// </summary>
-    public static Texture2D? Loading(MapCatalog? maps, string? map, bool merc) =>
-        First(maps, map, e => Load(Pick(merc ? e.LoadingMercImages : e.LoadingSpyImages))) ??
-        First(maps, map, e => Load(Pick(merc ? e.LoadingSpyImages : e.LoadingMercImages))) ??
+    public static Texture2D? Loading(MapCatalog? maps, string? map, bool merc, int? seed = null) =>
+        First(maps, map, e => Load(Pick(merc ? e.LoadingMercImages : e.LoadingSpyImages, seed))) ??
+        First(maps, map, e => Load(Pick(merc ? e.LoadingSpyImages : e.LoadingMercImages, seed))) ??
         Preview(maps, map);
 
     /// <summary>
@@ -74,11 +78,11 @@ public static class MapImages
         return found;
     }
 
-    private static string? Pick(IReadOnlyList<string> pictures) => pictures.Count switch
+    private static string? Pick(IReadOnlyList<string> pictures, int? seed) => pictures.Count switch
     {
         0 => null,
         1 => pictures[0],
-        _ => pictures[System.Random.Shared.Next(pictures.Count)],
+        _ => pictures[seed is { } s ? (int)((uint)s % (uint)pictures.Count) : System.Random.Shared.Next(pictures.Count)],
     };
 
     private static Texture2D? Load(string? path)
