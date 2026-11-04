@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
@@ -171,6 +172,13 @@ public sealed partial class Conveyor : Actor, IConveyor
 
     /// <summary>A stock machine loop: a steady hum with a rattle.</summary>
     public const string DefaultSound = "Amb_Krauser.Ambiances.Krau_machine1";
+
+    /// <summary>
+    /// Whether the belt plays its <c>AmbientSound</c> while it runs. A driver does not play the default hum: its
+    /// meshes are the map's own machinery, which has its own sounds there; a driver that names a sound plays it.
+    /// </summary>
+    public bool Hums => !AmbientSound.IsNone &&
+                        !(Look == EConveyorLook.CL_Driver && string.Equals(AmbientSound.Path, DefaultSound, StringComparison.OrdinalIgnoreCase));
 
     /// <summary>The path in world space (built at begin play; the actor never moves).</summary>
     public ConveyorPath WorldPath => _worldPath ??= BuildWorldPath();

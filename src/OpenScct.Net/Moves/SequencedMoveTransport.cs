@@ -422,7 +422,7 @@ public sealed class SequencedMoveTransport : IMoveTransport
             Vec(b.Writer, _pawn.Location); Vec(b.Writer, _pawn.Velocity);
             b.Writer.WriteByte((byte)_pawn.Physics); b.Writer.WriteByte(_pawn.ZoneConfig);
             channel.Connection.WriteObject(b.Writer, _pawn.Base, out _);
-            b.Writer.WriteIntPacked((_pawn as IMovePrediction)?.PredictionInputRevision ?? 0u);
+            b.Writer.WriteIntPacked((_pawn as IMovePrediction)?.PredictionInputRevisionAt(_pawn.Location) ?? 0u);
             bool based = _pawn.Base is { bWorldGeometry: false, bStatic: false };
             b.Writer.WriteBit(based);
             if (based)

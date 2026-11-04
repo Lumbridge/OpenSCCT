@@ -402,8 +402,8 @@ public sealed partial class SBasePawnMoves
             pawn.m_AttackTarget = _replayHomingTarget is { bDeleteMe: false } ? _replayHomingTarget : null;
     }
 
-    /// <summary>The level's conveyor changes (a level without conveyors has none).</summary>
-    public uint PredictionInputRevision => _pc.XLevel.GetService<ConveyorField>()?.Revision ?? 0u;
+    /// <summary>The changes of the conveyors near <paramref name="location"/> (a level without conveyors has none).</summary>
+    public uint PredictionInputRevisionAt(FVector location) => _pc.XLevel.GetService<ConveyorField>()?.RevisionNear(location) ?? 0u;
 
     public bool PredictionHistoryComplete(int slot) => _prediction is not null && _prediction[slot].Collision.Complete;
 

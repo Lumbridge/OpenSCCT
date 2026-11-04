@@ -111,7 +111,7 @@ public sealed class LevelAudioWorld(Level level, ICollisionWorld? collision, Fun
             if (a is Conveyor conveyor)
             {
                 // A belt hums while it runs, from the point of its path nearest the listener.
-                if (conveyor.SurfaceSpeed != 0f)
+                if (conveyor.SurfaceSpeed != 0f && conveyor.Hums)
                 {
                     into.Add(new AmbientSource(a.ActorId, mapIdOf?.Invoke(a) ?? SpawnedId(a), conveyor.NearestOnPath(listener),
                         a.AmbientSound.Path!, a.SoundVolume, a.SoundRadius, a.SoundPitch, false, 0, 0f, (byte)a.SoundOcclusion, Follow: false));

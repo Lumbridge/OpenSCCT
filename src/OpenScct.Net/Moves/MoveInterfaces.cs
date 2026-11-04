@@ -21,11 +21,12 @@ public interface IMovePrediction
     void EndPredictionReplay(FVector previousLocation);
 
     /// <summary>
-    /// How far this machine's replicated world state that changes how moves play out (conveyors starting, stopping
-    /// and reversing) has advanced; it only grows. A correction carries the server's value: a client behind it has
-    /// not yet received the change, so replaying would repeat the server's error.
+    /// How far this machine's replicated world state that changes how moves play out near
+    /// <paramref name="location"/> (conveyors starting, stopping and reversing there) has advanced; it only grows. A
+    /// correction carries the server's value at the location it sends: a client behind it there has not yet received
+    /// the change, so replaying would repeat the server's error.
     /// </summary>
-    uint PredictionInputRevision => 0;
+    uint PredictionInputRevisionAt(FVector location) => 0;
 }
 
 public interface IMoveCommandPawn

@@ -9,11 +9,12 @@ namespace OpenScct.Game.Svm;
 /// <summary>
 /// The items riding a level's conveyors (spec/additions/conveyors.md#items), stepped one server tick at a time from
 /// the conveyors' phases. Items move with their belt and keep their distance: an item stops behind the one in front
-/// (a queue builds behind a stopped belt or a busy merge). An open end hands its items to the conveyor its
-/// <see cref="Conveyor.Next"/> names where its end meets that one, else they shrink away there; an end nothing feeds
-/// brings new items in. The flow starts at tick 0 with the items spread along each belt and is a pure function of the
-/// conveyors' phases, so every client and the editor's preview show the same items given the same belt history. It
-/// draws only: items never collide with pawns.
+/// (a queue builds behind a stopped belt or a busy merge). The end items leave by hands them to the conveyor its
+/// <see cref="Conveyor.Next"/> names when that end meets it, else they shrink away there; an end nothing feeds
+/// brings new items in. Machines that see the same belt history show the same items: a belt change that arrives
+/// after the flow has passed its tick (a late or resent update) takes the flow back to a saved state before it and
+/// steps it again. A flow first drawn late in a match starts a while before then, so its queues can differ from
+/// those of machines that ran the whole match. It draws only: items never collide with pawns.
 /// </summary>
 [Provenance(ProvenanceKind.Estimated, "OpenSCCT addition: spec/additions/conveyors.md#items")]
 public sealed class ConveyorItemFlow
@@ -24,8 +25,19 @@ public sealed class ConveyorItemFlow
     // How far (flat) another conveyor's end may be outside this one's strip, and above or below its surface, to join.
     private const float JoinReach = 32f;
 
+    /// <summary>
+    /// A flow first advanced past this many ticks starts this far back, with the items spread as at tick 0: queues
+    /// settle well within it, and stepping a whole long match would stall a late joiner's first frame.
+    /// </summary>
+    public const int WarmUpTicks = 20 * Sim.Hz;
+
+    // Saved states to go back to when a belt change arrives late: one every half second, the last four seconds.
+    private const int SaveEvery = Sim.Hz / 2;
+    private const int Saves = 8;
+
     private readonly Lane[] _lanes;
     private readonly Dictionary<Conveyor, int> _index = new(ReferenceEqualityComparer.Instance);
+    private readonly List<Saved> _saved = [];
     private int _tick;
     private bool _started;
 
@@ -46,11 +58,7 @@ public sealed class ConveyorItemFlow
             _index[c] = i;
         }
 
-        foreach (Lane lane in _lanes)
-        {
-            Link(lane);
-        }
-
+        Link();
         foreach (Lane lane in _lanes)
         {
             lane.Fill();
@@ -75,21 +83,36 @@ public sealed class ConveyorItemFlow
         }
     }
 
-    /// <summary>Steps the items up to server tick <paramref name="tick"/> (never back).</summary>
+    /// <summary>
+    /// Steps the items up to server tick <paramref name="tick"/>. A belt change since the last call that took effect
+    /// before <see cref="Tick"/> first takes the items back to a saved state before it.
+    /// </summary>
     public void AdvanceTo(int tick)
     {
         if (!_started)
         {
             _started = true;
+            _tick = Math.Max(_tick, tick - WarmUpTicks);
             foreach (Lane lane in _lanes)
             {
                 lane.LastPhase = lane.Conveyor.PhaseAt(_tick);
+                lane.Seen = BeltState.Of(lane.Conveyor);
             }
+
+            Save();
+        }
+        else
+        {
+            CatchUp();
         }
 
         while (_tick < tick)
         {
             Step();
+            if (_tick % SaveEvery == 0)
+            {
+                Save();
+            }
         }
     }
 
@@ -113,10 +136,11 @@ public sealed class ConveyorItemFlow
     }
 
     /// <summary>
-    /// Where along <paramref name="next"/> (half width <paramref name="nextHalfWidth"/>) the end of
-    /// <paramref name="path"/> meets it, so items handed on there land on it; false when the end is too far from it.
+    /// Where along <paramref name="next"/> (half width <paramref name="nextHalfWidth"/>) one end of
+    /// <paramref name="path"/> (its start when <paramref name="atStart"/>, else its end) meets it, so items leaving by
+    /// that end land on it; false when the end is too far from it.
     /// </summary>
-    public static bool HandsOnAt(ConveyorPath path, ConveyorPath next, float nextHalfWidth, out float along)
+    public static bool HandsOnAt(ConveyorPath path, bool atStart, ConveyorPath next, float nextHalfWidth, out float along)
     {
         ArgumentNullException.ThrowIfNull(path);
         ArgumentNullException.ThrowIfNull(next);
@@ -126,7 +150,7 @@ public sealed class ConveyorItemFlow
             return false;
         }
 
-        path.Evaluate(path.Length, out FVector end, out _);
+        path.Evaluate(atStart ? 0f : path.Length, out FVector end, out _);
         if (!next.Project(end, nextHalfWidth + JoinReach, JoinReach, JoinReach, 0f, out ConveyorProjection at))
         {
             return false;
@@ -136,27 +160,114 @@ public sealed class ConveyorItemFlow
         return true;
     }
 
-    /// <summary>Finds where each conveyor hands its items on and where it is handed items.</summary>
-    private void Link(Lane lane)
+    /// <summary>
+    /// Finds where each conveyor hands its items on and which ends are fed. <c>Next</c> takes the items from whichever
+    /// end meets it; an end that meets the next conveyor's start (end to end) also takes that conveyor's items back
+    /// when it runs backwards.
+    /// </summary>
+    private void Link()
     {
-        if (lane.Path.IsLoop || lane.Path.Length <= 0f || lane.Conveyor.Next is not { } next || ReferenceEquals(next, lane.Conveyor) ||
-            !_index.TryGetValue(next, out int target) || _lanes[target].Path.Length <= 0f)
+        foreach (Lane lane in _lanes)
+        {
+            if (lane.Path.IsLoop || lane.Path.Length <= 0f || lane.Conveyor.Next is not { } next || ReferenceEquals(next, lane.Conveyor) ||
+                !_index.TryGetValue(next, out int target) || _lanes[target].Path.Length <= 0f)
+            {
+                continue;
+            }
+
+            Lane to = _lanes[target];
+            if (HandsOnAt(lane.Path, false, to.Path, to.Conveyor.HalfWidth, out float along))
+            {
+                lane.OutEnd = new Exit(target, along);
+            }
+
+            if (HandsOnAt(lane.Path, true, to.Path, to.Conveyor.HalfWidth, out along))
+            {
+                lane.OutStart = new Exit(target, along);
+            }
+        }
+
+        foreach (Lane lane in _lanes)
+        {
+            if (lane.OutEnd is { } exit && !_lanes[exit.Lane].Path.IsLoop && exit.Along <= EndJoin)
+            {
+                _lanes[exit.Lane].OutStart ??= new Exit(lane.Index, lane.Path.Length);
+            }
+        }
+
+        foreach (Lane lane in _lanes)
+        {
+            Feed(lane.OutEnd);
+            Feed(lane.OutStart);
+        }
+    }
+
+    /// <summary>Marks the end of the conveyor an exit lands on as fed when it lands there.</summary>
+    private void Feed(Exit? exit)
+    {
+        if (exit is not { } e || _lanes[e.Lane].Path.IsLoop)
         {
             return;
         }
 
-        Lane to = _lanes[target];
-        if (!HandsOnAt(lane.Path, to.Path, to.Conveyor.HalfWidth, out float along))
+        Lane to = _lanes[e.Lane];
+        to.FedAtStart |= e.Along <= EndJoin;
+        to.FedAtEnd |= e.Along >= to.Path.Length - EndJoin;
+    }
+
+    /// <summary>
+    /// Goes back to the newest saved state at or before the earliest belt change the flow has stepped past without
+    /// knowing it (the oldest saved state when none is that old).
+    /// </summary>
+    private void CatchUp()
+    {
+        int from = int.MaxValue;
+        foreach (Lane lane in _lanes)
+        {
+            var now = BeltState.Of(lane.Conveyor);
+            if (now != lane.Seen)
+            {
+                lane.Seen = now;
+                if (now.ChangeTick < _tick)
+                {
+                    from = Math.Min(from, now.ChangeTick);
+                }
+            }
+        }
+
+        if (from == int.MaxValue || _saved.Count == 0)
         {
             return;
         }
 
-        lane.OutEnd = new Exit(target, along);
-        if (!to.Path.IsLoop && along <= EndJoin)
+        int back = _saved.FindLastIndex(s => s.Tick <= from);
+        Saved saved = _saved[Math.Max(back, 0)];
+        _saved.RemoveRange(Math.Max(back, 0) + 1, _saved.Count - Math.Max(back, 0) - 1);
+        _tick = saved.Tick;
+        for (int i = 0; i < _lanes.Length; i++)
         {
-            // End to end: running backwards, the next conveyor hands its items back.
-            lane.EndToEnd = true;
-            to.OutStart ??= new Exit(Array.IndexOf(_lanes, lane), lane.Path.Length);
+            _lanes[i].Restore(saved.Lanes[i]);
+            _lanes[i].LastPhase = _lanes[i].Conveyor.PhaseAt(_tick);
+        }
+    }
+
+    private void Save()
+    {
+        if (_saved.Count > 0 && _saved[^1].Tick == _tick)
+        {
+            return;
+        }
+
+        var lanes = new Lane.State[_lanes.Length];
+        for (int i = 0; i < _lanes.Length; i++)
+        {
+            lanes[i] = _lanes[i].Save();
+        }
+
+        _saved.Add(new Saved(_tick, lanes));
+        if (_saved.Count > Saves)
+        {
+            _saved.RemoveAt(0);
         }
     }
 
@@ -298,6 +409,15 @@ public sealed class ConveyorItemFlow
     /// <summary>Where an item leaving through an end goes: a conveyor and the distance along it.</summary>
     private readonly record struct Exit(int Lane, float Along);
 
+    /// <summary>A belt's replicated running state: a different value is a change the flow has not stepped with.</summary>
+    private readonly record struct BeltState(int ChangeTick, float PhaseAtChange, float Speed, float SpeedBefore)
+    {
+        public static BeltState Of(Conveyor c) => new(c.ChangeTick, c.PhaseAtChange, c.SurfaceSpeed, c.SpeedBeforeChange);
+    }
+
+    /// <summary>The flow at a tick, to go back to.</summary>
+    private sealed record Saved(int Tick, Lane.State[] Lanes);
+
     private sealed class Item(int origin, uint id, float length)
     {
         /// <summary>The conveyor it came from: its meshes, size and seed.</summary>
@@ -314,6 +434,8 @@ public sealed class ConveyorItemFlow
         public int Stamp = -1;
         public bool Gone;
         public bool Moved;
+
+        public Item Copy() => new(Origin, Id, Length) { Along = Along, Prev = Prev, Stamp = Stamp };
     }
 
     private sealed class Lane(int index, Conveyor conveyor, ConveyorPath path, float itemLength)
@@ -321,6 +443,7 @@ public sealed class ConveyorItemFlow
         private float _sinceSpawn;
         private uint _spawned;
 
+        public int Index { get; } = index;
         public Conveyor Conveyor { get; } = conveyor;
         public ConveyorPath Path { get; } = path;
         public float ItemLength { get; } = itemLength;
@@ -331,16 +454,13 @@ public sealed class ConveyorItemFlow
         public Exit? OutEnd;
         public Exit? OutStart;
 
-        /// <summary>The end hands on to the start of the next conveyor, so that one hands items back when reversed.</summary>
-        public bool EndToEnd;
+        /// <summary>Another conveyor hands items on at this one's start or end.</summary>
+        public bool FedAtStart, FedAtEnd;
 
+        public BeltState Seen;
         public double LastPhase;
         public float Move;
         public bool Forward = true;
-
-        private bool StartIsSource => OutStart is null;
-
-        private bool EndIsSource => !EndToEnd;
 
         /// <summary>The items at tick 0: spread along the path as the spacing and seed say, none closer than they fit.</summary>
         public void Fill()
@@ -350,7 +470,7 @@ public sealed class ConveyorItemFlow
             for (uint i = 0; i < count; i++)
             {
                 float at = i * (length / count) + Jitter(i);
-                Items.Add(new Item(index, i, ItemLength) { Along = Path.IsLoop ? ConveyorPath.Wrap(at, length) : SvmMath.Clamp(at, 0f, length) });
+                Items.Add(new Item(Index, i, ItemLength) { Along = Path.IsLoop ? ConveyorPath.Wrap(at, length) : SvmMath.Clamp(at, 0f, length) });
             }
 
             Items.Sort(static (a, b) => a.Along.CompareTo(b.Along));
@@ -373,7 +493,7 @@ public sealed class ConveyorItemFlow
         /// <summary>A new item at an end nothing feeds, when the belt has moved one spacing since the last and there is room.</summary>
         public void Spawn(int tick)
         {
-            if (Path.IsLoop || Conveyor.ItemMeshes.Count == 0 || Conveyor.ItemSpacing <= 0f || (Forward ? !StartIsSource : !EndIsSource))
+            if (Path.IsLoop || Conveyor.ItemMeshes.Count == 0 || Conveyor.ItemSpacing <= 0f || (Forward ? FedAtStart : FedAtEnd))
             {
                 return;
             }
@@ -397,13 +517,25 @@ public sealed class ConveyorItemFlow
 
             _sinceSpawn -= spacing;
             float at = Forward ? into : Path.Length - into;
-            Insert(new Item(index, _spawned++, ItemLength) { Along = at, Prev = at, Stamp = tick });
+            Insert(new Item(Index, _spawned++, ItemLength) { Along = at, Prev = at, Stamp = tick });
         }
 
         public void Insert(Item item)
         {
             int i = Items.FindIndex(o => o.Along > item.Along);
             Items.Insert(i < 0 ? Items.Count : i, item);
+        }
+
+        public State Save() => new(Items.ConvertAll(static i => i.Copy()), _sinceSpawn, _spawned, Move, Forward);
+
+        public void Restore(State state)
+        {
+            Items.Clear();
+            Items.AddRange(state.Items.ConvertAll(static i => i.Copy()));
+            _sinceSpawn = state.SinceSpawn;
+            _spawned = state.Spawned;
+            Move = state.Move;
+            Forward = state.Forward;
         }
 
         /// <summary>An item of <paramref name="origin"/> at <paramref name="along"/> this path, as it is drawn.</summary>
@@ -431,13 +563,16 @@ public sealed class ConveyorItemFlow
                 return 1f;
             }
 
-            bool atStart = Forward ? StartIsSource : OutStart is null;
-            bool atEnd = Forward ? OutEnd is null : EndIsSource;
+            bool atStart = Forward ? !FedAtStart : OutStart is null;
+            bool atEnd = Forward ? OutEnd is null : !FedAtEnd;
             float near = SvmMath.Min(atStart ? along : float.MaxValue, atEnd ? Path.Length - along : float.MaxValue);
             return SvmMath.Clamp(near / fade, 0f, 1f);
         }
 
         // Spacing jitter per item from the seed (a quarter of the spacing either way), as the spread at tick 0.
         private float Jitter(uint id) => (ConveyorLayout.Unit(ConveyorLayout.Hash((uint)Conveyor.ItemSeed, id)) - 0.5f) * Conveyor.ItemSpacing * 0.5f;
+
+        /// <summary>A lane's items and counters at a saved tick.</summary>
+        public sealed record State(List<Item> Items, float SinceSpawn, uint Spawned, float Move, bool Forward);
     }
 }

@@ -27,8 +27,8 @@ metadata, the shared look values, the moving steps `ConveyorSteps` and the item 
 | `TriggerAction` | `CT_Toggle` | What an event does: `CT_Toggle`, `CT_TurnOn`, `CT_TurnOff`, `CT_Reverse`. |
 | `ItemMeshes` | empty | Static meshes riding the belt; each item picks one from the seed. |
 | `ItemSpacing`, `ItemScale`, `ItemFade`, `ItemSeed`, `ItemYawJitter` | 160, 1, 48, 0, 65536 | Item spacing along the path, size, fade length at the ends of an open path, seed and largest random turn (rotator units). |
-| `Next` | none | The conveyor this one's end hands its items to ([items](#items)). |
-| `AmbientSound`, `SoundRadius`, `SoundVolume` | `Amb_Krauser.Ambiances.Krau_machine1`, 32, 96 | The hum while the belt runs ([sound](#sound)); `None` silences it. |
+| `Next` | none | The conveyor items go on to from the end they leave by ([items](#items)). |
+| `AmbientSound`, `SoundRadius`, `SoundVolume` | `Amb_Krauser.Ambiances.Krau_machine1`, 32, 96 | The hum while the belt runs ([sound](#sound)); `None` silences it. A driver does not play the default. |
 | `ScrollTargets` | empty | `{Target, UnitsPerTile, Axis}`: a placed mesh actor (by id) whose texture moves with the belt. `UnitsPerTile` is the uu one texture repeat covers along the direction of travel, `Axis` 0 for U and 1 for V. |
 | `BeltMaterial`, `FrameMaterial` | none | Materials the map builder uses for the generated look. |
 
@@ -119,16 +119,25 @@ acknowledged one, and stages, per conveyor:
   state for it, even if the client predicted it before it heard of the change;
 - the recorded state for an earlier move.
 
-A correction also carries the server's revision: the sum of every conveyor's `ChangeTick`, which grows with each
-change. When the client's own sum is lower, the property update with the change has not arrived (it was lost and
-is being resent, or is still on its way), and replaying would predict the old way again. The client then takes the
-correction as a plain acknowledgement and waits, at most 32 corrections in a row (`MoveK.MaxDeferredCorrections`),
-so a change that never arrives cannot stop corrections.
+A correction also carries the server's revision at the location it sends: the sum of the `ChangeTick` of every
+conveyor within 512 uu of that location (`ConveyorK.RevisionReach`: past its strip's edges, its ends, above or below
+its surface), which grows with each change of those conveyors. The client works out the same sum at the same
+location. When its sum is lower, the property update with a change near the pawn has not arrived (it was lost and is
+being resent, or is still on its way), and replaying would predict the old way again. The client then takes the
+correction as a plain acknowledgement and waits; a correction taken earlier in the same receive still applies. It
+waits at most 32 corrections in a row (`MoveK.MaxDeferredCorrections`; any plain acknowledgement or prediction reset
+starts the count again), so a change that never arrives cannot stop corrections. Changes of conveyors away from the
+pawn do not hold back its corrections (a hit, a knockback).
+
+The burst this replaces was traced on profile D: a reversal at server tick 479 reached the client at server tick
+505, about one round trip after its packet was lost and resent, and every acknowledgement in between carried a
+correction that replaying with the old belt state could not satisfy (9 on that reversal).
 
 So a start, stop or reversal costs one correction, the first acknowledgement after the client has the change, rather
 than one per acknowledgement until the moves predicted with the old state age out. Checked with a host and a client
-over the simulated links: one correction per change on profiles A to D (D: 250 ms and 5% loss, where a lost
-property update used to cost 9 corrections on one reversal).
+over the simulated links, one scripted run per profile: one correction per change on profiles A and D (D: 250 ms and
+5% loss, where a lost property update used to cost 9 corrections on one reversal), including an escalator stopped and
+started again under a rider.
 
 `SetRunning` called twice in one server tick keeps the phase and the speed from before the first call.
 
@@ -172,7 +181,11 @@ An escalator's steps travel with the belt (`ConveyorSteps`). At phase `p` the st
 end, riser at its lower end, V running 0 to 1 over the step so its texture travels with it). Past the path's ends a
 step is cut off and held level at the landing. Clients rebuild the `<id>.Steps` node's mesh every frame from the
 phase at the displayed server time. The baked light stays put: each new vertex takes the light the baked steps had
-in the same 8 uu bin along the path, on the same side and facing the same way (tread or riser).
+at the same place along the path, on the same side and facing the same way (tread or riser): the mean of the baked
+vertices in each 8 uu bin, blended between the centres of the two bins either side. Its alpha keeps the zone the
+baked vertices there had (the most common one in the bin, never blended), and the steps' Echelon code is copied, so
+zone-limited, dynamic and spot lights, flares and the vision ambient light the moving steps as they lit the baked
+ones. Steps the map builder left actor-lit (no baked colours) stay actor-lit.
 
 Pawns collide with the slope through the steps' inner corners, which lies under the steps wherever they are, so the
 physics and the prediction do not depend on the phase. A walking pawn's mesh is drawn with its feet on the tread
@@ -181,26 +194,34 @@ the next. The drawn location only; the pawn's location, collision and camera are
 
 ## Items
 
-`ConveyorItemFlow` runs the items of every conveyor in a level, one server tick at a time from tick 0, from the
-conveyors' phases only. Every machine (and the editor's preview) gets the same items for the same belt history. A
-client that joins late runs the flow from tick 0 up to now when it first draws; it knows only each belt's last
-change, so its items can differ where a queue formed before it joined.
+`ConveyorItemFlow` runs the items of every conveyor in a level, one server tick at a time, from the conveyors'
+phases only. Every machine (and the editor's preview) that sees the same belt history gets the same items.
+
+- **Late changes.** The flow saves its state every 30 ticks and keeps the last 8 (4 s). When a belt's replicated
+  state changes and its `ChangeTick` is before the tick the flow has reached (the update came late, or was lost and
+  resent), the flow goes back to the newest saved state at or before that tick and steps again, so it ends where a
+  machine that had the change in time is. A change older than the saved states goes back to the oldest one.
+- **Joining late.** A flow first drawn more than 20 s (`WarmUpTicks`) into a round starts 20 s before then, with the
+  items spread as at tick 0, instead of stepping the whole round in one frame. Queues settle well within that, but
+  where items queued or were handed on before it, they can differ from what machines that ran the whole round show.
 
 - **Start.** A conveyor with `ItemMeshes` and `ItemSpacing` above 0 starts with `n = max(1, floor(L / ItemSpacing))`
   items: item `i` at `i x L / n + jitter(i)` along the path (wrapped on a loop, clamped on an open path), `jitter` a
   seeded quarter of the spacing either way. Items closer than one item length to the one before are dropped.
-- **Length.** Each item takes up its mesh's widest flat extent times `ItemScale` along the belt (32 uu when the mesh
-  is unknown; the editor's preview always uses 32). Two items' centres stay at least the mean of their lengths apart.
+- **Length.** Each item takes up its meshes' widest flat extent times `ItemScale` along the belt (32 uu when no
+  mesh is known; the editor's preview measures the same meshes once they have loaded). Two items' centres stay at least the mean of their lengths apart.
 - **Moving.** Each tick a conveyor's items move by its phase change, front first; an item stops behind the one ahead
   (on a loop the front item is held by the rearmost, a lap ahead). An item is never pushed back. So a queue builds
   behind a stopped belt or a busy join.
-- **Handing on.** An open conveyor whose `Next` names another conveyor hands its items on where its end meets that
-  one: the end projects onto the other's path within its half width plus 32 uu, and within 32 uu above or below its
-  surface. An item that runs off the end goes on there when there is room (no item closer than the gap) and the other
+- **Handing on.** An open conveyor whose `Next` names another conveyor hands its items on where the end they leave
+  by meets that one: its end running forwards, its start running backwards. An end meets the other conveyor when it
+  projects onto the other's path within its half width plus 32 uu, and within 32 uu above or below its surface; an
+  end that does not meet it removes its items as with no `Next`. An item that runs off the end goes on there when there is room (no item closer than the gap) and the other
   conveyor would not carry it straight back off its own end; otherwise it waits at the end. When the end meets the
-  other's start (within 16 uu), the two run as one line: run backwards, the other hands the items back. An end with
-  nothing to hand on to removes the item.
-- **New items.** An open end that nothing feeds brings in a new item each time the belt has moved `ItemSpacing` plus
+  other's start (within 16 uu), the two run as one line: run backwards, the other hands the items back (unless its
+  own `Next` takes its start's items elsewhere). An end with nothing to hand on to removes the item.
+- **New items.** An open end that nothing feeds (no other conveyor hands items on within 16 uu of it) brings in a
+  new item each time the belt has moved `ItemSpacing` plus
   the next item's jitter (at least one item length), unless the queue reaches the end.
 - **Drawing.** An item faces the direction of travel and tilts with the belt's climb, turns about the belt's up by a
   seeded amount, and is raised so its mesh's lowest point rests on the belt (RE+ kept per-mesh `ItemOffsets` for
@@ -217,7 +238,9 @@ RE+'s item actors.
 A running conveyor (`bOn` and `Speed` not 0) plays its `AmbientSound` as an ambient sound from the point of its path
 nearest the listener, so a long belt sounds from where the listener is beside it. Range, volume, pitch and
 occlusion follow the ambient sound rules (audible within `100 x SoundRadius`). The default is a steady 4.1 s machine
-loop from the shared sounds. A stopped belt is silent.
+loop from the shared sounds. A stopped belt is silent. A driver (`CL_Driver`) does not play the default: its meshes
+are the map's own machinery, which has its own sounds; it plays a sound its map names. The default was chosen by
+name and length from the shared sounds, not by listening.
 
 The map builder gives the belt and the escalator slope the `SURFACE_Conveyor` surface type unless their material
 names one, so footsteps and other surface sounds pick the bank's conveyor entry (the default entry when a bank has

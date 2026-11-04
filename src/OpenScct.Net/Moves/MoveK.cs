@@ -92,7 +92,7 @@ public static class MoveK
 
     /// <summary>
     /// Corrections in a row a client sets aside while it waits for a world change the server already applied
-    /// (OpenSCCT addition: <see cref="IMovePrediction.PredictionInputRevision"/>). Past this it replays anyway, so a
+    /// (OpenSCCT addition: <see cref="IMovePrediction.PredictionInputRevisionAt"/>). Past this it replays anyway, so a
     /// change that never arrives cannot stop corrections.
     /// </summary>
     public const int MaxDeferredCorrections = 32;

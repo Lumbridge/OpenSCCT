@@ -76,30 +76,34 @@ public sealed class ClientMoves
     public void ResetPredictionHistory()
     {
         SavedMoves.Clear(); bUpdatePosition = false; UpdatingSMove = null;
-        _acknowledgedSequence = 0; fPendingDeltaTime = 0f; NumberOfBigServerMoveToReSend = 0;
+        _acknowledgedSequence = 0; fPendingDeltaTime = 0f; NumberOfBigServerMoveToReSend = 0; _deferredInARow = 0;
     }
 
     public void AcknowledgePrediction(uint epoch, uint sequence, float stamp)
     {
         if (_correctionEpoch == epoch && sequence <= _acknowledgedSequence) return;
         _correctionEpoch = epoch; _acknowledgedSequence = sequence; CurrentTimeStamp = stamp;
-        bUpdatePosition = false; UpdatingSMove = null;
+        bUpdatePosition = false; UpdatingSMove = null; _deferredInARow = 0;
     }
 
     /// <param name="serverTick">The server tick the state was sent at, or -1 when unknown.</param>
-    /// <param name="inputRevision">The server's <see cref="IMovePrediction.PredictionInputRevision"/> when it sent the state.</param>
+    /// <param name="inputRevision">
+    /// The server's <see cref="IMovePrediction.PredictionInputRevisionAt"/> at <paramref name="location"/> when it sent
+    /// the state.
+    /// </param>
     public void ReceiveAuthoritativeState(uint epoch, uint sequence, float stamp, FVector location, FVector velocity, EPhysics physics, byte zone, Actor? @base,
         FVector? basePosition = null, FRotator baseRotation = default, long serverTick = -1, uint inputRevision = 0)
     {
         if (Pawn is not IMovePrediction prediction || (_correctionEpoch == epoch && sequence <= _acknowledgedSequence)) return;
-        // The server moved the pawn under a change this client has not received (its update was lost or is late):
-        // replaying now would predict the old way again and earn another correction. Take the acknowledgement and
-        // wait for the change; the server keeps correcting while the client is off.
-        if ((int)(inputRevision - prediction.PredictionInputRevision) > 0 && _deferredInARow < MoveK.MaxDeferredCorrections)
+        // The server moved the pawn under a change near it that this client has not received (its update was lost
+        // or is late): replaying now would predict the old way again and earn another correction. Take the
+        // acknowledgement and wait for the change; the server keeps correcting while the client is off. A correction
+        // taken earlier in the same receive still applies: it was made under a state this client has.
+        if ((int)(inputRevision - prediction.PredictionInputRevisionAt(location)) > 0 && _deferredInARow < MoveK.MaxDeferredCorrections)
         {
             _deferredInARow++;
             CorrectionsDeferred++;
-            AcknowledgePrediction(epoch, sequence, stamp);
+            _correctionEpoch = epoch; _acknowledgedSequence = sequence; CurrentTimeStamp = stamp;
             return;
         }
 

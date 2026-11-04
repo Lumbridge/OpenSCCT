@@ -317,7 +317,10 @@ public sealed class ConveyorViews
     /// <summary>
     /// An escalator's steps, rebuilt each frame where the phase puts them (<see cref="ConveyorSteps"/>) on the map's
     /// <c>.Steps</c> node, with its material. The baked light stays where it was baked: each new vertex takes the light
-    /// the baked steps had at the same place along the path, on the same side and facing the same way.
+    /// the baked steps had at the same place along the path, on the same side and facing the same way, blended between
+    /// the samples either side of it. The vertex alpha keeps the zone the baked steps had there and the Echelon stream
+    /// is copied, so zone-limited, dynamic and spot lights, flares and the vision ambient light the moving steps as they
+    /// lit the baked ones.
     /// </summary>
     private sealed class MovingSteps
     {
@@ -326,7 +329,8 @@ public sealed class ConveyorViews
 
         private readonly Material? _material;
         private readonly Transform3D _toLocal;
-        private readonly Color[,] _light;
+        private readonly Sample[,]? _light;
+        private readonly float? _echelon;
         private readonly ArrayMesh _mesh = new();
         private readonly List<Vector3> _points = [];
         private readonly List<Vector3> _normals = [];
@@ -335,11 +339,12 @@ public sealed class ConveyorViews
         private readonly List<int> _indices = [];
         private readonly float _u;
 
-        private MovingSteps(MeshInstance3D node, Material? material, Color[,] light, float u)
+        private MovingSteps(MeshInstance3D node, Material? material, Sample[,]? light, float? echelon, float u)
         {
             _material = material;
             _toLocal = World(node).AffineInverse();
             _light = light;
+            _echelon = echelon;
             _u = u;
             node.Mesh = _mesh;
         }
@@ -356,13 +361,24 @@ public sealed class ConveyorViews
             int bins = Math.Max(1, (int)MathF.Ceiling(path.Length / Bin) + 1);
             // [bin, side * 2 + facing]: left or right half, tread or riser.
             var sum = new Vector4[bins, 4];
+            var zones = new Dictionary<byte, int>?[bins, 4];
             Transform3D toWorld = World(node);
+            bool vertexLit = false;
+            float? echelon = null;
             for (int s = 0; s < baked.GetSurfaceCount(); s++)
             {
                 Godot.Collections.Array arrays = baked.SurfaceGetArrays(s);
                 Vector3[] points = arrays[(int)Mesh.ArrayType.Vertex].AsVector3Array();
                 Vector3[] normals = arrays[(int)Mesh.ArrayType.Normal].AsVector3Array();
                 Color[] colours = arrays[(int)Mesh.ArrayType.Color].AsColorArray();
+                // The map builder writes one Echelon code for the whole actor (SurfaceBuilder.Echelon).
+                if (echelon is null && arrays[(int)Mesh.ArrayType.Custom1] is { VariantType: Variant.Type.PackedFloat32Array } custom1 &&
+                    custom1.AsFloat32Array() is { Length: > 0 } codes)
+                {
+                    echelon = codes[0];
+                }
+
+                vertexLit |= colours.Length > 0;
                 for (int i = 0; i < points.Length && i < colours.Length; i++)
                 {
                     FVector at = UeSpace.ToUe(toWorld * points[i]);
@@ -373,22 +389,38 @@ public sealed class ConveyorViews
 
                     bool up = i < normals.Length && (toWorld.Basis * normals[i]).Y > 0.5f;
                     int slot = (p.Lateral > 0f ? 2 : 0) + (up ? 0 : 1);
+                    int bin = BinOf(p.Along, bins);
                     Color c = colours[i];
-                    sum[BinOf(p.Along, bins), slot] += new Vector4(c.R, c.G, c.B, 1f);
+                    sum[bin, slot] += new Vector4(c.R, c.G, c.B, 1f);
+                    // The alpha is the vertex's zone / 255 (SurfaceBuilder.Add).
+                    byte zone = (byte)Math.Clamp((int)MathF.Round(c.A * 255f), 0, 255);
+                    Dictionary<byte, int> counts = zones[bin, slot] ??= [];
+                    counts[zone] = counts.GetValueOrDefault(zone) + 1;
                 }
             }
 
-            var light = new Color[bins, 4];
+            Material? material = node.GetSurfaceOverrideMaterial(0) ?? baked.SurfaceGetMaterial(0);
+            // Actor-lit steps (no baked colours) take their light from the actor lighting, as the baked node did.
+            return new MovingSteps(node, material, vertexLit ? Samples(sum, zones) : null, echelon, conveyor.Width / ConveyorLayout.BeltTile);
+        }
+
+        /// <summary>
+        /// The mean light and the most common zone per bin and slot. A bin no vertex fell in takes the last sampled bin
+        /// before it; leading ones take the first sampled.
+        /// </summary>
+        private static Sample[,] Samples(Vector4[,] sum, Dictionary<byte, int>?[,] zones)
+        {
+            int bins = sum.GetLength(0);
+            var light = new Sample[bins, 4];
             for (int slot = 0; slot < 4; slot++)
             {
-                // A bin no vertex fell in takes the last sampled bin before it; leading ones take the first sampled.
                 int first = -1;
                 for (int b = 0; b < bins; b++)
                 {
-                    if (sum[b, slot].W > 0f)
+                    if (zones[b, slot] is { } counts)
                     {
                         Vector4 mean = sum[b, slot] / sum[b, slot].W;
-                        light[b, slot] = new Color(mean.X, mean.Y, mean.Z);
+                        light[b, slot] = new Sample(new Vector3(mean.X, mean.Y, mean.Z), MostCommon(counts));
                         first = first < 0 ? b : first;
                     }
                     else if (b > 0)
@@ -403,8 +435,22 @@ public sealed class ConveyorViews
                 }
             }
 
-            Material? material = node.GetSurfaceOverrideMaterial(0) ?? baked.SurfaceGetMaterial(0);
-            return new MovingSteps(node, material, light, conveyor.Width / ConveyorLayout.BeltTile);
+            return light;
+        }
+
+        private static byte MostCommon(Dictionary<byte, int> counts)
+        {
+            byte best = 0;
+            int most = 0;
+            foreach ((byte zone, int n) in counts)
+            {
+                if (n > most || (n == most && zone < best))
+                {
+                    (best, most) = (zone, n);
+                }
+            }
+
+            return best;
         }
 
         /// <summary>Rebuilds the steps at belt <paramref name="phase"/>.</summary>
@@ -442,9 +488,22 @@ public sealed class ConveyorViews
             arrays[(int)Mesh.ArrayType.Vertex] = _points.ToArray();
             arrays[(int)Mesh.ArrayType.Normal] = _normals.ToArray();
             arrays[(int)Mesh.ArrayType.TexUV] = _uvs.ToArray();
-            arrays[(int)Mesh.ArrayType.Color] = _colours.ToArray();
             arrays[(int)Mesh.ArrayType.Index] = _indices.ToArray();
-            _mesh.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, arrays);
+            if (_light is not null)
+            {
+                arrays[(int)Mesh.ArrayType.Color] = _colours.ToArray();
+            }
+
+            Mesh.ArrayFormat flags = 0;
+            if (_echelon is { } code)
+            {
+                float[] codes = new float[_points.Count];
+                Array.Fill(codes, code);
+                arrays[(int)Mesh.ArrayType.Custom1] = codes;
+                flags = (Mesh.ArrayFormat)((long)Mesh.ArrayCustomFormat.RFloat << (int)Mesh.ArrayFormat.FormatCustom1Shift);
+            }
+
+            _mesh.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, arrays, null, null, flags);
             _mesh.SurfaceSetMaterial(0, _material);
         }
 
@@ -452,14 +511,37 @@ public sealed class ConveyorViews
 
         private void Vertex(ConveyorPath path, FVector at, FVector normal, Vector2 uv, bool up)
         {
-            path.Project(at, float.MaxValue, out ConveyorProjection p);
-            int slot = (p.Lateral > 0f ? 2 : 0) + (up ? 0 : 1);
             _points.Add(_toLocal * UeSpace.ToGodot(at));
             _normals.Add((_toLocal.Basis * UeSpace.DirectionToGodot(normal)).Normalized());
             _uvs.Add(uv);
-            _colours.Add(_light[BinOf(p.Along, _light.GetLength(0)), slot]);
+            if (_light is null)
+            {
+                return;
+            }
+
+            path.Project(at, float.MaxValue, out ConveyorProjection p);
+            int slot = (p.Lateral > 0f ? 2 : 0) + (up ? 0 : 1);
+            _colours.Add(LightAt(_light, p.Along, slot));
+        }
+
+        /// <summary>
+        /// The light blended between the centres of the two bins either side of <paramref name="along"/>, in the zone of
+        /// the nearer one (a zone is never blended).
+        /// </summary>
+        private static Color LightAt(Sample[,] light, float along, int slot)
+        {
+            int bins = light.GetLength(0);
+            float x = Math.Clamp(along / Bin - 0.5f, 0f, bins - 1);
+            int b0 = (int)x, b1 = Math.Min(b0 + 1, bins - 1);
+            float t = x - b0;
+            Sample s0 = light[b0, slot], s1 = light[b1, slot];
+            Vector3 rgb = s0.Light.Lerp(s1.Light, t);
+            return new Color(rgb.X, rgb.Y, rgb.Z, (t < 0.5f ? s0.Zone : s1.Zone) / 255f);
         }
 
         private static int BinOf(float along, int bins) => Math.Clamp((int)(along / Bin), 0, bins - 1);
+
+        /// <summary>The baked light at one place on the steps (half the light term, as the map builder writes it) and its zone.</summary>
+        private readonly record struct Sample(Vector3 Light, byte Zone);
     }
 }
