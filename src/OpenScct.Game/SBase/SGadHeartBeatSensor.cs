@@ -12,8 +12,9 @@ namespace OpenScct.Game.SBase;
 /// </summary>
 public partial class SGadHeartBeatSensor
 {
-    /// <summary>The sensor only runs while selected with the gun drawn and out of transition.</summary>
-    public bool IsScanning => OwnerPawn is { bWeaponTransit: false, WeaponLoaded: 1 or 2 or 7 } owner &&
+    /// <summary>The selected sensor scans until the weapon is fully holstered, including draw/holster transitions.</summary>
+    [Provenance(ProvenanceKind.Decoded, "CheckForPawn 0x10abd0e0: SelectedGadget == this and WeaponLoaded != 0; bWeaponTransit is not tested")]
+    public bool IsScanning => OwnerPawn is { WeaponLoaded: not 0 } owner &&
         ReferenceEquals(owner.SelectedGadget, this);
 
     /// <summary>No hint on selection.</summary>

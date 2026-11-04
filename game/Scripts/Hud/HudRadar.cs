@@ -23,6 +23,9 @@ public sealed class HudRadar
         ArgumentNullException.ThrowIfNull(radar);
         _radar = radar;
         _merc = merc;
+        // Original scanner captures and IMAGE draw 0x10a54600 use integer rect edges, with no extra unit.
+        // Scope this to the spy radar; other HUD areas retain their existing measured placement.
+        _radar.NativeImageRendering = !merc;
     }
 
     /// <summary>Blips placed by the last update, per kind.</summary>
@@ -52,7 +55,8 @@ public sealed class HudRadar
                 continue;
             Rect4 rect = widget.Keys[0].Rect;
             var at = new Vector2(Math.Min(rect.L, rect.R), Math.Min(rect.T, rect.B)) + origin;
-            var size = new Vector2(Math.Abs(rect.R - rect.L) + 1f, Math.Abs(rect.B - rect.T) + 1f);
+            float expansion = radar.UsesNativeImageRendering ? 0f : 1f;
+            var size = new Vector2(Math.Abs(rect.R - rect.L) + expansion, Math.Abs(rect.B - rect.T) + expansion);
             var image = new Rect2(at, size);
             bounds = bounds is { } prior ? prior.Merge(image) : image;
         }
@@ -116,7 +120,7 @@ public sealed class HudRadar
             _radar.Playing = false;
         }
 
-        // The heart sensor cone and the spy-bullet trace are not driven yet.
+        // The heart driver applies cone visibility after the radar update. The spy-bullet trace is not driven yet.
         _radar.Find("Heart")?.SetVisible(false);
         _radar.Find("Heart1")?.SetVisible(false);
         _radar.Find("piege")?.SetVisible(false);

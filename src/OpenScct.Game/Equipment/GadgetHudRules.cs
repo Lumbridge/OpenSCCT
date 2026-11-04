@@ -216,7 +216,7 @@ public static class GadgetHudRules
             return HeartCone.Hidden;
         }
 
-        if (!sensor.IsScanning)
+        if (pawn.WeaponLoaded == 0)
         {
             return HeartCone.Idle;
         }

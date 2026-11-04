@@ -103,7 +103,7 @@ public sealed class HeartbeatSensorTests
     [InlineData(3, false)]
     [InlineData(4, false)]
     [InlineData(2, true)]
-    public void PuttingTheGunAwayStopsScanningAndSoundPresentation(byte loaded, bool inTransit)
+    public void OnlyFullyHolsteringStopsScanningAndSoundPresentation(byte loaded, bool inTransit)
     {
         (CombatScene scene, SBasePawn spy, SGadHeartBeatSensor hbs) = Spy();
         var pc = (SPlayerController)spy.Controller!;
@@ -113,9 +113,10 @@ public sealed class HeartbeatSensorTests
 
         spy.WeaponLoaded = loaded;
         spy.bWeaponTransit = inTransit;
-        Assert.False(hbs.CheckForPawn());
-        // A cached detection must not keep the HUD's heartbeat or scan ping running.
-        Assert.Equal(OpenScct.Game.Equipment.HeartCone.Idle, OpenScct.Game.Equipment.GadgetHudRules.Heart(pc));
+        // Native CheckForPawn and the cone page test WeaponLoaded != 0, even during transitions.
+        Assert.Equal(loaded != 0, hbs.CheckForPawn());
+        Assert.Equal(loaded != 0 ? OpenScct.Game.Equipment.HeartCone.Detected : OpenScct.Game.Equipment.HeartCone.Idle,
+            OpenScct.Game.Equipment.GadgetHudRules.Heart(pc));
 
         spy.WeaponLoaded = 2;
         spy.bWeaponTransit = false;

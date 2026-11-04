@@ -449,7 +449,7 @@ public sealed class MagmaRenderer
                 DrawList(node, w, k, origin + k.Pos, tint, anchor, into);
                 return;
             case MagmaWidgetKind.Image:
-                DrawImage(node.Package, path, w, k, o, r, origin, tint, anchor, into);
+                DrawImage(node.Package, path, w, k, o, r, origin, tint, anchor, node.UsesNativeImageRendering, into);
                 return;
             default:
                 return;
@@ -577,11 +577,15 @@ public sealed class MagmaRenderer
         area.Timings.TryGetValue(state, out int f) ? f : fallback;
 
     private void DrawImage(MagmaPackage package, string path, MagmaWidget w, MagmaKey k, MagmaOverride? o, Rect4 r, Vector2 origin,
-        Color tint, MagmaAnchor anchor, MagmaDrawList into)
+        Color tint, MagmaAnchor anchor, bool nativeImage, MagmaDrawList into)
     {
         MagmaMaterial? material = w.Material >= 0 && w.Material < package.Materials.Count ? package.Materials[w.Material] : null;
-        // Magma draws an image rect inclusive of its last unit (x2 - x1 + 1 wide; measured on the merc reticle).
-        r = new Rect4(r.L, r.T, r.R + 1f, r.B + 1f);
+        // Native interpolation 0x10baaf10 truncates each edge to a signed integer; IMAGE draw 0x10a54600
+        // scales those edges directly and rotates about their midpoint. Preserve the existing expansion
+        // outside opted-in subtrees, whose placement was previously fitted to the merc reticle.
+        r = nativeImage
+            ? new Rect4(MathF.Truncate(r.L), MathF.Truncate(r.T), MathF.Truncate(r.R), MathF.Truncate(r.B))
+            : new Rect4(r.L, r.T, r.R + 1f, r.B + 1f);
         float rot = o?.Rotation ?? k.Rot;
         var c0 = new Vector2((r.L + r.R) * 0.5f, (r.T + r.B) * 0.5f);
         ReadOnlySpan<Vector2> corners = [new(r.L, r.T), new(r.R, r.T), new(r.R, r.B), new(r.L, r.B)];
@@ -661,6 +665,12 @@ public sealed class MagmaRenderer
             uvs[c] = new Vector2((region.L + su * (region.R - region.L)) / Math.Max(1, size.X),
                 (region.T + sv * (region.B - region.T)) / Math.Max(1, size.Y));
             Color keyed = o?.Color ?? k.Colors[c];
+            if (nativeImage)
+            {
+                // Native IMAGE keys interpolate into byte channels before the parent tint is applied.
+                keyed = new Color(ByteFloor(keyed.R), ByteFloor(keyed.G), ByteFloor(keyed.B), ByteFloor(keyed.A));
+            }
+
             keyed *= o?.Tint ?? Colors4.White;
             if (o?.AlphaGain is { } gain)
             {
@@ -668,8 +678,20 @@ public sealed class MagmaRenderer
             }
 
             Color col = Clamp01(keyed * tint);
+            if (nativeImage)
+            {
+                // 0x10a54330 rounds the tinted bytes, then 0x10a525b0 truncates scaled RGB only.
+                // The texture stage's MODULATE2X doubles those bytes; alpha is not doubled.
+                col = new Color(ByteRound(col.R), ByteRound(col.G), ByteRound(col.B), ByteRound(col.A));
+            }
+
             // vc = min(255, trunc(C x scale)) per channel, alpha unscaled; the stage doubles it (MODULATE2X).
             var vc = new Color(Math.Min(1f, col.R * scale), Math.Min(1f, col.G * scale), Math.Min(1f, col.B * scale), col.A);
+            if (nativeImage)
+            {
+                vc = new Color(ByteFloor(vc.R), ByteFloor(vc.G), ByteFloor(vc.B), vc.A);
+            }
+
             colors[c] = dodge ? new Color(vc.R, vc.G, vc.B, 1f) : new Color(vc.R * 2f, vc.G * 2f, vc.B * 2f, vc.A);
         }
 
@@ -703,6 +725,10 @@ public sealed class MagmaRenderer
 
     private static Color Clamp01(Color c) =>
         new(Math.Clamp(c.R, 0f, 1f), Math.Clamp(c.G, 0f, 1f), Math.Clamp(c.B, 0f, 1f), Math.Clamp(c.A, 0f, 1f));
+
+    private static float ByteFloor(float channel) => MathF.Floor(channel * 255f) / 255f;
+
+    private static float ByteRound(float channel) => MathF.Floor(channel * 255f + 0.5f) / 255f;
 
     /// <summary>The parts of a convex polygon outside every quad of the current mask group.</summary>
     private List<(Vector2[], Vector2[], Color[])> Clip(Vector2[] points, Vector2[] uvs, Color[] colors)

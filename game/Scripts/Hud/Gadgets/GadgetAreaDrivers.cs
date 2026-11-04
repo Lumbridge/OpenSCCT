@@ -234,9 +234,11 @@ public sealed class HeartSensorDriver : IHudAreaDriver
 {
     private HeartCone _cone;
     private SGadHeartBeatSensor? _sensor;
+    private SBasePawn? _radarOwner;
+    private bool _detectedLastFrame;
     private float _now;
-    private float _lastDetectedSound = float.NegativeInfinity;
-    private int _lastFrame = -1;
+    private float _lastDetectedSound;
+    private int _lastFrame;
     private MagmaNode? _shown;
 
     public HudSide? Side => HudSide.Spy;
@@ -261,12 +263,20 @@ public sealed class HeartSensorDriver : IHudAreaDriver
         _cone = GadgetHudRules.Heart(pc);
         _sensor = pc?.SBPawn?.SelectedGadget as SGadHeartBeatSensor;
         _now = pc?.Level.TimeSeconds ?? 0f;
-        if (_cone != HeartCone.Detected || pc?.XLevel is null || pc.SBPawn is not { } own)
+        if (!ReferenceEquals(_radarOwner, pc?.SBPawn))
+        {
+            _radarOwner = pc?.SBPawn;
+            _detectedLastFrame = false;
+        }
+
+        if (!_detectedLastFrame || pc?.XLevel is null || pc.SBPawn is not { SPawnType: 0 } own)
         {
             return;
         }
 
-        // The spy radar shows the mercs the sensor marked (the spy-bullet tag already adds its own blips).
+        // Native radar 0x10b2d410 runs before the cone page and uses its previous detection latch. Keep the
+        // simulation's marks between rendered frames: consuming them here would flicker above the 60 Hz tick.
+        // The spy-bullet tag already adds its own blips.
         foreach (SBasePawn q in pc.XLevel.AllActors<SBasePawn>())
         {
             if (!ReferenceEquals(q, own) && q.SPawnType != 0 && q.bDetectedByHBS && !(q.bSpyBulletOn && q.iTeamSpying == 0f))
@@ -283,12 +293,15 @@ public sealed class HeartSensorDriver : IHudAreaDriver
         MagmaNode? hit = page.Area("Radar/Heart1");
         if (idle is null || hit is null)
         {
+            _detectedLastFrame = false;
             return;
         }
 
-        StyleWave(idle);
-        StyleWave(hit);
-
+        _detectedLastFrame = _cone == HeartCone.Detected;
+        // Original runtime captures show both independent cone clocks advancing while invisible. Their phase
+        // is read again when drawing/reselecting, so freezing the hidden cone changes the resumed wave and ping.
+        idle.TickWhenHidden = true;
+        hit.TickWhenHidden = true;
         // A_Heart1 contains an unpositioned spot at (0, 0). Detected enemies are
         // already placed by HudRadar; this embedded marker must not draw as well.
         hit.Widget("spot").Hidden = true;
@@ -298,10 +311,16 @@ public sealed class HeartSensorDriver : IHudAreaDriver
         switch (_cone)
         {
             case HeartCone.Hidden:
+                // Deselection stops Heart only if it was the visible cone. A hidden Heart keeps its phase
+                // when switching away directly from detection, just like the independent Heart1 clock.
+                if (ReferenceEquals(_shown, idle))
+                {
+                    idle.Playing = false;
+                }
+
                 idle.SetVisible(false);
                 hit.SetVisible(false);
                 _shown = null;
-                _lastFrame = -1;
                 return;
             case HeartCone.Idle:
                 hit.SetVisible(false);
@@ -309,7 +328,15 @@ public sealed class HeartSensorDriver : IHudAreaDriver
                 idle.SetFrame(0);
                 idle.Playing = false;
                 _shown = idle;
-                _lastFrame = -1;
+                // State 0 resets both clocks and the wrap latch. Holstering resets only Heart; the native
+                // keeps Heart1's frame and the latch so the next drawn scan resumes from the detected loop.
+                if (_sensor?.OwnerPawn is { WeaponLoaded: not 0 })
+                {
+                    hit.SetFrame(0);
+                    hit.Playing = false;
+                    _lastFrame = 0;
+                }
+
                 return;
             case HeartCone.Detected:
                 ShowPlaying(hit, idle);
@@ -326,8 +353,8 @@ public sealed class HeartSensorDriver : IHudAreaDriver
                 break;
         }
 
-        int frame = _shown!.Frame;
-        if (_lastFrame >= 0 && frame < _lastFrame)
+        int frame = HeartFrame(_shown!);
+        if (frame < _lastFrame)
         {
             CheckSounds++;
             Play(_sensor?.Snd_Check);
@@ -336,27 +363,14 @@ public sealed class HeartSensorDriver : IHudAreaDriver
         _lastFrame = frame;
     }
 
-    /// <summary>
-    /// One wave arc (onde2), held clearly visible until it reaches the radar edge and faded over the last quarter of its
-    /// trip (Ryan's comparison with the original); the second, faster arc (onde3) is hidden. Hiding it keeps its loop
-    /// action (actions fire whether the widget is drawn or not).
-    /// </summary>
-    [OpenScct.Provenance.Provenance(OpenScct.Provenance.ProvenanceKind.Estimated, "Matched by eye to the original: the keyed alpha falls linearly to 0 at the edge; x4 holds it full for 75% of the trip")]
-    private static void StyleWave(MagmaNode cone)
-    {
-        cone.Widget("onde2").AlphaGain = HeartWaveAlphaGain;
-        cone.Widget("onde3").Hidden = true;
-    }
-
-    private const float HeartWaveAlphaGain = 4f;
-
     /// <summary>Shows <paramref name="to"/> playing; when it was not up last frame it starts at <paramref name="other"/>'s frame.</summary>
     private void ShowPlaying(MagmaNode to, MagmaNode other)
     {
-        if (!ReferenceEquals(_shown, to))
+        if (!ReferenceEquals(_shown, to) || !to.Playing)
         {
-            to.SetTime(other.Time);
-            _lastFrame = -1;
+            // The native copies GetFrame to SetFrame, and retains the previous frame for its wrap check.
+            // Resetting that latch here loses the scan ping when detection changes on the loop's wrap.
+            to.SetFrame(HeartFrame(other));
         }
 
         other.SetVisible(false);
@@ -364,6 +378,9 @@ public sealed class HeartSensorDriver : IHudAreaDriver
         to.Playing = true;
         _shown = to;
     }
+
+    // Native GetFrame 0x10ba48a0 rounds halfway up. MagmaNode.Frame instead floors for keyframe action traversal.
+    private static int HeartFrame(MagmaNode node) => (int)MathF.Floor(node.FrameF + .5f);
 
     private void Play(AssetRef? sound)
     {

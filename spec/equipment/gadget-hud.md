@@ -91,15 +91,38 @@ visible + frame 0 + play) are in `docs/HUD.md`.
 
 ### Heart sensor cone (`Radar/Heart`, `Radar/Heart1` on P_HudATT)
 22. Hidden unless the selected gadget is an `SGadHeartBeatSensor` and the team has gadgets (`iNBGadgets > 0`).
-23. Weapon holstered (`WeaponLoaded == 0`): `Heart` shown at frame 0 and stopped, `Heart1` hidden.
-24. `StateOfDetect == 1`: `Heart` hidden; `Heart1` shown (from `Heart`'s frame when it was hidden) and playing; the
+23. Weapon holstered (`WeaponLoaded == 0`): `Heart` shown at frame 0 and stopped, `Heart1` hidden. This preserves
+    `Heart1`'s clock and the last-frame wrap latch. Nonzero draw/holster states and `bWeaponTransit` still scan.
+24. `StateOfDetect == 1`: `Heart` hidden; `Heart1` shown (from `Heart`'s integer frame when it was hidden) and playing; the
     detected sound (`Snd_DetectedPawn`) plays when more than 1.5 s passed since the last one.
-25. `StateOfDetect == 2`: `Heart1` hidden; `Heart` shown and playing (from `Heart1`'s frame when it was hidden).
-26. `StateOfDetect == 0`: `Heart` shown at frame 0, stopped.
+25. `StateOfDetect == 2`: `Heart1` hidden; `Heart` shown and playing (from `Heart1`'s integer frame when it was hidden
+    or stopped). `GetFrame` rounds to the nearest frame, with halves rounded up; fractional frame time is not
+    carried across a switch. The same rounded frame is used for the scan-ping wrap comparison, while animation
+    keyframe actions still use their exact elapsed times.
+26. `StateOfDetect == 0`: `Heart` shown at frame 0, stopped; `Heart1` also rewound and stopped; wrap latch reset to 0.
+    Selecting another gadget hides both cones and stops `Heart` only if it was visible, preserving their frames
+    and the wrap latch. Switching away directly from detection leaves both hidden clocks running.
 27. When the playing loop wraps (its frame went down) and `StateOfDetect != 0`, the check sound (`Snd_Check`) plays
-    once. Both sounds play through the HUD sound helper (0x10b26920): no actor, 2D, volume 1, radius 4096, pitch 1, on
+    once. Switching between detected and scanning retains this comparison, including a switch on the wrap frame.
+    Both sounds play through the HUD sound helper (0x10b26920): no actor, 2D, volume 1, radius 4096, pitch 1, on
     the local machine only.
-28. The radar dish shows while either cone area is visible (the radar's own rule).
+28. The radar dish shows while either cone area is visible (the radar's own rule). Radar runs before the cone update:
+    it uses the previous frame's cone visibility and detected latch. Sensor merc blips are gated by that latch, while
+    teammates and spy-bullet tags use their own rules (see [heartbeat-sensor.md](heartbeat-sensor.md)).
+29. The cone uses both authored arcs: `onde2` expands and fades linearly from full opacity to zero over 18 frames,
+    and `onde3` over 15 frames. They run together, with no opacity boost. The separate `onde01` gradient sweep also
+    remains visible. The scanning area loops at frame 20 (2.0 s); the detected area at frame 18 (1.8 s), at 10 fps.
+    The detected-sound timestamp starts at 0, so the first heartbeat cannot play before level time exceeds 1.5 s.
+30. Both cone clocks continue advancing and running their loop actions while hidden, provided they are playing.
+    Holstering stops only `Heart`; hidden `Heart1` continues to loop. Reselecting or drawing again transfers the
+    other area's current frame, not a frozen frame from when it was hidden. This is enabled specifically for the
+    two scanner areas in the port; other Magma areas retain their existing clock behavior.
+31. Spy radar images use the native rectangle geometry: interpolate each edge, truncate it to an integer, scale
+    the authored bounds directly, and rotate about their midpoint. Do not expand the right/bottom edges by one
+    page unit. This applies to the cone masks too; extra edge expansion moves the apex and enlarges the dish.
+32. Image key colors truncate to byte channels before tinting. Tinted channels round to the nearest byte, halves
+    up; the normal blend halves and truncates RGB before the texture stage doubles it. Alpha is not doubled.
+    These rules also apply specifically to the spy radar, preserving the other HUD areas' existing rendering.
 
 ## Constants
 | Name | Value | Unit | Provenance | Source |
@@ -128,6 +151,18 @@ visible + frame 0 + play) are in `docs/HUD.md`.
   0x10b34be0 and 0x10b333f0, sticky menu 0x10b2cdef and 0x10b2d1c0, mine menu 0x10b27575 and 0x10b27770, gas mask
   0x10b27ec0, heart cone 0x10b2d7a0.
 - `Menus/Hud.mgm` (converted to .content/shared/ui/magma/Hud.json): area and widget names.
+- 2026-11-04 stock HUD captures at 640x480, six phases each of scanning and detection:
+  `local/heartbeat-av-parity/original-stock-hud/capture.json` and `parsed-transforms.json`. Both arcs are visible.
+  Production Godot renders are compared without image registration or color fitting in
+  `local/heartbeat-av-parity/stock-visual-comparison.json`.
+- The earlier 1280x720 reference used Reloaded's `widescreen_hud` patch. Its origin hook at Core 0x100a9107
+  matches the shared widget name `onde2` and moves it to X=-300; the absent arc is not stock scanner behavior.
+  Evidence: `local/heartbeat-av-parity/reloaded-hud-wave-override.asm.txt` and `original-draw-trace/parsed-submits.json`.
+- Native image geometry/color paths: 0x10baaf10, 0x10a54600, 0x10a54330 and 0x10a525b0; retained in
+  `local/heartbeat-av-parity/native-image-geometry.md` and `native-image-color-quantization.asm.txt`.
+- Shared HUD init 0x10b318e0 hides both cone instances without stopping their clocks. GetFrame 0x10ba48a0 rounds
+  half-up; keyframe actions use continuous elapsed time. Runtime clock and direct-deselection captures are in
+  `local/heartbeat-av-parity/rewrite-final/rewrite-driver-timeline.json` and `rewrite-driver-direct-deselect.json`.
 
 ## Open questions
 - The mine menu's greyed entries: the native reads the launcher's availability array; whether it greys every

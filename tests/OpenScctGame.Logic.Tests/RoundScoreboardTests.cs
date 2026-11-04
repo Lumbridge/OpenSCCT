@@ -12,6 +12,19 @@ namespace OpenScctGame.Logic.Tests;
 public sealed class RoundScoreboardTests
 {
     [Fact]
+    public void Refresh_countdown_tracks_snapshot_age_and_waits_for_actual_receipt()
+    {
+        var pending = new RoundScoreboard { ElapsedSeconds = 25 };
+        Assert.EndsWith("Next update 5.0s", RoundScoreboardModel.Timing(pending));
+        Assert.EndsWith("Next update 4.5s", RoundScoreboardModel.Timing(pending, .5));
+        var live = pending with { ElapsedSeconds = 45, AsOfSeconds = 15 };
+        Assert.EndsWith("Next update 1.0s", RoundScoreboardModel.Timing(live));
+        Assert.EndsWith("Next update 0.5s", RoundScoreboardModel.Timing(live, .5));
+        Assert.EndsWith("Awaiting update…", RoundScoreboardModel.Timing(live, 2));
+        Assert.Equal("Final totals", RoundScoreboardModel.Timing(live with { Completed = true }, 2));
+    }
+
+    [Fact]
     public void Hold_sources_and_toggle_are_independent_and_reset_clears_everything()
     {
         var input = new ScoreboardInputState();
@@ -37,11 +50,11 @@ public sealed class RoundScoreboardTests
     }
 
     [Fact]
-    public void Pending_legacy_and_versioned_zero_are_distinct()
+    public void Unreleased_stats_show_zero_while_unavailable_history_stays_distinct()
     {
         var board = new RoundScoreboard();
         var pending = new ScoreboardPlayer();
-        Assert.Equal("Pending", RoundScoreboardModel.Stat(board, pending, "spy.grab_kos"));
+        Assert.Equal("0", RoundScoreboardModel.Stat(board, pending, "spy.grab_kos"));
         Assert.Equal("—", RoundScoreboardModel.Stat(board, pending with { StatsVersion = 0 }, "spy.grab_kos"));
         Assert.Equal("—", RoundScoreboardModel.Stat(board with { Partial = true }, pending, "spy.grab_kos"));
         Assert.Equal("0", RoundScoreboardModel.Stat(board, pending with { Stats = new Dictionary<string, int>() }, "spy.grab_kos"));
