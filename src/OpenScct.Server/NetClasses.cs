@@ -1,5 +1,6 @@
 using OpenScct.Game.Devices;
 using OpenScct.Game.SBase;
+using OpenScct.Game.Svm;
 using OpenScct.Net;
 
 namespace OpenScct.Server;
@@ -61,6 +62,22 @@ public static class NetClasses
         cameras.Properties.Add(new RepExtensionProperty(nameof(SCamNetwork.DisabledSeconds), nameof(SCamNetwork.DisabledSeconds), RepLeafKind.Int));
         registry.Extend<SCamNetwork>(cameras);
         registry.Register<CubeWalker>(CubeWalkerNet.CreateExtension());
+        registry.Register<Conveyor>(ConveyorExtension());
         return registry;
+    }
+
+    /// <summary>
+    /// Svm.Conveyor: the running state and the phase anchor, so clients carry riders with the server's state and draw
+    /// the belt in the same place (spec/additions/conveyors.md#network).
+    /// </summary>
+    private static RepExtension ConveyorExtension()
+    {
+        var conveyor = new RepExtension();
+        conveyor.Properties.Add(new RepExtensionProperty(nameof(Conveyor.bOn), nameof(Conveyor.bOn), RepLeafKind.Bool));
+        conveyor.Properties.Add(new RepExtensionProperty(nameof(Conveyor.Speed), nameof(Conveyor.Speed), RepLeafKind.Float));
+        conveyor.Properties.Add(new RepExtensionProperty(nameof(Conveyor.PhaseAtChange), nameof(Conveyor.PhaseAtChange), RepLeafKind.Float));
+        conveyor.Properties.Add(new RepExtensionProperty(nameof(Conveyor.ChangeTick), nameof(Conveyor.ChangeTick), RepLeafKind.Int));
+        conveyor.Properties.Add(new RepExtensionProperty(nameof(Conveyor.SpeedBeforeChange), nameof(Conveyor.SpeedBeforeChange), RepLeafKind.Float));
+        return conveyor;
     }
 }

@@ -308,6 +308,9 @@ UnCrouch(true) before attacking from a crouch). Then:
   0x2df) and walking goes on when it hits; else the velocity is rewritten from the move and the controlling side's
   controller gets MyFalling(0) (the script plays the fall).
 - **Velocity** is the move made over the frame (plus the carry), Z zero.
+- **Conveyors** (OpenSCCT addition): a pawn still walking at the end is carried by the conveyor it stands on, outside
+  `Velocity` (up 18, along, down). A level without conveyors skips this. Rules:
+  [conveyors](../spec/additions/conveyors.md#carrying-pawns).
 
 `processHitWall`: walls only (no actor, a pawn: nothing). Without a controller or with bDirectHitWall: HitWall.
 Repositioning asks NotifyHitWall first. Otherwise only with input: walking compares horizontal directions (the
