@@ -256,9 +256,6 @@ public sealed class LeafLights
         /// <summary>Collects the lights listed by every leaf an actor with these render bounds touches.</summary>
         public void Gather(in ActorLeafBounds bounds) => Gather(bounds.Center, TouchExtent(bounds.Extent, bounds.Physics));
 
-        /// <summary>The leaves the last Gather touched.</summary>
-        public IReadOnlyList<int> Leaves => _leaves;
-
         private void Begin()
         {
             if (++_stamp == int.MaxValue)

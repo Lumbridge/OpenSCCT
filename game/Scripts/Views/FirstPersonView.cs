@@ -154,8 +154,9 @@ public partial class FirstPersonView : Node3D
 
     /// <summary>
     /// Ordinary lights near the eye, filtered by the eye's zone: the weapon actor sits at the eye, in the camera's
-    /// zone, so own-zone-only lights and suns of other zones are dropped. The 64 uu sphere remains an approximation;
-    /// the original uses the weapon's render bounds. Reflections belong to the material and eye adaptation to the
+    /// zone, so own-zone-only lights of other zones are dropped (the original's test). Suns of other zones are dropped
+    /// too, by the zone test that stands in for the leaves of the weapon's bounds (no bounds box is passed). The 64 uu
+    /// sphere remains an approximation; the original uses the weapon's render bounds. Reflections belong to the material and eye adaptation to the
     /// scene renderer, so neither is replaced with a viewmodel ambient floor here.
     /// </summary>
     [Provenance(ProvenanceKind.Decoded, "FActorSceneNode::Render 0x10a172f0 pass 0, 0x10a17463: a bAffectOwnZoneOnly light (+0x2e8 & 0x200) is dropped unless its zone byte (+0x1b4) is the rendered actor's; runtime probe: the first-person weapon actor is at the eye, in the camera's zone")]

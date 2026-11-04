@@ -68,7 +68,7 @@ public sealed class SoftBodyViews
 
         MeshPrimitive prim = prims[0];
         Material? material = compiler.Get(prim.Material, light);
-        var body = new Body(actor, sim, transform, location, prim, material) 
+        var body = new Body(actor, sim, transform, location, prim, material)
         {
             Light = light,
             AmbientGlow = ambientGlow,

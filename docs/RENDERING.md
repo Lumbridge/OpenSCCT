@@ -550,8 +550,9 @@ UnRenderVisibility.cpp), which fills the actor's surface light list (+0xe8):
   AquaD/E/T's 21 movers at 2, ClubD/E/S/T's SGamePlayObject1756 (the destructible CLU_ZenPoles01 pipe) at 0, the
   GAR_humvee gameplay objects KrauU SGamePlayObject8221 and 6084 and StatD/E/S SGamePlayObject6084 at 6, and three
   StaticMeshActors (OffsD StaticMeshActor6917 at 255, TermD StaticMeshActor10864 at 16, ZiopD/S StaticMeshActor6369 at
-  8). The movers and static mesh actors are vertex-lit here, so their cap changes nothing drawn; ClubD's pipe is drawn
-  with ambient only, as in the original. The actor-lit template has four light slots (Godot allows 16 instance
+  8). The movers and static mesh actors are vertex-lit here, so their cap changes nothing drawn; ClubD's pipe
+  (MaxLights 0) takes no lights, so by the decode it is lit by its zone ambient and AmbientGlow alone (it had one
+  light in reach, Light13405; no frame of the original shows it). The actor-lit template has four light slots (Godot allows 16 instance
   uniforms per shader), so a cap above 4 (the humvees) draws the four strongest and loses the fifth and sixth.
 - Being a light depends on the actor's LightType, not its class: the cook's actor filter (0x10ee13b0, predicates
   0x10edd1e0 and 0x10edacf0) tests LightType (+0x2d1) before the Brush test, and the cooked lists hold movers and
@@ -581,14 +582,16 @@ the bounds box no sun test is added: PolaD's first-aid cabinet SInfirmary7655 be
 59 uu, elongated, PHYS_None) touches only leaf 155, its stored leaf, which does not list the sun Light13074 of
 ZoneInfo231 behind its wall, so it stays unlit as in the golden capture (its 36.9 uu bounds sphere also reached leaf
 156, which lists the sun). Actors whose leaves still come from a sphere or a rest pose box keep the sun to their zone
-at its centre, as do maps without the lists. For a pawn this is not settled: the original grows a walking pawn's box by 128 uu (and
-caches the leaves until its bounds leave the cached box), and that box reaches leaf 156 at PolaD's spy start as the
-95 uu sphere does, yet the golden capture draws the spy there with no sun.
+at its centre, as do maps without the lists. For a pawn this is not settled: the original grows a walking pawn's box
+by 128 uu, and that box reaches leaf 156 at PolaD's spy start as the 95 uu sphere does, yet the golden capture draws
+the spy there with no sun. The original also keeps every actor's grown box (FDynamicActor+0xcc) and walks again only
+when the render bounds leave it (0x10990ec5-0x10990f02), so a moving actor's leaves (Physics not PHYS_None) lag its
+bounds by up to the growth; OpenSCCT walks again at every relight.
 Placed mesh actors and gameplay objects pass their bSpecialLit and IgnoredEchelonLights (world.glb `special_lit` and
 `ignoredEchelonLights`, else gameplay.json over the class defaults for a placed actor); a plain mesh of a conversion
 made before `special_lit` was exported is not tested against bSpecialLit and takes every light, as before. Camera
-mounts and spawned effect meshes pass their bSpecialLit only (runtime actors, whose IgnoredEchelonLights is empty);
-pawns have neither. The own-zone test uses the zone at the bounds' centre, where the original compares the
+mounts and spawned effect meshes pass their bSpecialLit, MaxLights and drawn box (runtime actors, whose
+IgnoredEchelonLights is empty); pawns pass neither bSpecialLit nor IgnoredEchelonLights. The own-zone test uses the zone at the bounds' centre, where the original compares the
 actor's zone byte. The bots' light field also moves a light with its actor while the actor is a
 mover or rides one, as the client draws it. Spot shadow lights are not filtered by the lists here: their shadow
 maps keep them out of rooms behind walls. Without the file (maps converted before it) static lights are chosen
@@ -601,11 +604,12 @@ the static spot Light17191 (796 uu, R 1275; its cone already kept it out of the 
 Light4199 loses the sun. A non-special actor under SteeE's Light1901 or ClubD's Light7462 no longer takes them; a
 bSpecialLit one still does.
 
-The first-person arms and gun select ordinary lights at the eye (a 64 uu sphere, filtered by the eye's zone (the
-weapon actor's zone; own-zone-only lights and suns of other zones are dropped); with the leaf lists, static lights
-listed by the leaves that sphere touches). The weapon actor sits at the eye, in the camera's zone (runtime probe), and
-FActorSceneNode::Render (`0x10a172f0`, test at `0x10a17463`) drops a bAffectOwnZoneOnly light unless its zone is the
-rendered actor's. The sphere is still an approximation: the original gathers from the weapon's render bounds (one
+The first-person arms and gun select ordinary lights at the eye (a 64 uu sphere, filtered by the eye's zone, the
+weapon actor's; with the leaf lists, static lights listed by the leaves that sphere touches). The weapon actor sits at
+the eye, in the camera's zone (runtime probe), and FActorSceneNode::Render (`0x10a172f0`, test at `0x10a17463`) drops
+a bAffectOwnZoneOnly light unless its zone is the rendered actor's: that is the decoded part. Suns of other zones are
+also dropped, by the sun zone test that stands in for the leaves of a bounds box (see above), not by that render
+test. The sphere is still an approximation: the original gathers from the weapon's render bounds (one
 sample, AquaE: radius 262.6 centred off the eye). There is no added viewmodel ambient floor. At the measured AquaE Blue Room
 pose (eye `7152, 1036, 272.50626`, yaw 16384, FOV 95), the original selects zero ordinary lights and has zero
 actor/zone ambient. Its rifle highlights come from the original material chain through the heat/EMF modifiers:
