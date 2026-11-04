@@ -25,7 +25,7 @@ For build instructions and the current implementation, start with the
 | [Enhanced features](enhanced/FEATURES.md) | Enhanced-version behaviour and parity notes |
 | [Reloaded features](reloaded/FEATURES.md) | Reloaded changes and evidence |
 | [OpenSCCT additions](additions/) | Hub, progression, gear changes and merc sidearms |
-| [SVMap 1.1](svmap/1.1/README.md) | Current map format; [1.0](svmap/1.0/README.md) documents the earlier format |
+| [SVMap 1.1](svmap/1.1/README.md) | Current map format; [1.0](svmap/1.0/README.md) documents the earlier format; [1.2 conveyors](svmap/1.2/conveyors.md) adds OpenSCCT's conveyor actor |
 
 ## Read the evidence
 

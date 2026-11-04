@@ -1,5 +1,6 @@
 using OpenScct.Core;
 using OpenScct.Core.Engine;
+using OpenScct.Game.Svm;
 
 namespace OpenScct.Server;
 
@@ -19,17 +20,26 @@ internal sealed class PredictionCollisionFrame
         public FRotator Rotation;
         public float Radius, Height;
         public bool Collide, BlockActors, BlockPlayers;
+        // A conveyor's carry is part of the movement input: replay must see the state each tick saw.
+        public bool ConveyorOn;
+        public float ConveyorSpeed;
 
         public static Pose Capture(Actor actor) => new()
         {
             Actor = actor, Location = actor.Location, Rotation = actor.Rotation,
             Radius = actor.CollisionRadius, Height = actor.CollisionHeight,
             Collide = actor.bCollideActors, BlockActors = actor.bBlockActors, BlockPlayers = actor.bBlockPlayers,
+            ConveyorOn = actor is Conveyor { bOn: true }, ConveyorSpeed = (actor as Conveyor)?.Speed ?? 0f,
         };
 
         public readonly void Apply()
         {
             if (Actor.bDeleteMe) return;
+            if (Actor is Conveyor conveyor)
+            {
+                conveyor.bOn = ConveyorOn; conveyor.Speed = ConveyorSpeed;
+                return;
+            }
             // CollisionWorld synchronizes dynamic brush transforms lazily from these fields. Do not use a move
             // native here: it would shove riders, change zones, or dispatch gameplay on a different actor.
             Actor.Location = Location; Actor.Rotation = Rotation;
@@ -46,7 +56,7 @@ internal sealed class PredictionCollisionFrame
         {
             Actor actor = actors[i];
             if (ReferenceEquals(actor, owner) || actor.bDeleteMe || actor.bWorldGeometry || actor.bStatic ||
-                (actor is not Pawn && !actor.bIsAMover && !ReferenceEquals(actor, owner.Base))) continue;
+                (actor is not Pawn && actor is not Conveyor && !actor.bIsAMover && !ReferenceEquals(actor, owner.Base))) continue;
             if (_count == _poses.Length) { Complete = false; return; }
             _poses[_count++] = Pose.Capture(actor);
         }

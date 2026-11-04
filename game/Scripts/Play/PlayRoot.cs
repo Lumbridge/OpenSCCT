@@ -137,6 +137,9 @@ public partial class PlayRoot : Node3D
 
     public DeviceViews? Devices { get; private set; }
 
+    /// <summary>The map's conveyors: belts, rollers and items moving with the replicated belt phase.</summary>
+    public ConveyorViews? Conveyors { get; private set; }
+
     public FirstPersonView? FirstPerson { get; private set; }
 
     /// <summary>Muzzle flashes, tracers, impact marks and sparks (game/Scripts/Fx).</summary>
@@ -473,6 +476,7 @@ public partial class PlayRoot : Node3D
         if (Devices is null && Map is not null && session.Client.Map?.Loaded is { } loaded)
         {
             Devices = new DeviceViews(Map, loaded, Map.Root, Map.SharedRoot);
+            Conveyors = new ConveyorViews(Map, loaded, Map.Root);
         }
 
         Devices?.OnTick(session.Client.World.Level);
@@ -689,6 +693,10 @@ public partial class PlayRoot : Node3D
         Pawns?.Draw(alpha, dt, firstPerson, aimer, drawnView);
         session.Client.ReportRenderedFrame(alpha);
         Devices?.Draw(alpha, dt, Pawns);
+        if (session.Client.ViewTimeFixed >= 0)
+        {
+            Conveyors?.Draw(session.Client.ViewTimeFixed / (double)NetTimeline.Fraction, dt);
+        }
         Map?.SoftBodies?.Update(dt, session.Client.World.Level, Audio?.Sound, session.LocalPawn);
         if (Camera is not null)
         {
@@ -744,6 +752,7 @@ public partial class PlayRoot : Node3D
         _spyShadowLighting = null;
         Config.Demo?.Dispose();
         Devices = null;
+        Conveyors = null;
         Pawns = null;
         FirstPerson = null;
         Fx = null;

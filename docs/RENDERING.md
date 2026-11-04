@@ -95,6 +95,14 @@ and yellow in slot 1). A gameplay mesh's surface i is section i (surface name `s
 mesh's own material. A node is drawn where its actor is after BeginPlay (a camera moves 24 uu off its wall), and
 `CameraMountViews` draws the wall mounts cameras spawn.
 
+### Conveyors
+
+`ConveyorViews` (game/Scripts/Views) draws the moving parts of `Svm.Conveyor` actors. The map builder bakes each
+look into `world.glb`; the belt, steps and rollers are gameplay instances named `<id>.Belt`, `<id>.Steps` and
+`<id>.Rollers`. Each such node, and each of the conveyor's scroll targets, gets its own copies of its materials, and
+every frame their `svm_scroll` offset follows the belt's phase at the displayed server time. Items are one actor-lit
+node each, placed by `ConveyorLayout.PlaceItem`. Rules: [conveyors](../spec/additions/conveyors.md#look).
+
 ## Display space
 
 The original computes every colour in display (gamma) space and shows the framebuffer as it is: its D3D gamma ramp

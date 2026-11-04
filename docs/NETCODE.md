@@ -311,7 +311,9 @@ the separately replicated lock-on arrives.
 Replay suppresses network calls, damage, animation notifies and simulation presentation events. Historical touch
 callbacks are suppressed; the live contact set is reconciled once at the resulting present position.
 Recorded collision inputs stage other pawn cylinders and moving-base poses during replay, restore live actors
-afterwards, and reproduce rider translation and rotation without advancing another actor's gameplay.
+afterwards, and reproduce rider translation and rotation without advancing another actor's gameplay. They also hold
+each conveyor's running state and speed, so a rider replays with the carry each tick saw
+([conveyors](../spec/additions/conveyors.md#network)).
 Collision state changes immediately; the local mesh and ordinary pawn camera retain a decaying 100 ms visual
 offset. The camera offset is swept against world collision. Teleports, possession changes and reinitializations
 cut render history, and exhausted command history requests a controlled reinitialization.

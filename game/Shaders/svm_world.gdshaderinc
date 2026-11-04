@@ -638,11 +638,15 @@ vec2 svm_affine(vec2 uv, vec3 row_u, vec3 row_v) {
 	return vec2(dot(row_u, h), dot(row_v, h));
 }
 
+// OpenSCCT's own: a conveyor's belt, steps, rollers and scroll targets slide their diffuse with the belt's phase
+// (ConveyorViews sets it on the node's own material copies; spec/additions/conveyors.md#look).
+uniform vec2 svm_scroll = vec2(0.0);
+
 vec2 svm_uv(vec2 uv) {
 #ifdef UV_ANIM
 	uv = svm_anim(uv, uv_anim_type, uv_anim_a, uv_anim_b, uv_anim_c, tex_size);
 #endif
-	return uv;
+	return uv + svm_scroll;
 }
 
 #include "res://Shaders/svm_sequence.gdshaderinc"
