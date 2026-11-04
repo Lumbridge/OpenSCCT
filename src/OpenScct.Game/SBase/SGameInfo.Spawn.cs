@@ -276,7 +276,16 @@ public partial class SGameInfo
         }
 
         aPlayer.StartSpot = startSpot;
-        if (!aPlayer.PawnClass.IsNone)
+        // OpenSCCT: a test play from the map editor spawns its player once at the editor's camera
+        // (spec/additions/test-start.md).
+        bool testStart = false;
+        FRotator testRotation = default;
+        if (!aPlayer.PawnClass.IsNone && SpawnAtTestStart(aPlayer, out testRotation) is { } testPawn)
+        {
+            aPlayer.Pawn = testPawn;
+            testStart = true;
+        }
+        else if (!aPlayer.PawnClass.IsNone)
         {
             FVector spawnAt = startSpot.Location;
             FVector end = spawnAt - new FVector(0f, 0f, K.FloorProbeLength);
@@ -311,11 +320,14 @@ public partial class SGameInfo
         aPlayer.PawnClass = pawnClass;
         Ports.PlayTeleportEffect(pawn, true, true);
 
-        FRotator clientRotation = teamNum == 0 ? SpyCameraRotation(startSpot) : pawn.Rotation;
+        FRotator clientRotation = testStart ? testRotation : teamNum == 0 ? SpyCameraRotation(startSpot) : pawn.Rotation;
         SendClientSetRotation(aPlayer, clientRotation);
 
         AddDefaultInventory(pawn);
-        TriggerEvent(startSpot.Event, startSpot, pawn);
+        if (!testStart)
+        {
+            TriggerEvent(startSpot.Event, startSpot, pawn);
+        }
         if (aPlayer is SPlayerController spc)
         {
             spc.MyDesiredRotation = aPlayer.Rotation;

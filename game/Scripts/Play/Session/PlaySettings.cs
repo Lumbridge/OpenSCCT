@@ -113,6 +113,12 @@ public sealed record PlaySettings
     /// <summary>Visit a Map: unlimited ammunition, gadget charges and gas mask air, with instant gear changes.</summary>
     public bool UnlimitedGear { get; init; }
 
+    /// <summary>
+    /// Where the local player first spawns instead of a PlayerStart (the map editor's Play From Camera,
+    /// spec/additions/test-start.md), or null. Later spawns use the map's starts.
+    /// </summary>
+    public (FVector Location, FRotator Rotation)? StartAt { get; init; }
+
     /// <summary>Records the match as a demo into this folder (docs/DEMOS.md), or null for none.</summary>
     public string? DemoFolder { get; init; }
 

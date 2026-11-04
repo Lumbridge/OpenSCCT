@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using OpenScct.Core;
 
 namespace OpenScctGame;
 
@@ -33,6 +34,7 @@ public sealed class LaunchOptions
     public const string PriorityPrefix = "--priority=";
     public const string AffinityPrefix = "--affinity=";
     public const string MapShotPrefix = "--svm-mapshot=";
+    public const string StartAtPrefix = "--start-at=";
     public const double DefaultSmokeTimeoutSeconds = 120.0;
     public const int DefaultBots = 3;
     public const int MaxBots = 15;
@@ -114,6 +116,12 @@ public sealed class LaunchOptions
     /// <summary>A map picture request to render and quit (<c>--svm-mapshot=request.json</c>, <see cref="Render.Golden.MapShot"/>), or null.</summary>
     public string? MapShotRequest { get; private init; }
 
+    /// <summary>
+    /// Where the local player of an offline play first spawns (<c>--start-at=X,Y,Z[,Yaw[,Pitch]]</c>, Unreal units and
+    /// rotation units; the map editor's Play From Camera), or null for a PlayerStart (spec/additions/test-start.md).
+    /// </summary>
+    public (FVector Location, FRotator Rotation)? PlayStartAt { get; private init; }
+
     /// <summary>Arguments that were not recognised, kept so callers can report them.</summary>
     public IReadOnlyList<string> Unknown { get; private init; } = [];
 
@@ -150,6 +158,7 @@ public sealed class LaunchOptions
         string? priority = null;
         string? affinity = null;
         string? mapShot = null;
+        (FVector, FRotator)? startAt = null;
         foreach (string arg in userArgs)
         {
             if (arg.StartsWith(SmokePrefix, StringComparison.Ordinal))
@@ -255,6 +264,10 @@ public sealed class LaunchOptions
             {
                 mapShot = arg[MapShotPrefix.Length..].Trim('"');
             }
+            else if (arg.StartsWith(StartAtPrefix, StringComparison.Ordinal) && ParseStartAt(arg[StartAtPrefix.Length..]) is { } at)
+            {
+                startAt = at;
+            }
             else
             {
                 unknown.Add(arg);
@@ -286,7 +299,29 @@ public sealed class LaunchOptions
             Priority = priority,
             Affinity = affinity,
             MapShotRequest = mapShot,
+            PlayStartAt = startAt,
             Unknown = unknown,
         };
+    }
+
+    /// <summary>"X,Y,Z" with an optional yaw and pitch, or null when it does not read as one.</summary>
+    private static (FVector, FRotator)? ParseStartAt(string text)
+    {
+        string[] parts = text.Split(',');
+        if (parts.Length is < 3 or > 5)
+        {
+            return null;
+        }
+
+        var numbers = new float[5];
+        for (int i = 0; i < parts.Length; i++)
+        {
+            if (!float.TryParse(parts[i], NumberStyles.Float, CultureInfo.InvariantCulture, out numbers[i]) || !float.IsFinite(numbers[i]))
+            {
+                return null;
+            }
+        }
+
+        return (new FVector(numbers[0], numbers[1], numbers[2]), new FRotator((int)MathF.Round(numbers[4]), (int)MathF.Round(numbers[3]), 0));
     }
 }

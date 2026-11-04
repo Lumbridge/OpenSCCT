@@ -75,6 +75,7 @@ public sealed record PlayConfig
             Bots = options.PlayBots,
             Difficulty = options.PlayDifficulty,
             MatchPlayers = options.PlayPlayers,
+            StartAt = options.PlayStartAt,
         };
         if (options.PlayNetRate > 0)
         {
@@ -556,6 +557,22 @@ public partial class PlayRoot : Node3D
     }
 
     private long _botsPrintedAt;
+    private OpenScct.Core.Engine.Pawn? _printedPawn;
+
+    /// <summary>
+    /// Where each new pawn of the local player stands as the client first sees it, so a headless round (the map
+    /// editor's playtest) can report the spawn, a Play From Camera one included.
+    /// </summary>
+    private void PrintSpawn(PlaySession session)
+    {
+        if (session.LocalController?.Pawn is not { } pawn || ReferenceEquals(pawn, _printedPawn))
+        {
+            return;
+        }
+
+        _printedPawn = pawn;
+        GD.Print($"SVM_PLAY player {(session.Settings.Side == PlaySide.Merc ? "merc" : "spy")} spawned at {pawn.Location} yaw {pawn.Rotation.Yaw}");
+    }
 
     /// <summary>The server bots' status every 10 s of play, when the host runs inline (its state is safe to read here).</summary>
     private void PrintBots(PlaySession session)
@@ -609,6 +626,7 @@ public partial class PlayRoot : Node3D
         }
 
         PrintBots(session);
+        PrintSpawn(session);
         Audio?._Process(delta);
 
         // The scripted pilot's route planning runs inside the ticks; it is a test driver, so it is counted apart.
