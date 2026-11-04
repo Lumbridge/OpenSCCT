@@ -36,18 +36,27 @@ public sealed class RollLaserTests
         scene.Pawn.Physics = rootLocked ? EPhysics.PHYS_RootMotion : EPhysics.PHYS_None;
         scene.Pawn.iLockRootMotionType = rootLocked ? 1 : 0;
         var pills = new List<PillShape>(15);
+        long frameBytes = 0, poseBytes = 0, queryBytes = 0;
         void Sample(int tick)
         {
+            long start = GC.GetAllocatedBytesForCurrentThread();
             scene.Pawn.PawnAnim.SetFrame(0, tick % 60 / 90f);
+            long frameEnd = GC.GetAllocatedBytesForCurrentThread();
             scene.Pose.UpdatePose(scene.Pawn);
+            long poseEnd = GC.GetAllocatedBytesForCurrentThread();
             pills.Clear();
             scene.Pose.GetPills(scene.Pawn, pills);
+            frameBytes += frameEnd - start;
+            poseBytes += poseEnd - frameEnd;
+            queryBytes += GC.GetAllocatedBytesForCurrentThread() - poseEnd;
         }
         for (int i = 0; i < 64; i++) Sample(i);
+        frameBytes = poseBytes = queryBytes = 0;
         long before = GC.GetAllocatedBytesForCurrentThread();
         for (int i = 0; i < 128; i++) Sample(i);
         long allocated = GC.GetAllocatedBytesForCurrentThread() - before;
         Assert.Equal(15, pills.Count);
+        if (allocated != 0) System.Console.WriteLine($"Allocated: frame={frameBytes}, pose={poseBytes}, query={queryBytes}, outside={allocated - frameBytes - poseBytes - queryBytes}");
         Assert.Equal(0, allocated);
     }
 

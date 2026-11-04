@@ -21,7 +21,7 @@ public static class ScoreboardWire
         byte[] json = JsonSerializer.SerializeToUtf8Bytes(board, Json);
         if (json.Length > MaxJsonBytes) throw new InvalidDataException("Scoreboard exceeds the transfer limit.");
         using var packed = new MemoryStream();
-        using (var compression = new BrotliStream(packed, CompressionLevel.Fastest, leaveOpen: true)) compression.Write(json);
+        using (var compression = new BrotliStream(packed, CompressionLevel.Optimal, leaveOpen: true)) compression.Write(json);
         byte[] bytes = packed.ToArray();
         if (bytes.Length > MaxCompressedBytes) throw new InvalidDataException("Scoreboard exceeds the transfer limit.");
         string id = Guid.NewGuid().ToString("N");
