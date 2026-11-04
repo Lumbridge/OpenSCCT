@@ -146,6 +146,14 @@ line, which tells a tool the game knows the option). Godot shows the window befo
 that must not take the person's focus starts it off-screen (`--position -32000,-32000`) or, for a local test build,
 beside `game/override.cfg` (local only, docs/TESTING-PLAY.md).
 
+### Play from a spot
+
+`--start-at=X,Y,Z[,Yaw[,Pitch]]` with `--svm-play=<map>` spawns the local player once at that spot (Unreal units and
+rotation units) instead of at a team start; the map editor's Play From Camera passes its camera this way. Bots and
+later spawns use the map's starts, and a blocked spot falls back to a start
+([spec/additions/test-start.md](../spec/additions/test-start.md)). The game prints
+`SVM_PLAY player <side> spawned at (X,Y,Z)` for each new pawn of the local player.
+
 ## The tools
 
 | Tool | What |

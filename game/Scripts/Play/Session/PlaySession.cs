@@ -585,6 +585,12 @@ public sealed class PlaySession : IDisposable
             return;
         }
 
+        // Play From Camera: the first spawn, at PostLogin or at the match start, happens where the editor's camera stood.
+        if (Settings.StartAt is { } at)
+        {
+            game.PendingTestStart = new TestStart(pc, at.Location, at.Rotation);
+        }
+
         // ULevel::SpawnPlayActor: the connection's player, the roles, the connection's actor, then PostLogin.
         pc.Player = new SimNetConnection();
         pc.Role = ENetRole.ROLE_Authority;
