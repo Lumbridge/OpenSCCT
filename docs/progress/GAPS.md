@@ -116,7 +116,7 @@ Who-hears-whom matches the original (rules in `VoiceRouting.cs`). Gaps:
 | Auto balance toggle | done (off by default; the original's hidden row was always on) |
 | Lobby Ban button | done |
 | Session player names in the server browser | done (internet sides need the master redeployed) |
-| Briefing page | done (page 1 uses the loading picture; briefing picture not converted) |
+| Briefing page | done (page 1: the map's list picture `<Map>-i.Menu` and the mode's picture, Story/Disk Hunt/Deathmatch, both dropped when the map has no entry for the mode; page 2: the briefing plan `<Map>-i.Briefing` beside the legend; GUIContent's defenseur when a picture is missing; spec/game/lobby-and-match-creation.md rules 30 and 31) |
 | Strategic Map (in-game menu, F7 and lobby; spec/hud/strategic-map.md) | done (needs the maps and ui steps rebuilt for the pictures) |
 | Tutorials hub, gadget encyclopedia, Visit a Map with help paths | done, needs the ui rebuild (TutoOrExam gate skipped; first-time-map prompt removed) |
 | HUD legend and keyboard pictures pages | done |

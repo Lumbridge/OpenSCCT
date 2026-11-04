@@ -57,7 +57,7 @@ public sealed class MapProjectors
     /// The shape of a projector in UE units: half the texture's width and height at the projector (texture size x
     /// DrawScale x DrawScale3D), and for FOV &gt; 0 the distance behind it where the frustum's sides meet.
     /// </summary>
-    [Provenance(ProvenanceKind.Decoded, "ortho mapping u = dot(P-L, Y) / (USize x DrawScale x DrawScale3D.Y) + 0.5, checked against the live Projector.Matrix (bridge LIGHTMAPS.md)")]
+    [Provenance(ProvenanceKind.Decoded, "ortho mapping u = dot(P-L, Y) / (USize x DrawScale x DrawScale3D.Y) + 0.5, checked against the live Projector.Matrix (docs/RENDERING.md#projectors)")]
     [Provenance(ProvenanceKind.Estimated, "perspective: the frustum holds the texture's size at the projector and widens by FOV from an apex behind it, so FOV 1 (ShadD's signs, the spy's laser dot) stays the texture's size")]
     public static (float HalfWidth, float HalfHeight, float Apex) Shape(ProjectorEntry p)
     {
