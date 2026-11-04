@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 using OpenScct.Core;
+using OpenScct.Core.Engine;
 using OpenScct.Provenance;
 
 namespace OpenScct.Physics.Collision;
@@ -151,6 +152,55 @@ public sealed class LeafLights
         }
     }
 
+    /// <summary>
+    /// The leaves an actor whose (expanded, <see cref="TouchExtent"/>) bounds box is (<paramref name="center"/>, half size
+    /// <paramref name="extent"/>) touches, each once, by the original's shape test: a chunky box (twice its smallest half
+    /// size above its largest) is taken as the sphere of radius |extent| at its centre, an elongated one as the box.
+    /// </summary>
+    [Provenance(ProvenanceKind.Decoded, "actor leaf walk, game 0x10a08320: sphere of radius |extent| when 2 min(extent) > max(extent), else the box test")]
+    public void BoxLeaves(FVector center, FVector extent, List<int> into)
+    {
+        ArgumentNullException.ThrowIfNull(into);
+        float ex = MathF.Abs(extent.X), ey = MathF.Abs(extent.Y), ez = MathF.Abs(extent.Z);
+        float min = MathF.Min(ex, MathF.Min(ey, ez));
+        float max = MathF.Max(ex, MathF.Max(ey, ez));
+        if (2f * min > max)
+        {
+            SphereLeaves(center, extent.Size(), into);
+            return;
+        }
+
+        List<(int Node, bool Front)> sides = t_sides ??= [];
+        sides.Clear();
+        _world.BoxLeafNodes(center, extent, sides);
+        foreach ((int node, bool front) in sides)
+        {
+            int leaf = LeafOf(node, front);
+            if (leaf >= 0 && !into.Contains(leaf)) into.Add(leaf);
+        }
+    }
+
+    /// <summary>
+    /// The half size of the box an actor's touched leaves are found with, from its render bounds' half size
+    /// <paramref name="extent"/> and its Physics: PHYS_None keeps the bounds, PHYS_Rotating takes a cube of half size
+    /// 1.2 |extent| (it may turn any way), any other Physics grows each axis by 128 uu (pawns, movers, projectiles).
+    /// </summary>
+    [Provenance(ProvenanceKind.Decoded, "actor bounds for the leaf walk, game 0x10990e60: Physics (+0x2d8) 0 as is, 3 a cube of 1.2 |extent| (0x10c10cb0), else extent + 128 (0x10bff1b4)")]
+    public static FVector TouchExtent(FVector extent, EPhysics physics) => physics switch
+    {
+        EPhysics.PHYS_None => extent,
+        EPhysics.PHYS_Rotating => new FVector(1f, 1f, 1f) * (RotatingBoundsScale * extent.Size()),
+        _ => new FVector(MathF.Abs(extent.X) + MovingBoundsGrowth, MathF.Abs(extent.Y) + MovingBoundsGrowth, MathF.Abs(extent.Z) + MovingBoundsGrowth),
+    };
+
+    /// <summary>A PHYS_Rotating actor's leaf box: a cube of this many times its bounds' |extent|.</summary>
+    [Provenance(ProvenanceKind.Decoded, "game 0x10990e60, constant 0x10c10cb0 = 1.2")]
+    public const float RotatingBoundsScale = 1.2f;
+
+    /// <summary>uu added to each half size of a moving (not PHYS_None or PHYS_Rotating) actor's leaf box.</summary>
+    [Provenance(ProvenanceKind.Decoded, "game 0x10990e60, constant 0x10bff1b4 = 128.0")]
+    public const float MovingBoundsGrowth = 128f;
+
     private int LeafOf(int node, bool front)
     {
         int i = (node * 2) + (front ? 1 : 0);
@@ -180,6 +230,30 @@ public sealed class LeafLights
         /// <summary>Collects the lights listed by every leaf the sphere (<paramref name="center"/>, <paramref name="radius"/>) touches.</summary>
         public void Gather(FVector center, float radius)
         {
+            Begin();
+            _lists.SphereLeaves(center, radius, _leaves);
+            Mark();
+        }
+
+        /// <summary>
+        /// Collects the lights listed by every leaf an actor's leaf box (<paramref name="center"/>, half size
+        /// <paramref name="extent"/>, already expanded by <see cref="TouchExtent"/>) touches (<see cref="BoxLeaves"/>).
+        /// </summary>
+        public void Gather(FVector center, FVector extent)
+        {
+            Begin();
+            _lists.BoxLeaves(center, extent, _leaves);
+            Mark();
+        }
+
+        /// <summary>Collects the lights listed by every leaf an actor with these render bounds touches.</summary>
+        public void Gather(in ActorLeafBounds bounds) => Gather(bounds.Center, TouchExtent(bounds.Extent, bounds.Physics));
+
+        /// <summary>The leaves the last Gather touched.</summary>
+        public IReadOnlyList<int> Leaves => _leaves;
+
+        private void Begin()
+        {
             if (++_stamp == int.MaxValue)
             {
                 Array.Clear(_mark);
@@ -187,7 +261,10 @@ public sealed class LeafLights
             }
 
             _leaves.Clear();
-            _lists.SphereLeaves(center, radius, _leaves);
+        }
+
+        private void Mark()
+        {
             foreach (int leaf in _leaves)
             {
                 foreach (int id in _lists.LightsOf(leaf))
@@ -201,3 +278,9 @@ public sealed class LeafLights
         public bool Contains(int id) => (uint)id < (uint)_mark.Length && _mark[id] == _stamp;
     }
 }
+
+/// <summary>
+/// An actor's render bounds for the leaf walk (<see cref="LeafLights.BoxLeaves"/>): the box's centre and half size in uu
+/// (axis aligned, in world space) and the actor's Physics, which picks how the box is grown (<see cref="LeafLights.TouchExtent"/>).
+/// </summary>
+public readonly record struct ActorLeafBounds(FVector Center, FVector Extent, EPhysics Physics);

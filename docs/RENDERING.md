@@ -563,20 +563,32 @@ UnRenderVisibility.cpp), which fills the actor's surface light list (+0xe8):
 OpenSCCT follows this with the converter's `render/leaflights.json` (`LeafLights`): each leaf's zone
 and light names, each world BSP node's back and front leaf (BSPN keeps no leaf numbers), and the lights no leaf lists
 (184 LightType 0 lights in the world, 25 non-static LightType 0 STriggerLights, 19 LightType 0 lights and 42 lit
-ones in LevelInfo0 outside the world: of 11,959 runtime lights, 11,917 are listed). The leaves an actor touches are
-those its bounding sphere reaches down the BSP. The file is used only when its `nodeLeaf` has one entry per node of
+ones in LevelInfo0 outside the world: of 11,959 runtime lights, 11,917 are listed). The leaves an actor touches come
+from its render bounds box, as the original builds its leaf array: 0x10990e60 grows the box by the actor's Physics
+(+0x2d8; PHYS_None keeps the bounds, PHYS_Rotating takes a cube of half size 1.2 |extent| (0x10c10cb0), any other
+Physics adds 128 uu to each half size (0x10bff1b4)), and the walk 0x10a08320 takes a chunky box (twice its smallest
+half size above its largest) as the sphere of radius |extent| at its centre and an elongated one as the box itself
+(each node plane's reach |Nx ex| + |Ny ey| + |Nz ez|), so the box is never looser than that sphere
+(`LeafLights.BoxLeaves`, `LeafLights.TouchExtent`). Placed static meshes and gameplay objects are PHYS_None; movers
+PHYS_MovingBrush. Gameplay meshes, devices, camera mounts, animated meshes and spawned effect meshes pass their
+drawn box; pawns, the first-person view, emitters, puddles and soft bodies still take the leaves their bounding
+sphere reaches. The file is used only when its `nodeLeaf` has one entry per node of
 the world collider's BSP in sim/collision.bin. A static light with a light type must be listed by one of them,
 wherever it has moved to; non-static and spawned lights keep the radius test (standing for both passes).
 `ActorLighting`, the spy's shadow lights (`SpyShadowLighting`) and the bots' light field (`AiLightField`) apply the
-lists, the skips (`ActorLightRules.LightsActor`), the sun and own-zone rule (`ActorLightRules.ZoneAdmits`) and the
-cap. The sun is held to the actor's zone even with the lists: the touched leaves taken here reach through thin walls,
-and with the lists alone PolaD's first-aid cabinet SInfirmary7655 beside the spy start takes the sun of ZoneInfo231
-behind its wall, which the golden capture shows unlit.
+lists, the skips (`ActorLightRules.LightsActor`), the own-zone rule (`ActorLightRules.ZoneAdmits`) and the cap. With
+the bounds box no sun test is added: PolaD's first-aid cabinet SInfirmary7655 beside the spy start (about 39 x 21 x
+59 uu, elongated, PHYS_None) touches only leaf 155, its stored leaf, which does not list the sun Light13074 of
+ZoneInfo231 behind its wall, so it stays unlit as in the golden capture (its 36.9 uu bounds sphere also reached leaf
+156, which lists the sun). Actors whose leaves still come from a sphere keep the sun to their zone at its centre, as
+do maps without the lists. For a pawn this is not settled: the original grows a walking pawn's box by 128 uu (and
+caches the leaves until its bounds leave the cached box), and that box reaches leaf 156 at PolaD's spy start as the
+95 uu sphere does, yet the golden capture draws the spy there with no sun.
 Placed mesh actors and gameplay objects pass their bSpecialLit and IgnoredEchelonLights (world.glb `special_lit` and
 `ignoredEchelonLights`, else gameplay.json over the class defaults for a placed actor); a plain mesh of a conversion
 made before `special_lit` was exported is not tested against bSpecialLit and takes every light, as before. Camera
 mounts and spawned effect meshes pass their bSpecialLit only (runtime actors, whose IgnoredEchelonLights is empty);
-pawns have neither. The own-zone and sun tests use the zone at the bounds' centre, where the original compares the
+pawns have neither. The own-zone test uses the zone at the bounds' centre, where the original compares the
 actor's zone byte. The bots' light field also moves a light with its actor while the actor is a
 mover or rides one, as the client draws it. Spot shadow lights are not filtered by the lists here: their shadow
 maps keep them out of rooms behind walls. Without the file (maps converted before it) static lights are chosen

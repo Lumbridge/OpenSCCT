@@ -7,6 +7,7 @@ using OpenScct.Core;
 using OpenScct.Core.Engine;
 using OpenScct.Game.Devices;
 using OpenScct.Game.SBase;
+using OpenScct.Physics.Collision;
 using OpenScct.Provenance;
 using OpenScctGame.Render;
 using OpenScctGame.Render.Characters;
@@ -290,7 +291,7 @@ public sealed class DeviceViews
             if (relight && m.Moved && m.Entry.Light == LightSource.Actor && m.Entry.Node.Visible)
             {
                 ActorLighting.Apply(m.Entry.Node, _map.LightActor(UeSpace.ToUe(m.Entry.Node.GlobalPosition), m.Entry.Radius, m.Entry.AmbientGlow,
-                    m.Entry.SpecialLit, m.Entry.IgnoredLights, m.Entry.MaxLights));
+                    m.Entry.SpecialLit, m.Entry.IgnoredLights, m.Entry.MaxLights, ActorLighting.LeafBounds(m.Entry.Node, m.Actor.Physics)));
             }
         }
 
@@ -720,8 +721,9 @@ public sealed class AnimatedMeshView
         {
             _lit = true;
             (FVector center, float radius) = AnimatedProps.Bounds(Model);
+            ActorLeafBounds? box = AnimatedProps.RestBox(Model) is { } rest ? ActorLighting.LeafBounds(rest, _actor.Physics) : null;
             Model.Light(_map.LightActor(center, radius, _actor.AmbientGlow, _actor.bSpecialLit, _map.LightFilterOf(Id).Ignored,
-                _actor.MaxLights));
+                _actor.MaxLights, box));
         }
     }
 

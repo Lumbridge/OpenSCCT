@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Godot;
 using OpenScct.Core;
+using OpenScct.Core.Engine;
 using OpenScct.Game.Lighting;
 using OpenScct.Physics.Collision;
 using OpenScct.Provenance;
@@ -17,10 +18,11 @@ namespace OpenScctGame.Render;
 /// and A the zone ambient plus AmbientGlow. The light set is chosen on the CPU and handed to the template as
 /// instance uniforms (svm_ambient, svm_l0..3_pos/col/spot). docs/RENDERING.md#actor-lighting.
 /// <para>The candidates follow the game's gather (0x10a37610): with the map's leaf light lists
-/// (<see cref="LeafLights"/>) a static light must be listed by a leaf the actor touches, wherever it has moved to,
-/// other lights must reach it; a light whose bSpecialLit differs from the actor's or that the actor's
-/// IgnoredEchelonLights names is skipped; own-zone lights and suns stay in their zone; at most 256 candidates are
-/// ranked.</para>
+/// (<see cref="LeafLights"/>) a static light must be listed by a leaf the actor touches (its bounds box when the caller
+/// has one, <see cref="ActorLeafBounds"/>, else its bounds sphere), wherever it has moved to, other lights must reach
+/// it; a light whose bSpecialLit differs from the actor's or that the actor's IgnoredEchelonLights names is skipped;
+/// own-zone lights stay in their zone, and suns too unless the leaves come from the actor's bounds box
+/// (<see cref="ActorLightRules.ZoneAdmits"/>); at most 256 candidates are ranked.</para>
 /// </summary>
 [PortOf("eng:Render.ActorLighting", Spec = "docs/RENDERING.md#actor-lighting")]
 public sealed class ActorLighting
@@ -109,6 +111,7 @@ public sealed class ActorLighting
     private readonly LeafLights? _leaves;
     private readonly LeafLights.LeafLightSet? _leafSet;
     private (bool? SpecialLit, IReadOnlySet<string>? Ignored) _filter;
+    private bool _sunByLeaves;
 
     public int LightCount => _lights.Count;
 
@@ -174,20 +177,32 @@ public sealed class ActorLighting
     /// <summary>
     /// The light set of an actor whose bounding sphere is (<paramref name="center"/>, <paramref name="radius"/>) in
     /// uu. <paramref name="ambient"/> is A in display units (zone ambient plus AmbientGlow / 255); <paramref name="zone"/>
-    /// the actor's zone index (-1 unknown), tested at the bounds' centre (the original takes every leaf the actor
-    /// touches); <paramref name="specialLit"/> the actor's bSpecialLit (null when the map's content does not say, as
+    /// the actor's zone index (-1 unknown), tested at the bounds' centre; <paramref name="specialLit"/> the actor's bSpecialLit (null when the map's content does not say, as
     /// conversions made before it was exported: no light is then skipped for it) and <paramref name="ignored"/> the
     /// light names of its IgnoredEchelonLights (<see cref="ActorLightRules.LightsActor"/>). <paramref name="maxLights"/>
     /// is its Actor.MaxLights: it keeps min(8, MaxLights) lights (none at 0), of which the template draws the first
-    /// <see cref="RenderK.ActorLightSlots"/>.
+    /// <see cref="RenderK.ActorLightSlots"/>. <paramref name="bounds"/> is the actor's render bounds box and Physics, which
+    /// pick the leaves it touches (the box, or the sphere of radius |extent| when the box is chunky, grown by its Physics);
+    /// without one the leaves are those the sphere (<paramref name="center"/>, <paramref name="radius"/>) reaches.
+    /// The sphere always ranks the lights.
     /// </summary>
     public ActorLightSet Select(FVector center, float radius, Vector3 ambient, int zone = -1, bool? specialLit = false,
-        IReadOnlySet<string>? ignored = null, int maxLights = RenderK.MaxActorLights)
+        IReadOnlySet<string>? ignored = null, int maxLights = RenderK.MaxActorLights, ActorLeafBounds? bounds = null)
     {
         _ranked.Clear();
         LastMapCandidates = 0;
         _filter = (specialLit, ignored);
-        _leafSet?.Gather(center, radius);
+        if (bounds is { } box)
+        {
+            _leafSet?.Gather(box);
+        }
+        else
+        {
+            _leafSet?.Gather(center, radius);
+        }
+
+        _sunByLeaves = _leafSet is not null && bounds is not null;
+
         if (_index is not null && _moved.Count < _lights.Count / 2)
         {
             _index.Query(center, radius, _candidates);
@@ -262,9 +277,10 @@ public sealed class ActorLighting
         }
 
         // bSpecialLit must match (unless the content does not say the actor's) and IgnoredEchelonLights must not name
-        // the light (game 0x10a37d86); bAffectOwnZoneOnly lights and suns reach only actors in their zone.
+        // the light (game 0x10a37d86); bAffectOwnZoneOnly lights reach only actors in their zone, and suns too unless
+        // the leaves of the actor's bounds box keep them there.
         if (!ActorLightRules.LightsActor(l.SpecialLit, l.Name, _filter.SpecialLit ?? l.SpecialLit, _filter.Ignored) ||
-            !ActorLightRules.ZoneAdmits(l.Effect, l.OwnZoneOnly, l.ZoneIndex, zone))
+            !ActorLightRules.ZoneAdmits(l.Effect, l.OwnZoneOnly, l.ZoneIndex, zone, _sunByLeaves))
         {
             return;
         }
@@ -392,6 +408,20 @@ public sealed class ActorLighting
         node.SetMeta(EchelonMeta, (float)code);
         Vector4 ambient = node.GetInstanceShaderParameter(AmbientParam).AsVector4();
         node.SetInstanceShaderParameter(AmbientParam, new Vector4(ambient.X, ambient.Y, ambient.Z, code));
+    }
+
+    /// <summary>
+    /// The leaf-walk bounds of a drawn box (Godot world space) for an actor with <paramref name="physics"/>: its centre
+    /// and half size in uu.
+    /// </summary>
+    public static ActorLeafBounds LeafBounds(Aabb box, EPhysics physics = EPhysics.PHYS_None) =>
+        new(UeSpace.ToUe(box.GetCenter()), UeSpace.ToUe(box.Size * 0.5f), physics);
+
+    /// <summary>The leaf-walk bounds of a drawn mesh node from its current world box, or null when it has no mesh.</summary>
+    public static ActorLeafBounds? LeafBounds(MeshInstance3D node, EPhysics physics)
+    {
+        ArgumentNullException.ThrowIfNull(node);
+        return node.Mesh is { } mesh ? LeafBounds(node.GlobalTransform * mesh.GetAabb(), physics) : null;
     }
 
     /// <summary>Writes a light set onto a drawn instance (its material must use the actor-lit template).</summary>

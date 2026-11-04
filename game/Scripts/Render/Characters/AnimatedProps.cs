@@ -4,6 +4,7 @@ using System.IO;
 using System.Text.Json;
 using Godot;
 using OpenScct.Core;
+using OpenScct.Physics.Collision;
 
 namespace OpenScctGame.Render.Characters;
 
@@ -77,7 +78,10 @@ public static class AnimatedProps
             // for SteeE's crane (DrawScale 10) reach far from its location.
             (FVector center, float radius) = Bounds(model);
             (bool specialLit, IReadOnlySet<string>? ignored) = map.LightFilterOf(id);
-            model.Light(map.LightActor(center, radius, glow, specialLit, ignored));
+            ActorLeafBounds? box = RestBox(model) is { } rest
+                ? ActorLighting.LeafBounds(rest, (OpenScct.Core.Engine.EPhysics)Int(p, "Physics"))
+                : null;
+            model.Light(map.LightActor(center, radius, glow, specialLit, ignored, RenderK.MaxActorLights, box));
             props.Add(new AnimatedProp(id, model, location, drawScale));
         }
 
@@ -85,7 +89,13 @@ public static class AnimatedProps
     }
 
     /// <summary>The bounding sphere (UE centre and radius) of a placed model's meshes in their rest pose.</summary>
-    public static (FVector Center, float Radius) Bounds(SkeletalModel model)
+    public static (FVector Center, float Radius) Bounds(SkeletalModel model) =>
+        RestBox(model) is { } box
+            ? (UeSpace.ToUe(box.GetCenter()), UeSpace.UnitsPerMetre * box.Size.Length() * 0.5f)
+            : (UeSpace.ToUe(model.Root.Position), 100f);
+
+    /// <summary>The box (Godot space, the model's parent frame) of a placed model's meshes in their rest pose, or null without meshes.</summary>
+    public static Aabb? RestBox(SkeletalModel model)
     {
         ArgumentNullException.ThrowIfNull(model);
         Aabb box = default;
@@ -103,7 +113,7 @@ public static class AnimatedProps
             any = true;
         }
 
-        return any ? (UeSpace.ToUe(box.GetCenter()), UeSpace.UnitsPerMetre * box.Size.Length() * 0.5f) : (UeSpace.ToUe(model.Root.Position), 100f);
+        return any ? box : null;
     }
 
     private static int Int(JsonElement e, string name) => e.TryGetProperty(name, out JsonElement v) ? v.GetInt32() : 0;
