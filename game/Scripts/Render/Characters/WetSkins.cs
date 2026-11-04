@@ -21,23 +21,21 @@ namespace OpenScctGame.Render.Characters;
 /// self-illumination. The chars step writes their textures with the mesh (glb extras svmap.wetSkins); an older build
 /// without them draws the surface's own textures with only the wet modifier's vision textures.
 /// The skins are kept by outfit slot (body, head), so a map outfit's slot texture (spec/additions/map-outfits.md) is the
-/// dry skin under its wet one. Built once per mesh file, side of the local player and outfit textures.
+/// dry skin under its wet one. A map outfit's own model has none of the stock surfaces: each of its materials gets a
+/// wet skin of its own diffuse with the wet layer and the wet heat and EMF masks made for its UVs from the stock mesh
+/// it stands in for (<see cref="OutfitSkins"/>). Built once per mesh file, side of the local player and outfit textures.
 /// </summary>
 public sealed class WetSkins
 {
-    private static readonly Dictionary<(string Glb, bool LocalSpy, string? Body, string? Head), WetSkins> s_cache = new();
+    private static readonly Dictionary<(string Glb, bool LocalSpy, string? Body, string? Head, string? Stock), WetSkins> s_cache = new();
 
-    // Outfit slot and its surface material (as the mesh export names it) to the wet skin's base material, by mesh and
-    // local player's side.
+    // Outfit slot and its surface material (as the mesh export names it) to the wet skin's base material, by the local
+    // player's side: the spy's surfaces, then the merc's (a team may wear the other team's stock mesh).
     [Provenance(ProvenanceKind.Decoded, "SBasePawn.BeginWetSkin: the skins per slot and the local player's side for the spy's body")]
-    private static readonly (bool Body, string Surface, string SpyMachine, string MercMachine)[] s_spy =
+    private static readonly (bool Body, string Surface, string SpyMachine, string MercMachine)[] s_table =
     [
         (true, "SPersoTextures.Shadw_agent", "SPersoTextures.alpha_ATT02.wet_lit_ATT_SI", "SPersoTextures.alpha_ATT02.wet_lit_ATT"),
         (false, "SPersoTextures.Shadw_agent_2", "SPersoTextures.alpha_ATT02.wet_lit_ATT_2", "SPersoTextures.alpha_ATT02.wet_lit_ATT_2"),
-    ];
-
-    private static readonly (bool Body, string Surface, string SpyMachine, string MercMachine)[] s_merc =
-    [
         (true, "SPersoTextures.DEF_01_A_Body", "SPersoTextures.alpha_DEF01.lit_def_fx", "SPersoTextures.alpha_DEF01.lit_def_fx"),
     ];
 
@@ -50,24 +48,25 @@ public sealed class WetSkins
     public int Count => _bySurface.Count;
 
     /// <summary>
-    /// The wet skins of the mesh <paramref name="glbPath"/> (spy or merc), or null when it cannot be read.
-    /// <paramref name="dryBody"/> and <paramref name="dryHead"/> are a map outfit's slot textures (full paths), drawn
-    /// under the wet layer instead of the mesh's own.
+    /// The wet skins of the mesh <paramref name="glbPath"/>, or null when it cannot be read. <paramref name="dryBody"/>
+    /// and <paramref name="dryHead"/> are a map outfit's slot textures (full paths), drawn under the wet layer instead of
+    /// the mesh's own. <paramref name="stockGlb"/> is the team's stock mesh when <paramref name="glbPath"/> is an
+    /// outfit's model.
     /// </summary>
-    public static WetSkins? For(string? glbPath, bool spy, bool localSpy, string? dryBody = null, string? dryHead = null)
+    public static WetSkins? For(string? glbPath, bool localSpy, string? dryBody = null, string? dryHead = null, string? stockGlb = null)
     {
         if (glbPath is null || !File.Exists(glbPath))
         {
             return null;
         }
 
-        var key = (Path.GetFullPath(glbPath), localSpy, dryBody, dryHead);
+        var key = (Path.GetFullPath(glbPath), localSpy, dryBody, dryHead, stockGlb is null ? null : Path.GetFullPath(stockGlb));
         if (s_cache.TryGetValue(key, out WetSkins? cached))
         {
             return cached;
         }
 
-        WetSkins skins = Load(key.Item1, spy ? s_spy : s_merc, localSpy, dryBody, dryHead);
+        WetSkins skins = Load(key.Item1, localSpy, dryBody, dryHead, key.Item5);
         s_cache[key] = skins;
         return skins;
     }
@@ -75,15 +74,30 @@ public sealed class WetSkins
     /// <summary>The wet skin drawn over a surface of this material, or null.</summary>
     public Material? Over(string surfaceMaterial) => _bySurface.GetValueOrDefault(surfaceMaterial);
 
-    private static WetSkins Load(string glbPath, (bool Body, string Surface, string SpyMachine, string MercMachine)[] table, bool localSpy,
-        string? dryBody, string? dryHead)
+    /// <summary>The wet skin's base material over a stock surface on the local player's side, or null for a surface that stays dry.</summary>
+    internal static string? WetSkinOf(string surface, bool localSpy)
+    {
+        foreach ((_, string s, string spyMachine, string mercMachine) in s_table)
+        {
+            if (string.Equals(s, surface, StringComparison.OrdinalIgnoreCase))
+            {
+                return localSpy ? spyMachine : mercMachine;
+            }
+        }
+
+        return null;
+    }
+
+    private static WetSkins Load(string glbPath, bool localSpy, string? dryBody, string? dryHead, string? stockGlb)
     {
         var skins = new WetSkins();
         string folder = Path.GetDirectoryName(glbPath) ?? ".";
+        var textures = new TextureCache(folder);
 
-        // shared/chars/<Package>/<Mesh>.glb: the render pack with the vision modifiers is shared/render.
-        string? shared = Path.GetDirectoryName(Path.GetDirectoryName(folder));
-        var compiler = new MaterialCompiler(new MaterialsDoc(), new TextureCache(folder))
+        // shared/chars/<Package>/<Mesh>.glb: the render pack with the vision modifiers is shared/render. A map's own
+        // model (render/chars) takes its stock mesh's.
+        string? shared = Path.GetDirectoryName(Path.GetDirectoryName(Path.GetDirectoryName(stockGlb) ?? folder));
+        var compiler = new MaterialCompiler(new MaterialsDoc(), textures)
         {
             Pack = shared is null ? null : RenderPack.Load(shared),
             VisionLookup = VisionLookup.SkinBase,
@@ -92,12 +106,15 @@ public sealed class WetSkins
         using GlbDocument glb = GlbDocument.Load(glbPath);
         Dictionary<string, MaterialEntry> own = OwnMaterials(glb.Root);
         Dictionary<string, WetInputs> wet = WetMaterials(glb.Root);
-        foreach ((bool body, string surface, string spyMachine, string mercMachine) in table)
+        bool stock = false;
+        foreach ((bool body, string surface, string spyMachine, string mercMachine) in s_table)
         {
             if (!own.TryGetValue(surface, out MaterialEntry? e))
             {
                 continue;
             }
+
+            stock = true;
 
             // The texture cache resolves URIs under the mesh's folder; an outfit's full path stays as it is.
             string? dry = (body ? dryBody : dryHead) is { } outfit && File.Exists(outfit) ? outfit : e.Texture;
@@ -132,16 +149,56 @@ public sealed class WetSkins
                 }, LightSource.Actor);
         }
 
+        if (!stock && stockGlb is not null && OutfitSkins.For(glbPath, stockGlb) is { } outfitSkins)
+        {
+            LoadOutfit(skins, compiler, textures, own, outfitSkins, localSpy);
+        }
+
         return skins;
     }
 
+    /// <summary>
+    /// An outfit model's wet skins: each material lying over a wet stock surface keeps its own diffuse and glow, with the
+    /// stock wet skin's env map through a specularity mask made for its UVs, and the wet heat and EMF masks.
+    /// </summary>
+    private static void LoadOutfit(WetSkins skins, MaterialCompiler compiler, TextureCache textures, Dictionary<string, MaterialEntry> own,
+        OutfitSkins outfit, bool localSpy)
+    {
+        compiler.OwnVision = outfit.Vision;
+        foreach ((string material, MaterialEntry e) in own)
+        {
+            if (outfit.Wet(material, localSpy) is not { } layer)
+            {
+                continue;
+            }
+
+            string name = OutfitSkins.WetName(material, localSpy);
+            string mask = "outfit-wet:" + name;
+            textures.Add(mask, layer.SpecMask);
+            bool env = layer.Env is not null;
+            skins._bySurface[material] = compiler.Build(new MaterialEntry
+            {
+                Name = name,
+                Texture = e.Texture,
+                SelfIllum = e.SelfIllum,
+                SelfIllumMask = e.SelfIllumMask,
+                SpecMask = env ? mask : null,
+                EnvTexture = layer.Env,
+                EnvColor = env ? layer.EnvColor ?? Vector3.Zero : null,
+                Masked = e.Masked,
+                Translucent = e.Translucent,
+                TwoSided = e.TwoSided,
+            }, LightSource.Actor);
+        }
+    }
+
     /// <summary>The inputs of one wet LitSpecularMaterial as the chars step wrote them (texture paths beside the mesh).</summary>
-    private sealed record WetInputs(string? Env, Vector3? EnvColor, string? SpecMask, string? SelfIllum, string? SelfIllumMask);
+    internal sealed record WetInputs(string? Env, Vector3? EnvColor, string? SpecMask, string? SelfIllum, string? SelfIllumMask);
 
     /// <summary>The glb's svmap.wetSkins: wet material path to its env map, env colour, specularity mask and glow.</summary>
     [Provenance(ProvenanceKind.Decoded, "SPersoTextures wet_lit_ATT_SI, wet_lit_ATT, wet_lit_ATT_2, lit_def_fx: LitSpecularMaterial Specular (TexEnvMap envmap_wet), SpecularityMask, SelfIllumination(Mask)")]
     [Provenance(ProvenanceKind.Estimated, "The specular term is drawn as the map Shaders' env maps are (env texture by the camera-space reflection, added through the mask's alpha)")]
-    private static Dictionary<string, WetInputs> WetMaterials(JsonElement root)
+    internal static Dictionary<string, WetInputs> WetMaterials(JsonElement root)
     {
         var result = new Dictionary<string, WetInputs>(StringComparer.OrdinalIgnoreCase);
         if (!root.TryGetProperty("extras", out JsonElement ex) || !ex.TryGetProperty("svmap", out JsonElement svmap) ||

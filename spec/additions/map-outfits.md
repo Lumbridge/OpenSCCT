@@ -8,13 +8,22 @@ only the client reads it, so an outfit never changes collision, hit zones or vis
 
 - A team with a `model` is drawn with that model instead of its stock mesh. It plays the team's own clips, bound by
   bone name, mirrored clips included (the team's bone mirror table is read through the stock bone names, so the
-  model's bone order is free). It is drawn warm in thermal vision with one even heat (see "Not yet drawn"). A model
-  that is missing or cannot be read leaves the stock mesh (the client logs a warning).
+  model's bone order is free). A model that is missing or cannot be read leaves the stock mesh (the client logs a
+  warning).
+- Thermal and EMF on a model: its own materials have no vision skins, so the client makes heat and EMF masks for the
+  model's UVs from the stock mesh it stands in for (see "Masks for a model" below). Materials the render pack knows
+  (a stock mesh worn by the other team) keep their own skins.
 - `slots` textures replace the diffuse of the stock slot materials (spy body `Shadw_agent`, head `Shadw_agent_2`;
   merc body `DEF_01_A_Body`, head `DEF_01_A_Face`). The rest of each material stays: the lens and lamp glow under
   their masks, and the slot's heat and EMF skins. On a team with a `model` they apply only where the model draws
   those stock materials: a stock mesh does, a map's own glb normally does not.
-- Rain: the wet skins keep the slot's outfit texture as their dry layer, so a wet outfit stays the outfit.
+- Rain: the wet skins keep the slot's outfit texture as their dry layer, so a wet outfit stays the outfit. A model
+  gets wet skins of its own: each material keeps its diffuse and glow, with the stock wet skin's env map through a
+  specularity mask, and wet heat and EMF masks, all made for its UVs. Like the stock wet skins they are drawn in
+  thermal and EMF only.
+- First person: the merc's arms (`SWeaponTex.1DEF_01` in every merc view model) wear the merc outfit, its model's
+  sleeves and gloves or the stock suit with the slot textures. Texels the arms do not cover keep the view model's own
+  texture, and so does its alpha.
 - The goggle lights hang from the outfit model's goggle bone, moved by its offset in that bone's axes.
 
 ## Cosmetics policy
@@ -30,9 +39,22 @@ Map outfits win on the body; player cosmetics apply only where the outfit allows
 Under `player` a camo replaces the outfit's slot texture (the camo textures are made from the stock suits); an
 outfit model has no camo textures, so it keeps its own look. A team without an outfit is not affected by the policy.
 
-## Not yet drawn
+## Masks for a model
 
-- Heat and EMF on an outfit model use its materials' names to find vision skins; a model's own materials have none,
-  so in thermal and EMF it shows its plain warm look rather than the stock suits' masks.
-- An outfit model gets no wet skin in the rain.
-- The first-person view keeps the stock arms and textures.
+The client moves textures laid out for one mesh onto another mesh of the same rig when it first draws them, in memory
+(nothing is written to disk). Both meshes are put in the stock mesh's bind pose: each vertex of the model rides its
+bones (matched by name without the rig prefix, so `B L ForeArm` and the view models' `Bip01 L Forearm` are one bone;
+a bone the stock rig lacks moves with its nearest ancestor that it has). Each texel of a model material's UV layout
+(256 x 256) then takes the nearest point of the stock surface, by distance stretched up to twice where the two
+surfaces face apart, and reads the stock texture there. Texels between UV islands take a neighbour's point, four
+texels out.
+
+- Heat: written in the HEATTEX_Cool form. A cool stock skin's texel is kept; a HEATTEX_Heat skin's (the spy's wet
+  head) is divided back at HeatIntensity 1, so it reads a little cool when the rain lowers the heat to 0.5; a stock
+  surface without a heat skin gives its flat heat.
+- EMF: the stock skin's texel, inverted skins turned back; white where the stock surface has none.
+- Wet: the wet skins' heat and EMF of the stock surfaces (a surface without a wet skin, the merc's face, stays dry),
+  and their specularity masks (none where the surface stays dry). The env map and its colour are those of the wet skin
+  most of the material's texels land on.
+- A model shaped far from the stock suit (a wide helmet, a cape) takes the nearest stock surface, so its masks can
+  show stock details in odd places.

@@ -239,6 +239,7 @@ public partial class FirstPersonView : Node3D
 
         _model = SkeletalModel.Load(glb);
         _arms = _model.SplitPart(ArmsMaterial);
+        DressArms(glb);
         s_mask ??= new ShaderMaterial { Shader = GD.Load<Shader>(MaskShaderPath), RenderPriority = (int)Material.RenderPriorityMin };
         foreach (MeshInstance3D mesh in _model.Meshes)
         {
@@ -261,6 +262,21 @@ public partial class FirstPersonView : Node3D
 
         _applier = new ChannelPoseApplier(_model.Skeleton);
         _loaded[asset] = (_model, _applier, _arms);
+    }
+
+    /// <summary>The map's merc outfit on the arms (spec/additions/map-outfits.md): its sleeves and gloves, when it has a body or model.</summary>
+    private void DressArms(string viewModelGlb)
+    {
+        string? root = SharedRoot ?? Map?.SharedRoot;
+        if (_arms.Count == 0 || Map is null || SkeletalModel.FindGlb("SPerso.DEF_01", root) is not { } stock)
+        {
+            return;
+        }
+
+        if (PawnOutfits.FirstPersonArms(viewModelGlb, ArmsMaterial, stock, Map.Outfits.For(spy: false), Map.Folder, root) is { } texture)
+        {
+            _model!.SetOutfitTexture(ArmsMaterial, "outfit-arms:" + System.IO.Path.GetFileName(viewModelGlb), texture);
+        }
     }
 
     private void Pose(ViewModelAnim anim, float dt, float alpha, bool exclusiveAction, bool blendLandingRecovery) =>

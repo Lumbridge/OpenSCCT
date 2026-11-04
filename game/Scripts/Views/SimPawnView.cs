@@ -174,7 +174,7 @@ public partial class SimPawnView : Node3D
         {
             SkinShown.Sticky => _stickySkins is { } sticky ? sticky.Over : null,
             SkinShown.WetSpyMachine or SkinShown.WetMercMachine =>
-                WetSkins.For(_glb, pawn is not SPAWNDEFENSE, want == SkinShown.WetSpyMachine, _dressed?.DryBody, _dressed?.DryHead) is { } wet
+                WetSkins.For(_glb, want == SkinShown.WetSpyMachine, _dressed?.DryBody, _dressed?.DryHead, _dressed?.Stock) is { } wet
                     ? wet.Over : null,
             _ => null,
         };

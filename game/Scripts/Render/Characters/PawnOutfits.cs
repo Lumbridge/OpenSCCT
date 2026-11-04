@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using Godot;
 using OpenScct.Content;
@@ -20,10 +21,11 @@ public static class PawnOutfits
     /// <summary>A pawn's model as the map dresses it.</summary>
     /// <param name="Model">The model drawn.</param>
     /// <param name="Glb">Its file.</param>
+    /// <param name="Stock">The team's stock mesh, which an outfit's model stands in for.</param>
     /// <param name="Outfit">The outfit's own model is drawn (not the team's stock mesh).</param>
     /// <param name="DryBody">The body slot's texture (full path) when one is drawn, for the wet skins.</param>
     /// <param name="DryHead">The head slot's texture, likewise.</param>
-    public sealed record Dressed(SkeletalModel Model, string Glb, OutfitModel? Outfit, string? DryBody, string? DryHead);
+    public sealed record Dressed(SkeletalModel Model, string Glb, string Stock, OutfitModel? Outfit, string? DryBody, string? DryHead);
 
     /// <summary>
     /// Loads the team's stock mesh <paramref name="stockGlb"/>, or the outfit's model playing its clips, and puts the
@@ -37,7 +39,7 @@ public static class PawnOutfits
         {
             try
             {
-                return Dress(SkeletalModel.Load(glb, animationsFrom: stockGlb), glb, wanted, outfit, mapFolder);
+                return Dress(SkeletalModel.Load(glb, animationsFrom: stockGlb), glb, stockGlb, wanted, outfit, mapFolder);
             }
             catch (InvalidDataException e)
             {
@@ -45,7 +47,7 @@ public static class PawnOutfits
             }
         }
 
-        return Dress(SkeletalModel.Load(stockGlb), stockGlb, null, outfit, mapFolder);
+        return Dress(SkeletalModel.Load(stockGlb), stockGlb, stockGlb, null, outfit, mapFolder);
     }
 
     /// <summary>The outfit model's file: the map's own glb under render/, or a stock mesh of the shared packs; null when missing.</summary>
@@ -66,12 +68,47 @@ public static class PawnOutfits
         return model.Stock is { } stock ? SkeletalModel.FindGlb(stock, sharedRoot) : null;
     }
 
-    private static Dressed Dress(SkeletalModel model, string glb, OutfitModel? own, TeamOutfit? outfit, string? mapFolder)
+    /// <summary>
+    /// The texture of the merc's first-person arms (material <paramref name="armsMaterial"/> of the view model
+    /// <paramref name="viewModelGlb"/>) in the merc outfit: its model's sleeves and gloves, or the stock mesh's with
+    /// the outfit's slot textures. Null for a merc team without an outfit body or model, or when a mesh cannot be read.
+    /// </summary>
+    public static Texture2D? FirstPersonArms(string viewModelGlb, string armsMaterial, string stockGlb, TeamOutfit? merc, string? mapFolder,
+        string? sharedRoot)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(stockGlb);
+        if (merc is null || mapFolder is null || (merc.Body is null && merc.Head is null && merc.Model is null))
+        {
+            return null;
+        }
+
+        string glb = merc.Model is { } model && ModelPath(model, mapFolder, sharedRoot) is { } path ? path : stockGlb;
+        var diffuse = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        foreach ((OutfitSlot? slot, string[] surfaces) in new[] { (merc.Body, s_body), (merc.Head, s_head) })
+        {
+            if (slot is not null && SlotPath(slot, mapFolder) is var texture && File.Exists(texture))
+            {
+                foreach (string surface in surfaces)
+                {
+                    diffuse[surface] = texture;
+                }
+            }
+        }
+
+        // A model of its own draws none of the stock surfaces, so the slot textures only dress a stock mesh.
+        bool dressed = diffuse.Count > 0 || !string.Equals(Path.GetFullPath(glb), Path.GetFullPath(stockGlb), StringComparison.OrdinalIgnoreCase);
+        return dressed ? OutfitSkins.Arms(viewModelGlb, armsMaterial, glb, diffuse) : null;
+    }
+
+    private static Dressed Dress(SkeletalModel model, string glb, string stockGlb, OutfitModel? own, TeamOutfit? outfit, string? mapFolder)
     {
         string? body = Slot(model, outfit?.Body, s_body, mapFolder);
         string? head = Slot(model, outfit?.Head, s_head, mapFolder);
-        return new Dressed(model, glb, own, body, head);
+        return new Dressed(model, glb, stockGlb, own, body, head);
     }
+
+    private static string SlotPath(OutfitSlot slot, string mapFolder) =>
+        Path.Combine(mapFolder, "render", slot.Texture.Replace('/', Path.DirectorySeparatorChar));
 
     // The slot's texture on whichever of its stock surfaces the model has; its full path when drawn.
     private static string? Slot(SkeletalModel model, OutfitSlot? slot, string[] surfaces, string? mapFolder)
@@ -81,7 +118,7 @@ public static class PawnOutfits
             return null;
         }
 
-        string path = Path.Combine(mapFolder, "render", slot.Texture.Replace('/', Path.DirectorySeparatorChar));
+        string path = SlotPath(slot, mapFolder);
         bool drawn = false;
         foreach (string surface in surfaces)
         {
