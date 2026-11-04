@@ -298,7 +298,9 @@ young and cost no visible time.
 
 The map editor's headless test rounds (`ose play --headless`) use these launch options besides `--svm-play`. Both kinds
 of round run with the default settings, signed out: they never use or write the player's name, account, settings or
-demo recording.
+demo recording. `--svm-test-round` does the same for any other round (the editor passes it to every headless test
+round, bots only or from `--start-at` too); a play without it, such as the editor's windowed Play, uses the player's
+own settings and account.
 
 - `--svm-route=stop;stop;...` with `--svm-play` and `--side`: a route bot walks the stops in order on that side, and
   the local player stands by on the other side ([RouteAi](../src/OpenScct.Game/AI/RouteAi.cs)). A stop is a floor

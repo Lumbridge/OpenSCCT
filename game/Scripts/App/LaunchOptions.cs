@@ -39,6 +39,7 @@ public sealed class LaunchOptions
     public const string RouteFromPrefix = "--svm-route-from=";
     public const string LanHostPrefix = "--svm-lan-host=";
     public const string JoinPrefix = "--svm-join=";
+    public const string TestRoundFlag = "--svm-test-round";
     public const double DefaultSmokeTimeoutSeconds = 120.0;
     public const int DefaultBots = 3;
     public const int MaxBots = 15;
@@ -145,6 +146,12 @@ public sealed class LaunchOptions
     /// <summary>Join the online round at this address and get ready on <see cref="PlaySide"/>'s team (<c>--svm-join=127.0.0.1:27100</c>), or null.</summary>
     public string? NetJoin { get; private init; }
 
+    /// <summary>
+    /// A map editor test round (<c>--svm-test-round</c>): default settings, signed out, nothing of the player's written
+    /// or recorded. Route and online command-line rounds are test rounds without it.
+    /// </summary>
+    public bool TestRound { get; private init; }
+
     /// <summary>Arguments that were not recognised, kept so callers can report them.</summary>
     public IReadOnlyList<string> Unknown { get; private init; } = [];
 
@@ -186,6 +193,7 @@ public sealed class LaunchOptions
         string? routeFrom = null;
         int? lanHost = null;
         string? join = null;
+        bool testRound = false;
         foreach (string arg in userArgs)
         {
             if (arg.StartsWith(SmokePrefix, StringComparison.Ordinal))
@@ -312,6 +320,10 @@ public sealed class LaunchOptions
             {
                 join = arg[JoinPrefix.Length..];
             }
+            else if (arg == TestRoundFlag)
+            {
+                testRound = true;
+            }
             else
             {
                 unknown.Add(arg);
@@ -348,6 +360,7 @@ public sealed class LaunchOptions
             PlayRouteFrom = routeFrom,
             NetHostPort = lanHost,
             NetJoin = join,
+            TestRound = testRound,
             Unknown = unknown,
         };
     }

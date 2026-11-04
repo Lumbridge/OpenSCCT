@@ -18,8 +18,11 @@ public partial class App : Node
     /// <summary>A run that renders map pictures and quits (<c>--svm-mapshot</c>): no menus, never in the person's way.</summary>
     public bool IsMapShotRun => Options.MapShotRequest is not null;
 
-    /// <summary>A test round for the map editor: a route bot's walk, or an online round with a client from the command line.</summary>
-    public bool IsTestRound => Options.PlayRoute is not null || Options.NetHostPort is not null || Options.NetJoin is not null;
+    /// <summary>
+    /// A test round for the map editor: one it marks as such (<c>--svm-test-round</c>), a route bot's walk, or an online
+    /// round with a client from the command line.
+    /// </summary>
+    public bool IsTestRound => Options.TestRound || Options.PlayRoute is not null || Options.NetHostPort is not null || Options.NetJoin is not null;
 
     public static App From(Node node) => node.GetNode<App>(NodePath);
 
