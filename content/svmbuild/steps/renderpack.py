@@ -115,7 +115,8 @@ class RenderPackStep(Step):
 
 
 class _Exporter:
-    """Writes textures once each, as textures/<Package>_<Name>.png, and remembers the object path of each."""
+    """Writes textures once each, as textures/<Package>_<Name>.png (<Package>_<Group>_<Name>.png when the name
+    repeats in another group of its package; ASCII), and remembers the object path of each."""
 
     def __init__(self, pset, out_dir: Path):
         self.pset = pset

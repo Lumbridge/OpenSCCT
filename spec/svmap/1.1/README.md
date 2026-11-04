@@ -169,8 +169,8 @@ Images are PNG files under `render/textures/` named by relative URI. A converter
 material after the object's package and name (`ShadowMoses_T_wand_garage.png`, material `ShadowMoses_T.wand_garage`),
 and adds the groups when its package holds another object of that name in a different group, so each keeps its own
 image (`ShadowMoses_T.aussen.wand1`, `ShadowMoses_T.hangar.wand1` and `ShadowMoses_T.generator.wand1` become
-`ShadowMoses_T_aussen_wand1.png` and so on). Readers take names from the URIs and material names and never rebuild
-them from an asset path.
+`ShadowMoses_T_aussen_wand1.png` and so on). A material's `source` in `materials.json` names that same object. Map
+readers take texture names from the URIs and material names and never rebuild them from an asset path.
 
 ## `render/materials.json`, `render/lighting.json`, `render/fx.json`, `ui/mapinfo.json` (1.1)
 

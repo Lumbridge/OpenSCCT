@@ -141,7 +141,8 @@ class _Packages:
 
 class _Textures:
     """Writes the PNG of each texture or material once, as textures/<Package>_<Name>.png, or
-    <Package>_<Group>_<Name>.png when the name repeats in another group (sfx.Emitter.Spark and sfx.Impacts.Spark)."""
+    <Package>_<Group>_<Name>.png when the name repeats in another group (sfx.Emitter.Spark and sfx.Impacts.Spark);
+    ASCII, as map textures."""
 
     def __init__(self, packages: _Packages, out_dir: Path):
         from scctpkg.materials import MaterialResolver  # noqa: PLC0415
@@ -164,7 +165,9 @@ class _Textures:
                 res = None
             tex = res.texture if res is not None else None
             if tex is not None and tex.image is not None:
-                stem = _safe(path if self.packages.pset.is_ambiguous(pkg, e) else path.split('.', 1)[0] + '_' + e.name)
+                pset = self.packages.pset
+                stem = _safe(pset.export_key(pkg, e) if pset.is_ambiguous(pkg, e) else path.split('.', 1)[0] + '_' + e.name)
+                stem = "".join(c if c.isascii() else f"_u{ord(c):04x}" for c in stem)   # ASCII, as map textures
                 png = f"textures/{stem}.png"
                 from scctpkg.export_gltf import _write_png  # noqa: PLC0415
 

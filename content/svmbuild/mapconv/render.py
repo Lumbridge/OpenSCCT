@@ -256,17 +256,20 @@ class RenderBuilder:
         return out
 
     def _material_root(self, key: str) -> Optional[str]:
-        """Full path of the material behind a glTF material name (Package.Name plus exporter suffixes)."""
+        """Full path of the material behind a glTF material name (Package.Name, or Package.Group.Name when the name
+        repeats in another group of its package, plus exporter suffixes)."""
         base = key[5:] if key.startswith("PROJ.") else key
         base = base.split("__", 1)[0]
         if "." not in base or base.startswith("BSP.Default"):
             return None
-        pkg_name, name = base.split(".", 1)
-        pkg = self.src.pset.get(pkg_name)
-        if pkg is None:
-            return None
-        e = pkg.find_export(name.split(".")[-1])
-        if e is None:
+        if base.count(".") >= 2:
+            # A group-qualified key names one object: ShadowMoses_T.aussen.wand1, not the first wand1 of the package.
+            pkg, e = self.src.find_path(base)
+        else:
+            pkg_name, name = base.split(".", 1)
+            pkg = self.src.pset.get(pkg_name)
+            e = pkg.find_export(name) if pkg is not None else None
+        if pkg is None or e is None:
             return None
         return self.src.db.cd.export_path(pkg, e)
 
@@ -655,7 +658,8 @@ class RenderBuilder:
         sub = {"object": r.path, "class": cls, "props": props}
         tex = props.get("Texture")
         if isinstance(tex, dict) and "$asset" in tex:
-            png = self._particle_png(tex["$asset"])
+            # The texture set's names are ASCII-escaped (build): PCF09_TXT.Dépôt.Lustre.
+            png = _ascii_file_name(self._particle_png(tex["$asset"]))
             if png in textures:
                 sub["texture"] = png
         return sub
