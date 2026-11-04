@@ -64,7 +64,7 @@ def brush_pieces(model, matrix: np.ndarray, offset: np.ndarray) -> list[np.ndarr
         index, outside, path = pending.pop()
         visited += 1
         node = model.nodes[index]
-        structural = node.num_verts != 0 and not node.flags & 0x21
+        structural = node.num_verts != 0 and not node.flags & 0x21   # NF_NotCsg | NF_IsNew
         for front in (False, True):
             child = node.front if front else node.back
             child_outside = outside or structural if front else outside and not structural
@@ -87,7 +87,7 @@ def point_region(model, point) -> int:
     for _ in range(4096):
         node = model.nodes[index]
         front = np.dot(point, node.plane[:3]) >= node.plane[3]
-        structural = node.num_verts != 0 and not node.flags & 0x21
+        structural = node.num_verts != 0 and not node.flags & 0x21   # NF_NotCsg | NF_IsNew
         outside = outside or structural if front else outside and not structural
         child = node.front if front else node.back
         if child < 0:
@@ -110,7 +110,7 @@ def brush_contains(model, inverse: np.ndarray, offset: np.ndarray, point) -> boo
     for _ in range(len(model.nodes) + 1):
         node = model.nodes[index]
         front = np.dot(local, node.plane[:3]) >= node.plane[3]
-        structural = node.num_verts != 0 and not node.flags & 0x21
+        structural = node.num_verts != 0 and not node.flags & 0x21   # NF_NotCsg | NF_IsNew
         outside = outside or structural if front else outside and not structural
         child = node.front if front else node.back
         if child < 0:

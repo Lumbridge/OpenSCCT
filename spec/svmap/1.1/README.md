@@ -161,9 +161,10 @@ draws `Library` directly. Document extras `{"svmap": {"map", "instances": [...]}
 actor, `{"actor", "class", "kind", "mesh" (library node name), "location", "rotation" (UE rotator), "scale",
 "hidden", "gameplay"}` plus `prePivot`, `vertexLit`, `unlit`, `ambientGlow`, `cullDistance`, `skyZone`, `skins`,
 `keyPos`, `basePos` where they apply (an actor whose mesh has UseVertexColor carries its AmbientGlow folded into
-its vertex colours and no `ambientGlow`), and `softBody` on soft bodies (ESBPatchActor, ESBStripDoorActor: kind, nbU,
-nbV, the simulation settings over the class defaults, collSound and shotSound paths, and the saved rest state as
-`points`, `uvs`, `fixed` particle indices and `links` [a, b, rest length]; library vertex i and i + N are particle i). Transforms are in UE space; the client converts them through `UeSpace`.
+its vertex colours and no `ambientGlow`), `special_lit: true` on an actor with bSpecialLit (it takes only the lights
+that share the flag; its `ambientGlow` still carries the zone ambient it is drawn with), and `softBody` on soft
+bodies (ESBPatchActor, ESBStripDoorActor: kind, nbU, nbV, the simulation settings over the class defaults,
+collSound and shotSound paths, and the saved rest state as `points`, `uvs`, `fixed` particle indices and `links` [a, b, rest length]; library vertex i and i + N are particle i). Transforms are in UE space; the client converts them through `UeSpace`.
 Images are PNG files under `render/textures/` named by relative URI.
 
 ## `render/materials.json`, `render/lighting.json`, `render/fx.json`, `ui/mapinfo.json` (1.1)
@@ -175,7 +176,14 @@ Client-only JSON, written with the canonical writer but hashed as raw bytes (ren
   material: `SurfaceType`, `bClimbable`, `bNoSplitJump`, `bNoStickyCam`, `OcclusionType`, vision flags),
   `additive`, `modulate`, `lightmapped`, `vertexLitMeshes`, `authoredColorMeshes`.
 - `lighting.json`: `lights` (exporter fields plus typed `props`), `zones` (fog, ambient, `zoneIndex`, typed
-  `props`), `sky`, `look`, `lightmaps`.
+  `props`), `sky`, `look`, `lightmaps`. Being a light depends on the actor's LightType, not its class: besides the
+  Light actors, `lights` has a row (same keys, `props`, `gameplay`, `name` = the actor name) for every other drawn or
+  gameplay actor with a LightType and a LightBrightness above 0 (lit movers, lifts, lift doors and flags), with the
+  Actor defaults for what the actor does not store (radius, saturation, cone and period 0, not the Light class's
+  64, 255, 128 and 32). A row's `location` and `rotation` are the actor's saved pose. When the actor moves (a mover,
+  lift or lift door; such rows have `gameplay: true` and the actor's name), the light moves with it in the original:
+  a client places the light at the actor's simulated pose, not at the row's.
+- `leaflights.json` (optional, see below): the world BSP's per-leaf light lists.
 - `fx.json`: `emitters` keyed by Emitter actor: `class`, `gameplay`, typed `props`, `emitters` (its sub-emitters
   from its own `Emitters` array: `object`, `class`, typed `props`, `texture`); `spawnParticles` (optional: the
   sub-emitters gameplay objects name in `SpawnableObjects[].SpawnParticle`, keyed by object path, in the same shape);
@@ -187,6 +195,30 @@ Client-only JSON, written with the canonical writer but hashed as raw bytes (ren
   spot size, NearPlaneRatio, LightBeamFalloffScale, LightBeamInitialAlpha, brightness, colour, on state) and
   `meshes` (per beam mesh asset: `positions` flat xyz in mesh space, `indices`).
 - `mapinfo.json`: the `SMapSettings` strings and `modes` (per mode name, its briefing texts).
+
+### `render/leaflights.json` (optional)
+
+The lights that can reach each BSP leaf of the world model, as the original stores them (UModel `Leaves` and
+`Lights`; its light visibility pass floods each light from its own leaf through the leaf portals within its radius,
+and a sun, LightEffect 19, joins every leaf of its zone). The original's static lighting bake and actor lighting read
+these lists for the level's saved lights. The lists are built once, from each light's saved position: they hold no
+light spawned at run time (a weapon's muzzle light), and a light that moves with its actor (a lit mover or lift) is
+listed in the leaves around its saved position only.
+
+- `version`: `1`.
+- `leaves`: indexed by leaf id, `{"zone": <ZoneInfo name, as lighting.json "zone"; the LevelInfo for zone 0>,
+  "lights": [light actor names]}`. A leaf with no list has `"lights": []`. Names can include actors with no
+  `lighting.json` row (a LightType actor with LightBrightness 0).
+- `nodeLeaf`: per node, `[backLeaf, frontLeaf]` (`-1`: no leaf on that side), in the world model's node order, which
+  is the order of the world collider's `BSPN` range in `sim/collision.bin` (the first collider; `BSPN` records carry
+  no leaf). A point's leaf: walk the nodes from the root, front when `dot(n, p) - w >= 0`, and take the side's leaf of
+  the node where the walk leaves the tree.
+- `unlisted`: the names of the `lighting.json` lights that are in no leaf list (LightType 0 lights, lights outside
+  the world, and lights the original leaves out of the level's actor list).
+
+A client that lights actors from it takes a saved `lighting.json` light only when the light is in the list of the
+actor's leaf. The lists say nothing about lights spawned at run time, which the client gathers by its own rules. When
+the file is absent, consumers fall back to the light's radius plus its zone.
 
 ## Versioning
 
