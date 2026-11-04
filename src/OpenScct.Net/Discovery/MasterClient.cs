@@ -256,6 +256,9 @@ public sealed class MasterClient : IDisposable
     public Task<MatchHistoryDetails> MatchDetailsAsync(long id, CancellationToken cancellationToken = default) =>
         SendAsync<MatchHistoryDetails>(HttpMethod.Get, MasterApi.MatchHistoryPath + "/" + id, null, cancellationToken);
 
+    public Task<MatchHistoryDetails> MatchDetailsByRoundAsync(string roundId, CancellationToken cancellationToken = default) =>
+        SendAsync<MatchHistoryDetails>(HttpMethod.Get, MasterApi.MatchHistoryPath + "/round/" + Uri.EscapeDataString(roundId), null, cancellationToken);
+
     public Task<MasterStatus> StatusAsync(CancellationToken cancellationToken = default) =>
         SendAsync<MasterStatus>(HttpMethod.Get, MasterApi.StatusPath, null, cancellationToken);
 

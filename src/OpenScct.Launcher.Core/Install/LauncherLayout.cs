@@ -19,18 +19,35 @@ namespace OpenScct.Launcher.Install;
 /// </summary>
 public sealed class LauncherLayout
 {
-    public LauncherLayout(string root)
+    public LauncherLayout(string root, LauncherPlatform? platform = null)
     {
         ArgumentException.ThrowIfNullOrEmpty(root);
         Root = Path.GetFullPath(root);
+        Platform = platform ?? LauncherPlatform.Current;
     }
 
-    public static string DefaultRoot =>
-        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "OpenSCCT");
+    public static string DefaultRoot => GetDefaultRoot(LauncherPlatform.Current);
+
+    public static string GetDefaultRoot(LauncherPlatform platform) => platform.IsLinux
+        ? Path.Combine(XdgDataHome(), "OpenSCCT")
+        : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "OpenSCCT");
 
     /// <summary>Godot's user:// folder for the game; listed so it can be shown, never written or deleted.</summary>
-    public static string GameUserData =>
-        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Godot", "app_userdata", "OpenSCCT");
+    public static string GameUserData => GetGameUserData(LauncherPlatform.Current);
+
+    public static string GetGameUserData(LauncherPlatform platform) => platform.IsLinux
+        ? Path.Combine(XdgDataHome(), "godot", "app_userdata", "OpenSCCT")
+        : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Godot", "app_userdata", "OpenSCCT");
+
+    private static string XdgDataHome()
+    {
+        string? configured = Environment.GetEnvironmentVariable("XDG_DATA_HOME");
+        return !string.IsNullOrWhiteSpace(configured) && Path.IsPathFullyQualified(configured)
+            ? configured
+            : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".local", "share");
+    }
+
+    public LauncherPlatform Platform { get; }
 
     public string Root { get; }
 

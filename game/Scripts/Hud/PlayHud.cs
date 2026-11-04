@@ -21,7 +21,10 @@ namespace OpenScctGame.Hud;
 public static class PlayHud
 {
     /// <summary>What <see cref="Attach"/> added.</summary>
-    public sealed record Parts(HudLayer? Hud, ChatInput? Chat, HudCommands? Commands, GameStatusPage? Status, OptionsRuntime Options);
+    public sealed record Parts(HudLayer? Hud, ChatInput? Chat, HudCommands? Commands, GameStatusPage? Status, OptionsRuntime Options)
+    {
+        public ScoreboardOverlay? Scoreboard { get; init; }
+    }
 
     public static Parts Attach(Node scene, PlaySession session, PlayInput? input, HudLayer? hud)
     {
@@ -31,6 +34,10 @@ public static class PlayHud
         var chat = new ChatInput { Link = new SessionChatLink(session.Client), PlayInput = input };
         chat.CanOpen = () => !session.IsStopped &&
             (scene is not PlayRoot root || root.Config.Demo is null && root.Menu?.IsOpen != true);
+        var statusLayer = new CanvasLayer { Name = "StatusLayer", Layer = HudLayer.DefaultLayer + 2 };
+        var scoreboard = new ScoreboardOverlay { Session = session.Client, Fallback = hud?.Snapshot, Map = session.Settings.Map };
+        statusLayer.AddChild(scoreboard);
+        scene.AddChild(statusLayer);
         if (hud is null)
         {
             // The hub can adopt this same native composer even when converted Magma assets are unavailable.
@@ -42,16 +49,17 @@ public static class PlayHud
             session.Client.ChatReceived += Received;
             chat.TreeExiting += () => session.Client.ChatReceived -= Received;
             scene.AddChild(chat);
-            return new Parts(null, chat, null, null, options);
+            var fallbackCommands = new HudCommands { Scoreboard = scoreboard, PlayInput = input,
+                Blocked = () => chat.IsOpen || session.IsStopped || (scene is PlayRoot play && play.Menu?.IsOpen == true) };
+            scene.AddChild(fallbackCommands);
+            return new Parts(null, chat, fallbackCommands, null, options) { Scoreboard = scoreboard };
         }
 
         hud.Options.KeyName = command => HudCommands.KeyOf(input?.Bindings, command) is { } key ? hud.Assets?.KeyDisplayName(key) ?? key : null;
         hud.Options.KeyBoundTo = binding => KeyTokens.KeyBoundTo(input?.Bindings?.Layout, binding) is { } key ? hud.Assets?.KeyDisplayName(key) ?? key : null;
 
-        var statusLayer = new CanvasLayer { Name = "StatusLayer", Layer = HudLayer.DefaultLayer + 2 };
         var status = new GameStatusPage { Source = hud.Snapshot, PlayInput = input };
         statusLayer.AddChild(status);
-        scene.AddChild(statusLayer);
 
         chat.CanOpen = () => !session.IsStopped && !status.IsOpen &&
             (scene is not PlayRoot root || root.Config.Demo is null && root.Menu?.IsOpen != true);
@@ -65,8 +73,9 @@ public static class PlayHud
         hud.Connect(session.Client);
         scene.AddChild(chat);
 
-        var commands = new HudCommands { Hud = hud, Status = status, PlayInput = input, Blocked = () => chat.IsOpen };
+        var commands = new HudCommands { Hud = hud, Status = status, Scoreboard = scoreboard, PlayInput = input,
+            Blocked = () => chat.IsOpen || session.IsStopped || (scene is PlayRoot play && play.Menu?.IsOpen == true) };
         scene.AddChild(commands);
-        return new Parts(hud, chat, commands, status, options);
+        return new Parts(hud, chat, commands, status, options) { Scoreboard = scoreboard };
     }
 }

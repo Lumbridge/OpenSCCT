@@ -440,6 +440,7 @@ public sealed partial class ClientSession : INetworkNotify, IDisposable
                 break;
             case EControlMessage.Text:
                 if (ReceiveDemoViewRequest(message.Text)) break;
+                if (ReceiveScoreboard(message.Text)) break;
                 if (Online.SessionProtocol.IsSession(message.Text))
                 {
                     SessionLineReceived?.Invoke(message.Text!);
@@ -513,6 +514,11 @@ public sealed partial class ClientSession : INetworkNotify, IDisposable
 
     void INetworkNotify.NotifyActorChannelOpened(ActorChannel channel)
     {
+        if (channel.Actor is OpenScct.Game.SBase.SVolumetricSensor or OpenScct.Game.SBase.SLaserTrigger)
+        {
+            Map?.Physics?.Collision.TryRebindActorColliders(channel.Actor);
+        }
+
         if (channel.Actor is CubeWalker walker && walker.Role == ENetRole.ROLE_AutonomousProxy)
         {
             LocalWalker = walker;

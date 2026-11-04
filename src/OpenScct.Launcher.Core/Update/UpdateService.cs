@@ -73,17 +73,23 @@ public sealed class UpdateService
         {
             // The game files release: in the list, or asked for by tag once it is older than the list's first page.
             ReleaseInfo? files = feed.Releases.FirstOrDefault(r => string.Equals(r.TagName, ReleasePicker.StoreTag, StringComparison.Ordinal) && !r.Draft)
-                ?? (ReleasePicker.FilesAsset(latest) is null && ReleasePicker.GameAsset(latest) is null
+                ?? (ReleasePicker.FilesAsset(latest, _layout.Platform) is null && ReleasePicker.GameAsset(latest, _layout.Platform) is null
                     ? await _github.GetReleaseByTagAsync(ReleasePicker.StoreTag, cancel).ConfigureAwait(false)
                     : null);
             latest = latest with { Store = files };
+            // Linux bundles need not accompany every Windows release. Select the newest release that
+            // actually publishes this platform's build or launcher, including manifests in game-files.
+            if (_layout.Platform.IsLinux)
+            {
+                latest = ReleasePicker.Latest(feed.Releases, includePrereleases, _layout.Platform, files);
+            }
         }
 
         SemVersion? installed = _store.Current();
-        bool game = latest is not null && (ReleasePicker.FilesAsset(latest) is not null || ReleasePicker.GameAsset(latest) is not null)
+        bool game = latest is not null && (ReleasePicker.FilesAsset(latest, _layout.Platform) is not null || ReleasePicker.GameAsset(latest, _layout.Platform) is not null)
             && (installed is null || latest.Version > installed);
         // The launcher updates itself only to a newer launcher: a game release usually carries the same one again.
-        SemVersion? latestLauncher = latest is null ? null : ReleasePicker.LauncherVersion(latest);
+        SemVersion? latestLauncher = latest is null ? null : ReleasePicker.LauncherVersion(latest, _layout.Platform);
         bool launcher = latestLauncher is not null && launcherVersion is not null && latestLauncher > launcherVersion;
         return new UpdateCheck(feed, latest, installed, game, launcher) { LatestLauncher = latestLauncher };
     }
@@ -102,7 +108,7 @@ public sealed class UpdateService
             return _store.Installed().Select(v => _layout.VersionDir(v.ToString())).ToList();
         }
 
-        return running.Select(g => _store.VersionDirOf(g.ExePath!)).OfType<string>().Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+        return running.Select(g => _store.VersionDirOf(g.ExePath!)).OfType<string>().Distinct(_layout.Platform.PathComparer).ToList();
     }
 
     public bool GameRunning => _games.Running().Count > 0;
@@ -115,6 +121,7 @@ public sealed class UpdateService
     public async Task<InstallOutcome> InstallAsync(VersionedRelease release, IProgress<DownloadProgress>? progress, CancellationToken cancel)
     {
         ArgumentNullException.ThrowIfNull(release);
+        cancel.ThrowIfCancellationRequested();
         if (_store.Current() is { } current && current == release.Version)
         {
             return InstallOutcome.AlreadyCurrent;
@@ -124,14 +131,15 @@ public sealed class UpdateService
         {
             if (!await TryInstallChangedFilesAsync(release, progress, cancel).ConfigureAwait(false))
             {
-                ReleaseAsset asset = ReleasePicker.GameAsset(release)
-                    ?? throw new UpdateRejectedException($"Release {release.Version} has no game build ({ReleasePicker.GameAssetName(release.Version)}).");
+                ReleaseAsset asset = ReleasePicker.GameAsset(release, _layout.Platform)
+                    ?? throw new UpdateRejectedException($"Release {release.Version} has no game build ({ReleasePicker.GameAssetName(release.Version, _layout.Platform)}).");
                 string zip = await DownloadVerifiedAsync(release, asset, progress, cancel).ConfigureAwait(false);
                 _store.InstallFromZip(zip, release.Version);
                 TryDeleteFile(zip);
             }
         }
 
+        cancel.ThrowIfCancellationRequested();
         return FinishSwitch(release.Version);
     }
 
@@ -145,7 +153,7 @@ public sealed class UpdateService
     private async Task<bool> TryInstallChangedFilesAsync(VersionedRelease release, IProgress<DownloadProgress>? progress, CancellationToken cancel)
     {
         LastDelta = null;
-        if (ReleasePicker.FilesAsset(release) is not { } listAsset)
+        if (ReleasePicker.FilesAsset(release, _layout.Platform) is not { } listAsset)
         {
             return false;
         }
@@ -168,7 +176,7 @@ public sealed class UpdateService
         {
             plan = await delta.PlanAsync(files, feed.Releases, cancel).ConfigureAwait(false);
         }
-        catch (BlobUnavailableException) when (ReleasePicker.GameAsset(release) is not null)
+        catch (BlobUnavailableException) when (ReleasePicker.GameAsset(release, _layout.Platform) is not null)
         {
             return false;
         }
@@ -190,8 +198,8 @@ public sealed class UpdateService
     {
         ArgumentNullException.ThrowIfNull(release);
         ArgumentNullException.ThrowIfNull(swap);
-        ReleaseAsset asset = ReleasePicker.LauncherAsset(release)
-            ?? throw new UpdateRejectedException($"Release {release.Version} has no launcher ({ReleasePicker.LauncherExeName}).");
+        ReleaseAsset asset = ReleasePicker.LauncherAsset(release, _layout.Platform)
+            ?? throw new UpdateRejectedException($"Release {release.Version} has no launcher ({_layout.Platform.LauncherFileName}).");
         string file = await DownloadVerifiedAsync(release, asset, progress, cancel).ConfigureAwait(false);
         swap.Stage(file);
         TryDeleteFile(file);
@@ -244,7 +252,7 @@ public sealed class UpdateService
 
     private async Task<string> ExpectedHashAsync(VersionedRelease release, ReleaseAsset asset, CancellationToken cancel)
     {
-        ReleaseAsset sums = ReleasePicker.ChecksumAsset(release, asset)
+        ReleaseAsset sums = ReleasePicker.ChecksumAsset(release, asset, _layout.Platform)
             ?? throw new UpdateRejectedException($"Release {release.Version} publishes no checksum for {asset.Name}; it will not be installed.");
         if (sums.Size > MaxChecksumFileBytes)
         {

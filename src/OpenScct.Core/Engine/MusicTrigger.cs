@@ -21,6 +21,14 @@ public partial class MusicTrigger
     [PortOf("uc:Engine.MusicTrigger:ClientPlayStopMusic", Spec = "spec/devices/sound-music.md#rules")]
     public void ClientPlayStopMusic(bool bTrigger, Pawn? EventInstigator)
     {
+        if (XLevel.World.IsReplaying) return;
+        if (Role == ENetRole.ROLE_Authority)
+        {
+            XLevel.GetService<IMusicTriggerRelay>()?.Relay(this, bTrigger, EventInstigator);
+        }
+        // A dedicated server has no listening viewport or meaningful current track. In
+        // particular, it must not evaluate bInstigatorOnly before sending the client call.
+        if (Level.NetMode == ENetMode.NM_DedicatedServer) return;
         if (bInstigatorOnly && !ReferenceEquals(Level.LocalPlayerController?.Pawn, EventInstigator))
         {
             return;

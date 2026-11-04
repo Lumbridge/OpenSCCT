@@ -583,11 +583,6 @@ public partial class OptionsMenu : Control
     private Control HudPage()
     {
         GridContainer g = Grid("HUD");
-        Section(g, "Player list", "");
-        Check(g, "Show connected players", "show_scoreboard", _edit.ShowScoreboard, v => _edit.ShowScoreboard = v);
-        Check(g, "Show latency in player list", "show_ping", _edit.ShowPing, v => _edit.ShowPing = v);
-        Choice(g, "Split player list when team size reaches", "scoreboard_split_team_size", ["1", "2", "3", "4"],
-            _edit.ScoreboardSplitTeamSize.ToString(CultureInfo.InvariantCulture), v => _edit.ScoreboardSplitTeamSize = int.Parse(v, CultureInfo.InvariantCulture));
         TelemetryControls(g);
         Section(g, "Online feedback", "");
         Check(g, "Fire prediction (your bullet impacts show at once online)", "fire_prediction", _edit.FirePrediction,

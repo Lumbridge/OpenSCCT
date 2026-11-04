@@ -328,6 +328,9 @@ public partial class SPlayerController
             if (killer!.PlayerReplicationInfo?.Stats is { } attacker)
             {
                 attacker.DropAttacks += 1;
+                if (Role == ENetRole.ROLE_Authority && victim.Health > 0 &&
+                    victim.SPawnType == PawnType.SPAWNDEFENSE && instigatedBy is SPawnAttaque)
+                    attacker.AddFeat(FeatKeys.SpyDropKos);
             }
 
             if (PlayerReplicationInfo?.Stats is { } dropped)
@@ -359,6 +362,15 @@ public partial class SPlayerController
             Time = SvmMath.Trunc(Level.TimeSeconds),
         };
 
+        // Count accepted effects, after authority/state damage gates. Held mercs and mine-placement states
+        // suppress the owner's flash presentation; the owner also repeats the eye-facing and sight test.
+        if (DamageType == SDamageType.SDTFlash && Role == ENetRole.ROLE_Authority &&
+            victim.SPawnType == PawnType.SPAWNDEFENSE && instigatedBy is SPawnAttaque { Controller: { } flasher } &&
+            SGameInfo.TeamIndexOf(flasher) != SGameInfo.TeamIndexOf(this) &&
+            StateNode is not s_BasePutMineOnWall &&
+            (StateNode is not s_GrabBase || StateNode is s_ReleaseGrabbedPlayer) &&
+            CombatDispatch.ClientDamageFor(GetStateName()) != ClientDamageKind.GrabBase && FlashReachesEyes(HitLocation))
+            flasher.PlayerReplicationInfo?.Stats?.AddFeat(FeatKeys.SpyFlashes);
         ClientDamage(notNormalizedMomentum, DamageType, HitLocation, instigatedBy);
         if (victim.SPawnType == PawnType.SPAWNOFFENSE && victim.GlassEffect != 0)
         {

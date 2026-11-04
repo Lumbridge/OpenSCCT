@@ -37,11 +37,13 @@ public sealed record LobbyPlayer(int Id, string Name, byte Team, SessionPlayerFl
 }
 
 /// <summary>One line of the results table.</summary>
-/// <remarks><paramref name="Feats"/> are the round's achievement feats (FeatKeys), server-side only: not sent to clients.</remarks>
+/// <remarks>Detailed counters reach clients through the separate versioned scoreboard snapshot.</remarks>
 public sealed record ResultRow(int Id, string Name, byte Team, int Score, int Kills, int Deaths, int Lives,
     IReadOnlyDictionary<string, int>? Feats = null)
 {
     public RecordedLoadout? Loadout { get; init; }
+    public int ParticipantId { get; init; }
+    public bool LeftEarly { get; init; }
 }
 
 /// <summary>
@@ -50,6 +52,7 @@ public sealed record ResultRow(int Id, string Name, byte Team, int Score, int Ki
 /// </summary>
 public sealed record MatchResults
 {
+    public OpenScct.Net.Scoreboards.RoundScoreboard? Scoreboard { get; init; }
     public string Map { get; init; } = string.Empty;
 
     /// <summary>0 spies, 1 mercs, 255 none (the round was stopped).</summary>

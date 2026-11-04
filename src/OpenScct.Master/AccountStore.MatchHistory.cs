@@ -9,7 +9,7 @@ internal sealed partial class AccountStore
 {
     private static MatchHistoryEntry HistoryEntry(MatchRow m) => new()
     {
-        Id = m.Id, Ended = DateTimeOffset.FromUnixTimeSeconds(m.Time), Map = m.Map, Server = m.ServerName,
+        Id = m.Id, RoundId = m.RoundId, Ended = DateTimeOffset.FromUnixTimeSeconds(m.Time), Map = m.Map, Server = m.ServerName,
         Mode = m.Mode, Winner = m.Winner, Reason = m.Reason, DurationSeconds = m.DurationSeconds,
         ObjectivesTaken = m.ObjectivesTaken, ObjectivesNeeded = m.ObjectivesNeeded, Counted = m.Counted,
     };
@@ -31,13 +31,17 @@ internal sealed partial class AccountStore
             return new(HistoryEntry(match.Match), match.Rows.Select(r => new ResultsReportRow
             {
                 Name = r.Name, Team = r.Team, Score = r.Score, Kills = r.Kills, Deaths = r.Deaths, Bot = r.Bot,
-                Loadout = r.Loadout,
+                Loadout = r.Loadout, Feats = r.Feats, LeftEarly = r.LeftEarly,
             }).ToArray(), timeline is null ? null : JsonSerializer.Deserialize<MatchTimelineEvent[]>(timeline.Events, MasterApi.Json),
-                timeline?.Truncated ?? false);
+                timeline?.Truncated ?? false)
+            {
+                Scoreboard = SavedScoreboard(match.Match, match.Rows),
+                Demo = AvailableHistoryDemo(match.Match, match.Rows),
+            };
         }
     }
 
-    /// <summary>Bounded cleanup of detailed records; career aggregates remain intact.</summary>
+    /// <summary>Bounded cleanup of auxiliary data. Scoreboards and participant rows are retained permanently.</summary>
     public void PruneMatchHistory(int days)
     {
         lock (_gate)
@@ -45,10 +49,10 @@ internal sealed partial class AccountStore
             long cutoff = Now - Math.Clamp(days, 1, 365) * 86400L;
             InTransaction(() =>
             {
-                const string expired = "SELECT id FROM matches WHERE time < $cutoff ORDER BY time LIMIT 1000";
-                foreach (string table in new[] { "match_timelines", "match_rows", "demos" })
-                    Exec($"DELETE FROM {table} WHERE match_id IN ({expired});", ("$cutoff", cutoff));
-                Exec($"DELETE FROM matches WHERE id IN ({expired});", ("$cutoff", cutoff));
+                Exec("DELETE FROM match_timelines WHERE match_id IN (SELECT t.match_id FROM match_timelines t " +
+                    "JOIN matches m ON m.id = t.match_id WHERE m.time < $cutoff ORDER BY m.time LIMIT 1000);", ("$cutoff", cutoff));
+                Exec("DELETE FROM demos WHERE id IN (SELECT d.id FROM demos d JOIN matches m ON m.id = d.match_id " +
+                    "WHERE m.time < $cutoff AND d.expires <= $now ORDER BY m.time LIMIT 1000);", ("$cutoff", cutoff), ("$now", Now));
                 return 0;
             });
         }

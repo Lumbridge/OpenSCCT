@@ -17,6 +17,8 @@
     <Compile Include="..\..\game\Scripts\Render\Gltf\GlbDocument.cs" Link="Linked\GlbDocument.cs" />
     <Compile Include="..\..\game\Scripts\Render\MapSpotLightBudget.cs" Link="Linked\MapSpotLightBudget.cs" />
     <Compile Include="..\..\game\Scripts\UI\StatsModel.cs" Link="Linked\StatsModel.cs" />
+    <Compile Include="..\..\game\Scripts\UI\RoundScoreboardModel.cs" Link="Linked\RoundScoreboardModel.cs" />
+    <Compile Include="..\..\game\Scripts\Input\ScoreboardInputState.cs" Link="Linked\ScoreboardInputState.cs" />
     <Compile Include="..\..\game\Scripts\UI\MenuDashboardModel.cs" Link="Linked\MenuDashboardModel.cs" />
     <Compile Include="..\..\game\Scripts\UI\ConsoleCommands.cs" Link="Linked\ConsoleCommands.cs" />
     <Compile Include="..\..\game\Scripts\UI\PlayerLocationReport.cs" Link="Linked\PlayerLocationReport.cs" />
@@ -77,6 +79,8 @@
     <Compile Include="..\..\game\Scripts\Audio\WavChunks.cs" Link="Linked\WavChunks.cs" />
     <Compile Include="..\..\game\Scripts\Audio\AudioK.cs" Link="Linked\AudioK.cs" />
     <Compile Include="..\..\game\Scripts\Audio\SoundRules.cs" Link="Linked\SoundRules.cs" />
+    <Compile Include="..\..\game\Scripts\Audio\EaxEnvironment.cs" Link="Linked\EaxEnvironment.cs" />
+    <Compile Include="..\..\game\Scripts\Voice\VoiceMicrophoneState.cs" Link="Linked\VoiceMicrophoneState.cs" />
     <Compile Include="..\..\game\Scripts\Render\Post\ZoneFogRules.cs" Link="Render\ZoneFogRules.cs" />
     <Compile Include="..\..\game\Scripts\Render\Post\FogVolumeRules.cs" Link="Render\FogVolumeRules.cs" />
     <Compile Include="..\..\game\Scripts\Render\Materials\MaterialSequenceClock.cs" Link="Linked\MaterialSequenceClock.cs" />

@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
+using OpenScct.Game.Devices;
+using OpenScct.Game.SBase;
 using OpenScct.Net;
 using OpenScct.Provenance;
 
@@ -21,7 +23,7 @@ namespace OpenScct.Server;
 /// </para>
 /// </summary>
 [Provenance(ProvenanceKind.Estimated, "The original sends these as broadcast functions on the devices (MusicTrigger.ClientPlayStopMusic, Emitter.ReplicateTrigger) and sound replication; the rewrite relays the presentation events they produce")]
-public sealed class NetDeviceEvents
+public sealed class NetDeviceEvents : IMusicTriggerRelay
 {
     public const string FunctionName = "SvmSimEvent";
 
@@ -42,8 +44,8 @@ public sealed class NetDeviceEvents
     public static RepExtension CreateExtension()
     {
         var extension = new RepExtension();
-        extension.Functions.Add(new RepExtensionFunction(FunctionName, Reliable: false, ClientToServer: false, Signature: "simevent1", Receive));
-        extension.Functions.Add(new RepExtensionFunction(ReliableFunctionName, Reliable: true, ClientToServer: false, Signature: "simevent1",
+        extension.Functions.Add(new RepExtensionFunction(FunctionName, Reliable: false, ClientToServer: false, Signature: "simevent2", Receive));
+        extension.Functions.Add(new RepExtensionFunction(ReliableFunctionName, Reliable: true, ClientToServer: false, Signature: "simevent2",
             Receive));
         return extension;
     }
@@ -54,6 +56,7 @@ public sealed class NetDeviceEvents
         ArgumentNullException.ThrowIfNull(level);
         var relay = new NetDeviceEvents(driver);
         level.SetService(relay);
+        level.SetService<IMusicTriggerRelay>(relay);
         return relay;
     }
 
@@ -70,6 +73,15 @@ public sealed class NetDeviceEvents
     /// <summary>True when the server must send <paramref name="source"/>'s events: its client copies run no script.</summary>
     public static bool IsRelayed(Actor? source, in SimEvent e)
     {
+        if (e.Kind == SimEventKind.StopSound) return source is not SBasePawn;
+        // The original call now reaches every client, where it evaluates instigator and
+        // toggle state. Relaying the listen host's resulting track would play it twice.
+        if (source is MusicTrigger && e.Kind is SimEventKind.PlayMusic or SimEventKind.StopMusic) return false;
+        if (source is SBasicGamePlayObject && IsDeviceShockerBurst(e))
+        {
+            return true;
+        }
+
         if (e.Kind is SimEventKind.PlayMusic or SimEventKind.StopMusic)
         {
             return true;
@@ -81,6 +93,13 @@ public sealed class NetDeviceEvents
         }
 
         return source.RemoteRole < ENetRole.ROLE_SimulatedProxy && (source.bStatic || source.bNoDelete || source.RemoteRole == ENetRole.ROLE_None);
+    }
+
+    public void Relay(MusicTrigger trigger, bool start, Pawn? instigator)
+    {
+        if (!_driver.IsServer) return;
+        _driver.ProcessRemoteFunction(trigger, nameof(MusicTrigger.ClientPlayStopMusic),
+            new NetCallArgs().Bool(0, start).Object(1, instigator));
     }
 
     /// <summary>
@@ -139,7 +158,7 @@ public sealed class NetDeviceEvents
 
             // Engine.Emitter declares ReplicateTrigger reliable. These events toggle sub-emitters, so a lost
             // or reordered burst can hide a destruction effect or leave a looping hazard in the wrong state.
-            bool reliable = e.Kind is SimEventKind.PlayMusic or SimEventKind.StopMusic ||
+            bool reliable = e.Kind is SimEventKind.PlayMusic or SimEventKind.StopMusic or SimEventKind.StopSound ||
                 (source is Emitter && e.Kind == SimEventKind.Notify && e.What == Emitter.NAME_ReplicateTrigger);
             foreach (NetConnection connection in _driver.ClientConnections)
             {
@@ -174,6 +193,7 @@ public sealed class NetDeviceEvents
         w.WriteFloat(e.Volume);
         w.WriteFloat(e.Radius);
         w.WriteFloat(e.Pitch);
+        if (e.Kind == SimEventKind.StopSound) w.WriteBit(e.ActorId != 0);
     }
 
     private static void Receive(Actor actor, FBitReader r, NetConnection connection)
@@ -189,10 +209,14 @@ public sealed class NetDeviceEvents
         e.Volume = r.ReadFloat();
         e.Radius = r.ReadFloat();
         e.Pitch = r.ReadFloat();
+        bool unresolvedStop = e.Kind == SimEventKind.StopSound && r.ReadBit() && source is null;
         if (r.IsError || actor.XLevel?.GetService<NetDeviceEvents>() is not { } relay)
         {
             return;
         }
+
+        // A scoped stop whose actor is not relevant here is never a global wildcard.
+        if (unresolvedStop) return;
 
         relay._pending.Add(e);
         relay.Count++;
@@ -203,11 +227,23 @@ public sealed class NetDeviceEvents
     {
         for (int i = 0; i < _pending.Count; i++)
         {
-            events.Add(_pending[i]);
+            SimEvent e = _pending[i];
+            if (IsDeviceShockerBurst(e) && _driver.World is { } world)
+            {
+                DeviceClasses.Spawn(world.Level.Info, DeviceK.SparkShockerClass, world.Level.FindActor(e.ActorId),
+                    Name.None, e.Location, e.Rotation);
+            }
+            else
+            {
+                events.Add(e);
+            }
         }
 
         _pending.Clear();
     }
+
+    private static bool IsDeviceShockerBurst(in SimEvent e) =>
+        e.Kind == SimEventKind.SpawnEmitter && e.What == new Name("SBase.SSparkShocker");
 }
 
 /// <summary>A client-local actor that puts the received device events into its world's events during the tick.</summary>

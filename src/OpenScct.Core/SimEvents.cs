@@ -10,7 +10,7 @@ public enum SimEventKind : byte
     SpawnEmitter = 2,
     Notify = 3,
 
-    /// <summary>StopSound: stop the sound <see cref="SimEvent.What"/> playing on the actor.</summary>
+    /// <summary>StopSound: stop What on ActorId; None sound or actor is a wildcard. Both wildcards leave music playing.</summary>
     StopSound = 4,
 
     /// <summary>PlayMusic: start the track <see cref="SimEvent.What"/>, fading in over <see cref="SimEvent.Radius"/> seconds.</summary>
@@ -146,7 +146,7 @@ public sealed class SimEvents
         slot.Tick = _tick;
     }
 
-    public void PlaySound(Actor? source, Name sound, int slot = 0, float volume = 1f, float radius = 0f, float pitch = 1f,
+    public void PlaySound(Actor? source, Name sound, int slot = (int)ESoundSlot.SLOT_Misc, float volume = 1f, float radius = 0f, float pitch = 1f,
         bool noOverride = false, bool attenuate = true, Name bone = default, bool owned = false, bool flat = false)
     {
         Add(new SimEvent
@@ -167,6 +167,16 @@ public sealed class SimEvents
             Flat = flat,
         });
     }
+
+    /// <summary>Stops matching voices; null source and None sound each mean any. Both wildcards preserve music.</summary>
+    public void StopSound(Actor? source, Name sound = default) => Add(new SimEvent
+    {
+        Kind = SimEventKind.StopSound,
+        ActorId = source?.ActorId ?? 0,
+        What = sound,
+        Location = source?.Location ?? default,
+        Rotation = source?.Rotation ?? default,
+    });
 
     /// <summary>Raises <see cref="SimEventKind.SetSwitch"/>: the surface type the next switch sound plays.</summary>
     public void SetSwitch(Actor? source, byte surface)

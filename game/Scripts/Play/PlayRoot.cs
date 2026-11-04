@@ -242,6 +242,7 @@ public partial class PlayRoot : Node3D
         var sessionLoad = Stopwatch.StartNew();
         Session = Config.CreateSession?.Invoke(clock) ?? new PlaySession(settings, clock,
             message => GD.Print($"SVM_PLAY load seconds={sessionLoad.Elapsed.TotalSeconds:F2} {message}"));
+        if (Config.Demo is null) _scoreboardCapture = new ScoreboardCapture(Session.Client);
         CrashLog.Context = settings.Map + " " + settings.Mode;
         if (settings.Bots > 0)
         {
@@ -733,12 +734,16 @@ public partial class PlayRoot : Node3D
         }
     }
 
+    private ScoreboardCapture? _scoreboardCapture;
+
     public override void _ExitTree()
     {
         // Whatever ends the round (results, the lobby, a disconnect, a map change), the pointer it took goes back.
         OpenScctGame.Controls.Pointer.Release();
         InputBindings.Rebound -= OnKeysRebound;
         CrashLog.Context = "";
+        _scoreboardCapture?.Dispose();
+        _scoreboardCapture = null;
         Session?.Dispose();
         Session = null;
         _spyShadowLighting = null;

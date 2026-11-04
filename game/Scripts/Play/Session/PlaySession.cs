@@ -157,6 +157,7 @@ public sealed class PlaySession : IDisposable
             {
                 writer = new DemoWriter(path, new DemoHeader
                 {
+                    RoundId = host.Scoreboards.RoundId,
                     GameVersion = OpenScct.Net.Discovery.BuildInfo.Version,
                     ProtocolHash = host.Driver.ProtocolHash,
                     ContentHash = host.Map.ContentHash,

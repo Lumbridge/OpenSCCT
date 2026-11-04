@@ -79,7 +79,8 @@ public static class ControlActions
         A("hudhelp", "Interface", "HUD help (unavailable)", "This legacy shortcut has no active handler in the current build.", "DisplayHud", "DisplayHud") with { Available = false },
         A("map", "Interface", "Show strategic map", "Open the strategic map.", "DisplayStrategicMap", "DisplayStrategicMap"),
         A("session", "Interface", "Show session status", "Show session status.", "DisplaySessionStatus", "DisplaySessionStatus"),
-        A("players", "Interface", "Show connected players", "Show the player list.", "ShowConnectedPlayers", "ShowConnectedPlayers"),
+        A("players", "Interface", "Toggle scoreboard", "Open or close the round scoreboard without stopping gameplay. Combat stats are delayed 30 seconds.", "ShowConnectedPlayers", "ShowConnectedPlayers"),
+        A("scoreboard_hold", "Interface", "Hold scoreboard", "Show the round scoreboard while held. Starts unbound; Tab remains assigned to vision mode. Use a key, mouse button or controller button, not a mouse-wheel direction.", "HoldScoreboard", "HoldScoreboard"),
         A("teammatenames", "Interface", "Toggle teammate names", "Toggle teammate names through walls for your current role during play.", "ToggleTeammateNames", "ToggleTeammateNames"),
         A("gear", "Interface", "Change gear", "Open the gear picker where gear changes are allowed.", "ChangeGear", "ChangeGear"),
         A("hidehud", "Interface", "Toggle HUD visibility", "Toggle HUD visibility when cinematic controls are allowed by the host.", "HideHud", "HideHud"),
@@ -90,7 +91,7 @@ public static class ControlActions
 
     public const string PadPrefix = "Action:";
     public const string VirtualPrefix = "svm-action:";
-    public static bool Direct(ControlAction action) => action.Category is not ("Communication" or "Interface") && action.Id != "er" || action.Id is "freecam" or "hidehud" or "hackcomms" or "session" or "menu";
+    public static bool Direct(ControlAction action) => action.Category is not ("Communication" or "Interface") && action.Id != "er" || action.Id is "freecam" or "hidehud" or "hackcomms" or "session" or "menu" or "players" or "scoreboard_hold";
     private static readonly IReadOnlyDictionary<string, IReadOnlyList<KeyAction>> DirectActions = All.Where(Direct)
         .ToDictionary(a => a.Id, a => (IReadOnlyList<KeyAction>)KeyLayout.Parse("[Engine.Input]\nIK_X=" + a.Command).Resolve("X"));
 

@@ -93,6 +93,7 @@ public sealed class DeltaInstaller
         ArgumentNullException.ThrowIfNull(version);
         ArgumentNullException.ThrowIfNull(files);
         ArgumentNullException.ThrowIfNull(plan);
+        cancel.ThrowIfCancellationRequested();
         var local = new Dictionary<string, string>(plan.Local, StringComparer.OrdinalIgnoreCase);
         string blobs = Path.Combine(_layout.Downloads, version.ToString(), "blobs");
         string staging = _store.NewStagingDir(version);
@@ -132,6 +133,7 @@ public sealed class DeltaInstaller
             // Then every file of the build, from wherever it now is.
             foreach (BuildFile file in files.Files)
             {
+                cancel.ThrowIfCancellationRequested();
                 string dest = Target(staging, file.Path);
                 if (File.Exists(dest))
                 {
@@ -145,6 +147,7 @@ public sealed class DeltaInstaller
                 File.Copy(from, dest);
             }
 
+            cancel.ThrowIfCancellationRequested();
             string target = _store.CommitStaging(staging, version);
             TryDeleteDir(Path.Combine(_layout.Downloads, version.ToString()));
             return target;
@@ -257,7 +260,7 @@ public sealed class DeltaInstaller
     {
         string full = Path.GetFullPath(Path.Combine(staging, relative.Replace('/', Path.DirectorySeparatorChar)));
         string root = Path.TrimEndingDirectorySeparator(Path.GetFullPath(staging)) + Path.DirectorySeparatorChar;
-        return full.StartsWith(root, StringComparison.OrdinalIgnoreCase)
+        return full.StartsWith(root, OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal)
             ? full
             : throw new UpdateRejectedException($"The build's file list names a path outside the build ({relative}).");
     }

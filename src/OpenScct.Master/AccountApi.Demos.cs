@@ -147,7 +147,7 @@ internal sealed partial class AccountApi
             Page = page, PageSize = MasterApi.DemoPageSize, Total = total,
             Demos = rows.Select(r => new DemoEntry
             {
-                Id = r.Demo.Id, MatchId = r.Match.Id, Map = r.Match.Map, Mode = r.Match.Mode, ServerName = r.Match.ServerName,
+                Id = r.Demo.Id, MatchId = r.Match.Id, RoundId = r.Match.RoundId, Map = r.Match.Map, Mode = r.Match.Mode, ServerName = r.Match.ServerName,
                 Time = DateTimeOffset.FromUnixTimeSeconds(r.Match.Time),
                 DurationSeconds = r.Demo.DurationSeconds > 0 ? r.Demo.DurationSeconds : r.Match.DurationSeconds,
                 WinningTeam = r.Match.Winner, Size = r.Demo.Size, Sha256 = r.Demo.Sha256, GameVersion = r.Demo.GameVersion,

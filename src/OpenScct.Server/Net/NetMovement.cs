@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
+using OpenScct.Core.Uc;
 using OpenScct.Game.Movement;
 using OpenScct.Game.SBase;
 using OpenScct.Net;
@@ -436,6 +437,7 @@ public sealed class SPlayerControllerMoves : IMoveController, IMoveControllerTim
     [Provenance(ProvenanceKind.Decoded, "state-sync.md rule 12 case 2: a grab or a knock-down is left alone")]
     public void ReinitPawnBecauseOfDivergences()
     {
+        _pc.StopSound(AssetRef.None);
         if (_pc.Pawn is not SBasePawn { Health: > 0 } pawn)
         {
             return;
@@ -453,7 +455,11 @@ public sealed class SPlayerControllerMoves : IMoveController, IMoveControllerTim
     }
 
     /// <summary>The controller's s_ClientIsReinit stand-in: answers at once (the original repeats it every second).</summary>
-    public void ClientReinitDone(byte reinitType) => Client?.Transport.TellServerIAMReadyToReinit();
+    public void ClientReinitDone(byte reinitType)
+    {
+        _pc.StopSound(AssetRef.None);
+        Client?.Transport.TellServerIAMReadyToReinit();
+    }
 
     /// <summary>
     /// s_WaitForClientToReinit.TellServerIAMReadyToReinit (state-sync.md rule 15): the wait ends and the server mirrors

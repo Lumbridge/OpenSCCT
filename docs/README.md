@@ -12,6 +12,7 @@ short overview; detailed behavior and evidence live in the [specifications](../s
 | Join friends or host a server | [Online play and hosting](ONLINE.md) |
 | Use the website, account or privacy settings | [Player hub](PLAYER-HUB.md) |
 | Understand stats and progression | [Player stats](PLAYER-STATS.md) |
+| View the scoreboard and past matches | [Scoreboards and match history](SCOREBOARD.md) |
 | Use the in-game hub | [Hub](HUB.md) |
 | Practice or play with bots | [Training](TRAINING.md), [AI bots](AI.md) |
 | Choose a mode | [Game modes](MODES.md) |

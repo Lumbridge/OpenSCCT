@@ -1,0 +1,17 @@
+FetchContent_Declare(real GIT_REPOSITORY https://github.com/PlayNeth/reAL.git
+    GIT_TAG b68e4d12c526c0155af702e92b95dcf78c0e790b)
+FetchContent_MakeAvailable(real)
+add_library(scct_hrvb STATIC "${real_SOURCE_DIR}/src/alrv.c" "${real_SOURCE_DIR}/src/alrv_params.c"
+    "${real_SOURCE_DIR}/src/eax.c" "${real_SOURCE_DIR}/src/eax4fx.c" "${real_SOURCE_DIR}/src/virt.c")
+set_target_properties(scct_hrvb PROPERTIES POSITION_INDEPENDENT_CODE ON)
+target_compile_features(scct_hrvb PRIVATE c_std_11)
+target_include_directories(scct_hrvb PUBLIC "${real_SOURCE_DIR}/src")
+if(MSVC)
+    target_compile_options(scct_hrvb PRIVATE /fp:strict)
+    target_compile_definitions(scct_hrvb PRIVATE _CRT_SECURE_NO_WARNINGS _USE_MATH_DEFINES)
+else()
+    target_compile_options(scct_hrvb PRIVATE -fno-fast-math -ffp-contract=off)
+endif()
+set(SCCT_DSP_SOURCE scct_hrvb_dsp.cpp)
+set(SCCT_BACKEND_LIBRARIES scct_hrvb)
+set(SCCT_BACKEND_DESCRIPTION "reAL HRvb kernel https://github.com/PlayNeth/reAL b68e4d12c526c0155af702e92b95dcf78c0e790b, MIT licensed. OpenSCCT streaming adapter restores original gain/tap ramps and block scheduling in scct_hrvb_kernel.h. Native synchronous software renderer.")
