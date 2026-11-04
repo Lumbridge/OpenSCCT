@@ -1,3 +1,17 @@
+// Open setup instructions when following a download card or a shared setup link.
+(function () {
+  "use strict";
+  function openSetup(hash) {
+    var setup = document.getElementById(hash.slice(1));
+    if (setup && setup.matches(".download-install details")) setup.open = true;
+  }
+  document.querySelectorAll(".platform-actions a[href^='#']").forEach(function (link) {
+    link.addEventListener("click", function () { openSetup(link.hash); });
+  });
+  window.addEventListener("hashchange", function () { openSetup(window.location.hash); });
+  openSetup(window.location.hash);
+})();
+
 (function () {
   "use strict";
   var menu = document.querySelector(".menu-toggle");
