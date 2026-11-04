@@ -40,8 +40,9 @@ differs from the class defaults, typed as in 1.1. Example:
   rule could not take it out of a round. Gate what switches it instead ([match.md](match.md)).
 
 A conveyor the converter made from RE+ belts ([converted RE+ belts](../../additions/conveyors.md#converted-re-belts))
-carries `"src": {"export", "liftedFrom"}`: the export of its first belt and the names of the RE+ actors it stands for
-(its belts, and AeroD's `AerTreadScroll` when that gave it scroll targets). Those actors are not written.
+carries `"src": {"export", "liftedFrom"}`: the export of its first belt and the names of the RE+ belts it stands for
+(a conveyor that carries items over a gap names the belt it carries them onto). Those belts are not written, nor is
+AeroD's `AerTreadScroll`, whose treads become scroll targets.
 
 The gameplay schema ([schemas/gameplay.schema.json](schemas/gameplay.schema.json), `conveyorProps`) types these props on
 any actor of class `Svm.Conveyor`; its other props are typed as for any actor. Conveyors make the map 1.2: the

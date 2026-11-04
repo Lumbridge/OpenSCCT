@@ -280,31 +280,44 @@ belts. What it keeps from RE+'s script:
 
 - **Geometry.** A belt's pivot is its start on the riding surface and `vector(Rotation)` its direction and slope; its
   end is `Location + vector(Rotation) x Length`. Belts linked by `NextBelt` form a chain. RE+'s chain leader is the
-  belt nothing links onto (in a closed loop, the belt whose name sorts first), and a chain runs over at most the
-  class's `Seg` array (16 belts in class version 1, AeroD's; 64 from version 2).
+  belt nothing links onto, or in a closed loop the belt whose name sorts first, and a chain runs over at most the
+  class's `Seg` array (16 belts in class version 1, AeroD's; 64 from version 2, read from the map's own class). The
+  converter follows RE+'s walk: loops are taken first; a version 1 chain stops at 16 belts before it checks for a
+  loop (so a ring of exactly 16 is an open chain), version 2 checks for the loop first; a ring longer than the cap
+  has no leader, so RE+ runs no items on it. Belts no chain reached (a lead-in onto a loop, a ring past the cap)
+  still carry riders as chains of their own, without items. A chain under its cap that runs on into belts another
+  chain took hands its items on to the conveyor holding that belt (RE+ walks both chains over the shared belts), but
+  not into a loop, whose items never leave it.
 - **Runs.** A chain is cut into runs of belts that join end to start (within 1 uu) and share `Speed`, `Width` and
   `bCarryPlayers`. Each run is one conveyor through its belts' starts and ends, with sharp corners (RE+ curves are
   already chords). Items come onto a belt from the end of the one before at the nearest point of its centre line
-  (RE+ `Join`, `Entry`); where that is past the belt's start, the belt is cut there and the part before is a
-  conveyor of its own that carries riders but no items (`<id>_Start`). Runs hand items on with `Next`. A loop that is
-  one run is a `bLoop` path.
+  (RE+ `Join`, `Entry`, clamped to the belt); where that is past the belt's start, the belt is cut there and the part
+  before is a conveyor of its own that carries riders but no items (`<id>_Start`). Where that point is 1 uu or more
+  from the end before, a conveyor of its own (`<id>_Join`, no riders, the next belt's speed) carries the items over
+  the gap, as RE+ slides them across it. Runs hand items on with `Next`. A loop that is one run is a `bLoop` path.
 - **Carrying.** `Width`, `Speed` and `bCarryPlayers` per run. `bCarryObjects` is false: RE+ moved only pawns.
 - **Items.** Every run that carries the chain's items takes its leader's `ItemMeshes` (the slots set, in order),
   `ItemSpacing`, `ItemScale` and `FadeDistance` (as `ItemFade`), when its `bShowItems` is set. `ItemSeed` is a
-  CRC-32 of the leader's name, `ItemYawJitter` 2001 (RE+ turned items by `Rand(2001) - 1000`). The library carries
-  the item meshes and the client builds them lit as actors.
+  CRC-32 of the conveyor's own name, so each run lays out its items apart from the others; `ItemYawJitter` 2001 (RE+
+  turned items by `Rand(2001) - 1000`). The library carries the item meshes and the client builds them lit as actors.
+- **Properties.** A belt property the map's class does not declare (a map saved by a newer RE+ than the class it
+  carries) is read from its tag's bytes when it is a float, int, byte or object; anything else keeps the default.
+  Either way the conversion notes it (`conveyor-property`).
 - **Look.** `CL_Driver`: what RE+ draws stays as the map has it. A hidden belt (AeroD's drivers) draws nothing; a
-  drawn belt's `ConveyorFrame` mesh stays a static mesh of the world, in the render and the collision.
+  drawn belt's `ConveyorFrame` mesh stays a static mesh of the world, in the render and the collision. The rollers RE+
+  spins on a drawn belt (`bShowRollers`) are not drawn; the conversion notes each such belt (`conveyor-rollers`).
 - **Events.** None: the conveyor's `Tag` is its own id, since RE+ belts take no events.
 - **Treads.** AeroD's `AerTreadScroll` map script set a `TexPanner` (`PanDirection` Yaw 16384, its `Rates[i]`) over a
   tread texture into `Skins[Slot]` of the meshes tagged `Runs[i]`. Each tagged mesh becomes a scroll target of the
   conveyor whose path passes nearest its pivot (within 512 uu): `Axis` 1, `Material` the slot's material, and
   `UnitsPerTile = -Speed / Rates[i]`, so the tread moves as the panner moved it (a panner adds
-  `PanRate x time` to the texture coordinates; a scroll subtracts `phase / UnitsPerTile`). The script is not written.
+  `PanRate x time` to the texture coordinates; a scroll subtracts `phase / UnitsPerTile`). The script is not written,
+  and no conveyor lists it in `liftedFrom`; the tread meshes stay static meshes of the world.
 - **Runtime classes.** `ConveyorMotor`, `ConveyorItem` and `ConveyorRoller` are spawned by belts at run time; a map
   that places one has it dropped too.
 
-`src.liftedFrom` names the RE+ actors each conveyor stands for ([SVMap 1.2: conveyors](../svmap/1.2/conveyors.md)).
+`src.liftedFrom` names the RE+ belts each conveyor stands for ([SVMap 1.2: conveyors](../svmap/1.2/conveyors.md));
+a join conveyor names the belt it carries items onto.
 Not kept: RE+'s side push into a belt's centre (`Push`: riders overlapping its channels move inwards), the rollers a
 drawn belt spins, items' centring on their mesh bounds (`ItemOffsets`; OpenSCCT only rests them on their lowest
 point), the riders' height band (RE+ carries feet from 16 below to 34 above the surface) and RE+'s carrying of
