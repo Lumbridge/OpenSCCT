@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using OpenScct.Core;
 using OpenScct.Provenance;
 
@@ -122,6 +123,38 @@ public static class ActorLightRules
     /// </summary>
     public static bool LightsActors(bool applyInGame, bool dynamic, int lightType, int effect) =>
         (applyInGame || dynamic) && lightType != 0 && effect != LE_ESpotShadow;
+
+    /// <summary>
+    /// The ordinary lights an actor's gather takes at most before ranking (the game's candidate array: cmp 0x100 at
+    /// 0x10a378b0 and 0x10a37b3c), in the order it meets them.
+    /// </summary>
+    [Provenance(ProvenanceKind.Decoded, "actor light gather, game 0x10a37610: at most 256 candidates")]
+    public const int MaxCandidates = ActorShadowLighting.MaxCandidates;
+
+    /// <summary>
+    /// The actor's own skips of a light that is not LE_ESpotShadow, in the gather's ordinary-light branch (game
+    /// 0x10a37d86): the light and the actor must agree on bSpecialLit (bit 2 of the flags at +0x2e8 of both, xor'd),
+    /// and the light must not be in the actor's IgnoredEchelonLights (the TArray at +0x25c, looped at
+    /// 0x10a37d9a-0x10a37dc3). The editor's twin (0x111a7300) and the static mesh vertex bake (UStaticMesh::Illuminate,
+    /// editor 0x110e8190) make the same two skips. <paramref name="ignoredNames"/> are the light actor names the actor
+    /// ignores, null for none.
+    /// </summary>
+    [Provenance(ProvenanceKind.Decoded, "actor light gather, game 0x10a37d86: bSpecialLit xor and IgnoredEchelonLights loop")]
+    public static bool LightsActor(bool lightSpecialLit, string? lightName, bool actorSpecialLit, IReadOnlySet<string>? ignoredNames) =>
+        lightSpecialLit == actorSpecialLit &&
+        (ignoredNames is null || lightName is null || !ignoredNames.Contains(lightName));
+
+    /// <summary>
+    /// Whether a light in zone <paramref name="lightZone"/> may light an actor in zone <paramref name="actorZone"/>:
+    /// a bAffectOwnZoneOnly light only in its own zone (the gather tests light+0x2e8 bit 0x200 against the zone byte
+    /// at +0x1b4), and so does a sun. Build links a sun (LightEffect 19) into the per-leaf light list of every leaf of
+    /// the sun leaf's zone and of no other (FEditorVisibility::ActorVisibility, editor 0x1101b050, the cmp at
+    /// 0x1101b126), and the gather (game 0x10a37610, editor 0x111a7300) reads only the lists of the leaves the actor
+    /// touches, so its exemption from the radius test never reaches another zone. Unknown zones (-1) admit the light.
+    /// </summary>
+    [Provenance(ProvenanceKind.Decoded, "own zone: game 0x10a37610; suns per zone: editor 0x1101b050 / 0x111a7300 (cooked PolaD, ClarD, DeftD, ShadD lists)")]
+    public static bool ZoneAdmits(int effect, bool ownZoneOnly, int lightZone, int actorZone) =>
+        !(ownZoneOnly || effect == LE_Sunlight) || actorZone < 0 || lightZone < 0 || actorZone == lightZone;
 
     /// <summary>R = 25 x (LightRadius + 1).</summary>
     public static float WorldRadius(float lightRadius) => LightRadiusUnits * (lightRadius + 1f);

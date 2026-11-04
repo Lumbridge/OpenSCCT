@@ -18,6 +18,8 @@ namespace OpenScct.Server;
 /// (bApplyToInGameLighting or bDynamicLight) with a light type and not LE_ESpotShadow
 /// (<see cref="ActorLightRules.LightsActors"/>, as <c>ActorLighting</c>); the LE_ESpotShadow lights with brightness
 /// above 0 are the spot shadow lights (as <c>MapSpotLights</c>), shadowed by a line through the collision world.
+/// bSpecialLit lights are kept but never light a pawn, and with the map's leaf light lists (render/leaflights.json)
+/// a static light lights only pawns in the leaves that list it (<see cref="LeafLights"/>).
 /// Lights named by an STriggerLight of the loaded map follow its switch. A server without the render part gets
 /// <see cref="AiLightField.Unknown"/>.
 /// </summary>
@@ -38,7 +40,7 @@ public static class MapAiLight
         }
 
         using JsonDocument json = JsonDocument.Parse(File.ReadAllBytes(path));
-        AiLightField field = Parse(json.RootElement, collision);
+        AiLightField field = Parse(json.RootElement, collision, LeafLights.Load(mapFolder, collision as CollisionWorld));
         if (loaded is not null)
         {
             BindSwitches(field, loaded);
@@ -61,8 +63,8 @@ public static class MapAiLight
         }
     }
 
-    /// <summary>The field of a parsed lighting document.</summary>
-    public static AiLightField Parse(JsonElement root, ICollisionWorld? collision)
+    /// <summary>The field of a parsed lighting document, with the map's leaf light lists when it has them.</summary>
+    public static AiLightField Parse(JsonElement root, ICollisionWorld? collision, LeafLights? leaves = null)
     {
         var zoneByName = new Dictionary<string, int>(StringComparer.Ordinal);
         var ambient = new Dictionary<int, AiRgb>();
@@ -147,7 +149,9 @@ public static class MapAiLight
                     Num(l, "light_period", 32f),
                     Num(l, "light_phase"),
                     name,
-                    on));
+                    on,
+                    Flag(l, "special_lit", "bSpecialLit", false),
+                    Flag(l, "static", "bStatic", Str(l, "class") is "Light")));
             }
         }
 
@@ -155,7 +159,7 @@ public static class MapAiLight
         Func<FVector, FVector, bool>? lineOpen = collision is null
             ? null
             : (from, to) => !collision.LineCheck(out _, null, to, from, default, ShadowFlags);
-        return new AiLightField(lights, ambient, zoneOf, spots, lineOpen);
+        return new AiLightField(lights, ambient, zoneOf, spots, lineOpen, leaves);
     }
 
     /// <summary>
@@ -184,6 +188,20 @@ public static class MapAiLight
         e.TryGetProperty(name, out JsonElement v) && v.ValueKind == JsonValueKind.Number ? v.GetSingle() : fallback;
 
     private static bool Bool(JsonElement e, string name) => e.TryGetProperty(name, out JsonElement v) && v.ValueKind == JsonValueKind.True;
+
+    // A light flag as the converter writes it, else as the light's property bag stores it, else the fallback.
+    private static bool Flag(JsonElement e, string name, string property, bool fallback)
+    {
+        if (e.TryGetProperty(name, out JsonElement v) && v.ValueKind is JsonValueKind.True or JsonValueKind.False)
+        {
+            return v.GetBoolean();
+        }
+
+        return e.TryGetProperty("props", out JsonElement props) && props.ValueKind == JsonValueKind.Object &&
+            props.TryGetProperty(property, out v) && v.ValueKind is JsonValueKind.True or JsonValueKind.False
+            ? v.GetBoolean()
+            : fallback;
+    }
 
     private static string? Str(JsonElement e, string name) =>
         e.TryGetProperty(name, out JsonElement v) && v.ValueKind == JsonValueKind.String ? v.GetString() : null;

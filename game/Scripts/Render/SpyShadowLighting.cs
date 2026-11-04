@@ -32,6 +32,7 @@ public sealed class SpyShadowLighting
     private readonly HashSet<Actor> _bound = new(ReferenceEqualityComparer.Instance);
     private readonly HashSet<Actor> _runtime = new(ReferenceEqualityComparer.Instance);
     private readonly HashSet<string> _ignoredNames = new(StringComparer.OrdinalIgnoreCase);
+    private LeafLights.LeafLightSet? _leafSet;
     private readonly List<Actor> _gone = [];
     private MapLoadResult? _loaded;
     private SBasePawn? _pawn;
@@ -149,17 +150,24 @@ public sealed class SpyShadowLighting
         }
         ICollisionWorld? collision = _client.Map?.Physics?.Collision;
         int zone = collision?.GetZoneIndex(center) ?? _map.ZoneIndexAt(center);
+        if (_map.LeafLights is { } leaves)
+        {
+            _leafSet ??= leaves.NewSet();
+            _leafSet.Gather(center, radius);
+        }
+
         foreach (LightEntry light in _map.Lighting.Lights)
         {
             if (_mapActors.TryGetValue(light.Name, out Actor? actor) && actor is not null)
             {
-                _lights.Add(LiveLight(actor, pawn, zone, center, radius, collision, _ignoredNames.Contains(light.Name)));
+                _lights.Add(LiveLight(actor, pawn, zone, center, radius, collision, light.Name));
                 continue;
             }
 
             FVector location = light.Location;
             FRotator rotation = light.Rotation;
-            if (_map.TryGetLightPlace(light.Name, out FVector moved, out FRotator turned))
+            bool hasMoved = _map.TryGetLightPlace(light.Name, out FVector moved, out FRotator turned);
+            if (hasMoved)
             {
                 location = moved;
                 rotation = turned;
@@ -168,9 +176,10 @@ public sealed class SpyShadowLighting
             int lightZone = light.ZoneIndex >= 0 ? light.ZoneIndex : collision?.GetZoneIndex(location) ?? -1;
             bool present = ActorLightRules.LightsActors(light.ApplyInGame, light.Dynamic, light.LightType, light.Effect) &&
                 _map.IsLightOn(light.Name, light.InitiallyOn) &&
-                (!light.OwnZoneOnly || zone < 0 || lightZone < 0 || zone == lightZone) &&
-                pawn.bSpecialLit == light.SpecialLit &&
-                (pawn.bUseDynamicLights || !light.Dynamic) && !_ignoredNames.Contains(light.Name) &&
+                ActorLightRules.ZoneAdmits(light.Effect, light.OwnZoneOnly, lightZone, zone) &&
+                ActorLightRules.LightsActor(light.SpecialLit, light.Name, pawn.bSpecialLit, _ignoredNames) &&
+                (pawn.bUseDynamicLights || !light.Dynamic) &&
+                LeafAdmits(light.Name, light.Static && !hasMoved, light.LightType) &&
                 Intersects(light.Effect, location, light.Radius, center, radius);
             _lights.Add(new ActorShadowLight(light, location, rotation, light.Brightness, light.Radius, light.Cone,
                 light.Effect, light.ActorShadows, light.Static, light.Dynamic, present));
@@ -186,24 +195,35 @@ public sealed class SpyShadowLighting
         _gone.Clear();
         foreach (Actor actor in _runtime)
         {
-            _lights.Add(LiveLight(actor, pawn, zone, center, radius, collision));
+            _lights.Add(LiveLight(actor, pawn, zone, center, radius, collision, null));
             if (actor.bDeleteMe) _gone.Add(actor);
         }
         foreach (Actor actor in _gone) _runtime.Remove(actor);
     }
 
-    private static ActorShadowLight LiveLight(Actor actor, SBasePawn pawn, int zone, FVector center, float radius,
-        ICollisionWorld? collision, bool ignoredName = false)
+    // A map light (name: its actor id) or a runtime one (name null, never in the leaf lists).
+    private ActorShadowLight LiveLight(Actor actor, SBasePawn pawn, int zone, FVector center, float radius,
+        ICollisionWorld? collision, string? name)
     {
         int lightZone = collision?.GetZoneIndex(actor.Location) ?? actor.Region.ZoneNumber;
         bool present = !actor.bDeleteMe &&
             ActorLightRules.LightsActors(actor.bApplyToInGameLighting, actor.bDynamicLight, (int)actor.LightType, (int)actor.LightEffect) &&
-            (!actor.bAffectOwnZoneOnly || zone < 0 || lightZone < 0 || zone == lightZone) &&
-            pawn.bSpecialLit == actor.bSpecialLit && (pawn.bUseDynamicLights || !actor.bDynamicLight) &&
-            !ignoredName && !pawn.IgnoredEchelonLights.Contains(actor) &&
+            ActorLightRules.ZoneAdmits((int)actor.LightEffect, actor.bAffectOwnZoneOnly, lightZone, zone) &&
+            ActorLightRules.LightsActor(actor.bSpecialLit, name, pawn.bSpecialLit, _ignoredNames) &&
+            (pawn.bUseDynamicLights || !actor.bDynamicLight) && !pawn.IgnoredEchelonLights.Contains(actor) &&
+            (name is null || LeafAdmits(name, actor.bStatic, (int)actor.LightType)) &&
             Intersects((int)actor.LightEffect, actor.Location, actor.LightRadius, center, radius);
         return new ActorShadowLight(actor, actor.Location, actor.Rotation, actor.LightBrightness, actor.LightRadius,
             actor.LightCone, (int)actor.LightEffect, actor.bActorShadows, actor.bStatic, actor.bDynamicLight, present, !actor.bDeleteMe);
+    }
+
+    // Pass 0 of the gather (game 0x10a37610): with the map's leaf light lists a static light with a light type must be
+    // listed by a leaf the pawn touches; other lights come from the runtime list and are tested by distance alone.
+    private bool LeafAdmits(string name, bool isStatic, int lightType)
+    {
+        if (_leafSet is null || _map.LeafLights is not { } leaves || !isStatic || lightType == 0) return true;
+        int id = leaves.IdOf(name);
+        return id >= 0 && _leafSet.Contains(id);
     }
 
     private static bool Intersects(int effect, FVector location, float lightRadius, FVector center, float radius)

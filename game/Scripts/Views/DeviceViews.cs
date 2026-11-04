@@ -289,7 +289,8 @@ public sealed class DeviceViews
             m.Draw(alpha, pawns);
             if (relight && m.Moved && m.Entry.Light == LightSource.Actor && m.Entry.Node.Visible)
             {
-                ActorLighting.Apply(m.Entry.Node, _map.LightActor(UeSpace.ToUe(m.Entry.Node.GlobalPosition), m.Entry.Radius, m.Entry.AmbientGlow));
+                ActorLighting.Apply(m.Entry.Node, _map.LightActor(UeSpace.ToUe(m.Entry.Node.GlobalPosition), m.Entry.Radius, m.Entry.AmbientGlow,
+                    m.Entry.SpecialLit, m.Entry.IgnoredLights));
             }
         }
 
@@ -719,7 +720,7 @@ public sealed class AnimatedMeshView
         {
             _lit = true;
             (FVector center, float radius) = AnimatedProps.Bounds(Model);
-            Model.Light(_map.LightActor(center, radius, _actor.AmbientGlow));
+            Model.Light(_map.LightActor(center, radius, _actor.AmbientGlow, _actor.bSpecialLit, _map.LightFilterOf(Id).Ignored));
         }
     }
 

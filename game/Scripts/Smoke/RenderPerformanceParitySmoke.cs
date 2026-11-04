@@ -282,7 +282,9 @@ public sealed class RenderPerformanceParitySmoke : SmokeTest
                 var ranked = new List<(float Score, LightEntry Light)>();
                 foreach (LightEntry light in source.Where(l => !off.Contains(l.Name)).Concat(spawned))
                 {
-                    if (light.OwnZoneOnly && zone >= 0 && light.ZoneIndex >= 0 && light.ZoneIndex != zone) continue;
+                    if (ranked.Count >= ActorLightRules.MaxCandidates) break;
+                    if (!ActorLightRules.LightsActor(light.SpecialLit, light.Name, false, null) ||
+                        !ActorLightRules.ZoneAdmits(light.Effect, light.OwnZoneOnly, light.ZoneIndex, zone)) continue;
                     float score = ActorLighting.Score(light, center, radius);
                     if (score > 0) ranked.Add((score, light));
                 }

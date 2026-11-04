@@ -746,7 +746,7 @@ public sealed partial class EffectViews : Node3D
         {
             Aabb box = node.Transform * mesh.GetAabb();
             float radius = UeSpace.UnitsPerMetre * box.Size.Length() * 0.5f;
-            ActorLighting.Apply(node, map.LightActor(a.Location, MathF.Max(radius, 8f), a.AmbientGlow));
+            ActorLighting.Apply(node, map.LightActor(a.Location, MathF.Max(radius, 8f), a.AmbientGlow, a.bSpecialLit));
         }
 
         string name = a.GetUcClass().Name;
