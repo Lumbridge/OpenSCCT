@@ -62,6 +62,17 @@ public partial class SPlayerController
         }
     }
 
+    /// <summary>The wall view's inward/outward side, retained across stances and restored by prediction.</summary>
+    public int BtwViewYawOffset { get; set; }
+
+    // Reset only on a genuine wall entry or return from a peek. Resetting while merely holding/changing stance
+    // would let repeated mouse turns move the window itself and permit a full orbit again.
+    internal void BeginBtwView()
+    {
+        int wallYaw = !vWallNormal.IsZero() ? vWallNormal.Rotation().Yaw : SBPawn?.Rotation.Yaw ?? Rotation.Yaw;
+        BtwViewYawOffset = System.Math.Abs(FRotator.NormalizeAxis(Rotation.Yaw - wallYaw)) > 16384 ? 32768 : 0;
+    }
+
     /// <summary>The current wall view's limits and reference, shared with render-time mouse prediction.</summary>
     public bool TryGetBtwViewLimits(out CameraWindow window, out int yawReference)
     {
@@ -96,8 +107,10 @@ public partial class SPlayerController
             return false;
         }
 
-        // The entry clip has not necessarily finished turning the pawn onto the wall yet.
-        yawReference = (StateNode is s_EnterBTW && !vWallNormal.IsZero() ? vWallNormal.Rotation().Yaw : pawn.Rotation.Yaw) + (peeking ? 32768 : 0);
+        // Preserve which side the player viewed the wall from on entry. Forcing a wall-in-front entry's camera
+        // around to the pawn's new outward facing also changes the camera-relative sidestep input.
+        int wallYaw = StateNode is s_EnterBTW && !vWallNormal.IsZero() ? vWallNormal.Rotation().Yaw : pawn.Rotation.Yaw;
+        yawReference = wallYaw + (peeking ? 32768 : BtwViewYawOffset);
         return true;
     }
 

@@ -98,7 +98,7 @@ vWallNormal = SafeNormal of the sum of the three later normals (not flattened), 
 
 s_EnterBTW (Fire disabled): AnimEnd channel 0 (controlling side): crouched SA_BTW_CR, s_BTW_down; standing SA_BTW_ST,
 s_BTW_up. Its PlayerMove is the base one (limited camera rotation only, zero move). During entry, the port uses
-the pending wall normal's yaw as the view reference because the animation may still be turning the pawn.
+the pending wall normal's yaw plus the chosen view-side offset because the animation may still be turning the pawn.
 
 ### s_BTW_Base (common)
 
@@ -110,10 +110,16 @@ ignored; any other non-lethal hit while unarmed (or a sticky shock) plays PlayAn
 wall normal, plays SA_BTW_OUT and returns to the resting state (a hit knocks the spy off the wall).
 
 Port behavior: holding the wall, entering it and turning an inside corner use the ECM_BTW view window:
-yaw -20000..20000 around the pawn's outward-facing yaw and pitch -13000..13000 around 0. This replaces the
-decoded unrestricted camera rotation in those states so the spy cannot orbit their head through a full turn.
-Entry uses the wall normal's yaw until the pawn finishes aligning. Peek and fire views keep their decoded
-windows and the opposite reference (`Pawn.Yaw + 32768`), described below.
+yaw -20000..20000 around the selected view side and pitch -13000..13000 around 0. On entry and when releasing
+a peek back to holding the wall, `BtwViewYawOffset` selects the nearer outward (0) or inward (32768) hemisphere
+of `View.Yaw - WallNormal.Yaw`; the reference is the pawn's outward-facing yaw plus that offset (the wall normal's
+yaw during the entry clip). The offset persists across stance changes, rotates with an inside corner and is
+saved/restored by movement prediction. Holding the wall never re-anchors the window from mouse input.
+This restricts a full camera orbit while preserving both wall-in-front and wall-behind approaches. Forcing the
+camera to the outward side would change the native's camera-relative sidestep projection, potentially removing
+its left/right bits. The explicit peek-return anchor also prevents recentering an inward corner view against an
+old outward window's sideways bound. Peek and fire views retain their decoded reference (`Pawn.Yaw + 32768`)
+and windows below.
 
 `TryGetBtwViewLimits` exposes the active window and yaw reference to render-time mouse prediction. The simulation
 and prediction share `CalculateLimitedRotation`, including pitch scaling, horizontal inversion, limits and
@@ -162,7 +168,7 @@ SA_BTW_OUT then SA_BLAST_LOOP and goes to s_Blast.
 
 ### Corner (s_BTWCorner, Fire disabled)
 
-PlayerMove: update the limited wall view around the pawn's current yaw; turn the pawn yaw toward
+PlayerMove: update the limited wall view around the pawn's current yaw plus the retained entry offset; turn the pawn yaw toward
 `rotator(vWallNormal).Yaw` by at most `3 * 16384 * dt` per frame (270 degrees per second); when the remaining
 difference is 0: SA_BTW_CORNEROFF, s_BTW_down or s_BTW_up by stance. Zero move. The limited view replaces the
 decoded unrestricted camera rotation while the pawn turns onto the next wall.

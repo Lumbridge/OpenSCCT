@@ -21,6 +21,12 @@ public partial class SPlayerController
         {
         }
 
+        public override void BeginState(Actor self)
+        {
+            ((SPlayerController)self).BeginBtwView();
+            base.BeginState(self);
+        }
+
         /// <summary>On the wall: standing or crouched hold.</summary>
         [Uc("SBase.SPlayerController.s_EnterBTW.AnimEnd", Sha1 = "52d968b211b12ce275ade97e03776bbed84da9ec")]
         [PortOf("uc:SBase.SPlayerController:s_EnterBTW.AnimEnd", Spec = "spec/movement/back-to-wall.md#entering-s_playerwalkingmarioprocessworldinteract")]

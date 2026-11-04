@@ -103,6 +103,7 @@ public sealed partial class SBasePawnMoves
         private float _pc_fZMaxFalling;
         private float _pc_fLastTimeOnAMover;
         private FVector _pc_vWallNormal;
+        private int _pc_BtwViewYawOffset;
         private FVector _pc_vNormalFence;
         private bool _pc_bPressedJump;
         private bool _pc_bCanStop;
@@ -207,6 +208,7 @@ public sealed partial class SBasePawnMoves
             _pc_fZMaxFalling = pc.fZMaxFalling;
             _pc_fLastTimeOnAMover = pc.fLastTimeOnAMover;
             _pc_vWallNormal = pc.vWallNormal;
+            _pc_BtwViewYawOffset = pc.BtwViewYawOffset;
             _pc_vNormalFence = pc.vNormalFence;
             _pc_bPressedJump = pc.bPressedJump;
             _pc_bCanStop = pc.bCanStop;
@@ -243,6 +245,7 @@ public sealed partial class SBasePawnMoves
             pc.fZMaxFalling = _pc_fZMaxFalling;
             pc.fLastTimeOnAMover = _pc_fLastTimeOnAMover;
             pc.vWallNormal = _pc_vWallNormal;
+            pc.BtwViewYawOffset = _pc_BtwViewYawOffset;
             pc.vNormalFence = _pc_vNormalFence;
             pc.bPressedJump = _pc_bPressedJump;
             pc.bCanStop = _pc_bCanStop;

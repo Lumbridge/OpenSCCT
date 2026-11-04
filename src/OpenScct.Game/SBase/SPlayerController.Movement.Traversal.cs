@@ -196,6 +196,7 @@ public partial class SPlayerController
             else if (bLeft && !bCrouched && (iMove & key) == 0)
             {
                 // s_BTW_StandLeft tests the released key before the fire request; the other three after it.
+                BeginBtwView();
                 pawn.ChangeEnumAction(SBasePawn.SA_BTW_ST);
                 eventChangeState(MovementStateNames.s_BTW_up);
             }
@@ -205,6 +206,7 @@ public partial class SPlayerController
             }
             else if ((iMove & key) == 0)
             {
+                BeginBtwView();
                 pawn.ChangeEnumAction(bCrouched ? SBasePawn.SA_BTW_CR : SBasePawn.SA_BTW_ST);
                 eventChangeState(bCrouched ? MovementStateNames.s_BTW_down : MovementStateNames.s_BTW_up);
             }
