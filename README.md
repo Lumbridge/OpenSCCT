@@ -64,12 +64,12 @@ or a passing comparison scenario. **It is not line or branch test coverage, or a
 the finished game.** Rebuilt systems can work without matching an original inventory unit.
 
 <!-- coverage:start -->
-Snapshot: **2026-10-28**. Generated from the checked-in coverage report.
+Snapshot: **2026-11-04**. Generated from the checked-in coverage report.
 
 | Scope | In-scope units | Specced | Ported | Verified | Ported bytecode |
 |---|---:|---:|---:|---:|---:|
-| All inventoried units | 7,084 | 4,282 (60.4%) | 3,414 (48.2%) | 168 (2.4%) | 53.3% |
-| SBase gameplay package | 3,637 | 3,365 (92.5%) | 2,888 (79.4%) | 168 (4.6%) | 92.4% |
+| All inventoried units | 7,084 | 4,291 (60.6%) | 3,415 (48.2%) | 168 (2.4%) | 53.2% |
+| SBase gameplay package | 3,637 | 3,365 (92.5%) | 2,890 (79.5%) | 168 (4.6%) | 92.4% |
 
 Bytecode percentages weight each unit by its original script size; units without
 bytecode count only in the unit columns.
