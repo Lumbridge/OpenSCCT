@@ -111,7 +111,9 @@ public partial class SimPawnView : Node3D
         _glb = _dressed.Glb;
         AddChild(_model.Root);
         _stickySkins = StickySkins.For(root);
-        _applier = new ChannelPoseApplier(_model.Skeleton, pawn.BoneMirrors, _model.PackageBones);
+        // BoneMirrors counts the team's stock skeleton; the bone names in that order find the drawn model's bones (an
+        // outfit model has its own order, or another team's skeleton).
+        _applier = new ChannelPoseApplier(_model.Skeleton, pawn.BoneMirrors, SkeletalModel.PackageBonesOf(glb));
         _attachments = new PawnAttachments(this, root) { Map = Map };
         _goggleGlow = new GoggleGlowView(this, root, bone => (TryGetBone(bone, out Transform3D world), world))
         {

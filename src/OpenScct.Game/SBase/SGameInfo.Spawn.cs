@@ -15,10 +15,9 @@ public partial class SGameInfo
     // ---- match start ---------------------------------------------------------------------------------------
 
     /// <summary>
-    /// Starts the match: Merc Deathmatch moves everyone to the mercs, the Engine part spawns the players, every
-    /// mission is deactivated, the map's match-size rules (an OpenSCCT addition) lay the round out and the current
-    /// mode's missions reset, each player gets the lives of its side, then the clock restarts and the team lives are
-    /// counted.
+    /// Starts the match: Merc Deathmatch moves everyone to the mercs, the map's match-size rules (an OpenSCCT addition)
+    /// lay the round out, the Engine part spawns the players, every mission is deactivated and the current mode's
+    /// missions reset, each player gets the lives of its side, then the clock restarts and the team lives are counted.
     /// </summary>
     [Uc("SBase.SGameInfo.StartMatch", Sha1 = "9591cd4c170a3d875634ca3fbd3bd2988990dfc0")]
     [PortOf("uc:SBase.SGameInfo:StartMatch", Spec = "spec/game/match-lifecycle.md#rules")]
@@ -30,6 +29,9 @@ public partial class SGameInfo
             MoveEveryoneToMercs(false);
         }
 
+        // OpenSCCT: the map's match-size rules lay this round out before anyone spawns, so no player starts at a
+        // start the round leaves out or beside a mover that is about to move.
+        ApplyMatchSizeRules();
         base.StartMatch();
         foreach (SMission m in XLevel.AllActors<SMission>())
         {
@@ -42,8 +44,6 @@ public partial class SGameInfo
             gri.NumObjectives = 0;
         }
 
-        // OpenSCCT: the map's match-size rules lay this round out before the missions reset.
-        ApplyMatchSizeRules();
         foreach (SMission m in XLevel.AllActors<SMission>())
         {
             if (mode == EGameMode.GM_MercDeathMatch)

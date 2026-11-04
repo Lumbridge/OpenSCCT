@@ -87,7 +87,7 @@ public sealed record PlaySettings
 
     /// <summary>
     /// The player count the map's match-size rules lay the match out for (<c>--players=6</c>,
-    /// spec/additions/match-size-rules.md), 0 to count the players.
+    /// spec/additions/match-size-rules.md), 0 for this match's own: the bots and the local player.
     /// </summary>
     public int MatchPlayers { get; init; }
 
@@ -131,7 +131,10 @@ public sealed record PlaySettings
     {
         ArgumentNullException.ThrowIfNull(gameplay);
         string mode = ((byte)GameMode).ToString(CultureInfo.InvariantCulture);
-        string players = MatchPlayers > 0 ? "?SvmMatchPlayers=" + MatchPlayers.ToString(CultureInfo.InvariantCulture) : "";
+        // Named, not counted at the round start: the bots log in before the local player, and in Play Level the first
+        // login starts the match, so the roster would hold one player.
+        int count = MatchPlayers > 0 ? MatchPlayers : Bots + 1;
+        string players = "?SvmMatchPlayers=" + count.ToString(CultureInfo.InvariantCulture);
         if (Rules == PlayRules.PlayLevel)
         {
             return $"?GameMode={mode}?Team={Team}?Editeur=true?SvmSidearms={(Sidearms ? 1 : 0)}{players}";

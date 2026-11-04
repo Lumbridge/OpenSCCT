@@ -187,6 +187,13 @@ public sealed class SkeletalModel
     /// <summary>Models made from a scene already read.</summary>
     public static int Reused { get; private set; }
 
+    /// <summary>The bone names of <paramref name="glbPath"/>'s package, in its order (read once, as <see cref="Load"/> does).</summary>
+    public static IReadOnlyList<string> PackageBonesOf(string glbPath)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(glbPath);
+        return TemplateOf(glbPath, null).PackageBones;
+    }
+
     /// <summary>
     /// Models read so far, by full path (and the clips' mesh for a model playing another's): the generated scene (never
     /// in the tree) with its materials, and its clips.

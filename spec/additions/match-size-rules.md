@@ -8,11 +8,13 @@ The data is the map's `sim/match.json` ([SVMap 1.2](../svmap/1.2/match.md)); the
 
 - The count is everyone in the match at round start: human players and bots, not spectators (a controller whose
   replication info is `bOnlySpectator` or `bIsSpectator` does not count).
-- The server applies the rules at every round start (`SGameInfo.StartMatch`, before the game modes set up their
-  missions), from the map's authored state each time, so players joining or leaving change the next round's
+- The server applies the rules at every round start (`SGameInfo.StartMatch`, before the players spawn and the game
+  modes set up their missions), from the map's authored state each time, so players joining or leaving change the next round's
   layout, never the running one.
 - The URL option `SvmMatchPlayers=<n>` (1 to 24) replaces the count; 0 or no option counts the players. An offline
-  play passes it from the launch option `--players=<n>`, which the map editor's Play sets to its preview size.
+  play always names it: the launch option `--players=<n>` when given (the map editor's Play can pass one), else its
+  bots plus the local player. Its bots log in before the player, and the first login starts a Play Level match, so a
+  count at the round start would see one player.
 - `GameReplicationInfo.MatchPlayers` (replicated) holds the count the round was laid out for.
 
 ## The layout
@@ -38,7 +40,11 @@ Top missions are never removed; a top mission with nothing left is a map error t
   inactive.
 - A mover is placed at its key before the round (outside its range key 0 unless the rule says otherwise; inside it
   works normally unless the rule names a key) and locked there: no trigger, alarm or `UnLock` moves it for the round.
-- Any other actor outside its range (or `"hidden"` inside it) is hidden and loses its collision.
+  It goes straight to that key and stops there, also on a mover with keys beyond it (an ordinary leg would carry on
+  through the keys in its direction).
+- Any other actor outside its range (or `"hidden"` inside it), and a mover held `"hidden"`, is left out of the round:
+  hidden, without collision, deaf to events (`Trigger` and `UnTrigger` pass it by), and a player start is never
+  chosen. It still exists and ticks; a hidden mover is also locked.
 
 Every round start first puts back what the last one changed.
 
@@ -49,5 +55,10 @@ instead of the host's Active Disks setting.
 
 ## Network
 
-The layout runs on the server only; clients see its result through the usual actor replication. The new replicated
-`MatchPlayers` changes the network class layout, so builds with and without it do not join each other.
+The server lays the round out and replicates the count in `GameReplicationInfo.MatchPlayers`. Missions, objectives
+and movers held at a key reach clients through the usual actor replication (a held mover's leg carries its start
+and end key, so a client's copy stops at the same key). Hiding is not replicated that way: an actor's `bHidden` and
+collision flags travel only in its first bunch, and actors the client loads itself never hear from the server. So
+each client hides its own copies of the gated actors from the replicated count, with the same rules, whenever the
+count changes. The new replicated `MatchPlayers` changes the network class layout, so builds with and without it do
+not join each other.

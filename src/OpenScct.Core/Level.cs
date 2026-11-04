@@ -521,7 +521,9 @@ public sealed class Level
             for (int i = 0; i < snapshot.Count; i++)
             {
                 Actor a = snapshot[i];
-                if (a.bDeleteMe || a.bStatic || a.Tag != eventName)
+                // OpenSCCT: an actor the match-size rules left out of the round ignores events
+                // (spec/additions/match-size-rules.md).
+                if (a.bDeleteMe || a.bStatic || a.Tag != eventName || a.MatchExcluded)
                 {
                     continue;
                 }

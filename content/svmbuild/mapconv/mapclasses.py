@@ -33,6 +33,9 @@ BOT_CONTROLLER = "ReloadedBotController"
 RE_TEAM_SIZES = 8
 TEAM_SIZES = 12
 
+# Engine.Mover KeyPos[8]: the keys a rule may hold a mover at.
+MOVER_KEYS = 8
+
 # The slots RE+ dresses (CharacterSkinsModel.h Slots): team, slot name in outfits.json, property.
 OUTFIT_SLOTS = (("spy", "body", "SpyBody"), ("spy", "head", "SpyHead"),
                 ("merc", "body", "MercBody"), ("merc", "head", "MercHead"))
@@ -99,10 +102,13 @@ def build_match(src: MapSource) -> Tuple[Optional[dict], dict]:
         rule: Dict[str, Any] = {"actor": target, "players": [int(lows.get(i, 0) or 0), int(highs.get(i, 0) or 0)]}
         info = next(a for a in src.actors if a.name == target)
         if src.db.is_a(info.cls, "Engine.Mover"):
-            # Outside the range RE+ closes (key 0) and locks; with OpenInRange it opens (key 1) and locks inside.
+            # Outside the range RE+ closes (key 0) and locks. With OpenInRange it locks inside, after starting a leg
+            # to key 1 when the mover has more keys; that leg runs on through the keys as any mover's does, so it
+            # stops at the last key. OpenSCCT holds a mover at the key it names, so the rule names where RE+ ends.
             rule["outside"] = {"key": 0}
             if int(opens.get(i, 0) or 0):
-                rule["inside"] = {"key": 1}
+                keys = int(src.db.value(info.cls, info.props, "NumKeys", 2) or 0)
+                rule["inside"] = {"key": min(max(keys, 1), MOVER_KEYS) - 1}
         rules.append(rule)
     win = []
     missions = _elements(props.get("WinMission"))

@@ -134,7 +134,7 @@ MATCH_FORMAT = "svm.match/1"
 OUTFITS_FORMAT = "svm.outfits/1"
 MOST_PLAYERS = 24
 TEAM_SIZES = 12
-MOVER_KEYS = 24
+MOVER_KEYS = 8  # Engine.Mover KeyPos[8]
 
 
 def _mover_mode_ok(mode) -> bool:

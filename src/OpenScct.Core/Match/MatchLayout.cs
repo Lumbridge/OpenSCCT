@@ -143,8 +143,8 @@ public static class MatchLayout
     }
 
     /// <summary>
-    /// Match sizes where a mission's target asks for more than the match can give: "In 3v3, Main asks for 5 objectives
-    /// to win but only 4 can be done there; it will ask for 4."
+    /// Player counts where a mission's target asks for more than the match can give: "With 5 players (3v3), Main asks
+    /// for 5 objectives to win but only 4 can be done there; it will ask for 4."
     /// </summary>
     public static List<string> TargetWarnings(IReadOnlyList<MatchMission> missions, MatchRuleSet rules, Func<string, string>? name = null)
     {
@@ -159,14 +159,18 @@ public static class MatchLayout
                     continue;
                 }
 
-                MatchMission? found = Apply(missions, rules, size * 2).Mission(w.Mission);
-                if (found is null || found.Objectives.Count == 0 || found.MinimumObjectives >= wanted)
+                // Both counts of the size (5 and 6 players play 3v3) can leave out different objectives.
+                foreach (int players in new[] { (size * 2) - 1, size * 2 })
                 {
-                    continue;
-                }
+                    MatchMission? found = Apply(missions, rules, players).Mission(w.Mission);
+                    if (found is null || found.Objectives.Count == 0 || found.MinimumObjectives >= wanted)
+                    {
+                        continue;
+                    }
 
-                warnings.Add($"In {size}v{size}, {name?.Invoke(w.Mission) ?? w.Mission} asks for {wanted} objectives to win but only " +
-                             $"{found.MinimumObjectives} can be done there; it will ask for {found.MinimumObjectives}.");
+                    warnings.Add($"With {players} player{(players == 1 ? "" : "s")} ({size}v{size}), {name?.Invoke(w.Mission) ?? w.Mission} asks for " +
+                                 $"{wanted} objectives to win but only {found.MinimumObjectives} can be done there; it will ask for {found.MinimumObjectives}.");
+                }
             }
         }
 
@@ -221,6 +225,7 @@ public static class MatchLayout
         private readonly Dictionary<string, (List<string> Objectives, int Minimum, int Random)> _missions =
             new(StringComparer.OrdinalIgnoreCase);
         private readonly List<string> _left = new();
+        private readonly HashSet<string> _pruning = new(StringComparer.OrdinalIgnoreCase);
         private readonly MatchRuleSet _rules;
         private readonly int _players;
 
@@ -239,6 +244,7 @@ public static class MatchLayout
 
         public void Prune(string id, int depth)
         {
+            _pruning.Add(id);
             List<string> objectives = _missions[id].Objectives;
             int fewer = 0, capacity = 0;
             for (int i = objectives.Count - 1; i >= 0; i--)
@@ -262,7 +268,9 @@ public static class MatchLayout
                     continue;
                 }
 
-                if (!mission || depth >= MatchRuleSet.MaxDepth)
+                // A mission that lists itself or one above it (a loop) counts as one entry here: pruning it again
+                // would change the list this loop walks.
+                if (!mission || depth >= MatchRuleSet.MaxDepth || _pruning.Contains(child))
                 {
                     capacity++;
                     continue;
@@ -305,6 +313,7 @@ public static class MatchLayout
             }
 
             _missions[id] = (list, minimum, Math.Min(random, list.Count));
+            _pruning.Remove(id);
         }
 
         // The objective (and for a mission, everything it still lists) is out of the match.
@@ -338,7 +347,18 @@ public static class MatchLayout
                 missions.Add(new MatchMission(id, list, minimum, random));
             }
 
-            return new MatchOutcome(_players, missions, _left);
+            // An objective two missions list, or a loop, is dropped more than once; it is reported once.
+            var left = new List<string>(_left.Count);
+            var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (string id in _left)
+            {
+                if (seen.Add(id))
+                {
+                    left.Add(id);
+                }
+            }
+
+            return new MatchOutcome(_players, missions, left);
         }
     }
 }

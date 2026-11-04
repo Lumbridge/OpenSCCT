@@ -13,7 +13,7 @@ public partial class GameReplicationInfo : ReplicationInfo
 
     /// <summary>
     /// The player count this round's match-size rules use (spec/additions/match-size-rules.md), 0 when the map has
-    /// none. Replicated so clients can show the layout and leave out gated client-only actors.
+    /// none. Replicated: a client hides its own copies of the gated actors from it.
     /// </summary>
     public int MatchPlayers;
     public bool bMatchHasBegun;

@@ -8,16 +8,19 @@ using OpenScct.Game.SBase;
 namespace OpenScct.Game.Modes;
 
 /// <summary>
-/// The map's match-size rules at a round start (spec/additions/match-size-rules.md), on the server. It keeps the
+/// The map's match-size rules at a round start (spec/additions/match-size-rules.md). On the server it keeps the
 /// missions as the map authored them, so every round computes its layout from the same start with that round's
 /// player count (<see cref="MatchLayout"/>, shared with the editor), then:
 /// <list type="bullet">
 /// <item>sets each mission's objectives, MinimumObjectives and RandomObjectives;</item>
 /// <item>deactivates the objectives left out, which stay out of play for the round (<see cref="Actor.MatchExcluded"/>);</item>
 /// <item>holds gated movers at their key, locked so that no trigger or alarm moves them (<see cref="Mover.MatchLocked"/>);</item>
-/// <item>hides other gated actors outside their range (or hidden inside it) and takes their collision away.</item>
+/// <item>leaves other gated actors out (and "hidden" ones inside their range): hidden, without collision, deaf to
+/// events and, for a player start, never chosen.</item>
 /// </list>
-/// A level service, made the first time a level with rules starts a match.
+/// A client hides the same actors from the replicated <see cref="GameReplicationInfo.MatchPlayers"/>
+/// (<see cref="ApplyOnClient"/>): a hidden actor's flags reach a client only in its first bunch, and actors the client
+/// loads itself never hear from the server at all. A level service, made the first time it is needed.
 /// </summary>
 public sealed class MatchSizeRules
 {
@@ -26,6 +29,8 @@ public sealed class MatchSizeRules
     private readonly Dictionary<string, SObjective> _objectives = new(StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<Actor, (bool Hidden, bool Collide, bool BlockActors, bool BlockPlayers)> _shown =
         new(ReferenceEqualityComparer.Instance);
+    private readonly Dictionary<PlayerStart, bool> _starts = new(ReferenceEqualityComparer.Instance);
+    private readonly Dictionary<Mover, bool> _allowLock = new(ReferenceEqualityComparer.Instance);
     private readonly List<Actor> _excluded = new();
 
     private MatchSizeRules(Level level, LevelMatchRules rules)
@@ -45,10 +50,10 @@ public sealed class MatchSizeRules
         }
     }
 
-    /// <summary>The player count of the last round start, 0 before the first.</summary>
+    /// <summary>The player count of the last layout, 0 before the first.</summary>
     public int Players { get; private set; }
 
-    /// <summary>This round's layout, null before the first round start.</summary>
+    /// <summary>This round's layout on the server, null before the first round start.</summary>
     public MatchOutcome? Outcome { get; private set; }
 
     /// <summary>The level's rules runner, or null when the map has no rules.</summary>
@@ -70,7 +75,7 @@ public sealed class MatchSizeRules
         return runner;
     }
 
-    /// <summary>Lays the round out for <paramref name="players"/> (everyone in the match, bots included).</summary>
+    /// <summary>Lays the round out for <paramref name="players"/> (everyone in the match, bots included), on the server.</summary>
     public void Apply(int players)
     {
         Players = players;
@@ -125,9 +130,35 @@ public sealed class MatchSizeRules
             {
                 Exclude(objective);
             }
-            else if ((inside ? rule.InsideFor() : rule.OutsideFor(mover: false)).Kind != HoldKind.Normal)
+            else if (IsHidden(rule, inside))
             {
-                // Hidden, or a key position on an actor that is not a mover (which the validator rejects).
+                Hide(actor);
+            }
+        }
+    }
+
+    /// <summary>
+    /// A client's side of the layout for <paramref name="players"/> (the replicated count; 0 before the server has laid
+    /// a round out): the gated actors that are hidden, movers held hidden among them, lose their look and collision as
+    /// on the server. Objectives and movers held at a key come through replication as usual.
+    /// </summary>
+    public void ApplyOnClient(int players)
+    {
+        Players = players;
+        Restore();
+        if (players <= 0)
+        {
+            return;
+        }
+
+        foreach ((Actor actor, MatchRule rule) in _rules.Gated)
+        {
+            bool inside = rule.Players.Keeps(players);
+            bool hidden = actor is Mover
+                ? (inside ? rule.InsideFor() : rule.OutsideFor(mover: true)).Kind == HoldKind.Hidden
+                : actor is not SObjective && IsHidden(rule, inside);
+            if (hidden)
+            {
                 Hide(actor);
             }
         }
@@ -143,6 +174,11 @@ public sealed class MatchSizeRules
         int target = _rules.Rules.TargetsOf(_rules.IdOf(mission))?.For(Players) ?? 0;
         return target > 0 ? Math.Min(target, mission.Triggers.Count) : numDisks;
     }
+
+    // An actor that is neither a mover nor an objective outside its range: "hidden", or a key position on an actor
+    // that is not a mover (which the validator rejects), takes it out.
+    private static bool IsHidden(MatchRule rule, bool inside) =>
+        (inside ? rule.InsideFor() : rule.OutsideFor(mover: false)).Kind != HoldKind.Normal;
 
     private void Exclude(SObjective objective)
     {
@@ -168,6 +204,12 @@ public sealed class MatchSizeRules
         _excluded.Add(actor);
         actor.bHidden = true;
         actor.SetCollision(false, false, false);
+        if (actor is PlayerStart start)
+        {
+            // No one spawns at a start the round leaves out.
+            _starts.TryAdd(start, start.bEnabled);
+            start.bEnabled = false;
+        }
     }
 
     private void Hold(Mover mover, Hold hold)
@@ -175,24 +217,38 @@ public sealed class MatchSizeRules
         switch (hold.Kind)
         {
             case HoldKind.Hidden:
+                // Locked as well, so that nothing moves it while it is out of the round.
+                Lock(mover);
                 Hide(mover);
                 break;
             case HoldKind.Key:
                 // Out of its trigger behaviour first, so the short leg runs alone; then locked where it stands.
                 mover.GotoState(Name.None);
-                if (mover.KeyNum != hold.Key)
+                byte key = (byte)Math.Clamp(hold.Key, 0, MoverK.MaxKeys - 1);
+                if (mover.bInterpolating || mover.KeyNum != key)
                 {
-                    mover.InterpolateTo((byte)Math.Clamp(hold.Key, 0, MoverK.MaxKeys - 1), 0f);
+                    // A leg that starts "from" the key it goes to: KeyFrameReached carries a leg on through the keys
+                    // in its direction, and a leg with no direction stops at its key. A client starts the same leg
+                    // from SimInterpolate, which carries both keys, so it stops there too.
+                    mover.KeyNum = key;
+                    mover.PrevKeyNum = key;
+                    mover.InterpolateTo(key, 0f);
                 }
 
-                mover.MatchLocked = true;
-                mover.bAllowLock = true;
-                mover.Lock();
+                Lock(mover);
                 break;
         }
     }
 
-    // A new round starts from the authored state: what the last one left out comes back first.
+    private void Lock(Mover mover)
+    {
+        _allowLock.TryAdd(mover, mover.bAllowLock);
+        mover.MatchLocked = true;
+        mover.bAllowLock = true;
+        mover.Lock();
+    }
+
+    // A new layout starts from the authored state: what the last one left out comes back first.
     private void Restore()
     {
         foreach (Actor actor in _excluded)
@@ -206,13 +262,19 @@ public sealed class MatchSizeRules
         }
 
         _excluded.Clear();
-        foreach ((Actor actor, _) in _rules.Gated)
+        foreach ((PlayerStart start, bool enabled) in _starts)
         {
-            if (actor is Mover { MatchLocked: true } mover)
-            {
-                mover.MatchLocked = false;
-                mover.eventUnLock();
-            }
+            start.bEnabled = enabled;
         }
+
+        _starts.Clear();
+        foreach ((Mover mover, bool allowLock) in _allowLock)
+        {
+            mover.MatchLocked = false;
+            mover.eventUnLock();
+            mover.bAllowLock = allowLock;
+        }
+
+        _allowLock.Clear();
     }
 }

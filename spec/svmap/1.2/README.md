@@ -1,6 +1,8 @@
 # SVMap 1.2
 
-A minor version of [SVMap 1.1](../1.1/README.md): every 1.1 file reads as before, and 1.1 readers skip what is new.
+A minor version of [SVMap 1.1](../1.1/README.md): every 1.1 file reads as before, and a 1.1 reader can load a 1.2 map.
+It cannot play one as authored, though: `sim/match.json` changes the match, and a server that does not read it plays
+every actor at every player count. Hosts serve 1.2 maps on builds that read 1.2.
 Everything [1.1](../1.1/README.md) says holds unless this page says otherwise; the conventions are those of
 [1.1](../1.1/conventions.md) and the collision layout is [1.1's](../1.1/collision.md).
 

@@ -7,11 +7,13 @@ only the client reads it, so an outfit never changes collision, hit zones or vis
 ## Drawing
 
 - A team with a `model` is drawn with that model instead of its stock mesh. It plays the team's own clips, bound by
-  bone name, and is drawn warm in thermal vision like the stock pawns. A model that is missing or cannot be read
-  leaves the stock mesh (the client logs a warning).
+  bone name, mirrored clips included (the team's bone mirror table is read through the stock bone names, so the
+  model's bone order is free). It is drawn warm in thermal vision with one even heat (see "Not yet drawn"). A model
+  that is missing or cannot be read leaves the stock mesh (the client logs a warning).
 - `slots` textures replace the diffuse of the stock slot materials (spy body `Shadw_agent`, head `Shadw_agent_2`;
   merc body `DEF_01_A_Body`, head `DEF_01_A_Face`). The rest of each material stays: the lens and lamp glow under
-  their masks, and the slot's heat and EMF skins.
+  their masks, and the slot's heat and EMF skins. On a team with a `model` they apply only where the model draws
+  those stock materials: a stock mesh does, a map's own glb normally does not.
 - Rain: the wet skins keep the slot's outfit texture as their dry layer, so a wet outfit stays the outfit.
 - The goggle lights hang from the outfit model's goggle bone, moved by its offset in that bone's axes.
 
@@ -21,7 +23,7 @@ Map outfits win on the body; player cosmetics apply only where the outfit allows
 
 | Policy | Body camo or finish | Light colour | Gun skins |
 |---|---|---|---|
-| `map` (default) | the outfit | the player's | the player's |
+| `map` (default) | the outfit (a head texture alone leaves the player's body camo) | the player's | the player's |
 | `player` | the player's, where the mesh has a camo for it | the player's | the player's |
 | `none` | the outfit | retail | retail |
 

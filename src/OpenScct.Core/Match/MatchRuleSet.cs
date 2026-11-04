@@ -47,7 +47,7 @@ public enum HoldKind : byte
     /// <summary>Works as built (inside the range only).</summary>
     Normal,
 
-    /// <summary>Left out of the match: hidden, without collision, ignoring events.</summary>
+    /// <summary>Left out of the match: hidden, without collision, ignoring events; a player start is not used.</summary>
     Hidden,
 
     /// <summary>A mover placed at <see cref="Hold.Key"/> before the round and locked there.</summary>

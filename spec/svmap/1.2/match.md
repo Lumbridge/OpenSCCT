@@ -26,7 +26,7 @@ One entry per gated actor, in any order; an actor has at most one rule.
 - `players`: `[min, max]`, each `0` (no limit) or `1` to `24`; when both are set, min is not above max. The actor is
   in the match when the round's player count is inside the range.
 - `outside` (optional): the actor's state when the count is outside the range: `"hidden"` or `{"key": n}` (a mover
-  placed at key `n`, 0 to 23, and locked there). Never `"normal"`. Without it a mover goes to `{"key": 0}` and any
+  placed at key `n`, 0 to 7, and locked there). Never `"normal"`. Without it a mover goes to `{"key": 0}` and any
   other actor is `"hidden"`.
 - `inside` (optional): the state inside the range: `"normal"` (the default), `"hidden"` or `{"key": n}`.
 
@@ -55,5 +55,8 @@ RE+'s `SMatchSizeRules` (and its older names `SPlayerCountRules`, `SObjectivePla
 the map package, become this file; their actors are not written to `sim/gameplay.json`:
 
 - each `Subject` (or `Objective`) row with `MinPlayers`/`MaxPlayers` is a rule; a mover row is
-  `"outside": {"key": 0}`, plus `"inside": {"key": 1}` when the row has `OpenInRange`;
+  `"outside": {"key": 0}`, plus an `inside` key when the row has `OpenInRange`. RE+ then starts a leg to key 1 (on a
+  mover with more than one key) and locks the mover; the leg runs on through the keys as every mover leg does, so it
+  ends at the last key. The rule names that key, `NumKeys - 1` (key 0 for a one-key mover, which RE+ locks where it
+  is);
 - each `WinMission` row with `WinTarget[8]` (1v1 to 8v8) is a `win` entry, 9v9 to 12v12 padded with `0`.

@@ -31,7 +31,8 @@ public static class PawnCosmetics
     /// The look drawn on the pawn (retail when there is none). The local player's own pawn wears the Armoury's choice
     /// while "hide mine" keeps it off the servers; other players' pawns are drawn retail while "hide others" is on.
     /// A map outfit on the pawn's team then decides what is left (spec/additions/map-outfits.md): by default the map's
-    /// look wins on the body and the light hue and gun skins stay; "none" draws the team retail.
+    /// look wins on the body when the outfit dresses the body (a body texture or a model; a head texture alone leaves
+    /// the body camo), and the light hue and gun skins stay; "none" draws the team retail.
     /// </summary>
     public static CosmeticLook LookOf(Pawn? pawn)
     {
@@ -45,9 +46,10 @@ public static class PawnCosmetics
         CosmeticLook look = mine
             ? settings.CosmeticsHideMine ? settings.OwnLook(SideOf(pawn)) : new CosmeticLook(pri.SvmLook, pri.SvmLookExtra)
             : settings.CosmeticsHideOthers ? CosmeticLook.Default : new CosmeticLook(pri.SvmLook, pri.SvmLookExtra);
-        return Outfits.For(spy: pawn is not SPAWNDEFENSE)?.Cosmetics switch
+        TeamOutfit? outfit = Outfits.For(spy: pawn is not SPAWNDEFENSE);
+        return outfit?.Cosmetics switch
         {
-            OutfitCosmetics.Map => look.With(CosmeticSlot.Body, null),
+            OutfitCosmetics.Map when outfit.Body is not null || outfit.Model is not null => look.With(CosmeticSlot.Body, null),
             OutfitCosmetics.None => CosmeticLook.Default,
             _ => look,
         };
