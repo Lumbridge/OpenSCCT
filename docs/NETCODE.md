@@ -264,7 +264,7 @@ measured average.
 ### Modern pawn synchronization (both profiles)
 
 The estimated design is specified separately in [spec/net/modern-synchronization.md](../spec/net/modern-synchronization.md). The wire protocol is
-`svm-net/0.5`; the compatibility hash also includes handwritten extension signatures. Mismatched builds are rejected
+`svm-net/0.6`; the compatibility hash also includes handwritten extension signatures. Mismatched builds are rejected
 during Hello, before any actor data is read. Generated declarations remain unchanged.
 
 `SequencedMoveTransport` sends individual fixed-step inputs with explicit input ticks in sequence with redundant older commands. Each
