@@ -42,6 +42,9 @@ public sealed class NavFollower
     /// <summary>What shuts a way at run time as well: the world and movers (doors).</summary>
     private const ETraceFlags BarrierFlags = WorldFlags | ETraceFlags.TRACE_Movers;
 
+    /// <summary>How close (horizontally) to the goal the pawn counts as arrived.</summary>
+    public const float ArriveRadius = 20f;
+
     private readonly AiWorld _world;
     private readonly bool _spy;
     private readonly List<NavStep> _path = new();
@@ -287,7 +290,7 @@ public sealed class NavFollower
             return cmd;
         }
 
-        if (_phase == TPhase.None && Horizontal(_goal - at) < 20f && MathF.Abs(_goal.Z - feet.Z) < 80f)
+        if (_phase == TPhase.None && Horizontal(_goal - at) < ArriveRadius && MathF.Abs(_goal.Z - feet.Z) < 80f)
         {
             Arrived = true;
             return cmd;

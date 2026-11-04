@@ -35,6 +35,32 @@ public static class K
     [Provenance(ProvenanceKind.Estimated, "Native CanUse/Calc facing rule for bInteractInFront: both dot products above this (spec open question)")]
     public const float InFrontMinDot = 0f;
 
+    // ---- the bInteractInFrontWithCollisions fan (interaction-system.md rule 23) ----------------------------------
+
+    [Provenance(ProvenanceKind.Decoded, "game 0x10AF7120: fan lines are 150 uu long (0x43160000) when the object's X axis points up, else ItRadius")]
+    public const float FanUpLength = 150f;
+
+    [Provenance(ProvenanceKind.Decoded, "game 0x10AF7120: the X axis points up when its Z is above 0.6 (0x10C10A0C)")]
+    public const float FanUpMinZ = 0.6f;
+
+    [Provenance(ProvenanceKind.Decoded, "game 0x10AF7120: each fan line ends 5 uu out from the object (0x10C10B4C)")]
+    public const float FanInnerOffset = 5f;
+
+    [Provenance(ProvenanceKind.Decoded, "game 0x10AF7120: the first fan line is the object's rotation with Yaw - 0x4000")]
+    public const int FanStartYaw = 0x4000;
+
+    [Provenance(ProvenanceKind.Decoded, "game 0x10AF7120: each next fan line adds 0xCCC to the yaw")]
+    public const int FanStepYaw = 0xCCC;
+
+    [Provenance(ProvenanceKind.Decoded, "game 0x10AF6EF0: CanUse picks the fan line with the object's rotation at Yaw - 0x3FFF")]
+    public const int FanIndexYaw = 0x3FFF;
+
+    [Provenance(ProvenanceKind.Decoded, "game 0x10AF6EF0: fan line index = trunc(5 (t + 1)) (computed as -5 (t + 1), 0x10C10EC8, then subtracted)")]
+    public const float FanIndexScale = 5f;
+
+    [Provenance(ProvenanceKind.Decoded, "game 0x10AF6EF0: the direction to the object dot its X axis must be below -0.6 (0x10C10ECC)")]
+    public const float FanFrontMaxDot = -0.6f;
+
     // ---- terminals (terminal-hack.md) -----------------------------------------------------------------------
 
     [Provenance(ProvenanceKind.Decoded, "SPlayerController.s_Computer_GoTo.PlayerTick terminal search")]

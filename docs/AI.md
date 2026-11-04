@@ -275,7 +275,14 @@ gadget/evasion inputs from interrupting the shot. Alarm-locked terminals
 are excluded. Objective selection includes reachable disk pickups and bomb sites with a carried bomb gadget;
 the normal interaction menu performs pickup/planting. Failed or stalled objectives receive a temporary cooldown
 so another terminal, disk, or bomb site can be attempted. Terminal approach heights come from a support trace
-at the actual interaction point, and off-grid route endpoints require a clear final walking segment.
+at the actual interaction point, and off-grid route endpoints require a clear final walking segment. Bomb sites
+are used only from in front, within the spot's fan (interaction-system.md rule 23), so spies planting and mercs
+defusing walk to a floor on the spot's front axis that passes the fan and the server's reach test
+(`AiBrain.FanFloor`), falling back to the nearest suitable nav floor when there is none. The floor is chosen so the
+fan still holds anywhere the follower may stop (within `NavFollower.ArriveRadius`), and a bot that stops outside
+the fan walks in facing the spot. Choosing the floor measures a fan without storing it, so it does not freeze the
+entry's own fan. Mercs defuse standing; a spy stays crouched unless the spot is out of a crouched pawn's fan reach,
+then he stands to plant.
 
 | Merc goal | When | What |
 |---|---|---|

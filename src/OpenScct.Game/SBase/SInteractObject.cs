@@ -1,7 +1,11 @@
+using System;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
+using OpenScct.Game.Equipment;
 using OpenScct.Game.Objectives;
+using OpenScct.Physics.Collision;
 using OpenScct.Provenance;
+using K = OpenScct.Game.Objectives.K;
 
 namespace OpenScct.Game.SBase;
 
@@ -165,12 +169,17 @@ public partial class SInteractObject
     /// <summary>
     /// Whether the entry is shown and usable for <paramref name="TheController"/>. Expected and partly measured
     /// (rule 23): usable, a living pawn of a side UsableBy allows, the reuse delay passed, and facing the object when
-    /// <see cref="bInteractInFront"/>. Subclasses add their own conditions.
+    /// <see cref="bInteractInFront"/>. With <see cref="bInteractInFrontWithCollisions"/> (decoded) the pawn must also
+    /// stand on the object's front side within the fan distance (<see cref="InCollisionFan"/>), except on the mine
+    /// entries, whose own native CanUse is not decoded. The fan is tested only on the input machine of
+    /// <paramref name="TheController"/> (not for a remote player on the server), where the original's menu asks it.
+    /// Subclasses add their own conditions.
     /// </summary>
     [UcNative("ASInteractObject::execCanUse", Exe = 0x10AB96F0, Editor = 0x111BC330)]
     [PortOf("nat:SBase.SInteractObject.CanUse", Spec = "spec/objectives/interaction-system.md#rules")]
     [Provenance(ProvenanceKind.Estimated, "Expected CanUse conditions; reuse rule measured (RE+ lab-power), facing rule estimated")]
     [Provenance(ProvenanceKind.Measured, "Reuse delay: refused 19.4 s and accepted 20.9 s after a use with iReusableTime 20")]
+    [Provenance(ProvenanceKind.Decoded, "game 0x10AF6EF0 (vtable slot 0x138 of the thunk for SInteractObject, SBombTargetInteraction and the script-only SBombInteraction): the bInteractInFrontWithCollisions fan rule")]
     public virtual bool CanUse(SPlayerController? TheController)
     {
         if (!bUsable || TheController is null || !ObjectiveNatives.IsAlive(TheController))
@@ -190,7 +199,104 @@ public partial class SInteractObject
             return false;
         }
 
+        // The original asks CanUse only in the menu, on the input machine, and each machine builds its own fan; its
+        // server does not re-check a use (rule 17). The server's re-check of a remote player's use leaves the fan out,
+        // so a fan built there at another moment (a door closed in front then) cannot refuse what the client offered.
+        if (!TheController.IsRemotePlayer && !InCollisionFan(TheController.Pawn!.Location))
+        {
+            return false;
+        }
+
         return !bInteractInFront || IsInFrontOf(TheController.Pawn!);
+    }
+
+    /// <summary>
+    /// Whether <see cref="CanUse"/> applies the fan (<see cref="InCollisionFan"/>): entries with
+    /// <see cref="bInteractInFrontWithCollisions"/> that use the base native CanUse (bomb spots).
+    /// </summary>
+    public virtual bool UsesCollisionFan => bInteractInFrontWithCollisions;
+
+    /// <summary>
+    /// The <see cref="bInteractInFrontWithCollisions"/> part of the base native CanUse (bomb spots) for a pawn centred
+    /// at <paramref name="pawnLocation"/>; true when <see cref="UsesCollisionFan"/> is false. The horizontal direction
+    /// from the pawn to the object must lie against the object's X axis (dot below <see cref="K.FanFrontMaxDot"/>, so
+    /// the pawn stands within about 53 degrees of the front), and the pawn's centre must be closer than the fan line on
+    /// its side (<see cref="MaxDistToInteract"/>, built on first use, or <paramref name="fan"/> when given, as from
+    /// <see cref="MeasureMaxDistToInteract"/>). There is no line from the pawn.
+    /// </summary>
+    [Provenance(ProvenanceKind.Decoded, "game 0x10AF6EF0: d = normalized horizontal (Location - pawn), t = d dot X axis of (Pitch, Yaw - 0x3FFF, Roll), refused unless |Location - pawn| < MaxDistToInteract[trunc(5 (t + 1))] and d dot Rotation.Vector() < -0.6")]
+    public bool InCollisionFan(FVector pawnLocation, float[]? fan = null)
+    {
+        if (!UsesCollisionFan)
+        {
+            return true;
+        }
+
+        if (fan is null)
+        {
+            if (MaxDistToInteract[0] == -1f)
+            {
+                BuildMaxDistToInteract();
+            }
+
+            // Without collision the fan is not stored (see BuildMaxDistToInteract); every line is then clear.
+            fan = MaxDistToInteract[0] == -1f ? MeasureMaxDistToInteract() : MaxDistToInteract;
+        }
+
+        FVector toObject = Location - pawnLocation;
+        toObject.Z = 0f;
+        toObject = toObject.SafeNormal();
+        float t = toObject | new FRotator(Rotation.Pitch, Rotation.Yaw - K.FanIndexYaw, Rotation.Roll).Vector();
+        // The original reads MaxDistToInteract[10], past the array, when t is 1. That pawn stands square to the side,
+        // which the front test below refuses anyway, so the index stops at the last line.
+        int line = Math.Clamp((int)(K.FanIndexScale * (t + 1f)), 0, fan.Length - 1);
+        return (Location - pawnLocation).Size() < fan[line] &&
+            (toObject | Rotation.Vector()) < K.FanFrontMaxDot;
+    }
+
+    /// <summary>
+    /// Fills <see cref="MaxDistToInteract"/> once, on the machine that first asks <see cref="CanUse"/> (it is not
+    /// replicated): ten lines fanned around the object's front, from Yaw - 0x4000 in steps of 0xCCC, each traced from
+    /// <see cref="K.FanUpLength"/> out (when the X axis points up) or <see cref="ItRadius"/> out, in to
+    /// <see cref="K.FanInnerOffset"/> from the object, against movers and the world. Each slot holds the distance from
+    /// the object to the hit, or the full length when the line is clear, so a wall beside the object shortens the reach
+    /// on its side. Without a collision world (a tool with no level geometry) nothing is stored, so the fan is built
+    /// once collision is there.
+    /// </summary>
+    [UcNative("ASInteractObject::BuildMaxDistToInteract", Exe = 0x10AF7120)]
+    [PortOf("eng:ASInteractObject::BuildMaxDistToInteract", Spec = "spec/objectives/interaction-system.md#rules")]
+    [Provenance(ProvenanceKind.Decoded, "game 0x10AF7120 (vtable slot 0x13C, called from CanUse while MaxDistToInteract[0] is -1): SingleLineCheck flags 0x86, zero extent, self ignored, from Location + dir L to Location + dir 5")]
+    public void BuildMaxDistToInteract()
+    {
+        if (GadgetWorld.Collision(this) is null)
+        {
+            return;
+        }
+
+        MeasureMaxDistToInteract().CopyTo(MaxDistToInteract, 0);
+    }
+
+    /// <summary>
+    /// The fan <see cref="BuildMaxDistToInteract"/> would store, measured now and not stored: for a question about the
+    /// entry (a bot choosing where to stand) that must not freeze the entry's own fan before a pawn reaches it.
+    /// </summary>
+    [Provenance(ProvenanceKind.Decoded, "game 0x10AF7120: the fan lines of BuildMaxDistToInteract")]
+    public float[] MeasureMaxDistToInteract()
+    {
+        var fan = new float[MaxDistToInteract.Length];
+        float length = Rotation.Vector().Z > K.FanUpMinZ ? K.FanUpLength : ItRadius;
+        const ETraceFlags flags = ETraceFlags.TRACE_Movers | ETraceFlags.TRACE_Level | ETraceFlags.TRACE_LevelGeometry |
+            ETraceFlags.TRACE_SingleResult;
+        for (int i = 0; i < fan.Length; i++)
+        {
+            FVector dir = new FRotator(Rotation.Pitch, Rotation.Yaw - K.FanStartYaw + i * K.FanStepYaw, Rotation.Roll).Vector();
+            fan[i] = GadgetWorld.Line(this, Location + dir * K.FanInnerOffset, Location + dir * length, flags,
+                out FCheckResult hit)
+                ? (hit.Location - Location).Size()
+                : length;
+        }
+
+        return fan;
     }
 
     /// <summary>
