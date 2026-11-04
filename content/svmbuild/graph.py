@@ -37,7 +37,7 @@ from typing import Callable, Iterable, Sequence
 
 from . import canonical
 from .hashing import FileHasher
-from .paths import REPO_ROOT, is_within
+from .paths import REPO_ROOT, is_within, is_within_lexical, lexical_path
 
 MATERIAL_FORMAT = 1
 
@@ -510,8 +510,10 @@ class Graph:
             return UnitResult(step.name, unit, "stub", key)
         out = step_outputs(ctx, step, unit)
         if out is not None:
-            inside = all(is_within(out.base / f, ctx.out) for f in out.files) if out.files is not None else \
-                is_within(out.base, ctx.out) and out.base.resolve() != ctx.out.resolve()
+            # Lexical: every output path is built from ctx.out, which the CLI has resolved, and resolving a folder
+            # another worker is creating can fail the check (see is_within_lexical).
+            inside = all(is_within_lexical(out.base / f, ctx.out) for f in out.files) if out.files is not None else \
+                is_within_lexical(out.base, ctx.out) and lexical_path(out.base) != lexical_path(ctx.out)
             if not inside:
                 return UnitResult(step.name, unit, "failed", key, error=f"output folder {out.base} is outside {ctx.out}")
         t0 = time.perf_counter()

@@ -78,7 +78,10 @@ stored with the entry and checked before reuse. A step owns either a folder or a
 root. Entries live in `.content/cache/entries/`, output files once each in `.content/cache/objects/`, and a size
 and mtime memo of file digests in `.content/cache/filehash.json`. A hit restores missing or damaged outputs from the
 objects. With `--jobs`, consecutive per-map steps run map by map in spawned worker processes; each worker hashes
-with its own memo and the parent merges what they computed. Delete `.content/cache/` to reclaim space.
+with its own memo and the parent merges what they computed. A unit whose outputs are not under the content root
+fails before it runs; the check compares absolute paths without resolving them, because resolving a folder another
+worker is creating can return a different form of the same path on Windows. Delete `.content/cache/` to reclaim
+space.
 
 ## Layout
 
