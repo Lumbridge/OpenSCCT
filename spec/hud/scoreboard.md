@@ -1,5 +1,11 @@
 # In-match scoreboard: connected players list and the mission status page
 
+**OpenSCCT override:** the full role-specific F10 scoreboard replaces the connected-list presentation below.
+Its separate hold binding is initially unbound; Tab remains vision mode. The compact list's initial visibility,
+team split and HUD-editor settings no longer apply. New combat counters are authoritatively delayed by at least
+30 seconds and revealed at round end. See [current scoreboard behavior](../../docs/SCOREBOARD.md). The original
+rules below remain provenance for the mission-status page and public score fields.
+
 Units:
 - uc:SBase.SPlayerController:ShowConnectedPlayers, uc:SBase.SPlayerController:DisplaySessionStatus
 - uc:GUI.View_GameStatus:InitComponent, uc:GUI.View_GameStatus:InitMission, uc:GUI.View_GameStatus:Timer,

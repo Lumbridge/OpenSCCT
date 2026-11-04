@@ -46,8 +46,7 @@ public static class AudioK
     public const float MinPitch = 0.5f;
 
     /// <summary>Highest pitch factor.</summary>
-    [Provenance(ProvenanceKind.Decoded, "UUNIAudioSubsystem::Update: ambient pitch at most 2")]
-    [Provenance(ProvenanceKind.Estimated, "The same bound for one-shot sounds (spec/native/audio.md open question 3)")]
+    [Provenance(ProvenanceKind.Decoded, "UUNIAudioSubsystem::PlaySound (retail 0x10b03d50) clamps pitch to 0.5..2; Update uses the same bound for ambient pitch")]
     public const float MaxPitch = 2f;
 
     /// <summary>Metres per Unreal unit, the DirectSound listener's distance factor.</summary>

@@ -41,7 +41,7 @@ public partial class DemosScreen : MenuPage
     private ulong _protocol;
     private MapCatalog _maps = null!;
 
-    private bool Previewing => AccountSettings.Isolated && (PreviewLocal is not null || PreviewRecent is not null);
+    private bool Previewing => AccountSettings.Isolated && (PreviewLocal is not null || PreviewRecent is not null || PreviewHistory is not null);
     protected override Vector2 ResponsiveReference => new(1600f, 900f);
 
     public static Button MenuButton(Node from) =>
@@ -81,9 +81,10 @@ public partial class DemosScreen : MenuPage
         var group = new ButtonGroup();
         _localTab = ActionButton(tabs, "On this computer", () => SelectCollection(false), "LocalTab");
         _recentTab = ActionButton(tabs, "Recent online", () => SelectCollection(true), "RecentTab");
+        _historyTab = ActionButton(tabs, "Match history", SelectHistory, "HistoryTab");
         _localTab.TooltipText = "Saved copies stay here. Downloads expire after 7 days; choose Keep to save them.";
         _recentTab.TooltipText = "Online rounds expire after 7 days. Keep saves a copy; Watch opens playback. Filters search the current page.";
-        foreach (Button tab in new[] { _localTab, _recentTab }) { tab.ToggleMode = true; tab.ButtonGroup = group; }
+        foreach (Button tab in new[] { _localTab, _recentTab, _historyTab }) { tab.ToggleMode = true; tab.ButtonGroup = group; }
         _localTab.SetPressedNoSignal(true);
         var filter = Card(Body, "DemoFilters");
         var searchRow = new HBoxContainer();
@@ -121,11 +122,11 @@ public partial class DemosScreen : MenuPage
         _pager = new HFlowContainer { Name = "DemoPagination" };
         _pager.AddThemeConstantOverride("h_separation", 12);
         Body.AddChild(_pager);
-        _previous = ActionButton(_pager, "Previous page", () => LoadRecent(Math.Max(0, (_online?.Page ?? 0) - 1)), "PreviousPage");
+        _previous = ActionButton(_pager, "Previous page", PreviousCollectionPage, "PreviousPage");
         _pageNumber = Text(_pager, "PageNumber", string.Empty, 14);
         _pageNumber.CustomMinimumSize = new Vector2(120f, 36f);
         _pageNumber.VerticalAlignment = VerticalAlignment.Center;
-        _next = ActionButton(_pager, "Next page", () => LoadRecent((_online?.Page ?? 0) + 1), "NextPage");
+        _next = ActionButton(_pager, "Next page", NextCollectionPage, "NextPage");
         PageButton("Back", () => FrontEnd.ShowMainMenu(GetTree()), "Back").GrabFocus();
         PageButton("Open folder", OpenFolder, "OpenFolder").TooltipText = "Open your saved demos. Copy shared .scctdemo files here, then Refresh.";
         _refreshButton = PageButton("Refresh", Refresh, "Refresh");
@@ -137,6 +138,8 @@ public partial class DemosScreen : MenuPage
         }
         else _online = PreviewRecent ?? new DemoListResponse();
         ReadLocal();
+        ReadHistory();
+        if (StartWithHistory) { _historySelected = true; LoadHistoryPage(0); }
         Render();
         FitLibrary();
     }
@@ -159,6 +162,7 @@ public partial class DemosScreen : MenuPage
             Render();
         }
         ProcessDownload();
+        ProcessHistory();
     }
 
     private void FitLibrary()
@@ -176,6 +180,7 @@ public partial class DemosScreen : MenuPage
 
     private void SelectCollection(bool recent)
     {
+        _historySelected = false;
         _recentSelected = recent;
         PageCanvas.GetNode<ScrollContainer>("BodyScroll").ScrollVertical = 0;
         if (recent && _online is null && _listing is null) LoadRecent(0);
@@ -194,6 +199,7 @@ public partial class DemosScreen : MenuPage
     private void Refresh()
     {
         ReadLocal();
+        if (_historySelected) { ReadHistory(); LoadHistoryPage(0); Render(); return; }
         if (_recentSelected) LoadRecent(_online?.Page ?? 0);
         else Render();
     }
@@ -230,6 +236,8 @@ public partial class DemosScreen : MenuPage
     {
         Clear(_cards);
         _downloadButtons.Clear();
+        _historyTab.SetPressedNoSignal(_historySelected);
+        if (_historySelected) { RenderHistory(); return; }
         _localTab.Text = $"On this computer ({_local.Count})";
         _recentTab.Text = _online is { } list ? $"Recent online ({list.Total})" : "Recent online";
         _localTab.SetPressedNoSignal(!_recentSelected);
@@ -317,6 +325,10 @@ public partial class DemosScreen : MenuPage
         watch.TooltipText = playable ? "Open playback" : "This recording uses a different network protocol from the installed game.";
         if (cached) ActionButton(actions, "Keep", () => Keep(entry), "Keep").TooltipText = "Move this download into your permanent saved demos.";
         ActionButton(actions, "Delete", () => ConfirmDelete(entry), "Delete").TooltipText = "Delete this local recording after confirmation.";
+        if (entry.Index.Scoreboard is { } board)
+            ActionButton(actions, "Scoreboard", () => RoundScoreboardDialog.Open(this, board, watch: playable ? () => DemoLibrary.Watch(GetTree(), entry.Path) : null,
+                replayStatus: playable ? "Replay saved on this computer" : "Replay requires its original game protocol"), "Scoreboard");
+        else Text(card, "ScoreboardUnavailable", "Scoreboard unavailable for this older recording", 13, dim: true);
     }
 
     private void RecentCard(OnlineDemo demo)

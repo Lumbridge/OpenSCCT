@@ -45,6 +45,53 @@ public sealed class LadderTests
     }
 
     [Theory]
+    [InlineData(PawnTeam.Spy, 16384)]
+    [InlineData(PawnTeam.Spy, -16384)]
+    [InlineData(PawnTeam.Merc, 16384)]
+    [InlineData(PawnTeam.Merc, -16384)]
+    public void CrouchingNearALadderStaysCrouchedWithoutRepeatedTransitions(PawnTeam team, int yaw)
+    {
+        (CollisionDataBuilder level, TraversalDoc ges) = LadderLevel();
+        PawnRig rig = GeRig(team, level, ges, V(0f, 20f, 0f), yaw: yaw);
+        rig.Step(Crouch);
+        float height = rig.Pawn.CrouchHeight;
+        for (int tick = 0; tick < 120; tick++)
+        {
+            rig.Step(NoInput);
+            Assert.True(rig.Pawn.bIsCrouched, $"tick {tick}: {rig.Controller.GetStateName()}");
+            Assert.Equal(height, rig.Pawn.CollisionHeight);
+            Assert.InRange(rig.Pawn.Location.Z, height, height + 3f);
+        }
+
+        Assert.True(rig.Controller.IsInState(team == PawnTeam.Spy
+            ? MovementStateNames.s_PlayerWalkingCr0H : MovementStateNames.s_PlayerWalkingCr2H));
+    }
+
+    [Theory]
+    [InlineData(PawnTeam.Spy)]
+    [InlineData(PawnTeam.Merc)]
+    public void WalkingIntoALadderFromCrouchStillGrabsIt(PawnTeam team)
+    {
+        (CollisionDataBuilder level, TraversalDoc ges) = LadderLevel();
+        PawnRig rig = GeRig(team, level, ges, V(0f, 20f, 0f), crouched: true);
+        Assert.True(StepUntil(rig, Up, MovementStateNames.s_OnLadder, 200));
+        Assert.False(rig.Pawn.bIsCrouched);
+        Assert.Equal(EPhysics.PHYS_OnLadder, rig.Pawn.Physics);
+    }
+
+    [Fact]
+    public void CrouchedLadderGrabStillRequiresRoomToStand()
+    {
+        (CollisionDataBuilder level, TraversalDoc ges) = LadderLevel(ceiling: 150f);
+        PawnRig rig = GeRig(PawnTeam.Spy, level, ges, V(0f, 60f, 0f), crouched: true);
+        rig.Pawn.Acceleration = V(0, 1000, 0);
+        rig.Driver.CheckArmsZone(rig.Pawn);
+        Assert.True(rig.Pawn.bIsCrouched);
+        Assert.True(rig.Controller.IsInState(MovementStateNames.s_PlayerWalkingCr0H));
+        Assert.Equal(EPhysics.PHYS_Walking, rig.Pawn.Physics);
+    }
+
+    [Theory]
     [InlineData(PawnTeam.Spy)]
     [InlineData(PawnTeam.Merc)]
     public void WalkingIntoALadderGrabsItAndClimbsAt126(PawnTeam team)

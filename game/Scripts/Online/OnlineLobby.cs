@@ -36,6 +36,9 @@ public sealed class OnlineLobby : IOnlineLobbySession
 
     private LobbyState State => _client.Lobby;
 
+    public OpenScct.Net.Scoreboards.RoundScoreboard? LastScoreboard => _client.LastScoreboard;
+    public int LastScoreboardLocalParticipantId => _client.LastScoreboardLocalParticipantId;
+
     public bool IsHost => State.IsHost;
 
     public bool RecordDemos => _service.RecordDemos;
@@ -354,6 +357,8 @@ public sealed class OnlineLobby : IOnlineLobbySession
 
         return new MatchResult
         {
+            Scoreboard = results.Scoreboard,
+            LocalParticipantId = client.LastScoreboardLocalParticipantId,
             Map = results.Map,
             Mode = client.Lobby.Setup.Mode,
             Winner = results.WinningTeam switch

@@ -169,8 +169,7 @@ public abstract partial class Actor
     /// </summary>
     [UcNative("AActor::execPlaySound", Exe = 0x10a25e50)]
     [PortOf("nat:Engine.Actor.PlaySound", Spec = "spec/devices/sound-music.md#rules")]
-    [Provenance(ProvenanceKind.Estimated, "Stock UE2 execPlaySound defaults for omitted volume, radius and pitch")]
-    public void PlaySound(AssetRef Sound, ESoundSlot Slot = ESoundSlot.SLOT_None, float? Volume = null,
+    public void PlaySound(AssetRef Sound, ESoundSlot Slot = ESoundSlot.SLOT_Misc, float? Volume = null,
         bool bNoOverride = false, float? Radius = null, float? Pitch = null, bool Attenuate = true, Name BoneName = default)
     {
         if (Sound.IsNone || XLevel is null)
@@ -178,7 +177,7 @@ public abstract partial class Actor
             return;
         }
 
-        XLevel.World.Events.PlaySound(this, new Name(Sound.Path), (int)Slot, Volume ?? TransientSoundVolume,
+        XLevel.World.Events.PlaySound(this, new Name(Sound.Path), (int)Slot, DampenedSoundVolume(Volume ?? TransientSoundVolume),
             Radius ?? TransientSoundRadius, Pitch ?? 1f, bNoOverride, Attenuate, BoneName, flat: IsViewedUnattenuated(Attenuate));
     }
 
@@ -189,6 +188,10 @@ public abstract partial class Actor
     private bool IsViewedUnattenuated(bool attenuate) =>
         !attenuate && Level?.GetLocalPlayerController() is { } viewer && ReferenceEquals(this, viewer.ViewTarget ?? viewer);
 
+    private float DampenedSoundVolume(float volume) =>
+        Instigator is { } instigator && (ReferenceEquals(instigator, this) || ReferenceEquals(instigator, Owner))
+            ? volume * instigator.SoundDampening : volume;
+
     /// <summary>
     /// PlaySound for a sound the owning client already played locally: a PlaySound event marked
     /// <see cref="SimEvent.Owned"/>, so views can tell it from the owner's own call (spec/native/audio.md rule 4).
@@ -196,7 +199,7 @@ public abstract partial class Actor
     /// </summary>
     [UcNative("AActor::execPlayOwnedSound", Exe = 0x10a26120, Editor = 0x11189fb0)]
     [PortOf("nat:Engine.Actor.PlayOwnedSound", Spec = "spec/native/audio.md#actor-natives")]
-    public void PlayOwnedSound(AssetRef Sound, ESoundSlot Slot = ESoundSlot.SLOT_None, float? Volume = null,
+    public void PlayOwnedSound(AssetRef Sound, ESoundSlot Slot = ESoundSlot.SLOT_Misc, float? Volume = null,
         bool bNoOverride = false, float? Radius = null, float? Pitch = null, bool Attenuate = false, Name BoneName = default)
     {
         if (Sound.IsNone || XLevel is null)
@@ -204,7 +207,7 @@ public abstract partial class Actor
             return;
         }
 
-        XLevel.World.Events.PlaySound(this, new Name(Sound.Path), (int)Slot, Volume ?? TransientSoundVolume,
+        XLevel.World.Events.PlaySound(this, new Name(Sound.Path), (int)Slot, DampenedSoundVolume(Volume ?? TransientSoundVolume),
             Radius ?? TransientSoundRadius, Pitch ?? 1f, bNoOverride, Attenuate, BoneName, owned: true,
             flat: IsViewedUnattenuated(Attenuate));
     }
@@ -217,24 +220,17 @@ public abstract partial class Actor
     [PortOf("nat:Engine.Actor.SetSwitch", Spec = "spec/native/audio.md#actor-natives")]
     public void SetSwitch(byte Surface) => XLevel?.World.Events.SetSwitch(this, Surface);
 
-    /// <summary>Stops a sound playing on this actor (a <see cref="SimEventKind.StopSound"/> event).</summary>
+    /// <summary>Stops a sound playing on this actor; None stops every source owned by this actor.</summary>
     [UcNative("AActor::execStopSound", Exe = 0x10a25720)]
     [PortOf("nat:Engine.Actor.StopSound", Spec = "spec/devices/sound-music.md#rules")]
     public void StopSound(AssetRef Sound)
     {
-        if (Sound.IsNone || XLevel is null)
+        if (XLevel is null)
         {
             return;
         }
 
-        XLevel.World.Events.Add(new SimEvent
-        {
-            Kind = SimEventKind.StopSound,
-            ActorId = ActorId,
-            What = new Name(Sound.Path),
-            Location = Location,
-            Rotation = Rotation,
-        });
+        XLevel.World.Events.StopSound(this, Sound.IsNone ? Name.None : new Name(Sound.Path));
     }
 
     /// <summary>Starts a music track on this machine; it becomes the current music. Returns a song handle.</summary>

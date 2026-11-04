@@ -2,9 +2,12 @@
 
 [Documentation](README.md)
 
-The Windows launcher installs, updates and starts OpenSCCT. It downloads releases from
-[Lumbridge/OpenSCCT](https://github.com/Lumbridge/OpenSCCT/releases/latest) and updates itself.
-For Linux and Steam Deck, use the [Flatpak guide](LINUX.md).
+The Windows and native Linux launchers install, update and start OpenSCCT. They download releases from
+[Lumbridge/OpenSCCT](https://github.com/Lumbridge/OpenSCCT/releases/latest) and update themselves.
+The Linux launcher uses the same download, verification, content and version-management code as Windows.
+See the [Linux guide](LINUX.md) for its portable package, desktop installation and system requirements.
+Linux assets must be published alongside the game before players can install that version; older
+Windows-only releases do not include a Linux download.
 
 ## Install and play
 
@@ -72,7 +75,8 @@ another site's credentials. See the [player hub guide](PLAYER-HUB.md) for the we
 
 ## Folders
 
-The launcher stores its files under `%LOCALAPPDATA%\OpenSCCT`:
+The launcher stores its files under `%LOCALAPPDATA%\OpenSCCT` on Windows and
+`${XDG_DATA_HOME:-~/.local/share}/OpenSCCT` on Linux:
 
 | Path | Contents |
 | --- | --- |
@@ -87,6 +91,7 @@ The launcher stores its files under `%LOCALAPPDATA%\OpenSCCT`:
 
 Game settings, bindings and saves live separately in
 `%APPDATA%\Godot\app_userdata\OpenSCCT` (Godot's `user://`). The launcher does not delete that folder.
+On Linux the game uses `${XDG_DATA_HOME:-~/.local/share}/godot/app_userdata/OpenSCCT`.
 Deleting the launcher data folder removes installed builds and content; use it only when you intend to reinstall.
 
 ## Game content
@@ -112,6 +117,7 @@ dotnet build OpenSCCT.slnx
 dotnet test --project tests/OpenScct.Launcher.Tests
 dotnet run --project tools/launcher-smoke
 dotnet publish src/OpenScct.Launcher -c Release -r win-x64
+dotnet publish src/OpenScct.Launcher.Linux -c Release -r linux-x64
 ```
 
 The Windows-only [layout smoke harness](../tools/launcher-smoke/README.md) checks isolated launcher states
@@ -122,6 +128,10 @@ The publish command creates a self-contained `OpenSCCT.Launcher.exe` in
 `src/OpenScct.Launcher/bin/Release/net10.0-windows/win-x64/publish/`. Players do not need .NET installed.
 For a framework-dependent build, add `--self-contained false -p:PublishReadyToRun=false`; that build
 requires the .NET 10 Desktop Runtime.
+
+The Linux project uses Avalonia and publishes a self-contained single executable named
+`OpenSCCT.Launcher-linux-x64`. Its managed and native libraries are bundled for self-update;
+players do not need a system .NET installation. The GUI uses X11 (or XWayland on a Wayland desktop).
 
 ### Version and build number
 
@@ -201,6 +211,7 @@ Fork maintainers can change the release source in their own launcher build.
 | Location | Responsibility |
 | --- | --- |
 | [OpenScct.Launcher](../src/OpenScct.Launcher/) | Windows UI, settings, website links and self-update |
+| [OpenScct.Launcher.Linux](../src/OpenScct.Launcher.Linux/) | Native Linux desktop UI using the shared installer/updater |
 | [OpenScct.Launcher.Core](../src/OpenScct.Launcher.Core/) | Release selection, downloads, checksums, installation and launch |
 | [OpenScct.Maps](../src/OpenScct.Maps/) | Shared map catalogue, pack downloads and content-building support |
 | [Launcher tests](../tests/OpenScct.Launcher.Tests/) | Update and content logic with fake HTTP responses and temporary folders |

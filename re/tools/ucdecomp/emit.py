@@ -278,9 +278,9 @@ class ClassEmitter:
             lines[f.line] = lines.get(f.line, 0) + 1
         ign_stubs = []
         for f in stubs:
-            sup = self.u.field(f.pkg, f.super_field) if f.super_field else None
+            super_function = self.u.field(f.pkg, f.super_field) if f.super_field else None
             nparams = len(self.u.members(f))
-            if lines[f.line] > 1 or (isinstance(sup, Function) and len(self.u.members(sup)) != nparams):
+            if lines[f.line] > 1 or (isinstance(super_function, Function) and len(self.u.members(super_function)) != nparams):
                 ign_stubs.append(f)
         ignored += [f.name for f in ign_stubs]
         stubs = ign_stubs

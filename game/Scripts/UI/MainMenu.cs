@@ -159,7 +159,7 @@ public partial class MainMenu : MenuPage
         _xpText = TextLine(profile, "XpText", "Sign in to track your rank and unlocks.", dim: true, small: true);
         _recentResults = TextLine(profile, "RecentResults", "Recent: —", small: true);
         _recentResults.TooltipText = "Latest recorded rounds, newest first. W: win · L: loss · D: draw/no winner";
-        AddCompactButton(profile, "Match history", () => FrontEnd.Show(GetTree(), new MatchHistoryScreen()), "MatchHistory");
+        AddCompactButton(profile, "Match history", () => FrontEnd.ShowMatchHistory(GetTree()), "MatchHistory");
         _unlockText = TextLine(profile, "NextUnlockText", string.Empty, small: true);
         _unlockText.MaxLinesVisible = 2;
         _unlockText.TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis;

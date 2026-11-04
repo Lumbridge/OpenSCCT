@@ -1,6 +1,7 @@
 using Godot;
 using System;
 using OpenScctGame.Controls;
+using OpenScct.Net.Voice;
 
 namespace OpenScctGame.Voice;
 
@@ -12,6 +13,18 @@ namespace OpenScctGame.Voice;
 /// </summary>
 public static class VoiceInput
 {
+    /// <summary>Uses the shared binding state so capture and focus suppression apply in every visit.</summary>
+    public static bool ReadKeys(VoiceClient client, bool blocked = false)
+    {
+        BindingInput? bindings = BindingInput.Current;
+        bool mute = bindings is null ? Input.IsActionJustPressed(ToggleMute) : (bindings.TakeMuteEdges() & 1) != 0;
+        blocked |= bindings?.CaptureSuspended ?? false;
+        client.TalkKey = !blocked && (bindings?.VoiceAllHeld ?? Input.IsActionPressed(PushToTalk));
+        client.TeamKey = !blocked && (bindings?.VoiceTeamHeld ?? Input.IsActionPressed(TeamPushToTalk));
+        if (mute && !blocked) client.Settings.MicMuted = !client.Settings.MicMuted;
+        return mute && !blocked;
+    }
+
     /// <summary>Hold to talk on the "all" channel (also forces transmission in voice activation mode).</summary>
     public const string PushToTalk = "voice_ptt";
 

@@ -276,6 +276,10 @@ def _map_sound_entry(path: str, info: dict, bank: uas.Bank | None, streams: dict
         key = f"{package}.{info['stream']}".lower()
         hit = streams.get(key)
         if hit is not None:
+            # A map bank is playable independently of which compatible shared library was installed first.
+            # Keep the actual source Sound flags here as well: the client can define this stream even when an
+            # older shared pack does not contain its object path (KrauE's DefT_Ext1).
+            out["flags"] = info["flags"]
             out["file"] = hit["file"]
             out["root"] = "map"
             out["duration"] = hit["duration"]
@@ -334,6 +338,10 @@ def build_map_audio(game: Path, map_name: str, audio_dir: Path, library: dict, s
     sounds_all = {**lib_sounds, **own_info}
     found = refs.map_sound_refs(src, refs.SoundIndex(sounds_all)) if src is not None else \
         {"actors": [], "zones": [], "missing": {}}
+    missing_ambient = {path: sites for path, sites in found["missing"].items()
+                       if any(site.endswith(".AmbientSound") for site in sites)}
+    if missing_ambient:
+        raise ValueError(f"{map_name}: unresolved authored AmbientSound references: {missing_ambient}")
     # Every sound the map can play: what its actors name, the streamed sounds of its bank's packages, and what
     # list sounds reach from those.
     wanted: list[str] = []

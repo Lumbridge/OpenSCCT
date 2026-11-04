@@ -62,8 +62,6 @@ public partial class OptionsRuntime : Node
         SettingsStore.Saved += OnSaved;
         if (Hud is not null)
         {
-            Hud.InitialConnectedPlayers = _settings.ShowScoreboard;
-            Hud.ConnectedPlayersToggled += OnConnectedPlayers;
             Hud.Effects.Applied += OnLocalNotify;
         }
 
@@ -75,7 +73,6 @@ public partial class OptionsRuntime : Node
         SettingsStore.Saved -= OnSaved;
         if (Hud is not null)
         {
-            Hud.ConnectedPlayersToggled -= OnConnectedPlayers;
             Hud.Effects.Applied -= OnLocalNotify;
         }
 
@@ -131,16 +128,6 @@ public partial class OptionsRuntime : Node
         };
     }
 
-    /// <summary>Reloaded remembers the scoreboard's state.</summary>
-    private void OnConnectedPlayers(bool shown)
-    {
-        if (_settings.ShowScoreboard != shown)
-        {
-            _settings.ShowScoreboard = shown;
-            SettingsStore.Save(_settings);
-        }
-    }
-
     /// <summary>Applies <paramref name="s"/> to the session, the HUD, the pad and the audio.</summary>
     public void Apply(GameSettings s)
     {
@@ -155,11 +142,9 @@ public partial class OptionsRuntime : Node
 
         if (Hud is not null)
         {
-            Hud.Options.ShowPing = s.ShowPing;
             Hud.Options.ClassicCrosshair = s.ClassicCrosshair;
             Hud.Options.Crosshair = s.Crosshair.Clone();
             Hud.Options.Layout = s.HudLayout.Clone();
-            Hud.Options.ScoreboardSplit = s.ScoreboardSplitTeamSize;
             Hud.Options.StretchHud = !s.WidescreenHud;
             Hud.Markers.Widescreen = s.Widescreen;
             Hud.Markers.WidescreenHud = s.WidescreenHud;

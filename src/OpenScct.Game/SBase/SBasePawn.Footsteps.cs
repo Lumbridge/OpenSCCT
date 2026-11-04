@@ -63,7 +63,7 @@ public partial class SBasePawn
 
     /// <summary>
     /// The step sound for the pawn's speed and stance (crouch, walk or run), plus the run gear and breath sounds.
-    /// The spy's noise notification to the local controller (ClientNotifyNoise, the HUD noise meter) is not ported.
+    /// Spy walk/run notifies also drive each listener's directional noise cue.
     /// </summary>
     [Uc("SBase.SBasePawn.PlayFootStepSound", Sha1 = "fc62d4b6777b1bccb47434a83d610af51e4402cd")]
     [PortOf("uc:SBase.SBasePawn:PlayFootStepSound", Spec = "spec/native/audio.md#footsteps-sbasepawn")]
@@ -98,12 +98,14 @@ public partial class SBasePawn
         }
         else if (speed < FootWalkSpeedLimit)
         {
+            NotifyFootstepNoise(0.5f);
             PlayOwnedSound(FootWalkSound, ESoundSlot.SLOT_Interact, FootStepsVolume * speed / RunningSpeed, false, stepRadius,
                 null, true, bone);
             iLastWalkTime = now;
         }
         else
         {
+            NotifyFootstepNoise(1f);
             PlayOwnedSound(FootRunSound, ESoundSlot.SLOT_Interact, FootStepsVolume * speed / RunningSpeed, false, stepRadius,
                 null, true, bone);
             bool spy = this is SPawnAttaque;
@@ -114,6 +116,23 @@ public partial class SBasePawn
                 PlayOwnedSound(spy ? SpyBreathSound : MercBreathSound, ESoundSlot.SLOT_Misc, FootStepsVolume * 1f, false,
                     FootBreathRadius, null, true, HEADBONE);
             }
+        }
+    }
+
+    private void NotifyFootstepNoise(float loudness)
+    {
+        if (this is not SPawnAttaque || XLevel.World.IsReplaying) return;
+        if (Level.NetMode != ENetMode.NM_Client)
+        {
+            // Proxies do not run sound notifies. The authoritative step therefore supplies the
+            // notification to remote listeners, once, through ClientNotifyNoise's owner RPC.
+            NotifyNoise(loudness);
+        }
+        else if (ReferenceEquals(Level.GetLocalPlayerController()?.Pawn, this))
+        {
+            // Preserve the original local call for the predicted owner. Its own pawn is inside
+            // the HUD's minimum distance, so the authoritative owner copy cannot add an echo.
+            Level.GetLocalPlayerController()?.ClientNotifyNoise(this, loudness);
         }
     }
 

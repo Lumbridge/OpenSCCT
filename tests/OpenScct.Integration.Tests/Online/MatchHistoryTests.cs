@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.Data.Sqlite;
 using OpenScct.Master;
 using OpenScct.Net.Discovery;
+using OpenScct.Net.Scoreboards;
 using Xunit;
 
 namespace OpenScct.Integration.Tests.Online;
@@ -85,7 +86,7 @@ public sealed class MatchHistoryTests
     }
 
     [Fact]
-    public void ExpiryDeletesDetailsAndDemoMetadataButKeepsCareerTotals()
+    public void ExpiryDeletesTimelinesAndDemoMetadataButKeepsScoreboardsAndCareerTotals()
     {
         var clock = new Clock();
         using var store = AccountStore.Open(":memory:", clock);
@@ -98,11 +99,13 @@ public sealed class MatchHistoryTests
         clock.Now += TimeSpan.FromDays(91);
         long fresh = store.RecordMatch(report, "Test", true);
         store.PruneMatchHistory(90);
-        Assert.Null(store.Match(old));
+        Assert.NotNull(store.Match(old));
+        Assert.Null(store.HistoryDetails(account.Id, old)!.Events);
+        Assert.Equal(3, Assert.Single(store.HistoryDetails(account.Id, old)!.Scoreboard!.Rows).Kills);
         Assert.Null(store.Demo(demo.Id));
         Assert.NotNull(store.HistoryDetails(account.Id, fresh));
         Assert.Equal(3, store.Progress(account.Id).Stats.Kills);
-        Assert.Single(store.History(account.Id, 0).Matches);
+        Assert.Equal(2, store.History(account.Id, 0).Matches.Count);
     }
 
     [Fact]
@@ -116,7 +119,9 @@ public sealed class MatchHistoryTests
             using var store = AccountStore.Open(path);
             var owner = store.GetOrCreate("http-owner");
             var other = store.GetOrCreate("http-other");
-            long id = store.RecordMatch(new ResultsReport { Rows = [new() { AccountId = owner.Id }] }, "Test", true);
+            string roundId = Guid.NewGuid().ToString("N");
+            long id = store.RecordMatch(new ResultsReport { Scoreboard = new RoundScoreboard { RoundId = roundId },
+                Rows = [new() { AccountId = owner.Id }] }, "Test", true);
             var options = MasterTests.LocalOptions();
             options.Introducer = options.Relay = options.Probe = false;
             options.Database = path;
@@ -126,12 +131,16 @@ public sealed class MatchHistoryTests
             await using var master = await MasterHost.StartAsync(options, cancellationToken: ct);
             using var client = new MasterClient(master.HttpAddress);
             await Assert.ThrowsAsync<MasterException>(() => client.MatchHistoryAsync(cancellationToken: ct));
+            await Assert.ThrowsAsync<MasterException>(() => client.MatchDetailsByRoundAsync(roundId, ct));
             client.SessionToken = store.CreateSession(owner.Id);
             Assert.Single((await client.MatchHistoryAsync(cancellationToken: ct)).Matches);
             Assert.Equal(id, (await client.MatchDetailsAsync(id, ct)).Match.Id);
+            Assert.Equal(id, (await client.MatchDetailsByRoundAsync(roundId, ct)).Match.Id);
+            Assert.Equal(roundId, (await client.MatchDetailsByRoundAsync(roundId, ct)).Scoreboard!.RoundId);
             client.SessionToken = store.CreateSession(other.Id);
             Assert.Empty((await client.MatchHistoryAsync(cancellationToken: ct)).Matches);
             await Assert.ThrowsAsync<MasterException>(() => client.MatchDetailsAsync(id, ct));
+            await Assert.ThrowsAsync<MasterException>(() => client.MatchDetailsByRoundAsync(roundId, ct));
         }
         finally
         {

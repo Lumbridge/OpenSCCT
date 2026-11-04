@@ -94,6 +94,9 @@ public sealed class AudioSmoke : SmokeTest
             return SmokeResult.Fail("the map's audio.json has no zones");
         }
 
+        if (AudioPlaybackChecks.Verify(context.Tree.Root, _library) is { } playbackProblem)
+            return SmokeResult.Fail(playbackProblem);
+
         // The merc stands (the crouched and walking footstep sounds do not exist in the original's packages; the run
         // does) and carries the rifle.
         _rig = PawnRig.ForMap(PawnTeam.Merc, folder);

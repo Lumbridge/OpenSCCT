@@ -1846,7 +1846,7 @@ public partial class SPlayerController : PlayerController
                         new("CheckQuickInventory", "23aff4eecf0e2e62053f2e78cf6e28d2d332361e", (UcFunctionFlags)0x00020000u, 0, 2, null, []),
                     ]),
                 new(
-                    "s_Binoculars_Def_Reloading", null, (UcStateFlags)0x00000000u, ["ChangeSpeed", "Fire", "SwitchROF", "WheelDown", "WheelUp", "ZoomIn", "ZoomOut"], [], "8d883f1577ca8c334b7c6d75ccb71209d71ced13", 1,
+                    "s_Binoculars_Def_Reloading", "s_Binoculars_Def", (UcStateFlags)0x00000000u, ["ChangeSpeed", "Fire", "SwitchROF", "WheelDown", "WheelUp", "ZoomIn", "ZoomOut"], [], "8d883f1577ca8c334b7c6d75ccb71209d71ced13", 1,
                     [
                         new("BeginState", "a951b9e0b8a1ac0c5558fd33e88cc2b00965da0d", (UcFunctionFlags)0x00020002u, 0, 84, null, []),
                         new("CanIUseBinocular", "8567be1d106d88e612e9866eb7503ad103460bfb", (UcFunctionFlags)0x00020002u, 0, 4, "bool", []),

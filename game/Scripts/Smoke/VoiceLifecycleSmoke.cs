@@ -11,6 +11,7 @@ using OpenScctGame.Hub;
 using OpenScctGame.Match;
 using OpenScctGame.Online;
 using OpenScctGame.Voice;
+using OpenScctGame.Controls;
 
 namespace OpenScctGame.Smoke;
 
@@ -110,6 +111,93 @@ public sealed class VoiceLifecycleSmoke : SmokeTest
         var samples = new short[VoiceK.FrameSamples];
         for (int i = 0; i < samples.Length; i++) samples[i] = (short)(8000 * Math.Sin(i * 2 * Math.PI * 440 / VoiceK.SampleRate));
         _opusBytes = new VoiceEncoder().Encode(samples, _opus);
+        ExerciseControls(tree);
+    }
+
+    private void ExerciseControls(SceneTree tree)
+    {
+        BindingInput? owned = null;
+        BindingInput bindings = BindingInput.Current ?? (owned = new BindingInput());
+        if (owned is not null) _fixture!.AddChild(owned);
+        KeyLayout saved = bindings.Layout;
+        void Key(Key key, bool pressed, bool ctrl = false)
+        {
+            var input = new InputEventKey { Keycode = key, PhysicalKeycode = key, Pressed = pressed, CtrlPressed = ctrl };
+            tree.Root.EmitSignal(Window.SignalName.WindowInput, input);
+            tree.Root.PushInput(input);
+        }
+        void Check(Action<double> process, VoiceClient client)
+        {
+            Key(Godot.Key.Ctrl, true, true);
+            Key(Godot.Key.F22, true, true);
+            process(0);
+            Require(client.TalkKey && !client.TeamKey, "visit did not read shared voice chord state");
+            using (BindingInput.SuspendCapture())
+            {
+                process(0);
+                Require(!client.TalkKey && !client.TeamKey, "binding capture left a visit's microphone shortcut held");
+            }
+            process(0);
+            Require(!client.TalkKey, "a held voice shortcut resumed after binding capture");
+            Key(Godot.Key.F22, false, true);
+            Key(Godot.Key.Ctrl, false);
+            Key(Godot.Key.F23, true);
+            process(0);
+            Require(client.TeamKey && !client.TalkKey, "visit did not read shared team shortcut state");
+            bindings.ResetAll();
+            process(0);
+            Require(!client.TeamKey, "focus reset left a visit's team shortcut held");
+            Key(Godot.Key.F23, false);
+            bool muted = client.Settings.MicMuted;
+            Key(Godot.Key.F24, true);
+            process(0);
+            process(0);
+            Require(client.Settings.MicMuted != muted, "mute edge did not toggle exactly once across visit frames");
+            Key(Godot.Key.F24, false);
+            Key(Godot.Key.F24, true);
+            process(0);
+            Require(client.Settings.MicMuted == muted, "second mute shortcut did not restore the original state");
+            Key(Godot.Key.F24, false);
+        }
+        try
+        {
+            VoiceInput.BindLayout(KeyLayout.Parse("""
+                [Engine.Input]
+                IK_Ctrl+F22=PushToTalk
+                IK_F23=TeamPushToTalk
+                IK_F24=ToggleVoiceMute
+                """));
+            _online!.Attach(_onlineClient!, _clock);
+            _online.ReadKeys = true;
+            Check(_online._Process, _online.Voice!.Voice);
+            var press = new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = true };
+            Require(_online.HandleSpeakerInput("Remote", press) && _online.Voice.IsMuted("Remote"), "speaker click did not mute");
+            _online.HandleSpeakerInput("Remote", new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = false });
+            Require(_online.Voice.IsMuted("Remote"), "speaker mouse release toggled mute again");
+            _online.HandleSpeakerInput("Remote", press);
+            Require(!_online.Voice.IsMuted("Remote"), "speaker click did not unmute");
+            _online.HandleSpeakerInput("Remote", new InputEventMouseButton { ButtonIndex = MouseButton.WheelUp, Pressed = true });
+            Require(Math.Abs(_online.Voice.VolumeOf("Remote") - 1.1f) < 0.001f, "speaker scroll did not update named volume");
+            _online.HandleSpeakerInput("Remote", new InputEventMouseButton { ButtonIndex = MouseButton.WheelDown, Pressed = true });
+            Require(_online.Voice.VolumeOf("Remote") == 1f, "speaker scroll did not restore volume");
+            _hub!.Attach(_hubClient!, _clock);
+            _hub.ReadKeys = true;
+            Check(_hub._Process, _hub.Voice!.Voice);
+        }
+        finally
+        {
+            _online!.ReadKeys = false;
+            _hub!.ReadKeys = false;
+            _online.Detach();
+            _hub.Detach();
+            Key(Godot.Key.F22, false);
+            Key(Godot.Key.F23, false);
+            Key(Godot.Key.F24, false);
+            Key(Godot.Key.Ctrl, false);
+            bindings.ResetAll();
+            VoiceInput.BindLayout(saved);
+            owned?.QueueFree();
+        }
     }
 
     private VoiceClient NewVoice() => new(new VoiceSettings(), _clock);

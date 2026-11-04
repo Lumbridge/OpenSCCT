@@ -50,7 +50,7 @@ internal enum NameClaim
 /// </summary>
 internal sealed partial class AccountStore : IDisposable
 {
-    public const int SchemaVersion = 10;
+    public const int SchemaVersion = 11;
 
     /// <summary>Seconds between renames.</summary>
     public const long RenameCooldown = 30 * 86400;
@@ -133,6 +133,7 @@ internal sealed partial class AccountStore : IDisposable
         // Version 4: the admin portal (MigrateVersion4). Version 5: levels and prestige (MigrateVersion5).
         // Version 6: round demos. Version 7: the player hub, revisioned appearance and admin operations.
         // Version 8: bounded match timelines. Version 9: role-specific round totals. Version 10: granted loadouts.
+        // Version 11: permanent scoreboards, stable round identities and departed participants.
         InTransaction(() =>
         {
             Exec("""
@@ -166,6 +167,7 @@ internal sealed partial class AccountStore : IDisposable
                 Exec("ALTER TABLE match_rows ADD COLUMN loadout TEXT;");
             MigrateVersion5();
             MigrateVersion6();
+            MigrateScoreboards();
             MigratePlayerPortal();
             MigrateAppearance();
             MigrateAdminFeatures();
@@ -731,7 +733,7 @@ internal sealed partial class AccountStore : IDisposable
                 int counted = 0;
                 foreach (ResultsReportRow row in report.Rows)
                 {
-                    if (row.Bot || row.AccountId is not { } id || !seen.Add(id) ||
+                    if (row.Bot || row.LeftEarly || row.AccountId is not { } id || !seen.Add(id) ||
                         One("SELECT id FROM accounts WHERE id = $a;", r => (long?)r.GetInt64(0), ("$a", id)) is null)
                     {
                         continue;

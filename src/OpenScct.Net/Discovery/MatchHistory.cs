@@ -7,6 +7,7 @@ public sealed record MatchTimelineEvent(int Seconds, string Kind, string Text);
 public sealed record MatchHistoryEntry
 {
     public long Id { get; init; }
+    public string? RoundId { get; init; }
     public DateTimeOffset Ended { get; init; }
     public string Map { get; init; } = "";
     public string Server { get; init; } = "";
@@ -20,4 +21,8 @@ public sealed record MatchHistoryEntry
 }
 public sealed record MatchHistoryPage(IReadOnlyList<MatchHistoryEntry> Matches, bool HasMore);
 public sealed record MatchHistoryDetails(MatchHistoryEntry Match, IReadOnlyList<ResultsReportRow> Players,
-    IReadOnlyList<MatchTimelineEvent>? Events, bool TimelineTruncated);
+    IReadOnlyList<MatchTimelineEvent>? Events, bool TimelineTruncated)
+{
+    public OpenScct.Net.Scoreboards.RoundScoreboard? Scoreboard { get; init; }
+    public DemoEntry? Demo { get; init; }
+}

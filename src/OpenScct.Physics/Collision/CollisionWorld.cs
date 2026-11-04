@@ -38,6 +38,9 @@ internal sealed class ColliderState
     public bool Enabled;
     public bool IsDynamic;
 
+    /// <summary>CSRC mesh-state bits (0 when the map has no variant data for this collider).</summary>
+    public ushort Variants;
+
     /// <summary>For a static mesh's per-poly collider, its simple-collision collider (traces use that one), else -1.</summary>
     public int SimpleTwin = -1;
 
@@ -285,6 +288,14 @@ public sealed partial class CollisionWorld : ICollisionWorld
             }
         }
 
+        if (!sources.IsEmpty)
+        {
+            for (int ci = 0; ci < _colliders.Length; ci++)
+            {
+                _colliders[ci].Variants = BinaryPrimitives.ReadUInt16LittleEndian(sources.Slice(ci * CsrcStride + 10, 2));
+            }
+        }
+
         for (int ci = 0; ci + 1 < _colliders.Length; ci++)
         {
             Collider a = data.Colliders[ci];
@@ -366,6 +377,9 @@ public sealed partial class CollisionWorld : ICollisionWorld
     private const int CsrcStride = 16;
     private const byte CsrcSetPerPoly = 2;
     private const byte CsrcSetSimple = 3;
+
+    /// <summary>Mesh-state bits from CSRC, or 0 for a collider without variant metadata.</summary>
+    public ushort GetColliderVariants(int index) => _colliders[index].Variants;
 
     /// <summary>Builds the collision world of a map.</summary>
     public static CollisionWorld Build(CollisionData data)
@@ -480,6 +494,50 @@ public sealed partial class CollisionWorld : ICollisionWorld
     {
         ArgumentNullException.ThrowIfNull(loaded);
         BindLevel(loaded.Level, loaded.FindActor);
+    }
+
+    /// <summary>
+    /// A stationary replicated device replaces its deleted client map actor. Keep that map actor's collision
+    /// primitives, including their converted scale and pivot, attached to the replacement through relevance changes.
+    /// </summary>
+    public bool TryRebindActorColliders(Actor replacement)
+    {
+        ArgumentNullException.ThrowIfNull(replacement);
+        if (_level?.Info.NetMode != ENetMode.NM_Client || !ReferenceEquals(replacement.XLevel, _level) ||
+            replacement.bDeleteMe || HasColliders(replacement))
+        {
+            return false;
+        }
+
+        foreach (ColliderState collider in _colliders)
+        {
+            if (collider.ActorId is null || collider.Actor is not { bDeleteMe: true, bStatic: false, bNoDelete: false } previous ||
+                previous.GetType() != replacement.GetType() || previous.Location != replacement.Location)
+            {
+                continue;
+            }
+
+            ActorSlot inherited = _slots[previous.ActorId];
+            Slot(replacement) = inherited;
+            _slots[previous.ActorId] = new ActorSlot { FirstCollider = -1 };
+            for (int ci = inherited.FirstCollider; ci >= 0; ci = _nextColliderOfActor[ci])
+            {
+                _colliders[ci].Actor = replacement;
+                _colliders[ci].QueryBoundsValid = false;
+            }
+
+            _touchOwners.Remove(previous);
+            if ((collider.Flags & ColliderFlags.CollideActors) != 0 &&
+                (collider.Flags & (ColliderFlags.BlockActors | ColliderFlags.BlockPlayers)) == 0)
+            {
+                _touchOwners.Add(replacement);
+            }
+
+            NotifyCollisionChanged();
+            return true;
+        }
+
+        return false;
     }
 
     // ---- colliders -------------------------------------------------------------------------------------------
