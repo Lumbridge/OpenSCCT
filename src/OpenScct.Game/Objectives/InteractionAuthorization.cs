@@ -173,9 +173,12 @@ public static class InteractionReach
         // We need the nearest obstruction: a BSP surface behind an attached panel must not mask the panel hit.
         var flags = GadgetWorld.SightFlags & ~OpenScct.Physics.Collision.ETraceFlags.TRACE_StopAtFirstHit;
         if (!world.LineCheck(out var hit, pawn, entry.Location, pawnLocation, FVector.Zero, flags) || !hit.bHit) return true;
-        // The hit normal faces the line's start (the pawn), so a pivot behind the surface hit has a positive depth.
-        return ReferenceEquals(hit.Actor, entry) || ReferenceEquals(hit.Actor, entry.Owner) ||
-            (hit.Location - entry.Location).Size() <= MountDepth ||
-            (hit.Time > 0f && ((hit.Location - entry.Location) | hit.Normal) <= MountDepth);
+        if (ReferenceEquals(hit.Actor, entry) || ReferenceEquals(hit.Actor, entry.Owner) ||
+            (hit.Location - entry.Location).Size() <= MountDepth) return true;
+        if (!(hit.Time > 0f)) return false;
+        // A static mesh is hit on either face but reports its front normal, which faces away from the pawn when the
+        // line meets the back face. Turned toward the pawn, the normal gives the pivot's depth behind the face hit.
+        FVector normal = (hit.Normal | (pawnLocation - hit.Location)) < 0f ? -hit.Normal : hit.Normal;
+        return ((hit.Location - entry.Location) | normal) <= MountDepth;
     }
 }
