@@ -93,7 +93,7 @@ public sealed class PawnSoundReplication
         viewer.Sounds.TryGetValue(key, out SoundState state);
         // State entries often stop a traversal loop which this listener never heard. Such stops must not build
         // an unbounded backlog in a crowd, or prevent the visible players from being initialized.
-        if (e.Kind == SimEventKind.StopSound && (state.Kind == SimEventKind.StopSound ||
+        if (e.Kind == SimEventKind.StopSound && !e.What.IsNone && (state.Kind == SimEventKind.StopSound ||
             (!state.Sent && state.Kind != SimEventKind.PlaySound))) return true;
         if (viewer.Count == Capacity) Compact(viewer, tick);
         if (viewer.Count == Capacity) { connection.Close("Pawn sound send queue exhausted"); return false; }

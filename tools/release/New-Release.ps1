@@ -35,6 +35,10 @@
     tools\release\New-Release.ps1 -Version 0.2.0
 .EXAMPLE
     tools\release\New-Release.ps1 -Version 0.3.0-beta.1 -BuildDir local\testbuild
+.EXAMPLE
+    pwsh tools/release/New-Release.ps1 -Version 0.8.85 -Platform linux-x64 -BuildDir local/linux -LauncherExe local/dist/OpenSCCT.Launcher-linux-x64
+    Prepares native Linux assets beside the Windows preparation. Run both generated publish scripts before
+    publishing the shared draft. Linux excludes the Windows content converter and uses downloaded packs.
 #>
 #Requires -Version 7
 [CmdletBinding()]
@@ -42,7 +46,10 @@ param(
     [Parameter(Mandatory = $true)]
     [string]$Version,
 
-    # Folder with the exported game (OpenSCCT.exe and its data folder).
+    [ValidateSet('win-x64', 'linux-x64')]
+    [string]$Platform = 'win-x64',
+
+    # Folder with the exported game (OpenSCCT.exe or OpenSCCT.x86_64 and its data folder).
     [string]$BuildDir,
 
     # Launcher exe to attach instead of the kept or newly built one (local\release\launchers\<LauncherVersion>).
@@ -82,12 +89,22 @@ if ($Version.StartsWith('v')) { $Version = $Version.Substring(1) }
 if ($Version -notmatch $semver) { throw "Version '$Version' is not MAJOR.MINOR.PATCH[-PRERELEASE]." }
 $isPrerelease = $Version.Contains('-')
 
-if (-not $BuildDir) { $BuildDir = Join-Path $repoRoot 'local\build' }
+$linux = $Platform -eq 'linux-x64'
+$gameExe = if ($linux) { 'OpenSCCT.x86_64' } else { 'OpenSCCT.exe' }
+if (-not $BuildDir) { $BuildDir = Join-Path $repoRoot $(if ($linux) { 'local/linux' } else { 'local/build' }) }
 $BuildDir = (Resolve-Path $BuildDir).Path
-if (-not (Test-Path (Join-Path $BuildDir 'OpenSCCT.exe'))) {
-    throw "No OpenSCCT.exe in $BuildDir. Export the game first (Godot: Windows Desktop preset)."
+if (-not (Test-Path (Join-Path $BuildDir $gameExe))) {
+    throw "No $gameExe in $BuildDir. Export the matching Godot preset first."
 }
-if (-not $OutDir) { $OutDir = Join-Path $repoRoot "local\release\$Version" }
+if (-not $OutDir) { $OutDir = Join-Path $repoRoot $(if ($linux) { "local/release/$Version-linux-x64" } else { "local/release/$Version" }) }
+$OutDir = [System.IO.Path]::GetFullPath($OutDir)
+# This tool recreates its output folder. Reject an ancestor of either the checkout or export.
+$outPrefix = $OutDir.TrimEnd([System.IO.Path]::DirectorySeparatorChar, [System.IO.Path]::AltDirectorySeparatorChar) + [System.IO.Path]::DirectorySeparatorChar
+foreach ($protected in @($repoRoot, $BuildDir)) {
+    if ($protected -eq $OutDir -or $protected.StartsWith($outPrefix, [System.StringComparison]::OrdinalIgnoreCase)) {
+        throw 'OutDir must not contain the source checkout or exported build.'
+    }
+}
 
 # Releases are built from pushed commits only: warn when the tree or the commit is not.
 $commit = (& git -C $repoRoot rev-parse HEAD).Trim()
@@ -114,7 +131,22 @@ $contentDirs = @('maps', 'svmap', '.content', 'shared', 'packs')
 
 $problems = @()
 foreach ($dir in $contentDirs) {
-    if (Test-Path (Join-Path $BuildDir $dir)) { $problems += "content folder '$dir' next to the exe" }
+    if ($linux -and $dir -eq 'maps') {
+        # build.sh adds these generated fixtures. Re-copy the canonical fixtures below, and reject any extras.
+        $mapRoot = Join-Path $BuildDir 'maps'
+        if (Test-Path -LiteralPath $mapRoot) {
+            Get-ChildItem -LiteralPath $mapRoot -Recurse -File | ForEach-Object {
+                $relativeMap = $_.FullName.Substring($mapRoot.Length + 1)
+                $expected = Join-Path (Join-Path $repoRoot 'fixtures') $relativeMap
+                if (($relativeMap -split '[/\\]')[0] -notin @('hub', 'hubmap', 'testbox') -or
+                    -not (Test-Path -LiteralPath $expected -PathType Leaf) -or
+                    (Get-FileHash -LiteralPath $_.FullName).Hash -ne (Get-FileHash -LiteralPath $expected).Hash) {
+                    $problems += "unexpected or modified map: $relativeMap"
+                }
+            }
+        }
+    }
+    elseif (Test-Path (Join-Path $BuildDir $dir)) { $problems += "content folder '$dir' next to the exe" }
 }
 Get-ChildItem -LiteralPath $BuildDir -Recurse -File | ForEach-Object {
     if ($gameExt -contains $_.Extension.ToLowerInvariant()) {
@@ -134,6 +166,7 @@ New-Item -ItemType Directory -Force $staging | Out-Null
 Get-ChildItem -LiteralPath $BuildDir -Recurse -File | ForEach-Object {
     if ($excludeNames -contains $_.Name -or $_.Extension -in @('.log', '.cmd', '.bat')) { return }
     $relative = $_.FullName.Substring($BuildDir.Length + 1)
+    if ($linux -and ($relative -split '[/\\]')[0] -eq 'maps') { return }
     $dest = Join-Path $staging $relative
     New-Item -ItemType Directory -Force (Split-Path $dest) | Out-Null
     Copy-Item -LiteralPath $_.FullName -Destination $dest
@@ -145,6 +178,38 @@ if (-not (Test-Path -LiteralPath $gameIconsLicense)) { throw 'packaging\licenses
 $licensesDir = Join-Path $staging 'licenses'
 New-Item -ItemType Directory -Force $licensesDir | Out-Null
 Copy-Item -LiteralPath $gameIconsLicense -Destination (Join-Path $licensesDir 'GameIcons-LICENSE.txt') -Force
+$nativeAudioLicenses = Join-Path $repoRoot 'game/addons/scct_audio/licenses'
+$nativeSourcesPath = Join-Path $nativeAudioLicenses 'native-audio-sources.txt'
+if (!(Test-Path -LiteralPath $nativeSourcesPath)) {
+    $audioBuild = if ($linux) { 'tools/audio/build-native-audio.sh' } else { 'tools/audio/Build-NativeAudio.ps1' }
+    throw "Native audio licenses and corresponding source are missing. Run $audioBuild before exporting."
+}
+$nativeSources = Get-Content -LiteralPath $nativeSourcesPath -Raw
+$nativePlatform = if ($linux) { 'linux-x86_64' } else { 'windows-x86_64' }
+$nativeLibrary = if ($linux) { 'libscct_audio.so' } else { 'scct_audio.dll' }
+$nativePlatformDir = Join-Path $repoRoot "game/addons/scct_audio/bin/$nativePlatform"
+$nativeBuiltLibrary = Join-Path $nativePlatformDir $nativeLibrary
+$nativeExportedLibrary = Join-Path $BuildDir $nativeLibrary
+if (!(Test-Path -LiteralPath $nativeBuiltLibrary) -or !(Test-Path -LiteralPath $nativeExportedLibrary) -or
+    (Get-FileHash -LiteralPath $nativeBuiltLibrary).Hash -ne (Get-FileHash -LiteralPath $nativeExportedLibrary).Hash) {
+    throw 'Exported native audio does not match its staged dependency manifest. Rebuild native audio and export the matching Godot preset.'
+}
+$nativeLicenseNames = @('godot-cpp-LICENSE.md', 'native-audio-sources.txt')
+if ($nativeSources.Contains('reAL HRvb')) {
+    $nativeLicenseNames += @('reAL-LICENSE.txt', 'reAL-HRTF-LICENSE.txt')
+} elseif ($nativeSources.Contains('OpenAL Soft')) {
+    $nativeLicenseNames += @('OpenAL-Soft-COPYING.txt', 'LICENSE-pffft', 'fmt-LICENSE.txt', 'patch_openal_callback.py', 'OpenAL-Soft-1.24.3-source.zip')
+    # The comparison backend is dynamically replaceable. Production HRvb needs no companion library.
+    $nativeDependencySource = Join-Path $nativePlatformDir $(if ($linux) { 'libopenal.so.1.24.3' } else { 'OpenAL32.dll' })
+    $nativeDependencyName = if ($linux) { 'libopenal.so.1' } else { 'OpenAL32.dll' }
+    if (!(Test-Path -LiteralPath $nativeDependencySource)) { throw "Native audio dependency missing: $nativeDependencySource" }
+    Copy-Item -LiteralPath $nativeDependencySource -Destination (Join-Path $staging $nativeDependencyName) -Force
+} else { throw 'Unknown native audio backend in its dependency manifest.' }
+foreach ($nativeLicenseName in $nativeLicenseNames) {
+    $nativeLicensePath = Join-Path $nativeAudioLicenses $nativeLicenseName
+    if (!(Test-Path -LiteralPath $nativeLicensePath)) { throw "Native audio license/source missing: $nativeLicenseName" }
+    Copy-Item -LiteralPath $nativeLicensePath -Destination $licensesDir -Force
+}
 
 # The maps the game ships itself (ours, generated; no game data): the hub with its pad config and the test maps.
 # The game finds them in maps\ next to the exe (OpenScct.Server.ContentPaths).
@@ -155,12 +220,13 @@ foreach ($map in @('hub', 'hubmap', 'testbox')) {
 }
 
 # The content builder the launcher runs on the player's install (Build-ContentTools.ps1).
-if (-not $SkipContentTools) {
+if (-not $SkipContentTools -and -not $linux) {
     & (Join-Path $PSScriptRoot 'Build-ContentTools.ps1') -OutDir (Join-Path $staging 'contenttools')
 }
 
 [ordered]@{
     version = $Version
+    platform = $Platform
     commit  = $commit
     dirty   = $dirty
     built   = (Get-Date).ToUniversalTime().ToString('yyyy-MM-ddTHH:mm:ssZ')
@@ -201,15 +267,15 @@ if (-not $NoDelta) {
     if ($BaseTag) {
         $baseDir = Join-Path $OutDir '.base'
         $baseVersion = $BaseTag.TrimStart('v')
-        & gh release download $StoreTag --repo $Repo --pattern "OpenSCCT-$baseVersion-win-x64-files.json" --dir $baseDir 2>$null
+        & gh release download $StoreTag --repo $Repo --pattern "OpenSCCT-$baseVersion-$Platform-files.json" --dir $baseDir 2>$null
         # Existing launchers know game-files; the first release using a new store still needs its delta base there.
-        if ($StoreTag -ne 'game-files' -and -not (Test-Path (Join-Path $baseDir "OpenSCCT-$baseVersion-win-x64-files.json"))) {
-            & gh release download game-files --repo $Repo --pattern "OpenSCCT-$baseVersion-win-x64-files.json" --dir $baseDir 2>$null
+        if ($StoreTag -ne 'game-files' -and -not (Test-Path (Join-Path $baseDir "OpenSCCT-$baseVersion-$Platform-files.json"))) {
+            & gh release download game-files --repo $Repo --pattern "OpenSCCT-$baseVersion-$Platform-files.json" --dir $baseDir 2>$null
         }
-        if (-not (Test-Path (Join-Path $baseDir "OpenSCCT-$baseVersion-win-x64-files.json"))) {
-            & gh release download $BaseTag --repo $Repo --pattern '*-files.json' --dir $baseDir 2>$null
+        if (-not (Test-Path (Join-Path $baseDir "OpenSCCT-$baseVersion-$Platform-files.json"))) {
+            & gh release download $BaseTag --repo $Repo --pattern "OpenSCCT-$baseVersion-$Platform-files.json" --dir $baseDir 2>$null
         }
-        $baseList = Get-ChildItem -LiteralPath $baseDir -Filter '*-files.json' -ErrorAction SilentlyContinue | Select-Object -First 1
+        $baseList = Get-ChildItem -LiteralPath $baseDir -Filter "OpenSCCT-$baseVersion-$Platform-files.json" -ErrorAction SilentlyContinue | Select-Object -First 1
         if ($baseList) {
             foreach ($f in (Get-Content -LiteralPath $baseList.FullName -Raw | ConvertFrom-Json).files) { $known[$f.sha256] = $f.blob }
             Write-Host "Delta against $BaseTag ($($known.Count) files known)."
@@ -227,7 +293,7 @@ if (-not $NoDelta) {
 $blobDir = Join-Path $OutDir 'game-files'
 New-Item -ItemType Directory -Force $blobDir | Out-Null
 $packLimit = 256KB
-$packName = "OpenSCCT-$Version-win-x64-pack.zip"
+$packName = "OpenSCCT-$Version-$Platform-pack.zip"
 $packPath = Join-Path $blobDir $packName
 $pack = $null
 $packRef = [ordered]@{ tag = $StoreTag; name = $packName; size = 0 }
@@ -269,7 +335,7 @@ if (Test-Path -LiteralPath $packPath) {
     foreach ($b in $newBlobs.Values) { if ($b.Contains('member')) { $b.size = $packSize } }
 }
 $uploads = @(Get-ChildItem -LiteralPath $blobDir -File)
-$filesJson = Join-Path $blobDir "OpenSCCT-$Version-win-x64-files.json"
+$filesJson = Join-Path $blobDir "OpenSCCT-$Version-$Platform-files.json"
 [ordered]@{ format = 1; version = $Version; commit = $commit; files = $entries } |
     ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $filesJson -Encoding utf8NoBOM
 $newSize = ($uploads | Measure-Object -Property Length -Sum).Sum
@@ -279,12 +345,16 @@ Remove-Item -LiteralPath $staging -Recurse -Force
 
 if (-not $SkipLauncher) {
     . (Join-Path $PSScriptRoot 'LauncherBuild.ps1')
-    $launcher = Resolve-LauncherExe -RepoRoot $repoRoot -Commit $commit -Repo $Repo -LauncherExe $LauncherExe
+    $launcher = Resolve-LauncherExe -RepoRoot $repoRoot -Commit $commit -Repo $Repo -LauncherExe $LauncherExe -Platform $Platform
     $launcherVersion = $launcher.Version
     $launcherName = $launcher.VersionedName
     $launcherAsset = Join-Path $OutDir $launcher.ExeName
     Copy-Item -LiteralPath $launcher.Exe -Destination $launcherAsset -Force
     $assets += $launcherAsset
+    if ($linux) {
+        & python3 (Join-Path $repoRoot 'tools/linux/package-launcher.py') $launcherAsset $OutDir
+        if ($LASTEXITCODE -ne 0) { throw 'Packaging the Linux launcher failed.' }
+    }
 }
 
 foreach ($file in @($filesJson) + $assets) {
@@ -295,12 +365,16 @@ foreach ($file in @($filesJson) + $assets) {
     [System.IO.File]::WriteAllText((Join-Path $blobDir $sumName), "$hash  $name`n")
 }
 
-if ($StoreTag -ne 'game-files') {
+if ($StoreTag -ne 'game-files' -or $linux) {
     # ReleasePicker checks the version's own assets before the legacy game-files store. Keep all three metadata
     # files discoverable there; file-list blob tags already route downloads across storage releases.
     $assets += $filesJson
     $assets += "$filesJson.sha256"
     if ($launcherAsset) { $assets += (Join-Path $blobDir "$launcherName.sha256") }
+}
+if ($linux -and $launcherAsset) {
+    $assets += (Join-Path $OutDir 'OpenSCCT.Launcher-linux-x64.tar.gz')
+    $assets += (Join-Path $OutDir 'OpenSCCT.Launcher-linux-x64.tar.gz.sha256')
 }
 
 if (-not $NotesFile) {
@@ -312,6 +386,10 @@ if (-not $NotesFile) {
 
 Built from $commit.
 "@ | Set-Content -LiteralPath $NotesFile -Encoding utf8NoBOM
+}
+elseif ([System.IO.Path]::GetFullPath($NotesFile) -ne (Join-Path $OutDir 'notes.md')) {
+    Copy-Item -LiteralPath $NotesFile -Destination (Join-Path $OutDir 'notes.md') -Force
+    $NotesFile = Join-Path $OutDir 'notes.md'
 }
 
 Write-Host ''
@@ -326,22 +404,30 @@ Write-Host ("  {0,10:N1} MB  {1} files for the $StoreTag release in game-files\"
 # The game files are too many for one command line, so the publish steps go in a script to review and run.
 # gh's "file#label" sets the asset's label: the launcher reads its version from it (ReleasePicker.LauncherLabelPrefix).
 $quoted = ($assets | ForEach-Object {
-        if ($_ -eq $launcherAsset) { '"' + $_ + '#OpenSCCT Launcher ' + $launcherVersion + '"' } else { '"' + $_ + '"' }
+        $relativeAsset = [System.IO.Path]::GetRelativePath($OutDir, $_).Replace('\', '/')
+        $portable = '$PSScriptRoot/' + $relativeAsset
+        if ($_ -eq $launcherAsset) { '"' + $portable + '#OpenSCCT Launcher ' + $launcherVersion + '"' } else { '"' + $portable + '"' }
     }) -join ' '
 $pre = if ($isPrerelease) { ' --prerelease' } else { '' }
 $publish = Join-Path $OutDir 'publish.ps1'
-$versionContents = if ($StoreTag -eq 'game-files') { 'the launcher only' } else { 'the launcher and update metadata' }
+$versionContents = if ($StoreTag -eq 'game-files' -and -not $linux) { 'the launcher only' } else { 'the launcher and update metadata' }
 @"
 # Uploads the game files to the $StoreTag release (made once, as a prerelease so it is never "Latest"), then creates
 # the draft release v$Version with $versionContents. Check the draft on GitHub, then publish it.
 `$ErrorActionPreference = 'Stop'
+# Check before touching the shared store; the same version's second platform attaches to its draft.
+gh release view v$Version --repo $Repo *> `$null
+if (`$LASTEXITCODE -eq 0) {
+    `$draft = gh release view v$Version --repo $Repo --json isDraft --jq '.isDraft'
+    if (`$LASTEXITCODE -ne 0 -or `$draft -ne 'true') { throw 'The version release is already published. Prepare both platforms before publishing the draft.' }
+}
 gh release view $StoreTag --repo $Repo *> `$null
 if (`$LASTEXITCODE -ne 0) {
     gh release create $StoreTag --repo $Repo --target $commit --title "Game files (the launcher downloads these)" --prerelease --latest=false --notes "Files the OpenSCCT launcher downloads and checks by itself. You do not need anything here: download the launcher from the latest release instead."
     if (`$LASTEXITCODE -ne 0) { throw 'gh release create $StoreTag failed.' }
 }
 `$count = [int](gh release view $StoreTag --repo $Repo --json assets --jq '.assets | length')
-`$files = @(Get-ChildItem -LiteralPath "$blobDir" -File | ForEach-Object FullName)
+`$files = @(Get-ChildItem -LiteralPath (Join-Path `$PSScriptRoot 'game-files') -File | ForEach-Object FullName)
 if (`$count + `$files.Count -gt 990) { throw "$StoreTag would pass GitHub's 1000 assets per release (`$count there, `$(`$files.Count) new)." }
 for (`$i = 0; `$i -lt `$files.Count; `$i += 20) {
     gh release upload $StoreTag @(`$files[`$i..([Math]::Min(`$i + 19, `$files.Count - 1))]) --repo $Repo --clobber
@@ -349,8 +435,15 @@ for (`$i = 0; `$i -lt `$files.Count; `$i += 20) {
 }
 gh release view v$Version --repo $Repo *> `$null
 if (`$LASTEXITCODE -ne 0) {
-    gh release create v$Version $quoted --repo $Repo --target $commit --title "OpenSCCT $Version" --notes-file "$NotesFile" --draft$pre
+    gh release create v$Version $quoted --repo $Repo --target $commit --title "OpenSCCT $Version" --notes-file "`$PSScriptRoot/notes.md" --draft$pre
     if (`$LASTEXITCODE -ne 0) { throw 'gh release create failed.' }
+}
+else {
+    # Both platform preparations target the same version. Attach the second set to the existing draft only.
+    `$draft = gh release view v$Version --repo $Repo --json isDraft --jq '.isDraft'
+    if (`$LASTEXITCODE -ne 0 -or `$draft -ne 'true') { throw 'The version release is already published. Prepare both platforms before publishing the draft.' }
+    gh release upload v$Version $quoted --repo $Repo --clobber
+    if (`$LASTEXITCODE -ne 0) { throw 'gh release upload of version assets failed.' }
 }
 "@ | Set-Content -LiteralPath $publish -Encoding utf8NoBOM
 

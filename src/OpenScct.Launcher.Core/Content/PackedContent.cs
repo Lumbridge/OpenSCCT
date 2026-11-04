@@ -18,6 +18,9 @@ public static class PackedContent
     /// <summary>The category whose maps come with the first download.</summary>
     public const string FirstCategory = "stock";
 
+    /// <summary>Menu levels whose banks provide the main menu and lobby music, even though they have no game modes.</summary>
+    public static IReadOnlyList<string> MenuMapCodes { get; } = ["Entry", "Lobby"];
+
     /// <summary>Every shared pack is installed (any version): enough to play.</summary>
     public static bool Installed(ContentStore store)
     {
@@ -37,23 +40,29 @@ public static class PackedContent
     /// <summary>
     /// The maps to fetch: with <paramref name="firstDownload"/> every playable stock map not installed as the index
     /// has it, without the retail copies (AQU03, BNK11, ...) of maps the Enhanced SCCT Versus set has under the same
-    /// title (AquaD, BankD, ...), so the menus list each map once; otherwise only installed maps the index has a newer
-    /// copy of (a map the player removed stays removed). A lobby that picks a retail copy still downloads it.
+    /// title (AquaD, BankD, ...), so the menus list each map once; otherwise only installed playable maps the index
+    /// has a newer copy of (a playable map the player removed stays removed). Entry and Lobby are always fetched
+    /// when missing or outdated because the front end needs their music banks. A lobby that picks a retail copy
+    /// still downloads it.
     /// </summary>
     public static IReadOnlyList<ContentMap> MapsToFetch(ContentIndex index, ContentStore store, bool firstDownload)
     {
         ArgumentNullException.ThrowIfNull(index);
         ArgumentNullException.ThrowIfNull(store);
         List<ContentMap> playable = index.PlayableMaps().ToList();
+        IEnumerable<ContentMap> menus = MenuMapCodes.Select(code => index.FindMap(code)).OfType<ContentMap>()
+            .Where(m => !store.Has(m));
         if (!firstDownload)
         {
-            return playable.Where(m => !store.Has(m) && store.InstalledMap(m.Code) is not null).ToList();
+            return playable.Where(m => !store.Has(m) && store.InstalledMap(m.Code) is not null).Concat(menus).DistinctBy(m => m.Code, StringComparer.OrdinalIgnoreCase).ToList();
         }
 
         List<ContentMap> stock = playable.Where(m => string.Equals(m.Category, FirstCategory, StringComparison.Ordinal)).ToList();
         return stock
             .Where(m => !IsRetailTwin(m, stock))
             .Where(m => !store.Has(m))
+            .Concat(menus)
+            .DistinctBy(m => m.Code, StringComparer.OrdinalIgnoreCase)
             .ToList();
     }
 

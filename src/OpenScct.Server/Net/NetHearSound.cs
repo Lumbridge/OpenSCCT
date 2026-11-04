@@ -95,7 +95,7 @@ public sealed class NetHearSound : ISimEventSink
             for (int i = 0; i < events.Length; i++)
             {
                 ref readonly SimEvent e = ref events[i];
-                if (e.Kind is SimEventKind.PlaySound or SimEventKind.StopSound && !e.Heard && !e.What.IsNone)
+                if (!e.Heard && (e.Kind == SimEventKind.StopSound || e.Kind == SimEventKind.PlaySound && !e.What.IsNone))
                 {
                     Relay(e, devices, tick);
                 }

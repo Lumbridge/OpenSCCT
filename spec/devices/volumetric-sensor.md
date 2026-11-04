@@ -81,6 +81,25 @@ by s_SomethingDetected.
 `src/OpenScct.Game/Devices/SensorK.cs`. Volumes keep their `Touching` list from the physics touch pass (plain Volume
 brushes are touch colliders in `collision.bin`).
 
+Shooting feedback follows the original shared gameplay-object damage script: an immediate `SSparkShocker`
+burst at the hit, followed by the black LED, shutdown sound and `SMalfunctionEmitter` (intermittent sparks
+and smoke) during the lock. In the rewrite's separate server/client worlds, the immediate burst is forwarded
+explicitly because its original emitter class has `RemoteRole=None`. This restores the original authority's
+local hit feedback to the connected player, including local games. Original remote-client presentation has
+not been measured. Recovery and repeat shots keep the original timing.
+
+Client map preparation destroys the sensor's original map actor and replication spawns its replacement.
+When that channel opens, transfer the orphaned map collision to the stationary replacement of the same class
+and placement, keeping the converted mesh scale and pivot. The original mesh selects its 10-triangle simple
+collision shell, rather than a generic 22 uu cylinder. A connected KrauE diagnostic reproduced both the
+missing immediate burst and the replacement losing its mesh collision.
+
+Comparison evidence: `local/re-out/uc/SBase/SBasicGamePlayObject.uc`, `SVolumetricSensor.uc`,
+`SSparkShocker.uc` and `SMalfunctionEmitter.uc`; the shipped `SGameplayObjects.usx` sensor collision;
+REA `ev_ece5bd84f90b0fcf1d74eea7f5ed95f562b6dd7350aedd052febc11dcfac5185` for game `0x10a48090`
+(triangle line check, original executable SHA-256 `a98873aaec1de21fdcccc0afb9985e3ddcf38a9ddce1207214872d6428ec9950`).
+This is static original evidence, plus a connected rewrite diagnostic, not an original runtime capture.
+
 ## Open questions
 
 - The native caller of LightStateChange is not decoded: the port compares `bLightState` with `bLocalLightState` after

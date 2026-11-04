@@ -38,6 +38,8 @@ internal sealed record DroppedPlayer
 
     public int Lives { get; init; }
 
+    public int Objectives { get; init; }
+
     public USPlayerStats? Stats { get; init; }
 
     public bool WaitForRespawn { get; init; }
@@ -75,7 +77,8 @@ public sealed partial class OnlineServer
             AccountId = p.AccountId, InstallId = p.InstallId, PublicKey = p.PublicKey, Name = p.Name, Team = p.Team, Round = RoundsStarted,
             HasStats = pri is not null, Score = pri?.Score ?? 0f, Kills = pri?.Kills ?? 0,
             Deaths = (pri?.Deaths ?? 0) + (lostLife ? 1 : 0),
-            Lives = (pri?.NumLives ?? 0) - (lostLife ? 1 : 0), Stats = pri?.Stats, WaitForRespawn = waitForRespawn,
+            Lives = (pri?.NumLives ?? 0) - (lostLife ? 1 : 0), Objectives = pri?.iNbObjectivesTaken ?? 0,
+            Stats = pri?.Stats, WaitForRespawn = waitForRespawn,
         });
         Log($"{p.Name} dropped out of round {RoundsStarted}: his place is kept until the session is back in the lobby");
     }
@@ -124,6 +127,7 @@ public sealed partial class OnlineServer
             pri.Kills = dropped.Kills;
             pri.Deaths = dropped.Deaths;
             pri.NumLives = dropped.Lives;
+            pri.iNbObjectivesTaken = dropped.Objectives;
             pri.Stats = dropped.Stats;
         }
         else

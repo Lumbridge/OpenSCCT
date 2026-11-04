@@ -13,7 +13,8 @@ namespace OpenScct.Launcher.Install;
 /// </summary>
 public sealed class VersionStore
 {
-    public const string GameExe = "OpenSCCT.exe";
+    public static string GameExe => LauncherPlatform.Current.GameFileName;
+    private string ExecutableName => _layout.Platform.GameFileName;
     private const string StagingPrefix = ".staging-";
     private const string TrashPrefix = ".trash-";
 
@@ -43,7 +44,7 @@ public sealed class VersionStore
             string name = Path.GetFileName(dir);
             if (SemVersion.TryParse(name, out SemVersion? version)
                 && string.Equals(version.ToString(), name, StringComparison.Ordinal)
-                && File.Exists(Path.Combine(dir, GameExe)))
+                && File.Exists(Path.Combine(dir, ExecutableName)))
             {
                 found.Add(version);
             }
@@ -72,7 +73,7 @@ public sealed class VersionStore
         return SemVersion.TryParse(manifest.Previous, out SemVersion? previous) && Installed().Contains(previous) ? previous : null;
     }
 
-    public string ExePath(SemVersion version) => Path.Combine(_layout.VersionDir(version.ToString()), GameExe);
+    public string ExePath(SemVersion version) => Path.Combine(_layout.VersionDir(version.ToString()), ExecutableName);
 
     public bool IsInstalled(SemVersion version) => File.Exists(ExePath(version));
 
@@ -97,7 +98,7 @@ public sealed class VersionStore
             // ExtractToDirectory refuses entries that would land outside the folder.
             ZipFile.ExtractToDirectory(zipPath, staging);
             string payload = FindPayload(staging)
-                ?? throw new InvalidDataException($"The build has no {GameExe} at its top level.");
+                ?? throw new InvalidDataException($"The build has no {ExecutableName} at its top level.");
             MoveIntoPlace(payload, version);
         }
         finally
@@ -126,9 +127,9 @@ public sealed class VersionStore
     {
         ArgumentException.ThrowIfNullOrEmpty(staging);
         ArgumentNullException.ThrowIfNull(version);
-        if (!File.Exists(Path.Combine(staging, GameExe)))
+        if (!File.Exists(Path.Combine(staging, ExecutableName)))
         {
-            throw new InvalidDataException($"The build has no {GameExe} at its top level.");
+            throw new InvalidDataException($"The build has no {ExecutableName} at its top level.");
         }
 
         MoveIntoPlace(staging, version);
@@ -146,6 +147,7 @@ public sealed class VersionStore
 
     private void MoveIntoPlace(string payload, SemVersion version)
     {
+        _layout.Platform.MakeExecutable(Path.Combine(payload, ExecutableName));
         string target = _layout.VersionDir(version.ToString());
         if (Directory.Exists(target))
         {
@@ -237,7 +239,7 @@ public sealed class VersionStore
             return [];
         }
 
-        var keep = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var keep = new HashSet<string>(_layout.Platform.PathComparer);
         if (Current() is { } current)
         {
             keep.Add(current.ToString());
@@ -248,7 +250,7 @@ public sealed class VersionStore
             keep.Add(previous.ToString());
         }
 
-        var inUseFull = new HashSet<string>(inUse.Select(p => Path.TrimEndingDirectorySeparator(Path.GetFullPath(p))), StringComparer.OrdinalIgnoreCase);
+        var inUseFull = new HashSet<string>(inUse.Select(p => Path.TrimEndingDirectorySeparator(Path.GetFullPath(p))), _layout.Platform.PathComparer);
         var deleted = new List<string>();
         foreach (string dir in Directory.EnumerateDirectories(_layout.Versions))
         {
@@ -274,7 +276,7 @@ public sealed class VersionStore
     {
         string full = Path.GetFullPath(exePath);
         string versions = Path.TrimEndingDirectorySeparator(Path.GetFullPath(_layout.Versions)) + Path.DirectorySeparatorChar;
-        if (!full.StartsWith(versions, StringComparison.OrdinalIgnoreCase))
+        if (!full.StartsWith(versions, _layout.Platform.PathComparison))
         {
             return null;
         }
@@ -284,16 +286,16 @@ public sealed class VersionStore
         return sep <= 0 ? null : Path.Combine(_layout.Versions, rest[..sep]);
     }
 
-    private static string? FindPayload(string staging)
+    private string? FindPayload(string staging)
     {
-        if (File.Exists(Path.Combine(staging, GameExe)))
+        if (File.Exists(Path.Combine(staging, ExecutableName)))
         {
             return staging;
         }
 
         string[] dirs = Directory.GetDirectories(staging);
         string[] files = Directory.GetFiles(staging);
-        if (dirs.Length == 1 && files.Length == 0 && File.Exists(Path.Combine(dirs[0], GameExe)))
+        if (dirs.Length == 1 && files.Length == 0 && File.Exists(Path.Combine(dirs[0], ExecutableName)))
         {
             return dirs[0];
         }

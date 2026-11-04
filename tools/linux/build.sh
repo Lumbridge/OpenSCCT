@@ -7,6 +7,7 @@ GODOT=$(realpath "$GODOT")
 export DOTNET_CLI_TELEMETRY_OPTOUT=1 DOTNET_PROCESSOR_COUNT=${DOTNET_PROCESSOR_COUNT:-2}
 export MSBUILDDISABLENODEREUSE=1
 mkdir -p local/linux
+bash "$repo_root/tools/audio/build-native-audio.sh"
 # The editor loads Debug assemblies during import. The exporter publishes ExportRelease itself.
 # Compile sequentially, avoiding persistent compiler servers on shared build machines.
 nice -n 10 dotnet build game/OpenScctGame.csproj -c Debug -m:1 -p:UseSharedCompilation=false
@@ -14,6 +15,7 @@ nice -n 10 "$GODOT" --headless --path game --editor --import
 nice -n 10 "$GODOT" --headless --path game --export-release Linux "$repo_root/local/linux/OpenSCCT.x86_64"
 mkdir -p local/linux/licenses
 cp -a packaging/licenses/. local/linux/licenses/
+cp -a game/addons/scct_audio/licenses/. local/linux/licenses/
 mkdir -p local/linux/maps
 for map in hub hubmap testbox; do cp -a "fixtures/$map" local/linux/maps/; done
 python3 - <<'PY'

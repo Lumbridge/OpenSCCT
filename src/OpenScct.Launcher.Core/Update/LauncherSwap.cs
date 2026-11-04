@@ -13,10 +13,13 @@ namespace OpenScct.Launcher.Update;
 /// </summary>
 public sealed class LauncherSwap
 {
-    public LauncherSwap(string exePath)
+    private readonly LauncherPlatform _platform;
+
+    public LauncherSwap(string exePath, LauncherPlatform? platform = null)
     {
         ArgumentException.ThrowIfNullOrEmpty(exePath);
         ExePath = Path.GetFullPath(exePath);
+        _platform = platform ?? LauncherPlatform.Current;
     }
 
     public string ExePath { get; }
@@ -33,6 +36,7 @@ public sealed class LauncherSwap
         ArgumentException.ThrowIfNullOrEmpty(verifiedFile);
         string temp = NewPath + ".tmp";
         File.Copy(verifiedFile, temp, overwrite: true);
+        _platform.MakeExecutable(temp);
         File.Move(temp, NewPath, overwrite: true);
     }
 
@@ -45,13 +49,13 @@ public sealed class LauncherSwap
     {
         string name = Path.GetFileName(ExePath);
         bool versionedName = name.StartsWith(ReleasePicker.LauncherPrefix, StringComparison.OrdinalIgnoreCase)
-            && name.EndsWith("-" + ReleasePicker.Platform + ".exe", StringComparison.OrdinalIgnoreCase);
+            && name.EndsWith("-" + _platform.RuntimeIdentifier + _platform.ExecutableSuffix, StringComparison.OrdinalIgnoreCase);
         if (!versionedName)
         {
             return ExePath;
         }
 
-        string target = Path.Combine(Path.GetDirectoryName(ExePath)!, ReleasePicker.LauncherExeName);
+        string target = Path.Combine(Path.GetDirectoryName(ExePath)!, _platform.LauncherFileName);
         return File.Exists(target) ? ExePath : target;
     }
 
@@ -133,7 +137,7 @@ public sealed class LauncherSwap
         string[] olds;
         try
         {
-            olds = Directory.GetFiles(Path.GetDirectoryName(ExePath)!, ReleasePicker.LauncherPrefix + "*.exe.old");
+            olds = Directory.GetFiles(Path.GetDirectoryName(ExePath)!, ReleasePicker.LauncherPrefix + "*-" + _platform.RuntimeIdentifier + _platform.ExecutableSuffix + ".old");
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
@@ -141,7 +145,7 @@ public sealed class LauncherSwap
         }
 
         DateTime until = DateTime.UtcNow + waitForOldProcess;
-        foreach (string old in olds.Append(OldPath).Distinct(StringComparer.OrdinalIgnoreCase))
+        foreach (string old in olds.Append(OldPath).Distinct(_platform.PathComparer))
         {
             while (File.Exists(old))
             {

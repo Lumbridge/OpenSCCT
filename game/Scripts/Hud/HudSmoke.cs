@@ -218,8 +218,6 @@ public sealed class HudSmoke(bool spectatorOnly = false) : SmokeTest
         var reader = new HudSimReader(() => _viewer, (section, key, fallback) => assets.Localize("MagmaDynamic", section, key, fallback), _layer.Effects);
         _layer.Source = new Composite(reader, s => _extra?.Invoke(s));
         _layer.Controller = () => _viewer;
-        _layer.InitialConnectedPlayers = true;
-        _layer.Options.ShowPing = true;
         _layer.ShowFps = true;
         // Headless the HUD draws for a fixed 1280 x 720 screen; a capture run draws for the real window.
         _layer.ScreenSize = _captureDir is null ? Screen : null;
@@ -537,8 +535,7 @@ public sealed class HudSmoke(bool spectatorOnly = false) : SmokeTest
                 Expect(layer.Snapshot.Players.Count == 24 && layer.Snapshot.Score.Count == 24,
                     "HUD reads all 24 players in a 12v12 match");
                 MagmaDrawList list = layer.Spy!.DrawList;
-                ExpectText(list, "PCConnectedPlayers/PCTextPlayer12", "Spy 12");
-                ExpectText(list, "Extras/SplitPCTextPlayer12", "Merc 12");
+                Expect(!list.Items.Any(i => i.Path.StartsWith("PCConnectedPlayers/")), "legacy compact roster is not drawn");
                 CheckBoardBounds(list, size);
             }
 
@@ -547,8 +544,8 @@ public sealed class HudSmoke(bool spectatorOnly = false) : SmokeTest
             gri.GameMode = EGameMode.GM_MercDeathMatch;
             layer.ScreenSize = new Vector2(640, 480);
             Run(2);
-            ExpectText(layer.Spy!.DrawList, "PCConnectedPlayers/PCTextPlayer24", "Merc 12");
-            CheckBoardBounds(layer.Spy.DrawList, new Vector2(640, 480));
+            Expect(layer.Snapshot.Score.Count == 24, "all players remain available to the full scoreboard");
+            CheckBoardBounds(layer.Spy!.DrawList, new Vector2(640, 480));
 
             var data = new StrategicMapData([new StrategicMapFloor(0, "", null)],
                 new StrategicMapCamera(new(0, 0, 100), new(0, 0, -1), new(1, 0, 0), new(0, 1, 0), 90), "");
@@ -603,10 +600,6 @@ public sealed class HudSmoke(bool spectatorOnly = false) : SmokeTest
         ExpectText(list, "ChronoAlarm/Chrono_Alarm", "0:25");
         ExpectText(list, "Gadget/NomGadget", s.Gadget.ItemName);
         ExpectText(list, "Gadget/NbGadget", "3");
-        ExpectText(list, "PCConnectedPlayers/PCTextPlayer1", "Sam");
-        ExpectText(list, "PCConnectedPlayers/PCText_Lives1", "4");
-        ExpectText(list, "PCConnectedPlayers/PCText_Lives3", "3");
-        ExpectText(list, "Extras/Ping1", "48");
         ExpectContains(list, "SystemMessage/messageSystem", "Laboratory : Neutralization in progress");
         Expect(list.TextOf("SystemMessage/messageSystem")?.StartsWith('\n') == true, "stack text starts with the driver's line break");
         ExpectContains(list, "GameMessage/messageGame", s.Objective.Description);
@@ -1231,99 +1224,16 @@ public sealed class HudSmoke(bool spectatorOnly = false) : SmokeTest
 
     private void CheckSpectatorBoardLayout()
     {
-        HudAssets assets = _layer!.Assets!;
-        var options = new HudOptions { ShowPing = true, SliceExtras = false };
-        var page = new SpectatorHudPage(assets, options);
+        var page = new SpectatorHudPage(_layer!.Assets!, new HudOptions { SliceExtras = false });
         var snapshot = new HudSnapshot { Valid = true, ShowPlayers = true };
         snapshot.Spectator.Active = true;
-        snapshot.Spectator.ShowWatching = snapshot.Spectator.ShowSwitchPlayer = true;
-        snapshot.Spectator.Watched = "Long Spy Player 1";
-        snapshot.Spectator.Tip = "Spectator tip below the leaderboard.";
-        Vector2[] screens = [new(640, 480), new(1280, 720), new(2560, 1440), new(3440, 1440), new(600, 900)];
-        foreach (int perTeam in new[] { 4, 12 })
+        foreach (Vector2 size in new[] { new Vector2(640, 480), Screen, new Vector2(3440, 1440) })
         {
-            snapshot.Players.Clear();
-            snapshot.Score.Clear();
-            for (int team = 0; team < 2; team++)
-            {
-                for (int i = 1; i <= perTeam; i++)
-                {
-                    string name = (team == 0 ? "Long Spy Player " : "Long Mercenary Player ") + i;
-                    snapshot.Players.Add(new HudPlayerRow(name, team, false, i, 3, 20, 1));
-                    snapshot.Score.Add(new HudScoreRow(name, team, false, i, i, 0, 3, 20, team == 0 && i == 1, 1));
-                }
-            }
-            foreach (int split in new[] { 0, 3 })
-            {
-                options.ScoreboardSplit = split;
-                foreach (bool stretch in new[] { false, true })
-                {
-                    options.StretchHud = stretch;
-                    page.Update(snapshot, 0f);
-                    foreach (Vector2 screen in screens)
-                    {
-                        page.Draw(screen, snapshot);
-                        string scenario = $"spectator {perTeam}v{perTeam}, split={split}, stretch={stretch}, {screen}";
-                        MagmaDrawItem[] board = page.DrawList.Items.Where(i => HudEditorTransform.Group(i) == "Scoreboard").ToArray();
-                        Expect(board.Length > 0, $"{scenario}: leaderboard is drawn");
-                        Expect(board.Count(i => i.Path.StartsWith("Extras/BoardBack", StringComparison.Ordinal)) == (split == 0 ? 1 : 2),
-                            $"{scenario}: all team panels are drawn");
-                        string lastPath = split == 0 ? $"PCConnectedPlayers/PCTextPlayer{perTeam * 2}" : $"Extras/SplitPCTextPlayer{perTeam}";
-                        ExpectText(page.DrawList, lastPath, $"Long Mercenary Player {perTeam}");
-                        Expect(page.DrawList.Find("Extras/PingTitle") is not null && page.DrawList.Find("Extras/RankTitle") is not null,
-                            $"{scenario}: ping and rank columns are preserved");
-                        float scale = screen.Y / MagmaRenderer.PageHeight;
-                        var available = new Rect2(8f * scale, 180f * scale, screen.X - 16f * scale, 165f * scale);
-                        Rect2? bounds = null;
-                        foreach (MagmaDrawItem item in board)
-                        {
-                            Rect2 rect = item.Rect;
-                            if (item.Kind != MagmaWidgetKind.Text && item.Points.Length > 0)
-                            {
-                                rect = new Rect2(item.Points[0], Vector2.Zero);
-                                foreach (Vector2 point in item.Points) rect = rect.Expand(point);
-                            }
-                            bounds = bounds is { } previous ? previous.Merge(rect) : rect;
-                            Expect(Inside(rect), $"{scenario}: {item.Path} stays between spectator instructions and tip: {rect}");
-                            if (item.Kind == MagmaWidgetKind.Text && assets.Font(item.Font) is { } font)
-                            {
-                                float width = font.Measure(item.Text, item.HeightPx, item.XScale, item.TrackingPx);
-                                float x = item.Align switch
-                                {
-                                    MagmaAlign.Center => rect.Position.X + (rect.Size.X - width) / 2f,
-                                    MagmaAlign.Right => rect.End.X - width,
-                                    _ => rect.Position.X,
-                                };
-                                var text = new Rect2(x, rect.Position.Y, width, item.HeightPx);
-                                Expect(Inside(text), $"{scenario}: rendered {item.Path} stays on screen: {text}");
-                            }
-                        }
-                        Expect(bounds is { } b && Math.Abs(b.GetCenter().X - screen.X / 2f) < 1f,
-                            $"{scenario}: the complete leaderboard is horizontally centred");
-
-                        bool Inside(Rect2 rect) => rect.Position.X >= available.Position.X - 1f &&
-                            rect.Position.Y >= available.Position.Y - 1f && rect.End.X <= available.End.X + 1f &&
-                            rect.End.Y <= available.End.Y + 1f;
-                    }
-                }
-            }
+            page.Update(snapshot, 0);
+            page.Draw(size, snapshot);
+            Expect(!page.DrawList.Items.Any(i => i.Path.StartsWith("PCConnectedPlayers/", StringComparison.Ordinal)),
+                "spectator compact roster is replaced by the full scoreboard");
         }
-
-        snapshot.ShowPlayers = false;
-        page.Update(snapshot, 0f);
-        page.Draw(Screen, snapshot);
-        Expect(!page.DrawList.Items.Any(i => HudEditorTransform.Group(i) == "Scoreboard"), "spectator leaderboard toggle hides every panel");
-        snapshot.ShowPlayers = true;
-        snapshot.HideHud = true;
-        page.Update(snapshot, 0f);
-        page.Draw(Screen, snapshot);
-        Expect(page.DrawList.Items.Count == 0, "hidden spectator HUD has no leaderboard");
-        snapshot.HideHud = false;
-        options.Layout.Spy["Scoreboard"] = new HudElementSettings { Visible = false };
-        page.Update(snapshot, 0f);
-        page.Draw(Screen, snapshot);
-        Expect(!page.DrawList.Items.Any(i => HudEditorTransform.Group(i) == "Scoreboard"), "spectator leaderboard respects editor visibility");
-        _notes.Add("Spectator leaderboard bounds checked with 8/24 players, split/combined teams, ranks, ping and wide screens.");
     }
 
     private void CheckClockBoundaries()
@@ -1469,7 +1379,7 @@ public sealed class HudSmoke(bool spectatorOnly = false) : SmokeTest
         Expect(options.KeyButtons.Count > 0, "key bindings listed");
         foreach (string key in new[] { "invert_y.Spy", "invert_y.Merc", "controls_spy_kbm.free_look", "controls_merc_kbm.look", "controller.enabled",
                      "controller.deadzone_left", "display_mode", "resolution", "vsync", "widescreen", "ws_fov", "fps_spy", "fps_merc", "master_volume",
-                     "sound_volume", "music_volume", "voice_output_volume", "show_scoreboard", "show_ping" })
+                     "sound_volume", "music_volume", "voice_output_volume" })
         {
             Expect(options.Controls.ContainsKey(key), "option " + key);
         }

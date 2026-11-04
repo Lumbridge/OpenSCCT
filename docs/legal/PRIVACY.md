@@ -1,6 +1,6 @@
 # OpenSCCT Privacy Policy
 
-Last updated: 3 November 2026
+Last updated: 4 November 2026
 
 This explains what OpenSCCT (the game, the launcher, the master server and the OpenSCCT Discord app) collects and
 why. We keep it to what the game needs. We don't sell data, show ads or track you across other sites.
@@ -26,7 +26,8 @@ accounts in lifetime leaderboards. Visitors do not need to sign in to see public
 Sign in to My account with Discord to make your profile private. This hides your profile and personal history,
 removes you from player search and leaderboards, and anonymizes your identity on public website match scoreboards.
 It applies to historical website pages as well as new ones. Administrators can still access records for moderation.
-Website privacy does not hide your name during gameplay or change existing recordings.
+Website privacy does not hide your name during gameplay or change existing recordings or scoreboards saved on
+players' computers.
 
 Website sign-in uses necessary browser cookies for a session and short-lived sign-in state. We store only a hash
 of each session token, along with its account, creation and last-used times and a form-protection token. You can
@@ -69,6 +70,10 @@ delete the public GitHub issue.
   abuse and enforcing bans.
 - **Round recordings (demos)** of online rounds, including player names, may be kept for up to 7 days so signed-in
   players can watch them back.
+- **Completed scoreboards** reported by trusted servers, including participant names and match statistics, are
+  retained with match history after recordings expire. Match timelines normally expire after 90 days. The game
+  also saves scoreboards on your computer independently of recording or sign-in, including partial records when
+  you leave a round early.
 - **Voice chat** is relayed live between players and is not recorded.
 - Admin actions and bans are logged.
 
@@ -89,7 +94,9 @@ Reports published to GitHub are also subject to
 
 ## Keeping and deleting data
 
-Account data is kept while your account exists. Demos are deleted after 7 days. To have your account and its data
+Account data and reported scoreboards are kept while your account exists; scoreboards are not automatically
+deleted with match timelines or demos. Demos are deleted after 7 days. Locally saved scoreboards remain on the
+computer where they were saved. To have your account and its data
 deleted, open an issue at [github.com/Lumbridge/OpenSCCT/issues](https://github.com/Lumbridge/OpenSCCT/issues) (don't
 post personal details there; we'll follow up). You can also remove the OpenSCCT app under Discord → User Settings →
 Authorized Apps.
