@@ -80,7 +80,8 @@ INTERACTION_CLASSES = ("SBase.SAmmoStock", "SBase.SInfirmary", "SBase.SFlagDropZ
 # 124.02 x 106.66 (SteeE SVitre11159's glass collider, 132.70 x 159.98 at DrawScale3D (1.07, 1, 1.5)).
 VITRE_PANE = (124.02, 106.66)
 # Actor lighting (docs/RENDERING.md "Actor lighting"): C = FGetHSV(0, 255, 255) x brightness / 255, k = 2,
-# R = 25 (LightRadius + 1), S(x) = 1 - 3x^2 + 2x^3. The bake below lights the world's vertices with it.
+# R = 25 (LightRadius + 1), S(x) = 1 - 3x^2 + 2x^3. The bake below lights the world's vertices with it. 0.8213 is
+# FGetHSV at V 255 only: the curve is not linear in V (zone_ambient below).
 WHITE = 0.8213
 SUBDIVIDE = 128.0
 UV_TILE = 256.0             # one texture tile per 256 uu (2.56 m): the grid lines read as distances
@@ -90,6 +91,18 @@ UV_TILE = 256.0             # one texture tile per 256 uu (2.56 m): the grid lin
 class Face:
     corners: list[Vec3]      # convex polygon, (v1 - v0) x (v2 - v0) points out of the solid
     material: str
+
+
+def zone_ambient(brightness: int) -> list[int]:
+    """A zone's ambient colour [v, v, v, 255] for AmbientBrightness at hue 0, saturation 255: FGetHSV(0, 255, V)
+    (editor 0x11096ab0) as bytes, truncated. The curve is not linear in V: v = V x 1.4 / 255, b = clamp(0.7 v /
+    (sqrt v + 0.01), 0, 1), so AmbientBrightness 2 gives 17 and 34 gives 75 where the old linear round(V x 0.8213)
+    gave 2 and 28. The game takes m_RefAmbientColor as this, and every stored m_RefAmbientColor of the original maps
+    equals it (the converter's level._hsv_color, which also handles hue and saturation)."""
+    b = brightness * 1.4 / 255.0
+    b *= 0.7 / (0.01 + math.sqrt(b))
+    v = int(min(max(b, 0.0), 1.0) * 255.0)
+    return [v, v, v, 255]
 
 
 def _sub(a, b):
@@ -383,7 +396,7 @@ def light_at(p: Vec3, n: Vec3) -> float:
     """The baked light of a world vertex: zone ambient plus every light of its zone, the actor lighting model."""
     probe = (p[0] + 2 * n[0], p[1] + 2 * n[1], p[2] + 2 * n[2])
     zone = zone_of(probe)
-    total = next((z.ambient / 255.0 for z in L.ZONES if z.id == zone), 0.0)
+    total = next((zone_ambient(z.ambient)[0] / 255.0 for z in L.ZONES if z.id == zone), 0.0)
     for li in L.LIGHTS:
         if li.zone != zone:
             continue
@@ -658,8 +671,7 @@ def build_lighting() -> dict:
             "spot_height": 0.0, "spot_width": 0.0, "tag": "Light", "triggered": False, "zone": li.zone})
     zones = []
     for i, z in enumerate(L.ZONES, start=1):
-        a = int(round(z.ambient * WHITE))
-        zones.append({"ambient": [a, a, a, 255], "class": "ZoneInfo", "fog": False, "fog_color": [0, 0, 0, 0],
+        zones.append({"ambient": zone_ambient(z.ambient), "class": "ZoneInfo", "fog": False, "fog_color": [0, 0, 0, 0],
                       "fog_end": 0.0, "fog_start": 0.0, "hidden": True, "kind": "zone", "location": list(z.marker),
                       "location_name": z.name, "name": z.id,
                       "props": {"AmbientBrightness": z.ambient, "Location": _f(z.marker), "LocationName": z.name,

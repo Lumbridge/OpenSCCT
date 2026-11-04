@@ -368,7 +368,8 @@ N, S, E, W = (0, 1), (0, -1), (1, 0), (-1, 0)
 for i in range(6):
     for j in range(6):
         light(f"NightFill{i}{j}", (1024.0 + 2048 * i, 1024.0 + 2048 * j, 1300.0), 95, 90, hue=160, saturation=190)
-ZONE_AMBIENT = 34
+# AmbientBrightness: the zone's grey is FGetHSV(0, 255, 6) = 30 (testmap generate.zone_ambient), not linear in it.
+ZONE_AMBIENT = 6
 FOG = {"color": [16, 18, 34], "start": 3000.0, "end": 19000.0}
 
 # ---- Spawn plaza ---------------------------------------------------------------------------------------------------

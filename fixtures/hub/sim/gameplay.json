@@ -644,7 +644,7 @@
    "class": "Engine.ZoneInfo",
    "id": "ZoneHall",
    "props": {
-    "AmbientBrightness": 34,
+    "AmbientBrightness": 6,
     "Location": {"X": 6144.0, "Y": 6144.0, "Z": 1400.0},
     "LocationName": "Hub",
     "Tag": "ZoneInfo"
