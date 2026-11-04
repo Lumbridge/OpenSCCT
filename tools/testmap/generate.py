@@ -96,9 +96,9 @@ class Face:
 def zone_ambient(brightness: int) -> list[int]:
     """A zone's ambient colour [v, v, v, 255] for AmbientBrightness at hue 0, saturation 255: FGetHSV(0, 255, V)
     (editor 0x11096ab0) as bytes, truncated. The curve is not linear in V: v = V x 1.4 / 255, b = clamp(0.7 v /
-    (sqrt v + 0.01), 0, 1), so AmbientBrightness 2 gives 17 and 34 gives 75 where V x 0.8213 gives 1 and 28. The game
-    takes m_RefAmbientColor as this, and every stored m_RefAmbientColor of the original maps equals it (the converter's
-    level._hsv_color, which also handles hue and saturation)."""
+    (sqrt v + 0.01), 0, 1), so AmbientBrightness 2 gives 17 and 34 gives 75 where the old linear round(V x 0.8213)
+    gave 2 and 28. The game takes m_RefAmbientColor as this, and every stored m_RefAmbientColor of the original maps
+    equals it (the converter's level._hsv_color, which also handles hue and saturation)."""
     b = brightness * 1.4 / 255.0
     b *= 0.7 / (0.01 + math.sqrt(b))
     v = int(min(max(b, 0.0), 1.0) * 255.0)
