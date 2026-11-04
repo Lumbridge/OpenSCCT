@@ -176,7 +176,13 @@ Client-only JSON, written with the canonical writer but hashed as raw bytes (ren
   material: `SurfaceType`, `bClimbable`, `bNoSplitJump`, `bNoStickyCam`, `OcclusionType`, vision flags),
   `additive`, `modulate`, `lightmapped`, `vertexLitMeshes`, `authoredColorMeshes`.
 - `lighting.json`: `lights` (exporter fields plus typed `props`), `zones` (fog, ambient, `zoneIndex`, typed
-  `props`), `sky`, `look`, `lightmaps`.
+  `props`), `sky`, `look`, `lightmaps`. Being a light depends on the actor's LightType, not its class: besides the
+  Light actors, `lights` has a row (same keys, `props`, `gameplay`, `name` = the actor name) for every other drawn or
+  gameplay actor with a LightType and a LightBrightness above 0 (lit movers, lifts, lift doors and flags), with the
+  Actor defaults for what the actor does not store (radius, saturation, cone and period 0, not the Light class's
+  64, 255, 128 and 32). A row's `location` and `rotation` are the actor's saved pose. When the actor moves (a mover,
+  lift or lift door; such rows have `gameplay: true` and the actor's name), the light moves with it in the original:
+  a client places the light at the actor's simulated pose, not at the row's.
 - `leaflights.json` (optional, see below): the world BSP's per-leaf light lists.
 - `fx.json`: `emitters` keyed by Emitter actor: `class`, `gameplay`, typed `props`, `emitters` (its sub-emitters
   from its own `Emitters` array: `object`, `class`, typed `props`, `texture`); `spawnParticles` (optional: the

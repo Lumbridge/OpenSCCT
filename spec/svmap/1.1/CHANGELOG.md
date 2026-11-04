@@ -28,6 +28,8 @@ Additive: every 1.0 file reads as before, and 1.0 readers skip what is new.
   original `LeafHulls`, decoded to `HULL` records that belong to no collider (no longer provisional).
 - `render/`: `world.glb` scene roots, library node naming by asset path and the instance table in the document
   extras; new `materials.json`, `lighting.json`, `fx.json` and `textures/*.png`.
+- `render/lighting.json`: light rows for the actors with a LightType and a LightBrightness that are not Light actors
+  (lit movers, lifts, lift doors, flags), with the Actor defaults for unset values.
 - `render/world.glb`: optional `special_lit` on instances whose actor has bSpecialLit.
 - New optional `render/leaflights.json` (version 1): the world BSP's per-leaf light lists, the back and front leaf of
   every world node in `BSPN` order, and the lights in no list. Consumers fall back to radius plus zone without it.

@@ -14,7 +14,8 @@ The exporter writes <Map>.gltf + .bin, textures/*.png and scene.json. This modul
   object graph (every Shader, FinalBlend, Combiner, modifier and texture reachable from a used material, with
   typed properties); and the exporter's additive, modulate, lightmapped and vertex-lit lists.
 - render/lighting.json: lights (exporter fields plus the typed light properties of the actor), zones (fog,
-  ambient, zone index), the sky zone, LevelInfo look settings and the lightmaps.
+  ambient, zone index), the sky zone, LevelInfo look settings and the lightmaps. Being a light depends on the actor's
+  LightType, not its class: a lit mover, lift, lift door or flag gets a light row too (build_actor_lights).
 - render/leaflights.json: the world BSP's per-leaf light lists (UModel Leaves and Lights), the leaf on either side
   of every node, and the lights that are in no list (build_leaf_lights).
 - render/fx.json: every Emitter actor with its sub-emitters taken from its own Emitters array (the exact owner;
@@ -38,6 +39,9 @@ from ..writers.glb import pack_glb
 from .source import ActorInfo, MapSource
 
 
+# LightEffect values the exporter draws as spots: LE_StaticSpot, LE_Spotlight, LE_ESpotShadow.
+SPOT_EFFECTS = (8, 12, 22)
+LE_ESPOT_SHADOW = 22
 LEAF_LIGHTS_VERSION = 1
 
 
@@ -436,7 +440,7 @@ class RenderBuilder:
         return bag_to_json(info.props, self.src.resolve, self.src.notes, info.name)
 
     def build_lighting(self, scene: dict, zone_index: Dict[str, int], lightmaps: List[str],
-                       sprites: Optional[Dict[str, dict]] = None) -> dict:
+                       sprites: Optional[Dict[str, dict]] = None, actor_lights: Optional[List[dict]] = None) -> dict:
         by_name = {a.name: a for a in self.src.actors}
         lights, zones = [], []
         for a in scene["actors"]:
@@ -459,10 +463,101 @@ class RenderBuilder:
                 if info is not None:
                     entry["props"] = self._typed(info)
                 zones.append(entry)
+        lights.extend(actor_lights or [])
         self.stats["lights"] = len(lights)
         from .fog import source_portals, source_volumes
         return {"lights": lights, "zones": zones, "sky": scene.get("sky"), "look": scene.get("look"),
                 "lightmaps": lightmaps, "fogPortals": source_portals(self.src), "fogVolumes": source_volumes(self.src)}
+
+    def _zone_name(self, info: ActorInfo) -> Optional[str]:
+        """The ZoneInfo (or LevelInfo) name of an actor's stored Region.Zone."""
+        region = self.src.value(info, "Region")
+        zone = region.get("Zone") if isinstance(region, dict) else None
+        if isinstance(zone, Ref) and zone.ref > 0 and self.src.own(zone):
+            return self.src.pkg.exports[zone.ref - 1].name
+        return None
+
+    def build_actor_lights(self, scene: dict, tex_dir: Path) -> List[dict]:
+        """Light rows for the actors that are lights without being Light actors: lit movers, lifts, lift doors and
+        flags. In the original, being a light depends on the actor's LightType (+0x2D1), not its class: the cook's
+        actor filter (0x10EE13B0, predicates 0x10EDD1E0 and 0x10EDACF0) tests it on every actor before the Brush test,
+        and the light visibility pass puts such actors in the BSP leaves' light lists (DeftD Mover2432, an
+        LE_ESpotShadow light on a hidden mover of its own that rises 501 units; KrauE Mover2178; FactD SLiftDoor8464;
+        OrphD SLift2647; BankP SFlag2629). Unset values are the Actor defaults (brightness, radius, cone and period 0),
+        not the Light class's 64, 64, 128 and 32, so an actor with a LightType but no brightness (most SFlags, BankD
+        Mover1375) lights nothing and gets no row. A row's location is the actor's saved pose; the light of a mover or
+        lift travels with it, so a client places it at the actor's simulated pose. The exporter's kind=light actors
+        (Light classes, or both LightBrightness and LightRadius stored) are left to it. An LE_ESpotShadow row with an
+        EchelonLightMaterial gets its projected texture written into `tex_dir`."""
+        from scctpkg import export_gltf  # noqa: PLC0415
+        from scctpkg.level import _hsv_to_rgb  # noqa: PLC0415
+        from scctpkg.materials import MaterialResolver  # noqa: PLC0415
+
+        placed = {a["name"]: a for a in scene["actors"]}
+        resolver: Optional[Any] = None
+        tex_uri: Dict[str, Optional[str]] = {}
+        rows: List[dict] = []
+        for info in self.src.actors:
+            a = placed.get(info.name)
+            if info.category not in ("render", "gameplay") or info.cls == "Engine.Brush" or \
+                    (a is not None and a.get("kind") == "light"):
+                continue
+            ltype = int(self.src.value(info, "LightType", 0) or 0)
+            brightness = float(self.src.value(info, "LightBrightness", 0.0) or 0.0)
+            if ltype == 0 or brightness <= 0.0:
+                continue
+            num = lambda k, d: float(self.src.value(info, k, d) or 0.0)  # noqa: E731
+            effect = int(self.src.value(info, "LightEffect", 0) or 0)
+            hue = int(num("LightHue", 0))
+            saturation = int(num("LightSaturation", 0))
+            row = {
+                "name": info.name, "class": info.cls.split(".")[-1], "kind": "light",
+                "location": a["location"] if a else _ue_vector(info.props.get("Location")),
+                "rotation": a["rotation"] if a else _ue_rotator(info.props.get("Rotation")),
+                "scale": a["scale"] if a else [1.0, 1.0, 1.0],
+                "tag": str(self.src.value(info, "Tag", "") or ""), "hidden": bool(a.get("hidden")) if a else False,
+                "brightness": brightness, "radius": num("LightRadius", 0.0), "hue": hue, "saturation": saturation,
+                "color": list(_hsv_to_rgb(hue, saturation, 1.0)), "cone": int(num("LightCone", 0)),
+                "effect": effect, "ltype": ltype, "light_type": "spot" if effect in SPOT_EFFECTS else "point",
+                "apply_static": self.src.flag(info, "bApplyToStaticLighting"),
+                "apply_ingame": self.src.flag(info, "bApplyToInGameLighting"),
+                "dynamic": self.src.flag(info, "bDynamicLight"), "static": self.src.flag(info, "bStatic"),
+                "special_lit": self.src.flag(info, "bSpecialLit"),
+                "actor_shadows": bool(self.src.value(info, "bActorShadows", True)),
+                "own_zone_only": self.src.flag(info, "bAffectOwnZoneOnly"),
+                "initially_on": True, "triggered": False,
+                "light_period": int(num("LightPeriod", 0)), "light_phase": int(num("LightPhase", 0)),
+                "echelon_range": num("EchelonRange", 0.0), "spot_width": num("SpotWidth", 0.0),
+                "spot_height": num("SpotHeight", 0.0), "near_plane_ratio": num("NearPlaneRatio", 0.1),
+                "props": self._typed(info), "gameplay": info.name in self.gameplay_ids}
+            zone = self._zone_name(info)
+            if zone:
+                row["zone"] = zone
+            material = self.src.value(info, "EchelonLightMaterial")
+            if effect == LE_ESPOT_SHADOW and isinstance(material, Ref) and material.ref != 0:
+                # As the exporter does for Light actors (export_gltf, kind light): EEchelonAttenuationType (0 none,
+                # 1 linear, the class default, 2 late) and the ProjectedLightingTexture thrown over the frustum.
+                try:
+                    resolver = resolver or MaterialResolver(self.src.pset)
+                    pkg, export = self.src.ref_export(material)
+                    props = resolver._props(pkg, export) if pkg is not None and export is not None else {}
+                    attenuation = props.get("AttenuationType", 1)
+                    row["echelon_attenuation"] = attenuation if isinstance(attenuation, int) else 1
+                    tref = props.get("ProjectedLightingTexture")
+                    if isinstance(tref, int) and tref:
+                        res = resolver.resolve(pkg, tref)
+                        uri = export_gltf._texture_png(res.key, res.texture, tex_dir, tex_uri) \
+                            if not res.skip and res.texture is not None else None
+                        if uri:
+                            row["echelon_texture_uri"] = uri
+                        else:
+                            self.src.notes.add("echelon-light-texture", f"{info.name}: {material.path}")
+                except Exception as ex:   # an unresolvable material leaves the plain spot, as in the exporter
+                    row["echelon_texture_error"] = str(ex)[:120]
+                    self.src.notes.add("echelon-light-texture", f"{info.name}: {material.path}: {ex}")
+            rows.append(row)
+        self.stats["actorLights"] = len(rows)
+        return rows
 
     def build_leaf_lights(self, lights: List[dict]) -> Optional[dict]:
         """render/leaflights.json from the world model's Leaves and Lights (sources/modeltail.py has the layout and
@@ -720,6 +815,7 @@ class RenderBuilder:
         tex_dir = self.work / self.src.name / "textures"
         projectors = self.build_projectors(scene, tex_dir)   # writes its PNGs before the textures are collected
         light_sprites = self.build_light_sprites(tex_dir)
+        actor_lights = self.build_actor_lights(scene, tex_dir)
         self.write_particle_textures(tex_dir)
         textures = {}
         renamed: Dict[str, str] = {}
@@ -739,7 +835,8 @@ class RenderBuilder:
         files.update(textures)
         lightmaps = sorted(k for k in textures if "_lightmap" in k)
         files["materials.json"] = _json_bytes(self.build_materials(gltf, scene, rename))
-        lighting = self.build_lighting(scene, zone_index, lightmaps, _replace_strings(light_sprites, renamed))
+        lighting = self.build_lighting(scene, zone_index, lightmaps, _replace_strings(light_sprites, renamed),
+                                       _replace_strings(actor_lights, renamed))
         files["lighting.json"] = _json_bytes(lighting)
         leaf_lights = self.build_leaf_lights(lighting["lights"])
         if leaf_lights is not None:
