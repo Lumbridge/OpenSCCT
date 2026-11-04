@@ -37,7 +37,10 @@ Each team (`spy`, `merc`) is optional; a team without an entry wears the stock l
     the shared chars are), or
   - `stock`: a shared skeletal mesh by asset path (`SPerso.DEF_01`).
 
-  The model plays the team's own clips, matched by bone name, so it must have every bone they drive.
+  The model plays the team's own clips, matched by bone name, so it must have every bone they drive. Its heat and EMF
+  masks, dry and wet, are made by the client from the stock mesh, matched surface to surface through the bones
+  ([map-outfits.md](../../additions/map-outfits.md#masks-for-a-model)); a model shaped close to the stock suit gets the
+  closest masks.
   `goggles` (optional) places the goggle lights: `bone` (default `"B Head"`) and `offset`, UE units in that bone's
   axes, added to the beam's own relative location (default `[0, 0, 0]`). Slot textures apply to a model only where
   it has the stock slot's material.
@@ -45,9 +48,10 @@ Each team (`spy`, `merc`) is optional; a team without an entry wears the stock l
   light colour and gun skins still apply), `"player"` (the player's body cosmetics where the outfit allows them) or
   `"none"` (no player cosmetics at all on this team: retail lights and guns too).
 
-Every file named here is a file of the map (listed in `manifest.json` like the rest of `render/`). The validator
-checks the format id, the slot and policy names, that each texture and glb exists under `render/`, and that a model
-has exactly one of `glb` and `stock`.
+Every file named here is a file of the map (listed in `manifest.json` like the rest of `render/`). Schema:
+[schemas/outfits.schema.json](schemas/outfits.schema.json) (the format id, team, slot and policy names, relative
+paths without `..`, and exactly one of `glb` and `stock`). The validator also checks that each texture and glb exists
+under `render/`.
 
 ## Converted maps
 

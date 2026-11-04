@@ -98,7 +98,7 @@ public partial class SimPawnView : Node3D
     {
         Pawn = pawn ?? throw new ArgumentNullException(nameof(pawn));
         bool spy = pawn is not SPAWNDEFENSE;
-        string asset = spy ? "SPerso.ATT_01" : "SPerso.DEF_01";
+        string asset = PawnOutfits.StockAsset(spy);
         string? root = sharedRoot ?? Map?.SharedRoot;
         string? glb = SkeletalModel.FindGlb(asset, root);
         if (glb is null)
@@ -174,7 +174,7 @@ public partial class SimPawnView : Node3D
         {
             SkinShown.Sticky => _stickySkins is { } sticky ? sticky.Over : null,
             SkinShown.WetSpyMachine or SkinShown.WetMercMachine =>
-                WetSkins.For(_glb, pawn is not SPAWNDEFENSE, want == SkinShown.WetSpyMachine, _dressed?.DryBody, _dressed?.DryHead) is { } wet
+                WetSkins.For(_glb, want == SkinShown.WetSpyMachine, _dressed?.DryBody, _dressed?.DryHead, _dressed?.Stock) is { } wet
                     ? wet.Over : null,
             _ => null,
         };

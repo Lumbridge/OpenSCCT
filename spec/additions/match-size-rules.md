@@ -37,14 +37,15 @@ Top missions are never removed; a top mission with nothing left is a map error t
 ## What happens to gated actors
 
 - Objectives and missions outside their range are deactivated for the round and stay out: their `Reset` keeps them
-  inactive.
+  inactive, and they do not tick.
 - A mover is placed at its key before the round (outside its range key 0 unless the rule says otherwise; inside it
   works normally unless the rule names a key) and locked there: no trigger, alarm or `UnLock` moves it for the round.
   It goes straight to that key and stops there, also on a mover with keys beyond it (an ordinary leg would carry on
   through the keys in its direction).
 - Any other actor outside its range (or `"hidden"` inside it), and a mover held `"hidden"`, is left out of the round:
   hidden, without collision, deaf to events (`Trigger` and `UnTrigger` pass it by), and a player start is never
-  chosen. It still exists and ticks; a hidden mover is also locked.
+  chosen. It still exists but does not tick (no Tick event, state code, timers or physics) until a round puts it
+  back; a hidden mover is also locked.
 
 Every round start first puts back what the last one changed.
 
@@ -55,10 +56,14 @@ instead of the host's Active Disks setting.
 
 ## Network
 
-The server lays the round out and replicates the count in `GameReplicationInfo.MatchPlayers`. Missions, objectives
-and movers held at a key reach clients through the usual actor replication (a held mover's leg carries its start
-and end key, so a client's copy stops at the same key). Hiding is not replicated that way: an actor's `bHidden` and
-collision flags travel only in its first bunch, and actors the client loads itself never hear from the server. So
-each client hides its own copies of the gated actors from the replicated count, with the same rules, whenever the
-count changes. The new replicated `MatchPlayers` changes the network class layout, so builds with and without it do
-not join each other.
+The server lays the round out and replicates the count in `GameReplicationInfo.MatchPlayers`. Objectives and
+movers held at a key reach clients through the usual actor replication (a held mover's leg carries its start and end
+key, so a client's copy stops at the same key, and the objective triggers that hide on deactivation replicate
+`bHidden` whenever it changes). The rest is not replicated that way: missions' objective lists and targets are not
+replicated at all, an actor's `bHidden` and collision flags travel only in its first bunch, actors the client loads
+itself never hear from the server, and each world ticks its own actors. So each client lays out its own copies from
+the replicated count, with the same rules, whenever the count changes (a player joining mid-round gets it with the
+replication info, and demo playback is a client like any other): its missions list the same objectives and targets,
+which the mission status page reads, the same actors are left out and stop ticking, and the hidden ones are hidden
+without collision. The new replicated `MatchPlayers` changes the network class layout, so builds with and without it
+do not join each other.

@@ -218,6 +218,10 @@ public sealed class SkeletalModel
         string Folder, MaterialCompiler Compiler, Dictionary<string, MaterialEntry> Materials)
     {
         public string[] PackageBones { get; init; } = [];
+        /// <summary>The model's file.</summary>
+        public string Glb { get; init; } = "";
+        /// <summary>The textures its materials draw (by URI under <see cref="Folder"/>, or a full path).</summary>
+        public TextureCache? Textures { get; init; }
         /// <summary>Materials made for skins (UE2 Skins[]) over a slot, by the slot's own material and the skin.</summary>
         public Dictionary<(string Own, string Skin), Material?> Swaps { get; } = new();
         public AnimatedCullBounds? CullBounds { get; set; }
@@ -272,7 +276,7 @@ public sealed class SkeletalModel
             }
 
             // The texture cache resolves URIs under the model's folder; a full path stays as it is.
-            made = Materials.TryGetValue(own, out MaterialEntry? e) && File.Exists(texturePath)
+            made = Materials.TryGetValue(own, out MaterialEntry? e) && (File.Exists(texturePath) || Textures?.Holds(texturePath) == true)
                 ? Compiler.Build(new MaterialEntry
                 {
                     Name = e.Name, Source = e.Source, Texture = texturePath, NormalTexture = e.NormalTexture, Masked = e.Masked,
@@ -571,6 +575,8 @@ public sealed class SkeletalModel
             // A map's own mesh (render/chars) has no render pack beside it: an outfit model takes its team's.
             Pack = clipsFrom?.Compiler.Pack ?? (shared is null ? null : RenderPack.Load(shared)),
             VisionLookup = VisionLookup.SkinBase,
+            // Its own materials have no heat or EMF skins: masks made from the stock mesh it stands in for.
+            OwnVision = clipsFrom is null ? null : name => OutfitSkins.For(glbPath, clipsFrom.Glb)?.Vision(name),
         };
         foreach (MeshInstance3D mesh in FindAll<MeshInstance3D>(scene))
         {
@@ -595,7 +601,12 @@ public sealed class SkeletalModel
         bool warm = clipsFrom is not null ||
             string.Equals(Path.GetFileName(Path.GetDirectoryName(Path.GetFullPath(glbPath))), "SPerso", StringComparison.OrdinalIgnoreCase);
         return new Template(scene, new AnimSampler(skeleton, animations), rotOrigin, meshScale, warm,
-            Path.GetDirectoryName(Path.GetFullPath(glbPath)) ?? ".", compiler, materials) { PackageBones = packageBones.ToArray() };
+            Path.GetDirectoryName(Path.GetFullPath(glbPath)) ?? ".", compiler, materials)
+        {
+            PackageBones = packageBones.ToArray(),
+            Glb = Path.GetFullPath(glbPath),
+            Textures = textures,
+        };
     }
 
     /// <summary>UE2 placement: Location + PrePivot, the actor rotation, and DrawScale on the mesh.</summary>
@@ -832,6 +843,22 @@ public sealed class SkeletalModel
         }
 
         return true;
+    }
+
+    /// <summary>
+    /// <see cref="SetOutfitTexture(string, string)"/> with a texture made in memory, kept under <paramref name="key"/>
+    /// (a name no file has): the first-person arms redrawn in the merc's outfit.
+    /// </summary>
+    public bool SetOutfitTexture(string surfaceMaterial, string key, Texture2D texture)
+    {
+        ArgumentNullException.ThrowIfNull(texture);
+        if (_template?.Textures is not { } textures)
+        {
+            return false;
+        }
+
+        textures.Add(key, texture);
+        return SetOutfitTexture(surfaceMaterial, key);
     }
 
     public void Place(FVector location, FRotator rotation, FVector prePivot, float drawScale = 1f) =>

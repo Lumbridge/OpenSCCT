@@ -16,11 +16,12 @@ namespace OpenScct.Game.Modes;
 /// <item>deactivates the objectives left out, which stay out of play for the round (<see cref="Actor.MatchExcluded"/>);</item>
 /// <item>holds gated movers at their key, locked so that no trigger or alarm moves them (<see cref="Mover.MatchLocked"/>);</item>
 /// <item>leaves other gated actors out (and "hidden" ones inside their range): hidden, without collision, deaf to
-/// events and, for a player start, never chosen.</item>
+/// events, not ticking and, for a player start, never chosen.</item>
 /// </list>
-/// A client hides the same actors from the replicated <see cref="GameReplicationInfo.MatchPlayers"/>
-/// (<see cref="ApplyOnClient"/>): a hidden actor's flags reach a client only in its first bunch, and actors the client
-/// loads itself never hear from the server at all. A level service, made the first time it is needed.
+/// A client lays out its own missions and leaves the same actors out from the replicated
+/// <see cref="GameReplicationInfo.MatchPlayers"/> (<see cref="ApplyOnClient"/>): mission lists do not replicate, a
+/// hidden actor's flags reach a client only in its first bunch, actors the client loads itself never hear from the
+/// server at all, and ticking is each world's own. A level service, made the first time it is needed.
 /// </summary>
 public sealed class MatchSizeRules
 {
@@ -79,88 +80,29 @@ public sealed class MatchSizeRules
     public void Apply(int players)
     {
         Players = players;
-        var missions = new List<MatchMission>(_authored.Count);
-        foreach ((SMission mission, SObjective?[] objectives, int minimum, int random) in _authored)
-        {
-            mission.Objectives.Clear();
-            mission.Objectives.AddRange(objectives);
-            mission.MinimumObjectives = minimum;
-            mission.RandomObjectives = random;
-            var ids = new string[objectives.Length];
-            for (int i = 0; i < objectives.Length; i++)
-            {
-                ids[i] = objectives[i] is { } o ? _rules.IdOf(o) : string.Empty;
-            }
-
-            missions.Add(new MatchMission(_rules.IdOf(mission), ids, minimum, random));
-        }
-
-        MatchOutcome outcome = MatchLayout.Apply(missions, _rules.Rules, players);
+        MatchOutcome outcome = Layout(players);
         Outcome = outcome;
-        foreach ((SMission mission, _, _, _) in _authored)
-        {
-            MatchMission laid = outcome.Mission(_rules.IdOf(mission))!;
-            mission.Objectives.Clear();
-            foreach (string id in laid.Objectives)
-            {
-                mission.Objectives.Add(id.Length > 0 ? _objectives.GetValueOrDefault(id) : null);
-            }
-
-            mission.MinimumObjectives = laid.MinimumObjectives;
-            mission.RandomObjectives = laid.RandomObjectives;
-        }
-
+        LayMissions(outcome);
         Restore();
-        foreach (string id in outcome.LeftOut)
-        {
-            if (_objectives.TryGetValue(id, out SObjective? o))
-            {
-                Exclude(o);
-            }
-        }
-
-        foreach ((Actor actor, MatchRule rule) in _rules.Gated)
-        {
-            bool inside = rule.Players.Keeps(players);
-            if (actor is Mover mover)
-            {
-                Hold(mover, inside ? rule.InsideFor() : rule.OutsideFor(mover: true));
-            }
-            else if (!inside && actor is SObjective objective)
-            {
-                Exclude(objective);
-            }
-            else if (IsHidden(rule, inside))
-            {
-                Hide(actor);
-            }
-        }
+        LeaveOut(outcome, players, server: true);
     }
 
     /// <summary>
     /// A client's side of the layout for <paramref name="players"/> (the replicated count; 0 before the server has laid
-    /// a round out): the gated actors that are hidden, movers held hidden among them, lose their look and collision as
-    /// on the server. Objectives and movers held at a key come through replication as usual.
+    /// a round out): the missions list the same objectives and targets as on the server (the mission status page reads
+    /// them), the same actors are left out, so they stop ticking and hearing events, and the hidden ones, movers held
+    /// hidden among them, lose their look and collision. Objectives come through replication already deactivated, and
+    /// movers held at a key already moving to it.
     /// </summary>
     public void ApplyOnClient(int players)
     {
         Players = players;
+        MatchOutcome? outcome = players > 0 ? Layout(players) : null;
+        LayMissions(outcome);
         Restore();
-        if (players <= 0)
+        if (outcome is not null)
         {
-            return;
-        }
-
-        foreach ((Actor actor, MatchRule rule) in _rules.Gated)
-        {
-            bool inside = rule.Players.Keeps(players);
-            bool hidden = actor is Mover
-                ? (inside ? rule.InsideFor() : rule.OutsideFor(mover: true)).Kind == HoldKind.Hidden
-                : actor is not SObjective && IsHidden(rule, inside);
-            if (hidden)
-            {
-                Hide(actor);
-            }
+            LeaveOut(outcome, players, server: false);
         }
     }
 
@@ -175,12 +117,92 @@ public sealed class MatchSizeRules
         return target > 0 ? Math.Min(target, mission.Triggers.Count) : numDisks;
     }
 
+    // The layout of the missions as the map authored them, for this many players.
+    private MatchOutcome Layout(int players)
+    {
+        var missions = new List<MatchMission>(_authored.Count);
+        foreach ((SMission mission, SObjective?[] objectives, int minimum, int random) in _authored)
+        {
+            var ids = new string[objectives.Length];
+            for (int i = 0; i < objectives.Length; i++)
+            {
+                ids[i] = objectives[i] is { } o ? _rules.IdOf(o) : string.Empty;
+            }
+
+            missions.Add(new MatchMission(_rules.IdOf(mission), ids, minimum, random));
+        }
+
+        return MatchLayout.Apply(missions, _rules.Rules, players);
+    }
+
+    // Each mission's objectives, MinimumObjectives and RandomObjectives as laid out, or as authored without a layout.
+    private void LayMissions(MatchOutcome? outcome)
+    {
+        foreach ((SMission mission, SObjective?[] objectives, int minimum, int random) in _authored)
+        {
+            mission.Objectives.Clear();
+            if (outcome?.Mission(_rules.IdOf(mission)) is not { } laid)
+            {
+                mission.Objectives.AddRange(objectives);
+                mission.MinimumObjectives = minimum;
+                mission.RandomObjectives = random;
+                continue;
+            }
+
+            foreach (string id in laid.Objectives)
+            {
+                mission.Objectives.Add(id.Length > 0 ? _objectives.GetValueOrDefault(id) : null);
+            }
+
+            mission.MinimumObjectives = laid.MinimumObjectives;
+            mission.RandomObjectives = laid.RandomObjectives;
+        }
+    }
+
+    // Leaves the round's objectives and gated actors out. Only the server deactivates objectives and moves movers:
+    // clients get both through replication.
+    private void LeaveOut(MatchOutcome outcome, int players, bool server)
+    {
+        foreach (string id in outcome.LeftOut)
+        {
+            if (_objectives.TryGetValue(id, out SObjective? o))
+            {
+                Exclude(o, server);
+            }
+        }
+
+        foreach ((Actor actor, MatchRule rule) in _rules.Gated)
+        {
+            bool inside = rule.Players.Keeps(players);
+            if (actor is Mover mover)
+            {
+                Hold hold = inside ? rule.InsideFor() : rule.OutsideFor(mover: true);
+                if (server)
+                {
+                    Hold(mover, hold);
+                }
+                else if (hold.Kind == HoldKind.Hidden)
+                {
+                    Hide(mover);
+                }
+            }
+            else if (!inside && actor is SObjective objective)
+            {
+                Exclude(objective, server);
+            }
+            else if (IsHidden(rule, inside))
+            {
+                Hide(actor);
+            }
+        }
+    }
+
     // An actor that is neither a mover nor an objective outside its range: "hidden", or a key position on an actor
     // that is not a mover (which the validator rejects), takes it out.
     private static bool IsHidden(MatchRule rule, bool inside) =>
         (inside ? rule.InsideFor() : rule.OutsideFor(mover: false)).Kind != HoldKind.Normal;
 
-    private void Exclude(SObjective objective)
+    private void Exclude(SObjective objective, bool deactivate)
     {
         if (objective.MatchExcluded)
         {
@@ -189,7 +211,10 @@ public sealed class MatchSizeRules
 
         objective.MatchExcluded = true;
         _excluded.Add(objective);
-        objective.Desactivate();
+        if (deactivate)
+        {
+            objective.Desactivate();
+        }
     }
 
     private void Hide(Actor actor)

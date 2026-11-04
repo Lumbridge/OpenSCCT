@@ -69,12 +69,13 @@ these.
 | [outfits.md](outfits.md) | `render/outfits.json`: slots, models, goggles, cosmetics policy, how RE+ `SCharacterOutfits` converts |
 | [movers.md](movers.md) | `sim/movers.json`: each mover's time per leg and easing per key |
 | [conveyors.md](conveyors.md) | `Svm.Conveyor` actors: props, class table, collision and `world.glb` instances |
-| [schemas/](schemas/) | JSON Schemas 2020-12 of `manifest.json`, `sim/gameplay.json`, `sim/traversal.json`, `ui/identity.json`, `ui/text/<lang>.json` and shared definitions |
+| [schemas/](schemas/) | JSON Schemas 2020-12 of `manifest.json`, `sim/gameplay.json` (with `Svm.Conveyor`'s props), `sim/traversal.json`, `sim/match.json`, `render/outfits.json`, `ui/identity.json`, `ui/text/<lang>.json` and shared definitions |
 | [CHANGELOG.md](CHANGELOG.md) | format history |
 
 Schema `$id`s live under `https://svmap.invalid/1.2/`. Test vectors for the float32 text form and the hash are those
 of 1.0 (`../1.0/vectors/canonical.json`); the rules did not change. A validator picks the schema folder by the
-minor version a file declares, so 1.0, 1.1 and 1.2 maps validate side by side.
+minor version a file declares, so 1.0, 1.1 and 1.2 maps validate side by side. `sim/match.json` and
+`render/outfits.json` declare none: they follow the manifest's, and a 1.1 map has no schema for them.
 
 ## `manifest.json`
 

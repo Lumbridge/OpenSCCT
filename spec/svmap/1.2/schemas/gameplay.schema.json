@@ -101,6 +101,177 @@
         "src": {
           "$ref": "#/$defs/src"
         }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "class": {
+                "const": "Svm.Conveyor"
+              }
+            },
+            "required": [
+              "class"
+            ]
+          },
+          "then": {
+            "properties": {
+              "props": {
+                "$ref": "#/$defs/conveyorProps"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "conveyorProps": {
+      "description": "Svm.Conveyor's own properties (conveyors.md); every other property is typed as for any actor. Only what differs from the class defaults is written.",
+      "allOf": [
+        {
+          "$ref": "common.schema.json#/$defs/props"
+        }
+      ],
+      "properties": {
+        "Path": {
+          "description": "Points on the riding surface, relative to the actor's location and rotation.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "Loc": {
+                "description": "A struct like any Vector: members left out are 0.",
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "X": {
+                    "type": "number"
+                  },
+                  "Y": {
+                    "type": "number"
+                  },
+                  "Z": {
+                    "type": "number"
+                  }
+                }
+              },
+              "Radius": {
+                "description": "0 is a sharp corner; more rounds the corner with an arc of that radius.",
+                "type": "number",
+                "minimum": 0
+              }
+            }
+          }
+        },
+        "bLoop": {
+          "type": "boolean"
+        },
+        "Width": {
+          "description": "Width of the carried strip, centred on the path (default 120).",
+          "type": "number",
+          "minimum": 0
+        },
+        "Speed": {
+          "description": "uu a second along the path; negative runs backwards (default 150).",
+          "type": "number"
+        },
+        "bOn": {
+          "type": "boolean"
+        },
+        "bCarryPlayers": {
+          "type": "boolean"
+        },
+        "bCarryObjects": {
+          "type": "boolean"
+        },
+        "Look": {
+          "description": "0 frame, 1 driver, 2 treadmill, 3 escalator.",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 3
+        },
+        "Walls": {
+          "description": "0 both, 1 left, 2 right, 3 none, 4 auto (the default).",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4
+        },
+        "TriggerAction": {
+          "description": "0 toggle, 1 on, 2 off, 3 reverse.",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 3
+        },
+        "ItemMeshes": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/assetRef"
+          }
+        },
+        "ItemSpacing": {
+          "type": "number",
+          "minimum": 0
+        },
+        "ItemScale": {
+          "type": "number",
+          "minimum": 0
+        },
+        "ItemFade": {
+          "type": "number",
+          "minimum": 0
+        },
+        "ItemSeed": {
+          "type": "integer"
+        },
+        "ItemYawJitter": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 65536
+        },
+        "ScrollTargets": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "Target": {
+                "description": "The id of a placed mesh actor (a string: mesh actors are render-only).",
+                "$ref": "common.schema.json#/$defs/id"
+              },
+              "UnitsPerTile": {
+                "description": "The uu one texture repeat covers along the direction of travel.",
+                "type": "number",
+                "minimum": 0
+              },
+              "Axis": {
+                "description": "The texture axis along the travel: 0 U, 1 V.",
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 1
+              }
+            }
+          }
+        },
+        "BeltMaterial": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/assetRef"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "FrameMaterial": {
+          "anyOf": [
+            {
+              "$ref": "common.schema.json#/$defs/assetRef"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
       }
     },
     "src": {

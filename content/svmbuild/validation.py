@@ -22,6 +22,9 @@ SCHEMA_FILES = {
     "manifest": "manifest.schema.json",
     "gameplay": "gameplay.schema.json",
     "traversal": "traversal.schema.json",
+    # 1.2 on: files without a formatVersion of their own, checked against the manifest's.
+    "match": "match.schema.json",
+    "outfits": "outfits.schema.json",
 }
 SPEC_DIR = SPEC_ROOT.parent          # spec/svmap
 SCHEMA_ROOT = SPEC_ROOT / "schemas"  # 1.0, kept for callers that name it
@@ -39,7 +42,8 @@ def validators(schema_root: str = str(SCHEMA_ROOT)) -> dict:
     from referencing import Registry, Resource
 
     root = Path(schema_root)
-    docs = {k: json.loads((root / f).read_text(encoding="utf-8")) for k, f in SCHEMA_FILES.items()}
+    docs = {k: json.loads((root / f).read_text(encoding="utf-8")) for k, f in SCHEMA_FILES.items()
+            if (root / f).is_file()}
     registry = Registry().with_resources(
         (doc["$id"], Resource.from_contents(doc)) for doc in docs.values())
     out = {}
@@ -49,9 +53,13 @@ def validators(schema_root: str = str(SCHEMA_ROOT)) -> dict:
     return out
 
 
-def schema_errors(kind: str, instance) -> list[str]:
-    version = instance.get("formatVersion") if isinstance(instance, dict) else None
-    v = validators(str(schema_root_for(version)))[kind]
+def schema_errors(kind: str, instance, version: str | None = None) -> list[str]:
+    """Schema problems of `instance`, by the schema of its own formatVersion, else `version`."""
+    if isinstance(instance, dict) and "formatVersion" in instance:
+        version = instance["formatVersion"]
+    v = validators(str(schema_root_for(version))).get(kind)
+    if v is None:
+        return [f"{kind}: SVMap {version} has no {SCHEMA_FILES[kind]}; the file is newer than the map's version"]
     errs = sorted(v.iter_errors(instance), key=lambda e: list(e.absolute_path))
     return [f"{kind}: {'/'.join(str(p) for p in e.absolute_path) or '<root>'}: {e.message}" for e in errs[:50]]
 
@@ -138,25 +146,10 @@ def class_table_errors(table, gameplay: dict) -> list[str]:
     return errs[:50]
 
 
-MATCH_FORMAT = "svm.match/1"
-OUTFITS_FORMAT = "svm.outfits/1"
-MOST_PLAYERS = 24
-TEAM_SIZES = 12
-MOVER_KEYS = 8  # Engine.Mover KeyPos[8]
-
-
-def _mover_mode_ok(mode) -> bool:
-    return mode in ("normal", "hidden") or (isinstance(mode, dict) and set(mode) == {"key"} and
-                                            isinstance(mode["key"], int) and 0 <= mode["key"] < MOVER_KEYS)
-
-
-def match_errors(match, gameplay: dict, classes) -> list[str]:
-    """sim/match.json (spec/svmap/1.2/match.md): rules name written actors once each, ranges run 0 (any) to 24 with
-    min <= max, key positions only on movers, no rules on conveyors, win targets name missions and list 12 team
-    sizes."""
+def match_errors(match: dict, gameplay: dict, classes) -> list[str]:
+    """sim/match.json (spec/svmap/1.2/match.md) beyond its schema: rules name written actors once each with min <=
+    max, key positions only on movers, no rules on conveyors, and win targets name missions."""
     where = "sim/match.json"
-    if not isinstance(match, dict) or match.get("format") != MATCH_FORMAT:
-        return [f"{where}: format is not {MATCH_FORMAT}"]
     actors = {a["id"].lower(): a for a in all_actors(gameplay) if isinstance(a, dict) and isinstance(a.get("id"), str)}
     table = classes.get("classes", {}) if isinstance(classes, dict) else {}
 
@@ -173,44 +166,31 @@ def match_errors(match, gameplay: dict, classes) -> list[str]:
     ruled = set()
     for i, r in enumerate(match.get("rules", [])):
         at = f"{where}: rules[{i}]"
-        actor = r.get("actor") if isinstance(r, dict) else None
-        if not isinstance(actor, str) or not actor:
-            errs.append(f"{at}: no actor")
-            continue
+        actor = r["actor"]
         if actor.lower() in ruled:
             errs.append(f"{at}: {actor} has a second rule")
         ruled.add(actor.lower())
-        players = r.get("players")
-        if not (isinstance(players, list) and len(players) == 2 and
-                all(isinstance(n, int) and 0 <= n <= MOST_PLAYERS for n in players)):
-            errs.append(f"{at}: players must be [min, max], each 0 (any) to {MOST_PLAYERS}")
-        elif players[0] and players[1] and players[0] > players[1]:
-            errs.append(f"{at}: min {players[0]} is more than max {players[1]}")
-        for key in ("outside", "inside"):
-            if key in r and not _mover_mode_ok(r[key]):
-                errs.append(f"{at}: {key} must be normal, hidden or a key")
-        if r.get("outside") == "normal":
-            errs.append(f"{at}: outside its range an actor cannot work as normal")
-        keyed = isinstance(r.get("outside"), dict) or isinstance(r.get("inside"), dict)
+        low, high = r["players"]
+        if low and high and low > high:
+            errs.append(f"{at}: min {low} is more than max {high}")
         target = actors.get(actor.lower())
-        if keyed and target is not None and not is_a(target.get("class", ""), "Engine.Mover"):
+        if target is None:
+            errs.append(f"{at}: {actor} is not an actor of the map")
+            continue
+        keyed = isinstance(r.get("outside"), dict) or isinstance(r.get("inside"), dict)
+        if keyed and not is_a(target.get("class", ""), "Engine.Mover"):
             errs.append(f"{at}: key positions apply to movers only ({actor})")
-        if target is not None and target.get("class") == CONVEYOR_CLASS:
+        if target.get("class") == CONVEYOR_CLASS:
             errs.append(f"{at}: {actor} is a conveyor; a player-count rule cannot take its belt out of the round")
     for i, w in enumerate(match.get("win", [])):
-        at = f"{where}: win[{i}]"
-        mission = w.get("mission") if isinstance(w, dict) else None
-        target = actors.get(mission.lower()) if isinstance(mission, str) else None
+        target = actors.get(w["mission"].lower())
         if target is None or not is_a(target.get("class", ""), "SBase.SMission"):
-            errs.append(f"{at}: {mission} is not a mission of the map")
-        sizes = w.get("bySize") if isinstance(w, dict) else None
-        if not (isinstance(sizes, list) and len(sizes) == TEAM_SIZES and
-                all(isinstance(n, int) and n >= 0 for n in sizes)):
-            errs.append(f"{at}: bySize must list {TEAM_SIZES} counts (1v1 to 12v12), 0 keeping the map's own")
+            errs.append(f"{where}: win[{i}]: {w['mission']} is not a mission of the map")
     return errs
 
 
 MOVERS_FORMAT = "svm.movers/1"
+MOVER_KEYS = 8  # Engine.Mover KeyPos[8]
 MIN_LEG = 0.005  # Engine.Mover.InterpolateTo's shortest leg
 LONGEST_LEG = 3600.0
 
@@ -266,33 +246,21 @@ def movers_errors(movers, gameplay: dict, classes) -> list[str]:
     return errs
 
 
-def outfits_errors(root: Path, outfits) -> list[str]:
-    """render/outfits.json (spec/svmap/1.2/outfits.md): known teams, slots and policies, and the textures and models
-    it names exist under render/."""
+def outfits_errors(root: Path, outfits: dict) -> list[str]:
+    """render/outfits.json (spec/svmap/1.2/outfits.md) beyond its schema: the textures and models it names exist
+    under render/."""
     where = "render/outfits.json"
-    if not isinstance(outfits, dict) or outfits.get("format") != OUTFITS_FORMAT:
-        return [f"{where}: format is not {OUTFITS_FORMAT}"]
     errs = []
     for team in ("spy", "merc"):
-        t = outfits.get(team)
-        if not isinstance(t, dict):
-            continue
-        if t.get("cosmetics", "map") not in ("map", "player", "none"):
-            errs.append(f"{where}: {team}.cosmetics must be map, player or none")
+        t = outfits.get(team) or {}
         for slot, value in (t.get("slots") or {}).items():
-            tex = value.get("texture") if isinstance(value, dict) else None
-            if slot not in ("body", "head"):
-                errs.append(f"{where}: {team}.slots.{slot} is not body or head")
-            elif not isinstance(tex, str) or not (root / "render" / tex).is_file():
-                errs.append(f"{where}: {team}.slots.{slot} texture {tex} is not a file under render/")
-        model = t.get("model")
-        if isinstance(model, dict):
-            glb, stock = model.get("glb"), model.get("stock")
-            if (glb is None) == (stock is None):
-                errs.append(f"{where}: {team}.model names either a glb or a stock mesh")
-            elif glb is not None and not (root / "render" / glb).is_file():
-                errs.append(f"{where}: {team}.model glb {glb} is not a file under render/")
+            if not (root / "render" / value["texture"]).is_file():
+                errs.append(f"{where}: {team}.slots.{slot} texture {value['texture']} is not a file under render/")
+        glb = (t.get("model") or {}).get("glb")
+        if glb is not None and not (root / "render" / glb).is_file():
+            errs.append(f"{where}: {team}.model glb {glb} is not a file under render/")
     return errs
+
 
 def render_errors(root: Path) -> list[str]:
     errs = []
@@ -353,6 +321,8 @@ def validate_svmap(root: Path) -> list[str]:
         errs += se
         if not se:
             errs += gameplay_errors(gameplay)
+            if minor_of(gameplay["formatVersion"]) < 2 and any(a["class"] == CONVEYOR_CLASS for a in gameplay["actors"]):
+                errs.append(f"gameplay: {CONVEYOR_CLASS} actors are new in SVMap 1.2; the map is {gameplay['formatVersion']}")
     if traversal is not None:
         se = schema_errors("traversal", traversal)
         errs += se
@@ -367,15 +337,22 @@ def validate_svmap(root: Path) -> list[str]:
     table = load("sim/classes.json", required=False)
     if table is not None and gameplay is not None:
         errs += class_table_errors(table, gameplay)
+    version = manifest.get("formatVersion") if isinstance(manifest, dict) else None
     match = load("sim/match.json", required=False)
-    if match is not None and gameplay is not None:
-        errs += match_errors(match, gameplay, table)
+    if match is not None:
+        se = schema_errors("match", match, version)
+        errs += se
+        if not se and gameplay is not None:
+            errs += match_errors(match, gameplay, table)
     movers = load("sim/movers.json", required=False)
     if movers is not None and gameplay is not None:
         errs += movers_errors(movers, gameplay, table)
     outfits = load("render/outfits.json", required=False)
     if outfits is not None:
-        errs += outfits_errors(root, outfits)
+        se = schema_errors("outfits", outfits, version)
+        errs += se
+        if not se:
+            errs += outfits_errors(root, outfits)
     errs += render_errors(root)
     if manifest is not None and gameplay is not None and traversal is not None:
         mid = manifest.get("map")
