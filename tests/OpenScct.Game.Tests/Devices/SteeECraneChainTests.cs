@@ -27,9 +27,16 @@ public sealed class SteeECraneChainTests
     private static readonly AssetRef Extinguisher = new("SteeE.squ_mer_obj_extinct");
     private static readonly AssetRef Stress = new("Squ_Mus_Stress");
 
+    private sealed class MusicRelay : IMusicTriggerRelay
+    {
+        public readonly List<(MusicTrigger Trigger, bool Start, Pawn? Instigator)> Calls = new();
+        public void Relay(MusicTrigger trigger, bool start, Pawn? instigator) => Calls.Add((trigger, start, instigator));
+    }
+
     private sealed class Chain
     {
         public DeviceScene S = null!;
+        public readonly MusicRelay Relay = new();
         public Sender Switch = null!;
         public SAnimatedMesh Crane = null!;
         public Mover Duct = null!;
@@ -71,11 +78,12 @@ public sealed class SteeECraneChainTests
 
     private static UAnimNotify_Trigger Event(string name) => new() { EventName = name };
 
-    private static Chain Build()
+    private static Chain Build(ENetMode mode = ENetMode.NM_DedicatedServer)
     {
         var c = new Chain();
-        DeviceScene s = c.S = DeviceScene.Create(ENetMode.NM_DedicatedServer);
+        DeviceScene s = c.S = DeviceScene.Create(mode);
         s.Level.Info.GEActivationMask = 4;
+        s.Level.SetService<IMusicTriggerRelay>(c.Relay);
 
         // Crane sequence: 451 frames at 40 fps; wall collapse: 101 frames at 30 fps (sqt13_anm.ukx).
         s.Animations.Add(CraneMesh, new MeshAnimSequence("sqt_grue_seq", 451, 40f,
@@ -274,10 +282,13 @@ public sealed class SteeECraneChainTests
         Assert.Equal(-2340f, c.Duct.Location.Z, 2);
     }
 
-    [Fact]
-    public void Blast01ReceiversRunInDispatchOrderWithTheirEffects()
+    [Theory]
+    [InlineData(ENetMode.NM_Standalone)]
+    [InlineData(ENetMode.NM_DedicatedServer)]
+    public void Blast01ReceiversRunInDispatchOrderWithTheirEffects(ENetMode mode)
     {
-        Chain c = Build();
+        // Music is evaluated on listening machines; dedicated servers only relay the trigger.
+        Chain c = Build(mode);
         Run(c, 15f);
 
         // Dispatch order: the wall swaps before Emitter483 runs, the crane collision after it.
@@ -332,8 +343,18 @@ public sealed class SteeECraneChainTests
         Assert.DoesNotContain(((TestController)c.Spy.Controller!).PawnDamage, d => d.Type == SDamageType.SDamage_Charged);
 
         // The stress music starts and the wall-top ledge (GE mask bit 4) is gone.
-        Assert.Single(c.S.Sounds.Of(SimEventKind.PlayMusic, "Squ_Mus_Stress"));
-        Assert.Equal(Stress, c.Music.GetCurrentMusic());
+        var music = Assert.Single(c.Relay.Calls);
+        Assert.Same(c.Music, music.Trigger);
+        Assert.True(music.Start);
+        if (mode == ENetMode.NM_DedicatedServer)
+        {
+            Assert.Empty(c.S.Sounds.Of(SimEventKind.PlayMusic, "Squ_Mus_Stress"));
+        }
+        else
+        {
+            Assert.Single(c.S.Sounds.Of(SimEventKind.PlayMusic, "Squ_Mus_Stress"));
+            Assert.Equal(Stress, c.Music.GetCurrentMusic());
+        }
         Assert.Equal(0, c.S.Level.Info.GEActivationMask);
 
         // The warning lamps hang on the crane's bones.

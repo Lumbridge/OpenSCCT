@@ -1,6 +1,9 @@
 <Project>
   <PropertyGroup>
     <IsPackable>false</IsPackable>
+    <!-- Allocation contracts measure application code, not tiered PGO instrumentation warmup.
+         Compile test hosts directly to optimized code; the shipped game keeps its normal runtime settings. -->
+    <TieredCompilation>false</TieredCompilation>
     <OutputType>Exe</OutputType>
   </PropertyGroup>
   <ItemGroup>
