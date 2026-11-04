@@ -115,7 +115,8 @@ class RenderPackStep(Step):
 
 
 class _Exporter:
-    """Writes textures once each, as textures/<Package>_<Name>.png, and remembers the object path of each."""
+    """Writes textures once each, as textures/<Package>_<Name>.png (<Package>_<Group>_<Name>.png when the name
+    repeats in another group of its package; ASCII), and remembers the object path of each."""
 
     def __init__(self, pset, out_dir: Path):
         self.pset = pset
@@ -136,7 +137,10 @@ class _Exporter:
             except Exception:  # an undecodable texture is reported as missing, not fatal
                 tex = None
             if tex is not None and tex.image is not None:
-                uri = f"textures/{_safe(pkg.path.stem + '_' + export.name)}.png"
+                # <Package>_<Name>, or <Package>_<Group>_<Name> when the name repeats in another group; ASCII, as
+                # map textures (a group can carry accents: PCF09_TXT.Dépôt.Lustre).
+                stem = "".join(c if c.isascii() else f"_u{ord(c):04x}" for c in _safe(self.pset.export_key(pkg, export)))
+                uri = f"textures/{stem}.png"
                 tex.image.save(self.dir.parent / uri, optimize=False)
         self.by_path[path] = uri
         return uri

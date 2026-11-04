@@ -196,7 +196,8 @@ def _normal_vision_texture(pset: PackageSet, resolver: MaterialResolver, key: st
 
 def export_skeletal(pkg: Package, mesh: SkeletalMesh, pset: PackageSet, out_dir: Path, tex_dir: Path) -> Path:
     writer = GltfWriter()
-    resolver = MaterialResolver(pset)
+    # Package.Name keys: the client finds skin and goggle textures as textures/<Package>_<Name>.png.
+    resolver = MaterialResolver(pset, group_keys=False)
     tex_uri: Dict[str, Optional[str]] = {}
 
     # --- materials

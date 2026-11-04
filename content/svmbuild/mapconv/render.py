@@ -256,17 +256,20 @@ class RenderBuilder:
         return out
 
     def _material_root(self, key: str) -> Optional[str]:
-        """Full path of the material behind a glTF material name (Package.Name plus exporter suffixes)."""
+        """Full path of the material behind a glTF material name (Package.Name, or Package.Group.Name when the name
+        repeats in another group of its package, plus exporter suffixes)."""
         base = key[5:] if key.startswith("PROJ.") else key
         base = base.split("__", 1)[0]
         if "." not in base or base.startswith("BSP.Default"):
             return None
-        pkg_name, name = base.split(".", 1)
-        pkg = self.src.pset.get(pkg_name)
-        if pkg is None:
-            return None
-        e = pkg.find_export(name.split(".")[-1])
-        if e is None:
+        if base.count(".") >= 2:
+            # A group-qualified key names one object: ShadowMoses_T.aussen.wand1, not the first wand1 of the package.
+            pkg, e = self.src.find_path(base)
+        else:
+            pkg_name, name = base.split(".", 1)
+            pkg = self.src.pset.get(pkg_name)
+            e = pkg.find_export(name) if pkg is not None else None
+        if pkg is None or e is None:
             return None
         return self.src.db.cd.export_path(pkg, e)
 
@@ -655,11 +658,21 @@ class RenderBuilder:
         sub = {"object": r.path, "class": cls, "props": props}
         tex = props.get("Texture")
         if isinstance(tex, dict) and "$asset" in tex:
-            parts = tex["$asset"].split(".")
-            png = f"textures/{_safe(parts[0] + '.' + parts[-1])}.png"
+            # The texture set's names are ASCII-escaped (build): PCF09_TXT.Dépôt.Lustre.
+            png = _ascii_file_name(self._particle_png(tex["$asset"]))
             if png in textures:
                 sub["texture"] = png
         return sub
+
+    def _particle_png(self, path: str) -> str:
+        """textures/<key>.png of a sub-emitter texture by object path, keyed as the exporter keys it: Package.Name, or
+        Package.Group.Name (PackageSet.export_key) when the name repeats in another group of its package."""
+        parts = path.split(".")
+        key = parts[0] + "." + parts[-1]
+        pkg, e = self.src.find_path(path)
+        if pkg is not None and e is not None and self.src.pset.is_ambiguous(pkg, e):
+            key = self.src.pset.export_key(pkg, e)
+        return f"textures/{_safe(key)}.png"
 
     def build_fx(self, scene: dict, textures: set) -> dict:
         emitters = {}
@@ -685,7 +698,7 @@ class RenderBuilder:
 
     def write_particle_textures(self, tex_dir: Path) -> None:
         """The PNGs of the sub-emitter textures the exporter did not write, named as it names them
-        (textures/<Package.Name>.png): the gameplay objects' damage effects, and the placed emitters' sub-emitters
+        (_particle_png): the gameplay objects' damage effects, and the placed emitters' sub-emitters
         that come before every Emitter export in the package (the exporter gives a sub-emitter to the nearest
         preceding one). An editor copy stores sub-emitters ahead of the actors (OffsE); some cooked copies do too
         (OffsD, PanaD, Cistern, ScheU)."""
@@ -698,8 +711,7 @@ class RenderBuilder:
             tex = decoded.get("Texture")
             if not isinstance(tex, Ref) or tex.ref == 0 or not tex.path or tex.is_class:
                 continue
-            parts = tex.path.split(".")
-            path = tex_dir / f"{_safe(parts[0] + '.' + parts[-1])}.png"
+            path = tex_dir.parent / self._particle_png(tex.path)
             if path.is_file():
                 continue
             pkg, e = self.src.ref_export(tex)

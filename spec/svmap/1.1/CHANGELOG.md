@@ -31,6 +31,9 @@ Additive: every 1.0 file reads as before, and 1.0 readers skip what is new.
 - `render/lighting.json`: light rows for the actors with a LightType and a LightBrightness that are not Light actors
   (lit movers, lifts, lift doors, flags), with the Actor defaults for unset values.
 - `render/world.glb`: optional `special_lit` on instances whose actor has bSpecialLit.
+- `render/textures/` and material names: a texture or material whose name repeats in another group of its package is
+  named with its groups (`ShadowMoses_T_aussen_wand1.png`, material `ShadowMoses_T.aussen.wand1`); every other name
+  is unchanged. Before, those objects shared one PNG and one material (the first one decoded).
 - New optional `render/leaflights.json` (version 1): the world BSP's per-leaf light lists, the back and front leaf of
   every world node in `BSPN` order, and the lights in no list. Consumers fall back to radius plus zone without it.
 - `ui/mapinfo.json`: map name and briefing texts.

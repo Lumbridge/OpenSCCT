@@ -1,0 +1,150 @@
+diff --git a/export_gltf.py b/export_gltf.py
+--- a/export_gltf.py
++++ b/export_gltf.py
+@@ -3,7 +3,9 @@
+ Output layout (out/<Map>/):
+     <Map>.gltf, <Map>.bin      world BSP (one mesh, one primitive per material)
+                                plus every referenced static mesh as its own node
+-    textures/<Package>_<Name>.png
++    textures/<Package>_<Name>.png, or <Package>_<Group>_<Name>.png when the
++                               name repeats in another group of its package
++                               (PackageSet.object_key)
+     scene.json                 actor list consumed by ue5/Scripts/import_scct_map.py
+ 
+ Coordinate conversion: SCCT/UE2 is left-handed Z-up (X forward, Y right,
+@@ -411,7 +413,7 @@ def _export_emitters(pkg: Package, pset: PackageSet, tex_dir: Path, tex_uri: Dic
+             try:
+                 owner, te = pset.resolve(pkg, tref)
+                 if te is not None and te.class_name == "Texture":
+-                    key = f"{owner.path.stem}.{te.name}"
++                    key = pset.export_key(owner, te)
+                     fname = _safe(key) + ".png"
+                     done = str(tex_dir / fname)
+                     if done not in _EMITTER_PNGS:
+diff --git a/export_skel_gltf.py b/export_skel_gltf.py
+--- a/export_skel_gltf.py
++++ b/export_skel_gltf.py
+@@ -196,7 +196,8 @@ def _normal_vision_texture(pset: PackageSet, resolver: MaterialResolver, key: st
+ 
+ def export_skeletal(pkg: Package, mesh: SkeletalMesh, pset: PackageSet, out_dir: Path, tex_dir: Path) -> Path:
+     writer = GltfWriter()
+-    resolver = MaterialResolver(pset)
++    # Package.Name keys: the client finds skin and goggle textures as textures/<Package>_<Name>.png.
++    resolver = MaterialResolver(pset, group_keys=False)
+     tex_uri: Dict[str, Optional[str]] = {}
+ 
+     # --- materials
+diff --git a/materials.py b/materials.py
+--- a/materials.py
++++ b/materials.py
+@@ -225,10 +225,17 @@ def _copy_layers(result: ResolvedMaterial, inner: ResolvedMaterial) -> None:
+ 
+ 
+ class MaterialResolver:
+-    def __init__(self, pset: PackageSet):
++    def __init__(self, pset: PackageSet, group_keys: bool = True):
++        """group_keys: material keys from PackageSet.object_key (Package.Group.Name for a name that repeats in another
++        group of its package), so each such object gets its own material and PNG. False keeps Package.Name for
++        every object, for outputs looked up by that name (the character and goggle skins)."""
+         self.pset = pset
++        self.group_keys = group_keys
+         self.cache: Dict[object, ResolvedMaterial] = {}
+-        self.texture_cache: Dict[str, Optional[Texture]] = {}
++        self.texture_cache: Dict[Tuple[str, int], Optional[Texture]] = {}
++
++    def key_of(self, pkg: Package, ref: int) -> str:
++        return self.pset.object_key(pkg, ref) if self.group_keys else self.pset.import_path(pkg, ref)
+ 
+     def _props(self, pkg: Package, e: Export) -> dict:
+         r = pkg.export_reader(e)
+@@ -255,7 +262,8 @@ class MaterialResolver:
+         return int(props.get("TexCoordSource", 11) or 0) == 10 or props.get("EnvMapType") == 0
+ 
+     def texture_for(self, pkg: Package, e: Export) -> Optional[Texture]:
+-        key = f"{pkg.path.stem}.{e.name}"
++        # By the export itself: one package can hold several textures of a name in different groups.
++        key = (str(pkg.path), e.index)
+         if key in self.texture_cache:
+             return self.texture_cache[key]
+         try:
+@@ -287,7 +295,7 @@ class MaterialResolver:
+         return {"frames": frames, "fps": fps}
+ 
+     def resolve(self, pkg: Package, ref: int, depth: int = 0) -> ResolvedMaterial:
+-        key = self.pset.import_path(pkg, ref)
++        key = self.key_of(pkg, ref)
+         owner, e = self.pset.resolve(pkg, ref)
+         # Cache by the object itself, not its dotted name: a package can hold a Shader and the Texture it wraps under
+         # the same name (TXT_MAL.BSP.DOO_elevator01), and a name-keyed cache handed the Shader's unfinished entry
+@@ -342,7 +350,7 @@ class MaterialResolver:
+             result.darken = ob == 6
+             result.modulate = "2x" if ob == 2 else ("darken" if ob == 6 else "")
+             if props.get("Opacity"):
+-                result.opacity_key = self.pset.import_path(owner, int(props["Opacity"]))
++                result.opacity_key = self.key_of(owner, int(props["Opacity"]))
+                 op = self.resolve(owner, int(props["Opacity"]), depth + 1)
+                 if op.texture is not None:
+                     result.opacity = op.texture
+diff --git a/packageset.py b/packageset.py
+--- a/packageset.py
++++ b/packageset.py
+@@ -3,12 +3,15 @@
+ A `PackageSet` indexes every package under the game's Packages folder by
+ stem (case-insensitive) and loads them lazily. `resolve(pkg, ref)` follows
+ an import to the package that owns the object and returns (package, export).
++`object_key(pkg, ref)` names the object for converted output: Package.Name, or
++Package.Group.Name when its package holds another object of that name in a
++different group.
+ """
+ 
+ from __future__ import annotations
+ 
+ from pathlib import Path
+-from typing import Dict, Optional, Tuple
++from typing import Dict, FrozenSet, Optional, Tuple
+ 
+ from .package import Export, Package, PackageError
+ 
+@@ -19,6 +22,7 @@ class PackageSet:
+     def __init__(self, roots):
+         self.files: Dict[str, Path] = {}
+         self.loaded: Dict[str, Optional[Package]] = {}
++        self._ambiguous: Dict[str, FrozenSet[str]] = {}
+         for root in roots:
+             root = Path(root)
+             for f in root.rglob("*"):
+@@ -94,6 +98,34 @@ class PackageSet:
+         root = self.root_package_of_import(pkg, ref) or "?"
+         return f"{root}.{pkg.imports[-ref - 1].name}"
+ 
++    def object_key(self, pkg: Package, ref: int) -> str:
++        """Package.Name for any ref (import_path), or the owning export's full Package.Group.Name when the owner
++        holds another export of that name (case-insensitive) in a different group. ShadowMoses_T has wand1 in
++        groups aussen, generator and hangar (three different images, all drawn on ShadD): keyed by name alone,
++        every material and PNG of them collapsed into the first one decoded."""
++        owner, e = self.resolve(pkg, ref)
++        if owner is None or e is None or not self.is_ambiguous(owner, e):
++            return self.import_path(pkg, ref)
++        return e.full_name
++
++    def export_key(self, owner: Package, e: Export) -> str:
++        """object_key for an export already resolved to its owning package."""
++        return e.full_name if self.is_ambiguous(owner, e) else f"{owner.path.stem}.{e.name}"
++
++    def is_ambiguous(self, owner: Package, e: Export) -> bool:
++        """Whether owner holds another export named like e (case-insensitive) under a different full name. Groups
++        (class Package) do not count: SWeaponTex.shotgun.shotgun is the only object of its name."""
++        key = str(owner.path)
++        names = self._ambiguous.get(key)
++        if names is None:
++            paths: Dict[str, set] = {}
++            for x in owner.exports:
++                if x.class_name != "Package":
++                    paths.setdefault(x.name.lower(), set()).add(x.full_name.lower())
++            names = frozenset(n for n, p in paths.items() if len(p) > 1)
++            self._ambiguous[key] = names
++        return e.name.lower() in names
++
+     @staticmethod
+     def object_path(pkg: Package, ref: int) -> str:
+         """Package.Group.Name for any ref, groups included (an import's outer chain, or an export's in pkg)."""
