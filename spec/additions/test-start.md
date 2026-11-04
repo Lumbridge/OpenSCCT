@@ -19,7 +19,8 @@ spawns, so a map maker tests the spot the editor's camera shows instead of walki
 - `RestartPlayer` still chooses a PlayerStart first. A player for whom no start is found stays unspawned, as without
   the option, and the chosen start stays the pawn's anchor and `LastStartSpot`.
 - The pawn spawns at the point with the same floor probe as a start: a 200 uu box probe down, and 79 uu above the
-  floor it finds. With no floor within 200 uu the pawn spawns at the point itself and falls.
+  floor it finds. With no floor within 200 uu the pawn spawns at the point itself and falls. The map editor finds the
+  floor itself first (an editor camera is usually far above it) and passes a point 96 uu above it.
 - The pawn is upright with the start's yaw; the player's view gets the yaw and pitch.
 - If the spot is blocked (the camera stood inside a wall or another pawn), the player spawns at the chosen start as
   usual.
