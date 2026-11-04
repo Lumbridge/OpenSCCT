@@ -67,6 +67,37 @@ public static class MapImages
 }
 
 /// <summary>
+/// The map legend of the map picker (GUI.moImageListMap's Controls[6], the multi-line label under the picture that
+/// Create_Match, GUIPanelCreateServer and Visit_Map_Set share): ImageMapChange sets it to the selected map's
+/// SMapSettings.LegendMap, its dossier (date and time, place, summary) with '|' as a line break. A map without one
+/// shows nothing here (the original's "-i.utc or -i.utx file missing" line has no counterpart: converted maps have
+/// no such packages).
+/// </summary>
+public static class MapLegend
+{
+    /// <summary>A small, dim, word-wrapped label named MapLegend, hidden until a map with a legend is shown.</summary>
+    public static Label Create()
+    {
+        var label = new Label
+        {
+            Name = "MapLegend", AutowrapMode = TextServer.AutowrapMode.WordSmart, Modulate = UiStyle.Dim, Visible = false,
+            MouseFilter = Control.MouseFilterEnum.Ignore, SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
+        };
+        label.AddThemeFontSizeOverride("font_size", 14);
+        return label;
+    }
+
+    /// <summary>Shows <paramref name="map"/>'s legend from <paramref name="maps"/> (the default catalog when null), or hides the label.</summary>
+    [OpenScct.Provenance.PortOf("uc:GUI.moImageListMap:ImageMapChange", Spec = "spec/game/lobby-and-match-creation.md#front-end-pages")]
+    public static void Show(Label label, MapCatalog? maps, string? map)
+    {
+        string? legend = string.IsNullOrEmpty(map) ? null : (maps ?? MapImages.Default).GetCatalogEntry(map)?.Legend;
+        label.Text = legend is null ? string.Empty : OpenScctGame.Tutorials.TutorialText.Lines(legend);
+        label.Visible = legend is not null;
+    }
+}
+
+/// <summary>
 /// A map's picture in a frame: the texture kept to its aspect, or, without one, a dark panel with the map's name.
 /// </summary>
 public partial class MapThumb : PanelContainer

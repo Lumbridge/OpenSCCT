@@ -30,7 +30,8 @@ public partial class HostScreen : MenuPage
     private Label? _status;
     private BoxContainer? _columns;
     private Control? _mapPanel;
-    private Label? _selectedMap;
+    private Label? _selectedMap, _mapLegend;
+    private MapCatalog? _maps;
     private Label? _voiceHint;
     private Label? _botHint;
     private Label? _listingHint;
@@ -70,6 +71,7 @@ public partial class HostScreen : MenuPage
         }
         if (Model is null) return;
         if (_selectedMap is not null) _selectedMap.Text = Model.Text(SessionRow.Map);
+        if (_mapLegend is not null) MapLegend.Show(_mapLegend, _maps, Model.Setup.Map);
         if (_voiceHint is not null) _voiceHint.Text = Model.VoiceHint;
         if (_botHint is not null) _botHint.Text = Model.BotHint;
     }
@@ -89,7 +91,7 @@ public partial class HostScreen : MenuPage
         _bodyScroll = PageCanvas.GetNode<ScrollContainer>("BodyScroll");
         OnlineSettings s = OnlineSettings.Current;
         OnlineService service = OnlineService.Get(GetTree());
-        MapCatalog maps = service.Catalog.Maps;
+        MapCatalog maps = _maps = service.Catalog.Maps;
         var list = new List<(string Id, string Title)>();
         foreach (MapListEntry m in maps.ListMaps())
         {
@@ -117,6 +119,8 @@ public partial class HostScreen : MenuPage
         };
         _selectedMap.AddThemeFontSizeOverride("font_size", 22);
         mapList.AddChild(_selectedMap);
+        _mapLegend = MapLegend.Create();
+        mapList.AddChild(_mapLegend);
         mapList.AddChild(Note("Select a map below. Its game mode supplies the starting rules."));
         Picker = new MapPickerView(Model, maps, list, height: 220f, playlist: SettingsStore.Current.ActiveMapPlaylist,
             playlistChosen: RememberPlaylist, compact: true) { SizeFlagsVertical = SizeFlags.ExpandFill };

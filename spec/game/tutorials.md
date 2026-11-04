@@ -87,6 +87,8 @@ time the player launches a map.
     2) are built the same way; no menu of the PC build opens them.
 11. Visit a Map: a map list (AquaE first selected) and the side's picture; Switch Team flips the profile's team;
     Launch turns the in-game help on and plays the persistent `LevelName` offline (rule 4, the profile's team).
+    The map list is the shared map picker, GUI.moImageListMap (spec/game/lobby-and-match-creation.md rule 36): the
+    selected map's name and its LegendMap dossier under the picture; ImageMapChange is what sets `LevelName`.
 12. The main multiplayer menu turns the in-game help off each time it opens, so the help is on only for a visit.
 13. Lobby launch or ready: when the map is not in the profile's played list, the first-time box opens instead and
     the press is remembered; OK adds the map to the list, writes the profile and closes the box, and the remembered

@@ -7,6 +7,8 @@ Units:
 - uc:GUI.AlternateModeSettings:{InitComponent, AlternateKeyEvent, SpyGadgetChange, MercGadgetChange, Tick} (contract: Alternate Mode)
 - uc:GUI.Briefing:{InitComponent, RefreshText} (contract: briefing)
 - uc:GUI.BriefingDeux:{InitComponent} (contract: briefing)
+- uc:GUI.moImageListMap:{InitComponent, ImageMapChange, MapActivate, MapDeActivate, ButtonClick, SetWithMapName} (contract: map picker)
+- uc:GUI.Create_Match:{HideMapArrows, MapActivateNoArrows, MapDeActivateNoArrows} (contract: map picker)
 - uc:Engine.PersistentData:{SetGadgetRestriction, GetGadgetRestriction}
 - uc:GUI.ConfirmQuitPage:{YesButtonClick, NoButtonClick} (contract: front-end pages)
 - uc:GUI.Validate_VideoSettings:{s_Init@code, YesButtonClick, NoButtonClick} (contract: front-end pages)
@@ -195,6 +197,28 @@ Smaller pages around the lobby and the options (GUI package; captions from Enhan
     lobby while a match launches, the old values come back at once.
 35. LegendModeServer (a "Modes" box with Mode 1, Mode 2 and Other Mode beside a square, a triangle and a circle) is
     never opened by any page or native: dead in Enhanced 4.0.
+36. The map picker, GUI.moImageListMap, is one widget shared by Create_Match (ImageMap, Controls[1]),
+    GUIPanelCreateServer (Controls[0], the Ubi.com online page's Create tab) and Visit_Map_Set (Controls[1]). Its
+    parts: Controls[2] a read-only GUIEditBox with the map name, Controls[3] and [4] the arrows (Plus, Minus: ButtonClick
+    steps to the next or previous picture), Controls[5] the frame (MN_cadre01, hidden), and Controls[6] the legend, a
+    GUILabel (bMultiLine, TXTA_Justified, GUIVerySmallDenFont, style s_PcLabel) under the picture. InitComponent hooks
+    the list's OnChange, OnActivate and OnDeActivate and hides Controls[0].
+    - ImageMapChange stores the picture's name as the persistent LevelName and reads its SMapSettings
+      (Level.GetLevelSettings): the box shows MapSettings.MapName and the legend MapSettings.LegendMap, the map's
+      dossier (date and time, place, a blank line, a summary) with `|` as a line break, for example AquaE's
+      "11 March 2008, 9:58 PM|France, Aquarius Marine Center||The Aquarius ...". LegendMap is read nowhere else.
+    - Without settings the box shows LevelName and the legend "<LevelName>-i.utc or -i.utx file missing"; an entry
+      named "ERR" shows Controller.CorruptedMap ("Corrupted") and CorruptedLegend ("This downloaded map is
+      corrupted."). Both are n-a here: converted maps have no `-i` packages, and a map without settings has no legend,
+      so the legend is left out.
+    - MapActivate shows the arrows and sets the box and the legend to MSAT_Focused and the frame to SelectedColor
+      (128, 128, 128); MapDeActivate hides the arrows, sets them MSAT_Blurry and the frame to UnSelectedColor (76, 113,
+      61). Create_Match.HideMapArrows hides the arrows for good (never focused) and installs MapActivateNoArrows and
+      MapDeActivateNoArrows, which do the same without the arrows, so the legend stays live there.
+    - SetWithMapName selects the picture whose name matches (Visit_Map_Set selects AquaE, spec/game/tutorials.md).
+    - The native PreDraw layout of the parts was not decoded; "under the picture" is the script-level reading
+      (bLabelOnBottom, the label after the image). OpenSCCT draws the legend under the selected map's name on Create
+      Session, the lobby's session options and Visit a Map.
 
 ## States
 No states.
