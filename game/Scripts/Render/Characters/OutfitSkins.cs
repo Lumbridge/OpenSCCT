@@ -4,7 +4,6 @@ using System.IO;
 using Godot;
 using OpenScct.Provenance;
 using OpenScctGame.Render.Data;
-using OpenScctGame.Render.Gltf;
 using OpenScctGame.Render.Materials;
 using Vector2N = System.Numerics.Vector2;
 
@@ -12,9 +11,9 @@ namespace OpenScctGame.Render.Characters;
 
 /// <summary>
 /// The stock suits' textures redrawn for meshes laid out differently (spec/additions/map-outfits.md), through a
-/// <see cref="SurfaceTransfer"/>: a map outfit's own model gets the heat and EMF masks, wet heat and EMF masks and wet
-/// specularity masks of the stock mesh it stands in for, and the merc's first-person arms get the dressed merc's
-/// sleeves and gloves. Made in memory when first drawn, once per pair of meshes.
+/// <see cref="SurfaceTransfer"/>: a map outfit's own model gets the heat and EMF masks, dry and wet, of the stock mesh
+/// it stands in for, and the merc's first-person arms get the dressed merc's sleeves and gloves. Made in memory once
+/// per pair of meshes, while the map loads (<see cref="PawnOutfits.Prepare"/>).
 /// </summary>
 public sealed class OutfitSkins
 {
@@ -22,30 +21,29 @@ public sealed class OutfitSkins
     private const int Size = 256;
 
     private static readonly Dictionary<(string Model, string Stock), OutfitSkins?> s_cache = new();
-    private static readonly Dictionary<string, Texture2D?> s_arms = new(StringComparer.OrdinalIgnoreCase);
+    private static readonly Dictionary<string, ArmsSkin?> s_arms = new(StringComparer.OrdinalIgnoreCase);
     private static readonly Dictionary<string, BindMesh> s_meshes = new(StringComparer.OrdinalIgnoreCase);
 
     private readonly SurfaceTransfer _transfer;
-    private readonly string _stockFolder;
+    private readonly string _modelGlb;
     private readonly RenderPack? _pack;
-    private readonly Dictionary<string, WetSkins.WetInputs> _wetInputs;
     private readonly Dictionary<string, TexelImage?> _images = new(StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<int, TexelMap> _maps = new();
     private readonly Dictionary<string, VisionMasks?> _vision = new(StringComparer.Ordinal);
-    private readonly Dictionary<(int Material, bool LocalSpy), WetLayer?> _wet = new();
 
-    private OutfitSkins(SurfaceTransfer transfer, string stockGlb)
+    private OutfitSkins(SurfaceTransfer transfer, string modelGlb, string stockGlb)
     {
         _transfer = transfer;
-        _stockFolder = Path.GetDirectoryName(stockGlb) ?? ".";
+        _modelGlb = modelGlb;
         // shared/chars/<Package>/<Mesh>.glb: the render pack with the vision skins is shared/render.
-        _pack = Path.GetDirectoryName(Path.GetDirectoryName(_stockFolder)) is { } shared ? RenderPack.Load(shared) : null;
-        using GlbDocument glb = GlbDocument.Load(stockGlb);
-        _wetInputs = WetSkins.WetMaterials(glb.Root);
+        _pack = Path.GetDirectoryName(Path.GetDirectoryName(Path.GetDirectoryName(stockGlb))) is { } shared ? RenderPack.Load(shared) : null;
     }
 
-    /// <summary>The wet layer of a model's material: its specularity mask and the stock wet skin's env map (full path) and colour.</summary>
-    public sealed record WetLayer(Texture2D SpecMask, string? Env, Vector3? EnvColor);
+    /// <summary>
+    /// The merc's first-person arms in his outfit: the texture, and the name it is kept under in the view model's
+    /// texture cache (one name per outfit, so a later map's outfit never meets the material made for an earlier one).
+    /// </summary>
+    public sealed record ArmsSkin(Texture2D Texture, string Key);
 
     /// <summary>
     /// The skins of the outfit model <paramref name="modelGlb"/> standing in for the stock mesh
@@ -62,7 +60,7 @@ public sealed class OutfitSkins
         OutfitSkins? skins = null;
         try
         {
-            skins = new OutfitSkins(new SurfaceTransfer(Mesh(key.Item1), Mesh(key.Item2)), key.Item2);
+            skins = new OutfitSkins(new SurfaceTransfer(Mesh(key.Item1), Mesh(key.Item2)), key.Item1, key.Item2);
         }
         catch (InvalidDataException e)
         {
@@ -89,77 +87,57 @@ public sealed class OutfitSkins
 
         (string own, bool wet, bool localSpy) = Parse(material);
         int index = _transfer.Target.MaterialIndex(own);
-        made = index < 0 || _pack is null ? null : BakeVision(Map(index), wet, localSpy);
+        made = index < 0 || _pack is null || Map(index) is not { IsEmpty: false } map ? null : BakeVision(map, wet, localSpy);
         _vision[material] = made;
         return made;
     }
 
     /// <summary>
-    /// The wet layer of a material of the model on the local player's side: the stock wet skins' specularity masks
-    /// at the nearest stock point (none where the stock surface stays dry), with the env map of the wet skin most of
-    /// its texels take. Null when none of them is wet.
+    /// True when the model's material <paramref name="material"/> lies over a stock surface that has a wet skin on the
+    /// local player's side (<see cref="WetSkins"/>): only those get one.
     /// </summary>
-    public WetLayer? Wet(string material, bool localSpy)
+    public bool GetsWet(string material, bool localSpy)
     {
         int index = _transfer.Target.MaterialIndex(material);
         if (index < 0)
         {
-            return null;
+            return false;
         }
 
-        if (_wet.TryGetValue((index, localSpy), out WetLayer? made))
+        int[] counts = Map(index).Counts(_transfer.Source.Materials.Length);
+        for (int m = 0; m < counts.Length; m++)
         {
-            return made;
-        }
-
-        TexelMap map = Map(index);
-        int[] counts = map.Counts(_transfer.Source.Materials.Length);
-        WetSkins.WetInputs? main = null;
-        int most = 0;
-        var masks = new TexelImage?[_transfer.Source.Materials.Length];
-        for (int m = 0; m < masks.Length; m++)
-        {
-            if (WetInputsOf(m, localSpy) is not { } inputs)
+            if (counts[m] > 0 && WetSkins.WetSkinOf(_transfer.Source.Materials[m], localSpy) is not null)
             {
-                continue;
-            }
-
-            masks[m] = inputs.SpecMask is { } mask ? Loaded(Path.Combine(_stockFolder, mask)) : null;
-            if (counts[m] > most)
-            {
-                most = counts[m];
-                main = inputs;
+                return true;
             }
         }
 
-        made = main is null ? null : new WetLayer(
-            Texture(map.Bake((m, uv) => masks[m]?.Sample(uv) ?? default, _ => default)),
-            main.Env is { } env ? Path.Combine(_stockFolder, env) : null,
-            main.EnvColor);
-        _wet[(index, localSpy)] = made;
-        return made;
+        return false;
     }
 
     /// <summary>
-    /// The texture of the material <paramref name="armsMaterial"/> of the view model <paramref name="viewModelGlb"/>
-    /// redrawn from the merc mesh <paramref name="mercGlb"/> as dressed (<paramref name="diffuse"/>: full paths of
-    /// textures drawn over its own materials, by material). Texels the arms do not cover keep the view model's own.
-    /// Null when a mesh cannot be read.
+    /// The texture, with its cache name, of the material <paramref name="armsMaterial"/> of the view model
+    /// <paramref name="viewModelGlb"/> redrawn from the merc mesh <paramref name="mercGlb"/> as dressed
+    /// (<paramref name="diffuse"/>: full paths of textures drawn over its own materials, by material). Texels the arms
+    /// do not cover keep the view model's own.
+    /// Null when a mesh cannot be read or the view model's rig shares no bones with the merc's (the pistols' arms are
+    /// a model of their own and keep their look).
     /// </summary>
-    public static Texture2D? Arms(string viewModelGlb, string armsMaterial, string mercGlb, IReadOnlyDictionary<string, string> diffuse)
+    public static ArmsSkin? Arms(string viewModelGlb, string armsMaterial, string mercGlb, IReadOnlyDictionary<string, string> diffuse)
     {
         string key = string.Join("|", Path.GetFullPath(viewModelGlb), armsMaterial, Path.GetFullPath(mercGlb), string.Join(",", diffuse.Values));
-        if (s_arms.TryGetValue(key, out Texture2D? cached))
+        if (s_arms.TryGetValue(key, out ArmsSkin? cached))
         {
             return cached;
         }
 
-        Texture2D? made = null;
+        ArmsSkin? made = null;
         try
         {
             var transfer = new SurfaceTransfer(Mesh(viewModelGlb), Mesh(mercGlb));
             int index = transfer.Target.MaterialIndex(armsMaterial);
-            if (index >= 0)
+            if (index >= 0 && transfer.Map(index, Size) is { IsEmpty: false } map)
             {
                 string viewFolder = Path.GetDirectoryName(Path.GetFullPath(viewModelGlb)) ?? ".";
                 string mercFolder = Path.GetDirectoryName(Path.GetFullPath(mercGlb)) ?? ".";
@@ -172,7 +150,7 @@ public sealed class OutfitSkins
                     source[m] = path is null ? null : TexelImage.Load(path, 0);
                 }
 
-                byte[] texels = transfer.Map(index, Size).Bake((m, uv) => source[m]?.Sample(uv) ?? Rgba.Grey(0.5f), i => own?.Texel(i) ?? Rgba.Grey(0.5f));
+                byte[] texels = map.Bake((m, uv) => source[m]?.Sample(uv) ?? Rgba.Grey(0.5f), i => own?.Texel(i) ?? Rgba.Grey(0.5f));
                 if (own is not null)
                 {
                     // The suit's colour on the view model's own alpha (its mask, where the material has one).
@@ -182,7 +160,7 @@ public sealed class OutfitSkins
                     }
                 }
 
-                made = Texture(texels);
+                made = new ArmsSkin(Texture(texels), "outfit-arms:" + key);
             }
         }
         catch (InvalidDataException e)
@@ -236,10 +214,6 @@ public sealed class OutfitSkins
         return new VisionMasks(Texture(heatTexels), Texture(emfTexels));
     }
 
-    private WetSkins.WetInputs? WetInputsOf(int sourceMaterial, bool localSpy) =>
-        WetSkins.WetSkinOf(_transfer.Source.Materials[sourceMaterial], localSpy) is { } skin && _wetInputs.TryGetValue(skin, out WetSkins.WetInputs? inputs)
-            ? inputs : null;
-
     // The merc's mesh serves every view model's arms: read each file once.
     private static BindMesh Mesh(string path)
     {
@@ -257,6 +231,11 @@ public sealed class OutfitSkins
         if (!_maps.TryGetValue(material, out TexelMap? map))
         {
             _maps[material] = map = _transfer.Map(material, Size);
+            if (map.IsEmpty)
+            {
+                GD.PushWarning(
+                    $"outfit model {_modelGlb}: {_transfer.Target.Materials[material]} lies on no bone of the stock rig, so it gets no heat or EMF masks");
+            }
         }
 
         return map;

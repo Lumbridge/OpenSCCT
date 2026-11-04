@@ -278,6 +278,8 @@ public partial class PlayRoot : Node3D
             FirstPerson = new FirstPersonView { Map = Map, SharedRoot = Map.SharedRoot };
             AddChild(FirstPerson);
             FirstPerson.PreloadSidearms();
+            Render.Characters.PawnOutfits.Prepare(Map.Outfits, Map.Folder, Map.SharedRoot,
+                rain: Session.Client.World.Level.GetService<RainVolumeList>() is { Volumes.Count: > 0 });
             Fx = new OpenScctGame.Fx.CombatFxView { Pawns = Pawns, FirstPerson = FirstPerson, SharedRoot = Map.SharedRoot };
             AddChild(Fx);
             FlashLight = new FlashLightView { Name = "FlashLight", Map = Map, Pawns = Pawns };

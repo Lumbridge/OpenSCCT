@@ -98,7 +98,7 @@ public partial class SimPawnView : Node3D
     {
         Pawn = pawn ?? throw new ArgumentNullException(nameof(pawn));
         bool spy = pawn is not SPAWNDEFENSE;
-        string asset = spy ? "SPerso.ATT_01" : "SPerso.DEF_01";
+        string asset = PawnOutfits.StockAsset(spy);
         string? root = sharedRoot ?? Map?.SharedRoot;
         string? glb = SkeletalModel.FindGlb(asset, root);
         if (glb is null)

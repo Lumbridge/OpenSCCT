@@ -21,9 +21,11 @@ namespace OpenScctGame.Render.Characters;
 /// self-illumination. The chars step writes their textures with the mesh (glb extras svmap.wetSkins); an older build
 /// without them draws the surface's own textures with only the wet modifier's vision textures.
 /// The skins are kept by outfit slot (body, head), so a map outfit's slot texture (spec/additions/map-outfits.md) is the
-/// dry skin under its wet one. A map outfit's own model has none of the stock surfaces: each of its materials gets a
-/// wet skin of its own diffuse with the wet layer and the wet heat and EMF masks made for its UVs from the stock mesh
-/// it stands in for (<see cref="OutfitSkins"/>). Built once per mesh file, side of the local player and outfit textures.
+/// dry skin under its wet one. A map outfit's own model has none of the stock surfaces: each of its materials that
+/// lies over a wet stock surface gets a wet skin of its own diffuse and glow with the wet heat and EMF masks made for
+/// its UVs from the stock mesh it stands in for (<see cref="OutfitSkins"/>); pawns draw wet skins only in thermal and
+/// EMF (SimPawnView), so a model has no wet specular layer. Built once per mesh file, side of the local player and
+/// outfit textures.
 /// </summary>
 public sealed class WetSkins
 {
@@ -151,7 +153,7 @@ public sealed class WetSkins
 
         if (!stock && stockGlb is not null && OutfitSkins.For(glbPath, stockGlb) is { } outfitSkins)
         {
-            LoadOutfit(skins, compiler, textures, own, outfitSkins, localSpy);
+            LoadOutfit(skins, compiler, own, outfitSkins, localSpy);
         }
 
         return skins;
@@ -159,32 +161,25 @@ public sealed class WetSkins
 
     /// <summary>
     /// An outfit model's wet skins: each material lying over a wet stock surface keeps its own diffuse and glow, with the
-    /// stock wet skin's env map through a specularity mask made for its UVs, and the wet heat and EMF masks.
+    /// wet heat and EMF masks made for its UVs (found under <see cref="OutfitSkins.WetName"/>).
     /// </summary>
-    private static void LoadOutfit(WetSkins skins, MaterialCompiler compiler, TextureCache textures, Dictionary<string, MaterialEntry> own,
-        OutfitSkins outfit, bool localSpy)
+    private static void LoadOutfit(WetSkins skins, MaterialCompiler compiler, Dictionary<string, MaterialEntry> own, OutfitSkins outfit,
+        bool localSpy)
     {
         compiler.OwnVision = outfit.Vision;
         foreach ((string material, MaterialEntry e) in own)
         {
-            if (outfit.Wet(material, localSpy) is not { } layer)
+            if (!outfit.GetsWet(material, localSpy))
             {
                 continue;
             }
 
-            string name = OutfitSkins.WetName(material, localSpy);
-            string mask = "outfit-wet:" + name;
-            textures.Add(mask, layer.SpecMask);
-            bool env = layer.Env is not null;
             skins._bySurface[material] = compiler.Build(new MaterialEntry
             {
-                Name = name,
+                Name = OutfitSkins.WetName(material, localSpy),
                 Texture = e.Texture,
                 SelfIllum = e.SelfIllum,
                 SelfIllumMask = e.SelfIllumMask,
-                SpecMask = env ? mask : null,
-                EnvTexture = layer.Env,
-                EnvColor = env ? layer.EnvColor ?? Vector3.Zero : null,
                 Masked = e.Masked,
                 Translucent = e.Translucent,
                 TwoSided = e.TwoSided,
@@ -193,12 +188,12 @@ public sealed class WetSkins
     }
 
     /// <summary>The inputs of one wet LitSpecularMaterial as the chars step wrote them (texture paths beside the mesh).</summary>
-    internal sealed record WetInputs(string? Env, Vector3? EnvColor, string? SpecMask, string? SelfIllum, string? SelfIllumMask);
+    private sealed record WetInputs(string? Env, Vector3? EnvColor, string? SpecMask, string? SelfIllum, string? SelfIllumMask);
 
     /// <summary>The glb's svmap.wetSkins: wet material path to its env map, env colour, specularity mask and glow.</summary>
     [Provenance(ProvenanceKind.Decoded, "SPersoTextures wet_lit_ATT_SI, wet_lit_ATT, wet_lit_ATT_2, lit_def_fx: LitSpecularMaterial Specular (TexEnvMap envmap_wet), SpecularityMask, SelfIllumination(Mask)")]
     [Provenance(ProvenanceKind.Estimated, "The specular term is drawn as the map Shaders' env maps are (env texture by the camera-space reflection, added through the mask's alpha)")]
-    internal static Dictionary<string, WetInputs> WetMaterials(JsonElement root)
+    private static Dictionary<string, WetInputs> WetMaterials(JsonElement root)
     {
         var result = new Dictionary<string, WetInputs>(StringComparer.OrdinalIgnoreCase);
         if (!root.TryGetProperty("extras", out JsonElement ex) || !ex.TryGetProperty("svmap", out JsonElement svmap) ||

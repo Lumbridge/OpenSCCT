@@ -175,22 +175,27 @@ public partial class FirstPersonView : Node3D
         }
     }
 
-    /// <summary>The merc's first-person sleeves and gloves, in every merc view model (1DEF_01, 1DEF_Uzi, 1DEF_shotgun).</summary>
+    /// <summary>
+    /// The merc's first-person sleeves and gloves, in every merc view model: the guns' 1DEF_01, 1DEF_Uzi and
+    /// 1DEF_shotgun, and the pistols' arms (a model of their own under the same material name).
+    /// </summary>
     public const string ArmsMaterial = "SWeaponTex.1DEF_01";
 
     private IReadOnlyList<MeshInstance3D> _arms = [];
+    private (RenderMap Map, bool Wears)? _mercOwnModel;
     private CosmeticItem? _gunCosmetic;
     private CosmeticItem? _bodyCosmetic;
     private SkeletalModel? _cosmeticModel;
 
     /// <summary>
     /// OpenSCCT's own: the player's gun camo or tint on the gun, under the weapon's Skins (the rate-of-fire screen
-    /// stays), and the body's on the arms, so the sleeves match the merc's suit.
+    /// stays), and the body's on the arms, so the sleeves match the merc's suit. A map's own outfit model has no camo,
+    /// so while the mercs wear one the arms keep the outfit's sleeves whatever the cosmetics policy, as the body does.
     /// </summary>
     private void DrawCosmetic(Pawn? pawn, SWeaponDefense? weapon)
     {
         CosmeticItem? gun = pawn is null ? null : PawnCosmetics.GunItem(pawn, weapon);
-        CosmeticItem? body = pawn is null ? null : PawnCosmetics.LookOf(pawn)[CosmeticSlot.Body];
+        CosmeticItem? body = pawn is null || MercWearsOwnModel ? null : PawnCosmetics.LookOf(pawn)[CosmeticSlot.Body];
         if (ReferenceEquals(_cosmeticModel, _model) && ReferenceEquals(_gunCosmetic, gun) && ReferenceEquals(_bodyCosmetic, body))
         {
             return;
@@ -264,18 +269,42 @@ public partial class FirstPersonView : Node3D
         _loaded[asset] = (_model, _applier, _arms);
     }
 
-    /// <summary>The map's merc outfit on the arms (spec/additions/map-outfits.md): its sleeves and gloves, when it has a body or model.</summary>
+    /// <summary>
+    /// The map's merc outfit on the arms (spec/additions/map-outfits.md): its sleeves and gloves, when it has a model
+    /// or a body texture. The pistols' arms share no bones with the merc and keep their own look.
+    /// </summary>
     private void DressArms(string viewModelGlb)
     {
         string? root = SharedRoot ?? Map?.SharedRoot;
-        if (_arms.Count == 0 || Map is null || SkeletalModel.FindGlb("SPerso.DEF_01", root) is not { } stock)
+        if (_arms.Count == 0 || Map is null || SkeletalModel.FindGlb(PawnOutfits.StockAsset(spy: false), root) is not { } stock)
         {
             return;
         }
 
-        if (PawnOutfits.FirstPersonArms(viewModelGlb, ArmsMaterial, stock, Map.Outfits.For(spy: false), Map.Folder, root) is { } texture)
+        if (PawnOutfits.FirstPersonArms(viewModelGlb, ArmsMaterial, stock, Map.Outfits.For(spy: false), Map.Folder, root) is { } arms)
         {
-            _model!.SetOutfitTexture(ArmsMaterial, "outfit-arms:" + System.IO.Path.GetFileName(viewModelGlb), texture);
+            _model!.SetOutfitTexture(ArmsMaterial, arms.Key, arms.Texture);
+        }
+    }
+
+    // The mercs wear a model of the map's own (one that is found), which has no camo textures.
+    private bool MercWearsOwnModel
+    {
+        get
+        {
+            if (Map is null)
+            {
+                return false;
+            }
+
+            if (_mercOwnModel is not { } known || !ReferenceEquals(known.Map, Map))
+            {
+                known = (Map, Map.Outfits.For(spy: false)?.Model is { Glb: not null } model &&
+                    PawnOutfits.ModelPath(model, Map.Folder, SharedRoot ?? Map.SharedRoot) is not null);
+                _mercOwnModel = known;
+            }
+
+            return known.Wears;
         }
     }
 

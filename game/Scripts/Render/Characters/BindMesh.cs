@@ -149,9 +149,11 @@ internal sealed class BindMesh
     /// <summary>
     /// The vertices of this mesh moved into <paramref name="other"/>'s bind pose: each one rides its bones from this
     /// rig's bind onto the bone of the same name in the other (UE2 "B L ForeArm" and the view models' "Bip01 L
-    /// Forearm" are one bone). A bone the other rig lacks moves with its nearest ancestor that it has.
+    /// Forearm" are one bone). A bone the other rig lacks moves with its nearest ancestor that it has. A vertex none of
+    /// whose bones has a match in the other rig cannot be placed (Placed false): a rig of another family, such as
+    /// the pistols' arms, matches nothing.
     /// </summary>
-    public (Vector3[] Positions, Vector3[] Normals) PosedLike(BindMesh other)
+    public (Vector3[] Positions, Vector3[] Normals, bool[] Placed) PosedLike(BindMesh other)
     {
         var byName = new Dictionary<string, int>(StringComparer.Ordinal);
         for (int j = 0; j < other.Skeleton.Length; j++)
@@ -159,10 +161,9 @@ internal sealed class BindMesh
             byName.TryAdd(BoneKey(other.Skeleton[j].Name), j);
         }
 
-        var moves = new Matrix4x4[Skeleton.Length];
+        var moves = new Matrix4x4?[Skeleton.Length];
         for (int j = 0; j < Skeleton.Length; j++)
         {
-            moves[j] = Matrix4x4.Identity;
             for (int a = j; a >= 0; a = Skeleton[a].Parent)
             {
                 if (byName.TryGetValue(BoneKey(Skeleton[a].Name), out int match))
@@ -175,6 +176,7 @@ internal sealed class BindMesh
 
         var positions = new Vector3[Positions.Length];
         var normals = new Vector3[Positions.Length];
+        var placed = new bool[Positions.Length];
         for (int v = 0; v < Positions.Length; v++)
         {
             Vector3 p = Vector3.Zero;
@@ -184,21 +186,22 @@ internal sealed class BindMesh
             {
                 float w = Weights[(v * 4) + k];
                 int j = Joints[(v * 4) + k];
-                if (w <= 0f || j < 0 || j >= moves.Length)
+                if (w <= 0f || j < 0 || j >= moves.Length || moves[j] is not { } move)
                 {
                     continue;
                 }
 
-                p += w * Vector3.Transform(Positions[v], moves[j]);
-                n += w * Vector3.TransformNormal(Normals[v], moves[j]);
+                p += w * Vector3.Transform(Positions[v], move);
+                n += w * Vector3.TransformNormal(Normals[v], move);
                 total += w;
             }
 
-            positions[v] = total > 0f ? p / total : Positions[v];
-            normals[v] = total > 0f && n != Vector3.Zero ? Vector3.Normalize(n) : Normals[v];
+            placed[v] = total > 0f;
+            positions[v] = placed[v] ? p / total : Positions[v];
+            normals[v] = placed[v] && n != Vector3.Zero ? Vector3.Normalize(n) : Normals[v];
         }
 
-        return (positions, normals);
+        return (positions, normals, placed);
     }
 
     /// <summary>A bone name without the rig's prefix ("B ", "Bip01 "), ignoring case.</summary>

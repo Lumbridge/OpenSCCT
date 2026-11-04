@@ -37,8 +37,8 @@ Each team (`spy`, `merc`) is optional; a team without an entry wears the stock l
     the shared chars are), or
   - `stock`: a shared skeletal mesh by asset path (`SPerso.DEF_01`).
 
-  The model plays the team's own clips, matched by bone name, so it must have every bone they drive. Its heat, EMF and
-  wet masks are made by the client from the stock mesh, matched surface to surface through the bones
+  The model plays the team's own clips, matched by bone name, so it must have every bone they drive. Its heat and EMF
+  masks, dry and wet, are made by the client from the stock mesh, matched surface to surface through the bones
   ([map-outfits.md](../../additions/map-outfits.md#masks-for-a-model)); a model shaped close to the stock suit gets the
   closest masks.
   `goggles` (optional) places the goggle lights: `bone` (default `"B Head"`) and `offset`, UE units in that bone's

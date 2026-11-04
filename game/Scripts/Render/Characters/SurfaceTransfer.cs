@@ -21,20 +21,34 @@ internal sealed class SurfaceTransfer
     private readonly BindMesh _target;
     private readonly Vector3[] _positions;
     private readonly Vector3[] _normals;
+    private readonly bool[] _placed;
     private readonly BindMesh _source;
-    private readonly float _cell;
     private readonly Dictionary<(int X, int Y, int Z), List<int>> _grid = new();
+    private float _cell;
 
     public SurfaceTransfer(BindMesh target, BindMesh source)
     {
         _target = target;
         _source = source;
-        (_positions, _normals) = target.PosedLike(source);
+        (_positions, _normals, _placed) = target.PosedLike(source);
+    }
+
+    public BindMesh Target => _target;
+
+    public BindMesh Source => _source;
+
+    // The source triangles by grid cell, made for the first map that has texels to place.
+    private void BuildGrid()
+    {
+        if (_grid.Count > 0)
+        {
+            return;
+        }
 
         // Cells about the size of an average triangle, so a query tests a handful of them.
         Vector3 min = new(float.MaxValue), max = new(float.MinValue);
         float extent = 0f;
-        for (int t = 0; t < source.TriangleCount; t++)
+        for (int t = 0; t < _source.TriangleCount; t++)
         {
             (Vector3 lo, Vector3 hi) = Bounds(t);
             min = Vector3.Min(min, lo);
@@ -44,8 +58,8 @@ internal sealed class SurfaceTransfer
         }
 
         float diagonal = (max - min).Length();
-        _cell = MathF.Max(extent / source.TriangleCount, MathF.Max(diagonal / 256f, 1e-4f));
-        for (int t = 0; t < source.TriangleCount; t++)
+        _cell = MathF.Max(extent / _source.TriangleCount, MathF.Max(diagonal / 256f, 1e-4f));
+        for (int t = 0; t < _source.TriangleCount; t++)
         {
             (Vector3 lo, Vector3 hi) = Bounds(t);
             (int X, int Y, int Z) a = Cell(lo), b = Cell(hi);
@@ -67,11 +81,11 @@ internal sealed class SurfaceTransfer
         }
     }
 
-    public BindMesh Target => _target;
-
-    public BindMesh Source => _source;
-
-    /// <summary>The source point of every texel of the target material <paramref name="material"/>, at <paramref name="size"/> squared.</summary>
+    /// <summary>
+    /// The source point of every texel of the target material <paramref name="material"/>, at <paramref name="size"/>
+    /// squared. Triangles with a corner the bones could not place (<see cref="BindMesh.PosedLike"/>) give their texels
+    /// none.
+    /// </summary>
     public TexelMap Map(int material, int size)
     {
         var map = new TexelMap(size);
@@ -86,6 +100,11 @@ internal sealed class SurfaceTransfer
             }
 
             int i0 = corners[t * 3], i1 = corners[(t * 3) + 1], i2 = corners[(t * 3) + 2];
+            if (!_placed[i0] || !_placed[i1] || !_placed[i2])
+            {
+                continue;
+            }
+
             Vector2 a = _target.Uvs[i0] * size, b = _target.Uvs[i1] * size, c = _target.Uvs[i2] * size;
             float area = Cross(b - a, c - a);
             if (MathF.Abs(area) < 1e-9f)
@@ -123,6 +142,13 @@ internal sealed class SurfaceTransfer
                 }
             }
         }
+
+        if (texels.Count == 0)
+        {
+            return map;
+        }
+
+        BuildGrid();
 
         // The searches only read the source, so they run in parallel, each worker with its own visited marks.
         Parallel.For(0, texels.Count, () => new Probe(_source.TriangleCount), (i, _, probe) =>
@@ -289,6 +315,9 @@ internal sealed class TexelMap
     public int[] Material { get; }
 
     public Vector2[] Uv { get; }
+
+    /// <summary>True when no texel has a source point (the meshes share no bones).</summary>
+    public bool IsEmpty => Array.TrueForAll(Material, m => m < 0);
 
     /// <summary>How many texels take each source material.</summary>
     public int[] Counts(int materials)

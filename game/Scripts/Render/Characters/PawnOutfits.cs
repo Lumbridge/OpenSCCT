@@ -50,6 +50,34 @@ public static class PawnOutfits
         return Dress(SkeletalModel.Load(stockGlb), stockGlb, stockGlb, null, outfit, mapFolder);
     }
 
+    /// <summary>
+    /// Makes what the map's outfit models need before play (each model with its heat and EMF masks, and in a map with
+    /// rain its wet skins for either side of the local player), so that no pawn's first appearance or first rain stops
+    /// the game for the masks to be made.
+    /// </summary>
+    public static void Prepare(MapOutfits outfits, string mapFolder, string? sharedRoot, bool rain)
+    {
+        ArgumentNullException.ThrowIfNull(outfits);
+        foreach (bool spy in new[] { true, false })
+        {
+            if (outfits.For(spy) is not { Model: not null } outfit || SkeletalModel.FindGlb(StockAsset(spy), sharedRoot) is not { } stock)
+            {
+                continue;
+            }
+
+            Dressed dressed = Load(stock, outfit, mapFolder, sharedRoot);
+            dressed.Model.Root.Free();
+            if (rain && dressed.Outfit is not null)
+            {
+                WetSkins.For(dressed.Glb, localSpy: true, dressed.DryBody, dressed.DryHead, dressed.Stock);
+                WetSkins.For(dressed.Glb, localSpy: false, dressed.DryBody, dressed.DryHead, dressed.Stock);
+            }
+        }
+    }
+
+    /// <summary>The team's stock mesh: SPerso.ATT_01 for the spies, SPerso.DEF_01 for the mercs.</summary>
+    public static string StockAsset(bool spy) => spy ? "SPerso.ATT_01" : "SPerso.DEF_01";
+
     /// <summary>The outfit model's file: the map's own glb under render/, or a stock mesh of the shared packs; null when missing.</summary>
     public static string? ModelPath(OutfitModel model, string? mapFolder, string? sharedRoot)
     {
@@ -71,18 +99,21 @@ public static class PawnOutfits
     /// <summary>
     /// The texture of the merc's first-person arms (material <paramref name="armsMaterial"/> of the view model
     /// <paramref name="viewModelGlb"/>) in the merc outfit: its model's sleeves and gloves, or the stock mesh's with
-    /// the outfit's slot textures. Null for a merc team without an outfit body or model, or when a mesh cannot be read.
+    /// the outfit's body texture. Null when the outfit leaves the merc's body as it is (no model of his own, no body
+    /// texture: a head texture alone), when a mesh cannot be read, or when the view model's arms are not the merc
+    /// rig's.
     /// </summary>
-    public static Texture2D? FirstPersonArms(string viewModelGlb, string armsMaterial, string stockGlb, TeamOutfit? merc, string? mapFolder,
-        string? sharedRoot)
+    public static OutfitSkins.ArmsSkin? FirstPersonArms(string viewModelGlb, string armsMaterial, string stockGlb, TeamOutfit? merc,
+        string? mapFolder, string? sharedRoot)
     {
         ArgumentException.ThrowIfNullOrEmpty(stockGlb);
-        if (merc is null || mapFolder is null || (merc.Body is null && merc.Head is null && merc.Model is null))
+        if (merc is null || mapFolder is null)
         {
             return null;
         }
 
         string glb = merc.Model is { } model && ModelPath(model, mapFolder, sharedRoot) is { } path ? path : stockGlb;
+        bool ownModel = !string.Equals(Path.GetFullPath(glb), Path.GetFullPath(stockGlb), StringComparison.OrdinalIgnoreCase);
         var diffuse = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         foreach ((OutfitSlot? slot, string[] surfaces) in new[] { (merc.Body, s_body), (merc.Head, s_head) })
         {
@@ -95,8 +126,8 @@ public static class PawnOutfits
             }
         }
 
-        // A model of its own draws none of the stock surfaces, so the slot textures only dress a stock mesh.
-        bool dressed = diffuse.Count > 0 || !string.Equals(Path.GetFullPath(glb), Path.GetFullPath(stockGlb), StringComparison.OrdinalIgnoreCase);
+        // The sleeves and gloves are body: a head texture alone leaves them as they are.
+        bool dressed = ownModel || diffuse.ContainsKey(s_body[0]);
         return dressed ? OutfitSkins.Arms(viewModelGlb, armsMaterial, glb, diffuse) : null;
     }
 
