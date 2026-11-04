@@ -11,8 +11,8 @@ The data is the map's `sim/match.json` ([SVMap 1.2](../svmap/1.2/match.md)); the
 - The server applies the rules at every round start (`SGameInfo.StartMatch`, before the game modes set up their
   missions), from the map's authored state each time, so players joining or leaving change the next round's
   layout, never the running one.
-- The URL option `SvmMatchPlayers=<n>` (1 to 24) replaces the count; the editor's Play uses it to preview a size.
-  0 or no option counts the players.
+- The URL option `SvmMatchPlayers=<n>` (1 to 24) replaces the count; 0 or no option counts the players. An offline
+  play passes it from the launch option `--players=<n>`, which the map editor's Play sets to its preview size.
 - `GameReplicationInfo.MatchPlayers` (replicated) holds the count the round was laid out for.
 
 ## The layout
