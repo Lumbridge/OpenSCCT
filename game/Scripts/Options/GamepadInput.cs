@@ -345,7 +345,7 @@ public partial class GamepadInput : Node
                 // Some handlers read Keycode (the hub), others PhysicalKeycode (the play input).
                 key.Keycode = key.PhysicalKeycode;
                 key.Pressed = down;
-                Godot.Input.ParseInputEvent(key);
+                BindingInput.Inject(key);
                 break;
             case InputEventMouseButton button:
                 // A captured pointer clicks at the middle of the window.
@@ -353,7 +353,7 @@ public partial class GamepadInput : Node
                 button.Position = middle;
                 button.GlobalPosition = middle;
                 button.Pressed = down;
-                Godot.Input.ParseInputEvent(button);
+                BindingInput.Inject(button);
                 break;
         }
     }
@@ -407,7 +407,7 @@ public partial class GamepadInput : Node
             }
 
             SendControl(input, key, true);
-            if (key.StartsWith("MouseWheel", StringComparison.OrdinalIgnoreCase))
+            if (GodotKeys.IsPulse(key))
             {
                 // The wheel has no hold: one notch per press.
                 SendControl(input, key, false);
@@ -415,7 +415,7 @@ public partial class GamepadInput : Node
 
             _held[control] = key;
         }
-        else if (_held.Remove(control, out string? key) && !key.StartsWith("MouseWheel", StringComparison.OrdinalIgnoreCase))
+        else if (_held.Remove(control, out string? key) && !GodotKeys.IsPulse(key))
         {
             SendControl(input, key, false);
         }
@@ -518,7 +518,7 @@ public partial class GamepadInput : Node
         Viewport? viewport = IsInsideTree() ? GetViewport() : null;
         foreach (string key in _held.Values)
         {
-            if (!key.StartsWith("MouseWheel", StringComparison.OrdinalIgnoreCase))
+            if (!GodotKeys.IsPulse(key))
             {
                 SendControl(PlayInput, key, false);
             }

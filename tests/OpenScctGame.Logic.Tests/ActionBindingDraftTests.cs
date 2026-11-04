@@ -77,7 +77,8 @@ public sealed class ActionBindingDraftTests
         Assert.Contains("HoldBreath", source.Bindings["RightMouse"]);
         Assert.DoesNotContain("bHoldBreath", draft.CommandOf("RightMouse"));
         Assert.Contains("CustomThing mode=keep", draft.CommandOf("RightMouse"));
-        Assert.Contains("Function AltFire", draft.CommandOf("RightMouse"));
+        Assert.Contains(draft.Layout.Resolve("RightMouse"), a => a.Name == "AltFire");
+        Assert.StartsWith("AltFire |", draft.CommandOf("RightMouse"));
         Assert.True(draft.Dirty);
         draft.Accept();
         Assert.False(draft.Dirty);
@@ -109,6 +110,227 @@ public sealed class ActionBindingDraftTests
         draft.Assign(Action("breath"), "R", replace: true);
         Assert.Equal("Button bHoldBreath", draft.CommandOf("R"));
         Assert.Empty(draft.CommandOf("RightMouse"));
+    }
+
+    [Fact]
+    public void AddAlternateDeduplicatesAndPreservesEveryOtherInputAndUntouchedCommand()
+    {
+        var draft = new ActionBindingDraft(KeyLayout.Parse(Ini));
+        string untouched = draft.CommandOf("RightMouse");
+        draft.Add(Action("reload"), "X");
+        draft.Add(Action("reload"), "Ctrl+R");
+        draft.Add(Action("reload"), "Y");
+        string saved = draft.Layout.ToIni();
+        draft.Add(Action("reload"), "x");
+        Assert.Equal(saved, draft.Layout.ToIni());
+        Assert.Equal(new[] { "R", "X", "Ctrl+R", "Y" }, draft.Keys(Action("reload")));
+        Assert.Equal(untouched, draft.CommandOf("RightMouse"));
+        Assert.Equal(saved, KeyLayout.Parse(saved).ToIni());
+    }
+
+    [Fact]
+    public void ReplaceAndRemoveASelectedAlternateLeaveOtherInputsAndSharedAliasesIntact()
+    {
+        var draft = new ActionBindingDraft(KeyLayout.Parse(Ini));
+        draft.Add(Action("breath"), "X");
+        draft.Add(Action("breath"), "Y");
+        draft.Replace(Action("breath"), "RightMouse", "Ctrl+E");
+        Assert.Equal(new[] { "Ctrl+E", "X", "Y" }, draft.Keys(Action("breath")));
+        Assert.Equal("AltFire | GadgetQuickChoice 1 | CustomThing mode=keep", draft.CommandOf("RightMouse"));
+        draft.Remove(Action("breath"), "X");
+        Assert.Equal(new[] { "Ctrl+E", "Y" }, draft.Keys(Action("breath")));
+        Assert.Equal(KeyLayout.Parse(Ini).Aliases, draft.Layout.Aliases);
+    }
+
+    [Fact]
+    public void ShareAndReplaceDestinationOnlyAffectTheChosenSourceAndDestination()
+    {
+        var draft = new ActionBindingDraft(KeyLayout.Parse(Ini));
+        draft.Add(Action("breath"), "X");
+        draft.Replace(Action("breath"), "X", "R");
+        Assert.Equal("Button bReload | Button bHoldBreath", draft.CommandOf("R"));
+        Assert.Empty(draft.CommandOf("X"));
+        Assert.Contains("RightMouse", draft.Keys(Action("breath")));
+
+        draft.Replace(Action("breath"), "R", "RightMouse", replaceDestination: true);
+        Assert.Equal("Button bHoldBreath", draft.CommandOf("RightMouse"));
+        Assert.Equal("Button bReload", draft.CommandOf("R"));
+        Assert.Equal(new[] { "RightMouse" }, draft.Keys(Action("breath")));
+    }
+
+    [Fact]
+    public void ScopedSwapPreservesOtherAlternatesAndMovesCompleteCustomDestination()
+    {
+        var draft = new ActionBindingDraft(KeyLayout.Parse(Ini));
+        draft.Add(Action("reload"), "Y");
+        draft.Add(Action("reload"), "X");
+        draft.Swap(Action("reload"), "R", "RightMouse");
+        Assert.Equal(new[] { "RightMouse", "Y", "X" }, draft.Keys(Action("reload")));
+        Assert.Equal("Button bReload", draft.CommandOf("RightMouse"));
+        Assert.Equal("AltFire | GadgetQuickChoice 1 | HoldBreath | CustomThing mode=keep", draft.CommandOf("R"));
+        var loaded = new ActionBindingDraft(KeyLayout.Parse(draft.Layout.ToIni()));
+        Assert.Equal(draft.Layout.ToIni(), loaded.Layout.ToIni());
+        Assert.Contains("R", loaded.Keys(Action("breath")));
+    }
+
+    [Fact]
+    public void ScopedSwapRetainsUnrelatedSourceActionsAndDestinationAliasText()
+    {
+        const string source = """
+            [Engine.Input]
+            Aliases[0]=(Command="CustomThing mode=keep",Alias="CustomDestination")
+            IK_X=Button bReload | Button bHoldBreath
+            IK_Y=CustomDestination
+            IK_Z=Button bReload
+            """;
+        var draft = new ActionBindingDraft(KeyLayout.Parse(source));
+        draft.Swap(Action("reload"), "X", "Y");
+        Assert.Equal("Button bHoldBreath | CustomDestination", draft.CommandOf("X"));
+        Assert.Equal("Button bReload", draft.CommandOf("Y"));
+        Assert.Equal("Button bReload", draft.CommandOf("Z"));
+        Assert.Equal(KeyLayout.Parse(source).Aliases, draft.Layout.Aliases);
+    }
+
+    [Fact]
+    public void AddingAnEarlierInputKeepsThePrimaryAndSelectedReplacementKeepsItsSlot()
+    {
+        var forward = Action("forward");
+        var draft = new ActionBindingDraft(KeyLayout.Parse("[Engine.Input]\nIK_W=Button BT_Up"));
+        draft.Add(forward, "A");
+        Assert.Equal(new[] { "W", "A" }, draft.Keys(forward));
+        draft.Replace(forward, "A", "Z");
+        Assert.Equal(new[] { "W", "Z" }, draft.Keys(forward));
+        draft.Replace(forward, "W", "Y");
+        Assert.Equal(new[] { "Y", "Z" }, draft.Keys(forward));
+    }
+
+    [Fact]
+    public void SharingAnOccupiedEarlierInputAppendsWithoutChangingEitherActionsPrimary()
+    {
+        const string source = """
+            [Engine.Input]
+            IK_A=Button bReload | CustomThing mode=keep
+            IK_W=Button BT_Up
+            """;
+        var draft = new ActionBindingDraft(KeyLayout.Parse(source));
+        draft.Add(Action("reload"), "R");
+        draft.Add(Action("forward"), "A");
+        Assert.Equal(new[] { "W", "A" }, draft.Keys(Action("forward")));
+        Assert.Equal(new[] { "A", "R" }, draft.Keys(Action("reload")));
+        Assert.Equal("Button bReload | CustomThing mode=keep | Button BT_Up", draft.CommandOf("A"));
+        var loaded = new ActionBindingDraft(KeyLayout.Parse(draft.Layout.ToIni()));
+        Assert.Equal(new[] { "W", "A" }, loaded.Keys(Action("forward")));
+        Assert.Equal(new[] { "A", "R" }, loaded.Keys(Action("reload")));
+    }
+
+    [Fact]
+    public void MoreThanTwoAlternatesKeepInsertionOrderAndRemovingInputsCompactsThatOrder()
+    {
+        var forward = Action("forward");
+        var draft = new ActionBindingDraft(KeyLayout.Parse("[Engine.Input]\nIK_W=Button BT_Up"));
+        foreach (string input in new[] { "Z", "A", "Ctrl+Q", "G" }) draft.Add(forward, input);
+        Assert.Equal(new[] { "W", "Z", "A", "Ctrl+Q", "G" }, draft.Keys(forward));
+        string beforeDuplicate = draft.Layout.ToIni();
+        draft.Add(forward, "a");
+        Assert.Equal(beforeDuplicate, draft.Layout.ToIni());
+        draft.Remove(forward, "A");
+        Assert.Equal(new[] { "W", "Z", "Ctrl+Q", "G" }, draft.Keys(forward));
+        draft.Remove(forward, "W");
+        Assert.Equal(new[] { "Z", "Ctrl+Q", "G" }, draft.Keys(forward));
+        draft.Add(forward, "B");
+        Assert.Equal(new[] { "Z", "Ctrl+Q", "G", "B" }, draft.Keys(forward));
+        var loaded = new ActionBindingDraft(KeyLayout.Parse(draft.Layout.ToIni()));
+        Assert.Equal(new[] { "Z", "Ctrl+Q", "G", "B" }, loaded.Keys(forward));
+    }
+
+    [Fact]
+    public void SwappingASelectedAlternateOrPrimaryRetainsItsPositionAndAllOtherInputs()
+    {
+        const string source = """
+            [Engine.Input]
+            IK_A=Button bReload | CustomDestination keep=1
+            IK_W=Button BT_Up | CustomSource keep=2
+            IK_X=Button bCrouch
+            """;
+        var forward = Action("forward");
+        var draft = new ActionBindingDraft(KeyLayout.Parse(source));
+        draft.Add(forward, "Z");
+        draft.Add(forward, "B");
+        draft.Swap(forward, "Z", "A");
+        Assert.Equal(new[] { "W", "A", "B" }, draft.Keys(forward));
+        Assert.Equal("Button bReload | CustomDestination keep=1", draft.CommandOf("Z"));
+        Assert.Equal("Button BT_Up | CustomSource keep=2", draft.CommandOf("W"));
+        draft.Swap(forward, "W", "X");
+        Assert.Equal(new[] { "X", "A", "B" }, draft.Keys(forward));
+        Assert.Equal("CustomSource keep=2 | Button bCrouch", draft.CommandOf("W"));
+        var loaded = new ActionBindingDraft(KeyLayout.Parse(draft.Layout.ToIni()));
+        Assert.Equal(new[] { "X", "A", "B" }, loaded.Keys(forward));
+    }
+
+    [Fact]
+    public void PrimaryAndAlternateOrderSurviveSaveParseCloneAndANewDraft()
+    {
+        var forward = Action("forward");
+        var draft = new ActionBindingDraft(KeyLayout.Parse("[Engine.Input]\nIK_W=Button BT_Up"));
+        draft.Add(forward, "A");
+        draft.Add(forward, "Ctrl+E");
+        draft.Replace(forward, "W", "Z");
+        Assert.Equal(new[] { "Z", "A", "Ctrl+E" }, draft.Keys(forward));
+        string saved = draft.Layout.ToIni();
+        var loaded = new ActionBindingDraft(KeyLayout.Parse(saved).Clone());
+        Assert.Equal(new[] { "Z", "A", "Ctrl+E" }, loaded.Keys(forward));
+        Assert.Equal(saved, loaded.Layout.ToIni());
+        Assert.False(loaded.Dirty);
+        loaded.Add(forward, "B");
+        Assert.Equal(new[] { "Z", "A", "Ctrl+E", "B" }, loaded.Keys(forward));
+        Assert.True(loaded.Dirty);
+    }
+
+    [Fact]
+    public void ReadingAnUnorderedLegacyLayoutKeepsItsExistingOrderAndDoesNotCreateAnEdit()
+    {
+        const string source = """
+            [Engine.Input]
+            IK_W=Button BT_Up
+            IK_Z=Button BT_Up
+            IK_A=Button BT_Up
+            """;
+        var draft = new ActionBindingDraft(KeyLayout.Parse(source));
+        string before = draft.Layout.ToIni();
+        Assert.Equal(new[] { "A", "W", "Z" }, draft.Keys(Action("forward")));
+        Assert.Equal(before, draft.Layout.ToIni());
+        Assert.False(draft.Dirty);
+        var loaded = new ActionBindingDraft(KeyLayout.Parse(before));
+        Assert.Equal(new[] { "A", "W", "Z" }, loaded.Keys(Action("forward")));
+        Assert.False(loaded.Dirty);
+    }
+
+    [Fact]
+    public void RemovingAnActionSplitsOnlyItsMixedAliasAndPreservesOtherAliasInvocations()
+    {
+        const string source = """
+            [Engine.Input]
+            Aliases[0]=(Command="Button bReload | CustomThing mode=keep",Alias="Mixed")
+            Aliases[1]=(Command="OtherThing precise=1",Alias="Unrelated")
+            IK_X=Mixed | Unrelated
+            IK_Y=Mixed
+            """;
+        var draft = new ActionBindingDraft(KeyLayout.Parse(source));
+        draft.Remove(Action("reload"), "X");
+        Assert.Equal("CustomThing mode=keep | Unrelated", draft.CommandOf("X"));
+        Assert.Equal("Mixed", draft.CommandOf("Y"));
+        Assert.Equal(KeyLayout.Parse(source).Aliases, draft.Layout.Aliases);
+    }
+
+    [Fact]
+    public void ReplacingOrSwappingWithTheSameInputLeavesSharedCommandsUnchanged()
+    {
+        var draft = new ActionBindingDraft(KeyLayout.Parse(Ini));
+        string before = draft.Layout.ToIni();
+        draft.Replace(Action("breath"), "RightMouse", "rightmouse", replaceDestination: true);
+        draft.Swap(Action("breath"), "RightMouse", "rightmouse");
+        Assert.Equal(before, draft.Layout.ToIni());
+        Assert.False(draft.Dirty);
     }
 
     [Fact]

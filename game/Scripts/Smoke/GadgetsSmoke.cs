@@ -242,6 +242,7 @@ public sealed class GadgetsSmoke : SmokeTest
             s.FaceWall();
             s.Input.Set("BT_Up", s.Tick < 40);
         }, s => s.Tick > 70 && s.Walking ? s.Detail("at the wall") : null);
+        int mineMenuOpened = -1;
         leg.Add("mine menu", 600, s =>
         {
             s.FaceWall();
@@ -269,7 +270,17 @@ public sealed class GadgetsSmoke : SmokeTest
                 return null;
             }
 
-            return s.Detail($"menu up{(s.Hud is null ? "" : " on the HUD")}");
+            if (s.Pawn?.MyWeapon is not SWeaponDefense rifle ||
+                rifle.GetStateName() != GadgetStates.s_DropMine_Loop ||
+                rifle.ViewAnim.Sequence(SWeaponDefense.MVTCHANNEL) != ViewModelClips.FirstMineStNt2 ||
+                !rifle.ViewAnim.IsAnimating(SWeaponDefense.MVTCHANNEL))
+            {
+                throw new InvalidOperationException("the mine menu lost the raised-hand holding pose");
+            }
+
+            if (mineMenuOpened < 0) mineMenuOpened = s.Tick;
+            return s.Tick - mineMenuOpened < 3 * Sim.Hz ? null :
+                s.Detail($"menu up{(s.Hud is null ? "" : " on the HUD")}, hand held ready for 3 seconds");
         });
         leg.Add("proximity mine", 900, s => s.Input.Set("bAltFire", false), s =>
             s.Server(h => All<SMineProx>(h.World.Level).Any(m => !m.bDeleteMe))

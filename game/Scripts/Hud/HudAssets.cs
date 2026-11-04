@@ -173,6 +173,8 @@ public sealed class HudAssets
     public string KeyDisplayName(string ik)
     {
         ArgumentNullException.ThrowIfNull(ik);
+        if (OpenScctGame.Controls.BindingKey.TryParse(ik, out var chord) && chord.Modifiers != OpenScctGame.Controls.BindingModifiers.None)
+            return chord.Format(KeyDisplayName);
         if (Enum.TryParse("IK_" + ik, ignoreCase: true, out OpenScct.Core.Engine.EInputKey key))
         {
             string index = ((int)key).ToString(System.Globalization.CultureInfo.InvariantCulture);

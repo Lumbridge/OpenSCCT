@@ -8,9 +8,8 @@ public partial class OptionsMenu
     private void TelemetryControls(GridContainer grid)
     {
         FpsTelemetrySettings fps = _edit.FpsTelemetry;
-        Section(grid, "FPS & frame timing", "Frame time is the time between rendered frames. Lower is better; a spike can reveal a stutter. Move this readout in the HUD editor.");
+        Section(grid, "FPS & frame timing", "Frame time is the time between rendered frames. Lower is better; a spike can reveal a stutter. Set this readout's position, size and opacity in the HUD editor.");
         TelemetryDisplay(grid, "FPS display", "show_fps", fps, _edit.ShowFps, value => _edit.ShowFps = value);
-        TelemetryAppearance(grid, "fps_telemetry", fps);
         Check(grid, "Frame time (ms)", "fps_telemetry.show_frame_time", fps.ShowFrameTime, value => fps.ShowFrameTime = value);
         Check(grid, "1% low and high FPS", "fps_telemetry.show_percentiles", fps.ShowPercentiles, value => fps.ShowPercentiles = value);
         Check(grid, "Average FPS", "fps_telemetry.show_average", fps.ShowAverage, value => fps.ShowAverage = value);
@@ -22,9 +21,8 @@ public partial class OptionsMenu
         TelemetryIssueHold(grid, "fps_telemetry", fps);
 
         NetworkTelemetrySettings net = _edit.NetworkTelemetry;
-        Section(grid, "Network information", "Issues include high ping, jitter, packet loss and interrupted updates. A host also sees its players' ping range. Move this readout in the HUD editor.");
+        Section(grid, "Network information", "Issues include high ping, jitter, packet loss and interrupted updates. A host also sees its players' ping range. Set this readout's position, size and opacity in the HUD editor.");
         TelemetryDisplay(grid, "Network display", "show_net", net, _edit.ShowNet, value => _edit.ShowNet = value);
-        TelemetryAppearance(grid, "network_telemetry", net);
         Check(grid, "Detailed network information", "network_telemetry.detailed", net.Detailed, value => net.Detailed = value);
         Check(grid, "Download and upload rates", "network_telemetry.show_traffic", net.ShowTraffic, value => net.ShowTraffic = value);
         Check(grid, "Packet loss percentages", "show_net_loss", _edit.ShowNetLoss, value => _edit.ShowNetLoss = value);
@@ -59,11 +57,4 @@ public partial class OptionsMenu
         Slider(grid, "Keep visible after an issue (seconds)", key + ".issue_hold_seconds", 0f, 10f, 0.5f,
             settings.IssueHoldSeconds, value => settings.IssueHoldSeconds = value, "0.0");
 
-    private void TelemetryAppearance(GridContainer grid, string key, TelemetrySettings settings)
-    {
-        Slider(grid, "Scale (%)", key + ".scale", 50f, 200f, 1f,
-            settings.Scale, value => settings.Scale = value, "0", typed: true);
-        Slider(grid, "Opacity (%)", key + ".opacity", 0f, 100f, 1f,
-            settings.Opacity, value => settings.Opacity = value, "0", typed: true);
-    }
 }

@@ -50,7 +50,7 @@ public partial class HudCommands : Node
     public override void _Input(InputEvent @event)
     {
         if (@event is not InputEventKey { Pressed: true, Echo: false } || PlayInput?.Bindings is not { } bindings ||
-            GodotKeys.ToIk(@event) is not { } ik || (Status?.IsOpen ?? false) || (Blocked?.Invoke() ?? false) || !PlayInput.Enabled)
+            BindingInput.ResolveKey(@event, bindings) is not { } ik || (Status?.IsOpen ?? false) || (Blocked?.Invoke() ?? false) || !PlayInput.Enabled)
         {
             return;
         }

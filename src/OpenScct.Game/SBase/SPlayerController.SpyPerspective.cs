@@ -6,6 +6,7 @@ namespace OpenScct.Game.SBase;
 public partial class SPlayerController
 {
     private SPawnAttaque? _spyFirstPersonPawn;
+    private bool SpyPerspectiveBlockedByBackToWall => StateNode is s_BTW_Base or s_BTWCorner or s_SortieBTW;
 
     /// <summary>A local perspective preference, scoped to this possession and never replicated.</summary>
     public bool SpyFirstPersonRequested
@@ -21,10 +22,11 @@ public partial class SPlayerController
 
     /// <summary>
     /// The optional eye view is active only for the owning live spy's ordinary camera. Scripted head cameras,
-    /// binoculars, remote cameras, free cameras and spectating keep their own view and resume the preference later.
+    /// binoculars, back-to-wall stances, remote cameras, free cameras and spectating keep their own view and resume
+    /// the preference later.
     /// Movement and combat continue to use the original behind-view flags and camera mode.
     /// </summary>
-    public bool SpyFirstPersonActive => SpyFirstPersonRequested && Player is UViewport &&
+    public bool SpyFirstPersonActive => SpyFirstPersonRequested && !SpyPerspectiveBlockedByBackToWall && Player is UViewport &&
         FreeCameraFlying == 0 && bBehindView && !bFirstPersonWithPawn && !bBinocularVision &&
         SBPawn is { bBinocularsOn: false } && (ViewTarget is null || ReferenceEquals(ViewTarget, Pawn)) &&
         PlayerCalcView.SourceOf(this) == PlayerCalcView.EViewSource.Default &&
@@ -34,9 +36,13 @@ public partial class SPlayerController
 
     public void SetSpyFirstPerson(bool enabled)
     {
+        if (enabled && SpyPerspectiveBlockedByBackToWall) return;
         _spyFirstPersonPawn = enabled && SBPawn is SPawnAttaque { bDeleteMe: false, Health: > 0 } spy &&
             ReferenceEquals(Pawn, spy) ? spy : null;
     }
 
-    public void SwitchSpyPerspective() => SetSpyFirstPerson(!SpyFirstPersonRequested);
+    public void SwitchSpyPerspective()
+    {
+        if (!SpyPerspectiveBlockedByBackToWall) SetSpyFirstPerson(!SpyFirstPersonRequested);
+    }
 }

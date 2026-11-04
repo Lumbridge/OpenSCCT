@@ -34,7 +34,7 @@ public partial class OptionsMenu
     {
         GridContainer g = Grid("Voice");
         string[] devices = InputDevices();
-        Section(g, "Voice chat & playback", "");
+        Section(g, "Playback & devices", "Choose your microphone and adjust incoming voice volume and buffering.");
         Choice(g, "Microphone device", "voice_input_device", devices, _edit.VoiceInputDevice.Length == 0 ? SystemDevice : _edit.VoiceInputDevice,
             v => _edit.VoiceInputDevice = v == SystemDevice ? string.Empty : v);
         Check(g, "Enable voice chat", "allow_voice_chat", _edit.VoiceEnabled, v => _edit.VoiceEnabled = v);
@@ -72,18 +72,19 @@ public partial class OptionsMenu
         g.AddChild(new Label { Name = "MuteKey", Text = BindText(VoiceInput.ToggleMute), Modulate = UiStyle.Dim });
         g.AddChild(new Control());
 
-        Section(g, "Test your microphone", "");
+        Section(g, "Microphone test", "Record a short sample and hear what other players hear after microphone processing, transmission and playback.");
         _micTestButton = UiStyle.MenuButton("Test my microphone", StartMicTest, "MicTest");
         _micTestButton.CustomMinimumSize = new Vector2(300f, 40f);
-        g.AddChild(_micTestButton);
+        var test = new VBoxContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill };
+        test.AddChild(_micTestButton);
         _micTestState = new Label
         {
             Name = "MicTestState", Text = "Hear exactly what other players hear from you.", Modulate = UiStyle.Dim,
             AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new Vector2(320f, 0f),
         };
-        g.AddChild(_micTestState);
-        g.AddChild(new Control());
-        return Page("Voice", SectionedContent(g));
+        test.AddChild(_micTestState);
+        SettingsPanel(g, "voice_test", "Test your microphone", "Hear what other players hear from you after microphone processing, transmission and playback. The test records a short sample then plays it back.", test);
+        return CreateSettingsEditor("Voice", g);
     }
 
     private static string[] InputDevices()
@@ -107,9 +108,8 @@ public partial class OptionsMenu
         var names = new List<string>();
         foreach (InputEvent e in InputMap.ActionGetEvents(action))
         {
-            if (e is InputEventKey k)
-                names.Add(OS.GetKeycodeString(k.PhysicalKeycode != Key.None ? k.PhysicalKeycode : k.Keycode));
-            else if (KeyBindingsModel.KeyOf(e) is { } mouse) names.Add(OpenScctGame.Controls.GodotKeys.DisplayName(mouse));
+            if (OpenScctGame.Controls.GodotKeys.ToBinding(e) is { } binding)
+                names.Add(OpenScctGame.Controls.GodotKeys.DisplayName(binding));
         }
         return names.Count == 0 ? "Unbound" : string.Join(", ", names);
     }

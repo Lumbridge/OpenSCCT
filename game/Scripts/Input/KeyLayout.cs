@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 
 namespace OpenScctGame.Controls;
 
@@ -39,6 +40,8 @@ public sealed class KeyLayout
 {
     private readonly Dictionary<string, string> _aliases = new(StringComparer.OrdinalIgnoreCase);
     private readonly SortedDictionary<string, string> _bindings = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, string[]> _inputOrder = new(StringComparer.OrdinalIgnoreCase);
+    private const string InputOrderPrefix = "; OpenSCCT input order ";
 
     /// <summary>Key names (IK_ prefix removed, as the ini spells them: A, Shift, LeftMouse, MouseX) to their raw binding.</summary>
     public IReadOnlyDictionary<string, string> Bindings => _bindings;
@@ -57,6 +60,18 @@ public sealed class KeyLayout
         foreach (string raw in ini.Replace("\r\n", "\n", StringComparison.Ordinal).Split('\n'))
         {
             string line = raw.Trim();
+            if (line.StartsWith(InputOrderPrefix, StringComparison.Ordinal))
+            {
+                int separator = line.IndexOf('=', InputOrderPrefix.Length);
+                if (separator > InputOrderPrefix.Length)
+                    try
+                    {
+                        string[]? order = JsonSerializer.Deserialize<string[]>(line[(separator + 1)..]);
+                        if (order is not null) layout.SetInputOrder(line[InputOrderPrefix.Length..separator], order);
+                    }
+                    catch (JsonException) { /* Invalid optional editor metadata never invalidates gameplay bindings. */ }
+                continue;
+            }
             if (line.Length == 0 || line.StartsWith(';'))
             {
                 continue;
@@ -90,7 +105,8 @@ public sealed class KeyLayout
             }
             else if (key.StartsWith("IK_", StringComparison.OrdinalIgnoreCase))
             {
-                layout._bindings[key[3..]] = value;
+                string input = key[3..];
+                layout._bindings[BindingKey.TryParse(input, out var binding) ? binding.Canonical : input] = value;
             }
         }
 
@@ -101,6 +117,7 @@ public sealed class KeyLayout
     public void Bind(string key, string command)
     {
         ArgumentException.ThrowIfNullOrEmpty(key);
+        if (BindingKey.TryParse(key, out var binding)) key = binding.Canonical;
         if (string.IsNullOrWhiteSpace(command))
         {
             _bindings.Remove(key);
@@ -122,6 +139,7 @@ public sealed class KeyLayout
         foreach (string key in new List<string>(merged.Bindings.Keys))
             if (!user.Bindings.ContainsKey(key) && commands.Contains(merged.Bindings[key])) merged.Bind(key, "");
         foreach ((string key, string command) in user.Bindings) merged.Bind(key, command);
+        foreach ((string action, string[] order) in user._inputOrder) merged.SetInputOrder(action, order);
         return merged;
     }
 
@@ -156,9 +174,33 @@ public sealed class KeyLayout
     /// <summary>Lossless draft copy, including custom aliases and command arguments.</summary>
     public KeyLayout Clone() => Parse(ToIni());
 
+    /// <summary>Editor slot order; legacy layouts retain their original ordering until an input is edited.</summary>
+    public IReadOnlyList<string> InputOrder(string action, IEnumerable<string> inputs)
+    {
+        string[] available = inputs.Distinct(StringComparer.OrdinalIgnoreCase).ToArray();
+        var remaining = new HashSet<string>(available, StringComparer.OrdinalIgnoreCase);
+        var ordered = new List<string>();
+        if (_inputOrder.TryGetValue(action, out string[]? saved))
+            foreach (string key in saved)
+                if (remaining.Remove(key)) ordered.Add(available.First(k => k.Equals(key, StringComparison.OrdinalIgnoreCase)));
+        foreach (string key in available)
+            if (remaining.Remove(key)) ordered.Add(key);
+        return ordered;
+    }
+
+    public void SetInputOrder(string action, IEnumerable<string> inputs)
+    {
+        string[] order = inputs.Where(k => !string.IsNullOrWhiteSpace(k)).Distinct(StringComparer.OrdinalIgnoreCase).ToArray();
+        if (order.Length == 0) _inputOrder.Remove(action);
+        else _inputOrder[action] = order;
+    }
+
     public string ToIni()
     {
-        var text = new System.Text.StringBuilder(SnapshotMarker + "\n" + DefaultKeyLayout.PerspectiveBindingMarker + "\n" + DefaultKeyLayout.CloakBindingMarker + "\n[Engine.Input]\n");
+        var text = new System.Text.StringBuilder(SnapshotMarker + "\n" + DefaultKeyLayout.PerspectiveBindingMarker + "\n" + DefaultKeyLayout.CloakBindingMarker + "\n");
+        foreach ((string action, string[] order) in _inputOrder.OrderBy(p => p.Key, StringComparer.OrdinalIgnoreCase))
+            text.Append(InputOrderPrefix).Append(action).Append('=').Append(JsonSerializer.Serialize(order)).Append('\n');
+        text.Append("[Engine.Input]\n");
         int index = 0;
         foreach ((string alias, string command) in _aliases)
         {

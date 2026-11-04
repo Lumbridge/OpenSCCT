@@ -94,7 +94,12 @@ Reticle (`Reticule` -> A_Reticule; nothing happens without a pawn, the areas kee
    (rl:qol.crosshair, off by default) it sits at (254, 182): 3 units left and 3 down, the original off-centre look.
    The capture above was taken under Reloaded, so its pixel is the (257, 179) placement; the rewrite's page renderer
    draws that pixel with the instance at (256, 178), so it places the instance one unit up and left of Reloaded's
-   constants. The rewrite follows Reloaded: the reticle no longer follows SpotReticule.
+   constants. The rewrite follows Reloaded: the reticle no longer follows SpotReticule. Its outer instance position
+   is derived from the loaded weapon's `rond02` centre (inclusive image rect) and all intervening instance origins,
+   so the dot lands on (320, 240), with the optional classic offset of (-3, +3). Content packs can differ: the
+   development artwork's inner `Reticule` origin is (18, 22), while installed packs also use (15, 25); assuming the
+   development origin shifts the installed dot 3 units left and 3 down even with `classic_crosshair` off. The fixed
+   (256, 178) position remains only a fallback when the artwork has no readable centre dot.
 4. Hit marker: the inner `Reticule` instance (A_AllReticule) is red while `fDateLastShootedPawn + 0.4 > now`, white
    otherwise.
 5. Spread: the selected area's frame is `trunc(10 x GetAccuracy() / (MaxDispersion - MinDispersion))`, held (frames

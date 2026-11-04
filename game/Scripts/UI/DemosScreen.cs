@@ -61,8 +61,8 @@ public partial class DemosScreen : MenuPage
         _libraryTitle = Text(heading, "LibraryTitle", "Your match library", 22);
         var recording = new CheckBox
         {
-            Name = "DemoRecording", Text = "Record my matches", ButtonPressed = OnlineSettings.Current.RecordDemos,
-            TooltipText = "Save full match demos on this computer, whoever hosts. Applies to upcoming rounds. Stay connected after online rounds while your demo downloads.",
+            Name = "DemoRecording", Text = DemoRecordingText.Label, ButtonPressed = OnlineSettings.Current.RecordDemos,
+            TooltipText = DemoRecordingText.Tooltip,
         };
         recording.Toggled += enabled =>
         {

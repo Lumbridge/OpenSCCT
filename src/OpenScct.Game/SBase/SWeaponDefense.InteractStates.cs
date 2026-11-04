@@ -99,6 +99,9 @@ public partial class SWeaponDefense
             if (Channel == MVTCHANNEL)
             {
                 w.GotoState(DNAME_s_DropMine_Loop);
+                // The successor state has started the held-mine loop. The global movement
+                // AnimEnd would replace it with the gun's idle pose while the menu is open.
+                return;
             }
 
             w.AnimEnd(Channel);

@@ -85,6 +85,13 @@ public static class KeyTokens
             }
         }
 
+        // Chords have no legacy EInputKey ordinal. Prefer a plain key when one exists, then show the chord.
+        foreach ((string input, string bound) in layout.Bindings)
+            if (BindingKey.TryParse(input, out var chord) && chord.Modifiers != BindingModifiers.None &&
+                (string.Equals(bound, binding, StringComparison.OrdinalIgnoreCase) ||
+                 layout.Expanded(bound).SequenceEqual(layout.Expanded(binding), StringComparer.OrdinalIgnoreCase)))
+                return input;
+
         return null;
     }
 

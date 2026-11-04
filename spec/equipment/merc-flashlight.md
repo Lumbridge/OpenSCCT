@@ -79,6 +79,9 @@ Other inputs: `GameReplicationInfo.bAvlb_MERC_Torche` (server setting), `SGoggle
    way from the desired aim toward the body). In the camera network it sits at the camera `+ 20 X - 11 Y + 11 Z` and
    points along the camera. `Destroyed` clears LightType and Instigator. The pawn's `Destroyed` destroys both torch
    actors.
+   The rewrite's local first-person presentation uses the drawn camera position and rotation instead of the
+   hidden owner's body bone. This keeps the hotspot on the player's aim near walls and while crouching; remote
+   and third-person torches still use the body bone, and the camera-network placement above is unchanged.
 8. **Malfunction(Time)** (client -> server reliable RPC; runs locally when called on the server): enter
    `s_Malfunction` and `SetTimer(Time, false)`. In that state each tick, if `bInUse`, the light is on with chance
    1/3 (`Rand(3) == 0`: LT_Steady and beam) and off otherwise, then the native tick runs, which sets LightType from

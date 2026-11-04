@@ -414,11 +414,32 @@ Bindings, Mouse & Aim and Controller sections. Mercenary also contains the custo
 the spy retains its original contextual reticle. Role frame caps, the mercenary FOV cap and shared vertical mouse
 inversion are under Mouse & Aim. The Controller (Shared) tab holds shared controller setup, stick behavior and
 vibration settings; role-specific sensitivity and button bindings live in each role's Controller section.
-Detailed scope, camera and held-sensitivity modifiers are under Advanced settings.
+Mouse & Aim follows the binding editor's category navigation and search, with Sensitivity, Scope & cameras,
+Modifiers and View & performance categories. Each setting has its own aligned row and exact numeric fields;
+focusing or hovering a control explains it below the list. A category dropdown replaces the sidebar on narrow
+windows. Reset is a compact menu and remains staged until Apply.
 
-Bindings are action-based and grouped by movement, combat, gadgets, vision, communication and interface. They show
-unbound actions as well as existing keys. Focusing or hovering an action shows its verified description and the
-other actions on that key. The internal `FireMode` is the spy's ready/holster input (tap draws with laser, hold
+Display, Audio, Voice, HUD and Controller (Shared) use the same category/search browser. Display separates
+screen setup, frame pacing, widescreen layout, image quality and restart settings. Voice keeps playback,
+microphone processing, transmission, shortcuts and microphone testing in distinct categories; the live meter
+and test retain their existing behavior. Role controller tuning uses categories beside its bindings view.
+Crosshair settings use the same rows with a live preview dock on wide windows and a Preview button on smaller
+ones. HUD editor has searchable element navigation, aligned properties, a persistent drag preview and a compact
+More menu for presets, resets, copying and importing. Browsing and editing stay within the existing Apply,
+Save & Close and discard workflow; category and search selections survive page rebuilds.
+
+Bindings use one action per row, with category navigation and search across movement, combat, gadgets, vision,
+communication and interface. The category sidebar becomes a dropdown on narrow windows. Two independently
+editable input slots are visible; additional inputs remain available through the extra-bindings control. Selecting
+an action shows its description, shared-input effects and applicable Hold/Toggle behavior. Right-click an assigned
+input for Change binding or Clear binding, or hover it and press Delete to clear only that input. Delete still edits
+text normally in search fields and remains bindable during capture. The capture panel also offers Clear binding and Cancel.
+Adding an input keeps the existing primary and alternate in place; replacing one keeps its column, including after
+saving and reopening Options. Controller bindings use the same editor in the
+separate Controller section, with an Aim & movement switch for its tuning settings. Teammate-name visibility
+settings live on the HUD page; role resets are available through the binding editor's More menu.
+
+The internal `FireMode` is the spy's ready/holster input (tap draws with laser, hold
 past 0.5 seconds draws without it); mercenary **Switch fire mode** uses `bROF`, switching burst/full auto.
 `bHoldBreath` steadies the merc scope. Spies have a separate `bCloak` binding (K / controller LB + RB by default)
 for their built-in cloak, with immediate Hold or Toggle activation. Cloak consumes no gadget slot and is absent
@@ -429,14 +450,27 @@ The options are organized for this game rather than matching the original menu. 
 (controls reference, HUD help and the legacy Quit command) are not offered as normal actions. Existing custom
 configuration data is retained without advertising nonfunctional features. Keyboard-only menu/chat handlers reject
 mouse assignments with an explanation rather than accepting a shortcut that cannot work. Voice shortcuts are
-connected to the active role's voice InputMap, with the existing defaults represented in older key layouts.
+resolved from the active role's layout using the same input selection as gameplay, with the existing defaults
+represented in older key layouts.
 
-Conflicts offer Replace, Share key, Swap (when there is one source key), or Cancel. Clear removes only the selected
-action. Custom command chains and aliases remain supported. Shared layouts are explicitly labeled **Use the same
+Keyboard conflicts offer Replace, Share key, Swap for a selected source, or Cancel; controller conflicts offer
+Replace, Swap and Cancel. Adding, replacing or removing an input preserves the action's other inputs and unrelated
+commands on a shared input. Custom command chains and aliases remain supported. Shared layouts are explicitly labeled **Use the same
 bindings for both roles** (`use_split_spy_merc_keyboard` is its inverse): both roles then edit the Spy layout;
 the separate Mercenary layout is retained. Existing controller assignments preserve their old full-key
 behavior and are shown as saved assignments; the normal choices offer independent actions (`Action:<stable-id>`) do not require a keyboard binding and do not run
-other actions sharing a keyboard key. Existing controller values are retained.
+other actions sharing a keyboard key. Existing controller values are retained. Contextual controller presets,
+including fire with tap-to-quick-use, are named complete assignments rather than silently flattened into one action.
+Supported controller gestures remain the existing buttons, triggers, LS/LB combinations and Hold B. Capture waits
+for the opener to release, previews a supported gesture and commits on release; B and Start can be assigned.
+
+Keyboard and mouse inputs support Ctrl/Shift/Alt combinations, saved as canonical INI keys such as
+`IK_Ctrl+Shift+E`. Left and right modifiers are equivalent. An exact assigned combination wins over its plain base;
+otherwise the plain input works normally. Selection is latched on base press: adding a modifier afterward does
+not change it, and releasing a required modifier ends the combination without starting the plain input. Standalone
+modifier actions remain independent (including Shift's default interaction). Wheel combinations are pulses.
+Focus loss, capture and gameplay overlays release accepted inputs and block held inputs until release. Voice
+shortcuts remain available in ordinary menus but are suppressed while rebinding and while unfocused.
 
 All edits, including keyboard bindings, remain in memory until **Apply** or **Save & Close**. Back confirms
 before discarding unapplied changes. Section and role resets are staged; reset-all requires confirmation. Display

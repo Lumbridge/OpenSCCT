@@ -818,12 +818,14 @@ public partial class SWeaponDefense
     [Uc("SBase.SWeaponDefense.AnimateLand", Sha1 = "60a24758dadf25c221eadfad16246e9b93bc857c")]
     [PortOf("uc:SBase.SWeaponDefense:AnimateLand", Spec = "spec/equipment/merc-rifle.md#rules")]
     public void AnimateLand(float TweenTime = 0f) =>
-        ViewAnim.Play(MVTCHANNEL, ViewModelClips.FirstLandStFd2, ViewModelClips.DataOf(ViewModelClips.FirstLandStFd2));
+        ViewAnim.Play(MVTCHANNEL, ViewModelClips.FirstLandStFd2, ViewModelClips.DataOf(ViewModelClips.FirstLandStFd2),
+            TweenTime: this is MercSidearm ? 0f : K.LandingTweenSeconds);
 
     [Uc("SBase.SWeaponDefense.AnimateLandHigh", Sha1 = "cdae3cbaedbeb783a6ae59a385fc8268857a2afc")]
     [PortOf("uc:SBase.SWeaponDefense:AnimateLandHigh", Spec = "spec/equipment/merc-rifle.md#rules")]
     public void AnimateLandHigh(float TweenTime = 0f) =>
-        ViewAnim.Play(MVTCHANNEL, ViewModelClips.FirstLandStHi2, ViewModelClips.DataOf(ViewModelClips.FirstLandStHi2));
+        ViewAnim.Play(MVTCHANNEL, ViewModelClips.FirstLandStHi2, ViewModelClips.DataOf(ViewModelClips.FirstLandStHi2),
+            TweenTime: this is MercSidearm ? 0f : K.LandingTweenSeconds);
 
     [Uc("SBase.SWeaponDefense.AnimateFall", Sha1 = "7f26bba6433dfd00dfddec4ec0b69dfe6a5b540c")]
     [PortOf("uc:SBase.SWeaponDefense:AnimateFall", Spec = "spec/equipment/merc-rifle.md#rules")]

@@ -12,9 +12,10 @@ namespace OpenScctGame.Render;
 /// <summary>
 /// The merc torch on screen (SGadTorche, spec/equipment/merc-flashlight.md rule 7): an LE_ESpotShadow light
 /// (<see cref="SpotShadowShape.Torch"/>) wherever a torch's LightType is on. The simulation's NativeTickTorche port
-/// decides on and off and the direction; the light sits on the merc's Laser bone as drawn (the eye point when the
-/// pawn is not drawn, as for the local merc in first person) and, while IK_Type is IKT_NONE, points along that
-/// bone. One torch is drawn: the local merc's own, else the nearest other. Each spot shadow light takes one of the
+/// decides on and off and the direction; the light sits on the merc's Laser bone as drawn and, while IK_Type is
+/// IKT_NONE, points along that bone. The owner's first-person light follows the drawn eye view so the hidden
+/// body pose cannot shift its hotspot away from the aim at close range. One torch is drawn: the local merc's own,
+/// else the nearest other. Each spot shadow light takes one of the
 /// template's slots: the torch, the nearest lit searchlight spot and the map's own LE_ESpotShadow lights
 /// (<see cref="MapSpotLights"/>) are drawn together.
 /// </summary>
@@ -50,7 +51,8 @@ public sealed partial class FlashLightView : Node
 
     private MapSpotLights? _mapLights;
 
-    public void Draw(Level? level, SBasePawn? local, FVector cameraLocation)
+    public void Draw(Level? level, SBasePawn? local, FVector cameraLocation,
+        (FVector Location, FRotator Rotation)? firstPersonView = null)
     {
         if (Map is not null)
         {
@@ -95,7 +97,12 @@ public sealed partial class FlashLightView : Node
         FRotator rotation = best.Rotation;
         FromBone = false;
         bool inCamera = pawn.bUsingCamNetwork && pawn.UsedObject is SCamNetwork;
-        if (!inCamera && Pawns is not null)
+        if (!inCamera && ReferenceEquals(pawn, local) && firstPersonView is { } ownView)
+        {
+            location = ownView.Location;
+            rotation = ownView.Rotation;
+        }
+        else if (!inCamera && Pawns is not null)
         {
             _bones ??= new PoseCameraBones(Pawns);
             if (_bones.TryGetBone(pawn, LaserBone, out FVector boneAt, out FRotator boneRot))

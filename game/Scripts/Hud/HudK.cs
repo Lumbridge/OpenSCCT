@@ -91,8 +91,8 @@ public static class HudK
     public static readonly Vector2 ReticleClassicSpot = new(254f, 182f);
 
     /// <summary>
-    /// Our page renderer draws the reticle's centre dot one unit right of and below the reference game's for the
-    /// same instance spot (its elements' rects are not decoded), so the spot is moved back by one unit.
+    /// Fallback calibration for the development artwork when its centre dot cannot be read. Normal placement
+    /// derives the dot's position from the loaded artwork, whose inner origins differ between content packs.
     /// </summary>
     [Provenance(ProvenanceKind.Measured, "sandbox capture at 1280 x 720 (Reloaded on, centred): rond02 drawn from pixel (637, 357), which our renderer draws with the instance at (256, 178)")]
     public static readonly Vector2 ReticleDrawCalibration = new(-1f, -1f);

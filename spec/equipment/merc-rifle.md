@@ -294,6 +294,14 @@ native TraceFire override (nat:SBase.SWeaponDefense_Shotgun.TraceFire at 0x10ab9
       first, then play their clip; `s_Firing.AnimEnd(4)` zeroes channel 4 after the shot clip.
     - Other clips: jump loops FirstJumpStFd2; land FirstLandStFd2 or FirstLandStHi2 (tween 0.2 s); fall
       FirstFallStFd2 (tween 0.4 s); blast FirstStrkStFd2 and pain FirstPainSt{Bk,Ft,Lt,Rt}2 on channel 5 at alpha 1.
+    - OpenSCCT presentation: the original rifle, Uzi and shotgun use their authored landing recovery directly.
+      Landing first tweens toward the clip's first (fully dipped) key for the original 0.2 s, with playback paused;
+      advancing the recovery during that entry tween attenuates the dip. The entry time is included in the weapon
+      channel's completion timer. Custom sidearms retain their existing entry easing.
+      Their compensating neck and clavicle transforms keep the support hand on the gun; interpolating those local
+      joints into the idle or walk pose separates the grip. Custom sidearms retain their recovery easing.
+      The `landing-blend` smoke applies the imported skeletal poses and checks both hands against their authored
+      full landing dip and gun contact through low/high landings and idle/walk recoveries at 30, 60 and 144 FPS.
 
 25. **Draw notifies** (merc pawn, from body anim notifies): `NotifyDrawUndrawWeapon`: when `WeaponLoaded == 0` set 2 and
     call the weapon's `AnimateDraw`, else set 0 and `AnimateUnDraw`. `NotifyUnDrawWeapon_GRAB`: set 0 and

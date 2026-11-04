@@ -38,7 +38,7 @@ public static class ControlActions
         A("swapweapon", "Combat", "Swap weapon", "Switch between your primary and carried pistol. A pistol occupies one gadget slot.", "SwapWeapon", "SwapWeapon") with { Spy = false },
         A("rof", "Combat", "Switch fire mode", "Switch the mercenary rifle's firing mode (burst / full auto), once per press.", "Button bROF", "bROF", "SwitchROF") with { Spy = false },
         A("breath", "Combat", "Hold breath", "Hold to steady the mercenary sniper scope when available.", "Button bHoldBreath", "bHoldBreath") with { Spy = false },
-        A("cloak", "Combat", "Cloak", "Use the spy's built-in camo suit, independently of gadgets. Hold activates on press and deactivates on release; Toggle switches on each press. Choose the behavior above. Wheel bindings always toggle.", "Button bCloak", "bCloak") with { Merc = false },
+        A("cloak", "Combat", "Cloak", "Use the spy's built-in camo suit, independently of gadgets. Hold activates on press and deactivates on release; Toggle switches on each press. Choose the behavior for this action. Wheel bindings always toggle.", "Button bCloak", "bCloak") with { Merc = false },
         A("quick1", "Gadgets", "Quick-use gadget slot 1", "While the spy is unarmed, quick-launch a supported gadget from slot 1.", "GadgetQuickChoice 0", "GadgetQuickChoice 0") with { Merc = false },
         A("quick2", "Gadgets", "Quick-use gadget slot 2", "While the spy is unarmed, quick-launch a supported gadget from slot 2.", "GadgetQuickChoice 1", "GadgetQuickChoice 1") with { Merc = false },
         A("launch1", "Gadgets", "Launch gadget slot 1", "Select and fire gadget slot 1 with the weapon drawn.", "LaunchGadget 0", "LaunchGadget 0") with { Merc = false },
@@ -63,7 +63,7 @@ public static class ControlActions
         A("vision2", "Vision", "Second vision mode", "Toggle the role's second vision mode, when allowed by match settings.", "SwitchHeadset 2", "SwitchHeadset 2"),
         A("visioncycle", "Vision", "Cycle vision modes", "Cycle the available vision modes.", "SwitchHeadset 3", "SwitchHeadset 3"),
         A("scope", "Vision", "Binoculars / sniper scope", "Toggle the role's zoom view. A spy with the weapon drawn first requests holstering it.", "SwitchBinocularVision", "SwitchBinocularVision"),
-        A("perspective", "Vision", "First / third person", "Use first person for tight spaces. Toggle switches perspective on each press; Hold uses first person until released. Wheel bindings always toggle. The perspective behavior above also applies to controller bindings.", "SwitchSpyPerspective", "SwitchSpyPerspective") with { Merc = false },
+        A("perspective", "Vision", "First / third person", "Use first person for tight spaces. Toggle switches perspective on each press; Hold uses first person until released. Wheel bindings always toggle. The selected perspective behavior also applies to controller bindings.", "SwitchSpyPerspective", "SwitchSpyPerspective") with { Merc = false },
         A("zoomin", "Vision", "Zoom in", "Increase zoom in views that support it.", "Button bZoomIn | Function ZoomIn", "ZoomIn", "bZoomIn"),
         A("zoomout", "Vision", "Zoom out", "Decrease zoom in views that support it.", "Button bZoomOut | Function ZoomOut", "ZoomOut", "bZoomOut"),
         A("er", "Vision", "Toggle Enhanced Reality", "Toggle the Enhanced Reality display.", "SwitchEnhancedReality", "SwitchEnhancedReality"),
@@ -110,7 +110,7 @@ public static class ControlActions
         "wheeldown" => a with { Label = wheelMode == "Gadget" ? "Previous gadget (wheel down)" : "Walk (wheel down)", Description = (wheelMode == "Gadget" ? "Select the previous gadget." : "Set movement speed to walk.") + " In zoom views, the current view can use this input to zoom out instead." },
         "vision1" => a with { Label = merc ? "Motion tracking vision" : "Night vision" },
         "vision2" => a with { Label = merc ? "EMF vision" : "Thermal vision" },
-        "scope" => a with { Label = merc ? "Sniper scope" : "Binoculars", Description = merc ? "Aim through the sniper scope using the Hold or Toggle behavior selected above. Wheel assignments always toggle." : "Toggle binoculars. With the weapon drawn, this first requests holstering it." },
+        "scope" => a with { Label = merc ? "Sniper scope" : "Binoculars", Description = merc ? "Aim through the sniper scope using the selected Hold or Toggle behavior. Wheel assignments always toggle." : "Toggle binoculars. With the weapon drawn, this first requests holstering it." },
         _ => a,
     }).OrderBy(a => a.Category switch
     {
@@ -138,7 +138,8 @@ public sealed class ActionBindingDraft
     public bool Dirty => Layout.ToIni() != Baseline;
     public void Accept() => Baseline = Layout.ToIni();
     public void Reset(KeyLayout defaults) => Layout = defaults.Clone();
-    public IEnumerable<string> Keys(ControlAction action) => Layout.Bindings.Where(b => Layout.Expanded(b.Value).Any(action.Matches)).Select(b => b.Key);
+    public IEnumerable<string> Keys(ControlAction action) => Layout.InputOrder(action.Id,
+        Layout.Bindings.Where(b => Layout.Expanded(b.Value).Any(action.Matches)).Select(b => b.Key));
     public string CommandOf(string key) => Layout.Bindings.TryGetValue(key, out string? c) ? c : "";
     /// <summary>Describe every stored action, including actions hidden from the current role's editable list.</summary>
     public string Describe(string key, bool merc, string wheelMode = "Gadget")
@@ -153,22 +154,76 @@ public sealed class ActionBindingDraft
     }
     public void Remove(ControlAction action, string? key = null)
     {
-        foreach (string k in Keys(action).Where(k => key is null || k.Equals(key, StringComparison.OrdinalIgnoreCase)).ToArray())
-            Layout.Bind(k, string.Join(" | ", Layout.Expanded(CommandOf(k)).Where(p => !action.Matches(p))));
+        string[] order = Keys(action).ToArray();
+        string[] removed = order.Where(k => key is null || k.Equals(key, StringComparison.OrdinalIgnoreCase)).ToArray();
+        if (removed.Length == 0) return;
+        foreach (string k in removed)
+            Layout.Bind(k, Without(action, CommandOf(k)));
+        Layout.SetInputOrder(action.Id, order.Except(removed, StringComparer.OrdinalIgnoreCase));
     }
+
+    /// <summary>Adds one alternate input, optionally replacing the destination's complete assignment.</summary>
+    public void Add(ControlAction action, string key, bool replaceDestination = false)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(key);
+        string existing = replaceDestination ? "" : CommandOf(key);
+        if (Layout.Expanded(existing).Any(action.Matches)) return;
+        string[] order = Keys(action).ToArray();
+        Layout.Bind(key, Join(existing, action.Command));
+        Layout.SetInputOrder(action.Id, order.Append(key));
+    }
+
+    /// <summary>Moves only this action's selected input. Other alternate inputs and shared source actions remain.</summary>
+    public void Replace(ControlAction action, string oldKey, string newKey, bool replaceDestination = false)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(oldKey);
+        ArgumentException.ThrowIfNullOrEmpty(newKey);
+        if (oldKey.Equals(newKey, StringComparison.OrdinalIgnoreCase)) return;
+        string[] order = Keys(action).ToArray();
+        Remove(action, oldKey);
+        Add(action, newKey, replaceDestination);
+        Layout.SetInputOrder(action.Id, order.Select(k => k.Equals(oldKey, StringComparison.OrdinalIgnoreCase) ? newKey : k).Append(newKey));
+    }
+
+    /// <summary>Legacy replace-all operation. New editors use Add or Replace for an individual input.</summary>
     public void Assign(ControlAction action, string key, bool replace = false)
     {
         Remove(action);
-        string existing = replace ? "" : CommandOf(key);
-        Layout.Bind(key, existing.Length == 0 ? action.Command : existing + " | " + action.Command);
+        Add(action, key, replace);
     }
     public void Swap(ControlAction action, string oldKey, string newKey)
     {
+        ArgumentException.ThrowIfNullOrEmpty(oldKey);
+        ArgumentException.ThrowIfNullOrEmpty(newKey);
+        if (oldKey.Equals(newKey, StringComparison.OrdinalIgnoreCase)) return;
+        string[] order = Keys(action).ToArray();
         // Swap this action with the destination's complete binding; keep unrelated source actions in place.
         string displaced = CommandOf(newKey);
-        Remove(action);
+        Remove(action, oldKey);
         string remaining = CommandOf(oldKey);
-        Layout.Bind(oldKey, string.Join(" | ", new[] { remaining, displaced }.Where(s => s.Length > 0)));
+        Layout.Bind(oldKey, Join(remaining, displaced));
         Layout.Bind(newKey, action.Command);
+        Layout.SetInputOrder(action.Id, order.Select(k => k.Equals(oldKey, StringComparison.OrdinalIgnoreCase) ? newKey : k).Append(newKey));
+    }
+
+    private static string Join(string first, string second) => string.Join(" | ", new[] { first, second }.Where(s => s.Length > 0));
+
+    // Keep unaffected alias references verbatim. Expand only an alias containing a mixture of the removed action
+    // and other behavior, since that one invocation must be split without changing the shared alias definition.
+    private string Without(ControlAction action, string command, int depth = 0)
+    {
+        var parts = new List<string>();
+        foreach (string raw in command.Split('|', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries))
+        {
+            var expanded = Layout.Expanded(raw);
+            if (!expanded.Any(action.Matches)) parts.Add(raw);
+            else if (depth < 8 && Layout.Aliases.TryGetValue(raw, out string? alias))
+            {
+                string remainder = Without(action, alias, depth + 1);
+                if (remainder.Length > 0) parts.Add(remainder);
+            }
+            else parts.AddRange(expanded.Where(p => !action.Matches(p)));
+        }
+        return string.Join(" | ", parts);
     }
 }

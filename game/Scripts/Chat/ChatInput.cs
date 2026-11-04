@@ -174,11 +174,12 @@ public partial class ChatInput : CanvasLayer, IHudOverlay
             if (@event is not (InputEventKey { Pressed: true, Echo: false } or InputEventMouseButton { Pressed: true }) ||
                 PlayInput is not { Enabled: true } input || !input.HasInputFocus ||
                 GetViewport().GuiGetFocusOwner() is LineEdit or TextEdit) return;
-            string? ik = GodotKeys.ToIk(@event);
+            if (BindingInput.Current?.CaptureSuspended == true) return;
+            string? ik = BindingInput.ResolveKey(@event, input.Bindings);
             EChatScope? scope = ik is null ? null : CommandOf(ik);
             bool enter = @event is InputEventKey enterKey && Code(enterKey) is Key.Enter or Key.KpEnter &&
                 !enterKey.AltPressed && !enterKey.CtrlPressed && !enterKey.MetaPressed &&
-                ik is not null && (input.Bindings?.Actions(ik).Count ?? 0) == 0;
+                (ik is null || (input.Bindings?.Actions(ik).Count ?? 0) == 0);
             if (scope is null && !enter) return;
             Open(scope ?? EChatScope.Say);
             if (IsOpen) GetViewport().SetInputAsHandled();
@@ -200,7 +201,7 @@ public partial class ChatInput : CanvasLayer, IHudOverlay
         }
         else if (code >= Key.F1 && code <= Key.F35)
         {
-            if (!key.Echo && GodotKeys.ToIk(key) is { } ik && CommandOf(ik) is { } scope)
+            if (!key.Echo && BindingInput.ResolveKey(key, PlayInput?.Bindings) is { } ik && CommandOf(ik) is { } scope)
                 Panel.Channel = scope == EChatScope.TeamSay ? ChatChannel.Team : ChatChannel.All;
             // Function keys must not open options or other gameplay overlays behind the focused editor.
             GetViewport().SetInputAsHandled();

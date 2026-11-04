@@ -27,8 +27,8 @@ public static class SmokeTests
             PlayExitSmoke.TestName, AspectSmoke.TestName, PlayTeamSmoke.TestName,
             RangeTraversalSmoke.TestName, RangeMotionSmoke.TestName, RangeBotsSmoke.TestName, RangeSimSmoke.TestName,
             PlayShockerSmoke.TestName, PlayMotionSmoke.TestName, PlayMercSmoke.TestName, PlaySidearmSmoke.TestName, SidearmMenuSmoke.TestName, SmoothSmoke.TestName,
-            MapShotsSmoke.TestName, PlayReticleSmoke.TestName, AnimBonesSmoke.TestName, TraversalMirrorSmoke.TestName, MantleHeadSmoke.TestName, CharacterAnimationAuditSmoke.TestName, NetworkOverlaySmoke.TestName, TelemetrySmoke.TestName, PlayHitchSmoke.TestName, PlayLasersSmoke.TestName,
-            FrameRateSmoke.TestName, GoggleGlowSmoke.TestName, LobbyLayoutSmoke.TestName, OptionsSmoke.TestName, FrontEndLayoutSmoke.TestName, MenuLayoutSmoke.TestName, MenuArtSmoke.TestName, PlayHurtSmoke.TestName, Hub.HubSmoke.TestName, MercImmunityHudSmoke.TestName, MercStatusVisualSmoke.TestName, SpyBackLightSmoke.TestName];
+            MapShotsSmoke.TestName, PlayReticleSmoke.TestName, PlayTorchSmoke.TestName, MercJumpPoseSmoke.TestName, AnimBonesSmoke.TestName, TraversalMirrorSmoke.TestName, MantleHeadSmoke.TestName, CharacterAnimationAuditSmoke.TestName, NetworkOverlaySmoke.TestName, TelemetrySmoke.TestName, PlayHitchSmoke.TestName, PlayLasersSmoke.TestName,
+            FrameRateSmoke.TestName, GoggleGlowSmoke.TestName, LobbyLayoutSmoke.TestName, OptionsSmoke.TestName, MouseAimSmoke.TestName, OptionsCategoriesSmoke.TestName, FrontEndLayoutSmoke.TestName, MenuLayoutSmoke.TestName, MenuArtSmoke.TestName, PlayHurtSmoke.TestName, Hub.HubSmoke.TestName, MercImmunityHudSmoke.TestName, MercStatusVisualSmoke.TestName, SpyBackLightSmoke.TestName];
 
     public static SmokeTest? Create(string name) => name switch
     {
@@ -102,6 +102,8 @@ public static class SmokeTests
         SidearmMenuSmoke.TestName => new SidearmMenuSmoke(),
         LobbyLayoutSmoke.TestName => new LobbyLayoutSmoke(),
         OptionsSmoke.TestName => new OptionsSmoke(),
+        MouseAimSmoke.TestName => new MouseAimSmoke(),
+        OptionsCategoriesSmoke.TestName => new OptionsCategoriesSmoke(),
         FrontEndLayoutSmoke.TestName => new FrontEndLayoutSmoke(),
         StatsSmoke.TestName => new StatsSmoke(),
         MenuLayoutSmoke.TestName => new MenuLayoutSmoke(),
@@ -177,6 +179,8 @@ public static class SmokeTests
         SmoothSmoke.TestName => new SmoothSmoke(),
         MapShotsSmoke.TestName => new MapShotsSmoke(),
         PlayReticleSmoke.TestName => new PlayReticleSmoke(),
+        PlayTorchSmoke.TestName => new PlayTorchSmoke(),
+        MercJumpPoseSmoke.TestName => new MercJumpPoseSmoke(),
         AnimBonesSmoke.TestName => new AnimBonesSmoke(),
         PlayHitchSmoke.TestName => new PlayHitchSmoke(),
         FrameRateSmoke.TestName => new FrameRateSmoke(),

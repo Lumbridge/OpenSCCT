@@ -184,6 +184,16 @@ public sealed class ModernChatSmoke : SmokeTest
         Press(Key.K);
         Expect(chat.IsOpen && chat.Panel.Channel == ChatChannel.Team, "rebound TeamTalk opens Team");
         chat.Close();
+        input.Bindings = Bindings("IK_J=TeamTalk\nIK_Ctrl+J=Talk\nIK_K=TeamTalk");
+        PressChord(Key.J);
+        Expect(chat.IsOpen && chat.Panel.Channel == ChatChannel.All, "exact chat chord overrides the plain team shortcut");
+        chat.Close();
+        Press(Key.J);
+        Expect(chat.IsOpen && chat.Panel.Channel == ChatChannel.Team, "plain chat shortcut remains independently usable after chord release");
+        chat.Close();
+        PressChord(Key.K);
+        Expect(chat.IsOpen && chat.Panel.Channel == ChatChannel.Team, "unassigned modifier combination falls back to the plain chat shortcut");
+        chat.Close();
         input.Bindings = Bindings();
         chat.AllowNearby = true;
         chat.Open(ChatChannel.Team);
@@ -220,8 +230,23 @@ public sealed class ModernChatSmoke : SmokeTest
 
     private void Press(Key key, uint unicode = 0)
     {
-        _viewport!.PushInput(new InputEventKey { Keycode = key, PhysicalKeycode = key, Unicode = unicode, Pressed = true });
-        _viewport.PushInput(new InputEventKey { Keycode = key, PhysicalKeycode = key, Pressed = false });
+        SendKey(new InputEventKey { Keycode = key, PhysicalKeycode = key, Unicode = unicode, Pressed = true });
+        SendKey(new InputEventKey { Keycode = key, PhysicalKeycode = key, Pressed = false });
+    }
+
+    private void PressChord(Key key)
+    {
+        SendKey(new InputEventKey { Keycode = Key.Ctrl, PhysicalKeycode = Key.Ctrl, Pressed = true, CtrlPressed = true });
+        SendKey(new InputEventKey { Keycode = key, PhysicalKeycode = key, Pressed = true, CtrlPressed = true });
+        SendKey(new InputEventKey { Keycode = key, PhysicalKeycode = key, Pressed = false, CtrlPressed = true });
+        SendKey(new InputEventKey { Keycode = Key.Ctrl, PhysicalKeycode = Key.Ctrl, Pressed = false });
+    }
+
+    private void SendKey(InputEventKey input)
+    {
+        // This test's SubViewport bypasses native WindowInput; observe synthetic transitions before GUI routing.
+        BindingInput.Current?.Resolve(input);
+        _viewport!.PushInput(input);
     }
 
     private void Add(string text) => _chat!.Transcript.Add(ChatChannel.Team, text, "Ghost", 1, 0, _now);

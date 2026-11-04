@@ -69,6 +69,16 @@ internal sealed partial class MainForm : Form
     private string _notesTitle = "What's new";
     private string _notesText = "Checking for releases...";
     private string _operationTitle = "Getting ready";
+    private TableLayoutPanel? _mainLayout;
+    private Panel? _releasePreview;
+    private TableLayoutPanel? _releaseNotes;
+    private FlowLayoutPanel? _tools;
+    private bool _updateNeedsSpace;
+    private bool _updateFitQueued;
+    private bool _fittingUpdate;
+    private bool _userSizing;
+    private bool _fitAfterUserSizing;
+    private FormWindowState _lastWindowState;
     private readonly Label _heading = Theme.Wrapping(Theme.Label("Install OpenSCCT", Theme.Status));
     private readonly Label _installedInfo = Theme.Wrapping(Theme.Label(string.Empty, Theme.Small, Theme.Muted));
     private readonly Label _launchDetail = Theme.Wrapping(Theme.Label(string.Empty, Theme.Body, Theme.Muted));
@@ -255,6 +265,8 @@ internal sealed partial class MainForm : Form
             TabIndex = 1,
         };
         preview.Controls.Add(notes);
+        _releasePreview = preview;
+        _releaseNotes = notes;
         RefreshReleasePreview();
 
         FlowLayoutPanel more = Theme.Flow(false, _mapsButton, _check, _website, _settingsButton, _help);
@@ -263,6 +275,7 @@ internal sealed partial class MainForm : Form
         more.WrapContents = true;
         more.Padding = new Padding(0, 10, 0, 0);
         more.TabIndex = 1;
+        _tools = more;
         foreach (Control tool in more.Controls) tool.Margin = new Padding(0, 0, 6, 0);
 
         // The preview takes remaining space and scrolls independently. The action panel keeps its preferred
@@ -289,6 +302,7 @@ internal sealed partial class MainForm : Form
         };
         Controls.Add(root);
         Controls.Add(more);
+        _mainLayout = root;
 
         _tips.SetToolTip(_website, "Visit the OpenSCCT website in your browser.");
         _tips.SetToolTip(_help, "Get help, report a problem or contribute to OpenSCCT.");
@@ -330,6 +344,93 @@ internal sealed partial class MainForm : Form
         Rectangle work = Screen.FromControl(this).WorkingArea;
         MinimumSize = new Size(Math.Min(MinimumSize.Width, work.Width), Math.Min(MinimumSize.Height, work.Height));
         Size = new Size(Math.Min(Width, work.Width), Math.Min(Height, work.Height));
+        QueueUpdateFit();
+    }
+
+    protected override void OnResizeBegin(EventArgs e)
+    {
+        _userSizing = true;
+        base.OnResizeBegin(e);
+    }
+
+    protected override void OnResizeEnd(EventArgs e)
+    {
+        base.OnResizeEnd(e);
+        _userSizing = false;
+        if (_fitAfterUserSizing)
+        {
+            _fitAfterUserSizing = false;
+            QueueUpdateFit();
+        }
+    }
+
+    protected override void OnResize(EventArgs e)
+    {
+        base.OnResize(e);
+        bool restored = WindowState == FormWindowState.Normal && _lastWindowState != FormWindowState.Normal;
+        _lastWindowState = WindowState;
+        if (restored) QueueUpdateFit();
+    }
+
+    protected override void OnDpiChanged(DpiChangedEventArgs e)
+    {
+        base.OnDpiChanged(e);
+        QueueUpdateFit();
+    }
+
+    private void QueueUpdateFit()
+    {
+        if (_updateFitQueued || _fittingUpdate || !IsHandleCreated || IsDisposed || Disposing) return;
+        _updateFitQueued = true;
+        BeginInvoke(() =>
+        {
+            _updateFitQueued = false;
+            if (!IsDisposed && !Disposing) FitUpdateHeight();
+        });
+    }
+
+    /// <summary>Give update controls their space without taking it away from the release preview.</summary>
+    private void FitUpdateHeight()
+    {
+        if (_fittingUpdate || WindowState != FormWindowState.Normal
+            || (!_updateNeedsSpace && !_launcherBanner.Visible)
+            || _mainLayout is null || _releasePreview is null || _releaseNotes is null || _tools is null) return;
+        if (_userSizing)
+        {
+            _fitAfterUserSizing = true;
+            return;
+        }
+
+        _fittingUpdate = true;
+        try
+        {
+            _mainLayout.PerformLayout();
+            // Measure the full notes at the width they will have after the scrollbar disappears.
+            int notesWidth = Math.Max(1, _releasePreview.Width - _releasePreview.Padding.Horizontal);
+            int height = Padding.Vertical + _mainLayout.Padding.Vertical + _mainLayout.Margin.Vertical
+                + _tools.GetPreferredSize(new Size(Math.Max(1, ClientSize.Width - Padding.Horizontal), 0)).Height
+                + _tools.Margin.Vertical + _releasePreview.Margin.Vertical + _releasePreview.Padding.Vertical
+                + _releaseNotes.GetPreferredSize(new Size(notesWidth, 0)).Height + LogicalToDeviceUnits(6);
+            foreach (Control row in _mainLayout.Controls)
+            {
+                if (row == _releasePreview || !row.Visible) continue;
+                int width = Math.Max(1, _mainLayout.ClientSize.Width - _mainLayout.Padding.Horizontal - row.Margin.Horizontal);
+                height += row.GetPreferredSize(new Size(width, 0)).Height + row.Margin.Vertical;
+            }
+
+            Rectangle work = Screen.FromControl(this).WorkingArea;
+            int maximum = Math.Max(1, work.Height - (Height - ClientSize.Height));
+            int target = Math.Min(height, maximum);
+            // Keep the chosen width and any extra height the player gave the window. Scrolling is the
+            // fallback when the monitor cannot accommodate the update content.
+            if (target <= ClientSize.Height) return;
+            ClientSize = new Size(ClientSize.Width, target);
+            if (Bottom > work.Bottom) Top = Math.Max(work.Top, work.Bottom - Height);
+        }
+        finally
+        {
+            _fittingUpdate = false;
+        }
     }
 
     protected override async void OnShown(EventArgs e)
@@ -380,15 +481,18 @@ internal sealed partial class MainForm : Form
         }
 
         RefreshMainButton(current, busy);
+        QueueUpdateFit();
     }
 
     private void RefreshLaunchPanel(SemVersion? current, bool busy)
     {
         _launchDetail.Visible = !busy && (_status.Text.Length == 0 || (_status.ForeColor != Theme.Warning && _status.ForeColor != Theme.Error));
         bool playable = DownloadedFilesPlayable(current);
+        SemVersion? pending = _store.Pending();
         VersionedRelease? latest = _lastCheck?.Latest;
-        bool update = current is not null && (PackUpdateAvailable || (_store.Pending() is null
+        bool update = current is not null && (PackUpdateAvailable || (pending is null
             && _lastCheck is { GameUpdateAvailable: true } && latest is not null && latest.Version > current));
+        _updateNeedsSpace = update || pending is not null;
         bool checkedOnline = _lastCheck is { Feed.Source: ReleaseFeedSource.Network or ReleaseFeedSource.NotModified };
         int maps = playable ? _packs.Installed().Count(p => !p.IsShared) : 0;
         _installedInfo.Text = current is not null
@@ -406,7 +510,7 @@ internal sealed partial class MainForm : Form
                 ? "No download found. Check your connection and try again."
                 : "Download the game, maps, characters and sounds. Everything you need to play.";
         }
-        else if (_store.Pending() is { } pending)
+        else if (pending is not null)
         {
             _heading.Text = "Update ready";
             _launchDetail.Text = $"Version {pending} will become active after the running game closes.";
@@ -438,6 +542,7 @@ internal sealed partial class MainForm : Form
     {
         _operationTitle = title;
         if (_work is not null) _heading.Text = title;
+        QueueUpdateFit();
     }
 
     /// <summary>The downloaded game files are installed and, when the index is known, none has a newer copy.</summary>
@@ -746,6 +851,7 @@ internal sealed partial class MainForm : Form
             _launcherButton.Visible = writable;
             _launcherBanner.Visible = true;
         }
+        QueueUpdateFit();
     }
 
     private async Task CheckAsync(CancellationToken cancel)
@@ -1024,6 +1130,7 @@ internal sealed partial class MainForm : Form
             _progress.Fraction = p.Total > 0 ? (double)p.Received / p.Total : 0;
             string rate = p.BytesPerSecond > 0 ? $"  {Mb(p.BytesPerSecond)}/s" : string.Empty;
             _progressText.Text = p.Total > 0 ? $"{Mb(p.Received)} of {Mb(p.Total)}{rate}" : Mb(p.Received) + rate;
+            QueueUpdateFit();
         });
     }
 
@@ -1038,6 +1145,7 @@ internal sealed partial class MainForm : Form
             _progress.Visible = p.Total > 0 && !p.Extracting;
             _progress.Fraction = p.Total > 0 ? (double)p.Received / p.Total : 0;
             _progressText.Text = p.Extracting ? $"{prefix}: installing..." : $"{prefix}: {Mb(p.Received)} of {Mb(p.Total)}";
+            QueueUpdateFit();
         });
     }
 
@@ -1107,6 +1215,7 @@ internal sealed partial class MainForm : Form
         {
             _status.Links.Add(at, path!.Length, path);
         }
+        QueueUpdateFit();
     }
 
     private static void ShowInExplorer(string? path)

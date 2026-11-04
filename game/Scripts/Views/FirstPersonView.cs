@@ -123,7 +123,8 @@ public partial class FirstPersonView : Node3D
         _lastShot = shotCount;
         DrawCosmetic(pawn, weapon);
         DrawSkins(weapon!);
-        Pose(weapon!.ViewAnim, dt, alpha, exclusiveAction: weapon is MercSidearm { ReloadUntil: > 0 });
+        Pose(weapon!.ViewAnim, dt, alpha, exclusiveAction: weapon is MercSidearm { ReloadUntil: > 0 },
+            blendLandingRecovery: weapon is MercSidearm);
         if (weapon is MercSidearm && _sidearmSightOffsets.TryGetValue(_model, out Transform3D sightOffset))
             _model.Root.Transform *= sightOffset;
         if (_revolverKick > 0f)
@@ -262,6 +263,6 @@ public partial class FirstPersonView : Node3D
         _loaded[asset] = (_model, _applier, _arms);
     }
 
-    private void Pose(ViewModelAnim anim, float dt, float alpha, bool exclusiveAction) =>
-        _applier!.Apply(_pose.Update(anim, _model!.Sampler, dt, alpha, exclusiveAction));
+    private void Pose(ViewModelAnim anim, float dt, float alpha, bool exclusiveAction, bool blendLandingRecovery) =>
+        _applier!.Apply(_pose.Update(anim, _model!.Sampler, dt, alpha, exclusiveAction, blendLandingRecovery));
 }

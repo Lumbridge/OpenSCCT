@@ -92,7 +92,10 @@ public partial class PlayMenu : Node
             return;
         }
 
-        if (@event is InputEventKey { Pressed: true, Echo: false } && GodotKeys.ToIk(@event) is { } ik)
+        if (@event is InputEventKey { Pressed: true, Echo: false } &&
+            (BindingInput.ResolveKey(@event, PlayInput?.Bindings) ??
+                (GodotKeys.ToIk(@event) == "Escape" ? "Escape" : null)) is { } ik &&
+            BindingInput.Current?.CaptureSuspended != true)
         {
             if (OpensMenu(ik))
             {
@@ -149,7 +152,8 @@ public partial class PlayMenu : Node
             return;
         }
 
-        if (key && Model.Page == InGameMenuPage.StrategicMap && Bound(ik, InGameMenuK.StrategicMapCommand))
+        if (key && Model.Page == InGameMenuPage.StrategicMap &&
+            BindingInput.ResolveKey(@event, PlayInput?.Bindings) is { } selected && Bound(selected, InGameMenuK.StrategicMapCommand))
         {
             // StrategicMap_InGame: its exit key is the key that opened it.
             GetViewport().SetInputAsHandled();

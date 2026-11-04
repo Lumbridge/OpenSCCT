@@ -39,13 +39,15 @@ public sealed class RifleTests
         rifle.AnimateFall();
         if (high) rifle.AnimateLandHigh(); else rifle.AnimateLand();
         Name landing = high ? ViewModelClips.FirstLandStHi2 : ViewModelClips.FirstLandStFd2;
-        float seconds = high ? 20f / 15f : 10f / 15f;
+        float seconds = 0.2f + (high ? 20f / 15f : 10f / 15f);
         Assert.Equal(seconds, rifle.ViewAnim.Remaining(SWeaponDefense.MVTCHANNEL), 5);
+        Assert.Equal(0.2f, rifle.ViewAnim.TweenTime(SWeaponDefense.MVTCHANNEL));
 
         scene.Run(0.1f);
         Assert.Equal(landing, rifle.ViewAnim.Sequence(SWeaponDefense.MVTCHANNEL));
         Assert.True(rifle.ViewAnim.IsAnimating(SWeaponDefense.MVTCHANNEL));
         Assert.InRange(rifle.ViewAnim.Remaining(SWeaponDefense.MVTCHANNEL), seconds - 0.12f, seconds - 0.08f);
+        Assert.Equal(0f, rifle.ViewAnim.Elapsed(SWeaponDefense.MVTCHANNEL, ViewModelClips.DataOf(landing)));
         scene.Run(seconds - 0.2f);
         Assert.Equal(landing, rifle.ViewAnim.Sequence(SWeaponDefense.MVTCHANNEL));
         scene.Run(0.2f);

@@ -472,6 +472,8 @@ touches, else its zone's name: the map data's LocationName) at the top centre (`
 is not decoded). `HudMarkers.HackAlpha` draws the icon of an objective being hacked at `hack_alpha` / 255.
 `classic_crosshair` (Options, HUD page, off by default) moves the merc reticle to Reloaded's classic spot, 3 page
 units left and 3 down of the centred one (`MercHudPage.ReticlePosition`, spec/hud/merc-reticle.md rule 3).
+The stock reticle is centred using the loaded artwork's dot and inner instance origins, so content packs with
+different authored offsets keep the same aim point.
 
 **Field of view.** `ViewFov` (Godot-free, unit tested) is Reloaded's rule 20 as its code does it (Reloaded.Core
 0x100a7080, 0x100a4ac0): with `widescreen` on the camera's FovAngle (horizontal over 4:3) keeps its 4:3 vertical angle

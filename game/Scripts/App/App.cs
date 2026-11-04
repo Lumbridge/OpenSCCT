@@ -26,6 +26,7 @@ public partial class App : Node
     public override void _Ready()
     {
         Options = LaunchOptions.Parse(OS.GetCmdlineUserArgs());
+        AddChild(new OpenScctGame.Controls.BindingInput { Name = "BindingInput" });
 
         // Crash reports next to the settings (rl:ac.crash), then the process options of the command line and the
         // power throttling opt-out (rl:gfx.system).

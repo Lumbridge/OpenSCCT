@@ -311,10 +311,24 @@ public sealed class PadSettings
 
     public Dictionary<string, string> ButtonsOf(bool merc) => merc ? MercButtons : SpyButtons;
 
+    /// <summary>Presentation order for an action's controller inputs. Older profiles need no order metadata.</summary>
+    [JsonPropertyName("spy_binding_order")]
+    [JsonObjectCreationHandling(JsonObjectCreationHandling.Replace)]
+    public Dictionary<string, List<string>> SpyBindingOrder { get; set; } = new(StringComparer.Ordinal);
+
+    [JsonPropertyName("merc_binding_order")]
+    [JsonObjectCreationHandling(JsonObjectCreationHandling.Replace)]
+    public Dictionary<string, List<string>> MercBindingOrder { get; set; } = new(StringComparer.Ordinal);
+
+    public Dictionary<string, List<string>> BindingOrderOf(bool merc) => merc
+        ? MercBindingOrder ??= new(StringComparer.Ordinal)
+        : SpyBindingOrder ??= new(StringComparer.Ordinal);
+
     public void ResetButtons(bool merc)
     {
         if (merc) { MercButtons = DefaultButtons(true); MercLayoutVersion = CurrentLayoutVersion; }
         else { SpyButtons = DefaultButtons(); SpyLayoutVersion = CurrentLayoutVersion; }
+        BindingOrderOf(merc).Clear();
     }
 
     [JsonPropertyName("move")]
@@ -391,6 +405,24 @@ public sealed class PadSettings
         LookSpeed = LookSettings.Range(LookSpeed, 50f, 5000f);
         SpyButtons = CleanButtons(SpyButtons, merc: false);
         MercButtons = CleanButtons(MercButtons, merc: true);
+        SpyBindingOrder = CleanBindingOrder(SpyBindingOrder);
+        MercBindingOrder = CleanBindingOrder(MercBindingOrder);
+    }
+
+    private static Dictionary<string, List<string>> CleanBindingOrder(Dictionary<string, List<string>>? saved)
+    {
+        var clean = new Dictionary<string, List<string>>(StringComparer.Ordinal);
+        if (saved is null) return clean;
+        foreach ((string action, List<string> inputs) in saved)
+        {
+            if (action.Length == 0 || inputs is null) continue;
+            var seen = new HashSet<string>(StringComparer.Ordinal);
+            var ordered = new List<string>();
+            foreach (string input in inputs)
+                if (Array.IndexOf(Controls, input) >= 0 && seen.Add(input)) ordered.Add(input);
+            if (ordered.Count > 0) clean[action] = ordered;
+        }
+        return clean;
     }
 
     /// <summary>Known controls only; a control the file leaves out gets its default (an empty value stays unbound).</summary>

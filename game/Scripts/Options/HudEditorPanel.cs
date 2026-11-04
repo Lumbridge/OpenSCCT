@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json;
 using Godot;
 using OpenScctGame.Hud;
 using OpenScctGame.Hud.Magma;
 using OpenScctGame.Chat;
+using OpenScctGame.UI;
 
 namespace OpenScctGame.Options;
 
@@ -20,76 +22,186 @@ public partial class HudEditorPanel : VBoxContainer
     private CheckBox _visible = null!;
     private Label _note = null!;
     private bool _snap = true;
-    private HFlowContainer _tools = null!;
-    private CheckBox _showTools = null!;
+    private LineEdit _search = null!;
+    private ScrollContainer _sidebar = null!;
+    private Control _sidebarDivider = null!;
+    private VBoxContainer _elementRows = null!;
+    private readonly Dictionary<string, Button> _elementButtons = new();
+    private Label _elementTitle = null!;
     private bool? _compact;
     private HudEditorSettings Layout => _settings().HudLayout;
     public HudEditorPanel(Func<GameSettings> settings) { _settings = settings; Name = "HudEditorContent"; SizeFlagsHorizontal = SizeFlags.ExpandFill; SizeFlagsVertical = SizeFlags.ExpandFill; }
     public override void _Ready()
     {
-        AddChild(new Label { Text = "Drag to move • Arrow keys to nudge • Apply to save", AutowrapMode = TextServer.AutowrapMode.WordSmart });
-        var toolbar = new HFlowContainer(); AddChild(toolbar);
-        var role = new OptionButton { Name = "HudEditorRole" }; role.AddItem("Spy"); role.AddItem("Mercenary"); toolbar.AddChild(role);
+        AddThemeConstantOverride("separation", 8);
+        var searchbar = new HBoxContainer();
+        _search = new LineEdit { Name = "HudEditorSearch", PlaceholderText = "Find a HUD element…", ClearButtonEnabled = true, SizeFlagsHorizontal = SizeFlags.ExpandFill, CustomMinimumSize = new Vector2(100, 32) };
+        searchbar.AddChild(_search);
+        _elements = new OptionButton { Name = "HudEditorElement", FitToLongestItem = false, ClipText = true, CustomMinimumSize = new Vector2(220, 32) };
+        searchbar.AddChild(_elements);
+        var more = new MenuButton { Name = "HudEditorTools", Text = "More…", CustomMinimumSize = new Vector2(80, 32) };
+        searchbar.AddChild(more);
+        AddChild(searchbar);
+        var toolbar = new HBoxContainer(); AddChild(toolbar);
+        var role = new OptionButton { Name = "HudEditorRole", CustomMinimumSize = new Vector2(100, 32) }; role.AddItem("Spy"); role.AddItem("Mercenary"); toolbar.AddChild(role);
         role.ItemSelected += i => { _merc = i == 1; _preview.SetRole(_merc); Refresh(); };
-        var aspect = new OptionButton { Name = "HudEditorAspect" }; aspect.AddItem("Preview 16:9"); aspect.AddItem("Preview 4:3"); aspect.AddItem("Preview 21:9"); toolbar.AddChild(aspect);
+        var aspect = new OptionButton { Name = "HudEditorAspect", CustomMinimumSize = new Vector2(150, 32) }; aspect.AddItem("Preview 16:9"); aspect.AddItem("Preview 4:3"); aspect.AddItem("Preview 21:9"); toolbar.AddChild(aspect);
         aspect.ItemSelected += i => _preview.Aspect = i == 1 ? 4f / 3 : i == 2 ? 21f / 9 : 16f / 9;
-        _showTools = new CheckBox { Text = "Layout tools", ButtonPressed = true }; toolbar.AddChild(_showTools);
-        _tools = new HFlowContainer(); AddChild(_tools);
-        _showTools.Toggled += value => _tools.Visible = value;
-        toolbar = _tools;
-        Button(toolbar, "Compact preset", () => Change(() => { foreach (string id in HudEditorSettings.Elements.Keys) Layout.Element(_merc, id).Scale = .8f; }));
-        Button(toolbar, "Large preset", () => Change(() => { foreach (string id in HudEditorSettings.Elements.Keys) Layout.Element(_merc, id).Scale = 1.25f; }));
-        var snap = new CheckBox { Text = "Snap to grid", ButtonPressed = true }; toolbar.AddChild(snap); snap.Toggled += v => _snap = v;
         Button(toolbar, "Undo", () => History(_undo, _redo)); Button(toolbar, "Redo", () => History(_redo, _undo));
-        Button(toolbar, "Reset element", () => Change(() => Layout.For(_merc).Remove(_selected)));
-        Button(toolbar, "Reset role", () => Change(() => Layout.For(_merc).Clear()));
-        Button(toolbar, "Copy role to other", () => Change(() => { var copy = Layout.Clone(); if (_merc) Layout.Spy = copy.Merc; else Layout.Merc = copy.Spy; }));
-        Button(toolbar, "Copy layout", () => { DisplayServer.ClipboardSet(JsonSerializer.Serialize(Layout)); _note.Text = "Both layouts copied."; });
-        Button(toolbar, "Paste layout", () =>
+        var snap = new CheckBox { Text = "Snap to grid", ButtonPressed = true }; toolbar.AddChild(snap); snap.Toggled += v => _snap = v;
+        var tools = more.GetPopup();
+        tools.AddItem("Compact preset", 0); tools.AddItem("Large preset", 1); tools.AddSeparator();
+        tools.AddItem("Reset selected element", 2); tools.AddItem("Reset this role", 3);
+        tools.AddItem("Copy this role to other", 4); tools.AddSeparator();
+        tools.AddItem("Copy layout", 5); tools.AddItem("Paste layout", 6);
+        tools.IdPressed += id =>
         {
-            try { var imported = HudEditorSettings.Parse(DisplayServer.ClipboardGet()); Change(() => _settings().HudLayout = imported); _note.Text = "Layout imported. Apply to save."; }
-            catch (JsonException) { _note.Text = "Clipboard does not contain a valid HUD layout."; }
-        });
-        _elements = new OptionButton();
-        foreach (var entry in HudEditorSettings.Elements) { _elements.AddItem(entry.Value); _elements.SetItemMetadata(_elements.ItemCount - 1, entry.Key); }
-        AddChild(_elements); _elements.ItemSelected += i => { _selected = _elements.GetItemMetadata((int)i).AsString(); Refresh(); };
-        var fields = new HFlowContainer(); AddChild(fields);
+            switch (id)
+            {
+                case 0: Change(() => { foreach (string key in HudEditorSettings.Elements.Keys) Layout.Element(_merc, key).Scale = .8f; }); break;
+                case 1: Change(() => { foreach (string key in HudEditorSettings.Elements.Keys) Layout.Element(_merc, key).Scale = 1.25f; }); break;
+                case 2: Change(() => Layout.For(_merc).Remove(_selected)); break;
+                case 3: Change(() => Layout.For(_merc).Clear()); break;
+                case 4: Change(() => { var copy = Layout.Clone(); if (_merc) Layout.Spy = copy.Merc; else Layout.Merc = copy.Spy; }); break;
+                case 5: DisplayServer.ClipboardSet(JsonSerializer.Serialize(Layout)); _note.Text = "Both layouts copied."; break;
+                case 6:
+                    try { var imported = HudEditorSettings.Parse(DisplayServer.ClipboardGet()); Change(() => _settings().HudLayout = imported); _note.Text = "Layout imported. Apply to save."; }
+                    catch (JsonException) { _note.Text = "Clipboard does not contain a valid HUD layout."; }
+                    break;
+            }
+        };
+        _elements.ItemSelected += i => SelectElement(_elements.GetItemMetadata((int)i).AsString());
+        _search.TextChanged += _ => RebuildElements();
+        var body = new HBoxContainer { Name = "HudEditorBody", SizeFlagsVertical = SizeFlags.ExpandFill, SizeFlagsHorizontal = SizeFlags.ExpandFill };
+        body.AddThemeConstantOverride("separation", 14);
+        _sidebar = new ScrollContainer { Name = "HudEditorCategories", CustomMinimumSize = new Vector2(180, 0), HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled, ClipContents = true };
+        var categoryMargin = new MarginContainer { Name = "HudEditorCategoryMargin", SizeFlagsHorizontal = SizeFlags.ExpandFill };
+        categoryMargin.AddThemeConstantOverride("margin_left", 2);
+        categoryMargin.AddThemeConstantOverride("margin_right", 8);
+        categoryMargin.AddThemeConstantOverride("margin_top", 2);
+        categoryMargin.AddThemeConstantOverride("margin_bottom", 2);
+        _elementRows = new VBoxContainer { Name = "HudEditorCategoryRows", SizeFlagsHorizontal = SizeFlags.ExpandFill };
+        categoryMargin.AddChild(_elementRows);
+        _sidebar.AddChild(categoryMargin);
+        body.AddChild(_sidebar);
+        _sidebarDivider = new ColorRect { Name = "HudEditorPreviewDivider", CustomMinimumSize = new Vector2(1, 0), Color = UiStyle.MenuFocus with { A = .2f }, MouseFilter = MouseFilterEnum.Ignore };
+        body.AddChild(_sidebarDivider);
+        _preview = new HudEditorPreview(_settings, () => _selected) { Name = "HudEditorPreview", CustomMinimumSize = new Vector2(280, 140), SizeFlagsVertical = SizeFlags.ExpandFill, SizeFlagsHorizontal = SizeFlags.ExpandFill, ClipContents = true };
+        body.AddChild(_preview);
+        var inspector = new VBoxContainer { Name = "HudEditorInspector", CustomMinimumSize = new Vector2(230, 0) };
+        _elementTitle = new Label { Name = "HudEditorSelectedElement", AutowrapMode = TextServer.AutowrapMode.WordSmart };
+        _elementTitle.AddThemeColorOverride("font_color", UiStyle.MenuFocus);
+        inspector.AddChild(_elementTitle);
+        var fieldsScroll = new ScrollContainer { Name = "HudEditorProperties", SizeFlagsVertical = SizeFlags.ExpandFill, HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled };
+        var fields = new VBoxContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill };
+        fields.AddThemeConstantOverride("separation", 2);
+        fieldsScroll.AddChild(fields);
+        inspector.AddChild(fieldsScroll);
+        body.AddChild(inspector);
+        AddChild(body);
         _x = Field(fields, "X offset %", -100, 100, .1, v => Element().X = (float)v / 100);
         _y = Field(fields, "Y offset %", -100, 100, .1, v => Element().Y = (float)v / 100);
         _scale = Field(fields, "Size %", 25, 300, 1, v => Element().Scale = (float)v / 100);
         _opacity = Field(fields, "Opacity %", 10, 100, 1, v => Element().Opacity = (float)v / 100);
-        _visible = new CheckBox { Text = "Visible" }; fields.AddChild(_visible);
+        var visibility = InspectorRow(fields, "Visible");
+        _visible = new CheckBox { Name = "HudEditorVisible" }; visibility.AddChild(_visible);
         _visible.Toggled += v => { if (!_refreshing) Change(() => Element().Visible = v); };
-        _preview = new HudEditorPreview(_settings, () => _selected) { CustomMinimumSize = new Vector2(280, 260), SizeFlagsVertical = SizeFlags.ExpandFill, SizeFlagsHorizontal = SizeFlags.ExpandFill, ClipContents = true };
-        _preview.Selected += id => { _selected = id; Refresh(); };
+        _preview.Selected += id => { _search.Text = ""; RebuildElements(); SelectElement(id); };
         _preview.DragStarted += Remember;
         _preview.Moved += delta => { var e = Element(); e.X += delta.X; e.Y += delta.Y; e.Clamp(); Refresh(); };
         _preview.DragEnded += () => { if (_snap) { var e = Element(); e.X = MathF.Round(e.X * 100) / 100; e.Y = MathF.Round(e.Y * 100) / 100; } Refresh(); };
-        AddChild(_preview);
-        _note = new Label { Text = "Preview uses sample gameplay. Hidden elements keep selectable outlines. Enable FPS, network and zone names in HUD; position them here.", AutowrapMode = TextServer.AutowrapMode.WordSmart }; AddChild(_note);
+        _note = new Label { Name = "HudEditorHelp", Text = "Drag to move • Arrow keys to nudge • Apply to save. Hidden elements keep selectable outlines.", AutowrapMode = TextServer.AutowrapMode.WordSmart, MaxLinesVisible = 2, CustomMinimumSize = new Vector2(0, 44), TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis }; AddChild(_note);
+        RebuildElements();
         Refresh();
     }
     public override void _Process(double delta)
     {
         // A wide but short window still needs room for the entire preview above the footer.
-        bool compact = Size.X < 900 || GetViewportRect().Size.Y < 900;
+        bool compact = Size.X < 1050;
+        float previewHeight = GetViewportRect().Size.Y < 900 ? 140 : 260;
+        if (_preview.CustomMinimumSize.Y != previewHeight) _preview.CustomMinimumSize = new Vector2(280, previewHeight);
         if (_compact == compact) return;
         _compact = compact;
-        _showTools.ButtonPressed = !compact;
-        _note.Visible = !compact;
-        _preview.CustomMinimumSize = new Vector2(280, compact ? 140 : 260);
+        _sidebar.Visible = !compact;
+        _sidebarDivider.Visible = !compact;
+        _elements.Visible = compact;
     }
     private HudElementSettings Element() => Layout.Element(_merc, _selected);
     private void Remember() { _undo.Push(Layout.Clone()); _redo.Clear(); }
     private void Change(Action action) { Remember(); action(); Refresh(); }
     private void History(Stack<HudEditorSettings> from, Stack<HudEditorSettings> to)
     { if (from.Count == 0) return; to.Push(Layout.Clone()); _settings().HudLayout = from.Pop(); Refresh(); }
-    private static void Button(Container parent, string text, Action action) { var b = new Button { Text = text }; b.Pressed += action; parent.AddChild(b); }
+    private static void Button(Container parent, string text, Action action)
+    {
+        var b = NavigationButton(text);
+        b.CustomMinimumSize = new Vector2(64, 32);
+        b.Pressed += action;
+        parent.AddChild(b);
+    }
+    private static Button NavigationButton(string text)
+    {
+        var b = new Button { Text = text, Flat = true, ClipText = true, Alignment = HorizontalAlignment.Left, CustomMinimumSize = new Vector2(0, 32), TooltipText = text };
+        b.AddThemeStyleboxOverride("normal", new StyleBoxEmpty { ContentMarginLeft = 8, ContentMarginRight = 8 });
+        var selected = new StyleBoxFlat { BgColor = UiStyle.MenuFocus with { A = .15f }, ContentMarginLeft = 8, ContentMarginRight = 8 };
+        b.AddThemeStyleboxOverride("hover", new StyleBoxFlat { BgColor = UiStyle.MenuFocus with { A = .07f }, ContentMarginLeft = 8, ContentMarginRight = 8 });
+        b.AddThemeStyleboxOverride("pressed", selected); b.AddThemeStyleboxOverride("hover_pressed", selected);
+        // The global SCCT focus frame expands outside its button. Sidebar rows keep all states inside
+        // their own hit area, separated from both the scroll bar and the independently interactive preview.
+        b.AddThemeStyleboxOverride("focus", new UiBox
+        {
+            Expand = -1, Notch = 5, Border = UiStyle.MenuFocus with { A = .8f },
+            Ticks = UiStyle.MenuFocus, TickLength = 6,
+            ContentMarginLeft = 8, ContentMarginRight = 8, ContentMarginTop = 0, ContentMarginBottom = 0,
+        });
+        return b;
+    }
     private SpinBox Field(Container parent, string title, double min, double max, double step, Action<double> action)
     {
-        var box = new VBoxContainer(); box.AddChild(new Label { Text = title });
-        var input = new SpinBox { MinValue = min, MaxValue = max, Step = step, CustomMinimumSize = new Vector2(130, 0) }; box.AddChild(input); parent.AddChild(box);
+        var box = InspectorRow(parent, title);
+        var input = new SpinBox { MinValue = min, MaxValue = max, Step = step, CustomMinimumSize = new Vector2(100, 32), SelectAllOnFocus = true }; box.AddChild(input);
+        void Explain() => _note.Text = title switch
+        {
+            "X offset %" => "Move the selected element horizontally. Values are a percentage of the screen width.",
+            "Y offset %" => "Move the selected element vertically. Values are a percentage of the screen height.",
+            "Size %" => "Scale the selected HUD element. 100% uses its normal size.",
+            _ => "Set the selected element's opacity. Hidden elements can still be selected in the preview.",
+        };
+        input.FocusEntered += Explain; input.MouseEntered += Explain;
         input.ValueChanged += v => { if (!_refreshing) Change(() => action(v)); }; return input;
+    }
+    private static HBoxContainer InspectorRow(Container parent, string title)
+    {
+        var panel = new PanelContainer();
+        panel.SetMeta("hud_editor_property", title);
+        panel.AddThemeStyleboxOverride("panel", new StyleBoxFlat
+        {
+            BgColor = new Color(.025f, .045f, .03f, .55f), BorderColor = new Color(.19f, .3f, .22f, .45f),
+            BorderWidthBottom = 1, ContentMarginLeft = 8, ContentMarginRight = 8, ContentMarginTop = 6, ContentMarginBottom = 6,
+        });
+        var row = new HBoxContainer();
+        var label = new Label { Text = title, SizeFlagsHorizontal = SizeFlags.ExpandFill };
+        label.AddThemeColorOverride("font_color", UiStyle.Text);
+        row.AddChild(label); panel.AddChild(row); parent.AddChild(panel);
+        return row;
+    }
+    private void SelectElement(string id) { _selected = id; Refresh(); }
+    private void RebuildElements()
+    {
+        string query = _search.Text.Trim();
+        var matches = HudEditorSettings.Elements.Where(e => (e.Value + " " + e.Key).Contains(query, StringComparison.OrdinalIgnoreCase)).ToArray();
+        foreach (Node child in _elementRows.GetChildren()) { _elementRows.RemoveChild(child); child.QueueFree(); }
+        _elementButtons.Clear(); _elements.Clear();
+        foreach (var entry in matches)
+        {
+            _elements.AddItem(entry.Value); _elements.SetItemMetadata(_elements.ItemCount - 1, entry.Key);
+            var button = NavigationButton(entry.Value); button.ToggleMode = true; button.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+            button.Pressed += () => SelectElement(entry.Key);
+            _elementRows.AddChild(button); _elementButtons[entry.Key] = button;
+        }
+        if (matches.Length == 0) _elementRows.AddChild(new Label { Text = "No matching elements", AutowrapMode = TextServer.AutowrapMode.WordSmart });
+        if (matches.Length > 0 && !matches.Any(e => e.Key == _selected)) _selected = matches[0].Key;
+        _elements.Disabled = matches.Length == 0;
+        Refresh();
     }
     private void Refresh()
     {
@@ -97,12 +209,15 @@ public partial class HudEditorPanel : VBoxContainer
         var e = Layout.For(_merc).GetValueOrDefault(_selected) ?? new HudElementSettings();
         _x.Value = e.X * 100; _y.Value = e.Y * 100; _scale.Value = e.Scale * 100; _opacity.Value = e.Opacity * 100; _visible.ButtonPressed = e.Visible;
         for (int i = 0; i < _elements.ItemCount; i++) if (_elements.GetItemMetadata(i).AsString() == _selected) _elements.Select(i);
+        foreach ((string id, Button button) in _elementButtons) button.SetPressedNoSignal(id == _selected);
+        _elementTitle.Text = HudEditorSettings.Elements.GetValueOrDefault(_selected, _selected);
         _refreshing = false; _preview.QueueRedraw();
     }
 }
 
 public partial class HudEditorPreview : Control
 {
+    internal const float PreviewPadding = 12;
     private readonly Func<GameSettings> _settings;
     private readonly Func<HudEditorSettings> _layout;
     private readonly Func<string> _selected;
@@ -121,6 +236,7 @@ public partial class HudEditorPreview : Control
     ];
     private readonly Dictionary<string, Rect2> _bounds = new();
     internal IReadOnlyDictionary<string, Rect2> ElementBounds => _bounds;
+    internal Rect2 ScreenRect { get; private set; }
     private bool _merc, _dragging;
     private Vector2 _screen, _displaySize;
     private string? _error;
@@ -166,13 +282,15 @@ public partial class HudEditorPreview : Control
     public override void _Draw()
     {
         DrawRect(new Rect2(Vector2.Zero, Size), new Color(.035f, .055f, .065f));
-        float width = Math.Min(Size.X, Size.Y * Aspect);
+        Vector2 available = (Size - Vector2.One * (PreviewPadding * 2)).Max(Vector2.Zero);
+        float width = Math.Min(available.X, available.Y * Aspect);
         _displaySize = new Vector2(width, width / Aspect);
         // Render a full-size sample and fit it as a unit. Native chat/feed minimum font sizes
         // must not turn a small editor preview into an unrealistically tiny gameplay viewport.
         _screen = new Vector2(720 * Aspect, 720);
         float fit = _displaySize.Y / _screen.Y;
         Vector2 offset = (Size - _displaySize) / 2;
+        ScreenRect = new Rect2(offset, _displaySize);
         DrawRect(new Rect2(offset, _displaySize), new Color(.045f, .07f, .075f));
         for (int i = 1; i < 10; i++)
         {
@@ -227,7 +345,10 @@ public partial class HudEditorPreview : Control
             rect = new Rect2(rect.Position * fit + offset, rect.Size * fit);
             _bounds[entry.Key] = rect;
             DrawRect(rect, entry.Key == _selected() ? Colors.Cyan : new Color(1, 1, 1, .25f), false, 1);
-            if (entry.Key == _selected()) DrawString(ThemeDB.FallbackFont, new Vector2(Math.Clamp(rect.Position.X, 0, Math.Max(0, Size.X - 160)), Math.Clamp(rect.Position.Y - 4, 16, Size.Y - 4)), HudEditorSettings.Elements[entry.Key], fontSize: 14);
+            if (entry.Key == _selected()) DrawString(ThemeDB.FallbackFont,
+                new Vector2(Math.Clamp(rect.Position.X, ScreenRect.Position.X, Math.Max(ScreenRect.Position.X, ScreenRect.End.X - 160)),
+                    Math.Clamp(rect.Position.Y - 4, ScreenRect.Position.Y + 16, Math.Max(ScreenRect.Position.Y + 16, ScreenRect.End.Y - 4))),
+                HudEditorSettings.Elements[entry.Key], fontSize: 14);
         }
         HudEditorTransform.Apply(_page.DrawList.Items, layout, _screen, raw);
         _page.DrawList.Items.AddRange(_feed.DrawList.Items);

@@ -141,7 +141,8 @@ public partial class HostScreen : MenuPage
         _botHint.Name = "BotHint";
         game.AddChild(_botHint);
         Heading(game, "Your recording");
-        _record = Toggle(game, "Record my matches", "RecordDemos", s.RecordDemos);
+        _record = Toggle(game, DemoRecordingText.Label, "RecordDemos", s.RecordDemos);
+        _record.TooltipText = DemoRecordingText.Tooltip;
         game.AddChild(Note("Save full match replays to Demos on this computer. You can change this in the lobby; each player chooses for themselves."));
 
         VBoxContainer rules = SettingsTab("Rules");

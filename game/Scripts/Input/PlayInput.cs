@@ -18,6 +18,9 @@ public partial class PlayInput : Node
     private readonly List<int> _pressedSinceTick = new();
     private object? _actionPawn;
     private readonly InputActionState _actionState = new();
+    private readonly HashSet<string> _physicalSources = new(StringComparer.OrdinalIgnoreCase);
+    private BindingInput? _bindingInput;
+    private InputBindings? _bindings;
     public Func<OpenScct.Game.SBase.SPlayerController?>? Controller { get; set; }
     private float _mouseX;
     private float _mouseY;
@@ -47,7 +50,32 @@ public partial class PlayInput : Node
         Name = "PlayInput";
     }
 
-    public InputBindings? Bindings { get; set; }
+    public InputBindings? Bindings
+    {
+        get => _bindings;
+        set
+        {
+            _bindings = value;
+            if (value is not null) BindingInput.SetLayout(value.Layout);
+        }
+    }
+
+    public override void _Ready()
+    {
+        _bindingInput = BindingInput.Current;
+        if (_bindingInput is not null) _bindingInput.Released += ReleasePhysicalSource;
+    }
+
+    public override void _ExitTree()
+    {
+        if (_bindingInput is not null) _bindingInput.Released -= ReleasePhysicalSource;
+        if (Target is { } target) ClearHeld(target);
+    }
+
+    private void ReleasePhysicalSource(string key)
+    {
+        if (_physicalSources.Remove(key)) Key(key, false);
+    }
 
     /// <summary>The input the held keys are written to (released together when the pointer is freed).</summary>
     public LocalInput? Target { get; set; }
@@ -98,6 +126,7 @@ public partial class PlayInput : Node
         else if (_foregroundLost)
         {
             _foregroundLost = false;
+            BindingInput.Current?.RestoreFocus();
             _eatClickUntilMsec = _activationClickConsumed ? 0 : Time.GetTicksMsec() + RefocusClickMsec;
             if (_recaptureOnFocus)
             {
@@ -151,6 +180,7 @@ public partial class PlayInput : Node
         if (!_foregroundLost)
         {
             _foregroundLost = true;
+            BindingInput.Current?.ResetAll();
             _activationClickConsumed = false;
             // Windows may have released native capture before this notification or foreground check.
             // Keep the app's capture intent, while menu releases continue to opt out of recapture.
@@ -243,7 +273,19 @@ public partial class PlayInput : Node
             case InputEventKey { Echo: true }:
                 return;
             case InputEventKey or InputEventMouseButton:
-                if (GodotKeys.ToIk(@event) is { } ik)
+                if (BindingInput.Current is { } session)
+                {
+                    foreach (var ev in session.Resolve(@event).Events)
+                    {
+                        if (ev.Pressed && session.MayAcceptGameplay(ev.Key))
+                        {
+                            _physicalSources.Add(ev.Key);
+                            Key(ev.Key, true);
+                        }
+                        else if (!ev.Pressed) ReleasePhysicalSource(ev.Key);
+                    }
+                }
+                else if (GodotKeys.ToIk(@event) is { } ik)
                 {
                     bool pressed = @event.IsPressed();
                     Key(ik, pressed);
@@ -265,6 +307,8 @@ public partial class PlayInput : Node
         }
         else
         {
+            BindingInput.Current?.ResetGameplay();
+            _physicalSources.Clear();
             _down.Clear();
         }
     }
@@ -274,7 +318,7 @@ public partial class PlayInput : Node
     {
         if (pressed)
         {
-            if (!_down.Add(ik) && !ik.StartsWith("MouseWheel", StringComparison.OrdinalIgnoreCase))
+            if (!_down.Add(ik) && !GodotKeys.IsPulse(ik))
             {
                 return;
             }
@@ -287,9 +331,10 @@ public partial class PlayInput : Node
         }
 
         // The wheel has no release.
-        if (pressed && ik.StartsWith("MouseWheel", StringComparison.OrdinalIgnoreCase))
+        if (pressed && GodotKeys.IsPulse(ik))
         {
             _down.Remove(ik);
+            _pending.Add((ik, false));
         }
     }
 
@@ -328,11 +373,12 @@ public partial class PlayInput : Node
         float up = 0f;
         foreach ((string ik, bool pressed) in _pending)
         {
-            if (pressed && string.Equals(ik, "MouseWheelUp", StringComparison.OrdinalIgnoreCase))
+            string physical = BindingKey.TryParse(ik, out var binding) ? binding.Base : ik;
+            if (pressed && string.Equals(physical, "MouseWheelUp", StringComparison.OrdinalIgnoreCase))
             {
                 input.Wheel++;
             }
-            else if (pressed && string.Equals(ik, "MouseWheelDown", StringComparison.OrdinalIgnoreCase))
+            else if (pressed && string.Equals(physical, "MouseWheelDown", StringComparison.OrdinalIgnoreCase))
             {
                 input.Wheel--;
             }
@@ -342,7 +388,7 @@ public partial class PlayInput : Node
                 bool merc = Bindings.Side == PlaySide.Merc;
                 var behavior = Options.SettingsStore.Current.LookOf(merc, false);
                 if (!merc && a.Kind == KeyActionKind.Button && a.Name.Equals("bCloak", StringComparison.OrdinalIgnoreCase) &&
-                    ik.StartsWith("MouseWheel", StringComparison.OrdinalIgnoreCase))
+                    GodotKeys.IsPulse(ik))
                 {
                     if (pressed) input.Commands.Add(new InputCommand("ToggleCloak"));
                     continue;
@@ -352,14 +398,14 @@ public partial class PlayInput : Node
                     if (!merc)
                     {
                         bool firstPerson = _actionState.SpyPerspective(ik, pressed, behavior.PerspectiveBehavior == "Hold",
-                            ik.StartsWith("MouseWheel", StringComparison.OrdinalIgnoreCase));
+                            GodotKeys.IsPulse(ik));
                         input.Commands.Add(new InputCommand("SetSpyFirstPerson", firstPerson ? 1 : 0));
                     }
                     continue;
                 }
                 if (a.Kind == KeyActionKind.Command && a.Name is "Walk" or "ChangeSpeed")
                 {
-                    bool pulse = ik.StartsWith("MouseWheel", StringComparison.OrdinalIgnoreCase);
+                    bool pulse = GodotKeys.IsPulse(ik);
                     if (pulse && Controller?.Invoke()?.StateNode is OpenScct.Game.SBase.SPlayerController.IWheel)
                     {
                         if (pressed) input.Commands.Add(new InputCommand("WheelDown"));
@@ -372,7 +418,7 @@ public partial class PlayInput : Node
                     continue;
                 }
                 if (a.Kind == KeyActionKind.Command && a.Name == "Run" && pressed && Controller?.Invoke()?.StateNode is not OpenScct.Game.SBase.SPlayerController.IWheel) _actionState.Run();
-                if (merc && behavior.ScopeBehavior == "Hold" && a.Kind == KeyActionKind.Command && a.Name == "SwitchBinocularVision" && !ik.StartsWith("MouseWheel", StringComparison.OrdinalIgnoreCase))
+                if (merc && behavior.ScopeBehavior == "Hold" && a.Kind == KeyActionKind.Command && a.Name == "SwitchBinocularVision" && !GodotKeys.IsPulse(ik))
                 {
                     bool scope = _actionState.Scope(ik, pressed);
                     input.Commands.Add(new InputCommand("SetScope", scope ? 1 : 0));
@@ -418,8 +464,8 @@ public partial class PlayInput : Node
         }
 
         input.Up = up;
-        input.Fast = _down.Contains("Shift");
-        input.Slow = _down.Contains("Alt");
+        input.Fast = _down.Contains("Shift") || BindingInput.Current?.GameplayPhysicalHeld("Shift") == true;
+        input.Slow = _down.Contains("Alt") || BindingInput.Current?.GameplayPhysicalHeld("Alt") == true;
         input.MouseX += _mouseX;
         input.MouseY += _mouseY;
         _mouseX = 0f;
@@ -432,6 +478,8 @@ public partial class PlayInput : Node
     /// <summary>Releases every button (focus lost, pointer released).</summary>
     public void ClearHeld(LocalInput input)
     {
+        BindingInput.Current?.ResetGameplay();
+        _physicalSources.Clear();
         _padWalk = null;
         _actionState.Clear();
         _down.Clear();

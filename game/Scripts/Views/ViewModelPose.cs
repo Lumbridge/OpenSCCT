@@ -77,7 +77,7 @@ public sealed class ViewModelPose
             return remaining;
         }
 
-        float full = ViewModelClips.DataOf(sequence).Seconds(anim.Rate(c));
+        float full = ViewModelClips.DataOf(sequence).Seconds(anim.Rate(c)) + anim.TweenTime(c);
         return OneShotClock.Remaining(_samples > 1, _prevSequence[c], _prevRemaining[c], sequence, remaining, full, alpha);
     }
 
@@ -89,7 +89,7 @@ public sealed class ViewModelPose
     /// <paramref name="tickAlpha"/> is how far the clock is into the next tick (1 draws the last tick's state).
     /// </summary>
     public ReadOnlySpan<ChannelPose> Update(ViewModelAnim anim, AnimSampler sampler, float dt, float tickAlpha = 1f,
-        bool exclusiveAction = false)
+        bool exclusiveAction = false, bool blendLandingRecovery = true)
     {
         ArgumentNullException.ThrowIfNull(anim);
         ArgumentNullException.ThrowIfNull(sampler);
@@ -100,16 +100,19 @@ public sealed class ViewModelPose
             float remaining = anim.Remaining(c);
             if (sequence != _sequence[c] || remaining > _remaining[c] + 1e-4f)
             {
-                // Blend both the impact entry and the return to locomotion from the last
-                // rendered pose. Keep sampling the clip at simulation time during the blend.
+                // Animation sets without a native entry tween keep their existing easing.
+                // The original Merc clips already meet locomotion in the
+                // same visible pose, with compensating neck/clavicle transforms; blending those
+                // local joints on recovery moves the support hand off its grip. Custom sidearms
+                // can still request recovery easing for their own animation sets.
                 if (c == 0 && !_sequence[c].IsNone && !exclusiveAction &&
-                    (IsLanding(sequence) || IsLanding(_sequence[c])))
+                    ((IsLanding(sequence) && anim.TweenTime(c) <= 0f) || (blendLandingRecovery && IsLanding(_sequence[c]))))
                     _landingBlendLeft = LandingBlendSeconds;
                 else if (c == 0)
                     _landingBlendLeft = 0f;
                 // A new clip, or the same one-shot played again: its length at its play rate (what remains now when
                 // the clip's data is not known).
-                float full = ViewModelClips.DataOf(sequence).Seconds(anim.Rate(c));
+                float full = ViewModelClips.DataOf(sequence).Seconds(anim.Rate(c)) + anim.TweenTime(c);
                 _duration[c] = full > remaining ? full : remaining;
                 _loopTime[c] = 0f;
             }
@@ -131,6 +134,7 @@ public sealed class ViewModelPose
             float last = (frames - 1f) / frames;
             bool loop = anim.IsAnimating(c) && remaining <= 0f;
             float frame;
+            float tweenLeft = 0f;
             if (loop)
             {
                 // LoopAnim's rate scales the clip's own frame rate (the merc's walk loop runs at 0.006 x his speed).
@@ -141,7 +145,11 @@ public sealed class ViewModelPose
             else
             {
                 float drawn = DrawnRemaining(anim, c, tickAlpha);
-                float progress = _duration[c] > 0f ? 1f - (drawn / _duration[c]) : 1f;
+                float clipSeconds = MathF.Max(0f, _duration[c] - anim.TweenTime(c));
+                // UE2's negative frame tweens toward the first key before the clip clock starts.
+                // Advancing the landing pose during this blend skips its deepest gun dip.
+                tweenLeft = MathF.Max(0f, drawn - clipSeconds);
+                float progress = clipSeconds > 0f ? 1f - (drawn / clipSeconds) : 1f;
                 frame = Math.Clamp(progress, 0f, 1f) * last;
             }
 
@@ -150,7 +158,9 @@ public sealed class ViewModelPose
             {
                 Clip = clip,
                 Sequence = sequence.ToString(),
-                Frame = c == 0 && _landingBlendLeft > 0f
+                Frame = tweenLeft > 0f && anim.TweenTime(c) > 0f
+                    ? -tweenLeft / (anim.TweenTime(c) * frames)
+                    : c == 0 && _landingBlendLeft > 0f
                     ? -_landingBlendLeft / (LandingBlendSeconds * frames) : frame,
                 ClipFrame = clipFrame,
                 Frames = frames,

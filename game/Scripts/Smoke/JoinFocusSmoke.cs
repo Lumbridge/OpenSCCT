@@ -11,6 +11,11 @@ public sealed class JoinFocusSmoke : SmokeTest
 
     public override SmokeResult Step(SmokeContext context)
     {
+        void Send(InputEvent input)
+        {
+            BindingInput.Current?.Resolve(input);
+            context.Tree.Root.PushInput(input);
+        }
         Pointer.Detached = true;
         Pointer.Release();
         if (context.Tree.CurrentScene is { } previous)
@@ -31,13 +36,14 @@ public sealed class JoinFocusSmoke : SmokeTest
         input._Process(0);
         input._Process(0);
         bool captured = input.IsCaptured && context.Tree.Root.GuiGetFocusOwner() is null;
-        context.Tree.Root.PushInput(new InputEventKey { PhysicalKeycode = Key.W, Pressed = true });
-        context.Tree.Root.PushInput(new InputEventMouseMotion { Relative = new Vector2(12, -8) });
+        Send(new InputEventKey { PhysicalKeycode = Key.W, Pressed = true });
+        Send(new InputEventMouseMotion { Relative = new Vector2(12, -8) });
         input.FillTick(local);
         bool delivered = local.Get("BT_Up") == 1 && local.MouseX == 12 && local.MouseY == 8;
         string received = $"move={local.Get("BT_Up")} mouse={local.MouseX},{local.MouseY}";
         input._Notification((int)Node.NotificationWMWindowFocusOut);
         bool cleared = local.Get("BT_Up") == 0 && input.PendingMouse == (0f, 0f) && !input.IsCaptured;
+        Send(new InputEventKey { PhysicalKeycode = Key.W, Pressed = false });
         input._Notification((int)Node.NotificationWMWindowFocusIn);
         input._Process(0);
         bool deferred = !input.IsCaptured;
@@ -48,40 +54,43 @@ public sealed class JoinFocusSmoke : SmokeTest
         bool released = !input.IsCaptured;
         // The click arrives before the next process frame after Windows reports focus-in.
         input._Notification((int)Node.NotificationWMWindowFocusIn);
-        context.Tree.Root.PushInput(new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = true });
-        context.Tree.Root.PushInput(new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = false });
+        Send(new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = true });
+        Send(new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = false });
         input._Process(0);
         input._Process(0);
-        context.Tree.Root.PushInput(new InputEventKey { PhysicalKeycode = Key.W, Pressed = true });
-        context.Tree.Root.PushInput(new InputEventMouseMotion { Relative = new Vector2(7, -3) });
+        Send(new InputEventKey { PhysicalKeycode = Key.W, Pressed = true });
+        Send(new InputEventMouseMotion { Relative = new Vector2(7, -3) });
         input.FillTick(local);
         bool clickRestored = input.IsCaptured && local.Get("BT_Up") == 1 && local.MouseX == 7 && local.MouseY == 3;
         bool safeClick = !local.Commands.Exists(c => c.Name is "Fire" or "GadgetQuickChoice") && local.Get("bFire") == 0;
         local.EndTick();
-        context.Tree.Root.PushInput(new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = true });
+        Send(new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = true });
         input.FillTick(local);
         bool nextClickFires = local.Commands.Exists(c => c.Name == "Fire");
+        Send(new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = false });
+        Send(new InputEventKey { PhysicalKeycode = Key.W, Pressed = false });
         // Windows changes the foreground without Godot delivering a focus-out notification.
         bool foreground = false;
         input.ForegroundProbe = () => foreground;
         input._Process(0);
         bool backgroundReleased = !input.IsCaptured;
-        context.Tree.Root.PushInput(new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = true });
+        Send(new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = true });
         input._Process(0);
         input._Process(0);
         bool waitsForForeground = !input.IsCaptured;
+        Send(new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = false });
         foreground = true;
         input._Notification((int)Node.NotificationWMWindowFocusIn);
-        context.Tree.Root.PushInput(new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = false });
+        Send(new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = false });
         input._Process(0);
         input._Process(0);
-        context.Tree.Root.PushInput(new InputEventKey { PhysicalKeycode = Key.W, Pressed = true });
-        context.Tree.Root.PushInput(new InputEventMouseMotion { Relative = new Vector2(4, -2) });
+        Send(new InputEventKey { PhysicalKeycode = Key.W, Pressed = true });
+        Send(new InputEventMouseMotion { Relative = new Vector2(4, -2) });
         input.FillTick(local);
         bool staleFocusRecovered = input.IsCaptured && local.Get("BT_Up") == 1 && local.MouseX == 4 && local.MouseY == 2 &&
             !local.Commands.Exists(c => c.Name is "Fire" or "GadgetQuickChoice");
         local.EndTick();
-        context.Tree.Root.PushInput(new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = true });
+        Send(new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = true });
         input.FillTick(local);
         bool recoveredClickFires = local.Commands.Exists(c => c.Name == "Fire");
         input.ReleasePointer();

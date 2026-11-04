@@ -447,17 +447,57 @@ public sealed class MercHudPage : HudPage
 
         // Rule 3 as Reloaded patches it (rl:fix.crosshair_shift): the page instance sits at a fixed spot, centred, or
         // Reloaded's classic_crosshair spot; it no longer follows SpotReticule, so an aim kick does not move it sideways.
-        reticule.PositionOverride = ReticlePosition(Options.ClassicCrosshair);
+        reticule.PositionOverride = ReticlePosition(Options.ClassicCrosshair, ReticleDotCentre(reticule, area));
     }
 
     /// <summary>
-    /// Where the reticle's page instance goes (page units): Reloaded's fixed spot, centred (257, 179) or classic
-    /// (254, 182), drawn one unit up and left so the centre dot lands where the reference game draws it.
+    /// Where the reticle's page instance goes (page units): place the loaded artwork's centre dot at the page
+    /// centre, with Reloaded's optional classic offset. Older content packs can have different inner origins.
+    /// Without a dot, fall back to the calibrated development artwork's position.
     /// </summary>
     [PortOf("rl:fix.crosshair_shift", Spec = "spec/hud/merc-reticle.md#rules")]
     [PortOf("rl:qol.crosshair", Spec = "spec/hud/merc-reticle.md#rules")]
-    public static Vector2 ReticlePosition(bool classic) =>
-        (classic ? HudK.ReticleClassicSpot : HudK.ReticleCentredSpot) + HudK.ReticleDrawCalibration;
+    public static Vector2 ReticlePosition(bool classic, Vector2? dotCentre = null) =>
+        (dotCentre is { } dot ? HudK.ReticleCentre - dot : HudK.ReticleCentredSpot + HudK.ReticleDrawCalibration) +
+        (classic ? HudK.ReticleClassicSpot - HudK.ReticleCentredSpot : Vector2.Zero);
+
+    /// <summary>The selected weapon's dot in the outer reticle instance's coordinates, including every inner origin.</summary>
+    private static Vector2? ReticleDotCentre(MagmaNode reticule, MagmaNode? area)
+    {
+        if (area is null)
+        {
+            return null;
+        }
+
+        foreach (MagmaWidget widget in area.Area.Widgets)
+        {
+            if (widget.Kind != MagmaWidgetKind.Image ||
+                !string.Equals(widget.Name, "rond02", StringComparison.OrdinalIgnoreCase) ||
+                !MagmaEval.Evaluate(widget, 0f, out MagmaKey dot))
+            {
+                continue;
+            }
+
+            // Match MagmaRenderer.DrawImage's inclusive image bounds, including the final page unit.
+            Vector2 centre = new((dot.Rect.L + dot.Rect.R + 1f) * 0.5f, (dot.Rect.T + dot.Rect.B + 1f) * 0.5f);
+            MagmaNode node = area;
+            while (!ReferenceEquals(node, reticule))
+            {
+                if (node.Parent is not { } parent ||
+                    !MagmaEval.Evaluate(parent.Area.Widgets[node.WidgetIndex], 0f, out MagmaKey origin))
+                {
+                    return null;
+                }
+
+                centre += node.PositionOverride ?? origin.Pos;
+                node = parent;
+            }
+
+            return centre;
+        }
+
+        return null;
+    }
 
     /// <summary>
     /// How far the weapon reticle's lines have moved out from frame 0 at its current frame, in page units: the

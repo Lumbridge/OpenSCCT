@@ -204,10 +204,10 @@ public static class PlayerCalcView
     {
         if (PC.Pawn is not { bDeleteMe: false } || PC.ViewTarget is null || PC.ViewTarget.bDeleteMe)
         {
-            PC.ViewTarget = PC.Pawn is { bDeleteMe: false } p ? p : PC;
+            PC.SetViewTarget(PC.Pawn is { bDeleteMe: false } p ? p : PC);
         }
 
-        Actor target = PC.ViewTarget;
+        Actor target = PC.ViewTarget!;
         ViewActor = target;
         CameraLocation = target.Location;
         CameraRotation = PC.Rotation;

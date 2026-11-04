@@ -118,7 +118,12 @@ public partial class OptionsRuntime : Node
             return false;
         }
 
-        return OpenScctGame.Controls.GodotKeys.ToEvent(ik) switch
+        InputEvent? binding = OpenScctGame.Controls.GodotKeys.ToEvent(ik);
+        if (binding is InputEventWithModifiers modifiers &&
+            ((modifiers.CtrlPressed && !Input.IsPhysicalKeyPressed(Key.Ctrl)) ||
+             (modifiers.ShiftPressed && !Input.IsPhysicalKeyPressed(Key.Shift)) ||
+             (modifiers.AltPressed && !Input.IsPhysicalKeyPressed(Key.Alt)))) return false;
+        return binding switch
         {
             InputEventKey key => Input.IsPhysicalKeyPressed(key.PhysicalKeycode),
             InputEventMouseButton button => Input.IsMouseButtonPressed(button.ButtonIndex),
@@ -223,7 +228,8 @@ public partial class OptionsRuntime : Node
 
     public override void _UnhandledKeyInput(InputEvent @event)
     {
-        if (@event is InputEventKey { Pressed: true, Echo: false, Keycode: Key.F12 } && _overlay is null)
+        if (@event is InputEventKey { Pressed: true, Echo: false, Keycode: Key.F12,
+            CtrlPressed: false, ShiftPressed: false, AltPressed: false, MetaPressed: false } && _overlay is null)
         {
             OpenOverlay();
             GetViewport().SetInputAsHandled();

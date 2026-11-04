@@ -23,6 +23,9 @@ public sealed class OptionsSmoke : SmokeTest
     ];
     private int _size, _tab, _section, _frames;
     private bool _advanced;
+    private bool _allBindings;
+    private string? _previousBindingCategory;
+    private readonly Dictionary<MenuButton, string> _bindingCountTexts = new();
 
     public override SmokeResult Step(SmokeContext context)
     {
@@ -51,13 +54,27 @@ public sealed class OptionsSmoke : SmokeTest
             if (_options.Tabs.GetCurrentTabControl().GetNodeOrNull<TabContainer>("Sections") is { } sections)
             {
                 sections.CurrentTab = _section;
+                if (sections.GetCurrentTabControl().FindChild("ControllerAimSettings", true, false) is CheckButton tuning)
+                    tuning.ButtonPressed = _advanced;
                 foreach (Node node in sections.GetCurrentTabControl().FindChildren("*", nameof(CheckButton), true, false))
                     if (node is CheckButton button && button.Text == "Advanced settings") button.ButtonPressed = _advanced;
+                if (_allBindings && sections.GetCurrentTabControl().FindChild("BindingCategory", true, false) is OptionButton category)
+                {
+                    _previousBindingCategory = category.Selected >= 0 ? category.GetItemText(category.Selected) : "Movement";
+                    PickBindingCategory(category, "All");
+                }
             }
         }
+        if (_allBindings && _frames == 4 && _tab < 2 && _section is 0 or 2 &&
+            _options.Tabs!.GetCurrentTabControl().GetNode<TabContainer>("Sections").GetCurrentTabControl()
+                .FindChild("BindingCategory_All", true, false) is Button focusedAll && focusedAll.IsVisibleInTree())
+            focusedAll.GrabFocus();
+        if (_allBindings && _frames == 4) ApplyBindingCountFixture();
         if (_frames < 8) return SmokeResult.Running;
-        string where = $"{_sizes[_size].X}x{_sizes[_size].Y} options {_tab}/{_section} advanced={_advanced}";
+        string where = $"{_sizes[_size].X}x{_sizes[_size].Y} options {_tab}/{_section} advanced={_advanced} all={_allBindings}";
         var problems = LayoutCheck.Problems(_options, _sizes[_size].X);
+        if (_options.Size.X > _sizes[_size].X + 1f)
+            problems.Add($"options expanded to {_options.Size.X:0}px in a {_sizes[_size].X}px viewport");
         problems.AddRange(LayoutCheck.BoundsProblems(_options, _sizes[_size]));
         if (_tab == 6 && _options.FindChildren("*", nameof(HudEditorPreview), true, false).OfType<HudEditorPreview>().FirstOrDefault() is { } preview)
         {
@@ -72,20 +89,33 @@ public sealed class OptionsSmoke : SmokeTest
                     problems.Add("HUD editor " + id + " outline leaves the preview");
             }
         }
+        if (_tab == 6) problems.AddRange(HudEditorSidebarChecks.Run(_options));
         foreach (Node node in _options.FindChildren("ActionList", nameof(ScrollContainer), true, false))
         {
             if (node is not ScrollContainer list || !list.IsVisibleInTree()) continue;
             if (list.Size.Y < 96f) problems.Add($"bindings list has only {list.Size.Y:0}px of visible height");
-            if (list.ScrollVertical == 0 && list.FindChild("Actions", true, false) is GridContainer actions &&
-                actions.GetChildren().OfType<Button>().FirstOrDefault() is { } first &&
+            if (list.ScrollVertical == 0 && list.FindChild("BindingRows", true, false) is Control actions &&
+                actions.FindChildren("BindingSlot_*", nameof(Button), true, false).OfType<Button>().FirstOrDefault() is { } first &&
                 first.GetGlobalRect().End.Y > list.GetGlobalRect().End.Y + 1f)
                 problems.Add("initial bindings view hides the first action below its instructions");
         }
+        if (_tab < 2 && _section is 0 or 2 && !_advanced)
+            CheckBindingBrowseLayout(_options.Tabs!.GetCurrentTabControl().GetNode<TabContainer>("Sections").GetCurrentTabControl(), problems);
         _problems.AddRange(problems.Select(p => where + ": " + p));
-        MenuPage.Shot(tree.Root, $"options-{_sizes[_size].X}x{_sizes[_size].Y}-{_tab}-{_section}-{_advanced}");
+        MenuPage.Shot(tree.Root, $"options-{_sizes[_size].X}x{_sizes[_size].Y}-{_tab}-{_section}-{_advanced}" + (_allBindings ? "-all" : ""));
         _frames = 0;
         if (_tab < 2)
         {
+            if (!_advanced && _section is 0 or 2)
+            {
+                if (!_allBindings) { _allBindings = true; return SmokeResult.Running; }
+                RestoreBindingCountTexts();
+                if (_options.Tabs!.GetCurrentTabControl().GetNode<TabContainer>("Sections").GetCurrentTabControl()
+                    .FindChild("BindingCategory", true, false) is OptionButton category)
+                    PickBindingCategory(category, _previousBindingCategory ?? "Movement");
+                _allBindings = false;
+                _previousBindingCategory = null;
+            }
             if (!_advanced && _section is 1 or 2) { _advanced = true; return SmokeResult.Running; }
             _advanced = false;
             if (++_section < _options.Tabs!.GetCurrentTabControl().GetNode<TabContainer>("Sections").GetTabCount()) return SmokeResult.Running;
@@ -95,11 +125,154 @@ public sealed class OptionsSmoke : SmokeTest
         if (++_tab < _options.Tabs!.GetTabCount()) return SmokeResult.Running;
         _tab = 0;
         if (++_size < _sizes.Length) { Resize(tree, _sizes[_size]); return SmokeResult.Running; }
-        return _problems.Count == 0 ? SmokeResult.Pass("draft/apply/discard, role bindings, all subsections and advanced settings from 800x600 to 4K, including shrinking after 4K")
+        return _problems.Count == 0 ? SmokeResult.Pass("draft/apply/discard, role bindings including All categories, all subsections and advanced settings from 800x600 to 4K, including shrinking after 4K")
             : SmokeResult.Fail(string.Join("; ", _problems.Take(12)));
     }
 
     private void Expect(bool value, string message) { if (!value) _problems.Add(message); }
+
+    private static void PickBindingCategory(OptionButton category, string name)
+    {
+        int index = Enumerable.Range(0, category.ItemCount).FirstOrDefault(i => category.GetItemText(i) == name);
+        category.Select(index);
+        category.EmitSignal(OptionButton.SignalName.ItemSelected, (long)index);
+    }
+
+    private void ApplyBindingCountFixture()
+    {
+        RestoreBindingCountTexts();
+        Control section = _options!.Tabs!.GetCurrentTabControl().GetNode<TabContainer>("Sections").GetCurrentTabControl();
+        MenuButton[] counts = section.FindChildren("BindingMore_*", nameof(MenuButton), true, false).OfType<MenuButton>()
+            .Where(button => button.IsVisibleInTree()).Take(3).ToArray();
+        string[] labels = { "+", "+1", "+11" };
+        for (int index = 0; index < counts.Length; index++)
+        {
+            _bindingCountTexts[counts[index]] = counts[index].Text;
+            counts[index].Text = labels[index];
+        }
+    }
+
+    private void RestoreBindingCountTexts()
+    {
+        foreach ((MenuButton button, string text) in _bindingCountTexts)
+            if (GodotObject.IsInstanceValid(button) && !button.IsQueuedForDeletion()) button.Text = text;
+        _bindingCountTexts.Clear();
+    }
+
+    private static Rect2 FocusDrawBounds(StyleBox style, Rect2 rect) => style switch
+    {
+        // UiBox expands in its custom draw callback; native style boxes expose each expanded edge.
+        UiBox box => rect.Grow(box.Expand),
+        StyleBoxFlat flat => ExpandedDrawBounds(rect, flat.ExpandMarginLeft, flat.ExpandMarginTop, flat.ExpandMarginRight, flat.ExpandMarginBottom),
+        StyleBoxTexture texture => ExpandedDrawBounds(rect, texture.ExpandMarginLeft, texture.ExpandMarginTop, texture.ExpandMarginRight, texture.ExpandMarginBottom),
+        _ => rect,
+    };
+
+    private static Rect2 ExpandedDrawBounds(Rect2 rect, float left, float top, float right, float bottom) =>
+        new(rect.Position - new Vector2(left, top), rect.Size + new Vector2(left + right, top + bottom));
+
+    private void CheckBindingBrowseLayout(Control section, List<string> problems)
+    {
+        if (section.FindChild("BindingBody", true, false) is not Control body || !body.IsVisibleInTree()) return;
+        var sidebar = section.FindChild("BindingCategoryList", true, false) as ScrollContainer;
+        var margin = section.FindChild("BindingCategoryMargin", true, false) as MarginContainer;
+        var divider = section.FindChild("BindingColumnDivider", true, false) as VSeparator;
+        bool wide = Math.Min(1500f, _sizes[_size].X - 32f) >= 1000f;
+        if (sidebar is null || margin is null || divider is null)
+        {
+            problems.Add("bindings category inset or column divider is missing");
+            return;
+        }
+        if (divider.IsVisibleInTree() != wide || margin.IsVisibleInTree() != wide || sidebar.IsVisibleInTree() != wide)
+            problems.Add("bindings category sidebar and vertical divider do not follow the compact layout breakpoint");
+        if (wide)
+        {
+            if (divider.Size.X <= 0f || divider.Size.Y <= 0f) problems.Add("bindings vertical divider has no visible area");
+            if (section.FindChild("BindingSearch", true, false) is LineEdit search &&
+                sidebar.FindChild("BindingCategory_All", true, false) is Button first)
+            {
+                if (_allBindings && sidebar.ScrollVertical != 0) problems.Add("All categories leaves the first sidebar line scrolled above the viewport");
+                if (sidebar.ScrollVertical == 0)
+                {
+                    if (first.GetGlobalRect().Position.Y < sidebar.GetGlobalRect().Position.Y - .5f)
+                        problems.Add("first category line is clipped above its sidebar viewport");
+                    if (first.GetGlobalRect().Position.Y < search.GetGlobalRect().End.Y + 4f)
+                        problems.Add("first category line overlaps the search toolbar");
+                    if (first.GetGlobalRect().End.Y > sidebar.GetGlobalRect().End.Y + 1f)
+                        problems.Add("first category line does not fit inside its visible sidebar");
+                }
+                if (_allBindings)
+                {
+                    if (!first.HasFocus()) problems.Add("All category focus regression did not focus the first sidebar row");
+                    StyleBox focus = first.GetThemeStylebox("focus");
+                    var localRect = new Rect2(Vector2.Zero, first.Size);
+                    Rect2 decoration = FocusDrawBounds(focus, localRect);
+                    var drawn = new Rect2(first.GetGlobalRect().Position + decoration.Position, decoration.Size);
+                    if (!sidebar.GetGlobalRect().Grow(.5f).Encloses(drawn))
+                        problems.Add($"focused All category decoration {drawn.Position}..{drawn.End} is clipped by its sidebar viewport");
+                }
+            }
+            else problems.Add("bindings sidebar has no first All category line");
+        }
+        if (!_allBindings) return;
+        if (section.FindChild("BindingRows", true, false) is not Control rows ||
+            section.FindChild("ActionList", true, false) is not ScrollContainer list ||
+            section.FindChild("BindingCategory", true, false) is not OptionButton category) return;
+        var headers = rows.GetChildren().OfType<MarginContainer>()
+            .Where(c => c.Name.ToString().StartsWith("BindingSection_", StringComparison.Ordinal)).ToArray();
+        string[] names = Enumerable.Range(0, category.ItemCount).Select(category.GetItemText).Where(name => name != "All").ToArray();
+        if (headers.Length != names.Length) problems.Add("All actions does not have exactly one divider for each category");
+        foreach (string name in names)
+        {
+            MarginContainer? header = headers.FirstOrDefault(h => h.Name == "BindingSection_" + name);
+            if (header is null || header.FindChild("BindingSectionLabel", true, false) is not Label label ||
+                header.FindChild("BindingSectionRule", true, false) is not HSeparator rule)
+            {
+                problems.Add("All actions has no labeled section divider for " + name);
+                continue;
+            }
+            if (label.Text != name || !header.GetGlobalRect().Grow(1f).Encloses(label.GetGlobalRect()))
+                problems.Add("All actions clips the " + name + " category heading");
+            if (rule.Size.X <= 0f || rule.Size.Y <= 0f) problems.Add("All actions has an empty divider for " + name);
+        }
+        if (list.ScrollVertical == 0 && headers.FirstOrDefault() is { } firstHeader)
+        {
+            if (firstHeader.GetGlobalRect().Position.Y < list.GetGlobalRect().Position.Y - .5f ||
+                firstHeader.GetGlobalRect().End.Y > list.GetGlobalRect().End.Y + 1f)
+                problems.Add("All actions clips its first category heading at the list edge");
+        }
+        CheckBindingColumnAlignment(body, rows, problems);
+    }
+
+    private static void CheckBindingColumnAlignment(Control body, Control rows, List<string> problems)
+    {
+        Rect2? primaryReference = null, alternateReference = null, moreReference = null;
+        foreach (Control row in rows.GetChildren().OfType<Control>().Where(row => row.Name.ToString().StartsWith("BindingRow_", StringComparison.Ordinal)))
+        {
+            Button? primary = row.GetChildren().OfType<Button>().FirstOrDefault(button => button.Name.ToString().StartsWith("BindingSlot_", StringComparison.Ordinal) && button.Name.ToString().EndsWith("_0", StringComparison.Ordinal));
+            Button? alternate = row.GetChildren().OfType<Button>().FirstOrDefault(button => button.Name.ToString().StartsWith("BindingSlot_", StringComparison.Ordinal) && button.Name.ToString().EndsWith("_1", StringComparison.Ordinal));
+            MenuButton? more = row.GetChildren().OfType<MenuButton>().FirstOrDefault(button => button.Name.ToString().StartsWith("BindingMore_", StringComparison.Ordinal));
+            if (primary is null || alternate is null || more is null) continue;
+            Rect2 primaryRect = primary.GetGlobalRect(), alternateRect = alternate.GetGlobalRect(), moreRect = more.GetGlobalRect();
+            if (primaryReference is { } firstPrimary && !AlignedColumn(firstPrimary, primaryRect)) problems.Add(row.Name + " Primary cell shifts when additional-binding counts differ");
+            if (alternateReference is { } firstAlternate && !AlignedColumn(firstAlternate, alternateRect)) problems.Add(row.Name + " Alternate cell shifts when additional-binding counts differ");
+            if (moreReference is { } firstMore && !AlignedColumn(firstMore, moreRect)) problems.Add(row.Name + " additional-binding count changes its column width or position");
+            primaryReference ??= primaryRect; alternateReference ??= alternateRect; moreReference ??= moreRect;
+            StyleBox normal = more.GetThemeStylebox("normal");
+            float textWidth = more.GetThemeFont("font").GetStringSize(more.Text, HorizontalAlignment.Left, -1, more.GetThemeFontSize("font_size")).X;
+            float padding = Math.Max(0, normal.ContentMarginLeft) + Math.Max(0, normal.ContentMarginRight);
+            if (textWidth + padding > moreRect.Size.X + 1f) problems.Add(row.Name + " clips its additional-binding count " + more.Text);
+        }
+        Label? primaryHeading = body.FindChildren("*", nameof(Label), true, false).OfType<Label>().FirstOrDefault(label => label.Text == "Primary");
+        Label? alternateHeading = body.FindChildren("*", nameof(Label), true, false).OfType<Label>().FirstOrDefault(label => label.Text == "Alternate");
+        if (primaryReference is { } primaryCell && primaryHeading is not null && Math.Abs(primaryHeading.GetGlobalRect().GetCenter().X - primaryCell.GetCenter().X) > 1f)
+            problems.Add("Primary column heading does not align with its binding cells");
+        if (alternateReference is { } alternateCell && alternateHeading is not null && Math.Abs(alternateHeading.GetGlobalRect().GetCenter().X - alternateCell.GetCenter().X) > 1f)
+            problems.Add("Alternate column heading does not align with its binding cells");
+    }
+
+    private static bool AlignedColumn(Rect2 reference, Rect2 current) =>
+        Math.Abs(reference.Position.X - current.Position.X) <= 1f && Math.Abs(reference.Size.X - current.Size.X) <= 1f;
 
     private void CheckBehavior(OptionsMenu options)
     {
@@ -111,6 +284,11 @@ public sealed class OptionsSmoke : SmokeTest
         {
             Expect(!options.HasUnsavedChanges, "fresh editor is clean");
             CheckBindingConflicts(options);
+            CheckBindingBrowsing(options);
+            _problems.AddRange(BindingEditorChecks.Run(options));
+            options.Hide();
+            try { _problems.AddRange(BindingRuntimeChecks.Run(options.GetTree())); }
+            finally { options.Show(); }
             CheckHudEditor(options);
             var volume = (NotchedSlider)options.Controls["master_volume"];
             double originalVolume = volume.Value;
@@ -134,6 +312,25 @@ public sealed class OptionsSmoke : SmokeTest
                 slider.SetValueNoSignal(value);
                 slider.EmitSignal(Godot.Range.SignalName.ValueChanged, (double)value);
             }
+            void EditTelemetryAppearance(string element, double size, double opacity)
+            {
+                HudEditorPanel editor = options.FindChildren("*", "", true, false).OfType<HudEditorPanel>().Single();
+                var search = (LineEdit)editor.FindChild("HudEditorSearch", true, false);
+                search.Text = ""; search.EmitSignal(LineEdit.SignalName.TextChanged, "");
+                var role = (OptionButton)editor.FindChild("HudEditorRole", true, false);
+                role.Select(0); role.EmitSignal(OptionButton.SignalName.ItemSelected, 0L);
+                var elements = (OptionButton)editor.FindChild("HudEditorElement", true, false);
+                int selected = Enumerable.Range(0, elements.ItemCount).First(i => elements.GetItemMetadata(i).AsString() == element);
+                elements.Select(selected); elements.EmitSignal(OptionButton.SignalName.ItemSelected, (long)selected);
+                void SetField(string title, double value)
+                {
+                    PanelContainer property = editor.FindChildren("*", nameof(PanelContainer), true, false).OfType<PanelContainer>()
+                        .Single(row => row.HasMeta("hud_editor_property") && row.GetMeta("hud_editor_property").AsString() == title);
+                    SpinBox field = property.FindChildren("*", nameof(SpinBox), true, false).OfType<SpinBox>().Single();
+                    field.SetValueNoSignal(value); field.EmitSignal(Godot.Range.SignalName.ValueChanged, value);
+                }
+                SetField("Size %", size); SetField("Opacity %", opacity);
+            }
             PickTelemetry("show_fps", 1);
             Expect(options.Editing.ShowFps && options.Editing.FpsTelemetry.DisplayMode == "Always", "FPS Always selector enables the readout");
             PickTelemetry("show_fps", 0);
@@ -147,19 +344,22 @@ public sealed class OptionsSmoke : SmokeTest
             PickTelemetry("fps_telemetry.graph", 2);
             PickTelemetry("network_telemetry.graph", 1);
             foreach (string key in new[] { "fps_telemetry", "network_telemetry" })
-                Expect(!options.Controls.ContainsKey(key + ".position_x") && !options.Controls.ContainsKey(key + ".position_y"),
-                    "telemetry position controls live only in HUD editor");
+                Expect(!options.Controls.ContainsKey(key + ".position_x") && !options.Controls.ContainsKey(key + ".position_y") &&
+                    !options.Controls.ContainsKey(key + ".scale") && !options.Controls.ContainsKey(key + ".opacity"),
+                    "telemetry position, size and opacity controls live only in HUD editor");
+            // Simulate retained appearance preferences from an older profile. Editing HUD layout must leave
+            // these compatibility baselines intact rather than silently changing an existing readout.
+            options.Editing.FpsTelemetry.Scale = 115f; options.Editing.FpsTelemetry.Opacity = 77f;
+            options.Editing.NetworkTelemetry.Scale = 90f; options.Editing.NetworkTelemetry.Opacity = 65f;
             var fpsPlacement = options.Editing.HudLayout.Element(false, "Fps");
             fpsPlacement.X = -.23f; fpsPlacement.Y = .24f;
             var netPlacement = options.Editing.HudLayout.Element(false, "Network");
             netPlacement.X = -.19f; netPlacement.Y = .39f;
-            SlideTelemetry("fps_telemetry.scale", 135f);
-            SlideTelemetry("fps_telemetry.opacity", 42f);
+            EditTelemetryAppearance("Fps", 135, 42);
             SlideTelemetry("fps_telemetry.graph_seconds", 12f);
             SlideTelemetry("fps_telemetry.issue_hold_seconds", 4.5f);
             SlideTelemetry("fps_telemetry.frame_time_threshold_ms", 25f);
-            SlideTelemetry("network_telemetry.scale", 85f);
-            SlideTelemetry("network_telemetry.opacity", 68f);
+            EditTelemetryAppearance("Network", 85, 68);
             SlideTelemetry("network_telemetry.graph_seconds", 17f);
             SlideTelemetry("network_telemetry.issue_hold_seconds", 1.5f);
             SlideTelemetry("network_telemetry.ping_threshold_ms", 95f);
@@ -173,8 +373,11 @@ public sealed class OptionsSmoke : SmokeTest
                 Expect(settings.HudLayout.Spy["Fps"].X == -.23f && settings.HudLayout.Spy["Fps"].Y == .24f &&
                     settings.HudLayout.Spy["Network"].X == -.19f && settings.HudLayout.Spy["Network"].Y == .39f,
                     when + " retains independent telemetry positions in the HUD editor");
-                Expect(fps.Scale == 135f && fps.Opacity == 42f && net.Scale == 85f && net.Opacity == 68f,
-                    when + " retains independent telemetry appearance");
+                Expect(Math.Abs(settings.HudLayout.Spy["Fps"].Scale - 1.35f) < .001f && Math.Abs(settings.HudLayout.Spy["Fps"].Opacity - .42f) < .001f &&
+                    Math.Abs(settings.HudLayout.Spy["Network"].Scale - .85f) < .001f && Math.Abs(settings.HudLayout.Spy["Network"].Opacity - .68f) < .001f,
+                    when + " retains telemetry appearance edited through HUD editor fields");
+                Expect(fps.Scale == 115f && fps.Opacity == 77f && net.Scale == 90f && net.Opacity == 65f,
+                    when + " preserves older-profile telemetry appearance baselines");
                 Expect(fps.Graph == "Bars" && fps.GraphSeconds == 12f && fps.IssueHoldSeconds == 4.5f && fps.FrameTimeThresholdMs == 25f &&
                     net.Graph == "Line" && net.GraphSeconds == 17f && net.IssueHoldSeconds == 1.5f && net.PingThresholdMs == 95f &&
                     net.JitterThresholdMs == 18f && net.LossThresholdPercent == 0.5f, when + " retains telemetry graphs and issue thresholds");
@@ -225,8 +428,8 @@ public sealed class OptionsSmoke : SmokeTest
             ExpectEditedTelemetry(savedFps, "Apply serialization");
             ExpectEditedTelemetry(options.Editing, "Apply draft rebuild");
             Expect(((OptionButton)options.Controls["show_fps"]).Selected == 2 && ((OptionButton)options.Controls["show_net"]).Selected == 1 &&
-                ((HSlider)options.Controls["fps_telemetry.opacity"]).Value == 42d && ((HSlider)options.Controls["network_telemetry.scale"]).Value == 85d,
-                "Apply rebuild restores telemetry selectors and sliders");
+                !options.Controls.ContainsKey("fps_telemetry.opacity") && !options.Controls.ContainsKey("network_telemetry.scale"),
+                "Apply rebuild retains telemetry selectors without duplicate appearance controls");
             options.LoadLayout(PlaySide.Spy);
             Expect(options.Keys!.Draft!.Keys(breath).Contains("X"), "Apply retains draft binding");
             options.Defaults();
@@ -237,9 +440,15 @@ public sealed class OptionsSmoke : SmokeTest
             foreach (string key in new[] { "fps_telemetry", "network_telemetry" })
             {
                 Expect(((OptionButton)options.Controls[key + ".graph"]).Selected == 0 &&
-                    ((HSlider)options.Controls[key + ".scale"]).Value == 100d && ((HSlider)options.Controls[key + ".opacity"]).Value == 100d &&
                     ((HSlider)options.Controls[key + ".graph_seconds"]).Value == 5d && ((HSlider)options.Controls[key + ".issue_hold_seconds"]).Value == 3d,
-                    "reset restores " + key + " graph and appearance controls");
+                    "reset restores " + key + " graph controls");
+                Expect(!options.Controls.ContainsKey(key + ".scale") && !options.Controls.ContainsKey(key + ".opacity"),
+                    "reset does not restore duplicate " + key + " appearance controls");
+            }
+            foreach (string element in new[] { "Fps", "Network" })
+            {
+                HudElementSettings appearance = options.Editing.HudLayout.Spy.GetValueOrDefault(element) ?? new HudElementSettings();
+                Expect(appearance.Scale == 1f && appearance.Opacity == 1f, "reset restores " + element + " HUD editor appearance");
             }
             Expect(((OptionButton)options.Controls["show_fps"]).Selected == 0 && ((OptionButton)options.Controls["show_net"]).Selected == 0,
                 "reset restores both telemetry visibility selectors");
@@ -247,8 +456,9 @@ public sealed class OptionsSmoke : SmokeTest
             Expect(Math.Abs(SettingsStore.Current.SoundVolume - 0.27f) < 0.001f, "reset does not apply");
             options.Editing.SpyKbm.Look = 2f;
             options.Editing.MercKbm.Look = 3f;
-            var resetSpy = options.FindChild("ResetSpy", true, false) as Button;
-            resetSpy?.EmitSignal(BaseButton.SignalName.Pressed);
+            var resetSpy = options.Tabs!.GetTabControl(0).GetNode<TabContainer>("Sections").GetTabControl(0)
+                .FindChild("BindingOptions", true, false) as MenuButton;
+            resetSpy?.GetPopup().EmitSignal(PopupMenu.SignalName.IdPressed, 1L);
             options.GetNodeOrNull<ConfirmBox>("OptionsConfirmation")?.Answer(true);
             Expect(options.Editing.SpyKbm.Look == new GameSettings().SpyKbm.Look && options.Editing.MercKbm.Look == 3f, "role reset leaves other role values");
             bool closed = false;
@@ -391,6 +601,74 @@ public sealed class OptionsSmoke : SmokeTest
             options.LoadLayout(originalTab == 1 ? PlaySide.Merc : PlaySide.Spy);
         }
         Expect(!options.HasUnsavedChanges, "conflict popup checks restore clean drafts");
+    }
+
+    private void CheckBindingBrowsing(OptionsMenu options)
+    {
+        bool split = options.Editing.SplitKeyboard;
+        int tab = options.Tabs!.CurrentTab;
+        options.Editing.SplitKeyboard = true;
+        options.Tabs.CurrentTab = 0;
+        options.LoadLayout(PlaySide.Spy);
+        var draft = options.Keys!.Draft!;
+        KeyLayout original = draft.Layout.Clone();
+        var sections = options.Tabs.GetTabControl(0).GetNode<TabContainer>("Sections");
+        sections.CurrentTab = 0;
+        Control keyboard = sections.GetTabControl(0);
+        var search = keyboard.FindChild("BindingSearch", true, false) as LineEdit;
+        static void Search(LineEdit field, string text)
+        {
+            field.Text = text;
+            field.EmitSignal(LineEdit.SignalName.TextChanged, text);
+        }
+        try
+        {
+            Expect(search is not null && keyboard.FindChild("BindingRow_forward", true, false) is not null,
+                "bindings start in Movement with one named row per action");
+            if (search is null) return;
+            Search(search, "cloak");
+            Expect(keyboard.FindChild("BindingRow_cloak", true, false) is not null &&
+                keyboard.FindChild("BindingRow_forward", true, false) is null, "search spans every category");
+            Search(search, "");
+            Expect(keyboard.FindChild("BindingRow_forward", true, false) is not null &&
+                keyboard.FindChild("BindingRow_cloak", true, false) is null, "clearing search restores Movement");
+            (keyboard.FindChild("BindingCategory_Vision", true, false) as Button)?.EmitSignal(BaseButton.SignalName.Pressed);
+            Expect(keyboard.FindChild("BindingRow_vision1", true, false) is not null &&
+                keyboard.FindChild("BindingRow_forward", true, false) is null, "category navigation limits the visible action list");
+            (keyboard.FindChild("BindingCategory_Movement", true, false) as Button)?.EmitSignal(BaseButton.SignalName.Pressed);
+            Search(search, "no matching action zzz");
+            Expect(keyboard.FindChildren("BindingSlot_*", nameof(Button), true, false).Count == 0,
+                "empty search results hide stale binding rows");
+            Search(search, "");
+            var forward = ControlActions.All.Single(a => a.Id == "forward");
+            foreach (string key in new[] { "Up", "Ctrl+F12", "Shift+F12" }) draft.Add(forward, key);
+            options.LoadLayout(PlaySide.Spy);
+            Expect(draft.Keys(forward).Count() == 4 &&
+                keyboard.FindChild("BindingSlot_forward_0", true, false) is Button &&
+                keyboard.FindChild("BindingSlot_forward_1", true, false) is Button &&
+                keyboard.FindChild("BindingMore_forward", true, false) is MenuButton { Text: "+2" },
+                "four inputs remain accessible through two visible slots and extras");
+            sections.CurrentTab = 2;
+            Control controller = sections.GetTabControl(2);
+            var padSearch = controller.FindChild("BindingSearch", true, false) as LineEdit;
+            if (padSearch is not null) Search(padSearch, "Primary fire");
+            Expect(controller.FindChild("BindingSlot_fire_0", true, false) is Button fire && fire.TooltipText.Contains("contextual", StringComparison.OrdinalIgnoreCase),
+                "controller actions expose their linked contextual assignment");
+            Expect(controller.FindChild("ControllerAimSettings", true, false) is CheckButton { ButtonPressed: false },
+                "controller tuning starts collapsed");
+            if (padSearch is not null) Search(padSearch, "");
+        }
+        finally
+        {
+            draft.Reset(original);
+            if (search is not null) Search(search, "");
+            (keyboard.FindChild("BindingCategory_Movement", true, false) as Button)?.EmitSignal(BaseButton.SignalName.Pressed);
+            sections.CurrentTab = 0;
+            options.Editing.SplitKeyboard = split;
+            options.Tabs.CurrentTab = tab;
+            options.LoadLayout(tab == 1 ? PlaySide.Merc : PlaySide.Spy);
+        }
+        Expect(!options.HasUnsavedChanges, "binding browsing checks restore clean drafts");
     }
 
     private void CheckHudEditor(OptionsMenu options)

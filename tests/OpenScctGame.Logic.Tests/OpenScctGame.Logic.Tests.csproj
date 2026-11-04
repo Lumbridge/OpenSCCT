@@ -45,8 +45,12 @@
     <Compile Include="..\..\game\Scripts\UI\ControlActions.cs" Link="Linked\ControlActions.cs" />
     <Compile Include="..\..\game\Scripts\UI\BindingLabels.cs" Link="Linked\BindingLabels.cs" />
     <Compile Include="..\..\game\Scripts\Input\InputActionState.cs" Link="Linked\InputActionState.cs" />
+    <Compile Include="..\..\game\Scripts\Input\BindingKey.cs" Link="Linked\BindingKey.cs" />
+    <Compile Include="..\..\game\Scripts\Input\BindingInputState.cs" Link="Linked\BindingInputState.cs" />
     <Compile Include="..\..\game\Scripts\Input\DefaultKeyLayout.cs" Link="Linked\DefaultKeyLayout.cs" />
     <Compile Include="..\..\game\Scripts\Options\PadBindingState.cs" Link="Linked\PadBindingState.cs" />
+    <Compile Include="..\..\game\Scripts\Options\PadBindingCapture.cs" Link="Linked\PadBindingCapture.cs" />
+    <Compile Include="..\..\game\Scripts\Options\PadBindingOrder.cs" Link="Linked\PadBindingOrder.cs" />
     <Compile Include="..\..\game\Scripts\Options\PadActionState.cs" Link="Linked\PadActionState.cs" />
     <Compile Include="..\..\game\Scripts\Input\KeyLayout.cs" Link="Linked\KeyLayout.cs" />
     <Compile Include="..\..\game\Scripts\UI\InGameMenuModel.cs" Link="Linked\InGameMenuModel.cs" />

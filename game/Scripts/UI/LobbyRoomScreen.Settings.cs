@@ -75,8 +75,8 @@ public partial class LobbyRoomScreen
         _settingsRoster.Modulate = UiStyle.MenuFocus;
         game.AddChild(_settingsRoster);
         SettingsHeading(game, "Your recording");
-        _settingsRecordDemos = new CheckBox { Name = "SettingsRecordDemos", Text = "Record my matches",
-            CustomMinimumSize = new Vector2(0, 36) };
+        _settingsRecordDemos = new CheckBox { Name = "SettingsRecordDemos", Text = DemoRecordingText.Label,
+            CustomMinimumSize = new Vector2(0, 36), TooltipText = DemoRecordingText.Tooltip };
         _settingsRecordDemos.Toggled += on => { Session?.SetRecordDemos(on); RefreshRecordingControls(); };
         game.AddChild(_settingsRecordDemos);
         game.AddChild(SettingsNote("Your choice takes effect immediately for upcoming rounds, without Apply. Full match replays are saved under Demos on this computer."));

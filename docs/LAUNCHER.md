@@ -22,7 +22,9 @@ Below the launch panel, the latest release preview shows up to three short chang
 It uses the same fetched or cached release data as update checks. **Full changelog** opens the website
 changelog, with built-in full release notes if the website or browser is unavailable.
 Maps, Check for updates, Website, Settings and Help are secondary controls along the bottom;
-they wrap on narrow windows while the release preview scrolls to leave room for launch controls.
+they wrap on narrow windows. When an update adds a banner, buttons or status text, the window grows
+just enough to keep the release preview visible, within the screen's working area. Your chosen width
+and any extra height are kept; smaller screens can still scroll the preview.
 
 ## Updates and troubleshooting
 

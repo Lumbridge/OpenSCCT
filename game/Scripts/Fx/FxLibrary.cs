@@ -407,8 +407,41 @@ public sealed class FxLibrary : IParticleAssets
 
             string folder = System.IO.Path.GetDirectoryName(glbPath)!;
             string materials = System.IO.Path.Combine(folder, System.IO.Path.GetFileNameWithoutExtension(glbPath) + ".materials.json");
-            var compiler = new MaterialCompiler(MaterialsDoc.Load(materials), new TextureCache(folder)) { VisionLookup = VisionLookup.ModifierName };
+            MaterialsDoc document = MaterialsDoc.Load(materials);
+            RecoverAnimatedGlows(document, folder);
+            var compiler = new MaterialCompiler(document, new TextureCache(folder)) { VisionLookup = VisionLookup.ModifierName };
             return new MeshPackage(GlbDocument.Load(glbPath), compiler);
+        }
+
+        /// <summary>
+        /// Older mesh packs bake the mine LED's zero-opacity diffuse separately from its unmasked glow, then
+        /// replace that bake with an opaque-alpha animation atlas. Keep the animated glow additive, as the
+        /// proximity mine's run-time light skins already are, so the atlas's black crossed planes add nothing.
+        /// Ordinary translucent surfaces keep their alpha blend, including animated glass with visible opacity.
+        /// </summary>
+        private static void RecoverAnimatedGlows(MaterialsDoc document, string folder)
+        {
+            foreach (MaterialEntry entry in document.Materials.Values)
+            {
+                if (entry.Blend != MaterialBlend.Translucent || !entry.Unlit || entry.Opacity is not null ||
+                    entry.SelfIllumMask is not null || entry.Texture is not { } baked || entry.Flipbook is not { } animation)
+                    continue;
+                if (HasUniformAlpha(folder, baked, 0) && HasUniformAlpha(folder, animation.Texture, 255))
+                    entry.ListBlend = MaterialBlend.Additive;
+            }
+        }
+
+        private static bool HasUniformAlpha(string folder, string texture, byte alpha)
+        {
+            string path = System.IO.Path.Combine(folder, texture);
+            if (!File.Exists(path)) return false;
+            using Image image = Image.LoadFromFile(path);
+            if (image.IsEmpty()) return false;
+            if (image.GetFormat() != Image.Format.Rgba8) image.Convert(Image.Format.Rgba8);
+            byte[] pixels = image.GetData();
+            for (int i = 3; i < pixels.Length; i += 4)
+                if (pixels[i] != alpha) return false;
+            return pixels.Length > 0;
         }
 
         public ArrayMesh? Build(string node, LightSource light)

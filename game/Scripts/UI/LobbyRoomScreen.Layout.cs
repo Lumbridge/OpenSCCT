@@ -95,8 +95,8 @@ public partial class LobbyRoomScreen
         TeamVoiceOnlyBox = new CheckBox { Name = "TeamVoiceOnly", Text = "Voice to team only" };
         TeamVoiceOnlyBox.Toggled += on => Session?.SetTeamVoiceOnly(on); chat.AddChild(TeamVoiceOnlyBox);
         var recording = LobbyPanels.Card(right, "PersonalRecording", "Match demos");
-        _recordDemos = new CheckBox { Name = "PersonalRecordDemos", Text = "Record my matches", CustomMinimumSize = new Vector2(0, 36),
-            TooltipText = "Save full match replays to Demos on this computer. This is your personal choice, regardless of who hosts." };
+        _recordDemos = new CheckBox { Name = "PersonalRecordDemos", Text = DemoRecordingText.Label, CustomMinimumSize = new Vector2(0, 36),
+            TooltipText = DemoRecordingText.Tooltip };
         _recordDemos.Toggled += on => { Session?.SetRecordDemos(on); RefreshRecordingControls(); };
         recording.AddChild(_recordDemos);
         _recordingNote = LobbyPanels.Text();

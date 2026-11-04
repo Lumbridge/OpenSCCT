@@ -134,12 +134,15 @@ public partial class PlayerController
         ClientRestart();
     }
 
-    /// <summary>Native SetViewTarget: the actor the camera follows; the controller itself when None.</summary>
+    /// <summary>Native SetViewTarget: the actor the camera follows; a viewed pawn updates its eye height.</summary>
     [UcNative("APlayerController::execSetViewTarget")]
     [Provenance(ProvenanceKind.Estimated, "UE2 SetViewTarget: a None target views the controller itself")]
     public void SetViewTarget(Actor? NewViewTarget)
     {
         ViewTarget = NewViewTarget ?? this;
+        // The owning client receives its pawn without running PossessedBy. Enable the viewed pawn's
+        // eye updates here too, so crouching can ease the camera toward its new base height.
+        if (ViewTarget is Pawn pawn) pawn.BecomeViewTarget();
     }
 
     /// <summary>

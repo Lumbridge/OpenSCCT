@@ -75,6 +75,8 @@ public partial class OptionsMenu : Control
     public override void _Process(double delta)
     {
         UpdateLayout();
+        UpdateBindingHeadingGutters();
+        TickBindingCapture(delta);
         UpdateVoicePage();
         TickKeep();
         if ((_frameRateLabelAge += delta) >= 1.0)
@@ -89,6 +91,8 @@ public partial class OptionsMenu : Control
 
     public override void _ExitTree()
     {
+        CancelBindingActions();
+        CancelBindingCapture();
         StopMeter();
         _micTest?.Dispose();
         _micTest = null;
@@ -145,7 +149,7 @@ public partial class OptionsMenu : Control
         _tabs.AddChild(AudioPage());
         _tabs.AddChild(VoicePage());
         _tabs.AddChild(HudPage());
-        _tabs.AddChild(Page("HUD editor", new HudEditorPanel(() => _edit)));
+        _tabs.AddChild(new HudEditorPanel(() => _edit) { Name = "HUD editor" });
         _tabs.AddChild(PadPage());
 
         column.AddChild(_tabs);
@@ -242,8 +246,7 @@ public partial class OptionsMenu : Control
             }
         }
         if (_crosshairTop is not null) _crosshairTop.Vertical = width < 1000f;
-        int columns = width < 1100f ? 3 : 6;
-        if (_roleGrids.Values.Any(grid => grid.Columns != columns)) RebuildKeys();
+        UpdateBindingEditorLayout();
     }
 
     // ---- pages ---------------------------------------------------------------------------------------------
@@ -344,21 +347,30 @@ public partial class OptionsMenu : Control
     {
         GridContainer g = Grid("Controller");
         PadSettings p = _edit.Pad;
+        Section(g, "Device setup", "These settings apply to both roles. Role-specific sensitivity and button bindings are in Spy or Mercenary → Controller.");
         // Set here, the first-run question (PadMenus) is never asked.
         Check(g, "Enable controller", "controller.enabled", p.Enabled, v =>
         {
             p.Enabled = v;
             p.Prompted = true;
         });
+        Godot.Collections.Array<int> pads = Input.GetConnectedJoypads();
+        string names = pads.Count == 0 ? "No controller connected" : string.Join(", ", System.Linq.Enumerable.Select(pads, i => Input.GetJoyName(i)));
+        g.AddChild(new Label { Text = "Connected controllers" });
+        g.AddChild(new Label { Name = "Pads", Text = names, Modulate = UiStyle.Dim });
+        g.AddChild(new Control());
+        Section(g, "Input & sticks", "Enable each input type and choose when a stick or trigger starts responding. Increase deadzones if the view or character drifts.");
         Check(g, "Enable stick movement", "controller.move", p.Move, v => p.Move = v);
         Check(g, "Enable stick aiming", "controller.aim", p.Aim, v => p.Aim = v);
         Check(g, "Enable controller buttons", "controller.binds", p.Binds, v => p.Binds = v);
         Slider(g, "Left stick deadzone", "controller.deadzone_left", 0f, 0.9f, 0.01f, p.DeadzoneLeft, v => p.DeadzoneLeft = v);
         Slider(g, "Right stick deadzone", "controller.deadzone_right", 0f, 0.9f, 0.01f, p.DeadzoneRight, v => p.DeadzoneRight = v);
+        Slider(g, "Trigger press threshold", "controller.trigger_threshold", 0f, 0.99f, 0.01f, p.TriggerThreshold, v => p.TriggerThreshold = v);
+        Section(g, "Movement & aim", "Base turning speed combines with each role's sensitivity. The vertical multiplier changes up/down speed relative to horizontal turning.");
         Slider(g, "Up/down sensitivity multiplier", "controller.vertical_scale", 0.1f, 3f, 0.05f, p.VerticalScale, v => p.VerticalScale = v);
         Check(g, "Movement speed follows stick tilt", "controller.slow_walk", p.SlowWalk, v => p.SlowWalk = v);
         Slider(g, "Base controller turning speed", "controller.look_speed", 100f, 3000f, 10f, p.LookSpeed, v => p.LookSpeed = v, "0");
-        Slider(g, "Trigger press threshold", "controller.trigger_threshold", 0f, 0.99f, 0.01f, p.TriggerThreshold, v => p.TriggerThreshold = v);
+        Section(g, "Vibration", "Choose controller feedback strength and test it with a short pulse.");
         Check(g, "Vibration", "controller.rumble", p.Rumble, v => p.Rumble = v);
         Slider(g, "Vibration strength", "controller.rumble_strength", 0f, 100f, 1f, p.RumbleStrength * 100f, v => p.RumbleStrength = v / 100f, "0");
         g.AddChild(new Label { Text = "Test vibration", CustomMinimumSize = new Vector2(320f, 0f) });
@@ -366,32 +378,7 @@ public partial class OptionsMenu : Control
         g.AddChild(UiStyle.MenuButton("Test", () => PadRumble.Play(PadMenus.CurrentDevice(), new RumbleShape(7, 65535, 65535, 0.35f), _edit.Pad.RumbleStrength),
             "RumbleTest"));
         g.AddChild(new Control());
-        Godot.Collections.Array<int> pads = Input.GetConnectedJoypads();
-        string names = pads.Count == 0 ? "No controller connected" : string.Join(", ", System.Linq.Enumerable.Select(pads, i => Input.GetJoyName(i)));
-        g.AddChild(new Label { Text = "Connected controllers" });
-        g.AddChild(new Label { Name = "Pads", Text = names, Modulate = UiStyle.Dim });
-        g.AddChild(new Control());
-
-        var content = new VBoxContainer { Name = "ControllerContent", SizeFlagsHorizontal = SizeFlags.ExpandFill };
-        content.AddChild(Help("These controller settings apply to both roles. For role-specific sensitivity and button bindings, open Controller under Spy or Mercenary."));
-        // Keep device setup and vibration together; detailed stick behavior is a separate group.
-        var tuning = Grid("ControllerTuning");
-        Node[] cells = g.GetChildren().ToArray();
-        for (int row = 1; row <= 9; row++)
-            for (int col = 0; col < 3; col++)
-            {
-                Node child = cells[row * 3 + col];
-                g.RemoveChild(child);
-                tuning.AddChild(child);
-            }
-        content.AddChild(g);
-        var advanced = new VBoxContainer { Visible = false, SizeFlagsHorizontal = SizeFlags.ExpandFill };
-        advanced.AddChild(new Label { Text = "Stick behavior", Modulate = UiStyle.MenuFocus });
-        advanced.AddChild(Help("Deadzones ignore small stick movements near the center; increase them if the view or character drifts. Movement speed follows stick tilt lets a partial push move more slowly."));
-        advanced.AddChild(tuning);
-        advanced.AddChild(Help("Base turning speed affects both roles and combines with each role's sensitivity. The up/down multiplier changes vertical turning relative to horizontal."));
-        AddAdvanced(content, advanced);
-        return Page("Controller (Shared)", content);
+        return CreateSettingsEditor("Controller (Shared)", g);
     }
 
     /// <summary>Pad control names as the options list them.</summary>
@@ -486,6 +473,9 @@ public partial class OptionsMenu : Control
             });
         Choice(g, "Window size", "resolution", Resolutions(), _edit.Resolution.Length == 0 ? DesktopLabel : _edit.Resolution,
             v => _edit.Resolution = v == DesktopLabel ? "" : v);
+        Choice(g, "Window position (windowed)", "window_position", GameSettings.WindowPositions, _edit.WindowPosition, v => _edit.WindowPosition = v,
+            w => w switch { "Default" => "Top left", "Stretched" => "Fill the screen", _ => w });
+        Section(g, "Frame pacing", "Choose the frame-rate limit and vertical sync. Display changes are previewed after Apply so you can keep or revert them.");
         Check(g, "Vertical sync", "vsync", _edit.VSync, v => _edit.VSync = v);
         FrameRateChoice(g, "Max FPS", "max_fps");
         _controls["max_fps"].TooltipText = "Sets the limit for both roles. Match refresh rate follows your display's current refresh rate; Unlimited removes the cap. Vertical sync can still limit FPS. Separate role limits can be set under Mouse & Aim.";
@@ -495,8 +485,6 @@ public partial class OptionsMenu : Control
         Check(g, "Small Enhanced Reality icons in widescreen", "ws_er_small", _edit.WideErSmall, v => _edit.WideErSmall = v);
         Section(g, "Image quality", "Lower render scale improves performance at the cost of sharpness. Texture filtering keeps angled surfaces clearer; anti-aliasing smooths jagged edges.");
         Slider(g, "Render scale", "resolution_scale", 0.5f, 1f, 0.05f, _edit.RenderScale, v => _edit.RenderScale = v);
-        Choice(g, "Window position (windowed)", "window_position", GameSettings.WindowPositions, _edit.WindowPosition, v => _edit.WindowPosition = v,
-            w => w switch { "Default" => "Top left", "Stretched" => "Fill the screen", _ => w });
         Choice(g, "Texture filtering", "filter_level", ["0", "2", "4", "8", "16"], _edit.FilterLevel.ToString(CultureInfo.InvariantCulture),
             v => _edit.FilterLevel = int.Parse(v, CultureInfo.InvariantCulture), v => v == "0" ? "Trilinear (off)" : v + "x anisotropic");
         Check(g, "Anti-aliasing: MSAA", "msaa", _edit.Msaa, v => _edit.Msaa = v);
@@ -519,7 +507,7 @@ public partial class OptionsMenu : Control
             Check(g, "Stop Windows power throttling (restart)", "throttle_stop", _edit.ThrottleStop, v => _edit.ThrottleStop = v);
         }
 
-        return Page("Display", SectionedContent(g));
+        return CreateSettingsEditor("Display", g);
     }
 
     private const string DesktopLabel = "Desktop";
@@ -589,7 +577,7 @@ public partial class OptionsMenu : Control
         Slider(g, "Music volume", "music_volume", 0f, 100f, 1f, _edit.MusicVolume * 100f, v => _edit.MusicVolume = v / 100f, "0");
         Section(g, "Gameplay audio", "");
         Check(g, "Objective sounds", "objective_sounds", _edit.ObjectiveSounds, v => _edit.ObjectiveSounds = v);
-        return Page("Audio", SectionedContent(g));
+        return CreateSettingsEditor("Audio", g);
     }
 
     private Control HudPage()
@@ -605,8 +593,10 @@ public partial class OptionsMenu : Control
         Check(g, "Fire prediction (your bullet impacts show at once online)", "fire_prediction", _edit.FirePrediction,
             v => _edit.FirePrediction = v);
         Section(g, "Gameplay display", "");
+        Check(g, "Show teammate names through walls as Spy", "teammate_names_spy", _edit.TeammateNamesSpy, v => _edit.TeammateNamesSpy = v);
+        Check(g, "Show teammate names through walls as Mercenary", "teammate_names_merc", _edit.TeammateNamesMerc, v => _edit.TeammateNamesMerc = v);
         Check(g, "Show HP beside teammate names", "teammate_health", _edit.TeammateHealth, v => _edit.TeammateHealth = v);
-        _controls["teammate_health"].TooltipText = "Adds current HP to teammate names. Enable teammate names in the Spy or Mercenary tab.";
+        _controls["teammate_health"].TooltipText = "Adds current HP to teammate names enabled above.";
         Slider(g, "Team nametag opacity (%)", "teammate_names_opacity", 10f, 100f, 1f, _edit.TeammateNamesOpacity,
             v => _edit.TeammateNamesOpacity = (int)MathF.Round(v), "0");
         Check(g, "Show current location", "show_location", _edit.ShowLocation, v => _edit.ShowLocation = v);
@@ -618,7 +608,7 @@ public partial class OptionsMenu : Control
             v => _edit.HackAlpha = (int)MathF.Round(v * 255f / 100f), "0");
         Section(g, "Discord", "Choose whether Discord displays your game and lets friends join.");
         Check(g, "Discord status (shows your game, lets friends join)", "discord_presence", _edit.DiscordPresence, v => _edit.DiscordPresence = v);
-        return Page("HUD", SectionedContent(g));
+        return CreateSettingsEditor("HUD", g);
     }
 
     // ---- building blocks -----------------------------------------------------------------------------------
@@ -804,12 +794,12 @@ public partial class OptionsMenu : Control
 
     private void RebuildKeys()
     {
+        CancelBindingActions();
         _layoutSize = new Vector2(-1, -1);
         _keyButtons.Clear();
-        foreach ((PlaySide side, GridContainer grid) in _roleGrids)
-            BuildActionRows(side, grid);
+        foreach (PlaySide side in _bindingEditors.Keys) RebuildBindingEditor(side, false);
         _keys = ModelOf(_bindingSide);
-        foreach ((PlaySide side, GridContainer grid) in _rolePadGrids) RebuildPadButtons(side, grid);
+        foreach (PlaySide side in _padBindingEditors.Keys) RebuildBindingEditor(side, true);
     }
 
     private void Listen(string key)
@@ -823,6 +813,7 @@ public partial class OptionsMenu : Control
 
     public override void _Input(InputEvent @event)
     {
+        if (HandleBindingCapture(@event)) return;
         if (_dialogOpen || (_keep is not null && IsInstanceValid(_keep))) return;
         if (_listeningClutch is { } clutch && @event is InputEventKey { Pressed: true } or InputEventMouseButton { Pressed: true })
         {
@@ -858,6 +849,8 @@ public partial class OptionsMenu : Control
 
             return;
         }
+
+        if (HandleBindingActions(@event)) return;
 
         if (Overlay && @event is InputEventKey { Pressed: true, Echo: false, Keycode: Key.F12 })
         {
@@ -911,7 +904,7 @@ public partial class OptionsMenu : Control
         SettingsApplier.ApplyAudio(_edit);
         _edit = SettingsStore.Current.Clone();
         _baseline = _edit.ToJson();
-        // Voice reads its own InputMap. Apply the played role, or Spy outside a round, without seeding gameplay keys.
+        // Apply voice shortcuts for the played role, or Spy outside a round, without seeding gameplay keys.
         PlaySide voiceSide = GetTree().CurrentScene?.FindChildren("*", nameof(OpenScctGame.Controls.PlayInput), true, false)
             .OfType<OpenScctGame.Controls.PlayInput>().FirstOrDefault(p => p.Bindings is not null)?.Bindings?.Side ?? PlaySide.Spy;
         OpenScctGame.Voice.VoiceInput.BindLayout(ModelOf(voiceSide).Draft!.Layout);
@@ -1034,6 +1027,8 @@ public partial class OptionsMenu : Control
 
     private void RebuildPages()
     {
+        CancelBindingActions();
+        CancelBindingCapture();
         if (_tabs is null)
         {
             return;
@@ -1058,6 +1053,8 @@ public partial class OptionsMenu : Control
         _bindingHelp.Clear();
         _sharingLabels.Clear();
         _rolePadGrids.Clear();
+        _bindingEditors.Clear();
+        _padBindingEditors.Clear();
         _listening = null;
         _listeningAction = null;
         _listeningClutch = null;

@@ -23,6 +23,8 @@ public static class GodotKeys
     /// <summary>Readable presentation only; saved IK names remain unchanged.</summary>
     public static string DisplayName(string key)
     {
+        if (BindingKey.TryParse(key, out var chord) && chord.Modifiers != BindingModifiers.None)
+            return chord.Format(DisplayName);
         if (key.StartsWith("NumPad", StringComparison.OrdinalIgnoreCase)) return "Numpad " + key[6..].Replace("Period", ".", StringComparison.OrdinalIgnoreCase);
         return key.ToUpperInvariant() switch
         {
@@ -136,9 +138,43 @@ public static class GodotKeys
         }
     }
 
+    /// <summary>Serializes a captured keyboard/mouse chord; modifier-only presses remain ordinary inputs.</summary>
+    public static string? ToBinding(InputEvent ev)
+    {
+        if (ToIk(ev) is not { } input) return null;
+        return new BindingKey(input, BindingKey.ModifierOf(input) != BindingModifiers.None
+            ? BindingModifiers.None : ModifiersOf(ev)).Canonical;
+    }
+
+    public static bool IsModifier(InputEvent ev) => ToIk(ev) is { } input && BindingKey.ModifierOf(input) != BindingModifiers.None;
+
+    public static BindingModifiers ModifiersOf(InputEvent ev) => ev is InputEventWithModifiers modifiers
+        ? (modifiers.CtrlPressed ? BindingModifiers.Ctrl : BindingModifiers.None)
+            | (modifiers.ShiftPressed ? BindingModifiers.Shift : BindingModifiers.None)
+            | (modifiers.AltPressed ? BindingModifiers.Alt : BindingModifiers.None)
+        : BindingModifiers.None;
+
+    public static bool IsPulse(string input) => BindingKey.TryParse(input, out var key) && key.IsPulse;
+
+    public static IEnumerable<string> HeldPhysicalInputs()
+    {
+        foreach ((string name, Key key) in s_keys)
+            if (Input.IsPhysicalKeyPressed(key)) yield return name;
+        foreach ((string name, MouseButton button) in s_mouse)
+            if (!IsPulse(name) && Input.IsMouseButtonPressed(button)) yield return name;
+    }
+
     /// <summary>A Godot event for an IK name (for the InputMap), or null for axes and unknown names.</summary>
     public static InputEvent? ToEvent(string ik)
     {
+        if (BindingKey.TryParse(ik, out var chord) && chord.Modifiers != BindingModifiers.None)
+        {
+            if (ToEvent(chord.Base) is not InputEventWithModifiers modified) return null;
+            modified.CtrlPressed = (chord.Modifiers & BindingModifiers.Ctrl) != 0;
+            modified.ShiftPressed = (chord.Modifiers & BindingModifiers.Shift) != 0;
+            modified.AltPressed = (chord.Modifiers & BindingModifiers.Alt) != 0;
+            return modified;
+        }
         if (s_keys.TryGetValue(ik, out Key key))
         {
             return new InputEventKey { PhysicalKeycode = key };

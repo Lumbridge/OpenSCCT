@@ -22,6 +22,7 @@ public sealed class ViewModelAnim
     private readonly bool[] _backward = new bool[ChannelCount];
     private readonly float[] _alpha = new float[ChannelCount];
     private readonly float[] _rate = new float[ChannelCount];
+    private readonly float[] _tweenTime = new float[ChannelCount];
 
     /// <summary>The clip a channel plays or last played (a finished one-shot keeps its name, as in the engine).</summary>
     public Name Sequence(int Channel) => _sequence[Channel];
@@ -38,18 +39,22 @@ public sealed class ViewModelAnim
     /// <summary>The play rate of the channel's loop (LoopAnim's Rate: 1 plays the clip at its own frame rate).</summary>
     public float Rate(int Channel) => _rate[Channel];
 
-    /// <summary>Seconds before the channel's one-shot ends.</summary>
+    /// <summary>Seconds before the channel's one-shot ends, including any entry tween.</summary>
     public float Remaining(int Channel) => _remaining[Channel];
+
+    /// <summary>The entry tween's duration; the clip holds its first key until this time has elapsed.</summary>
+    public float TweenTime(int Channel) => _tweenTime[Channel];
 
     /// <summary>Sets a channel's blend alpha.</summary>
     public void SetAlpha(int Channel, float Alpha) => _alpha[Channel] = Alpha;
 
     /// <summary>PlayAnim: a one-shot of <paramref name="Clip"/> at <paramref name="Rate"/>.</summary>
-    public void Play(int Channel, Name Sequence, ClipData Clip, float Rate = 1f, bool Backward = false)
+    public void Play(int Channel, Name Sequence, ClipData Clip, float Rate = 1f, bool Backward = false, float TweenTime = 0f)
     {
         _sequence[Channel] = Sequence;
         _rate[Channel] = Rate;
-        _remaining[Channel] = Clip.Seconds(Rate);
+        _tweenTime[Channel] = MathF.Max(0f, TweenTime);
+        _remaining[Channel] = _tweenTime[Channel] + Clip.Seconds(Rate);
         _loop[Channel] = false;
         _playing[Channel] = true;
         _backward[Channel] = Backward;
@@ -64,6 +69,7 @@ public sealed class ViewModelAnim
         _rate[Channel] = Rate;
         _sequence[Channel] = Sequence;
         _remaining[Channel] = 0f;
+        _tweenTime[Channel] = 0f;
         _loop[Channel] = true;
         _playing[Channel] = true;
         _backward[Channel] = false;
@@ -86,7 +92,7 @@ public sealed class ViewModelAnim
 
     /// <summary>Seconds a channel's one-shot of <paramref name="Clip"/> has played (0 for a loop or a stopped channel).</summary>
     public float Elapsed(int Channel, ClipData Clip) =>
-        _playing[Channel] && !_loop[Channel] ? Clip.Seconds(_rate[Channel]) - _remaining[Channel] : 0f;
+        _playing[Channel] && !_loop[Channel] ? MathF.Max(0f, Clip.Seconds(_rate[Channel]) - _remaining[Channel]) : 0f;
 
     /// <summary>Stops a channel (no AnimEnd).</summary>
     public void Stop(int Channel)
@@ -94,6 +100,7 @@ public sealed class ViewModelAnim
         _playing[Channel] = false;
         _loop[Channel] = false;
         _remaining[Channel] = 0f;
+        _tweenTime[Channel] = 0f;
     }
 
     /// <summary>

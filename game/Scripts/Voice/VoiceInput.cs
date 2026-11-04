@@ -27,6 +27,8 @@ public static class VoiceInput
         Ensure(PushToTalk, Key.Capslock);
         Ensure(TeamPushToTalk, Key.Y);
         Ensure(ToggleMute, Key.F8);
+        if (!BindingInput.HasConfiguredLayout)
+            BindLayout(InputBindings.Load(OpenScctGame.Play.Session.PlaySide.Spy, seedInputMap: false, draft: true));
     }
 
     /// <summary>Commit the active role's voice shortcuts, including intentionally unbound shortcuts.</summary>
@@ -34,6 +36,7 @@ public static class VoiceInput
 
     public static void BindLayout(KeyLayout layout)
     {
+        BindingInput.SetLayout(layout);
         foreach ((string command, string action) in new[]
         {
             ("PushToTalk", PushToTalk), ("TeamPushToTalk", TeamPushToTalk), ("ToggleVoiceMute", ToggleMute),

@@ -210,6 +210,72 @@ public sealed class SpyPerspectiveTests
     }
 
     [Fact]
+    public void BackToWallInputSuspendsAnActiveEyeViewUntilNormalMovementResumes()
+    {
+        CollisionDataBuilder level = Floor();
+        level.AddBox(V(-200f, -100f, 0f), V(200f, -40f, 300f));
+        PawnRig rig = Rig(PawnTeam.Spy, level);
+        SPlayerController pc = rig.Controller;
+        pc.SetSpyFirstPerson(true);
+        Assert.True(pc.SpyFirstPersonActive);
+
+        rig.Step(new PlayerInputFrame { bUseBackToWall = 1 });
+        Assert.True(pc.IsInState(MovementStateNames.s_EnterBTW));
+        Assert.False(pc.SpyFirstPersonActive);
+        for (int frame = 0; frame < 120 && !pc.IsInState(MovementStateNames.s_BTW_up); frame++)
+            rig.Step(default);
+        Assert.True(pc.IsInState(MovementStateNames.s_BTW_up));
+        Assert.False(pc.SpyFirstPersonActive);
+        Assert.True(pc.SpyFirstPersonRequested);
+
+        rig.Step(new PlayerInputFrame { bUseBackToWall = 1 });
+        Assert.True(pc.IsInState(MovementStateNames.s_SortieBTW));
+        Assert.False(pc.SpyFirstPersonActive);
+        for (int frame = 0; frame < 120 && !pc.IsInState(MovementStateNames.s_PlayerWalkingSt0H); frame++)
+            rig.Step(default);
+        Assert.True(pc.IsInState(MovementStateNames.s_PlayerWalkingSt0H));
+        Assert.True(pc.SpyFirstPersonActive);
+    }
+
+    [Theory]
+    [InlineData("s_EnterBTW")]
+    [InlineData("s_BTW_up")]
+    [InlineData("s_BTW_down")]
+    [InlineData("s_BTW_StandLeft")]
+    [InlineData("s_BTW_StandRight")]
+    [InlineData("s_BTW_CrouchLeft")]
+    [InlineData("s_BTW_CrouchRight")]
+    [InlineData("s_BTWCorner")]
+    [InlineData("s_BTWFireStandLeft")]
+    [InlineData("s_BTWFireStandRight")]
+    [InlineData("s_BTWFireCrouchLeft")]
+    [InlineData("s_BTWFireCrouchRight")]
+    [InlineData("s_SortieBTW")]
+    public void EveryWallStanceRejectsPerspectiveEntryAndPreservesItsAuthoredCamera(string state)
+    {
+        PawnRig rig = Rig(PawnTeam.Spy);
+        SPlayerController pc = rig.Controller;
+        SPlayerCam camera = PlayerCamera.Of(pc)!;
+        pc.GotoState(new Name(state));
+        ECamMode mode = camera.m_camMode;
+
+        pc.SwitchSpyPerspective();
+        pc.SetSpyFirstPerson(true);
+        Assert.False(pc.SpyFirstPersonRequested);
+        Assert.False(pc.SpyFirstPersonActive);
+        Assert.Equal(mode, camera.m_camMode);
+
+        pc.GotoState(MovementStateNames.s_PlayerWalkingSt0H);
+        pc.SetSpyFirstPerson(true);
+        pc.GotoState(new Name(state));
+        Assert.False(pc.SpyFirstPersonActive);
+        pc.SwitchSpyPerspective();
+        Assert.True(pc.SpyFirstPersonRequested);
+        pc.SetSpyFirstPerson(false); // Releasing a held eye-view binding still clears it while on the wall.
+        Assert.False(pc.SpyFirstPersonRequested);
+    }
+
+    [Fact]
     public void DeathAndNewPossessionClearRequestAndMercsCannotEnableIt()
     {
         PawnRig rig = Rig(PawnTeam.Spy);

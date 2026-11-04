@@ -17,20 +17,11 @@ public partial class OptionsMenu
     private Control CrosshairPage()
     {
         CrosshairSettings c = _edit.Crosshair;
-        var page = new VBoxContainer { Name = "CrosshairContent", SizeFlagsHorizontal = SizeFlags.ExpandFill };
-        page.AddThemeConstantOverride("separation", 10);
-
-        var top = new BoxContainer { Name = "Top" };
-        _crosshairTop = top;
-        top.AddThemeConstantOverride("separation", 16);
-        top.AddChild(new CrosshairPreview(() => _edit.Crosshair) { Name = "Preview", CustomMinimumSize = new Vector2(260f, 160f) });
-
+        // The browser owns scrolling; the preview docks beside it only when there is room for both.
+        _crosshairTop = null;
+        var page = new HBoxContainer { Name = "Crosshair", SizeFlagsHorizontal = SizeFlags.ExpandFill, SizeFlagsVertical = SizeFlags.ExpandFill };
+        page.AddThemeConstantOverride("separation", 14);
         var share = new VBoxContainer { Name = "Share", SizeFlagsHorizontal = SizeFlags.ExpandFill };
-        share.AddChild(new Label
-        {
-            Text = "Mercenary crosshair. Off, the original reticle draws. The sound arrows and the red flash on a hit stay either way.",
-            AutowrapMode = TextServer.AutowrapMode.WordSmart, Modulate = UiStyle.Dim,
-        });
         var code = new LineEdit
         {
             Name = "crosshair_code", PlaceholderText = "CS2 share code (CS...)", SizeFlagsHorizontal = SizeFlags.ExpandFill,
@@ -48,23 +39,21 @@ public partial class OptionsMenu
             DisplayServer.ClipboardSet(mine);
             SetCrosshairNote("Copied. It pastes into CS2 too.");
         };
-        var reset = new Button { Name = "CrosshairReset", Text = "Reset crosshair", CustomMinimumSize = new Vector2(150f, 32f) };
+        var reset = new Button { Name = "CrosshairReset", Text = "Reset crosshair…", CustomMinimumSize = new Vector2(150f, 32f) };
         reset.Pressed += () =>
-        {
-            _edit.Crosshair = new CrosshairSettings { Custom = _edit.Crosshair.Custom };
-            RebuildPages();
-        };
+            Confirm("Reset crosshair", "Restore this role's crosshair appearance? Changes take effect when you Apply or Save & Close.", () =>
+            {
+                _edit.Crosshair = new CrosshairSettings { Custom = _edit.Crosshair.Custom };
+                RebuildPages();
+            }, "Reset crosshair");
         buttons.AddChild(import);
         buttons.AddChild(copy);
         buttons.AddChild(reset);
         share.AddChild(buttons);
         _crosshairCodeNote = new Label { Name = "CrosshairCodeNote", Modulate = UiStyle.Dim, AutowrapMode = TextServer.AutowrapMode.WordSmart };
         share.AddChild(_crosshairCodeNote);
-        top.AddChild(share);
-        page.AddChild(top);
-
         GridContainer g = Grid("Crosshair");
-        Section(g, "Appearance", "");
+        Section(g, "Appearance", "Customize the Mercenary reticle. Disable Custom crosshair to use the original reticle. Use Preview to inspect changes against light and dark backgrounds.");
         Check(g, "Custom crosshair", "crosshair.custom", c.Custom, v => _edit.Crosshair.Custom = v);
         Choice(g, "Style", "crosshair.style", CrosshairSettings.StyleNames, CrosshairSettings.StyleNames[c.Style],
             v => _edit.Crosshair.Style = Array.IndexOf(CrosshairSettings.StyleNames, v));
@@ -104,8 +93,31 @@ public partial class OptionsMenu
         Section(g, "Size scaling", "Dimensions are measured in pixels at this reference screen height, then scaled to your display.");
         Slider(g, "Reference screen height (pixels)", "crosshair.screen_height", 240f, 2160f, 1f, Math.Clamp(c.ScreenHeight, 240, 2160),
             v => _edit.Crosshair.ScreenHeight = (int)v, "0");
-        page.AddChild(SectionedContent(g));
-        return Page("Crosshair", page);
+        Section(g, "Sharing", "Import or copy a CS2 crosshair share code. Importing changes this draft; Apply keeps it.");
+        SettingsPanel(g, "crosshair_code", "Share code", "Paste a CS2 crosshair code and select Import. Copy my code exports the current draft; Reset restores the default appearance.", share);
+        Control editor = CreateSettingsEditor("CrosshairSettings", g, "Crosshair");
+        page.AddChild(editor);
+        var dock = new VBoxContainer { Name = "CrosshairPreviewDock", CustomMinimumSize = new Vector2(220, 0) };
+        dock.AddChild(new Label { Text = "Live preview", Modulate = UiStyle.MenuFocus });
+        dock.AddChild(new CrosshairPreview(() => _edit.Crosshair) { Name = "Preview", CustomMinimumSize = new Vector2(220, 160) });
+        dock.AddChild(Help("Sound arrows and hit feedback remain available with either reticle."));
+        page.AddChild(dock);
+        var popup = new PopupPanel { Name = "CrosshairPreviewPopup" };
+        popup.AddChild(new CrosshairPreview(() => _edit.Crosshair) { Name = "PopupPreview", CustomMinimumSize = new Vector2(360, 180) });
+        page.AddChild(popup);
+        var previewButton = new Button { Name = "CrosshairShowPreview", Text = "Preview", CustomMinimumSize = new Vector2(90, 32) };
+        previewButton.Pressed += () => popup.PopupCentered(new Vector2I(360, 180));
+        editor.GetChild<HBoxContainer>(0).AddChild(previewButton);
+        void Fit()
+        {
+            bool wide = page.Size.X >= 1250;
+            dock.Visible = wide;
+            previewButton.Visible = !wide;
+        }
+        page.Resized += Fit;
+        page.VisibilityChanged += Fit;
+        Fit();
+        return page;
     }
 
     private void ImportCrosshair(string text)

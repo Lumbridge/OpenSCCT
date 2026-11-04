@@ -125,4 +125,36 @@ public sealed class MercWeaponStateCleanupTests
         Assert.True(rifle.ViewAnim.IsAnimating(SWeaponDefense.ACTIONCHANNEL));
         Assert.True(rifle.ViewAnim.Alpha(SWeaponDefense.ACTIONCHANNEL) > 0f);
     }
+
+    [Theory]
+    [InlineData(0, false)]
+    [InlineData(0, true)]
+    [InlineData(1, false)]
+    [InlineData(1, true)]
+    [InlineData(2, false)]
+    [InlineData(2, true)]
+    public void MineGrabKeepsTheHandRaisedUntilPlacementOrWithdrawalCompletes(int kind, bool cancel)
+    {
+        var (scene, _, _, rifle) = Merc(kind);
+        rifle.GotoState(GadgetStates.s_DropMine_Grab);
+        Assert.Equal(ViewModelClips.FirstMineStBg2, rifle.ViewAnim.Sequence(SWeaponDefense.MVTCHANNEL));
+        scene.Run(2f);
+
+        for (int i = 0; i < 3 * Sim.Hz; i++)
+        {
+            Assert.Equal(GadgetStates.s_DropMine_Loop, rifle.GetStateName());
+            Assert.Equal(ViewModelClips.FirstMineStNt2, rifle.ViewAnim.Sequence(SWeaponDefense.MVTCHANNEL));
+            Assert.True(rifle.ViewAnim.IsAnimating(SWeaponDefense.MVTCHANNEL));
+            scene.Run(Sim.DeltaTime);
+        }
+
+        rifle.GotoState(cancel ? GadgetStates.s_DropMine_UnGrab : GadgetStates.s_DropMine);
+        Assert.Equal(cancel ? ViewModelClips.FirstMineStBg2 : ViewModelClips.FirstMineStEd2,
+            rifle.ViewAnim.Sequence(SWeaponDefense.MVTCHANNEL));
+        Assert.Equal(cancel, rifle.ViewAnim.IsBackward(SWeaponDefense.MVTCHANNEL));
+        scene.Run(2f);
+
+        Assert.Equal(new Name("s_Selected"), rifle.GetStateName());
+        Assert.Equal(ViewModelClips.FirstWaitStFd2, rifle.ViewAnim.Sequence(SWeaponDefense.MVTCHANNEL));
+    }
 }

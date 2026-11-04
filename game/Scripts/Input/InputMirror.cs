@@ -419,13 +419,17 @@ public sealed partial class InputMirror : Node
             return;
         }
 
-        Input.ParseInputEvent(new InputEventKey
+        var input = new InputEventKey
         {
             Keycode = key,
             PhysicalKeycode = key,
             Pressed = pressed,
             Echo = echo,
-        });
+            CtrlPressed = _keysDown.Contains(Godot.Key.Ctrl),
+            ShiftPressed = _keysDown.Contains(Godot.Key.Shift),
+            AltPressed = _keysDown.Contains(Godot.Key.Alt),
+        };
+        BindingInput.Inject(input);
     }
 
     private void Button(MouseButton button, bool pressed)
@@ -444,15 +448,19 @@ public sealed partial class InputMirror : Node
             _buttonsDown.Remove(button);
         }
 
-        Input.ParseInputEvent(new InputEventMouseButton
+        var input = new InputEventMouseButton
         {
+            CtrlPressed = _keysDown.Contains(Godot.Key.Ctrl),
+            ShiftPressed = _keysDown.Contains(Godot.Key.Shift),
+            AltPressed = _keysDown.Contains(Godot.Key.Alt),
             ButtonIndex = button,
             Pressed = pressed,
             Position = _pointer,
             GlobalPosition = _pointer,
             ButtonMask = Mask(),
             Factor = 1f,
-        });
+        };
+        BindingInput.Inject(input);
     }
 
     private MouseButtonMask Mask()

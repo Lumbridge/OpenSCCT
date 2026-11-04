@@ -135,6 +135,9 @@ public static partial class K
     [Provenance(ProvenanceKind.Decoded, "SWeaponFirst.ukx Default.FirstLandStHi2 21 frames at 15 fps")]
     public static readonly ClipData FirstLandStHi2 = new(21, 15f);
 
+    [Provenance(ProvenanceKind.Decoded, "SWeaponDefense.AnimateLand/AnimateLandHigh: PlayAnim TweenTime 0.2; merc-rifle.md rule 24")]
+    public const float LandingTweenSeconds = 0.2f;
+
     [Provenance(ProvenanceKind.Decoded, "SWeaponFirst.ukx FirstGrbdStBg2 16 frames at 15 fps")]
     public static readonly ClipData FirstGrbdStBg2 = new(16, 15f);
 

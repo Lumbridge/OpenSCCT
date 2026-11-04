@@ -146,7 +146,7 @@ public partial class GameStatusPage : Control
         }
 
         if (key.Keycode is Key.Escape or Key.Enter or Key.KpEnter ||
-            (ExitKey is not null && string.Equals(GodotKeys.ToIk(@event), ExitKey, StringComparison.OrdinalIgnoreCase)))
+            (ExitKey is not null && string.Equals(BindingInput.ResolveKey(@event, PlayInput?.Bindings), ExitKey, StringComparison.OrdinalIgnoreCase)))
         {
             Close();
             GetViewport().SetInputAsHandled();
