@@ -35,6 +35,10 @@ public sealed class LaunchOptions
     public const string AffinityPrefix = "--affinity=";
     public const string MapShotPrefix = "--svm-mapshot=";
     public const string StartAtPrefix = "--start-at=";
+    public const string RoutePrefix = "--svm-route=";
+    public const string RouteFromPrefix = "--svm-route-from=";
+    public const string LanHostPrefix = "--svm-lan-host=";
+    public const string JoinPrefix = "--svm-join=";
     public const double DefaultSmokeTimeoutSeconds = 120.0;
     public const int DefaultBots = 3;
     public const int MaxBots = 15;
@@ -122,6 +126,25 @@ public sealed class LaunchOptions
     /// </summary>
     public (FVector Location, FRotator Rotation)? PlayStartAt { get; private init; }
 
+    /// <summary>
+    /// The stops a route bot walks in order in an offline play, on <see cref="PlaySide"/>'s side while the local player
+    /// takes the other (<c>--svm-route=x,y,z;SInfirmary245</c>: floor points or placed actors by map id), printing
+    /// each stop reached or where it got stuck (<see cref="OpenScct.Game.AI.RouteAi"/>), or null.
+    /// </summary>
+    public IReadOnlyList<string>? PlayRoute { get; private init; }
+
+    /// <summary>The player start the route bot starts at (<c>--svm-route-from=PlayerStart254</c>), or null for any of its side's.</summary>
+    public string? PlayRouteFrom { get; private init; }
+
+    /// <summary>
+    /// Host the <see cref="PlayMap"/> as an online round on this UDP port, loopback only and unlisted, and launch it
+    /// once <see cref="PlayPlayers"/> players (2 when not given) are in the lobby and ready (<c>--svm-lan-host=27100</c>), or null.
+    /// </summary>
+    public int? NetHostPort { get; private init; }
+
+    /// <summary>Join the online round at this address and get ready on <see cref="PlaySide"/>'s team (<c>--svm-join=127.0.0.1:27100</c>), or null.</summary>
+    public string? NetJoin { get; private init; }
+
     /// <summary>Arguments that were not recognised, kept so callers can report them.</summary>
     public IReadOnlyList<string> Unknown { get; private init; } = [];
 
@@ -159,6 +182,10 @@ public sealed class LaunchOptions
         string? affinity = null;
         string? mapShot = null;
         (FVector, FRotator)? startAt = null;
+        List<string>? route = null;
+        string? routeFrom = null;
+        int? lanHost = null;
+        string? join = null;
         foreach (string arg in userArgs)
         {
             if (arg.StartsWith(SmokePrefix, StringComparison.Ordinal))
@@ -268,6 +295,23 @@ public sealed class LaunchOptions
             {
                 startAt = at;
             }
+            else if (arg.StartsWith(RoutePrefix, StringComparison.Ordinal) && ParseRoute(arg[RoutePrefix.Length..]) is { } stops)
+            {
+                route = stops;
+            }
+            else if (arg.StartsWith(RouteFromPrefix, StringComparison.Ordinal) && arg.Length > RouteFromPrefix.Length)
+            {
+                routeFrom = arg[RouteFromPrefix.Length..].Trim('"');
+            }
+            else if (arg.StartsWith(LanHostPrefix, StringComparison.Ordinal)
+                && int.TryParse(arg[LanHostPrefix.Length..], NumberStyles.None, CultureInfo.InvariantCulture, out int port) && port is > 0 and < 65536)
+            {
+                lanHost = port;
+            }
+            else if (arg.StartsWith(JoinPrefix, StringComparison.Ordinal) && arg.Length > JoinPrefix.Length)
+            {
+                join = arg[JoinPrefix.Length..];
+            }
             else
             {
                 unknown.Add(arg);
@@ -300,6 +344,10 @@ public sealed class LaunchOptions
             Affinity = affinity,
             MapShotRequest = mapShot,
             PlayStartAt = startAt,
+            PlayRoute = route,
+            PlayRouteFrom = routeFrom,
+            NetHostPort = lanHost,
+            NetJoin = join,
             Unknown = unknown,
         };
     }
@@ -323,5 +371,25 @@ public sealed class LaunchOptions
         }
 
         return (new FVector(numbers[0], numbers[1], numbers[2]), new FRotator((int)MathF.Round(numbers[4]), (int)MathF.Round(numbers[3]), 0));
+    }
+
+    /// <summary>
+    /// Stops as <c>x,y,z;Id;...</c>, or null when one is neither three numbers nor a map id (a stop with a comma must
+    /// be a point).
+    /// </summary>
+    private static List<string>? ParseRoute(string text)
+    {
+        var stops = new List<string>();
+        foreach (string part in text.Trim('"').Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+        {
+            if (part.Contains(',', StringComparison.Ordinal) && Play.Session.PlayRoute.Point(part) is null)
+            {
+                return null;
+            }
+
+            stops.Add(part);
+        }
+
+        return stops.Count > 0 ? stops : null;
     }
 }

@@ -93,8 +93,21 @@ public sealed record PlayConfig
             settings = settings with { DemoFolder = OpenScctGame.Play.Demo.DemoLibrary.SavedFolder };
         }
 
+        if (options.PlayRoute is { } stops)
+        {
+            // The route bot walks on the side asked for; the local player stands by on the other one.
+            settings = settings with
+            {
+                Side = side == PlaySide.Spy ? PlaySide.Merc : PlaySide.Spy,
+                Route = new PlayRoute(stops, side, options.PlayRouteFrom, line => GD.Print($"{RoutePrefix} {line}")),
+            };
+        }
+
         return new PlayConfig { Settings = settings, GameRoot = options.GameRoot };
     }
+
+    /// <summary>The prefix of the route bot's report lines, which the map editor reads.</summary>
+    public const string RoutePrefix = "SVM_ROUTE";
 }
 
 /// <summary>
