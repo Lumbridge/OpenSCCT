@@ -14,7 +14,7 @@ Optional analysis exports are described under [Training data companions](#traini
 
 ## Saving your own matches
 
-Turn on **Record my matches** in the lobby's **Match demos** panel (or in Match settings → Game). Each
+Turn on **Automatically save demos** in the lobby's **Match demos** panel (or in Match settings → Game). Each
 player chooses independently; a guest can request a demo even when the host has recording turned off. Create
 Session and the Demos library offer the same preference. It takes effect immediately for upcoming rounds and does not require Apply
 changes. The preference is saved as `demos/record_matches`, migrating the older `host/record_demos` value.

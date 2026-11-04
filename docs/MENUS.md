@@ -349,7 +349,7 @@ Offline lobbies use the same team and map positions without online chat, spectat
   Apply changes sends the draft to the server; Discard changes restores the current server settings. Escape
   confirms before discarding an edited draft. Map picking and Alternate rules update the draft rather than
   applying implicitly. Changes received while a host draft is edited are flagged for review.
-- Record my matches is a personal switch in the lobby and the Game tab, available to hosts and guests alike.
+- Automatically save demos is a personal switch in the lobby and the Game tab, available to hosts and guests alike.
   It is saved immediately, independently of Apply/Discard, and chooses whether upcoming rounds are saved under
   Demos on this computer. The lobby reports recording/download status; see [Demos](DEMOS.md) for delivery and playback.
 - The live overview never previews unapplied settings. Applied changes appear as readable activity notices

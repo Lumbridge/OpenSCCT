@@ -262,7 +262,7 @@ public partial class DemosScreen : MenuPage
         _count.Text = $"{count} of {_local.Count} local demos";
         if (_localError is { } error) Empty("Demos folder unavailable", error);
         else if (count == 0) Empty(_local.Count == 0 ? "Your next round belongs here" : "No matching demos",
-            _local.Count == 0 ? "Turn on Record my matches to build your library, or browse Recent online to watch a trusted-server round."
+            _local.Count == 0 ? $"Turn on {DemoRecordingText.Label} to build your library, or browse Recent online to watch a trusted-server round."
                 : "Try a different search or reset the filters to see the whole collection.", reset: _local.Count > 0);
     }
 
