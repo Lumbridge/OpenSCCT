@@ -42,7 +42,7 @@ These guides describe implementation details. Player setup instructions are abov
 | Presentation | [Rendering](RENDERING.md), [animation](ANIMATION.md), [effects](EFFECTS.md), [audio](AUDIO.md), [fitted skins](FITTED-SKINS.md) |
 | Interface | [Menus](MENUS.md), [HUD](HUD.md), [player stats](PLAYER-STATS.md) |
 | Networking | [Netcode](NETCODE.md), [parity notes](NETCODE-PARITY.md), [network lab](NETWORK-LAB.md), [two-PC testing](NETWORK-TEST.md) |
-| Content and formats | [Maps](MAPS.md), [content pipeline](../content/README.md), [SVMap 1.1](../spec/svmap/1.1/README.md) |
+| Content and formats | [Maps](MAPS.md), [how the original baked light](LIGHTMAPS.md), [map package layout](../spec/native/map-package.md), [content pipeline](../content/README.md), [SVMap 1.1](../spec/svmap/1.1/README.md) |
 | Code generation | [Generated defaults and dispatch](CODEGEN.md) |
 | Original-game research | [Research tools](../re/README.md), [provenance](../re/PROVENANCE.md), [specifications](../spec/README.md) |
 | Deployment | [Online services](ONLINE.md), [US lobby templates](../tools/deploy/us-lobbies/README.md) |

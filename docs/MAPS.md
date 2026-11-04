@@ -39,8 +39,8 @@ IReadOnlyList<MapPlaylist> filters = maps.GetMapFilters(); // All, Enhanced, Sto
 | `SpyStarts`, `MercStarts`, `MercDeathmatchStarts` | player starts per side, and the Merc Deathmatch set | the map's `PlayerStart`s |
 | `RecommendedPlayers` | 6 for the maps of Reloaded's 3v3 playlist (its playlist of maps made for more players), else 4 (the original's Max Players default) | |
 | `Playlists` | the Reloaded playlists the map is in | |
-| `PreviewImage` | the map list picture (PNG path, null when the map has none) | `<Map>-i.Menu`, as `LevelInfo.GetLevelPicture` loads it |
-| `LoadingSpyImage`, `LoadingMercImage`, `BriefingImage` | the loading screens of each side and the briefing map (PNG paths or null) | `<Map>-i.LoadingATT0`, `LoadingDEF0`, `Briefing` |
+| `PreviewImage` | the map list picture (PNG path, null when the map has none) | `<Map>-i.Menu`, as `LevelInfo.GetLevelPicture` (native 1159, `%s-i.Menu`) loads it |
+| `LoadingSpyImage`, `LoadingMercImage`, `BriefingImage` | the loading screens of each side and the briefing map (PNG paths or null) | `<Map>-i.LoadingATT0`, `LoadingDEF0`, `Briefing` (the briefing map as `GetLevelBrief`, native 1652, `%s-i.Briefing`, loads it) |
 | `Legend` | the map text under the picture (`LegendMap`, lines split by `|`) | `SMapSettings` |
 | `Folder`, `ContentHash`, `CanRender` | the SVMap folder, its content hash, whether it has the render content the play scene draws | manifest |
 
@@ -106,6 +106,18 @@ map still lists, with its manifest title as both names, no images and no playlis
 The launcher's **Maps** window downloads ready-to-play [content packs](CONTENT-PACKS.md), whose catalog
 and images are included in the shared packs. Developer builds can still convert original-format addons
 with `--addons <folder>`; a map absent from Reloaded's name table uses its manifest title.
+
+### Converter notes
+
+- Cooked lightmap atlases are 256 x 256 after `CompressLightmaps`, which box-filters the baked 512 x 512 atlases
+  2 x 2 and bleeds light across chart borders. Most shipped maps store uncompressed 512 x 512 atlases; ClarD, CineU,
+  MounU, OffsD, PyroD, ShadD and VertU store only 256 x 256 ones ([Lightmaps](LIGHTMAPS.md#charts-and-atlases)).
+  The converter keeps each atlas at its stored size.
+- A cooked map keeps some lights only because another object references them. These orphan exports sit outside
+  `Level.Actors` ([map package layout](../spec/native/map-package.md#cooked-actor-filter)). The converter reads every
+  actor export, so they reach `render/lighting.json`, but they carry neither `bApplyToInGameLighting` nor
+  `bDynamicLight` and none is an LE_ESpotShadow light, so the run-time light filters ignore them. Measured on the
+  converted maps: 477 orphans on 32 maps, none with either flag.
 
 ## The tools
 
