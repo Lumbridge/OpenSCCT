@@ -145,10 +145,38 @@ public partial class LobbyRoomScreen : MenuPage
         // A spectator reads the mercs' words, as the original's pages do for any team but the spies.
         bool spy = Local()?.Side == HudSide.Spy;
         string map = s.Setup.Map;
-        BriefingPages pages = BriefingPages.For(s.MapSettings(map), s.Setup.Mode, spy);
+        OpenScct.Game.SBase.USMapSettings? settings = s.MapSettings(map);
+        BriefingPages pages = BriefingPages.For(settings, s.Setup.Mode, spy);
         string title = (_mapCatalog is { } maps ? MapTitles.Of(maps, map) : map) + " - " + CreateSessionModel.ModeName(s.Setup.Mode);
-        AddChild(new BriefingPanel(pages, MapImages.Loading(_mapCatalog, map, !spy), title));
+        // Briefing.RefreshText: GetLevelPicture (<Map>-i.Menu); BriefingDeux.InitComponent: GetLevelBrief
+        // (<Map>-i.Briefing). Both show GUIContent's defenseur when the map has no such picture.
+        Texture2D? missing = UiStyle.Assets?.Texture("GUIContent", "defenseur");
+        Texture2D? picture = MapImages.Preview(_mapCatalog, map) ?? missing;
+        Texture2D? modePicture = BriefingModePicture(s.Setup.Mode);
+        // Briefing.InitComponent returns before the objective's name, the mode picture and RefreshText when the map has
+        // no ModesStrings entry for the mode's rules mode, so page 1 keeps only its title; BriefingDeux sets its picture
+        // and legend before its own lookup, so page 2 is unaffected.
+        if (settings is not null && settings.SearchForGameMode(OpenScct.Game.SBase.USMatchInfo.RulesModeFor(s.Setup.Mode)) < 0)
+        {
+            pages = pages with { ObjectiveName = string.Empty, MapBrief = string.Empty };
+            picture = null;
+            modePicture = null;
+        }
+
+        AddChild(new BriefingPanel(pages, picture, MapImages.Briefing(_mapCatalog, map) ?? missing, modePicture, title));
     }
+
+    /// <summary>
+    /// Briefing.InitComponent's ModeImage: GUIController.ImageMode[0..2] (New_Menu L_Story, L_diskhunt, L_Death) for
+    /// Story, Disk Hunt and both deathmatches; any other mode leaves the image empty.
+    /// </summary>
+    private static Texture2D? BriefingModePicture(OpenScct.Core.EGameMode mode) => mode switch
+    {
+        OpenScct.Core.EGameMode.GM_Multi => UiStyle.Assets?.Texture("common", "L_Story"),
+        OpenScct.Core.EGameMode.GM_DiskHunt => UiStyle.Assets?.Texture("common", "L_diskhunt"),
+        OpenScct.Core.EGameMode.GM_DeathMatch or OpenScct.Core.EGameMode.GM_MercDeathMatch => UiStyle.Assets?.Texture("common", "L_Death"),
+        _ => null,
+    };
 
     /// <summary>"Equipment" (Lobby_Create's Button3, which opens Edit_Profile): the gear picker for the local player's side.</summary>
     public Button? EquipmentButton { get; private set; }

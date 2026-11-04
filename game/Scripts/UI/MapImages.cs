@@ -7,9 +7,9 @@ namespace OpenScctGame.UI;
 
 /// <summary>
 /// The map pictures the menus show, from the map catalog's images (the maps step's <c>shared/maps/images</c>, made from
-/// each map's SMapSettings textures: <c>menu</c> is the host list's picture, <c>loading-spy</c> and <c>loading-merc</c>
-/// the loading page's pictures for each side). Each picture is read once. A map without one gets the
-/// <see cref="MapThumb"/> placeholder with its name.
+/// each map's <c>&lt;Map&gt;-i</c> textures: <c>menu</c> is the host list's and the briefing's first picture,
+/// <c>briefing</c> the briefing's second, <c>loading-spy</c> and <c>loading-merc</c> the loading page's pictures for
+/// each side). Each picture is read once. A map without one gets the <see cref="MapThumb"/> placeholder with its name.
 /// </summary>
 public static class MapImages
 {
@@ -19,8 +19,18 @@ public static class MapImages
     /// <summary>The catalog pages use when they have none of their own (the default roots of this install).</summary>
     public static MapCatalog Default => _default ??= MapCatalog.CreateDefault();
 
-    /// <summary>The map's host list picture, or null.</summary>
+    /// <summary>
+    /// The map's host list picture, <c>&lt;Map&gt;-i.Menu</c>, or null: what LevelInfo.GetLevelPicture (native 1159;
+    /// editor 3.6 exec 0x1118e710 formats "%s-i.Menu") loads for GUI.Briefing's first page.
+    /// </summary>
     public static Texture2D? Preview(MapCatalog? maps, string? map) => Load(maps, map, "menu");
+
+    /// <summary>
+    /// The map's briefing picture, <c>&lt;Map&gt;-i.Briefing</c>, or null: what LevelInfo.GetLevelBrief (native 1652;
+    /// editor 3.6 exec 0x1118f320 formats "%s-i.Briefing") loads for GUI.BriefingDeux. No other picture stands in for it:
+    /// the page shows GUIContent's defenseur instead.
+    /// </summary>
+    public static Texture2D? Briefing(MapCatalog? maps, string? map) => Load(maps, map, "briefing");
 
     /// <summary>The map's loading picture for the side (the other side's, then the host list's, when it lacks one), or null.</summary>
     public static Texture2D? Loading(MapCatalog? maps, string? map, bool merc) =>
@@ -53,6 +63,37 @@ public static class MapImages
         Texture2D? texture = image.Load(path) == Error.Ok ? ImageTexture.CreateFromImage(image) : null;
         Textures[path] = texture;
         return texture;
+    }
+}
+
+/// <summary>
+/// The map legend of the map picker (GUI.moImageListMap's Controls[6], the multi-line label under the picture that
+/// Create_Match, GUIPanelCreateServer and Visit_Map_Set share): ImageMapChange sets it to the selected map's
+/// SMapSettings.LegendMap, its dossier (date and time, place, summary) with '|' as a line break. A map without one
+/// shows nothing here (the original's "-i.utc or -i.utx file missing" line has no counterpart: converted maps have
+/// no such packages).
+/// </summary>
+public static class MapLegend
+{
+    /// <summary>A small, dim, word-wrapped label named MapLegend, hidden until a map with a legend is shown.</summary>
+    public static Label Create()
+    {
+        var label = new Label
+        {
+            Name = "MapLegend", AutowrapMode = TextServer.AutowrapMode.WordSmart, Modulate = UiStyle.Dim, Visible = false,
+            MouseFilter = Control.MouseFilterEnum.Ignore, SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
+        };
+        label.AddThemeFontSizeOverride("font_size", 14);
+        return label;
+    }
+
+    /// <summary>Shows <paramref name="map"/>'s legend from <paramref name="maps"/> (the default catalog when null), or hides the label.</summary>
+    [OpenScct.Provenance.PortOf("uc:GUI.moImageListMap:ImageMapChange", Spec = "spec/game/lobby-and-match-creation.md#front-end-pages")]
+    public static void Show(Label label, MapCatalog? maps, string? map)
+    {
+        string? legend = string.IsNullOrEmpty(map) ? null : (maps ?? MapImages.Default).GetCatalogEntry(map)?.Legend;
+        label.Text = legend is null ? string.Empty : OpenScctGame.Tutorials.TutorialText.Lines(legend);
+        label.Visible = legend is not null;
     }
 }
 

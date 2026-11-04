@@ -7,6 +7,8 @@ Units:
 - uc:GUI.AlternateModeSettings:{InitComponent, AlternateKeyEvent, SpyGadgetChange, MercGadgetChange, Tick} (contract: Alternate Mode)
 - uc:GUI.Briefing:{InitComponent, RefreshText} (contract: briefing)
 - uc:GUI.BriefingDeux:{InitComponent} (contract: briefing)
+- uc:GUI.moImageListMap:{InitComponent, ImageMapChange, MapActivate, MapDeActivate, ButtonClick, SetWithMapName} (contract: map picker)
+- uc:GUI.Create_Match:{HideMapArrows, MapActivateNoArrows, MapDeActivateNoArrows} (contract: map picker)
 - uc:Engine.PersistentData:{SetGadgetRestriction, GetGadgetRestriction}
 - uc:GUI.ConfirmQuitPage:{YesButtonClick, NoButtonClick} (contract: front-end pages)
 - uc:GUI.Validate_VideoSettings:{s_Init@code, YesButtonClick, NoButtonClick} (contract: front-end pages)
@@ -160,13 +162,26 @@ Auto balance (Game_Settings, SGameInfo.PickTeam):
 
 ## Briefing
 30. The lobby's "Briefing" opens GUI.Briefing for the local player's side (team 0 spies, anything else the mercs'
-    words): the level picture, "MISSION MAIN OBJECTIVE" with the map's ModesStrings[i].ExplicationModeSpy or
-    ExplicationModeSentry for i = SearchForGameMode(RulesModeFor(mode)), the mode picture (story, disk hunt, or
-    deathmatch for both deathmatches) beside GUIController's TextSpy or TextSentry for the mode, and the map's
-    ExpliMapInBriefSpy or ExpliMapInBriefSentry.
-31. Its A button ("Next") replaces it with BriefingDeux: the level's briefing picture (GetLevelBrief, the defender
-    picture when none), ModesStrings[j].ExpliModeInBriefSpy or ExpliModeInBriefSentry for j = SearchForGameMode(mode)
-    (the mode itself, not its rules mode), and LegendMapInBrief. Its A button ("Previous") goes back.
+    words): the level picture (RefreshText: LevelInfo.GetLevelPicture, native 1159, which loads `<Map>-i.Menu`;
+    GUIContent.New_Menu.defenseur when none), "MISSION MAIN OBJECTIVE" with the map's ModesStrings[i].ExplicationModeSpy
+    or ExplicationModeSentry for i = SearchForGameMode(RulesModeFor(mode)), the mode picture (InitComponent: Controls[5]
+    = GUIController.ImageMode[0..2], New_Menu L_Story for GM_Multi, L_diskhunt for GM_DiskHunt, L_Death for
+    GM_DeathMatch and GM_MercDeathMatch; any other mode leaves it empty) beside GUIController's TextSpy or TextSentry
+    for the mode, and the map's ExpliMapInBriefSpy or ExpliMapInBriefSentry below. When i < 0 InitComponent returns
+    before all of that but the title: no objective, objective name or mode picture, and no RefreshText, so no level
+    picture, no defenseur and no map words (BriefingImage has no default Image). BriefingImage and ModeImage are
+    ISTY_Scaled, stretched to their boxes (left/top, width x height: BriefingImage 0.075/0.075, 0.375 x 0.4; ModeImage
+    0.475/0.3, 0.12 x 0.17).
+31. Its A button ("Next") replaces it with BriefingDeux: the level's briefing picture (InitComponent:
+    LevelInfo.GetLevelBrief, native 1652, which loads `<Map>-i.Briefing`; GUIContent.New_Menu.defenseur when none),
+    LegendMapInBrief on its right, and below ModesStrings[j].ExpliModeInBriefSpy or ExpliModeInBriefSentry for
+    j = SearchForGameMode(mode) (the mode itself, not its rules mode). Its A button ("Previous") goes back. The two
+    natives, in the SVM 3.6 editor build (image base 0x10e00000): native 1159 runs exec 0x1118e710, which calls
+    0x1118e5f0 with "%s-i.Menu" (0x11621c0c); native 1652 runs exec 0x1118f320, which calls 0x1118e4d0 with
+    "%s-i.Briefing" (0x11621bf4); the game's own are 0x10a22a10 (wrapping 0x10a228e0) and 0x10a22710. BriefingDeux sets
+    its picture and legend before its own lookup, so they show even when j < 0; its picture is ISTY_Scaled, stretched to
+    0.075/0.025, 0.45 x 0.475. defenseur is a 256x256 placeholder (a grey box room); the hostable maps without a
+    briefing picture, which show it on page 2, are CpusS, GhosS, MounU, PanaS, PrisD and StroD.
 
 ## Front-end pages
 
@@ -187,6 +202,32 @@ Smaller pages around the lobby and the options (GUI package; captions from Enhan
     lobby while a match launches, the old values come back at once.
 35. LegendModeServer (a "Modes" box with Mode 1, Mode 2 and Other Mode beside a square, a triangle and a circle) is
     never opened by any page or native: dead in Enhanced 4.0.
+36. The map picker, GUI.moImageListMap, is one widget shared by Create_Match (ImageMap, Controls[1]),
+    GUIPanelCreateServer (Controls[0], the Ubi.com online page's Create tab) and Visit_Map_Set (Controls[1]). Its
+    parts: Controls[2] a read-only GUIEditBox with the map name, Controls[3] and [4] the arrows (Plus, Minus: ButtonClick
+    steps to the next or previous picture), Controls[5] the frame (MN_cadre01, hidden), and Controls[6] the legend, a
+    GUILabel (bMultiLine, TXTA_Justified, GUIVerySmallDenFont, style s_PcLabel) under the picture. InitComponent hooks
+    the list's OnChange, OnActivate and OnDeActivate, hides Controls[0], and sets Controls[3] and [4]'s OnClick to
+    ButtonClick.
+    - ImageMapChange stores the picture's name as the persistent LevelName and reads its SMapSettings
+      (Level.GetLevelSettings): the box shows MapSettings.MapName and the legend MapSettings.LegendMap, the map's
+      dossier (date and time, place, a blank line, a summary) with `|` as a line break, for example AquaE's
+      "11 March 2008, 9:58 PM|France, Aquarius Marine Center||The Aquarius ...". LegendMap is read nowhere else.
+    - Without settings the box shows LevelName and the legend "<LevelName>-i.utc or -i.utx file missing"; an entry
+      named "ERR" shows Controller.CorruptedMap ("Corrupted") and CorruptedLegend ("This downloaded map is
+      corrupted."). Both are n-a here: converted maps have no `-i` packages, and a map without settings has no legend,
+      so the legend is left out.
+    - MapActivate shows the arrows and sets the arrows, the box and the legend to MSAT_Focused and the frame's
+      ImageColor to SelectedColor (128, 128, 128); MapDeActivate hides the arrows, sets the arrows, the box and the
+      legend to MSAT_Blurry and the frame's ImageColor to UnSelectedColor (76, 113, 61). The frame is bVisible=False by
+      default and no script shows it, so the two colours are not seen. Create_Match.HideMapArrows hides both arrows and
+      sets their bNeverFocus, installs MapActivateNoArrows and MapDeActivateNoArrows, which do the same without the
+      arrows, so the legend stays live there, and sets the list's OnKeyEvent to MapKeyEvent (Left and Right step the
+      playlist map, StepPlaylistMap(-1 / 1), on press or repeat; Up and Down move to the previous or next control).
+    - SetWithMapName selects the picture whose name matches (Visit_Map_Set selects AquaE, spec/game/tutorials.md).
+    - The native PreDraw layout of the parts was not decoded; "under the picture" is the script-level reading
+      (bLabelOnBottom, the label after the image). OpenSCCT draws the legend under the selected map's name on Create
+      Session, the lobby's session options and Visit a Map.
 
 ## States
 No states.

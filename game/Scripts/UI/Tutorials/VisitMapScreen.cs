@@ -28,7 +28,7 @@ public partial class VisitMapScreen : MenuPage
     private readonly ButtonGroup _group = new();
     private TextureRect? _portrait;
     private Label? _side;
-    private Label? _mapName;
+    private Label? _mapName, _mapLegend;
     private Button? _launch;
     private ScrollContainer? _scroll;
     private string? _map;
@@ -76,6 +76,8 @@ public partial class VisitMapScreen : MenuPage
         ((Control)mapColumn.GetParent()).SizeFlagsHorizontal = SizeFlags.ExpandFill;
         _mapName = new Label { Name = "MapName", Modulate = UiStyle.MenuFocus, AutowrapMode = TextServer.AutowrapMode.WordSmart };
         mapColumn.AddChild(_mapName);
+        _mapLegend = MapLegend.Create();
+        mapColumn.AddChild(_mapLegend);
         var scroll = _scroll = new ScrollContainer
         {
             Name = "MapScroll", FollowFocus = true, CustomMinimumSize = new Vector2(0f, 360f), HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled,
@@ -162,6 +164,11 @@ public partial class VisitMapScreen : MenuPage
         if (_mapName is not null)
         {
             _mapName.Text = id is null ? string.Empty : MapTitles.Of(MapImages.Default, id);
+        }
+
+        if (_mapLegend is not null)
+        {
+            MapLegend.Show(_mapLegend, MapImages.Default, id);
         }
 
         foreach (Node node in FindChildren("Map_*", "Button", true, false))

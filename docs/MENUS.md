@@ -242,7 +242,10 @@ Rows, captions and ranges are the page's (spec rules 1 to 9):
 | Practice | off | Reloaded's practice server: unlimited lives, 1 s respawn, `!heal` `!regen` `!tank` `!kill` `!ammo`, no stats (docs/ONLINE.md, "Practice servers") |
 
 The Maps list (ours, `UI/MapPickerView.cs`) shows a landscape picture per map of the selected mode; a click picks it.
-The selected map's full name stays above the browser. Search and map group filters show a result count and an empty
+The selected map's full name stays above the browser, with the map's legend under it: the original map picker's
+dossier (`SMapSettings.LegendMap`: date and time, place and a short summary, one line per `|`), shown on Create
+Session, the lobby's Session Options and Visit a Map (spec/game/lobby-and-match-creation.md rule 36); a map without
+one shows none. Search and map group filters show a result count and an empty
 state with Reset filters when nothing matches; filtering does not change the selected map. The display selector offers
 Picture grid, List view and Thumbnail list. Thumbnail rows show a small landscape preview, the map name and its short
 code; plain list rows also show the short code. The display choice is saved and shared by all map browsers.
@@ -274,7 +277,7 @@ menu's Tutorials button:
 | Tips | nine tips per side, Switch Team; a tip shows its picture, legend and explanation (keys named from the player's layout), Next wraps |
 | Gadget Details | the side's eight gadgets, Switch Team; a gadget shows its HUD icon, explanation and legend, Next wraps |
 | View HUD | the spy or merc HUD picture with its labels; A switches side; Keyboard shows the keyboard pictures (Configuration 1 and 2) |
-| Visit a Map | the host maps that play Story, the side's picture, Switch Team, Launch |
+| Visit a Map | the host maps that play Story, the selected map's name and legend (its dossier), the side's picture, Switch Team, Launch |
 
 A tutorial or a visit is played offline, alone (no bots), in Story with the original's offline rules: no time limit,
 unlimited lives, 5 s respawn. When a tutorial round ends with the player's side winning, the map is marked done (the
@@ -359,7 +362,11 @@ Offline lobbies use the same team and map positions without online chat, spectat
   the action. Button availability uses existing session capabilities; the server checks launch requests again.
   No new requirement for players on both teams is introduced.
 - Briefing stays in the central menu; Strategic map and Cosmetics sit beside the loadout summary. The briefing uses the
-  map's converted side-specific mode/objective/legend text; spectators read the mercenary briefing.
+  map's converted side-specific mode/objective/legend text; spectators read the mercenary briefing. Its first page
+  shows the map's list picture (`<Map>-i.Menu`) and the mode's picture (Story, Disk Hunt or Deathmatch; none for
+  other modes) as the original's GUI.Briefing does; its second page shows the briefing plan (`<Map>-i.Briefing`)
+  beside the legend, as BriefingDeux does. A map without one of those pictures shows the original's placeholder,
+  GUIContent's defenseur (spec/game/lobby-and-match-creation.md rules 30 and 31).
 
 `--svm-smoke=lobby-layout` checks host/client/offline layouts at nine sizes from 800×600 through ultrawide and 4K,
 including a live resize from 4K to 800×600. It covers settings tabs and map browsing, Apply/Discard and remote changes,

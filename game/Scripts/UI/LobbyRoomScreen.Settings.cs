@@ -12,7 +12,7 @@ public partial class LobbyRoomScreen
     private ScrollContainer? _settingsScroll;
     private BoxContainer? _settingsColumns;
     private Control? _settingsMapPanel;
-    private Label? _settingsMapTitle, _settingsMapHint, _settingsVoiceHint;
+    private Label? _settingsMapTitle, _settingsMapLegend, _settingsMapHint, _settingsVoiceHint;
     private Label? _settingsBotHint, _settingsRoster;
     private CheckBox? _settingsRecordDemos;
     private Label? _settingsRecordingNote;
@@ -41,6 +41,8 @@ public partial class LobbyRoomScreen
         _settingsMapTitle.Modulate = UiStyle.MenuFocus;
         _settingsMapTitle.AddThemeFontSizeOverride("font_size", 22);
         map.AddChild(_settingsMapTitle);
+        _settingsMapLegend = MapLegend.Create();
+        map.AddChild(_settingsMapLegend);
         _settingsMapHint = SettingsNote("");
         map.AddChild(_settingsMapHint);
         if (_mapCatalog is not null)
@@ -131,6 +133,7 @@ public partial class LobbyRoomScreen
     {
         if (Parameters is null || Session is null || _settingsMapTitle is null) return;
         _settingsMapTitle.Text = Parameters.Text(SessionRow.Map);
+        MapLegend.Show(_settingsMapLegend!, _mapCatalog, Parameters.Setup.Map);
         _settingsVoiceHint!.Text = Parameters.VoiceHint;
         _settingsBotHint!.Text = Parameters.BotHint;
         _settingsRoster!.Text = LobbyPresentation.PlayerSlots(Parameters.Setup,

@@ -14,17 +14,17 @@ count in the unit columns only.
 
 | Scope | Units | n-a | Specced+ | Ported+ | Verified | Bytes in scope | Specced+ w | Ported+ w | Verified w |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| All units | 7,412 | 328 | 4,282 (60.4%) | 3,414 (48.2%) | 168 (2.4%) | 785,209 | 59.7% | 53.3% | 4.9% |
-| SteeE slice | 4,246 | 46 | 3,417 (81.4%) | 2,643 (62.9%) | 168 (4.0%) | 398,522 | 92.6% | 87.5% | 9.7% |
+| All units | 7,412 | 328 | 4,291 (60.6%) | 3,415 (48.2%) | 168 (2.4%) | 785,209 | 59.9% | 53.2% | 4.9% |
+| SteeE slice | 4,246 | 46 | 3,417 (81.4%) | 2,645 (63.0%) | 168 (4.0%) | 398,522 | 92.6% | 87.4% | 9.7% |
 
 Inputs:
 
 - Inventory `re/inventory/inventory.json` (svm.inventory/1): 7,412 units, 789,772 bytecode bytes.
-- Assemblies: OpenSCCT.Launcher, OpenScct.Bots, OpenScct.Content, OpenScct.Core, OpenScct.Game, OpenScct.Launcher.Core, OpenScct.Maps, OpenScct.Net, OpenScct.Physics, OpenScct.Provenance, OpenScct.Server, OpenScctGame; 7,013 provenance attributes, 417 generated class skeletons.
+- Assemblies: OpenSCCT.Launcher, OpenScct.Bots, OpenScct.Content, OpenScct.Core, OpenScct.Game, OpenScct.Launcher.Core, OpenScct.Maps, OpenScct.Net, OpenScct.Physics, OpenScct.Provenance, OpenScct.Server, OpenScctGame; 7,016 provenance attributes, 417 generated class skeletons.
 - `coverage/status.yaml`: 10 n-a entries, 0 single-unit entries.
-- Specs: 5,473 unit ids in the `Units:` lists of 178 files.
+- Specs: 5,482 unit ids in the `Units:` lists of 178 files.
 - Scenarios: 43 with 454 covers entries; local runner report with 84 rows, 41 of 43 scenarios pass (DtReplay gate).
-- Issues: 0 errors, 62 warnings, 0 spec ids not in the inventory.
+- Issues: 0 errors, 63 warnings, 0 spec ids not in the inventory.
 
 ## By package
 
@@ -32,10 +32,10 @@ Inputs:
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
 | Core | 207 | 31 | 13 (7.4%) | 13 (7.4%) | 0 (0.0%) | 1,704 | 4.9% | 4.9% | 0.0% |
 | Engine | 1,561 | 0 | 793 (50.8%) | 444 (28.4%) | 0 (0.0%) | 83,664 | 41.8% | 30.6% | 0.0% |
-| GUI | 1,681 | 8 | 111 (6.6%) | 69 (4.1%) | 0 (0.0%) | 301,325 | 17.1% | 8.4% | 0.0% |
+| GUI | 1,681 | 8 | 120 (7.2%) | 68 (4.1%) | 0 (0.0%) | 301,325 | 17.7% | 8.1% | 0.0% |
 | IpDrv | 37 | 0 | 0 (0.0%) | 0 (0.0%) | 0 (0.0%) | 214 | 0.0% | 0.0% | 0.0% |
-| SBase | 3,926 | 289 | 3,365 (92.5%) | 2,888 (79.4%) | 168 (4.6%) | 398,302 | 95.9% | 92.4% | 9.7% |
-| **all** | 7,412 | 328 | 4,282 (60.4%) | 3,414 (48.2%) | 168 (2.4%) | 785,209 | 59.7% | 53.3% | 4.9% |
+| SBase | 3,926 | 289 | 3,365 (92.5%) | 2,890 (79.5%) | 168 (4.6%) | 398,302 | 95.9% | 92.4% | 9.7% |
+| **all** | 7,412 | 328 | 4,291 (60.6%) | 3,415 (48.2%) | 168 (2.4%) | 785,209 | 59.9% | 53.2% | 4.9% |
 
 ## By unit kind
 
@@ -45,10 +45,10 @@ Inputs:
 | `nat` | 1,066 | 281 | 257 (32.7%) | 238 (30.3%) | 14 (1.8%) | 6,535 | 33.4% | 31.6% | 1.4% |
 | `rep-func` | 287 | 3 | 275 (96.8%) | 56 (19.7%) | 0 (0.0%) | 0 | - | - | - |
 | `rep-var` | 379 | 0 | 374 (98.7%) | 4 (1.1%) | 0 (0.0%) | 0 | - | - | - |
-| `uc-func` | 3,417 | 38 | 1,455 (43.1%) | 1,280 (37.9%) | 26 (0.8%) | 577,025 | 47.4% | 39.6% | 0.7% |
+| `uc-func` | 3,417 | 38 | 1,464 (43.3%) | 1,277 (37.8%) | 26 (0.8%) | 577,025 | 47.7% | 39.4% | 0.7% |
 | `uc-state-code` | 44 | 0 | 30 (68.2%) | 28 (63.6%) | 1 (2.3%) | 9,200 | 72.2% | 71.6% | 1.4% |
-| `uc-state-func` | 1,554 | 0 | 1,489 (95.8%) | 1,412 (90.9%) | 124 (8.0%) | 192,449 | 96.7% | 94.5% | 17.6% |
-| **all** | 7,412 | 328 | 4,282 (60.4%) | 3,414 (48.2%) | 168 (2.4%) | 785,209 | 59.7% | 53.3% | 4.9% |
+| `uc-state-func` | 1,554 | 0 | 1,489 (95.8%) | 1,416 (91.1%) | 124 (8.0%) | 192,449 | 96.7% | 94.5% | 17.6% |
+| **all** | 7,412 | 328 | 4,291 (60.6%) | 3,415 (48.2%) | 168 (2.4%) | 785,209 | 59.9% | 53.2% | 4.9% |
 
 ## By subsystem
 
@@ -56,11 +56,11 @@ Subsystems are the inventory's guess from names. Sorted by in-scope bytes.
 
 | Subsystem | Units | n-a | Specced+ | Ported+ | Verified | Bytes in scope | Specced+ w | Ported+ w | Verified w |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| ui.gui | 1,507 | 7 | 98 (6.5%) | 62 (4.1%) | 0 (0.0%) | 255,732 | 16.8% | 8.5% | 0.0% |
+| ui.gui | 1,507 | 7 | 107 (7.1%) | 61 (4.1%) | 0 (0.0%) | 255,732 | 17.4% | 8.2% | 0.0% |
 | movement | 353 | 1 | 324 (92.0%) | 310 (88.1%) | 64 (18.2%) | 81,081 | 98.8% | 97.3% | 35.5% |
-| controller | 555 | 10 | 387 (71.0%) | 347 (63.7%) | 8 (1.5%) | 60,076 | 89.1% | 80.6% | 2.8% |
+| controller | 555 | 10 | 387 (71.0%) | 345 (63.3%) | 8 (1.5%) | 60,076 | 89.1% | 80.6% | 2.8% |
 | input | 196 | 13 | 32 (17.5%) | 24 (13.1%) | 0 (0.0%) | 43,329 | 25.0% | 13.1% | 0.0% |
-| combat | 308 | 0 | 252 (81.8%) | 226 (73.4%) | 1 (0.3%) | 43,053 | 93.5% | 87.5% | 0.5% |
+| combat | 308 | 0 | 252 (81.8%) | 230 (74.7%) | 1 (0.3%) | 43,053 | 93.5% | 87.4% | 0.5% |
 | rules | 208 | 0 | 123 (59.1%) | 104 (50.0%) | 0 (0.0%) | 32,572 | 78.5% | 69.2% | 0.0% |
 | anim | 279 | 1 | 253 (91.0%) | 251 (90.3%) | 29 (10.4%) | 32,197 | 94.5% | 94.1% | 12.4% |
 | combat.melee | 242 | 1 | 238 (98.8%) | 228 (94.6%) | 2 (0.8%) | 28,001 | 99.0% | 97.0% | 0.3% |
@@ -94,7 +94,7 @@ Subsystems are the inventory's guess from names. Sorted by in-scope bytes.
 | online.ipdrv | 37 | 0 | 0 (0.0%) | 0 (0.0%) | 0 (0.0%) | 214 | 0.0% | 0.0% | 0.0% |
 | audio.eax | 22 | 0 | 22 (100.0%) | 22 (100.0%) | 0 (0.0%) | 0 | - | - | - |
 | net | 666 | 3 | 649 (97.9%) | 60 (9.0%) | 0 (0.0%) | 0 | - | - | - |
-| **all** | 7,412 | 328 | 4,282 (60.4%) | 3,414 (48.2%) | 168 (2.4%) | 785,209 | 59.7% | 53.3% | 4.9% |
+| **all** | 7,412 | 328 | 4,291 (60.6%) | 3,415 (48.2%) | 168 (2.4%) | 785,209 | 59.9% | 53.2% | 4.9% |
 
 ## SteeE slice
 
@@ -104,17 +104,17 @@ spawned at `runtime`, or an `ancestor` of those.
 | Reason | Units | n-a | Specced+ | Ported+ | Verified | Bytes in scope | Specced+ w | Ported+ w | Verified w |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
 | ancestor | 1,122 | 24 | 458 (41.7%) | 220 (20.0%) | 0 (0.0%) | 41,738 | 48.6% | 29.4% | 0.0% |
-| listed | 2,556 | 21 | 2,432 (95.9%) | 1,974 (77.9%) | 168 (6.6%) | 302,812 | 98.5% | 95.0% | 12.7% |
+| listed | 2,556 | 21 | 2,432 (95.9%) | 1,976 (77.9%) | 168 (6.6%) | 302,812 | 98.5% | 95.0% | 12.7% |
 | runtime | 409 | 1 | 392 (96.1%) | 330 (80.9%) | 0 (0.0%) | 43,111 | 96.5% | 91.6% | 0.0% |
 | steee | 159 | 0 | 135 (84.9%) | 119 (74.8%) | 0 (0.0%) | 10,861 | 83.6% | 82.6% | 0.0% |
-| **all** | 4,246 | 46 | 3,417 (81.4%) | 2,643 (62.9%) | 168 (4.0%) | 398,522 | 92.6% | 87.5% | 9.7% |
+| **all** | 4,246 | 46 | 3,417 (81.4%) | 2,645 (63.0%) | 168 (4.0%) | 398,522 | 92.6% | 87.4% | 9.7% |
 
 | Class | Units | n-a | Specced+ | Ported+ | Verified | Bytes in scope | Specced+ w | Ported+ w | Verified w |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| SBase.SPlayerController (listed) | 1,810 | 21 | 1,707 (95.4%) | 1,474 (82.4%) | 153 (8.6%) | 237,250 | 98.7% | 95.1% | 16.0% |
+| SBase.SPlayerController (listed) | 1,810 | 21 | 1,707 (95.4%) | 1,477 (82.6%) | 153 (8.6%) | 237,250 | 98.7% | 95.1% | 16.0% |
 | SBase.SBasePawn (listed) | 212 | 0 | 201 (94.8%) | 129 (60.8%) | 13 (6.1%) | 23,489 | 96.1% | 95.8% | 1.8% |
 | SBase.SGameInfo (runtime) | 58 | 0 | 56 (96.6%) | 50 (86.2%) | 0 (0.0%) | 20,009 | 99.9% | 94.9% | 0.0% |
-| SBase.SWeaponDefense (listed) | 106 | 0 | 104 (98.1%) | 97 (91.5%) | 0 (0.0%) | 11,767 | 99.8% | 92.4% | 0.0% |
+| SBase.SWeaponDefense (listed) | 106 | 0 | 104 (98.1%) | 96 (90.6%) | 0 (0.0%) | 11,767 | 99.8% | 91.5% | 0.0% |
 | SBase.SHud (runtime) | 62 | 1 | 51 (83.6%) | 45 (73.8%) | 0 (0.0%) | 9,599 | 89.3% | 85.9% | 0.0% |
 | Engine.GameInfo (ancestor) | 75 | 0 | 44 (58.7%) | 26 (34.7%) | 0 (0.0%) | 9,132 | 73.4% | 26.2% | 0.0% |
 | Engine.Mover (listed) | 92 | 0 | 92 (100.0%) | 87 (94.6%) | 0 (0.0%) | 8,241 | 100.0% | 100.0% | 0.0% |
@@ -377,7 +377,7 @@ file formats, `rl:` Reloaded.Core behaviour). There is no full list of them yet,
 | eng:FVector | 1 | 1 | 1 | 0 |
 | eng:FixedTurn | 1 | 1 | 1 | 0 |
 | eng:IpDrv | 1 | 1 | 0 | 0 |
-| eng:Render | 16 | 16 | 16 | 0 |
+| eng:Render | 17 | 17 | 17 | 0 |
 | eng:SBase | 1 | 1 | 0 | 0 |
 | eng:UActorChannel | 3 | 3 | 2 | 0 |
 | eng:UAnimNotify | 1 | 1 | 1 | 0 |
@@ -423,7 +423,7 @@ file formats, `rl:` Reloaded.Core behaviour). There is no full list of them yet,
 | rl:net | 3 | 3 | 2 | 0 |
 | rl:qol | 2 | 2 | 1 | 0 |
 | rl:voice | 10 | 10 | 8 | 0 |
-| **all** | 450 | 450 | 285 | 0 |
+| **all** | 451 | 451 | 286 | 0 |
 
 ## By class
 
@@ -623,7 +623,7 @@ Wholly n-a: Commandlet, HelloWorldCommandlet, SimpleCommandlet.
 | ConfirmQuitPage_InGame | 1 | 0 | 0 (0.0%) | 0 (0.0%) | 0 (0.0%) | 0 | - | - | - |
 | Connection_Lost | 4 | 0 | 0 (0.0%) | 0 (0.0%) | 0 (0.0%) | 759 | 0.0% | 0.0% | 0.0% |
 | Controller_Settings | 8 | 0 | 0 (0.0%) | 0 (0.0%) | 0 (0.0%) | 1,547 | 0.0% | 0.0% | 0.0% |
-| Create_Match | 31 | 0 | 13 (41.9%) | 5 (16.1%) | 0 (0.0%) | 18,008 | 86.3% | 29.3% | 0.0% |
+| Create_Match | 31 | 0 | 16 (51.6%) | 5 (16.1%) | 0 (0.0%) | 18,008 | 89.1% | 29.3% | 0.0% |
 | Dedicated_Server | 12 | 0 | 0 (0.0%) | 0 (0.0%) | 0 (0.0%) | 5,376 | 0.0% | 0.0% | 0.0% |
 | Delete_Profile | 4 | 0 | 0 (0.0%) | 0 (0.0%) | 0 (0.0%) | 140 | 0.0% | 0.0% | 0.0% |
 | Edit_Gadget_Avertissement | 5 | 0 | 0 (0.0%) | 0 (0.0%) | 0 (0.0%) | 249 | 0.0% | 0.0% | 0.0% |
@@ -635,7 +635,7 @@ Wholly n-a: Commandlet, HelloWorldCommandlet, SimpleCommandlet.
 | Error_TeamHaveNoPlayer | 1 | 0 | 0 (0.0%) | 0 (0.0%) | 0 (0.0%) | 0 | - | - | - |
 | Error_TooManyPlayer | 1 | 0 | 0 (0.0%) | 0 (0.0%) | 0 (0.0%) | 0 | - | - | - |
 | ExtraKeyRows | 3 | 0 | 0 (0.0%) | 0 (0.0%) | 0 (0.0%) | 137 | 0.0% | 0.0% | 0.0% |
-| FirstTimeToPlayThisMap | 6 | 0 | 1 (16.7%) | 1 (16.7%) | 0 (0.0%) | 643 | 20.4% | 20.4% | 0.0% |
+| FirstTimeToPlayThisMap | 6 | 0 | 1 (16.7%) | 0 (0.0%) | 0 (0.0%) | 643 | 20.4% | 0.0% | 0.0% |
 | GSConnection | 16 | 0 | 0 (0.0%) | 0 (0.0%) | 0 (0.0%) | 2,826 | 0.0% | 0.0% | 0.0% |
 | GUI | 1 | 0 | 0 (0.0%) | 0 (0.0%) | 0 (0.0%) | 0 | - | - | - |
 | GUIButton | 6 | 0 | 0 (0.0%) | 0 (0.0%) | 0 (0.0%) | 867 | 0.0% | 0.0% | 0.0% |
@@ -743,7 +743,7 @@ Wholly n-a: Commandlet, HelloWorldCommandlet, SimpleCommandlet.
 | LegendModeServer | 1 | 0 | 0 (0.0%) | 0 (0.0%) | 0 (0.0%) | 0 | - | - | - |
 | ListBox_PCLook | 5 | 0 | 0 (0.0%) | 0 (0.0%) | 0 (0.0%) | 158 | 0.0% | 0.0% | 0.0% |
 | Loading_Menu | 15 | 0 | 7 (46.7%) | 5 (33.3%) | 0 (0.0%) | 5,901 | 65.0% | 45.8% | 0.0% |
-| Lobby_Create | 20 | 0 | 6 (30.0%) | 2 (10.0%) | 0 (0.0%) | 10,771 | 56.0% | 16.3% | 0.0% |
+| Lobby_Create | 20 | 0 | 6 (30.0%) | 1 (5.0%) | 0 (0.0%) | 10,771 | 56.0% | 5.0% | 0.0% |
 | MenuFriendList | 19 | 0 | 0 (0.0%) | 0 (0.0%) | 0 (0.0%) | 7,810 | 0.0% | 0.0% | 0.0% |
 | Menu_Multi | 10 | 0 | 0 (0.0%) | 0 (0.0%) | 0 (0.0%) | 2,119 | 0.0% | 0.0% | 0.0% |
 | Mire | 2 | 0 | 0 (0.0%) | 0 (0.0%) | 0 (0.0%) | 34 | 0.0% | 0.0% | 0.0% |
@@ -827,7 +827,7 @@ Wholly n-a: Commandlet, HelloWorldCommandlet, SimpleCommandlet.
 | moEditBox | 11 | 0 | 0 (0.0%) | 0 (0.0%) | 0 (0.0%) | 278 | 0.0% | 0.0% | 0.0% |
 | moEditBoxPass | 1 | 0 | 0 (0.0%) | 0 (0.0%) | 0 (0.0%) | 0 | - | - | - |
 | moEditBoxUser | 1 | 0 | 0 (0.0%) | 0 (0.0%) | 0 (0.0%) | 0 | - | - | - |
-| moImageListMap | 8 | 0 | 0 (0.0%) | 0 (0.0%) | 0 (0.0%) | 1,173 | 0.0% | 0.0% | 0.0% |
+| moImageListMap | 8 | 0 | 6 (75.0%) | 1 (12.5%) | 0 (0.0%) | 1,173 | 97.7% | 39.1% | 0.0% |
 | moListEditBox | 18 | 0 | 0 (0.0%) | 0 (0.0%) | 0 (0.0%) | 1,629 | 0.0% | 0.0% | 0.0% |
 | moListEditBox_GameMode | 5 | 0 | 0 (0.0%) | 0 (0.0%) | 0 (0.0%) | 832 | 0.0% | 0.0% | 0.0% |
 | moListEditBox_OkNo | 4 | 0 | 0 (0.0%) | 0 (0.0%) | 0 (0.0%) | 132 | 0.0% | 0.0% | 0.0% |
@@ -854,7 +854,7 @@ Wholly n-a: Commandlet, HelloWorldCommandlet, SimpleCommandlet.
 | sSTY_Sliders | 1 | 0 | 0 (0.0%) | 0 (0.0%) | 0 (0.0%) | 0 | - | - | - |
 | sSTY_TextButton | 2 | 0 | 0 (0.0%) | 0 (0.0%) | 0 (0.0%) | 372 | 0.0% | 0.0% | 0.0% |
 | sSTY_TextButtonSmall | 2 | 0 | 0 (0.0%) | 0 (0.0%) | 0 (0.0%) | 438 | 0.0% | 0.0% | 0.0% |
-| **all** | 1,681 | 8 | 111 (6.6%) | 69 (4.1%) | 0 (0.0%) | 301,325 | 17.1% | 8.4% | 0.0% |
+| **all** | 1,681 | 8 | 120 (7.2%) | 68 (4.1%) | 0 (0.0%) | 301,325 | 17.7% | 8.1% | 0.0% |
 
 Wholly n-a: SSMenu_ErrorXBLive_CannotAccessService, SSMenu_ErrorXBLive_DuplicateLogon.
 
@@ -1054,7 +1054,7 @@ Wholly n-a: SSMenu_ErrorXBLive_CannotAccessService, SSMenu_ErrorXBLive_Duplicate
 | SPhosphoEmitter | 2 | 0 | 1 (50.0%) | 1 (50.0%) | 0 (0.0%) | 2 | 0.0% | 0.0% | 0.0% |
 | SPickupInteraction | 5 | 0 | 5 (100.0%) | 4 (80.0%) | 0 (0.0%) | 207 | 100.0% | 100.0% | 0.0% |
 | SPlayerCam | 32 | 0 | 31 (96.9%) | 31 (96.9%) | 0 (0.0%) | 1,152 | 77.6% | 77.6% | 0.0% |
-| SPlayerController | 1,810 | 21 | 1,707 (95.4%) | 1,474 (82.4%) | 153 (8.6%) | 237,250 | 98.7% | 95.1% | 16.0% |
+| SPlayerController | 1,810 | 21 | 1,707 (95.4%) | 1,477 (82.6%) | 153 (8.6%) | 237,250 | 98.7% | 95.1% | 16.0% |
 | SPlayerProfile | 85 | 0 | 8 (9.4%) | 5 (5.9%) | 0 (0.0%) | 7,146 | 3.6% | 0.5% | 0.0% |
 | SPoisonEmitter | 1 | 0 | 1 (100.0%) | 1 (100.0%) | 0 (0.0%) | 0 | - | - | - |
 | SPresDetector | 8 | 0 | 8 (100.0%) | 8 (100.0%) | 0 (0.0%) | 168 | 100.0% | 100.0% | 0.0% |
@@ -1110,7 +1110,7 @@ Wholly n-a: SSMenu_ErrorXBLive_CannotAccessService, SSMenu_ErrorXBLive_Duplicate
 | SWaterFootStepEffect | 1 | 0 | 1 (100.0%) | 1 (100.0%) | 0 (0.0%) | 0 | - | - | - |
 | SWeapon | 17 | 0 | 17 (100.0%) | 13 (76.5%) | 0 (0.0%) | 243 | 100.0% | 67.9% | 0.0% |
 | SWeaponAttaque | 30 | 0 | 30 (100.0%) | 24 (80.0%) | 0 (0.0%) | 3,373 | 100.0% | 80.7% | 0.0% |
-| SWeaponDefense | 106 | 0 | 104 (98.1%) | 97 (91.5%) | 0 (0.0%) | 11,767 | 99.8% | 92.4% | 0.0% |
+| SWeaponDefense | 106 | 0 | 104 (98.1%) | 96 (90.6%) | 0 (0.0%) | 11,767 | 99.8% | 91.5% | 0.0% |
 | SWeaponDefenseDummy | 6 | 0 | 6 (100.0%) | 5 (83.3%) | 0 (0.0%) | 494 | 100.0% | 100.0% | 0.0% |
 | SWeaponDefenseDummy_Shotgun | 6 | 0 | 6 (100.0%) | 3 (50.0%) | 0 (0.0%) | 1,122 | 100.0% | 86.1% | 0.0% |
 | SWeaponDefenseDummy_Uzi | 1 | 0 | 1 (100.0%) | 1 (100.0%) | 0 (0.0%) | 0 | - | - | - |
@@ -1118,7 +1118,7 @@ Wholly n-a: SSMenu_ErrorXBLive_CannotAccessService, SSMenu_ErrorXBLive_Duplicate
 | SWeaponDefense_Uzi | 3 | 0 | 3 (100.0%) | 3 (100.0%) | 0 (0.0%) | 309 | 100.0% | 100.0% | 0.0% |
 | SZoneTips | 5 | 0 | 5 (100.0%) | 5 (100.0%) | 0 (0.0%) | 509 | 100.0% | 100.0% | 0.0% |
 | sMuzzleCanon | 2 | 0 | 1 (50.0%) | 1 (50.0%) | 0 (0.0%) | 11 | 0.0% | 0.0% | 0.0% |
-| **all** | 3,926 | 289 | 3,365 (92.5%) | 2,888 (79.4%) | 168 (4.6%) | 398,302 | 95.9% | 92.4% | 9.7% |
+| **all** | 3,926 | 289 | 3,365 (92.5%) | 2,890 (79.5%) | 168 (4.6%) | 398,302 | 95.9% | 92.4% | 9.7% |
 
 Wholly n-a: SXBoxLiveRef.
 
@@ -1130,11 +1130,12 @@ CI should fail on these: ids that are not in the inventory, n-a entries without 
 
 None.
 
-### Warnings (62)
+### Warnings (63)
 
 - [PortOf("eng:ASBasePawn::SetColAfterPipe4")] on OpenScct.Physics: OpenScct.Physics.Movement.PhysicsDriver.SetColAfterPipe4: spec/native/ANSWERS-moveset.md has no heading for #4-setcolforpipe4-setcolafterpipe4-cansetcolafterpipe4
 - [PortOf("eng:ASBasePawn::SetColForPipe4")] on OpenScct.Physics: OpenScct.Physics.Movement.PhysicsDriver.SetColForPipe4: spec/native/ANSWERS-moveset.md has no heading for #4-setcolforpipe4-setcolafterpipe4-cansetcolafterpipe4
 - [PortOf("eng:ASPlayerController::NativePlayerCalcView")] on OpenScct.Game: OpenScct.Game.Camera.PlayerCalcView.DefaultView: spec/native/camera.md has no heading for #2-default-view-editor-0x111e3830
+- [PortOf("eng:Render.ActorShadowLighting")] on OpenScct.Game: OpenScct.Game.Lighting.ActorShadowLighting: spec/native/camera.md has no heading for #4-other-view-sources
 - [PortOf("nat:Engine.Actor.SetCollision")] on OpenScct.Physics: OpenScct.Physics.Movement.PhysicsDriver.SetCollision: docs/PHYSICS.md has no heading for #moveactor
 - [PortOf("nat:Engine.Actor.SetCollisionSize")] on OpenScct.Physics: OpenScct.Physics.Movement.PhysicsDriver.SetCollisionSize: docs/PHYSICS.md has no heading for #moveactor
 - [PortOf("nat:Engine.Actor.SetLocation")] on OpenScct.Physics: OpenScct.Physics.Movement.PhysicsDriver.SetLocation: docs/PHYSICS.md has no heading for #moveactor

@@ -33,11 +33,13 @@ SHUD_TEXTURES = ("MN_boutons", "Icones_Gadgets", "Icones_Weapons", "Att_Arrow", 
 # (GUIContent New_Menu; GUIPage defaults), and the PC styles' buttons, boxes and the voice icon (Menu_PC; sSTY_Pc*);
 # the equipment pages' background, side portraits and pad-button hints (Edit_Profile: fond02, MN_ATTperso,
 # MN_DEFperso, bouton01-04); the strategic map's markers (StrategicMapMenu YouAreHereTexRotator and TeamMate turn
-# YouAreHereTexPC and ButtonWhite); the tutorials' pictures (Tutorials_PC: the tips' SPY_ / SENTRY_Tuto01-09
+# YouAreHereTexPC and ButtonWhite); the briefing pages' picture when the map has none (GUIContent New_Menu
+# defenseur: Briefing.RefreshText and BriefingDeux.InitComponent show it when LevelInfo.GetLevelPicture or
+# GetLevelBrief returns None); the tutorials' pictures (Tutorials_PC: the tips' SPY_ / SENTRY_Tuto01-09
 # (Tutorials_Tuto), the HUD legends' screenshots (View_Hud_Spy, View_Hud_Sentry) and the keyboard (View_KeyboardConfigOne)).
 MENU_TEXTURES = {
     "GUIContent": ("fond", "loading", "MN_cadre01", "MN_cadre02", "MN_cadre03", "MN_cadre06", "MN_losange",
-                   "MN_petitrond", "fond02", "MN_ATTperso", "MN_DEFperso"),
+                   "MN_petitrond", "fond02", "MN_ATTperso", "MN_DEFperso", "defenseur"),
     "Menu_PC": ("buton_select", "buton_validate", "buton_push", "TABS_NOselect", "Saquare_backd", "Saquare_BOX",
                 "CommunicatorON", "Disable", "scroll_bar", "Vert01", "noir01",
                 "bouton01", "bouton02", "bouton03", "bouton04", "YouAreHereTexPC", "ButtonWhite"),
