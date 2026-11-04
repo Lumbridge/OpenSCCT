@@ -263,7 +263,7 @@ what breaks a rule below, never failing the map. Schema: [schemas/identity.schem
 
 ```json
 {
- "authors": ["Ryan"],
+ "authors": ["Map Author"],
  "description": "A theme park after closing time. Spies cross three rides to reach the control tower.",
  "dossier": {"summary": "A theme park after closing time.", "when": "9 October 2026, 2:00 AM", "where": "Lyon, France"},
  "family": "Moonlight Park",

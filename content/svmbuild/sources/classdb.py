@@ -56,7 +56,7 @@ class ClassDB:
 
     def add_package_classes(self, pkg) -> List[str]:
         """Registers the classes a package defines itself (a map's own scripts: RE+'s SMatchSizeRules and
-        SCharacterOutfits, private map-builder scripts), read from their Class and *Property exports like the script
+        SCharacterOutfits, and a map's own script classes), read from their Class and *Property exports like the script
         packages' classes, and returns their paths. Their supers are game classes, so actors of them decode with
         every inherited property. Registering a package again replaces its classes."""
         cd = self.cd
