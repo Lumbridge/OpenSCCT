@@ -366,7 +366,10 @@ shader parameter, and are summed per pixel into the baked term.
 - Animated lights that are baked (bApplyToStaticLighting without bDynamicLight: 13, pulse and subtle pulse, all also
   in-game lights) stay steady on the world, as the baked light is; they animate on actors.
 - `bAffectOwnZoneOnly` lights light only surfaces of their zone. Each triangle carries its zone in the vertex colour
-  alpha. BSP takes the zone of a point 2, 8 or 32 uu in front of the face through the collision BSP. Static meshes
+  alpha. The light uses its authored `Region.ZoneNumber`, with the zone actor name as a fallback for packs without
+  that property. Several BSP zones can share `LevelInfo0`; resolving by actor name alone loses the restriction
+  on ShipD's elevator light (`Light17342`, zone 7) and lets its red flicker reach the overground yard.
+  BSP takes the zone of a point 2, 8 or 32 uu in front of the face through the collision BSP. Static meshes
   take their actor's point region for every face, including zone 0 when the origin is inside solid (AquaE's temple
   Techroom sign, StaticMeshActor3884). Sampling the room in front of a mesh instead lets room-restricted lights
   brighten wall-mounted signs whose actor is outside that room. A vertex shared by BSP triangles of two zones is

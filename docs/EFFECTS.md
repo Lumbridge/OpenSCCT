@@ -37,6 +37,10 @@ The runtime lays each sub-emitter's stored values over its class defaults from `
 | [game/Scripts/Fx/EffectViews.cs](../game/Scripts/Fx/EffectViews.cs) | the gameplay effects of the client world |
 | [game/Scripts/Fx/CombatFxView.cs](../game/Scripts/Fx/CombatFxView.cs) | shots: muzzle flashes, casings, tracers, impact decals and sparks; owns `EffectViews` |
 
+All particle draw styles honor `AlphaTest` and `AlphaRef` before blending. This includes ShipD's Brighten cloud
+emitters: their texture contains coloured edge pixels with zero alpha, which must be discarded to avoid visible
+lines across the large cloud planes. The texture's RGB is retained; the emitter's authored alpha test controls it.
+
 `EffectViews` reads the client world after each tick and never writes to it:
 
 - Every Emitter actor spawned during play is a particle system of its class, following the actor and gone with it:

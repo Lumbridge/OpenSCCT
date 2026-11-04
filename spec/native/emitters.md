@@ -171,8 +171,10 @@ Notable differences from other UE2 builds (this engine has no `StartLocationShap
     PTDS_AlphaBlend (SRCALPHA, INVSRCALPHA), PTDS_Modulated (DESTCOLOR, SRCCOLOR: twice the product) of the texture
     blended toward the vertex colour by the inverse of the vertex alpha, PTDS_Translucent additive (ONE, ONE),
     PTDS_AlphaModulate (ONE, INVSRCALPHA), PTDS_Darken (ZERO, INVSRCCOLOR), PTDS_Brighten (ONE, INVSRCCOLOR). AlphaTest
-    uses AlphaRef; ZTest and ZWrite as set (depth writes off by default). Particles draw in slot order, sub-emitters in
-    array order.
+    uses AlphaRef for every draw style, including Brighten and additive particles, before blending; it is not
+    restricted to Regular. The alpha test uses the texture-stage alpha (the same vertex-alpha mix for Modulated,
+    texture alpha times vertex alpha for the ordinary single-texture styles). ZTest and ZWrite as set (depth writes
+    off by default). Particles draw in slot order, sub-emitters in array order.
 
 ### Sparks (USparkEmitter)
 22. Each particle keeps its spawn location and velocity, `TimeBeforeVisible` from TimeBeforeVisibleRange and
