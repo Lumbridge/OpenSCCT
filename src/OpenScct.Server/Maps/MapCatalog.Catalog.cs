@@ -48,13 +48,18 @@ public sealed record MapCatalogEntry
     public required string Id { get; init; }
 
     /// <summary>
-    /// The name every page shows, upper case as in the original's menus: the map's own name (<c>ui/identity.json</c>)
-    /// upper-cased, else <c>SMapSettings.MapName</c> (ENHANCED AQUARIUS), else the code.
+    /// The name every page shows, upper case as in the original's menus: the map's own name (<c>ui/identity.json</c>,
+    /// translated into the game's language when the map has a translation) upper-cased, else <c>SMapSettings.MapName</c>
+    /// (ENHANCED AQUARIUS), else the code.
     /// </summary>
     public required string DisplayName { get; init; }
 
-    /// <summary>The map's own name when it has one, else the name Reloaded's lobby shows (Enhanced Aquarius).</summary>
+    /// <summary>The map's own name when it has one (in the map's own language, untranslated), else the name Reloaded's
+    /// lobby shows (Enhanced Aquarius).</summary>
     public required string Name { get; init; }
+
+    /// <summary><c>SMapSettings.MapName</c> (ENHANCED AQUARIUS, never translated), or null.</summary>
+    public string? SettingsName { get; init; }
 
     /// <summary><see cref="Name"/> without its variant word (Aquarius), as Reloaded sorts.</summary>
     public required string SortName { get; init; }
@@ -88,6 +93,10 @@ public sealed record MapCatalogEntry
     /// </summary>
     public int RecommendedPlayers { get; init; } = 4;
 
+    /// <summary>The lobby size the map itself recommends (its identity), which a lobby preselects; null when the map
+    /// states none and <see cref="RecommendedPlayers"/> is the catalog's guess.</summary>
+    public int? StatedPlayers { get; init; }
+
     /// <summary>One or two sentences about the map (its identity's description, else its dossier's summary), or null.</summary>
     public string? Description { get; init; }
 
@@ -108,6 +117,9 @@ public sealed record MapCatalogEntry
 
     /// <summary>The map list picture (PNG path), or null.</summary>
     public string? PreviewImage { get; init; }
+
+    /// <summary>The map's 16:9 picture for wide layouts (its identity's banner), or null.</summary>
+    public string? BannerImage { get; init; }
 
     /// <summary>The first of <see cref="LoadingSpyImages"/>, or null.</summary>
     public string? LoadingSpyImage { get; init; }
@@ -408,7 +420,7 @@ public sealed partial class MapCatalog
                 MapFacts facts;
                 try
                 {
-                    facts = MapFacts.Load(dir);
+                    facts = MapFacts.Load(dir, ContentPaths.Language);
                 }
                 catch (Exception e) when (e is IOException or System.Text.Json.JsonException)
                 {
@@ -476,6 +488,10 @@ public sealed partial class MapCatalog
         // names, the pictures svmbuild exported), then a downloaded map's catalog/entry.json, then SMapSettings.
         string id = listed.Id;
         MapIdentity identity = facts.Identity;
+
+        // Pages show the map's texts in the game's language; its name in its own language sorts it and picks its
+        // playlists, so neither changes with the language.
+        MapIdentity shown = identity.Translated(facts.Text);
         MapKind kind = KindOf(id, manifest, data, originalIndex);
         IReadOnlyList<MapModeInfo> modes = ModesOf(kind, facts);
         if (kind == MapKind.Versus && manifest?.Source.Kind == "authored" && !modes.Any(m => m.Playable))
@@ -499,8 +515,9 @@ public sealed partial class MapCatalog
         return new MapCatalogEntry
         {
             Id = id,
-            DisplayName = identity.Name?.ToUpperInvariant() ?? mapName ?? id,
+            DisplayName = shown.Name?.ToUpperInvariant() ?? mapName ?? id,
             Name = name,
+            SettingsName = mapName,
             SortName = sortName,
             VariantWord = variant,
             Kind = kind,
@@ -511,13 +528,15 @@ public sealed partial class MapCatalog
             MercStarts = facts.MercStarts,
             MercDeathmatchStarts = facts.MercDeathmatchStarts,
             RecommendedPlayers = identity.RecommendedPlayers is { } players ? Math.Min(players, LobbySetup.MaxMaxPlayers) : threeVsThree ? 6 : 4,
-            Description = identity.Description ?? (identity.Dossier?.Summary is { Length: > 0 } summary ? summary : null),
+            StatedPlayers = identity.RecommendedPlayers is { } stated ? Math.Min(stated, LobbySetup.MaxMaxPlayers) : null,
+            Description = shown.Description ?? (shown.Dossier?.Summary is { Length: > 0 } summary ? summary : null),
             Authors = identity.Authors,
             Version = identity.Version,
             Tags = identity.Tags,
-            Places = identity.Places,
+            Places = shown.Places,
             Playlists = playlists ?? [],
             PreviewImage = pictures.Menu ?? data.Image(id, "menu"),
+            BannerImage = pictures.Banner,
             LoadingSpyImage = spyLoading.Count > 0 ? spyLoading[0] : null,
             LoadingMercImage = mercLoading.Count > 0 ? mercLoading[0] : null,
             LoadingSpyImages = spyLoading,

@@ -104,7 +104,11 @@ public partial class LobbyRoomScreen
         _recordingNote.AddThemeFontSizeOverride("font_size", 14);
         _recordingNote.Modulate = UiStyle.Dim;
         recording.AddChild(_recordingNote);
-        Parameters = new CreateSessionModel(session.Maps, session.MapSettings, session.Setup);
+        int? Stated(string map) => _mapCatalog?.GetCatalogEntry(map)?.StatedPlayers;
+
+        // The session's slots keep following the map while they are what following gave.
+        Parameters = new CreateSessionModel(session.Maps, session.MapSettings, session.Setup, Stated,
+            playersChosen: session.Setup.MaxPlayers != CreateSessionModel.FollowedPlayers(Stated(session.Setup.Map)));
         _modelSetup = session.Setup;
         var rows = new List<SessionRow>(CreateSessionModel.Rows); rows.Remove(SessionRow.Password);
         ParameterRows = new SessionRowsView(Parameters, rows, showPassword: false, form: true) { SizeFlagsHorizontal = SizeFlags.ExpandFill };

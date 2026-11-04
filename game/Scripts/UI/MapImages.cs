@@ -22,13 +22,22 @@ public static class MapImages
     /// <summary>The map's host list picture, or null.</summary>
     public static Texture2D? Preview(MapCatalog? maps, string? map) => First(maps, map, e => Load(e.PreviewImage));
 
+    /// <summary>The width banners are kept at: map browsers show them at a few hundred pixels at most.</summary>
+    private const int BannerWidth = 640;
+
+    /// <summary>The map's picture for a wide frame: its 16:9 banner (scaled down to <see cref="BannerWidth"/>, with
+    /// mipmaps for the small thumbnails), else its host list picture, or null.</summary>
+    public static Texture2D? Wide(MapCatalog? maps, string? map) =>
+        First(maps, map, e => Load(e.BannerImage, BannerWidth)) ?? Preview(maps, map);
+
     /// <summary>
     /// The map's loading picture for the side (the other side's, then the host list's, when it lacks one), or null. A
-    /// map with several pictures for a side gives a random one on each call: a loading page asks once per load.
+    /// map with several pictures for a side gives the one <paramref name="seed"/> picks (an online session's, so every
+    /// player sees the same), or a random one on each call without a seed: a loading page asks once per load.
     /// </summary>
-    public static Texture2D? Loading(MapCatalog? maps, string? map, bool merc) =>
-        First(maps, map, e => Load(Pick(merc ? e.LoadingMercImages : e.LoadingSpyImages))) ??
-        First(maps, map, e => Load(Pick(merc ? e.LoadingSpyImages : e.LoadingMercImages))) ??
+    public static Texture2D? Loading(MapCatalog? maps, string? map, bool merc, int? seed = null) =>
+        First(maps, map, e => Load(Pick(merc ? e.LoadingMercImages : e.LoadingSpyImages, seed))) ??
+        First(maps, map, e => Load(Pick(merc ? e.LoadingSpyImages : e.LoadingMercImages, seed))) ??
         Preview(maps, map);
 
     /// <summary>
@@ -74,28 +83,46 @@ public static class MapImages
         return found;
     }
 
-    private static string? Pick(IReadOnlyList<string> pictures) => pictures.Count switch
+    private static string? Pick(IReadOnlyList<string> pictures, int? seed) => pictures.Count switch
     {
         0 => null,
         1 => pictures[0],
-        _ => pictures[System.Random.Shared.Next(pictures.Count)],
+        _ => pictures[seed is { } s ? (int)((uint)s % (uint)pictures.Count) : System.Random.Shared.Next(pictures.Count)],
     };
 
-    private static Texture2D? Load(string? path)
+    /// <summary>The picture at <paramref name="path"/>, read once; with <paramref name="maxWidth"/>, scaled down to it
+    /// and given mipmaps.</summary>
+    private static Texture2D? Load(string? path, int maxWidth = 0)
     {
         if (path is null)
         {
             return null;
         }
 
-        if (Textures.TryGetValue(path, out Texture2D? cached))
+        string key = maxWidth > 0 ? path + "|" + maxWidth : path;
+        if (Textures.TryGetValue(key, out Texture2D? cached))
         {
             return cached;
         }
 
         var image = new Image();
-        Texture2D? texture = image.Load(path) == Error.Ok ? ImageTexture.CreateFromImage(image) : null;
-        Textures[path] = texture;
+        Texture2D? texture = null;
+        if (image.Load(path) == Error.Ok)
+        {
+            if (maxWidth > 0)
+            {
+                if (image.GetWidth() > maxWidth)
+                {
+                    image.Resize(maxWidth, Math.Max(1, image.GetHeight() * maxWidth / image.GetWidth()), Image.Interpolation.Lanczos);
+                }
+
+                image.GenerateMipmaps();
+            }
+
+            texture = ImageTexture.CreateFromImage(image);
+        }
+
+        Textures[key] = texture;
         return texture;
     }
 }

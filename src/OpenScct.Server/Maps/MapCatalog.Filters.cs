@@ -40,7 +40,7 @@ public sealed partial class MapCatalog
     }
 
     private static bool IsEnhancedMap(MapCatalogEntry map) =>
-        !StockMapIds.Contains(map.Id) && (HasEnhancedPrefix(map.Name) || HasEnhancedPrefix(map.DisplayName));
+        !StockMapIds.Contains(map.Id) && (HasEnhancedPrefix(map.Name) || map.SettingsName is { } settings && HasEnhancedPrefix(settings));
 
     private static bool HasEnhancedPrefix(string name)
     {
@@ -57,7 +57,8 @@ public sealed partial class MapCatalog
     private static bool IsThreeVsThreeMap(MapCatalogEntry map) =>
         map.Playlists.Any(name => string.Equals(name, "3v3", StringComparison.OrdinalIgnoreCase)) ||
         map.Tags.Contains("3v3") || map.RecommendedPlayers == 6 ||
-        HasThreeVsThreeTag(map.Name) || HasThreeVsThreeTag(map.DisplayName) || map.Id.Contains("3v3", StringComparison.OrdinalIgnoreCase);
+        HasThreeVsThreeTag(map.Name) || map.SettingsName is { } settings && HasThreeVsThreeTag(settings) ||
+        map.Id.Contains("3v3", StringComparison.OrdinalIgnoreCase);
 
     private static bool HasThreeVsThreeTag(string name)
     {

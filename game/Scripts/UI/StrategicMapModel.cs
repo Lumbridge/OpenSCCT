@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
+using OpenScct.Content.Maps;
 using OpenScct.Provenance;
+using OpenScct.Server;
 
 namespace OpenScctGame.UI;
 
@@ -205,9 +207,12 @@ public sealed class StrategicMapData
             }
 
             using JsonDocument doc = JsonDocument.Parse(File.ReadAllBytes(path));
-            return doc.RootElement.TryGetProperty("LegendMapInBrief", out JsonElement l) && l.ValueKind == JsonValueKind.String
-                ? (l.GetString() ?? string.Empty).Replace('|', '\n')
+            string legend = doc.RootElement.TryGetProperty("LegendMapInBrief", out JsonElement l) && l.ValueKind == JsonValueKind.String
+                ? l.GetString() ?? string.Empty
                 : string.Empty;
+
+            // The map's translation into the game's language, when it has one.
+            return MapText.Load(mapFolder, ContentPaths.Language).MapInfoOr("LegendMapInBrief", legend).Replace('|', '\n');
         }
         catch (Exception e) when (e is JsonException or IOException or UnauthorizedAccessException)
         {

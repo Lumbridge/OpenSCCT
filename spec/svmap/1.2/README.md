@@ -297,7 +297,7 @@ what breaks a rule below, never failing the map. Schema: [schemas/identity.schem
 | `pictures.loading.spy`, `.merc` | The loading pictures of each side, up to 8 each. Square, 1024 x 1024 recommended. With several, a reader shows one per load (or per session). |
 | `pictures.briefing` | The lobby's plan of the map. Square; transparent outside the map allowed. |
 | `pictures.briefingProjection` | `snapshot` when the plan was drawn through `levelInfo.SnapshotCamera` exactly as the strategic map's floors are, so a reader can project places onto it; otherwise absent or null, and no numbers are drawn on it. |
-| `pictures.banner` | Optional 16:9 picture (1920 x 1080 recommended) for wide layouts such as map browsers. OpenSCCT reads it but its menus do not show it yet. |
+| `pictures.banner` | Optional 16:9 picture (1920 x 1080 recommended) for wide layouts such as map browsers. OpenSCCT shows it on the landscape cards of the picture grid and in the thumbnail list (the menu picture where there is none). |
 | `pictures.generated` | Slots (`menu`, `loading`, `briefing`, `banner`) whose picture a tool drew, so tools know they are not art. |
 
 Pictures: paths are relative to `ui/`, inside `ui/pictures/`, ASCII, no `..`; files are PNG (any alpha) or JPEG,
@@ -322,7 +322,9 @@ outside the spec):
 
 The files `identity.json` names, in the `ui` hash group. Suggested names: `menu.png`, `loading-spy.png` (then
 `loading-spy-2.png`...), `loading-merc.png`, `briefing.png`, `banner.jpg`. JPEG keeps 1024 x 1024 loading pictures
-near 200 KiB where PNG can take 1 to 2 MiB.
+near 200 KiB where PNG can take 1 to 2 MiB. In an online session OpenSCCT shows every player of a side the same
+loading picture: the server picks it when the map changes and tells players who join later. The hub and offline
+play pick one at random per load.
 
 ## `ui/text/<lang>.json` (1.2)
 
@@ -345,7 +347,11 @@ anything missing falls back to the base language. Schema: [schemas/text.schema.j
   disk.
 - `mapinfo.MapName` is not accepted (the original does not localise it); `identity.name` is.
 - Localised actor properties in `sim/gameplay.json` hold the map's base language; translations live only here.
-- Readers use these files once the game has a language setting; until then every map shows its base language.
+- OpenSCCT reads the file of the game content's language (the launcher's content language: `int` reads `en`, `fra`
+  `fr`, `deu` `de`, `esp` `es`, `ita` `it`) and applies `identity` (name, description, dossier, place names) and
+  `mapinfo` (`LegendMap`, `LegendMapInBrief`, `ExpliMapInBrief*`, the per-mode strings). It does not apply `actors`
+  yet. A translated `identity.name` is shown whole: the family and variant split, the host list's order and the
+  playlists come from the base name only, so they do not change with the language.
 
 ## Versioning
 

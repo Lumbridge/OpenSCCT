@@ -114,11 +114,22 @@ with `--addons <folder>`; a map absent from Reloaded's name table uses its manif
 
 A map made in the map editor carries its identity in its own folder (SVMap 1.2,
 [spec/svmap/1.2/README.md](../spec/svmap/1.2/README.md)): `ui/identity.json` (name, dossier, description, authors,
-version, recommended players, tags, numbered places) and `ui/pictures/` (menu, loading pictures per side, briefing
-plan). `MapIdentity` (src/OpenScct.Content/Maps) reads it; `MapFacts.Load` reads it with the rest, so the catalog
+version, recommended players, tags, numbered places), `ui/pictures/` (menu, loading pictures per side, briefing
+plan, banner) and `ui/text/<lang>.json` (its texts in other languages). `MapIdentity` (src/OpenScct.Content/Maps) reads it; `MapFacts.Load` reads it with the rest, so the catalog
 needs no other file. The catalog takes each value from the map first, then the shared catalog, then a downloaded
 map's `catalog/entry.json`, then `SMapSettings` (the spec's table lists the order per value). Playlists never come
 from a map: a map states facts (tags, recommended players) and the filters above pick it up from them.
+
+`MapFacts.Load(folder, language)` reads the map's `ui/text/<lang>.json` (`MapText`) for the content language
+(`ContentPaths.Language`, from `content-build.json`) beside its own identity; the catalog shows the translated name,
+description, dossier and place names (`MapIdentity.Translated`; a missing text keeps the map's own), while the
+entry's `Name`, its sort order and the playlist rules keep the map's own name, so a map sorts and groups the same in
+every language. The catalog's `StatedPlayers` is the map's own `players.recommended` only. Until the host sets the
+player slots by hand (Create Session remembers that, `host/players_chosen`), they follow the map: its stated count,
+else 24, when the page opens and whenever the map changes; the lobby keeps following while the slots are what
+following gave. The hub laptop keeps its pad's slots. The picture grid's landscape cards and the thumbnail list show
+the map's banner (`BannerImage`, kept at 640 pixels wide with mipmaps, read when a card first shows it), else its
+menu picture.
 
 The lobby's Briefing shows the map's menu picture on page 1 (the original's level picture, `GetLevelPicture`) and
 its briefing plan on page 2 (`GetLevelBrief`, the mercs' loading picture when there is none). A plan drawn through
