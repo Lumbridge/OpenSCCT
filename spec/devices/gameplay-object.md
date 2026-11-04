@@ -141,6 +141,12 @@ SDamageType indices used below: 0 NoDamageType, 1 SDamage_Charged, 4 SDamage_Exp
    b. Swap: if `TriggeredSkin` is set, toggle `Skins[0]`/`RepSkin` between it and `InitialSkin`. Else if the current
       mesh is not `InitialStaticMesh`, restore `InitialStaticMesh`. Else if `TriggeredMesh` is set, switch to it. So
       each Trigger toggles the mesh. `SetStaticMesh` changes the collision with the mesh.
+      The rewrite reads each collider's `CSRC.variants` mask from the loaded collision world: bit 0 for the
+      initial mesh, bit 1 for `TriggeredMesh`, bit 2 + i for `DamagedMeshes[i]`. On a swap, enable only shapes
+      whose mask contains the selected bit. A missing or zero mask retains the legacy has-mesh fallback.
+      This applies to server and client natives without separate loader setup. Factory's digger wall
+      (`SGamePlayObject294`, event `wall_out`) reproduced the intact collision remaining after the breached
+      mesh appeared when no external variant provider was installed.
    c. Pass `Trigger(Other, I)` to every non-None `ObjectLights` entry (each answers by its own trigger method).
 6. `UnTrigger(Other, I)`: if damageable and dead, return. Skin back to initial if swapped, else mesh back to initial if
    swapped. Pass `UnTrigger` to every light.

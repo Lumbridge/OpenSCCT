@@ -43,6 +43,7 @@ public partial class SGameInfo
                         if (Killer.PlayerReplicationInfo is { } killerPri)
                         {
                             killerPri.Kills++;
+                            killerPri.Stats?.AddFeat(FeatKeys.EnemyKills);
                         }
 
                         SDamageVolume? volume = FindDamageVolume(Killed.Pawn, DamageType);

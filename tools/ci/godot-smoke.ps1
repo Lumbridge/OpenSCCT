@@ -316,6 +316,12 @@ $ok = Invoke-Step 'get-godot' {
 if ($Windowed) { $env:SVM_AUDIO_MUTE = '1' }
 
 if ($ok -and -not $SkipBuild) {
+    $ok = Invoke-Step 'native-audio' {
+        & (Join-Path $repoRoot 'tools/audio/Build-NativeAudio.ps1') -Godot $script:Godot
+    }
+}
+
+if ($ok -and -not $SkipBuild) {
     $ok = Invoke-Step 'build' {
         $run = Invoke-Logged -Exe 'dotnet' -Arguments @('build', $solution, '-c', 'Debug', '--nologo', '-v', 'q') -LogName 'build' -Timeout 600
         if ($run.ExitCode -ne 0) { throw "dotnet build failed with exit code $($run.ExitCode): $(($run.Output | Select-Object -Last 20) -join ' | ')" }
@@ -352,6 +358,10 @@ if ($ok -and $Export) {
         foreach ($dll in @('OpenScctGame.dll', 'OpenScct.Core.dll', 'OpenScct.Content.dll', 'OpenScct.Net.dll', 'OpenScct.Server.dll', 'LiteNetLib.dll', 'DiscordRPC.dll', 'Newtonsoft.Json.dll')) {
             if (-not (Test-Path -LiteralPath (Join-Path $exportedData $dll))) { throw "Export incomplete: $dll is missing." }
         }
+        $nativeLicenses = Join-Path $repoRoot 'game/addons/scct_audio/licenses'
+        $exportLicenses = Join-Path $buildDir 'licenses'
+        New-Item -ItemType Directory -Force $exportLicenses | Out-Null
+        Get-ChildItem -LiteralPath $nativeLicenses -File | Copy-Item -Destination $exportLicenses -Force
 
         # This scratch build is for test runs: its window starts minimised and never takes focus (override.cfg next to the exe).
         Set-Content -LiteralPath (Join-Path $buildDir 'override.cfg') -Value "[display]`n`nwindow/size/no_focus=true`nwindow/size/mode=1"

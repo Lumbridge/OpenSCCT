@@ -26,6 +26,8 @@ public sealed record MatchResultRow(string Name, HudSide Side, int Score, int Ki
 /// <summary>What the results screen shows after a match.</summary>
 public sealed class MatchResult
 {
+    public OpenScct.Net.Scoreboards.RoundScoreboard? Scoreboard { get; init; }
+    public int LocalParticipantId { get; init; } = -1;
     public string Map { get; init; } = "";
 
     /// <summary>The winning side, or null for no winner.</summary>

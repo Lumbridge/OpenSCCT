@@ -197,6 +197,9 @@ public sealed partial class OnlineClient : IDisposable
     /// <summary>The results of the last round.</summary>
     public MatchResults? Results { get; private set; }
 
+    public OpenScct.Net.Scoreboards.RoundScoreboard? LastScoreboard { get; private set; }
+    public int LastScoreboardLocalParticipantId { get; private set; } = -1;
+
     /// <summary>The attempt that reached the server (its kind tells whether the relay carries the game).</summary>
     public JoinAttempt? ConnectedVia { get; private set; }
 
@@ -598,6 +601,8 @@ public sealed partial class OnlineClient : IDisposable
         CurrentMap = map;
         ApplyPractice();
         session.SessionLineReceived += OnLine;
+        session.ScoreboardReceived += OnScoreboard;
+        session.HistoricalScoreboardReceived += OnHistoricalScoreboard;
         session.ChatReceived += OnChat;
         SessionStarted?.Invoke(session);
     }
@@ -632,6 +637,8 @@ public sealed partial class OnlineClient : IDisposable
 
         SessionEnding?.Invoke(session);
         session.SessionLineReceived -= OnLine;
+        session.ScoreboardReceived -= OnScoreboard;
+        session.HistoricalScoreboardReceived -= OnHistoricalScoreboard;
         session.ChatReceived -= OnChat;
         Session = null;
         if (Voice is { } voice)
@@ -819,6 +826,7 @@ public sealed partial class OnlineClient : IDisposable
             case "results":
                 Results = new MatchResults
                 {
+                    Scoreboard = Session?.Scoreboard,
                     WinningTeam = SessionProtocol.Int(f, 0, 255), WinningReason = SessionProtocol.Int(f, 1, 255),
                     ObjectivesTaken = SessionProtocol.Int(f, 2), ObjectivesNeeded = SessionProtocol.Int(f, 3),
                     GamesLeft = SessionProtocol.Int(f, 4), Map = SessionProtocol.Text(f, 5), Rows = _rows.ToArray(),

@@ -16,7 +16,7 @@ public static class SafeDelete
         ArgumentException.ThrowIfNullOrEmpty(mustBeUnder);
         string full = Path.TrimEndingDirectorySeparator(Path.GetFullPath(path));
         string root = Path.TrimEndingDirectorySeparator(Path.GetFullPath(mustBeUnder)) + Path.DirectorySeparatorChar;
-        if (!full.StartsWith(root, StringComparison.OrdinalIgnoreCase) || full.Length <= root.Length)
+        if (!full.StartsWith(root, OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal) || full.Length <= root.Length)
         {
             throw new InvalidOperationException($"Refusing to delete '{full}': it is not inside '{root}'.");
         }

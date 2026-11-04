@@ -45,7 +45,7 @@ public sealed class UpdateServiceTests
 
     private static (UpdateService Service, VersionStore Store, LauncherLayout Layout, FakeGames Games, HttpClient Http) Create(TempDir dir, FakeGitHub github)
     {
-        var layout = new LauncherLayout(dir.Combine("root"));
+        var layout = new LauncherLayout(dir.Combine("root"), LauncherPlatform.WindowsX64);
         var store = new VersionStore(layout);
         var http = new HttpClient(new FakeHandler(github.Respond));
         var games = new FakeGames();

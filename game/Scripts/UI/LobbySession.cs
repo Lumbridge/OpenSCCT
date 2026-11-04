@@ -55,6 +55,8 @@ public sealed record OnlineLobbyPlayer(int Id, string Name, HudSide? Side, bool 
 /// </summary>
 public interface IOnlineLobbySession : ILobbySession
 {
+    OpenScct.Net.Scoreboards.RoundScoreboard? LastScoreboard => null;
+    int LastScoreboardLocalParticipantId => -1;
     bool RecordDemos => false;
     string DemoRecordingStatus => string.Empty;
     void SetRecordDemos(bool enabled) { }

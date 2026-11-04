@@ -78,6 +78,7 @@ public partial class LobbyRoomScreen
         _overviewRules = LobbyPanels.Text(); overview.AddChild(_overviewRules);
         _overviewObjective = LobbyPanels.Text(); _overviewObjective.Visible = false; overview.AddChild(_overviewObjective);
         _draftStatus = LobbyPanels.Text(); _draftStatus.Visible = false; overview.AddChild(_draftStatus);
+        BuildLastGame(overview);
 
         var chat = LobbyPanels.Card(right, "Chat", "Chat & activity");
         ((Control)chat.GetParent()).SizeFlagsVertical = SizeFlags.ExpandFill;

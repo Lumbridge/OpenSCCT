@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.InteropServices;
 using Godot;
 
 namespace OpenScctGame.Audio;
@@ -12,11 +13,13 @@ public sealed class AudioMixCapture : IDisposable
     private readonly AudioEffectCapture _effect = new() { BufferLength = 2f };
     private readonly List<Vector2> _frames = [];
     private readonly int _limit = (int)(AudioServer.GetMixRate() * 15);
-    public AudioMixCapture(string bus)
+    public int Frames => _frames.Count;
+    public ReadOnlySpan<Vector2> Samples => CollectionsMarshal.AsSpan(_frames);
+    public AudioMixCapture(string bus, int effectIndex = -1)
     {
         _bus = AudioServer.GetBusIndex(bus);
         if (_bus < 0) throw new ArgumentException("Audio bus is missing: " + bus, nameof(bus));
-        AudioServer.AddBusEffect(_bus, _effect);
+        AudioServer.AddBusEffect(_bus, _effect, effectIndex);
     }
 
     public void Reset()

@@ -576,6 +576,9 @@ public partial class SPlayerController
                     PlayerReplicationInfo, mercPc?.PlayerReplicationInfo);
                 if (mercAlive)
                 {
+                    if (Role == ENetRole.ROLE_Authority && mercPc is not null &&
+                        SGameInfo.TeamIndexOf(this) != SGameInfo.TeamIndexOf(mercPc))
+                        PlayerReplicationInfo?.Stats?.AddFeat(FeatKeys.SpyGrabKos);
                     mercPc?.eventMirrorState(GNAME_s_GrabbedByPlayer_Released_KO);
                 }
 
