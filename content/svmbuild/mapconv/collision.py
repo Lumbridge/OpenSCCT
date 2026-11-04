@@ -307,7 +307,7 @@ class CollisionBuilder:
 
     def add_world(self) -> Optional[modeltail.Model]:
         src = self.src
-        ref = src.header.model_a or src.header.model_b
+        ref = src.header.world_model
         if not ref:
             src.notes.add("no-world-model", src.name)
             return None

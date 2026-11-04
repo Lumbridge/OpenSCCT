@@ -181,7 +181,7 @@ def zone_distances(src) -> list[list[int]]:
     numbers (the collision ZONE records). The occlusion and the ambient range of the sound system scale with it."""
     from ..sources import modeltail  # noqa: PLC0415
 
-    ref = src.header.model_a or src.header.model_b
+    ref = src.header.world_model
     if not ref:
         return []
     model = modeltail.read_model(src.pkg, src.pkg.exports[ref - 1])

@@ -1,7 +1,7 @@
 """Full read of a UModel (world BSP or brush) for collision: the node fields and the zone table that
 scctpkg.bsp.read_model skips.
 
-Same layout as scctpkg/bsp.py and scctpkg/bsplight.py document (cooked SCCT maps, package version 300):
+Same layout as scctpkg/bsp.py and scctpkg/bsplight.py document (package version 300, editor and cooked copies):
 
     tagged properties (None), FBox (25), FSphere (16)
     Vectors, Points            compact n, n x f32[3]
@@ -10,7 +10,9 @@ Same layout as scctpkg/bsp.py and scctpkg/bsplight.py document (cooked SCCT maps
                                u8 iZone[0] (back), u8 iZone[1] (front), u8 NumVertices, i32 iLeaf[2], i32 iSection,
                                i32 iFirstVertex, i32 iLightMap
     Surfs                      compact n, each: compact Material, u32 PolyFlags, compact pBase, vNormal, vTextureU,
-                               vTextureV, f32[4], f32 LightMapScale, f32, then an FPoly when PolyFlags & 0x0C000000
+                               vTextureV, f32[4], f32 LightMapScale PSX2 and XBOX, then (scctpkg.bsp.skip_surf_tail)
+                               an FPoly when PolyFlags & 0x0C000000 in a cooked copy, an FPoly, objref Actor and compact
+                               iBrushPoly on every surface in an editor copy
     Verts                      compact n, each: compact pVertex, compact iSide
     i32 NumSharedSides, i32 NumZones, NumZones x {compact ZoneActor, u64 Connectivity, u32}
     compact Polys, Bounds (compact n, n x FBox), LeafHulls (compact n, n x i32), then data not read here.
@@ -151,9 +153,10 @@ def _vec_array(r, what: str) -> np.ndarray:
 
 def read_model(pkg, export) -> Model:
     import_formats()
-    from scctpkg.bsp import read_fpoly  # noqa: PLC0415
+    from scctpkg.bsp import EDITOR, skip_surf_tail  # noqa: PLC0415
     from scctpkg.properties import read_properties, skip_state_frame  # noqa: PLC0415
 
+    editor = pkg.layout == EDITOR
     r = pkg.export_reader(export)
     skip_state_frame(r, export.flags)
     read_properties(r)
@@ -185,8 +188,7 @@ def read_model(pkg, export) -> Model:
         r.raw(16)
         r.f32()
         r.f32()
-        if pf & 0x0C000000:
-            read_fpoly(r)
+        skip_surf_tail(r, pf, editor)
         surfs.append(ModelSurf(material, pf, base, normal, tu, tv))
     n = r.compact()
     if n < 0 or n * 2 > r.remaining():
