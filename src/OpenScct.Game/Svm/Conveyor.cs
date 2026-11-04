@@ -128,6 +128,12 @@ public sealed partial class Conveyor : Actor, IConveyor
     /// <summary>Material of the frame and walls the editor builds (the belt, steps and drums use BeltMaterial).</summary>
     public AssetRef FrameMaterial;
 
+    /// <summary>
+    /// The conveyor this one's open end hands its items to, where the end meets it: chains and merges. Riders walk on
+    /// from one conveyor to the next without it.
+    /// </summary>
+    public Conveyor? Next;
+
     /// <summary>Distance travelled at <see cref="ChangeTick"/> (replicated): the belt's phase is continuous across changes.</summary>
     public float PhaseAtChange;
 
@@ -157,7 +163,14 @@ public sealed partial class Conveyor : Actor, IConveyor
         bBlockZeroExtentTraces = false;
         bBlockNonZeroExtentTraces = false;
         bBlockCamera = false;
+        // The belt's hum, heard from the nearest point of its path while it runs (spec/additions/conveyors.md#sound).
+        AmbientSound = new AssetRef(DefaultSound);
+        SoundRadius = 32f;
+        SoundVolume = 96;
     }
+
+    /// <summary>A stock machine loop: a steady hum with a rattle.</summary>
+    public const string DefaultSound = "Amb_Krauser.Ambiances.Krau_machine1";
 
     /// <summary>The path in world space (built at begin play; the actor never moves).</summary>
     public ConveyorPath WorldPath => _worldPath ??= BuildWorldPath();
@@ -177,6 +190,29 @@ public sealed partial class Conveyor : Actor, IConveyor
     /// </summary>
     public double PhaseAt(double tick) =>
         PhaseAtChange + (tick >= ChangeTick ? SurfaceSpeed : SpeedBeforeChange) * (tick - ChangeTick) * Sim.DeltaTime;
+
+    /// <summary>The point of the path nearest <paramref name="point"/> (flat), where the belt's sound comes from.</summary>
+    public FVector NearestOnPath(FVector point) =>
+        WorldPath.Project(point, float.MaxValue, out ConveyorProjection at) ? at.Surface : Location;
+
+    /// <summary>
+    /// The height of the escalator tread under a body of <paramref name="radius"/> whose lowest point is
+    /// <paramref name="feet"/>, at server tick <paramref name="tick"/>; false when this is not an escalator or the
+    /// body is not standing on it. Riders walk on the slope through the steps' inner corners; their meshes are drawn
+    /// with their feet on this tread.
+    /// </summary>
+    public bool TryTreadUnder(FVector feet, float radius, double tick, out float tread)
+    {
+        tread = 0f;
+        if (Look != EConveyorLook.CL_Escalator || !WorldPath.Project(feet, HalfWidth + radius * ConveyorK.EdgeOverhang, ConveyorK.RideBelow,
+                ConveyorK.RideAbove, radius, out ConveyorProjection at))
+        {
+            return false;
+        }
+
+        tread = ConveyorSteps.TreadAt(WorldPath, at.Along, PhaseAt(tick));
+        return true;
+    }
 
     /// <summary>The world path of the stored points (the actor's location and rotation applied).</summary>
     public ConveyorPath BuildWorldPath()

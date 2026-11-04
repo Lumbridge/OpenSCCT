@@ -2,11 +2,16 @@ using System;
 using System.Collections.Generic;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
+using OpenScct.Game.Svm;
 using OpenScct.Physics.Collision;
 
 namespace OpenScctGame.Audio;
 
-/// <summary>An actor's ambient loop as the sound system sees it this frame (spec/native/audio.md rule 19).</summary>
+/// <summary>
+/// An actor's ambient loop as the sound system sees it this frame (spec/native/audio.md rule 19). A source that does
+/// not <paramref name="Follow"/> its actor sits where <paramref name="Location"/> says each frame (a conveyor's sound
+/// comes from the point of its path nearest the listener).
+/// </summary>
 public readonly record struct AmbientSource(
     int ActorId,
     string Id,
@@ -18,7 +23,8 @@ public readonly record struct AmbientSource(
     bool IsZone,
     int LightType,
     float LightBrightness,
-    byte SoundOcclusion = 0);
+    byte SoundOcclusion = 0,
+    bool Follow = true);
 
 /// <summary>
 /// What lies between the listener and a source (rule 18): the first surface seen from each end, its location, its
@@ -43,8 +49,8 @@ public interface IAudioWorld
         return false;
     }
 
-    /// <summary>Every actor whose AmbientSound is set now.</summary>
-    void CollectAmbient(List<AmbientSource> into);
+    /// <summary>Every actor whose AmbientSound plays now, for a listener at <paramref name="listener"/>.</summary>
+    void CollectAmbient(List<AmbientSource> into, FVector listener);
 
     /// <summary>The map id of the ZoneInfo whose zone holds the point, or null.</summary>
     string? ZoneIdAt(FVector location);
@@ -89,7 +95,7 @@ public sealed class LevelAudioWorld(Level level, ICollisionWorld? collision, Fun
             bones.TryGetBone(pawn, bone, out location, out _);
     }
 
-    public void CollectAmbient(List<AmbientSource> into)
+    public void CollectAmbient(List<AmbientSource> into, FVector listener)
     {
         ArgumentNullException.ThrowIfNull(into);
         // Indexed, not foreach over the interface (a boxed enumerator every frame).
@@ -99,6 +105,18 @@ public sealed class LevelAudioWorld(Level level, ICollisionWorld? collision, Fun
             Actor a = actors[i];
             if (a is null || a.bDeleteMe || a.AmbientSound.IsNone)
             {
+                continue;
+            }
+
+            if (a is Conveyor conveyor)
+            {
+                // A belt hums while it runs, from the point of its path nearest the listener.
+                if (conveyor.SurfaceSpeed != 0f)
+                {
+                    into.Add(new AmbientSource(a.ActorId, mapIdOf?.Invoke(a) ?? SpawnedId(a), conveyor.NearestOnPath(listener),
+                        a.AmbientSound.Path!, a.SoundVolume, a.SoundRadius, a.SoundPitch, false, 0, 0f, (byte)a.SoundOcclusion, Follow: false));
+                }
+
                 continue;
             }
 

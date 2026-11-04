@@ -691,13 +691,20 @@ public partial class PlayRoot : Node3D
             drawnView = new FRotator(pc!.Rotation.Pitch + pending.Pitch, pc.Rotation.Yaw + pending.Yaw, pc.Rotation.Roll);
         }
 
-        Pawns?.Draw(alpha, dt, firstPerson, aimer, drawnView);
-        session.Client.ReportRenderedFrame(alpha);
-        Devices?.Draw(alpha, dt, Pawns);
+        // The conveyors first: riders' feet are drawn on the escalator steps placed for this frame.
         if (session.Client.ViewTimeFixed >= 0)
         {
             Conveyors?.Draw(session.Client.ViewTimeFixed / (double)NetTimeline.Fraction, dt);
         }
+
+        if (Pawns is not null)
+        {
+            Pawns.FeetLift = Conveyors is { Steps: > 0 } conveyors ? conveyors.FeetLift : null;
+        }
+
+        Pawns?.Draw(alpha, dt, firstPerson, aimer, drawnView);
+        session.Client.ReportRenderedFrame(alpha);
+        Devices?.Draw(alpha, dt, Pawns);
         Map?.SoftBodies?.Update(dt, session.Client.World.Level, Audio?.Sound, session.LocalPawn);
         if (Camera is not null)
         {
