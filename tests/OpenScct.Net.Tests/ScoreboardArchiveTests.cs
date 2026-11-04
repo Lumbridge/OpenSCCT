@@ -10,17 +10,50 @@ namespace OpenScct.Net.Tests;
 
 public sealed class ScoreboardArchiveTests : IDisposable
 {
+    [Fact]
+    public void WireOmitsVersionOneZeroCountersWithoutChangingTheirMeaning()
+    {
+        var stats = new Dictionary<string, int> { ["combat.enemy_kills"] = 0, ["spy.objectives"] = 3 };
+        var board = new RoundScoreboard
+        {
+            RoundId = Guid.NewGuid().ToString("N"),
+            Rows = [new() { ParticipantId = 1, Team = 0, Stats = stats }],
+        };
+        var receiver = new ScoreboardWire.Receiver();
+        RoundScoreboard? received = null;
+        foreach (string line in ScoreboardWire.Encode(board, 1))
+        {
+            Assert.True(receiver.Receive(line, out var result, out _, out _));
+            received = result ?? received;
+        }
+        var row = Assert.Single(Assert.IsType<RoundScoreboard>(received).Rows);
+        var decodedStats = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(row.Stats);
+        Assert.Equal(0, decodedStats.GetValueOrDefault("combat.enemy_kills"));
+        Assert.Equal(3, decodedStats["spy.objectives"]);
+        Assert.False(decodedStats.ContainsKey("combat.enemy_kills"));
+        Assert.True(stats.ContainsKey("combat.enemy_kills")); // Encoding never mutates the authoritative snapshot.
+    }
+
     private readonly string _directory = Path.Combine(Path.GetTempPath(), "openscct-scoreboard-archive-" + Guid.NewGuid().ToString("N"));
     private ScoreboardArchive Archive => new(_directory);
 
     private static ArchivedScoreboard Entry(bool completed = false) => new()
     {
-        PlayedLocally = true, LocalParticipantId = 7, LeftEarly = !completed, Master = "https://master.test/", AccountId = 17,
+        PlayedLocally = true,
+        LocalParticipantId = 7,
+        LeftEarly = !completed,
+        Master = "https://master.test/",
+        AccountId = 17,
         Scoreboard = new RoundScoreboard
         {
-            RoundId = Guid.NewGuid().ToString("N"), StartedUtc = DateTimeOffset.UtcNow.AddSeconds(-90),
-            EndedUtc = DateTimeOffset.UtcNow, ElapsedSeconds = 90, AsOfSeconds = completed ? 90 : 60,
-            Completed = completed, Partial = !completed, Sequence = 3,
+            RoundId = Guid.NewGuid().ToString("N"),
+            StartedUtc = DateTimeOffset.UtcNow.AddSeconds(-90),
+            EndedUtc = DateTimeOffset.UtcNow,
+            ElapsedSeconds = 90,
+            AsOfSeconds = completed ? 90 : 60,
+            Completed = completed,
+            Partial = !completed,
+            Sequence = 3,
             Rows = [new() { ParticipantId = 7, Name = "Agent", Team = 0,
                 Stats = new Dictionary<string, int> { ["spy.neutralisations"] = completed ? 4 : 2 } }],
         },
@@ -34,10 +67,16 @@ public sealed class ScoreboardArchiveTests : IDisposable
         archive.Save(partial);
         var final = partial with
         {
-            PlayedLocally = false, LocalParticipantId = -1, LeftEarly = false,
+            PlayedLocally = false,
+            LocalParticipantId = -1,
+            LeftEarly = false,
             Scoreboard = partial.Scoreboard with
             {
-                Completed = true, Partial = false, MatchId = 10, ElapsedSeconds = 120, AsOfSeconds = 120,
+                Completed = true,
+                Partial = false,
+                MatchId = 10,
+                ElapsedSeconds = 120,
+                AsOfSeconds = 120,
                 Rows = [partial.Scoreboard.Rows[0] with { Stats = new Dictionary<string, int> { ["spy.neutralisations"] = 5 } }],
             },
         };
@@ -62,11 +101,18 @@ public sealed class ScoreboardArchiveTests : IDisposable
         var archive = Archive;
         var final = Entry(completed: true);
         archive.Save(final);
-        archive.Save(final with { Scoreboard = final.Scoreboard with
+        archive.Save(final with
         {
-            Completed = false, Partial = true, Sequence = 999, ElapsedSeconds = 500, AsOfSeconds = 470,
-            Rows = [final.Scoreboard.Rows[0] with { Stats = null }],
-        } });
+            Scoreboard = final.Scoreboard with
+            {
+                Completed = false,
+                Partial = true,
+                Sequence = 999,
+                ElapsedSeconds = 500,
+                AsOfSeconds = 470,
+                Rows = [final.Scoreboard.Rows[0] with { Stats = null }],
+            }
+        });
         var stored = Assert.Single(archive.ReadAll());
         Assert.True(stored.Scoreboard.Completed);
         Assert.Equal(90, stored.Scoreboard.ElapsedSeconds);
@@ -77,11 +123,16 @@ public sealed class ScoreboardArchiveTests : IDisposable
     public void Adding_a_cloud_id_does_not_replace_a_newer_sample_with_older_counters()
     {
         var newer = Entry();
-        var older = newer with { Scoreboard = newer.Scoreboard with
+        var older = newer with
         {
-            MatchId = 3, ElapsedSeconds = 40, AsOfSeconds = 10,
-            Rows = [newer.Scoreboard.Rows[0] with { Stats = null }],
-        } };
+            Scoreboard = newer.Scoreboard with
+            {
+                MatchId = 3,
+                ElapsedSeconds = 40,
+                AsOfSeconds = 10,
+                Rows = [newer.Scoreboard.Rows[0] with { Stats = null }],
+            }
+        };
         var merged = ScoreboardArchive.Merge(newer, older);
         Assert.Equal(90, merged.Scoreboard.ElapsedSeconds);
         Assert.NotNull(merged.Scoreboard.Rows[0].Stats);

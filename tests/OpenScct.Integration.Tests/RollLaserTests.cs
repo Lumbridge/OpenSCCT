@@ -26,38 +26,41 @@ public sealed class RollLaserTests
     [InlineData(true, true)]
     public void ChangingPoseTicksAndShotQueriesReuseBuffersAfterWarmup(bool mirror, bool rootLocked)
     {
-        using var file = new CharacterFixture(headUnderSpine: true);
-        Scene scene = new(file, "CrouchPose");
-        scene.Pawn.PawnAnim.SetBlendAlpha(SBasePawn.DBLJUMPCHANNEL, 0f);
-        scene.Pawn.PawnAnim.PlayAnim(0, new PawnClip(new Name("CrouchPose"), 3, 2f), 1f, 0f, false);
-        scene.Pawn.PawnAnim.SetMirror(0, mirror);
-        scene.Pawn.PawnAnim.Aim.FullYaw = .2f;
-        scene.Pawn.PawnAnim.Directions.SetBoneDirection(new Name("B Spine2"), new FRotator(0, 8192, 0), .5f);
-        scene.Pawn.Physics = rootLocked ? EPhysics.PHYS_RootMotion : EPhysics.PHYS_None;
-        scene.Pawn.iLockRootMotionType = rootLocked ? 1 : 0;
-        var pills = new List<PillShape>(15);
-        long frameBytes = 0, poseBytes = 0, queryBytes = 0;
-        void Sample(int tick)
+        OpenScct.Testing.AllocationProbe.Run(() =>
         {
-            long start = GC.GetAllocatedBytesForCurrentThread();
-            scene.Pawn.PawnAnim.SetFrame(0, tick % 60 / 90f);
-            long frameEnd = GC.GetAllocatedBytesForCurrentThread();
-            scene.Pose.UpdatePose(scene.Pawn);
-            long poseEnd = GC.GetAllocatedBytesForCurrentThread();
-            pills.Clear();
-            scene.Pose.GetPills(scene.Pawn, pills);
-            frameBytes += frameEnd - start;
-            poseBytes += poseEnd - frameEnd;
-            queryBytes += GC.GetAllocatedBytesForCurrentThread() - poseEnd;
-        }
-        for (int i = 0; i < 64; i++) Sample(i);
-        frameBytes = poseBytes = queryBytes = 0;
-        long before = GC.GetAllocatedBytesForCurrentThread();
-        for (int i = 0; i < 128; i++) Sample(i);
-        long allocated = GC.GetAllocatedBytesForCurrentThread() - before;
-        Assert.Equal(15, pills.Count);
-        if (allocated != 0) System.Console.WriteLine($"Allocated: frame={frameBytes}, pose={poseBytes}, query={queryBytes}, outside={allocated - frameBytes - poseBytes - queryBytes}");
-        Assert.Equal(0, allocated);
+            using var file = new CharacterFixture(headUnderSpine: true);
+            Scene scene = new(file, "CrouchPose");
+            scene.Pawn.PawnAnim.SetBlendAlpha(SBasePawn.DBLJUMPCHANNEL, 0f);
+            scene.Pawn.PawnAnim.PlayAnim(0, new PawnClip(new Name("CrouchPose"), 3, 2f), 1f, 0f, false);
+            scene.Pawn.PawnAnim.SetMirror(0, mirror);
+            scene.Pawn.PawnAnim.Aim.FullYaw = .2f;
+            scene.Pawn.PawnAnim.Directions.SetBoneDirection(new Name("B Spine2"), new FRotator(0, 8192, 0), .5f);
+            scene.Pawn.Physics = rootLocked ? EPhysics.PHYS_RootMotion : EPhysics.PHYS_None;
+            scene.Pawn.iLockRootMotionType = rootLocked ? 1 : 0;
+            var pills = new List<PillShape>(15);
+            long frameBytes = 0, poseBytes = 0, queryBytes = 0;
+            void Sample(int tick)
+            {
+                long start = GC.GetAllocatedBytesForCurrentThread();
+                scene.Pawn.PawnAnim.SetFrame(0, tick % 60 / 90f);
+                long frameEnd = GC.GetAllocatedBytesForCurrentThread();
+                scene.Pose.UpdatePose(scene.Pawn);
+                long poseEnd = GC.GetAllocatedBytesForCurrentThread();
+                pills.Clear();
+                scene.Pose.GetPills(scene.Pawn, pills);
+                frameBytes += frameEnd - start;
+                poseBytes += poseEnd - frameEnd;
+                queryBytes += GC.GetAllocatedBytesForCurrentThread() - poseEnd;
+            }
+            for (int i = 0; i < 64; i++) Sample(i);
+            frameBytes = poseBytes = queryBytes = 0;
+            long before = GC.GetAllocatedBytesForCurrentThread();
+            for (int i = 0; i < 128; i++) Sample(i);
+            long allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+            Assert.Equal(15, pills.Count);
+            if (allocated != 0) System.Console.WriteLine($"Allocated: frame={frameBytes}, pose={poseBytes}, query={queryBytes}, outside={allocated - frameBytes - poseBytes - queryBytes}");
+            Assert.Equal(0, allocated);
+        });
     }
 
     [Theory]
@@ -391,7 +394,11 @@ public sealed class RollLaserTests
             Alarm = World.Level.SpawnActor(new AlarmReceiver { Tag = new Name("roll-alarm") }, default, default)!;
             Laser = World.Level.SpawnActor(new SLaserTrigger
             {
-                bStatic = false, bNoDelete = false, SpawnPerCent = 100, Event = new Name("roll-alarm"), LaserLength = 400,
+                bStatic = false,
+                bNoDelete = false,
+                SpawnPerCent = 100,
+                Event = new Name("roll-alarm"),
+                LaserLength = 400,
             }, new FVector(-200, 0, 50), default)!;
             SetBeamHeight(50f);
         }

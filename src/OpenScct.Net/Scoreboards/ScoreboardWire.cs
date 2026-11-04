@@ -5,6 +5,8 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Text.Json;
+using System.Text.Json.Serialization;
+using System.Text.Json.Serialization.Metadata;
 
 namespace OpenScct.Net.Scoreboards;
 
@@ -14,11 +16,37 @@ public static class ScoreboardWire
     public const int MaxJsonBytes = 1024 * 1024;
     public const int MaxCompressedBytes = 262144;
     private const int ChunkBytes = 300;
-    private static readonly JsonSerializerOptions Json = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+    private static readonly JsonSerializerOptions Json = CreateJsonOptions();
+
+    private static JsonSerializerOptions CreateJsonOptions()
+    {
+        var resolver = new DefaultJsonTypeInfoResolver();
+        resolver.Modifiers.Add(info =>
+        {
+            if (info.Type != typeof(ScoreboardPlayer)) return;
+            foreach (var property in info.Properties)
+                if (property.Name is "team" or "score" or "kills" or "deaths" or "lives" or "objectives" or "rank" or "pingMs" or "bot" or "leftEarly")
+                    property.ShouldSerialize = (_, value) => value is not 0 and not false;
+        });
+        return new()
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+            TypeInfoResolver = resolver
+        };
+    }
 
     public static IReadOnlyList<string> Encode(RoundScoreboard board, int localParticipantId, bool historical = false)
     {
-        byte[] json = JsonSerializer.SerializeToUtf8Bytes(board, Json);
+        // Version 1 defines missing counters as zero. Keep the full server snapshot, but
+        // avoid repeatedly transmitting dozens of zero counters for every participant.
+        var wireBoard = board with
+        {
+            Rows = board.Rows.Select(row => row.StatsVersion == 1 && row.Stats is not null
+                ? row with { Stats = row.Stats.Where(counter => counter.Value != 0).ToDictionary(counter => counter.Key, counter => counter.Value) }
+                : row).ToArray(),
+        };
+        byte[] json = JsonSerializer.SerializeToUtf8Bytes(wireBoard, Json);
         if (json.Length > MaxJsonBytes) throw new InvalidDataException("Scoreboard exceeds the transfer limit.");
         using var packed = new MemoryStream();
         using (var compression = new BrotliStream(packed, CompressionLevel.Optimal, leaveOpen: true)) compression.Write(json);

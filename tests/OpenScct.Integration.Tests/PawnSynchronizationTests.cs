@@ -292,38 +292,41 @@ public sealed class PawnSynchronizationTests
     [Fact]
     public void ModernPawnCaptureAndReliableTransitionsAllocateNoServerMemoryAfterWarmup()
     {
-        using var rig = WalkerRig.Create(SimLinkProfile.Ping200, 38, 1,
-            new ServerSettings { SpawnWalkers = false, Profile = NetProfile.Enhanced }, new ClientSettings { Gameplay = true });
-        Level level = rig.Server.World.Level;
-        rig.Server.PlayerJoined += slot =>
+        OpenScct.Testing.AllocationProbe.Run(() =>
         {
-            var pc = level.Spawn<PlayerController>()!;
-            pc.Player = new SimNetConnection(); pc.RemoteRole = ENetRole.ROLE_AutonomousProxy;
-            slot.Connection.Actor = pc;
-        };
-        level.SetService(new MovementService());
-        var pawn = level.Spawn<SPawnAttaque>()!;
-        pawn.RemoteRole = ENetRole.ROLE_SimulatedProxy; pawn.bAlwaysRelevant = true; pawn.Physics = EPhysics.PHYS_None;
-        PawnClip? wait = PawnActions.Clip(pawn, new Name("WaitStAlFd0"));
-        PawnClip? walk = PawnActions.Clip(pawn, new Name("WalkStAlFd0"));
-        rig.Server.BeforeWorldTick += host =>
-        {
-            pawn.Location = new FVector(host.World.TickCount, 0, 1000);
-            if (host.World.TickCount % 30 == 0)
-                pawn.PawnAnim.Play(0, host.World.TickCount % 60 == 0 ? wait : walk, 1f, 0f, loop: true);
-        };
-        for (int i = 0; i < 600; i++) rig.Step();
-        long allocated = 0;
-        for (int i = 0; i < 600; i++)
-        {
-            long before = GC.GetAllocatedBytesForCurrentThread();
-            rig.TickServerOnly();
-            allocated += GC.GetAllocatedBytesForCurrentThread() - before;
-            rig.TickClients(null);
-        }
-        Assert.Equal(0, allocated);
-        Assert.InRange(rig.SimLink!.MaximumDatagramBytes, 1, rig.Server.Driver.MaxPacketBytes);
-        Assert.True(rig.Clients[0].PawnStates!.AnimationRecords > 30);
+            using var rig = WalkerRig.Create(SimLinkProfile.Ping200, 38, 1,
+                new ServerSettings { SpawnWalkers = false, Profile = NetProfile.Enhanced }, new ClientSettings { Gameplay = true });
+            Level level = rig.Server.World.Level;
+            rig.Server.PlayerJoined += slot =>
+            {
+                var pc = level.Spawn<PlayerController>()!;
+                pc.Player = new SimNetConnection(); pc.RemoteRole = ENetRole.ROLE_AutonomousProxy;
+                slot.Connection.Actor = pc;
+            };
+            level.SetService(new MovementService());
+            var pawn = level.Spawn<SPawnAttaque>()!;
+            pawn.RemoteRole = ENetRole.ROLE_SimulatedProxy; pawn.bAlwaysRelevant = true; pawn.Physics = EPhysics.PHYS_None;
+            PawnClip? wait = PawnActions.Clip(pawn, new Name("WaitStAlFd0"));
+            PawnClip? walk = PawnActions.Clip(pawn, new Name("WalkStAlFd0"));
+            rig.Server.BeforeWorldTick += host =>
+            {
+                pawn.Location = new FVector(host.World.TickCount, 0, 1000);
+                if (host.World.TickCount % 30 == 0)
+                    pawn.PawnAnim.Play(0, host.World.TickCount % 60 == 0 ? wait : walk, 1f, 0f, loop: true);
+            };
+            for (int i = 0; i < 600; i++) rig.Step();
+            long allocated = 0;
+            for (int i = 0; i < 600; i++)
+            {
+                long before = GC.GetAllocatedBytesForCurrentThread();
+                rig.TickServerOnly();
+                allocated += GC.GetAllocatedBytesForCurrentThread() - before;
+                rig.TickClients(null);
+            }
+            Assert.Equal(0, allocated);
+            Assert.InRange(rig.SimLink!.MaximumDatagramBytes, 1, rig.Server.Driver.MaxPacketBytes);
+            Assert.True(rig.Clients[0].PawnStates!.AnimationRecords > 30);
+        });
     }
 
     [Theory]
@@ -373,8 +376,13 @@ public sealed class PawnSynchronizationTests
             for (int i = 0; i < PawnAnimation.ChannelCount; i++)
                 new NetworkAnimChannel
                 {
-                    Sequence = new Name(reset ? "WalkStAlFd0" : "WaitStAlFd0"), StartBone = new Name("B Spine1"),
-                    Frame = 0.25f, Alpha = 0.6f, Loop = true, Mirror = true, Serial = reset ? 9 : 3,
+                    Sequence = new Name(reset ? "WalkStAlFd0" : "WaitStAlFd0"),
+                    StartBone = new Name("B Spine1"),
+                    Frame = 0.25f,
+                    Alpha = 0.6f,
+                    Loop = true,
+                    Mirror = true,
+                    Serial = reset ? 9 : 3,
                 }.Apply(pawn, i, presentationOnly: false);
             pawn.NetworkRootMotion.Restore(new PawnRootMotion.State(3, new FVector(reset ? -1 : 1, 2, 3),
                 new FVector(4, -5, 6.125f), reset ? -13.25f : 13f, reset ? -123 : 123, reset ? -12 : 12, reset ? 9 : 3));

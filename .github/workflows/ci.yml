@@ -19,8 +19,6 @@ env:
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: "1"
   NUGET_XMLDOC_MODE: skip
   DOTNET_PROCESSOR_COUNT: "2"
-  # MTP may select its own host runtimeconfig; apply steady optimized JIT to every test process.
-  DOTNET_TieredCompilation: "0"
 
 jobs:
   linux:
