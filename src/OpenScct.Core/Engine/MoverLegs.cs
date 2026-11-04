@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace OpenScct.Core.Engine;
 
@@ -44,6 +45,9 @@ public sealed class MoverLegs
     /// way), or null for the mover's own time (no entry, or keys that are not neighbours).</summary>
     public float? LegTime(int a, int b) =>
         Math.Abs(a - b) == 1 && Math.Max(a, b) < Keys.Count ? Keys[Math.Max(a, b)].Time : null;
+
+    /// <summary>The longest leg time: <paramref name="moveTime"/> or a longer own time.</summary>
+    public float Longest(float moveTime) => Keys.Aggregate(moveTime, (longest, k) => Math.Max(longest, k.Time ?? 0f));
 
     /// <summary>True when the mover eases at <paramref name="key"/>: its own setting, else the mover's glide.</summary>
     public bool SmoothAt(int key, bool moverGlides) =>

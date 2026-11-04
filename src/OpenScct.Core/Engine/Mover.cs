@@ -187,16 +187,11 @@ public partial class Mover
     {
         OldPos = SimOldPos;
         PhysAlpha = SimInterpolate.X * 0.01f;
-        PhysRate = SimInterpolate.Y * 0.01f;
         int keys = (int)SimInterpolate.Z;
         KeyNum = (byte)SvmMath.Clamp(keys & 0xff, 0, MoverK.MaxKeys - 1);
         PrevKeyNum = (byte)SvmMath.Clamp((keys >> 8) & 0xff, 0, MoverK.MaxKeys - 1);
-        if (Legs is { } legs)
-        {
-            // The server's rate already carries the leg's own time; the easing comes from the same map file.
-            PickLegEasing(legs);
-        }
-
+        // OpenSCCT: a leg's own time and easing come from the map file (spec/additions/mover-legs.md).
+        PhysRate = ClientLegRate(SimInterpolate.Y * 0.01f);
         OldRot = NearestTurn(Rotation, BaseRot + KeyRot[PrevKeyNum]);
         SetPhysics(EPhysics.PHYS_MovingBrush);
         bInterpolating = true;
