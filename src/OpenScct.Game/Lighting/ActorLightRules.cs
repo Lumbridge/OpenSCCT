@@ -146,13 +146,18 @@ public static class ActorLightRules
 
     /// <summary>
     /// Whether a light in zone <paramref name="lightZone"/> may light an actor in zone <paramref name="actorZone"/>:
-    /// a bAffectOwnZoneOnly light only in its own zone (the gather tests light+0x2e8 bit 0x200 against the zone byte
-    /// at +0x1b4), and so does a sun. Build links a sun (LightEffect 19) into the per-leaf light list of every leaf of
-    /// the sun leaf's zone and of no other (FEditorVisibility::ActorVisibility, editor 0x1101b050, the cmp at
-    /// 0x1101b126), and the gather (game 0x10a37610, editor 0x111a7300) reads only the lists of the leaves the actor
-    /// touches, so its exemption from the radius test never reaches another zone. Unknown zones (-1) admit the light.
+    /// a bAffectOwnZoneOnly light only in its own zone (the gather, game 0x10a37934, tests light+0x2e8 bit 0x200 and
+    /// then compares the zone bytes at +0x1b4), and here a sun too. The gather has no zone test of its own for a sun
+    /// (LightEffect 19): Build links a sun into the per-leaf light list of every leaf of the sun leaf's zone and of no
+    /// other (FEditorVisibility::ActorVisibility, editor 0x1101b050, the cmp at 0x1101b126), and the gather (game
+    /// 0x10a37610, editor 0x111a7300) reads only the lists of the leaves the actor touches, so the sun's exemption from
+    /// the radius test keeps to its zone. The leaves OpenSCCT takes as touched (the bounds sphere down the world BSP)
+    /// reach through thin walls into the next zone, so the sun is also held to the actor's zone at its centre: with the
+    /// leaf lists alone, PolaD's first-aid cabinet SInfirmary7655 beside the spy start (ZoneInfo1365, an outdoor wall
+    /// behind it) takes the sun Light13074 of ZoneInfo231, which the original's golden capture shows unlit. Unknown
+    /// zones (-1) admit the light.
     /// </summary>
-    [Provenance(ProvenanceKind.Decoded, "own zone: game 0x10a37610; suns per zone: editor 0x1101b050 / 0x111a7300 (cooked PolaD, ClarD, DeftD, ShadD lists)")]
+    [Provenance(ProvenanceKind.Decoded, "own zone: game 0x10a37934; suns per zone: editor 0x1101b050 / 0x111a7300 (cooked PolaD, ClarD, DeftD, ShadD lists)")]
     public static bool ZoneAdmits(int effect, bool ownZoneOnly, int lightZone, int actorZone) =>
         !(ownZoneOnly || effect == LE_Sunlight) || actorZone < 0 || lightZone < 0 || actorZone == lightZone;
 

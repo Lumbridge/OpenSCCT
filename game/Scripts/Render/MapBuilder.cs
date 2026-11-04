@@ -109,8 +109,11 @@ public sealed class GameplayMesh
 
     public float Radius { get; init; }
 
-    /// <summary>Actor.bSpecialLit: only lights with the same flag light it (<see cref="ActorLightRules.LightsActor"/>).</summary>
-    public bool SpecialLit { get; init; }
+    /// <summary>
+    /// Actor.bSpecialLit: only lights with the same flag light it (<see cref="ActorLightRules.LightsActor"/>); null when
+    /// the map's content does not say (a plain static mesh of a conversion made before the flag was exported).
+    /// </summary>
+    public bool? SpecialLit { get; init; }
 
     /// <summary>The light actor names of its IgnoredEchelonLights, or null.</summary>
     public IReadOnlySet<string>? IgnoredLights { get; init; }
@@ -308,7 +311,7 @@ public sealed class RenderMap
     /// Light set of an actor at <paramref name="location"/> (zone ambient, AmbientGlow, own-zone lights), with its
     /// bSpecialLit and the light names of its IgnoredEchelonLights (pawns have neither).
     /// </summary>
-    public ActorLightSet LightActor(FVector location, float radius, int ambientGlow, bool specialLit = false,
+    public ActorLightSet LightActor(FVector location, float radius, int ambientGlow, bool? specialLit = false,
         IReadOnlySet<string>? ignored = null) =>
         ActorLighting.Select(location, radius, AmbientAt(location, ambientGlow), ZoneIndexAt(location), specialLit, ignored);
 
@@ -536,6 +539,7 @@ public static class MapBuilder
         private readonly Dictionary<(string Mesh, LightSource Light, int Glow), ArrayMesh> _shared = [];
         private readonly Node3D _static = new() { Name = "Static" };
         private readonly Node3D _gameplay = new() { Name = "Gameplay" };
+        private bool _specialLitExported;
 
         public Builder(RenderMap map, GlbDocument glb, RenderOptions options)
         {
@@ -559,6 +563,12 @@ public static class MapBuilder
             if (_glb.Root.TryGetProperty("extras", out JsonElement extras) && extras.TryGetProperty("svmap", out JsonElement svmap)
                 && svmap.TryGetProperty("instances", out JsonElement instances))
             {
+                _specialLitExported = File.Exists(Path.Combine(_map.Folder, LeafLights.FileName));
+                foreach (JsonElement inst in instances.EnumerateArray())
+                {
+                    _specialLitExported |= inst.TryGetProperty("special_lit", out _) || inst.TryGetProperty("specialLit", out _);
+                }
+
                 foreach (JsonElement inst in instances.EnumerateArray())
                 {
                     AddInstance(inst);
@@ -915,7 +925,7 @@ public static class MapBuilder
             bool unlit = Bool(inst, "unlit");
             int glow = inst.TryGetProperty("ambientGlow", out JsonElement g) ? g.GetInt32() : 0;
             int echelon = EchelonOf(inst, out IReadOnlySet<string>? ignoredLights);
-            bool specialLit = Bool(inst, "specialLit") || Bool(inst, "special_lit");
+            bool? specialLit = SpecialLitOf(inst, actor);
             FVector location = Vec(inst, "location");
             FRotator rotation = Rot(inst, "rotation");
             FVector scale = inst.TryGetProperty("scale", out _) ? Vec(inst, "scale") : new FVector(1f, 1f, 1f);
@@ -1015,6 +1025,30 @@ public static class MapBuilder
         private static byte ToByte(float v) => (byte)Math.Clamp((int)MathF.Round(v * 255f), 0, 255);
 
         /// <summary>
+        /// An instance's bSpecialLit: its "special_lit" extra (written only when true), else for a placed actor its
+        /// sim/gameplay.json value over the class defaults, else false when the conversion exports the flag (it writes
+        /// render/leaflights.json alongside, or some instance carries it) and null (unknown: no light is skipped for it)
+        /// for a conversion made before.
+        /// </summary>
+        private bool? SpecialLitOf(JsonElement inst, string actor)
+        {
+            foreach (string key in (ReadOnlySpan<string>)["special_lit", "specialLit"])
+            {
+                if (inst.TryGetProperty(key, out JsonElement v) && v.ValueKind is JsonValueKind.True or JsonValueKind.False)
+                {
+                    return v.GetBoolean();
+                }
+            }
+
+            if (actor.Length > 0 && _map.Actors.Find(actor) is { } placed)
+            {
+                return placed.Bool("bSpecialLit");
+            }
+
+            return _specialLitExported ? false : null;
+        }
+
+        /// <summary>
         /// An instance's Echelon code (<see cref="RenderMap.EchelonCode"/>) from its extras "echelonIgnore" (the
         /// flags) and "ignoredEchelonLights" (light actor names, also returned in <paramref name="ignored"/>, as they skip
         /// ordinary lights too); 0 for maps converted before they were exported.
@@ -1076,7 +1110,7 @@ public static class MapBuilder
         }
 
         private void AddGameplay(string actor, string cls, string meshName, int mesh, in Transform3D transform, FVector location,
-            LightSource light, int glow, bool hidden, Vector4 vision, int echelon, bool specialLit, IReadOnlySet<string>? ignoredLights)
+            LightSource light, int glow, bool hidden, Vector4 vision, int echelon, bool? specialLit, IReadOnlySet<string>? ignoredLights)
         {
             int glowKey = light == LightSource.Vertex ? glow : 0;
             // Vertex-lit gameplay meshes carry their zones per vertex, so they are not shared between actors.

@@ -74,33 +74,8 @@ public sealed partial class CollisionWorld : IZoneRegions
         return 0;
     }
 
-    /// <summary>
-    /// The world BSP node a point ends at and its side, as <see cref="GetZoneIndex"/> walks it (front when the plane
-    /// distance is not negative): the node's index from the world collider's first node, or false without a world BSP.
-    /// The side's leaf is that node's iLeaf[side] in the original (SVMap BSPN keeps no leaf numbers).
-    /// </summary>
-    [PortOf("nat:UModel::PointRegion", Spec = "spec/svmap/1.0/collision.md#zone-zones-stride-32")]
-    public bool TryPointLeafNode(FVector Location, out int node, out bool front)
-    {
-        node = -1;
-        front = false;
-        if (_bspRoot < 0)
-        {
-            return false;
-        }
-
-        int at = _bspRoot;
-        for (int guard = 0; at >= 0 && guard <= _bsp.Length; guard++)
-        {
-            node = at;
-            CollisionBspNode n = _bsp[at];
-            front = n.Plane.PlaneDot(Location) >= 0f;
-            at = front ? n.Front : n.Back;
-        }
-
-        node -= _bspRoot;
-        return node >= 0;
-    }
+    /// <summary>The node count of the world collider's BSP (the level model), 0 without one.</summary>
+    public int WorldBspNodeCount => _bspNodeCount;
 
     /// <summary>
     /// Every world BSP leaf side a sphere touches: descends both children where the sphere straddles a node's plane and

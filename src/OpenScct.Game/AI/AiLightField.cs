@@ -75,7 +75,8 @@ public readonly record struct AiRgb(float R, float G, float B)
 /// light only where a leaf the pawn touches lists it, scaled by their light type), saturating at 2, plus every spot
 /// shadow light whose frustum holds the pawn and whose line to it is open (the map's projectors and the merc torches),
 /// saturating at 2 again. The level is the luminance of that term on the side of the target that faces the viewer, so
-/// a spy lit from behind stays dark to a merc in front of it. Map lights follow their STriggerLight switches.
+/// a spy lit from behind stays dark to a merc in front of it. Map lights follow their STriggerLight switches, and a
+/// light whose actor is a mover or rides one follows its moves (<see cref="AddFollower"/>).
 /// <para>Godot-free and deterministic: the renderer's <c>ActorLighting</c> and <c>SpotShadowLight</c> use the same
 /// <see cref="ActorLightRules"/>.</para>
 /// </summary>
@@ -91,6 +92,7 @@ public sealed class AiLightField
     private readonly Func<FVector, FVector, bool>? _lineOpen;
     private readonly (float Score, int Index)[] _ranked;
     private readonly List<(STriggerLight Actor, string Name, bool? Shown)> _switches = [];
+    private readonly List<(Actor Actor, int[] Lights, int[] Spots)> _followers = [];
     private readonly int[] _leafId;
     private readonly LeafLights.LeafLightSet? _leafSet;
 
@@ -202,9 +204,77 @@ public sealed class AiLightField
         _switches.Add((actor, name, null));
     }
 
-    /// <summary>Applies the followed trigger lights' state (once a tick).</summary>
+    /// <summary>
+    /// Follows the moves of the light(s) named <paramref name="name"/> (the actor id of <paramref name="actor"/>, the
+    /// light's own actor): while the actor rides another actor (a mover, a prop's bone) or is a mover itself (a lift or
+    /// door with a light type, such as DeftD's Mover2432 projector on lift B), the light is where the actor is now, as
+    /// the client's AttachedEffects moves the drawn light; otherwise it stays where it last was. False when no map light
+    /// has the name.
+    /// </summary>
+    public bool AddFollower(Actor actor, string name)
+    {
+        ArgumentNullException.ThrowIfNull(actor);
+        ArgumentNullException.ThrowIfNull(name);
+        if (_named is null)
+        {
+            _named = new Dictionary<string, (List<int>, List<int>)>(StringComparer.OrdinalIgnoreCase);
+            for (int i = 0; i < _lights.Length; i++)
+            {
+                if (_lights[i].Name is { } n) NamedOf(n).Lights.Add(i);
+            }
+
+            for (int i = 0; i < _spots.Length; i++)
+            {
+                if (_spots[i].Name is { } n) NamedOf(n).Spots.Add(i);
+            }
+        }
+
+        if (!_named.TryGetValue(name, out (List<int> Lights, List<int> Spots) named))
+        {
+            return false;
+        }
+
+        _followers.Add((actor, named.Lights.ToArray(), named.Spots.ToArray()));
+        return true;
+    }
+
+    // Light and spot indices by light name, built by the first AddFollower.
+    private Dictionary<string, (List<int> Lights, List<int> Spots)>? _named;
+
+    private (List<int> Lights, List<int> Spots) NamedOf(string name)
+    {
+        if (!_named!.TryGetValue(name, out (List<int> Lights, List<int> Spots) named))
+        {
+            named = ([], []);
+            _named.Add(name, named);
+        }
+
+        return named;
+    }
+
+    /// <summary>Applies the followed trigger lights' state and the followed lights' places (once a tick).</summary>
     public void FollowSwitches()
     {
+        foreach ((Actor actor, int[] lights, int[] spots) in _followers)
+        {
+            if (actor.bDeleteMe || !(actor is Mover || actor.Base is { bWorldGeometry: false }))
+            {
+                continue;
+            }
+
+            FVector at = actor.Location;
+            FRotator facing = actor.Rotation;
+            foreach (int i in lights)
+            {
+                if (_lights[i].Location != at || _lights[i].Rotation != facing) _lights[i] = _lights[i] with { Location = at, Rotation = facing };
+            }
+
+            foreach (int i in spots)
+            {
+                if (_spots[i].Location != at || _spots[i].Rotation != facing) _spots[i] = _spots[i] with { Location = at, Rotation = facing };
+            }
+        }
+
         for (int i = 0; i < _switches.Count; i++)
         {
             (STriggerLight actor, string name, bool? shown) = _switches[i];

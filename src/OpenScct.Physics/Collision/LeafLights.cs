@@ -25,31 +25,24 @@ public sealed class LeafLights
 
     private readonly CollisionWorld _world;
     private readonly int[][] _leafLights;
-    private readonly string?[] _leafZones;
     private readonly int[] _nodeLeaf;
     private readonly Dictionary<string, int> _lightIds;
-    private readonly HashSet<string> _unlisted;
 
-    private LeafLights(CollisionWorld world, int[][] leafLights, string?[] leafZones, int[] nodeLeaf, Dictionary<string, int> lightIds,
-        HashSet<string> unlisted)
+    private LeafLights(CollisionWorld world, int[][] leafLights, int[] nodeLeaf, Dictionary<string, int> lightIds)
     {
         _world = world;
         _leafLights = leafLights;
-        _leafZones = leafZones;
         _nodeLeaf = nodeLeaf;
         _lightIds = lightIds;
-        _unlisted = unlisted;
     }
-
-    /// <summary>BSP leaves with a list.</summary>
-    public int LeafCount => _leafLights.Length;
 
     /// <summary>Distinct lights named by some leaf's list.</summary>
     public int LightCount => _lightIds.Count;
 
     /// <summary>
     /// The lists of a map folder's <see cref="FileName"/> over <paramref name="world"/>'s BSP, or null when the file is
-    /// absent, unreadable or not for this BSP (the callers then keep choosing lights by distance).
+    /// absent, unreadable or not for this BSP (its nodeLeaf count is not the world collider's node count; the callers
+    /// then keep choosing lights by distance).
     /// </summary>
     public static LeafLights? Load(string? mapFolder, CollisionWorld? world)
     {
@@ -75,7 +68,11 @@ public sealed class LeafLights
         }
     }
 
-    /// <summary>The lists of a parsed leaflights document (version 1), or null when it does not fit.</summary>
+    /// <summary>
+    /// The lists of a parsed leaflights document (version 1), or null when it does not fit: its nodeLeaf must have one
+    /// entry per node of <paramref name="world"/>'s world BSP, in the same order (a file left from an older
+    /// sim/collision.bin would map leaves to the wrong nodes).
+    /// </summary>
     public static LeafLights? Parse(JsonElement root, CollisionWorld world)
     {
         ArgumentNullException.ThrowIfNull(world);
@@ -83,14 +80,13 @@ public sealed class LeafLights
             !root.TryGetProperty("version", out JsonElement version) || version.ValueKind != JsonValueKind.Number || version.GetInt32() != 1 ||
             !root.TryGetProperty("leaves", out JsonElement leaves) || leaves.ValueKind != JsonValueKind.Array ||
             !root.TryGetProperty("nodeLeaf", out JsonElement nodes) || nodes.ValueKind != JsonValueKind.Array ||
-            !world.TryPointLeafNode(default, out _, out _))
+            world.WorldBspNodeCount == 0 || nodes.GetArrayLength() != world.WorldBspNodeCount)
         {
             return null;
         }
 
         var ids = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
         var leafLights = new int[leaves.GetArrayLength()][];
-        var leafZones = new string?[leafLights.Length];
         int li = 0;
         var run = new List<int>();
         foreach (JsonElement leaf in leaves.EnumerateArray())
@@ -98,7 +94,6 @@ public sealed class LeafLights
             run.Clear();
             if (leaf.ValueKind == JsonValueKind.Object)
             {
-                leafZones[li] = leaf.TryGetProperty("zone", out JsonElement z) && z.ValueKind == JsonValueKind.String ? z.GetString() : null;
                 if (leaf.TryGetProperty("lights", out JsonElement names) && names.ValueKind == JsonValueKind.Array)
                 {
                     foreach (JsonElement n in names.EnumerateArray())
@@ -133,33 +128,14 @@ public sealed class LeafLights
             nodeLeaf[ni++] = front < leafLights.Length ? front : -1;
         }
 
-        var unlisted = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        if (root.TryGetProperty("unlisted", out JsonElement u) && u.ValueKind == JsonValueKind.Array)
-        {
-            foreach (JsonElement n in u.EnumerateArray())
-            {
-                if (n.ValueKind == JsonValueKind.String && n.GetString() is { Length: > 0 } name) unlisted.Add(name);
-            }
-        }
-
-        return new LeafLights(world, leafLights, leafZones, nodeLeaf, ids, unlisted);
+        return new LeafLights(world, leafLights, nodeLeaf, ids);
     }
 
     /// <summary>The id of a light named by some leaf's list, or -1 when no leaf lists it.</summary>
     public int IdOf(string name) => _lightIds.TryGetValue(name, out int id) ? id : -1;
 
-    /// <summary>True for a lighting.json light the file says no leaf lists (outside the world, or without a light type).</summary>
-    public bool IsUnlisted(string name) => _unlisted.Contains(name);
-
-    /// <summary>The zone (ZoneInfo name) of a leaf, or null.</summary>
-    public string? LeafZone(int leaf) => (uint)leaf < (uint)_leafZones.Length ? _leafZones[leaf] : null;
-
     /// <summary>The light ids a leaf lists (empty for an unknown leaf).</summary>
     public ReadOnlySpan<int> LightsOf(int leaf) => (uint)leaf < (uint)_leafLights.Length ? _leafLights[leaf] : [];
-
-    /// <summary>The leaf a point is in (UModel::PointRegion's iLeaf), or -1 inside solid or without data.</summary>
-    public int PointLeaf(FVector p) =>
-        _world.TryPointLeafNode(p, out int node, out bool front) ? LeafOf(node, front) : -1;
 
     /// <summary>The leaves a sphere touches (each once), a stand-in for the original's actor leaf array.</summary>
     public void SphereLeaves(FVector center, float radius, List<int> into)
@@ -200,9 +176,6 @@ public sealed class LeafLights
             _lists = lists;
             _mark = new int[lists.LightCount];
         }
-
-        /// <summary>Leaves the last <see cref="Gather"/> touched.</summary>
-        public IReadOnlyList<int> Leaves => _leaves;
 
         /// <summary>Collects the lights listed by every leaf the sphere (<paramref name="center"/>, <paramref name="radius"/>) touches.</summary>
         public void Gather(FVector center, float radius)

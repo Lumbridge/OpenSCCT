@@ -17,9 +17,10 @@ namespace OpenScctGame.Render;
 /// and A the zone ambient plus AmbientGlow. The light set is chosen on the CPU and handed to the template as
 /// instance uniforms (svm_ambient, svm_l0..3_pos/col/spot). docs/RENDERING.md#actor-lighting.
 /// <para>The candidates follow the game's gather (0x10a37610): with the map's leaf light lists
-/// (<see cref="LeafLights"/>) a static light must be listed by a leaf the actor touches, other lights must reach it;
-/// a light whose bSpecialLit differs from the actor's or that the actor's IgnoredEchelonLights names is skipped;
-/// own-zone lights and suns stay in their zone; at most 256 candidates are ranked.</para>
+/// (<see cref="LeafLights"/>) a static light must be listed by a leaf the actor touches, wherever it has moved to,
+/// other lights must reach it; a light whose bSpecialLit differs from the actor's or that the actor's
+/// IgnoredEchelonLights names is skipped; own-zone lights and suns stay in their zone; at most 256 candidates are
+/// ranked.</para>
 /// </summary>
 [PortOf("eng:Render.ActorLighting", Spec = "docs/RENDERING.md#actor-lighting")]
 public sealed class ActorLighting
@@ -72,7 +73,8 @@ public sealed class ActorLighting
             for (int i = 0; i < _lights.Count; i++)
             {
                 // Static lights with a light type are in the leaf lists (pass 0 of the gather); the others are reached
-                // by distance (the runtime list, pass 1). A static light no leaf lists lights no actor.
+                // by distance (the runtime list, pass 1, which the game fills per frame with non-static lights only:
+                // 0x10a3d3b0 skips bStatic at 0x10a3d66b). A static light no leaf lists lights no actor.
                 LightEntry light = _lights[i];
                 if (light.Static && light.LightType != 0)
                 {
@@ -106,10 +108,7 @@ public sealed class ActorLighting
     private readonly int[] _leafId;
     private readonly LeafLights? _leaves;
     private readonly LeafLights.LeafLightSet? _leafSet;
-    private (bool SpecialLit, IReadOnlySet<string>? Ignored) _filter;
-
-    /// <summary>True when the map's leaf light lists decide which static lights reach an actor.</summary>
-    public bool HasLeafLists => _leaves is not null;
+    private (bool? SpecialLit, IReadOnlySet<string>? Ignored) _filter;
 
     public int LightCount => _lights.Count;
 
@@ -176,10 +175,11 @@ public sealed class ActorLighting
     /// The light set of an actor whose bounding sphere is (<paramref name="center"/>, <paramref name="radius"/>) in
     /// uu. <paramref name="ambient"/> is A in display units (zone ambient plus AmbientGlow / 255); <paramref name="zone"/>
     /// the actor's zone index (-1 unknown), tested at the bounds' centre (the original takes every leaf the actor
-    /// touches); <paramref name="specialLit"/> the actor's bSpecialLit and <paramref name="ignored"/> the light names of
-    /// its IgnoredEchelonLights (<see cref="ActorLightRules.LightsActor"/>).
+    /// touches); <paramref name="specialLit"/> the actor's bSpecialLit (null when the map's content does not say, as
+    /// conversions made before it was exported: no light is then skipped for it) and <paramref name="ignored"/> the
+    /// light names of its IgnoredEchelonLights (<see cref="ActorLightRules.LightsActor"/>).
     /// </summary>
-    public ActorLightSet Select(FVector center, float radius, Vector3 ambient, int zone = -1, bool specialLit = false,
+    public ActorLightSet Select(FVector center, float radius, Vector3 ambient, int zone = -1, bool? specialLit = false,
         IReadOnlySet<string>? ignored = null)
     {
         _ranked.Clear();
@@ -242,12 +242,13 @@ public sealed class ActorLighting
         return set;
     }
 
-    // Pass 0 of the gather: a static light the leaf lists decide must be listed by a leaf the actor touches. A light
-    // that has moved is reached by distance (it is no longer where Build listed it).
+    // Pass 0 of the gather: a static light the leaf lists decide must be listed by a leaf the actor touches. A static
+    // light that has moved (bone-attached flares) is still taken only from the lists Build made, then tested at its
+    // current place, as the game's runtime list holds no bStatic light.
     private bool LeafAdmits(int i)
     {
         int id = _leafId[i];
-        return id < 0 || _hasMoved[i] || (id != NotListed && _leafSet!.Contains(id));
+        return id < 0 || (id != NotListed && _leafSet!.Contains(id));
     }
 
     private void Rank(LightEntry l, FVector center, float radius, int zone)
@@ -258,9 +259,9 @@ public sealed class ActorLighting
             return;
         }
 
-        // bSpecialLit must match and IgnoredEchelonLights must not name the light (game 0x10a37d86); bAffectOwnZoneOnly
-        // lights and suns reach only actors in their zone.
-        if (!ActorLightRules.LightsActor(l.SpecialLit, l.Name, _filter.SpecialLit, _filter.Ignored) ||
+        // bSpecialLit must match (unless the content does not say the actor's) and IgnoredEchelonLights must not name
+        // the light (game 0x10a37d86); bAffectOwnZoneOnly lights and suns reach only actors in their zone.
+        if (!ActorLightRules.LightsActor(l.SpecialLit, l.Name, _filter.SpecialLit ?? l.SpecialLit, _filter.Ignored) ||
             !ActorLightRules.ZoneAdmits(l.Effect, l.OwnZoneOnly, l.ZoneIndex, zone))
         {
             return;

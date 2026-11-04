@@ -517,15 +517,23 @@ instance uniforms; the shader evaluates it per vertex. The spot shadow light and
 Which lights may light an actor is the game's gather (game 0x10a37610, the editor's twin 0x111a7300 in
 UnRenderVisibility.cpp), which fills the actor's surface light list (+0xe8):
 
-- **Leaf light lists.** Static candidates come only from the light lists of the BSP leaves the actor touches
-  (actor+0x1c4, count +0x1c8): pass 0 walks each leaf's static run in UModel.Lights (Model+0xc8, from
-  FLeaf.iPermeating until a None entry), pass 1 a per-leaf runtime list (Level+0x238) of non-static and spawned
-  lights. Build makes the static runs: FEditorVisibility::ActorVisibility (editor 0x1101b050) floods each light from
-  its own leaf through the leaf portals within its radius, and TestLights (UnVisi.cpp, 0x1101dcb7) writes each leaf's
-  run. No static light is taken by distance alone, so a light behind a solid wall does not light the next room's
-  pawns. LE_ESpotShadow candidates come from the same lists (sent to 0x10a37310 / editor 0x111a7030).
+- **Leaf light lists.** Candidates come only from the light lists of the BSP leaves the actor touches
+  (actor+0x1c4, count +0x1c8), in two passes. Pass 0 walks each leaf's run in UModel.Lights (Model+0xc8, from
+  FLeaf.iPermeating until a None entry). Build writes there every light with a light type that reaches the leaf,
+  static or not, and the pass makes no bStatic test (0x10a378f8-0x10a37961). Build makes the runs:
+  FEditorVisibility::ActorVisibility (editor 0x1101b050) floods each light from its own leaf through the leaf portals
+  within its radius, and TestLights (UnVisi.cpp, 0x1101dcb7) writes each leaf's run. Pass 1 walks a per-leaf runtime
+  list (Level+0x238) that the game refills with non-static lights only (0x10a3d3b0 skips bStatic actors at
+  0x10a3d66b). It walks that list only for an actor with bUseDynamicLights (byte +0x2e8 bit 7, tested once for the
+  whole list at 0x10a378e0, whatever each light's bDynamicLight). A light met in both passes is taken once
+  (0x10a37e30). So no static light is taken by distance alone, not even one that has moved since Build (a
+  bone-attached flare is still taken only from the leaves that listed it, then tested where it is now), and a light
+  behind a solid wall does not light the next room's pawns. LE_ESpotShadow candidates come from the same lists (sent
+  to 0x10a37310 / editor 0x111a7030).
 - **Suns** (LE_Sunlight, 19) are linked into every leaf of their own zone and no other (the cmp at 0x1101b126), so
-  their exemption from the radius test never reaches another zone, whatever their bAffectOwnZoneOnly. In the cooked
+  their exemption from the radius test never reaches an actor that touches no leaf of their zone, whatever their
+  bAffectOwnZoneOnly. The gather has no zone test of its own for suns; only the lists keep a sun in its zone. In the
+  cooked
   maps PolaD's Light13074 is in all 387 leaves of ZoneInfo231 and in none of the 60 of its 9 other zones; ClarD's
   Light304 only in ZoneInfo406's 50 leaves, DeftD's Light506 in ZoneInfo252's 91, ShadD's Light2043 in ZoneInfo387's 71.
 - **The actor's skips** (0x10a37d86, for every light but LE_ESpotShadow): the light's and the actor's bSpecialLit
@@ -533,8 +541,8 @@ UnRenderVisibility.cpp), which fills the actor's surface light list (+0xe8):
   mesh vertex bake (UStaticMesh::Illuminate, editor 0x110e8190) makes the same two skips. 139 in-game or dynamic
   lights of 24 maps are bSpecialLit (SteeE's Light1901 and Light1890, ClubD's Light7462 and Light14917), so they
   light only bSpecialLit actors, never a pawn.
-- Then bAffectOwnZoneOnly (light+0x2e8 bit 0x200 against the zone byte at +0x1b4), the sphere test against the
-  light's radius (suns exempt), bUseDynamicLights for dynamic lights (byte +0x2e8 bit 7), and at most 256 candidates
+- Then bAffectOwnZoneOnly (light+0x2e8 bit 0x200 against the zone byte at +0x1b4, 0x10a37934), the sphere test
+  against the light's radius (suns exempt), and at most 256 candidates
   (cmp 0x100 at 0x10a378b0 and 0x10a37b3c). 0x10a363d0 keeps min(8, MaxLights at +0x2e1) of them (0x10a3692b);
   OpenSCCT keeps the default MaxLights 4.
 - Being a light depends on the actor's LightType, not its class: the cook's actor filter (0x10ee13b0, predicates
@@ -548,13 +556,21 @@ OpenSCCT follows this with the converter's `render/leaflights.json` (`LeafLights
 and light names, each world BSP node's back and front leaf (BSPN keeps no leaf numbers), and the lights no leaf lists
 (184 LightType 0 lights in the world, 25 non-static LightType 0 STriggerLights, 19 LightType 0 lights and 42 lit
 ones in LevelInfo0 outside the world: of 11,959 runtime lights, 11,917 are listed). The leaves an actor touches are
-those its bounding sphere reaches down the BSP. A static light with a light type that has not moved must be listed
-by one of them; non-static, moved and spawned lights keep the radius test (the runtime list). `ActorLighting`, the
-spy's shadow lights (`SpyShadowLighting`) and the bots' light field (`AiLightField`) apply the lists, the skips
-(`ActorLightRules.LightsActor`), the sun and own-zone rule (`ActorLightRules.ZoneAdmits`) and the cap. Placed mesh
-actors and gameplay objects pass their bSpecialLit and IgnoredEchelonLights (world.glb `specialLit` and
-`ignoredEchelonLights`, gameplay.json); pawns have neither. The zone is tested at the bounds' centre, where the
-original takes every leaf the actor touches. Spot shadow lights are not filtered by the lists here: their shadow
+those its bounding sphere reaches down the BSP. The file is used only when its `nodeLeaf` has one entry per node of
+the world collider's BSP in sim/collision.bin. A static light with a light type must be listed by one of them,
+wherever it has moved to; non-static and spawned lights keep the radius test (standing for both passes).
+`ActorLighting`, the spy's shadow lights (`SpyShadowLighting`) and the bots' light field (`AiLightField`) apply the
+lists, the skips (`ActorLightRules.LightsActor`), the sun and own-zone rule (`ActorLightRules.ZoneAdmits`) and the
+cap. The sun is held to the actor's zone even with the lists: the touched leaves taken here reach through thin walls,
+and with the lists alone PolaD's first-aid cabinet SInfirmary7655 beside the spy start takes the sun of ZoneInfo231
+behind its wall, which the golden capture shows unlit.
+Placed mesh actors and gameplay objects pass their bSpecialLit and IgnoredEchelonLights (world.glb `special_lit` and
+`ignoredEchelonLights`, else gameplay.json over the class defaults for a placed actor); a plain mesh of a conversion
+made before `special_lit` was exported is not tested against bSpecialLit and takes every light, as before. Camera
+mounts and spawned effect meshes pass their bSpecialLit only (runtime actors, whose IgnoredEchelonLights is empty);
+pawns have neither. The own-zone and sun tests use the zone at the bounds' centre, where the original compares the
+actor's zone byte. The bots' light field also moves a light with its actor while the actor is a
+mover or rides one, as the client draws it. Spot shadow lights are not filtered by the lists here: their shadow
 maps keep them out of rooms behind walls. Without the file (maps converted before it) static lights are chosen
 by distance as before; the dynamic world lights (`WorldLights`) are not restricted by the lists. Measured at golden
 pose spots (a 60 uu sphere at the pawn, lists read from the cooked maps): SteeE's spy start (ZoneInfo392, one leaf)

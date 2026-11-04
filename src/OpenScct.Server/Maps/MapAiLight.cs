@@ -49,17 +49,27 @@ public static class MapAiLight
         return field;
     }
 
-    /// <summary>Has <paramref name="field"/> follow every STriggerLight of the map (its actor id names its light).</summary>
+    /// <summary>
+    /// Has <paramref name="field"/> follow every STriggerLight of the map (its actor id names its light) and the moves
+    /// of every map light whose actor the sim holds (lit movers and lights riding them, <see cref="AiLightField.AddFollower"/>).
+    /// </summary>
     public static void BindSwitches(AiLightField field, MapLoadResult loaded)
     {
         ArgumentNullException.ThrowIfNull(field);
         ArgumentNullException.ThrowIfNull(loaded);
         foreach (ActorRecord record in loaded.Gameplay.Actors)
         {
-            if (loaded.ActorOf(record) is STriggerLight light)
+            if (loaded.ActorOf(record) is not { } actor)
+            {
+                continue;
+            }
+
+            if (actor is STriggerLight light)
             {
                 field.AddSwitch(light, record.Id);
             }
+
+            field.AddFollower(actor, record.Id);
         }
     }
 
