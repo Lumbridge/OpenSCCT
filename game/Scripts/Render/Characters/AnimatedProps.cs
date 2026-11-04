@@ -4,6 +4,8 @@ using System.IO;
 using System.Text.Json;
 using Godot;
 using OpenScct.Core;
+using OpenScct.Physics.Collision;
+using OpenScctGame.Render.Data;
 
 namespace OpenScctGame.Render.Characters;
 
@@ -76,7 +78,15 @@ public static class AnimatedProps
             // Lights are ranked against the actor's bounding sphere (ActorLighting.Score): the mesh's own bounds, which
             // for SteeE's crane (DrawScale 10) reach far from its location.
             (FVector center, float radius) = Bounds(model);
-            model.Light(map.LightActor(center, radius, glow));
+            (bool specialLit, IReadOnlySet<string>? ignored) = map.LightFilterOf(id);
+            // MaxLights and Physics over the class defaults, as the game reads them from the runtime actor.
+            GameplayActor? placed = map.Actors.Find(id);
+            int maxLights = placed?.Int("MaxLights", RenderK.MaxActorLights) ?? RenderK.MaxActorLights;
+            var physics = (OpenScct.Core.Engine.EPhysics)(placed?.Int("Physics") ?? Int(p, "Physics"));
+            ActorLeafBounds? box = RestBox(model) is { } rest
+                ? ActorLighting.LeafBounds(rest, physics, exact: false, ActorLighting.ZoneTag(placed))
+                : null;
+            model.Light(map.LightActor(center, radius, glow, specialLit, ignored, maxLights, box));
             props.Add(new AnimatedProp(id, model, location, drawScale));
         }
 
@@ -84,7 +94,13 @@ public static class AnimatedProps
     }
 
     /// <summary>The bounding sphere (UE centre and radius) of a placed model's meshes in their rest pose.</summary>
-    public static (FVector Center, float Radius) Bounds(SkeletalModel model)
+    public static (FVector Center, float Radius) Bounds(SkeletalModel model) =>
+        RestBox(model) is { } box
+            ? (UeSpace.ToUe(box.GetCenter()), UeSpace.UnitsPerMetre * box.Size.Length() * 0.5f)
+            : (UeSpace.ToUe(model.Root.Position), 100f);
+
+    /// <summary>The box (Godot space, the model's parent frame) of a placed model's meshes in their rest pose, or null without meshes.</summary>
+    public static Aabb? RestBox(SkeletalModel model)
     {
         ArgumentNullException.ThrowIfNull(model);
         Aabb box = default;
@@ -102,7 +118,7 @@ public static class AnimatedProps
             any = true;
         }
 
-        return any ? (UeSpace.ToUe(box.GetCenter()), UeSpace.UnitsPerMetre * box.Size.Length() * 0.5f) : (UeSpace.ToUe(model.Root.Position), 100f);
+        return any ? box : null;
     }
 
     private static int Int(JsonElement e, string name) => e.TryGetProperty(name, out JsonElement v) ? v.GetInt32() : 0;

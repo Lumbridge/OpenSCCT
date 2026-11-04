@@ -49,6 +49,16 @@ public static class ActorLightRules
     [Provenance(ProvenanceKind.Decoded, "Engine.u Actor.MaxLights default 4")]
     public const int MaxActorLights = 4;
 
+    /// <summary>The most lights the gather keeps for any actor, whatever its MaxLights.</summary>
+    [Provenance(ProvenanceKind.Decoded, "actor light pick, game 0x10a363d0: min(8, Actor.MaxLights at +0x2e1) at 0x10a3692b; editor twin 0x111a6100 at 0x111a65d5 and 0x111a6c1b")]
+    public const int HardMaxActorLights = 8;
+
+    /// <summary>
+    /// The lights an actor keeps: min(8, its Actor.MaxLights), 0 for none (the actor is lit by its ambient alone).
+    /// </summary>
+    [Provenance(ProvenanceKind.Decoded, "actor light pick, game 0x10a363d0 (0x10a3692b); editor 0x111a6100 (0x111a65d5, 0x111a6c1b): a cap of 0 links no lights")]
+    public static int ActorLightCap(int maxLights) => System.Math.Clamp(maxLights, 0, HardMaxActorLights);
+
     /// <summary>Point light gain: the D3D vertex light falloff f(d) = 2 S(d / R).</summary>
     [Provenance(ProvenanceKind.Decoded, "RenderingModeNormal::SetLight falloff f(d) = 2 S(d/R), editor 0x10f29790")]
     public const float PointLightGain = 2f;
@@ -147,19 +157,23 @@ public static class ActorLightRules
     /// <summary>
     /// Whether a light in zone <paramref name="lightZone"/> may light an actor in zone <paramref name="actorZone"/>:
     /// a bAffectOwnZoneOnly light only in its own zone (the gather, game 0x10a37934, tests light+0x2e8 bit 0x200 and
-    /// then compares the zone bytes at +0x1b4), and here a sun too. The gather has no zone test of its own for a sun
-    /// (LightEffect 19): Build links a sun into the per-leaf light list of every leaf of the sun leaf's zone and of no
-    /// other (FEditorVisibility::ActorVisibility, editor 0x1101b050, the cmp at 0x1101b126), and the gather (game
-    /// 0x10a37610, editor 0x111a7300) reads only the lists of the leaves the actor touches, so the sun's exemption from
-    /// the radius test keeps to its zone. The leaves OpenSCCT takes as touched (the bounds sphere down the world BSP)
-    /// reach through thin walls into the next zone, so the sun is also held to the actor's zone at its centre: with the
-    /// leaf lists alone, PolaD's first-aid cabinet SInfirmary7655 beside the spy start (ZoneInfo1365, an outdoor wall
-    /// behind it) takes the sun Light13074 of ZoneInfo231, which the original's golden capture shows unlit. Unknown
-    /// zones (-1) admit the light.
+    /// then compares the zone bytes at +0x1b4). The gather has no zone test of its own for a sun (LightEffect 19):
+    /// Build links a sun into the per-leaf light list of every leaf of the sun leaf's zone and of no other
+    /// (FEditorVisibility::ActorVisibility, editor 0x1101b050, the cmp at 0x1101b126), and the gather (game 0x10a37610,
+    /// editor 0x111a7300) reads only the lists of the leaves the actor touches (its bounds box down the world BSP,
+    /// <c>LeafLights.BoxLeaves</c>), so the leaf lists alone keep a sun to its zone: <paramref name="sunByLeaves"/> is
+    /// true when the lists are loaded and the touched leaves come from the actor's decoded bounds box. Otherwise a sun
+    /// is held to the actor's zone here: maps converted before the lists were exported, actors whose leaves still
+    /// come from a bounds sphere (pawns, the bots' light field, the first-person view, emitters, soft bodies) and
+    /// skeletal meshes, whose box is their rest pose's rather than the original's render bounds. A pawn's
+    /// decoded box (its cylinder grown by 128 uu) reaches the sun's leaves beside PolaD's spy start as its sphere does,
+    /// where the original's golden capture draws the spy unlit, so the pawn's leaves are not settled. Unknown zones
+    /// (-1) admit the light.
     /// </summary>
     [Provenance(ProvenanceKind.Decoded, "own zone: game 0x10a37934; suns per zone: editor 0x1101b050 / 0x111a7300 (cooked PolaD, ClarD, DeftD, ShadD lists)")]
-    public static bool ZoneAdmits(int effect, bool ownZoneOnly, int lightZone, int actorZone) =>
-        !(ownZoneOnly || effect == LE_Sunlight) || actorZone < 0 || lightZone < 0 || actorZone == lightZone;
+    [Provenance(ProvenanceKind.Estimated, "the sun held to the actor's zone for actors whose touched leaves come from a sphere (pawns: PolaD spy start golden) or an estimated box (skeletal meshes)")]
+    public static bool ZoneAdmits(int effect, bool ownZoneOnly, int lightZone, int actorZone, bool sunByLeaves = false) =>
+        !(ownZoneOnly || (effect == LE_Sunlight && !sunByLeaves)) || actorZone < 0 || lightZone < 0 || actorZone == lightZone;
 
     /// <summary>R = 25 x (LightRadius + 1).</summary>
     public static float WorldRadius(float lightRadius) => LightRadiusUnits * (lightRadius + 1f);

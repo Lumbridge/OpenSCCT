@@ -53,10 +53,13 @@ public sealed class SoftBodyViews
     /// vertex i (and i + N for the back face) on particle i. False when the block or the mesh does not match, and
     /// the instance is then drawn as a plain mesh. <paramref name="light"/> is <see cref="LightSource.Actor"/> (lit with
     /// <paramref name="ambientGlow"/> and the Echelon code <paramref name="echelon"/>, see <see cref="Relight"/>) or
-    /// <see cref="LightSource.None"/> for a bUnlit body.
+    /// <see cref="LightSource.None"/> for a bUnlit body. <paramref name="specialLit"/> and <paramref name="ignoredLights"/>
+    /// are the actor's bSpecialLit (null when the conversion does not carry it) and IgnoredEchelonLights light names,
+    /// which filter its light set as for any other actor.
     /// </summary>
     internal bool Add(string actor, JsonElement softBody, in Transform3D transform, FVector location, MeshPrimitive[] prims,
-        MaterialCompiler compiler, Vector4 vision, LightSource light = LightSource.None, int ambientGlow = 0, int echelon = 0)
+        MaterialCompiler compiler, Vector4 vision, LightSource light = LightSource.None, int ambientGlow = 0, int echelon = 0,
+        bool? specialLit = false, IReadOnlySet<string>? ignoredLights = null)
     {
         if (prims.Length != 1 || SoftBodySim.Read(softBody) is not { } sim || prims[0].VertexCount != sim.Count * 2)
         {
@@ -65,7 +68,13 @@ public sealed class SoftBodyViews
 
         MeshPrimitive prim = prims[0];
         Material? material = compiler.Get(prim.Material, light);
-        var body = new Body(actor, sim, transform, location, prim, material) { Light = light, AmbientGlow = ambientGlow };
+        var body = new Body(actor, sim, transform, location, prim, material)
+        {
+            Light = light,
+            AmbientGlow = ambientGlow,
+            SpecialLit = specialLit,
+            IgnoredLights = ignoredLights,
+        };
         if (body.Front.Count == 0)
         {
             return false;
@@ -91,9 +100,11 @@ public sealed class SoftBodyViews
     /// <summary>
     /// Lights every actor-lit body as an actor (UESoftBody render, game 0x10999f90: EnableLighting with dynamic lights
     /// only, the FDynamicActor's light list through SetLight and its AmbientColor through SetAmbientLight), from its
-    /// rest bounding sphere. The map calls this when it builds and whenever the gameplay meshes are relit.
+    /// rest bounding sphere. The list is gathered as for any actor, so the body's bSpecialLit and IgnoredEchelonLights
+    /// apply. The map calls this when it builds and whenever the gameplay meshes are relit.
     /// </summary>
     [Provenance(ProvenanceKind.Decoded, "0x10999f90: mode->EnableLighting(RI, 1, 0, 0, NULL, FDynamicActor sphere), SetLight per light of the actor's list, SetAmbientLight(FDynamicActor+0xb8); no static (vertex colour) light")]
+    [Provenance(ProvenanceKind.Decoded, "Gather 0x10a37d86 applies the bSpecialLit and IgnoredEchelonLights skips for every actor class, soft bodies included")]
     [Provenance(ProvenanceKind.Estimated, "The light set is chosen once from the rest bounds, not each frame from the moving body")]
     public void Relight(RenderMap map)
     {
@@ -102,7 +113,8 @@ public sealed class SoftBodyViews
         {
             if (body.Light == LightSource.Actor)
             {
-                ActorLighting.Apply(body.Node, map.LightActor(body.Center, body.Radius, body.AmbientGlow));
+                ActorLighting.Apply(body.Node, map.LightActor(body.Center, body.Radius, body.AmbientGlow, body.SpecialLit,
+                    body.IgnoredLights));
             }
         }
     }
@@ -427,6 +439,12 @@ public sealed class SoftBodyViews
         public LightSource Light { get; init; }
 
         public int AmbientGlow { get; init; }
+
+        /// <summary>The actor's bSpecialLit; null when the conversion does not carry it (no light is skipped).</summary>
+        public bool? SpecialLit { get; init; }
+
+        /// <summary>Light names of the actor's IgnoredEchelonLights.</summary>
+        public IReadOnlySet<string>? IgnoredLights { get; init; }
 
         /// <summary>Rest bounding sphere (uu) the actor light set is chosen for.</summary>
         public FVector Center { get; set; }

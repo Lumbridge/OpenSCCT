@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Godot;
 using OpenScct.Core;
+using OpenScct.Core.Engine;
 using OpenScct.Game.Lighting;
 using OpenScct.Physics.Collision;
 using OpenScct.Provenance;
@@ -17,10 +18,11 @@ namespace OpenScctGame.Render;
 /// and A the zone ambient plus AmbientGlow. The light set is chosen on the CPU and handed to the template as
 /// instance uniforms (svm_ambient, svm_l0..3_pos/col/spot). docs/RENDERING.md#actor-lighting.
 /// <para>The candidates follow the game's gather (0x10a37610): with the map's leaf light lists
-/// (<see cref="LeafLights"/>) a static light must be listed by a leaf the actor touches, wherever it has moved to,
-/// other lights must reach it; a light whose bSpecialLit differs from the actor's or that the actor's
-/// IgnoredEchelonLights names is skipped; own-zone lights and suns stay in their zone; at most 256 candidates are
-/// ranked.</para>
+/// (<see cref="LeafLights"/>) a static light must be listed by a leaf the actor touches (its bounds box when the caller
+/// has one, <see cref="ActorLeafBounds"/>, else its bounds sphere), wherever it has moved to, other lights must reach
+/// it; a light whose bSpecialLit differs from the actor's or that the actor's IgnoredEchelonLights names is skipped;
+/// own-zone lights stay in their zone, and suns too unless the leaves come from the actor's decoded bounds box
+/// (<see cref="ActorLeafBounds.Exact"/>, <see cref="ActorLightRules.ZoneAdmits"/>); at most 256 candidates are ranked.</para>
 /// </summary>
 [PortOf("eng:Render.ActorLighting", Spec = "docs/RENDERING.md#actor-lighting")]
 public sealed class ActorLighting
@@ -66,10 +68,26 @@ public sealed class ActorLighting
         _hasMoved = new bool[_lights.Count];
         _leafId = new int[_lights.Count];
         Array.Fill(_leafId, -1);
+        foreach (ZoneEntry z in lighting.Zones)
+        {
+            _zoneTags.TryAdd(z.Name, z.Tag);
+        }
+
         if (leaves is not null)
         {
             _leaves = leaves;
             _leafSet = leaves.NewSet();
+            // Each leaf zone's m_RefAmbientColor; a leaf with no zone actor (the LevelInfo, black in every stock map)
+            // or a zone the lighting does not list has none, as AmbientAt.
+            _zoneAmbient = new Vector3[leaves.ZoneCount];
+            for (int z = 0; z < _zoneAmbient.Length; z++)
+            {
+                if (leaves.ZoneName(z) is { } name && lighting.Zones.Find(e => string.Equals(e.Name, name, StringComparison.OrdinalIgnoreCase)) is { } zone)
+                {
+                    _zoneAmbient[z] = new Vector3(zone.Ambient.R, zone.Ambient.G, zone.Ambient.B);
+                }
+            }
+
             for (int i = 0; i < _lights.Count; i++)
             {
                 // Static lights with a light type are in the leaf lists (pass 0 of the gather); the others are reached
@@ -109,6 +127,30 @@ public sealed class ActorLighting
     private readonly LeafLights? _leaves;
     private readonly LeafLights.LeafLightSet? _leafSet;
     private (bool? SpecialLit, IReadOnlySet<string>? Ignored) _filter;
+    private bool _sunByLeaves;
+    private readonly Dictionary<string, string> _zoneTags = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Vector3[] _zoneAmbient = [];
+    private readonly Dictionary<string, bool[]> _zoneTagMasks = new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>
+    /// The LevelInfo's Tag, which a leaf with no zone actor (or a zone the map's lighting does not list) is tested
+    /// against: every stock map keeps the default.
+    /// </summary>
+    private const string LevelInfoTag = "LevelInfo";
+
+    // The zones a ForcedVisibilityZoneTag keeps, by zone id of the leaf lists (FName compares ignore case).
+    private bool[] ZoneTagMask(string tag)
+    {
+        if (!_zoneTagMasks.TryGetValue(tag, out bool[]? mask))
+        {
+            mask = _leaves!.ZoneMask(name =>
+                string.Equals(name is not null && _zoneTags.TryGetValue(name, out string? t) ? t : LevelInfoTag, tag,
+                    StringComparison.OrdinalIgnoreCase));
+            _zoneTagMasks.Add(tag, mask);
+        }
+
+        return mask;
+    }
 
     public int LightCount => _lights.Count;
 
@@ -174,18 +216,56 @@ public sealed class ActorLighting
     /// <summary>
     /// The light set of an actor whose bounding sphere is (<paramref name="center"/>, <paramref name="radius"/>) in
     /// uu. <paramref name="ambient"/> is A in display units (zone ambient plus AmbientGlow / 255); <paramref name="zone"/>
-    /// the actor's zone index (-1 unknown), tested at the bounds' centre (the original takes every leaf the actor
-    /// touches); <paramref name="specialLit"/> the actor's bSpecialLit (null when the map's content does not say, as
+    /// the actor's zone index (-1 unknown), tested at the bounds' centre; <paramref name="specialLit"/> the actor's bSpecialLit (null when the map's content does not say, as
     /// conversions made before it was exported: no light is then skipped for it) and <paramref name="ignored"/> the
-    /// light names of its IgnoredEchelonLights (<see cref="ActorLightRules.LightsActor"/>).
+    /// light names of its IgnoredEchelonLights (<see cref="ActorLightRules.LightsActor"/>). <paramref name="maxLights"/>
+    /// is its Actor.MaxLights: it keeps min(8, MaxLights) lights (none at 0), of which the template draws the first
+    /// <see cref="RenderK.ActorLightSlots"/>. <paramref name="bounds"/> is the actor's render bounds box and Physics, which
+    /// pick the leaves it touches (the box, or the sphere of radius |extent| when the box is chunky, grown by its Physics),
+    /// kept to the zones whose Tag is its ForcedVisibilityZoneTag when it has one (none kept: no light);
+    /// without one the leaves are those the sphere (<paramref name="center"/>, <paramref name="radius"/>) reaches.
+    /// The sphere always ranks the lights. With <paramref name="ambientGlow"/> (the actor's AmbientGlow), bounds and the
+    /// leaf lists, A is taken from the kept leaves instead of <paramref name="ambient"/>
+    /// (<see cref="LeafAmbient"/>).
     /// </summary>
     public ActorLightSet Select(FVector center, float radius, Vector3 ambient, int zone = -1, bool? specialLit = false,
-        IReadOnlySet<string>? ignored = null)
+        IReadOnlySet<string>? ignored = null, int maxLights = RenderK.MaxActorLights, ActorLeafBounds? bounds = null,
+        int? ambientGlow = null)
     {
         _ranked.Clear();
         LastMapCandidates = 0;
         _filter = (specialLit, ignored);
-        _leafSet?.Gather(center, radius);
+        bool noLeaves = false;
+        if (bounds is { } box)
+        {
+            if (_leafSet is not null)
+            {
+                bool[]? keep = box.ZoneTag is { Length: > 0 } tag && !string.Equals(tag, "None", StringComparison.OrdinalIgnoreCase)
+                    ? ZoneTagMask(tag)
+                    : null;
+                _leafSet.Gather(box, keep);
+                // Both passes of the gather read the touched leaves' lists, so an actor whose ForcedVisibilityZoneTag
+                // keeps none of them takes no light.
+                noLeaves = keep is not null && _leafSet.LeafCount == 0;
+            }
+        }
+        else
+        {
+            _leafSet?.Gather(center, radius);
+        }
+
+        _sunByLeaves = _leafSet is not null && bounds is { Exact: true };
+        if (ambientGlow is { } glow && bounds is not null && _leafSet is not null)
+        {
+            ambient = LeafAmbient(glow);
+        }
+
+        if (noLeaves)
+        {
+            _filter = default;
+            return new ActorLightSet { Ambient = ambient };
+        }
+
         if (_index is not null && _moved.Count < _lights.Count / 2)
         {
             _index.Query(center, radius, _candidates);
@@ -229,7 +309,7 @@ public sealed class ActorLighting
         });
 
         var set = new ActorLightSet { Ambient = ambient };
-        int n = Math.Min(RenderK.MaxActorLights, _ranked.Count);
+        int n = Math.Min(Math.Min(RenderK.ActorLightCap(maxLights), RenderK.ActorLightSlots), _ranked.Count);
         for (int i = 0; i < n; i++)
         {
             // Ranked by LightBrightness alone; the light type scales the colour (FDynamicLight::Update).
@@ -240,6 +320,27 @@ public sealed class ActorLighting
 
         set.Count = n;
         return set;
+    }
+
+    /// <summary>
+    /// A from the leaves the last gather kept: the per-channel maximum of their zones' m_RefAmbientColor (black when
+    /// none is kept) plus AmbientGlow, saturating. An actor whose box reaches into a brighter zone takes that zone's
+    /// ambient.
+    /// </summary>
+    [Provenance(ProvenanceKind.Decoded, "actor ambient, game 0x10990e60 at 0x10991154-0x109911fb: per-channel max of ZoneInfo+0x314 (m_RefAmbientColor) over the kept leaves' zones into FDynamicActor+0xe4, then +0xb8 = saturating add of AmbientGlow (0x1097ac20), the colour the actor renders pass to SetAmbientLight (0x10980ff8, 0x10985b50, 0x1099a140, 0x10a4d088)")]
+    private Vector3 LeafAmbient(int ambientGlow)
+    {
+        Vector3 a = Vector3.Zero;
+        foreach (int z in _leafSet!.Zones)
+        {
+            if ((uint)z < (uint)_zoneAmbient.Length)
+            {
+                a = a.Max(_zoneAmbient[z]);
+            }
+        }
+
+        float g = ambientGlow / 255f;
+        return new Vector3(MathF.Min(1f, a.X + g), MathF.Min(1f, a.Y + g), MathF.Min(1f, a.Z + g));
     }
 
     // Pass 0 of the gather: a static light the leaf lists decide must be listed by a leaf the actor touches. A static
@@ -260,9 +361,10 @@ public sealed class ActorLighting
         }
 
         // bSpecialLit must match (unless the content does not say the actor's) and IgnoredEchelonLights must not name
-        // the light (game 0x10a37d86); bAffectOwnZoneOnly lights and suns reach only actors in their zone.
+        // the light (game 0x10a37d86); bAffectOwnZoneOnly lights reach only actors in their zone, and suns too unless
+        // the leaves of the actor's decoded bounds box keep them there.
         if (!ActorLightRules.LightsActor(l.SpecialLit, l.Name, _filter.SpecialLit ?? l.SpecialLit, _filter.Ignored) ||
-            !ActorLightRules.ZoneAdmits(l.Effect, l.OwnZoneOnly, l.ZoneIndex, zone))
+            !ActorLightRules.ZoneAdmits(l.Effect, l.OwnZoneOnly, l.ZoneIndex, zone, _sunByLeaves))
         {
             return;
         }
@@ -392,6 +494,32 @@ public sealed class ActorLighting
         node.SetInstanceShaderParameter(AmbientParam, new Vector4(ambient.X, ambient.Y, ambient.Z, code));
     }
 
+    /// <summary>
+    /// The leaf-walk bounds of a drawn box (Godot world space) for an actor with <paramref name="physics"/>: its centre
+    /// and half size in uu. <paramref name="exact"/> is false for a box that only approximates the original's render
+    /// bounds (<see cref="ActorLeafBounds.Exact"/>); <paramref name="zoneTag"/> is the actor's ForcedVisibilityZoneTag.
+    /// </summary>
+    public static ActorLeafBounds LeafBounds(Aabb box, EPhysics physics = EPhysics.PHYS_None, bool exact = true, string? zoneTag = null) =>
+        new(UeSpace.ToUe(box.GetCenter()), UeSpace.ToUe(box.Size * 0.5f), physics, exact, zoneTag);
+
+    /// <summary>The leaf-walk bounds of a drawn mesh node from its current world box, or null when it has no mesh.</summary>
+    public static ActorLeafBounds? LeafBounds(MeshInstance3D node, EPhysics physics, string? zoneTag = null)
+    {
+        ArgumentNullException.ThrowIfNull(node);
+        return node.Mesh is { } mesh ? LeafBounds(node.GlobalTransform * mesh.GetAabb(), physics, zoneTag: zoneTag) : null;
+    }
+
+    /// <summary>A runtime actor's ForcedVisibilityZoneTag for <see cref="LeafBounds(Aabb, EPhysics, bool, string)"/>, null when unset.</summary>
+    public static string? ZoneTag(OpenScct.Core.Name tag) => tag.IsNone ? null : tag.ToString();
+
+    /// <summary>A placed actor's ForcedVisibilityZoneTag (sim/gameplay.json), null when unset.</summary>
+    public static string? ZoneTag(GameplayActor? actor) =>
+        actor is not null && actor.TryGet("ForcedVisibilityZoneTag", out System.Text.Json.JsonElement v) &&
+        v.ValueKind == System.Text.Json.JsonValueKind.String && v.GetString() is { Length: > 0 } s &&
+        !string.Equals(s, "None", StringComparison.OrdinalIgnoreCase)
+            ? s
+            : null;
+
     /// <summary>Writes a light set onto a drawn instance (its material must use the actor-lit template).</summary>
     public static void Apply(GeometryInstance3D node, ActorLightSet set)
     {
@@ -399,7 +527,7 @@ public sealed class ActorLighting
         ArgumentNullException.ThrowIfNull(set);
         float echelon = node.HasMeta(EchelonMeta) ? (float)node.GetMeta(EchelonMeta) : 0f;
         node.SetInstanceShaderParameter(AmbientParam, new Vector4(set.Ambient.X, set.Ambient.Y, set.Ambient.Z, echelon));
-        for (int i = 0; i < RenderK.MaxActorLights; i++)
+        for (int i = 0; i < RenderK.ActorLightSlots; i++)
         {
             PackedLight p = i < set.Count ? set.Lights[i] : default;
             node.SetInstanceShaderParameter(PosParams[i], p.Pos);
@@ -417,9 +545,9 @@ public sealed class ActorLightSet
 {
     public Vector3 Ambient { get; init; }
 
-    public PackedLight[] Lights { get; } = new PackedLight[RenderK.MaxActorLights];
+    public PackedLight[] Lights { get; } = new PackedLight[RenderK.ActorLightSlots];
 
-    public string?[] Names { get; } = new string?[RenderK.MaxActorLights];
+    public string?[] Names { get; } = new string?[RenderK.ActorLightSlots];
 
     public int Count { get; set; }
 }

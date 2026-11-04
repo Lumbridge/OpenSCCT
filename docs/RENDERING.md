@@ -543,8 +543,17 @@ UnRenderVisibility.cpp), which fills the actor's surface light list (+0xe8):
   light only bSpecialLit actors, never a pawn.
 - Then bAffectOwnZoneOnly (light+0x2e8 bit 0x200 against the zone byte at +0x1b4, 0x10a37934), the sphere test
   against the light's radius (suns exempt), and at most 256 candidates
-  (cmp 0x100 at 0x10a378b0 and 0x10a37b3c). 0x10a363d0 keeps min(8, MaxLights at +0x2e1) of them (0x10a3692b);
-  OpenSCCT keeps the default MaxLights 4.
+  (cmp 0x100 at 0x10a378b0 and 0x10a37b3c). 0x10a363d0 keeps min(8, MaxLights at +0x2e1) of them (0x10a3692b;
+  editor 0x111a6100 at 0x111a65d5 and 0x111a6c1b), and a MaxLights of 0 links no lights: the actor is lit by its
+  zone ambient and AmbientGlow alone. OpenSCCT reads each actor's MaxLights (sim/gameplay.json over the class default
+  4, or the runtime actor's) and keeps min(8, MaxLights). Every class has the default 4; the stock maps store
+  AquaD/E/T's 21 movers at 2, ClubD/E/S/T's SGamePlayObject1756 (the destructible CLU_ZenPoles01 pipe) at 0, the
+  GAR_humvee gameplay objects KrauU SGamePlayObject8221 and 6084 and StatD/E/S SGamePlayObject6084 at 6, and three
+  StaticMeshActors (OffsD StaticMeshActor6917 at 255, TermD StaticMeshActor10864 at 16, ZiopD/S StaticMeshActor6369 at
+  8). The movers and static mesh actors are vertex-lit here, so their cap changes nothing drawn; ClubD's pipe
+  (MaxLights 0) takes no lights, so by the decode it is lit by its zone ambient and AmbientGlow alone (it had one
+  light in reach, Light13405; no frame of the original shows it). The actor-lit template has four light slots (Godot allows 16 instance
+  uniforms per shader), so a cap above 4 (the humvees) draws the four strongest and loses the fifth and sixth.
 - Being a light depends on the actor's LightType, not its class: the cook's actor filter (0x10ee13b0, predicates
   0x10edd1e0 and 0x10edacf0) tests LightType (+0x2d1) before the Brush test, and the cooked lists hold movers and
   other gameplay actors with a light type (DeftD/S Mover2432, the LE_ESpotShadow projector riding lift B; DeftD/S
@@ -555,20 +564,46 @@ UnRenderVisibility.cpp), which fills the actor's surface light list (+0xe8):
 OpenSCCT follows this with the converter's `render/leaflights.json` (`LeafLights`): each leaf's zone
 and light names, each world BSP node's back and front leaf (BSPN keeps no leaf numbers), and the lights no leaf lists
 (184 LightType 0 lights in the world, 25 non-static LightType 0 STriggerLights, 19 LightType 0 lights and 42 lit
-ones in LevelInfo0 outside the world: of 11,959 runtime lights, 11,917 are listed). The leaves an actor touches are
-those its bounding sphere reaches down the BSP. The file is used only when its `nodeLeaf` has one entry per node of
+ones in LevelInfo0 outside the world: of 11,959 runtime lights, 11,917 are listed). The leaves an actor touches come
+from its render bounds box, as the original builds its leaf array: 0x10990e60 grows the box by the actor's Physics
+(+0x2d8; PHYS_None keeps the bounds, PHYS_Rotating takes a cube of half size 1.2 |extent| (0x10c10cb0), any other
+Physics adds 128 uu to each half size (0x10bff1b4)), and the walk 0x10a08320 takes a chunky box (twice its smallest
+half size above its largest) as the sphere of radius |extent| at its centre and an elongated one as the box itself
+(each node plane's reach |Nx ex| + |Ny ey| + |Nz ez|), so the box is never looser than that sphere
+(`LeafLights.BoxLeaves`, `LeafLights.TouchExtent`). After the walk (0x109910d0-0x10991152) an actor whose
+ForcedVisibilityZoneTag (+0x2b0) is set keeps only the touched leaves whose zone actor's Tag (+0x2bc; the LevelInfo's
+for a leaf with no zone actor) is that tag; both passes of the gather read only the kept leaves, so an actor that keeps
+none takes no light. 268 stock actors set it (movers, gameplay objects, animated meshes, fish, emitters and
+STriggerLights of the Aqua, Bank, Club, Fact, Krau, Sanc, Shad, Stat and Ware maps; ClubD's paper doors
+SGamePlayObject276 and 4140 keep to `zone_lunch_room`). OpenSCCT applies it to the actors gathered by a box
+(`ActorLeafBounds.ZoneTag`, zone tags from render/lighting.json). The same function then sets the actor's ambient
+from the kept leaves (0x10991154-0x109911fb): the per-channel maximum of their zones' m_RefAmbientColor (black when
+none is kept), plus AmbientGlow saturating (0x1097ac20), kept at FDynamicActor+0xb8, which the actor render paths
+pass to SetAmbientLight (0x10980ff8, 0x10985b50, 0x10a4d088; the soft body render at 0x1099a140).
+OpenSCCT takes A that way for the actors gathered by a box, and from the zone at the bounds' centre for the others
+(`ActorLighting.LeafAmbient`, `RenderMap.AmbientAt`); in most stock zones m_RefAmbientColor is black, so this matters
+where a box reaches into a lit zone (ClubD's sky zone, 149). Placed static meshes and gameplay objects are
+PHYS_None; movers PHYS_MovingBrush. Gameplay meshes, devices, camera mounts and spawned effect meshes pass their drawn box; animated
+(skeletal) meshes pass their rest pose box, which only approximates the original's render bounds; pawns, the
+first-person view, emitters, puddles and soft bodies still take the leaves their bounding sphere reaches. The file is used only when its `nodeLeaf` has one entry per node of
 the world collider's BSP in sim/collision.bin. A static light with a light type must be listed by one of them,
 wherever it has moved to; non-static and spawned lights keep the radius test (standing for both passes).
 `ActorLighting`, the spy's shadow lights (`SpyShadowLighting`) and the bots' light field (`AiLightField`) apply the
-lists, the skips (`ActorLightRules.LightsActor`), the sun and own-zone rule (`ActorLightRules.ZoneAdmits`) and the
-cap. The sun is held to the actor's zone even with the lists: the touched leaves taken here reach through thin walls,
-and with the lists alone PolaD's first-aid cabinet SInfirmary7655 beside the spy start takes the sun of ZoneInfo231
-behind its wall, which the golden capture shows unlit.
+lists, the skips (`ActorLightRules.LightsActor`), the own-zone rule (`ActorLightRules.ZoneAdmits`) and the cap. With
+the bounds box no sun test is added: PolaD's first-aid cabinet SInfirmary7655 beside the spy start (about 39 x 21 x
+59 uu, elongated, PHYS_None) touches only leaf 155, its stored leaf, which does not list the sun Light13074 of
+ZoneInfo231 behind its wall, so it stays unlit as in the golden capture (its 36.9 uu bounds sphere also reached leaf
+156, which lists the sun). Actors whose leaves still come from a sphere or a rest pose box keep the sun to their zone
+at its centre, as do maps without the lists. For a pawn this is not settled: the original grows a walking pawn's box
+by 128 uu, and that box reaches leaf 156 at PolaD's spy start as the 95 uu sphere does, yet the golden capture draws
+the spy there with no sun. The original also keeps every actor's grown box (FDynamicActor+0xcc) and walks again only
+when the render bounds leave it (0x10990ec5-0x10990f02), so a moving actor's leaves (Physics not PHYS_None) lag its
+bounds by up to the growth; OpenSCCT walks again at every relight.
 Placed mesh actors and gameplay objects pass their bSpecialLit and IgnoredEchelonLights (world.glb `special_lit` and
 `ignoredEchelonLights`, else gameplay.json over the class defaults for a placed actor); a plain mesh of a conversion
 made before `special_lit` was exported is not tested against bSpecialLit and takes every light, as before. Camera
-mounts and spawned effect meshes pass their bSpecialLit only (runtime actors, whose IgnoredEchelonLights is empty);
-pawns have neither. The own-zone and sun tests use the zone at the bounds' centre, where the original compares the
+mounts and spawned effect meshes pass their bSpecialLit, MaxLights and drawn box (runtime actors, whose
+IgnoredEchelonLights is empty); pawns pass neither bSpecialLit nor IgnoredEchelonLights. The own-zone test uses the zone at the bounds' centre, where the original compares the
 actor's zone byte. The bots' light field also moves a light with its actor while the actor is a
 mover or rides one, as the client draws it. Spot shadow lights are not filtered by the lists here: their shadow
 maps keep them out of rooms behind walls. Without the file (maps converted before it) static lights are chosen
@@ -581,9 +616,13 @@ the static spot Light17191 (796 uu, R 1275; its cone already kept it out of the 
 Light4199 loses the sun. A non-special actor under SteeE's Light1901 or ClubD's Light7462 no longer takes them; a
 bSpecialLit one still does.
 
-The first-person arms and gun currently select ordinary lights at the eye (a 64 uu sphere, no own-zone
-filter; with the leaf lists, static lights listed by the leaves that sphere touches). This remains an approximation: the original gathers from the weapon's BSP leaves and actual bounds,
-then filters using the weapon's zone. There is no added viewmodel ambient floor. At the measured AquaE Blue Room
+The first-person arms and gun select ordinary lights at the eye (a 64 uu sphere, filtered by the eye's zone, the
+weapon actor's; with the leaf lists, static lights listed by the leaves that sphere touches). The weapon actor sits at
+the eye, in the camera's zone (runtime probe), and FActorSceneNode::Render (`0x10a172f0`, test at `0x10a17463`) drops
+a bAffectOwnZoneOnly light unless its zone is the rendered actor's: that is the decoded part. Suns of other zones are
+also dropped, by the sun zone test that stands in for the leaves of a bounds box (see above), not by that render
+test. The sphere is still an approximation: the original gathers from the weapon's render bounds (one
+sample, AquaE: radius 262.6 centred off the eye). There is no added viewmodel ambient floor. At the measured AquaE Blue Room
 pose (eye `7152, 1036, 272.50626`, yaw 16384, FOV 95), the original selects zero ordinary lights and has zero
 actor/zone ambient. Its rifle highlights come from the original material chain through the heat/EMF modifiers:
 `SFX_xbox.final_gundef` supplies `envmap_gundef` and `M160_specular_mask`. Skeletal export and loading must preserve

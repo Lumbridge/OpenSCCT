@@ -99,7 +99,8 @@ public sealed class CameraMountViews
                 m.Lit = true;
                 Aabb box = node.Transform * mesh.GetAabb();
                 float radius = UeSpace.UnitsPerMetre * box.Size.Length() * 0.5f;
-                ActorLighting.Apply(node, _map.LightActor(a.Location, radius, a.AmbientGlow, a.bSpecialLit));
+                ActorLighting.Apply(node, _map.LightActor(a.Location, radius, a.AmbientGlow, a.bSpecialLit, null, a.MaxLights,
+                    ActorLighting.LeafBounds(box, a.Physics, zoneTag: ActorLighting.ZoneTag(a.ForcedVisibilityZoneTag))));
             }
         }
     }
