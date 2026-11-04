@@ -565,7 +565,7 @@ public sealed class Level
     /// <summary>
     /// Advances one fixed tick: clock (and a fresh SimEvents buffer), then every actor's native tick (Tick event,
     /// state code, timer, LifeSpan, physics) in list order with owners and bases first, then queued spawns and
-    /// destroys. Hosts normally call <see cref="World.Step()"/>, which also feeds the event sink.
+    /// destroys. Actors the match-size rules left out of the round (<see cref="Actor.MatchExcluded"/>) do not tick. Hosts normally call <see cref="World.Step()"/>, which also feeds the event sink.
     /// </summary>
     [UcNative("ULevel::Tick")]
     public void Tick()
@@ -608,7 +608,7 @@ public sealed class Level
         for (int i = 0; i < count; i++)
         {
             Actor a = actors[i];
-            if (a.bDeleteMe || a.bStatic || a.TickedStamp == stamp)
+            if (a.bDeleteMe || a.bStatic || a.MatchExcluded || a.TickedStamp == stamp)
             {
                 continue;
             }
@@ -668,9 +668,10 @@ public sealed class Level
 
     private static bool MustWait(Actor a, long stamp) => IsUnticked(a.Owner, a, stamp) || IsUnticked(a.Base, a, stamp);
 
+    // An actor the match-size rules left out of the round does not tick, so nothing waits for it.
     private static bool IsUnticked(Actor? other, Actor self, long stamp) =>
         other is not null && !ReferenceEquals(other, self) && other.InList && !other.bDeleteMe && !other.bStatic &&
-        other.TickedStamp != stamp;
+        !other.MatchExcluded && other.TickedStamp != stamp;
 
     // ---- list bookkeeping ----------------------------------------------------------------------------------
 
