@@ -128,6 +128,8 @@ public partial class SCamera
                 WallSupport.bHidden = false;
                 WallSupport.RemoteRole = ENetRole.ROLE_SimulatedProxy;
                 WallSupport.HeatIntensity = WallSupportHeatIntensity;
+                // The spawned mount has no mesh collider. Its fallback cylinder encloses the camera body.
+                WallSupport.bBulletGoTru = true;
             }
         }
 

@@ -37,6 +37,11 @@ public sealed partial class DemoRecorder
 
     public bool IsFinished => Writer.IsFinished;
 
+    public void SetScoreboard(OpenScct.Net.Scoreboards.RoundScoreboard scoreboard)
+    {
+        if (!Writer.IsFinished) Writer.Index.Scoreboard = scoreboard;
+    }
+
     /// <summary>Adds a marker now (an online session's round end, for example).</summary>
     public void Mark(DemoMarkerKind kind, string text)
     {
@@ -90,6 +95,8 @@ public sealed partial class DemoRecorder
         }
 
         _host.RequestDemoViews(false);
+
+        if (_host.Scoreboards.Final is { } scoreboard) SetScoreboard(scoreboard);
 
         _scanCountdown = 0;
         Scan();

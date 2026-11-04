@@ -246,7 +246,7 @@ public sealed class GameSettingsTests : IDisposable
     public void SaveAndLoadRoundTrip()
     {
         string path = Path.Combine(_dir, "settings.json");
-        var s = new GameSettings { PlayerName = "Sam", FpsMerc = 144, Resolution = "1920x1080", ShowPing = true };
+        var s = new GameSettings { PlayerName = "Sam", FpsMerc = 144, Resolution = "1920x1080", ShowNet = true };
         s.MercKbm.Look = 1.25f;
         s.Save(path);
         Assert.False(File.Exists(path + ".tmp"));
@@ -254,7 +254,7 @@ public sealed class GameSettingsTests : IDisposable
         Assert.Equal("Sam", back.PlayerName);
         Assert.Equal(144, back.FpsMerc);
         Assert.Equal("1920x1080", back.Resolution);
-        Assert.True(back.ShowPing);
+        Assert.True(back.ShowNet);
         Assert.Equal(1.25f, back.MercKbm.Look);
         Assert.Equal(path, back.LoadNote);
         Assert.StartsWith("//", File.ReadAllText(path), StringComparison.Ordinal);

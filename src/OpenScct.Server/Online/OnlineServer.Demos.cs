@@ -136,7 +136,8 @@ public sealed partial class OnlineServer
             CleanTemporaryDemos();
             return;
         }
-        var demo = new PersonalDemo(Guid.NewGuid().ToString("N"), DescribeDemoFile(path), DescribeTrainingFile(path));
+        string roundId = Host.Recorder?.Writer.Header.RoundId ?? string.Empty;
+        var demo = new PersonalDemo(roundId.Length > 0 ? roundId : Guid.NewGuid().ToString("N"), DescribeDemoFile(path), DescribeTrainingFile(path));
         foreach (int id in _roundDemoRecipients)
         {
             if (!_demoSubscribers.Contains(id)) continue;

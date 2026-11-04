@@ -69,6 +69,10 @@ public sealed partial class OnlineServer
         {
             SendResults(p, results);
         }
+        else if (Phase == SessionPhase.Lobby && LastResults?.Scoreboard is { } previous && p.Slot is { } previousSlot)
+        {
+            RoundScoreboardTracker.Send(previousSlot.Connection, previous, -1, historical: true);
+        }
     }
 
     private void SendSetup(SessionPlayer? to)
@@ -124,6 +128,11 @@ public sealed partial class OnlineServer
 
     private void SendResults(SessionPlayer? to, MatchResults r)
     {
+        if (r.Scoreboard is { } scoreboard)
+            foreach (var slot in Host.Players)
+                if (to is null || ReferenceEquals(to.Slot, slot))
+                    RoundScoreboardTracker.Send(slot.Connection, scoreboard,
+                        Host.Scoreboards.ParticipantId(slot.Controller?.PlayerReplicationInfo));
         foreach (ResultRow row in r.Rows)
         {
             Send(to, SessionProtocol.Line("row", row.Id, row.Team, row.Score, row.Kills, row.Deaths, row.Lives, row.Name));

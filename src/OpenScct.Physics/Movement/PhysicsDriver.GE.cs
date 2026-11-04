@@ -469,11 +469,6 @@ public sealed partial class PhysicsDriver
             return;
         }
 
-        if (p.bIsCrouched && !sb.UnCrouch(true))
-        {
-            return;
-        }
-
         FVector fwd = p.Rotation.Vector();
         FVector acc = p.Acceleration.SafeNormal();
         FVector vel = new FVector(p.Velocity.X, p.Velocity.Y, 0f).SafeNormal();
@@ -491,6 +486,12 @@ public sealed partial class PhysicsDriver
             if ((nf < -K.GE.LadderFacing && sgn * (n | acc) < -K.GE.LadderFacing) ||
                 (airborne && sgn * (n | vel) < -K.GE.LadderFacing && nf < -K.GE.LadderFacingAir))
             {
+                // A rejected ladder query must not undo the walking crouch request every frame.
+                if (p.bIsCrouched && !sb.UnCrouch(true))
+                {
+                    return;
+                }
+
                 pc.eventNarrowLadder();
                 return;
             }

@@ -119,7 +119,10 @@ stream that has the Sound's own name.
    the radius is 0, and without 3D (flag 0x10) when Attenuate is false and the sound comes from the actor it views.
 6. `SetSwitch(Surface)` stores the surface type in the subsystem (one value for all sounds); the next switch sound
    consumes it (rule 13).
-7. `StopSound(Sound)` stops the sources of this actor that play that Sound.
+7. `StopSound(Sound)` stops the sources of this actor that play that Sound. A None sound stops all sources of this
+   actor (retail wrapper `0x10a25720`, subsystem `0x10b047e0`, actor-only branch `0x10b0487a..0x10b0488c`).
+   The rewrite preserves the wildcard through local and network playback. Controller-wide stops include pawn
+   sources rebound to that controller at playback start; both null arguments stop non-music sources globally.
 8. `PlayMusic(Song, FadeInTime)` returns a handle; `StopMusic(Song, Handle, FadeOutTime)`; see Music.
 
 ### Playing one sound (UUNIAudioSubsystem::PlaySound)
@@ -216,10 +219,15 @@ stream that has the Sound's own name.
 
 ### Reverb
 
-25. Each update sets the DirectSound 3D listener's I3DL2 environment to the `ZoneEffect` of the listener's zone
-    (an I3DL2Listener object in the map package: the EFFECT_* classes of SBase, with per-map overrides). Reverb only
-    affects 3D sources. SteeE: 29 of its 32 sound zones have one (Room, StoneCorridor, Sewerpipe, Stoneroom,
-    Hallway, Hangar, City).
+25. Update selects the listener zone's `ZoneEffect` (an I3DL2Listener object: the EFFECT_* classes with per-map
+    overrides). On effect-pointer changes, `0x10b0c420` forwards the 112-byte EAX 3 listener block to the provider.
+    The supplied Creative ALchemy 2.4.2.18 accepts 218 of the 232 distinct map blocks and rejects 14 whole updates;
+    the caller ignores the failed result and keeps the prior environment. Initial NULL selection preserves Generic
+    driver defaults; changing from an effect to NULL sends a separate native fallback packet. Reverb affects 3D
+    sources through independent room sends. The rewrite uses one retained native HRvb effect per listener,
+    preserving separate early/late reflections, spectral decay, pans, echo/modulation, flags and source room gain.
+    See [implementation and reference measurements](reverb-parity-2026-11-04.md). SteeE: 29 of its 32 sound zones
+    have an effect (Room, StoneCorridor, Sewerpipe, Stoneroom, Hallway, Hangar, City).
 
 ### Audio zoom (SetAudioZoom)
 
@@ -352,6 +360,6 @@ properties (spec/devices/sound-music.md).
    the radius; record the output level.
 2. Decoded (rules 18 and 20). Open: whether the reference install runs the EAX path (its System folder has
    dsound.dll and eax.dll); the rewrite plays the DirectSound one.
-3. The upper pitch clamp of one-shot sounds (2 is assumed, as for ambient sounds).
+3. Resolved 2026-11-04: native one-shot PlaySound (`0x10b03d50`) clamps pitch to [0.5, 2], as for ambient sounds.
 4. APlayerController::HearSound (the per-hearer reach test that decides who gets ClientHearSound) is not decoded.
 5. Which streamed sounds a map really plays when its bank lacks the package (rule in Map banks): assumed silent.

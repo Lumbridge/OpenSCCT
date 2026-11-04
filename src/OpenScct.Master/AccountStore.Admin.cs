@@ -15,11 +15,11 @@ internal sealed record AdminSessionRow(string DiscordId, string Name, string Csr
 /// <summary>One stored round (every report from a trusted server, counted or not).</summary>
 internal sealed record MatchRow(
     long Id, long Time, string ServerId, string ServerName, string Map, int Mode, int Winner, int Reason, int ObjectivesTaken,
-    int ObjectivesNeeded, int DurationSeconds, bool Counted);
+    int ObjectivesNeeded, int DurationSeconds, bool Counted, string? RoundId = null);
 
 /// <summary>One player's line of a stored round.</summary>
 internal sealed record MatchPlayerRow(long MatchId, long? AccountId, string Name, int Team, int Score, int Kills, int Deaths, bool Bot,
-    IReadOnlyDictionary<string, int> Feats, RecordedLoadout? Loadout = null);
+    IReadOnlyDictionary<string, int> Feats, RecordedLoadout? Loadout = null, bool LeftEarly = false);
 
 /// <summary>One sample of what the master saw (players online, servers, hubs, relay sessions).</summary>
 internal sealed record MetricRow(long Time, int Players, int Servers, int Hubs, int RelaySessions);
@@ -289,11 +289,11 @@ internal sealed partial class AccountStore
     // ---- Matches -----------------------------------------------------------------------------------------------
 
     private const string MatchColumns =
-        "id, time, server_id, server_name, map, mode, winner, reason, objectives_taken, objectives_needed, duration_s, counted";
+        "id, time, server_id, server_name, map, mode, winner, reason, objectives_taken, objectives_needed, duration_s, counted, round_id";
 
     private static MatchRow ReadMatch(SqliteDataReader r) => new(
         r.GetInt64(0), r.GetInt64(1), r.GetString(2), r.GetString(3), r.GetString(4), r.GetInt32(5), r.GetInt32(6), r.GetInt32(7),
-        r.GetInt32(8), r.GetInt32(9), r.GetInt32(10), r.GetInt64(11) != 0);
+        r.GetInt32(8), r.GetInt32(9), r.GetInt32(10), r.GetInt64(11) != 0, r.IsDBNull(12) ? null : r.GetString(12));
 
     /// <summary>Keeps a reported round and its players; returns its id.</summary>
     public long RecordMatch(ResultsReport report, string serverName, bool counted)
@@ -302,11 +302,16 @@ internal sealed partial class AccountStore
         {
             return InTransaction(() =>
             {
+                string? roundId = report.Scoreboard?.RoundId;
+                if (FindReportedRound(report.ServerId, roundId) is { } existing) return existing;
                 Exec("INSERT INTO matches (time, server_id, server_name, map, mode, winner, reason, objectives_taken, objectives_needed, " +
-                    "duration_s, counted) VALUES ($t, $s, $sn, $m, $mo, $w, $r, $ot, $on, $d, $c);",
+                    "duration_s, counted, round_id, scoreboard) VALUES ($t, $s, $sn, $m, $mo, $w, $r, $ot, $on, $d, $c, $round, $board);",
                     ("$t", Now), ("$s", report.ServerId), ("$sn", serverName), ("$m", report.Map), ("$mo", report.Mode),
                     ("$w", report.WinningTeam), ("$r", report.WinningReason), ("$ot", report.ObjectivesTaken),
-                    ("$on", report.ObjectivesNeeded), ("$d", Math.Clamp(report.DurationSeconds, 0, 86400)), ("$c", counted ? 1 : 0));
+                    ("$on", report.ObjectivesNeeded), ("$d", Math.Clamp(report.DurationSeconds, 0, 86400)), ("$c", counted ? 1 : 0),
+                    ("$round", string.IsNullOrEmpty(roundId) ? null : roundId),
+                    ("$board", report.Scoreboard is null ? null : JsonSerializer.Serialize(report.Scoreboard with
+                    { Master = null, MatchId = null, DemoId = null, Server = serverName }, MasterApi.Json)));
                 long id = Convert.ToInt64(Scalar("SELECT last_insert_rowid();"), CultureInfo.InvariantCulture);
                 if (report.Events is not null)
                     Exec("INSERT INTO match_timelines (match_id, events, truncated) VALUES ($id, $events, $truncated);",
@@ -314,12 +319,13 @@ internal sealed partial class AccountStore
                 foreach (ResultsReportRow row in report.Rows)
                 {
                     string name = row.Name ?? string.Empty;
-                    Exec("INSERT INTO match_rows (match_id, account_id, name, team, score, kills, deaths, bot, feats, loadout) " +
-                        "VALUES ($m, $a, $n, $t, $s, $k, $d, $b, $f, $l);",
+                    Exec("INSERT INTO match_rows (match_id, account_id, name, team, score, kills, deaths, bot, feats, loadout, left_early) " +
+                        "VALUES ($m, $a, $n, $t, $s, $k, $d, $b, $f, $l, $left);",
                         ("$m", id), ("$a", row.AccountId), ("$n", name.Length > 64 ? name[..64] : name), ("$t", row.Team),
                         ("$s", row.Score), ("$k", row.Kills), ("$d", row.Deaths), ("$b", row.Bot ? 1 : 0),
                         ("$f", JsonSerializer.Serialize(row.Feats ?? new Dictionary<string, int>())),
-                        ("$l", row.Loadout is null ? null : JsonSerializer.Serialize(row.Loadout.Snapshot(), MasterApi.Json)));
+                        ("$l", row.Loadout is null ? null : JsonSerializer.Serialize(row.Loadout.Snapshot(), MasterApi.Json)),
+                        ("$left", row.LeftEarly ? 1 : 0));
                 }
 
                 return id;
@@ -344,7 +350,7 @@ internal sealed partial class AccountStore
         {
             return Query("SELECT CASE WHEN m.winner NOT IN (0, 1) THEN 'D' WHEN m.winner = r.team THEN 'W' ELSE 'L' END " +
                 "FROM matches m JOIN match_rows r ON r.match_id = m.id " +
-                "WHERE r.account_id = $a AND r.bot = 0 AND r.team IN (0, 1) AND m.counted = 1 ORDER BY m.id DESC LIMIT 9;",
+                "WHERE r.account_id = $a AND r.bot = 0 AND r.left_early = 0 AND r.team IN (0, 1) AND m.counted = 1 ORDER BY m.id DESC LIMIT 9;",
                 r => r.GetString(0), ("$a", accountId));
         }
     }
@@ -360,12 +366,12 @@ internal sealed partial class AccountStore
             }
 
             List<MatchPlayerRow> rows = Query(
-                "SELECT match_id, account_id, name, team, score, kills, deaths, bot, feats, loadout FROM match_rows WHERE match_id = $id " +
+                "SELECT match_id, account_id, name, team, score, kills, deaths, bot, feats, loadout, left_early FROM match_rows WHERE match_id = $id " +
                 "ORDER BY team, score DESC;",
                 r => new MatchPlayerRow(r.GetInt64(0), r.IsDBNull(1) ? null : r.GetInt64(1), r.GetString(2), r.GetInt32(3), r.GetInt32(4),
                     r.GetInt32(5), r.GetInt32(6), r.GetInt64(7) != 0,
                     JsonSerializer.Deserialize<Dictionary<string, int>>(r.GetString(8)) ?? new Dictionary<string, int>(),
-                    r.IsDBNull(9) ? null : JsonSerializer.Deserialize<RecordedLoadout>(r.GetString(9), MasterApi.Json)),
+                    r.IsDBNull(9) ? null : JsonSerializer.Deserialize<RecordedLoadout>(r.GetString(9), MasterApi.Json), r.GetInt64(10) != 0),
                 ("$id", id));
             return (match, rows);
         }

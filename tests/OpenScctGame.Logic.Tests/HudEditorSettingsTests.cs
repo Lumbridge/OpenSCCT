@@ -12,7 +12,6 @@ public sealed class HudEditorSettingsTests
         draft.HudLayout.Spy["Vie"].X = 0; Assert.Equal(.2f, s.HudLayout.Spy["Vie"].X);
     }
     [Theory]
-    [InlineData("Scoreboard")]
     [InlineData("Chat")]
     [InlineData("Activity")]
     [InlineData("Location")]
@@ -23,6 +22,12 @@ public sealed class HudEditorSettingsTests
         var s = new GameSettings(); s.HudLayout.Element(false, id).Scale = 1.5f;
         s.HudLayout.Element(true, id).Visible = false;
         var loaded = s.Clone(); Assert.Equal(1.5f, loaded.HudLayout.Spy[id].Scale); Assert.False(loaded.HudLayout.Merc[id].Visible);
+    }
+    [Fact] public void LegacyScoreboardPlacementIsIgnored()
+    {
+        var settings = HudEditorSettings.Parse("{\"Spy\":{\"Scoreboard\":{\"Visible\":false}},\"Merc\":{\"Scoreboard\":{\"Scale\":2}}}");
+        Assert.False(HudEditorSettings.Elements.ContainsKey("Scoreboard"));
+        Assert.Empty(settings.Spy); Assert.Empty(settings.Merc);
     }
     [Fact] public void InvalidValuesAndUnknownElementsAreSanitized()
     {

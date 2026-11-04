@@ -21,7 +21,7 @@ public sealed class VersionStoreTests
     public void InstallsSideBySideAndSwitches()
     {
         using var dir = new TempDir();
-        var layout = new LauncherLayout(dir.Combine("root"));
+        var layout = new LauncherLayout(dir.Combine("root"), LauncherPlatform.WindowsX64);
         var store = new VersionStore(layout);
 
         store.InstallFromZip(Zip(dir, "0.1.0"), V("0.1.0"));
@@ -43,7 +43,7 @@ public sealed class VersionStoreTests
     public void RollbackSwapsCurrentAndPrevious()
     {
         using var dir = new TempDir();
-        var store = new VersionStore(new LauncherLayout(dir.Combine("root")));
+        var store = new VersionStore(new LauncherLayout(dir.Combine("root"), LauncherPlatform.WindowsX64));
         store.InstallFromZip(Zip(dir, "0.1.0"), V("0.1.0"));
         store.Activate(V("0.1.0"));
         store.InstallFromZip(Zip(dir, "0.2.0"), V("0.2.0"));
@@ -58,7 +58,7 @@ public sealed class VersionStoreTests
     public void RollbackWithoutPreviousDoesNothing()
     {
         using var dir = new TempDir();
-        var store = new VersionStore(new LauncherLayout(dir.Combine("root")));
+        var store = new VersionStore(new LauncherLayout(dir.Combine("root"), LauncherPlatform.WindowsX64));
         store.InstallFromZip(Zip(dir, "0.1.0"), V("0.1.0"));
         store.Activate(V("0.1.0"));
         Assert.False(store.Rollback());
@@ -68,7 +68,7 @@ public sealed class VersionStoreTests
     public void PruneKeepsCurrentPreviousAndFoldersInUse()
     {
         using var dir = new TempDir();
-        var layout = new LauncherLayout(dir.Combine("root"));
+        var layout = new LauncherLayout(dir.Combine("root"), LauncherPlatform.WindowsX64);
         var store = new VersionStore(layout);
         foreach (string v in new[] { "0.1.0", "0.2.0", "0.3.0", "0.4.0" })
         {
@@ -90,7 +90,7 @@ public sealed class VersionStoreTests
     public void ZipWithoutTheGameIsRejectedAndLeavesNothing()
     {
         using var dir = new TempDir();
-        var layout = new LauncherLayout(dir.Combine("root"));
+        var layout = new LauncherLayout(dir.Combine("root"), LauncherPlatform.WindowsX64);
         var store = new VersionStore(layout);
         string bad = dir.Combine("bad.zip");
         using (var zip = System.IO.Compression.ZipFile.Open(bad, System.IO.Compression.ZipArchiveMode.Create))
@@ -106,7 +106,7 @@ public sealed class VersionStoreTests
     public void ActivateRefusesAMissingVersion()
     {
         using var dir = new TempDir();
-        var store = new VersionStore(new LauncherLayout(dir.Combine("root")));
+        var store = new VersionStore(new LauncherLayout(dir.Combine("root"), LauncherPlatform.WindowsX64));
         Assert.Throws<InvalidOperationException>(() => store.Activate(V("1.0.0")));
     }
 
@@ -114,7 +114,7 @@ public sealed class VersionStoreTests
     public void PendingIsClearedByActivate()
     {
         using var dir = new TempDir();
-        var store = new VersionStore(new LauncherLayout(dir.Combine("root")));
+        var store = new VersionStore(new LauncherLayout(dir.Combine("root"), LauncherPlatform.WindowsX64));
         store.InstallFromZip(Zip(dir, "0.1.0"), V("0.1.0"));
         store.Activate(V("0.1.0"));
         store.InstallFromZip(Zip(dir, "0.2.0"), V("0.2.0"));
@@ -129,7 +129,7 @@ public sealed class VersionStoreTests
     public void VersionDirOfMapsAnExeToItsFolder()
     {
         using var dir = new TempDir();
-        var layout = new LauncherLayout(dir.Combine("root"));
+        var layout = new LauncherLayout(dir.Combine("root"), LauncherPlatform.WindowsX64);
         var store = new VersionStore(layout);
         Assert.Equal(layout.VersionDir("0.2.0"), store.VersionDirOf(Path.Combine(layout.VersionDir("0.2.0"), "OpenSCCT.exe")));
         Assert.Null(store.VersionDirOf(dir.Combine("elsewhere", "OpenSCCT.exe")));

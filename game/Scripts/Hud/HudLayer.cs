@@ -144,9 +144,6 @@ public partial class HudLayer : CanvasLayer
     /// <summary>The screen-effect washes drawn last frame.</summary>
     public MagmaDrawList SfxDrawList => _sfxList;
 
-    /// <summary>Raised when the connected players list is toggled (Reloaded remembers its state).</summary>
-    public event Action<bool>? ConnectedPlayersToggled;
-
     /// <summary>
     /// Adds a HUD under <paramref name="parent"/> reading the controller <paramref name="controller"/> returns.
     /// Returns null with the reason when the UI content is missing (the game runs without a HUD then).
@@ -237,24 +234,6 @@ public partial class HudLayer : CanvasLayer
         _overrides.Add(page);
     }
 
-    /// <summary>
-    /// <c>SPlayerController.ShowConnectedPlayers</c> (exec, client side): flips the local SHud's
-    /// bShowConnectedPlayers.
-    /// </summary>
-    [OpenScct.Provenance.Uc("SBase.SPlayerController.ShowConnectedPlayers", Sha1 = "4e08738fb29658bcbf96fa284cad1e0800abb54c")]
-    [OpenScct.Provenance.PortOf("uc:SBase.SPlayerController:ShowConnectedPlayers", Spec = "spec/hud/scoreboard.md#rules")]
-    public bool ShowConnectedPlayers()
-    {
-        if (_controller?.Invoke()?.myHUD is not SHud hud)
-        {
-            return false;
-        }
-
-        hud.bShowConnectedPlayers = !hud.bShowConnectedPlayers;
-        ConnectedPlayersToggled?.Invoke(hud.bShowConnectedPlayers);
-        return hud.bShowConnectedPlayers;
-    }
-
     /// <summary>Enables the player's configured FPS and frame-time readout.</summary>
     public bool ShowFps { get; set; }
 
@@ -266,9 +245,6 @@ public partial class HudLayer : CanvasLayer
 
     /// <summary>The network readout; its <see cref="HudNet.Source"/> is set by the play scene.</summary>
     public HudNet Net { get; } = new();
-
-    /// <summary>Sets the connected players list of a new HUD (Reloaded keeps it on and remembers it).</summary>
-    public bool InitialConnectedPlayers { get; set; }
 
     /// <summary>The location readout above the radar (rl:qol.location, show_location).</summary>
     public bool ShowLocation { get; set; } = true;
@@ -564,7 +540,7 @@ public partial class HudLayer : CanvasLayer
     {
         hud.EnhancedRealityLevel = 1;
         hud.HudUnit(DistanceInFeet);
-        hud.bShowConnectedPlayers = InitialConnectedPlayers;
+        hud.bShowConnectedPlayers = false;
     }
 
     /// <summary>

@@ -137,12 +137,12 @@ public partial class OptionsMenu
                 _meterAudio = new VoiceAudio { Name = "MeterAudio", Client = _meter };
                 AddChild(_meterAudio);
                 _meter.SetCaptureRate(_meterAudio.CaptureRate > 0 ? _meterAudio.CaptureRate : (int)AudioServer.GetMixRate());
-                // Smoke runs never open the player's microphone.
-                if (!SettingsStore.Isolated && !_meterAudio.StartMicrophone(_edit.VoiceInputDevice) && _micTestState is not null)
-                {
-                    _micTestState.Text = _meterAudio.MicrophoneProblem ?? "The microphone could not start.";
-                }
             }
+
+            // Device selection and recovery also apply to an already-running meter.
+            _meterAudio!.UpdateMicrophone(!SettingsStore.Isolated, _edit.VoiceInputDevice, GetProcessDeltaTime());
+            if (_meterAudio.MicrophoneProblem is { } problem && _micTestState is not null)
+                _micTestState.Text = problem;
 
             // The meter shows the level after the page's clean-up and gain, as the gate sees it. The echo canceller has
             // no voices to cancel here.

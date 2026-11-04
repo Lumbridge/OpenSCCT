@@ -87,6 +87,8 @@ internal sealed partial class AccountApi
             a => Results.Json(_store.History(a.Id, page ?? 0), MasterApi.Json)));
         app.MapGet(MasterApi.MatchHistoryPath + "/{id:long}", (HttpContext context, long id) => WithAccount(context,
             a => _store.HistoryDetails(a.Id, id) is { } details ? Results.Json(details, MasterApi.Json) : Error(404, "Match not found.")));
+        app.MapGet(MasterApi.MatchHistoryPath + "/round/{roundId}", (HttpContext context, string roundId) => WithAccount(context,
+            a => _store.HistoryDetailsByRound(a.Id, roundId) is { } details ? Results.Json(details, MasterApi.Json) : Error(404, "Match not found.")));
         MapDemos(app);
     }
 
@@ -111,6 +113,7 @@ internal sealed partial class AccountApi
         app.MapPost(MasterApi.ResultsPath, () => Error(StatusCodes.Status503ServiceUnavailable, "This master keeps no accounts or results."));
         app.MapGet(MasterApi.MatchHistoryPath, Off);
         app.MapGet(MasterApi.MatchHistoryPath + "/{id:long}", (long id) => Off());
+        app.MapGet(MasterApi.MatchHistoryPath + "/round/{roundId}", (string roundId) => Off());
         MapDemosDisabled(app);
     }
 
@@ -470,20 +473,20 @@ internal sealed partial class AccountApi
             return Error(StatusCodes.Status403Forbidden, "This server is not registered as trusted; send a heartbeat with its key first.");
         }
 
-        if (report.Rows.Count > 64 || report.Map.Length > 64)
+        if (report.Rows.Count > 256 || report.Map.Length > 64)
         {
             return Error(StatusCodes.Status400BadRequest, "The report is too large.");
         }
+
+        if (!ValidScoreboard(report)) return Error(StatusCodes.Status400BadRequest, "Invalid completed scoreboard.");
+        if (report.Scoreboard is { } scoreboard)
+            report = report with { Scoreboard = scoreboard with { RoundId = Guid.Parse(scoreboard.RoundId).ToString("N") } };
 
         if (report.Events is { } events && (events.Count > 1024 || events.Any(e => e is null || e.Seconds < 0 ||
             e.Seconds > Math.Clamp(report.DurationSeconds, 0, 86400) || e.Kind is null || e.Kind.Length > 32 ||
             e.Text is null || e.Text.Length > 256) || !events.Select(e => e.Seconds).SequenceEqual(events.Select(e => e.Seconds).Order())))
             return Error(400, "Invalid match timeline.");
         bool counted = Countable(report);
-        if (counted)
-        {
-            _store.ApplyResults(report, server.Name);
-        }
 
         string serverName;
         lock (_registry.Gate)
@@ -491,7 +494,7 @@ internal sealed partial class AccountApi
             serverName = _registry.Find(report.ServerId)?.Last.Name ?? server.Name;
         }
 
-        long matchId = _store.RecordMatch(report, serverName, counted);
+        long matchId = _store.RecordReportedMatch(report, serverName, counted);
 
         var equipment = new Dictionary<long, EquipmentAccountState>();
         foreach (var row in report.Rows)
@@ -502,7 +505,7 @@ internal sealed partial class AccountApi
     }
 
     /// <summary>A round with a winner and at least one signed-in player on each team.</summary>
-    private static bool Countable(ResultsReport report)
+    internal static bool Countable(ResultsReport report)
     {
         if (report.WinningTeam is not (0 or 1))
         {
@@ -512,7 +515,7 @@ internal sealed partial class AccountApi
         bool spies = false, mercs = false;
         foreach (ResultsReportRow row in report.Rows)
         {
-            if (row.Bot || row.AccountId is null)
+            if (row.Bot || row.LeftEarly || row.AccountId is null)
             {
                 continue;
             }

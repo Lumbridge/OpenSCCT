@@ -14,7 +14,9 @@ latest totals. Only rounds accepted by the official-server progression rules cou
 - An em dash means a value is unavailable or a ratio has no denominator.
 - A failed refresh keeps the last loaded data and displays the error.
 
-Use **Match history** to inspect individual recorded rounds. Website profiles and privacy controls are
+Use **Demos → Match history** to inspect individual rounds, including games without a replay or sign-in.
+The [scoreboard guide](SCOREBOARD.md) explains the role-specific counters, live delay and permanent history.
+Website profiles and privacy controls are
 covered in the [player hub guide](PLAYER-HUB.md).
 
 ## Implementation and checks

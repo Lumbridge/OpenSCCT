@@ -1110,20 +1110,38 @@ dotnet run --project src/OpenScct.Server.Cli -- --online --master http://127.0.0
 
 ### In-game match history and retention
 
-The main menu's progress card and Player stats screen open the signed-in player's match history.
-The account API pages through 20 rounds at a time and restricts match details to participants.
-Details include the server, map, mode, result, duration, objectives, scoreboard and an event timeline.
+The Demos page combines scoreboards saved on this computer with the signed-in player's reported match history.
+Local scoreboards are retained independently of replay recording, sign-in and replay expiry. Leaving a round
+keeps the most recently received delayed snapshot, labelled partial; a completed trusted-server report can
+replace it later. Practice and private/offline results are local only under the existing reporting rules.
+The account API pages through 20 rounds at a time and restricts match details, including stable round-ID lookup,
+to participants. Departed participants remain in the scoreboard and history membership without gaining career
+awards. Details include the server, map, mode, result, duration, objectives, role statistics and an optional timeline.
 Updated trusted servers record round starts, deaths (including the killer and damage type), objective completions,
 dog tags and round ends. Timelines are limited to 1,024 events with an explicit truncation notice.
 Older reports keep their scoreboards and show that a timeline is unavailable. The compact recent-results line
 shows the latest nine counted rounds, newest first. History has an empty state before any matches are recorded.
 
 `Master.MatchHistoryDays` defaults to 90 (allowed: 1–365), also configurable as
-`SVM_Master__MatchHistoryDays`. Once per minute the master removes up to 1,000 expired rounds and their
-scoreboards, timelines and demo metadata in a transaction. Lifetime stats, progression and achievements remain.
-Demo objects retain their existing bucket lifecycle policy. SQLite reuses freed database pages.
+`SVM_Master__MatchHistoryDays`. This controls auxiliary details: once per minute the master removes up to 1,000
+expired timelines and 1,000 expired demo metadata rows in a transaction. Completed scoreboards and their
+participant rows are kept permanently, independently of these details. Lifetime stats, progression and
+achievements also remain. Demo objects retain their existing seven-day bucket lifecycle policy. SQLite reuses
+freed database pages. Auxiliary cleanup selects rows still present, so retained old matches cannot stall later batches.
 Database schema 8 adds the timeline table and preserves existing rounds during upgrade.
 Schema 10 adds optional per-player loadout metadata to stored round rows. The authority snapshots the last
 granted weapon and gadgets; the history API returns them when available. Existing rows retain a null loadout,
 and old servers/clients remain compatible. These class paths are not added to numeric career totals.
-Deploy the updated master and trusted game servers to enable new timelines; older clients remain compatible.
+Schema 11 adds a nullable stable round ID, a versioned final scoreboard and departed-player flags. Older records
+retain available feats with a legacy counter version; missing counters are unavailable rather than verified zero.
+Round IDs are generated once by the server, shared with the client/replay, and uniquely stored per reporting
+server. Report storage and career awards form one transaction; repeating a report with a stable round ID cannot
+award it twice. Legacy reports without round IDs keep their existing compatibility behavior.
+Rounds deleted before this migration cannot be recovered. Deploy the master before updated trusted servers;
+older reports and clients remain supported.
+
+Public website history continues to apply profile privacy on every request. Account-history access remains
+participant-only; local snapshots contain gameplay display information rather than account or connection secrets.
+Manual account-deletion handling must include retained participant account IDs/names, their names in saved
+scoreboard JSON and any name-bearing timeline data, alongside existing account tables. Website privacy changes do not rewrite other players' local
+scoreboards or recordings.

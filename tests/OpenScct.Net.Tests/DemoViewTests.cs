@@ -27,7 +27,7 @@ public sealed class DemoViewTests : IDisposable
             writer.Finish();
         }
         DemoRecording recording = DemoFile.Read(_path);
-        Assert.Equal(2, recording.Header.FormatVersion);
+        Assert.Equal(DemoFile.Version, recording.Header.FormatVersion);
         Assert.Equal(2, recording.Index.ViewFrames);
         Assert.Equal(new byte[] { 1, 2 }, recording.Packet(0).ToArray());
         Assert.Equal(new byte[] { 3 }, recording.Packet(1).ToArray());
@@ -96,7 +96,7 @@ public sealed class DemoViewTests : IDisposable
         using (var file = File.OpenWrite(_path))
         using (var writer = new BinaryWriter(file))
         {
-            file.Position = file.Length - 16 - 12; // version 2 index: view count then compressed length
+            file.Position = file.Length - 16 - 13; // v3: view count, compressed length, empty scoreboard length
             writer.Write(3);
         }
         Assert.ThrowsAny<IOException>(() => DemoFile.Read(_path));

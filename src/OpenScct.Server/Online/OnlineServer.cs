@@ -556,6 +556,7 @@ public sealed partial class OnlineServer : IDisposable
         }
 
         _lan?.Poll(nowMicros);
+        CompleteScoreboardReport();
         Master?.Tick(nowMicros, Info);
         while (Master is { } master && master.TryTakeEquipment(out var equipment))
             foreach (var player in _players)
@@ -686,6 +687,21 @@ public sealed partial class OnlineServer : IDisposable
         host.PlayerLeft += OnPlayerLeft;
         host.SessionLineReceived += OnSessionLine;
         host.ChatFilter = OnChatCommand;
+        host.Scoreboards.Enabled = !isLobby;
+        host.Scoreboards.ServerName = Settings.Name;
+        host.Scoreboards.Master = Settings.Master?.Url;
+        host.Scoreboards.WallClock = Settings.WallClock;
+        host.Scoreboards.Warning += Log;
+        host.Scoreboards.IdentityOf = pri =>
+        {
+            SessionPlayer? player = _players.Find(p => ReferenceEquals(
+                p.IsBot ? _bots?.ControllerOf(p.Id)?.PlayerReplicationInfo : p.Slot?.Controller?.PlayerReplicationInfo, pri));
+            if (player is null) return null;
+            string key = player.AccountId is { } account ? "account:" + account :
+                player.PublicKey is { Length: > 0 } publicKey ? "key:" + publicKey :
+                player.InstallId is { Length: > 0 } install ? "install:" + install : "session:" + player.Id;
+            return new ScoreboardIdentity(key, player.Id, player.AccountId, player.PublicKey, player.IsBot, player.Rank, player.PingMs);
+        };
         if (host.Game is { } game)
         {
             // The session admits its listen host even when spectator places are full (for example on a rejoin).
@@ -738,6 +754,7 @@ public sealed partial class OnlineServer : IDisposable
                 Map = map,
                 GameOptions = gameOptions,
                 ServerName = Settings.Name,
+                RoundId = host.Scoreboards.RoundId,
                 StartUnixMs = start.ToUnixTimeMilliseconds(),
                 TickRate = Sim.Hz,
                 NetRate = host.NetRate,
@@ -836,6 +853,8 @@ public sealed partial class OnlineServer : IDisposable
     /// <summary>Tells every client to travel to <paramref name="map"/> (null options: the lobby) and starts the change.</summary>
     private void BeginTravel(string map, string? gameOptions, SessionPhase next)
     {
+        if (Host.Scoreboards.Final is null && Host.Scoreboards.Finish() is not null)
+            LastResults = BuildResults();
         if (_travel is not null)
         {
             return;
@@ -1236,11 +1255,33 @@ public sealed partial class OnlineServer : IDisposable
 
     /// <summary>The master's id of the round that just ended, once its results are taken (null: not reported).</summary>
     private Task<long?>? _roundMatchId;
+    private string? _reportedScoreboardRound;
+    private long? _linkedScoreboardMatch;
+
+    private void CompleteScoreboardReport()
+    {
+        if (_roundMatchId is not { IsCompletedSuccessfully: true } task || task.Result is not { } matchId ||
+            _linkedScoreboardMatch == matchId || LastResults?.Scoreboard is not { } board || board.RoundId != _reportedScoreboardRound) return;
+        _linkedScoreboardMatch = matchId;
+        if (Host.Scoreboards.RoundId == board.RoundId)
+        {
+            Host.Scoreboards.AttachMatchId(matchId);
+            LastResults = LastResults with { Scoreboard = Host.Scoreboards.Final };
+        }
+        else
+        {
+            board = board with { MatchId = matchId, Sequence = board.Sequence + 1 };
+            LastResults = LastResults with { Scoreboard = board };
+            foreach (var slot in Host.Players) RoundScoreboardTracker.Send(slot.Connection, board, -1, historical: true);
+        }
+    }
 
     /// <summary>A trusted server's finished round goes to the master for the players' stats (off the tick).</summary>
     private void ReportResults(MatchResults results)
     {
         _roundMatchId = null;
+        _reportedScoreboardRound = results.Scoreboard?.RoundId;
+        _linkedScoreboardMatch = null;
         if (Master is not { Trusted: true, ServerId: { } serverId } link || Settings.Master?.ServerKey is not { Length: > 0 })
         {
             return;
@@ -1256,11 +1297,11 @@ public sealed partial class OnlineServer : IDisposable
         var rows = new List<ResultsReportRow>();
         foreach (ResultRow row in results.Rows)
         {
-            SessionPlayer? p = _players.Find(x => x.Id == row.Id);
+            ScoreboardIdentity? identity = Host.Scoreboards.Identity(row.ParticipantId);
             rows.Add(new ResultsReportRow
             {
-                AccountId = p?.AccountId, Name = row.Name, Team = row.Team, Score = row.Score, Kills = row.Kills, Deaths = row.Deaths,
-                Bot = p?.IsBot ?? false,
+                AccountId = identity?.AccountId, Name = row.Name, Team = row.Team, Score = row.Score, Kills = row.Kills, Deaths = row.Deaths,
+                Bot = identity?.Bot ?? false, LeftEarly = row.LeftEarly,
                 Feats = row.Feats ?? new Dictionary<string, int>(),
                 Loadout = row.Loadout,
             });
@@ -1268,6 +1309,7 @@ public sealed partial class OnlineServer : IDisposable
 
         _roundMatchId = link.ReportResults(new ResultsReport
         {
+            Scoreboard = results.Scoreboard,
             Events = _history.ToArray(), TimelineTruncated = _historyTruncated,
             ServerId = serverId, Map = results.Map, Mode = (int)Setup.Mode, WinningTeam = results.WinningTeam,
             WinningReason = results.WinningReason, ObjectivesTaken = results.ObjectivesTaken, ObjectivesNeeded = results.ObjectivesNeeded,
@@ -1286,9 +1328,9 @@ public sealed partial class OnlineServer : IDisposable
         var players = new List<MatchLogPlayer>();
         foreach (ResultRow row in results.Rows)
         {
-            SessionPlayer? p = _players.Find(x => x.Id == row.Id);
-            players.Add(new MatchLogPlayer(row.Name, row.Team, row.Score, row.Kills, row.Deaths, row.Lives, p?.IsBot ?? false,
-                p is { Verified: true } ? p.AccountId : null, p?.PublicKey, p?.PingMs ?? 0));
+            ScoreboardIdentity? identity = Host.Scoreboards.Identity(row.ParticipantId);
+            players.Add(new MatchLogPlayer(row.Name, row.Team, row.Score, row.Kills, row.Deaths, row.Lives, identity?.Bot ?? false,
+                identity?.AccountId, identity?.PlayerKey, identity?.PingMs ?? 0));
         }
 
         var entry = new MatchLogEntry
@@ -1434,92 +1476,32 @@ public sealed partial class OnlineServer : IDisposable
     }
 
     /// <summary>The round's achievement feats of one player: the counted ones plus those read from retail statistics.</summary>
-    private static Dictionary<string, int> FeatsOf(PlayerReplicationInfo pri)
-    {
-        var feats = new Dictionary<string, int>(StringComparer.Ordinal);
-        if (pri.Stats is { } s)
-        {
-            foreach ((string key, int value) in s.Feats)
-            {
-                feats[key] = value;
-            }
-
-            foreach (var counter in CareerStatCounters.All)
-                feats[counter.Key] = counter.Read(s);
-
-            feats[FeatKeys.SpyStickyKos] = s.Spy_StickyCamKOs;
-            feats[FeatKeys.MercChargeHits] = s.Merc_ChargeHits;
-            feats[FeatKeys.SpySmokeKos] = s.Spy_SmokeKOs;
-            feats[FeatKeys.SpyStickyCamUses] = s.Spy_StickyCamUsed;
-            feats[FeatKeys.SpyShockerHeadshots] = s.Spy_ShockerGunHeadshots;
-            feats[FeatKeys.SpyLedgeGrabs] = s.Spy_LedgeGrabs;
-            feats[FeatKeys.MercTaserHits] = s.Merc_TaserHits;
-            feats[FeatKeys.MercMinesPlaced] = s.Merc_MinesPlaced;
-            feats[FeatKeys.MercBerserkHits] = s.Merc_BerserkHits;
-        }
-
-        feats[FeatKeys.SpyObjectives] = pri.iNbObjectivesTaken;
-        foreach (string key in feats.Keys.Where(k => feats[k] <= 0).ToList())
-        {
-            feats.Remove(key);
-        }
-
-        return feats;
-    }
+    private static Dictionary<string, int> FeatsOf(PlayerReplicationInfo pri) => RoundStatCounters.Read(pri);
 
     private MatchResults BuildResults()
     {
-        SGameInfo? game = Host.Game;
-        GameReplicationInfo? gri = game?.GameReplicationInfo;
+        var board = Host.Scoreboards.Final ?? Host.Scoreboards.Finish();
         var rows = new List<ResultRow>();
-        foreach (SessionPlayer p in _players)
-        {
-            PlayerController? controller = p.IsBot ? _bots?.ControllerOf(p.Id) : p.Slot?.Controller;
-            if (controller?.PlayerReplicationInfo is not { } pri || p.IsSpectator)
+        if (board is not null)
+            foreach (var row in board.Rows)
             {
-                continue;
+                var identity = Host.Scoreboards.Identity(row.ParticipantId);
+                rows.Add(new ResultRow(identity?.SessionId ?? row.ParticipantId, row.Name, (byte)row.Team,
+                    row.Score, row.Kills, row.Deaths, row.Lives, row.Stats)
+                {
+                    ParticipantId = row.ParticipantId, LeftEarly = row.LeftEarly,
+                    Loadout = Host.Scoreboards.Loadout(row.ParticipantId),
+                });
             }
-
-            rows.Add(new ResultRow(p.Id, p.Name, (byte)(pri.Team?.TeamIndex ?? p.Team), (int)pri.Score, pri.Kills, pri.Deaths,
-                pri.NumLives >= OpenScct.Game.GameFlow.K.UnlimitedLives ? -1 : pri.NumLives, FeatsOf(pri))
-            {
-                Loadout = pri.Stats is { } stats
-                    ? new RecordedLoadout { Weapon = stats.Weapon, Gadgets = stats.Gadgets }.Snapshot() : null,
-            });
-        }
-
         rows.Sort((a, b) => a.Team != b.Team ? a.Team.CompareTo(b.Team) : b.Score.CompareTo(a.Score));
-        int taken = 0;
-        int needed = 0;
-        if (game is not null)
-        {
-            EGameMode mode = game.MatchInfo?.GameMode ?? EGameMode.GM_Undefined;
-            foreach (SMission m in Host.World.Level.AllActors<SMission>())
-            {
-                if (m.GameMode != mode)
-                {
-                    continue;
-                }
-
-                needed = m.MinimumObjectives;
-                foreach (SObjective? o in m.Objectives)
-                {
-                    if (o is { ObjectiveTaken: true })
-                    {
-                        taken++;
-                    }
-                }
-            }
-        }
-
-        int gamesLeft = Math.Max(0, (game?.MatchInfo?.GamesInARow ?? 1) - 1);
         return new MatchResults
         {
-            Map = Setup.Map, WinningTeam = gri?.WinningTeam ?? 255, WinningReason = gri?.WinningReason ?? 255,
-            ObjectivesTaken = taken, ObjectivesNeeded = needed, GamesLeft = gamesLeft, Rows = rows,
+            Scoreboard = board, Map = board?.Map ?? Setup.Map,
+            WinningTeam = board?.Winner ?? 255, WinningReason = board?.Reason ?? 255,
+            ObjectivesTaken = board?.ObjectivesTaken ?? 0, ObjectivesNeeded = board?.ObjectivesNeeded ?? 0,
+            GamesLeft = Math.Max(0, (Host.Game?.MatchInfo?.GamesInARow ?? 1) - 1), Rows = rows,
         };
     }
-
     // ---- players ------------------------------------------------------------------------------------------------
 
     /// <summary>The people of the session on a side (or spectating), the bots left out.</summary>
@@ -2135,6 +2117,7 @@ public sealed partial class OnlineServer : IDisposable
         }
 
         _closing = true;
+        if (Host.Scoreboards.Finish() is not null) LastResults = BuildResults();
         foreach (SessionPlayer p in _players)
         {
             if (p.Slot is { } slot)
@@ -2180,6 +2163,7 @@ public sealed partial class OnlineServer : IDisposable
             Master?.Unlist();
         }
 
+        Host.Scoreboards.Finish();
         Master?.Dispose();
         _lan?.Dispose();
         _bots?.Dispose();
