@@ -112,7 +112,8 @@ def export_skin_swaps(pset, keys, tex_dir: Path) -> list:
     from scctpkg.export_gltf import _safe  # noqa: PLC0415
     from scctpkg.materials import MaterialResolver  # noqa: PLC0415
 
-    resolver = MaterialResolver(pset)
+    # Package.Name keys, as export_skel_gltf names character materials and the client finds their PNGs.
+    resolver = MaterialResolver(pset, group_keys=False)
     written = []
     for key in keys:
         pkg_name, name = key.split(".", 1)
@@ -149,7 +150,8 @@ def export_wet_skins(pset, mesh_name: str, tex_dir: Path) -> dict:
     from scctpkg.materials import MaterialResolver  # noqa: PLC0415
     from scctpkg.properties import read_properties, skip_state_frame  # noqa: PLC0415
 
-    resolver = MaterialResolver(pset)
+    # Package.Name keys, as export_skel_gltf names character materials and the client finds their PNGs.
+    resolver = MaterialResolver(pset, group_keys=False)
     out: dict = {}
     for key in WET_SKINS.get(mesh_name, ()):
         pkg_name, name = key.split(".", 1)
@@ -244,7 +246,8 @@ def export_material_layers(pkg, pset, mesh, gltf: dict, tex_dir: Path) -> None:
     # Pawn skins have explicit normal-vision overrides and their own LAYER_MAP, rather than the mesh defaults.
     if mesh.name in SKIN_MAP:
         return
-    resolver = MaterialResolver(pset)
+    # Package.Name keys, as export_skel_gltf names character materials and the client finds their PNGs.
+    resolver = MaterialResolver(pset, group_keys=False)
     textures: dict = {}
     by_name = {m.get("name"): m for m in gltf.get("materials", [])}
     for ref in mesh.material_refs:

@@ -225,10 +225,17 @@ def _copy_layers(result: ResolvedMaterial, inner: ResolvedMaterial) -> None:
 
 
 class MaterialResolver:
-    def __init__(self, pset: PackageSet):
+    def __init__(self, pset: PackageSet, group_keys: bool = True):
+        """group_keys: material keys from PackageSet.object_key (Package.Group.Name for a name that repeats in another
+        group of its package), so each such object gets its own material and PNG. False keeps Package.Name for
+        every object, for outputs looked up by that name (the character and goggle skins)."""
         self.pset = pset
+        self.group_keys = group_keys
         self.cache: Dict[object, ResolvedMaterial] = {}
-        self.texture_cache: Dict[str, Optional[Texture]] = {}
+        self.texture_cache: Dict[Tuple[str, int], Optional[Texture]] = {}
+
+    def key_of(self, pkg: Package, ref: int) -> str:
+        return self.pset.object_key(pkg, ref) if self.group_keys else self.pset.import_path(pkg, ref)
 
     def _props(self, pkg: Package, e: Export) -> dict:
         r = pkg.export_reader(e)
@@ -255,7 +262,8 @@ class MaterialResolver:
         return int(props.get("TexCoordSource", 11) or 0) == 10 or props.get("EnvMapType") == 0
 
     def texture_for(self, pkg: Package, e: Export) -> Optional[Texture]:
-        key = f"{pkg.path.stem}.{e.name}"
+        # By the export itself: one package can hold several textures of a name in different groups.
+        key = (str(pkg.path), e.index)
         if key in self.texture_cache:
             return self.texture_cache[key]
         try:
@@ -287,7 +295,7 @@ class MaterialResolver:
         return {"frames": frames, "fps": fps}
 
     def resolve(self, pkg: Package, ref: int, depth: int = 0) -> ResolvedMaterial:
-        key = self.pset.import_path(pkg, ref)
+        key = self.key_of(pkg, ref)
         owner, e = self.pset.resolve(pkg, ref)
         # Cache by the object itself, not its dotted name: a package can hold a Shader and the Texture it wraps under
         # the same name (TXT_MAL.BSP.DOO_elevator01), and a name-keyed cache handed the Shader's unfinished entry
@@ -342,7 +350,7 @@ class MaterialResolver:
             result.darken = ob == 6
             result.modulate = "2x" if ob == 2 else ("darken" if ob == 6 else "")
             if props.get("Opacity"):
-                result.opacity_key = self.pset.import_path(owner, int(props["Opacity"]))
+                result.opacity_key = self.key_of(owner, int(props["Opacity"]))
                 op = self.resolve(owner, int(props["Opacity"]), depth + 1)
                 if op.texture is not None:
                     result.opacity = op.texture

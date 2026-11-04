@@ -3,12 +3,15 @@
 A `PackageSet` indexes every package under the game's Packages folder by
 stem (case-insensitive) and loads them lazily. `resolve(pkg, ref)` follows
 an import to the package that owns the object and returns (package, export).
+`object_key(pkg, ref)` names the object for converted output: Package.Name, or
+Package.Group.Name when its package holds another object of that name in a
+different group.
 """
 
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Dict, Optional, Tuple
+from typing import Dict, FrozenSet, Optional, Tuple
 
 from .package import Export, Package, PackageError
 
@@ -19,6 +22,7 @@ class PackageSet:
     def __init__(self, roots):
         self.files: Dict[str, Path] = {}
         self.loaded: Dict[str, Optional[Package]] = {}
+        self._ambiguous: Dict[str, FrozenSet[str]] = {}
         for root in roots:
             root = Path(root)
             for f in root.rglob("*"):
@@ -93,6 +97,34 @@ class PackageSet:
             return f"{pkg.path.stem}.{pkg.exports[ref - 1].name}"
         root = self.root_package_of_import(pkg, ref) or "?"
         return f"{root}.{pkg.imports[-ref - 1].name}"
+
+    def object_key(self, pkg: Package, ref: int) -> str:
+        """Package.Name for any ref (import_path), or the owning export's full Package.Group.Name when the owner
+        holds another export of that name (case-insensitive) in a different group. ShadowMoses_T has wand1 in
+        groups aussen, generator and hangar (three different images, all drawn on ShadD): keyed by name alone,
+        every material and PNG of them collapsed into the first one decoded."""
+        owner, e = self.resolve(pkg, ref)
+        if owner is None or e is None or not self.is_ambiguous(owner, e):
+            return self.import_path(pkg, ref)
+        return e.full_name
+
+    def export_key(self, owner: Package, e: Export) -> str:
+        """object_key for an export already resolved to its owning package."""
+        return e.full_name if self.is_ambiguous(owner, e) else f"{owner.path.stem}.{e.name}"
+
+    def is_ambiguous(self, owner: Package, e: Export) -> bool:
+        """Whether owner holds another export named like e (case-insensitive) under a different full name. Groups
+        (class Package) do not count: SWeaponTex.shotgun.shotgun is the only object of its name."""
+        key = str(owner.path)
+        names = self._ambiguous.get(key)
+        if names is None:
+            paths: Dict[str, set] = {}
+            for x in owner.exports:
+                if x.class_name != "Package":
+                    paths.setdefault(x.name.lower(), set()).add(x.full_name.lower())
+            names = frozenset(n for n, p in paths.items() if len(p) > 1)
+            self._ambiguous[key] = names
+        return e.name.lower() in names
 
     @staticmethod
     def object_path(pkg: Package, ref: int) -> str:

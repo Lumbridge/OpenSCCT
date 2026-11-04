@@ -3,7 +3,9 @@
 Output layout (out/<Map>/):
     <Map>.gltf, <Map>.bin      world BSP (one mesh, one primitive per material)
                                plus every referenced static mesh as its own node
-    textures/<Package>_<Name>.png
+    textures/<Package>_<Name>.png, or <Package>_<Group>_<Name>.png when the
+                               name repeats in another group of its package
+                               (PackageSet.object_key)
     scene.json                 actor list consumed by ue5/Scripts/import_scct_map.py
 
 Coordinate conversion: SCCT/UE2 is left-handed Z-up (X forward, Y right,
@@ -411,7 +413,7 @@ def _export_emitters(pkg: Package, pset: PackageSet, tex_dir: Path, tex_uri: Dic
             try:
                 owner, te = pset.resolve(pkg, tref)
                 if te is not None and te.class_name == "Texture":
-                    key = f"{owner.path.stem}.{te.name}"
+                    key = pset.export_key(owner, te)
                     fname = _safe(key) + ".png"
                     done = str(tex_dir / fname)
                     if done not in _EMITTER_PNGS:

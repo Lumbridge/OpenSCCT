@@ -136,7 +136,10 @@ class _Exporter:
             except Exception:  # an undecodable texture is reported as missing, not fatal
                 tex = None
             if tex is not None and tex.image is not None:
-                uri = f"textures/{_safe(pkg.path.stem + '_' + export.name)}.png"
+                # <Package>_<Name>, or <Package>_<Group>_<Name> when the name repeats in another group; ASCII, as
+                # map textures (a group can carry accents: PCF09_TXT.Dépôt.Lustre).
+                stem = "".join(c if c.isascii() else f"_u{ord(c):04x}" for c in _safe(self.pset.export_key(pkg, export)))
+                uri = f"textures/{stem}.png"
                 tex.image.save(self.dir.parent / uri, optimize=False)
         self.by_path[path] = uri
         return uri

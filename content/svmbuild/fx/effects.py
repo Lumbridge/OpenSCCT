@@ -140,7 +140,8 @@ class _Packages:
 
 
 class _Textures:
-    """Writes the PNG of each texture or material once, as textures/<Package>_<Name>.png."""
+    """Writes the PNG of each texture or material once, as textures/<Package>_<Name>.png, or
+    <Package>_<Group>_<Name>.png when the name repeats in another group (sfx.Emitter.Spark and sfx.Impacts.Spark)."""
 
     def __init__(self, packages: _Packages, out_dir: Path):
         from scctpkg.materials import MaterialResolver  # noqa: PLC0415
@@ -163,7 +164,8 @@ class _Textures:
                 res = None
             tex = res.texture if res is not None else None
             if tex is not None and tex.image is not None:
-                png = f"textures/{_safe(path.split('.', 1)[0] + '_' + e.name)}.png"
+                stem = _safe(path if self.packages.pset.is_ambiguous(pkg, e) else path.split('.', 1)[0] + '_' + e.name)
+                png = f"textures/{stem}.png"
                 from scctpkg.export_gltf import _write_png  # noqa: PLC0415
 
                 image = tex.image
@@ -183,7 +185,7 @@ class _Textures:
                 if res.flipbook:
                     from scctpkg.export_gltf import _flipbook_png  # noqa: PLC0415
 
-                    flip = _flipbook_png(_safe(path.split('.', 1)[0] + '_' + e.name), res.flipbook, self.dir, {})
+                    flip = _flipbook_png(stem, res.flipbook, self.dir, {})
                     if flip:
                         material["flipbook"] = flip
                 entry = {"png": png, "width": int(tex.width), "height": int(tex.height), "hasAlpha": bool(tex.has_alpha),
