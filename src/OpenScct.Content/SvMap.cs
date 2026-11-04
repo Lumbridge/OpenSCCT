@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using OpenScct.Content.Collision;
 using OpenScct.Content.Json;
+using OpenScct.Core.Engine;
 using OpenScct.Core.Match;
 
 namespace OpenScct.Content;
@@ -27,13 +28,15 @@ public sealed record SvMapLoadOptions
 public sealed class SvMap
 {
     private SvMap(string root, SvMapManifest manifest, GameplayDoc gameplay, ClassTable? classes, MatchRuleSet? match,
-        CollisionData collision, TraversalDoc traversal, string simHash, IReadOnlyList<SvMapFileDigest> simFiles)
+        IReadOnlyDictionary<string, MoverLegs>? movers, CollisionData collision, TraversalDoc traversal, string simHash,
+        IReadOnlyList<SvMapFileDigest> simFiles)
     {
         Root = root;
         Manifest = manifest;
         Gameplay = gameplay;
         Classes = classes;
         Match = match;
+        Movers = movers;
         Collision = collision;
         Traversal = traversal;
         SimHash = simHash;
@@ -54,6 +57,9 @@ public sealed class SvMap
 
     /// <summary>The player-count rules and win targets of <c>sim/match.json</c> (SVMap 1.2), or null when the map has none.</summary>
     public MatchRuleSet? Match { get; }
+
+    /// <summary>The movers' own per-key timing of <c>sim/movers.json</c> (SVMap 1.2) by actor id, or null when the map has none.</summary>
+    public IReadOnlyDictionary<string, MoverLegs>? Movers { get; }
 
     public CollisionData Collision { get; }
 
@@ -116,6 +122,9 @@ public sealed class SvMap
         TraversalDoc traversal = TraversalDoc.FromJson(Required(json, TraversalDoc.RelativePath));
         ClassTable? classes = json.TryGetValue(ClassTable.RelativePath, out SvJsonNode? classNode) ? ClassTable.FromJson(classNode) : null;
         MatchRuleSet? match = json.TryGetValue(MatchDoc.RelativePath, out SvJsonNode? matchNode) ? MatchDoc.FromJson(matchNode) : null;
+        IReadOnlyDictionary<string, MoverLegs>? movers = json.TryGetValue(MoversDoc.RelativePath, out SvJsonNode? moversNode)
+            ? MoversDoc.FromJson(moversNode)
+            : null;
         CollisionData collision = CollisionReader.Read(
             collisionBytes ?? throw new SvMapFormatException(CollisionReader.RelativePath, "missing"), options.StrictCollision);
 
@@ -134,7 +143,7 @@ public sealed class SvMap
             }
         }
 
-        return new SvMap(fullRoot, manifest, gameplay, classes, match, collision, traversal, simHash, simFiles);
+        return new SvMap(fullRoot, manifest, gameplay, classes, match, movers, collision, traversal, simHash, simFiles);
     }
 
     /// <summary>Sim files whose digest differs from the manifest's, or that only one side has.</summary>

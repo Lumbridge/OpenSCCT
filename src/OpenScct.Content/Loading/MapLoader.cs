@@ -58,7 +58,8 @@ public sealed class MapLoader
 
     /// <summary>
     /// Loads <paramref name="map"/> into the world's level, with its class table, and gives the level the map's rain
-    /// volumes (<see cref="RainVolumeLoader"/>) and its match-size rules (<see cref="SvMap.Match"/>, none when it has none).
+    /// volumes (<see cref="RainVolumeLoader"/>), its match-size rules (<see cref="SvMap.Match"/>, none when it has none)
+    /// and its movers' own per-key timing (<see cref="SvMap.Movers"/>).
     /// </summary>
     public MapLoadResult Load(World world, SvMap map)
     {
@@ -67,6 +68,17 @@ public sealed class MapLoader
         world.Level.SetService(RainVolumeLoader.Load(map.Root));
         MapLoadResult result = Load(world.Level, map.Gameplay, map.Classes);
         world.Level.SetService(map.Match is { IsEmpty: false } match ? new LevelMatchRules(match, result.PlacedActors()) : null);
+        if (map.Movers is { Count: > 0 } movers)
+        {
+            foreach ((Actor actor, string id) in result.PlacedActors())
+            {
+                if (actor is Mover mover && movers.TryGetValue(id, out MoverLegs? legs))
+                {
+                    mover.Legs = legs;
+                }
+            }
+        }
+
         return result;
     }
 

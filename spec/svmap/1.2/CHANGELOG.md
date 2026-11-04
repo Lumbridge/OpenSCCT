@@ -4,8 +4,9 @@
 
 Additive in its files: every 1.1 file reads as before, and a 1.1 reader can load a 1.2 map. It cannot play every one
 as authored: `sim/match.json` changes the match, and a server that does not read it plays every actor at every player
-count; a reader without `Svm.Conveyor` keeps conveyors as unported actors. A host serves 1.2 maps only on a build that
-reads 1.2 (the map's sim hash covers `sim/match.json` and the conveyor actors, so clients and server agree on them).
+count; a reader without `Svm.Conveyor` keeps conveyors as unported actors; one without `sim/movers.json` moves movers
+with the game's timing. A host serves 1.2 maps only on a build that reads 1.2 (the map's sim hash covers
+`sim/match.json`, `sim/movers.json` and the conveyor actors, so clients and server agree on them).
 
 - Maps that use something new in 1.2 are 1.2: `formatVersion` `1.2.x`; schemas in `spec/svmap/1.2/schemas` with
   `$id`s under `https://svmap.invalid/1.2/` (the 1.1 schemas with the new version, plus `ui/identity.json` and
@@ -21,6 +22,8 @@ reads 1.2 (the map's sim hash covers `sim/match.json` and the conveyor actors, s
   localised strings, outside the sim hash. Localised text in `sim/` is in the map's base language.
 - New optional `sim/match.json` (`svm.match/1`): player-count rules on any actor (`players` range, `outside` and
   `inside` states, mover key positions 0 to 7) and win targets by team size, 1v1 to 12v12 (match.md).
+- New optional `sim/movers.json` (`svm.movers/1`): per mover and key, the seconds of the leg from the key before
+  (`time`) and whether the mover eases at the key (`smooth`) (movers.md).
 - New optional `render/outfits.json` (`svm.outfits/1`): per team the body and head slot textures, a replacement
   model (the map's glb under `render/chars/<Map>/` or a stock mesh) with its goggle placement, and the cosmetics
   policy (outfits.md).

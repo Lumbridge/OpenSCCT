@@ -9,11 +9,13 @@ map. 1.2 adds:
   (`ui/text/<lang>.json`);
 - player-count rules on actors and win targets by team size (`sim/match.json`, [match.md](match.md)), and the teams'
   outfits (`render/outfits.json`, [outfits.md](outfits.md));
-- OpenSCCT's native conveyor actor, `Svm.Conveyor` ([conveyors.md](conveyors.md)).
+- OpenSCCT's native conveyor actor, `Svm.Conveyor` ([conveyors.md](conveyors.md));
+- each mover's own time per leg and easing per key (`sim/movers.json`, [movers.md](movers.md)).
 
 A 1.1 reader cannot play every 1.2 map as authored: a server that does not read `sim/match.json` plays every actor at
-every player count, and a reader without `Svm.Conveyor` keeps conveyors as unported actors (their built look draws
-and collides, nothing moves). Hosts serve 1.2 maps on builds that read 1.2. Facts a server needs stay in `sim/` and
+every player count, a reader without `Svm.Conveyor` keeps conveyors as unported actors (their built look draws
+and collides, nothing moves), and one that does not read `sim/movers.json` moves every mover with its own `MoveTime`
+and glide. Hosts serve 1.2 maps on builds that read 1.2. Facts a server needs stay in `sim/` and
 `manifest.json`. The 1.1 additions over 1.0 are described below as they were.
 
 ```
@@ -27,6 +29,7 @@ and collides, nothing moves). Hosts serve 1.2 maps on builds that read 1.2. Fact
     traversal.json         geometric events (GEs): ledges, pipes, zip lines, ladders, fences, poles, HOH bars
     rain.json              (1.1, optional) the rain volumes' boxes, which make pawns wet
     match.json             (1.2, optional) player-count rules on actors and win targets by team size
+    movers.json            (1.2, optional) movers' own time per leg and easing per key
   render/                  client only
     world.glb              world BSP, static mesh library and the instance table
     materials.json         (1.1) material blend flags, gameplay flags and the material object graph
@@ -52,7 +55,7 @@ and collides, nothing moves). Hosts serve 1.2 maps on builds that read 1.2. Fact
 The dedicated server loads only `sim/` and `manifest.json`. The client loads all of it. `fixtures/testbox/` is a
 complete synthetic 1.0 example. A map declares `formatVersion` `1.2.x` in `manifest.json`, `sim/gameplay.json` and
 `sim/traversal.json` when it uses something new in 1.2 (`ui/identity.json`, `ui/text/`, `sim/match.json`,
-`render/outfits.json` or a `Svm.Conveyor` actor); other maps stay 1.1. Converted maps are 1.1 unless the original
+`sim/movers.json`, `render/outfits.json` or a `Svm.Conveyor` actor); other maps stay 1.1. Converted maps are 1.1 unless the original
 carries one of the RE+ families that convert to a 1.2 file; maps made in the map editor are 1.2 when they use one of
 these.
 
@@ -64,6 +67,7 @@ these.
 | [../1.1/collision.md](../1.1/collision.md) | exact byte layout of `sim/collision.bin`, with the 1.1 chunks `CSRC`, `TFLX`, `CYLX` (unchanged in 1.2) |
 | [match.md](match.md) | `sim/match.json`: rules, holds, win targets, how RE+ `SMatchSizeRules` converts |
 | [outfits.md](outfits.md) | `render/outfits.json`: slots, models, goggles, cosmetics policy, how RE+ `SCharacterOutfits` converts |
+| [movers.md](movers.md) | `sim/movers.json`: each mover's time per leg and easing per key |
 | [conveyors.md](conveyors.md) | `Svm.Conveyor` actors: props, class table, collision and `world.glb` instances |
 | [schemas/](schemas/) | JSON Schemas 2020-12 of `manifest.json`, `sim/gameplay.json`, `sim/traversal.json`, `ui/identity.json`, `ui/text/<lang>.json` and shared definitions |
 | [CHANGELOG.md](CHANGELOG.md) | format history |
