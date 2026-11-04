@@ -177,6 +177,7 @@ Client-only JSON, written with the canonical writer but hashed as raw bytes (ren
   `additive`, `modulate`, `lightmapped`, `vertexLitMeshes`, `authoredColorMeshes`.
 - `lighting.json`: `lights` (exporter fields plus typed `props`), `zones` (fog, ambient, `zoneIndex`, typed
   `props`), `sky`, `look`, `lightmaps`.
+- `leaflights.json` (optional, see below): the world BSP's per-leaf light lists.
 - `fx.json`: `emitters` keyed by Emitter actor: `class`, `gameplay`, typed `props`, `emitters` (its sub-emitters
   from its own `Emitters` array: `object`, `class`, typed `props`, `texture`); `spawnParticles` (optional: the
   sub-emitters gameplay objects name in `SpawnableObjects[].SpawnParticle`, keyed by object path, in the same shape);
@@ -188,6 +189,30 @@ Client-only JSON, written with the canonical writer but hashed as raw bytes (ren
   spot size, NearPlaneRatio, LightBeamFalloffScale, LightBeamInitialAlpha, brightness, colour, on state) and
   `meshes` (per beam mesh asset: `positions` flat xyz in mesh space, `indices`).
 - `mapinfo.json`: the `SMapSettings` strings and `modes` (per mode name, its briefing texts).
+
+### `render/leaflights.json` (optional)
+
+The lights that can reach each BSP leaf of the world model, as the original stores them (UModel `Leaves` and
+`Lights`; its light visibility pass floods each light from its own leaf through the leaf portals within its radius,
+and a sun, LightEffect 19, joins every leaf of its zone). The original's static lighting bake and actor lighting read
+these lists for the level's saved lights. The lists are built once, from each light's saved position: they hold no
+light spawned at run time (a weapon's muzzle light), and a light that moves with its actor (a lit mover or lift) is
+listed in the leaves around its saved position only.
+
+- `version`: `1`.
+- `leaves`: indexed by leaf id, `{"zone": <ZoneInfo name, as lighting.json "zone"; the LevelInfo for zone 0>,
+  "lights": [light actor names]}`. A leaf with no list has `"lights": []`. Names can include actors with no
+  `lighting.json` row (a LightType actor with LightBrightness 0).
+- `nodeLeaf`: per node, `[backLeaf, frontLeaf]` (`-1`: no leaf on that side), in the world model's node order, which
+  is the order of the world collider's `BSPN` range in `sim/collision.bin` (the first collider; `BSPN` records carry
+  no leaf). A point's leaf: walk the nodes from the root, front when `dot(n, p) - w >= 0`, and take the side's leaf of
+  the node where the walk leaves the tree.
+- `unlisted`: the names of the `lighting.json` lights that are in no leaf list (LightType 0 lights, lights outside
+  the world, and lights the original leaves out of the level's actor list).
+
+A client that lights actors from it takes a saved `lighting.json` light only when the light is in the list of the
+actor's leaf. The lists say nothing about lights spawned at run time, which the client gathers by its own rules. When
+the file is absent, consumers fall back to the light's radius plus its zone.
 
 ## Versioning
 

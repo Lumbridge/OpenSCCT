@@ -15,6 +15,8 @@ The exporter writes <Map>.gltf + .bin, textures/*.png and scene.json. This modul
   typed properties); and the exporter's additive, modulate, lightmapped and vertex-lit lists.
 - render/lighting.json: lights (exporter fields plus the typed light properties of the actor), zones (fog,
   ambient, zone index), the sky zone, LevelInfo look settings and the lightmaps.
+- render/leaflights.json: the world BSP's per-leaf light lists (UModel Leaves and Lights), the leaf on either side
+  of every node, and the lights that are in no list (build_leaf_lights).
 - render/fx.json: every Emitter actor with its sub-emitters taken from its own Emitters array (the exact owner;
   the exporter attributes sub-emitters to the nearest preceding Emitter export), typed; projectors, rain and cloth.
 - render/projectors.json: every texture projector with its texture, frustum and blend ops (the client draws them as
@@ -34,6 +36,9 @@ from .. import canonical
 from ..sources.typedprops import Ref, bag_to_json, default_resolver, walk_refs
 from ..writers.glb import pack_glb
 from .source import ActorInfo, MapSource
+
+
+LEAF_LIGHTS_VERSION = 1
 
 
 def _safe(name: str) -> str:
@@ -459,6 +464,41 @@ class RenderBuilder:
         return {"lights": lights, "zones": zones, "sky": scene.get("sky"), "look": scene.get("look"),
                 "lightmaps": lightmaps, "fogPortals": source_portals(self.src), "fogVolumes": source_volumes(self.src)}
 
+    def build_leaf_lights(self, lights: List[dict]) -> Optional[dict]:
+        """render/leaflights.json from the world model's Leaves and Lights (sources/modeltail.py has the layout and
+        the original's addresses): per leaf its zone and the names of the lights in its run, the back and front leaf
+        of every node in the Model's node order (the order of the world collider's BSPN range in sim/collision.bin,
+        whose records carry no leaf), and the lighting.json lights that are in no run. None when the model has no
+        leaves to read."""
+        from ..sources import modeltail  # noqa: PLC0415
+
+        ref = self.src.header.world_model
+        if not ref:
+            return None
+        model = modeltail.read_model(self.src.pkg, self.src.pkg.exports[ref - 1])
+        if getattr(model, "tail_error", None) or not model.leaves:
+            self.src.notes.add("leaf-lights", f"{self.src.name}: {getattr(model, 'tail_error', 'no leaves')}")
+            return None
+        level = self.src.level_info.name
+        zones = [self.src.pkg.object_name(z.actor) if i > 0 and z.actor > 0 else level
+                 for i, z in enumerate(model.zones)]
+        leaves = []
+        listed = set()
+        for i, (zone, _start) in enumerate(model.leaves):
+            run = model.leaf_lights(i)
+            if run is None:
+                self.src.notes.add("leaf-light-run", f"{self.src.name}: leaf {i}")
+                run = []
+            names = [self.src.pkg.object_name(r) for r in run]
+            listed.update(names)
+            leaves.append({"zone": zones[zone] if 0 <= zone < len(zones) else None, "lights": names})
+        unlisted = [light["name"] for light in lights if light["name"] not in listed]
+        self.stats["leaves"] = len(leaves)
+        self.stats["leafLightsListed"] = len(listed)
+        self.stats["leafLightsUnlisted"] = len(unlisted)
+        return {"version": LEAF_LIGHTS_VERSION, "leaves": leaves,
+                "nodeLeaf": [[int(n.leaf[0]), int(n.leaf[1])] for n in model.nodes], "unlisted": unlisted}
+
     def build_light_sprites(self, tex_dir: Path) -> Dict[str, dict]:
         """Visible DT_Sprite lights have their own world sprite, distinct from bCorona. Export its resolved
         material texture even when no mesh/emitter uses it (ClarD street lights and map sky moons)."""
@@ -699,8 +739,11 @@ class RenderBuilder:
         files.update(textures)
         lightmaps = sorted(k for k in textures if "_lightmap" in k)
         files["materials.json"] = _json_bytes(self.build_materials(gltf, scene, rename))
-        files["lighting.json"] = _json_bytes(self.build_lighting(scene, zone_index, lightmaps,
-                                                                _replace_strings(light_sprites, renamed)))
+        lighting = self.build_lighting(scene, zone_index, lightmaps, _replace_strings(light_sprites, renamed))
+        files["lighting.json"] = _json_bytes(lighting)
+        leaf_lights = self.build_leaf_lights(lighting["lights"])
+        if leaf_lights is not None:
+            files["leaflights.json"] = _json_bytes(leaf_lights)
         files["fx.json"] = _json_bytes(self.build_fx(scene, set(textures)))
         files["projectors.json"] = _json_bytes(_replace_strings(projectors, renamed))
         files["lightbeams.json"] = _json_bytes(self.build_light_beams(scene))

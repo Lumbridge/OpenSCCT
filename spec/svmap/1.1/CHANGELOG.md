@@ -29,6 +29,8 @@ Additive: every 1.0 file reads as before, and 1.0 readers skip what is new.
 - `render/`: `world.glb` scene roots, library node naming by asset path and the instance table in the document
   extras; new `materials.json`, `lighting.json`, `fx.json` and `textures/*.png`.
 - `render/world.glb`: optional `special_lit` on instances whose actor has bSpecialLit.
+- New optional `render/leaflights.json` (version 1): the world BSP's per-leaf light lists, the back and front leaf of
+  every world node in `BSPN` order, and the lights in no list. Consumers fall back to radius plus zone without it.
 - `ui/mapinfo.json`: map name and briefing texts.
 - `sim/rain.json` (optional): the rain volumes' boxes and falloff, so a server without `render/` knows where pawns are
   wet.

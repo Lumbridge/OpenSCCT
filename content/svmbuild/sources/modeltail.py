@@ -15,9 +15,22 @@ Same layout as scctpkg/bsp.py and scctpkg/bsplight.py document (package version 
                                iBrushPoly on every surface in an editor copy
     Verts                      compact n, each: compact pVertex, compact iSide
     i32 NumSharedSides, i32 NumZones, NumZones x {compact ZoneActor, u64 Connectivity, u32}
-    compact Polys, Bounds (compact n, n x FBox), LeafHulls (compact n, n x i32), then data not read here.
+    compact Polys, Bounds (compact n, n x FBox), LeafHulls (compact n, n x i32),
+    Leaves (compact n, n x {compact iZone, iPermeating, iVolumetric}), Lights (compact n, n x objref),
+    i32 RootOutside, i32 Linked, then data not read here.
 
 The 12-byte zone record was checked on SteeE, OrphD and Entry: with it the next field is the Polys export.
+
+Leaves and Lights (UModel::Serialize, editor 0x110d20e0; FLeaf serializer 0x110cb700): a leaf is a convex region of
+the BSP, numbered by the nodes' iLeaf[0] (back) and iLeaf[1] (front). The loader keeps iZone and iPermeating; it
+reads iVolumetric into a temporary and drops it (it equals iPermeating in every shipped leaf). In memory a leaf is
+{short iZone; short iPermeating}, stride 4. iPermeating is INDEX_NONE (-1) or the start of a run in Lights: the
+lights that reach the leaf, ended by a None (0) reference. The editor's light visibility pass writes the runs
+(UnVisi.cpp TestLights, 0x1101dcb7): FEditorVisibility::ActorVisibility (0x1101b050) floods each light from its own
+leaf through the leaf portals that lie within the light's radius, and a sun (LightEffect 19) joins every leaf of its
+own zone. The static lighting bake (0x1119f880) and the actor lighting (editor 0x111a7300, game 0x10a37610) read the
+runs for the level's saved lights. The runs are built once, from each light's saved position: they hold no light
+spawned at run time (a weapon's muzzle light) and do not follow a light whose actor moves (a lit mover or lift).
 
 LeafHulls (spec/svmap/1.1/collision.md, BSPN; checked on all 83 shipped maps): a node with iCollisionBound >= 0 owns the
 run of i32 that starts there: the node indices whose planes bound the convex solid region behind the node, each with
@@ -92,6 +105,8 @@ class Model:
     polys: int = 0
     bounds: Optional[np.ndarray] = None     # (n, 6) min, max
     leaf_hulls: Optional[np.ndarray] = None
+    leaves: List[Tuple[int, int]] = field(default_factory=list)   # (iZone, iPermeating) per leaf
+    lights: List[int] = field(default_factory=list)              # object refs; runs ended by 0 (None)
     root_outside: Optional[bool] = None
 
     def polygon(self, node: ModelNode) -> np.ndarray:
@@ -102,6 +117,23 @@ class Model:
         if len(pool) < 3 or pool.min() < 0 or pool.max() >= len(self.points):
             return np.zeros((0,), np.int64)
         return pool
+
+    def leaf_lights(self, leaf: int) -> Optional[List[int]]:
+        """The light refs of a leaf's run (without its None), [] when the leaf has none, None when the run does
+        not fit the layout (no None before the end of Lights)."""
+        if not 0 <= leaf < len(self.leaves):
+            return None
+        start = self.leaves[leaf][1]
+        if start < 0:
+            return []
+        if start >= len(self.lights):
+            return None
+        out: List[int] = []
+        for ref in self.lights[start:]:
+            if ref == 0:
+                return out
+            out.append(ref)
+        return None
 
 
 @dataclass
@@ -221,24 +253,26 @@ def read_model(pkg, export) -> Model:
         if nh < 0 or nh * 4 > r.remaining():
             raise ValueError(f"bad leaf hull count {nh}")
         model.leaf_hulls = np.frombuffer(r.raw(nh * 4), dtype=np.int32).copy() if nh else np.zeros((0,), np.int32)
-        # UModel::Serialize editor 0x110d20e0: Leaves (three compact fields per leaf,
-        # 0x110cb700), Lights (object refs), then serialized RootOutside and Linked.
+        # UModel::Serialize editor 0x110d20e0: Leaves (three compact fields per leaf, 0x110cb700; iVolumetric is
+        # read and dropped), Lights (object refs), then serialized RootOutside and Linked.
         leaves = r.compact()
         if leaves < 0 or leaves * 3 > r.remaining():
             raise ValueError(f"bad leaf count {leaves}")
+        leaf_rows: List[Tuple[int, int]] = []
         for _ in range(leaves):
+            zone, permeating = r.compact(), r.compact()
             r.compact()
-            r.compact()
-            r.compact()
+            leaf_rows.append((zone, permeating))
         lights = r.compact()
         if lights < 0 or lights > r.remaining():
             raise ValueError(f"bad model light count {lights}")
-        for _ in range(lights):
-            r.compact()
+        light_refs = [r.compact() for _ in range(lights)]
         root_outside, linked = r.i32(), r.i32()
         if root_outside not in (0, 1) or linked not in (0, 1):
             raise ValueError("invalid model RootOutside/Linked flags")
         model.root_outside = bool(root_outside)
+        model.leaves = leaf_rows
+        model.lights = light_refs
     except (ValueError, IndexError, struct.error) as e:
         # Brush models of some maps end earlier; the geometry above is all collision needs from them.
         model.zones = model.zones or []

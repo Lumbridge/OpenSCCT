@@ -44,7 +44,22 @@ def ancestry(cls: str, classes: dict) -> set[str]:
     return result
 
 
-def audit_document(gameplay: dict, classes: dict, fx: dict | None = None, lighting: dict | None = None) -> dict:
+def leaf_light_counts(leaf_lights: dict, lighting: dict | None) -> dict:
+    """Counts of render/leaflights.json: leaves, the distinct lights in some leaf list, and the lighting.json lights
+    in none, split into lit static lights (LightType set, bStatic) and the rest (LightType 0 or not static). The
+    original lists every lit light it can reach from a leaf; an unlisted lit static light sits outside the world (a
+    LevelInfo0 light) or outside Level.Actors (a light the cook left out that the save still writes)."""
+    lights = {light["name"]: light for light in (lighting or {}).get("lights", [])}
+    listed = {name for leaf in leaf_lights.get("leaves", []) for name in leaf.get("lights", [])}
+    unlisted = leaf_lights.get("unlisted", [])
+    lit_static = [n for n in unlisted
+                  if int(lights.get(n, {}).get("ltype", 1)) != 0 and lights.get(n, {}).get("static")]
+    return {"leaves": len(leaf_lights.get("leaves", [])), "listed": len(listed),
+            "unlisted_lit_static": len(lit_static), "unlisted_other": len(unlisted) - len(lit_static)}
+
+
+def audit_document(gameplay: dict, classes: dict, fx: dict | None = None, lighting: dict | None = None,
+                   leaf_lights: dict | None = None) -> dict:
     """Validate actor/reference/event/animation coverage without mutating the document.
 
     Unmatched events are informational: source maps also contain unused events and
@@ -103,13 +118,16 @@ def audit_document(gameplay: dict, classes: dict, fx: dict | None = None, lighti
             counts["light_sprites"] += 1
             if not light.get("sprite", {}).get("texture_uri"):
                 issue("missing_light_sprite", light["name"], "visible light texture is not exported as a sprite")
-    return {
+    report = {
         "map": gameplay["map"], "actors": len(actors), "families": dict(sorted(counts.items())),
         "render_fx": "checked" if fx is not None else "not present; not checked",
         "light_sprites": "checked" if lighting is not None else "not present; not checked",
         "events": len(edges), "notify_events": sum(e.get("kind") == "notify" for e in edges),
         "unmatched_events": unmatched, "issues": issues,
     }
+    if leaf_lights is not None:
+        report["leaf_lights"] = leaf_light_counts(leaf_lights, lighting)
+    return report
 
 
 def compare_source(src, gameplay: dict) -> dict:
@@ -179,6 +197,15 @@ def markdown(reports: list[dict]) -> str:
                  report.get("events", 0), len(report.get("unmatched_events", [])), len(report["issues"]),
                  report.get("render_fx", "not checked"), source_status]
         lines.append("| " + " | ".join(map(str, cells)) + " |")
+    leaf_rows = [r for r in reports if "leaf_lights" in r]
+    if leaf_rows:
+        lines += ["", "## Leaf light lists", "",
+                  "| Map | Leaves | Listed lights | Unlisted lit static | Unlisted LightType 0 or non-static |",
+                  "|---|---:|---:|---:|---:|"]
+        for report in leaf_rows:
+            c = report["leaf_lights"]
+            lines.append(f"| {report['map']} | {c['leaves']} | {c['listed']} | {c['unlisted_lit_static']} | "
+                         f"{c['unlisted_other']} |")
     lines += ["", "## Findings", ""]
     for report in reports:
         for issue in report["issues"]:
@@ -218,7 +245,9 @@ def main(argv=None) -> int:
             fx = canonical.loads(fx_path.read_bytes()) if fx_path.exists() else None
             lighting_path = folder / "render" / "lighting.json"
             lighting = canonical.loads(lighting_path.read_bytes()) if lighting_path.exists() else None
-            report = audit_document(gameplay, classes, fx, lighting)
+            leaf_path = folder / "render" / "leaflights.json"
+            leaf_lights = canonical.loads(leaf_path.read_bytes()) if leaf_path.exists() else None
+            report = audit_document(gameplay, classes, fx, lighting, leaf_lights)
             for light in (lighting or {}).get("lights", []):
                 png = light.get("sprite", {}).get("texture_uri")
                 if png and not (folder / "render" / png).is_file():
