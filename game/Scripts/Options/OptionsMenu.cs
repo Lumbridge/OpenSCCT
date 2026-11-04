@@ -905,7 +905,7 @@ public partial class OptionsMenu : Control
         _edit = SettingsStore.Current.Clone();
         _baseline = _edit.ToJson();
         // Apply voice shortcuts for the played role, or Spy outside a round, without seeding gameplay keys.
-        PlaySide voiceSide = GetTree().CurrentScene?.FindChildren("*", nameof(OpenScctGame.Controls.PlayInput), true, false)
+        PlaySide voiceSide = GetTree().CurrentScene?.FindChildren("*", "", true, false)
             .OfType<OpenScctGame.Controls.PlayInput>().FirstOrDefault(p => p.Bindings is not null)?.Bindings?.Side ?? PlaySide.Spy;
         OpenScctGame.Voice.VoiceInput.BindLayout(ModelOf(voiceSide).Draft!.Layout);
         if (splitChanged)

@@ -76,7 +76,7 @@ public sealed class OptionsSmoke : SmokeTest
         if (_options.Size.X > _sizes[_size].X + 1f)
             problems.Add($"options expanded to {_options.Size.X:0}px in a {_sizes[_size].X}px viewport");
         problems.AddRange(LayoutCheck.BoundsProblems(_options, _sizes[_size]));
-        if (_tab == 6 && _options.FindChildren("*", nameof(HudEditorPreview), true, false).OfType<HudEditorPreview>().FirstOrDefault() is { } preview)
+        if (_tab == 6 && _options.FindChildren("*", "", true, false).OfType<HudEditorPreview>().FirstOrDefault() is { } preview)
         {
             for (Node? parent = preview.GetParent(); parent is not null; parent = parent.GetParent())
                 if (parent is ScrollContainer scroll && !scroll.GetGlobalRect().Grow(2f).Encloses(preview.GetGlobalRect()))
@@ -419,7 +419,33 @@ public sealed class OptionsSmoke : SmokeTest
             options.Editing.SplitKeyboard = true;
             options.LoadLayout(PlaySide.Merc);
             Expect(!ReferenceEquals(draft, options.Keys!.Draft), "separate role draft retained");
-            Expect(options.Save() == Error.Ok, "Apply succeeds");
+            // An options overlay disables gameplay input but must still use the played role's layout on Apply.
+            options.Keys!.Draft!.Assign(ControlActions.All.Single(action => action.Id == "voice"), "F17");
+            var mercApplyInput = new PlayInput
+            {
+                Name = "MercApplyInput", Enabled = false, CapturePointer = false, RequireCapture = false,
+                Bindings = InputBindings.Load(PlaySide.Merc, seedInputMap: false, draft: true),
+            };
+            var applyScene = new Node { Name = "MercApplyScene" };
+            SceneTree applyTree = options.GetTree();
+            Node? previousScene = applyTree.CurrentScene;
+            applyTree.Root.AddChild(applyScene);
+            applyScene.AddChild(mercApplyInput);
+            applyTree.CurrentScene = applyScene;
+            try
+            {
+                Expect(options.Save() == Error.Ok, "Apply succeeds");
+                Expect(BindingInput.Current?.Layout.Resolve("F17").Any(action => action.Name == "PushToTalk") == true &&
+                    InputMap.ActionGetEvents(OpenScctGame.Voice.VoiceInput.PushToTalk).OfType<InputEventKey>().Any(key => key.PhysicalKeycode == Key.F17),
+                    "Apply with a Mercenary PlayInput retains its global binding session and voice layout");
+            }
+            finally
+            {
+                applyTree.CurrentScene = previousScene;
+                applyTree.Root.RemoveChild(applyScene);
+                applyScene.QueueFree();
+            }
+            OpenScctGame.Voice.VoiceInput.BindLayout(draft.Layout);
             Expect(!options.HasUnsavedChanges && writes > 0, "Apply accepts draft without closing");
             Expect(InputMap.ActionGetEvents(OpenScctGame.Voice.VoiceInput.PushToTalk).OfType<InputEventKey>().Any(k => k.PhysicalKeycode == Key.J), "Apply updates voice shortcut InputMap");
             Expect(Math.Abs(SettingsStore.Current.SoundVolume - 0.27f) < 0.001f, "Apply publishes settings");
