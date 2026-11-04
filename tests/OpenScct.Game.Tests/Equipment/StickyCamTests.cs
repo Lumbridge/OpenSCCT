@@ -106,6 +106,41 @@ public sealed class StickyCamTests
         Assert.Empty(Cams(scene));
     }
 
+    [Theory]
+    [InlineData(false, false, 0, 0)]
+    [InlineData(false, true, 0, 0)]
+    [InlineData(true, false, 0, 0)]
+    [InlineData(true, true, 0, 0)]
+    [InlineData(false, false, 9000, 5000)]
+    [InlineData(false, true, 9000, -5000)]
+    [InlineData(true, false, 9000, -5000)]
+    [InlineData(true, true, 9000, 5000)]
+    public void ACornerShotClearsTheSupportingWallOnEitherSide(bool left, bool crouched, int aimYaw, int aimPitch)
+    {
+        CombatScene scene = GadgetKit.Scene();
+        (SPlayerController pc, SBasePawn pawn) = scene.Player(true, new FVector(0f, 0f, 100f));
+        GadgetKit.Shocker(scene, pawn);
+        SGadStickyCam gad = GadgetKit.Gadget(scene, pawn, new SGadStickyCam());
+        scene.Run(1.5f);
+        pawn.Rotation = default;
+        pawn.bIsCrouched = crouched;
+        pawn.BTW = left
+            ? crouched ? BTW_.BTWFireCrouchLeft : BTW_.BTWFireStandLeft
+            : crouched ? BTW_.BTWFireCrouchRight : BTW_.BTWFireStandRight;
+        // The spy faces away from the supporting wall; the pistol leans beyond its end while looking back.
+        GadgetKit.Walls(scene, GadgetKit.WallAt(-500f),
+            (new FVector(-90f, left ? -1000f : -25f, -1000f),
+             new FVector(-30f, left ? 25f : 1000f, 1000f), CollisionMaterialFlags.None));
+        pc.Rotation = new FRotator(aimPitch, 32768 + (left ? -aimYaw : aimYaw), 0);
+
+        Assert.True(gad.UseStickyCam(true));
+        Assert.True(gad.UseStickyCam(false));
+        SStickyCam cam = Assert.Single(Cams(scene));
+        Assert.InRange(cam.Location.X, -457.5f, -455.5f);
+        Assert.True(left ? cam.Location.Y > 25f : cam.Location.Y < -25f,
+            $"The corner shot mounted on the supporting wall: {cam.Location}");
+    }
+
     [Fact]
     public void ASecondCamWithinTheRefireSecondIsRefused()
     {

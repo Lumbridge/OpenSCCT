@@ -415,6 +415,14 @@ public sealed class PadSettings
     }
 }
 
+/// <summary>The shared display mode of the map browsers.</summary>
+public enum MapBrowserView
+{
+    PictureGrid = 0,
+    List = 1,
+    ThumbnailList = 2,
+}
+
 /// <summary>
 /// The player's settings (spec/reloaded/FEATURES.md section 3: one <c>user://settings.json</c>, JSON with comments,
 /// keys named after Reloaded's where the meaning is the same). Godot-free: the options screen edits it and
@@ -847,16 +855,23 @@ public sealed class GameSettings
     public bool FirePrediction { get; set; } = true;
 
     /// <summary>
-    /// The map playlist the host's map lists show and the Choose Map arrows step through (rl:qol.lobbymaps): a playlist
-    /// name of the map catalog (Standard, Extended, Classic, 3v3, Merc Deathmatch) or "All" (every installed map).
+    /// The map group the host's map lists show and the Choose Map arrows step through, or "All" (every installed map).
     /// </summary>
     [JsonPropertyName("active_map_playlist")]
     // Default to all installed maps; retain the player's saved playlist choice.
     public string ActiveMapPlaylist { get; set; } = "All";
 
-    /// <summary>Use compact rows instead of pictures in all map browsers.</summary>
-    [JsonPropertyName("map_list_view")]
-    public bool MapListView { get; set; }
+    /// <summary>The saved display mode shared by all map browsers.</summary>
+    [JsonPropertyName("map_view")]
+    public MapBrowserView MapView { get; set; } = MapBrowserView.PictureGrid;
+
+    /// <summary>Compatibility with callers that choose between the original grid and text list.</summary>
+    [JsonIgnore]
+    public bool MapListView
+    {
+        get => MapView == MapBrowserView.List;
+        set => MapView = value ? MapBrowserView.List : MapBrowserView.PictureGrid;
+    }
 
     // ---- Discord -------------------------------------------------------------------------------------------
 
@@ -953,6 +968,7 @@ public sealed class GameSettings
         FilterLevel = FilterLevel <= 0 ? 0 : FilterLevel <= 2 ? 2 : FilterLevel <= 4 ? 4 : FilterLevel <= 8 ? 8 : 16;
         ShadowQuality = LookSettings.Range(ShadowQuality, 0.5f, 16f);
         PostQuality = Math.Clamp(PostQuality, 0, 1);
+        if (!Enum.IsDefined(MapView)) MapView = MapBrowserView.PictureGrid;
         ScoreboardSplitTeamSize = Math.Clamp(ScoreboardSplitTeamSize, 1, 4);
         MsaaSamples = MsaaSamples <= 2 ? 2 : MsaaSamples <= 4 ? 4 : 8;
         HackAlpha = Math.Clamp(HackAlpha, 0, 255);
@@ -1042,6 +1058,12 @@ public sealed class GameSettings
     {
         using JsonDocument document = JsonDocument.Parse(json, new JsonDocumentOptions { CommentHandling = JsonCommentHandling.Skip, AllowTrailingCommas = true });
         GameSettings s = JsonSerializer.Deserialize<GameSettings>(json, Json) ?? new GameSettings();
+        // The old Boolean is read only when the new choice is absent, independent of the file's key order.
+        if (document.RootElement.ValueKind == JsonValueKind.Object &&
+            !document.RootElement.TryGetProperty("map_view", out _) &&
+            document.RootElement.TryGetProperty("map_list_view", out JsonElement legacyMapList) &&
+            legacyMapList.ValueKind is JsonValueKind.True or JsonValueKind.False)
+            s.MapListView = legacyMapList.GetBoolean();
         s.PreserveControllerProfile(document.RootElement);
         s.Upgrade();
         s.Clamp();

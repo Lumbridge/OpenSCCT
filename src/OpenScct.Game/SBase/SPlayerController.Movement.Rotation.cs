@@ -122,29 +122,39 @@ public partial class SPlayerController
     [PortOf("uc:SBase.SPlayerController:UpdateLimitedRotation", Spec = "spec/movement/input-and-rotation.md#limited-view-rotation-updatelimitedrotation")]
     public virtual void UpdateLimitedRotation(float DeltaTime, int minYaw, int maxYaw, int minPitch, int maxPitch, int YawRef, int PitchRef)
     {
-        float f = DeltaTime * MovementK.RotationRateScale * fSensibiliteSouris;
+        Rotation = CalculateLimitedRotation(DeltaTime, fTurnValue, fLookUpValue, minYaw, maxYaw, minPitch, maxPitch, YawRef, PitchRef);
+    }
+
+    /// <summary>The limited view calculation without changing the controller, also used to predict pending mouse input.</summary>
+    public FRotator CalculateLimitedRotation(float deltaTime, float turnValue, float lookUpValue,
+        int minYaw, int maxYaw, int minPitch, int maxPitch, int yawReference, int pitchReference)
+    {
+        float f = deltaTime * MovementK.RotationRateScale * fSensibiliteSouris;
         FRotator v = Rotation;
         if (bInvertHorizontalAxisCamSpy && (SBPawn?.WeaponLoaded ?? 0) == 0)
         {
-            v.Yaw -= MovementMath.Int(fTurnValue * f);
+            v.Yaw -= MovementMath.Int(turnValue * f);
         }
         else
         {
-            v.Yaw += MovementMath.Int(fTurnValue * f);
+            v.Yaw += MovementMath.Int(turnValue * f);
         }
 
-        v.Pitch += MovementMath.Int(fLookUpValue * f * MovementK.LimitedPitchFactor);
+        v.Pitch += MovementMath.Int(lookUpValue * f * MovementK.LimitedPitchFactor);
         int recentre = MovementMath.Int(Level.m_dT * MovementK.LimitedRecentreSpeed);
-        v.Yaw = LimitAxis(Rotation.Yaw, v.Yaw, YawRef, minYaw, maxYaw, recentre);
-        v.Pitch = LimitAxis(Rotation.Pitch, v.Pitch, PitchRef, minPitch, maxPitch, recentre);
-        Rotation = v;
+        v.Yaw = LimitAxis(Rotation.Yaw, v.Yaw, yawReference, minYaw, maxYaw, recentre);
+        v.Pitch = LimitAxis(Rotation.Pitch, v.Pitch, pitchReference, minPitch, maxPitch, recentre);
+        return v;
     }
 
     private static int LimitAxis(int current, int wanted, int reference, int min, int max, int recentre)
     {
         if ((ClampRotation(reference, current, min, max) & 65535) == (current & 65535))
         {
-            return ClampRotation(reference, wanted, min, max);
+            // Keep the input's direction across a 16-bit wrap. Reducing wanted first can turn a large mouse
+            // movement past one limit into a jump to the opposite limit.
+            long offset = FRotator.NormalizeAxis(current - reference) + (long)wanted - current;
+            return (reference + (int)System.Math.Clamp(offset, min, max)) & 65535;
         }
 
         int t = (wanted - reference) & 65535;

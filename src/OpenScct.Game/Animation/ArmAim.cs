@@ -134,6 +134,38 @@ public static class ArmAim
         }
     }
 
+    /// <summary>
+    /// The corner firing arm at the rendered view: add the mouse turn not yet included in TurnHead, keeping the
+    /// difference between the simulated arm and its aim target. Holstering keeps the animation's fixed arm pose.
+    /// This is view data only; the simulation continues to step its bone controller at the original arm speed.
+    /// </summary>
+    [Provenance(ProvenanceKind.Estimated, "Render look-ahead for the tick-based corner arm control, matching the normal weapon's DrawnFullPair")]
+    public static FRotator DrawnRotation(SBasePawn pawn, BoneDirection direction, FRotator view)
+    {
+        System.ArgumentNullException.ThrowIfNull(pawn);
+        if (pawn.IK_Type != IK_Type_.IKT_BTW || pawn.PawnAnim.IsAnimBackward(SBasePawn.DRAWCHANNEL))
+        {
+            return direction.Rotation;
+        }
+
+        Name arm = pawn.BTW switch
+        {
+            BTW_.BTWFireStandLeft or BTW_.BTWFireCrouchLeft => RightUpperArm,
+            BTW_.BTWFireStandRight or BTW_.BTWFireCrouchRight => LeftUpperArm,
+            _ => default,
+        };
+        if (arm.IsNone || direction.Bone != arm)
+        {
+            return direction.Rotation;
+        }
+
+        int yaw = pawn.iYawPitchFromView & 0xffff;
+        int pitch = pawn.iYawPitchFromView >> 16;
+        FRotator rotation = direction.Rotation;
+        return new FRotator(rotation.Pitch + FRotator.NormalizeAxis(view.Pitch - pitch),
+            rotation.Yaw + FRotator.NormalizeAxis(view.Yaw - yaw), rotation.Roll);
+    }
+
     /// <summary>The right upper arm toward the view (offset pitch 19, yaw -586, roll -28243), or the given rotation with <paramref name="useRoll"/>.</summary>
     [Uc("SBase.SBasePawn.ChangeRightArmRot", Sha1 = "6dddba56e75c41738391a1dfa930d23fa0d5e307")]
     [PortOf("uc:SBase.SBasePawn:ChangeRightArmRot", Spec = "spec/native/aim-ik.md#rules")]

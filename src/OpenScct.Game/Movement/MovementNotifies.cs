@@ -22,6 +22,11 @@ public static class MovementNotifies
     private static readonly Name NotifyTakeArmControlForBTWFireLeft = new("NotifyTakeArmControlForBTWFireLeft");
     private static readonly Name NotifyTakeArmControlForBTWFireRight = new("NotifyTakeArmControlForBTWFireRight");
     private static readonly Name NotifyDrawUndrawWeapon = new("NotifyDrawUndrawWeapon");
+    private static readonly Name PipeDrawHanging = new("PipHStAlBg1");
+    private static readonly Name PipeHolsterHanging = new("PipHStAlEd1");
+    private static readonly Name PipeDrawInverted = new("PipHStSpBg2");
+    private static readonly Name PipeHolsterInverted = new("PipHStSpEd2");
+    private static readonly Name PipeDropInverted = new("PipHStSpFl2");
     private static readonly Name NotifyChangeHandWeapon = new("NotifyChangeHandWeapon");
     private static readonly Name AnimNotifyThrow = new("AnimNotifyThrow");
     private static readonly Name NotifyUndrawWeapon = new("NotifyUndrawWeapon");
@@ -50,12 +55,12 @@ public static class MovementNotifies
         handlers.Register(NotifyTakeArmControlForBTWFireRight, a => (a as SBasePawn)?.NotifyTakeArmControlForBTWFireRight());
 
         // Merc death, wake and traversal clips lower/raise the rifle at their authored notify frame.
-        // Split jumps draw at the authored frame and switch the brace's aim clips with the pistol.
-        // Other spy traversal actions own their quick draw; their existing BTW handler is clip-filtered.
+        // Split jumps and pipe hangs draw at the authored frame. The pipe's armed drop also holsters there.
+        // Other traversal notifies retain their action-specific handling; BTW is filtered by its draw clip.
         handlers.Register(NotifyDrawUndrawWeapon, a =>
         {
             if (a is SPAWNDEFENSE merc) Equipment.PawnWeapons.MercNotifyDrawUndrawWeapon(merc);
-            else if (a is SPawnAttaque { Physics: EPhysics.PHYS_Vandamme } spy)
+            else if (a is SPawnAttaque spy && (spy.Physics == EPhysics.PHYS_Vandamme || IsPipeWeaponNotify(spy)))
                 Equipment.PawnWeapons.SpyNotifyDrawUndrawWeapon(spy);
             else (a as SBasePawn)?.BtwDrawNotify(bChangeHand: false);
         });
@@ -107,5 +112,18 @@ public static class MovementNotifies
                 Equipment.PawnWeapons.NotifyUndrawWeapon(spy);
             }
         });
+    }
+
+    /// <summary>The body clips that draw or holster the pipe pistol, including the inverted armed drop.</summary>
+    private static bool IsPipeWeaponNotify(SPawnAttaque pawn)
+    {
+        if (pawn.PawnAnim.NotifyChannel != 0)
+        {
+            return false;
+        }
+
+        Name clip = pawn.PawnAnim[0].Sequence;
+        return clip == PipeDrawHanging || clip == PipeHolsterHanging || clip == PipeDrawInverted ||
+            clip == PipeHolsterInverted || clip == PipeDropInverted;
     }
 }

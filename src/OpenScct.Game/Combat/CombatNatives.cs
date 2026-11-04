@@ -131,6 +131,12 @@ public static class CombatNatives
     [Provenance(ProvenanceKind.Measured, "local/spyhand/capture.py: pistol Location and Rotation of a drawn spy, crouched and standing, 12 aims")]
     public static FCoords SpyPistolCoords(Pawn spy, FRotator view)
     {
+        if (spy is SBasePawn { BTW: BTW_.BTWFireStandLeft or BTW_.BTWFireCrouchLeft or
+                BTW_.BTWFireStandRight or BTW_.BTWFireCrouchRight } corner)
+        {
+            return BtwPistolCoords(corner, view);
+        }
+
         int pitch = (short)view.Pitch;
         bool crouched = spy.bIsCrouched;
         (float A, float B) fwd = crouched ? SpyPistolCrouchedForward : SpyPistolStandingForward;
@@ -141,6 +147,22 @@ public static class CombatNatives
         c.Origin = spy.Location + (yawFrame.XAxis * (fwd.A + (fwd.B * pitch))) + (yawFrame.YAxis * right) +
             (yawFrame.ZAxis * (up.A + (up.B * pitch)));
         return c;
+    }
+
+    /// <summary>
+    /// The corner pistol stays out past the wall end as the view pans. The walking fit rotates its right-hand offset
+    /// around the body and puts both corner shots back behind the supporting wall. Without a skeletal pose, use the
+    /// corner camera's wall-relative target as the hand anchor, aimed along the full view rotation.
+    /// </summary>
+    [Provenance(ProvenanceKind.Estimated, "BTW pistol without skeletal data: decoded BTW FP camera target (15 forward, +/-60 sideways, CollisionHeight - 20 - 10 high) holds the weapon beyond the wall end; right corner uses the left hand")]
+    private static FCoords BtwPistolCoords(SBasePawn spy, FRotator view)
+    {
+        bool left = spy.BTW is BTW_.BTWFireStandLeft or BTW_.BTWFireCrouchLeft;
+        FCoords wallFrame = FCoords.FromRotator(new FRotator(0, spy.Rotation.Yaw, 0));
+        FCoords result = FCoords.FromRotator(new FRotator(view.Pitch, view.Yaw, 0));
+        result.Origin = spy.Location + wallFrame.XAxis * 15f + wallFrame.YAxis * (left ? 60f : -60f) +
+            new FVector(0f, 0f, spy.CollisionHeight - 30f);
+        return result;
     }
 
     /// <summary>Weapon muzzle offset in front of the eye for the estimated FX bone.</summary>

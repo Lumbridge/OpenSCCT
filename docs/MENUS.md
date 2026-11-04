@@ -242,13 +242,16 @@ Rows, captions and ranges are the page's (spec rules 1 to 9):
 | Practice | off | Reloaded's practice server: unlimited lives, 1 s respawn, `!heal` `!regen` `!tank` `!kill` `!ammo`, no stats (docs/ONLINE.md, "Practice servers") |
 
 The Maps list (ours, `UI/MapPickerView.cs`) shows a landscape picture per map of the selected mode; a click picks it.
-The selected map's full name stays above the browser. Search and playlist filters show a result count and an empty
-state with Reset filters when nothing matches; filtering does not change the selected map. List view remains available.
-Above the pictures, Reloaded's playlist choice (rl:qol.lobbymaps): Standard, Extended, Classic, 3v3, Merc Deathmatch
-(each with its description as the tooltip, and the maps it names that are not installed) or All installed maps, and a
-search box (the map's name, its name without the variant word, or its code). The choice is kept in the settings
-(`active_map_playlist`, Standard on a first run); without the
-catalog data every map shows under All.
+The selected map's full name stays above the browser. Search and map group filters show a result count and an empty
+state with Reset filters when nothing matches; filtering does not change the selected map. The display selector offers
+Picture grid, List view and Thumbnail list. Thumbnail rows show a small landscape preview, the map name and its short
+code; plain list rows also show the short code. The display choice is saved and shared by all map browsers.
+Above the pictures, the map group choice offers All installed maps, Enhanced maps (excluding 3v3 variants), Stock maps
+(the eleven maps shipped with the original 2005 game), Community maps (everything outside Stock and the Enhanced family)
+and 3v3 optimised maps. Enhanced 3v3 variants remain in All and 3v3 optimised; community 3v3 maps also appear in Community.
+Each has a description tooltip. The search box matches the map's
+name, its name without the variant word, or its short code (for example `AquaE`, ignoring case). The group choice is kept in the settings
+(`active_map_playlist`, All on a first run); the groups work without the optional shared catalog data.
 
 Added for hosting from the game (the original took them from Ubi.com or the LAN service): server name, UDP port
 (28888), the master server, list on the master, map the port with UPnP. The page keeps its last values

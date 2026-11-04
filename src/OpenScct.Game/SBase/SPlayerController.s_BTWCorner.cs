@@ -25,7 +25,7 @@ public partial class SPlayerController
         [PortOf("uc:SBase.SPlayerController:s_BTWCorner.PlayerMove", Spec = "spec/movement/back-to-wall.md#corner-s_btwcorner-fire-disabled")]
         public virtual void PlayerMove(SPlayerController self, float DeltaTime)
         {
-            self.UpdateCamRotation(DeltaTime);
+            self.UpdateBtwRotation(DeltaTime);
             if (self.SBPawn is { } pawn)
             {
                 int target = self.vWallNormal.Rotation().Yaw & 65535;

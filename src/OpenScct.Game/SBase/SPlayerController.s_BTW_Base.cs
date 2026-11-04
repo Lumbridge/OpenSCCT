@@ -25,12 +25,12 @@ public partial class SPlayerController
         [PortOf("uc:SBase.SPlayerController:s_BTW_Base.BeginState", Spec = "spec/movement/back-to-wall.md#s_btw_base-common")]
         public override void BeginState(Actor self) => ReinitIfTazered((SPlayerController)self);
 
-        /// <summary>The camera turns; the spy does not move.</summary>
+        /// <summary>The camera turns within the wall view; the spy does not move.</summary>
         [Uc("SBase.SPlayerController.s_BTW_Base.PlayerMove", Sha1 = "11a875f58b3fc1db0f049c2404e13d981be2ee5e")]
         [PortOf("uc:SBase.SPlayerController:s_BTW_Base.PlayerMove", Spec = "spec/movement/back-to-wall.md#s_btw_base-common")]
         public virtual void PlayerMove(SPlayerController self, float DeltaTime)
         {
-            self.UpdateCamRotation(DeltaTime);
+            self.UpdateBtwRotation(DeltaTime);
             self.SendMove(DeltaTime, default);
         }
 
@@ -59,6 +59,53 @@ public partial class SPlayerController
             self.FaceWall(pawn);
             pawn.ChangeEnumAction(SBasePawn.SA_BTW_OUT);
             self.LeaveWallToRest(pawn);
+        }
+    }
+
+    /// <summary>The current wall view's limits and reference, shared with render-time mouse prediction.</summary>
+    public bool TryGetBtwViewLimits(out CameraWindow window, out int yawReference)
+    {
+        window = default;
+        yawReference = 0;
+        if (SBPawn is not { } pawn)
+        {
+            return false;
+        }
+
+        bool peeking = true;
+        if (StateNode is s_BTWFireStandLeft or s_BTWFireCrouchLeft)
+        {
+            window = new(MovementK.BtwFireLeftYawMin, MovementK.BtwFireLeftYawMax, -MovementK.BtwFirePitch, MovementK.BtwFirePitch);
+        }
+        else if (StateNode is s_BTWFireStandRight or s_BTWFireCrouchRight)
+        {
+            window = new(MovementK.BtwFireRightYawMin, MovementK.BtwFireRightYawMax, -MovementK.BtwFirePitch, MovementK.BtwFirePitch);
+        }
+        else if (StateNode is s_BTW_StandLeft or s_BTW_StandRight or s_BTW_CrouchLeft or s_BTW_CrouchRight)
+        {
+            int view = MovementK.BtwPeekView;
+            window = new(-view, view, -view, view);
+        }
+        else if (StateNode is s_BTW or s_EnterBTW or s_BTWCorner)
+        {
+            window = CameraWindows.WindowOf(ECamMode.ECM_BTW);
+            peeking = false;
+        }
+        else
+        {
+            return false;
+        }
+
+        // The entry clip has not necessarily finished turning the pawn onto the wall yet.
+        yawReference = (StateNode is s_EnterBTW && !vWallNormal.IsZero() ? vWallNormal.Rotation().Yaw : pawn.Rotation.Yaw) + (peeking ? 32768 : 0);
+        return true;
+    }
+
+    internal void UpdateBtwRotation(float deltaTime)
+    {
+        if (TryGetBtwViewLimits(out CameraWindow window, out int yawReference))
+        {
+            UpdateLimitedRotation(deltaTime, window.MinYaw, window.MaxYaw, window.MinPitch, window.MaxPitch, yawReference, 0);
         }
     }
 

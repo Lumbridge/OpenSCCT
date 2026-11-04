@@ -103,6 +103,12 @@ SBasePawn.eAimAtType: AAFULL 0, AAVERT 1, AAHOH 2, AABTW 3.
    along their X axis, so the arm points along the view); a held bone's GetBoneRotation is its controller's rotation,
    a free one is read from the drawn pose, and with no pose (a server) the target is taken at once.
 
+   OpenSCCT draws the local corner firing arm at the rendered view by adding the shortest yaw/pitch difference
+   from the last packed simulation view to the held arm rotation. This retains the arm-speed lag while keeping
+   its muzzle in step with the camera and laser during mouse movement between ticks. Fixed holstering poses and
+   other held bones are unchanged. Remote bone directions interpolate between their two simulation samples.
+   These are rendering estimates for the fixed-tick port; gameplay continues to use the simulated controller.
+
 ## Constants
 
 | Name | Value | Unit | Provenance | Source |

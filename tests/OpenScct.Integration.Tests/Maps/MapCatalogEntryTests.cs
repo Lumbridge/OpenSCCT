@@ -134,6 +134,94 @@ public sealed class MapCatalogEntryTests : IDisposable
         Assert.Equal([MapCatalog.AllMapsPlaylist], catalog.GetPlaylists().Select(p => p.Name));
     }
 
+    [Fact]
+    public void Map_filters_exclude_three_vs_three_from_enhanced_and_keep_community_overlap()
+    {
+        MapCatalog catalog = Synthetic();
+        string svmap = Path.Combine(_root, "content", "svmap");
+        WriteMap(svmap, "PlaylistOnly", "Courtyard", "COURTYARD", converted: true);
+        WriteMap(svmap, "MetadataOnly", "Enhanced Courtyard", "ENHANCED COURTYARD", converted: true);
+        string file = Path.Combine(_root, "content", "shared", "maps", "catalog.json");
+        File.WriteAllText(file, File.ReadAllText(file).Replace("\"maps\": [\"ClubT\"]", "\"maps\": [\"ClubT\", \"PlaylistOnly\", \"MetadataOnly\"]"), NoBom);
+
+        IReadOnlyList<MapPlaylist> filters = catalog.GetMapFilters();
+        Assert.Equal([MapCatalog.AllMapsPlaylist, MapCatalog.EnhancedMapsFilter, MapCatalog.StockMapsFilter,
+            MapCatalog.CommunityMapsFilter, MapCatalog.ThreeVsThreeMapsFilter], filters.Select(p => p.Name));
+        MapPlaylist Group(string name) => filters.Single(p => p.Name == name);
+
+        Assert.Equal(catalog.GetHostMaps().Select(e => e.Id), Group(MapCatalog.AllMapsPlaylist).Maps);
+        Assert.Equal(["AquaE"], Group(MapCatalog.EnhancedMapsFilter).Maps);
+        Assert.Equal(["AquaD"], Group(MapCatalog.StockMapsFilter).Maps);
+        Assert.Equal(["PlaylistOnly", "ClubS"], Group(MapCatalog.CommunityMapsFilter).Maps);
+        Assert.Equal(["ClubT", "MetadataOnly", "PlaylistOnly"], Group(MapCatalog.ThreeVsThreeMapsFilter).Maps);
+        Assert.Empty(Group(MapCatalog.EnhancedMapsFilter).Maps.Intersect(Group(MapCatalog.ThreeVsThreeMapsFilter).Maps,
+            StringComparer.OrdinalIgnoreCase));
+        // Enhanced 3v3 maps remain available through All and 3v3, including maps identified only by the playlist.
+        foreach (string id in new[] { "ClubT", "MetadataOnly" })
+        {
+            Assert.Contains(id, Group(MapCatalog.AllMapsPlaylist).Maps);
+            Assert.Contains(id, Group(MapCatalog.ThreeVsThreeMapsFilter).Maps);
+            Assert.DoesNotContain(id, Group(MapCatalog.CommunityMapsFilter).Maps);
+        }
+        foreach (string id in Group(MapCatalog.AllMapsPlaylist).Maps)
+        {
+            Assert.Contains(filters, p => p.Name != MapCatalog.AllMapsPlaylist && p.Maps.Contains(id));
+        }
+
+        // OriginalOrder includes installed addons; it must not turn them into launch stock maps.
+        Assert.True(catalog.GetCatalogEntry("ClubS")!.OriginalOrder >= 0);
+        Assert.Contains("ClubS", Group(MapCatalog.CommunityMapsFilter).Maps);
+        Assert.All(filters, p => Assert.Empty(p.Missing));
+    }
+
+    [Fact]
+    public void Stock_filter_contains_the_eleven_launch_maps_and_excludes_later_official_maps()
+    {
+        string svmap = Path.Combine(_root, "launch", "svmap");
+        string[] stock = ["AquaD", "BankD", "ClubD", "DeftD", "FactD", "MissD", "MuseD", "OrphD", "RiveD", "StatD", "WareD"];
+        foreach (string id in stock.Concat(["PolaD", "SteeD"]))
+            WriteMap(svmap, id, id, null, converted: true);
+
+        var filters = new MapCatalog(svmap).GetMapFilters();
+        Assert.Equal(stock.Order(StringComparer.OrdinalIgnoreCase),
+            filters.Single(p => p.Name == MapCatalog.StockMapsFilter).Maps.Order(StringComparer.OrdinalIgnoreCase));
+        Assert.Equal(["PolaD", "SteeD"], filters.Single(p => p.Name == MapCatalog.CommunityMapsFilter).Maps);
+    }
+
+    [Fact]
+    public void Map_filters_work_without_shared_catalog_data_and_include_new_community_maps_after_refresh()
+    {
+        string svmap = Path.Combine(_root, "groups", "svmap");
+        WriteMap(svmap, "aquad", "Aquarius", "AQUARIUS", converted: true);
+        WriteMap(svmap, "AquaE", "Enhanced Aquarius", "enhanced aquarius", converted: true);
+        WriteMap(svmap, "MounS", "Mount Hospital", "ENH MOUNT HOSPITAL SABO", converted: true);
+        WriteMap(svmap, "ClubT", "Club House", "ENHANCED CLUB HOUSE 3V3", converted: true);
+        WriteMap(svmap, "MuseT", "Museum 3v3", null, converted: true);
+        WriteMap(svmap, "Custom3v3", "Courtyard", null, converted: true);
+        WriteMap(svmap, "Unknown", "Enhancement Centre", null, converted: true);
+        WriteMap(svmap, "TSP20", "Tutorial", null, converted: true);
+        WriteMap(svmap, "Entry", "Entry", null, converted: true);
+        WriteMap(svmap, "OwnMap", "Own", null, converted: false);
+        var catalog = new MapCatalog(svmap);
+
+        IReadOnlyList<MapPlaylist> filters = catalog.GetMapFilters();
+        MapPlaylist Group(string name) => filters.Single(p => p.Name == name);
+        Assert.Equal(5, filters.Count);
+        Assert.Equal(["aquad"], Group(MapCatalog.StockMapsFilter).Maps);
+        Assert.Equal(["MounS", "AquaE"], Group(MapCatalog.EnhancedMapsFilter).Maps);
+        Assert.Equal(["Custom3v3", "Unknown", "MuseT"], Group(MapCatalog.CommunityMapsFilter).Maps);
+        Assert.Equal(["Custom3v3", "ClubT", "MuseT"], Group(MapCatalog.ThreeVsThreeMapsFilter).Maps);
+        Assert.Empty(Group(MapCatalog.EnhancedMapsFilter).Maps.Intersect(Group(MapCatalog.ThreeVsThreeMapsFilter).Maps,
+            StringComparer.OrdinalIgnoreCase));
+        Assert.Contains("ClubT", Group(MapCatalog.AllMapsPlaylist).Maps);
+        Assert.DoesNotContain("ClubT", Group(MapCatalog.CommunityMapsFilter).Maps);
+        Assert.DoesNotContain(Group(MapCatalog.AllMapsPlaylist).Maps, id => id is "TSP20" or "Entry" or "OwnMap" or MapCatalog.TestBox);
+
+        WriteMap(svmap, "NewMap", "New community map", "NEW COMMUNITY MAP", converted: true);
+        catalog.Refresh();
+        Assert.Contains("NewMap", catalog.GetMapFilters().Single(p => p.Name == MapCatalog.CommunityMapsFilter).Maps);
+    }
+
     /// <summary>The converted maps: every one is in the catalog, every host map has a picture and plays Story or Deathmatch.</summary>
     [Fact]
     public void Every_converted_map_is_in_the_catalog()

@@ -40,7 +40,8 @@ public sealed class MenuLayoutSmoke : SmokeTest
     private int _tab;
     private int _frames;
     private int _size;
-    private bool _savedMapList;
+    private MapBrowserView _savedMapView;
+    private float _pictureMapHeight;
     private ulong? _presenceInstance;
     private int _hostTab;
     private int _mapPlaylist;
@@ -58,7 +59,7 @@ public sealed class MenuLayoutSmoke : SmokeTest
         switch (_stage)
         {
             case 0:
-                if (_size == 0) _savedMapList = SettingsStore.Current.MapListView;
+                if (_size == 0) _savedMapView = SettingsStore.Current.MapView;
                 if (DisplayServer.GetName() != "headless")
                 {
                     DisplayServer.WindowSetMode(DisplayServer.WindowMode.Windowed);
@@ -123,6 +124,7 @@ public sealed class MenuLayoutSmoke : SmokeTest
                 if (_frames < SettleFrames) return SmokeResult.Running;
                 if (tree.CurrentScene!.FindChild("MapGrid", true, false) is Control grid)
                 {
+                    _pictureMapHeight = grid.GetChildren().OfType<Button>().FirstOrDefault(tile => tile.Visible)?.Size.Y ?? 0;
                     foreach (Node child in grid.GetChildren())
                     {
                         if (child is not Button tile || !tile.Visible || tile.FindChild("Title", true, false) is not Label label) continue;
@@ -145,10 +147,27 @@ public sealed class MenuLayoutSmoke : SmokeTest
                         if (child is not Button tile || !tile.Visible) continue;
                         if (string.IsNullOrWhiteSpace(tile.Text) || tile.Size.Y > 48 || tile.Size.X < list.Size.X - 20)
                             _problems.Add("Map list row is not compact/full-width: " + tile.Name);
+                        if (!tile.Text.Contains(tile.Name.ToString()[4..], StringComparison.OrdinalIgnoreCase))
+                            _problems.Add("Map list row does not show its short code: " + tile.Name);
                     }
                 }
                 Check(tree.CurrentScene!, width, "Create Session list");
                 MenuPage.Shot(tree.Root, $"menu-layout-{_sizes[_size].X}x{_sizes[_size].Y}-map-list");
+                if (tree.CurrentScene.FindChild("MapGrid", true, false) is MapBrowserGrid thumbnailList)
+                {
+                    thumbnailList.ViewToggle.Select(2);
+                    thumbnailList.ViewToggle.EmitSignal(OptionButton.SignalName.ItemSelected, 2L);
+                }
+                _stage = 19;
+                _frames = 0;
+                return SmokeResult.Running;
+            case 19:
+                if (_frames < SettleFrames) return SmokeResult.Running;
+                if (tree.CurrentScene!.FindChild("MapGrid", true, false) is MapBrowserGrid thumbnails)
+                    _problems.AddRange(LobbyLayoutSmoke.ThumbnailProblems(thumbnails, _pictureMapHeight));
+                else _problems.Add("Create Session has no map thumbnail list");
+                Check(tree.CurrentScene!, width, "Create Session thumbnail list");
+                MenuPage.Shot(tree.Root, $"menu-layout-{_sizes[_size].X}x{_sizes[_size].Y}-map-thumbnails");
                 SettingsStore.Current.MapListView = false;
                 _hostTab = 0;
                 _stage = 15;
@@ -233,7 +252,7 @@ public sealed class MenuLayoutSmoke : SmokeTest
                     playlist.Select(_mapPlaylist);
                     playlist.EmitSignal(OptionButton.SignalName.ItemSelected, _mapPlaylist);
                 }
-                SettingsStore.Current.MapListView = _savedMapList;
+                SettingsStore.Current.MapView = _savedMapView;
                 if (++_size < _sizes.Length)
                 {
                     _stage = 0;
@@ -241,6 +260,7 @@ public sealed class MenuLayoutSmoke : SmokeTest
                     _frames = 0;
                     return SmokeResult.Running;
                 }
+                SettingsStore.Save(SettingsStore.Current);
                 return _problems.Count == 0
                     ? SmokeResult.Pass($"offline/populated dashboard, changelog, announcement, options and Create Session at {_sizes.Length} viewport sizes from 800x600 to 4K")
                     : SmokeResult.Fail(string.Join("; ", _problems.Take(12)));

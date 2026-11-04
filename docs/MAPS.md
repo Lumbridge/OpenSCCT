@@ -21,6 +21,7 @@ IReadOnlyList<MapCatalogEntry> host = maps.GetHostMaps(); // the host screen's l
 IReadOnlyList<MapCatalogEntry> all = maps.GetCatalog();   // every installed map, menu and training maps too
 MapCatalogEntry? e = maps.GetCatalogEntry("AquaE");
 IReadOnlyList<MapPlaylist> lists = maps.GetPlaylists();   // Reloaded's playlists, then "All"
+IReadOnlyList<MapPlaylist> filters = maps.GetMapFilters(); // All, Enhanced, Stock, Community, 3v3 optimised
 ```
 
 `MapCatalogEntry` (one map):
@@ -51,6 +52,17 @@ time limit, lives, respawn, disks; null without one).
 
 `MapPlaylist`: `Name`, `Description`, `Mode` (the mode the playlist is for), `Maps` (installed map codes, in host
 order), `Missing` (codes the playlist names that are not installed, such as `StatP`).
+
+The map browser uses `GetMapFilters()` independently of Reloaded's optional playlists. It always offers
+**All installed maps**, **Enhanced maps**, **Stock maps**, **Community maps** and **3v3 optimised maps**.
+Stock is the eleven launch maps: `AquaD`, `BankD`, `ClubD`, `DeftD`, `FactD`, `MissD`, `MuseD`, `OrphD`,
+`RiveD`, `StatD`, `WareD`. Later downloads such as Polar Base and Steel Squat are outside that group.
+The launch roster is recorded in [Official Xbox Magazine, March 2005, p. 52](https://datassette.s3.us-west-004.backblazeb2.com/revistas/official_us_xbox_magazine_web_version_2005-03.pdf).
+Enhanced uses the `Enhanced` or `Enh` prefix in the catalog or original menu name and excludes 3v3 variants from its
+filter. Community contains everything outside Stock and the Enhanced family, including community 3v3 maps;
+enhanced 3v3 maps remain in All and 3v3 optimised. The 3v3 group uses Reloaded's `3v3` playlist
+or an explicit `3v3` label in the map's name or code. These groups work without the shared catalog data and
+keep the host map order. Search and the selected mode further narrow the visible results.
 
 ### Modes
 

@@ -29,7 +29,7 @@ public sealed class LobbyLayoutSmoke : SmokeTest
     private Control? _screen;
     private FixtureLobby? _session;
     private IReadOnlyList<(string Id, string Title)>? _maps;
-    private bool _savedMapList;
+    private MapBrowserView _savedMapView;
     private string? _savedPlaylist;
     private bool _liveResize;
     private Button? _lastMapTile;
@@ -37,6 +37,8 @@ public sealed class LobbyLayoutSmoke : SmokeTest
     private LobbySetup? _beforeMapSearch;
     private MenuPilot? _pilot;
     private int _numberStage;
+    private float _pictureMapHeight;
+    private int _mapGroupBeforeView;
 
     private Vector2I ViewportSize => _liveResize ? new Vector2I(800, 600) : _sizes[_size];
     private string Resolution => $"{ViewportSize.X}x{ViewportSize.Y}" + (_liveResize ? "-resized" : "");
@@ -46,7 +48,7 @@ public sealed class LobbyLayoutSmoke : SmokeTest
         if (_maps is null)
         {
             _pilot = new MenuPilot(context.Tree);
-            _savedMapList = SettingsStore.Current.MapListView;
+            _savedMapView = SettingsStore.Current.MapView;
             _savedPlaylist = SettingsStore.Current.ActiveMapPlaylist;
             SettingsStore.Current.ActiveMapPlaylist = MapCatalog.AllMapsPlaylist;
             // Create the same catalog service the live lobby uses for its embedded map browser.
@@ -282,6 +284,11 @@ public sealed class LobbyLayoutSmoke : SmokeTest
                     EnsureVisible(search);
                     search.Text = "__no_lobby_map_matches__";
                     search.EmitSignal(LineEdit.SignalName.TextChanged, search.Text);
+                    _mapGroupBeforeView = roomScreen.SettingsPicker.PlaylistBox!.Selected;
+                    var view = roomScreen.SettingsPicker.Grid.ViewToggle;
+                    Expect(view.ItemCount == 3 && view.GetItemText(2) == "Thumbnail list", "map display offers thumbnail rows");
+                    view.Select(2);
+                    view.EmitSignal(OptionButton.SignalName.ItemSelected, 2L);
                     return SmokeResult.Running;
                 }
                 if (_frame < 82) return SmokeResult.Running;
@@ -291,6 +298,9 @@ public sealed class LobbyLayoutSmoke : SmokeTest
                     Expect(!picker.Grid.GetChildren().OfType<Button>().Any(tile => tile.Visible) &&
                         picker.FindChild("MapEmpty", true, false) is Label { Visible: true }, "map search has an honest empty state");
                     Expect(roomScreen.Parameters!.Setup == _beforeMapSearch, "map filters do not change the settings draft");
+                    Expect(SettingsStore.Current.MapView == MapBrowserView.ThumbnailList &&
+                        picker.Grid.ViewToggle.Selected == 2 && picker.PlaylistBox!.Selected == _mapGroupBeforeView &&
+                        picker.SearchBox!.Text == "__no_lobby_map_matches__", "switching map view preserves the active search and group");
                     CheckLayout(roomScreen.MatchSettingsPanel!, "Lobby empty map search");
                     CheckSettings(roomScreen);
                     MenuPage.Shot(roomScreen, $"lobby-map-empty-{Resolution}");
@@ -300,7 +310,20 @@ public sealed class LobbyLayoutSmoke : SmokeTest
                 if (_frame < 88) return SmokeResult.Running;
                 if (_frame == 88)
                 {
+                    CheckMapChooser(roomScreen, list: true, thumbnails: true);
+                    ScrollToLastMap(roomScreen);
+                    return SmokeResult.Running;
+                }
+                if (_frame == 92 && _lastMapTile is not null) EnsureVisible(_lastMapTile);
+            }
+            if (_frame < 94) return SmokeResult.Running;
+            if (_frame == 94)
+            {
+                if (_session!.CanControl)
+                {
+                    CheckLastMapVisible(roomScreen);
                     var picker = roomScreen.SettingsPicker!;
+                    if (_size == 0 && !_liveResize) CheckMapFilters(roomScreen);
                     var tile = picker.Grid.GetChildren().OfType<Button>().FirstOrDefault(button => button.Visible && !button.ButtonPressed);
                     Expect(tile is not null, "reset filters restores selectable maps");
                     if (tile is not null)
@@ -311,12 +334,7 @@ public sealed class LobbyLayoutSmoke : SmokeTest
                             "embedded map selection changes the draft without applying");
                         roomScreen.Parameters.Load(live);
                     }
-                    return SmokeResult.Running;
                 }
-            }
-            if (_frame < 94) return SmokeResult.Running;
-            if (_frame == 94)
-            {
                 ShowSettingsTab(roomScreen, 0);
                 return SmokeResult.Running;
             }
@@ -370,9 +388,10 @@ public sealed class LobbyLayoutSmoke : SmokeTest
         if (++_variant < 4) return SmokeResult.Running;
         _variant = 0;
         if (++_size < _sizes.Length) return SmokeResult.Running;
-        SettingsStore.Current.MapListView = _savedMapList;
+        SettingsStore.Current.MapView = _savedMapView;
         SettingsStore.Current.ActiveMapPlaylist = _savedPlaylist!;
-        return _problems.Count == 0 ? SmokeResult.Pass("host/client/offline and full 12v12 rosters with spectators, Game and Rules tabs, exact bot counts and player slots, personal recording, editable numbers and draft/apply/discard, alternate rules, embedded map pictures/list/search, 9 resolutions from 800x600 to 3840x2160 and live resize from 4K to 800x600")
+        SettingsStore.Save(SettingsStore.Current);
+        return _problems.Count == 0 ? SmokeResult.Pass("host/client/offline and full 12v12 rosters with spectators, Game and Rules tabs, exact bot counts and player slots, personal recording, editable numbers and draft/apply/discard, alternate rules, embedded map pictures/list/thumbnail rows/search and five map groups, 9 resolutions from 800x600 to 3840x2160 and live resize from 4K to 800x600")
             : SmokeResult.Fail(string.Join("; ", _problems.Take(15)));
     }
 
@@ -399,8 +418,16 @@ public sealed class LobbyLayoutSmoke : SmokeTest
             Expect(false, "last map can be reached");
             return;
         }
-        Expect(scroll.GetGlobalRect().Grow(1f).Encloses(_lastMapTile.GetGlobalRect()), "last map is fully visible after scrolling");
-        Expect(IsReachable(_lastMapTile), "last map is reachable through both nested scroll areas");
+        Rect2 tileRect = _lastMapTile.GetGlobalRect(), scrollRect = scroll.GetGlobalRect();
+        // Scroll offsets round to logical pixels before the menu canvas scales them into global coordinates.
+        Transform2D transform = scroll.GetGlobalTransform();
+        float rounding = Math.Max(transform.X.Length(), transform.Y.Length()) + 0.01f;
+        string diagnostic = $"view={SettingsStore.Current.MapView}, tile={tileRect}, scroll={scrollRect}, " +
+            $"scale={transform.Y.Length():0.###}, rounding={rounding:0.###}, offset={scroll.ScrollVertical}";
+        Expect(scrollRect.Grow(rounding).Encloses(tileRect), "last map is fully visible after scrolling: " + diagnostic);
+        var outer = room.FindChild("SettingsScroll", true, false) as ScrollContainer;
+        Expect(IsReachable(_lastMapTile), "last map is reachable through both nested scroll areas: " + diagnostic +
+            $", outer={outer?.GetGlobalRect()}, outerOffset={outer?.ScrollVertical}");
         if (((Control)_lastMapTile.GetParent()).Size.Y > scroll.Size.Y)
             Expect(scroll.ScrollVertical > 0, "long map browser scrolls down to its last map");
     }
@@ -491,7 +518,7 @@ public sealed class LobbyLayoutSmoke : SmokeTest
         MenuPage.Shot(room, $"lobby-alternate-{Resolution}-{_variant}");
     }
 
-    private void CheckMapChooser(LobbyRoomScreen room, bool list)
+    private void CheckMapChooser(LobbyRoomScreen room, bool list, bool thumbnails = false)
     {
         if (room.MatchSettingsPanel is not Control panel || room.SettingsPicker is not { } picker ||
             picker.FindChild("MapScroll", true, false) is not ScrollContainer scroll)
@@ -499,14 +526,120 @@ public sealed class LobbyLayoutSmoke : SmokeTest
             Expect(false, "map browser is embedded in match settings");
             return;
         }
-        CheckLayout(panel, list ? "Map list" : "Map pictures");
+        CheckLayout(panel, thumbnails ? "Map thumbnail list" : list ? "Map list" : "Map pictures");
         Expect(Math.Abs(scroll.GetGlobalRect().End.Y - picker.GetGlobalRect().End.Y) <= 1f,
             "map scroll uses all available picker height");
         Expect(scroll.Size.Y >= 150, "map browser has a usable scrolling area");
         Expect(picker.Grid.GetChildCount() > 0, "map chooser contains maps");
         Expect(picker.Grid.Columns == 1 || !list, "map list uses one column");
+        if (!list) _pictureMapHeight = picker.Grid.GetChildren().OfType<Button>().FirstOrDefault(tile => tile.Visible)?.Size.Y ?? 0;
+        if (thumbnails) _problems.AddRange(ThumbnailProblems(picker.Grid, _pictureMapHeight).Select(problem => $"{Resolution}: {problem}"));
         CheckSettings(room);
-        MenuPage.Shot(room, $"lobby-map-{(list ? "list" : "pictures")}-{Resolution}");
+        MenuPage.Shot(room, $"lobby-map-{(thumbnails ? "thumbnails" : list ? "list" : "pictures")}-{Resolution}");
+    }
+
+    internal static IEnumerable<string> ThumbnailProblems(MapBrowserGrid grid, float pictureMapHeight)
+    {
+        if (grid.Columns != 1) yield return "Map thumbnail list has more than one column";
+        foreach (Button tile in grid.GetChildren().OfType<Button>().Where(tile => tile.Visible))
+        {
+            string id = tile.Name.ToString()[4..];
+            if (tile.GetNodeOrNull<Control>("Row") is not { Visible: true } row ||
+                row.GetNodeOrNull<Control>("MapThumb") is not { } picture ||
+                row.GetNodeOrNull<Label>("Details/Title") is not { } title ||
+                row.GetNodeOrNull<Label>("Details/Code") is not { } code)
+            {
+                yield return "Map thumbnail row is missing its picture, title or code: " + id;
+                continue;
+            }
+            if (tile.Size.Y > 88 || tile.Size.Y < 57 || tile.Size.X < grid.Size.X - 20 ||
+                (pictureMapHeight > 0 && tile.Size.Y >= pictureMapHeight))
+                yield return "Map thumbnail row is not compact and full width: " + id;
+            Rect2 bounds = tile.GetGlobalRect().Grow(1f);
+            if (!bounds.Encloses(picture.GetGlobalRect()) || !bounds.Encloses(title.GetGlobalRect()) ||
+                !bounds.Encloses(code.GetGlobalRect()))
+                yield return "Map thumbnail content extends outside its row: " + id;
+            if (picture.Size.X < 64 || picture.Size.X > 100 || picture.Size.Y < 36 || picture.Size.Y > 60)
+                yield return "Map thumbnail is not a small landscape preview: " + id;
+            if (picture.GetGlobalRect().End.X > Math.Min(title.GetGlobalRect().Position.X, code.GetGlobalRect().Position.X) + 1f ||
+                title.GetGlobalRect().End.Y > code.GetGlobalRect().Position.Y + 1f)
+                yield return "Map thumbnail, title and code overlap: " + id;
+            if (string.IsNullOrWhiteSpace(title.Text) || !string.Equals(code.Text, id, StringComparison.OrdinalIgnoreCase) ||
+                title.Size.Y < 12 || code.Size.Y < 10)
+                yield return "Map thumbnail row has no readable title and short code: " + id;
+        }
+    }
+
+    private void CheckMapFilters(LobbyRoomScreen room)
+    {
+        var picker = room.SettingsPicker!;
+        var box = picker.PlaylistBox!;
+        Expect(Enumerable.Range(0, box.ItemCount).Select(box.GetItemText).SequenceEqual(new[]
+        {
+            "All installed maps", "Enhanced maps", "Stock maps", "Community maps", "3v3 optimised maps",
+        }), "map group dropdown offers all five groups");
+        var catalog = OnlineService.Get(room.GetTree()).Catalog.Maps;
+        var filters = catalog.GetMapFilters();
+        if (box.ItemCount != filters.Count) return;
+        var tiles = picker.Grid.GetChildren().OfType<Button>().ToArray();
+        var allVisible = tiles.Where(tile => tile.Visible).ToArray();
+        var draft = room.Parameters!.Setup;
+        var live = _session!.Setup;
+        for (int i = 0; i < filters.Count; i++)
+        {
+            var filter = filters[i];
+            bool all = filter.Name == MapCatalog.AllMapsPlaylist;
+            var included = new HashSet<string>(filter.Maps, StringComparer.OrdinalIgnoreCase);
+            box.Select(i);
+            box.EmitSignal(OptionButton.SignalName.ItemSelected, (long)i);
+            Expect(SettingsStore.Current.ActiveMapPlaylist == filter.Name, "map group choice is remembered: " + filter.Name);
+            Expect((picker.Model.MapFilter is null) == all, "map arrows receive the selected group: " + filter.Name);
+            foreach (var tile in tiles)
+            {
+                string id = tile.Name.ToString()[4..];
+                bool inGroup = all || included.Contains(id);
+                bool modePlays = catalog.GetCatalogEntry(id)?.Mode(draft.Mode) is not { Playable: false };
+                Expect(tile.Visible == (inGroup && modePlays), "map group shows exactly its playable maps: " + filter.Name + "/" + id);
+                Expect((picker.Model.MapFilter?.Invoke(id) ?? true) == inGroup,
+                    "map arrows and grid use the same group: " + filter.Name + "/" + id);
+            }
+            if (!all && !included.Contains(draft.Map) && picker.Tile(draft.Map) is { } selected)
+                Expect(!selected.Visible, "selected map outside the group is hidden: " + filter.Name);
+
+            var groupVisible = tiles.Where(tile => tile.Visible).ToArray();
+            if (groupVisible.FirstOrDefault() is { } first)
+            {
+                string query = first.Name.ToString()[4..].ToLowerInvariant();
+                var search = picker.SearchBox!;
+                search.Text = query;
+                search.EmitSignal(LineEdit.SignalName.TextChanged, query);
+                var matches = groupVisible.Where(tile => tile.TooltipText.Contains(query, StringComparison.OrdinalIgnoreCase));
+                Expect(first.Visible && tiles.Where(tile => tile.Visible).SequenceEqual(matches),
+                    "map code search combines with the selected group: " + filter.Name);
+                search.Text = string.Empty;
+                search.EmitSignal(LineEdit.SignalName.TextChanged, string.Empty);
+                Expect(tiles.Where(tile => tile.Visible).SequenceEqual(groupVisible), "clearing search keeps the selected group: " + filter.Name);
+            }
+            Expect(room.Parameters.Setup == draft && _session.Setup == live, "map group filtering keeps the selected match unchanged: " + filter.Name);
+        }
+        Click(picker, "ResetMapFilters");
+        Expect(box.Selected == 0 && picker.Model.MapFilter is null && picker.SearchBox!.Text.Length == 0 &&
+            SettingsStore.Current.ActiveMapPlaylist == MapCatalog.AllMapsPlaylist &&
+            tiles.Where(tile => tile.Visible).SequenceEqual(allVisible), "reset clears the group and restores all playable maps");
+        if (picker.Tile("AquaE") is { } aqua)
+        {
+            foreach (string query in new[] { "AquaE", "aquae" })
+            {
+                picker.SearchBox!.Text = query;
+                picker.SearchBox.EmitSignal(LineEdit.SignalName.TextChanged, query);
+                Expect(aqua.Visible && tiles.Count(tile => tile.Visible) == 1,
+                    "map code search finds Enhanced Aquarius: " + query);
+                Expect(box.Selected == 0 && picker.Model.MapFilter is null, "map code search keeps the selected group");
+                Expect(room.Parameters.Setup == draft && _session.Setup == live, "map code search keeps the selected match unchanged");
+            }
+            picker.SearchBox!.Text = string.Empty;
+            picker.SearchBox.EmitSignal(LineEdit.SignalName.TextChanged, string.Empty);
+        }
     }
 
     private void CheckLandmarks(LobbyRoomScreen room)

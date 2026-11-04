@@ -93,7 +93,9 @@ holstering, 7 other hand. Controller fields: `bFireMode` (InvButton alias FireMo
    plays SA_WALK_ST_2Hto0H / CR_2Hto0H and enters `s_PlayerWalkingMario_T_2HToOH`. The anim notify
    `NotifyUndrawWeapon` sends `ServerSwitchLaser(false)` and plays DrawP190 backward (`SetWeaponLoaded(4)`).
    `NotifyDrawUndrawWeapon` (quick draw/undraw used by traversal) toggles with WaitP190 (0 -> 1, or 1/2/7 -> 0 with
-   laser off). In PHYS_Vandamme the same notify also calls `ChangeAnimsForDrawUndrawSplitJump`, selecting
+   laser off). The [horizontal-pipe firing clips](../movement/pipe-horizontal.md#firing-from-the-pipe) dispatch it
+   from their body channel for both ordinary and inverted hangs, their holsters, and the armed inverted drop.
+   In PHYS_Vandamme the same notify also calls `ChangeAnimsForDrawUndrawSplitJump`, selecting
    SpltStAlNt1 and the UL1/UR1/DL1/DR1 aim clips when drawing, or the corresponding barehand *0 clips when
    holstering. The split draw animation must dispatch this notify; arm control alone leaves the wrong hand/weapon
    pose if the armed clip set is never selected. Restored in the rewrite on 2026-11-02 after the reported SteeE

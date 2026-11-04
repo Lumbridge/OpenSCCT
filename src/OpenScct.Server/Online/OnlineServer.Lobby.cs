@@ -828,7 +828,9 @@ public sealed partial class OnlineServer
     /// <c>!resign</c>, <c>!login</c>, <c>!help</c>, for the host and admins <c>!voiceban</c> and <c>!unvoiceban</c>, and on
     /// a practice server <c>!heal</c>, <c>!regen</c>, <c>!tank</c>, <c>!kill</c> (rl:net.practice). Map commands are open
     /// to everyone on a dedicated server without an admin password, to the host and admins otherwise; the others act on
-    /// the sender only. Every other line is chat.
+    /// the sender only. In dedicated lobbies, both <c>!map &lt;map code&gt; [mode]</c> and <c>!&lt;map code&gt;</c> select
+    /// the pending map; with open map commands enabled these are available to ordinary players even when an admin password is configured.
+    /// Every other line is chat.
     /// </summary>
     private bool OnChatCommand(PlayerSlot slot, string text)
     {
@@ -844,6 +846,7 @@ public sealed partial class OnlineServer
         {
             case "help":
                 SendMessage(p, "!map <name> [mode], !next, !prev, !pings, !resign, !lagcomp [on|off|reset|<ms>], !login <password>" +
+                    (Settings.Dedicated ? ", !<map code> (lobby)" : string.Empty) +
                     (CanModerate(p) ? ", !voiceban <name>, !unvoiceban <name>" : string.Empty) +
                     (Setup.Practice ? ", " + PracticeHelp : string.Empty));
                 return true;
@@ -892,6 +895,12 @@ public sealed partial class OnlineServer
                 OnSessionLine(slot.Connection, slot, SessionProtocol.Line("admin", arg));
                 return true;
             case "map" when arg.Length > 0:
+                string[] target = arg.Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
+                if (OnLobbyMapSelection(p, target[0], target.Length > 1 ? target[1].Trim() : null))
+                {
+                    return true;
+                }
+
                 if (!CanControl(p))
                 {
                     SendMessage(p, "Only the host or an admin may change the map.");
@@ -914,8 +923,67 @@ public sealed partial class OnlineServer
                 StepMap(verb == "next" ? 1 : -1);
                 return true;
             default:
-                return OnPracticeCommand(p, verb);
+                return OnPracticeCommand(p, verb) || (arg.Length == 0 && OnLobbyMapSelection(p, verb));
         }
+    }
+
+    /// <summary>
+    /// A dedicated lobby's exact map-code commands change only its pending setup. The admin password protects the
+    /// wider server controls; OpenMapCommands is the operator's opt-out for ordinary players choosing the next map.
+    /// </summary>
+    private bool OnLobbyMapSelection(SessionPlayer player, string code, string? modeName = null)
+    {
+        if (!Settings.Dedicated || Phase != SessionPhase.Lobby || code.Length == 0 ||
+            Maps.GetCatalogEntry(code) is not { Kind: MapKind.Versus } map)
+            return false;
+
+        if (!player.IsHost && !player.IsAdmin && !Settings.OpenMapCommands)
+        {
+            SendMessage(player, "Only the host or an admin may change the map.");
+            return true;
+        }
+
+        // A catalog entry may outlive a map removed from disk. Resolve it again before changing the setup.
+        if (Maps.FindMap(map.Id) is null)
+        {
+            SendMessage(player, $"Map '{map.Id}' is not installed on this server.");
+            return true;
+        }
+
+        OpenScct.Core.EGameMode mode;
+        if (!string.IsNullOrEmpty(modeName))
+        {
+            if (!LobbySetup.TryParseMode(modeName, out mode))
+            {
+                SendMessage(player, $"Unknown mode '{modeName}'.");
+                return true;
+            }
+            if (map.Mode(mode) is not { Playable: true })
+            {
+                SendMessage(player, $"Map '{map.Id}' does not support {LobbySetup.ModeName(mode)}.");
+                return true;
+            }
+        }
+        else
+        {
+            mode = map.Mode(Setup.Mode) is { Playable: true } ? Setup.Mode : map.DefaultMode;
+        }
+        if (map.Mode(mode) is not { Playable: true })
+        {
+            SendMessage(player, $"Map '{map.Id}' has no playable modes.");
+            return true;
+        }
+
+        LobbySetup fresh = LobbySetup.ForMap(map.Id, mode, Maps.GetMapSettings(map.Id), Setup.MaxPlayers) with
+        {
+            VoiceMode = Setup.VoiceMode, VoiceInLobby = Setup.VoiceInLobby, RandomMap = Setup.RandomMap, Revenge = Setup.Revenge,
+            AutoBalance = Setup.AutoBalance, Alternate = Setup.Alternate, Practice = Setup.Practice, Sidearms = Setup.Sidearms,
+            Bots = Setup.Bots, BotsPerSide = Setup.BotsPerSide, SpyBots = Setup.SpyBots, MercBots = Setup.MercBots, BotSkill = Setup.BotSkill,
+            GamesInARow = Setup.Revenge ? LobbySetup.RevengeGames : Setup.GamesInARow,
+        };
+        ApplySetup(fresh, announce: false);
+        Announce($"{player.Name} selected {Setup.Describe()}.");
+        return true;
     }
 
     /// <summary>The connection's smoothed round trip jitter (mean absolute change between samples), in milliseconds.</summary>

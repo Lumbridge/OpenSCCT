@@ -10,8 +10,8 @@ namespace OpenScctGame.UI;
 /// Create Session's and the lobby's map list (ours: the original picks the map with the Choose Map arrows only): every
 /// hostable map (<see cref="MapCatalog.GetHostMaps"/>) that is installed and plays the selected mode, as a scrolling
 /// grid of pictures with the map's name under each; a click selects it through the same <see cref="CreateSessionModel"/>
-/// as the arrows. Above the grid, Reloaded's playlist choice (rl:qol.lobbymaps: Standard, Extended, Classic, 3v3, Merc
-/// Deathmatch, All installed maps; the arrows then step through the playlist) and a search box (map name or code).
+/// as the arrows. Above the grid, a map group (All installed maps, Enhanced, Stock, Community or 3v3 optimised;
+/// the arrows then step through that group) and a search box (map name or code).
 /// Node names: <c>Playlist</c>, <c>MapSearch</c>, <c>MapGrid</c>, <c>Map_&lt;id&gt;</c>.
 /// </summary>
 public partial class MapPickerView : VBoxContainer
@@ -37,8 +37,8 @@ public partial class MapPickerView : VBoxContainer
     private int _revealStableFrames;
 
     /// <param name="installed">The maps the model steps through (id and title).</param>
-    /// <param name="playlist">The playlist shown first (a catalog playlist name; an unknown one shows every map).</param>
-    /// <param name="playlistChosen">Told the name when the player picks another playlist (to remember it).</param>
+    /// <param name="playlist">The map group shown first (an unknown name shows every map).</param>
+    /// <param name="playlistChosen">Told the name when the player picks another group (to remember it).</param>
     /// <param name="downloadable">Maps the player does not have that can still be picked (the hub laptop's maps of
     /// OpenSCCT-Content), shown after the installed ones under the title given.</param>
     /// <param name="compact">Two filter rows and landscape cards for Create Session's narrower map column.</param>
@@ -67,7 +67,7 @@ public partial class MapPickerView : VBoxContainer
         {
             _empty = new Label
             {
-                Name = "MapEmpty", Text = "No maps match these filters.\nTry another name, map code or playlist.",
+                Name = "MapEmpty", Text = "No maps match these filters.\nTry another name, map code or group.",
                 CustomMinimumSize = new Vector2(0, height), HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center, AutowrapMode = TextServer.AutowrapMode.WordSmart,
                 SizeFlagsVertical = SizeFlags.ExpandFill, Modulate = UiStyle.Dim, Visible = false,
@@ -120,13 +120,13 @@ public partial class MapPickerView : VBoxContainer
     public override void _ExitTree() => Model.Changed -= Refresh;
 
     /// <summary>
-    /// The Choose Map arrows' filter for a playlist name (<see cref="CreateSessionModel.MapFilter"/>): its maps, or null
-    /// for "All" and names the catalog does not have.
+    /// The Choose Map arrows' filter for a group name (<see cref="CreateSessionModel.MapFilter"/>): its maps, or null
+    /// for "All" and unknown names.
     /// </summary>
     public static Func<string, bool>? FilterFor(MapCatalog maps, string? playlist)
     {
         ArgumentNullException.ThrowIfNull(maps);
-        foreach (MapPlaylist p in maps.GetPlaylists())
+        foreach (MapPlaylist p in maps.GetMapFilters())
         {
             if (p.Name != MapCatalog.AllMapsPlaylist && string.Equals(p.Name, playlist, StringComparison.OrdinalIgnoreCase))
             {
@@ -138,27 +138,27 @@ public partial class MapPickerView : VBoxContainer
         return null;
     }
 
-    /// <summary>The playlist shown (null: every map).</summary>
+    /// <summary>The map group shown (null: every map).</summary>
     public MapPlaylist? Playlist => _playlist;
 
     public OptionButton? PlaylistBox { get; private set; }
 
     public LineEdit? SearchBox { get; private set; }
 
-    /// <summary>The playlist choice and the search box.</summary>
+    /// <summary>The map group choice and the search box.</summary>
     private void BuildFilterBar(MapCatalog maps, string? playlist, Action<string>? chosen)
     {
         var bar = new HBoxContainer { Name = "MapFilter" };
         bar.AddThemeConstantOverride("separation", _compact ? 8 : 12);
         if (!_compact) AddChild(bar);
-        _playlists.AddRange(maps.GetPlaylists());
+        _playlists.AddRange(maps.GetMapFilters());
         if (!_compact)
-            bar.AddChild(new Label { Text = "Playlist", VerticalAlignment = VerticalAlignment.Center, Modulate = UiStyle.MenuFocus });
+            bar.AddChild(new Label { Text = "Map group", VerticalAlignment = VerticalAlignment.Center, Modulate = UiStyle.MenuFocus });
         var box = new OptionButton
         {
             Name = "Playlist", CustomMinimumSize = new Vector2(_compact ? 0f : 240f, _compact ? 36f : 0f),
             SizeFlagsHorizontal = _compact ? SizeFlags.ExpandFill : SizeFlags.Fill,
-            FocusMode = FocusModeEnum.All, TooltipText = "Filter maps by playlist",
+            FocusMode = FocusModeEnum.All, TooltipText = "Filter maps by group",
         };
         int selected = -1;
         for (int i = 0; i < _playlists.Count; i++)
@@ -309,7 +309,7 @@ public partial class MapPickerView : VBoxContainer
         foreach ((string id, (Button tile, MapCatalogEntry? entry)) in _tiles)
         {
             bool on = string.Equals(id, map, StringComparison.OrdinalIgnoreCase);
-            tile.Visible = (!_compact && on) || (entry?.Mode(mode) is not { Playable: false } && InFilter(id) && MatchesSearch(id, entry, tile));
+            tile.Visible = entry?.Mode(mode) is not { Playable: false } && InFilter(id) && MatchesSearch(id, entry, tile);
             tile.SetPressedNoSignal(on);
             if (tile.Visible) visible++;
         }

@@ -67,6 +67,19 @@ per pack; a cam that is destroyed or picked up comes back as a charge.
       RefireRate`.
    2. no charge left (and not a tutorial map): the empty click (`SND_EmptyCharge`, volume 1, radius 100) and false.
    3. the aim: the weapon's FX bone, origin O and forward axis D. Start S = O - 10 D, end E = S + MaxLaunchDist D.
+      **OpenSCCT corner muzzle estimate:** while the pawn is in any `BTWFireStandLeft/Right` or
+      `BTWFireCrouchLeft/Right` pose, the simulation shares `CombatNatives.SpyPistolCoords` with the shocker's shot
+      and ready laser target. Hold O in the pawn's wall-relative yaw frame, at 15 uu forward, 60 uu sideways
+      (positive for the Left poses, negative for the Right poses), and `CollisionHeight - 30` uu high. These
+      offsets use the decoded corner FP camera target (15 forward, +/-60 sideways, -10 vertical, with its default
+      20 uu camera half-height) as an estimate of the corner hand. D follows the full view pitch and yaw. The
+      walking pistol fit still applies to other poses. Panning must keep this corner origin beyond the wall end;
+      rotating the walking right-hand offset around the pawn instead made both sides fire into the supporting
+      wall. `StickyCamTests.ACornerShotClearsTheSupportingWallOnEitherSide` covers standing/crouched shots from
+      both corners, straight back and toward the open side with positive/negative pitch; the cam must mount on
+      the aimed wall beyond the corner. `SpyPistolPlacementTests` also covers stable corner origin and full-view
+      direction across the angle seam. This fit aligns with the settled default corner camera ray; it does not
+      solve convergence against a transient camera offset during view easing or camera tilt effects.
    4. a first line S to E against actors (other actors and world-geometry actors, stop at the first hit, skip
       backdrop surfaces): if it hits a gameplay object that refuses stickables (`AcceptStickableGPO()` false), fail.
    5. a second line S to E against everything that collides (level, movers, pawns, other actors, volumes): the hit

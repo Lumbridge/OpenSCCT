@@ -111,7 +111,7 @@ public sealed record MapCatalogEntry
     public IEnumerable<EGameMode> PlayableModes => Modes.Where(m => m.Playable).Select(m => m.Mode);
 }
 
-/// <summary>A Reloaded map playlist (or "All").</summary>
+/// <summary>A Reloaded map playlist or a map browser filter group.</summary>
 /// <param name="Maps">Installed maps of the playlist, in host order.</param>
 /// <param name="Missing">Codes the playlist names that are not installed.</param>
 public sealed record MapPlaylist(string Name, string Description, EGameMode Mode, IReadOnlyList<string> Maps, IReadOnlyList<string> Missing);

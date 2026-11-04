@@ -173,6 +173,14 @@ spy whose PreviousState was s_PipH_Fire2 or s_PipH_Fire4 to that state.
 Arm IK: NotifyTakeArmControlForPipH2 / PipH4 (clip notifies) set PipHFire and the IK type IKT_PIPH;
 ChangeRightArmRotPipH2 / PipH4 aim the right arm at the view (spec/native/aim-ik.md rule 5).
 
+The pipe's body-channel clips also carry `NotifyDrawUndrawWeapon`: `PipHStAlBg1` draws the pistol when hanging
+by one hand, and `PipHStSpBg2` draws it inverted. `PipHStAlEd1` and `PipHStSpEd2` holster it on leaving the
+respective fire poses. The armed inverted drop `PipHStSpFl2` holsters during the fall. Route those authored
+notifies through the spy's quick draw/holster handler (WeaponLoaded 0 to 1, or 1/2/7 to 0, turning the laser off
+on holster); the pipe action alone does not put the pistol in the hand. Evidence: the converted PRO animation
+sequence metadata's script notifies, and SPawnAttaque.NotifyDrawUndrawWeapon (spy-shocker.md rule 5).
+Only the notifying body channel and these clips use this pipe path, so unrelated overlays cannot toggle it.
+
 ## States
 
 ```mermaid

@@ -84,6 +84,10 @@ master see (`SessionPhase`):
    - Who may change the setup: the listen host (proved by its host key) or an authenticated admin; on a dedicated
      server, everyone when `openMapCommands` is enabled and no admin password is set. Admins authenticate with
      `#svm admin` or `!login`. Dedicated players may also request launch, subject to the readiness checks below.
+     In a dedicated lobby, `!<map code>` or `!map <map code> [mode]` (for example `!AquaE` or `!map AquaE`) selects an
+     installed versus map without starting the round. These commands are open to ordinary players when `openMapCommands` is enabled, even when the server
+     has an admin password; when disabled, only the host or an authenticated admin may use it. It reloads the map's
+     rules, keeps the session's voice/bot/practice options, cancels the countdown and resets readiness/map checks.
    - Kick, ban and server-wide voice bans require the listen host or an authenticated admin. Public match-setting
      permission never grants moderation rights; the server rejects these requests and the client hides the controls.
    - Launch: "Could not start. Not all players are ready" until every player on a side is ready (the host need not
@@ -749,7 +753,7 @@ The old single-map flags (`--map`, `--game`, `--bots`) still run a bare `ServerH
 | `maxPlayers` / `maxSpectators` | 24 / 2 | up to 12v12; spectators have separate places |
 | `password` | none | |
 | `adminPassword` | none | in-game admins (`!login <password>`); with one set, only admins change maps |
-| `openMapCommands` | true | without admins, every player may change the map and launch |
+| `openMapCommands` | true | without admins, every player may change the map and launch; also permits players to use lobby map-code shortcuts even with an admin password |
 | `motd` | none | shown to each player joining |
 | `netRate` / `lanPlay` | 20 / false | replication rate; the original's -lanplay |
 | `maps` | none | extra SVMap folder (searched before `maps/` next to the executable) |
@@ -779,7 +783,10 @@ Console (standard input, and `cmd <command>` from in-game admins): `status`, `pl
 `SPlayerController.ServerResign`), `!lagcomp` (everyone: the setting; the host and admins, or everyone on an open
 dedicated server: `!lagcomp on|off|reset|<ms>`), `!login <password>`, `!help`, and for the host
 and admins `!voiceban <id|name>` and `!unvoiceban <id|name>`, and on a practice server `!heal`, `!regen`, `!tank`,
-`!kill`, `!ammo`. Ctrl+C, SIGTERM and `close` tell the players and the master before
+`!kill`, `!ammo`. In dedicated lobbies, `!<map code>` such as `!AquaE` and `!map AquaE [mode]` (case insensitive)
+select the pending map without launching, using the exact installed short code. An explicit mode must be supported
+by the target map; omitting it keeps the current mode when playable, otherwise the map's default. Unknown shortcuts remain chat.
+Ctrl+C, SIGTERM and `close` tell the players and the master before
 stopping.
 
 ### Practice servers

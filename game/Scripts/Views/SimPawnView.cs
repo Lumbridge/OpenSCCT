@@ -51,6 +51,8 @@ public partial class SimPawnView : Node3D
     private int _prevYaw;
     private int _yaw;
     private Vector2 _prevAim, _aim;
+    private Dictionary<Name, BoneDirection> _prevDirections = new();
+    private Dictionary<Name, BoneDirection> _directions = new();
     private bool _placed;
     private float _relightClock;
     private StickySkins? _stickySkins;
@@ -343,6 +345,20 @@ public partial class SimPawnView : Node3D
         _yaw = pawn.Rotation.Yaw;
         _prevAim = _placed ? _aim : new Vector2(pawn.PawnAnim.Aim.FullYaw, pawn.PawnAnim.Aim.FullPitch);
         _aim = new Vector2(pawn.PawnAnim.Aim.FullYaw, pawn.PawnAnim.Aim.FullPitch);
+        (_prevDirections, _directions) = (_directions, _prevDirections);
+        _directions.Clear();
+        foreach (BoneDirection direction in pawn.PawnAnim.Directions.All)
+        {
+            _directions.Add(direction.Bone, direction);
+        }
+        if (!_placed)
+        {
+            _prevDirections.Clear();
+            foreach (BoneDirection direction in _directions.Values)
+            {
+                _prevDirections.Add(direction.Bone, direction);
+            }
+        }
         PawnAnimation anim = pawn.PawnAnim;
         for (int c = 0; c < PawnAnimation.ChannelCount; c++)
         {
@@ -376,7 +392,7 @@ public partial class SimPawnView : Node3D
         _model.Place(location, new FRotator(0, yaw, 0), prePivot);
         _drawYaw = yaw;
         SetAim(pawn, yaw, alpha);
-        SetDirections(pawn);
+        SetDirections(pawn, alpha);
         Pose(pawn, alpha);
         _attachments?.Draw(pawn, dt);
         _goggleGlow?.Draw(pawn);
@@ -457,29 +473,41 @@ public partial class SimPawnView : Node3D
 
     /// <summary>
     /// The bone direction controllers the simulation holds (TurnHead's arm aim, aim-ik.md rule 5): each world rotation
-    /// (UE axes) taken into the skeleton's space for the applier, which gives the bone that rotation.
+    /// (UE axes) taken into the skeleton's space for the applier. Remote arms interpolate between ticks; the local
+    /// corner firing arm includes the same pending mouse turn as the camera and laser target.
     /// </summary>
-    private void SetDirections(SBasePawn pawn)
+    private void SetDirections(SBasePawn pawn, float alpha)
     {
         ChannelPoseApplier applier = _applier!;
         applier.Directions.Clear();
-        IReadOnlyList<BoneDirection> all = pawn.PawnAnim.Directions.All;
-        if (all.Count == 0)
+        if (_directions.Count == 0)
         {
             return;
         }
 
         Basis toSkeleton = _model!.Skeleton.GlobalTransform.Basis.Orthonormalized().Inverse();
-        for (int i = 0; i < all.Count; i++)
+        foreach (BoneDirection d in _directions.Values)
         {
-            BoneDirection d = all[i];
             int bone = BoneIndex(d.Bone);
             if (bone < 0)
             {
                 continue;
             }
 
-            Quaternion rotation = (toSkeleton * UeSpace.RotationToGodot(d.Rotation)).GetRotationQuaternion();
+            FRotator drawn = d.Rotation;
+            if (DrawnView is { } view)
+            {
+                drawn = ArmAim.DrawnRotation(pawn, d, view);
+            }
+            else if (_prevDirections.TryGetValue(d.Bone, out BoneDirection previous))
+            {
+                FRotator before = previous.Rotation;
+                drawn = new FRotator(before.Pitch + (int)(FRotator.NormalizeAxis(drawn.Pitch - before.Pitch) * alpha),
+                    before.Yaw + (int)(FRotator.NormalizeAxis(drawn.Yaw - before.Yaw) * alpha),
+                    before.Roll + (int)(FRotator.NormalizeAxis(drawn.Roll - before.Roll) * alpha));
+            }
+
+            Quaternion rotation = (toSkeleton * UeSpace.RotationToGodot(drawn)).GetRotationQuaternion();
             applier.Directions[bone] = (rotation, d.Alpha);
         }
     }

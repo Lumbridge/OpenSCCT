@@ -212,6 +212,21 @@ PitchRef.
 4. Pitch: the same with PitchRef, minPitch, maxPitch.
 5. SetRotation(V).
 
+Port behavior: the in-window branch in step 3 preserves the input direction before applying the limit:
+`offset = NormalizeAxis(current - reference) + (wanted - current)`, calculated with a wide intermediate;
+`result = (reference + clamp(offset, min, max)) & 65535`. The same applies to pitch. The decoded ClampRotation
+reduces the wanted angle modulo a turn first, so a mouse turn greater than half a revolution could jump from
+one bound to the opposite bound. The port stops that turn at the bound in the direction of the input.
+The outside-window branch retains the decoded gradual recentering behavior.
+
+`CalculateLimitedRotation` performs this calculation without changing the controller. UpdateLimitedRotation
+assigns its result, and the back-to-wall render predictor uses the same calculation with pending mouse counts
+and `TryGetBtwViewLimits`' active window/reference. This keeps the drawn view within the simulated corner aim
+limits and uses the limited view's 0.667 pitch scale rather than the unrestricted armed-spy mouse model.
+Ticks that begin or end outside the active back-to-wall window use ordinary view interpolation. Recentring is
+automatic motion per tick, so predicting it from even one pending mouse count would add a full recenter step to
+a partial frame. Prediction resumes once the view has settled inside the window.
+
 `ClampRotation(Value, Target, Min, Max)` returns Value moved toward Target along the shorter way round, by at most
 `Max` in the positive direction and `-Min` in the negative direction, masked to 0..65535. With both values masked
 to 0..65535 first:
@@ -219,7 +234,7 @@ to 0..65535 first:
 - Target > Value otherwise: `(Value + |clamp(Target - Value, 0, Max)|) & 65535`
 - Value > Target and Value - Target > 32768: `(Value + |clamp(Target + 65536 - Value, 0, Max)|) & 65535`
 - Value > Target otherwise: `(Value - |clamp(Value - Target, 0, -Min)|) & 65535`
-- Value == Target: the function has no return statement and yields 0 (see Edge cases).
+- Value == Target: the decoded function has no return statement and yields 0; the port returns Value (see Edge cases).
 
 ### Pawn rotation for weapon movement (UpdatePawnRotationWeapon)
 
@@ -323,8 +338,8 @@ No states of its own. PlayerTick dispatches to the current state's PlayerMove.
 
 ## Edge cases
 
-- `ClampRotation` with Value == Target (after masking) returns 0. In UpdateLimitedRotation this can snap the view
-  yaw or pitch to 0 for one frame when the new value lands exactly on the reference. The port must keep this.
+- The decoded `ClampRotation` with Value == Target (after masking) returns 0. The port returns the masked Value
+  so an unchanged angle or an angle landing exactly on its reference stays stable instead of snapping to world 0.
 - UpdatePawnRotationMario divides by zero when v is exactly a root of `0.0125 v^2 - 2v + 2` (v = 1.00756...): UE2
   float division by zero gives an infinite MaxDeltaTime, so dt is not clamped and step = dt * w with w = 0, no
   turn that frame. Use IEEE semantics, do not guard.

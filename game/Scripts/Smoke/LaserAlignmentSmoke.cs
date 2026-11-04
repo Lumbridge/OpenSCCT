@@ -1,11 +1,13 @@
 using OpenScctGame.Render.Materials;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using Godot;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
 using OpenScct.Game.Combat;
 using OpenScct.Game.Equipment;
+using OpenScct.Game.Movement;
 using OpenScct.Game.SBase;
 using OpenScctGame.Render;
 using OpenScctGame.Render.Characters;
@@ -227,7 +229,9 @@ public sealed class LaserAlignmentSmoke : SmokeTest
                 checks++;
             }
             GD.Print($"SVM_LASER spy: {checks} between-tick aim/body frames; one dot at the current endpoint");
-            return null;
+            if (CheckSpyBtwFrames(spy, pc, shocker, wall, pawns, lasers) is { } cornerFailure)
+                return cornerFailure;
+            return CheckSpyHangingWeapon(spy, pc, pawns);
         }
         finally
         {
@@ -238,6 +242,114 @@ public sealed class LaserAlignmentSmoke : SmokeTest
             shocker.LaserProjector?.Destroy();
             shocker.LaserProjector = null;
         }
+    }
+
+    private static string? CheckSpyBtwFrames(SPawnAttaque spy, SPlayerController pc, SWeaponAttaque shocker,
+        Wall wall, PawnViews pawns, SpyLaserView lasers)
+    {
+        int checks = 0;
+        foreach (bool crouched in new[] { false, true })
+        foreach (bool left in new[] { false, true })
+        {
+            spy.bIsCrouched = crouched;
+            spy.WeaponLoaded = (byte)(left ? 2 : 7);
+            spy.ExecuteAction(left ? SBasePawn.SA_BTW_FIRE_LEFT : SBasePawn.SA_BTW_FIRE_RIGHT);
+            spy.PawnAnim.Advance(.5f, _ => { });
+            spy.PawnAnim.Directions.Clear();
+            int reference = spy.Rotation.Yaw + 32768;
+            var simulated = new FRotator(1500, reference + (left ? -4000 : 4000), 0);
+            pc.Rotation = simulated;
+            spy.iYawPitchFromView = (simulated.Yaw & 65535) | ((simulated.Pitch & 65535) << 16);
+            OpenScct.Game.Animation.ArmAim.Control(spy, 1f);
+            pawns.OnTick(spy.XLevel);
+            pawns.OnTick(spy.XLevel);
+            SimPawnView view = pawns.ViewOf(spy)!;
+            Name handBone = new(left ? "B R Hand" : "B L Hand");
+            wall.Normal = new FRotator(0, simulated.Yaw, 0).Vector();
+            wall.Distance = (spy.Location | wall.Normal) + 1500f;
+            foreach (float alpha in new[] { 0f, .25f, .75f, 1f })
+            {
+                int? previousHandYaw = null;
+                foreach (int pendingYaw in new[] { -1500, -750, 0, 750, 1500 })
+                {
+                    var aim = new FRotator(simulated.Pitch, simulated.Yaw + pendingYaw, 0);
+                    pawns.Draw(alpha, 0f, null, spy, aim);
+                    lasers.Draw(spy.XLevel);
+                    if (!pawns.TryGetBone(spy, handBone, out Transform3D hand))
+                        return "missing corner firing hand";
+                    int handYaw = PawnAttachments.ToCoords(hand).XAxis.Rotation().Yaw;
+                    if (previousHandYaw is { } previous && Math.Abs(FRotator.NormalizeAxis(handYaw - previous) - 750) > 10)
+                        return $"{spy.BTW} gun did not pan with the rendered aim between ticks";
+                    previousHandYaw = handYaw;
+                    FCoords shot = CombatNatives.SpyPistolCoords(spy, aim);
+                    shot.Origin += view.DrawnLocation - spy.Location;
+                    FVector start = SWeaponAttaque.GetAxesAndLocation(shot.Origin, shot.XAxis.Rotation(),
+                        out FVector direction, out _, out _);
+                    var expected = wall.TraceBone(shocker, start + direction * shocker.ShootingRange, start, false);
+                    if (FVector.Dist(lasers.BeamEnd, expected.HitLocation) > .1f)
+                        return $"{spy.BTW} laser did not follow the corner shot target";
+                    if (FVector.Dist(lasers.DotAt, lasers.BeamEnd) > .51f)
+                        return $"{spy.BTW} laser dot detached from the beam";
+                    checks++;
+                }
+            }
+        }
+        GD.Print($"SVM_LASER BTW: {checks} rendered aim frames across both corners and stances; gun pans with aim, laser follows shot target");
+        return null;
+    }
+
+    private static string? CheckSpyHangingWeapon(SPawnAttaque spy, SPlayerController pc, PawnViews pawns)
+    {
+        string? character = SkeletalModel.FindGlb("SPerso.ATT_01");
+        if (character is null) return "missing spy character for hanging weapon check";
+        string chars = Path.GetDirectoryName(Path.GetDirectoryName(character)!)!;
+        if (!File.Exists(Path.Combine(chars, "SPerso", "PRO.anim.json")))
+            return "missing authored hanging animation events";
+        spy.XLevel.SetService(new MovementService(PawnAnimationSource.FromContent(chars)));
+        MovementNotifies.Install(spy.XLevel);
+        pc.GotoState(MovementStateNames.s_PipeH_Base);
+        int checks = 0;
+        foreach (bool inverted in new[] { false, true })
+        {
+            spy.BTW = BTW_.NOBTW;
+            spy.WeaponLoaded = 0;
+            spy.bIsCrouched = false;
+            spy.CollisionHeight = inverted ? spy.Pipe4Height : 87.5f;
+            spy.PawnAnim.Directions.Clear();
+            spy.ExecuteAction(SBasePawn.SA_PIPH_GRAB);
+            spy.ExecuteAction(inverted ? SBasePawn.SA_ON_PIPEH_4 : SBasePawn.SA_ON_PIPEH);
+            pc.Rotation = new FRotator(0, spy.Rotation.Yaw + (inverted ? 32768 : 0), 0);
+            int[] actions = inverted
+                ? [SBasePawn.SA_PIPH_TR_FIRE4, SBasePawn.SA_PIPH_FIRE4, SBasePawn.SA_PIPH_FIRE_TR4]
+                : [SBasePawn.SA_PIPH_TR_FIRE2, SBasePawn.SA_PIPH_FIRE2, SBasePawn.SA_PIPH_FIRE_TR2];
+            for (int phase = 0; phase < actions.Length; phase++)
+            {
+                spy.ExecuteAction(actions[phase]);
+                for (int tick = 0; tick < 180; tick++)
+                {
+                    spy.AdvancePredictionAnimation(Sim.DeltaTime);
+                    spy.UpdateMovementAnimation(Sim.DeltaTime);
+                    pawns.OnTick(spy.XLevel);
+                    pawns.Draw(.5f, Sim.DeltaTime, null, spy, pc.Rotation);
+                    if (pawns.ViewOf(spy)?.Attachments is not { } attachments)
+                        return "missing hanging pistol attachments";
+                    Name expected = spy.WeaponLoaded == 0 ? PawnAttachments.BoneHolster : PawnAttachments.BoneRightHand;
+                    bool found = false;
+                    foreach (var attachment in attachments.Drawn)
+                    {
+                        if (attachment.Asset != spy.MyWeapon!.Mesh.Path) continue;
+                        found = attachment.Shown && attachment.Bone == expected;
+                    }
+                    if (!found) return $"hanging pistol vanished or used the wrong bone (inverted={inverted}, phase={phase})";
+                    checks++;
+                }
+                bool shouldBeDrawn = phase != 2;
+                if ((spy.WeaponLoaded != 0) != shouldBeDrawn)
+                    return $"hanging pistol event did not {(shouldBeDrawn ? "draw" : "holster")} (inverted={inverted}, phase={phase})";
+            }
+        }
+        GD.Print($"SVM_LASER HOH: {checks} rendered frames; regular and inverted draw/fire/holster keep the pistol on the correct bone");
+        return null;
     }
 
     private static string? CheckBeamAnimation()

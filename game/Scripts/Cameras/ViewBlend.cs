@@ -55,7 +55,9 @@ public static class ViewBlend
 /// does not move. Any other rotation change (a kick, a state's own view code) is still drawn between ticks.
 /// <para>Whether the plain model holds is checked after every tick that took mouse counts: the turn the tick made
 /// must equal the predicted one exactly. Otherwise (the scope's chasing view, the limited views of the traversal
-/// states, a cam at its limit) nothing is added and the view is drawn between ticks as before.</para>
+/// states, a cam at its limit) nothing is added and the view is drawn between ticks as before. Back-to-wall uses
+/// the controller's limited rotation calculation so pending mouse input respects the wall and corner windows.
+/// Automatic recentering into a new corner window is interpolated until it finishes.</para>
 /// </summary>
 public sealed class LookAhead
 {
@@ -67,6 +69,7 @@ public sealed class LookAhead
     private FRotator _lastTurn;
     private Name _state;
     private bool _stateChanged;
+    private bool _recenteringBefore;
     private int _misses;
     private bool _follow;
     private static readonly Name NAME_s_Following = new("s_Following");
@@ -91,6 +94,7 @@ public sealed class LookAhead
     {
         ArgumentNullException.ThrowIfNull(mouse);
         _hadCounts = pc is not null && (countsX != 0f || countsY != 0f);
+        _recenteringBefore = pc is not null && BtwRecentering(pc);
         if (pc is null)
         {
             return;
@@ -111,7 +115,8 @@ public sealed class LookAhead
         bool cam = pc is not null && !OwnView(pc, view) && CamView(pc, view);
         bool lagging = cam && view.Rotation != pc!.Rotation;
         _follow = pc is not null && FollowView(pc, view);
-        if (pc is null || RollLocksView(pc) || !(cam || _follow || OwnView(pc, view)))
+        if (pc is null || RollLocksView(pc) || _recenteringBefore || BtwRecentering(pc)
+            || !(cam || _follow || OwnView(pc, view)))
         {
             Active = false;
             _tickTurn = default;
@@ -153,7 +158,7 @@ public sealed class LookAhead
     public FRotator Offset(SPlayerController? pc, MouseLook mouse, float pendingX, float pendingY, float alpha)
     {
         ArgumentNullException.ThrowIfNull(mouse);
-        if (!Active || pc is null || RollLocksView(pc))
+        if (!Active || pc is null || RollLocksView(pc) || BtwRecentering(pc))
         {
             Pending = default;
             return default;
@@ -176,13 +181,23 @@ public sealed class LookAhead
     /// rule 3.11), so turning the rotation ahead moves it round the target (<c>PlayCamera.Apply</c>). 0 otherwise.
     /// </summary>
     public float OrbitDistance(SPlayerController? pc) =>
-        Active && _follow && pc is { SpyFirstPersonActive: false, m_camera: { } cam } && !RollLocksView(pc)
+        Active && _follow && pc is { SpyFirstPersonActive: false, m_camera: { } cam } && !RollLocksView(pc) && !BtwRecentering(pc)
             ? cam.m_prevDistance : 0f;
 
     // A tick without mouse input cannot disprove the previous look prediction. Check the roll lock explicitly
     // so entering a roll or disabling free look cannot leave a pending render-only turn that snaps back next tick.
     private static bool RollLocksView(SPlayerController pc) =>
         pc.StateNode is SPlayerController.s_PlayerRolling && !pc.SpyRollFreeLook;
+
+    // Recentring is automatic motion per tick. Predicting it for even one pending mouse count would add an
+    // entire recenter step to a partial frame and make the view jump as input starts and stops.
+    private static bool BtwRecentering(SPlayerController pc)
+    {
+        if (!pc.TryGetBtwViewLimits(out CameraWindow window, out int reference)) return false;
+        int yaw = FRotator.NormalizeAxis(pc.Rotation.Yaw - reference);
+        int pitch = FRotator.NormalizeAxis(pc.Rotation.Pitch);
+        return yaw < window.MinYaw || yaw > window.MaxYaw || pitch < window.MinPitch || pitch > window.MaxPitch;
+    }
 
     /// <summary>
     /// The camera is the following view of the pawn's behind view (SPlayerCam s_Following: the controller placed
@@ -275,6 +290,14 @@ public sealed class LookAhead
         // fTurnValue and fLookUpValue (ControlInput).
         float turn = aTurn * MovementK.LookScale;
         float lookUp = aLookUp * MovementK.LookScale;
+        if (pc.TryGetBtwViewLimits(out CameraWindow window, out int yawReference))
+        {
+            FRotator limited = pc.CalculateLimitedRotation(dt, turn, lookUp, window.MinYaw, window.MaxYaw,
+                window.MinPitch, window.MaxPitch, yawReference, 0);
+            return new FRotator(FRotator.NormalizeAxis(limited.Pitch - pc.Rotation.Pitch),
+                FRotator.NormalizeAxis(limited.Yaw - pc.Rotation.Yaw), 0);
+        }
+
         float r = pc.bBinocularVision ? MovementK.BinocularRotationRatio : 1f;
         float sens = MouseLook.SensibiliteFor(pc);
         float k = MovementK.RotationRateScale;

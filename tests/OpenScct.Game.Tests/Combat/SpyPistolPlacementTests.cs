@@ -79,4 +79,30 @@ public sealed class SpyPistolPlacementTests
         Assert.InRange(low.Z - spy.Location.Z, 38f, 39f);
         _ = scene;
     }
+
+    [Theory]
+    [InlineData(BTW_.BTWFireStandLeft)]
+    [InlineData(BTW_.BTWFireStandRight)]
+    [InlineData(BTW_.BTWFireCrouchLeft)]
+    [InlineData(BTW_.BTWFireCrouchRight)]
+    public void PanningTheCornerAimKeepsTheMuzzleOutsideTheCornerAndFollowsTheWholeView(BTW_ pose)
+    {
+        (_, SPlayerController pc, SPawnAttaque spy, SStickyShocker pistol) = Spy(default,
+            pose is BTW_.BTWFireCrouchLeft or BTW_.BTWFireCrouchRight);
+        spy.BTW = pose;
+        spy.Rotation = new FRotator(0, 30000, 0);
+        bool left = pose is BTW_.BTWFireStandLeft or BTW_.BTWFireCrouchLeft;
+        FVector? anchor = null;
+        foreach (int yaw in new[] { 0, 4500, 9500 })
+        foreach (int pitch in new[] { -9000, 0, 9000 })
+        {
+            // This also crosses the 16-bit angle seam while the pawn remains fixed against the wall.
+            pc.Rotation = new FRotator(pitch, spy.Rotation.Yaw + 32768 + (left ? -yaw : yaw), 0);
+            FCoords muzzle = CombatServices.Ports(pistol).BoneCoords(pistol, SWeaponDefense.FxBone);
+            anchor ??= muzzle.Origin;
+            Assert.Equal(anchor.Value, muzzle.Origin);
+            Assert.True((muzzle.XAxis | pc.Rotation.Vector()) > 0.9999f,
+                $"The corner pistol diverged from the aim at {pc.Rotation}: {muzzle.XAxis}");
+        }
+    }
 }

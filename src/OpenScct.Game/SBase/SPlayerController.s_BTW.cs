@@ -50,7 +50,7 @@ public partial class SPlayerController
 
             self.bPressedJump = false;
             self.FaceWall(pawn);
-            self.eventUpdateRotation(DeltaTime, 1f);
+            self.UpdateBtwRotation(DeltaTime);
             bool cr = pawn.bIsCrouched;
             if (self.bForceFireMode && !pawn.bStickyShocking)
             {
