@@ -55,6 +55,7 @@ public partial class PlayInput : Node
         get => _bindings;
         set
         {
+            if (!ReferenceEquals(_bindings, value)) LocalActionsReset?.Invoke();
             _bindings = value;
             if (value is not null) BindingInput.SetLayout(value.Layout);
         }
@@ -82,6 +83,11 @@ public partial class PlayInput : Node
 
     /// <summary>Controller interface commands bypass keyboard bindings and their unrelated actions.</summary>
     public event Action<string>? LocalCommand;
+
+    /// <summary>Local interface actions that need paired presses/releases and independent held sources.</summary>
+    public event Action<string, string, bool>? LocalAction;
+    public event Action? LocalActionsReset;
+    public void SendLocalAction(string command, string source, bool pressed) => LocalAction?.Invoke(command, source, pressed);
 
     public void SendLocalCommand(string command) => LocalCommand?.Invoke(command);
 
@@ -478,6 +484,7 @@ public partial class PlayInput : Node
     /// <summary>Releases every button (focus lost, pointer released).</summary>
     public void ClearHeld(LocalInput input)
     {
+        LocalActionsReset?.Invoke();
         BindingInput.Current?.ResetGameplay();
         _physicalSources.Clear();
         _padWalk = null;

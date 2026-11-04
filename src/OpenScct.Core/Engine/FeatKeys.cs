@@ -9,6 +9,11 @@ namespace OpenScct.Core.Engine;
 public static class FeatKeys
 {
     public const string SpyGrabKills = "spy.grab_kills";
+    public const string SpyGrabKos = "spy.grab_kos";
+    public const string SpyShockerStuns = "spy.shocker_stuns";
+    public const string SpyDropKos = "spy.drop_kos";
+    public const string EnemyKills = "combat.enemy_kills";
+    public const string SpyNeutralisations = "spy.neutralisations";
     public const string SpyNeckBreaks = "spy.neck_breaks";
     public const string SpyChokes = "spy.chokes";
     public const string SpyDropKills = "spy.drop_kills";
@@ -56,7 +61,8 @@ public static class FeatKeys
     public static readonly string[] All =
     [
         .. CareerStatCounters.All.Select(c => c.Key),
-        SpyGrabKills, SpyNeckBreaks, SpyChokes, SpyDropKills, SpyStickyKos, SpyObjectives,
+        SpyGrabKills, SpyGrabKos, SpyShockerStuns, SpyDropKos, EnemyKills, SpyNeutralisations,
+        SpyNeckBreaks, SpyChokes, SpyDropKills, SpyStickyKos, SpyObjectives,
         SpySmokeKos, SpyStickyCamUses, SpyShockerHeadshots, SpyLedgeGrabs, SpyChaffJams, SpyMineKills, SpyBulletHits, SpyFlashes,
         MercSniperKills, MercHeadshots, MercTerminateKills, MercGrenadeKills, MercMineKills, MercHipfireKills, MercMarks,
         MercChargeHits, MercTaserHits, MercMinesPlaced, MercBerserkHits,

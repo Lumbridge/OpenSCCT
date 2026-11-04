@@ -115,7 +115,9 @@ public partial class SPlayerController
                 bBinocularWaitForEndInspire = true;
                 ScopeSound(Snd_BinocularInspire);
             }
-            else if (bBinocularWaitForEndInspire)
+
+            // The inhale advances on the first held frame too; the original's two conditions are independent.
+            if (bBinocularWaitForEndInspire)
             {
                 BinocularBreath += K.BreathPhaseSpeed * dt;
                 if (BinocularBreath >= K.HalfPi)
@@ -139,53 +141,58 @@ public partial class SPlayerController
                 // fast while the breath is held. Ryan asked for the normal scope speed (2026-10-28).
             }
         }
-        else if (bJustWasHoldBreath)
+        else
         {
-            bJustWasHoldBreath = false;
-            if (BinocularCannotBlockTime != K.BreathExhaustedLockout)
+            if (bJustWasHoldBreath)
             {
-                BinocularCannotBlockTime = K.BreathReleaseLockout;
-            }
+                bJustWasHoldBreath = false;
+                if (BinocularCannotBlockTime != K.BreathExhaustedLockout)
+                {
+                    BinocularCannotBlockTime = K.BreathReleaseLockout;
+                }
 
-            int dy = SvmMath.Trunc(BinocularBreathFactorRight - K.HalfPi);
-            int dp = SvmMath.Trunc(BinocularBreathFactorUp - K.HalfPi);
-            view.Yaw += dy;
-            des.Yaw += dy;
-            view.Pitch += dp;
-            des.Pitch += dp;
-            BinocularBreath = K.HalfPi;
-            BinocularBreathUp = false;
-            ScopeSound(Snd_BinocularStrongBreath);
-        }
-        else if (BinocularHoldBreathTime < K.BreathResetDelay)
-        {
-            float gap = K.BreathResetDelay / SvmMath.Clamp(BinocularHoldBreathTime, K.BreathGapMin, K.BreathResetDelay) - 1f;
-            if (BreathSweep(dt))
-            {
+                int dy = SvmMath.Trunc(BinocularBreathFactorRight - K.HalfPi);
+                int dp = SvmMath.Trunc(BinocularBreathFactorUp - K.HalfPi);
+                view.Yaw += dy;
+                des.Yaw += dy;
+                view.Pitch += dp;
+                des.Pitch += dp;
+                BinocularBreath = K.HalfPi;
+                BinocularBreathUp = false;
                 ScopeSound(Snd_BinocularStrongBreath);
             }
 
-            BinocularBreathFactorUp = SvmMath.Sin(BinocularBreath) * (amp - ScopeBreathPenalty * gap);
-            BinocularBreathFactorRight = SvmMath.Cos(BinocularBreath) * K.BreathRightAmplitude;
-            BinocularHoldBreathTime = SvmMath.Min(BinocularHoldBreathTime + dt, K.BreathResetDelay);
-            BinocularCannotBlockTime = SvmMath.Max(BinocularCannotBlockTime - dt, 0f);
-        }
-        else
-        {
-            BinocularCannotBlockTime = SvmMath.Max(BinocularCannotBlockTime - dt, 0f);
-            if (SvmMath.Abs(fTurnValue) < K.BreathStillInput && SvmMath.Abs(fLookUpValue) < K.BreathStillInput)
+            // Recovery starts on the release frame, after the phase has been reset above.
+            if (BinocularHoldBreathTime < K.BreathResetDelay)
             {
-                bool wasUp = BinocularBreathUp;
-                if (BreathSweep(dt))
+                float gap = K.BreathResetDelay / SvmMath.Clamp(BinocularHoldBreathTime, K.BreathGapMin, K.BreathResetDelay) - 1f;
+                if (BreathSweep(dt) && !BinocularBreathUp)
                 {
-                    BinocularBreathRight = SvmMath.Trunc(FRand() * K.BreathRightRoll) > K.BreathRightThreshold;
-                    if (!wasUp)
-                    {
-                        ScopeSound(Snd_BinocularBreath);
-                    }
+                    ScopeSound(Snd_BinocularStrongBreath);
                 }
 
-                BreathFactors(amp);
+                BinocularBreathFactorUp = SvmMath.Sin(BinocularBreath) * (amp - ScopeBreathPenalty * gap);
+                BinocularBreathFactorRight = SvmMath.Cos(BinocularBreath) * K.BreathRightAmplitude;
+                BinocularHoldBreathTime = SvmMath.Min(BinocularHoldBreathTime + dt, K.BreathResetDelay);
+                BinocularCannotBlockTime = SvmMath.Max(BinocularCannotBlockTime - dt, 0f);
+            }
+            else
+            {
+                BinocularCannotBlockTime = SvmMath.Max(BinocularCannotBlockTime - dt, 0f);
+                if (SvmMath.Abs(fTurnValue) < K.BreathStillInput && SvmMath.Abs(fLookUpValue) < K.BreathStillInput)
+                {
+                    bool wasUp = BinocularBreathUp;
+                    if (BreathSweep(dt))
+                    {
+                        BinocularBreathRight = SvmMath.Trunc(FRand() * K.BreathRightRoll) > K.BreathRightThreshold;
+                        if (!wasUp)
+                        {
+                            ScopeSound(Snd_BinocularBreath);
+                        }
+                    }
+
+                    BreathFactors(amp);
+                }
             }
         }
 
@@ -217,7 +224,10 @@ public partial class SPlayerController
             else
             {
                 kick = -time * BinocularKickAmplitude * K.KickFallShare * q;
-                ScopeSetFOV(fBinocularVisionFOV + time * BinocularKickFOVAmplitude * K.KickFallShare * q);
+                if (fBinocularZoomEffectTime <= 0f)
+                {
+                    ScopeSetFOV(fBinocularVisionFOV + time * BinocularKickFOVAmplitude * K.KickFallShare * q);
+                }
             }
 
             view.Pitch += SvmMath.Trunc(kick);
@@ -257,7 +267,7 @@ public partial class SPlayerController
         BinocularBreathFactorRight = BinocularBreathRight ? -right : right;
     }
 
-    /// <summary>The phase sweeps between -pi/2 and pi/2 at 0.8 pi per second; true at each turn.</summary>
+    /// <summary>The phase reverses on crossing -pi/2 or pi/2 at 0.8 pi per second; true at each turn.</summary>
     private bool BreathSweep(float dt)
     {
         if (BinocularBreathUp)
@@ -265,8 +275,8 @@ public partial class SPlayerController
             BinocularBreath += K.BreathPhaseSpeed * dt;
             if (BinocularBreath >= K.HalfPi)
             {
-                BinocularBreath = K.HalfPi;
                 BinocularBreathUp = false;
+                bBinocularWaitForEndInspire = false;
                 return true;
             }
         }
@@ -275,7 +285,6 @@ public partial class SPlayerController
             BinocularBreath -= K.BreathPhaseSpeed * dt;
             if (BinocularBreath <= -K.HalfPi)
             {
-                BinocularBreath = -K.HalfPi;
                 BinocularBreathUp = true;
                 return true;
             }
@@ -464,7 +473,7 @@ public partial class SPlayerController
         /// <summary>Rule 13: the reload or ROF key with room in the clip reloads inside the scope; then the frame.</summary>
         [Uc("SBase.SPlayerController.s_Binoculars_Def.PlayerTick", Sha1 = "8832791201ae72b2fb1caa50c05f2088ba023dc2")]
         [PortOf("uc:SBase.SPlayerController:s_Binoculars_Def.PlayerTick", Spec = "spec/equipment/merc-scope.md#rules")]
-        public void PlayerTick(PlayerController self, float DeltaTime)
+        public virtual void PlayerTick(PlayerController self, float DeltaTime)
         {
             var pc = (SPlayerController)self;
             if ((pc.bReload != 0 || pc.bROF != 0) && pc.SBPawn?.MyWeapon is SWeaponDefense { Ammo: > 0 } rifle &&
@@ -472,6 +481,7 @@ public partial class SPlayerController
             {
                 pc.ScopeResetFOV();
                 pc.eventChangeState(CNAME_s_Binoculars_Def_Reloading);
+                return;
             }
 
             pc.PlayerTick(DeltaTime);
@@ -504,6 +514,8 @@ public partial class SPlayerController
             }
 
             self.Rotation.GetAxes(out FVector x, out _, out _);
+            // The scope applies its aim and kick before the zoom animation takes ownership of the FOV.
+            self.eventUpdateRotation(DeltaTime, 2f);
             self.BinocularVoiceTrace(pawn, x, true);
             if (self.bChangeZoom)
             {
@@ -517,6 +529,7 @@ public partial class SPlayerController
                 float t = self.fBinocularZoomEffectTime;
                 if (t < 0f)
                 {
+                    self.fBinocularZoomEffectTime = 0f;
                     self.ScopeSetFOV(self.fBinocularVisionFOV);
                 }
                 else if (t < K.ZoomInterpolationStart)
@@ -527,21 +540,28 @@ public partial class SPlayerController
             }
 
             self.BinocularTimeBetweenFire = SvmMath.Max(self.BinocularTimeBetweenFire - DeltaTime, 0f);
+            if (self.BinocularNoiseDuration > 0)
+            {
+                self.BinocularNoiseDuration--;
+            }
 
             ProcessCrouch(self, pawn);
             float a = self.aForward / K.ScopeInputSpan;
             float curve = pawn.bIsCrouched
                 ? (K.ScopeCrouchA * a + K.ScopeCrouchB) * a + K.ScopeCrouchC
                 : (K.ScopeStandA * a + K.ScopeStandB) * a + K.ScopeStandC;
-            self.aForward *= curve * self.BinocularWalkSpeed;
-            self.aStrafe *= curve * self.BinocularWalkSpeed;
+            self.aForward *= curve;
+            self.aStrafe *= curve;
             self.GroundPitch = 0;
-            self.eventUpdateRotation(DeltaTime, 1f);
-            FVector newAccel = self.UpdatePawnRotationWeapon(DeltaTime, self.ForwardRequest, self.StrafeRequest);
+            // Scope speed replaces the walking request scale; ForwardRequest would halve it a second time.
+            FVector newAccel = self.UpdatePawnRotationWeapon(DeltaTime,
+                SvmMath.Trunc(self.BinocularWalkSpeed * self.aForward),
+                SvmMath.Trunc(self.BinocularWalkSpeed * self.aStrafe));
             pawn.GroundSpeed = pawn.RunningSpeed * newAccel.Size() / K.ScopeAccelNorm;
             if (pawn.GroundSpeed < (pawn.bIsCrouched ? K.ScopeMinSpeedCrouched : K.ScopeMinSpeedStanding))
             {
                 pawn.GroundSpeed = 0f;
+                newAccel = FVector.Zero;
             }
 
             self.bPressedJump = false;
@@ -570,7 +590,7 @@ public partial class SPlayerController
         /// </summary>
         [Uc("SBase.SPlayerController.s_Binoculars_Def.Fire", Sha1 = "80dd6a8c486e155a62c91e1afd17f2e7c3e9ace1")]
         [PortOf("uc:SBase.SPlayerController:s_Binoculars_Def.Fire", Spec = "spec/equipment/merc-scope.md#rules")]
-        public void Fire(SPlayerController self, float F)
+        public virtual void Fire(SPlayerController self, float F)
         {
             if (self.SBPawn?.MyWeapon is not SWeaponDefense rifle)
             {
@@ -603,7 +623,7 @@ public partial class SPlayerController
         /// <summary>Rule 14: the mode stays single shot.</summary>
         [Uc("SBase.SPlayerController.s_Binoculars_Def.SwitchROF", Sha1 = "c69d79eb3354daac6603fa82051543a91f8bb09f")]
         [PortOf("uc:SBase.SPlayerController:s_Binoculars_Def.SwitchROF", Spec = "spec/equipment/merc-scope.md#rules")]
-        public void SwitchROF(SPlayerController self) => (self.SBPawn?.MyWeapon as SWeaponDefense)?.ROF_Single(false);
+        public virtual void SwitchROF(SPlayerController self) => (self.SBPawn?.MyWeapon as SWeaponDefense)?.ROF_Single(false);
 
         public void GadLaserSwitch(SPlayerController self)
         {
@@ -615,19 +635,19 @@ public partial class SPlayerController
 
         [Uc("SBase.SPlayerController.s_Binoculars_Def.ZoomIn", Sha1 = "ce8b0df6a12e57577f5ef1b4b39743be31655ff6")]
         [PortOf("uc:SBase.SPlayerController:s_Binoculars_Def.ZoomIn", Spec = "spec/equipment/merc-scope.md#rules")]
-        public void ZoomIn(SPlayerController self) => self.ScopeZoomIn();
+        public virtual void ZoomIn(SPlayerController self) => self.ScopeZoomIn();
 
         [Uc("SBase.SPlayerController.s_Binoculars_Def.ZoomOut", Sha1 = "243e37b0e6e4b8944cb8d2036264054424581491")]
         [PortOf("uc:SBase.SPlayerController:s_Binoculars_Def.ZoomOut", Spec = "spec/equipment/merc-scope.md#rules")]
-        public void ZoomOut(SPlayerController self) => self.ScopeZoomOut();
+        public virtual void ZoomOut(SPlayerController self) => self.ScopeZoomOut();
 
         [Uc("SBase.SPlayerController.s_Binoculars_Def.WheelUp", Sha1 = "074e55c1ee308e4587e9a932dd3d038012308e4c")]
         [PortOf("uc:SBase.SPlayerController:s_Binoculars_Def.WheelUp", Spec = "spec/equipment/merc-scope.md#rules")]
-        public void WheelUp(SPlayerController self) => self.ScopeZoomIn();
+        public virtual void WheelUp(SPlayerController self) => self.ScopeZoomIn();
 
         [Uc("SBase.SPlayerController.s_Binoculars_Def.WheelDown", Sha1 = "15f8fc879fed4684fd6747bdf33ded5208de965a")]
         [PortOf("uc:SBase.SPlayerController:s_Binoculars_Def.WheelDown", Spec = "spec/equipment/merc-scope.md#rules")]
-        public void WheelDown(SPlayerController self) => self.ScopeZoomOut();
+        public virtual void WheelDown(SPlayerController self) => self.ScopeZoomOut();
 
         /// <summary>The scope stop: the next move leaves the scope.</summary>
         [Uc("SBase.SPlayerController.s_Binoculars_Def.ClientStopBinoculars", Sha1 = "908a2da953419ab9a219be8e1eb052b25f13da7c")]
@@ -655,7 +675,7 @@ public partial class SPlayerController
 
         [Uc("SBase.SPlayerController.s_Binoculars_Def.CanIUseBinocular", Sha1 = "a40381ccfdf342092554b33966344721f68fd6c2")]
         [PortOf("uc:SBase.SPlayerController:s_Binoculars_Def.CanIUseBinocular", Spec = "spec/equipment/merc-scope.md#rules")]
-        public bool CanIUseBinocular(SPlayerController self) => true;
+        public virtual bool CanIUseBinocular(SPlayerController self) => true;
 
         [Uc("SBase.SPlayerController.s_Binoculars_Def.CanBeGrabbed", Sha1 = "a40381ccfdf342092554b33966344721f68fd6c2")]
         [PortOf("uc:SBase.SPlayerController:s_Binoculars_Def.CanBeGrabbed", Spec = "spec/equipment/merc-scope.md#rules")]
@@ -722,9 +742,9 @@ public partial class SPlayerController
 
     /// <summary>s_Binoculars_Def_Reloading: the reload inside the scope (rule 13).</summary>
     [Uc("SBase.SPlayerController.s_Binoculars_Def_Reloading")]
-    public class s_Binoculars_Def_Reloading : UcActorState, IPlayerTick, IPlayerMove, IFire, ISwitchROF, IZoom, IWheel, ICanIUseBinocular
+    public class s_Binoculars_Def_Reloading : s_Binoculars_Def
     {
-        public static readonly s_Binoculars_Def_Reloading Instance = new(UcMeta.s_Binoculars_Def_Reloading, null);
+        public static new readonly s_Binoculars_Def_Reloading Instance = new(UcMeta.s_Binoculars_Def_Reloading, s_Binoculars_Def.Instance);
 
         protected s_Binoculars_Def_Reloading(UcStateInfo info, ActorState? super)
             : base(info, super)
@@ -752,50 +772,45 @@ public partial class SPlayerController
         /// </summary>
         [Uc("SBase.SPlayerController.s_Binoculars_Def_Reloading.PlayerTick", Sha1 = "9d8ae751c0b8b3c2d4ce66e38b2e6d558427a985")]
         [PortOf("uc:SBase.SPlayerController:s_Binoculars_Def_Reloading.PlayerTick", Spec = "spec/equipment/merc-scope.md#rules")]
-        public void PlayerTick(PlayerController self, float DeltaTime)
+        public override void PlayerTick(PlayerController self, float DeltaTime)
         {
             var pc = (SPlayerController)self;
-            pc.ScopeResetFOV();
             if (pc.SBPawn is { } pawn && !(pawn.MyWeapon?.IsInState(CNAME_s_Reloading) ?? false) && !pawn.bStickyShocking)
             {
                 pc.PreviousState = CNAME_s_Binoculars_Def_Reloading;
                 pc.eventChangeState(CNAME_s_Binoculars_Def);
-                return;
             }
 
-            pc.PlayerTick(DeltaTime);
+            base.PlayerTick(pc, DeltaTime);
+            pc.ScopeResetFOV();
         }
 
-        // Keep the scope's slow walking controls while the reload blocks firing and zoom.
-        public void PlayerMove(SPlayerController self, float DeltaTime) =>
-            s_Binoculars_Def.Instance.PlayerMove(self, DeltaTime);
-
-        public void Fire(SPlayerController self, float F)
+        public override void Fire(SPlayerController self, float F)
         {
         }
 
-        public void SwitchROF(SPlayerController self)
+        public override void SwitchROF(SPlayerController self)
         {
         }
 
-        public void ZoomIn(SPlayerController self)
+        public override void ZoomIn(SPlayerController self)
         {
         }
 
-        public void ZoomOut(SPlayerController self)
+        public override void ZoomOut(SPlayerController self)
         {
         }
 
-        public void WheelUp(SPlayerController self)
+        public override void WheelUp(SPlayerController self)
         {
         }
 
-        public void WheelDown(SPlayerController self)
+        public override void WheelDown(SPlayerController self)
         {
         }
 
         [Uc("SBase.SPlayerController.s_Binoculars_Def_Reloading.CanIUseBinocular", Sha1 = "8567be1d106d88e612e9866eb7503ad103460bfb")]
         [PortOf("uc:SBase.SPlayerController:s_Binoculars_Def_Reloading.CanIUseBinocular", Spec = "spec/equipment/merc-scope.md#rules")]
-        public bool CanIUseBinocular(SPlayerController self) => false;
+        public override bool CanIUseBinocular(SPlayerController self) => false;
     }
 }

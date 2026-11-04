@@ -14,7 +14,7 @@ namespace OpenScct.Master;
 /// </summary>
 public sealed class MasterOptions
 {
-    /// <summary>Retention of detailed rounds and timelines, 1 to 365 days. Career totals are retained.</summary>
+    /// <summary>Retention of timelines and auxiliary demo metadata, 1 to 365 days. Scoreboards and career totals are retained.</summary>
     public int MatchHistoryDays { get; set; } = 90;
 
     /// <summary>Where the HTTP API listens. On a VPS keep it on loopback behind a TLS proxy (docs/ONLINE.md).</summary>

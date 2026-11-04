@@ -11,11 +11,6 @@ public static class HudEditorTransform
     {
         string path = item.Path;
         if (path is "Vie/poison/effet01" or "Vie/poison/effet02_dodge") return "PoisonOverlay";
-        if (path.StartsWith("PCConnectedPlayers/", System.StringComparison.Ordinal) ||
-            path.StartsWith("Extras/Board", System.StringComparison.Ordinal) ||
-            path.StartsWith("Extras/Split", System.StringComparison.Ordinal) ||
-            path.StartsWith("Extras/Ping", System.StringComparison.Ordinal) ||
-            path.StartsWith("Extras/Rank", System.StringComparison.Ordinal)) return "Scoreboard";
         if (path.StartsWith("Console/", System.StringComparison.Ordinal)) return "Chat";
         int slash = path.IndexOf('/');
         return slash < 0 ? path : path[..slash];

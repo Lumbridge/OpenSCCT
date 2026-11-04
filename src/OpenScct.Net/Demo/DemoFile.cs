@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Text;
+using System.Text.Json;
+using OpenScct.Net.Scoreboards;
 
 namespace OpenScct.Net;
 
@@ -16,6 +18,8 @@ public interface IDemoSink
 /// <summary>What a demo was recorded from (the header of a .scctdemo file, docs/DEMOS.md).</summary>
 public sealed record DemoHeader
 {
+    /// <summary>Stable round identity, present in format 3 and later.</summary>
+    public string RoundId { get; init; } = string.Empty;
     /// <summary>On-disk container version; version 1 has no separate recorded-view stream.</summary>
     public ushort FormatVersion { get; init; } = DemoFile.Version;
     /// <summary>The game build that recorded it (for the list; playback checks the hashes).</summary>
@@ -62,6 +66,8 @@ public readonly record struct DemoMarker(uint Tick, DemoMarkerKind Kind, string 
 /// <summary>The footer of a demo: length, players and markers.</summary>
 public sealed class DemoIndex
 {
+    /// <summary>Final scoreboard readable without replaying the packet stream; null in older recordings.</summary>
+    public RoundScoreboard? Scoreboard { get; set; }
     public int ViewFrames { get; set; }
     public long ViewCompressedBytes { get; set; }
     public uint FirstTick { get; set; }
@@ -110,7 +116,9 @@ public static class DemoFile
     public const string Extension = ".scctdemo";
 
     /// <summary>Format version; readers refuse newer files.</summary>
-    public const ushort Version = 2;
+    public const ushort Version = 3;
+
+    private const int MaxScoreboardBytes = 1024 * 1024;
 
     private static readonly byte[] Magic = "SCCTDEMO"u8.ToArray();
     private static readonly byte[] EndMagic = "SCCTDEND"u8.ToArray();
@@ -129,6 +137,7 @@ public static class DemoFile
         w.Write(h.StartUnixMs);
         w.Write(h.TickRate);
         w.Write(h.NetRate);
+        w.Write(h.RoundId);
     }
 
     internal static DemoHeader ReadHeader(BinaryReader r, DemoReadLimits limits)
@@ -157,9 +166,12 @@ public static class DemoFile
             StartUnixMs = r.ReadInt64(),
             TickRate = r.ReadInt32(),
             NetRate = r.ReadInt32(),
+            RoundId = version >= 3 ? ReadString(r, limits) : string.Empty,
         };
         if (header.TickRate is < 1 or > 1000 || header.NetRate is < 0 or > 1000)
             throw new InvalidDataException("The demo's tick rate is invalid.");
+        if (header.RoundId.Length > 0 && !Guid.TryParse(header.RoundId, out _))
+            throw new InvalidDataException("The demo's round identity is invalid.");
         return header;
     }
 
@@ -186,6 +198,10 @@ public static class DemoFile
         }
         w.Write(index.ViewFrames);
         w.Write(index.ViewCompressedBytes);
+        byte[] scoreboard = index.Scoreboard is null ? [] : JsonSerializer.SerializeToUtf8Bytes(index.Scoreboard);
+        if (scoreboard.Length > MaxScoreboardBytes) throw new InvalidDataException("The demo scoreboard exceeds its size limit.");
+        w.Write7BitEncodedInt(scoreboard.Length);
+        w.Write(scoreboard);
     }
 
     internal static DemoIndex ReadIndex(BinaryReader r, DemoReadLimits limits, ushort version)
@@ -221,6 +237,24 @@ public static class DemoFile
             if (index.ViewFrames < 0 || index.ViewFrames > limits.MaxViewFrames || index.ViewCompressedBytes < 0 ||
                 index.ViewCompressedBytes > (long)limits.MaxViewFrames * DemoViewFrame.Bytes)
                 throw new InvalidDataException("The demo's recorded views exceed playback limits.");
+        }
+
+        if (version >= 3)
+        {
+            int length = ReadCount(r, Math.Min(MaxScoreboardBytes, limits.MaxIndexBytes));
+            byte[] bytes = r.ReadBytes(length);
+            if (bytes.Length != length) throw new InvalidDataException("The demo scoreboard is cut short.");
+            if (length > 0)
+            {
+                try { index.Scoreboard = JsonSerializer.Deserialize<RoundScoreboard>(bytes); }
+                catch (JsonException e) { throw new InvalidDataException("The demo scoreboard is invalid.", e); }
+                if (index.Scoreboard is not { SchemaVersion: 1, Rows: not null } board ||
+                    !Guid.TryParse(board.RoundId, out _) || board.Rows.Count > limits.MaxPlayers)
+                    throw new InvalidDataException("The demo scoreboard is unsupported.");
+                foreach (ScoreboardPlayer player in board.Rows)
+                    if (player is null || player.Name is null || player.Name.Length > limits.MaxStringBytes || player.Stats?.Count > 256)
+                        throw new InvalidDataException("The demo scoreboard contains an invalid player.");
+            }
         }
 
         return index;
@@ -264,6 +298,7 @@ public static class DemoFile
         long bodyStart = file.Position;
         (long indexStart, _) = FindIndex(file, r, bodyStart, limits);
         DemoIndex index = ReadBoundedIndex(file, indexStart, limits, header.FormatVersion);
+        ValidateScoreboardIdentity(header, index);
         if (index.ViewCompressedBytes > indexStart - bodyStart)
             throw new InvalidDataException("The demo's recorded view stream is cut short.");
         return (header, index);
@@ -280,6 +315,7 @@ public static class DemoFile
         long bodyStart = file.Position;
         (long indexStart, long bodyLength) = FindIndex(file, r, bodyStart, limits);
         DemoIndex index = ReadBoundedIndex(file, indexStart, limits, header.FormatVersion);
+        ValidateScoreboardIdentity(header, index);
         if (index.ViewCompressedBytes > bodyLength)
             throw new InvalidDataException("The demo's recorded view stream is cut short.");
         bodyLength -= index.ViewCompressedBytes;
@@ -313,6 +349,12 @@ public static class DemoFile
         }
         else if (index.ViewFrames != 0) throw new InvalidDataException("The demo's recorded view stream is missing.");
         return recording;
+    }
+
+    private static void ValidateScoreboardIdentity(DemoHeader header, DemoIndex index)
+    {
+        if (header.RoundId.Length > 0 && index.Scoreboard is { } board && Guid.Parse(header.RoundId) != Guid.Parse(board.RoundId))
+            throw new InvalidDataException("The demo and scoreboard belong to different rounds.");
     }
 
     private static (long IndexStart, long BodyLength) FindIndex(FileStream file, BinaryReader r, long bodyStart, DemoReadLimits limits)

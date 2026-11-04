@@ -105,7 +105,7 @@ snapshot. `HudSimReader` is the source over the local `SPlayerController`:
 
 The reader is read only, with two HUD-local exceptions: `HudMessages.Tick` prunes the SHud stacks (the original HUD
 does it in its draw) and `HudLayer` runs `SHud.PostNetBeginPlay`'s HUD part on a new SHud (Enhanced Reality 1,
-metric units, the connected players list as the settings keep it).
+metric units). The full scoreboard has independent, initially closed local input state.
 
 ## Page manager and drivers
 
@@ -126,7 +126,7 @@ top-level area of a page starts hidden and stopped at frame 0; each driver shows
 | Reticule, ReticuleMessage, Pos_Merc, AlertMessage (merc) | reticle per weapon kind with spread and hit colour, laser gate, sound arrows, reticle message at the aim point, posture icon, alert box (merc-reticle.md) |
 | merc effects | perturbation, shutdown and reboot, foam, droplets, sticky shock, flash white-out (screen-effects.md) |
 | Ballistic | the charge gauge |
-| PCConnectedPlayers | up to 24 player rows while shown (F10), including all 12 players per side in a full 12v12 match; Reloaded's ping column when `show_ping` is on; OpenSCCT's Rank column (level tag, spec/additions/progression.md) when a listed player has a rank; Reloaded's split (`scoreboard_split_team_size`, 1 to 4, default 3): once the bigger team has that many players (and both teams someone), the list shows the spies and a panel beside it the mercs. OpenSCCT draws the list itself (HudPage.DrawBoard): a translucent panel with a header row, side icons, centred columns, the local row tinted and the ping coloured; long lists fit within the HUD height |
+| PCConnectedPlayers | Retained as original-content provenance; the compact list is no longer drawn. F10 opens the native role-specific scoreboard described in [Scoreboards](SCOREBOARD.md). |
 | Radar | dish, blips, edge arrows (spy teammates and enemies, merc alarms and hacked terminals) |
 | P_SpectatorMode | objectives, time, lives, watched player, respawn countdown, tip (spectator-page.md); the connected-player panels are centred together below the spectator controls and fit between them and the tip, including large split or unsplit rosters |
 | P_BinocularsATT / DEF | zoom label and marker, scope ring animations, sights and axes at the aim point, breath gauge, range finder, key help, Hack prompt, reticle message (binoculars.md) |
@@ -292,8 +292,11 @@ published once by the authority for a valid gas-exposure episode; the RPC format
 information and 64-message `ChatTranscript` history. The original `HudConsole` drawing remains a fallback for
 legacy callers; ordinary system messages join the modern transcript without replacing objective or kill notifications.
 
-**Scoreboard and status.** The connected players list toggles with F10 (`ShowConnectedPlayers`) and starts as the
-settings keep it (Reloaded's `show_scoreboard`). F8 (`DisplaySessionStatus`) opens `GameStatusPage`, the mission
+**Scoreboard and status.** F10 (`ShowConnectedPlayers`) toggles the full role-specific scoreboard, initially closed.
+A separate unbound `HoldScoreboard` action supports holding a chosen keyboard/mouse/controller binding. Combat
+statistics are delayed 30 seconds by the server, with final totals at round end. The former compact roster and
+its `show_scoreboard`/split preferences are obsolete; see [Scoreboards](SCOREBOARD.md).
+F8 (`DisplaySessionStatus`) opens `GameStatusPage`, the mission
 status: both teams with objectives or kills, and the objective list; F9 toggles Enhanced Reality
 (`SwitchEnhancedReality`). `HudCommands` runs these execs from the player's layout (scoreboard.md).
 
@@ -381,7 +384,7 @@ applies them at start and on save.
 | controller | `controller`: `enabled`, `deadzone_left` 0.25, `deadzone_right` 0.15, `vertical_scale` 0.75, `run_threshold` 0.95, `slow_walk` (on), `prompted`, `rumble` (off), `rumble_strength` 1.0, 8-way move per side, `look_speed`, the pad layouts (`Clutch1`, `Clutch2` hold the clutches) |
 | display | `display_mode` (Windowed, Fullscreen, BorderlessFullscreen), `display_monitor`, `resolution`, `window_position` (Default, Centered, Stretched), `vsync`, `widescreen`, `widescreen_hud`, `ws_er_small`, `ws_fov` (95..112, default 112), `fps_spy`, `fps_merc` (Match refresh rate by default, Unlimited or 30 to 240: docs/RENDERING.md, frame pacing), `resolution_scale`, `filter_level`, `msaa`, `msaa_samples`, `smaa`, `shadow_quality`, `shadow_edge_smoothing`, `post_quality` (0 Normal: no glow, 1 High), `low_latency_mode`, `throttle_stop` (docs/RENDERING.md) |
 | audio | `master_volume`, `sound_volume`, `music_volume`, `objective_sounds` (profile bObjectiveSounds), `voice_output_volume` (Godot buses Master, SvmWorld and the effect buses, SvmMusic, SvmVoice) |
-| HUD | `show_scoreboard`, `show_ping`, `scoreboard_split_team_size` (1..4, 3), `show_fps`, `show_net`, `show_net_loss` (off), `show_location`, `hack_alpha` (0..255, 178), `hud_feet` (profile bInFeet), `fire_prediction` (on; docs/NETCODE.md "Lag compensation and fire prediction") |
+| HUD | `show_fps`, `show_net`, `show_net_loss` (off), `show_location`, `hack_alpha` (0..255, 178), `hud_feet` (profile bInFeet), `fire_prediction` (on; docs/NETCODE.md "Lag compensation and fire prediction"); old compact-scoreboard preferences are ignored |
 | console | `override_console_key` (true: the key left of 1; false: the apostrophe key) |
 
 `OptionsMenu` is the screen from the main menu or the in-game F12 overlay. Spy and Mercenary each contain
@@ -631,7 +634,7 @@ on Alternate Mode and its "Cinematic Camera" switch (offline they always work). 
 - The original has no hit direction marker: damage feedback is the undirected wash or perturbation, the flash-bang
   only whites out a player facing it (the simulation's ClientDamage cone and trace), and the merc's directional cue
   is the sound arrows.
-- The Reloaded scoreboard look is not decoded: the original list and status page are used, with Reloaded's ping column and team split drawn in the list's own layout. (The coop icons follow
+- The Reloaded scoreboard look is not decoded; OpenSCCT uses its own role-specific scoreboard and retains the original mission-status page. (The coop icons follow
   the decoded spy driver: `InteractionPrompts.cs`, spec/objectives/team-interactions.md.)
 - Binoculars: the range finder traces from the rifle's FX bone (the original's bone is unidentified); markers behind
   the view get no edge arrow (the projector gives no point); only objective triggers are listed (not secondary
@@ -644,9 +647,7 @@ on Alternate Mode and its "Cinematic Camera" switch (offline they always work). 
 - To check against captures of the original: the console text height, the canvas colour doubling, the lock panel's
   colour, the list row pitch, and the overlays (sticky cam, camera network, binoculars, gas mask) at 16:9: they need
   key presses in the sandbox game, which the memory-only tools cannot make.
-- The connected players list is shown from the start of a match: that is Reloaded's default (`show_scoreboard`
-  true, spec/hud/scoreboard.md rule 2); the unpatched game starts with it hidden (`SHud.bShowConnectedPlayers`
-  false). F10 toggles it and the setting is remembered.
+- The full scoreboard starts closed each round. F10 toggles it; the optional hold action is initially unbound.
 # Optional teammate names
 
 Each role's settings page has **Show teammate names through walls**, saved independently as
@@ -678,7 +679,7 @@ Back follows the existing discard flow. Old settings retain the stock HUD.
 
 Editable groups include health, energy, radar, match and objective timers, gadget,
 ammo, interaction/co-op prompts, movement/posture, throw charge, page messages,
-scoreboard (both team panels), chat, the event feed, the zone name above the radar,
+chat, the event feed, the zone name above the radar,
 FPS and network readouts. FPS/network positions are edited here for each role;
 the HUD tab retains their display modes, metrics, graphs and appearance settings.
 Previously saved telemetry positions remain the baseline for existing profiles.

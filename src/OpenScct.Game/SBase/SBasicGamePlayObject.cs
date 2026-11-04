@@ -231,6 +231,11 @@ public partial class SBasicGamePlayObject
         if (stickyLock)
         {
             DeviceClasses.Spawn(this, DeviceK.SparkShockerClass, this, Name.None, HitLocation, Rotation);
+            if (Level.NetMode is ENetMode.NM_DedicatedServer or ENetMode.NM_ListenServer)
+            {
+                // This original emitter is local-only; connected clients need the authoritative hit burst too.
+                XLevel.World.Events.SpawnEmitter(this, new Name(DeviceK.SparkShockerClass.Path!), HitLocation, Rotation);
+            }
             eventSetLockedByChaff(StickyNeutralizationTime);
             return;
         }

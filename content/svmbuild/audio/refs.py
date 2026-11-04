@@ -105,6 +105,11 @@ def map_sound_refs(src, sounds: SoundIndex) -> dict:
                 stored[prop] = hit
         ambient_ref = src.value(info, "AmbientSound")
         ambient = sounds.find(ambient_ref.path) if isinstance(ambient_ref, Ref) and ambient_ref.ref != 0 else None
+        if ambient is None and isinstance(ambient_ref, Ref) and ambient_ref.ref != 0:
+            site = f"{info.name}.AmbientSound"
+            sites = missing.setdefault(ambient_ref.path, [])
+            if site not in sites:
+                sites.append(site)
         is_zone = db.is_a(info.cls, "Engine.ZoneInfo")
         effect = zone_effect(src, info) if is_zone else None
         if not stored and ambient is None and effect is None:

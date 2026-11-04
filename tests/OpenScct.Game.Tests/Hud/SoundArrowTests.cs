@@ -86,4 +86,28 @@ public class SoundArrowTests
         Assert.Equal(0.5f, call.Float1);
         Assert.Equal(0f, r.Hud.ForwardArrowTime);
     }
+
+    [Theory]
+    [InlineData(150f, 0.5f)]
+    [InlineData(300f, 1f)]
+    public void SpyStepsNotifyListenersOnceWithoutReplayOrProxyEcho(float speed, float loudness)
+    {
+        Rig r = Make();
+        var spy = r.W.Level.Spawn<SPawnAttaque>(new FVector(300f, 0f, 0f))!;
+        spy.Physics = EPhysics.PHYS_Walking;
+        spy.Velocity = new FVector(speed, 0f, 0f);
+        spy.PlayFootStepSound(true);
+        Assert.Equal(loudness * 1300f / 1600f, r.Hud.ForwardArrowInt, 4);
+        int Cues() => r.W.World.Events.Current.ToArray().Count(e => e.What.ToString().Contains("echo_indic1", StringComparison.Ordinal));
+        Assert.Equal(1, Cues());
+        spy.PlayFootStepSound(false);
+        Assert.Equal(1, Cues());
+        r.W.World.IsReplaying = true;
+        spy.PlayFootStepSound(true);
+        r.W.World.IsReplaying = false;
+        Assert.Equal(1, Cues());
+        r.W.Level.Info.NetMode = ENetMode.NM_Client;
+        spy.PlayFootStepSound(true);
+        Assert.Equal(1, Cues());
+    }
 }

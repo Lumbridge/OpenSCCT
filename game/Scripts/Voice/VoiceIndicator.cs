@@ -82,15 +82,36 @@ public partial class VoiceIndicator : CanvasLayer
                 line += "  " + (s.Volume * 100f).ToString("0", CultureInfo.InvariantCulture) + "%";
             }
 
-            AddRow(line, s.Team switch { 0 => SpyColour, 1 => MercColour, _ => OtherColour }, text);
+            AddRow(line, s.Team switch { 0 => SpyColour, 1 => MercColour, _ => OtherColour }, text, s.IsLocal ? (ushort)0 : s.Talker);
         }
 
         Text = text.ToString();
     }
 
-    private void AddRow(string line, Color colour, System.Text.StringBuilder text)
+    private void AddRow(string line, Color colour, System.Text.StringBuilder text, ushort talker = 0)
     {
-        var label = new Label { Text = line, HorizontalAlignment = HorizontalAlignment.Right };
+        var label = new Label { Text = line, HorizontalAlignment = HorizontalAlignment.Right,
+            MouseFilter = talker == 0 ? Control.MouseFilterEnum.Ignore : Control.MouseFilterEnum.Stop,
+            MouseDefaultCursorShape = talker == 0 ? Control.CursorShape.Arrow : Control.CursorShape.PointingHand,
+            TooltipText = talker == 0 ? string.Empty : "Click to mute or unmute; scroll to adjust volume" };
+        if (talker != 0)
+            label.GuiInput += input =>
+            {
+                if (Chat?.Client is not { } client || input is not InputEventMouseButton { Pressed: true } mouse) return;
+                switch (mouse.ButtonIndex)
+                {
+                    case MouseButton.Left:
+                        Chat.SetMuted(talker, !client.IsMuted(talker));
+                        break;
+                    case MouseButton.WheelUp:
+                    case MouseButton.WheelDown:
+                        float volume = client.FindTalker(talker)?.Volume ?? 1;
+                        Chat.SetVolume(talker, volume + (mouse.ButtonIndex == MouseButton.WheelUp ? 0.1f : -0.1f));
+                        break;
+                    default: return;
+                }
+                label.AcceptEvent();
+            };
         label.AddThemeColorOverride("font_color", colour);
         label.AddThemeColorOverride("font_shadow_color", new Color(0, 0, 0, 0.8f));
         _rows!.AddChild(label);

@@ -805,19 +805,22 @@ public sealed class GameSettings
 
     // ---- HUD -----------------------------------------------------------------------------------------------
 
-    /// <summary>The connected players list (F10) is on by default and remembered.</summary>
+    /// <summary>Legacy source compatibility only. The removed compact roster's saved state is ignored.</summary>
+    [JsonIgnore]
     [JsonPropertyName("show_scoreboard")]
     [Provenance(ProvenanceKind.Decoded, "spec/reloaded/FEATURES.md rl:qol.scoreboard show_scoreboard = true")]
     public bool ShowScoreboard { get; set; } = true;
 
+    /// <summary>Legacy compatibility only; the full scoreboard always includes latency.</summary>
+    [JsonIgnore]
     [JsonPropertyName("show_ping")]
     [Provenance(ProvenanceKind.Decoded, "spec/reloaded/FEATURES.md rl:qol.scoreboard show_ping first-run false")]
     public bool ShowPing { get; set; }
 
     /// <summary>
-    /// The team size at which the connected players list splits into a column per team, sized on the bigger team
-    /// (Reloaded's scoreboard_split_team_size, 1 to 4).
+    /// Legacy compatibility only; the full scoreboard always separates the two roles.
     /// </summary>
+    [JsonIgnore]
     [JsonPropertyName("scoreboard_split_team_size")]
     [Provenance(ProvenanceKind.Decoded, "spec/reloaded/FEATURES.md rl:qol.scoreboard scoreboard_split_team_size = 3 (1 to 4)")]
     public int ScoreboardSplitTeamSize { get; set; } = 3;

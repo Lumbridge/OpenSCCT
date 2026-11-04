@@ -44,6 +44,8 @@ public static class BindingLabels
     public static string Label(string command, Lookup? gui)
     {
         ArgumentNullException.ThrowIfNull(command);
+        if (command.Equals("ShowConnectedPlayers", StringComparison.OrdinalIgnoreCase)) return "Toggle scoreboard";
+        if (command.Equals("HoldScoreboard", StringComparison.OrdinalIgnoreCase)) return "Hold scoreboard";
         int row = RowOf(command);
         if (row >= 0 && gui?.Invoke(Rows[row].Section, Rows[row].Key) is { Length: > 0 } label)
         {

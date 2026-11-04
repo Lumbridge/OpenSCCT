@@ -7,13 +7,40 @@ import json
 import os
 import shutil
 import struct
+from types import SimpleNamespace
 from pathlib import Path
 
 import pytest
 from svmbuild import canonical
 from svmbuild.audio import build, mux, ogg, sound, uas
+from svmbuild.audio import refs
+from svmbuild.sources.typedprops import Ref
 from svmbuild.sources.env import import_formats
 from svmbuild.validation import validate_svmap
+
+
+def test_map_stream_keeps_source_definition_without_a_shared_library_entry():
+    info = {"kind": "stream", "flags": sound.FLAG_STREAM | sound.FLAG_2D | sound.FLAG_GAIN,
+            "volume": 0.5, "radius": 0.0, "pitch": 1.0, "loop": False, "positional": False,
+            "stream": "MissingFromOlderShared"}
+    stream = {"file": "streams/Package/MissingFromOlderShared.ogg", "duration": 3.0}
+    entry = build._map_sound_entry("Package.Group.Sound", info, None,
+                                  {"package.missingfromoldershared": stream})
+    assert entry == {"kind": "stream", "flags": info["flags"], "volume": 0.5, "radius": 0.0,
+                     "pitch": 1.0, "loop": False, "positional": False, "root": "map", **stream}
+
+
+def test_unresolved_authored_ambience_is_reported_and_rejected(tmp_path):
+    ambient = Ref(-1, "AbsentPackage.Group.Ambience", False)
+    actor = SimpleNamespace(name="Zone", cls="Engine.ZoneInfo", category="gameplay", props={"AmbientSound": ambient})
+    src = SimpleNamespace(actors=[actor], pkg=None,
+                          db=SimpleNamespace(is_a=lambda *_: True),
+                          value=lambda info, name: ambient if name == "AmbientSound" else None,
+                          ref_export=lambda _: (None, None))
+    found = refs.map_sound_refs(src, refs.SoundIndex([]))
+    assert found["missing"] == {ambient.path: ["Zone.AmbientSound"]}
+    with pytest.raises(ValueError, match="unresolved authored AmbientSound"):
+        build.build_map_audio(tmp_path, "Example", tmp_path / "output", {"sounds": {}}, src)
 
 # ---- Ogg ---------------------------------------------------------------------------------------------------------
 

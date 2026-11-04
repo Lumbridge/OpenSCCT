@@ -386,6 +386,14 @@ public partial class GamepadInput : Node
     /// <summary>Holds or releases the key the layout binds to <paramref name="action"/> for one control.</summary>
     private void Hold(PlayInput input, string control, string action, bool down)
     {
+        if (down && action is "Action:players" or "Action:scoreboard_hold")
+        {
+            if (_held.ContainsKey(control)) return;
+            string local = "scoreboard-local:" + control + ":" + (action == "Action:players" ? "ShowConnectedPlayers" : "HoldScoreboard");
+            _held[control] = local;
+            SendControl(input, local, true);
+            return;
+        }
         if (down)
         {
             if (action is "Action:menu" or "Action:session")
@@ -423,7 +431,8 @@ public partial class GamepadInput : Node
 
     private void SendControl(PlayInput? input, string key, bool pressed)
     {
-        if (key.StartsWith(UI.ControlActions.VirtualPrefix, StringComparison.Ordinal)) input?.Key(key, pressed);
+        if (key.StartsWith("scoreboard-local:", StringComparison.Ordinal)) input?.SendLocalAction(key[(key.LastIndexOf(':') + 1)..], key, pressed);
+        else if (key.StartsWith(UI.ControlActions.VirtualPrefix, StringComparison.Ordinal)) input?.Key(key, pressed);
         else Send(IsInsideTree() ? GetViewport() : null, key, pressed);
     }
 

@@ -116,6 +116,10 @@ it is not attributed to the decoded native.
   spot B = bottom.XY - 35 N. Near F (within 20): NarrowLadder() when `N . Fwd < -0.7` and
   `N . SafeNormal(Acceleration) < -0.7`, or (Falling or RootMotion) with `N . SafeNormal(Velocity.XY) < -0.7` and
   `N . Fwd < -0.3`. Near B: the same with the signs reversed (> 0.7, > 0.3).
+  Rewrite correction: defer UnCrouch(true) until the spot, facing and movement tests accept a grab.
+  The original ordering above changes stance on a rejected query, repeatedly undoing a crouch request near
+  a ladder. Reproduced at the reported Factory position by FactoryCrouchTests and on a synthetic ladder
+  by LadderTests; accepted grabs still require enough room to stand.
 - CheckPipeArms: needs at least 85 of pipe above Location.Z and the pawn at least 85 above the pipe bottom
   (crouched adds 87.5 - H). m_geoNormal = N. When within 20 of bottom.XY + 35 N, `N . Fwd < -0.7` and
   (`N . SafeNormal(Acceleration) < -0.7` or RootMotion): Pipe(bottom + zone.X N raised by H + 2,

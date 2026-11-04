@@ -193,7 +193,7 @@ public enum HudBinocularMode
     /// <summary>The spy in s_Binoculars_Att: P_BinocularsATT.</summary>
     Spy,
 
-    /// <summary>The merc in s_Binoculars_Def (or its reloading child state): P_BinocularsDEF.</summary>
+    /// <summary>The merc's raised scope in s_Binoculars_Def, excluding reload: P_BinocularsDEF.</summary>
     Merc,
 }
 

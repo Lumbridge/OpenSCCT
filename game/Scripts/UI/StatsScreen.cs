@@ -68,7 +68,7 @@ public partial class StatsScreen : MenuPage
             "Career totals count official rounds played against a signed-in opponent. Totals update after the round is reported.\nCategories can overlap. — means unavailable or no denominator.", dim: true, size: 14);
         PageButton("Back", () => FrontEnd.ShowMainMenu(GetTree()), "Back").GrabFocus();
         PageButton("Account", () => FrontEnd.ShowAccount(GetTree()), "Account");
-        PageButton("Match history", () => FrontEnd.Show(GetTree(), new MatchHistoryScreen()), "MatchHistory");
+        PageButton("Match history", () => FrontEnd.ShowMatchHistory(GetTree()), "MatchHistory");
         _refreshButton = PageButton("Refresh", Refresh, "Refresh");
         foreach (Button button in PageButtons) button.CustomMinimumSize = new Vector2(144f, 44f);
         _service.Changed += Rebuild;

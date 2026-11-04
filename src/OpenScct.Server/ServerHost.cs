@@ -209,6 +209,7 @@ public sealed partial class ServerHost : INetworkNotify, IDisposable
         }
 
         Map = map!;
+        Scoreboards = new RoundScoreboardTracker(this);
         Driver.MapBinding.Bind(Map.MapActors);
         Driver.MapBinding.CapturePlaced(Driver.Classes);
         if (Map.Physics is { } physics)
@@ -247,6 +248,8 @@ public sealed partial class ServerHost : INetworkNotify, IDisposable
     public NetDriver Driver { get; }
 
     public MapInfo Map { get; }
+
+    public RoundScoreboardTracker Scoreboards { get; }
 
     /// <summary>The move protocol of the players' controllers (the movement port's network calls).</summary>
     public NetMovementBridge Movement { get; }
@@ -367,6 +370,7 @@ public sealed partial class ServerHost : INetworkNotify, IDisposable
         Chat.Tick(World.TimeSeconds);
         DeviceEvents?.RelayTick(World);
         StartGate?.Tick(PendingClients());
+        Scoreboards.Tick(nowMicros);
         foreach (PlayerSlot player in _players)
         {
             if (player.Controller?.PlayerReplicationInfo?.bWaitingPlayer == true)
@@ -587,6 +591,7 @@ public sealed partial class ServerHost : INetworkNotify, IDisposable
 
         if (connection.UserData is PlayerSlot slot)
         {
+            Scoreboards.Depart(slot.Controller?.PlayerReplicationInfo);
             PlayerLeft?.Invoke(slot);
             if (slot.Walker is { bDeleteMe: false } walker)
             {
@@ -803,6 +808,7 @@ public sealed partial class ServerHost : INetworkNotify, IDisposable
             return;
         }
 
+        Scoreboards.Finish();
         Recorder?.Finish();
         Recorder?.Writer.Dispose();
         _disposed = true;

@@ -7,6 +7,11 @@ which differs from stock UE2 audio.
 See the [audio specification](../spec/native/audio.md) for playback rules and formats,
 and [sound devices](../spec/devices/sound-music.md) for map actors that call them.
 
+The [4 November full parity sweep](../spec/native/audio-parity-2026-11-04.md) records current content comparisons,
+confirmed playback/voice gaps, fresh mixer checks and remaining listening-validation work.
+Its [implementation follow-up](../spec/native/audio-parity-fixes-2026-11-04.md) records the repairs and remaining
+I3DL2/EAX acoustic limitations.
+
 **On this page:** [Content](#content) · [Client](#client) · [Findings](#findings) · [Not done yet](#not-done-yet)
 
 | Part | Where |
@@ -137,16 +142,26 @@ still carries the loop's sound id: a voice another call took over belongs to tha
 restarts another actor's loop (it did, every update, at 1,000 to 6,000 starts a second on KrauE and MounE).
 `--svm-smoke=play-audio-krau` (KrauE, merc) fails when one actor's loop starts more than 20 times in a run.
 
-Reverb: `ReverbBuses` makes `SvmWorld`, `SvmFlat`, `SvmMusic` and one `SvmReverbN` bus per distinct zone effect
-(SteeE: 29 zones share a handful of parameter sets). 3D voices play on the bus of the listener's zone. Godot's
-`AudioEffectReverb` is a Freeverb (eight damped combs of 25 to 37 ms, four allpasses), not I3DL2. The mapping
-follows the I3DL2 definitions where the models meet: the comb feedback that loses 60 dB over DecayTime along the mean
-comb (room size = (g - 0.7) / 0.28, so decays below about 0.6 s or above about 10 s clamp); the comb low-pass that
-gives DecayTime x DecayHFRatio at HFReference (Godot's damping is a 2.5 to 10 kHz cutoff, so a ratio of 1 or more
-takes 10 kHz); the wet level from Room + Reflections and Room + Reverb summed as energy, dry at 1; the pre-delay from
-ReflectionsDelay + ReverbDelay (20 to 500 ms), no pre-delay feedback. Still estimated: the absolute wet level
-(Freeverb's gain is not the I3DL2 reference), and RoomHF / RoomLF, EnvironmentDiffusion, Density, the reflection
-pattern and RoomRolloffFactor have no Godot counterpart.
+Reverb: `ReverbBuses` owns one native EAX environment per listener. Positional voices have separate dry and
+unpanned room sends, with independent source filters and distance gains. Flat sounds and music bypass the room.
+The native mixer effect uses the MIT-licensed reAL HRvb reconstruction of the supplied Creative ALchemy renderer,
+with its original first-apply LF shelf and late-pan routing quirks. It replaces the Freeverb approximation and
+consumes the complete 112-byte EAX 3 block: independent early/late delays and pans, RoomHF/RoomLF, diffusion,
+frequency-dependent decay, echo, modulation, reference frequencies, room rolloff and flags.
+
+Zone changes update the same effect instance and retain its delay state. Initially missing effects retain the
+driver's Generic default; leaving an effect for a missing one applies the native NULL fallback. All 232 distinct
+converted map blocks were tested against the original provider: 218 are accepted; 14 are rejected as whole
+updates, retaining the previous environment. The rewrite preserves those rejections. The original's malformed
+four-byte EAX 3 source-occlusion call is also rejected by this provider; the selected EAX path preserves its observed
+unoccluded filter state while retaining occlusion priority/range behavior.
+
+Build the native extension with `tools/audio/Build-NativeAudio.ps1` on Windows or
+`tools/audio/build-native-audio.sh` on Linux before importing/exporting the game. Build/release pipelines include
+this step and package the dependency licenses. The extension runs on the audio thread with no managed capture or
+generator queue. See [native implementation](../src/OpenScct.Audio.Native/README.md) and
+[reverb parity evidence](../spec/native/reverb-parity-2026-11-04.md). `--svm-smoke=reverb` captures real mixer PCM
+and verifies room-send normalization, wet-only output, zone state, flat/music isolation and bus cleanup.
 
 Music at map load: the engine plays the LevelInfo's Song with no fade when a map loads (game 0x109e82c4,
 `Audio->PlayMusic(Level->Song, 0)`); `SoundSystem.Bind` does the same from the map table (TermD's `DAPlayerStart`,
@@ -311,9 +326,10 @@ yaw instead of along the foot bone, and the texture's axes on the floor are esti
   client starts with the server's on/off state; AmbientSound is replicated (Actor group 5 in the first bunch,
   SAmbientSoundTrigger and Mover on every change) against class-default shadows, so an initially-on trigger, a
   trigger switched later and a mover's loop reach the client.
-- `SPlayerController.ClientNotifyNoise` (the spy's noise meter on footsteps) is not ported.
-- The default slot of the simulation's `PlaySound` is SLOT_None; the original's is SLOT_Misc (rule 1). It only
-  changes which call replaces which when all 32 voices are busy.
+- Spy walk/run branches now call ClientNotifyNoise with original loudness. Authority delivers the cue once to
+  remote listeners, with prediction/replay suppression. Default PlaySound/PlayOwnedSound slots are SLOT_Misc,
+  while explicit SLOT_None keeps independent overlap. StopSound(None) stops the actor's sources and is retained
+  by reliable network delivery; unresolved actor references cannot turn into global stops.
 
 ### Predicted action sounds
 
@@ -346,5 +362,6 @@ gain and the `AtListener` ownership decision.
 [tools/benchmark/capture_original_audio.py](../tools/benchmark/capture_original_audio.py) reads native sources in an already-owned, muted
 sandbox session. It validates the retail voice table and requires movement sounds to be seen;
 it neither launches a process nor changes volume. Its observations establish native routing
-and sample identity, not original device-output loudness. Reverb calibration and a listening
-comparison of the two engines remain separate from this routing regression.
+and sample identity, not original device-output loudness. Independent vendor impulse captures and the native
+reverb comparison are covered by the reverb parity evidence linked above; they remain separate from this routing
+regression.

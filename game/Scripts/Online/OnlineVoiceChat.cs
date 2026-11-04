@@ -34,7 +34,6 @@ public partial class OnlineVoiceChat : Node
     private AudioStreamGeneratorPlayback? _tone;
     private bool _toneDirect;
     private double _toneStart;
-    private bool _microphoneTried;
 
     /// <summary>The visit's voice, or null before <see cref="Attach"/>.</summary>
     public OnlineVoice? Voice { get; private set; }
@@ -119,7 +118,6 @@ public partial class OnlineVoiceChat : Node
         }
 
         _heard.Clear();
-        _microphoneTried = false;
     }
 
     public void Detach()
@@ -130,7 +128,7 @@ public partial class OnlineVoiceChat : Node
         if (Audio is not null)
         {
             Audio.Client = null;
-            Audio.StopMicrophone();
+            Audio.ResetMicrophone();
         }
 
         _tonePlayer?.QueueFree();
@@ -160,22 +158,13 @@ public partial class OnlineVoiceChat : Node
         }
 
         // Smoke runs never open the player's microphone; they feed a tone (ToneHz) instead.
-        if (!_microphoneTried && _settings.Enabled && ToneHz <= 0 && Audio is not null && !SettingsStore.Isolated)
-        {
-            _microphoneTried = true;
-            if (!Audio.StartMicrophone(SettingsStore.Current.VoiceInputDevice) && Audio.MicrophoneProblem is { } problem)
-            {
-                GD.Print("SVM_VOICE microphone: " + problem);
-            }
-        }
+        Audio?.UpdateMicrophone(_settings.Enabled && ToneHz <= 0 && !SettingsStore.Isolated,
+            SettingsStore.Current.VoiceInputDevice, delta);
 
         if (ReadKeys)
         {
-            voice.Voice.TalkKey = Input.IsActionPressed(VoiceInput.PushToTalk);
-            voice.Voice.TeamKey = Input.IsActionPressed(VoiceInput.TeamPushToTalk);
-            if (Input.IsActionJustPressed(VoiceInput.ToggleMute))
+            if (VoiceInput.ReadKeys(voice.Voice))
             {
-                _settings.MicMuted = !_settings.MicMuted;
                 SettingsStore.Current.VoiceMuted = _settings.MicMuted;
             }
         }
@@ -314,38 +303,72 @@ public partial class OnlineVoiceChat : Node
             return;
         }
 
-        var lines = new List<string>();
+        var lines = new List<(string Text, string? Player)>();
         if (_settings.MicMuted)
         {
-            lines.Add("Your microphone is muted");
+            lines.Add(("Your microphone is muted", null));
         }
         else if (voice.Voice.Transmitting)
         {
-            lines.Add("You - Speaking" + (voice.Voice.TransmitChannel == EVoiceChannel.Team ? " (team)" : string.Empty));
+            lines.Add(("You - Speaking" + (voice.Voice.TransmitChannel == EVoiceChannel.Team ? " (team)" : string.Empty), null));
         }
 
         foreach (VoiceTalker talker in voice.Voice.Talkers)
         {
-            if (talker.Speaking && voice.NameOf(talker.Id) is { } name)
+            if ((talker.Speaking || talker.Muted) && voice.NameOf(talker.Id) is { } name)
             {
-                lines.Add(LobbyRoomModel.VolumeText(name, talker.Volume) + (talker.Channel == EVoiceChannel.Team ? " (team)" : string.Empty));
+                lines.Add((LobbyRoomModel.VolumeText(name, talker.Volume) + (talker.Muted ? " (muted)" :
+                    talker.Channel == EVoiceChannel.Team ? " (team)" : string.Empty), name));
             }
         }
 
         while (_overlayRows.GetChildCount() < lines.Count)
         {
-            _overlayRows.AddChild(new Label { HorizontalAlignment = HorizontalAlignment.Right, Modulate = UiStyle.Text });
+            var row = new SpeakerRow { HorizontalAlignment = HorizontalAlignment.Right, Modulate = UiStyle.Text };
+            row.GuiInput += input =>
+            {
+                if (row.Player is { } player && HandleSpeakerInput(player, input)) row.AcceptEvent();
+            };
+            _overlayRows.AddChild(row);
         }
 
         for (int i = 0; i < _overlayRows.GetChildCount(); i++)
         {
-            var label = (Label)_overlayRows.GetChild(i);
+            var label = (SpeakerRow)_overlayRows.GetChild(i);
             label.Visible = i < lines.Count;
             if (i < lines.Count)
             {
-                label.Text = lines[i];
+                label.Text = lines[i].Text;
+                label.Player = lines[i].Player;
+                label.MouseFilter = label.Player is null ? Control.MouseFilterEnum.Ignore : Control.MouseFilterEnum.Stop;
+                label.MouseDefaultCursorShape = label.Player is null ? Control.CursorShape.Arrow : Control.CursorShape.PointingHand;
+                label.TooltipText = label.Player is null ? string.Empty : "Click to mute or unmute; scroll to adjust volume";
             }
         }
+    }
+
+    /// <summary>The speaker overlay uses the same name-keyed mute and persistent volume as the lobby.</summary>
+    internal bool HandleSpeakerInput(string player, InputEvent input)
+    {
+        if (Voice is not { } voice || input is not InputEventMouseButton { Pressed: true } mouse) return false;
+        switch (mouse.ButtonIndex)
+        {
+            case MouseButton.Left:
+                voice.SetMuted(player, !voice.IsMuted(player));
+                break;
+            case MouseButton.WheelUp:
+            case MouseButton.WheelDown:
+                voice.SetVolume(player, voice.VolumeOf(player) + (mouse.ButtonIndex == MouseButton.WheelUp ? 0.1f : -0.1f));
+                break;
+            default: return false;
+        }
+        DrawOverlay();
+        return true;
+    }
+
+    private sealed partial class SpeakerRow : Label
+    {
+        public string? Player { get; set; }
     }
 
     /// <summary>A line about the microphone for the lobby: level, transmitting or silent.</summary>
