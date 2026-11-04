@@ -337,10 +337,15 @@ settings' `filter_level` (rl:gfx.filtering: 0, 2, 4, 8 or 16, first run 4 as the
   their painted colour stream (AquaE's StaticMeshActor14218 on the temple floor and StaticMeshActor12295 on its
   wall otherwise draw fullbright rectangles). They carry zone 255 (`MapBuilder.AuthoredOverlayZone`). Estimated.
 
+How the original produced these lightmaps and vertex colours (Build Lighting's formulas, filter and cook rules) is in
+[LIGHTMAPS.md](LIGHTMAPS.md#how-the-original-baked-light).
+
 ## Dynamic lights
 
-Lights the original keeps out of the baked light (bDynamicLight, triggered STriggerLights, pulsing lights) still
-light the world (`WorldLights`): `bDynamicLight`, not LE_ESpotShadow, brightness above 0, whatever
+Lights the original keeps out of the baked light (bDynamicLight lights, which are never baked, and triggered
+STriggerLights) still light the world (`WorldLights`); baked animated lights keep, in the lightmap, the modulation
+they had when the bake ran (below). LE_ESpotShadow (22) lights are skipped by the bake and drawn by their own pass
+(Spot shadow lights). The dynamic world lights are `bDynamicLight`, not LE_ESpotShadow, brightness above 0, whatever
 `bApplyToStaticLighting` says. The game keeps a light for run time when it is in-game or dynamic (cooked light
 references, editor 0x110cd700; in-game leaf light lists, UnVisi.cpp 0x1101dcb7); the static flag only decides what
 Build Lighting bakes. Until this was fixed, dynamic lights saved with bApplyToStaticLighting False lit nothing: MoonD's
@@ -396,9 +401,11 @@ pass. A light volume wholly outside the main camera skips its shadow viewport an
 optimization removes the light or its beam slot. Colour-only effects have their own layer outside the depth cameras;
 opaque shadow fragments skip the colour stages, while masked fragments retain the alpha test. Parameter textures
 upload only when their packed values change. The shadow resolution and filtering settings are unchanged.
-Actors skip some of them (game 0x10a37310, asked by the actor light gathering for LE_ESpotShadow lights only): a
+Actors skip some of them (game 0x10a37310, which the actor light gather 0x10a37610 asks for LE_ESpotShadow lights): a
 static light when the actor has bIgnoreEchelonLighting, a bDynamicLight one when it has bIgnoreDynamicEchelonLighting,
-any light in its IgnoredEchelonLights, and every one when its GlassEffect is set. Mesh actors carry these widely
+any light in its IgnoredEchelonLights, and every one when its GlassEffect is set. Only the two flags and GlassEffect
+are particular to spot shadow lights: IgnoredEchelonLights also skips ordinary lights, in the gather's other branch
+(0x10a37d86, Actor lighting). Mesh actors carry these widely
 (over the shipped maps: 17208 static mesh actors with bIgnoreEchelonLighting, 3713 with the dynamic flag, 761 with
 IgnoredEchelonLights, 106 with GlassEffect; on AquaE the kitchen's metal shutters and first-aid cabinets, which were
 washed out by the spots in front of them).
@@ -500,14 +507,66 @@ lighting:
 Lights are ranked by `brightness x (1 - d^2 / (R + r)^2)`, suns first; spots score 0 outside their cone and use
 `phi = 1.15 acos((1 - LightCone / 256)^2)`, `theta = 0.05 phi`. Only lights kept for run time
 (`bApplyToInGameLighting` or `bDynamicLight`) that are on take part (dynamic ones without the in-game flag were left
-out until AquaE's kiosk beside STriggerLight303 drew black), and own-zone lights only for actors in their zone. The
+out until AquaE's kiosk beside STriggerLight303 drew black), and only those the gather admits (below). The
 light type scales each chosen light's colour (as for the world lights); ranking uses LightBrightness alone. LE_QuadraticNonIncidence (20) uses the D3D attenuation
 `1 / (8 d^2 / R^2)` (with half the point gain, as the 2 of the point fit is not there); LE_PointAmbient (21) also
 adds its attenuated colour whatever the normal (its D3D ambient). LE_Cylinder and LE_NonIncidence stay plain points
 (not decoded). The set is chosen on the CPU and handed over as
 instance uniforms; the shader evaluates it per vertex. The spot shadow light and the night boost are added per pixel.
+
+Which lights may light an actor is the game's gather (game 0x10a37610, the editor's twin 0x111a7300 in
+UnRenderVisibility.cpp), which fills the actor's surface light list (+0xe8):
+
+- **Leaf light lists.** Static candidates come only from the light lists of the BSP leaves the actor touches
+  (actor+0x1c4, count +0x1c8): pass 0 walks each leaf's static run in UModel.Lights (Model+0xc8, from
+  FLeaf.iPermeating until a None entry), pass 1 a per-leaf runtime list (Level+0x238) of non-static and spawned
+  lights. Build makes the static runs: FEditorVisibility::ActorVisibility (editor 0x1101b050) floods each light from
+  its own leaf through the leaf portals within its radius, and TestLights (UnVisi.cpp, 0x1101dcb7) writes each leaf's
+  run. No static light is taken by distance alone, so a light behind a solid wall does not light the next room's
+  pawns. LE_ESpotShadow candidates come from the same lists (sent to 0x10a37310 / editor 0x111a7030).
+- **Suns** (LE_Sunlight, 19) are linked into every leaf of their own zone and no other (the cmp at 0x1101b126), so
+  their exemption from the radius test never reaches another zone, whatever their bAffectOwnZoneOnly. In the cooked
+  maps PolaD's Light13074 is in all 387 leaves of ZoneInfo231 and in none of the 60 of its 9 other zones; ClarD's
+  Light304 only in ZoneInfo406's 50 leaves, DeftD's Light506 in ZoneInfo252's 91, ShadD's Light2043 in ZoneInfo387's 71.
+- **The actor's skips** (0x10a37d86, for every light but LE_ESpotShadow): the light's and the actor's bSpecialLit
+  (bit 2 of +0x2e8) must agree, and the light must not be in the actor's IgnoredEchelonLights (+0x25c). The static
+  mesh vertex bake (UStaticMesh::Illuminate, editor 0x110e8190) makes the same two skips. 139 in-game or dynamic
+  lights of 24 maps are bSpecialLit (SteeE's Light1901 and Light1890, ClubD's Light7462 and Light14917), so they
+  light only bSpecialLit actors, never a pawn.
+- Then bAffectOwnZoneOnly (light+0x2e8 bit 0x200 against the zone byte at +0x1b4), the sphere test against the
+  light's radius (suns exempt), bUseDynamicLights for dynamic lights (byte +0x2e8 bit 7), and at most 256 candidates
+  (cmp 0x100 at 0x10a378b0 and 0x10a37b3c). 0x10a363d0 keeps min(8, MaxLights at +0x2e1) of them (0x10a3692b);
+  OpenSCCT keeps the default MaxLights 4.
+- Being a light depends on the actor's LightType, not its class: the cook's actor filter (0x10ee13b0, predicates
+  0x10edd1e0 and 0x10edacf0) tests LightType (+0x2d1) before the Brush test, and the cooked lists hold movers and
+  other gameplay actors with a light type (DeftD/S Mover2432, the LE_ESpotShadow projector riding lift B; DeftD/S
+  Mover4714 and Mover7201; KrauE/U Mover2178 and Mover2224; the Fact maps' SLiftDoor8464; the Orph maps' SLift2647
+  and SLift17315, also on ShadP, SkysD and SkysP; BankP's SFlag2629; BankD/P Mover3569). Such a light follows its
+  mover (`AttachedEffects`, `MapSpotLights`).
+
+OpenSCCT follows this with the converter's `render/leaflights.json` (`LeafLights`): each leaf's zone
+and light names, each world BSP node's back and front leaf (BSPN keeps no leaf numbers), and the lights no leaf lists
+(184 LightType 0 lights in the world, 25 non-static LightType 0 STriggerLights, 19 LightType 0 lights and 42 lit
+ones in LevelInfo0 outside the world: of 11,959 runtime lights, 11,917 are listed). The leaves an actor touches are
+those its bounding sphere reaches down the BSP. A static light with a light type that has not moved must be listed
+by one of them; non-static, moved and spawned lights keep the radius test (the runtime list). `ActorLighting`, the
+spy's shadow lights (`SpyShadowLighting`) and the bots' light field (`AiLightField`) apply the lists, the skips
+(`ActorLightRules.LightsActor`), the sun and own-zone rule (`ActorLightRules.ZoneAdmits`) and the cap. Placed mesh
+actors and gameplay objects pass their bSpecialLit and IgnoredEchelonLights (world.glb `specialLit` and
+`ignoredEchelonLights`, gameplay.json); pawns have neither. The zone is tested at the bounds' centre, where the
+original takes every leaf the actor touches. Spot shadow lights are not filtered by the lists here: their shadow
+maps keep them out of rooms behind walls. Without the file (maps converted before it) static lights are chosen
+by distance as before; the dynamic world lights (`WorldLights`) are not restricted by the lists. Measured at golden
+pose spots (a 60 uu sphere at the pawn, lists read from the cooked maps): SteeE's spy start (ZoneInfo392, one leaf)
+loses Light20444 and Light5297 of ZoneInfo1942 behind its wall (396 and 409 uu, R 400), its leaf listing neither;
+PolaD's spy start (ZoneInfo1365) loses the sun Light13074 of ZoneInfo231, and its shadow light candidates the static
+spot Light1910; PolaD's merc start keeps its four lights, all listed by its leaf, and its shadow light candidates lose
+the static spot Light17191 (796 uu, R 1275; its cone already kept it out of the light set); a ZoneInfo2046 spot by
+Light4199 loses the sun. A non-special actor under SteeE's Light1901 or ClubD's Light7462 no longer takes them; a
+bSpecialLit one still does.
+
 The first-person arms and gun currently select ordinary lights at the eye (a 64 uu sphere, no own-zone
-filter). This remains an approximation: the original gathers from the weapon's BSP leaves and actual bounds,
+filter; with the leaf lists, static lights listed by the leaves that sphere touches). This remains an approximation: the original gathers from the weapon's BSP leaves and actual bounds,
 then filters using the weapon's zone. There is no added viewmodel ambient floor. At the measured AquaE Blue Room
 pose (eye `7152, 1036, 272.50626`, yaw 16384, FOV 95), the original selects zero ordinary lights and has zero
 actor/zone ambient. Its rifle highlights come from the original material chain through the heat/EMF modifiers:
