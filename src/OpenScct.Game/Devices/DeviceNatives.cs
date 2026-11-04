@@ -12,8 +12,8 @@ namespace OpenScct.Game.Devices;
 
 /// <summary>
 /// Which gameplay-object mesh states a collider belongs to (the SVMap 1.1 <c>CSRC.variants</c> mask: bit 0 the
-/// initial StaticMesh, bit 1 TriggeredMesh, bit 2 + i DamagedMeshes[i]). The map binding provides it once the
-/// collision reader keeps that chunk.
+/// initial StaticMesh, bit 1 TriggeredMesh, bit 2 + i DamagedMeshes[i]). The collision world retains the chunk;
+/// an optional provider can override it for synthetic scenes.
 /// </summary>
 public interface IColliderVariants
 {
@@ -44,7 +44,7 @@ public sealed class DeviceNatives : IActorNatives
     /// <summary>The physics driver, or null when the level has no collision world.</summary>
     public PhysicsDriver? Driver { get; }
 
-    /// <summary>Collider mesh-state masks, or null (then every collider of a mesh actor stays on while it has a mesh).</summary>
+    /// <summary>Optional collider mesh-state overrides; null uses the collision world's CSRC masks.</summary>
     public IColliderVariants? Variants { get; set; }
 
     /// <summary>
@@ -107,12 +107,14 @@ public sealed class DeviceNatives : IActorNatives
         int bit = NewStaticMesh.IsNone ? -1 : VariantBit(Actor, NewStaticMesh);
         foreach (int ci in _colliders)
         {
+            ushort mask = Variants is not null && Variants.TryGetVariants(ci, out ushort supplied)
+                ? supplied : cw.GetColliderVariants(ci);
             bool on;
             if (bit < 0)
             {
                 on = false;
             }
-            else if (Variants is not null && Variants.TryGetVariants(ci, out ushort mask) && mask != 0)
+            else if (mask != 0)
             {
                 on = (mask & (1 << bit)) != 0;
             }

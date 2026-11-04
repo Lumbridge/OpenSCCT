@@ -20,7 +20,7 @@ public sealed class LauncherSwapAndSettingsTests
         File.WriteAllText(exe, "old");
         string download = dir.Combine("download.exe");
         File.WriteAllText(download, "new");
-        var swap = new LauncherSwap(exe);
+        var swap = new LauncherSwap(exe, LauncherPlatform.WindowsX64);
 
         swap.Stage(download);
         Assert.True(swap.HasStaged);
@@ -38,7 +38,7 @@ public sealed class LauncherSwapAndSettingsTests
     {
         using var dir = new TempDir();
         string exe = dir.Combine("OpenSCCT.Launcher.exe");
-        var swap = new LauncherSwap(exe);
+        var swap = new LauncherSwap(exe, LauncherPlatform.WindowsX64);
         File.WriteAllText(swap.NewPath, "new");
         File.WriteAllText(swap.OldPath, "old");
 

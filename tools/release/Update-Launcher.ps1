@@ -20,6 +20,9 @@
 
 .EXAMPLE
     tools\release\Update-Launcher.ps1 -Notes "- **Use downloads.** Step 1 has a button to stop using your game folder."
+.EXAMPLE
+    pwsh tools/release/Update-Launcher.ps1 -Platform linux-x64 -Notes "- Describe the Linux launcher change."
+    Ships the Linux executable, checksum and desktop archive. Run on Linux from the pushed release commit.
 #>
 #Requires -Version 7
 [CmdletBinding()]
@@ -32,6 +35,9 @@ param(
     [string]$Notes,
 
     [string]$Repo = 'Lumbridge/OpenSCCT',
+
+    [ValidateSet('win-x64', 'linux-x64')]
+    [string]$Platform = 'win-x64',
 
     # The release that holds every version's game files (ReleasePicker.StoreTag in the launcher).
     [string]$StoreTag = 'game-files'
@@ -51,25 +57,30 @@ if (-not $Tag) {
     if (-not $Tag) { throw 'No latest release found.' }
 }
 $release = & gh release view $Tag --repo $Repo --json assets,body | ConvertFrom-Json
-$current = $release.assets | Where-Object { $_.name -eq 'OpenSCCT.Launcher.exe' } | Select-Object -First 1
-if (-not $current) { throw "$Tag has no OpenSCCT.Launcher.exe." }
+$assetName = if ($Platform -eq 'linux-x64') { 'OpenSCCT.Launcher-linux-x64' } else { 'OpenSCCT.Launcher.exe' }
+$current = $release.assets | Where-Object { $_.name -eq $assetName } | Select-Object -First 1
+if (-not $current) { throw "$Tag has no $assetName. Add the platform with New-Release.ps1 first." }
 $label = 'OpenSCCT Launcher '
 if (-not $current.label.StartsWith($label)) { throw "The launcher of $Tag is labelled '$($current.label)', not '$label<version>'." }
 $released = $current.label.Substring($label.Length).Trim()
 
 . (Join-Path $PSScriptRoot 'LauncherBuild.ps1')
-$launcher = Resolve-LauncherExe -RepoRoot $repoRoot -Commit $commit -Repo $Repo
+$launcher = Resolve-LauncherExe -RepoRoot $repoRoot -Commit $commit -Repo $Repo -Platform $Platform
 if ([version]($launcher.Version -replace '-.*$', '') -le [version]($released -replace '-.*$', '')) {
     throw "Launcher $($launcher.Version) is not newer than the $released on $Tag. Bump LauncherVersion in Directory.Build.props."
 }
 
-$outDir = Join-Path $repoRoot "local\release\launcher-$($launcher.Version)"
+$outDir = Join-Path $repoRoot "local\release\launcher-$($launcher.Version)-$Platform"
 New-Item -ItemType Directory -Force -Path $outDir | Out-Null
 $asset = Join-Path $outDir $launcher.ExeName
 Copy-Item -LiteralPath $launcher.Exe -Destination $asset -Force
 $hash = (Get-FileHash -LiteralPath $asset -Algorithm SHA256).Hash.ToLowerInvariant()
 $sum = Join-Path $outDir "$($launcher.VersionedName).sha256"
 [System.IO.File]::WriteAllText($sum, "$hash  $($launcher.ExeName)`n")
+if ($Platform -eq 'linux-x64') {
+    & python3 (Join-Path $repoRoot 'tools/linux/package-launcher.py') $asset $outDir
+    if ($LASTEXITCODE -ne 0) { throw 'Packaging the Linux launcher archive failed.' }
+}
 
 Write-Host "Launcher $released -> $($launcher.Version) on $Tag (from $($commit.Substring(0, 7)))."
 & gh release upload $StoreTag $sum --repo $Repo --clobber
@@ -78,6 +89,10 @@ if ($LASTEXITCODE -ne 0) { throw "Uploading the checksum to $StoreTag failed." }
 if ($LASTEXITCODE -ne 0) { throw "Uploading the checksum to $Tag failed (the launcher has not been replaced)." }
 & gh release upload $Tag "$asset#$label$($launcher.Version)" --repo $Repo --clobber
 if ($LASTEXITCODE -ne 0) { throw "Replacing the launcher on $Tag failed." }
+if ($Platform -eq 'linux-x64') {
+    & gh release upload $Tag (Join-Path $outDir 'OpenSCCT.Launcher-linux-x64.tar.gz') (Join-Path $outDir 'OpenSCCT.Launcher-linux-x64.tar.gz.sha256') --repo $Repo --clobber
+    if ($LASTEXITCODE -ne 0) { throw 'Uploading the Linux launcher archive failed.' }
+}
 
 $body = ($release.body ?? '').TrimEnd()
 $section = "### Launcher $($launcher.Version)`n`n$($Notes.Trim())`n`nLauncher built from $($commit.Substring(0, 7))."
@@ -88,5 +103,5 @@ $notesFile = Join-Path $outDir 'notes.md'
 & gh release edit $Tag --repo $Repo --notes-file $notesFile | Out-Null
 if ($LASTEXITCODE -ne 0) { throw "Updating the notes of $Tag failed (the launcher is already replaced)." }
 
-$check = (& gh release view $Tag --repo $Repo --json assets --jq '.assets[] | select(.name == "OpenSCCT.Launcher.exe") | .label').Trim()
+$check = ((& gh release view $Tag --repo $Repo --json assets | ConvertFrom-Json).assets | Where-Object name -eq $assetName).label
 Write-Host "Done: $Tag now carries '$check'." -ForegroundColor Green

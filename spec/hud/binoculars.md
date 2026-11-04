@@ -19,7 +19,7 @@ spec/equipment/merc-scope.md; this spec is the HUD side: which page is drawn and
 
 | Field | Owner | Type | Notes |
 |---|---|---|---|
-| state s_Binoculars_Att / s_Binoculars_Def | SPlayerController | state | picks the page; s_Binoculars_Def_Reloading extends s_Binoculars_Def |
+| state s_Binoculars_Att / s_Binoculars_Def | SPlayerController | state | picks the page; the merc's reload child retains the controls but clears the binocular HUD state |
 | fBinocularVisionFOV | SPlayerController | float | zoom step 30, 20, 10 |
 | BinocularHoldBreathTime | SPlayerController | float | breath left, 0 to 5 s |
 | bHoldBreath | SPlayerController | byte (input) | the merc holds his breath |
@@ -36,8 +36,9 @@ spec/equipment/merc-scope.md; this spec is the HUD side: which page is drawn and
 Page choice:
 
 1. The page manager draws P_BinocularsATT instead of P_HudATT while the spy's controller is in `s_Binoculars_Att`,
-   and P_BinocularsDEF instead of P_HudDEF while the merc's is in `s_Binoculars_Def` (the reloading child state
-   included). The page object is made anew each time, so every visit starts as rule 2 says. The game stretches both
+   and P_BinocularsDEF instead of P_HudDEF while the merc's scope is raised in `s_Binoculars_Def`. Its reloading
+   child explicitly returns SHud to `None`, showing the ordinary HUD until the scope is raised again (rule 18).
+   The page object is made anew each time, so every visit starts as rule 2 says. The game stretches both
    pages over the whole screen, texts included (the inner frame of the spy page is 804 pixels wide at 1280 x 720).
 
 Both pages:

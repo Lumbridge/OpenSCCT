@@ -48,10 +48,10 @@ public sealed class ReleasePickerTests
             [Release("v0.2.0", false, false, "OpenSCCT-0.2.0-win-x64.zip", "OpenSCCT.Launcher-0.2.0-win-x64.exe", "checksums.txt", "source.zip")],
             false)!;
 
-        ReleaseAsset game = ReleasePicker.GameAsset(r)!;
+        ReleaseAsset game = ReleasePicker.GameAsset(r, LauncherPlatform.WindowsX64)!;
         Assert.Equal("OpenSCCT-0.2.0-win-x64.zip", game.Name);
-        Assert.Equal("OpenSCCT.Launcher-0.2.0-win-x64.exe", ReleasePicker.LauncherAsset(r)!.Name);
-        Assert.Equal("checksums.txt", ReleasePicker.ChecksumAsset(r, game)!.Name);
+        Assert.Equal("OpenSCCT.Launcher-0.2.0-win-x64.exe", ReleasePicker.LauncherAsset(r, LauncherPlatform.WindowsX64)!.Name);
+        Assert.Equal("checksums.txt", ReleasePicker.ChecksumAsset(r, game, LauncherPlatform.WindowsX64)!.Name);
     }
 
     [Fact]
@@ -60,13 +60,13 @@ public sealed class ReleasePickerTests
         VersionedRelease r = ReleasePicker.Latest(
             [Release("v0.2.0", false, false, "OpenSCCT-0.2.0-win-x64.zip", "checksums.txt", "OpenSCCT-0.2.0-win-x64.zip.sha256")],
             false)!;
-        Assert.Equal("OpenSCCT-0.2.0-win-x64.zip.sha256", ReleasePicker.ChecksumAsset(r, ReleasePicker.GameAsset(r)!)!.Name);
+        Assert.Equal("OpenSCCT-0.2.0-win-x64.zip.sha256", ReleasePicker.ChecksumAsset(r, ReleasePicker.GameAsset(r, LauncherPlatform.WindowsX64)!, LauncherPlatform.WindowsX64)!.Name);
     }
 
     [Fact]
     public void LauncherExeIsNeverTakenForTheGame()
     {
         VersionedRelease r = ReleasePicker.Latest([Release("v0.2.0", false, false, "OpenSCCT.Launcher-0.2.0-win-x64.exe")], false)!;
-        Assert.Null(ReleasePicker.GameAsset(r));
+        Assert.Null(ReleasePicker.GameAsset(r, LauncherPlatform.WindowsX64));
     }
 }

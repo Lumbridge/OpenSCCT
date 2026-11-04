@@ -777,8 +777,10 @@ public sealed class HudSimReader : IHudSource
         {
             b.Mode = HudBinocularMode.Spy;
         }
-        else if (s.Side == HudSide.Merc && pc.IsInState(NAME_s_Binoculars_Def))
+        else if (s.Side == HudSide.Merc && pc.GetStateName() == NAME_s_Binoculars_Def)
         {
+            // The reload child keeps the scoped controls but explicitly clears SHud's binocular state.
+            // Only the actual scope state shows the optics after the rifle's raise has finished.
             // Entering the controller state starts the raise; the scope page
             // appears only when that animation hands over to the zoomed view.
             if (pawn.MyWeapon is SWeaponDefense rifle &&

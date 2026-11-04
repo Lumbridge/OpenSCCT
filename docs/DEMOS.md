@@ -8,6 +8,10 @@ They store game data rather than video, so playback needs a compatible game buil
 **To watch:** open **Demos → On this computer** from the main menu. **Recent online** lists recordings
 available to signed-in players. Use **Watch** to play or **Keep** to save a permanent local copy.
 
+**Match history** combines permanent local and account scoreboards, including games without recordings.
+Open **View scoreboard** for role-specific statistics. Replay expiry/deletion does not remove a scoreboard;
+see [Scoreboards and match history](SCOREBOARD.md).
+
 This page covers [saving matches](#saving-your-own-matches), [playback and controls](#watching-game),
 [server recording](#recording-server) and [the file format](#file-format-scctdemo).
 Optional analysis exports are described under [Training data companions](#training-data-companions).
@@ -190,16 +194,17 @@ length.
 | Part | Contents |
 | --- | --- |
 | Magic and version | `SCCTDEMO`, format version (u16) |
-| Header | game version, protocol hash, map content hash, map, game options, server name, start time (Unix ms), tick rate, net rate |
+| Header | game version, protocol hash, map content hash, map, game options, server name, start time (Unix ms), tick rate, net rate; version 3 appends the round UUID |
 | Body | a Brotli stream of frames: `varint tickDelta, varint length, packet bytes` |
 | Recorded views (version 2) | optional second Brotli stream; fixed 61-byte frames with tick, player/pawn identity, camera position/rotation/FOV, aim rotation, breath, accuracy and spy-first-person flag |
-| Index | first tick, last tick, packet count, raw bytes, players (id, name, team), markers (tick, kind, text); version 2 appends recorded-view count (i32) and compressed-view bytes (i64) |
+| Index | first tick, last tick, packet count, raw bytes, players (id, name, team), markers (tick, kind, text); version 2 appends recorded-view count (i32) and compressed-view bytes (i64); version 3 appends a bounded length-prefixed JSON scoreboard (zero length if absent) |
 | Trailer | index length (i64), `SCCTDEND` |
 
 The index is written when the recording finishes. A file without it (the server stopped mid-round) is refused as
 "cut short".
 
-Current writers use container version 2; readers also accept version 1. Network packets and their protocol hash
+Current writers use container version 3; readers also accept versions 1 and 2. Scoreboards can be read directly
+from the index and must match the header's round identity. Network packets and their protocol hash
 are unchanged by the view extension. While recording, the server requests rendered views with `#demo-view 1`
 and stops them with `#demo-view 0`. Updated rendering clients submit at most ten samples a second; the server
 associates each with the submitting connection's current player and pawn, stamps its receive tick, validates finite

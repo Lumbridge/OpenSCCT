@@ -231,7 +231,7 @@ public sealed class InGameMenuSmoke : SmokeTest
 
                 Expect(MenuVisible(root), "Escape in the menu's first half second closed it (the original ignores keys for 0.5 s)");
                 Shot(context, "menu-open");
-                _scoreboardBefore = Scoreboard(session);
+                _scoreboardBefore = Scoreboard();
                 Tap(_playersKey);
                 Begin(6);
                 return null;
@@ -241,7 +241,7 @@ public sealed class InGameMenuSmoke : SmokeTest
                     return null;
                 }
 
-                Expect(Scoreboard(session) == _scoreboardBefore, $"{_playersKey} reached the HUD while the menu was open");
+                Expect(Scoreboard() == _scoreboardBefore, $"{_playersKey} reached the HUD while the menu was open");
                 Expect(Speed(pawn) < StopSpeed, $"the pawn still moves with the menu open ({Speed(pawn):F0} uu/s)");
                 long ticks = root.Stats.Ticks - _ticksAtOpen;
                 float seconds = session!.Client.World.Level.Info.TimeSeconds - _timeAtOpen;
@@ -278,7 +278,7 @@ public sealed class InGameMenuSmoke : SmokeTest
 
                 KeyEvent(_upKey, false);
                 Expect(_maxSpeed > WalkSpeed, $"{_upKey} did not move the pawn after the menu closed (max {_maxSpeed:F0} uu/s)");
-                _scoreboardBefore = Scoreboard(session);
+                _scoreboardBefore = Scoreboard();
                 Tap(_playersKey);
                 Begin(9);
                 return null;
@@ -288,7 +288,7 @@ public sealed class InGameMenuSmoke : SmokeTest
                     return null;
                 }
 
-                Expect(Scoreboard(session) != _scoreboardBefore, $"{_playersKey} (ShowConnectedPlayers) did not toggle the connected players list");
+                Expect(Scoreboard() != _scoreboardBefore, $"{_playersKey} (ShowConnectedPlayers) did not toggle the scoreboard");
                 Shot(context, "scoreboard");
                 Tap(_playersKey);
                 Begin(10);
@@ -299,7 +299,7 @@ public sealed class InGameMenuSmoke : SmokeTest
                     return null;
                 }
 
-                Expect(Scoreboard(session) == _scoreboardBefore, $"{_playersKey} did not toggle the list back");
+                Expect(Scoreboard() == _scoreboardBefore, $"{_playersKey} did not toggle the scoreboard back");
                 Tap(_menuKey);
                 Begin(11);
                 return null;
@@ -409,7 +409,7 @@ public sealed class InGameMenuSmoke : SmokeTest
 
     private static float Speed(SBasePawn? pawn) => pawn is null ? 0f : MathF.Sqrt((pawn.Velocity.X * pawn.Velocity.X) + (pawn.Velocity.Y * pawn.Velocity.Y));
 
-    private static bool Scoreboard(PlaySession? session) => session?.LocalController?.myHUD is SHud hud && hud.bShowConnectedPlayers;
+    private bool Scoreboard() => _root?.Menu?.Hud?.Scoreboard?.IsOpen == true;
 
     private static bool MenuVisible(Node root)
     {

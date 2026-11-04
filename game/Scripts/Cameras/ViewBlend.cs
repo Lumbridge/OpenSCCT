@@ -54,8 +54,9 @@ public static class ViewBlend
 /// turns come from the same formulas the next tick will run, so when the tick takes the counts the drawn rotation
 /// does not move. Any other rotation change (a kick, a state's own view code) is still drawn between ticks.
 /// <para>Whether the plain model holds is checked after every tick that took mouse counts: the turn the tick made
-/// must equal the predicted one exactly. Otherwise (the scope's chasing view, the limited views of the traversal
-/// states, a cam at its limit) nothing is added and the view is drawn between ticks as before. Back-to-wall uses
+/// must equal the predicted one exactly. The merc scope explicitly opts out because it chases the aim point;
+/// an occasional matching integer turn cannot establish the plain mouse model. Otherwise (the limited views of
+/// traversal states, a cam at its limit) nothing is added and the view is drawn between ticks as before. Back-to-wall uses
 /// the controller's limited rotation calculation so pending mouse input respects the wall and corner windows.
 /// Automatic recentering into a new corner window is interpolated until it finishes.</para>
 /// </summary>
@@ -115,7 +116,7 @@ public sealed class LookAhead
         bool cam = pc is not null && !OwnView(pc, view) && CamView(pc, view);
         bool lagging = cam && view.Rotation != pc!.Rotation;
         _follow = pc is not null && FollowView(pc, view);
-        if (pc is null || RollLocksView(pc) || _recenteringBefore || BtwRecentering(pc)
+        if (pc is null || ScopeOwnsView(pc) || RollLocksView(pc) || _recenteringBefore || BtwRecentering(pc)
             || !(cam || _follow || OwnView(pc, view)))
         {
             Active = false;
@@ -158,7 +159,7 @@ public sealed class LookAhead
     public FRotator Offset(SPlayerController? pc, MouseLook mouse, float pendingX, float pendingY, float alpha)
     {
         ArgumentNullException.ThrowIfNull(mouse);
-        if (!Active || pc is null || RollLocksView(pc) || BtwRecentering(pc))
+        if (!Active || pc is null || ScopeOwnsView(pc) || RollLocksView(pc) || BtwRecentering(pc))
         {
             Pending = default;
             return default;
@@ -188,6 +189,11 @@ public sealed class LookAhead
     // so entering a roll or disabling free look cannot leave a pending render-only turn that snaps back next tick.
     private static bool RollLocksView(SPlayerController pc) =>
         pc.StateNode is SPlayerController.s_PlayerRolling && !pc.SpyRollFreeLook;
+
+    // ScopeUpdateRotation chases MyDesiredRotation and adds breath/kick before committing the view. Drawing the
+    // plain mouse turn ahead bypasses that lag and snaps back next tick. Reject it even when no counts arrive on
+    // entry or the rounded scope turn happens to match the plain model for one tick.
+    private static bool ScopeOwnsView(SPlayerController pc) => pc.StateNode is SPlayerController.s_Binoculars_Def;
 
     // Recentring is automatic motion per tick. Predicting it for even one pending mouse count would add an
     // entire recenter step to a partial frame and make the view jump as input starts and stops.

@@ -78,9 +78,9 @@ Clip: FirstSnipStBg2 7 frames at 15 fps played at rate 1.6 on channel 6 = 0.292 
 3. **Raise.** Weapon `s_Sniping` plays FirstSnipStBg2 at rate 1.6 on channel 6 (0.292 s). At its AnimEnd the weapon
    calls `WeaponNotifiedSnipingDrawEnded` (HUD state `s_H_Binoculars_Def`, `SetFOV(fBinocularVisionFOV)`) and hides
    the view model (`bDrawWeapon = false`).
-4. **Zoom animation** (PlayerMove, every tick): if `bChangeZoom`, `fBinocularZoomEffectTime = 0.4 + dt` and clear the
+4. **Zoom animation** (PlayerMove, every tick, after rotation and recoil): if `bChangeZoom`, `fBinocularZoomEffectTime = 0.4 + dt` and clear the
    flag. While the time is positive subtract dt; once below 0.15 s set
-   `FOV = target + (previous - target) * time * 5`, and when it drops below 0 set `FOV = target`. So the FOV holds
+   `FOV = target + (previous - target) * time * 5`, and when it drops below 0 clear the timer and set `FOV = target`. So the FOV holds
    for 0.25 s, jumps to `target + 0.75 * (previous - target)` and reaches the target linearly at 0.4 s.
 5. **Zoom levels.** ZoomIn (PageUp, or mouse wheel up inside the scope whatever the mouse setting): 30 -> 20 (audio
    0.66), 20 -> 10 (audio 1.0), with Snd_ZoomIn. ZoomOut (PageDown, wheel down): 10 -> 20 (0.66), 20 -> 30 (0.33),
@@ -99,8 +99,8 @@ Clip: FirstSnipStBg2 7 frames at 15 fps played at rate 1.6 on channel 6 = 0.292 
       - first tick: `bJustWasHoldBreath = true`, `BinocularBreathUp = true`, phase `0.2 pi`, `FactorUp = sin(phase) amp`,
         `FactorRight = +-cos(phase) * 4` (minus when BreathRight), subtract `int(FactorUp)` from View and Des pitch,
         `bBinocularWaitForEndInspire = true`, play the inspire sound;
-      - while waiting for the end of the inspire: `phase += 0.8 pi dt`; at `phase >= 0.5 pi` stop waiting, else the
-        same factor formulas;
+      - while waiting for the end of the inspire (including that first tick): `phase += 0.8 pi dt`; at
+        `phase >= 0.5 pi` stop waiting, else the same factor formulas;
       - steady hold: `reserve -= dt`; at `reserve <= 0` set `BinocularCannotBlockTime = 3`; factors 0; the aim
         input of Rule 6 is applied a second time (`Des.Pitch += int(vAcc k)`, `Des.Yaw += int(hAcc)`), so the aim
         moves twice as fast while the breath is held. OpenSCCT drops the second application (aim at the normal
@@ -109,19 +109,23 @@ Clip: FirstSnipStBg2 7 frames at 15 fps played at rate 1.6 on channel 6 = 0.292 
       - on the first tick after a hold: clear the flag; if lockout is not 3 set it to 1 s; add
         `int(FactorRight - pi/2)` to both yaws and `int(FactorUp - pi/2)` to both pitches (factors are 0 here, so
         both add -1); `phase = 0.5 pi`, `BreathUp = false`, strong breath sound;
-      - reserve below 5 (recovering): `gap = 5 / FClamp(reserve, 2, 5) - 1` (0 to 1.5); phase sweeps at `0.8 pi` rad/s
-        between `-pi/2` and `+pi/2` (strong breath sound at the top); `FactorUp = sin(phase) * (amp - K * gap)` with
+      - reserve below 5 (recovering, including the release tick): `gap = 5 / FClamp(reserve, 2, 5) - 1` (0 to 1.5);
+        phase sweeps at `0.8 pi` rad/s, reversing after crossing `-pi/2` or `+pi/2` without clamping the phase
+        (strong breath sound only at the top, which also clears the inspire wait);
+        `FactorUp = sin(phase) * (amp - K * gap)` with
         `K = 140 / 100 / 50` for FOV 30 / 20 / 10; `FactorRight = cos(phase) * 4`; `reserve += dt` up to 5;
         lockout `-= dt`, floored at 0;
       - reserve full: lockout `-= dt`; only if `|fTurnValue| < 30` and `|fLookUpValue| < 30` the phase sweeps as
         above with `BreathRight` re-rolled at each end (`int(RandRange(0, 20)) > 10`), normal breath sound at the
-        bottom, `FactorUp = sin(phase) amp`, `FactorRight = +-cos(phase) * 4`; otherwise factors 0.
+        bottom and the inspire wait cleared at the top, `FactorUp = sin(phase) amp`,
+        `FactorRight = +-cos(phase) * 4`; otherwise factors 0.
    3. `View.Yaw += int(FactorRight)`, `View.Pitch += int(FactorUp)`. The factors are per-tick increments, so the
       sway speed depends on the tick rate (60 Hz in the rewrite).
 8. **Kick.** Fire sets `bBinocularKick`; the next update sets `fBinocularKickTime = 0.4`. While positive: subtract
    dt (floor 0); `q = 0.5 * fSensibiliteSouris * dt * 50`. If `time > 0.24`: `kick = (0.4 - time) * 100 * q` and,
    when the zoom animation is finished, `FOV = target + (0.4 - time) * 20 * 0.6 * q`. Else `kick = -time * 100 * 0.4 * q`
-   and `FOV = target + time * 20 * 0.4 * q`. Add `int(kick)` to View and Des pitch.
+   and, also only when the zoom animation is finished, `FOV = target + time * 20 * 0.4 * q`.
+   Add `int(kick)` to View and Des pitch.
    Reloaded (`rl:fix.sniper_kick`) gives every player the same kick: the port uses the profile's default
    sensitivity (4, MouseSensitivity 40) in `q` instead of the player's (the value Reloaded uses is not decoded).
 9. **Commit.** If not steadily holding (`bHoldBreath == 0`, reserve <= 0, lockout > 0, or still inspiring): wrap View
@@ -131,8 +135,10 @@ Clip: FirstSnipStBg2 7 frames at 15 fps played at rate 1.6 on channel 6 = 0.292 
    `LocalMyDesiredRotation = Des`.
 10. **Moving while scoped** (PlayerMove): jump disabled; crouch allowed (own `ProcessCrouch`, 0.5 s guard: the stance changes inside the scope with SA_WAIT_CR2ST_2H or SA_WAIT_ST2CR_2H, and a blocked stand-up turns the latch back on); input
     curve standing `t = (-0.05 a/6000 + 0.15) a/6000 + 0.9`, crouched `t = (-0.02468 a/6000 + 0.05065) a/6000 + 0.3117`
-    with `a = aForward`, both axes times `t`, then times 0.2; `GroundSpeed = RunningSpeed * |accel| / 3000`, zeroed
-    below 15 uu/s crouched or 40 uu/s standing. Movement rules are owned by the locomotion spec.
+    with `a = aForward`, both axes times `t`, then requests truncated after multiplication by 0.2 (without the
+    ordinary walking request's extra 0.5); `GroundSpeed = RunningSpeed * |accel| / 3000`, zeroed
+    below 15 uu/s crouched or 40 uu/s standing, also clearing the acceleration below that threshold.
+    `BinocularNoiseDuration` counts down once per move. Movement rules are owned by the locomotion spec.
 11. **Fire** (exec in the state): if `ClipAmmo == 0 && Ammo > 0 && !bPerturbation`, `ResetFOV()` and go to
     `s_Binoculars_Def_Reloading`. Else if `BinocularTimeBetweenFire <= 0` and weapon channel 6 is not animating:
     `DiscardPickup()`; if `Ammo > 0`: `bBinocularKick = true`, `MyWeapon.Fire(F)`, `BinocularTimeBetweenFire = 0.5`
@@ -143,10 +149,14 @@ Clip: FirstSnipStBg2 7 frames at 15 fps played at rate 1.6 on channel 6 = 0.292 
     victim: PillTag 1 -> damage = current Health (always lethal); PillTag 2..15 ->
     `int(17 * table[PillTag - 1] / 100)`: spy 51 on pills 2 and 9, 25 elsewhere.
 13. **Reload inside the scope**: from PlayerTick, `(bReload or bROF pressed) && Ammo > 0 && ClipAmmo < ClipMaxAmmo
-    && !bPerturbation && in s_Binoculars_Def` -> `ResetFOV()`, `ChangeState('s_Binoculars_Def_Reloading')`. That state
+    && !bPerturbation && in s_Binoculars_Def` -> `ResetFOV()`, `ChangeState('s_Binoculars_Def_Reloading')`, then return
+    without running movement in the new state that tick. The reload state extends `s_Binoculars_Def`; it
     sets `bBinocularVision = true`, puts the HUD in its default state and calls `MyWeapon.Reload()` on the client;
-    each tick it resets the FOV and, once the weapon has left `s_Reloading` and the merc is not shocked, sets
-    `PreviousState` and returns to `s_Binoculars_Def` (full BeginState again). Fire, ROF and zoom are ignored there.
+    each tick, once the weapon has left `s_Reloading` and the merc is not shocked, it sets
+    `PreviousState` and returns to `s_Binoculars_Def` (full BeginState again). It then runs the inherited PlayerTick
+    and resets FOV, including on the completion tick. Thus the default FOV wins over any remaining zoom or kick
+    during reload. Scoped aiming, crouching, vulnerability and EndState cleanup are inherited; Fire, ROF and zoom
+    are ignored there. The HUD shows the scope only in the exact active scope state, after its raise animation.
 14. **SwitchROF** in the scope calls `ROF_Single(false)` (no change). AltFire, ChangeSpeed, GadLaserSwitch and
     GadTorcheSwitch are ignored; `CheckQuickInventory` does nothing.
 15. **Leaving.** In PlayerMove, when `bBinocularVision` is false: on the owning client play SA_WALK_CR_2H when
@@ -235,6 +245,18 @@ stateDiagram-v2
 - Confirm that a remote client's scope stays open when shot on a dedicated server (trace: shoot a scoped remote merc
   with the rifle and watch his `bBinocularVision` and FOV).
 
-## OpenSCCT scoped reload movement
+## OpenSCCT presentation and reload
 
-Scoped reloads retain the scope's slow walking controls and jump restriction. Firing and zoom remain blocked until the reload completes.
+Scoped views use the camera and aim point interpolated from the same simulation ticks. Ordinary mouse look-ahead
+is disabled throughout scope and reload: its direct turn prediction cannot represent the scope's chasing view,
+even when integer rounding happens to produce a matching turn. A scratch diagnostic on 2026-11-04 reproduced
+the old prediction surviving a no-input scope entry and reactivating on a coincidental match; both injected
+render-only yaw which disappeared on the next simulation tick. See [rendering](../../docs/RENDERING.md).
+
+Scoped reloads retain the scope's slow walking controls, aiming, crouch support and jump restriction. Firing and
+zoom remain blocked until the reload completes. The state parent is decoded from the package; the decompiler
+index emitter must keep the state's parent separate from the parent function examined for an `ignores` entry.
+
+The 2026-11-04 sweep compared decoded scope, weapon and HUD rules and reproduced the render prediction fault.
+It does not establish visual parity under live network correction or at every original frame rate; original
+per-frame sway and the exact Reloaded recoil magnitude still need measurement.
