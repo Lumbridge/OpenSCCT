@@ -46,8 +46,10 @@ Win targets by team size, one entry per mission at most.
 
 ## Validation
 
-The validator checks the format id, ranges, key bounds, that every `actor` exists in `sim/gameplay.json` and every
-`mission` is an `SMission` (its class or a subclass in `sim/classes.json`). The file holds no derived summary: what a
+Schema: [schemas/match.schema.json](schemas/match.schema.json) (the format id, ranges, key bounds, states and 12 team
+sizes). The validator also checks that min is not above max, every `actor` exists in `sim/gameplay.json` and has one
+rule, key states name movers, no rule names a conveyor, and every `mission` is an `SMission` (its class or a subclass
+in `sim/classes.json`). The file holds no derived summary: what a
 given count plays is computed by the one implementation (`OpenScct.Core.Match.MatchLayout`), which the server and the
 editor share.
 

@@ -36,6 +36,10 @@ differs from the class defaults, typed as in 1.1. Example:
 - A conveyor takes no player-count rule (`sim/match.json`): its built look and riding surface are world geometry, so a
   rule could not take it out of a round. Gate what switches it instead ([match.md](match.md)).
 
+The gameplay schema ([schemas/gameplay.schema.json](schemas/gameplay.schema.json), `conveyorProps`) types these props on
+any actor of class `Svm.Conveyor`; its other props are typed as for any actor. Conveyors make the map 1.2: the
+validator rejects them in a map that declares 1.1.
+
 ## `sim/classes.json`
 
 The table need not list `Svm.Conveyor`. A reader that finds no entry for it uses the class's own defaults (the props

@@ -45,9 +45,10 @@ Each team (`spy`, `merc`) is optional; a team without an entry wears the stock l
   light colour and gun skins still apply), `"player"` (the player's body cosmetics where the outfit allows them) or
   `"none"` (no player cosmetics at all on this team: retail lights and guns too).
 
-Every file named here is a file of the map (listed in `manifest.json` like the rest of `render/`). The validator
-checks the format id, the slot and policy names, that each texture and glb exists under `render/`, and that a model
-has exactly one of `glb` and `stock`.
+Every file named here is a file of the map (listed in `manifest.json` like the rest of `render/`). Schema:
+[schemas/outfits.schema.json](schemas/outfits.schema.json) (the format id, team, slot and policy names, relative
+paths without `..`, and exactly one of `glb` and `stock`). The validator also checks that each texture and glb exists
+under `render/`.
 
 ## Converted maps
 

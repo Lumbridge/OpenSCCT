@@ -8,8 +8,8 @@ count; a reader without `Svm.Conveyor` keeps conveyors as unported actors. A hos
 reads 1.2 (the map's sim hash covers `sim/match.json` and the conveyor actors, so clients and server agree on them).
 
 - Maps that use something new in 1.2 are 1.2: `formatVersion` `1.2.x`; schemas in `spec/svmap/1.2/schemas` with
-  `$id`s under `https://svmap.invalid/1.2/` (the 1.1 schemas with the new version, plus `ui/identity.json` and
-  `ui/text/<lang>.json`). Other maps stay 1.1. `conventions.md` and `collision.md` are unchanged and stay in
+  `$id`s under `https://svmap.invalid/1.2/` (the 1.1 schemas with the new version and `Svm.Conveyor`'s props, plus
+  `sim/match.json`, `render/outfits.json`, `ui/identity.json` and `ui/text/<lang>.json`). Other maps stay 1.1. `conventions.md` and `collision.md` are unchanged and stay in
   `spec/svmap/1.1/`.
 - New optional `ui/identity.json` (`svm.identity/1`): name, family and variant, description, dossier, authors,
   version, language, recommended players, tags, numbered places and the list of pictures, with the order readers
