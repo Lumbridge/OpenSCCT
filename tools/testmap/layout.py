@@ -104,7 +104,7 @@ class Zone:
     name: str
     lo: Vec3
     hi: Vec3
-    ambient: int                 # AmbientBrightness (0..255), hue 0 saturation 255
+    ambient: int                 # AmbientBrightness (0..255); its colour is FGetHSV(0, 255, it), not linear in it
     marker: Vec3                 # where the ZoneInfo actor stands
 
 
@@ -388,9 +388,10 @@ station("Water", "water", "Shallow water pool 16 deep", (7424, 5120, -16), 0, lo
         surface=18)
 
 # ---- Zones and lights -------------------------------------------------------------------------------------------
-# Zone 1 is the room (looked up first by bounds in the SVMap form), zone 2 the hall.
+# Zone 1 is the room (looked up first by bounds in the SVMap form), zone 2 the hall. The hall's AmbientBrightness 2 is
+# grey 17 (FGetHSV(0, 255, 2)).
 ZONES = [Zone("ZoneRoom", "Gradient Room", ROOM_LO, ROOM_HI, 0, (512.0, 1792.0, 300.0)),
-         Zone("ZoneHall", "Hall", (HALL_LO[0], HALL_LO[1], -16.0), HALL_HI, 16, (4096.0, 3072.0, 900.0))]
+         Zone("ZoneHall", "Hall", (HALL_LO[0], HALL_LO[1], -16.0), HALL_HI, 2, (4096.0, 3072.0, 900.0))]
 for i in range(8):
     for j in range(6):
         LIGHTS.append(Light(f"HallLight{i}{j}", (512.0 + 1024 * i, 512.0 + 1024 * j, 768.0), 128.0, 64.0, "ZoneHall"))

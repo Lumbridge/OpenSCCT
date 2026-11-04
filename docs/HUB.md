@@ -97,7 +97,8 @@ the game or from Ubisoft, and no third-party art is used. The folder is about 3.
 
 - **Hall**: the walls are a painted skyline (towers with lit windows, red aircraft lights) above a parapet with a
   green neon line; the ceiling is a starry sky (both fullbright); the floor is dark roof concrete. A sparse cool fill
-  light, zone ambient 34 and a light distance fog (navy, 3000 to 19000 uu).
+  light, zone ambient grey 30 (AmbientBrightness 6: the original's FGetHSV, editor 0x11096ab0, is not linear in
+  brightness) and a light distance fog (navy, 3000 to 19000 uu).
 - **Plaza** (spawn): granite pavers with the OpenSCCT ring inlaid round the fountain (water in the basin, neon on its
   lip and up the column), a four-sided "OPENSCCT HUB" sign hung over the lookout, four neon pylons (green west, amber
   east), eight benches, a SPIES banner on the west side and a MERCS banner on the east, and floor arrows to every area.

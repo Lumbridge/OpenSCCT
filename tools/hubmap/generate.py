@@ -155,7 +155,7 @@ MAP_LIGHTS = [li for li in L.LIGHTS if li.kit is None]
 
 def light_at(p: Vec3, n: Vec3, kit=None) -> tuple[float, float, float]:
     """Zone ambient plus every map light (and a theme kit's own lights), the actor lighting model as TestRange bakes it."""
-    a = L.ZONE_AMBIENT / 255.0
+    a = T.zone_ambient(L.ZONE_AMBIENT)[0] / 255.0
     total = [a, a, a]
     for li in L.LIGHTS:
         if li.kit is not None and li.kit != kit:
@@ -360,9 +360,8 @@ def build_lighting() -> dict:
             "radius": float(li.radius), "rotation": [0, 0, 0], "saturation": li.saturation, "scale": [1.0, 1.0, 1.0],
             "spot_height": 0.0, "spot_width": 0.0, "tag": "Light", "triggered": False, "zone": "ZoneHall"})
     marker = next(a for a in L.ACTORS if a.id == "ZoneHall").location
-    a = int(round(L.ZONE_AMBIENT * T.WHITE))
     fog = L.FOG
-    zones = [{"ambient": [a, a, a, 255], "class": "ZoneInfo", "fog": True, "fog_color": list(fog["color"]) + [255],
+    zones = [{"ambient": T.zone_ambient(L.ZONE_AMBIENT), "class": "ZoneInfo", "fog": True, "fog_color": list(fog["color"]) + [255],
               "fog_end": fog["end"], "fog_start": fog["start"], "hidden": True, "kind": "zone", "location": list(marker),
               "location_name": "Hub", "name": "ZoneHall",
               "props": {"AmbientBrightness": L.ZONE_AMBIENT, "Location": T._f(marker), "LocationName": "Hub",

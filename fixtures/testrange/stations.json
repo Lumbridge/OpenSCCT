@@ -582,7 +582,7 @@
    "name": "Gradient Room"
   },
   {
-   "ambient": 16,
+   "ambient": 2,
    "hi": [8192.0, 6144.0, 1024.0],
    "id": "ZoneHall",
    "lo": [0.0, 0.0, -16.0],
