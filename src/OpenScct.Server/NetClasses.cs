@@ -76,6 +76,7 @@ public static class NetClasses
         conveyor.Properties.Add(new RepExtensionProperty(nameof(Conveyor.Speed), nameof(Conveyor.Speed), RepLeafKind.Float));
         conveyor.Properties.Add(new RepExtensionProperty(nameof(Conveyor.PhaseAtChange), nameof(Conveyor.PhaseAtChange), RepLeafKind.Float));
         conveyor.Properties.Add(new RepExtensionProperty(nameof(Conveyor.ChangeTick), nameof(Conveyor.ChangeTick), RepLeafKind.Int));
+        conveyor.Properties.Add(new RepExtensionProperty(nameof(Conveyor.SpeedBeforeChange), nameof(Conveyor.SpeedBeforeChange), RepLeafKind.Float));
         return conveyor;
     }
 }

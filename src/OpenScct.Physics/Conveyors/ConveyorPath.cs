@@ -119,10 +119,24 @@ public sealed class ConveyorPath
     /// limits how far to the side it may be; an open path also ends square at its two end points. False when the
     /// point is off the path.
     /// </summary>
-    public bool Project(FVector point, float halfWidth, out ConveyorProjection projection)
+    public bool Project(FVector point, float halfWidth, out ConveyorProjection projection) =>
+        Project(point, halfWidth, float.MaxValue, float.MaxValue, 0f, out projection);
+
+    /// <summary>
+    /// As <see cref="Project(FVector, float, out ConveyorProjection)"/>, counting only places where the point is at most
+    /// <paramref name="under"/> below the surface and at most <paramref name="over"/> plus <paramref name="liftPerSlope"/>
+    /// times the slope (climb per flat uu) above it. A path that passes over itself, or a conveyor on the floor above,
+    /// then finds the level the point is on.
+    /// </summary>
+    /// <remarks>
+    /// Past a sharp corner, on its outside, the run that ends there and the run that starts there both clamp to the
+    /// corner point at the same distance. The run that starts there wins, so a body in that pocket turns the corner
+    /// instead of being pushed on into the outer wall.
+    /// </remarks>
+    public bool Project(FVector point, float halfWidth, float under, float over, float liftPerSlope, out ConveyorProjection projection)
     {
         projection = default;
-        bool found = false;
+        bool found = false, foundPastEnd = false;
         float along = 0f;
         for (int i = 0; i < _pieces.Length; i++)
         {
@@ -130,16 +144,35 @@ public sealed class ConveyorPath
             bool openStart = !IsLoop && i == 0;
             bool openEnd = !IsLoop && i == _pieces.Length - 1;
             if (piece.Project(point, openStart, openEnd, out float s, out float lateral, out float distance, out FVector surface,
-                    out FVector tangent) && distance <= halfWidth && (!found || distance < projection.Distance))
+                    out FVector tangent, out bool pastEnd) && distance <= halfWidth && InBand(point, surface, tangent, under, over, liftPerSlope) &&
+                (!found || distance < projection.Distance - TieDistance ||
+                 (distance <= projection.Distance + TieDistance && foundPastEnd && !pastEnd)))
             {
                 projection = new ConveyorProjection(along + s, lateral, distance, surface, tangent);
                 found = true;
+                foundPastEnd = pastEnd;
             }
 
             along += piece.Length;
         }
 
         return found;
+    }
+
+    // Distances this close are a tie (float rounding of the shared corner point).
+    private const float TieDistance = 0.01f;
+
+    private static bool InBand(FVector point, FVector surface, FVector tangent, float under, float over, float liftPerSlope)
+    {
+        float height = point.Z - surface.Z;
+        if (height < -under)
+        {
+            return false;
+        }
+
+        float flat = SvmMath.Sqrt(tangent.X * tangent.X + tangent.Y * tangent.Y);
+        float slope = flat > 0f ? SvmMath.Abs(tangent.Z) / flat : 0f;
+        return height <= over + liftPerSlope * slope;
     }
 
     /// <summary>
@@ -273,8 +306,9 @@ public sealed class ConveyorPath
             return new Piece(true, start, end, length, centre, radius, sweep, startAngle, flat);
         }
 
+        /// <param name="pastEnd">The nearest place was clamped to the piece's end: the point lies beyond it.</param>
         public bool Project(FVector p, bool openStart, bool openEnd, out float along, out float lateral, out float distance,
-            out FVector surface, out FVector tangent)
+            out FVector surface, out FVector tangent, out bool pastEnd)
         {
             float u;
             FVector flatTangent;
@@ -287,9 +321,11 @@ public sealed class ConveyorPath
                 {
                     along = lateral = distance = 0f;
                     surface = tangent = default;
+                    pastEnd = false;
                     return false;
                 }
 
+                pastEnd = raw > 1f;
                 u = SvmMath.Clamp(raw, 0f, 1f);
                 flatTangent = d * (1f / SvmMath.Sqrt(lenSq));
                 surface = Start + (End - Start) * u;
@@ -301,6 +337,7 @@ public sealed class ConveyorPath
                 // Angle from the arc's start in its own turning direction, in (-pi, pi] around the arc's middle.
                 float rel = (angle - _startAngle) * (Sweep > 0f ? 1f : -1f);
                 rel = Wrap(rel - sweep * 0.5f + SvmMath.PI, 2f * SvmMath.PI) - SvmMath.PI + sweep * 0.5f;
+                pastEnd = rel > sweep;
                 u = SvmMath.Clamp(rel / sweep, 0f, 1f);
                 float a = _startAngle + Sweep * u;
                 float ca = SvmMath.Cos(a);

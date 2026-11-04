@@ -79,17 +79,9 @@ public sealed class ConveyorField
         {
             IConveyor c = _conveyors[i];
             float speed = c.SurfaceSpeed;
-            if (speed == 0f || !c.Carries(cargo) ||
-                !c.WorldPath.Project(feet, c.HalfWidth + radius * ConveyorK.EdgeOverhang, out ConveyorProjection at))
-            {
-                continue;
-            }
-
-            // A body on a slope rests on the cylinder's edge, so its centre stands higher by radius x slope.
-            float flat = SvmMath.Sqrt(at.Tangent.X * at.Tangent.X + at.Tangent.Y * at.Tangent.Y);
-            float slope = flat > 0f ? SvmMath.Abs(at.Tangent.Z) / flat : 0f;
-            float above = feet.Z - at.Surface.Z;
-            if (above < -ConveyorK.RideBelow || above > ConveyorK.RideAbove + radius * slope)
+            // A body on a slope rests on its cylinder's edge, so its feet stand higher by radius x slope.
+            if (speed == 0f || !c.Carries(cargo) || !c.WorldPath.Project(feet, c.HalfWidth + radius * ConveyorK.EdgeOverhang,
+                    ConveyorK.RideBelow, ConveyorK.RideAbove, radius, out ConveyorProjection at))
             {
                 continue;
             }

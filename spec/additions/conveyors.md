@@ -21,14 +21,14 @@ metadata and the shared look values), `game/Scripts/Views/ConveyorViews.cs` (dra
 | `bCarryPlayers` | true | Carries walking pawns (players and bots). |
 | `bCarryObjects` | true | Carries dropped disks and data drives (server). |
 | `Look` | `CL_Frame` | `CL_Frame` (belt, side walls, end drums), `CL_Driver` (nothing built; the map's own meshes are the look and the floor), `CL_Treadmill` (flat belt, low edges), `CL_Escalator` (steps, balustrades). |
-| `Walls` | `CW_Both` | Which sides of a frame have a wall: `CW_Both`, `CW_Left`, `CW_Right`, `CW_None`. |
+| `Walls` | `CW_Auto` | Which sides have a wall: `CW_Auto` (both, open where another conveyor's end meets this one's side), `CW_Both`, `CW_Left`, `CW_Right`, `CW_None`. |
 | `TriggerAction` | `CT_Toggle` | What an event does: `CT_Toggle`, `CT_TurnOn`, `CT_TurnOff`, `CT_Reverse`. |
 | `ItemMeshes` | empty | Static meshes riding the belt; each item picks one from the seed. |
 | `ItemSpacing`, `ItemScale`, `ItemFade`, `ItemSeed`, `ItemYawJitter` | 160, 1, 48, 0, 65536 | Item spacing along the path, size, fade length at the ends of an open path, seed and largest random turn (rotator units). |
 | `ScrollTargets` | empty | `{Target, UnitsPerTile, Axis}`: a placed mesh actor (by id) whose texture moves with the belt. `UnitsPerTile` is the uu one texture repeat covers along the direction of travel, `Axis` 0 for U and 1 for V. |
 | `BeltMaterial`, `FrameMaterial` | none | Materials the map builder uses for the generated look. |
 
-`PhaseAtChange` and `ChangeTick` are runtime state (below); maps leave them at 0.
+`PhaseAtChange`, `ChangeTick` and `SpeedBeforeChange` are runtime state (below); maps leave them at 0.
 
 ## Path
 
@@ -46,15 +46,21 @@ A point projects onto the path in the horizontal plane: the nearest point of eac
 except that an open path ends square at its first and last points. The projection gives the distance along the path,
 the side distance, the surface height and the direction of travel (the run's or arc's tangent, tilted by its climb).
 
+- Only runs and arcs whose surface is in the rider's height band (below) count, so a path that passes over itself, or
+  a conveyor on another floor, is not mistaken for the one underfoot.
+- Distances within 0.01 uu are a tie. On a tie, a piece the point lies beyond (clamped to its end) loses to one it
+  does not. Past a sharp corner, on its outside, both runs clamp to the corner point, so the run that starts there
+  wins and the body turns the corner instead of being pushed into the outer wall.
+
 ## Who rides
 
 A body rides the conveyor when all of these hold (`ConveyorField.FindCarrier`):
 
 - the conveyor is running (`bOn` and `Speed` not 0) and carries that kind of body;
 - the body's feet (location minus collision height) project onto the path within `Width / 2 + radius / 2`
-  (RE+'s overhang);
-- the feet are no more than 8 uu below the surface and no more than `12 + radius x slope` above it, where `slope` is
-  the climb per flat uu at that point (a cylinder on a slope rests on its edge).
+  (RE+'s overhang), counting only places where the feet are no more than 8 uu below the surface and no more than
+  `12 + radius x slope` above it; `slope` is the climb per flat uu at that point (a cylinder on a slope rests on its
+  edge).
 
 Where conveyors overlap, the one whose centre line is nearest carries the body; on a tie, the one that began play
 first. Joints between conveyors therefore hand riders on without a link between them.
@@ -78,28 +84,39 @@ stock maps behave exactly as before.
 
 ## Carrying objects
 
-On the server, each running conveyor with `bCarryObjects` moves, every tick, each resting `SFlag` or `SDisk` it
-carries (same rules as above): visible, `PHYS_None`, colliding with the world and not based on a pawn. The move is the
-same up, along, down step. When no floor is within 8 uu below the object afterwards, it starts falling
-(`PHYS_Falling`) and lands by its own rules. These objects replicate their location, so clients see them move.
+Every server tick, the conveyor that began play first walks the level's actors once and moves each dropped `SFlag`
+or `SDisk` that a running conveyor with `bCarryObjects` carries (same rules as above, nearest centre line wins). An
+object counts as dropped when it is visible, `PHYS_None`, colliding with the world, not based on a pawn and away from
+home: its X or Y differs from its `InitialLocation`, the test `SDisk.Touch` uses. A disk still where the map placed it
+is never carried. The move is the same up, along, down step. When no floor is within 8 uu below the object afterwards,
+it starts falling (`PHYS_Falling`) and lands by its own rules. These objects replicate their location, so clients see
+them move.
 
 ## Events
 
 `Trigger` applies `TriggerAction`. Every change of `bOn` or `Speed` first stores the distance the belt has travelled,
-`PhaseAtChange`, and the server tick, `ChangeTick`. The phase at server tick `t` is then
-`PhaseAtChange + (bOn ? Speed : 0) x (t - ChangeTick) x Sim.DeltaTime`, continuous across changes. `Reset` (a new
-round) restores the placed `bOn` and `Speed` the same way.
+`PhaseAtChange`, the server tick, `ChangeTick`, and the surface speed until then, `SpeedBeforeChange`. With
+`v = bOn ? Speed : 0` for `t >= ChangeTick` and `SpeedBeforeChange` before it, the phase at server tick `t` is
+`PhaseAtChange + v x (t - ChangeTick) x Sim.DeltaTime`: continuous across the last change, also for a client that
+draws a little in the past. A new round travels to the map again, so every round starts as the map placed it.
 
 ## Network
 
 The actor is a `bNoDelete`, always relevant map actor replicated to clients as a simulated proxy. `bOn`, `Speed`,
-`PhaseAtChange` and `ChangeTick` replicate when they change (a runtime class extension of the Actor layout, so the
-protocol hash changes).
+`PhaseAtChange`, `ChangeTick` and `SpeedBeforeChange` replicate when they change (a runtime class extension of the
+Actor layout, so the protocol hash changes).
 
-Client prediction: each recorded movement tick's collision inputs include every conveyor's `bOn` and `Speed`, and
-replay stages them as it stages moving-base poses. A toggle inside the replay window replays with the state each tick
-saw. As with movers, a change the server made before the client heard of it is corrected once the next
-acknowledgement arrives.
+Client prediction: each recorded movement tick's collision inputs include every conveyor's `bOn` and `Speed` as the
+client saw them. A correction carries the server tick it was sent at (the acknowledgement's tick field). Replay
+estimates the server tick that applies each replayed move as that tick plus the move's local ticks after the
+acknowledged one, and stages, per conveyor:
+
+- the replicated (live) state for a move applied at or after the conveyor's `ChangeTick`: the server used the new
+  state for it, even if the client predicted it before it heard of the change;
+- the recorded state for an earlier move.
+
+So a start, stop or reversal costs one correction, the first acknowledgement after the change, rather than one per
+acknowledgement until the moves predicted with the old state age out.
 
 ## Look
 
@@ -120,18 +137,25 @@ closed by the drums on a frame, else by a flat end. `ConveyorLayout` holds these
 
 - The belt and the body follow the path: straight runs, arcs cut every 15 degrees, at most 64 uu between
   cross-sections (lighting is per vertex), widened at a sharp corner so both runs keep their width.
-- Escalator steps are 40 uu along the path each. A step's tread is level at the lower of its two ends and its riser
-  stands at the higher end, so the nosings lie on the slope. The shape does not move; the texture slides one repeat per
-  step. Pawns collide with the slope, not the steps. More than 20 uu rise per step (over 30 degrees) is a map check
-  warning.
+- Escalator steps are 40 uu along the path each. A step's tread is level at the higher of its two ends and its riser
+  stands at the lower end, so the slope runs through the steps' inner corners. Pawns collide with the slope, not the
+  steps; a pawn on a slope stands `radius x slope` above it, so its feet stay within a few units of the treads. The
+  shape does not move; the texture slides one repeat per step. More than 20 uu rise per step (over 30 degrees) is a
+  map check warning.
+- `CW_Auto` walls open where another conveyor's open end meets this one's side: over the joining conveyor's width
+  (lengthened for a slanted join) plus the wall's thickness either side, with the cut wall ends closed.
 - Textures: the belt and steps use `BeltMaterial` (U across, one repeat per 128 uu), the drums too, and the frame
-  `FrameMaterial`; with none, the editor's default material.
+  `FrameMaterial`; with none, the editor's default material. On both drums U runs the way the belt moves round them
+  (over the top and down at the far end, up from the bottom at the start), so one scroll turns both with the belt.
 
-Clients slide the moving parts' textures by the phase at the displayed server time (each node gets its own material
-copies), including every `ScrollTargets` mesh. Items are drawn one node each and lit as actors (they take the actor
-light slots like any moving prop). Item `i` of `n = max(1, floor(L / ItemSpacing))` sits at
-`i x L / n + jitter(i) + phase` along the path (wrapped), with its yaw from the direction of travel plus a seeded turn,
-and its mesh picked from the seed. On an open path it scales from 0 to `ItemScale` over `ItemFade` at both ends. The
+Clients slide the moving parts' textures by the phase at the displayed server time, including every `ScrollTargets`
+mesh. Each node gets its own copies of its materials and of their later passes (the vision passes), and every texture
+layer (diffuse, opacity, specular, self-illumination and sequences) slides. Items are drawn one node each and lit as
+actors (they take the actor light slots like any moving prop). Item `i` of `n = max(1, floor(L / ItemSpacing))` sits
+at `i x L / n + jitter(i) + phase` along the path (wrapped). It faces the direction of travel and tilts with the
+belt's climb, turns about the belt's up by a seeded amount, and is raised so its mesh's lowest point rests on the
+belt (RE+ kept per-mesh `ItemOffsets` for this). Its mesh is picked from the seed. On an open path it scales from 0
+to `ItemScale` over `ItemFade` at both ends. Items are drawn only: they do not collide, unlike RE+'s item actors. The
 same function places the editor's preview.
 
 ## Constants
@@ -153,5 +177,7 @@ All values are OpenSCCT design values (estimated), not decoded from the original
 - Items, rollers and treads come from the replicated phase, so every client shows the same belt. RE+ placed items with
   each machine's own random numbers.
 - Events start, stop and reverse conveyors; RE+ belts could not be switched.
+- Items do not collide with pawns or soft bodies.
 - Not built yet: bots do not plan with conveyor velocity, footsteps do not use `SURFACE_Conveyor`, conveyors have no
-  loop sound, and soft-body curtains do not part around items.
+  loop sound, soft-body curtains do not part around items, items are not handed on from one conveyor to the next
+  (each conveyor's items shrink away at its open ends), and escalator steps do not move (their texture slides).

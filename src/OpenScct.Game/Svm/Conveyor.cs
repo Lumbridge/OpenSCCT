@@ -25,13 +25,19 @@ public enum EConveyorLook : byte
     CL_Escalator,
 }
 
-/// <summary>Which sides of a conveyor have a wall.</summary>
+/// <summary>
+/// Which sides of a conveyor have a wall (left and right facing the direction of travel). The map builder builds the
+/// walls; the game only stores the choice.
+/// </summary>
 public enum EConveyorWalls : byte
 {
     CW_Both,
     CW_Left,
     CW_Right,
     CW_None,
+
+    /// <summary>Both sides, open where another conveyor's end meets this one's side (joins and branches).</summary>
+    CW_Auto,
 }
 
 /// <summary>What an event does to a conveyor.</summary>
@@ -93,7 +99,7 @@ public sealed partial class Conveyor : Actor, IConveyor
 
     public EConveyorLook Look;
 
-    public EConveyorWalls Walls;
+    public EConveyorWalls Walls = EConveyorWalls.CW_Auto;
 
     public EConveyorTrigger TriggerAction;
 
@@ -128,9 +134,13 @@ public sealed partial class Conveyor : Actor, IConveyor
     /// <summary>Server tick of the last start, stop or reversal (replicated).</summary>
     public int ChangeTick;
 
+    /// <summary>
+    /// Surface speed before <see cref="ChangeTick"/> (replicated): clients draw a little in the past, so the phase
+    /// before the change must stay what it was.
+    /// </summary>
+    public float SpeedBeforeChange;
+
     private ConveyorPath? _worldPath;
-    private bool _initialOn;
-    private float _initialSpeed;
 
     protected override void SetDefaults()
     {
@@ -160,9 +170,11 @@ public sealed partial class Conveyor : Actor, IConveyor
 
     /// <summary>
     /// Distance the belt has travelled at server tick <paramref name="tick"/> (fractional for drawing between ticks):
-    /// rollers, treads and items are placed from it.
+    /// rollers, treads and items are placed from it. Before the last change it runs at the speed it had then, so a
+    /// client drawing behind the server sees no jump when a change arrives.
     /// </summary>
-    public double PhaseAt(double tick) => PhaseAtChange + (bOn ? Speed : 0f) * (tick - ChangeTick) * Sim.DeltaTime;
+    public double PhaseAt(double tick) =>
+        PhaseAtChange + (tick >= ChangeTick ? SurfaceSpeed : SpeedBeforeChange) * (tick - ChangeTick) * Sim.DeltaTime;
 
     /// <summary>The world path of the stored points (the actor's location and rotation applied).</summary>
     public ConveyorPath BuildWorldPath()
@@ -182,8 +194,6 @@ public sealed partial class Conveyor : Actor, IConveyor
     {
         base.PostBeginPlay();
         _worldPath = BuildWorldPath();
-        _initialOn = bOn;
-        _initialSpeed = Speed;
         ConveyorField.Install(XLevel).Add(this);
     }
 
@@ -208,13 +218,6 @@ public sealed partial class Conveyor : Actor, IConveyor
         }
     }
 
-    /// <summary>A new round starts the conveyor as the map placed it.</summary>
-    public override void Reset()
-    {
-        base.Reset();
-        SetRunning(_initialOn, _initialSpeed);
-    }
-
     /// <summary>Changes the running state, keeping the drawn phase continuous (server).</summary>
     public void SetRunning(bool on, float speed)
     {
@@ -225,16 +228,20 @@ public sealed partial class Conveyor : Actor, IConveyor
 
         PhaseAtChange = (float)PhaseAt(XLevel.TickCount);
         ChangeTick = (int)XLevel.TickCount;
+        SpeedBeforeChange = SurfaceSpeed;
         bOn = on;
         Speed = speed;
     }
 
-    /// <summary>The server moves dropped objects resting on the belt; their positions replicate as usual.</summary>
+    /// <summary>
+    /// The server moves dropped objects resting on running conveyors; their positions replicate as usual. The conveyor
+    /// that began play first does it for all of them, so the level's actors are walked once a tick.
+    /// </summary>
     protected override void Tick(float DeltaTime)
     {
         base.Tick(DeltaTime);
-        if (!bCarryObjects || SurfaceSpeed == 0f || Level.NetMode == ENetMode.NM_Client ||
-            XLevel.PhysicsDriver is not PhysicsDriver driver || XLevel.GetService<ConveyorField>() is not { } field)
+        if (Level.NetMode == ENetMode.NM_Client || XLevel.PhysicsDriver is not PhysicsDriver driver ||
+            XLevel.GetService<ConveyorField>() is not { } field || !ReferenceEquals(field.Conveyors[0], this))
         {
             return;
         }
@@ -243,13 +250,13 @@ public sealed partial class Conveyor : Actor, IConveyor
         for (int i = 0; i < actors.Count; i++)
         {
             Actor a = actors[i];
-            if (!IsRestingCargo(a))
+            if (!IsDroppedCargo(a))
             {
                 continue;
             }
 
             FVector feet = a.Location - new FVector(0f, 0f, a.CollisionHeight);
-            if (!ReferenceEquals(field.FindCarrier(feet, a.CollisionRadius, ConveyorCargo.Objects, out FVector velocity), this))
+            if (field.FindCarrier(feet, a.CollisionRadius, ConveyorCargo.Objects, out FVector velocity) is null)
             {
                 continue;
             }
@@ -264,8 +271,24 @@ public sealed partial class Conveyor : Actor, IConveyor
 
     /// <summary>
     /// A dropped disk or data drive lying still and not held: the objects players drop, whose positions replicate to
-    /// every client.
+    /// every client. One still at home (where the map placed it, as SDisk.Touch tests) has not been dropped.
     /// </summary>
-    private static bool IsRestingCargo(Actor a) =>
-        a is SFlag or SDisk && !a.bDeleteMe && !a.bHidden && a.Physics == EPhysics.PHYS_None && a.bCollideWorld && a.Base is not Pawn;
+    private static bool IsDroppedCargo(Actor a)
+    {
+        FVector home;
+        switch (a)
+        {
+            case SFlag flag:
+                home = flag.InitialLocation;
+                break;
+            case SDisk disk:
+                home = disk.InitialLocation;
+                break;
+            default:
+                return false;
+        }
+
+        return !a.bDeleteMe && !a.bHidden && a.Physics == EPhysics.PHYS_None && a.bCollideWorld && a.Base is not Pawn &&
+               (a.Location.X != home.X || a.Location.Y != home.Y);
+    }
 }

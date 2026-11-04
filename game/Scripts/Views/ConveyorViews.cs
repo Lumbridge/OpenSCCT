@@ -96,9 +96,12 @@ public sealed class ConveyorViews
                     continue;
                 }
 
+                // Tilted with the belt, turned about its up, and lifted so the mesh's lowest point rests on it.
                 node.Mesh = belt.Meshes[place.Mesh];
                 var scale = new FVector(place.Scale, place.Scale, place.Scale);
-                node.Transform = UeSpace.TransformToGodot(place.Location, new FRotator(0, place.Yaw, 0), scale, default);
+                node.Transform = UeSpace.TransformToGodot(place.Location, place.Belt) *
+                                 UeSpace.TransformToGodot(default, new FRotator(0, place.Spin, 0), scale, default) *
+                                 new Transform3D(Basis.Identity, new Vector3(0f, belt.Lifts[place.Mesh], 0f));
                 if (relight)
                 {
                     ActorLighting.Apply(node, _map.LightActor(place.Location, belt.ItemRadius, 0));
@@ -108,8 +111,8 @@ public sealed class ConveyorViews
     }
 
     /// <summary>
-    /// Gives a map node its own copies of its materials, so this conveyor's scroll does not move the same texture on
-    /// other meshes.
+    /// Gives a map node its own copies of its materials and of their later passes (the vision passes sample the same
+    /// texture), so this conveyor's scroll does not move the same texture on other meshes.
     /// </summary>
     private void AddScroll(Belt belt, string actorId, float unitsPerTile, byte axis)
     {
@@ -123,13 +126,23 @@ public sealed class ConveyorViews
         {
             if ((entry.Node.GetSurfaceOverrideMaterial(i) ?? mesh.SurfaceGetMaterial(i)) is ShaderMaterial shared)
             {
-                var own = (ShaderMaterial)shared.Duplicate();
-                entry.Node.SetSurfaceOverrideMaterial(i, own);
-                materials.Add(own);
+                entry.Node.SetSurfaceOverrideMaterial(i, OwnCopy(shared, materials));
             }
         }
 
         belt.Scrolls.Add(new Scroll(materials, unitsPerTile, axis));
+    }
+
+    private static ShaderMaterial OwnCopy(ShaderMaterial shared, List<ShaderMaterial> copies)
+    {
+        var own = (ShaderMaterial)shared.Duplicate();
+        copies.Add(own);
+        if (own.NextPass is ShaderMaterial next)
+        {
+            own.NextPass = OwnCopy(next, copies);
+        }
+
+        return own;
     }
 
     private void AddItems(Belt belt, Node3D parent)
@@ -145,12 +158,15 @@ public sealed class ConveyorViews
             if (FindMesh(asset.Path) is { } mesh)
             {
                 belt.Meshes.Add(mesh);
-                belt.ItemRadius = MathF.Max(belt.ItemRadius, UeSpace.UnitsPerMetre * mesh.GetAabb().Size.Length() * 0.5f);
+                Aabb bounds = mesh.GetAabb();
+                belt.Lifts.Add(-bounds.Position.Y);
+                belt.ItemRadius = MathF.Max(belt.ItemRadius, UeSpace.UnitsPerMetre * bounds.Size.Length() * 0.5f);
             }
             else
             {
                 _map.Warnings.Add($"conveyor {belt.Id}: item mesh {asset.Path} is not in the map's render data");
                 belt.Meshes.Add(null);
+                belt.Lifts.Add(0f);
             }
         }
 
@@ -160,10 +176,15 @@ public sealed class ConveyorViews
         }
 
         // A missing mesh draws as the first one found, so items keep their spacing.
-        Mesh fallback = belt.Meshes.Find(m => m is not null)!;
+        int first = belt.Meshes.FindIndex(m => m is not null);
+        Mesh fallback = belt.Meshes[first]!;
         for (int i = 0; i < belt.Meshes.Count; i++)
         {
-            belt.Meshes[i] ??= fallback;
+            if (belt.Meshes[i] is null)
+            {
+                belt.Meshes[i] = fallback;
+                belt.Lifts[i] = belt.Lifts[first];
+            }
         }
 
         var group = new Node3D { Name = belt.Id + ".Items" };
@@ -209,6 +230,9 @@ public sealed class ConveyorViews
         public ConveyorPath Path { get; } = path;
         public List<Scroll> Scrolls { get; } = [];
         public List<Mesh?> Meshes { get; } = [];
+
+        /// <summary>Per item mesh: how far to raise it (Godot units, before scaling) so its lowest point is at its pivot.</summary>
+        public List<float> Lifts { get; } = [];
         public List<MeshInstance3D> Items { get; } = [];
         public float ItemRadius { get; set; }
     }

@@ -4,8 +4,11 @@ using OpenScct.Provenance;
 
 namespace OpenScct.Game.Svm;
 
-/// <summary>One item riding a conveyor at some moment: where it is, its turn and its size (0 when faded out).</summary>
-public readonly record struct ConveyorItemPlace(FVector Location, int Yaw, float Scale, int Mesh);
+/// <summary>
+/// One item riding a conveyor at some moment: where it is on the surface, the belt's direction there (yaw of travel
+/// and pitch of the climb), the item's own seeded turn about the belt's up, its size (0 when faded out) and its mesh.
+/// </summary>
+public readonly record struct ConveyorItemPlace(FVector Location, FRotator Belt, int Spin, float Scale, int Mesh);
 
 /// <summary>
 /// The parts of a conveyor's look the map builder and the game both need to agree on
@@ -68,7 +71,7 @@ public static class ConveyorLayout
     /// <summary>
     /// Item <paramref name="index"/> at belt <paramref name="phase"/> (<see cref="Conveyor.PhaseAt"/>). Items are evenly
     /// spread along the path and keep their order; on an open path they grow in at the start and shrink away at the end
-    /// over <see cref="Conveyor.ItemFade"/>, then come round again.
+    /// over <see cref="Conveyor.ItemFade"/>, then come round again. They tilt with the belt on a slope.
     /// </summary>
     public static ConveyorItemPlace PlaceItem(Conveyor conveyor, ConveyorPath path, int index, int count, double phase)
     {
@@ -79,8 +82,10 @@ public static class ConveyorLayout
         double along = index * spacing + jitter + phase;
         float at = (float)(along - length * System.Math.Floor(along / length));
         path.Evaluate(at, out FVector location, out FVector tangent);
-        int yaw = SvmMath.Round(SvmMath.Atan2(tangent.Y, tangent.X) * SvmMath.RadToUnr) +
-                  (int)(Unit(Hash(h, 1u)) * conveyor.ItemYawJitter);
+        float flat = SvmMath.Sqrt(tangent.X * tangent.X + tangent.Y * tangent.Y);
+        var belt = new FRotator(SvmMath.Round(SvmMath.Atan2(tangent.Z, flat) * SvmMath.RadToUnr) & 0xFFFF,
+            SvmMath.Round(SvmMath.Atan2(tangent.Y, tangent.X) * SvmMath.RadToUnr) & 0xFFFF, 0);
+        int spin = (int)(Unit(Hash(h, 1u)) * conveyor.ItemYawJitter) & 0xFFFF;
         int mesh = (int)(Hash(h, 2u) % (uint)conveyor.ItemMeshes.Count);
         float scale = conveyor.ItemScale;
         if (!path.IsLoop && conveyor.ItemFade > 0f)
@@ -88,7 +93,7 @@ public static class ConveyorLayout
             scale *= SvmMath.Clamp(SvmMath.Min(at, length - at) / conveyor.ItemFade, 0f, 1f);
         }
 
-        return new ConveyorItemPlace(location, yaw & 0xFFFF, scale, mesh);
+        return new ConveyorItemPlace(location, belt, spin, scale, mesh);
     }
 
     // A small integer hash (no RNG state): the same items on every machine and in the editor.

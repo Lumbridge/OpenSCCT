@@ -31,7 +31,7 @@ differs from the class defaults, typed as in 1.1. Example:
   `{Target, UnitsPerTile, Axis}`, where `Target` is the id of a placed mesh actor (a string, since mesh actors are
   render-only).
 - Enums are stored as numbers: `Look` (0 frame, 1 driver, 2 treadmill, 3 escalator), `Walls` (0 both, 1 left, 2 right,
-  3 none), `TriggerAction` (0 toggle, 1 on, 2 off, 3 reverse).
+  3 none, 4 auto; 4 is the default), `TriggerAction` (0 toggle, 1 on, 2 off, 3 reverse).
 - `Tag` receives events as for any actor (event edges list the conveyor as a receiver).
 
 ## `sim/classes.json`

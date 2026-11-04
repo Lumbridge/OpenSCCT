@@ -436,7 +436,7 @@ public sealed class SequencedMoveTransport : IMoveTransport
 
     private static void ReceiveAck(Actor actor, FBitReader r, NetConnection connection)
     {
-        uint epoch = r.ReadIntPacked(), sequence = r.ReadIntPacked(); _ = r.ReadIntPacked();
+        uint epoch = r.ReadIntPacked(), sequence = r.ReadIntPacked(), serverTick = r.ReadIntPacked();
         int received = r.ReadByte();
         Span<bool> receipt = stackalloc bool[Capacity];
         for (int i = 0; i < received; i++) receipt[i] = r.ReadBit();
@@ -465,7 +465,7 @@ public sealed class SequencedMoveTransport : IMoveTransport
         }
         if (sequence == 0) return;
         if (epoch != transport.CommandEpoch) return;
-        if (correction) endpoint.Client?.ReceiveAuthoritativeState(epoch, sequence, stamp, location, velocity, physics, zone, @base, basePosition, baseRotation);
+        if (correction) endpoint.Client?.ReceiveAuthoritativeState(epoch, sequence, stamp, location, velocity, physics, zone, @base, basePosition, baseRotation, serverTick);
         else endpoint.Client?.AcknowledgePrediction(epoch, sequence, stamp);
     }
 

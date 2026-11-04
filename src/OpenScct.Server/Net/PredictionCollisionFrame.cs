@@ -20,7 +20,7 @@ internal sealed class PredictionCollisionFrame
         public FRotator Rotation;
         public float Radius, Height;
         public bool Collide, BlockActors, BlockPlayers;
-        // A conveyor's carry is part of the movement input: replay must see the state each tick saw.
+        // A conveyor's carry is part of the movement input: replay sees the state the server used for that move.
         public bool ConveyorOn;
         public float ConveyorSpeed;
 
@@ -32,12 +32,17 @@ internal sealed class PredictionCollisionFrame
             ConveyorOn = actor is Conveyor { bOn: true }, ConveyorSpeed = (actor as Conveyor)?.Speed ?? 0f,
         };
 
-        public readonly void Apply()
+        public readonly void Apply(long serverTick)
         {
             if (Actor.bDeleteMe) return;
             if (Actor is Conveyor conveyor)
             {
-                conveyor.bOn = ConveyorOn; conveyor.Speed = ConveyorSpeed;
+                // The server applies a move at or after the conveyor's last change with the replicated (live) state,
+                // which this client may not have had when it predicted the move. Earlier moves keep what it saw then.
+                if (serverTick < 0 || serverTick < conveyor.ChangeTick)
+                {
+                    conveyor.bOn = ConveyorOn; conveyor.Speed = ConveyorSpeed;
+                }
                 return;
             }
             // CollisionWorld synchronizes dynamic brush transforms lazily from these fields. Do not use a move
@@ -62,9 +67,10 @@ internal sealed class PredictionCollisionFrame
         }
     }
 
-    public void Apply()
+    /// <param name="serverTick">The server tick that applies the move being replayed; -1 restores every recorded value.</param>
+    public void Apply(long serverTick = -1)
     {
-        for (int i = 0; i < _count; i++) _poses[i].Apply();
+        for (int i = 0; i < _count; i++) _poses[i].Apply(serverTick);
     }
 
     public void Clear()

@@ -14,7 +14,10 @@ public interface IMovePrediction
     void CapturePrediction(int slot);
     void RestorePrediction(int slot, FVector location, FVector velocity, EPhysics physics, Actor? @base, byte zone);
     void ReplayPrediction(int slot, float deltaTime, FVector acceleration, bool jump);
-    void BeginPredictionReplay();
+    /// <param name="serverTick">
+    /// The server tick the correction was sent at, or -1 when unknown: the server applies the replayed moves after it.
+    /// </param>
+    void BeginPredictionReplay(long serverTick = -1);
     void EndPredictionReplay(FVector previousLocation);
 }
 

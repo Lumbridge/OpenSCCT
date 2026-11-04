@@ -65,6 +65,7 @@ public sealed class ClientMoves
     private FVector _authoritativeVelocity;
     private EPhysics _authoritativePhysics;
     private byte _authoritativeZone;
+    private long _authoritativeServerTick = -1;
     private bool Modern => Transport is SequencedMoveTransport;
     private uint _correctionEpoch, _acknowledgedSequence;
 
@@ -81,8 +82,9 @@ public sealed class ClientMoves
         bUpdatePosition = false; UpdatingSMove = null;
     }
 
+    /// <param name="serverTick">The server tick the state was sent at, or -1 when unknown.</param>
     public void ReceiveAuthoritativeState(uint epoch, uint sequence, float stamp, FVector location, FVector velocity, EPhysics physics, byte zone, Actor? @base,
-        FVector? basePosition = null, FRotator baseRotation = default)
+        FVector? basePosition = null, FRotator baseRotation = default, long serverTick = -1)
     {
         if (Pawn is not IMovePrediction prediction || (_correctionEpoch == epoch && sequence <= _acknowledgedSequence)) return;
         _correctionEpoch = epoch; _acknowledgedSequence = sequence;
@@ -103,6 +105,7 @@ public sealed class ClientMoves
                     move.ZoneConfig == zone && ReferenceEquals(move.SavedBase, @base)) return;
                 UpdatingSMove = move; vUpdateLocation = location; _authoritativeVelocity = velocity;
                 _authoritativePhysics = physics; _authoritativeZone = zone; aUpdateBase = @base; bUpdatePosition = true;
+                _authoritativeServerTick = serverTick;
                 return;
             }
             if (ReferenceEquals(move, SavedMoves.LastSMove)) break;
@@ -538,7 +541,7 @@ public sealed class ClientMoves
             if (UpdatingSMove is not { } acknowledged) return;
             if (!prediction.CanReplayPrediction(acknowledged.Slot)) return;
             FVector previous = Pawn.Location;
-            prediction.BeginPredictionReplay();
+            prediction.BeginPredictionReplay(_authoritativeServerTick);
             try
             {
                 prediction.RestorePrediction(acknowledged.Slot, vUpdateLocation, _authoritativeVelocity, _authoritativePhysics, aUpdateBase, _authoritativeZone);

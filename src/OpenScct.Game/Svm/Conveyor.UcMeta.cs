@@ -50,6 +50,7 @@ public sealed partial class Conveyor
                 Prop("FrameMaterial", "Material", UcPropertyKind.Asset, Edit),
                 Prop("PhaseAtChange", "float", UcPropertyKind.Float, Net),
                 Prop("ChangeTick", "int", UcPropertyKind.Int, Net),
+                Prop("SpeedBeforeChange", "float", UcPropertyKind.Float, Net),
             ],
             [],
             [],
