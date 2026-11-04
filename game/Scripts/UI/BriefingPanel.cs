@@ -9,6 +9,8 @@ namespace OpenScctGame.UI;
 /// and the mode picture (InitComponent: GUIController.ImageMode) with the objective's name, the map's words below.
 /// Page 2 is GUI.BriefingDeux: the briefing picture (InitComponent: GetLevelBrief, <c>&lt;Map&gt;-i.Briefing</c>) beside
 /// the map legend, the mode's words below. The caller passes GUIContent's defenseur for a map without a picture.
+/// All three pictures are ISTY_Scaled, stretched to fill their boxes; the boxes keep the shapes they have on the
+/// original's 4:3 screen (BriefingImage 0.375 x 0.4, BriefingDeux's 0.45 x 0.475, ModeImage 0.12 x 0.17).
 /// </summary>
 public partial class BriefingPanel : PanelContainer
 {
@@ -20,6 +22,15 @@ public partial class BriefingPanel : PanelContainer
     private Control? _first;
     private Control? _second;
     private Button? _flip;
+
+    /// <summary>Width over height of GUI.Briefing's BriefingImage (0.375 x 0.4 of a 4:3 screen).</summary>
+    private const float PictureAspect = 0.375f * 4f / (0.4f * 3f);
+
+    /// <summary>Width over height of GUI.BriefingDeux's BriefingImage (0.45 x 0.475 of a 4:3 screen).</summary>
+    private const float PlanAspect = 0.45f * 4f / (0.475f * 3f);
+
+    /// <summary>Width over height of GUI.Briefing's ModeImage (0.12 x 0.17 of a 4:3 screen).</summary>
+    private const float ModeAspect = 0.12f * 4f / (0.17f * 3f);
 
     public BriefingPanel(BriefingPages pages, Texture2D? picture, Texture2D? plan, Texture2D? modePicture, string mapTitle)
     {
@@ -49,7 +60,7 @@ public partial class BriefingPanel : PanelContainer
         _first = NewPage("Page1", visible: true);
         column.AddChild(_first);
         var firstTop = Top(_first);
-        firstTop.AddChild(Picture("Picture", _picture));
+        firstTop.AddChild(Picture("Picture", _picture, PictureAspect));
         var objective = new VBoxContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill };
         firstTop.AddChild(objective);
         objective.AddChild(new Label { Text = _pages.Title, HorizontalAlignment = HorizontalAlignment.Center, Modulate = UiStyle.MenuFocus });
@@ -63,8 +74,8 @@ public partial class BriefingPanel : PanelContainer
             {
                 mode.AddChild(new TextureRect
                 {
-                    Name = "ModeImage", Texture = _modePicture, CustomMinimumSize = new Vector2(96f, 96f),
-                    ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize, StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered,
+                    Name = "ModeImage", Texture = _modePicture, CustomMinimumSize = new Vector2(96f, 96f / ModeAspect),
+                    ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize, StretchMode = TextureRect.StretchModeEnum.Scale,
                 });
             }
 
@@ -83,7 +94,7 @@ public partial class BriefingPanel : PanelContainer
         _second = NewPage("Page2", visible: false);
         column.AddChild(_second);
         var secondTop = Top(_second);
-        secondTop.AddChild(Picture("Plan", _plan));
+        secondTop.AddChild(Picture("Plan", _plan, PlanAspect));
         secondTop.AddChild(Words("Legend", _pages.Legend));
         _second.AddChild(Words("ModeBrief", _pages.ModeBrief));
 
@@ -129,12 +140,21 @@ public partial class BriefingPanel : PanelContainer
         return top;
     }
 
-    private static TextureRect Picture(string name, Texture2D? texture) => new()
+    /// <summary>A picture stretched to fill a box of the original's shape (ISTY_Scaled), the box as large as fits.</summary>
+    private static AspectRatioContainer Picture(string name, Texture2D? texture, float aspect)
     {
-        Name = name, Texture = texture, CustomMinimumSize = new Vector2(320f, 240f), ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
-        StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered, SizeFlagsVertical = SizeFlags.ExpandFill,
-        SizeFlagsHorizontal = SizeFlags.ExpandFill, SizeFlagsStretchRatio = 0.9f,
-    };
+        var box = new AspectRatioContainer
+        {
+            Name = name + "Box", Ratio = aspect, StretchMode = AspectRatioContainer.StretchModeEnum.Fit,
+            CustomMinimumSize = new Vector2(300f, 300f / aspect), SizeFlagsVertical = SizeFlags.ExpandFill,
+            SizeFlagsHorizontal = SizeFlags.ExpandFill, SizeFlagsStretchRatio = 0.9f,
+        };
+        box.AddChild(new TextureRect
+        {
+            Name = name, Texture = texture, ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize, StretchMode = TextureRect.StretchModeEnum.Scale,
+        });
+        return box;
+    }
 
     private static Label Words(string name, string text) => new()
     {

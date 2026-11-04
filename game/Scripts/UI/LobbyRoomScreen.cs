@@ -145,13 +145,25 @@ public partial class LobbyRoomScreen : MenuPage
         // A spectator reads the mercs' words, as the original's pages do for any team but the spies.
         bool spy = Local()?.Side == HudSide.Spy;
         string map = s.Setup.Map;
-        BriefingPages pages = BriefingPages.For(s.MapSettings(map), s.Setup.Mode, spy);
+        OpenScct.Game.SBase.USMapSettings? settings = s.MapSettings(map);
+        BriefingPages pages = BriefingPages.For(settings, s.Setup.Mode, spy);
         string title = (_mapCatalog is { } maps ? MapTitles.Of(maps, map) : map) + " - " + CreateSessionModel.ModeName(s.Setup.Mode);
         // Briefing.RefreshText: GetLevelPicture (<Map>-i.Menu); BriefingDeux.InitComponent: GetLevelBrief
         // (<Map>-i.Briefing). Both show GUIContent's defenseur when the map has no such picture.
         Texture2D? missing = UiStyle.Assets?.Texture("GUIContent", "defenseur");
-        AddChild(new BriefingPanel(pages, MapImages.Preview(_mapCatalog, map) ?? missing, MapImages.Briefing(_mapCatalog, map) ?? missing,
-            BriefingModePicture(s.Setup.Mode), title));
+        Texture2D? picture = MapImages.Preview(_mapCatalog, map) ?? missing;
+        Texture2D? modePicture = BriefingModePicture(s.Setup.Mode);
+        // Briefing.InitComponent returns before the objective's name, the mode picture and RefreshText when the map has
+        // no ModesStrings entry for the mode's rules mode, so page 1 keeps only its title; BriefingDeux sets its picture
+        // and legend before its own lookup, so page 2 is unaffected.
+        if (settings is not null && settings.SearchForGameMode(OpenScct.Game.SBase.USMatchInfo.RulesModeFor(s.Setup.Mode)) < 0)
+        {
+            pages = pages with { ObjectiveName = string.Empty, MapBrief = string.Empty };
+            picture = null;
+            modePicture = null;
+        }
+
+        AddChild(new BriefingPanel(pages, picture, MapImages.Briefing(_mapCatalog, map) ?? missing, modePicture, title));
     }
 
     /// <summary>
