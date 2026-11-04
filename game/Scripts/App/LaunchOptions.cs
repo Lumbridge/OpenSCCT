@@ -27,6 +27,7 @@ public sealed class LaunchOptions
     public const string MapDownloadsPrefix = "--svm-map-downloads=";
     public const string PlayBotsPrefix = "--bots=";
     public const string DifficultyPrefix = "--difficulty=";
+    public const string PlayPlayersPrefix = "--players=";
     public const string RecordFlag = "--svm-record";
     public const string DemoPrefix = "--svm-demo=";
     public const string PriorityPrefix = "--priority=";
@@ -98,6 +99,12 @@ public sealed class LaunchOptions
     /// <summary>The offline play bots' difficulty (<c>--difficulty=easy|normal|hard|expert</c>).</summary>
     public string PlayDifficulty { get; private init; } = "normal";
 
+    /// <summary>
+    /// The player count the map's match-size rules lay an offline play out for (<c>--players=6</c>, 1 to 24; the map
+    /// editor's Play passes its preview size), 0 to count the players.
+    /// </summary>
+    public int PlayPlayers { get; private init; }
+
     /// <summary>Record the offline play (<c>--svm-record</c>) as a demo in the user's demos folder (docs/DEMOS.md).</summary>
     public bool PlayRecord { get; private init; }
 
@@ -136,6 +143,7 @@ public sealed class LaunchOptions
         string? contentRoot = null;
         string? mapsRoot = null;
         int playBots = 0;
+        int playPlayers = 0;
         string difficulty = "normal";
         bool record = false;
         string? demo = null;
@@ -217,6 +225,12 @@ public sealed class LaunchOptions
             {
                 playBots = playBotCount;
             }
+            else if (arg.StartsWith(PlayPlayersPrefix, StringComparison.Ordinal)
+                && int.TryParse(arg[PlayPlayersPrefix.Length..], NumberStyles.None, CultureInfo.InvariantCulture, out int playerCount)
+                && playerCount <= OpenScct.Core.Match.MatchRuleSet.MostPlayers)
+            {
+                playPlayers = playerCount;
+            }
             else if (arg.StartsWith(DifficultyPrefix, StringComparison.Ordinal) && arg.Length > DifficultyPrefix.Length)
             {
                 difficulty = arg[DifficultyPrefix.Length..].ToLowerInvariant();
@@ -265,6 +279,7 @@ public sealed class LaunchOptions
             ContentRoot = contentRoot,
             MapsRoot = mapsRoot,
             PlayBots = playBots,
+            PlayPlayers = playPlayers,
             PlayDifficulty = difficulty,
             PlayRecord = record,
             DemoFile = demo,

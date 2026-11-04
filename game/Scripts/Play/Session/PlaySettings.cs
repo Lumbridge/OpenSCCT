@@ -86,6 +86,12 @@ public sealed record PlaySettings
     public string Difficulty { get; init; } = "normal";
 
     /// <summary>
+    /// The player count the map's match-size rules lay the match out for (<c>--players=6</c>,
+    /// spec/additions/match-size-rules.md), 0 for this match's own: the bots and the local player.
+    /// </summary>
+    public int MatchPlayers { get; init; }
+
+    /// <summary>
     /// Terminals block players as the map says (null, the default, or true), or false to let players walk through them
     /// in a match with bots (a fallback from when the terminal collision kept a walker short of the use spot).
     /// </summary>
@@ -125,14 +131,18 @@ public sealed record PlaySettings
     {
         ArgumentNullException.ThrowIfNull(gameplay);
         string mode = ((byte)GameMode).ToString(CultureInfo.InvariantCulture);
+        // Named, not counted at the round start: the bots log in before the local player, and in Play Level the first
+        // login starts the match, so the roster would hold one player.
+        int count = MatchPlayers > 0 ? MatchPlayers : Bots + 1;
+        string players = "?SvmMatchPlayers=" + count.ToString(CultureInfo.InvariantCulture);
         if (Rules == PlayRules.PlayLevel)
         {
-            return $"?GameMode={mode}?Team={Team}?Editeur=true?SvmSidearms={(Sidearms ? 1 : 0)}";
+            return $"?GameMode={mode}?Team={Team}?Editeur=true?SvmSidearms={(Sidearms ? 1 : 0)}{players}";
         }
 
         // The untouched match creation page for the mode (spec/game/game-modes.md rules 1 to 5), launched from the
         // lobby (match-options.md rule 27).
-        return Setup(gameplay).GameOptions(1) + "?SvmSidearms=" + (Sidearms ? "1" : "0");
+        return Setup(gameplay).GameOptions(1) + "?SvmSidearms=" + (Sidearms ? "1" : "0") + players;
     }
 
     /// <summary>

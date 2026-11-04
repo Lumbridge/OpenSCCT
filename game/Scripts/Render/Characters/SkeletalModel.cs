@@ -117,22 +117,13 @@ public sealed class SkeletalModel
     /// A model of <paramref name="glbPath"/>. The file is read, its scene generated and its materials compiled once per
     /// path; later loads duplicate that scene and share its meshes, materials and clips. Reading the glTF again for
     /// every pawn view took half a second each time a pawn respawned (the drawn pawn is made anew).
+    /// With <paramref name="animationsFrom"/> (a map outfit's model) the model plays that mesh's clips instead of its
+    /// own, matched by bone name, and is drawn warm like the pawns it stands in for.
     /// </summary>
-    public static SkeletalModel Load(string glbPath)
+    public static SkeletalModel Load(string glbPath, string? animationsFrom = null)
     {
         ArgumentException.ThrowIfNullOrEmpty(glbPath);
-        string key = Path.GetFullPath(glbPath);
-        if (!s_templates.TryGetValue(key, out Template? template) || !GodotObject.IsInstanceValid(template.Scene))
-        {
-            template = BuildTemplate(glbPath);
-            s_templates[key] = template;
-            FilesRead++;
-        }
-        else
-        {
-            Reused++;
-        }
-
+        Template template = TemplateOf(glbPath, animationsFrom);
         var scene = (Node3D)template.Scene.Duplicate();
         Skeleton3D skeleton = FindFirst<Skeleton3D>(scene) ?? throw new InvalidDataException($"{glbPath}: no skeleton");
         string name = Path.GetFileNameWithoutExtension(glbPath);
@@ -175,13 +166,38 @@ public sealed class SkeletalModel
         return model;
     }
 
+    private static Template TemplateOf(string glbPath, string? animationsFrom)
+    {
+        string key = Path.GetFullPath(glbPath) + (animationsFrom is null ? "" : "|" + Path.GetFullPath(animationsFrom));
+        if (s_templates.TryGetValue(key, out Template? template) && GodotObject.IsInstanceValid(template.Scene))
+        {
+            Reused++;
+            return template;
+        }
+
+        template = BuildTemplate(glbPath, animationsFrom is null ? null : TemplateOf(animationsFrom, null));
+        s_templates[key] = template;
+        FilesRead++;
+        return template;
+    }
+
     /// <summary>Model files read (main thread; for the frame-time smoke's report).</summary>
     public static int FilesRead { get; private set; }
 
     /// <summary>Models made from a scene already read.</summary>
     public static int Reused { get; private set; }
 
-    /// <summary>Models read so far, by full path: the generated scene (never in the tree) with its materials, and its clips.</summary>
+    /// <summary>The bone names of <paramref name="glbPath"/>'s package, in its order (read once, as <see cref="Load"/> does).</summary>
+    public static IReadOnlyList<string> PackageBonesOf(string glbPath)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(glbPath);
+        return TemplateOf(glbPath, null).PackageBones;
+    }
+
+    /// <summary>
+    /// Models read so far, by full path (and the clips' mesh for a model playing another's): the generated scene (never
+    /// in the tree) with its materials, and its clips.
+    /// </summary>
     private static readonly Dictionary<string, Template> s_templates = new(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>Frees the kept scenes (at exit; a later load reads the file again).</summary>
@@ -239,6 +255,33 @@ public sealed class SkeletalModel
                 }, LightSource.Actor)
                 : null;
             Swaps[(own, skin)] = made;
+            return made;
+        }
+
+        /// <summary>
+        /// <paramref name="own"/>'s material drawing the image at <paramref name="texturePath"/> (a full path: a map
+        /// outfit's slot texture) as its diffuse, keeping everything else, its name too, so the vision lookup still finds
+        /// the slot's heat and EMF skins. Null when the slot has no material or the file is missing.
+        /// </summary>
+        public Material? Outfit(string own, string texturePath)
+        {
+            string key = "outfit:" + texturePath;
+            if (Swaps.TryGetValue((own, key), out Material? made))
+            {
+                return made;
+            }
+
+            // The texture cache resolves URIs under the model's folder; a full path stays as it is.
+            made = Materials.TryGetValue(own, out MaterialEntry? e) && File.Exists(texturePath)
+                ? Compiler.Build(new MaterialEntry
+                {
+                    Name = e.Name, Source = e.Source, Texture = texturePath, NormalTexture = e.NormalTexture, Masked = e.Masked,
+                    Translucent = e.Translucent, TwoSided = e.TwoSided, Unlit = e.Unlit, SelfIllum = e.SelfIllum,
+                    SelfIllumMask = e.SelfIllumMask, SpecMask = e.SpecMask, EnvColor = e.EnvColor, EnvTexture = e.EnvTexture,
+                    EnvWorld = e.EnvWorld, UvAnim = e.UvAnim, ListBlend = e.ListBlend,
+                }, LightSource.Actor)
+                : null;
+            Swaps[(own, key)] = made;
             return made;
         }
 
@@ -467,10 +510,10 @@ public sealed class SkeletalModel
         return parts;
     }
 
-    private static Template BuildTemplate(string glbPath)
+    private static Template BuildTemplate(string glbPath, Template? clipsFrom)
     {
         using GlbDocument glb = GlbDocument.Load(glbPath);
-        bool authored = AuthoredAnimationTracks.IsConverted(glb);
+        bool authored = clipsFrom is null && AuthoredAnimationTracks.IsConverted(glb);
         var document = new GltfDocument();
         // Converted clips already contain the original key times. The default 30 Hz bake misses
         // their sharp changes (including 8 Hz death clips), shifting limbs between authored keys.
@@ -495,6 +538,16 @@ public sealed class SkeletalModel
             player.Free();
         }
 
+        if (clipsFrom is not null)
+        {
+            // The team's clips drive an outfit's model; its own (if any) are not the team's moves.
+            animations.Clear();
+            foreach (string clip in clipsFrom.Sampler.ClipNames)
+            {
+                animations.Add((clip, clipsFrom.Sampler.Find(clip)!.Animation));
+            }
+        }
+
         FRotator rotOrigin = default;
         Vector3 meshScale = Vector3.One;
         Dictionary<string, MaterialEntry> materials;
@@ -515,7 +568,8 @@ public sealed class SkeletalModel
         string? shared = Path.GetDirectoryName(Path.GetDirectoryName(Path.GetDirectoryName(Path.GetFullPath(glbPath))));
         var compiler = new MaterialCompiler(new MaterialsDoc(), textures)
         {
-            Pack = shared is null ? null : RenderPack.Load(shared),
+            // A map's own mesh (render/chars) has no render pack beside it: an outfit model takes its team's.
+            Pack = clipsFrom?.Compiler.Pack ?? (shared is null ? null : RenderPack.Load(shared)),
             VisionLookup = VisionLookup.SkinBase,
         };
         foreach (MeshInstance3D mesh in FindAll<MeshInstance3D>(scene))
@@ -538,7 +592,8 @@ public sealed class SkeletalModel
             }
         }
 
-        bool warm = string.Equals(Path.GetFileName(Path.GetDirectoryName(Path.GetFullPath(glbPath))), "SPerso", StringComparison.OrdinalIgnoreCase);
+        bool warm = clipsFrom is not null ||
+            string.Equals(Path.GetFileName(Path.GetDirectoryName(Path.GetFullPath(glbPath))), "SPerso", StringComparison.OrdinalIgnoreCase);
         return new Template(scene, new AnimSampler(skeleton, animations), rotOrigin, meshScale, warm,
             Path.GetDirectoryName(Path.GetFullPath(glbPath)) ?? ".", compiler, materials) { PackageBones = packageBones.ToArray() };
     }
@@ -748,6 +803,36 @@ public sealed class SkeletalModel
 
     /// <summary>The skin key over material slot <paramref name="slot"/> (package and name), or null for the mesh's own.</summary>
     public string? SlotSkin(int slot) => _slotSkins.TryGetValue(slot, out string? key) ? key : null;
+
+    /// <summary>
+    /// Makes the image at <paramref name="texturePath"/> (a full path) the diffuse of the surfaces drawing
+    /// <paramref name="surfaceMaterial"/>: a map outfit's slot texture. It becomes those surfaces' own material, so
+    /// skins and camo still draw over it and give it back. False when the mesh has no such surface or no such file.
+    /// </summary>
+    public bool SetOutfitTexture(string surfaceMaterial, string texturePath)
+    {
+        if (_template?.Outfit(surfaceMaterial, texturePath) is not { } material)
+        {
+            return false;
+        }
+
+        for (int e = 0; e < _surfaces.Count; e++)
+        {
+            (MeshInstance3D mesh, int surface, string name, _) = _surfaces[e];
+            if (name != surfaceMaterial)
+            {
+                continue;
+            }
+
+            _surfaces[e] = (mesh, surface, name, material);
+            if (!_skinned.Contains((mesh, surface)))
+            {
+                SetSurfaceMaterial(mesh, surface, Base(mesh, surface, material));
+            }
+        }
+
+        return true;
+    }
 
     public void Place(FVector location, FRotator rotation, FVector prePivot, float drawScale = 1f) =>
         Place(location, rotation, prePivot, new FVector(drawScale, drawScale, drawScale));

@@ -1,11 +1,20 @@
 # SVMap 1.2
 
 SVMap is the map format of SVM. Every original `.sdc` map converts to it, and native maps are authored in it. One
-map is one folder. 1.2 is a minor version of 1.1: everything a 1.1 reader understands is unchanged. It adds a map's
-own identity, in optional client files that 1.1 readers skip: its name, dossier, authors, recommended players, tags,
-numbered places and pictures (`ui/identity.json`, `ui/pictures/`), and translations of its texts
-(`ui/text/<lang>.json`). Facts a server needs stay in `sim/` and `manifest.json`. The 1.1 additions over 1.0 are
-described below as they were.
+map is one folder. 1.2 is a minor version of 1.1: every 1.1 file reads as before, and a 1.1 reader can load a 1.2
+map. 1.2 adds:
+
+- a map's own identity, in optional client files that 1.1 readers skip: its name, dossier, authors, recommended
+  players, tags, numbered places and pictures (`ui/identity.json`, `ui/pictures/`), and translations of its texts
+  (`ui/text/<lang>.json`);
+- player-count rules on actors and win targets by team size (`sim/match.json`, [match.md](match.md)), and the teams'
+  outfits (`render/outfits.json`, [outfits.md](outfits.md));
+- OpenSCCT's native conveyor actor, `Svm.Conveyor` ([conveyors.md](conveyors.md)).
+
+A 1.1 reader cannot play every 1.2 map as authored: a server that does not read `sim/match.json` plays every actor at
+every player count, and a reader without `Svm.Conveyor` keeps conveyors as unported actors (their built look draws
+and collides, nothing moves). Hosts serve 1.2 maps on builds that read 1.2. Facts a server needs stay in `sim/` and
+`manifest.json`. The 1.1 additions over 1.0 are described below as they were.
 
 ```
 <Map>/
@@ -17,6 +26,7 @@ described below as they were.
     collision.bin          collision geometry and colliders (binary, chunked)
     traversal.json         geometric events (GEs): ledges, pipes, zip lines, ladders, fences, poles, HOH bars
     rain.json              (1.1, optional) the rain volumes' boxes, which make pawns wet
+    match.json             (1.2, optional) player-count rules on actors and win targets by team size
   render/                  client only
     world.glb              world BSP, static mesh library and the instance table
     materials.json         (1.1) material blend flags, gameplay flags and the material object graph
@@ -24,7 +34,9 @@ described below as they were.
     fx.json                (1.1) emitters with their sub-emitters, projectors, rain, cloth
     textures/*.png         (1.1) textures and lightmaps named by world.glb and the JSON files
     chars/<Package>/       (1.1, optional) the skeletal meshes the map's actors draw (SAnimatedMesh props, DT_Mesh
-                           fish) as the shared chars lay them out: <Mesh>.glb, <Animation>.anim.json, textures/
+                           fish) as the shared chars lay them out: <Mesh>.glb, <Animation>.anim.json, textures/;
+                           (1.2) also the outfit models the map ships
+    outfits.json           (1.2, optional) the teams' slot textures, replacement models and cosmetics policy
   audio/                   client only (later)
   ui/                      client only
     mapinfo.json           (1.1) map name and briefing texts per game mode, in the map's base language
@@ -38,8 +50,11 @@ described below as they were.
 ```
 
 The dedicated server loads only `sim/` and `manifest.json`. The client loads all of it. `fixtures/testbox/` is a
-complete synthetic 1.0 example; converted maps are 1.1; maps made in the map editor are 1.2 when they carry an
-identity.
+complete synthetic 1.0 example. A map declares `formatVersion` `1.2.x` in `manifest.json`, `sim/gameplay.json` and
+`sim/traversal.json` when it uses something new in 1.2 (`ui/identity.json`, `ui/text/`, `sim/match.json`,
+`render/outfits.json` or a `Svm.Conveyor` actor); other maps stay 1.1. Converted maps are 1.1 unless the original
+carries one of the RE+ families that convert to a 1.2 file; maps made in the map editor are 1.2 when they use one of
+these.
 
 ## Documents
 
@@ -47,6 +62,9 @@ identity.
 |---|---|
 | [../1.1/conventions.md](../1.1/conventions.md) | units, axes, rotators, transforms, ids, float32 text form, canonical sim hash (unchanged since 1.0) |
 | [../1.1/collision.md](../1.1/collision.md) | exact byte layout of `sim/collision.bin`, with the 1.1 chunks `CSRC`, `TFLX`, `CYLX` (unchanged in 1.2) |
+| [match.md](match.md) | `sim/match.json`: rules, holds, win targets, how RE+ `SMatchSizeRules` converts |
+| [outfits.md](outfits.md) | `render/outfits.json`: slots, models, goggles, cosmetics policy, how RE+ `SCharacterOutfits` converts |
+| [conveyors.md](conveyors.md) | `Svm.Conveyor` actors: props, class table, collision and `world.glb` instances |
 | [schemas/](schemas/) | JSON Schemas 2020-12 of `manifest.json`, `sim/gameplay.json`, `sim/traversal.json`, `ui/identity.json`, `ui/text/<lang>.json` and shared definitions |
 | [CHANGELOG.md](CHANGELOG.md) | format history |
 
@@ -150,6 +168,25 @@ overlaid with its props by the rules above.
   elements (`$elements`).
 - Native maps may write the table from their engine's class defaults; a loader whose classes already hold these
   defaults only applies what differs.
+- Classes a map defines (1.2): a map package may carry its own UnrealScript classes (RE+ tools compile into the map,
+  map makers added scripts). Converters decode them from the package itself, so their actors are written with full
+  props like any other. Their entries carry `"mapScript": true` and their defaults like any other class. OpenSCCT
+  loads such an actor as an inert actor (`UnportedActor`) that keeps its class path, its record with every prop and
+  its class defaults; none of its script runs. The RE+ families with a native form are not written as actors:
+  `SMatchSizeRules` becomes `sim/match.json`, `SCharacterOutfits` becomes `render/outfits.json`.
+- The table need not list `Svm.Conveyor` (1.2); a reader that finds no entry uses the class's own defaults
+  ([conveyors.md](conveyors.md)).
+
+## `sim/match.json` (1.2, optional)
+
+`{"format": "svm.match/1", "rules": [...], "win": [...]}`: player-count rules on any actor (`players` range,
+`outside` and `inside` states, mover key positions 0 to 7) and win targets by team size, 1v1 to 12v12. It is in the
+sim hash, so clients and server agree on it. Details: [match.md](match.md).
+
+## `Svm.Conveyor` actors (1.2)
+
+Path conveyors that carry pawns and dropped objects, written in `sim/gameplay.json` like any other actor, with their
+built look in `sim/collision.bin` and `render/world.glb`. Details: [conveyors.md](conveyors.md).
 
 ## `sim/rain.json` (1.1, optional)
 
@@ -178,6 +215,12 @@ its vertex colours and no `ambientGlow`), and `softBody` on soft bodies (ESBPatc
 nbV, the simulation settings over the class defaults, collSound and shotSound paths, and the saved rest state as
 `points`, `uvs`, `fixed` particle indices and `links` [a, b, rest length]; library vertex i and i + N are particle i). Transforms are in UE space; the client converts them through `UeSpace`.
 Images are PNG files under `render/textures/` named by relative URI.
+
+## `render/outfits.json` (1.2, optional)
+
+`{"format": "svm.outfits/1", "spy": {...}, "merc": {...}}`, client only: per team the body and head slot textures, a
+replacement model (the map's glb under `render/chars/<Map>/` or a stock mesh) with its goggle placement, and the
+cosmetics policy. The server never reads it. Details: [outfits.md](outfits.md).
 
 ## `render/materials.json`, `render/lighting.json`, `render/fx.json`, `ui/mapinfo.json` (1.1)
 
@@ -247,7 +290,7 @@ what breaks a rule below, never failing the map. Schema: [schemas/identity.schem
 | `authors` | People or teams, in credit order. |
 | `version` | The author's version of the map (SemVer recommended), independent of any pack version. |
 | `language` | BCP 47 primary tag of the texts in `identity.json`, `mapinfo.json` and the actors' localised properties in `sim/`; `en` when absent. |
-| `players` | `{recommended}`: the lobby size (1 to 24, `LobbySetup.MaxMaxPlayers`) the map plays best at. The range of lobby sizes a map supports is gameplay (its match-size rules) and lives in `sim/`, never here. Absent: 6 for maps tagged `3v3` (or in a shared `3v3` playlist), else 4. |
+| `players` | `{recommended}`: the lobby size (1 to 24, `LobbySetup.MaxMaxPlayers`) the map plays best at. The range of lobby sizes a map supports is gameplay (its match-size rules, `sim/match.json`) and lives in `sim/`, never here. Absent: 6 for maps tagged `3v3` (or in a shared `3v3` playlist), else 4. |
 | `tags` | Lowercase `[a-z0-9-]{1,24}`, unique. Known tags: `3v3` (the 3v3 filter lists the map; also implied by `players.recommended` of exactly 6), `1v1`, `competitive`, `casual`, `small`, `large`. Others are shown and searchable. A map never names its own playlists: playlists are kept by whoever curates them (the shared catalogue, the content index, a server's config). |
 | `places` | `{number, name, at, floor?}`: the numbered areas of the briefing plan and the strategic map. `number` 1 to 99, unique; `at` a UE-space point, the label's anchor; `floor` the `LevelInfo.MapFloors` index (absent: the floor of `at`'s height). Readers draw the numbers over the strategic map's floors and over a briefing plan whose `briefingProjection` is `snapshot`; `mapinfo.json` `LegendMapInBrief` lists them. |
 | `pictures.menu` | The map list picture. Square, at least 512 x 512 (1024 x 1024 recommended). |

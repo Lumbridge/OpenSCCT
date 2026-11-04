@@ -11,6 +11,7 @@ from ..svmap import LATEST_VERSION, write_svmap
 from ..writers.collision import KINDS, read_collision
 from .collision import CollisionBuilder
 from .gameplay import build_class_table, build_gameplay
+from .mapclasses import build_match, build_outfits, map_script_actors
 from .props import build_skeletal_props
 from .rain import build_rain
 from .render import RenderBuilder
@@ -19,6 +20,8 @@ from .strategicmap import build_strategic_map
 from .traversal import build_traversal
 
 GENERATOR = "svmbuild.maps"
+# A map with sim/match.json or render/outfits.json is SVMap 1.2 (spec/svmap/1.2); every other map stays 1.1.
+MATCH_OUTFITS_VERSION = "1.2.0"
 GENERATOR_VERSION = 1
 
 
@@ -31,6 +34,9 @@ def build_map(game: Path, name: str, out_dir: Path, db, *, map_sha256: str, clas
     timings["open"] = time.perf_counter() - t0
 
     t = time.perf_counter()
+    # The RE+ classes lifted into native data are taken out of the actors first (mapclasses.py).
+    match, mstats = build_match(src)
+    outfit_files, ostats = build_outfits(src, db, Path(out_dir).parent / ".work" / f"{name}-outfits", write=render)
     gameplay, ui, gstats = build_gameplay(src)
     class_table = build_class_table(src)
     timings["gameplay"] = time.perf_counter() - t
@@ -60,13 +66,18 @@ def build_map(game: Path, name: str, out_dir: Path, db, *, map_sha256: str, clas
         # The skeletal props the map places travel with it (render/chars/): a downloaded map's anim package is often
         # not in the player's install, so the shared chars lack them.
         render_files.update(build_skeletal_props(src, db, Path(out_dir).parent / ".work" / f"{name}-props", rstats))
+        render_files.update(outfit_files)
         timings["render"] = time.perf_counter() - t
 
+    version = MATCH_OUTFITS_VERSION if match is not None or ostats else LATEST_VERSION
+    gameplay["formatVersion"] = traversal["formatVersion"] = version
     title = str(src.level_info.props.get("Title") or ui.get("MapName") or name)
     source = {"kind": "converted", "generator": GENERATOR, "generatorVersion": GENERATOR_VERSION,
               "original": {"file": f"Packages/Maps/{src.path.name}", "sha256": map_sha256}}
     requires = [{"pack": "classes", "sha256": classes_pack}] if classes_pack else []
     files = {"sim/classes.json": canonical.dump_file(class_table)}
+    if match is not None:
+        files["sim/match.json"] = canonical.dump_file(match)
     rain = build_rain(src)
     if rain["volumes"]:
         files["sim/rain.json"] = canonical.dump_file(rain)
@@ -76,7 +87,7 @@ def build_map(game: Path, name: str, out_dir: Path, db, *, map_sha256: str, clas
     t = time.perf_counter()
     manifest = write_svmap(out_dir, map_id=name, title=title, source=source, gameplay=gameplay, traversal=traversal,
                            collision=collision, render=render_files, requires=requires, files=files,
-                           format_version=LATEST_VERSION)
+                           format_version=version)
     timings["write"] = time.perf_counter() - t
     timings["total"] = time.perf_counter() - t0
 
@@ -97,6 +108,8 @@ def build_map(game: Path, name: str, out_dir: Path, db, *, map_sha256: str, clas
                       "hulls": len(d.hulls), "cylinders": len(d.cylinders), "zones": len(d.zones),
                       "materials": len(d.materials), "detail": cb.stats},
         "traversal": tstats,
+        "mapClasses": {"defined": list(src.map_classes), "scripts": sorted({a.cls for a in map_script_actors(src)}),
+                       "match": mstats, "outfits": ostats},
         "render": rstats,
         "sizes": sizes,
         "files": len(manifest["files"]),

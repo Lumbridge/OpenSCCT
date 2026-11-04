@@ -57,6 +57,7 @@ public partial class SimPawnView : Node3D
     private float _relightClock;
     private StickySkins? _stickySkins;
     private string? _glb;
+    private PawnOutfits.Dressed? _dressed;
     private SkinShown _skinShown;
     private CosmeticLook _lookDrawn = new(-1, -1);
 
@@ -89,11 +90,15 @@ public partial class SimPawnView : Node3D
     /// <summary>OpenSCCT's world-space shock-protection cue (merc bodies only).</summary>
     public MercShockImmunityView? ShockImmunity => _shockImmunity;
 
-    /// <summary>Loads the mesh for <paramref name="pawn"/>; false when the shared packs do not have it.</summary>
+    /// <summary>
+    /// Loads the mesh for <paramref name="pawn"/>, dressed in the map's outfit for its team; false when the shared
+    /// packs do not have the team's mesh.
+    /// </summary>
     public bool Bind(SBasePawn pawn, string? sharedRoot)
     {
         Pawn = pawn ?? throw new ArgumentNullException(nameof(pawn));
-        string asset = pawn is SPAWNDEFENSE ? "SPerso.DEF_01" : "SPerso.ATT_01";
+        bool spy = pawn is not SPAWNDEFENSE;
+        string asset = spy ? "SPerso.ATT_01" : "SPerso.DEF_01";
         string? root = sharedRoot ?? Map?.SharedRoot;
         string? glb = SkeletalModel.FindGlb(asset, root);
         if (glb is null)
@@ -101,13 +106,19 @@ public partial class SimPawnView : Node3D
             return false;
         }
 
-        _model = SkeletalModel.Load(glb);
-        _glb = glb;
+        _dressed = PawnOutfits.Load(glb, Map?.Outfits.For(spy), Map?.Folder, root);
+        _model = _dressed.Model;
+        _glb = _dressed.Glb;
         AddChild(_model.Root);
         _stickySkins = StickySkins.For(root);
-        _applier = new ChannelPoseApplier(_model.Skeleton, pawn.BoneMirrors, _model.PackageBones);
+        // BoneMirrors counts the team's stock skeleton; the bone names in that order find the drawn model's bones (an
+        // outfit model has its own order, or another team's skeleton).
+        _applier = new ChannelPoseApplier(_model.Skeleton, pawn.BoneMirrors, SkeletalModel.PackageBonesOf(glb));
         _attachments = new PawnAttachments(this, root) { Map = Map };
-        _goggleGlow = new GoggleGlowView(this, root, bone => (TryGetBone(bone, out Transform3D world), world));
+        _goggleGlow = new GoggleGlowView(this, root, bone => (TryGetBone(bone, out Transform3D world), world))
+        {
+            Outfit = _dressed.Outfit is { } outfit ? (new Name(outfit.GoggleBone), outfit.GoggleOffset) : null,
+        };
         _shockImmunity = new MercShockImmunityView(_model);
         Name = $"Pawn{pawn.ActorId}";
         return true;
@@ -163,7 +174,8 @@ public partial class SimPawnView : Node3D
         {
             SkinShown.Sticky => _stickySkins is { } sticky ? sticky.Over : null,
             SkinShown.WetSpyMachine or SkinShown.WetMercMachine =>
-                WetSkins.For(_glb, pawn is not SPAWNDEFENSE, want == SkinShown.WetSpyMachine) is { } wet ? wet.Over : null,
+                WetSkins.For(_glb, pawn is not SPAWNDEFENSE, want == SkinShown.WetSpyMachine, _dressed?.DryBody, _dressed?.DryHead) is { } wet
+                    ? wet.Over : null,
             _ => null,
         };
         int surfaces = _model.SetSkins(skin);

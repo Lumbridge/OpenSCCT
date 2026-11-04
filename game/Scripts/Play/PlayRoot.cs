@@ -74,6 +74,7 @@ public sealed record PlayConfig
             MapRoots = [.. options.MapRoots],
             Bots = options.PlayBots,
             Difficulty = options.PlayDifficulty,
+            MatchPlayers = options.PlayPlayers,
         };
         if (options.PlayNetRate > 0)
         {

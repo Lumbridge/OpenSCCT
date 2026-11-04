@@ -1,5 +1,6 @@
 using System;
 using Godot;
+using OpenScct.Content;
 using OpenScct.Core.Engine;
 using OpenScct.Game.SBase;
 using OpenScct.Net.Cosmetics;
@@ -23,9 +24,15 @@ public static class PawnCosmetics
     /// <summary>The retail merc torch and lamp orange's hue, degrees (RenderK.TorchHue 21 of 255).</summary>
     public const float MercRetailHue = 21f * 360f / 255f;
 
+    /// <summary>The outfits of the map being drawn (set when a map is built; none between maps).</summary>
+    public static MapOutfits Outfits { get; set; } = MapOutfits.None;
+
     /// <summary>
     /// The look drawn on the pawn (retail when there is none). The local player's own pawn wears the Armoury's choice
     /// while "hide mine" keeps it off the servers; other players' pawns are drawn retail while "hide others" is on.
+    /// A map outfit on the pawn's team then decides what is left (spec/additions/map-outfits.md): by default the map's
+    /// look wins on the body when the outfit dresses the body (a body texture or a model; a head texture alone leaves
+    /// the body camo), and the light hue and gun skins stay; "none" draws the team retail.
     /// </summary>
     public static CosmeticLook LookOf(Pawn? pawn)
     {
@@ -36,12 +43,16 @@ public static class PawnCosmetics
 
         GameSettings settings = SettingsStore.Current;
         bool mine = ReferenceEquals(pawn.Level?.GetLocalPlayerController()?.PlayerReplicationInfo, pri);
-        if (mine)
+        CosmeticLook look = mine
+            ? settings.CosmeticsHideMine ? settings.OwnLook(SideOf(pawn)) : new CosmeticLook(pri.SvmLook, pri.SvmLookExtra)
+            : settings.CosmeticsHideOthers ? CosmeticLook.Default : new CosmeticLook(pri.SvmLook, pri.SvmLookExtra);
+        TeamOutfit? outfit = Outfits.For(spy: pawn is not SPAWNDEFENSE);
+        return outfit?.Cosmetics switch
         {
-            return settings.CosmeticsHideMine ? settings.OwnLook(SideOf(pawn)) : new CosmeticLook(pri.SvmLook, pri.SvmLookExtra);
-        }
-
-        return settings.CosmeticsHideOthers ? CosmeticLook.Default : new CosmeticLook(pri.SvmLook, pri.SvmLookExtra);
+            OutfitCosmetics.Map when outfit.Body is not null || outfit.Model is not null => look.With(CosmeticSlot.Body, null),
+            OutfitCosmetics.None => CosmeticLook.Default,
+            _ => look,
+        };
     }
 
     public static CosmeticSide SideOf(Pawn pawn) => pawn is SPAWNDEFENSE ? CosmeticSide.Merc : CosmeticSide.Spy;

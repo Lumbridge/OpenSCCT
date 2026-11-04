@@ -10,7 +10,8 @@
   The server needs them: AnimNotify_Trigger notifies fire events (the SteeE crane).
 - tagIndex, eventEdges, missionTree: derived (svmbuild.svmap, 1.1 rules).
 - sim/classes.json: the effective class defaults of every class used by those actors, and the super chains, so a
-  reader can rebuild the full state of an actor (defaults overlaid with its props) from sim/ alone.
+  reader can rebuild the full state of an actor (defaults overlaid with its props) from sim/ alone. Classes the map
+  defines itself carry "mapScript": true.
 """
 
 from __future__ import annotations
@@ -210,6 +211,8 @@ def build_class_table(src: MapSource) -> dict:
     for cls in used:
         for i, c in enumerate(src.db.chain(cls)):
             entry = classes.setdefault(c, {"super": src.db.classes[c].get("super")})
+            if src.db.is_package_class(c, src.pkg.path.stem):
+                entry["mapScript"] = True
             if i == 0:
                 entry["defaults"] = src.db.defaults_json(c, notes=src.notes)
     return {"format": "svm.classes/1", "classes": classes}
