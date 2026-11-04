@@ -141,25 +141,34 @@ internal static class InteractionAuthorization
 /// <summary>
 /// The server's reach test of a use (<see cref="InteractionAuthorization"/>), for any pawn place: the pawn's cylinder
 /// overlaps the entry's (the larger of its collision and interaction cylinders), and the line from the pawn to the entry
-/// is open or stops on the entry or its owner. Tools ask it for floors a pawn could stand on.
+/// is open, stops on the entry or its owner, or stops on the surface the entry is mounted on. Tools ask it for floors a
+/// pawn could stand on.
 /// </summary>
 public static class InteractionReach
 {
     /// <summary>
-    /// True when a pawn of <paramref name="pawnRadius"/> by <paramref name="pawnHeight"/> (half height) centred at
-    /// <paramref name="pawnLocation"/> can use <paramref name="entry"/>. <paramref name="source"/> is the actor the line
-    /// leaves out (the pawn; a tool without one passes the entry).
+    /// How far short of the entry the line may stop on the surface the entry is mounted on. A wall-mounted entry has its
+    /// pivot a few units inside its wall (SteeE's first aid boxes 1.2 to 1.5, stock switches up to about 15), and the
+    /// original's own use rule, the touch of the two cylinders, has no line to refuse it.
     /// </summary>
-    public static bool From(SInteractObject entry, Actor source, FVector pawnLocation, float pawnRadius, float pawnHeight)
+    public const float MountDepth = 16f;
+
+    /// <summary>
+    /// True when a pawn of <paramref name="pawnRadius"/> by <paramref name="pawnHeight"/> (half height) centred at
+    /// <paramref name="pawnLocation"/> can use <paramref name="entry"/>. <paramref name="pawn"/> is the pawn the line
+    /// leaves out (null for a tool asking about a place no pawn stands at).
+    /// </summary>
+    public static bool From(SInteractObject entry, Actor? pawn, FVector pawnLocation, float pawnRadius, float pawnHeight)
     {
         ArgumentNullException.ThrowIfNull(entry);
         FVector delta = entry.Location - pawnLocation;
         float radius = Math.Max(entry.CollisionRadius, entry.ItRadius) + pawnRadius;
         float height = Math.Max(entry.CollisionHeight, entry.ItHeight) + pawnHeight;
         if (!(delta.X * delta.X + delta.Y * delta.Y <= radius * radius) || !(Math.Abs(delta.Z) <= height)) return false;
+        if (GadgetWorld.Collision(entry) is not { } world) return true;
         // We need the nearest obstruction: a BSP surface behind an attached panel must not mask the panel hit.
         var flags = GadgetWorld.SightFlags & ~OpenScct.Physics.Collision.ETraceFlags.TRACE_StopAtFirstHit;
-        return !GadgetWorld.Line(source, entry.Location, pawnLocation, flags, out var hit) ||
-            ReferenceEquals(hit.Actor, entry) || ReferenceEquals(hit.Actor, entry.Owner);
+        if (!world.LineCheck(out var hit, pawn, entry.Location, pawnLocation, FVector.Zero, flags) || !hit.bHit) return true;
+        return ReferenceEquals(hit.Actor, entry) || ReferenceEquals(hit.Actor, entry.Owner) || (hit.Location - entry.Location).Size() <= MountDepth;
     }
 }

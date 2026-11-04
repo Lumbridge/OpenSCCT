@@ -296,22 +296,31 @@ young and cost no visible time.
 
 ## Routes and online rounds from the command line
 
-The map editor's headless test rounds (`ose play --headless`) use two launch options besides `--svm-play`:
+The map editor's headless test rounds (`ose play --headless`) use these launch options besides `--svm-play`. Both kinds
+of round run with the default settings, signed out: they never use or write the player's name, account, settings or
+demo recording.
 
-- `--svm-route=x,y,z;x,y,z` with `--svm-play`: the local player walks through the points in order
-  ([RoutePilot](../game/Scripts/Play/Session/RoutePilot.cs): one `ScriptedPilot` leg per point, the pawn's own path
-  planner and keys). It prints `SVM_ROUTE start at (x,y,z), N points`, then `SVM_ROUTE reached i (x,y,z) at T s` per
-  point, or `SVM_ROUTE stuck before i (x,y,z) at (x,y,z) after T s: why` and stops, and last
-  `SVM_ROUTE done: reached k of N`. Offline rounds only.
-- `--svm-lan-host=PORT` with `--svm-play=Map --side=spy|merc [--players=N]` hosts the map as an online round, loopback
-  only, unlisted, no bots and no time limit; `--svm-join=127.0.0.1:PORT --side=...` joins it
-  ([CommandLineRound](../game/Scripts/Online/CommandLineRound.cs)). Each takes its side's team, the client gets ready,
-  and the host launches once the lobby holds `--players` (2 when not given) and the others are ready. Both print
-  `SVM_NET` lines: the client state, the lobby, `launching`, `loaded Map as side`, and every 10 s the pawns their own
-  world holds, so the client's lines show what the host sent it.
+- `--svm-route=stop;stop;...` with `--svm-play` and `--side`: a route bot walks the stops in order on that side, and
+  the local player stands by on the other side ([RouteAi](../src/OpenScct.Game/AI/RouteAi.cs)). A stop is a floor
+  point `x,y,z` or a placed actor by map id. An actor with a Use entry is reached on a floor from which the server's
+  use test passes, checked again where the bot stops; another actor on the floor under it. The bot walks with the
+  side's own navigation, as the other bots do: walks, crouches, drops, ladders, pipes, ledges, zip lines and the GEs,
+  and closed doors opened by their switch or by walking into them. It does not ride lifts, fight or use gadgets.
+  `--svm-route-from=PlayerStartId` starts it at that start of its side (the side's other starts are switched off for
+  the round). It prints `SVM_ROUTE start at (x,y,z), N stops`, then `SVM_ROUTE reached i Stop at T s` per stop, or
+  `SVM_ROUTE stuck before i Stop at (x,y,z) after T s: why` and stops, and last `SVM_ROUTE done: reached k of N`.
+  Offline rounds only.
+- `--svm-lan-host=PORT` with `--svm-play=Map --mode=Story --side=spy|merc [--players=N]` hosts the map as an online
+  round with the lobby's rules for the mode, loopback only, unlisted, no bots and no time limit;
+  `--svm-join=127.0.0.1:PORT --side=...` joins it ([CommandLineRound](../game/Scripts/Online/CommandLineRound.cs)). Each
+  takes its side's team, the client gets ready, and the host launches once the lobby holds `--players` (2 when not
+  given) and the others are ready. Both print `SVM_NET` lines: the client state, the lobby, `launching`,
+  `loaded Map as side`, and every 10 s the pawns their own world holds, so the client's lines show what the host sent
+  it.
 
 ```
-OpenSCCT.exe --headless -- --svm-maps=<folder> --svm-play=SteeE --side=merc --svm-lan-host=27100 --players=2
+OpenSCCT.exe --headless -- --svm-maps=<folder> --svm-play=SteeE --side=merc --svm-route=PlayerStart3149;SInfirmary245 --svm-route-from=PlayerStart254
+OpenSCCT.exe --headless -- --svm-maps=<folder> --svm-play=SteeE --mode=Story --side=merc --svm-lan-host=27100 --players=2
 OpenSCCT.exe --headless -- --svm-maps=<folder> --svm-play=SteeE --side=spy --svm-join=127.0.0.1:27100
 ```
 

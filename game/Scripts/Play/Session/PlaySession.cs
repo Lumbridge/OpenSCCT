@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using OpenScct.Bots;
 using OpenScct.Content;
+using OpenScct.Content.Loading;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
 using OpenScct.Game.AI;
@@ -86,7 +87,7 @@ public sealed class PlaySession : IDisposable
 
         // The bots' navigation is built (or loaded from its cache) before the host starts ticking.
         AiNavCache? nav = null;
-        if (settings.Bots > 0)
+        if (settings.Bots > 0 || settings.Route is not null)
         {
             nav = new AiNavCache();
             nav.Prepare(Catalog, map.Id, loadProgress);
@@ -549,19 +550,60 @@ public sealed class PlaySession : IDisposable
 
     private void AddBots(AiNavCache? nav)
     {
-        if (Settings.Bots <= 0)
+        if (Settings.Bots <= 0 && Settings.Route is null)
         {
             return;
         }
 
         AiDifficulty difficulty = AiDifficulty.TryParse(Settings.Difficulty, out AiSkill skill) ? AiDifficulty.For(skill) : AiDifficulty.For(AiSkill.Normal);
+        var bots = new List<ServerBotSpec>(ServerBotSettings.Fill(Settings.Bots, Settings.Team, difficulty));
+        if (Settings.Route is { } route)
+        {
+            bots.Add(RouteBot(route, difficulty));
+        }
+
         Bots = new ServerBots(Host, new ServerBotSettings
         {
-            Bots = ServerBotSettings.Fill(Settings.Bots, Settings.Team, difficulty),
+            Bots = bots,
             Nav = nav,
             Maps = Catalog,
             TerminalsBlockPlayers = Settings.TerminalsBlockPlayers ?? true,
         });
+    }
+
+    /// <summary>
+    /// The route bot: its stops found on the host's map (a stop naming no actor is reported by the walk), and with a
+    /// start given, every other start of its side switched off so it starts there (<see cref="RouteAi"/>).
+    /// </summary>
+    private ServerBotSpec RouteBot(PlayRoute route, AiDifficulty difficulty)
+    {
+        int team = route.Side == PlaySide.Spy ? 0 : 1;
+        MapLoadResult? map = Host.Map.Loaded;
+        var stops = new List<AiRouteStop>();
+        foreach (string stop in route.Stops)
+        {
+            stops.Add(PlayRoute.Point(stop) is { } point
+                ? new AiRouteStop(stop, point, null)
+                : new AiRouteStop(stop, null, map?.FindActor(stop)));
+        }
+
+        if (route.From is { } from)
+        {
+            if (map?.FindActor(from) is not PlayerStart { bEnabled: true } start || start.TeamNumber != team)
+            {
+                throw new ArgumentException($"{from} is not an enabled player start of the {(team == 0 ? "spies" : "mercs")}, so the route cannot start there");
+            }
+
+            foreach ((Actor actor, _) in map.PlacedActors())
+            {
+                if (actor is PlayerStart other && other.TeamNumber == team && !ReferenceEquals(other, start))
+                {
+                    other.bEnabled = false;
+                }
+            }
+        }
+
+        return new ServerBotSpec(team == 0 ? "SpyRoute" : "MercRoute", team, difficulty) { Route = new AiRoute(stops, route.Report) };
     }
 
     /// <summary>Server thread: the connection joined, so the player logs in (UE2 SpawnPlayActor) and the host starts.</summary>

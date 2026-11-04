@@ -41,6 +41,7 @@ OpenSCCT.exe -- --svm-play=SteeE --side=spy --bots=3 --difficulty=normal   # a 2
 | [src/OpenScct.Game/AI/NavBuilder.cs](../src/OpenScct.Game/AI/NavBuilder.cs), `NavGraph.cs`, `NavFollower.cs` | navigation from collision and GEs, A*, following with keys |
 | [src/OpenScct.Game/AI/DoorAi.cs](../src/OpenScct.Game/AI/DoorAi.cs) | closed doors on a route: wait, hack the door's switch, or shut its edges |
 | [src/OpenScct.Game/AI/AiBrain.cs](../src/OpenScct.Game/AI/AiBrain.cs), `SpyAi.cs`, `MercAi.cs` | utility choice and the two sides' goals |
+| [src/OpenScct.Game/AI/RouteAi.cs](../src/OpenScct.Game/AI/RouteAi.cs) | a route bot for test rounds (`--svm-route`): walks stops in order on its side's navigation and reports each one reached or where it got stuck; no fighting, gadgets or lifts |
 | [src/OpenScct.Game/AI/Evasion.cs](../src/OpenScct.Game/AI/Evasion.cs), `SpyGadgets.cs` | a spy's play round the motion tracker; its smoke, flash, chaff, heartbeat and sticky cam |
 | [src/OpenScct.Game/AI/TeamAi.cs](../src/OpenScct.Game/AI/TeamAi.cs) | team play: revive, heal and unspy a mate, climb on a mate's boost or hoist, offer a boost |
 | [src/OpenScct.Game/AI/AiDifficulty.cs](../src/OpenScct.Game/AI/AiDifficulty.cs), `AiK.cs` | presets and constants (decoded ones carry their provenance) |

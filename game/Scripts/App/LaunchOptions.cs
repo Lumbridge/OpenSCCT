@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using OpenScct.Core;
 
 namespace OpenScctGame;
 
@@ -35,6 +34,7 @@ public sealed class LaunchOptions
     public const string AffinityPrefix = "--affinity=";
     public const string MapShotPrefix = "--svm-mapshot=";
     public const string RoutePrefix = "--svm-route=";
+    public const string RouteFromPrefix = "--svm-route-from=";
     public const string LanHostPrefix = "--svm-lan-host=";
     public const string JoinPrefix = "--svm-join=";
     public const double DefaultSmokeTimeoutSeconds = 120.0;
@@ -119,10 +119,14 @@ public sealed class LaunchOptions
     public string? MapShotRequest { get; private init; }
 
     /// <summary>
-    /// Points the local player walks through in order in an offline play (<c>--svm-route=x,y,z;x,y,z</c>, where the
-    /// player stands), printing each point reached or where it got stuck (<see cref="Play.Session.RoutePilot"/>), or null.
+    /// The stops a route bot walks in order in an offline play, on <see cref="PlaySide"/>'s side while the local player
+    /// takes the other (<c>--svm-route=x,y,z;SInfirmary245</c>: floor points or placed actors by map id), printing
+    /// each stop reached or where it got stuck (<see cref="OpenScct.Game.AI.RouteAi"/>), or null.
     /// </summary>
-    public IReadOnlyList<FVector>? PlayRoute { get; private init; }
+    public IReadOnlyList<string>? PlayRoute { get; private init; }
+
+    /// <summary>The player start the route bot starts at (<c>--svm-route-from=PlayerStart254</c>), or null for any of its side's.</summary>
+    public string? PlayRouteFrom { get; private init; }
 
     /// <summary>
     /// Host the <see cref="PlayMap"/> as an online round on this UDP port, loopback only and unlisted, and launch it
@@ -169,7 +173,8 @@ public sealed class LaunchOptions
         string? priority = null;
         string? affinity = null;
         string? mapShot = null;
-        List<FVector>? route = null;
+        List<string>? route = null;
+        string? routeFrom = null;
         int? lanHost = null;
         string? join = null;
         foreach (string arg in userArgs)
@@ -277,9 +282,13 @@ public sealed class LaunchOptions
             {
                 mapShot = arg[MapShotPrefix.Length..].Trim('"');
             }
-            else if (arg.StartsWith(RoutePrefix, StringComparison.Ordinal) && ParseRoute(arg[RoutePrefix.Length..]) is { } points)
+            else if (arg.StartsWith(RoutePrefix, StringComparison.Ordinal) && ParseRoute(arg[RoutePrefix.Length..]) is { } stops)
             {
-                route = points;
+                route = stops;
+            }
+            else if (arg.StartsWith(RouteFromPrefix, StringComparison.Ordinal) && arg.Length > RouteFromPrefix.Length)
+            {
+                routeFrom = arg[RouteFromPrefix.Length..].Trim('"');
             }
             else if (arg.StartsWith(LanHostPrefix, StringComparison.Ordinal)
                 && int.TryParse(arg[LanHostPrefix.Length..], NumberStyles.None, CultureInfo.InvariantCulture, out int port) && port is > 0 and < 65536)
@@ -322,29 +331,30 @@ public sealed class LaunchOptions
             Affinity = affinity,
             MapShotRequest = mapShot,
             PlayRoute = route,
+            PlayRouteFrom = routeFrom,
             NetHostPort = lanHost,
             NetJoin = join,
             Unknown = unknown,
         };
     }
 
-    /// <summary>Points as <c>x,y,z;x,y,z</c>, or null when any is not three numbers.</summary>
-    private static List<FVector>? ParseRoute(string text)
+    /// <summary>
+    /// Stops as <c>x,y,z;Id;...</c>, or null when one is neither three numbers nor a map id (a stop with a comma must
+    /// be a point).
+    /// </summary>
+    private static List<string>? ParseRoute(string text)
     {
-        var points = new List<FVector>();
+        var stops = new List<string>();
         foreach (string part in text.Trim('"').Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
         {
-            string[] c = part.Split(',');
-            if (c.Length != 3 || !float.TryParse(c[0], NumberStyles.Float, CultureInfo.InvariantCulture, out float x) ||
-                !float.TryParse(c[1], NumberStyles.Float, CultureInfo.InvariantCulture, out float y) ||
-                !float.TryParse(c[2], NumberStyles.Float, CultureInfo.InvariantCulture, out float z))
+            if (part.Contains(',', StringComparison.Ordinal) && Play.Session.PlayRoute.Point(part) is null)
             {
                 return null;
             }
 
-            points.Add(new FVector(x, y, z));
+            stops.Add(part);
         }
 
-        return points.Count > 0 ? points : null;
+        return stops.Count > 0 ? stops : null;
     }
 }

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using Godot;
-using OpenScct.Core;
 using OpenScct.Game.SBase;
 using OpenScct.Server.Online;
 using OpenScctGame.Play;
@@ -12,10 +11,13 @@ namespace OpenScctGame.Online;
 
 /// <summary>
 /// An online round started from the command line with no menus, for test runs with a host and a connected client
-/// (<c>--svm-lan-host=PORT</c> with <c>--svm-play=Map</c>, or <c>--svm-join=ADDRESS</c>): the host serves the map
-/// loopback only and unlisted, the client joins; each takes <c>--side</c>'s team and gets ready, and the host launches
-/// once the lobby holds the players it waits for. Both print what happens as <c>SVM_NET</c> lines: hosting, joined,
-/// the lobby, the round loaded, then every 10 s the pawns their own world holds (so a client shows what it was sent).
+/// (<c>--svm-lan-host=PORT</c> with <c>--svm-play=Map</c> and <c>--mode</c>, or <c>--svm-join=ADDRESS</c>): the host
+/// serves the map loopback only and unlisted with the lobby's rules for the mode and no bots, the client joins; each
+/// takes <c>--side</c>'s team and gets ready, and the host launches once the lobby holds the players it waits for. Both
+/// print what happens as <c>SVM_NET</c> lines: hosting, joined, the lobby, the round loaded, then every 10 s the pawns
+/// their own world holds (so a client shows what it was sent). These runs use the default settings, signed out
+/// (<see cref="OpenScctGame.Options.SettingsStore.Isolated"/>): no player name, account or demo recording of the
+/// person at the machine.
 /// </summary>
 public partial class CommandLineRound : Node
 {
@@ -66,17 +68,17 @@ public partial class CommandLineRound : Node
             string lobby = string.Join(", ", client.Lobby.Players.Select(p => $"{p.Name} ({(p.Team == 0 ? "spy" : "merc")}{(p.Ready ? ", ready" : "")})"));
             if (lobby != _lobby)
             {
+                // One request per lobby change: the host's answer changes the lobby again.
                 _lobby = lobby;
                 Report($"lobby: {lobby}");
-            }
-
-            if (local.Team != Team)
-            {
-                client.SetTeam(Team);
-            }
-            else if (!IsHost && !local.Ready)
-            {
-                client.SetReady(true);
+                if (local.Team != Team)
+                {
+                    client.SetTeam(Team);
+                }
+                else if (!IsHost && !local.Ready)
+                {
+                    client.SetReady(true);
+                }
             }
 
             if (IsHost && !_launched && local.Team == Team && client.Lobby.Players.Count >= Players &&
@@ -118,10 +120,20 @@ public partial class CommandLineRound : Node
     {
         if (Options.NetHostPort is { } port)
         {
-            string map = Options.PlayMap ?? "SteeE";
+            if (Options.PlayMap is not { } map)
+            {
+                Report("could not host: --svm-lan-host needs --svm-play=Map");
+                return;
+            }
+
+            if (OpenScct.Server.MapCatalog.ModeOfKey(Options.PlayMode) is not { } mode)
+            {
+                Report($"could not host: unknown mode '{Options.PlayMode}'");
+                return;
+            }
+
             int capacity = Math.Max(Players, LobbySetup.MinMaxPlayers);
-            LobbySetup setup = LobbySetup.ForMap(map, EGameMode.GM_Multi, online.Catalog.Maps.GetMapSettings(map), capacity)
-                with { TimeLimit = 0, Bots = BotFill.Off };
+            LobbySetup setup = LobbySetup.ForMap(map, mode, online.Catalog.Maps.GetMapSettings(map), capacity) with { TimeLimit = 0, Bots = BotFill.Off };
             bool ok = online.Host(new HostRequest
             {
                 Name = "Test round", Port = port, MaxPlayers = capacity, Listed = false, Upnp = false, LoopbackOnly = true, LanPort = 0,

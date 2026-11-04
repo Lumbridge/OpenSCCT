@@ -66,6 +66,9 @@ public sealed class AiController
 
     public AiDifficulty Difficulty { get; set; }
 
+    /// <summary>A scripted route the bot walks instead of playing (<see cref="RouteAi"/>), or null.</summary>
+    public AiRoute? Route { get; init; }
+
     public int Index { get; }
 
     public SimRandom Random { get; }
@@ -152,7 +155,11 @@ public sealed class AiController
             EnsureGoggle(pawn);
             _lastHealth = pawn.Health;
             Memory.Clear();
-            if (Brain is null || (pawn is SPawnAttaque) != (Brain is SpyAi))
+            if (Route is { } route)
+            {
+                Brain ??= new RouteAi(this, route);
+            }
+            else if (Brain is null || (pawn is SPawnAttaque) != (Brain is SpyAi))
             {
                 Brain = pawn is SPawnAttaque ? new SpyAi(this) : new MercAi(this);
             }
@@ -172,8 +179,9 @@ public sealed class AiController
         ThinkTicks++;
         Perceive(pawn, now, dt);
         var plan = new AiPlan { Tolerance = 9000 };
-        // Team play first (TeamAi.cs): while it helps a mate the side's brain waits, and plans afresh after.
-        if (TeamPlay.Think(now, ref plan))
+        // Team play first (TeamAi.cs): while it helps a mate the side's brain waits, and plans afresh after. A route
+        // walker only walks.
+        if (Route is null && TeamPlay.Think(now, ref plan))
         {
             _teamHeld = true;
         }
@@ -188,13 +196,13 @@ public sealed class AiController
             Brain!.Think(now, ref plan);
         }
 
-        if (pawn is SPawnAttaque && Brain is not SpyAi { Security.Handling: true })
+        if (Route is null && pawn is SPawnAttaque && Brain is not SpyAi { Security.Handling: true })
         {
             Gadgets.Apply(ref plan, now);
             Evasion.Apply(ref plan, now);
         }
 
-        if (pawn is SPAWNDEFENSE) GasProtection.Apply(this, now, ref plan);
+        if (Route is null && pawn is SPAWNDEFENSE) GasProtection.Apply(this, now, ref plan);
         AiInput input = Turn(plan, dt);
         Stance(pawn, ref input, plan.Crouched, now);
         Apply(input);

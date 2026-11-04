@@ -18,6 +18,9 @@ public partial class App : Node
     /// <summary>A run that renders map pictures and quits (<c>--svm-mapshot</c>): no menus, never in the person's way.</summary>
     public bool IsMapShotRun => Options.MapShotRequest is not null;
 
+    /// <summary>A test round for the map editor: a route bot's walk, or an online round with a client from the command line.</summary>
+    public bool IsTestRound => Options.PlayRoute is not null || Options.NetHostPort is not null || Options.NetJoin is not null;
+
     public static App From(Node node) => node.GetNode<App>(NodePath);
 
     public override void _ExitTree()
@@ -99,6 +102,11 @@ public partial class App : Node
             // Map pictures for the map editor: default settings, nothing of the player's written.
             OpenScctGame.Options.SettingsStore.Isolated = true;
             AddChild(new Render.Golden.MapShot(request));
+        }
+        else if (IsTestRound)
+        {
+            // The map editor's test rounds: default settings, signed out, nothing of the player's written or recorded.
+            OpenScctGame.Options.SettingsStore.Isolated = true;
         }
         else
         {

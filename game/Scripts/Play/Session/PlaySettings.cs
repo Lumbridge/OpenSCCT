@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using OpenScct.Content;
 using OpenScct.Core;
@@ -44,6 +45,26 @@ public enum PlayHostMode
     Inline,
 }
 
+/// <summary>
+/// A scripted route a server bot walks on <paramref name="Side"/> (<c>--svm-route</c>): its stops in order, floor
+/// points (<c>x,y,z</c>) or placed actors by map id, the player start it starts at (null for any of its side's) and
+/// where its report lines go (<see cref="OpenScct.Game.AI.RouteAi"/>).
+/// </summary>
+public sealed record PlayRoute(IReadOnlyList<string> Stops, PlaySide Side, string? From, Action<string> Report)
+{
+    /// <summary>A stop's point (<c>x,y,z</c>), or null when it is not three numbers (a map id).</summary>
+    public static FVector? Point(string stop)
+    {
+        ArgumentNullException.ThrowIfNull(stop);
+        string[] c = stop.Split(',');
+        return c.Length == 3 && float.TryParse(c[0], NumberStyles.Float, CultureInfo.InvariantCulture, out float x) &&
+            float.TryParse(c[1], NumberStyles.Float, CultureInfo.InvariantCulture, out float y) &&
+            float.TryParse(c[2], NumberStyles.Float, CultureInfo.InvariantCulture, out float z)
+            ? new FVector(x, y, z)
+            : null;
+    }
+}
+
 /// <summary>What <see cref="PlaySession"/> hosts and joins.</summary>
 public sealed record PlaySettings
 {
@@ -81,6 +102,9 @@ public sealed record PlaySettings
     /// (docs/AI.md).
     /// </summary>
     public int Bots { get; init; }
+
+    /// <summary>A route bot added to <see cref="Bots"/>, or null (<see cref="PlayRoute"/>).</summary>
+    public PlayRoute? Route { get; init; }
 
     /// <summary>The bots' difficulty preset (<c>--difficulty=easy|normal|hard|expert</c>).</summary>
     public string Difficulty { get; init; } = "normal";
@@ -133,7 +157,7 @@ public sealed record PlaySettings
         string mode = ((byte)GameMode).ToString(CultureInfo.InvariantCulture);
         // Named, not counted at the round start: the bots log in before the local player, and in Play Level the first
         // login starts the match, so the roster would hold one player.
-        int count = MatchPlayers > 0 ? MatchPlayers : Bots + 1;
+        int count = MatchPlayers > 0 ? MatchPlayers : Bots + (Route is null ? 1 : 2);
         string players = "?SvmMatchPlayers=" + count.ToString(CultureInfo.InvariantCulture);
         if (Rules == PlayRules.PlayLevel)
         {

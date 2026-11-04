@@ -44,7 +44,7 @@ public sealed record PlayConfig
     public bool CaptureFrameHistory { get; init; }
 
     /// <summary>A scripted local player instead of the keyboard and mouse, or null.</summary>
-    public IPlayPilot? Pilot { get; init; }
+    public ScriptedPilot? Pilot { get; init; }
 
     /// <summary>The original game folder the key layouts come from, or null for the default.</summary>
     public string? GameRoot { get; init; }
@@ -92,9 +92,21 @@ public sealed record PlayConfig
             settings = settings with { DemoFolder = OpenScctGame.Play.Demo.DemoLibrary.SavedFolder };
         }
 
-        IPlayPilot? pilot = options.PlayRoute is { } route ? new RoutePilot(route, line => GD.Print(line)) : null;
-        return new PlayConfig { Settings = settings, GameRoot = options.GameRoot, Pilot = pilot };
+        if (options.PlayRoute is { } stops)
+        {
+            // The route bot walks on the side asked for; the local player stands by on the other one.
+            settings = settings with
+            {
+                Side = side == PlaySide.Spy ? PlaySide.Merc : PlaySide.Spy,
+                Route = new PlayRoute(stops, side, options.PlayRouteFrom, line => GD.Print($"{RoutePrefix} {line}")),
+            };
+        }
+
+        return new PlayConfig { Settings = settings, GameRoot = options.GameRoot };
     }
+
+    /// <summary>The prefix of the route bot's report lines, which the map editor reads.</summary>
+    public const string RoutePrefix = "SVM_ROUTE";
 }
 
 /// <summary>
