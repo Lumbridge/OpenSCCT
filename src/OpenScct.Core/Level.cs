@@ -565,7 +565,8 @@ public sealed class Level
     /// <summary>
     /// Advances one fixed tick: clock (and a fresh SimEvents buffer), then every actor's native tick (Tick event,
     /// state code, timer, LifeSpan, physics) in list order with owners and bases first, then queued spawns and
-    /// destroys. Actors the match-size rules left out of the round (<see cref="Actor.MatchExcluded"/>) do not tick. Hosts normally call <see cref="World.Step()"/>, which also feeds the event sink.
+    /// destroys. Actors the match-size rules left out of the round (<see cref="Actor.MatchExcluded"/>) do not tick.
+    /// Hosts normally call <see cref="World.Step()"/>, which also feeds the event sink.
     /// </summary>
     [UcNative("ULevel::Tick")]
     public void Tick()

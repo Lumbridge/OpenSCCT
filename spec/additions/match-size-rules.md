@@ -56,11 +56,14 @@ instead of the host's Active Disks setting.
 
 ## Network
 
-The server lays the round out and replicates the count in `GameReplicationInfo.MatchPlayers`. Missions, objectives
-and movers held at a key reach clients through the usual actor replication (a held mover's leg carries its start
-and end key, so a client's copy stops at the same key). Hiding is not replicated that way: an actor's `bHidden` and
-collision flags travel only in its first bunch, actors the client loads itself never hear from the server, and
-each world ticks its own actors. So each client lays out its own copies from the replicated count, with the same
-rules, whenever the count changes (a player joining mid-round gets it with the replication info): the same actors are
-left out and stop ticking, and the hidden ones are hidden without collision. The new replicated `MatchPlayers` changes the network class layout, so builds with and without it do
-not join each other.
+The server lays the round out and replicates the count in `GameReplicationInfo.MatchPlayers`. Objectives and
+movers held at a key reach clients through the usual actor replication (a held mover's leg carries its start and end
+key, so a client's copy stops at the same key, and the objective triggers that hide on deactivation replicate
+`bHidden` whenever it changes). The rest is not replicated that way: missions' objective lists and targets are not
+replicated at all, an actor's `bHidden` and collision flags travel only in its first bunch, actors the client loads
+itself never hear from the server, and each world ticks its own actors. So each client lays out its own copies from
+the replicated count, with the same rules, whenever the count changes (a player joining mid-round gets it with the
+replication info, and demo playback is a client like any other): its missions list the same objectives and targets,
+which the mission status page reads, the same actors are left out and stop ticking, and the hidden ones are hidden
+without collision. The new replicated `MatchPlayers` changes the network class layout, so builds with and without it
+do not join each other.

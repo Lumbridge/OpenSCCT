@@ -18,9 +18,10 @@ namespace OpenScct.Game.Modes;
 /// <item>leaves other gated actors out (and "hidden" ones inside their range): hidden, without collision, deaf to
 /// events, not ticking and, for a player start, never chosen.</item>
 /// </list>
-/// A client leaves the same actors out from the replicated <see cref="GameReplicationInfo.MatchPlayers"/>
-/// (<see cref="ApplyOnClient"/>): a hidden actor's flags reach a client only in its first bunch, actors the client
-/// loads itself never hear from the server at all, and ticking is each world's own. A level service, made the first time it is needed.
+/// A client lays out its own missions and leaves the same actors out from the replicated
+/// <see cref="GameReplicationInfo.MatchPlayers"/> (<see cref="ApplyOnClient"/>): mission lists do not replicate, a
+/// hidden actor's flags reach a client only in its first bunch, actors the client loads itself never hear from the
+/// server at all, and ticking is each world's own. A level service, made the first time it is needed.
 /// </summary>
 public sealed class MatchSizeRules
 {
@@ -81,36 +82,27 @@ public sealed class MatchSizeRules
         Players = players;
         MatchOutcome outcome = Layout(players);
         Outcome = outcome;
-        foreach ((SMission mission, _, _, _) in _authored)
-        {
-            MatchMission laid = outcome.Mission(_rules.IdOf(mission))!;
-            mission.Objectives.Clear();
-            foreach (string id in laid.Objectives)
-            {
-                mission.Objectives.Add(id.Length > 0 ? _objectives.GetValueOrDefault(id) : null);
-            }
-
-            mission.MinimumObjectives = laid.MinimumObjectives;
-            mission.RandomObjectives = laid.RandomObjectives;
-        }
-
+        LayMissions(outcome);
         Restore();
         LeaveOut(outcome, players, server: true);
     }
 
     /// <summary>
     /// A client's side of the layout for <paramref name="players"/> (the replicated count; 0 before the server has laid
-    /// a round out): the same actors are left out as on the server, so they stop ticking and hearing events, and the
-    /// hidden ones, movers held hidden among them, lose their look and collision. Objectives come through replication
-    /// already deactivated, and movers held at a key already moving to it.
+    /// a round out): the missions list the same objectives and targets as on the server (the mission status page reads
+    /// them), the same actors are left out, so they stop ticking and hearing events, and the hidden ones, movers held
+    /// hidden among them, lose their look and collision. Objectives come through replication already deactivated, and
+    /// movers held at a key already moving to it.
     /// </summary>
     public void ApplyOnClient(int players)
     {
         Players = players;
+        MatchOutcome? outcome = players > 0 ? Layout(players) : null;
+        LayMissions(outcome);
         Restore();
-        if (players > 0)
+        if (outcome is not null)
         {
-            LeaveOut(Layout(players), players, server: false);
+            LeaveOut(outcome, players, server: false);
         }
     }
 
@@ -141,6 +133,30 @@ public sealed class MatchSizeRules
         }
 
         return MatchLayout.Apply(missions, _rules.Rules, players);
+    }
+
+    // Each mission's objectives, MinimumObjectives and RandomObjectives as laid out, or as authored without a layout.
+    private void LayMissions(MatchOutcome? outcome)
+    {
+        foreach ((SMission mission, SObjective?[] objectives, int minimum, int random) in _authored)
+        {
+            mission.Objectives.Clear();
+            if (outcome?.Mission(_rules.IdOf(mission)) is not { } laid)
+            {
+                mission.Objectives.AddRange(objectives);
+                mission.MinimumObjectives = minimum;
+                mission.RandomObjectives = random;
+                continue;
+            }
+
+            foreach (string id in laid.Objectives)
+            {
+                mission.Objectives.Add(id.Length > 0 ? _objectives.GetValueOrDefault(id) : null);
+            }
+
+            mission.MinimumObjectives = laid.MinimumObjectives;
+            mission.RandomObjectives = laid.RandomObjectives;
+        }
     }
 
     // Leaves the round's objectives and gated actors out. Only the server deactivates objectives and moves movers:
