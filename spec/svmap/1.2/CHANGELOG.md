@@ -10,8 +10,8 @@ with the game's timing. A host serves 1.2 maps only on a build that reads 1.2 (t
 
 - Maps that use something new in 1.2 are 1.2: `formatVersion` `1.2.x`; schemas in `spec/svmap/1.2/schemas` with
   `$id`s under `https://svmap.invalid/1.2/` (the 1.1 schemas with the new version and `Svm.Conveyor`'s props, plus
-  `sim/match.json`, `render/outfits.json`, `ui/identity.json` and `ui/text/<lang>.json`). Other maps stay 1.1.
-  `conventions.md` and `collision.md` are unchanged and stay in `spec/svmap/1.1/`.
+  `sim/match.json`, `sim/movers.json`, `render/outfits.json`, `ui/identity.json` and `ui/text/<lang>.json`). Other
+  maps stay 1.1. `conventions.md` and `collision.md` are unchanged and stay in `spec/svmap/1.1/`.
 - New optional `ui/identity.json` (`svm.identity/1`): name, family and variant, description, dossier, authors,
   version, language, recommended players, tags, numbered places and the list of pictures, with the order readers
   resolve each value in. No playlist membership and no player range: playlists belong to their curators, the player

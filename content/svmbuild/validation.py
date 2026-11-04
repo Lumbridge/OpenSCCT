@@ -25,6 +25,7 @@ SCHEMA_FILES = {
     # 1.2 on: files without a formatVersion of their own, checked against the manifest's.
     "match": "match.schema.json",
     "outfits": "outfits.schema.json",
+    "movers": "movers.schema.json",
 }
 SPEC_DIR = SPEC_ROOT.parent          # spec/svmap
 SCHEMA_ROOT = SPEC_ROOT / "schemas"  # 1.0, kept for callers that name it
@@ -189,18 +190,9 @@ def match_errors(match: dict, gameplay: dict, classes) -> list[str]:
     return errs
 
 
-MOVERS_FORMAT = "svm.movers/1"
-MOVER_KEYS = 8  # Engine.Mover KeyPos[8]
-MIN_LEG = 0.005  # Engine.Mover.InterpolateTo's shortest leg
-LONGEST_LEG = 3600.0
-
-
-def movers_errors(movers, gameplay: dict, classes) -> list[str]:
-    """sim/movers.json (spec/svmap/1.2/movers.md): each entry names a written mover once, lists at most 8 keys, gives
-    no time to key 0, and times run from the shortest leg to an hour."""
+def movers_errors(movers: dict, gameplay: dict, classes) -> list[str]:
+    """sim/movers.json (spec/svmap/1.2/movers.md) beyond its schema: each entry names a mover of the map, once."""
     where = "sim/movers.json"
-    if not isinstance(movers, dict) or movers.get("format") != MOVERS_FORMAT:
-        return [f"{where}: format is not {MOVERS_FORMAT}"]
     actors = {a["id"].lower(): a for a in all_actors(gameplay) if isinstance(a, dict) and isinstance(a.get("id"), str)}
     table = classes.get("classes", {}) if isinstance(classes, dict) else {}
 
@@ -217,32 +209,13 @@ def movers_errors(movers, gameplay: dict, classes) -> list[str]:
     seen = set()
     for i, m in enumerate(movers.get("movers", [])):
         at = f"{where}: movers[{i}]"
-        actor = m.get("actor") if isinstance(m, dict) else None
-        if not isinstance(actor, str) or not actor:
-            errs.append(f"{at}: no actor")
-            continue
+        actor = m["actor"]
         if actor.lower() in seen:
             errs.append(f"{at}: {actor} is listed twice")
         seen.add(actor.lower())
         target = actors.get(actor.lower())
         if target is None or not is_mover(target.get("class", "")):
             errs.append(f"{at}: {actor} is not a mover of the map")
-        keys = m.get("keys")
-        if not isinstance(keys, list) or len(keys) > MOVER_KEYS:
-            errs.append(f"{at}: keys must list at most {MOVER_KEYS} keys")
-            continue
-        for k, key in enumerate(keys):
-            if not isinstance(key, dict) or set(key) - {"time", "smooth"}:
-                errs.append(f"{at}: keys[{k}] holds only time and smooth")
-                continue
-            if "time" in key:
-                t = key["time"]
-                if k == 0:
-                    errs.append(f"{at}: keys[0] has no leg before it, so it takes no time")
-                elif isinstance(t, bool) or not isinstance(t, (int, float)) or not MIN_LEG <= t <= LONGEST_LEG:
-                    errs.append(f"{at}: keys[{k}].time must be {MIN_LEG} to {LONGEST_LEG} seconds")
-            if "smooth" in key and not isinstance(key["smooth"], bool):
-                errs.append(f"{at}: keys[{k}].smooth must be true or false")
     return errs
 
 
@@ -345,8 +318,11 @@ def validate_svmap(root: Path) -> list[str]:
         if not se and gameplay is not None:
             errs += match_errors(match, gameplay, table)
     movers = load("sim/movers.json", required=False)
-    if movers is not None and gameplay is not None:
-        errs += movers_errors(movers, gameplay, table)
+    if movers is not None:
+        se = schema_errors("movers", movers, version)
+        errs += se
+        if not se and gameplay is not None:
+            errs += movers_errors(movers, gameplay, table)
     outfits = load("render/outfits.json", required=False)
     if outfits is not None:
         se = schema_errors("outfits", outfits, version)

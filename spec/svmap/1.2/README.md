@@ -55,9 +55,9 @@ and glide. Hosts serve 1.2 maps on builds that read 1.2. Facts a server needs st
 The dedicated server loads only `sim/` and `manifest.json`. The client loads all of it. `fixtures/testbox/` is a
 complete synthetic 1.0 example. A map declares `formatVersion` `1.2.x` in `manifest.json`, `sim/gameplay.json` and
 `sim/traversal.json` when it uses something new in 1.2 (`ui/identity.json`, `ui/text/`, `sim/match.json`,
-`sim/movers.json`, `render/outfits.json` or a `Svm.Conveyor` actor); other maps stay 1.1. Converted maps are 1.1 unless the original
-carries one of the RE+ families that convert to a 1.2 file; maps made in the map editor are 1.2 when they use one of
-these.
+`sim/movers.json`, `render/outfits.json` or a `Svm.Conveyor` actor); other maps stay 1.1. Converted maps are 1.1
+unless the original carries one of the RE+ families that convert to a 1.2 file; maps made in the map editor are 1.2
+when they use one of these.
 
 ## Documents
 
@@ -69,13 +69,13 @@ these.
 | [outfits.md](outfits.md) | `render/outfits.json`: slots, models, goggles, cosmetics policy, how RE+ `SCharacterOutfits` converts |
 | [movers.md](movers.md) | `sim/movers.json`: each mover's time per leg and easing per key |
 | [conveyors.md](conveyors.md) | `Svm.Conveyor` actors: props, class table, collision and `world.glb` instances |
-| [schemas/](schemas/) | JSON Schemas 2020-12 of `manifest.json`, `sim/gameplay.json` (with `Svm.Conveyor`'s props), `sim/traversal.json`, `sim/match.json`, `render/outfits.json`, `ui/identity.json`, `ui/text/<lang>.json` and shared definitions |
+| [schemas/](schemas/) | JSON Schemas 2020-12 of `manifest.json`, `sim/gameplay.json` (with `Svm.Conveyor`'s props), `sim/traversal.json`, `sim/match.json`, `sim/movers.json`, `render/outfits.json`, `ui/identity.json`, `ui/text/<lang>.json` and shared definitions |
 | [CHANGELOG.md](CHANGELOG.md) | format history |
 
 Schema `$id`s live under `https://svmap.invalid/1.2/`. Test vectors for the float32 text form and the hash are those
 of 1.0 (`../1.0/vectors/canonical.json`); the rules did not change. A validator picks the schema folder by the
-minor version a file declares, so 1.0, 1.1 and 1.2 maps validate side by side. `sim/match.json` and
-`render/outfits.json` declare none: they follow the manifest's, and a 1.1 map has no schema for them.
+minor version a file declares, so 1.0, 1.1 and 1.2 maps validate side by side. `sim/match.json`, `sim/movers.json`
+and `render/outfits.json` declare none: they follow the manifest's, and a 1.1 map has no schema for them.
 
 ## `manifest.json`
 

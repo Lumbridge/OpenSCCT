@@ -32,8 +32,9 @@ Writers leave out trailing empty keys and movers with nothing set. The file hold
 
 ## Validation
 
-The validator checks the format id, that every `actor` is a mover of the map listed once, at most 8 keys, no `time` on
-key 0, the time range, and that `smooth` is a boolean. Keys past the mover's `NumKeys` are allowed (they are never
+Schema: [schemas/movers.schema.json](schemas/movers.schema.json) (the format id, at most 8 keys, no `time` on key 0,
+the time range and a boolean `smooth`). The validator also checks that every `actor` is a mover of the map (its class
+or a subclass in `sim/classes.json`) and is listed once. Keys past the mover's `NumKeys` are allowed (they are never
 reached).
 
 ## Converted maps
