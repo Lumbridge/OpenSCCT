@@ -15,7 +15,14 @@ public static class FrontEnd
     public const string LobbyScene = "res://Scenes/UI/Lobby.tscn";
     public const string ResultsScene = "res://Scenes/UI/Results.tscn";
 
-    public static MainMenu ShowMainMenu(SceneTree tree) => Enter<MainMenu>(tree, MainMenuScene, null);
+    public static MainMenu ShowMainMenu(SceneTree tree,
+        [System.Runtime.CompilerServices.CallerMemberName] string caller = "",
+        [System.Runtime.CompilerServices.CallerFilePath] string source = "")
+    {
+        GD.Print($"SVM_MAIN_MENU from={tree.CurrentScene?.GetType().Name}; " +
+            $"caller={System.IO.Path.GetFileName(source)}:{caller}");
+        return Enter<MainMenu>(tree, MainMenuScene, null);
+    }
 
     /// <summary>The options screen (OpenScctGame.Options.OptionsMenu: keys, mouse, controller, display, audio, HUD).</summary>
     public static Control ShowOptions(SceneTree tree) => OpenScctGame.Options.OptionsMenu.Show(tree);

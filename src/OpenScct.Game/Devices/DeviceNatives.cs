@@ -186,9 +186,14 @@ public sealed class DeviceNatives : IActorNatives
     /// </summary>
     [UcNative("ULevel::CheckEncroachment")]
     [PortOf("nat:ULevel::CheckEncroachment", Spec = "spec/devices/mover.md#encroachment")]
-    [Provenance(ProvenanceKind.Estimated, "Mover spec rule 20 (push first, then EncroachingOn), UE2 lineage")]
+    [Provenance(ProvenanceKind.Decoded, "Uses the shared MoveActor / CheckEncroachment path: bTryToMoveEncroachedActor, rotational shove and failed-shove rollback; spec/native/collision-movement.md")]
     public bool MoveEncroacher(Actor Actor, FVector Delta, FRotator NewRotation)
     {
+        if (Driver is not null && Driver.Collision.HasColliders(Actor))
+        {
+            return Driver.MoveActor(Actor, Delta, NewRotation, out _);
+        }
+
         if (Delta.IsZero() && NewRotation == Actor.Rotation)
         {
             return true;
@@ -198,25 +203,6 @@ public sealed class DeviceNatives : IActorNatives
         FRotator oldRotation = Actor.Rotation;
         Actor.Location = oldLocation + Delta;
         Actor.Rotation = NewRotation;
-        if (Driver is not null && Actor.bCollideActors && Driver.Collision.HasColliders(Actor))
-        {
-            if (!Encroach(Driver, Actor, Delta))
-            {
-                if (!Actor.bDeleteMe)
-                {
-                    Actor.Location = oldLocation;
-                    Actor.Rotation = oldRotation;
-                }
-
-                return false;
-            }
-
-            if (Actor.bDeleteMe)
-            {
-                return false;
-            }
-        }
-
         // The touch pass of CheckEncroachment: a mover running into a trigger (ClassProximityType Mover) touches it.
         if (Driver is not null && Actor.bCollideActors)
         {
@@ -229,98 +215,6 @@ public sealed class DeviceNatives : IActorNatives
 
         MoveRiders(Actor, oldLocation, oldRotation);
         return true;
-    }
-
-    private bool Encroach(PhysicsDriver driver, Actor encroacher, FVector delta)
-    {
-        CollisionWorld cw = driver.Collision;
-        List<Actor> candidates = RentList();
-        try
-        {
-            IReadOnlyList<Actor> actors = encroacher.XLevel.Actors;
-            for (int i = 0; i < actors.Count; i++)
-            {
-                Actor a = actors[i];
-                if (!a.bDeleteMe && a.bCollideActors && !ReferenceEquals(a, encroacher) && !cw.HasColliders(a))
-                {
-                    candidates.Add(a);
-                }
-            }
-
-            return EncroachCandidates(driver, encroacher, delta, candidates);
-        }
-        finally
-        {
-            ReturnList(candidates);
-        }
-    }
-
-    private static bool EncroachCandidates(PhysicsDriver driver, Actor encroacher, FVector delta, List<Actor> candidates)
-    {
-        CollisionWorld cw = driver.Collision;
-        for (int i = 0; i < candidates.Count; i++)
-        {
-            Actor other = candidates[i];
-            if (other.bDeleteMe || IsBasedOn(other, encroacher))
-            {
-                continue;
-            }
-
-            cw.GetCylinder(other, out float r, out float h, out bool collide, out bool otherBlockActors, out bool otherBlockPlayers);
-            bool encroacherBlocks = other.bIsAPawn ? encroacher.bBlockPlayers : encroacher.bBlockActors;
-            if (!collide || !encroacherBlocks || !(otherBlockActors || otherBlockPlayers))
-            {
-                continue;
-            }
-
-            var extent = new FVector(r, r, h);
-            if (!cw.OverlapsActorColliders(encroacher, other.Location, extent))
-            {
-                continue;
-            }
-
-            if (other.Physics != EPhysics.PHYS_None && !delta.IsZero())
-            {
-                // Push one skin further than the step so the pushed actor ends clear of the encroacher.
-                driver.MoveActor(other, delta + delta.SafeNormal() * OpenScct.Physics.K.TraceSkin, other.Rotation, out _, Ignore: encroacher);
-                if (other.bDeleteMe || !cw.OverlapsActorColliders(encroacher, other.Location, extent))
-                {
-                    continue;
-                }
-            }
-
-            // Only movers decide; any other encroacher is refused, as the physics driver does without a handler.
-            bool refuse = encroacher is not Mover mover || mover.eventEncroachingOn(other);
-            if (encroacher.bDeleteMe)
-            {
-                return true;
-            }
-
-            if (refuse)
-            {
-                return false;
-            }
-
-            if (!other.bDeleteMe)
-            {
-                other.EncroachedBy(encroacher);
-            }
-        }
-
-        return true;
-    }
-
-    private static bool IsBasedOn(Actor actor, Actor baseActor)
-    {
-        for (Actor? b = actor.Base; b is not null; b = b.Base)
-        {
-            if (ReferenceEquals(b, baseActor))
-            {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     /// <summary>Moves the actors based on <paramref name="baseActor"/> by its move, turning their yaw with it.</summary>

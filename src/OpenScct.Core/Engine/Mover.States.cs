@@ -92,12 +92,15 @@ public partial class Mover
 
     // ---- dispatchers for the Mover functions states override ----------------------------------------------
 
-    /// <summary>EncroachingOn through the current state (s_WaitAndRetry and s_ReturnNoEncroach never refuse).</summary>
+    /// <summary>Authority-side EncroachingOn through the current state. The original non-simulated script is absorbed on proxies.</summary>
+    [Provenance(ProvenanceKind.Decoded, "Mover.EncroachingOn and its state overrides are non-simulated; net-replication.md rule 19.2 absorbs them below ROLE_AutonomousProxy")]
     public bool eventEncroachingOn(Actor? Other) =>
-        StateNode is IEncroachingOn s ? s.EncroachingOn(this, Other) : EncroachingOn(Other);
+        Role >= ENetRole.ROLE_AutonomousProxy &&
+        (StateNode is IEncroachingOn s ? s.EncroachingOn(this, Other) : EncroachingOn(Other));
 
     public void eventSubTrigger(Actor? Other, Pawn? EventInstigator)
     {
+        if (Role < ENetRole.ROLE_AutonomousProxy) return;
         if (StateNode is MoverState s)
         {
             s.SubTrigger(this, Other, EventInstigator);
@@ -110,6 +113,7 @@ public partial class Mover
 
     public void eventSubUnTrigger(Actor? Other, Pawn? EventInstigator)
     {
+        if (Role < ENetRole.ROLE_AutonomousProxy) return;
         if (StateNode is MoverState s)
         {
             s.SubUnTrigger(this, Other, EventInstigator);
@@ -151,8 +155,8 @@ public partial class Mover
     }
 
     /// <summary>
-    /// Base of the Mover states. Trigger, UnTrigger, Bump and Attach first check the probe mask (a Disable'd probe
-    /// does nothing), then call the state's version, which by default is the class-level one.
+    /// Base of the Mover states. Trigger, UnTrigger, Bump and Attach absorb non-simulated calls on client proxies,
+    /// check the probe mask (a Disable'd probe does nothing), then call the state's version.
     /// </summary>
     public abstract class MoverState : UcActorState
     {
@@ -164,7 +168,7 @@ public partial class Mover
         public sealed override void Trigger(Actor self, Actor? Other, Pawn? EventInstigator)
         {
             var mover = (Mover)self;
-            if (mover.IsProbeEnabled(ProbeTrigger))
+            if (mover.Role >= ENetRole.ROLE_AutonomousProxy && mover.IsProbeEnabled(ProbeTrigger))
             {
                 Trigger(mover, Other, EventInstigator);
             }
@@ -173,7 +177,7 @@ public partial class Mover
         public sealed override void UnTrigger(Actor self, Actor? Other, Pawn? EventInstigator)
         {
             var mover = (Mover)self;
-            if (mover.IsProbeEnabled(ProbeUnTrigger))
+            if (mover.Role >= ENetRole.ROLE_AutonomousProxy && mover.IsProbeEnabled(ProbeUnTrigger))
             {
                 UnTrigger(mover, Other, EventInstigator);
             }
@@ -182,7 +186,7 @@ public partial class Mover
         public sealed override void Bump(Actor self, Actor Other)
         {
             var mover = (Mover)self;
-            if (mover.IsProbeEnabled(ProbeBump))
+            if (mover.Role >= ENetRole.ROLE_AutonomousProxy && mover.IsProbeEnabled(ProbeBump))
             {
                 Bump(mover, Other);
             }
@@ -191,7 +195,7 @@ public partial class Mover
         public sealed override void Attach(Actor self, Actor Other)
         {
             var mover = (Mover)self;
-            if (mover.IsProbeEnabled(ProbeAttach))
+            if (mover.Role >= ENetRole.ROLE_AutonomousProxy && mover.IsProbeEnabled(ProbeAttach))
             {
                 Attach(mover, Other);
             }

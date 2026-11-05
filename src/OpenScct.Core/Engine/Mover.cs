@@ -474,6 +474,7 @@ public partial class Mover
     [PortOf("uc:Engine.Mover:Trigger", Spec = "spec/devices/mover.md#triggering")]
     protected internal override void Trigger(Actor? Other, Pawn? EventInstigator)
     {
+        if (Role < ENetRole.ROLE_AutonomousProxy) return;
         Actor? triggerActor = IsInteractObject(Other) ? Other!.Owner : Other;
         int i;
         for (i = 0; i < SpecialBehaviors.Count; i++)
@@ -514,6 +515,7 @@ public partial class Mover
     [PortOf("uc:Engine.Mover:UnTrigger", Spec = "spec/devices/mover.md#triggering")]
     protected internal override void UnTrigger(Actor? Other, Pawn? EventInstigator)
     {
+        if (Role < ENetRole.ROLE_AutonomousProxy) return;
         int i;
         for (i = 0; i < SpecialBehaviors.Count; i++)
         {
@@ -596,6 +598,7 @@ public partial class Mover
     [PortOf("uc:Engine.Mover:Bump", Spec = "spec/devices/mover.md#triggering")]
     protected internal override void Bump(Actor Other)
     {
+        if (Role < ENetRole.ROLE_AutonomousProxy) return;
         var p = Other as Pawn;
         if (bUseTriggered && p is not null && !IsHumanControlled(p) && IsPlayerPawn(p))
         {

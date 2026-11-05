@@ -665,7 +665,7 @@ public partial class OptionsMenu : Control
     private static Control Page(string name, Control content)
     {
         // Pages scroll up and down only: a horizontal bar sat over the last row (the Voice page's Test my microphone).
-        var scroll = new ScrollContainer { Name = name, SizeFlagsVertical = SizeFlags.ExpandFill, HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled };
+        var scroll = new ScrollContainer { Name = name, FollowFocus = true, SizeFlagsVertical = SizeFlags.ExpandFill, HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled };
         scroll.AddChild(content);
         return scroll;
     }

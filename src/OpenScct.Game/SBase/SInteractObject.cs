@@ -173,9 +173,10 @@ public partial class SInteractObject
     [PortOf("nat:SBase.SInteractObject.CanUse", Spec = "spec/objectives/interaction-system.md#rules")]
     [Provenance(ProvenanceKind.Estimated, "Expected CanUse conditions; reuse rule measured (RE+ lab-power), facing rule estimated")]
     [Provenance(ProvenanceKind.Measured, "Reuse delay: refused 19.4 s and accepted 20.9 s after a use with iReusableTime 20")]
+    [Provenance(ProvenanceKind.Decoded, "Game virtual CanUse 0x10af6ef0: refuse bPresenceDetected (+0x358 mask2), bInUse (+0x328 mask1), or !bUsable (+0x328 mask2)")]
     public virtual bool CanUse(SPlayerController? TheController)
     {
-        if (!bUsable || TheController is null || !ObjectiveNatives.IsAlive(TheController))
+        if (!bUsable || bInUse || bPresenceDetected || TheController is null || !ObjectiveNatives.IsAlive(TheController))
         {
             return false;
         }

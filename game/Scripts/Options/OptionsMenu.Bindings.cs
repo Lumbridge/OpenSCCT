@@ -39,7 +39,6 @@ public partial class OptionsMenu
         public required Control HeadingTail;
         public required Label Description;
         public required Label Context;
-        public required HBoxContainer Behavior;
         public CheckButton? TuningToggle;
         public readonly Dictionary<string, Button> CategoryButtons = new();
         public readonly Dictionary<string, Button> RowButtons = new();
@@ -86,7 +85,7 @@ public partial class OptionsMenu
         body.AddThemeConstantOverride("separation", 14);
         var categories = new VBoxContainer { Name = "BindingCategories", SizeFlagsHorizontal = SizeFlags.ExpandFill };
         categories.AddThemeConstantOverride("separation", 2);
-        var sidebar = new ScrollContainer { Name = "BindingCategoryList", CustomMinimumSize = new Vector2(144, 0), HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled };
+        var sidebar = new ScrollContainer { Name = "BindingCategoryList", FollowFocus = true, CustomMinimumSize = new Vector2(144, 0), HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled };
         var categoryMargin = new MarginContainer { Name = "BindingCategoryMargin" };
         categoryMargin.AddThemeConstantOverride("margin_top", 6);
         sidebar.AddChild(categories); categoryMargin.AddChild(sidebar); body.AddChild(categoryMargin);
@@ -96,6 +95,7 @@ public partial class OptionsMenu
         var heading = new HBoxContainer();
         heading.AddThemeConstantOverride("separation", 8);
         heading.AddChild(new Label { Text = "Action", Modulate = UiStyle.Dim, SizeFlagsHorizontal = SizeFlags.ExpandFill });
+        heading.AddChild(new Label { Name = "BindingBehaviorHeading", Text = "Behavior", CustomMinimumSize = new Vector2(88, 0), HorizontalAlignment = HorizontalAlignment.Center, Modulate = UiStyle.Dim });
         var first = new Label { Name = "BindingPrimaryHeading", Text = "Primary", HorizontalAlignment = HorizontalAlignment.Center, Modulate = UiStyle.Dim };
         var second = new Label { Name = "BindingAlternateHeading", Text = "Alternate", HorizontalAlignment = HorizontalAlignment.Center, Modulate = UiStyle.Dim };
         heading.AddChild(first); heading.AddChild(second);
@@ -104,16 +104,15 @@ public partial class OptionsMenu
         table.AddChild(heading);
         var rows = new VBoxContainer { Name = "BindingRows", SizeFlagsHorizontal = SizeFlags.ExpandFill };
         rows.AddThemeConstantOverride("separation", 2);
-        var scroll = new ScrollContainer { Name = "ActionList", SizeFlagsVertical = SizeFlags.ExpandFill, HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled };
+        var scroll = new ScrollContainer { Name = "ActionList", FollowFocus = true, SizeFlagsVertical = SizeFlags.ExpandFill, HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled };
         scroll.AddChild(rows); table.AddChild(scroll); body.AddChild(table); page.AddChild(body);
         page.AddChild(new HSeparator());
         var details = new VBoxContainer { Name = "BindingDetails", SizeFlagsHorizontal = SizeFlags.ExpandFill };
         details.AddThemeConstantOverride("separation", 2);
         var description = new Label { Name = "BindingDescription", Text = "Select an action to see its controls.", AutowrapMode = TextServer.AutowrapMode.WordSmart, MaxLinesVisible = 2, TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis, SizeFlagsHorizontal = SizeFlags.ExpandFill };
         var context = Help(""); context.Name = "BindingContext"; context.MaxLinesVisible = 1; context.TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis;
-        var behavior = new HBoxContainer { Name = "BindingBehavior" };
-        details.AddChild(description); details.AddChild(context); details.AddChild(behavior); page.AddChild(details);
-        var editor = new BindingEditor { Side = side, Pad = pad, View = view, Page = page, Search = search, Filter = filter, Categories = categories, Sidebar = sidebar, CategoryMargin = categoryMargin, ColumnDivider = columnDivider, CompactCategory = compact, Rows = rows, Scroll = scroll, HeadingTail = headingTail, Description = description, Context = context, Behavior = behavior };
+        details.AddChild(description); details.AddChild(context); page.AddChild(details);
+        var editor = new BindingEditor { Side = side, Pad = pad, View = view, Page = page, Search = search, Filter = filter, Categories = categories, Sidebar = sidebar, CategoryMargin = categoryMargin, ColumnDivider = columnDivider, CompactCategory = compact, Rows = rows, Scroll = scroll, HeadingTail = headingTail, Description = description, Context = context };
         editor.SlotColumns.Add(first); editor.SlotColumns.Add(second);
         (pad ? _padBindingEditors : _bindingEditors)[side] = editor;
         if (!pad) _bindingHelp[side] = context;
@@ -121,6 +120,7 @@ public partial class OptionsMenu
         filter.ItemSelected += index => { view.Filter = (int)index; RebuildBindingEditor(side, pad, resetScroll: true); };
         compact.ItemSelected += index => SelectBindingCategory(editor, editor.CategoryNames[(int)index]);
         scroll.GetVScrollBar().ValueChanged += _ => _hoveredBinding = null;
+        page.VisibilityChanged += () => { QueueScrollFocusLinks(rows); QueueScrollFocusLinks(categories); };
         return page;
     }
 
@@ -254,6 +254,7 @@ public partial class OptionsMenu
             label.Pressed += () => SelectBindingEntry(editor, entry);
             label.FocusEntered += () => SelectBindingEntry(editor, entry);
             row.AddChild(label); editor.RowButtons[entry.Id] = label;
+            row.AddChild(CreateBindingBehavior(editor, entry));
             for (int slot = 0; slot < 2; slot++)
             {
                 BindingSlot? binding = inputs.ElementAtOrDefault(slot);
@@ -284,7 +285,6 @@ public partial class OptionsMenu
         else
         {
             editor.Description.Text = "No matching actions"; editor.Context.Text = "";
-            ClearBindingBehavior(editor);
         }
         if (!pad && _sharingLabels.TryGetValue(side, out Label? sharing))
         {
@@ -295,6 +295,8 @@ public partial class OptionsMenu
         editor.Scroll.SetDeferred(ScrollContainer.PropertyName.ScrollVertical, scroll);
         editor.Building = false;
         UpdateBindingEditorLayout();
+        QueueScrollFocusLinks(editor.Rows);
+        QueueScrollFocusLinks(editor.Categories);
         if (focusName is not null && (focusName.StartsWith("BindingCategory_", StringComparison.Ordinal) || focusName.StartsWith("BindingSlot_", StringComparison.Ordinal) || focusName.StartsWith("BindingAction_", StringComparison.Ordinal)))
             Callable.From(() => { if (IsInstanceValid(editor.Page) && editor.Page.FindChild(focusName, true, false) is Control control && control.IsVisibleInTree()) control.GrabFocus(); }).CallDeferred();
     }
@@ -406,14 +408,17 @@ public partial class OptionsMenu
         editor.Description.Text = explanation; editor.Description.TooltipText = explanation;
         editor.Context.Text = inputs.Count == 0 ? "Unbound. Select an empty slot to add a binding." : string.Join(" | ", inputs.Select(i => BindingSlotDescription(editor, entry, i)));
         editor.Context.TooltipText = editor.Context.Text;
-        ClearBindingBehavior(editor);
+    }
+
+    private Control CreateBindingBehavior(BindingEditor editor, BindingEntry entry)
+    {
         string? behavior = entry.Action?.Id switch { "speed" => "walk", "scope" when editor.Side == PlaySide.Merc => "scope", "perspective" => "perspective", "cloak" => "cloak", _ => null };
-        if (behavior is null) return;
+        if (behavior is null) return new Control { CustomMinimumSize = new Vector2(88, 0), MouseFilter = MouseFilterEnum.Ignore };
         bool merc = editor.Side == PlaySide.Merc;
         LookSettings look = _edit.LookOf(merc, behavior == "walk" && editor.Pad);
         string value = behavior switch { "walk" => look.WalkBehavior, "scope" => _edit.MercKbm.ScopeBehavior, "perspective" => _edit.SpyKbm.PerspectiveBehavior, _ => _edit.SpyKbm.CloakBehavior };
-        editor.Behavior.AddChild(new Label { Text = "Behavior" });
-        var choice = new OptionButton { Name = "SelectedBindingBehavior", CustomMinimumSize = new Vector2(110, 30), TooltipText = "Hold stays active while pressed. Toggle switches on each press. Mouse wheel bindings always toggle." };
+        var choice = new OptionButton { Name = "BindingBehavior_" + BindingNodeId(entry.Id), CustomMinimumSize = new Vector2(88, 32), FitToLongestItem = false, ClipText = true, TooltipText = "Hold stays active while pressed. Toggle switches on each press. Mouse wheel bindings always toggle." };
+        choice.FocusEntered += () => SelectBindingEntry(editor, entry);
         choice.AddItem("Hold"); choice.AddItem("Toggle"); choice.Select(value == "Hold" ? 0 : 1);
         choice.ItemSelected += index =>
         {
@@ -425,8 +430,10 @@ public partial class OptionsMenu
                 case "perspective": _edit.SpyKbm.PerspectiveBehavior = next; break;
                 case "cloak": _edit.SpyKbm.CloakBehavior = next; break;
             }
+            foreach (BindingEditor other in _bindingEditors.Values.Concat(_padBindingEditors.Values).Where(other => other.Side == editor.Side))
+                if (other.Rows.FindChild(choice.Name, true, false) is OptionButton linked) linked.Select((int)index);
         };
-        editor.Behavior.AddChild(choice);
+        return choice;
     }
 
     private void ClearBindingInput(BindingEditor editor, BindingEntry entry, BindingSlot input)
@@ -468,11 +475,6 @@ public partial class OptionsMenu
             if (!before[entry.Id].SequenceEqual(available) || !desired.SequenceEqual(available))
                 PadBindingOrder.RememberOrder(_edit.Pad, editor.Side == PlaySide.Merc, entry.Id, desired);
         }
-    }
-
-    private static void ClearBindingBehavior(BindingEditor editor)
-    {
-        foreach (Node child in editor.Behavior.GetChildren()) { editor.Behavior.RemoveChild(child); child.QueueFree(); }
     }
 
     private void UpdateBindingEditorLayout()

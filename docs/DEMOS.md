@@ -129,7 +129,9 @@ The personal-demo extension negotiates version 2 with `democap 1 2` and `demorec
 capability value preserves existing version 1 replay clients. A version 2 replay offer indicates whether a
 companion follows. `demotrainingoffer`, `demotrainingdata` and `demotrainingack` transfer it after the replay with
 the same round identifier and the existing bounded, resumable chunk transport. Both files use the local basename
-`Match-<round-id>`. The two-pending-round limit still counts rounds, not individual files; temporary server
+`<UTC-date-time>-<map-shortcode>-<Spy|Merc|Spectator>-<round-id>`, using the player's recorded side even after lobby
+travel or a revenge team swap. Offline recordings use the same descriptive naming. The two-pending-round limit
+still counts rounds, not individual files; temporary server
 companions are deleted with their replays once no recipient needs them. Older clients and replay-only recordings
 continue to receive just the replay.
 

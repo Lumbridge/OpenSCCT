@@ -15,6 +15,33 @@ namespace OpenScct.Integration.Tests;
 public sealed class MoverNetworkTests
 {
     [Fact]
+    public void AquariusPumpDoorDoesNotRunAnIndependentClientCycleWhilePlayerPushesIt()
+    {
+        Assert.SkipWhen(WalkerRig.Maps.FindFolder("AquaE") is null, "Map is not converted.");
+        using var run = new PlacedPlayer("AquaE", PlaySide.Spy);
+        var door = run.Session.Host.Map.MapActors.OfType<Mover>().Single(m => m.Tag == "PorteCTF");
+        var copy = run.Session.Client.Map!.MapActors.OfType<Mover>().Single(m => m.Tag == "PorteCTF");
+        run.Place(new FVector(2623.3271f, 4261.0103f, -38.995003f), 16349);
+        // This side requires the hack switch; start its completed authority event, then push through the cycle.
+        door.eventTrigger(null, run.Server);
+        FVector previous = copy.Location;
+        float maxStep = 0;
+        float travel = 0;
+        run.Hold(["BT_Up"], 12, () =>
+        {
+            float step = (copy.Location - previous).Size();
+            maxStep = System.Math.Max(maxStep, step);
+            travel += step;
+            previous = copy.Location;
+            Assert.False(copy.IsInState("s_WaitAndRetry"), "Only the server may choose the retry leg.");
+            Assert.Equal(0, copy.StateFrame.Pc);
+        });
+        Assert.True(travel > 50, $"Door did not animate: travel={travel}, server={door.Location}, client={copy.Location}");
+        // A 120 uu leg over three seconds moves at most 1 uu/tick; allow network phase correction, but no key snap.
+        Assert.InRange(maxStep, 0, 8);
+    }
+
+    [Fact]
     public void SoloCreatedSessionClosesTechRoomDoors()
     {
         Assert.SkipWhen(WalkerRig.Maps.FindFolder("AquaE") is null, "Map is not converted.");

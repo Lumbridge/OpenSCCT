@@ -107,7 +107,7 @@ public partial class OptionsMenu
         body.AddThemeConstantOverride("separation", 14);
         var sidebar = new ScrollContainer
         {
-            Name = "SettingsCategoryList", CustomMinimumSize = new Vector2(190, 0),
+            Name = "SettingsCategoryList", FollowFocus = true, CustomMinimumSize = new Vector2(190, 0),
             HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled,
         };
         var navigation = new VBoxContainer { Name = "SettingsCategories", SizeFlagsHorizontal = SizeFlags.ExpandFill };
@@ -125,7 +125,7 @@ public partial class OptionsMenu
         main.AddChild(title);
         var list = new ScrollContainer
         {
-            Name = "SettingsList", SizeFlagsVertical = SizeFlags.ExpandFill,
+            Name = "SettingsList", FollowFocus = true, SizeFlagsVertical = SizeFlags.ExpandFill,
             HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled,
         };
         var rows = new VBoxContainer { Name = "SettingsRows", SizeFlagsHorizontal = SizeFlags.ExpandFill };
@@ -253,6 +253,8 @@ public partial class OptionsMenu
                 if (first < 0 && visible) first = i;
             }
             empty.Visible = first < 0;
+            QueueScrollFocusLinks(rows);
+            QueueScrollFocusLinks(navigation);
             list.ScrollVertical = 0;
             if (first >= 0) Explain(first);
             else { detailTitle.Text = "Find a setting"; detailText.Text = "Search by a setting name or choose a category."; detailText.TooltipText = detailText.Text; }
@@ -292,6 +294,7 @@ public partial class OptionsMenu
         page.Resized += Fit;
         main.Resized += Fit;
         page.VisibilityChanged += Fit;
+        page.VisibilityChanged += () => { QueueScrollFocusLinks(rows); QueueScrollFocusLinks(navigation); };
         Filter();
         Fit();
         return page;

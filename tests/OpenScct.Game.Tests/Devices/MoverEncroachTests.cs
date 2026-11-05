@@ -14,6 +14,7 @@ public sealed class MoverEncroachTests
     private static (DeviceScene S, Mover M, Sender Switch) Shutter(EMoverEncroachType type, float stayOpen = 2f, int encroachDamage = 0)
     {
         DeviceScene s = DeviceScene.Create(ENetMode.NM_DedicatedServer);
+        s.Floor();
         Sender sw = s.Add(new Sender());
         Mover m = s.Add(new Mover
         {
@@ -163,5 +164,90 @@ public sealed class MoverEncroachTests
         s.StepSeconds(1.2f);
         Assert.Equal(100f, m.Location.Z, 2);
         Assert.Empty(((TestController)spy.Controller!).PawnDamage);
+    }
+
+    [Fact]
+    public void DisabledShovingDoesNotMoveTheBlockingPawn()
+    {
+        (DeviceScene s, Mover m, _) = Shutter(EMoverEncroachType.ME_StopWhenEncroach);
+        m.bTryToMoveEncroachedActor = false;
+        TestSpy spy = s.Player<TestSpy>(V.At(0f, 0f, 187.5f));
+        spy.Physics = EPhysics.PHYS_Walking;
+        FVector before = spy.Location;
+
+        Assert.False(s.Natives.MoveEncroacher(m, V.At(0, 0, -25), m.Rotation));
+        Assert.Equal(before, spy.Location);
+    }
+
+    [Fact]
+    public void RotatingDoorShovesPawnAlongItsArc()
+    {
+        DeviceScene s = DeviceScene.Create();
+        Mover m = s.Add(new Mover { MoverEncroachType = EMoverEncroachType.ME_StopWhenEncroach });
+        s.Collider(m, V.At(0, -10, 0), V.At(200, 10, 200));
+        s.Begin();
+        TestSpy spy = s.Player<TestSpy>(V.At(150, 55, 100));
+        FVector before = spy.Location;
+
+        Assert.True(s.Natives.MoveEncroacher(m, default, new FRotator(0, 4096, 0)));
+        Assert.True(spy.Location.Y > before.Y + 30, $"Pawn did not follow door: {spy.Location}");
+        Assert.False(s.Collision!.IsOverlapping(m, spy));
+    }
+
+    [Fact]
+    public void FailedShoveRestoresPawnBeforeRefusingDoorStep()
+    {
+        DeviceScene s = DeviceScene.Create();
+        Mover m = s.Add(new Mover { MoverEncroachType = EMoverEncroachType.ME_StopWhenEncroach });
+        s.Collider(m, V.At(-10, -100, 0), V.At(10, 100, 200));
+        StaticMeshActor wall = s.Add(new StaticMeshActor());
+        s.Collider(wall, V.At(88, -100, 0), V.At(100, 100, 200));
+        s.Begin();
+        TestSpy spy = s.Player<TestSpy>(V.At(50, 0, 100));
+        spy.Physics = EPhysics.PHYS_Walking;
+        FVector before = spy.Location;
+
+        Assert.False(s.Natives.MoveEncroacher(m, V.At(10, 0, 0), m.Rotation));
+        Assert.Equal(default(FVector), m.Location);
+        Assert.InRange((spy.Location - before).Size(), 0, 0.001f);
+    }
+
+    [Theory]
+    [InlineData(EMoverEncroachType.ME_StopWhenEncroach)]
+    [InlineData(EMoverEncroachType.ME_ReturnWhenEncroach)]
+    [InlineData(EMoverEncroachType.ME_CrushWhenEncroach)]
+    [InlineData(EMoverEncroachType.ME_IgnoreWhenEncroach)]
+    [InlineData(EMoverEncroachType.ME_WaitAndRetryWhenEncroach)]
+    public void ClientObstructionCannotChangeReplicatedDoorLeg(EMoverEncroachType type)
+    {
+        (DeviceScene s, Mover m, _) = Shutter(type);
+        m.Role = ENetRole.ROLE_SimulatedProxy;
+        m.bTryToMoveEncroachedActor = false;
+        TestSpy spy = s.Player<TestSpy>(V.At(0f, 0f, 87.5f));
+        m.SimOldPos = m.Location;
+        m.SimInterpolate = new FVector(0, 100, 1);
+        m.ClientStartInterpolation();
+
+        for (int tick = 0; tick < 60; tick++)
+        {
+            m.physMovingBrush(Tick);
+            Assert.True(m.IsInState("TriggerOpenTimed"), $"Client changed state to {m.GetStateName()}");
+        }
+
+        Assert.InRange(m.Location.Z, 99.99f, 100.01f);
+        Assert.Empty(((TestController)spy.Controller!).PawnDamage);
+    }
+
+    [Fact]
+    public void ClientPresenceEventDoesNotStartIndependentDoorCycle()
+    {
+        (DeviceScene s, Mover m, Sender sw) = Shutter(EMoverEncroachType.ME_WaitAndRetryWhenEncroach);
+        m.Role = ENetRole.ROLE_SimulatedProxy;
+        m.eventTrigger(sw, null);
+        s.StepSeconds(0.5f);
+
+        Assert.False(m.bInterpolating);
+        Assert.Equal(300f, m.Location.Z);
+        Assert.Equal(default(FVector), m.SimInterpolate);
     }
 }

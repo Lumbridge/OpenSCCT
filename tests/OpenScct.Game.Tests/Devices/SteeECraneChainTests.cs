@@ -120,6 +120,10 @@ public sealed class SteeECraneChainTests
         }, ductBase, tag: "tueletube");
         c.Duct.KeyPos[1] = V.At(0f, 0f, -3920f);
         s.Collider(c.Duct, V.At(-60f, -60f, -120f), V.At(60f, 60f, 120f));
+        // Crushing follows a failed native shove. Give the victim a floor instead of relying on PHYS_None
+        // to make it immovable: the original encroachment path also shoves actors with that physics mode.
+        StaticMeshActor ductFloor = s.Add(new StaticMeshActor(), V.At(-3186f, 442f, -1587.5f));
+        s.Collider(ductFloor, V.At(-100f, -100f, -64f), V.At(100f, 100f, 0f));
 
         c.Wall = s.Add(new SGamePlayObject
         {

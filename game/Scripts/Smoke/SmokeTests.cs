@@ -28,7 +28,7 @@ public static class SmokeTests
             RangeTraversalSmoke.TestName, RangeMotionSmoke.TestName, RangeBotsSmoke.TestName, RangeSimSmoke.TestName,
             PlayShockerSmoke.TestName, PlayMotionSmoke.TestName, PlayMercSmoke.TestName, PlaySidearmSmoke.TestName, SidearmMenuSmoke.TestName, SmoothSmoke.TestName,
             MapShotsSmoke.TestName, PlayReticleSmoke.TestName, PlayTorchSmoke.TestName, MercJumpPoseSmoke.TestName, AnimBonesSmoke.TestName, TraversalMirrorSmoke.TestName, MantleHeadSmoke.TestName, CharacterAnimationAuditSmoke.TestName, NetworkOverlaySmoke.TestName, TelemetrySmoke.TestName, PlayHitchSmoke.TestName, PlayLasersSmoke.TestName,
-            FrameRateSmoke.TestName, GoggleGlowSmoke.TestName, LobbyLayoutSmoke.TestName, OptionsSmoke.TestName, MouseAimSmoke.TestName, OptionsCategoriesSmoke.TestName, FrontEndLayoutSmoke.TestName, MenuLayoutSmoke.TestName, MenuArtSmoke.TestName, GameplayFxWarmupSmoke.TestName, PlayHurtSmoke.TestName, Hub.HubSmoke.TestName, MercImmunityHudSmoke.TestName, MercStatusVisualSmoke.TestName, SpyBackLightSmoke.TestName];
+            FrameRateSmoke.TestName, GoggleGlowSmoke.TestName, LobbyLayoutSmoke.TestName, OptionsSmoke.TestName, OptionsNavigationSmoke.TestName, MouseAimSmoke.TestName, OptionsCategoriesSmoke.TestName, FrontEndLayoutSmoke.TestName, MenuLayoutSmoke.TestName, MenuArtSmoke.TestName, GameplayFxWarmupSmoke.TestName, PlayHurtSmoke.TestName, Hub.HubSmoke.TestName, MercImmunityHudSmoke.TestName, MercStatusVisualSmoke.TestName, SpyBackLightSmoke.TestName];
 
     public static SmokeTest? Create(string name) => name switch
     {
@@ -110,6 +110,7 @@ public static class SmokeTests
         SidearmMenuSmoke.TestName => new SidearmMenuSmoke(),
         LobbyLayoutSmoke.TestName => new LobbyLayoutSmoke(),
         OptionsSmoke.TestName => new OptionsSmoke(),
+        OptionsNavigationSmoke.TestName => new OptionsNavigationSmoke(),
         MouseAimSmoke.TestName => new MouseAimSmoke(),
         OptionsCategoriesSmoke.TestName => new OptionsCategoriesSmoke(),
         FrontEndLayoutSmoke.TestName => new FrontEndLayoutSmoke(),

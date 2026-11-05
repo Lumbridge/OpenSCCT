@@ -452,6 +452,13 @@ public partial class OnlineService : Node
 
     private void Fail(string error)
     {
+        // Preserve the reason before EndVisit disposes the host/session. A generic lost-connection page
+        // otherwise hides whether a death triggered a host exception or a protocol/transport close.
+        var session = Client?.Session;
+        var player = session?.LocalPlayer;
+        GD.PrintErr($"SVM_SESSION_FAILURE {error}; visit={Client?.State}; session={session?.State}; " +
+            $"close={session?.Connection?.CloseReason}; player={player?.GetStateName()}; health={player?.Pawn?.Health}");
+        if (Hosting?.Failure is { } failure) GD.PrintErr("SVM_HOST_FAILURE " + failure);
         LastError = error;
         EndVisit();
         MainMenu menu = FrontEnd.ShowMainMenu(GetTree());

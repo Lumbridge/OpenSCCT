@@ -29,7 +29,9 @@ public partial class SFlagDropZoneInteraction
     protected override void PostNetBeginPlay()
     {
         base.PostNetBeginPlay();
-        MyOwner = Owner;
+        // The original override is not simulated. A client's Owner is not guaranteed to replicate;
+        // do not erase the MyOwner reference that arrived in the opening bunch.
+        if (Role == ENetRole.ROLE_Authority) MyOwner = Owner;
     }
 
     /// <summary>
@@ -62,9 +64,11 @@ public partial class SFlagDropZoneInteraction
             return false;
         }
 
+        Actor? target = Owner ?? MyOwner;
+        if (target is null) return false;
         foreach (Actor? zone in flag.DropZone)
         {
-            if (ReferenceEquals(zone, Owner))
+            if (ReferenceEquals(zone, target))
             {
                 return true;
             }

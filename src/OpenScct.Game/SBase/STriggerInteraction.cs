@@ -170,9 +170,13 @@ public partial class STriggerInteraction
         }
     }
 
-    /// <summary>The base conditions plus: nobody is hacking or holding it.</summary>
+    /// <summary>Busy switch states are unavailable, and mercs cannot operate a hold switch.</summary>
     [UcNative("ASTriggerInteraction::execCanUse", Exe = 0x10AB96F0, Editor = 0x111BD780)]
     [PortOf("nat:SBase.STriggerInteraction.CanUse", Spec = "spec/objectives/switch-hack.md#rules")]
-    [Provenance(ProvenanceKind.Estimated, "Expected: base conditions and not bInUse (spec open question 2)")]
-    public override bool CanUse(SPlayerController? TheController) => !bInUse && base.CanUse(TheController);
+    [Provenance(ProvenanceKind.Decoded, "Game virtual CanUse 0x10af6720: bMaintain (+0x368 mask4) with controller SPawnType1 refuses; base checks bInUse")]
+    [Provenance(ProvenanceKind.Decoded, "Game FNames0x3cf..0x3d2 registered at0x10926925..0x10926997: s_Maintain_Use, s_Hacking, WaitingBeforeActivation, WaitingBeforeDesactivation all refuse")]
+    public override bool CanUse(SPlayerController? TheController) =>
+        !IsInState(K.s_Maintain_Use) && !IsInState(K.s_Hacking) &&
+        !IsInState(K.WaitingBeforeActivation) && !IsInState(K.WaitingBeforeDesactivation) &&
+        !(bMaintain && TheController?.SPawnType == PawnType.SPAWNDEFENSE) && base.CanUse(TheController);
 }

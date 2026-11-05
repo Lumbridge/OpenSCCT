@@ -435,14 +435,25 @@ public partial class ResultsScreen : Control
         }
 
         Waiting.Text = waiting.Count == 0 ? "Everyone is ready." : "Waiting for " + string.Join(", ", waiting) + ".";
+        bool nextRound = online.Results is { GamesLeft: > 0 };
+        if (RematchButton is not null)
+        {
+            RematchButton.Text = nextRound ? "Next round" : online.Lobby.CanControl ? "Return to lobby" : "Continue to lobby";
+            RematchButton.TooltipText = nextRound ? "Ready for the next round. It starts when everyone is ready." :
+                "The series is finished. Continue when everyone is ready to return to the lobby.";
+            RematchButton.Disabled = online.Lobby.Local is { Ready: true };
+        }
+        if (LobbyButton is not null)
+        {
+            LobbyButton.Visible = nextRound && online.Lobby.CanControl;
+            LobbyButton.Text = nextRound ? "End series & return to lobby" : "Return to lobby";
+            LobbyButton.TooltipText = nextRound ? "Stop the remaining rounds and return everyone to the lobby." :
+                "Return everyone to the lobby to choose the next match.";
+        }
         if (_demoPanel is not null) _demoPanel.Visible = online.RecordDemos || online.PendingDemoSave;
         if (_demoStatus is not null) _demoStatus.Text = online.DemoRecordingStatus;
         if (_demoHint is not null) _demoHint.Visible = online.PendingDemoSave;
         if (_demoFolder is not null) _demoFolder.Visible = !online.PendingDemoSave && online.LastDemoPath is not null;
-        if (RematchButton is not null && online.Lobby.Local is { Ready: true })
-        {
-            RematchButton.Disabled = true;
-        }
     }
 
     private void ToMainMenu()

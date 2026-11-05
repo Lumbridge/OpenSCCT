@@ -352,7 +352,9 @@ public sealed class NetLobbySmoke : SmokeTest
             NetLobbyScript s = script();
             s.Shot($"results{game}");
             var results = (ResultsScreen)s.Tree.CurrentScene!;
-            return results.RematchButton!.Text == "Next" && s.Pilot.Click(results.RematchButton, "Next");
+            return s.Expect(results.RematchButton!.Text == (game == 1 ? "Next round" : "Return to lobby"), "results action describes the next destination") &&
+                s.Expect(results.LobbyButton?.Visible == (game == 1), "host only gets a separate end-series action while rounds remain") &&
+                s.Pilot.Click(results.RematchButton, "Continue");
         });
     }
 
@@ -558,7 +560,9 @@ public sealed class NetLobbyGuestSmoke : SmokeTest
             {
                 s.Shot($"results{game}");
                 var results = (ResultsScreen)s.Tree.CurrentScene!;
-                return results.RematchButton!.Text == "Next" && s.Pilot.Click(results.RematchButton, "Next");
+                return s.Expect(results.RematchButton!.Text == (game == 1 ? "Next round" : "Continue to lobby"), "guest action describes the next destination") &&
+                    s.Expect(results.LobbyButton?.Visible == false, "guest does not receive host end-series action") &&
+                    s.Pilot.Click(results.RematchButton, "Continue");
             });
         }
 

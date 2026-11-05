@@ -212,7 +212,7 @@ SDamageType indices used below: 0 NoDamageType, 1 SDamage_Charged, 4 SDamage_Exp
 16. `NotifyPickup(Controller)`: no physics, owner = controller, pickup interaction detached and disabled,
     `s_PickedUp` (no collision, ignores damage), collision off; returns false.
     `Throw(Thrower, ThrowVelocity)` (client-to-server call): set velocity and instigator, clear the thrower's hand
-    item, detach from the pawn, place at the left hand bone `+ (8, -5, 0)`, re-base the pickup interaction, go to
+    item, detach from the pawn (clear both `Base` and `AttachmentBone`), place at the left hand bone `+ (8, -5, 0)`, re-base the pickup interaction, go to
     `s_Flying`. Not used by SteeE (no pickable objects).
 
 ### Chaff lock

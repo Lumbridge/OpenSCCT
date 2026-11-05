@@ -90,6 +90,8 @@ rewrite extension, not a claim that B5 changed the original two-slot native.
 ## Open questions
 - The names of the event ids 0x5cb18 / 0x5cb19 were read as AddOnHud / RemoveFromHud from their use (a new sighting,
   the end of the warning, and the script's Destroyed). A capture of a merc HUD during a detection would confirm.
-- What reads `bPresenceDetected` (no script does; probably the HUD's interaction icons).
+- Resolved: base interaction native `CanUse` at `0x10AF6EF0` rejects `bPresenceDetected`, preventing
+  interaction with a detector during its warning. OpenSCCT applies the same gate; see
+  interaction-system.md rule 23 and switch-hack.md's 2026-11-05 byte evidence.
 - The scan sound goes through each player controller's sound hook in the original; the port plays it once at the
   detector.
