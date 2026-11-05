@@ -25,9 +25,11 @@ Below the launch panel, the latest release preview shows up to three short chang
 It uses the same fetched or cached release data as update checks. **Full changelog** opens the website
 changelog, with built-in full release notes if the website or browser is unavailable.
 Maps, Check for updates, Website, Settings and Help are secondary controls along the bottom;
-they wrap on narrow windows. When an update adds a banner, buttons or status text, the window grows
-just enough to keep the release preview visible, within the screen's working area. Your chosen width
-and any extra height are kept; smaller screens can still scroll the preview.
+they wrap on narrow windows. At the current width, the window uses the smallest shared height that fits
+both the Game and Editor release previews, including their buttons and status messages. Switching tabs
+does not introduce a changelog scrollbar. Your chosen width and any extra height are kept; screens too
+small for the contents can still scroll the preview. Update checks load both release lists without
+downloading the optional editor.
 
 ## Optional Windows editor
 
