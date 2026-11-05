@@ -27,7 +27,9 @@ public static class ScoreboardWire
             {
                 foreach (var property in info.Properties)
                 {
-                    if (property.Name is "completed" or "practice" or "partial")
+                    if (property.Name is "schemaVersion")
+                        property.ShouldSerialize = (_, value) => value is not 1;
+                    else if (property.Name is "completed" or "practice" or "partial")
                         property.ShouldSerialize = (_, value) => value is not false;
                     else if (property.Name is "mode" or "objectivesTaken" or "objectivesNeeded")
                         property.ShouldSerialize = (_, value) => value is not 0;
@@ -41,6 +43,8 @@ public static class ScoreboardWire
             foreach (var property in info.Properties)
                 if (property.Name is "team" or "score" or "kills" or "deaths" or "lives" or "objectives" or "rank" or "pingMs" or "bot" or "leftEarly")
                     property.ShouldSerialize = (_, value) => value is not 0 and not false;
+                else if (property.Name is "statsVersion")
+                    property.ShouldSerialize = (_, value) => value is not 1;
         });
         return new()
         {
