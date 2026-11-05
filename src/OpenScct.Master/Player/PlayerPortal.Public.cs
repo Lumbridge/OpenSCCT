@@ -49,15 +49,15 @@ internal sealed partial class PlayerPortal
             .Append(Stat("Rounds today", N(_store.CountMatches(_store.Now / 86400 * 86400)), "Results received by the website"))
             .Append("</div></div>");
         body.Append(Section("Roles", "<div class=\"grid-two role-introductions\">" +
-            "<article class=\"panel role-introduction spy-introduction\"><p class=\"eyebrow\">THIRD PERSON</p><h3>Spies</h3><p>Spies use movement, climbing and gadgets. In Story mode, they complete the map's objectives. They can use ledges, pipes and other traversal routes supported by the map.</p>" +
+            "<article class=\"panel role-introduction spy-introduction\"><p class=\"eyebrow\">THIRD PERSON</p><h3>Spies</h3><p>Spies use a built-in cloak, gadgets and traversal routes to slip past defenders. In Story mode, they complete the map's objectives.</p>" +
             Link("/wiki/spy", "Spy guide", "text-link") + "</article>" +
-            "<article class=\"panel role-introduction merc-introduction\"><p class=\"eyebrow\">FIRST PERSON</p><h3>Mercenaries</h3><p>Mercenaries use firearms, detection equipment and traps. In Story mode, they defend the objectives. Their loadout and the map's rules determine which equipment is available.</p>" +
+            "<article class=\"panel role-introduction merc-introduction\"><p class=\"eyebrow\">FIRST PERSON</p><h3>Mercenaries</h3><p>Mercenaries use firearms, detection equipment and traps to defend objectives in Story mode. Hosts can enable a dedicated sidearm slot.</p>" +
             Link("/wiki/mercenary", "Mercenary guide", "text-link") + "</article></div>"));
         body.Append(Section("Games and hubs online", "<div data-live=\"home-servers\">" + ServerTable(servers.Take(4)) + "</div>",
             "<div class=\"button-row\">" + LiveStatus + Link("/servers", "All games and hubs", "text-link") + "</div>"));
         body.Append(Section("Getting started", "<div class=\"grid-three\">" +
             Feature("01", "Install", "Download the launcher for your platform. It installs the game and content and checks for updates.", "/download", "Downloads") +
-            Feature("02", "Practice", "Offline bots and practice settings are available for testing controls, gadgets and map objectives.", "/wiki/getting-started", "Getting-started guide") +
+            Feature("02", "Practice", "Offline bots and practice settings are available for testing controls, gadgets and map objectives.", "/wiki/practice", "Tutorials and practice") +
             Feature("03", "Join a session", "The server browser lists games and social hubs. Sign in inside the game when a server requires an account.", "/servers", "Games and hubs") + "</div>"));
         body.Append(ImprovementsPreview());
         body.Append(Section("Players and results", "<div class=\"grid-three\">" +
@@ -93,7 +93,7 @@ internal sealed partial class PlayerPortal
             Section("Joining from your browser", "<div class=\"panel\"><p>On Windows, install or update the launcher and open it once to enable Join links. " +
                 "On Linux, run install.sh from the native launcher archive to enable Join links, or install the Flatpak. On Steam Deck, start in Desktop Mode. Your browser may ask permission to open OpenSCCT. Website Join links use your Discord sign-in inside the game; signing in on the website does not sign you into the game.</p>" +
                 "<p>If the game is already running, Join uses that window. If you are in a match, it waits until you return to the main menu. Enter any server password in the game.</p>" +
-                "<p class=\"account-side-note\">Join links need game version 0.8.58 or later and, on Windows, launcher version 0.8.26 or later. You can also browse games through Find a Session or visit hubs through Hub in the game.</p>" +
+                "<p class=\"account-side-note\">You can also browse games through Find a Session or visit hubs through Hub in the game.</p>" +
                 Link("/download", "Downloads and updates", "text-link") + "</div>"));
     }
 

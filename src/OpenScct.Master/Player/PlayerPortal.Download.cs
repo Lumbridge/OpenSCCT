@@ -22,6 +22,7 @@ internal sealed partial class PlayerPortal
               <a class="button wide" href="https://github.com/Lumbridge/OpenSCCT/releases/latest/download/OpenSCCT.Launcher.exe">Download for Windows ↓</a>
               <span class="platform-format">.exe · Windows executable</span>
               <a class="text-link" href="#install-windows">Windows setup →</a>
+              <a class="text-link" href="#install-editor">Map editor setup →</a>
             </div>
           </section>
           <section class="panel platform-card" aria-labelledby="download-linux">
@@ -65,10 +66,19 @@ internal sealed partial class PlayerPortal
             <summary>Install on Windows</summary>
             <ol class="download-steps">
               <li><strong>Open the launcher</strong><p>Save OpenSCCT.Launcher.exe in a writable folder, such as Downloads, and run it.</p></li>
-              <li><strong>Install OpenSCCT</strong><p>Choose Install. The launcher downloads the game and required files.</p></li>
+              <li><strong>Install OpenSCCT</strong><p>On the Game tab, choose Install. The launcher downloads the game and required files.</p></li>
               <li><strong>Launch the game</strong><p>Choose PLAY. Find a Session joins a match, Hub opens a social space, and bots are available for offline practice.</p></li>
             </ol>
             <a class="text-link" href="/wiki/getting-started">Installation guide →</a>
+          </details>
+          <details id="install-editor">
+            <summary>Install the optional map editor on Windows</summary>
+            <ol class="download-steps">
+              <li><strong>Open the Editor tab</strong><p>Run the Windows launcher and select its blue Editor tab.</p></li>
+              <li><strong>Choose Set up Editor</strong><p>The launcher installs the editor and any missing game files and shared content.</p></li>
+              <li><strong>Choose Open Editor</strong><p>Game and Editor have separate updates. Both use the same downloaded game content.</p></li>
+            </ol>
+            <a class="text-link" href="/wiki/editor-getting-started">Editor setup and updates →</a>
           </details>
           <details id="install-linux">
             <summary>Install the native Linux launcher</summary>

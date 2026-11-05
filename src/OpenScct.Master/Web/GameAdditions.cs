@@ -16,7 +16,7 @@ internal static class GameAdditions
         [
             // docs/AI.md; src/OpenScct.Bots/ServerBots.cs; LobbySetup.BotSkill.
             new("bots", "Spy and mercenary bots", "Bots can fill empty places or form custom teams.",
-                ["Choose a difficulty level.", "Use bots in solo or multiplayer sessions."],
+                ["Choose a difficulty level and fill one or both teams.", "Use bots in solo or multiplayer sessions, including practice with a spy teammate for boosts and revives."],
                 "/wiki/practice", "Practice and bot guide"),
 
             // docs/MAPS.md, Modes; CreateSessionModel.Modes.
@@ -40,7 +40,7 @@ internal static class GameAdditions
             // spec/additions/merc-sidearms.md; src/OpenScct.Core/Engine/Sidearms.cs.
             new("sidearms", "Mercenary sidearms", "Hosts can enable a dedicated pistol slot for mercenaries.",
                 ["Sidearms are off by default and do not use a gadget slot.", "Five pistols have different ammunition, firing and reload characteristics.", "Pistols unlock as you level up; all are available in offline, LAN and practice sessions when the host enables them."],
-                "/wiki/gadgets-and-loadouts", "Equipment and loadout guide"),
+                "/wiki/gadgets-and-loadouts#sidearms", "Sidearm and loadout guide"),
 
             // docs/HUD.md, Options and settings; docs/MENUS.md, Role configuration.
             new("cloak", "Spy cloak", "Spies have a cloak ability with its own control.",
@@ -98,13 +98,13 @@ internal static class GameAdditions
         [
             // docs/MENUS.md, Player stats and match history; committed docs/PLAYER-HUB.md.
             new("stats", "Stats and match history", "View career totals, recorded rounds and individual match results.",
-                ["Career categories cover spy actions, mercenary combat, gadgets, weapons and map wins.", "Review overall and role-specific results, win rates and kills/deaths.", "Match details include role-specific scoreboards and, while retained, an event timeline."],
+                ["Career categories cover spy actions, mercenary combat, gadgets, weapons and map wins.", "Press F10 for the round scoreboard. Public scores update during play and detailed combat counters are delayed by at least 30 seconds.", "Demos → Match history keeps scoreboards even when the replay is unavailable. Select a player for their round breakdown."],
                 "/wiki/progression-and-stats", "Stats and progression guide"),
 
             // ProgressionK; Achievements; TitleCatalog; committed docs/ONLINE.md.
             new("progression", "Levels and achievements", "Qualifying online rounds earn experience points (XP) and progress towards achievements.",
                 ["At level 55, you can choose to restart your level through prestige, up to ten times.", "Achievements cover matches, roles, weapons, gadgets and maps.", "Unlock appearance items and player titles as you progress."],
-                "/leaderboards", "Player leaderboards"),
+                "/wiki/progression-and-stats#unlocks", "Achievements and rewards"),
 
             // CosmeticCatalog; ArmouryScreen; committed docs/PLAYER-HUB.md, Appearance synchronization.
             new("appearance", "Player appearance", "Choose unlocked suits, weapon finishes, light colours and titles.",
@@ -136,7 +136,7 @@ internal static class GameAdditions
         [
             // README.md; committed docs/LAUNCHER.md; launcher Install and Update workflows.
             new("launcher", "Windows and Linux launchers", "Native launchers install the game and keep it up to date on Windows and Linux.",
-                ["Download the game, required content and additional maps from the launcher.", "Updates download changed files where available, and the launcher updates itself.", "Play an installed version offline or open the latest release notes."],
+                ["Download the game, required content and additional maps from the launcher.", "Updates download changed files where available, and the launcher updates itself.", "On Windows, install and update the optional map editor from the separate Editor tab."],
                 "/download", "Download OpenSCCT"),
 
             // docs/CONTENT-PACKS.md; ContentScreen; MapPickerView; committed docs/ONLINE.md, Missing maps.
@@ -161,12 +161,12 @@ internal static class GameAdditions
 
             // docs/HUD.md, Options and settings; TelemetrySettings; FrameRateSlider; SettingsApplier.
             new("display-audio", "Graphics, performance and sound", "Adjust display, rendering, frame-rate and volume settings.",
-                ["Browse settings by category or search for a specific option, with explanations for the selected control.", "Choose display quality and shared or role-specific frame-rate limits; music, effects and voice have separate volume controls.", "Optional performance and connection graphs can appear only when issues occur."],
-                "/wiki/controls-and-hud", "Display, performance and sound"),
+                ["Choose render scale, shadow quality and role-specific frame-rate limits.", "On Windows, version 0.8.99 adds a choice of Vulkan or Direct3D 12 under Performance. Restart to apply the driver change.", "Music, effects and voice have separate volume controls."],
+                "/wiki/controls-and-hud#graphics", "Graphics and performance settings"),
 
-            // OpenSCCT-Editor README.md, docs/WORKFLOW.md and docs/PARITY.md; editor remains in early development.
+            // OpenSCCT-Editor README.md and docs/PARITY.md.
             new("map-editor", "Map creation and editing", "The OpenSCCT Editor supports map blockouts, gameplay setup and testing in OpenSCCT.",
-                ["Work with brushes, actors, event links, objectives and lighting in a saved map project.", "Check and build a map before testing both roles in the game.", "The editor is in early development; the wiki explains the available workflow and its limitations."],
+                ["Install from the Windows launcher's Editor tab.", "Create a map project or import SVMap, T3D or original .sdc maps. Edit brushes, actors, event links, objectives and lighting.", "Run Map Check, build the map and playtest both roles from the editor."],
                 "/wiki/editor-getting-started", "Editor setup guide"),
 
             // docs/LINUX.md: native x86-64 launcher and Flatpak; Steam Deck hardware validation pending.

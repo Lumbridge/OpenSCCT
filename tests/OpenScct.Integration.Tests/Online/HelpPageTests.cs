@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
@@ -97,17 +98,22 @@ public sealed class HelpPageTests
     private static async Task CheckShowcaseImages(HttpClient http, CancellationToken ct, [CallerFilePath] string sourceFile = "")
     {
         string images = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(sourceFile)!, "../../../docs/images/website"));
-        string page = await http.GetStringAsync("/improvements", ct);
-        foreach (string name in new[] { "armoury", "hub", "play", "player", "replays", "setup", "sidearm" })
+        string improvements = await http.GetStringAsync("/improvements", ct);
+        string home = await http.GetStringAsync("/", ct);
+        Assert.Contains("showcase-editor.webp", improvements, StringComparison.Ordinal);
+        Assert.Contains("showcase-scoreboard.webp", improvements, StringComparison.Ordinal);
+        Assert.Contains("showcase-graphics-driver.webp", home, StringComparison.Ordinal);
+        var files = Regex.Matches(improvements + home, "src=\"/web/assets/(showcase-[a-z-]+\\.(?:png|webp))\\?v=[a-f0-9]{16}\"")
+            .Select(match => match.Groups[1].Value).Distinct();
+        foreach (string file in files)
         {
-            string file = "showcase-" + name + ".png";
             byte[] source = await File.ReadAllBytesAsync(Path.Combine(images, file), ct);
             string hash = Convert.ToHexStringLower(SHA256.HashData(source));
             string url = "/web/assets/" + file + "?v=" + hash[..16];
-            Assert.Contains(url, page, StringComparison.Ordinal);
+            Assert.Contains(url, improvements + home, StringComparison.Ordinal);
             using HttpResponseMessage response = await http.GetAsync(url, ct);
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            Assert.Equal("image/png", response.Content.Headers.ContentType?.MediaType);
+            Assert.Equal(file.EndsWith(".webp", StringComparison.Ordinal) ? "image/webp" : "image/png", response.Content.Headers.ContentType?.MediaType);
             Assert.Equal(hash, Convert.ToHexStringLower(SHA256.HashData(await response.Content.ReadAsByteArrayAsync(ct))));
         }
     }

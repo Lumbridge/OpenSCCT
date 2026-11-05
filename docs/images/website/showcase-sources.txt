@@ -95,3 +95,8 @@ The co-op gameplay smoke captured the bot climbing onto a ledge with the player.
 Asset: showcase-rendering.webp
 Source: local/renderer-perf/baseline-images/ClubS/far-0.png
 Faithful rendering capture on Club House.
+
+Asset: showcase-graphics-driver.webp
+Source: local/captures/graphics-driver-d3d12.png
+OpenSCCT 0.8.99, Options → Performance with the graphics driver list open.
+Captured with the Direct3D 12 driver at 1920 x 1080 and compressed to WebP.

@@ -17,15 +17,15 @@ internal sealed partial class PlayerPortal
         ["equipment"] = new("showcase-sidearm.png", "A Desert Eagle with its default finish during a Steel Squat match.", "The default Desert Eagle in a Steel Squat match."),
         ["hub"] = new("showcase-hub.png", "A spy in the OpenSCCT community hub.", "The community hub viewed as a spy."),
         ["replays"] = new("showcase-replays.png", "A recorded Aquarius bot match playing in OpenSCCT.", "Playback of a recorded bot match on Aquarius."),
-        ["player"] = new("showcase-player.png", "The Armoury showing a spy with the default appearance.", "The default spy appearance in the Armoury."),
-        ["setup"] = new("showcase-setup.png", "OpenSCCT Display options.", "Display settings in OpenSCCT."),
+        ["player"] = new("showcase-scoreboard.webp", "The round scoreboard shows Spy and Mercenary teams in an Aquarius practice match.", "The round scoreboard shows public scores and delayed combat counters."),
+        ["setup"] = new("showcase-editor.webp", "OpenSCCT Editor with Enhanced Aquarius open in four viewports.", "Enhanced Aquarius open in the OpenSCCT Editor."),
     };
 
     private static string ImprovementsPreview() => """
         <section class="improvements-preview" aria-labelledby="improvements-preview-title">
           <div><p class="eyebrow">FEATURES AND DEVELOPMENT</p>
             <h2 id="improvements-preview-title">OpenSCCT improvements</h2>
-            <p>Equipment, practice sessions, replays, community hubs, control settings, HUD layouts and map editing.</p>
+            <p>Scoreboards, unlockables, offline bots, replays, community hubs and the map editor.</p>
           </div>
           <a class="button secondary" href="/improvements">View features and improvements →</a>
         </section>
@@ -43,12 +43,12 @@ internal sealed partial class PlayerPortal
             </header>
             <div class="showcase-strip" aria-label="Screenshots from OpenSCCT">
             """);
-        AppendStripImage(body, "showcase-sidearm.png", "A Desert Eagle with its default finish during a Steel Squat match.", "Equipment", "The default Desert Eagle in a Steel Squat match.");
-        AppendStripImage(body, "showcase-hub.png", "A spy in the OpenSCCT community hub.", "Community hub", "The community hub viewed as a spy.");
-        AppendStripImage(body, "showcase-armoury.png", "The Armoury showing a Desert Eagle with its default finish.", "Armoury", "The default Desert Eagle finish in the Armoury.");
+        AppendStripImage(body, "showcase-scoreboard.webp", "The round scoreboard with both teams listed.", "Round scoreboard", "The round scoreboard in an Aquarius practice match.");
+        AppendStripImage(body, "showcase-editor.webp", "The editor's perspective, top, front and side views of Enhanced Aquarius.", "Map editor", "Enhanced Aquarius open in the OpenSCCT Editor.");
+        AppendStripImage(body, "showcase-unlockables.webp", "Spy suits and a 3D preview in the Armoury.", "Cosmetic unlocks", "Preview spy suits and light colours in the Armoury.");
         body.Append("""
             </div>
-            <p class="showcase-capture-note">Screenshots captured in OpenSCCT. Select an image to view it at full size. Menus and options may look different in newer builds.</p>
+            <p class="showcase-capture-note">Select a screenshot to view it at full size.</p>
             <section class="section" aria-labelledby="feature-highlights-title">
               <div class="section-heading"><h2 id="feature-highlights-title">Controls, HUD and map browser</h2></div>
               <div class="grid-three">
