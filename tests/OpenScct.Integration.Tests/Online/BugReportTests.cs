@@ -72,6 +72,7 @@ public sealed partial class BugReportTests
         public Ledger()
         {
             Directory.CreateDirectory(_directory);
+            Options.DataDirectory = _directory;
             Database = Path.Combine(_directory, "accounts.db");
             Store = AccountStore.Open(Database, Time);
             AccountId = Store.GetOrCreate("11111111111111111").Id;

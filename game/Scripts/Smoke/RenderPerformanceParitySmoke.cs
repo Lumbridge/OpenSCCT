@@ -295,7 +295,7 @@ public sealed class RenderPerformanceParitySmoke : SmokeTest
                 if (actual.Count != count || actual.Ambient != ambient) throw new InvalidOperationException("actor light count/ambient changed");
                 for (int i = 0; i < count; i++)
                     if (actual.Names[i] != ranked[i].Light.Name
-                        || actual.Lights[i] != ActorLighting.PackWorld(ranked[i].Light, WorldLights.Modulation(ranked[i].Light, time)))
+                        || actual.Lights[i] != ActorLighting.PackActor(ranked[i].Light, WorldLights.Modulation(ranked[i].Light, time), center, radius))
                         throw new InvalidOperationException($"actor light differs at query {query}, slot {i}");
                 checks++;
             }

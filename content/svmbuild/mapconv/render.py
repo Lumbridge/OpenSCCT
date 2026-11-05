@@ -120,7 +120,7 @@ class RenderBuilder:
         self.work.mkdir(parents=True)
         extra = [r.ref for r in self._swap_meshes()] + [r.ref for r in self._particle_meshes()]
         st = export_gltf.export_map(self.src.path, self.src.pset, self.work, include_bsp=True,
-                                    extra_mesh_refs=extra)
+                                    extra_mesh_refs=extra, extra_material_refs=[r.ref for r in self._swap_skins()])
         out = self.work / self.src.name
         gltf = json.loads((out / f"{self.src.name}.gltf").read_text(encoding="utf-8"))
         binary = (out / f"{self.src.name}.bin").read_bytes()
@@ -152,6 +152,21 @@ class RenderBuilder:
         return out
 
     # ---- names -------------------------------------------------------------------------------
+
+    def _swap_skins(self) -> List[Ref]:
+        """Runtime material replacements, including skin-only damage stages."""
+        out = []
+        for info in self.src.actors:
+            if info.category != "gameplay":
+                continue
+            refs = [self.src.value(info, "TriggeredSkin")]
+            for stage in self.src.value(info, "DamagedMeshes") or []:
+                if isinstance(stage, dict):
+                    refs.append(stage.get("Skin"))
+            for ref in refs:
+                if isinstance(ref, Ref) and ref.ref and ref.path and not ref.is_class:
+                    out.append(ref)
+        return out
 
     def _swap_meshes(self) -> List[Ref]:
         """The static meshes gameplay actors can change to at run time: SGamePlayObject TriggeredMesh and

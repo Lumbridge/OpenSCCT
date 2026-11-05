@@ -251,6 +251,25 @@ public sealed partial class SpyLaserView : Node3D
             return nodes;
         }
 
+        nodes = CreateNodes(this);
+        nodes.Beam.AddToGroup(GroupBeam);
+        nodes.Dot.AddToGroup(GroupDot);
+        _nodes[pistol] = nodes;
+        return nodes;
+    }
+
+    /// <summary>Prepare both the spy beam and the depth-projecting dot before their first activation.</summary>
+    public void Preload(Node3D samples)
+    {
+        var (beam, dot) = CreateNodes(samples);
+        beam.Scale = new Vector3(100f, 1f, 1f);
+        beam.Visible = true;
+        dot.Visible = true;
+        PlaceDot(dot, default, new FVector(0f, -1f, 0f), 1f, 100f);
+    }
+
+    private (MeshInstance3D Beam, MeshInstance3D Dot) CreateNodes(Node3D parent)
+    {
         var beam = new MeshInstance3D
         {
             Name = "SpyLaserBeam",
@@ -282,11 +301,8 @@ public sealed partial class SpyLaserView : Node3D
         }
 
         MeshInstance3D dot = CreateDot(DotTextureOrStandIn());
-        AddChild(beam);
-        AddChild(dot);
-        beam.AddToGroup(GroupBeam);
-        dot.AddToGroup(GroupDot);
-        _nodes[pistol] = (beam, dot);
+        parent.AddChild(beam);
+        parent.AddChild(dot);
         return (beam, dot);
     }
 

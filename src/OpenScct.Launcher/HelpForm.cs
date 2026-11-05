@@ -15,7 +15,6 @@ internal sealed class HelpForm : Form
     private readonly TextBox _details = Theme.TextBox();
     private readonly TextBox _address = Theme.TextBox();
     private readonly Label _message = Theme.Label(string.Empty, Theme.Small, Theme.Muted);
-    private readonly Button _copyLink = Theme.Button("Copy &link");
     private readonly Button _reportBug;
     private readonly Panel _scroll;
 
@@ -25,7 +24,7 @@ internal sealed class HelpForm : Form
         _context = context;
         _actions = new ProjectLinkActions(open ?? OpenBrowser, copy ?? Clipboard.SetText);
 
-        Text = "Help & contribute";
+        Text = "Help & feedback";
         Name = "ProjectHelp";
         Icon = Theme.LoadIcon(32);
         AutoScaleMode = AutoScaleMode.Dpi;
@@ -67,7 +66,7 @@ internal sealed class HelpForm : Form
             Theme.AddRow(root, control);
         }
 
-        Row(Theme.Label("Help && contribute", Theme.Heading, Theme.Accent), 0);
+        Row(Theme.Label("Help && feedback", Theme.Heading, Theme.Accent), 0);
         Row(Theme.Wrapping(Theme.Label("Links open in your browser. Bug reports use the website with Discord sign-in; feature suggestions and pull requests require GitHub sign-in.", Theme.Body, Theme.Muted)));
 
         _reportBug = LinkButton("Report a &bug", ProjectDestination.BugReport);
@@ -99,17 +98,11 @@ internal sealed class HelpForm : Form
             LinkButton("&Pull requests", ProjectDestination.PullRequests),
             LinkButton("&New pull request", ProjectDestination.NewPullRequest)));
 
-        Row(Theme.Label("Selected link", Theme.Small, Theme.Muted), 12);
         _address.Name = "SelectedLink";
         _address.ReadOnly = true;
-        _address.AccessibleName = "Selected link";
-        _address.Dock = DockStyle.Fill;
-        _copyLink.Name = "CopyLink";
-        _copyLink.Enabled = false;
-        _copyLink.Click += (_, _) => ShowResult(_actions.CopyLink());
-        TableLayoutPanel addressRow = Theme.Grid(Theme.Fill, Theme.Auto);
-        Theme.AddRow(addressRow, _address, _copyLink);
-        Row(addressRow, 4);
+        _address.AccessibleName = "Browser address";
+        _address.Visible = false;
+        Row(_address, 4);
 
         _message.Name = "HelpStatus";
         _message.AccessibleRole = AccessibleRole.Alert;
@@ -133,7 +126,7 @@ internal sealed class HelpForm : Form
         {
             bool opened = _actions.Open(destination, _context);
             _address.Text = _actions.TargetUrl;
-            _copyLink.Enabled = _address.Text.Length > 0;
+            _address.Visible = !opened;
             ShowResult(opened);
         };
         return button;

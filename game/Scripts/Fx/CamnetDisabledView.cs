@@ -89,6 +89,17 @@ public partial class CamnetDisabledView : Node3D
         Visible = false;
     }
 
+    /// <summary>Exercise the real CPU-particle and fault-marker render paths in the loading viewport.</summary>
+    internal void Preload()
+    {
+        Visible = true;
+        _smoke.Preprocess = _smoke.Lifetime;
+        _sparks.Preprocess = _sparks.Lifetime;
+        _smoke.Emitting = true;
+        _sparks.Restart();
+        _sparks.Emitting = true;
+    }
+
     public void SetCamera(SCamNetwork camera)
     {
         _camera = camera ?? throw new ArgumentNullException(nameof(camera));

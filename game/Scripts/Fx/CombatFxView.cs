@@ -13,6 +13,7 @@ using OpenScctGame.Render.Data;
 using OpenScctGame.Render.Materials;
 using OpenScctGame.Render.Particles;
 using OpenScctGame.Views;
+using K = OpenScct.Game.Equipment.K;
 
 namespace OpenScctGame.Fx;
 
@@ -21,8 +22,8 @@ namespace OpenScctGame.Fx;
 /// ClientFireMuzzle, the first-person rifle's SpawnSFX), the rifle tracers (SFireTrace actors), the impact marks of
 /// the level's <see cref="ImpactTable"/> (spec/equipment/impact-manager.md) and their spark bursts. It reads the
 /// client world after each tick and never writes to it; marks and the local merc's shots are read from the state
-/// (the table's slots, the clip) since a call received or a key pressed between two ticks raises its view events
-/// outside the tick.
+/// (the table's slots, the weapon's muzzle effect count) since a call received or a key pressed between two ticks
+/// raises its view events outside the tick.
 /// <para>
 /// With the converted effects (shared/fx, the content step <c>fx</c>, docs/EFFECTS.md) each is drawn with the
 /// original's assets: the muzzle flash meshes of SEffectStatic (SMuzzleGenerique, sMuzzleCanon, SMuzzleSticky) for
@@ -57,8 +58,7 @@ public partial class CombatFxView : Node3D
     private EffectViews? _effects;
     private FxLibrary? _library;
     private readonly Dictionary<string, EffectMaterial?> _decals = new(StringComparer.Ordinal);
-    private SWeaponDefense? _rifle;
-    private int _clip;
+    private readonly System.Runtime.CompilerServices.ConditionalWeakTable<SWeaponDefense, MuzzleCursor> _muzzleCursors = new();
     private readonly Dictionary<SCamNetwork, CamnetDisabledView> _disabledCameras = new();
     private readonly List<SCamNetwork> _recoveredCameras = new();
 
@@ -87,6 +87,9 @@ public partial class CombatFxView : Node3D
 
     /// <summary>The last impact mark was drawn with its class's converted decal texture.</summary>
     public bool LastMarkDecal { get; private set; }
+
+    /// <summary>The last impact's surface decal was eligible to be drawn.</summary>
+    public bool LastMarkDecalShown { get; private set; }
 
     /// <summary>Muzzle flashes shown so far.</summary>
     public int MuzzleFlashes { get; private set; }
@@ -146,21 +149,7 @@ public partial class CombatFxView : Node3D
             }
         }
 
-        // The local merc's own shots: the first one of a press runs from the Fire command before the tick (its SpawnSFX
-        // notify is dropped with the tick's start), so each round leaving the clip is a flash.
-        if (session.LocalPawn?.MyWeapon is SWeaponDefense rifle)
-        {
-            if (ReferenceEquals(rifle, _rifle) && rifle.ClipAmmo < _clip)
-            {
-                for (int i = rifle.ClipAmmo; i < _clip; i++)
-                {
-                    _pending.Add(new PendingFlash(SpawnSFX, rifle));
-                }
-            }
-
-            _rifle = rifle;
-            _clip = rifle.ClipAmmo;
-        }
+        TrackRifleFlashes(session.LocalPawn?.MyWeapon as SWeaponDefense);
 
         _tracerLevel = level;
         TrackMarks(level);
@@ -170,6 +159,22 @@ public partial class CombatFxView : Node3D
     }
 
     internal int DisabledCameraCount => _disabledCameras.Count;
+
+    // SpawnSFX also runs before World.Step clears the event buffer. Its monotonic local count survives that
+    // boundary, unlike the notify, and does not depend on whether practice rules consume ammunition.
+    internal void TrackRifleFlashes(SWeaponDefense? rifle)
+    {
+        if (rifle is null) return;
+        MuzzleCursor cursor = _muzzleCursors.GetValue(rifle, static _ => new MuzzleCursor());
+        EnsureLoaded();
+        while (cursor.Count < rifle.MuzzleFlashCount)
+        {
+            _pending.Add(new PendingFlash(SpawnSFX, rifle));
+            cursor.Count++;
+        }
+    }
+
+    private sealed class MuzzleCursor { public long Count; }
 
     internal void TrackDisabledCameras(Level level)
     {
@@ -253,7 +258,8 @@ public partial class CombatFxView : Node3D
             float travelled = MathF.Min(s.Age * s.Speed, s.Length);
             FVector at = s.Start + (s.Direction * travelled);
             s.Node.GlobalPosition = UeSpace.ToGodot(at);
-            s.Node.Visible = travelled < s.Length && s.Age < s.Life;
+            // Retail ASFireTrace::Tick hides the last 502 uu, where muzzle-to-impact convergence is steep.
+            s.Node.Visible = s.Length - travelled >= K.FireTraceHideDistance && s.Age < s.Life;
         }
 
         if (_effects is not null)
@@ -484,7 +490,7 @@ public partial class CombatFxView : Node3D
 
     [Provenance(ProvenanceKind.Decoded, "SFireTrace FTSpeed 7000, LifeSpan 2, DrawScale3D (10, 3, 3), unlit")]
     [Provenance(ProvenanceKind.Estimated, "The streak's size: the balle_TR mesh is not converted; 120 x 1.5 uu stands in")]
-    private void TrackTracers(Level level, SPlayerController? viewer)
+    internal void TrackTracers(Level level, SPlayerController? viewer)
     {
         _gone.Clear();
         foreach (SFireTrace t in _tracers.Keys)
@@ -539,7 +545,7 @@ public partial class CombatFxView : Node3D
     // ---- impact marks ----------------------------------------------------------------------------------------
 
     [Provenance(ProvenanceKind.Decoded, "SImpactManager: 50 marks, 15 s, decal at the hit facing out of the surface")]
-    [Provenance(ProvenanceKind.Estimated, "The decal textures (sfx.Impacts.decal_*, Burn_sticky) are not converted: a 12 uu dark spot, or a blue-black scorch for the Shocker")]
+    [Provenance(ProvenanceKind.Estimated, "Converted decal textures on a 12 uu surface quad; missing textures use a dark spot. Shocker decals are suppressed to match original-game observation.")]
     private void TrackMarks(Level level)
     {
         if (level.GetService<ImpactTable>() is not { } table)
@@ -583,6 +589,7 @@ public partial class CombatFxView : Node3D
             bool shock = m.Type.ToString().Contains("Shocker", StringComparison.Ordinal);
             EffectMaterial? decal = DecalFor(m.Type.ToString());
             LastMarkDecal = decal is not null;
+            LastMarkDecalShown = m.DecalShown;
             node.MaterialOverride = decal ?? (shock ? _shockMark : _bulletMark);
             m.Rotation.GetAxes(out FVector x, out _, out _);
             FVector at = m.Location - (x * (m.Type.ToString().Contains("Shocker", StringComparison.Ordinal) ? 9.5f : 0f)) + (x * 0.4f);
@@ -687,6 +694,19 @@ public partial class CombatFxView : Node3D
 
         _decals[type] = material;
         return material;
+    }
+
+    /// <summary>Load CPU assets and render representative effects before the player can use them.</summary>
+    public void Preload(Node3D samples)
+    {
+        EnsureLoaded();
+        var cameraFault = new CamnetDisabledView();
+        samples.AddChild(cameraFault);
+        cameraFault.Preload();
+        if (_library is { Available: true } library)
+        {
+            library.WarmViews(samples);
+        }
     }
 
     private void EnsureLoaded()

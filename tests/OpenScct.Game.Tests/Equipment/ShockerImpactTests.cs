@@ -45,14 +45,14 @@ public sealed class ShockerImpactTests
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
-    public void ShootingAWallStillLeavesAScorchAndSparks(bool predicted)
+    public void ShootingAWallKeepsSparksWithoutAScorch(bool predicted)
     {
         var scene = new CombatScene(predicted ? ENetMode.NM_Client : ENetMode.NM_ListenServer);
 
         ImpactMark mark = Shoot(scene, scene.Level.Info, predicted);
 
         Assert.Null(mark.Surface);
-        Assert.True(mark.DecalShown);
+        Assert.False(mark.DecalShown);
         AssertSparks(scene, mark);
     }
 
@@ -117,7 +117,7 @@ public sealed class ShockerImpactTests
     }
 
     [Fact]
-    public void ReusingAPawnImpactSlotForAWallRestoresTheDecal()
+    public void ReusingAShockerImpactSlotForARifleWallHitRestoresTheDecal()
     {
         var scene = new CombatScene();
         (_, SBasePawn merc) = scene.Player(false, default);
@@ -130,11 +130,32 @@ public sealed class ShockerImpactTests
             table.Add(effect, default, default, 0f);
         }
 
-        ImpactMark reused = table.Add(effect, default, default, 1f);
+        ImpactMark reused = table.Add(table.Defaults(new Name("SImpactEffectBeton")), default, default, 1f);
 
         Assert.Same(first, reused);
         Assert.True(reused.DecalShown);
         Assert.Null(reused.Surface);
+    }
+
+    [Theory]
+    [InlineData("SImpactEffectShocker", "SSparkShocker")]
+    [InlineData("SImpactEffectShockerMetal", "SSparkShockerMetal")]
+    public void ReceivingAWorldHitKeepsEitherShockerSparkWithoutADecal(string type, string spark)
+    {
+        var scene = new CombatScene(ENetMode.NM_Client);
+        (SPlayerController pc, _) = scene.Player(true, default);
+        var call = new CombatCall(ImpactManager.CNAME_AddImpact)
+        {
+            Name1 = new Name(type),
+            Vector1 = new FVector(200f, 0f, 100f),
+        };
+
+        Assert.True(GadgetNetReceive.FromServer(pc, call));
+
+        ImpactMark mark = Assert.Single(ImpactTable.Of(scene.Level).Slots, s => s.Live);
+        Assert.False(mark.DecalShown);
+        Assert.Equal("sfx.Impacts.Burn_sticky", mark.Material.Path);
+        Assert.Contains(scene.World.Events.Current.ToArray(), e => e.Kind == SimEventKind.SpawnEmitter && e.What == new Name(spark));
     }
 
     private static void AssertSparks(CombatScene scene, ImpactMark mark)

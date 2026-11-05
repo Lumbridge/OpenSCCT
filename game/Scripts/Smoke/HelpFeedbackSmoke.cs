@@ -41,6 +41,7 @@ public sealed class HelpFeedbackSmoke : SmokeTest
     private int _playPhase, _playFrames;
     private long _clientTick, _serverTick;
     private double _openedAt;
+    private string? _capturedScreenshot;
 
     public override SmokeResult Step(SmokeContext context)
     {
@@ -56,6 +57,14 @@ public sealed class HelpFeedbackSmoke : SmokeTest
         {
             case 0:
                 if (_entry is null || !_entry.IsVisibleInTree()) return SmokeResult.Fail(label + "help entry is missing");
+                Rect2 helpRect = _entry.GetGlobalRect();
+                if (Math.Abs(helpRect.Position.Y - 24f) > 1f || Math.Abs(helpRect.End.X - (Sizes[_size].X - 24f)) > 1f ||
+                    Math.Abs(helpRect.Size.X - 220f) > 1f || Math.Abs(helpRect.Size.Y - 36f) > 1f || !_entry.Flat)
+                    return SmokeResult.Fail(label + "help utility differs from the shared top-right placement or styling");
+                if (_page is MenuPage menuPage && (menuPage.PageButtons.Contains(_entry) ||
+                    menuPage.FindChild("Title", true, false) is Control title && title.GetGlobalRect().Intersects(helpRect)))
+                    return SmokeResult.Fail(label + "help is still in the footer or overlaps the title");
+                if (_case < 4) Shot("entry-" + _case);
                 if (_page is InGameMenu)
                 {
                     foreach (Button button in _page.GetChildren().OfType<Button>())
@@ -94,8 +103,8 @@ public sealed class HelpFeedbackSmoke : SmokeTest
                 error = LayoutProblem();
                 if (error is not null) break;
                 if (_case == 0) Shot("browser-fallback");
-                Press("CopyLink");
-                if (_copied != _opened) return SmokeResult.Fail(label + "copy link did not use fallback address");
+                if (_help!.FindChild("CopyLink", true, false) is not null || !Find<LineEdit>("TargetUrl").Visible)
+                    return SmokeResult.Fail(label + "copy-link control remains or browser fallback is hidden");
                 foreach (var link in Links)
                 {
                     Press(link.Name);
@@ -251,7 +260,7 @@ public sealed class HelpFeedbackSmoke : SmokeTest
             {
                 Settings = new PlaySettings { Map = "TestBox", Bots = 0, Rules = PlayRules.PlayLevel,
                     HostMode = PlayHostMode.Inline, MapRoots = [.. context.App.Options.MapRoots] },
-                Render = false, Hud = false, Audio = false, TicksPerFrame = 1,
+                Render = DisplayServer.GetName() != "headless", Hud = DisplayServer.GetName() != "headless", Audio = false, TicksPerFrame = 1,
             });
             return SmokeResult.Running;
         }
@@ -278,11 +287,54 @@ public sealed class HelpFeedbackSmoke : SmokeTest
                 ((Button)help.FindChild("ReportBug", true, false)).EmitSignal(Button.SignalName.Pressed);
                 if (BugReportProblem(_opened, help.Context) is { } liveBugProblem)
                     return SmokeResult.Fail("live match bug report: " + liveBugProblem);
+                if (DisplayServer.GetName() != "headless")
+                {
+                    help.ScreenshotFolder = Path.Combine(RenderSmokeArgs.RepoRoot, "local", "help-feedback-smoke", "captures");
+                    ((Button)help.FindChild("CaptureScreenshot", true, false)).EmitSignal(Button.SignalName.Pressed);
+                }
                 _clientTick = _playSession!.Client.LocalTick;
                 _serverTick = _playSession.Host.World.TickCount;
                 context.Tree.Root.PushInput(new InputEventKey { Keycode = Key.W, Pressed = true });
                 break;
             case 2:
+                if (DisplayServer.GetName() != "headless")
+                {
+                    var captureHelp = menu.Menu.GetNode<HelpFeedbackScreen>("HelpFeedback");
+                    _capturedScreenshot = captureHelp.ScreenshotFile;
+                    if (_capturedScreenshot is null || !File.Exists(_capturedScreenshot) ||
+                        captureHelp.FindChild("ScreenshotPreview", true, false) is not TextureRect { Visible: true, Texture: not null } ||
+                        menu.Menu.Modulate.A != 1f)
+                        return SmokeResult.Fail("game screenshot was not saved, previewed, or menu visibility was not restored");
+                    int uploads = 0;
+                    string previousUrl = _opened;
+                    captureHelp.UploadScreenshot = (_, _) =>
+                    {
+                        uploads++;
+                        return System.Threading.Tasks.Task.FromException<string>(new System.Net.Http.HttpRequestException("deliberate smoke failure"));
+                    };
+                    ((Button)captureHelp.FindChild("ReportBug", true, false)).EmitSignal(Button.SignalName.Pressed);
+                    if (_opened != previousUrl || !((Label)captureHelp.FindChild("ScreenshotStatus", true, false)).Text.Contains("Could not attach", StringComparison.Ordinal))
+                        return SmokeResult.Fail("failed screenshot upload opened an incomplete report or lost the retry message");
+                    captureHelp.UploadScreenshot = (png, _) =>
+                    {
+                        uploads++;
+                        return System.Threading.Tasks.Task.FromResult(new string('a', 64));
+                    };
+                    ((Button)captureHelp.FindChild("ReportBug", true, false)).EmitSignal(Button.SignalName.Pressed);
+                    if (!_opened.Contains("&capture=" + new string('a', 64), StringComparison.Ordinal) || uploads != 2)
+                        return SmokeResult.Fail("captured screenshot was not automatically attached to the report URL");
+                    ((Button)captureHelp.FindChild("ReportBug", true, false)).EmitSignal(Button.SignalName.Pressed);
+                    if (uploads != 2) return SmokeResult.Fail("reopening the browser reuploaded the same capture");
+                    ((CheckBox)captureHelp.FindChild("IncludeScreenshot", true, false)).ButtonPressed = false;
+                    ((Button)captureHelp.FindChild("ReportBug", true, false)).EmitSignal(Button.SignalName.Pressed);
+                    if (_opened.Contains("capture=", StringComparison.Ordinal) || uploads != 2)
+                        return SmokeResult.Fail("unchecking the screenshot still attached or uploaded it");
+                    using Image preview = context.Tree.Root.GetTexture().GetImage();
+                    preview.SavePng(Path.Combine(RenderSmokeArgs.RepoRoot, "local", "help-feedback-smoke", "capture-preview.png"));
+                    using Image captured = Image.LoadFromFile(_capturedScreenshot);
+                    if (captured.IsEmpty() || captured.GetWidth() > 1280 || captured.GetHeight() > 1280 || new FileInfo(_capturedScreenshot).Length > 2 * 1024 * 1024)
+                        return SmokeResult.Fail("game screenshot is empty or exceeds attachment limits");
+                }
                 if (!ReferenceEquals(_play.Session, _playSession) || context.Tree.CurrentScene != _play || _playSession!.IsStopped ||
                     _playSession.ServerFailure is not null || _playSession.Client.LocalTick <= _clientTick ||
                     _playSession.Host.World.TickCount <= _serverTick || _playSession.Input.Get("BT_Up") != 0 ||

@@ -352,8 +352,8 @@ public sealed class RenderMap
         {
             if (g.Light == LightSource.Actor)
             {
-                FVector at = UeSpace.ToUe(g.Node.GlobalPosition);
-                ActorLighting.Apply(g.Node, LightActor(at, g.Radius, g.AmbientGlow));
+                var sphere = ActorLighting.SphereOf(g.Node.Mesh, g.Node.GlobalTransform);
+                ActorLighting.Apply(g.Node, LightActor(sphere.Center, sphere.Radius, g.AmbientGlow));
             }
         }
 
@@ -570,8 +570,10 @@ public static class MapBuilder
                     var surface = new SurfaceBuilder(false, false);
                     surface.Add(Transform3D.Identity, prim, 0, null);
                     surface.AddTo(arrayMesh, material);
+                    arrayMesh.SurfaceSetName(arrayMesh.GetSurfaceCount() - 1, "section" + prim.Section);
                 }
 
+                ActorLighting.ReadSphere(arrayMesh, _glb.Root.GetProperty("meshes")[mesh]);
                 if (arrayMesh.GetSurfaceCount() > 0)
                 {
                     if (!used)
@@ -668,6 +670,7 @@ public static class MapBuilder
                     : Sequence(positions.Length / 3);
                 list.Add(new MeshPrimitive
                 {
+                    Section = p.TryGetProperty("extras", out JsonElement pe) && pe.TryGetProperty("scctSection", out JsonElement ps) ? ps.GetInt32() : list.Count,
                     Material = material >= 0 && material < _materialNames.Count ? _materialNames[material] : "",
                     Positions = positions,
                     Normals = attrs.TryGetProperty("NORMAL", out JsonElement nn) ? _glb.ReadFloats(nn.GetInt32()) : null,
@@ -1082,9 +1085,11 @@ public static class MapBuilder
                     }
 
                     surface.AddTo(arrayMesh, material);
+                    arrayMesh.SurfaceSetName(arrayMesh.GetSurfaceCount() - 1, "section" + prim.Section);
                     _map.Stats.Vertices += surface.VertexCount;
                 }
 
+                ActorLighting.ReadSphere(arrayMesh, _glb.Root.GetProperty("meshes")[mesh]);
                 _shared[(shareKey, light, glowKey)] = arrayMesh;
             }
 
@@ -1103,8 +1108,8 @@ public static class MapBuilder
                 _map.Stats.Triangles += prim.Indices.Length / 3;
             }
 
-            Aabb box = arrayMesh.GetSurfaceCount() > 0 ? transform * arrayMesh.GetAabb() : new Aabb(transform.Origin, Vector3.Zero);
-            float radius = UeSpace.UnitsPerMetre * box.Size.Length() * 0.5f;
+            var lightSphere = ActorLighting.SphereOf(arrayMesh, transform);
+            float radius = lightSphere.Radius;
             var entry = new GameplayMesh
             {
                 ActorId = actor,
@@ -1122,8 +1127,7 @@ public static class MapBuilder
 
             if (light == LightSource.Actor && arrayMesh.GetSurfaceCount() > 0)
             {
-                FVector center = UeSpace.ToUe(box.GetCenter());
-                ActorLighting.Apply(node, _map.LightActor(center, radius, glow));
+                ActorLighting.Apply(node, _map.LightActor(lightSphere.Center, radius, glow));
             }
         }
 

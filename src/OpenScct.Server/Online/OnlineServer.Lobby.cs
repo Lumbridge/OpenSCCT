@@ -154,7 +154,7 @@ public sealed partial class OnlineServer
 
         switch (command)
         {
-            case "team" when Phase == SessionPhase.Lobby:
+            case "team" when Phase == SessionPhase.Lobby || (Phase == SessionPhase.Match && Setup.Practice):
                 ChangeTeam(p, (byte)Math.Clamp(SessionProtocol.Int(f, 0, p.Team), 0, 255));
                 break;
             case "ready" when Phase is SessionPhase.Lobby or SessionPhase.Results:
@@ -304,12 +304,14 @@ public sealed partial class OnlineServer
 
         // Auto balance (SGameInfo.PickTeam with bPlayersBalanceTeams): nobody moves to a side that would then have two
         // more people than the other.
-        if (Setup.AutoBalance && team is 0 or 1 && !p.IsBot &&
+        if (Setup.AutoBalance && !(Setup.Practice && Phase == SessionPhase.Match) && team is 0 or 1 && !p.IsBot &&
             CountTeam(team) + 1 > CountTeam((byte)(1 - team)) - (p.Team == 1 - team ? 1 : 0) + 1)
         {
             SendMessage(p, "Auto balance is on: that side has more players.");
             return;
         }
+
+        if (Phase == SessionPhase.Match && !SwitchPracticeTeam(p, team)) return;
 
         p.Team = team;
         p.Ready = false;

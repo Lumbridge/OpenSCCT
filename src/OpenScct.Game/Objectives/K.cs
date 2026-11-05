@@ -14,6 +14,9 @@ public static class K
     [Provenance(ProvenanceKind.Decoded, "SInteractObject.PostBeginPlay: owner collision + 150")]
     public const float InteractionPadding = 150f;
 
+    [Provenance(ProvenanceKind.Estimated, "Port authorization: trace 5 uu in front of wall stations; AquaE medkit origins overlap their mounting BSP by about 1 uu")]
+    public const float StationSightFrontOffset = 5f;
+
     [Provenance(ProvenanceKind.Decoded, "SInteractionManager.PostBeginPlay: slots 0 to 4 are the fixed mate and Exit entries")]
     public const int FixedEntries = 5;
 

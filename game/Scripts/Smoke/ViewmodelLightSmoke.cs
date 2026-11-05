@@ -38,6 +38,7 @@ public sealed class ViewmodelLightSmoke : SmokeTest
                 _failure = "eye adaptation does not match the original's quantized ambient";
             _gun = SkeletalModel.Load(SkeletalModel.FindGlb("SWeaponFirst.1DEF_01")!);
             _gun.SplitPart(FirstPersonView.ArmsMaterial);
+            _gun.SetFirstPersonDepth();
             var mask = new ShaderMaterial { Shader = GD.Load<Shader>(FirstPersonView.MaskShaderPath),
                 RenderPriority = (int)Material.RenderPriorityMin };
             foreach (MeshInstance3D mesh in _gun.Meshes)
@@ -159,9 +160,34 @@ public sealed class ViewmodelLightSmoke : SmokeTest
             error /= 100 * 200 * 3;
             if (error > 0.015f) _failure = $"EMF halo leaked into normal weapon rendering ({error:F4} mean error)";
             GD.Print($"VIEWMODEL EMF-to-normal error={error:F4}");
+            // Put a bright wall through the gun: its foreground surfaces must keep their original pixels.
+            var wall = new MeshInstance3D
+            {
+                Mesh = new BoxMesh { Size = new Vector3(.02f, 10f, 10f) },
+                MaterialOverride = new StandardMaterial3D { ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded,
+                    AlbedoColor = new Color(1f, 0f, 1f) },
+                Transform = UeSpace.TransformToGodot(new FVector(7152, 1066, 272.50626f),
+                    new FRotator(0, 16384, 0), new FVector(1f, 1f, 1f), default),
+            };
+            _view.Viewport.AddChild(wall);
+        }
+        if (_frame == 180)
+        {
+            using Image shot = _view!.Capture();
+            shot.SavePng(Path.Combine(_output, "close-wall.png"));
+            using Image baseline = Image.LoadFromFile(Path.Combine(_output, "normal-after-emf.png"));
+            int changed = 0;
+            for (int y = 600; y < 700; y++)
+                for (int x = 750; x < 950; x++)
+                {
+                    Color a = shot.GetPixel(x, y), b = baseline.GetPixel(x, y);
+                    if (MathF.Abs(a.R - b.R) + MathF.Abs(a.G - b.G) + MathF.Abs(a.B - b.B) > .1f) changed++;
+                }
+            if (changed > 100) _failure = $"close wall covered foreground weapon ({changed} changed pixels)";
+            GD.Print($"VIEWMODEL close-wall changed gun pixels={changed}");
             _view.Dispose();
         }
-        return _frame <= 161 ? SmokeResult.Running : _failure is { } failure ? SmokeResult.Fail(failure)
+        return _frame <= 186 ? SmokeResult.Running : _failure is { } failure ? SmokeResult.Fail(failure)
             : SmokeResult.Pass("Blue Room weapon detail, single/burst/auto self-illumination EMF mask/outline and return to normal; captures in " + _output);
     }
 }

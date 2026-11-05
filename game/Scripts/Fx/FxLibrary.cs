@@ -277,6 +277,25 @@ public sealed class FxLibrary : IParticleAssets
         return textures;
     }
 
+    /// <summary>
+    /// Construct and draw real particle surfaces during loading. Creating Shader objects alone leaves the
+    /// renderer's vertex-layout pipelines and the first geometry upload until the first explosion or impact.
+    /// These isolated simulations never spawn actors, play audio or consume gameplay random numbers.
+    /// </summary>
+    public void WarmViews(Node3D samples)
+    {
+        var camera = ParticleCamera.From(new FVector(0f, 300f, 0f), new FRotator(0, -16384, 0));
+        foreach (FxClass effect in _classes.Values)
+        {
+            if (CreateSystem(effect.Path, 1) is not { } sim) continue;
+            var view = new ParticleSystemView(sim, this, samples, "WarmParticles", effect.Float("HeatOpacity", RenderK.DefaultHeatOpacity));
+            sim.Trigger();
+            sim.Step(0.1f, default, default, default);
+            view.Draw(new ParticleOwner(default, default, default, sim.GlobalOffset), camera);
+            view.PreloadGeometry();
+        }
+    }
+
     private void Read(string path, SharedClasses classes)
     {
         using JsonDocument doc = JsonDocument.Parse(File.ReadAllBytes(path));

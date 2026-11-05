@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
 using OpenScct.Game.SBase;
@@ -30,6 +31,11 @@ public sealed class AmmoStockMenuTests
                 clock.NowMicroseconds += 1_000_000 / Sim.Hz;
                 session.Step(clock.NowMicroseconds);
                 session.Input.EndTick();
+                if (session.LocalController?.IManager is { } menu)
+                {
+                    var entries = menu.Interactions.Take(menu.NbObjects).OfType<SAmmoStockInteraction>().ToArray();
+                    Assert.Equal(entries.Length, entries.Distinct().Count());
+                }
             }
         }
         for (int i = 0; i < 1800 && (session.LocalPawn is null || session.ServerController?.Pawn is null ||

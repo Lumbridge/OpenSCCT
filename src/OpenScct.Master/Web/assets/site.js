@@ -247,3 +247,56 @@
     if (activeLink) activeLink.focus({ preventScroll: true });
   });
 })();
+
+// Screenshot drafts remain in the form until the player reviews and explicitly publishes them.
+(function () {
+  "use strict";
+  var root = document.querySelector("[data-report-screenshot]");
+  if (!root) return;
+  var file = root.querySelector("input[type=file]");
+  var value = root.querySelector("input[type=hidden]");
+  var preview = root.querySelector("[data-screenshot-preview]");
+  var status = root.querySelector("[data-screenshot-status]");
+  var generation = 0;
+  var loading = false;
+  function show() {
+    preview.hidden = !value.value;
+    if (value.value) preview.src = "data:image/png;base64," + value.value;
+    else preview.removeAttribute("src");
+  }
+  root.querySelector("[data-remove-screenshot]").addEventListener("click", function () {
+    generation++; loading = false; value.value = ""; file.value = "";
+    status.textContent = "Screenshot removed."; show();
+  });
+  file.addEventListener("change", function () {
+    var selected = file.files[0];
+    var current = ++generation;
+    loading = false; value.value = ""; show();
+    if (!selected) return;
+    if (selected.size > 2 * 1024 * 1024 || selected.type !== "image/png") {
+      file.value = "";
+      status.textContent = "Choose a PNG screenshot under 2 MB.";
+      return;
+    }
+    loading = true;
+    status.textContent = "Reading screenshot…";
+    var reader = new FileReader();
+    reader.onload = function () {
+      if (current !== generation) return;
+      loading = false;
+      value.value = String(reader.result).split(",")[1] || "";
+      status.textContent = "Check this screenshot. It will be public if you send the report.";
+      show();
+    };
+    reader.onerror = function () {
+      if (current !== generation) return;
+      loading = false; file.value = "";
+      status.textContent = "Could not read the screenshot. Choose it again or continue without it.";
+    };
+    reader.readAsDataURL(selected);
+  });
+  root.closest("form").addEventListener("submit", function (event) {
+    if (loading) { event.preventDefault(); status.textContent = "Wait for the screenshot to finish loading."; }
+  });
+  show();
+})();

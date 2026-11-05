@@ -72,7 +72,7 @@ public sealed class ScoreboardTransportTests
         while (rig.Now - changed < 29_000_000) rig.Step();
         Assert.DoesNotContain(received, r => r.Board.Rows.Any(p => p.Stats?.GetValueOrDefault(FeatKeys.SpyShockerStuns) == 1));
         Assert.True(rig.RunUntil(() => rig.Clients.All(c => c.Session?.Scoreboard?.Rows.Any(p =>
-            p.Name == "Spy" && p.Stats?.GetValueOrDefault(FeatKeys.SpyShockerStuns) == 1) == true), 4));
+            p.Name == "Spy" && p.Stats?.GetValueOrDefault(FeatKeys.SpyShockerStuns) == 1) == true), 34));
         Assert.All(received.Where(r => r.Board.Rows.Any(p => p.Stats?.GetValueOrDefault(FeatKeys.SpyShockerStuns) == 1)),
             r => Assert.True(r.When - changed >= 30_000_000));
         Assert.Equal(-1, watcher.Session!.ScoreboardLocalParticipantId);
@@ -201,12 +201,18 @@ public sealed class ScoreboardTransportTests
         Assert.Equal(0, host.Scoreboards.Current.AsOfSeconds);
         pri.Stats.AddFeat(FeatKeys.SpyShockerStuns, 2);
         host.Scoreboards.Tick(31_000_000);
+        Assert.Equal(0, host.Scoreboards.Current!.Rows.Single().Stats!.GetValueOrDefault(FeatKeys.SpyShockerStuns));
+        Assert.Equal(60, host.Scoreboards.Current.NextCombatUpdateSeconds);
+        host.Scoreboards.Tick(59_000_000);
+        Assert.Equal(0, host.Scoreboards.Current!.Rows.Single().Stats!.GetValueOrDefault(FeatKeys.SpyShockerStuns));
+        host.Scoreboards.Tick(60_000_000);
         Assert.Equal(5, host.Scoreboards.Current!.Rows.Single().Stats![FeatKeys.SpyShockerStuns]);
+        Assert.Equal(90, host.Scoreboards.Current.NextCombatUpdateSeconds);
         game.bGameEnded = true; game.GameReplicationInfo.WinningTeam = 255;
-        host.Scoreboards.Tick(31_000_001);
+        host.Scoreboards.Tick(60_000_001);
         Assert.Null(host.Scoreboards.Final); // The end-state can precede its authoritative winning result.
         game.GameReplicationInfo.WinningTeam = 0;
-        host.Scoreboards.Tick(31_000_002);
+        host.Scoreboards.Tick(60_000_002);
         Assert.Equal(7, host.Scoreboards.Final!.Rows.Single().Stats![FeatKeys.SpyShockerStuns]);
         Assert.True(host.Scoreboards.Final.Completed);
         Assert.NotNull(host.Scoreboards.Final.EndedUtc);

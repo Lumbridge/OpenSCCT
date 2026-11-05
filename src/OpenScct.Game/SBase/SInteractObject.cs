@@ -113,7 +113,7 @@ public partial class SInteractObject
     [PortOf("uc:SBase.SInteractObject:UnTouch", Spec = "spec/objectives/interaction-system.md#rules")]
     protected override void UnTouch(Actor Other)
     {
-        if (Other is Pawn { Controller: SPlayerController { IManager: { } manager } })
+        if (Role == ENetRole.ROLE_Authority && Other is Pawn { Controller: SPlayerController { IManager: { } manager } })
         {
             manager.RemoveInteractionObj(this);
         }
@@ -128,7 +128,9 @@ public partial class SInteractObject
     [Provenance(ProvenanceKind.Estimated, "Expected DoTouch contract; filters and the client copy are open questions")]
     public virtual void DoTouch(Actor Other)
     {
-        if (Other is Pawn { bDeleteMe: false, Controller: SPlayerController { IManager: { } manager } pc } &&
+        // The authority owns the replicated menu. Client collision events must not edit that list while
+        // its slot updates and reliable add/remove calls are arriving.
+        if (Role == ENetRole.ROLE_Authority && Other is Pawn { bDeleteMe: false, Controller: SPlayerController { IManager: { } manager } pc } &&
             InteractionMenuRules.CanAddInteract(pc, this))
         {
             manager.AddInteractionObj(this);

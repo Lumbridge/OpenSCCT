@@ -39,6 +39,7 @@ uniform bool vision_see_through = false;
 // turn of the self-illumination (x radians, y > 0 on; keeps brightness), for goggle lenses and lamps; z > 0 turns the
 // diffuse too (the goggle beams, whose colour is their texture).
 instance uniform vec4 svm_tint = vec4(1.0, 1.0, 1.0, 0.0);
+// w reserves foreground depth for the local weapon. Packed here because actor lighting uses all 16 instance slots.
 instance uniform vec4 svm_glow_hue = vec4(0.0);
 
 #ifdef SVM_CLOAK
@@ -292,6 +293,31 @@ vec3 svm_one_light(vec4 pos, vec4 col, vec4 spot, vec3 wp, vec3 wn, int falloff)
 	}
 	return col.rgb * (att * max(0.0, dot(wn, l)) + ambient);
 }
+
+// Actor lights use the original SetLight fit over the actor's sphere, rather than cutting off at R.
+// pos.w is linear attenuation per metre, col.w constant attenuation. Spot inner cone is 0.05 outer.
+vec3 svm_actor_light(vec4 pos, vec4 col, vec4 spot, vec3 wp, vec3 wn) {
+    if (dot(col.rgb, col.rgb) <= 0.0) return vec3(0.0);
+    if (pos.w < 0.0) return col.rgb * max(0.0, dot(wn, normalize(pos.xyz)));
+    vec3 d = pos.xyz - wp;
+    float dist = length(d);
+    vec3 l = d / max(dist, 1e-5);
+    float att;
+    if (spot.w < -2.5 && spot.w > -3.5) {
+        float x = dist / max(pos.w, 1e-5);
+        att = x >= 1.0 ? 0.0 : 1.0 / max(8.0 * x * x, 1e-3);
+    } else {
+        float denominator = col.w + pos.w * dist;
+        float range = (256.0 - col.w) / max(1.0, pos.w);
+        att = dist > range ? 0.0 : 1.0 / max(denominator, .01);
+    }
+    if (spot.w > -1.5) {
+        float inner = cos(acos(clamp(spot.w, -1.0, 1.0)) * 0.05);
+        att *= clamp((dot(-l, spot.xyz) - spot.w) / max(inner - spot.w, 1e-5), 0.0, 1.0);
+    }
+    return col.rgb * att * (max(0.0, dot(wn, l)) + (spot.w < -3.5 ? 1.0 : 0.0));
+}
+
 
 #if defined(LIGHT_LIGHTMAP) || defined(LIGHT_VERTEX) || defined(LIGHT_ACTOR)
 // The spot shadow lights (LE_ESpotShadow: the merc torch, searchlights, window and sun projectors,
@@ -594,12 +620,16 @@ void vertex() {
 	v_wbinormal = normalize(MODEL_NORMAL_MATRIX * BINORMAL);
 #endif
 	vec3 sum = svm_ambient.rgb;
-	sum += svm_one_light(svm_l0_pos, svm_l0_col, svm_l0_spot, wp, wn, 0);
-	sum += svm_one_light(svm_l1_pos, svm_l1_col, svm_l1_spot, wp, wn, 0);
-	sum += svm_one_light(svm_l2_pos, svm_l2_col, svm_l2_spot, wp, wn, 0);
-	sum += svm_one_light(svm_l3_pos, svm_l3_col, svm_l3_spot, wp, wn, 0);
+	sum += svm_actor_light(svm_l0_pos, svm_l0_col, svm_l0_spot, wp, wn);
+	sum += svm_actor_light(svm_l1_pos, svm_l1_col, svm_l1_spot, wp, wn);
+	sum += svm_actor_light(svm_l2_pos, svm_l2_col, svm_l2_spot, wp, wn);
+	sum += svm_actor_light(svm_l3_pos, svm_l3_col, svm_l3_spot, wp, wn);
 	v_light = min(sum, vec3(2.0));
 #endif
+	POSITION = PROJECTION_MATRIX * MODELVIEW_MATRIX * vec4(VERTEX, 1.0);
+	if (svm_glow_hue.w > 0.5) {
+		POSITION.z = mix(0.99 * POSITION.w, POSITION.w, POSITION.z / POSITION.w);
+	}
 }
 
 // One animated texture modifier (the UV_ANIM layout) at the scene time (Level.TimeSeconds).
@@ -783,10 +813,10 @@ void fragment() {
 	vec3 actor_light = v_light;
 #ifdef NORMAL_MAP
 	actor_light = svm_ambient.rgb;
-	actor_light += svm_one_light(svm_l0_pos, svm_l0_col, svm_l0_spot, v_wpos, wn, 0);
-	actor_light += svm_one_light(svm_l1_pos, svm_l1_col, svm_l1_spot, v_wpos, wn, 0);
-	actor_light += svm_one_light(svm_l2_pos, svm_l2_col, svm_l2_spot, v_wpos, wn, 0);
-	actor_light += svm_one_light(svm_l3_pos, svm_l3_col, svm_l3_spot, v_wpos, wn, 0);
+	actor_light += svm_actor_light(svm_l0_pos, svm_l0_col, svm_l0_spot, v_wpos, wn);
+	actor_light += svm_actor_light(svm_l1_pos, svm_l1_col, svm_l1_spot, v_wpos, wn);
+	actor_light += svm_actor_light(svm_l2_pos, svm_l2_col, svm_l2_spot, v_wpos, wn);
+	actor_light += svm_actor_light(svm_l3_pos, svm_l3_col, svm_l3_spot, v_wpos, wn);
 #endif
 	vec3 lit = t.rgb * (min(actor_light + spot + vec3(svm_vision_ambient), vec3(2.0)) + flare);
 #else

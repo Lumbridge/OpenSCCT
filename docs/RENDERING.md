@@ -78,6 +78,13 @@ Without the pack the client still draws, with a seeded stand-in grain, no therma
 
 ### Gameplay objects
 
+Runtime damage and trigger skins are exported with each map, even when no placed surface uses them.
+`MeshFollower` resolves map materials before the shared gameplay pack, and each static-mesh primitive carries
+its original `scctSection` index so empty or skipped sections do not shift `Skins[]` slots. Client net receive
+copies changes to `RepSkin` into `Skins[0]`, including clearing the override on reset. Aquarius kiosk screens use
+this path: damage replaces section 0 with `aqua_bornescreen1` while preserving the cabinet mesh and collision.
+The [4 November destructible sweep](MAP-DESTRUCTIBLE-PARITY-2026-11-04.md) records coverage and remaining visual limits.
+
 `GameplayObjects.Build` draws gameplay actors with DT_StaticMesh and no mesh of their own in `world.glb` (the
 converter writes only meshes an actor stores) from the pack's gameplay meshes: SteeE's first-aid cabinets, window
 panes, extinguishers, ammo stocks, camera globes and objective props (67 actors). Placement is the actor's Location,
@@ -497,15 +504,33 @@ Blue Room) and shines through walls inside its zone. Here a flare lights what it
 Pawns, skeletal props and meshes without baked colours (`ActorLighting`), decoded from the editor build's actor
 lighting:
 
-`display = tex x min(2, A + sum k C S(d / R) max(0, N.L))` over the four strongest lights (Actor.MaxLights), with
-`S(x) = 1 - 3x^2 + 2x^3`, `k = 2` for point lights and `1.75` for suns (no falloff), `C = FGetHSV(hue, saturation,
-255) x brightness / 255` (0.8213 at V 255), `R = 25 (LightRadius + 1)`, `A` = zone ambient plus AmbientGlow / 255.
+`display = tex x min(2, A + sum C attenuation(d) max(0, N.L))` over the four strongest lights.
+For ordinary point/spot lights, `RenderingModeNormal::SetLight` (game `0x10978cc0`) fits reciprocal-linear
+D3D attenuation to `2 S(d/R)`, where `S(x) = 1 - 3x^2 + 2x^3` and `R = 25 (LightRadius + 1)`.
+It samples at `near = clamp(distance - actorRadius, .1R, .95R)` and
+`far = clamp(distance + actorRadius, .05R, .9R)`. With `a = 1/(2S(near/R))` and
+`b = 1/(2S(far/R))`, it sets `constant = max(.01, a - (b-a)/(far-near) * near)` and
+`linear = max(0, (a-constant)/near)`, then evaluates `1/(constant + linear*d)`.
+Equal samples use constant attenuation. Its D3D range is `(256-constant)/max(.01,linear)`;
+the fitted light is not cut off at the nominal radius. Suns use `1.75` without distance attenuation.
+`C = FGetHSV(hue, saturation, 255) x brightness / 255` (0.8213 at V 255), and
+`A` is zone ambient plus AmbientGlow / 255.
+
+Directly evaluating the cubic at every vertex left Aquarius kiosk bases nearly black. The shared actor shader
+now evaluates the native fit for map props, moving/swapped devices, characters and weapons. Static mesh exports
+carry their cooked bounding sphere (`scctSphere`); its center transforms with the object and its radius scales
+by the largest axis, independent of rotation. Older content falls back to the local AABB sphere. Relighting
+and mesh swaps use that same sphere instead of reverting to the actor origin or an expanded world AABB.
+Original runtime captures of 24 point/spot light setups confirm the fit, including small props, a scaled Aquarius
+kiosk, large meshes and distant lights. Scalar regression tests retain representative native coefficients;
+local captures are under `local/cabinet-light-parity/`.
+
 Lights are ranked by `brightness x (1 - d^2 / (R + r)^2)`, suns first; spots score 0 outside their cone and use
 `phi = 1.15 acos((1 - LightCone / 256)^2)`, `theta = 0.05 phi`. Only lights kept for run time
 (`bApplyToInGameLighting` or `bDynamicLight`) that are on take part (dynamic ones without the in-game flag were left
 out until AquaE's kiosk beside STriggerLight303 drew black), and own-zone lights only for actors in their zone. The
 light type scales each chosen light's colour (as for the world lights); ranking uses LightBrightness alone. LE_QuadraticNonIncidence (20) uses the D3D attenuation
-`1 / (8 d^2 / R^2)` (with half the point gain, as the 2 of the point fit is not there); LE_PointAmbient (21) also
+`1 / (8 d^2 / R^2)` instead of the ordinary fit; LE_PointAmbient (21) also
 adds its attenuated colour whatever the normal (its D3D ambient). LE_Cylinder and LE_NonIncidence stay plain points
 (not decoded). The set is chosen on the CPU and handed over as
 instance uniforms; the shader evaluates it per vertex. The spot shadow light and the night boost are added per pixel.
@@ -820,7 +845,8 @@ hot spots stopped at yellow, his head read cold, a wide halo ringed him). The co
   estimate. Its row-major rows are `(.25,0,0,0),(.25,.5,0,0),(0,0,1,0),(.5,.5,0,1)`.
 - Laser beams (`Lasers`: SLaserBeam's LasDetectBeam stretched from start to end; the tripwires' and the mines'
   SLaserBeam_MineLaser, length fTailleFaisceau) are vision-only nodes: drawn only in 36 and 38 (bHideInNormalVision),
-  with their own material: the beam's HeatIntensity in thermal (tripwire 1, mine beam 0.4), full EMF glow in EMF.
+  with their own material: the beam's HeatIntensity in thermal (tripwire 1, mine beam 0.4). The material discards
+  the connecting beam in EMF; only the emitter's own EMF response remains, matching the original-game screenshots.
 - Weapon lasers (the spy pistol's beam, the merc laser sight; both SLaserBeam, HeatIntensity 1) draw their additive
   red look in every mode, which adds only red, a channel the thermal post does not read. Their material carries a
   thermal pass (`SpyLaserView.ThermalBeamPass`, svm_laser.gdshader with thermal_only) that draws heat 1 with the
@@ -862,14 +888,16 @@ shift is `(-k Nx / 640, k Ny / 480)` with `k = 10 (1 - d / 1500)` (0 from 1500 u
 policy 0x109771f0); that it follows the vertex normal is inferred (the vertex shader is built at run time).
 
 `SimPawnView` hands GlassEffect / 255 to `SkeletalModel.SetGlass` for the body and the attachments (the gun) while the
-view's vision is 5. `CloakMaterials` makes a per-model variant of each Faithful material (`SVM_CLOAK` in
+view's vision is normal (5) or night (34). Keeping the cloak in night vision is a port addition: toggling the spy's
+own goggles preserves the suit's fade and refraction on its body and gun. `CloakMaterials` makes a per-model
+variant of each Faithful material (`SVM_CLOAK` in
 `svm_world.gdshaderinc`), retaining its textures, actor lighting, tint and masked cutouts. It mixes the shaded
 surface with the shifted screen copy in one transparent draw, writing nearest depth and replacing the resulting
 pixel. There is no separate opaque body pass or overlay to interleave with the head, limbs or split cosmetic meshes.
 The fade uses a material uniform because actor lighting already occupies all 16 instance-uniform slots. Skin and
 cosmetic changes while cloaked receive the same variant; uncloaking restores their original materials and vision
 passes. `svm_cloak.gdshader` supplies the fallback for imported materials without Faithful metadata.
-In night, thermal, motion and EMF vision the spy draws as uncloaked, as in the
+In thermal, motion and EMF vision the spy uses its uncloaked materials, as in the
 original; the cloak also makes the spy EMF visible (TestAndSetEMFVisible) and hides it from motion tracking
 (DesiredGlassEffect 255). With the suit fully on (GlassEffect 255) the spy's body is not drawn at all in motion
 vision (Reloaded's scene traversal hook, spec/native/reloaded-hooks.md rule 33; `SimPawnView.DrawMotionCloak`); his
@@ -883,8 +911,10 @@ finishes. Cloaking does not reduce heat intensity or heat opacity.
 Known difference: other translucent surfaces behind the spy are missing from the screen copy.
 The `cloak-render` windowed smoke checks the real spy from eight angles and the shocker from two: the partial
 fade, complete silhouette coverage at full cloak, a cosmetic split during cloaking and live cosmetic restoration.
-It also switches a real `SimPawnView` through normal, thermal and EMF, including the fade-out, and checks that
-returning to normal vision restores the cloak. Patterned-background captures show the refraction separately.
+It also switches a real `SimPawnView` through normal, night, thermal and EMF. Night captures check activation,
+partial fade, full cloak and restoration using mean red contrast across the silhouette to average out the moving
+grain. Thermal and EMF reveal the cloak, including EMF fade-out, and returning to night or normal vision restores
+the cloak. Patterned-background captures show the refraction separately.
 
 ## Emitters
 

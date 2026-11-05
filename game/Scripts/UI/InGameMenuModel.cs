@@ -21,6 +21,7 @@ public enum InGameMenuButton
 
     /// <summary>An OpenSCCT addition: the gear picker (spec/additions/gear-change.md).</summary>
     ChangeGear,
+    SwitchTeam,
     StrategicMap,
     Options,
     Resign,
@@ -83,6 +84,7 @@ public enum InGameMenuAction
     /// <summary>Quit Game: leave the session, then quit the program (<c>QuitGame</c>).</summary>
     QuitGame,
     Resign,
+    SwitchTeam,
 }
 
 /// <summary>Who the player is when the menu opens.</summary>
@@ -90,8 +92,10 @@ public enum InGameMenuAction
 /// <param name="Net">The network type.</param>
 /// <param name="Tutorial">The map is a tutorial map (<c>SPersistentData.CurLevelIsTutorial</c>).</param>
 public readonly record struct InGameMenuContext(bool IAmServer, InGameMenuNet Net, bool Tutorial = false,
-    bool MatchBegun = false, bool GameEnded = false, bool Spectator = false, int Lives = 0)
+    bool MatchBegun = false, bool GameEnded = false, bool Spectator = false, int Lives = 0, bool Practice = false, bool MercDeathmatch = false)
 {
+    public bool CanSwitchTeam => Practice && Net == InGameMenuNet.Lan && !Tutorial && MatchBegun && !GameEnded && !Spectator && !MercDeathmatch;
+
     public bool CanResign => Net == InGameMenuNet.Lan && !Tutorial && MatchBegun && !GameEnded && !Spectator && Lives > 0;
 }
 
@@ -347,6 +351,12 @@ public sealed class InGameMenuModel
             AddChangeGear(list);
         }
 
+        if (context.CanSwitchTeam)
+        {
+            int at = list.FindIndex(entry => entry.Button == InGameMenuButton.ChangeGear) + 1;
+            list.Insert(at, new(InGameMenuButton.SwitchTeam, "Switch Team", list[at - 1].Top));
+        }
+
         if (context.CanResign)
         {
             int at = list.FindIndex(entry => entry.Button == InGameMenuButton.Options) + 1;
@@ -431,6 +441,9 @@ public sealed class InGameMenuModel
             case InGameMenuButton.Help:
                 Page = InGameMenuPage.Help;
                 return InGameMenuAction.None;
+            case InGameMenuButton.SwitchTeam:
+                CloseAll();
+                return InGameMenuAction.SwitchTeam;
             case InGameMenuButton.ChangeGear:
                 Page = InGameMenuPage.Gear;
                 return InGameMenuAction.None;

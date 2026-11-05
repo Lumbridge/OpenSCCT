@@ -43,7 +43,7 @@ public partial class SInteractionManager
     /// Server: inserts a touched object into the menu, kept in iPriority order (game 0x10ABF4C0). The object goes
     /// before the first of the first ten entries whose priority is strictly higher, so equal priorities keep touch
     /// order and the five built-in entries (priority 999999) stay at the end, Exit last. An object already listed
-    /// before that point, or with no higher entry among the first ten, is not added. The owning client is told the
+    /// anywhere in the list, or with no higher entry among the first ten, is not added. The owning client is told the
     /// slot, then the selection goes back to the first usable entry.
     /// </summary>
     [UcNative("ASInteractionManager::execAddInteractionObj", Exe = 0x10ABF470, Editor = 0x112229F0)]
@@ -51,7 +51,9 @@ public partial class SInteractionManager
     [Provenance(ProvenanceKind.Decoded, "game 0x10ABF4C0: scan slots 0..9 while < NbObjects; same object: stop; new iPriority < slot iPriority: insert there (0x10ABF400), Ev_AddObjetOnClient unless the owner is local, SelectFirstViewAbleItem (0x10ABEE10)")]
     public void AddInteractionObj(SInteractObject? Object)
     {
-        if (Object is null)
+        // Replicated slots/priorities can arrive separately on the client. Check the whole list before
+        // choosing an insertion point; a hole or a changed priority can precede an existing entry.
+        if (Object is null || IndexOf(Object) >= 0)
         {
             return;
         }
@@ -64,11 +66,6 @@ public partial class SInteractionManager
             }
 
             SInteractObject? slot = Interactions[i];
-            if (ReferenceEquals(slot, Object))
-            {
-                return;
-            }
-
             if (slot is null || Object.iPriority < slot.iPriority)
             {
                 InsertAt(Object, i);
@@ -96,17 +93,27 @@ public partial class SInteractionManager
 
     /// <summary>
     /// Inserts an object at a slot, moving the later entries down one (the client side of AddObjetOnClient). The
-    /// server's own manager is skipped when the slot already holds the object: the original does not send the call
-    /// to a local owner, while the port's net layer runs it locally.
+    /// server's own manager is skipped when the slot already holds the object. Replication can supply an entry
+    /// before the server's call arrives, so an entry in another slot is moved rather than duplicated.
     /// </summary>
     [UcNative("ASInteractionManager::execAddObjectAtIndex", Exe = 0x10ABF390)]
     [PortOf("nat:SBase.SInteractionManager.AddObjectAtIndex", Spec = "spec/objectives/interaction-system.md#rules")]
     [Provenance(ProvenanceKind.Decoded, "game 0x10ABF390 calls the insert at 0x10ABF400")]
     public void AddObjectAtIndex(SInteractObject? Object, int i)
     {
+        if (i < 0 || i >= Interactions.Length - 1)
+        {
+            return;
+        }
+
         if (i >= 0 && i < NbObjects && i < Interactions.Length && ReferenceEquals(Interactions[i], Object))
         {
             return;
+        }
+
+        if (Object is not null && IndexOf(Object) >= 0)
+        {
+            RemoveObject(Object);
         }
 
         InsertAt(Object, i);

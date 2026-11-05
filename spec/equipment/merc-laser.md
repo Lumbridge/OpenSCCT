@@ -95,6 +95,10 @@ def:SBase.SGadTorcheLaser (ItemName localized "Laser"):
    bone sits ahead of the drawn barrel, so a mesh started there floated in front of the gun). Other mercs' beams
    (and bots') start at the `FX` bone of the M160 drawn in their right hand (SWeaponDefenseDummy on `B R Hand`).
    The SWeaponDefense actor itself sits at the eye with the aim's rotation (hidden: drawn as the view model).
+   The rendered sight uses a fixed full-range zero before applying the animated barrel rotation; a nearby camera-ray
+   hit must not redirect it toward or behind the muzzle. Only the beam trace shortens at an obstruction. First-person
+   surfaces and their stencil mask reserve the nearest 1% of reverse-Z depth, retaining surface ordering while keeping
+   walls from cutting through the gun; lighting and bone positions remain in world space.
 10. **ThrowSpyBullet(Target)** (client -> server reliable): if `Target.Health > 0`: `Target.HitBySpyBullet(1)` and
     broadcast SGameMessages 60 to team 1 (mercs).
 11. **HitBySpyBullet(Team)** (server): `bSpyBulletOn = true`, `fTimeSpy = now`, `iTeamSpying = Team`; every controller

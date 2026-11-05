@@ -317,7 +317,8 @@ public partial class PlayMenu : Node
             bool host = (client.Lobby.Local?.IsHost ?? false) || (pc?.PlayerReplicationInfo?.bIAmServer ?? false);
             return new InGameMenuContext(host, InGameMenuNet.Lan, tutorial,
                 pc?.GameReplicationInfo?.bMatchHasBegun ?? false, pc?.bGameEnded ?? true,
-                pc?.PlayerReplicationInfo?.bOnlySpectator ?? true, pc?.PlayerReplicationInfo?.NumLives ?? 0);
+                pc?.PlayerReplicationInfo?.bOnlySpectator ?? true, pc?.PlayerReplicationInfo?.NumLives ?? 0,
+                client.Lobby.Setup.Practice, client.Lobby.Setup.Mode == OpenScct.Core.EGameMode.GM_MercDeathMatch);
         }
 
         return new InGameMenuContext(IAmServer: true, InGameMenuNet.None, tutorial);
@@ -377,6 +378,11 @@ public partial class PlayMenu : Node
         switch (action)
         {
             case InGameMenuAction.Resume:
+                Resume();
+                break;
+            case InGameMenuAction.SwitchTeam:
+                if (Context().CanSwitchTeam && GetTree().Root.GetNodeOrNull<OnlineService>(OnlineService.NodeName)?.Client is { } client)
+                    client.SetTeam(client.Lobby.Local?.Team == 0 ? 1 : 0);
                 Resume();
                 break;
             case InGameMenuAction.Resign:

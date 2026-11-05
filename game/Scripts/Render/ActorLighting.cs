@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text.Json;
 using Godot;
 using OpenScct.Core;
 using OpenScct.Game.Lighting;
@@ -11,9 +12,9 @@ namespace OpenScctGame.Render;
 /// <summary>
 /// The original's lighting of actors (pawns, weapons, runtime props and static meshes without baked colours), by the
 /// shared <see cref="ActorLightRules"/> (which the bots' light field also reads):
-/// <c>display = texture x min(2, A + sum k C S(d / R) max(0, N.L))</c> over the four strongest lights, with
-/// S(x) = 1 - 3x^2 + 2x^3, k = 2 for point lights and 1.75 for suns, C the light's FGetHSV colour x brightness / 255
-/// and A the zone ambient plus AmbientGlow. The light set is chosen on the CPU and handed to the template as
+/// <c>display = texture x min(2, A + sum C attenuation(d) max(0, N.L))</c> over the four strongest lights.
+/// Ordinary point/spot attenuation is the original D3D reciprocal-linear fit to 2 S(d/R) over the actor's sphere;
+/// suns use 1.75, C is the light's FGetHSV colour x brightness / 255, A is zone ambient plus AmbientGlow. The light set is chosen on the CPU and handed to the template as
 /// instance uniforms (svm_ambient, svm_l0..3_pos/col/spot). docs/RENDERING.md#actor-lighting.
 /// </summary>
 [PortOf("eng:Render.ActorLighting", Spec = "docs/RENDERING.md#actor-lighting")]
@@ -189,7 +190,7 @@ public sealed class ActorLighting
         {
             // Ranked by LightBrightness alone; the light type scales the colour (FDynamicLight::Update).
             LightEntry l = _ranked[i].Light;
-            set.Lights[i] = PackWorld(l, WorldLights.Modulation(l, Time));
+            set.Lights[i] = PackActor(l, WorldLights.Modulation(l, Time), center, radius);
             set.Names[i] = _ranked[i].Light.Name;
         }
 
@@ -277,6 +278,40 @@ public sealed class ActorLighting
             spot);
     }
 
+    /// <summary>The original D3D actor light fit, in metres. World light packing retains its own layout.</summary>
+    public static PackedLight PackActor(LightEntry light, float brightness, FVector center, float radius)
+    {
+        PackedLight packed = PackWorld(light, brightness);
+        if (light.Effect == RenderK.LE_Sunlight) return packed;
+        Vector3 colour = Colour(light) * brightness;
+        if (light.Effect == RenderK.LE_QuadraticNonIncidence)
+            return packed with { Col = new Vector4(colour.X, colour.Y, colour.Z, 0f) };
+        var fit = ActorLightRules.FitAttenuation(FVector.Dist(light.Location, center), radius, light.Radius);
+        return new PackedLight(new Vector4(packed.Pos.X, packed.Pos.Y, packed.Pos.Z, fit.Linear * UeSpace.UnitsPerMetre),
+            new Vector4(colour.X, colour.Y, colour.Z, fit.Constant), packed.Spot);
+    }
+
+    private static readonly StringName SphereMeta = "scct_light_sphere";
+
+    public static void ReadSphere(Mesh mesh, JsonElement source)
+    {
+        if (source.TryGetProperty("extras", out JsonElement extras) &&
+            extras.TryGetProperty("scctSphere", out JsonElement sphere) && sphere.GetArrayLength() == 4)
+            mesh.SetMeta(SphereMeta, new Vector4(sphere[0].GetSingle(), sphere[1].GetSingle(),
+                sphere[2].GetSingle(), sphere[3].GetSingle()));
+    }
+
+    /// <summary>The cooked local sphere scaled by the largest axis, rather than a rotation-expanded world AABB.</summary>
+    public static (FVector Center, float Radius) SphereOf(Mesh mesh, Transform3D transform)
+    {
+        Aabb box = mesh.GetAabb();
+        Vector4 sphere = mesh.HasMeta(SphereMeta) ? mesh.GetMeta(SphereMeta).AsVector4()
+            : new Vector4(box.GetCenter().X, box.GetCenter().Y, box.GetCenter().Z, box.Size.Length() * .5005f);
+        float scale = MathF.Max(transform.Basis.X.Length(), MathF.Max(transform.Basis.Y.Length(), transform.Basis.Z.Length()));
+        return (UeSpace.ToUe(transform * new Vector3(sphere.X, sphere.Y, sphere.Z)),
+            sphere.W * scale * UeSpace.UnitsPerMetre);
+    }
+
     private static readonly StringName EchelonMeta = "svm_echelon_ignore";
 
     /// <summary>
@@ -338,7 +373,8 @@ public sealed class ActorLighting
     }
 }
 
-/// <summary>A light packed for the template: position or direction, gain x colour, spot cone.</summary>
+/// <summary>A light packed for the template. World lights carry radius/gain/inner cone; actor lights carry
+/// fitted linear attenuation/colour/constant attenuation. Both share position/direction and outer cone.</summary>
 public readonly record struct PackedLight(Vector4 Pos, Vector4 Col, Vector4 Spot);
 
 /// <summary>The ambient and up to four lights of one actor.</summary>

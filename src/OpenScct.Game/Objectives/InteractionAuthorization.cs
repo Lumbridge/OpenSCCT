@@ -124,7 +124,12 @@ internal static class InteractionAuthorization
         if (!(delta.X * delta.X + delta.Y * delta.Y <= radius * radius) || !(Math.Abs(delta.Z) <= height)) return false;
         // We need the nearest obstruction: a BSP surface behind an attached panel must not mask the panel hit.
         var flags = GadgetWorld.SightFlags & ~OpenScct.Physics.Collision.ETraceFlags.TRACE_StopAtFirstHit;
-        return !GadgetWorld.Line(pawn, entry.Location, pawn.Location, flags, out var hit) ||
+        // AquaE's wall medkit origins sit about one unit inside the mounting BSP. Test the exposed front
+        // of the station instead of tracing into its mounting wall; intervening walls still block use.
+        FVector sightTarget = entry.Location;
+        if (entry is SInfirmaryInteraction or SAmmoStockInteraction)
+            sightTarget += entry.Rotation.Vector() * K.StationSightFrontOffset;
+        return !GadgetWorld.Line(pawn, sightTarget, pawn.Location, flags, out var hit) ||
             ReferenceEquals(hit.Actor, entry) || ReferenceEquals(hit.Actor, entry.Owner);
     }
 

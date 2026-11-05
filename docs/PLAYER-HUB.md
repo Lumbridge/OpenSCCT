@@ -203,3 +203,8 @@ Automated checks do not replace these browser and account-flow checks:
 - Confirm that updating a data panel leaves an edited form, selected filter and focused control intact.
 
 See [Online services](ONLINE.md), [Launcher](LAUNCHER.md) and [Privacy](legal/PRIVACY.md).
+
+Bug reports can include an optional PNG screenshot captured from the game's Help & feedback menu. When inclusion is checked, Report a bug attaches the capture automatically, including across Discord sign-in.
+Review or remove it in the browser before confirming publication. Private handoffs expire after 15 minutes. Screenshots are public with the issue;
+they are stored in `report-screenshots/` beside the master configuration and must be retained across deployments
+and included in backups. The existing report account limits also apply to screenshot submissions.

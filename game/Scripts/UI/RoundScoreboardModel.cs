@@ -32,12 +32,15 @@ public static class RoundScoreboardModel
 
     private static string LiveTiming(RoundScoreboard board, double snapshotAge)
     {
-        // Snapshots arrive once per second; the first combat sample must first age for 30 seconds.
-        double remaining = (board.AsOfSeconds is null ? Math.Max(1, 30 - board.ElapsedSeconds) : 1)
+        // Public rows arrive each second; combat totals follow the server's separate refresh deadline.
+        // Preserve the original cadence when connected to a server without deadline metadata.
+        double remaining = (board.NextCombatUpdateSeconds is { } deadline ? deadline - board.ElapsedSeconds
+            : board.AsOfSeconds is null ? Math.Max(1, 30 - board.ElapsedSeconds) : 1)
             - Math.Max(0, snapshotAge);
+        string delay = board.NextCombatUpdateSeconds is null ? "Combat stats delayed 30s" : "Combat stats delayed at least 30s";
         return remaining > 0
-            ? "Combat stats delayed 30s · Next update " + (Math.Ceiling(remaining * 10) / 10).ToString("0.0", CultureInfo.InvariantCulture) + "s"
-            : "Combat stats delayed 30s · Awaiting update…";
+            ? delay + " · Next update " + (Math.Ceiling(remaining * 10) / 10).ToString("0.0", CultureInfo.InvariantCulture) + "s"
+            : delay + " · Awaiting update…";
     }
     public static string Clock(double seconds)
     {

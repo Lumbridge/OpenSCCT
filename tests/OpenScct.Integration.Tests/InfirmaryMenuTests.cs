@@ -12,17 +12,26 @@ namespace OpenScct.Integration.Tests;
 public sealed class InfirmaryMenuTests
 {
     [Theory]
-    [InlineData(false, false)]
-    [InlineData(false, true)]
-    [InlineData(true, false)]
-    [InlineData(true, true)]
-    public void ClubhouseInfirmariesHealBothTeamsThroughTheUseMenu(bool spy, bool latency)
+    [InlineData("ClubE", false, false)]
+    [InlineData("ClubE", false, true)]
+    [InlineData("ClubE", true, false)]
+    [InlineData("ClubE", true, true)]
+    public void InfirmariesHealBothTeamsThroughTheUseMenu(string map, bool spy, bool latency)
+        => CheckInfirmaries(map, spy, latency);
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void AquaPracticeInfirmariesHealBothTeams(bool spy) => CheckInfirmaries("AquaE", spy, false);
+
+    private static void CheckInfirmaries(string map, bool spy, bool latency)
     {
-        Assert.SkipWhen(MapCatalog.CreateDefault().FindFolder("ClubE") is null, "Clubhouse content is required.");
+        Assert.SkipWhen(MapCatalog.CreateDefault().FindFolder(map) is null, $"{map} content is required.");
         var clock = new StepClock();
         using var session = new PlaySession(new PlaySettings
         {
-            Map = "ClubE", Side = spy ? PlaySide.Spy : PlaySide.Merc, Rules = PlayRules.MapSettings,
+            Map = map, Side = spy ? PlaySide.Spy : PlaySide.Merc, Rules = PlayRules.MapSettings,
+            OfflineRules = map == "AquaE", UnlimitedGear = map == "AquaE",
             HostMode = PlayHostMode.Inline, MatchSeed = 3, SimLink = latency ? SimLinkProfile.B : null,
         }, clock);
         void Tick(int count = 1)
@@ -38,6 +47,7 @@ public sealed class InfirmaryMenuTests
             session.LocalController!.IsInState("WaitingForPawn")); i++) Tick();
         Assert.NotNull(session.LocalPawn);
         var pawn = (SBasePawn)session.ServerController!.Pawn!;
+        var spawn = pawn.Location;
         var stations = new List<SInfirmary>();
         foreach (var crate in session.Host!.World.Level.AllActors<SInfirmary>()) stations.Add(crate);
         Assert.NotEmpty(stations);
@@ -46,7 +56,17 @@ public sealed class InfirmaryMenuTests
             Assert.NotNull(crate.InteractionObj);
             var entry = crate.InteractionObj;
             var at = crate.Location + crate.Rotation.Vector() * 55f;
-            Assert.True(pawn.SetLocation(at), $"Cannot place player at {at}");
+            bool placed = false;
+            foreach (float distance in new[] { 55f, 80f, 110f, 140f })
+            {
+                foreach (float height in new[] { 0f, 50f, -40f, 100f })
+                {
+                    at = crate.Location + crate.Rotation.Vector() * distance + new FVector(0, 0, height);
+                    if (pawn.SetLocation(at)) { placed = true; break; }
+                }
+                if (placed) break;
+            }
+            Assert.True(placed, $"Cannot place player in front of station at {crate.Location}");
             Assert.True(session.LocalPawn!.SetLocation(at));
             pawn.Rotation = session.LocalPawn.Rotation = (crate.Location - at).Rotation();
             session.LocalController!.Rotation = pawn.Rotation;
@@ -78,7 +98,7 @@ public sealed class InfirmaryMenuTests
             Tick(90);
             Assert.Equal(100, pawn.Health);
             Assert.Equal(100, session.LocalPawn.Health);
-            var away = at + crate.Rotation.Vector() * 150f;
+            var away = map == "AquaE" ? spawn : at + crate.Rotation.Vector() * 150f;
             Assert.True(pawn.SetLocation(away));
             Assert.True(session.LocalPawn.SetLocation(away));
             Tick(90);

@@ -481,6 +481,7 @@ public static class PawnProxyReceiver
         private int _aim;
         private Actor? _meshActor;
         private AssetRef _mesh;
+        private AssetRef _skin;
         private EDrawType _drawType;
         private GameReplicationInfo? _clock;
         private int _elapsed;
@@ -499,6 +500,7 @@ public static class PawnProxyReceiver
             _simInterpolate = _mover?.SimInterpolate ?? default;
             _meshActor = actor;
             _mesh = actor.StaticMesh;
+            _skin = actor.RepSkin;
             _drawType = actor.DrawType;
             _pawn = actor as SBasePawn;
             if (_pawn is not null)
@@ -601,6 +603,13 @@ public static class PawnProxyReceiver
             }
 
             _meshActor = null;
+            // RepSkin is the network carrier for Actor.Skins[0]. Apply changes including None (reset).
+            // Receiving the property alone leaves skin-only destructibles visually intact on clients.
+            if (actor.RepSkin != _skin)
+            {
+                if (actor.Skins.Count == 0) actor.Skins.Add(actor.RepSkin);
+                else actor.Skins[0] = actor.RepSkin;
+            }
             bool drawn = actor.DrawType != EDrawType.DT_None;
             bool wasDrawn = _drawType != EDrawType.DT_None;
             if (actor.StaticMesh != _mesh || (drawn != wasDrawn && !actor.StaticMesh.IsNone))

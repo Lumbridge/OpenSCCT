@@ -25,6 +25,18 @@ The runtime lays each sub-emitter's stored values over its class defaults from `
 
 ## Runtime
 
+Before the client reports ready to play, `GameplayFxWarmup` draws the gameplay particle
+materials and geometry, both laser sights, and the disabled Camnet cue in a private
+64x64 viewport for three rendered frames. This moves shader/pipeline creation,
+texture preparation and first geometry uploads into loading. Creating shader objects
+alone does not exercise the draw pipelines. The temporary viewport is freed before
+play; its particles use separate simulations and never spawn gameplay actors or audio.
+Headless runs prepare CPU resources and finish without waiting for rendered frames.
+
+The windowed `gameplay-fx-warmup` smoke checks loading completion, viewport cleanup,
+unchanged live effect counters, and zero new draw-pipeline compilations when the same
+samples are drawn again. This checks pipeline reuse, not a hardware-independent frame-time guarantee.
+
 | Path | What |
 |---|---|
 | [game/Scripts/Render/Particles/ParticleParams.cs](../game/Scripts/Render/Particles/ParticleParams.cs) | a sub-emitter's properties (Godot-free) |

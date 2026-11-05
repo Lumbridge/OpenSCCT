@@ -219,6 +219,8 @@ public partial class SPlayerController
         SBPawn = null;
     }
 
+    private PawnType? _startedPawnSide;
+
     /// <summary>
     /// After a spawn, on the server and the owning machine: 3 s of explosion protection for spies, the zone tips
     /// around the start, the side's FOV and start state (spies crouched without a weapon, mercs standing with the
@@ -238,6 +240,20 @@ public partial class SPlayerController
 
         if (SBPawn is { } pawn)
         {
+            // Practice and hub side changes keep the controller (and its local goggles) alive.
+            // Clear the previous role's vision before the replacement pawn enters play.
+            if (_startedPawnSide is { } previousSide && previousSide != pawn.SPawnType)
+            {
+                pawn.bBinocularsOn = false;
+                if (Goggle is { } goggles)
+                {
+                    goggles.SetBase(pawn);
+                    goggles.SaveMode = SGoggle.REN_DynLight;
+                    goggles.ResetVisionMode(bNoAnim: true);
+                }
+                RendMap = SGoggle.REN_DynLight;
+            }
+            _startedPawnSide = pawn.SPawnType;
             pawn.bActionsSendByServerMove = false;
             pawn.bActionsHasBeenSentByServerMove = false;
         }

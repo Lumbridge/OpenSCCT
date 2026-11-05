@@ -14,13 +14,13 @@ public sealed class ResignMenuSmoke : SmokeTest
     private InGameMenu? _menu;
     private int _phase, _frames, _size, _resigns;
     private int _teardown;
-    private static readonly Vector2I[] Sizes = [new(800, 600), new(1280, 720)];
-    private static readonly InGameMenuContext Eligible = new(true, InGameMenuNet.Lan, MatchBegun: true, Lives: 3);
+    private static readonly Vector2I[] Sizes = [new(800, 600), new(960, 540), new(1280, 720)];
+    private static readonly InGameMenuContext Eligible = new(true, InGameMenuNet.Lan, MatchBegun: true, Lives: 3, Practice: true);
 
     public override SmokeResult Step(SmokeContext context)
     {
         if (_size == Sizes.Length)
-            return ++_teardown < 5 ? SmokeResult.Running : SmokeResult.Pass("800x600 + 1280x720: eligible button, Cancel focus, cancellation, stale eligibility and one-shot confirmation");
+            return ++_teardown < 5 ? SmokeResult.Running : SmokeResult.Pass("800x600 + 960x540 + 1280x720: practice team button, separate top-right help, quit last with safe focus navigation, Cancel focus, cancellation, stale eligibility and one-shot confirmation");
         if (_viewport is null)
         {
             _viewport = new SubViewport { Size = Sizes[_size], RenderTargetUpdateMode = SubViewport.UpdateMode.Always };
@@ -37,6 +37,28 @@ public sealed class ResignMenuSmoke : SmokeTest
         {
             foreach (Button button in _menu!.GetChildren().OfType<Button>())
                 if (!new Rect2(Vector2.Zero, Sizes[_size]).Encloses(button.GetRect())) return SmokeResult.Fail("main menu button outside viewport");
+            var panel = _menu.GetNode<Panel>("ButtonPanel");
+            if (_menu.HelpButton is not { } help || panel.GetRect().Intersects(help.GetRect()) ||
+                help.GetRect().End.Y + 24f > panel.Position.Y || !help.Flat)
+                return SmokeResult.Fail("Help & feedback must be a separate utility above the session panel");
+            Button[] primary = _menu.GetChildren().OfType<Button>().Where(b => b != help).OrderBy(b => b.Position.Y).ToArray();
+            if (primary[^1].Name != nameof(InGameMenuButton.QuitSession) ||
+                primary[^1].FocusNeighborBottom != primary[0].GetPath() ||
+                primary[0].FocusNeighborTop != primary[^1].GetPath() || primary[0].FocusNeighborRight != help.GetPath())
+                return SmokeResult.Fail("Quit Session must remain last, with up/down inside the primary actions and Right reaching Help");
+            void KeyInput(Key key)
+            {
+                _viewport.PushInput(new InputEventKey { Keycode = key, Pressed = true });
+                _viewport.PushInput(new InputEventKey { Keycode = key, Pressed = false });
+            }
+            primary[^1].GrabFocus();
+            KeyInput(Key.Down);
+            if (_viewport.GuiGetFocusOwner() != primary[0]) return SmokeResult.Fail("Down from Quit Session did not wrap to Back");
+            KeyInput(Key.Right);
+            if (_viewport.GuiGetFocusOwner() != help) return SmokeResult.Fail("Right did not reach the separate Help utility");
+            KeyInput(Key.Left);
+            if (_viewport.GuiGetFocusOwner() != primary[0]) return SmokeResult.Fail("Left from Help did not return to session actions");
+            if (Find("Switch Team") is null) return SmokeResult.Fail("practice menu has no Switch Team button");
             if (Find(InGameMenuK.Resign) is not { } resign) return SmokeResult.Fail("eligible player has no Resign button");
             Shot("main");
             resign.EmitSignal(Button.SignalName.Pressed);

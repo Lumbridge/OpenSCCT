@@ -258,6 +258,7 @@ public partial class FirstPersonView : Node3D
         {
             mesh.Layers = RenderLayers.FirstPerson;
         }
+        _model.SetFirstPersonDepth();
 
         _applier = new ChannelPoseApplier(_model.Skeleton);
         _loaded[asset] = (_model, _applier, _arms);

@@ -160,7 +160,10 @@ stateDiagram-v2
 
 - Interaction objects are server-spawned simulated proxies (not bAlwaysRelevant except `SPickupInteraction`); their size, usability, in-front flags, priority-related flags and reuse times replicate (reliable, `Role == ROLE_Authority`); `Description` does not (each machine sets it, rule 5). Classes are `nativereplication` (editor `ASInteractObject::GetOptimizedRepList` 0x111BC900 and per-subclass lists).
 - The manager is owned by the controller and replicated to its owner: `Interactions[15]` and `NbObjects` (reliable) plus the reliable client functions `AddObjetOnClient` / `RemoveInteractionObjOnClient`. The controller's `IManager` reference is reliable to the owner.
-- Touch runs on both machines (`DoTouch` is simulated), so the owning client may update its own list immediately; the server's list is authoritative and mirrored. Untouch is server-only.
+- `DoTouch` is simulated in the original; its client-list behavior remains an open question. The port processes
+  touch/untouch menu mutations only on the authority. Client collision events otherwise race replicated slot
+  updates and reliable menu calls, producing duplicate ammo-box rows. Client inserts also move an entry already
+  present elsewhere instead of duplicating it; server additions check the whole list before inserting.
 - Use flow: the menu and selection run on the input machine; `InteractionInit`, `Interaction`, `InteractionPost` are reliable client-to-server; the server answers with `MirrorState` (reliable `PCChangeClientState`). Client state changes (`ChangeState`) reach the server through `PCChangeServerState`, which the server applies only when the acknowledgement stamp the client echoes matches its own within 0.01 s (the server renews the stamp in `MirrorState` only when it is more than 1 s old); otherwise the client is out of date and the server's next mirror wins. On the client, `PCChangeClientState` is applied only if its send time is not older than the last one applied.
 - `SLeaveInteraction` and `SShareObjectInteraction` have native `IsNetRelevantFor` (editor 0x111BE0C0, 0x111C9F00); the mate entries have their own replication lists.
 

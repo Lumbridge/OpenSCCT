@@ -185,8 +185,12 @@ public partial class InGameMenu : Control
 
         float width = size.X * InGameMenuK.ButtonWidth;
         float middle = size.Y * (entries[0].Top + entries[entries.Count - 1].Top) * 0.5f;
-        float stack = entries.Count * ButtonHeight + (entries.Count - 1) * ButtonGap;
-        float top = Math.Max(middle - stack * 0.5f, title.Position.Y + title.Size.Y + PanelPadding * 2f);
+        float minTop = title.Position.Y + title.Size.Y + PanelPadding * 2f;
+        float gap = Math.Min(ButtonGap, Math.Max(4f, (size.Y - minTop) * 0.02f));
+        float height = Math.Min(ButtonHeight, Math.Max(28f,
+            (size.Y - minTop - PanelPadding - 12f - (entries.Count - 1) * gap) / entries.Count));
+        float stack = entries.Count * height + (entries.Count - 1) * gap;
+        float top = Math.Clamp(middle - stack * 0.5f, minTop, Math.Max(minTop, size.Y - stack - PanelPadding - 12f));
         var panel = new Panel
         {
             Name = "ButtonPanel",
@@ -197,25 +201,36 @@ public partial class InGameMenu : Control
         panel.AddThemeStyleboxOverride("panel", UiStyle.MenuPanelBox());
         AddChild(panel);
 
-        Button? first = null;
+        var primaryButtons = new System.Collections.Generic.List<Button>();
         for (int i = 0; i < entries.Count; i++)
         {
             InGameMenuButton which = entries[i].Button;
             Button b = UiStyle.MenuButton(entries[i].Caption, () => Click(which), which.ToString());
-            b.Position = new Vector2((size.X - width) * 0.5f, top + i * (ButtonHeight + ButtonGap));
-            b.Size = new Vector2(width, ButtonHeight);
+            b.Position = new Vector2((size.X - width) * 0.5f, top + i * (height + gap));
+            b.CustomMinimumSize = new Vector2(0f, height);
+            b.Size = new Vector2(width, height);
             AddChild(b);
-            first ??= b;
+            primaryButtons.Add(b);
         }
 
-        // The keyboard can move between the buttons as the original's pad and arrow keys do.
-        HelpButton = UiStyle.MenuButton("Help & contribute", () => Click(InGameMenuButton.Help), "HelpFeedbackButton");
-        HelpButton.CustomMinimumSize = new Vector2(0f, 32f);
-        HelpButton.AddThemeFontSizeOverride("font_size", 20);
-        HelpButton.Position = new Vector2((size.X - width) * 0.5f, Math.Min(top + stack + PanelPadding + 6f, size.Y - 40f));
-        HelpButton.Size = new Vector2(width, 32f);
+        // Help is a separate utility; the bottom of the action stack remains Quit Session.
+        HelpButton = UiStyle.HelpUtilityButton(() => Click(InGameMenuButton.Help));
         AddChild(HelpButton);
-        if (first is not null) FocusSoon(first);
+
+        // Up/down stays within session actions. Right deliberately reaches Help; Tab includes it too.
+        for (int i = 0; i < primaryButtons.Count; i++)
+        {
+            Button button = primaryButtons[i];
+            button.FocusNeighborTop = primaryButtons[(i + primaryButtons.Count - 1) % primaryButtons.Count].GetPath();
+            button.FocusNeighborBottom = primaryButtons[(i + 1) % primaryButtons.Count].GetPath();
+            button.FocusNeighborLeft = button.GetPath();
+            button.FocusNeighborRight = HelpButton.GetPath();
+        }
+        HelpButton.FocusNeighborLeft = primaryButtons[0].GetPath();
+        HelpButton.FocusNeighborRight = HelpButton.GetPath();
+        HelpButton.FocusNeighborTop = HelpButton.GetPath();
+        HelpButton.FocusNeighborBottom = HelpButton.GetPath();
+        FocusSoon(primaryButtons[0]);
     }
 
     private void Dialog(Vector2 size, bool quit, bool resign = false)

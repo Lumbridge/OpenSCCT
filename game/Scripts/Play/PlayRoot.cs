@@ -210,9 +210,17 @@ public partial class PlayRoot : Node3D
         try
         {
             Load();
-            IsLoaded = true;
-            Session?.Client.MarkReadyToPlay();
-            _status.Text = "";
+            if (Config.Render && Fx is not null && MercLasers is not null)
+            {
+                _status.Text = "Preparing effects...";
+                var warmup = GameplayFxWarmup.For(GetViewport());
+                AddChild(warmup);
+                Fx.Preload(warmup.Samples);
+                MercLasers.Preload(warmup.Samples);
+                SpyLasers?.Preload(warmup.Samples);
+                warmup.Begin(FinishLoading);
+            }
+            else FinishLoading();
         }
         catch (Exception ex) when (ex is FileNotFoundException or DirectoryNotFoundException or SvMapFormatException or IOException or InvalidDataException
             or InvalidOperationException or ArgumentException or UnauthorizedAccessException)
@@ -223,6 +231,13 @@ public partial class PlayRoot : Node3D
         }
 
         LoadSeconds = watch.Elapsed.TotalSeconds;
+    }
+
+    private void FinishLoading()
+    {
+        IsLoaded = true;
+        Session?.Client.MarkReadyToPlay();
+        if (_status is not null) _status.Text = "";
     }
 
     private void Load()
@@ -575,6 +590,7 @@ public partial class PlayRoot : Node3D
 
     public override void _Process(double delta)
     {
+        if (!IsLoaded) return;
         if (Session is not { } session || session.IsStopped)
         {
             return;

@@ -99,8 +99,8 @@ public static class GameplayObjects
             var node = new MeshInstance3D { Name = actor.Id, Mesh = arrayMesh, Transform = transform, Visible = !hidden };
             parent.AddChild(node);
             node.SetInstanceShaderParameter(VisionActorParameter, actor.Vision());
-            Aabb box = transform * arrayMesh.GetAabb();
-            float radius = UeSpace.UnitsPerMetre * box.Size.Length() * 0.5f;
+            var lightSphere = ActorLighting.SphereOf(arrayMesh, transform);
+            float radius = lightSphere.Radius;
             int glow = actor.Int("AmbientGlow");
             var entry = new GameplayMesh
             {
@@ -115,7 +115,7 @@ public static class GameplayObjects
             map.Gameplay[actor.Id] = entry;
             if (!unlit)
             {
-                ActorLighting.Apply(node, map.LightActor(UeSpace.ToUe(box.GetCenter()), radius, glow));
+                ActorLighting.Apply(node, map.LightActor(lightSphere.Center, radius, glow));
             }
 
             placed++;
@@ -281,6 +281,7 @@ public static class GameplayObjects
         foreach (JsonElement p in prims.EnumerateArray())
         {
             section++;
+            int sourceSection = p.TryGetProperty("extras", out JsonElement pe) && pe.TryGetProperty("scctSection", out JsonElement ps) ? ps.GetInt32() : section;
             JsonElement attrs = p.GetProperty("attributes");
             int materialIndex = p.TryGetProperty("material", out JsonElement mi) ? mi.GetInt32() : -1;
             string materialName = materialIndex >= 0 && materialIndex < materialNames.Count ? materialNames[materialIndex] : "";
@@ -303,9 +304,10 @@ public static class GameplayObjects
             var surface = new SurfaceBuilder(false, false);
             surface.Add(Transform3D.Identity, prim, 0);
             surface.AddTo(arrayMesh, material);
-            arrayMesh.SurfaceSetName(arrayMesh.GetSurfaceCount() - 1, SectionSurfacePrefix + section);
+            arrayMesh.SurfaceSetName(arrayMesh.GetSurfaceCount() - 1, SectionSurfacePrefix + sourceSection);
         }
 
+        ActorLighting.ReadSphere(arrayMesh, glb.Root.GetProperty("meshes")[mesh]);
         return arrayMesh.GetSurfaceCount() > 0 ? arrayMesh : null;
     }
 
@@ -315,7 +317,7 @@ public static class GameplayObjects
     /// The mesh section (glTF primitive, one per drawn StaticMesh section) surface <paramref name="surface"/> of a
     /// gameplay mesh draws, which is the Skins slot that replaces its material; -1 for a mesh built elsewhere.
     /// </summary>
-    [Provenance(ProvenanceKind.Estimated, "Primitive order is section order; a section the exporter skips (no faces, a skipped material) shifts the later slots")]
+    [Provenance(ProvenanceKind.Decoded, "StaticMesh section index exported as scctSection; older content falls back to primitive order")]
     public static int SectionOf(Mesh mesh, int surface)
     {
         ArgumentNullException.ThrowIfNull(mesh);

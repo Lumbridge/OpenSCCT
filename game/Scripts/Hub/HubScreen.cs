@@ -135,10 +135,7 @@ public partial class HubScreen : MenuPage
 
         _status = new Label { Name = "Status", Modulate = UiStyle.MenuFocus, AutowrapMode = TextServer.AutowrapMode.WordSmart };
         Body.AddChild(_status);
-        HelpButton = UiStyle.MenuButton("Help & contribute", () => HelpFeedbackScreen.Open(this, HelpButton,
-            actions: HelpActions), "HelpFeedbackButton");
-        HelpButton.CustomMinimumSize = new Vector2(0f, 40f);
-        Body.AddChild(HelpButton);
+        HelpButton = HelpUtility(() => HelpFeedbackScreen.Open(this, HelpButton, actions: HelpActions));
 
         // The bottom bar in B, X, Y, A order as the other pages lay it out.
         BackButton = PageButton("Back", Back, "Back");

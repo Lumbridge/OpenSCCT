@@ -661,6 +661,20 @@ public sealed class SkeletalModel
         Vector4 value = radians is { } r ? new Vector4(r, 1f, diffuse ? 1f : 0f, 0f) : Vector4.Zero;
         foreach (MeshInstance3D mesh in _meshes)
         {
+            Variant previous = mesh.GetInstanceShaderParameter(GlowHueParameter);
+            value.W = previous.VariantType == Variant.Type.Vector4 ? previous.AsVector4().W : 0f;
+            mesh.SetInstanceShaderParameter(GlowHueParameter, value);
+        }
+    }
+
+    /// <summary>Keep the local weapon in foreground depth while retaining its material and surface ordering.</summary>
+    public void SetFirstPersonDepth()
+    {
+        foreach (MeshInstance3D mesh in _meshes)
+        {
+            Variant previous = mesh.GetInstanceShaderParameter(GlowHueParameter);
+            Vector4 value = previous.VariantType == Variant.Type.Vector4 ? previous.AsVector4() : Vector4.Zero;
+            value.W = 1f;
             mesh.SetInstanceShaderParameter(GlowHueParameter, value);
         }
     }

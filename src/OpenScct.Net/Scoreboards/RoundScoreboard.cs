@@ -16,6 +16,8 @@ public sealed record RoundScoreboard
     public DateTimeOffset? EndedUtc { get; init; }
     public double ElapsedSeconds { get; init; }
     public double? AsOfSeconds { get; init; }
+    /// <summary>Round-relative server deadline for the next combat refresh; null for final or legacy snapshots.</summary>
+    public double? NextCombatUpdateSeconds { get; init; }
     public bool Completed { get; init; }
     public bool Practice { get; init; }
     public bool Partial { get; init; }

@@ -283,13 +283,19 @@ public sealed class DeviceViews
                 string? wanted = m.Actor.StaticMesh.Path;
                 bool own = wanted is not null && string.Equals(wanted, m.Asset, StringComparison.OrdinalIgnoreCase);
                 m.ShowMesh(wanted, wanted is null || own ? null : FindMesh(wanted));
+                if (m.Entry.Light == LightSource.Actor && m.Entry.Node.Mesh is { } changedMesh)
+                {
+                    var sphere = ActorLighting.SphereOf(changedMesh, m.Entry.Node.GlobalTransform);
+                    ActorLighting.Apply(m.Entry.Node, _map.LightActor(sphere.Center, sphere.Radius, m.Entry.AmbientGlow));
+                }
             }
 
-            m.DrawSkin(_map.Pack, _skinClock);
+            m.DrawSkin(_map.Pack, _skinClock, _map);
             m.Draw(alpha, pawns);
             if (relight && m.Moved && m.Entry.Light == LightSource.Actor && m.Entry.Node.Visible)
             {
-                ActorLighting.Apply(m.Entry.Node, _map.LightActor(UeSpace.ToUe(m.Entry.Node.GlobalPosition), m.Entry.Radius, m.Entry.AmbientGlow));
+                var sphere = ActorLighting.SphereOf(m.Entry.Node.Mesh, m.Entry.Node.GlobalTransform);
+                ActorLighting.Apply(m.Entry.Node, _map.LightActor(sphere.Center, sphere.Radius, m.Entry.AmbientGlow));
             }
         }
 
@@ -469,7 +475,7 @@ public sealed class MeshFollower
     /// </summary>
     [Provenance(ProvenanceKind.Decoded, "ASBombTargetObjectiveTrigger::Tick: Skins[0..2] = AbsentSkin unarmed, None armed (one skin for every slot)")]
     [Provenance(ProvenanceKind.Decoded, "ASCamera::Tick / SVolumetricSensor.LightStateChange: the LED is Skins[1] (security-camera.md rule 9, volumetric-sensor.md rule 7)")]
-    internal void DrawSkin(RenderPack? pack, double seconds)
+    internal void DrawSkin(RenderPack? pack, double seconds, RenderMap? map = null)
     {
         MeshInstance3D node = Entry.Node;
         if (!GodotObject.IsInstanceValid(node))
@@ -519,7 +525,10 @@ public sealed class MeshFollower
             if (!string.Equals(_surfaceSkins[i], skin, StringComparison.OrdinalIgnoreCase))
             {
                 _surfaceSkins[i] = skin;
-                node.SetSurfaceOverrideMaterial(i, GameplaySkins.Skin(pack, skin, Entry.Light));
+                Material? material = map?.Materials.FindSource(skin) is { } name
+                    ? map.Compiler.Get(name, Entry.Light)
+                    : GameplaySkins.Skin(pack, skin, Entry.Light);
+                node.SetSurfaceOverrideMaterial(i, material);
             }
         }
     }
