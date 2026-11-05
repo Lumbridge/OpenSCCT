@@ -235,6 +235,46 @@ public sealed partial class EditorServiceTests
     }
 
     [Fact]
+    public async Task StagedUpdateReachesInstallerEvenIfLauncherScanWouldReportBusy()
+    {
+        using var dir = new TempDir();
+        var layout = new LauncherLayout(dir.Path, LauncherPlatform.WindowsX64);
+        var fixture = new ReleaseFixture();
+        using var http = new HttpClient(new FakeHandler(fixture.Respond));
+        EditorService service = await InstalledEditorAsync(dir, layout, http);
+        string manifestPath = Path.Combine(layout.Editor, "version.json");
+        string newManifest = File.ReadAllText(manifestPath);
+        File.WriteAllText(manifestPath, newManifest.Replace("\"0.2.0\"", "\"0.1.3\"", StringComparison.Ordinal));
+
+        bool staged = false;
+        service.RunningOverride = _ => staged;
+        var commands = new List<string>();
+        service.RunCliOverride = start =>
+        {
+            string command = start.ArgumentList[1];
+            commands.Add(command);
+            if (command == "stage")
+            {
+                Assert.Equal(Path.Combine(layout.Editor, "ose", "ose.exe"), start.FileName);
+                staged = true;
+            }
+            else
+            {
+                Assert.Equal("install-staged", command);
+                Assert.True(staged);
+                Assert.Equal(layout.EditorDownloads, Path.GetDirectoryName(Path.GetDirectoryName(start.FileName)));
+                File.WriteAllText(manifestPath, newManifest);
+            }
+            return Task.CompletedTask;
+        };
+
+        await service.InstallOrUpdateAsync(EditorService.Offer(fixture.Release)!, null, TestContext.Current.CancellationToken);
+
+        Assert.Equal(new[] { "stage", "install-staged" }, commands);
+        Assert.Equal(V, service.Installed()?.Version);
+    }
+
+    [Fact]
     public void RecoveryCanFindHelperAfterInstalledCliWasMovedOut()
     {
         using var dir = new TempDir();

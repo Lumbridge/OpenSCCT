@@ -31,6 +31,7 @@ public sealed partial class EditorService
     private readonly ResumableDownloader _downloader;
     internal Func<string, SemVersion, CancellationToken, Task>? ProbeOverride { get; set; }
     internal Func<string, bool>? RunningOverride { get; set; }
+    internal Func<ProcessStartInfo, Task>? RunCliOverride { get; set; }
 
     public EditorService(LauncherLayout layout, HttpClient http)
     {
@@ -316,7 +317,8 @@ public sealed partial class EditorService
                 await RunCliAsync(["stage", "--version", offer.Version.ToString(), "--cancel-file", cancellation], progress, canCancel: true).ConfigureAwait(false);
             }
             cancel.ThrowIfCancellationRequested();
-            if (IsRunning) throw new InvalidOperationException("The editor update is ready. Save your work and close the editor and its command-line tools, then update again.");
+            // install-staged checks for running editor processes under the updater's locks.
+            // The launcher's scan can still see the stage helper that just exited.
             progress?.Report(new("Installing editor update", CanCancel: false));
             string helper = Path.Combine(_layout.EditorDownloads, "cli-" + Guid.NewGuid().ToString("N"));
             try
@@ -419,6 +421,11 @@ public sealed partial class EditorService
         start.ArgumentList.Add("update");
         foreach (string argument in arguments) start.ArgumentList.Add(argument);
         start.ArgumentList.Add("--install"); start.ArgumentList.Add(_layout.Editor); start.ArgumentList.Add("--json");
+        if (RunCliOverride is { } run)
+        {
+            await run(start).ConfigureAwait(false);
+            return;
+        }
         using Process process = StartProcess(start, "The editor updater did not start.");
         Task<string> error = process.StandardError.ReadToEndAsync();
         string? status = null, problem = null;
