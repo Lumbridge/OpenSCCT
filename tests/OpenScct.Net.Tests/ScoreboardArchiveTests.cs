@@ -36,6 +36,7 @@ public sealed class ScoreboardArchiveTests : IDisposable
 
     [Theory]
     [InlineData(null)]
+    [InlineData(0d)]
     [InlineData(65.25)]
     public void CompactWirePreservesRefreshDeadlineAndCounterAvailability(double? deadline)
     {
@@ -71,6 +72,7 @@ public sealed class ScoreboardArchiveTests : IDisposable
             Assert.True(historical);
         }
         var decoded = Assert.IsType<RoundScoreboard>(received);
+        Assert.Equal(board with { Rows = null! }, decoded with { Rows = null! });
         Assert.Equal(deadline, decoded.NextCombatUpdateSeconds);
         Assert.Equal(board.ElapsedSeconds, decoded.ElapsedSeconds);
         Assert.Equal(board.AsOfSeconds, decoded.AsOfSeconds);
@@ -90,6 +92,31 @@ public sealed class ScoreboardArchiveTests : IDisposable
         Assert.Equal(0, activeStats["combat.enemy_kills"]);
         Assert.Equal(2, activeStats.Count);
         Assert.Equal(2, legacyStats.Count);
+    }
+
+    [Theory]
+    [InlineData(0, 0)]
+    [InlineData(1, 1)]
+    [InlineData(255, 255)]
+    public void CompactWirePreservesExplicitResultsAndNonDefaultBoardValues(int winner, int reason)
+    {
+        var board = new RoundScoreboard
+        {
+            RoundId = Guid.NewGuid().ToString("N"), Sequence = 17, Mode = 5, ElapsedSeconds = 40,
+            AsOfSeconds = 0, NextCombatUpdateSeconds = 0, Completed = winner != 255, Practice = true,
+            Partial = winner == 255, Winner = winner, Reason = reason, ObjectivesTaken = 3, ObjectivesNeeded = 4,
+            Rows = [new() { ParticipantId = 1, Name = "Agent", StatsVersion = 0 }],
+        };
+        var receiver = new ScoreboardWire.Receiver();
+        RoundScoreboard? received = null;
+        foreach (string line in ScoreboardWire.Encode(board, 1))
+        {
+            Assert.True(receiver.Receive(line, out var result, out _, out _));
+            received = result ?? received;
+        }
+        var decoded = Assert.IsType<RoundScoreboard>(received);
+        Assert.Equal(board with { Rows = null! }, decoded with { Rows = null! });
+        Assert.Equal(board.Rows[0], Assert.Single(decoded.Rows));
     }
 
     private readonly string _directory = Path.Combine(Path.GetTempPath(), "openscct-scoreboard-archive-" + Guid.NewGuid().ToString("N"));

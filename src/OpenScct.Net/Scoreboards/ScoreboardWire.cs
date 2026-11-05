@@ -23,6 +23,20 @@ public static class ScoreboardWire
         var resolver = new DefaultJsonTypeInfoResolver();
         resolver.Modifiers.Add(info =>
         {
+            if (info.Type == typeof(RoundScoreboard))
+            {
+                foreach (var property in info.Properties)
+                {
+                    if (property.Name is "completed" or "practice" or "partial")
+                        property.ShouldSerialize = (_, value) => value is not false;
+                    else if (property.Name is "mode" or "objectivesTaken" or "objectivesNeeded")
+                        property.ShouldSerialize = (_, value) => value is not 0;
+                    // These initializers are 255, so an actual winner/reason of zero must stay on the wire.
+                    else if (property.Name is "winner" or "reason")
+                        property.ShouldSerialize = (_, value) => value is not 255;
+                }
+                return;
+            }
             if (info.Type != typeof(ScoreboardPlayer)) return;
             foreach (var property in info.Properties)
                 if (property.Name is "team" or "score" or "kills" or "deaths" or "lives" or "objectives" or "rank" or "pingMs" or "bot" or "leftEarly")
