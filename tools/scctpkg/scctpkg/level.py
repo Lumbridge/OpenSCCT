@@ -11,7 +11,7 @@ import json
 import struct
 import os
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Tuple
+from typing import Collection, Dict, List, Optional, Tuple
 
 from .package import Export, Package
 from .packageset import PackageSet
@@ -382,13 +382,14 @@ def softbody_record(pkg: Package, cls: str, props: dict) -> Optional[dict]:
     }
 
 
-def extract_level(pkg: Package, pset: PackageSet) -> List[ActorRecord]:
+def extract_level(pkg: Package, pset: PackageSet, skip_refs: Collection[int] = ()) -> List[ActorRecord]:
+    """skip_refs: actors (export index + 1) to leave out; svmbuild passes the editor-copy actors the stock cook drops."""
     records: List[ActorRecord] = []
     zone_ambient = _zone_ambient(pkg)
     sky_zones = {e.index + 1 for e in pkg.exports if e.class_name == "SkyZoneInfo"}
     for e in pkg.exports:
         cls = e.class_name
-        if cls in SKIP_CLASSES or e.size <= 0:
+        if cls in SKIP_CLASSES or e.size <= 0 or e.index + 1 in skip_refs:
             continue
         if not (e.flags & 0x02000000):
             continue  # not an actor (no state frame)
@@ -431,7 +432,9 @@ def extract_level(pkg: Package, pset: PackageSet) -> List[ActorRecord]:
             rec.kind = "mover" if (cls == "Mover" or "Mover" in cls or cls == "SLift") else "staticmesh"
             if any(w in rec.mesh_key.lower() for w in HIDDEN_MESH_WORDS):
                 rec.hidden = True
-            smi = props.get("StaticMeshInstance")
+            # The PC lighting instance: StaticMeshInstance in a cooked copy, StaticMeshInstanceOnXBOX in an editor copy
+            # (AActor::Serialize 0x110B2490 writes it under that name for save target 0).
+            smi = props.get("StaticMeshInstance") or props.get("StaticMeshInstanceOnXBOX")
             if isinstance(smi, int) and smi > 0:
                 rec.extra["smi"] = smi
             # Actor.bUnlit: drawn fullbright (texture only), its baked vertex colours unused - MissE's grass tufts

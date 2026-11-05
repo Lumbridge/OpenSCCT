@@ -10,7 +10,8 @@ namespace OpenScctGame.UI;
 public partial class RoundScoreboardDialog : Window
 {
     public static RoundScoreboardDialog Open(Node owner, RoundScoreboard scoreboard, int localParticipantId = -1,
-        Action? watch = null, string replayStatus = "No replay available", IReadOnlyList<MatchTimelineEvent>? timeline = null)
+        Action? watch = null, string replayStatus = "No replay available", IReadOnlyList<MatchTimelineEvent>? timeline = null,
+        OpenScct.Server.MapCatalog? maps = null)
     {
         var window = new RoundScoreboardDialog
         {
@@ -28,14 +29,14 @@ public partial class RoundScoreboardDialog : Window
         column.AddThemeConstantOverride("separation", 10);
         margin.AddChild(column);
         string outcome = scoreboard.Partial ? "Incomplete" : scoreboard.Winner == 0 ? "Spies win" : scoreboard.Winner == 1 ? "Mercenaries win" : "Round stopped";
-        CareerPanels.Text(column, "Title", MapTitles.WithCode(MapImages.Default, scoreboard.Map) + " · " + outcome + (scoreboard.Practice ? " · Practice" : ""), size: 22);
+        CareerPanels.Text(column, "Title", MapTitles.WithCode(maps ?? MapImages.Default, scoreboard.Map) + " · " + outcome + (scoreboard.Practice ? " · Practice" : ""), size: 22);
         CareerPanels.Text(column, "Metadata", $"{scoreboard.StartedUtc.ToLocalTime():dd MMM yyyy HH:mm} · {scoreboard.Server} · {RoundScoreboardModel.Clock(scoreboard.ElapsedSeconds)}", dim: true, size: 14);
         var scroll = new ScrollContainer { SizeFlagsVertical = Control.SizeFlags.ExpandFill, SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
         column.AddChild(scroll);
         scroll.AddChild(new CareerScroll());
         var content = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
         scroll.AddChild(content);
-        content.AddChild(new RoundScoreboardView { Scoreboard = scoreboard, LocalParticipantId = localParticipantId, Detailed = true,
+        content.AddChild(new RoundScoreboardView { Scoreboard = scoreboard, LocalParticipantId = localParticipantId, Detailed = true, Maps = maps,
             SizeFlagsHorizontal = Control.SizeFlags.ExpandFill });
         var events = CareerPanels.Card(content, "Timeline", "Match timeline");
         if (timeline is null) CareerPanels.Text(events, "Unavailable", "Timeline expired or unavailable for this match.", dim: true, size: 14);

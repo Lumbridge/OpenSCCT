@@ -104,6 +104,9 @@ public partial class PawnViews : Node3D
         }
     }
 
+    /// <summary>How far to raise a walking pawn's mesh at its feet (the conveyors' escalator treads); see <see cref="SimPawnView.FeetLift"/>.</summary>
+    public Func<FVector, float, float>? FeetLift { get; set; }
+
     /// <summary>
     /// Draws every pawn; <paramref name="firstPerson"/> (the local pawn seen from its eyes) is hidden from the main view
     /// but still casts the flares' shadows (<see cref="SimPawnView.SetShadowOnly"/>).
@@ -114,6 +117,7 @@ public partial class PawnViews : Node3D
         foreach (KeyValuePair<SBasePawn, SimPawnView> kv in _views)
         {
             SimPawnView view = kv.Value;
+            view.FeetLift = FeetLift;
             view.DrawnView = ReferenceEquals(kv.Key, localAimer) ? localView : null;
             view.Draw(alpha, dt);
             view.SetShadowOnly(ReferenceEquals(kv.Key, firstPerson));

@@ -3,6 +3,26 @@ project(OpenScctAudioNative VERSION 1.0 LANGUAGES C CXX)
 include(FetchContent)
 find_package(Python3 REQUIRED COMPONENTS Interpreter)
 
+# Keep the build machine's folders out of the shipped library. __FILE__ (godot-cpp's error macros) names sources by
+# absolute path, so trim the repo, the build folder and any dependency source folders given on the command line.
+# Set before the dependencies are added so their targets inherit it.
+get_filename_component(SCCT_REPO_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../.." ABSOLUTE)
+set(SCCT_TRIM_PREFIXES "${SCCT_REPO_ROOT}" "${CMAKE_BINARY_DIR}")
+foreach(dependency GODOTCPP OPENAL REAL)
+    if(FETCHCONTENT_SOURCE_DIR_${dependency})
+        get_filename_component(dependency_dir "${FETCHCONTENT_SOURCE_DIR_${dependency}}" ABSOLUTE)
+        list(APPEND SCCT_TRIM_PREFIXES "${dependency_dir}")
+    endif()
+endforeach()
+foreach(prefix IN LISTS SCCT_TRIM_PREFIXES)
+    if(MSVC)
+        file(TO_NATIVE_PATH "${prefix}" native_prefix)
+        add_compile_options("/d1trimfile:${native_prefix}")
+    else()
+        add_compile_options("-ffile-prefix-map=${prefix}=.")
+    endif()
+endforeach()
+
 # Exact upstream commits. Sources and generated binaries live under ignored local/ and game/addons/*/bin/.
 FetchContent_Declare(godotcpp GIT_REPOSITORY https://github.com/godotengine/godot-cpp.git
     GIT_TAG e103d348c4b2d8df7b819126d855e19381cb9a87)

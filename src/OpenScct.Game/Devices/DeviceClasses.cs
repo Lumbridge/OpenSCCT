@@ -72,5 +72,6 @@ public static class DeviceClasses
         registry.Register<SCamera>("SBase.SCamera");
         registry.Register<STriggerLight>("SBase.STriggerLight");
         registry.Register<SProjoFixe>("SBase.SProjoFixe");
+        registry.RegisterPackage(OpenScct.Game.Svm.SvmPackage.Info);
     }
 }

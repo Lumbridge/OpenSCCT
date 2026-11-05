@@ -74,6 +74,8 @@ public sealed record PlayConfig
             MapRoots = [.. options.MapRoots],
             Bots = options.PlayBots,
             Difficulty = options.PlayDifficulty,
+            MatchPlayers = options.PlayPlayers,
+            StartAt = options.PlayStartAt,
         };
         if (options.PlayNetRate > 0)
         {
@@ -91,8 +93,21 @@ public sealed record PlayConfig
             settings = settings with { DemoFolder = OpenScctGame.Play.Demo.DemoLibrary.SavedFolder };
         }
 
+        if (options.PlayRoute is { } stops)
+        {
+            // The route bot walks on the side asked for; the local player stands by on the other one.
+            settings = settings with
+            {
+                Side = side == PlaySide.Spy ? PlaySide.Merc : PlaySide.Spy,
+                Route = new PlayRoute(stops, side, options.PlayRouteFrom, line => GD.Print($"{RoutePrefix} {line}")),
+            };
+        }
+
         return new PlayConfig { Settings = settings, GameRoot = options.GameRoot };
     }
+
+    /// <summary>The prefix of the route bot's report lines, which the map editor reads.</summary>
+    public const string RoutePrefix = "SVM_ROUTE";
 }
 
 /// <summary>
@@ -136,6 +151,9 @@ public partial class PlayRoot : Node3D
     public PawnViews? Pawns { get; private set; }
 
     public DeviceViews? Devices { get; private set; }
+
+    /// <summary>The map's conveyors: belts, rollers and items moving with the replicated belt phase.</summary>
+    public ConveyorViews? Conveyors { get; private set; }
 
     public FirstPersonView? FirstPerson { get; private set; }
 
@@ -275,6 +293,8 @@ public partial class PlayRoot : Node3D
             FirstPerson = new FirstPersonView { Map = Map, SharedRoot = Map.SharedRoot };
             AddChild(FirstPerson);
             FirstPerson.PreloadSidearms();
+            Render.Characters.PawnOutfits.Prepare(Map.Outfits, Map.Folder, Map.SharedRoot,
+                rain: Session.Client.World.Level.GetService<RainVolumeList>() is { Volumes.Count: > 0 });
             Fx = new OpenScctGame.Fx.CombatFxView { Pawns = Pawns, FirstPerson = FirstPerson, SharedRoot = Map.SharedRoot };
             AddChild(Fx);
             FlashLight = new FlashLightView { Name = "FlashLight", Map = Map, Pawns = Pawns };
@@ -474,6 +494,7 @@ public partial class PlayRoot : Node3D
         if (Devices is null && Map is not null && session.Client.Map?.Loaded is { } loaded)
         {
             Devices = new DeviceViews(Map, loaded, Map.Root, Map.SharedRoot);
+            Conveyors = new ConveyorViews(Map, loaded, Map.Root);
         }
 
         Devices?.OnTick(session.Client.World.Level);
@@ -552,6 +573,22 @@ public partial class PlayRoot : Node3D
     }
 
     private long _botsPrintedAt;
+    private OpenScct.Core.Engine.Pawn? _printedPawn;
+
+    /// <summary>
+    /// Where each new pawn of the local player stands as the client first sees it, so a headless round (the map
+    /// editor's playtest) can report the spawn, a Play From Camera one included.
+    /// </summary>
+    private void PrintSpawn(PlaySession session)
+    {
+        if (session.LocalController?.Pawn is not { } pawn || ReferenceEquals(pawn, _printedPawn))
+        {
+            return;
+        }
+
+        _printedPawn = pawn;
+        GD.Print($"SVM_PLAY player {(session.Settings.Side == PlaySide.Merc ? "merc" : "spy")} spawned at {pawn.Location} yaw {pawn.Rotation.Yaw}");
+    }
 
     /// <summary>The server bots' status every 10 s of play, when the host runs inline (its state is safe to read here).</summary>
     private void PrintBots(PlaySession session)
@@ -605,6 +642,7 @@ public partial class PlayRoot : Node3D
         }
 
         PrintBots(session);
+        PrintSpawn(session);
         Audio?._Process(delta);
 
         // The scripted pilot's route planning runs inside the ticks; it is a test driver, so it is counted apart.
@@ -687,6 +725,17 @@ public partial class PlayRoot : Node3D
             drawnView = new FRotator(pc!.Rotation.Pitch + pending.Pitch, pc.Rotation.Yaw + pending.Yaw, pc.Rotation.Roll);
         }
 
+        // The conveyors first: riders' feet are drawn on the escalator steps placed for this frame.
+        if (session.Client.ViewTimeFixed >= 0)
+        {
+            Conveyors?.Draw(session.Client.ViewTimeFixed / (double)NetTimeline.Fraction, dt);
+        }
+
+        if (Pawns is not null)
+        {
+            Pawns.FeetLift = Conveyors is { Steps: > 0 } conveyors ? conveyors.FeetLift : null;
+        }
+
         Pawns?.Draw(alpha, dt, firstPerson, aimer, drawnView);
         session.Client.ReportRenderedFrame(alpha);
         Devices?.Draw(alpha, dt, Pawns);
@@ -749,6 +798,7 @@ public partial class PlayRoot : Node3D
         _spyShadowLighting = null;
         Config.Demo?.Dispose();
         Devices = null;
+        Conveyors = null;
         Pawns = null;
         FirstPerson = null;
         Fx = null;

@@ -1,0 +1,142 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://svmap.invalid/1.2/outfits.schema.json",
+  "title": "SVMap 1.2 render/outfits.json",
+  "description": "What the two teams wear on this map (outfits.md). Client only. The validator also checks that every file named exists under render/.",
+  "type": "object",
+  "required": [
+    "format"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "format": {
+      "const": "svm.outfits/1"
+    },
+    "spy": {
+      "$ref": "#/$defs/team"
+    },
+    "merc": {
+      "$ref": "#/$defs/team"
+    }
+  },
+  "$defs": {
+    "renderPath": {
+      "description": "A file of the map, relative to render/, with forward slashes and no . or .. steps.",
+      "type": "string",
+      "pattern": "^(?!.*(^|/)\\.{1,2}(/|$))[^/\\\\:]+(/[^/\\\\:]+)*$"
+    },
+    "slot": {
+      "type": "object",
+      "required": [
+        "texture"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "texture": {
+          "description": "A PNG laid out on the stock UVs; it replaces the diffuse of the stock slot material.",
+          "allOf": [
+            {
+              "$ref": "#/$defs/renderPath"
+            },
+            {
+              "pattern": "\\.[Pp][Nn][Gg]$"
+            }
+          ]
+        },
+        "source": {
+          "description": "Informational: the original object the texture came from.",
+          "type": "string"
+        }
+      }
+    },
+    "model": {
+      "type": "object",
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "glb"
+          ],
+          "not": {
+            "required": [
+              "stock"
+            ]
+          }
+        },
+        {
+          "required": [
+            "stock"
+          ],
+          "not": {
+            "required": [
+              "glb"
+            ]
+          }
+        }
+      ],
+      "properties": {
+        "glb": {
+          "description": "A skinned glTF the map ships (normally chars/<Map>/<Name>.glb).",
+          "allOf": [
+            {
+              "$ref": "#/$defs/renderPath"
+            },
+            {
+              "pattern": "\\.[Gg][Ll][Bb]$"
+            }
+          ]
+        },
+        "stock": {
+          "description": "A shared skeletal mesh by asset path (SPerso.DEF_01).",
+          "$ref": "common.schema.json#/$defs/assetPath"
+        },
+        "goggles": {
+          "description": "Where the goggle lights hang.",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "bone": {
+              "description": "Default \"B Head\".",
+              "type": "string",
+              "minLength": 1
+            },
+            "offset": {
+              "description": "UE units in the bone's axes, added to the beam's own relative location (default [0, 0, 0]).",
+              "$ref": "common.schema.json#/$defs/vec3"
+            }
+          }
+        }
+      }
+    },
+    "team": {
+      "description": "One team's outfit; a team without an entry wears the stock look.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "slots": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "body": {
+              "$ref": "#/$defs/slot"
+            },
+            "head": {
+              "$ref": "#/$defs/slot"
+            }
+          }
+        },
+        "model": {
+          "$ref": "#/$defs/model"
+        },
+        "cosmetics": {
+          "description": "Whose look wins on this team (default map).",
+          "enum": [
+            "map",
+            "player",
+            "none"
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using OpenScct.Core;
 
 namespace OpenScctGame;
 
@@ -27,10 +28,18 @@ public sealed class LaunchOptions
     public const string MapDownloadsPrefix = "--svm-map-downloads=";
     public const string PlayBotsPrefix = "--bots=";
     public const string DifficultyPrefix = "--difficulty=";
+    public const string PlayPlayersPrefix = "--players=";
     public const string RecordFlag = "--svm-record";
     public const string DemoPrefix = "--svm-demo=";
     public const string PriorityPrefix = "--priority=";
     public const string AffinityPrefix = "--affinity=";
+    public const string MapShotPrefix = "--svm-mapshot=";
+    public const string StartAtPrefix = "--start-at=";
+    public const string RoutePrefix = "--svm-route=";
+    public const string RouteFromPrefix = "--svm-route-from=";
+    public const string LanHostPrefix = "--svm-lan-host=";
+    public const string JoinPrefix = "--svm-join=";
+    public const string TestRoundFlag = "--svm-test-round";
     public const double DefaultSmokeTimeoutSeconds = 120.0;
     public const int DefaultBots = 3;
     public const int MaxBots = 15;
@@ -97,11 +106,51 @@ public sealed class LaunchOptions
     /// <summary>The offline play bots' difficulty (<c>--difficulty=easy|normal|hard|expert</c>).</summary>
     public string PlayDifficulty { get; private init; } = "normal";
 
+    /// <summary>
+    /// The player count the map's match-size rules lay an offline play out for (<c>--players=6</c>, 1 to 24; the map
+    /// editor's Play passes its preview size), 0 to count the players.
+    /// </summary>
+    public int PlayPlayers { get; private init; }
+
     /// <summary>Record the offline play (<c>--svm-record</c>) as a demo in the user's demos folder (docs/DEMOS.md).</summary>
     public bool PlayRecord { get; private init; }
 
     /// <summary>A demo file to watch at start (<c>--svm-demo=path</c>), or null.</summary>
     public string? DemoFile { get; private init; }
+
+    /// <summary>A map picture request to render and quit (<c>--svm-mapshot=request.json</c>, <see cref="Render.Golden.MapShot"/>), or null.</summary>
+    public string? MapShotRequest { get; private init; }
+
+    /// <summary>
+    /// Where the local player of an offline play first spawns (<c>--start-at=X,Y,Z[,Yaw[,Pitch]]</c>, Unreal units and
+    /// rotation units; the map editor's Play From Camera), or null for a PlayerStart (spec/additions/test-start.md).
+    /// </summary>
+    public (FVector Location, FRotator Rotation)? PlayStartAt { get; private init; }
+
+    /// <summary>
+    /// The stops a route bot walks in order in an offline play, on <see cref="PlaySide"/>'s side while the local player
+    /// takes the other (<c>--svm-route=x,y,z;SInfirmary245</c>: floor points or placed actors by map id), printing
+    /// each stop reached or where it got stuck (<see cref="OpenScct.Game.AI.RouteAi"/>), or null.
+    /// </summary>
+    public IReadOnlyList<string>? PlayRoute { get; private init; }
+
+    /// <summary>The player start the route bot starts at (<c>--svm-route-from=PlayerStart254</c>), or null for any of its side's.</summary>
+    public string? PlayRouteFrom { get; private init; }
+
+    /// <summary>
+    /// Host the <see cref="PlayMap"/> as an online round on this UDP port, loopback only and unlisted, and launch it
+    /// once <see cref="PlayPlayers"/> players (2 when not given) are in the lobby and ready (<c>--svm-lan-host=27100</c>), or null.
+    /// </summary>
+    public int? NetHostPort { get; private init; }
+
+    /// <summary>Join the online round at this address and get ready on <see cref="PlaySide"/>'s team (<c>--svm-join=127.0.0.1:27100</c>), or null.</summary>
+    public string? NetJoin { get; private init; }
+
+    /// <summary>
+    /// A map editor test round (<c>--svm-test-round</c>): default settings, signed out, nothing of the player's written
+    /// or recorded. Route and online command-line rounds are test rounds without it.
+    /// </summary>
+    public bool TestRound { get; private init; }
 
     /// <summary>Arguments that were not recognised, kept so callers can report them.</summary>
     public IReadOnlyList<string> Unknown { get; private init; } = [];
@@ -132,11 +181,19 @@ public sealed class LaunchOptions
         string? contentRoot = null;
         string? mapsRoot = null;
         int playBots = 0;
+        int playPlayers = 0;
         string difficulty = "normal";
         bool record = false;
         string? demo = null;
         string? priority = null;
         string? affinity = null;
+        string? mapShot = null;
+        (FVector, FRotator)? startAt = null;
+        List<string>? route = null;
+        string? routeFrom = null;
+        int? lanHost = null;
+        string? join = null;
+        bool testRound = false;
         foreach (string arg in userArgs)
         {
             if (arg.StartsWith(SmokePrefix, StringComparison.Ordinal))
@@ -212,6 +269,12 @@ public sealed class LaunchOptions
             {
                 playBots = playBotCount;
             }
+            else if (arg.StartsWith(PlayPlayersPrefix, StringComparison.Ordinal)
+                && int.TryParse(arg[PlayPlayersPrefix.Length..], NumberStyles.None, CultureInfo.InvariantCulture, out int playerCount)
+                && playerCount <= OpenScct.Core.Match.MatchRuleSet.MostPlayers)
+            {
+                playPlayers = playerCount;
+            }
             else if (arg.StartsWith(DifficultyPrefix, StringComparison.Ordinal) && arg.Length > DifficultyPrefix.Length)
             {
                 difficulty = arg[DifficultyPrefix.Length..].ToLowerInvariant();
@@ -231,6 +294,35 @@ public sealed class LaunchOptions
             else if (arg.StartsWith(AffinityPrefix, StringComparison.Ordinal) && arg.Length > AffinityPrefix.Length)
             {
                 affinity = arg[AffinityPrefix.Length..];
+            }
+            else if (arg.StartsWith(MapShotPrefix, StringComparison.Ordinal) && arg.Length > MapShotPrefix.Length)
+            {
+                mapShot = arg[MapShotPrefix.Length..].Trim('"');
+            }
+            else if (arg.StartsWith(StartAtPrefix, StringComparison.Ordinal) && ParseStartAt(arg[StartAtPrefix.Length..]) is { } at)
+            {
+                startAt = at;
+            }
+            else if (arg.StartsWith(RoutePrefix, StringComparison.Ordinal) && ParseRoute(arg[RoutePrefix.Length..]) is { } stops)
+            {
+                route = stops;
+            }
+            else if (arg.StartsWith(RouteFromPrefix, StringComparison.Ordinal) && arg.Length > RouteFromPrefix.Length)
+            {
+                routeFrom = arg[RouteFromPrefix.Length..].Trim('"');
+            }
+            else if (arg.StartsWith(LanHostPrefix, StringComparison.Ordinal)
+                && int.TryParse(arg[LanHostPrefix.Length..], NumberStyles.None, CultureInfo.InvariantCulture, out int port) && port is > 0 and < 65536)
+            {
+                lanHost = port;
+            }
+            else if (arg.StartsWith(JoinPrefix, StringComparison.Ordinal) && arg.Length > JoinPrefix.Length)
+            {
+                join = arg[JoinPrefix.Length..];
+            }
+            else if (arg == TestRoundFlag)
+            {
+                testRound = true;
             }
             else
             {
@@ -256,12 +348,61 @@ public sealed class LaunchOptions
             ContentRoot = contentRoot,
             MapsRoot = mapsRoot,
             PlayBots = playBots,
+            PlayPlayers = playPlayers,
             PlayDifficulty = difficulty,
             PlayRecord = record,
             DemoFile = demo,
             Priority = priority,
             Affinity = affinity,
+            MapShotRequest = mapShot,
+            PlayStartAt = startAt,
+            PlayRoute = route,
+            PlayRouteFrom = routeFrom,
+            NetHostPort = lanHost,
+            NetJoin = join,
+            TestRound = testRound,
             Unknown = unknown,
         };
+    }
+
+    /// <summary>"X,Y,Z" with an optional yaw and pitch, or null when it does not read as one.</summary>
+    private static (FVector, FRotator)? ParseStartAt(string text)
+    {
+        string[] parts = text.Split(',');
+        if (parts.Length is < 3 or > 5)
+        {
+            return null;
+        }
+
+        var numbers = new float[5];
+        for (int i = 0; i < parts.Length; i++)
+        {
+            if (!float.TryParse(parts[i], NumberStyles.Float, CultureInfo.InvariantCulture, out numbers[i]) || !float.IsFinite(numbers[i]))
+            {
+                return null;
+            }
+        }
+
+        return (new FVector(numbers[0], numbers[1], numbers[2]), new FRotator((int)MathF.Round(numbers[4]), (int)MathF.Round(numbers[3]), 0));
+    }
+
+    /// <summary>
+    /// Stops as <c>x,y,z;Id;...</c>, or null when one is neither three numbers nor a map id (a stop with a comma must
+    /// be a point).
+    /// </summary>
+    private static List<string>? ParseRoute(string text)
+    {
+        var stops = new List<string>();
+        foreach (string part in text.Trim('"').Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+        {
+            if (part.Contains(',', StringComparison.Ordinal) && Play.Session.PlayRoute.Point(part) is null)
+            {
+                return null;
+            }
+
+            stops.Add(part);
+        }
+
+        return stops.Count > 0 ? stops : null;
     }
 }

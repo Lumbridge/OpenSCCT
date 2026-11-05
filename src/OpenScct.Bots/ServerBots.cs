@@ -13,6 +13,9 @@ public sealed record ServerBotSpec(string Name, int Team, AiDifficulty Difficult
 {
     /// <summary>More login options after the name and team (an online series' <c>?GamesInARow=</c>, for the revenge swap).</summary>
     public string ExtraOptions { get; init; } = string.Empty;
+
+    /// <summary>A scripted route the bot walks instead of playing, or null.</summary>
+    public AiRoute? Route { get; init; }
 }
 
 /// <summary>The bots a host adds, and where their map data comes from.</summary>
@@ -141,7 +144,7 @@ public sealed class ServerBots : IDisposable
             ServerBotSpec spec = Settings.Bots[i];
             if (Login(game, spec) is { } pc)
             {
-                _bots.Add(new AiController(World, pc, spec.Difficulty, i));
+                _bots.Add(new AiController(World, pc, spec.Difficulty, i) { Route = spec.Route });
             }
         }
     }

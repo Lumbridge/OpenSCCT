@@ -47,6 +47,12 @@ public sealed partial class OnlineServer
         SendDemoWelcome(p);
         Send(p, SessionProtocol.Line("sidearms", Settings.Master is null ? 1 : 0));
         SendSetup(p);
+        if (_loadingPicture is { } picture)
+        {
+            // A player joining after the travel shows the same loading picture as the others. Older clients ignore it.
+            Send(p, SessionProtocol.Line("picture", picture));
+        }
+
         foreach (SessionPlayer other in _players)
         {
             if (!ReferenceEquals(other, p))

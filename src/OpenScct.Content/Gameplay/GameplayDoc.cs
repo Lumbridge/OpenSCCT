@@ -326,12 +326,18 @@ public sealed class GameplayDoc
 
         PropBag props = PropJson.BagFromJson(j, j.ObjectMember(obj, "props", path), $"{path}/props", index);
         int? export = null;
+        List<string>? liftedFrom = null;
         if (obj.TryGetValue("src", out SvJsonNode src))
         {
-            export = (int)j.IntegerMember(j.Object(src, $"{path}/src"), "export", $"{path}/src", 1, int.MaxValue);
+            SvJsonObject s = j.Object(src, $"{path}/src");
+            export = (int)j.IntegerMember(s, "export", $"{path}/src", 1, int.MaxValue);
+            if (s.TryGetValue("liftedFrom", out SvJsonNode names))
+            {
+                liftedFrom = IdList(j, j.Array(names, $"{path}/src/liftedFrom"), $"{path}/src/liftedFrom");
+            }
         }
 
-        var record = new ActorRecord(position, id, cls, props, export);
+        var record = new ActorRecord(position, id, cls, props, export, liftedFrom);
         if (!index.TryAdd(record))
         {
             throw j.Error($"{path}/id", $"duplicate actor id '{id}' (ids ignore ASCII case)");
@@ -565,6 +571,11 @@ public sealed class GameplayDoc
         {
             var src = new SvJsonObject();
             src.Add("export", SvJsonNode.Integer(export));
+            if (a.LiftedFrom.Count > 0)
+            {
+                src.Add("liftedFrom", Strings(a.LiftedFrom));
+            }
+
             o.Add("src", src);
         }
 

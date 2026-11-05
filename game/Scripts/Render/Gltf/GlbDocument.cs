@@ -169,29 +169,35 @@ public sealed class GlbDocument : IDisposable
     }
 
     /// <summary>Indices of an accessor (UNSIGNED_BYTE, SHORT or INT scalars).</summary>
-    public int[] ReadIndices(int accessor)
+    public int[] ReadIndices(int accessor) => ReadIntegers(accessor);
+
+    /// <summary>Unsigned integers of an accessor (UNSIGNED_BYTE, SHORT or INT, any vector size: skin joints), flattened.</summary>
+    public int[] ReadIntegers(int accessor)
     {
         Accessor a = _accessors[accessor];
-        var result = new int[a.Count];
+        var result = new int[a.Count * a.Components];
         BufferView view = _views[a.View];
         int size = a.ComponentType switch
         {
             5121 => 1,
             5123 => 2,
             5125 => 4,
-            _ => throw new InvalidDataException($"accessor {accessor} has index type {a.ComponentType}"),
+            _ => throw new InvalidDataException($"accessor {accessor} has integer type {a.ComponentType}"),
         };
-        int stride = view.Stride > 0 ? view.Stride : size;
+        int stride = view.Stride > 0 ? view.Stride : size * a.Components;
         int baseOffset = view.Offset + a.Offset;
         for (int i = 0; i < a.Count; i++)
         {
-            int at = baseOffset + (i * stride);
-            result[i] = size switch
+            for (int c = 0; c < a.Components; c++)
             {
-                1 => _bin[at],
-                2 => BinaryPrimitives.ReadUInt16LittleEndian(_bin.AsSpan(at)),
-                _ => (int)BinaryPrimitives.ReadUInt32LittleEndian(_bin.AsSpan(at)),
-            };
+                int at = baseOffset + (i * stride) + (c * size);
+                result[(i * a.Components) + c] = size switch
+                {
+                    1 => _bin[at],
+                    2 => BinaryPrimitives.ReadUInt16LittleEndian(_bin.AsSpan(at)),
+                    _ => (int)BinaryPrimitives.ReadUInt32LittleEndian(_bin.AsSpan(at)),
+                };
+            }
         }
 
         return result;

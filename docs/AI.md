@@ -41,6 +41,7 @@ OpenSCCT.exe -- --svm-play=SteeE --side=spy --bots=3 --difficulty=normal   # a 2
 | [src/OpenScct.Game/AI/NavBuilder.cs](../src/OpenScct.Game/AI/NavBuilder.cs), `NavGraph.cs`, `NavFollower.cs` | navigation from collision and GEs, A*, following with keys |
 | [src/OpenScct.Game/AI/DoorAi.cs](../src/OpenScct.Game/AI/DoorAi.cs) | closed doors on a route: wait, hack the door's switch, or shut its edges |
 | [src/OpenScct.Game/AI/AiBrain.cs](../src/OpenScct.Game/AI/AiBrain.cs), `SpyAi.cs`, `MercAi.cs` | utility choice and the two sides' goals |
+| [src/OpenScct.Game/AI/RouteAi.cs](../src/OpenScct.Game/AI/RouteAi.cs) | a route bot for test rounds (`--svm-route`): walks stops in order on its side's navigation and reports each one reached or where it got stuck; no fighting, gadgets or lifts |
 | [src/OpenScct.Game/AI/Evasion.cs](../src/OpenScct.Game/AI/Evasion.cs), `SpyGadgets.cs` | a spy's play round the motion tracker; its smoke, flash, chaff, heartbeat and sticky cam |
 | [src/OpenScct.Game/AI/TeamAi.cs](../src/OpenScct.Game/AI/TeamAi.cs) | team play: revive, heal and unspy a mate, climb on a mate's boost or hoist, offer a boost |
 | [src/OpenScct.Game/AI/AiDifficulty.cs](../src/OpenScct.Game/AI/AiDifficulty.cs), `AiK.cs` | presets and constants (decoded ones carry their provenance) |
@@ -245,7 +246,10 @@ stick, which OnLedge reads; the crouch key too). A pawn standing in the way (cyl
 the walk, overlapping its width) is stepped round with a side step away from his side, chosen once per pawn, for up
 to 3 s; a waypoint he stands on is passed. A walker that makes no progress wiggles free (forward, a side step, a jump,
 the jump left out within 90 uu of another pawn: it landed on his head), then plans around the place; a link that
-fails is left out of the side's plans for 60 s.
+fails is left out of the side's plans for 60 s. On a level with conveyors the planner weighs each walk by the belt
+under it (quicker with it, slower against it, all but shut against a belt faster than a bot runs) as the belts run
+when it plans, and on a belt the follower aims so its walk and the belt together head for the waypoint
+(`NavConveyors`, [conveyors](../spec/additions/conveyors.md#bots)).
 
 ## Behaviour
 
