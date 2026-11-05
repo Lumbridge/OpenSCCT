@@ -383,6 +383,10 @@ public sealed class Level
             throw new InvalidOperationException("EndLoad without BeginLoad.");
         }
 
+        // A converted map may carry the editor's saved LevelInfo.TimeSeconds. Begin-play code schedules
+        // deadlines against this field (for example, schooling fish refresh their pilot target), so it must
+        // already use the simulation clock rather than jump backwards on the first tick.
+        Info.TimeSeconds = TimeSeconds;
         _inBeginPlayPasses = true;
         try
         {
