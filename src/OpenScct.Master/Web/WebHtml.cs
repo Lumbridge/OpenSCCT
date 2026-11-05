@@ -40,12 +40,13 @@ internal static class WebHtml
     }
 
     public static IResult Page(HttpContext context, string title, string active, string body, string? name = null, string? csrf = null,
-        string? notice = null, bool bad = false, int status = 200, bool isAdmin = false)
+        string? notice = null, bool bad = false, int status = 200, bool isAdmin = false, bool editorTheme = false)
     {
         Secure(context);
+        string mark = AssetUrl(editorTheme ? "/web/assets/mark-editor.svg" : "/web/assets/mark.svg");
         var html = new StringBuilder("<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">");
         html.Append("<meta name=\"color-scheme\" content=\"dark\"><title>").Append(H(title)).Append(" · OpenSCCT</title>")
-            .Append($"<link rel=\"icon\" href=\"{H(AssetUrl("/web/assets/mark.svg"))}\" type=\"image/svg+xml\"><link rel=\"stylesheet\" href=\"{H(AssetUrl("/web/assets/site.css"))}\">")
+            .Append($"<link rel=\"icon\" href=\"{H(mark)}\" type=\"image/svg+xml\"><link rel=\"stylesheet\" href=\"{H(AssetUrl("/web/assets/site.css"))}\">")
             .Append($"<script src=\"{H(AssetUrl("/web/assets/site.js"))}\" defer></script>");
         if (active is "home" or "leaderboards" or "help" or "improvements")
             html.Append($"<link rel=\"stylesheet\" href=\"{H(AssetUrl("/web/assets/community.css"))}\">");
@@ -54,13 +55,14 @@ internal static class WebHtml
             html.Append("<meta name=\"description\" content=\"").Append(H(active switch
             {
                 "home" => "OpenSCCT is an open-source rewrite of Splinter Cell: Chaos Theory's Spies vs. Mercenaries mode for Windows and Linux.",
+                "wiki" when editorTheme => "OpenSCCT Editor documentation for map projects, geometry, events, lighting and playtesting.",
                 "wiki" => "OpenSCCT documentation for gameplay, gadgets, hosting, controls and map editing.",
                 "help" => "OpenSCCT installation, troubleshooting, bug reporting and contribution guides.",
                 _ => "OpenSCCT equipment, practice, replays, player statistics and configuration options.",
             })).Append("\">");
         if (active == "account") html.Append("<meta name=\"robots\" content=\"noindex, nofollow\">");
-        html.Append("</head><body class=\"player-site\"><a class=\"skip-link\" href=\"#main\">Skip to content</a>")
-            .Append($"<header class=\"site-header\"><div class=\"header-inner\"><a class=\"site-brand\" href=\"/\"><img src=\"{H(AssetUrl("/web/assets/mark.svg"))}\" alt=\"\" width=\"36\" height=\"36\"><span class=\"brand-copy\">{Wordmark}<small>SPIES VS MERCENARIES</small></span></a>")
+        html.Append("</head><body class=\"player-site").Append(editorTheme ? " editor-theme" : "").Append("\"><a class=\"skip-link\" href=\"#main\">Skip to content</a>")
+            .Append($"<header class=\"site-header\"><div class=\"header-inner\"><a class=\"site-brand\" href=\"{(editorTheme ? "/wiki/editor" : "/")}\"><img src=\"{H(mark)}\" alt=\"\" width=\"36\" height=\"36\"><span class=\"brand-copy\">{Wordmark}<small>{(editorTheme ? "MAP EDITOR" : "SPIES VS MERCENARIES")}</small></span></a>")
             .Append("<button class=\"menu-toggle button secondary\" type=\"button\" aria-expanded=\"false\" aria-controls=\"primary-navigation\">Menu</button><nav id=\"primary-navigation\" class=\"primary-nav\" aria-label=\"Main navigation\">");
         foreach ((string url, string label, string key) in new[] { ("/", "Home", "home"), ("/servers", "Servers", "servers"),
             ("/players", "Players", "players"), ("/leaderboards", "Leaderboards", "leaderboards"), ("/matches", "Matches", "matches"),
@@ -75,7 +77,8 @@ internal static class WebHtml
         html.Append("</div></div></header><main id=\"main\" class=\"site-main\">");
         if (!string.IsNullOrEmpty(notice)) html.Append("<div role=\"status\" class=\"notice ").Append(bad ? "bad" : "ok").Append("\">").Append(H(notice)).Append("</div>");
         if (active == "improvements") body += "<p class=\"help-context\">Have an idea or found a problem? " + Link("/help", "Help improve OpenSCCT →", "text-link") + "</p>";
-        html.Append(body).Append("</main><footer class=\"site-footer\"><div><span class=\"footer-brand\">").Append(Wordmark).Append("</span><p>Spies vs. Mercenaries for Windows and Linux.</p></div>")
+        html.Append(body).Append("</main><footer class=\"site-footer\"><div><span class=\"footer-brand\">").Append(Wordmark).Append("</span><p>")
+            .Append(editorTheme ? "Map creation for OpenSCCT." : "Spies vs. Mercenaries for Windows and Linux.").Append("</p></div>")
             .Append("<nav aria-label=\"Footer\"><a href=\"/download\">Download</a><a href=\"/wiki\">Wiki</a><a href=\"/improvements\">Improvements</a><a href=\"/changelog\">Updates</a><a href=\"/help\">Help &amp; feedback</a><a href=\"https://github.com/Lumbridge/OpenSCCT\">Source code</a>")
             .Append("<a href=\"https://github.com/Lumbridge/OpenSCCT/blob/main/docs/legal/PRIVACY.md\">Privacy</a><a href=\"https://github.com/Lumbridge/OpenSCCT/blob/main/docs/legal/TERMS.md\">Terms</a></nav>")
             .Append("<small>Community project. Not affiliated with Ubisoft.</small></footer></body></html>");
