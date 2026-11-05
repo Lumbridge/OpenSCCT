@@ -74,6 +74,7 @@ internal sealed partial class MainForm : Form
     private TableLayoutPanel? _releaseNotes;
     private FlowLayoutPanel? _tools;
     private bool _initialSizeSet;
+    private bool _initialFitQueued;
     private readonly Label _heading = Theme.Wrapping(Theme.Label("Install OpenSCCT", Theme.Status));
     private readonly Label _installedInfo = Theme.Wrapping(Theme.Label(string.Empty, Theme.Small, Theme.Muted));
     private readonly Label _launchDetail = Theme.Wrapping(Theme.Label(string.Empty, Theme.Body, Theme.Muted));
@@ -338,6 +339,19 @@ internal sealed partial class MainForm : Form
                 : (_editorSelected ? _editorCheck is null : _lastCheck is null) ? "Check for updates to load release notes."
                 : release is null ? "No release information available." : "No release notes available.";
         }
+        QueueInitialFit();
+    }
+
+    private void QueueInitialFit()
+    {
+        if (_initialSizeSet || _initialFitQueued || !IsHandleCreated || IsDisposed || Disposing
+            || _work is not null || SelectedRelease is null) return;
+        _initialFitQueued = true;
+        BeginInvoke(() =>
+        {
+            _initialFitQueued = false;
+            FitUpdateHeight();
+        });
     }
 
     protected override void OnLoad(EventArgs e)
@@ -347,7 +361,7 @@ internal sealed partial class MainForm : Form
         Rectangle work = Screen.FromControl(this).WorkingArea;
         MinimumSize = new Size(Math.Min(MinimumSize.Width, work.Width), Math.Min(MinimumSize.Height, work.Height));
         Size = new Size(Math.Min(Width, work.Width), Math.Min(Height, work.Height));
-        BeginInvoke(FitUpdateHeight);
+        QueueInitialFit();
     }
 
     protected override void OnResizeBegin(EventArgs e)
@@ -360,7 +374,8 @@ internal sealed partial class MainForm : Form
     /// <summary>Choose the initial shared height once; subsequent layout changes use scrolling.</summary>
     private void FitUpdateHeight()
     {
-        if (_initialSizeSet || IsDisposed || Disposing || WindowState != FormWindowState.Normal
+        if (_initialSizeSet || IsDisposed || Disposing || _work is not null || SelectedRelease is null
+            || WindowState != FormWindowState.Normal
             || _mainLayout is null || _releasePreview is null || _releaseNotes is null || _tools is null) return;
         _initialSizeSet = true;
         bool selectedEditor = _editorSelected;
@@ -470,6 +485,7 @@ internal sealed partial class MainForm : Form
         }
 
         if (!_editorSelected) RefreshMainButton(current, busy);
+        QueueInitialFit();
     }
 
     private void RefreshLaunchPanel(SemVersion? current, bool busy)

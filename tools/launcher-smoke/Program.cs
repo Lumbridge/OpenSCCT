@@ -727,6 +727,7 @@ internal static class Program
                 new LauncherSettings { CheckOnStart = false, SelectedProduct = "Game" }.Save(fixture.Layout.Settings);
                 using Form form = Create(fixture, scenario);
                 Set(form, "_editorCheck", null);
+                Set(form, "_lastCheck", null);
                 Call(form, "SelectProduct", false);
                 Size initial = form.ClientSize;
                 if (scale != 1f) ScaleForPreview(form, fixture, scale);
@@ -739,7 +740,7 @@ internal static class Program
                 // no release checks, protocol registration, process launch, or editor installation.
                 form.Show();
                 Settle(form);
-                Size startupSize = form.ClientSize;
+                Check(!Field<bool>(form, "_initialSizeSet"), label + " waits for populated changelog before fitting");
                 var gameRelease = new ReleaseInfo { TagName = "v0.8.94", Name = "OpenSCCT 0.8.94", Body = PublicGameNotes,
                     PublishedAt = new DateTimeOffset(2026, 11, 5, 15, 20, 30, TimeSpan.Zero) };
                 var editorRelease = new ReleaseInfo { TagName = "v0.1.1", Name = "OpenSCCT Editor 0.1.1", Body = PublicEditorNotes,
@@ -759,11 +760,12 @@ internal static class Program
                 Settle(form);
                 int commonHeight = form.ClientSize.Height;
                 int commonWidth = form.ClientSize.Width;
-                Check(form.ClientSize == startupSize, label + " arriving release feeds preserve startup size");
+                Check(Field<bool>(form, "_initialSizeSet"), label + " populated changelog triggers initial fit");
+                CheckPreviewFits(form, label + " Game populated changelog");
                 Call(form, "SelectProduct", true);
                 Settle(form);
                 Check(form.ClientSize.Height == commonHeight && form.ClientSize.Width == commonWidth, label + " switching to Editor keeps common window dimensions");
-                Check(form.ClientSize == startupSize, label + " Editor content uses the startup size");
+                CheckPreviewFits(form, label + " Editor populated changelog");
                 int idleTextChanges = 0, idleSizeChanges = 0;
                 Label heading = Field<Label>(form, "_heading");
                 EventHandler textChanged = (_, _) => idleTextChanges++;

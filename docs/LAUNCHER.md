@@ -25,8 +25,8 @@ Below the launch panel, the latest release preview shows up to three short chang
 It uses the same fetched or cached release data as update checks. **Full changelog** opens the website
 changelog, with built-in full release notes if the website or browser is unavailable.
 Maps, Check for updates, Website, Settings and Help are secondary controls along the bottom;
-they wrap on narrow windows. The window fits its initial height once at startup. After that, your
-chosen window size is preserved when switching tabs, receiving release notes or showing status
+they wrap on narrow windows. The window fits its initial height once the changelog is populated. After that, your
+chosen window size is preserved when switching tabs, refreshing release notes or showing status
 messages. Content scrolls when it does not fit. Update checks load both release lists without
 downloading the optional editor.
 
