@@ -29,6 +29,7 @@ class FakePackage:
         self.names = list(NAMES)
         self.names_obfuscated = False
         self.path = Path("Synth.u")
+        self.layout = "cooked"
 
     def export_reader(self, e):
         from scctpkg.package import Reader  # noqa: PLC0415
