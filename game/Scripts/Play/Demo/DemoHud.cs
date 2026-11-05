@@ -138,6 +138,7 @@ public partial class DemoHud : CanvasLayer
         _camera.AddItem("First person");
         _camera.AddItem("Third person");
         _camera.AddItem("Free camera");
+        _camera.AddItem("As played");
         _camera.ItemSelected += index => SelectCamera((DemoCameraMode)index);
         view.AddChild(_camera);
         var legend = new HBoxContainer { Name = "TimelineLegend", SizeFlagsVertical = Control.SizeFlags.ShrinkCenter };
@@ -159,6 +160,7 @@ public partial class DemoHud : CanvasLayer
             "Space  Play / pause     ← / →  Seek 5 s (Shift: 30 s)     ↑ / ↓  Speed     Home  Restart\n" +
             "C  Camera     [ / ] or wheel  Change player     1–9  Select player     H  Hide / show controls\n" +
             "Third person follows the player. Hold right mouse to orbit; release to return behind them.\n" +
+            "As played follows the recorded camera, including aiming and gadget views.\n" +
             "Free camera: hold right mouse to look, WASD move, Q / E down / up, Shift move faster.\n" +
             "Click or drag to seek; event markers include a 3 s lead-in. Backward seeks reload from the start.\n" +
             "Esc  Close help / confirm returning to demos", 13);
@@ -267,7 +269,7 @@ public partial class DemoHud : CanvasLayer
         switch (@event)
         {
             case InputEventMouseButton { ButtonIndex: MouseButton.Right, Pressed: true }
-                when _player.Mode != DemoCameraMode.FirstPerson && !OverControls:
+                when CanLook && !OverControls:
                 SetLooking(true);
                 Handled();
                 return;
@@ -345,10 +347,12 @@ public partial class DemoHud : CanvasLayer
 
     private void Handled() => GetViewport().SetInputAsHandled();
 
+    private bool CanLook => _player.Mode is DemoCameraMode.ThirdPerson or DemoCameraMode.Free;
+
     public override void _Process(double delta)
     {
         _idle += delta;
-        if (_looking && (PopupOpen || ConfirmingLeave || !GetWindow().HasFocus() || _player.Mode == DemoCameraMode.FirstPerson))
+        if (_looking && (PopupOpen || ConfirmingLeave || !GetWindow().HasFocus() || !CanLook))
             SetLooking(false);
         if (_player.IsSeeking && !ConfirmingLeave)
         {
@@ -392,7 +396,8 @@ public partial class DemoHud : CanvasLayer
         {
             DemoCameraMode.Free => "Hold right mouse to look · WASD fly · Q / E down / up · Shift faster",
             DemoCameraMode.ThirdPerson => "Hold right mouse to orbit · Release to follow behind · C change camera · [ / ] change player",
-            _ => "Following the player's view · C change camera · [ / ] change player · H hide controls",
+            DemoCameraMode.AsPlayed => "Recorded player camera · C change camera · [ / ] change player",
+            _ => "Player's eye view · C change camera · [ / ] change player · H hide controls",
         };
         UpdatePlayers();
         _seekBar?.QueueRedraw();
@@ -453,8 +458,7 @@ public partial class DemoHud : CanvasLayer
     private void SelectCamera(DemoCameraMode mode)
     {
         SetLooking(false);
-        // Cycling preserves the free camera's initial position behind the watched player.
-        while (_player.Mode != mode) _player.CycleMode();
+        _player.Mode = mode;
     }
 
     private void WatchPlayerId(int id)

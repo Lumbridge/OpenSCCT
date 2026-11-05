@@ -378,6 +378,18 @@ public sealed class DemoUiSmoke : SmokeTest
         Expect(!_player.Clock.Paused, "Space should resume playback");
         KeyPress(Key.C);
         Expect(_player.Mode == DemoCameraMode.Free, "camera shortcut should cycle to free camera");
+        KeyPress(Key.C);
+        Expect(_player.Mode == DemoCameraMode.AsPlayed, "camera shortcut should cycle to As played");
+        KeyPress(Key.C);
+        Expect(_player.Mode == DemoCameraMode.FirstPerson, "camera shortcut should wrap back to first person");
+        OptionButton camera = Find<OptionButton>(_hud!, "CameraMode");
+        long asPlayed = (long)DemoCameraMode.AsPlayed;
+        Expect(camera.GetItemText((int)asPlayed) == "As played", "As played should appear in the camera selector");
+        camera.EmitSignal(OptionButton.SignalName.ItemSelected, asPlayed);
+        Expect(_player.Mode == DemoCameraMode.AsPlayed, "camera selector should switch to As played");
+        _hud!._Input(new InputEventMouseButton { ButtonIndex = MouseButton.Right, Pressed = true });
+        Expect(!OpenScctGame.Controls.Pointer.CaptureRequested, "As played should leave the pointer free");
+        _hud._Input(new InputEventMouseButton { ButtonIndex = MouseButton.Right, Pressed = false });
         _player.Mode = DemoCameraMode.ThirdPerson;
         Press(_hud!, "ForwardFive");
         Expect(_player.SeekTarget == _player.FirstTick + 300, "forward button should seek five seconds");

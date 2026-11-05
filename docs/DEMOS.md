@@ -2,7 +2,7 @@
 
 [Documentation](README.md)
 
-Demos let you watch recorded matches in first person, third person or with a free camera.
+Demos let you watch recorded matches in first person, third person, with a free camera, or as the player saw them.
 They store game data rather than video, so playback needs a compatible game build and matching map content.
 
 **To watch:** open **Demos → On this computer** from the main menu. **Recent online** lists recordings
@@ -70,7 +70,11 @@ Keep watching or Escape cancels it and restores the previous pause state.
 Third person follows the watched player's recorded view direction. Hold right mouse to pan around them;
 release it to smoothly return behind them over about half a second. The return uses real time, so it works
 while paused and at any playback speed. Switching players or returning to third person starts behind the
-selected player. Switching to free camera keeps the current third-person position and direction.
+selected player. Switching to free camera keeps the current position and direction.
+
+**As played** follows the player's recorded camera through changes such as aiming the Spy gun, zooming and
+switching to a sticky camera. Mouse orbit is available in **Third person**. **First person** stays at the player's
+eyes, using a recorded first-person view where available.
 
 ### Keys
 
@@ -81,7 +85,7 @@ selected player. Switching to free camera keeps the current third-person positio
 | Left / Right | Back / forward 5 seconds (Shift: 30 seconds) |
 | Click or drag the bar | jump on release (on a marker: 3 s before it) |
 | Home / End | restart / seek to the end |
-| C | first person, then third person, then free camera |
+| C | first person, third person, free camera, as played |
 | [ ] or mouse wheel | previous / next player |
 | 1 to 9 | watch that player |
 | Right mouse (hold) | orbit in third person (release to return behind); look round in free camera |
@@ -214,11 +218,11 @@ values, and caps acceptance at twenty samples per second. Views are stored only 
 gameplay or sent to other live players. Backlogged reliable channels skip samples. Older clients and headless bots
 do not supply them.
 
-The player-view demo camera uses these actual camera positions, rotations and FOVs when available, including
-scope and remote-camera views. It interpolates nearby samples, avoids blending across respawns or camera jumps,
-and falls back to the existing pawn-eye/aim view when samples are missing or stale. View timing is sampled and
-stamped on server receipt, so it is not a frame-perfect video or a latency-free reconstruction. Breath and accuracy
-are retained in the view data; weapon and gadget presentation continue to use the recorded replicated equipment.
+**As played** uses these camera positions, rotations and FOVs, including scope and remote-camera views.
+It interpolates nearby samples and avoids blending across respawns or camera jumps. When samples are missing
+or stale, it approximates the view from the recorded pawn data, behind the Spy or at the Merc's eyes. The server
+timestamps samples on receipt, so network latency and the sample rate affect timing. The view data also stores
+breath and accuracy. Weapon and gadget presentation uses the recorded equipment.
 
 ### File limits
 

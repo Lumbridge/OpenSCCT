@@ -50,12 +50,13 @@ public sealed class DemoClock : IClock
     }
 }
 
-/// <summary>How a demo is watched (CS2 style): through a player's eyes, behind them, or flying free.</summary>
+/// <summary>The camera perspective used to watch a demo.</summary>
 public enum DemoCameraMode
 {
     FirstPerson,
     ThirdPerson,
     Free,
+    AsPlayed,
 }
 
 /// <summary>
@@ -112,12 +113,11 @@ public sealed class DemoPlayer : IDisposable
         set
         {
             if (_mode == value) return;
-            if (_mode == DemoCameraMode.ThirdPerson && value == DemoCameraMode.Free && Target is { bDeleteMe: false } pawn)
+            if (value == DemoCameraMode.Free && Target is { bDeleteMe: false })
             {
-                // Start free flight at the current chase view, including any held or returning orbit.
-                ViewSample chase = _chase.ViewFor(pawn, 0, 85f, ChaseDistance);
-                _freeLocation = chase.Location;
-                Look = chase.Rotation;
+                ViewSample current = ViewFor(Session?.View ?? default);
+                _freeLocation = current.Location;
+                Look = current.Rotation;
                 _freePlaced = true;
             }
             _mode = value;
@@ -377,13 +377,14 @@ public sealed class DemoPlayer : IDisposable
         }
     }
 
-    /// <summary>First person, third person, free camera, round again.</summary>
+    /// <summary>Cycle through the playback cameras.</summary>
     public void CycleMode()
     {
         Mode = Mode switch
         {
             DemoCameraMode.FirstPerson => DemoCameraMode.ThirdPerson,
             DemoCameraMode.ThirdPerson => DemoCameraMode.Free,
+            DemoCameraMode.Free => DemoCameraMode.AsPlayed,
             _ => DemoCameraMode.FirstPerson,
         };
     }
@@ -428,14 +429,16 @@ public sealed class DemoPlayer : IDisposable
     public ViewSample ViewFor(ViewSample calc)
     {
         long tick = Session?.Client.LocalTick ?? calc.Tick;
-        float fov = calc.Valid && calc.Fov > 1f ? calc.Fov : 85f;
+        float fov = Session?.LocalController?.FovAngle is > 1f and < 180f and var spectatorFov ? spectatorFov : 85f;
         SBasePawn? pawn = Target is { bDeleteMe: false } t ? t : null;
         switch (Mode)
         {
-            case DemoCameraMode.FirstPerson when pawn is not null:
-                if (Client is not null && Client.TryRecordedDemoView(Recording, pawn, PacketTick, out DemoViewFrame recorded))
+            case DemoCameraMode.FirstPerson or DemoCameraMode.AsPlayed when pawn is not null:
+                if (TryRecordedView(pawn, out DemoViewFrame recorded) && (Mode == DemoCameraMode.AsPlayed || recorded.FirstPersonBody))
                     return new ViewSample(tick, recorded.Location, recorded.Rotation, recorded.Fov, true, recorded.SpyFirstPerson);
-                return new ViewSample(tick, Eye(pawn), AimOf(pawn), fov, true);
+                return Mode == DemoCameraMode.AsPlayed && pawn is SPawnAttaque
+                    ? _chase.ViewFor(pawn, tick, fov, ChaseDistance)
+                    : EyeView(pawn, tick, fov);
             case DemoCameraMode.ThirdPerson when pawn is not null:
                 return _chase.ViewFor(pawn, tick, fov, ChaseDistance);
             default:
@@ -451,16 +454,26 @@ public sealed class DemoPlayer : IDisposable
 
     private static FVector Eye(SBasePawn pawn) => pawn.Location + new FVector(0f, 0f, pawn.EyeHeight);
 
-    private SBasePawn? FirstPersonBody()
+    private static ViewSample EyeView(SBasePawn pawn, long tick, float fov) =>
+        new(tick, Eye(pawn), pawn is SPawnAttaque ? DemoChaseCamera.ReplicatedView(pawn) : MercAim(pawn), fov, true);
+
+    private bool TryRecordedView(SBasePawn pawn, out DemoViewFrame view)
     {
-        if (Mode != DemoCameraMode.FirstPerson || Target is not { } pawn) return null;
-        if (Client is not null && Client.TryRecordedDemoView(Recording, pawn, PacketTick, out DemoViewFrame view) &&
-            !view.FirstPersonBody) return null;
-        return pawn;
+        view = default;
+        return Client is not null && Client.TryRecordedDemoView(Recording, pawn, PacketTick, out view);
     }
 
-    /// <summary>Where the player aims: the aim the proxy samples carry (pitch high, yaw low), else the body.</summary>
-    private static FRotator AimOf(SBasePawn pawn)
+    private SBasePawn? FirstPersonBody()
+    {
+        if (Target is not { bDeleteMe: false } pawn) return null;
+        if (Mode == DemoCameraMode.FirstPerson) return pawn;
+        if (Mode != DemoCameraMode.AsPlayed) return null;
+        bool showEyes = TryRecordedView(pawn, out DemoViewFrame view) ? view.FirstPersonBody : pawn is not SPawnAttaque;
+        return showEyes ? pawn : null;
+    }
+
+    /// <summary>The Merc's replicated weapon aim (pitch high, yaw low), with body facing as a fallback.</summary>
+    private static FRotator MercAim(SBasePawn pawn)
     {
         int packed = pawn.iDesiredYawPitch;
         if (packed == 0)

@@ -20,7 +20,7 @@ public sealed class DemoChaseCamera
     /// <summary>The recorded view plus the temporary orbit; a packed zero is a valid level, forward-facing view.</summary>
     public FRotator RotationFor(SBasePawn pawn)
     {
-        FRotator recorded = RecordedView(pawn);
+        FRotator recorded = ReplicatedView(pawn);
         return new FRotator(
             Math.Clamp(recorded.Pitch + (int)MathF.Round(_pitchOffset), -PitchLimit, PitchLimit),
             FRotator.NormalizeAxis(recorded.Yaw + (int)MathF.Round(_yawOffset)), 0);
@@ -40,7 +40,7 @@ public sealed class DemoChaseCamera
         if (!Orbiting) return;
         float yaw = _yawOffset + dx * MouseSensitivity;
         _yawOffset = yaw - MathF.Floor((yaw + 32768f) / 65536f) * 65536f;
-        int pitch = RecordedView(pawn).Pitch;
+        int pitch = ReplicatedView(pawn).Pitch;
         _pitchOffset = Math.Clamp(pitch + _pitchOffset - dy * MouseSensitivity, -PitchLimit, PitchLimit) - pitch;
     }
 
@@ -67,6 +67,6 @@ public sealed class DemoChaseCamera
         return MathF.Abs(next) < 1f ? 0f : next;
     }
 
-    private static FRotator RecordedView(SBasePawn pawn) => new(
+    internal static FRotator ReplicatedView(SBasePawn pawn) => new(
         FRotator.NormalizeAxis(pawn.iYawPitchFromView >> 16), pawn.iYawPitchFromView & 0xFFFF, 0);
 }

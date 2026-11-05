@@ -22,9 +22,11 @@ public sealed partial class ServerHost
     private bool ReceiveDemoView(NetConnection connection, string? text)
     {
         if (text?.StartsWith(DemoViewPrefix, StringComparison.Ordinal) != true) return false;
+        // Offline play logs in through the map loader and attaches its controller directly to the connection.
         if (Recorder is not { IsFinished: false } recorder || !connection.bJoined ||
-            connection.UserData is not PlayerSlot { Controller: { Pawn: { Health: > 0, bDeleteMe: false } pawn,
-                PlayerReplicationInfo: { bOnlySpectator: false } pri } } slot) return true;
+            connection.UserData is not PlayerSlot slot ||
+            connection.Actor is not PlayerController { Pawn: { Health: > 0, bDeleteMe: false } pawn,
+                PlayerReplicationInfo: { bOnlySpectator: false } pri }) return true;
         long now = World.TickCount;
         if (_lastRecordedView.TryGetValue(slot.PlayerId, out long last) && now - last < Sim.Hz / 20) return true;
         if (!DemoViewFrame.TryDecode(text[DemoViewPrefix.Length..], out var view)) return true;

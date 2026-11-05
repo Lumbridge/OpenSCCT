@@ -2,16 +2,94 @@ using System;
 using System.IO;
 using System.Linq;
 using OpenScct.Core;
+using OpenScct.Game.SBase;
 using OpenScct.Net;
 using OpenScct.Net.Discovery;
 using OpenScct.Server;
 using OpenScct.Server.Online;
+using OpenScctGame.Play.Session;
 using Xunit;
 
 namespace OpenScct.Integration.Tests.Online;
 
 public sealed class RecordedViewTests
 {
+    [Fact]
+    public void ASpyAimingTheShockerKeepsTheRecordedCameraPoseInReplay()
+    {
+        Assert.SkipWhen(WalkerRig.Maps.FindFolder(MapCatalog.TestBox) is null, "The TestBox fixture is unavailable.");
+        string folder = Path.Combine(Path.GetTempPath(), "openscct-spy-camera-" + Guid.NewGuid().ToString("N"));
+        try
+        {
+            var clock = new VirtualClock();
+            using var play = new PlaySession(new PlaySettings
+            {
+                Map = MapCatalog.TestBox, Side = PlaySide.Spy, HostMode = PlayHostMode.Inline,
+                Rules = PlayRules.PlayLevel, DemoFolder = folder,
+            }, clock);
+            long frame = 0;
+            void Step(int count)
+            {
+                for (int i = 0; i < count; i++)
+                {
+                    clock.AdvanceTo(VirtualClock.TickToMicroseconds(++frame, Sim.Hz));
+                    play.Step(clock.NowMicroseconds);
+                }
+            }
+
+            Step(180);
+            Assert.IsAssignableFrom<SPawnAttaque>(play.LocalPawn);
+            Assert.True(play.Client.RecordingPlayerViews);
+            Assert.True(play.View.Valid);
+            Assert.False(play.View.SpyFirstPerson);
+            int pawnId = Assert.IsAssignableFrom<SPawnAttaque>(play.ServerController?.Pawn).ActorId;
+            uint beforeTick = (uint)play.Host.World.TickCount - Sim.Hz / 4;
+            ViewSample before = play.View;
+            play.Input.Set("bFireMode", true);
+            Step(4);
+            play.Input.Set("bFireMode", false);
+            Step(90);
+            Assert.Equal(2, play.LocalPawn!.WeaponLoaded);
+            play.Input.MouseX = 1000f;
+            play.Input.MouseY = -150f;
+            Step(90);
+            uint afterTick = (uint)play.Host.World.TickCount;
+            ViewSample after = play.View;
+            Assert.False(before.Rotation.EqualsWrapped(after.Rotation));
+            Step(12);
+            play.Dispose();
+
+            DemoRecording recording = DemoFile.Read(Assert.IsType<string>(play.DemoPath));
+            int playerId = Assert.Single(recording.Index.Players).PlayerId;
+            using var playback = new DemoPlaybackTransport(recording);
+            using var replay = new ClientSession(playback, "demo", 0, new ClientSettings
+            {
+                PlayerName = "Demo", Gameplay = true, Maps = WalkerRig.Maps, Classes = WalkerRig.Classes,
+            });
+            for (uint tick = recording.Index.FirstTick; tick <= afterTick; tick++)
+            {
+                playback.ReleaseUpTo(tick);
+                replay.Tick(VirtualClock.TickToMicroseconds(tick - recording.Index.FirstTick + 1, Sim.Hz));
+                if (tick != beforeTick && tick != afterTick) continue;
+
+                var spy = Assert.IsAssignableFrom<SPawnAttaque>(replay.Driver.FindActorByNetGuid((uint)pawnId));
+                Assert.Equal(playerId, spy.PlayerReplicationInfo?.PlayerID);
+                Assert.True(replay.TryRecordedDemoView(recording, spy, tick, out DemoViewFrame recorded),
+                    $"No view for player {playerId}, pawn {pawnId} at {tick} in {recording.Index.ViewFrames} samples (found {recorded.PawnId} at {recorded.Tick}).");
+                ViewSample expected = tick == beforeTick ? before : after;
+                Assert.True(recorded.Rotation.EqualsWrapped(expected.Rotation),
+                    $"At {tick} expected {expected.Rotation}, recorded {recorded.Rotation} from {recorded.Tick}.");
+                Assert.InRange((expected.Location - recorded.Location).Size(), 0f, 1f);
+                Assert.Equal(expected.Fov, recorded.Fov, precision: 2);
+                Assert.False(recorded.FirstPersonBody);
+            }
+        }
+        finally
+        {
+            if (Directory.Exists(folder)) Directory.Delete(folder, recursive: true);
+        }
+    }
+
     [Fact]
     public void ActiveRecordingRequestsAndStoresOnlyTheSubmittingPlayersView()
     {
