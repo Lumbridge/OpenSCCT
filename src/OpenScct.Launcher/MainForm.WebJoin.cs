@@ -23,6 +23,7 @@ internal sealed partial class MainForm
             return;
         }
         _pendingWebJoin = serverId;
+        SelectProduct(false);
         if (WindowState == FormWindowState.Minimized) WindowState = FormWindowState.Normal;
         Activate();
         RefreshLocal();
@@ -33,6 +34,7 @@ internal sealed partial class MainForm
     private async Task TryWebJoinAsync()
     {
         if (_handlingWebJoin || !_webJoinReady || _work is not null || _pendingWebJoin is not { } serverId || IsDisposed) return;
+        SelectProduct(false);
         _handlingWebJoin = true;
         bool updated = false;
         try

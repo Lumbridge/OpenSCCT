@@ -120,6 +120,8 @@ internal sealed partial class MainForm : Form
         _packs = new ContentStore(_layout.Packs, Http);
         _settings = LauncherSettings.Load(_layout.Settings);
         _service = CreateService();
+        _editor = new OpenScct.Launcher.Editor.EditorService(_layout, Http);
+        _editorSelected = joinServerId is null && _settings.SelectedProduct == "Editor";
         if (launcherPath is { } exe)
         {
             _swap = new LauncherSwap(exe);
@@ -129,6 +131,7 @@ internal sealed partial class MainForm : Form
         _launcherVersion = SemVersion.TryParse(info, out SemVersion? v) ? v : null;
 
         BuildUi();
+        ApplyProductTheme();
         _pendingTimer.Tick += (_, _) => OnPendingTick();
     }
 
@@ -153,7 +156,7 @@ internal sealed partial class MainForm : Form
         Font = Theme.Body;
         Padding = new Padding(24, 20, 24, 12);
 
-        var logo = new PictureBox
+        var logo = _brandLogo = new PictureBox
         {
             Image = Theme.LoadIcon(64).ToBitmap(),
             SizeMode = PictureBoxSizeMode.Zoom,
@@ -163,17 +166,22 @@ internal sealed partial class MainForm : Form
             TabStop = false,
         };
         var title = new Wordmark { Margin = new Padding(0) };
-        Label subtitle = Theme.Wrapping(Theme.Label("Splinter Cell Chaos Theory Versus, rebuilt", Theme.Small, Theme.Muted));
+        Label subtitle = _brandSubtitle = Theme.Wrapping(Theme.Label("Splinter Cell Chaos Theory Versus, rebuilt", Theme.Small, Theme.Muted));
         subtitle.Margin = new Padding(0, 4, 0, 0);
         TableLayoutPanel brand = Theme.Grid(Theme.Fill);
         Theme.AddRow(brand, title);
         Theme.AddRow(brand, subtitle);
         Label version = Theme.Label("Launcher " + (_launcherVersion?.ToString() ?? "dev"), Theme.Small, Theme.Muted);
         version.Anchor = AnchorStyles.Right | AnchorStyles.Top;
-        version.Margin = new Padding(12, 4, 0, 0);
+        version.Margin = new Padding(0, 4, 0, 0);
+        TableLayoutPanel headerActions = Theme.Grid(Theme.Auto);
+        headerActions.Anchor = AnchorStyles.Right | AnchorStyles.Top;
+        headerActions.Margin = new Padding(12, 0, 0, 0);
+        Theme.AddRow(headerActions, BuildProductTabs());
+        Theme.AddRow(headerActions, version);
         TableLayoutPanel header = Theme.Grid(Theme.Auto, Theme.Fill, Theme.Auto);
-        Theme.AddRow(header, logo, brand, version);
-        header.Margin = new Padding(0, 0, 0, 20);
+        Theme.AddRow(header, logo, brand, headerActions);
+        header.Margin = new Padding(0, 0, 0, 12);
 
         _launcherBanner.Name = "LauncherUpdate";
         _launcherBanner.BackColor = Theme.Panel;
@@ -309,10 +317,10 @@ internal sealed partial class MainForm : Form
         _tips.SetToolTip(_mapsButton, "Download new maps made by the community.");
 
         _main.Click += async (_, _) => await DoNextAsync();
-        _playCurrent.Click += async (_, _) => await PlayOrJoinAsync();
+        _playCurrent.Click += async (_, _) => { if (_editorSelected) OpenEditor(); else await PlayOrJoinAsync(); };
         _whatsNew.Click += async (_, _) => await OpenChangelogAsync();
-        _check.Click += async (_, _) => await RunAsync(CheckAsync);
-        _website.Click += (_, _) => OpenLink("https://master.lumbridge.co.uk/");
+        _check.Click += async (_, _) => await RunAsync(CheckSelectedAsync);
+        _website.Click += (_, _) => OpenLink(_editorSelected ? EditorPage : "https://master.lumbridge.co.uk/");
         _help.Click += (_, _) => OpenHelp();
         _settingsButton.Click += (_, _) => OpenSettings();
         _mapsButton.Click += (_, _) => OpenMaps();
@@ -321,8 +329,8 @@ internal sealed partial class MainForm : Form
 
     private void RefreshReleasePreview()
     {
-        IReadOnlyList<string> highlights = ReleaseNotesPreview.Create(_lastCheck?.Latest?.Release.Body);
-        ReleaseInfo? release = _lastCheck?.Latest?.Release;
+        ReleaseInfo? release = SelectedRelease;
+        IReadOnlyList<string> highlights = ReleaseNotesPreview.Create(release?.Body);
         string when = release?.PublishedAt?.ToLocalTime().ToString("d MMM yyyy", CultureInfo.CurrentCulture) ?? string.Empty;
         _previewTitle.Text = release is null ? "Latest release" : "Latest: " + (release.Name ?? release.TagName)
             + (when.Length == 0 ? string.Empty : " · " + when);
@@ -330,9 +338,9 @@ internal sealed partial class MainForm : Form
         {
             Label item = _previewItems[i];
             item.Visible = i < highlights.Count || (i == 0 && highlights.Count == 0);
-            item.ForeColor = highlights.Count == 0 ? Theme.Muted : Theme.Text;
+            item.ForeColor = highlights.Count == 0 ? Palette.Muted : Palette.Text;
             item.Text = i < highlights.Count ? "•  " + highlights[i]
-                : _lastCheck is null ? "Check for updates to load release notes."
+                : (_editorSelected ? _editorCheck is null : _lastCheck is null) ? "Check for updates to load release notes."
                 : release is null ? "No release information available." : "No release notes available.";
         }
     }
@@ -441,12 +449,13 @@ internal sealed partial class MainForm : Form
         _pendingTimer.Start();
         if (_settings.CheckOnStart)
         {
-            await RunAsync(CheckAsync);
+            await RunAsync(CheckSelectedAsync);
         }
         else
         {
             _notesText = "Update checks on start are off. Use Check for updates.";
         }
+        if (IsDisposed || Disposing || _closeAfterWork) return;
         _webJoinReady = true;
         if (_pendingWebJoin is not null) await TryWebJoinAsync();
         else if (_protocolProblem is not null) SetStatus(_protocolProblem, Theme.Warning);
@@ -454,8 +463,14 @@ internal sealed partial class MainForm : Form
 
     protected override void OnFormClosing(FormClosingEventArgs e)
     {
-        _work?.Cancel();
-        _pendingTimer.Stop();
+        if (_work is not null)
+        {
+            _closeAfterWork = true;
+            e.Cancel = true;
+            if (_operationCanCancel) _work.Cancel();
+            SetStatus(_operationCanCancel ? "Stopping safely before closing…" : "Finishing the editor update before closing…", Theme.Muted);
+        }
+        else _pendingTimer.Stop();
         base.OnFormClosing(e);
     }
 
@@ -466,7 +481,9 @@ internal sealed partial class MainForm : Form
         SemVersion? current = _store.Current();
         bool busy = _work is not null;
 
-        RefreshLaunchPanel(current, busy);
+        RenderProductStatus();
+        if (_editorSelected) RefreshEditorPanel(busy);
+        else RefreshLaunchPanel(current, busy);
 
         _check.Enabled = !busy;
         _settingsButton.Enabled = !busy;
@@ -480,13 +497,13 @@ internal sealed partial class MainForm : Form
             _launcherBanner.Visible = true;
         }
 
-        RefreshMainButton(current, busy);
+        if (!_editorSelected) RefreshMainButton(current, busy);
         QueueUpdateFit();
     }
 
     private void RefreshLaunchPanel(SemVersion? current, bool busy)
     {
-        _launchDetail.Visible = !busy && (_status.Text.Length == 0 || (_status.ForeColor != Theme.Warning && _status.ForeColor != Theme.Error));
+        _launchDetail.Visible = !busy && (_status.Text.Length == 0 || (VisibleStatus.Kind is not (StatusKind.Warning or StatusKind.Error)));
         bool playable = DownloadedFilesPlayable(current);
         SemVersion? pending = _store.Pending();
         VersionedRelease? latest = _lastCheck?.Latest;
@@ -501,7 +518,7 @@ internal sealed partial class MainForm : Form
 
         if (busy)
         {
-            _heading.Text = _operationTitle;
+            _heading.Text = VisibleOperationTitle;
         }
         else if (current is null)
         {
@@ -541,7 +558,7 @@ internal sealed partial class MainForm : Form
     private void SetOperation(string title)
     {
         _operationTitle = title;
-        if (_work is not null) _heading.Text = title;
+        if (_work is not null) _heading.Text = VisibleOperationTitle;
         QueueUpdateFit();
     }
 
@@ -586,18 +603,20 @@ internal sealed partial class MainForm : Form
         _playCurrent.Enabled = !busy;
         _playCurrent.Text = _pendingWebJoin is null ? "Play current version" : "Join with current version";
         _check.Visible = true;
-        Theme.SetButtonEmphasis(_main, !busy);
+        Theme.SetButtonEmphasis(_main, !busy, Palette);
         _tips.SetToolTip(_main, busy ? "Stop now and continue later. Completed downloads are kept." : null);
         _main.Text = text;
-        _main.Enabled = enabled;
+        _main.Enabled = enabled && (!busy || _operationCanCancel);
+        if (busy && !_operationCanCancel) _main.Text = "Finishing update";
     }
 
     private async Task DoNextAsync()
     {
+        if (_editorSelected) { await DoEditorActionAsync(); return; }
         switch (_next)
         {
             case NextAction.Cancel:
-                _work?.Cancel();
+                if (_operationCanCancel) _work?.Cancel();
                 break;
             case NextAction.Check:
                 await RunAsync(CheckAsync);
@@ -629,7 +648,7 @@ internal sealed partial class MainForm : Form
 
     private async Task OpenChangelogAsync()
     {
-        const string url = "https://master.lumbridge.co.uk/changelog";
+        string url = _editorSelected ? EditorPage + "/releases" : "https://master.lumbridge.co.uk/changelog";
         _whatsNew.Enabled = false;
         try
         {
@@ -659,7 +678,7 @@ internal sealed partial class MainForm : Form
     {
         using var dialog = new Form
         {
-            Text = _notesTitle,
+            Text = _editorSelected ? "OpenSCCT Editor — What’s new" : _notesTitle,
             Icon = Icon,
             StartPosition = FormStartPosition.CenterParent,
             ClientSize = new Size(560, 420),
@@ -688,10 +707,11 @@ internal sealed partial class MainForm : Form
             WordWrap = true,
             TabStop = false,
         };
-        notes.Rtf = ReleaseNotesRtf.Convert(_notesText, Rgb(Theme.Text), Rgb(Theme.Accent), Rgb(Theme.Muted), Theme.Body.SizeInPoints);
+        notes.Rtf = ReleaseNotesRtf.Convert(_editorSelected ? SelectedRelease?.Body ?? "No editor release notes cached." : _notesText, Rgb(Palette.Text), Rgb(Palette.Accent), Rgb(Palette.Muted), Theme.Body.SizeInPoints);
         notes.LinkClicked += (_, e) => OpenLink(e.LinkText);
         frame.Controls.Add(notes);
         dialog.Controls.Add(frame);
+        Theme.Apply(dialog, Palette);
         dialog.Shown += (_, _) => notes.Select(0, 0);
         dialog.ShowDialog(this);
     }
@@ -722,7 +742,7 @@ internal sealed partial class MainForm : Form
             Commit = _launcherVersion?.Build,
             Platform = System.Runtime.InteropServices.RuntimeInformation.OSDescription,
         };
-        using var dialog = new HelpForm(context);
+        using var dialog = new HelpForm(context, palette: Palette, editorVersion: _editorSelected ? _editor.Installed()?.Version.ToString() ?? "not installed" : null);
         dialog.ShowDialog(this);
     }
 
@@ -752,7 +772,7 @@ internal sealed partial class MainForm : Form
             return;
         }
 
-        using var dialog = new MapsForm(Http, _layout.Packs);
+        using var dialog = new MapsForm(Http, _layout.Packs, Palette, () => _editor.IsRunning);
         dialog.ShowDialog(this);
         RefreshLocal();
     }
@@ -766,6 +786,7 @@ internal sealed partial class MainForm : Form
     /// </summary>
     private async Task DownloadContentAsync(CancellationToken cancel)
     {
+        if (_editor.IsRunning) throw new InvalidOperationException("Save your work and close the editor and its command-line tools before changing shared content.");
         _downloadingContent = true;
         SetOperation("Downloading game files");
         RefreshLocal();
@@ -799,7 +820,7 @@ internal sealed partial class MainForm : Form
                 await _packs.InstallSharedAsync(pack, PackReporter($"{name} ({n} of {total})"), cancel);
             }
 
-            SetStatus("All set. Press PLAY.", Theme.Accent);
+            SetStatus(_operationEditor ? "Shared content is ready." : "All set. Press PLAY.", Theme.Accent);
         }
         finally
         {
@@ -1058,7 +1079,7 @@ internal sealed partial class MainForm : Form
 
     private void OpenSettings()
     {
-        using var dialog = new SettingsForm(_settings, _layout);
+        using var dialog = new SettingsForm(_settings, _layout, Palette);
         if (dialog.ShowDialog(this) != DialogResult.OK)
         {
             return;
@@ -1068,6 +1089,7 @@ internal sealed partial class MainForm : Form
         _settings.Save(_layout.Settings);
         _service = CreateService();
         _lastCheck = null;
+        _editorCheck = null;
         if (dialog.ResetRequested && !ResetInstall())
         {
             RefreshLocal();
@@ -1076,15 +1098,15 @@ internal sealed partial class MainForm : Form
 
         RefreshLocal();
 
-        _ = RunAsync(CheckAsync);
+        _ = RunAsync(CheckSelectedAsync);
     }
 
     /// <summary>Deletes what the launcher installed (<see cref="InstallReset"/>); false when a game is running.</summary>
     private bool ResetInstall()
     {
-        if (_games.Running().Count > 0)
+        if (_editor.IsRunning || _games.Running().Count > 0)
         {
-            SetStatus("Close OpenSCCT before resetting the install.", Theme.Warning);
+            SetStatus("Close OpenSCCT, the editor and its command-line tools before resetting game and shared content.", Theme.Warning);
             return false;
         }
 
@@ -1109,14 +1131,15 @@ internal sealed partial class MainForm : Form
         {
             if (_service.TryFinishPending() == InstallOutcome.Activated)
             {
-                SetStatus($"Now on version {_store.Current()}.", Theme.Accent);
+                _gameStatus = new($"Now on version {_store.Current()}.", StatusKind.Success);
                 RefreshLocal();
             }
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
-            SetStatus("Could not switch versions yet: " + ex.Message, Theme.Warning);
+            _gameStatus = new("Could not switch versions yet: " + ex.Message, StatusKind.Warning);
         }
+        RefreshLocal();
     }
 
     private Progress<DownloadProgress> ProgressReporter()
@@ -1164,6 +1187,9 @@ internal sealed partial class MainForm : Form
         }
 
         _operationTitle = "Getting ready";
+        _operationEditor = _editorSelected;
+        _operationCanCancel = true;
+        _operationStatus = new(string.Empty, StatusKind.Normal);
         _work = new CancellationTokenSource();
         bool completed = false;
         RefreshLocal();
@@ -1196,25 +1222,21 @@ internal sealed partial class MainForm : Form
                 RefreshLocal();
             }
         }
+        if (_closeAfterWork && !IsDisposed) { Close(); return; }
         if (completed && !IsDisposed && _webJoinReady && _pendingWebJoin is not null) await TryWebJoinAsync();
     }
 
     private void SetStatus(string text, Color color, string? path = null)
     {
-        _status.Text = text;
-        _status.Visible = text.Length > 0;
-        _status.ForeColor = color;
-        // An actionable warning/error takes the place of the generic instructions, keeping the important
-        // message beside the action even at the minimum size.
-        _launchDetail.Visible = _work is null && (text.Length == 0 || (color != Theme.Warning && color != Theme.Error));
+        StatusKind kind = color == Theme.Warning ? StatusKind.Warning : color == Theme.Error ? StatusKind.Error
+            : color == Theme.Accent || color == Palette.Accent ? StatusKind.Success : StatusKind.Normal;
+        var state = new ProductStatus(text, kind, path);
+        bool editor = _work is not null ? _operationEditor : _editorSelected;
+        if (editor) _editorStatus = state; else _gameStatus = state;
+        if (_work is not null) _operationStatus = state;
+        RenderProductStatus();
+        _launchDetail.Visible = _work is null && kind is not (StatusKind.Warning or StatusKind.Error);
 
-        // A file named in the status opens its folder with the file selected.
-        _status.Links.Clear();
-        int at = path is null ? -1 : text.IndexOf(path, StringComparison.Ordinal);
-        if (at >= 0)
-        {
-            _status.Links.Add(at, path!.Length, path);
-        }
         QueueUpdateFit();
     }
 
@@ -1238,6 +1260,7 @@ internal sealed partial class MainForm : Form
         {
             _pendingTimer.Dispose();
             _tips.Dispose();
+            _brandLogo?.Image?.Dispose();
             _work?.Dispose();
         }
 

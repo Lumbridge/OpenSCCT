@@ -2,6 +2,7 @@ using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
+using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using OpenScct.Project;
 
@@ -11,6 +12,10 @@ namespace OpenScct.Launcher.App;
 internal sealed class HelpForm : Form
 {
     private readonly ReportContext _context;
+    private readonly ThemePalette _palette;
+    private readonly Func<string, bool> _open;
+    private readonly Action<string> _copy;
+    private bool IsEditor => _palette == ThemePalette.Editor;
     private readonly ProjectLinkActions _actions;
     private readonly TextBox _details = Theme.TextBox();
     private readonly TextBox _address = Theme.TextBox();
@@ -18,15 +23,19 @@ internal sealed class HelpForm : Form
     private readonly Button _reportBug;
     private readonly Panel _scroll;
 
-    internal HelpForm(ReportContext context, Func<string, bool>? open = null, Action<string>? copy = null)
+    internal HelpForm(ReportContext context, Func<string, bool>? open = null, Action<string>? copy = null,
+        ThemePalette? palette = null, string? editorVersion = null)
     {
         ArgumentNullException.ThrowIfNull(context);
         _context = context;
-        _actions = new ProjectLinkActions(open ?? OpenBrowser, copy ?? Clipboard.SetText);
+        _palette = palette ?? ThemePalette.Game;
+        _open = open ?? OpenBrowser;
+        _copy = copy ?? Clipboard.SetText;
+        _actions = new ProjectLinkActions(_open, _copy);
 
         Text = "Help & feedback";
         Name = "ProjectHelp";
-        Icon = Theme.LoadIcon(32);
+        Icon = IsEditor ? Theme.LoadEditorIcon(32) : Theme.LoadIcon(32);
         AutoScaleMode = AutoScaleMode.Dpi;
         AutoScaleDimensions = new SizeF(96f, 96f);
         ClientSize = new Size(660, 600);
@@ -66,17 +75,32 @@ internal sealed class HelpForm : Form
             Theme.AddRow(root, control);
         }
 
-        Row(Theme.Label("Help && feedback", Theme.Heading, Theme.Accent), 0);
-        Row(Theme.Wrapping(Theme.Label("Links open in your browser. Bug reports use the website with Discord sign-in; feature suggestions and pull requests require GitHub sign-in.", Theme.Body, Theme.Muted)));
+        Row(Theme.Label(IsEditor ? "Editor help && feedback" : "Help && feedback", Theme.Heading, Theme.Accent), 0);
+        Row(Theme.Wrapping(Theme.Label(IsEditor
+            ? "Editor documentation and reports open on GitHub. For installation or launcher problems, use Launcher help."
+            : "Links open in your browser. Bug reports use the website with Discord sign-in; feature suggestions and pull requests require GitHub sign-in.", Theme.Body, Theme.Muted)));
 
         _reportBug = LinkButton("Report a &bug", ProjectDestination.BugReport);
         Row(Links(_reportBug,
             LinkButton("Suggest a &feature", ProjectDestination.FeatureRequest),
             LinkButton("Browse existing &issues", ProjectDestination.Issues)));
+        if (IsEditor)
+        {
+            Button launcherHelp = Theme.Button("Launcher help");
+            launcherHelp.Name = "LauncherHelp";
+            launcherHelp.Click += (_, _) =>
+            {
+                bool opened = _actions.Open(ProjectDestination.Help, _context);
+                _address.Text = _actions.TargetUrl;
+                _address.Visible = !opened;
+                ShowResult(opened);
+            };
+            Row(launcherHelp);
+        }
 
         var copyDetails = Theme.Button("Copy d&etails");
         copyDetails.Name = "CopyDetails";
-        copyDetails.Click += (_, _) => ShowResult(_actions.CopyDetails(_context));
+        copyDetails.Click += (_, _) => CopyDetails();
         TableLayoutPanel detailsHeader = Theme.Grid(Theme.Fill, Theme.Auto);
         Theme.AddRow(detailsHeader, Theme.Wrapping(Theme.Label("Version details for your report", Theme.Heading)), copyDetails);
         Row(detailsHeader, 16);
@@ -87,6 +111,7 @@ internal sealed class HelpForm : Form
         _details.ScrollBars = ScrollBars.Vertical;
         _details.Height = 116;
         _details.Text = ProjectLinks.EnvironmentDetails(context).Replace("\n", Environment.NewLine, StringComparison.Ordinal);
+        if (IsEditor) _details.Text = "Editor version: " + (editorVersion ?? "Not installed") + Environment.NewLine + _details.Text;
         _details.AccessibleName = "Version details for your report";
         Row(_details);
 
@@ -110,6 +135,7 @@ internal sealed class HelpForm : Form
         _scroll.Controls.Add(root);
         Controls.Add(_scroll);
         Controls.Add(footer);
+        Theme.Apply(this, _palette);
     }
 
     protected override void OnShown(EventArgs e)
@@ -124,6 +150,17 @@ internal sealed class HelpForm : Form
         button.Name = destination.ToString();
         button.Click += (_, _) =>
         {
+            if (IsEditor)
+            {
+                string url = EditorUrl(destination);
+                bool editorOpened = false;
+                try { editorOpened = _open(url); }
+                catch (Exception ex) when (ex is ExternalException or InvalidOperationException or NotSupportedException or UnauthorizedAccessException) { }
+                _address.Text = url;
+                _address.Visible = !editorOpened;
+                ShowMessage(editorOpened, editorOpened ? string.Empty : "Could not open your browser. Copy the link and open it in your browser.");
+                return;
+            }
             bool opened = _actions.Open(destination, _context);
             _address.Text = _actions.TargetUrl;
             _address.Visible = !opened;
@@ -142,13 +179,45 @@ internal sealed class HelpForm : Form
 
     private void ShowResult(bool success)
     {
-        _message.Text = _actions.Message;
-        _message.ForeColor = success ? Theme.Accent : Theme.Warning;
+        ShowMessage(success, _actions.Message);
+    }
+
+    private void ShowMessage(bool success, string message)
+    {
+        _message.Text = message;
+        _message.ForeColor = success ? _palette.Accent : Theme.Warning;
         if (_message.Text.Length > 0)
         {
             _scroll.PerformLayout();
             _scroll.ScrollControlIntoView(_message);
         }
+    }
+
+    private void CopyDetails()
+    {
+        if (!IsEditor) { ShowResult(_actions.CopyDetails(_context)); return; }
+        try { _copy(_details.Text); ShowMessage(true, "Details copied."); }
+        catch (Exception ex) when (ex is ExternalException or InvalidOperationException or NotSupportedException or UnauthorizedAccessException)
+        {
+            ShowMessage(false, "Could not copy. Select the text and copy it manually.");
+        }
+    }
+
+    private string EditorUrl(ProjectDestination destination)
+    {
+        const string repo = "https://github.com/Lumbridge/OpenSCCT-Editor";
+        return destination switch
+        {
+            ProjectDestination.BugReport => repo + "/issues/new?body=" + Uri.EscapeDataString(_details.Text),
+            ProjectDestination.FeatureRequest => repo + "/issues/new",
+            ProjectDestination.Issues => repo + "/issues",
+            ProjectDestination.Documentation => repo + "/blob/main/README.md",
+            ProjectDestination.Contributing => repo + "/blob/main/CONTRIBUTING.md",
+            ProjectDestination.Development => repo + "/blob/main/README.md#build-from-source",
+            ProjectDestination.PullRequests => repo + "/pulls",
+            ProjectDestination.NewPullRequest => repo + "/compare?expand=1",
+            _ => repo,
+        };
     }
 
     private static bool OpenBrowser(string url)

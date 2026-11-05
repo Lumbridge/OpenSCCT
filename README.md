@@ -37,7 +37,7 @@ See the [launcher guide](docs/LAUNCHER.md) for setup, storage and troubleshootin
 - Practice with bots and training challenges.
 - Use the player hub to find servers, view profiles, leaderboards and match history.
 - Record and watch demos.
-- Make and edit maps with [OpenSCCT Editor](https://github.com/Lumbridge/OpenSCCT-Editor).
+- Make and edit maps with [OpenSCCT Editor](https://github.com/Lumbridge/OpenSCCT-Editor), available from the Windows launcher's **Editor** tab.
 - Build and test the simulation without original game assets.
 
 OpenSCCT is in active development. Matching the original game's behavior is ongoing;

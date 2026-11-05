@@ -93,7 +93,7 @@ public sealed class LauncherSwapAndSettingsTests
         Assert.False(saved.RootElement.TryGetProperty("Language", out _));
         Assert.True(saved.RootElement.GetProperty("IncludePrereleases").GetBoolean());
         Assert.False(saved.RootElement.GetProperty("CheckOnStart").GetBoolean());
-        Assert.Equal(2, saved.RootElement.EnumerateObject().Count());
+        Assert.Equal(4, saved.RootElement.EnumerateObject().Count());
     }
 
     [Fact]
@@ -116,6 +116,40 @@ public sealed class LauncherSwapAndSettingsTests
         Assert.False(info.Environment.ContainsKey("SVM_GAME_ROOT"));
         Assert.False(info.Environment.ContainsKey("SVM_CONTENT"));
         Assert.Equal("existing converted content", File.ReadAllText(marker));
+    }
+
+    [Fact]
+    public void EditorSelectionAndPreviewPreferenceRoundTripIndependentlyOfGame()
+    {
+        using var dir = new TempDir();
+        string path = dir.Combine("launcher.json");
+        new LauncherSettings
+        {
+            SelectedProduct = "Editor",
+            EditorIncludePrereleases = true,
+            IncludePrereleases = false,
+            CheckOnStart = false,
+        }.Save(path);
+
+        LauncherSettings read = LauncherSettings.Load(path);
+        Assert.Equal("Editor", read.SelectedProduct);
+        Assert.True(read.EditorIncludePrereleases);
+        Assert.False(read.IncludePrereleases);
+        Assert.False(read.CheckOnStart);
+    }
+
+    [Fact]
+    public void ExistingSettingsDefaultToGameAndStableEditorReleases()
+    {
+        using var dir = new TempDir();
+        string path = dir.Combine("launcher.json");
+        File.WriteAllText(path, """{"IncludePrereleases":true,"CheckOnStart":false}""");
+
+        LauncherSettings read = LauncherSettings.Load(path);
+        Assert.Equal("Game", read.SelectedProduct);
+        Assert.False(read.EditorIncludePrereleases);
+        Assert.True(read.IncludePrereleases);
+        Assert.False(read.CheckOnStart);
     }
 
     [Fact]

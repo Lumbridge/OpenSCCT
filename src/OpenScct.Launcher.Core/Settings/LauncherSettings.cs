@@ -12,6 +12,12 @@ public sealed class LauncherSettings
 
     public bool IncludePrereleases { get; set; }
 
+    /// <summary>The editor has its own release channel, independent of the game.</summary>
+    public bool EditorIncludePrereleases { get; set; }
+
+    /// <summary>Last selected launcher product. Unknown values are treated as Game by the view.</summary>
+    public string SelectedProduct { get; set; } = "Game";
+
     /// <summary>Check for updates when the launcher starts.</summary>
     public bool CheckOnStart { get; set; } = true;
 

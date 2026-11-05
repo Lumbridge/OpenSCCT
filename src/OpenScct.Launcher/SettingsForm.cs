@@ -12,10 +12,11 @@ internal sealed class SettingsForm : Form
 {
     private readonly LauncherLayout _layout;
     private readonly ToolTip _folderTips = new();
-    private readonly CheckBox _prereleases = new() { Text = "Include preview releases", AutoSize = true, ForeColor = Theme.Text };
+    private readonly CheckBox _prereleases = new() { Text = "Include game preview releases", AutoSize = true, ForeColor = Theme.Text };
+    private readonly CheckBox _editorPrereleases = new() { Text = "Include editor preview releases", AutoSize = true, ForeColor = Theme.Text };
     private readonly CheckBox _checkOnStart = new() { Text = "Check for updates on startup", AutoSize = true, ForeColor = Theme.Text };
 
-    public SettingsForm(LauncherSettings settings, LauncherLayout layout)
+    public SettingsForm(LauncherSettings settings, LauncherLayout layout, ThemePalette? palette = null)
     {
         ArgumentNullException.ThrowIfNull(settings);
         ArgumentNullException.ThrowIfNull(layout);
@@ -23,7 +24,7 @@ internal sealed class SettingsForm : Form
         Result = settings;
 
         Text = "Settings";
-        Icon = Theme.LoadIcon(32);
+        Icon = palette == ThemePalette.Editor ? Theme.LoadEditorIcon(32) : Theme.LoadIcon(32);
         AutoScaleMode = AutoScaleMode.Dpi;
         AutoScaleDimensions = new SizeF(96f, 96f);
         ClientSize = new Size(560, 440);
@@ -38,6 +39,8 @@ internal sealed class SettingsForm : Form
         Font = Theme.Body;
 
         _prereleases.Checked = settings.IncludePrereleases;
+        _editorPrereleases.Checked = settings.EditorIncludePrereleases;
+        _editorPrereleases.Name = "IncludeEditorPreviewReleases";
         _checkOnStart.Checked = settings.CheckOnStart;
         _prereleases.Name = "IncludePreviewReleases";
         _checkOnStart.Name = "CheckForUpdatesOnStart";
@@ -77,17 +80,19 @@ internal sealed class SettingsForm : Form
         Row(Theme.Label("Updates", Theme.Heading, Theme.Accent));
         Row(_checkOnStart, 6);
         Row(_prereleases, 4);
+        Row(_editorPrereleases, 4);
         Row(Theme.Label("Folders", Theme.Heading, Theme.Accent), 18);
         Row(Link("Open launcher folder", layout.Root), 6);
         Row(Link("Open game settings and saves folder", LauncherLayout.GameUserData), 4);
-        Button reset = Theme.Button("Reset install...");
+        Button reset = Theme.Button("Reset game and shared content...");
         reset.Click += (_, _) => ConfirmReset();
         Row(Theme.Label("Reset", Theme.Heading, Theme.Accent), 18);
-        Row(Theme.Wrapping(Theme.Label("Remove installed versions and game files, then download a fresh install. Keeps your launcher preferences, game settings and saves.", Theme.Small, Theme.Muted)), 6);
+        Row(Theme.Wrapping(Theme.Label("Remove game versions and shared files. Editor setup will be required again. Keeps the editor, projects, launcher preferences, settings and saves.", Theme.Small, Theme.Muted)), 6);
         Row(reset);
         scroll.Controls.Add(root);
         Controls.Add(scroll);
         Controls.Add(buttons);
+        Theme.Apply(this, palette ?? ThemePalette.Game);
     }
 
     public LauncherSettings Result { get; private set; }
@@ -99,8 +104,8 @@ internal sealed class SettingsForm : Form
     {
         DialogResult answer = MessageBox.Show(
             this,
-            "Remove all downloaded game versions, game files and maps?\n\nThe launcher will download everything again. Your launcher preferences, game settings and saves are kept.",
-            "Reset install",
+            "Remove all downloaded game versions, shared game files and maps?\n\nThe editor will need its shared files installed again. The editor application, projects, settings, saves and launcher preferences are kept.",
+            "Reset game and shared content",
             MessageBoxButtons.OKCancel,
             MessageBoxIcon.Warning,
             MessageBoxDefaultButton.Button2);
@@ -146,6 +151,8 @@ internal sealed class SettingsForm : Form
         Result = new LauncherSettings
         {
             IncludePrereleases = _prereleases.Checked,
+            EditorIncludePrereleases = _editorPrereleases.Checked,
+            SelectedProduct = Result.SelectedProduct,
             CheckOnStart = _checkOnStart.Checked,
         };
         Directory.CreateDirectory(_layout.Root);

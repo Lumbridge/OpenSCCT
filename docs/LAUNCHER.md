@@ -29,6 +29,36 @@ they wrap on narrow windows. When an update adds a banner, buttons or status tex
 just enough to keep the release preview visible, within the screen's working area. Your chosen width
 and any extra height are kept; smaller screens can still scroll the preview.
 
+## Optional Windows editor
+
+The Windows launcher has **Game** and **Editor** tabs. Game keeps the green theme; Editor uses the
+editor's blue logo and palette. The selected tab is remembered. Editor files are downloaded only when
+you choose **Set up Editor**; installing the game alone does not install the editor.
+
+**Set up Editor** installs missing game and shared-content prerequisites, then the editor, without
+starting the game. The editor uses the same downloaded packs and converted maps. **Open Editor** starts
+it when setup is ready; **Open installed editor** remains available when an optional update exists or
+the release service is offline. Game and editor versions and preview preferences are independent.
+
+Updates can be started in the launcher or in the editor. The launcher delegates editor updates to the
+editor's packaged `ose` tool, preserving its verified staging, startup probe and recovery. Save and close
+the editor and its command-line tools before updating from the launcher. Cancellation is available
+during staging; once replacement starts, the helper finishes or recovers before the launcher closes.
+
+You can change tabs during a download: progress and cancellation continue to refer to the operation
+that started it. Website Join links select Game and wait for an active operation. Launcher self-updates
+remain available on either tab. Editor Help and release links go to the editor project.
+
+**Maps** manages shared downloaded content in either tab. Close the editor before changing that content.
+**Reset game and shared content** keeps the editor, projects and editor settings, but its shared game
+prerequisites must be installed again. Independently downloaded editor installations are not adopted or
+modified. Linux launcher behavior is unchanged.
+
+Integration requires an editor package advertising launcher protocol 1 with its
+`OpenSCCT-Editor-<version>-win-x64.launcher.json` release asset and `version.json` metadata. Until a compatible
+editor release is published, the launcher reports that no compatible download is available. Distribute
+the compatible editor release before launcher 0.8.45; neither is published by building this change.
+
 ## Updates and troubleshooting
 
 - **Update** installs a newer game build and any newer downloaded game files, including file-only updates.
@@ -83,6 +113,8 @@ The launcher stores its files under `%LOCALAPPDATA%\OpenSCCT` on Windows and
 | `install.json` | Current, previous and pending game versions |
 | `launcher.json` | Startup update and preview-release preferences |
 | `versions/<version>/` | One exported game build per version |
+| `editor/` | Optional managed Windows editor, including its CLI and update recovery state |
+| `editor-cache/`, `editor-downloads/` | Independent editor release cache, bootstrap downloads and external helpers |
 | `downloads/` | Completed and partial release downloads |
 | `cache/` | Cached release list and rate-limit state |
 | `content/` | Legacy converted content and logs, no longer used by the launcher |

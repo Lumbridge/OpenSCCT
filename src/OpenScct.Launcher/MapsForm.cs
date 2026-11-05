@@ -20,6 +20,8 @@ namespace OpenScct.Launcher.App;
 internal sealed class MapsForm : Form
 {
     private readonly ContentStore _store;
+    private readonly ThemePalette _palette;
+    private readonly Func<bool>? _sharedContentInUse;
 
     private readonly TextBox _search = Theme.TextBox();
     private readonly ListView _list = new()
@@ -46,15 +48,18 @@ internal sealed class MapsForm : Form
 
     private ContentIndex? _index;
     private CancellationTokenSource? _work;
+    private bool _closeAfterWork;
 
     /// <param name="packs">Where downloaded content packs go (the game reads them from there).</param>
-    public MapsForm(HttpClient http, string packs)
+    public MapsForm(HttpClient http, string packs, ThemePalette? palette = null, Func<bool>? sharedContentInUse = null)
     {
         ArgumentNullException.ThrowIfNull(http);
         _store = new ContentStore(packs, http);
+        _palette = palette ?? ThemePalette.Game;
+        _sharedContentInUse = sharedContentInUse;
 
         Text = "Maps";
-        Icon = Theme.LoadIcon(32);
+        Icon = _palette == ThemePalette.Editor ? Theme.LoadEditorIcon(32) : Theme.LoadIcon(32);
         AutoScaleMode = AutoScaleMode.Dpi;
         AutoScaleDimensions = new SizeF(96f, 96f);
         ClientSize = new Size(820, 600);
@@ -72,7 +77,7 @@ internal sealed class MapsForm : Form
         Label intro = Theme.Wrapping(Theme.Label(
             "Every map from the OpenSCCT-Content repository: stock, original, community, recovered and ported maps, already " +
             "converted. A downloaded map is ready to play straight away. The game also downloads a map you are missing when " +
-            "you queue for it in the hub.",
+            "you queue for it in the hub. These files are shared with the editor; downloading a map does not create an editable project.",
             Theme.Small, Theme.Muted));
 
         _search.PlaceholderText = "Search maps";
@@ -146,6 +151,7 @@ internal sealed class MapsForm : Form
         tips.SetToolTip(_remove, "Delete the selected downloaded maps from this PC.");
         tips.SetToolTip(_web, "Open the content repository in your browser.");
         RefreshButtons();
+        Theme.Apply(this, _palette);
     }
 
     protected override async void OnShown(EventArgs e)
@@ -157,7 +163,15 @@ internal sealed class MapsForm : Form
 
     protected override void OnFormClosing(FormClosingEventArgs e)
     {
-        _work?.Cancel();
+        if (_work is not null)
+        {
+            // Keep the modal owner blocked until download/extraction cleanup has really finished.
+            // Otherwise a second content operation or editor launch could race the cancelled task.
+            _closeAfterWork = true;
+            e.Cancel = true;
+            _work.Cancel();
+            SetStatus("Stopping safely before closing…", Theme.Muted);
+        }
         base.OnFormClosing(e);
     }
 
@@ -249,10 +263,10 @@ internal sealed class MapsForm : Form
                 Tag = row,
                 ForeColor = state switch
                 {
-                    RowState.Downloaded => Theme.Accent,
+                    RowState.Downloaded => _palette.Accent,
                     RowState.UpdateAvailable => Theme.Warning,
-                    RowState.Unlisted => Theme.Muted,
-                    _ => Theme.Text,
+                    RowState.Unlisted => _palette.Muted,
+                    _ => _palette.Text,
                 },
             };
             _list.Items.Add(item);
@@ -328,6 +342,7 @@ internal sealed class MapsForm : Form
 
     private async Task DownloadSelectedAsync()
     {
+        if (!CanChangeContent()) return;
         List<ContentMap> maps = SelectedRows()
             .Where(r => StateOf(r) is RowState.Available or RowState.UpdateAvailable)
             .Select(r => r.Map!)
@@ -342,12 +357,14 @@ internal sealed class MapsForm : Form
             // Every map uses the downloaded shared packs, including installs upgraded from local conversion.
             foreach (ContentSharedPack pack in index.Shared.Where(p => !_store.HasShared(p)))
             {
+                EnsureContentFree();
                 string name = pack.Title.Length > 0 ? pack.Title : pack.Id;
                 await _store.InstallSharedAsync(pack, Progress(name), cancel);
             }
 
             for (int i = 0; i < maps.Count; i++)
             {
+                EnsureContentFree();
                 ContentMap map = maps[i];
                 string prefix = maps.Count > 1 ? $"{map.DisplayTitle} ({i + 1} of {maps.Count})" : map.DisplayTitle;
                 await _store.InstallMapAsync(map, ContentKind.Full, Progress(prefix), cancel);
@@ -376,6 +393,7 @@ internal sealed class MapsForm : Form
 
     private void RemoveSelected()
     {
+        if (!CanChangeContent()) return;
         List<Row> rows = SelectedRows().Where(r => r.Pack is not null).ToList();
         if (rows.Count == 0 || _work is not null)
         {
@@ -392,6 +410,7 @@ internal sealed class MapsForm : Form
         {
             foreach (Row row in rows)
             {
+                EnsureContentFree();
                 _store.RemoveMap(row.Pack!.Code);
             }
 
@@ -453,15 +472,30 @@ internal sealed class MapsForm : Form
             if (!IsDisposed)
             {
                 _progress.Visible = false;
-                Fill();
+                if (!_closeAfterWork) Fill();
             }
         }
+        if (_closeAfterWork && !IsDisposed) Close();
     }
 
     private void SetStatus(string text, Color color)
     {
         _status.Text = text;
-        _status.ForeColor = color;
+        _status.ForeColor = Theme.Map(color, _palette);
+    }
+
+    private const string ContentBusyMessage = "Close OpenSCCT Editor and its command line tools before changing shared content.";
+
+    private bool CanChangeContent()
+    {
+        if (_sharedContentInUse?.Invoke() != true) return true;
+        SetStatus(ContentBusyMessage, Theme.Warning);
+        return false;
+    }
+
+    private void EnsureContentFree()
+    {
+        if (_sharedContentInUse?.Invoke() == true) throw new IOException(ContentBusyMessage);
     }
 
     private static string Mb(long bytes) => (bytes / (1024.0 * 1024.0)).ToString(bytes < 10 * 1024 * 1024 ? "0.0" : "0", CultureInfo.CurrentCulture) + " MB";

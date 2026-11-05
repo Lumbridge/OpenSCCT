@@ -69,5 +69,12 @@ public sealed class LauncherLayout
     /// <summary>Converted maps and shared packs downloaded from OpenSCCT-Content (the game reads them; docs/CONTENT-PACKS.md).</summary>
     public string Packs => Path.Combine(Root, "packs");
 
+    /// <summary>The optional editor's stable installation, independent of game versions.</summary>
+    public string Editor => Path.Combine(Root, "editor");
+
+    public string EditorCache => Path.Combine(Root, "editor-cache");
+
+    public string EditorDownloads => Path.Combine(Root, "editor-downloads");
+
     public string VersionDir(string version) => Path.Combine(Versions, version);
 }

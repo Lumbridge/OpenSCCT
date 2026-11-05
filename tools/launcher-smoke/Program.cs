@@ -11,6 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using OpenScct.Launcher.GitHub;
+using OpenScct.Launcher.Editor;
 using OpenScct.Launcher.Install;
 using OpenScct.Launcher.Settings;
 using OpenScct.Launcher.Update;
@@ -23,6 +24,8 @@ internal static class Program
     private static readonly Type MainType = Assembly.Load("OpenSCCT.Launcher").GetType("OpenScct.Launcher.App.MainForm", true)!;
     private static readonly SemVersion InstalledVersion = SemVersion.Parse("0.8.80");
     private static readonly SemVersion LatestVersion = SemVersion.Parse("0.8.81");
+    private static readonly SemVersion EditorGameVersion = SemVersion.Parse("0.8.93");
+    private static readonly SemVersion EditorVersion = SemVersion.Parse("0.1.0");
     private static int _checks;
     private static int _failures;
     private static int _networkAttempts;
@@ -36,8 +39,14 @@ internal static class Program
         Application.SetHighDpiMode(HighDpiMode.DpiUnaware);
         Application.EnableVisualStyles();
         Application.SetCompatibleTextRenderingDefault(false);
-        string output = Path.GetFullPath(args.Length == 1 ? args[0] : "local/launcher-smoke/artifacts");
+        string output = Path.GetFullPath(args.FirstOrDefault(a => !a.StartsWith("--", StringComparison.Ordinal)) ?? "local/launcher-smoke/artifacts");
         Directory.CreateDirectory(output);
+        if (args.Contains("--lifecycle", StringComparer.Ordinal))
+        {
+            LifecycleChecks();
+            Console.WriteLine($"Launcher lifecycle smoke: {_checks} checks passed; {_failures} failed cases.");
+            return _failures == 0 ? 0 : 1;
+        }
         var scenarios = new Scenario[]
         {
             new("fresh-no-feed", false, false, "Install"),
@@ -54,6 +63,17 @@ internal static class Program
             new("join", true, true, "JOIN SESSION"),
             new("launcher-restart", true, true, "PLAY"),
             new("pending-game", true, true, "PLAY"),
+            new("editor-absent", false, false, "Set up Editor"),
+            new("editor-incomplete", true, false, "Set up Editor"),
+            new("editor-ready", true, true, "Open Editor"),
+            new("editor-update", true, true, "Update Editor"),
+            new("editor-busy", true, true, "Cancel"),
+            new("editor-busy-game", true, true, "Cancel"),
+            new("editor-applying", true, true, "Finishing update"),
+            new("editor-recovery", true, true, "Recover Editor"),
+            new("editor-offline", true, true, "Open Editor"),
+            new("editor-error", true, true, "Open Editor"),
+            new("editor-launcher-restart", true, true, "Open Editor"),
         };
 
         foreach (Scenario scenario in scenarios)
@@ -87,9 +107,10 @@ internal static class Program
             CaptureDialogs(fixture, scale, output);
         }
 
+        LifecycleChecks();
         Inspect(() => Check(_networkAttempts == 0, "No dialog HTTP requests were attempted."));
-        Console.WriteLine($"Launcher smoke: {_checks} checks passed; {_failures} failed cases; {scenarios.Length * 6 + 12} offscreen captures in {output}.");
-        Console.WriteLine("Fixtures used temporary installs; launcher startup, downloads, game launch, browser, clipboard and protocol registration were not invoked.");
+        Console.WriteLine($"Launcher smoke: {_checks} checks passed; {_failures} failed cases; {scenarios.Length * 6 + 21} offscreen captures in {output}.");
+        Console.WriteLine("Fixtures used temporary installs and offline startup; live update checks, downloads, game/editor launch, browser, clipboard and protocol registration were not invoked.");
         return _failures == 0 ? 0 : 1;
     }
 
@@ -124,6 +145,23 @@ internal static class Program
             new VersionedRelease(version, release), scenario.Game ? InstalledVersion : null,
             scenario.Name is "fresh" or "game-update" or "game-downloading", false);
         if (scenario.Name != "fresh-no-feed") Call(form, "ShowReleaseCheck", check);
+        if (scenario.Editor)
+        {
+            SemVersion editorLatest = scenario.Name == "editor-update" ? SemVersion.Parse("0.1.1") : EditorVersion;
+            var editorRelease = new ReleaseInfo
+            {
+                TagName = "v" + editorLatest, Name = "OpenSCCT Editor " + editorLatest,
+                PublishedAt = release.PublishedAt, Body = release.Body,
+                HtmlUrl = EditorService.ReleasesPage + "/tag/v" + editorLatest,
+            };
+            string archive = $"OpenSCCT-Editor-{editorLatest}-win-x64.zip";
+            editorRelease.Assets = [new ReleaseAsset { Name = archive }, new ReleaseAsset { Name = archive + ".sha256" },
+                new ReleaseAsset { Name = archive[..^4] + ".launcher.json" }];
+            var editorFeed = new ReleaseFeed([editorRelease], scenario.Name == "editor-offline" ? ReleaseFeedSource.Cache : ReleaseFeedSource.Network, null, null);
+            Set(form, "_editorCheck", new EditorCheck(editorFeed, EditorService.Offer(editorRelease),
+                scenario.Name == "editor-absent" ? null : new EditorInstallation(EditorVersion, EditorGameVersion, 1), scenario.Name == "editor-update"));
+            Call(form, "SelectProduct", true);
+        }
         if (scenario.Name == "content-update")
         {
             Set(form, "_packIndex", new ContentIndex
@@ -131,11 +169,13 @@ internal static class Program
                 Shared = [new ContentSharedPack { Id = "core", Title = "Core game files", Download = new("https://example.invalid/core.zip", 1024, "new-content") }],
             });
         }
-        if (scenario.Name is "downloading" or "game-downloading")
+        if (scenario.Name is "downloading" or "game-downloading" or "editor-busy" or "editor-busy-game" or "editor-applying")
         {
             fixture.Work = new CancellationTokenSource();
             Set(form, "_work", fixture.Work);
             Set(form, "_downloadingContent", scenario.Name == "downloading");
+            Set(form, "_operationEditor", scenario.Editor);
+            Set(form, "_operationCanCancel", scenario.Name != "editor-applying");
         }
         Call(form, "RefreshLocal");
         switch (scenario.Name)
@@ -148,6 +188,26 @@ internal static class Program
                 Field<Control>(form, "_progress").GetType().GetProperty("Fraction")!.SetValue(Field<Control>(form, "_progress"), 0.42);
                 Field<Label>(form, "_progressText").Text = scenario.Name == "downloading" ? "AquaE (4 of 12): 128.0 MB of 304.0 MB" : "128.0 MB of 304.0 MB  12.0 MB/s";
                 Field<Label>(form, "_progressText").Visible = true;
+                break;
+            case "editor-busy":
+            case "editor-busy-game":
+                Call(form, "SetOperation", "Downloading editor");
+                SetStatus(form, "Downloading OpenSCCT Editor…", Color.FromArgb(148, 170, 155));
+                Field<Control>(form, "_progress").Visible = true;
+                Field<Control>(form, "_progress").GetType().GetProperty("Fraction")!.SetValue(Field<Control>(form, "_progress"), 0.42);
+                Field<Label>(form, "_progressText").Text = "128.0 MB of 304.0 MB";
+                Field<Label>(form, "_progressText").Visible = true;
+                if (scenario.Name == "editor-busy-game") Call(form, "SelectProduct", false);
+                break;
+            case "editor-applying":
+                Call(form, "SetOperation", "Finishing editor update");
+                SetStatus(form, "Checking that the new editor starts before completing the update.", Color.FromArgb(148, 170, 155));
+                break;
+            case "editor-offline":
+                SetStatus(form, "Offline. You can still open your installed editor.", Color.FromArgb(255, 196, 92));
+                break;
+            case "editor-error":
+                SetStatus(form, "Editor download was interrupted. The installed editor and your projects are unchanged.", Color.FromArgb(255, 110, 100));
                 break;
             case "stopped":
                 SetStatus(form, "Stopped. Press the button to carry on.", Color.FromArgb(127, 149, 133));
@@ -183,16 +243,33 @@ internal static class Program
         Button main = Field<Button>(form, "_main");
         Button help = Field<Button>(form, "_help");
         Check(main.Text == scenario.Button, label + " action is " + scenario.Button);
-        Check(main.Enabled && main.CanSelect, label + " primary action is keyboard selectable");
+        Check(scenario.Name == "editor-applying" ? !main.Enabled : main.Enabled && main.CanSelect,
+            label + (scenario.Name == "editor-applying" ? " apply cannot be cancelled" : " primary action is keyboard selectable"));
         Check(help.Enabled && help.CanSelect, label + " Help stays keyboard selectable");
         Check(Field<Label>(form, "_heading").Text.Length > 0, label + " status heading is populated");
-        if (scenario.Game)
-            Check(Field<Label>(form, "_installedInfo").Text.Contains(InstalledVersion.ToString(), StringComparison.Ordinal), label + " installed version remains visible");
+        if (scenario.Game && scenario.Name != "editor-recovery")
+            Check(Field<Label>(form, "_installedInfo").Text.Contains(scenario.Editor && scenario.Name != "editor-busy-game"
+                ? EditorVersion.ToString() : GameVersionFor(scenario).ToString(), StringComparison.Ordinal), label + " installed version remains visible");
+        if (scenario.Editor)
+        {
+            bool editorSelected = scenario.Name != "editor-busy-game";
+            Check(host.BackColor == (editorSelected ? Color.FromArgb(19, 21, 27) : Color.FromArgb(16, 22, 18)), label + " whole window uses selected product palette");
+            Check(main.BackColor == (fixture.Work is not null
+                ? editorSelected ? Color.FromArgb(26, 31, 42) : Color.FromArgb(22, 31, 25)
+                : Color.FromArgb(84, 148, 245)), label + " primary action uses selected product palette");
+            Check(LauncherSettings.Load(fixture.Layout.Settings).SelectedProduct == (editorSelected ? "Editor" : "Game"), label + " selected tab is persisted");
+            Check(Field<Button>(form, "_gameTab").CanSelect && Field<Button>(form, "_editorTab").CanSelect, label + " both product tabs remain keyboard selectable");
+        }
         if (scenario.Name is "downloading" or "game-downloading")
         {
             Check(Field<Label>(form, "_heading").Text == (scenario.Name == "downloading" ? "Downloading game files" : "Downloading OpenSCCT"), label + " operation phase is shown");
             Check(Field<Control>(form, "_progress").Visible && Field<Label>(form, "_progressText").Visible, label + " progress and transfer details are visible");
             Check(!Field<Button>(form, "_playCurrent").Visible, label + " update deferral stays hidden while busy");
+        }
+        if (scenario.Name is "editor-busy" or "editor-busy-game")
+        {
+            Check(Field<Label>(form, "_heading").Text == (scenario.Name == "editor-busy" ? "Downloading editor" : "Editor · Downloading editor"), label + " operation owner survives tab changes");
+            Check(Field<Control>(form, "_progress").Visible && Field<Label>(form, "_progressText").Visible, label + " editor transfer progress remains visible");
         }
         Control wordmark = Walk(host).Single(c => c.GetType().Name == "Wordmark");
         using (Graphics graphics = host.CreateGraphics())
@@ -212,17 +289,17 @@ internal static class Program
         Check(IsInClient(host, main), label + " primary action is visible inside client area");
         Check(IsInClient(host, help), label + " Help is visible inside client area");
         Check(host.SelectNextControl(null, true, true, true, false), label + " keyboard traversal enters launcher controls");
-        if (scenario.Name is "game-update" or "content-update")
+        if (scenario.Name is "game-update" or "content-update" or "editor-update")
         {
             Button defer = Field<Button>(form, "_playCurrent");
             Check(defer.Visible && defer.Enabled && IsInClient(host, defer), label + " update deferral remains available");
         }
-        if (scenario.Name == "launcher-restart")
+        if (scenario.Name is "launcher-restart" or "editor-launcher-restart")
         {
             Button restart = Field<Button>(form, "_launcherButton");
             Check(restart.Visible && restart.Text == "Restart to finish" && IsInClient(host, restart), label + " staged launcher restart is visible");
         }
-        if (scenario.Name is "stopped" or "error" or "offline")
+        if (scenario.Name is "stopped" or "error" or "offline" or "editor-error" or "editor-offline")
         {
             Label status = Field<Label>(form, "_status");
             string before = status.Text;
@@ -246,16 +323,29 @@ internal static class Program
         }
         if (fixture.Work is { } work)
         {
-            // Only the cancellation branch is invoked; this cannot start network or install work.
-            typeof(Button).GetMethod("OnClick", Hidden)!.Invoke(main, [EventArgs.Empty]);
-            Check(work.IsCancellationRequested, label + " Stop cancels the active operation");
+            if (scenario.Editor)
+            {
+                Call(form, "QueueWebJoin", "smoke-session");
+                Check(!Field<bool>(form, "_editorSelected") && Field<bool>(form, "_operationEditor"), label + " Join selects Game without changing editor operation owner");
+                Check(Field<string>(form, "_pendingWebJoin") == "smoke-session" && !work.IsCancellationRequested, label + " Join queues without cancelling editor operation");
+            }
+            if (scenario.Name != "editor-applying")
+            {
+                // Only the cancellation branch is invoked; this cannot start network or install work.
+                typeof(Button).GetMethod("OnClick", Hidden)!.Invoke(main, [EventArgs.Empty]);
+                Check(work.IsCancellationRequested, label + " Stop cancels the active operation");
+            }
+            else Check(!work.IsCancellationRequested, label + " apply is allowed to complete after Join queues");
             Set(form, "_work", null);
         }
         foreach (Control control in controls) form.Controls.Add(control);
         host.Hide();
     }
 
-    private static string VersionFor(Scenario scenario) => scenario.Name is "fresh" or "game-update" or "game-downloading" ? LatestVersion.ToString() : InstalledVersion.ToString();
+    private static SemVersion GameVersionFor(Scenario scenario) => scenario.Editor ? EditorGameVersion : InstalledVersion;
+    private static string VersionFor(Scenario scenario) => scenario.Editor && scenario.Name != "editor-busy-game"
+        ? scenario.Name == "editor-update" ? "0.1.1" : EditorVersion.ToString()
+        : scenario.Name is "fresh" or "game-update" or "game-downloading" ? LatestVersion.ToString() : InstalledVersion.ToString();
     private static void CaptureDialogs(Fixture fixture, float scale, string output)
     {
         Assembly assembly = MainType.Assembly;
@@ -266,11 +356,16 @@ internal static class Program
             Enum.Parse(assembly.GetType("OpenScct.Project.ReportSource", true)!, "Launcher"));
         contextType.GetProperty("LauncherVersion")!.SetValue(context, "0.8.37");
         contextType.GetProperty("InstalledGameVersion")!.SetValue(context, InstalledVersion.ToString());
-        var dialogs = new (string Type, object?[] Args, Size Minimum)[]
+        Type paletteType = assembly.GetType("OpenScct.Launcher.App.ThemePalette", true)!;
+        object editorPalette = paletteType.GetProperty("Editor")!.GetValue(null)!;
+        var dialogs = new (string Type, object?[] Args, Size Minimum, bool Editor)[]
         {
-            ("SettingsForm", [new LauncherSettings(), fixture.Layout], new Size(460, 360)),
-            ("MapsForm", [http, fixture.Layout.Packs], new Size(620, 460)),
-            ("HelpForm", [context, null, null], new Size(480, 420)),
+            ("SettingsForm", [new LauncherSettings(), fixture.Layout, null], new Size(460, 360), false),
+            ("MapsForm", [http, fixture.Layout.Packs, null, null], new Size(620, 460), false),
+            ("HelpForm", [context, null, null, null, null], new Size(480, 420), false),
+            ("SettingsForm", [new LauncherSettings { SelectedProduct = "Editor", EditorIncludePrereleases = true }, fixture.Layout, editorPalette], new Size(460, 360), true),
+            ("MapsForm", [http, fixture.Layout.Packs, editorPalette, (Func<bool>)(() => true)], new Size(620, 460), true),
+            ("HelpForm", [context, (Func<string, bool>)(_ => false), (Action<string>)(_ => { }), editorPalette, EditorVersion.ToString()], new Size(480, 420), true),
         };
         foreach (var dialog in dialogs)
         {
@@ -280,7 +375,7 @@ internal static class Program
             if (scale != 1f) ScaleForPreview(form, fixture, scale);
             form.MinimumSize = Size.Empty;
             form.ClientSize = new Size((int)(dialog.Minimum.Width * scale), (int)(dialog.Minimum.Height * scale));
-            string label = $"{dialog.Type}-minimum-{scale * 100:0}";
+            string label = $"{(dialog.Editor ? "editor-" : "")}{dialog.Type}-minimum-{scale * 100:0}";
             Control[] controls = form.Controls.Cast<Control>().ToArray();
             using var host = new PreviewForm
             {
@@ -303,6 +398,7 @@ internal static class Program
             Save(host, output, label);
             Inspect(() =>
             {
+                if (dialog.Editor) Check(host.BackColor == Color.FromArgb(19, 21, 27), label + " dialog uses editor palette");
                 Check(host.SelectNextControl(null, true, true, true, false), label + " keyboard traversal enters controls");
                 foreach (Button button in Walk(host).OfType<Button>().Where(c => c.Visible))
                 {
@@ -313,9 +409,28 @@ internal static class Program
                         scrolling |= parent is ScrollableControl { AutoScroll: true };
                     if (!scrolling) Check(IsInClient(host, button), label + " fixed action is visible: " + button.Text);
                 }
+                if (dialog.Editor && dialog.Type == "MapsForm")
+                {
+                    type.GetMethod("RemoveSelected", Hidden)!.Invoke(form, null);
+                    Check(Walk(host).OfType<Label>().Any(c => c.Text.Contains("Close OpenSCCT Editor", StringComparison.Ordinal)), label + " shared-content changes are guarded");
+                }
+                if (dialog.Editor && dialog.Type == "HelpForm")
+                {
+                    Button report = Walk(host).OfType<Button>().Single(c => c.Name == "BugReport");
+                    typeof(Button).GetMethod("OnClick", Hidden)!.Invoke(report, [EventArgs.Empty]);
+                    Check(Walk(host).OfType<TextBox>().Single(c => c.Name == "SelectedLink").Text.StartsWith("https://github.com/Lumbridge/OpenSCCT-Editor/issues/new", StringComparison.Ordinal), label + " editor reports route to editor repository");
+                    Check(Walk(host).OfType<TextBox>().Single(c => c.Name == "ReportDetails").Text.Contains("Editor version: " + EditorVersion, StringComparison.Ordinal), label + " report details include editor version");
+                }
             });
             foreach (Control control in controls) form.Controls.Add(control);
             host.Hide();
+            if (dialog.Editor && dialog.Type == "SettingsForm")
+            {
+                type.GetMethod("Save", Hidden)!.Invoke(form, null);
+                var saved = (LauncherSettings)type.GetProperty("Result")!.GetValue(form)!;
+                Inspect(() => Check(saved.SelectedProduct == "Editor" && saved.EditorIncludePrereleases && !saved.IncludePrereleases,
+                    label + " saving preserves product and independent editor preview preference"));
+            }
         }
     }
     private static void ScaleForPreview(Form form, Fixture fixture, float scale)
@@ -331,6 +446,89 @@ internal static class Program
             fixture.Fonts.Add(font);
             item.Control.Font = font;
         }
+    }
+
+    private static void LifecycleChecks()
+    {
+        foreach (bool applying in new[] { false, true })
+        {
+            Inspect(() =>
+            {
+                var scenario = new Scenario("editor-ready", true, true, "Open Editor");
+                using var fixture = new Fixture(scenario);
+                using Form form = Create(fixture, scenario);
+                var finish = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+                CancellationToken operationToken = default;
+                Func<CancellationToken, Task> operation = async cancel =>
+                {
+                    operationToken = cancel;
+                    await finish.Task;
+                    cancel.ThrowIfCancellationRequested();
+                };
+                Task work = (Task)MainType.GetMethod("RunAsync", Hidden)!.Invoke(form, [operation])!;
+                Set(form, "_operationCanCancel", !applying);
+                var closing = new FormClosingEventArgs(CloseReason.UserClosing, false);
+                Call(form, "OnFormClosing", closing);
+                Check(closing.Cancel && !form.IsDisposed && !work.IsCompleted, "Launcher waits for active " + (applying ? "apply" : "download") + " before closing");
+                Check(operationToken.IsCancellationRequested == !applying, "Launcher only cancels a cancellable phase on close");
+                finish.SetResult();
+                PumpUntil(work);
+                Check(form.IsDisposed, "Launcher closes after active operation has settled");
+            });
+        }
+
+        Inspect(() =>
+        {
+            using var fixture = new Fixture(new Scenario("ready", true, true, "PLAY"));
+            using var http = new HttpClient(new NoNetworkHandler());
+            Type type = MainType.Assembly.GetType("OpenScct.Launcher.App.MapsForm", true)!;
+            using Form form = (Form)Activator.CreateInstance(type, BindingFlags.Public | Hidden, null,
+                new object?[] { http, fixture.Layout.Packs, null, null }, null)!;
+            _ = form.Handle;
+            var finish = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+            CancellationToken operationToken = default;
+            Func<CancellationToken, Task> operation = async cancel =>
+            {
+                operationToken = cancel;
+                await finish.Task;
+                cancel.ThrowIfCancellationRequested();
+            };
+            Task work = (Task)type.GetMethod("RunAsync", Hidden)!.Invoke(form, ["Fixture content operation", operation])!;
+            var closing = new FormClosingEventArgs(CloseReason.UserClosing, false);
+            type.GetMethod("OnFormClosing", Hidden)!.Invoke(form, [closing]);
+            Check(closing.Cancel && !form.IsDisposed && !work.IsCompleted, "Maps keeps its modal owner blocked until content cleanup finishes");
+            Check(operationToken.IsCancellationRequested, "Maps asks content operation to cancel before closing");
+            finish.SetResult();
+            PumpUntil(work);
+            Check(form.IsDisposed, "Maps closes only after content operation settles");
+        });
+
+        Inspect(() =>
+        {
+            using var fixture = new Fixture(new Scenario("editor-ready", true, true, "Open Editor"));
+            new LauncherSettings { SelectedProduct = "Editor", CheckOnStart = false }.Save(fixture.Layout.Settings);
+            using Form form = (Form)Activator.CreateInstance(MainType, Hidden, null,
+                new object?[] { fixture.Layout, null, null, fixture.LauncherPath }, null)!;
+            _ = form.Handle;
+            Call(form, "OnShown", EventArgs.Empty);
+            Check(Field<bool>(form, "_editorSelected") && Field<bool>(form, "_webJoinReady"), "Actual startup restores Editor and enables Join handling");
+            Check(Field<object?>(form, "_work") is null && Field<EditorCheck?>(form, "_editorCheck") is null, "CheckOnStart=false leaves startup offline");
+            Call(form, "SelectProduct", false);
+            Call(form, "SelectProduct", true);
+            Check(Field<object?>(form, "_work") is null && Field<EditorCheck?>(form, "_editorCheck") is null, "Changing tabs respects disabled automatic checks");
+        });
+    }
+
+    private static void PumpUntil(Task task)
+    {
+        var watch = System.Diagnostics.Stopwatch.StartNew();
+        while (!task.IsCompleted && watch.Elapsed < TimeSpan.FromSeconds(5))
+        {
+            Application.DoEvents();
+            Thread.Sleep(1);
+        }
+        Check(task.IsCompleted, "Fixture operation completed within five seconds");
+        task.GetAwaiter().GetResult();
     }
     private static void Settle(Control root)
     {
@@ -358,7 +556,7 @@ internal static class Program
     }
     private static T Field<T>(Form form, string name) => (T)MainType.GetField(name, Hidden)!.GetValue(form)!;
     private static void Set(Form form, string name, object? value) => MainType.GetField(name, Hidden)!.SetValue(form, value);
-    private static void Call(Form form, string name, params object?[] args) => MainType.GetMethod(name, Hidden)!.Invoke(form, args);
+    private static void Call(Form form, string name, params object?[] args) => MainType.GetMethod(name, Hidden | BindingFlags.Public)!.Invoke(form, args);
     private static void SetStatus(Form form, string text, Color color) => Call(form, "SetStatus", text, color, null);
     private static IEnumerable<Control> Walk(Control root)
     {
@@ -392,7 +590,10 @@ internal static class Program
             return Task.FromException<HttpResponseMessage>(new HttpRequestException("Layout smoke must not request HTTP resources."));
         }
     }
-    private sealed record Scenario(string Name, bool Game, bool Content, string Button);
+    private sealed record Scenario(string Name, bool Game, bool Content, string Button)
+    {
+        public bool Editor => Name.StartsWith("editor-", StringComparison.Ordinal);
+    }
     private sealed class Fixture : IDisposable
     {
         private readonly string _root = Path.Combine(Path.GetTempPath(), "openscct-launcher-smoke-" + Guid.NewGuid().ToString("N"));
@@ -407,12 +608,13 @@ internal static class Program
             Directory.CreateDirectory(_root);
             LauncherPath = Path.Combine(_root, "OpenSCCT.Launcher.exe");
             File.WriteAllText(LauncherPath, "fixture; never executed");
-            if (scenario.Name == "launcher-restart") File.WriteAllText(LauncherPath + ".new", "fixture; never executed");
+            if (scenario.Name is "launcher-restart" or "editor-launcher-restart") File.WriteAllText(LauncherPath + ".new", "fixture; never executed");
             if (scenario.Game)
             {
-                Directory.CreateDirectory(Layout.VersionDir(InstalledVersion.ToString()));
-                File.WriteAllText(Path.Combine(Layout.VersionDir(InstalledVersion.ToString()), VersionStore.GameExe), "fixture; never executed");
-                var manifest = new InstallManifest { Current = InstalledVersion.ToString() };
+                SemVersion gameVersion = GameVersionFor(scenario);
+                Directory.CreateDirectory(Layout.VersionDir(gameVersion.ToString()));
+                File.WriteAllText(Path.Combine(Layout.VersionDir(gameVersion.ToString()), VersionStore.GameExe), "fixture; never executed");
+                var manifest = new InstallManifest { Current = gameVersion.ToString() };
                 if (scenario.Name == "pending-game")
                 {
                     Directory.CreateDirectory(Layout.VersionDir(LatestVersion.ToString()));
@@ -430,6 +632,33 @@ internal static class Program
                 foreach (string map in new[] { "AquaE", "ClubE", "BankE" })
                     packs.Add(new InstalledContent { Id = "stock/" + map, Code = map, Version = "1", Sha256 = "installed-" + map });
                 File.WriteAllText(Path.Combine(Layout.Packs, "installed.json"), JsonSerializer.Serialize(packs, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+                if (scenario.Editor)
+                {
+                    Directory.CreateDirectory(Path.Combine(Layout.Packs, "shared"));
+                    File.WriteAllText(Path.Combine(Layout.Packs, "shared", "classes.json"), "{}");
+                    Directory.CreateDirectory(Path.Combine(Layout.Packs, "svmap", "AquaE"));
+                    File.WriteAllText(Path.Combine(Layout.Packs, "svmap", "AquaE", "manifest.json"), "{}");
+                }
+            }
+            if (scenario.Editor && scenario.Name != "editor-absent")
+            {
+                Directory.CreateDirectory(Path.Combine(Layout.Editor, "ose"));
+                File.WriteAllText(Path.Combine(Layout.Editor, EditorService.ExeName), "fixture; never executed");
+                File.WriteAllText(Path.Combine(Layout.Editor, "ose", "ose.exe"), "fixture; never executed");
+                File.WriteAllText(Path.Combine(Layout.Editor, ".launcher-managed"), "1");
+                File.WriteAllText(Path.Combine(Layout.Editor, "version.json"), JsonSerializer.Serialize(new
+                {
+                    format = 1, product = "OpenSCCT Editor", version = EditorVersion.ToString(), platform = "win-x64",
+                    launcherProtocol = 1, minimumGameVersion = EditorGameVersion.ToString(),
+                    entries = new[] { EditorService.ExeName, "ose", "version.json" },
+                    files = new[] { new { path = EditorService.ExeName, size = 23, sha256 = new string('0', 64) } },
+                }));
+                if (scenario.Name == "editor-recovery")
+                {
+                    Directory.CreateDirectory(Path.Combine(Layout.Editor, ".update"));
+                    File.WriteAllText(Path.Combine(Layout.Editor, ".update", "journal.json"), "{}");
+                    File.Delete(Path.Combine(Layout.Editor, EditorService.ExeName));
+                }
             }
         }
 
