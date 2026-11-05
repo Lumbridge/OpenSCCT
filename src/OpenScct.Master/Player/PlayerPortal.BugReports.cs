@@ -167,8 +167,10 @@ internal sealed partial class PlayerPortal
             {
                 form = await c.Request.ReadFormAsync(new FormOptions
                 {
-                    ValueCountLimit = 16, KeyLengthLimit = 40, ValueLengthLimit = ReportScreenshot.MaximumText,
-                    BufferBody = true, BufferBodyLengthLimit = ReportBodyLimit,
+                    // The parser limits the encoded field; PNG/base64 and text limits still apply after decoding.
+                    ValueCountLimit = 16, KeyLengthLimit = 40, ValueLengthLimit = ReportBodyLimit,
+                    // Supported forms must stay in memory: the deployed service cannot write to system temp.
+                    BufferBody = true, BufferBodyLengthLimit = ReportBodyLimit, MemoryBufferThreshold = ReportBodyLimit,
                 }, c.RequestAborted).ConfigureAwait(false);
             }
             catch (Exception error) when (error is InvalidDataException or IOException or BadHttpRequestException)

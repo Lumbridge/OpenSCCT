@@ -110,6 +110,7 @@ public sealed partial class BugReportTests
         public HttpClient Http { get; private set; } = null!;
         public string Csrf { get; private set; } = "";
         public string Session { get; private set; } = "";
+        public bool LastReportBodyUsedTemporaryFile { get; private set; }
         public int DiscordRequests;
 
         public Website() => _github = new HttpClient(GitHub);
@@ -120,6 +121,16 @@ public sealed partial class BugReportTests
             builder.WebHost.UseUrls("http://127.0.0.1:0");
             builder.Logging.ClearProviders();
             _app = builder.Build();
+            _app.Use((context, next) =>
+            {
+                context.Response.OnStarting(() =>
+                {
+                    if (context.Request.Path.StartsWithSegments("/help/report-bug"))
+                        LastReportBodyUsedTemporaryFile = context.Request.Body is FileBufferingReadStream { TempFileName: not null };
+                    return Task.CompletedTask;
+                });
+                return next(context);
+            });
             var portal = new PlayerPortal(Ledger.Options, Ledger.Store, new ServerRegistry(Ledger.Options, Ledger.Time), _ => IPAddress.Loopback,
                 new ReleaseChangelog(_releases), new GitHubBugReports(Ledger.Options, Ledger.Store, _github));
             portal.Map(_app);
@@ -561,7 +572,7 @@ public sealed partial class BugReportTests
         await using var website = new Website();
         await website.Start();
         website.SignIn();
-        using var content = new ChunkedForm("csrf=" + website.Csrf + "&steps=" + new string('x', 140 * 1024));
+        using var content = new ChunkedForm("csrf=" + website.Csrf + "&steps=" + new string('x', 4 * 1024 * 1024 + 1));
         content.Headers.ContentType = new("application/x-www-form-urlencoded");
         using HttpResponseMessage response = await website.Http.PostAsync("/help/report-bug/review", content, TestContext.Current.CancellationToken);
         Assert.True(response.StatusCode is HttpStatusCode.BadRequest or HttpStatusCode.RequestEntityTooLarge,
