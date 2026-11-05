@@ -41,7 +41,7 @@ internal sealed partial class PlayerPortal
             .Append(Link("/servers", "Servers", "button secondary"))
             .Append("</div><p class=\"hero-note\">Windows &amp; Linux · No original game required</p><p class=\"hero-guide\">")
             .Append(Link("/wiki/getting-started", "Getting started", "text-link")).Append("</p></div>")
-            .Append($"<figure class=\"community-hero-scene\"><img src=\"{H(AssetUrl("/web/assets/showcase-replays.png"))}\" alt=\"A mercenary replay on Aquarius, beside the aquarium, with playback controls visible\" width=\"1920\" height=\"1080\" fetchpriority=\"high\"><figcaption><span>GAMEPLAY REPLAY · AQUARIUS</span>First-person replay with playback controls.</figcaption></figure></section>")
+            .Append(HomeShowcase()).Append("</section>")
             .Append("<div data-live=\"home-stats\"><div class=\"stats-grid\">")
             .Append(Stat("Players online", N(servers.Sum(s => s.Players)), "In the games and hubs listed here"))
             .Append(Stat("Games and hubs", N(servers.Count), "Currently online"))

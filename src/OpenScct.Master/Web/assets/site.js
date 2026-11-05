@@ -1,3 +1,109 @@
+// The home feature gallery also scrolls natively when JavaScript is unavailable.
+(function () {
+  "use strict";
+  var carousel = document.querySelector("[data-home-showcase]");
+  if (!carousel) return;
+
+  var track = carousel.querySelector(".hero-carousel-track");
+  var slides = Array.from(track.children);
+  var controls = carousel.querySelector(".hero-carousel-controls");
+  var rotation = controls.querySelector("[data-rotation]");
+  var count = controls.querySelector("[data-slide-count]");
+  var announcement = carousel.querySelector("[role='status']");
+  var motion = window.matchMedia("(prefers-reduced-motion: reduce)");
+  var playing = !motion.matches && !carousel.contains(document.activeElement);
+  var hovering = carousel.matches(":hover");
+  var visible = false;
+  var index = 0;
+  var target = 0;
+  var playingOnPress;
+  var timer;
+  var settle;
+
+  function update() {
+    count.textContent = (index + 1) + " / " + slides.length;
+    slides.forEach(function (slide, position) {
+      slide.inert = position !== index;
+    });
+  }
+
+  function move(position) {
+    var next = (position + slides.length) % slides.length;
+    var wraps = Math.abs(next - index) > 1;
+    target = next;
+    track.scrollTo({ left: slides[next].offsetLeft - slides[0].offsetLeft,
+      behavior: motion.matches || wraps ? "instant" : "smooth" });
+  }
+
+  function schedule() {
+    window.clearTimeout(timer);
+    if (playing && !hovering && visible && !document.hidden) {
+      timer = window.setTimeout(function () {
+        move(index + 1);
+        schedule();
+      }, 7000);
+    }
+  }
+
+  function setPlaying(value) {
+    playing = value;
+    rotation.textContent = playing ? "Pause" : "Play";
+    rotation.setAttribute("aria-label", playing ? "Pause feature rotation" : "Play feature rotation");
+    announcement.setAttribute("aria-live", playing ? "off" : "polite");
+    schedule();
+  }
+
+  function select(position) {
+    setPlaying(false);
+    move(position);
+  }
+
+  track.addEventListener("scroll", function () {
+    window.clearTimeout(settle);
+    settle = window.setTimeout(function () {
+      var next = Math.max(0, Math.min(slides.length - 1, Math.round(track.scrollLeft / track.clientWidth)));
+      target = next;
+      if (next === index) return;
+      index = next;
+      update();
+      if (!playing) announcement.textContent = "Feature " + (index + 1) + " of " + slides.length +
+        ". " + slides[index].querySelector("figcaption span").textContent;
+    }, 120);
+  }, { passive: true });
+
+  controls.querySelectorAll("[data-step]").forEach(function (button) {
+    button.addEventListener("click", function () { select(target + Number(button.dataset.step)); });
+  });
+  track.addEventListener("keydown", function (event) {
+    var destination = { ArrowLeft: target - 1, ArrowRight: target + 1, Home: 0, End: slides.length - 1 };
+    if (!Object.prototype.hasOwnProperty.call(destination, event.key)) return;
+    event.preventDefault();
+    select(destination[event.key]);
+  });
+  track.addEventListener("pointerdown", function () { setPlaying(false); });
+  carousel.addEventListener("focusin", function (event) {
+    if (!carousel.contains(event.relatedTarget)) setPlaying(false);
+  });
+  carousel.addEventListener("pointerenter", function () { hovering = true; schedule(); });
+  carousel.addEventListener("pointerleave", function () { hovering = false; schedule(); });
+  rotation.addEventListener("pointerdown", function () { playingOnPress = playing; });
+  rotation.addEventListener("click", function (event) {
+    setPlaying(!(event.detail && playingOnPress !== undefined ? playingOnPress : playing));
+    playingOnPress = undefined;
+  });
+  document.addEventListener("visibilitychange", schedule);
+  motion.addEventListener("change", function () { if (motion.matches) setPlaying(false); });
+  new IntersectionObserver(function (entries) {
+    visible = entries[0].intersectionRatio >= 0.5;
+    schedule();
+  }, { threshold: 0.5 }).observe(carousel);
+
+  update();
+  setPlaying(playing);
+  carousel.classList.add("carousel-ready");
+  controls.hidden = false;
+})();
+
 // Open setup instructions when following a download card or a shared setup link.
 (function () {
   "use strict";

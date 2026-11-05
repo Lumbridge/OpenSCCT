@@ -64,3 +64,34 @@ SHA-256: 43A0C1E556EE1E67241456E81951CD18C7167BE8BDCBF00CDE973C2EAC5656A0
 
 Image count: 7
 Total image size: 9131189 bytes
+
+Homepage carousel additions: 2026-11-05
+
+The WebP files are compressed from real game and editor screenshots at their
+original dimensions. The game captures use OpenSCCT 0.8.98 and an isolated,
+signed-out profile. The scoreboard and cloak were captured in the same
+Aquarius match against three bots.
+
+Asset: showcase-scoreboard.webp
+Source: local/captures/scoreboard.png
+
+Asset: showcase-cloak.webp
+Source: local/captures/cloak.png
+
+Asset: showcase-challenges.webp
+Source: local/captures/challenges.png
+
+Asset: showcase-unlockables.webp
+Source: local/captures/unlockables.png
+
+Asset: showcase-editor.webp
+Source: local/captures/editor/001-startup.png
+Editor: OpenSCCT Editor 0.1.3, Enhanced Aquarius (AquaE) SVMap import, four-viewport view.
+
+Asset: showcase-bots.webp
+Source: local/fixsim12/shots8/editor-play-team-2/play-team-Spy-046.8-coop--the-bot-below-climbs-the-player-s-legs-onto-the-top-ok.png
+The co-op gameplay smoke captured the bot climbing onto a ledge with the player.
+
+Asset: showcase-rendering.webp
+Source: local/renderer-perf/baseline-images/ClubS/far-0.png
+Faithful rendering capture on Club House.
