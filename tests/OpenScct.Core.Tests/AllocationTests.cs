@@ -43,43 +43,59 @@ public sealed class AllocationTests
     }
 
     [Fact]
+    public void IsolatedAllocationMeasurementStillDetectsApplicationAllocations()
+    {
+        long bytes = 0;
+        OpenScct.Testing.AllocationProbe.Run(() =>
+        {
+            long before = GC.GetAllocatedBytesForCurrentThread();
+            GC.KeepAlive(new byte[256]);
+            bytes = GC.GetAllocatedBytesForCurrentThread() - before;
+        });
+        Assert.True(bytes >= 256);
+    }
+
+    [Fact]
     public void SteadyStateTickDoesNotAllocate()
     {
-        var world = new World(7);
-        var physics = new NoAllocPhysics();
-        world.Level.PhysicsDriver = physics;
-        Name[] tags = [new("GroupA"), new("GroupB"), new("GroupC")];
-        var actors = new BusyActor[1000];
-        for (int i = 0; i < actors.Length; i++)
+        OpenScct.Testing.AllocationProbe.Run(() =>
         {
-            BusyActor a = world.Level.Spawn<BusyActor>()!;
-            a.Tag = tags[i % 3];
-            a.FireTag = tags[(i + 1) % 3];
-            a.SetTimer(0.05f + (i % 10) * 0.01f, true);
-            a.Physics = i % 2 == 0 ? EPhysics.PHYS_Walking : EPhysics.PHYS_None;
-            if (i % 3 == 0)
+            var world = new World(7);
+            var physics = new NoAllocPhysics();
+            world.Level.PhysicsDriver = physics;
+            Name[] tags = [new("GroupA"), new("GroupB"), new("GroupC")];
+            var actors = new BusyActor[1000];
+            for (int i = 0; i < actors.Length; i++)
             {
-                a.GotoState("Waiting"); // WaitForLanding then Sleep loops, then back to Idle
+                BusyActor a = world.Level.Spawn<BusyActor>()!;
+                a.Tag = tags[i % 3];
+                a.FireTag = tags[(i + 1) % 3];
+                a.SetTimer(0.05f + (i % 10) * 0.01f, true);
+                a.Physics = i % 2 == 0 ? EPhysics.PHYS_Walking : EPhysics.PHYS_None;
+                if (i % 3 == 0)
+                {
+                    a.GotoState("Waiting"); // WaitForLanding then Sleep loops, then back to Idle
+                }
+
+                actors[i] = a;
             }
 
-            actors[i] = a;
-        }
+            // Base some actors on a later one so the deferred (base first) pass runs every tick.
+            for (int i = 0; i + 1 < actors.Length; i += 5)
+            {
+                actors[i].SetBase(actors[i + 1], bNotifyActor: false);
+            }
 
-        // Base some actors on a later one so the deferred (base first) pass runs every tick.
-        for (int i = 0; i + 1 < actors.Length; i += 5)
-        {
-            actors[i].SetBase(actors[i + 1], bNotifyActor: false);
-        }
+            // Warm up: grow every internal buffer and JIT every path.
+            world.Step(120);
 
-        // Warm up: grow every internal buffer and JIT every path.
-        world.Step(120);
+            long before = GC.GetAllocatedBytesForCurrentThread();
+            world.Step(240);
+            long allocated = GC.GetAllocatedBytesForCurrentThread() - before;
 
-        long before = GC.GetAllocatedBytesForCurrentThread();
-        world.Step(240);
-        long allocated = GC.GetAllocatedBytesForCurrentThread() - before;
-
-        Assert.Equal(0, allocated);
-        Assert.True(physics.Calls > 0);
-        Assert.True(world.Events.Count > 0);
+            Assert.Equal(0, allocated);
+            Assert.True(physics.Calls > 0);
+            Assert.True(world.Events.Count > 0);
+        });
     }
 }

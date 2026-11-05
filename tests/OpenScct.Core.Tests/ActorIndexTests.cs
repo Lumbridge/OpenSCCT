@@ -108,35 +108,38 @@ public sealed class ActorIndexTests(ITestOutputHelper output)
     [Fact]
     public void WarmQueriesAllocateNothingAndReportIndexedVersusFullScanCost()
     {
-        var world = new World(6);
-        Level level = world.Level;
-        level.BeginLoad();
-        for (int i = 0; i < 10000; i++) level.SpawnActor(new StaticActor(), default, default);
-        for (int i = 0; i < 16; i++) level.Spawn<TestPawn>();
-        level.EndLoad();
-        List<Actor> all = (List<Actor>)level.Actors;
-        long Scan(bool indexed, int iterations)
+        OpenScct.Testing.AllocationProbe.Run(() =>
         {
-            long checksum = 0;
-            for (int i = 0; i < iterations; i++)
-                foreach (Pawn pawn in indexed ? level.DynamicActors<Pawn>() : new ActorIterator<Pawn>(all, Name.None, true))
-                    checksum += pawn.ActorId;
-            return checksum;
-        }
+            var world = new World(6);
+            Level level = world.Level;
+            level.BeginLoad();
+            for (int i = 0; i < 10000; i++) level.SpawnActor(new StaticActor(), default, default);
+            for (int i = 0; i < 16; i++) level.Spawn<TestPawn>();
+            level.EndLoad();
+            List<Actor> all = (List<Actor>)level.Actors;
+            long Scan(bool indexed, int iterations)
+            {
+                long checksum = 0;
+                for (int i = 0; i < iterations; i++)
+                    foreach (Pawn pawn in indexed ? level.DynamicActors<Pawn>() : new ActorIterator<Pawn>(all, Name.None, true))
+                        checksum += pawn.ActorId;
+                return checksum;
+            }
 
-        Scan(false, 100);
-        Scan(true, 100);
-        const int repeats = 2000;
-        long allocated = GC.GetAllocatedBytesForCurrentThread();
-        long start = Stopwatch.GetTimestamp();
-        long indexed = Scan(true, repeats);
-        double indexedMs = Stopwatch.GetElapsedTime(start).TotalMilliseconds;
-        long bytes = GC.GetAllocatedBytesForCurrentThread() - allocated;
-        start = Stopwatch.GetTimestamp();
-        long full = Scan(false, repeats);
-        double fullMs = Stopwatch.GetElapsedTime(start).TotalMilliseconds;
-        Assert.Equal(full, indexed);
-        Assert.Equal(0, bytes);
-        output.WriteLine($"{repeats} pawn queries / {level.ActorCount} actors: full scan {fullMs:F3} ms, indexed {indexedMs:F3} ms; indexed allocation {bytes} B. Synthetic query cost, not game FPS.");
+            Scan(false, 100);
+            Scan(true, 100);
+            const int repeats = 2000;
+            long allocated = GC.GetAllocatedBytesForCurrentThread();
+            long start = Stopwatch.GetTimestamp();
+            long indexed = Scan(true, repeats);
+            double indexedMs = Stopwatch.GetElapsedTime(start).TotalMilliseconds;
+            long bytes = GC.GetAllocatedBytesForCurrentThread() - allocated;
+            start = Stopwatch.GetTimestamp();
+            long full = Scan(false, repeats);
+            double fullMs = Stopwatch.GetElapsedTime(start).TotalMilliseconds;
+            Assert.Equal(full, indexed);
+            Assert.Equal(0, bytes);
+            output.WriteLine($"{repeats} pawn queries / {level.ActorCount} actors: full scan {fullMs:F3} ms, indexed {indexedMs:F3} ms; indexed allocation {bytes} B. Synthetic query cost, not game FPS.");
+        });
     }
 }

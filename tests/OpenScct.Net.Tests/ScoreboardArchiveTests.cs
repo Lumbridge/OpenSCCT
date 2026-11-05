@@ -10,17 +10,135 @@ namespace OpenScct.Net.Tests;
 
 public sealed class ScoreboardArchiveTests : IDisposable
 {
+    [Fact]
+    public void WireOmitsVersionOneZeroCountersWithoutChangingTheirMeaning()
+    {
+        var stats = new Dictionary<string, int> { ["combat.enemy_kills"] = 0, ["spy.objectives"] = 3 };
+        var board = new RoundScoreboard
+        {
+            RoundId = Guid.NewGuid().ToString("N"),
+            Rows = [new() { ParticipantId = 1, Team = 0, Stats = stats }],
+        };
+        var receiver = new ScoreboardWire.Receiver();
+        RoundScoreboard? received = null;
+        foreach (string line in ScoreboardWire.Encode(board, 1))
+        {
+            Assert.True(receiver.Receive(line, out var result, out _, out _));
+            received = result ?? received;
+        }
+        var row = Assert.Single(Assert.IsType<RoundScoreboard>(received).Rows);
+        var decodedStats = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(row.Stats);
+        Assert.Equal(0, decodedStats.GetValueOrDefault("combat.enemy_kills"));
+        Assert.Equal(3, decodedStats["spy.objectives"]);
+        Assert.False(decodedStats.ContainsKey("combat.enemy_kills"));
+        Assert.True(stats.ContainsKey("combat.enemy_kills")); // Encoding never mutates the authoritative snapshot.
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData(0d)]
+    [InlineData(65.25)]
+    public void CompactWirePreservesRefreshDeadlineAndCounterAvailability(double? deadline)
+    {
+        var releasedZero = new Dictionary<string, int> { ["combat.enemy_kills"] = 0 };
+        var activeStats = new Dictionary<string, int> { ["combat.enemy_kills"] = 0, ["spy.objectives"] = 3 };
+        var legacyStats = new Dictionary<string, int> { ["combat.enemy_kills"] = 0, ["spy.objectives"] = 2 };
+        var board = new RoundScoreboard
+        {
+            RoundId = Guid.NewGuid().ToString("N"), ElapsedSeconds = 40, AsOfSeconds = 10,
+            NextCombatUpdateSeconds = deadline,
+            Rows =
+            [
+                new() { ParticipantId = 1, Name = "Pending", Stats = null },
+                new() { ParticipantId = 2, Name = "Released zero", Stats = releasedZero },
+                new()
+                {
+                    ParticipantId = 3, Name = "Active", Team = 1, Score = 7, Kills = 2, Deaths = 3,
+                    Lives = -1, Objectives = 4, Rank = 5, PingMs = 42, Bot = true, LeftEarly = true,
+                    Stats = activeStats,
+                },
+                new() { ParticipantId = 4, Name = "Legacy", StatsVersion = 0, Stats = legacyStats },
+                new() { ParticipantId = 5, Name = "Released empty", Stats = new Dictionary<string, int>() },
+            ],
+        };
+        var receiver = new ScoreboardWire.Receiver();
+        RoundScoreboard? received = null;
+        foreach (string line in ScoreboardWire.Encode(board, 3, historical: true))
+        {
+            Assert.True(receiver.Receive(line, out var result, out int local, out bool historical));
+            if (result is null) continue;
+            received = result;
+            Assert.Equal(3, local);
+            Assert.True(historical);
+        }
+        var decoded = Assert.IsType<RoundScoreboard>(received);
+        Assert.Equal(board with { Rows = null! }, decoded with { Rows = null! });
+        Assert.Equal(deadline, decoded.NextCombatUpdateSeconds);
+        Assert.Equal(board.ElapsedSeconds, decoded.ElapsedSeconds);
+        Assert.Equal(board.AsOfSeconds, decoded.AsOfSeconds);
+        Assert.Equal(board.Rows.Count, decoded.Rows.Count);
+        for (int i = 0; i < board.Rows.Count; i++)
+            Assert.Equal(board.Rows[i] with { Stats = null }, decoded.Rows[i] with { Stats = null });
+        Assert.Null(decoded.Rows[0].Stats); // An unreleased sample must remain distinct from a released zero sample.
+        Assert.Empty(Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(decoded.Rows[1].Stats));
+        var active = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(decoded.Rows[2].Stats);
+        Assert.Equal(3, active["spy.objectives"]);
+        Assert.False(active.ContainsKey("combat.enemy_kills"));
+        var legacy = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(decoded.Rows[3].Stats);
+        Assert.Equal(0, legacy["combat.enemy_kills"]); // Version zero cannot use version one's absent-counter semantics.
+        Assert.Equal(2, legacy["spy.objectives"]);
+        Assert.Empty(Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(decoded.Rows[4].Stats));
+        Assert.Equal(0, releasedZero["combat.enemy_kills"]);
+        Assert.Equal(0, activeStats["combat.enemy_kills"]);
+        Assert.Equal(2, activeStats.Count);
+        Assert.Equal(2, legacyStats.Count);
+    }
+
+    [Theory]
+    [InlineData(0, 0)]
+    [InlineData(1, 1)]
+    [InlineData(255, 255)]
+    public void CompactWirePreservesExplicitResultsAndNonDefaultBoardValues(int winner, int reason)
+    {
+        var board = new RoundScoreboard
+        {
+            RoundId = Guid.NewGuid().ToString("N"), Sequence = 17, Mode = 5, ElapsedSeconds = 40,
+            AsOfSeconds = 0, NextCombatUpdateSeconds = 0, Completed = winner != 255, Practice = true,
+            Partial = winner == 255, Winner = winner, Reason = reason, ObjectivesTaken = 3, ObjectivesNeeded = 4,
+            Rows = [new() { ParticipantId = 1, Name = "Agent", StatsVersion = 0 }],
+        };
+        var receiver = new ScoreboardWire.Receiver();
+        RoundScoreboard? received = null;
+        foreach (string line in ScoreboardWire.Encode(board, 1))
+        {
+            Assert.True(receiver.Receive(line, out var result, out _, out _));
+            received = result ?? received;
+        }
+        var decoded = Assert.IsType<RoundScoreboard>(received);
+        Assert.Equal(board with { Rows = null! }, decoded with { Rows = null! });
+        Assert.Equal(board.Rows[0], Assert.Single(decoded.Rows));
+    }
+
     private readonly string _directory = Path.Combine(Path.GetTempPath(), "openscct-scoreboard-archive-" + Guid.NewGuid().ToString("N"));
     private ScoreboardArchive Archive => new(_directory);
 
     private static ArchivedScoreboard Entry(bool completed = false) => new()
     {
-        PlayedLocally = true, LocalParticipantId = 7, LeftEarly = !completed, Master = "https://master.test/", AccountId = 17,
+        PlayedLocally = true,
+        LocalParticipantId = 7,
+        LeftEarly = !completed,
+        Master = "https://master.test/",
+        AccountId = 17,
         Scoreboard = new RoundScoreboard
         {
-            RoundId = Guid.NewGuid().ToString("N"), StartedUtc = DateTimeOffset.UtcNow.AddSeconds(-90),
-            EndedUtc = DateTimeOffset.UtcNow, ElapsedSeconds = 90, AsOfSeconds = completed ? 90 : 60,
-            Completed = completed, Partial = !completed, Sequence = 3,
+            RoundId = Guid.NewGuid().ToString("N"),
+            StartedUtc = DateTimeOffset.UtcNow.AddSeconds(-90),
+            EndedUtc = DateTimeOffset.UtcNow,
+            ElapsedSeconds = 90,
+            AsOfSeconds = completed ? 90 : 60,
+            Completed = completed,
+            Partial = !completed,
+            Sequence = 3,
             Rows = [new() { ParticipantId = 7, Name = "Agent", Team = 0,
                 Stats = new Dictionary<string, int> { ["spy.neutralisations"] = completed ? 4 : 2 } }],
         },
@@ -34,10 +152,16 @@ public sealed class ScoreboardArchiveTests : IDisposable
         archive.Save(partial);
         var final = partial with
         {
-            PlayedLocally = false, LocalParticipantId = -1, LeftEarly = false,
+            PlayedLocally = false,
+            LocalParticipantId = -1,
+            LeftEarly = false,
             Scoreboard = partial.Scoreboard with
             {
-                Completed = true, Partial = false, MatchId = 10, ElapsedSeconds = 120, AsOfSeconds = 120,
+                Completed = true,
+                Partial = false,
+                MatchId = 10,
+                ElapsedSeconds = 120,
+                AsOfSeconds = 120,
                 Rows = [partial.Scoreboard.Rows[0] with { Stats = new Dictionary<string, int> { ["spy.neutralisations"] = 5 } }],
             },
         };
@@ -62,11 +186,18 @@ public sealed class ScoreboardArchiveTests : IDisposable
         var archive = Archive;
         var final = Entry(completed: true);
         archive.Save(final);
-        archive.Save(final with { Scoreboard = final.Scoreboard with
+        archive.Save(final with
         {
-            Completed = false, Partial = true, Sequence = 999, ElapsedSeconds = 500, AsOfSeconds = 470,
-            Rows = [final.Scoreboard.Rows[0] with { Stats = null }],
-        } });
+            Scoreboard = final.Scoreboard with
+            {
+                Completed = false,
+                Partial = true,
+                Sequence = 999,
+                ElapsedSeconds = 500,
+                AsOfSeconds = 470,
+                Rows = [final.Scoreboard.Rows[0] with { Stats = null }],
+            }
+        });
         var stored = Assert.Single(archive.ReadAll());
         Assert.True(stored.Scoreboard.Completed);
         Assert.Equal(90, stored.Scoreboard.ElapsedSeconds);
@@ -77,11 +208,16 @@ public sealed class ScoreboardArchiveTests : IDisposable
     public void Adding_a_cloud_id_does_not_replace_a_newer_sample_with_older_counters()
     {
         var newer = Entry();
-        var older = newer with { Scoreboard = newer.Scoreboard with
+        var older = newer with
         {
-            MatchId = 3, ElapsedSeconds = 40, AsOfSeconds = 10,
-            Rows = [newer.Scoreboard.Rows[0] with { Stats = null }],
-        } };
+            Scoreboard = newer.Scoreboard with
+            {
+                MatchId = 3,
+                ElapsedSeconds = 40,
+                AsOfSeconds = 10,
+                Rows = [newer.Scoreboard.Rows[0] with { Stats = null }],
+            }
+        };
         var merged = ScoreboardArchive.Merge(newer, older);
         Assert.Equal(90, merged.Scoreboard.ElapsedSeconds);
         Assert.NotNull(merged.Scoreboard.Rows[0].Stats);

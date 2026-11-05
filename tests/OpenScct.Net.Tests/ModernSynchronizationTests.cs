@@ -23,55 +23,61 @@ public sealed class ModernSynchronizationTests
     [Fact]
     public void DecodingKnownAnimationNamesReusesTheirStorage()
     {
-        var expected = new Name("NetParity.Anim_Étage");
-        var writer = new FBitWriter(1024);
-        writer.WriteString("netparity.anim_étage");
-        var reader = new FBitReader(writer.Buffer, writer.NumBits);
-        Assert.Equal(expected, reader.ReadName());
-        // Warm the decoder and the runtime's span-based dictionary lookup before measuring steady state.
-        for (int i = 0; i < 100; i++)
+        OpenScct.Testing.AllocationProbe.Run(() =>
         {
-            reader.SetData(writer.Buffer, 0, writer.NumBits);
+            var expected = new Name("NetParity.Anim_Étage");
+            var writer = new FBitWriter(1024);
+            writer.WriteString("netparity.anim_étage");
+            var reader = new FBitReader(writer.Buffer, writer.NumBits);
             Assert.Equal(expected, reader.ReadName());
-        }
-        long before = System.GC.GetAllocatedBytesForCurrentThread();
-        bool same = true;
-        for (int i = 0; i < 1000; i++)
-        {
-            reader.SetData(writer.Buffer, 0, writer.NumBits);
-            same &= reader.ReadName() == expected;
-        }
-        long allocated = System.GC.GetAllocatedBytesForCurrentThread() - before;
-        Assert.True(same);
-        Assert.Equal(0, allocated);
-        reader.SetData(writer.Buffer, 0, writer.NumBits - 1);
-        Assert.Equal(Name.None, reader.ReadName());
-        Assert.True(reader.IsError);
+            // Warm the decoder and the runtime's span-based dictionary lookup before measuring steady state.
+            for (int i = 0; i < 100; i++)
+            {
+                reader.SetData(writer.Buffer, 0, writer.NumBits);
+                Assert.Equal(expected, reader.ReadName());
+            }
+            long before = System.GC.GetAllocatedBytesForCurrentThread();
+            bool same = true;
+            for (int i = 0; i < 1000; i++)
+            {
+                reader.SetData(writer.Buffer, 0, writer.NumBits);
+                same &= reader.ReadName() == expected;
+            }
+            long allocated = System.GC.GetAllocatedBytesForCurrentThread() - before;
+            Assert.True(same);
+            Assert.Equal(0, allocated);
+            reader.SetData(writer.Buffer, 0, writer.NumBits - 1);
+            Assert.Equal(Name.None, reader.ReadName());
+            Assert.True(reader.IsError);
+        });
     }
 
     [Fact]
     public void TransitBudgetDropsOverflowAndReusesStorageWithoutAllocating()
     {
-        var clock = new VirtualClock();
-        var network = new SimLinkNetwork(clock, 9, SimLinkProfile.A, maxBufferedDatagrams: 2);
-        using var a = network.Bind("a");
-        using var b = network.Bind("b");
-        EndpointId ab = a.Connect("b");
-        b.Connect("a");
-        byte[] buffer = new byte[1500];
-        // Warm the send and receive paths before measuring the bounded storage reuse.
-        a.Send(ab, buffer); Assert.True(b.TryReceive(buffer, out _, out _));
-        long before = System.GC.GetAllocatedBytesForCurrentThread();
-        for (int i = 0; i < 100; i++)
+        OpenScct.Testing.AllocationProbe.Run(() =>
         {
-            a.Send(ab, buffer); a.Send(ab, buffer); a.Send(ab, buffer);
-            b.TryReceive(buffer, out _, out _); b.TryReceive(buffer, out _, out _);
-        }
-        long allocated = System.GC.GetAllocatedBytesForCurrentThread() - before;
-        Assert.Equal(0, allocated);
-        Assert.Equal(100, network.QueueDrops);
-        Assert.Equal(100, network.Lost);
-        Assert.Equal(0, b.InFlightCount);
+            var clock = new VirtualClock();
+            var network = new SimLinkNetwork(clock, 9, SimLinkProfile.A, maxBufferedDatagrams: 2);
+            using var a = network.Bind("a");
+            using var b = network.Bind("b");
+            EndpointId ab = a.Connect("b");
+            b.Connect("a");
+            byte[] buffer = new byte[1500];
+            // Warm the send and receive paths before measuring the bounded storage reuse.
+            a.Send(ab, buffer); Assert.True(b.TryReceive(buffer, out _, out _));
+            long before = System.GC.GetAllocatedBytesForCurrentThread();
+            for (int i = 0; i < 100; i++)
+            {
+                a.Send(ab, buffer); a.Send(ab, buffer); a.Send(ab, buffer);
+                b.TryReceive(buffer, out _, out _); b.TryReceive(buffer, out _, out _);
+            }
+            long allocated = System.GC.GetAllocatedBytesForCurrentThread() - before;
+            Assert.Equal(0, allocated);
+            Assert.Equal(100, network.QueueDrops);
+            Assert.Equal(100, network.Lost);
+            Assert.Equal(0, b.InFlightCount);
+        });
     }
 
     [Fact]
