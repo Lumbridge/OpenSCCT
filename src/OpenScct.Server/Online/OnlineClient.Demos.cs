@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Security.Cryptography;
 using OpenScct.Net;
 
@@ -191,17 +192,21 @@ public sealed partial class OnlineClient
         string hash = Convert.ToHexString(SHA256.HashData(download.File));
         download.Dispose();
         if (!string.Equals(hash, download.Hash, StringComparison.OrdinalIgnoreCase)) throw new InvalidDataException("Demo checksum differs.");
-        string replayPath = System.IO.Path.Combine(Settings.DemoFolder!, "Match-" + download.Id + DemoFile.Extension);
         string path;
         if (download.Training)
         {
+            string replayPath = LastDemoPath ?? throw new InvalidDataException("The demo for this training data is unavailable.");
             TrainingDataFile.Validate(download.Path, DemoFile.ReadInfo(replayPath).Header);
             path = TrainingDataFile.PathForDemo(replayPath);
         }
         else
         {
-            _ = DemoFile.ReadInfo(download.Path); // Require a complete header/index before publishing to the library.
-            path = replayPath;
+            var info = DemoFile.ReadInfo(download.Path); // Require a complete header/index before publishing to the library.
+            // Use the recorded side: the lobby may already have travelled or switched teams for a revenge round.
+            int team = info.Index.Players.Where(player => player.Name == Settings.PlayerName)
+                .Select(player => (int?)player.Team).FirstOrDefault() ?? SessionProtocol.SpectatorTeam;
+            path = System.IO.Path.Combine(Settings.DemoFolder!, DemoFileName.Personal(
+                DateTimeOffset.FromUnixTimeMilliseconds(info.Header.StartUnixMs), info.Header.Map, team, download.Id));
         }
         File.Move(download.Path, path, overwrite: false);
         if (download.Training)

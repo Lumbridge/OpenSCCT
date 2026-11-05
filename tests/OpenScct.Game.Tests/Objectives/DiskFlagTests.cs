@@ -200,6 +200,7 @@ public sealed class DiskFlagTests
         Assert.False(s.Flag.bTriggering);
         Assert.True(s.Flag.IsInState(K.s_Flying));
         Assert.Null(s.Flag.Base);
+        Assert.True(s.Flag.AttachmentBone.IsNone);
         Assert.Equal(1, s.W.Net.Count(K.MsgDataDropped));
         Assert.False(s.Zone.bTriggering);
         Assert.False(s.Drop.bUsable);
@@ -327,6 +328,23 @@ public sealed class DiskFlagTests
 
         Assert.True(s.Drop.CanUse(spy));
         Assert.False(s.Drop.CanUse(other));
+    }
+
+    [Fact]
+    public void Client_drop_entry_keeps_its_replicated_zone_without_an_owner()
+    {
+        Setup s = Make();
+        TestPC spy = CarrierAtZone(s);
+        s.Drop.Role = ENetRole.ROLE_SimulatedProxy;
+        s.Drop.MyOwner = s.Zone;
+        s.Drop.SetOwner(null);
+
+        s.Drop.eventPostNetBeginPlay();
+
+        Assert.Same(s.Zone, s.Drop.MyOwner);
+        Assert.True(s.Drop.CanUse(spy));
+        s.Drop.MyOwner = null;
+        Assert.False(s.Drop.CanUse(spy)); // Empty DropZone slots are not a matching owner.
     }
 
     [Fact]

@@ -23,7 +23,7 @@ public sealed partial class MercAi
         foreach (SBombTargetObjectiveTrigger bomb in World.Level.AllActors<SBombTargetObjectiveTrigger>())
         {
             if (bomb.bDeleteMe || !bomb.bActive || !bomb.bTriggering || bomb.InteractionObj is not { } entry) continue;
-            costs ??= graph.CostsFrom(start, badLinks: World.BadLinks(false), badEdges: World.BadEdges(false));
+            costs ??= ReachabilityCosts(start);
             var nodes = new List<int>();
             graph.NodesNear(entry.Location, Math.Max(140f, entry.CollisionRadius + Pawn.CollisionRadius), nodes);
             foreach (int node in nodes)

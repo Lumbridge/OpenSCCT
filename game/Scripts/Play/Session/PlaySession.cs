@@ -141,8 +141,7 @@ public sealed class PlaySession : IDisposable
     private void RecordDemo(string folder, string mapId)
     {
         DateTimeOffset start = DateTimeOffset.UtcNow;
-        string path = Path.Combine(folder, start.ToString("yyyyMMdd-HHmmss", System.Globalization.CultureInfo.InvariantCulture) +
-            "-" + mapId + DemoFile.Extension);
+        string path = Path.Combine(folder, DemoFileName.Personal(start, mapId, (int)Settings.Side, Guid.NewGuid().ToString("N")));
         DemoPath = path;
         bool started = false;
         Host.BeforeWorldTick += host =>

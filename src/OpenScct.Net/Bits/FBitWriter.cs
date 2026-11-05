@@ -181,7 +181,7 @@ public sealed class FBitWriter
     /// maximum, so a maximum that is not a power of two can save the top bit.
     /// </summary>
     [UcNative("FBitWriter::WriteInt")]
-    [Provenance(ProvenanceKind.Estimated, "Stock UE2 FBitWriter::WriteInt bit loop")]
+    [Provenance(ProvenanceKind.Estimated, "Stock UE2 FBitWriter::WriteInt semantics, with equivalent chunked bit writes")]
     public void WriteInt(uint value, uint valueMax)
     {
         ArgumentOutOfRangeException.ThrowIfZero(valueMax);
@@ -190,41 +190,18 @@ public sealed class FBitWriter
             throw new ArgumentOutOfRangeException(nameof(value), value, "Value must be below valueMax.");
         }
 
-        int bits = CountIntBits(value, valueMax);
-        if (!Reserve(bits))
-        {
-            return;
-        }
-
-        ulong newValue = 0;
-        for (ulong mask = 1; newValue + mask < valueMax && mask <= uint.MaxValue; mask <<= 1)
-        {
-            if ((value & mask) != 0)
-            {
-                _buffer[_num >> 3] |= (byte)(1 << (_num & 7));
-                newValue += mask;
-            }
-
-            _num++;
-        }
+        WriteBits(value, CountIntBits(value, valueMax));
     }
 
     /// <summary>Bits <see cref="WriteInt"/> uses for <paramref name="value"/>.</summary>
     public static int CountIntBits(uint value, uint valueMax)
     {
-        int bits = 0;
-        ulong newValue = 0;
-        for (ulong mask = 1; newValue + mask < valueMax && mask <= uint.MaxValue; mask <<= 1)
-        {
-            if ((value & mask) != 0)
-            {
-                newValue += mask;
-            }
-
-            bits++;
-        }
-
-        return bits;
+        if (valueMax <= 1) return 0;
+        int bits = System.Numerics.BitOperations.Log2(valueMax);
+        uint top = 1u << bits;
+        // Every bit below the top is unconditional. Only the final bit depends on the value
+        // accumulated so far; a power-of-two maximum never needs that extra bit.
+        return bits + ((value & (top - 1)) < valueMax - top ? 1 : 0);
     }
 
     /// <summary>

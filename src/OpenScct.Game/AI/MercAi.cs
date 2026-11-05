@@ -1109,7 +1109,7 @@ public sealed partial class MercAi : AiBrain
         float bestScore = float.MaxValue;
         NavGraph graph = Follower.Graph;
         int from = graph.NearestNode(Pawn.Location, Pawn.CollisionHeight);
-        float[] costs = graph.CostsFrom(from, badLinks: World.BadLinks(false), badEdges: World.BadEdges(false));
+        float[] costs = ReachabilityCosts(from);
         foreach (SObjectiveTrigger t in World.Level.AllActors<SObjectiveTrigger>())
         {
             if (!Defensible(t) || !GuardSpot(t, out FVector spot) || !GuardPost(spot, costs, out FVector post))

@@ -58,7 +58,7 @@ public partial class OptionsMenu
         main.AddChild(title);
         var list = new ScrollContainer
         {
-            Name = "MouseAimList", SizeFlagsVertical = SizeFlags.ExpandFill,
+            Name = "MouseAimList", FollowFocus = true, SizeFlagsVertical = SizeFlags.ExpandFill,
             HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled,
         };
         var rows = new VBoxContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill };
@@ -235,6 +235,7 @@ public partial class OptionsMenu
                 firstSection = false;
             }
             empty.Visible = !entries.Any(e => e.Panel.Visible);
+            QueueScrollFocusLinks(rows);
             list.ScrollVertical = 0;
             var first = entries.FirstOrDefault(e => e.Panel.Visible);
             if (first.Panel is not null) Explain(first.Panel, first.Label, first.Description);
@@ -276,6 +277,7 @@ public partial class OptionsMenu
         page.Resized += Fit;
         main.Resized += Fit;
         page.VisibilityChanged += Fit;
+        page.VisibilityChanged += () => QueueScrollFocusLinks(rows);
         Filter();
         Fit();
         return page;

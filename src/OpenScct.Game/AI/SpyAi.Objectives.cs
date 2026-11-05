@@ -46,7 +46,7 @@ public sealed partial class SpyAi
         if (candidates.Count == 0) return null;
         NavGraph graph = Follower.Graph;
         int start = graph.NearestNode(Pawn.Location, Pawn.CollisionHeight);
-        float[] costs = graph.CostsFrom(start, badLinks: World.BadLinks(true), badEdges: World.BadEdges(true));
+        float[] costs = ReachabilityCosts(start);
         float best = float.MaxValue;
         foreach (SObjectiveTrigger candidate in candidates)
         {

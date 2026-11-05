@@ -16,6 +16,7 @@ public sealed class TextureCache
 {
     private readonly string _root;
     private readonly Dictionary<string, Texture2D?> _textures = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, Image?> _images = new(StringComparer.Ordinal);
     private readonly ConcurrentDictionary<string, Image?> _decoded = new(StringComparer.Ordinal);
 
     public TextureCache(string root)
@@ -42,7 +43,8 @@ public sealed class TextureCache
         var work = new List<(string Uri, bool Mipmaps)>();
         foreach ((string uri, bool mipmaps) in textures)
         {
-            if (!_textures.ContainsKey(Key(uri, mipmaps)) && !_decoded.ContainsKey(Key(uri, mipmaps)))
+            if (!_textures.ContainsKey(Key(uri, mipmaps)) && !_decoded.ContainsKey(Key(uri, mipmaps)) &&
+                (mipmaps || !_images.ContainsKey(uri)))
             {
                 work.Add((uri, mipmaps));
             }
@@ -64,7 +66,8 @@ public sealed class TextureCache
             return cached;
         }
 
-        Image? image = _decoded.TryRemove(key, out Image? pre) ? pre : Decode(uri, mipmaps);
+        Image? image = !mipmaps && _images.TryGetValue(uri, out Image? source) ? source
+            : _decoded.TryRemove(key, out Image? pre) ? pre : Decode(uri, mipmaps);
         Texture2D? texture = image is null ? null : ImageTexture.CreateFromImage(image);
         if (texture is null)
         {
@@ -73,6 +76,21 @@ public sealed class TextureCache
 
         _textures[key] = texture;
         return texture;
+    }
+
+    /// <summary>
+    /// A retained CPU image without mipmaps, decoded from the PNG rather than read back from a GPU texture.
+    /// Only images explicitly requested here are retained. Callers must copy it before changing or disposing it.
+    /// </summary>
+    public Image? GetImage(string? uri)
+    {
+        if (string.IsNullOrEmpty(uri)) return null;
+        if (_images.TryGetValue(uri, out Image? cached)) return cached;
+        string key = Key(uri, false);
+        Image? image = _decoded.TryRemove(key, out Image? pre) ? pre : Decode(uri, false);
+        if (image is null) Missing.Add(uri);
+        _images[uri] = image;
+        return image;
     }
 
     /// <summary>Keeps a texture made in memory under <paramref name="uri"/> (a name no file has), with or without mipmaps.</summary>

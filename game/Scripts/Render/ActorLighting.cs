@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 using Godot;
 using OpenScct.Core;
@@ -24,6 +25,18 @@ public sealed class ActorLighting
     private static readonly StringName[] PosParams = [new("svm_l0_pos"), new("svm_l1_pos"), new("svm_l2_pos"), new("svm_l3_pos")];
     private static readonly StringName[] ColParams = [new("svm_l0_col"), new("svm_l1_col"), new("svm_l2_col"), new("svm_l3_col")];
     private static readonly StringName[] SpotParams = [new("svm_l0_spot"), new("svm_l1_spot"), new("svm_l2_spot"), new("svm_l3_spot")];
+    // This is the sole writer of the actor-light instance uniforms. Retain their values independently of the
+    // caller's mutable light set, and let freed/replaced geometry disappear without keeping its node alive.
+    private static readonly ConditionalWeakTable<GeometryInstance3D, AppliedLights> Applied = new();
+    private sealed class AppliedLights
+    {
+        public bool Known;
+        public Vector4 Ambient;
+        public readonly PackedLight[] Lights = new PackedLight[RenderK.MaxActorLights];
+    }
+
+    /// <summary>Actual native uniform writes, for the differential upload smoke.</summary>
+    internal static long UniformWrites { get; private set; }
 
     private readonly List<LightEntry> _lights = [];
     private readonly List<(float Score, LightEntry Light)> _ranked = [];
@@ -353,7 +366,10 @@ public sealed class ActorLighting
         ArgumentNullException.ThrowIfNull(node);
         node.SetMeta(EchelonMeta, (float)code);
         Vector4 ambient = node.GetInstanceShaderParameter(AmbientParam).AsVector4();
-        node.SetInstanceShaderParameter(AmbientParam, new Vector4(ambient.X, ambient.Y, ambient.Z, code));
+        var updated = new Vector4(ambient.X, ambient.Y, ambient.Z, code);
+        node.SetInstanceShaderParameter(AmbientParam, updated);
+        UniformWrites++;
+        if (Applied.TryGetValue(node, out AppliedLights? applied)) applied.Ambient = updated;
     }
 
     /// <summary>Writes a light set onto a drawn instance (its material must use the actor-lit template).</summary>
@@ -361,15 +377,37 @@ public sealed class ActorLighting
     {
         ArgumentNullException.ThrowIfNull(node);
         ArgumentNullException.ThrowIfNull(set);
+        AppliedLights applied = Applied.GetValue(node, static _ => new AppliedLights());
         float echelon = node.HasMeta(EchelonMeta) ? (float)node.GetMeta(EchelonMeta) : 0f;
-        node.SetInstanceShaderParameter(AmbientParam, new Vector4(set.Ambient.X, set.Ambient.Y, set.Ambient.Z, echelon));
+        var ambient = new Vector4(set.Ambient.X, set.Ambient.Y, set.Ambient.Z, echelon);
+        if (!applied.Known || applied.Ambient != ambient)
+        {
+            node.SetInstanceShaderParameter(AmbientParam, ambient);
+            UniformWrites++;
+            applied.Ambient = ambient;
+        }
         for (int i = 0; i < RenderK.MaxActorLights; i++)
         {
-            PackedLight p = i < set.Count ? set.Lights[i] : default;
-            node.SetInstanceShaderParameter(PosParams[i], p.Pos);
-            node.SetInstanceShaderParameter(ColParams[i], p.Col);
-            node.SetInstanceShaderParameter(SpotParams[i], i < set.Count ? p.Spot : new Vector4(0f, 0f, 0f, -2f));
+            PackedLight p = i < set.Count ? set.Lights[i] : new(default, default, new Vector4(0f, 0f, 0f, -2f));
+            PackedLight previous = applied.Lights[i];
+            if (!applied.Known || previous.Pos != p.Pos)
+            {
+                node.SetInstanceShaderParameter(PosParams[i], p.Pos);
+                UniformWrites++;
+            }
+            if (!applied.Known || previous.Col != p.Col)
+            {
+                node.SetInstanceShaderParameter(ColParams[i], p.Col);
+                UniformWrites++;
+            }
+            if (!applied.Known || previous.Spot != p.Spot)
+            {
+                node.SetInstanceShaderParameter(SpotParams[i], p.Spot);
+                UniformWrites++;
+            }
+            applied.Lights[i] = p;
         }
+        applied.Known = true;
     }
 }
 

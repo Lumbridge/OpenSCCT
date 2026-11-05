@@ -1,6 +1,6 @@
 // A laser beam in the vision modes that show it (docs/RENDERING.md#vision-modes): thermal draws the beam at its actor's
-// HeatIntensity (SLaserBeam default 1) with the depth fade. EMF does not draw the connecting beam: the emitter's
-// own material supplies its EMF response. The weapon lasers (spy pistol, merc laser
+// HeatIntensity (SLaserBeam default 1) with the depth fade. EMF draws the connecting beam as a non-glowing surface;
+// the post inversion makes it dark grey. The weapon lasers (spy pistol, merc laser
 // sight) use it as the thermal pass of their additive look: thermal_only leaves EMF to that look, and mask keeps the
 // heat to the texels the beam texture lights (its bright core, not the whole quad).
 shader_type spatial;

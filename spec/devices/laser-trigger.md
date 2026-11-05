@@ -121,7 +121,8 @@ SGPOControl relay; `bTriggerOnceOnly` (125) has no reader in script or in the tr
   class at the map placement) and hides while the tripwire is not relevant.
 - The beam (SLaserBeam, drawn by `game/Scripts/Fx/LaserTriggerView.cs` through `Render/Lasers.cs`): from the beam's
   place along its rotation for `DrawScale3D.X x DrawScale` uu. Thermal (36): the heat colour of HeatIntensity (1).
-  EMF (38): no connecting beam; the emitter body keeps its own EMF response (original-game screenshot comparison).
+  EMF (38): the connecting beam remains visible as a dark grey, non-glowing surface, as observed in the original
+  game. It uses the ordinary EMF environment response with no EMF intensity; the emitter keeps its own response.
   Other modes (5 normal, 34 night, 37 motion): only when `bHideInNormalVision` is false, as the
   additive LaserBeamShader streak. Hidden while `bLaserHidden`.
 

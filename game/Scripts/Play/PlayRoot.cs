@@ -125,6 +125,7 @@ public partial class PlayRoot : Node3D
 
     private VirtualClock? _virtualClock;
     private Label? _status;
+    private Exception? _reportedServerFailure;
     private Label? _prompt;
     private ColorRect? _cameraOcclusion;
     private int _lastRendMap = -1;
@@ -655,6 +656,12 @@ public partial class PlayRoot : Node3D
         {
             session.Update();
             alpha = session.Alpha;
+        }
+
+        if (session.ServerFailure is { } serverFailure && !ReferenceEquals(serverFailure, _reportedServerFailure))
+        {
+            _reportedServerFailure = serverFailure;
+            GD.PrintErr("SVM_HOST_FAILURE " + serverFailure);
         }
 
         PrintBots(session);

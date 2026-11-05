@@ -528,7 +528,9 @@ public partial class SPlayerController
             return;
         }
 
-        if (merc is not null && Way is not (GrabReleaseMethode_.Grabbing_Cancelled or GrabReleaseMethode_.GrabbedAvoid or
+        // Intentional parity exception: rescuing a held merc by killing the spy does not damage the merc.
+        if (merc is not null && Way is not (GrabReleaseMethode_.GrabbingDamaged or
+            GrabReleaseMethode_.Grabbing_Cancelled or GrabReleaseMethode_.GrabbedAvoid or
             GrabReleaseMethode_.Grabbing_Stopped or GrabReleaseMethode_.GrabbingCountered or
             GrabReleaseMethode_.Grabbed_MovedWhileTryingToBeGrabbed))
         {

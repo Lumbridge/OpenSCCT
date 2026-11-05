@@ -84,7 +84,7 @@ public partial class HudEditorPanel : VBoxContainer
         _search.TextChanged += _ => RebuildElements();
         var body = new HBoxContainer { Name = "HudEditorBody", SizeFlagsVertical = SizeFlags.ExpandFill, SizeFlagsHorizontal = SizeFlags.ExpandFill };
         body.AddThemeConstantOverride("separation", 14);
-        _sidebar = new ScrollContainer { Name = "HudEditorCategories", CustomMinimumSize = new Vector2(180, 0), HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled, ClipContents = true };
+        _sidebar = new ScrollContainer { Name = "HudEditorCategories", FollowFocus = true, CustomMinimumSize = new Vector2(180, 0), HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled, ClipContents = true };
         var categoryMargin = new MarginContainer { Name = "HudEditorCategoryMargin", SizeFlagsHorizontal = SizeFlags.ExpandFill };
         categoryMargin.AddThemeConstantOverride("margin_left", 2);
         categoryMargin.AddThemeConstantOverride("margin_right", 8);
@@ -103,10 +103,11 @@ public partial class HudEditorPanel : VBoxContainer
         _elementTitle = new Label { Name = "HudEditorSelectedElement", AutowrapMode = TextServer.AutowrapMode.WordSmart };
         _elementTitle.AddThemeColorOverride("font_color", UiStyle.MenuFocus);
         inspector.AddChild(_elementTitle);
-        var fieldsScroll = new ScrollContainer { Name = "HudEditorProperties", SizeFlagsVertical = SizeFlags.ExpandFill, HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled };
+        var fieldsScroll = new ScrollContainer { Name = "HudEditorProperties", FollowFocus = true, SizeFlagsVertical = SizeFlags.ExpandFill, HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled };
         var fields = new VBoxContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill };
         fields.AddThemeConstantOverride("separation", 2);
         fieldsScroll.AddChild(fields);
+        VisibilityChanged += () => { OptionsMenu.QueueScrollFocusLinks(_elementRows); OptionsMenu.QueueScrollFocusLinks(fields); };
         inspector.AddChild(fieldsScroll);
         body.AddChild(inspector);
         AddChild(body);
@@ -265,6 +266,7 @@ public partial class HudEditorPanel : VBoxContainer
     }
     private void RebuildElements()
     {
+        OptionsMenu.QueueScrollFocusLinks(_elementRows);
         string query = _search.Text.Trim();
         var matches = HudEditorSettings.Elements.Where(e => (e.Value + " " + e.Key).Contains(query, StringComparison.OrdinalIgnoreCase)).ToArray();
         foreach (Node child in _elementRows.GetChildren()) { _elementRows.RemoveChild(child); child.QueueFree(); }

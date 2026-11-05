@@ -17,6 +17,9 @@ namespace OpenScct.Game.SBase;
 // overrides here.
 public partial class SPlayerController
 {
+    /// <summary>The host supplied relative mouse input; camera stick dead zones do not apply to it.</summary>
+    public bool UseObjectMouseInput { get; set; }
+
     /// <summary>The cam view's turn (spec/devices/cam-network.md rule 7) for the object in use.</summary>
     [Uc("SBase.SPlayerController.s_UseObject.UpdateRotation", Sha1 = "a020d3f18122430159981a8b0fbb41e58dcc66d2")]
     [PortOf("uc:SBase.SPlayerController:s_UseObject.UpdateRotation", Spec = "spec/equipment/sticky-cam.md#using-a-cam")]
@@ -33,12 +36,12 @@ public partial class SPlayerController
         int oldYaw = yaw;
         int oldPitch = pitch;
         float scale = K.CamTurnScale * fSensibiliteSouris * DeltaTime * DesiredFOV / K.CamTurnFovReference;
-        if (SvmMath.Abs(aTurn) > K.CamInputDeadZone)
+        if (UseObjectMouseInput || SvmMath.Abs(aTurn) > K.CamInputDeadZone)
         {
             yaw += SvmMath.Trunc(scale * fTurnValue);
         }
 
-        if (SvmMath.Abs(aLookUp) > K.CamInputDeadZone)
+        if (UseObjectMouseInput || SvmMath.Abs(aLookUp) > K.CamInputDeadZone)
         {
             pitch += SvmMath.Trunc(scale * fLookUpValue);
         }

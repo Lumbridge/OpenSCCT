@@ -644,7 +644,7 @@ public partial class SGamePlayObject
         if (Thrower?.Pawn is { } pawn)
         {
             FVector start = pawn.Location;
-            SetBase(null);
+            Objectives.ObjectiveNatives.DetachFromBone(this);
             SetLocation(start);
             PickupInteraction?.SetLocation(start);
             PickupInteraction?.SetBase(this);

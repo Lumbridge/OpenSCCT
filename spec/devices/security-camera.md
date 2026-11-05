@@ -118,6 +118,12 @@ Class defaults also set `TriggerMethode = TriggerControl`, `iPriority = 5`, `bCa
 
 ## Network
 
+`s_Patrol` is not a simulated state in the original script. OpenSCCT's client can retain that initial
+state while receiving `LightState = 0` for a shot camera. Its latent presence checks must run only on
+the authority; otherwise the client overwrites the disabled light and plays a detection sound without
+the server starting a lockdown. Clients still run the native presentation tick for the replicated light,
+head direction and malfunction effect.
+
 - `LightState`, `CameraDesiredRotation` and `RotationVelocity` replicate from the authority (script block; SCamera
   is not in the native list survey of `net-replists.md`, so the script conditions are used). Clients run rules 9
   and 12, so the LED, the beep, the sparks and the head motion follow the server.

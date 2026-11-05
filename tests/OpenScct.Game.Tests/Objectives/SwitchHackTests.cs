@@ -476,7 +476,10 @@ public sealed class SwitchHackTests
         InteractionMenuRules.InteractionInit(spy, entry, 0);
         Assert.True(entry.IsInState(K.WaitingBeforeActivation));
         Assert.Equal(0, target.Triggers);
+        Assert.False(entry.CanUse(spy));
+        Assert.False(spy.IManager!.HasUsableInteractions());
 
+        spy.GotoState(K.s_MenuInteraction); // A stale client selection is rejected before another activation.
         spy.PreviousState = K.s_PlayerWalkingCr0H;
         InteractionMenuRules.InteractionInit(spy, entry, 0);
         Assert.True(spy.IsInState(K.s_PlayerWalkingCr0H));
@@ -484,8 +487,12 @@ public sealed class SwitchHackTests
         w.Run(2.1f);
         Assert.Equal(1, target.Triggers);
         Assert.True(entry.IsInState(K.WaitingBeforeDesactivation));
+        Assert.False(entry.CanUse(spy));
+        Assert.False(spy.IManager.HasUsableInteractions());
         w.Run(3.1f);
         Assert.Equal(1, target.UnTriggers);
         Assert.False(entry.IsInState(K.WaitingBeforeDesactivation));
+        Assert.True(entry.CanUse(spy));
+        Assert.True(spy.IManager.HasUsableInteractions());
     }
 }

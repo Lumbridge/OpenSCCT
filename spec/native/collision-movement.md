@@ -28,6 +28,12 @@ ends and stance changes, and the encroachment checks movers use to push or crush
 
 ### MoveActor(Actor, Delta, NewRotation, Hit, bTest, bIgnorePawns, bIgnoreBases, bNoFail) -> bool
 
+Implementation note: mesh collision alone does not select encroachment movement. `MoveActor` also requires
+`bIsAMover` and `bCollideActors` (editor 0x110bc870, saved decompilation
+`local/re-out/c/physics/editor/110bc870_ULevel__MoveActor.c`). Ordinary mesh props sweep their collision cylinder
+while retaining the bound mesh for other actors' traces. `FallingMeshActorTests` covers dropped props landing,
+their mesh following the new pose, and movers retaining encroachment movement through world geometry.
+
 1. Zero Delta: nothing when the rotation is unchanged; with a changed rotation and no attached actors, rotate
    (when the primitive allows) and return true.
 2. An actor with neither bCollideActors nor bCollideWorld (and no attached actor needing care): add Delta, set the

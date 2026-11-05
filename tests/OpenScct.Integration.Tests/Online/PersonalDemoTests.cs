@@ -78,6 +78,7 @@ public sealed class PersonalDemoTests
             Assert.Contains(recording.Index.Players, player => player.Name.StartsWith("MercBot", StringComparison.Ordinal));
             Assert.Contains(recording.Index.Markers, marker => marker.Kind == DemoMarkerKind.RoundStart);
             string firstGuestDemo = guest.LastDemoPath!;
+            Assert.Contains("-TestBox-Merc-", Path.GetFileName(firstGuestDemo), StringComparison.Ordinal);
             string guestTraining = TrainingDataFile.PathForDemo(firstGuestDemo);
             Assert.Equal(serverTraining && clientTraining, File.Exists(guestTraining));
             if (File.Exists(guestTraining)) TrainingDataFile.Validate(guestTraining, recording.Header);
@@ -98,6 +99,7 @@ public sealed class PersonalDemoTests
             Assert.Equal(firstGuestDemo, guest.LastDemoPath);
             Assert.Single(Directory.GetFiles(Path.Combine(folder, "Guest"), "*.scctdemo"));
             Assert.Single(Directory.GetFiles(Path.Combine(folder, "Host"), "*.scctdemo"));
+            Assert.Contains("-TestBox-Spy-", Path.GetFileName(host.LastDemoPath!), StringComparison.Ordinal);
             Assert.Contains(DemoFile.Read(host.LastDemoPath!).Index.Players, player => player.Name == "Guest");
             Assert.Equal(serverTraining && clientTraining, File.Exists(TrainingDataFile.PathForDemo(host.LastDemoPath!)));
         }

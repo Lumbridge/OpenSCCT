@@ -834,7 +834,7 @@ public sealed partial class SpyAi : AiBrain
         SComputerObjectiveTrigger? best = null;
         float bestScore = float.MaxValue;
         int start = Follower.Graph.NearestNode(Pawn.Location, Pawn.CollisionHeight);
-        float[] reachable = Follower.Graph.CostsFrom(start, badLinks: World.BadLinks(true), badEdges: World.BadEdges(true));
+        float[] reachable = ReachabilityCosts(start);
         foreach (SComputerObjectiveTrigger t in World.Terminals)
         {
             if (!t.bActive || World.IsTaken(t) || t.bLocked || t.bTriggering && !ReferenceEquals(t, _target) || (_givenUp.TryGetValue(t, out float at) && now - at < 25f))

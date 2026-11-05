@@ -11,7 +11,8 @@ namespace OpenScctGame.Render.Golden;
 /// <see cref="OffscreenView"/> from one camera (the render smoke test calls <see cref="Step"/> once a frame until it
 /// returns a result). Each check renders a few frames and reads the picture back: thermal must lead in blue over green
 /// (the table's cold end), EMF must be blue, motion must carry the ramp's red, the torch must light the frame it
-/// points at, a laser beam must show in thermal only, and the map's always-on emitters must have live particles.
+/// points at, a laser beam must show in thermal and stay hidden in normal vision, and the map's always-on emitters
+/// must have live particles.
 /// docs/RENDERING.md#smoke-checks.
 /// </summary>
 public sealed class RenderChecks

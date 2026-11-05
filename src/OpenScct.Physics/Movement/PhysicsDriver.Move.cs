@@ -70,8 +70,9 @@ public sealed partial class PhysicsDriver
     /// <summary>
     /// ULevel::MoveActor. A zero move only turns the actor; an actor that collides with nothing just moves. Otherwise
     /// the cylinder box sweeps to the first blocking hit that is not a base relation and the move is cut there (unless
-    /// <paramref name="bNoFail"/>); encroachers (actors with mesh or brush colliders) are checked for encroachment at
-    /// the new pose instead and refuse the move when encroached. Attached actors move along, including based pawns
+    /// <paramref name="bNoFail"/>); encroachers (colliding movers with mesh or brush colliders) are checked at
+    /// the new pose instead and refuse the move when encroached. Mesh props still sweep their cylinder against the
+    /// world; only colliding movers use encroachment motion. Attached actors move along, including based pawns
     /// when the moving actor is a mover.
     /// Unless <paramref name="bTest"/> the blocking hit is bumped (the other actor first) and touches are updated.
     /// Returns Hit.Time &gt; 0 (true for a partial move), false for a refused encroacher move.
@@ -107,7 +108,9 @@ public sealed partial class PhysicsDriver
             return false;
         }
 
-        bool encroacher = Collision.HasColliders(actor);
+        // MoveActor (editor 0x110bc870) bypasses the sweep only for a colliding static-mesh mover.
+        // Pickable mesh props such as disks keep their bound mesh, but must sweep their cylinder to hit the floor.
+        bool encroacher = actor.bIsAMover && actor.bCollideActors && Collision.HasColliders(actor);
         if (delta.IsZero())
         {
             if (newRotation == actor.Rotation)

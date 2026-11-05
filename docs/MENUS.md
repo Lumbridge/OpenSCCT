@@ -79,6 +79,10 @@ death page. The results open with the HUD's `P_EndGame` banner (a Magma page), t
 its headline is Reloaded's line instead of a side: "*name* wins with *n* kills", "Draw at *n* kills" or "No kills
 scored".
 
+Online results show **Next round** while a series has rounds left; the host can separately **End series & return
+to lobby**. After the final round the host sees one **Return to lobby** action, while guests can mark themselves
+ready with **Continue to lobby**.
+
 Once a network round's map is in, the original's Loading_Menu list (`game/Scripts/Online/RoundStartList.cs`,
 spec/game/match-lifecycle.md "Waiting for players") stays over the round's view until the match begins: "Waiting for
 players (ready / expected)" and a line per player of the session, "is ready" when his PRI reports waiting to play
@@ -229,6 +233,8 @@ team/rotation options and extra rules; Hosting holds access, password, discovery
 select modes directly, numeric fields accept typing, and checkboxes include their own labels. Each settings tab
 scrolls independently. Below 1100 logical pixels of available width the map browser and settings stack; Back and
 Create session stay in the fixed footer. A page-local 1600×900 canvas scales the controls together at high resolutions.
+Create session immediately shows a busy state while preparing appearance and starting the host; repeated clicks
+cannot start another request. A failed start restores the button and explains the error.
 
 Rows, captions and ranges are the page's (spec rules 1 to 9):
 
@@ -449,7 +455,9 @@ Save & Close and discard workflow; category and search selections survive page r
 Bindings use one action per row, with category navigation and search across movement, combat, gadgets, vision,
 communication and interface. The category sidebar becomes a dropdown on narrow windows. Two independently
 editable input slots are visible; additional inputs remain available through the extra-bindings control. Selecting
-an action shows its description, shared-input effects and applicable Hold/Toggle behavior. Right-click an assigned
+an action shows its description and shared-input effects. Applicable Hold/Toggle selectors sit inline beside the
+action and its bindings. Arrow navigation follows the next row and scrolls it into view before reaching the footer.
+Right-click an assigned
 input for Change binding or Clear binding, or hover it and press Delete to clear only that input. Delete still edits
 text normally in search fields and remains bindable during capture. The capture panel also offers Clear binding and Cancel.
 Adding an input keeps the existing primary and alternate in place; replacing one keeps its column, including after
@@ -557,6 +565,11 @@ original Video_Settings' own:
   the end of the count saves and applies the old three back.
 
 ## Tests
+
+Unexpected returns to the main menu can be traced through `SVM_MAIN_MENU` (previous scene and calling method).
+`SVM_SESSION_FAILURE` records the online session state and connection-close reason before disposal;
+`SVM_HOST_FAILURE` records the full server exception, including for standalone Visit Map sessions.
+These are log diagnostics, not player-chat messages.
 
 - `tests/OpenScctGame.Logic.Tests/MenuCreateSessionTests.cs`, `MenuLobbyRoomTests.cs`: the page rules.
 - `tests/OpenScct.Integration.Tests/LobbyOptionsTests.cs`, `LobbyVoiceTests.cs`: the options and voice through the

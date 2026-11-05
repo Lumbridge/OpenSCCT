@@ -119,6 +119,11 @@ Positioning helpers:
 Native contracts (Open questions hold the details):
 
 23. `CanUse(PC)` (all classes share the game exec thunk 0x10AB96F0, while the editor build has a separate `execCanUse` per class, so the game thunk most likely calls a per-class C++ virtual; editor addresses in Evidence): decides whether an entry is shown and usable. Expected and partly observed: `bUsable`; `UsableBy` against the pawn type; pawn alive; `TimeSeconds - iLastUsedTime >= iReusableTime` (observed: a switch with `iReusableTime` 20 refused 19.4 s after a use and accepted 20.9 s after; with `iLastUsedTime = 0` the first 20 s of a round are also locked); the facing rule when `bInteractInFront` (RE+: switches must be approached face on; a panel 8 uu in front of its wall never offered Use); class extras (pickup `bCanPickup`, drop zone "carries a flag for this zone").
+    The base game virtual at `0x10AF6EF0` confirms rejection while `bInUse` or `bPresenceDetected`,
+    or when `bUsable` is false. OpenSCCT applies those gates before the estimated team/living/facing
+    tests. Presence detection is a busy lock, not a prerequisite: a detector cannot be interacted
+    with while its warning flag is set. The flag and use lock remain effective after a reuse delay
+    expires; clearing a lock does not reset the cooldown. See the byte evidence in switch-hack.md.
 24. `SInteractionManager` natives (decoded, game): the slot order is the menu order. `AddInteractionObj` (0x10ABF4C0) walks slots 0 to 9 (while under `NbObjects`): the same object stops it; the first slot whose `iPriority` is strictly higher than the new object's takes it, moving the later slots down (0x10ABF400; a full list of 15 drops slot 13 and keeps slot 14), then `Ev_AddObjetOnClient(obj, i)` unless the owner is local (standalone or a viewport player), then `SelectFirstViewAbleItem`. With no higher slot among the first ten the object is not added. The five built-in entries (priority 999999) therefore stay last, Exit at the very end, and world objects sit above them lowest priority first, ties in touch order. `AddObjectAtIndex` (client) is the same insert. `RemoveObject` (0x10ABF5F0) closes the gap and, when the removed slot is at or before the selection, moves the selection up one (not below 0). `SelectFirstViewAbleItem` (0x10ABEE10): selection and sub-selection 0; unless slot 0 is usable, `SelectNextItem`; the selection gets `SetFocus(true)` / `bHasFocus`. `SelectNextItem` / `SelectPreviousItem` (0x10ABEED0 / 0x10ABEFF0): unfocus the selection, step through the slots wrapping until one is usable (at most `NbObjects` steps), focus it; always true. `CheckPriority(current, new)`: 0 for the same object, else `(current.iPriority <= new.iPriority) * 2 + 1` (no script caller). The HUD list (P_InterATT fill 0x10B354F0) appends the usable slots' `Description` in slot order and highlights the row of `SelectedInteractions`. `HasUsableInteractions`, `Calc`, `GetCurrentInteraction`, `GetCurrentSubInteraction`, `GetNbInteractions` and `RemoveInteractionObj` are list queries and upkeep; the last also re-adds touching objects when the list was full (0x10ABF970). The manager also has a C++ `Tick` (editor 0x11221960).
 25. `TriggerEventServer` / `UnTriggerEventServer` (0x10AF6CF0 / 0x10AF6DB0): expected to fire `TriggerEvent` / `UntriggerEvent` on the server. `SetPriority(n)` (0x10AF6E70): expected `iPriority = n` plus a list re-sort. No script caller in this area.
 26. `ChangePresenceDetected(b)` (reliable client-to-server event): `bPresenceDetected = b` (used by gadget code).
@@ -157,6 +162,15 @@ stateDiagram-v2
 | Sentinel position | 123456792 | uu | decoded | SInteractObject default |
 
 ## Network
+
+OpenSCCT also replicates each interaction's owner and live `UsableBy` value. The native actor owner rule
+only sends owners to owning connections, which excludes map-owned interactions. The script property list omits `UsableBy`,
+and a spawned client entry otherwise keeps the class default (`U_BOTH`) when its owner is not available
+during startup. This exposes the spy and merc variants of the same panel together. Updates must include
+`U_NO_ONE` and later team changes from `SInterrupteurManager`, as well as the existing `bUsable` state.
+FactE's garage controls illustrate why the distinction matters: the hidden spy-only `Open` entry sits
+118 uu below the visible button, so exposing it to a merc also points his press animation downwards.
+The fix changes OpenSCCT's protocol signature; both peers need the same build.
 
 - Interaction objects are server-spawned simulated proxies (not bAlwaysRelevant except `SPickupInteraction`); their size, usability, in-front flags, priority-related flags and reuse times replicate (reliable, `Role == ROLE_Authority`); `Description` does not (each machine sets it, rule 5). Classes are `nativereplication` (editor `ASInteractObject::GetOptimizedRepList` 0x111BC900 and per-subclass lists).
 - The manager is owned by the controller and replicated to its owner: `Interactions[15]` and `NbObjects` (reliable) plus the reliable client functions `AddObjetOnClient` / `RemoveInteractionObjOnClient`. The controller's `IManager` reference is reliable to the owner.

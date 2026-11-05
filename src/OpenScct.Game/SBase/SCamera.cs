@@ -468,7 +468,9 @@ public partial class SCamera
 
     private void PatrolCode(ref LatentFrame f)
     {
-        if (CheckPresence() && !bSomethingIsDetected)
+        // s_Patrol is not simulated in the original. A client's initial state can remain Patrol while
+        // LightState replicates the lock; it must only present that state, never detect or play an alert.
+        if (Role == ENetRole.ROLE_Authority && CheckPresence() && !bSomethingIsDetected)
         {
             Alert();
         }

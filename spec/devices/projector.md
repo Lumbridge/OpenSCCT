@@ -69,6 +69,12 @@ Echelon lighting. `SProjoInteraction`: priority 30, "Use Mirador", in front, mer
 
 ## Port notes
 
+- OpenSCCT mouse input treats Mirador as an orientable camera view and uses the merc camera sensitivity.
+  Relative mouse counts bypass the script's 150-per-axis stick dead zone. Keeping that dead zone made slow
+  diagonals lose their smaller axis; the old normal-look scaling made the threshold ten times larger for
+  Mirador than for camera-network views. Controller input retains the dead zone. This mouse improvement is
+  deliberate; the original `s_UseObject.UpdateRotation` script applies the threshold to each axis.
+
 - `src/OpenScct.Game/SBase/SProjoFixe.cs`, `SProjoInteraction.cs`, `SPlayerController.s_Mirador.cs`; render in
   `game/Scripts/Render/FlashLightView.cs`: with no merc torch on, the nearest lit spot takes the one spot-shadow slot,
   shaped by its copied values. Estimated: the cookie and attenuation (the torch's; SProjoLight names no Echelon

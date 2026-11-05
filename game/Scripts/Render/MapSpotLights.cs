@@ -90,7 +90,7 @@ public sealed class MapSpotLights : IDisposable
             if (!_drawn.TryGetValue(index, out SpotShadowLight? light))
             {
                 EchelonSpot e = l.Echelon!;
-                Texture2D? cookie = e.Texture is null ? null : _map.Textures.Get(e.Texture, mipmaps: false);
+                Image? cookie = _map.Textures.GetImage(e.Texture);
                 light = new SpotShadowLight(_parent, _map.Pack, SpotShadowShape.Of(l, e), cookie, cacheStatic: !l.Dynamic)
                 {
                     Zone = l.OwnZoneOnly ? l.ZoneIndex : -1,

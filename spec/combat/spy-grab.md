@@ -221,9 +221,10 @@ SA_EXIT_REPOS 326, SA_GRABBED_RELEASE_DROPTECH 327.
 ### Release resolution (server, AskServerToUnGrabPawn(way))
 19. `GrabReleaseMethode = NoRelease` (server copy). If the caller is a spy:
     - if way is neither GrabbingDamaged nor BothDie and the spy's Health is exactly 0, return (no release);
-    - unless way is Grabbing_Cancelled, GrabbedAvoid, Grabbing_Stopped, GrabbingCountered or
+    - unless way is GrabbingDamaged, Grabbing_Cancelled, GrabbedAvoid, Grabbing_Stopped, GrabbingCountered or
       Grabbed_MovedWhileTryingToBeGrabbed: if way is GrabbedDamaged and the merc is already dead, do not credit the
-      kill again (bRemovePoint false); then merc `Health -= int(default.Health * 0.51)` (51);
+      kill again (bRemovePoint false); then merc `Health -= int(default.Health * 0.51)` (51).
+      Intentional OpenSCCT exception: GrabbingDamaged preserves the rescued merc's health; the original charged 51;
     - if the merc's Health <= 0: for GrabbingDamaged and BothDie keep the (negative) value
       (`min(Health, 10)`); otherwise Health = 0 and way becomes Strangled.
 20. Then: voice com off, `bCanTalkToGuy = false`, spy-bullet comms off if the key is up, and by way:
@@ -283,7 +284,26 @@ SA_EXIT_REPOS 326, SA_GRABBED_RELEASE_DROPTECH 327.
     `s_GrabbedByPlayer_Released_KO`, else Health 0, `Killed(spy, merc, spy pawn, DamTypeGrabBreak)`,
     CountMercGrabDeath and the STRANGLE state; the spy goes to `s_FallDownDying` (if he died) or `s_FallDown`, label
     DIE_InPlaceWhileGrabbing (the spy keeps the kill credit for the merc).
-27. During all approach and release transitions both players only take explosion and grab-break damage.
+27. The `s_GrabBaseWithBlastDamageOnly` approach/release states only take explosion and grab-break damage.
+    This does not include the spy's `s_ReleaseGrabbedPlayer` family (its own full-damage handler), or ledge grabs.
+
+### Third-player shots and nearby explosions
+- A nonlethal rifle hit on the holding spy leaves the hold active. A lethal rifle hit requests GrabbingDamaged:
+  the held merc keeps his current health and enters the damage-release sequence. This deliberately removes the
+  original's 51-health rescue penalty. The separate BothDie fallback if no release space exists is unchanged.
+- Ledge begin/pull states take ordinary bullet damage. A surviving spy continues the pull; a lethal hit runs
+  the fall/death reaction, without charging release damage. Once the merc is in the ledge-fall
+  state, his landing kill follows rule 36; killing the spy does not undo that committed fall.
+- Frags and explosive mines distinguish the inner lethal blast (`SDamage_Explosion`, fixed 200 damage) from
+  outer falloff damage (`SDTBase`). Inner blasts interrupt through the blast states; surviving outer hits do
+  not interrupt a hold/pull. Normal grab transition states filter out that outer ordinary damage.
+- The native blast shares the spy's hit with his target only when their vertical separation is below 30 uu;
+  the held merc is then skipped in his own radius iteration. Ledge partners outside that window are evaluated
+  separately. See `native/natives2-damage.md` for sight/range tests and dispatch ordering.
+- Regression coverage: `GrabInterruptionParityTests` exercises phase-specific bullets, lethal releases,
+  ledge death, inner mine/frag radius dispatch, outer shared damage and the vertical sharing boundary.
+  These are automated script/action checks against the saved Enhanced B5 decompilation and native spec,
+  not a live three-player original/rewrite comparison.
 
 ### Counter-grab
 28. `GrabSendServerCounterValue(val, PType)` (reliable RPC on the sender's own pawn; nothing in the shipped game

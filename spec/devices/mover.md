@@ -234,6 +234,17 @@ Fields that drive behaviour (types, class default from `def:Engine.Mover`):
 
 ### Encroachment
 
+Implementation note (2026-11-05): gameplay movers now use the same `PhysicsDriver.MoveActor` /
+`CheckEncroachment` path as physics actors. The previous device-only copy ignored
+`bTryToMoveEncroachedActor`, did not shove along a rotation, and kept a partial failed shove instead of
+restoring the pawn. The push is attempted even for `PHYS_None` actors; crush/stop/retry fixtures must therefore
+provide an obstruction, such as a floor, rather than using that physics mode as an immovability flag.
+Client proxies absorb the non-simulated `EncroachingOn`, Trigger, UnTrigger, Bump and Attach handlers
+(`net-replication.md` rule 19.2); they move from replicated legs instead of deciding their own retry/reversal.
+The reported Aquarius pump door is `Mover347`, tag `PorteCTF`, with WaitAndRetry encroachment, a 120 uu slide
+and a three-second leg. `MoverEncroachTests` exercises all five modes and the shove rules;
+`MoverNetworkTests` covers that door while a spy pushes from the reported position.
+
 20. Native contract (decoded, collision-movement.md CheckEncroachment): when a step would make the mover overlap
     colliding actors, `ULevel::CheckEncroachment` lists the overlapped actors (mask 0x9f). A mover with
     `bTryToMoveEncroachedActor` first shoves them by the step; otherwise the mover's `EncroachingOn(Other)` decides:

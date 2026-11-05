@@ -11,8 +11,8 @@ namespace OpenScctGame.Render;
 /// Laser detector beams (SLaserBeam, owned by an SLaserTrigger; the mine laser). Each beam is the class mesh
 /// (SGameplayObjects LasDetectBeam, 1 uu along X) from the render pack, unlit, stretched to the beam's length
 /// (DrawScale3D.X) and pointed from the start to the end. Every beam has a vision-only node of the map with its own
-/// vision material (svm_laser.gdshader): the beam's HeatIntensity in thermal (36), discarded in EMF (38), where only
-/// the emitter has an EMF response. A beam the map does not hide in normal vision (SLaserTrigger.bHideLaserInNormalVision false, so the
+/// vision material (svm_laser.gdshader): the beam's HeatIntensity in thermal (36), a dark grey non-glowing surface in
+/// EMF (38). A beam the map does not hide in normal vision (SLaserTrigger.bHideLaserInNormalVision false, so the
 /// beam's bHideInNormalVision is false) also draws in the other modes (normal, night, motion) as the red additive
 /// LaserBeamShader streak. docs/RENDERING.md#vision-modes, spec/devices/laser-trigger.md#drawing.
 /// </summary>

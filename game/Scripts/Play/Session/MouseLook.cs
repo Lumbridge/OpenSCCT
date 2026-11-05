@@ -142,6 +142,7 @@ public sealed record MouseLook
         (pc.aMouseX, pc.aMouseY, pc.aTurn, pc.aLookUp) = Axes(pc, countsX, countsY);
         pc.fSensibiliteSouris = SensibiliteFor(pc);
         pc.bInvertHorizontalAxisCamSpy = InvertXSpy;
+        pc.UseObjectMouseInput = !Pad;
     }
 
     /// <summary>
@@ -199,7 +200,8 @@ public sealed record MouseLook
     }
 
     private static bool InCameraView(SPlayerController pc) =>
-        pc.SBPawn?.UsedObject is SOrientableObject && GadgetStates.InStickyCamViewState(pc);
+        pc.SBPawn?.UsedObject is SOrientableObject &&
+        (GadgetStates.InStickyCamViewState(pc) || pc.StateNode is SPlayerController.s_UseObject_Mirador);
 
     private float CurveDivisor(string response)
     {

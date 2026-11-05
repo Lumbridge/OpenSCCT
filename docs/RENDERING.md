@@ -409,7 +409,9 @@ the light never shadows. SpotWidth and SpotHeight are half extents: the light's 
 Until this was read the frustum was half as wide and high: MuseD/E/T's rooftop floodlight (Light16, SpotWidth 700)
 lit a narrow strip, spy-0 SSIM 0.45 (luma 0.25) against 0.91 (0.94) now. From p 0.999 the rays are taken as parallel
 (an orthographic box; FactD's Light17985 has 1.0).
-A camera at the apex renders the world into the light's tile of a shared 2048 x 2048 R32F atlas (tiles 1024 x 512,
+A camera at the apex uses the near-plane height directly (`Camera3D.SetFrustum`) so very wide or narrow lights,
+including MuseE's Light15, keep the same shadow and cookie projection beyond the camera FOV property's 1..179 degree
+limits. It renders the world into the light's tile of a shared 2048 x 2048 R32F atlas (tiles 1024 x 512,
 the map 512 high and as wide as SpotWidth / SpotHeight allows), kept as linear distance along the axis by
 `svm_spot_depth.glsl`. The template has `SpotShadowSlots` (8) slots, one float-texture row each (`svm_spots`); it adds,
 per pixel, to the light stage of every lit surface (lightmapped, vertex lit and actor lit) each light's colour x 2 x
@@ -437,7 +439,10 @@ washed out by the spots in front of them).
 - The slot row says whether its light is dynamic (row 3 x: 1 static, 2 dynamic), and `svm_spot_ignore` (one texel
   per slot, one row per group) says which slots each group skips; `SpotShadowLight` rebuilds it when a slot changes
   hands, from its `LightName`.
-Cookies share a texture array (`svm_spot_cookies`, each resampled to 256 x 256; layer 0 white).
+Cookies share a texture array (`svm_spot_cookies`, each resampled to 256 x 256; layer 0 white). Map and pack cookies
+come from retained CPU images. Each cookie is normalized once into a separate copy, leaving its source unchanged;
+adding another layer never reads earlier textures back from the GPU. The last light releases these copies, so map
+travel starts with a fresh cookie array.
 
 - Map LE_ESpotShadow lights (`MapSpotLights`, 364 over all maps) are not in the baked light: the bridge found FactD's
   lightmap uniform under the window patches the game draws with bar shadows (fix_plan I8), so every one that is on
@@ -860,8 +865,10 @@ hot spots stopped at yellow, his head read cold, a wide halo ringed him). The co
   estimate. Its row-major rows are `(.25,0,0,0),(.25,.5,0,0),(0,0,1,0),(.5,.5,0,1)`.
 - Laser beams (`Lasers`: SLaserBeam's LasDetectBeam stretched from start to end; the tripwires' and the mines'
   SLaserBeam_MineLaser, length fTailleFaisceau) are vision-only nodes: drawn only in 36 and 38 (bHideInNormalVision),
-  with their own material: the beam's HeatIntensity in thermal (tripwire 1, mine beam 0.4). The material discards
-  the connecting beam in EMF; only the emitter's own EMF response remains, matching the original-game screenshots.
+  with their own material: the beam's HeatIntensity in thermal (tripwire 1, mine beam 0.4). In EMF the connecting
+  beam remains visible in dark grey, as observed in the original game. It uses the ordinary EMF environment
+  reflection with zero EMF intensity and depth fog; the emitter keeps its own EMF response. The rendered
+  `detector-laser` smoke checks that the beam stays visible without turning bright white, and retains thermal heat.
 - Weapon lasers (the spy pistol's beam, the merc laser sight; both SLaserBeam, HeatIntensity 1) draw their additive
   red look in every mode, which adds only red, a channel the thermal post does not read. Their material carries a
   thermal pass (`SpyLaserView.ThermalBeamPass`, svm_laser.gdshader with thermal_only) that draws heat 1 with the

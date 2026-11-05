@@ -105,6 +105,12 @@ Hold switches (not in SteeE):
 Native:
 
 20. `CanUse(PC)` (thunk 0x10AB96F0; editor `ASTriggerInteraction::execCanUse` 0x111BD780): expected: `bUsable`, team by `UsableBy`, alive, not `bInUse`, reuse delay (`TimeSeconds - iLastUsedTime >= iReusableTime`, measured), facing when `bInteractInFront`.
+    Decoded game virtual `0x10AF6720` also rejects a hold switch (`bMaintain`) for a merc
+    (`SPawnType = 1`), even if its team setting allows mercs. OpenSCCT applies this restriction.
+    The native also rejects `s_Maintain_Use`, `s_Hacking`, `WaitingBeforeActivation` and
+    `WaitingBeforeDesactivation` (FNames `0x3CF` through `0x3D2`, respectively). OpenSCCT applies
+    those state gates independently of `bInUse`, keeping delayed switches out of the menu until
+    both timer phases finish. They check the interaction's own state, not a linked mover's state.
 21. `HandleEventInfo()` (0x10AF6650; editor 0x111BDBE0; decoded, natives2-events.md rule 2): G = the owner when it is an SBasicGamePlayObject. By `G.TriggerMethode`: TriggerToggle (0) `TriggerEvent(G.Event, G, InstigatorTempo.Pawn)` on every use; TriggerControl (1) TriggerEvent when `bIsActive` is false, UntriggerEvent when it is true, then `bIsActive` flips; UnTriggerOnly (2) UntriggerEvent; other values log an error and fire nothing. Then, when `G.bTriggerOnceOnly`, the interaction's `bUsable` is cleared (matching the RE+ measurements: TriggerControl alternated, TriggerToggle sent Trigger every use).
 22. Timing measured with animations: a 2 s hack fired 2.7 to 2.8 s after Use was tapped; a 3 s hack took about 3.5 s; walking away cancels.
 23. `AddRemoveActorOnClientHud(Instigator, add)` (reliable simulated multicast, flag 0x01000000): add: `SHud(Instigator.myHUD).AddRemoveActorOnHud(self, true)` on each machine (only the instigator's own machine has his controller and HUD, so only the hacker's HUD adds it); remove: the local player's HUD removes it.
@@ -183,6 +189,31 @@ stateDiagram-v2
 - A second user while the panel is in `s_Hacking` gets the base refusal from `InitInteract`.
 - Toggling `bUsable` with `Trigger` while a hack runs does not stop the hack.
 - Spies with a weapon drawn holster first; mercs keep their weapon (`SPAWNDEFENSE` excluded from the holster in `s_Hack_GoTo`).
+- Missile Strike's `MissD` and `MissE` authored data both make `Release Gas` initially usable by
+  mercs. The gas panels are `SInterrupteur39168` / `17724`; their spy/merc `Central Shaft` panels
+  are `39169` / `39199` and `17725` / `17755`, respectively. The gas interaction cylinder is
+  radius 40, half-height 60 uu in `MissD`, versus 60 and 120 uu in `MissE`. Both gas panels fire
+  `Gaz01`, which activates `SMagicEvent261`: `release` at 1 s and 60 s, and `cut_switch`
+  immediately and after 90 s. The latter toggles the gas panel off during its own cooldown.
+  These two cooldown events are its only authored incoming event edges. The separate shaft
+  event `open_vent_bunker` has no link to gas usability; neither map contains a switch manager.
+- In both variants, the Story root and child missions have no `AtResetEvent` (default `None`).
+  The Deathmatch and DiskHunt reset-event chains also do not reach the gas switch, `Gaz01` or
+  `cut_switch`. Original `SMission.Reset` fires its configured `AtResetEvent` after resetting
+  its objectives. The checked authored graph therefore supplies no Story-start reset gate that
+  would make gas availability depend on first opening the shaft.
+- A fresh original `MissE` run with a solo merc, no spy and no prior shaft interaction returned
+  `1` from native virtual `CanUse` at the correct panel pose; sampled other facings returned `0`.
+  This controlled availability query supports leaving gas initially usable in OpenSCCT. It was
+  an editor/autoplay run, not a complete interaction-menu/use sequence or a normal multiplayer
+  match, so those runtime flows remain unverified. No shaft/spy-presence prerequisite is added.
+- OpenSCCT applies the decoded `bInUse`, `bPresenceDetected`, merc hold-switch refusal and four
+  busy-state checks in rule 20. The gas panels have no hold, hack, activation/deactivation delay
+  or initial-state override. The known presence-flag writer is `SPresDetector.Tick`, which locks
+  its own detector interaction during a warning; no shaft-to-gas setter was identified. A separate
+  base-native branch checks `ASAmmoStockInteraction` and `ASGadBomb` (class globals `0x10C9F140` /
+  `0x10C9D3B8`), so it does not apply to gas. None of these gates establishes a shaft prerequisite;
+  the remaining estimated facing rules still prevent claiming complete native `CanUse` parity.
 
 ## Evidence
 
@@ -192,11 +223,48 @@ stateDiagram-v2
 - SteeE: SInterrupteur28807, 28808, 28809, 28810; DiskHunt/DM missions' `AtResetEvent = hackvolet01`.
 - Natives: HandleEventInfo 1336 0x10AF6650, CanUse 1337 (thunk 0x10AB96F0); editor ASTriggerInteraction execCanUse 0x111BD780, GetOptimizedRepList 0x111BD910, execHandleEventInfo 0x111BDBE0; ASInterrupteur GetOptimizedRepList 0x111D1620; vtables ASInterrupteur 0x10BF8AC0, ASTriggerInteraction 0x10BFBAB0.
 - Measured: RE+ `docs/MapBuilderPatterns.md` (panel timings, TriggerMethode behaviour), `docs/phase4/lab-power.md` (reuse lock).
+- Gas investigation (2026-11-05): `.content/svmap/MissD/sim/gameplay.json` and
+  `.content/svmap/MissE/sim/gameplay.json`, including the panels above, `SMagicEvent261` / `2945`,
+  Story roots `SMission39221` / `17777`, and Deathmatch / DiskHunt reset chains. Each reset chain's
+  conservative event-edge closure reaches 133 actors and excludes gas; the shaft closure reaches
+  eight actors and excludes gas. Original `SMission.uc` lines 144 to 251 supplies the reset flow.
+  REA read the installed Enhanced 4.0 Beta 5 engine (SHA-256
+  `a98873aaec1de21fdcccc0afb9985e3ddcf38a9ddce1207214872d6428ec9950`): switch `CanUse`
+  at `0x10AF6720` (vtable `0x10BFBAB0` + `0x138`) delegates to base `0x10AF6EF0`.
+  Ghidra did not identify the former as a function, so the returned bytes were decoded locally
+  with Capstone. Evidence bundle: `local/re-out/interaction-usability-2026-11-05.json`, records
+  `ev_4e2f125732c910692156bb50b2da529706f220ab2d507fba4a86eff0fe62913e` and
+  `ev_9fff16d0ec1194272b7c69c72db61f6f6d41d62319eefe2612dacd40e12cacaa`.
+  This inspection covers those function bodies, not every called helper or event at runtime.
+- State-name resolution: static registrations at `0x10926925` through `0x10926997` pair
+  `0x3CF` with UTF-16 `s_Maintain_Use` at `0x10C59C7C`, `0x3D0` with `s_Hacking` at
+  `0x10C59C9C`, `0x3D1` with `WaitingBeforeActivation` at `0x10C59CB0`, and `0x3D2` with
+  `WaitingBeforeDesactivation` at `0x10C59CE0`. Each sequence pushes the name index, loads
+  the string address into EDI and calls `0x1093B590`. Read from the same engine hash above
+  using PE offsets and Capstone; bytes and decoded instructions are saved in
+  `local/re-out/interaction-state-names-2026-11-05.json`. This static name resolution altered no process.
+- Controlled original runtime query (2026-11-05), fresh isolated slot 8: Enhanced Beta 5 source
+  engine SHA-256 `a98873aaec1de21fdcccc0afb9985e3ddcf38a9ddce1207214872d6428ec9950`,
+  executable copy patched only for the instance mutex, SHA-256
+  `2840396f7c360c8a7bbba978eab7128b3c39af76ac812ff7ed441589d0d46170`; `MissE` map SHA-256
+  `47af37011facf2cfb9f24d7246e3d8016e8427e1e0430d09e523cd459448c4e9`.
+  `AutoplayGameMode=1`, `Editeur=true`, solo merc, no spy and no shaft use. An explicit query of
+  virtual `CanUse` at `0x10AF6720` returned `1` at pawn position
+  `(-4384, 784.5163, -422.995)` with yaw `32768`; the other sampled cardinal facings returned `0`.
+  The same facing was accepted at Z `-370.42`. Initial properties confirmed `bUsable=1`,
+  `bInUse=0`, `bPresenceDetected=0`, `bMaintain=0`, `bHackable=0`, and zero reuse/last-use times.
+  Evidence: `local/re-out/missile-gas-runtime-2026-11-05.json`, record
+  `ev_0b11aa29349f478b517119b5a904130b421ff40477776213fec407f36a51ac77`; initial properties:
+  `local/re-out/missile-gas-runtime-initial-2026-11-05.json`. Artifact hashes and launch conditions
+  were recorded separately; the Frida observation itself does not bind artifact identity. This
+  proves the queried native availability under these conditions, not the full UI or ordinary
+  multiplayer flow.
 
 ## Open questions
 
 1. `iLastUsedTime` updates (not written by `HandleEventInfo`). Trace: use the SteeE crane panel twice; read `bUsable`, `bIsActive` and the event log.
-2. `STriggerInteraction.CanUse`: conditions, especially `bInUse`, `bIsActive`, `bSecondaryObjective` and the facing rule.
+2. Exact base-native facing and collision-distance rules; the decoded switch busy-state, presence,
+   use-lock and merc hold-switch gates are implemented (rule 20 and interaction-system.md rule 23).
 3. `bInitialyActive`: `bIsActive` is the TriggerControl on/off state (rule 21); whether `bInitialyActive` seeds it at start or reset.
 4. Whether `bTriggerOnceOnly` is also honoured by the plain-switch path and the delayed paths.
 

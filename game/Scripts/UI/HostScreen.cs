@@ -35,6 +35,7 @@ public partial class HostScreen : MenuPage
     private Label? _botHint;
     private Label? _listingHint;
     private ScrollContainer? _bodyScroll;
+    private bool _creating;
 
     protected override Vector2 ResponsiveReference => new(1600f, 900f);
 
@@ -333,8 +334,15 @@ public partial class HostScreen : MenuPage
         return control;
     }
 
-    private void Host()
+    private async void Host()
     {
+        if (_creating) return;
+        _creating = true;
+        HostButton!.Disabled = true;
+        HostButton.Text = "Creating session…";
+        _status!.Text = "Preparing your session…";
+        _status.Show();
+        FitHostLayout();
         OnlineSettings s = OnlineSettings.Current;
         LobbySetup setup = Model!.Setup;
         s.HostName = _name!.Text.Trim();
@@ -365,10 +373,19 @@ public partial class HostScreen : MenuPage
             LanPort = s.LanPort,
             RequireAccounts = s.HostRequireAccounts && s.MasterUrl.Length > 0,
         };
-        AccountService.Get(GetTree()).PrepareAppearance(() =>
+        // Give the busy state a rendered frame before synchronous host setup or appearance preparation.
+        SceneTree tree = GetTree();
+        await ToSignal(tree, SceneTree.SignalName.ProcessFrame);
+        await ToSignal(tree, SceneTree.SignalName.ProcessFrame);
+        if (!IsInstanceValid(this) || !IsInsideTree() || tree.CurrentScene != this) return;
+        AccountService.Get(tree).PrepareAppearance(() =>
         {
-            if (!service.Host(request) && _status is not null)
+            if (!IsInstanceValid(this) || !IsInsideTree() || tree.CurrentScene != this) return;
+            if (!service.Host(request))
             {
+                _creating = false;
+                HostButton.Disabled = false;
+                HostButton.Text = "Create session";
                 _status.Text = service.LastError ?? "Could not host.";
                 _status.Show();
             }

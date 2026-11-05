@@ -54,6 +54,16 @@ public static class NetClasses
                 pawn.Functions.AddRange(equipment.Functions);
                 registry.Extend(type, pawn);
             }
+            if (typeof(SInteractObject).IsAssignableFrom(type))
+            {
+                // The script property list omits UsableBy. Startup copies the initial team from the
+                // owner; map managers can change it later. Our spawned client entries need the
+                // authority's live value, including U_NO_ONE, before presenting adjacent team variants.
+                var interaction = new RepExtension();
+                interaction.Properties.Add(new("InteractionOwner", nameof(SInteractObject.Owner), RepLeafKind.Object));
+                interaction.Properties.Add(new(nameof(SInteractObject.UsableBy), nameof(SInteractObject.UsableBy), RepLeafKind.Enum));
+                registry.Extend(type, interaction);
+            }
         }
         SidearmNet.Register(registry);
         registry.Extend<OpenScct.Core.Engine.LevelInfo>(NetDeviceEvents.CreateExtension());

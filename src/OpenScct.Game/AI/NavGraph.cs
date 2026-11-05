@@ -117,6 +117,8 @@ public sealed class NavGraph
     private int[]? _stamp;
     private int _search;
     private readonly PriorityQueue<int, float> _open = new();
+    // Separate from A*: its penalty callback may ask for a reachability field while a path is being planned.
+    private readonly PriorityQueue<int, float> _costOpen = new();
 
     internal NavGraph(NavProfile profile, FVector origin, NavNode[] nodes, int[] edgeStart, int[] edgeTo, NavEdgeKind[] edgeKind,
         float[] edgeCost, int[] edgeLink, NavLink[] links)
@@ -449,13 +451,29 @@ public sealed class NavGraph
     public float[] CostsFrom(int from, float maxCost = float.MaxValue, IReadOnlySet<int>? badLinks = null, IReadOnlySet<int>? badEdges = null)
     {
         var costs = new float[_nodes.Length];
-        Array.Fill(costs, float.PositiveInfinity);
+        CostsFrom(from, costs.AsSpan(), maxCost, badLinks, badEdges);
+        return costs;
+    }
+
+    /// <summary>
+    /// Recomputes reachability into caller-owned storage, with exactly <see cref="NodeCount"/> entries. Reusing
+    /// this storage avoids a graph-sized allocation on every bot decision; costs and blocked routes are still
+    /// evaluated afresh. Like <see cref="FindPath"/>, searches run one at a time on the host's thread.
+    /// </summary>
+    public void CostsFrom(int from, Span<float> costs, float maxCost = float.MaxValue,
+        IReadOnlySet<int>? badLinks = null, IReadOnlySet<int>? badEdges = null)
+    {
+        if (costs.Length != _nodes.Length)
+            throw new ArgumentException("The cost buffer must have one entry per navigation node.", nameof(costs));
+
+        costs.Fill(float.PositiveInfinity);
+        PriorityQueue<int, float> open = _costOpen;
+        open.Clear();
         if (from < 0)
         {
-            return costs;
+            return;
         }
 
-        var open = new PriorityQueue<int, float>();
         costs[from] = 0f;
         open.Enqueue(from, 0f);
         while (open.TryDequeue(out int n, out float c))
@@ -482,7 +500,6 @@ public sealed class NavGraph
             }
         }
 
-        return costs;
     }
 
     /// <summary>

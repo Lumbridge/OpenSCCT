@@ -1,5 +1,6 @@
 using System.IO;
 using OpenScct.Core;
+using OpenScct.Core.Engine;
 using OpenScct.Core.Uc;
 using OpenScct.Game.Combat;
 using OpenScct.Game.Movement;
@@ -10,6 +11,25 @@ namespace OpenScct.Game.Tests.Devices;
 
 public sealed class SecurityCameraShotTests
 {
+    [Theory]
+    [InlineData(0)]
+    [InlineData(1)]
+    [InlineData(2)]
+    public void ClientPatrolCodeCannotDetectOrOverrideTheReplicatedLight(byte lightState)
+    {
+        DeviceScene scene = DeviceScene.Create(ENetMode.NM_Client);
+        var camera = scene.Add(new SCamera { Role = ENetRole.ROLE_SimulatedProxy, bAutoWallSupport = false, PatrolAngle = 0 },
+            new FVector(0, 0, 200));
+        scene.Add(new SPawnAttaque { Physics = EPhysics.PHYS_None }, new FVector(300, 0, 200));
+        scene.Begin();
+        camera.LightState = lightState;
+        scene.StepSeconds(1f);
+        Assert.Equal(lightState, camera.LightState);
+        Assert.False(camera.bSomethingIsDetected);
+        Assert.True(camera.AmbientSound.IsNone);
+        Assert.Empty(scene.Sounds.Of(SimEventKind.PlaySound, camera.CamDzzz.Path));
+    }
+
     [Fact]
     public void FactoryCameraSideShotsReachTheHeadInsteadOfItsMount()
     {
