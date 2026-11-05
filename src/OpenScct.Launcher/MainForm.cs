@@ -147,7 +147,7 @@ internal sealed partial class MainForm : Form
         Icon = Theme.LoadIcon(32);
         AutoScaleMode = AutoScaleMode.Dpi;
         AutoScaleDimensions = new SizeF(96f, 96f);
-        ClientSize = new Size(840, 504);
+        ClientSize = new Size(674, 520);
         MinimumSize = new Size(600, 420);
         FormBorderStyle = FormBorderStyle.Sizable;
         StartPosition = FormStartPosition.CenterScreen;
