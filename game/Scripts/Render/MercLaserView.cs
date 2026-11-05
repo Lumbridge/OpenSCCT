@@ -282,7 +282,7 @@ public sealed partial class MercLaserView : Node3D
         return nodes;
     }
 
-    /// <summary>Build and draw the actual beam materials during loading, including the weapon stencil and thermal pass.</summary>
+    /// <summary>Build and draw the actual beam materials during loading, including the weapon stencil and vision pass.</summary>
     public void Preload(Node3D samples)
     {
         var (beam, dot) = CreateNodes(samples);
@@ -305,8 +305,8 @@ public sealed partial class MercLaserView : Node3D
                 _beamLookTried = true;
                 _beamLook = OpenScctGame.Fx.SpyLaserView.AdditiveBeamMaterial(Map);
                 _finLook = OpenScctGame.Fx.SpyLaserView.AdditiveBeamMaterial(Map, OpenScctGame.Fx.SpyLaserView.FinTexture);
-                UnderFirstPerson(_beamLook);
-                UnderFirstPerson(_finLook);
+                ConfigureBeamMaterial(_beamLook);
+                ConfigureBeamMaterial(_finLook);
             }
 
             OpenScctGame.Fx.SpyLaserView.ApplyBeamLook(beam, _beamLook, _finLook, showFin: true);
@@ -321,7 +321,7 @@ public sealed partial class MercLaserView : Node3D
                 BlendMode = BaseMaterial3D.BlendModeEnum.Add,
                 NextPass = OpenScctGame.Fx.SpyLaserView.ThermalBeamPass(null),
             };
-            UnderFirstPerson(standIn);
+            ConfigureBeamMaterial(standIn);
             beam.MaterialOverride = standIn;
         }
 
@@ -366,11 +366,12 @@ public sealed partial class MercLaserView : Node3D
 
     /// <summary>
     /// The beam is hidden where the local merc's first-person arms and rifle are drawn (they mark the stencil,
-    /// MaterialCompiler.StencilFirstPerson), as the original's weapon overlay draws the gun over it; its thermal pass
-    /// too, which is moved to the transparent pass so the gun has marked the stencil before it draws.
+    /// MaterialCompiler.StencilFirstPerson), as the original's weapon overlay draws the gun over it. Its vision pass
+    /// draws heat in thermal and the same non-glowing EMF surface as detector beams, in the transparent pass so the
+    /// gun has marked the stencil before it draws.
     /// </summary>
     [Provenance(ProvenanceKind.Estimated, "The first-person gun covers the beam through the stencil (the original's weapon overlay draws it over the world)")]
-    private static void UnderFirstPerson(EffectMaterial? material)
+    private static void ConfigureBeamMaterial(EffectMaterial? material)
     {
         if (material is null)
         {
@@ -381,19 +382,20 @@ public sealed partial class MercLaserView : Node3D
         material.StencilFlags = (int)BaseMaterial3D.StencilFlagsEnum.Read;
         material.StencilCompare = BaseMaterial3D.StencilCompareEnum.NotEqual;
         material.StencilReference = Materials.MaterialCompiler.StencilFirstPerson;
-        if (material.NextPass is ShaderMaterial thermal)
+        if (material.NextPass is ShaderMaterial vision)
         {
-            s_maskedThermal ??= new Shader
+            s_maskedVision ??= new Shader
             {
                 Code = "shader_type spatial;\nrender_mode unshaded, fog_disabled, cull_disabled, depth_draw_opaque;\n"
                     + $"stencil_mode read, compare_not_equal, {Materials.MaterialCompiler.StencilFirstPerson};\n"
                     + "#define SVM_FIRST_PERSON_MASK\n#include \"res://Shaders/svm_laser.gdshaderinc\"\n",
             };
-            thermal.Shader = s_maskedThermal;
+            vision.Shader = s_maskedVision;
+            vision.SetShaderParameter("thermal_only", false);
         }
     }
 
-    private static Shader? s_maskedThermal;
+    private static Shader? s_maskedVision;
 
     private Mesh BeamMeshOrStandIn()
     {

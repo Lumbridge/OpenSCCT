@@ -872,7 +872,10 @@ hot spots stopped at yellow, his head read cold, a wide halo ringed him). The co
 - Weapon lasers (the spy pistol's beam, the merc laser sight; both SLaserBeam, HeatIntensity 1) draw their additive
   red look in every mode, which adds only red, a channel the thermal post does not read. Their material carries a
   thermal pass (`SpyLaserView.ThermalBeamPass`, svm_laser.gdshader with thermal_only) that draws heat 1 with the
-  depth fade where the beam texture is lit (its core), so they show hot in thermal; EMF keeps the additive look.
+  depth fade where the beam texture is lit (its core), so they show hot in thermal. The merc sight also enables
+  the non-glowing EMF pass used by detector beams, with the same animated texture mask and first-person weapon
+  stencil as its thermal pass. This covers the beam body, muzzle fin and fallback mesh. The spy pistol keeps its
+  additive EMF look.
 - Spawned gadget meshes (`EffectViews`) and the map's device nodes (`DeviceViews`) write their actor's live values
   (`GameplayObjects.VisionOf`) when they change, so a device whose bEMFIsOn goes off stops glowing; a map node keeps
   the map's HeatOpacity (not replicated).

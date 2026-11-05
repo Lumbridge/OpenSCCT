@@ -136,7 +136,9 @@ stateDiagram-v2
 The beam body's `SGameplayObjectsTex.LaserBeamShader` has Diffuse `pan_laserbeam`: a `TexPanner` with
 `PanRate = -0.05` and `PanDirection = (0,0,0)`. Its U offset is `frac(TimeSeconds * -0.05)` (one cycle per
 20 seconds). The second section's `lasebeam2fin` uses the stationary `Laserbeam2` texture. The client applies
-the body's pan at interpolated scene time to both its additive colour and thermal-mask passes.
+the body's pan at interpolated scene time to its additive colour and thermal/EMF mask passes. In EMF the beam
+uses the same dark, non-glowing environment reflection and depth fog as detector and mine beams. Both vision
+passes follow the texture's lit core and respect the first-person weapon stencil.
 
 The local beam uses the weapon's current drawn `FX` pose, including movement and action channels. A fixed neutral
 idle pose calibrates the sight; jumps and reloads rotate it with the barrel rather than keeping its end at the

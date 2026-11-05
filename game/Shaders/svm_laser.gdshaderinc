@@ -1,4 +1,4 @@
-// The body of svm_laser.gdshader (see there). SVM_FIRST_PERSON_MASK: the merc laser sight's thermal pass, drawn in the
+// The body of svm_laser.gdshader (see there). SVM_FIRST_PERSON_MASK: the merc laser sight's vision pass, drawn in the
 // transparent pass (after the first-person gun has marked the stencil) so the gun covers it as it covers the beam.
 global uniform int svm_vision;
 global uniform sampler2D svm_emf_env;
@@ -13,7 +13,11 @@ void fragment() {
 	ALPHA = 1.0;
 #endif
 	vec4 m = texture(mask, UV + uv_offset);
-	if (svm_vision == 36 && max(m.r, max(m.g, m.b)) * m.a > 0.3) {
+	// Keep weapon beams to their textured core in both vision modes, including the muzzle fin.
+	if (max(m.r, max(m.g, m.b)) * m.a <= 0.3) {
+		discard;
+	}
+	if (svm_vision == 36) {
 		float fade = 1.0 - clamp(-VERTEX.z * 100.0 / 5000.0, 0.0, 1.0);
 		ALBEDO = vec3(0.0, clamp(heat, 0.0, 1.0), fade);
 	} else if (svm_vision == 38 && !thermal_only) {
