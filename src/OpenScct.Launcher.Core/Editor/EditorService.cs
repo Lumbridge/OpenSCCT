@@ -325,11 +325,22 @@ public sealed partial class EditorService
                 await RunCliAsync(["install-staged", "--version", offer.Version.ToString()], progress, canCancel: false,
                     Path.Combine(helper, "ose.exe")).ConfigureAwait(false);
             }
-            finally { if (Directory.Exists(helper)) SafeDelete.Tree(helper, _layout.EditorDownloads); }
+            finally { CleanupUpdateHelper(helper); }
             if (Installed() is not { } finished || finished.Version < offer.Version)
                 throw new IOException("The editor updater did not finish on the requested version. Check the editor update log.");
         }
         finally { if (File.Exists(cancellation)) File.Delete(cancellation); }
+    }
+
+    internal void CleanupUpdateHelper(string helper)
+    {
+        // Windows/security scanners can briefly hold the copied executable after the CLI exits.
+        // Cleanup must not replace the updater's result (including an actual install failure).
+        try { SafeDelete.Tree(helper, _layout.EditorDownloads); }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            Trace.TraceWarning("Could not remove temporary editor updater '{0}': {1}", helper, ex.Message);
+        }
     }
 
     private static void CopyCli(string source, string destination)

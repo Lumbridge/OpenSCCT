@@ -9,6 +9,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Reflection;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -77,6 +78,7 @@ internal sealed partial class MainForm : Form
     private int _resizeStartHeight;
     private bool _updateFitQueued;
     private bool _fittingUpdate;
+    private string? _lastFitState;
     private bool _userSizing;
     private FormWindowState _lastWindowState;
     private readonly Label _heading = Theme.Wrapping(Theme.Label("Install OpenSCCT", Theme.Status));
@@ -393,8 +395,24 @@ internal sealed partial class MainForm : Form
         BeginInvoke(() =>
         {
             _updateFitQueued = false;
-            if (!IsDisposed && !Disposing) FitUpdateHeight();
+            if (!IsDisposed && !Disposing && CaptureFitState() != _lastFitState) FitUpdateHeight();
         });
+    }
+
+    private string CaptureFitState()
+    {
+        var state = new StringBuilder();
+        state.Append(ClientSize).Append('|').Append(DeviceDpi).Append('|').Append(_editorSelected);
+        // The other product's notes can arrive while its tab is not selected.
+        state.Append('|').Append(_lastCheck?.Latest?.Release.Body).Append('|').Append(_editorCheck?.Latest?.Release.Release.Body);
+        Append(this);
+        return state.ToString();
+
+        void Append(Control control)
+        {
+            state.Append('|').Append(control.Visible).Append(':').Append(control.Text.Length).Append(':').Append(control.Text);
+            foreach (Control child in control.Controls) Append(child);
+        }
     }
 
     /// <summary>Use the smallest shared height that fits either product's complete release preview.</summary>
@@ -434,6 +452,7 @@ internal sealed partial class MainForm : Form
             _releasePreview.AutoScrollPosition = new Point(-previewScroll.X, -previewScroll.Y);
             if (focused is { IsDisposed: false, CanFocus: true } && ActiveControl != focused) focused.Focus();
             _fittingUpdate = false;
+            _lastFitState = CaptureFitState();
         }
     }
 

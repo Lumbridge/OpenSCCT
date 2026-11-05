@@ -109,6 +109,36 @@ public sealed class LadderTests
         Assert.Equal(MovementK.SpeedForLadder, rig.Pawn.Velocity.Z, 1);
     }
 
+    [Theory]
+    [InlineData(PawnTeam.Spy)]
+    [InlineData(PawnTeam.Merc)]
+    public void ReleasingUpHoldsTheCompletedClimbPoseAndResumesFromIt(PawnTeam team)
+    {
+        PawnRig rig = LadderRig(team);
+        Assert.True(StepUntil(rig, Up, MovementStateNames.s_OnLadder, 200));
+        rig.Hold(Up, 20);
+        rig.Hold(NoInput, 40);
+        Assert.True(OnRung(rig.Pawn));
+        Assert.Equal(0f, rig.Pawn.Velocity.Z);
+        var animation = rig.Pawn.PawnAnim;
+        float frame = animation[5].Frame;
+        Assert.Equal(1f, animation[5].BlendAlpha);
+        Assert.Equal(0f, animation[5].Rate);
+        bool mirror = animation[0].bMirror;
+        rig.Hold(NoInput, 30);
+        Assert.Equal(frame, animation[5].Frame);
+        Assert.Equal(1f, animation[5].BlendAlpha);
+        Assert.Equal(mirror, animation[0].bMirror);
+        rig.Step(Up);
+        // The animation advances before movement, so the first resume tick still has the held phase.
+        Assert.Equal(frame, animation[5].Frame);
+        Assert.True(animation[5].Rate > 0f);
+        rig.Step(Up);
+        float advance = animation[5].Frame - frame;
+        if (advance < 0f) { advance += 1f; }
+        Assert.InRange(advance, 0.00001f, 0.2f);
+    }
+
     [Fact]
     public void ReleasingUpStopsExactlyOnTheNextRung()
     {

@@ -584,6 +584,35 @@ internal static class Program
 
     private static void LifecycleChecks()
     {
+        Inspect(() =>
+        {
+            var scenario = new Scenario("editor-ready", true, true, "Open Editor");
+            using var fixture = new Fixture(scenario);
+            new LauncherSettings { SelectedProduct = "Editor", CheckOnStart = false, EditorCheckOnStart = false }.Save(fixture.Layout.Settings);
+            using Form form = Create(fixture, scenario);
+            form.StartPosition = FormStartPosition.Manual;
+            form.Location = new Point(-32000, -32000);
+            form.ShowInTaskbar = false;
+            form.Show();
+            Settle(form);
+            EditorService editor = Field<EditorService>(form, "_editor");
+            typeof(EditorService).GetProperty("RunningOverride", Hidden)!.SetValue(editor, (Func<string, bool>)(_ => true));
+            Func<CancellationToken, Task> operation = cancel =>
+                (Task)MainType.GetMethod("SetupOrUpdateEditorAsync", Hidden)!.Invoke(form, [cancel])!;
+            Task work = (Task)MainType.GetMethod("RunAsync", Hidden)!.Invoke(form, [operation])!;
+            PumpUntil(work);
+            Settle(form);
+            Button retry = Field<Button>(form, "_main");
+            Button current = Field<Button>(form, "_playCurrent");
+            Check(retry.Visible && retry.Enabled && retry.Text == "Retry update", $"Failed editor setup retains retry even when installed version matches latest (text={retry.Text}, visible={retry.Visible}, enabled={retry.Enabled})");
+            Check(current.Visible && current.Enabled && current.Text == "Use current version", "Failed editor setup offers the usable installed version");
+            Check(Field<Label>(form, "_status").Text.Contains("close the editor", StringComparison.Ordinal), "Retry preserves the actual setup failure");
+            Call(form, "SelectProduct", false);
+            Call(form, "SelectProduct", true);
+            Settle(form);
+            Check(retry.Text == "Retry update" && current.Visible, "Editor retry and current-version actions survive tab changes");
+            form.Hide();
+        });
         foreach (bool applying in new[] { false, true })
         {
             Inspect(() =>
@@ -734,6 +763,20 @@ internal static class Program
                 Settle(form);
                 Check(form.ClientSize.Height == commonHeight && form.ClientSize.Width == commonWidth, label + " switching to Editor keeps common window dimensions");
                 CheckPreviewFits(form, label + " Editor");
+                int idleTextChanges = 0, idleSizeChanges = 0;
+                Label heading = Field<Label>(form, "_heading");
+                EventHandler textChanged = (_, _) => idleTextChanges++;
+                EventHandler sizeChanged = (_, _) => idleSizeChanges++;
+                heading.TextChanged += textChanged;
+                form.SizeChanged += sizeChanged;
+                for (int tick = 0; tick < 3; tick++)
+                {
+                    Call(form, "OnPendingTick");
+                    Settle(form);
+                }
+                heading.TextChanged -= textChanged;
+                form.SizeChanged -= sizeChanged;
+                Check(idleTextChanges == 0 && idleSizeChanges == 0, label + " idle polling does not swap product text or resize the window");
                 Check(Field<Label[]>(form, "_previewItems").Count(c => c.Visible && c.Text.Length > 0) == 3, label + " Editor shows all three public release highlights");
                 Check(Field<Label[]>(form, "_previewItems")[1].Text.Contains("installation root", StringComparison.Ordinal), label + " actual public editor changelog is used");
                 Save(form, output, label + "-default");

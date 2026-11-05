@@ -958,8 +958,20 @@ public static class PawnMovementAnimation
             SetSequence(pawn, a, 6, pawn.ForwardAnim);
         }
 
+        bool ladderPose = pawn.Physics == EPhysics.PHYS_OnLadder &&
+            (a.GetBlendAlpha(5) > 0f || a.GetBlendAlpha(6) > 0f);
         if (pawn.Velocity.Z == 0f)
         {
+            if (ladderPose)
+            {
+                // Keep the rung pose that just finished. Dropping the full-body climb layer at once
+                // exposes channel 0's static hold and visibly switches hands after every short climb.
+                a.SetChannelRateScale(5, 0f);
+                pawn.bIsStopped = true;
+                pawn.bCanStop = true;
+                return;
+            }
+
             a.StepBlendAlpha(5, 0f, AnimationK.AtOnceClimb);
             a.StepBlendAlpha(6, 0f, AnimationK.AtOnceClimb);
             a.SetChannelRateScale(5, 0f);
@@ -969,7 +981,7 @@ public static class PawnMovementAnimation
             return;
         }
 
-        if (pawn.bIsStopped)
+        if (pawn.bIsStopped && !ladderPose)
         {
             float n = PawnActions.Clip(pawn, pawn.ForwardAnim).Frames;
             frame = a.ClipRate(5) * dt / n;

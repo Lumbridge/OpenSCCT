@@ -289,4 +289,26 @@ public sealed partial class EditorServiceTests
         File.WriteAllText(dir.Combine("version.json"), "{\"format\":1,\"product\":\"OpenSCCT Editor\",\"version\":\"0.2.0\",\"platform\":\"win-x64\",\"launcherProtocol\":1,\"minimumGameVersion\":\"0.8.93\",\"entries\":null,\"files\":null}");
         Assert.Throws<InvalidDataException>(() => EditorManifest.Read(dir.Path));
     }
+
+    [Fact]
+    public void LockedTemporaryUpdaterDoesNotTurnAnInstallResultIntoAFailure()
+    {
+        if (!OperatingSystem.IsWindows()) return;
+        using var dir = new TempDir();
+        var layout = new LauncherLayout(dir.Path, LauncherPlatform.WindowsX64);
+        string helper = Path.Combine(layout.EditorDownloads, "cli-test");
+        Directory.CreateDirectory(helper);
+        string exe = Path.Combine(helper, "ose.exe");
+        File.WriteAllText(exe, "helper");
+        using var http = new HttpClient();
+        var service = new EditorService(layout, http);
+        using (var held = new FileStream(exe, FileMode.Open, FileAccess.Read, FileShare.Read))
+        {
+            service.CleanupUpdateHelper(helper);
+            Assert.True(File.Exists(exe));
+        }
+        service.CleanupUpdateHelper(helper);
+        Assert.False(Directory.Exists(helper));
+        Assert.Throws<InvalidOperationException>(() => service.CleanupUpdateHelper(dir.Path));
+    }
 }

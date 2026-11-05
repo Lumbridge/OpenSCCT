@@ -39,8 +39,9 @@ you choose **Set up Editor**; installing the game alone does not install the edi
 
 **Set up Editor** installs missing game and shared-content prerequisites, then the editor, without
 starting the game. The editor uses the same downloaded packs and converted maps. **Open Editor** starts
-it when setup is ready; **Open installed editor** remains available when an optional update exists or
-the release service is offline. Game and editor versions and preview preferences are independent.
+it when setup is ready; **Use current version** remains available when an optional update exists or
+an update fails. **Retry update** remains available after a failure. Game and editor versions and
+preview preferences are independent.
 
 Updates can be started in the launcher or in the editor. The launcher delegates editor updates to the
 editor's packaged `ose` tool, preserving its verified staging, startup probe and recovery. Save and close

@@ -21,6 +21,7 @@ internal sealed partial class MainForm
     private bool _operationEditor;
     private bool _operationCanCancel = true;
     private bool _closeAfterWork;
+    private bool _editorSetupFailed;
     private bool SelectedCheckOnStart => _editorSelected ? _settings.EditorCheckOnStart : _settings.CheckOnStart;
     private readonly Button _gameTab = Theme.Button("Game");
     private readonly Button _editorTab = Theme.Button("Editor");
@@ -103,11 +104,12 @@ internal sealed partial class MainForm
             : prerequisite ?? (update ? $"Editor {_editorCheck!.Latest!.Version} is ready to download." : "Create, edit, and test your maps.");
         _launchDetail.Visible = !busy && VisibleStatus.Kind is not (StatusKind.Warning or StatusKind.Error);
         _main.Text = busy ? (_operationCanCancel ? "Cancel" : "Please wait")
-            : recover ? "Recover Editor" : installed is null || prerequisite is not null ? "Set up Editor" : update ? "Update Editor" : "Open Editor";
+            : recover ? "Recover Editor" : installed is null || prerequisite is not null ? "Set up Editor"
+            : _editorSetupFailed ? "Retry update" : update ? "Update Editor" : "Open Editor";
         _main.Enabled = !busy || _operationCanCancel;
         Theme.SetButtonEmphasis(_main, !busy, Palette);
-        _playCurrent.Text = "Open installed editor";
-        _playCurrent.Visible = !busy && !recover && update && prerequisite is null;
+        _playCurrent.Text = "Use current version";
+        _playCurrent.Visible = !busy && !recover && installed is not null && (update || _editorSetupFailed) && prerequisite is null;
         _playCurrent.Enabled = !busy;
         _check.Visible = true;
     }
@@ -187,13 +189,27 @@ internal sealed partial class MainForm
             });
             return;
         }
-        if (_editor.Installed() is not null && _editor.PrerequisiteProblem() is null
+        if (!_editorSetupFailed && _editor.Installed() is not null && _editor.PrerequisiteProblem() is null
             && !(_editorCheck?.Latest is { } latest && latest.Version > _editor.Installed()!.Version))
         { OpenEditor(); return; }
         await RunAsync(SetupOrUpdateEditorAsync);
     }
 
     private async Task SetupOrUpdateEditorAsync(CancellationToken cancel)
+    {
+        try
+        {
+            await SetupOrUpdateEditorCoreAsync(cancel);
+            _editorSetupFailed = false;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _editorSetupFailed = true;
+            throw;
+        }
+    }
+
+    private async Task SetupOrUpdateEditorCoreAsync(CancellationToken cancel)
     {
         if (_editor.IsRunning) throw new InvalidOperationException("Save your work and close the editor and its command-line tools before setup or updating.");
         await CheckEditorAsync(cancel);
