@@ -73,11 +73,11 @@ internal sealed partial class MainForm : Form
     private Panel? _releasePreview;
     private TableLayoutPanel? _releaseNotes;
     private FlowLayoutPanel? _tools;
-    private bool _updateNeedsSpace;
+    private int _userMinimumHeight; // Logical 96-DPI pixels; only an explicit height resize sets this floor.
+    private int _resizeStartHeight;
     private bool _updateFitQueued;
     private bool _fittingUpdate;
     private bool _userSizing;
-    private bool _fitAfterUserSizing;
     private FormWindowState _lastWindowState;
     private readonly Label _heading = Theme.Wrapping(Theme.Label("Install OpenSCCT", Theme.Status));
     private readonly Label _installedInfo = Theme.Wrapping(Theme.Label(string.Empty, Theme.Small, Theme.Muted));
@@ -343,6 +343,7 @@ internal sealed partial class MainForm : Form
                 : (_editorSelected ? _editorCheck is null : _lastCheck is null) ? "Check for updates to load release notes."
                 : release is null ? "No release information available." : "No release notes available.";
         }
+        QueueUpdateFit();
     }
 
     protected override void OnLoad(EventArgs e)
@@ -358,6 +359,7 @@ internal sealed partial class MainForm : Form
     protected override void OnResizeBegin(EventArgs e)
     {
         _userSizing = true;
+        _resizeStartHeight = ClientSize.Height;
         base.OnResizeBegin(e);
     }
 
@@ -365,11 +367,9 @@ internal sealed partial class MainForm : Form
     {
         base.OnResizeEnd(e);
         _userSizing = false;
-        if (_fitAfterUserSizing)
-        {
-            _fitAfterUserSizing = false;
-            QueueUpdateFit();
-        }
+        if (ClientSize.Height != _resizeStartHeight)
+            _userMinimumHeight = (int)Math.Ceiling(ClientSize.Height * 96d / DeviceDpi);
+        QueueUpdateFit();
     }
 
     protected override void OnResize(EventArgs e)
@@ -397,48 +397,67 @@ internal sealed partial class MainForm : Form
         });
     }
 
-    /// <summary>Give update controls their space without taking it away from the release preview.</summary>
+    /// <summary>Use the smallest shared height that fits either product's complete release preview.</summary>
     private void FitUpdateHeight()
     {
         if (_fittingUpdate || WindowState != FormWindowState.Normal
-            || (!_updateNeedsSpace && !_launcherBanner.Visible)
             || _mainLayout is null || _releasePreview is null || _releaseNotes is null || _tools is null) return;
         if (_userSizing)
         {
-            _fitAfterUserSizing = true;
             return;
         }
 
         _fittingUpdate = true;
+        bool selectedEditor = _editorSelected;
+        Control? focused = ActiveControl;
+        Point previewScroll = _releasePreview.AutoScrollPosition;
+        SuspendLayout();
         try
         {
-            _mainLayout.PerformLayout();
-            // Measure the full notes at the width they will have after the scrollbar disappears.
-            int notesWidth = Math.Max(1, _releasePreview.Width - _releasePreview.Padding.Horizontal);
-            int height = Padding.Vertical + _mainLayout.Padding.Vertical + _mainLayout.Margin.Vertical
-                + _tools.GetPreferredSize(new Size(Math.Max(1, ClientSize.Width - Padding.Horizontal), 0)).Height
-                + _tools.Margin.Vertical + _releasePreview.Margin.Vertical + _releasePreview.Padding.Vertical
-                + _releaseNotes.GetPreferredSize(new Size(notesWidth, 0)).Height + LogicalToDeviceUnits(6);
-            foreach (Control row in _mainLayout.Controls)
-            {
-                if (row == _releasePreview || !row.Visible) continue;
-                int width = Math.Max(1, _mainLayout.ClientSize.Width - _mainLayout.Padding.Horizontal - row.Margin.Horizontal);
-                height += row.GetPreferredSize(new Size(width, 0)).Height + row.Margin.Vertical;
-            }
-
+            int height = Math.Max(MeasureProductHeight(false), MeasureProductHeight(true));
             Rectangle work = Screen.FromControl(this).WorkingArea;
             int maximum = Math.Max(1, work.Height - (Height - ClientSize.Height));
-            int target = Math.Min(height, maximum);
-            // Keep the chosen width and any extra height the player gave the window. Scrolling is the
-            // fallback when the monitor cannot accommodate the update content.
-            if (target <= ClientSize.Height) return;
-            ClientSize = new Size(ClientSize.Width, target);
+            int minimum = Math.Max(1, MinimumSize.Height - (Height - ClientSize.Height));
+            int target = Math.Min(Math.Max(Math.Max(height, minimum), LogicalToDeviceUnits(_userMinimumHeight)), maximum);
+            // Keep the width and any extra height chosen by the user. On a small display, scrolling
+            // remains a fallback. Without a manual resize, fit exactly rather than retaining stale space.
+            if (target != ClientSize.Height) ClientSize = new Size(ClientSize.Width, target);
             if (Bottom > work.Bottom) Top = Math.Max(work.Top, work.Bottom - Height);
         }
         finally
         {
+            _editorSelected = selectedEditor;
+            SetProductCopy(selectedEditor);
+            RefreshLocal();
+            RefreshReleasePreview();
+            ResumeLayout(true);
+            _releasePreview.AutoScrollPosition = new Point(-previewScroll.X, -previewScroll.Y);
+            if (focused is { IsDisposed: false, CanFocus: true } && ActiveControl != focused) focused.Focus();
             _fittingUpdate = false;
         }
+    }
+
+    private int MeasureProductHeight(bool editor)
+    {
+        // Render both products synchronously while painting/layout of the form is suspended. This does
+        // not select a tab, save settings, start a request, or change operation ownership.
+        _editorSelected = editor;
+        SetProductCopy(editor);
+        RefreshLocal();
+        RefreshReleasePreview();
+        _mainLayout!.PerformLayout();
+        int notesWidth = Math.Max(1, _releasePreview!.Width - _releasePreview.Padding.Horizontal);
+        int height = Padding.Vertical + _mainLayout.Padding.Vertical + _mainLayout.Margin.Vertical
+            + _tools!.GetPreferredSize(new Size(Math.Max(1, ClientSize.Width - Padding.Horizontal), 0)).Height
+            + _tools.Margin.Vertical + _releasePreview.Margin.Vertical + _releasePreview.Padding.Vertical
+            + _releaseNotes!.GetPreferredSize(new Size(notesWidth, 0)).Height + LogicalToDeviceUnits(6);
+        foreach (Control row in _mainLayout.Controls)
+        {
+            if (row == _releasePreview || !row.Visible) continue;
+            int width = Math.Max(1, _mainLayout.ClientSize.Width - _mainLayout.Padding.Horizontal - row.Margin.Horizontal);
+            height += row.GetPreferredSize(new Size(width, 0)).Height + row.Margin.Vertical;
+        }
+        return height;
     }
 
     protected override async void OnShown(EventArgs e)
@@ -509,7 +528,6 @@ internal sealed partial class MainForm : Form
         VersionedRelease? latest = _lastCheck?.Latest;
         bool update = current is not null && (PackUpdateAvailable || (pending is null
             && _lastCheck is { GameUpdateAvailable: true } && latest is not null && latest.Version > current));
-        _updateNeedsSpace = update || pending is not null;
         bool checkedOnline = _lastCheck is { Feed.Source: ReleaseFeedSource.Network or ReleaseFeedSource.NotModified };
         int maps = playable ? _packs.Installed().Count(p => !p.IsShared) : 0;
         _installedInfo.Text = current is not null

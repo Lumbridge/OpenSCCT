@@ -4,10 +4,10 @@ using System.Linq;
 
 namespace OpenScct.Master.Web;
 
-/// <summary>Authored player documentation. HTML here is trusted source content, never request data.</summary>
+/// <summary>Authored game and editor documentation. HTML here is trusted source content, never request data.</summary>
 internal static class WikiContent
 {
-    internal sealed record Category(string Id, string Title, string Description);
+    internal sealed record Category(string Id, string Title, string Description, string Area = "game");
     internal sealed record Section(string Id, string Title, string Html);
     internal sealed record Article(string Slug, string Category, string Title, string Summary, string Keywords,
         Section[] Sections, string[] Related);
@@ -17,7 +17,7 @@ internal static class WikiContent
         new("start", "Getting started", "Installation, session access and settings."),
         new("gameplay", "Gameplay", "Roles, equipment, movement and objectives."),
         new("community", "Online play", "Hosting, hubs, chat, recordings and player stats."),
-        new("editor", "Map editor", "Map projects, geometry, events, lighting and testing."),
+        new("editor", "Map editor", "Map projects, geometry, events, lighting and testing.", "editor"),
     ];
 
     // Maintenance sources: SVM-Rewrite/docs/{LAUNCHER,LINUX,MENUS,MODES,GADGETS,ONLINE,VOICE,DEMOS,
@@ -183,10 +183,13 @@ internal static class WikiContent
 
     public static Article? Find(string slug) => Articles.FirstOrDefault(a => string.Equals(a.Slug, slug, StringComparison.Ordinal));
 
-    public static IEnumerable<Article> Search(string query, string category)
+    public static IEnumerable<Category> CategoriesFor(string area) => Categories.Where(c => c.Area == area);
+
+    public static IEnumerable<Article> Search(string query, string category, string? area = null)
     {
         string[] words = query.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-        return Articles.Where(a => (category.Length == 0 || a.Category == category) && words.All(word =>
+        return Articles.Where(a => (area is null || Categories.Any(c => c.Id == a.Category && c.Area == area)) &&
+            (category.Length == 0 || a.Category == category) && words.All(word =>
             (a.Title + " " + a.Summary + " " + a.Keywords + " " + string.Join(' ', a.Sections.Select(s => s.Title + " " + s.Html)))
                 .Contains(word, StringComparison.OrdinalIgnoreCase)));
     }

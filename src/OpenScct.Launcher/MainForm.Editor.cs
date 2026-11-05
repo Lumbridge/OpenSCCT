@@ -76,11 +76,16 @@ internal sealed partial class MainForm
         old?.Dispose();
         Icon?.Dispose();
         Icon = _editorSelected ? Theme.LoadEditorIcon(32) : Theme.LoadIcon(32);
-        _brandSubtitle.Text = _editorSelected ? "OpenSCCT Editor · Create and test your maps" : "Splinter Cell Chaos Theory Versus, rebuilt";
-        _website.Text = _editorSelected ? "Editor website" : "Website";
+        SetProductCopy(_editorSelected);
         _tips.SetToolTip(_website, _editorSelected ? "Visit the OpenSCCT Editor project." : "Visit the OpenSCCT website.");
         _settingsButton.AccessibleName = _editorSelected ? "Editor settings" : "Game settings";
         _tips.SetToolTip(_settingsButton, _settingsButton.AccessibleName);
+    }
+
+    private void SetProductCopy(bool editor)
+    {
+        _brandSubtitle.Text = editor ? "OpenSCCT Editor · Create and test your maps" : "Splinter Cell Chaos Theory Versus, rebuilt";
+        _website.Text = editor ? "Editor website" : "Website";
     }
 
     private void RefreshEditorPanel(bool busy)
@@ -97,7 +102,6 @@ internal sealed partial class MainForm
             ? "Install the editor with the game and shared maps it needs. The game will not start during setup."
             : prerequisite ?? (update ? $"Editor {_editorCheck!.Latest!.Version} is ready to download." : "Create, edit, and test your maps.");
         _launchDetail.Visible = !busy && VisibleStatus.Kind is not (StatusKind.Warning or StatusKind.Error);
-        _updateNeedsSpace = update || prerequisite is not null;
         _main.Text = busy ? (_operationCanCancel ? "Cancel" : "Please wait")
             : recover ? "Recover Editor" : installed is null || prerequisite is not null ? "Set up Editor" : update ? "Update Editor" : "Open Editor";
         _main.Enabled = !busy || _operationCanCancel;
@@ -131,7 +135,20 @@ internal sealed partial class MainForm
 
     private async Task CheckSelectedAsync(CancellationToken cancel)
     {
-        if (!_operationEditor) { await CheckAsync(cancel); return; }
+        if (!_operationEditor)
+        {
+            await CheckAsync(cancel);
+            // Load the other changelog too so the shared window already fits when the user switches.
+            // This is only release metadata, never an editor package download.
+            using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancel);
+            timeout.CancelAfter(TimeSpan.FromSeconds(5));
+            try { _editorCheck = await _editor.CheckAsync(_settings.EditorIncludePrereleases, timeout.Token); }
+            catch (OperationCanceledException) when (!cancel.IsCancellationRequested) { }
+            catch (Exception ex) when (ex is IOException or System.Net.Http.HttpRequestException or UnauthorizedAccessException)
+            { /* Optional prefetch must not replace either product's operation status. */ }
+            RefreshReleasePreview();
+            return;
+        }
         // The launcher's own updates always come from the game repository, even for editor-only users.
         SetOperation("Checking launcher updates");
         var game = await _service.CheckAsync(_settings.IncludePrereleases, _launcherVersion, cancel);

@@ -22,11 +22,40 @@ using OpenScct.Maps;
 internal static class Program
 {
     private const BindingFlags Hidden = BindingFlags.NonPublic | BindingFlags.Instance;
-    private static readonly Type MainType = Assembly.Load("OpenSCCT.Launcher").GetType("OpenScct.Launcher.App.MainForm", true)!;
+    // A preserved DLL can prove that a regression fails against a previous build, without replacing
+    // the current source or the launcher installed on this computer.
+    private static readonly Type MainType = (Environment.GetEnvironmentVariable("OPENSCCT_SMOKE_LAUNCHER_DLL") is { Length: > 0 } prior
+        ? Assembly.LoadFrom(Path.GetFullPath(prior)) : Assembly.Load("OpenSCCT.Launcher")).GetType("OpenScct.Launcher.App.MainForm", true)!;
     private static readonly SemVersion InstalledVersion = SemVersion.Parse("0.8.80");
     private static readonly SemVersion LatestVersion = SemVersion.Parse("0.8.81");
     private static readonly SemVersion EditorGameVersion = SemVersion.Parse("0.8.93");
     private static readonly SemVersion EditorVersion = SemVersion.Parse("0.1.0");
+    // Published v0.1.1 highlights, captured from its release on 2026-11-05. These are deliberately
+    // longer than the old generic game fixture: this is the real Editor-tab scrollbar regression.
+    private const string PublicEditorNotes = """
+        OpenSCCT Editor 0.1.1 adds support for the Editor tab in the unified Windows OpenSCCT launcher. The editor remains available as a standalone download and keeps its own updater.
+
+        ## Changes
+
+        - Support optional launcher installation, guided game/content setup, and updates from either the launcher or editor.
+        - Resolve game builds, downloaded content, and content tools from the launcher's installation root, including after the game updates while the editor remains open.
+        - Coordinate editor update staging, installation, and recovery so simultaneous updater operations do not replace each other's files or instructions.
+        - Add structured update commands and package compatibility metadata for the launcher, with cancellable staging and verified installation.
+        - Include the placeables palette, drag-and-drop placement and wiring, actor/device icons, and imported-map mesh preview improvements already merged into the editor.
+        """;
+    private const string PublicGameNotes = """
+        ## Gameplay
+        - Rescuing a grabbed merc by killing the spy no longer takes 51 health from the merc. A merc on low health survives the release with the health they had before the rescue.
+        - Added regression coverage for gunfire, grenade and mine interruptions during grabs and ledge pulls.
+
+        Includes all gameplay, menu, rendering, demo and networking fixes shipped in 0.8.92 and 0.8.93. Launcher remains 0.8.44.
+
+        ### Launcher 0.8.45
+
+        - **Game and Editor in one Windows launcher.** Switch to the Editor tab for the blue editor theme, its own release notes, and Install, Update, and Open actions.
+        - **Optional editor setup.** Install OpenSCCT Editor and any missing game files together. Existing game content is shared, and game-only users do not download the editor.
+        - **Updates from either app.** Keep the editor's self-updater or update through the launcher, with verified packages, safe cancellation, recovery, and protection for your projects and shared files.
+        """;
     private static int _checks;
     private static int _failures;
     private static int _networkAttempts;
@@ -43,6 +72,12 @@ internal static class Program
         Application.SetCompatibleTextRenderingDefault(false);
         string output = Path.GetFullPath(args.FirstOrDefault(a => !a.StartsWith("--", StringComparison.Ordinal)) ?? "local/launcher-smoke/artifacts");
         Directory.CreateDirectory(output);
+        if (args.Contains("--sizing", StringComparer.Ordinal))
+        {
+            EditorSizingChecks(output);
+            Console.WriteLine($"Launcher sizing smoke: {_checks} checks passed; {_failures} failed cases.");
+            return _failures == 0 ? 0 : 1;
+        }
         if (args.Contains("--lifecycle", StringComparer.Ordinal))
         {
             LifecycleChecks();
@@ -121,6 +156,7 @@ internal static class Program
             CaptureDialogs(fixture, scale, output);
         }
 
+        EditorSizingChecks(output);
         LifecycleChecks();
         SettingsScopeChecks();
         Inspect(() => Check(_networkAttempts == 0, "No dialog HTTP requests were attempted."));
@@ -174,7 +210,7 @@ internal static class Program
                 new ReleaseAsset { Name = archive[..^4] + ".launcher.json" }];
             var editorFeed = new ReleaseFeed([editorRelease], scenario.Name == "editor-offline" ? ReleaseFeedSource.Cache : ReleaseFeedSource.Network, null, null);
             Set(form, "_editorCheck", new EditorCheck(editorFeed, EditorService.Offer(editorRelease),
-                scenario.Name == "editor-absent" ? null : new EditorInstallation(EditorVersion, EditorGameVersion, 1), scenario.Name == "editor-update"));
+                scenario.Name.StartsWith("editor-absent", StringComparison.Ordinal) ? null : new EditorInstallation(EditorVersion, EditorGameVersion, 1), scenario.Name == "editor-update"));
             Call(form, "SelectProduct", true);
         }
         if (scenario.Name == "content-update")
@@ -642,6 +678,166 @@ internal static class Program
         }
     }
 
+    private static void EditorSizingChecks(string output)
+    {
+        foreach (string state in new[] { "editor-absent-with-game", "editor-ready", "editor-update" })
+        foreach (float scale in new[] { 1f, 1.5f, 2f })
+        {
+            Inspect(() =>
+            {
+                string label = $"sizing-{state}-{scale * 100:0}";
+                var scenario = new Scenario(state, true, true, state == "editor-ready" ? "Open Editor" : state == "editor-update" ? "Update Editor" : "Set up Editor");
+                using var fixture = new Fixture(scenario);
+                if (state == "editor-ready")
+                {
+                    string path = Path.Combine(fixture.Layout.Editor, "version.json");
+                    var manifest = System.Text.Json.Nodes.JsonNode.Parse(File.ReadAllText(path))!;
+                    manifest["version"] = "0.1.1";
+                    File.WriteAllText(path, manifest.ToJsonString());
+                }
+                new LauncherSettings { CheckOnStart = false, SelectedProduct = "Game" }.Save(fixture.Layout.Settings);
+                using Form form = Create(fixture, scenario);
+                Set(form, "_editorCheck", null);
+                Call(form, "SelectProduct", false);
+                Size initial = form.ClientSize;
+                if (scale != 1f) ScaleForPreview(form, fixture, scale);
+                form.MinimumSize = Size.Empty;
+                form.ClientSize = new Size((int)(initial.Width * scale), (int)(initial.Height * scale));
+                form.StartPosition = FormStartPosition.Manual;
+                form.Location = new Point(-32000, -32000);
+                form.ShowInTaskbar = false;
+                // Exercise the real form hierarchy and autosizing. OnShown is explicitly offline:
+                // no release checks, protocol registration, process launch, or editor installation.
+                form.Show();
+                Settle(form);
+                var gameRelease = new ReleaseInfo { TagName = "v0.8.94", Name = "OpenSCCT 0.8.94", Body = PublicGameNotes,
+                    PublishedAt = new DateTimeOffset(2026, 11, 5, 15, 20, 30, TimeSpan.Zero) };
+                var editorRelease = new ReleaseInfo { TagName = "v0.1.1", Name = "OpenSCCT Editor 0.1.1", Body = PublicEditorNotes,
+                    PublishedAt = new DateTimeOffset(2026, 11, 5, 16, 27, 49, TimeSpan.Zero),
+                    Assets = [new ReleaseAsset { Name = "OpenSCCT-Editor-0.1.1-win-x64.zip" },
+                        new ReleaseAsset { Name = "OpenSCCT-Editor-0.1.1-win-x64.zip.sha256" },
+                        new ReleaseAsset { Name = "OpenSCCT-Editor-0.1.1-win-x64.launcher.json" }] };
+                // Match release information arriving asynchronously while Game is visible.
+                form.BeginInvoke(() =>
+                {
+                    Call(form, "ShowReleaseCheck", new UpdateCheck(new ReleaseFeed([gameRelease], ReleaseFeedSource.Cache, null, null),
+                        new VersionedRelease(SemVersion.Parse("0.8.94"), gameRelease), EditorGameVersion, false, false));
+                    Set(form, "_editorCheck", new EditorCheck(new ReleaseFeed([editorRelease], ReleaseFeedSource.Cache, null, null),
+                        EditorService.Offer(editorRelease), null, state == "editor-update"));
+                    Call(form, "RefreshReleasePreview");
+                });
+                Settle(form);
+                int commonHeight = form.ClientSize.Height;
+                int commonWidth = form.ClientSize.Width;
+                CheckPreviewFits(form, label + " Game after both cached feeds arrive");
+                Call(form, "SelectProduct", true);
+                Settle(form);
+                Check(form.ClientSize.Height == commonHeight && form.ClientSize.Width == commonWidth, label + " switching to Editor keeps common window dimensions");
+                CheckPreviewFits(form, label + " Editor");
+                Check(Field<Label[]>(form, "_previewItems").Count(c => c.Visible && c.Text.Length > 0) == 3, label + " Editor shows all three public release highlights");
+                Check(Field<Label[]>(form, "_previewItems")[1].Text.Contains("installation root", StringComparison.Ordinal), label + " actual public editor changelog is used");
+                Save(form, output, label + "-default");
+
+                int screenMaximum = Screen.FromControl(form).WorkingArea.Height - (form.Height - form.ClientSize.Height);
+
+                // A programmatic undersized window must grow to fit both panes when there is room.
+                // This fails the old gate for ready/absent Editor when no update is pending.
+                Call(form, "OnResizeBegin", EventArgs.Empty);
+                form.ClientSize = new Size(commonWidth, (int)(100 * scale));
+                Settle(form);
+                TableLayoutPanel outer = Field<TableLayoutPanel>(form, "_mainLayout");
+                Check(outer.AutoScroll, label + " extremely short fixture exercises outer scrolling mode");
+                int shortHeight = form.ClientSize.Height;
+                Call(form, "OnResizeEnd", EventArgs.Empty);
+                Call(form, "FitUpdateHeight");
+                Settle(form);
+                Check(form.ClientSize.Height > shortHeight, label + " grows from an undersized Editor window");
+                CheckPreviewFits(form, label + " Editor after growth");
+                int editorHeight = form.ClientSize.Height;
+                Call(form, "FitUpdateHeight");
+                Settle(form);
+                Check(form.ClientSize.Height == editorHeight, label + " first fit accounts for outer scrollbar removal");
+                Call(form, "SelectProduct", false);
+                Settle(form);
+                Check(form.ClientSize.Height == editorHeight, label + " switching back to Game does not resize");
+                CheckPreviewFits(form, label + " Game after growth");
+                Call(form, "FitUpdateHeight");
+                Settle(form);
+                Check(form.ClientSize.Height == editorHeight, label + " repeated fitting stays stable after scrollbars clear");
+                Check(Field<object?>(form, "_work") is null, label + " sizing started no update operation");
+                if (commonHeight + (int)(40 * scale) < screenMaximum)
+                {
+                    form.ClientSize = new Size(commonWidth, commonHeight + (int)(40 * scale));
+                    Call(form, "FitUpdateHeight");
+                    Settle(form);
+                    Check(form.ClientSize.Height == commonHeight, label + " removes excess programmatic height instead of retaining a larger default");
+                }
+                foreach (bool widthOnly in new[] { false, true })
+                {
+                    int heightBefore = form.ClientSize.Height;
+                    Call(form, "OnResizeBegin", EventArgs.Empty);
+                    if (widthOnly) form.ClientSize = new Size(commonWidth + (int)(40 * scale), heightBefore);
+                    else form.Location = new Point(form.Left + 1, form.Top);
+                    Call(form, "OnResizeEnd", EventArgs.Empty);
+                    gameRelease.Body = "- Short game release note.";
+                    editorRelease.Body = "- Short editor release note.";
+                    Call(form, "RefreshReleasePreview");
+                    Settle(form);
+                    Check(form.ClientSize.Height < heightBefore, label + (widthOnly ? " width-only resize" : " window move") + " does not pin stale automatic height");
+                    form.ClientSize = new Size(commonWidth, form.ClientSize.Height);
+                    gameRelease.Body = PublicGameNotes;
+                    editorRelease.Body = PublicEditorNotes;
+                    Call(form, "RefreshReleasePreview");
+                    Settle(form);
+                }
+                int chosenHeight = Math.Min(screenMaximum, form.ClientSize.Height + (int)(60 * scale));
+                if (chosenHeight > form.ClientSize.Height)
+                {
+                    Call(form, "OnResizeBegin", EventArgs.Empty);
+                    form.ClientSize = new Size(commonWidth, chosenHeight);
+                    Call(form, "OnResizeEnd", EventArgs.Empty);
+                    Settle(form);
+                    Call(form, "SelectProduct", true);
+                    Settle(form);
+                    Check(form.ClientSize.Height == chosenHeight, label + " preserves extra height explicitly chosen by the user across tabs");
+                }
+                form.Hide();
+            });
+        }
+        Inspect(() =>
+        {
+            var scenario = new Scenario("game-update", true, true, "Update");
+            using var fixture = new Fixture(scenario);
+            new LauncherSettings { CheckOnStart = false }.Save(fixture.Layout.Settings);
+            using Form form = Create(fixture, scenario);
+            form.StartPosition = FormStartPosition.Manual;
+            form.Location = new Point(-32000, -32000);
+            form.ShowInTaskbar = false;
+            form.Show();
+            Settle(form);
+            Button defer = Field<Button>(form, "_playCurrent");
+            Check(defer.Visible && defer.Focus(), "Game update deferral can receive keyboard focus");
+            Call(form, "FitUpdateHeight");
+            Settle(form);
+            Check(form.ActiveControl == defer || defer.ContainsFocus, "Measuring Editor does not steal focus from Game update deferral");
+            form.Hide();
+        });
+    }
+
+    private static void CheckPreviewFits(Form form, string label)
+    {
+        Panel preview = Field<Panel>(form, "_releasePreview");
+        int maximum = Screen.FromControl(form).WorkingArea.Height - (form.Height - form.ClientSize.Height);
+        if (preview.VerticalScroll.Visible && form.ClientSize.Height >= maximum - 2)
+        {
+            Console.WriteLine(label + ": scrolling retained because the physical working area is full.");
+            return;
+        }
+        Check(!preview.VerticalScroll.Visible, label + " has no vertical changelog scrollbar when the working area has room");
+        Check(IsInClient(form, Field<Button>(form, "_whatsNew")), label + " changelog action fits");
+        Check(IsInClient(form, Field<Label[]>(form, "_previewItems").Last(c => c.Visible)), label + " last release highlight fits");
+    }
+
     private static void PumpUntil(Task task)
     {
         var watch = System.Diagnostics.Stopwatch.StartNew();
@@ -764,7 +960,7 @@ internal static class Program
                     File.WriteAllText(Path.Combine(Layout.Packs, "svmap", "AquaE", "manifest.json"), "{}");
                 }
             }
-            if (scenario.Editor && scenario.Name != "editor-absent")
+            if (scenario.Editor && !scenario.Name.StartsWith("editor-absent", StringComparison.Ordinal))
             {
                 Directory.CreateDirectory(Path.Combine(Layout.Editor, "ose"));
                 File.WriteAllText(Path.Combine(Layout.Editor, EditorService.ExeName), "fixture; never executed");

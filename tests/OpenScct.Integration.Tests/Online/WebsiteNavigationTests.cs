@@ -39,7 +39,7 @@ public sealed class WebsiteNavigationTests
             using var http = new HttpClient { BaseAddress = new Uri(master.HttpAddress) };
             var guides = new HashSet<string>(StringComparer.Ordinal);
             var assets = new HashSet<string>(StringComparer.Ordinal);
-            foreach (string route in new[] { "/", "/help", "/download", "/improvements", "/leaderboards", "/wiki" })
+            foreach (string route in new[] { "/", "/help", "/download", "/improvements", "/leaderboards", "/wiki", "/wiki/game", "/wiki/editor" })
             {
                 string html = await http.GetStringAsync(route, ct);
                 Assert.Contains("href=\"/wiki\"", html, StringComparison.Ordinal);
@@ -53,11 +53,20 @@ public sealed class WebsiteNavigationTests
                     Assert.Contains("id=\"" + match.Groups[1].Value + "\"", html, StringComparison.Ordinal);
             }
             Assert.True(guides.Count >= 15, "Public pages should expose gameplay and editor guides.");
+            foreach (WikiContent.Article article in WikiContent.Articles)
+                Assert.Contains("/wiki/" + article.Slug, guides);
             foreach (string target in guides)
             {
                 string[] parts = target.Split('#', 2);
                 string html = await http.GetStringAsync(parts[0], ct);
                 if (parts.Length == 2) Assert.Contains("id=\"" + parts[1] + "\"", html, StringComparison.Ordinal);
+                if (WikiContent.Find(parts[0]["/wiki/".Length..]) is { } article)
+                {
+                    string mark = article.Category == "editor" ? "mark-editor.svg" : "mark.svg";
+                    Assert.Contains("<link rel=\"icon\" href=\"" + WebHtml.AssetUrl("/web/assets/" + mark) + "\"", html, StringComparison.Ordinal);
+                    Assert.Equal(article.Category == "editor", html.Contains("class=\"player-site editor-theme\"", StringComparison.Ordinal));
+                    Assert.Contains("href=\"/wiki/" + (article.Category == "editor" ? "editor" : "game") + "\"", html, StringComparison.Ordinal);
+                }
             }
             foreach (string asset in assets)
             {

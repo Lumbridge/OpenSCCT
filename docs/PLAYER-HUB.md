@@ -47,9 +47,12 @@ feature descriptions. Images are captured from the running game with its normal 
 Text, section links and images also work without JavaScript.
 The old `/progress` address redirects to this page.
 
-The **Wiki** at `/wiki` contains self-contained articles for players and map makers. Search and category filters
-run on the server and work without JavaScript. Articles have section navigation and related guides; download,
-help and feature pages link directly to the relevant article. The map editor is still in early development;
+The **Wiki** at `/wiki` opens separate **Game wiki** (`/wiki/game`) and **Editor wiki** (`/wiki/editor`) areas.
+Each area's search and category filters stay within its own guides, run on the server and work without JavaScript.
+Game pages retain the green branding; editor pages use the editor's blue palette, logo and favicon.
+Articles have section navigation, area breadcrumbs and related guides; download, help and feature pages link
+directly to the relevant article. Existing article URLs and bookmarked category searches still work.
+The map editor is still in early development;
 the guides describe its current workflow without promising a public editor download.
 
 The **Help & feedback** page includes task-based guide links and expandable answers for joining, accounts,
@@ -166,8 +169,9 @@ The page does not run tests or read repository files on a request; its content a
 
 ### Maintaining the wiki
 
-Articles and categories live in `src/OpenScct.Master/Web/WikiContent.cs`; `Player/PlayerPortal.Wiki.cs`
-renders the index, filters and articles. Keep article and section IDs stable so links from Help, Download
+Articles and categories live in `src/OpenScct.Master/Web/WikiContent.cs`; each category belongs to the `game` or
+`editor` area. `Player/PlayerPortal.Wiki.cs` renders the area selector, scoped indexes, filters and articles.
+The article's category determines its area navigation and branding. Keep article and section IDs stable so links from Help, Download
 and Improvements remain useful. New gameplay claims should be checked against the owning source and guides;
 editor claims should also be checked against the current `OpenSCCT-Editor` project. Keep player instructions
 self-contained and use related article links rather than sending readers to source documentation.
