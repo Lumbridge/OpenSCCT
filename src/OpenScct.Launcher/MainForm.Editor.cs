@@ -21,6 +21,7 @@ internal sealed partial class MainForm
     private bool _operationEditor;
     private bool _operationCanCancel = true;
     private bool _closeAfterWork;
+    private bool SelectedCheckOnStart => _editorSelected ? _settings.EditorCheckOnStart : _settings.CheckOnStart;
     private readonly Button _gameTab = Theme.Button("Game");
     private readonly Button _editorTab = Theme.Button("Editor");
     private PictureBox _brandLogo = null!;
@@ -59,7 +60,7 @@ internal sealed partial class MainForm
         ApplyProductTheme();
         RefreshReleasePreview();
         RefreshLocal();
-        if (editor && _webJoinReady && _settings.CheckOnStart && _editorCheck is null && _work is null)
+        if (_webJoinReady && SelectedCheckOnStart && (editor ? _editorCheck is null : _lastCheck is null) && _work is null)
             _ = RunAsync(CheckSelectedAsync);
     }
 
@@ -78,6 +79,8 @@ internal sealed partial class MainForm
         _brandSubtitle.Text = _editorSelected ? "OpenSCCT Editor · Create and test your maps" : "Splinter Cell Chaos Theory Versus, rebuilt";
         _website.Text = _editorSelected ? "Editor website" : "Website";
         _tips.SetToolTip(_website, _editorSelected ? "Visit the OpenSCCT Editor project." : "Visit the OpenSCCT website.");
+        _settingsButton.AccessibleName = _editorSelected ? "Editor settings" : "Game settings";
+        _tips.SetToolTip(_settingsButton, _settingsButton.AccessibleName);
     }
 
     private void RefreshEditorPanel(bool busy)
@@ -95,7 +98,7 @@ internal sealed partial class MainForm
             : prerequisite ?? (update ? $"Editor {_editorCheck!.Latest!.Version} is ready to download." : "Create, edit, and test your maps.");
         _launchDetail.Visible = !busy && VisibleStatus.Kind is not (StatusKind.Warning or StatusKind.Error);
         _updateNeedsSpace = update || prerequisite is not null;
-        _main.Text = busy ? (_operationCanCancel ? "Cancel" : "Finishing update")
+        _main.Text = busy ? (_operationCanCancel ? "Cancel" : "Please wait")
             : recover ? "Recover Editor" : installed is null || prerequisite is not null ? "Set up Editor" : update ? "Update Editor" : "Open Editor";
         _main.Enabled = !busy || _operationCanCancel;
         Theme.SetButtonEmphasis(_main, !busy, Palette);
@@ -227,6 +230,37 @@ internal sealed partial class MainForm
             await _packs.InstallMapAsync(map, Maps.ContentKind.Full, PackReporter(map.DisplayTitle), cancel);
         foreach (var pack in Content.PackedContent.SharedToFetch(index, _packs))
             await _packs.InstallSharedAsync(pack, PackReporter(pack.Title), cancel);
+    }
+
+    private async Task UninstallEditorAsync(CancellationToken cancel)
+    {
+        SetOperation("Uninstalling editor");
+        var progress = new Progress<EditorProgress>(p =>
+        {
+            if (IsDisposed || _work is null) return;
+            _operationCanCancel = p.CanCancel;
+            SetOperation(p.Phase);
+            RefreshLocal();
+        });
+        try
+        {
+            EditorUninstallResult result = await _editor.UninstallAsync(progress, cancel);
+            _editorCheck = null;
+            string status = result.Failures.Count > 0
+                ? "Editor removed from the launcher, but some files could not be deleted."
+                : "Editor uninstalled. Your projects, settings, game and shared assets were kept.";
+            if (result.Failures.Count > 0) status += " " + result.Failures[0];
+            if (result.RetainedPath is { } kept) status += " Files kept in " + kept;
+            SetStatus(status, result.Failures.Count > 0 ? Theme.Warning : Theme.Accent, result.RetainedPath);
+        }
+        catch (OperationCanceledException)
+        {
+            SetStatus("Editor uninstall cancelled.", Theme.Muted);
+        }
+        catch (Exception ex) when (ex is IOException or InvalidDataException or UnauthorizedAccessException or InvalidOperationException)
+        {
+            SetStatus("Could not uninstall editor: " + ex.Message, Theme.Error);
+        }
     }
 
     private void OpenEditor()

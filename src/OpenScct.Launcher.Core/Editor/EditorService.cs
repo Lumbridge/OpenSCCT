@@ -19,7 +19,7 @@ using OpenScct.Maps;
 namespace OpenScct.Launcher.Editor;
 
 /// <summary>Installs an optional editor once, then delegates updates to its own supported CLI protocol.</summary>
-public sealed class EditorService
+public sealed partial class EditorService
 {
     public const string ExeName = "OpenSCCT Editor.exe";
     public const string ManagedMarker = ".launcher-managed";
@@ -30,6 +30,7 @@ public sealed class EditorService
     private readonly GitHubReleaseClient _github;
     private readonly ResumableDownloader _downloader;
     internal Func<string, SemVersion, CancellationToken, Task>? ProbeOverride { get; set; }
+    internal Func<string, bool>? RunningOverride { get; set; }
 
     public EditorService(LauncherLayout layout, HttpClient http)
     {
@@ -88,7 +89,7 @@ public sealed class EditorService
         return null;
     }
 
-    public bool IsRunning => RunningIn(_layout.Editor) || UpdateInProgress;
+    public bool IsRunning => (RunningOverride?.Invoke(_layout.Editor) ?? RunningIn(_layout.Editor)) || UpdateInProgress;
 
     public bool NeedsRecovery => File.Exists(Path.Combine(_layout.Editor, ".update", "journal.json"));
 

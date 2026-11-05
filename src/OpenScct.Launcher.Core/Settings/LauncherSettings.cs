@@ -18,8 +18,11 @@ public sealed class LauncherSettings
     /// <summary>Last selected launcher product. Unknown values are treated as Game by the view.</summary>
     public string SelectedProduct { get; set; } = "Game";
 
-    /// <summary>Check for updates when the launcher starts.</summary>
+    /// <summary>Check for game updates when its launcher tab opens.</summary>
     public bool CheckOnStart { get; set; } = true;
+
+    /// <summary>Check for editor updates when its launcher tab opens, independent of the game.</summary>
+    public bool EditorCheckOnStart { get; set; } = true;
 
     public static LauncherSettings Load(string path)
     {
@@ -27,7 +30,13 @@ public sealed class LauncherSettings
         {
             if (File.Exists(path))
             {
-                return JsonSerializer.Deserialize<LauncherSettings>(File.ReadAllText(path), Json) ?? new LauncherSettings();
+                string json = File.ReadAllText(path);
+                LauncherSettings settings = JsonSerializer.Deserialize<LauncherSettings>(json, Json) ?? new LauncherSettings();
+                using JsonDocument document = JsonDocument.Parse(json);
+                // Older launchers had one startup switch. Keep that choice until each tab is edited independently.
+                if (document.RootElement.ValueKind == JsonValueKind.Object && !document.RootElement.TryGetProperty(nameof(EditorCheckOnStart), out _))
+                    settings.EditorCheckOnStart = settings.CheckOnStart;
+                return settings;
             }
         }
         catch (Exception ex) when (ex is JsonException or IOException or UnauthorizedAccessException)

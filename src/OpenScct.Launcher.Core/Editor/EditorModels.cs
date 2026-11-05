@@ -16,6 +16,9 @@ public sealed record EditorOffer(VersionedRelease Release, ReleaseAsset Archive,
 }
 public sealed record EditorCheck(ReleaseFeed Feed, EditorOffer? Latest, EditorInstallation? Installed, bool UpdateAvailable);
 public sealed record EditorProgress(string Phase, long Received = 0, long Total = 0, double BytesPerSecond = 0, bool CanCancel = true);
+/// <summary>The install path is free again. Modified or unlisted files, and any files cleanup could not remove,
+/// remain in RetainedPath. Failures name cleanup errors, not ordinary user files deliberately kept.</summary>
+public sealed record EditorUninstallResult(string? RetainedPath, IReadOnlyList<string> Failures);
 
 /// <summary>The format-1 package contract also used by the editor's own updater.</summary>
 internal sealed class EditorManifest

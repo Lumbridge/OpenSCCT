@@ -49,10 +49,21 @@ You can change tabs during a download: progress and cancellation continue to ref
 that started it. Website Join links select Game and wait for an active operation. Launcher self-updates
 remain available on either tab. Editor Help and release links go to the editor project.
 
+**Settings** belongs to the selected tab. Game and Editor have separate startup update checks, preview
+preferences, folder shortcuts and installation actions. Existing installations initially inherit the old
+startup-check choice for both products; changing it in one tab then leaves the other unchanged.
+
+In **Editor settings**, **Uninstall editor…** removes the launcher-managed editor application and keeps
+projects, editor settings/autosaves, the game and shared assets. Close the editor and its command-line tools
+first; finish any interrupted update before uninstalling. Extra or modified files inside the installation
+are kept in a separate folder, linked in the completion message. **Set up Editor** can install it again.
+Independently downloaded editor installations are not adopted or removed.
+
+In **Game settings**, **Remove game and shared files…** removes all installed game versions and downloaded
+assets/maps, keeping settings and saves. It keeps the editor application and projects, but the editor's shared
+game prerequisites must be downloaded again. This action is not shown in Editor settings.
 **Maps** manages shared downloaded content in either tab. Close the editor before changing that content.
-**Reset game and shared content** keeps the editor, projects and editor settings, but its shared game
-prerequisites must be installed again. Independently downloaded editor installations are not adopted or
-modified. Linux launcher behavior is unchanged.
+Linux launcher behavior is unchanged.
 
 Integration requires an editor package advertising launcher protocol 1 with its
 `OpenSCCT-Editor-<version>-win-x64.launcher.json` release asset and `version.json` metadata. Until a compatible
@@ -70,7 +81,7 @@ the compatible editor release before launcher 0.8.45; neither is published by bu
 - Downloaded game files and menus are in English.
 - The launcher is unsigned, so Windows may show a SmartScreen warning on first launch.
 
-Settings includes startup update checks, optional preview releases, folder shortcuts and installation reset.
+Each Windows tab's settings includes its own update preferences, folder shortcuts and installation removal action.
 Save and Cancel stay visible while the settings scroll on smaller screens.
 The launcher gets updates from the public `Lumbridge/OpenSCCT` repository without a GitHub account or token.
 

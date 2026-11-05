@@ -55,6 +55,7 @@ public sealed class LauncherSwapAndSettingsTests
         string path = dir.Combine("launcher.json");
         LauncherSettings defaults = LauncherSettings.Load(path);
         Assert.True(defaults.CheckOnStart);
+        Assert.True(defaults.EditorCheckOnStart);
         Assert.False(defaults.IncludePrereleases);
 
         new LauncherSettings { CheckOnStart = false, IncludePrereleases = true }.Save(path);
@@ -83,6 +84,7 @@ public sealed class LauncherSwapAndSettingsTests
         LauncherSettings settings = LauncherSettings.Load(path);
         Assert.True(settings.IncludePrereleases);
         Assert.False(settings.CheckOnStart);
+        Assert.False(settings.EditorCheckOnStart);
 
         settings.Save(path);
         using JsonDocument saved = JsonDocument.Parse(File.ReadAllText(path));
@@ -93,7 +95,8 @@ public sealed class LauncherSwapAndSettingsTests
         Assert.False(saved.RootElement.TryGetProperty("Language", out _));
         Assert.True(saved.RootElement.GetProperty("IncludePrereleases").GetBoolean());
         Assert.False(saved.RootElement.GetProperty("CheckOnStart").GetBoolean());
-        Assert.Equal(4, saved.RootElement.EnumerateObject().Count());
+        Assert.False(saved.RootElement.GetProperty("EditorCheckOnStart").GetBoolean());
+        Assert.Equal(5, saved.RootElement.EnumerateObject().Count());
     }
 
     [Fact]
@@ -129,6 +132,7 @@ public sealed class LauncherSwapAndSettingsTests
             EditorIncludePrereleases = true,
             IncludePrereleases = false,
             CheckOnStart = false,
+            EditorCheckOnStart = true,
         }.Save(path);
 
         LauncherSettings read = LauncherSettings.Load(path);
@@ -136,6 +140,7 @@ public sealed class LauncherSwapAndSettingsTests
         Assert.True(read.EditorIncludePrereleases);
         Assert.False(read.IncludePrereleases);
         Assert.False(read.CheckOnStart);
+        Assert.True(read.EditorCheckOnStart);
     }
 
     [Fact]
@@ -150,6 +155,37 @@ public sealed class LauncherSwapAndSettingsTests
         Assert.False(read.EditorIncludePrereleases);
         Assert.True(read.IncludePrereleases);
         Assert.False(read.CheckOnStart);
+        Assert.False(read.EditorCheckOnStart);
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void LegacyStartupPreferenceInitializesBothProducts(bool enabled)
+    {
+        using var dir = new TempDir();
+        string path = dir.Combine("launcher.json");
+        File.WriteAllText(path, JsonSerializer.Serialize(new { CheckOnStart = enabled, SelectedProduct = "Editor" }));
+
+        LauncherSettings read = LauncherSettings.Load(path);
+
+        Assert.Equal(enabled, read.CheckOnStart);
+        Assert.Equal(enabled, read.EditorCheckOnStart);
+    }
+
+    [Theory]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    public void ExplicitStartupPreferencesRemainIndependent(bool game, bool editor)
+    {
+        using var dir = new TempDir();
+        string path = dir.Combine("launcher.json");
+        new LauncherSettings { CheckOnStart = game, EditorCheckOnStart = editor }.Save(path);
+
+        LauncherSettings read = LauncherSettings.Load(path);
+
+        Assert.Equal(game, read.CheckOnStart);
+        Assert.Equal(editor, read.EditorCheckOnStart);
     }
 
     [Fact]

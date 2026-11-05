@@ -17,7 +17,7 @@ using Xunit;
 
 namespace OpenScct.Launcher.Tests;
 
-public sealed class EditorServiceTests
+public sealed partial class EditorServiceTests
 {
     private const string Version = "0.2.0";
     private static readonly SemVersion V = SemVersion.Parse(Version);

@@ -447,7 +447,7 @@ internal sealed partial class MainForm : Form
         _service.TryFinishPending();
         RefreshLocal();
         _pendingTimer.Start();
-        if (_settings.CheckOnStart)
+        if (SelectedCheckOnStart)
         {
             await RunAsync(CheckSelectedAsync);
         }
@@ -468,7 +468,7 @@ internal sealed partial class MainForm : Form
             _closeAfterWork = true;
             e.Cancel = true;
             if (_operationCanCancel) _work.Cancel();
-            SetStatus(_operationCanCancel ? "Stopping safely before closing…" : "Finishing the editor update before closing…", Theme.Muted);
+            SetStatus(_operationCanCancel ? "Stopping safely before closing…" : "Finishing the current operation before closing…", Theme.Muted);
         }
         else _pendingTimer.Stop();
         base.OnFormClosing(e);
@@ -607,7 +607,7 @@ internal sealed partial class MainForm : Form
         _tips.SetToolTip(_main, busy ? "Stop now and continue later. Completed downloads are kept." : null);
         _main.Text = text;
         _main.Enabled = enabled && (!busy || _operationCanCancel);
-        if (busy && !_operationCanCancel) _main.Text = "Finishing update";
+        if (busy && !_operationCanCancel) _main.Text = "Please wait";
     }
 
     private async Task DoNextAsync()
@@ -1087,11 +1087,23 @@ internal sealed partial class MainForm : Form
 
         _settings = dialog.Result;
         _settings.Save(_layout.Settings);
-        _service = CreateService();
-        _lastCheck = null;
-        _editorCheck = null;
-        if (dialog.ResetRequested && !ResetInstall())
+        if (_editorSelected)
         {
+            _editorCheck = null;
+        }
+        else
+        {
+            _service = CreateService();
+            _lastCheck = null;
+        }
+        if (dialog.UninstallEditorRequested)
+        {
+            _ = RunAsync(UninstallEditorAsync);
+            return;
+        }
+        if (dialog.RemoveGameFilesRequested)
+        {
+            RemoveGameFiles();
             RefreshLocal();
             return;
         }
@@ -1102,11 +1114,11 @@ internal sealed partial class MainForm : Form
     }
 
     /// <summary>Deletes what the launcher installed (<see cref="InstallReset"/>); false when a game is running.</summary>
-    private bool ResetInstall()
+    private bool RemoveGameFiles()
     {
         if (_editor.IsRunning || _games.Running().Count > 0)
         {
-            SetStatus("Close OpenSCCT, the editor and its command-line tools before resetting game and shared content.", Theme.Warning);
+            SetStatus("Close OpenSCCT, the editor and its command-line tools before removing game and shared files.", Theme.Warning);
             return false;
         }
 
@@ -1114,8 +1126,8 @@ internal sealed partial class MainForm : Form
         _packIndex = null;
         SetStatus(
             failed.Count == 0
-                ? "Install reset. Press the button to download the game again."
-                : "Install reset, but some files are in use and were kept: " + string.Join(", ", failed),
+                ? "Game and shared files removed. Choose Install to download them again."
+                : "Some game files are in use and were kept: " + string.Join(", ", failed),
             failed.Count == 0 ? Theme.Accent : Theme.Warning);
         return true;
     }
@@ -1247,8 +1259,9 @@ internal sealed partial class MainForm : Form
             return;
         }
 
-        string args = File.Exists(path) ? "/select,\"" + path + "\"" : "\"" + Path.GetDirectoryName(path) + "\"";
-        if (File.Exists(path) || Directory.Exists(Path.GetDirectoryName(path)))
+        string folder = Directory.Exists(path) ? path : Path.GetDirectoryName(path)!;
+        string args = File.Exists(path) ? "/select,\"" + path + "\"" : "\"" + folder + "\"";
+        if (File.Exists(path) || Directory.Exists(folder))
         {
             using Process? explorer = Process.Start(new ProcessStartInfo("explorer.exe", args) { UseShellExecute = false });
         }

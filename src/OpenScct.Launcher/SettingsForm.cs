@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
+using OpenScct.Launcher.Editor;
 using OpenScct.Launcher.Install;
 using OpenScct.Launcher.Settings;
 
@@ -11,6 +12,7 @@ namespace OpenScct.Launcher.App;
 internal sealed class SettingsForm : Form
 {
     private readonly LauncherLayout _layout;
+    private readonly bool _editorMode;
     private readonly ToolTip _folderTips = new();
     private readonly CheckBox _prereleases = new() { Text = "Include game preview releases", AutoSize = true, ForeColor = Theme.Text };
     private readonly CheckBox _editorPrereleases = new() { Text = "Include editor preview releases", AutoSize = true, ForeColor = Theme.Text };
@@ -21,10 +23,11 @@ internal sealed class SettingsForm : Form
         ArgumentNullException.ThrowIfNull(settings);
         ArgumentNullException.ThrowIfNull(layout);
         _layout = layout;
+        _editorMode = palette == ThemePalette.Editor || (palette is null && settings.SelectedProduct == "Editor");
         Result = settings;
 
-        Text = "Settings";
-        Icon = palette == ThemePalette.Editor ? Theme.LoadEditorIcon(32) : Theme.LoadIcon(32);
+        Text = _editorMode ? "Editor settings" : "Game settings";
+        Icon = _editorMode ? Theme.LoadEditorIcon(32) : Theme.LoadIcon(32);
         AutoScaleMode = AutoScaleMode.Dpi;
         AutoScaleDimensions = new SizeF(96f, 96f);
         ClientSize = new Size(560, 440);
@@ -41,9 +44,10 @@ internal sealed class SettingsForm : Form
         _prereleases.Checked = settings.IncludePrereleases;
         _editorPrereleases.Checked = settings.EditorIncludePrereleases;
         _editorPrereleases.Name = "IncludeEditorPreviewReleases";
-        _checkOnStart.Checked = settings.CheckOnStart;
+        _checkOnStart.Checked = _editorMode ? settings.EditorCheckOnStart : settings.CheckOnStart;
+        _checkOnStart.Text = _editorMode ? "Check for editor updates on startup" : "Check for game updates on startup";
         _prereleases.Name = "IncludePreviewReleases";
-        _checkOnStart.Name = "CheckForUpdatesOnStart";
+        _checkOnStart.Name = _editorMode ? "CheckForEditorUpdatesOnStart" : "CheckForUpdatesOnStart";
 
         Button ok = Theme.Button("Save");
         ok.Name = "SaveSettings";
@@ -79,41 +83,71 @@ internal sealed class SettingsForm : Form
 
         Row(Theme.Label("Updates", Theme.Heading, Theme.Accent));
         Row(_checkOnStart, 6);
-        Row(_prereleases, 4);
-        Row(_editorPrereleases, 4);
+        Row(_editorMode ? _editorPrereleases : _prereleases, 4);
         Row(Theme.Label("Folders", Theme.Heading, Theme.Accent), 18);
-        Row(Link("Open launcher folder", layout.Root), 6);
-        Row(Link("Open game settings and saves folder", LauncherLayout.GameUserData), 4);
-        Button reset = Theme.Button("Reset game and shared content...");
-        reset.Click += (_, _) => ConfirmReset();
-        Row(Theme.Label("Reset", Theme.Heading, Theme.Accent), 18);
-        Row(Theme.Wrapping(Theme.Label("Remove game versions and shared files. Editor setup will be required again. Keeps the editor, projects, launcher preferences, settings and saves.", Theme.Small, Theme.Muted)), 6);
-        Row(reset);
+        if (_editorMode)
+        {
+            Row(Link("Open editor installation folder", layout.Editor, "OpenEditorFolder"), 6);
+            Row(Link("Open editor settings and autosaves folder",
+                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "OpenSCCT Editor"), "OpenEditorUserData"), 4);
+            Button uninstall = Theme.Button("Uninstall editor...");
+            uninstall.Name = "UninstallEditor";
+            uninstall.Enabled = Directory.Exists(layout.Editor) && File.Exists(Path.Combine(layout.Editor, EditorService.ManagedMarker));
+            uninstall.Click += (_, _) => ConfirmUninstallEditor();
+            Row(Theme.Label("Editor installation", Theme.Heading, Theme.Accent), 18);
+            Row(Theme.Wrapping(Theme.Label("Remove the editor application. Keeps your projects, editor settings and autosaves, and all game and shared files.", Theme.Small, Theme.Muted)), 6);
+            Row(uninstall);
+            if (!uninstall.Enabled)
+                Row(Theme.Wrapping(Theme.Label("No editor installed by this launcher.", Theme.Small, Theme.Muted)), 4);
+        }
+        else
+        {
+            Row(Link("Open game installation folder", layout.Versions, "OpenGameFolder"), 6);
+            Row(Link("Open game settings and saves folder", LauncherLayout.GameUserData, "OpenGameUserData"), 4);
+            Button remove = Theme.Button("Remove game and shared files...");
+            remove.Name = "RemoveGameFiles";
+            remove.Click += (_, _) => ConfirmRemoveGameFiles();
+            Row(Theme.Label("Game installation", Theme.Heading, Theme.Accent), 18);
+            Row(Theme.Wrapping(Theme.Label("Remove all installed game versions and downloaded assets/maps. Keeps settings and saves. The editor application is kept, but its shared assets will need downloading again.", Theme.Small, Theme.Muted)), 6);
+            Row(remove);
+        }
         scroll.Controls.Add(root);
         Controls.Add(scroll);
         Controls.Add(buttons);
-        Theme.Apply(this, palette ?? ThemePalette.Game);
+        Theme.Apply(this, palette ?? (_editorMode ? ThemePalette.Editor : ThemePalette.Game));
     }
 
     public LauncherSettings Result { get; private set; }
 
-    /// <summary>The player asked to reset the install (the settings in <see cref="Result"/> are saved first).</summary>
-    public bool ResetRequested { get; private set; }
+    /// <summary>The player asked to remove downloaded game files; preferences and saves are kept.</summary>
+    public bool RemoveGameFilesRequested { get; private set; }
 
-    private void ConfirmReset()
+    public bool UninstallEditorRequested { get; private set; }
+
+    private void ConfirmRemoveGameFiles()
     {
         DialogResult answer = MessageBox.Show(
             this,
             "Remove all downloaded game versions, shared game files and maps?\n\nThe editor will need its shared files installed again. The editor application, projects, settings, saves and launcher preferences are kept.",
-            "Reset game and shared content",
+            "Remove game and shared files",
             MessageBoxButtons.OKCancel,
             MessageBoxIcon.Warning,
             MessageBoxDefaultButton.Button2);
         if (answer == DialogResult.OK)
         {
-            ResetRequested = true;
+            RemoveGameFilesRequested = true;
             Save();
         }
+    }
+
+    private void ConfirmUninstallEditor()
+    {
+        if (MessageBox.Show(this,
+            "Uninstall OpenSCCT Editor?\n\nYour projects, editor settings and autosaves are kept. The game and shared assets are kept.\n\nAny extra or modified files inside the editor installation will be kept in a separate folder. You can install the editor again from the Editor tab.",
+            "Uninstall editor", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) != DialogResult.OK)
+            return;
+        UninstallEditorRequested = true;
+        Save();
     }
 
     protected override void Dispose(bool disposing)
@@ -122,11 +156,12 @@ internal sealed class SettingsForm : Form
         base.Dispose(disposing);
     }
 
-    private LinkLabel Link(string text, string folder)
+    private LinkLabel Link(string text, string folder, string name)
     {
         var link = new LinkLabel
         {
             Text = text,
+            Name = name,
             AutoSize = true,
             Anchor = AnchorStyles.Left | AnchorStyles.Right,
             Font = Theme.Small,
@@ -153,7 +188,8 @@ internal sealed class SettingsForm : Form
             IncludePrereleases = _prereleases.Checked,
             EditorIncludePrereleases = _editorPrereleases.Checked,
             SelectedProduct = Result.SelectedProduct,
-            CheckOnStart = _checkOnStart.Checked,
+            CheckOnStart = _editorMode ? Result.CheckOnStart : _checkOnStart.Checked,
+            EditorCheckOnStart = _editorMode ? _checkOnStart.Checked : Result.EditorCheckOnStart,
         };
         Directory.CreateDirectory(_layout.Root);
         DialogResult = DialogResult.OK;

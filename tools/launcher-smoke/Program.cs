@@ -13,6 +13,7 @@ using System.Windows.Forms;
 using OpenScct.Launcher.GitHub;
 using OpenScct.Launcher.Editor;
 using OpenScct.Launcher.Install;
+using OpenScct.Launcher.Launch;
 using OpenScct.Launcher.Settings;
 using OpenScct.Launcher.Update;
 using OpenScct.Launcher.Versioning;
@@ -30,6 +31,7 @@ internal static class Program
     private static int _failures;
     private static int _networkAttempts;
     private static bool _reportedDpi;
+    private static int _captures;
 
     [STAThread]
     private static int Main(string[] args)
@@ -45,6 +47,18 @@ internal static class Program
         {
             LifecycleChecks();
             Console.WriteLine($"Launcher lifecycle smoke: {_checks} checks passed; {_failures} failed cases.");
+            return _failures == 0 ? 0 : 1;
+        }
+        if (args.Contains("--settings", StringComparer.Ordinal))
+        {
+            foreach (float scale in new[] { 1f, 1.5f, 2f })
+            {
+                using var fixture = new Fixture(new Scenario("ready", true, true, "PLAY"));
+                CaptureDialogs(fixture, scale, output, settingsOnly: true);
+            }
+            SettingsScopeChecks();
+            Inspect(() => Check(_networkAttempts == 0, "Settings captures made no HTTP requests."));
+            Console.WriteLine($"Launcher settings smoke: {_checks} checks passed; {_failures} failed cases; {_captures} offscreen captures in {output}.");
             return _failures == 0 ? 0 : 1;
         }
         var scenarios = new Scenario[]
@@ -69,7 +83,7 @@ internal static class Program
             new("editor-update", true, true, "Update Editor"),
             new("editor-busy", true, true, "Cancel"),
             new("editor-busy-game", true, true, "Cancel"),
-            new("editor-applying", true, true, "Finishing update"),
+            new("editor-applying", true, true, "Please wait"),
             new("editor-recovery", true, true, "Recover Editor"),
             new("editor-offline", true, true, "Open Editor"),
             new("editor-error", true, true, "Open Editor"),
@@ -108,8 +122,9 @@ internal static class Program
         }
 
         LifecycleChecks();
+        SettingsScopeChecks();
         Inspect(() => Check(_networkAttempts == 0, "No dialog HTTP requests were attempted."));
-        Console.WriteLine($"Launcher smoke: {_checks} checks passed; {_failures} failed cases; {scenarios.Length * 6 + 21} offscreen captures in {output}.");
+        Console.WriteLine($"Launcher smoke: {_checks} checks passed; {_failures} failed cases; {_captures} offscreen captures in {output}.");
         Console.WriteLine("Fixtures used temporary installs and offline startup; live update checks, downloads, game/editor launch, browser, clipboard and protocol registration were not invoked.");
         return _failures == 0 ? 0 : 1;
     }
@@ -346,7 +361,7 @@ internal static class Program
     private static string VersionFor(Scenario scenario) => scenario.Editor && scenario.Name != "editor-busy-game"
         ? scenario.Name == "editor-update" ? "0.1.1" : EditorVersion.ToString()
         : scenario.Name is "fresh" or "game-update" or "game-downloading" ? LatestVersion.ToString() : InstalledVersion.ToString();
-    private static void CaptureDialogs(Fixture fixture, float scale, string output)
+    private static void CaptureDialogs(Fixture fixture, float scale, string output, bool settingsOnly = false)
     {
         Assembly assembly = MainType.Assembly;
         using var http = new HttpClient(new NoNetworkHandler());
@@ -358,79 +373,162 @@ internal static class Program
         contextType.GetProperty("InstalledGameVersion")!.SetValue(context, InstalledVersion.ToString());
         Type paletteType = assembly.GetType("OpenScct.Launcher.App.ThemePalette", true)!;
         object editorPalette = paletteType.GetProperty("Editor")!.GetValue(null)!;
+        using var editorFixture = new Fixture(new Scenario("editor-ready", true, true, "Open Editor"));
         var dialogs = new (string Type, object?[] Args, Size Minimum, bool Editor)[]
         {
             ("SettingsForm", [new LauncherSettings(), fixture.Layout, null], new Size(460, 360), false),
             ("MapsForm", [http, fixture.Layout.Packs, null, null], new Size(620, 460), false),
             ("HelpForm", [context, null, null, null, null], new Size(480, 420), false),
-            ("SettingsForm", [new LauncherSettings { SelectedProduct = "Editor", EditorIncludePrereleases = true }, fixture.Layout, editorPalette], new Size(460, 360), true),
+            ("SettingsForm", [new LauncherSettings { SelectedProduct = "Editor" }, editorFixture.Layout, editorPalette], new Size(460, 360), true),
             ("MapsForm", [http, fixture.Layout.Packs, editorPalette, (Func<bool>)(() => true)], new Size(620, 460), true),
             ("HelpForm", [context, (Func<string, bool>)(_ => false), (Action<string>)(_ => { }), editorPalette, EditorVersion.ToString()], new Size(480, 420), true),
         };
-        foreach (var dialog in dialogs)
+        foreach (var dialog in dialogs.Where(d => !settingsOnly || d.Type == "SettingsForm"))
         {
-            Type type = assembly.GetType("OpenScct.Launcher.App." + dialog.Type, true)!;
-            using Form form = (Form)Activator.CreateInstance(type, BindingFlags.Public | Hidden, null, dialog.Args, null)!;
-            _ = form.Handle;
-            if (scale != 1f) ScaleForPreview(form, fixture, scale);
-            form.MinimumSize = Size.Empty;
-            form.ClientSize = new Size((int)(dialog.Minimum.Width * scale), (int)(dialog.Minimum.Height * scale));
-            string label = $"{(dialog.Editor ? "editor-" : "")}{dialog.Type}-minimum-{scale * 100:0}";
-            Control[] controls = form.Controls.Cast<Control>().ToArray();
-            using var host = new PreviewForm
+            foreach (bool minimum in dialog.Type == "SettingsForm" ? new[] { false, true } : new[] { true })
             {
-                Text = form.Text, Icon = form.Icon, ClientSize = form.ClientSize, Font = form.Font,
-                BackColor = form.BackColor, ForeColor = form.ForeColor, Padding = form.Padding,
-                AutoScaleMode = AutoScaleMode.None, StartPosition = FormStartPosition.Manual,
-                Location = new Point(-32000, -32000), ShowInTaskbar = false,
-            };
-            foreach (Control control in controls) host.Controls.Add(control);
-            host.Show();
-            Settle(host);
-            // Match the Maps Load handler's splitter position without invoking base OnLoad, which
-            // queues OnShown (and therefore would start network work on the production dialog).
-            if (dialog.Type == "MapsForm")
-            {
-                SplitContainer split = Walk(host).OfType<SplitContainer>().Single();
-                split.SplitterDistance = Math.Max(120, split.Height * 3 / 5);
+                Type type = assembly.GetType("OpenScct.Launcher.App." + dialog.Type, true)!;
+                using Form form = (Form)Activator.CreateInstance(type, BindingFlags.Public | Hidden, null, dialog.Args, null)!;
+                _ = form.Handle;
+                if (scale != 1f) ScaleForPreview(form, fixture, scale);
+                form.MinimumSize = Size.Empty;
+                if (minimum) form.ClientSize = new Size((int)(dialog.Minimum.Width * scale), (int)(dialog.Minimum.Height * scale));
+                string label = $"{(dialog.Editor ? "editor-" : "")}{dialog.Type}-{(minimum ? "minimum" : "default")}-{scale * 100:0}";
+                Control[] controls = form.Controls.Cast<Control>().ToArray();
+                using var host = new PreviewForm
+                {
+                    Text = form.Text, Icon = form.Icon, ClientSize = form.ClientSize, Font = form.Font,
+                    BackColor = form.BackColor, ForeColor = form.ForeColor, Padding = form.Padding,
+                    AutoScaleMode = AutoScaleMode.None, StartPosition = FormStartPosition.Manual,
+                    Location = new Point(-32000, -32000), ShowInTaskbar = false,
+                };
+                foreach (Control control in controls) host.Controls.Add(control);
+                host.Show();
                 Settle(host);
+                // Match the Maps Load handler's splitter position without invoking base OnLoad, which
+                // queues OnShown (and therefore would start network work on the production dialog).
+                if (dialog.Type == "MapsForm")
+                {
+                    SplitContainer split = Walk(host).OfType<SplitContainer>().Single();
+                    split.SplitterDistance = Math.Max(120, split.Height * 3 / 5);
+                    Settle(host);
+                }
+                Save(host, output, label);
+                Inspect(() =>
+                {
+                    if (dialog.Editor) Check(host.BackColor == Color.FromArgb(19, 21, 27), label + " dialog uses editor palette");
+                    Check(host.SelectNextControl(null, true, true, true, false), label + " keyboard traversal enters controls");
+                    foreach (Button button in Walk(host).OfType<Button>().Where(c => c.Visible))
+                    {
+                        Check(button.Width + 2 >= button.GetPreferredSize(Size.Empty).Width, label + " button text fits: " + button.Text);
+                        // Scrolling dialog content can extend below its viewport; pinned footer actions cannot.
+                        bool scrolling = false;
+                        for (Control? parent = button.Parent; parent is not null && parent != host; parent = parent.Parent)
+                            scrolling |= parent is ScrollableControl { AutoScroll: true };
+                        if (!scrolling) Check(IsInClient(host, button), label + " fixed action is visible: " + button.Text);
+                    }
+                    if (dialog.Editor && dialog.Type == "MapsForm")
+                    {
+                        type.GetMethod("RemoveSelected", Hidden)!.Invoke(form, null);
+                        Check(Walk(host).OfType<Label>().Any(c => c.Text.Contains("Close OpenSCCT Editor", StringComparison.Ordinal)), label + " shared-content changes are guarded");
+                    }
+                    if (dialog.Editor && dialog.Type == "HelpForm")
+                    {
+                        Button report = Walk(host).OfType<Button>().Single(c => c.Name == "BugReport");
+                        typeof(Button).GetMethod("OnClick", Hidden)!.Invoke(report, [EventArgs.Empty]);
+                        Check(Walk(host).OfType<TextBox>().Single(c => c.Name == "SelectedLink").Text.StartsWith("https://github.com/Lumbridge/OpenSCCT-Editor/issues/new", StringComparison.Ordinal), label + " editor reports route to editor repository");
+                        Check(Walk(host).OfType<TextBox>().Single(c => c.Name == "ReportDetails").Text.Contains("Editor version: " + EditorVersion, StringComparison.Ordinal), label + " report details include editor version");
+                    }
+                    if (dialog.Type == "SettingsForm") InspectSettings(host, dialog.Editor ? editorFixture.Layout : fixture.Layout, dialog.Editor, label);
+                });
+                foreach (Control control in controls) form.Controls.Add(control);
+                host.Hide();
+                if (dialog.Type == "SettingsForm")
+                {
+                    CheckBox preview = Walk(form).OfType<CheckBox>().Single(c => c.Name == (dialog.Editor ? "IncludeEditorPreviewReleases" : "IncludePreviewReleases"));
+                    CheckBox startup = Walk(form).OfType<CheckBox>().Single(c => c.Name == (dialog.Editor ? "CheckForEditorUpdatesOnStart" : "CheckForUpdatesOnStart"));
+                    preview.Checked = true;
+                    startup.Checked = !startup.Checked;
+                    type.GetMethod("Save", Hidden)!.Invoke(form, null);
+                    var saved = (LauncherSettings)type.GetProperty("Result")!.GetValue(form)!;
+                    Inspect(() =>
+                    {
+                        Check(saved.SelectedProduct == (dialog.Editor ? "Editor" : "Game"), label + " saving preserves selected product");
+                        Check(saved.IncludePrereleases == !dialog.Editor && saved.EditorIncludePrereleases == dialog.Editor, label + " saving changes active preview preference and preserves other product");
+                        Check(saved.CheckOnStart == dialog.Editor && saved.EditorCheckOnStart == !dialog.Editor,
+                            label + " saving changes active startup preference and preserves other product");
+                        Check(!(bool)type.GetProperty("UninstallEditorRequested")!.GetValue(form)! && !(bool)type.GetProperty("RemoveGameFilesRequested")!.GetValue(form)!,
+                            label + " saving settings requests no removal");
+                    });
+                }
             }
-            Save(host, output, label);
+        }
+    }
+
+    private static void InspectSettings(Form host, LauncherLayout layout, bool editor, string label)
+    {
+        Control[] controls = Walk(host).ToArray();
+        Check(host.Text == (editor ? "Editor settings" : "Game settings"), label + " title names the selected product");
+        CheckBox[] checks = controls.OfType<CheckBox>().ToArray();
+        Check(checks.Length == 2, label + " only active product update settings appear");
+        Check(checks.Any(c => c.Name == (editor ? "IncludeEditorPreviewReleases" : "IncludePreviewReleases")) &&
+            checks.All(c => c.Text.Contains(editor ? "editor" : "game", StringComparison.OrdinalIgnoreCase)),
+            label + " update options explicitly name their product");
+        foreach (CheckBox check in checks)
+        {
+            Check(check.Width + 2 >= check.GetPreferredSize(Size.Empty).Width, label + " checkbox text fits: " + check.Text);
+        }
+        Check(controls.OfType<Button>().Any(c => c.Name == (editor ? "UninstallEditor" : "RemoveGameFiles")), label + " correct removal action appears");
+        Check(!controls.OfType<Button>().Any(c => c.Name == (editor ? "RemoveGameFiles" : "UninstallEditor")), label + " other product removal action is absent");
+        if (editor)
+        {
+            Button uninstall = controls.OfType<Button>().Single(c => c.Name == "UninstallEditor");
+            Check(uninstall.Enabled, label + " managed editor can be uninstalled");
+            Check(uninstall.Text.Contains("Uninstall editor", StringComparison.OrdinalIgnoreCase), label + " uninstall wording is explicit");
+        }
+        else Check(controls.OfType<Button>().Single(c => c.Name == "RemoveGameFiles").Text.Contains("Remove game and shared files", StringComparison.OrdinalIgnoreCase), label + " game removal names shared files");
+        LinkLabel[] links = controls.OfType<LinkLabel>().ToArray();
+        Check(links.Any(c => c.Name == (editor ? "OpenEditorFolder" : "OpenGameFolder")) &&
+            links.Any(c => c.Name == (editor ? "OpenEditorUserData" : "OpenGameUserData")), label + " product folders are available");
+        Check(!links.Any(c => c.Name == (editor ? "OpenGameUserData" : "OpenEditorUserData")), label + " other product settings folder is absent");
+        if (editor)
+        {
+            Check(links.Single(c => c.Name == "OpenEditorFolder").AccessibleDescription == layout.Editor, label + " editor folder targets fixture install");
+            Check(links.Single(c => c.Name == "OpenEditorUserData").AccessibleDescription ==
+                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "OpenSCCT Editor"),
+                label + " editor data folder targets editor settings and autosaves");
+        }
+        else Check(links.Single(c => c.Name == "OpenGameUserData").AccessibleDescription == LauncherLayout.GameUserData, label + " game data folder targets game settings");
+        Button remove = controls.OfType<Button>().Single(c => c.Name == (editor ? "UninstallEditor" : "RemoveGameFiles"));
+        if (!IsInClient(host, remove))
+        {
+            for (Control? parent = remove.Parent; parent is not null; parent = parent.Parent)
+            {
+                if (parent is not ScrollableControl { AutoScroll: true } scroll) continue;
+                scroll.ScrollControlIntoView(remove);
+                Settle(host);
+                break;
+            }
+        }
+        Check(IsInClient(host, remove), label + " removal action is reachable by scrolling when needed");
+    }
+
+    private static void SettingsScopeChecks()
+    {
+        Type type = MainType.Assembly.GetType("OpenScct.Launcher.App.SettingsForm", true)!;
+        foreach (string state in new[] { "absent", "unmanaged", "recovery" })
+        {
             Inspect(() =>
             {
-                if (dialog.Editor) Check(host.BackColor == Color.FromArgb(19, 21, 27), label + " dialog uses editor palette");
-                Check(host.SelectNextControl(null, true, true, true, false), label + " keyboard traversal enters controls");
-                foreach (Button button in Walk(host).OfType<Button>().Where(c => c.Visible))
-                {
-                    Check(button.Width + 2 >= button.GetPreferredSize(Size.Empty).Width, label + " button text fits: " + button.Text);
-                    // Scrolling dialog content can extend below its viewport; pinned footer actions cannot.
-                    bool scrolling = false;
-                    for (Control? parent = button.Parent; parent is not null && parent != host; parent = parent.Parent)
-                        scrolling |= parent is ScrollableControl { AutoScroll: true };
-                    if (!scrolling) Check(IsInClient(host, button), label + " fixed action is visible: " + button.Text);
-                }
-                if (dialog.Editor && dialog.Type == "MapsForm")
-                {
-                    type.GetMethod("RemoveSelected", Hidden)!.Invoke(form, null);
-                    Check(Walk(host).OfType<Label>().Any(c => c.Text.Contains("Close OpenSCCT Editor", StringComparison.Ordinal)), label + " shared-content changes are guarded");
-                }
-                if (dialog.Editor && dialog.Type == "HelpForm")
-                {
-                    Button report = Walk(host).OfType<Button>().Single(c => c.Name == "BugReport");
-                    typeof(Button).GetMethod("OnClick", Hidden)!.Invoke(report, [EventArgs.Empty]);
-                    Check(Walk(host).OfType<TextBox>().Single(c => c.Name == "SelectedLink").Text.StartsWith("https://github.com/Lumbridge/OpenSCCT-Editor/issues/new", StringComparison.Ordinal), label + " editor reports route to editor repository");
-                    Check(Walk(host).OfType<TextBox>().Single(c => c.Name == "ReportDetails").Text.Contains("Editor version: " + EditorVersion, StringComparison.Ordinal), label + " report details include editor version");
-                }
+                using var fixture = new Fixture(new Scenario(state == "absent" ? "editor-absent" : state == "recovery" ? "editor-recovery" : "editor-ready", true, true, "Open Editor"));
+                if (state == "unmanaged") File.Delete(Path.Combine(fixture.Layout.Editor, ".launcher-managed"));
+                using Form form = (Form)Activator.CreateInstance(type, BindingFlags.Public | Hidden, null,
+                    new object?[] { new LauncherSettings { SelectedProduct = "Editor" }, fixture.Layout, null }, null)!;
+                Button uninstall = Walk(form).OfType<Button>().Single(c => c.Name == "UninstallEditor");
+                Check(uninstall.Enabled == (state == "recovery"), state + " editor uninstall availability follows launcher management");
+                Check(!(bool)type.GetProperty("UninstallEditorRequested")!.GetValue(form)!, state + " settings never requests uninstall on construction");
+                Check(File.Exists(fixture.LauncherPath), state + " settings inspection preserves fixture launcher");
             });
-            foreach (Control control in controls) form.Controls.Add(control);
-            host.Hide();
-            if (dialog.Editor && dialog.Type == "SettingsForm")
-            {
-                type.GetMethod("Save", Hidden)!.Invoke(form, null);
-                var saved = (LauncherSettings)type.GetProperty("Result")!.GetValue(form)!;
-                Inspect(() => Check(saved.SelectedProduct == "Editor" && saved.EditorIncludePrereleases && !saved.IncludePrereleases,
-                    label + " saving preserves product and independent editor preview preference"));
-            }
         }
     }
     private static void ScaleForPreview(Form form, Fixture fixture, float scale)
@@ -506,7 +604,7 @@ internal static class Program
         Inspect(() =>
         {
             using var fixture = new Fixture(new Scenario("editor-ready", true, true, "Open Editor"));
-            new LauncherSettings { SelectedProduct = "Editor", CheckOnStart = false }.Save(fixture.Layout.Settings);
+            new LauncherSettings { SelectedProduct = "Editor", CheckOnStart = false, EditorCheckOnStart = false }.Save(fixture.Layout.Settings);
             using Form form = (Form)Activator.CreateInstance(MainType, Hidden, null,
                 new object?[] { fixture.Layout, null, null, fixture.LauncherPath }, null)!;
             _ = form.Handle;
@@ -517,6 +615,31 @@ internal static class Program
             Call(form, "SelectProduct", true);
             Check(Field<object?>(form, "_work") is null && Field<EditorCheck?>(form, "_editorCheck") is null, "Changing tabs respects disabled automatic checks");
         });
+
+        foreach (bool editor in new[] { false, true })
+        {
+            Inspect(() =>
+            {
+                using var fixture = new Fixture(new Scenario(editor ? "editor-ready" : "ready", true, true, editor ? "Open Editor" : "PLAY"));
+                new LauncherSettings { SelectedProduct = editor ? "Editor" : "Game", CheckOnStart = editor, EditorCheckOnStart = !editor }.Save(fixture.Layout.Settings);
+                using Form form = (Form)Activator.CreateInstance(MainType, Hidden, null,
+                    new object?[] { fixture.Layout, null, null, fixture.LauncherPath }, null)!;
+                // Reject every possible startup HTTP route even if this regression fails and starts a check.
+                using var http = new HttpClient(new NoNetworkHandler());
+                Set(form, "_editor", new EditorService(fixture.Layout, http));
+                Set(form, "_service", new UpdateService(fixture.Layout, new VersionStore(fixture.Layout),
+                    new GitHubReleaseClient(http, ReleaseSource.Official, fixture.Layout.Cache), http, Field<IGameProcessProbe>(form, "_games")));
+                Set(form, "_packs", new ContentStore(fixture.Layout.Packs, http));
+                int attempts = _networkAttempts;
+                _ = form.Handle;
+                Call(form, "OnShown", EventArgs.Empty);
+                Check(Field<bool>(form, "_webJoinReady"), "Disabled selected-product startup reaches ready state");
+                Check(_networkAttempts == attempts && Field<object?>(form, "_work") is null && Field<EditorCheck?>(form, "_editorCheck") is null &&
+                    Field<UpdateCheck?>(form, "_lastCheck") is null, (editor ? "Editor" : "Game") + " startup ignores the other product's enabled check preference");
+                Call(form, "SelectProduct", editor);
+                Check(_networkAttempts == attempts, "Reselecting disabled product remains offline");
+            });
+        }
     }
 
     private static void PumpUntil(Task task)
@@ -553,6 +676,7 @@ internal static class Program
         using var bitmap = new Bitmap(host.Width, host.Height);
         host.DrawToBitmap(bitmap, new Rectangle(Point.Empty, bitmap.Size));
         bitmap.Save(Path.Combine(output, label + ".png"), ImageFormat.Png);
+        _captures++;
     }
     private static T Field<T>(Form form, string name) => (T)MainType.GetField(name, Hidden)!.GetValue(form)!;
     private static void Set(Form form, string name, object? value) => MainType.GetField(name, Hidden)!.SetValue(form, value);
