@@ -77,6 +77,7 @@ public sealed partial class FlareLights : Node3D
     private static readonly StringName s_countName = ParamCount;
     private static readonly StringName s_depthName = ParamDepth;
     private static bool s_globalsAdded;
+    private static int s_publishedCount;
     private static Image? s_rows;
     private static ImageTexture? s_rowsTexture;
     private static ImageTexture? s_noDepth;
@@ -162,11 +163,22 @@ public sealed partial class FlareLights : Node3D
         }
 
         BindAtlas();
-        s_rowsTexture!.Update(s_rows);
-        RenderingServer.GlobalShaderParameterSet(s_countName, rows);
+        // With no lit flares the shader never reads the row texture.
+        if (rows != 0)
+        {
+            s_rowsTexture!.Update(s_rows);
+        }
+        PublishCount(rows);
         Lit = rows;
         Shadowed = shadowed;
         _frame.Clear();
+    }
+
+    private static void PublishCount(int rows)
+    {
+        if (s_publishedCount == rows) return;
+        RenderingServer.GlobalShaderParameterSet(s_countName, rows);
+        s_publishedCount = rows;
     }
 
     /// <summary>The flame's waver: a few uu, smooth, different for each flare.</summary>
@@ -297,7 +309,7 @@ public sealed partial class FlareLights : Node3D
         Array.Clear(_cubes);
         if (s_globalsAdded)
         {
-            RenderingServer.GlobalShaderParameterSet(s_countName, 0);
+            PublishCount(0);
             if (_bound && s_noDepth is not null)
             {
                 RenderingServer.GlobalShaderParameterSet(s_depthName, s_noDepth);

@@ -550,6 +550,10 @@ vec3 svm_flare_light(vec3 wp, vec3 wn, float rscale, int falloff) {
 // The vertex colour's alpha holds the surface's zone index / 255.
 global uniform sampler2D svm_dyn_lights;
 global uniform int svm_dyn_light_count;
+// WorldLights bins light row indices by horizontal position on maps with many lights.
+global uniform sampler2D svm_dyn_cells;
+global uniform vec4 svm_dyn_cell_transform; // XZ origin and reciprocal cell size
+global uniform int svm_dyn_indexed_rows;
 // Calibration of the dynamic world lights: x gain, y radius scale, z falloff (0 smoothstep, 1 1-x^2, 2 1-x,
 // 3 (1-x)^2), w 1 to honour bAffectOwnZoneOnly on world surfaces. (1, 1, 0, 1) is the decoded actor model.
 global uniform vec4 svm_dyn_tune;
@@ -566,8 +570,30 @@ int svm_dyn_falloff() {
 }
 
 vec3 svm_dynamic(vec3 wp, vec3 wn, float zone) {
+	// The grid bounds use the normal light radius. Use the full list for radius calibration overrides.
+	bool indexed = svm_dyn_indexed_rows > 0 && svm_dyn_tune.y == 1.0;
+	int cell = 0;
+	int local_count = 0;
+	int count = svm_dyn_light_count;
+	if (indexed) {
+		const int side = 16; // WorldLights.CellSide
+		vec2 coord = (wp.xz - svm_dyn_cell_transform.xy) * svm_dyn_cell_transform.zw;
+		cell = side * side; // Outside the grid, only directional lights can reach the pixel.
+		if (all(greaterThanEqual(coord, vec2(0.0))) && all(lessThan(coord, vec2(float(side))))) {
+			ivec2 tile = ivec2(coord);
+			cell = tile.y * side + tile.x;
+		}
+		local_count = int(texelFetch(svm_dyn_cells, ivec2(0, cell), 0).r);
+		count += local_count - svm_dyn_indexed_rows;
+	}
 	vec3 sum = vec3(0.0);
-	for (int i = 0; i < svm_dyn_light_count; i++) {
+	for (int j = 0; j < count; j++) {
+		// Transient flashes follow the map lights in the texture and do not rebuild the grid.
+		int i = j;
+		if (indexed) {
+			i = j < local_count ? int(texelFetch(svm_dyn_cells, ivec2(j + 1, cell), 0).r)
+				: svm_dyn_indexed_rows + j - local_count;
+		}
 		float own = texelFetch(svm_dyn_lights, ivec2(3, i), 0).x;
 		if (svm_dyn_tune.w > 0.5 && own >= 0.0 && abs(own - zone) > 0.5) {
 			continue;

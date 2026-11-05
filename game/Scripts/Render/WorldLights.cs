@@ -28,6 +28,14 @@ public sealed class WorldLights
     // The names Update writes every frame, made once (a name passed as a string makes a StringName per call).
     private static readonly StringName s_textureName = TextureParameter;
     private static readonly StringName s_countName = CountParameter;
+    private static readonly StringName s_cellTextureName = "svm_dyn_cells";
+    private static readonly StringName s_cellTransformName = "svm_dyn_cell_transform";
+    private static readonly StringName s_indexedRowsName = "svm_dyn_indexed_rows";
+    private const int CellSide = 16;
+    private const int OutsideCell = CellSide * CellSide;
+    private const int MinIndexedLights = 12;
+    // Pad the influence bounds for floating-point differences at cell edges.
+    private const float BoundsPadding = 0.001f;
     private bool _textureSet;
     public const int MaxLights = 256;
 
@@ -46,8 +54,13 @@ public sealed class WorldLights
     private readonly PackedLight[] _packed;
     private readonly float[] _zones;
     private readonly bool[] _written;
+    private Image? _cellImage;
+    private ImageTexture? _cellTexture;
+    private readonly int[] _cellCounts = new int[OutsideCell + 1];
     private bool _dirty;
     private int _lastRows = -1;
+    private int _lastMapRows = -1;
+    private int _indexedRows = -1;
 
     public WorldLights(LightingDoc lighting)
     {
@@ -192,15 +205,20 @@ public sealed class WorldLights
 
         // Only lights that give light this frame take rows, so the shader's per-pixel loop skips the ones off.
         int rows = 0;
+        bool cellsDirty = false;
         for (int i = 0; i < _lights.Count; i++)
         {
             LightEntry l = _lights[i];
             float m = _on[i] ? Modulation(l, time) : 0f;
             if (m > 0f)
             {
-                Write(rows++, l, m);
+                int row = rows++;
+                Vector4 previousPosition = _packed[row].Pos;
+                Write(row, l, m);
+                cellsDirty |= previousPosition != _packed[row].Pos;
             }
         }
+        int mapRows = rows;
 
         for (int i = 0; i < _spawned.Count; i++)
         {
@@ -222,12 +240,110 @@ public sealed class WorldLights
             RenderingServer.GlobalShaderParameterSet(s_textureName, _texture);
         }
 
+        if (cellsDirty || mapRows != _lastMapRows)
+        {
+            UpdateCells(mapRows);
+            _lastMapRows = mapRows;
+        }
+
         if (rows != _lastRows)
         {
             _lastRows = rows;
             RenderingServer.GlobalShaderParameterSet(s_countName, rows);
         }
     }
+
+    // Preserve the order of the original light loop. Each horizontal cell lists every light whose
+    // padded radius can touch it. Directional lights also go in the row used outside the grid.
+    private void UpdateCells(int rows)
+    {
+        if (rows < MinIndexedLights)
+        {
+            SetIndexedRows(0);
+            return;
+        }
+
+        Vector2 min = new(float.PositiveInfinity, float.PositiveInfinity);
+        Vector2 max = new(float.NegativeInfinity, float.NegativeInfinity);
+        for (int row = 0; row < rows; row++)
+        {
+            Vector4 p = _packed[row].Pos;
+            if (p.W < 0f) continue;
+            Vector2 center = new(p.X, p.Z);
+            Vector2 extent = Vector2.One * CullExtent(p.W);
+            min = min.Min(center - extent);
+            max = max.Max(center + extent);
+        }
+
+        Vector2 scale = new Vector2(CellSide, CellSide) / (max - min);
+        if (!min.IsFinite() || !scale.IsFinite() || scale.X <= 0f || scale.Y <= 0f)
+        {
+            SetIndexedRows(0);
+            return;
+        }
+
+        _cellImage ??= Image.CreateEmpty(_lights.Count + 1, OutsideCell + 1, false, Image.Format.Rf);
+        Array.Clear(_cellCounts);
+        for (int row = 0; row < rows; row++)
+        {
+            Vector4 p = _packed[row].Pos;
+            if (p.W < 0f)
+            {
+                for (int cell = 0; cell <= OutsideCell; cell++)
+                {
+                    AddCellLight(cell, row);
+                }
+                continue;
+            }
+
+            float extent = CullExtent(p.W);
+            int x0 = CellCoordinate(p.X - extent, min.X, scale.X);
+            int x1 = CellCoordinate(p.X + extent, min.X, scale.X);
+            int z0 = CellCoordinate(p.Z - extent, min.Y, scale.Y);
+            int z1 = CellCoordinate(p.Z + extent, min.Y, scale.Y);
+            for (int z = z0; z <= z1; z++)
+            {
+                for (int x = x0; x <= x1; x++)
+                {
+                    AddCellLight(z * CellSide + x, row);
+                }
+            }
+        }
+
+        for (int cell = 0; cell <= OutsideCell; cell++)
+        {
+            _cellImage.SetPixel(0, cell, new Color(_cellCounts[cell], 0f, 0f));
+        }
+
+        if (_cellTexture is null)
+        {
+            _cellTexture = ImageTexture.CreateFromImage(_cellImage);
+            RenderingServer.GlobalShaderParameterSet(s_cellTextureName, _cellTexture);
+        }
+        else
+        {
+            _cellTexture.Update(_cellImage);
+        }
+        RenderingServer.GlobalShaderParameterSet(s_cellTransformName, new Vector4(min.X, min.Y, scale.X, scale.Y));
+        SetIndexedRows(rows);
+    }
+
+    private void SetIndexedRows(int rows)
+    {
+        if (_indexedRows != rows)
+        {
+            _indexedRows = rows;
+            RenderingServer.GlobalShaderParameterSet(s_indexedRowsName, rows);
+        }
+    }
+
+    private static int CellCoordinate(float value, float origin, float scale) =>
+        Math.Clamp((int)MathF.Floor((value - origin) * scale), 0, CellSide - 1);
+
+    private static float CullExtent(float radius) => MathF.Max(radius, 1e-5f) + BoundsPadding;
+
+    private void AddCellLight(int cell, int row) =>
+        _cellImage!.SetPixel(++_cellCounts[cell], cell, new Color(row, 0f, 0f));
 
     private void Write(int row, LightEntry l, float m)
     {
@@ -311,6 +427,10 @@ public sealed class WorldLights
         RenderingServer.GlobalShaderParameterAdd(TextureParameter, RenderingServer.GlobalShaderParameterType.Sampler2D,
             ImageTexture.CreateFromImage(empty));
         RenderingServer.GlobalShaderParameterAdd(CountParameter, RenderingServer.GlobalShaderParameterType.Int, 0);
+        RenderingServer.GlobalShaderParameterAdd(s_cellTextureName, RenderingServer.GlobalShaderParameterType.Sampler2D,
+            ImageTexture.CreateFromImage(empty));
+        RenderingServer.GlobalShaderParameterAdd(s_cellTransformName, RenderingServer.GlobalShaderParameterType.Vec4, Vector4.Zero);
+        RenderingServer.GlobalShaderParameterAdd(s_indexedRowsName, RenderingServer.GlobalShaderParameterType.Int, 0);
         RenderingServer.GlobalShaderParameterAdd(TuneParameter, RenderingServer.GlobalShaderParameterType.Vec4, DefaultTune);
         RenderingServer.GlobalShaderParameterAdd(ZoneAmbientParameter, RenderingServer.GlobalShaderParameterType.Sampler2D,
             ImageTexture.CreateFromImage(Image.CreateEmpty(256, 1, false, Image.Format.Rgbaf)));

@@ -100,6 +100,7 @@ public sealed partial class CollisionWorld : ICollisionWorld
 
     private readonly ColliderState[] _colliders;
     private readonly int[] _dynamicColliders;
+    private readonly ETraceFlags _dynamicTraceBits;
     private readonly PrimitiveSet _static;
     private readonly CollisionMaterial[] _materials;
 
@@ -200,6 +201,7 @@ public sealed partial class CollisionWorld : ICollisionWorld
                 state.Set = target.Build();
                 degenerate += target.DegenerateTriangles;
                 dynamic.Add(ci);
+                _dynamicTraceBits |= state.TraceBits;
             }
 
             state.Min = has ? cmin : c.AabbMin;

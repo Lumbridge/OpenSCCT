@@ -692,6 +692,12 @@ public sealed class GameSettings
     /// <summary>Video_Settings' sQuality captions for the post-render row (Normal, High).</summary>
     public static readonly string[] PostQualities = ["Normal", "High"];
 
+    /// <summary>The Windows graphics driver to request at the next start. Default follows the project settings.</summary>
+    [JsonPropertyName("graphics_driver")]
+    public string GraphicsDriver { get; set; } = "Default";
+
+    public static readonly string[] GraphicsDrivers = ["Default", "Vulkan", "Direct3D 12"];
+
     /// <summary>"Reduce input lag": Off, On (one frame queued) or Ultra (one frame queued, two swap chain images). Needs a restart.</summary>
     [JsonPropertyName("low_latency_mode")]
     [Provenance(ProvenanceKind.Estimated, "rl:gfx.pacing: Reloaded's default is On; the rewrite starts Off until frame queue 1 is measured on Vulkan and D3D12")]
@@ -999,6 +1005,7 @@ public sealed class GameSettings
         ClutchTwoKey = (ClutchTwoKey ?? "").Trim();
         MouseWheel = OneOf(WheelModes, MouseWheel);
         WindowPosition = OneOf(WindowPositions, WindowPosition, "Centered");
+        GraphicsDriver = OneOf(GraphicsDrivers, GraphicsDriver);
         LowLatencyMode = OneOf(LatencyModes, LowLatencyMode);
         FilterLevel = FilterLevel <= 0 ? 0 : FilterLevel <= 2 ? 2 : FilterLevel <= 4 ? 4 : FilterLevel <= 8 ? 8 : 16;
         ShadowQuality = LookSettings.Range(ShadowQuality, 0.5f, 16f);

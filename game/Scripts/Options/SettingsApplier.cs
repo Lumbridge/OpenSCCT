@@ -101,18 +101,25 @@ public static class SettingsApplier
     public const string StartOverridePath = "user://render_override.cfg";
 
     /// <summary>
-    /// The settings that only take effect at start (Reloaded's low_latency_mode, rl:gfx.pacing), written for the next
-    /// start: On and Ultra queue one swap chain image less (2, Godot's lowest; its default is 3). The frame queue stays
-    /// at 2, the lowest Godot's setting allows, so Ultra is On for now. Off removes the file.
+    /// Writes the Windows graphics driver and latency overrides for the next start. On and Ultra queue one swap
+    /// chain image less (2, Godot's lowest; its default is 3). The frame queue stays at 2, the lowest Godot's setting
+    /// allows, so Ultra is On for now. The file is removed when neither setting needs an override.
     /// </summary>
     [OpenScct.Provenance.Provenance(OpenScct.Provenance.ProvenanceKind.Estimated, "rl:gfx.pacing open question: Godot 4.7 offers frame queue 2 to 3 and 2 to 4 swap chain images; Reloaded's latency modes are not decoded")]
     public static void WriteStartOverrides(GameSettings s)
     {
         ArgumentNullException.ThrowIfNull(s);
+        string? driver = OperatingSystem.IsWindows() ? s.GraphicsDriver switch
+        {
+            "Vulkan" => "vulkan",
+            "Direct3D 12" => "d3d12",
+            _ => null,
+        } : null;
+        bool lowLatency = s.LowLatencyMode != "Off";
         string path = ProjectSettings.GlobalizePath(StartOverridePath);
         try
         {
-            if (s.LowLatencyMode == "Off")
+            if (driver is null && !lowLatency)
             {
                 if (System.IO.File.Exists(path))
                 {
@@ -123,8 +130,9 @@ public static class SettingsApplier
             }
 
             System.IO.File.WriteAllText(path,
-                "; Written by OpenSCCT from settings.json (low_latency_mode); removed when it is Off.\n" +
-                "[rendering]\n\nrendering_device/vsync/swapchain_image_count=2\n");
+                "; Written by OpenSCCT from settings.json.\n[rendering]\n\n" +
+                (driver is not null ? $"rendering_device/driver.windows=\"{driver}\"\n" : "") +
+                (lowLatency ? "rendering_device/vsync/swapchain_image_count=2\n" : ""));
         }
         catch (System.IO.IOException e)
         {

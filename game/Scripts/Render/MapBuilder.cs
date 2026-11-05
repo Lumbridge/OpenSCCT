@@ -1196,7 +1196,7 @@ public static class MapBuilder
                 // A cell with more materials than one mesh can hold (MoonD's cells pass 256) is split over several
                 // meshes, so no surface is dropped.
                 int part = 0;
-                var mesh = new ArrayMesh { ResourceName = baseName };
+                var surfaces = new List<(SurfaceBuilder Surface, Material Material, bool Split)>(MaxSurfacesPerMesh);
                 foreach ((string, LightSource, bool) key in keys)
                 {
                     Material? material = key.Item3 ? _map.Compiler.GetSeeThrough(key.Item1, key.Item2) : _map.Compiler.Get(key.Item1, key.Item2);
@@ -1211,43 +1211,92 @@ public static class MapBuilder
                         continue;
                     }
 
-                    if (mesh.GetSurfaceCount() == MaxSurfacesPerMesh)
+                    if (surfaces.Count == MaxSurfacesPerMesh)
                     {
-                        AddCellMesh(mesh, cell.sky);
-                        part++;
-                        mesh = new ArrayMesh { ResourceName = string.Create(CultureInfo.InvariantCulture, $"{baseName}_{part}") };
+                        FlushCellPart(surfaces, CellPartName(baseName, part++), cell.sky != 0);
+                        surfaces.Clear();
                     }
 
-                    b.AddTo(mesh, material);
+                    // Transparent and vision see-through passes keep the original cell sort bounds.
+                    // A MaterialSequence can change its blend mode by replacing the shader at runtime.
+                    MaterialEntry? entry = _map.Materials.Find(key.Item1);
+                    bool split = cell.sky == 0 && !key.Item3 && material.NextPass is null &&
+                        entry is { Blend: MaterialBlend.Opaque or MaterialBlend.Masked } &&
+                        !(entry.Sequences.TryGetValue("diffuse", out var sequence) && sequence.SwitchMaterial);
+                    surfaces.Add((b, material, split));
                     _map.Stats.Vertices += b.VertexCount;
                 }
 
-                AddCellMesh(mesh, cell.sky);
+                FlushCellPart(surfaces, CellPartName(baseName, part), cell.sky != 0);
             }
         }
 
-        private void AddCellMesh(ArrayMesh mesh, int sky)
+        private static string CellPartName(string baseName, int part) =>
+            part == 0 ? baseName : string.Create(CultureInfo.InvariantCulture, $"{baseName}_{part}");
+
+        private void FlushCellPart(List<(SurfaceBuilder Surface, Material Material, bool Split)> surfaces, string name, bool sky)
         {
-            if (mesh.GetSurfaceCount() == 0)
+            if (surfaces.Count == 0)
             {
                 return;
             }
 
             bool animatedShadow = false;
-            if (sky == 0)
+            var grouped = new ArrayMesh { ResourceName = name };
+            var bounded = new List<ArrayMesh>();
+            foreach ((SurfaceBuilder surface, Material material, bool split) in surfaces)
             {
-                for (int surface = 0; surface < mesh.GetSurfaceCount(); surface++)
+                if (!sky && material is ShaderMaterial { Shader: { } shader })
                 {
-                    if (mesh.SurfaceGetMaterial(surface) is not ShaderMaterial { Shader: { } shader }) continue;
                     animatedShadow |= shader.HasMeta("svm_shadow_animated") && shader.GetMeta("svm_shadow_animated").AsBool();
+                }
+
+                // Each material was already a draw call. A tight instance AABB lets Godot cull
+                // it without splitting the material's merged triangles into additional calls.
+                if (split && surfaces.Count > 1)
+                {
+                    var mesh = new ArrayMesh { ResourceName = string.Create(CultureInfo.InvariantCulture, $"{name}_Surface{bounded.Count}") };
+                    surface.AddTo(mesh, material);
+                    bounded.Add(mesh);
+                }
+                else
+                {
+                    surface.AddTo(grouped, material);
                 }
             }
 
+            uint layer = sky ? RenderLayers.Sky : animatedShadow ? RenderLayers.World : RenderLayers.StaticWorld;
+            if (grouped.GetSurfaceCount() != 0)
+            {
+                if (bounded.Count != 0)
+                {
+                    Aabb originalBounds = grouped.GetAabb();
+                    foreach (ArrayMesh mesh in bounded)
+                    {
+                        originalBounds = originalBounds.Merge(mesh.GetAabb());
+                    }
+                    grouped.CustomAabb = originalBounds;
+                }
+                AddCellMesh(grouped, layer);
+            }
+            else
+            {
+                grouped.Dispose();
+            }
+
+            foreach (ArrayMesh mesh in bounded)
+            {
+                AddCellMesh(mesh, layer);
+            }
+        }
+
+        private void AddCellMesh(ArrayMesh mesh, uint layer)
+        {
             _static.AddChild(new MeshInstance3D
             {
                 Name = mesh.ResourceName,
                 Mesh = mesh,
-                Layers = sky != 0 ? RenderLayers.Sky : animatedShadow ? RenderLayers.World : RenderLayers.StaticWorld,
+                Layers = layer,
             });
             _map.Stats.StaticNodes++;
             _map.Stats.StaticSurfaces += mesh.GetSurfaceCount();

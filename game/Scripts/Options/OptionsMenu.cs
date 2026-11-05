@@ -513,6 +513,17 @@ public partial class OptionsMenu : Control
         _controls["fps_spy"].TooltipText = "Frame-rate limit while playing as Spy. Match refresh rate follows your display; Unlimited removes the cap. Vertical sync can still limit FPS.";
         FrameRateChoice(g, "Mercenary maximum FPS", "fps_merc");
         _controls["fps_merc"].TooltipText = "Frame-rate limit while playing as Mercenary, in menus and in the lobby. Match refresh rate follows your display; Unlimited removes the cap. Vertical sync can still limit FPS.";
+        if (OperatingSystem.IsWindows())
+        {
+            string active = RenderingServer.GetCurrentRenderingDriverName() switch
+            {
+                "vulkan" => "Vulkan",
+                "d3d12" => "Direct3D 12",
+                var driver => driver,
+            };
+            Section(g, "Graphics driver", $"Active driver: {active}. Switching drivers can change frame rate and requires restarting the game.");
+            Choice(g, "Graphics driver (restart)", "graphics_driver", GameSettings.GraphicsDrivers, _edit.GraphicsDriver, v => _edit.GraphicsDriver = v);
+        }
         Section(g, "Latency & power", "These settings require restarting the game.");
         Choice(g, "Reduce input lag (restart)", "low_latency_mode", GameSettings.LatencyModes, _edit.LowLatencyMode, v => _edit.LowLatencyMode = v);
         if (OperatingSystem.IsWindows())

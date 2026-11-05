@@ -35,8 +35,8 @@ public sealed record PortalFogFrame(float[] Data)
         Add(right.X, right.Y, right.Z, projection.X.X);
         Add(up.X, up.Y, up.Z, projection.Y.Y);
         Add(forward.X, forward.Y, forward.Z, UeSpace.UnitsPerMetre);
-        Add(columns, rows, TileSize, 0f); // w is the tile-table address, assigned below.
-        Add(PortalBase, lighting.FogPortals.Count, 0f, 0f);
+        Add(size.X, size.Y, columns, 0f); // w is the tile-table address, assigned below.
+        Add(PortalBase, cameraFog ? 1f : 0f, 0f, 0f);
         for (int z = 0; z < 64; z++)
         {
             ZoneEntry? zone = lighting.ZoneByIndex(z);
@@ -55,25 +55,45 @@ public sealed record PortalFogFrame(float[] Data)
             Add(portal.Plane.X, portal.Plane.Y, portal.Plane.Z, portal.Plane.W);
             Add(portal.Back, portal.Front, edgeAt, portal.Edges.Length);
             edgeAt += portal.Edges.Length;
-            float minX = size.X, minY = size.Y, maxX = 0, maxY = 0;
-            bool ahead = false, near = false, positive = false;
+            float minX = float.PositiveInfinity, minY = float.PositiveInfinity;
+            float maxX = float.NegativeInfinity, maxY = float.NegativeInfinity;
+            bool behind = false;
             foreach (NVector3 vertex in portal.CandidateVertices)
             {
                 NVector3 delta = vertex - eye;
                 float depth = NVector3.Dot(delta, forward);
-                positive |= depth > 0f;
-                if (depth <= RenderK.NearClipUnits) { near = true; continue; }
-                ahead = true;
-                float x = (1f + NVector3.Dot(delta, right) * projection.X.X / depth) * .5f * size.X;
-                float y = (1f - NVector3.Dot(delta, up) * projection.Y.Y / depth) * .5f * size.Y;
-                minX = Math.Min(minX, x - 1f); maxX = Math.Max(maxX, x + 1f);
-                minY = Math.Min(minY, y - 1f); maxY = Math.Max(maxY, y + 1f);
+                if (depth <= 0f) { behind = true; continue; }
+                float x = NVector3.Dot(delta, right) * projection.X.X / depth;
+                float y = -NVector3.Dot(delta, up) * projection.Y.Y / depth;
+                minX = Math.Min(minX, x); maxX = Math.Max(maxX, x);
+                minY = Math.Min(minY, y); maxY = Math.Max(maxY, y);
             }
-            // A polygon intersecting the near plane uses the whole screen as a conservative bound.
-            // Fully behind the near plane can still separate the camera from a visible surface.
-            if (!positive) continue;
-            if (near) { minX = minY = 0; maxX = size.X; maxY = size.Y; }
-            else if (!ahead || maxX < 0 || maxY < 0 || minX >= size.X || minY >= size.Y) continue;
+            if (float.IsPositiveInfinity(minX)) continue;
+
+            // A portal in front of the eye can affect fog even if it is closer than the near plane.
+            // For polygons straddling the eye plane, keep each projected bound only if all the
+            // behind-eye vertices are also inside that bound's plane through the eye.
+            if (behind)
+            {
+                const float planeSlack = 0.001f;
+                foreach (NVector3 vertex in portal.CandidateVertices)
+                {
+                    NVector3 delta = vertex - eye;
+                    float depth = NVector3.Dot(delta, forward);
+                    if (depth > 0f) continue;
+                    float x = NVector3.Dot(delta, right) * projection.X.X;
+                    float y = -NVector3.Dot(delta, up) * projection.Y.Y;
+                    if (x - (minX * depth) < planeSlack) minX = float.NegativeInfinity;
+                    if (x - (maxX * depth) > -planeSlack) maxX = float.PositiveInfinity;
+                    if (y - (minY * depth) < planeSlack) minY = float.NegativeInfinity;
+                    if (y - (maxY * depth) > -planeSlack) maxY = float.PositiveInfinity;
+                }
+            }
+            minX = Math.Max(0f, (1f + minX) * .5f * size.X - 1f);
+            minY = Math.Max(0f, (1f + minY) * .5f * size.Y - 1f);
+            maxX = Math.Min(size.X, (1f + maxX) * .5f * size.X + 1f);
+            maxY = Math.Min(size.Y, (1f + maxY) * .5f * size.Y + 1f);
+            if (maxX < 0 || maxY < 0 || minX >= size.X || minY >= size.Y) continue;
             int x0 = Math.Clamp((int)MathF.Floor(minX / TileSize), 0, columns - 1), x1 = Math.Clamp((int)MathF.Floor(maxX / TileSize), 0, columns - 1);
             int y0 = Math.Clamp((int)MathF.Floor(minY / TileSize), 0, rows - 1), y1 = Math.Clamp((int)MathF.Floor(maxY / TileSize), 0, rows - 1);
             for (int y = y0; y <= y1; y++)

@@ -413,32 +413,37 @@ public sealed partial class CollisionWorld
             }
 
             SweepSet(_static, ref q, bruteForce);
-            if (q.Done)
+            if (q.Done || q.WorldOnly)
             {
                 return;
             }
 
-            FVector smin = CollisionMath.MinV(q.S, q.S + q.D) - q.NodeE;
-            FVector smax = CollisionMath.MaxV(q.S, q.S + q.D) + q.NodeE;
-            foreach (int di in _dynamicColliders)
+            // Level geometry traces (including map particle bounces) often can't hit any
+            // dynamic collider. Skip the whole scan when no dynamic collider has a matching kind.
+            if ((q.Flags & _dynamicTraceBits) != 0)
             {
-                ColliderState c = _colliders[di];
-                if (!c.Enabled || (q.OnlyCollider >= 0 && di != q.OnlyCollider))
+                FVector smin = CollisionMath.MinV(q.S, q.S + q.D) - q.NodeE;
+                FVector smax = CollisionMath.MaxV(q.S, q.S + q.D) + q.NodeE;
+                foreach (int di in _dynamicColliders)
                 {
-                    continue;
-                }
+                    ColliderState c = _colliders[di];
+                    if (!c.Enabled || (q.Flags & c.TraceBits) == 0 || (q.OnlyCollider >= 0 && di != q.OnlyCollider))
+                    {
+                        continue;
+                    }
 
-                if (!bruteForce && !SyncColliderForQuery(c, smin, smax)) continue;
-                if (bruteForce) SyncCollider(c);
-                if (c.Set is null || !CollisionMath.BoxesTouch(c.Min, c.Max, smin, smax) || !ColliderPasses(di, ref q))
-                {
-                    continue;
-                }
+                    if (!bruteForce && !SyncColliderForQuery(c, smin, smax)) continue;
+                    if (bruteForce) SyncCollider(c);
+                    if (c.Set is null || !CollisionMath.BoxesTouch(c.Min, c.Max, smin, smax) || !ColliderPasses(di, ref q))
+                    {
+                        continue;
+                    }
 
-                SweepSet(c.Set, ref q, bruteForce);
-                if (q.Done)
-                {
-                    return;
+                    SweepSet(c.Set, ref q, bruteForce);
+                    if (q.Done)
+                    {
+                        return;
+                    }
                 }
             }
         }

@@ -3,8 +3,8 @@
 Record fixed camera views in the original game, then replay them through an OpenSCCT release export.
 This compares rendering performance on the same machine. Runs are sequential on the same machine, with a real renderer, uncapped FPS, vsync off, native resolution,
 4x anisotropic filtering, no MSAA/SMAA, shadow quality 3 and smooth shadow edges. Player settings are isolated.
-Both processes opt out of Windows background execution-speed throttling. Vulkan is the OpenSCCT default;
-`-Driver d3d12` selects the other Windows backend without changing the player's configuration.
+Both processes opt out of Windows background execution-speed throttling. The benchmark runner defaults to Vulkan for
+repeatability. Use `-Driver d3d12` to measure OpenSCCT's Windows default without changing the player's configuration.
 Keep game data, derived images, camera records and raw frame CSVs in ignored `local/`.
 The [31 October results](RESULTS-2026-10-31.md) include the original comparison and remaining gaps.
 The [5 November hot-path results](RESULTS-2026-11-05.md) cover packet serialization, bot navigation allocations

@@ -47,10 +47,11 @@ vec4 svm_fog_row(int fog_base, int index) { return pf.fog_data[index]; }
 #include "res://Shaders/svm_fog_math.gdshaderinc"
 
 vec4 portal_fog(ivec2 pixel, vec2 size, float view_depth) {
-    vec2 ndc = (vec2(pixel) + 0.5) / size * 2.0 - 1.0;
+    vec2 uv = (vec2(pixel) + 0.5) / size;
+    vec2 ndc = uv * 2.0 - 1.0;
     vec3 ray = pf.fog_data[3].xyz + pf.fog_data[1].xyz * (ndc.x / pf.fog_data[1].w)
         - pf.fog_data[2].xyz * (ndc.y / pf.fog_data[2].w);
-    return svm_fog_evaluate(0, pixel, normalize(ray), view_depth * length(ray));
+    return svm_fog_evaluate(0, uv, normalize(ray), view_depth * length(ray));
 }
 
 float srgb_to_linear(float c) {
@@ -102,12 +103,15 @@ void main() {
 	}
 
 	if ((stage & 2) != 0) {
-		vec2 uv = (vec2(xy) + 0.5) / vec2(size);
-		// The grain: one texel a pixel, turned and moved by the frame's random angle and offset.
-		vec2 g = (vec2(xy) + 0.5) * p.tiles.xy;
-		vec2 q = vec2(g.x * p.noise.x - g.y * p.noise.y, g.x * p.noise.y + g.y * p.noise.x) + p.noise.zw;
-		float n = texture(noise_texture, q).r;
-
+		vec2 pixel = vec2(xy) + 0.5;
+		vec2 uv = pixel / vec2(size);
+		float n = 0.0;
+		if (mode >= 34 && mode <= 38) {
+			// One grain texel a pixel, turned and moved by the frame's random angle and offset.
+			vec2 g = pixel * p.tiles.xy;
+			vec2 q = vec2(g.x * p.noise.x - g.y * p.noise.y, g.x * p.noise.y + g.y * p.noise.x) + p.noise.zw;
+			n = texture(noise_texture, q).r;
+		}
 		if (mode == 34) {
 			// Night vision: saturate(4 n (L tint + glow)); the glow buffer is not fed in yet.
 			float l = dot(c, p.luma.rgb);

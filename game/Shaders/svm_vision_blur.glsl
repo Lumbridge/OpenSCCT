@@ -16,8 +16,44 @@ layout(rgba16f, set = 0, binding = 2) uniform readonly image2D source_image;
 layout(push_constant, std430) uniform Params {
 	vec4 axis;    // xy tap direction in source texels (1, 0) or (0, 1), zw source size
 	vec4 target;  // xy target size, z near weight, w far weight
-	vec4 mode;    // x 1 to read source_image, 0 to read source_texture
+	vec4 mode;    // x 1 to read source_image, 0 to read source_texture; y 1 to fuse both axes for glow
 } p;
+
+// An 8-pixel output row needs 16 columns of the vertical half-pass and a 3-column halo on each side.
+const int TILE_COLUMNS = 22;
+shared vec4 vertical[8][TILE_COLUMNS];
+
+vec4 round_to_half(vec4 value) {
+	// The separate pass would round these values to RGBA16F before the horizontal filter read them.
+	return vec4(unpackHalf2x16(packHalf2x16(value.xy)), unpackHalf2x16(packHalf2x16(value.zw)));
+}
+
+void glow_pair(ivec2 xy, ivec2 size) {
+	int row = int(gl_LocalInvocationID.y);
+	int first_column = int(gl_WorkGroupID.x) * 16 - 3;
+	vec2 step_y = vec2(0.0, 1.0 / p.axis.w);
+	for (int col = int(gl_LocalInvocationID.x); col < TILE_COLUMNS; col += 8) {
+		float src_x = float(clamp(first_column + col, 0, int(p.axis.z) - 1));
+		vec2 uv = vec2((src_x + 0.5) / p.axis.z, (float(xy.y) + 0.5) / p.target.y);
+		vec4 value = p.target.z * texture(source_texture, uv + step_y)
+			+ p.target.w * texture(source_texture, uv + 3.0 * step_y)
+			+ p.target.z * texture(source_texture, uv - step_y)
+			+ p.target.w * texture(source_texture, uv - 3.0 * step_y);
+		vertical[row][col] = round_to_half(value);
+	}
+	barrier();
+	if (xy.x >= size.x || xy.y >= size.y) {
+		return;
+	}
+
+	// For the exact 2:1 horizontal shrink, every tap falls halfway between two source texels.
+	int col = int(gl_LocalInvocationID.x) * 2;
+	vec4 c = p.target.z * mix(vertical[row][col + 4], vertical[row][col + 5], 0.5)
+		+ p.target.w * mix(vertical[row][col + 6], vertical[row][col + 7], 0.5)
+		+ p.target.z * mix(vertical[row][col + 2], vertical[row][col + 3], 0.5)
+		+ p.target.w * mix(vertical[row][col], vertical[row][col + 1], 0.5);
+	imageStore(target_image, xy, c);
+}
 
 vec4 fetch_clamped(ivec2 xy) {
 	ivec2 size = ivec2(p.axis.zw);
@@ -41,6 +77,10 @@ vec4 tap(vec2 uv) {
 void main() {
 	ivec2 xy = ivec2(gl_GlobalInvocationID.xy);
 	ivec2 size = ivec2(p.target.xy);
+	if (p.mode.y > 0.5) {
+		glow_pair(xy, size);
+		return;
+	}
 	if (xy.x >= size.x || xy.y >= size.y) {
 		return;
 	}

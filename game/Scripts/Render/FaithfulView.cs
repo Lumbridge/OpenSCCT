@@ -21,7 +21,6 @@ public partial class FaithfulView : Node3D
 
     private SubViewport? _skyViewport;
     private Camera3D? _skyCamera;
-    private DisplaySpaceEffect? _skyEffect;
     private SurfaceFogRegistry? _surfaceFog;
     private SurfaceFogRegistry? _skySurfaceFog;
     private MeshInstance3D? _backdrop;
@@ -202,9 +201,11 @@ public partial class FaithfulView : Node3D
             Name = "SkyZone",
             RenderTargetUpdateMode = SubViewport.UpdateMode.Always,
             Msaa3D = Viewport.Msaa.Disabled,
+            // Sky materials already write display values. Retain them through the offscreen target
+            // so the backdrop can sample them without an sRGB decode pass followed by an encode.
+            UseHdr2D = true,
             Size = new Vector2I(16, 16),
         };
-        _skyEffect = new DisplaySpaceEffect { Settings = new DisplayPostSettings { GlowGate = false } };
         _skyCamera = new Camera3D
         {
             Name = "SkyCamera",
@@ -213,7 +214,6 @@ public partial class FaithfulView : Node3D
             Far = Camera.Far,
             Environment = CreateEnvironment(),
             Attributes = CreateAttributes(),
-            Compositor = new Compositor { CompositorEffects = new Godot.Collections.Array<CompositorEffect> { _skyEffect } },
             CullMask = RenderLayers.Sky,
             Current = true,
         };
@@ -349,11 +349,9 @@ public partial class FaithfulView : Node3D
             Effect.Release();
             Remanence.Release();
             DoubleVision.Release();
-            _skyEffect?.Release();
             Effect.Dispose();
             Remanence.Dispose();
             DoubleVision.Dispose();
-            _skyEffect?.Dispose();
         }
 
         base._Notification(what);
@@ -463,7 +461,11 @@ public partial class FaithfulView : Node3D
 
     private PortalFogFrame? PortalFog(ViewFog fog, int zone)
     {
-        if (Map?.Lighting is not { } lighting || (!lighting.HasFogPortals && lighting.FogVolumes.Count == 0) || IsSceneVision(_rendMap)) return null;
+        if (Map?.Lighting is not { } lighting || IsSceneVision(_rendMap)) return null;
+        // Converted maps can have a portal table even when no zone uses fog. Keep the portal
+        // path during a camera fog transition and whenever a fog volume can use the crossings.
+        if (lighting.FogVolumes.Count == 0 &&
+            (!lighting.HasFogPortals || (!fog.On && !lighting.Zones.Exists(static zone => zone.Fog)))) return null;
         Transform3D transform = Camera.GlobalTransform;
         Projection projection = Camera.GetCameraProjection();
         Vector2I size = (Vector2I)Camera.GetViewport().GetVisibleRect().Size;
@@ -599,24 +601,13 @@ public partial class FaithfulView : Node3D
         };
         _surfaceFog?.Update(Effect.Settings);
 
-        if (_skyEffect is not null)
+        if (_skySurfaceFog is not null)
         {
             // The sky zone's own scene takes its zone's fog as it is, without the view's blend (AquaE's sky zone fogs
             // everything from 0 to 16 uu).
             ZoneEntry? sky = Map is { Lighting.SkyZone: >= 0 } ? Map.Lighting.ZoneByIndex(Map.Lighting.SkyZone) : null;
             bool skyFog = sky is { Fog: true } && !IsSceneVision(_rendMap);
-            _skyEffect.Settings = new DisplayPostSettings
-            {
-                SurfaceFogApplied = true,
-                GlowGate = false,
-                Fog = skyFog,
-                FogColor = sky?.FogColor ?? default,
-                FogStart = sky?.FogStart ?? 0f,
-                FogEnd = sky?.FogEnd ?? 0f,
-                Near = RenderK.NearClipUnits,
-                Far = RenderK.FarClipUnits,
-            };
-            _skySurfaceFog?.Update(_skyEffect.Settings);
+            _skySurfaceFog.Update(skyFog, sky?.FogColor ?? default, sky?.FogStart ?? 0f, sky?.FogEnd ?? 0f);
         }
     }
 

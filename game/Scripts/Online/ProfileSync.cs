@@ -26,7 +26,7 @@ public static class ProfileSync
     /// <summary>The settings keys each PC keeps for itself (GameSettings' JSON names).</summary>
     public static readonly string[] LocalKeys =
     [
-        "display_mode", "display_monitor", "resolution", "resolution_scale", "vsync", "fps_spy", "fps_merc", "voice_input_device",
+        "display_mode", "display_monitor", "resolution", "resolution_scale", "graphics_driver", "vsync", "fps_spy", "fps_merc", "voice_input_device",
     ];
 
     /// <summary>This PC's record, from the current settings and the key files.</summary>

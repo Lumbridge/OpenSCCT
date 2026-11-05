@@ -224,11 +224,16 @@ public sealed partial class ServerHost : INetworkNotify, IDisposable
         LagCompensation = LagCompensation.Install(World.Level);
         LagCompensation.CeilingMs = Settings.LagCompensationCeilingMs;
         LagCompensation.Enabled = Settings.LagCompensation;
+        // Offline play creates its game rules in the map loader. Its client still needs map device events.
+        if (Game is not null || World.Level.Info.Game is SGameInfo)
+        {
+            DeviceEvents = NetDeviceEvents.InstallServer(World.Level, Driver);
+        }
+
         if (Game is not null)
         {
             GameplayServices.Install(World.Level, Map.Physics, maps.PawnAnimations, maps.PillPose, maps.GadgetMeshes);
             Combat = NetCombatBridge.Install(World.Level, Driver);
-            DeviceEvents = NetDeviceEvents.InstallServer(World.Level, Driver);
             HearSound = NetHearSound.InstallServer(World, Driver);
             BeforeWorldTick += static host => host.HearSound?.RelayLate();
             BeforeWorldTick += static host => host.DeviceEvents?.RelayLate(host.World);

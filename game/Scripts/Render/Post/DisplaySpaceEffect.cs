@@ -127,6 +127,7 @@ public partial class DisplaySpaceEffect : CompositorEffect
     // Uniform sets of the pyramid passes that read a level or the bright target (made once per detail scale: they hold
     // only this effect's own resources and are freed before them).
     private readonly Rid[] _levelSets = new Rid[BaseLevelSizes.Length];
+    private readonly Rid[] _glowPairSets = new Rid[BaseLevelSizes.Length / 2];
     private RenderPack? _uploaded;
     private volatile DisplayPostSettings _settings = new();
     private uint _frame;
@@ -190,7 +191,7 @@ public partial class DisplaySpaceEffect : CompositorEffect
         }
 
         _released = true;
-        Rid[] rids = [.. _levelSets, _pipeline, _shader, _blurPipeline, _blurShader, _glowPipeline, _glowShader, _nearest, _linearRepeat, _linearClamp, _noise, _lut, _sonar, _portalFog, .. _params, .. _levels, _bright];
+        Rid[] rids = [.. _levelSets, .. _glowPairSets, _pipeline, _shader, _blurPipeline, _blurShader, _glowPipeline, _glowShader, _nearest, _linearRepeat, _linearClamp, _noise, _lut, _sonar, _portalFog, .. _params, .. _levels, _bright];
         RenderingServer.CallOnRenderThread(Callable.From(() =>
         {
             // On the render thread, between frames: the pass stops drawing before its resources go.
@@ -256,7 +257,7 @@ public partial class DisplaySpaceEffect : CompositorEffect
     private void MakeTargets(Vector2I detail)
     {
         RenderingDevice rd = _rd!;
-        foreach (Rid set in _levelSets)
+        foreach (Rid set in (Rid[])[.. _levelSets, .. _glowPairSets])
         {
             if (set.IsValid && rd.UniformSetIsValid(set))
             {
@@ -273,12 +274,14 @@ public partial class DisplaySpaceEffect : CompositorEffect
         }
 
         Array.Fill(_levelSets, default);
+        Array.Fill(_glowPairSets, default);
         _detail = detail;
         _levelSizes = Array.ConvertAll(BaseLevelSizes, v => v * detail);
         _brightSize = RenderK.GlowBrightTarget * detail;
         for (int i = 0; i < _levels.Length; i++)
         {
-            _levels[i] = Target(_levelSizes[i]);
+            // The fused glow stages no longer write the vertical intermediates beyond the vision pyramid.
+            _levels[i] = i < RenderK.BlurTargets.Length || (i & 1) != 0 ? Target(_levelSizes[i]) : default;
         }
 
         _bright = Target(_brightSize);
@@ -460,6 +463,9 @@ public partial class DisplaySpaceEffect : CompositorEffect
         float offU = NextGrain();
         float offV = NextGrain();
         int mode = s.RendMap;
+        // Keep the grain sequence advancing across vision switches. Normal and binocular views
+        // ignore it, so their otherwise unchanged parameter block can stay on the GPU.
+        bool grain = mode is >= RenderK.RendMapNight and <= RenderK.RendMapEmf;
         _lastDrawnRendMap = mode;
         _lastDrawnCleanRects = mode == RenderK.RendMapMotion ? Math.Min(s.CleanRects.Length, DisplayPostSettings.MaxCleanRects) : 0;
         bool fog = !s.SurfaceFogApplied && TakesFog(mode) && (s.Fog || s.PortalFog is not null);
@@ -476,7 +482,7 @@ public partial class DisplaySpaceEffect : CompositorEffect
             gate ? 1f : 0f, RenderK.GlowGateGain, RenderK.GlowGateOffset, glow ? 1f : 0f,
             RenderK.GlowGateLuma.X, RenderK.GlowGateLuma.Y, RenderK.GlowGateLuma.Z, 0f,
             mode, 0f, size.X, size.Y,
-            MathF.Cos(angle), MathF.Sin(angle), offU, offV,
+            grain ? MathF.Cos(angle) : 0f, grain ? MathF.Sin(angle) : 0f, grain ? offU : 0f, grain ? offV : 0f,
             1f / NoiseSize, 1f / NoiseSize, RenderK.SonarTiles.X, RenderK.SonarTiles.Y,
             RenderK.NightVisionTint.X, RenderK.NightVisionTint.Y, RenderK.NightVisionTint.Z, RenderK.NightVisionGain,
             RenderK.NightVisionLuma.X, RenderK.NightVisionLuma.Y, RenderK.NightVisionLuma.Z, s.Linearize ? 1f : 0f,
@@ -557,7 +563,7 @@ public partial class DisplaySpaceEffect : CompositorEffect
     // The uniform lists and constant bytes of the passes, kept from frame to frame (no wrappers made per frame).
     private UniformSlots? _mainSlots;
     private UniformSlots? _blurSlots;
-    private byte[]? _mainBytes;
+    private readonly byte[]?[] _mainBytes = new byte[]?[2];
     private byte[]? _blurBytes;
 
     // Stage bits of the main pass: zone fog; the glow composite (gate, glow); the vision pass and the sRGB decode.
@@ -567,17 +573,19 @@ public partial class DisplaySpaceEffect : CompositorEffect
 
     private void Main(Span<float> values, int stage, Rid color, Rid depth, Vector2I size)
     {
+        RenderingDevice rd = _rd!;
         values[17] = stage;
         Span<byte> raw = MemoryMarshal.AsBytes(values);
-        if (_mainBytes?.Length != raw.Length)
-        {
-            _mainBytes = new byte[raw.Length];
-        }
-
-        raw.CopyTo(_mainBytes);
         // The vision stage always ends a frame's passes: an earlier stage has its own block.
-        Rid block = _params[(stage & StageVision) == 0 ? 0 : 1];
-        _rd!.BufferUpdate(block, 0, (uint)_mainBytes.Length, _mainBytes);
+        int blockIndex = (stage & StageVision) == 0 ? 0 : 1;
+        Rid block = _params[blockIndex];
+        byte[]? bytes = _mainBytes[blockIndex];
+        if (bytes is null || !raw.SequenceEqual(bytes))
+        {
+            bytes ??= new byte[raw.Length];
+            raw.CopyTo(bytes);
+            _mainBytes[blockIndex] = rd.BufferUpdate(block, 0, (uint)bytes.Length, bytes) == Godot.Error.Ok ? bytes : null;
+        }
         UniformSlots slots = _mainSlots ??= new UniformSlots(RenderingDevice.UniformType.Image,
             RenderingDevice.UniformType.SamplerWithTexture, RenderingDevice.UniformType.SamplerWithTexture,
             RenderingDevice.UniformType.UniformBuffer, RenderingDevice.UniformType.SamplerWithTexture,
@@ -595,19 +603,20 @@ public partial class DisplaySpaceEffect : CompositorEffect
         slots.Set(8, _linearClamp, _bright);
         slots.Set(9, _portalFog);
         Rid set = UniformSetCacheRD.GetCache(_shader, 0, slots.Array);
-        long list = _rd.ComputeListBegin();
-        _rd.ComputeListBindComputePipeline(list, _pipeline);
-        _rd.ComputeListBindUniformSet(list, set, 0);
-        _rd.ComputeListDispatch(list, (uint)((size.X + 7) / 8), (uint)((size.Y + 7) / 8), 1);
-        _rd.ComputeListEnd();
+        long list = rd.ComputeListBegin();
+        rd.ComputeListBindComputePipeline(list, _pipeline);
+        rd.ComputeListBindUniformSet(list, set, 0);
+        rd.ComputeListDispatch(list, (uint)((size.X + 7) / 8), (uint)((size.Y + 7) / 8), 1);
+        rd.ComputeListEnd();
     }
 
     /// <summary>
-    /// One blur pass into <paramref name="target"/>. The frame (<paramref name="fromFrame"/>) is read as an image and
+    /// One blur pass into <paramref name="target"/>. For glow, <paramref name="fused"/> combines two passes when each
+    /// axis shrinks by exactly half. The frame (<paramref name="fromFrame"/>) is read as an image and
     /// filtered in the shader; pyramid levels are read through the bilinear sampler. The unused source binding gets a
     /// texture of the pyramid that the pass does not write.
     /// </summary>
-    private void Blur(Rid source, Vector2I sourceSize, Rid target, Vector2 axis, bool fromFrame)
+    private void Blur(Rid source, Vector2I sourceSize, Rid target, Vector2 axis, bool fromFrame, bool fused = false)
     {
         int index = Array.IndexOf(_levels, target);
         Vector2I size = _levelSizes[index];
@@ -624,21 +633,22 @@ public partial class DisplaySpaceEffect : CompositorEffect
         }
         else
         {
-            if (!_levelSets[index].IsValid || !_rd!.UniformSetIsValid(_levelSets[index]))
+            ref Rid cached = ref (fused ? ref _glowPairSets[index / 2] : ref _levelSets[index]);
+            if (!cached.IsValid || !_rd!.UniformSetIsValid(cached))
             {
                 slots.Set(0, _linearClamp, source);
                 slots.Set(1, target);
                 slots.Set(2, spare);
-                _levelSets[index] = _rd!.UniformSetCreate(slots.Array, _blurShader, 0);
+                cached = _rd!.UniformSetCreate(slots.Array, _blurShader, 0);
             }
 
-            set = _levelSets[index];
+            set = cached;
         }
         Span<float> push =
         [
             axis.X, axis.Y, sourceSize.X, sourceSize.Y,
             size.X, size.Y, RenderK.BlurNearWeight, RenderK.BlurFarWeight,
-            fromFrame ? 1f : 0f, 0f, 0f, 0f,
+            fromFrame ? 1f : 0f, fused ? 1f : 0f, 0f, 0f,
         ];
         Span<byte> raw = MemoryMarshal.AsBytes(push);
         if (_blurBytes?.Length != raw.Length)
@@ -671,13 +681,12 @@ public partial class DisplaySpaceEffect : CompositorEffect
         GlowPass(color, size, emf ? 2f : 0f, cut);
         Rid source = _bright;
         Vector2I sourceSize = _brightSize;
-        // Levels 1 (256), 3 (128), 5 (64) and 7 (32) are the pyramid; 0, 2, 4 and 6 the vertical halves between them.
-        for (int i = 0; i < _levels.Length; i += 2)
+        // Levels 1 (256), 3 (128), 5 (64) and 7 (32) are the pyramid.
+        for (int i = 1; i < _levels.Length; i += 2)
         {
-            Blur(source, sourceSize, _levels[i], new Vector2(0f, 1f), fromFrame: false);
-            Blur(_levels[i], _levelSizes[i], _levels[i + 1], new Vector2(1f, 0f), fromFrame: false);
-            source = _levels[i + 1];
-            sourceSize = _levelSizes[i + 1];
+            Blur(source, sourceSize, _levels[i], Vector2.Zero, fromFrame: false, fused: true);
+            source = _levels[i];
+            sourceSize = _levelSizes[i];
         }
 
         GlowPass(color, size, emf ? 3f : 1f, cut);

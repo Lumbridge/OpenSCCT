@@ -67,10 +67,16 @@ public sealed class SurfaceFogRegistry : IDisposable
 
     public void Update(DisplayPostSettings settings)
     {
-        ObjectDisposedException.ThrowIf(_disposed, this);
         ArgumentNullException.ThrowIfNull(settings);
-        int mode = !DisplaySpaceEffect.TakesFog(settings.RendMap) ? 0 : settings.PortalFog is not null ? 2 : settings.Fog ? 1 : 0;
-        var next = new FogState(mode, settings.FogColor, settings.FogStart, settings.FogEnd, settings.PortalFog);
+        bool takesFog = DisplaySpaceEffect.TakesFog(settings.RendMap);
+        Update(takesFog && settings.Fog, settings.FogColor, settings.FogStart, settings.FogEnd, takesFog ? settings.PortalFog : null);
+    }
+
+    public void Update(bool fog, Color color, float start, float end, PortalFogFrame? portal = null)
+    {
+        ObjectDisposedException.ThrowIf(_disposed, this);
+        int mode = portal is not null ? 2 : fog ? 1 : 0;
+        var next = new FogState(mode, color, start, end, portal);
         if (_state == next) return;
         _state = next;
         s_dirty = true;

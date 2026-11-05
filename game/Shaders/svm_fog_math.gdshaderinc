@@ -9,8 +9,7 @@ void svm_fog_add_zone(int fog_base, inout float cover, inout vec3 color, int zon
 	color += part * svm_fog_row(fog_base, at + 1).rgb;
 }
 
-bool svm_fog_portal_crossing(int fog_base, int index, vec3 origin, vec3 ray, float limit, out float distance, out ivec2 zones) {
-	int at = int(svm_fog_row(fog_base, 5).x) + index * 2;
+bool svm_fog_portal_crossing(int fog_base, int at, vec3 origin, vec3 ray, float limit, out float distance, out ivec2 zones) {
 	vec4 plane = svm_fog_row(fog_base, at);
 	vec4 info = svm_fog_row(fog_base, at + 1);
 	float along = dot(plane.xyz, ray);
@@ -27,14 +26,14 @@ bool svm_fog_portal_crossing(int fog_base, int index, vec3 origin, vec3 ray, flo
 	return true;
 }
 
-bool svm_fog_distinct_crossing(int fog_base, int k, vec4 cell, vec3 origin, vec3 ray, float distance, out float at, out ivec2 zones) {
+bool svm_fog_distinct_crossing(int fog_base, int portal_base, int k, vec4 cell, vec3 origin, vec3 ray, float distance, out float at, out ivec2 zones) {
 	int index = int(svm_fog_row(fog_base, int(cell.x) + k).x);
-	if (!svm_fog_portal_crossing(fog_base, index, origin, ray, distance, at, zones)) return false;
+	if (!svm_fog_portal_crossing(fog_base, portal_base + index * 2, origin, ray, distance, at, zones)) return false;
 	for (int earlier = 0; earlier < k; earlier++) {
 		float other_at;
 		ivec2 other_zones;
 		int other = int(svm_fog_row(fog_base, int(cell.x) + earlier).x);
-		if (svm_fog_portal_crossing(fog_base, other, origin, ray, distance, other_at, other_zones)
+		if (svm_fog_portal_crossing(fog_base, portal_base + other * 2, origin, ray, distance, other_at, other_zones)
 			&& all(equal(zones, other_zones)) && abs(other_at - at) < 0.001 * max(at, 1.0)) return false;
 	}
 	return true;
@@ -94,19 +93,25 @@ float svm_fog_volume_depth(int fog_base, int header, vec3 ray, float distance, f
 	return svm_fog_row(fog_base, header).w * integral;
 }
 
-vec4 svm_fog_evaluate(int fog_base, ivec2 pixel, vec3 ray, float distance) {
-	vec3 origin = svm_fog_row(fog_base, 0).xyz;
+vec4 svm_fog_evaluate(int fog_base, vec2 screen_uv, vec3 ray, float distance) {
 	vec4 grid = svm_fog_row(fog_base, 4);
-	ivec2 tile = clamp(pixel / int(grid.z), ivec2(0), ivec2(grid.xy) - 1);
-	vec4 cell = svm_fog_row(fog_base, int(grid.w) + tile.y * int(grid.x) + tile.x);
-	int camera = int(svm_fog_row(fog_base, 0).w), last = camera;
+	// Binning uses the output resolution even when the 3D buffer is rendered at a lower scale.
+	ivec2 pixel = clamp(ivec2(screen_uv * grid.xy), ivec2(0), max(ivec2(grid.xy) - 1, ivec2(0)));
+	ivec2 tile = pixel / 32; // PortalFogFrame.TileSize
+	vec4 cell = svm_fog_row(fog_base, int(grid.w) + tile.y * int(grid.z) + tile.x);
+	vec4 layout_info = svm_fog_row(fog_base, 5);
+	if (cell.y == 0.0 && layout_info.y == 0.0 && layout_info.w == 0.0) return vec4(0.0, 0.0, 0.0, 1.0);
+	vec4 eye = svm_fog_row(fog_base, 0);
+	vec3 origin = eye.xyz;
+	int camera = int(eye.w), last = camera;
+	int portal_base = int(layout_info.x);
 	float last_at = 0.0, cover = 0.0;
 	vec3 weighted_color = vec3(0.0);
 	svm_fog_add_zone(fog_base, cover, weighted_color, camera, 0.0, -1.0);
 	for (int k = 0; k < int(cell.y); k++) {
 		float at;
 		ivec2 zones;
-		if (!svm_fog_distinct_crossing(fog_base, k, cell, origin, ray, distance, at, zones)) continue;
+		if (!svm_fog_distinct_crossing(fog_base, portal_base, k, cell, origin, ray, distance, at, zones)) continue;
 		svm_fog_add_zone(fog_base, cover, weighted_color, zones.x, at, 1.0);
 		svm_fog_add_zone(fog_base, cover, weighted_color, zones.y, at, -1.0);
 		if (at > last_at) { last_at = at; last = zones.y; }
@@ -114,15 +119,15 @@ vec4 svm_fog_evaluate(int fog_base, ivec2 pixel, vec3 ray, float distance) {
 	svm_fog_add_zone(fog_base, cover, weighted_color, last, distance, 1.0);
 	float total_depth = 0.0;
 	vec3 volume_color = vec3(0.0);
-	for (int piece = 0; piece < int(svm_fog_row(fog_base, 5).w); piece++) {
-		int header = int(svm_fog_row(fog_base, 5).z) + piece * 3;
+	for (int piece = 0; piece < int(layout_info.w); piece++) {
+		int header = int(layout_info.z) + piece * 3;
 		int zone = int(svm_fog_row(fog_base, header + 1).w);
 		float depth = zone < 0 || zone == camera ? svm_fog_volume_depth(fog_base, header, ray, distance, 0.0) : 0.0;
 		if (zone >= 0) {
 			for (int k = 0; k < int(cell.y); k++) {
 				float at;
 				ivec2 zones;
-				if (!svm_fog_distinct_crossing(fog_base, k, cell, origin, ray, distance, at, zones)) continue;
+				if (!svm_fog_distinct_crossing(fog_base, portal_base, k, cell, origin, ray, distance, at, zones)) continue;
 				float change = float(zones.y == zone) - float(zones.x == zone);
 				if (change != 0.0) depth += change * svm_fog_volume_depth(fog_base, header, ray, distance, at);
 			}

@@ -28,6 +28,6 @@ vec4 surface_fog(uint camera_layers, vec3 view_position_metres, vec2 pixel, vec2
     if (distance < 0.0001) return vec4(0.0, 0.0, 0.0, 1.0);
     // Project the fragment itself into the candidate grid; this also avoids API-specific FragCoord Y origins.
     float depth = max(-view_position_metres.z, 0.000001);
-    vec2 projected = (vec2(1.0) + vec2(view_position_metres.x * right.w, -view_position_metres.y * up.w) / depth) * 0.5 * viewport_size;
-    return svm_fog_evaluate(frame, ivec2(projected), normalize(ray), distance);
+    vec2 projected = (vec2(1.0) + vec2(view_position_metres.x * right.w, -view_position_metres.y * up.w) / depth) * 0.5;
+    return svm_fog_evaluate(frame, projected, normalize(ray), distance);
 }
