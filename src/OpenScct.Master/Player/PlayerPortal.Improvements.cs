@@ -25,7 +25,7 @@ internal sealed partial class PlayerPortal
         <section class="improvements-preview" aria-labelledby="improvements-preview-title">
           <div><p class="eyebrow">FEATURES AND DEVELOPMENT</p>
             <h2 id="improvements-preview-title">OpenSCCT improvements</h2>
-            <p>Game screenshots and details of equipment, practice tools, hubs, replays, player stats and settings.</p>
+            <p>Explore equipment, practice tools, replays and community hubs, with searchable controls, custom HUD layouts and map creation guides.</p>
           </div>
           <a class="button secondary" href="/improvements">View features and improvements →</a>
         </section>
@@ -38,8 +38,8 @@ internal sealed partial class PlayerPortal
             <header class="improvements-heading">
               <p class="eyebrow">OPENSCCT / FEATURES</p>
               <h1>OpenSCCT improvements</h1>
-              <p class="lead">A visual guide to the features, options and tools in OpenSCCT.</p>
-              <div class="button-row"><a class="text-link" href="/changelog">Recent changes →</a><a class="text-link" href="/download">Download and setup →</a></div>
+              <p class="lead">More ways to play, learn and make the game your own. Explore OpenSCCT's equipment, practice tools, community features and customisation, then follow a wiki guide to get started.</p>
+              <div class="button-row"><a class="text-link" href="/changelog">Latest update notes →</a><a class="text-link" href="/wiki">Explore the wiki →</a><a class="text-link" href="/download">Download OpenSCCT →</a></div>
             </header>
             <div class="showcase-strip" aria-label="Screenshots from OpenSCCT">
             """);
@@ -48,7 +48,15 @@ internal sealed partial class PlayerPortal
         AppendStripImage(body, "showcase-armoury.png", "The Armoury showing a Desert Eagle with its default finish.", "Armoury", "The default Desert Eagle finish in the Armoury.");
         body.Append("""
             </div>
-            <p class="showcase-capture-note">Screenshots captured in OpenSCCT. Select an image to view it at full size.</p>
+            <p class="showcase-capture-note">Screenshots captured in OpenSCCT. Select an image to view it at full size. Menus and options may look different in newer builds.</p>
+            <section class="section" aria-labelledby="feature-highlights-title">
+              <div class="section-heading"><h2 id="feature-highlights-title">Make it feel right for you</h2></div>
+              <div class="grid-three">
+                <article class="feature-card"><h3>Find and change any control</h3><p>Search actions and assigned inputs, edit primary and alternate bindings, and keep separate spy and mercenary layouts.</p><a class="text-link" href="#feature-input">Explore control settings →</a></article>
+                <article class="feature-card"><h3>Build your own HUD layout</h3><p>Move and resize the information you use, preview each role's layout, and share it with copy and paste.</p><a class="text-link" href="#feature-hud">Explore the HUD editor →</a></article>
+                <article class="feature-card"><h3>Find your next map</h3><p>Browse Stock, Enhanced, Community and 3v3 map groups in a picture grid, list or thumbnail list.</p><a class="text-link" href="#feature-maps">Explore map browsing →</a></article>
+              </div>
+            </section>
             <nav class="showcase-navigation" aria-label="Feature sections">
             """);
         int sectionIndex = 0;
@@ -59,7 +67,7 @@ internal sealed partial class PlayerPortal
             </nav>
             <div class="showcase-search" hidden>
               <label for="feature-search">Find a feature</label>
-              <input id="feature-search" type="search" maxlength="100" placeholder="Try sidearms, bots, voice or maps" aria-controls="feature-sections" aria-describedby="feature-search-status">
+              <input id="feature-search" type="search" maxlength="100" placeholder="Try bindings, HUD, cloak, editor or maps" aria-controls="feature-sections" aria-describedby="feature-search-status">
               <p id="feature-search-status" role="status"></p>
               <button type="button" class="button secondary compact" data-clear-features>Clear search</button>
             </div>
@@ -93,7 +101,7 @@ internal sealed partial class PlayerPortal
         body.Append("""
             </div>
             <p class="feature-no-results" hidden>No features match that search. Try a shorter name or clear the search.</p>
-            <aside class="showcase-updates"><div><h2>Updates and fixes</h2><p>The update notes list changes and fixes for each version, including movement, equipment, maps, sound and online play.</p></div><a class="button secondary" href="/changelog">Read update notes →</a></aside>
+            <aside class="showcase-updates"><div><h2>Put a feature to use</h2><p>The wiki covers gameplay, hosting, controls and map editing. For changes and fixes in a particular version, read the update notes.</p></div><div class="button-row"><a class="button secondary" href="/wiki">Read the wiki →</a><a class="text-link" href="/changelog">Update notes →</a></div></aside>
             <dialog class="showcase-dialog" aria-labelledby="showcase-caption">
               <div class="showcase-dialog-toolbar"><button type="button" class="button secondary" data-close-showcase>Close screenshot ×</button></div>
               <img alt=""><p id="showcase-caption"></p>

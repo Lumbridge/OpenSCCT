@@ -53,7 +53,7 @@ public sealed class HelpPageTests
             Assert.False(response.Headers.Contains("Set-Cookie"));
             Assert.Equal("no-store", response.Headers.CacheControl!.ToString());
             string html = await response.Content.ReadAsStringAsync(ct);
-            Assert.Contains("<h1>Help &amp; contribute</h1>", html, StringComparison.Ordinal);
+            Assert.Contains("<h1>Help &amp; feedback</h1>", html, StringComparison.Ordinal);
             Assert.Contains("href=\"/help\" aria-current=\"page\"", html, StringComparison.Ordinal);
             Assert.Contains(MasterBuildInfo.Version, html, StringComparison.Ordinal);
             Assert.Contains("Suggest a feature", html, StringComparison.Ordinal);
@@ -68,21 +68,21 @@ public sealed class HelpPageTests
             Assert.Equal("/help/report-bug", bug);
             Assert.DoesNotContain("template=bug_report.yml", html, StringComparison.Ordinal);
             Assert.Equal("github.com", new Uri(suggestion).Host);
-            Assert.Contains("/blob/main/CONTRIBUTING.md", html, StringComparison.Ordinal);
-            Assert.Contains("/blob/main/docs/DEVELOPMENT.md", html, StringComparison.Ordinal);
+            Assert.Contains("href=\"/wiki/contributing\"", html, StringComparison.Ordinal);
+            Assert.Contains("href=\"/wiki/editor-getting-started\"", html, StringComparison.Ordinal);
             Assert.Contains("/compare", html, StringComparison.Ordinal);
 
             foreach (string route in new[] { "/", "/download", "/changelog", "/improvements" })
             {
                 string page = await http.GetStringAsync(route, ct);
                 Assert.Contains("href=\"/help\"", page, StringComparison.Ordinal);
-                Assert.Contains("Help &amp; contribute", page, StringComparison.Ordinal);
+                Assert.Contains("Help &amp; feedback", page, StringComparison.Ordinal);
             }
             await CheckShowcaseImages(http, ct);
             var futurePage = Assert.IsType<ContentHttpResult>(WebHtml.Page(new DefaultHttpContext(), "Features", "improvements", "<h1>Features</h1>"));
             Assert.Contains("Help improve OpenSCCT", futurePage.ResponseContent!, StringComparison.Ordinal);
-            var signedInPage = Assert.IsType<ContentHttpResult>(WebHtml.Page(new DefaultHttpContext(), "Help & contribute", "help",
-                "<h1>Help &amp; contribute</h1>", name: "<Fixture player>", csrf: "fixture-csrf", isAdmin: true));
+            var signedInPage = Assert.IsType<ContentHttpResult>(WebHtml.Page(new DefaultHttpContext(), "Help & feedback", "help",
+                "<h1>Help &amp; feedback</h1>", name: "<Fixture player>", csrf: "fixture-csrf", isAdmin: true));
             Assert.Contains("href=\"/help\" aria-current=\"page\"", signedInPage.ResponseContent!, StringComparison.Ordinal);
             Assert.Contains("&lt;Fixture player&gt;", signedInPage.ResponseContent!, StringComparison.Ordinal);
             Assert.Contains("action=\"/account/logout\"", signedInPage.ResponseContent!, StringComparison.Ordinal);

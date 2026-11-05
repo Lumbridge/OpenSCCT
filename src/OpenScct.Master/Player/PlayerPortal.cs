@@ -36,6 +36,7 @@ internal sealed partial class PlayerPortal(MasterOptions options, AccountStore s
         Get(app, "/", Home);
         Get(app, "/download", Download);
         Get(app, "/help", Help);
+        MapWiki(app);
         MapBugReports(app);
         Get(app, "/improvements", Improvements);
         Get(app, "/progress", _ => Results.Redirect("/improvements"));

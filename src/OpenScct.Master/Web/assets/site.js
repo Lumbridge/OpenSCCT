@@ -17,10 +17,21 @@
   var menu = document.querySelector(".menu-toggle");
   var target = menu && document.getElementById(menu.getAttribute("aria-controls"));
   if (menu && target) {
+    function closeMenu(returnFocus) {
+      menu.setAttribute("aria-expanded", "false");
+      target.classList.remove("open");
+      if (returnFocus) menu.focus();
+    }
     menu.addEventListener("click", function () {
       var open = menu.getAttribute("aria-expanded") !== "true";
       menu.setAttribute("aria-expanded", String(open));
       target.classList.toggle("open", open);
+    });
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape" && menu.getAttribute("aria-expanded") === "true") closeMenu(true);
+    });
+    document.addEventListener("click", function (event) {
+      if (!menu.contains(event.target) && !target.contains(event.target)) closeMenu(false);
     });
     document.body.classList.add("menu-ready");
   }
@@ -206,7 +217,7 @@
   }
   input.addEventListener("input", filter);
   clear.addEventListener("click", function () { input.value = ""; filter(); input.focus(); });
-  page.querySelectorAll('.showcase-navigation a').forEach(function (link) {
+  page.querySelectorAll('.showcase-navigation a, a[href^="#feature-"]').forEach(function (link) {
     link.addEventListener("click", function () { input.value = ""; filter(); });
   });
   search.hidden = false;

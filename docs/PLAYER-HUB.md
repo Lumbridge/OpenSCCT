@@ -14,11 +14,12 @@ This is the website. The in-game social space is covered in the [social hub guid
 | Download | Compare Windows, native Linux and Flatpak downloads side by side, with platform setup instructions. |
 | Servers | Find listed games and hubs by map, mode, region and free space; join the installed game. |
 | Players | Find a player and view rank, stats, achievements, unlocks and recorded rounds. |
-| Leaderboards | Compare lifetime XP, wins or kills from counted rounds. |
+| Leaderboards | Compare lifetime XP, wins, win rate, rounds, kills, role wins, spy objectives, mercenary headshot kills and damage dealt. |
 | Matches | Browse recorded rounds and team scoreboards; uncounted rounds are labelled. |
 | Improvements | Browse OpenSCCT features with screenshots and links to their details. |
 | Updates | Read published release notes. |
-| Help & contribute | Find guides, report bugs, suggest improvements and contribute changes. |
+| Wiki | Search on-site gameplay, setup, hosting and map-editor guides without signing in. |
+| Help & feedback | Find guides, report bugs, suggest improvements and contribute changes. |
 | My account | Manage your name, privacy, sign-ins, prestige, unlocked cosmetics and title. |
 
 **Join** opens `openscct://join/<server-id>`. On Windows, run the launcher once to register the handler;
@@ -30,7 +31,10 @@ If no app opens, follow the page's installation/update link. Unlisted servers an
 are not published.
 
 Leaderboards exclude private, unnamed and actively banned accounts. They are lifetime totals, not seasons or
-estimates of missing history. The **Sign-ins** page manages access to the game and website; it does not list
+estimates of missing history. Win-rate rankings require at least ten counted rounds. The selected ranking appears
+first in the table, followed by context including rounds, wins, win rate, kills, deaths and K/D. Detailed career
+counters reflect recorded history; they are not reconstructed for older rounds.
+The **Sign-ins** page manages access to the game and website; it does not list
 game sessions. **Sign out** in the header ends this browser's session. Allowlisted admins also see an **Admin**
 link, which leads to a separately authenticated portal.
 
@@ -42,6 +46,15 @@ equipment, hubs, recordings, player records, and setup. Screenshots open at full
 feature descriptions. Images are captured from the running game with its normal menus and gameplay.
 Text, section links and images also work without JavaScript.
 The old `/progress` address redirects to this page.
+
+The **Wiki** at `/wiki` contains self-contained articles for players and map makers. Search and category filters
+run on the server and work without JavaScript. Articles have section navigation and related guides; download,
+help and feature pages link directly to the relevant article. The map editor is still in early development;
+the guides describe its current workflow without promising a public editor download.
+
+The **Help & feedback** page includes task-based guide links and expandable answers for joining, accounts,
+missing stats, downloads and reporting problems. Its existing bug-report flow still uses Discord sign-in and
+lets the player review the public report before submitting it.
 
 **Updates** reads stable public GitHub releases, refreshing at most every ten minutes. If GitHub is unavailable,
 the last successful results remain visible. Drafts, prereleases and content-storage releases are excluded;
@@ -149,6 +162,15 @@ Do not use test fixtures, fabricated statistics or debug overlays. Keep captions
 screenshots to invent game state or remove unwanted elements after capture.
 The master embeds these files under the existing `/web/assets/showcase-*` URLs.
 The page does not run tests or read repository files on a request; its content and assets ship with the master.
+
+### Maintaining the wiki
+
+Articles and categories live in `src/OpenScct.Master/Web/WikiContent.cs`; `Player/PlayerPortal.Wiki.cs`
+renders the index, filters and articles. Keep article and section IDs stable so links from Help, Download
+and Improvements remain useful. New gameplay claims should be checked against the owning source and guides;
+editor claims should also be checked against the current `OpenSCCT-Editor` project. Keep player instructions
+self-contained and use related article links rather than sending readers to source documentation.
+`WikiPageTests` and `WebsiteNavigationTests` check public access, search, article links and embedded assets.
 
 ## Deploying and rolling back
 

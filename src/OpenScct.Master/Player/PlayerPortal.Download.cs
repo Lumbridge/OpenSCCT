@@ -68,7 +68,7 @@ internal sealed partial class PlayerPortal
               <li><strong>Install OpenSCCT</strong><p>Choose Install. The launcher downloads the game and required files.</p></li>
               <li><strong>Start playing</strong><p>Choose PLAY. Find a Session joins a match, Hub opens a social space, and bots are available for offline practice.</p></li>
             </ol>
-            <a class="text-link" href="https://github.com/Lumbridge/OpenSCCT/blob/main/docs/LAUNCHER.md">Full launcher guide ↗</a>
+            <a class="text-link" href="/wiki/getting-started">Full launcher guide →</a>
           </details>
           <details id="install-linux">
             <summary>Install the native Linux launcher</summary>
@@ -78,7 +78,7 @@ internal sealed partial class PlayerPortal
         ./install.sh</code></pre>
             <p>This adds <strong>OpenSCCT Launcher</strong> to your application menu and enables website Join links. No sudo is needed. Open the launcher, choose <strong>Install</strong>, then <strong>PLAY</strong>.</p>
             <p class="account-side-note">Use a desktop with X11 or XWayland and working graphics drivers. ARM and Alpine/musl are not supported. Fedora 45 also needs <code>openssl3-libs</code>; see the guide for dependencies.</p>
-            <a class="text-link" href="https://github.com/Lumbridge/OpenSCCT/blob/main/docs/LINUX.md#native-launcher">Full Linux setup guide ↗</a>
+            <a class="text-link" href="/wiki/linux">Full Linux setup guide →</a>
           </details>
           <details id="install-flatpak">
             <summary>Install Flatpak / set up Steam Deck</summary>
@@ -88,7 +88,7 @@ internal sealed partial class PlayerPortal
         flatpak run io.github.Lumbridge.OpenSCCT</code></pre>
             <p>On first launch, choose <strong>Download and play</strong>. Install a newer Flatpak bundle when you want to update the game.</p>
             <p class="account-side-note">Steam Deck hardware validation is still pending. The guide covers adding OpenSCCT to Steam and setting up controllers.</p>
-            <a class="text-link" href="https://github.com/Lumbridge/OpenSCCT/blob/main/docs/LINUX.md#flatpak-install">Flatpak &amp; Steam Deck guide ↗</a>
+            <a class="text-link" href="/wiki/linux">Flatpak &amp; Steam Deck guide →</a>
           </details>
         </section>
         """ +
