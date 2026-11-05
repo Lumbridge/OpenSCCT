@@ -101,11 +101,11 @@ internal sealed partial class PlayerPortal(MasterOptions options, AccountStore s
 
     private IResult WithViewer(HttpContext c, Func<Viewer, IResult> body) => Current(c) is { } v ? body(v) : SignIn(c);
 
-    private IResult Show(HttpContext c, string title, string active, string body, string? notice = null, bool bad = false, int status = 200)
+    private IResult Show(HttpContext c, string title, string active, string body, string? notice = null, bool bad = false, int status = 200, bool editorTheme = false)
     {
         Viewer? viewer = Current(c);
         return Page(c, title, active, body, viewer?.Account.Name ?? (viewer is null ? null : "My account"), viewer?.Session.Csrf, notice, bad, status,
-            isAdmin: viewer is not null && _options.IsAdmin(viewer.Account.DiscordId));
+            isAdmin: viewer is not null && _options.IsAdmin(viewer.Account.DiscordId), editorTheme: editorTheme);
     }
 
     private IResult NotFound(HttpContext c, string title = "Player unavailable") =>

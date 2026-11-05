@@ -65,15 +65,36 @@ public sealed class WikiPageTests
             await using MasterHost master = await MasterHost.StartAsync(options, releases, ct);
             using var http = new HttpClient { BaseAddress = new Uri(master.HttpAddress) };
 
+            string landing = await http.GetStringAsync("/wiki", ct);
+            Assert.Contains("href=\"/wiki/game\"", landing, StringComparison.Ordinal);
+            Assert.Contains("href=\"/wiki/editor\"", landing, StringComparison.Ordinal);
+
+            // Existing search links still reach the appropriate area.
             string filtered = await http.GetStringAsync("/wiki?q=positive%20energy&category=gameplay", ct);
             Assert.Contains("href=\"/wiki/gadgets-and-loadouts\"", filtered, StringComparison.Ordinal);
             Assert.DoesNotContain("href=\"/wiki/editor-lighting\"", filtered, StringComparison.Ordinal);
-            Assert.Contains("method=\"get\" action=\"/wiki\"", filtered, StringComparison.Ordinal);
+            Assert.Contains("method=\"get\" action=\"/wiki/game\"", filtered, StringComparison.Ordinal);
             Assert.Contains("value=\"gameplay\" selected", filtered, StringComparison.Ordinal);
 
             string unknownCategory = await http.GetStringAsync("/wiki?category=invalid-category", ct);
             Assert.Contains("href=\"/wiki/getting-started\"", unknownCategory, StringComparison.Ordinal);
-            Assert.Contains("href=\"/wiki/editor-getting-started\"", unknownCategory, StringComparison.Ordinal);
+            Assert.DoesNotContain("href=\"/wiki/editor-getting-started\"", unknownCategory, StringComparison.Ordinal);
+
+            string editor = await http.GetStringAsync("/wiki?category=editor&q=lighting", ct);
+            Assert.Contains("method=\"get\" action=\"/wiki/editor\"", editor, StringComparison.Ordinal);
+            Assert.Contains("href=\"/wiki/editor-lighting\"", editor, StringComparison.Ordinal);
+            Assert.DoesNotContain("href=\"/wiki/gadgets-and-loadouts\"", editor, StringComparison.Ordinal);
+            Assert.Contains("class=\"player-site editor-theme\"", editor, StringComparison.Ordinal);
+            Assert.Contains("/web/assets/mark-editor.svg?v=", editor, StringComparison.Ordinal);
+
+            string wrongArea = await http.GetStringAsync("/wiki/game?category=editor", ct);
+            Assert.Contains("href=\"/wiki/getting-started\"", wrongArea, StringComparison.Ordinal);
+            Assert.DoesNotContain("href=\"/wiki/editor-lighting\"", wrongArea, StringComparison.Ordinal);
+            Assert.DoesNotContain("class=\"player-site editor-theme\"", wrongArea, StringComparison.Ordinal);
+
+            string wrongEditorCategory = await http.GetStringAsync("/wiki/editor?category=gameplay&q=positive%20energy", ct);
+            Assert.Contains("No guides found", wrongEditorCategory, StringComparison.Ordinal);
+            Assert.DoesNotContain("href=\"/wiki/gadgets-and-loadouts\"", wrongEditorCategory, StringComparison.Ordinal);
 
             using HttpResponseMessage escapedResponse = await http.GetAsync("/wiki?q=%3Cscript%3Ealert(1)%3C%2Fscript%3E", ct);
             string escaped = await escapedResponse.Content.ReadAsStringAsync(ct);
