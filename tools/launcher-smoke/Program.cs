@@ -739,6 +739,7 @@ internal static class Program
                 // no release checks, protocol registration, process launch, or editor installation.
                 form.Show();
                 Settle(form);
+                Size startupSize = form.ClientSize;
                 var gameRelease = new ReleaseInfo { TagName = "v0.8.94", Name = "OpenSCCT 0.8.94", Body = PublicGameNotes,
                     PublishedAt = new DateTimeOffset(2026, 11, 5, 15, 20, 30, TimeSpan.Zero) };
                 var editorRelease = new ReleaseInfo { TagName = "v0.1.1", Name = "OpenSCCT Editor 0.1.1", Body = PublicEditorNotes,
@@ -758,11 +759,11 @@ internal static class Program
                 Settle(form);
                 int commonHeight = form.ClientSize.Height;
                 int commonWidth = form.ClientSize.Width;
-                CheckPreviewFits(form, label + " Game after both cached feeds arrive");
+                Check(form.ClientSize == startupSize, label + " arriving release feeds preserve startup size");
                 Call(form, "SelectProduct", true);
                 Settle(form);
                 Check(form.ClientSize.Height == commonHeight && form.ClientSize.Width == commonWidth, label + " switching to Editor keeps common window dimensions");
-                CheckPreviewFits(form, label + " Editor");
+                Check(form.ClientSize == startupSize, label + " Editor content uses the startup size");
                 int idleTextChanges = 0, idleSizeChanges = 0;
                 Label heading = Field<Label>(form, "_heading");
                 EventHandler textChanged = (_, _) => idleTextChanges++;
@@ -783,8 +784,7 @@ internal static class Program
 
                 int screenMaximum = Screen.FromControl(form).WorkingArea.Height - (form.Height - form.ClientSize.Height);
 
-                // A programmatic undersized window must grow to fit both panes when there is room.
-                // This fails the old gate for ready/absent Editor when no update is pending.
+                // Users can deliberately choose a smaller window and scroll its content.
                 Call(form, "OnResizeBegin", EventArgs.Empty);
                 form.ClientSize = new Size(commonWidth, (int)(100 * scale));
                 Settle(form);
@@ -794,8 +794,8 @@ internal static class Program
                 Call(form, "OnResizeEnd", EventArgs.Empty);
                 Call(form, "FitUpdateHeight");
                 Settle(form);
-                Check(form.ClientSize.Height > shortHeight, label + " grows from an undersized Editor window");
-                CheckPreviewFits(form, label + " Editor after growth");
+                Check(form.ClientSize.Height == shortHeight, label + " preserves a user-chosen short Editor window");
+                Check(outer.AutoScroll, label + " short window retains scrolling after resize ends");
                 int editorHeight = form.ClientSize.Height;
                 Call(form, "FitUpdateHeight");
                 Settle(form);
@@ -803,7 +803,7 @@ internal static class Program
                 Call(form, "SelectProduct", false);
                 Settle(form);
                 Check(form.ClientSize.Height == editorHeight, label + " switching back to Game does not resize");
-                CheckPreviewFits(form, label + " Game after growth");
+
                 Call(form, "FitUpdateHeight");
                 Settle(form);
                 Check(form.ClientSize.Height == editorHeight, label + " repeated fitting stays stable after scrollbars clear");
@@ -813,7 +813,7 @@ internal static class Program
                     form.ClientSize = new Size(commonWidth, commonHeight + (int)(40 * scale));
                     Call(form, "FitUpdateHeight");
                     Settle(form);
-                    Check(form.ClientSize.Height == commonHeight, label + " removes excess programmatic height instead of retaining a larger default");
+                    Check(form.ClientSize.Height == commonHeight + (int)(40 * scale), label + " preserves a larger window after startup");
                 }
                 foreach (bool widthOnly in new[] { false, true })
                 {
@@ -826,7 +826,7 @@ internal static class Program
                     editorRelease.Body = "- Short editor release note.";
                     Call(form, "RefreshReleasePreview");
                     Settle(form);
-                    Check(form.ClientSize.Height < heightBefore, label + (widthOnly ? " width-only resize" : " window move") + " does not pin stale automatic height");
+                    Check(form.ClientSize.Height == heightBefore, label + (widthOnly ? " width-only resize" : " window move") + " and shorter notes preserve chosen height");
                     form.ClientSize = new Size(commonWidth, form.ClientSize.Height);
                     gameRelease.Body = PublicGameNotes;
                     editorRelease.Body = PublicEditorNotes;

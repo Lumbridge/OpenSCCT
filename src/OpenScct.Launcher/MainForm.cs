@@ -9,7 +9,6 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Reflection;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -74,13 +73,7 @@ internal sealed partial class MainForm : Form
     private Panel? _releasePreview;
     private TableLayoutPanel? _releaseNotes;
     private FlowLayoutPanel? _tools;
-    private int _userMinimumHeight; // Logical 96-DPI pixels; only an explicit height resize sets this floor.
-    private int _resizeStartHeight;
-    private bool _updateFitQueued;
-    private bool _fittingUpdate;
-    private string? _lastFitState;
-    private bool _userSizing;
-    private FormWindowState _lastWindowState;
+    private bool _initialSizeSet;
     private readonly Label _heading = Theme.Wrapping(Theme.Label("Install OpenSCCT", Theme.Status));
     private readonly Label _installedInfo = Theme.Wrapping(Theme.Label(string.Empty, Theme.Small, Theme.Muted));
     private readonly Label _launchDetail = Theme.Wrapping(Theme.Label(string.Empty, Theme.Body, Theme.Muted));
@@ -345,7 +338,6 @@ internal sealed partial class MainForm : Form
                 : (_editorSelected ? _editorCheck is null : _lastCheck is null) ? "Check for updates to load release notes."
                 : release is null ? "No release information available." : "No release notes available.";
         }
-        QueueUpdateFit();
     }
 
     protected override void OnLoad(EventArgs e)
@@ -355,77 +347,22 @@ internal sealed partial class MainForm : Form
         Rectangle work = Screen.FromControl(this).WorkingArea;
         MinimumSize = new Size(Math.Min(MinimumSize.Width, work.Width), Math.Min(MinimumSize.Height, work.Height));
         Size = new Size(Math.Min(Width, work.Width), Math.Min(Height, work.Height));
-        QueueUpdateFit();
+        BeginInvoke(FitUpdateHeight);
     }
 
     protected override void OnResizeBegin(EventArgs e)
     {
-        _userSizing = true;
-        _resizeStartHeight = ClientSize.Height;
+        // A user move or resize takes precedence even if the startup fit is still queued.
+        _initialSizeSet = true;
         base.OnResizeBegin(e);
     }
 
-    protected override void OnResizeEnd(EventArgs e)
-    {
-        base.OnResizeEnd(e);
-        _userSizing = false;
-        if (ClientSize.Height != _resizeStartHeight)
-            _userMinimumHeight = (int)Math.Ceiling(ClientSize.Height * 96d / DeviceDpi);
-        QueueUpdateFit();
-    }
-
-    protected override void OnResize(EventArgs e)
-    {
-        base.OnResize(e);
-        bool restored = WindowState == FormWindowState.Normal && _lastWindowState != FormWindowState.Normal;
-        _lastWindowState = WindowState;
-        if (restored) QueueUpdateFit();
-    }
-
-    protected override void OnDpiChanged(DpiChangedEventArgs e)
-    {
-        base.OnDpiChanged(e);
-        QueueUpdateFit();
-    }
-
-    private void QueueUpdateFit()
-    {
-        if (_updateFitQueued || _fittingUpdate || !IsHandleCreated || IsDisposed || Disposing) return;
-        _updateFitQueued = true;
-        BeginInvoke(() =>
-        {
-            _updateFitQueued = false;
-            if (!IsDisposed && !Disposing && CaptureFitState() != _lastFitState) FitUpdateHeight();
-        });
-    }
-
-    private string CaptureFitState()
-    {
-        var state = new StringBuilder();
-        state.Append(ClientSize).Append('|').Append(DeviceDpi).Append('|').Append(_editorSelected);
-        // The other product's notes can arrive while its tab is not selected.
-        state.Append('|').Append(_lastCheck?.Latest?.Release.Body).Append('|').Append(_editorCheck?.Latest?.Release.Release.Body);
-        Append(this);
-        return state.ToString();
-
-        void Append(Control control)
-        {
-            state.Append('|').Append(control.Visible).Append(':').Append(control.Text.Length).Append(':').Append(control.Text);
-            foreach (Control child in control.Controls) Append(child);
-        }
-    }
-
-    /// <summary>Use the smallest shared height that fits either product's complete release preview.</summary>
+    /// <summary>Choose the initial shared height once; subsequent layout changes use scrolling.</summary>
     private void FitUpdateHeight()
     {
-        if (_fittingUpdate || WindowState != FormWindowState.Normal
+        if (_initialSizeSet || IsDisposed || Disposing || WindowState != FormWindowState.Normal
             || _mainLayout is null || _releasePreview is null || _releaseNotes is null || _tools is null) return;
-        if (_userSizing)
-        {
-            return;
-        }
-
-        _fittingUpdate = true;
+        _initialSizeSet = true;
         bool selectedEditor = _editorSelected;
         Control? focused = ActiveControl;
         Point previewScroll = _releasePreview.AutoScrollPosition;
@@ -436,9 +373,8 @@ internal sealed partial class MainForm : Form
             Rectangle work = Screen.FromControl(this).WorkingArea;
             int maximum = Math.Max(1, work.Height - (Height - ClientSize.Height));
             int minimum = Math.Max(1, MinimumSize.Height - (Height - ClientSize.Height));
-            int target = Math.Min(Math.Max(Math.Max(height, minimum), LogicalToDeviceUnits(_userMinimumHeight)), maximum);
-            // Keep the width and any extra height chosen by the user. On a small display, scrolling
-            // remains a fallback. Without a manual resize, fit exactly rather than retaining stale space.
+            int target = Math.Min(Math.Max(height, minimum), maximum);
+            // Keep the startup width and use scrolling when the working area cannot fit the content.
             if (target != ClientSize.Height) ClientSize = new Size(ClientSize.Width, target);
             if (Bottom > work.Bottom) Top = Math.Max(work.Top, work.Bottom - Height);
         }
@@ -451,8 +387,6 @@ internal sealed partial class MainForm : Form
             ResumeLayout(true);
             _releasePreview.AutoScrollPosition = new Point(-previewScroll.X, -previewScroll.Y);
             if (focused is { IsDisposed: false, CanFocus: true } && ActiveControl != focused) focused.Focus();
-            _fittingUpdate = false;
-            _lastFitState = CaptureFitState();
         }
     }
 
@@ -536,7 +470,6 @@ internal sealed partial class MainForm : Form
         }
 
         if (!_editorSelected) RefreshMainButton(current, busy);
-        QueueUpdateFit();
     }
 
     private void RefreshLaunchPanel(SemVersion? current, bool busy)
@@ -596,7 +529,6 @@ internal sealed partial class MainForm : Form
     {
         _operationTitle = title;
         if (_work is not null) _heading.Text = VisibleOperationTitle;
-        QueueUpdateFit();
     }
 
     /// <summary>The downloaded game files are installed and, when the index is known, none has a newer copy.</summary>
@@ -909,7 +841,6 @@ internal sealed partial class MainForm : Form
             _launcherButton.Visible = writable;
             _launcherBanner.Visible = true;
         }
-        QueueUpdateFit();
     }
 
     private async Task CheckAsync(CancellationToken cancel)
@@ -1202,7 +1133,6 @@ internal sealed partial class MainForm : Form
             _progress.Fraction = p.Total > 0 ? (double)p.Received / p.Total : 0;
             string rate = p.BytesPerSecond > 0 ? $"  {Mb(p.BytesPerSecond)}/s" : string.Empty;
             _progressText.Text = p.Total > 0 ? $"{Mb(p.Received)} of {Mb(p.Total)}{rate}" : Mb(p.Received) + rate;
-            QueueUpdateFit();
         });
     }
 
@@ -1217,7 +1147,6 @@ internal sealed partial class MainForm : Form
             _progress.Visible = p.Total > 0 && !p.Extracting;
             _progress.Fraction = p.Total > 0 ? (double)p.Received / p.Total : 0;
             _progressText.Text = p.Extracting ? $"{prefix}: installing..." : $"{prefix}: {Mb(p.Received)} of {Mb(p.Total)}";
-            QueueUpdateFit();
         });
     }
 
@@ -1285,8 +1214,6 @@ internal sealed partial class MainForm : Form
         if (_work is not null) _operationStatus = state;
         RenderProductStatus();
         _launchDetail.Visible = _work is null && kind is not (StatusKind.Warning or StatusKind.Error);
-
-        QueueUpdateFit();
     }
 
     private static void ShowInExplorer(string? path)
