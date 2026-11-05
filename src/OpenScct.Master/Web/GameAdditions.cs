@@ -12,7 +12,7 @@ internal static class GameAdditions
 
     internal static readonly IReadOnlyList<FeatureSection> Sections =
     [
-        new("play", "Matches and practice", "Choose a game mode, set the rules and play with people or bots.",
+        new("play", "Matches and practice", "Game modes, match rules, team sizes and bot settings.",
         [
             // docs/AI.md; src/OpenScct.Bots/ServerBots.cs; LobbySetup.BotSkill.
             new("bots", "Spy and mercenary bots", "Bots can fill empty places or form custom teams.",
@@ -25,17 +25,17 @@ internal static class GameAdditions
                 "/wiki/modes-and-objectives", "Modes and objective guide"),
 
             // docs/MENUS.md, Create Session and Alternate Mode; LobbySetup.MaxMaxPlayers.
-            new("match-settings", "Match settings and larger teams", "Sessions support up to 24 players, including bots, with separate spectator places.",
+            new("match-settings", "Match settings", "Sessions support up to 24 players, including bots, with separate spectator places.",
                 ["Set time limits, lives, respawn times and team balance.", "Use side-swapping rounds, match series and random map changes.", "Alternate rules let the host choose allowed abilities, gadgets and gadget slots."],
                 "/wiki/hosting", "Hosting and match settings"),
 
             // docs/MENUS.md, Tutorials; committed docs/ONLINE.md, Practice servers.
-            new("practice", "Practice and map visits", "Practice sessions and offline map visits provide ways to learn maps and controls.",
+            new("practice", "Practice and map visits", "Practice sessions use modified match rules. Map visits run offline with guidance markers.",
                 ["Practice uses unlimited lives, quick respawns and commands for health and ammunition; its rounds do not count towards stats.", "Visit a Map opens a map alone with its guidance markers.", "Tutorial pages include training maps, gadget explanations, help with the on-screen display and saved completion progress."],
                 "/wiki/practice", "Practice and tutorials"),
         ]),
 
-        new("equipment", "Equipment and player options", "Choose your loadout and configure how you control your character.",
+        new("equipment", "Equipment and player options", "Loadouts, sidearms, cloak and view controls.",
         [
             // spec/additions/merc-sidearms.md; src/OpenScct.Core/Engine/Sidearms.cs.
             new("sidearms", "Mercenary sidearms", "Hosts can enable a dedicated pistol slot for mercenaries.",
@@ -58,10 +58,10 @@ internal static class GameAdditions
                 "/wiki/controls-and-hud", "View and control settings"),
         ]),
 
-        new("hub", "Community hubs", "Walk around a shared space, take part in activities and join matches.",
+        new("hub", "Community hubs", "Hubs support chat, activities and queues for matches.",
         [
             // docs/HUB.md; HubServer.Social.cs; HubPlayerList.cs.
-            new("hub-social", "A shared space between matches", "Players can visit or host a hub as either a spy or a mercenary.",
+            new("hub-social", "Hub sessions", "Players can visit or host a hub as either a spy or a mercenary.",
                 ["Talk to everyone, your team or nearby players.", "Nearby voice gets quieter with distance.", "The player list provides individual mute and volume controls."],
                 "/wiki/social-hubs", "Hub guide"),
 
@@ -76,10 +76,10 @@ internal static class GameAdditions
                 "/wiki/social-hubs", "Hub match guide"),
         ]),
 
-        new("replays", "Match recordings", "Save complete rounds and watch them through the game's replay library.",
+        new("replays", "Match recordings", "Server recordings, the replay library and playback controls.",
         [
             // Committed docs/DEMOS.md, Saving your own matches; OnlineServer.Demos.
-            new("recording", "Record your matches", "Each player can choose whether to save upcoming matches.",
+            new("recording", "Match recording", "Each player can choose whether to save upcoming matches.",
                 ["The server records the full match and sends a copy to players who requested it.", "Guests can request a recording without enabling recording for everyone.", "Stay connected until the game reports that the recording is saved."],
                 "/wiki/demos", "Recording guide"),
 
@@ -94,7 +94,7 @@ internal static class GameAdditions
                 "/wiki/demos", "Playback controls"),
         ]),
 
-        new("player", "Player records and communication", "Track your matches, choose your appearance and manage your account.",
+        new("player", "Player records and communication", "Career statistics, appearance, account settings, voice and text chat.",
         [
             // docs/MENUS.md, Player stats and match history; committed docs/PLAYER-HUB.md.
             new("stats", "Stats and match history", "View career totals, recorded rounds and individual match results.",
@@ -132,7 +132,7 @@ internal static class GameAdditions
                 "/wiki/hosting", "Joining friends"),
         ]),
 
-        new("setup", "Installation, hosting and settings", "Install content, connect to a session and adjust the game for your computer.",
+        new("setup", "Installation, hosting and settings", "Launchers, content downloads, hosting and client settings.",
         [
             // README.md; committed docs/LAUNCHER.md; launcher Install and Update workflows.
             new("launcher", "Windows and Linux launchers", "Native launchers install the game and keep it up to date on Windows and Linux.",
@@ -167,7 +167,7 @@ internal static class GameAdditions
             // OpenSCCT-Editor README.md, docs/WORKFLOW.md and docs/PARITY.md; editor remains in early development.
             new("map-editor", "Map creation and editing", "The OpenSCCT Editor supports map blockouts, gameplay setup and testing in OpenSCCT.",
                 ["Work with brushes, actors, event links, objectives and lighting in a saved map project.", "Check and build a map before testing both roles in the game.", "The editor is in early development; the wiki explains the available workflow and its limitations."],
-                "/wiki/editor-getting-started", "Start the editor guides"),
+                "/wiki/editor-getting-started", "Editor setup guide"),
 
             // docs/LINUX.md: native x86-64 launcher and Flatpak; Steam Deck hardware validation pending.
             new("linux", "Experimental Linux support", "Install with the native Linux launcher or choose the alternative Flatpak game package.",

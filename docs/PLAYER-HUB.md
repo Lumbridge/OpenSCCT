@@ -154,6 +154,7 @@ servers and authorized administrators. Live refresh preserves form drafts, focus
 Feature descriptions live in `src/OpenScct.Master/Web/GameAdditions.cs`; the page is rendered by
 `Player/PlayerPortal.Improvements.cs`. Check claims against the owning code and documentation when updating them.
 Describe what players can do in plain language, including conditions such as host settings or experimental support.
+Use factual descriptions and literal headings. Avoid slogans, promotional claims and aspirational wording.
 Keep the focus on OpenSCCT without competitor comparisons or completion percentages.
 
 Screenshots live in `docs/images/website/showcase-*.png`. The `showcase-sources.txt` file beside them records their local source paths,

@@ -22,7 +22,7 @@ internal sealed partial class PlayerPortal
         if (!WikiContent.Categories.Any(x => x.Id == category)) category = string.Empty;
         WikiContent.Article[] articles = WikiContent.Search(query, category).ToArray();
         var body = new StringBuilder("<div class=\"wiki-page\">")
-            .Append(PageHeader("FIELD GUIDE", "OpenSCCT wiki", "Learn the game, find an answer and build your next map. Guides for players, hosts and map makers, all here on the site."))
+            .Append(PageHeader("WIKI", "OpenSCCT wiki", "Documentation for installation, gameplay, hosting, player stats and the map editor."))
             .Append("<form class=\"wiki-search\" role=\"search\" method=\"get\" action=\"/wiki\"><label for=\"wiki-query\">Find a guide</label>")
             .Append("<div class=\"wiki-search-fields\"><input type=\"search\" id=\"wiki-query\" name=\"q\" maxlength=\"96\" placeholder=\"Try cloak, hosting or lighting\" value=\"").Append(H(query)).Append("\">")
             .Append("<label class=\"wiki-category-label\" for=\"wiki-category\">Topic</label><select id=\"wiki-category\" name=\"category\"><option value=\"\">All topics</option>");
@@ -32,8 +32,8 @@ internal sealed partial class PlayerPortal
 
         if (query.Length == 0 && category.Length == 0)
         {
-            body.Append("<section class=\"wiki-start\" aria-labelledby=\"wiki-start-title\"><div><p class=\"eyebrow\">FIRST TIME HERE?</p><h2 id=\"wiki-start-title\">Start with your first game</h2>")
-                .Append("<p>Install the launcher, learn a role and join a lobby. Map makers can follow the editor path from a first room to a tested build.</p></div><div class=\"button-row\">")
+            body.Append("<section class=\"wiki-start\" aria-labelledby=\"wiki-start-title\"><div><p class=\"eyebrow\">GETTING STARTED</p><h2 id=\"wiki-start-title\">Setup guides</h2>")
+                .Append("<p>The player guide covers installation and joining a session. The editor guide covers project setup, map checks and building a test map.</p></div><div class=\"button-row\">")
                 .Append(Link("/wiki/getting-started", "Player quick start →", "button secondary"))
                 .Append(Link("/wiki/editor-getting-started", "Editor quick start →", "text-link")).Append("</div></section>")
                 .Append("<nav class=\"wiki-topic-nav\" aria-label=\"Wiki topics\">");
@@ -60,7 +60,7 @@ internal sealed partial class PlayerPortal
             foreach (WikiContent.Article article in group) AppendWikiCard(body, article);
             body.Append("</div></section>");
         }
-        body.Append("<section class=\"wiki-help panel\"><h2>Still need a hand?</h2><p>Find troubleshooting steps, send a bug report or help improve a guide.</p><div class=\"button-row\">")
+        body.Append("<section class=\"wiki-help panel\"><h2>Further help</h2><p>Troubleshooting, bug reports and documentation corrections.</p><div class=\"button-row\">")
             .Append(Link("/wiki/troubleshooting", "Troubleshooting →", "text-link"))
             .Append(Link("/help", "Help & feedback →", "text-link")).Append("</div></section></div>");
         return Show(c, "Wiki", "wiki", body.ToString());
@@ -84,11 +84,11 @@ internal sealed partial class PlayerPortal
         foreach (WikiContent.Section section in article.Sections)
             body.Append("<section id=\"").Append(H(section.Id)).Append("\" aria-labelledby=\"heading-").Append(H(section.Id)).Append("\"><h2 id=\"heading-")
                 .Append(H(section.Id)).Append("\">").Append(H(section.Title)).Append("</h2>").Append(section.Html).Append("</section>");
-        body.Append("<div class=\"wiki-article-feedback\"><p>Something missing or out of date? ")
-            .Append(Link("/help", "Help improve this guide →", "text-link")).Append("</p></div></article></div>");
+        body.Append("<div class=\"wiki-article-feedback\"><p>For missing or outdated information: ")
+            .Append(Link("/help", "Report a documentation issue →", "text-link")).Append("</p></div></article></div>");
         if (article.Related.Length > 0)
         {
-            body.Append("<section class=\"wiki-topic wiki-related\" aria-labelledby=\"wiki-related-title\"><h2 id=\"wiki-related-title\">Keep reading</h2><div class=\"wiki-guide-grid\">");
+            body.Append("<section class=\"wiki-topic wiki-related\" aria-labelledby=\"wiki-related-title\"><h2 id=\"wiki-related-title\">Related guides</h2><div class=\"wiki-guide-grid\">");
             foreach (string related in article.Related)
                 if (WikiContent.Find(related) is { } next) AppendWikiCard(body, next);
             body.Append("</div></section>");

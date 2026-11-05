@@ -18,20 +18,20 @@ internal sealed partial class PlayerPortal
     {
         ReportContext context = WebsiteReportContext();
         return Show(c, "Help & feedback", "help",
-            PageHeader("OPENSCCT", "Help & feedback", "Find a guide, report a problem or help improve OpenSCCT.") +
-            "<div class=\"help-page\"><section class=\"panel help-start\" aria-labelledby=\"help-guides\"><h2 id=\"help-guides\">Start with a guide</h2>" +
+            PageHeader("OPENSCCT", "Help & feedback", "Installation, gameplay and editor guides, bug reports and contributions.") +
+            "<div class=\"help-page\"><section class=\"panel help-start\" aria-labelledby=\"help-guides\"><h2 id=\"help-guides\">Guides</h2>" +
             "<p>The wiki covers setup, gameplay, hosting and map making. Pick a topic below or search all the guides. " +
             "You can read everything without signing in.</p><div class=\"button-row\">" +
             Link("/wiki", "Browse the wiki →", "button") +
             Link("/download", "Download and setup →", "text-link") +
             Link("/changelog", "Recent updates →", "text-link") + "</div></section>" +
-            "<section class=\"section\" aria-labelledby=\"help-topics\"><h2 id=\"help-topics\">What do you need help with?</h2><div class=\"grid-three help-topics\">" +
-            Feature("01", "Install or update", "Get ready to play on Windows, Linux or Steam Deck, with no original install required.", "/wiki/getting-started", "Installation guide →") +
-            Feature("02", "Join or host a game", "Find a server, invite friends and understand guest access, passwords and counted rounds.", "/wiki/hosting", "Online play guide →") +
-            Feature("03", "Controls and display", "Set up role-specific bindings, your crosshair, controller and the HUD editor.", "/wiki/controls-and-hud", "Customize your setup →") +
-            Feature("04", "Learn the game", "Understand the two sides, objectives and practice tools before your next match.", "/wiki/modes-and-objectives", "Gameplay guides →") +
-            Feature("05", "Stats and account", "Learn which rounds count, what the numbers mean and how to manage profile privacy.", "/wiki/progression-and-stats", "Stats and progression →") +
-            Feature("06", "Make a map", "Explore the editor workflow, objectives, lighting and testing your own maps.", "/wiki/editor-getting-started", "Map maker's guide →") + "</div></section>" +
+            "<section class=\"section\" aria-labelledby=\"help-topics\"><h2 id=\"help-topics\">Help topics</h2><div class=\"grid-three help-topics\">" +
+            Feature("01", "Install or update", "Installation and updates for Windows and Linux. Steam Deck support is experimental.", "/wiki/getting-started", "Installation guide →") +
+            Feature("02", "Join or host a game", "Server discovery, guest access, passwords and counted rounds.", "/wiki/hosting", "Online play guide →") +
+            Feature("03", "Controls and display", "Role-specific bindings, crosshair settings, controllers and the HUD editor.", "/wiki/controls-and-hud", "Controls and HUD guide →") +
+            Feature("04", "Gameplay", "Spy and mercenary roles, game modes, objectives and practice sessions.", "/wiki/modes-and-objectives", "Gameplay guides →") +
+            Feature("05", "Stats and account", "Counted rounds, career statistics and profile privacy.", "/wiki/progression-and-stats", "Stats and progression →") +
+            Feature("06", "Map editing", "Editor setup, objectives, lighting and playtesting.", "/wiki/editor-getting-started", "Map editing guide →") + "</div></section>" +
             """
             <section class="section help-faq" aria-labelledby="help-common">
               <div class="section-heading"><h2 id="help-common">Quick answers</h2><a class="text-link" href="/wiki/troubleshooting">Troubleshooting guide →</a></div>
@@ -42,7 +42,7 @@ internal sealed partial class PlayerPortal
               <details><summary>How do I report a problem clearly?</summary><p>Try the current release, then include the exact steps, what you expected and what happened. Opening Help from the game or launcher can prefill useful version and session details. Review the report before sending it.</p></details>
             </section>
             """ +
-            "<section class=\"section\" aria-labelledby=\"help-feedback\"><h2 id=\"help-feedback\">Tell us what needs attention</h2>" +
+            "<section class=\"section\" aria-labelledby=\"help-feedback\"><h2 id=\"help-feedback\">Bug reports and suggestions</h2>" +
             "<p>Search existing reports first. You can report a bug here using your usual Discord sign-in. " +
             "You will review the report before it is published on GitHub; you do not need a GitHub account.</p>" +
             Link(ProjectLinks.Url(ProjectDestination.Issues), "Search existing issues ↗", "text-link") +
@@ -55,7 +55,7 @@ internal sealed partial class PlayerPortal
             Link(ProjectLinks.Url(ProjectDestination.FeatureRequest, context), "Suggest a feature ↗", "button") +
             "</article></div><p class=\"help-privacy\">Reports are public. Remove passwords, tokens and personal information from anything you share. " +
             "Do not upload original game files, converted asset packs or decompiled output.</p></section>" +
-            "<section class=\"section panel\" aria-labelledby=\"help-contribute\"><h2 id=\"help-contribute\">Help build OpenSCCT</h2>" +
+            "<section class=\"section panel\" aria-labelledby=\"help-contribute\"><h2 id=\"help-contribute\">Contributing</h2>" +
             "<p>You can help by testing a release, improving a guide or contributing code. Read the contribution guide, check existing work and keep changes focused.</p>" +
             "<div class=\"button-row\">" +
             Link("/wiki/contributing", "Contribution guide →", "button secondary") +

@@ -32,39 +32,39 @@ internal sealed partial class PlayerPortal
     {
         List<PublicServer> servers = LiveServers();
         Dictionary<string, string> settings = _store.Settings();
-        string welcome = settings.GetValueOrDefault("site.welcome", "A community rebuild of Spies vs. Mercenaries. Outsmart the defenders as an agile spy, or hold the line as a heavily armed mercenary.");
+        string welcome = settings.GetValueOrDefault("site.welcome", DefaultWelcome);
         string announcement = settings.GetValueOrDefault("site.announcement", string.Empty);
         var body = new StringBuilder();
         if (announcement.Length > 0) body.Append("<aside class=\"announcement\"><strong>Announcement</strong><p>").Append(H(announcement)).Append("</p></aside>");
-        body.Append("<section class=\"hero community-hero\"><div><p class=\"eyebrow\">STEALTH. STRATEGY. TEAMWORK.</p><h1>Spies vs.<br><span>Mercenaries.</span></h1><p class=\"lead\">")
-            .Append(H(welcome)).Append("</p><div class=\"button-row\">").Append(Link("/download", "Get the game ↓", "button"))
-            .Append(Link("/servers", "Find a game →", "button secondary"))
-            .Append("</div><p class=\"hero-note\">Free to play · Windows &amp; Linux · No original game required</p><p class=\"hero-guide\">")
-            .Append(Link("/wiki/getting-started", "New here? Start with the field guide →", "text-link")).Append("</p></div>")
-            .Append($"<figure class=\"community-hero-scene\"><img src=\"{H(AssetUrl("/web/assets/showcase-replays.png"))}\" alt=\"A mercenary replay on Aquarius, beside the aquarium, with playback controls visible\" width=\"1920\" height=\"1080\" fetchpriority=\"high\"><figcaption><span>GAMEPLAY REPLAY · AQUARIUS</span>A familiar world, rebuilt by the community.</figcaption></figure></section>")
+        body.Append("<section class=\"hero community-hero\"><div><p class=\"eyebrow\">OPENSCCT</p><h1>Spies vs.<br><span>Mercenaries</span></h1><p class=\"lead\">")
+            .Append(H(welcome)).Append("</p><div class=\"button-row\">").Append(Link("/download", "Download", "button"))
+            .Append(Link("/servers", "Servers", "button secondary"))
+            .Append("</div><p class=\"hero-note\">Windows &amp; Linux · No original game required</p><p class=\"hero-guide\">")
+            .Append(Link("/wiki/getting-started", "Getting started", "text-link")).Append("</p></div>")
+            .Append($"<figure class=\"community-hero-scene\"><img src=\"{H(AssetUrl("/web/assets/showcase-replays.png"))}\" alt=\"A mercenary replay on Aquarius, beside the aquarium, with playback controls visible\" width=\"1920\" height=\"1080\" fetchpriority=\"high\"><figcaption><span>GAMEPLAY REPLAY · AQUARIUS</span>First-person replay with playback controls.</figcaption></figure></section>")
             .Append("<div data-live=\"home-stats\"><div class=\"stats-grid\">")
             .Append(Stat("Players online", N(servers.Sum(s => s.Players)), "In the games and hubs listed here"))
             .Append(Stat("Games and hubs", N(servers.Count), "Currently online"))
             .Append(Stat("Player profiles", N(_store.PublicPlayers(null, "name", 0, 1).Total), "Public profiles you can browse"))
             .Append(Stat("Rounds today", N(_store.CountMatches(_store.Now / 86400 * 86400)), "Results received by the website"))
             .Append("</div></div>");
-        body.Append(Section("Choose your side", "<div class=\"grid-two role-introductions\">" +
-            "<article class=\"panel role-introduction spy-introduction\"><p class=\"eyebrow\">SPIES · THIRD PERSON</p><h3>Stay one step ahead.</h3><p>Use movement, gadgets and the shadows to reach your objectives. Coordinate with your teammate and choose when to slip past a patrol or create a distraction.</p>" +
-            Link("/wiki/spy", "Learn the spy toolkit →", "text-link") + "</article>" +
-            "<article class=\"panel role-introduction merc-introduction\"><p class=\"eyebrow\">MERCENARIES · FIRST PERSON</p><h3>Make every angle count.</h3><p>Protect the objectives with weapons, detection tools and traps. Watch the routes, share information and force the spies into a fight on your terms.</p>" +
-            Link("/wiki/mercenary", "Learn mercenary defence →", "text-link") + "</article></div>"));
+        body.Append(Section("Roles", "<div class=\"grid-two role-introductions\">" +
+            "<article class=\"panel role-introduction spy-introduction\"><p class=\"eyebrow\">THIRD PERSON</p><h3>Spies</h3><p>Spies use movement, climbing and gadgets. In Story mode, they complete the map's objectives. They can use ledges, pipes and other traversal routes supported by the map.</p>" +
+            Link("/wiki/spy", "Spy guide", "text-link") + "</article>" +
+            "<article class=\"panel role-introduction merc-introduction\"><p class=\"eyebrow\">FIRST PERSON</p><h3>Mercenaries</h3><p>Mercenaries use firearms, detection equipment and traps. In Story mode, they defend the objectives. Their loadout and the map's rules determine which equipment is available.</p>" +
+            Link("/wiki/mercenary", "Mercenary guide", "text-link") + "</article></div>"));
         body.Append(Section("Games and hubs online", "<div data-live=\"home-servers\">" + ServerTable(servers.Take(4)) + "</div>",
-            "<div class=\"button-row\">" + LiveStatus + Link("/servers", "View all games and hubs →", "text-link") + "</div>"));
-        body.Append(Section("Your first session", "<div class=\"grid-three\">" +
-            Feature("01", "Install and launch", "Pick the launcher for your platform. It downloads the game and content and keeps you ready to play.", "/download", "Choose your platform →") +
-            Feature("02", "Learn at your pace", "Try offline practice with bots, adjust your controls and learn the objectives before joining a match.", "/wiki/getting-started", "Read the getting-started guide →") +
-            Feature("03", "Join the community", "Find a game with spaces or visit a social hub. Sign in inside the game when a server requires an account.", "/servers", "Find games and hubs →") + "</div>"));
+            "<div class=\"button-row\">" + LiveStatus + Link("/servers", "All games and hubs", "text-link") + "</div>"));
+        body.Append(Section("Getting started", "<div class=\"grid-three\">" +
+            Feature("01", "Install", "Download the launcher for your platform. It installs the game and content and checks for updates.", "/download", "Downloads") +
+            Feature("02", "Practice", "Offline bots and practice settings are available for testing controls, gadgets and map objectives.", "/wiki/getting-started", "Getting-started guide") +
+            Feature("03", "Join a session", "The server browser lists games and social hubs. Sign in inside the game when a server requires an account.", "/servers", "Games and hubs") + "</div>"));
         body.Append(ImprovementsPreview());
         body.Append(Section("Players and results", "<div class=\"grid-three\">" +
-            Feature("01", "Your account", "Check your level and achievements, choose your appearance, and manage your privacy.", "/account", "Open your account →") +
-            Feature("02", "Community leaderboards", "Compare XP, wins, combat stats and objective play across public player profiles.", "/leaderboards", "Explore the leaderboards →") +
-            Feature("03", "Match results", "See which team won, who played, and how each player scored.", "/matches", "View matches →") + "</div>"));
-        body.Append(Section("Learn, build, improve", "<div class=\"panel community-wiki-callout\"><div><p class=\"eyebrow\">THE OPENSCCT WIKI</p><h3>Your next good idea starts here.</h3><p>Find gameplay guides, hosting help and map-editor articles without leaving the site.</p></div>" + Link("/wiki", "Open the wiki →", "button secondary") + "</div>"));
+            Feature("01", "Account", "View your level and achievements, choose your appearance, and manage your privacy.", "/account", "Account") +
+            Feature("02", "Leaderboards", "Rank public player profiles by XP, wins, combat stats or objectives completed.", "/leaderboards", "Leaderboards") +
+            Feature("03", "Match results", "Recorded rounds include the winner, participating players and their scores.", "/matches", "Match history") + "</div>"));
+        body.Append(Section("Documentation", "<div class=\"panel community-wiki-callout\"><div><p class=\"eyebrow\">WIKI</p><h3>OpenSCCT wiki</h3><p>Articles about gameplay, server hosting and the map editor.</p></div>" + Link("/wiki", "Wiki", "button secondary") + "</div>"));
         return Show(c, "Home", "home", body.ToString());
     }
 
@@ -94,7 +94,7 @@ internal sealed partial class PlayerPortal
                 "On Linux, run install.sh from the native launcher archive to enable Join links, or install the Flatpak. On Steam Deck, start in Desktop Mode. Your browser may ask permission to open OpenSCCT. Website Join links use your Discord sign-in inside the game; signing in on the website does not sign you into the game.</p>" +
                 "<p>If the game is already running, Join uses that window. If you are in a match, it waits until you return to the main menu. Enter any server password in the game.</p>" +
                 "<p class=\"account-side-note\">Join links need game version 0.8.58 or later and, on Windows, launcher version 0.8.26 or later. You can also browse games through Find a Session or visit hubs through Hub in the game.</p>" +
-                Link("/download", "Download or update OpenSCCT →", "text-link") + "</div>"));
+                Link("/download", "Downloads and updates", "text-link") + "</div>"));
     }
 
     private static string FilterSelect(string name, string label, IEnumerable<(string Value, string Label)> values, string selected) =>
@@ -134,12 +134,12 @@ internal sealed partial class PlayerPortal
         int page = PageOf(c);
         (List<PublicPlayerRow> rows, int total) = _store.PublicPlayers(null, sort, page, PageSize);
         string description = LeaderboardMetrics.First(m => m.Key == sort).Description;
-        return Show(c, "Leaderboards", "leaderboards", PageHeader("COMMUNITY · ALL TIME", "Leaderboards", "Every role has a way to make a difference. Explore experience, wins, combat and objective play.", Link("/players", "Find a player →", "button secondary compact")) +
+        return Show(c, "Leaderboards", "leaderboards", PageHeader("ALL TIME", "Leaderboards", "Public player rankings by lifetime XP, wins, rounds played, kills, objectives, headshot kills and damage dealt.", Link("/players", "Player search", "button secondary compact")) +
             "<form method=\"get\" action=\"/leaderboards\" class=\"filters\">" + FilterSelect("sort", "Rank players by", LeaderboardMetrics.Select(m => (m.Key, m.Label)), sort) +
             "<button class=\"button\">Apply</button><span class=\"field-help\">Public profiles · Lifetime totals</span></form>" +
             "<div class=\"leaderboard-summary\"><p><strong>" + H(LeaderboardMetrics.First(m => m.Key == sort).Label) + "</strong> · " + H(description) + "</p><span>" + N(total) + " eligible player" + (total == 1 ? "" : "s") + "</span></div>" +
             LeaderboardTable(rows, sort, page) + Pager("/leaderboards?sort=" + U(sort), page, (page + 1) * PageSize < total) +
-            Section("How these rankings work", "<div class=\"grid-two\"><div class=\"panel\"><h3>Rounds that count</h3><p>Stats come from qualifying rounds reported by approved servers, with a winner and at least one signed-in player on each team. Offline practice does not add to these totals.</p><p class=\"account-side-note\">Win-rate rankings need at least 10 counted rounds. Detailed counters reflect the history recorded for that stat; older rounds may not include every counter.</p>" + Link("/wiki/progression-and-stats", "Read about progression and stats →", "text-link") + "</div><div class=\"panel\"><h3>Your place in the community</h3><p>Named public profiles appear here. Private, hidden and actively banned accounts are excluded. Total XP stays with you through prestige.</p><p class=\"account-side-note\">K/D means kills per death. A dash means there is no denominator yet. Ties use XP, wins or rounds played, followed by account order.</p>" + Link("/account/privacy", "Manage profile privacy →", "text-link") + "</div></div>"));
+            Section("How these rankings work", "<div class=\"grid-two\"><div class=\"panel\"><h3>Rounds that count</h3><p>Stats come from qualifying rounds reported by approved servers, with a winner and at least one signed-in player on each team. Offline practice does not add to these totals.</p><p class=\"account-side-note\">Win-rate rankings need at least 10 counted rounds. Detailed counters reflect the history recorded for that stat; older rounds may not include every counter.</p>" + Link("/wiki/progression-and-stats", "Progression and stats", "text-link") + "</div><div class=\"panel\"><h3>Profile visibility</h3><p>Named public profiles appear here. Private, hidden and actively banned accounts are excluded. Lifetime XP is retained through prestige.</p><p class=\"account-side-note\">K/D means kills per death. A dash means there is no denominator yet. Ties use XP, wins or rounds played, followed by account order.</p>" + Link("/account/privacy", "Profile privacy", "text-link") + "</div></div>"));
     }
 
     private static readonly (string Key, string Label, string Description)[] LeaderboardMetrics =
@@ -216,7 +216,7 @@ internal sealed partial class PlayerPortal
         string name = account.Name ?? "New player";
         body.Append(H(name[..1].ToUpperInvariant())).Append("</div><div><p class=\"eyebrow\">").Append(owner ? "YOUR STATS" : "PLAYER PROFILE").Append(owner ? "</p><h2>" : "</p><h1>").Append(H(name)).Append(owner ? "</h2><p>" : "</h1><p>")
             .Append(Rank(rank)).Append(" · ").Append(N(level.TotalXp)).Append(" total experience points (XP)</p></div>");
-        if (owner) body.Append("<div class=\"button-row\">").Append(Link("/account/appearance", "Customize appearance →", "button secondary compact")).Append("</div>");
+        if (owner) body.Append("<div class=\"button-row\">").Append(Link("/account/appearance", "Appearance", "button secondary compact")).Append("</div>");
         body.Append("</div><div class=\"stats-grid\">")
             .Append(Stat("Rounds played", N(stats.Matches), "Rounds included in these stats"))
             .Append(Stat("Wins", N((long)stats.SpyWins + stats.MercWins), Ratio((long)stats.SpyWins + stats.MercWins, stats.Matches, true) + " win rate"))
@@ -320,7 +320,7 @@ internal sealed partial class PlayerPortal
         if (_store.Match(id) is not { } found) return NotFound(c, "Round unavailable");
         MatchRow m = found.Match;
         long? owner = Current(c)?.Account.Id;
-        string body = PageHeader("ROUND REPORT", MapName(m.Map), ModeName(m.Mode) + " · " + m.ServerName, Link("/matches", "← All matches", "button secondary compact")) +
+        string body = PageHeader("ROUND REPORT", MapName(m.Map), ModeName(m.Mode) + " · " + m.ServerName, Link("/matches", "All matches", "button secondary compact")) +
             "<div class=\"stats-grid\">" + Stat("Winner", Winner(m.Winner)) + Stat("Duration", Duration(m.DurationSeconds)) +
             Stat("Objectives completed", m.ObjectivesTaken + " / " + m.ObjectivesNeeded) + Stat("Stats and XP", m.Counted ? "Included" : "Not included", AccountStore.Format(m.Time)) + "</div>";
         foreach (int side in found.Rows.Select(r => r.Team).Distinct().Order())

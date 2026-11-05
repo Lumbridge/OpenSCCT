@@ -453,7 +453,7 @@ internal sealed partial class AdminPortal
             Row("minVersion", "Minimum version", _options.MinVersion ?? string.Empty, "Hosts older than this are refused.") +
             Button("Save", "do", "save") + " " + Button("Use the config file's values", "do", "reset"), cls: "stack");
         string site = Form(c, "/admin/settings",
-            "<label>Welcome text<textarea name=\"site.welcome\" maxlength=\"300\">" + H(stored.GetValueOrDefault("site.welcome", "Welcome to OpenSCCT. Find your next match.")) + "</textarea></label>" +
+            "<label>Welcome text<textarea name=\"site.welcome\" maxlength=\"300\">" + H(stored.GetValueOrDefault("site.welcome", Web.WebHtml.DefaultWelcome)) + "</textarea></label>" +
             "<label>Public announcement (website and main menu)<textarea name=\"site.announcement\" maxlength=\"1000\">" + H(stored.GetValueOrDefault("site.announcement", string.Empty)) + "</textarea></label>" +
             "<small>Plain text only. Leave the announcement empty to remove it from the website and game menu.</small><details open><summary>Preview</summary><div id=\"site-preview\" class=\"site-preview\"></div></details>" +
             Button("Publish public text", "do", "site"), "Publish this text to the player hub and its announcement to the game menu?", "stack");
