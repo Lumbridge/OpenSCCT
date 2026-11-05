@@ -15,8 +15,8 @@ internal sealed partial class PlayerPortal
               <span class="platform-kind">Native launcher</span>
             </div>
             <h2 id="download-windows">Windows</h2>
-            <p class="platform-summary">The launcher installs the game and content and checks for updates.</p>
-            <ul class="platform-features"><li>Automatic game and launcher updates</li><li>Downloads game files and extra maps</li><li>Website Join links</li></ul>
+            <p class="platform-summary">The launcher installs the game, shared content and optional OpenSCCT Editor.</p>
+            <ul class="platform-features"><li>Game and Editor tabs with separate updates</li><li>Downloads game files and extra maps</li><li>Website Join links</li></ul>
             <p class="platform-requirements">Windows · Intel/AMD 64-bit</p>
             <div class="platform-actions">
               <a class="button wide" href="https://github.com/Lumbridge/OpenSCCT/releases/latest/download/OpenSCCT.Launcher.exe">Download for Windows ↓</a>
