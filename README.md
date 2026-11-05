@@ -12,6 +12,7 @@ Splinter Cell: Chaos Theory Versus in Godot 4 and C#.
 
 [Download](https://github.com/Lumbridge/OpenSCCT/releases/latest) ·
 [Player hub](https://master.lumbridge.co.uk) ·
+[Map editor](https://github.com/Lumbridge/OpenSCCT-Editor) ·
 [Documentation](docs/README.md) ·
 [Contribute](CONTRIBUTING.md) ·
 [Report a bug](https://github.com/Lumbridge/OpenSCCT/issues/new/choose)
@@ -36,6 +37,7 @@ See the [launcher guide](docs/LAUNCHER.md) for setup, storage and troubleshootin
 - Practice with bots and training challenges.
 - Use the player hub to find servers, view profiles, leaderboards and match history.
 - Record and watch demos.
+- Make and edit maps with [OpenSCCT Editor](https://github.com/Lumbridge/OpenSCCT-Editor).
 - Build and test the simulation without original game assets.
 
 OpenSCCT is in active development. Matching the original game's behavior is ongoing;
