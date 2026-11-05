@@ -63,6 +63,7 @@ public sealed partial class DemoRecorder
         if (gri is not null && gri.bMatchHasBegun != _matchBegun)
         {
             _matchBegun = gri.bMatchHasBegun;
+            _nextCheckpoint = _matchBegun ? (long)tick + CheckpointIntervalTicks : long.MaxValue;
             Mark(_matchBegun ? DemoMarkerKind.RoundStart : DemoMarkerKind.RoundEnd, _matchBegun ? "Round start" : "Round end");
         }
 

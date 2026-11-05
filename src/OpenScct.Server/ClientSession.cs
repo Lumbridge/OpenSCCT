@@ -439,6 +439,7 @@ public sealed partial class ClientSession : INetworkNotify, IDisposable
                 connection.Close("Rejected: " + message.Text);
                 break;
             case EControlMessage.Text:
+                if (ReceiveDemoCheckpointActor(message.Text)) break;
                 if (ReceiveDemoViewRequest(message.Text)) break;
                 if (ReceiveScoreboard(message.Text)) break;
                 if (Online.SessionProtocol.IsSession(message.Text))

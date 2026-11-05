@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.Globalization;
+using System.IO;
 using System.Text;
 using Godot;
 using OpenScct.Game.SBase;
@@ -162,7 +163,7 @@ public partial class DemoHud : CanvasLayer
             "Third person follows the player. Hold right mouse to orbit; release to return behind them.\n" +
             "As played follows the recorded camera, including aiming and gadget views.\n" +
             "Free camera: hold right mouse to look, WASD move, Q / E down / up, Shift move faster.\n" +
-            "Click or drag to seek; event markers include a 3 s lead-in. Backward seeks reload from the start.\n" +
+            "Click or drag to seek; event markers include a 3 s lead-in. Rewind uses checkpoints when available.\n" +
             "Esc  Close help / confirm returning to demos", 13);
         _help.AutowrapMode = TextServer.AutowrapMode.WordSmart;
         _help.Visible = false;
@@ -357,7 +358,16 @@ public partial class DemoHud : CanvasLayer
         if (_player.IsSeeking && !ConfirmingLeave)
         {
             long start = Stopwatch.GetTimestamp();
-            while (_player.FastForward(30) && Stopwatch.GetElapsedTime(start).TotalMilliseconds < SeekBudgetMs) { }
+            try
+            {
+                while (_player.FastForward(30) && Stopwatch.GetElapsedTime(start).TotalMilliseconds < SeekBudgetMs) { }
+            }
+            catch (InvalidDataException error) when (_player.UsingCheckpoint)
+            {
+                GD.PushWarning("SVM_DEMO checkpoint seek failed: " + error.Message);
+                DemoLibrary.Enter(GetTree(), _player.Restart(_player.SeekTarget, useCheckpoint: false));
+                return;
+            }
         }
         if (_player.Mode == DemoCameraMode.Free && !PopupOpen && !ConfirmingLeave && GetWindow().HasFocus())
             _player.Fly(Axis(Key.W, Key.S), Axis(Key.D, Key.A), Axis(Key.E, Key.Q), Input.IsPhysicalKeyPressed(Key.Shift), (float)delta);

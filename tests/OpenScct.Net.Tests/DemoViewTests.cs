@@ -96,7 +96,7 @@ public sealed class DemoViewTests : IDisposable
         using (var file = File.OpenWrite(_path))
         using (var writer = new BinaryWriter(file))
         {
-            file.Position = file.Length - 16 - 13; // v3: view count, compressed length, empty scoreboard length
+            file.Position = file.Length - 16 - 14; // view count/length, empty scoreboard and empty checkpoint count
             writer.Write(3);
         }
         Assert.ThrowsAny<IOException>(() => DemoFile.Read(_path));

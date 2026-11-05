@@ -10,24 +10,36 @@ namespace OpenScct.Net;
 public sealed class DemoPlaybackTransport : ITransport
 {
     private static readonly EndpointId Recording = new(1);
+    private DemoCheckpoint? _checkpoint;
     private int _next;
+    private int _bootstrapOffset;
     private bool _disposed;
 
-    public DemoPlaybackTransport(DemoRecording recording)
+    public DemoPlaybackTransport(DemoRecording recording, uint seekTo = 0)
     {
         Demo = recording ?? throw new ArgumentNullException(nameof(recording));
-        ReleasedTick = recording.Index.FirstTick;
+        _checkpoint = recording.FindCheckpoint(seekTo);
+        StartTick = _checkpoint?.Tick ?? recording.Index.FirstTick;
+        ReleasedTick = StartTick;
+        _next = _checkpoint?.NextPacket ?? 0;
+        _bootstrapOffset = _checkpoint?.FirstOffset ?? 0;
     }
 
     public DemoRecording Demo { get; }
+
+    /// <summary>The original first tick or the tick of the checkpoint used to start this playback.</summary>
+    public uint StartTick { get; }
 
     /// <summary>The newest server tick whose packets the client may receive.</summary>
     public uint ReleasedTick { get; private set; }
 
     /// <summary>True once every packet was handed out.</summary>
-    public bool AtEnd => _next >= Demo.PacketCount;
+    public bool AtEnd => _checkpoint is null && _next >= Demo.PacketCount;
 
     public int MaxDatagramSize => NetConnection.MaxPacketBytesLimit;
+
+    /// <summary>True while this transport is delivering the checkpoint's bootstrap packets.</summary>
+    public bool IsBootstrapping => _checkpoint is not null;
 
     /// <summary>Lets the client receive the packets up to <paramref name="serverTick"/>.</summary>
     public void ReleaseUpTo(uint serverTick) => ReleasedTick = Math.Max(ReleasedTick, serverTick);
@@ -36,20 +48,41 @@ public sealed class DemoPlaybackTransport : ITransport
 
     public bool Send(EndpointId to, ReadOnlySpan<byte> datagram) => !_disposed;
 
-    public bool TryReceive(Span<byte> buffer, out EndpointId from, out int length)
+    /// <summary>
+    /// Once all bootstrap packets have been delivered, restore the original stream's receive state before
+    /// requesting more packets.
+    /// </summary>
+    public bool TryTakeCheckpointContinuation(out ReadOnlyMemory<byte> continuation)
     {
-        if (!_disposed && _next < Demo.PacketCount && Demo.TickOf(_next) <= ReleasedTick)
+        if (!_disposed && _checkpoint is { } checkpoint && !checkpoint.HasPacket(_bootstrapOffset))
         {
-            ReadOnlySpan<byte> packet = Demo.Packet(_next++);
-            packet.CopyTo(buffer);
-            from = Recording;
-            length = packet.Length;
+            continuation = checkpoint.Continuation;
+            _checkpoint = null;
             return true;
         }
 
-        from = EndpointId.None;
-        length = 0;
+        continuation = default;
         return false;
+    }
+
+    public bool TryReceive(Span<byte> buffer, out EndpointId from, out int length)
+    {
+        ReadOnlySpan<byte> packet;
+        if (!_disposed && _checkpoint is { } checkpoint && checkpoint.HasPacket(_bootstrapOffset))
+            packet = checkpoint.TakePacket(ref _bootstrapOffset);
+        else if (!_disposed && _checkpoint is null && _next < Demo.PacketCount && Demo.TickOf(_next) <= ReleasedTick)
+            packet = Demo.Packet(_next++);
+        else
+        {
+            from = EndpointId.None;
+            length = 0;
+            return false;
+        }
+
+        packet.CopyTo(buffer);
+        from = Recording;
+        length = packet.Length;
+        return true;
     }
 
     public void Disconnect(EndpointId endpoint)

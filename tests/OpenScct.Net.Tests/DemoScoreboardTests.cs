@@ -23,7 +23,7 @@ public sealed class DemoScoreboardTests : IDisposable
     };
 
     [Fact]
-    public void Version_three_lists_round_identity_and_final_stats_without_replaying_packets()
+    public void Current_format_lists_round_identity_and_final_stats_without_replaying_packets()
     {
         var board = Board();
         using (var writer = new DemoWriter(_path, new DemoHeader { RoundId = board.RoundId, Map = board.Map }))
@@ -34,11 +34,22 @@ public sealed class DemoScoreboardTests : IDisposable
             writer.Finish();
         }
         var info = DemoFile.ReadInfo(_path);
-        Assert.Equal(3, info.Header.FormatVersion);
+        Assert.Equal(DemoFile.Version, info.Header.FormatVersion);
         Assert.Equal(board.RoundId, info.Header.RoundId);
         Assert.Equal(board.RoundId, info.Index.Scoreboard!.RoundId);
         Assert.Equal(3, Assert.Single(info.Index.Scoreboard.Rows).Stats!["spy.neutralisations"]);
         Assert.Equal(new byte[] { 1, 2 }, DemoFile.Read(_path).Packet(0).ToArray());
+    }
+
+    [Fact]
+    public void Version_three_scoreboard_remains_readable_without_checkpoints()
+    {
+        var board = Board();
+        WriteFixture(3, board.RoundId, JsonSerializer.SerializeToUtf8Bytes(board));
+        var recording = DemoFile.Read(_path);
+        Assert.Equal(3, recording.Header.FormatVersion);
+        Assert.Equal(board.RoundId, recording.Index.Scoreboard!.RoundId);
+        Assert.Equal(0, recording.Index.CheckpointCount);
     }
 
     [Theory]

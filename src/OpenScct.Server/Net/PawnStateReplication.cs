@@ -12,7 +12,7 @@ using OpenScct.Net.Moves;
 namespace OpenScct.Server;
 
 /// <summary>Explicit pawn transforms and channel phases. Reliable play descriptors never block newer snapshots.</summary>
-public sealed class PawnStateReplication : INetworkPawnPose, IPawnAnimationTransitions
+public sealed partial class PawnStateReplication : INetworkPawnPose, IPawnAnimationTransitions
 {
     public const int History = 128;
     public const int TransitionCapacity = 512;

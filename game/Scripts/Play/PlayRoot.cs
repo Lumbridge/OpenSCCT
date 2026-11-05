@@ -642,7 +642,12 @@ public partial class PlayRoot : Node3D
         }
 
         float alpha;
-        if (_virtualClock is { } clock)
+        if (Config.Demo is { IsSeeking: true })
+        {
+            // The playback HUD steps the seek with a frame budget and can retry a failed checkpoint.
+            alpha = 1f;
+        }
+        else if (_virtualClock is { } clock)
         {
             for (int i = 0; i < Config.TicksPerFrame; i++)
             {

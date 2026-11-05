@@ -63,8 +63,8 @@ public enum DemoCameraMode
 /// Watches a .scctdemo (docs/DEMOS.md): a client session fed the recorded packets by a
 /// <see cref="DemoPlaybackTransport"/>, played through the remote <see cref="PlaySession"/> in the normal play scene.
 /// The recorder was a spectator, so the client has no pawn of its own; the cameras here replace its view. Pause and
-/// speed run the playback clock, a seek forward fast-forwards the client, a seek back starts again from the beginning
-/// (<see cref="Restart"/>) and fast-forwards.
+/// speed run the playback clock. A seek forward fast-forwards the client. A seek back restores a checkpoint or
+/// starts at the beginning, then fast-forwards to the target.
 /// </summary>
 public sealed class DemoPlayer : IDisposable
 {
@@ -87,12 +87,12 @@ public sealed class DemoPlayer : IDisposable
     private FVector _freeLocation;
     private bool _freePlaced;
 
-    private DemoPlayer(string path, DemoRecording recording, uint seekTo)
+    private DemoPlayer(string path, DemoRecording recording, uint seekTo, bool useCheckpoint = true)
     {
         Path = path;
         Recording = recording;
         SeekTarget = seekTo;
-        _transport = new DemoPlaybackTransport(recording);
+        _transport = new DemoPlaybackTransport(recording, useCheckpoint ? SeekTarget : 0);
     }
 
     public string Path { get; }
@@ -131,7 +131,9 @@ public sealed class DemoPlayer : IDisposable
     /// <summary>The server tick shown on the timeline (the loading prefix stays at the round's start).</summary>
     public uint CurrentTick => Math.Max(FirstTick, PacketTick);
 
-    private uint PacketTick => (uint)Math.Min(Recording.Index.FirstTick + Math.Max(0, _played - 1), uint.MaxValue);
+    private uint PacketTick => (uint)Math.Min(_transport.StartTick + Math.Max(0, _played - 1), uint.MaxValue);
+
+    internal bool UsingCheckpoint => _transport.StartTick > Recording.Index.FirstTick;
 
     public uint FirstTick => Recording.PlaybackFirstTick;
 
@@ -163,10 +165,10 @@ public sealed class DemoPlayer : IDisposable
         return new DemoPlayer(path, recording, seekTo);
     }
 
-    /// <summary>A new player on the same recording from the start, fast-forwarding to <paramref name="seekTo"/>.</summary>
-    public DemoPlayer Restart(uint seekTo)
+    /// <summary>A new player on the same recording, fast-forwarding to <paramref name="seekTo"/>.</summary>
+    public DemoPlayer Restart(uint seekTo, bool useCheckpoint = true)
     {
-        var next = new DemoPlayer(Path, Recording, seekTo)
+        var next = new DemoPlayer(Path, Recording, seekTo, useCheckpoint)
         {
             Mode = Mode,
             Look = Look,
@@ -253,7 +255,7 @@ public sealed class DemoPlayer : IDisposable
     /// <summary>Before a client tick: the packets of the next server tick may arrive.</summary>
     public void BeforeTick()
     {
-        _transport.ReleaseUpTo((uint)Math.Min(Recording.Index.FirstTick + _played, uint.MaxValue));
+        _transport.ReleaseUpTo((uint)Math.Min(_transport.StartTick + _played, uint.MaxValue));
         _played++;
     }
 

@@ -8,7 +8,7 @@ namespace OpenScct.Server.Online;
 
 public sealed partial class OnlineClient
 {
-    internal const long MaxPersonalDemoBytes = 64 * 1024 * 1024;
+    internal const long MaxPersonalDemoBytes = DemoFile.MaxPersonalDemoBytes;
     public const int HubDemoWaitSeconds = 300;
     private bool _recordDemos;
     private bool _demoCapability;

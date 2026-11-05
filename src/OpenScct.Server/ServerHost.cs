@@ -391,6 +391,7 @@ public sealed partial class ServerHost : INetworkNotify, IDisposable
             ProxySender?.Pass(World.Level);
             World.Level.GetService<PawnSoundReplication>()?.Flush(World.TickCount);
             Driver.TickFlush(nowMicros, replicate: true);
+            Recorder?.CaptureCheckpoint();
             Combat?.Pump();
             FlushCount++;
         }
@@ -482,15 +483,14 @@ public sealed partial class ServerHost : INetworkNotify, IDisposable
         }
 
         NetConnection connection = Driver.OpenRecorderConnection(writer, nowMicros);
-        var recorder = new DemoRecorder(this, writer, connection) { Game = game };
+        var recorder = new DemoRecorder(this, writer, connection) { Game = game, PlaybackPlayerId = _nextPlayerId++ };
         connection.UserData = recorder;
         Recorder = recorder;
 
         // The Hello a client would send, then its Join: Welcome, then a spectator controller.
         connection.SetOpen();
         connection.CurrentNetSpeed = Driver.Settings.MaxClientRate;
-        connection.ControlChannel?.Send(ControlMessage.Welcome(_nextPlayerId++, Map.Name, (uint)World.TickCount, NetRate,
-            Map.ContentHash, Map.FileListing, Driver.Settings.PawnProxies));
+        SendDemoWelcome(connection, recorder.PlaybackPlayerId);
 
         // A recorder never takes a spectator place from a player.
         game.MaxSpectators++;

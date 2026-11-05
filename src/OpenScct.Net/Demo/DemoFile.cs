@@ -70,6 +70,8 @@ public sealed class DemoIndex
     public RoundScoreboard? Scoreboard { get; set; }
     public int ViewFrames { get; set; }
     public long ViewCompressedBytes { get; set; }
+    public int CheckpointCount => Checkpoints.Count;
+    internal List<DemoCheckpointInfo> Checkpoints { get; } = new();
     public uint FirstTick { get; set; }
 
     public uint LastTick { get; set; }
@@ -97,11 +99,15 @@ public sealed record DemoReadLimits
     public int MaxPlayers { get; init; } = 4096;
     public int MaxMarkers { get; init; } = 250_000;
     public int MaxViewFrames { get; init; } = 1_000_000;
+    public int MaxCheckpoints { get; init; } = 256;
+    public int MaxCheckpointCompressedBytes { get; init; } = 16 * 1024 * 1024;
+    public int MaxCheckpointExpandedBytes { get; init; } = 4 * 1024 * 1024;
 
     internal void Validate()
     {
         if (MaxExpandedBytes <= 0 || MaxPackets <= 0 || MaxPacketBytes <= 0 || MaxIndexBytes <= 0 ||
-            MaxStringBytes <= 0 || MaxPlayers <= 0 || MaxMarkers <= 0 || MaxViewFrames <= 0)
+            MaxStringBytes <= 0 || MaxPlayers <= 0 || MaxMarkers <= 0 || MaxViewFrames <= 0 ||
+            MaxCheckpoints <= 0 || MaxCheckpointCompressedBytes <= 0 || MaxCheckpointExpandedBytes <= 0)
             throw new ArgumentOutOfRangeException(nameof(DemoReadLimits), "Demo read limits must be positive.");
     }
 }
@@ -111,18 +117,21 @@ public sealed record DemoReadLimits
 /// (tick delta, length, bytes) frames, then the index and a trailer (index length, end magic) so a reader finds
 /// the index from the end. Little endian, strings UTF-8 with a 7-bit length.
 /// </summary>
-public static class DemoFile
+public static partial class DemoFile
 {
     public const string Extension = ".scctdemo";
 
     /// <summary>Format version; readers refuse newer files.</summary>
-    public const ushort Version = 3;
+    public const ushort Version = 4;
+
+    /// <summary>The maximum size for transferring a personal demo through the lobby.</summary>
+    public const long MaxPersonalDemoBytes = 64 * 1024 * 1024;
 
     private const int MaxScoreboardBytes = 1024 * 1024;
 
     private static readonly byte[] Magic = "SCCTDEMO"u8.ToArray();
     private static readonly byte[] EndMagic = "SCCTDEND"u8.ToArray();
-    private const int TrailerBytes = 8 + 8;
+    internal const int TrailerBytes = 8 + 8;
 
     internal static void WriteHeader(BinaryWriter w, DemoHeader h)
     {
@@ -257,6 +266,8 @@ public static class DemoFile
             }
         }
 
+        if (version >= 4) ReadCheckpointIndex(r, index, limits);
+
         return index;
     }
 
@@ -299,8 +310,7 @@ public static class DemoFile
         (long indexStart, _) = FindIndex(file, r, bodyStart, limits);
         DemoIndex index = ReadBoundedIndex(file, indexStart, limits, header.FormatVersion);
         ValidateScoreboardIdentity(header, index);
-        if (index.ViewCompressedBytes > indexStart - bodyStart)
-            throw new InvalidDataException("The demo's recorded view stream is cut short.");
+        PacketBodyLength(index, indexStart - bodyStart);
         return (header, index);
     }
 
@@ -316,9 +326,7 @@ public static class DemoFile
         (long indexStart, long bodyLength) = FindIndex(file, r, bodyStart, limits);
         DemoIndex index = ReadBoundedIndex(file, indexStart, limits, header.FormatVersion);
         ValidateScoreboardIdentity(header, index);
-        if (index.ViewCompressedBytes > bodyLength)
-            throw new InvalidDataException("The demo's recorded view stream is cut short.");
-        bodyLength -= index.ViewCompressedBytes;
+        bodyLength = PacketBodyLength(index, bodyLength);
 
         file.Position = bodyStart;
         // Never reserve memory from index claims. Each frame has at most two five-byte unsigned varints.
@@ -348,6 +356,11 @@ public static class DemoFile
             if (brotli.ReadByte() != -1) throw new InvalidDataException("The demo's recorded view stream has excess frames.");
         }
         else if (index.ViewFrames != 0) throw new InvalidDataException("The demo's recorded view stream is missing.");
+        if (index.CheckpointCount > 0)
+        {
+            file.Position = bodyStart + bodyLength + index.ViewCompressedBytes;
+            recording.ReadCheckpoints(r, limits);
+        }
         return recording;
     }
 
@@ -522,12 +535,15 @@ public sealed partial class DemoWriter : IDemoSink, IDisposable
         _finished = true;
         _body.Dispose();
         FinishViews();
-        using var w = new BinaryWriter(_file, Encoding.UTF8, leaveOpen: true);
-        long start = _file.Position;
-        DemoFile.WriteIndex(w, Index);
-        w.Flush();
-        DemoFile.WriteTrailer(w, _file.Position - start);
-        w.Flush();
+        using var index = new MemoryStream();
+        using (var metadata = new BinaryWriter(index, Encoding.UTF8, leaveOpen: true))
+        {
+            DemoFile.WriteIndex(metadata, Index);
+            FinishCheckpoints(metadata);
+        }
+        _file.Write(index.GetBuffer(), 0, (int)index.Length);
+        using (var trailer = new BinaryWriter(_file, Encoding.UTF8, leaveOpen: true))
+            DemoFile.WriteTrailer(trailer, index.Length);
         _file.Flush(flushToDisk: true);
     }
 
@@ -555,6 +571,7 @@ public sealed partial class DemoWriter : IDemoSink, IDisposable
 
         _file.Dispose();
         DisposeViews();
+        _checkpointBytes.Clear();
     }
 }
 

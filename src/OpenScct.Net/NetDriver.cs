@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
 using OpenScct.Provenance;
@@ -525,6 +526,76 @@ public sealed class NetDriver : IDisposable
         return connection;
     }
 
+    /// <summary>
+    /// Writes a seek-only copy of the recorder's open channels at a flushed packet boundary. The ordinary recorder
+    /// keeps sending the original packet stream. After reading the bootstrap, playback restores its wire counters
+    /// from <paramref name="continuation"/> and consumes the original stream from the next packet.
+    /// </summary>
+    public bool TryWriteDemoCheckpoint(NetConnection source, IDemoSink sink, Action<NetConnection> writeWelcome,
+        Func<NetConnection, bool>? writeExtra, out byte[] continuation)
+    {
+        ArgumentNullException.ThrowIfNull(source);
+        ArgumentNullException.ThrowIfNull(sink);
+        ArgumentNullException.ThrowIfNull(writeWelcome);
+        ObjectDisposedException.ThrowIf(_disposed, this);
+        continuation = [];
+        if (!IsServer || !ReferenceEquals(source.Driver, this) || !source.IsRecorder ||
+            source.State != EConnectionState.USOCK_Open || source.Actor is null || !source.bJoined ||
+            source.HasPendingData || source.ReliableBunchesInFlight != 0 || source.FindActorChannel(source.Actor) is null)
+        {
+            return false;
+        }
+
+        foreach (ActorChannel channel in source.ActorChannelList)
+        {
+            if (!channel.CanWriteDemoCheckpoint) return false;
+        }
+
+        // The synthetic connection uses the existing recorder's spectator as an ownership anchor. It is never
+        // registered with the driver or the game, so it cannot occupy a slot, log out or affect live replication.
+        var checkpoint = new NetConnection(this, EndpointId.None, source.ConnectionId, Time, sink)
+        {
+            Actor = source.Actor,
+            bJoined = true,
+            CurrentNetSpeed = source.CurrentNetSpeed,
+        };
+        checkpoint.SetSalt(source.Salt);
+        checkpoint.SetOpen();
+        checkpoint.CreateChannel(EChannelType.CHTYPE_Control, openedLocally: false, chIndex: 0);
+
+        try
+        {
+            writeWelcome(checkpoint);
+            foreach (ActorChannel channel in source.ActorChannelList)
+            {
+                ActorChannel target = channel.CreateDemoCheckpointChannel(checkpoint);
+                if (!channel.WriteDemoCheckpoint(target, references: false)) return false;
+            }
+
+            // All of the actor opens must precede object references on the wire. Flushing also acknowledges
+            // them locally, making those references writable through the normal connection object map.
+            checkpoint.FlushNet(Time);
+            foreach (ActorChannel channel in source.ActorChannelList)
+            {
+                var target = (ActorChannel)checkpoint.Channels[channel.ChIndex]!;
+                if (!channel.WriteDemoCheckpoint(target, references: true)) return false;
+            }
+
+            // Dynamic actors can initialize against the complete object graph before restoring extra
+            // demo state such as movers' current phase or projectiles' remaining fuse.
+            checkpoint.ControlChannel!.Send(ControlMessage.TextLine(NetConnection.DemoBootstrapReady));
+            if (writeExtra?.Invoke(checkpoint) == false || checkpoint.State != EConnectionState.USOCK_Open) return false;
+            checkpoint.MarkFlushComplete();
+            checkpoint.FlushNet(Time, force: true);
+            continuation = source.WriteDemoContinuation();
+            return true;
+        }
+        finally
+        {
+            checkpoint.State = EConnectionState.USOCK_Closed;
+        }
+    }
+
     // ---- ticking -------------------------------------------------------------------------------------------
 
     /// <summary>Receives every waiting datagram and processes it.</summary>
@@ -534,8 +605,17 @@ public sealed class NetDriver : IDisposable
         ObjectDisposedException.ThrowIf(_disposed, this);
         Time = now;
         byte[] buffer = _receiveBuffer;
-        while (Transport.TryReceive(buffer, out EndpointId from, out int length))
+        var playback = Transport as DemoPlaybackTransport;
+        while (true)
         {
+            if (playback is not null &&
+                playback.TryTakeCheckpointContinuation(out ReadOnlyMemory<byte> continuation) &&
+                ServerConnection?.TryRestoreDemoContinuation(continuation.Span) != true)
+            {
+                throw new InvalidDataException("The demo's rewind checkpoint does not match its network stream.");
+            }
+
+            if (!Transport.TryReceive(buffer, out EndpointId from, out int length)) break;
             if (!_byEndpoint.TryGetValue(from, out NetConnection? connection))
             {
                 if (!IsServer || _connections.Count >= Settings.MaxConnections ||

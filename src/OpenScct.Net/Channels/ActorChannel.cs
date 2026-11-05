@@ -25,7 +25,7 @@ namespace OpenScct.Net;
 /// (not a bNetTemporary or torn-off one).
 /// </summary>
 [UcNative("UActorChannel::ReplicateActor", Exe = 0x109e1300, Editor = 0x11142700)]
-public sealed class ActorChannel : Channel
+public sealed partial class ActorChannel : Channel
 {
     internal enum ReplicateResult : byte
     {
@@ -244,7 +244,7 @@ public sealed class ActorChannel : Channel
         FBitWriter w = bunch.Writer;
         if (first)
         {
-            WriteSpawnInfo(w, actor, info, driver);
+            WriteSpawnInfo(w, actor, info, driver, actor.Location, actor.Rotation);
         }
 
         Array.Clear(_conditionMemo);
@@ -300,6 +300,7 @@ public sealed class ActorChannel : Channel
             if (!mapped)
             {
                 _mustStayDirty = true;
+                if (connection.IsRecorder) RememberUnmappedDemoProperty(i, w, mark);
             }
         }
 
@@ -321,6 +322,7 @@ public sealed class ActorChannel : Channel
             RepProperty p = props[i];
             if (_writtenMapped[n])
             {
+                _unmappedDemoProperties?.Remove(i);
                 Array.Copy(words, p.WordOffset, _recent, p.WordOffset, p.Words);
                 Array.Copy(objects, p.ObjectOffset, _recentObjects, p.ObjectOffset, p.Objects);
                 _dirty[i] = false;
@@ -336,6 +338,12 @@ public sealed class ActorChannel : Channel
 
             _retirement[i].PacketSeq = packetSeq;
             _retirement[i].Reliable = reliable;
+        }
+
+        if (first && connection.IsRecorder)
+        {
+            _demoSpawnLocation = actor.Location;
+            _demoSpawnRotation = actor.Rotation;
         }
 
         _sentInitial = true;
@@ -357,7 +365,7 @@ public sealed class ActorChannel : Channel
     }
 
     /// <summary>Rule 12: a map actor by its SVMap index, a dynamic actor by class, location and (when set) rotation.</summary>
-    private void WriteSpawnInfo(FBitWriter w, Actor actor, NetClassInfo info, NetDriver driver)
+    private void WriteSpawnInfo(FBitWriter w, Actor actor, NetClassInfo info, NetDriver driver, FVector location, FRotator rotation)
     {
         int mapIndex = (actor.bStatic || actor.bNoDelete) ? driver.MapBinding.IndexOf(actor) : -1;
         w.WriteBit(mapIndex >= 0);
@@ -371,14 +379,14 @@ public sealed class ActorChannel : Channel
 
         w.WriteIntPacked((uint)info.ClassIndex);
         w.WriteIntPacked(NetGuid);
-        w.WriteFloat(actor.Location.X);
-        w.WriteFloat(actor.Location.Y);
-        w.WriteFloat(actor.Location.Z);
-        bool rotation = !actor.Rotation.IsZero();
-        w.WriteBit(rotation);
-        if (rotation)
+        w.WriteFloat(location.X);
+        w.WriteFloat(location.Y);
+        w.WriteFloat(location.Z);
+        bool hasRotation = !rotation.IsZero();
+        w.WriteBit(hasRotation);
+        if (hasRotation)
         {
-            w.WriteCompressedRotator(actor.Rotation);
+            w.WriteCompressedRotator(rotation);
         }
     }
 
@@ -497,7 +505,7 @@ public sealed class ActorChannel : Channel
             return;
         }
 
-        if (spawned)
+        if (spawned && !Connection.TryDeferDemoPostNetBeginPlay(target))
         {
             target.eventPostNetBeginPlay();
         }

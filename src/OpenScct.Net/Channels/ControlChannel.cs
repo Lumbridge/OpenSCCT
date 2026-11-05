@@ -37,7 +37,8 @@ public sealed class ControlChannel : Channel
                 return;
             }
 
-            Connection.Driver.Notify.NotifyControlMessage(Connection, message);
+            if (!Connection.TryFinishDemoActorBootstrap(message))
+                Connection.Driver.Notify.NotifyControlMessage(Connection, message);
             if (Connection.State == EConnectionState.USOCK_Closed)
             {
                 return;
