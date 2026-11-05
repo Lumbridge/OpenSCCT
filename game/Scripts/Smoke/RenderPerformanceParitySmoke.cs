@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using Godot;
@@ -30,6 +31,9 @@ public sealed class RenderPerformanceParitySmoke : SmokeTest
     private int _lightChecks;
     private long _mapCandidates;
     private long _allMapCandidates;
+    private ActorUploadFixture? _actorUploads;
+    private string _uploadTiming = "";
+    private Color _unlitActorPixel;
     private static readonly int[] Counts = [9, 9, 17, 5, 0, 9];
     private static readonly int[] Visions = [RenderK.RendMapNormal, 36, 38];
 
@@ -47,13 +51,15 @@ public sealed class RenderPerformanceParitySmoke : SmokeTest
                     _views[i] = new SubViewport
                     {
                         Size = new Vector2I(320, 240), OwnWorld3D = true,
-                        RenderTargetUpdateMode = SubViewport.UpdateMode.Always,
+                        RenderTargetUpdateMode = SubViewport.UpdateMode.Always, UseDebanding = false,
                     };
                     context.Tree.Root.AddChild(_views[i]);
                     _views[i].AddChild(new Camera3D
                     {
                         Position = new Vector3(0, 0, 5), Projection = Camera3D.ProjectionType.Orthogonal,
-                        Size = 4, Current = true,
+                        // The default all-layer mask includes ShadowPass, which intentionally makes solid
+                        // world materials output black depth-only pixels instead of evaluating their lights.
+                        Size = 4, Current = true, CullMask = RenderLayers.MainView,
                         Environment = new Godot.Environment
                         {
                             BackgroundMode = Godot.Environment.BGMode.Color,
@@ -65,6 +71,8 @@ public sealed class RenderPerformanceParitySmoke : SmokeTest
                     _views[i].AddChild(_lineNodes[i]);
                     _views[i].AddChild(_quadNodes[i]);
                 }
+                _actorUploads = new ActorUploadFixture(_views);
+                _uploadTiming = _actorUploads.Measure();
                 Prepare(context.Frame);
                 return SmokeResult.Running;
             }
@@ -72,6 +80,9 @@ public sealed class RenderPerformanceParitySmoke : SmokeTest
             if (context.Frame <= _changedAt + 1) return SmokeResult.Running;
             using Image expected = _views[0].GetTexture().GetImage();
             using Image actual = _views[1].GetTexture().GetImage();
+            if (expected.IsEmpty() || actual.IsEmpty() || expected.GetSize() != new Vector2I(320, 240)
+                || actual.GetSize() != expected.GetSize())
+                throw new InvalidOperationException("empty or incorrectly sized render parity images");
             if (!expected.GetData().AsSpan().SequenceEqual(actual.GetData()))
             {
                 string output = Path.Combine(RenderSmokeArgs.RepoRoot, "local", "performance-overnight", "render-parity");
@@ -82,10 +93,20 @@ public sealed class RenderPerformanceParitySmoke : SmokeTest
                 return SmokeResult.Fail($"particle pixels differ at case {_case}; images in {output}");
             }
 
+            Color actorPixel = expected.GetPixel(160, 120);
+            if (actorPixel == expected.GetPixel(0, 0))
+                throw new InvalidOperationException("actor upload fixture did not render at its centre");
+            // The actor occupies the otherwise empty centre. With unchanged geometry and ambient, bringing
+            // lights back must change its normal-view pixels: equal blank/default shaders cannot pass.
+            int stage = _case % Counts.Length;
+            if (stage == 4) _unlitActorPixel = actorPixel;
+            if (stage == 5 && _case < Counts.Length * 7 && actorPixel == _unlitActorPixel)
+                throw new InvalidOperationException($"normal-view actor pixels did not respond to restored lights in case {_case}: {actorPixel}");
+
             if (++_case == Counts.Length * 7 * Visions.Length)
             {
                 Cleanup();
-                return SmokeResult.Pass($"{_lightChecks} exact actor-light comparisons, {_mapCandidates}/{_allMapCandidates} map candidates; {_case} exact particle image comparisons (all draw styles, normal/thermal/EMF, count growth/shrink/empty/reappear)");
+                return SmokeResult.Pass($"{_lightChecks} exact actor-light comparisons, {_mapCandidates}/{_allMapCandidates} map candidates; {_case} exact particle/actor-upload image comparisons (all draw styles, normal/thermal/EMF, count growth/shrink/empty/reappear, mesh/material replacement and node lifecycle); {_uploadTiming}");
             }
             Prepare(context.Frame);
             return SmokeResult.Running;
@@ -103,7 +124,8 @@ public sealed class RenderPerformanceParitySmoke : SmokeTest
         int style = _case / Counts.Length % 7;
         int vision = Visions[_case / (Counts.Length * 7)];
         int count = Counts[stage];
-        RenderingServer.GlobalShaderParameterSet("svm_vision", vision);
+        MaterialCompiler.SetVision(vision);
+        _actorUploads!.Prepare(stage, style);
         if (stage == 0)
         {
             var material = new ShaderMaterial { Shader = ParticleSystemView.ShaderFor(style, true, true, false) };
@@ -309,5 +331,169 @@ public sealed class RenderPerformanceParitySmoke : SmokeTest
     private void Cleanup()
     {
         foreach (SubViewport? view in _views) view?.QueueFree();
+    }
+}
+
+/// <summary>Unconditional pre-optimization uploads and retained uploads must draw identical actor-lit pixels.</summary>
+internal sealed class ActorUploadFixture
+{
+    private static readonly StringName Ambient = "svm_ambient";
+    private static readonly StringName Echelon = "svm_echelon_ignore";
+    private static readonly StringName[] Positions = [new("svm_l0_pos"), new("svm_l1_pos"), new("svm_l2_pos"), new("svm_l3_pos")];
+    private static readonly StringName[] Colours = [new("svm_l0_col"), new("svm_l1_col"), new("svm_l2_col"), new("svm_l3_col")];
+    private static readonly StringName[] Spots = [new("svm_l0_spot"), new("svm_l1_spot"), new("svm_l2_spot"), new("svm_l3_spot")];
+    private readonly SubViewport[] _views;
+    private readonly MeshInstance3D[] _nodes = new MeshInstance3D[2];
+    private readonly Material _material;
+
+    public ActorUploadFixture(SubViewport[] views)
+    {
+        _views = views;
+        var compiler = new MaterialCompiler(new MaterialsDoc(), new TextureCache(""));
+        _material = compiler.Build(new MaterialEntry { Name = "actor-upload-parity" }, LightSource.Actor);
+        using var image = Image.CreateEmpty(1, 1, false, Image.Format.Rgba8);
+        image.Fill(new Color(.35f, .55f, .7f));
+        ((ShaderMaterial)_material).SetShaderParameter("tex_diffuse", ImageTexture.CreateFromImage(image));
+        for (int i = 0; i < _nodes.Length; i++) Create(i);
+    }
+
+    private void Create(int index)
+    {
+        _nodes[index] = new MeshInstance3D
+        {
+            Position = new Vector3(0, 0, 1), Mesh = new SphereMesh { Radius = .3f, Height = .6f },
+            MaterialOverride = _material,
+        };
+        _views[index].AddChild(_nodes[index]);
+    }
+
+    public void Prepare(int stage, int style)
+    {
+        // Stage 1 repeats all lighting values while replacing other instance state. Engine-side overrides must
+        // survive replacement/reparenting; new nodes must receive the complete set regardless of old identities.
+        if (stage == 1)
+            for (int i = 0; i < _nodes.Length; i++)
+            {
+                if (style % 3 == 0)
+                {
+                    _nodes[i].Mesh = new BoxMesh { Size = new Vector3(.5f, .5f, .5f) };
+                    _nodes[i].MaterialOverride = (Material)_material.Duplicate();
+                }
+                else if (style % 3 == 1)
+                {
+                    var parent = new Node3D();
+                    _views[i].AddChild(parent);
+                    _nodes[i].Reparent(parent);
+                }
+                else
+                {
+                    _nodes[i].Free();
+                    Create(i);
+                }
+            }
+
+        ActorLightSet set = Set(stage == 1 ? 0 : stage, style);
+        for (int i = 0; i < _nodes.Length; i++)
+        {
+            // Check both the public writer and a direct metadata change, which Apply has always observed.
+            if (stage == 2) ActorLighting.SetEchelonIgnore(_nodes[i], style + 1);
+            if (stage == 3) _nodes[i].SetMeta(Echelon, (float)(style + 8));
+            if (stage == 4) ActorLighting.SetEchelonIgnore(_nodes[i], 0);
+            if (stage == 5)
+            {
+                ActorLighting.SetEchelonIgnore(_nodes[i], style + 16);
+                _nodes[i].RemoveMeta(Echelon);
+            }
+        }
+        Original(_nodes[0], set);
+        ActorLighting.Apply(_nodes[1], set);
+        CheckUniforms();
+        long writes = ActorLighting.UniformWrites;
+        ActorLighting.Apply(_nodes[1], set);
+        if (ActorLighting.UniformWrites != writes) throw new InvalidOperationException("unchanged actor lights were uploaded twice");
+
+        // The caller owns its mutable set. Retaining the object/array instead of copying values loses this edit.
+        if (stage == 5)
+        {
+            set.Lights[2] = set.Lights[2] with { Col = new Vector4(.31f, .12f, .05f, 2f) };
+            Original(_nodes[0], set);
+            ActorLighting.Apply(_nodes[1], set);
+            if (ActorLighting.UniformWrites != writes + 1) throw new InvalidOperationException("one changed light colour did not cause exactly one upload");
+            CheckUniforms();
+        }
+    }
+
+    private void CheckUniforms()
+    {
+        Check(Ambient);
+        for (int i = 0; i < 4; i++) { Check(Positions[i]); Check(Colours[i]); Check(Spots[i]); }
+        void Check(StringName name)
+        {
+            if (_nodes[0].GetInstanceShaderParameter(name).AsVector4() != _nodes[1].GetInstanceShaderParameter(name).AsVector4())
+                throw new InvalidOperationException("retained actor uniform differs: " + name);
+        }
+    }
+
+    private static ActorLightSet Set(int stage, int style)
+    {
+        var set = new ActorLightSet { Ambient = new Vector3(.1f + style * .02f, .14f, .18f), Count = stage switch { 2 => 3, 3 => 1, 4 => 0, _ => 4 } };
+        for (int i = 0; i < 4; i++)
+            set.Lights[i] = new PackedLight(new Vector4(-.8f + i * .5f, 1f, 3f, .2f + stage * .03f),
+                new Vector4(.12f + i * .03f, .1f, .07f + stage * .01f, 2f), new Vector4(0, 0, -1, i == 3 ? .7f : -2f));
+        return set;
+    }
+
+    // Preserve the original path for timing and differential checks, including metadata lookup and cleared slots.
+    private static void Original(GeometryInstance3D node, ActorLightSet set)
+    {
+        float code = node.HasMeta(Echelon) ? (float)node.GetMeta(Echelon) : 0f;
+        node.SetInstanceShaderParameter(Ambient, new Vector4(set.Ambient.X, set.Ambient.Y, set.Ambient.Z, code));
+        for (int i = 0; i < 4; i++)
+        {
+            PackedLight p = i < set.Count ? set.Lights[i] : default;
+            node.SetInstanceShaderParameter(Positions[i], p.Pos);
+            node.SetInstanceShaderParameter(Colours[i], p.Col);
+            node.SetInstanceShaderParameter(Spots[i], i < set.Count ? p.Spot : new Vector4(0, 0, 0, -2));
+        }
+    }
+
+    public string Measure()
+    {
+        const int iterations = 8192;
+        ActorLightSet set = Set(0, 0);
+        ActorLightSet first = set;
+        var alternate = new ActorLightSet { Ambient = new Vector3(.13f, .15f, .19f), Count = 4 };
+        for (int i = 0; i < 2048; i++) { Original(_nodes[0], set); ActorLighting.Apply(_nodes[1], set); }
+        long writes = ActorLighting.UniformWrites, allocated = GC.GetAllocatedBytesForCurrentThread();
+        long start = Stopwatch.GetTimestamp();
+        for (int i = 0; i < iterations; i++) ActorLighting.Apply(_nodes[1], set);
+        double retained = Stopwatch.GetElapsedTime(start).TotalMilliseconds;
+        allocated = GC.GetAllocatedBytesForCurrentThread() - allocated;
+        if (ActorLighting.UniformWrites != writes || allocated > 4096)
+            throw new InvalidOperationException($"steady actor uploads wrote {ActorLighting.UniformWrites - writes} uniforms and allocated {allocated} bytes");
+        start = Stopwatch.GetTimestamp();
+        for (int i = 0; i < iterations; i++) Original(_nodes[0], set);
+        double original = Stopwatch.GetElapsedTime(start).TotalMilliseconds;
+        // Worst changing case: ambient plus every light's position, colour and spot vector changes on every call.
+        for (int i = 0; i < 2048; i++) { Change(i); Original(_nodes[0], set); ActorLighting.Apply(_nodes[1], set); }
+        start = Stopwatch.GetTimestamp();
+        for (int i = 0; i < iterations; i++) { Change(i); Original(_nodes[0], set); }
+        double changingOriginal = Stopwatch.GetElapsedTime(start).TotalMilliseconds;
+        writes = ActorLighting.UniformWrites;
+        start = Stopwatch.GetTimestamp();
+        for (int i = 0; i < iterations; i++) { Change(i); ActorLighting.Apply(_nodes[1], set); }
+        double changingRetained = Stopwatch.GetElapsedTime(start).TotalMilliseconds;
+        if (ActorLighting.UniformWrites - writes != iterations * 13)
+            throw new InvalidOperationException("fully changing benchmark did not upload all thirteen uniforms per call");
+        CheckUniforms();
+        return $"{iterations} static uploads: {original:F2} -> {retained:F2} ms, {iterations * 13} -> 0 native writes, {allocated} allocated bytes; fully changing {changingOriginal:F2} -> {changingRetained:F2} ms";
+
+        void Change(int iteration)
+        {
+            set = (iteration & 1) == 0 ? first : alternate;
+            float t = iteration * .00001f;
+            for (int i = 0; i < 4; i++)
+                set.Lights[i] = new PackedLight(new Vector4(i + t, t, 3, 1), new Vector4(t, .2f, .3f, 2), new Vector4(t, 0, -1, -2));
+        }
     }
 }

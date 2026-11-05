@@ -7,6 +7,8 @@ Both processes opt out of Windows background execution-speed throttling. Vulkan 
 `-Driver d3d12` selects the other Windows backend without changing the player's configuration.
 Keep game data, derived images, camera records and raw frame CSVs in ignored `local/`.
 The [31 October results](RESULTS-2026-10-31.md) include the original comparison and remaining gaps.
+The [5 November hot-path results](RESULTS-2026-11-05.md) cover packet serialization, bot navigation allocations
+and actor-light uploads, with exact output checks and impaired-network validation.
 
 The original needs the existing RE+ automation tools and a complete, idle Play Level sandbox. The verified Reloaded
 Core build is checked by SHA-256, its loaded path and relocated cap-selector instructions before `--uncap` writes

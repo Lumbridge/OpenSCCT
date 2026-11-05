@@ -133,23 +133,19 @@ public sealed class FBitReader
     public uint ReadInt(uint valueMax)
     {
         ArgumentOutOfRangeException.ThrowIfZero(valueMax);
-        ulong value = 0;
-        for (ulong mask = 1; value + mask < valueMax && mask <= uint.MaxValue; mask <<= 1)
+        // A maximum of one consumes no bits, even on an already-failed reader.
+        if (valueMax == 1) return 0;
+        int bits = System.Numerics.BitOperations.Log2(valueMax);
+        uint value = (uint)ReadBits(bits);
+        if (IsError) return 0;
+        uint top = 1u << bits;
+        if (value + top < valueMax)
         {
-            if (!Take(1))
-            {
-                return 0;
-            }
-
-            if ((_buffer[_pos >> 3] & (1 << (_pos & 7))) != 0)
-            {
-                value |= mask;
-            }
-
-            _pos++;
+            if (ReadBit()) value |= top;
+            if (IsError) return 0;
         }
 
-        return (uint)value;
+        return value;
     }
 
     public byte ReadByte() => (byte)ReadBits(8);

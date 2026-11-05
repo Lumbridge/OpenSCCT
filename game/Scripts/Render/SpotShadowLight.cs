@@ -150,8 +150,10 @@ public sealed partial class SpotShadowLight : IDisposable
     private static bool s_staticAtlasPending;
     private static bool s_atlasPending;
 
-    // The cookies in the template's texture array: layer 0 is white (no cookie).
-    private static readonly List<Texture2D> s_cookies = [];
+    // Retain CPU copies: rebuilding the array must not read earlier cookies back from the GPU during map loading.
+    // Sources belong to their map/pack; only the normalized copies are owned here. Layer 0 is white (no cookie).
+    private static readonly Dictionary<Image, int> s_cookieLayers = new(ReferenceEqualityComparer.Instance);
+    private static readonly List<Image> s_cookies = [];
 
     private readonly SubViewport _viewport;
     private readonly Camera3D _camera;
@@ -176,8 +178,9 @@ public sealed partial class SpotShadowLight : IDisposable
     /// <param name="parent">Node the light's shadow viewport goes under.</param>
     /// <param name="pack">The render pack (attenuation ramps; the cookie when <paramref name="cookie"/> is null).</param>
     /// <param name="shape">The light.</param>
-    /// <param name="cookie">The projected texture, else the pack's <see cref="SpotShadowShape.Cookie"/> (none: white).</param>
-    public SpotShadowLight(Node parent, RenderPack? pack, SpotShadowShape shape, Texture2D? cookie = null, bool cacheStatic = false)
+    /// <param name="cookie">The projected texture's CPU image, else the pack's <see cref="SpotShadowShape.Cookie"/>
+    /// (none: white). The source is retained without changing or disposing it.</param>
+    public SpotShadowLight(Node parent, RenderPack? pack, SpotShadowShape shape, Image? cookie = null, bool cacheStatic = false)
     {
         ArgumentNullException.ThrowIfNull(parent);
         ArgumentNullException.ThrowIfNull(shape);
@@ -234,8 +237,9 @@ public sealed partial class SpotShadowLight : IDisposable
         }
         else
         {
-            _camera.Projection = Camera3D.ProjectionType.Perspective;
-            _camera.Fov = Mathf.RadToDeg(2f * MathF.Atan(shape.SpotHeight / (_apex + shape.Range)));
+            // Set the near-plane height directly: valid Echelon frusta can exceed Camera3D.Fov's 1..179 degree
+            // range (MuseE's Light15 is wider than 179). This keeps the shadow and cookie projection identical.
+            _camera.SetFrustum(2f * UeSpace.LengthToGodot(shape.SpotHeight) * near / far, Vector2.Zero, near, far);
         }
 
         if (cacheStatic)
@@ -249,7 +253,7 @@ public sealed partial class SpotShadowLight : IDisposable
             _staticCamera = new Camera3D
             {
                 Name = "StaticLightCamera", KeepAspect = _camera.KeepAspect, Near = near, Far = far,
-                Projection = _camera.Projection, Fov = _camera.Fov, Size = _camera.Size,
+                Projection = _camera.Projection, Size = _camera.Size,
                 CullMask = RenderLayers.StaticWorld | RenderLayers.ShadowPass,
                 Environment = FaithfulView.CreateEnvironment(), Attributes = FaithfulView.CreateAttributes(),
                 Compositor = new Compositor { CompositorEffects = new Godot.Collections.Array<CompositorEffect> { _staticCapture } },
@@ -263,7 +267,7 @@ public sealed partial class SpotShadowLight : IDisposable
 
         _viewport.AddChild(_camera);
         parent.AddChild(_viewport);
-        cookie ??= string.IsNullOrEmpty(shape.Cookie) ? null : pack?.Texture(shape.Cookie);
+        cookie ??= string.IsNullOrEmpty(shape.Cookie) ? null : pack?.Image(shape.Cookie);
         _cookieLayer = CookieLayer(cookie);
         _colour = Colour(shape) * RenderK.SpotShadowGain;
     }
@@ -587,20 +591,31 @@ public sealed partial class SpotShadowLight : IDisposable
     }
 
     /// <summary>The cookie's layer in the template's texture array (0, white, without one); a new cookie rebuilds the array.</summary>
-    private static int CookieLayer(Texture2D? cookie)
+    private static int CookieLayer(Image? cookie)
     {
         if (cookie is null)
         {
             return 0;
         }
 
-        int i = s_cookies.IndexOf(cookie);
-        if (i >= 0)
+        if (s_cookieLayers.TryGetValue(cookie, out int layer))
         {
-            return i + 1;
+            return layer;
         }
 
-        s_cookies.Add(cookie);
+        if (cookie.IsEmpty()) return 0;
+        var image = (Image)cookie.Duplicate();
+        if (image.IsCompressed() && image.Decompress() != Error.Ok)
+        {
+            image.Dispose();
+            return 0;
+        }
+
+        image.ClearMipmaps();
+        image.Convert(Image.Format.Rgba8);
+        image.Resize(RenderK.SpotCookieSize, RenderK.SpotCookieSize, Image.Interpolation.Bilinear);
+        s_cookies.Add(image);
+        s_cookieLayers.Add(cookie, s_cookies.Count);
         RenderingServer.GlobalShaderParameterSet(s_cookiesName, Cookies());
         return s_cookies.Count;
     }
@@ -610,27 +625,12 @@ public sealed partial class SpotShadowLight : IDisposable
     {
         int size = RenderK.SpotCookieSize;
         var images = new Godot.Collections.Array<Image>();
-        Image white = Image.CreateEmpty(size, size, false, Image.Format.Rgba8);
+        using Image white = Image.CreateEmpty(size, size, false, Image.Format.Rgba8);
         white.Fill(new Color(1f, 1f, 1f, 1f));
         images.Add(white);
-        foreach (Texture2D t in s_cookies)
+        foreach (Image image in s_cookies)
         {
-            Image? img = t.GetImage();
-            if (img is null || img.IsEmpty())
-            {
-                images.Add(white);
-                continue;
-            }
-
-            if (img.IsCompressed())
-            {
-                img.Decompress();
-            }
-
-            img.ClearMipmaps();
-            img.Convert(Image.Format.Rgba8);
-            img.Resize(size, size, Image.Interpolation.Bilinear);
-            images.Add(img);
+            images.Add(image);
         }
 
         var array = new Texture2DArray();
@@ -736,6 +736,8 @@ public sealed partial class SpotShadowLight : IDisposable
         }
 
         s_atlasTexture.TextureRdRid = default;
+        s_cookieLayers.Clear();
+        foreach (Image image in s_cookies) image.Dispose();
         s_cookies.Clear();
         RenderingServer.GlobalShaderParameterSet(s_cookiesName, Cookies());
         Rid atlas = s_atlas;

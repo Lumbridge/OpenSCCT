@@ -21,6 +21,7 @@ public abstract class AiBrain
     private float _nextDecision;
     private float _failedAt = -10f;
     private readonly List<int> _scratchNodes = new();
+    private float[]? _reachabilityCosts;
 
     protected AiBrain(AiController bot)
     {
@@ -291,6 +292,19 @@ public abstract class AiBrain
     }
 
     private readonly List<(FVector, float)> _danger = new();
+
+    /// <summary>
+    /// Fresh reachability from one node, using this bot's scratch storage. Consume before this bot's next call;
+    /// other bots and A* path planning do not overwrite it. Blocked links/edges are reread for every decision.
+    /// </summary>
+    protected float[] ReachabilityCosts(int from)
+    {
+        NavGraph graph = Follower.Graph;
+        if (_reachabilityCosts is null || _reachabilityCosts.Length != graph.NodeCount)
+            _reachabilityCosts = new float[graph.NodeCount];
+        graph.CostsFrom(from, _reachabilityCosts.AsSpan(), badLinks: World.BadLinks(Spy), badEdges: World.BadEdges(Spy));
+        return _reachabilityCosts;
+    }
 
     /// <summary>Nodes of the side's graph within <paramref name="radius"/> of the pawn (sorted by index).</summary>
     protected List<int> NodesAround(FVector center, float radius)

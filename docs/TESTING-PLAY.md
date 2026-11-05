@@ -243,6 +243,14 @@ he backs into the wall where the sandbox merc did (35 uu behind his eye) and a r
 go off, as they do in the original (spec/equipment/grenade-throw.md, Resolved). Sandbox captures for comparison:
 `local/lasers/capture.py --side spy|merc|wall`.
 
+## Spotlight cookies and map re-entry
+
+`--svm-smoke=spot-shadow-cookies` uses synthetic PNGs to check CPU image caching, shared cookie layers, missing-cookie
+fallback and complete spotlight teardown followed by re-entry. Source dimensions, pixels, format and mipmaps must
+remain unchanged. Actual camera projection matrices cover narrow, ordinary, very wide and parallel light frusta.
+With `tools/ci/godot-smoke.ps1 -Tests spot-shadow-cookies -Windowed`, a shader also samples the global cookie array
+and checks its layer count and colours. Headless runs omit that GPU check. No converted map content is needed.
+
 ## Leaving a session and quitting (play-exit smoke)
 
 `--svm-smoke=play-exit` plays two sessions in one process (`SVM_EXIT_SESSIONS` for more), each left the way the
