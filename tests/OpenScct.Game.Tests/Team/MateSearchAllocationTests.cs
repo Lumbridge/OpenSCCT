@@ -27,29 +27,32 @@ public sealed class MateSearchAllocationTests
     [Fact]
     public void TheMateEntriesAllocateNothingAfterWarmUp()
     {
-        (TestPC pc, _) = Pair();
-        SInteractionManager menu = pc.IManager!;
-        var backpack = (SBackPackInteraction)menu.Interactions[0]!;
-        var heal = (SHealMateInteraction)menu.Interactions[2]!;
-
-        bool expectedHeal = heal.CanUse(pc);
-        bool expectedBackpack = backpack.CanUse(pc);
-        _ = menu.HasUsableInteractions();
-        Assert.True(expectedHeal);
-
-        long before = GC.GetAllocatedBytesForCurrentThread();
-        int wrong = 0;
-        for (int i = 0; i < 1000; i++)
+        OpenScct.Testing.AllocationProbe.Run(() =>
         {
-            // Plain comparisons: the assertions box their arguments.
-            wrong += heal.CanUse(pc) == expectedHeal ? 0 : 1;
-            wrong += backpack.CanUse(pc) == expectedBackpack ? 0 : 1;
-            _ = menu.HasUsableInteractions();
-        }
+            (TestPC pc, _) = Pair();
+            SInteractionManager menu = pc.IManager!;
+            var backpack = (SBackPackInteraction)menu.Interactions[0]!;
+            var heal = (SHealMateInteraction)menu.Interactions[2]!;
 
-        long allocated = GC.GetAllocatedBytesForCurrentThread() - before;
-        Assert.Equal(0, wrong);
-        Assert.Equal(0, allocated);
+            bool expectedHeal = heal.CanUse(pc);
+            bool expectedBackpack = backpack.CanUse(pc);
+            _ = menu.HasUsableInteractions();
+            Assert.True(expectedHeal);
+
+            long before = GC.GetAllocatedBytesForCurrentThread();
+            int wrong = 0;
+            for (int i = 0; i < 1000; i++)
+            {
+                // Plain comparisons: the assertions box their arguments.
+                wrong += heal.CanUse(pc) == expectedHeal ? 0 : 1;
+                wrong += backpack.CanUse(pc) == expectedBackpack ? 0 : 1;
+                _ = menu.HasUsableInteractions();
+            }
+
+            long allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+            Assert.Equal(0, wrong);
+            Assert.Equal(0, allocated);
+        });
     }
 
     [Fact]

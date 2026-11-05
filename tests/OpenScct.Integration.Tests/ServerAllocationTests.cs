@@ -20,27 +20,30 @@ public sealed class ServerAllocationTests
     [InlineData("C")]
     public void ServerTickDoesNotAllocateAfterWarmUp(string? profileName)
     {
-        SimLinkProfile? profile = profileName is null ? null : SimLinkProfile.Get(profileName);
-        using WalkerRig rig = WalkerRig.Create(profile, 9UL, 4);
-        rig.WaitForAllWalkers(4, input: WalkPatterns.For);
-
-        // Warm up: every buffer and pool reaches its working size, every path is compiled.
-        for (int i = 0; i < 600; i++)
+        OpenScct.Testing.AllocationProbe.Run(() =>
         {
-            rig.Step(WalkPatterns.For);
-        }
+            SimLinkProfile? profile = profileName is null ? null : SimLinkProfile.Get(profileName);
+            using WalkerRig rig = WalkerRig.Create(profile, 9UL, 4);
+            rig.WaitForAllWalkers(4, input: WalkPatterns.For);
 
-        long allocated = 0;
-        const int ticks = 600;
-        for (int i = 0; i < ticks; i++)
-        {
-            long before = GC.GetAllocatedBytesForCurrentThread();
-            rig.TickServerOnly();
-            allocated += GC.GetAllocatedBytesForCurrentThread() - before;
-            rig.TickClients(WalkPatterns.For);
-        }
+            // Warm up: every buffer and pool reaches its working size, every path is compiled.
+            for (int i = 0; i < 600; i++)
+            {
+                rig.Step(WalkPatterns.For);
+            }
 
-        _output.WriteLine($"{profileName ?? "loopback"}: {allocated} bytes allocated over {ticks} server ticks");
-        Assert.Equal(0, allocated);
+            long allocated = 0;
+            const int ticks = 600;
+            for (int i = 0; i < ticks; i++)
+            {
+                long before = GC.GetAllocatedBytesForCurrentThread();
+                rig.TickServerOnly();
+                allocated += GC.GetAllocatedBytesForCurrentThread() - before;
+                rig.TickClients(WalkPatterns.For);
+            }
+
+            _output.WriteLine($"{profileName ?? "loopback"}: {allocated} bytes allocated over {ticks} server ticks");
+            Assert.Equal(0, allocated);
+        });
     }
 }

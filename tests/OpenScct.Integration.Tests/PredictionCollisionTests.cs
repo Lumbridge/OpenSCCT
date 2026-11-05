@@ -60,76 +60,83 @@ public sealed class PredictionCollisionTests
     [Fact]
     public void ReplayUsesTheObservedPawnCylindersAndRestoresTheirLivePoseWithoutBumpEffects()
     {
-        PawnRig rig = PawnRig.Create(PawnTeam.Spy, Floor().Build());
-        rig.Place(new FVector(0, 0, 89.005f), default, default, false);
-        var other = rig.Level.SpawnActor(new BlockingPawn
+        OpenScct.Testing.AllocationProbe.Run(() =>
         {
-            Physics = EPhysics.PHYS_None, CollisionRadius = 35, CollisionHeight = 87.5f,
-            bCollideActors = true, bBlockActors = true, bBlockPlayers = true,
-        }, new FVector(85, 0, 89), default)!;
-        rig.Collision!.NotifyCollisionChanged();
-        var moves = new SBasePawnMoves(rig.Controller) { ModernCommands = true };
-        FVector start = rig.Pawn.Location;
-        rig.Pawn.GroundSpeed = 423.5f;
-        rig.Controller.SetTimer(4f, true); rig.Pawn.SetTimer(2f, false);
-        moves.CapturePrediction(0);
-        var acceleration = new FVector(2048, 0, 0);
-        for (int i = 1; i <= 16; i++)
-        {
-            using var time = rig.Level.CommandTime(i, i * Sim.DeltaTime, Sim.DeltaTime);
-            if (i == 9) other.Location = new FVector(100, 600, 89);
-            if (i == 12) rig.Pawn.GroundSpeed = 169.4f;
-            rig.Controller.TimerCounter = i * Sim.DeltaTime;
-            rig.Pawn.TimerCounter = i * Sim.DeltaTime * 0.5f;
-            rig.Controller.LatentFloat = i;
-            rig.Pawn.LatentFloat = i * 2;
-            moves.MoveAutonomous(Sim.DeltaTime, acceleration, false);
-            rig.Pawn.AdvancePredictionAnimation(Sim.DeltaTime);
-            rig.Pawn.UpdateMovementAnimation(Sim.DeltaTime);
-            moves.CapturePrediction(i);
-        }
-        FVector expected = rig.Pawn.Location;
-        float expectedMoveTimer = rig.Controller.MoveTimer;
-        Assert.True(other.Bumps > 0);
-        int bumps = other.Bumps;
-        // This newly received pose would block the old inputs if replay queried the live collision world.
-        FVector live = other.Location = new FVector(80, 0, 89);
-        other.CollisionRadius = 50; other.CollisionHeight = 50;
-        rig.Pawn.Location += new FVector(0, 12, 0);
-        FVector before = rig.Pawn.Location;
-        moves.BeginPredictionReplay();
-        try
-        {
-            moves.RestorePrediction(0, start, default, EPhysics.PHYS_Walking, rig.Level.Info, 0);
-            for (int i = 1; i <= 16; i++) moves.ReplayPrediction(i, Sim.DeltaTime, acceleration, false);
-            Assert.InRange((expected - rig.Pawn.Location).Size(), 0, 0.02f);
-            Assert.Equal(expectedMoveTimer, rig.Controller.MoveTimer, 4);
-            Assert.Equal(16 * Sim.DeltaTime, rig.Controller.TimerCounter);
-            Assert.Equal(8 * Sim.DeltaTime, rig.Pawn.TimerCounter);
-            Assert.Equal(4f, rig.Controller.TimerRate); Assert.True(rig.Controller.bTimerLoop);
-            Assert.Equal(2f, rig.Pawn.TimerRate); Assert.False(rig.Pawn.bTimerLoop);
-            Assert.Equal(16, rig.Controller.LatentFloat); Assert.Equal(32, rig.Pawn.LatentFloat);
-        }
-        finally { moves.EndPredictionReplay(before); }
-        Assert.Equal(live, other.Location);
-        Assert.Equal(50, other.CollisionRadius);
-        Assert.Equal(50, other.CollisionHeight);
-        Assert.Equal(bumps, other.Bumps);
-        Assert.False(rig.World.IsReplaying);
-        void Replay()
-        {
+            PawnRig rig = PawnRig.Create(PawnTeam.Spy, Floor().Build());
+            rig.Place(new FVector(0, 0, 89.005f), default, default, false);
+            var other = rig.Level.SpawnActor(new BlockingPawn
+            {
+                Physics = EPhysics.PHYS_None,
+                CollisionRadius = 35,
+                CollisionHeight = 87.5f,
+                bCollideActors = true,
+                bBlockActors = true,
+                bBlockPlayers = true,
+            }, new FVector(85, 0, 89), default)!;
+            rig.Collision!.NotifyCollisionChanged();
+            var moves = new SBasePawnMoves(rig.Controller) { ModernCommands = true };
+            FVector start = rig.Pawn.Location;
+            rig.Pawn.GroundSpeed = 423.5f;
+            rig.Controller.SetTimer(4f, true); rig.Pawn.SetTimer(2f, false);
+            moves.CapturePrediction(0);
+            var acceleration = new FVector(2048, 0, 0);
+            for (int i = 1; i <= 16; i++)
+            {
+                using var time = rig.Level.CommandTime(i, i * Sim.DeltaTime, Sim.DeltaTime);
+                if (i == 9) other.Location = new FVector(100, 600, 89);
+                if (i == 12) rig.Pawn.GroundSpeed = 169.4f;
+                rig.Controller.TimerCounter = i * Sim.DeltaTime;
+                rig.Pawn.TimerCounter = i * Sim.DeltaTime * 0.5f;
+                rig.Controller.LatentFloat = i;
+                rig.Pawn.LatentFloat = i * 2;
+                moves.MoveAutonomous(Sim.DeltaTime, acceleration, false);
+                rig.Pawn.AdvancePredictionAnimation(Sim.DeltaTime);
+                rig.Pawn.UpdateMovementAnimation(Sim.DeltaTime);
+                moves.CapturePrediction(i);
+            }
+            FVector expected = rig.Pawn.Location;
+            float expectedMoveTimer = rig.Controller.MoveTimer;
+            Assert.True(other.Bumps > 0);
+            int bumps = other.Bumps;
+            // This newly received pose would block the old inputs if replay queried the live collision world.
+            FVector live = other.Location = new FVector(80, 0, 89);
+            other.CollisionRadius = 50; other.CollisionHeight = 50;
+            rig.Pawn.Location += new FVector(0, 12, 0);
+            FVector before = rig.Pawn.Location;
             moves.BeginPredictionReplay();
             try
             {
                 moves.RestorePrediction(0, start, default, EPhysics.PHYS_Walking, rig.Level.Info, 0);
                 for (int i = 1; i <= 16; i++) moves.ReplayPrediction(i, Sim.DeltaTime, acceleration, false);
+                Assert.InRange((expected - rig.Pawn.Location).Size(), 0, 0.02f);
+                Assert.Equal(expectedMoveTimer, rig.Controller.MoveTimer, 4);
+                Assert.Equal(16 * Sim.DeltaTime, rig.Controller.TimerCounter);
+                Assert.Equal(8 * Sim.DeltaTime, rig.Pawn.TimerCounter);
+                Assert.Equal(4f, rig.Controller.TimerRate); Assert.True(rig.Controller.bTimerLoop);
+                Assert.Equal(2f, rig.Pawn.TimerRate); Assert.False(rig.Pawn.bTimerLoop);
+                Assert.Equal(16, rig.Controller.LatentFloat); Assert.Equal(32, rig.Pawn.LatentFloat);
             }
-            finally { moves.EndPredictionReplay(expected); }
-        }
-        for (int i = 0; i < 60; i++) Replay();
-        long allocated = System.GC.GetAllocatedBytesForCurrentThread();
-        for (int i = 0; i < 60; i++) Replay();
-        Assert.Equal(0, System.GC.GetAllocatedBytesForCurrentThread() - allocated);
+            finally { moves.EndPredictionReplay(before); }
+            Assert.Equal(live, other.Location);
+            Assert.Equal(50, other.CollisionRadius);
+            Assert.Equal(50, other.CollisionHeight);
+            Assert.Equal(bumps, other.Bumps);
+            Assert.False(rig.World.IsReplaying);
+            void Replay()
+            {
+                moves.BeginPredictionReplay();
+                try
+                {
+                    moves.RestorePrediction(0, start, default, EPhysics.PHYS_Walking, rig.Level.Info, 0);
+                    for (int i = 1; i <= 16; i++) moves.ReplayPrediction(i, Sim.DeltaTime, acceleration, false);
+                }
+                finally { moves.EndPredictionReplay(expected); }
+            }
+            for (int i = 0; i < 60; i++) Replay();
+            long allocated = System.GC.GetAllocatedBytesForCurrentThread();
+            for (int i = 0; i < 60; i++) Replay();
+            Assert.Equal(0, System.GC.GetAllocatedBytesForCurrentThread() - allocated);
+        });
     }
 
     [Fact]

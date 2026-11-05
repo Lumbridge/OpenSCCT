@@ -1,12 +1,10 @@
 <Project>
   <PropertyGroup>
     <IsPackable>false</IsPackable>
-    <!-- Allocation contracts measure application code, not tiered PGO instrumentation warmup.
-         Compile test hosts directly to optimized code; the shipped game keeps its normal runtime settings. -->
-    <TieredCompilation>false</TieredCompilation>
     <OutputType>Exe</OutputType>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(RepoRoot)build/AllocationProbe.cs" Link="AllocationProbe.cs" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
     <PackageReference Include="xunit.v3" />
     <PackageReference Include="xunit.runner.visualstudio" PrivateAssets="all" />

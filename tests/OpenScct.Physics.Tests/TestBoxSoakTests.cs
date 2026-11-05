@@ -154,60 +154,63 @@ public sealed class TestBoxSoakTests
     [Fact]
     public void SteadyStateTicksDoNotAllocate()
     {
-        // A repeating pattern: pawns pace into walls and each other, through a trigger, and onto a lift that goes
-        // up and down. After one period every list has grown to size, so later periods must not allocate.
-        CollisionDataBuilder b = Floor();
-        b.AddBox(V(-600f, 300f, 0f), V(600f, 400f, 300f));
-        b.AddBoxHullCollider(ColliderKind.Mover, "Lift", CollisionDataBuilder.WorldFlags, V(-100f, -100f, -20f), V(100f, 100f, 0f),
-            V(-400f, -300f, 20f));
-        TestMover? lift = null;
-        Scene s = Scene.Create(b.Build(), level =>
+        OpenScct.Testing.AllocationProbe.Run(() =>
         {
-            lift = level.SpawnActor(new TestMover(), V(-400f, -300f, 20f), default)!;
-            lift.BasePos = lift.Location;
-            lift.KeyPos[1] = V(0f, 0f, 150f);
-            return new Dictionary<string, Actor> { ["Lift"] = lift };
-        });
-        s.Level.SpawnActor(new TestTrigger(), V(0f, 0f, 64f), default);
-        var pawns = new List<TestPawn>();
-        for (int i = 0; i < 6; i++)
-        {
-            pawns.Add(s.SpawnPawn(V(-300f + 120f * i, 0f, StandZ() + 1f)));
-        }
-
-        TestPawn rider = s.SpawnPawn(V(-400f, -300f, StandZ(20f) + 1f));
-        void Drive(int ticks)
-        {
-            for (int t = 0; t < ticks; t++)
+            // A repeating pattern: pawns pace into walls and each other, through a trigger, and onto a lift that goes
+            // up and down. After one period every list has grown to size, so later periods must not allocate.
+            CollisionDataBuilder b = Floor();
+            b.AddBox(V(-600f, 300f, 0f), V(600f, 400f, 300f));
+            b.AddBoxHullCollider(ColliderKind.Mover, "Lift", CollisionDataBuilder.WorldFlags, V(-100f, -100f, -20f), V(100f, 100f, 0f),
+                V(-400f, -300f, 20f));
+            TestMover? lift = null;
+            Scene s = Scene.Create(b.Build(), level =>
             {
-                int phase = (int)(s.Level.TickCount % 240);
-                if (phase == 0)
-                {
-                    lift!.InterpolateTo(1, 1f);
-                }
-                else if (phase == 120)
-                {
-                    lift!.InterpolateTo(0, 1f);
-                }
-
-                if (phase % 60 == 0)
-                {
-                    float dir = phase % 120 == 0 ? 1f : -1f;
-                    for (int i = 0; i < pawns.Count; i++)
-                    {
-                        pawns[i].Acceleration = V(i % 2 == 0 ? 3000f * dir : 0f, 3000f * dir, 0f);
-                    }
-                }
-
-                s.Step(1);
+                lift = level.SpawnActor(new TestMover(), V(-400f, -300f, 20f), default)!;
+                lift.BasePos = lift.Location;
+                lift.KeyPos[1] = V(0f, 0f, 150f);
+                return new Dictionary<string, Actor> { ["Lift"] = lift };
+            });
+            s.Level.SpawnActor(new TestTrigger(), V(0f, 0f, 64f), default);
+            var pawns = new List<TestPawn>();
+            for (int i = 0; i < 6; i++)
+            {
+                pawns.Add(s.SpawnPawn(V(-300f + 120f * i, 0f, StandZ() + 1f)));
             }
-        }
 
-        Drive(480);
-        long before = GC.GetAllocatedBytesForCurrentThread();
-        Drive(960);
-        long allocated = GC.GetAllocatedBytesForCurrentThread() - before;
-        Assert.Equal(0, allocated);
-        Assert.Same(lift, rider.Base);
+            TestPawn rider = s.SpawnPawn(V(-400f, -300f, StandZ(20f) + 1f));
+            void Drive(int ticks)
+            {
+                for (int t = 0; t < ticks; t++)
+                {
+                    int phase = (int)(s.Level.TickCount % 240);
+                    if (phase == 0)
+                    {
+                        lift!.InterpolateTo(1, 1f);
+                    }
+                    else if (phase == 120)
+                    {
+                        lift!.InterpolateTo(0, 1f);
+                    }
+
+                    if (phase % 60 == 0)
+                    {
+                        float dir = phase % 120 == 0 ? 1f : -1f;
+                        for (int i = 0; i < pawns.Count; i++)
+                        {
+                            pawns[i].Acceleration = V(i % 2 == 0 ? 3000f * dir : 0f, 3000f * dir, 0f);
+                        }
+                    }
+
+                    s.Step(1);
+                }
+            }
+
+            Drive(480);
+            long before = GC.GetAllocatedBytesForCurrentThread();
+            Drive(960);
+            long allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+            Assert.Equal(0, allocated);
+            Assert.Same(lift, rider.Base);
+        });
     }
 }

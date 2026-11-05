@@ -261,46 +261,49 @@ public sealed class MoreRuleTests
     [Fact]
     public void TraversalTicksDoNotAllocate()
     {
-        GERecord ledge = GE(0, GEKind.LG, V(-400f, 0f, 224f), V(400f, 0f, 224f));
-        GERecord pipe = GE(1, GEKind.PIPE, V(1000f, 0f, 0f), V(1000f, 0f, 3000f), V(1000f, -10f, 0f));
-        Scene s = Make(b => b.AddBox(V(-500f, 0f, 0f), V(500f, 200f, 224f)), ledge, pipe);
-        TestSBasePawn hanger = s.SpawnSpy(V(0f, -39f, 107f), EPhysics.PHYS_Ledge, rotation: FacingY);
-        hanger.ZipP1 = ledge.P0;
-        hanger.ZipP2 = ledge.P1;
-        hanger.m_CurrentArmsZone = hanger.m_LedgeGrabArmsZone;
-        hanger.m_CurrentArmsRadius = hanger.m_LedgeGrabArmsRadius;
-        TestSBasePawn climber = s.SpawnSpy(V(1000f, -37f, 300f), EPhysics.PHYS_OnPipe, rotation: FacingY);
-        climber.ZipP1 = pipe.P0;
-        climber.ZipP2 = pipe.P1;
-        climber.NewZipP1 = pipe.P0;
-        climber.NewZipP2 = pipe.P1;
-        climber.m_geoNormal = V(0f, -1f, 0f);
-        climber.m_CurrentArmsRadius = 25.4f;
-        TestSBasePawn jumper = s.SpawnSpy(V(-1500f, 0f, StandZ() + 1f), EPhysics.PHYS_Falling);
-        s.Settle(jumper);
-
-        void Drive(int ticks)
+        OpenScct.Testing.AllocationProbe.Run(() =>
         {
-            for (int t = 0; t < ticks; t++)
+            GERecord ledge = GE(0, GEKind.LG, V(-400f, 0f, 224f), V(400f, 0f, 224f));
+            GERecord pipe = GE(1, GEKind.PIPE, V(1000f, 0f, 0f), V(1000f, 0f, 3000f), V(1000f, -10f, 0f));
+            Scene s = Make(b => b.AddBox(V(-500f, 0f, 0f), V(500f, 200f, 224f)), ledge, pipe);
+            TestSBasePawn hanger = s.SpawnSpy(V(0f, -39f, 107f), EPhysics.PHYS_Ledge, rotation: FacingY);
+            hanger.ZipP1 = ledge.P0;
+            hanger.ZipP2 = ledge.P1;
+            hanger.m_CurrentArmsZone = hanger.m_LedgeGrabArmsZone;
+            hanger.m_CurrentArmsRadius = hanger.m_LedgeGrabArmsRadius;
+            TestSBasePawn climber = s.SpawnSpy(V(1000f, -37f, 300f), EPhysics.PHYS_OnPipe, rotation: FacingY);
+            climber.ZipP1 = pipe.P0;
+            climber.ZipP2 = pipe.P1;
+            climber.NewZipP1 = pipe.P0;
+            climber.NewZipP2 = pipe.P1;
+            climber.m_geoNormal = V(0f, -1f, 0f);
+            climber.m_CurrentArmsRadius = 25.4f;
+            TestSBasePawn jumper = s.SpawnSpy(V(-1500f, 0f, StandZ() + 1f), EPhysics.PHYS_Falling);
+            s.Settle(jumper);
+
+            void Drive(int ticks)
             {
-                int phase = (int)(s.Level.TickCount % 120);
-                float dir = phase < 60 ? 1f : -1f;
-                hanger.Acceleration = V(80f * dir, 0f, 0f);
-                climber.Acceleration = V(0f, 0f, 145f * dir);
-                if (phase == 0 && jumper.Physics == EPhysics.PHYS_Walking)
+                for (int t = 0; t < ticks; t++)
                 {
-                    s.Driver.MyDoJump(jumper);
+                    int phase = (int)(s.Level.TickCount % 120);
+                    float dir = phase < 60 ? 1f : -1f;
+                    hanger.Acceleration = V(80f * dir, 0f, 0f);
+                    climber.Acceleration = V(0f, 0f, 145f * dir);
+                    if (phase == 0 && jumper.Physics == EPhysics.PHYS_Walking)
+                    {
+                        s.Driver.MyDoJump(jumper);
+                    }
+
+                    s.Driver.CheckArmsZone(jumper);
+                    s.Driver.CheckFeetZone(jumper);
+                    s.Step(1);
                 }
-
-                s.Driver.CheckArmsZone(jumper);
-                s.Driver.CheckFeetZone(jumper);
-                s.Step(1);
             }
-        }
 
-        Drive(240);
-        long before = GC.GetAllocatedBytesForCurrentThread();
-        Drive(480);
-        Assert.Equal(0, GC.GetAllocatedBytesForCurrentThread() - before);
+            Drive(240);
+            long before = GC.GetAllocatedBytesForCurrentThread();
+            Drive(480);
+            Assert.Equal(0, GC.GetAllocatedBytesForCurrentThread() - before);
+        });
     }
 }

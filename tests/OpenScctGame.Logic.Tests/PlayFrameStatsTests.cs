@@ -9,18 +9,21 @@ public sealed class PlayFrameStatsTests
     [Fact]
     public void NormalPlayRetainsNoSamplesOrPerFrameAllocationsDuringALongSession()
     {
-        var stats = new PlayFrameStats();
-        for (int i = 0; i < 1000; i++) stats.Add(1, 2, 4);
-        long before = GC.GetAllocatedBytesForCurrentThread();
-        for (int i = 0; i < 2_000_000; i++) stats.Add(1, 2, 4);
-        long allocated = GC.GetAllocatedBytesForCurrentThread() - before;
-        Assert.Equal(0, allocated);
-        Assert.Equal(2_001_000, stats.Frames);
-        Assert.Equal(0, stats.HistoryFrames);
-        Assert.Equal(1, stats.LastSimMs);
-        Assert.Equal(2, stats.LastViewMs);
-        Assert.Contains("sim ms/frame mean=1.00 p95=not-captured max=1.00", stats.Summary());
-        Assert.Contains("frame ms mean=4.00", stats.Summary());
+        OpenScct.Testing.AllocationProbe.Run(() =>
+        {
+            var stats = new PlayFrameStats();
+            for (int i = 0; i < 1000; i++) stats.Add(1, 2, 4);
+            long before = GC.GetAllocatedBytesForCurrentThread();
+            for (int i = 0; i < 2_000_000; i++) stats.Add(1, 2, 4);
+            long allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+            Assert.Equal(0, allocated);
+            Assert.Equal(2_001_000, stats.Frames);
+            Assert.Equal(0, stats.HistoryFrames);
+            Assert.Equal(1, stats.LastSimMs);
+            Assert.Equal(2, stats.LastViewMs);
+            Assert.Contains("sim ms/frame mean=1.00 p95=not-captured max=1.00", stats.Summary());
+            Assert.Contains("frame ms mean=4.00", stats.Summary());
+        });
     }
 
     [Fact]

@@ -283,61 +283,64 @@ public sealed class VoiceRelayTests
     [Fact]
     public void RoutingAndThePlayoutPathDoNotAllocatePerFrame()
     {
-        // The relay forwarding a talker to two listeners over local links, and the listeners' jitter buffers, in steady
-        // state. The codec (Concentus) allocates internally and is measured in docs/VOICE.md, not here.
-        var clock = new VirtualClock();
-        var directory = new StaticVoiceDirectory();
-        var relay = new VoiceRelay(null, directory, clock);
-        var links = new VoiceLocalLink[3];
-        for (ushort id = 1; id <= 3; id++)
+        OpenScct.Testing.AllocationProbe.Run(() =>
         {
-            directory.Set(VoiceMember.Create(id, Spies));
-            links[id - 1] = new VoiceLocalLink { Talker = id };
-            relay.AttachLocal(links[id - 1]);
-        }
-
-        var datagram = new byte[VoiceWire.MaxDatagramBytes];
-        var received = new byte[VoiceWire.MaxDatagramBytes];
-        var buffers = new[] { new VoiceJitterBuffer(3), new VoiceJitterBuffer(3) };
-        ushort seq = 0;
-        void Frame()
-        {
-            clock.Advance(20_000);
-            for (int i = 1; i < 3; i++)
+            // The relay forwarding a talker to two listeners over local links, and the listeners' jitter buffers, in steady
+            // state. The codec (Concentus) allocates internally and is measured in docs/VOICE.md, not here.
+            var clock = new VirtualClock();
+            var directory = new StaticVoiceDirectory();
+            var relay = new VoiceRelay(null, directory, clock);
+            var links = new VoiceLocalLink[3];
+            for (ushort id = 1; id <= 3; id++)
             {
-                int n = VoiceWire.WriteJoin(datagram, seq, 0, true, ReadOnlySpan<ushort>.Empty);
-                links[i].SendUp(datagram.AsSpan(0, n));
+                directory.Set(VoiceMember.Create(id, Spies));
+                links[id - 1] = new VoiceLocalLink { Talker = id };
+                relay.AttachLocal(links[id - 1]);
             }
 
-            int length = VoiceWire.WriteAudio(datagram, new VoiceHeader(EVoicePacketKind.Up, EVoiceChannel.All, EVoiceFlags.None, seq++, 0), [0xF8, 0xFF, 0xFE]);
-            links[0].SendUp(datagram.AsSpan(0, length));
-            relay.Tick();
-            for (int i = 1; i < 3; i++)
+            var datagram = new byte[VoiceWire.MaxDatagramBytes];
+            var received = new byte[VoiceWire.MaxDatagramBytes];
+            var buffers = new[] { new VoiceJitterBuffer(3), new VoiceJitterBuffer(3) };
+            ushort seq = 0;
+            void Frame()
             {
-                while (links[i].TryReceiveDown(received, out int got))
+                clock.Advance(20_000);
+                for (int i = 1; i < 3; i++)
                 {
-                    Assert.True(VoiceWire.TryReadAudio(received.AsSpan(0, got), out VoiceHeader h, out ReadOnlySpan<byte> opus));
-                    buffers[i - 1].Push(h.Sequence, h.Flags, h.Channel, opus);
+                    int n = VoiceWire.WriteJoin(datagram, seq, 0, true, ReadOnlySpan<ushort>.Empty);
+                    links[i].SendUp(datagram.AsSpan(0, n));
                 }
 
-                buffers[i - 1].Next(out _);
+                int length = VoiceWire.WriteAudio(datagram, new VoiceHeader(EVoicePacketKind.Up, EVoiceChannel.All, EVoiceFlags.None, seq++, 0), [0xF8, 0xFF, 0xFE]);
+                links[0].SendUp(datagram.AsSpan(0, length));
+                relay.Tick();
+                for (int i = 1; i < 3; i++)
+                {
+                    while (links[i].TryReceiveDown(received, out int got))
+                    {
+                        Assert.True(VoiceWire.TryReadAudio(received.AsSpan(0, got), out VoiceHeader h, out ReadOnlySpan<byte> opus));
+                        buffers[i - 1].Push(h.Sequence, h.Flags, h.Channel, opus);
+                    }
+
+                    buffers[i - 1].Next(out _);
+                }
             }
-        }
 
-        for (int f = 0; f < 50; f++)
-        {
-            Frame();
-        }
+            for (int f = 0; f < 50; f++)
+            {
+                Frame();
+            }
 
-        long before = GC.GetAllocatedBytesForCurrentThread();
-        for (int f = 0; f < 500; f++)
-        {
-            Frame();
-        }
+            long before = GC.GetAllocatedBytesForCurrentThread();
+            for (int f = 0; f < 500; f++)
+            {
+                Frame();
+            }
 
-        Assert.Equal(0, GC.GetAllocatedBytesForCurrentThread() - before);
-        // The first frame is relayed before the listeners' first joins in the same tick.
-        Assert.Equal(2 * 549, relay.Stats.DownPackets);
-        Assert.True(buffers[0].Stats.Played >= 540);
+            Assert.Equal(0, GC.GetAllocatedBytesForCurrentThread() - before);
+            // The first frame is relayed before the listeners' first joins in the same tick.
+            Assert.Equal(2 * 549, relay.Stats.DownPackets);
+            Assert.True(buffers[0].Stats.Played >= 540);
+        });
     }
 }
