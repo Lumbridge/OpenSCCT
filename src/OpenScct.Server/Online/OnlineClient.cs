@@ -146,7 +146,7 @@ public sealed partial class OnlineClient : IDisposable
     private long _travelStarted;
     private long _now;
     private string? _lastAttemptError;
-    private (string Map, ulong Content)? _travelRequest;
+    private (string Map, ulong Content, int? PictureSeed)? _travelRequest;
     private string? _failRequest;
     private bool _disposed;
 
@@ -214,6 +214,13 @@ public sealed partial class OnlineClient : IDisposable
 
     /// <summary>The map a travel goes to (null when not travelling).</summary>
     public string? TravellingTo => State == OnlineClientState.Travelling ? _expectedMap : null;
+
+    /// <summary>
+    /// The server's pick among the current map's loading pictures (sent with the travel, or on joining after it), the
+    /// same for every player of the session, so all of them see the same picture of their side; null when the server
+    /// sent none (an older one).
+    /// </summary>
+    public int? LoadingPictureSeed { get; private set; }
 
     /// <summary>The current map's voice transport (null with voice off or between maps).</summary>
     public OpenScct.Net.Voice.VoiceTransport? Voice { get; private set; }
@@ -369,7 +376,7 @@ public sealed partial class OnlineClient : IDisposable
         if (_travelRequest is { } travel)
         {
             _travelRequest = null;
-            BeginTravel(travel.Map, travel.Content);
+            BeginTravel(travel.Map, travel.Content, travel.PictureSeed);
         }
     }
 
@@ -659,7 +666,7 @@ public sealed partial class OnlineClient : IDisposable
 
     // ---- travel -------------------------------------------------------------------------------------------------
 
-    private void BeginTravel(string map, ulong content)
+    private void BeginTravel(string map, ulong content, int? pictureSeed)
     {
         if (Maps.FindMap(map) is not { } entry)
         {
@@ -674,6 +681,7 @@ public sealed partial class OnlineClient : IDisposable
         }
 
         _expectedMap = entry.Id;
+        LoadingPictureSeed = pictureSeed;
         EndSession();
         State = OnlineClientState.Travelling;
         _travelAt = _now + (long)(Settings.TravelQuietSeconds * Second);
@@ -817,7 +825,10 @@ public sealed partial class OnlineClient : IDisposable
                 break;
             case "travel":
                 MasterApi.TryParseHex(SessionProtocol.Text(f, 1), out ulong travelContent);
-                _travelRequest = (SessionProtocol.Text(f, 0), travelContent);
+                _travelRequest = (SessionProtocol.Text(f, 0), travelContent, PictureSeed(SessionProtocol.Text(f, 2)));
+                break;
+            case "picture":
+                LoadingPictureSeed = PictureSeed(SessionProtocol.Text(f, 0));
                 break;
             case "row":
                 _rows.Add(new ResultRow(SessionProtocol.Int(f, 0), SessionProtocol.Text(f, 6), (byte)SessionProtocol.Int(f, 1),
@@ -842,6 +853,9 @@ public sealed partial class OnlineClient : IDisposable
 
         Changed?.Invoke();
     }
+
+    private static int? PictureSeed(string field) =>
+        int.TryParse(field, System.Globalization.NumberStyles.None, System.Globalization.CultureInfo.InvariantCulture, out int seed) ? seed : null;
 
     /// <summary>How many fields a command has, so its last one keeps its spaces.</summary>
     private static int FieldCount(string line)

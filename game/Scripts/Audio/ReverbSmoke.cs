@@ -179,7 +179,7 @@ public sealed class ReverbSmoke : SmokeTest
     {
         public string Zone { get; set; } = "NoFx";
         public bool TryGetActorLocation(int actorId, out FVector location) { location = default; return true; }
-        public void CollectAmbient(List<AmbientSource> into) { }
+        public void CollectAmbient(List<AmbientSource> into, FVector listener) { }
         public string? ZoneIdAt(FVector location) => Zone;
         public int SurfaceOf(FVector start, FVector end) => 0;
         public int ZoneIndexAt(FVector location) => 1;

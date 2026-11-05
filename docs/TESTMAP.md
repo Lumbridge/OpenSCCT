@@ -40,8 +40,8 @@ python -B tools/testmap/twin.py diff             # the converted twin against .c
 `build` writes the change file (`local/testrange/work/testrange-changes.json`), the GE commands and a T3D export, and
 `local/testrange/build-report.json` (Map Check, GE handling, the editor's level stats, the floor and zone under every
 station spot). `play` copies the map Play Level saved for the game (`Packages/Maps/Autoplay.sdc`) while its game
-holds the play lock: the converter reads the game's form, not the editor's (`MapsEd` keeps editor data it does not
-decode). `convert` makes `local/testrange/game`, the reference install with the twin as its only map (junctions to the
+holds the play lock, so the twin is converted from the file the game played (the converter reads `MapsEd` editor
+copies too: [content/README.md](../content/README.md#editor-copies)). `convert` makes `local/testrange/game`, the reference install with the twin as its only map (junctions to the
 install's folders, read only), and runs `svmbuild.mapconv.build_map` and the SVMap validator on it. `diff` writes
 `local/testrange/diff-report.json` and prints:
 

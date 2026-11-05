@@ -55,6 +55,9 @@ public sealed class OnlineSettings
     /// <summary>Max Players of the Create Session page (2 to 8, 4 by default: spec/game/lobby-and-match-creation.md).</summary>
     public int HostMaxPlayers { get; set; } = OpenScct.Server.Online.LobbySetup.DefaultMaxPlayers;
 
+    /// <summary>Whether the host picked <see cref="HostMaxPlayers"/>; until then Create Session's slots follow the map.</summary>
+    public bool HostPlayersChosen { get; set; }
+
     /// <summary>The Create Session page's last values (LobbySetup options), as the original keeps them in the profile.</summary>
     public string HostSetup { get; set; } = string.Empty;
 
@@ -145,6 +148,10 @@ public sealed class OnlineSettings
                 s.HostMaxPlayers = OpenScct.Server.Online.LobbySetup.DefaultMaxPlayers;
             }
 
+            // Settings from before the key: a count other than the default was the host's pick.
+            s.HostPlayersChosen = file.GetValue("host", "players_chosen",
+                s.HostMaxPlayers != OpenScct.Server.Online.LobbySetup.DefaultMaxPlayers).AsBool();
+
             s.HostSetup = file.GetValue("host", "setup", s.HostSetup).AsString();
             s.HostListed = file.GetValue("host", "listed", s.HostListed).AsBool();
             s.HostUpnp = file.GetValue("host", "upnp", s.HostUpnp).AsBool();
@@ -195,6 +202,7 @@ public sealed class OnlineSettings
         file.SetValue("host", "name", HostName);
         file.SetValue("host", "port", HostPort);
         file.SetValue("host", "max_players", HostMaxPlayers);
+        file.SetValue("host", "players_chosen", HostPlayersChosen);
         file.SetValue("host", "setup", HostSetup);
         file.SetValue("host", "listed", HostListed);
         file.SetValue("host", "upnp", HostUpnp);

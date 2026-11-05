@@ -108,8 +108,8 @@ public sealed class SpyBackLightSmoke : SmokeTest
             for (int surface = 0; surface < mesh.Mesh.GetSurfaceCount(); surface++)
                 if (mesh.Mesh.SurfaceGetMaterial(surface)?.ResourceName == Body)
                     _dry = mesh.GetSurfaceOverrideMaterial(surface)!;
-        _wetSpy = WetSkins.For(glb, spy: true, localSpy: true)?.Over(Body)!;
-        _wetMerc = WetSkins.For(glb, spy: true, localSpy: false)?.Over(Body)!;
+        _wetSpy = WetSkins.For(glb, localSpy: true)?.Over(Body)!;
+        _wetMerc = WetSkins.For(glb, localSpy: false)?.Over(Body)!;
         if (_dry is null || _wetSpy is null || _wetMerc is null) return "spy dry/wet materials missing";
         if (_wetMerc is not ShaderMaterial wet || wet.GetShaderParameter("tex_self_illum_mask").AsGodotObject() is not Texture2D)
             return "wet merc body has no self-illumination mask";

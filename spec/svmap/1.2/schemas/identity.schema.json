@@ -1,0 +1,193 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://svmap.invalid/1.2/identity.schema.json",
+  "title": "SVMap 1.2 ui/identity.json",
+  "description": "What a map says about itself for the menus: name, dossier, authors, recommended players, tags, places and pictures. Client only; every field is optional. Rules a reader applies are in README.md.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "format": {
+      "const": "svm.identity/1"
+    },
+    "name": {
+      "description": "The name menus show, mixed case, with the variant word when there is one (Enhanced Aquarius).",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 48
+    },
+    "family": {
+      "description": "The name without the variant word (Aquarius); lists sort by it.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 48
+    },
+    "variant": {
+      "description": "The variant word (Enhanced), or null.",
+      "type": [
+        "string",
+        "null"
+      ],
+      "maxLength": 48
+    },
+    "description": {
+      "description": "One or two plain sentences for map browsers and the content index.",
+      "type": "string",
+      "maxLength": 300
+    },
+    "dossier": {
+      "description": "When and where the map is set and one line about it; the source of SMapSettings.LegendMap.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "when": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "where": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "summary": {
+          "type": "string",
+          "maxLength": 300
+        }
+      }
+    },
+    "authors": {
+      "description": "People or teams, in credit order.",
+      "type": "array",
+      "maxItems": 64,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 48
+      }
+    },
+    "version": {
+      "description": "The author's version of the map (SemVer recommended).",
+      "type": "string",
+      "maxLength": 32
+    },
+    "language": {
+      "description": "BCP 47 primary language tag of the map's texts (identity, mapinfo.json, localised actor properties); en when absent.",
+      "type": "string",
+      "pattern": "^[a-z]{2,3}$"
+    },
+    "players": {
+      "description": "The lobby size the map plays best at. The range a map supports is gameplay and lives in sim/.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "recommended": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 24
+        }
+      }
+    },
+    "tags": {
+      "description": "Free lowercase facts. Known: 3v3, 1v1, competitive, casual, small, large.",
+      "type": "array",
+      "maxItems": 32,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z0-9-]{1,24}$"
+      }
+    },
+    "places": {
+      "description": "The numbered areas of the briefing plan and the strategic map.",
+      "type": "array",
+      "maxItems": 99,
+      "items": {
+        "type": "object",
+        "required": [
+          "number",
+          "at"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "number": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 99
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 48
+          },
+          "at": {
+            "description": "The label's anchor in UE space.",
+            "$ref": "common.schema.json#/$defs/vec3"
+          },
+          "floor": {
+            "description": "Index in LevelInfo.MapFloors; absent: the floor of at's Z.",
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      }
+    },
+    "pictures": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "menu": {
+          "$ref": "#/$defs/picture"
+        },
+        "loading": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "spy": {
+              "$ref": "#/$defs/pictureList"
+            },
+            "merc": {
+              "$ref": "#/$defs/pictureList"
+            }
+          }
+        },
+        "briefing": {
+          "$ref": "#/$defs/picture"
+        },
+        "briefingProjection": {
+          "description": "snapshot: the briefing plan was drawn through LevelInfo.SnapshotCamera, so readers may mark places on it.",
+          "enum": [
+            "snapshot",
+            null
+          ]
+        },
+        "banner": {
+          "$ref": "#/$defs/picture"
+        },
+        "generated": {
+          "description": "Slots whose picture a tool drew rather than an artist (menu, briefing...).",
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "menu",
+              "loading",
+              "briefing",
+              "banner"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "picture": {
+      "description": "A path relative to ui/, inside ui/pictures/: PNG or JPEG, sRGB, at most 2048 pixels a side and 4 MiB, no text drawn in.",
+      "type": "string",
+      "pattern": "^pictures/[A-Za-z0-9_./-]+\\.(png|jpg|jpeg)$"
+    },
+    "pictureList": {
+      "type": "array",
+      "maxItems": 8,
+      "items": {
+        "$ref": "#/$defs/picture"
+      }
+    }
+  }
+}

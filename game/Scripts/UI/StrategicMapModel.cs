@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
+using OpenScct.Content.Maps;
 using OpenScct.Provenance;
+using OpenScct.Server;
 
 namespace OpenScctGame.UI;
 
@@ -16,6 +18,9 @@ public readonly record struct StrategicMapPoint(float X, float Y, float Z)
 
 /// <summary>One floor of a map's strategic map (<c>LevelInfo.MapFloors</c>): its height and its picture file, if converted.</summary>
 public sealed record StrategicMapFloor(float FloorZ, string Texture, string? Picture);
+
+/// <summary>A numbered place of the map's identity on a floor's picture: 0..1 across (U) and down (V).</summary>
+public readonly record struct StrategicMapPlace(int Number, int Floor, float U, float V);
 
 /// <summary>A marker on the map picture: 0..1 across (U) and down (V), and its turn in radians (clockwise, 0 pointing right).</summary>
 public readonly record struct StrategicMapMarker(float U, float V, float Angle);
@@ -47,11 +52,13 @@ public sealed class StrategicMapData
 
     public static readonly StrategicMapData Empty = new(Array.Empty<StrategicMapFloor>(), null, string.Empty);
 
-    public StrategicMapData(IReadOnlyList<StrategicMapFloor> floors, StrategicMapCamera? camera, string legend)
+    public StrategicMapData(IReadOnlyList<StrategicMapFloor> floors, StrategicMapCamera? camera, string legend,
+        IReadOnlyList<StrategicMapPlace>? places = null)
     {
         Floors = floors;
         Camera = camera;
         Legend = legend;
+        Places = places ?? [];
     }
 
     /// <summary>The floors, lowest first (the map's order).</summary>
@@ -62,6 +69,12 @@ public sealed class StrategicMapData
 
     /// <summary>The legend beside the picture (<c>SMapSettings.LegendMapInBrief</c>), "|" turned into line breaks.</summary>
     public string Legend { get; }
+
+    /// <summary>
+    /// The numbered places of the map's identity (<c>ui/identity.json</c>), which the page draws over the floor
+    /// pictures; pictures of converted maps have their numbers drawn in and carry none.
+    /// </summary>
+    public IReadOnlyList<StrategicMapPlace> Places { get; }
 
     /// <summary>The picture file of floor <paramref name="i"/>, or null when it is not converted (or there is no such floor).</summary>
     public string? Picture(int i) => i >= 0 && i < Floors.Count ? Floors[i].Picture : null;
@@ -162,7 +175,25 @@ public sealed class StrategicMapData
             camera = null;
         }
 
-        return new StrategicMapData(floors, camera, ReadLegend(mapFolder));
+        var data = new StrategicMapData(floors, camera, ReadLegend(mapFolder));
+        List<StrategicMapPlace> places = data.PlacesOf(mapFolder);
+        return places.Count == 0 ? data : new StrategicMapData(floors, camera, data.Legend, places);
+    }
+
+    /// <summary>The identity's places projected on the pictures, each on its own floor (else the floor of its height).</summary>
+    private List<StrategicMapPlace> PlacesOf(string mapFolder)
+    {
+        var places = new List<StrategicMapPlace>();
+        foreach (OpenScct.Content.Maps.MapPlace place in OpenScct.Content.Maps.MapIdentity.Load(mapFolder).Places)
+        {
+            if (Project(new StrategicMapPoint(place.At.X, place.At.Y, place.At.Z)) is { } uv)
+            {
+                int floor = place.Floor is { } f && f < Floors.Count ? f : FloorAt(place.At.Z);
+                places.Add(new StrategicMapPlace(place.Number, floor, uv.U, uv.V));
+            }
+        }
+
+        return places;
     }
 
     private static string ReadLegend(string mapFolder)
@@ -176,9 +207,12 @@ public sealed class StrategicMapData
             }
 
             using JsonDocument doc = JsonDocument.Parse(File.ReadAllBytes(path));
-            return doc.RootElement.TryGetProperty("LegendMapInBrief", out JsonElement l) && l.ValueKind == JsonValueKind.String
-                ? (l.GetString() ?? string.Empty).Replace('|', '\n')
+            string legend = doc.RootElement.TryGetProperty("LegendMapInBrief", out JsonElement l) && l.ValueKind == JsonValueKind.String
+                ? l.GetString() ?? string.Empty
                 : string.Empty;
+
+            // The map's translation into the game's language, when it has one.
+            return MapText.Load(mapFolder, ContentPaths.Language).MapInfoOr("LegendMapInBrief", legend).Replace('|', '\n');
         }
         catch (Exception e) when (e is JsonException or IOException or UnauthorizedAccessException)
         {

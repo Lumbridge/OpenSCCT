@@ -210,7 +210,7 @@ public partial class DemosScreen
             };
         }
         _historyDialogEntry = entry;
-        _historyDialog = RoundScoreboardDialog.Open(this, entry.Scoreboard, entry.LocalParticipantId, watch, replay, details?.Events);
+        _historyDialog = RoundScoreboardDialog.Open(this, entry.Scoreboard, entry.LocalParticipantId, watch, replay, details?.Events, _maps);
     }
 
     private ArchivedScoreboard SaveDetails(MatchHistoryDetails details)

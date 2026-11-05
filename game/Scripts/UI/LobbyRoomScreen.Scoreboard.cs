@@ -17,7 +17,7 @@ public partial class LobbyRoomScreen
         _lastGame.AddChild(LobbyPanels.Button("View scoreboard", () =>
         {
             if (Session?.LastScoreboard is { } board)
-                RoundScoreboardDialog.Open(this, board, Session.LastScoreboardLocalParticipantId);
+                RoundScoreboardDialog.Open(this, board, Session.LastScoreboardLocalParticipantId, maps: _mapCatalog);
         }, "LastGameScoreboard"));
     }
 

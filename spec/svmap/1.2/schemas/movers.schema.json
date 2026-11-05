@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://svmap.invalid/1.2/movers.schema.json",
+  "title": "SVMap 1.2 sim/movers.json",
+  "description": "Each mover's own time per leg and easing per key (movers.md). The validator also checks what a schema cannot: every actor is a mover of the map, listed once.",
+  "type": "object",
+  "required": [
+    "format"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "format": {
+      "const": "svm.movers/1"
+    },
+    "movers": {
+      "description": "One entry per mover, in any order; a mover is listed at most once.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/mover"
+      }
+    }
+  },
+  "$defs": {
+    "mover": {
+      "type": "object",
+      "required": [
+        "actor",
+        "keys"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "actor": {
+          "description": "The id of an Engine.Mover (or subclass) actor in sim/gameplay.json; ids match ignoring ASCII case.",
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "keys": {
+          "description": "keys[n] for key n (Engine.Mover KeyPos[8]); a key the list does not reach keeps the mover's own timing.",
+          "type": "array",
+          "prefixItems": [
+            {
+              "$ref": "#/$defs/firstKey"
+            }
+          ],
+          "items": {
+            "$ref": "#/$defs/key"
+          },
+          "maxItems": 8
+        }
+      }
+    },
+    "key": {
+      "description": "An empty object keeps the mover's own timing at this key.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "time": {
+          "description": "Seconds of the leg between key n - 1 and key n, run either way (Engine.Mover.InterpolateTo's shortest leg to an hour). Key 0 takes none.",
+          "type": "number",
+          "minimum": 0.005,
+          "maximum": 3600
+        },
+        "smooth": {
+          "description": "Whether the mover eases in and out at this key; without it the mover's MoverGlideType decides.",
+          "type": "boolean"
+        }
+      }
+    },
+    "firstKey": {
+      "description": "Key 0 has no leg before it, so it takes no time.",
+      "$ref": "#/$defs/key",
+      "not": {
+        "required": [
+          "time"
+        ]
+      }
+    }
+  }
+}

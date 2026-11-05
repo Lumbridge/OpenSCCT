@@ -26,6 +26,13 @@ public partial class SMission
     [PortOf("uc:SBase.SMission:Reset", Spec = "spec/objectives/missions.md#rules")]
     public override void Reset()
     {
+        if (MatchExcluded)
+        {
+            // Left out of this round by the match-size rules (spec/additions/match-size-rules.md): stays out of play.
+            Desactivate();
+            return;
+        }
+
         if (GameMode == EGameMode.GM_DiskHunt)
         {
             ResetDiskHunt();

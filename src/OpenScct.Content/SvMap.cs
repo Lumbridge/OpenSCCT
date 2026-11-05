@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using OpenScct.Content.Collision;
 using OpenScct.Content.Json;
+using OpenScct.Core.Engine;
+using OpenScct.Core.Match;
 
 namespace OpenScct.Content;
 
@@ -25,13 +27,16 @@ public sealed record SvMapLoadOptions
 /// </summary>
 public sealed class SvMap
 {
-    private SvMap(string root, SvMapManifest manifest, GameplayDoc gameplay, ClassTable? classes, CollisionData collision,
-        TraversalDoc traversal, string simHash, IReadOnlyList<SvMapFileDigest> simFiles)
+    private SvMap(string root, SvMapManifest manifest, GameplayDoc gameplay, ClassTable? classes, MatchRuleSet? match,
+        IReadOnlyDictionary<string, MoverLegs>? movers, CollisionData collision, TraversalDoc traversal, string simHash,
+        IReadOnlyList<SvMapFileDigest> simFiles)
     {
         Root = root;
         Manifest = manifest;
         Gameplay = gameplay;
         Classes = classes;
+        Match = match;
+        Movers = movers;
         Collision = collision;
         Traversal = traversal;
         SimHash = simHash;
@@ -50,6 +55,12 @@ public sealed class SvMap
     /// <summary>The class table of <c>sim/classes.json</c> (SVMap 1.1), or null when the map has none.</summary>
     public ClassTable? Classes { get; }
 
+    /// <summary>The player-count rules and win targets of <c>sim/match.json</c> (SVMap 1.2), or null when the map has none.</summary>
+    public MatchRuleSet? Match { get; }
+
+    /// <summary>The movers' own per-key timing of <c>sim/movers.json</c> (SVMap 1.2) by actor id, or null when the map has none.</summary>
+    public IReadOnlyDictionary<string, MoverLegs>? Movers { get; }
+
     public CollisionData Collision { get; }
 
     public TraversalDoc Traversal { get; }
@@ -61,7 +72,7 @@ public sealed class SvMap
     public IReadOnlyList<SvMapFileDigest> SimFiles { get; }
 
     /// <summary>
-    /// Loads and checks the map at <paramref name="root"/>: manifest, the three sim files and the optional class table,
+    /// Loads and checks the map at <paramref name="root"/>: manifest, the three sim files, the optional class table and match rules,
     /// the sim hash against the manifest, map ids, and collision actor names. Throws <see cref="SvMapFormatException"/>
     /// naming the file.
     /// </summary>
@@ -110,6 +121,10 @@ public sealed class SvMap
         GameplayDoc gameplay = GameplayDoc.FromJson(Required(json, GameplayDoc.RelativePath));
         TraversalDoc traversal = TraversalDoc.FromJson(Required(json, TraversalDoc.RelativePath));
         ClassTable? classes = json.TryGetValue(ClassTable.RelativePath, out SvJsonNode? classNode) ? ClassTable.FromJson(classNode) : null;
+        MatchRuleSet? match = json.TryGetValue(MatchDoc.RelativePath, out SvJsonNode? matchNode) ? MatchDoc.FromJson(matchNode) : null;
+        IReadOnlyDictionary<string, MoverLegs>? movers = json.TryGetValue(MoversDoc.RelativePath, out SvJsonNode? moversNode)
+            ? MoversDoc.FromJson(moversNode)
+            : null;
         CollisionData collision = CollisionReader.Read(
             collisionBytes ?? throw new SvMapFormatException(CollisionReader.RelativePath, "missing"), options.StrictCollision);
 
@@ -128,7 +143,7 @@ public sealed class SvMap
             }
         }
 
-        return new SvMap(fullRoot, manifest, gameplay, classes, collision, traversal, simHash, simFiles);
+        return new SvMap(fullRoot, manifest, gameplay, classes, match, movers, collision, traversal, simHash, simFiles);
     }
 
     /// <summary>Sim files whose digest differs from the manifest's, or that only one side has.</summary>

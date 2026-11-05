@@ -75,6 +75,17 @@ public sealed class TextureCache
         return texture;
     }
 
+    /// <summary>Keeps a texture made in memory under <paramref name="uri"/> (a name no file has), with or without mipmaps.</summary>
+    public void Add(string uri, Texture2D texture)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(uri);
+        _textures[Key(uri, true)] = texture;
+        _textures[Key(uri, false)] = texture;
+    }
+
+    /// <summary>True when the cache already has a texture under <paramref name="uri"/> (added with <see cref="Add"/> or loaded).</summary>
+    public bool Holds(string uri) => _textures.TryGetValue(Key(uri, true), out Texture2D? t) && t is not null;
+
     private Image? Decode(string uri, bool mipmaps)
     {
         string path = Path.Combine(_root, uri.Replace('/', Path.DirectorySeparatorChar));

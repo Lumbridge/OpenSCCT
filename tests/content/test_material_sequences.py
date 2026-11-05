@@ -83,7 +83,7 @@ def test_show_frames_keep_complete_blend_illumination_and_opacity_state(tmp_path
     assert all("material" not in item for item in glow.sequences["diffuse"]["items"])
 
 
-def test_incompatible_fade_is_diagnosed_instead_of_freezing_first_state():
+def test_incompatible_fade_cuts_to_the_next_material():
     import_formats()
     from scctpkg.materials import MaterialResolver
     from scctpkg.texture import Texture
@@ -96,6 +96,11 @@ def test_incompatible_fade_is_diagnosed_instead_of_freezing_first_state():
     resolver = MaterialResolver(pset)
     resolver._props = lambda p, e: props.get(e.index, {})
     resolver.texture_for = lambda p, e: Texture(e.name, 4, 4, 5, Image.new("RGBA", (4, 4), (100, 0, 0, 255)), {})
+    # Materials of different states cannot be blended: the fade cuts to the next material at its time
+    # instead of stopping the map's conversion.
     for _ in range(2):
-        with pytest.raises(ValueError, match="fades between incompatible material states"):
-            resolver.resolve(pkg, 3)
+        result = resolver.resolve(pkg, 3)
+        sequence = result.sequences["diffuse"]
+        assert sequence["switch_material"]
+        assert [item["action"] for item in sequence["items"]] == [0, 0]
+        assert all("material" in item for item in sequence["items"])
