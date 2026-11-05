@@ -1,4 +1,6 @@
 """Damage materials and UE section identities must survive map conversion."""
+import builtins
+import io
 import json
 import struct
 from pathlib import Path
@@ -16,7 +18,18 @@ def read_glb(path):
     return json.loads(data[20:20 + size])
 
 
-def test_empty_mesh_sections_keep_original_skin_slot(tmp_path):
+def test_empty_mesh_sections_keep_original_skin_slot(tmp_path, monkeypatch):
+    # The mesh helper imports actor metadata, but this fixture never extracts actors or needs game data.
+    original_open = builtins.open
+
+    def open_for_mesh_helper(file, *args, **kwargs):
+        if isinstance(file, (str, Path)):
+            path = Path(file)
+            if path.name == 'class_defaults.json' and path.parent.name == 'scctpkg':
+                return io.StringIO('{}')
+        return original_open(file, *args, **kwargs)
+
+    monkeypatch.setattr(builtins, 'open', open_for_mesh_helper)
     import_scctpkg()
     from scctpkg.export_gltf import GltfWriter, _static_mesh_prims
     mesh = SimpleNamespace(
