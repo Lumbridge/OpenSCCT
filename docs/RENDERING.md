@@ -232,6 +232,8 @@ Surface fog is applied before the blend: diffuse uses its fog colour, additive r
 and cloak mixes its fogged body with the already fogged scene sample. Modulate uses native fog override
 127/255 (decoded editor `SetShaderMaterial` `0x10f36a30`, FinalBlend helper `0x10f33c90`); the shader's folded
 2x multiply therefore approaches 254/255. Darkening approaches white after its inverse-source operation.
+The stacked `beam04` meshes using `MHOsfx_xbox.FX.rayonlum` draw at 0.1 additive gain, calibrated against the
+SOUTH shaft in MounE. MounS, MounU and ClarD share this material.
 Shader.Opacity always samples the source alpha, including a constant alpha. The native bitmap stage
 (editor `0x10f37a14`, game SetShaderMaterial `0x1096eac0`) selects TEXTURE alpha directly; it does not substitute
 luminance. AquaE's `aqua_newglass_01` stores constant DXT5 alpha 144/255. The old converter replaced it with
@@ -581,12 +583,15 @@ call them, and so do the bots' light field (docs/AI.md, "Light"), so what a bot 
 
 ## Coronas
 
-Lights with `bCorona` draw `Skins[0]` as a camera-facing additive quad at the light (`Coronas`, `svm_corona.gdshader`):
+Lights with `bCorona` draw `Skins[0]` as a camera-facing quad at the light (`Coronas`, `svm_corona.gdshader`):
 `s = clamp(0.001 x distance, 0.01, 10)`, half size `clamp(s x DrawScale x Fade x 512 x DrawScale3D, Min, Max)` uu,
 roll `s x CoronaRotation x 16384 + CoronaRotationOffset`, colour `corona colour x light type x 0.5 x Fade x 2`, no
 depth test. The light type factor (pulse, flicker...) is estimated: the corona is taken to follow the light's
 FDynamicLight colour.
 
+- The default native corona uses `FB_Translucent` (ONE, INVSRCCOLOR, game `0x10a1418b`). The shader adds
+  `source x (1 - opaque scene)` so the halo retains its intensity over dark areas while preserving detail
+  in bright lamp housings. The scene sample is captured before transparent surfaces.
 - The doubling (`CoronaStageGain`, measured): the halo of SteeE's crane lamp reads 1.9 to 2.1 times the undoubled
   halo at every radius, as from a Modulate2X stage on the halved colour.
 - Visibility: in radius (`25 (LightRadius + 1)` when set) or the cone test for oriented coronas, a trace against the

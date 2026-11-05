@@ -123,6 +123,10 @@ Controller fields: `TimerUSe`, `bUsingNow`, `bUnCrouchAndUnDraw`, `bQuickGadgetQ
 8. **Projectile on every machine** (`PostNetBeginPlay`): `SetTimer(TempsExplosion)`; spin yaw rate
    `+(10000 + 5000 FRand())` or `-(10000 + 5000 FRand())` with equal chance, pitch rate `80000 + 10000 FRand()`
    (rotation units per second).
+   The native tick (game 0x10ab8990) applies these rates after the actor's tick. If `ProjectileSpeed > 20`,
+   yaw becomes `int(oldPitch - yawRate * dt) % 65536` and pitch becomes `int(newYaw - pitchRate * dt) % 65536`,
+   using signed remainders. Otherwise it halves pitch each tick, keeping yaw and roll. The stock low-speed branch
+   also zeros velocity once the pitch is nearly flat; the port keeps its existing movement behavior.
 9. **Fuse** (`Timer` at TempsExplosion): on the server `bBounce = false`, `SetPhysics(PHYS_None)`,
    `Explode(Location, (0,0,0))` (native per class); on clients the copy simply destroys itself (the effect comes
    from the server's spawned actors).

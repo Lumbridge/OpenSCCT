@@ -29,7 +29,31 @@ public partial class SProjGrenade
         float pitch = K.SpinPitchBase + K.SpinPitchRandom * FRand();
         fVitesseRotationYaw = yaw;
         fVitesseRotationPitch = pitch;
-        RotationRate = new FRotator(SvmMath.Trunc(pitch), SvmMath.Trunc(yaw), 0);
+    }
+
+    [UcNative("ASProjGrenade::Tick", Exe = 0x10ab8990)]
+    [Provenance(ProvenanceKind.Decoded, "0x10ab89b2..0x10ab8a55: above ProjectileSpeed 20, subtract yaw rate * dt from old pitch and pitch rate * dt from the resulting yaw; wrap both with signed remainder. Otherwise halve pitch.")]
+    protected override void NativeTick(float DeltaSeconds)
+    {
+        base.NativeTick(DeltaSeconds);
+        if (bDeleteMe)
+        {
+            return;
+        }
+
+        FRotator rotation = Rotation;
+        if (ProjectileSpeed > K.GrenadeRestSpeed)
+        {
+            // The native writes rotation directly, independent of the flight direction.
+            rotation.Yaw = SvmMath.Trunc(rotation.Pitch - (fVitesseRotationYaw * DeltaSeconds)) % 65536;
+            rotation.Pitch = SvmMath.Trunc(rotation.Yaw - (fVitesseRotationPitch * DeltaSeconds)) % 65536;
+        }
+        else
+        {
+            rotation.Pitch /= 2;
+        }
+
+        Rotation = rotation;
     }
 
     /// <summary>The fuse: the server stops the grenade and explodes it; a client copy destroys itself.</summary>

@@ -21,6 +21,10 @@ global uniform sampler2D svm_emf_env;
 // halved into the texture factor and added before the 2x modulation (docs/RENDERING.md#vision-modes).
 global uniform float svm_vision_ambient;
 
+#ifdef BLEND_ADDITIVE
+uniform float additive_gain = 1.0;
+#endif
+
 // Vision data of the material (its heat and EMF modifiers) and of the actor drawing it.
 // heat_mode: 0 flat HeatIntensity, 1 HEATTEX_Cool 4 x lum x HeatIntensity, 2 HEATTEX_Heat lum + HeatIntensity.
 // emf_mode: 0 none, 1 the EMF texture, 2 the EMF texture inverted.
@@ -1002,6 +1006,9 @@ void fragment() {
 	}
 #if defined(BLEND_ADDITIVE)
 	c *= surfaceFog.a;
+	if (svm_vision != 36 && svm_vision != 38) {
+		c *= additive_gain;
+	}
 #elif defined(BLEND_MODULATE)
     // Decoded SetShaderMaterial 0x10f36a30 / FinalBlend helper 0x10f33c90: fog override 127/255,
     // doubled here because Godot's multiply draw already folds in the native 2x modulation.

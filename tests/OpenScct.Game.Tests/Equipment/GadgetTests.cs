@@ -53,6 +53,34 @@ public sealed class GadgetTests
         Assert.Equal(new Name("s_FireGrenade"), rifle.GetStateName());
     }
 
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void ThrownGrenadesAndFlaresTumbleAndLevelOutAtLowSpeed(bool flare)
+    {
+        var scene = new CombatScene();
+        var launchRotation = new FRotator(5000, 20000, 0);
+        SProjGrenade projectile = scene.Level.SpawnActor<SProjGrenade>(
+            flare ? new SProjFlare() : new SProjFrag(), new FVector(0f, 0f, 100f), launchRotation)!;
+        projectile.Launch(900, false);
+        FVector launchVelocity = projectile.Velocity;
+
+        scene.World.Step();
+        FRotator first = projectile.Rotation;
+        scene.World.Step();
+        FRotator second = projectile.Rotation;
+        Assert.NotEqual(launchRotation.Pitch, first.Pitch);
+        Assert.NotEqual(launchRotation.Yaw, first.Yaw);
+        Assert.NotEqual(first.Pitch, second.Pitch);
+        Assert.NotEqual(first.Yaw, second.Yaw);
+        Assert.Equal(launchVelocity, projectile.Velocity);
+
+        projectile.ProjectileSpeed = 20f;
+        scene.Run(0.25f);
+        Assert.Equal(0, projectile.Rotation.Pitch);
+        Assert.Equal(second.Yaw, projectile.Rotation.Yaw);
+    }
+
     [Fact]
     public void AnOfflineGameRaisesGadgetChargesTo999()
     {

@@ -364,6 +364,14 @@ public sealed partial class MaterialCompiler
             : flipbook is not null ? _textures.Get(flipbook.Texture, mipmaps: true)
             : _textures.Get(entry.Texture, Mipmapped(entry, "Diffuse"));
         SetTexture(material, "tex_diffuse", diffuse);
+        if (blend == MaterialBlend.Additive &&
+            string.Equals(entry.Source, "MHOsfx_xbox.FX.rayonlum", StringComparison.OrdinalIgnoreCase))
+        {
+            // The stacked beam04 surfaces in the hospital shafts and ClarD overexpose the wall.
+            // Calibrated against the original MounE shaft, with its sign and blue cast visible.
+            material.SetShaderParameter("additive_gain", 0.1f);
+        }
+
         if (entry.NormalTexture is { } normal) SetTexture(material, "tex_normal", _textures.Get(normal));
         ApplyLayers(material, entry, combine, flipbook);
         BindSequences(material, entry);

@@ -1,4 +1,4 @@
-// A light's corona (docs/RENDERING.md#coronas): a camera-facing quad at the light, additive, drawn over everything
+// A light's corona (docs/RENDERING.md#coronas): a camera-facing quad at the light, screen blended over the scene
 // (no depth test on the quad). Visibility: the CPU's trace against the world BSP, and the frame's depth at the
 // light's centre, which must not lie in front of the light by more than max(16 uu, 8% of the distance), so meshes
 // such as floors hide a corona while the lamp head around the light does not. The CPU sets the half size, the roll
@@ -9,6 +9,7 @@ render_mode unshaded, fog_disabled, blend_add, depth_test_disabled, depth_draw_n
 
 uniform sampler2D corona_tex : filter_linear_mipmap, repeat_disable, hint_default_black;
 uniform sampler2D depth_tex : hint_depth_texture, filter_nearest;
+uniform sampler2D scene_tex : hint_screen_texture, filter_nearest, repeat_disable;
 varying vec3 v_center;
 
 instance uniform vec4 svm_corona = vec4(0.0);        // x half size in metres, y roll in radians
@@ -38,6 +39,9 @@ void fragment() {
 		}
 	}
 	vec4 fog = surface_fog(CAMERA_VISIBLE_LAYERS, v_center, uv * VIEWPORT_SIZE, VIEWPORT_SIZE);
-	ALBEDO = texture(corona_tex, UV).rgb * svm_corona_colour.rgb * fog.a;
+	// Native DrawCoronas selects FB_Translucent (ONE, INVSRCCOLOR) at 0x10a1418b.
+	// Over the opaque scene this adds src * (1 - dst), preserving detail on bright lamp housings.
+	vec3 scene = clamp(texture(scene_tex, SCREEN_UV).rgb, vec3(0.0), vec3(1.0));
+	ALBEDO = texture(corona_tex, UV).rgb * svm_corona_colour.rgb * fog.a * (vec3(1.0) - scene);
 	ALPHA = 1.0;
 }

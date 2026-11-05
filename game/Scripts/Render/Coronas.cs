@@ -8,7 +8,7 @@ using OpenScctGame.Render.Data;
 namespace OpenScctGame.Render;
 
 /// <summary>
-/// Light coronas (bCorona): one camera-facing additive quad per corona light, sized and faded each frame from the
+/// Light coronas (bCorona): one camera-facing screen-blended quad per corona light, sized and faded each frame from the
 /// view as the original does. With s = clamp(0.001 x distance, 0.01, 10): half size clamp(s x DrawScale x Fade x
 /// 512 x DrawScale3D, MinCoronaSize, MaxCoronaSize) uu, roll s x CoronaRotation x 16384 + CoronaRotationOffset,
 /// colour corona colour x light type x 0.5 x Fade. Fade moves at 6 x ScaleGlow per second towards the light being on and in
