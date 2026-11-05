@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
 using OpenScct.Core.Uc;
+using OpenScct.Game.Modes;
 using OpenScct.Game.SBase;
 using OpenScct.Net;
 using OpenScct.Net.Moves;
@@ -487,6 +488,7 @@ public static class PawnProxyReceiver
         private int _elapsed;
         private float _preciseElapsed;
         private bool _matchBegun;
+        private int _matchPlayers;
 
         [UcNative("ASBasePawn::PreNetReceive", Editor = 0x111f8c60)]
         [PortOf("eng:ASBasePawn::PreNetReceive", Spec = "spec/native/net-proxy.md#client-proxy-tick-ticksimulated-every-frame-for-a-simulated-pawn")]
@@ -496,6 +498,7 @@ public static class PawnProxyReceiver
             _elapsed = _clock?.ElapsedTime ?? 0;
             _preciseElapsed = _clock?.PreciseElapsedTime() ?? 0f;
             _matchBegun = _clock?.bMatchHasBegun ?? false;
+            _matchPlayers = _clock?.MatchPlayers ?? 0;
             _mover = actor as Mover;
             _simInterpolate = _mover?.SimInterpolate ?? default;
             _meshActor = actor;
@@ -531,6 +534,12 @@ public static class PawnProxyReceiver
                 bool reset = clock.ElapsedTime < _elapsed || (clock.bMatchHasBegun && !_matchBegun);
                 float fraction = reset ? 0f : Math.Max(0f, _preciseElapsed - clock.ElapsedTime);
                 clock.SecondCount = clock.XLevel.WorldTimeSeconds - fraction * clock.Level.TimeDilation;
+            }
+            if (_clock is { } round && ReferenceEquals(round, actor) && round.MatchPlayers != _matchPlayers)
+            {
+                // OpenSCCT: the round's player count lays out this client's copy of the gated actors
+                // (spec/additions/match-size-rules.md#network).
+                MatchSizeRules.For(round.XLevel)?.ApplyOnClient(round.MatchPlayers);
             }
             _clock = null;
             PostMesh(actor);

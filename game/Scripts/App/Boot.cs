@@ -5,8 +5,8 @@ namespace OpenScctGame;
 
 /// <summary>
 /// First scene. Shows the build and engine versions; with <c>--svm-play=Name</c> it goes straight to offline play
-/// on that map through the listen server path, with <c>--svm-map=Name</c> to a local match on that map, otherwise
-/// it opens the main menu.
+/// on that map through the listen server path (online with <c>--svm-lan-host</c>, or <c>--svm-join</c> to join one),
+/// with <c>--svm-map=Name</c> to a local match on that map, otherwise it opens the main menu.
 /// </summary>
 public partial class Boot : Node
 {
@@ -21,11 +21,21 @@ public partial class Boot : Node
 
         App app = App.From(this);
         OfflinePlayEntry.Register();
+        if (app.IsMapShotRun)
+        {
+            return;
+        }
+
         if (!app.IsSmokeRun && DisplayServer.GetName() != "headless")
             Callable.From(() => Online.ClientPresenceService.Get(GetTree())).CallDeferred();
         if (!app.IsSmokeRun && app.Options.DemoFile is { } demo)
         {
             Callable.From(() => OpenScctGame.Play.Demo.DemoLibrary.Watch(GetTree(), demo)).CallDeferred();
+        }
+        else if (!app.IsSmokeRun && (app.Options.NetHostPort is not null || app.Options.NetJoin is not null))
+        {
+            // Kept on the root: the round outlives the scenes it travels through.
+            Callable.From(() => GetTree().Root.AddChild(new Online.CommandLineRound { Options = app.Options })).CallDeferred();
         }
         else if (!app.IsSmokeRun && app.Options.PlayMap is not null)
         {

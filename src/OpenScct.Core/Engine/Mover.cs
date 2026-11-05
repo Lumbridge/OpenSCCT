@@ -43,7 +43,8 @@ public partial class Mover
         bInterpolating = true;
         PrevKeyNum = KeyNum;
         KeyNum = NewKeyNum;
-        PhysRate = 1f / SvmMath.Max(Seconds, MoverK.MinLegTime);
+        // OpenSCCT: a map can give this leg its own time and easing (spec/additions/mover-legs.md).
+        PhysRate = 1f / SvmMath.Max(LegSeconds(Seconds), MoverK.MinLegTime);
         ClientUpdate++;
         SimOldPos = OldPos;
         SimInterpolate = new FVector(100f * PhysAlpha, 100f * SvmMath.Max(0.01f, PhysRate), 256f * PrevKeyNum + KeyNum);
@@ -79,7 +80,7 @@ public partial class Mover
 
     /// <summary>
     /// The moving-brush step (native, game 0x10a21970): alpha advances by dt x PhysRate, the eased (MV_GlideByTime,
-    /// 3a^2 - 2a^3) or linear alpha places the mover between OldPos/OldRot and the target key, and the move is made
+    /// 3a^2 - 2a^3; or the map's own per-key easing, Mover.Legs.cs) or linear alpha places the mover between OldPos/OldRot and the target key, and the move is made
     /// with encroachment checks. An accepted move stores the alpha; reaching 1 ends the leg (KeyFrameReached) and the
     /// rest of the tick's time carries into the next leg. A refused move keeps the alpha, and when the step had
     /// crossed 1 the loop tries again with the leftover time (a shorter step towards the key).
@@ -123,7 +124,7 @@ public partial class Mover
             }
 
             double a = newAlpha;
-            double s = MoverGlideType == EMoverGlideType.MV_GlideByTime ? 3.0 * a * a - 2.0 * a * a * a : a;
+            double s = LegEase(a);
             int key = SvmMath.Clamp(KeyNum, 0, MoverK.MaxKeys - 1);
             FVector target = OldPos + (BasePos + KeyPos[key] - OldPos) * (float)s;
             FRotator to = BaseRot + KeyRot[key] - OldRot;
@@ -186,10 +187,11 @@ public partial class Mover
     {
         OldPos = SimOldPos;
         PhysAlpha = SimInterpolate.X * 0.01f;
-        PhysRate = SimInterpolate.Y * 0.01f;
         int keys = (int)SimInterpolate.Z;
         KeyNum = (byte)SvmMath.Clamp(keys & 0xff, 0, MoverK.MaxKeys - 1);
         PrevKeyNum = (byte)SvmMath.Clamp((keys >> 8) & 0xff, 0, MoverK.MaxKeys - 1);
+        // OpenSCCT: a leg's own time and easing come from the map file (spec/additions/mover-legs.md).
+        PhysRate = ClientLegRate(SimInterpolate.Y * 0.01f);
         OldRot = NearestTurn(Rotation, BaseRot + KeyRot[PrevKeyNum]);
         SetPhysics(EPhysics.PHYS_MovingBrush);
         bInterpolating = true;

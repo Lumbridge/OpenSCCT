@@ -1,4 +1,5 @@
-"""Validation of an SVMap folder (1.0 or 1.1): JSON Schemas, references, derived indexes, collision.bin and hashes.
+"""Validation of an SVMap folder (1.0 to 1.2): JSON Schemas, references, derived indexes, collision.bin, the 1.2
+match, mover timing and outfit files, and hashes.
 
 The schemas are taken from spec/svmap/1.<minor>/schemas for the minor version each file declares.
 """
@@ -21,6 +22,10 @@ SCHEMA_FILES = {
     "manifest": "manifest.schema.json",
     "gameplay": "gameplay.schema.json",
     "traversal": "traversal.schema.json",
+    # 1.2 on: files without a formatVersion of their own, checked against the manifest's.
+    "match": "match.schema.json",
+    "outfits": "outfits.schema.json",
+    "movers": "movers.schema.json",
 }
 SPEC_DIR = SPEC_ROOT.parent          # spec/svmap
 SCHEMA_ROOT = SPEC_ROOT / "schemas"  # 1.0, kept for callers that name it
@@ -38,7 +43,8 @@ def validators(schema_root: str = str(SCHEMA_ROOT)) -> dict:
     from referencing import Registry, Resource
 
     root = Path(schema_root)
-    docs = {k: json.loads((root / f).read_text(encoding="utf-8")) for k, f in SCHEMA_FILES.items()}
+    docs = {k: json.loads((root / f).read_text(encoding="utf-8")) for k, f in SCHEMA_FILES.items()
+            if (root / f).is_file()}
     registry = Registry().with_resources(
         (doc["$id"], Resource.from_contents(doc)) for doc in docs.values())
     out = {}
@@ -48,9 +54,13 @@ def validators(schema_root: str = str(SCHEMA_ROOT)) -> dict:
     return out
 
 
-def schema_errors(kind: str, instance) -> list[str]:
-    version = instance.get("formatVersion") if isinstance(instance, dict) else None
-    v = validators(str(schema_root_for(version)))[kind]
+def schema_errors(kind: str, instance, version: str | None = None) -> list[str]:
+    """Schema problems of `instance`, by the schema of its own formatVersion, else `version`."""
+    if isinstance(instance, dict) and "formatVersion" in instance:
+        version = instance["formatVersion"]
+    v = validators(str(schema_root_for(version))).get(kind)
+    if v is None:
+        return [f"{kind}: SVMap {version} has no {SCHEMA_FILES[kind]}; the file is newer than the map's version"]
     errs = sorted(v.iter_errors(instance), key=lambda e: list(e.absolute_path))
     return [f"{kind}: {'/'.join(str(p) for p in e.absolute_path) or '<root>'}: {e.message}" for e in errs[:50]]
 
@@ -113,6 +123,27 @@ def collision_errors(data: bytes, actor_ids: set[str]) -> list[str]:
     return errs[:200]
 
 
+# OpenSCCT's own classes that a class table need not list: a reader without an entry uses the class's own defaults
+# (spec/svmap/1.2/conveyors.md).
+CONVEYOR_CLASS = "Svm.Conveyor"
+NATIVE_CLASSES = frozenset({CONVEYOR_CLASS})
+
+
+def conveyor_errors(gameplay: dict) -> list[str]:
+    """Svm.Conveyor actors beyond the gameplay schema (spec/svmap/1.2/conveyors.md): `Next` names a conveyor."""
+    actors = {a["id"].lower(): a for a in all_actors(gameplay) if isinstance(a, dict) and isinstance(a.get("id"), str)}
+    errs = []
+    for a in actors.values():
+        if a.get("class") != CONVEYOR_CLASS:
+            continue
+        nxt = (a.get("props") or {}).get("Next")
+        name = nxt.get("$actor") if isinstance(nxt, dict) else None
+        target = actors.get(name.lower()) if isinstance(name, str) else None
+        if target is not None and target.get("class") != CONVEYOR_CLASS:
+            errs.append(f"gameplay: {a['id']} Next names {name}, which is not a {CONVEYOR_CLASS}")
+    return errs
+
+
 def class_table_errors(table, gameplay: dict) -> list[str]:
     if not isinstance(table, dict) or not isinstance(table.get("classes"), dict):
         return ["sim/classes.json: no classes object"]
@@ -120,6 +151,8 @@ def class_table_errors(table, gameplay: dict) -> list[str]:
     errs = []
     for a in all_actors(gameplay):
         c = classes.get(a["class"])
+        if c is None and a["class"] in NATIVE_CLASSES:
+            continue
         if c is None or "defaults" not in c:
             errs.append(f"sim/classes.json: no defaults for {a['class']} ({a['id']})")
     for path, c in classes.items():
@@ -127,6 +160,105 @@ def class_table_errors(table, gameplay: dict) -> list[str]:
         if sup and sup not in classes:
             errs.append(f"sim/classes.json: {path} names super class {sup}, which is missing")
     return errs[:50]
+
+
+# The stock classes these checks ask about and their super classes, as the game's class tree has them (the generated
+# classes under src/OpenScct.Core/Generated and src/OpenScct.Game/Generated). A map built against the shared class
+# pack need not carry sim/classes.json, so a class chain falls back on these; the map's own table comes first.
+STOCK_SUPERS = {
+    "Engine.MoverRotating": "Engine.Mover",
+    "SBase.SLift": "Engine.Mover",
+    "SBase.SLiftDoor": "Engine.Mover",
+}
+
+
+def class_is_a(cls: str, base: str, classes) -> bool:
+    """Whether `cls` is `base` or descends from it, by the map's sim/classes.json, else the stock class tree."""
+    table = classes.get("classes", {}) if isinstance(classes, dict) else {}
+    if not isinstance(table, dict):
+        table = {}
+    for _ in range(64):
+        if not cls:
+            return False
+        if cls.lower() == base.lower():
+            return True
+        entry = table.get(cls)
+        cls = (entry.get("super") if isinstance(entry, dict) else None) or STOCK_SUPERS.get(cls) or ""
+    return False
+
+
+def match_errors(match: dict, gameplay: dict, classes) -> list[str]:
+    """sim/match.json (spec/svmap/1.2/match.md) beyond its schema: rules name written actors once each with min <=
+    max, key positions only on movers, no rules on conveyors, and win targets name missions."""
+    where = "sim/match.json"
+    actors = {a["id"].lower(): a for a in all_actors(gameplay) if isinstance(a, dict) and isinstance(a.get("id"), str)}
+
+    def is_a(cls: str, base: str) -> bool:
+        return class_is_a(cls, base, classes)
+
+    errs = []
+    ruled = set()
+    for i, r in enumerate(match.get("rules", [])):
+        at = f"{where}: rules[{i}]"
+        actor = r["actor"]
+        if actor.lower() in ruled:
+            errs.append(f"{at}: {actor} has a second rule")
+        ruled.add(actor.lower())
+        low, high = r["players"]
+        if low and high and low > high:
+            errs.append(f"{at}: min {low} is more than max {high}")
+        target = actors.get(actor.lower())
+        if target is None:
+            errs.append(f"{at}: {actor} is not an actor of the map")
+            continue
+        keyed = isinstance(r.get("outside"), dict) or isinstance(r.get("inside"), dict)
+        if keyed and not is_a(target.get("class", ""), "Engine.Mover"):
+            errs.append(f"{at}: key positions apply to movers only ({actor})")
+        if target.get("class") == CONVEYOR_CLASS:
+            errs.append(f"{at}: {actor} is a conveyor; a player-count rule cannot take its belt out of the round")
+    for i, w in enumerate(match.get("win", [])):
+        target = actors.get(w["mission"].lower())
+        if target is None or not is_a(target.get("class", ""), "SBase.SMission"):
+            errs.append(f"{where}: win[{i}]: {w['mission']} is not a mission of the map")
+    return errs
+
+
+def movers_errors(movers: dict, gameplay: dict, classes) -> list[str]:
+    """sim/movers.json (spec/svmap/1.2/movers.md) beyond its schema: each entry names a mover of the map, once."""
+    where = "sim/movers.json"
+    actors = {a["id"].lower(): a for a in all_actors(gameplay) if isinstance(a, dict) and isinstance(a.get("id"), str)}
+
+    def is_mover(cls: str) -> bool:
+        return class_is_a(cls, "Engine.Mover", classes)
+
+    errs = []
+    seen = set()
+    for i, m in enumerate(movers.get("movers", [])):
+        at = f"{where}: movers[{i}]"
+        actor = m["actor"]
+        if actor.lower() in seen:
+            errs.append(f"{at}: {actor} is listed twice")
+        seen.add(actor.lower())
+        target = actors.get(actor.lower())
+        if target is None or not is_mover(target.get("class", "")):
+            errs.append(f"{at}: {actor} is not a mover of the map")
+    return errs
+
+
+def outfits_errors(root: Path, outfits: dict) -> list[str]:
+    """render/outfits.json (spec/svmap/1.2/outfits.md) beyond its schema: the textures and models it names exist
+    under render/."""
+    where = "render/outfits.json"
+    errs = []
+    for team in ("spy", "merc"):
+        t = outfits.get(team) or {}
+        for slot, value in (t.get("slots") or {}).items():
+            if not (root / "render" / value["texture"]).is_file():
+                errs.append(f"{where}: {team}.slots.{slot} texture {value['texture']} is not a file under render/")
+        glb = (t.get("model") or {}).get("glb")
+        if glb is not None and not (root / "render" / glb).is_file():
+            errs.append(f"{where}: {team}.model glb {glb} is not a file under render/")
+    return errs
 
 
 def render_errors(root: Path) -> list[str]:
@@ -188,6 +320,9 @@ def validate_svmap(root: Path) -> list[str]:
         errs += se
         if not se:
             errs += gameplay_errors(gameplay)
+            if minor_of(gameplay["formatVersion"]) < 2 and any(a["class"] == CONVEYOR_CLASS for a in gameplay["actors"]):
+                errs.append(f"gameplay: {CONVEYOR_CLASS} actors are new in SVMap 1.2; the map is {gameplay['formatVersion']}")
+            errs += conveyor_errors(gameplay)
     if traversal is not None:
         se = schema_errors("traversal", traversal)
         errs += se
@@ -202,6 +337,25 @@ def validate_svmap(root: Path) -> list[str]:
     table = load("sim/classes.json", required=False)
     if table is not None and gameplay is not None:
         errs += class_table_errors(table, gameplay)
+    version = manifest.get("formatVersion") if isinstance(manifest, dict) else None
+    match = load("sim/match.json", required=False)
+    if match is not None:
+        se = schema_errors("match", match, version)
+        errs += se
+        if not se and gameplay is not None:
+            errs += match_errors(match, gameplay, table)
+    movers = load("sim/movers.json", required=False)
+    if movers is not None:
+        se = schema_errors("movers", movers, version)
+        errs += se
+        if not se and gameplay is not None:
+            errs += movers_errors(movers, gameplay, table)
+    outfits = load("render/outfits.json", required=False)
+    if outfits is not None:
+        se = schema_errors("outfits", outfits, version)
+        errs += se
+        if not se:
+            errs += outfits_errors(root, outfits)
     errs += render_errors(root)
     if manifest is not None and gameplay is not None and traversal is not None:
         mid = manifest.get("map")

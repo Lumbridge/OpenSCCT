@@ -147,7 +147,39 @@ public partial class LobbyRoomScreen : MenuPage
         string map = s.Setup.Map;
         BriefingPages pages = BriefingPages.For(s.MapSettings(map), s.Setup.Mode, spy);
         string title = (_mapCatalog is { } maps ? MapTitles.Of(maps, map) : map) + " - " + CreateSessionModel.ModeName(s.Setup.Mode);
-        AddChild(new BriefingPanel(pages, MapImages.Loading(_mapCatalog, map, !spy), title));
+        AddChild(new BriefingPanel(pages, MapImages.Preview(_mapCatalog, map), MapImages.Briefing(_mapCatalog, map), PlaceMarks(map), title));
+    }
+
+    /// <summary>The room a place number takes on the plan, as a share of its width and height (two digits at the
+    /// briefing's font size).</summary>
+    private const float MarkWidth = 0.06f, MarkHeight = 0.045f;
+
+    /// <summary>The map's numbered places on its briefing plan, when the plan was drawn through the snapshot camera.</summary>
+    private List<BriefingMark> PlaceMarks(string map)
+    {
+        var marks = new List<BriefingMark>();
+        if (MapImages.Entry(_mapCatalog, map) is not { BriefingThroughSnapshot: true, Folder: { } folder } entry || entry.Places.Count == 0)
+        {
+            return marks;
+        }
+
+        StrategicMapData strategic = StrategicMapData.Load(folder);
+        foreach (OpenScct.Content.Maps.MapPlace place in entry.Places)
+        {
+            if (strategic.Project(new StrategicMapPoint(place.At.X, place.At.Y, place.At.Z)) is { } uv && uv.U is >= 0f and <= 1f && uv.V is >= 0f and <= 1f)
+            {
+                // Places on different floors can land on the same spot of the plan: such numbers stack downwards.
+                float v = uv.V;
+                while (v + MarkHeight <= 1f && marks.Any(m => Math.Abs(m.U - uv.U) < MarkWidth && Math.Abs(m.V - v) < MarkHeight))
+                {
+                    v += MarkHeight;
+                }
+
+                marks.Add(new BriefingMark(uv.U, v, place.Number));
+            }
+        }
+
+        return marks;
     }
 
     /// <summary>"Equipment" (Lobby_Create's Button3, which opens Edit_Profile): the gear picker for the local player's side.</summary>

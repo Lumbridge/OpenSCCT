@@ -668,6 +668,10 @@ vec2 svm_affine(vec2 uv, vec3 row_u, vec3 row_v) {
 	return vec2(dot(row_u, h), dot(row_v, h));
 }
 
+// OpenSCCT's own: a conveyor's belt, steps, rollers and scroll targets slide every layer of their texture with the
+// belt's phase (ConveyorViews sets it on the node's own material copies; spec/additions/conveyors.md#look).
+uniform vec2 svm_scroll = vec2(0.0);
+
 vec2 svm_uv(vec2 uv) {
 #ifdef UV_ANIM
 	uv = svm_anim(uv, uv_anim_type, uv_anim_a, uv_anim_b, uv_anim_c, tex_size);
@@ -713,9 +717,10 @@ void fragment() {
 		discard;
 	}
 #endif
-	vec2 uv = svm_uv(UV);
+	vec2 surface_uv = UV + svm_scroll;
+	vec2 uv = svm_uv(surface_uv);
 #if defined(OPACITY_LAYER) || defined(SPEC_LAYER) || defined(SI_LAYER) || defined(SEQUENCE_D) || defined(SEQUENCE_SI) || defined(SEQUENCE_SIM)
-	vec2 raw_uv = svm_affine(UV, base_row_u, base_row_v);
+	vec2 raw_uv = svm_affine(surface_uv, base_row_u, base_row_v);
 #endif
 #if defined(SEQUENCE_D)
     vec4 t = seq_d_sample(raw_uv);

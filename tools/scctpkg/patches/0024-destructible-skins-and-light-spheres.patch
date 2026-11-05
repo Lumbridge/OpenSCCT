@@ -1,8 +1,8 @@
 diff --git a/export_gltf.py b/export_gltf.py
-index 1bf5d686..d2404978 100644
+index b9d8b7ad..893ec671 100644
 --- a/export_gltf.py
 +++ b/export_gltf.py
-@@ -223,7 +223,7 @@ class GltfWriter:
+@@ -226,7 +226,7 @@ class GltfWriter:
          return len(self.accessors) - 1
  
      def mesh(self, name: str, prims: List[tuple]) -> int:
@@ -11,7 +11,7 @@ index 1bf5d686..d2404978 100644
          gprims = []
          for prim in prims:
              pos, nrm, uv, idx, mat = prim[:5]
-@@ -244,7 +244,13 @@ class GltfWriter:
+@@ -247,7 +247,13 @@ class GltfWriter:
              if uv is not None and len(uv) == len(pos):
                  attrs["TEXCOORD_0"] = self.add_vec_accessor(uv, 2, "VEC2")
              gprims.append({"attributes": attrs, "indices": self.add_index_accessor(idx), "material": mat, "mode": 4})
@@ -26,7 +26,7 @@ index 1bf5d686..d2404978 100644
          return len(self.meshes) - 1
  
      def node(self, name: str, mesh: int, translation=None, extras=None) -> int:
-@@ -800,7 +806,7 @@ def _static_mesh_prims(sm: StaticMesh, owner: Package, resolver: MaterialResolve
+@@ -803,7 +809,7 @@ def _static_mesh_prims(sm: StaticMesh, owner: Package, resolver: MaterialResolve
              mat = writer.material(key, res, uri)
          # bUnlit changes lighting, not the Shader's self-illumination layers (map directions use these).
          _self_illum_flags(writer, key, res, tex_dir, tex_uri)
@@ -35,17 +35,19 @@ index 1bf5d686..d2404978 100644
      return prims
  
  
-@@ -1129,7 +1135,8 @@ def _perspective_projector_prims(rec: ActorRecord, polys: List[BspPolygon], pkg:
- 
+@@ -1133,9 +1139,10 @@ def _perspective_projector_prims(rec: ActorRecord, polys: List[BspPolygon], pkg:
  
  def export_map(map_path: Path, pset: PackageSet, out_root: Path, include_bsp: bool = True,
--               max_meshes: Optional[int] = None, extra_mesh_refs: Optional[List[int]] = None) -> dict:
-+               max_meshes: Optional[int] = None, extra_mesh_refs: Optional[List[int]] = None,
-+               extra_material_refs: Optional[List[int]] = None) -> dict:
+                max_meshes: Optional[int] = None, extra_mesh_refs: Optional[List[int]] = None,
+-               skip_refs: Collection[int] = ()) -> dict:
++               extra_material_refs: Optional[List[int]] = None, skip_refs: Collection[int] = ()) -> dict:
      """extra_mesh_refs: static mesh references (relative to the map package) that no actor places but the game can
-     swap to (SGamePlayObject TriggeredMesh, DamagedMeshes[].StaticMesh); each becomes a library node too."""
+     swap to (SGamePlayObject TriggeredMesh, DamagedMeshes[].StaticMesh); each becomes a library node too.
++    extra_material_refs: damage/trigger skins that need exported textures and shader flags even without a placed surface.
+     skip_refs: actors (export index + 1) to leave out, see level.extract_level."""
      pkg = Package.load(map_path)
-@@ -1142,6 +1149,12 @@ def export_map(map_path: Path, pset: PackageSet, out_root: Path, include_bsp: bo
+     map_name = map_path.stem
+@@ -1147,6 +1154,12 @@ def export_map(map_path: Path, pset: PackageSet, out_root: Path, include_bsp: bo
      writer = GltfWriter()
      writer.tex_dir, writer.tex_uri = tex_dir, tex_uri   # flipbook atlases (animated additive textures)
      stats = {"map": map_name, "bsp_polys": 0, "static_meshes": 0, "actors": 0, "missing_meshes": []}
@@ -58,7 +60,7 @@ index 1bf5d686..d2404978 100644
      bsp_actor = None
  
      lightmapped: list = []
-@@ -1293,7 +1306,7 @@ def export_map(map_path: Path, pset: PackageSet, out_root: Path, include_bsp: bo
+@@ -1301,7 +1314,7 @@ def export_map(map_path: Path, pset: PackageSet, out_root: Path, include_bsp: bo
                      vname = _safe(key) + f"__vc{h}" + (f"_sk{skin_id}" if skin_sig else "")
                      prims = _static_mesh_prims(sm, owner, resolver, writer, tex_dir, tex_uri,
                                                 skin_refs if skin_sig else None, pkg)
@@ -67,7 +69,7 @@ index 1bf5d686..d2404978 100644
                      color_variants[vkey] = None
                      if prims:
                          mi = writer.mesh(vname, prims)
-@@ -1337,7 +1350,7 @@ def export_map(map_path: Path, pset: PackageSet, out_root: Path, include_bsp: bo
+@@ -1345,7 +1358,7 @@ def export_map(map_path: Path, pset: PackageSet, out_root: Path, include_bsp: bo
                          vname = _safe(key) + f"__vc{h}" + (f"_sk{skin_id}" if skin_sig else "")
                          prims = _static_mesh_prims(sm, owner, resolver, writer, tex_dir, tex_uri,
                                                     skin_refs if skin_sig else None, pkg)

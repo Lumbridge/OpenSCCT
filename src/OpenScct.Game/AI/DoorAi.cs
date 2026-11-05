@@ -490,7 +490,7 @@ public sealed partial class DoorAi
                     _phaseAt = now;
                 }
                 else if (t > 0.3f && (!(door.bInterpolating || door.bDelaying) ||
-                    t > MathF.Max(4f, door.MoveTime + MathF.Max(door.DelayTime, door.DelayTimeLastKey) + 1f)))
+                    t > MathF.Max(4f, door.LongestLegTime + MathF.Max(door.DelayTime, door.DelayTimeLastKey) + 1f)))
                 {
                     // Finished or stalled against an encroaching pawn: let the route move/recover and inspect again.
                     Done(pawn, now);

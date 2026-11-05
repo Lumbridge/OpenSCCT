@@ -132,8 +132,9 @@ public sealed class ScoreboardTransportTests
         Assert.True(credited > atDeparture);
         pawn.bPoisonned = false;
         victim.CountPoisonDrain();
+        // A credit must age 30 seconds, then wait for the next 30-second combat release.
         Assert.True(rig.RunUntil(() => spy.Session?.Scoreboard?.Rows.Any(p => p.ParticipantId == participantId &&
-            p.LeftEarly && p.Stats?.GetValueOrDefault("career.damagegiven") == credited) == true, 33));
+            p.LeftEarly && p.Stats?.GetValueOrDefault("career.damagegiven") == credited) == true, 63));
         var rejoined = Join("ReturningMerc", 0);
         Assert.True(rig.RunUntil(() => rejoined.State == OnlineClientState.Match && rig.Server.Host.Players.Any(p =>
             p.Controller?.PlayerReplicationInfo?.PlayerName == "ReturningMerc"), 10));

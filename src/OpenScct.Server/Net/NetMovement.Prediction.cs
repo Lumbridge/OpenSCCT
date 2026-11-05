@@ -5,6 +5,7 @@ using OpenScct.Game.Animation;
 using OpenScct.Game.Movement;
 using OpenScct.Game.SBase;
 using OpenScct.Net.Moves;
+using OpenScct.Physics.Conveyors;
 
 namespace OpenScct.Server;
 
@@ -22,6 +23,8 @@ public sealed partial class SBasePawnMoves
     private FVector _replayBasePosition;
     private FRotator _replayBaseRotation;
     private uint _authoritativeOwnerAction;
+    // The server tick of the correction being replayed and the local tick of the move it acknowledges (-1: unknown).
+    private long _replayServerTick = -1, _replayAcknowledgedTick;
     public void NoteAuthoritativeOwnerAction(uint sequence) => _authoritativeOwnerAction = sequence;
 
     private sealed class PredictionFrame
@@ -382,8 +385,9 @@ public sealed partial class SBasePawnMoves
         }
     }
 
-    public void BeginPredictionReplay()
+    public void BeginPredictionReplay(long serverTick = -1)
     {
+        _replayServerTick = serverTick;
         // Falling lock-on is selected by the server and replicated separately from movement corrections.
         // Rewinding a saved move must not erase a newly received target (or resurrect one the server cleared).
         _replayPreserveHomingTarget = P is { Physics: EPhysics.PHYS_Falling };
@@ -397,6 +401,9 @@ public sealed partial class SBasePawnMoves
         if (_replayPreserveHomingTarget && pawn.Physics == EPhysics.PHYS_Falling)
             pawn.m_AttackTarget = _replayHomingTarget is { bDeleteMe: false } ? _replayHomingTarget : null;
     }
+
+    /// <summary>The changes of the conveyors near <paramref name="location"/> (a level without conveyors has none).</summary>
+    public uint PredictionInputRevisionAt(FVector location) => _pc.XLevel.GetService<ConveyorField>()?.RevisionNear(location) ?? 0u;
 
     public bool PredictionHistoryComplete(int slot) => _prediction is not null && _prediction[slot].Collision.Complete;
 
@@ -421,9 +428,16 @@ public sealed partial class SBasePawnMoves
     {
         _liveCollision.Apply();
         _liveCollision.Capture(pawn);
-        frame.Collision.Apply();
+        frame.Collision.Apply(ServerTickOf(frame));
         MovementNatives.Driver(pawn)?.Collision.NotifyCollisionChanged();
     }
+
+    /// <summary>
+    /// The server tick that applies a replayed move, estimated from the correction: the server takes one move a tick
+    /// after the acknowledged one. -1 when the correction carried no tick.
+    /// </summary>
+    private long ServerTickOf(PredictionFrame frame) =>
+        _replayServerTick < 0 ? -1 : _replayServerTick + Math.Max(0, frame.Tick - _replayAcknowledgedTick);
 
     // A reliable authoritative action can arrive after the acknowledged input was simulated. Its state entry
     // and animation must survive older corrections; the next acknowledgement has history under the new state.
@@ -435,6 +449,7 @@ public sealed partial class SBasePawnMoves
     {
         if (P is not { } pawn || _prediction is null) return;
         PredictionFrame frame = _prediction[slot];
+        _replayAcknowledgedTick = frame.Tick;
         StageCollision(pawn, frame);
         StageCompletedBase(pawn, frame);
         frame.Controls(_pc); frame.Context(pawn);

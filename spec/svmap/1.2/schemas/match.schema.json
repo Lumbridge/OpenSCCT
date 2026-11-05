@@ -1,0 +1,131 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://svmap.invalid/1.2/match.schema.json",
+  "title": "SVMap 1.2 sim/match.json",
+  "description": "Player-count rules on actors and win targets by team size (match.md). The validator also checks what a schema cannot: actors and missions exist, min is not above max, key positions only on movers, no rule on a conveyor.",
+  "type": "object",
+  "required": [
+    "format"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "format": {
+      "const": "svm.match/1"
+    },
+    "rules": {
+      "description": "One entry per gated actor, in any order; an actor has at most one rule.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/rule"
+      }
+    },
+    "win": {
+      "description": "Win targets by team size, one entry per mission at most.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/win"
+      }
+    }
+  },
+  "$defs": {
+    "players": {
+      "description": "A player count: 0 (no limit) or 1 to 24.",
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 24
+    },
+    "key": {
+      "description": "A mover placed at this key (Engine.Mover KeyPos[8]) and locked there.",
+      "type": "object",
+      "required": [
+        "key"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "key": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 7
+        }
+      }
+    },
+    "rule": {
+      "type": "object",
+      "required": [
+        "actor",
+        "players"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "actor": {
+          "description": "The id of an actor in sim/gameplay.json (any class but Svm.Conveyor); ids match ignoring ASCII case.",
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "players": {
+          "description": "[min, max]: the actor is in the match when the round's player count is inside the range.",
+          "type": "array",
+          "prefixItems": [
+            {
+              "$ref": "#/$defs/players"
+            },
+            {
+              "$ref": "#/$defs/players"
+            }
+          ],
+          "items": false,
+          "minItems": 2
+        },
+        "outside": {
+          "description": "The state outside the range: hidden or a key (never normal). Default: key 0 for a mover, hidden for anything else.",
+          "anyOf": [
+            {
+              "const": "hidden"
+            },
+            {
+              "$ref": "#/$defs/key"
+            }
+          ]
+        },
+        "inside": {
+          "description": "The state inside the range (default normal).",
+          "anyOf": [
+            {
+              "enum": [
+                "normal",
+                "hidden"
+              ]
+            },
+            {
+              "$ref": "#/$defs/key"
+            }
+          ]
+        }
+      }
+    },
+    "win": {
+      "type": "object",
+      "required": [
+        "mission",
+        "bySize"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "mission": {
+          "description": "The id of an SMission actor.",
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "bySize": {
+          "description": "12 counts, [0] for 1v1 to [11] for 12v12: 0 keeps the mission's own MinimumObjectives, else the completions the spies need.",
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 255
+          },
+          "minItems": 12,
+          "maxItems": 12
+        }
+      }
+    }
+  }
+}

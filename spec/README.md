@@ -24,8 +24,8 @@ For build instructions and the current implementation, start with the
 | [Native studies](native/) | Animation, input, camera, audio and other engine research |
 | [Enhanced features](enhanced/FEATURES.md) | Enhanced-version behaviour and parity notes |
 | [Reloaded features](reloaded/FEATURES.md) | Reloaded changes and evidence |
-| [OpenSCCT additions](additions/) | Hub, progression, gear changes and merc sidearms |
-| [SVMap 1.1](svmap/1.1/README.md) | Current map format; [1.0](svmap/1.0/README.md) documents the earlier format |
+| [OpenSCCT additions](additions/) | Hub, progression, gear changes, merc sidearms, match-size rules, map outfits, conveyors, mover legs and the editor's test start |
+| [SVMap 1.1](svmap/1.1/README.md) | Current map format; [1.2](svmap/1.2/README.md) adds map identity and pictures, match-size rules, outfits, conveyors and mover leg times, [1.0](svmap/1.0/README.md) documents the earlier format |
 
 ## Read the evidence
 

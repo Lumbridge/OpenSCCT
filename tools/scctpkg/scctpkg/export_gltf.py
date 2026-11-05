@@ -20,11 +20,12 @@ import struct
 from collections import defaultdict
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Collection, Dict, List, Optional, Tuple
 
 import numpy as np
 
-from .bsp import BspPolygon, extract_polygons, point_zone, read_model, PF_MIRRORED, PF_TWO_SIDED, PF_UNLIT
+from .bsp import (EDITOR, BspPolygon, extract_polygons, point_zone, read_model, world_model, PF_MIRRORED,
+                  PF_TWO_SIDED, PF_UNLIT)
 from .bsplight import read_bsp_lighting, lightmap_image, BspLighting
 import hashlib
 from .level import ActorRecord, extract_level, extract_look
@@ -43,6 +44,8 @@ def _safe(name: str) -> str:
 # reflection. So we write UE (x, y, z) as glTF (x/100, z/100, y/100) and keep
 # the original winding.
 UE_TO_GLTF_SCALE = 0.01
+# Maps whose world lightmaps the stock cook leaves out (it compares the saved file name with these).
+COOK_DROPS_LIGHTMAPS = ("entry", "lobby")
 
 
 def _to_gltf(v: np.ndarray) -> np.ndarray:
@@ -1136,9 +1139,11 @@ def _perspective_projector_prims(rec: ActorRecord, polys: List[BspPolygon], pkg:
 
 def export_map(map_path: Path, pset: PackageSet, out_root: Path, include_bsp: bool = True,
                max_meshes: Optional[int] = None, extra_mesh_refs: Optional[List[int]] = None,
-               extra_material_refs: Optional[List[int]] = None) -> dict:
+               extra_material_refs: Optional[List[int]] = None, skip_refs: Collection[int] = ()) -> dict:
     """extra_mesh_refs: static mesh references (relative to the map package) that no actor places but the game can
-    swap to (SGamePlayObject TriggeredMesh, DamagedMeshes[].StaticMesh); each becomes a library node too."""
+    swap to (SGamePlayObject TriggeredMesh, DamagedMeshes[].StaticMesh); each becomes a library node too.
+    extra_material_refs: damage/trigger skins that need exported textures and shader flags even without a placed surface.
+    skip_refs: actors (export index + 1) to leave out, see level.extract_level."""
     pkg = Package.load(map_path)
     map_name = map_path.stem
     out_dir = out_root / map_name
@@ -1161,7 +1166,7 @@ def export_map(map_path: Path, pset: PackageSet, out_root: Path, include_bsp: bo
     vertex_lit: list = []
     authored_vc: list = []   # vertex-colour variants from StaticMesh.UseVertexColor (authored colours, not baked light)
     emitters = _export_emitters(pkg, pset, tex_dir, tex_uri)
-    records = extract_level(pkg, pset)
+    records = extract_level(pkg, pset, skip_refs)
     # UE2 sky zone: the zone holding the SkyZoneInfo is rendered behind everything from a camera at the SkyZoneInfo's
     # location with the player's rotation (seen through fake-backdrop surfaces). Its BSP and actors are exported
     # separately so the client can draw them as a camera-following backdrop.
@@ -1172,9 +1177,8 @@ def export_map(map_path: Path, pset: PackageSet, out_root: Path, include_bsp: bo
     world_polys: List[BspPolygon] = []   # projector receivers
     # world BSP
     if include_bsp:
-        models = [e for e in pkg.exports_of_class("Model") if e.size > 0]
-        if models:
-            world = max(models, key=lambda e: e.size)
+        world = world_model(pkg)
+        if world is not None:
             model = read_model(pkg, world)
             polys = extract_polygons(model)
             sky_polys: List[BspPolygon] = []
@@ -1196,6 +1200,10 @@ def export_map(map_path: Path, pset: PackageSet, out_root: Path, include_bsp: bo
             lm_uris: List[Optional[str]] = []
             try:
                 lighting = read_bsp_lighting(pkg, world)
+                if pkg.layout == EDITOR and map_name.lower() in COOK_DROPS_LIGHTMAPS:
+                    # The stock cook (0x10EE4750) empties the world's lightmap textures when it saves a map of these
+                    # names: the game draws the front-end maps without them, so an editor copy is converted the same way.
+                    lighting.textures, lighting.id_to_texture = [], {}
                 tex_dir.mkdir(parents=True, exist_ok=True)
                 for i, lt in enumerate(lighting.textures):
                     fname = f"{_safe(map_name)}_lightmap{i}.png"

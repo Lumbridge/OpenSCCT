@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using OpenScct.Content;
 using OpenScct.Core;
@@ -44,6 +45,26 @@ public enum PlayHostMode
     Inline,
 }
 
+/// <summary>
+/// A scripted route a server bot walks on <paramref name="Side"/> (<c>--svm-route</c>): its stops in order, floor
+/// points (<c>x,y,z</c>) or placed actors by map id, the player start it starts at (null for any of its side's) and
+/// where its report lines go (<see cref="OpenScct.Game.AI.RouteAi"/>).
+/// </summary>
+public sealed record PlayRoute(IReadOnlyList<string> Stops, PlaySide Side, string? From, Action<string> Report)
+{
+    /// <summary>A stop's point (<c>x,y,z</c>), or null when it is not three numbers (a map id).</summary>
+    public static FVector? Point(string stop)
+    {
+        ArgumentNullException.ThrowIfNull(stop);
+        string[] c = stop.Split(',');
+        return c.Length == 3 && float.TryParse(c[0], NumberStyles.Float, CultureInfo.InvariantCulture, out float x) &&
+            float.TryParse(c[1], NumberStyles.Float, CultureInfo.InvariantCulture, out float y) &&
+            float.TryParse(c[2], NumberStyles.Float, CultureInfo.InvariantCulture, out float z)
+            ? new FVector(x, y, z)
+            : null;
+    }
+}
+
 /// <summary>What <see cref="PlaySession"/> hosts and joins.</summary>
 public sealed record PlaySettings
 {
@@ -82,8 +103,17 @@ public sealed record PlaySettings
     /// </summary>
     public int Bots { get; init; }
 
+    /// <summary>A route bot added to <see cref="Bots"/>, or null (<see cref="PlayRoute"/>).</summary>
+    public PlayRoute? Route { get; init; }
+
     /// <summary>The bots' difficulty preset (<c>--difficulty=easy|normal|hard|expert</c>).</summary>
     public string Difficulty { get; init; } = "normal";
+
+    /// <summary>
+    /// The player count the map's match-size rules lay the match out for (<c>--players=6</c>,
+    /// spec/additions/match-size-rules.md), 0 for this match's own: the bots and the local player.
+    /// </summary>
+    public int MatchPlayers { get; init; }
 
     /// <summary>
     /// Terminals block players as the map says (null, the default, or true), or false to let players walk through them
@@ -107,6 +137,12 @@ public sealed record PlaySettings
     /// <summary>Visit a Map: unlimited ammunition, gadget charges and gas mask air, with instant gear changes.</summary>
     public bool UnlimitedGear { get; init; }
 
+    /// <summary>
+    /// Where the local player first spawns instead of a PlayerStart (the map editor's Play From Camera,
+    /// spec/additions/test-start.md), or null. Later spawns use the map's starts.
+    /// </summary>
+    public (FVector Location, FRotator Rotation)? StartAt { get; init; }
+
     /// <summary>Records the match as a demo into this folder (docs/DEMOS.md), or null for none.</summary>
     public string? DemoFolder { get; init; }
 
@@ -125,14 +161,18 @@ public sealed record PlaySettings
     {
         ArgumentNullException.ThrowIfNull(gameplay);
         string mode = ((byte)GameMode).ToString(CultureInfo.InvariantCulture);
+        // Named, not counted at the round start: the bots log in before the local player, and in Play Level the first
+        // login starts the match, so the roster would hold one player.
+        int count = MatchPlayers > 0 ? MatchPlayers : Bots + (Route is null ? 1 : 2);
+        string players = "?SvmMatchPlayers=" + count.ToString(CultureInfo.InvariantCulture);
         if (Rules == PlayRules.PlayLevel)
         {
-            return $"?GameMode={mode}?Team={Team}?Editeur=true?SvmSidearms={(Sidearms ? 1 : 0)}";
+            return $"?GameMode={mode}?Team={Team}?Editeur=true?SvmSidearms={(Sidearms ? 1 : 0)}{players}";
         }
 
         // The untouched match creation page for the mode (spec/game/game-modes.md rules 1 to 5), launched from the
         // lobby (match-options.md rule 27).
-        return Setup(gameplay).GameOptions(1) + "?SvmSidearms=" + (Sidearms ? "1" : "0");
+        return Setup(gameplay).GameOptions(1) + "?SvmSidearms=" + (Sidearms ? "1" : "0") + players;
     }
 
     /// <summary>

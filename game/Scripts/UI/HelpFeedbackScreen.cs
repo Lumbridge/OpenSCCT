@@ -218,7 +218,7 @@ public partial class HelpFeedbackScreen : MenuPage
         _firstAction!.Disabled = true;
         try
         {
-            _screenshotStatus!.Text = "Attaching screenshot…";
+            _screenshotStatus!.Text = "Attaching screenshotâ€¦";
             if (_screenshotDraft is null || DateTime.UtcNow >= _screenshotDraftExpires)
             {
                 _screenshotDraft = await UploadScreenshot(_screenshotPng, _uploadCancellation.Token);

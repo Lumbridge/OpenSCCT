@@ -327,7 +327,7 @@ public partial class DemosScreen : MenuPage
         ActionButton(actions, "Delete", () => ConfirmDelete(entry), "Delete").TooltipText = "Delete this local recording after confirmation.";
         if (entry.Index.Scoreboard is { } board)
             ActionButton(actions, "Scoreboard", () => RoundScoreboardDialog.Open(this, board, watch: playable ? () => DemoLibrary.Watch(GetTree(), entry.Path) : null,
-                replayStatus: playable ? "Replay saved on this computer" : "Replay requires its original game protocol"), "Scoreboard");
+                replayStatus: playable ? "Replay saved on this computer" : "Replay requires its original game protocol", maps: _maps), "Scoreboard");
         else Text(card, "ScoreboardUnavailable", "Scoreboard unavailable for this older recording", 13, dim: true);
     }
 

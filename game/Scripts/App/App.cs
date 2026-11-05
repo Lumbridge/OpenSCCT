@@ -15,6 +15,15 @@ public partial class App : Node
 
     public bool IsSmokeRun => Options.SmokeTest is not null;
 
+    /// <summary>A run that renders map pictures and quits (<c>--svm-mapshot</c>): no menus, never in the person's way.</summary>
+    public bool IsMapShotRun => Options.MapShotRequest is not null;
+
+    /// <summary>
+    /// A test round for the map editor: one it marks as such (<c>--svm-test-round</c>), a route bot's walk, or an online
+    /// round with a client from the command line.
+    /// </summary>
+    public bool IsTestRound => Options.TestRound || Options.PlayRoute is not null || Options.NetHostPort is not null || Options.NetJoin is not null;
+
     public static App From(Node node) => node.GetNode<App>(NodePath);
 
     public override void _ExitTree()
@@ -57,7 +66,7 @@ public partial class App : Node
             }
         }
 
-        if (BackgroundWindow.Wanted(Options.SmokeTest is not null || Diagnostics.FpsBenchmark.Wanted, OS.GetCmdlineUserArgs()))
+        if (BackgroundWindow.Wanted(Options.SmokeTest is not null || IsMapShotRun || Diagnostics.FpsBenchmark.Wanted, OS.GetCmdlineUserArgs()))
         {
             // Test runs leave the person at the machine their focus and their mouse.
             OpenScctGame.Controls.Pointer.Detached = true;
@@ -90,6 +99,17 @@ public partial class App : Node
             OpenScctGame.Options.SettingsStore.Isolated = true;
             var runner = new SmokeRunner(smokeName, Options.SmokeTimeoutSeconds) { Name = "SmokeRunner" };
             AddChild(runner);
+        }
+        else if (Options.MapShotRequest is { } request)
+        {
+            // Map pictures for the map editor: default settings, nothing of the player's written.
+            OpenScctGame.Options.SettingsStore.Isolated = true;
+            AddChild(new Render.Golden.MapShot(request));
+        }
+        else if (IsTestRound)
+        {
+            // The map editor's test rounds: default settings, signed out, nothing of the player's written or recorded.
+            OpenScctGame.Options.SettingsStore.Isolated = true;
         }
         else
         {

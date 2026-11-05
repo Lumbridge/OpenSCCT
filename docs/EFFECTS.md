@@ -122,8 +122,9 @@ lines across the large cloud planes. The texture's RGB is retained; the emitter'
   self-illumination inherits the dry skin's glow and mask: in particular, wet_lit_ATT must not switch off the spy's
   back lamp when viewed by a merc. The lamp retains constant self-illumination; map lights and flashlights do not
   control its brightness or switch the suit back to a dry material. In thermal the spy's head changes (wet heat
-  HEATTEX_Heat instead of HEATTEX_Cool). The cooling itself is the pawn's replicated HeatIntensity (down to 0.5 in
-  rain), which every view draws.
+  HEATTEX_Heat instead of HEATTEX_Cool). A map outfit's own model gets wet heat and EMF masks made for its UVs from
+  the stock mesh (`OutfitSkins`, spec/additions/map-outfits.md). The cooling itself is the pawn's replicated
+  HeatIntensity (down to 0.5 in rain), which every view draws.
 - The rain splashes (`SFlicFlocEmitter`, one per pawn on its 'B Head', spec/equipment/rain.md rules 4 and 5): the
   simulation's emitter keeps what its script sets (rates, respawn, the particle budget, restarts, the puff trigger)
   and `EffectViews.FlicFloc.cs` applies it to the drawn copy each frame (`ParticleEmitterSim.RateOverride`,

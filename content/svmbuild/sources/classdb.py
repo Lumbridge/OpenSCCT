@@ -52,6 +52,55 @@ class ClassDB:
         self._lower = {p.lower(): p for p in classes}
         self.errors = {p: r["error"] for p, r in classes.items() if "error" in r}
 
+    # ---- classes defined inside a map -------------------------------------------------------------
+
+    def add_package_classes(self, pkg) -> List[str]:
+        """Registers the classes a package defines itself (a map's own scripts: RE+'s SMatchSizeRules and
+        SCharacterOutfits, and a map's own script classes), read from their Class and *Property exports like the script
+        packages' classes, and returns their paths. Their supers are game classes, so actors of them decode with
+        every inherited property. Registering a package again replaces its classes."""
+        cd = self.cd
+        added: List[str] = []
+        for e in pkg.exports:
+            if e.class_name != "Class":
+                continue
+            f = self.universe.field(pkg, e)
+            rec = cd.class_record(self.universe, f, self.decoder)
+            rec["_field"] = f
+            self.classes[f.path] = rec
+            self._lower[f.path.lower()] = f.path
+            added.append(f.path)
+        memo = {p: v for p, v in self.effective.items() if p not in added}
+        for p in added:
+            self.effective[p] = cd.effective_defaults(self.universe, self.classes, p, memo)
+        for p in added:
+            self.localized[p] = self._localized_from_super(p)
+            if "error" in self.classes[p]:
+                self.errors[p] = self.classes[p]["error"]
+        return added
+
+    def _localized_from_super(self, path: str) -> dict:
+        """Effective defaults of a package-defined class with the localized text its game super classes carry (a map
+        ships no .int section for its own classes, so only inherited text applies)."""
+        out = dict(self.effective.get(path, {}))
+        rec = self.classes[path]
+        sup = self.find(rec["super"]) if rec.get("super") else None
+        if sup is None:
+            return out
+        base = self.localized.get(sup) or self._localized_from_super(sup)
+        stored = rec.get("props") or {}
+        props = self.universe.properties(rec["_field"])
+        for k, v in base.items():
+            prop = props.get(k.lower())
+            if prop is not None and prop.data.get("flags", 0) & self.cd.CPF_LOCALIZED and k not in stored:
+                out[k] = v
+        return out
+
+    def is_package_class(self, path: str, package: str) -> bool:
+        """True when the class was defined by `package` itself (registered by add_package_classes)."""
+        p = self.find(path)
+        return p is not None and p.split(".", 1)[0].lower() == package.lower()
+
     # ---- lookup --------------------------------------------------------------------------------
 
     def find(self, path: str) -> Optional[str]:

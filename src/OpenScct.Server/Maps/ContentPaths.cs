@@ -18,6 +18,12 @@ public static class ContentPaths
     /// <summary>The content folder (with shared/ and svmap/), or null when none is set or it does not exist.</summary>
     public static string? Root { get; private set; }
 
+    /// <summary>
+    /// The language of the game's texts, as a BCP 47 primary tag: the one the player's content was built in (the
+    /// launcher's text language), <c>en</c> without content. Maps show their translation into it when they have one.
+    /// </summary>
+    public static string Language { get; private set; } = "en";
+
     /// <summary>Folders of maps shipped with the build (maps/ next to the exe), searched after the content's svmap.</summary>
     public static IReadOnlyList<string> BuiltInMapRoots { get; private set; } = [];
 
@@ -71,6 +77,7 @@ public static class ContentPaths
         string? chosen = string.IsNullOrWhiteSpace(root) ? Environment.GetEnvironmentVariable(EnvironmentVariable) : root;
         Root = Existing(string.IsNullOrWhiteSpace(chosen) ? null : Path.GetFullPath(chosen));
         BuiltInMapRoots = Existing(string.IsNullOrWhiteSpace(exeDir) ? null : Path.Combine(exeDir, "maps")) is { } maps ? [maps] : [];
+        Language = Root is null ? "en" : OpenScct.Maps.ContentBuildFile.LanguageTag(OpenScct.Maps.ContentBuildFile.Language(Root));
 
         // The game's localized text comes from the player's own content (never from the repository).
         // (or from downloaded packs when the player has not converted an install).
