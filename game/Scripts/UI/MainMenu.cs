@@ -74,7 +74,7 @@ public partial class MainMenu : MenuPage
         _status = TextLine(Body, "Status", string.Empty);
         _status.Visible = false;
         OptionsButton = PageButton("Options", () => FrontEnd.ShowOptions(GetTree()), "Options");
-        HelpButton = PageButton("Help & contribute", () => HelpFeedbackScreen.Open(this, HelpButton, actions: HelpActions), "HelpFeedbackButton");
+        HelpButton = HelpUtility(() => HelpFeedbackScreen.Open(this, HelpButton, actions: HelpActions));
         QuitButton = PageButton("Quit", AskQuit, "Quit");
         PageCanvas.AddChild(new BuildCornerLabel
         {

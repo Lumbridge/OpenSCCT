@@ -211,7 +211,7 @@ public sealed class HudSimReader : IHudSource
         if (pawn.MyWeapon is SWeaponDefense { bDeleteMe: false } weapon)
         {
             s.HasWeapon = true;
-            s.ActiveWeaponName = weapon.ItemName;
+            s.ActiveWeaponName = weapon.GetType() == typeof(SWeaponDefense) ? "FN2000" : weapon.ItemName;
             s.HasSidearm = pawn.SidearmWeapon is not null;
             s.ClipAmmo = weapon.ClipAmmo;
             s.Ammo = weapon.Ammo;

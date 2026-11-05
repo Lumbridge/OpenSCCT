@@ -109,7 +109,9 @@ SA_GOG_SWITCH_WITHOUTANIM 70, SA_GOG_HEADMVT_ON 71 (lower goggles), SA_GOG_HEADM
     dedicated server the spy starts EMF hidden; otherwise it keeps the class default (`EMFOpacity` 0.3, off) until
     its owner tests. Drawing in mode 38 is a renderer rule: the pawn view takes the live replicated values.
 13. **Gameplay side effects of modes** owned elsewhere: flash blindness immunity in 36/37/38 (flash spec); cloak not
-    drawn in vision modes (renderer); lasers drawn in 36 and 38 only (renderer); motion tracking (`motion-tracking.md`).
+    drawn in vision modes in the original (renderer); OpenSCCT keeps its fade/refraction in night vision (34),
+    while thermal/EMF still reveal it (`docs/RENDERING.md#cloak`); lasers drawn in 36 and 38 only (renderer);
+    motion tracking (`motion-tracking.md`).
 
 ## States
 ```mermaid

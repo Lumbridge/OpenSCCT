@@ -20,6 +20,7 @@ public sealed class RoundScoreboardTracker(ServerHost host)
 {
     public const long DelayMicroseconds = 30_000_000;
     private const long SampleMicroseconds = 1_000_000;
+    private const long RefreshMicroseconds = 30_000_000;
     private readonly Dictionary<PlayerReplicationInfo, Participant> _byPri = new();
     private readonly Dictionary<string, Participant> _byIdentity = new(StringComparer.Ordinal);
     private readonly List<Participant> _players = new();
@@ -27,7 +28,7 @@ public sealed class RoundScoreboardTracker(ServerHost host)
     private readonly Dictionary<NetConnection, long> _sent = new();
     private Dictionary<int, IReadOnlyDictionary<string, int>>? _released;
     private double? _asOf;
-    private long _start = -1, _now, _nextSample, _sequence;
+    private long _start = -1, _now, _nextSample, _nextRelease, _sequence;
     private DateTimeOffset _startedUtc;
 
     private sealed class Participant
@@ -64,6 +65,7 @@ public sealed class RoundScoreboardTracker(ServerHost host)
         {
             if (game.GameReplicationInfo?.bMatchHasBegun != true) return;
             _start = now; _nextSample = now; _startedUtc = WallClock.GetUtcNow();
+            _nextRelease = now + DelayMicroseconds;
         }
         if (Final is not null) { SendUpdates(); return; }
         Discover();
@@ -73,9 +75,13 @@ public sealed class RoundScoreboardTracker(ServerHost host)
         _nextSample = now + SampleMicroseconds;
         CaptureRows();
         _samples.Enqueue((now, _players.ToDictionary(p => p.Id, p => p.Row.Stats!)));
-        while (_samples.TryPeek(out var sample) && sample.Time <= now - DelayMicroseconds)
+        if (now >= _nextRelease)
         {
-            _samples.Dequeue(); _released = sample.Stats; _asOf = (sample.Time - _start) / 1_000_000d;
+            while (_samples.TryPeek(out var sample) && sample.Time <= now - DelayMicroseconds)
+            {
+                _samples.Dequeue(); _released = sample.Stats; _asOf = (sample.Time - _start) / 1_000_000d;
+            }
+            _nextRelease = now + RefreshMicroseconds;
         }
         Current = Build(game, final: false, completed: false);
         SendUpdates();
@@ -168,6 +174,7 @@ public sealed class RoundScoreboardTracker(ServerHost host)
             RoundId = RoundId, Sequence = ++_sequence, Map = host.Map.Name, Server = ServerName, Mode = mode,
             StartedUtc = _startedUtc, EndedUtc = final ? WallClock.GetUtcNow() : null, ElapsedSeconds = elapsed,
             AsOfSeconds = final ? elapsed : _asOf, Completed = completed, Partial = final && !completed,
+            NextCombatUpdateSeconds = final ? null : (_nextRelease - _start) / 1_000_000d,
             Practice = OpenScct.Game.Modes.PracticeRules.IsOn(game), Master = Master,
             Winner = final ? game.GameReplicationInfo?.WinningTeam ?? 255 : 255,
             Reason = final ? game.GameReplicationInfo?.WinningReason ?? 255 : 255,

@@ -2,7 +2,7 @@
 // svm_world.gdshaderinc to preserve their full actor lighting. "Behind" is the
 // frame drawn so far at the pixel, moved by up to 10 of 640 x 480 reference pixels along the view-space normal, the
 // shift fading to 0 at 1500 uu from the camera (glass policy 0x109771f0). The pawn draws in the transparent pass while
-// cloaked, so the screen copy holds the scene without it. Normal vision only (the view gates it).
+// cloaked, so the screen copy holds the scene without it. Normal and night vision (the view gates it).
 shader_type spatial;
 render_mode unshaded, fog_disabled, cull_disabled, blend_mix, depth_draw_always;
 #include "res://Shaders/svm_fog.gdshaderinc"

@@ -145,6 +145,17 @@ public static class ContentBuildFile
     public static string Language(string contentRoot) =>
         Read(contentRoot)?["language"]?.GetValue<string>() is { Length: > 0 } language ? language : English;
 
+    /// <summary>The BCP 47 primary tag of a builder language code (<c>fra</c> is <c>fr</c>), the tag maps name their
+    /// translations by (<c>ui/text/&lt;tag&gt;.json</c>); English for an unknown code.</summary>
+    public static string LanguageTag(string code) => code switch
+    {
+        "fra" => "fr",
+        "deu" => "de",
+        "esp" => "es",
+        "ita" => "it",
+        _ => "en",
+    };
+
     /// <summary>
     /// After an in-game build of newly downloaded maps: when the content covered the downloaded maps as they were
     /// before (<paramref name="before"/>), it now covers them as they are (<paramref name="after"/>), so the launcher

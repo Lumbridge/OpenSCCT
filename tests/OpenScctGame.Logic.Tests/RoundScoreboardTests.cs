@@ -14,13 +14,14 @@ public sealed class RoundScoreboardTests
     [Fact]
     public void Refresh_countdown_tracks_snapshot_age_and_waits_for_actual_receipt()
     {
-        var pending = new RoundScoreboard { ElapsedSeconds = 25 };
+        var pending = new RoundScoreboard { ElapsedSeconds = 25, NextCombatUpdateSeconds = 30 };
         Assert.EndsWith("Next update 5.0s", RoundScoreboardModel.Timing(pending));
         Assert.EndsWith("Next update 4.5s", RoundScoreboardModel.Timing(pending, .5));
-        var live = pending with { ElapsedSeconds = 45, AsOfSeconds = 15 };
-        Assert.EndsWith("Next update 1.0s", RoundScoreboardModel.Timing(live));
-        Assert.EndsWith("Next update 0.5s", RoundScoreboardModel.Timing(live, .5));
-        Assert.EndsWith("Awaiting update…", RoundScoreboardModel.Timing(live, 2));
+        var live = pending with { ElapsedSeconds = 30, AsOfSeconds = 0, NextCombatUpdateSeconds = 60 };
+        Assert.EndsWith("Next update 30.0s", RoundScoreboardModel.Timing(live));
+        Assert.EndsWith("Next update 29.5s", RoundScoreboardModel.Timing(live, .5));
+        Assert.EndsWith("Next update 15.0s", RoundScoreboardModel.Timing(live with { ElapsedSeconds = 45 }));
+        Assert.EndsWith("Awaiting update…", RoundScoreboardModel.Timing(live, 31));
         Assert.Equal("Final totals", RoundScoreboardModel.Timing(live with { Completed = true }, 2));
     }
 

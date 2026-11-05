@@ -1,5 +1,7 @@
 # Merc rifle (SWeaponDefense, "FN2000 Auto")
 
+OpenSCCT displays the HUD weapon name as `FN2000`; the separate firing-mode readout identifies single, burst or auto.
+
 Units:
 - uc:SBase.SWeaponDefense:Fire, uc:SBase.SWeaponDefense:FireWeapon, uc:SBase.SWeaponDefense:ServerSetAccurateRotation,
   uc:SBase.SWeaponDefense:ServerFireWeapon, uc:SBase.SWeaponDefense:TraceFire, uc:SBase.SWeaponDefense:ApplyWeaponJump,
@@ -273,7 +275,12 @@ native TraceFire override (nat:SBase.SWeaponDefense_Shotgun.TraceFire at 0x10ab9
     when 0 (unless lying on the ground). First-person effects come from `SpawnSFX` on the owner.
 23. **Tracer actor** (SFireTrace, 7000 uu/s, LifeSpan 2 s): on each client it starts at the dummy `FX` bone when
     the instigator has no controller there, at `Instigator.Location + (0,0,75)` when the instigator's controller
-    is in `s_Binoculars_Def`, else at the instigator's weapon `FX` bone. Flight to `ImpactLoc` is native.
+    is in `s_Binoculars_Def`, else at the instigator's weapon `FX` bone. Retail native `ASFireTrace::Tick`
+    (`0x10ae8390`, game SHA-256 `a98873aaec1de21fdcccc0afb9985e3ddcf38a9ddce1207214872d6428ec9950`)
+    flies and rotates toward `ImpactLoc` (`FVector::Rotation`, `0x109500c0`, passed to `MoveActor`, `0x10a1b780`).
+    It hides the tracer within 502 uu of the impact. OpenSCCT applies the same cutoff in the rendered flight.
+    This suppresses close-range streaks
+    whose convergence would otherwise point sideways or backward from the drawn muzzle.
 
 24. **Setup and view model** (cosmetic but ported for parity):
     - `PostBeginPlay`: base on the owner; on the server set `Controller = Instigator.Controller`, spawn the
@@ -285,6 +292,9 @@ native TraceFire override (nat:SBase.SWeaponDefense_Shotgun.TraceFire at 0x10ab9
       DrawScale3D `(3.5 + 2 FRand(), 1, 1)`; an sMuzzleCanon spawned at the location vector equal to that scale value
       and then attached to `FX` (the spawn point is a script slip; attachment fixes it); an SDouilleEmitter (casing)
       at the `FX_DOUILLE` bone with its rotation.
+      OpenSCCT records each local `SpawnSFX` in a presentation counter, so the renderer retains shots raised before
+      the next simulation tick and emits one flash per shot even when practice mode leaves ammunition unchanged.
+      Reloading, revisiting the same weapon and replaying simulation ticks do not add flashes.
     - `AnimateWaiting`: moving faster than 10 uu/s loops FirstWalkStFd2 at rate `clamp(|V| * 0.006, 0, 3)` (tween 0
       after a landing clip, else 0.1 s), otherwise loops FirstWaitStFd2 if not already playing.
     - Global `AnimEnd`: channel 0 after FirstJumpStFd2 plays the fall clip when falling, else waits; after a landing or

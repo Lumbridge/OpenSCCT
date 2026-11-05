@@ -63,6 +63,7 @@ public sealed class ImpactMark
     /// The decal is drawn: a projector is drawn as part of the surfaces it was attached to, so a decal on a gameplay
     /// actor goes while that actor is not drawn (a broken vase), and one whose actor was already gone shows nothing.
     /// Pawns receive the impact's sparks but no decal: the projector does not attach to skeletal meshes.
+    /// Shocker impacts also keep only their sparks, matching the original's observed lack of a wall scorch.
     /// </summary>
     [Provenance(ProvenanceKind.Estimated, "UE2 projectors attach to the colliding static-mesh actors and BSP in their frustum when shown and are drawn with them; not decoded for this build")]
     public bool DecalShown => !DecalSuppressed && !SurfaceGone && (Surface is null || IsDrawn(Surface));
@@ -77,6 +78,8 @@ public sealed class ImpactMark
 /// </summary>
 public sealed class ImpactTable
 {
+    private static readonly Name Shocker = new("SImpactEffectShocker");
+    private static readonly Name ShockerMetal = new("SImpactEffectShockerMetal");
     private readonly ImpactMark[] _slots;
     private readonly Dictionary<Name, ImpactEffectDefaults> _defaults = new();
     private float _nextTimer = -1f;
@@ -210,7 +213,10 @@ public sealed class ImpactTable
         m.SurfaceLocation = m.Surface?.Location ?? default;
         m.SurfaceRotation = m.Surface?.Rotation ?? default;
         m.SurfaceGone = m.Surface is not null && !ImpactMark.IsDrawn(m.Surface);
-        m.DecalSuppressed = SuppressDecal || Surface is Pawn;
+        // The original Shocker adds 10 uu at the hit and the manager adds another 10: its projector is at
+        // SBulletImpact's 20 uu limit. Do not pull that scorch back onto the wall as a visible flat quad.
+        // The native clipping explanation is inferred; the original's lack of a visible scorch is observed.
+        m.DecalSuppressed = SuppressDecal || Surface is Pawn || type.Type == Shocker || type.Type == ShockerMetal;
         Added++;
         return m;
     }

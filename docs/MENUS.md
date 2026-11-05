@@ -13,7 +13,7 @@ For joining and hosting, start with [Online play](ONLINE.md); for microphone set
 | Review progress | [Player stats and match history](#player-stats-and-match-history) |
 | Change bindings | [Role configuration and shared controls](#role-configuration-and-shared-controls) |
 | Change video settings | [Display page](#display-page-the-originals-video-options) |
-| Report a problem or contribute | [Help & contribute](#help--contribute) |
+| Report a problem or contribute | [Help & feedback](#help--feedback) |
 | Develop or test menu behavior | [Screen sizes](#screen-sizes-and-resizing), [Tests](#tests) |
 
 Menu behavior follows the [lobby and match creation specification](../spec/game/lobby-and-match-creation.md).
@@ -146,9 +146,13 @@ The next-unlock action opens that achievement. Guests can still use the play rou
 tools/ci/godot-smoke.ps1 -Tests menu-layout,options,lobby-layout,front-end-layout -ExpectedFailures @()
 ```
 
-## Help & contribute
+## Help & feedback
 
-Open **Help & contribute** from the main menu, Escape menu, online lobby or hub browser. It opens over
+On the main menu, lobby, hub and Escape menu, **Help & feedback** is the same compact control in the
+top-right corner, separate from the page body and footer actions. Quit Session stays last in the main stack. Up/down wraps within that stack; Right or Tab
+can reach Help.
+
+Open **Help & feedback** from the main menu, Escape menu, online lobby or hub browser. It opens over
 the current screen and returns to the same screen when closed. A match keeps running while help is open;
 lobby readiness, chat and settings stay in place. Escape or the controller's Back button closes help and
 restores focus to the control that opened it.
@@ -160,6 +164,15 @@ details captured when help opened. Review those details and describe the problem
 and requires GitHub sign-in. **Copy details** lets you copy the summary yourself. Automatic details exclude
 account information, server addresses, paths and logs. If a browser cannot open, the link stays selectable
 and can be copied.
+
+During a game, **Capture game screenshot (optional)** hides the menus for one rendered frame and shows a
+preview. **Include captured screenshot with bug report** is checked after capturing; uncheck it to leave the
+image out. **Report a bug** transfers the capture to a private temporary draft and opens the browser with it
+already attached. This also works when Discord sign-in is needed. You can remove or replace the image in the
+browser before confirming publication. If the transfer fails, retry or uncheck the image to continue without it.
+Captures are resized to at most 1280 pixels per side and 2 MB. A local PNG is also kept under `user://screenshots`;
+**Show saved screenshot** locates it. Unpublished handoffs expire after 15 minutes. Published reports include a
+public image link.
 
 The contribution section links to the guides and pull requests. Code contributions need a branch or fork
 and GitHub sign-in. The help menu opens without the master service; submitting a bug report requires the

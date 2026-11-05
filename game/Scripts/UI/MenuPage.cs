@@ -30,6 +30,8 @@ public partial class MenuPage : Control
     private float _titleTime;
     private HBoxContainer? _bar;
     private Control? _responsiveCanvas;
+    private Button? _helpUtility;
+    private float _helpTitleInset;
 
     /// <summary>Optional page-local logical canvas. Scaling it never changes gameplay or other pages.</summary>
     protected Control PageCanvas => _responsiveCanvas ?? this;
@@ -195,6 +197,13 @@ public partial class MenuPage : Control
     private void FitPageWidth()
     {
         FitResponsiveCanvas();
+        if (_helpUtility is not null && _title is not null)
+        {
+            // The utility stays in viewport pixels while responsive page content scales underneath it.
+            float inset = Math.Max(_helpTitleInset, 260f / PageCanvas.Scale.X);
+            _title.OffsetLeft = inset;
+            _title.OffsetRight = -inset;
+        }
         // Expanded lobby bodies manage their own width directly in BodyScroll.
         if (_centre is not null && IsInstanceValid(_centre) && Body.GetParent() == _centre)
         {
@@ -270,6 +279,21 @@ public partial class MenuPage : Control
         rule.OffsetTop = top ? 66f : -76f;
         rule.OffsetBottom = rule.OffsetTop + 8f;
         PageCanvas.AddChild(rule);
+    }
+
+    /// <summary>Adds Help outside the page body and footer, matching the Escape menu's viewport position.</summary>
+    protected Button HelpUtility(Action pressed)
+    {
+        _helpUtility = UiStyle.HelpUtilityButton(pressed);
+        AddChild(_helpUtility);
+        if (_title is not null)
+        {
+            _helpTitleInset = _title.OffsetLeft;
+            _title.ClipText = true;
+            _title.TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis;
+        }
+        FitPageWidth();
+        return _helpUtility;
     }
 
     /// <summary>Adds a page button to the bottom bar (call in B, X, Y, A order, as GUIPage lays them out).</summary>

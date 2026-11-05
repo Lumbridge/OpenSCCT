@@ -41,7 +41,7 @@ public partial class ScoreboardOverlay : Control
             ContentMarginLeft = 12, ContentMarginRight = 12, ContentMarginTop = 10, ContentMarginBottom = 10,
         });
         AddChild(_panel);
-        View = new RoundScoreboardView();
+        View = new RoundScoreboardView { Maps = Session?.Settings.Maps };
         _panel.AddChild(View);
         Present();
     }

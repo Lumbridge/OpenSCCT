@@ -25,9 +25,11 @@ internal sealed class GitHubBugReports
     private readonly AccountStore _store;
     private readonly HttpClient _client;
     private readonly string _token;
+    private readonly MasterOptions _options;
 
     public GitHubBugReports(MasterOptions options, AccountStore store, HttpClient? client = null)
     {
+        _options = options;
         _store = store;
         _client = client ?? Client;
         _token = options.BugReports.GitHubToken?.Trim() ?? string.Empty;
@@ -42,7 +44,7 @@ internal sealed class GitHubBugReports
     public BugReportResult? Lookup(long accountId, string submissionId) =>
         ValidId(submissionId) && _store.BugReport(accountId, submissionId) is { } report ? Result(report) : null;
 
-    public async Task<BugReportResult> SubmitAsync(long accountId, string submissionId, string title, string body, CancellationToken cancellationToken)
+    public async Task<BugReportResult> SubmitAsync(long accountId, string submissionId, string title, string body, CancellationToken cancellationToken, byte[]? screenshot = null)
     {
         if (!ValidId(submissionId) || string.IsNullOrWhiteSpace(title) || title.Length > 200 ||
             title.IndexOfAny(['\r', '\n', '\0']) >= 0 || string.IsNullOrWhiteSpace(body) || body.Length > 48_000 || body.Contains('\0'))
@@ -66,6 +68,16 @@ internal sealed class GitHubBugReports
             return new(BugReportStatus.Rejected, Message: "This form has already been used. Start a new report.");
         if (reservation.State == BugReportReservationState.RateLimited)
             return new(BugReportStatus.RateLimited, Message: "Please wait before sending another report. Each account can send up to three reports in 24 hours, at least one minute apart.");
+
+        if (screenshot is not null)
+        {
+            try { ReportScreenshot.Save(_options, screenshot); }
+            catch (Exception error) when (error is System.IO.IOException or UnauthorizedAccessException)
+            {
+                _store.FinishBugReport(accountId, submissionId, StoredBugReportState.Rejected, null);
+                return new(BugReportStatus.Unavailable, Message: "The screenshot could not be saved. Try again later or remove it before sending.");
+            }
+        }
 
         StoredBugReportState storedState = StoredBugReportState.Unknown;
         long? issueNumber = null;

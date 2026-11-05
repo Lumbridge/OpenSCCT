@@ -52,6 +52,7 @@ class StaticMesh:
     bbox_min: Tuple[float, float, float]
     bbox_max: Tuple[float, float, float]
     props: dict = field(default_factory=dict)
+    sphere: Optional[Tuple[float, float, float, float]] = None
 
     @property
     def triangle_count(self) -> int:
@@ -78,7 +79,7 @@ def read_static_mesh(pkg: Package, e: Export) -> StaticMesh:
     bmin = r.vec3()
     bmax = r.vec3()
     r.u8()          # IsValid
-    r.raw(16)       # bounding sphere
+    sphere = struct.unpack("<4f", r.raw(16))
 
     n_sections = r.compact()
     if n_sections < 0 or n_sections > 4096:
@@ -144,6 +145,7 @@ def read_static_mesh(pkg: Package, e: Export) -> StaticMesh:
         bbox_min=tuple(bmin),
         bbox_max=tuple(bmax),
         props=props,
+        sphere=sphere,
     )
 
 

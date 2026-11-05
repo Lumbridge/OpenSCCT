@@ -392,6 +392,28 @@ public static class UiStyle
         return button;
     }
 
+    /// <summary>Shared, compact Help entry in the same viewport corner on menu and gameplay screens.</summary>
+    public static Button HelpUtilityButton(Action pressed)
+    {
+        Button button = MenuButton("Help & feedback", pressed, "HelpFeedbackButton");
+        button.Flat = true;
+        button.TooltipText = "Guides, bug reports and suggestions";
+        button.CustomMinimumSize = new Vector2(0f, 36f);
+        button.AddThemeFontSizeOverride("font_size", 18);
+        button.AnchorLeft = button.AnchorRight = 1f;
+        button.OffsetLeft = -244f;
+        button.OffsetRight = -24f;
+        button.OffsetTop = 24f;
+        button.OffsetBottom = 60f;
+        return button;
+    }
+
+    public static void AmberButton(Button button)
+    {
+        foreach (string state in new[] { "font_color", "font_hover_color", "font_focus_color", "font_pressed_color", "font_hover_pressed_color" })
+            button.AddThemeColorOverride(state, HudK.MercColour);
+    }
+
     /// <summary>A centred column of controls inside a margin.</summary>
     public static VBoxContainer CentreColumn(Control parent, float width = 520f)
     {

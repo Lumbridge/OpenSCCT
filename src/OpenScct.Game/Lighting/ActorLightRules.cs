@@ -261,6 +261,28 @@ public static class ActorLightRules
     }
 
     /// <summary>
+    /// D3D's reciprocal-linear approximation to 2 S(d/R), fitted over the actor's bounding sphere.
+    /// SetLight clamps its near/far samples, then extrapolates the fitted attenuation up to 1/256.
+    /// </summary>
+    [Provenance(ProvenanceKind.Decoded, "RenderingModeNormal::SetLight game 0x10978cc0; falloff helper 0x10978c80")]
+    public static (float Constant, float Linear) FitAttenuation(float distance, float actorRadius, float lightRadius)
+    {
+        float r = WorldRadius(lightRadius);
+        distance = SvmMath.Max(0.1f, distance);
+        float far = SvmMath.Clamp(distance + actorRadius, r * .05f, r * .9f);
+        float near = SvmMath.Clamp(distance - actorRadius, r * .1f, r * .95f);
+        static float Inverse(float d, float radius)
+        {
+            double x = (double)d / radius;
+            return (float)(1.0 / (2.0 * (1.0 - 3.0 * x * x + 2.0 * x * x * x)));
+        }
+        float a = Inverse(near, r), b = Inverse(far, r);
+        if (SvmMath.Abs(a - b) < 1e-8f || SvmMath.Abs(far - near) < 1e-8f) return (a, 0f);
+        float constant = SvmMath.Max(.01f, a - ((b - a) / (far - near)) * near);
+        return (constant, SvmMath.Max(0f, (a - constant) / near));
+    }
+
+    /// <summary>
     /// One chosen light's term at <paramref name="point"/>: <paramref name="colour"/> (C x the light type's scale) x
     /// k S(d / R) max(0, N.L), k 2 for points and spots (S = 1 - 3x^2 + 2x^3, the spot ramp from phi to theta) and
     /// 1.75 for suns (no falloff). LE_QuadraticNonIncidence takes the D3D attenuation 1 / (8 d^2 / R^2) without the 2;

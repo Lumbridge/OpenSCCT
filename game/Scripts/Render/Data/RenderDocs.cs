@@ -299,6 +299,14 @@ public sealed class MaterialsDoc
 
     public MaterialEntry? Find(string name) => _byName.GetValueOrDefault(name);
 
+    public string? FindSource(string? source)
+    {
+        if (source is null) return null;
+        foreach (var pair in _byName)
+            if (string.Equals(pair.Value.Source, source, StringComparison.OrdinalIgnoreCase)) return pair.Key;
+        return null;
+    }
+
     /// <summary>
     /// The texture behind a material of the graph for one input (Diffuse, SelfIllumination, SelfIlluminationMask,
     /// SpecularityMask): Shaders and lit materials name it, modifiers and FinalBlends wrap a Material, Combiners take

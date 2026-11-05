@@ -9,7 +9,8 @@ namespace OpenScct.Master;
 internal sealed record ProfileVisibilityRow(bool Public, bool Hidden);
 internal sealed record PlayerWebSessionRow(string Id, long AccountId, string Csrf, long Created, long LastUsed);
 internal sealed record PlayerSessionRow(string Id, string Kind, long Created, long LastUsed);
-internal sealed record PublicPlayerRow(long Id, string Name, int Prestige, int Xp, long TotalXp, int Matches, int Wins, int Kills, int Deaths);
+internal sealed record PublicPlayerRow(long Id, string Name, int Prestige, int Xp, long TotalXp, int Matches, int Wins, int Kills, int Deaths,
+    int SpyWins, int MercWins, long Objectives, long Headshots, long Damage);
 
 internal sealed partial class AccountStore
 {
@@ -86,13 +87,23 @@ internal sealed partial class AccountStore
         {
             "wins" => "wins DESC, total_xp DESC, a.id ASC",
             "kills" => "kills DESC, total_xp DESC, a.id ASC",
+            "rounds" => "COALESCE(s.matches,0) DESC, wins DESC, a.id ASC",
+            "win-rate" => "(1.0 * (COALESCE(s.spy_wins,0) + COALESCE(s.merc_wins,0)) / s.matches) DESC, s.matches DESC, a.id ASC",
+            "spy-wins" => "COALESCE(s.spy_wins,0) DESC, total_xp DESC, a.id ASC",
+            "merc-wins" => "COALESCE(s.merc_wins,0) DESC, total_xp DESC, a.id ASC",
+            "objectives" => "COALESCE(objectives.total,0) DESC, total_xp DESC, a.id ASC",
+            "headshots" => "COALESCE(headshots.total,0) DESC, total_xp DESC, a.id ASC",
+            "damage" => "COALESCE(damage.total,0) DESC, total_xp DESC, a.id ASC",
             "name" => "a.name_key ASC, a.id ASC",
             _ => "total_xp DESC, wins DESC, a.id ASC",
         };
         string term = (query ?? string.Empty).Trim();
         if (term.Length > 64) term = term[..64];
         string from = "FROM accounts a LEFT JOIN player_visibility v ON v.account_id = a.id " +
-            "LEFT JOIN stats s ON s.account_id = a.id LEFT JOIN progression p ON p.account_id = a.id ";
+            "LEFT JOIN stats s ON s.account_id = a.id LEFT JOIN progression p ON p.account_id = a.id " +
+            "LEFT JOIN feat_totals objectives ON objectives.account_id = a.id AND objectives.feat = 'spy.objectives' " +
+            "LEFT JOIN feat_totals headshots ON headshots.account_id = a.id AND headshots.feat = 'merc.headshots' " +
+            "LEFT JOIN feat_totals damage ON damage.account_id = a.id AND damage.feat = 'career.damagegiven' ";
         string where = "WHERE a.name IS NOT NULL AND a.name <> '' AND COALESCE(v.public, 1) = 1 AND COALESCE(v.hidden, 0) = 0 " +
             "AND a.name LIKE $q ESCAPE '\\' ";
         // Search is by public player name only. Leaderboards also exclude active account/Discord bans.
@@ -101,6 +112,7 @@ internal sealed partial class AccountStore
             where += "AND NOT EXISTS (SELECT 1 FROM bans b WHERE (b.account_id = a.id OR b.discord_id = a.discord_id) " +
                 "AND (b.until IS NULL OR b.until > $now)) ";
         }
+        if (sort == "win-rate") where += "AND COALESCE(s.matches,0) >= 10 ";
         string like = "%" + term.Replace("\\", "\\\\", StringComparison.Ordinal).Replace("%", "\\%", StringComparison.Ordinal)
             .Replace("_", "\\_", StringComparison.Ordinal) + "%";
         lock (_gate)
@@ -108,9 +120,10 @@ internal sealed partial class AccountStore
             int total = Convert.ToInt32(Scalar("SELECT COUNT(*) " + from + where, ("$q", like), ("$now", Now)), CultureInfo.InvariantCulture);
             List<PublicPlayerRow> rows = Query("SELECT a.id, a.name, COALESCE(p.prestige,0), COALESCE(p.xp,0), " +
                 "COALESCE(p.total_xp,0) AS total_xp, COALESCE(s.matches,0), COALESCE(s.spy_wins,0) + COALESCE(s.merc_wins,0) AS wins, " +
-                "COALESCE(s.kills,0) AS kills, COALESCE(s.deaths,0) " + from + where + "ORDER BY " + order + " LIMIT $n OFFSET $o;",
+                "COALESCE(s.kills,0) AS kills, COALESCE(s.deaths,0), COALESCE(s.spy_wins,0), COALESCE(s.merc_wins,0), " +
+                "COALESCE(objectives.total,0), COALESCE(headshots.total,0), COALESCE(damage.total,0) " + from + where + "ORDER BY " + order + " LIMIT $n OFFSET $o;",
                 r => new PublicPlayerRow(r.GetInt64(0), r.GetString(1), r.GetInt32(2), r.GetInt32(3), r.GetInt64(4), r.GetInt32(5),
-                    r.GetInt32(6), r.GetInt32(7), r.GetInt32(8)),
+                    r.GetInt32(6), r.GetInt32(7), r.GetInt32(8), r.GetInt32(9), r.GetInt32(10), r.GetInt64(11), r.GetInt64(12), r.GetInt64(13)),
                 ("$q", like), ("$now", Now), ("$n", Math.Clamp(pageSize, 1, 50)), ("$o", Math.Clamp(page, 0, 10_000) * Math.Clamp(pageSize, 1, 50)));
             return (rows, total);
         }

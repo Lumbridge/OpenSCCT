@@ -55,6 +55,13 @@ public partial class SObjective
     [Provenance(ProvenanceKind.Decoded, "game 0x10A9F300 (body of thunk 0x10A9F2E0)")]
     public override void Reset()
     {
+        if (MatchExcluded)
+        {
+            // Left out of this round by the match-size rules (spec/additions/match-size-rules.md): stays out of play.
+            Desactivate();
+            return;
+        }
+
         if (ActivationTime > 0 && !bDelayedActivation)
         {
             bDelayedActivation = true;

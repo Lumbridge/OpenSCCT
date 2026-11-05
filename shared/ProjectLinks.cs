@@ -39,8 +39,15 @@ internal static class ProjectLinks
     private const int MaximumEnvironmentLength = 2000;
     private const int MaximumUrlLength = 4096;
 
-    public static string Url(ProjectDestination destination, ReportContext? context = null)
+    public static string Url(ProjectDestination destination, ReportContext? context = null, string? capture = null)
     {
+        if (capture is not null)
+        {
+            if (capture.Length != 64) throw new ArgumentException("Invalid screenshot capture.", nameof(capture));
+            foreach (char c in capture)
+                if (c is not (>= '0' and <= '9') and not (>= 'a' and <= 'f'))
+                    throw new ArgumentException("Invalid screenshot capture.", nameof(capture));
+        }
         string url = destination switch
         {
             ProjectDestination.BugReport => Website + "/help/report-bug",
@@ -63,7 +70,8 @@ internal static class ProjectLinks
             {
                 string report = url + "?area=" + area + "&version=" + Uri.EscapeDataString(VersionSummary(context, limit)) +
                     "&platform=" + Uri.EscapeDataString(Clean(context.Platform, Math.Min(80, limit))) +
-                    "&environment=" + Uri.EscapeDataString(EnvironmentDetails(context, limit));
+                    "&environment=" + Uri.EscapeDataString(EnvironmentDetails(context, limit)) +
+                    (capture is null ? "" : "&capture=" + Uri.EscapeDataString(capture));
                 if (report.Length <= MaximumUrlLength) return report;
             }
         }
@@ -159,9 +167,9 @@ internal sealed class ProjectLinkActions(Func<string, bool> open, Action<string>
     public string TargetUrl { get; private set; } = string.Empty;
     public string Message { get; private set; } = string.Empty;
 
-    public bool Open(ProjectDestination destination, ReportContext? context = null)
+    public bool Open(ProjectDestination destination, ReportContext? context = null, string? capture = null)
     {
-        TargetUrl = ProjectLinks.Url(destination, context);
+        TargetUrl = ProjectLinks.Url(destination, context, capture);
         try
         {
             if (open(TargetUrl)) { Message = string.Empty; return true; }

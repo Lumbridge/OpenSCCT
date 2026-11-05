@@ -76,7 +76,7 @@ public sealed class LaserAlignmentSmoke : SmokeTest
                     return SmokeResult.Fail(asset + " missing muzzle/idle/reload");
                 foreach (bool crouched in new[] { false, true })
                 foreach (int pitch in new[] { -3500, 0, 2500 })
-                foreach (float distance in new[] { 150f, 500f, 5000f })
+                foreach (float distance in new[] { 20f, 40f, 80f, 150f, 500f, 5000f })
                 {
                     pawn.bIsCrouched = crouched;
                     pawn.EyeHeight = crouched ? 40f : 60f;
@@ -103,11 +103,15 @@ public sealed class LaserAlignmentSmoke : SmokeTest
                         float pullBack = weapon is MercSidearm ? 0f : OpenScct.Game.Equipment.K.LaserFireStartPullBack;
                         if (FVector.Dist(beam.Start + direction * pullBack, UeSpace.ToUe(barrel.Origin)) > .01f)
                             return SmokeResult.Fail(asset + " idle laser detached from muzzle");
-                        // Only the calibrated neutral pose is zeroed to the shot; breathing moves the laser with the gun.
+                        // The neutral sight keeps its full-range zero even with a wall behind the muzzle.
                         if (frame != .5f) continue;
-                        float error = FVector.Dist(wall.Shots[0], beam.End);
+                        FVector expectedDirection = (ray.End - UeSpace.ToUe(idleReference.Origin)).SafeNormal();
+                        float error = FVector.Dist(expectedDirection, direction);
                         worst = MathF.Max(worst, error);
-                        if (error > .1f) return SmokeResult.Fail($"{asset} aim mismatch {error:F3} uu at {distance}, pitch {pitch}");
+                        if (error > .001f) return SmokeResult.Fail($"{asset} sight bent at wall distance {distance}, pitch {pitch}: {error:F6}");
+                        var obstruction = wall.TraceBone(weapon, beam.End, beam.Start, false);
+                        if (obstruction.bHit && FVector.Dist(obstruction.HitLocation, beam.End) > .1f)
+                            return SmokeResult.Fail($"{asset} beam passed through wall at {distance}: start {beam.Start}, end {beam.End}, hit {obstruction.HitLocation}");
                         cases++;
                     }
                 }
@@ -138,7 +142,7 @@ public sealed class LaserAlignmentSmoke : SmokeTest
                 if (sweep < .05f) return SmokeResult.Fail(asset + " reload laser stayed static");
                 if (CheckDrawnFrame(context, pawn, pc, weapon, wall) is { } frameFailure)
                     return SmokeResult.Fail(asset + " " + frameFailure);
-                GD.Print($"SVM_LASER {asset}: 18 neutral aim cases, 54 idle frames, 31 reload frames passed; sweep {sweep:F3}");
+                GD.Print($"SVM_LASER {asset}: 36 neutral sight cases including close walls, 108 idle frames, 31 reload frames passed; sweep {sweep:F3}");
             }
             finally { model.Root.Free(); }
         }
@@ -171,7 +175,7 @@ public sealed class LaserAlignmentSmoke : SmokeTest
         }
         if (CheckSpyDrawnFrame(context, spy, spyPc, shocker, wall) is { } spyFrameFailure)
             return SmokeResult.Fail(spyFrameFailure);
-        return SmokeResult.Pass($"{weapons.Count + 1} guns, {cases} shot comparisons, {reloadFrames} reload frames; worst aim error {worst:F4} uu");
+        return SmokeResult.Pass($"{weapons.Count + 1} guns, {cases} sight checks, {reloadFrames} reload frames; close-wall direction and obstruction checks passed");
     }
 
     private static string? CheckSpyDrawnFrame(SmokeContext context, SPawnAttaque spy, SPlayerController pc,

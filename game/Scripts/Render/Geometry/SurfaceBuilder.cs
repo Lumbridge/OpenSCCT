@@ -168,6 +168,8 @@ internal sealed class SurfaceBuilder
 /// <summary>A glTF primitive read into arrays, in render space.</summary>
 internal sealed class MeshPrimitive
 {
+    public int Section { get; init; } = -1;
+
     public required string Material { get; init; }
 
     public required float[] Positions { get; init; }

@@ -8,9 +8,10 @@ scoreboard starts closed each round and leaves movement, aiming and firing activ
 close it. The former compact HUD roster and its layout/settings have been replaced.
 
 Both teams appear in separate tables, with your team first and your row highlighted. Names, rank, ping, lives,
-kills/deaths and completed objectives are public. New combat counters have a **server-enforced 30-second delay**,
-shown with the effective match time; a newly joined player's counters can remain pending until an eligible
-sample exists. This limits immediate confirmation but can still reveal past hidden interactions. Full totals
+kills/deaths and completed objectives are public. New combat counters refresh **every 30 seconds**, using samples
+with a **server-enforced minimum 30-second delay**. The Next update countdown follows the server's refresh
+deadline; counters display zero until an eligible sample is released. Public rows continue updating each second.
+This limits immediate confirmation but can still reveal past hidden interactions. Full totals
 are released when the server ends the round. Pure spectators receive the same delayed feed.
 
 | Side | Live combat columns | Additional final breakdown |

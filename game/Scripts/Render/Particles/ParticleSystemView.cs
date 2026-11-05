@@ -183,6 +183,33 @@ public sealed class ParticleSystemView
         Drawn = total;
     }
 
+    /// <summary>Submit each actual material/vertex layout even if its emitter starts disabled or delayed.</summary>
+    internal void PreloadGeometry()
+    {
+        var white = new FxColor(255, 255, 255, 255);
+        var quads = new List<SpriteQuad> { new()
+        {
+            C0 = new FVector(-25f, 0f, -25f), C1 = new FVector(25f, 0f, -25f),
+            C2 = new FVector(-25f, 0f, 25f), C3 = new FVector(25f, 0f, 25f),
+            U1 = 1f, V1 = 1f, BU1 = 1f, BV1 = 1f, Color = white,
+        } };
+        foreach (Layer layer in _layers)
+        {
+            switch (layer.Emitter.Params.Kind)
+            {
+                case ParticleKind.Mesh:
+                    FillMeshes(layer, [new MeshInstance(default, default, new FVector(1f, 1f, 1f), white)]);
+                    break;
+                case ParticleKind.Spark:
+                    FillLines(layer, [new SparkSegment(new FVector(-25f, 0f, 0f), new FVector(25f, 0f, 0f), 0f, 1f, white)]);
+                    break;
+                default:
+                    DrawQuads(layer, quads, default);
+                    break;
+            }
+        }
+    }
+
     private static bool SpriteMayBeVisible(ParticleEmitterSim emitter, in ParticleOwner owner, ReadOnlySpan<Plane> frustum)
     {
         Vector3 min = Vector3.One * float.PositiveInfinity, max = Vector3.One * float.NegativeInfinity;

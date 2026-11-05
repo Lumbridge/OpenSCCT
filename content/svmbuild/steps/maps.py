@@ -28,7 +28,7 @@ def _own_code() -> list[Path]:
 
 class MapsStep(Step):
     name = "maps"
-    version = 8  # MaterialSequence timing/modifiers and Enhanced zone-fog portal geometry.
+    version = 9  # Map-defined classes decoded; RE+ match-size rules and outfits lifted to SVMap 1.2 files.
     deps = ("classes",)
     # The map folder holds audio/, which a rebuild or restore of this step removes: audio-map puts it back.
     followers = ("audio-map",)

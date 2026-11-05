@@ -12,6 +12,20 @@ public sealed class InGameMenuModelTests
     private static readonly InGameMenuContext LanClient = new(IAmServer: false, InGameMenuNet.Lan);
 
     [Fact]
+    public void PracticeParticipantsCanSwitchTeamDirectlyFromTheMenu()
+    {
+        var context = LanClient with { Practice = true, MatchBegun = true };
+        var menu = new InGameMenuModel();
+        menu.Open(context, 0);
+        Assert.Contains(menu.Entries, e => e.Button == InGameMenuButton.SwitchTeam);
+        Assert.Equal(InGameMenuAction.SwitchTeam, menu.Click(InGameMenuButton.SwitchTeam));
+        Assert.False(menu.IsOpen);
+        foreach (var denied in new[] { context with { Practice = false }, context with { MercDeathmatch = true },
+            context with { GameEnded = true }, context with { Spectator = true }, context with { Tutorial = true } })
+            Assert.DoesNotContain(InGameMenuModel.Layout(denied), e => e.Button == InGameMenuButton.SwitchTeam);
+    }
+
+    [Fact]
     public void ResignRequiresAnActiveNetworkParticipantAndConfirmation()
     {
         var active = LanClient with { MatchBegun = true, Lives = 3 };

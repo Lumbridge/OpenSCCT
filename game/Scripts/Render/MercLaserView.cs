@@ -198,7 +198,7 @@ public sealed partial class MercLaserView : Node3D
         return (start, end, start);
     }
 
-    /// <summary>Zero the neutral sight at the bullet hit, then apply the animated barrel's rotation on every frame.</summary>
+    /// <summary>Zero the neutral sight at full range, then trace along the animated barrel to the first obstruction.</summary>
     internal static (FVector Start, FVector End) TraceMountedBeam(SWeaponDefense weapon, Transform3D barrel,
         Transform3D? reference, FRotator aim, (FVector Location, FRotator Rotation)? view = null)
     {
@@ -208,8 +208,9 @@ public sealed partial class MercLaserView : Node3D
         var ray = view is { } drawn
             ? (Start: drawn.Location, End: drawn.Location + drawn.Rotation.Vector() * K.TraceLength)
             : weapon.AimRay(aim);
-        BoneTraceResult target = zones.TraceBone(weapon, ray.End, ray.Start, false);
-        FVector at = target.bHit ? target.HitLocation : ray.End;
+        // A nearby camera hit can lie behind the drawn muzzle. Converging on it swings the sight up/left
+        // (or even backwards). The sight is mounted to the gun: walls shorten its beam, never change its zero.
+        FVector at = ray.End;
         FVector muzzle = UeSpace.ToUe(barrel.Origin);
         FVector direction = (at - muzzle).SafeNormal();
         float sightDistance = FVector.Dist(at, muzzle);
@@ -276,6 +277,21 @@ public sealed partial class MercLaserView : Node3D
             return nodes;
         }
 
+        nodes = CreateNodes(this);
+        _beams[laser] = nodes;
+        return nodes;
+    }
+
+    /// <summary>Build and draw the actual beam materials during loading, including the weapon stencil and thermal pass.</summary>
+    public void Preload(Node3D samples)
+    {
+        var (beam, dot) = CreateNodes(samples);
+        beam.Scale = new Vector3(100f, 1f, 1f);
+        dot.Visible = true;
+    }
+
+    private (MeshInstance3D Beam, MeshInstance3D Dot) CreateNodes(Node3D parent)
+    {
         var beam = new MeshInstance3D
         {
             Name = "MercLaser",
@@ -328,9 +344,8 @@ public sealed partial class MercLaserView : Node3D
             CastShadow = GeometryInstance3D.ShadowCastingSetting.Off,
             Visible = false,
         };
-        AddChild(beam);
-        AddChild(dot);
-        _beams[laser] = (beam, dot);
+        parent.AddChild(beam);
+        parent.AddChild(dot);
         return (beam, dot);
     }
 

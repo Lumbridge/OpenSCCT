@@ -26,6 +26,8 @@ public partial class RoundScoreboardView : VBoxContainer
     private double SnapshotAge => System.Diagnostics.Stopwatch.GetElapsedTime(_snapshotReceived).TotalSeconds;
     public int LocalParticipantId { get; set; } = -1;
     public bool Detailed { get; set; }
+    /// <summary>The round's map catalog (editor and downloaded maps with their identity names); null: the default one.</summary>
+    public OpenScct.Server.MapCatalog? Maps { get; set; }
     /// <summary>Available screen height for a passive live board; menus use their normal scroll container.</summary>
     public float LiveHeight { get; set; } = 900;
     private bool _compact;
@@ -66,7 +68,7 @@ public partial class RoundScoreboardView : VBoxContainer
         var heading = new HBoxContainer { MouseFilter = MouseFilterEnum.Ignore };
         AddChild(heading);
         string subtitle = (board.Practice ? " · Practice" : "") + (board.Partial ? " · Partial" : "");
-        Text(heading, "Map", (string.IsNullOrWhiteSpace(board.Map) ? "Scoreboard" : board.Map) + subtitle, UiStyle.Text, font + 5, 2);
+        Text(heading, "Map", (string.IsNullOrWhiteSpace(board.Map) ? "Scoreboard" : MapTitles.WithCode(Maps, board.Map)) + subtitle, UiStyle.Text, font + 5, 2);
         Text(heading, "Time", RoundScoreboardModel.Clock(board.ElapsedSeconds), UiStyle.Dim, font, 1, HorizontalAlignment.Right);
         _timing = Text(this, "Timing", RoundScoreboardModel.Timing(board, SnapshotAge), UiStyle.Dim, font);
         int first = RoundScoreboardModel.FirstTeam(board, LocalParticipantId);

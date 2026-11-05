@@ -1,0 +1,109 @@
+diff --git a/export_gltf.py b/export_gltf.py
+index b9d8b7ad..893ec671 100644
+--- a/export_gltf.py
++++ b/export_gltf.py
+@@ -226,7 +226,7 @@ class GltfWriter:
+         return len(self.accessors) - 1
+ 
+     def mesh(self, name: str, prims: List[tuple]) -> int:
+-        """prims: (pos, nrm, uv, idx, mat[, uv2[, color_rgba_u8]])."""
++        """prims: (pos, nrm, uv, idx, mat[, uv2[, color_rgba_u8[, section]]])."""
+         gprims = []
+         for prim in prims:
+             pos, nrm, uv, idx, mat = prim[:5]
+@@ -247,7 +247,13 @@ class GltfWriter:
+             if uv is not None and len(uv) == len(pos):
+                 attrs["TEXCOORD_0"] = self.add_vec_accessor(uv, 2, "VEC2")
+             gprims.append({"attributes": attrs, "indices": self.add_index_accessor(idx), "material": mat, "mode": 4})
+-        self.meshes.append({"name": name, "primitives": gprims})
++            if len(prim) > 7:
++                gprims[-1]["extras"] = {"scctSection": prim[7]}
++        mesh = {"name": name, "primitives": gprims}
++        if prims and len(prims[0]) > 8 and prims[0][8] is not None:
++            x, y, z, radius = prims[0][8]
++            mesh["extras"] = {"scctSphere": [x * .01, z * .01, y * .01, radius * .01]}
++        self.meshes.append(mesh)
+         return len(self.meshes) - 1
+ 
+     def node(self, name: str, mesh: int, translation=None, extras=None) -> int:
+@@ -803,7 +809,7 @@ def _static_mesh_prims(sm: StaticMesh, owner: Package, resolver: MaterialResolve
+             mat = writer.material(key, res, uri)
+         # bUnlit changes lighting, not the Shader's self-illumination layers (map directions use these).
+         _self_illum_flags(writer, key, res, tex_dir, tex_uri)
+-        prims.append((sm.positions, sm.normals, _uv_transform(uv, res), idx.astype(np.uint32), mat))
++        prims.append((sm.positions, sm.normals, _uv_transform(uv, res), idx.astype(np.uint32), mat, None, None, si, getattr(sm, "sphere", None)))
+     return prims
+ 
+ 
+@@ -1133,9 +1139,10 @@ def _perspective_projector_prims(rec: ActorRecord, polys: List[BspPolygon], pkg:
+ 
+ def export_map(map_path: Path, pset: PackageSet, out_root: Path, include_bsp: bool = True,
+                max_meshes: Optional[int] = None, extra_mesh_refs: Optional[List[int]] = None,
+-               skip_refs: Collection[int] = ()) -> dict:
++               extra_material_refs: Optional[List[int]] = None, skip_refs: Collection[int] = ()) -> dict:
+     """extra_mesh_refs: static mesh references (relative to the map package) that no actor places but the game can
+     swap to (SGamePlayObject TriggeredMesh, DamagedMeshes[].StaticMesh); each becomes a library node too.
++    extra_material_refs: damage/trigger skins that need exported textures and shader flags even without a placed surface.
+     skip_refs: actors (export index + 1) to leave out, see level.extract_level."""
+     pkg = Package.load(map_path)
+     map_name = map_path.stem
+@@ -1147,6 +1154,12 @@ def export_map(map_path: Path, pset: PackageSet, out_root: Path, include_bsp: bo
+     writer = GltfWriter()
+     writer.tex_dir, writer.tex_uri = tex_dir, tex_uri   # flipbook atlases (animated additive textures)
+     stats = {"map": map_name, "bsp_polys": 0, "static_meshes": 0, "actors": 0, "missing_meshes": []}
++    # Damage/trigger skins have no placed surface, but still need textures and shader flags.
++    for ref in sorted(set(extra_material_refs or [])):
++        res = resolver.resolve(pkg, ref)
++        if res is not None and not res.skip:
++            writer.material(res.key, res, _ensure_texture(res, tex_dir, tex_uri))
++            _self_illum_flags(writer, res.key, res, tex_dir, tex_uri)
+     bsp_actor = None
+ 
+     lightmapped: list = []
+@@ -1301,7 +1314,7 @@ def export_map(map_path: Path, pset: PackageSet, out_root: Path, include_bsp: bo
+                     vname = _safe(key) + f"__vc{h}" + (f"_sk{skin_id}" if skin_sig else "")
+                     prims = _static_mesh_prims(sm, owner, resolver, writer, tex_dir, tex_uri,
+                                                skin_refs if skin_sig else None, pkg)
+-                    prims = [tuple(pr) + (None, authored) for pr in prims]
++                    prims = [tuple(pr[:5]) + (None, authored) + tuple(pr[7:]) for pr in prims]
+                     color_variants[vkey] = None
+                     if prims:
+                         mi = writer.mesh(vname, prims)
+@@ -1345,7 +1358,7 @@ def export_map(map_path: Path, pset: PackageSet, out_root: Path, include_bsp: bo
+                         vname = _safe(key) + f"__vc{h}" + (f"_sk{skin_id}" if skin_sig else "")
+                         prims = _static_mesh_prims(sm, owner, resolver, writer, tex_dir, tex_uri,
+                                                    skin_refs if skin_sig else None, pkg)
+-                        prims = [tuple(pr) + (None, colors) for pr in prims]
++                        prims = [tuple(pr[:5]) + (None, colors) + tuple(pr[7:]) for pr in prims]
+                         if prims:
+                             mi = writer.mesh(vname, prims)
+                             writer.node(vname, mi, extras={"scct_kind": "library"})
+diff --git a/staticmesh.py b/staticmesh.py
+index bc5a3b87..81f653ef 100644
+--- a/staticmesh.py
++++ b/staticmesh.py
+@@ -52,6 +52,7 @@ class StaticMesh:
+     bbox_min: Tuple[float, float, float]
+     bbox_max: Tuple[float, float, float]
+     props: dict = field(default_factory=dict)
++    sphere: Optional[Tuple[float, float, float, float]] = None
+ 
+     @property
+     def triangle_count(self) -> int:
+@@ -78,7 +79,7 @@ def read_static_mesh(pkg: Package, e: Export) -> StaticMesh:
+     bmin = r.vec3()
+     bmax = r.vec3()
+     r.u8()          # IsValid
+-    r.raw(16)       # bounding sphere
++    sphere = struct.unpack("<4f", r.raw(16))
+ 
+     n_sections = r.compact()
+     if n_sections < 0 or n_sections > 4096:
+@@ -144,6 +145,7 @@ def read_static_mesh(pkg: Package, e: Export) -> StaticMesh:
+         bbox_min=tuple(bmin),
+         bbox_max=tuple(bmax),
+         props=props,
++        sphere=sphere,
+     )
+ 
+ 

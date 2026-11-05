@@ -26,7 +26,7 @@ def portals(model) -> list[dict]:
 def source_portals(src) -> list[dict]:
     from scctpkg.bsp import read_model
 
-    ref = src.header.model_a or src.header.model_b
+    ref = src.header.world_model
     return portals(read_model(src.pkg, src.pkg.exports[ref - 1])) if ref else []
 
 
@@ -252,7 +252,7 @@ def source_volumes(src) -> list[dict]:
     actors = [a for a in src.actors if a.cls.lower() == "sbase.sfogvolume" and a.category != "skipped"]
     if not actors:
         return []
-    world_ref = src.header.model_a or src.header.model_b
+    world_ref = src.header.world_model
     if not world_ref:
         return []
     world = modeltail.read_model(src.pkg, src.pkg.exports[world_ref - 1])

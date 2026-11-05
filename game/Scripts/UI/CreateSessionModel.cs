@@ -64,23 +64,38 @@ public sealed class CreateSessionModel
 
     private readonly IReadOnlyList<(string Id, string Title)> _maps;
     private readonly Func<string, USMapSettings?> _settings;
+    private readonly Func<string, int?>? _statedPlayers;
     private int _gamesBeforeRevenge = 1;
 
     /// <param name="maps">The installed maps (id and title), in the order the page lists them.</param>
     /// <param name="settings">A map's SMapSettings (its modes and their values), or null when it has none.</param>
     /// <param name="start">The values the page opens with (the last session's, or a map's defaults).</param>
-    public CreateSessionModel(IReadOnlyList<(string Id, string Title)> maps, Func<string, USMapSettings?> settings, LobbySetup start)
+    /// <param name="statedPlayers">The lobby size a map says it plays best at, or null when it says none.</param>
+    /// <param name="playersChosen">Whether the host picked the player slots of <paramref name="start"/>. Until the host
+    /// picks them, they follow the map: whenever it changes they become <see cref="FollowedPlayers"/> of the new map.</param>
+    public CreateSessionModel(IReadOnlyList<(string Id, string Title)> maps, Func<string, USMapSettings?> settings, LobbySetup start,
+        Func<string, int?>? statedPlayers = null, bool playersChosen = true)
     {
         ArgumentNullException.ThrowIfNull(maps);
         ArgumentNullException.ThrowIfNull(start);
         _maps = maps;
         _settings = settings ?? throw new ArgumentNullException(nameof(settings));
+        _statedPlayers = statedPlayers;
+        PlayersChosen = playersChosen;
         Setup = start.Clamped() with
         {
             MaxPlayers = start.MaxPlayers is >= LobbySetup.MinMaxPlayers and <= LobbySetup.MaxMaxPlayers ? start.MaxPlayers : LobbySetup.DefaultMaxPlayers,
         };
         _gamesBeforeRevenge = Setup.Revenge ? 1 : Setup.GamesInARow;
     }
+
+    /// <summary>The player slots a map gets while the host has not picked them: the count it states (within the page's
+    /// range), else the page's default.</summary>
+    public static int FollowedPlayers(int? stated) =>
+        stated is { } players ? Math.Clamp(players, LobbySetup.MinMaxPlayers, LobbySetup.MaxMaxPlayers) : LobbySetup.DefaultMaxPlayers;
+
+    /// <summary>True once the host picked the player slots; until then they follow the map.</summary>
+    public bool PlayersChosen { get; private set; }
 
     /// <summary>The page's values.</summary>
     public LobbySetup Setup { get; private set; }
@@ -353,6 +368,7 @@ public sealed class CreateSessionModel
         {
             case SessionRow.MaxPlayers:
                 s = s with { MaxPlayers = v };
+                PlayersChosen = true;
                 break;
             case SessionRow.GamesInARow:
                 s = s with { GamesInARow = v };
@@ -468,13 +484,14 @@ public sealed class CreateSessionModel
 
     private void Reload(string map, EGameMode mode)
     {
-        LobbySetup fresh = LobbySetup.ForMap(map, mode, _settings(map), Setup.MaxPlayers);
+        int players = PlayersChosen ? Setup.MaxPlayers : FollowedPlayers(_statedPlayers?.Invoke(map));
+        LobbySetup fresh = LobbySetup.ForMap(map, mode, _settings(map), players);
         Set(fresh with
         {
             VoiceMode = Setup.VoiceMode, VoiceInLobby = Setup.VoiceInLobby, RandomMap = Setup.RandomMap, Revenge = Setup.Revenge,
             AutoBalance = Setup.AutoBalance, Alternate = Setup.Alternate, Practice = Setup.Practice, Sidearms = Setup.Sidearms,
             Bots = Setup.Bots, BotsPerSide = Setup.BotsPerSide, SpyBots = Setup.SpyBots, MercBots = Setup.MercBots, BotSkill = Setup.BotSkill,
-            GamesInARow = Setup.Revenge ? LobbySetup.RevengeGames : Setup.GamesInARow, MaxPlayers = Setup.MaxPlayers,
+            GamesInARow = Setup.Revenge ? LobbySetup.RevengeGames : Setup.GamesInARow, MaxPlayers = players,
         });
     }
 

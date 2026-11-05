@@ -25,6 +25,18 @@ The runtime lays each sub-emitter's stored values over its class defaults from `
 
 ## Runtime
 
+Before the client reports ready to play, `GameplayFxWarmup` draws the gameplay particle
+materials and geometry, both laser sights, and the disabled Camnet cue in a private
+64x64 viewport for three rendered frames. This moves shader/pipeline creation,
+texture preparation and first geometry uploads into loading. Creating shader objects
+alone does not exercise the draw pipelines. The temporary viewport is freed before
+play; its particles use separate simulations and never spawn gameplay actors or audio.
+Headless runs prepare CPU resources and finish without waiting for rendered frames.
+
+The windowed `gameplay-fx-warmup` smoke checks loading completion, viewport cleanup,
+unchanged live effect counters, and zero new draw-pipeline compilations when the same
+samples are drawn again. This checks pipeline reuse, not a hardware-independent frame-time guarantee.
+
 | Path | What |
 |---|---|
 | [game/Scripts/Render/Particles/ParticleParams.cs](../game/Scripts/Render/Particles/ParticleParams.cs) | a sub-emitter's properties (Godot-free) |
@@ -110,8 +122,9 @@ lines across the large cloud planes. The texture's RGB is retained; the emitter'
   self-illumination inherits the dry skin's glow and mask: in particular, wet_lit_ATT must not switch off the spy's
   back lamp when viewed by a merc. The lamp retains constant self-illumination; map lights and flashlights do not
   control its brightness or switch the suit back to a dry material. In thermal the spy's head changes (wet heat
-  HEATTEX_Heat instead of HEATTEX_Cool). The cooling itself is the pawn's replicated HeatIntensity (down to 0.5 in
-  rain), which every view draws.
+  HEATTEX_Heat instead of HEATTEX_Cool). A map outfit's own model gets wet heat and EMF masks made for its UVs from
+  the stock mesh (`OutfitSkins`, spec/additions/map-outfits.md). The cooling itself is the pawn's replicated
+  HeatIntensity (down to 0.5 in rain), which every view draws.
 - The rain splashes (`SFlicFlocEmitter`, one per pawn on its 'B Head', spec/equipment/rain.md rules 4 and 5): the
   simulation's emitter keeps what its script sets (rates, respawn, the particle budget, restarts, the puff trigger)
   and `EffectViews.FlicFloc.cs` applies it to the drawn copy each frame (`ParticleEmitterSim.RateOverride`,

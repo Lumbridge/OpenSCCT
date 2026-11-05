@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using OpenScct.Core;
 using OpenScct.Core.Engine;
 using OpenScct.Game.Modes;
 using OpenScct.Game.SBase;
@@ -21,6 +22,8 @@ public sealed partial class OnlineServer
     /// <summary>Players with <c>!regen</c> on in this round.</summary>
     private readonly HashSet<SessionPlayer> _regen = new();
 
+    private readonly Dictionary<SessionPlayer, (Pawn? Old, long Since)> _teamRespawns = new();
+
     private long _nextRegen;
 
     /// <summary>Whether practice was on at any time during the running round (its results then do not count).</summary>
@@ -32,6 +35,7 @@ public sealed partial class OnlineServer
     /// <summary>A new round's map server: no switches carry over, and the practice rules go on its level.</summary>
     private void StartPracticeRound(ServerHost host)
     {
+        _teamRespawns.Clear();
         _practice.Clear();
         _regen.Clear();
         _practiceRound = Setup.Practice;
@@ -162,9 +166,55 @@ public sealed partial class OnlineServer
         return true;
     }
 
+    private bool SwitchPracticeTeam(SessionPlayer player, byte team)
+    {
+        if (!Setup.Practice || team is not (0 or 1) || player.IsSpectator ||
+            Host.Game is not { bGameEnded: false } game || player.Slot?.Controller is not SPlayerController pc ||
+            !game.eventChangeTeam(pc, team, true)) return false;
+
+        Pawn? old = pc.Pawn;
+        pc.UnPossess();
+        // Wait for the old pawn channel to close before ClientRestart can acquire its replacement.
+        if (!_teamRespawns.ContainsKey(player)) _teamRespawns[player] = (old, _now);
+        pc.bCrouchWithRoll = false;
+        pc.SPawnType = team == 0 ? PawnType.SPAWNOFFENSE : PawnType.SPAWNDEFENSE;
+        pc.DefaultFOV = pc.DesiredFOV = team == 0 ? pc.SpyFOV : pc.DefenderFOV;
+        if (pc.PlayerReplicationInfo is { Team: STeamInfo side } pri)
+        {
+            int mesh = pri.MyMeshNum;
+            pc.SetPawnClass(mesh >= 0 && mesh < side.PawnList.Count ? side.PawnList[mesh] : Name.None);
+            var look = team == 0 ? player.SpyLook : player.MercLook;
+            (pri.SvmLookLow, pri.SvmLookHigh) = look.Split();
+            pri.SvmLookExtraLow = (int)look.Extra;
+            pri.SvmLookExtraHigh = (int)(look.Extra >> 32);
+            pri.NumLives = team == 0 ? game.MatchInfo?.NumLivesATT ?? 1 : game.MatchInfo?.NumLivesDEF ?? 1;
+        }
+        return true;
+    }
+
+    private void TickPracticeTeamRespawns()
+    {
+        foreach (var pair in new List<KeyValuePair<SessionPlayer, (Pawn? Old, long Since)>>(_teamRespawns))
+        {
+            var player = pair.Key;
+            if (Phase != SessionPhase.Match || !Setup.Practice || !_players.Contains(player) ||
+                player.Slot?.Controller is not SPlayerController pc || Host.Game is not { bGameEnded: false } game)
+            {
+                _teamRespawns.Remove(player);
+                continue;
+            }
+            if (pair.Value.Old is { } old && player.Slot.Connection.FindActorChannel(old) is not null &&
+                _now - pair.Value.Since < 3 * Second) continue;
+            _teamRespawns.Remove(player);
+            game.eventRestartPlayer(pc);
+            game.UpdateTeamNumLives();
+        }
+    }
+
     /// <summary>Each second, <c>!regen</c> players get health back; tanks are kept at full health.</summary>
     private void TickPractice()
     {
+        TickPracticeTeamRespawns();
         if (!Setup.Practice || _now < _nextRegen)
         {
             return;

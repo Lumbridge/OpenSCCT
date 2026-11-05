@@ -112,6 +112,9 @@ public static partial class K
     [Provenance(ProvenanceKind.Decoded, "SFireTrace tracer chance PourcBT* / 100")]
     public const float TracerPercent = 100f;
 
+    [Provenance(ProvenanceKind.Decoded, "Retail ASFireTrace::Tick 0x10ae8390 hides within 502 uu of ImpactLoc")]
+    public const float FireTraceHideDistance = 502f;
+
     [Provenance(ProvenanceKind.Decoded, "TraceFire impact roll int(FRand() * 65536)")]
     public const float RandomRoll = 65536f;
 

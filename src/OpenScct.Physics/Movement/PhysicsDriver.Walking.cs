@@ -316,6 +316,9 @@ public sealed partial class PhysicsDriver
 
         p.bNoVelocityUpdate = false;
         p.Velocity.Z = 0f;
+
+        // OpenSCCT addition: a conveyor under the pawn carries it (no conveyors, no work).
+        ConveyorCarry(p, deltaTime);
     }
 
     /// <summary>

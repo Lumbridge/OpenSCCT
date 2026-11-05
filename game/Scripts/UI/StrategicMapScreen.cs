@@ -219,6 +219,7 @@ public partial class StrategicMapView : Control
         }
 
         float scale = inner.Size.X / PictureUnits;
+        DrawPlaces(inner, scale);
         if (_model.You is { } you)
         {
             DrawYou(inner, you, YouUnits * scale, _model.Bright ? ShowSpot : HideSpot);
@@ -230,6 +231,26 @@ public partial class StrategicMapView : Control
             {
                 DrawMate(inner, m, MateUnits * scale, _model.Bright ? ShowMate : HideMate);
             }
+        }
+    }
+
+    /// <summary>The numbers of the map's places on the shown floor, at the legend's text size.</summary>
+    private void DrawPlaces(Rect2 inner, float scale)
+    {
+        Font font = GetThemeDefaultFont();
+        int fontSize = Mathf.Max(10, (int)(14f * scale));
+        foreach (StrategicMapPlace place in _model.Data.Places)
+        {
+            if (place.Floor != _model.FloorIndex || place.U is < 0f or > 1f || place.V is < 0f or > 1f)
+            {
+                continue;
+            }
+
+            string text = place.Number.ToString(System.Globalization.CultureInfo.InvariantCulture);
+            Vector2 extent = font.GetStringSize(text, HorizontalAlignment.Left, -1, fontSize);
+            Vector2 baseline = inner.Position + new Vector2(place.U, place.V) * inner.Size + new Vector2(-extent.X / 2f, extent.Y / 4f);
+            DrawStringOutline(font, baseline, text, HorizontalAlignment.Left, -1, fontSize, 3, Colors.Black);
+            DrawString(font, baseline, text, HorizontalAlignment.Left, -1, fontSize, ShowSpot);
         }
     }
 

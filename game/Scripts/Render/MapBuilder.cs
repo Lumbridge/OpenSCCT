@@ -146,6 +146,26 @@ public sealed class RenderMap
     /// <summary>The map's gameplay actors (sim/gameplay.json over sim/classes.json).</summary>
     public GameplayActors Actors { get; internal set; } = new();
 
+    /// <summary>The map's outfits (render/outfits.json, SVMap 1.2); none when the map has no file.</summary>
+    public OpenScct.Content.MapOutfits Outfits { get; internal set; } = OpenScct.Content.MapOutfits.None;
+
+    /// <summary>
+    /// The outfits of a map folder. A file this build cannot read leaves the stock look (the outfits change only the
+    /// look, so a map with a newer outfit file still plays).
+    /// </summary>
+    public static OpenScct.Content.MapOutfits OutfitsOf(string mapFolder)
+    {
+        try
+        {
+            return OpenScct.Content.OutfitsDoc.Load(mapFolder) ?? OpenScct.Content.MapOutfits.None;
+        }
+        catch (OpenScct.Content.SvMapFormatException e)
+        {
+            GD.PushWarning($"{mapFolder}: outfits left out: {e.Message}");
+            return OpenScct.Content.MapOutfits.None;
+        }
+    }
+
     private readonly List<IReadOnlySet<string>> _echelonGroups = [new HashSet<string>()];
     private readonly Dictionary<string, int> _echelonGroupIds = new(StringComparer.Ordinal) { [""] = 0 };
 
@@ -256,8 +276,8 @@ public sealed class RenderMap
     public Dictionary<string, GameplayMesh> Gameplay { get; } = new(StringComparer.Ordinal);
 
     /// <summary>
-    /// The meshes gameplay objects swap to (TriggeredMesh, DamagedMeshes) that no placed actor shows, by asset path
-    /// (ignoring case), lit by the actor.
+    /// The meshes gameplay objects swap to (TriggeredMesh, DamagedMeshes) that no placed actor shows, and the meshes
+    /// conveyors carry as items (also those a placed actor shows), by asset path (ignoring case), lit by the actor.
     /// </summary>
     public Dictionary<string, ArrayMesh> SwapMeshes { get; } = new(StringComparer.OrdinalIgnoreCase);
 
@@ -352,8 +372,8 @@ public sealed class RenderMap
         {
             if (g.Light == LightSource.Actor)
             {
-                FVector at = UeSpace.ToUe(g.Node.GlobalPosition);
-                ActorLighting.Apply(g.Node, LightActor(at, g.Radius, g.AmbientGlow));
+                var sphere = ActorLighting.SphereOf(g.Node.Mesh, g.Node.GlobalTransform);
+                ActorLighting.Apply(g.Node, LightActor(sphere.Center, sphere.Radius, g.AmbientGlow));
             }
         }
 
@@ -446,6 +466,8 @@ public static class MapBuilder
         var map = new RenderMap(mapFolder, mapId, root, materials, lighting, textures, compiler, new ActorLighting(lighting), zones);
         map.Pack = pack;
         map.Actors = GameplayActors.Load(mapFolder);
+        map.Outfits = RenderMap.OutfitsOf(mapFolder);
+        Characters.PawnCosmetics.Outfits = map.Outfits;
         List<OpenScctGame.Render.Projectors.ProjectorEntry>? projectors = OpenScctGame.Render.Projectors.ProjectorsDoc.Load(mapFolder);
         map.SkipProjectorDecals = projectors is not null;
         map.SoftBodies = new OpenScctGame.Render.SoftBodies.SoftBodyViews(root);
@@ -545,16 +567,19 @@ public static class MapBuilder
 
         /// <summary>
         /// The library meshes no placed actor uses: the meshes gameplay objects swap to (TriggeredMesh,
-        /// DamagedMeshes[].StaticMesh), which the converter adds to the library. They are built once, lit by the
-        /// actor, for <see cref="RenderMap.SwapMeshes"/>.
+        /// DamagedMeshes[].StaticMesh), which the converter adds to the library; and the conveyors' item meshes, which
+        /// a placed actor may use too (where its baked light does not suit an item moving through the map). They are
+        /// built once, lit by the actor, for <see cref="RenderMap.SwapMeshes"/>.
         /// </summary>
         private void AddSwapMeshes()
         {
+            HashSet<string> items = ConveyorItemMeshes();
             foreach ((string name, int mesh) in _libraryMeshes)
             {
                 bool used = _usedLibraryMeshes.Contains(name);
                 bool particle = _particleMeshes.Contains(name);
-                if ((used && !particle) || name.Contains('#', StringComparison.Ordinal))
+                bool item = items.Contains(name);
+                if ((used && !particle && !item) || name.Contains('#', StringComparison.Ordinal))
                 {
                     continue;
                 }
@@ -570,11 +595,13 @@ public static class MapBuilder
                     var surface = new SurfaceBuilder(false, false);
                     surface.Add(Transform3D.Identity, prim, 0, null);
                     surface.AddTo(arrayMesh, material);
+                    arrayMesh.SurfaceSetName(arrayMesh.GetSurfaceCount() - 1, "section" + prim.Section);
                 }
 
+                ActorLighting.ReadSphere(arrayMesh, _glb.Root.GetProperty("meshes")[mesh]);
                 if (arrayMesh.GetSurfaceCount() > 0)
                 {
-                    if (!used)
+                    if (!used || item)
                     {
                         _map.SwapMeshes[name] = arrayMesh;
                     }
@@ -585,6 +612,31 @@ public static class MapBuilder
                     }
                 }
             }
+        }
+
+        /// <summary>The asset paths of the meshes the map's conveyors carry as items (Svm.Conveyor ItemMeshes).</summary>
+        private HashSet<string> ConveyorItemMeshes()
+        {
+            var names = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (GameplayActor actor in _map.Actors.Actors)
+            {
+                if (!string.Equals(actor.Class, "Svm.Conveyor", StringComparison.OrdinalIgnoreCase) ||
+                    !actor.TryGet("ItemMeshes", out JsonElement meshes) || meshes.ValueKind != JsonValueKind.Array)
+                {
+                    continue;
+                }
+
+                foreach (JsonElement m in meshes.EnumerateArray())
+                {
+                    if (m.ValueKind == JsonValueKind.Object && m.TryGetProperty("$asset", out JsonElement path) &&
+                        path.GetString() is { Length: > 0 } asset)
+                    {
+                        names.Add(asset);
+                    }
+                }
+            }
+
+            return names;
         }
 
         private void ReadMaterials()
@@ -668,6 +720,7 @@ public static class MapBuilder
                     : Sequence(positions.Length / 3);
                 list.Add(new MeshPrimitive
                 {
+                    Section = p.TryGetProperty("extras", out JsonElement pe) && pe.TryGetProperty("scctSection", out JsonElement ps) ? ps.GetInt32() : list.Count,
                     Material = material >= 0 && material < _materialNames.Count ? _materialNames[material] : "",
                     Positions = positions,
                     Normals = attrs.TryGetProperty("NORMAL", out JsonElement nn) ? _glb.ReadFloats(nn.GetInt32()) : null,
@@ -1082,9 +1135,11 @@ public static class MapBuilder
                     }
 
                     surface.AddTo(arrayMesh, material);
+                    arrayMesh.SurfaceSetName(arrayMesh.GetSurfaceCount() - 1, "section" + prim.Section);
                     _map.Stats.Vertices += surface.VertexCount;
                 }
 
+                ActorLighting.ReadSphere(arrayMesh, _glb.Root.GetProperty("meshes")[mesh]);
                 _shared[(shareKey, light, glowKey)] = arrayMesh;
             }
 
@@ -1103,8 +1158,8 @@ public static class MapBuilder
                 _map.Stats.Triangles += prim.Indices.Length / 3;
             }
 
-            Aabb box = arrayMesh.GetSurfaceCount() > 0 ? transform * arrayMesh.GetAabb() : new Aabb(transform.Origin, Vector3.Zero);
-            float radius = UeSpace.UnitsPerMetre * box.Size.Length() * 0.5f;
+            var lightSphere = ActorLighting.SphereOf(arrayMesh, transform);
+            float radius = lightSphere.Radius;
             var entry = new GameplayMesh
             {
                 ActorId = actor,
@@ -1122,8 +1177,7 @@ public static class MapBuilder
 
             if (light == LightSource.Actor && arrayMesh.GetSurfaceCount() > 0)
             {
-                FVector center = UeSpace.ToUe(box.GetCenter());
-                ActorLighting.Apply(node, _map.LightActor(center, radius, glow));
+                ActorLighting.Apply(node, _map.LightActor(lightSphere.Center, radius, glow));
             }
         }
 

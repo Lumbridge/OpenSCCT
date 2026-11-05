@@ -143,8 +143,8 @@ public sealed class PlayFxSmoke : SmokeTest
         }, s =>
         {
             (int marks, int muzzle) = ((int, int))s.Remember!;
-            return s.Combat is { } fx && fx.Marks > marks && fx.MuzzleMeshes > muzzle && s.ParticlesSeen("SSparkShocker", 1) && fx.LastMarkDecal
-                ? s.Detail($"mark with its decal, muzzle meshes {fx.MuzzleMeshes - muzzle}, sparks peak {s.Fx!.PeakParticles.GetValueOrDefault("SSparkShocker")}")
+            return s.Combat is { } fx && fx.Marks > marks && fx.MuzzleMeshes > muzzle && s.ParticlesSeen("SSparkShocker", 1) && !fx.LastMarkDecalShown
+                ? s.Detail($"Shocker sparks without a scorch decal, muzzle meshes {fx.MuzzleMeshes - muzzle}, sparks peak {s.Fx!.PeakParticles.GetValueOrDefault("SSparkShocker")}")
                 : null;
         });
         leg.Add("select the smoke grenade (1)", 120, s => s.Tap("1", 0, 3), s =>

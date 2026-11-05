@@ -118,6 +118,24 @@ public sealed class InteractionSystemTests
     }
 
     [Fact]
+    public void Client_collision_events_leave_the_replicated_menu_unchanged()
+    {
+        (ObjWorld w, SBasicGamePlayObject owner) = WithOwner();
+        TestPC pc = w.AddPlayer(spy: false, default);
+        SInteractionManager menu = pc.IManager!;
+        var ammo = SpawnEntry<SAmmoStockInteraction>(w, owner);
+        ammo.Role = ENetRole.ROLE_SimulatedProxy;
+
+        ObjWorld.Touch(pc, ammo);
+        Assert.DoesNotContain(ammo, menu.Interactions);
+
+        menu.AddObjetOnClient(ammo, 0);
+        pc.Pawn!.EndTouch(ammo);
+        Assert.Same(ammo, menu.Interactions[0]);
+        Assert.Equal(K.FixedEntries + 1, menu.NbObjects);
+    }
+
+    [Fact]
     public void Touch_by_a_pawn_without_a_player_controller_does_nothing()
     {
         (ObjWorld w, SBasicGamePlayObject owner) = WithOwner();
@@ -206,6 +224,48 @@ public sealed class InteractionSystemTests
         }
 
         Assert.Equal(SInteractionManager.MAXITEM, menu.NbObjects);
+    }
+
+    [Fact]
+    public void Touch_does_not_duplicate_an_entry_after_its_priority_changes()
+    {
+        (ObjWorld w, SBasicGamePlayObject owner) = WithOwner();
+        SInteractionManager menu = w.AddPlayer(spy: false, default).IManager!;
+        var ammo = SpawnEntry<SAmmoStockInteraction>(w, owner);
+        var infirmary = SpawnEntry<SInfirmaryInteraction>(w, owner);
+        menu.AddInteractionObj(infirmary);
+        menu.AddInteractionObj(ammo);
+        int count = menu.NbObjects;
+        ammo.iPriority = 0;
+
+        menu.AddInteractionObj(ammo);
+
+        Assert.Equal(count, menu.NbObjects);
+        Assert.Same(infirmary, menu.Interactions[0]);
+        Assert.Same(ammo, menu.Interactions[1]);
+    }
+
+    [Fact]
+    public void Server_insert_moves_a_locally_touched_entry_without_duplicating_it()
+    {
+        (ObjWorld w, SBasicGamePlayObject owner) = WithOwner();
+        SInteractionManager menu = w.AddPlayer(spy: false, default).IManager!;
+        var ammo = SpawnEntry<SAmmoStockInteraction>(w, owner);
+        var infirmary = SpawnEntry<SInfirmaryInteraction>(w, owner);
+        menu.AddInteractionObj(infirmary);
+        menu.AddInteractionObj(ammo);
+        int count = menu.NbObjects;
+
+        // Client touch order can differ from the authority's insertion order.
+        menu.AddObjetOnClient(ammo, 0);
+        menu.AddObjetOnClient(ammo, 0);
+
+        Assert.Equal(count, menu.NbObjects);
+        Assert.Same(ammo, menu.Interactions[0]);
+        Assert.Same(infirmary, menu.Interactions[1]);
+        menu.RemoveInteractionObjOnClient(ammo);
+        Assert.DoesNotContain(ammo, menu.Interactions);
+        Assert.Equal(count - 1, menu.NbObjects);
     }
 
     // ---- rule 24 and open question 1: order and selection -------------------------------------------------------

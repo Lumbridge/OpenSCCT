@@ -19,7 +19,8 @@ namespace OpenScctGame.Fx;
 /// its beam turned it towards itself (a zero rotation), so its 2000.1 uu beam runs along world X, as in the original:
 /// the beam's tick only stretches DrawScale3D.X to fTailleFaisceau and never turns it.</item>
 /// </list>
-/// Each with the beam's bHideInNormalVision and HeatIntensity (0.4 for a mine's beam, so thermal only and EMF). A
+/// Each with the beam's bHideInNormalVision and HeatIntensity (0.4 for a mine's beam). The vision material draws
+/// the beam's heat in thermal and discards it in EMF, leaving the emitter's own EMF response. A
 /// hidden beam (switched off, chaffed, an absent tripwire) or a gone one is removed. Reads the client world and never
 /// writes it.
 /// </summary>

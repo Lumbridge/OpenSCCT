@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using OpenScct.Core;
 
 namespace OpenScct.Content;
@@ -9,13 +10,14 @@ namespace OpenScct.Content;
 /// </summary>
 public sealed class ActorRecord
 {
-    internal ActorRecord(int index, string id, string classPath, PropBag props, int? sourceExport)
+    internal ActorRecord(int index, string id, string classPath, PropBag props, int? sourceExport, IReadOnlyList<string>? liftedFrom = null)
     {
         Index = index;
         Id = id;
         Class = classPath;
         Props = props;
         SourceExport = sourceExport;
+        LiftedFrom = liftedFrom ?? [];
         int dot = classPath.IndexOf('.', StringComparison.Ordinal);
         ClassPackage = classPath[..dot];
         ClassName = classPath[(dot + 1)..];
@@ -41,6 +43,12 @@ public sealed class ActorRecord
 
     /// <summary>1-based export index in the original map package, when converted.</summary>
     public int? SourceExport { get; }
+
+    /// <summary>
+    /// The RE+ actors the converter made this one from (a converted conveyor stands for its belts), by export name;
+    /// empty for every other actor. The editor keeps them for the T3D handoff.
+    /// </summary>
+    public IReadOnlyList<string> LiftedFrom { get; }
 
     public bool IsLevelInfo => Index == 0;
 

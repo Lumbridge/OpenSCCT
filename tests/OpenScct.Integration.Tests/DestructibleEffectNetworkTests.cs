@@ -100,6 +100,50 @@ public sealed class DestructibleEffectNetworkTests
         }
     }
 
+    [Fact]
+    public void Aquarius_screen_replicates_cracked_skin_while_retaining_cabinet_and_collision()
+    {
+        Assert.SkipWhen(WalkerRig.Maps.FindFolder("AquaE") is null, "AquaE content absent.");
+        using WalkerRig rig = WalkerRig.Create(SimLinkProfile.A, 8822, 2,
+            new ServerSettings { Map = "AquaE", GameOptions = "?GameMode=5?TimeLimit=0", UseStartGate = false },
+            new ClientSettings { Gameplay = true });
+        for (int i = 0; i < 600 && rig.Clients.Any(c => c.State != EClientState.Joined); i++) rig.Step();
+        Assert.All(rig.Clients, c => Assert.Equal(EClientState.Joined, c.State));
+        var screen = rig.Server.Map.MapActors.OfType<SGamePlayObject>().First(p =>
+            p.DamagedMeshes.Any(stage => stage.Skin.Path == "Aquarium_TXT.Aquarium.aqua_bornescreen1"));
+        screen.bAlwaysRelevant = true;
+        for (int i = 0; i < 180; i++) rig.Step();
+        var intact = screen.StaticMesh;
+        screen.eventTakeDamage(1, null, screen.Location, default, screen.TakeDamageTypes[0]);
+        Assert.True(screen.bAlreadyDestroyed);
+        for (int i = 0; i < 480; i++) rig.Step();
+        ClientSession late = rig.AddClient();
+        for (int i = 0; i < 600 && late.State != EClientState.Joined; i++) rig.Step();
+        Assert.Equal(EClientState.Joined, late.State);
+        for (int i = 0; i < 180; i++) rig.Step();
+        int index = rig.Server.Driver.MapBinding.IndexOf(screen);
+        foreach (ClientSession client in rig.Clients.Append(late))
+        {
+            var copy = Assert.IsType<SGamePlayObject>(client.Map!.MapActors[index]);
+            Assert.Equal(intact, copy.StaticMesh);
+            Assert.Equal(EDrawType.DT_StaticMesh, copy.DrawType);
+            Assert.Equal(screen.DamagedMeshes[0].Skin, copy.Skins[0]);
+            var colliders = new List<int>();
+            client.Map.Physics!.Collision.GetActorColliders(copy, colliders);
+            Assert.NotEmpty(colliders);
+            Assert.Contains(colliders, id => client.Map.Physics.Collision.GetCollider(id).Enabled);
+        }
+        screen.ResetDamageTime = 1;
+        screen.eventWaitReset();
+        for (int i = 0; i < 240; i++) rig.Step();
+        Assert.False(screen.bAlreadyDestroyed);
+        foreach (ClientSession client in rig.Clients.Append(late))
+        {
+            var copy = Assert.IsType<SGamePlayObject>(client.Map!.MapActors[index]);
+            Assert.Equal(screen.InitialSkin, copy.Skins[0]);
+        }
+    }
+
     private sealed class EffectSink(Level level, List<string> observed) : ISimEventSink
     {
         public void OnSimEvents(long tick, ReadOnlySpan<SimEvent> events)

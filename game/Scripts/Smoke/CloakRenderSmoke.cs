@@ -37,15 +37,36 @@ public sealed class CloakRenderSmoke : SmokeTest
     private string _folder = "";
     private int _view, _phase, _frames, _teardown;
     private SmokeResult? _final;
-    private static readonly string[] s_visionPhases = ["normal-background", "normal-opaque", "normal-cloaked",
-        "thermal-background", "thermal-cloaked", "emf-background", "emf-cloaked", "emf-fading-out",
-        "normal-return-background", "normal-return-cloaked"];
+    private enum VisionCheck { Background, Mask, Hidden, Revealed, NightOpaque, NightHalf, NightHidden, NightRestored }
+    private sealed record VisionPhase(string Name, int Mode, byte Glass, byte Target, VisionCheck Check);
+    private static readonly VisionPhase[] s_visionPhases =
+    [
+        new("normal-background", RenderK.RendMapNormal, 0, 0, VisionCheck.Background),
+        new("normal-opaque", RenderK.RendMapNormal, 0, 0, VisionCheck.Mask),
+        new("normal-cloaked", RenderK.RendMapNormal, 255, 255, VisionCheck.Hidden),
+        new("night-background", RenderK.RendMapNight, 0, 0, VisionCheck.Background),
+        new("night-opaque", RenderK.RendMapNight, 0, 0, VisionCheck.NightOpaque),
+        new("night-half", RenderK.RendMapNight, 128, 255, VisionCheck.NightHalf),
+        new("night-cloaked", RenderK.RendMapNight, 255, 255, VisionCheck.NightHidden),
+        new("night-fading-out", RenderK.RendMapNight, 128, 0, VisionCheck.NightHalf),
+        new("night-restored", RenderK.RendMapNight, 0, 0, VisionCheck.NightRestored),
+        new("thermal-background", RenderK.RendMapThermal, 255, 255, VisionCheck.Background),
+        new("thermal-cloaked", RenderK.RendMapThermal, 255, 255, VisionCheck.Revealed),
+        new("emf-background", RenderK.RendMapEmf, 255, 255, VisionCheck.Background),
+        new("emf-cloaked", RenderK.RendMapEmf, 255, 255, VisionCheck.Revealed),
+        new("emf-fading-out", RenderK.RendMapEmf, 128, 0, VisionCheck.Revealed),
+        new("night-return-background", RenderK.RendMapNight, 255, 255, VisionCheck.Background),
+        new("night-return-cloaked", RenderK.RendMapNight, 255, 255, VisionCheck.NightHidden),
+        new("normal-return-background", RenderK.RendMapNormal, 255, 255, VisionCheck.Background),
+        new("normal-return-cloaked", RenderK.RendMapNormal, 255, 255, VisionCheck.Hidden),
+    ];
     private SimPawnView? _pawnView;
     private SPawnAttaque _pawn = null!;
     private RenderPack? _pack;
     private int _visionPhase;
     private bool[,]? _visionMask;
     private int _visionPixels;
+    private float _nightOpaqueContrast;
 
     public override SmokeResult Step(SmokeContext context)
     {
@@ -261,11 +282,11 @@ public sealed class CloakRenderSmoke : SmokeTest
     private void ConfigureVision()
     {
         _frames = 0;
-        int mode = _visionPhase is 3 or 4 ? RenderK.RendMapThermal : _visionPhase is 5 or 6 or 7 ? RenderK.RendMapEmf : RenderK.RendMapNormal;
-        MaterialCompiler.SetVision(mode);
-        _display.Settings = new DisplayPostSettings { GlowGate = false, RendMap = mode, Pack = _pack };
-        _pawn.GlassEffect = _visionPhase <= 1 ? (byte)0 : _visionPhase == 7 ? (byte)128 : byte.MaxValue;
-        _pawn.DesiredGlassEffect = _visionPhase <= 1 || _visionPhase == 7 ? (byte)0 : byte.MaxValue;
+        VisionPhase phase = s_visionPhases[_visionPhase];
+        MaterialCompiler.SetVision(phase.Mode);
+        _display.Settings = new DisplayPostSettings { GlowGate = false, RendMap = phase.Mode, Pack = _pack };
+        _pawn.GlassEffect = phase.Glass;
+        _pawn.DesiredGlassEffect = phase.Target;
         // Exercise the same visibility derivation and DrawGlass gate used by the live pawn view. The fade-out
         // case has no weapon or goggles supplying EMF visibility: only the still-visible cloak transition.
         PawnVision.TestAndSetEMFVisible(_pawn);
@@ -273,7 +294,7 @@ public sealed class CloakRenderSmoke : SmokeTest
         _pawnView.Model!.Sampler.Play("WaitStAlFd0");
         _pawnView.Model.Pose();
         _pawnView.Model.Light(new ActorLightSet { Ambient = new Vector3(0.6f, 0.6f, 0.6f) });
-        _pawnView.Visible = _visionPhase is not (0 or 3 or 5 or 8);
+        _pawnView.Visible = phase.Check != VisionCheck.Background;
         Frame(_pawnView.Model, 180f);
     }
 
@@ -281,14 +302,15 @@ public sealed class CloakRenderSmoke : SmokeTest
     {
         if (++_frames < 16) return SmokeResult.Running;
         using Image shot = _viewport!.GetTexture().GetImage();
-        string name = "vision-" + s_visionPhases[_visionPhase];
+        VisionPhase phase = s_visionPhases[_visionPhase];
+        string name = "vision-" + phase.Name;
         shot.SavePng(Path.Combine(_folder, name + ".png"));
-        if (_visionPhase is 0 or 3 or 5 or 8)
+        if (phase.Check == VisionCheck.Background)
         {
             _background?.Dispose();
             _background = (Image)shot.Duplicate();
         }
-        else if (_visionPhase == 1)
+        else if (phase.Check == VisionCheck.Mask)
         {
             _visionMask = new bool[shot.GetWidth(), shot.GetHeight()];
             for (int y = 0; y < shot.GetHeight(); y++)
@@ -299,6 +321,29 @@ public sealed class CloakRenderSmoke : SmokeTest
                         _visionPixels++;
                     }
             if (_visionPixels < 3000) return Finish(SmokeResult.Fail("vision fixture has no usable pawn silhouette"));
+        }
+        else if (phase.Mode == RenderK.RendMapNight)
+        {
+            // Grain moves every frame. Its signed mean over the silhouette cancels out; red retains headroom
+            // under night vision's gain, so both the fade and opaque restoration remain measurable.
+            float difference = 0f;
+            for (int y = 0; y < shot.GetHeight(); y++)
+                for (int x = 0; x < shot.GetWidth(); x++)
+                    if (_visionMask![x, y]) difference += shot.GetPixel(x, y).R - _background!.GetPixel(x, y).R;
+            float contrast = difference / _visionPixels;
+            GD.Print($"SVM_CLOAK_RENDER {name} mean-red-contrast={contrast:F4}");
+            if (phase.Check == VisionCheck.NightOpaque)
+            {
+                _nightOpaqueContrast = contrast;
+                if (Math.Abs(contrast) < 0.08f)
+                    return Finish(SmokeResult.Fail($"{name}: night fixture has insufficient opaque contrast; " + _folder));
+            }
+            if (phase.Check == VisionCheck.NightHidden && Math.Abs(contrast) > 0.02f)
+                return Finish(SmokeResult.Fail($"{name}: night vision exposes the cloaked spy (mean contrast {contrast:F4}); " + _folder));
+            if (phase.Check == VisionCheck.NightHalf && contrast / _nightOpaqueContrast is < 0.2f or > 0.8f)
+                return Finish(SmokeResult.Fail($"{name}: night vision did not retain the partial cloak fade; " + _folder));
+            if (phase.Check == VisionCheck.NightRestored && Math.Abs(contrast - _nightOpaqueContrast) > 0.02f)
+                return Finish(SmokeResult.Fail($"{name}: night vision did not restore the uncloaked body; " + _folder));
         }
         else
         {
@@ -313,13 +358,13 @@ public sealed class CloakRenderSmoke : SmokeTest
                     contrast += distance;
                 }
             GD.Print($"SVM_CLOAK_RENDER {name} contrast-pixels={changed} contrast={contrast:F2} emf={_pawn.EMFOpacity:F2}");
-            if (_visionPhase is 2 or 9 && changed > 8)
+            if (phase.Check == VisionCheck.Hidden && changed > 8)
                 return Finish(SmokeResult.Fail($"{name}: switching vision left {changed} opaque pixels; " + _folder));
-            if (_visionPhase is 4 or 6 or 7 && changed < _visionPixels / 3)
+            if (phase.Check == VisionCheck.Revealed && changed < _visionPixels / 3)
                 return Finish(SmokeResult.Fail($"{name}: cloaked spy is not visible ({changed} contrast pixels); " + _folder));
         }
         if (++_visionPhase == s_visionPhases.Length)
-            return Finish(SmokeResult.Pass("8 spy angles and 2 shocker angles: uniform fade, full cloak, late split, live cosmetic restoration; thermal/EMF reveal cloak and fade-out, normal vision restores cloak; patterned captures; " + _folder));
+            return Finish(SmokeResult.Pass("8 spy angles and 2 shocker angles: uniform fade, full cloak, late split, live cosmetic restoration; night activation/fade/restoration, thermal/EMF reveal cloak and fade-out, returning to night/normal restores cloak; patterned captures; " + _folder));
         ConfigureVision();
         return SmokeResult.Running;
     }

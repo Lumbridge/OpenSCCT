@@ -294,6 +294,38 @@ minute, 37 MB/s allocated. After: max 15 ms, none over 20 ms, 55 gen0 and 5 gen1
 (under 1 ms each), 16 MB/s allocated, nearly all of it the HUD's draw lists (Magma draw items and strings), which die
 young and cost no visible time.
 
+## Routes and online rounds from the command line
+
+The map editor's headless test rounds (`ose play --headless`) use these launch options besides `--svm-play`. Both kinds
+of round run with the default settings, signed out: they never use or write the player's name, account, settings or
+demo recording. `--svm-test-round` does the same for any other round (the editor passes it to every headless test
+round, bots only or from `--start-at` too); a play without it, such as the editor's windowed Play, uses the player's
+own settings and account.
+
+- `--svm-route=stop;stop;...` with `--svm-play` and `--side`: a route bot walks the stops in order on that side, and
+  the local player stands by on the other side ([RouteAi](../src/OpenScct.Game/AI/RouteAi.cs)). A stop is a floor
+  point `x,y,z` or a placed actor by map id. An actor with a Use entry is reached on a floor from which the server's
+  use test passes, checked again where the bot stops; another actor on the floor under it. The bot walks with the
+  side's own navigation, as the other bots do: walks, crouches, drops, ladders, pipes, ledges, zip lines and the GEs,
+  and closed doors opened by their switch or by walking into them. It does not ride lifts, fight or use gadgets.
+  `--svm-route-from=PlayerStartId` starts it at that start of its side (the side's other starts are switched off for
+  the round). It prints `SVM_ROUTE start at (x,y,z), N stops`, then `SVM_ROUTE reached i Stop at T s` per stop, or
+  `SVM_ROUTE stuck before i Stop at (x,y,z) after T s: why` and stops, and last `SVM_ROUTE done: reached k of N`.
+  Offline rounds only.
+- `--svm-lan-host=PORT` with `--svm-play=Map --mode=Story --side=spy|merc [--players=N]` hosts the map as an online
+  round with the lobby's rules for the mode, loopback only, unlisted, no bots and no time limit;
+  `--svm-join=127.0.0.1:PORT --side=...` joins it ([CommandLineRound](../game/Scripts/Online/CommandLineRound.cs)). Each
+  takes its side's team, the client gets ready, and the host launches once the lobby holds `--players` (2 when not
+  given) and the others are ready. Both print `SVM_NET` lines: the client state, the lobby, `launching`,
+  `loaded Map as side`, and every 10 s the pawns their own world holds, so the client's lines show what the host sent
+  it.
+
+```
+OpenSCCT.exe --headless -- --svm-maps=<folder> --svm-play=SteeE --side=merc --svm-route=PlayerStart3149;SInfirmary245 --svm-route-from=PlayerStart254
+OpenSCCT.exe --headless -- --svm-maps=<folder> --svm-play=SteeE --mode=Story --side=merc --svm-lan-host=27100 --players=2
+OpenSCCT.exe --headless -- --svm-maps=<folder> --svm-play=SteeE --side=spy --svm-join=127.0.0.1:27100
+```
+
 ## Test windows stay in the background
 Windowed test runs must not take the focus or the mouse of the person at the machine. Smoke runs, SVM_PLAY_SHOTS runs
 and runs started with `--svm-background` (or SVM_BACKGROUND=1) move their window off-screen, drop its taskbar button and

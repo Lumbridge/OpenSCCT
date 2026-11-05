@@ -20,11 +20,12 @@ import struct
 from collections import defaultdict
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Collection, Dict, List, Optional, Tuple
 
 import numpy as np
 
-from .bsp import BspPolygon, extract_polygons, point_zone, read_model, PF_MIRRORED, PF_TWO_SIDED, PF_UNLIT
+from .bsp import (EDITOR, BspPolygon, extract_polygons, point_zone, read_model, world_model, PF_MIRRORED,
+                  PF_TWO_SIDED, PF_UNLIT)
 from .bsplight import read_bsp_lighting, lightmap_image, BspLighting
 import hashlib
 from .level import ActorRecord, extract_level, extract_look
@@ -43,6 +44,8 @@ def _safe(name: str) -> str:
 # reflection. So we write UE (x, y, z) as glTF (x/100, z/100, y/100) and keep
 # the original winding.
 UE_TO_GLTF_SCALE = 0.01
+# Maps whose world lightmaps the stock cook leaves out (it compares the saved file name with these).
+COOK_DROPS_LIGHTMAPS = ("entry", "lobby")
 
 
 def _to_gltf(v: np.ndarray) -> np.ndarray:
@@ -223,7 +226,7 @@ class GltfWriter:
         return len(self.accessors) - 1
 
     def mesh(self, name: str, prims: List[tuple]) -> int:
-        """prims: (pos, nrm, uv, idx, mat[, uv2[, color_rgba_u8]])."""
+        """prims: (pos, nrm, uv, idx, mat[, uv2[, color_rgba_u8[, section]]])."""
         gprims = []
         for prim in prims:
             pos, nrm, uv, idx, mat = prim[:5]
@@ -244,7 +247,13 @@ class GltfWriter:
             if uv is not None and len(uv) == len(pos):
                 attrs["TEXCOORD_0"] = self.add_vec_accessor(uv, 2, "VEC2")
             gprims.append({"attributes": attrs, "indices": self.add_index_accessor(idx), "material": mat, "mode": 4})
-        self.meshes.append({"name": name, "primitives": gprims})
+            if len(prim) > 7:
+                gprims[-1]["extras"] = {"scctSection": prim[7]}
+        mesh = {"name": name, "primitives": gprims}
+        if prims and len(prims[0]) > 8 and prims[0][8] is not None:
+            x, y, z, radius = prims[0][8]
+            mesh["extras"] = {"scctSphere": [x * .01, z * .01, y * .01, radius * .01]}
+        self.meshes.append(mesh)
         return len(self.meshes) - 1
 
     def node(self, name: str, mesh: int, translation=None, extras=None) -> int:
@@ -800,7 +809,7 @@ def _static_mesh_prims(sm: StaticMesh, owner: Package, resolver: MaterialResolve
             mat = writer.material(key, res, uri)
         # bUnlit changes lighting, not the Shader's self-illumination layers (map directions use these).
         _self_illum_flags(writer, key, res, tex_dir, tex_uri)
-        prims.append((sm.positions, sm.normals, _uv_transform(uv, res), idx.astype(np.uint32), mat))
+        prims.append((sm.positions, sm.normals, _uv_transform(uv, res), idx.astype(np.uint32), mat, None, None, si, getattr(sm, "sphere", None)))
     return prims
 
 
@@ -1129,9 +1138,12 @@ def _perspective_projector_prims(rec: ActorRecord, polys: List[BspPolygon], pkg:
 
 
 def export_map(map_path: Path, pset: PackageSet, out_root: Path, include_bsp: bool = True,
-               max_meshes: Optional[int] = None, extra_mesh_refs: Optional[List[int]] = None) -> dict:
+               max_meshes: Optional[int] = None, extra_mesh_refs: Optional[List[int]] = None,
+               extra_material_refs: Optional[List[int]] = None, skip_refs: Collection[int] = ()) -> dict:
     """extra_mesh_refs: static mesh references (relative to the map package) that no actor places but the game can
-    swap to (SGamePlayObject TriggeredMesh, DamagedMeshes[].StaticMesh); each becomes a library node too."""
+    swap to (SGamePlayObject TriggeredMesh, DamagedMeshes[].StaticMesh); each becomes a library node too.
+    extra_material_refs: damage/trigger skins that need exported textures and shader flags even without a placed surface.
+    skip_refs: actors (export index + 1) to leave out, see level.extract_level."""
     pkg = Package.load(map_path)
     map_name = map_path.stem
     out_dir = out_root / map_name
@@ -1142,13 +1154,19 @@ def export_map(map_path: Path, pset: PackageSet, out_root: Path, include_bsp: bo
     writer = GltfWriter()
     writer.tex_dir, writer.tex_uri = tex_dir, tex_uri   # flipbook atlases (animated additive textures)
     stats = {"map": map_name, "bsp_polys": 0, "static_meshes": 0, "actors": 0, "missing_meshes": []}
+    # Damage/trigger skins have no placed surface, but still need textures and shader flags.
+    for ref in sorted(set(extra_material_refs or [])):
+        res = resolver.resolve(pkg, ref)
+        if res is not None and not res.skip:
+            writer.material(res.key, res, _ensure_texture(res, tex_dir, tex_uri))
+            _self_illum_flags(writer, res.key, res, tex_dir, tex_uri)
     bsp_actor = None
 
     lightmapped: list = []
     vertex_lit: list = []
     authored_vc: list = []   # vertex-colour variants from StaticMesh.UseVertexColor (authored colours, not baked light)
     emitters = _export_emitters(pkg, pset, tex_dir, tex_uri)
-    records = extract_level(pkg, pset)
+    records = extract_level(pkg, pset, skip_refs)
     # UE2 sky zone: the zone holding the SkyZoneInfo is rendered behind everything from a camera at the SkyZoneInfo's
     # location with the player's rotation (seen through fake-backdrop surfaces). Its BSP and actors are exported
     # separately so the client can draw them as a camera-following backdrop.
@@ -1159,9 +1177,8 @@ def export_map(map_path: Path, pset: PackageSet, out_root: Path, include_bsp: bo
     world_polys: List[BspPolygon] = []   # projector receivers
     # world BSP
     if include_bsp:
-        models = [e for e in pkg.exports_of_class("Model") if e.size > 0]
-        if models:
-            world = max(models, key=lambda e: e.size)
+        world = world_model(pkg)
+        if world is not None:
             model = read_model(pkg, world)
             polys = extract_polygons(model)
             sky_polys: List[BspPolygon] = []
@@ -1183,6 +1200,10 @@ def export_map(map_path: Path, pset: PackageSet, out_root: Path, include_bsp: bo
             lm_uris: List[Optional[str]] = []
             try:
                 lighting = read_bsp_lighting(pkg, world)
+                if pkg.layout == EDITOR and map_name.lower() in COOK_DROPS_LIGHTMAPS:
+                    # The stock cook (0x10EE4750) empties the world's lightmap textures when it saves a map of these
+                    # names: the game draws the front-end maps without them, so an editor copy is converted the same way.
+                    lighting.textures, lighting.id_to_texture = [], {}
                 tex_dir.mkdir(parents=True, exist_ok=True)
                 for i, lt in enumerate(lighting.textures):
                     fname = f"{_safe(map_name)}_lightmap{i}.png"
@@ -1293,7 +1314,7 @@ def export_map(map_path: Path, pset: PackageSet, out_root: Path, include_bsp: bo
                     vname = _safe(key) + f"__vc{h}" + (f"_sk{skin_id}" if skin_sig else "")
                     prims = _static_mesh_prims(sm, owner, resolver, writer, tex_dir, tex_uri,
                                                skin_refs if skin_sig else None, pkg)
-                    prims = [tuple(pr) + (None, authored) for pr in prims]
+                    prims = [tuple(pr[:5]) + (None, authored) + tuple(pr[7:]) for pr in prims]
                     color_variants[vkey] = None
                     if prims:
                         mi = writer.mesh(vname, prims)
@@ -1337,7 +1358,7 @@ def export_map(map_path: Path, pset: PackageSet, out_root: Path, include_bsp: bo
                         vname = _safe(key) + f"__vc{h}" + (f"_sk{skin_id}" if skin_sig else "")
                         prims = _static_mesh_prims(sm, owner, resolver, writer, tex_dir, tex_uri,
                                                    skin_refs if skin_sig else None, pkg)
-                        prims = [tuple(pr) + (None, colors) for pr in prims]
+                        prims = [tuple(pr[:5]) + (None, colors) + tuple(pr[7:]) for pr in prims]
                         if prims:
                             mi = writer.mesh(vname, prims)
                             writer.node(vname, mi, extras={"scct_kind": "library"})

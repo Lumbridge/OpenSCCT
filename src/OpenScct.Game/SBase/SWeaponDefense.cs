@@ -913,7 +913,14 @@ public partial class SWeaponDefense
     /// <summary>The first-person muzzle effects (a view effect).</summary>
     [Uc("SBase.SWeaponDefense.SpawnSFX", Sha1 = "1a99da366a6976dcc1a814919a71bbaff447fac1")]
     [PortOf("uc:SBase.SWeaponDefense:SpawnSFX", Spec = "spec/equipment/merc-rifle.md#rules")]
-    public virtual void SpawnSFX() => CombatFx.Notify(this, CNAME_SpawnSFX);
+    public virtual void SpawnSFX()
+    {
+        if (!XLevel.World.IsReplaying) MuzzleFlashCount++;
+        CombatFx.Notify(this, CNAME_SpawnSFX);
+    }
+
+    /// <summary>Local muzzle effects raised, including shots with unlimited ammo and between simulation ticks.</summary>
+    public long MuzzleFlashCount { get; private set; }
 
     /// <summary>The barrel smoke at the start of a pull: the rifle has none (the shotgun does).</summary>
     [Uc("SBase.SWeaponDefense.CreateSmoke1", Sha1 = "23aff4eecf0e2e62053f2e78cf6e28d2d332361e")]

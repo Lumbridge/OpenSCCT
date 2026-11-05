@@ -18,7 +18,8 @@ namespace OpenScct.Master.Player;
 internal sealed partial class PlayerPortal
 {
     private readonly GitHubBugReports _bugReports = bugReports ?? new(options, store);
-    private const int ReportBodyLimit = 128 * 1024;
+    private readonly ReportScreenshotDrafts _screenshotDrafts = new();
+    private const int ReportBodyLimit = 4 * 1024 * 1024;
     private const int ReportQueryLimit = 4096;
     private sealed record ReportField(string Key, string Label, int Max, bool Required, bool Multiline, string Help);
     private static readonly ReportField[] ReportFields =
@@ -36,6 +37,15 @@ internal sealed partial class PlayerPortal
     private void MapBugReports(WebApplication app)
     {
         Get(app, ReportReturnPath, OpenBugReport);
+        app.MapPost(ReportScreenshotDrafts.UploadRoute, (Func<HttpContext, Task<IResult>>)UploadReportScreenshot);
+        Get(app, ReportScreenshot.Route + "{id}.png", c =>
+        {
+            string id = c.Request.RouteValues["id"]?.ToString() ?? "";
+            if (!ReportScreenshot.ValidId(id) || !File.Exists(ReportScreenshot.PathFor(_options, id))) return Results.NotFound();
+            c.Response.Headers["X-Content-Type-Options"] = "nosniff";
+            c.Response.Headers["Content-Security-Policy"] = "default-src 'none'";
+            return Results.File(ReportScreenshot.PathFor(_options, id), "image/png");
+        });
         Get(app, ReportReturnPath + "/sent/{submissionId}", c => Current(c) is { } v
             ? BugReportReceipt(c, v, c.Request.RouteValues["submissionId"]?.ToString() ?? "") : BugReportSignIn(c));
         ReportPost(app, "/review", (c, v, f) => Task.FromResult(ReviewBugReport(c, v, f)));
@@ -43,13 +53,48 @@ internal sealed partial class PlayerPortal
         ReportPost(app, "/submit", SubmitBugReport);
     }
 
+    private async Task<IResult> UploadReportScreenshot(HttpContext c)
+    {
+        Secure(c);
+        if (c.Request.ContentType != "image/png" || c.Request.ContentLength > ReportScreenshot.MaximumBytes)
+            return Results.BadRequest();
+        if (!_screenshotDrafts.Begin(_clientIp(c).ToString())) return Results.StatusCode(429);
+        try
+        {
+            if (c.Features.Get<IHttpMaxRequestBodySizeFeature>() is { IsReadOnly: false } limit)
+                limit.MaxRequestBodySize = ReportScreenshot.MaximumBytes;
+            using var timeout = System.Threading.CancellationTokenSource.CreateLinkedTokenSource(c.RequestAborted);
+            timeout.CancelAfter(TimeSpan.FromSeconds(30));
+            using var body = new MemoryStream();
+            byte[] buffer = new byte[16 * 1024];
+            int count;
+            while ((count = await c.Request.Body.ReadAsync(buffer, timeout.Token).ConfigureAwait(false)) > 0)
+            {
+                if (body.Length + count > ReportScreenshot.MaximumBytes) return Results.BadRequest();
+                body.Write(buffer, 0, count);
+            }
+            byte[]? png = ReportScreenshot.Validate(body.ToArray());
+            return png is null ? Results.BadRequest() : Results.Json(new { capture = _screenshotDrafts.Add(png) });
+        }
+        catch (Exception error) when (error is IOException or BadHttpRequestException or OperationCanceledException)
+        {
+            return Results.BadRequest();
+        }
+        finally { _screenshotDrafts.End(); }
+    }
+
     private IResult OpenBugReport(HttpContext c)
     {
         bool valid = BugReportReturnPath(c.Request.Path + c.Request.QueryString) is not null;
         string? problem = valid ? null : "The prefilled details were too long or could not be read. You can enter them in the report form.";
-        return Current(c) is { } viewer
-            ? BugReportForm(c, viewer, valid ? ReadReportPrefill(c.Request.Query) : [], problem)
-            : BugReportSignIn(c, problem);
+        if (Current(c) is not { } viewer) return BugReportSignIn(c, problem);
+        Dictionary<string, string> values = valid ? ReadReportPrefill(c.Request.Query) : [];
+        if (values.Remove("capture", out string? capture))
+        {
+            if (_screenshotDrafts.Find(capture) is { } png) values["screenshot"] = Convert.ToBase64String(png);
+            else problem = "The captured screenshot has expired or is unavailable. Return to the game and choose Report a bug again to attach it.";
+        }
+        return BugReportForm(c, viewer, values, problem);
     }
 
     /// <summary>Only this local report route and its bounded, explicit prefills may survive Discord sign-in.</summary>
@@ -62,7 +107,7 @@ internal sealed partial class PlayerPortal
         var query = new QueryCollection(QueryHelpers.ParseQuery(requested[ReportReturnPath.Length..]));
         Dictionary<string, string> values = ReadReportPrefill(query);
         var canonical = new StringBuilder(ReportReturnPath);
-        foreach (string key in new[] { "area", "version", "platform", "environment" })
+        foreach (string key in new[] { "area", "version", "platform", "environment", "capture" })
             if (values.TryGetValue(key, out string? value) && value.Length > 0)
                 canonical.Append(canonical.Length == ReportReturnPath.Length ? '?' : '&').Append(key).Append('=').Append(U(value));
         return canonical.Length <= ReportQueryLimit ? canonical.ToString() : null;
@@ -78,6 +123,11 @@ internal sealed partial class PlayerPortal
             if (entry.Key == "area")
             {
                 if (value.Trim() is "game" or "launcher") values[entry.Key] = value.Trim();
+                continue;
+            }
+            if (entry.Key == "capture")
+            {
+                if (ReportScreenshot.ValidId(value)) values[entry.Key] = value;
                 continue;
             }
             int maximum = entry.Key switch { "version" => 120, "platform" => 80, "environment" => 2000, _ => 0 };
@@ -109,7 +159,7 @@ internal sealed partial class PlayerPortal
             if (!c.Request.HasFormContentType || c.Request.ContentType?.StartsWith("application/x-www-form-urlencoded", StringComparison.OrdinalIgnoreCase) != true ||
                 c.Request.ContentLength > ReportBodyLimit)
             {
-                await ReportInvalid(c, "This report could not be read. Go back and shorten the text before trying again.", 400).ExecuteAsync(c).ConfigureAwait(false);
+                await ReportInvalid(c, "This report could not be read. Go back and shorten the text or remove the screenshot before trying again.", 400).ExecuteAsync(c).ConfigureAwait(false);
                 return;
             }
             IFormCollection form;
@@ -117,13 +167,15 @@ internal sealed partial class PlayerPortal
             {
                 form = await c.Request.ReadFormAsync(new FormOptions
                 {
-                    ValueCountLimit = 16, KeyLengthLimit = 40, ValueLengthLimit = 12000,
-                    BufferBody = true, BufferBodyLengthLimit = ReportBodyLimit,
+                    // The parser limits the encoded field; PNG/base64 and text limits still apply after decoding.
+                    ValueCountLimit = 16, KeyLengthLimit = 40, ValueLengthLimit = ReportBodyLimit,
+                    // Supported forms must stay in memory: the deployed service cannot write to system temp.
+                    BufferBody = true, BufferBodyLengthLimit = ReportBodyLimit, MemoryBufferThreshold = ReportBodyLimit,
                 }, c.RequestAborted).ConfigureAwait(false);
             }
             catch (Exception error) when (error is InvalidDataException or IOException or BadHttpRequestException)
             {
-                await ReportInvalid(c, "This report is too large or could not be read. Go back and shorten the text before trying again.", 400).ExecuteAsync(c).ConfigureAwait(false);
+                await ReportInvalid(c, "This report is too large or could not be read. Go back and shorten the text or remove the screenshot before trying again.", 400).ExecuteAsync(c).ConfigureAwait(false);
                 return;
             }
             if (Current(c) is not { } viewer)
@@ -203,6 +255,12 @@ internal sealed partial class PlayerPortal
             else body.Append("<input type=\"text\"").Append(attrs).Append(" value=\"").Append(H(values.GetValueOrDefault(field.Key))).Append("\">");
             body.Append("<span class=\"field-help\" id=\"report-").Append(field.Key).Append("-help\">").Append(H(field.Help)).Append("</span></label>");
         }
+        body.Append("<div class=\"form-stack\" data-report-screenshot><label for=\"report-screenshot-file\">Screenshot (optional)</label>")
+            .Append("<p class=\"field-help\">A capture sent from the game is attached automatically. You can also choose a PNG. Check it for personal information before sharing. Maximum 2 MB. The image will be public with your report.</p>")
+            .Append("<input type=\"file\" id=\"report-screenshot-file\" accept=\"image/png\"><input type=\"hidden\" name=\"screenshot\" value=\"")
+            .Append(H(values.GetValueOrDefault("screenshot"))).Append("\"><p data-screenshot-status role=\"status\"></p>")
+            .Append("<img class=\"report-screenshot\" data-screenshot-preview alt=\"Screenshot to include in the report\" hidden><button class=\"button secondary\" type=\"button\" data-remove-screenshot>Remove screenshot</button>")
+            .Append("<noscript>Screenshot attachments need JavaScript. You can send a report without an image.</noscript></div>");
         body.Append("<p class=\"report-note\">Reports are public. Share only details needed to explain the problem. Do not include original game files or converted game assets.</p>")
             .Append("<button class=\"button\" type=\"submit\">Review report →</button></form></section></div>");
         return Show(c, "Report a bug", "help", body.ToString(), problem, problem is not null, status);
@@ -213,11 +271,14 @@ internal sealed partial class PlayerPortal
         var values = new Dictionary<string, string>(StringComparer.Ordinal) { ["area"] = form["area"].ToString() };
         foreach (ReportField field in ReportFields)
             values[field.Key] = form[field.Key].ToString().Replace("\r\n", "\n", StringComparison.Ordinal).Replace('\r', '\n').Trim();
+        values["screenshot"] = form["screenshot"].ToString();
         return values;
     }
 
     private static string? ValidateReport(Dictionary<string, string> values)
     {
+        if (values.GetValueOrDefault("screenshot", "").Length > 0 && ReportScreenshot.Decode(values["screenshot"]) is null)
+            return "Choose a valid PNG screenshot under 2 MB, or remove it to continue.";
         if (values["area"] is not ("game" or "launcher" or "website")) return "Choose Game, Launcher or Website.";
         foreach (ReportField field in ReportFields)
         {
@@ -253,7 +314,7 @@ internal sealed partial class PlayerPortal
             yield return ("Website version", $"{MasterBuildInfo.Version}\nBuild: {MasterBuildInfo.BuildNumber}\nCommit: {MasterBuildInfo.Commit}");
     }
 
-    private static string ReportBody(Dictionary<string, string> values)
+    private string ReportBody(Dictionary<string, string> values)
     {
         var body = new StringBuilder();
         foreach ((string heading, string text) in ReportSections(values))
@@ -264,6 +325,9 @@ internal sealed partial class PlayerPortal
             string fence = new('`', Math.Max(3, longest + 1));
             body.Append("### ").Append(heading).Append("\n\n").Append(fence).Append("text\n").Append(text).Append('\n').Append(fence).Append("\n\n");
         }
+        if (values.GetValueOrDefault("screenshot", "").Length > 0)
+            body.Append("### Screenshot\n\n![Game screenshot](").Append(_options.PublicBaseUrl).Append(ReportScreenshot.Route)
+                .Append(ReportScreenshot.Id(ReportScreenshot.Decode(values["screenshot"])!)).Append(".png)\n\n");
         return body.Append("Submitted through the OpenSCCT website.").ToString();
     }
 
@@ -275,11 +339,14 @@ internal sealed partial class PlayerPortal
         body.Append("<div class=\"report-page\"><article class=\"panel report-preview\"><h2>").Append(H(ReportTitle(values))).Append("</h2>");
         foreach ((string heading, string text) in ReportSections(values))
             body.Append("<h3>").Append(H(heading)).Append("</h3><pre>").Append(H(text)).Append("</pre>");
+        if (values.GetValueOrDefault("screenshot", "").Length > 0)
+            body.Append("<h3>Screenshot</h3><img class=\"report-screenshot\" alt=\"Game screenshot to publish\" src=\"data:image/png;base64,")
+                .Append(H(values["screenshot"])).Append("\">");
         body.Append("<p class=\"report-note\">Submitted through the OpenSCCT website.</p></article>")
             .Append("<form class=\"panel form-stack report-send\" method=\"post\" action=\"").Append(ReportReturnPath).Append("/submit\">")
             .Append(Csrf(viewer.Session.Csrf)).Append(Hidden("submission", submissionId));
         foreach ((string key, string value) in values) body.Append(Hidden(key, value));
-        body.Append("<p>The report text will be public. Your Discord ID and private account details will not be included.</p>")
+        body.Append("<p>The report and any screenshot will be public. Your Discord ID and private account details will not be included.</p>")
             .Append("<label class=\"checkbox-label\"><input type=\"checkbox\" name=\"public\" value=\"yes\" required><span>I have checked this report and want to publish it.</span></label>")
             .Append("<div class=\"button-row\"><button class=\"button\" type=\"submit\"").Append(_bugReports.Enabled ? "" : " disabled")
             .Append(">Send bug report</button><button class=\"button secondary\" type=\"submit\" formaction=\"").Append(ReportReturnPath)
@@ -295,7 +362,8 @@ internal sealed partial class PlayerPortal
         if (ValidateReport(values) is { } problem) return BugReportForm(c, viewer, values, problem, 400);
         string submissionId = form["submission"].ToString();
         if (form["public"] != "yes") return BugReportReview(c, viewer, values, submissionId, "Confirm that you want to publish the report.", 400);
-        BugReportResult result = await _bugReports.SubmitAsync(viewer.Account.Id, submissionId, ReportTitle(values), ReportBody(values), c.RequestAborted).ConfigureAwait(false);
+        BugReportResult result = await _bugReports.SubmitAsync(viewer.Account.Id, submissionId, ReportTitle(values), ReportBody(values), c.RequestAborted,
+            values.GetValueOrDefault("screenshot", "").Length > 0 ? ReportScreenshot.Decode(values["screenshot"]) : null).ConfigureAwait(false);
         if (result.Status is BugReportStatus.Unavailable or BugReportStatus.RateLimited or BugReportStatus.Rejected)
             return BugReportReview(c, viewer, values, GitHubBugReports.NewSubmissionId(), result.Message ?? "The report could not be sent. Your text is still here.",
                 result.Status == BugReportStatus.RateLimited ? 429 : 503);

@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://svmap.invalid/1.2/text.schema.json",
+  "title": "SVMap 1.2 ui/text/<lang>.json",
+  "description": "One translation of a map's client texts. Overrides the base language key by key; anything missing falls back to it. Client only, outside the sim hash.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "format": {
+      "const": "svm.text/1"
+    },
+    "identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "maxLength": 48
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 300
+        },
+        "dossier": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "when": {
+              "type": "string"
+            },
+            "where": {
+              "type": "string"
+            },
+            "summary": {
+              "type": "string"
+            }
+          }
+        },
+        "places": {
+          "description": "Place names by place number.",
+          "type": "object",
+          "propertyNames": {
+            "pattern": "^[1-9][0-9]?$"
+          },
+          "additionalProperties": {
+            "type": "string",
+            "maxLength": 48
+          }
+        }
+      }
+    },
+    "mapinfo": {
+      "description": "The localised SMapSettings strings (never MapName, which the original does not localise either) and the per-mode texts.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "LegendMap": {
+          "type": "string"
+        },
+        "LegendMapInBrief": {
+          "type": "string"
+        },
+        "ExpliMapInBriefSpy": {
+          "type": "string"
+        },
+        "ExpliMapInBriefSentry": {
+          "type": "string"
+        },
+        "modes": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "actors": {
+      "description": "Per actor id, per localised property (array elements as Name[i]), the translated string.",
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

@@ -113,7 +113,7 @@ public partial class SInteractObject
     [PortOf("uc:SBase.SInteractObject:UnTouch", Spec = "spec/objectives/interaction-system.md#rules")]
     protected override void UnTouch(Actor Other)
     {
-        if (Other is Pawn { Controller: SPlayerController { IManager: { } manager } })
+        if (Role == ENetRole.ROLE_Authority && Other is Pawn { Controller: SPlayerController { IManager: { } manager } })
         {
             manager.RemoveInteractionObj(this);
         }
@@ -128,7 +128,9 @@ public partial class SInteractObject
     [Provenance(ProvenanceKind.Estimated, "Expected DoTouch contract; filters and the client copy are open questions")]
     public virtual void DoTouch(Actor Other)
     {
-        if (Other is Pawn { bDeleteMe: false, Controller: SPlayerController { IManager: { } manager } pc } &&
+        // The authority owns the replicated menu. Client collision events must not edit that list while
+        // its slot updates and reliable add/remove calls are arriving.
+        if (Role == ENetRole.ROLE_Authority && Other is Pawn { bDeleteMe: false, Controller: SPlayerController { IManager: { } manager } pc } &&
             InteractionMenuRules.CanAddInteract(pc, this))
         {
             manager.AddInteractionObj(this);
@@ -202,12 +204,19 @@ public partial class SInteractObject
     {
         FVector toPawn = pawn.Location - Location;
         toPawn.Z = 0f;
-        FVector front = Rotation.Vector();
-        front.Z = 0f;
         FVector facing = pawn.Rotation.Vector();
         facing.Z = 0f;
-        return (front.SafeNormal() | toPawn.SafeNormal()) > K.InFrontMinDot &&
-            (facing.SafeNormal() | (-toPawn).SafeNormal()) > K.InFrontMinDot;
+        return IsOnFrontSide(pawn.Location) && (facing.SafeNormal() | (-toPawn).SafeNormal()) > K.InFrontMinDot;
+    }
+
+    /// <summary>The first half of the in-front rule: <paramref name="location"/> is on the object's front side.</summary>
+    public bool IsOnFrontSide(FVector location)
+    {
+        FVector toPawn = location - Location;
+        toPawn.Z = 0f;
+        FVector front = Rotation.Vector();
+        front.Z = 0f;
+        return (front.SafeNormal() | toPawn.SafeNormal()) > K.InFrontMinDot;
     }
 
     // ---- small natives and events ----------------------------------------------------------------------------

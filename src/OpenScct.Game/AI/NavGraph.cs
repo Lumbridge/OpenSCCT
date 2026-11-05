@@ -323,9 +323,12 @@ public sealed class NavGraph
     /// <paramref name="badEdges"/> are not taken. Fills <paramref name="path"/> with the steps (start excluded); false
     /// when unreachable. With <paramref name="allowPartial"/>, return a route toward an unreachable goal as far
     /// as the connected graph permits. The caller must check the endpoint before treating it as arrival.
+    /// <paramref name="walkScale"/>(from node, to node), when given, scales the cost of plain walks (conveyors under
+    /// them: <see cref="NavConveyors"/>).
     /// </summary>
     public bool FindPath(int from, int to, List<NavStep> path, float stealth = 0f, Func<int, float>? penalty = null,
-        IReadOnlySet<int>? badLinks = null, float maxCost = float.MaxValue, IReadOnlySet<int>? badEdges = null, bool allowPartial = false)
+        IReadOnlySet<int>? badLinks = null, float maxCost = float.MaxValue, IReadOnlySet<int>? badEdges = null, bool allowPartial = false,
+        Func<int, int, float>? walkScale = null)
     {
         ArgumentNullException.ThrowIfNull(path);
         path.Clear();
@@ -384,6 +387,11 @@ public sealed class NavGraph
 
                 int m = _edgeTo[e];
                 float cost = _edgeCost[e];
+                if (walkScale is not null && link < 0)
+                {
+                    cost *= walkScale(n, m);
+                }
+
                 if (stealth > 0f && HasLight)
                 {
                     cost *= 1f + stealth * 3f * SvmMath.Max(0f, _light[m]);

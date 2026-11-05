@@ -75,6 +75,8 @@ height 60) and 12649 (radius 80, height 60).
 ## Network
 
 - Use arrives through the interaction system on the server (`InitInteract` runs where the interaction is handled).
+- Port authorization traces to a point 5 uu in front of a station. AquaE medkit origins overlap their mounting
+  BSP by about 1 uu, so tracing to the origin falsely rejects Heal; intervening geometry still blocks use.
 - Healing changes server-side pawn state (health replicates).
 - `ReloadAmmoStock` executes on the merc's own client when called on a server; on a listen host for the host's own
   merc it runs locally. Weapon ammo authority belongs to the weapon spec.

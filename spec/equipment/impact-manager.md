@@ -11,8 +11,9 @@ Units:
   def:SBase.SImpactEffectShocker, def:SBase.SImpactEffectShockerMetal
 
 ## Purpose
-Every bullet and Shocker hit on the world leaves a mark on every machine: a small decal projected on the surface, a
-spark burst, and the impact sound heard after the sound's travel time. The weapons do not spawn the effects
+Every bullet and Shocker hit on the world adds an impact on every machine: a spark burst, any visible surface decal,
+and the impact sound heard after the sound's travel time. Shocker hits show sparks without a visible black scorch.
+The weapons do not spawn the effects
 themselves; they ask the level's one impact manager, which keeps a ring of 50 reusable marks that fade after 15 s.
 
 ## Data
@@ -62,6 +63,11 @@ Impact classes (class defaults; materials and sounds are package paths):
       decal on it (its collision is already off). The port records the actor the trace hit with the mark (sent with
       the call) instead of projecting. Pawn hits keep their target identity and spawn the impact sparks without a
       decal, since the projector does not attach to skeletal meshes. This also applies to predicted Shocker hits.
+      Shocker and ShockerMetal impacts suppress the visible decal on all surfaces, while retaining their original
+      material metadata and sparks. This matches the user's original-game observation (2026-11-04). The decoded
+      Shocker trace offsets Loc 10 uu from the hit, then the manager offsets the projector another 10 uu:
+      the wall is at SBulletImpact's MaxTraceDistance of 20. Native clipping at that boundary is a plausible
+      explanation, not a decoded fact. The previous view bypassed projection by pulling the scorch back onto the wall.
    6. Effects(): spawn the type's spark emitter at the mark, then play SndBullet (volume 0.8, radius 100) after
       `distance to the local player's controller / 43561` seconds.
 4. **Timer** (every second): each slot whose timer has passed hides its effect and decal and is freed.

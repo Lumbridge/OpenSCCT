@@ -15,6 +15,7 @@ namespace OpenScct.Master.Web;
 /// <summary>Shared presentation primitives and static resources. This class performs no authorization.</summary>
 internal static class WebHtml
 {
+    public const string DefaultWelcome = "OpenSCCT is an open-source rewrite of the Spies vs. Mercenaries multiplayer mode from Splinter Cell: Chaos Theory, with online matches and offline bots.";
     public const string Wordmark = "<span class=\"wordmark\"><span class=\"wordmark-open\">Open</span><span class=\"wordmark-scct\">SCCT</span></span>";
 
     public static string H(string? value) => WebUtility.HtmlEncode(value ?? string.Empty);
@@ -46,13 +47,24 @@ internal static class WebHtml
         html.Append("<meta name=\"color-scheme\" content=\"dark\"><title>").Append(H(title)).Append(" · OpenSCCT</title>")
             .Append($"<link rel=\"icon\" href=\"{H(AssetUrl("/web/assets/mark.svg"))}\" type=\"image/svg+xml\"><link rel=\"stylesheet\" href=\"{H(AssetUrl("/web/assets/site.css"))}\">")
             .Append($"<script src=\"{H(AssetUrl("/web/assets/site.js"))}\" defer></script>");
+        if (active is "home" or "leaderboards" or "help" or "improvements")
+            html.Append($"<link rel=\"stylesheet\" href=\"{H(AssetUrl("/web/assets/community.css"))}\">");
+        if (active == "wiki") html.Append($"<link rel=\"stylesheet\" href=\"{H(AssetUrl("/web/assets/wiki.css"))}\">");
+        if (active is "home" or "help" or "wiki" or "improvements")
+            html.Append("<meta name=\"description\" content=\"").Append(H(active switch
+            {
+                "home" => "OpenSCCT is an open-source rewrite of Splinter Cell: Chaos Theory's Spies vs. Mercenaries mode for Windows and Linux.",
+                "wiki" => "OpenSCCT documentation for gameplay, gadgets, hosting, controls and map editing.",
+                "help" => "OpenSCCT installation, troubleshooting, bug reporting and contribution guides.",
+                _ => "OpenSCCT equipment, practice, replays, player statistics and configuration options.",
+            })).Append("\">");
         if (active == "account") html.Append("<meta name=\"robots\" content=\"noindex, nofollow\">");
         html.Append("</head><body class=\"player-site\"><a class=\"skip-link\" href=\"#main\">Skip to content</a>")
             .Append($"<header class=\"site-header\"><div class=\"header-inner\"><a class=\"site-brand\" href=\"/\"><img src=\"{H(AssetUrl("/web/assets/mark.svg"))}\" alt=\"\" width=\"36\" height=\"36\"><span class=\"brand-copy\">{Wordmark}<small>SPIES VS MERCENARIES</small></span></a>")
             .Append("<button class=\"menu-toggle button secondary\" type=\"button\" aria-expanded=\"false\" aria-controls=\"primary-navigation\">Menu</button><nav id=\"primary-navigation\" class=\"primary-nav\" aria-label=\"Main navigation\">");
         foreach ((string url, string label, string key) in new[] { ("/", "Home", "home"), ("/servers", "Servers", "servers"),
             ("/players", "Players", "players"), ("/leaderboards", "Leaderboards", "leaderboards"), ("/matches", "Matches", "matches"),
-            ("/improvements", "Improvements", "improvements"), ("/changelog", "Updates", "changelog"), ("/help", "Help", "help") })
+            ("/wiki", "Wiki", "wiki"), ("/improvements", "Improvements", "improvements"), ("/changelog", "Updates", "changelog"), ("/help", "Help", "help") })
             html.Append("<a href=\"").Append(url).Append('"').Append(active == key ? " aria-current=\"page\"" : "").Append('>').Append(label).Append("</a>");
         html.Append("</nav><div class=\"header-actions\">").Append(Link("/download", "Download", "button compact header-download"));
         html.Append(name is not null ? "<a href=\"/account\" class=\"account-link\" aria-label=\"" + H("My account: " + name) + "\">" + H(name) + "</a>" : Link("/account", "Sign in", "account-link"));
@@ -63,8 +75,8 @@ internal static class WebHtml
         html.Append("</div></div></header><main id=\"main\" class=\"site-main\">");
         if (!string.IsNullOrEmpty(notice)) html.Append("<div role=\"status\" class=\"notice ").Append(bad ? "bad" : "ok").Append("\">").Append(H(notice)).Append("</div>");
         if (active == "improvements") body += "<p class=\"help-context\">Have an idea or found a problem? " + Link("/help", "Help improve OpenSCCT →", "text-link") + "</p>";
-        html.Append(body).Append("</main><footer class=\"site-footer\"><div><span class=\"footer-brand\">").Append(Wordmark).Append("</span><p>Spies vs. Mercenaries on modern PCs.</p></div>")
-            .Append("<nav aria-label=\"Footer\"><a href=\"/download\">Download</a><a href=\"/improvements\">Improvements</a><a href=\"/changelog\">Updates</a><a href=\"/help\">Help &amp; contribute</a><a href=\"https://github.com/Lumbridge/OpenSCCT\">Source code</a>")
+        html.Append(body).Append("</main><footer class=\"site-footer\"><div><span class=\"footer-brand\">").Append(Wordmark).Append("</span><p>Spies vs. Mercenaries for Windows and Linux.</p></div>")
+            .Append("<nav aria-label=\"Footer\"><a href=\"/download\">Download</a><a href=\"/wiki\">Wiki</a><a href=\"/improvements\">Improvements</a><a href=\"/changelog\">Updates</a><a href=\"/help\">Help &amp; feedback</a><a href=\"https://github.com/Lumbridge/OpenSCCT\">Source code</a>")
             .Append("<a href=\"https://github.com/Lumbridge/OpenSCCT/blob/main/docs/legal/PRIVACY.md\">Privacy</a><a href=\"https://github.com/Lumbridge/OpenSCCT/blob/main/docs/legal/TERMS.md\">Terms</a></nav>")
             .Append("<small>Community project. Not affiliated with Ubisoft.</small></footer></body></html>");
         return Results.Content(html.ToString(), "text/html; charset=utf-8", Encoding.UTF8, status);
