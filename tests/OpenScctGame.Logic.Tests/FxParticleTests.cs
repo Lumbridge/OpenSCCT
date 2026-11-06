@@ -40,6 +40,31 @@ public sealed class FxParticleTests
     }
 
     [Fact]
+    public void A_checkpoint_rebuilds_an_active_cloud_at_its_existing_age()
+    {
+        ParticleParams p = Sprite("""{"MaxParticles": 15, "AutomaticInitialSpawning": false, "InitialParticlesPerSecond": 200, "RespawnDeadParticles": false, "LifetimeRange": {"Min": 8, "Max": 10}}""");
+        var settings = new ParticleSystemParams(false, false, default, default);
+        var linear = new ParticleSystemSim([p], settings, 45);
+        var restored = new ParticleSystemSim([p], settings, 45);
+        var location = new FVector(10f, 20f, 30f);
+        var rotation = new FRotator(0, 8000, 0);
+        const int ticks = 175;
+        for (int i = 0; i < ticks; i++)
+            linear.Step(Sim.DeltaTime, location, rotation, default);
+        restored.RestoreDemoAge(ticks / (float)Sim.Hz, location, rotation, default);
+
+        Assert.Equal(linear.Time, restored.Time);
+        Assert.Equal(15, restored.Alive);
+        for (int i = 0; i < restored.Alive; i++)
+        {
+            Assert.Equal(linear.Emitters[0].Particles[i].Time, restored.Emitters[0].Particles[i].Time);
+            Assert.Equal(linear.Emitters[0].Particles[i].Location, restored.Emitters[0].Particles[i].Location);
+        }
+        restored.RestoreDemoAge(10f, location, rotation, default);
+        Assert.Equal(0, restored.Alive);
+    }
+
+    [Fact]
     public void Particles_spawned_in_a_frame_are_aged_by_their_share_of_it()
     {
         // Rate 10, dt 0.25: two particles at ages dt - 1/rate = 0.15 and 0.05 (rule 5); they do not age further that tick.

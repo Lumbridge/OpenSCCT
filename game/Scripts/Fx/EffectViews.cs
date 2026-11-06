@@ -8,6 +8,7 @@ using OpenScct.Core;
 using OpenScct.Core.Engine;
 using OpenScct.Core.Uc;
 using OpenScct.Game.SBase;
+using OpenScct.Net;
 using OpenScct.Physics.Collision;
 using OpenScct.Provenance;
 using OpenScctGame.Render;
@@ -164,7 +165,9 @@ public sealed partial class EffectViews : Node3D
     public MeshInstance3D? MeshOf(Actor actor) => _tracked.TryGetValue(actor, out Tracked? t) ? t.Mesh : null;
 
     /// <summary>After a client tick: finds the new effect actors and the ones that went.</summary>
-    public void OnTick(Level level)
+    public void OnTick(Level level) => OnTick(level, null, null);
+
+    internal void OnTick(Level level, NetConnection? demoConnection, Func<Actor, float>? restoredAge)
     {
         ArgumentNullException.ThrowIfNull(level);
         if (OpenScct.Game.Equipment.GadgetWorld.Collision(level.Info) is { } collision)
@@ -250,13 +253,17 @@ public sealed partial class EffectViews : Node3D
 
             var t = new Tracked(a, a.GetUcClass().Name);
             _tracked[a] = t;
+            // The same actor gets the same stream on linear playback and after rebuilding its channel.
+            uint? seed = demoConnection?.FindActorChannel(a) is { } channel
+                ? channel.NetGuid * 2246822519u
+                : null;
             switch (fx.Kind)
             {
                 case "emitter" when a is SSpawnableEmitter spawnable:
-                    t.View = StartSpawnable(spawnable, fx);
+                    t.View = StartSpawnable(spawnable, fx, seed);
                     break;
                 case "emitter" when a is Emitter:
-                    t.View = Start(fx, a.GetUcClass().Name, a is SSprinklerEmitter { SplashHeight: { } splash } ? SprinklerSplash(fx, splash) : null);
+                    t.View = Start(fx, a.GetUcClass().Name, a is SSprinklerEmitter { SplashHeight: { } splash } ? SprinklerSplash(fx, splash) : null, seed);
                     if (a is SFlicFlocEmitter flicFloc && t.View is { } flicView)
                     {
                         HookFlicFloc(t, flicFloc, flicView);
@@ -273,11 +280,23 @@ public sealed partial class EffectViews : Node3D
                 case "decal" when a is SFlaque && !_placedPuddles.Contains(a) && a.DrawType == (EDrawType)DT_StaticMesh:
                     // A sprinkler's puddle (the map's own placed puddles are drawn with the map).
                     t.Mesh = MeshFor(a, lib);
-                    t.Trail = TrailFor(a);
+                    t.Trail = TrailFor(a, seed);
                     break;
                 case "light":
                     t.Light = LightFor(a);
                     break;
+            }
+
+            if (restoredAge is not null && (t.View is not null || t.Trail is not null))
+            {
+                float age = restoredAge(a);
+                if (t.View is { } view && age > 0f)
+                {
+                    FVector at = PlaceOf(a);
+                    if (a is SFlicFlocEmitter flicFloc) ApplyFlicFloc(t, flicFloc, view);
+                    view.Sim.RestoreDemoAge(age, at, a.Rotation, a.Velocity);
+                }
+                if (t.Trail is { } trail && age > 0f) RestoreLooseAge(trail, age);
             }
         }
     }
@@ -296,7 +315,31 @@ public sealed partial class EffectViews : Node3D
     /// Starts an effect class at a place, as script's Spawn of a cosmetic class does on each drawing machine; it
     /// follows <paramref name="follow"/> while that lives. Null when the class has no converted sub-emitters.
     /// </summary>
-    public ParticleSystemSim? Spawn(string cls, FVector location, FRotator rotation, Actor? follow = null)
+    public ParticleSystemSim? Spawn(string cls, FVector location, FRotator rotation, Actor? follow = null) =>
+        SpawnLoose(cls, location, rotation, follow)?.View.Sim;
+
+    internal bool RestoreDemoEmitter(string cls, FVector location, FRotator rotation, float age)
+    {
+        if (!float.IsFinite(age) || age < 0f || age > ParticleSystemSim.MaxDemoWarmupSeconds) return false;
+        if (Library?.Find(cls)?.Float("LifeSpan") is > 0f and var life && age >= life) return true;
+        if (SpawnLoose(cls, location, rotation, null) is not { } loose) return false;
+        RestoreLooseAge(loose, age);
+        if (LooseExpired(loose))
+        {
+            loose.View.Free();
+            _loose.RemoveAt(_loose.Count - 1);
+        }
+        return true;
+    }
+
+    private static void RestoreLooseAge(Loose loose, float age)
+    {
+        loose.Age = age;
+        if (age < loose.Life)
+            loose.View.Sim.RestoreDemoAge(age, loose.Location, loose.Rotation, default);
+    }
+
+    private Loose? SpawnLoose(string cls, FVector location, FRotator rotation, Actor? follow, uint? seed = null)
     {
         if (Library is not { Available: true } lib)
         {
@@ -309,7 +352,7 @@ public sealed partial class EffectViews : Node3D
             return null;
         }
 
-        if (Start(fx, cls) is not { } view)
+        if (Start(fx, cls, seed: seed) is not { } view)
         {
             Missing.Add(cls);
             return null;
@@ -327,7 +370,7 @@ public sealed partial class EffectViews : Node3D
             StartPuddle(location, rotation);
         }
 
-        return view.Sim;
+        return loose;
     }
 
     /// <summary>
@@ -455,8 +498,26 @@ public sealed partial class EffectViews : Node3D
         public void Place() => Node.Transform = UeSpace.TransformToGodot(Location, Rotation, Scale, default);
     }
 
-    /// <summary>Each frame: steps and draws the particles, places the meshes and lights.</summary>
-    public void Draw(float dt, FVector cameraLocation, FRotator cameraRotation, int rendMap)
+    /// <summary>Steps demo particles on the playback tick, including ticks run during a seek.</summary>
+    internal void AdvanceDemo(float dt)
+    {
+        foreach (Tracked t in _tracked.Values)
+            if (t.View is { } view) AdvanceTracked(t, view, PlaceOf(t.Actor), dt);
+        AdvanceLoose(dt);
+        TickPuddles(dt);
+        _flareTime += dt;
+    }
+
+    private static void AdvanceTracked(Tracked tracked, ParticleSystemView view, FVector location, float dt)
+    {
+        Actor actor = tracked.Actor;
+        tracked.Place = location;
+        if (actor is SFlicFlocEmitter flicFloc) ApplyFlicFloc(tracked, flicFloc, view);
+        view.Sim.Step(dt, location, actor.Rotation, actor.Velocity);
+    }
+
+    /// <summary>Each frame: draws particles, meshes and lights. Live play also steps its effects here.</summary>
+    public void Draw(float dt, FVector cameraLocation, FRotator cameraRotation, int rendMap, bool demoPlayback = false)
     {
         dt = Math.Clamp(dt, 0f, 0.1f);
         ParticleCamera camera = ParticleCamera.From(cameraLocation, cameraRotation);
@@ -467,13 +528,7 @@ public sealed partial class EffectViews : Node3D
             if (t.View is { } view)
             {
                 FVector at = PlaceOf(a);
-                t.Place = at;
-                if (a is SFlicFlocEmitter flicFloc)
-                {
-                    ApplyFlicFloc(t, flicFloc, view);
-                }
-
-                view.Sim.Step(dt, at, a.Rotation, a.Velocity);
+                if (!demoPlayback) AdvanceTracked(t, view, at, dt);
                 view.Root.Visible = !a.bHidden;
                 view.Draw(new ParticleOwner(at, a.Rotation, a.Velocity, view.Sim.GlobalOffset), camera);
                 total += view.Drawn;
@@ -564,12 +619,27 @@ public sealed partial class EffectViews : Node3D
         ExtraLights.Clear();
         Map?.WorldLights.SetSpawned(_worldLights);
         Map?.ActorLighting.SetSpawned(_worldLights);
-        _flareTime += dt;
+        if (!demoPlayback) _flareTime += dt;
         _flares?.Flush(_flareTime);
         WorldLit = Map?.WorldLights.SpawnedCount ?? 0;
         PeakWorldLit = Math.Max(PeakWorldLit, WorldLit);
         _worldLights.Clear();
 
+        if (!demoPlayback) AdvanceLoose(dt);
+        for (int i = _loose.Count - 1; i >= 0; i--)
+        {
+            Loose l = _loose[i];
+            l.View.Draw(new ParticleOwner(l.Location, l.Rotation, default, l.View.Sim.GlobalOffset), camera);
+            total += l.View.Drawn;
+            Peak(l.Class, l.View.Drawn);
+        }
+
+        Particles = total;
+        if (!demoPlayback) TickPuddles(dt);
+    }
+
+    private void AdvanceLoose(float dt)
+    {
         for (int i = _loose.Count - 1; i >= 0; i--)
         {
             Loose l = _loose[i];
@@ -580,7 +650,7 @@ public sealed partial class EffectViews : Node3D
                 l.Rotation = f.Rotation;
             }
 
-            if (l.Age >= l.Life || (l.AutoDestroy && l.View.Sim.AllDead && l.Age > 0.1f))
+            if (LooseExpired(l))
             {
                 l.View.Free();
                 _loose.RemoveAt(i);
@@ -588,14 +658,11 @@ public sealed partial class EffectViews : Node3D
             }
 
             l.View.Sim.Step(dt, l.Location, l.Rotation, default);
-            l.View.Draw(new ParticleOwner(l.Location, l.Rotation, default, l.View.Sim.GlobalOffset), camera);
-            total += l.View.Drawn;
-            Peak(l.Class, l.View.Drawn);
         }
-
-        Particles = total;
-        TickPuddles(dt);
     }
+
+    private static bool LooseExpired(Loose loose) =>
+        loose.Age >= loose.Life || (loose.AutoDestroy && loose.View.Sim.AllDead && loose.Age > 0.1f);
 
     private void Peak(string cls, int drawn)
     {
@@ -605,10 +672,10 @@ public sealed partial class EffectViews : Node3D
         }
     }
 
-    private ParticleSystemView? Start(FxClass fx, string name, Func<int, string, JsonElement?>? change = null)
+    private ParticleSystemView? Start(FxClass fx, string name, Func<int, string, JsonElement?>? change = null, uint? seed = null)
     {
-        uint seed = _seed++ * 2246822519u;
-        ParticleSystemSim? sim = change is null ? Library!.CreateSystem(fx.Path, seed) : Library!.CreateSystem(fx.Path, seed, change);
+        uint randomSeed = seed ?? _seed++ * 2246822519u;
+        ParticleSystemSim? sim = change is null ? Library!.CreateSystem(fx.Path, randomSeed) : Library!.CreateSystem(fx.Path, randomSeed, change);
         if (sim is null)
         {
             return null;
@@ -627,7 +694,7 @@ public sealed partial class EffectViews : Node3D
     /// </summary>
     [Provenance(ProvenanceKind.Decoded, "SGamePlayObject.SpawnDamageEmitter: ResetOnTrigger = true, TriggerDisabled = false, StartLocationRange *= DrawScale3D when Scaled, Trigger(), Emitters[0] = SpawnParticle")]
     [Provenance(ProvenanceKind.Estimated, "The script scales the map's shared sub-emitter in place, so in the original each later spawn of a Scaled entry compounds the scale; the port scales once")]
-    private ParticleSystemView? StartSpawnable(SSpawnableEmitter a, FxClass fx)
+    private ParticleSystemView? StartSpawnable(SSpawnableEmitter a, FxClass fx, uint? seed)
     {
         if (a.Emitters.Count == 0 || a.Emitters[0].Path is not { } path)
         {
@@ -675,7 +742,7 @@ public sealed partial class EffectViews : Node3D
         }
 
         var settings = new ParticleSystemParams(a.AutoDestroy, a.AutoReset, default, default);
-        var sim = new ParticleSystemSim([p], settings, _seed++ * 2246822519u) { Trace = _trace };
+        var sim = new ParticleSystemSim([p], settings, seed ?? _seed++ * 2246822519u) { Trace = _trace };
         sim.Trigger();
         string name = a.GetUcClass().Name;
         Started[name] = Started.GetValueOrDefault(name) + 1;
@@ -707,7 +774,7 @@ public sealed partial class EffectViews : Node3D
 
     /// <summary>The launch trail script spawns for a thrown grenade on every drawing machine (not for a quick throw).</summary>
     [Provenance(ProvenanceKind.Decoded, "SProjSmoke / SProjChaffe / SProjFlashBang / SProjPhospho.PostBeginPlay: SSmokeLaunchEmitter unless QuickLaunch; SProjFrag.PostBeginPlay: SFragLaunchEmitter (Level.NetMode != NM_DedicatedServer)")]
-    private Loose? TrailFor(Actor a)
+    private Loose? TrailFor(Actor a, uint? seed)
     {
         string? cls = a switch
         {
@@ -716,12 +783,7 @@ public sealed partial class EffectViews : Node3D
             SProjSmoke or SProjChaffe or SProjFlashBang or SProjPhospho => "SBase.SSmokeLaunchEmitter",
             _ => null,
         };
-        if (cls is null || Spawn(cls, a.Location, a.Rotation, a) is null)
-        {
-            return null;
-        }
-
-        return _loose[^1];
+        return cls is null ? null : SpawnLoose(cls, a.Location, a.Rotation, a, seed);
     }
 
     private MeshInstance3D? MeshFor(Actor a, FxLibrary lib)

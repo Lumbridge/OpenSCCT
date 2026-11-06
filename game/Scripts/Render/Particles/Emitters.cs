@@ -26,6 +26,7 @@ public sealed class Emitters : IParticleAssets
     private readonly Dictionary<string, Entry> _byId = new(StringComparer.OrdinalIgnoreCase);
     private readonly RenderMap _map;
     private float _time;
+    private bool _demoTiming;
     private readonly Plane[] _frustum = new Plane[6];
     private ICollisionWorld? _collision;
 
@@ -214,6 +215,41 @@ public sealed class Emitters : IParticleAssets
         return false;
     }
 
+    /// <summary>Warms map effects to a checkpoint, replaying their saved triggers in chronological order.</summary>
+    public void RestoreDemoTriggers(IReadOnlyList<(string Id, float Age)> triggers)
+    {
+        _demoTiming = true;
+        foreach (Entry entry in _entries)
+        {
+            // For an ongoing emitter, only particles from its recent lifetime can still be visible. Apply
+            // older saved toggles before the warm-up so switched-off or previously enabled devices stay so.
+            float remaining = 1f;
+            foreach (ParticleEmitterSim sub in entry.Sim.Emitters)
+                remaining = MathF.Max(remaining, sub.Params.LifetimeRange.Larger + sub.Params.InitialDelayRange.Larger);
+            remaining = Math.Min(remaining, ParticleSystemSim.MaxDemoWarmupSeconds);
+
+            foreach ((string id, float age) in triggers)
+            {
+                if (!string.Equals(id, entry.Emitter.Id, StringComparison.OrdinalIgnoreCase) || !float.IsFinite(age)) continue;
+                float afterTrigger = Math.Clamp(age, 0f, remaining);
+                entry.Sim.RestoreDemoAge(remaining - afterTrigger, entry.Location, entry.Rotation, default);
+                entry.Sim.Trigger();
+                remaining = afterTrigger;
+            }
+
+            entry.Sim.RestoreDemoAge(remaining, entry.Location, entry.Rotation, default);
+        }
+    }
+
+    /// <summary>Steps recorded map effects once for each playback tick, including fast-forward.</summary>
+    public void AdvanceDemo(float seconds)
+    {
+        _demoTiming = true;
+        foreach (Entry entry in _entries)
+            entry.Sim.Step(seconds, entry.Location, entry.Rotation, default);
+        _time += seconds;
+    }
+
     /// <summary>
     /// Simulates every emitter up to scene time <paramref name="seconds"/> and redraws for the current camera. The
     /// engine updates each emitter once per rendered frame by the frame's time (spec/native/emitters.md): a frame
@@ -222,6 +258,12 @@ public sealed class Emitters : IParticleAssets
     /// </summary>
     public void SetTime(float seconds)
     {
+        if (_demoTiming)
+        {
+            Refresh();
+            return;
+        }
+
         if (seconds < _time)
         {
             foreach (Entry e in _entries)

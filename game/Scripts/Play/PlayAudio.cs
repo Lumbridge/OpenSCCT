@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -9,6 +10,7 @@ using OpenScct.Core.Uc;
 using OpenScct.Game.SBase;
 using OpenScct.Server;
 using OpenScctGame.Audio;
+using OpenScctGame.Play.Demo;
 using OpenScctGame.Play.Session;
 
 namespace OpenScctGame.Play;
@@ -29,6 +31,7 @@ public sealed partial class PlayAudio : Node
     private const double LogSeconds = 10.0;
 
     private PlaySession? _session;
+    private DemoPlayer? _demo;
     private Func<(FVector Location, FRotator Rotation)?>? _view;
     private bool _bound;
     private bool _log;
@@ -57,7 +60,8 @@ public sealed partial class PlayAudio : Node
     /// (the camera's location and rotation in UE space, null while there is none). Returns null, with a printed
     /// reason, when the map has no converted audio.
     /// </summary>
-    public static PlayAudio? Attach(Node parent, PlaySession session, Func<(FVector Location, FRotator Rotation)?> view)
+    public static PlayAudio? Attach(Node parent, PlaySession session, Func<(FVector Location, FRotator Rotation)?> view,
+        DemoPlayer? demo = null)
     {
         ArgumentNullException.ThrowIfNull(parent);
         ArgumentNullException.ThrowIfNull(session);
@@ -69,7 +73,7 @@ public sealed partial class PlayAudio : Node
             return null;
         }
 
-        var audio = new PlayAudio { _session = session, _view = view };
+        var audio = new PlayAudio { _session = session, _view = view, _demo = demo };
         audio.Library = AudioLibrary.Load(shared, session.MapFolder);
         audio.Library.Preload("Armes_impacts.Armes.RA_GunDef_1shot");
         foreach (var pistol in Sidearms.All)
@@ -79,6 +83,7 @@ public sealed partial class PlayAudio : Node
         audio.Sound = new SoundSystem { Name = "SoundSystem" };
         audio.AddChild(audio.Sound);
         parent.AddChild(audio);
+        if (demo is not null) audio.Sound.SetDemoSeek(true, demo.Clock.Paused);
         audio.Sound.Bind(audio.Library, null, seed: (int)(session.Settings.MatchSeed & 0x7fffffff));
         // PlayRoot drains audio before rendering, so cold models/effects cannot hold shot starts behind their work.
         audio.SetProcess(false);
@@ -127,6 +132,34 @@ public sealed partial class PlayAudio : Node
         }
     }
 
+    internal void AdvanceDemoTick(DemoPlayer demo, IReadOnlyList<DemoPresentationSample> history, bool atCheckpoint)
+    {
+        if (!demo.RebuildingPresentation || _session is not { } session || Sound is not { } sound) return;
+        if (!_bound) Bind(session, sound);
+        sound.SetDemoSeek(true, demo.Clock.Paused);
+        if (demo.ViewFor(session.View) is { Valid: true } view)
+            sound.SetListener(view.Location, view.Rotation);
+
+        if (atCheckpoint)
+        {
+            uint tick = demo.Recording.Index.FirstTick;
+            uint target = demo.CurrentTick;
+            int rate = demo.Header.TickRate;
+            foreach (DemoPresentationSample sample in history)
+            {
+                if (sample.Event.Kind is not (SimEventKind.PlaySound or SimEventKind.StopSound or
+                    SimEventKind.PlayMusic or SimEventKind.StopMusic or SimEventKind.SetSwitch)) continue;
+                uint next = Math.Clamp(sample.Tick, tick, target);
+                sound.AdvanceDemoVoices((next - tick) / (double)rate);
+                sound.Handle(sample.Event, sample.MissingSource);
+                tick = next;
+            }
+            sound.AdvanceDemoVoices((target - tick) / (double)rate);
+        }
+
+        sound.AdvanceDemoTick(atCheckpoint ? 0 : Sim.DeltaTime);
+    }
+
     public override void _Process(double delta)
     {
         if (_session is not { } session || Sound is not { } sound)
@@ -158,6 +191,12 @@ public sealed partial class PlayAudio : Node
             sound.LocalControllerId = 0;
         }
 
+        if (_demo is { } demo)
+        {
+            sound.SetDemoSeek(demo.IsSeeking, demo.Clock.Paused);
+            if (demo.IsSeeking) return;
+            if (demo.Clock.Paused) delta = 0;
+        }
         sound.Update(delta);
 
         if (_quiet)

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
+using OpenScct.Core.Uc;
 using OpenScct.Game.Devices;
 using OpenScct.Game.SBase;
 using OpenScct.Net;
@@ -104,8 +105,12 @@ public sealed class NetDeviceEvents : IMusicTriggerRelay
     public void Relay(MusicTrigger trigger, bool start, Pawn? instigator)
     {
         if (!_driver.IsServer) return;
-        _driver.ProcessRemoteFunction(trigger, nameof(MusicTrigger.ClientPlayStopMusic),
+        ENetCallResult result = _driver.ProcessRemoteFunction(trigger, nameof(MusicTrigger.ClientPlayStopMusic),
             new NetCallArgs().Bool(0, start).Object(1, instigator));
+        if (result is not (ENetCallResult.Sent or ENetCallResult.SentAndRunLocally)) return;
+        foreach (NetConnection connection in _driver.ClientConnections)
+            if (connection.UserData is DemoRecorder recorder && connection.FindActorChannel(trigger) is { Closing: false })
+                recorder.RecordMusicTrigger(trigger, start, instigator, _driver.CurrentTick);
     }
 
     /// <summary>
@@ -178,7 +183,9 @@ public sealed class NetDeviceEvents : IMusicTriggerRelay
 
                 FOutBunch bunch = channel.BeginFunction(f, reliable);
                 Write(bunch.Writer, e, source, connection);
-                channel.SendFunction(bunch);
+                int packet = channel.SendFunction(bunch);
+                if (packet >= 0 && connection.UserData is DemoRecorder recorder)
+                    recorder.RecordPresentation(e, _driver.CurrentTick);
                 Count++;
             }
         }
@@ -224,6 +231,15 @@ public sealed class NetDeviceEvents : IMusicTriggerRelay
         // A scoped stop whose actor is not relevant here is never a global wildcard.
         if (unresolvedStop) return;
 
+        // The replay spectator's music triggers and checkpoint bootstrap share the track selected by direct cues.
+        if (connection.Driver.Transport.IsPlayback && e.Kind is SimEventKind.PlayMusic or SimEventKind.StopMusic)
+        {
+            MusicState music = MusicState.Of(actor.XLevel);
+            if (e.Kind == SimEventKind.PlayMusic)
+                music.Current = e.What.IsNone ? AssetRef.None : new AssetRef(e.What.ToString());
+            else if (e.What.IsNone || music.Current == new AssetRef(e.What.ToString()))
+                music.Current = AssetRef.None;
+        }
         relay._pending.Add(e);
         relay.Count++;
     }

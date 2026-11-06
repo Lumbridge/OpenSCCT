@@ -58,7 +58,7 @@ Playback runs from 0.25× to 4× speed. The visible timeline starts at the round
 Seeking forward advances the current stream. Seeking backward reloads the map, restores the latest checkpoint
 at or before the target, and fast-forwards from there. New recordings capture a checkpoint every 60 seconds
 when the stream can be saved at a clean packet boundary. For earlier targets and recordings without
-checkpoints, playback rebuilds from the beginning. Seeking also works while paused.
+checkpoint presentation data, playback rebuilds from the beginning. Seeking also works while paused.
 
 The compact playback dock includes Play/Pause (Replay at the end), restart, five-second skips, speed, player and camera
 selectors, controls help and Back to demos. The timeline previews timestamps and named events; dragging commits
@@ -174,7 +174,8 @@ the download.
 - `DemoRecorder` (`src/OpenScct.Server/Demo/DemoRecorder.cs`) adds to the index every 30 ticks: the players, a
   marker each time a player's death count goes up, and a marker when the match starts and ends.
 - Once a minute, the recorder saves a bootstrap of the spectator's actor channels, pawn poses, movers and grenades
-  after a replication flush. The recorder keeps the original packet stream for uninterrupted playback.
+  after a replication flush. It includes recent presentation events, active music, emitter ages, and the sound
+  names needed by later packets. The recorder keeps the original packet stream for uninterrupted playback.
 - Who records:
   - **`svm-server`:** the `Demos` section of `svm-server.json` records every round into
     `OnlineServerSettings.DemoFolder`. `OnlineServer.DemoRecorded` reports each finished file, and files older than
@@ -197,6 +198,8 @@ are discarded and acknowledged locally; receive silence cannot time out playback
 buffer. `DemoPlayer` runs the remote `PlaySession` in the normal scene, and `DemoClock` controls speed/pause.
 Seeking processes about 30 ms of ticks per frame behind the seeking indicator. A checkpoint opens the
 replicated world and restores the packet and channel sequences before resuming the original stream.
+Audio advances silently during the seek. Music and surviving sounds resume at their reconstructed playback
+positions. Restored map emitters and combat particles use the demo clock to age during the seek.
 
 ## File format (`.scctdemo`)
 
@@ -254,8 +257,8 @@ master's database row expires (schema v6). The S3 links, endpoints, bucket setup
   body is hidden. Merc weapons are drawn using the recorded weapon attachment and observed firing/reload actions,
   including existing recordings. Exact owner-only weapon animation timing, HUD data and vision effects are not
   available in the replay stream.
-- **Seeking back reloads the map.** Checkpoints shorten the replay that follows the reload. Presentation that
-  started before the checkpoint, such as some sounds or particles, can differ after seeking.
+- **Seeking back reloads the map.** Checkpoints shorten the replay that follows the reload. Checkpoint particle
+  warm-up uses the restored emitter position, so trails and particles from moving emitters can follow a different path.
 - **No camera collision.** The third-person and free cameras can pass through walls.
 - **High speeds can run slow.** At 4× with a low frame rate, the play scene's catch-up limit (5 ticks a frame) makes
   playback slower than asked.

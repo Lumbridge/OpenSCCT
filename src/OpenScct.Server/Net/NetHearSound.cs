@@ -125,7 +125,7 @@ public sealed class NetHearSound : ISimEventSink
         for (Controller? c = _world.Level.Info.ControllerList; c is not null; c = c.nextController)
         {
             if (c is not PlayerController pc || !pc.bIsPlayer || ReferenceEquals(pc, owner) || pc.bDeleteMe ||
-                _driver.OwningConnection(pc) is not { State: EConnectionState.USOCK_Open, bJoined: true })
+                _driver.OwningConnection(pc) is not { State: EConnectionState.USOCK_Open, bJoined: true } connection)
             {
                 continue;
             }
@@ -138,7 +138,12 @@ public sealed class NetHearSound : ISimEventSink
             }
 
             if (pawnSound) _pawnSounds!.Send(pc, (SBasePawn)source!, e, tick);
-            else if (Send(pc, source, e)) _legacySent++;
+            else if (Send(pc, source, e))
+            {
+                _legacySent++;
+                if (connection.UserData is DemoRecorder recorder)
+                    recorder.RecordPresentation(e with { Heard = true }, (uint)tick);
+            }
         }
     }
 

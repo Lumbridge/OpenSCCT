@@ -608,11 +608,11 @@ public sealed class NetDriver : IDisposable
         var playback = Transport as DemoPlaybackTransport;
         while (true)
         {
-            if (playback is not null &&
-                playback.TryTakeCheckpointContinuation(out ReadOnlyMemory<byte> continuation) &&
-                ServerConnection?.TryRestoreDemoContinuation(continuation.Span) != true)
+            if (playback is not null && playback.TryTakeCheckpointContinuation(out ReadOnlyMemory<byte> continuation))
             {
-                throw new InvalidDataException("The demo's rewind checkpoint does not match its network stream.");
+                if (ServerConnection?.TryRestoreDemoContinuation(continuation.Span) != true)
+                    throw new InvalidDataException("The demo's rewind checkpoint does not match its network stream.");
+                World?.Events.DiscardLate();
             }
 
             if (!Transport.TryReceive(buffer, out EndpointId from, out int length)) break;

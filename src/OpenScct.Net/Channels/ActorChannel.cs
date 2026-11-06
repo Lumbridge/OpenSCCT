@@ -344,6 +344,7 @@ public sealed partial class ActorChannel : Channel
         {
             _demoSpawnLocation = actor.Location;
             _demoSpawnRotation = actor.Rotation;
+            DemoSpawnTick = driver.CurrentTick;
         }
 
         _sentInitial = true;

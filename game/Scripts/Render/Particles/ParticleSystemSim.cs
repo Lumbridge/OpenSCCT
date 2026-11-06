@@ -15,6 +15,7 @@ public sealed record ParticleSystemParams(bool AutoDestroy, bool AutoReset, FxRa
 [PortOf("eng:AEmitter::Tick", Spec = "spec/native/emitters.md#rules")]
 public sealed class ParticleSystemSim
 {
+    internal const float MaxDemoWarmupSeconds = 20f;
     private readonly ParticleEmitterSim[] _emitters;
     private FxRandom _rng;
     private float _timeTillReset;
@@ -105,6 +106,18 @@ public sealed class ParticleSystemSim
 
         Time = 0f;
         AllDead = false;
+    }
+
+    /// <summary>Rebuilds recent particles at a checkpoint using the emitter's restored pose.</summary>
+    internal void RestoreDemoAge(float seconds, FVector location, FRotator rotation, FVector velocity)
+    {
+        if (!float.IsFinite(seconds) || seconds <= 0f) return;
+        seconds = Math.Min(seconds, MaxDemoWarmupSeconds);
+        int ticks = (int)MathF.Floor(seconds * Sim.Hz + 0.0001f);
+        for (int i = 0; i < ticks; i++)
+            Step(Sim.DeltaTime, location, rotation, velocity);
+        float remaining = seconds - ticks * Sim.DeltaTime;
+        if (remaining > 1e-5f) Step(remaining, location, rotation, velocity);
     }
 
     /// <summary>One AEmitter::Tick of <paramref name="dt"/> seconds with the actor at <paramref name="location"/>.</summary>

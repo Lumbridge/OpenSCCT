@@ -260,17 +260,7 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
         }
 
         _now += delta;
-        lock (_gate)
-        {
-            _work.Clear();
-            _work.AddRange(_pending);
-            _pending.Clear();
-        }
-
-        foreach (SimEvent e in _work)
-        {
-            Handle(e);
-        }
+        DispatchPending();
 
         if (World is not null)
         {
@@ -297,8 +287,21 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
         }
     }
 
+    private void DispatchPending()
+    {
+        lock (_gate)
+        {
+            _work.Clear();
+            _work.AddRange(_pending);
+            _pending.Clear();
+        }
+        foreach (SimEvent e in _work) Handle(e);
+    }
+
     /// <summary>Plays one event now (main thread).</summary>
-    public void Handle(in SimEvent e)
+    public void Handle(in SimEvent e) => Handle(e, missingSource: false);
+
+    internal void Handle(in SimEvent e, bool missingSource)
     {
         switch (e.Kind)
         {
@@ -309,7 +312,7 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
                 string sound = e.What.ToString();
                 int unknown = Unknown.Count;
                 bool started = PlaySound(e.ActorId, sound, e.Slot, e.NoOverride, e.Location, e.Volume, e.Radius, e.Pitch, !e.NoAttenuate,
-                    flat: e.Flat, bone: e.Bone);
+                    flat: e.Flat, bone: e.Bone, missingSource: missingSource);
                 if (Calls.Count >= MaxStarts)
                 {
                     Calls.RemoveRange(0, MaxStarts / 2);
@@ -336,7 +339,7 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
 
     /// <summary>Rules 9 to 17 for one call. Returns false when nothing started.</summary>
     public bool PlaySound(int actorId, string sound, int slot, bool noOverride, FVector location, float volume, float radius,
-        float pitch, bool attenuate = true, bool flat = false, Name bone = default)
+        float pitch, bool attenuate = true, bool flat = false, Name bone = default, bool missingSource = false)
     {
         SoundDef? def = Library?.Find(sound);
         if (def is null)
@@ -352,7 +355,8 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
 
         float r = radius == 0f ? AudioK.DefaultHearRadius : radius;
         int id = SoundRules.SoundId(actorId, Math.Clamp(slot, 0, 7), noOverride, ref _freshId);
-        var call = new PlayCall(def, actorId, id, location, volume, r, pitch, music: false, loop: false, ambient: false, flat);
+        var call = new PlayCall(def, actorId, id, location, volume, r, pitch, music: false, loop: false, ambient: false,
+            flat, missingSource: missingSource);
         if (!Start(call, follow: actorId != 0))
         {
             return false;
@@ -463,7 +467,7 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
     // ---- starting a call ------------------------------------------------------------------------------------
 
     private readonly record struct PlayCall(SoundDef Def, int ActorId, int Id, FVector Location, float Volume, float Radius,
-        float Pitch, bool music, bool loop, bool ambient, bool flat = false, byte occlusion = 0);
+        float Pitch, bool music, bool loop, bool ambient, bool flat = false, byte occlusion = 0, bool missingSource = false);
 
     private bool Start(in PlayCall call, bool follow)
     {
@@ -480,6 +484,8 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
         float source = SoundRules.SourceVolume(call.Volume * chain, leaf.Volume, music);
         float radius = SoundRules.Radius(leaf.Radius, call.Radius);
         int flags = leaf.Flags | (music ? AudioK.FlagMusic | AudioK.Flag2D : 0) | (call.loop ? AudioK.FlagLoop : 0);
+        // One-shots can outlive the actor that made them. Indefinite loops need their source.
+        if (call.missingSource && leaf.Kind != "sequence" && ((flags & AudioK.FlagLoop) != 0 || leaf.Loop)) return false;
         // Native PlaySound (retail 0x10b03fd5..0x10b04020) replaces a locally controlled pawn with the
         // viewport controller, clears BoneIdx, and starts at the listener. Preserve the original actor for
         // slot ownership/StopSound, but bind this voice to the listener for its entire lifetime. Resolve the
@@ -659,12 +665,24 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
             ? SoundRules.AmbientZoneFactor(Library?.Map?.ZoneDistance(World.ZoneIndexAt(v.Location), _listenerZoneIndex) ?? 0)
             : 1f;
         v.Looping = loop;
+        if (_demoSeeking)
+        {
+            v.Simulate(stream);
+            return true;
+        }
+
+        StartStream(v, stream, 0f);
+        return true;
+    }
+
+    private void StartStream(Voice v, AudioStream stream, float offset)
+    {
         // The dry and room players must start with the same source state before the mixer can see either.
         // Reused voices otherwise expose the prior gain/location or a dry-only first block.
         AudioServer.Lock();
         try
         {
-            v.Play(stream);
+            v.Play(stream, offset, _demoPaused);
             ApplyVoice(v, 0, ReverbBuses.WorldBus);
         }
         finally { AudioServer.Unlock(); }
@@ -674,10 +692,10 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
             Starts.RemoveRange(0, Math.Min(Starts.Count, MaxStarts / 2));
         }
 
-        Started.Add(leaf.Path);
-        Starts.Add(new SoundStart(v.CallPath, leaf.Path, v.ActorId, v.Positional, v.Ambient, v.Music, v.Volume, _now));
+        string leaf = v.Leaf!.Path;
+        Started.Add(leaf);
+        Starts.Add(new SoundStart(v.CallPath, leaf, v.ActorId, v.Positional, v.Ambient, v.Music, v.Volume, _now));
         StartCount++;
-        return true;
     }
 
     /// <summary>Rule 15: a free voice, else the same slot (unless the new call keeps it), else the lowest priority.</summary>
@@ -769,7 +787,7 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
             return;
         }
 
-        ApplyVoice(v, dt, worldBus);
+        if (!_demoSeeking) ApplyVoice(v, dt, worldBus);
     }
 
     private void ApplyVoice(Voice v, float dt, string worldBus)
@@ -1129,7 +1147,7 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
         public int Remaining;
     }
 
-    private sealed class Voice
+    private sealed partial class Voice
     {
         public Voice(int index)
         {
@@ -1224,7 +1242,9 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
         private float _fadeRate;
         public bool StopWhenFaded;
 
-        public bool IsPlaying => Positional ? Player3D.Playing : Player2D.Playing;
+        public bool IsPlaying => DemoStream is not null
+            ? DemoPosition < _demoLength
+            : Positional ? Player3D.Playing : Player2D.Playing;
 
         public void Begin(string callPath, int actorId, int id, bool follow, FVector location, float priority)
         {
@@ -1247,7 +1267,7 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
             StopWhenFaded = false;
         }
 
-        public void Play(AudioStream stream)
+        public void Play(AudioStream stream, float offset, bool paused)
         {
             Halt();
             if (Positional)
@@ -1255,7 +1275,8 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
                 Player3D.Stream = stream;
                 Player3D.PitchScale = Pitch;
                 _pitch3D = Pitch;
-                Player3D.Play();
+                Player3D.Play(offset);
+                Player3D.StreamPaused = paused;
                 if (Route is { } route)
                 {
                     Player3D.Bus = route.DryBus;
@@ -1264,7 +1285,8 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
                     RoomPlayer.Stream = stream;
                     RoomPlayer.PitchScale = Pitch;
                     RoomPlayer.VolumeDb = -100;
-                    RoomPlayer.Play();
+                    RoomPlayer.Play(offset);
+                    RoomPlayer.StreamPaused = paused;
                 }
             }
             else
@@ -1272,7 +1294,8 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
                 Player2D.Stream = stream;
                 Player2D.PitchScale = Pitch;
                 _pitch2D = Pitch;
-                Player2D.Play();
+                Player2D.Play(offset);
+                Player2D.StreamPaused = paused;
             }
         }
 
@@ -1342,6 +1365,11 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
 
         public void Halt()
         {
+            if (DemoStream is not null)
+            {
+                DemoStream = null;
+                return;
+            }
             AudioServer.Lock();
             try
             {

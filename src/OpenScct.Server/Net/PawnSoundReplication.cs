@@ -8,7 +8,7 @@ using OpenScct.Net;
 namespace OpenScct.Server;
 
 /// <summary>Ordered pawn sounds, including stops, at the same display time as their animation.</summary>
-public sealed class PawnSoundReplication
+public sealed partial class PawnSoundReplication
 {
     private const string Function = "SvmPawnSound";
     private const int Capacity = 1024;
@@ -132,6 +132,8 @@ public sealed class PawnSoundReplication
                     if (!connection.IsNetReady || channel is not { Closing: false, NumOutRec: < 96 } ||
                         channel.Layout?.FindFunction(Function) is not { } function) break;
                     if (!SendNow(channel, function, viewer.Names, pending.Source, pending.Event, pending.Tick)) break;
+                    if (connection.UserData is DemoRecorder recorder)
+                        recorder.RecordPresentation(pending.Event with { Heard = true }, (uint)pending.Tick);
                     var key = (pending.Source.ActorId, pending.Event.What);
                     if (viewer.Sounds.TryGetValue(key, out SoundState state))
                     {

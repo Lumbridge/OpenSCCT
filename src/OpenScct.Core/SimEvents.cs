@@ -118,6 +118,9 @@ public sealed class SimEvents
     /// </summary>
     public ReadOnlySpan<SimEvent> Late => _buffer.AsSpan(_closed, _count - _closed);
 
+    /// <summary>Drops effects produced while opening a demo checkpoint, before the original stream resumes.</summary>
+    public void DiscardLate() => _count = _closed;
+
     internal void BeginTick(long tick)
     {
         _count = 0;

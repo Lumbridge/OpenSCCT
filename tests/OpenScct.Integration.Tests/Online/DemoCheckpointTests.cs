@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using OpenScct.Core;
@@ -13,6 +14,12 @@ namespace OpenScct.Integration.Tests.Online;
 
 public sealed class DemoCheckpointTests
 {
+    private static readonly Name Music = new("Armes_impacts.Gadgets.Emf_fond");
+    private static readonly Name Cue = new("Sound_Persos.onomatopees.breath_masqGaz");
+    private static readonly Name PawnSound = new("Armes_impacts.Gadgets.Hack_try1");
+    private static readonly Name Burst = new("SBase.SSparkShocker");
+    private static readonly FVector BurstLocation = new(1500, 500, 120);
+
     [Fact]
     public void SeekingFromTheMinuteCheckpointRestoresWorldAndContinuesTheRecording()
     {
@@ -55,6 +62,9 @@ public sealed class DemoCheckpointTests
             play.Input.Set("BT_Up", true);
             StepTo(220);
             play.Input.Set("BT_Up", false);
+            SimEvents events = play.Host.World.Events;
+            events.Add(new SimEvent { Kind = SimEventKind.PlayMusic, What = Music });
+            events.PlaySound(spy, PawnSound, attenuate: false);
             StepTo(expectedCheckpoint - 90);
             var grenadeOrigin = new FVector(1800, 500, 260);
             var oldGrenade = Assert.IsType<SProjFrag>(play.Host.World.Level.Spawn<SProjFrag>(grenadeOrigin, default));
@@ -64,6 +74,8 @@ public sealed class DemoCheckpointTests
             FRotator before = play.View.Rotation;
             mover.InterpolateTo(1, 1f);
             objective.ObjectiveTaken = true;
+            events.PlaySound(null, Cue, attenuate: false);
+            events.SpawnEmitter(null, Burst, BurstLocation, FRotator.Zero);
 
             StepTo(expectedCheckpoint);
             if (recorder.Writer.Index.CheckpointCount == 0) StepTo(expectedCheckpoint + 1);
@@ -79,6 +91,8 @@ public sealed class DemoCheckpointTests
             var newGrenade = Assert.IsType<SProjFrag>(play.Host.World.Level.Spawn<SProjFrag>(new FVector(600, 1000, 100), default));
             newGrenade.SetPhysics(EPhysics.PHYS_None);
             objective.ObjectiveTaken = false;
+            // The recorded spectator already knows this sound's wire name from tick 220.
+            events.PlaySound(spy, PawnSound, attenuate: false);
             play.Input.MouseX = -1700f;
             play.Input.MouseY = 200f;
             uint endTick = expectedCheckpoint + 90;
@@ -108,6 +122,12 @@ public sealed class DemoCheckpointTests
             var settings = new ClientSettings { PlayerName = "Demo", Gameplay = true, Maps = WalkerRig.Maps, Classes = WalkerRig.Classes };
             using var restarted = new ClientSession(checkpoint, "demo", 0, settings);
             using var uninterrupted = new ClientSession(linear, "demo", 0, settings);
+            var resumedSounds = new List<SimEvent>();
+            restarted.BeforeWorldTick += client =>
+            {
+                foreach (SimEvent e in client.World.Events.Late)
+                    if (e.Kind == SimEventKind.PlaySound && e.What == PawnSound) resumedSounds.Add(e);
+            };
 
             void CheckWorld(uint tick, FRotator rotation, bool afterCheckpoint)
             {
@@ -143,6 +163,7 @@ public sealed class DemoCheckpointTests
                 if (tick == checkpoint.StartTick)
                 {
                     CheckWorld(tick, before, afterCheckpoint: false);
+                    CheckPresentation(uninterrupted, restarted, tick);
                     var restoredGrenade = Assert.IsType<SProjFrag>(restarted.Driver.FindActorByNetGuid((uint)oldGrenade.ActorId));
                     Assert.InRange(FVector.Dist(restoredGrenade.Location, grenadeLocation), 0f, 12f);
                     Assert.InRange(MathF.Abs((restoredGrenade.TimerRate - restoredGrenade.TimerCounter) - grenadeFuse), 0f, 0.04f);
@@ -152,11 +173,33 @@ public sealed class DemoCheckpointTests
                 if (tick == endTick) CheckWorld(tick, after, afterCheckpoint: true);
             }
             Assert.True(restarted.Connection!.Stats.InPackets < uninterrupted.Connection!.Stats.InPackets);
+            SimEvent resumed = Assert.Single(resumedSounds);
+            Assert.True(resumed.Heard);
+            Assert.Equal(restarted.Driver.FindActorByNetGuid((uint)spyId)?.ActorId, resumed.ActorId);
         }
         finally
         {
             if (Directory.Exists(folder)) Directory.Delete(folder, recursive: true);
         }
+    }
+
+    private static void CheckPresentation(ClientSession linear, ClientSession restarted, uint tick)
+    {
+        var samples = new List<DemoPresentationSample>();
+        linear.TakeDemoCheckpointPresentation(samples);
+        Assert.Empty(samples);
+        restarted.TakeDemoCheckpointPresentation(samples);
+        var music = Assert.Single(samples, sample => sample.Event.Kind == SimEventKind.PlayMusic && sample.Event.What == Music);
+        Assert.InRange(music.Tick, 220u, 224u);
+        Assert.Equal(Music.ToString(), MusicState.Of(restarted.World.Level).Current.Path);
+        var cue = Assert.Single(samples, sample => sample.Event.Kind == SimEventKind.PlaySound && sample.Event.What == Cue);
+        Assert.InRange(tick - cue.Tick, 25u, 32u);
+        var burst = Assert.Single(samples, sample => sample.Event.Kind == SimEventKind.SpawnEmitter && sample.Event.What == Burst);
+        Assert.Equal(cue.Tick, burst.Tick);
+        Assert.Equal(BurstLocation, burst.Event.Location);
+        samples.Clear();
+        restarted.TakeDemoCheckpointPresentation(samples);
+        Assert.Empty(samples);
     }
 
     [Fact]

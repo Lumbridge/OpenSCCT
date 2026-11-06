@@ -23,6 +23,8 @@ public sealed partial class DemoRecorder
         _host = host;
         Writer = writer;
         Connection = connection;
+        if (host.Driver.Settings.PawnProxies == PawnProxyMode.Snapshots)
+            _presentation = new DemoPresentationHistory(host.World);
     }
 
     public DemoWriter Writer { get; }

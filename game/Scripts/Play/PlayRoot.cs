@@ -350,7 +350,7 @@ public partial class PlayRoot : Node3D
         if (Config.Audio)
         {
             // Before the HUD: the sound takes the client world's event sink first and the HUD's tap wraps it.
-            Audio = PlayAudio.Attach(this, Session, ListenerView);
+            Audio = PlayAudio.Attach(this, Session, ListenerView, Config.Demo);
         }
 
         Session.BeforeClientTick = BeforeTick;
@@ -499,7 +499,8 @@ public partial class PlayRoot : Node3D
 
     private void AfterTick(PlaySession session, long tick)
     {
-        Config.Demo?.AfterTick(session);
+        Demo.DemoPlayer? demo = Config.Demo;
+        demo?.AfterTick(session);
         Stats.Ticks++;
         _time.OnTick(session.Client.World.Level.Info.TimeSeconds);
         _look.AfterTick(session.LocalController, session.View);
@@ -516,9 +517,10 @@ public partial class PlayRoot : Node3D
 
         Devices?.OnTick(session.Client.World.Level);
         Map?.LightBeams?.OnTick(session.Client.Map?.Loaded);
-        TriggerMapEmitters(session);
+        if (demo is null) TriggerMapEmitters(session);
         Pawns?.OnTick(session.Client.World.Level);
-        Fx?.OnTick(session);
+        if (demo is not null) AdvanceDemoPresentation(demo, session);
+        else Fx?.OnTick(session);
         FollowSide(session);
     }
 
@@ -789,7 +791,7 @@ public partial class PlayRoot : Node3D
             }
             else
                 FirstPerson?.Draw(pc, location, rotation, dt, alpha);
-            Fx?.Draw(dt, location, rotation, pc);
+            Fx?.Draw(dt, location, rotation, pc, demoPlayback: Config.Demo is not null);
             FlashLight?.Draw(session.Client.World.Level, session.LocalPawn, location,
                 ReferenceEquals(firstPerson, session.LocalPawn) ? (location, rotation) : null);
             Map?.LightBeams?.UpdateSlots();   // after the spot lights took this frame's slots

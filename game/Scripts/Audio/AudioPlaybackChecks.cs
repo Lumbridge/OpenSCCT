@@ -54,13 +54,48 @@ public static class AudioPlaybackChecks
             if (sound.ActiveVoices != AudioK.Voices || sound.CaptureVoices().Count(v => v.ActorId == 2) != 1)
                 return "slotted replacement changed source count or duplicated the actor";
             if (Play(999)) return "SLOT_None replaced an equal-priority full-pool source";
-            return null;
+            return VerifyDemoSeek(sound, library);
         }
         finally
         {
             sound.StopAll();
             sound.QueueFree();
         }
+    }
+
+    private static string? VerifyDemoSeek(SoundSystem sound, AudioLibrary library)
+    {
+        static SimEvent Call(int actor) => new()
+        {
+            Kind = SimEventKind.PlaySound, ActorId = actor, What = new Name(Clip),
+            Volume = 1f, Radius = 100f, Pitch = 1f, Flat = true,
+        };
+
+        if (library.Find(Clip) is not { Duration: > 1.5f } clip)
+            return "demo seek fixture requires a sound longer than 1.5 seconds";
+        sound.StopAll();
+        long starts = sound.StartCount;
+        sound.SetDemoSeek(true);
+        sound.OnSimEvents(1, [Call(1)]);
+        sound.AdvanceDemoTick(0);
+        sound.AdvanceDemoVoices(clip.Duration + 0.1);
+        sound.Handle(Call(2));
+        sound.AdvanceDemoVoices(1.0);
+        AudioStreamPlayer[] players = sound.GetChildren().OfType<AudioStreamPlayer>().ToArray();
+        if (sound.StartCount != starts || players.Any(player => player.Playing))
+            return "demo seeking started an audible voice while processing historical events";
+        if (sound.CaptureVoices() is not [{ ActorId: 2 }])
+            return "demo seeking retained an expired voice or dropped the surviving voice";
+
+        sound.SetDemoSeek(false, paused: true);
+        if (players.Any(player => player.Playing && !player.StreamPaused))
+            return "a paused demo seek played the surviving voice";
+        sound.SetDemoSeek(false);
+        AudioStreamPlayer[] audible = players.Where(player => player.Playing && !player.StreamPaused).ToArray();
+        if (audible.Length != 1 || sound.CaptureVoices() is not [{ ActorId: 2 }])
+            return "resuming a demo seek should play only the surviving voice";
+        double position = audible[0].GetPlaybackPosition();
+        return Math.Abs(position - 1.0) <= 0.2 ? null : $"resumed demo voice started at {position:F3}s instead of 1s";
     }
 
     private static string? VerifyBankOnlyStream(AudioLibrary original)

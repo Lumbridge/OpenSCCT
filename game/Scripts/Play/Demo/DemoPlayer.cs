@@ -82,6 +82,7 @@ public sealed class DemoPlayer : IDisposable
     private DemoCameraMode _mode = DemoCameraMode.ThirdPerson;
     private long _played;
     private uint _seekTarget;
+    private bool _fastForwarding;
     private bool _disposed;
     private int _targetPlayerId = -1;
     private FVector _freeLocation;
@@ -151,6 +152,8 @@ public sealed class DemoPlayer : IDisposable
 
     // Even a paused restart at the first tick needs its initial packets, including the recorded loading prefix.
     public bool IsSeeking => (_played == 0 && Session is not null) || PacketTick < Math.Max(FirstTick, SeekTarget);
+
+    internal bool RebuildingPresentation => _fastForwarding || IsSeeking;
 
     /// <summary>True once the last packet was played.</summary>
     public bool AtEnd => _played > 0 && _transport.AtEnd && PacketTick >= LastTick;
@@ -331,13 +334,18 @@ public sealed class DemoPlayer : IDisposable
             return false;
         }
 
-        int run = 0;
-        while (run < maxTicks && IsSeeking && !AtEnd)
+        _fastForwarding = true;
+        try
         {
-            Clock.Advance(TickMicros);
-            session.Step(Clock.NowMicroseconds);
-            run++;
+            int run = 0;
+            while (run < maxTicks && IsSeeking && !AtEnd)
+            {
+                Clock.Advance(TickMicros);
+                session.Step(Clock.NowMicroseconds);
+                run++;
+            }
         }
+        finally { _fastForwarding = false; }
 
         if (!IsSeeking || AtEnd)
         {

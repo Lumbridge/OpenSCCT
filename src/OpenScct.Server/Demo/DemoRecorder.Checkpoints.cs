@@ -33,7 +33,7 @@ public sealed partial class DemoRecorder
             _host.Driver.TryWriteDemoCheckpoint(Connection, sink,
                 bootstrap => _host.SendDemoWelcome(bootstrap, PlaybackPlayerId),
                 bootstrap => _host.PawnStates.WriteDemoCheckpoint(Connection, bootstrap) &&
-                    _host.WriteDemoCheckpointActors(bootstrap),
+                    _host.WriteDemoCheckpointActors(bootstrap) && WriteDemoCheckpointPresentation(bootstrap),
                 out byte[] continuation) ? continuation : null);
         // A newly opened or closing channel can make this flush unsuitable. Retry briefly without stalling play.
         if (captured) _nextCheckpoint += CheckpointIntervalTicks;

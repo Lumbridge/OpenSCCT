@@ -62,6 +62,8 @@ public sealed class DestructibleFxSmoke : SmokeTest
             {
                 return SmokeResult.Fail("blast or delayed fire timing incorrect");
             }
+            if (VerifyDemoRestore(map, gas.Emitters[1].Particles[0].Time) is { } restoreProblem)
+                return SmokeResult.Fail(restoreProblem);
 
             Particle shrapnel = gas.Emitters[0].Particles[0];
             Particle canDebris = can.Emitters[2].Particles[0];
@@ -106,7 +108,7 @@ public sealed class DestructibleFxSmoke : SmokeTest
                 return SmokeResult.Fail("Molotov fire did not expire");
             }
 
-            _checks = $"gas motion/atlas=ok can mesh/motion/expiry=ok Molotov delay/burn/expiry=ok floor collisions={collisions}";
+            _checks = $"gas motion/atlas/demo restore=ok can mesh/motion/expiry=ok Molotov delay/burn/expiry=ok floor collisions={collisions}";
             if (System.Environment.GetEnvironmentVariable("SVM_DESTRUCTIBLE_FX_PREVIEW") is { Length: > 0 } output &&
                 DisplayServer.GetName() != "headless")
             {
@@ -124,6 +126,22 @@ public sealed class DestructibleFxSmoke : SmokeTest
         {
             if (_preview is null) map.Root.Free();
         }
+    }
+
+    private static string? VerifyDemoRestore(RenderMap map, float linearAge)
+    {
+        var root = new Node3D();
+        try
+        {
+            var restored = new Emitters(map, root);
+            restored.RestoreDemoTriggers([("Emitter251", 0.25f)]);
+            if (restored.SimulationOf("Emitter251") is not { Alive: > 0 } gas)
+                return "the demo checkpoint did not restore the active gas blast";
+            float age = gas.Emitters[1].Particles[0].Time;
+            return MathF.Abs(age - linearAge) <= Sim.DeltaTime * 2f
+                ? null : $"the checkpoint restored gas particles at age {age:F3}s instead of {linearAge:F3}s";
+        }
+        finally { root.Free(); }
     }
 
     private SmokeResult PreviewStep()

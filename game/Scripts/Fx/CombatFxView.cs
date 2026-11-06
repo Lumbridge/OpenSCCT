@@ -134,7 +134,19 @@ public partial class CombatFxView : Node3D
     public FVector LastMarkAt { get; private set; }
 
     /// <summary>After a client tick: takes its view events and marks, and schedules tracer discovery after posing.</summary>
-    public void OnTick(PlaySession session)
+    public void OnTick(PlaySession session) => OnTick(session, demoPlayback: false, null);
+
+    /// <summary>Advances replay effects even when the seek runs several ticks between draws.</summary>
+    public void OnDemoTick(PlaySession session, Func<Actor, float>? restoredAge = null)
+    {
+        OnTick(session, demoPlayback: true, restoredAge);
+        var viewer = session.LocalController;
+        ConsumePending(session.View.Location, session.View.Rotation, viewer, useDrawnPose: false);
+        AdvanceTransients(Sim.DeltaTime, viewer);
+        _effects?.AdvanceDemo(Sim.DeltaTime);
+    }
+
+    private void OnTick(PlaySession session, bool demoPlayback, Func<Actor, float>? restoredAge)
     {
         ArgumentNullException.ThrowIfNull(session);
         EnsureLoaded();
@@ -152,10 +164,19 @@ public partial class CombatFxView : Node3D
         TrackRifleFlashes(session.LocalPawn?.MyWeapon as SWeaponDefense);
 
         _tracerLevel = level;
-        TrackMarks(level);
+        TrackMarks(level, demoPlayback);
         TrackProjections(level);
         TrackDisabledCameras(level);
-        _effects?.OnTick(level);
+        _effects?.OnTick(level, demoPlayback ? session.Client.Connection : null, restoredAge);
+    }
+
+    /// <summary>Rebuilds a short-lived particle effect still visible at the checkpoint.</summary>
+    public void RestoreDemoEmitter(string classPath, FVector location, FRotator rotation, float age)
+    {
+        EnsureLoaded();
+        if (_effects?.RestoreDemoEmitter(classPath, location, rotation, age) != true &&
+            age is >= 0f and < 0.35f && classPath.Contains("Spark", StringComparison.OrdinalIgnoreCase))
+            AddBurst(new Name(classPath[(classPath.LastIndexOf('.') + 1)..]), location, rotation, demoPlayback: true, age);
     }
 
     internal int DisabledCameraCount => _disabledCameras.Count;
@@ -207,23 +228,57 @@ public partial class CombatFxView : Node3D
         }
     }
 
-    /// <summary>Each frame: places the new flashes, fades the flashes and bursts, flies the tracers.</summary>
-    public void Draw(float dt, FVector cameraLocation, FRotator cameraRotation, SPlayerController? viewer)
+    /// <summary>Draws combat effects. Live play also advances the frame-timed effects here.</summary>
+    public void Draw(float dt, FVector cameraLocation, FRotator cameraRotation, SPlayerController? viewer, bool demoPlayback = false)
     {
-        foreach (CamnetDisabledView cue in _disabledCameras.Values) cue.Update(dt);
+        if (!demoPlayback)
+        {
+            ConsumePending(cameraLocation, cameraRotation, viewer, useDrawnPose: true);
+            AdvanceTransients(dt, viewer);
+        }
+        else
+        {
+            foreach (Burst burst in _bursts)
+            {
+                float elapsed = burst.Age - burst.ProcessedAge;
+                if (elapsed <= 0f) continue;
+                burst.Node.RequestParticlesProcess(elapsed);
+                burst.ProcessedAge = burst.Age;
+            }
+        }
+
+        if (_effects is not null)
+        {
+            foreach (Flash f in _flashes)
+            {
+                foreach (LightEntry l in f.WorldLights)
+                {
+                    _effects.ExtraLights.Add(l);
+                }
+            }
+        }
+
+        _effects?.Draw(dt, cameraLocation, cameraRotation, viewer?.RendMap ?? 0, demoPlayback);
+    }
+
+    private void ConsumePending(FVector cameraLocation, FRotator cameraRotation, SPlayerController? viewer, bool useDrawnPose)
+    {
         foreach (PendingFlash p in _pending)
         {
-            AddFlash(p, cameraLocation, cameraRotation, viewer);
+            AddFlash(p, cameraLocation, cameraRotation, viewer, useDrawnPose);
         }
 
         _pending.Clear();
-        // The weapon attachments have now been posed for this frame. Resolve tracer origins here too, so they
-        // leave the visible muzzle instead of the simulation's approximate bone position from an earlier tick.
         if (_tracerLevel is { } level)
         {
             _tracerLevel = null;
-            TrackTracers(level, viewer);
+            TrackTracers(level, viewer, useDrawnPose);
         }
+    }
+
+    private void AdvanceTransients(float dt, SPlayerController? viewer)
+    {
+        foreach (CamnetDisabledView cue in _disabledCameras.Values) cue.Update(dt);
         for (int i = _flashes.Count - 1; i >= 0; i--)
         {
             Flash f = _flashes[i];
@@ -261,19 +316,6 @@ public partial class CombatFxView : Node3D
             // Retail ASFireTrace::Tick hides the last 502 uu, where muzzle-to-impact convergence is steep.
             s.Node.Visible = s.Length - travelled >= K.FireTraceHideDistance && s.Age < s.Life;
         }
-
-        if (_effects is not null)
-        {
-            foreach (Flash f in _flashes)
-            {
-                foreach (LightEntry l in f.WorldLights)
-                {
-                    _effects.ExtraLights.Add(l);
-                }
-            }
-        }
-
-        _effects?.Draw(dt, cameraLocation, cameraRotation, viewer?.RendMap ?? 0);
     }
 
     // ---- muzzle flashes ------------------------------------------------------------------------------------
@@ -296,7 +338,7 @@ public partial class CombatFxView : Node3D
 
     [Provenance(ProvenanceKind.Decoded, "SMuzzleFlash Lifetime 0.1; SMuzzleGenerique / sMuzzleCanon LightHue 40, LightSaturation 190; SMuzzleSticky LightHue 148, LightSaturation 127, LightBrightness 255")]
     [Provenance(ProvenanceKind.Estimated, "Drawn weapon FX bone; the right hand plus 24 uu is only a missing-content fallback")]
-    private void AddFlash(PendingFlash p, FVector cameraLocation, FRotator cameraRotation, SPlayerController? viewer)
+    private void AddFlash(PendingFlash p, FVector cameraLocation, FRotator cameraRotation, SPlayerController? viewer, bool useDrawnPose)
     {
         bool sticky = p.Kind == CombatFx.MuzzleSticky;
         if (p.Kind == SpawnSFX && viewer is { bBinocularVision: true }) return;
@@ -332,8 +374,8 @@ public partial class CombatFxView : Node3D
 
             aim.GetAxes(out FVector x, out _, out _);
             forward = UeSpace.DirectionToGodot(x);
-            at = pawn is SBasePawn sb && TryDrawnMuzzle(sb, viewer, out Transform3D muzzle) ? muzzle.Origin :
-                Pawns is not null && Pawns.TryGetBone(pawn as SBasePawn, BoneRightHand, out Transform3D hand)
+            at = useDrawnPose && pawn is SBasePawn sb && TryDrawnMuzzle(sb, viewer, out Transform3D muzzle) ? muzzle.Origin :
+                useDrawnPose && Pawns is not null && Pawns.TryGetBone(pawn as SBasePawn, BoneRightHand, out Transform3D hand)
                 ? hand.Origin + (forward * UeSpace.LengthToGodot(24f))
                 : UeSpace.ToGodot(pawn.Location + new FVector(0f, 0f, pawn.EyeHeight * 0.6f) + (x * 40f));
         }
@@ -490,7 +532,7 @@ public partial class CombatFxView : Node3D
 
     [Provenance(ProvenanceKind.Decoded, "SFireTrace FTSpeed 7000, LifeSpan 2, DrawScale3D (10, 3, 3), unlit")]
     [Provenance(ProvenanceKind.Estimated, "The streak's size: the balle_TR mesh is not converted; 120 x 1.5 uu stands in")]
-    internal void TrackTracers(Level level, SPlayerController? viewer)
+    internal void TrackTracers(Level level, SPlayerController? viewer, bool useDrawnPose = true)
     {
         _gone.Clear();
         foreach (SFireTrace t in _tracers.Keys)
@@ -515,7 +557,7 @@ public partial class CombatFxView : Node3D
             }
 
             FVector start = t.Location;
-            if (t.Instigator is SBasePawn shooter && TryDrawnMuzzle(shooter, viewer, out Transform3D muzzle))
+            if (useDrawnPose && t.Instigator is SBasePawn shooter && TryDrawnMuzzle(shooter, viewer, out Transform3D muzzle))
                 start = UeSpace.ToUe(muzzle.Origin);
             FVector to = t.ImpactLoc - start;
             float length = to.Size();
@@ -546,7 +588,7 @@ public partial class CombatFxView : Node3D
 
     [Provenance(ProvenanceKind.Decoded, "SImpactManager: 50 marks, 15 s, decal at the hit facing out of the surface")]
     [Provenance(ProvenanceKind.Estimated, "Converted decal textures on a 12 uu surface quad; missing textures use a dark spot. Shocker decals are suppressed to match original-game observation.")]
-    private void TrackMarks(Level level)
+    private void TrackMarks(Level level, bool demoPlayback)
     {
         if (level.GetService<ImpactTable>() is not { } table)
         {
@@ -613,7 +655,7 @@ public partial class CombatFxView : Node3D
                 }
                 else
                 {
-                    AddBurst(new Name(spark[(spark.LastIndexOf('.') + 1)..]), at, m.Rotation);
+                    AddBurst(new Name(spark[(spark.LastIndexOf('.') + 1)..]), at, m.Rotation, demoPlayback);
                 }
             }
         }
@@ -622,7 +664,7 @@ public partial class CombatFxView : Node3D
     // ---- sparks ------------------------------------------------------------------------------------------------
 
     [Provenance(ProvenanceKind.Estimated, "The SSpark* particle classes are not converted: 14 short-lived sparks thrown out of the surface")]
-    private void AddBurst(Name kind, FVector location, FRotator rotation)
+    private void AddBurst(Name kind, FVector location, FRotator rotation, bool demoPlayback, float age = 0f)
     {
         string s = kind.ToString();
         Color colour = s.Contains("Shocker", StringComparison.Ordinal) ? new Color(0.45f, 0.75f, 1f)
@@ -635,6 +677,7 @@ public partial class CombatFxView : Node3D
             Name = "Sparks",
             Amount = 14,
             Lifetime = 0.35,
+            SpeedScale = demoPlayback ? 0f : 1f,
             OneShot = true,
             Explosiveness = 1f,
             Direction = UeSpace.DirectionToGodot(x),
@@ -657,7 +700,7 @@ public partial class CombatFxView : Node3D
         };
         AddChild(particles);
         particles.GlobalPosition = UeSpace.ToGodot(location);
-        _bursts.Add(new Burst(particles, 1f));
+        _bursts.Add(new Burst(particles, 1f) { Age = age });
         Sparks++;
     }
 
@@ -842,13 +885,15 @@ public partial class CombatFxView : Node3D
         public LightEntry[] WorldLights { get; init; } = [];
     }
 
-    private sealed class Burst(Node3D node, float life)
+    private sealed class Burst(CpuParticles3D node, float life)
     {
-        public Node3D Node { get; } = node;
+        public CpuParticles3D Node { get; } = node;
 
         public float Life { get; } = life;
 
         public float Age { get; set; }
+
+        public float ProcessedAge { get; set; }
     }
 
     private sealed class Streak(MeshInstance3D node, FVector start, FVector direction, float length, float speed, float life)

@@ -11,6 +11,9 @@ public sealed partial class ActorChannel
     private Dictionary<int, (byte[] Payload, int Bits)>? _unmappedDemoProperties;
     private FBitReader? _demoPropertyReader;
 
+    /// <summary>When the recorder first opened this actor on the wire.</summary>
+    public uint DemoSpawnTick { get; private set; }
+
     // Recent is only updated when all object references are mapped. Preserve the actual last payload
     // for other properties, including any None references the original playback client received.
     private void RememberUnmappedDemoProperty(int index, FBitWriter writer, int start)

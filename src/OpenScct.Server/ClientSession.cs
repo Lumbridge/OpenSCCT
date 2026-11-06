@@ -440,6 +440,7 @@ public sealed partial class ClientSession : INetworkNotify, IDisposable
                 break;
             case EControlMessage.Text:
                 if (ReceiveDemoCheckpointActor(message.Text)) break;
+                if (ReceiveDemoCheckpointPresentation(message.Text)) break;
                 if (ReceiveDemoViewRequest(message.Text)) break;
                 if (ReceiveScoreboard(message.Text)) break;
                 if (Online.SessionProtocol.IsSession(message.Text))
@@ -493,6 +494,8 @@ public sealed partial class ClientSession : INetworkNotify, IDisposable
 
         Map = map;
         Driver.MapBinding.Bind(map.MapActors);
+        if (_transport.IsPlayback && !World.Level.Info.Song.IsNone)
+            MusicState.Of(World.Level).Current = World.Level.Info.Song;
         if (Settings.Gameplay)
         {
             if (Settings.InstallGameplayServices)
