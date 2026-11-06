@@ -78,6 +78,8 @@ selected player. Switching to free camera keeps the current position and directi
 switching to a sticky camera. Mouse orbit is available in **Third person**. **First person** stays at the player's
 eyes, using a recorded first-person view where available.
 
+Turn on **X-ray** in the playback dock to see team-coloured player outlines through walls in any camera mode.
+
 ### Keys
 
 | Key | Action |

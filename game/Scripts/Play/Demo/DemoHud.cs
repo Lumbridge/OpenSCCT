@@ -142,6 +142,13 @@ public partial class DemoHud : CanvasLayer
         _camera.AddItem("As played");
         _camera.ItemSelected += index => SelectCamera((DemoCameraMode)index);
         view.AddChild(_camera);
+        var xray = new CheckBox
+        {
+            Name = "DemoXRay", Text = "X-ray", ButtonPressed = _player.XRay,
+            TooltipText = "Show player outlines through walls",
+        };
+        xray.Toggled += enabled => _player.XRay = enabled;
+        view.AddChild(xray);
         var legend = new HBoxContainer { Name = "TimelineLegend", SizeFlagsVertical = Control.SizeFlags.ShrinkCenter };
         legend.AddThemeConstantOverride("separation", 10);
         view.AddChild(legend);

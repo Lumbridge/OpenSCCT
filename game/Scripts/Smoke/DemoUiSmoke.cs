@@ -215,7 +215,7 @@ public sealed class DemoUiSmoke : SmokeTest
             Find<ConfirmBox>(_hud!, "LeaveDemoConfirmation").Answer(true);
             Expect(context.Tree.CurrentScene is DemosScreen, "confirming exit should return to the demo library");
             return Finish(_problems.Count == 0
-                ? SmokeResult.Pass("50 library and 47 playback states from 800x600 to 4K and back; filters, pause/speed/camera, marker seeking, compact controls, mouse/keyboard restore and exit confirmation")
+                ? SmokeResult.Pass("50 library and 47 playback states from 800x600 to 4K and back; filters, pause/speed/camera, X-ray toggle, marker seeking, compact controls, mouse/keyboard restore and exit confirmation")
                 : SmokeResult.Fail(string.Join("; ", _problems.Take(18))));
         }
         int state = _step % PlaybackCases;
@@ -229,11 +229,19 @@ public sealed class DemoUiSmoke : SmokeTest
         Expect(Find<Button>(_hud!, "ShowControls").Visible == (state == 4), name + ": hidden controls need a visible restore button");
         Expect(Find<Label>(_hud!, "PlaybackHelp").Visible == (state == 2), name + ": controls help visibility is incorrect");
         Expect(Find<OptionButton>(_hud!, "WatchPlayer").Disabled, name + ": an empty live roster should not offer player selection");
+        bool xrayEnabled = state is >= 1 and <= 4;
+        Expect(Find<CheckBox>(_hud!, "DemoXRay").ButtonPressed == xrayEnabled && _player!.XRay == xrayEnabled,
+            name + ": X-ray setting should match the checkbox after camera, seek and visibility changes");
         if (state == 1)
         {
             _closedBarHeight = Find<PanelContainer>(_hud!, "PlaybackBar").Size.Y;
             Expect(_closedBarHeight <= 190f, name + ": collapsed controls should stay compact");
             Expect(Find<PanelContainer>(_hud!, "PlaybackBar").Size.X <= 881f, name + ": playback dock is too wide");
+            if (_step == 1)
+            {
+                using Playback restarted = _player!.Restart(_player.FirstTick);
+                Expect(restarted.XRay, name + ": rewinding should preserve X-ray");
+            }
         }
         if (state == 2)
         {
@@ -299,7 +307,11 @@ public sealed class DemoUiSmoke : SmokeTest
             FrontEnd.Show(context.Tree, stage);
             CheckPlaybackActions();
         }
-        else if (state == 1) Press(_hud!, "PlayPause");
+        else if (state == 1)
+        {
+            Press(_hud!, "PlayPause");
+            Find<CheckBox>(_hud!, "DemoXRay").ButtonPressed = true;
+        }
         else if (state == 2)
         {
             OptionButton camera = Find<OptionButton>(_hud!, "CameraMode");
@@ -335,6 +347,7 @@ public sealed class DemoUiSmoke : SmokeTest
             KeyPress(Key.H);
             Expect(Find<Button>(_hud!, "ShowControls").Visible, "H should hide the panel and leave a restore action");
             KeyPress(Key.H);
+            Find<CheckBox>(_hud!, "DemoXRay").ButtonPressed = false;
             _player!.Clock.Paused = false;
         }
         else if (state == 6)

@@ -25,6 +25,9 @@ public static class RenderLayers
     /// </summary>
     public const uint FirstPerson = 1u << 2;
 
+    /// <summary>Player body masks drawn only by the demo X-ray camera.</summary>
+    public const uint DemoXRay = 1u << 3;
+
     /// <summary>
     /// The body of the pawn seen from its own eyes: hidden from the main view, still drawn by the flares' shadow
     /// cameras, so the local merc casts his whole shadow (FlareLights).
@@ -40,8 +43,8 @@ public static class RenderLayers
     /// <summary>The sky backdrop quad of a main view; the sky camera leaves it out so it never samples itself.</summary>
     public const uint Backdrop = 1u << 19;
 
-    /// <summary>What a main view draws: everything but the sky zone and the shadow-only bodies.</summary>
-    public const uint MainView = 0xFFFFFu & ~Sky & ~ShadowOnly & ~ShadowPass & ~FogViewMask;
+    /// <summary>The geometry visible to the main camera.</summary>
+    public const uint MainView = 0xFFFFFu & ~Sky & ~ShadowOnly & ~ShadowPass & ~FogViewMask & ~DemoXRay;
 
     /// <summary>What a spot light's shadow camera draws.</summary>
     public const uint SpotShadow = World | StaticWorld | ShadowPass;

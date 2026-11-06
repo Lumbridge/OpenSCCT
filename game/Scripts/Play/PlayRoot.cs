@@ -122,6 +122,7 @@ public partial class PlayRoot : Node3D
     public const string ScenePath = "res://Scenes/Play.tscn";
 
     private const long TickMicros = 1_000_000 / Sim.Hz;
+    private Demo.DemoXRayView? _demoXRay;
 
     private VirtualClock? _virtualClock;
     private Label? _status;
@@ -765,6 +766,16 @@ public partial class PlayRoot : Node3D
         }
 
         Pawns?.Draw(alpha, dt, firstPerson, aimer, drawnView);
+        if (Config.Demo is { XRay: true } && session.View.Valid && View is { } view && Pawns is { } pawns)
+        {
+            if (_demoXRay is null)
+            {
+                _demoXRay = new Demo.DemoXRayView();
+                AddChild(_demoXRay);
+            }
+            _demoXRay.Draw(view.Camera, pawns.Views);
+        }
+        else _demoXRay?.Disable();
         session.Client.ReportRenderedFrame(alpha);
         Devices?.Draw(alpha, dt, Pawns);
         Map?.SoftBodies?.Update(dt, session.Client.World.Level, Audio?.Sound, session.LocalPawn);
@@ -825,6 +836,7 @@ public partial class PlayRoot : Node3D
         Session = null;
         _spyShadowLighting = null;
         Config.Demo?.Dispose();
+        _demoXRay = null;
         Devices = null;
         Conveyors = null;
         Pawns = null;

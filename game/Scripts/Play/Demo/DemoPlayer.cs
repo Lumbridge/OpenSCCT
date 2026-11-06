@@ -103,6 +103,9 @@ public sealed class DemoPlayer : IDisposable
 
     public DemoClock Clock { get; } = new();
 
+    /// <summary>Show player outlines through walls while watching this recording.</summary>
+    public bool XRay { get; set; }
+
     public ClientSession? Client { get; private set; }
 
     public PlaySession? Session { get; private set; }
@@ -172,6 +175,7 @@ public sealed class DemoPlayer : IDisposable
         {
             Mode = Mode,
             Look = Look,
+            XRay = XRay,
             _targetPlayerId = _targetPlayerId,
             _freeLocation = _freeLocation,
             _freePlaced = _freePlaced,
