@@ -11,6 +11,40 @@ namespace OpenScct.Integration.Tests;
 
 public sealed class BombPresentationNetTests
 {
+    [Fact]
+    public void OffsD_generator_blast_effect_expires_without_replaying_when_the_viewer_returns()
+    {
+        Assert.SkipWhen(WalkerRig.Maps.FindFolder("OffsD") is null, "OffsD content is required.");
+        using WalkerRig rig = WalkerRig.Create(null, 9714, 1,
+            new ServerSettings { Map = "OffsD", GameOptions = "?GameMode=5?TimeLimit=0", PlayersToStart = 4, Profile = NetProfile.Enhanced },
+            new ClientSettings { Gameplay = true });
+        Steps(rig, 180);
+        Level server = rig.Server.World.Level;
+        Level client = rig.Clients[0].World.Level;
+        SObjective objective = rig.Server.Map.MapActors.OfType<SObjective>().Single(o => o.ObjectiveName == "Generator Room");
+        var bomb = objective.Triggers.OfType<SBombTargetObjectiveTrigger>().First();
+        objective.Reset();
+
+        // Drive the relevancy boundary directly so room geometry and the viewer's spawn do not affect the check.
+        bool relevant = true;
+        rig.Server.Driver.Relevancy.Register(MK.BombEmitterClass.Path!, (_, _, in _) => relevant);
+        bomb.eventTakeObjective();
+        Steps(rig, 30);
+        var effect = Assert.Single(server.Actors.OfType<SMineProxEmitter>());
+        var copy = Assert.Single(client.Actors.OfType<SMineProxEmitter>());
+
+        relevant = false;
+        Steps(rig, 6 * Sim.Hz);
+        relevant = true;
+        Steps(rig, 30);
+        Assert.Same(copy, Assert.Single(client.Actors.OfType<SMineProxEmitter>()));
+
+        Steps(rig, 3 * Sim.Hz);
+        Assert.True(effect.bDeleteMe);
+        Assert.True(copy.bDeleteMe);
+        Assert.Empty(client.Actors.OfType<SMineProxEmitter>());
+    }
+
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
