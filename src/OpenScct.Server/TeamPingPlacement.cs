@@ -15,6 +15,7 @@ public static class TeamPingPlacement
     public const float FallbackRange = 1200f;
     private const float EndpointTolerance = 8f;
     private const float ChaseCameraTolerance = 300f;
+    private const ETraceFlags PlacementTrace = ETraceFlags.TRACE_World | ETraceFlags.TRACE_VisibleSurface;
 
     public static bool TryGetTeam(SPlayerController? player, out byte team)
     {
@@ -97,7 +98,7 @@ public static class TeamPingPlacement
 
         FVector direction = cameraRotation.Vector();
         FVector end = cameraLocation + direction * TraceRange;
-        target = world.LineCheck(out FCheckResult hit, source, end, cameraLocation, FVector.Zero, ETraceFlags.TRACE_World) && hit.bHit
+        target = world.LineCheck(out FCheckResult hit, source, end, cameraLocation, FVector.Zero, PlacementTrace) && hit.bHit
             ? hit.Location
             : cameraLocation + direction * FallbackRange;
         return IsFinite(target);
@@ -115,7 +116,7 @@ public static class TeamPingPlacement
             return false;
         }
 
-        return !world.LineCheck(out FCheckResult hit, source, target, origin, FVector.Zero, ETraceFlags.TRACE_World) ||
+        return !world.LineCheck(out FCheckResult hit, source, target, origin, FVector.Zero, PlacementTrace) ||
             !hit.bHit || FVector.DistSquared(hit.Location, target) <= EndpointTolerance * EndpointTolerance;
     }
 

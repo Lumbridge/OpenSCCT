@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using OpenScct.Content.Collision;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
 using OpenScct.Game.Equipment;
@@ -196,6 +197,25 @@ public sealed class TeamPingPlacementTests
         Assert.True(TeamPingPlacement.TryValidateTarget(player, pawn, eye + new FVector(-4200, 0, 0)));
         Assert.False(TeamPingPlacement.TryValidateTarget(player, pawn, eye + new FVector(-4500, 0, 0)));
         Assert.False(TeamPingPlacement.TryValidateTarget(player, pawn, new FVector(float.NaN, 0, 0)));
+    }
+
+    [Fact]
+    public void SpyPingFollowsTheDrawnRayPastSimplifiedAndInvisibleCollision()
+    {
+        var geometry = new CollisionDataBuilder();
+        ushort invisible = geometry.AddMaterial(flags: CollisionMaterialFlags.Invisible);
+        geometry.AddBox(new FVector(300, -100, 0), new FVector(330, 100, 200), invisible);
+        geometry.AddBoxMeshCollider(ColliderKind.MeshPoly, null, CollisionDataBuilder.WorldFlags,
+            [(new FVector(1500, -100, 0), new FVector(1520, 100, 200))]);
+        geometry.AddBoxHullCollider(ColliderKind.MeshHull, null, CollisionDataBuilder.WorldFlags,
+            new FVector(100, -100, 0), new FVector(1520, 100, 200));
+        var (_, player, pawn) = CreatePlayer(geometry: geometry);
+        FVector camera = new(-250, 0, 80);
+
+        Assert.True(TeamPingPlacement.TryProjectTarget(player, pawn, camera, default, out FVector target));
+        Assert.InRange(target.X, 1498f, 1500f);
+        Assert.True(TeamPingPlacement.TryValidateTarget(player, pawn, target));
+        Assert.False(TeamPingPlacement.TryValidateTarget(player, pawn, new FVector(1600, 0, 80)));
     }
 
     private static (World World, SPlayerController Player, SBasePawn Pawn) CreatePlayer(bool merc = false,

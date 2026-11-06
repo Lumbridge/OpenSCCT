@@ -89,6 +89,7 @@ public sealed partial class CollisionWorld
         public int BestMaterial;
         public Actor? BestActor;
 
+        public readonly bool VisibleSurface => Zero && (Flags & ETraceFlags.TRACE_VisibleSurface) != 0;
         public readonly float Limit => !Collect && !StopAtFirst && HasHit ? SvmMath.Min(1f, BestPulled + MaxPull) : 1f;
     }
 
@@ -403,7 +404,8 @@ public sealed partial class CollisionWorld
         _stamp++;
         if ((q.Flags & GeometryBits) != 0)
         {
-            if (q.Zero)
+            // The solid-leaf walk stops at invisible BSP too. Trace individual faces for visual targeting.
+            if (q.Zero && !q.VisibleSurface)
             {
                 BspLineCheck(ref q);
                 if (q.Done)
@@ -605,14 +607,15 @@ public sealed partial class CollisionWorld
     private void TestTri(PrimitiveSet set, int i, ref Query q)
     {
         ref TriPrim t = ref set.Tris[i];
-        if (t.Degenerate || (q.Zero && t.Collider == _bspCollider) || !ColliderPasses(t.Collider, ref q))
+        if (t.Degenerate || (q.Zero && !q.VisibleSurface && t.Collider == _bspCollider) ||
+            !ColliderPasses(t.Collider, ref q) || (q.VisibleSurface && IsInvisibleSurface(t.Material)))
         {
             return;
         }
 
-        if (q.Zero && IsStaticMeshKind(_colliders[t.Collider].Kind))
+        if (q.Zero && (q.VisibleSurface || IsStaticMeshKind(_colliders[t.Collider].Kind)))
         {
-            // UStaticMesh::LineCheck tests a line against both faces of a collision triangle.
+            // Mesh line checks and visual picks accept either side of a triangle.
             if (StaticMeshSweep.LineTriangle(t, q.S, q.D, q.Limit, out float lt, out FVector ln))
             {
                 Consider(ref q, lt, Key(t.Collider, t.Item), ln, false, t.Collider, t.Item, t.Material, null);
@@ -646,7 +649,7 @@ public sealed partial class CollisionWorld
     private void TestHull(PrimitiveSet set, int i, ref Query q)
     {
         ref HullPrim h = ref set.Hulls[i];
-        if (!ColliderPasses(h.Collider, ref q))
+        if (!ColliderPasses(h.Collider, ref q) || (q.VisibleSurface && IsInvisibleSurface(h.Material)))
         {
             return;
         }
@@ -659,6 +662,10 @@ public sealed partial class CollisionWorld
             Consider(ref q, time, Key(h.Collider, h.Item), n, pen, h.Collider, h.Item, h.Material, null);
         }
     }
+
+    // Fake backdrops belong to the sky view.
+    private bool IsInvisibleSurface(int material) => (uint)material < (uint)_materials.Length &&
+        ((_materials[material].Flags & CollisionMaterialFlags.Invisible) != 0 || (_materialPolyFlags[material] & 0x81u) != 0);
 
     /// <summary>
     /// The query's box shrunk by <see cref="K.BoxContactSkin"/>: a BSP, brush or hull hit of a box counts only when the
@@ -805,6 +812,11 @@ public sealed partial class CollisionWorld
             return false;
         }
 
+        if (q.VisibleSurface && c.Kind != ColliderKind.WorldBsp && owner is Volume or { bHidden: true })
+        {
+            return false;
+        }
+
         if ((q.Flags & c.TraceBits) == 0)
         {
             return false;
@@ -825,14 +837,14 @@ public sealed partial class CollisionWorld
             }
         }
 
-        // Static meshes: the simple collision set unless the trace asks for shadows, else the per-poly set.
         bool shadow = (q.Flags & ETraceFlags.TRACE_ShadowCast) != 0;
-        if (c.SimpleTwin >= 0 && !shadow && _colliders[c.SimpleTwin].Enabled)
+        bool perPoly = shadow || q.VisibleSurface;
+        if (c.SimpleTwin >= 0 && !perPoly && _colliders[c.SimpleTwin].Enabled)
         {
             return false;
         }
 
-        if (c.PerPolyTwin >= 0 && shadow && _colliders[c.PerPolyTwin].Enabled)
+        if (c.PerPolyTwin >= 0 && perPoly && _colliders[c.PerPolyTwin].Enabled)
         {
             return false;
         }

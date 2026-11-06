@@ -76,4 +76,7 @@ public enum ETraceFlags : uint
     /// <summary>SVM channel: a bullet trace, which passes colliders flagged bulletGoesThrough (bBulletGoTru).</summary>
     [Provenance(ProvenanceKind.Estimated, "The original reports such hits through the FCheckResult pass-through word (BulletWentTru); the fire trace flags belong to the combat spec")]
     TRACE_Bullet = 0x0200_0000,
+
+    /// <summary>SVM line trace for visual targeting. Prefer mesh faces and skip surfaces that are not drawn.</summary>
+    TRACE_VisibleSurface = 0x0400_0000,
 }
