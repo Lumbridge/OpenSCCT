@@ -58,6 +58,7 @@ public sealed class PracticeBotCommandTests
         Assert.True(rig.RunUntil(() => messages.Any(line => line.StartsWith("Example:", StringComparison.Ordinal)), 5));
         Assert.Contains(messages, line => line.Contains("resets on respawn", StringComparison.Ordinal));
         Assert.DoesNotContain(rig.Server.Players, p => p.IsBot);
+        Assert.Null(rig.Server.RoundBots);
         if (!practice)
         {
             foreach (string command in new[] { "addbot spy", "kickbot all", "placebot merc", "botstop", "botresume", "bothealth all 10", "botweapon rifle", "botteam spy merc" })
@@ -74,6 +75,7 @@ public sealed class PracticeBotCommandTests
         Assert.Contains("stopped", Command("botstop"));
         Assert.Equal("No living merc bots to equip.", Command("botweapon shotgun"));
         Assert.Contains("Added 2", Command("addbot MERC 2"));
+        Assert.True(rig.Server.RoundBots!.Stopped);
         Assert.Contains("Added 1", Command("addbot spy"));
         Assert.True(rig.RunUntil(() => guest.Lobby.Players.Count(p => p.IsBot) == 3, 5));
         var bots = rig.Server.Players.Where(p => p.IsBot).Select(p => rig.Server.RoundBots!.ControllerOf(p.Id)!).ToArray();
@@ -142,8 +144,9 @@ public sealed class PracticeBotCommandTests
         Assert.True(rig.RunUntil(() => rig.Clients.All(c => c.State == OnlineClientState.Lobby), 10));
         foreach (var client in rig.Clients) client.SetReady(true);
         Assert.True(rig.RunUntil(() => host.State == OnlineClientState.Match && host.Session is not null && !ReferenceEquals(host.Session, previousSession) && host.Session.LocalPlayer?.Pawn is not null, 30), rig.Server.Status() + " | " + host.State + " | " + host.Error + " | " + string.Join(" | ", messages));
-        Assert.True(rig.Server.RoundBots!.Stopped);
+        Assert.Null(rig.Server.RoundBots);
         Assert.Contains("Added 1", Command("addbot merc"));
+        Assert.True(rig.Server.RoundBots!.Stopped);
         var respawning = Assert.IsType<SPlayerController>(rig.Server.RoundBots.ControllerOf(rig.Server.Players.Single(p => p.IsBot).Id));
         var beforeDeath = respawning.Pawn;
         respawning.PawnTakeDamage(10000, respawning.Pawn!, respawning.Pawn!.Location, default, SDamageType.Suicided);

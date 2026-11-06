@@ -1048,13 +1048,14 @@ internal sealed partial class MainForm : Form
         try
         {
             using Process? process = Process.Start(GameStart.Create(exe,
-                extraUserArgs: joinServerId is null ? null : [WebJoinRequest.GameArgumentPrefix + joinServerId]));
+                extraUserArgs: joinServerId is null ? null : [WebJoinRequest.GameArgumentPrefix + joinServerId],
+                graphicsDriver: GameRendererSettings.Load(LauncherLayout.GameUserData)));
             if (process is null) throw new IOException("The game process did not start.");
             SetStatus(joinServerId is null ? $"Started OpenSCCT {current}." : "Started OpenSCCT with your Join request. Continue in the game.", Theme.Accent);
             WindowState = FormWindowState.Minimized;
             return true;
         }
-        catch (Exception ex) when (ex is Win32Exception or IOException)
+        catch (Exception ex) when (ex is Win32Exception or IOException or UnauthorizedAccessException)
         {
             SetStatus("Could not start the game: " + ex.Message, Theme.Error);
             return false;
@@ -1063,14 +1064,44 @@ internal sealed partial class MainForm : Form
 
     private void OpenSettings()
     {
-        using var dialog = new SettingsForm(_settings, _layout, Palette);
+        string renderer = GameRendererSettings.Vulkan;
+        try
+        {
+            if (!_editorSelected) renderer = GameRendererSettings.Load(LauncherLayout.GameUserData);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            SetStatus("Could not read the game renderer: " + ex.Message, Theme.Error);
+            return;
+        }
+
+        using var dialog = new SettingsForm(_settings, _layout, Palette, renderer, _games.Running().Count > 0);
         if (dialog.ShowDialog(this) != DialogResult.OK)
         {
             return;
         }
 
-        _settings = dialog.Result;
-        _settings.Save(_layout.Settings);
+        try
+        {
+            if (dialog.CanChangeRenderer)
+            {
+                // The game keeps settings in memory and could overwrite a change made while it is running.
+                if (_games.Running().Count == 0)
+                    GameRendererSettings.Save(LauncherLayout.GameUserData, dialog.GraphicsDriver);
+                else if (dialog.GraphicsDriver != renderer)
+                {
+                    SetStatus("Close OpenSCCT before changing its renderer.", Theme.Warning);
+                    return;
+                }
+            }
+            dialog.Result.Save(_layout.Settings);
+            _settings = dialog.Result;
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            SetStatus("Could not save settings: " + ex.Message, Theme.Error);
+            return;
+        }
         if (_editorSelected)
         {
             _editorCheck = null;

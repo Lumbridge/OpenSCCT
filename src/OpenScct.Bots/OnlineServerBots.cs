@@ -89,7 +89,7 @@ public sealed class OnlineServerBots : IOnlineBotRunner
     public static OnlineBotPreparation Preparation(AiNavCache nav)
     {
         ArgumentNullException.ThrowIfNull(nav);
-        return (maps, map) => Task.Run(() => nav.Prepare(maps, map));
+        return (maps, map, activationMask) => Task.Run(() => nav.Prepare(maps, map, activationMask: activationMask));
     }
 
     public PlayerController? ControllerOf(int id)

@@ -87,6 +87,30 @@ Each Windows tab's settings includes its own update preferences, folder shortcut
 Save and Cancel stay visible while the settings scroll on smaller screens.
 The launcher gets updates from the public `Lumbridge/OpenSCCT` repository without a GitHub account or token.
 
+### Graphics renderer and startup recovery
+
+In the Windows launcher's **Game** tab, open **Settings > Renderer** to choose **Vulkan** or
+**Direct3D 12**, then **Save** and **PLAY**. Vulkan is selected for new installations and replaces the
+old **Default** choice. Close the game before changing its renderer.
+
+The updated game and launcher share this choice with **Options > Performance > Graphics driver (restart)**.
+Changing it preserves other graphics preferences, including latency settings. Editor settings do not
+change the game's renderer. The launcher also applies the choice when starting older game builds;
+update the game to keep its options in sync when saving other in-game settings.
+
+If Direct3D 12 prevents the game from opening, select **Vulkan** in the launcher. For older launchers
+without the renderer selector:
+
+1. In the launcher's **Game** tab, open **Settings**, then **Open game installation folder**.
+2. Open the folder for the installed game version, then open PowerShell in that folder and run:
+
+   ```powershell
+   .\OpenSCCT.exe --rendering-driver vulkan
+   ```
+
+3. Once the game opens, select **Vulkan** under **Options > Performance > Graphics driver (restart)**
+   and press **Apply**. Future launches from the launcher will use Vulkan too.
+
 ## Help and contributions
 
 Choose **Help** for documentation, bug reports, suggestions, existing issues and contribution guides.

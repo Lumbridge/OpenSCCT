@@ -14,8 +14,8 @@ namespace OpenScct.Launcher.Install;
 /// content\              game content built from the player's own install (later)
 /// maps\                 maps downloaded from the SCCT-Maps repository, read by the content build
 /// </code>
-/// The game's user:// data (settings, key bindings, saves) is in %APPDATA%\Godot\app_userdata\OpenSCCT and is never
-/// touched by the launcher.
+/// The game's user:// data (settings, key bindings, saves) is in %APPDATA%\Godot\app_userdata\OpenSCCT and is
+/// kept on uninstall; the launcher can update its renderer override.
 /// </summary>
 public sealed class LauncherLayout
 {
@@ -32,7 +32,7 @@ public sealed class LauncherLayout
         ? Path.Combine(XdgDataHome(), "OpenSCCT")
         : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "OpenSCCT");
 
-    /// <summary>Godot's user:// folder for the game; listed so it can be shown, never written or deleted.</summary>
+    /// <summary>Godot's user:// folder: shared renderer preference and settings-folder link; never deleted by the launcher.</summary>
     public static string GameUserData => GetGameUserData(LauncherPlatform.Current);
 
     public static string GetGameUserData(LauncherPlatform platform) => platform.IsLinux

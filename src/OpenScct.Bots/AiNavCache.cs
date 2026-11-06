@@ -152,7 +152,7 @@ public sealed class AiNavCache
     /// Builds (or loads) both sides' graphs of <paramref name="mapName"/> now, from a scratch server load of the map, so
     /// a real-time host does not stall on its first tick (SteeE takes tens of seconds to build in a Debug build).
     /// </summary>
-    public void Prepare(MapCatalog maps, string mapName, Action<string>? progress = null)
+    public void Prepare(MapCatalog maps, string mapName, Action<string>? progress = null, byte? activationMask = null)
     {
         ArgumentNullException.ThrowIfNull(maps);
         progress?.Invoke($"nav prepare map={mapName}");
@@ -162,7 +162,7 @@ public sealed class AiNavCache
             throw new InvalidOperationException($"Map {mapName} did not load: {error}");
         }
 
-        byte mask = world.Level.Info.GEActivationMask;
+        byte mask = activationMask ?? world.Level.Info.GEActivationMask;
         foreach (bool spy in new[] { true, false })
         {
             string side = spy ? "spy" : "merc";

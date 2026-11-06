@@ -18,6 +18,33 @@ public sealed class GameSettingsTests : IDisposable
         }
     }
 
+    [Theory]
+    [InlineData("{}")]
+    [InlineData("{\"graphics_driver\":\"Default\"}")]
+    [InlineData("{\"graphics_driver\":\"unknown\"}")]
+    [InlineData("{\"graphics_driver\":null}")]
+    public void GraphicsDriverDefaultsAndLegacyProfilesSelectVulkan(string json)
+    {
+        Assert.Equal("Vulkan", new GameSettings().GraphicsDriver);
+        GameSettings settings = GameSettings.FromJson(json);
+        Assert.Equal("Vulkan", settings.GraphicsDriver);
+        string path = Path.Combine(_dir, "settings.json");
+        settings.Save(path);
+        Assert.Equal("Vulkan", GameSettings.Load(path).GraphicsDriver);
+    }
+
+    [Theory]
+    [InlineData("Vulkan")]
+    [InlineData("Direct3D 12")]
+    public void ExplicitGraphicsDriverChoicesSurviveSaveAndLoad(string driver)
+    {
+        var settings = new GameSettings { GraphicsDriver = driver };
+        string path = Path.Combine(_dir, "settings.json");
+        settings.Save(path);
+        Assert.Equal(driver, GameSettings.Load(path).GraphicsDriver);
+        Assert.Equal(driver, settings.Clone().GraphicsDriver);
+    }
+
     [Fact]
     public void TeammateNamesPersistIndependentlyPerRole()
     {

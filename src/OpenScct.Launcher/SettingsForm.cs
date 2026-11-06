@@ -17,8 +17,14 @@ internal sealed class SettingsForm : Form
     private readonly CheckBox _prereleases = new() { Text = "Include game preview releases", AutoSize = true, ForeColor = Theme.Text };
     private readonly CheckBox _editorPrereleases = new() { Text = "Include editor preview releases", AutoSize = true, ForeColor = Theme.Text };
     private readonly CheckBox _checkOnStart = new() { Text = "Check for updates on startup", AutoSize = true, ForeColor = Theme.Text };
+    private readonly ComboBox _renderer = new()
+    {
+        Name = "GameRenderer", AccessibleName = "Game renderer", DropDownStyle = ComboBoxStyle.DropDownList, FlatStyle = FlatStyle.Flat,
+        BackColor = Theme.Panel, ForeColor = Theme.Text, Font = Theme.Body,
+    };
 
-    public SettingsForm(LauncherSettings settings, LauncherLayout layout, ThemePalette? palette = null)
+    public SettingsForm(LauncherSettings settings, LauncherLayout layout, ThemePalette? palette = null,
+        string graphicsDriver = GameRendererSettings.Vulkan, bool gameRunning = false)
     {
         ArgumentNullException.ThrowIfNull(settings);
         ArgumentNullException.ThrowIfNull(layout);
@@ -30,7 +36,7 @@ internal sealed class SettingsForm : Form
         Icon = _editorMode ? Theme.LoadEditorIcon(32) : Theme.LoadIcon(32);
         AutoScaleMode = AutoScaleMode.Dpi;
         AutoScaleDimensions = new SizeF(96f, 96f);
-        ClientSize = new Size(560, 440);
+        ClientSize = new Size(560, _editorMode ? 440 : 540);
         MinimumSize = new Size(460, 360);
         FormBorderStyle = FormBorderStyle.Sizable;
         MaximizeBox = false;
@@ -48,6 +54,10 @@ internal sealed class SettingsForm : Form
         _checkOnStart.Text = _editorMode ? "Check for editor updates on startup" : "Check for game updates on startup";
         _prereleases.Name = "IncludePreviewReleases";
         _checkOnStart.Name = _editorMode ? "CheckForEditorUpdatesOnStart" : "CheckForUpdatesOnStart";
+        _renderer.Items.AddRange(GameRendererSettings.Choices);
+        _renderer.SelectedItem = graphicsDriver;
+        if (_renderer.SelectedIndex < 0) _renderer.SelectedItem = GameRendererSettings.Vulkan;
+        _renderer.Enabled = !gameRunning;
 
         Button ok = Theme.Button("Save");
         ok.Name = "SaveSettings";
@@ -84,6 +94,14 @@ internal sealed class SettingsForm : Form
         Row(Theme.Label("Updates", Theme.Heading, Theme.Accent));
         Row(_checkOnStart, 6);
         Row(_editorMode ? _editorPrereleases : _prereleases, 4);
+        if (!_editorMode)
+        {
+            Row(Theme.Label("Renderer", Theme.Heading, Theme.Accent), 18);
+            Row(_renderer, 6);
+            Row(Theme.Wrapping(Theme.Label(gameRunning
+                ? "Close the game to change its renderer."
+                : "Used the next time the game starts. Vulkan is recommended; try it if Direct3D 12 will not start.", Theme.Small, Theme.Muted)), 4);
+        }
         Row(Theme.Label("Folders", Theme.Heading, Theme.Accent), 18);
         if (_editorMode)
         {
@@ -118,6 +136,10 @@ internal sealed class SettingsForm : Form
     }
 
     public LauncherSettings Result { get; private set; }
+
+    public string GraphicsDriver => _renderer.SelectedItem as string ?? GameRendererSettings.Vulkan;
+
+    public bool CanChangeRenderer => !_editorMode && _renderer.Enabled;
 
     /// <summary>The player asked to remove downloaded game files; preferences and saves are kept.</summary>
     public bool RemoveGameFilesRequested { get; private set; }

@@ -43,4 +43,5 @@ project/assembly_name="OpenScctGame"
 [rendering]
 
 renderer/rendering_method="forward_plus"
-rendering_device/driver.windows="d3d12"
+; Keep Direct3D 12 opt-in: some laptops fail to start with it.
+rendering_device/driver.windows="vulkan"

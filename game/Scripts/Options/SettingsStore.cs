@@ -50,6 +50,18 @@ public static class SettingsStore
             s.Clamp();
         }
 
+        // The launcher or a recovery command can change the renderer before this settings file is read.
+        // Show the driver the engine actually started, so applying another setting keeps that choice.
+        if (OperatingSystem.IsWindows() && DisplayServer.GetName() != "headless")
+        {
+            s.GraphicsDriver = RenderingServer.GetCurrentRenderingDriverName() switch
+            {
+                "vulkan" => "Vulkan",
+                "d3d12" => "Direct3D 12",
+                _ => s.GraphicsDriver,
+            };
+        }
+
         return s;
     }
 

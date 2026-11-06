@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using OpenScct.Launcher.Settings;
 
 namespace OpenScct.Launcher.Launch;
 
@@ -12,7 +13,7 @@ namespace OpenScct.Launcher.Launch;
 /// </summary>
 public static class GameStart
 {
-    public static ProcessStartInfo Create(string exePath, IEnumerable<string>? extraUserArgs = null)
+    public static ProcessStartInfo Create(string exePath, IEnumerable<string>? extraUserArgs = null, string? graphicsDriver = null)
     {
         ArgumentException.ThrowIfNullOrEmpty(exePath);
         var info = new ProcessStartInfo(exePath)
@@ -23,6 +24,12 @@ public static class GameStart
 
         info.Environment.Remove("SVM_GAME_ROOT");
         info.Environment.Remove("SVM_CONTENT");
+
+        if (graphicsDriver is not null)
+        {
+            info.ArgumentList.Add("--rendering-driver");
+            info.ArgumentList.Add(GameRendererSettings.ToDriverName(graphicsDriver));
+        }
 
         var user = new List<string>();
 

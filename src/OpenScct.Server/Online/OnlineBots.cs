@@ -50,10 +50,11 @@ public interface IOnlineBotRunner : IDisposable
 public delegate IOnlineBotRunner OnlineBotFactory(ServerHost host, MapCatalog maps, IReadOnlyList<OnlineBot> bots);
 
 /// <summary>
-/// Prepares a map's bot navigation before travel, while the session keeps its lobby connections alive. The task
-/// must use its own world and finish before <see cref="OnlineBotFactory"/> uses the prepared navigation.
+/// Prepares a map's bot navigation while the session keeps ticking. A null activation mask uses the map's initial
+/// traversal state; live practice commands pass the current mask. The task must use its own world and finish
+/// before <see cref="OnlineBotFactory"/> uses the prepared navigation.
 /// </summary>
-public delegate Task OnlineBotPreparation(MapCatalog maps, string map);
+public delegate Task OnlineBotPreparation(MapCatalog maps, string map, byte? activationMask);
 
 /// <summary>Who the session's bots are: how many on each side for the humans in the lobby, and their names.</summary>
 public static class OnlineBotRoster

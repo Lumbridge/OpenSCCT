@@ -97,6 +97,7 @@ master see (`SessionPhase`):
      host's Launch pressed again (the page button reads Cancel) cancels it. With bots, cold navigation is prepared
      on a worker before map travel; the lobby stays connected and shows "Preparing bots for this map…" with
      **Cancel start** available. A preparation failure leaves everyone in the lobby with the reason.
+     With no bots in the roster, launch skips bot preparation, including in practice mode.
 2. **Loading.** The server travels to the map with the setup's URL options (`?MapName=...?GameMode=5?...?NBPlayers=n`)
    and the game's `SGameInfo` spawned during the load; each player logs in with its lobby side
    (`?Team=`, and in a revenge series `?GamesInARow=` so `Login` swaps the sides of the second game, spec/game/
@@ -237,7 +238,9 @@ Skill** Easy, Normal, Hard or Expert (docs/AI.md, "Difficulty"). The dedicated s
   counts it), and drives it with the game's AI (`AiController`) on the server's thread. Clients see the bots as any
   other player. The results list them. Navigation is prepared while the lobby keeps ticking, using the same cache
   as the round's bots. Bot login finishes during map creation before the server accepts returning clients;
-  first-use navigation work consumes neither their travel timeout nor their loading timeout.
+  first-use navigation work consumes neither their travel timeout nor their loading timeout. An empty roster
+  creates no bot runner, even in practice mode; the first practice command that adds a bot prepares navigation
+  asynchronously, then creates the runner and executes the command while the session stays connected.
 - **Across maps** the bots stay in the session: the next game of a series makes them again on the new map's server,
   with the series count in their login, so Login swaps them in a revenge game as it swaps everyone; back in the lobby
   they are on their own sides again. The roster changes only in the lobby.

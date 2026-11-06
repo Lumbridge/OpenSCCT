@@ -819,7 +819,7 @@ public sealed partial class OnlineServer : IDisposable
     /// swaps them in a revenge game as it swaps the people. The bots log in and report waiting like loaded clients,
     /// so the start gate (its player count includes them) waits for them too.
     /// </summary>
-    private IOnlineBotRunner? StartBots(ServerHost host)
+    private IOnlineBotRunner? StartBots(ServerHost host, bool addingBot = false)
     {
         if (Settings.Bots is not { } factory)
         {
@@ -835,7 +835,8 @@ public sealed partial class OnlineServer : IDisposable
             }
         }
 
-        if (bots.Count == 0 && !Setup.Practice)
+        // Practice may add bots later, but an empty round must not build navigation during map loading.
+        if (bots.Count == 0 && !addingBot)
         {
             return null;
         }
@@ -950,6 +951,7 @@ public sealed partial class OnlineServer : IDisposable
         }
 
         Phase = phase;
+        if (phase != SessionPhase.Match) _pendingPracticeBotCommand = null;
         _phaseStart = phase == SessionPhase.Loading ? -1 : _now;
         if (phase == SessionPhase.Lobby)
         {
@@ -1077,26 +1079,15 @@ public sealed partial class OnlineServer : IDisposable
     }
 
     private bool PreparingBots => Phase == SessionPhase.Lobby && _countdownEnd >= 0 &&
-        _botPreparation is { IsCompleted: false };
+        _players.Exists(p => p.IsBot) && _botPreparation is { IsCompleted: false };
 
     private bool PrepareBotsForLaunch()
     {
-        if (Settings.PrepareBots is not { } prepare || (!Setup.Practice && !_players.Exists(p => p.IsBot))) return true;
+        if (Settings.PrepareBots is not { } prepare || !_players.Exists(p => p.IsBot)) return true;
         if (_botPreparation is null || !string.Equals(_botPreparationMap, Setup.Map, StringComparison.OrdinalIgnoreCase))
         {
             _botPreparationMap = Setup.Map;
-            try
-            {
-                _botPreparation = prepare(Maps, Setup.Map);
-            }
-            catch (Exception error) when (error is IOException or InvalidOperationException or UnauthorizedAccessException)
-            {
-                _botPreparation = Task.FromException(error);
-            }
-
-            // Observe failures even if the host cancels, changes map, or closes before preparation completes.
-            _ = _botPreparation.ContinueWith(task => { _ = task.Exception; }, CancellationToken.None,
-                TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Default);
+            _botPreparation = StartBotPreparation(prepare, Setup.Map);
             if (!_botPreparation.IsCompleted)
             {
                 Announce("Preparing bots for " + Setup.Map + ". The match will start when they are ready.");
@@ -1109,10 +1100,31 @@ public sealed partial class OnlineServer : IDisposable
 
         _botPreparationFailed = true;
         _countdownEnd = -1;
-        Announce("Could not prepare bots: " + (_botPreparation.Exception?.GetBaseException().Message ?? "preparation was cancelled."));
+        Announce(BotPreparationError(_botPreparation));
         BroadcastPhase();
         return false;
     }
+
+    private Task StartBotPreparation(OnlineBotPreparation prepare, string map, byte? activationMask = null)
+    {
+        Task preparation;
+        try
+        {
+            preparation = prepare(Maps, map, activationMask);
+        }
+        catch (Exception error) when (error is IOException or InvalidOperationException or UnauthorizedAccessException)
+        {
+            preparation = Task.FromException(error);
+        }
+
+        // Observe failures even if the host cancels, changes map, or closes before preparation completes.
+        _ = preparation.ContinueWith(task => { _ = task.Exception; }, CancellationToken.None,
+            TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Default);
+        return preparation;
+    }
+
+    private static string BotPreparationError(Task preparation) =>
+        "Could not prepare bots: " + (preparation.Exception?.GetBaseException().Message ?? "preparation was cancelled.");
 
     // ---- round --------------------------------------------------------------------------------------------------
 
@@ -1174,6 +1186,7 @@ public sealed partial class OnlineServer : IDisposable
 
     private void TickMatch()
     {
+        TickPracticeBotCommand();
         TickPractice();
         if (CountHumans(spectators: false) == 0 && _now - _phaseStart > 5 * Second)
         {

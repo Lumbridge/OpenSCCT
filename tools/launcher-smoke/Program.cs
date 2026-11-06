@@ -412,10 +412,10 @@ internal static class Program
         using var editorFixture = new Fixture(new Scenario("editor-ready", true, true, "Open Editor"));
         var dialogs = new (string Type, object?[] Args, Size Minimum, bool Editor)[]
         {
-            ("SettingsForm", [new LauncherSettings(), fixture.Layout, null], new Size(460, 360), false),
+            ("SettingsForm", [new LauncherSettings(), fixture.Layout, null, "Vulkan", false], new Size(460, 360), false),
             ("MapsForm", [http, fixture.Layout.Packs, null, null], new Size(620, 460), false),
             ("HelpForm", [context, null, null, null, null], new Size(480, 420), false),
-            ("SettingsForm", [new LauncherSettings { SelectedProduct = "Editor" }, editorFixture.Layout, editorPalette], new Size(460, 360), true),
+            ("SettingsForm", [new LauncherSettings { SelectedProduct = "Editor" }, editorFixture.Layout, editorPalette, "Vulkan", false], new Size(460, 360), true),
             ("MapsForm", [http, fixture.Layout.Packs, editorPalette, (Func<bool>)(() => true)], new Size(620, 460), true),
             ("HelpForm", [context, (Func<string, bool>)(_ => false), (Action<string>)(_ => { }), editorPalette, EditorVersion.ToString()], new Size(480, 420), true),
         };
@@ -483,6 +483,8 @@ internal static class Program
                 {
                     CheckBox preview = Walk(form).OfType<CheckBox>().Single(c => c.Name == (dialog.Editor ? "IncludeEditorPreviewReleases" : "IncludePreviewReleases"));
                     CheckBox startup = Walk(form).OfType<CheckBox>().Single(c => c.Name == (dialog.Editor ? "CheckForEditorUpdatesOnStart" : "CheckForUpdatesOnStart"));
+                    if (!dialog.Editor)
+                        Walk(form).OfType<ComboBox>().Single(c => c.Name == "GameRenderer").SelectedItem = "Direct3D 12";
                     preview.Checked = true;
                     startup.Checked = !startup.Checked;
                     type.GetMethod("Save", Hidden)!.Invoke(form, null);
@@ -495,6 +497,10 @@ internal static class Program
                             label + " saving changes active startup preference and preserves other product");
                         Check(!(bool)type.GetProperty("UninstallEditorRequested")!.GetValue(form)! && !(bool)type.GetProperty("RemoveGameFilesRequested")!.GetValue(form)!,
                             label + " saving settings requests no removal");
+                        Check((bool)type.GetProperty("CanChangeRenderer")!.GetValue(form)! == !dialog.Editor,
+                            label + " renderer changes are limited to game settings");
+                        Check((string)type.GetProperty("GraphicsDriver")!.GetValue(form)! == (dialog.Editor ? "Vulkan" : "Direct3D 12"),
+                            label + " saving retains the renderer selection");
                     });
                 }
             }
@@ -516,6 +522,18 @@ internal static class Program
         }
         Check(controls.OfType<Button>().Any(c => c.Name == (editor ? "UninstallEditor" : "RemoveGameFiles")), label + " correct removal action appears");
         Check(!controls.OfType<Button>().Any(c => c.Name == (editor ? "RemoveGameFiles" : "UninstallEditor")), label + " other product removal action is absent");
+        ComboBox? renderer = controls.OfType<ComboBox>().SingleOrDefault(c => c.Name == "GameRenderer");
+        if (editor)
+        {
+            Check(renderer is null, label + " editor settings omit the game renderer");
+        }
+        else
+        {
+            Check(renderer is not null && renderer.Enabled, label + " game renderer can be changed before launch");
+            Check(renderer!.Items.Cast<string>().SequenceEqual(new[] { "Vulkan", "Direct3D 12" }),
+                label + " renderer choices name Vulkan and Direct3D 12 without Default");
+            Check((string?)renderer.SelectedItem == "Vulkan", label + " Vulkan is selected initially");
+        }
         if (editor)
         {
             Button uninstall = controls.OfType<Button>().Single(c => c.Name == "UninstallEditor");
@@ -538,6 +556,11 @@ internal static class Program
         Button remove = controls.OfType<Button>().Single(c => c.Name == (editor ? "UninstallEditor" : "RemoveGameFiles"));
         if (!IsInClient(host, remove))
         {
+            // Follow keyboard focus to the action before forcing layout. Otherwise WinForms restores the
+            // earlier focused update checkbox into view during Settle, undoing the deliberate scroll.
+            for (int step = 0; step < controls.Length && host.ActiveControl != remove; step++)
+                host.SelectNextControl(host.ActiveControl, true, true, true, true);
+            Check(host.ActiveControl == remove, label + " keyboard traversal reaches the removal action");
             for (Control? parent = remove.Parent; parent is not null; parent = parent.Parent)
             {
                 if (parent is not ScrollableControl { AutoScroll: true } scroll) continue;
@@ -559,11 +582,29 @@ internal static class Program
                 using var fixture = new Fixture(new Scenario(state == "absent" ? "editor-absent" : state == "recovery" ? "editor-recovery" : "editor-ready", true, true, "Open Editor"));
                 if (state == "unmanaged") File.Delete(Path.Combine(fixture.Layout.Editor, ".launcher-managed"));
                 using Form form = (Form)Activator.CreateInstance(type, BindingFlags.Public | Hidden, null,
-                    new object?[] { new LauncherSettings { SelectedProduct = "Editor" }, fixture.Layout, null }, null)!;
+                    new object?[] { new LauncherSettings { SelectedProduct = "Editor" }, fixture.Layout, null, "Vulkan", false }, null)!;
                 Button uninstall = Walk(form).OfType<Button>().Single(c => c.Name == "UninstallEditor");
                 Check(uninstall.Enabled == (state == "recovery"), state + " editor uninstall availability follows launcher management");
                 Check(!(bool)type.GetProperty("UninstallEditorRequested")!.GetValue(form)!, state + " settings never requests uninstall on construction");
+                Check(!(bool)type.GetProperty("CanChangeRenderer")!.GetValue(form)!, state + " editor settings cannot change the game renderer");
+                Check(!Walk(form).Any(c => c.Name == "GameRenderer"), state + " editor settings have no game renderer control");
                 Check(File.Exists(fixture.LauncherPath), state + " settings inspection preserves fixture launcher");
+            });
+        }
+        foreach (string driver in new[] { "Vulkan", "Direct3D 12" })
+        {
+            Inspect(() =>
+            {
+                using var fixture = new Fixture(new Scenario("ready", true, true, "PLAY"));
+                using Form form = (Form)Activator.CreateInstance(type, BindingFlags.Public | Hidden, null,
+                    new object?[] { new LauncherSettings(), fixture.Layout, null, driver, true }, null)!;
+                ComboBox renderer = Walk(form).OfType<ComboBox>().Single(c => c.Name == "GameRenderer");
+                Check(!renderer.Enabled, driver + " renderer selection is disabled while the game runs");
+                Check(!(bool)type.GetProperty("CanChangeRenderer")!.GetValue(form)!, driver + " running game prevents renderer changes");
+                Check((string?)renderer.SelectedItem == driver, driver + " running game retains the loaded renderer choice");
+                type.GetMethod("Save", Hidden)!.Invoke(form, null);
+                Check((string)type.GetProperty("GraphicsDriver")!.GetValue(form)! == driver,
+                    driver + " saving other settings preserves the running game's renderer");
             });
         }
     }

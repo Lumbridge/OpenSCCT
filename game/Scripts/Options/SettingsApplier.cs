@@ -111,9 +111,8 @@ public static class SettingsApplier
         ArgumentNullException.ThrowIfNull(s);
         string? driver = OperatingSystem.IsWindows() ? s.GraphicsDriver switch
         {
-            "Vulkan" => "vulkan",
             "Direct3D 12" => "d3d12",
-            _ => null,
+            _ => "vulkan",
         } : null;
         bool lowLatency = s.LowLatencyMode != "Off";
         string path = ProjectSettings.GlobalizePath(StartOverridePath);
