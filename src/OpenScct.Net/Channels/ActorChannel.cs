@@ -9,8 +9,7 @@ namespace OpenScct.Net;
 /// Replicates one actor over one connection (UE2 UActorChannel), following spec/native/net-replication.md rules
 /// 9 to 18 and 23 to 25.
 /// <list type="bullet">
-/// <item>The first bunch is reliable (unreliable, and closing the channel, for bNetTemporary actors unless their
-/// class opts into persistent delivery) and carries
+/// <item>The first bunch is reliable (unreliable and closing the channel for one-shot actors) and carries
 /// the spawn information: a map actor (bStatic or bNoDelete) as its SVMap actor index, a dynamic one as its class,
 /// location and rotation. Later property bunches are unreliable.</item>
 /// <item>Properties are compared with the channel's shadow (<c>Recent</c>), which starts as the class defaults with
@@ -22,7 +21,7 @@ namespace OpenScct.Net;
 /// <item>Role and RemoteRole are compared as they are and written into each other's slot: the role swap.</item>
 /// </list>
 /// On a client the channel spawns or binds its actor and applies what arrives; closing it destroys a dynamic actor
-/// (not a bNetTemporary or torn-off one).
+/// unless it was delivered as a one-shot spawn or torn off.
 /// </summary>
 [UcNative("UActorChannel::ReplicateActor", Exe = 0x109e1300, Editor = 0x11142700)]
 public sealed partial class ActorChannel : Channel
@@ -54,6 +53,7 @@ public sealed partial class ActorChannel : Channel
     private bool _spawnAcked;
     private bool _mustStayDirty;
     private bool _stillInitial;
+    private bool _oneShotSpawn;
 
     public Actor? Actor { get; private set; }
 
@@ -157,7 +157,9 @@ public sealed partial class ActorChannel : Channel
         NetDriver driver = connection.Driver;
         RepLayout layout = info.Layout;
         bool first = !_sentInitial;
-        bool temporary = actor.bNetTemporary && info.Extension?.PersistentActorChannel != true;
+        // A recorder needs the open channel of a live emitter to restore it at a seek checkpoint.
+        bool temporary = actor.bNetTemporary && info.Extension?.PersistentActorChannel != true &&
+            !(connection.IsRecorder && actor is Emitter);
         bool reliable = first && !temporary;
 
         // Rule 9: the first time the opening is seen acknowledged, resend what went out unreliably before it.
@@ -450,6 +452,8 @@ public sealed partial class ActorChannel : Channel
             {
                 return;
             }
+
+            _oneShotSpawn = bunch.bClose && !bunch.bReliable;
         }
 
         Actor target = Actor!;
@@ -689,8 +693,7 @@ public sealed partial class ActorChannel : Channel
         else
         {
             driver.RemoveNetGuid(NetGuid);
-            if (!actor.bDeleteMe && (!actor.bNetTemporary || ClassInfo?.Extension?.PersistentActorChannel == true) &&
-                !actor.bStatic && !actor.bNoDelete)
+            if (!actor.bDeleteMe && !_oneShotSpawn && !actor.bStatic && !actor.bNoDelete)
             {
                 actor.XLevel.Destroy(actor);
             }

@@ -76,6 +76,7 @@ public sealed class DemoCheckpointTests
             objective.ObjectiveTaken = true;
             events.PlaySound(null, Cue, attenuate: false);
             events.SpawnEmitter(null, Burst, BurstLocation, FRotator.Zero);
+            var bomb = Assert.IsType<SMineProxEmitter>(play.Host.World.Level.Spawn<SMineProxEmitter>(spy.Location, default));
 
             StepTo(expectedCheckpoint);
             if (recorder.Writer.Index.CheckpointCount == 0) StepTo(expectedCheckpoint + 1);
@@ -83,8 +84,12 @@ public sealed class DemoCheckpointTests
             uint capturedAt = (uint)play.Host.World.TickCount;
             FVector grenadeLocation = oldGrenade.Location;
             float grenadeFuse = oldGrenade.TimerRate - oldGrenade.TimerCounter;
+            float bombLife = bomb.LifeSpan;
             Assert.True(FVector.Dist(grenadeOrigin, grenadeLocation) > 80f);
             Assert.InRange(grenadeFuse, 0.4f, 0.6f);
+            Assert.True(Assert.Single(play.Client.World.Level.Actors.OfType<SMineProxEmitter>()).bNetTemporary);
+            Assert.Null(Assert.Single(play.Host.Players).Connection.FindActorChannel(bomb));
+            Assert.NotNull(recorder.Connection.FindActorChannel(bomb));
 
             StepTo(expectedCheckpoint + 20);
             Assert.False(oldGrenade.bDeleteMe);
@@ -163,7 +168,10 @@ public sealed class DemoCheckpointTests
                 if (tick == checkpoint.StartTick)
                 {
                     CheckWorld(tick, before, afterCheckpoint: false);
-                    CheckPresentation(uninterrupted, restarted, tick);
+                    var restoredBomb = Assert.IsType<SMineProxEmitter>(restarted.Driver.FindActorByNetGuid((uint)bomb.ActorId));
+                    Assert.True(restoredBomb.bNetTemporary);
+                    Assert.InRange(MathF.Abs(restoredBomb.LifeSpan - bombLife), 0f, 2 * Sim.DeltaTime);
+                    CheckPresentation(uninterrupted, restarted, tick, restoredBomb);
                     var restoredGrenade = Assert.IsType<SProjFrag>(restarted.Driver.FindActorByNetGuid((uint)oldGrenade.ActorId));
                     Assert.InRange(FVector.Dist(restoredGrenade.Location, grenadeLocation), 0f, 12f);
                     Assert.InRange(MathF.Abs((restoredGrenade.TimerRate - restoredGrenade.TimerCounter) - grenadeFuse), 0f, 0.04f);
@@ -183,7 +191,7 @@ public sealed class DemoCheckpointTests
         }
     }
 
-    private static void CheckPresentation(ClientSession linear, ClientSession restarted, uint tick)
+    private static void CheckPresentation(ClientSession linear, ClientSession restarted, uint tick, SMineProxEmitter bomb)
     {
         var samples = new List<DemoPresentationSample>();
         linear.TakeDemoCheckpointPresentation(samples);
@@ -197,6 +205,8 @@ public sealed class DemoCheckpointTests
         var burst = Assert.Single(samples, sample => sample.Event.Kind == SimEventKind.SpawnEmitter && sample.Event.What == Burst);
         Assert.Equal(cue.Tick, burst.Tick);
         Assert.Equal(BurstLocation, burst.Event.Location);
+        var liveBomb = Assert.Single(samples, sample => sample.IsLiveEmitter && sample.Event.ActorId == bomb.ActorId);
+        Assert.InRange(tick - liveBomb.Tick, 20u, 32u);
         samples.Clear();
         restarted.TakeDemoCheckpointPresentation(samples);
         Assert.Empty(samples);
