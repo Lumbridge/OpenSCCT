@@ -17,11 +17,11 @@ namespace OpenScct.Bots;
 public sealed class OnlineServerBots : IOnlineBotRunner
 {
     private readonly ServerBots _bots;
-    private readonly IReadOnlyList<OnlineBot> _roster;
+    private readonly List<OnlineBot> _roster;
 
     private OnlineServerBots(ServerHost host, MapCatalog maps, IReadOnlyList<OnlineBot> roster, AiNavCache nav)
     {
-        _roster = roster;
+        _roster = new List<OnlineBot>(roster);
         var specs = new List<ServerBotSpec>(roster.Count);
         foreach (OnlineBot b in roster)
         {
@@ -49,6 +49,23 @@ public sealed class OnlineServerBots : IOnlineBotRunner
 
     /// <summary>The bots' log (login failures).</summary>
     public IReadOnlyList<string> Log => _bots.Log;
+
+    public bool Stopped { get => _bots.Stopped; set => _bots.Stopped = value; }
+
+    public PlayerController? Add(OnlineBot bot)
+    {
+        var pc = _bots.Add(new ServerBotSpec(bot.Name, bot.Team, AiDifficulty.For(bot.Skill)) { ExtraOptions = bot.LoginOptions });
+        if (pc is not null) _roster.Add(bot);
+        return pc;
+    }
+
+    public void Remove(int id)
+    {
+        if (ControllerOf(id) is { } pc) _bots.Remove(pc);
+        _roster.RemoveAll(b => b.Id == id);
+    }
+
+    public bool ChangeTeam(int id, byte team) => ControllerOf(id) is { } pc && _bots.ChangeTeam(pc, team);
 
     /// <summary>
     /// A factory for <see cref="OnlineServerSettings.Bots"/>; the navigation of each map is planned once and kept

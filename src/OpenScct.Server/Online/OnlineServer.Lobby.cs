@@ -861,11 +861,18 @@ public sealed partial class OnlineServer
         string arg = parts.Length > 1 ? parts[1].Trim() : string.Empty;
         switch (verb)
         {
-            case "help":
-                SendMessage(p, "!map <name> [mode], !next, !prev, !pings, !resign, !lagcomp [on|off|reset|<ms>], !login <password>" +
-                    (Settings.Dedicated ? ", !<map code> (lobby)" : string.Empty) +
-                    (CanModerate(p) ? ", !voiceban <name>, !unvoiceban <name>" : string.Empty) +
-                    (Setup.Practice ? ", " + PracticeHelp : string.Empty));
+            case "help" or "?":
+                if (arg.Length > 0)
+                {
+                    foreach (string line in PracticeBotCommands.GetHelp(arg, chat: true) ?? ["Use !help for chat commands, !help bots, or !help <bot command>."])
+                        SendMessage(p, line);
+                    return true;
+                }
+                SendMessage(p, "!help [bots|bot command] - Show commands or bot usage.");
+                SendMessage(p, "Maps: !map <name> [mode], !next, !prev" + (Settings.Dedicated ? ", !<map code> (lobby)" : string.Empty));
+                SendMessage(p, "Players: !pings, !resign | Server: !lagcomp [on|off|reset|<ms>], !login <password>");
+                if (CanModerate(p)) SendMessage(p, "Moderation: !voiceban <name>, !unvoiceban <name>");
+                if (Setup.Practice) SendMessage(p, "Practice: " + PracticeHelp);
                 return true;
             case "lagcomp":
                 if (arg.Length > 0 && !CanControl(p))
@@ -940,7 +947,7 @@ public sealed partial class OnlineServer
                 StepMap(verb == "next" ? 1 : -1);
                 return true;
             default:
-                return OnPracticeCommand(p, verb) || (arg.Length == 0 && OnLobbyMapSelection(p, verb));
+                return OnPracticeBotCommand(p, verb, arg) || OnPracticeCommand(p, verb) || (arg.Length == 0 && OnLobbyMapSelection(p, verb));
         }
     }
 

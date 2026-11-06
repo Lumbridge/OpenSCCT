@@ -35,6 +35,11 @@ public interface IOnlineBotRunner : IDisposable
 {
     /// <summary>The controller the bot with session id <paramref name="id"/> plays with, or null (not logged in yet, or failed).</summary>
     PlayerController? ControllerOf(int id);
+
+    bool Stopped { get; set; }
+    PlayerController? Add(OnlineBot bot);
+    void Remove(int id);
+    bool ChangeTeam(int id, byte team);
 }
 
 /// <summary>

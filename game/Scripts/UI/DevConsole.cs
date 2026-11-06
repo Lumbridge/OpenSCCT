@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using Godot;
 using OpenScct.Server.Online;
+using OpenScct.Server;
+using OpenScct.Net;
 using OpenScctGame.Chat;
 using OpenScctGame.Online;
 using OpenScctGame.Options;
@@ -33,6 +35,7 @@ public partial class DevConsole : CanvasLayer, IConsoleHost
     private string _typed = string.Empty;
     private int _historyAt;
     private OnlineClient? _client;
+    private ClientSession? _offlineClient;
 
     public DevConsole()
     {
@@ -71,7 +74,11 @@ public partial class DevConsole : CanvasLayer, IConsoleHost
         Print("OpenSCCT console. Type help for the commands; Escape closes it.");
     }
 
-    public override void _ExitTree() => Watch(null);
+    public override void _ExitTree()
+    {
+        Watch(null);
+        WatchOffline(null);
+    }
 
     public override void _Process(double delta)
     {
@@ -82,6 +89,7 @@ public partial class DevConsole : CanvasLayer, IConsoleHost
         }
 
         Watch(GetTree().Root.GetNodeOrNull<OnlineService>(OnlineService.NodeName)?.Client);
+        WatchOffline(!((IConsoleHost)this).Online && GetTree().CurrentScene is PlayRoot { Session: { } session } ? session.Client : null);
         if (IsOpen && _band is not null)
         {
             Vector2 size = GetViewport().GetVisibleRect().Size;
@@ -268,6 +276,19 @@ public partial class DevConsole : CanvasLayer, IConsoleHost
         }
     }
 
+    private void WatchOffline(ClientSession? client)
+    {
+        if (ReferenceEquals(_offlineClient, client)) return;
+        if (_offlineClient is not null) _offlineClient.ChatReceived -= OnOfflineMessage;
+        _offlineClient = client;
+        if (_offlineClient is not null) _offlineClient.ChatReceived += OnOfflineMessage;
+    }
+
+    private void OnOfflineMessage(ChatLine line)
+    {
+        if (line.SenderId == 0) Print(line.Text);
+    }
+
     // ---- IConsoleHost ---------------------------------------------------------------------------------------
 
     GameSettings IConsoleHost.Settings => SettingsStore.Current;
@@ -292,6 +313,14 @@ public partial class DevConsole : CanvasLayer, IConsoleHost
     void IConsoleHost.ServerLogin(string password) => _client?.Admin(password);
 
     void IConsoleHost.Chat(string text) => _client?.Chat(text);
+
+    bool IConsoleHost.CanSendBotCommands => ((IConsoleHost)this).Online || _offlineClient is not null;
+
+    void IConsoleHost.BotCommand(string command)
+    {
+        if (((IConsoleHost)this).Online) _client!.Chat("!" + command);
+        else _offlineClient?.SendChat(EChatScope.Say, "!" + command);
+    }
 
     string? IConsoleHost.LocationReport =>
         GetTree().CurrentScene is PlayRoot { Session: { LocalController: { } controller, LocalPawn: { } pawn } session }

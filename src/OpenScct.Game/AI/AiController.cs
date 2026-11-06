@@ -103,6 +103,9 @@ public sealed class AiController
     /// </summary>
     public bool Held { get; set; }
 
+    /// <summary>Practice stop: release actions, stand up where possible, and keep future pawns idle.</summary>
+    public bool Stopped { get; set; }
+
     /// <summary>The bot's team play (revive, heal, unspy, co-op moves), asked before the brain.</summary>
     public TeamAi TeamPlay { get; }
 
@@ -129,6 +132,18 @@ public sealed class AiController
         float dt = _lastTick < 0f ? Sim.DeltaTime : SvmMath.Clamp(now - _lastTick, 0f, 0.25f);
         _lastTick = now;
         World.Messages.Take(Controller, _messages);
+        if (Stopped)
+        {
+            var idle = AiInput.Idle;
+            if (Controller.Pawn is SBasePawn { Health: > 0 } stoppedPawn)
+            {
+                Stance(stoppedPawn, ref idle, false, now);
+                stoppedPawn.Acceleration = default;
+                if (stoppedPawn.Physics == EPhysics.PHYS_Walking) stoppedPawn.Velocity = default;
+            }
+            Apply(idle);
+            return;
+        }
         if (Held)
         {
             Apply(AiInput.Idle);

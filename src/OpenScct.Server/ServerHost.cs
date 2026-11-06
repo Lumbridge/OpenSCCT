@@ -808,6 +808,9 @@ public sealed partial class ServerHost : INetworkNotify, IDisposable
         Driver.ResetConnectionPing(connection);
         if (Recorder is { IsFinished: false }) connection.ControlChannel?.Send(ControlMessage.TextLine(DemoViewRequest));
         PlayerJoined?.Invoke(slot);
+        // Offline sessions can own login in PlayerJoined. Keep their controller registered for
+        // player identity, scoreboard ownership and disconnect cleanup, just like the rules login above.
+        slot.Controller ??= connection.Actor as PlayerController;
         OfferTeamPings(connection);
     }
 

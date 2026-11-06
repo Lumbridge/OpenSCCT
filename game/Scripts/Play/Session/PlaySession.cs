@@ -73,7 +73,7 @@ public sealed class PlaySession : IDisposable
         var server = new ServerSettings
         {
             Map = map.Id,
-            MaxPlayers = 16,
+            MaxPlayers = settings.UnlimitedGear ? 24 : 16,
             NetRate = settings.NetRate,
             Profile = settings.NetworkProfile,
             MatchSeed = settings.MatchSeed,
@@ -87,7 +87,7 @@ public sealed class PlaySession : IDisposable
 
         // The bots' navigation is built (or loaded from its cache) before the host starts ticking.
         AiNavCache? nav = null;
-        if (settings.Bots > 0 || settings.Route is not null)
+        if (settings.Bots > 0 || settings.Route is not null || settings.UnlimitedGear)
         {
             nav = new AiNavCache();
             nav.Prepare(Catalog, map.Id, loadProgress);
@@ -119,6 +119,7 @@ public sealed class PlaySession : IDisposable
             Client = new ClientSession(_network.Bind("local-player-1"), HostAddress, _start, client, ownsTransport: true);
         }
 
+        Host.ChatFilter = OnPracticeBotChat;
         Client.World.Level.Info.m_dT = Sim.DeltaTime;
         Client.BeforeWorldTick += ApplyClientInput;
         InstallCombatNet();
@@ -550,7 +551,7 @@ public sealed class PlaySession : IDisposable
 
     private void AddBots(AiNavCache? nav)
     {
-        if (Settings.Bots <= 0 && Settings.Route is null)
+        if (Settings.Bots <= 0 && Settings.Route is null && !Settings.UnlimitedGear)
         {
             return;
         }
@@ -569,6 +570,27 @@ public sealed class PlaySession : IDisposable
             Maps = Catalog,
             TerminalsBlockPlayers = Settings.TerminalsBlockPlayers ?? true,
         });
+    }
+
+    private bool OnPracticeBotChat(PlayerSlot player, string text)
+    {
+        if (!text.StartsWith('!')) return false;
+        string[] parts = text[1..].Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length == 0) return false;
+        string verb = parts[0].ToLowerInvariant();
+        void Reply(string line) => player.Connection.ControlChannel?.Send(ControlMessage.Chat(new ChatLine(EChatScope.Say, 0, "Server", 255, line)));
+        if (verb is "help" or "?")
+        {
+            string topic = parts.Length > 1 ? parts[1].Trim() : "bots";
+            foreach (string line in PracticeBotCommands.GetHelp(topic, chat: true) ?? ["Use !help bots or !help <bot command>. For all console commands, type help in the console."])
+                Reply(line);
+            return true;
+        }
+        if (!PracticeBotCommands.IsCommand(verb)) return false;
+        string reply = Bots is null ? "Bot commands work in practice / Visit Map games only." :
+            PracticeBotCommands.Run(Host, Bots, player.Controller ?? player.Connection.Actor as PlayerController, Host.Settings.MaxPlayers, parts[0].ToLowerInvariant(), parts.Length > 1 ? parts[1] : "");
+        Reply(reply);
+        return true;
     }
 
     /// <summary>

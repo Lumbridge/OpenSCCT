@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using OpenScctGame.Options;
+using OpenScct.Server;
 
 namespace OpenScctGame.UI;
 
@@ -25,6 +26,10 @@ public interface IConsoleHost
     /// <summary>A chat line to the server (the <c>!</c> commands).</summary>
     void Chat(string text);
 
+    /// <summary>Bot commands also work in an offline Visit Map session.</summary>
+    bool CanSendBotCommands => Online;
+    void BotCommand(string command) => Chat("!" + command);
+
     /// <summary>The local player's current reproduction details, or null when there is no player in a map.</summary>
     string? LocationReport { get; }
 
@@ -45,8 +50,14 @@ public interface IConsoleHost
 public sealed class ConsoleCommands(IConsoleHost host)
 {
     public const string Help =
-        "set <key> <value> | get <key> | current | <key> [value] | login <password> | cmd <server command> | " +
-        "resign | pings | practice [on|off] | heal | regen | tank | kill | rmap_next | rmap_prev | map <name> [mode] | say <text> | whereami [copy] | quit";
+        "help [command|bots] - Show commands or detailed help.\n" +
+        "Settings: set <key> <value> | get <key> | current | <key> [value]\n" +
+        "Server: login <password> | cmd <server command> | say <text>\n" +
+        "Match: resign | pings | map <name> [mode] | rmap_next | rmap_prev\n" +
+        "Practice: practice [on|off] | heal | regen | tank | kill | ammo\n" +
+        "Bots (practice / Visit Map): addbot | kickbot | placebot | botstop | botresume\n" +
+        "Bot settings: bothealth | botweapon (mercs only) | botteam. Type help bots for usage.\n" +
+        "Location: whereami [copy] | Exit: quit";
 
     private readonly IConsoleHost _host = host ?? throw new ArgumentNullException(nameof(host));
 
@@ -65,7 +76,7 @@ public sealed class ConsoleCommands(IConsoleHost host)
         switch (verb)
         {
             case "help" or "?":
-                output.Add(Help);
+                output.AddRange(GetHelp(arg));
                 break;
             case "current":
                 output.AddRange(SettingsConsole.Current(_host.Settings));
@@ -121,6 +132,14 @@ public sealed class ConsoleCommands(IConsoleHost host)
                 // The host or an admin turns the server's practice mode on or off.
                 output.Add(Server(() => _host.ServerCommand("practice " + arg), true, string.Empty));
                 break;
+            case "addbot" or "kickbot" or "placebot" or "botstop" or "botresume" or "bothealth" or "botweapon" or "botteam":
+                if (!_host.CanSendBotCommands) output.Add("not in a game");
+                else
+                {
+                    _host.BotCommand(verb + (arg.Length > 0 ? " " + arg : ""));
+                    output.Add("sent to the server");
+                }
+                break;
             case "resign" or "pings" or "practice" or "heal" or "regen" or "tank" or "kill" or "ammo":
                 output.Add(Server(() => _host.Chat("!" + verb), true, string.Empty));
                 break;
@@ -145,6 +164,37 @@ public sealed class ConsoleCommands(IConsoleHost host)
         }
 
         return output;
+    }
+
+    private static IReadOnlyList<string> GetHelp(string topic)
+    {
+        if (topic.Length == 0) return Help.Split('\n');
+        if (PracticeBotCommands.GetHelp(topic) is { } bots) return bots;
+        string? detail = topic.ToLowerInvariant() switch
+        {
+            "help" or "?" => "help [command|bots] - Show commands or detailed help; available in menus too.",
+            "set" => "set <key> <value> - Change and save a setting. Use current to list keys.",
+            "get" => "get <key> - Show a setting's current value.",
+            "current" => "current - List all settings and their current values.",
+            "login" or "admin" => "login <password> - Log in as the server's admin.",
+            "cmd" => "cmd <server command> - Run a host/admin command. Use cmd help for the server's list.",
+            "say" => "say <text> - Send a chat message to the server.",
+            "resign" => "resign - Give up the current round by spending your remaining lives.",
+            "pings" => "pings - Show players' ping, jitter and packet loss.",
+            "map" => "map <name> [mode] - Select a map and optional game mode; requires session-control permission.",
+            "rmap_next" => "rmap_next - Select the next map; requires session-control permission.",
+            "rmap_prev" => "rmap_prev - Select the previous map; requires session-control permission.",
+            "practice" => "practice - Show practice information. practice on|off changes the mode (host/admin).",
+            "heal" => "heal - Restore your health and cure poison in practice.",
+            "regen" => "regen - Toggle your health regeneration in practice.",
+            "tank" => "tank - Toggle immunity to damage in practice (suicide still works).",
+            "kill" => "kill - Kill your current pawn in practice.",
+            "ammo" => "ammo - Refill your ammunition in practice.",
+            "whereami" => "whereami [copy] - Show map, position and view details; copy also copies them to the clipboard.",
+            "quit" or "exit" => "quit - Close the game.",
+            _ => null,
+        };
+        return [detail ?? $"No help for '{topic}'. Type help for commands or help bots for bot commands."];
     }
 
     private string Set(string key, string value)

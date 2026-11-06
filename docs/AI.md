@@ -28,6 +28,30 @@ OpenSCCT.exe -- --svm-play=SteeE --side=spy --bots=3 --difficulty=normal   # a 2
 - **Godot-free and deterministic.** [src/OpenScct.Game/AI](../src/OpenScct.Game/AI) follows the simulation rules (no Godot, no banned APIs, seeded
   random streams from the match seed and the bot index, ordered collections where order matters).
 
+## Practice and Visit Map commands
+
+Use these in the console, or prefix them with `!` in chat. Online practice requires the host/admin's session-control
+permission (including ordinary players on open dedicated servers). Visit Map accepts them from its local player.
+Type `help` for a command overview, `help bots` for bot usage, or `help botweapon` (or another command) for details.
+Chat supports `!help`, `!help bots` and `!help <bot command>`, including in Visit Map.
+
+| Command | Effect |
+|---|---|
+| `addbot <team> [number]` | Spawn bots on that side; number defaults to 1. |
+| `kickbot <team> [number]` | Remove the newest bots on that side; number defaults to 1. |
+| `kickbot all` | Remove every bot, leaving human players in the round. |
+| `placebot <team>` | Spawn one bot on clear floor a short distance ahead, facing you. Fails without adding a bot when blocked. |
+| `botstop` | Stop AI input and stand up where possible. Applies to existing bots, respawns and future spawns. Damage and physics still apply. |
+| `botresume` | Resume AI for all bots. |
+| `bothealth <team\|all> <health>` | Set living bots' current health to 1–10000. Resets on respawn. |
+| `botweapon <rifle\|uzi\|shotgun>` | Equip all living **merc bots** with the chosen gun. `rifle` restores their normal weapon. Resets on respawn. |
+| `botteam <from> <to> [number]` | Move bots between sides and respawn them with that role's gear; number defaults to 1. |
+
+Teams accept `spy`/`spies`/`0` and `merc`/`mercs`/`mercenary`/`mercenaries`/`1`, ignoring case. Counts are 1–24,
+subject to the session's player limit (24 including the player in Visit Map). Merc Deathmatch only accepts mercs.
+Online roster edits carry into the next lobby. Stop/resume lasts for the session, across map changes, until resumed
+or practice is disabled. These commands are unavailable in ordinary matches and tutorials.
+
 ## Layout
 
 | Path | What |

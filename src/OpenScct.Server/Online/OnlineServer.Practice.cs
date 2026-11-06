@@ -55,9 +55,11 @@ public sealed partial class OnlineServer
 
         _practice.Clear();
         _regen.Clear();
+        _practiceBotsStopped = false;
+        if (_bots is { } bots) bots.Stopped = false;
     }
 
-    private const string PracticeHelp = "!heal, !regen, !tank, !kill, !ammo";
+    private const string PracticeHelp = "!heal, !regen, !tank, !kill, !ammo. Use !help bots for bot commands";
 
     /// <summary>The practice chat commands; false when <paramref name="verb"/> is not one.</summary>
     private bool OnPracticeCommand(SessionPlayer p, string verb)

@@ -835,7 +835,7 @@ public sealed partial class OnlineServer : IDisposable
             }
         }
 
-        if (bots.Count == 0)
+        if (bots.Count == 0 && !Setup.Practice)
         {
             return null;
         }
@@ -843,6 +843,7 @@ public sealed partial class OnlineServer : IDisposable
         try
         {
             IOnlineBotRunner runner = factory(host, Maps, bots);
+            runner.Stopped = _practiceBotsStopped;
             Log($"{bots.Count} {Setup.BotSkill} bots on {host.Map.Name}");
             return runner;
         }
@@ -1080,7 +1081,7 @@ public sealed partial class OnlineServer : IDisposable
 
     private bool PrepareBotsForLaunch()
     {
-        if (Settings.PrepareBots is not { } prepare || !_players.Exists(p => p.IsBot)) return true;
+        if (Settings.PrepareBots is not { } prepare || (!Setup.Practice && !_players.Exists(p => p.IsBot))) return true;
         if (_botPreparation is null || !string.Equals(_botPreparationMap, Setup.Map, StringComparison.OrdinalIgnoreCase))
         {
             _botPreparationMap = Setup.Map;
