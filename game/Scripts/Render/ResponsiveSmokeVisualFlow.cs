@@ -88,8 +88,9 @@ internal static class ResponsiveSmokeVisualFlow
     private static void PrepareSource()
     {
         if (s_source is not null) return;
-        using FileAccess file = FileAccess.Open("res://Shaders/svm_smoke_flow.glsl",FileAccess.ModeFlags.Read);
-        s_source = file.GetAsText();
+        const string path = "res://Shaders/svm_smoke_flow.glsl";
+        s_source = FileAccess.GetFileAsString(path);
+        if (string.IsNullOrEmpty(s_source)) Error = $"Smoke flow shader {path} could not be read.";
     }
 
     /// <summary>Assigns stable slots immediately, then queues simulation before the view-volume integration.</summary>
@@ -182,8 +183,13 @@ internal static class ResponsiveSmokeVisualFlow
         s_rd = RenderingServer.GetRenderingDevice();
         if (s_rd is not { } rd) { Error = "Smoke flow requires a RenderingDevice."; return; }
         using var source = new RDShaderSource { Language = RenderingDevice.ShaderLanguage.Glsl, SourceCompute = s_source! };
-        using RDShaderSpirV spirv = rd.ShaderCompileSpirVFromSource(source);
-        if (!string.IsNullOrEmpty(spirv.CompileErrorCompute)) { Error = spirv.CompileErrorCompute; GD.PushError(Error); return; }
+        using RDShaderSpirV? spirv = rd.ShaderCompileSpirVFromSource(source);
+        if (spirv is null || !string.IsNullOrEmpty(spirv.CompileErrorCompute))
+        {
+            Error = spirv?.CompileErrorCompute ?? "Smoke flow shader compilation returned no SPIR-V.";
+            GD.PushError(Error);
+            return;
+        }
         s_shader = rd.ShaderCreateFromSpirV(spirv,"responsive_smoke_flow");
         s_pipeline = rd.ComputePipelineCreate(s_shader);
         s_sampler = rd.SamplerCreate(new RDSamplerState { MinFilter = RenderingDevice.SamplerFilter.Linear,
