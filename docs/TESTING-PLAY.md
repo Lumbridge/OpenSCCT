@@ -251,6 +251,41 @@ remain unchanged. Actual camera projection matrices cover narrow, ordinary, very
 With `tools/ci/godot-smoke.ps1 -Tests spot-shadow-cookies -Windowed`, a shader also samples the global cookie array
 and checks its layer count and colours. Headless runs omit that GPU check. No converted map content is needed.
 
+## Nearby grenade crashes
+
+Use the network lab for the multiplayer death boundary:
+
+```powershell
+pwsh tools/network-lab.ps1 -Action Run -Scenario grenade -Map AquaE -Windowed -Dedicated -Lives 2 -RespawnSeconds 3 -NetworkProfile typical -HostFps 144 -GuestFps 30 -LoadDelayMs 0
+```
+
+This uses two rendered client processes, a separate server and an impaired UDP link. It places the
+spy near the merc, then throws through normal alt-fire with ordinary health, projectile flight,
+bouncing and fuse. Both players must render the explosion, lose exactly one life and regain
+playable possession. `-ReverseRoles` swaps which side has the impaired link; omit `-Dedicated` for
+a threaded listen server. `-Lives 1` checks final-life round results. `-RenderingDriver vulkan` or
+`d3d12` selects the rendering backend. Traces and screenshots stay in the reported run directory.
+Sound playback is required on `-NetworkProfile direct` or `lan` and recorded on loss profiles,
+where the unreliable explosion sound message can be dropped.
+
+This caught a fatal-blast disconnect that the inline effect smoke below missed: blast input and
+corpse physics both advanced the owner, and a landing could exceed the server's per-tick movement
+budget. `OwnerLandingAndResultsTests` guards both airborne physics time and landing command emission
+for both teams and both blast-flight states. The lab remains necessary to exercise real throw input,
+independent clocks, presentation, death, respawn and round completion together.
+
+`--svm-smoke=nearby-grenade` runs SteeE as both spy and merc with the real render, audio and HUD,
+4x MSAA, and an inline listen server. Each side receives timed frag explosions at 650, 425, 100 and
+0 uu, eight simultaneous close explosions, then a lethal close explosion. It checks client effect
+delivery, particles, close-range damage, death, camera coordinates and session survival. Health is
+raised for the surviving cases; the final case uses ordinary health. This is a controlled reproduction,
+not a threaded multiplayer or hardware compatibility check. Converted gameplay content is required.
+
+Run `tools/ci/godot-smoke.ps1 -Tests nearby-grenade -Windowed` and check the process exit code as well
+as the verdict. For a driver comparison, launch Godot directly with `--rendering-driver vulkan` or
+`--rendering-driver d3d12` before `-- --svm-smoke=nearby-grenade --svm-smoke-timeout=240`.
+An optional `--svm-play=<map>` selects another map; its geometry can obstruct the distant blasts.
+
 ## Leaving a session and quitting (play-exit smoke)
 
 `--svm-smoke=play-exit` plays two sessions in one process (`SVM_EXIT_SESSIONS` for more), each left the way the

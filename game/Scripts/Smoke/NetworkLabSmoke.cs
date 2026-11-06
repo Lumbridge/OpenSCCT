@@ -219,9 +219,18 @@ public sealed class NetworkLabSmoke(bool host, bool observer = false, bool secon
                     particles = fx.ParticlesOf("SStickyCamEmitter"), peak = fx.PeakParticles.GetValueOrDefault("SStickyCamEmitter"),
                     started = fx.Started.GetValueOrDefault("SStickyCamEmitter"), missing = fx.Missing.ToArray(),
                 } : null,
+                grenadeFx = _root?.Fx?.Effects is { } grenadeFx ? new
+                {
+                    started = grenadeFx.Started.GetValueOrDefault(nameof(SGrenadeExplosion)),
+                    particles = grenadeFx.ParticlesOf(nameof(SGrenadeExplosion)),
+                    peak = grenadeFx.PeakParticles.GetValueOrDefault(nameof(SGrenadeExplosion)),
+                    flashes = grenadeFx.Started.GetValueOrDefault(nameof(SFlashLight_FragGrenade)),
+                } : null,
                 audio = _root?.Audio?.Sound is { } audio ? new
                 {
                     localPawn = audio.LocalPawnId, viewedActor = audio.ViewActorId,
+                    grenadeCalls = audio.Calls.Where(call => call.Sound == "Armes_impacts.Grenade.RA_GrenExpl")
+                        .Select(call => new { call.ActorId, call.Heard, outcome = call.Outcome.ToString() }).ToArray(),
                     voices = audio.CaptureVoices().Select(v => new
                     {
                         v.Call, v.Leaf, v.ActorId, v.Positional, v.Ambient, v.AtListener,

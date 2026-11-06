@@ -18,6 +18,64 @@ public sealed class OwnerLandingAndResultsTests
 {
     private sealed class Clock : IClock { public long NowMicroseconds { get; set; } }
 
+    [Theory]
+    [InlineData(PlaySide.Spy, "s_Blast")]
+    [InlineData(PlaySide.Merc, "s_Blast")]
+    [InlineData(PlaySide.Spy, "s_BlastFallAfterObstacle")]
+    [InlineData(PlaySide.Merc, "s_BlastFallAfterObstacle")]
+    public void FatalBlastAdvancesOwnerPhysicsOnlyOncePerTick(PlaySide side, string state)
+    {
+        using var rig = new SessionRig(side);
+        var pc = rig.Session.LocalController!;
+        var pawn = Assert.IsAssignableFrom<SBasePawn>(pc.Pawn);
+        // Isolate the airborne, already-fatal phase of a grenade hit. Both the blast
+        // controller and corpse animation still tick before the body has landed.
+        pawn.Health = -100;
+        pc.eventChangeState(new Name(state));
+        pc.m_LastSpecialMoveTime = pc.Level.TimeSeconds;
+        pawn.Location += new FVector(0, 0, 100);
+        pawn.Velocity = new FVector(0, 0, 100);
+        pawn.SetPhysics(EPhysics.PHYS_Falling);
+        var physics = new PhysicsMeter(pawn, pawn.XLevel.PhysicsDriver!);
+        pawn.XLevel.PhysicsDriver = physics;
+        rig.Step(1);
+        Assert.InRange(physics.Seconds, Sim.DeltaTime - 0.00001f, Sim.DeltaTime + 0.00001f);
+    }
+
+    [Theory]
+    [InlineData(PlaySide.Spy, "s_Blast")]
+    [InlineData(PlaySide.Merc, "s_Blast")]
+    [InlineData(PlaySide.Spy, "s_BlastFallAfterObstacle")]
+    [InlineData(PlaySide.Merc, "s_BlastFallAfterObstacle")]
+    public void FatalBlastLandingDoesNotSubmitAnotherMovementCommand(PlaySide side, string state)
+    {
+        using var rig = new SessionRig(side);
+        var pc = rig.Session.LocalController!;
+        var pawn = Assert.IsAssignableFrom<SBasePawn>(pc.Pawn);
+        var transport = rig.Session.Client.Movement.PeekEndpoint(pc)!.Sequenced!;
+        pawn.Health = -100;
+        pc.eventChangeState(new Name(state));
+        pc.fTimeOfBlast = pc.Level.TimeSeconds - 1;
+        pc.m_LastSpecialMoveTime = pc.Level.TimeSeconds;
+        pawn.Location += new FVector(0, 0, 1);
+        pawn.Velocity = new FVector(0, 0, -300);
+        pawn.SetPhysics(EPhysics.PHYS_Falling);
+        uint next = transport.NextSequence;
+        rig.Step(1);
+        Assert.True(pc.IsInState("s_Dead"), $"The body did not land: {pc.GetStateName()} at {pawn.Location}.");
+        Assert.Equal(next, transport.NextSequence);
+    }
+
+    private sealed class PhysicsMeter(Actor target, IActorPhysics inner) : IActorPhysics
+    {
+        public float Seconds;
+        public void performPhysics(Actor actor, float deltaSeconds)
+        {
+            if (ReferenceEquals(actor, target)) Seconds += deltaSeconds;
+            inner.performPhysics(actor, deltaSeconds);
+        }
+    }
+
     [Fact]
     public void HeadJumpKnockoutLowersTheRifleAndRestoresAnOrdinaryJumpAfterWaking()
     {

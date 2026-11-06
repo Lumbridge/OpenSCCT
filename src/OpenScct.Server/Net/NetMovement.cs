@@ -584,6 +584,8 @@ public sealed partial class NetMovementBridge : IMovementNet, IMoveEndpointSourc
     public bool RepositionsHeldPawnOnWorldClock(SBasePawn pawn) => pawn.m_AttackedBy is not null &&
         pawn.Controller is SPlayerController pc && PeekEndpoint(pc)?.Sequenced is not null;
 
+    private SPlayerController? _worldClockOwnerPhysics;
+
     public void BeforeOwnerAnimation(SBasePawn pawn)
     {
         if (pawn.Controller is not SPlayerController { bWaitingForReinit: false } pc) return;
@@ -606,7 +608,10 @@ public sealed partial class NetMovementBridge : IMovementNet, IMoveEndpointSourc
             // body still consumes root motion, braking and falling on the world clock. Neither boundary
             // starts a new prediction heartbeat after a potentially long period without player input.
             pawn.Acceleration = default;
-            pawn.XLevel.PhysicsDriver?.performPhysics(pawn, Sim.DeltaTime);
+            var previous = _worldClockOwnerPhysics;
+            _worldClockOwnerPhysics = pc;
+            try { pawn.XLevel.PhysicsDriver?.performPhysics(pawn, Sim.DeltaTime); }
+            finally { _worldClockOwnerPhysics = previous; }
         }
     }
 
@@ -706,10 +711,12 @@ public sealed partial class NetMovementBridge : IMovementNet, IMoveEndpointSourc
             return;
         }
 
-        // The original results state submits zero-acceleration moves. The sequenced protocol has already
-        // stopped gameplay at this boundary; a dead player may have authored no input for longer than its
-        // history window. Continue local body physics in BeforeOwnerAnimation without reopening that stream.
-        if (PC.bGameEnded && PeekEndpoint(PC)?.Sequenced is not null)
+        // Blast states keep submitting moves after a lethal hit, until the body lands. Dead bodies
+        // already advance in BeforeOwnerAnimation; predicting here would run their physics twice
+        // and let a landing split exceed the server's per-tick movement budget. Results also stop
+        // this stream, whose history may have expired while the player was dead.
+        if (PeekEndpoint(PC)?.Sequenced is not null &&
+            (PC.bGameEnded || PC.Pawn is SBasePawn body && SBasePawnMoves.IsCorpse(PC, body)))
         {
             if (PC.Pawn is { } pawn) pawn.Acceleration = FVector.Zero;
             return;
@@ -725,6 +732,9 @@ public sealed partial class NetMovementBridge : IMovementNet, IMoveEndpointSourc
     public void MyReplicateMoveWithoutMoving(SPlayerController PC, float LeftTime, FVector NewAccel)
     {
         if (PC.XLevel.World.IsReplaying) return;
+        // A corpse can land during world-clock physics. That landing has no input command to
+        // split. Keep splits from an actual prediction step, including one that becomes lethal.
+        if (ReferenceEquals(_worldClockOwnerPhysics, PC)) return;
         if (PC.bGameEnded && PeekEndpoint(PC)?.Sequenced is not null) return;
         if (!_driver.IsServer && EndpointOf(PC)?.Client is { } client)
         {

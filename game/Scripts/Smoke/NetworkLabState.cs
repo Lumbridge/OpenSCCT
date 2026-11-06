@@ -10,6 +10,7 @@ using OpenScct.Game.Combat;
 using OpenScct.Game.Camera;
 using OpenScct.Game.SBase;
 using OpenScct.Net;
+using OpenScct.Physics.Collision;
 using OpenScct.Server;
 
 namespace OpenScctGame.Smoke;
@@ -174,7 +175,8 @@ public static class NetworkLabState
         if (collision is null) return null;
         var extent = new FVector(pawn.CollisionRadius, pawn.CollisionRadius, pawn.CollisionHeight);
         return collision.LineCheck(out var hit, pawn, pawn.Location - new FVector(0, 0, 12),
-            pawn.Location + new FVector(0, 0, 2), extent, PlayInspector.WorldTrace) && hit.Normal.Z >= .7f;
+            pawn.Location + new FVector(0, 0, 2), extent,
+            ETraceFlags.TRACE_Level | ETraceFlags.TRACE_Movers | ETraceFlags.TRACE_LevelGeometry) && hit.Normal.Z >= .7f;
     }
 
     private static SGadGasMask? GasMask(SBasePawn p)

@@ -29,6 +29,7 @@ param(
     [ValidateSet('none','first','last')][string]$SpectatorDisconnect = 'none',
     [switch]$ReverseRoles,
     [switch]$Windowed,
+    [ValidateSet('vulkan','d3d12')][string]$RenderingDriver,
     [switch]$SkipBuild,
     [ValidateRange(0,75000)][int]$LoadDelayMs = 5000,
     [ValidateSet('direct','lan','typical','rough','asymmetric','limited')][string]$NetworkProfile = 'direct',
@@ -41,13 +42,16 @@ param(
     [string]$DedicatedExe,
     [ValidateSet('host','guest','observer','observer2')][string]$Role = 'host',
     [string]$CommandJson,
-    [ValidateSet('startup','load-timeout','jump','ledge','ledge-kill','stall','grab','fire','gadget','sticky-gas','camera-network','door-timer','audio','outage','stance','soak','death','elimination','roundtrip','rejoin','spectator','stale-combat')][string]$Scenario = 'startup',
+    [ValidateSet('startup','load-timeout','jump','ledge','ledge-kill','stall','grab','fire','gadget','grenade','sticky-gas','camera-network','door-timer','audio','outage','stance','soak','death','elimination','roundtrip','rejoin','spectator','stale-combat')][string]$Scenario = 'startup',
     [ValidateRange(30,900)][int]$TimeoutSeconds = 180
 )
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version 3
 $repo = Split-Path -Parent $PSScriptRoot
 if ($Dedicated -and $Hub) { throw 'Dedicated lab mode currently exercises regular sessions; use -Hub separately.' }
+if ($Scenario -eq 'grenade' -and ($Hub -or !$Windowed -or $Lives -lt 1 -or $RespawnSeconds -ne 3)) {
+    throw 'Grenade acceptance requires a rendered regular session with -Windowed -Lives 1 or 2 -RespawnSeconds 3.'
+}
 if ($Scenario -eq 'load-timeout' -and ($Action -ne 'Run' -or $Hub -or $LoadDelayMs -lt 65000)) {
     throw 'Load-timeout requires -Action Run, a regular session and -LoadDelayMs of at least 65000.'
 }
@@ -138,6 +142,83 @@ function Trace-Since([string]$roleName, [DateTimeOffset]$since) {
         }
     } finally { $reader.Dispose() }
 }
+function Assert-Grenade {
+    $mercRole = if ($ReverseRoles) { 'host' } else { 'guest' }
+    $spyRole = if ($ReverseRoles) { 'guest' } else { 'host' }
+    Invoke-Lab $mercRole @{op='input';steps=@(@{label='spawn protection expires';seconds=10})}
+    $merc = Own-Pawn (Read-Json (Join-Path $RunDirectory "$mercRole-status.json"))
+    $spy = Own-Pawn (Read-Json (Join-Path $RunDirectory "$spyRole-status.json"))
+    $before = @{}
+    foreach ($viewRole in @('host','guest')) { $before[$viewRole] = (Read-Json (Join-Path $RunDirectory "$viewRole-status.json")).localController }
+    # Only placement is a fixture. Normal alt-fire owns the throw, flight, bounce,
+    # fuse, damage, blast movement, death and respawn/round completion.
+    $positions = @()
+    foreach ($degrees in @(180,135,225,90,270,0,45,315)) {
+        $angle = $merc.yaw*2*[Math]::PI/65536 + $degrees*[Math]::PI/180
+        $positions += ,@(($merc.position[0]+150*[Math]::Cos($angle)),($merc.position[1]+150*[Math]::Sin($angle)),($merc.position[2]+$spy.height-$merc.height))
+    }
+    Invoke-Lab host @{op='place';player=$spy.name;positions=$positions;yaw=0;requireSupport=$true}
+    Invoke-Lab $spyRole @{op='input';steps=@(@{label='settle grenade target';seconds=1})}
+    $spy = Own-Pawn (Read-Json (Join-Path $RunDirectory "$spyRole-status.json"))
+    $yaw = [int]([Math]::Atan2($spy.position[1]-$merc.position[1],$spy.position[0]-$merc.position[0])*65536/(2*[Math]::PI))
+    Invoke-Lab $mercRole @{op='face';yaw=$yaw;pitch=-12000}
+    Invoke-Lab $spyRole @{op='face';yaw=($yaw+32768);pitch=-6000}
+    foreach ($viewRole in @('host','guest')) { Invoke-Lab $viewRole @{op='capture-sequence';seconds=9;interval=0.2} }
+    $since = [DateTimeOffset]::UtcNow
+    Invoke-Lab $mercRole @{op='input';steps=@(@{label='short frag throw';seconds=0.12;hold=@('bAltFire')},@{label='release frag';seconds=0.3})}
+    # Do not tie this wait to a gameplay input timeline: final-life results can
+    # legitimately replace that scene. Session failures must still fail the run.
+    $deadline = [DateTimeOffset]::UtcNow.AddSeconds(12)
+    do {
+        foreach ($viewRole in @('host','guest')) {
+            $status = Read-Json (Join-Path $RunDirectory "$viewRole-status.json")
+            if ($status.error -or $status.onlineError) { throw "$viewRole failed after grenade: $($status.error) $($status.onlineError)" }
+            if (([DateTimeOffset]::UtcNow - [DateTimeOffset]$status.utc).TotalSeconds -gt 5) { throw "$viewRole stopped reporting after grenade." }
+        }
+        Start-Sleep -Milliseconds 200
+    } while ([DateTimeOffset]::UtcNow -lt $deadline)
+    $source = @(Trace-Since server $since)
+    $views = @{}
+    foreach ($viewRole in @('host','guest')) {
+        $samples = @(Trace-Since $viewRole $since)
+        $views[$viewRole] = @{
+            particles=($samples | Where-Object {$null -ne $_.grenadeFx} | ForEach-Object {$_.grenadeFx.particles} | Measure-Object -Maximum).Maximum
+            explosions=($samples | Where-Object {$null -ne $_.grenadeFx} | ForEach-Object {$_.grenadeFx.started} | Measure-Object -Maximum).Maximum
+            sounds=@($samples | Where-Object {$null -ne $_.audio} | ForEach-Object {$_.audio.grenadeCalls} | Select-Object -Unique ActorId,Heard,outcome)
+            states=@($samples | Where-Object {$null -ne $_.localController} | ForEach-Object {$_.localController.state} | Sort-Object -Unique)
+        }
+    }
+    $projectiles = @($source | ForEach-Object {$_.server.grenades} | Select-Object -ExpandProperty id -Unique)
+    Write-Json (Join-Path $RunDirectory 'grenade-result.json') @{before=$before;views=$views;authoritativeGrenades=$projectiles;placementFixture=$true;normalThrowInput=$true}
+    if ($projectiles.Count -ne 1) { throw 'Expected exactly one normally thrown grenade.' }
+    foreach ($viewRole in @('host','guest')) {
+        $view = $views[$viewRole]
+        if ($view.explosions -ne 1 -or $view.particles -lt 1) { throw "$viewRole did not render exactly one explosion." }
+        # ClientHearSound is unreliable. Loss profiles can legitimately drop this
+        # one-shot event; direct/lan runs must exercise the audio playback path.
+        if ($NetworkProfile -in @('direct','lan') -and
+            !@($view.sounds | Where-Object {$_.Heard -and $_.outcome -eq 'Started'}).Count) { throw "$viewRole did not start the explosion sound." }
+        $name = $before[$viewRole].name
+        $pc = @($source[-1].server.players | Where-Object name -eq $name)[0].controller
+        if ($Lives -gt 1) {
+            if ($pc.deaths -ne $before[$viewRole].deaths+1 -or $pc.lives -ne $Lives-1) { throw "$viewRole did not record exactly one grenade death/life loss." }
+            if ($pc.gameEnded) { throw 'Grenade ended the round while both teams still had lives.' }
+            $null = Wait-Respawn $viewRole $before[$viewRole].pawn
+            Invoke-Lab $viewRole @{op='input';steps=@(@{label='movement after grenade respawn';seconds=0.5;hold=@('BT_Up')},@{seconds=0.5})}
+        } else {
+            $status = Read-Json (Join-Path $RunDirectory "$viewRole-status.json")
+            if ($status.phase -ne 'Results' -or !$status.results -or $status.results.WinningReason -ne 2) { throw "$viewRole missed final-life round results." }
+            # The first eliminated team ends damage processing, so the thrower
+            # can survive when the enemy receives the fatal damage first.
+            $deaths = $pc.deaths - $before[$viewRole].deaths
+            if ($deaths -lt 0 -or $deaths -gt 1 -or $pc.lives -ne $Lives-$deaths -or
+                ($pc.team -ne $status.results.WinningTeam -and $deaths -ne 1) -or
+                $status.results.WinningTeam -ne $source[-1].server.players[0].controller.winningTeam) {
+                throw "$viewRole final-life outcome disagrees with authoritative grenade deaths."
+            }
+        }
+    }
+}
 function Assert-Startup {
     if ($LoadDelayMs -lt 1000) { return 'NOT RUN: delayed-load barrier needs at least one second of injected load delay.' }
     $loading = Read-Json (Join-Path $RunDirectory 'guest-loading.json')
@@ -218,6 +299,7 @@ function Wait-Playing {
             if (!(Test-Path -LiteralPath $path)) { $ready = $false; continue }
             $status = Read-Json $path
             if ($status.error) { throw "$roleName failed: $($status.error)" }
+            if ($status.onlineError) { throw "$roleName failed to join: $($status.onlineError)" }
             if (!(Own-Pawn $status) -or !$status.pilotReady) { $ready = $false }
             elseif ($roleName -eq 'observer2' -and $SecondObserverTeam -ge 0 -and $status.localController.team -ne $SecondObserverTeam) {
                 throw 'Second observer joined the wrong team; use a build supporting observer2Team.'
@@ -315,6 +397,7 @@ if ($Action -in @('Start','Run')) {
             $fps = if ($roleName -eq 'host') { $HostFps } else { $GuestFps }
             $arguments = @('--log-file', (Join-Path $RunDirectory "$roleName.log"), '--max-fps',"$fps")
             if (!$GameExe) { $arguments = @('--path', (Join-Path $repo 'game')) + $arguments }
+            if ($RenderingDriver) { $arguments += @('--rendering-driver',$RenderingDriver) }
             if (!$Windowed) { $arguments += '--headless' }
             else { $arguments += @('--resolution','960x540','--position', $(if ($roleName -eq 'host') {'40,80'} else {'1020,80'})) }
             $arguments += @('--', "--svm-smoke=network-lab-$roleName", "--svm-smoke-timeout=$processLifetime")
@@ -385,6 +468,7 @@ switch ($Action) {
                 return
             }
             $startup = Assert-Startup
+            if ($Scenario -eq 'grenade') { Assert-Grenade }
             if ($Scenario -eq 'door-timer') {
                 if ($Map -ne 'PolaE' -or $Hub -or $Dedicated) { throw 'Door timer acceptance requires PolaE in a regular listen session.' }
                 $spyRole = if ($ReverseRoles) { 'guest' } else { 'host' }
