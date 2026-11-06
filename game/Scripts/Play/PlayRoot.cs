@@ -393,7 +393,12 @@ public partial class PlayRoot : Node3D
 
         // Server messages and chat for the HUD, the chat line, the HUD's keys and the player's settings; the In-Game
         // Menu on the ShowMenu key (Escape).
-        Menu = PlayMenu.Attach(this, Session, Controls, PlayHud.Attach(this, Session, Controls, Hud));
+        PlayHud.Parts hud = PlayHud.Attach(this, Session, Controls, Hud);
+        Menu = PlayMenu.Attach(this, Session, Controls, hud);
+        if (Config.Hud && Config.Demo is null && Config.Pilot is null && View is { } view)
+        {
+            TeamPingHud.Attach(this, Session, Controls, hud, view.Camera);
+        }
     }
 
     /// <summary>The local player's link totals for the network readout (main thread, between client ticks).</summary>

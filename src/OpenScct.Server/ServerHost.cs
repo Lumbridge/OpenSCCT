@@ -141,6 +141,9 @@ public sealed class PlayerSlot
 
     /// <summary>Free for the code that owns the session (an online session keeps its player record here).</summary>
     public object? Tag { get; set; }
+
+    internal bool SupportsTeamPings { get; set; }
+    internal long NextTeamPingTick { get; set; }
 }
 
 /// <summary>
@@ -556,6 +559,7 @@ public sealed partial class ServerHost : INetworkNotify, IDisposable
                 if (connection.State == EConnectionState.USOCK_Open)
                 {
                     if (ReceiveDemoView(connection, message.Text)) break;
+                    if (ReceiveTeamPing(connection, message.Text)) break;
                     if (Online.SessionProtocol.IsSession(message.Text))
                     {
                         SessionLineReceived?.Invoke(connection, connection.UserData as PlayerSlot, message.Text!);
@@ -804,6 +808,7 @@ public sealed partial class ServerHost : INetworkNotify, IDisposable
         Driver.ResetConnectionPing(connection);
         if (Recorder is { IsFinished: false }) connection.ControlChannel?.Send(ControlMessage.TextLine(DemoViewRequest));
         PlayerJoined?.Invoke(slot);
+        OfferTeamPings(connection);
     }
 
     public void Dispose()

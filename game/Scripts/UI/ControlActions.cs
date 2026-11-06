@@ -15,6 +15,9 @@ public sealed record ControlAction(string Id, string Category, string Label, str
 
 public static class ControlActions
 {
+    public const string PingId = "ping";
+    public const string PingCommand = "TeamPing";
+
     // Sources: LocalInput.Buttons/PlayerCommands; SPlayerController.CombatInput, Movement, CombatScope;
     // spec/equipment/{spy-shocker,grenade-throw,vision-goggles,merc-rifle}.md and UI/PlayMenu handlers.
     public static readonly IReadOnlyList<ControlAction> All =
@@ -72,6 +75,7 @@ public static class ControlActions
         A("hackcomms", "Communication", "Hack enemy communications", "Request communications hacking when available.", "Button bSpecialsChat", "bSpecialsChat"),
         A("chat", "Communication", "Chat", "Open public text chat.", "Talk", "Talk"),
         A("teamchat", "Communication", "Team chat", "Open team text chat.", "TeamTalk", "TeamTalk"),
+        A(PingId, "Communication", "Team ping", "Tap to mark the point you are looking at for your team. Hold to open the wheel, select with the mouse or right stick, and release to send.", PingCommand, PingCommand),
         A("voice", "Communication", "Push to talk", "Hold to transmit on the all channel; also forces transmission in voice activation mode.", "PushToTalk", "PushToTalk"),
         A("teamvoice", "Communication", "Team push to talk", "Hold to transmit to your team only.", "TeamPushToTalk", "TeamPushToTalk"),
         A("mute", "Communication", "Toggle microphone mute", "Mute or unmute your microphone.", "ToggleVoiceMute", "ToggleVoiceMute"),
@@ -91,7 +95,7 @@ public static class ControlActions
 
     public const string PadPrefix = "Action:";
     public const string VirtualPrefix = "svm-action:";
-    public static bool Direct(ControlAction action) => action.Category is not ("Communication" or "Interface") && action.Id != "er" || action.Id is "freecam" or "hidehud" or "hackcomms" or "session" or "menu" or "players" or "scoreboard_hold";
+    public static bool Direct(ControlAction action) => action.Category is not ("Communication" or "Interface") && action.Id != "er" || action.Id is "freecam" or "hidehud" or "hackcomms" or "session" or "menu" or "players" or "scoreboard_hold" or PingId;
     private static readonly IReadOnlyDictionary<string, IReadOnlyList<KeyAction>> DirectActions = All.Where(Direct)
         .ToDictionary(a => a.Id, a => (IReadOnlyList<KeyAction>)KeyLayout.Parse("[Engine.Input]\nIK_X=" + a.Command).Resolve("X"));
 

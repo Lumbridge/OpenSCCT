@@ -28,6 +28,7 @@ public sealed partial class BindingInput : Node
     public static bool HasConfiguredLayout => _requestedLayout is not null;
     public KeyLayout Layout => _layout;
     public event Action<string>? Released;
+    internal event Action? Resetting;
     public bool VoiceAllHeld => _voiceAll.Count > 0;
     public bool VoiceTeamHeld => _voiceTeam.Count > 0;
     public bool CaptureSuspended => _captureDepth > 0;
@@ -173,6 +174,7 @@ public sealed partial class BindingInput : Node
 
     public void ResetAll()
     {
+        Resetting?.Invoke();
         foreach (var ev in _state.Reset()) Released?.Invoke(ev.Key);
         _gameplayBlocked.UnionWith(_state.PhysicalDown);
         _voiceAll.Clear();

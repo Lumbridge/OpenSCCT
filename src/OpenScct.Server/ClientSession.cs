@@ -443,6 +443,7 @@ public sealed partial class ClientSession : INetworkNotify, IDisposable
                 if (ReceiveDemoCheckpointPresentation(message.Text)) break;
                 if (ReceiveDemoViewRequest(message.Text)) break;
                 if (ReceiveScoreboard(message.Text)) break;
+                if (ReceiveTeamPing(message.Text)) break;
                 if (Online.SessionProtocol.IsSession(message.Text))
                 {
                     SessionLineReceived?.Invoke(message.Text!);

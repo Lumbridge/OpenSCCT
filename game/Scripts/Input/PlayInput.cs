@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Godot;
 using OpenScctGame.Play.Session;
+using PawnType = OpenScct.Core.Engine.PawnType;
 
 namespace OpenScctGame.Controls;
 
@@ -22,6 +23,7 @@ public partial class PlayInput : Node
     private BindingInput? _bindingInput;
     private InputBindings? _bindings;
     public Func<OpenScct.Game.SBase.SPlayerController?>? Controller { get; set; }
+    public TeamPingInput TeamPing { get; } = new();
     private float _mouseX;
     private float _mouseY;
     private bool? _padWalk;
@@ -55,7 +57,11 @@ public partial class PlayInput : Node
         get => _bindings;
         set
         {
-            if (!ReferenceEquals(_bindings, value)) LocalActionsReset?.Invoke();
+            if (!ReferenceEquals(_bindings, value))
+            {
+                TeamPing.Cancel();
+                LocalActionsReset?.Invoke();
+            }
             _bindings = value;
             if (value is not null) BindingInput.SetLayout(value.Layout);
         }
@@ -64,12 +70,21 @@ public partial class PlayInput : Node
     public override void _Ready()
     {
         _bindingInput = BindingInput.Current;
-        if (_bindingInput is not null) _bindingInput.Released += ReleasePhysicalSource;
+        if (_bindingInput is not null)
+        {
+            _bindingInput.Released += ReleasePhysicalSource;
+            _bindingInput.Resetting += TeamPing.Cancel;
+        }
     }
 
     public override void _ExitTree()
     {
-        if (_bindingInput is not null) _bindingInput.Released -= ReleasePhysicalSource;
+        if (_bindingInput is not null)
+        {
+            _bindingInput.Released -= ReleasePhysicalSource;
+            _bindingInput.Resetting -= TeamPing.Cancel;
+        }
+        TeamPing.Cancel();
         if (Target is { } target) ClearHeld(target);
     }
 
@@ -125,7 +140,8 @@ public partial class PlayInput : Node
         }
         // HasFocus can remain true after a Windows foreground change. Capturing then routes
         // buttons to this inactive window without delivering keyboard or raw mouse movement.
-        if (!HasPlayFocus)
+        bool hasPlayFocus = HasPlayFocus;
+        if (!hasPlayFocus)
         {
             LosePlayFocus();
         }
@@ -140,6 +156,7 @@ public partial class PlayInput : Node
                 QueueRefocusCapture();
             }
         }
+        if (TeamPing.Active) TeamPing.Advance(Time.GetTicksMsec(), Enabled && (!RequireCapture || hasPlayFocus && IsCaptured));
         if (!_captureOnStart) return;
         if (!Enabled || !CapturePointer || (DisplayServer.GetName() == "headless" && !Pointer.Detached))
         {
@@ -186,6 +203,7 @@ public partial class PlayInput : Node
         if (!_foregroundLost)
         {
             _foregroundLost = true;
+            TeamPing.Cancel();
             BindingInput.Current?.ResetAll();
             _activationClickConsumed = false;
             // Windows may have released native capture before this notification or foreground check.
@@ -273,6 +291,11 @@ public partial class PlayInput : Node
         switch (@event)
         {
             case InputEventMouseMotion motion:
+                if (TeamPing.WheelOpen)
+                {
+                    TeamPing.MouseMotion(motion.Relative.X, motion.Relative.Y);
+                    break;
+                }
                 _mouseX += motion.Relative.X;
                 _mouseY -= motion.Relative.Y;
                 break;
@@ -304,6 +327,7 @@ public partial class PlayInput : Node
     /// <summary>Frees the pointer and releases every held key.</summary>
     public void ReleasePointer()
     {
+        TeamPing.Cancel();
         _captureOnStart = false;
         _recaptureOnFocus = false;
         OpenScctGame.Controls.Pointer.Mode = global::Godot.Input.MouseModeEnum.Visible;
@@ -329,10 +353,12 @@ public partial class PlayInput : Node
                 return;
             }
 
+            TryStartTeamPing(ik);
             _pending.Add((ik, true));
         }
         else if (_down.Remove(ik))
         {
+            if (TeamPing.Active) TeamPing.Release(ik, Time.GetTicksMsec());
             _pending.Add((ik, false));
         }
 
@@ -343,6 +369,25 @@ public partial class PlayInput : Node
             _pending.Add((ik, false));
         }
     }
+
+    private void TryStartTeamPing(string key)
+    {
+        if (TeamPing.Context is null || GodotKeys.IsPulse(key)) return;
+        foreach (KeyAction action in ActionsOf(key))
+        {
+            if (!IsTeamPing(action)) continue;
+            if (Enabled && HasInputFocus && (!RequireCapture || IsCaptured))
+            {
+                bool merc = Controller?.Invoke()?.SBPawn?.SPawnType is { } type
+                    ? type == PawnType.SPAWNDEFENSE : Bindings?.Side == PlaySide.Merc;
+                TeamPing.Press(key, Time.GetTicksMsec(), merc);
+            }
+            return;
+        }
+    }
+
+    private static bool IsTeamPing(KeyAction action) => action.Kind == KeyActionKind.Command &&
+        action.Name.Equals(UI.ControlActions.PingCommand, StringComparison.OrdinalIgnoreCase);
 
     private readonly List<(string Ik, bool Pressed)> _pending = new();
 
@@ -391,6 +436,7 @@ public partial class PlayInput : Node
 
             foreach (KeyAction a in ActionsOf(ik))
             {
+                if (IsTeamPing(a)) continue;
                 bool merc = Bindings.Side == PlaySide.Merc;
                 var behavior = Options.SettingsStore.Current.LookOf(merc, false);
                 if (!merc && a.Kind == KeyActionKind.Button && a.Name.Equals("bCloak", StringComparison.OrdinalIgnoreCase) &&
@@ -484,6 +530,7 @@ public partial class PlayInput : Node
     /// <summary>Releases every button (focus lost, pointer released).</summary>
     public void ClearHeld(LocalInput input)
     {
+        TeamPing.Cancel();
         LocalActionsReset?.Invoke();
         BindingInput.Current?.ResetGameplay();
         _physicalSources.Clear();

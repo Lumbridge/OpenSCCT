@@ -153,12 +153,16 @@ public partial class GamepadInput : Node
             _wasFlying = flying;
         }
         if (flying) down.RemoveWhere(c => IsFreeCamControl(swaps.PhysicalControl(c)));
+
+        bool wheelOpen = input.TeamPing.WheelOpen;
+        Vector2 look = pad.Aim || wheelOpen ? Stick(JoyAxis.RightX, JoyAxis.RightY, pad.DeadzoneRight) : Vector2.Zero;
+        if (wheelOpen) input.TeamPing.StickDirection(look.X, look.Y);
+
         if (pad.Binds) UpdateButtons(input, merc, down, delta);
         else { ReleaseButtons(); _buttonsState.Reset(down); }
 
-        if (pad.Aim && Session is { } session)
+        if (pad.Aim && !wheelOpen && Session is { } session)
         {
-            Vector2 look = Stick(JoyAxis.RightX, JoyAxis.RightY, pad.DeadzoneRight);
             LookSettings group = Settings.LookOf(merc, pad: true);
             float k = pad.LookSpeed * (float)delta * LegacyUnitsPerCount / MouseLook.UnitsPerCount;
             float clutch = group.ClutchOf(_clutchOne.Count > 0, _clutchTwo.Count > 0);
@@ -193,6 +197,8 @@ public partial class GamepadInput : Node
             string action = ev.Action;
             if (action == "Pad:walllaser")
                 action = (Session?.LocalPawn ?? input.Controller?.Invoke()?.SBPawn)?.WeaponLoaded == 2 ? "Action:weaponlaser" : "Action:wall";
+            if (!ev.Pressed && down.Contains(ev.Control) && _held.TryGetValue(ev.Control, out string? key))
+                input.TeamPing.CancelSource(key);
             Hold(input, ev.Control, action, ev.Pressed);
         }
     }
@@ -201,7 +207,11 @@ public partial class GamepadInput : Node
     {
         _buttonsState.ReleaseAll();
         foreach (PadBindingEvent ev in _actionState.ReleaseAll())
-            if (PlayInput is { } input) Hold(input, ev.Control, ev.Action, false);
+        {
+            if (PlayInput is not { } input) continue;
+            if (_held.TryGetValue(ev.Control, out string? key)) input.TeamPing.CancelSource(key);
+            Hold(input, ev.Control, ev.Action, false);
+        }
         _clutchOne.Clear();
         _clutchTwo.Clear();
     }
@@ -529,6 +539,7 @@ public partial class GamepadInput : Node
         {
             if (!GodotKeys.IsPulse(key))
             {
+                PlayInput?.TeamPing.CancelSource(key);
                 SendControl(PlayInput, key, false);
             }
         }

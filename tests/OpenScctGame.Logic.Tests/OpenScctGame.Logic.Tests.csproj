@@ -19,6 +19,7 @@
     <Compile Include="..\..\game\Scripts\UI\StatsModel.cs" Link="Linked\StatsModel.cs" />
     <Compile Include="..\..\game\Scripts\UI\RoundScoreboardModel.cs" Link="Linked\RoundScoreboardModel.cs" />
     <Compile Include="..\..\game\Scripts\Input\ScoreboardInputState.cs" Link="Linked\ScoreboardInputState.cs" />
+    <Compile Include="..\..\game\Scripts\Input\TeamPingInput.cs" Link="Linked\TeamPingInput.cs" />
     <Compile Include="..\..\game\Scripts\UI\MenuDashboardModel.cs" Link="Linked\MenuDashboardModel.cs" />
     <Compile Include="..\..\game\Scripts\UI\ConsoleCommands.cs" Link="Linked\ConsoleCommands.cs" />
     <Compile Include="..\..\game\Scripts\UI\PlayerLocationReport.cs" Link="Linked\PlayerLocationReport.cs" />

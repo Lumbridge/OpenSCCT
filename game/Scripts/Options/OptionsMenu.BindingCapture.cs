@@ -10,6 +10,8 @@ namespace OpenScctGame.Options;
 
 public partial class OptionsMenu
 {
+    private const string PadTeamPing = ControlActions.PadPrefix + ControlActions.PingId;
+
     private sealed class BindingCaptureSession
     {
         public required BindingEditor Editor;
@@ -206,6 +208,22 @@ public partial class OptionsMenu
     {
         if (_bindingCapture is not { } capture) return;
         PlaySide side = capture.Editor.Side;
+        if (!capture.Editor.Pad && capture.Entry.Action?.Id == ControlActions.PingId && GodotKeys.IsPulse(input))
+        {
+            capture.Status.Text = "Team ping needs a key or mouse button you can hold.";
+            return;
+        }
+        if (capture.Editor.Pad)
+        {
+            var buttons = _edit.Pad.ButtonsOf(side == PlaySide.Merc);
+            bool splitB = input == "B:Hold" || input == "B" && buttons.GetValueOrDefault("B:Hold", "").Length > 0;
+            bool splitsAnExistingPing = input == "B:Hold" && buttons.GetValueOrDefault("B", "") == PadTeamPing;
+            if (capture.Entry.PadAction == PadTeamPing && splitB || splitsAnExistingPing)
+            {
+                capture.Status.Text = "Team ping needs one button for both tap and hold. Use a different button or clear B's held action first.";
+                return;
+            }
+        }
         if (!capture.Editor.Pad && capture.Entry.Action is { } action && (action.Category == "Interface" || action.Id is "chat" or "teamchat" or "er") && GodotKeys.ToEvent(input) is not InputEventKey)
         {
             capture.Status.Text = "This action requires a keyboard key. Choose a key or keyboard combination.";
@@ -228,7 +246,8 @@ public partial class OptionsMenu
         }
         if (draft.CommandOf(key).Length == 0) { Apply(false); RebuildKeys(); return; }
         OpenBindingConflict("Key already assigned", GodotKeys.DisplayName(key) + " currently performs:\n" + DescribeBinding(draft, key, side),
-            () => Apply(true), oldKey is null ? null : () => draft.Swap(action, oldKey, key), () => Apply(false), side, false, action.Id, key);
+            () => Apply(true), oldKey is not null && CanSwapKeyboardInput(draft, key, oldKey) ? () => draft.Swap(action, oldKey, key) : null,
+            () => Apply(false), side, false, action.Id, key);
     }
 
     private void AssignCustomBinding(BindingEditor editor, BindingEntry entry, string? oldKey, string key)
@@ -244,8 +263,13 @@ public partial class OptionsMenu
         }
         if (destination.Length == 0) { Apply(false, false); RebuildKeys(); return; }
         OpenBindingConflict("Key already assigned", GodotKeys.DisplayName(key) + " currently performs:\n" + DescribeBinding(draft, key, editor.Side),
-            () => Apply(false, false), oldKey is null ? null : () => Apply(false, true), () => Apply(true, false), editor.Side, false, entry.Id, key);
+            () => Apply(false, false), oldKey is not null && CanSwapKeyboardInput(draft, key, oldKey) ? () => Apply(false, true) : null,
+            () => Apply(true, false), editor.Side, false, entry.Id, key);
     }
+
+    private static bool CanSwapKeyboardInput(ActionBindingDraft draft, string from, string to) => !GodotKeys.IsPulse(to) ||
+        !draft.Layout.Resolve(from).Any(action => action.Kind == KeyActionKind.Command &&
+            action.Name.Equals(ControlActions.PingCommand, StringComparison.OrdinalIgnoreCase));
 
     private void AssignPadBinding(BindingEditor editor, BindingEntry entry, string? oldControl, string control)
     {
@@ -264,8 +288,10 @@ public partial class OptionsMenu
         }
         if (destination.Length == 0) { Apply(false); RebuildKeys(); return; }
         string label = editor.Entries.FirstOrDefault(e => e.PadAction == destination)?.Label ?? destination;
+        bool canSwap = oldControl is not null && !(oldControl == "B:Hold" && destination == PadTeamPing) &&
+            !(oldControl == "B" && destination == PadTeamPing && buttons.GetValueOrDefault("B:Hold", "").Length > 0);
         OpenBindingConflict("Controller input already assigned", BindingDisplay(editor, new BindingSlot(control)) + " currently performs:\n" + label,
-            () => Apply(false), oldControl is null ? null : () => Apply(true), null, editor.Side, true, editor.View.Selected ?? entry.Id, control);
+            () => Apply(false), canSwap ? () => Apply(true) : null, null, editor.Side, true, editor.View.Selected ?? entry.Id, control);
     }
 
     private void OpenBindingConflict(string title, string existing, Action replace, Action? swap, Action? share, PlaySide side, bool pad, string actionId, string newInput)

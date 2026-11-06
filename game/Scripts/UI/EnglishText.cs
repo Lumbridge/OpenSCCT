@@ -63,6 +63,7 @@ public static class EnglishText
         ["HoldScoreboard"] = "Hold scoreboard",
         ["Talk"] = "Chat",
         ["TeamTalk"] = "Team chat",
+        ["TeamPing"] = "Team ping",
         ["PushToTalk"] = "Push to talk",
         ["ToggleVoiceMute"] = "Mute microphone",
         ["HideHud"] = "Hide HUD",
