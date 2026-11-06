@@ -50,6 +50,11 @@ public partial class LobbyRoomScreen
             {
                 SizeFlagsVertical = SizeFlags.ExpandFill,
             };
+            SettingsPicker.MapConfirmed += () =>
+            {
+                if (ApplyButton is { Disabled: false }) Apply();
+                else _settingsPanel?.Hide();
+            };
             map.AddChild(SettingsPicker);
         }
         _settingsMapPreview = new MapThumb(new Vector2(0, 180)) { Name = "SettingsMapPreview", SizeFlagsVertical = SizeFlags.ExpandFill };
@@ -138,7 +143,7 @@ public partial class LobbyRoomScreen
             Session.Members.Count(player => !player.IsBot && player.Side == HudSide.Merc));
         RefreshRecordingControls();
         bool canBrowse = Session.CanControl && SettingsPicker is not null;
-        _settingsMapHint!.Text = canBrowse ? "Select a map below. Changing map or mode loads its starting rules."
+        _settingsMapHint!.Text = canBrowse ? "Double-click a map to apply changes. Changing map or mode loads its starting rules."
             : "The current map and rules for this match.";
         if (SettingsPicker is not null)
         {

@@ -107,7 +107,7 @@ public partial class MenuFeedback : Node
         _hover?.Play();
     }
 
-    private static AudioStreamWav Tone(double duration, double startHz, double endHz)
+    internal static AudioStreamWav Tone(double duration, double startHz, double endHz)
     {
         const int rate = 44100;
         int samples = (int)(duration * rate);

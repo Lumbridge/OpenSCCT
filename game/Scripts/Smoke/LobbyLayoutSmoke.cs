@@ -39,6 +39,9 @@ public sealed class LobbyLayoutSmoke : SmokeTest
     private int _numberStage;
     private float _pictureMapHeight;
     private int _mapGroupBeforeView;
+    private int _randomMapStage, _randomMapReadyFrame;
+    private LobbySetup? _beforeRandomMap;
+    private string? _expectedRandomMap;
 
     private Vector2I ViewportSize => _liveResize ? new Vector2I(800, 600) : _sizes[_size];
     private string Resolution => $"{ViewportSize.X}x{ViewportSize.Y}" + (_liveResize ? "-resized" : "");
@@ -79,6 +82,7 @@ public sealed class LobbyLayoutSmoke : SmokeTest
             if (_screen is MenuPage page) page._Process(1.0);
             _frame = 0;
             _numberStage = 0;
+            _randomMapStage = 0;
         }
         _pilot!.Update();
         if (++_frame < 10) return SmokeResult.Running;
@@ -334,10 +338,13 @@ public sealed class LobbyLayoutSmoke : SmokeTest
                             "embedded map selection changes the draft without applying");
                         roomScreen.Parameters.Load(live);
                     }
+                    if (_size == 4 && _lastMapTile is { } lastMapTile)
+                        CheckMapDoubleClick(roomScreen, _session, lastMapTile);
                 }
                 ShowSettingsTab(roomScreen, 0);
                 return SmokeResult.Running;
             }
+            if (_frame == 96 && !roomScreen.MatchSettingsPanel!.Visible) Click(roomScreen, "MatchSettings");
             if (_frame < 100) return SmokeResult.Running;
             if (_frame == 100)
             {
@@ -352,23 +359,28 @@ public sealed class LobbyLayoutSmoke : SmokeTest
                 return SmokeResult.Running;
             }
             if (_frame < 112) return SmokeResult.Running;
-            if (roomScreen.FindChild("SettingsRecordDemos", true, false) is CheckBox recordDemos)
-                Expect(IsReachable(recordDemos) && !recordDemos.Disabled, "personal recording is reachable for hosts and clients");
-            else Expect(false, "settings contain a personal recording control");
-            CheckLayout(roomScreen, "Lobby player and recording settings");
-            CheckSettings(roomScreen);
-            MenuPage.Shot(roomScreen, $"lobby-settings-recording-{Resolution}-{_variant}");
-            if (_size == _sizes.Length - 1 && !_liveResize)
+            if (_frame == 112)
             {
-                // Shrink the same modal, tabs and map grid instead of rebuilding them at the new resolution.
-                _liveResize = true;
-                Resize(context.Tree, ViewportSize);
-                SettingsStore.Current.MapListView = false;
-                ShowSettingsTab(roomScreen, 0);
-                _frame = 16;
-                return SmokeResult.Running;
+                if (roomScreen.FindChild("SettingsRecordDemos", true, false) is CheckBox recordDemos)
+                    Expect(IsReachable(recordDemos) && !recordDemos.Disabled, "personal recording is reachable for hosts and clients");
+                else Expect(false, "settings contain a personal recording control");
+                CheckLayout(roomScreen, "Lobby player and recording settings");
+                CheckSettings(roomScreen);
+                MenuPage.Shot(roomScreen, $"lobby-settings-recording-{Resolution}-{_variant}");
+                if (_size == _sizes.Length - 1 && !_liveResize)
+                {
+                    // Shrink the same modal, tabs and map grid instead of rebuilding them at the new resolution.
+                    _liveResize = true;
+                    Resize(context.Tree, ViewportSize);
+                    SettingsStore.Current.MapListView = false;
+                    ShowSettingsTab(roomScreen, 0);
+                    _frame = 16;
+                    return SmokeResult.Running;
+                }
+                roomScreen.MatchSettingsPanel!.Visible = false;
             }
-            roomScreen.MatchSettingsPanel!.Visible = false;
+            if (_variant == 0 && (_size == 0 || _size == 4) && !StepRandomMap(roomScreen, _session!))
+                return SmokeResult.Running;
             if (_liveResize)
             {
                 roomScreen.MapPicture!.SetMap(_previewTexture, "Enhanced Aquarius");
@@ -391,7 +403,7 @@ public sealed class LobbyLayoutSmoke : SmokeTest
         SettingsStore.Current.MapView = _savedMapView;
         SettingsStore.Current.ActiveMapPlaylist = _savedPlaylist!;
         SettingsStore.Save(SettingsStore.Current);
-        return _problems.Count == 0 ? SmokeResult.Pass("host/client/offline and full 12v12 rosters with spectators, Game and Rules tabs, exact bot counts and player slots, personal recording, editable numbers and draft/apply/discard, alternate rules, embedded map pictures/list/thumbnail rows/search and five map groups, 9 resolutions from 800x600 to 3840x2160 and live resize from 4K to 800x600")
+        return _problems.Count == 0 ? SmokeResult.Pass("host/client/offline and full 12v12 rosters with spectators, Game and Rules tabs, exact bot counts and player slots, personal recording, editable numbers and draft/apply/discard, alternate rules, embedded map pictures/list/thumbnail rows/search and five map groups, double-click map apply, random map playlist/cancel/apply, 9 resolutions from 800x600 to 3840x2160 and live resize from 4K to 800x600")
             : SmokeResult.Fail(string.Join("; ", _problems.Take(15)));
     }
 
@@ -668,8 +680,117 @@ public sealed class LobbyLayoutSmoke : SmokeTest
     private void Expect(bool condition, string message) { if (!condition) _problems.Add($"{Resolution} variant {_variant}: {message}"); }
     private static void Click(Node root, string name) => (root.FindChild(name, true, false) as Button)?.EmitSignal(BaseButton.SignalName.Pressed);
 
+    private void CheckMapDoubleClick(LobbyRoomScreen room, FixtureLobby session, Button tile)
+    {
+        var live = session.Setup;
+        string map = tile.Name.ToString()[4..];
+        Vector2 at = tile.GetGlobalTransformWithCanvas() * (tile.Size * 0.5f);
+        Viewport viewport = tile.GetViewport();
+        viewport.PushInput(new InputEventMouseMotion { Position = at, GlobalPosition = at }, inLocalCoords: true);
+        ClickMap(doubleClick: false);
+        Expect(map != live.Map && room.Parameters!.Setup.Map == map && session.Setup == live && room.MatchSettingsPanel!.Visible,
+            "a real single click selects a map in the draft");
+        ClickMap(doubleClick: true);
+        Expect(session.Setup.Map == map && !room.MatchSettingsPanel!.Visible,
+            "double-click applies the selected map and closes match settings");
+        void ClickMap(bool doubleClick)
+        {
+            viewport.PushInput(new InputEventMouseButton
+            {
+                ButtonIndex = MouseButton.Left, Pressed = true, DoubleClick = doubleClick, Position = at, GlobalPosition = at,
+            }, inLocalCoords: true);
+            viewport.PushInput(new InputEventMouseButton
+            {
+                ButtonIndex = MouseButton.Left, Position = at, GlobalPosition = at,
+            }, inLocalCoords: true);
+        }
+    }
+
+    private bool StepRandomMap(LobbyRoomScreen room, FixtureLobby session)
+    {
+        var open = (Button)room.FindChild("RandomMap", true, false)!;
+        var dialog = room.GetNodeOrNull<RandomMapDialog>("RandomMapDialog");
+        switch (_randomMapStage)
+        {
+            case 0:
+                _beforeRandomMap = session.Setup;
+                EnsureVisible(open);
+                break;
+            case 1:
+                if (!_pilot!.Click(open, "open random map")) return false;
+                break;
+            case 2:
+                if (_pilot!.Busy) return false;
+                Expect(dialog is not null && room.MainButton!.FocusMode == Control.FocusModeEnum.None, "random map opens as a modal");
+                if (dialog is null) return true;
+                Click(dialog, "SpinMap");
+                break;
+            case 3:
+                room.GetViewport().PushInput(new InputEventKey { Keycode = Key.Escape, Pressed = true });
+                Expect(dialog?.IsQueuedForDeletion() == true && room.GetNodeOrNull("LeaveLobbyConfirmation") is null &&
+                    session.Setup == _beforeRandomMap, "Escape cancels a spin without leaving or changing the lobby");
+                break;
+            case 4:
+                Click(room, "RandomMap");
+                break;
+            case 5:
+                if (dialog is null) { Expect(false, "random map can reopen after cancellation"); return true; }
+                var playlist = (OptionButton)dialog.FindChild("RandomMapPlaylist", true, false)!;
+                // The same test also runs in CI without shared map assets, where only All has entries.
+                int selected = Enumerable.Range(1, playlist.ItemCount - 1).FirstOrDefault(i => !playlist.IsItemDisabled(i));
+                playlist.Select(selected);
+                playlist.EmitSignal(OptionButton.SignalName.ItemSelected, (long)selected);
+                Click(dialog, "SpinMap");
+                Expect(playlist.Disabled && ((Button)dialog.FindChild("UseRandomMap", true, false)!).Disabled,
+                    "playlist and apply are locked while cards are moving");
+                break;
+            case 6:
+                if (dialog is null) { Expect(false, "random map stays open until confirmed"); return true; }
+                var use = (Button)dialog.FindChild("UseRandomMap", true, false)!;
+                if (use.Disabled) return false;
+                var panel = (Control)dialog.FindChild("RandomMapPanel", true, false)!;
+                var reel = (Control)dialog.FindChild("MapReel", true, false)!;
+                var card = reel.GetNode<Control>("ReelTrack/WinningMapCard");
+                var title = (Label)card.FindChild("MapTitle", true, false)!;
+                var result = (Label)dialog.FindChild("RandomMapResult", true, false)!;
+                Expect(ViewportRect.Encloses(panel.GetGlobalRect()) && panel.GetGlobalRect().Encloses(use.GetGlobalRect()),
+                    "random map and its confirmation fit the viewport");
+                Expect(Mathf.IsEqualApprox(card.GetGlobalRect().GetCenter().X, reel.GetGlobalRect().GetCenter().X) &&
+                    title.Text == result.Text && session.Setup == _beforeRandomMap,
+                    "reel centers the revealed map and waits for confirmation");
+                var selectedPlaylist = (OptionButton)dialog.FindChild("RandomMapPlaylist", true, false)!;
+                var filters = OnlineService.Get(room.GetTree()).Catalog.Maps.GetMapFilters();
+                MapPlaylist? group = selectedPlaylist.Selected == 0 ? null : filters.FirstOrDefault(filter =>
+                    selectedPlaylist.Text.StartsWith(MapPickerView.PlaylistTitle(filter) + "  ·", StringComparison.Ordinal));
+                _expectedRandomMap = session.Maps.FirstOrDefault(map => map.Title == result.Text &&
+                    (group is null || group.Maps.Contains(map.Id, StringComparer.OrdinalIgnoreCase))).Id;
+                Expect(_expectedRandomMap is not null, "the revealed map belongs to the selected playlist");
+                _randomMapReadyFrame = _frame;
+                break;
+            case 7:
+                if (_frame < _randomMapReadyFrame + 12) return false;
+                MenuPage.Shot(room, $"lobby-random-map-{Resolution}");
+                if (!_pilot!.Click(dialog?.FindChild("UseRandomMap", true, false) as Button, "use random map")) return false;
+                break;
+            default:
+                if (_pilot!.Busy) return false;
+                Expect(dialog is null && session.Setup.Map == _expectedRandomMap &&
+                    room.GetViewport().GuiGetFocusOwner() == open, "using the winner changes the lobby map and restores focus");
+                Click(room, "RandomMap");
+                var pending = room.GetNodeOrNull<RandomMapDialog>("RandomMapDialog");
+                session.Launching = true;
+                session.Notify();
+                Expect(open.Disabled && pending?.IsQueuedForDeletion() == true, "starting a match closes and disables the random map picker");
+                return true;
+        }
+        _randomMapStage++;
+        return false;
+    }
+
     private void CheckInteractions(LobbyRoomScreen room, FixtureLobby session)
     {
+        Expect((room.FindChild("RandomMap", true, false) as Button)?.Visible == session.CanControl,
+            "only hosts can use Random map");
         room.GetViewport().PushInput(new InputEventKey { Keycode = Key.Escape, Pressed = true });
         var leave = room.GetNodeOrNull<ConfirmBox>("LeaveLobbyConfirmation");
         Expect(leave is not null && session.Leaves == 0, "Escape asks before leaving lobby");

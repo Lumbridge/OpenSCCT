@@ -11,7 +11,8 @@ public partial class LobbyRoomScreen
 {
     private PanelContainer? _settingsPanel;
     private Label? _overviewTitle, _overviewRules, _overviewObjective, _loadout, _draftStatus;
-    private Button? _rulesButton, _joinSpiesButton, _mapButton;
+    private Button? _rulesButton, _joinSpiesButton, _mapButton, _randomMapButton;
+    private RandomMapDialog? _randomMapDialog;
     private Label? _settingsDraftNote;
     private CheckBox? _recordDemos;
     private Label? _recordingNote;
@@ -52,6 +53,7 @@ public partial class LobbyRoomScreen
         EquipmentButton = LobbyPanels.Button("Equipment", OpenEquipment, "Equipment"); actions.AddChild(EquipmentButton);
         ArmouryButton = LobbyPanels.Button("Cosmetics", OpenArmoury, "Armoury"); actions.AddChild(ArmouryButton);
         _rulesButton = LobbyPanels.Button("Session Options", OpenMatchSettings, "MatchSettings"); actions.AddChild(_rulesButton);
+        _randomMapButton = LobbyPanels.Button("Random map", OpenRandomMap, "RandomMap"); actions.AddChild(_randomMapButton);
         BriefingButton = LobbyPanels.Button("Briefing", OpenBriefing, "Briefing"); actions.AddChild(BriefingButton);
         actions.AddChild(LobbyPanels.Button("Strategic map", OpenStrategicMap, "StrategicMap"));
         SpectateButton = LobbyPanels.Button("Spectate", session.Spectate, "Spectate"); SpectateButton.SizeFlagsHorizontal = SizeFlags.ExpandFill; sideActions.AddChild(SpectateButton);
@@ -234,12 +236,33 @@ public partial class LobbyRoomScreen
     private void UpdateOverview()
     {
         if (Session is not { } s || _overviewTitle is null) return;
+        _randomMapButton!.Visible = s.CanControl;
+        _randomMapButton.Disabled = !CanRollMap(s);
+        if (_randomMapButton.Disabled && IsInstanceValid(_randomMapDialog)) _randomMapDialog!.Close();
         _overviewTitle.Text = MapTitle(s.Setup.Map) + "\n" + CreateSessionModel.ModeName(s.Setup.Mode);
         _overviewRules!.Text = LobbyPresentation.Rules(s.Setup);
         _overviewObjective!.Text = LobbyPresentation.Objective(s.Setup.Mode);
         ShowMapPicture();
         MapPicture!.TooltipText = _overviewObjective.Text;
         _mapButton!.TooltipText = (s.CanControl ? "Select a map" : "View map settings") + "\n" + _overviewObjective.Text;
+    }
+
+    private static bool CanRollMap(IOnlineLobbySession session) =>
+        session.CanControl && !session.Launching && !session.PreparingBots && session.Maps.Count > 0;
+
+    private void OpenRandomMap()
+    {
+        if (Session is not { } session || !CanRollMap(session) || IsInstanceValid(_randomMapDialog) ||
+            _settingsPanel is { Visible: true }) return;
+
+        _randomMapDialog = new RandomMapDialog(_mapCatalog, session.Maps, session.Setup.Map,
+            SettingsStore.Current.ActiveMapPlaylist, _randomMapButton!, map =>
+            {
+                if (!CanRollMap(session) || string.Equals(map, session.Setup.Map, StringComparison.OrdinalIgnoreCase)) return;
+                Parameters!.SelectMap(map);
+                Apply();
+            });
+        AddChild(_randomMapDialog);
     }
 
     private void UpdateLoadout()

@@ -115,6 +115,9 @@ public partial class MapPickerView : VBoxContainer
     /// <summary>The host edits; others only see the list.</summary>
     public bool Editable { get; set; } = true;
 
+    /// <summary>Raised after a double-click selects a map in a picker that supports applying changes.</summary>
+    public event Action? MapConfirmed;
+
     /// <summary>The tile of a map, or null (tests and the menu pilot).</summary>
     public Button? Tile(string map) => _tiles.TryGetValue(map, out var t) ? t.Tile : null;
 
@@ -288,7 +291,20 @@ public partial class MapPickerView : VBoxContainer
         var tile = Grid.AddMap(maps, id, title);
         tile.ToggleMode = true;
         tile.ButtonGroup = _group;
-        tile.Pressed += () =>
+        tile.Pressed += Select;
+        tile.GuiInput += input =>
+        {
+            if (!Editable || tile.Disabled || MapConfirmed is not { } confirm ||
+                input is not InputEventMouseButton { ButtonIndex: MouseButton.Left, Pressed: true, DoubleClick: true })
+                return;
+
+            tile.AcceptEvent();
+            Select();
+            confirm();
+        };
+        _tiles[id] = (tile, entry);
+
+        void Select()
         {
             if (Editable && !string.Equals(Model.Setup.Map, id, StringComparison.OrdinalIgnoreCase))
             {
@@ -298,8 +314,7 @@ public partial class MapPickerView : VBoxContainer
             {
                 Refresh();
             }
-        };
-        _tiles[id] = (tile, entry);
+        }
     }
 
     /// <summary>Shows the maps of the selected mode and marks the selected map.</summary>
