@@ -94,17 +94,16 @@ public sealed partial class EditorService
 
     public bool NeedsRecovery => File.Exists(Path.Combine(_layout.Editor, ".update", "journal.json"));
 
-    public bool UpdateInProgress
+    public bool UpdateInProgress => IsUpdateInProgress(_layout.Editor);
+
+    internal static bool IsUpdateInProgress(string editor)
     {
-        get
-        {
-            string path = Path.Combine(_layout.Editor, ".update", "swap.lock");
-            if (!File.Exists(path)) return false;
-            try { using var held = new FileStream(path, FileMode.Open, FileAccess.ReadWrite, FileShare.None); return false; }
-            catch (FileNotFoundException) { return false; }
-            catch (IOException) { return true; }
-            catch (UnauthorizedAccessException) { return true; }
-        }
+        string path = Path.Combine(editor, ".update", "swap.lock");
+        if (!File.Exists(path)) return false;
+        try { using var held = new FileStream(path, FileMode.Open, FileAccess.ReadWrite, FileShare.None); return false; }
+        catch (FileNotFoundException) { return false; }
+        catch (IOException) { return true; }
+        catch (UnauthorizedAccessException) { return true; }
     }
 
     internal static bool RunningIn(string folder)

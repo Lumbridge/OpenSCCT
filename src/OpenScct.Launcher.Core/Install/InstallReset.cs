@@ -1,6 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using OpenScct.Launcher.Editor;
+using OpenScct.Launcher.Launch;
 
 namespace OpenScct.Launcher.Install;
 
@@ -12,6 +19,49 @@ namespace OpenScct.Launcher.Install;
 /// </summary>
 public static class InstallReset
 {
+    /// <summary>Force closes the game and installed editor tools, then waits briefly for their handles to close.</summary>
+    public static Task ForceCloseProcessesAsync(LauncherLayout layout) => ForceCloseProcessesAsync(layout, Process.GetProcessesByName);
+
+    internal static async Task ForceCloseProcessesAsync(LauncherLayout layout, Func<string, Process[]> findProcesses)
+    {
+        if (!OperatingSystem.IsWindows() || EditorService.IsUpdateInProgress(layout.Editor)) return;
+
+        string[] gameNames = GameProcessProbe.ProcessNames(LauncherPlatform.WindowsX64);
+        string editorExe = Path.Combine(layout.Editor, EditorService.ExeName);
+        string cliExe = Path.Combine(layout.Editor, "ose", "ose.exe");
+        string[] processNames = [.. gameNames, Path.GetFileNameWithoutExtension(editorExe), Path.GetFileNameWithoutExtension(cliExe)];
+        using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+        await Task.WhenAll(processNames.SelectMany(findProcesses).Select(CloseAsync)).ConfigureAwait(false);
+
+        async Task CloseAsync(Process process)
+        {
+            using (process)
+            {
+                try
+                {
+                    if (process.Id == Environment.ProcessId) return;
+                    // Keep a handle open so the kill stays tied to this process if its PID is reused.
+                    _ = process.SafeHandle;
+                    string? exe = process.MainModule?.FileName;
+                    if (exe is null) return;
+
+                    bool game = gameNames.Contains(Path.GetFileNameWithoutExtension(exe), StringComparer.OrdinalIgnoreCase);
+                    bool editorTool = exe.Equals(editorExe, StringComparison.OrdinalIgnoreCase)
+                        || exe.Equals(cliExe, StringComparison.OrdinalIgnoreCase);
+                    if (!game && (!editorTool || EditorService.IsUpdateInProgress(layout.Editor))) return;
+
+                    process.Kill();
+                    await process.WaitForExitAsync(timeout.Token).ConfigureAwait(false);
+                }
+                catch (OperationCanceledException) when (timeout.IsCancellationRequested) { }
+                catch (Exception ex) when (ex is Win32Exception or InvalidOperationException or NotSupportedException)
+                {
+                    // The process may already have exited or be inaccessible. The removal guard checks again.
+                }
+            }
+        }
+    }
+
     /// <summary>Deletes what the launcher installed. Returns the paths it could not delete (in use or denied).</summary>
     public static IReadOnlyList<string> Run(LauncherLayout layout, string? launcherExe)
     {

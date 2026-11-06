@@ -102,6 +102,7 @@ internal static class Program
             new("fresh", false, false, "Install"),
             new("incomplete", true, false, "Finish install"),
             new("ready", true, true, "PLAY"),
+            new("remove-blocked", true, true, "PLAY"),
             new("game-update", true, true, "Update"),
             new("content-update", true, true, "Update"),
             new("downloading", true, true, "Stop"),
@@ -231,6 +232,11 @@ internal static class Program
         Call(form, "RefreshLocal");
         switch (scenario.Name)
         {
+            case "remove-blocked":
+                EditorService editor = Field<EditorService>(form, "_editor");
+                typeof(EditorService).GetProperty("RunningOverride", Hidden)!.SetValue(editor, (Func<string, bool>)(_ => true));
+                Call(form, "RemoveGameFiles", false);
+                break;
             case "downloading":
             case "game-downloading":
                 Call(form, "SetOperation", scenario.Name == "downloading" ? "Downloading game files" : "Downloading OpenSCCT");
@@ -297,6 +303,13 @@ internal static class Program
         Check(scenario.Name == "editor-applying" ? !main.Enabled : main.Enabled && main.CanSelect,
             label + (scenario.Name == "editor-applying" ? " apply cannot be cancelled" : " primary action is keyboard selectable"));
         Check(help.Enabled && help.CanSelect, label + " Help stays keyboard selectable");
+        Button forceClose = Field<Button>(form, "_forceClose");
+        if (scenario.Name == "remove-blocked")
+        {
+            Check(forceClose.Visible && forceClose.CanSelect && IsInClient(host, forceClose), label + " blocked removal offers force close");
+            Check(File.Exists(fixture.Layout.Manifest) && Directory.Exists(fixture.Layout.Packs), label + " blocked removal keeps the installed files");
+        }
+        else Check(!forceClose.Visible, label + " force close is hidden outside blocked removal");
         Check(Field<Label>(form, "_heading").Text.Length > 0, label + " status heading is populated");
         if (scenario.Game && scenario.Name != "editor-recovery")
             Check(Field<Label>(form, "_installedInfo").Text.Contains(scenario.Editor && scenario.Name != "editor-busy-game"
@@ -963,7 +976,7 @@ internal static class Program
     private static T Field<T>(Form form, string name) => (T)MainType.GetField(name, Hidden)!.GetValue(form)!;
     private static void Set(Form form, string name, object? value) => MainType.GetField(name, Hidden)!.SetValue(form, value);
     private static void Call(Form form, string name, params object?[] args) => MainType.GetMethod(name, Hidden | BindingFlags.Public)!.Invoke(form, args);
-    private static void SetStatus(Form form, string text, Color color) => Call(form, "SetStatus", text, color, null);
+    private static void SetStatus(Form form, string text, Color color) => Call(form, "SetStatus", text, color, null, false);
     private static IEnumerable<Control> Walk(Control root)
     {
         yield return root;

@@ -89,6 +89,7 @@ internal sealed partial class MainForm : Form
         AutoSize = true, Font = Theme.Body, ForeColor = Theme.Muted, BackColor = Color.Transparent,
         LinkColor = Theme.Accent, ActiveLinkColor = Theme.Text, VisitedLinkColor = Theme.Accent, UseMnemonic = false,
     };
+    private readonly Button _forceClose = Theme.Button("Force close all…");
     private readonly Button _whatsNew = Theme.QuietButton("Full changelog", onPanel: true);
     private readonly Button _check = Theme.QuietButton("Check for updates");
     private readonly Button _website = Theme.QuietButton("Website");
@@ -218,6 +219,11 @@ internal sealed partial class MainForm : Form
         _status.Margin = new Padding(0, 12, 0, 0);
         _status.Visible = false;
         _status.LinkClicked += (_, e) => ShowInExplorer(e.Link?.LinkData as string);
+        _forceClose.Name = "ForceCloseProcesses";
+        _forceClose.Anchor = AnchorStyles.Left;
+        _forceClose.Margin = new Padding(0, 6, 0, 0);
+        _forceClose.Visible = false;
+        _forceClose.Click += async (_, _) => await ForceCloseAndRemoveAsync();
         _progress.Name = "DownloadProgress";
         _progress.Visible = false;
         _progress.Anchor = AnchorStyles.Left | AnchorStyles.Right;
@@ -232,7 +238,7 @@ internal sealed partial class MainForm : Form
         launch.Padding = new Padding(20, 18, 20, 18);
         launch.TabIndex = 0;
         Theme.AddRow(launch, summary, actions);
-        foreach (Control row in new Control[] { _status, _progress, _progressText })
+        foreach (Control row in new Control[] { _status, _forceClose, _progress, _progressText })
         {
             Theme.AddRow(launch, row);
             launch.SetColumnSpan(row, 2);
@@ -1128,13 +1134,43 @@ internal sealed partial class MainForm : Form
         _ = RunAsync(CheckSelectedAsync);
     }
 
-    /// <summary>Deletes what the launcher installed (<see cref="InstallReset"/>); false when a game is running.</summary>
-    private bool RemoveGameFiles()
+    private async Task ForceCloseAndRemoveAsync()
+    {
+        if (_work is not null || !VisibleStatus.CanForceClose) return;
+        if (MessageBox.Show(this,
+            "Force close all running OpenSCCT games, the installed editor and its command-line tools, then retry removing the game and shared files?\n\nUnsaved work will be lost.",
+            "Force close OpenSCCT", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) != DialogResult.OK)
+            return;
+
+        await RunAsync(async _ =>
+        {
+            _operationCanCancel = false;
+            SetOperation("Closing OpenSCCT processes");
+            RefreshLocal();
+            try
+            {
+                await InstallReset.ForceCloseProcessesAsync(_layout);
+                RemoveGameFiles(forceCloseAttempted: true);
+            }
+            catch (Win32Exception ex)
+            {
+                SetStatus("Could not check running OpenSCCT processes: " + ex.Message, Theme.Warning, canForceClose: true);
+            }
+        });
+    }
+
+    /// <summary>Deletes what the launcher installed once the game and editor release their files.</summary>
+    private void RemoveGameFiles(bool forceCloseAttempted = false)
     {
         if (_editor.IsRunning || _games.Running().Count > 0)
         {
-            SetStatus("Close OpenSCCT, the editor and its command-line tools before removing game and shared files.", Theme.Warning);
-            return false;
+            string warning = _editor.UpdateInProgress
+                ? "Wait for the editor update to finish before removing game and shared files."
+                : forceCloseAttempted
+                    ? "Some OpenSCCT processes are still running. Close them before removing game and shared files."
+                    : "Close OpenSCCT, the editor and its command-line tools before removing game and shared files.";
+            SetStatus(warning, Theme.Warning, canForceClose: true);
+            return;
         }
 
         IReadOnlyList<string> failed = InstallReset.Run(_layout, Program.ExePath);
@@ -1144,7 +1180,6 @@ internal sealed partial class MainForm : Form
                 ? "Game and shared files removed. Choose Install to download them again."
                 : "Some game files are in use and were kept: " + string.Join(", ", failed),
             failed.Count == 0 ? Theme.Accent : Theme.Warning);
-        return true;
     }
 
     private void OnPendingTick()
@@ -1251,11 +1286,11 @@ internal sealed partial class MainForm : Form
         if (completed && !IsDisposed && _webJoinReady && _pendingWebJoin is not null) await TryWebJoinAsync();
     }
 
-    private void SetStatus(string text, Color color, string? path = null)
+    private void SetStatus(string text, Color color, string? path = null, bool canForceClose = false)
     {
         StatusKind kind = color == Theme.Warning ? StatusKind.Warning : color == Theme.Error ? StatusKind.Error
             : color == Theme.Accent || color == Palette.Accent ? StatusKind.Success : StatusKind.Normal;
-        var state = new ProductStatus(text, kind, path);
+        var state = new ProductStatus(text, kind, path, canForceClose);
         bool editor = _work is not null ? _operationEditor : _editorSelected;
         if (editor) _editorStatus = state; else _gameStatus = state;
         if (_work is not null) _operationStatus = state;

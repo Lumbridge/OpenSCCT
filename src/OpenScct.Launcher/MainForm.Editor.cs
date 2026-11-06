@@ -28,7 +28,7 @@ internal sealed partial class MainForm
     private PictureBox _brandLogo = null!;
     private Label _brandSubtitle = null!;
     private enum StatusKind { Normal, Success, Warning, Error }
-    private sealed record ProductStatus(string Text, StatusKind Kind, string? Path = null);
+    private sealed record ProductStatus(string Text, StatusKind Kind, string? Path = null, bool CanForceClose = false);
     private ProductStatus _gameStatus = new(string.Empty, StatusKind.Normal);
     private ProductStatus _editorStatus = new(string.Empty, StatusKind.Normal);
     private ProductStatus _operationStatus = new(string.Empty, StatusKind.Normal);
@@ -123,6 +123,7 @@ internal sealed partial class MainForm
         ProductStatus state = VisibleStatus;
         _status.Text = state.Text;
         _status.Visible = state.Text.Length > 0;
+        _forceClose.Visible = _work is null && state.CanForceClose;
         _status.ForeColor = state.Kind switch
         {
             StatusKind.Success => Palette.Accent,

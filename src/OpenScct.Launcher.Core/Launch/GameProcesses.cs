@@ -20,10 +20,12 @@ public sealed class GameProcessProbe : IGameProcessProbe
 
     public GameProcessProbe(LauncherPlatform? platform = null)
     {
-        _names = (platform ?? LauncherPlatform.Current).IsLinux
-            ? ["OpenSCCT.x86_64", "OpenSCCT"]
-            : ["OpenSCCT", "OpenSCCT.console"];
+        _names = ProcessNames(platform ?? LauncherPlatform.Current);
     }
+
+    internal static string[] ProcessNames(LauncherPlatform platform) => platform.IsLinux
+        ? ["OpenSCCT.x86_64", "OpenSCCT"]
+        : ["OpenSCCT", "OpenSCCT.console"];
 
     public IReadOnlyList<RunningGame> Running()
     {
