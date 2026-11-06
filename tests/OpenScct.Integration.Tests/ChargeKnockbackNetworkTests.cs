@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using OpenScct.Bots;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
@@ -67,10 +68,15 @@ public sealed class ChargeKnockbackNetworkTests
         rig.WaitForSpyToWalk();
     }
 
-    [Fact]
-    public void ServerRejectsADistantReviveAndAcceptsANearbyTeammate()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void ServerRejectsADistantReviveAndAcceptsANearbyTeammate(bool useConvertedCharacters)
     {
-        using var rig = new MatchRig();
+        string repo = MapCatalog.FindRepoRoot(AppContext.BaseDirectory) ?? throw new InvalidOperationException("Test fixtures are missing.");
+        MapCatalog maps = useConvertedCharacters ? WalkerRig.Maps : new MapCatalog(Path.Combine(repo, "fixtures"));
+        Assert.SkipWhen(useConvertedCharacters && maps.FindCharacterContent() is null, "Converted characters are required.");
+        using var rig = new MatchRig(maps: maps);
         rig.KnockDownSpy();
         SPlayerController authority = rig.Authority(Spy), mate = rig.Owner(Teammate);
         SBasePawn victim = PawnOf(authority);
@@ -81,7 +87,7 @@ public sealed class ChargeKnockbackNetworkTests
         Assert.True(authority.IsInState("s_LyingOnGround"));
         Assert.True(victim.bSleeping);
 
-        rig.Place(Teammate, victim.Location.X - 110f, victim.Location.Y);
+        rig.Place(Teammate, victim.Location.X, victim.Location.Y + 110f);
         rig.Tick(30);
         mate.AskServerToReanimatePawn(proxy);
         rig.WaitUntil(() => authority.IsInState("s_Reanimating"), Sim.Hz);
@@ -170,13 +176,13 @@ public sealed class ChargeKnockbackNetworkTests
 
         public BotMatch Match { get; }
 
-        public MatchRig(NetProfile profile = NetProfile.Enhanced)
+        public MatchRig(NetProfile profile = NetProfile.Enhanced, MapCatalog? maps = null)
         {
             var network = new SimLinkNetwork(_clock, 973, SimLinkProfile.Ping200);
             Match = new BotMatch(new BotMatchSettings
             {
                 Map = MapCatalog.TestBox,
-                Maps = WalkerRig.Maps,
+                Maps = maps ?? WalkerRig.Maps,
                 Classes = WalkerRig.Classes,
                 Bots = BotMatchSettings.TwoVersusTwo(i => i == Spy ? _spy : new IdleBrain(), _ => new IdleBrain()),
                 Profile = profile,
