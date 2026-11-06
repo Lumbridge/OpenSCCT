@@ -205,7 +205,7 @@ public partial class SPlayerController
     /// <summary>Accepts one owner-reported charge contact without granting access to another player's actors.</summary>
     private void ReceiveOwnerChargeHit(in CombatCall call)
     {
-        if (_receivedOwnerChargeHit || !IsInState(WNAME_s_PlayerCharging) ||
+        if (_receivedOwnerChargeHit || ChargeShockFrozen || !IsInState(WNAME_s_PlayerCharging) ||
             SBPawn is not SPAWNDEFENSE { Health: > 0, bDeleteMe: false } attacker ||
             !ReferenceEquals(call.Actor1, attacker) || call.Target is not SBasePawn { Health: > 0, bDeleteMe: false } victim ||
             !ReferenceEquals(victim.XLevel, XLevel) || victim.Controller is not SPlayerController ||

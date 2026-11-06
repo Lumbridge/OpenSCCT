@@ -255,7 +255,16 @@ public partial class SPlayerController
                 ClientStopBinoculars();
                 break;
             case "ClientStickyShock":
-                ClientStickyShock(c.Int1, c.Bool1);
+                ClientStickyShock(c.Int1, c.Bool1, c.Int2 != 0);
+                break;
+            case "ClientChargeKnockback":
+                ClientChargeKnockback(c);
+                break;
+            case "ClientChargeLanding":
+                ClientChargeLanding(c);
+                break;
+            case "ClientKnockoutTimer":
+                ClientKnockoutTimer();
                 break;
             case "Client_Jammed":
                 Client_Jammed(c.Actor1 as Pawn);

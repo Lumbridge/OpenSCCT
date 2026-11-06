@@ -29,7 +29,7 @@ public partial class SStickyShocker
             return;
         }
 
-        if (Instigator is not SPawnAttaque spy || spy.WeaponLoaded == 0 || spy.bWeaponTransit)
+        if (Instigator is not SPawnAttaque spy || spy.WeaponLoaded == 0 || spy.bWeaponTransit || ShockerBlockedByKnockdown)
         {
             return;
         }

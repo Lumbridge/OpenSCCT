@@ -131,6 +131,8 @@ public partial class SWeaponAttaque
     [PortOf("uc:SBase.SWeaponAttaque:ServerFireWeaponWithLocation", Spec = "spec/equipment/spy-shocker.md#rules")]
     public void ServerFireWeaponWithLocation(FVector Position, int Yaw, int Pitch, int Roll)
     {
+        if (ShockerBlockedByKnockdown) return;
+
         if (Role < ENetRole.ROLE_Authority && OwnerPC is { } client)
         {
             // The shot's number seeds its spread on both ends; with fire prediction the owner draws its impact now.
@@ -169,6 +171,8 @@ public partial class SWeaponAttaque
 
         AddMuzzleCount();
     }
+
+    protected bool ShockerBlockedByKnockdown => OwnerPC?.IsKnockedDown == true;
 
     /// <summary>The ray start of a shot: 30 uu forward, 8 up and 4 left of the pistol (rule 11.1).</summary>
     [Uc("SBase.SWeaponAttaque.GetAxesAndLocation", Sha1 = "6566875906ab8ef7e44855e9770b0f06ff50eaf8")]

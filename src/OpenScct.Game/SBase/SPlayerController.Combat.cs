@@ -1772,6 +1772,13 @@ public partial class SPlayerController
     [PortOf("rep:SBase.SPlayerController.ClientDamage", Spec = "spec/combat/damage-pipeline.md#network")]
     public void ClientDamage(FVector Momentum, SDamageType DamageType, FVector HitLocation, Pawn? instigatedBy)
     {
+        if (DamageType == SDamageType.SDamage_DropAttacked)
+        {
+            fLyingOnGroundDuration = instigatedBy is SBasePawn dropper && SBPawn is { } me && dropper.SPawnType == me.SPawnType
+                ? K.SameTypeDropLyingTime
+                : K.DefaultLyingTime;
+        }
+
         if (IsRemotePlayer)
         {
             CombatNet.ClientCall(this, new CombatCall(CNAME_ClientDamage)
@@ -1829,9 +1836,6 @@ public partial class SPlayerController
                 break;
             case SDamageType.SDamage_DropAttacked:
                 CombatFx.Notify(this, CombatFx.Vibration_SautHaut);
-                fLyingOnGroundDuration = instigatedBy is SBasePawn dropper && SBPawn is { } me && dropper.SPawnType == me.SPawnType
-                    ? K.SameTypeDropLyingTime
-                    : K.DefaultLyingTime;
                 break;
             case SDamageType.SFell:
                 CombatFx.Notify(this, CombatFx.Vibration_SautHaut);

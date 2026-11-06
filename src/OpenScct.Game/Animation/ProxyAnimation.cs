@@ -195,20 +195,26 @@ public static class ProxyAnimation
         INetworkPawnActions? actionsObserver = pawn.XLevel?.GetService<INetworkPawnActions>();
         SBasePawn? previousOwner = actionsObserver?.InputOwner;
         if (actionsObserver is not null) actionsObserver.InputOwner = pawn;
+        int applied = 0;
         try
         {
             for (int i = 0; i < n && !pawn.bDeleteMe; i++)
             {
-                beforeAction?.Invoke(actions[i]);
-                pawn.ExecuteAction(actions[i]);
-                pawn.AllActions[i] = actions[i];
+                int action = actions[i];
+                if (action == SBasePawn.SA_STANDUP &&
+                    pawn.Controller is not SPlayerController { StateNode: SPlayerController.s_StandUp })
+                    continue;
+                beforeAction?.Invoke(action);
+                pawn.ExecuteAction(action);
+                pawn.AllActions[applied++] = action;
             }
         }
         finally { if (actionsObserver is not null) actionsObserver.InputOwner = previousOwner; }
 
-        pawn.sAction = actions[n - 1];
-        pawn.iNbActionForDistantClient = n;
-        pawn.iNbAction = n;
+        if (applied == 0) return;
+        pawn.sAction = pawn.AllActions[applied - 1];
+        pawn.iNbActionForDistantClient = applied;
+        pawn.iNbAction = applied;
     }
 
     /// <summary>

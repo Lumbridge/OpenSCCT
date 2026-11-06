@@ -268,6 +268,7 @@ public partial class SPlayerController
         // The batch the pawn played this tick (here or received from its owner) is stamped for the other viewers.
         if (movement && !bDeleteMe && SBPawn is { Role: ENetRole.ROLE_Authority, bDeleteMe: false } pawn)
         {
+            SyncChargeLanding(pawn);
             OpenScct.Game.Animation.ProxyAnimation.ServerUpdateActionCounts(pawn);
         }
     }
@@ -595,7 +596,16 @@ public partial class SPlayerController
     /// <summary>The server runs a client's move through the current state (called by the move natives).</summary>
     [Uc("SBase.SPlayerController.ScriptMyProcessMove", Sha1 = "49ede3e43742f5d8ce8e357b7e951156fde1fdf6")]
     [PortOf("uc:SBase.SPlayerController:ScriptMyProcessMove", Spec = "spec/movement/native-contracts.md#events-the-natives-raise-script-entry-points")]
-    public void ScriptMyProcessMove(float DeltaTime, FVector newAccel) => eventMyProcessMove(DeltaTime, newAccel);
+    public void ScriptMyProcessMove(float DeltaTime, FVector newAccel)
+    {
+        // Charge commands authored before the owner heard the shock can still be in flight.
+        if (ChargeShockFrozen)
+        {
+            bPressedJump = false;
+            newAccel = default;
+        }
+        eventMyProcessMove(DeltaTime, newAccel);
+    }
 
     /// <summary>
     /// Sends this frame's move: a client saves, applies and sends it (MyReplicateMove, netcode); the server's own

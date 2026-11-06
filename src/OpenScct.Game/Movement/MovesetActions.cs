@@ -837,6 +837,7 @@ public static class MovesetActions
 
         RootMotion(pawn, L7, EPhysics.PHYS_Walking, default, 0, viaNone: true);
         Once(pawn, 0, "StrkCrAlBk0", GoBackTween);
+        if (pawn.Controller is SPlayerController pc) pc.ChargeKnockbackPlaying = true;
     }
 
     private static void Once(SBasePawn pawn, int channel, string clip, float tween, float rate = 1f, bool mirror = false,

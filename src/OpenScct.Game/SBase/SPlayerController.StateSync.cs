@@ -1,6 +1,8 @@
 using OpenScct.Core;
 using OpenScct.Core.Engine;
+using OpenScct.Game.Combat;
 using OpenScct.Game.GameFlow;
+using OpenScct.Game.Movement;
 using OpenScct.Provenance;
 using K = OpenScct.Game.GameFlow.K;
 
@@ -11,7 +13,12 @@ namespace OpenScct.Game.SBase;
 public partial class SPlayerController
 {
     private static readonly Name NAME_s_UseObject_StickyCam_SmoothToPosition = new("s_UseObject_StickyCam_SmoothToPosition");
+    private static readonly Name NAME_ClientChargeKnockback = new("ClientChargeKnockback");
+    private static readonly Name NAME_ClientChargeLanding = new("ClientChargeLanding");
     private float _lastSentMirrorStateTime = -1f;
+    private SBasePawn? _chargeLandingPawn;
+    private float _chargeKnockbackTime;
+    private CombatCall? _pendingChargeLanding;
 
     // Reliable state order must not use the input clock temporarily installed by command simulation. A late
     // client's physics can otherwise emit a newer catch/landing state with an older timestamp than its setup.
@@ -119,8 +126,26 @@ public partial class SPlayerController
             return;
         }
 
+        bool remoteCharge = nomdustate == CNAME_s_Charge_GoBackward && IsRemotePlayer;
+        if (remoteCharge) InvalidateOwnerStateAcknowledgement();
         float stateTime = NextMirrorStateTime();
+        if (remoteCharge && SBPawn is { } victim)
+        {
+            _chargeLandingPawn = victim;
+            _chargeKnockbackTime = stateTime;
+            FVector location = ChargePosition(victim, out Actor? basis);
+            CombatNet.ClientCall(this, new CombatCall(NAME_ClientChargeKnockback)
+            {
+                Target = victim,
+                Actor1 = AddActor,
+                Actor2 = basis,
+                Bool1 = basis is not null,
+                Vector1 = location,
+                Vector2 = new FVector(MirrorStateAcknowledgementTime, stateTime, 0f),
+            });
+        }
 
+        // Older owners still use the ordinary state message.
         GameFlowServices.Host(this).ClientCall(this, new GameCall("PCChangeClientState")
         {
             Float1 = MirrorStateAcknowledgementTime,
@@ -132,6 +157,80 @@ public partial class SPlayerController
         });
     }
 
+    private void ClientChargeKnockback(in CombatCall call)
+    {
+        if (SBPawn is not { } victim || !ReferenceEquals(victim, call.Target) || MirrorStateLastTime >= call.Vector2.Y)
+        {
+            return;
+        }
+
+        // Use the impact position, before the owner starts playing the knockback from its predicted position.
+        _pendingChargeLanding = null;
+        PlaceChargeVictim(victim, call);
+        PCChangeClientState(call.Vector2.X, call.Vector2.Y, CNAME_s_Charge_GoBackward, AddActor: call.Actor1);
+    }
+
+    private void SyncChargeLanding(SBasePawn pawn)
+    {
+        if (_chargeLandingPawn is null) return;
+        if (!ReferenceEquals(_chargeLandingPawn, pawn))
+        {
+            _chargeLandingPawn = null;
+            return;
+        }
+        if (StateNode is s_Charge_GoBackward or PlayerFallingKO) return;
+
+        if (StateNode is s_LyingOnGround && pawn.Health > 0)
+        {
+            // Wait for the authority's root motion or fall to finish. Its final collision result can
+            // differ from the owner's, and ordinary movement corrections are disabled while prone.
+            if (!ChargeKnockbackPlaying || pawn.Physics != EPhysics.PHYS_Walking) return;
+            FVector location = ChargePosition(pawn, out Actor? basis);
+            CombatNet.ClientCall(this, new CombatCall(NAME_ClientChargeLanding)
+            {
+                Target = pawn,
+                Actor2 = basis,
+                Bool1 = basis is not null,
+                Vector1 = location,
+                Float1 = _chargeKnockbackTime,
+            });
+        }
+        _chargeLandingPawn = null;
+    }
+
+    private void ClientChargeLanding(in CombatCall call)
+    {
+        if (SBPawn is not { } pawn || !ReferenceEquals(pawn, call.Target) || MirrorStateLastTime != call.Float1) return;
+        if (StateNode is s_Charge_GoBackward or PlayerFallingKO)
+        {
+            _pendingChargeLanding = call;
+        }
+        else if (StateNode is s_LyingOnGround)
+        {
+            PlaceChargeVictim(pawn, call);
+            pawn.Velocity = default;
+        }
+    }
+
+    private static void PlaceChargeVictim(SBasePawn pawn, in CombatCall call)
+    {
+        Actor? basis = call.Actor2 is { bDeleteMe: false } actor ? actor : null;
+        if (call.Bool1 && basis is null) return;
+        FVector position = basis is null ? call.Vector1 : MovementMath.ToWorld(basis.Location, basis.Rotation, call.Vector1);
+        MovementNatives.FarMoveActor(pawn, position);
+        if (basis is not null || pawn.Base is { bWorldGeometry: false, bStatic: false })
+            pawn.SetBase(basis, bNotifyActor: false);
+    }
+
+    private static FVector ChargePosition(SBasePawn pawn, out Actor? basis)
+    {
+        basis = pawn.Base is { bWorldGeometry: false, bStatic: false, bDeleteMe: false } mover ? mover : null;
+        if (basis is null) return pawn.Location;
+        basis.Rotation.GetAxes(out FVector x, out FVector y, out FVector z);
+        FVector offset = pawn.Location - basis.Location;
+        return new FVector(offset | x, offset | y, offset | z);
+    }
+
     /// <summary>
     /// Server to client: follow the server's state unless the order is older than the last one applied (one sticky
     /// camera case is skipped).
@@ -141,7 +240,8 @@ public partial class SPlayerController
     public void PCChangeClientState(float MSATime, float fNewTime, Name nomdustate, Name nomduLabel = default,
         bool bDontSaveCurrentState = false, Actor? AddActor = null)
     {
-        if (MirrorStateLastTime > fNewTime)
+        if (MirrorStateLastTime > fNewTime ||
+            (nomdustate == CNAME_s_Charge_GoBackward && MirrorStateLastTime == fNewTime && StateNode is s_Charge_GoBackward))
         {
             return;
         }
@@ -200,6 +300,24 @@ public partial class SPlayerController
     {
         if (SvmMath.Abs(CodeTime - MirrorStateAcknowledgementTime) < K.ServerStateTolerance)
         {
+            // The authority owns the wake-up decision, including the transition after a teammate revives us.
+            if (StateNode is s_LyingOnGround || nomdustate == CNAME_s_StandUp || nomdustate == CNAME_s_Reanimating ||
+                (nomdustate == WNAME_s_PlayerCharging && ChargeShockFrozen))
+            {
+                return;
+            }
+
+            if (nomdustate == CNAME_s_LyingOnGround)
+            {
+                fLyingOnGroundDuration = StateNode switch
+                {
+                    s_Charge_GoBackward or PlayerFallingKO => fKOAfterBerserkOrCharge,
+                    s_GrabRelease_Counter => OpenScct.Game.Combat.K.CounterGrabLyingTime,
+                    s_TerminatedPawn_Released => OpenScct.Game.Combat.K.TerminateReleasedLyingTime,
+                    _ => fLyingOnGroundDuration,
+                };
+            }
+
             GasSleepNotice? sleep = IsGasFallTransition(nomdustate, nomduLabel) ? TakeGasSleepNotice() : null;
             if (GotoState(nomdustate, nomduLabel, bDontSaveCurrentState) == EGotoState.GOTOSTATE_Success && sleep is not null)
             {

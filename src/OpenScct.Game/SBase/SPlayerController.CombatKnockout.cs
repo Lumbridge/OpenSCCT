@@ -23,7 +23,9 @@ public partial class SPlayerController
     private static readonly Name CNAME_s_ReanimateFriend_0H = new("s_ReanimateFriend_0H");
     private static readonly Name CNAME_s_ReanimateFriend_2H = new("s_ReanimateFriend_2H");
     private static readonly Name CNAME_DIE_InPlaceWhileGrabbing = new("DIE_InPlaceWhileGrabbing");
+    private static readonly Name CNAME_ClientKnockoutTimer = new("ClientKnockoutTimer");
     private static readonly ClassRef CombatGasMaskClass = new("SBase.SGadGasMask");
+    private bool _serverControlsWakeUp;
 
     /// <summary>A state version of <see cref="CanBeReanimated"/>.</summary>
     public interface ICanBeReanimated
@@ -87,13 +89,25 @@ public partial class SPlayerController
             return;
         }
 
-        if (!CombatAlive || Target?.Controller is not SPlayerController mate || !mate.eventCanBeReanimated())
+        if (SBPawn is not { Health: > 0 } reviver || IsKnockedDown || Target?.Controller is not SPlayerController mate ||
+            !ReviveTarget(reviver, Target) || SGameInfo.TeamIndexOf(this) != SGameInfo.TeamIndexOf(mate) ||
+            !mate.eventCanBeReanimated())
         {
             return;
         }
 
         mate.eventMirrorState(CNAME_s_Reanimating);
         eventMirrorState(CombatWeaponLoaded == 0 ? CNAME_s_ReanimateFriend_0H : CNAME_s_ReanimateFriend_2H);
+    }
+
+    internal bool IsKnockedDown => StateNode is s_Inactive or s_FallDropAttacked or PlayerFallingKO or
+        s_Charge_GoBackward or s_GrabRelease_Counter or s_TerminatedPawn_Released ||
+        SBPawn is { bSleeping: true } or { bLyingOnGround: true };
+
+    private void ClientKnockoutTimer()
+    {
+        _serverControlsWakeUp = true;
+        if (StateNode is s_LyingOnGround) SetTimer(0f, false);
     }
 
     private static readonly Name CNAME_AskServerToReanimatePawn = new("AskServerToReanimatePawn");
@@ -438,14 +452,26 @@ public partial class SPlayerController
         public override void BeginState(Actor self)
         {
             var pc = (SPlayerController)self;
-            if (!pc.IAmOnClient() || pc.SBPawn is not { } pawn)
+            if (pc.SBPawn is not { } pawn)
             {
                 return;
             }
 
             pc.CombatPorts.ChangeEnumAction(pawn, SBasePawn.SA_REMOVE_COLLISION, true);
-            pc.fLyingOnGroundTime = pc.Level.TimeSeconds;
-            pc.SetTimer(pc.fLyingOnGroundDuration, false);
+            pc.fLyingOnGroundTime = pc.XLevel.WorldTimeSeconds;
+            // Keep the original local timer when connected to a server that does not own recovery.
+            if (pc.Role == ENetRole.ROLE_Authority || !pc._serverControlsWakeUp)
+                pc.SetTimer(pc.fLyingOnGroundDuration, false);
+            if (pc.IsRemotePlayer)
+                pc.CombatNet.ClientCall(pc, new CombatCall(CNAME_ClientKnockoutTimer) { Target = pawn });
+            if (!pc.IAmOnClient()) return;
+
+            if (pc._pendingChargeLanding is { } landing)
+            {
+                pc._pendingChargeLanding = null;
+                pc.ClientChargeLanding(landing);
+            }
+
             if (pawn.SPawnType == PawnType.SPAWNDEFENSE && pawn.bGasMask &&
                 Equipment.PawnInventory.FindGadgetType(pawn, CombatGasMaskClass) is SGadget mask)
             {
@@ -457,10 +483,18 @@ public partial class SPlayerController
         [PortOf("uc:SBase.SPlayerController:s_LyingOnGround.PlayerTick", Spec = "spec/combat/knockout-and-terminate.md#s_lyingonground")]
         public override void PlayerTick(PlayerController self, float DeltaTime) => base.PlayerTick(self, DeltaTime);
 
-        /// <summary>The lying time is over: stand up (owner).</summary>
+        /// <summary>The server decides when the player has been down long enough to stand up.</summary>
         [Uc("SBase.SPlayerController.s_LyingOnGround.Timer", Sha1 = "ac9b063437042cd6b7721c47d3dfa6d1d9c701ce")]
         [PortOf("uc:SBase.SPlayerController:s_LyingOnGround.Timer", Spec = "spec/combat/knockout-and-terminate.md#s_lyingonground")]
-        public override void Timer(Actor self) => ((SPlayerController)self).eventChangeState(CNAME_s_StandUp);
+        public override void Timer(Actor self)
+        {
+            var pc = (SPlayerController)self;
+            if (pc.SBPawn is not { Health: > 0 }) return;
+            if (pc.Role == ENetRole.ROLE_Authority)
+                pc.eventMirrorState(CNAME_s_StandUp);
+            else if (!pc._serverControlsWakeUp)
+                pc.eventChangeState(CNAME_s_StandUp);
+        }
 
         [Uc("SBase.SPlayerController.s_LyingOnGround.CanBeReanimated", Sha1 = "a40381ccfdf342092554b33966344721f68fd6c2")]
         [PortOf("uc:SBase.SPlayerController:s_LyingOnGround.CanBeReanimated", Spec = "spec/combat/knockout-and-terminate.md#s_lyingonground")]
@@ -478,6 +512,7 @@ public partial class SPlayerController
         {
             var pc = (SPlayerController)self;
             float now = pc.Level.TimeSeconds;
+            pc.SetTimer(0f, false);
             pc.TimeShock = now;
             pc.fLastTimeWakeUp = now;
             pc.fLyingOnGroundDuration = K.DefaultLyingTime;

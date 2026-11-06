@@ -44,6 +44,12 @@ public partial class SPlayerController
         void GoInSmoke(SPlayerController self, float tCough, float tFaint, float tHud, float blur);
     }
 
+    private SBasePawn? _chargeShockedPawn;
+    private float _chargeShockFreezeUntil;
+
+    private bool ChargeShockFrozen => _chargeShockedPawn is not null && ReferenceEquals(SBPawn, _chargeShockedPawn) &&
+        _chargeShockFreezeUntil > XLevel.WorldTimeSeconds;
+
     // ---- Checkshock ------------------------------------------------------------------------------------------
 
     /// <summary>Checkshock through the current state (the s_Inactive pill conversion, the charge-hit forced animation).</summary>
@@ -91,11 +97,23 @@ public partial class SPlayerController
             ShockInstigator.Controller is SPlayerController;
         if (accept)
         {
-            CombatRules.ShockTimes(pawn, PillTag, fRainFreezeFactor, out _, out float shock);
+            CombatRules.ShockTimes(pawn, PillTag, fRainFreezeFactor, out float freeze, out float shock);
             RealTimeInvulSticky = shock + TempsInvulSticky;
             TimeShock = now;
             TimeShockForGrab = now;
-            ClientStickyShock(PillTag, bPlayAnim);
+            bool cancelCharge = StateNode is s_PlayerCharging;
+            if (Role == ENetRole.ROLE_Authority && pawn is SPAWNDEFENSE)
+            {
+                _chargeShockedPawn = pawn;
+                _chargeShockFreezeUntil = XLevel.WorldTimeSeconds + freeze;
+                if (cancelCharge)
+                {
+                    StopChargeMotion(pawn);
+                    InvalidateOwnerStateAcknowledgement();
+                    eventMirrorState(CNAME_s_PlayerWalkingSt2H);
+                }
+            }
+            ClientStickyShock(PillTag, bPlayAnim, cancelCharge);
             if (Role == ENetRole.ROLE_Authority && pawn.SPawnType == PawnType.SPAWNDEFENSE && instigatorThisTick &&
                 ShockInstigator!.Controller is SPlayerController { SPawnType: PawnType.SPAWNOFFENSE } stunningSpy &&
                 SGameInfo.TeamIndexOf(stunningSpy) != SGameInfo.TeamIndexOf(this))
@@ -134,12 +152,19 @@ public partial class SPlayerController
     [Uc("SBase.SPlayerController.ClientStickyShock", Sha1 = "e01d43dfb1b013c00198d32f388907d884cd0dc6")]
     [PortOf("uc:SBase.SPlayerController:ClientStickyShock", Spec = "spec/combat/shock-and-taser.md#clientstickyshockpilltag-bplayanim-owner-in-the-owners-current-state")]
     [PortOf("rep:SBase.SPlayerController.ClientStickyShock", Spec = "spec/combat/shock-and-taser.md#network")]
-    public void ClientStickyShock(int PillTag, bool bPlayAnim = false)
+    public void ClientStickyShock(int PillTag, bool bPlayAnim = false, bool cancelCharge = false)
     {
         if (IsRemotePlayer)
         {
-            CombatNet.ClientCall(this, new CombatCall(CNAME_ClientStickyShock) { Int1 = PillTag, Bool1 = bPlayAnim });
+            CombatNet.ClientCall(this, new CombatCall(CNAME_ClientStickyShock)
+                { Int1 = PillTag, Bool1 = bPlayAnim, Int2 = cancelCharge ? 1 : 0 });
             return;
+        }
+
+        if (cancelCharge && StateNode is s_PlayerWalkingSt2H && SBPawn is { } pawn)
+        {
+            StopChargeMotion(pawn);
+            CombatPorts.ChangeEnumAction(pawn, SBasePawn.SA_WALK_ST_2H, true);
         }
 
         if (StateNode is IClientStickyShock s)
@@ -247,11 +272,22 @@ public partial class SPlayerController
     [PortOf("uc:SBase.SPlayerController:s_PlayerCharging.ClientStickyShock", Spec = "spec/combat/shock-and-taser.md#clientstickyshockpilltag-bplayanim-owner-in-the-owners-current-state")]
     public void ChargingClientStickyShock(int PillTag)
     {
-        GlobalClientStickyShock(PillTag, false);
-        if (!bFinDeChargeEnCours)
+        if (SBPawn is { } pawn)
         {
-            FinDeCharge();
+            StopChargeMotion(pawn);
+            CombatPorts.ChangeEnumAction(pawn, SBasePawn.SA_WALK_ST_2H, true);
         }
+        GotoState(CNAME_s_PlayerWalkingSt2H);
+        GlobalClientStickyShock(PillTag, true);
+    }
+
+    private void StopChargeMotion(SBasePawn pawn)
+    {
+        pawn.Acceleration = default;
+        pawn.Velocity = new FVector(0f, 0f, pawn.Velocity.Z);
+        pawn.GroundSpeed = 0f;
+        TargetPawn = null;
+        bFinDeChargeEnCours = false;
     }
 
     /// <summary>The co-op climber states: the global shock, then back to walking.</summary>

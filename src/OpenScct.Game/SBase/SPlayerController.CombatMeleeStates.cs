@@ -20,6 +20,8 @@ public partial class SPlayerController
     private static readonly Name MNAME_s_Charging_Bump = new("s_Charging_Bump");
     private static readonly Name MNAME_PlayerFallingKO = new("PlayerFallingKO");
 
+    internal bool ChargeKnockbackPlaying { get; set; }
+
     /// <summary>The knock-back blur (rule 12): strength from the hit direction, 0 to 1; length 2 + 5 c seconds.</summary>
     private void KnockBackBlur()
     {
@@ -740,6 +742,7 @@ public partial class SPlayerController
         public override void BeginState(Actor self)
         {
             var pc = (SPlayerController)self;
+            pc.ChargeKnockbackPlaying = false;
             if (pc.SBPawn is not { } pawn)
             {
                 return;
@@ -791,7 +794,8 @@ public partial class SPlayerController
         public override void AnimEnd(Actor self, int Channel)
         {
             var pc = (SPlayerController)self;
-            if (Channel != 0)
+            // On a remote victim the previous clip can end before the owner's knockback action arrives.
+            if (Channel != 0 || !pc.ChargeKnockbackPlaying)
             {
                 return;
             }
