@@ -17,7 +17,7 @@ from ..sources import env
 
 class CharsStep(Step):
     name = "chars"
-    version = 16  # Original authored cosmetic artwork replaces procedural finishes.
+    version = 19  # Include the Spy's arms and Shocker for the drawn stance.
     deps = ()
     per_map = False
     background = True   # no other step reads shared/chars; runs beside the maps
@@ -28,7 +28,7 @@ class CharsStep(Step):
                   "content/svmbuild/writers/glb.py", "content/svmbuild/canonical.py", "content/svmbuild/cosmetics.py",
                   "content/svmbuild/skeleton.py", "content/svmbuild/gunskin.py", "content/svmbuild/fitted.py", "content/svmbuild/cosmetic_art.py", "content/svmbuild/sidearms.py", "content/svmbuild/sidearm_models.py", "content/svmbuild/pistol_arms.py",
                   "content/svmbuild/authored_characters.py", "content/svmbuild/reload_motion.py",
-                  "content/svmbuild/reload_choreography.py")
+                  "content/svmbuild/reload_choreography.py", "content/svmbuild/spy_viewmodel.py")
 
     def extra_code(self) -> list[Path]:
         return env.code_files()
@@ -82,6 +82,8 @@ class CharsStep(Step):
 
         from ..sidearms import install_models
         from ..authored_characters import install_models as install_characters
+        from ..spy_viewmodel import install_models as install_spy_viewmodel
+        spy_viewmodel = install_spy_viewmodel(out_dir)
         characters = install_characters(out_dir)
         # Keep original primary reload tracks aligned with their gameplay notifies.
         cosmetics = build_all(out_dir)
@@ -89,5 +91,6 @@ class CharsStep(Step):
         summary = {"meshes": sum(len(v["meshes"]) for k, v in stats.items() if not k.startswith("_")),
                    "animations": sum(len(v["animations"]) for k, v in stats.items() if not k.startswith("_")),
                    "cosmetics": cosmetics, "sidearms": sidearms, "authored_characters": characters,
+                   "spy_viewmodel": spy_viewmodel,
                    "detail": stats}
         return StepOutput(stats=summary)

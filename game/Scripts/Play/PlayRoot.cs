@@ -159,6 +159,8 @@ public partial class PlayRoot : Node3D
 
     public FirstPersonView? FirstPerson { get; private set; }
 
+    public SpyFirstPersonView? SpyFirstPerson { get; private set; }
+
     /// <summary>Muzzle flashes, tracers, impact marks and sparks (game/Scripts/Fx).</summary>
     public OpenScctGame.Fx.CombatFxView? Fx { get; private set; }
 
@@ -238,6 +240,7 @@ public partial class PlayRoot : Node3D
                 Fx.Preload(warmup.Samples);
                 MercLasers.Preload(warmup.Samples);
                 SpyLasers?.Preload(warmup.Samples);
+                SpyFirstPerson?.Warmup(warmup.Samples);
                 if (Map is { } map) DeviceViews.PreloadSecuritySkins(map, warmup.Samples);
                 warmup.Begin(FinishLoading);
             }
@@ -311,15 +314,24 @@ public partial class PlayRoot : Node3D
             FirstPerson = new FirstPersonView { Map = Map, SharedRoot = Map.SharedRoot };
             AddChild(FirstPerson);
             FirstPerson.PreloadSidearms();
+            SpyFirstPerson = new SpyFirstPersonView { Map = Map, SharedRoot = Map.SharedRoot };
+            AddChild(SpyFirstPerson);
+            SpyFirstPerson.Preload();
             Render.Characters.PawnOutfits.Prepare(Map.Outfits, Map.Folder, Map.SharedRoot,
                 rain: Session.Client.World.Level.GetService<RainVolumeList>() is { Volumes.Count: > 0 });
-            Fx = new OpenScctGame.Fx.CombatFxView { Pawns = Pawns, FirstPerson = FirstPerson, SharedRoot = Map.SharedRoot };
+            Fx = new OpenScctGame.Fx.CombatFxView
+            {
+                Pawns = Pawns, FirstPerson = FirstPerson, SpyFirstPerson = SpyFirstPerson, SharedRoot = Map.SharedRoot,
+            };
             AddChild(Fx);
             FlashLight = new FlashLightView { Name = "FlashLight", Map = Map, Pawns = Pawns };
             AddChild(FlashLight);
             MercLasers = new MercLaserView { Name = "MercLasers", Map = Map, Pawns = Pawns, FirstPerson = FirstPerson };
             AddChild(MercLasers);
-            SpyLasers = new OpenScctGame.Fx.SpyLaserView { Name = "SpyLasers", Map = Map, Pawns = Pawns, SharedRoot = Map.SharedRoot };
+            SpyLasers = new OpenScctGame.Fx.SpyLaserView
+            {
+                Name = "SpyLasers", Map = Map, Pawns = Pawns, SpyFirstPerson = SpyFirstPerson, SharedRoot = Map.SharedRoot,
+            };
             AddChild(SpyLasers);
             LaserTriggers = new OpenScctGame.Fx.LaserTriggerView(Map);
             ShockFx = new OpenScctGame.Fx.ShockFxView { Name = "ShockFx", Pawns = Pawns };
@@ -709,9 +721,11 @@ public partial class PlayRoot : Node3D
         (float pendingX, float pendingY) = Controls?.PendingMouse ?? (0f, 0f);
         FRotator look = session.ViewOverride is not null ? default
             : _look.Offset(pc, session.Mouse, pendingX + session.Input.MouseX, pendingY + session.Input.MouseY, alpha);
+        bool cameraApplied = false;
         if (Camera is not null && View is not null && Camera.Apply(session.PreviousView, session.View, alpha, look,
             _look.OrbitDistance(pc), session.ViewOverride is null ? pc : null))
         {
+            cameraApplied = true;
             if (_cameraOcclusion is not null) _cameraOcclusion.Visible = Camera.Occluded;
             // Materials, light types and the map's emitters at the drawn moment between ticks (they moved only at the
             // 60 Hz ticks before, so they held still in most frames above 60 fps).
@@ -798,6 +812,10 @@ public partial class PlayRoot : Node3D
             }
             else
                 FirstPerson?.Draw(pc, location, rotation, dt, alpha);
+            SPawnAttaque? eyeSpy = cameraApplied && !Camera.Occluded && session.ViewOverride is null &&
+                session.FirstPersonOverride is null && session.View.SpyFirstPerson && pc is { SpyFirstPersonActive: true }
+                ? firstPerson as SPawnAttaque : null;
+            SpyFirstPerson?.Draw(pc, eyeSpy, location, rotation, dt, alpha);
             Fx?.Draw(dt, location, rotation, pc, demoPlayback: Config.Demo is not null);
             FlashLight?.Draw(session.Client.World.Level, session.LocalPawn, location,
                 ReferenceEquals(firstPerson, session.LocalPawn) ? (location, rotation) : null);
@@ -850,6 +868,7 @@ public partial class PlayRoot : Node3D
         Conveyors = null;
         Pawns = null;
         FirstPerson = null;
+        SpyFirstPerson = null;
         Fx = null;
         FlashLight = null;
         MercLasers = null;

@@ -9,7 +9,7 @@ experiments. Keep game-derived outputs under ignored `local/` or `.content/`; se
 - [Static assets](#static-assets-and-native-rig-animation-exports)
 - [Mixamo retargeting](#mixamo-retarget-pilot)
 - [Validation](#verification)
-- [Weapon reloads](#weapon-reload-authoring) and [audio](#weapon-audio)
+- [Spy first-person](#spy-first-person-authoring), [weapon reloads](#weapon-reload-authoring) and [audio](#weapon-audio)
 
 ## Editable spy and merc bases
 
@@ -179,6 +179,22 @@ Pilot sources: Poly Haven `plastic_crate_03` (Pacific Penguin, CC0) and Mixamo
 animation `116160902`, Walking while aiming rifle, on X Bot. Both were downloaded
 through the installed integrations. The crate was reduced to 12,000 triangles;
 a 6,000-triangle trial visibly damaged the lattice and was rejected.
+
+## Spy first-person authoring
+
+The `chars` build generates the first-person P190, gloves, and cropped sleeves
+for the drawn stance. It reuses the stock materials and cosmetic textures.
+After building `chars`, create the optional local Blender workspace to edit the
+stock Shocker mechanisms, finger FK, wrist IK, and contact guides.
+
+```powershell
+blender -b --python-exit-code 1 --python tools/assets/author_spy_viewmodel.py -- --repo .
+```
+
+The script saves `local/spy-viewmodel/spy-viewmodel.blend`. Use `--chars` to
+preview another converted chars folder. The script keeps an existing workspace
+unless you pass `--replace`.
+
 ## Weapon reload authoring
 
 The content build applies `content/svmbuild/reload_choreography.py` to the rifle,

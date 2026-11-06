@@ -55,6 +55,7 @@ public sealed class GameplayFxWarmupSmoke : SmokeTest
             _root.Fx.Preload(_repeat.Samples);
             lasers.Preload(_repeat.Samples);
             _root.SpyLasers?.Preload(_repeat.Samples);
+            _root.SpyFirstPerson?.Warmup(_repeat.Samples);
             int effectSamples = _repeat.Samples.GetChildCount();
             if (_root.Map is { } map) DeviceViews.PreloadSecuritySkins(map, _repeat.Samples);
             _securitySamples = _repeat.Samples.GetChildCount() - effectSamples;

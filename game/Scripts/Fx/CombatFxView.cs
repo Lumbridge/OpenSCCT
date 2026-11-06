@@ -73,6 +73,8 @@ public partial class CombatFxView : Node3D
     /// <summary>The first-person rifle, for its muzzle bone.</summary>
     public FirstPersonView? FirstPerson { get; set; }
 
+    public SpyFirstPersonView? SpyFirstPerson { get; set; }
+
     /// <summary>The shared content root (for the effect assets once they are converted).</summary>
     public string? SharedRoot { get; set; }
 
@@ -374,10 +376,21 @@ public partial class CombatFxView : Node3D
 
             aim.GetAxes(out FVector x, out _, out _);
             forward = UeSpace.DirectionToGodot(x);
-            at = useDrawnPose && pawn is SBasePawn sb && TryDrawnMuzzle(sb, viewer, out Transform3D muzzle) ? muzzle.Origin :
-                useDrawnPose && Pawns is not null && Pawns.TryGetBone(pawn as SBasePawn, BoneRightHand, out Transform3D hand)
-                ? hand.Origin + (forward * UeSpace.LengthToGodot(24f))
-                : UeSpace.ToGodot(pawn.Location + new FVector(0f, 0f, pawn.EyeHeight * 0.6f) + (x * 40f));
+            if (sticky && useDrawnPose && ReferenceEquals(viewer?.Pawn, pawn) &&
+                pawn is SPawnAttaque { MyWeapon: SWeaponAttaque pistol } && SpyFirstPerson is { } spy && spy.OwnsWeapon(pistol))
+            {
+                // A confirmed flash can arrive while the local muzzle is occluded or the gun is holstered.
+                if (!spy.TryGetSocket(pistol, BoneFx, out Transform3D spyMuzzle)) return;
+                at = spyMuzzle.Origin;
+                forward = spyMuzzle.Basis.X.Normalized();
+            }
+            else
+            {
+                at = useDrawnPose && pawn is SBasePawn sb && TryDrawnMuzzle(sb, viewer, out Transform3D muzzle) ? muzzle.Origin :
+                    useDrawnPose && Pawns is not null && Pawns.TryGetBone(pawn as SBasePawn, BoneRightHand, out Transform3D hand)
+                    ? hand.Origin + (forward * UeSpace.LengthToGodot(24f))
+                    : UeSpace.ToGodot(pawn.Location + new FVector(0f, 0f, pawn.EyeHeight * 0.6f) + (x * 40f));
+            }
         }
 
         Color colour = sticky ? FromHue(148, 127) : FromHue(40, 190);
