@@ -18,15 +18,32 @@ public sealed class QuickChoiceTests
 {
     private static readonly PlayerInputFrame Still = new();
 
-    private static PawnRig Kit(PawnTeam team, bool crouched = false)
+    private static PawnRig Kit(PawnTeam team, bool crouched = false, PawnRigOptions? options = null)
     {
-        PawnRig rig = MovementTestKit.Rig(team, crouched: crouched);
+        PawnRig rig = MovementTestKit.Rig(team, crouched: crouched, options: options);
         CombatEquipment.Install(rig.Level);
         Loadouts.UpdateInventory(rig.Pawn, EGameMode.GM_Neutralization);
 
         // A quick throw is refused in the first two seconds of play (the last launch date starts at 0).
         rig.Hold(Still, (int)(K.QuickLaunchCooldown * Sim.Hz) + 10);
         return rig;
+    }
+
+    private sealed class SpyDrawAnimations : IPawnAnimationSource
+    {
+        public bool TryGetClip(SBasePawn pawn, Name sequence, out PawnClip clip)
+        {
+            if (sequence == pawn.ADrawStand2H || sequence == pawn.ADrawCrouch2H)
+            {
+                clip = new PawnClip(sequence, 9, 30f)
+                {
+                    Notifies = [new(0.17f, new UAnimNotify_Script { NotifyName = new Name("NotifyDrawWeapon") })],
+                };
+                return true;
+            }
+
+            return PawnAnimationSource.Default.TryGetClip(pawn, sequence, out clip);
+        }
     }
 
     private static List<string> Slots(SBasePawn pawn)
@@ -126,6 +143,44 @@ public sealed class QuickChoiceTests
         Assert.True(rig.Level.TimeSeconds < K.QuickLaunchCooldown);
         rig.Controller.eventGadgetQuickChoice(0);
         Assert.False(rig.Controller.bQuickGadgetQuery);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void AnAimedGrenadeTapDuringDrawFiresAsSoonAsTheShockerIsInHand(bool crouched)
+    {
+        PawnRig rig = Kit(PawnTeam.Spy, crouched, new PawnRigOptions { Animations = new SpyDrawAnimations() });
+        rig.Controller.SelectGadget(0);
+        var grenade = Assert.IsType<SGadSmokeGrenade>(rig.Pawn.SelectedGadget);
+        int charges = grenade.Charge;
+
+        rig.Hold(new PlayerInputFrame { bFireMode = 1 }, 6);
+        for (int i = 0; i < 6 && rig.Controller.StateNode is not SPlayerController.s_PlayerWalkingMario_T_0HTo2H; i++)
+        {
+            rig.Step(Still);
+        }
+
+        Assert.IsType<SPlayerController.s_PlayerWalkingMario_T_0HTo2H>(rig.Controller.StateNode);
+        Assert.Equal(0, rig.Pawn.WeaponLoaded);
+        rig.Controller.bAltFire = 1;
+        rig.Controller.eventAltFire(0f);
+        rig.Step(Still);
+        Assert.Equal(charges, grenade.Charge);
+        rig.Controller.bAltFire = 0;
+
+        for (int i = 0; i < 8 && grenade.Charge == charges; i++)
+        {
+            rig.Step(Still);
+            if (rig.Pawn.WeaponLoaded == 0)
+            {
+                Assert.Equal(charges, grenade.Charge);
+            }
+        }
+
+        Assert.Equal(charges - 1, grenade.Charge);
+        Assert.True(rig.Pawn.bWeaponTransit);
+        Assert.Equal(1, Count<SProjSmoke>(rig));
     }
 
     [Fact]

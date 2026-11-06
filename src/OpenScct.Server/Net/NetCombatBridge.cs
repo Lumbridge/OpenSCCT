@@ -37,6 +37,8 @@ public sealed class NetCombatBridge : ICombatNet
     private readonly NetCallArgs _deferredArgs = new();
     private static readonly Name OrientableRotation = new("ServerUpdateOrientableRotation");
     private static readonly Name UseCamNetwork = new("UseCamNetwork");
+    private static readonly Name SpawnInventory = new("ServerSpawnInventory");
+    private static readonly Name SpawnWeapon = new("ServerSpawnWeapon");
     private Pending? _orientation, _lastOrientation;
     private long _lastOrientationSent = long.MinValue / 2;
 
@@ -337,7 +339,10 @@ public sealed class NetCombatBridge : ICombatNet
         // controller channel, so executing them during packet decode can overtake the state immediately before
         // them (CamNet's wait state, for example). Keep the decoded call and its original possession until that
         // same fence; the bit reader is borrowed and cannot outlive this receive callback.
-        if (pc.XLevel.GetService<NetCombatBridge>() is { } ordered &&
+        // Kit grants depend on the current possession, not a movement command. In particular, an
+        // editor or mirror placement can reset movement before the first input command arrives.
+        if (call.Function != SpawnInventory && call.Function != SpawnWeapon &&
+            pc.XLevel.GetService<NetCombatBridge>() is { } ordered &&
             ordered._driver.Classes.Find(pc.GetType())?.Layout.FindFunction(FunctionName) is { } function)
         {
             NetFunctionHandler deliver = (self, _, _, _) =>

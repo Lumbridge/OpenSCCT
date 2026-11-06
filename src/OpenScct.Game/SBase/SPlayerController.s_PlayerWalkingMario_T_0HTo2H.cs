@@ -15,8 +15,8 @@ namespace OpenScct.Game.SBase;
 public partial class SPlayerController
 {
     /// <remarks>
-    /// Not ported here: SetCamMode1st (the armed states set the same camera) and the ignored AltFire, Fire,
-    /// GadgetQuickChoice and SwitchBinocularVision.
+    /// The armed states set the camera. AltFire can start an aimed grenade during this transition so a quick tap
+    /// launches once the draw notify has attached the Shocker.
     /// </remarks>
     [Uc("SBase.SPlayerController.s_PlayerWalkingMario_T_0HTo2H")]
     public class s_PlayerWalkingMario_T_0HTo2H : s_PlayerWalkingMario

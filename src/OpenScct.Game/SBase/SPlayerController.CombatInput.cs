@@ -38,6 +38,7 @@ public partial class SPlayerController
 
     private bool _cloakButtonDown;
     private SPawnAttaque? _heldCloakPawn;
+    private SGadGrenLauncher? _grenadeStartedDuringDraw;
 
     /// <summary>Dedicated cloak input; mercenary breath and gadget use do not activate it.</summary>
     public byte bCloak;
@@ -144,7 +145,7 @@ public partial class SPlayerController
         {
             s.AltFire(this, F);
         }
-        else if (StateRunsGlobal("AltFire", out _))
+        else if (IsDrawingSpyGrenade(SBPawn) || StateRunsGlobal("AltFire", out _))
         {
             AltFire(F);
         }
@@ -355,7 +356,8 @@ public partial class SPlayerController
             return;
         }
 
-        if (bIsInInventoryMode || iDontUpdatePadInput != 0 || pawn.bWeaponTransit || pawn.bStickyShocking)
+        bool drawingGrenade = IsDrawingSpyGrenade(pawn);
+        if (bIsInInventoryMode || iDontUpdatePadInput != 0 || (pawn.bWeaponTransit && !drawingGrenade) || pawn.bStickyShocking)
         {
             return;
         }
@@ -364,12 +366,13 @@ public partial class SPlayerController
         switch (pawn.SelectedGadget)
         {
             case SGadGrenLauncher grenade:
-                if (pawn.WeaponLoaded != 0 && grenade.CanUseGadget())
+                if ((pawn.WeaponLoaded != 0 || drawingGrenade) && grenade.CanUseGadget())
                 {
                     if (!bUsingNow)
                     {
                         TimerUSe = Level.TimeSeconds;
                         bUsingNow = true;
+                        _grenadeStartedDuringDraw = drawingGrenade ? grenade : null;
                     }
                 }
                 else if (grenade.Charge <= 0)
@@ -394,6 +397,10 @@ public partial class SPlayerController
                 break;
         }
     }
+
+    private bool IsDrawingSpyGrenade(SBasePawn? pawn) =>
+        StateNode is s_PlayerWalkingMario_T_0HTo2H &&
+        pawn is SPawnAttaque { MyWeapon: SWeaponAttaque, SelectedGadget: SGadGrenLauncher };
 
     /// <summary>
     /// A scripted turn (test pilots, tools): the view, and for a merc also the aim, since his mouse moves the aim and the
@@ -890,6 +897,13 @@ public partial class SPlayerController
         bIsInInventoryMode = false;
         if (SBPawn is not { } pawn)
         {
+            if (_grenadeStartedDuringDraw is not null)
+            {
+                _grenadeStartedDuringDraw = null;
+                bUsingNow = false;
+                SetBallisticValue(0f);
+            }
+
             _heldCloakPawn = null;
             _cloakButtonDown = false;
             return;
@@ -939,6 +953,31 @@ public partial class SPlayerController
     /// </summary>
     private void ThrowCharge(SBasePawn pawn, float now)
     {
+        if (_grenadeStartedDuringDraw is { } drawingGrenade)
+        {
+            bool drawing = StateNode is s_PlayerWalkingMario_T_0HTo2H;
+            if (!bUsingNow || pawn.MyWeapon is not SWeaponAttaque || pawn.SelectedGadget != drawingGrenade || pawn.bStickyShocking ||
+                iDontUpdatePadInput != 0 || bForceExitFireMode ||
+                (!drawing && StateNode is not (s_PlayerWalkingSt2H or s_PlayerWalkingCr2H)))
+            {
+                _grenadeStartedDuringDraw = null;
+                bUsingNow = false;
+                SetBallisticValue(0f);
+                return;
+            }
+
+            // A tap before the draw notify waits for the Shocker to attach to the hand.
+            if (pawn.WeaponLoaded == 0)
+            {
+                return;
+            }
+
+            if (!drawing)
+            {
+                _grenadeStartedDuringDraw = null;
+            }
+        }
+
         if (!bUsingNow)
         {
             return;
@@ -968,6 +1007,7 @@ public partial class SPlayerController
         }
 
         bUsingNow = false;
+        _grenadeStartedDuringDraw = null;
         if (CheckIfCanFire())
         {
             grenade.Use(v);
