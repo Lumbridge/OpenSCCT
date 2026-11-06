@@ -324,13 +324,24 @@ public sealed partial class MapCatalog
             {
                 map = builder(world, isClient);
                 beforeBeginPlay?.Invoke(world.Level);
-                error = null;
-                return true;
             }
-
-            if (FindFolder(mapName) is { } folder)
+            else if (FindFolder(mapName) is { } folder)
             {
                 map = LoadSvMap(world, GetSvMap(folder), isClient, beforeBeginPlay: beforeBeginPlay);
+            }
+            else
+            {
+                map = null;
+            }
+
+            if (map is not null)
+            {
+                // Custom play loaders install their own gameplay services, but use the same shot geometry.
+                if (map.Physics is { } physics && GadgetMeshes is { } meshes)
+                {
+                    physics.Collision.GadgetMeshes = meshes;
+                }
+
                 error = null;
                 return true;
             }

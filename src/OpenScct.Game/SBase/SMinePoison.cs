@@ -105,8 +105,12 @@ public partial class SMinePoison
     [PortOf("uc:SBase.SMinePoison:PostBeginPlay", Spec = "spec/equipment/mine-launcher.md#mines")]
     protected override void PostBeginPlay()
     {
-        Rotation.GetAxes(out FVector x, out _, out _);
-        SetLocation(Location + x * PoisonOffset);
+        if (Role == ENetRole.ROLE_Authority)
+        {
+            Rotation.GetAxes(out FVector x, out _, out _);
+            SetLocation(Location + x * PoisonOffset);
+        }
+
         base.PostBeginPlay();
     }
 }

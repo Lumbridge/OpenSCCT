@@ -32,10 +32,11 @@ public partial class SMinePiegeSpy
     protected override void PostBeginPlay()
     {
         base.PostBeginPlay();
-        Rotation.GetAxes(out FVector x, out _, out _);
-        SetLocation(Location + x * TrapOffset);
         if (Role == ENetRole.ROLE_Authority)
         {
+            // A network copy opens at the authority's final location, including the placement offset.
+            Rotation.GetAxes(out FVector x, out _, out _);
+            SetLocation(Location + x * TrapOffset);
             SpawnLaser();
         }
 

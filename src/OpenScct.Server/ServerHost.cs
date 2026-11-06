@@ -235,7 +235,7 @@ public sealed partial class ServerHost : INetworkNotify, IDisposable
 
         if (Game is not null)
         {
-            GameplayServices.Install(World.Level, Map.Physics, maps.PawnAnimations, maps.PillPose, maps.GadgetMeshes);
+            GameplayServices.Install(World.Level, Map.Physics, maps.PawnAnimations, maps.PillPose);
             Combat = NetCombatBridge.Install(World.Level, Driver);
             HearSound = NetHearSound.InstallServer(World, Driver);
             BeforeWorldTick += static host => host.HearSound?.RelayLate();

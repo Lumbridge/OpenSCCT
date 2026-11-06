@@ -8,7 +8,7 @@ public sealed partial class MapCatalog
     private GadgetCollision? _gadgetMeshes;
 
     /// <summary>The same converted mine hit geometry on clients and dedicated servers, shared across maps.</summary>
-    public GadgetCollision GadgetMeshes
+    public GadgetCollision? GadgetMeshes
     {
         get
         {
@@ -28,7 +28,8 @@ public sealed partial class MapCatalog
                     string path = Path.Combine(content, "render", "gameplay", "collision.json");
                     if (File.Exists(path)) return _gadgetMeshes = GadgetCollision.Load(path);
                 }
-                return _gadgetMeshes = new GadgetCollision();
+                // A catalog can be used before the shared pack finishes downloading.
+                return null;
             }
         }
     }
