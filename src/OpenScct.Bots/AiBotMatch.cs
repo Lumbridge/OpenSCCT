@@ -5,6 +5,7 @@ using System.Text;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
 using OpenScct.Game.AI;
+using OpenScct.Game.Objectives;
 using OpenScct.Game.SBase;
 using OpenScct.Net;
 using OpenScct.Server;
@@ -172,26 +173,11 @@ public sealed class AiBotMatch : IDisposable
 
     public AiBotMatchReport Report()
     {
-        int taken = 0;
-        int needed = 0;
-        var seen = new HashSet<SObjective>(ReferenceEqualityComparer.Instance);
-        EGameMode mode = Host.Game?.MatchInfo?.GameMode ?? EGameMode.GM_Undefined;
-        foreach (SMission m in Host.World.Level.AllActors<SMission>())
-        {
-            if (m.GameMode != mode)
-            {
-                continue;
-            }
-
-            needed = m.MinimumObjectives;
-            foreach (SObjective? o in m.Objectives)
-            {
-                if (o is { ObjectiveTaken: true } && seen.Add(o))
-                {
-                    taken++;
-                }
-            }
-        }
+        // Use the HUD's mission counters: inactive future stages and unused objectives also have
+        // ObjectiveTaken=true, so counting that flag reports progress before anyone has done anything.
+        GameReplicationInfo? gri = Host.Game?.GameReplicationInfo;
+        int needed = Math.Max(0, gri?.NumObjectives ?? 0);
+        int taken = Math.Clamp(needed - MissionRules.GetObjectivesLeft(Host.World.Level), 0, needed);
 
         int spyDeaths = 0;
         int mercDeaths = 0;
@@ -222,7 +208,6 @@ public sealed class AiBotMatch : IDisposable
             });
         }
 
-        GameReplicationInfo? gri = Host.Game?.GameReplicationInfo;
         float seconds = Host.StartGate is { StartedAt: >= 0f } gate ? Host.World.TimeSeconds - gate.StartedAt : 0f;
         return new AiBotMatchReport(Settings.Map, Host.StartGate?.Started ?? false, Ended, gri?.WinningTeam ?? -1, gri?.WinningReason ?? -1,
             seconds, taken, needed, mercDeaths, spyDeaths, Bots.World?.Noise.MakeNoiseCount ?? 0, bots);
