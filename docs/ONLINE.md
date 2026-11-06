@@ -890,8 +890,19 @@ The player's Discord status (what they are playing, with Join for friends) is in
 
 ## Updating the VPS
 
-`tools/deploy/Deploy-Vps.ps1` updates the running master, dedicated server and hub in one command (default: all
-three; `-Services master` for one). For each service it:
+The official London deployment uses three Lightsail instances.
+
+| Service | Instance | Deploy target | UDP game port |
+|---|---|---|---:|
+| Master and relay | `svm-master` | `master.lumbridge.co.uk` | |
+| EU Official Server #1 | `svm-server-eu` | `35.176.22.150` | 28888 |
+| OpenSCCT Hub (EU) | `svm-hub-eu` | `16.61.131.28` | 28889 |
+
+`tools/deploy/Deploy-Vps.ps1` updates all three by default. Use `-Services master`, `-Services server`,
+`-Services hub` or `-Services hubmaps` to deploy selectively. For a custom deployment, `-VpsHost` sets the
+shared target, and `-ServerVpsHost` and `-HubVpsHost` set individual targets.
+
+For each service the script does the following.
 1. publishes the program (linux-x64, self-contained) and uploads it;
 2. stops the service and backs up its folder to `/opt/svm/backups` (program, config, `accounts.db`, `ticket-key.pem`;
    not the converted maps and characters). It keeps the last ten backups of each service;

@@ -1,9 +1,9 @@
 <#
 .SYNOPSIS
-    Builds and deploys the master, the dedicated server and the hub to the VPS (docs/ONLINE.md "Updating the VPS").
+    Builds and deploys the master, the dedicated server and the hub to their VPS hosts (docs/ONLINE.md "Updating the VPS").
 
 .DESCRIPTION
-    For each chosen service: publishes it (linux-x64, self-contained), uploads the program files, then on the VPS
+    For each chosen service: publishes it (linux-x64, self-contained), uploads the program files, then on its VPS
     stops the service, backs up its folder (program, config and the master's accounts database and ticket key, but not
     the converted maps and characters) to /opt/svm/backups, unpacks the new program over the old one, starts it again
     and checks it is up. A service that does not come back is restored from that backup and restarted.
@@ -18,6 +18,8 @@
     pwsh tools/deploy/Deploy-Vps.ps1                    # master, server and hub
     pwsh tools/deploy/Deploy-Vps.ps1 -Services master   # the master alone
     pwsh tools/deploy/Deploy-Vps.ps1 -Services hubmaps  # the hub's maps alone, program unchanged
+.EXAMPLE
+    pwsh tools/deploy/Deploy-Vps.ps1 -VpsHost staging.example.org  # all selected services on one custom host
 #>
 [CmdletBinding()]
 param(
@@ -26,23 +28,28 @@ param(
     [string] $VpsHost = 'master.lumbridge.co.uk',
     [string] $User = 'ubuntu',
     [string] $Key = (Join-Path $HOME '.ssh/lightsail-eu-west-2.pem'),
-    [switch] $SkipBuild
+    [switch] $SkipBuild,
+    [string] $ServerVpsHost,
+    [string] $HubVpsHost
 )
 
 $ErrorActionPreference = 'Stop'
 $root = Resolve-Path (Join-Path $PSScriptRoot '../..')
 $publish = Join-Path $root 'local/publish'
 $ssh = @('-i', $Key, '-o', 'BatchMode=yes', '-o', 'ConnectTimeout=15')
-$target = "$User@$VpsHost"
+$customVps = $PSBoundParameters.ContainsKey('VpsHost')
+if (-not $ServerVpsHost) { $ServerVpsHost = if ($customVps) { $VpsHost } else { '35.176.22.150' } }
+if (-not $HubVpsHost) { $HubVpsHost = if ($customVps) { $VpsHost } else { '16.61.131.28' } }
 
 # Service: (systemd unit, install folder, published program, project).
 $table = @{
-    master = @{ Unit = 'svm-master'; Dir = '/opt/svm/master'; Program = 'svm-master'; Project = 'src/OpenScct.Master'; Health = $true }
-    server = @{ Unit = 'svm-server'; Dir = '/opt/svm/server'; Program = 'svm-server'; Project = 'src/OpenScct.Server.Cli'; Health = $false }
-    hub    = @{ Unit = 'svm-hub'; Dir = '/opt/svm/hub'; Program = 'svm-server'; Project = 'src/OpenScct.Server.Cli'; Health = $false; Maps = $true }
+    master = @{ Vps = $VpsHost; Unit = 'svm-master'; Dir = '/opt/svm/master'; Program = 'svm-master'; Project = 'src/OpenScct.Master'; Health = $true }
+    server = @{ Vps = $ServerVpsHost; Unit = 'svm-server'; Dir = '/opt/svm/server'; Program = 'svm-server'; Project = 'src/OpenScct.Server.Cli'; Health = $false }
+    hub    = @{ Vps = $HubVpsHost; Unit = 'svm-hub'; Dir = '/opt/svm/hub'; Program = 'svm-server'; Project = 'src/OpenScct.Server.Cli'; Health = $false; Maps = $true }
     # The hub's maps alone (fixtures/hub, fixtures/hubmap), its program unchanged.
-    hubmaps = @{ Unit = 'svm-hub'; Dir = '/opt/svm/hub'; Program = $null; Health = $false; Maps = $true }
+    hubmaps = @{ Vps = $HubVpsHost; Unit = 'svm-hub'; Dir = '/opt/svm/hub'; Program = $null; Health = $false; Maps = $true }
 }
+$deployments = $Services | Group-Object { $table[$_].Vps }
 
 function Invoke-Checked([string] $what, [scriptblock] $block) {
     & $block
@@ -61,8 +68,6 @@ foreach ($program in $programs) {
     }
 
     Invoke-Checked "pack $program" { tar -czf (Join-Path $publish "$program.tgz") -C $out . }
-    Write-Host "Uploading $program..."
-    Invoke-Checked "upload $program" { scp @ssh (Join-Path $publish "$program.tgz") "${target}:/tmp/$program.tgz" }
 }
 
 # The hub's own maps, laid out as the hub folder has them (maps/Hub, maps/hubmap).
@@ -78,8 +83,6 @@ if ($withMaps) {
     }
 
     Invoke-Checked 'pack the hub maps' { tar -czf (Join-Path $publish 'svm-hubmaps.tgz') -C $stage maps }
-    Write-Host 'Uploading the hub maps...'
-    Invoke-Checked 'upload the hub maps' { scp @ssh (Join-Path $publish 'svm-hubmaps.tgz') "${target}:/tmp/svm-hubmaps.tgz" }
 }
 
 # ---- install on the VPS ----------------------------------------------------------------------------------------------
@@ -87,6 +90,7 @@ $remote = @'
 set -u
 # pkg / program "-": no program change; maps "-": no maps (else a tgz of maps/Hub and maps/hubmap).
 unit=$1; dir=$2; pkg=$3; health=$4; program=$5; maps=$6
+[ "$(systemctl show -p LoadState --value "$unit")" = loaded ] || { echo "$unit is not installed on this host"; exit 1; }
 hubmaps="maps/Hub maps/hubmap"
 stamp=$(date +%Y%m%d-%H%M%S)
 backup=/opt/svm/backups/$unit-$stamp.tgz
@@ -121,8 +125,8 @@ for i in $(seq 1 15); do
 done
 if [ $ok = 1 ]; then
   echo "$unit updated (backup $backup)"
-  ls -1t /opt/svm/backups/$unit-*.tgz 2>/dev/null | grep -v -- '-maps.tgz$' | tail -n +11 | xargs -r sudo rm -f
-  ls -1t /opt/svm/backups/$unit-*-maps.tgz 2>/dev/null | tail -n +4 | xargs -r sudo rm -f
+  sudo sh -c 'ls -1t /opt/svm/backups/"$1"-*.tgz' _ "$unit" 2>/dev/null | grep -v -- '-maps.tgz$' | tail -n +11 | xargs -r sudo rm -f
+  sudo sh -c 'ls -1t /opt/svm/backups/"$1"-*-maps.tgz' _ "$unit" 2>/dev/null | tail -n +4 | xargs -r sudo rm -f
   exit 0
 fi
 echo "$unit did not come back up; restoring $backup"
@@ -157,12 +161,23 @@ exit 1
 # Sent as a file with Unix line ends (piping text to ssh would add Windows ones).
 $script = Join-Path $publish 'deploy-remote.sh'
 [IO.File]::WriteAllText($script, $remote)
-Invoke-Checked 'upload the install script' { scp @ssh $script "${target}:/tmp/svm-deploy.sh" }
+foreach ($deployment in $deployments) {
+    $target = "$User@$($deployment.Name)"
+    $packages = $deployment.Group | ForEach-Object { $table[$_].Program } | Where-Object { $_ } | Sort-Object -Unique
+    foreach ($program in $packages) {
+        Invoke-Checked "upload $program to $target" { scp @ssh (Join-Path $publish "$program.tgz") "${target}:/tmp/$program.tgz" }
+    }
+    if ($deployment.Group | Where-Object { $table[$_].Maps }) {
+        Invoke-Checked "upload hub maps to $target" { scp @ssh (Join-Path $publish 'svm-hubmaps.tgz') "${target}:/tmp/svm-hubmaps.tgz" }
+    }
+    Invoke-Checked "upload the install script to $target" { scp @ssh $script "${target}:/tmp/svm-deploy.sh" }
+}
 
 $failed = @()
 foreach ($service in $Services) {
     $s = $table[$service]
-    Write-Host "Installing $service..."
+    $target = "$User@$($s.Vps)"
+    Write-Host "Installing $service on $target..."
     $pkg = if ($s.Program) { "/tmp/$($s.Program).tgz" } else { '-' }
     $program = if ($s.Program) { $s.Program } else { '-' }
     $maps = if ($s.Maps) { '/tmp/svm-hubmaps.tgz' } else { '-' }
@@ -170,6 +185,9 @@ foreach ($service in $Services) {
     if ($LASTEXITCODE -ne 0) { $failed += $service }
 }
 
-ssh @ssh $target "rm -f /tmp/svm-master.tgz /tmp/svm-server.tgz /tmp/svm-hubmaps.tgz /tmp/svm-deploy.sh" | Out-Null
+foreach ($deployment in $deployments) {
+    $target = "$User@$($deployment.Name)"
+    ssh @ssh $target "rm -f /tmp/svm-master.tgz /tmp/svm-server.tgz /tmp/svm-hubmaps.tgz /tmp/svm-deploy.sh" | Out-Null
+}
 if ($failed.Count -gt 0) { throw "Not updated (restored from backup): $($failed -join ', ')." }
 Write-Host "Done: $($Services -join ', ')."
