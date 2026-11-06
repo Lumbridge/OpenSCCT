@@ -238,6 +238,7 @@ public partial class PlayRoot : Node3D
                 Fx.Preload(warmup.Samples);
                 MercLasers.Preload(warmup.Samples);
                 SpyLasers?.Preload(warmup.Samples);
+                if (Map is { } map) DeviceViews.PreloadSecuritySkins(map, warmup.Samples);
                 warmup.Begin(FinishLoading);
             }
             else FinishLoading();
@@ -351,6 +352,7 @@ public partial class PlayRoot : Node3D
         {
             // Before the HUD: the sound takes the client world's event sink first and the HUD's tap wraps it.
             Audio = PlayAudio.Attach(this, Session, ListenerView, Config.Demo);
+            if (Map is { } map) Audio?.PreloadSecuritySounds(map.Actors);
         }
 
         Session.BeforeClientTick = BeforeTick;

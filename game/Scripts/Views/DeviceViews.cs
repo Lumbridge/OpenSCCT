@@ -35,6 +35,53 @@ public sealed class DeviceViews
     private float _relightClock;
     private double _skinClock;
 
+    /// <summary>Draw the alternate LED skins during loading using the same surfaces as the live devices.</summary>
+    internal static void PreloadSecuritySkins(RenderMap map, Node3D samples)
+    {
+        var warmed = new HashSet<(Mesh, int, Material, GeometryInstance3D.ShadowCastingSetting)>();
+        foreach (GameplayActor actor in map.Actors.Actors)
+        {
+            if (actor.ShortClass is not (nameof(SCamera) or nameof(SVolumetricSensor)) ||
+                !map.Gameplay.TryGetValue(actor.Id, out GameplayMesh? entry) || entry.Node.Mesh is not { } mesh)
+            {
+                continue;
+            }
+
+            AddSkin(actor.Asset(nameof(SCamera.LightOff)));
+            AddSkin(actor.Asset(nameof(SCamera.LightGreen)));
+            AddSkin(actor.Asset(nameof(SCamera.LightRed)));
+
+            void AddSkin(string? skin)
+            {
+                if (skin is null || MeshFollower.ResolveSkin(map.Pack, map, skin, entry.Light) is not { } material)
+                {
+                    return;
+                }
+
+                var shadows = entry.Node.CastShadow;
+                for (int i = 0; i < mesh.GetSurfaceCount(); i++)
+                {
+                    if (GameplayObjects.SectionOf(mesh, i) != SensorK.SensorLedSkin || !warmed.Add((mesh, i, material, shadows)))
+                    {
+                        continue;
+                    }
+
+                    Aabb bounds = mesh.GetAabb();
+                    float scale = 1f / Math.Max(bounds.Size.Length(), 0.01f);
+                    var sample = new MeshInstance3D
+                    {
+                        Mesh = mesh,
+                        CastShadow = shadows,
+                        Scale = Vector3.One * scale,
+                        Position = -bounds.GetCenter() * scale,
+                    };
+                    sample.SetSurfaceOverrideMaterial(i, material);
+                    samples.AddChild(sample);
+                }
+            }
+        }
+    }
+
     /// <summary>Binds the map's nodes to the actors <paramref name="loaded"/> created (the client's map load).</summary>
     public DeviceViews(RenderMap map, MapLoadResult loaded, Node3D parent, string? sharedRoot = null)
     {
@@ -525,13 +572,13 @@ public sealed class MeshFollower
             if (!string.Equals(_surfaceSkins[i], skin, StringComparison.OrdinalIgnoreCase))
             {
                 _surfaceSkins[i] = skin;
-                Material? material = map?.Materials.FindSource(skin) is { } name
-                    ? map.Compiler.Get(name, Entry.Light)
-                    : GameplaySkins.Skin(pack, skin, Entry.Light);
-                node.SetSurfaceOverrideMaterial(i, material);
+                node.SetSurfaceOverrideMaterial(i, ResolveSkin(pack, map, skin, Entry.Light));
             }
         }
     }
+
+    internal static Material? ResolveSkin(RenderPack? pack, RenderMap? map, string? skin, LightSource light) =>
+        map?.Materials.FindSource(skin) is { } name ? map.Compiler.Get(name, light) : GameplaySkins.Skin(pack, skin, light);
 
     // The skin path each surface last drew (null: the mesh's own material).
     private string?[] _surfaceSkins = [];

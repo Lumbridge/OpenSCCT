@@ -104,8 +104,8 @@ public sealed class AudioLibrary
 
     public SoundDef? Find(string? path) => path is not null && _sounds.TryGetValue(path, out SoundDef? d) ? d : null;
 
-    /// <summary>Decode every possible leaf of a gun's random/switch/sequence sound before its first shot.</summary>
-    public void Preload(string path)
+    /// <summary>Decode every possible leaf of a sound before its first use.</summary>
+    public void Preload(string path, bool forceLoop = false)
     {
         var visited = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         void Load(string name)
@@ -115,7 +115,7 @@ public sealed class AudioLibrary
             {
                 foreach (var entry in def.Entries) if (entry.Sound is { } child) Load(child);
             }
-            else Stream(def, def.Loop);
+            else Stream(def, forceLoop || def.Loop);
         }
         Load(path);
     }

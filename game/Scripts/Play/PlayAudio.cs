@@ -7,11 +7,13 @@ using Godot;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
 using OpenScct.Core.Uc;
+using OpenScct.Game.Devices;
 using OpenScct.Game.SBase;
 using OpenScct.Server;
 using OpenScctGame.Audio;
 using OpenScctGame.Play.Demo;
 using OpenScctGame.Play.Session;
+using OpenScctGame.Render.Data;
 
 namespace OpenScctGame.Play;
 
@@ -107,6 +109,42 @@ public sealed partial class PlayAudio : Node
         GD.Print($"SVM_AUDIO {audio.Library.Count} sounds, {audio.Library.Map?.Zones.Count ?? 0} zones, {audio.Sound.Buses?.ReverbBusCount ?? 0} reverb buses, " +
                  $"output {AudioServer.OutputDevice} at {AudioServer.GetMixRate()} Hz, Master {AudioServer.GetBusVolumeDb(0):F0} dB{(AudioServer.IsBusMute(0) ? " (muted)" : "")}");
         return audio;
+    }
+
+    /// <summary>Decode map security sounds before the first disable, destruction or detection.</summary>
+    internal void PreloadSecuritySounds(GameplayActors actors)
+    {
+        if (Library is not { } library)
+        {
+            return;
+        }
+
+        var sounds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var loops = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (GameplayActor actor in actors.Actors)
+        {
+            if (actor.ShortClass is not (nameof(SCamera) or nameof(SLaserTrigger) or nameof(SVolumetricSensor)))
+            {
+                continue;
+            }
+
+            Load(SensorK.ChaffExplosionSound.Path);
+            Load(actor.Asset(nameof(SBasicGamePlayObject.TakeDamageSound)));
+            Load(actor.Asset(nameof(SBasicGamePlayObject.DestroySound)));
+            if (actor.ShortClass == nameof(SCamera))
+            {
+                Load(actor.Asset(nameof(SCamera.CamDzzz)));
+                Load(actor.Asset(nameof(SCamera.CamBipbip)), forceLoop: true);
+            }
+        }
+
+        void Load(string? path, bool forceLoop = false)
+        {
+            if (path is not null && (forceLoop ? loops : sounds).Add(path))
+            {
+                library.Preload(path, forceLoop);
+            }
+        }
     }
 
     /// <summary>

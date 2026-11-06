@@ -3,6 +3,7 @@ using Godot;
 using OpenScctGame.Play;
 using OpenScctGame.Play.Session;
 using OpenScctGame.Render;
+using OpenScctGame.Views;
 
 namespace OpenScctGame.Smoke;
 
@@ -16,6 +17,7 @@ public sealed class GameplayFxWarmupSmoke : SmokeTest
     private int _frames;
     private bool _complete;
     private double _drawCompiles;
+    private int _securitySamples;
     private int _teardown;
     private SmokeResult? _result;
 
@@ -25,7 +27,15 @@ public sealed class GameplayFxWarmupSmoke : SmokeTest
         if (_root is null)
         {
             context.Tree.Root.Msaa3D = Viewport.Msaa.Msaa4X;
-            _root = TestRange.Start(context, PlaySide.Merc, 0);
+            if (context.App.Options.PlayMap is not null)
+            {
+                _root = PlayRoot.Create(PlayConfig.FromOptions(context.App.Options));
+                context.Tree.Root.AddChild(_root);
+            }
+            else
+            {
+                _root = TestRange.Start(context, PlaySide.Merc, 0);
+            }
             return SmokeResult.Running;
         }
         if (_root.LoadError is { } error) return Finish(SmokeResult.Fail(error));
@@ -45,6 +55,9 @@ public sealed class GameplayFxWarmupSmoke : SmokeTest
             _root.Fx.Preload(_repeat.Samples);
             lasers.Preload(_repeat.Samples);
             _root.SpyLasers?.Preload(_repeat.Samples);
+            int effectSamples = _repeat.Samples.GetChildCount();
+            if (_root.Map is { } map) DeviceViews.PreloadSecuritySkins(map, _repeat.Samples);
+            _securitySamples = _repeat.Samples.GetChildCount() - effectSamples;
             if (effects.Started.Count != started || _root.Fx.DisabledCameraCount != cameras || lasers.BeamsDrawn != beams)
                 return Finish(SmokeResult.Fail("warmup changed live effect counters"));
             _repeat.Begin(() => _complete = true);
@@ -53,7 +66,7 @@ public sealed class GameplayFxWarmupSmoke : SmokeTest
         if (!_complete) return SmokeResult.Running;
         double late = Performance.GetMonitor(Performance.Monitor.PipelineCompilationsDraw) - _drawCompiles;
         if (late != 0) return Finish(SmokeResult.Fail($"first-use sample draw compiled {late} new pipelines after loading"));
-        return Finish(SmokeResult.Pass($"effects warmed during loading; no gameplay effects spawned; cleanup complete; repeat draw pipeline compilations={late}"));
+        return Finish(SmokeResult.Pass($"effects warmed during loading; no gameplay effects spawned; cleanup complete; security skin samples={_securitySamples}; repeat draw pipeline compilations={late}"));
     }
 
     private SmokeResult Finish(SmokeResult result)
