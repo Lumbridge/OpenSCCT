@@ -49,6 +49,10 @@ by the mean of the slowest 1% of frame times, rounded up to at least one frame. 
 view, allocations and GC pause. Add `-Profiling` for main-viewport render CPU/GPU timing (timestamp/readback overhead
 can affect throughput); that GPU time excludes the auxiliary sky and shadow viewports. Screenshots and CSV writes happen outside the measured interval. The runner rejects logs
 with engine or shader errors. Check screenshots and camera drift as well as the FPS table.
+Every measured frame must match the requested camera position, rotation and FOV; mismatches now fail the run.
+Results include the actual camera and distance from its reference. First-person records (`behindView:0`) are valid
+camera requests too. Older builds incorrectly used that flag as camera validity and could benchmark a frozen spawn
+view; reject those runs when their screenshots do not show the requested views.
 The comparison's `--require-parity` requires both average FPS and 1% low parity in every recorded view. These are
 background runs of a Reloaded editor Play Level and a release export; they do not establish retail foreground
 performance, moving-camera behavior, combat, network load or performance on another GPU.

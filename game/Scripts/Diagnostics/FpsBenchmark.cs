@@ -107,6 +107,19 @@ public partial class FpsBenchmark : Node
         double ms = Stopwatch.GetElapsedTime(_last, now).TotalMilliseconds;
         _last = now;
         if (elapsed - _start < _warmup) return;
+        // A valid camera request must reach the renderer. Otherwise a frozen spawn view can produce convincing
+        // frame times and identical screenshots for every requested pose, especially for first-person records.
+        GoldenShot shot = _shots[_index];
+        if (_play.Camera is not { } camera ||
+            OpenScct.Core.FVector.Dist(camera.Current.Location, shot.CameraLocation) > 0.05f ||
+            AngleError(camera.Current.Rotation.Pitch, shot.CameraRotation.Pitch) > 1 ||
+            AngleError(camera.Current.Rotation.Yaw, shot.CameraRotation.Yaw) > 1 ||
+            AngleError(camera.Current.Rotation.Roll, shot.CameraRotation.Roll) > 1 ||
+            Math.Abs(camera.Current.Fov - shot.Fov) > 0.01f)
+        {
+            Fail($"Rendered camera does not match benchmark view '{shot.Id}'");
+            return;
+        }
         if (_frames.Count == 0)
         {
             _allocated = GC.GetTotalAllocatedBytes(false);
@@ -150,7 +163,7 @@ public partial class FpsBenchmark : Node
         }
 
         GoldenShot shot = _shots[_index];
-        ViewSample view = new(0, shot.CameraLocation, shot.CameraRotation, shot.Fov, shot.BehindView);
+        ViewSample view = new(0, shot.CameraLocation, shot.CameraRotation, shot.Fov, Valid: true);
         _play!.Session!.ViewOverride = _ => view;
         _play.Session.SetViewNow(view);
         _frames.Clear();
@@ -181,6 +194,10 @@ public partial class FpsBenchmark : Node
             allocatedMbPerSecond = allocated / (total * 1000), gcPauseMs = pauseMs, gen0, gen1, gen2,
             pawnLocation = new[] { pawn.Location.X, pawn.Location.Y, pawn.Location.Z },
             pawnDistanceFromReferenceUu = OpenScct.Core.FVector.Dist(pawn.Location, _shots[_index].PawnLocation),
+            cameraLocation = new[] { _play.Camera!.Current.Location.X, _play.Camera.Current.Location.Y, _play.Camera.Current.Location.Z },
+            cameraRotation = new[] { _play.Camera.Current.Rotation.Pitch, _play.Camera.Current.Rotation.Yaw, _play.Camera.Current.Rotation.Roll },
+            cameraFov = _play.Camera.Current.Fov,
+            cameraDistanceFromReferenceUu = OpenScct.Core.FVector.Dist(_play.Camera.Current.Location, _shots[_index].CameraLocation),
             drawCalls = Performance.GetMonitor(Performance.Monitor.RenderTotalDrawCallsInFrame),
             renderedObjects = Performance.GetMonitor(Performance.Monitor.RenderTotalObjectsInFrame),
             renderedPrimitives = Performance.GetMonitor(Performance.Monitor.RenderTotalPrimitivesInFrame),
@@ -202,4 +219,6 @@ public partial class FpsBenchmark : Node
         _done = true;
         GetTree().Quit(1);
     }
+
+    private static int AngleError(int actual, int expected) => Math.Abs((int)unchecked((short)(actual - expected)));
 }
