@@ -130,6 +130,12 @@ internal static class CollisionMath
     public static bool SweepTriangle(in TriPrim t, FVector s, FVector d, FVector e, bool zeroExtent, float limit,
         out float time, out FVector normal, out bool startPenetrating)
     {
+        if (zeroExtent)
+        {
+            startPenetrating = false;
+            return LineTriangle(t, s, d, limit, out time, out normal);
+        }
+
         var st = default(ClipState);
         st.Reset(limit);
         time = 1f;
@@ -160,14 +166,33 @@ internal static class CollisionMath
             return false;
         }
 
-        if (zeroExtent && (d | t.N) >= 0f)
-        {
-            time = 1f;
-            normal = default;
-            startPenetrating = false;
-            return false;
-        }
+        return true;
+    }
 
+    /// <summary>A front-face line hit with inclusive triangle edges and segment endpoints. A zero-size box has no
+    /// thickness: independently rounded SAT slabs can give disjoint entry/exit times for the same plane. Use one
+    /// barycentric intersection instead, with double local differences to keep translated, short rays stable.</summary>
+    private static bool LineTriangle(in TriPrim t, FVector s, FVector d, float limit, out float time, out FVector normal)
+    {
+        time = 1f;
+        normal = default;
+        double ax = (double)t.V1.X - t.V0.X, ay = (double)t.V1.Y - t.V0.Y, az = (double)t.V1.Z - t.V0.Z;
+        double bx = (double)t.V2.X - t.V0.X, by = (double)t.V2.Y - t.V0.Y, bz = (double)t.V2.Z - t.V0.Z;
+        double px = d.Y * bz - d.Z * by, py = d.Z * bx - d.X * bz, pz = d.X * by - d.Y * bx;
+        double det = ax * px + ay * py + az * pz;
+        if (!(det > 0)) return false; // Parallel, degenerate or leaving through the back face.
+
+        double sx = (double)s.X - t.V0.X, sy = (double)s.Y - t.V0.Y, sz = (double)s.Z - t.V0.Z;
+        double u = sx * px + sy * py + sz * pz;
+        if (u < 0 || u > det) return false;
+        double qx = sy * az - sz * ay, qy = sz * ax - sx * az, qz = sx * ay - sy * ax;
+        double v = d.X * qx + d.Y * qy + d.Z * qz;
+        if (v < 0 || u + v > det) return false;
+        double at = (bx * qx + by * qy + bz * qz) / det;
+        if (!(at >= 0 && at <= limit)) return false;
+
+        time = (float)at;
+        normal = t.N;
         return true;
     }
 
