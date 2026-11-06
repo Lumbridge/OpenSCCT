@@ -15,6 +15,9 @@ The data is the map's `sim/match.json` ([SVMap 1.2](../svmap/1.2/match.md)); the
   play always names it: the launch option `--players=<n>` when given (the map editor's Play can pass one), else its
   bots plus the local player. Its bots log in before the player, and the first login starts a Play Level match, so a
   count at the round start would see one player.
+- Offline play with map rules also raises the match capacity to fit its local player, bots and route bot, or the
+  requested layout count if larger (at least the stock four slots). A smaller layout override still tests that
+  layout without rejecting members of the requested roster.
 - `GameReplicationInfo.MatchPlayers` (replicated) holds the count the round was laid out for.
 
 ## The layout

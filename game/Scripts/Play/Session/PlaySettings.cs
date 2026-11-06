@@ -187,7 +187,10 @@ public sealed record PlaySettings
 
     private MatchSetup Setup(GameplayDoc gameplay)
     {
-        MatchSetup setup = MatchSetup.Defaults(PlayMapLoader.MapSettingsOf(Map, gameplay), GameMode, Map);
+        // Map rules otherwise retain the stock four-player cap and reject the local player after a larger bot
+        // roster has joined. Layout overrides may be smaller than the roster (testing a small-match layout).
+        int capacity = Math.Max(4, Math.Max(MatchPlayers, Bots + (Route is null ? 1 : 2)));
+        MatchSetup setup = MatchSetup.Defaults(PlayMapLoader.MapSettingsOf(Map, gameplay), GameMode, Map, maxPlayers: capacity);
         return OfflineRules ? setup.WithOfflineRules() : setup;
     }
 
