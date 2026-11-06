@@ -8,9 +8,10 @@ vec4 svm_fog_texel(int index) {
 vec4 svm_fog_row(int fog_base, int index) { return svm_fog_texel(fog_base + index); }
 
 #include "res://Shaders/svm_fog_math.gdshaderinc"
+#include "res://Shaders/svm_responsive_smoke.gdshaderinc"
 
 // Returns premultiplied fog colour and transmittance at this fragment's own depth.
-vec4 surface_fog(uint camera_layers, vec3 view_position_metres, vec2 pixel, vec2 viewport_size) {
+vec4 surface_zone_fog(uint camera_layers, vec3 view_position_metres, vec2 pixel, vec2 viewport_size) {
     int slot = int((camera_layers >> 8u) & 127u);
     if (slot == 0) return vec4(0.0, 0.0, 0.0, 1.0);
     vec4 view = svm_fog_texel(slot);
@@ -30,4 +31,10 @@ vec4 surface_fog(uint camera_layers, vec3 view_position_metres, vec2 pixel, vec2
     float depth = max(-view_position_metres.z, 0.000001);
     vec2 projected = (vec2(1.0) + vec2(view_position_metres.x * right.w, -view_position_metres.y * up.w) / depth) * 0.5;
     return svm_fog_evaluate(frame, projected, normalize(ray), distance);
+}
+
+vec4 surface_fog(uint camera_layers, vec3 view_position_metres, vec2 pixel, vec2 viewport_size) {
+    vec4 zone = surface_zone_fog(camera_layers, view_position_metres, pixel, viewport_size);
+    vec4 smoke = responsive_smoke(camera_layers, view_position_metres);
+    return vec4(zone.rgb * smoke.a + smoke.rgb, zone.a * smoke.a);
 }

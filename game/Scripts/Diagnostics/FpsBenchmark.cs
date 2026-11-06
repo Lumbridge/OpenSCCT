@@ -42,7 +42,7 @@ public partial class FpsBenchmark : Node
     public static void Configure(Viewport viewport)
     {
         SettingsStore.Isolated = true;
-        var settings = new GameSettings { FpsSpy = 0, FpsMerc = 0, VSync = false, ThrottleStop = true };
+        var settings = new GameSettings { FpsLimit = DisplayFrameCap.Unlimited, VSync = false, ThrottleStop = true };
         SettingsStore.Save(settings);
         SettingsApplier.ApplyPacing(settings);
         SettingsApplier.ApplyRendering(settings, viewport);

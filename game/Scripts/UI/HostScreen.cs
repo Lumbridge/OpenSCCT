@@ -155,7 +155,7 @@ public partial class HostScreen : MenuPage
         Rows.MoveRowsTo(rules, SessionRow.Revenge, SessionRow.GamesInARow, SessionRow.RandomMap, SessionRow.AutoBalance,
             SessionRow.VoiceInLobby);
         Heading(rules, "Extra rules");
-        Rows.MoveRowsTo(rules, SessionRow.Practice, SessionRow.Sidearms, SessionRow.Alternate);
+        Rows.MoveRowsTo(rules, SessionRow.Practice, SessionRow.Sidearms, SessionRow.ResponsiveSmoke, SessionRow.Alternate);
         AlternateButton = UiStyle.MenuButton("Configure alternate rules", OpenAlternate, "AlternateMode");
         AlternateButton.CustomMinimumSize = new Vector2(0, 36);
         rules.AddChild(AlternateButton);

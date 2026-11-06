@@ -129,8 +129,7 @@ public partial class OptionsMenu
         if (side == PlaySide.Merc) _edit.TeammateNamesMerc = false;
         else _edit.TeammateNamesSpy = false;
         var defaults = new GameSettings();
-        if (side == PlaySide.Merc) { _edit.Crosshair = new CrosshairSettings(); _edit.MercFovCap = defaults.MercFovCap; _edit.FpsMerc = defaults.FpsMerc; }
-        else _edit.FpsSpy = defaults.FpsSpy;
+        if (side == PlaySide.Merc) { _edit.Crosshair = new CrosshairSettings(); _edit.MercFovCap = defaults.MercFovCap; }
         RebuildPages();
     }
 

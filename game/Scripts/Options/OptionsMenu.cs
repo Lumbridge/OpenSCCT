@@ -83,7 +83,7 @@ public partial class OptionsMenu : Control
         {
             _frameRateLabelAge = 0;
             double hz = FrameRatePreviewHz();
-            if (Math.Abs(hz - _frameRateLabelHz) > 0.01) RefreshFrameRateChoices(hz);
+            if (Math.Abs(hz - _frameRateLabelHz) > 0.01) RefreshFrameRateChoice(hz);
         }
         if (_note is not null) _note.Visible = !string.IsNullOrWhiteSpace(_note.Text);
         if (_dirtyLabel is not null) _dirtyLabel.Text = HasUnsavedChanges ? "Unsaved changes" : "All changes applied";
@@ -470,7 +470,7 @@ public partial class OptionsMenu : Control
             {
                 _edit.Monitor = int.Parse(v, CultureInfo.InvariantCulture);
                 _previewSelectedMonitor = true;
-                RefreshFrameRateChoices();
+                RefreshFrameRateChoice();
             });
         Choice(g, "Window size", "resolution", Resolutions(), _edit.Resolution.Length == 0 ? DesktopLabel : _edit.Resolution,
             v => _edit.Resolution = v == DesktopLabel ? "" : v);
@@ -489,6 +489,9 @@ public partial class OptionsMenu : Control
             v => _edit.MsaaSamples = int.Parse(v, CultureInfo.InvariantCulture), v => v + "x");
         Check(g, "Anti-aliasing: SMAA", "smaa", _edit.Smaa, v => _edit.Smaa = v);
         Slider(g, "Shadow quality (next map)", "shadow_quality", 0.5f, 16f, 0.5f, _edit.ShadowQuality, v => _edit.ShadowQuality = v, "0.0");
+        Choice(g, "Responsive smoke quality", "responsive_smoke_quality", GameSettings.SmokeQualities,
+            GameSettings.SmokeQualities[(int)_edit.SmokeQuality], v => _edit.SmokeQuality = (ResponsiveSmokeQuality)Array.IndexOf(GameSettings.SmokeQualities, v));
+        _controls["responsive_smoke_quality"].TooltipText = "Adjusts visual detail and performance when the host enables responsive smoke. Smoke coverage, visibility gaps and gas effects use the same shared volume at every quality.";
         Check(g, "Smooth shadow edges", "shadow_edge_smoothing", _edit.ShadowEdgeSmoothing, v => _edit.ShadowEdgeSmoothing = v);
 
         // Video_Settings' Post-Render Quality (Normal, High) and its Brightness Configuration button (GUI.Mire).
@@ -506,13 +509,7 @@ public partial class OptionsMenu : Control
         GridContainer g = Grid("Performance");
         Section(g, "Frame pacing", "Choose the frame-rate limit and vertical sync. Match refresh rate follows your display; Unlimited removes the cap.");
         Check(g, "Vertical sync", "vsync", _edit.VSync, v => _edit.VSync = v);
-        FrameRateChoice(g, "Max FPS (both teams)", "max_fps");
-        _controls["max_fps"].TooltipText = "Sets the limit for both teams. Match refresh rate follows your display's current refresh rate; Unlimited removes the cap. Vertical sync can still limit FPS. Use the per-team limits to set different values for Spy and Mercenary.";
-        Section(g, "Per-team limits", "Set separate frame-rate limits for Spy and Mercenary. Vertical sync can still limit FPS.");
-        FrameRateChoice(g, "Spy maximum FPS", "fps_spy");
-        _controls["fps_spy"].TooltipText = "Frame-rate limit while playing as Spy. Match refresh rate follows your display; Unlimited removes the cap. Vertical sync can still limit FPS.";
-        FrameRateChoice(g, "Mercenary maximum FPS", "fps_merc");
-        _controls["fps_merc"].TooltipText = "Frame-rate limit while playing as Mercenary, in menus and in the lobby. Match refresh rate follows your display; Unlimited removes the cap. Vertical sync can still limit FPS.";
+        AddFrameRateSlider(g);
         if (OperatingSystem.IsWindows())
         {
             string active = RenderingServer.GetCurrentRenderingDriverName() switch
@@ -536,23 +533,24 @@ public partial class OptionsMenu : Control
 
     private const string DesktopLabel = "Desktop";
 
-    private void FrameRateChoice(GridContainer grid, string label, string key)
+    private void AddFrameRateSlider(GridContainer grid)
     {
+        const string key = "max_fps";
         var option = new FrameRateSlider
         {
             Name = Safe(key), SizeFlagsHorizontal = SizeFlags.ExpandFill,
+            TooltipText = "Frame-rate limit in menus, the lobby and matches. Vertical sync can still limit FPS.",
         };
         option.Changed += fps =>
         {
-            if (key != "fps_merc") _edit.FpsSpy = fps;
-            if (key != "fps_spy") _edit.FpsMerc = fps;
-            RefreshFrameRateChoices();
+            _edit.FpsLimit = fps;
+            RefreshFrameRateChoice();
         };
-        grid.AddChild(new Label { Text = label, AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new Vector2(300f, 0f) });
+        grid.AddChild(new Label { Text = "Max FPS", AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new Vector2(300f, 0f) });
         grid.AddChild(option);
         grid.AddChild(new Control());
         _controls[key] = option;
-        RefreshFrameRateChoices();
+        RefreshFrameRateChoice();
     }
 
     private double FrameRatePreviewHz()
@@ -564,16 +562,13 @@ public partial class OptionsMenu : Control
         return SettingsApplier.RefreshRateForScreen(screen);
     }
 
-    private void RefreshFrameRateChoices(double? previewHz = null)
+    private void RefreshFrameRateChoice(double? previewHz = null)
     {
         double hz = previewHz ?? FrameRatePreviewHz();
         _frameRateLabelHz = hz;
-        foreach (string key in new[] { "max_fps", "fps_spy", "fps_merc" })
+        if (_controls.TryGetValue("max_fps", out Control? control) && control is FrameRateSlider slider)
         {
-            if (!_controls.TryGetValue(key, out Control? control) || control is not FrameRateSlider option) continue;
-            int fps = key == "fps_merc" ? _edit.FpsMerc : _edit.FpsSpy;
-            bool mixed = key == "max_fps" && _edit.FpsSpy != _edit.FpsMerc;
-            option.Refresh(fps, hz, mixed);
+            slider.Refresh(_edit.FpsLimit, hz);
         }
     }
 

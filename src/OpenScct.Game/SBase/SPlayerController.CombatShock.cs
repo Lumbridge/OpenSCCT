@@ -560,6 +560,17 @@ public partial class SPlayerController
         }
 
         SSmokeEmitter? nearest = null;
+        if (OpenScct.Game.Equipment.ResponsiveSmokeWorld.IsEnabled(XLevel) && pawn is SBasePawn smokePawn)
+        {
+            var volume = OpenScct.Game.Equipment.ResponsiveSmokeWorld.For(XLevel);
+            nearest = volume.ExposureSource(smokePawn, volume.CurrentTime, out float density);
+            if (nearest is not null && density >= OpenScct.Game.Equipment.ResponsiveSmokeWorld.ExposureThreshold)
+            {
+                SmokeInstigator = nearest.Instigator;
+                SmokeInstigatorTime = now;
+            }
+            return;
+        }
         float best = float.MaxValue;
         foreach (SSmokeEmitter smoke in XLevel.AllActors<SSmokeEmitter>())
         {

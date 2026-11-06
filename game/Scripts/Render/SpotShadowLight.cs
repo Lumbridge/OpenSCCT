@@ -154,6 +154,14 @@ public sealed partial class SpotShadowLight : IDisposable
     // Sources belong to their map/pack; only the normalized copies are owned here. Layer 0 is white (no cookie).
     private static readonly Dictionary<Image, int> s_cookieLayers = new(ReferenceEqualityComparer.Instance);
     private static readonly List<Image> s_cookies = [];
+    private static Texture2DArray? s_cookieTexture;
+
+    /// <summary>Shared inputs for volumetric scattering, without querying shader globals back from the GPU.</summary>
+    internal static (Texture2D Rows, Texture2D Depth, Texture2DArray Cookies, int Count) VolumeInputs()
+    {
+        EnsureGlobals();
+        return (s_rowsTexture!, s_atlasTexture.TextureRdRid.IsValid ? s_atlasTexture : s_noDepth!, s_cookieTexture!, s_lastCount);
+    }
 
     private readonly SubViewport _viewport;
     private readonly Camera3D _camera;
@@ -635,6 +643,7 @@ public sealed partial class SpotShadowLight : IDisposable
 
         var array = new Texture2DArray();
         array.CreateFromImages(images);
+        s_cookieTexture = array;
         return array;
     }
 

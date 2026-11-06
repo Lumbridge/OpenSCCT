@@ -16,8 +16,7 @@ using Xunit;
 namespace OpenScctGame.Logic.Tests;
 
 /// <summary>
-/// Frame pacing (docs/RENDERING.md): the max frame rate settings (Reloaded's fps_spy and fps_merc, with the monitor and
-/// unlimited additions), the engine limiter and vertical sync they set, and what is drawn between ticks at 60, 144,
+/// Frame pacing (docs/RENDERING.md): the global cap, the engine limiter and vertical sync, and what is drawn between ticks at 60, 144,
 /// 165 and 240 fps: the scene time (materials, lights, emitters, the HUD's fades) and the spy's following camera.
 /// </summary>
 public sealed class FramePacingTests
@@ -35,13 +34,12 @@ public sealed class FramePacingTests
     public void TheCapFollowsTheMonitorByDefaultWithVerticalSyncOff()
     {
         var s = new GameSettings();
-        Assert.Equal(DisplayFrameCap.Monitor, s.FpsSpy);
-        Assert.Equal(DisplayFrameCap.Monitor, s.FpsMerc);
+        Assert.Equal(DisplayFrameCap.Monitor, s.FpsLimit);
         Assert.False(s.VSync);   // Default.ini [D3DDrv.D3DRenderDevice] UseVSync=False
-        Assert.Equal(144, DisplayFrameCap.EngineMaxFps(s.FpsSpy, 144.0, s.VSync));
-        Assert.Equal(165, DisplayFrameCap.EngineMaxFps(s.FpsMerc, 164.9999, s.VSync));
-        Assert.Equal(60, DisplayFrameCap.EngineMaxFps(s.FpsMerc, 59.94, s.VSync));
-        Assert.Equal(60, DisplayFrameCap.EngineMaxFps(s.FpsMerc, -1.0, s.VSync));   // the screen gave no rate
+        Assert.Equal(144, DisplayFrameCap.EngineMaxFps(s.FpsLimit, 144.0, s.VSync));
+        Assert.Equal(165, DisplayFrameCap.EngineMaxFps(s.FpsLimit, 164.9999, s.VSync));
+        Assert.Equal(60, DisplayFrameCap.EngineMaxFps(s.FpsLimit, 59.94, s.VSync));
+        Assert.Equal(60, DisplayFrameCap.EngineMaxFps(s.FpsLimit, -1.0, s.VSync));   // the screen gave no rate
     }
 
     [Theory]
@@ -50,14 +48,15 @@ public sealed class FramePacingTests
     [InlineData(0, DisplayFrameCap.Unlimited)]
     [InlineData(10, 30)]
     [InlineData(144, 144)]
-    [InlineData(999, 240)]
-    public void CapsKeepReloadedsRangePlusMonitorAndUnlimited(int saved, int kept)
+    [InlineData(700, 700)]
+    [InlineData(999, 700)]
+    public void CapsAllowThirtyThroughSevenHundredPlusMonitorAndUnlimited(int saved, int kept)
     {
         Assert.Equal(kept, DisplayFrameCap.Clamp(saved));
         Assert.Equal(kept, GameSettings.ClampFps(saved));
-        var s = new GameSettings { FpsSpy = saved };
+        var s = new GameSettings { FpsLimit = saved };
         s.Clamp();
-        Assert.Equal(kept, s.FpsSpy);
+        Assert.Equal(kept, s.FpsLimit);
     }
 
     [Theory]
@@ -69,6 +68,8 @@ public sealed class FramePacingTests
     [InlineData(60, 144.0, true, 60, 60)]                       // under the screen's rate the limiter still caps
     [InlineData(240, 144.0, true, 0, 144)]
     [InlineData(240, 144.0, false, 240, 240)]
+    [InlineData(700, 360.0, false, 700, 700)]
+    [InlineData(700, 360.0, true, 0, 360)]
     [InlineData(165, 165.0, false, 165, 165)]
     [InlineData(DisplayFrameCap.Monitor, 239.76, false, 240, 240)]
     public void TheEngineLimiterAndVerticalSyncFollowTheCap(int cap, double hz, bool vsync, int maxFps, int shown)
@@ -87,6 +88,10 @@ public sealed class FramePacingTests
         Assert.Contains("144", list);
         Assert.Contains("165", list);
         Assert.Contains("240", list);
+        Assert.Contains("360", list);
+        Assert.Contains("480", list);
+        Assert.Contains("540", list);
+        Assert.Contains("700", list);
         Assert.Equal("30", list[2]);
         Assert.Contains("97", DisplayFrameCap.Choices(97, 60.0));   // a value saved by hand stays listed
         foreach (string item in list)
@@ -101,26 +106,35 @@ public sealed class FramePacingTests
         Assert.Null(DisplayFrameCap.Parse("fast"));
     }
 
-    [Fact]
-    public void AVersionOneFileWithReloadedsFirstRunCapsFollowsTheMonitor()
+    [Theory]
+    [InlineData("""{ "version": 1, "fps_spy": 120, "fps_merc": 120, "vsync": true }""", DisplayFrameCap.Monitor)]
+    [InlineData("""{ "version": 1, "fps_spy": 144, "fps_merc": 120, "vsync": true }""", 120)]
+    [InlineData("""{ "version": 2, "fps_spy": 120, "fps_merc": 120, "vsync": true }""", 120)]
+    [InlineData("""{ "version": 2, "fps_spy": 144, "fps_merc": 0, "vsync": true }""", DisplayFrameCap.Unlimited)]
+    [InlineData("""{ "fps_spy": 144, "vsync": true }""", 144)]
+    [InlineData("""{ "max_fps": 700, "fps_merc": 144, "vsync": true }""", 700)]
+    public void LegacyCapsMigrateToTheGlobalLimit(string json, int expected)
     {
-        // Version 1 wrote 120 and 120 for every player who never chose a cap.
-        GameSettings old = GameSettings.FromJson("""{ "version": 1, "fps_spy": 120, "fps_merc": 120, "vsync": true }""");
-        Assert.Equal(DisplayFrameCap.Monitor, old.FpsSpy);
-        Assert.Equal(DisplayFrameCap.Monitor, old.FpsMerc);
-        Assert.True(old.VSync);   // a saved vertical sync is the player's
-        Assert.Equal(GameSettings.Version, old.FileVersion);
+        GameSettings settings = GameSettings.FromJson(json);
+        Assert.Equal(expected, settings.FpsLimit);
+        Assert.True(settings.VSync);
+        Assert.Equal(GameSettings.Version, settings.FileVersion);
+        Assert.DoesNotContain("fps_spy", settings.ToJson());
+        Assert.DoesNotContain("fps_merc", settings.ToJson());
+        Assert.Equal(expected, settings.Clone().FpsLimit);
+    }
 
-        GameSettings chosen = GameSettings.FromJson("""{ "version": 1, "fps_spy": 144, "fps_merc": 120 }""");
-        Assert.Equal(144, chosen.FpsSpy);
-        Assert.Equal(120, chosen.FpsMerc);
-
-        GameSettings now = GameSettings.FromJson("""{ "version": 2, "fps_spy": 120, "fps_merc": 120 }""");
-        Assert.Equal(120, now.FpsSpy);
-
-        GameSettings back = GameSettings.FromJson(new GameSettings { FpsSpy = DisplayFrameCap.Unlimited }.ToJson());
-        Assert.Equal(DisplayFrameCap.Unlimited, back.FpsSpy);
-        Assert.Equal(DisplayFrameCap.Monitor, back.FpsMerc);
+    [Theory]
+    [InlineData("max_fps")]
+    [InlineData("fps_spy")]
+    [InlineData("fps_merc")]
+    public void ConsoleCapKeysSetAndReadTheGlobalLimit(string key)
+    {
+        GameSettings? settings = SettingsConsole.Set(new GameSettings(), key, "700", out string problem);
+        Assert.Empty(problem);
+        Assert.NotNull(settings);
+        Assert.Equal(700, settings.FpsLimit);
+        Assert.Equal("700", SettingsConsole.Get(settings, key));
     }
 
     // ---- what is drawn between ticks -----------------------------------------------------------------------------

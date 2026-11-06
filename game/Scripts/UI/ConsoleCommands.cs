@@ -42,8 +42,8 @@ public interface IConsoleHost
 
 /// <summary>
 /// The developer console's commands (spec/reloaded/FEATURES.md rl:qol.console): <c>set</c>, <c>get</c> and
-/// <c>current</c> on the settings file, a settings key typed alone (<c>fps_spy</c>, <c>fps_spy 144</c>, as Reloaded's
-/// <c>fps_spy</c>, <c>ws_fov</c>, <c>widescreen</c>), the server shortcuts Reloaded has (<c>resign</c>, <c>pings</c>,
+/// <c>current</c> on the settings file, a settings key typed alone (<c>max_fps</c>, <c>max_fps 144</c>),
+/// the server shortcuts Reloaded has (<c>resign</c>, <c>pings</c>,
 /// <c>practice</c>, <c>rmap_next</c>, <c>rmap_prev</c>, <c>map</c>, sent as the matching chat command), the admin's
 /// <c>login</c> and <c>cmd</c>, and <c>quit</c>. No Godot here.
 /// </summary>

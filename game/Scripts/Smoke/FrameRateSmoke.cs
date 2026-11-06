@@ -18,8 +18,7 @@ namespace OpenScctGame.Smoke;
 /// pacing). The spy plays SteeE as the launchers run it (wall clock, listen server on its own thread, HUD). For each
 /// case of SVM_FRAMERATE_CASES (default <c>monitor,60,144,165,240,unlimited,monitor-vsync,monitor-move,monitor-mode-change</c>; a number is a cap,
 /// <c>-vsync</c> turns vertical sync on) the settings are saved and applied as the options screen does
-/// (<see cref="SettingsStore.Save"/>, <see cref="SettingsApplier.ApplyPacing"/>, the play scene's
-/// <see cref="OptionsRuntime"/> choosing the side's cap every frame), <see cref="KeyPilot"/> walks the spy forward
+/// (<see cref="SettingsStore.Save"/>, <see cref="SettingsApplier.ApplyPacing"/>), <see cref="KeyPilot"/> walks the spy forward
 /// or back and then turns the mouse steadily, and every frame the drawn camera, the spy's drawn pawn, the scene time
 /// of the map (materials, lights), its emitters and the HUD's effects are read after every view has drawn. Checks:
 /// <list type="bullet">
@@ -89,7 +88,6 @@ public sealed class FrameRateSmoke : SmokeTest
     private DisplayServer.VSyncMode _savedVsync;
     private int _savedMaxFps;
     private GameSettings? _savedSettings;
-    private bool _savedLastMerc;
     private DisplayServer.WindowMode _savedWindowMode;
     private Vector2I _savedWindowPosition;
     private Vector2I _savedWindowSize;
@@ -183,23 +181,11 @@ public sealed class FrameRateSmoke : SmokeTest
             _savedVsync = DisplayServer.WindowGetVsyncMode();
             _savedMaxFps = Engine.MaxFps;
             _savedSettings = SettingsStore.Current.Clone();
-            _savedLastMerc = SettingsApplier.LastMerc;
             _savedWindowMode = DisplayServer.WindowGetMode();
             _savedWindowPosition = DisplayServer.WindowGetPosition();
             _savedWindowSize = DisplayServer.WindowGetSize();
             _savedScreen = DisplayServer.WindowGetCurrentScreen();
             _saved = true;
-
-            // The play scene's settings runtime chooses the side's cap every frame as in a player's game (smoke runs
-            // leave it off), and the pacer follows the window's screen.
-            if (_root.GetNodeOrNull<OptionsRuntime>("OptionsRuntime") is { } runtime)
-            {
-                runtime.CapFrames = true;
-            }
-            else
-            {
-                _notes.Add("no OptionsRuntime in the play scene: the cap is applied by the smoke only");
-            }
 
             _root.AddChild(new DisplayFramePacer());
         }
@@ -373,8 +359,7 @@ public sealed class FrameRateSmoke : SmokeTest
         }
 
         GameSettings s = SettingsStore.Current.Clone();
-        s.FpsSpy = c.Cap;
-        s.FpsMerc = c.Cap;
+        s.FpsLimit = c.Cap;
         s.VSync = c.VSync;
         if (c.ModeChange)
         {
@@ -451,7 +436,7 @@ public sealed class FrameRateSmoke : SmokeTest
         }
     }
 
-    /// <summary>The F12 options show the max frame rate rows with the monitor's rate and vertical sync on the Performance page.</summary>
+    /// <summary>The F12 options show Max FPS and Vertical sync on the Performance page.</summary>
     private void CheckOptions()
     {
         OptionsMenu? menu = Find<OptionsMenu>(_root!);
@@ -469,18 +454,14 @@ public sealed class FrameRateSmoke : SmokeTest
             }
         }
 
-        foreach (string key in new[] { "max_fps", "fps_spy", "fps_merc" })
+        if (!menu.Controls.TryGetValue("max_fps", out Control? control) || control is not FrameRateSlider fps)
         {
-            string shown = menu.Controls.TryGetValue(key, out Control? control) && control is OptionButton option && option.Selected >= 0
-                ? option.GetItemText(option.Selected)
-                : "";
-            string want = DisplayFrameCap.Label(SettingsStore.Current.FpsFor(key != "fps_spy"), SettingsApplier.MonitorHz);
-            _notes.Add($"options: {key} shows '{shown}'");
-            if (shown != want)
-            {
-                _failures.Add($"options: {key} shows '{shown}', the settings hold '{want}'");
-            }
+            _failures.Add("options: no Max FPS slider");
+            return;
         }
+        string want = DisplayFrameCap.Label(SettingsStore.Current.FpsLimit, SettingsApplier.MonitorHz);
+        _notes.Add($"options: Max FPS shows '{fps.Text}'");
+        if (fps.Text != want) _failures.Add($"options: Max FPS shows '{fps.Text}', the settings hold '{want}'");
 
         if (!menu.Controls.ContainsKey("vsync"))
         {
@@ -502,28 +483,23 @@ public sealed class FrameRateSmoke : SmokeTest
         int originalIndex = monitor.Selected;
         int originalScreen = DisplayServer.WindowGetCurrentScreen();
         int originalCap = Engine.MaxFps;
+        int originalDraftCap = menu.Editing.FpsLimit;
+        fps.Select(DisplayFrameCap.Monitor);
         int previewScreen = (originalIndex + 1) % monitor.ItemCount;
         monitor.Select(previewScreen);
         monitor.EmitSignal(OptionButton.SignalName.ItemSelected, previewScreen);
         double previewHz = DisplayServer.ScreenGetRefreshRate(previewScreen);
         string previewLabel = DisplayFrameCap.Label(DisplayFrameCap.Monitor, previewHz);
-        foreach (string key in new[] { "max_fps", "fps_spy", "fps_merc" })
-        {
-            if (!menu.Controls.TryGetValue(key, out Control? control) || control is not OptionButton option ||
-                !Enumerable.Range(0, option.ItemCount).Any(i => option.GetItemText(i) == previewLabel))
-                _failures.Add($"options: {key} did not preview '{previewLabel}' for staged screen {previewScreen + 1}");
-        }
+        if (fps.Text != previewLabel)
+            _failures.Add($"options: Max FPS did not preview '{previewLabel}' for staged screen {previewScreen + 1}");
         if (saved != SettingsStore.Current.ToJson() || DisplayServer.WindowGetCurrentScreen() != originalScreen || Engine.MaxFps != originalCap)
             _failures.Add("options: staging a monitor preview changed saved settings or live display pacing");
         monitor.Select(originalIndex);
         monitor.EmitSignal(OptionButton.SignalName.ItemSelected, originalIndex);
         string restoredLabel = DisplayFrameCap.Label(DisplayFrameCap.Monitor, DisplayServer.ScreenGetRefreshRate(originalIndex));
-        foreach (string key in new[] { "max_fps", "fps_spy", "fps_merc" })
-        {
-            var option = (OptionButton)menu.Controls[key];
-            if (!Enumerable.Range(0, option.ItemCount).Any(i => option.GetItemText(i) == restoredLabel))
-                _failures.Add($"options: explicitly restoring saved monitor {originalIndex + 1} did not preview '{restoredLabel}'");
-        }
+        if (fps.Text != restoredLabel)
+            _failures.Add($"options: explicitly restoring saved monitor {originalIndex + 1} did not preview '{restoredLabel}'");
+        fps.Select(originalDraftCap);
         _notes.Add($"options: staged screen {previewScreen + 1} preview '{previewLabel}', then restored selection without Apply");
     }
 
@@ -564,8 +540,7 @@ public sealed class FrameRateSmoke : SmokeTest
     {
         if (!_saved) return;
         _saved = false;
-        // Restore after OptionsRuntime exits: its exit handler reapplies the last test cap. Settings are isolated
-        // during smokes; Reset restores the in-memory profile without writing any player files.
+        // Settings are isolated during smokes; Reset restores the in-memory profile without writing any player files.
         SettingsStore.Reset(_savedSettings);
         DisplayServer.WindowSetMode(DisplayServer.WindowMode.Windowed);
         DisplayServer.WindowSetCurrentScreen(_savedScreen);
@@ -574,7 +549,6 @@ public sealed class FrameRateSmoke : SmokeTest
         DisplayServer.WindowSetMode(_savedWindowMode);
         if (DisplayServer.WindowGetCurrentScreen() != _savedScreen) DisplayServer.WindowSetCurrentScreen(_savedScreen);
         SettingsApplier.RefreshMonitor(force: true);
-        SettingsApplier.ApplyFrameCap(_savedSettings!, _savedLastMerc);
         DisplayServer.WindowSetVsyncMode(_savedVsync);
         Engine.MaxFps = _savedMaxFps;
     }

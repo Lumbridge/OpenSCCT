@@ -131,6 +131,8 @@ public sealed class AiWorld
     /// <summary>True when the segment passes through a smoke cloud (a sphere of RadiusEffect round the emitter).</summary>
     public bool SmokeBetween(FVector a, FVector b)
     {
+        if (OpenScct.Game.Equipment.ResponsiveSmokeWorld.IsEnabled(Level))
+            return OpenScct.Game.Equipment.ResponsiveSmokeWorld.For(Level).SmokeBetween(a, b);
         foreach (SSmokeEmitter s in _smokes)
         {
             float r = s.RadiusEffect > 0f ? s.RadiusEffect : AiK.SmokeRadius;
@@ -146,6 +148,8 @@ public sealed class AiWorld
     /// <summary>True when <paramref name="p"/> is inside a smoke cloud.</summary>
     public bool InSmoke(FVector p, float extra = 0f)
     {
+        if (OpenScct.Game.Equipment.ResponsiveSmokeWorld.IsEnabled(Level))
+            return OpenScct.Game.Equipment.ResponsiveSmokeWorld.For(Level).InSmoke(p, extra);
         foreach (SSmokeEmitter s in _smokes)
         {
             float r = (s.RadiusEffect > 0f ? s.RadiusEffect : AiK.SmokeRadius) + extra;

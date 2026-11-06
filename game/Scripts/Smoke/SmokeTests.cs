@@ -7,7 +7,7 @@ namespace OpenScctGame.Smoke;
 public static class SmokeTests
 {
     public static IReadOnlyList<string> Names { get; } =
-        [SpotShadowCookiesSmoke.TestName, DetectorLaserSmoke.TestName, RiflePresentationSmoke.TestName, RifleTracerDiagnosticSmoke.TestName, DestructibleSkinSmoke.TestName, ScoreboardSmoke.TestName, MatchLibrarySmoke.TestName, HelpFeedbackSmoke.TestName, SurfaceFogSmoke.TestName, RemanenceRenderSmoke.TestName, EffectMaterialSmoke.TestName, ResignMenuSmoke.TestName, FogVolumeSmoke.TestName, PortalFogSmoke.TestName, MaterialSequenceSmoke.TestName, VisitMapSmoke.TestName, MapLightSpritesSmoke.TestName, DestructibleFxSmoke.TestName, SpyPerspectiveSmoke.TestName, MineLightSmoke.TestName, CamnetDisabledSmoke.TestName, AmmoMenuHudSmoke.TestName, LandingBlendSmoke.TestName, GlassBlendSmoke.TestName, ScopeLifecycleSmoke.TestName, SidearmReloadPoseSmoke.TestName, MenuEscapeSmoke.TestName, FittedSkinsSmoke.TestName, ViewmodelLightSmoke.TestName, StatsSmoke.TestName, StartupWeaponsSmoke.TestName, LaserAlignmentSmoke.TestName, BootSmoke.TestName, TestBoxSmoke.TestName, SelfTestFailSmoke.TestName, SteeERenderSmoke.TestName, GoldenSmoke.TestName,
+        [ResponsiveSmokePoolSmoke.TestName, ResponsiveSmokeSpySmoke.TestName, ResponsiveSmokeLightingSmoke.TestName, ResponsiveSmokePlaySmoke.TestName, ResponsiveSmokeRenderSmoke.TestName, SpotShadowCookiesSmoke.TestName, DetectorLaserSmoke.TestName, RiflePresentationSmoke.TestName, RifleTracerDiagnosticSmoke.TestName, DestructibleSkinSmoke.TestName, ScoreboardSmoke.TestName, MatchLibrarySmoke.TestName, HelpFeedbackSmoke.TestName, SurfaceFogSmoke.TestName, RemanenceRenderSmoke.TestName, EffectMaterialSmoke.TestName, ResignMenuSmoke.TestName, FogVolumeSmoke.TestName, PortalFogSmoke.TestName, MaterialSequenceSmoke.TestName, VisitMapSmoke.TestName, MapLightSpritesSmoke.TestName, DestructibleFxSmoke.TestName, SpyPerspectiveSmoke.TestName, MineLightSmoke.TestName, CamnetDisabledSmoke.TestName, AmmoMenuHudSmoke.TestName, LandingBlendSmoke.TestName, GlassBlendSmoke.TestName, ScopeLifecycleSmoke.TestName, SidearmReloadPoseSmoke.TestName, MenuEscapeSmoke.TestName, FittedSkinsSmoke.TestName, ViewmodelLightSmoke.TestName, StatsSmoke.TestName, StartupWeaponsSmoke.TestName, LaserAlignmentSmoke.TestName, BootSmoke.TestName, TestBoxSmoke.TestName, SelfTestFailSmoke.TestName, SteeERenderSmoke.TestName, GoldenSmoke.TestName,
             SpyFirstPersonVisualSmoke.TestName, PoisonHudSmoke.TestName, CloakRenderSmoke.TestName, LaserDotSmoke.TestName, DemoUiSmoke.TestName, DemoXRaySmoke.TestName, DemoLibraryCardsSmoke.TestName, DemoWeaponSmoke.TestName, LocalExplosiveHudSmoke.TestName, NearbyGrenadeSmoke.TestName,
             ModernChatSmoke.TestName, MenuPilotPopupSmoke.TestName, JoinFocusSmoke.TestName, ControllerDefaultsSmoke.TestName, Hud.HudSmoke.TestName, HudActivityFeedSmoke.TestName, RainHudSmoke.TestName, AudioSmoke.TestName, ReverbSmoke.TestName, PlaySpySmoke.TestName, PlayCraneSmoke.TestName,
             PlayDiskHuntSmoke.TestName, PlayDeathmatchSmoke.TestName, Voice.VoiceSmoke.TestName, VoiceLifecycleSmoke.TestName, VoiceOutputSmoke.TestName,
@@ -32,6 +32,11 @@ public static class SmokeTests
 
     public static SmokeTest? Create(string name) => name switch
     {
+        ResponsiveSmokePoolSmoke.TestName => new ResponsiveSmokePoolSmoke(),
+        ResponsiveSmokeSpySmoke.TestName => new ResponsiveSmokeSpySmoke(),
+        ResponsiveSmokeLightingSmoke.TestName => new ResponsiveSmokeLightingSmoke(),
+        ResponsiveSmokePlaySmoke.TestName => new ResponsiveSmokePlaySmoke(),
+        ResponsiveSmokeRenderSmoke.TestName => new ResponsiveSmokeRenderSmoke(),
         SpotShadowCookiesSmoke.TestName => new SpotShadowCookiesSmoke(),
         DetectorLaserSmoke.TestName => new DetectorLaserSmoke(),
         GameplayFxWarmupSmoke.TestName => new GameplayFxWarmupSmoke(),

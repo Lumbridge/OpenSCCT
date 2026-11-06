@@ -257,6 +257,7 @@ public partial class SWeaponDefense_Shotgun
     {
         IHitZones zones = CombatServices.HitZones(this);
         BoneTraceResult hit = zones.TraceBone(this, end, start, true);
+        ResponsiveSmokeWorld.Bullet(this, start, hit.bHit ? hit.HitLocation : end);
         if (!hit.bHit)
         {
             return;
@@ -275,7 +276,9 @@ public partial class SWeaponDefense_Shotgun
 
         if (hit.SurfaceType == ESurfaceType.SURFACE_FakeCeiling)
         {
-            hit = zones.TraceBone(this, end, hit.HitLocation - hit.HitNormal * K.FakeCeilingExit, true);
+            FVector continuation = hit.HitLocation - hit.HitNormal * K.FakeCeilingExit;
+            hit = zones.TraceBone(this, end, continuation, true);
+            ResponsiveSmokeWorld.Bullet(this, continuation, hit.bHit ? hit.HitLocation : end);
             if (!hit.bHit)
             {
                 return;

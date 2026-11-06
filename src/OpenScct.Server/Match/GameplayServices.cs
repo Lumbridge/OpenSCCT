@@ -27,5 +27,10 @@ public static class GameplayServices
         if (pillPose is not null) level.SetService<IPillPose>(pillPose);
         level.SetService<IGameFlowPorts>(new MovementGameFlowPorts(level.GetService<IGameFlowPorts>()));
         CombatEquipment.Install(level);
+        if (ResponsiveSmokeWorld.IsEnabled(level))
+        {
+            ResponsiveSmokeWorld.Warmup(level);
+            ResponsiveSmokeWorld.For(level);
+        }
     }
 }

@@ -437,12 +437,11 @@ vibration settings; role-specific sensitivity and button bindings live in each r
 Mouse & Aim follows the binding editor's category navigation and search, with Sensitivity, Scope & cameras,
 Modifiers and View categories. Each setting has its own aligned row and exact numeric fields;
 focusing or hovering a control explains it below the list. A category dropdown replaces the sidebar on narrow
-windows. Reset is a compact menu and remains staged until Apply; mouse reset preserves the Performance frame cap,
-while resetting the entire role also restores its frame cap.
+windows. Reset is a compact menu and remains staged until Apply. Role resets preserve the global Performance frame cap.
 
 Display, Performance, Audio, Voice, HUD and Controller (Shared) use the same category/search browser. Display separates
-screen setup, widescreen layout and image quality. Performance separates frame pacing, per-team limits and
-latency/power settings. Voice keeps playback,
+screen setup, widescreen layout and image quality. Performance groups Max FPS and Vertical sync under Frame pacing,
+separate from latency and power settings. Voice keeps playback,
 microphone processing, transmission, shortcuts and microphone testing in distinct categories; the live meter
 and test retain their existing behavior. Role controller tuning uses categories beside its bindings view.
 Crosshair settings use the same rows with a live preview dock on wide windows and a Preview button on smaller

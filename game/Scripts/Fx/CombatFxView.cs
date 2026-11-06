@@ -762,6 +762,13 @@ public partial class CombatFxView : Node3D
         if (_library is { Available: true } library)
         {
             library.WarmViews(samples);
+            // WarmViews draws particle emitters. The Shocker flash is a static mesh, so loading its asset
+            // alone leaves the real mesh/material vertex-layout pipeline cold until the first shot.
+            if (library.Find("SBase.SMuzzleSticky") is { } flash && flash.Assets.TryGetValue("StaticMesh",out string? path)
+                && library.Mesh(path) is { } mesh)
+                samples.AddChild(new MeshInstance3D { Name = "WarmShockerMuzzle", Mesh = mesh,
+                    Position = new(0,0,1), Scale = Vector3.One*2,
+                    CastShadow = GeometryInstance3D.ShadowCastingSetting.Off });
         }
     }
 

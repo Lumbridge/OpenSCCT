@@ -29,7 +29,8 @@ public sealed class MercGasProtection
             bot.World.LineOpen(eye, at);
         bool threat = bot.World.InSmoke(pawn.Location, pawn.CollisionRadius);
         foreach (SSmokeEmitter smoke in bot.World.Smokes)
-            if (!smoke.bDeleteMe && (smoke.Location - pawn.Location).Size() < smoke.RadiusEffect + 200f && Visible(smoke.Location)) threat = true;
+            if (!smoke.bDeleteMe && (smoke.Location - pawn.Location).Size() < smoke.RadiusEffect + 200f && Visible(smoke.Location) &&
+                (!ResponsiveSmokeWorld.IsEnabled(bot.World.Level) || bot.World.InSmoke(eye, 200f))) threat = true;
         foreach (SStickyCam cam in bot.World.Level.DynamicActors<SStickyCam>())
             if (cam is not SCamNetwork && !cam.bDeleteMe && (cam.Location - pawn.Location).SizeSquared() < 550f * 550f &&
                 Visible(cam.Location) && !bot.World.SmokeBetween(eye, cam.Location)) threat = true;

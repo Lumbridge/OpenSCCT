@@ -301,6 +301,9 @@ internal sealed record ServerConfig
     /// </summary>
     public bool Practice { get; init; }
 
+    /// <summary>Experimental responsive spy smoke for the server rotation, disabled by default.</summary>
+    public bool ResponsiveSmoke { get; init; }
+
     public ulong Seed { get; init; } = 1;
 
     public static ServerConfig Load(string path)
@@ -406,6 +409,7 @@ internal sealed record ServerConfig
                 AutoBalance = AutoBalance,
                 Alternate = Alternate?.ToRules() ?? s.Alternate,
                 Practice = Practice,
+                ResponsiveSmoke = ResponsiveSmoke,
             };
             list.Add(s.Clamped());
         }

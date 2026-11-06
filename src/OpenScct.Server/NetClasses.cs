@@ -25,10 +25,12 @@ public static class NetClasses
         controller.Functions.AddRange(PawnSoundReplication.CreateExtension().Functions);
         controller.Functions.AddRange(NetMovementBridge.OwnerActionsExtension().Functions);
         controller.Functions.Add(MercShockStream.RequestExtension());
+        controller.Functions.Add(ResponsiveSmokeReplication.RequestExtension());
         registry.Extend<SPlayerController>(controller);
         registry.Extend<OpenScct.Core.Engine.PlayerController>(PawnSoundReplication.CreateExtension());
         var shockRequests = new RepExtension();
         shockRequests.Functions.Add(MercShockStream.RequestExtension());
+        shockRequests.Functions.Add(ResponsiveSmokeReplication.RequestExtension());
         registry.Extend<OpenScct.Core.Engine.PlayerController>(shockRequests);
         for (int i = 0; i < registry.Count; i++)
         {
@@ -43,6 +45,7 @@ public static class NetClasses
             {
                 var rules = new RepExtension();
                 rules.Properties.Add(new RepExtensionProperty("SidearmsEnabled", "SidearmsEnabled", RepLeafKind.Bool));
+                rules.Properties.Add(new RepExtensionProperty("ResponsiveSmokeEnabled", "ResponsiveSmokeEnabled", RepLeafKind.Bool));
                 rules.Properties.Add(new RepExtensionProperty("MatchPlayers", "MatchPlayers", RepLeafKind.Int));
                 registry.Extend(type, rules);
             }
@@ -66,6 +69,7 @@ public static class NetClasses
             }
         }
         SidearmNet.Register(registry);
+        registry.Extend<SSmokeEmitter>(ResponsiveSmokeReplication.CreateExtension());
         registry.Extend<OpenScct.Core.Engine.LevelInfo>(NetDeviceEvents.CreateExtension());
         registry.Extend<OpenScct.Core.Engine.PlayerReplicationInfo>(PlayerLookNet.CreateExtension());
         var cameras = new RepExtension();

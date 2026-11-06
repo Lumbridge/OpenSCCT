@@ -739,12 +739,11 @@ views and the HUD.
 allocations and GC pauses through the normal play path against recorded original-game cameras. GPU timing is opt-in
 because timestamp queries/readbacks can affect throughput. Raw captures stay in `local/fps`; see the benchmark README.
 
-The frame rate is the player's (Options, Display; `settings.json`). Reloaded caps each side: `fps_spy` in game as a
-spy, `fps_merc` otherwise (merc, menus, lobby), 30 to 240 (spec/native/reloaded-features-from-code.md rule 15). Two
-values are additions Ryan asked for (2026-10-25): **Match refresh rate** (-1, the default; previously "Monitor"), the refresh rate of the screen the
-window is on, and **Unlimited** (0). Reloaded's first run has 120; a version 1 settings file with 120 and 120 (the old
-defaults, never chosen) follows the monitor now. Vertical sync (`vsync`) is off by default as the original's render
-device (`Default.ini` `[D3DDrv.D3DRenderDevice] UseVSync=False`), whose frames Reloaded's own limiter paces.
+**Options → Performance → Max FPS** sets a single cap for menus, the lobby and matches (`max_fps` in `settings.json`).
+The slider covers 30 to 700 FPS and has notches at common refresh rates. **Match refresh rate** (-1, the default)
+follows the screen the window is on. **Unlimited** (0) removes the engine's cap. Legacy profiles carry forward
+`fps_merc`, which previously applied in menus and the lobby, or `fps_spy` if only that cap is present. Version 1
+profiles with the old first-run value of 120 for both roles follow the monitor. Vertical sync (`vsync`) is off by default.
 
 | Setting | `Engine.max_fps` | Vertical sync |
 |---|---|---|
@@ -754,9 +753,8 @@ device (`Default.ini` `[D3DDrv.D3DRenderDevice] UseVSync=False`), whose frames R
 | vsync on, cap at or above the screen's rate (or Match refresh rate, Unlimited) | 0: the swap paces the frames (a sleep limiter at the swap's own rate misses a refresh now and then) | on |
 | vsync on, cap under the screen's rate | the cap | on |
 
-`Options/DisplayFrameCap.cs` holds the rules (Godot-free), `SettingsApplier.ApplyPacing` puts vsync and the cap into
-effect (the options screen's Save, and at start whether or not a file exists), the play scene's `OptionsRuntime`
-chooses the side's cap every frame, and `DisplayFramePacer` (under the root window) follows the window: every frame it
+`Options/DisplayFrameCap.cs` holds the rules. `SettingsApplier.ApplyPacing` sets vsync and the cap when settings are
+applied and at startup. `DisplayFramePacer` (under the root window) follows the window. Every frame it
 checks the window's screen, every second it reads that screen's refresh rate again, and on a change it applies the cap
 again (`SVM_DISPLAY screen N at R Hz`). Options previews an unapplied monitor selection's own refresh rate and
 refreshes the displayed rate once per second when the window moves or the display mode changes. Applying display

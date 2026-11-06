@@ -334,6 +334,7 @@ vec3 svm_actor_light(vec4 pos, vec4 col, vec4 spot, vec3 wp, vec3 wn) {
 //   5   x, y the view to clip scale (perspective: divided by depth), z 1 for parallel rays, w cookie layer
 //   6   the slot's tile of the depth atlas (uv origin, uv size)
 //   7   x own zone (or -1), y bias (m), z bias per metre, w edge softening disc radius (texels; 0 one lookup)
+#define SVM_SMOKE_SPOT_GLOBALS
 global uniform sampler2D svm_spots;
 global uniform int svm_spot_count;
 global uniform sampler2D svm_spot_depth;

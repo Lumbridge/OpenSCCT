@@ -49,6 +49,7 @@ public partial class SGameInfo
     protected IGameFlowPorts Ports => GameFlowServices.Ports(this);
 
     private bool _sidearmsEnabled;
+    private bool _responsiveSmokeEnabled;
 
     // ---- setup ---------------------------------------------------------------------------------------------
 
@@ -61,6 +62,7 @@ public partial class SGameInfo
     public override void InitGame(string Options, ref string Error)
     {
         _sidearmsEnabled = GetIntOption(Options, "SvmSidearms", 0) != 0;
+        _responsiveSmokeEnabled = GetIntOption(Options, "SvmResponsiveSmoke", 0) != 0;
         _matchPlayersOption = SvmMath.Clamp(GetIntOption(Options, "SvmMatchPlayers", 0), 0, Core.Match.MatchRuleSet.MostPlayers);
         MaxPlayers = SvmMath.Clamp(GetIntOption(Options, "MaxPlayers", MaxPlayers), 0, K.MaxPlayersCap);
         GameDifficulty = SvmMath.Max(0f, GetIntOption(Options, "Difficulty", (int)GameDifficulty));
@@ -159,6 +161,7 @@ public partial class SGameInfo
         }
 
         gri.SidearmsEnabled = _sidearmsEnabled;
+        gri.ResponsiveSmokeEnabled = _responsiveSmokeEnabled;
         USMatchInfo? m = MatchInfo;
         gri.GamesInARow = m?.GamesInARow ?? 0;
         gri.ServerName = m?.LevelName ?? string.Empty;

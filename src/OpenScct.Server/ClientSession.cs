@@ -299,6 +299,7 @@ public sealed partial class ClientSession : INetworkNotify, IDisposable
         }
 
         PawnStates?.AfterReceive(RenderTimeFixed);
+        World.Level.GetService<ResponsiveSmokeReplication>()?.AfterReceive();
 
         if (State == EClientState.Joined)
         {

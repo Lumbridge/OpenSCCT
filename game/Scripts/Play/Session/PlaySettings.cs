@@ -80,6 +80,9 @@ public sealed record PlaySettings
 
     public bool Sidearms { get; init; }
 
+    /// <summary>Opt in to responsive spy smoke for this local match.</summary>
+    public bool ResponsiveSmoke { get; init; }
+
     public PlayHostMode HostMode { get; init; } = PlayHostMode.Thread;
 
     public string PlayerName { get; init; } = "Player";
@@ -138,6 +141,14 @@ public sealed record PlaySettings
     public bool UnlimitedGear { get; init; }
 
     /// <summary>
+    /// The interactive offline launch of the test range always provides practice resources and unlimited time/lives.
+    /// Online rounds retain their host's rules; raw simulation fixtures can still request finite resources.
+    /// </summary>
+    public PlaySettings ForLocalLaunch() => string.Equals(Map, "TestRange", StringComparison.OrdinalIgnoreCase)
+        ? this with { OfflineRules = true, UnlimitedGear = true }
+        : this;
+
+    /// <summary>
     /// Where the local player first spawns instead of a PlayerStart (the map editor's Play From Camera,
     /// spec/additions/test-start.md), or null. Later spawns use the map's starts.
     /// </summary>
@@ -165,14 +176,15 @@ public sealed record PlaySettings
         // login starts the match, so the roster would hold one player.
         int count = MatchPlayers > 0 ? MatchPlayers : Bots + (Route is null ? 1 : 2);
         string players = "?SvmMatchPlayers=" + count.ToString(CultureInfo.InvariantCulture);
+        if (UnlimitedGear) players += "?MaxPlayers=24";
         if (Rules == PlayRules.PlayLevel)
         {
-            return $"?GameMode={mode}?Team={Team}?Editeur=true?SvmSidearms={(Sidearms ? 1 : 0)}{players}";
+            return $"?GameMode={mode}?Team={Team}?Editeur=true?SvmSidearms={(Sidearms ? 1 : 0)}?SvmResponsiveSmoke={(ResponsiveSmoke ? 1 : 0)}{players}";
         }
 
         // The untouched match creation page for the mode (spec/game/game-modes.md rules 1 to 5), launched from the
         // lobby (match-options.md rule 27).
-        return Setup(gameplay).GameOptions(1) + "?SvmSidearms=" + (Sidearms ? "1" : "0") + players;
+        return Setup(gameplay).GameOptions(1) + "?SvmSidearms=" + (Sidearms ? "1" : "0") + "?SvmResponsiveSmoke=" + (ResponsiveSmoke ? "1" : "0") + players;
     }
 
     /// <summary>

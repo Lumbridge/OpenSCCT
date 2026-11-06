@@ -396,11 +396,21 @@ public sealed class MaterialsDoc
     {
         bool has = f.ValueKind == JsonValueKind.Object;
         if (illumination.ValueKind != JsonValueKind.Object) illumination = f;
+        string? texture = has ? Str(f, "texture") : null;
+        // The LED shaders use OB_Translucent (native SetShaderMaterial 0x1096eac0, case 3: ONE/ONE).
+        // Packs mark these as alpha-blended because they have an Opacity input. That makes the black
+        // around the glow and the black frame between blinks cover the mesh instead of adding zero.
+        bool additiveLed = texture is
+            "textures/SGameplayObjectsTex_led_heat_SI_alarm_greenA__op.png" or
+            "textures/SGameplayObjectsTex_led_heat_SI_alarm_green_cligA__op.png" or
+            "textures/SGameplayObjectsTex_led_heat_si_alarm_redA__op.png" or
+            "textures/SGPOTexE_led_heat_si_alarm_yellowA__op.png" or
+            "textures/SGameplayObjectsTex_led_heat_SI_blackA__op.png";
         return new MaterialEntry
         {
             Name = name,
             Source = source,
-            Texture = has ? Str(f, "texture") : null,
+            Texture = texture,
             Masked = has && Bool(f, "masked") && !opaqueCombiner,
             Translucent = has && Bool(f, "translucent") && !opaqueCombiner,
             TwoSided = has && Bool(f, "two_sided"),
@@ -431,7 +441,8 @@ public sealed class MaterialsDoc
             Skip = has && Bool(f, "skip"),
             ListBlend = has ? Str(f, "blend") switch { "opaque" => MaterialBlend.Opaque, "masked" => MaterialBlend.Masked,
                 "translucent" => MaterialBlend.Translucent, "additive" => MaterialBlend.Additive,
-                "modulate" => MaterialBlend.Modulate, "darken" => MaterialBlend.Darken, _ => null } : null,
+                "modulate" => MaterialBlend.Modulate, "darken" => MaterialBlend.Darken,
+                _ => additiveLed ? MaterialBlend.Additive : null } : null,
         };
     }
 

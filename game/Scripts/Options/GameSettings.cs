@@ -10,6 +10,9 @@ using OpenScct.Provenance;
 
 namespace OpenScctGame.Options;
 
+/// <summary>Visual sampling quality only; smoke coverage and gameplay stay identical on every setting.</summary>
+public enum ResponsiveSmokeQuality { Low, Medium, High }
+
 /// <summary>
 /// The player's chosen gear per side (an OpenSCCT addition, spec/additions/gear-change.md): class paths of the four
 /// gadget slots and the merc's weapon. Read on this machine whenever the server asks for a kit, so a new choice goes
@@ -462,8 +465,8 @@ public enum MapBrowserView
 /// </summary>
 public sealed class GameSettings
 {
-    /// <summary>2: the frame caps can follow the monitor (the default) and vertical sync is off by default.</summary>
-    public const int Version = 2;
+    /// <summary>3: one frame cap applies everywhere.</summary>
+    public const int Version = 3;
 
     public static readonly string[] Responses = ["Linear", "CurveSoft", "CurveMedium", "CurveAggressive"];
 
@@ -629,16 +632,9 @@ public sealed class GameSettings
     [Provenance(ProvenanceKind.Decoded, "spec/reloaded/FEATURES.md rl:gfx.widescreen ws_fov = 112.0")]
     public float MercFovCap { get; set; } = 112f;
 
-    /// <summary>
-    /// The frame cap in game as a spy (Reloaded's fps_spy, 30 to 240); -1 follows the monitor (the default) and 0 is
-    /// unlimited, both additions (Options/DisplayFrameCap). Reloaded's first run has 120.
-    /// </summary>
-    [JsonPropertyName("fps_spy")]
-    public int FpsSpy { get; set; } = DisplayFrameCap.Monitor;
-
-    /// <summary>The frame cap as a merc, in the menus and the lobby (Reloaded's fps_merc); values as <see cref="FpsSpy"/>.</summary>
-    [JsonPropertyName("fps_merc")]
-    public int FpsMerc { get; set; } = DisplayFrameCap.Monitor;
+    /// <summary>The frame cap in menus and matches. -1 follows the monitor and 0 is unlimited.</summary>
+    [JsonPropertyName("max_fps")]
+    public int FpsLimit { get; set; } = DisplayFrameCap.Monitor;
 
     [JsonPropertyName("resolution_scale")]
     public float RenderScale { get; set; } = 1f;
@@ -674,6 +670,12 @@ public sealed class GameSettings
     [JsonPropertyName("shadow_quality")]
     [Provenance(ProvenanceKind.Decoded, "spec/reloaded/FEATURES.md rl:gfx.shadows shadow_quality first-run 3.0, range 0.5 to 16.0")]
     public float ShadowQuality { get; set; } = 3f;
+
+    /// <summary>Rendering detail of responsive smoke when the host enables it.</summary>
+    [JsonPropertyName("responsive_smoke_quality")]
+    public ResponsiveSmokeQuality SmokeQuality { get; set; } = ResponsiveSmokeQuality.Medium;
+
+    public static readonly string[] SmokeQualities = ["Low", "Medium", "High"];
 
     /// <summary>Soft shadow edges (eight blended lookups on a disc); off keeps the stock single lookup.</summary>
     [JsonPropertyName("shadow_edge_smoothing")]
@@ -934,18 +936,25 @@ public sealed class GameSettings
     public string LoadNote { get; set; } = "";
 
     /// <summary>
-    /// A file from an older version: version 1 wrote Reloaded's first-run caps (120 and 120) for a player who never
-    /// chose one, so those follow the monitor now; any other cap is the player's and stays.
+    /// Legacy profiles use the Mercenary cap (also used in menus), or the Spy cap if that is all they have.
+    /// Version 1 profiles with the old first-run caps of 120 for both roles follow the monitor.
     /// </summary>
-    private void Upgrade()
+    private void Upgrade(JsonElement root)
     {
-        if (FileVersion < 2 && FpsSpy == 120 && FpsMerc == 120)
+        if (root.ValueKind == JsonValueKind.Object && !root.TryGetProperty("max_fps", out _))
         {
-            FpsSpy = DisplayFrameCap.Monitor;
-            FpsMerc = DisplayFrameCap.Monitor;
+            int? merc = ReadLegacyCap("fps_merc");
+            int? spy = ReadLegacyCap("fps_spy");
+            FpsLimit = FileVersion < 2 && merc == 120 && spy == 120
+                ? DisplayFrameCap.Monitor
+                : merc ?? spy ?? DisplayFrameCap.Monitor;
         }
 
         FileVersion = Version;
+
+        int? ReadLegacyCap(string key) =>
+            root.TryGetProperty(key, out JsonElement value) && value.ValueKind == JsonValueKind.Number &&
+            value.TryGetInt32(out int fps) ? fps : null;
     }
 
     /// <summary>Puts every value back in its range.</summary>
@@ -1011,6 +1020,7 @@ public sealed class GameSettings
         FilterLevel = FilterLevel <= 0 ? 0 : FilterLevel <= 2 ? 2 : FilterLevel <= 4 ? 4 : FilterLevel <= 8 ? 8 : 16;
         ShadowQuality = LookSettings.Range(ShadowQuality, 0.5f, 16f);
         PostQuality = Math.Clamp(PostQuality, 0, 1);
+        if (!Enum.IsDefined(SmokeQuality)) SmokeQuality = ResponsiveSmokeQuality.Medium;
         if (!Enum.IsDefined(MapView)) MapView = MapBrowserView.PictureGrid;
         ScoreboardSplitTeamSize = Math.Clamp(ScoreboardSplitTeamSize, 1, 4);
         MsaaSamples = MsaaSamples <= 2 ? 2 : MsaaSamples <= 4 ? 4 : 8;
@@ -1024,8 +1034,7 @@ public sealed class GameSettings
         Monitor = Math.Max(1, Monitor);
         Resolution = ParseResolution(Resolution) is { } r ? FormatResolution(r.Width, r.Height) : "";
         MercFovCap = LookSettings.Range(MercFovCap, MinMercFov, MaxMercFov);
-        FpsSpy = ClampFps(FpsSpy);
-        FpsMerc = ClampFps(FpsMerc);
+        FpsLimit = ClampFps(FpsLimit);
         RenderScale = LookSettings.Range(RenderScale, 0.5f, 1f);
         MasterVolume = LookSettings.Range(MasterVolume, 0f, 1f);
         SoundVolume = LookSettings.Range(SoundVolume, 0f, 1f);
@@ -1049,7 +1058,7 @@ public sealed class GameSettings
     /// <summary>The wheel changes gadgets (profile SelectedMouse 0) rather than walk and run (1).</summary>
     public bool WheelSelectsGadgets => MouseWheel == "Gadget";
 
-    /// <summary>A frame cap: below 0 follows the monitor, 0 is unlimited, otherwise 30 to 240.</summary>
+    /// <summary>A frame cap: below 0 follows the monitor, 0 is unlimited, otherwise 30 to 700.</summary>
     public static int ClampFps(int fps) => DisplayFrameCap.Clamp(fps);
 
     /// <summary>"1920x1080" to (1920, 1080), or null.</summary>
@@ -1076,9 +1085,6 @@ public sealed class GameSettings
 
     /// <summary>The look group of a side and device.</summary>
     public LookSettings LookOf(bool merc, bool pad) => merc ? (pad ? MercPad : MercKbm) : (pad ? SpyPad : SpyKbm);
-
-    /// <summary>The frame cap of a side (Reloaded picks it from the local player's team).</summary>
-    public int FpsFor(bool merc) => merc ? FpsMerc : FpsSpy;
 
     // ---- the file ------------------------------------------------------------------------------------------
 
@@ -1108,7 +1114,7 @@ public sealed class GameSettings
             legacyMapList.ValueKind is JsonValueKind.True or JsonValueKind.False)
             s.MapListView = legacyMapList.GetBoolean();
         s.PreserveControllerProfile(document.RootElement);
-        s.Upgrade();
+        s.Upgrade(document.RootElement);
         s.Clamp();
         return s;
     }

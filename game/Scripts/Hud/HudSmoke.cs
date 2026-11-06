@@ -1378,7 +1378,7 @@ public sealed class HudSmoke(bool spectatorOnly = false) : SmokeTest
         Expect(options.Tabs?.GetTabCount() == 9, $"option pages {options.Tabs?.GetTabCount()}");
         Expect(options.KeyButtons.Count > 0, "key bindings listed");
         foreach (string key in new[] { "invert_y.Spy", "invert_y.Merc", "controls_spy_kbm.free_look", "controls_merc_kbm.look", "controller.enabled",
-                     "controller.deadzone_left", "display_mode", "resolution", "vsync", "widescreen", "ws_fov", "fps_spy", "fps_merc", "master_volume",
+                     "controller.deadzone_left", "display_mode", "resolution", "vsync", "widescreen", "ws_fov", "max_fps", "master_volume",
                      "sound_volume", "music_volume", "voice_output_volume" })
         {
             Expect(options.Controls.ContainsKey(key), "option " + key);
@@ -1389,11 +1389,11 @@ public sealed class HudSmoke(bool spectatorOnly = false) : SmokeTest
         // The settings file round trip (in memory: a smoke run never writes the player's settings).
         GameSettings edited = options.Editing.Clone();
         edited.MercFovCap = 500f;
-        edited.FpsSpy = 10;
+        edited.FpsLimit = 10;
         edited.SoundVolume = 0.25f;
         GameSettings back = GameSettings.FromJson(edited.ToJson());
-        Expect(back.MercFovCap == GameSettings.MaxMercFov && back.FpsSpy == GameSettings.MinFps && back.SoundVolume == 0.25f,
-            $"settings round trip and clamps ({back.MercFovCap}, {back.FpsSpy}, {back.SoundVolume})");
+        Expect(back.MercFovCap == GameSettings.MaxMercFov && back.FpsLimit == GameSettings.MinFps && back.SoundVolume == 0.25f,
+            $"settings round trip and clamps ({back.MercFovCap}, {back.FpsLimit}, {back.SoundVolume})");
         _notes.Add(string.Create(CultureInfo.InvariantCulture, $"keys={options.KeyButtons.Count}"));
     }
 

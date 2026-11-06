@@ -170,6 +170,7 @@ public sealed partial class EffectViews : Node3D
     internal void OnTick(Level level, NetConnection? demoConnection, Func<Actor, float>? restoredAge)
     {
         ArgumentNullException.ThrowIfNull(level);
+        ResponsiveSmokeRenderer.Publish(Map, level);
         if (OpenScct.Game.Equipment.GadgetWorld.Collision(level.Info) is { } collision)
         {
             Map?.Emitters?.SetCollisionWorld(collision);
@@ -253,6 +254,9 @@ public sealed partial class EffectViews : Node3D
 
             var t = new Tracked(a, a.GetUcClass().Name);
             _tracked[a] = t;
+            // The authoritative responsive field is drawn by the shared volume shader. Keep the grenade's
+            // launch trail and every other emitter on the legacy path; never draw both cloud representations.
+            if (a is SSmokeEmitter && OpenScct.Game.Equipment.ResponsiveSmokeWorld.IsEnabled(level)) continue;
             // The same actor gets the same stream on linear playback and after rebuilding its channel.
             uint? seed = demoConnection?.FindActorChannel(a) is { } channel
                 ? channel.NetGuid * 2246822519u

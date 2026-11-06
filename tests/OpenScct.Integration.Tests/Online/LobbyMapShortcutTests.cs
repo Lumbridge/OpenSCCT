@@ -38,7 +38,7 @@ public sealed class LobbyMapShortcutTests : IDisposable
             MaxPlayers = 6, AutoBalance = true,
             Alternate = AlternateRules.Default with { On = true, Abilities = AlternateRules.DefaultAbilities & ~AlternateAbility.SpyGrab },
             VoiceMode = EVoiceChatMode.VCM_Open, VoiceInLobby = false, RandomMap = true, Revenge = true,
-            Practice = true, Sidearms = true, BotsPerSide = 3, SpyBots = 2, MercBots = 3,
+            Practice = true, Sidearms = true, ResponsiveSmoke = true, BotsPerSide = 3, SpyBots = 2, MercBots = 3,
             BotSkill = OpenScct.Game.AI.AiSkill.Hard,
         };
         using OnlineRig rig = Create(maps, out SimLinkNetwork network, original, adminPassword: adminPassword, autoLaunch: true);

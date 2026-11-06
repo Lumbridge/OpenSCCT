@@ -6,7 +6,7 @@ namespace OpenScctGame.Options;
 
 /// <summary>
 /// Puts <see cref="GameSettings"/> into effect with Godot: the window (mode, monitor, size, vsync, render scale), the
-/// audio bus volumes, the frame cap of the local player's side and the mouse look. The frame cap follows the refresh
+/// audio bus volumes, the frame cap and the mouse look. The frame cap can follow the refresh
 /// rate of the window's screen (<see cref="MonitorHz"/>, kept current by <see cref="DisplayFramePacer"/>) and turns
 /// into <c>Engine.max_fps</c> by the rules of <see cref="DisplayFrameCap"/>.
 /// </summary>
@@ -21,11 +21,8 @@ public static class SettingsApplier
     /// <summary>The screen <see cref="MonitorHz"/> was read from, or -1.</summary>
     public static int MonitorScreen { get; private set; } = -1;
 
-    /// <summary>The side the last frame cap was chosen for (Reloaded: the merc cap outside the game).</summary>
-    public static bool LastMerc { get; private set; } = true;
-
     /// <summary>
-    /// At start: the audio volumes, vertical sync and the menus' frame cap always (and the pacer that follows the
+    /// At start: the audio volumes, vertical sync and the frame cap always (and the pacer that follows the
     /// monitor); the window only once the player has saved settings (until then the project's own window settings
     /// stay).
     /// </summary>
@@ -193,7 +190,7 @@ public static class SettingsApplier
         }
 
         RefreshMonitor(force: true);
-        ApplyFrameCap(s, LastMerc);
+        ApplyFrameCap(s);
     }
 
     /// <summary>The window as the settings ask (nothing headless).</summary>
@@ -309,14 +306,12 @@ public static class SettingsApplier
     }
 
     /// <summary>
-    /// The frame cap of the side the local player is on (Reloaded: spy cap in game as a spy, else merc) on the
-    /// window's screen, with the settings' vertical sync (<see cref="DisplayFrameCap.EngineMaxFps"/>).
+    /// Applies the global frame cap for the window's screen and vertical sync setting.
     /// </summary>
-    public static void ApplyFrameCap(GameSettings s, bool merc)
+    public static void ApplyFrameCap(GameSettings s)
     {
         ArgumentNullException.ThrowIfNull(s);
-        LastMerc = merc;
-        int fps = DisplayFrameCap.EngineMaxFps(s.FpsFor(merc), MonitorHz, s.VSync);
+        int fps = DisplayFrameCap.EngineMaxFps(s.FpsLimit, MonitorHz, s.VSync);
         if (Engine.MaxFps != fps)
         {
             Engine.MaxFps = fps;

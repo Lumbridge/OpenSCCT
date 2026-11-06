@@ -30,6 +30,7 @@ public sealed class LaunchOptions
     public const string DifficultyPrefix = "--difficulty=";
     public const string PlayPlayersPrefix = "--players=";
     public const string RecordFlag = "--svm-record";
+    public const string ResponsiveSmokeFlag = "--svm-responsive-smoke";
     public const string DemoPrefix = "--svm-demo=";
     public const string PriorityPrefix = "--priority=";
     public const string AffinityPrefix = "--affinity=";
@@ -115,6 +116,9 @@ public sealed class LaunchOptions
     /// <summary>Record the offline play (<c>--svm-record</c>) as a demo in the user's demos folder (docs/DEMOS.md).</summary>
     public bool PlayRecord { get; private init; }
 
+    /// <summary>Enable experimental responsive smoke in a locally hosted match.</summary>
+    public bool ResponsiveSmoke { get; private init; }
+
     /// <summary>A demo file to watch at start (<c>--svm-demo=path</c>), or null.</summary>
     public string? DemoFile { get; private init; }
 
@@ -184,6 +188,7 @@ public sealed class LaunchOptions
         int playPlayers = 0;
         string difficulty = "normal";
         bool record = false;
+        bool responsiveSmoke = false;
         string? demo = null;
         string? priority = null;
         string? affinity = null;
@@ -279,6 +284,10 @@ public sealed class LaunchOptions
             {
                 difficulty = arg[DifficultyPrefix.Length..].ToLowerInvariant();
             }
+            else if (arg == ResponsiveSmokeFlag)
+            {
+                responsiveSmoke = true;
+            }
             else if (arg == RecordFlag)
             {
                 record = true;
@@ -351,6 +360,7 @@ public sealed class LaunchOptions
             PlayPlayers = playPlayers,
             PlayDifficulty = difficulty,
             PlayRecord = record,
+            ResponsiveSmoke = responsiveSmoke,
             DemoFile = demo,
             Priority = priority,
             Affinity = affinity,

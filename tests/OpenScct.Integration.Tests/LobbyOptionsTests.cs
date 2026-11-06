@@ -47,6 +47,40 @@ public sealed class LobbyOptionsTests
         rig.Server.Status() + " | " + string.Join(" | ", rig.Clients.Select(c =>
             $"{c.Settings.PlayerName}: {c.State} {c.CurrentMap} {c.Error} team={c.Lobby.Local?.Team} ready={c.Lobby.Local?.Ready}"));
 
+    [Fact]
+    public void ResponsiveSmokeIsSharedHostControlledAndFixedForTheRunningRound()
+    {
+        Assert.SkipWhen(TestBoxMissing, "The TestBox fixture is not in this checkout.");
+        (OnlineRig rig, SimLinkNetwork network) = Create(Listen() with { AutoLaunch = false });
+        using (rig)
+        {
+            OnlineClient host = Join(rig, network, "Host", 0, "k");
+            OnlineClient guest = Join(rig, network, "Guest", 1);
+            Assert.True(rig.RunUntil(() => host.Lobby.Players.Count == 2 && guest.State == OnlineClientState.Lobby, 15), Describe(rig));
+            guest.SetSetup(guest.Lobby.Setup with { ResponsiveSmoke = true });
+            rig.RunUntil(() => false, 1);
+            Assert.False(rig.Server.Setup.ResponsiveSmoke);
+            host.SetSetup(host.Lobby.Setup with { ResponsiveSmoke = true });
+            Assert.True(rig.RunUntil(() => guest.Lobby.Setup.ResponsiveSmoke, 5), Describe(rig));
+            Assert.True(rig.Server.Info().ResponsiveSmoke);
+            guest.SetReady(true);
+            Assert.True(rig.RunUntil(() => host.Lobby.Players.Any(p => p.Name == "Guest" && p.Ready), 5), Describe(rig));
+            host.Launch();
+            Assert.True(rig.RunUntil(() => guest.State == OnlineClientState.Match &&
+                guest.Session?.LocalPlayer?.GameReplicationInfo?.ResponsiveSmokeEnabled == true, 30), Describe(rig));
+            Assert.True(rig.Server.Host.Game!.GameReplicationInfo!.ResponsiveSmokeEnabled);
+            rig.Server.Execute("set responsivesmoke off");
+            Assert.False(rig.Server.Setup.ResponsiveSmoke);
+            rig.RunUntil(() => false, 1);
+            Assert.True(rig.Server.Host.Game.GameReplicationInfo.ResponsiveSmokeEnabled);
+            Assert.True(guest.Session!.LocalPlayer!.GameReplicationInfo!.ResponsiveSmokeEnabled);
+            Assert.True(rig.Server.Info().ResponsiveSmoke);
+            rig.Server.Execute("lobby");
+            Assert.True(rig.RunUntil(() => rig.Server.Phase == SessionPhase.Lobby && guest.State == OnlineClientState.Lobby, 20), Describe(rig));
+            Assert.False(rig.Server.Info().ResponsiveSmoke);
+        }
+    }
+
     [Theory]
     [InlineData("kick")]
     [InlineData("ban")]

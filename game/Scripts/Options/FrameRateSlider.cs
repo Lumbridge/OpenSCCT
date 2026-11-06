@@ -45,9 +45,9 @@ public partial class FrameRateSlider : VBoxContainer
 
     public void Select(int fps) => Changed?.Invoke(DisplayFrameCap.Clamp(fps));
 
-    public void Refresh(int fps, double hz, bool mixed)
+    public void Refresh(int fps, double hz)
     {
-        _status.Text = mixed ? "Per-role limits" : DisplayFrameCap.Label(fps, hz);
+        _status.Text = DisplayFrameCap.Label(fps, hz);
         int numeric = fps > 0 ? fps : Math.Clamp(DisplayFrameCap.ScreenFps(hz), DisplayFrameCap.Min, DisplayFrameCap.Max);
         _slider.SetValueNoSignal(numeric);
         _number.SetValueNoSignal(numeric);

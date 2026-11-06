@@ -151,6 +151,9 @@ public sealed record LobbySetup
     /// <summary>Allow mercenary sidearms in this session. Opt-in, independent of alternate rules.</summary>
     public bool Sidearms { get; init; }
 
+    /// <summary>Experimental geometry-filling spy smoke. Shared by the match, opt-in and fixed for each round.</summary>
+    public bool ResponsiveSmoke { get; init; }
+
     /// <summary>A mode by its menu name or number.</summary>
     public static bool TryParseMode(string? text, out EGameMode mode)
     {
@@ -242,7 +245,7 @@ public sealed record LobbySetup
     /// the number of players the server waits for.
     /// </summary>
     public string ToGameOptions(int players) =>
-        RoundMatchInfo().GetOptionsString() + "?SvmSidearms=" + (Sidearms ? "1" : "0") + "?NBPlayers=" + Math.Max(1, players).ToString(CultureInfo.InvariantCulture);
+        RoundMatchInfo().GetOptionsString() + "?SvmSidearms=" + (Sidearms ? "1" : "0") + "?SvmResponsiveSmoke=" + (ResponsiveSmoke ? "1" : "0") + "?NBPlayers=" + Math.Max(1, players).ToString(CultureInfo.InvariantCulture);
 
     /// <summary>The round's match settings: a practice round has no time limit, unlimited lives on both sides and the shortest respawn.</summary>
     private USMatchInfo RoundMatchInfo()
@@ -283,6 +286,7 @@ public sealed record LobbySetup
         gri.VoiceChatMode = VoiceMode;
         gri.allowVoiceChatInLobby = VoiceInLobby;
         gri.bRandomMap = RandomMap;
+        gri.ResponsiveSmokeEnabled = ResponsiveSmoke;
     }
 
     /// <summary>The page's voice row index of a mode (0 Modern, 1 Classic, 2 Team, 3 Open; SPersistentData.VoiceChatMode).</summary>
@@ -321,7 +325,7 @@ public sealed record LobbySetup
             $"?SvmDisks={Disks}?SvmDisksToWin={DisksToWin}?SvmDisksMax={DisksMax}?SvmVoice={VoiceMenuIndex(VoiceMode)}?SvmVoiceLobby={(VoiceInLobby ? 1 : 0)}?SvmRandomMap={(RandomMap ? 1 : 0)}") +
         string.Create(CultureInfo.InvariantCulture, $"?SvmBots={(int)Bots}?SvmBotsPerSide={BotsPerSide}?SvmBotSkill={(int)BotSkill}?SvmBal={(AutoBalance ? 1 : 0)}?SvmPr={(Practice ? 1 : 0)}") +
         string.Create(CultureInfo.InvariantCulture, $"?SvmSpyBots={SpyBots}?SvmMercBots={MercBots}") +
-        "?SvmSidearms=" + (Sidearms ? "1" : "0") + Alternate.ToOptions();
+        "?SvmSidearms=" + (Sidearms ? "1" : "0") + "?SvmResponsiveSmoke=" + (ResponsiveSmoke ? "1" : "0") + Alternate.ToOptions();
 
     /// <summary>Reads a setup from options (as <see cref="ToOptions"/> writes them); missing values keep <paramref name="fallback"/>'s.</summary>
     public static LobbySetup FromOptions(string options, LobbySetup? fallback = null)
@@ -360,6 +364,7 @@ public sealed record LobbySetup
             Alternate = AlternateRules.FromOptions(options, f.Alternate),
             Practice = UcOptions.GetIntOption(options, "SvmPr", f.Practice ? 1 : 0) != 0,
             Sidearms = UcOptions.GetIntOption(options, "SvmSidearms", f.Sidearms ? 1 : 0) != 0,
+            ResponsiveSmoke = UcOptions.GetIntOption(options, "SvmResponsiveSmoke", f.ResponsiveSmoke ? 1 : 0) != 0,
         }.Clamped();
     }
 
@@ -394,7 +399,7 @@ public sealed record LobbySetup
         int respawn = Practice ? MinRespawn : RespawnSeconds;
         string practice = Practice ? ", practice" : string.Empty;
         return string.Create(CultureInfo.InvariantCulture,
-            $"{Map} {ModeName(Mode)}{practice}, {time}, {rules}, respawn {respawn} s{series}{random}{bots}, voice {VoiceModeName(VoiceMode)}{(AutoBalance ? ", auto balance" : "")}{Alternate.Describe()}");
+            $"{Map} {ModeName(Mode)}{practice}, {time}, {rules}, respawn {respawn} s{series}{random}{bots}, voice {VoiceModeName(VoiceMode)}{(AutoBalance ? ", auto balance" : "")}{(ResponsiveSmoke ? ", responsive smoke" : "")}{Alternate.Describe()}");
     }
 
     private static string Lives(int lives) => lives <= 0 ? "unlimited" : lives.ToString(CultureInfo.InvariantCulture);

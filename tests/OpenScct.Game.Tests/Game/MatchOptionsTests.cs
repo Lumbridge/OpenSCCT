@@ -210,6 +210,16 @@ public class MatchOptionsTests
         Assert.Equal(EGameMode.GM_Multi, g.MatchInfo!.GameMode);
     }
 
+    [Theory]
+    [InlineData("", false)]
+    [InlineData("?SvmResponsiveSmoke=0", false)]
+    [InlineData("?SvmResponsiveSmoke=1", true)]
+    public void ResponsiveSmokeRuleIsOptInAndCopiedToReplicationInfo(string options, bool enabled)
+    {
+        GameWorld world = new GameWorld().Load(options);
+        Assert.Equal(enabled, world.Gri.ResponsiveSmokeEnabled);
+    }
+
     [Fact]
     public void InitGame_defaults_without_options()
     {

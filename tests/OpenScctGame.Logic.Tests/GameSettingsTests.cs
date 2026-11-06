@@ -46,6 +46,22 @@ public sealed class GameSettingsTests : IDisposable
     }
 
     [Fact]
+    public void ResponsiveSmokeQualityDefaultsToMediumAndPersistsIndependentlyOfHostRules()
+    {
+        Assert.Equal(ResponsiveSmokeQuality.Medium, new GameSettings().SmokeQuality);
+        Assert.Equal(ResponsiveSmokeQuality.Medium, GameSettings.FromJson("{}").SmokeQuality);
+        Assert.Equal(ResponsiveSmokeQuality.Medium, GameSettings.FromJson("{\"responsive_smoke_quality\":99}").SmokeQuality);
+        foreach (ResponsiveSmokeQuality quality in Enum.GetValues<ResponsiveSmokeQuality>())
+        {
+            var settings = new GameSettings { SmokeQuality = quality };
+            string path = Path.Combine(_dir, "settings.json");
+            settings.Save(path);
+            Assert.Equal(quality, GameSettings.Load(path).SmokeQuality);
+            Assert.Equal(quality, settings.Clone().SmokeQuality);
+        }
+    }
+
+    [Fact]
     public void TeammateNamesPersistIndependentlyPerRole()
     {
         var defaults = GameSettings.FromJson("{}");
@@ -97,8 +113,7 @@ public sealed class GameSettingsTests : IDisposable
         var s = new GameSettings();
         Assert.Equal(112f, s.MercFovCap);
         Assert.True(s.Widescreen);
-        Assert.Equal(DisplayFrameCap.Monitor, s.FpsSpy);   // an addition: Reloaded's first run has 120 (FramePacingTests)
-        Assert.Equal(DisplayFrameCap.Monitor, s.FpsMerc);
+        Assert.Equal(DisplayFrameCap.Monitor, s.FpsLimit);
         Assert.False(s.VSync);
         Assert.Equal("BorderlessFullscreen", s.DisplayMode);
         Assert.Equal(1.4f, s.SpyKbm.FreeLook);
@@ -214,15 +229,14 @@ public sealed class GameSettingsTests : IDisposable
     {
         var s = new GameSettings
         {
-            MercFovCap = 500f, FpsSpy = 10, FpsMerc = 999, MasterVolume = 3f, MusicVolume = -1f,
+            MercFovCap = 500f, FpsLimit = 999, MasterVolume = 3f, MusicVolume = -1f,
             Monitor = 0, DisplayMode = "Nonsense", Resolution = "12x9", PlayerName = "  ", RenderScale = 0.1f,
         };
         s.Pad.DeadzoneLeft = 5f;
         s.SpyKbm.LookResponse = "Wobbly";
         s.Clamp();
         Assert.Equal(GameSettings.MaxMercFov, s.MercFovCap);
-        Assert.Equal(GameSettings.MinFps, s.FpsSpy);
-        Assert.Equal(GameSettings.MaxFps, s.FpsMerc);
+        Assert.Equal(GameSettings.MaxFps, s.FpsLimit);
         Assert.Equal(1f, s.MasterVolume);
         Assert.Equal(0f, s.MusicVolume);
         Assert.Equal(1, s.Monitor);
@@ -260,26 +274,25 @@ public sealed class GameSettingsTests : IDisposable
         GameSettings s = GameSettings.FromJson(json);
         Assert.Equal("Ryan", s.PlayerName);
         Assert.Equal(105f, s.MercFovCap);
-        Assert.Equal(240, s.FpsSpy);
+        Assert.Equal(240, s.FpsLimit);
         Assert.Equal(2f, s.SpyKbm.FreeLook);
         Assert.Equal(1f, s.SpyKbm.Look);      // a group read in part keeps its side's defaults for the rest
         Assert.Equal(3.5f, s.SpyKbm.Vertical);
         Assert.True(s.Pad.Enabled);
         Assert.Equal(0.3f, s.Pad.DeadzoneLeft, 3);
-        Assert.Equal(DisplayFrameCap.Monitor, s.FpsMerc);
     }
 
     [Fact]
     public void SaveAndLoadRoundTrip()
     {
         string path = Path.Combine(_dir, "settings.json");
-        var s = new GameSettings { PlayerName = "Sam", FpsMerc = 144, Resolution = "1920x1080", ShowNet = true };
+        var s = new GameSettings { PlayerName = "Sam", FpsLimit = 700, Resolution = "1920x1080", ShowNet = true };
         s.MercKbm.Look = 1.25f;
         s.Save(path);
         Assert.False(File.Exists(path + ".tmp"));
         GameSettings back = GameSettings.Load(path);
         Assert.Equal("Sam", back.PlayerName);
-        Assert.Equal(144, back.FpsMerc);
+        Assert.Equal(700, back.FpsLimit);
         Assert.Equal("1920x1080", back.Resolution);
         Assert.True(back.ShowNet);
         Assert.Equal(1.25f, back.MercKbm.Look);
@@ -308,11 +321,10 @@ public sealed class GameSettingsTests : IDisposable
         Assert.Null(GameSettings.ParseResolution("320x200"));
         Assert.Null(GameSettings.ParseResolution("wide"));
         Assert.Contains("ws_fov", GameSettings.Keys());
-        Assert.Contains("fps_merc", GameSettings.Keys());
+        Assert.Contains("max_fps", GameSettings.Keys());
         Assert.Contains("controls_spy_kbm", GameSettings.Keys());
         Assert.Same(new GameSettings().SpyKbm.GetType(), new GameSettings().LookOf(merc: false, pad: false).GetType());
         var s = new GameSettings();
         Assert.Same(s.MercPad, s.LookOf(merc: true, pad: true));
-        Assert.Equal(s.FpsMerc, s.FpsFor(merc: true));
     }
 }

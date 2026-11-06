@@ -17,6 +17,8 @@ public partial class SSmokeEmitter
     protected override void PostBeginPlay()
     {
         base.PostBeginPlay();
+        if (OpenScct.Game.Equipment.ResponsiveSmokeWorld.IsEnabled(XLevel))
+            OpenScct.Game.Equipment.ResponsiveSmokeWorld.For(XLevel).Register(this);
         if (SoundOn)
         {
             ToggleSoundOn();
@@ -32,6 +34,12 @@ public partial class SSmokeEmitter
     [Uc("SBase.SSmokeEmitter.ToggleSoundOff", Sha1 = "1dfdfa78f86e0e056e486e2dfb5e5bfb5a76e800")]
     [PortOf("uc:SBase.SSmokeEmitter:ToggleSoundOff", Spec = "spec/equipment/smoke-grenade.md#rules")]
     public void ToggleSoundOff() => AmbientSound = AssetRef.None;
+
+    protected override void Destroyed()
+    {
+        XLevel.GetService<OpenScct.Game.Equipment.ResponsiveSmokeWorld>()?.Unregister(this);
+        base.Destroyed();
+    }
 
     /// <summary>A player inside the cloud: GoInSmoke with the cloud's cough, faint and blur values.</summary>
     [Uc("SBase.SSmokeEmitter.DetectedSPlayerController", Sha1 = "1634735716b2a349d506f6fea4753702d4ff2ce0")]
@@ -50,6 +58,11 @@ public partial class SSmokeEmitter
     protected override void NativeTick(float DeltaSeconds)
     {
         base.NativeTick(DeltaSeconds);
+        if (OpenScct.Game.Equipment.ResponsiveSmokeWorld.IsEnabled(XLevel))
+        {
+            OpenScct.Game.Equipment.ResponsiveSmokeWorld.For(XLevel).ApplyLocalExposure();
+            return;
+        }
         foreach (SPlayerController pc in XLevel.AllActors<SPlayerController>())
         {
             if (pc.Pawn is not { } pawn)

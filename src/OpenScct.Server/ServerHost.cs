@@ -393,6 +393,8 @@ public sealed partial class ServerHost : INetworkNotify, IDisposable
             if (Driver.Settings.PawnProxies == PawnProxyMode.Snapshots) Driver.ReplicatePriorityOwners();
             ProxySender?.Pass(World.Level);
             World.Level.GetService<PawnSoundReplication>()?.Flush(World.TickCount);
+            if (OpenScct.Game.Equipment.ResponsiveSmokeWorld.IsEnabled(World.Level))
+                ResponsiveSmokeReplication.For(Driver).Flush();
             Driver.TickFlush(nowMicros, replicate: true);
             Recorder?.CaptureCheckpoint();
             Combat?.Pump();

@@ -448,7 +448,7 @@ public sealed class MasterHost : IAsyncDisposable
             Content = h.Content, Version = h.Version, Reachability = Registry.Classify(r),
             AgeSeconds = (int)Math.Max(0, Registry.Now - r.LastSeen), PlayerNames = h.PlayerNames,
             PlayerTeams = h.PlayerTeams.Count == h.PlayerNames.Count ? h.PlayerTeams : [],
-            RequireAccounts = h.RequireAccounts, Trusted = r.Trusted, Kind = h.Kind, Region = h.Region, Practice = h.Practice,
+            RequireAccounts = h.RequireAccounts, Trusted = r.Trusted, Kind = h.Kind, Region = h.Region, Practice = h.Practice, ResponsiveSmoke = h.ResponsiveSmoke,
         };
     }
 

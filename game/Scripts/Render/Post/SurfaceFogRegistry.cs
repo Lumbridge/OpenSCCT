@@ -25,6 +25,7 @@ public sealed class SurfaceFogRegistry : IDisposable
     private static byte[] s_upload = [];
     private readonly Camera3D _camera;
     private readonly int _slot;
+    public int Slot => _slot;
     private FogState _state;
     private bool _disposed;
 
@@ -56,6 +57,7 @@ public sealed class SurfaceFogRegistry : IDisposable
     /// <summary>Registers the sampler before a shader referencing it is compiled.</summary>
     public static void EnsureGlobals()
     {
+        ResponsiveSmokeRenderer.EnsureGlobals();
         if (s_initialized) return;
         using var empty = Image.CreateEmpty(TextureWidth, 1, false, Image.Format.Rgbaf);
         empty.Fill(Colors.Transparent);
@@ -136,6 +138,7 @@ public sealed class SurfaceFogRegistry : IDisposable
         if (_disposed) return;
         _disposed = true;
         Views[_slot] = null;
+        ResponsiveSmokeRenderer.ReleaseView(_slot);
         if (GodotObject.IsInstanceValid(_camera) && ((_camera.CullMask & RenderLayers.FogViewMask) >> RenderLayers.FogViewShift) == (uint)_slot)
             _camera.CullMask &= ~RenderLayers.FogViewMask;
         s_dirty = true;

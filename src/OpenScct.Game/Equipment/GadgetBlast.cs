@@ -61,6 +61,7 @@ public static class GadgetBlast
     [Provenance(ProvenanceKind.Decoded, "natives2-damage.md rules 4 and 5: reach, sight lines, falloff, damage types, spy hold, shake")]
     public static void Run(in Blast b)
     {
+        if (b.Damage > 0) ResponsiveSmokeWorld.Blast(b.Source, b.ReachFrom, b.DamageRange);
         CombatDeathSource activity = b.Source is SMines mine ? mine.ActivityDeathSource :
             b.Source is SProjFrag frag ? new(CombatDeathCause.FragGrenade, Instigator: frag.ThrowerStatsOwner) : default;
         // The blast belongs to its owner; the shooter/chain initiator stays in Detonator for spy-mine feats.

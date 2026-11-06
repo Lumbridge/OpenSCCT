@@ -298,8 +298,7 @@ public sealed class OptionsSmoke : SmokeTest
             volume.SetValueNoSignal(originalVolume);
             Expect(options.Tabs!.GetTabTitle(0) == "Spy" && options.Tabs.GetTabTitle(1) == "Mercenary", "role tabs");
             Expect(!options.Controls.ContainsKey("controls_spy_kbm.look_response"), "mouse response selector removed");
-            void PickFps(string key, int fps) => ((FrameRateSlider)options.Controls[key]).Select(fps);
-            string ShownFps(string key) => ((FrameRateSlider)options.Controls[key]).Text;
+            FrameRateSlider FpsControl() => (FrameRateSlider)options.Controls["max_fps"];
             void PickTelemetry(string key, int index)
             {
                 var picker = (OptionButton)options.Controls[key];
@@ -384,18 +383,20 @@ public sealed class OptionsSmoke : SmokeTest
             }
             ExpectEditedTelemetry(options.Editing, "control signals");
             Expect(original == SettingsStore.Current.ToJson(), "telemetry control signals modify only the draft");
-            PickFps("max_fps", 137);
-            Expect(options.Editing.FpsSpy == 137 && options.Editing.FpsMerc == 137, "custom FPS retains single-frame precision");
-            PickFps("max_fps", 144);
-            Expect(options.Editing.FpsSpy == 144 && options.Editing.FpsMerc == 144 &&
-                ShownFps("fps_spy") == "144" && ShownFps("fps_merc") == "144", "shared FPS updates both role drafts and selectors");
-            PickFps("fps_spy", 60);
-            Expect(options.Editing.FpsMerc == 144 && ShownFps("max_fps") == "Per-role limits", "role FPS edit retains the other limit");
-            PickFps("max_fps", DisplayFrameCap.Unlimited);
-            Expect(options.Editing.FpsSpy == 0 && options.Editing.FpsMerc == 0, "Unlimited works after mixed role limits");
-            PickFps("max_fps", DisplayFrameCap.Monitor);
-            Expect(options.Editing.FpsSpy == DisplayFrameCap.Monitor && options.Editing.FpsMerc == DisplayFrameCap.Monitor, "Monitor works after rebuilding choices");
-            PickFps("max_fps", 120);
+            var fps = FpsControl();
+            var fpsRow = fps.GetChild(0).GetChildren();
+            var fpsSlider = fpsRow.OfType<NotchedSlider>().Single();
+            var fpsNumber = fpsRow.OfType<SpinBox>().Single();
+            Expect(options.Controls.Values.OfType<FrameRateSlider>().Count() == 1, "options shows a single FPS slider");
+            Expect(fpsSlider.MaxValue == 700 && fpsSlider.Notches.Contains(144d) && fpsSlider.Notches.Contains(360d) &&
+                fpsSlider.Notches.Contains(540d), "FPS slider reaches 700 and has refresh-rate notches");
+            fpsNumber.Value = 137;
+            Expect(options.Editing.FpsLimit == 137 && fpsSlider.Value == 137, "custom FPS retains single-frame precision");
+            fps.Select(DisplayFrameCap.Unlimited);
+            Expect(options.Editing.FpsLimit == DisplayFrameCap.Unlimited && fps.Text == DisplayFrameCap.UnlimitedLabel, "Unlimited removes the FPS cap");
+            fps.Select(DisplayFrameCap.Monitor);
+            Expect(options.Editing.FpsLimit == DisplayFrameCap.Monitor, "Match refresh rate stages the monitor cap");
+            fpsNumber.Value = 700;
             options.LoadLayout(PlaySide.Spy);
             var draft = options.Keys!.Draft!;
             string baseline = draft.Layout.ToIni();
@@ -450,7 +451,12 @@ public sealed class OptionsSmoke : SmokeTest
             Expect(InputMap.ActionGetEvents(OpenScctGame.Voice.VoiceInput.PushToTalk).OfType<InputEventKey>().Any(k => k.PhysicalKeycode == Key.J), "Apply updates voice shortcut InputMap");
             Expect(Math.Abs(SettingsStore.Current.SoundVolume - 0.27f) < 0.001f, "Apply publishes settings");
             GameSettings savedFps = GameSettings.FromJson(SettingsStore.Current.ToJson());
-            Expect(savedFps.FpsSpy == 120 && savedFps.FpsMerc == 120 && ShownFps("max_fps") == "120", "shared FPS survives save and menu rebuild");
+            Expect(savedFps.FpsLimit == 700 && FpsControl().Text == "700", "700 FPS survives save and menu rebuild");
+            if (DisplayServer.GetName() != "headless")
+            {
+                int expectedCap = DisplayFrameCap.EngineMaxFps(700, SettingsApplier.MonitorHz, savedFps.VSync);
+                Expect(Engine.MaxFps == expectedCap, "Apply sets the engine cap for 700 FPS and the current VSync setting");
+            }
             ExpectEditedTelemetry(savedFps, "Apply serialization");
             ExpectEditedTelemetry(options.Editing, "Apply draft rebuild");
             Expect(((OptionButton)options.Controls["show_fps"]).Selected == 2 && ((OptionButton)options.Controls["show_net"]).Selected == 1 &&
@@ -460,7 +466,7 @@ public sealed class OptionsSmoke : SmokeTest
             Expect(options.Keys!.Draft!.Keys(breath).Contains("X"), "Apply retains draft binding");
             options.Defaults();
             Expect(options.HasUnsavedChanges, "reset stages changes");
-            Expect(ShownFps("max_fps") == DisplayFrameCap.Label(new GameSettings().FpsSpy, SettingsApplier.MonitorHz), "reset restores shared FPS selector");
+            Expect(FpsControl().Text == DisplayFrameCap.Label(new GameSettings().FpsLimit, SettingsApplier.MonitorHz), "reset restores Match refresh rate");
             Expect(!options.Editing.ShowFps && !options.Editing.ShowNet && options.Editing.FpsTelemetry.DisplayMode == "Always" &&
                 options.Editing.NetworkTelemetry.DisplayMode == "Always", "reset disables both telemetry readouts and restores default display modes");
             foreach (string key in new[] { "fps_telemetry", "network_telemetry" })

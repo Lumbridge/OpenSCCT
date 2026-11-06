@@ -103,7 +103,7 @@ public sealed class MasterHeartbeatTests
         var info = new ServerInfo { Name = "Changing roster", Map = "TestBox", GamePort = udp.LocalPort, Mode = 5, Players = 1, MaxPlayers = 4 };
         link.Tick(0, () => info);
         // The first asynchronous heartbeat is still pending consumption on the host thread.
-        info = info with { Players = 2, Phase = SessionPhase.Match };
+        info = info with { Players = 2, Phase = SessionPhase.Match, ResponsiveSmoke = true };
         link.HeartbeatSoon();
         ServerEntry? entry = null;
         for (int attempt = 0; attempt < 50; attempt++)
@@ -117,5 +117,6 @@ public sealed class MasterHeartbeatTests
         Assert.NotNull(entry);
         Assert.Equal(2, entry.Players);
         Assert.Equal(SessionPhase.Match, entry.Phase);
+        Assert.True(entry.ResponsiveSmoke);
     }
 }

@@ -80,7 +80,8 @@ public static class SettingsConsole
         parent = null;
         name = null;
         JsonNode? node = root;
-        foreach (string part in key.Trim().Split('.'))
+        string path = key.Trim() switch { "fps_spy" or "fps_merc" => "max_fps", var other => other };
+        foreach (string part in path.Split('.'))
         {
             if (node is not JsonObject obj || !obj.TryGetPropertyValue(part, out JsonNode? child))
             {

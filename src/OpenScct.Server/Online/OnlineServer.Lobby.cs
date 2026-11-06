@@ -505,7 +505,7 @@ public sealed partial class OnlineServer
     public const string CommandHelp =
         "status | players | kick <id|name> [reason] | ban <id|name> [minutes] [reason] | unban <account|player key|install id|address|name> | " +
         "voiceban <id|name> | unvoiceban <id|name> | " +
-        "map <name> [mode] | mode <name> | set <time|spylives|merclives|respawn|revenge|games|maxplayers|bots|botsperside|botskill|balance|alternate|practice> <value> | set alternate <ability|spygadgetN|mercgadgetN|spyslots|mercslots> <value> | " +
+        "map <name> [mode] | mode <name> | set <time|spylives|merclives|respawn|revenge|games|maxplayers|bots|botsperside|botskill|balance|alternate|practice|responsivesmoke> <value> | set alternate <ability|spygadgetN|mercgadgetN|spyslots|mercslots> <value> | " +
         "lagcomp [on|off|reset|<ms>] | practice [on|off] | launch | lobby | restart | next | say <text> | close";
 
     /// <summary>
@@ -591,7 +591,7 @@ public sealed partial class OnlineServer
                     break;
                 }
 
-                LobbySetup fresh = LobbySetup.ForMap(entry.Id, setup.Mode, Maps.GetMapSettings(entry.Id), Setup.MaxPlayers) with { AutoBalance = Setup.AutoBalance, Alternate = Setup.Alternate };
+                LobbySetup fresh = LobbySetup.ForMap(entry.Id, setup.Mode, Maps.GetMapSettings(entry.Id), Setup.MaxPlayers) with { AutoBalance = Setup.AutoBalance, Alternate = Setup.Alternate, ResponsiveSmoke = Setup.ResponsiveSmoke };
                 ApplySetup(KeepPractice(fresh), announce: true);
                 if (Phase != SessionPhase.Lobby)
                 {
@@ -603,7 +603,7 @@ public sealed partial class OnlineServer
             }
 
             case "mode" when LobbySetup.TryParseMode(arg + (rest.Length > 0 ? " " + rest : ""), out OpenScct.Core.EGameMode newMode):
-                ApplySetup(KeepPractice(LobbySetup.ForMap(Setup.Map, newMode, Maps.GetMapSettings(Setup.Map), Setup.MaxPlayers) with { AutoBalance = Setup.AutoBalance, Alternate = Setup.Alternate }), announce: true);
+                ApplySetup(KeepPractice(LobbySetup.ForMap(Setup.Map, newMode, Maps.GetMapSettings(Setup.Map), Setup.MaxPlayers) with { AutoBalance = Setup.AutoBalance, Alternate = Setup.Alternate, ResponsiveSmoke = Setup.ResponsiveSmoke }), announce: true);
                 output.Add("next: " + Setup.Describe());
                 break;
             case "lagcomp":
@@ -616,7 +616,7 @@ public sealed partial class OnlineServer
                 output.Add("next: " + Setup.Describe());
                 break;
             case "set":
-                output.Add("usage: set <time|spylives|merclives|respawn|revenge|games|maxplayers|bots|botsperside|botskill|balance|alternate|practice|lagcomp> <value>, or set alternate <spythermal|spynight|spygrab|spyelbow|spydrop|mercemf|mercmotion|mercelbow|mercdrop|merctorch|merclaser|mercberserk|merccharge|cinematic|spygadget1-8|mercgadget1-8|spyslots|mercslots> <value>");
+                output.Add("usage: set <time|spylives|merclives|respawn|revenge|games|maxplayers|bots|botsperside|botskill|balance|alternate|practice|responsivesmoke|lagcomp> <value>, or set alternate <spythermal|spynight|spygrab|spyelbow|spydrop|mercemf|mercmotion|mercelbow|mercdrop|merctorch|merclaser|mercberserk|merccharge|cinematic|spygadget1-8|mercgadget1-8|spyslots|mercslots> <value>");
                 break;
             case "practice":
                 if (arg.Length > 0 && SetOption("practice", arg, out _))
@@ -742,6 +742,7 @@ public sealed partial class OnlineServer
             "spybots" when isInt => s with { SpyBots = n },
             "mercbots" when isInt => s with { MercBots = n },
             "sidearms" when isBool => s with { Sidearms = on },
+            "responsivesmoke" when isBool => s with { ResponsiveSmoke = on },
             "practice" when isBool => s with { Practice = on },
             "botskill" => Enum.TryParse(value, ignoreCase: true, out OpenScct.Game.AI.AiSkill skill) ? s with { BotSkill = skill } : null,
             "balance" or "autobalance" when isBool => s with { AutoBalance = on },
@@ -1002,6 +1003,7 @@ public sealed partial class OnlineServer
         {
             VoiceMode = Setup.VoiceMode, VoiceInLobby = Setup.VoiceInLobby, RandomMap = Setup.RandomMap, Revenge = Setup.Revenge,
             AutoBalance = Setup.AutoBalance, Alternate = Setup.Alternate, Practice = Setup.Practice, Sidearms = Setup.Sidearms,
+            ResponsiveSmoke = Setup.ResponsiveSmoke,
             Bots = Setup.Bots, BotsPerSide = Setup.BotsPerSide, SpyBots = Setup.SpyBots, MercBots = Setup.MercBots, BotSkill = Setup.BotSkill,
             GamesInARow = Setup.Revenge ? LobbySetup.RevengeGames : Setup.GamesInARow,
         };
@@ -1037,7 +1039,7 @@ public sealed partial class OnlineServer
             }
 
             string map = maps[((at + step) % maps.Count + maps.Count) % maps.Count];
-            ApplySetup(KeepPractice(LobbySetup.ForMap(map, Setup.Mode, Maps.GetMapSettings(map), Setup.MaxPlayers) with { AutoBalance = Setup.AutoBalance, Alternate = Setup.Alternate }), announce: true);
+            ApplySetup(KeepPractice(LobbySetup.ForMap(map, Setup.Mode, Maps.GetMapSettings(map), Setup.MaxPlayers) with { AutoBalance = Setup.AutoBalance, Alternate = Setup.Alternate, ResponsiveSmoke = Setup.ResponsiveSmoke }), announce: true);
         }
 
         if (Phase != SessionPhase.Lobby)

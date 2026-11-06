@@ -181,6 +181,9 @@ public sealed record HeartbeatRequest
     /// <summary>A practice server (rl:net.practice): unlimited lives, practice commands, no stats.</summary>
     public bool Practice { get; init; }
 
+    /// <summary>Experimental responsive spy smoke is enabled.</summary>
+    public bool ResponsiveSmoke { get; init; }
+
     /// <summary>Account ids of the signed-in players on the server (for global ban kicks).</summary>
     public IReadOnlyList<long> AccountIds { get; init; } = [];
 
@@ -343,6 +346,9 @@ public sealed record ServerEntry
 
     /// <summary>A practice server (rl:net.practice): unlimited lives, practice commands, no stats.</summary>
     public bool Practice { get; init; }
+
+    /// <summary>Experimental responsive spy smoke is enabled.</summary>
+    public bool ResponsiveSmoke { get; init; }
 
     /// <summary>A game server or a hub.</summary>
     public ServerKind Kind { get; init; }

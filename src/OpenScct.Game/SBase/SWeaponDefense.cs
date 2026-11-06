@@ -377,6 +377,7 @@ public partial class SWeaponDefense
         using var activity = CombatDeathContext.Push(new(activityCause));
         ShotRay(shooter, Accuracy, ActiveShotId, TraceStartLocation, out FVector startTrace, out FVector endTrace, out FVector wStart);
         BoneTraceResult hit = CombatServices.HitZones(this).TraceBone(this, endTrace, wStart, true);
+        ResponsiveSmokeWorld.Bullet(this, wStart, hit.bHit ? hit.HitLocation : endTrace);
         int roll = SvmMath.Trunc(FRand() * K.RandomRoll);
         Actor other = hit.Actor;
         if (hit.bHit && (other.bWorldGeometry || other is Mover || other is LevelInfo))

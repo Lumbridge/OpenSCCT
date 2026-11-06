@@ -20,7 +20,7 @@ public sealed class OnlinePartsTests
         var info = new ServerInfo
         {
             Name = "Squat night", Map = "SteeE", Mode = 5, Phase = SessionPhase.Match, Players = 3, MaxPlayers = 4, GamePort = 28888,
-            ProtocolHash = 0x1122334455667788, ContentHash = 0x99aabbccddeeff00, HasPassword = true, Dedicated = true, SecondsLeft = 431,
+            ProtocolHash = 0x1122334455667788, ContentHash = 0x99aabbccddeeff00, HasPassword = true, Dedicated = true, SecondsLeft = 431, ResponsiveSmoke = true,
             PlayerList = [new ServerInfoPlayer("Sam", 0), new ServerInfoPlayer("Shadownet", 1), new ServerInfoPlayer("Watcher", 255)],
         };
         var buffer = new byte[DiscoveryPackets.MaxBytes];

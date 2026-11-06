@@ -45,6 +45,7 @@ public enum SessionRow
     /// <summary>Practice server (Reloaded, rl:net.practice): unlimited lives, quick respawns, practice commands, no stats.</summary>
     Practice,
     Sidearms,
+    ResponsiveSmoke,
     SpyBots,
     MercBots,
 }
@@ -174,6 +175,7 @@ public sealed class CreateSessionModel
         SessionRow.BotSkill => "Bot Skill",
         SessionRow.Practice => "Practice",
         SessionRow.Sidearms => "Sidearms",
+        SessionRow.ResponsiveSmoke => "Responsive smoke (experimental)",
         _ => row.ToString(),
     };
 
@@ -192,7 +194,7 @@ public sealed class CreateSessionModel
     /// <summary>Whether a row is a check box.</summary>
     public static bool IsCheck(SessionRow row) =>
         row is SessionRow.Revenge or SessionRow.RandomMap or SessionRow.VoiceInLobby or SessionRow.AutoBalance or SessionRow.Alternate
-            or SessionRow.Sidearms or SessionRow.Practice;
+            or SessionRow.Sidearms or SessionRow.ResponsiveSmoke or SessionRow.Practice;
 
     /// <summary>The range of a number row (inclusive).</summary>
     public (int Min, int Max) Range(SessionRow row) => row switch
@@ -240,6 +242,7 @@ public sealed class CreateSessionModel
         SessionRow.Alternate => Setup.Alternate.On,
         SessionRow.Practice => Setup.Practice,
         SessionRow.Sidearms => Setup.Sidearms,
+        SessionRow.ResponsiveSmoke => Setup.ResponsiveSmoke,
         _ => false,
     };
 
@@ -269,7 +272,7 @@ public sealed class CreateSessionModel
             case SessionRow.BotSkill:
                 return OnlineBotRoster.SkillNames[(int)Setup.BotSkill];
             case SessionRow.Revenge or SessionRow.RandomMap or SessionRow.VoiceInLobby or SessionRow.AutoBalance or SessionRow.Alternate
-                or SessionRow.Sidearms or SessionRow.Practice:
+                or SessionRow.Sidearms or SessionRow.ResponsiveSmoke or SessionRow.Practice:
                 return Checked(row) ? "Yes" : "No";
             case SessionRow.TimeLimit or SessionRow.MercLives:
                 return Number(row) == 0 ? InfiniteText : Number(row).ToString(CultureInfo.InvariantCulture);
@@ -347,7 +350,7 @@ public sealed class CreateSessionModel
                 Set(Setup with { BotSkill = (OpenScct.Game.AI.AiSkill)Wrap((int)Setup.BotSkill + delta, OnlineBotRoster.SkillNames.Count) });
                 return;
             case SessionRow.Revenge or SessionRow.RandomMap or SessionRow.VoiceInLobby or SessionRow.AutoBalance or SessionRow.Alternate
-                or SessionRow.Sidearms or SessionRow.Practice:
+                or SessionRow.Sidearms or SessionRow.ResponsiveSmoke or SessionRow.Practice:
                 SetChecked(row, !Checked(row));
                 return;
             case SessionRow.Password or SessionRow.Map:
@@ -431,6 +434,9 @@ public sealed class CreateSessionModel
             case SessionRow.Sidearms:
                 Set(Setup with { Sidearms = on });
                 break;
+            case SessionRow.ResponsiveSmoke:
+                Set(Setup with { ResponsiveSmoke = on });
+                break;
             case SessionRow.Practice:
                 Set(Setup with { Practice = on });
                 break;
@@ -489,7 +495,7 @@ public sealed class CreateSessionModel
         Set(fresh with
         {
             VoiceMode = Setup.VoiceMode, VoiceInLobby = Setup.VoiceInLobby, RandomMap = Setup.RandomMap, Revenge = Setup.Revenge,
-            AutoBalance = Setup.AutoBalance, Alternate = Setup.Alternate, Practice = Setup.Practice, Sidearms = Setup.Sidearms,
+            AutoBalance = Setup.AutoBalance, Alternate = Setup.Alternate, Practice = Setup.Practice, Sidearms = Setup.Sidearms, ResponsiveSmoke = Setup.ResponsiveSmoke,
             Bots = Setup.Bots, BotsPerSide = Setup.BotsPerSide, SpyBots = Setup.SpyBots, MercBots = Setup.MercBots, BotSkill = Setup.BotSkill,
             GamesInARow = Setup.Revenge ? LobbySetup.RevengeGames : Setup.GamesInARow, MaxPlayers = players,
         });

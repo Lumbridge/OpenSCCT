@@ -41,6 +41,23 @@ public sealed class MenuCreateSessionTests
     }
 
     [Fact]
+    public void ResponsiveSmokeIsAnOptInHostRulePreservedAcrossMapAndModeChanges()
+    {
+        CreateSessionModel page = Page();
+        Assert.False(page.Checked(SessionRow.ResponsiveSmoke));
+        Assert.True(CreateSessionModel.IsCheck(SessionRow.ResponsiveSmoke));
+        page.SetChecked(SessionRow.ResponsiveSmoke, true);
+        Assert.True(page.Setup.ResponsiveSmoke);
+        Assert.Equal("Yes", page.Text(SessionRow.ResponsiveSmoke));
+        page.SelectMode(EGameMode.GM_DiskHunt);
+        page.SelectMap("WildX");
+        Assert.True(page.Setup.ResponsiveSmoke);
+        Assert.Equal([SessionRow.ResponsiveSmoke], LobbyRoomModel.Differences(page.Setup with { ResponsiveSmoke = false }, page.Setup));
+        page.Step(SessionRow.ResponsiveSmoke, 1);
+        Assert.False(page.Setup.ResponsiveSmoke);
+    }
+
+    [Fact]
     public void ThePageOpensWithTheMapsRulesAndTheProfileDefaults()
     {
         CreateSessionModel page = Page();

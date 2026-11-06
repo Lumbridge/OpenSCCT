@@ -10,8 +10,8 @@ using OpenScctGame.Render;
 namespace OpenScctGame.Options;
 
 /// <summary>
-/// Keeps the player's settings in effect in the play scene: the session's mouse look, the frame cap of the local
-/// player's side (Reloaded's fps_spy / fps_merc), the audio bus volumes (again when the sound system adds buses), the
+/// Keeps the player's settings in effect in the play scene: the session's mouse look,
+/// the audio bus volumes (again when the sound system adds buses), the
 /// HUD switches, the widescreen field of view (Hor+ and the merc's ws_fov cap, or the stretched 4:3 picture and HUD)
 /// and the controller. F12 opens the options over the game (Reloaded's settings overlay); saving there
 /// applies at once.
@@ -50,12 +50,8 @@ public partial class OptionsRuntime : Node
         return runtime;
     }
 
-    /// <summary>The frame caps apply (not in headless or smoke runs, which run as fast as they can).</summary>
-    public bool CapFrames { get; set; }
-
     public override void _Ready()
     {
-        CapFrames = DisplayServer.GetName() != "headless" && GetNodeOrNull<App>(App.NodePath) is not { IsSmokeRun: true };
         if (PlayInput is { } actionInput) actionInput.Controller = () => Session?.LocalController;
         Gamepad = new GamepadInput { PlayInput = PlayInput, Session = Session };
         AddChild(Gamepad);
@@ -74,12 +70,6 @@ public partial class OptionsRuntime : Node
         if (Hud is not null)
         {
             Hud.Effects.Applied -= OnLocalNotify;
-        }
-
-        // Outside the game Reloaded uses the merc cap.
-        if (CapFrames)
-        {
-            SettingsApplier.ApplyFrameCap(_settings, merc: true);
         }
     }
 
@@ -177,12 +167,6 @@ public partial class OptionsRuntime : Node
         if (Session is { } session && _overlay is null)
         {
             UpdateClutch(session);
-        }
-
-        if (CapFrames)
-        {
-            bool merc = Session?.LocalPawn is SPAWNDEFENSE || (Session?.Settings.Side == PlaySide.Merc && Session.LocalPawn is null);
-            SettingsApplier.ApplyFrameCap(_settings, merc);
         }
 
         if (GetParent() is PlayRoot { View: { } view } && !ReferenceEquals(view, _view))

@@ -75,6 +75,7 @@ public sealed record PlayConfig
             Bots = options.PlayBots,
             Difficulty = options.PlayDifficulty,
             MatchPlayers = options.PlayPlayers,
+            ResponsiveSmoke = options.ResponsiveSmoke,
             StartAt = options.PlayStartAt,
         };
         if (options.PlayNetRate > 0)
@@ -129,6 +130,9 @@ public partial class PlayRoot : Node3D
     private Exception? _reportedServerFailure;
     private Label? _prompt;
     private ColorRect? _cameraOcclusion;
+    private ColorRect? _smokeLoadingCover;
+    private bool _smokePreparing, _smokeRestoreControls;
+    private bool _smokeRestoreLoaded;
     private int _lastRendMap = -1;
     private bool _lastBinoculars;
     private int _lastRemanenceCaptures;
@@ -237,6 +241,11 @@ public partial class PlayRoot : Node3D
                 _status.Text = "Preparing effects...";
                 var warmup = GameplayFxWarmup.For(GetViewport());
                 AddChild(warmup);
+                if (Session is { } smokeSession && OpenScct.Game.Equipment.ResponsiveSmokeWorld.IsEnabled(smokeSession.Client.World.Level))
+                {
+                    SetSmokeLoading(true);
+                    warmup.PreloadResponsiveSmoke(smokeSession.Client.World.Level,Map,GetViewport());
+                }
                 Fx.Preload(warmup.Samples);
                 MercLasers.Preload(warmup.Samples);
                 SpyLasers?.Preload(warmup.Samples);
@@ -259,14 +268,65 @@ public partial class PlayRoot : Node3D
 
     private void FinishLoading()
     {
+        SetSmokeLoading(false);
         IsLoaded = true;
         Session?.Client.MarkReadyToPlay();
         if (_status is not null) _status.Text = "";
     }
 
+    private void SetSmokeLoading(bool loading)
+    {
+        if (_smokePreparing == loading) return;
+        _smokePreparing = loading;
+        if (loading)
+        {
+            _smokeRestoreLoaded = IsLoaded; IsLoaded = false;
+            if (_smokeLoadingCover is null && _status?.GetParent() is { } layer)
+            {
+                _smokeLoadingCover = new ColorRect { Name = "SmokeLoadingCover", Color = Colors.Black,
+                    MouseFilter = Control.MouseFilterEnum.Stop };
+                layer.AddChild(_smokeLoadingCover); layer.MoveChild(_smokeLoadingCover,0);
+                _smokeLoadingCover.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
+            }
+            if (Controls is { } controls)
+            {
+                _smokeRestoreControls = controls.Enabled; controls.Enabled = false;
+                if (Session is { } session) controls.ClearHeld(session.Input);
+            }
+            if (_status is not null) _status.Text = "Preparing smoke effects...";
+        }
+        else
+        {
+            IsLoaded = _smokeRestoreLoaded;
+            if (Controls is { } controls) controls.Enabled = _smokeRestoreControls;
+            if (_status is not null) _status.Text = "";
+        }
+        if (_smokeLoadingCover is not null) _smokeLoadingCover.Visible = loading;
+    }
+
+    private bool PrepareLateSmoke(PlaySession session)
+    {
+        if (!Config.Render || !OpenScct.Game.Equipment.ResponsiveSmokeWorld.IsEnabled(session.Client.World.Level)
+            || ResponsiveSmokeRenderer.IsPrepared) return false;
+        if (!_smokePreparing)
+        {
+            // Online rules can arrive after the ordinary FX loading viewport. Keep receiving packets while
+            // an explicit cover/input gate prevents a playable transparent-smoke interval during preparation.
+            SetSmokeLoading(true);
+            var warmup = GameplayFxWarmup.For(GetViewport()); AddChild(warmup);
+            warmup.PreloadResponsiveSmoke(session.Client.World.Level,Map,GetViewport());
+            warmup.Begin(() => SetSmokeLoading(false));
+        }
+        return true;
+    }
+
     private void Load()
     {
-        PlaySettings settings = Config.Settings;
+        // Local TestRange is a practice space. A supplied session belongs to an online host or demo and keeps
+        // its own rules; do not infer client-side practice from that server's map name.
+        PlaySettings settings = Config.CreateSession is null ? Config.Settings.ForLocalLaunch() : Config.Settings;
+        if (Config.Render && settings.ResponsiveSmoke && ResponsiveSmokeRenderer.UnsupportedReason is { } rendererError)
+            throw new InvalidOperationException(rendererError);
         IClock clock;
         if (Config.TicksPerFrame > 0)
         {
@@ -281,6 +341,13 @@ public partial class PlayRoot : Node3D
         var sessionLoad = Stopwatch.StartNew();
         Session = Config.CreateSession?.Invoke(clock) ?? new PlaySession(settings, clock,
             message => GD.Print($"SVM_PLAY load seconds={sessionLoad.Elapsed.TotalSeconds:F2} {message}"));
+        if (Config.Render && OpenScct.Game.Equipment.ResponsiveSmokeWorld.IsEnabled(Session.Client.World.Level)
+            && ResponsiveSmokeRenderer.UnsupportedReason is { } sessionRendererError)
+        {
+            Session.Dispose();
+            Session = null;
+            throw new InvalidOperationException(sessionRendererError);
+        }
         if (Config.Demo is null) _scoreboardCapture = new ScoreboardCapture(Session.Client);
         CrashLog.Context = settings.Map + " " + settings.Mode;
         if (settings.Bots > 0)
@@ -501,7 +568,11 @@ public partial class PlayRoot : Node3D
 
     private void BeforeTick(PlaySession session, long tick)
     {
-        if (Config.Pilot is { } pilot)
+        if (_smokePreparing)
+        {
+            Controls?.ClearHeld(session.Input);
+        }
+        else if (Config.Pilot is { } pilot)
         {
             long start = Stopwatch.GetTimestamp();
             pilot.Tick(session);
@@ -650,7 +721,7 @@ public partial class PlayRoot : Node3D
 
     public override void _Process(double delta)
     {
-        if (!IsLoaded) return;
+        if (!IsLoaded && !_smokePreparing) return;
         if (Session is not { } session || session.IsStopped)
         {
             return;
@@ -690,6 +761,19 @@ public partial class PlayRoot : Node3D
             _reportedServerFailure = serverFailure;
             GD.PrintErr("SVM_HOST_FAILURE " + serverFailure);
         }
+
+        if (Config.Render && OpenScct.Game.Equipment.ResponsiveSmokeWorld.IsEnabled(session.Client.World.Level)
+            && ResponsiveSmokeRenderer.UnsupportedReason is { } rendererError)
+        {
+            LoadError = rendererError;
+            IsLoaded = false;
+            session.Stop();
+            if (_status is not null) _status.Text = rendererError;
+            GD.PushError(rendererError);
+            return;
+        }
+
+        if (PrepareLateSmoke(session) || _smokePreparing) return;
 
         PrintBots(session);
         PrintSpawn(session);

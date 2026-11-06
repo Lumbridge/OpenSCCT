@@ -2,6 +2,10 @@
 
 TestRange is a synthetic map for traversal, lighting, shooting, objectives, pickups,
 cameras and bot tests. Its stations have fixed coordinates in a shared manifest.
+Interactive offline launches always enable practice resources: ammunition, grenades and gas-mask air do not run
+out, gear changes apply immediately, and the session has unlimited time and lives. This includes command-line
+play and Play Level. Online matches retain the host's explicit rules; low-level simulation fixtures can still
+test finite ammunition.
 The layout comes from [tools/testmap/layout.py](../tools/testmap/layout.py) and has two forms:
 
 **On this page:** [Rebuilding](#rebuilding) · [Stations](#stations) · [How tests use it](#how-tests-use-it) · [Limits and notes](#limits-and-notes)

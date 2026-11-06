@@ -410,6 +410,9 @@ public sealed partial class CollisionWorld : ICollisionWorld
 
     public int ColliderCount => _colliders.Length;
 
+    /// <summary>Enable/disable revisions for consumers caching static geometry, such as responsive smoke.</summary>
+    public uint GeometryRevision { get; private set; }
+
     /// <summary>The bound level, or null.</summary>
     public Level? Level => _level;
 
@@ -553,7 +556,12 @@ public sealed partial class CollisionWorld : ICollisionWorld
     }
 
     /// <summary>Turns one collider on or off (glass breaking, gameplay object mesh swaps).</summary>
-    public void SetColliderEnabled(int index, bool enabled) => _colliders[index].Enabled = enabled;
+    public void SetColliderEnabled(int index, bool enabled)
+    {
+        if (_colliders[index].Enabled == enabled) return;
+        _colliders[index].Enabled = enabled;
+        GeometryRevision++;
+    }
 
     /// <summary>Turns every collider of <paramref name="actor"/> on or off.</summary>
     public void SetActorCollidersEnabled(Actor actor, bool enabled)
@@ -561,7 +569,7 @@ public sealed partial class CollisionWorld : ICollisionWorld
         ArgumentNullException.ThrowIfNull(actor);
         for (int ci = FirstColliderOf(actor); ci >= 0; ci = _nextColliderOfActor[ci])
         {
-            _colliders[ci].Enabled = enabled;
+            SetColliderEnabled(ci, enabled);
         }
     }
 

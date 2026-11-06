@@ -59,6 +59,8 @@ public partial class ServerBrowserScreen : MenuPage
         /// <summary>A practice server (rl:net.practice).</summary>
         public bool Practice { get; set; }
 
+        public bool ResponsiveSmoke { get; set; }
+
         /// <summary>The server's id on its master (from its own answer), for a ticket; empty when not listed.</summary>
         public string MasterId { get; set; } = string.Empty;
 
@@ -459,6 +461,7 @@ public partial class ServerBrowserScreen : MenuPage
             row.Password = e.Password;
             row.RequireAccounts = e.RequireAccounts;
             row.Practice = e.Practice;
+            row.ResponsiveSmoke = e.ResponsiveSmoke;
             if (row.Endpoint is null || row.PlayerList.Count == 0)
             {
                 row.PlayerList = PlayersOf(e);
@@ -520,6 +523,7 @@ public partial class ServerBrowserScreen : MenuPage
             row.Content = r.Info.ContentHash;
             row.RequireAccounts = r.Info.RequireAccounts || (row.Entry?.RequireAccounts ?? false);
             row.Practice = r.Info.Practice;
+            row.ResponsiveSmoke = r.Info.ResponsiveSmoke;
             row.MasterId = r.Info.MasterId;
             row.PlayerList = r.Info.PlayerList;
             if (row.Reach.Length == 0 && !r.FromLan)
@@ -652,7 +656,8 @@ public partial class ServerBrowserScreen : MenuPage
             item.SetText(0, (row.Password ? "[locked] " : string.Empty) + (row.RequireAccounts ? "[signed-in only] " : string.Empty) +
                 (row.Name.Length > 0 ? row.Name : row.Key));
             item.SetText(1, MapTitles.Of(_service!.Catalog.Maps, row.Map));
-            item.SetText(2, LobbySetup.ModeName((EGameMode)(byte)row.Mode) + (row.Practice ? " (practice)" : string.Empty));
+            item.SetText(2, LobbySetup.ModeName((EGameMode)(byte)row.Mode) + (row.Practice ? " (practice)" : string.Empty) + (row.ResponsiveSmoke ? " · responsive smoke" : string.Empty));
+            item.SetTooltipText(2, row.ResponsiveSmoke ? "Experimental responsive smoke: shared volumetric smoke with shot and explosion clearing." : "Original spy smoke.");
             item.SetText(3, string.Create(CultureInfo.InvariantCulture, $"{row.Players}/{row.MaxPlayers}"));
             item.SetText(4, row.PingMs >= 0 ? row.PingMs.ToString(CultureInfo.InvariantCulture) : "-");
             item.SetText(5, SessionProtocol.PhaseName(row.Phase));

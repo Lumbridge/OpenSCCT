@@ -6,7 +6,7 @@ namespace OpenScctGame.Options;
 /// <summary>
 /// Keeps the frame cap on the refresh rate of the screen the window is on (docs/RENDERING.md, frame pacing): every
 /// frame it checks which screen the window is on, every second it reads that screen's refresh rate again (a mode
-/// change on the same screen), and when either changed it applies the current side's cap again
+/// change on the same screen), and when either changes it applies the cap again
 /// (<see cref="SettingsApplier.ApplyFrameCap"/>). Added under the root window at start; the frame-rate smoke adds
 /// its own.
 /// </summary>
@@ -67,5 +67,5 @@ public partial class DisplayFramePacer : Node
         }
     }
 
-    private void Apply() => SettingsApplier.ApplyFrameCap(Settings ?? SettingsStore.Current, SettingsApplier.LastMerc);
+    private void Apply() => SettingsApplier.ApplyFrameCap(Settings ?? SettingsStore.Current);
 }

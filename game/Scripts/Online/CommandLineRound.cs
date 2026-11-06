@@ -133,7 +133,7 @@ public partial class CommandLineRound : Node
             }
 
             int capacity = Math.Max(Players, LobbySetup.MinMaxPlayers);
-            LobbySetup setup = LobbySetup.ForMap(map, mode, online.Catalog.Maps.GetMapSettings(map), capacity) with { TimeLimit = 0, Bots = BotFill.Off };
+            LobbySetup setup = LobbySetup.ForMap(map, mode, online.Catalog.Maps.GetMapSettings(map), capacity) with { TimeLimit = 0, Bots = BotFill.Off, ResponsiveSmoke = Options.ResponsiveSmoke };
             bool ok = online.Host(new HostRequest
             {
                 Name = "Test round", Port = port, MaxPlayers = capacity, Listed = false, Upnp = false, LoopbackOnly = true, LanPort = 0,

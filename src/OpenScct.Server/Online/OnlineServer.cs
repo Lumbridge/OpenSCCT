@@ -643,6 +643,10 @@ public sealed partial class OnlineServer : IDisposable
     {
         SessionTransport.Generation generation = _transport.NewGeneration();
         bool isLobby = gameOptions is null;
+        // Native series URLs omit added match rules. Freeze the pending host choice into both the
+        // game initialization URL and recorded metadata before creating the next round.
+        if (!isLobby)
+            gameOptions = NativeUrl.Rebuild(gameOptions + "?SvmResponsiveSmoke=" + (Setup.ResponsiveSmoke ? "1" : "0"));
         var settings = new ServerSettings
         {
             Map = map,
@@ -1357,7 +1361,9 @@ public sealed partial class OnlineServer : IDisposable
         var entry = new MatchLogEntry
         {
             StartedUtc = _matchStart > 0 ? _matchStartUtc : Settings.WallClock.GetUtcNow(), EndedUtc = Settings.WallClock.GetUtcNow(),
-            Server = Settings.Name, Round = RoundsStarted, Setup = Setup, Results = results, Players = players,
+            Server = Settings.Name, Round = RoundsStarted,
+            Setup = Setup with { ResponsiveSmoke = Host.Game?.GameReplicationInfo?.ResponsiveSmokeEnabled ?? Setup.ResponsiveSmoke },
+            Results = results, Players = players,
         };
         if (!log.Write(entry, out string? error))
         {
@@ -2088,7 +2094,8 @@ public sealed partial class OnlineServer : IDisposable
             }
         }
 
-        int left = Phase == SessionPhase.Match && Host.Game?.GameReplicationInfo is { } gri && gri.TimeLimit > 0
+        GameReplicationInfo? gri = Host.Game?.GameReplicationInfo;
+        int left = Phase == SessionPhase.Match && gri is { TimeLimit: > 0 }
             ? Math.Max(0, (gri.TimeLimit * 60) - gri.ElapsedTime)
             : 0;
         return new ServerInfo
@@ -2100,6 +2107,8 @@ public sealed partial class OnlineServer : IDisposable
             ContentHash = Maps.FindMap(Setup.Map)?.ContentHash ?? 0, HasPassword = Settings.Password is { Length: > 0 },
             Dedicated = Settings.Dedicated, SecondsLeft = left, PlayerList = list,
             MasterId = Master?.ServerId ?? string.Empty, RequireAccounts = RequireAccounts, Practice = Setup.Practice,
+            ResponsiveSmoke = Phase is SessionPhase.Match or SessionPhase.Results
+                ? gri?.ResponsiveSmokeEnabled ?? Setup.ResponsiveSmoke : Setup.ResponsiveSmoke,
         };
     }
 

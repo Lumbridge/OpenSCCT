@@ -6,7 +6,7 @@ using OpenScct.Provenance;
 namespace OpenScctGame.Options;
 
 /// <summary>
-/// The frame cap rules (docs/RENDERING.md, frame pacing): what <c>fps_spy</c> and <c>fps_merc</c> hold, what frame
+/// The frame cap rules (docs/RENDERING.md, frame pacing): what <c>max_fps</c> holds, what frame
 /// rate they ask for on a screen of a given refresh rate, and what the engine's limiter and vertical sync are set to.
 /// Godot-free: <c>SettingsApplier</c> puts the result into effect.
 /// <para>Reloaded caps each side at 30 to 240 (spec/native/reloaded-features-from-code.md rule 15). Two values are
@@ -27,16 +27,17 @@ public static class DisplayFrameCap
     [Provenance(ProvenanceKind.Decoded, "spec/native/reloaded-features-from-code.md constants: fps caps 30 to 240")]
     public const int Min = 30;
 
-    public const int Max = 240;
+    public const int Max = 700;
 
     public const string MonitorLabel = "Match refresh rate";
 
     public const string UnlimitedLabel = "Unlimited";
 
-    /// <summary>The values the options list offers between 30 and 240 (common screen rates); any other saved value is listed too.</summary>
-    public static IReadOnlyList<int> Presets { get; } = [30, 50, 60, 75, 90, 100, 120, 144, 165, 180, 200, 240];
+    /// <summary>Slider notches at common frame caps and display refresh rates.</summary>
+    public static IReadOnlyList<int> Presets { get; } =
+        [30, 50, 60, 75, 90, 100, 120, 144, 165, 180, 200, 240, 280, 320, 360, 480, 500, 540, Max];
 
-    /// <summary>A saved cap in range: below 0 is <see cref="Monitor"/>, 0 <see cref="Unlimited"/>, else 30 to 240.</summary>
+    /// <summary>A saved cap in range: below 0 is <see cref="Monitor"/>, 0 <see cref="Unlimited"/>, else 30 to 700.</summary>
     public static int Clamp(int fps) => fps < 0 ? Monitor : fps == 0 ? Unlimited : Math.Clamp(fps, Min, Max);
 
     /// <summary>The whole frame rate of a screen's refresh rate (59.94 gives 60); <see cref="FallbackHz"/> when unknown.</summary>

@@ -24,6 +24,7 @@ public partial class FaithfulView : Node3D
     private SurfaceFogRegistry? _surfaceFog;
     private SurfaceFogRegistry? _skySurfaceFog;
     private MeshInstance3D? _backdrop;
+    private MeshInstance3D? _smokeBackdrop;
     private FVector _cameraLocation;
     private FRotator _cameraRotation;
     private float _fov = 90f;
@@ -600,6 +601,11 @@ public partial class FaithfulView : Node3D
             Far = RenderK.FarClipUnits,
         };
         _surfaceFog?.Update(Effect.Settings);
+        if (_surfaceFog is not null)
+            ResponsiveSmokeRenderer.BindView(_surfaceFog.Slot, Camera, Map, _rendMap);
+        bool smoke = ResponsiveSmokeRenderer.HasSmoke(Map);
+        if (smoke && _smokeBackdrop is null) _smokeBackdrop = ResponsiveSmokeRenderer.CreateBackground(Camera);
+        if (_smokeBackdrop is not null) _smokeBackdrop.Visible = smoke;
 
         if (_skySurfaceFog is not null)
         {

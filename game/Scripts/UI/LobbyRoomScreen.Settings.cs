@@ -97,7 +97,7 @@ public partial class LobbyRoomScreen
         ParameterRows.MoveRowsTo(rules, SessionRow.Revenge, SessionRow.GamesInARow, SessionRow.RandomMap,
             SessionRow.AutoBalance, SessionRow.VoiceInLobby);
         SettingsHeading(rules, "Extra rules");
-        ParameterRows.MoveRowsTo(rules, SessionRow.Practice, SessionRow.Sidearms, SessionRow.Alternate);
+        ParameterRows.MoveRowsTo(rules, SessionRow.Practice, SessionRow.Sidearms, SessionRow.ResponsiveSmoke, SessionRow.Alternate);
         AlternateButton = LobbyPanels.Button("Configure alternate rules", OpenAlternate, "Alternate");
         rules.AddChild(AlternateButton);
         ParameterRows.Hide();

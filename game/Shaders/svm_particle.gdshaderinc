@@ -40,7 +40,8 @@ void fragment() {
 	if (svm_vision == 36) {
 #if defined(STYLE_ALPHA) || defined(STYLE_PREMUL) || defined(STYLE_REGULAR)
 		float fade = 1.0 - clamp(-VERTEX.z * 100.0 / 5000.0, 0.0, 1.0);
-		ALBEDO = vec3(0.0, 0.0, fade);
+		vec4 smoke = responsive_smoke(CAMERA_VISIBLE_LAYERS, VERTEX);
+		ALBEDO = vec3(0.0, 0.0, fade) * smoke.a + smoke.rgb;
 		ALPHA = c.a * heat_opacity;
 #else
 		discard;

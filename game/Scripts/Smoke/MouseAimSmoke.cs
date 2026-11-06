@@ -185,14 +185,10 @@ public sealed class MouseAimSmoke : SmokeTest
             }
             Expect(Math.Abs(options.Editing.SpyKbm.Look - 1.234f) < 0.001f && Math.Abs(options.Editing.MercKbm.Look - 1.234f) < 0.001f,
                 "exact sensitivity fields update both role drafts");
-            ((FrameRateSlider)options.Controls["fps_spy"]).Select(144);
-            ((FrameRateSlider)options.Controls["fps_merc"]).Select(240);
-            Expect(options.Editing.FpsSpy == 144 && options.Editing.FpsMerc == 240, "role frame rates remain independent");
             Expect(options.HasUnsavedChanges && writes == 0 && SettingsStore.Current.ToJson() == original, "mouse/aim edits remain staged until Apply");
             Expect(options.Save() == Error.Ok, "isolated Apply succeeds");
             Expect(writes == 1 && !options.HasUnsavedChanges && Math.Abs(SettingsStore.Current.MercKbm.Look - 1.234f) < 0.001f,
                 "Apply accepts mouse/aim edits and rebuilds a clean draft");
-            Expect(SettingsStore.Current.FpsSpy == 144 && SettingsStore.Current.FpsMerc == 240, "Apply retains separate role frame rates");
             string applied = SettingsStore.Current.ToJson();
             Control? mercPage = MousePage(options, 1);
             var reset = mercPage?.FindChild("ResetMouse", true, false) as BaseButton;

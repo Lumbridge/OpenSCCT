@@ -98,6 +98,7 @@ public sealed class MatchLog
             w.WriteBoolean("revenge", s.Revenge);
             w.WriteNumber("gamesInARow", s.GamesInARow);
             w.WriteBoolean("practice", s.Practice);
+            w.WriteBoolean("responsiveSmoke", s.ResponsiveSmoke);
             w.WriteBoolean("alternate", s.Alternate.On);
             w.WriteEndObject();
 
