@@ -257,14 +257,15 @@ public sealed partial class SpyAi : AiBrain
         Span<AiOption> options = stackalloc AiOption[9];
         int n = 0;
         options[n++] = new AiOption(GIdle, 0.05f);
-        if (NextTerminal(now) is not null)
+        bool hasTerminal = Pawn.CarriedFlag is null && NextTerminal(now) is not null;
+        if (hasTerminal)
         {
             // Right after a shock the guard is stunned: the moment to hack.
             options[n++] = new AiOption(GHack, 0.6f + (now - _shockedAt < SpyAiK.StunHackWindow ? 0.6f : 0f));
         }
 
         if (FindOtherObjective(now) is not null)
-            options[n++] = new AiOption(GObjective, NextTerminal(now) is null ? .8f : .65f);
+            options[n++] = new AiOption(GObjective, hasTerminal ? .65f : .8f);
 
         if (exposure > 0.25f || hurt)
         {
