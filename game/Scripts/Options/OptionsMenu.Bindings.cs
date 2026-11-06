@@ -212,8 +212,7 @@ public partial class OptionsMenu
         editor.CategoryButtons.Clear(); editor.CompactCategory.Clear();
         foreach (string category in editor.CategoryNames)
         {
-            var button = QuietBindingButton(category, "BindingCategory_" + category);
-            button.ToggleMode = true;
+            var button = QuietBindingButton(category, "BindingCategory_" + category, frameSelection: true);
             button.Pressed += () => SelectBindingCategory(editor, category);
             editor.Categories.AddChild(button); editor.CategoryButtons[category] = button;
             editor.CompactCategory.AddItem(category);
@@ -345,28 +344,39 @@ public partial class OptionsMenu
         return entry.CustomKey is { } key && draft.CommandOf(key) != baseline.Bindings.GetValueOrDefault(key, "");
     }
 
-    private static Button QuietBindingButton(string text, string name)
+    private static Button QuietBindingButton(string text, string name, bool frameSelection = false)
     {
         var button = new Button { Name = name, Text = text, Flat = true, ClipText = true, Alignment = HorizontalAlignment.Left, CustomMinimumSize = new Vector2(0, 32) };
-        StyleQuietBindingButton(button);
+        StyleQuietBindingButton(button, frameSelection: frameSelection);
         return button;
     }
 
-    private static void StyleQuietBindingButton(Button button, float horizontalPadding = 8f)
+    internal static void StyleQuietBindingButton(Button button, float horizontalPadding = 8f, bool frameSelection = false)
     {
         button.AddThemeStyleboxOverride("normal", new StyleBoxEmpty { ContentMarginLeft = horizontalPadding, ContentMarginRight = horizontalPadding });
         var hover = new StyleBoxFlat { BgColor = UiStyle.MenuFocus with { A = .07f }, ContentMarginLeft = horizontalPadding, ContentMarginRight = horizontalPadding };
         button.AddThemeStyleboxOverride("hover", hover);
-        var selected = (StyleBoxFlat)hover.Duplicate(); selected.BgColor = UiStyle.MenuFocus with { A = .15f };
-        button.AddThemeStyleboxOverride("pressed", selected); button.AddThemeStyleboxOverride("hover_pressed", selected);
         // The shared button focus style grows outside the control and is clipped on the first scroll row.
         // Keep the SCCT corner treatment inside this quiet row, including its antialiased diagonal strokes.
-        button.AddThemeStyleboxOverride("focus", new UiBox
+        UiBox Frame(Color fill) => new()
         {
-            Expand = -1f, Notch = 5f, Border = UiStyle.MenuFocus with { A = .8f },
+            Fill = fill, Expand = -1f, Notch = 5f, Border = UiStyle.MenuFocus with { A = .8f },
             Ticks = UiStyle.MenuFocus, TickLength = 6f,
             ContentMarginLeft = horizontalPadding, ContentMarginRight = horizontalPadding, ContentMarginTop = 0, ContentMarginBottom = 0,
-        });
+        };
+        Color selectedFill = UiStyle.MenuFocus with { A = .15f };
+        StyleBox selected = frameSelection ? Frame(selectedFill) : new StyleBoxFlat
+        {
+            BgColor = selectedFill, ContentMarginLeft = horizontalPadding, ContentMarginRight = horizontalPadding,
+        };
+        button.AddThemeStyleboxOverride("pressed", selected);
+        button.AddThemeStyleboxOverride("hover_pressed", selected);
+        button.AddThemeStyleboxOverride("focus", Frame(Colors.Transparent));
+        if (frameSelection)
+        {
+            button.Flat = false;
+            button.ToggleMode = true;
+        }
     }
 
     private static Button BindingSlotButton(string text, string name)

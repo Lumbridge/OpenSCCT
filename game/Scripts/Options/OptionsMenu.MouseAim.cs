@@ -251,8 +251,7 @@ public partial class OptionsMenu
         {
             int index = i;
             string label = i < 0 ? "All" : categories[i];
-            var button = QuietBindingButton(label, "MouseAimCategory_" + (i < 0 ? "All" : i.ToString()));
-            button.ToggleMode = true;
+            var button = QuietBindingButton(label, "MouseAimCategory_" + (i < 0 ? "All" : i.ToString()), frameSelection: true);
             button.CustomMinimumSize = new Vector2(0, 36);
             button.Pressed += () => SelectCategory(index);
             sidebar.AddChild(button);

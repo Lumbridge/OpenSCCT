@@ -269,8 +269,7 @@ public partial class OptionsMenu
         {
             int captured = i;
             string label = i < 0 ? "All" : categories[i];
-            var button = QuietBindingButton(label, i < 0 ? "SettingsCategory_All" : "SettingsCategory_" + i);
-            button.ToggleMode = true;
+            var button = QuietBindingButton(label, i < 0 ? "SettingsCategory_All" : "SettingsCategory_" + i, frameSelection: true);
             button.CustomMinimumSize = new Vector2(0, 36);
             button.TooltipText = label;
             button.Pressed += () => Choose(captured);

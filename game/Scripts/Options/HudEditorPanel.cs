@@ -179,21 +179,10 @@ public partial class HudEditorPanel : VBoxContainer
         b.Pressed += action;
         parent.AddChild(b);
     }
-    private static Button NavigationButton(string text)
+    private static Button NavigationButton(string text, bool frameSelection = false)
     {
         var b = new Button { Text = text, Flat = true, ClipText = true, Alignment = HorizontalAlignment.Left, CustomMinimumSize = new Vector2(0, 32), TooltipText = text };
-        b.AddThemeStyleboxOverride("normal", new StyleBoxEmpty { ContentMarginLeft = 8, ContentMarginRight = 8 });
-        var selected = new StyleBoxFlat { BgColor = UiStyle.MenuFocus with { A = .15f }, ContentMarginLeft = 8, ContentMarginRight = 8 };
-        b.AddThemeStyleboxOverride("hover", new StyleBoxFlat { BgColor = UiStyle.MenuFocus with { A = .07f }, ContentMarginLeft = 8, ContentMarginRight = 8 });
-        b.AddThemeStyleboxOverride("pressed", selected); b.AddThemeStyleboxOverride("hover_pressed", selected);
-        // The global SCCT focus frame expands outside its button. Sidebar rows keep all states inside
-        // their own hit area, separated from both the scroll bar and the independently interactive preview.
-        b.AddThemeStyleboxOverride("focus", new UiBox
-        {
-            Expand = -1, Notch = 5, Border = UiStyle.MenuFocus with { A = .8f },
-            Ticks = UiStyle.MenuFocus, TickLength = 6,
-            ContentMarginLeft = 8, ContentMarginRight = 8, ContentMarginTop = 0, ContentMarginBottom = 0,
-        });
+        OptionsMenu.StyleQuietBindingButton(b, frameSelection: frameSelection);
         return b;
     }
     private SpinBox Field(Container parent, string title, double min, double max, double step, Action<double> action)
@@ -274,7 +263,8 @@ public partial class HudEditorPanel : VBoxContainer
         foreach (var entry in matches)
         {
             _elements.AddItem(entry.Value); _elements.SetItemMetadata(_elements.ItemCount - 1, entry.Key);
-            var button = NavigationButton(entry.Value); button.ToggleMode = true; button.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+            var button = NavigationButton(entry.Value, frameSelection: true);
+            button.SizeFlagsHorizontal = SizeFlags.ExpandFill;
             bool? clickToggle = null;
             button.Pressed += () =>
             {
