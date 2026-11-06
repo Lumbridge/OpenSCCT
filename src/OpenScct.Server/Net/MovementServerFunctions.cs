@@ -112,8 +112,8 @@ public static class MovementServerFunctions
             return;
         }
 
-        Execute(pawn, Val0, Val1, Vel);
-        if (Vel is { } v)
+        bool hasKnockbackYaw = Execute(pawn, Val0, Val1, Vel, fromActionRpc: true);
+        if (!hasKnockbackYaw && Vel is { } v)
         {
             ApplyVelocity(pawn, v);
         }
@@ -125,7 +125,7 @@ public static class MovementServerFunctions
             {
                 pawn.SpecialYaw = SvmMath.Trunc(moves.BSMS.Vel.X / 100f);
             }
-            else if (Vel is { } again)
+            else if (!hasKnockbackYaw && Vel is { } again)
             {
                 ApplyVelocity(pawn, again);
             }
@@ -133,15 +133,20 @@ public static class MovementServerFunctions
     }
 
     // NativeExecuteReceivedActionForServer: the batch, in order, through the pawn's action code.
-    private static void Execute(SBasePawn pawn, int val0, int val1, FVector? velocity)
+    private static bool Execute(SBasePawn pawn, int val0, int val1, FVector? velocity, bool fromActionRpc = false)
     {
         Span<int> actions = stackalloc int[6];
         int count = MovePacking.UnCompressActions(val0, val1, actions);
+        bool hasKnockbackYaw = false;
         // The knockback action locks its root-motion direction while it executes. Applying the
         // accompanying yaw afterwards turns the server's victim along a different path until wake-up.
         if (velocity is { } value && actions[..count].Contains(SBasePawn.SA_CHARGE_ATTACKED_GOBACK))
-            pawn.SpecialYaw = SvmMath.Trunc(value.X / MoveK.VelocityWireScale);
+        {
+            hasKnockbackYaw = fromActionRpc && value.Y is >= 1f and <= (ushort.MaxValue + 1) && value.Z == 0f;
+            pawn.SpecialYaw = hasKnockbackYaw ? (int)value.Y - 1 : SvmMath.Trunc(value.X / MoveK.VelocityWireScale);
+        }
         OpenScct.Game.Animation.ProxyAnimation.ExecuteReceivedActionsForServer(pawn, actions, count, TrainingNetInput.Actions(pawn));
+        return hasKnockbackYaw;
     }
 
     private static void ApplyVelocity(SBasePawn pawn, FVector vel)
