@@ -95,7 +95,9 @@ public sealed class RouteAi : AiBrain
             return;
         }
 
-        if (!Follower.Arrived)
+        // A ladder exit or jump can pass through the arrival radius before landing. Clearing the path then
+        // makes the next stop plan from mid-animation, where there may be no reachable floor node yet.
+        if (!Follower.Arrived || Pawn.Physics != EPhysics.PHYS_Walking)
         {
             return;
         }
