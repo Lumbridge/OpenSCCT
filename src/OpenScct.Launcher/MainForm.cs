@@ -643,7 +643,7 @@ internal sealed partial class MainForm : Form
 
     private async Task OpenChangelogAsync()
     {
-        string url = _editorSelected ? EditorPage + "/releases" : "https://master.lumbridge.co.uk/changelog";
+        string url = "https://master.lumbridge.co.uk/changelog#" + (_editorSelected ? "editor-latest" : "game-latest");
         _whatsNew.Enabled = false;
         try
         {

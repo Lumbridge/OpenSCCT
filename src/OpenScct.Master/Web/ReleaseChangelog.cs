@@ -13,20 +13,28 @@ namespace OpenScct.Master.Web;
 internal sealed class ReleaseChangelog
 {
     public const string ReleasesUrl = "https://github.com/Lumbridge/OpenSCCT/releases";
-    private const string FeedUrl = "https://api.github.com/repos/Lumbridge/OpenSCCT/releases?per_page=20";
+    public const string EditorReleasesUrl = "https://github.com/Lumbridge/OpenSCCT-Editor/releases";
     private static readonly HttpClient Client = CreateClient();
     private static readonly JsonSerializerOptions Json = new() { PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower };
     private readonly HttpClient _client;
     private readonly TimeProvider _time;
+    private readonly bool _editor;
     private readonly SemaphoreSlim _gate = new(1, 1);
     private ChangelogResponse _cached = new();
     private DateTimeOffset _refreshAfter;
 
     public ReleaseChangelog(HttpClient? client = null, TimeProvider? time = null)
+        : this(client ?? Client, time ?? TimeProvider.System, editor: false) { }
+
+    private ReleaseChangelog(HttpClient client, TimeProvider time, bool editor)
     {
-        _client = client ?? Client;
-        _time = time ?? TimeProvider.System;
+        _client = client;
+        _time = time;
+        _editor = editor;
     }
+
+    // Each product keeps its own last-good cache and retry interval; the game API remains game-only.
+    public ReleaseChangelog CreateEditorFeed() => new(_client, _time, editor: true);
 
     private sealed record Release(string? TagName, string? Name, string? Body, DateTimeOffset? PublishedAt, bool Draft, bool Prerelease);
 
@@ -39,7 +47,8 @@ internal sealed class ReleaseChangelog
             try
             {
                 // Do not tie the shared refresh to one visitor disconnecting. The client bounds it to five seconds.
-                using HttpResponseMessage response = await _client.GetAsync(FeedUrl, CancellationToken.None).ConfigureAwait(false);
+                string repository = _editor ? "OpenSCCT-Editor" : "OpenSCCT";
+                using HttpResponseMessage response = await _client.GetAsync("https://api.github.com/repos/Lumbridge/" + repository + "/releases?per_page=20", CancellationToken.None).ConfigureAwait(false);
                 response.EnsureSuccessStatusCode();
                 Release[] releases = await response.Content.ReadFromJsonAsync<Release[]>(Json, CancellationToken.None).ConfigureAwait(false)
                     ?? throw new JsonException("Missing releases.");
@@ -49,9 +58,9 @@ internal sealed class ReleaseChangelog
                     .Take(12)
                     .Select(r => new ChangelogEntry
                     {
-                        Tag = r.TagName!, Name = string.IsNullOrWhiteSpace(r.Name) ? "OpenSCCT " + r.TagName![1..] : r.Name,
+                        Tag = r.TagName!, Name = string.IsNullOrWhiteSpace(r.Name) ? (_editor ? "OpenSCCT Editor " : "OpenSCCT ") + r.TagName![1..] : r.Name,
                         Published = r.PublishedAt!.Value, Notes = r.Body ?? string.Empty,
-                        Url = ReleasesUrl + "/tag/" + Uri.EscapeDataString(r.TagName!),
+                        Url = (_editor ? EditorReleasesUrl : ReleasesUrl) + "/tag/" + Uri.EscapeDataString(r.TagName!),
                     })
                     .ToArray();
                 _cached = new ChangelogResponse { Entries = entries };

@@ -199,7 +199,7 @@ public sealed class MenuInformationTests
             string html = await website.GetStringAsync("/changelog", ct);
             Assert.Contains("Menu fixture release note", html, StringComparison.Ordinal);
             Assert.Equal("Menu fixture release note", Assert.Single((await client.ChangelogAsync(ct)).Entries).Notes);
-            Assert.Equal(1, handler.Requests);
+            Assert.Equal(2, handler.Requests); // The website also reads the independent Editor feed.
 
             settings.SetSetting("site.announcement", "");
             Assert.Null((await client.StatusAsync(ct)).Announcement);

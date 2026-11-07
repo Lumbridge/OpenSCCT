@@ -216,7 +216,7 @@ internal sealed class MainWindow : Window
 
     private Task ShowNotesAsync() => Ui.ShowTextAsync(this, _model.Check?.Latest?.Release.Name ?? "Release notes",
         _model.Check?.Latest?.Release.Body ?? "No cached release notes yet. Check for updates to load them.",
-        "Website changelog", () => OpenLink(ProjectLinks.Website + "/changelog"));
+        "Website changelog", () => OpenLink(ProjectLinks.Website + "/changelog#game-latest"));
 
     private async Task ShowSettingsAsync()
     {

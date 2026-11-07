@@ -59,9 +59,14 @@ The **Help & feedback** page includes task-based guide links and expandable answ
 missing stats, downloads and reporting problems. Its existing bug-report flow still uses Discord sign-in and
 lets the player review the public report before submitting it.
 
-**Updates** reads stable public GitHub releases, refreshing at most every ten minutes. If GitHub is unavailable,
-the last successful results remain visible. Drafts, prereleases and content-storage releases are excluded;
-GitHub's full release archive stays linked.
+**Updates** combines stable public GitHub releases for the game and Editor on one page, newest first.
+Game entries use green branding; Editor entries use blue branding and an Editor changelog title.
+Each product's latest notes start expanded. The launcher links to `/changelog#game-latest` or
+`/changelog#editor-latest`, which scroll to and focus that product's latest update even when the other
+product has newer releases. Search covers both products. Each feed refreshes at most every ten minutes
+and keeps its own last successful results if GitHub is unavailable. Drafts, prereleases and content-storage
+releases are excluded; both full GitHub release archives stay linked. The in-game changelog API continues
+to return game releases.
 
 ### Help and contributions
 

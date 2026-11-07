@@ -29,6 +29,7 @@ internal sealed partial class PlayerPortal(MasterOptions options, AccountStore s
     private readonly ServerRegistry _registry = registry;
     private readonly Func<HttpContext, IPAddress> _clientIp = clientIp;
     private readonly ReleaseChangelog _releases = releases;
+    private readonly ReleaseChangelog _editorReleases = releases.CreateEditorFeed();
     private sealed record Viewer(AccountRow Account, PlayerWebSessionRow Session);
 
     public void Map(WebApplication app)
