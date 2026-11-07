@@ -159,6 +159,15 @@ jobs:
           restore-keys: nuget-${{ runner.os }}-
       - name: Build integration tests
         run: dotnet build tests/OpenScct.Integration.Tests -c Release
+      - name: Provision memory for the full-world Hub crowd soak
+        if: runner.os == 'Linux'
+        shell: pwsh
+        run: |
+          $crowd = 'OpenScct.Integration.Tests.Hub.HubSoakTests.FiftyVisitorsStayInWithinTheBandwidthBudget'
+          if ($crowd -in (./tools/ci/integration-shard.ps1 -Shard ${{ matrix.shard }} -Plan)) {
+            bash tools/ci/prepare-crowd-memory.sh
+            if ($LASTEXITCODE -ne 0) { throw 'Could not provision memory for the full-world Hub soak.' }
+          }
       - name: Run integration shard
         shell: pwsh
         run: ./tools/ci/integration-shard.ps1 -Shard ${{ matrix.shard }}
