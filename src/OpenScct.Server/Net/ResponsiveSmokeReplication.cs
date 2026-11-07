@@ -104,7 +104,7 @@ public sealed partial class ResponsiveSmokeReplication
     public static RepExtension CreateExtension()
     {
         var extension = new RepExtension { PersistentActorChannel = true };
-        extension.Functions.Add(new(StateFunction, true, false, "responsive-smoke-state-2-shape-5", ReceiveState));
+        extension.Functions.Add(new(StateFunction, true, false, "responsive-smoke-state-2-shape-6", ReceiveState));
         extension.Functions.Add(new(CarvesFunction, false, false, "responsive-smoke-carves-2", ReceiveCarves)
             { AcceptReordered = true });
         return extension;

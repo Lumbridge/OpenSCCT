@@ -858,6 +858,9 @@ void fragment() {
 #else
 	vec3 lit = t.rgb;
 #endif
+#if defined(LIGHT_LIGHTMAP) || defined(LIGHT_VERTEX) || defined(LIGHT_ACTOR)
+	if (!unlit) lit *= responsive_smoke_scene_light(CAMERA_VISIBLE_LAYERS, v_wpos, wn);
+#endif
 #ifdef COMBINE_LIGHT_FIRST
 	lit = clamp(svm_combine_rgb(min(lit, vec3(1.0)), m2.rgb, mk.rgb, ma) * float(combine.z), 0.0, 1.0);
 #endif

@@ -19,6 +19,11 @@ namespace OpenScctGame.Render;
 /// </summary>
 public static class ResponsiveSmokeRenderer
 {
+    /// <summary>Temporary editor/command-line preference; never saved into the player's display settings.</summary>
+    public static ResponsiveSmokeQuality? LaunchQuality { get; set; }
+    public static ResponsiveSmokeQuality Quality => LaunchQuality ?? SettingsStore.Current.SmokeQuality;
+    public static bool SceneShadows { get; set; }
+    private static bool s_sceneShadows;
     private const int Width = 1024;
     private const int ViewRows = 14;
     private const int CloudRows = 14;
@@ -131,6 +136,7 @@ public static class ResponsiveSmokeRenderer
         RenderingServer.GlobalShaderParameterAdd("svm_smoke_shape", RenderingServer.GlobalShaderParameterType.Sampler3D, ResponsiveSmokeVisualFlow.EmptyTexture);
         RenderingServer.GlobalShaderParameterAdd("svm_smoke_prefix", RenderingServer.GlobalShaderParameterType.Sampler2D, s_empty);
         RenderingServer.GlobalShaderParameterAdd("svm_smoke_active", RenderingServer.GlobalShaderParameterType.Bool, false);
+        RenderingServer.GlobalShaderParameterAdd("svm_smoke_scene_shadows", RenderingServer.GlobalShaderParameterType.Bool, false);
         RenderingServer.GlobalShaderParameterAdd("svm_smoke_prefix_ready", RenderingServer.GlobalShaderParameterType.Bool, false);
         RenderingServer.FramePreDraw += Flush;
     }
@@ -199,6 +205,12 @@ public static class ResponsiveSmokeRenderer
 
     private static void SetActive(bool active)
     {
+        bool shadows = active && SceneShadows;
+        if (s_sceneShadows != shadows)
+        {
+            s_sceneShadows = shadows;
+            RenderingServer.GlobalShaderParameterSet("svm_smoke_scene_shadows", shadows);
+        }
         if (s_active == active) return;
         s_active = active; RenderingServer.GlobalShaderParameterSet("svm_smoke_active",active);
     }
@@ -344,7 +356,7 @@ public static class ResponsiveSmokeRenderer
         }
         s_hadClouds = true;
         long stage = Profile ? System.Diagnostics.Stopwatch.GetTimestamp() : 0;
-        ResponsiveSmokeVisualFlow.Queue(FlowInputs,SettingsStore.Current.SmokeQuality);
+        ResponsiveSmokeVisualFlow.Queue(FlowInputs,Quality);
         if (Profile) { LastFlowQueueMilliseconds = System.Diagnostics.Stopwatch.GetElapsedTime(stage).TotalMilliseconds; stage = System.Diagnostics.Stopwatch.GetTimestamp(); }
         AllocateFields();
         SetActive(true);
@@ -381,7 +393,7 @@ public static class ResponsiveSmokeRenderer
                 FlowInputs[layer] = new(field,frame.CurrentTime);
             }
         }
-        GrowthCache.Begin(Live.Count,growthAtlas,(int)SettingsStore.Current.SmokeQuality);
+        GrowthCache.Begin(Live.Count,growthAtlas,(int)Quality);
         bool uploadGrowth = false;
         for (int layer = 0; layer < FlowInputs.Count; layer++)
             uploadGrowth |= GrowthCache.Update(layer,FlowInputs[layer].Cloud,FlowInputs[layer].CurrentTime);
@@ -461,13 +473,13 @@ public static class ResponsiveSmokeRenderer
             FVector up = UeSpace.DirectionToUe(camera.GlobalBasis.Y);
             FVector forward = UeSpace.DirectionToUe(-camera.GlobalBasis.Z);
             int row = slot * ViewRows;
-            Set(FrameData, row, cloudBase, count, frame.CurrentTime, (int)SettingsStore.Current.SmokeQuality);
+            Set(FrameData, row, cloudBase, count, frame.CurrentTime, (int)Quality);
             Set(FrameData, row + 1, eye.X, eye.Y, eye.Z, view.Mode);
             Set(FrameData, row + 2, right.X, right.Y, right.Z, camera.GetCameraProjection().X.X);
             Set(FrameData, row + 3, up.X, up.Y, up.Z, camera.GetCameraProjection().Y.Y);
             Set(FrameData, row + 4, forward.X, forward.Y, forward.Z, camera.Far * UeSpace.UnitsPerMetre);
             Vector2I pixels = (Vector2I)camera.GetViewport().GetVisibleRect().Size;
-            int quality = (int)SettingsStore.Current.SmokeQuality;
+            int quality = (int)Quality;
             int scale = quality == 0 ? 10 : quality == 1 ? 8 : 3;
             int gridWidth = Math.Max(1, (pixels.X + scale - 1) / scale), gridHeight = Math.Max(1, (pixels.Y + scale - 1) / scale);
             int slices = quality == 0 ? 16 : quality == 1 ? 32 : 64;

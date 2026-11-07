@@ -31,6 +31,7 @@ public sealed class LaunchOptions
     public const string PlayPlayersPrefix = "--players=";
     public const string RecordFlag = "--svm-record";
     public const string ResponsiveSmokeFlag = "--svm-responsive-smoke";
+    public const string SmokeModePrefix = "--svm-smoke-mode=";
     public const string DemoPrefix = "--svm-demo=";
     public const string PriorityPrefix = "--priority=";
     public const string AffinityPrefix = "--affinity=";
@@ -119,6 +120,9 @@ public sealed class LaunchOptions
     /// <summary>Enable experimental responsive smoke in a locally hosted match.</summary>
     public bool ResponsiveSmoke { get; private init; }
 
+    /// <summary>Per-launch smoke selection: original, fast, or full; null keeps the normal rendering preference.</summary>
+    public string? SmokeMode { get; private init; }
+
     /// <summary>A demo file to watch at start (<c>--svm-demo=path</c>), or null.</summary>
     public string? DemoFile { get; private init; }
 
@@ -189,6 +193,7 @@ public sealed class LaunchOptions
         string difficulty = "normal";
         bool record = false;
         bool responsiveSmoke = false;
+        string? smokeMode = null;
         string? demo = null;
         string? priority = null;
         string? affinity = null;
@@ -288,6 +293,11 @@ public sealed class LaunchOptions
             {
                 responsiveSmoke = true;
             }
+            else if (arg.StartsWith(SmokeModePrefix, StringComparison.Ordinal)
+                && arg[SmokeModePrefix.Length..] is "original" or "fast" or "full")
+            {
+                smokeMode = arg[SmokeModePrefix.Length..];
+            }
             else if (arg == RecordFlag)
             {
                 record = true;
@@ -360,7 +370,8 @@ public sealed class LaunchOptions
             PlayPlayers = playPlayers,
             PlayDifficulty = difficulty,
             PlayRecord = record,
-            ResponsiveSmoke = responsiveSmoke,
+            ResponsiveSmoke = smokeMode is null ? responsiveSmoke : smokeMode != "original",
+            SmokeMode = smokeMode,
             DemoFile = demo,
             Priority = priority,
             Affinity = affinity,

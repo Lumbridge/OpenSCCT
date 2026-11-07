@@ -7,6 +7,7 @@ global uniform sampler3D svm_smoke_shape : filter_linear, repeat_enable;
 global uniform bool svm_smoke_flow_ready;
 global uniform sampler2D svm_smoke_prefix : filter_linear, repeat_disable;
 global uniform bool svm_smoke_prefix_ready;
+global uniform bool svm_smoke_scene_shadows;
 global uniform bool svm_smoke_active;
 #ifndef SVM_SMOKE_SPOT_GLOBALS
 #define SVM_SMOKE_SPOT_GLOBALS
@@ -340,6 +341,63 @@ vec4 responsive_smoke_exact(uint layers, vec3 view_position_metres, bool transmi
 }
 
 #ifndef SVM_SMOKE_COMPUTE
+// Full mode shadows scene lighting with the same clipped density used for visibility. Work is bounded to
+// the receiving surface's nearest cloud light set, four sources and eight taps per intersected cloud.
+float smoke_scene_ray_transmission(int base, int count, vec3 point, vec3 direction, float distance, float now) {
+    float optical = 0.0;
+    for (int c = 0; c < count; c++) {
+        int field = int(smoke_frame_row(base+c*14).x);
+        vec3 origin = smoke_field_row(field).xyz;
+        vec2 span;
+        if (!smoke_box(point,direction,origin,origin+vec3(625.0),distance,span)) continue;
+        float step_length = (span.y-span.x)/8.0;
+        for (int tap = 0; tap < 8; tap++) {
+            vec3 sample_point = point+direction*(span.x+(float(tap)+.5)*step_length);
+            optical += smoke_density(field,sample_point,now,false)*step_length*SMOKE_EXTINCTION;
+            if (optical >= SMOKE_OPAQUE_TAU) return exp(-SMOKE_OPAQUE_TAU);
+        }
+    }
+    return exp(-optical);
+}
+
+float responsive_smoke_scene_light(uint layers, vec3 world_position, vec3 world_normal) {
+    if (!svm_smoke_active || !svm_smoke_scene_shadows || (layers&262144u) != 0u) return 1.0;
+    int slot = int((layers>>8u)&127u), view = slot*14;
+    if (slot == 0 || slot == 127) return 1.0;
+    vec4 frame = smoke_frame_row(view), eye = smoke_frame_row(view+1);
+    if (frame.y < .5 || int(eye.w) == 36 || int(eye.w) == 38) return 1.0;
+    vec3 point = world_position.xzy*100.0;
+    int nearest = int(frame.x);
+    float best = 1e30;
+    for (int c = 0; c < int(frame.y); c++) {
+        int cloud = int(frame.x)+c*14, field = int(smoke_frame_row(cloud).x);
+        vec3 delta = point-smoke_field_row(field+2).xyz;
+        float distance_squared = dot(delta,delta);
+        if (distance_squared < best) { best = distance_squared; nearest = cloud; }
+    }
+    float ambient = max(dot(smoke_frame_row(nearest+1).rgb,vec3(.2126,.7152,.0722)),.01);
+    float incident = ambient, attenuated = ambient;
+    for (int i = 0; i < int(smoke_frame_row(nearest).y); i++) {
+        vec4 light = smoke_frame_row(nearest+2+i*3), color = smoke_frame_row(nearest+3+i*3), cone = smoke_frame_row(nearest+4+i*3);
+        vec3 delta = light.w < 0.0 ? light.xyz : light.xyz-world_position;
+        float distance = length(delta), attenuation = 1.0;
+        vec3 direction = delta/max(distance,.00001);
+        if (light.w >= 0.0) {
+            if (cone.w > -3.5 && cone.w < -2.5) {
+                float ratio = distance/max(light.w,.001);
+                attenuation = ratio >= 1.0 ? 0.0 : 1.0/max(8.0*ratio*ratio,.001);
+            } else attenuation = distance > (256.0-color.w)/max(1.0,light.w) ? 0.0 : 1.0/max(color.w+light.w*distance,.01);
+            if (cone.w >= 0.0) attenuation *= smoothstep(cone.w,min(1.0,cone.w+.1),dot(-direction,cone.xyz));
+        }
+        float energy = dot(color.rgb,vec3(.2126,.7152,.0722))*attenuation*max(dot(world_normal,direction),0.0);
+        if (energy <= .00001) continue;
+        float transmission = smoke_scene_ray_transmission(int(frame.x),int(frame.y),point+world_normal.xzy*.1,
+            direction.xzy,light.w < 0.0 ? 100000.0 : distance*100.0,frame.z);
+        incident += energy; attenuated += energy*transmission;
+    }
+    return clamp(attenuated/incident,0.0,1.0);
+}
+
 vec4 smoke_prefix_slice(vec2 uv, int slice, vec4 grid) {
     vec2 size = vec2(textureSize(svm_smoke_prefix,0));
     vec2 local = clamp(uv*grid.yz,vec2(.5),grid.yz-vec2(.5));

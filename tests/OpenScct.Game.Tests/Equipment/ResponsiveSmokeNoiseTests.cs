@@ -37,23 +37,20 @@ public sealed class ResponsiveSmokeNoiseTests
     }
 
     [Fact]
-    public void CellularFeaturesHaveRoundedPeaksInsteadOfOneBroadValuePatch()
+    public void TurbulentNoiseRetainsCoherentDetailAcrossMultipleScales()
     {
-        for (int z = 0; z < 8; z += 2) for (int y = 0; y < 8; y += 2) for (int x = 0; x < 8; x += 2)
+        float fine = 0, broad = 0;
+        int count = 0;
+        for (int z = 0; z < 8; z++) for (int y = 0; y < 8; y++) for (int x = 0; x < 8; x++)
         {
-            FVector best = default; float peak = 0;
-            for (int dz = 2; dz <= 6; dz++) for (int dy = 2; dy <= 6; dy++) for (int dx = 2; dx <= 6; dx++)
-            {
-                FVector point = new FVector(x, y, z) + new FVector(dx, dy, dz) / 8;
-                float value = ResponsiveSmokeNoise.Sample(point);
-                if (value > peak) { peak = value; best = point; }
-            }
-            Assert.True(peak > .85f);
-            float around = (ResponsiveSmokeNoise.Sample(best + new FVector(.35f, 0, 0)) + ResponsiveSmokeNoise.Sample(best - new FVector(.35f, 0, 0)) +
-                ResponsiveSmokeNoise.Sample(best + new FVector(0, .35f, 0)) + ResponsiveSmokeNoise.Sample(best - new FVector(0, .35f, 0)) +
-                ResponsiveSmokeNoise.Sample(best + new FVector(0, 0, .35f)) + ResponsiveSmokeNoise.Sample(best - new FVector(0, 0, .35f))) / 6;
-            Assert.True(peak - around > .1f, $"feature=({x},{y},{z}), peak={peak}, surrounding={around}");
+            FVector point = new FVector(x, y, z) + new FVector(.31f, .57f, .83f);
+            float value = ResponsiveSmokeNoise.Sample(point);
+            fine += MathF.Abs(value - ResponsiveSmokeNoise.Sample(point + new FVector(.125f, 0, 0)));
+            broad += MathF.Abs(value - ResponsiveSmokeNoise.Sample(point + new FVector(1, 0, 0)));
+            count++;
         }
+        Assert.True(fine/count > .005f, $"fine detail={fine/count}");
+        Assert.True(broad/count > .08f && broad > fine*1.5f, $"fine={fine/count}, broad={broad/count}");
     }
 
     [Theory]

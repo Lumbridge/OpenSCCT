@@ -8,6 +8,7 @@
     without the Godot runtime. Only files that use no Godot type may be listed.
   -->
   <ItemGroup>
+    <Compile Include="..\..\game\Scripts\App\LaunchOptions.cs" Link="Linked\LaunchOptions.cs" />
     <Compile Include="..\..\game\Scripts\Discord\DiscordInvitePipe.cs" Link="Linked\DiscordInvitePipe.cs" />
     <Compile Include="..\..\shared\ProjectLinks.cs" Link="Shared\ProjectLinks.cs" />
     <Compile Include="..\..\game\Scripts\UI\GameReportState.cs" Link="Linked\GameReportState.cs" />

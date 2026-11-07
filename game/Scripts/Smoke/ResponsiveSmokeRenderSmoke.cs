@@ -406,14 +406,23 @@ public sealed class ResponsiveSmokeRenderSmoke : SmokeTest
                 return Finish(SmokeResult.Fail($"phase={_phase}: moving rim at age {age:F1} differs from finite 75 uu CPU integral: worst T error={worst:F5}, contrast={contrast:F5}, CPU={cpu:F5}, quality={SettingsStore.Current.SmokeQuality}"));
             GD.Print($"RESPONSIVE_SMOKE moving_rim age={age:F1} depth=75 CPU_T={cpu:F5} GPU_T={shot.GetPixel(center,y).R:F5} contrast={contrast:F5} maximum_error={worst:F5} phase={_phase} quality={SettingsStore.Current.SmokeQuality}");
         }
+        if (_phase >= 73)
+        {
+            float worst = 0;
+            for (int y = 96; y <= 160; y += 2) for (int x = 96; x <= 160; x += 2)
+                worst = Math.Max(worst, 1f - shot.GetPixel(x, y).R);
+            if (worst > .02f)
+                return Finish(SmokeResult.Fail($"phase={_phase}: smoke behind an opaque wall leaked onto its foreground face by {worst:F5}"));
+            GD.Print($"RESPONSIVE_SMOKE wall_occlusion_error={worst:F5} phase={_phase}");
+        }
         if (_phase == 1) _lowHole = pixel.R;
         _gpu.Sort();
         double p95 = _gpu[Math.Min(_gpu.Count-1,(int)(_gpu.Count*.95))];
         GD.Print($"RESPONSIVE_SMOKE phase={_phase} clouds={_emitters.Count} quality={SettingsStore.Current.SmokeQuality} gpu_p95_ms={p95:F3} viewport_p95_ms={Percentile95(_surfaceGpu):F3} prefix_p95_ms={Percentile95(_prefixGpu):F3} flow_p95_ms={Percentile95(_flowGpu):F3} upload_ms={ResponsiveSmokeRenderer.LastUploadMilliseconds:F3} fields_bytes={ResponsiveSmokeRenderer.LastFieldUploadBytes} frame_bytes={ResponsiveSmokeRenderer.LastFrameUploadBytes}");
         if (_phase == 35)
             GD.Print($"RESPONSIVE_SMOKE live_flow_steps={ResponsiveSmokeVisualFlow.Dispatches-_flowDispatchesAtPhaseStart} new_cloud_impulses={ResponsiveSmokeVisualFlow.AppliedImpulses-_flowImpulsesAtPhaseStart} active_shots={_benchmarkShots.Count}; 60Hz published time, three rifles at10Hz, final60frames sampled; completed GPU frame timestamps");
-        int phaseCount = _benchmark ? 34 : 72;
-        if (++_phase >= (_benchmark ? 36 : 73)) return Finish(SmokeResult.Pass(_benchmark
+        int phaseCount = _benchmark ? 34 : 76;
+        if (++_phase >= (_benchmark ? 36 : 77)) return Finish(SmokeResult.Pass(_benchmark
             ? $"{phaseCount} benchmark phases; phase 35 measures six clouds under sustained fire"
             : $"{phaseCount} rendered scenarios: shared density, Low/Medium holes, blast/refill, depth/vision/alpha surfaces, two-pixel CPU parity, sustained overlap, two cameras, resource release, evolving/idempotent GPU flow, immediate holes, temporal reuse/cuts/resizing/quality/rewind, blocked geometry, cloud identity replacement, queued initialization/draw teardown/rebind, zero-time rim preservation, partial-cell wall contact/both-side/solid/corner parity, finite-depth core/shell contrast with distant clouds, shallow/before-entry/cleared surfaces, and moving rim at ages 1/3/6 on Low and Medium"));
         if (_benchmark && _phase == 33) _phase = 35; // Diagnostic rate-readbacks are excluded from performance runs.
@@ -607,6 +616,43 @@ public sealed class ResponsiveSmokeRenderSmoke : SmokeTest
             _camera.Position = new(2.45f,0,-4.25f);
             _surface.Position = new(2.45f,0,-5);
         }
+        if (_phase >= 73)
+        {
+            ApplyWallOcclusionFixture();
+            SettingsStore.Current.SmokeQuality = _phase % 2 == 0 ? ResponsiveSmokeQuality.Low : ResponsiveSmokeQuality.Medium;
+            _camera.Fov = 75;
+            _camera.Position = _phase <= 74 ? Vector3.Zero : new(0, 0, -3);
+            _camera.RotationDegrees = new(0, _phase <= 74 ? 35 : 65, 0);
+            _surface.Position = new(0, 0, -4);
+        }
+    }
+
+    private void ApplyWallOcclusionFixture()
+    {
+        foreach (SSmokeEmitter emitter in _emitters)
+        {
+            var template = new ResponsiveSmokeField(emitter.Location, 0);
+            var cells = new byte[ResponsiveSmokeField.CellCount];
+            var activation = new ushort[cells.Length];
+            var boundaries = new List<ResponsiveSmokeBoundaryCell>();
+            for (int z = 0; z < 25; z++) for (int y = 0; y < 25; y++) for (int x = 0; x < 25; x++)
+            {
+                int index = ResponsiveSmokeField.Index(x, y, z);
+                float lo = template.Origin.Y + y * 25, hi = lo + 25, center = lo + 12.5f;
+                activation[index] = hi < -425 ? (ushort)0 : ResponsiveSmokeField.Unreached;
+                if (lo <= -400 && hi >= -425)
+                {
+                    var planes = new List<ResponsiveSmokePlane>();
+                    if (MathF.Abs(-400 - center) <= 12.55f) planes.Add(new(new FVector(0, 1, 0), -400 - center));
+                    if (MathF.Abs(-425 - center) <= 12.55f) planes.Add(new(new FVector(0, 1, 0), -425 - center));
+                    boundaries.Add(new((ushort)index, planes.ToArray()));
+                }
+                else cells[index] = 1;
+            }
+            ResponsiveSmokeWorld.For(_world.Level).ApplySnapshot(emitter,
+                new((uint)(_phase + 2000), 0, 2, template.Origin, template.Center, cells, activation, [], boundaries.ToArray()));
+        }
+        ResponsiveSmokeWorld.For(_world.Level).SynchronizeTime(2);
     }
 
     private void ApplyBoundaryFixture()

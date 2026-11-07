@@ -35,6 +35,13 @@ public partial class App : Node
     public override void _Ready()
     {
         Options = LaunchOptions.Parse(OS.GetCmdlineUserArgs());
+        Render.ResponsiveSmokeRenderer.SceneShadows = Options.SmokeMode == "full";
+        Render.ResponsiveSmokeRenderer.LaunchQuality = Options.SmokeMode switch
+        {
+            "fast" => OpenScctGame.Options.ResponsiveSmokeQuality.Low,
+            "full" => OpenScctGame.Options.ResponsiveSmokeQuality.High,
+            _ => null,
+        };
         AddChild(new OpenScctGame.Controls.BindingInput { Name = "BindingInput" });
 
         // Crash reports next to the settings (rl:ac.crash), then the process options of the command line and the

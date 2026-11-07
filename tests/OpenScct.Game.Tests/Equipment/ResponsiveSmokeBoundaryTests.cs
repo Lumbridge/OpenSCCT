@@ -13,6 +13,28 @@ namespace OpenScct.Game.Tests.Equipment;
 
 public sealed class ResponsiveSmokeBoundaryTests
 {
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void DoorwayPassesSmokeIntoTheNextRoomButItsSolidJambAndHeaderDoNot(bool sealedOpening)
+    {
+        var builder = new CollisionDataBuilder();
+        builder.AddBox(new FVector(-1000,-1000,-50),new FVector(1000,1500,0));
+        builder.AddBox(new FVector(-1000,512,0),new FVector(-28,544,1000));
+        builder.AddBox(new FVector(100,512,0),new FVector(1000,544,1000));
+        builder.AddBox(new FVector(-28,512,224),new FVector(100,544,1000));
+        if (sealedOpening) builder.AddBox(new FVector(-28,512,0),new FVector(100,544,224));
+        CombatScene scene = Scene(builder);
+        SSmokeEmitter cloud = scene.Level.SpawnActor(new SSmokeEmitter(),new FVector(36,630,5),default)!;
+        scene.Run(3);
+        ResponsiveSmokeField field = Field(scene,cloud);
+        Assert.Equal(0f,field.SampleDensity(new FVector(-75,528,80),scene.Time));
+        Assert.Equal(0f,field.SampleDensity(new FVector(36,528,230),scene.Time));
+        float nearRoom = field.SampleDensity(new FVector(36,480,145),scene.Time);
+        if (sealedOpening) Assert.Equal(0f,nearRoom);
+        else Assert.True(nearRoom > .99f, $"doorway density={nearRoom}, center={field.Center}");
+    }
+
     private static CombatScene Scene(CollisionDataBuilder builder)
     {
         var scene = new CombatScene(ENetMode.NM_ListenServer);

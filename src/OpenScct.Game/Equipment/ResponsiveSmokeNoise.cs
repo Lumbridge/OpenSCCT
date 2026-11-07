@@ -34,7 +34,13 @@ public static class ResponsiveSmokeNoise
             {
                 // Values live at feature-coordinate x/8, so texture(q*8+.5)/64 samples these exact nodes.
                 FVector point = new FVector(x, y, z) / TexelsPerFeature;
-                int cx = x / TexelsPerFeature, cy = y / TexelsPerFeature, cz = z / TexelsPerFeature;
+                // Warp once while baking the shared lattice, so connected eddies replace regular round
+                // cellular balls without adding texture samples to the per-frame density shader.
+                FVector warp = new(Perlin(point * .5f + new FVector(1.3f, 2.1f, .7f), gradients),
+                    Perlin(point * .5f + new FVector(2.7f, .9f, 3.1f), gradients),
+                    Perlin(point * .5f + new FVector(.4f, 3.3f, 1.8f), gradients));
+                point += warp * .85f;
+                int cx = (int)MathF.Floor(point.X), cy = (int)MathF.Floor(point.Y), cz = (int)MathF.Floor(point.Z);
                 float nearest = float.PositiveInfinity;
                 for (int dz = -1; dz <= 1; dz++) for (int dy = -1; dy <= 1; dy++) for (int dx = -1; dx <= 1; dx++)
                 {
@@ -43,8 +49,11 @@ public static class ResponsiveSmokeNoise
                     nearest = Math.Min(nearest, FVector.DistSquared(point, feature));
                 }
                 float clump = 1f - ResponsiveSmokeField.Smooth(.12f, .85f, MathF.Sqrt(nearest));
-                float perlin = Math.Clamp(.5f + .5f * Perlin(point * .5f, gradients), 0f, 1f);
-                float value = .85f * clump + .15f * perlin;
+                float turbulence = .50f * Perlin(point, gradients)
+                    + .32f * Perlin(point * 2f + new FVector(1.7f, 2.3f, .9f), gradients)
+                    + .18f * Perlin(point * 4f + new FVector(3.1f, .6f, 2.7f), gradients);
+                float perlin = ResponsiveSmokeField.Smooth(.15f, .85f, Math.Clamp(.5f + 1.1f * turbulence, 0f, 1f));
+                float value = .30f * clump + .70f * perlin;
                 result[x + Dimension * (y + Dimension * z)] = (byte)Math.Clamp((int)(value * 255f + .5f), 0, 255);
             }
             return result;

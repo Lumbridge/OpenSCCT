@@ -33,7 +33,7 @@ public sealed class ResponsiveSmokeLightingSmoke : SmokeTest
     private ShaderMaterial? _material;
     private ResponsiveSmokeQuality _oldQuality;
     private int _phase, _frames;
-    private float _redBeforeSwitch, _shadowBeforeBlast;
+    private float _redBeforeSwitch, _rightBeforeMove, _shadowBeforeBlast;
     private float _bodyBeforeTurn;
     private bool _bodyTurned;
 
@@ -92,6 +92,9 @@ public sealed class ResponsiveSmokeLightingSmoke : SmokeTest
                         vec3 p = vec3(SCREEN_UV.x < .5 ? 0.0 : 200.0,-500.0,0.0);
                         float transmission = smoke_light_transmission(cloud,int(frame.y),p,vec3(1.0,0.0,0.0),625.0,frame.z,int(frame.w));
                         ALBEDO = vec3(transmission);
+                    } else if (diagnostic == 4) {
+                        vec3 p = vec3(SCREEN_UV.x < .5 ? 0.0 : 900.0,-900.0,0.0);
+                        ALBEDO = vec3(responsive_smoke_scene_light(CAMERA_VISIBLE_LAYERS,p.xzy*.01,vec3(0.0,0.0,1.0)));
                     } else {
                         vec3 p = vec3(SCREEN_UV.x < .5 ? -150.0 : 150.0,-500.0,0.0);
                         vec3 ambient; vec3 direct; vec3 direction; float distance;
@@ -133,11 +136,15 @@ public sealed class ResponsiveSmokeLightingSmoke : SmokeTest
             0 when left.R <= left.B+.01f || right.B <= right.R+.01f => "rendered cloud lost the red/blue regional lighting",
             1 when left.R <= left.B+.02f || right.B <= right.R+.02f => "probe shading did not retain different light regions",
             2 when left.R >= _redBeforeSwitch*.7f => "switched light remained in cached probes",
-            3 when right.R <= left.R+.02f => "moved light did not follow its new region",
+            // Compare each frozen material point with itself: the left and right points have different
+            // procedural albedo, so their absolute contrast alone cannot establish light movement.
+            3 when right.R <= _rightBeforeMove+.02f || left.R >= _redBeforeSwitch*.9f => "moved light did not follow its new region",
             4 when MathF.Abs(left.R-right.R)+MathF.Abs(left.G-right.G)+MathF.Abs(left.B-right.B) > .01f => "directional probe illumination changed across the cloud",
             5 when !ValidDensityShadow(left.R,right.R) => "density-path self-shadow left the analytic core/shell transmission bounds",
             6 when left.R <= _shadowBeforeBlast+.2f => "blast clearing did not transmit more incident light",
             7 when Math.Min(left.R,_bodyBeforeTurn) < .06f || MathF.Abs(left.R-_bodyBeforeTurn) < .01f => "same-point map-lit body lost diffuse support or directional self-shadow contrast",
+            8 or 10 or 11 or 12 when left.R < .98f || right.R < .98f => "disabled, cleared or unlit scene shadow retained attenuation",
+            9 when left.R > .45f || right.R < .98f => "Full smoke did not shadow the receiving surface while retaining clear light paths",
             _ => null,
         };
         GD.Print($"RESPONSIVE_SMOKE_LIGHTING phase={_phase} left={left} right={right}");
@@ -145,9 +152,9 @@ public sealed class ResponsiveSmokeLightingSmoke : SmokeTest
         _gpu.Sort();
         GD.Print($"RESPONSIVE_SMOKE_LIGHTING_GPU phase={_phase} clouds={1+_overlap.Count} quality={SettingsStore.Current.SmokeQuality} gpu_p95_ms={_gpu[Math.Min(_gpu.Count-1,(int)(_gpu.Count*.95))]:F3} upload_ms={ResponsiveSmokeRenderer.LastUploadMilliseconds:F3}");
         if (failure is not null) return Finish(SmokeResult.Fail($"phase={_phase}: {failure}; left={left}, right={right}"));
-        if (_phase == 1) _redBeforeSwitch = left.R;
+        if (_phase == 1) { _redBeforeSwitch = left.R; _rightBeforeMove = right.R; }
         if (_phase == 5) _shadowBeforeBlast = left.R;
-        if (++_phase >= 8) return Finish(SmokeResult.Pass("8 rendered lighting scenarios: spatial red/blue scattering, dynamic light off/move, directional invariance, density self-shadow, blast-light transmission and shadowed-body diffuse fill"));
+        if (++_phase >= 13) return Finish(SmokeResult.Pass("13 rendered lighting scenarios: spatial red/blue scattering, switched/moved lighting, directional invariance, self-shadow, blast transmission, diffuse fill, Full scene shadows and Fast/clear/light-off recovery"));
         _frames = 0; _gpu.Clear(); Configure();
         return SmokeResult.Running;
     }
@@ -210,17 +217,33 @@ public sealed class ResponsiveSmokeLightingSmoke : SmokeTest
         }
         if (_phase == 6) Apply(true);
         if (_phase == 7) Apply(false);
+        if (_phase >= 8)
+        {
+            _material.SetShaderParameter("diagnostic",4);
+            ResponsiveSmokeRenderer.SceneShadows = _phase != 8;
+            _map!.ActorLighting.SetOn("red",false);
+            _map.ActorLighting.SetOn("blue",false);
+            _map.ActorLighting.SetSpawned(_phase == 12 ? [] :
+                [Point("shadow-source",default,0) with { Radius = 64, Saturation = 255 }]);
+            Apply(_phase == 10);
+            if (_phase == 11)
+            {
+                var template = new ResponsiveSmokeField(_emitter!.Location,0);
+                ResponsiveSmokeWorld.For(_world.Level).ApplySnapshot(_emitter,
+                    new((uint)(_phase*10+101),0,2,template.Origin,template.Center,new byte[ResponsiveSmokeField.CellCount],new ushort[ResponsiveSmokeField.CellCount],[]));
+            }
+        }
     }
 
     private void Apply(bool blast)
     {
         var cells = new byte[ResponsiveSmokeField.CellCount]; Array.Fill(cells,(byte)1);
         ResponsiveSmokeCarve[] carves = blast
-            ? [new(1,ResponsiveSmokeCarveKind.Blast,new(100,-500,0),new(100,-500,0),130,25,2,.6f,1.4f,cells)] : [];
+            ? [new(1,ResponsiveSmokeCarveKind.Blast,new(_phase >= 8 ? 0 : 100,-500,0),new(_phase >= 8 ? 0 : 100,-500,0),_phase >= 8 ? 300 : 130,25,2,.6f,1.4f,cells)] : [];
         foreach (SSmokeEmitter emitter in new[] { _emitter! }.Concat(_overlap))
         {
             var template = new ResponsiveSmokeField(emitter.Location,0);
-            ResponsiveSmokeWorld.For(_world.Level).ApplySnapshot(emitter,new((uint)(_phase+1),0,2,template.Origin,template.Center,cells,new ushort[cells.Length],carves));
+            ResponsiveSmokeWorld.For(_world.Level).ApplySnapshot(emitter,new((uint)(_phase >= 8 ? _phase*10+100 : _phase+1),0,2,template.Origin,template.Center,cells,new ushort[cells.Length],carves));
         }
         ResponsiveSmokeWorld.For(_world.Level).SynchronizeTime(2);
     }
@@ -234,6 +257,7 @@ public sealed class ResponsiveSmokeLightingSmoke : SmokeTest
 
     private SmokeResult Finish(SmokeResult result)
     {
+        ResponsiveSmokeRenderer.SceneShadows = false;
         SettingsStore.Current.SmokeQuality = _oldQuality;
         _binding?.Dispose(); _display?.Release(); _viewport?.QueueFree(); _map?.Root.QueueFree();
         return result;

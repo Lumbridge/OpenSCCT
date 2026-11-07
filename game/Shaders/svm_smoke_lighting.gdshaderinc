@@ -135,12 +135,12 @@ vec3 smoke_lighting_with_spots(int cloud, vec3 ue, vec3 ray, float now, int qual
         local = clamp(local,vec3(border),vec3(1.0-border));
         vec3 uv = vec3(local.xy,(cloud_info.z-1.0+local.z)/8.0);
         detail = clamp(textureLod(svm_smoke_flow,uv,0.0).w,0.0,1.0);
-        if (quality > 1) detail = detail*.9+.1*smoke_shape_noise(material/55.0+vec3(23.41,3.71,13.29));
     } else detail = smoke_shape_noise(material/55.0+vec3(23.41,3.71,13.29));
-    // The dominant illuminated lobes follow the same material as the silhouette and self-shadow. Transported
-    // detail adds smaller folds without painting unrelated drifting patches across the cloud. Both terms are
-    // already normalized; a second contrast remap would flatten crowns into uniform bright caps.
-    float billow=.75*macro+.25*smoothstep(.32,.72,detail);
+    // Connected folds at several scales break up broad rounded crowns. All procedural detail follows the
+    // silhouette's material motion; transported detail adds rolling eddies without changing extinction.
+    float folds = smoke_shape_noise(material/42.0+vec3(7.13,17.71,5.29));
+    if (quality > 1) folds = folds*.8+.2*smoke_shape_noise(material/18.0+vec3(13.61,5.73,21.19));
+    float billow=.40*macro+.30*smoothstep(.32,.72,detail)+.30*smoothstep(.25,.75,folds);
     // Compress incident display-space light before the lobe albedo. A hard final clamp made every bright
     // crown the same white, erasing transported creases under the map's strong actor-light probes.
     vec3 incident = ambient+direct;
