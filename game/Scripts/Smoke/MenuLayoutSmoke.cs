@@ -111,6 +111,8 @@ public sealed class MenuLayoutSmoke : SmokeTest
                 }
 
                 Check(tree.CurrentScene!, width, "Create Session");
+                if (tree.CurrentScene is HostScreen { Picker.SearchBox: { } mapSearch } && !mapSearch.HasFocus())
+                    _problems.Add("Opening Create Session did not focus map search");
                 MenuPage.Shot(tree.Root, $"menu-layout-{_sizes[_size].X}x{_sizes[_size].Y}-create-session");
                 if (tree.CurrentScene!.FindChild("MapPicker", true, false) is Control picker)
                 {
@@ -206,12 +208,21 @@ public sealed class MenuLayoutSmoke : SmokeTest
                 {
                     _beforeMapSearch = searchHost.Model!.Setup;
                     _mapPlaylist = searchHost.Picker!.PlaylistBox?.Selected ?? -1;
+                    if (searchHost.Picker.PlaylistBox is { ItemCount: > 1 } group)
+                    {
+                        int next = (group.Selected + 1) % group.ItemCount;
+                        group.GrabFocus();
+                        group.Select(next);
+                        group.EmitSignal(OptionButton.SignalName.ItemSelected, next);
+                    }
                     LineEdit search = searchHost.Picker.SearchBox!;
                     EnsureVisible(search);
                     search.Text = "__no_such_map_for_layout_check__";
                     search.EmitSignal(LineEdit.SignalName.TextChanged, search.Text);
                 }
                 if (_frames < SettleFrames * 3) return SmokeResult.Running;
+                if (!searchHost.Picker!.SearchBox!.HasFocus())
+                    _problems.Add("Changing the map group did not return focus to search");
                 if (searchHost.Picker!.Grid.GetChildren().OfType<Button>().Any(tile => tile.Visible) ||
                     searchHost.Picker.FindChild("MapEmpty", true, false) is not Label { Visible: true })
                     _problems.Add("Map search has no truthful empty state");

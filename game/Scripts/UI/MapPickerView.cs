@@ -149,6 +149,13 @@ public partial class MapPickerView : VBoxContainer
 
     public LineEdit? SearchBox { get; private set; }
 
+    /// <summary>Focuses a newly opened, editable picker without taking focus during routine refreshes.</summary>
+    public void FocusSearch()
+    {
+        if (IsInstanceValid(this) && Editable && IsInsideTree() && IsVisibleInTree() && SearchBox is { Editable: true } search)
+            search.GrabFocus();
+    }
+
     /// <summary>The map group choice and the search box.</summary>
     private void BuildFilterBar(MapCatalog maps, string? playlist, Action<string>? chosen)
     {
@@ -195,6 +202,8 @@ public partial class MapPickerView : VBoxContainer
                 SetPlaylist(_playlists[(int)index]);
                 chosen?.Invoke(_playlists[(int)index].Name);
                 Refresh();
+                // Let the playlist popup close before handing keyboard input back to the search.
+                Callable.From(FocusSearch).CallDeferred();
             }
         };
         bar.AddChild(box);

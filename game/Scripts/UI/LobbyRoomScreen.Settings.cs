@@ -197,7 +197,7 @@ public partial class LobbyRoomScreen
         if (SettingsPicker is { Visible: true } picker)
         {
             _settingsScroll!.EnsureControlVisible(_settingsMapPanel!);
-            picker.SearchBox?.GrabFocus();
+            picker.FocusSearch();
         }
     }
 }

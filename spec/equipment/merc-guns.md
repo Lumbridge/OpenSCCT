@@ -43,9 +43,10 @@ listed is the rifle's (merc-rifle.md Data).
 | AFirstShooSt / AFirstReloSt | FirstShooStFd2U / FirstReloStFd2U | FirstShooStFd2S / FirstReloStFd2S |
 | MuzzleGeneriqueClass | SMuzzleGenerique (rifle's) | SShotGunEmitter |
 
-The Uzi also has `AFirstShootStLoop = FirstShooStFd2Ub`, which no script reads. The shotgun's
-TotalShotgunDamageMultipler, RadiusScale, DemiAngleDispersion(_Coeff) and its own DamageLookupTable are read by
-nothing (natives2-damage.md rule 7).
+The Uzi also has `AFirstShootStLoop = FirstShooStFd2Ub`, which no script reads. The older stock/editor shotgun
+native does not read TotalShotgunDamageMultipler, RadiusScale, DemiAngleDispersion(_Coeff) or its own
+DamageLookupTable. Reloaded 4.0.4 and current OpenSCCT use the first two fields and the shotgun's table as
+described below; DemiAngleDispersion(_Coeff) remains unused by the recovered native.
 
 First-person clips (SWeaponFirst.ukx, 15 fps): FirstShooStFd2U 3 frames, FirstShooStFd2Ub 5, FirstReloStFd2U 31,
 FirstShooStFd2S 16 (an AnimNotify_Sound Reload_Def_Pump, volume 100, radius 100, at 0.533 s: the pump),
@@ -69,9 +70,9 @@ FirstReloStFd2S 46 (AnimNotify_Script EventReloadFirst1..5 at 0.788, 1.110, 1.44
    empty. `FireWeapon` is the rifle's, then `ChangeEnumAction(SA_FIRE)` (the third-person pump, ReloStSpFd3).
    `CreateSmoke2` is empty (no barrel smoke after a pull); instead `CreateSmoke1`, at the start of every pull, spawns
    two SSmokeCanonEmitter on the FX bone at (22, 3, -1) and (22, -3, -1), one per barrel.
-4. **Shotgun damage.** `ServerFireWeapon` is the rifle's; its `TraceFire` is the native one: nine pellets, the
-   largest per actor, no tracer, no stats beyond ShotsFired (natives2-damage.md rule 7). It stores the near and far
-   hit ranges in the third-person gun (`MinProjDistance`, `MaxProjDistance`, replicated).
+4. **Shotgun damage.** `ServerFireWeapon` is the rifle's; OpenSCCT follows the Reloaded 4.0.4 pellet rework below.
+   The retained stock/editor native in `natives2-damage.md` rule 7 takes the largest pellet per actor; that old
+   damage rule is superseded. Near/far ranges remain available on the third-person gun for compatibility.
 5. **Shotgun reload.** `s_Reloading.BeginState`: with no ammo or a full clip, back to s_Selected (PreviousState
    s_Selected). Else `iNbAmmoToReload = min(ClipMaxAmmo - ClipAmmo, Ammo)`; the rifle's reload start with the third-person
    action SA_RELOAD_1..5 for 1..5 shells and SA_RELOAD for 6. `s_FullReloading.BeginState` (ammo crate) the same
@@ -82,14 +83,14 @@ FirstReloStFd2S 46 (AnimNotify_Script EventReloadFirst1..5 at 0.788, 1.110, 1.44
    The third-person body clip ReloStSpFd2S (46 frames) works the same way: its `EventReloadAmmoNbN` notify (one per
    shell) with `iNbAmmoToReload == N` calls the native `FinishReloadAnimation`, which, when the pawn's weapon is a
    shotgun (or, without one, its third-person gun is the shotgun dummy), sets the weapon channel 21 to frame 41.1.
-6. **Shotgun pellet marks.** `SpawnSFX`: SMuzzleGenerique at (22, 0, -1) and SShotGunEmitter at (13, 0, 0) on FX, the
+6. **Legacy shotgun pellet marks.** The original script's `SpawnSFX`: SMuzzleGenerique at (22, 0, -1) and SShotGunEmitter at (13, 0, 0) on FX, the
    casing; on a machine without authority also `SpawnImpacts`: trace from `GetFireStart()` along the FX bone's X for
    ShootingRange, first straight, then offset by -0.194 x (first range) along Y; both must hit; the ranges are the
    distances from 50 behind FX (the pair widened by 20 each way). Then 8 SShotGunProjector at
    `orig + X max(0, near - 20) + 7 Z - 7 Y + Y (FRand - 0.5) 0.194 near + Z (FRand - 0.5) 0.194 near`, roll
    `Rand(65536)`, MaxTraceDistance `40 + far - near`, DrawScale `near x 0.00176`, attached, abandoned for 10 s and
    destroyed. Each projector plays SW_Impact_Shot (volume 0.8, radius 100) with chance 0.3.
-7. **Third-person shotgun** (`SWeaponDefenseDummy_Shotgun.Tick`): the rifle dummy's attachment, then: nothing while
+7. **Legacy third-person shotgun** (`SWeaponDefenseDummy_Shotgun.Tick`): the rifle dummy's attachment, then: nothing while
    `MinProjDistance` equals the last one seen; else one muzzle count: `ClientFireMuzzle` (the rifle dummy's effects
    plus SShotGunEmitter) where the shooter has no first-person gun or it is someone else's shot on the server (not a
    dedicated server), and `SpawnImpacts` (rule 6's marks from the replicated ranges, from the first-person FX bone
@@ -101,6 +102,38 @@ FirstReloStFd2S 46 (AnimNotify_Script EventReloadFirst1..5 at 0.788, 1.110, 1.44
 
 ## States
 The rifle's; the shotgun redefines `s_Reloading` (extends the rifle's) and `s_FullReloading`, BeginState only.
+
+## Reloaded 4.0.4 pellets
+
+Current OpenSCCT adopts the installed Reloaded 4.0.4 native damage and spread rules. The inspected DLL SHA-256 is
+`7b9297a5acff4588d502e01203d980688828340958c9736d40266bc125a9e71e`; native registration 1799 routes through
+`0x100253c0` to `0x10145d80`. Ghidra evidence is
+`ev_f843119571540e69c44ec9d9b2ad88bb11b2bf0021d1f1800c66bb9bed1ee379`, exported with its wrapper evidence to
+ignored `local/shotgun-reloaded-4.0.4-evidence.json`. This is static shipped-code evidence, not a runtime capture.
+
+- The centre retains the two-axis random aim offset, `range * Accuracy * .067 * (random - .5)`.
+- Eight more rays surround it at angles `0, pi/4, ..., 7pi/4`. The ring's radius is
+  `ShootingRange * .194 * RadiusScale` (169.75 uu at the 2500-uu range with default RadiusScale .35).
+  Its basis is perpendicular to the actual centre ray from the firing origin, using the projected aim-up vector
+  and a normalized cross product; the near-parallel fallback avoids a degenerate ring.
+- Each hit contributes `trunc(distance-banded BaseDamage)`; a real pawn pill then contributes
+  `trunc(that * shotgun.DamageLookupTable[pill - 1] * .01)`. All contributions to an actor are summed, and its
+  final damage is `trunc(sum * TotalShotgunDamageMultipler)` (default .2). The actor receives one damage call,
+  using its first hit position and pill 0 because its individual pellet zones have already been scaled.
+  The ordinary damage handler derives a reaction pill without scaling that damage a second time.
+- At close range with BaseDamage 17 and CMax 7, one torso pellet deals 23, three deal 71 and all nine deal 214.
+  Head and limb hits are weighted separately before aggregation. A successful enemy hit increments ShotsHit once
+  for the shell, including Merc Deathmatch targets, matching the native's once-per-shot statistic.
+- OpenSCCT presentation uses the same nine traces for world marks, with the existing surface-specific impact
+  manager. This replaces the independent eight-projector spray described in legacy rules 6/7. Numbered owner
+  prediction and authority share deterministic spread; authority excludes that owner from repeated impacts.
+  Muzzle effects use MuzzleCount even for repeated shots at the same distance. These presentation/network choices
+  are OpenSCCT's implementation, not a claim to use Reloaded's renderer or wire protocol.
+- Fake-ceiling continuation retains the same pellet endpoint and contributes one damage hit. Every authoritative
+  traced segment continues to affect responsive smoke. Prediction never deals damage or edits the smoke field.
+
+`ShotgunPelletTests` checks partial/full shells, mixed hit zones, separate victims, scratch reuse, tilted ring
+geometry, exact impact positions and identical numbered owner/authority rays without predicted damage.
 
 ## Constants
 | Name | Value | Unit | Provenance | Source |
@@ -116,14 +149,14 @@ The rifle's; the shotgun redefines `s_Reloading` (extends the rifle's) and `s_Fu
 - The weapon's trigger, clip, reload and view-model clips run on the owner; `ServerFireWeapon` (reliable owner to
   server) runs the trace and the damage on the server, as for the rifle.
 - `ChangeEnumAction(SA_FIRE / SA_RELOAD_n)` carries the pump and the reload to the other machines' bodies.
-- The shotgun dummy's `MuzzleCount`, `MinProjDistance` and `MaxProjDistance` replicate; the owner's client draws its
-  own marks at once (rule 6), everyone else from the dummy (rule 7).
+- The shotgun dummy's `MuzzleCount`, `MinProjDistance` and `MaxProjDistance` still replicate. MuzzleCount drives
+  muzzle effects; actual pellet impacts use the existing impact-manager network path and immediate owner prediction.
 - The respawn choice: `ServerCycleRespawnWeapon` (client to server, reliable), `ClientSetRespawnWeapon` (server to
   client, reliable); the spawn itself is the server's.
 
 ## Edge cases
-- Two shotgun shots in a row whose nearest hit is at the same whole distance (standing still at a wall) show no
-  third-person muzzle and no marks on the other machines for the second one (rule 7's early return).
+- Repeated shots at the same whole distance keep their muzzle effects and actual pellet marks; OpenSCCT no longer
+  uses legacy rule 7's distance-change gate.
 - A shotgun shot that hits nothing leaves the near range at ShootingRange (2500).
 - A reload with fewer shells in the reserve than the clip's room plays the reload for the room capped at Ammo (which
   counts the clip too), then fills to `min(Ammo, ClipMaxAmmo)`.

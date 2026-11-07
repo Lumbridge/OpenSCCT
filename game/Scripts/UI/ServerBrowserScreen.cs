@@ -45,6 +45,8 @@ public partial class ServerBrowserScreen : MenuPage
 
         public bool Password { get; set; }
 
+        public bool Dedicated { get; set; }
+
         public string Reach { get; set; } = string.Empty;
 
         public ulong Protocol { get; set; }
@@ -459,6 +461,7 @@ public partial class ServerBrowserScreen : MenuPage
             row.Players = e.Players;
             row.MaxPlayers = e.MaxPlayers;
             row.Password = e.Password;
+            row.Dedicated = e.Dedicated;
             row.RequireAccounts = e.RequireAccounts;
             row.Practice = e.Practice;
             row.ResponsiveSmoke = e.ResponsiveSmoke;
@@ -519,6 +522,7 @@ public partial class ServerBrowserScreen : MenuPage
             row.Players = r.Info.Players;
             row.MaxPlayers = r.Info.MaxPlayers;
             row.Password = r.Info.HasPassword;
+            row.Dedicated = r.Info.Dedicated;
             row.Protocol = r.Info.ProtocolHash;
             row.Content = r.Info.ContentHash;
             row.RequireAccounts = r.Info.RequireAccounts || (row.Entry?.RequireAccounts ?? false);
@@ -653,7 +657,7 @@ public partial class ServerBrowserScreen : MenuPage
         {
             TreeItem item = Table.CreateItem(root);
             string? problem = Problem(row);
-            item.SetText(0, (row.Password ? "[locked] " : string.Empty) + (row.RequireAccounts ? "[signed-in only] " : string.Empty) +
+            item.SetText(0, (row.Password ? "[locked] " : string.Empty) + (row.Dedicated ? "[dedicated] " : string.Empty) + (row.RequireAccounts ? "[signed-in only] " : string.Empty) +
                 (row.Name.Length > 0 ? row.Name : row.Key));
             item.SetText(1, MapTitles.Of(_service!.Catalog.Maps, row.Map));
             item.SetText(2, LobbySetup.ModeName((EGameMode)(byte)row.Mode) + (row.Practice ? " (practice)" : string.Empty) + (row.ResponsiveSmoke ? " · responsive smoke" : string.Empty));

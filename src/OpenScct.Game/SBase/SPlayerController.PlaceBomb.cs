@@ -17,9 +17,26 @@ public partial class SPlayerController
     /// <summary>True on the input-owning machine, including a server bot with no local rendered view.</summary>
     private bool IsLocalInputMachine() => IAmOnClient() && (Player is OpenScct.Game.AI.AiViewport || ReferenceEquals(Level.GetLocalPlayerController(), this));
 
+    /// <summary>Keep the pistol's holster notifies and laser cleanup when a bomb action is interrupted.</summary>
+    private void HolsterBombWeapon()
+    {
+        if (SBPawn is { WeaponLoaded: not 0, bWeaponTransit: false } pawn)
+        {
+            pawn.ChangeEnumAction(pawn.bIsCrouched ? SBasePawn.SA_WALK_CR_2Hto0H : SBasePawn.SA_WALK_ST_2Hto0H);
+        }
+    }
+
+    private void BombClientStickyShock(int PillTag, bool bPlayAnim)
+    {
+        // The unarmed walking action stops the draw channel, so author the holster after that reset.
+        BackToUnarmedWalk();
+        HolsterBombWeapon();
+        GlobalClientStickyShock(PillTag, bPlayAnim);
+    }
+
     /// <summary>The plant animation (rule 5); its end uses the modem on the spy's machine.</summary>
     [Uc("SBase.SPlayerController.s_PlaceBomb")]
-    public class s_PlaceBomb : UcActorState, IPlayerMove
+    public class s_PlaceBomb : UcActorState, IPlayerMove, IClientStickyShock
     {
         public static readonly s_PlaceBomb Instance = new(UcMeta.s_PlaceBomb, null);
 
@@ -70,11 +87,14 @@ public partial class SPlayerController
         [Uc("SBase.SPlayerController.s_PlaceBomb.PlayerMove", Sha1 = "6c7b176e9b6c1e1e6bb32fe136a2003073bce881")]
         [PortOf("uc:SBase.SPlayerController:s_PlaceBomb.PlayerMove", Spec = "spec/objectives/bomb-target.md#rules")]
         public void PlayerMove(SPlayerController self, float DeltaTime) => self.PickupStillMove(DeltaTime, true);
+
+        public void ClientStickyShock(SPlayerController self, int PillTag, bool bPlayAnim) =>
+            self.BombClientStickyShock(PillTag, bPlayAnim);
     }
 
     /// <summary>Getting up after the plant (rule 6).</summary>
     [Uc("SBase.SPlayerController.s_PlaceBomb_End")]
-    public class s_PlaceBomb_End : UcActorState, IPlayerMove
+    public class s_PlaceBomb_End : UcActorState, IPlayerMove, IClientStickyShock
     {
         public static readonly s_PlaceBomb_End Instance = new(UcMeta.s_PlaceBomb_End, null);
 
@@ -87,6 +107,10 @@ public partial class SPlayerController
         [PortOf("uc:SBase.SPlayerController:s_PlaceBomb_End.BeginState", Spec = "spec/objectives/bomb-target.md#rules")]
         public override void BeginState(Actor self) => ((SPlayerController)self).SBPawn?.ChangeEnumAction(SBasePawn.SA_BOMB_END);
 
+        // Mirrored damage exits also run here on the input owner. The authority's ChangeEnumAction deliberately
+        // does not author actions for a remote pawn, so fixing only the server damage handler misses its pistol.
+        public override void EndState(Actor self) => ((SPlayerController)self).HolsterBombWeapon();
+
         /// <summary>A drawn weapon is put away for the stance, then back to the unarmed walk.</summary>
         [Uc("SBase.SPlayerController.s_PlaceBomb_End.AnimEnd", Sha1 = "62792c00595a2a9097a8b4187983f4c2ddc9f835")]
         [PortOf("uc:SBase.SPlayerController:s_PlaceBomb_End.AnimEnd", Spec = "spec/objectives/bomb-target.md#rules")]
@@ -98,16 +122,14 @@ public partial class SPlayerController
                 return;
             }
 
-            if (pawn.WeaponLoaded != 0)
-            {
-                pawn.ChangeEnumAction(pawn.bIsCrouched ? SBasePawn.SA_WALK_CR_2Hto0H : SBasePawn.SA_WALK_ST_2Hto0H);
-            }
-
             pc.BackToUnarmedWalk();
         }
 
         [Uc("SBase.SPlayerController.s_PlaceBomb_End.PlayerMove", Sha1 = "80b82aa03e0e4257764c99a78c357c755cbf2813")]
         [PortOf("uc:SBase.SPlayerController:s_PlaceBomb_End.PlayerMove", Spec = "spec/objectives/bomb-target.md#rules")]
         public void PlayerMove(SPlayerController self, float DeltaTime) => self.PickupStillMove(DeltaTime, true);
+
+        public void ClientStickyShock(SPlayerController self, int PillTag, bool bPlayAnim) =>
+            self.BombClientStickyShock(PillTag, bPlayAnim);
     }
 }

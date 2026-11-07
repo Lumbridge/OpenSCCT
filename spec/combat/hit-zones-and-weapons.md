@@ -186,6 +186,12 @@ Team weapon lists (def:SBase.STeamAttaquant.ClassWeapon = [SStickyShocker]; def:
 9. Zone scaling is applied later in SRTD: `int(Dmg * table[pill-1] * 0.01)` with the victim pawn's table.
 
 ### Merc shotgun (native TraceFire; decoded in natives2-damage.md rule 7, see the Resolved list)
+
+The stock/editor native described here is retained evidence. Current OpenSCCT adopts the newer Reloaded 4.0.4
+circular pellet pattern and accumulated per-pellet damage, documented in
+[merc-guns.md](../equipment/merc-guns.md#reloaded-404-pellets). Its RadiusScale, shotgun pill table and
+TotalShotgunDamageMultipler are used by that newer native.
+
 10. `SWeaponDefense_Shotgun.TraceFire` is native (1799, 0x10ab9d00). Script provides its parameters: the falloff
     coefficients above, ShootingRange 2500, its own DamageLookupTable, TotalShotgunDamageMultipler 0.2, RadiusScale
     0.35, DemiAngleDispersion 0.97 and coefficient 1.0. Client side, `SpawnImpacts` only draws 8 pellet decals; it

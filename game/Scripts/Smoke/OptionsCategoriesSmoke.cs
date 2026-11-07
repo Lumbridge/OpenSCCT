@@ -241,6 +241,11 @@ public sealed class OptionsCategoriesSmoke : SmokeTest
     {
         string original = SettingsStore.Current.ToJson();
         bool voice = options.Editing.VoiceMuted, rumble = options.Editing.Pad.Rumble, crosshair = options.Editing.Crosshair.Custom;
+        bool ao = options.Editing.AmbientOcclusion;
+        ((CheckBox)options.Controls["ambient_occlusion"]).ButtonPressed = !ao;
+        Expect(options.Editing.AmbientOcclusion == !ao, "ambient occlusion edits the draft");
+        var latency = (OptionButton)options.Controls["low_latency_mode"];
+        Expect(latency.ItemCount == 2, "latency offers only distinct supported modes");
         double sound = ((HSlider)options.Controls["sound_volume"]).Value;
         ((HSlider)options.Controls["sound_volume"]).Value = 37;
         ((CheckBox)options.Controls["voice_muted"]).ButtonPressed = !voice;
@@ -254,6 +259,7 @@ public sealed class OptionsCategoriesSmoke : SmokeTest
         ((CheckBox)options.Controls["voice_muted"]).ButtonPressed = voice;
         ((CheckBox)options.Controls["controller.rumble"]).ButtonPressed = rumble;
         ((CheckBox)options.Controls["crosshair.custom"]).ButtonPressed = crosshair;
+        ((CheckBox)options.Controls["ambient_occlusion"]).ButtonPressed = ao;
         Expect(!options.HasUnsavedChanges && SettingsStore.Current.ToJson() == original, "restoring controls leaves a clean draft without writing settings");
     }
 

@@ -98,9 +98,9 @@ public static class SettingsApplier
     public const string StartOverridePath = "user://render_override.cfg";
 
     /// <summary>
-    /// Writes the Windows graphics driver and latency overrides for the next start. On and Ultra queue one swap
-    /// chain image less (2, Godot's lowest; its default is 3). The frame queue stays at 2, the lowest Godot's setting
-    /// allows, so Ultra is On for now. The file is removed when neither setting needs an override.
+    /// Writes the Windows graphics driver and latency overrides for the next start. On requests two swap-chain
+    /// images instead of three. Godot's frame queue remains at its supported minimum of two; no distinct Ultra
+    /// mode is advertised. The file is removed when neither setting needs an override.
     /// </summary>
     [OpenScct.Provenance.Provenance(OpenScct.Provenance.ProvenanceKind.Estimated, "rl:gfx.pacing open question: Godot 4.7 offers frame queue 2 to 3 and 2 to 4 swap chain images; Reloaded's latency modes are not decoded")]
     public static void WriteStartOverrides(GameSettings s)

@@ -579,9 +579,22 @@ public sealed class PlaySession : IDisposable
         if (parts.Length == 0) return false;
         string verb = parts[0].ToLowerInvariant();
         void Reply(string line) => player.Connection.ControlChannel?.Send(ControlMessage.Chat(new ChatLine(EChatScope.Say, 0, "Server", 255, line)));
+        if (verb == "lagcomp")
+        {
+            // ChatFilter executes on the host's simulation thread, including a threaded listen host.
+            // Keep the same parser and reply wording as an online server; no client-side state is changed.
+            Reply(Host.LagCompensation.Command(parts.Length > 1 ? parts[1] : string.Empty) ??
+                "lagcomp: !lagcomp [on|off|reset|<ceiling>]");
+            return true;
+        }
         if (verb is "help" or "?")
         {
             string topic = parts.Length > 1 ? parts[1].Trim() : "bots";
+            if (topic.Equals("lagcomp", StringComparison.OrdinalIgnoreCase))
+            {
+                Reply("!lagcomp [on|off|reset|<ceiling>] - Show or change the local server's rewind ceiling in milliseconds (0 to 500).");
+                return true;
+            }
             foreach (string line in PracticeBotCommands.GetHelp(topic, chat: true) ?? ["Use !help bots or !help <bot command>. For all console commands, type help in the console."])
                 Reply(line);
             return true;

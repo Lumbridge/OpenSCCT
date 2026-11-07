@@ -369,7 +369,7 @@ time. The supported range is two to six simulation ticks (33–100 ms); current 
 minimum, and Stock's 20 Hz preset uses six. Movement and channel phase sample the same displayed server time.
 Extrapolation stops after 100 ms, including animation phase; then the proxy holds safely. No proxy root physics,
 gameplay notifies, damage or interactions run during presentation. Rewind uses the actual displayed time and is
-cleared by pawn lifetime resets and teleports; the default ceiling is now 300 ms. The rendered client reports its
+cleared by pawn lifetime resets and teleports; the default ceiling is now 200 ms. The rendered client reports its
 frame interpolation fraction, so a shot uses the last displayed frame's time even if simulation catches up through
 several ticks before the next draw. Headless clients use the current presentation simulation time.
 
@@ -447,9 +447,12 @@ it), the world, movers and the water probe stay live, and nothing is moved: the 
 Rewind validation and its ceiling use the host's world tick even when a shot is dispatched inside a movement
 command. That command's input tick belongs to the joining client and cannot be compared with server snapshot times.
 Shots of the host's own authority-side code and bots on the server have no view time and see the live pose.
-The setting: `ServerSettings.LagCompensation` and `LagCompensationCeilingMs` (modern default 300, range 0 to 500), changed at run
+The setting: `ServerSettings.LagCompensation` and `LagCompensationCeilingMs` (modern default 200, range 0 to 500), changed at run
 time through `ServerHost.LagCompensation` (`Enabled`, `CeilingMs`, `Command`); online sessions keep it across rounds
 (`OnlineServerSettings`, console and chat commands: docs/ONLINE.md "Lag compensation").
+Offline listen matches accept the same `!lagcomp` commands in match chat. `!lagcomp` reports the current setting,
+`!lagcomp 200` enables a 200 ms ceiling, `!lagcomp off` disables it, and `!lagcomp reset` restores the default.
+The host processes the command and sends its response privately to that player, including over a simulated link.
 
 **Shot numbers and spread.** The owner's client numbers its merc gun and pistol shots (`SWeapon.ShotCounter`, sent as
 the `ServerFireWeapon` call's Int2 and the `ServerFireWeaponWithLocation` call's Int1). The server takes a number that

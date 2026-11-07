@@ -47,9 +47,10 @@ public partial class FaithfulView : Node3D
             CullMask = RenderLayers.MainView,
         };
         Effect = new DisplaySpaceEffect();
+        AmbientOcclusion = new AmbientOcclusionEffect();
         Remanence = new RemanenceEffect();
         DoubleVision = new RemanenceEffect { DoubleVision = true };
-        Camera.Compositor = new Compositor { CompositorEffects = new Godot.Collections.Array<CompositorEffect> { Effect, DoubleVision, Remanence } };
+        Camera.Compositor = new Compositor { CompositorEffects = new Godot.Collections.Array<CompositorEffect> { AmbientOcclusion, Effect, DoubleVision, Remanence } };
         AddChild(Camera);
         _surfaceFog = new SurfaceFogRegistry(Camera);
     }
@@ -57,6 +58,8 @@ public partial class FaithfulView : Node3D
     public Camera3D Camera { get; }
 
     public DisplaySpaceEffect Effect { get; }
+
+    public AmbientOcclusionEffect AmbientOcclusion { get; }
 
     /// <summary>The flash-bang after-image over the shown frame (spec/equipment/flash-bang.md rule 5).</summary>
     public RemanenceEffect Remanence { get; }
@@ -374,9 +377,11 @@ public partial class FaithfulView : Node3D
             _surfaceFog?.Dispose();
             _skySurfaceFog?.Dispose();
             Effect.Release();
+            AmbientOcclusion.Release();
             Remanence.Release();
             DoubleVision.Release();
             Effect.Dispose();
+            AmbientOcclusion.Dispose();
             Remanence.Dispose();
             DoubleVision.Dispose();
         }
@@ -598,6 +603,7 @@ public partial class FaithfulView : Node3D
 
     private void UpdateEffect()
     {
+        AmbientOcclusion.Configure(OpenScctGame.Options.SettingsStore.Current.AmbientOcclusion, RendMap, Camera);
         ZoneEntry? zone = CameraZone;
         // EMF fogs to its clear colour; thermal has no fog; the other modes take the zone fog, blended on a zone change.
         ViewFog fog = _rendMap switch

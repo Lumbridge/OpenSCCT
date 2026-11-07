@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using OpenScct.Content;
 using OpenScct.Core;
@@ -151,6 +152,54 @@ public sealed class WallMoveTests
         rig.Hold(away, 6);
         Assert.Equal(EPhysics.PHYS_Falling, rig.Pawn.Physics);
         Assert.True(rig.Pawn.Velocity.Y < -10f, "The next jump must accept backward air steering after a wall flip.");
+    }
+
+    [Fact]
+    public void TheFirstWallJumpReachesTheSameApexAsRepeatedJumpsWithRealRootMotion()
+    {
+        PawnRigOptions? options = ContentOptions();
+        Assert.SkipWhen(options is null, "The converted character root tracks are required for wall-jump height checks.");
+        CollisionDataBuilder wall = Floor();
+        wall.AddBox(V(-500f, 400f, 0f), V(500f, 700f, 600f));
+        PawnRig rig = Rig(PawnTeam.Spy, wall, options: options);
+
+        float first = JumpApex();
+        for (int attempt = 0; attempt < 2; attempt++)
+        {
+            // Reposition the same, naturally landed pawn; retain its animation/root-motion history.
+            rig.Teleport(default, 16384);
+            Assert.True(rig.WaitStill(120));
+            float repeated = JumpApex();
+            Assert.InRange(MathF.Abs(first - repeated), 0f, 0.5f);
+        }
+
+        float JumpApex()
+        {
+            float floor = rig.Pawn.Location.Z;
+            float apex = floor;
+            rig.Hold(Up, 20);
+            bool kicked = false;
+            bool flipped = false;
+            var states = new List<Name>();
+            for (int frame = 0; frame < 600; frame++)
+            {
+                rig.Step(frame == 0 ? JumpPress with { BT_Up = 1 } : kicked ? NoInput : Up);
+                Name state = rig.Controller.GetStateName();
+                if (states.Count == 0 || states[^1] != state) states.Add(state);
+                kicked |= state == MovementStateNames.s_FirstWallJumpSalto;
+                flipped |= state == MovementStateNames.s_WallJumpSalto;
+                apex = MathF.Max(apex, rig.Pawn.Location.Z);
+                if (flipped && state == MovementStateNames.s_PlayerWalkingSt0H)
+                {
+                    Assert.True(rig.WaitStill(120), Seen(states));
+                    Assert.True(apex > floor + 100f, $"Wall jump did not leave the floor: apex={apex}, floor={floor}; {Seen(states)}");
+                    return apex - floor;
+                }
+            }
+
+            Assert.Fail("Wall jump did not complete: " + Seen(states));
+            return 0f;
+        }
     }
 
     // ---- split jump and Vandamme ----------------------------------------------------------------------------

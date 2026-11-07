@@ -12,7 +12,7 @@ Rendering is client-only. It reads map rendering data, collision zones, gameplay
 and shared packs without writing simulation state. See the
 [SVMap 1.1 format](../spec/svmap/1.1/README.md) for the content layout.
 
-**On this page:** [Map builder](#map-builder) · [Materials](#materials) · [Vision modes](#vision-modes) · [Characters](#characters) · [Golden renders](#golden-renders) · [Open issues](#open-issues)
+**On this page:** [Map builder](#map-builder) Â· [Materials](#materials) Â· [Vision modes](#vision-modes) Â· [Characters](#characters) Â· [Golden renders](#golden-renders) Â· [Open issues](#open-issues)
 
 ## Render pack
 
@@ -138,6 +138,19 @@ is the identity at the default settings. The Faithful pipeline does the same:
 
 `Post/DisplayCheck` draws 16 known values (0 to 255) through the whole chain and reads them back: every golden run
 starts with it, and it must be exact within one step. It reads back exact (maximum error 0).
+
+### Ambient occlusion
+
+Display's `ambient_occlusion` option adds subtle contact shading, off by default to preserve baked map lighting.
+`AmbientOcclusionEffect` reads resolved opaque depth and shades the resolved scene before the display/vision passes.
+It runs after transparent rendering so MSAA's final resolve cannot overwrite it; blended effects over surfaces
+receive the same subtle attenuation as the scene behind them.
+It reconstructs view-space surfaces from reverse-Z depth, samples eight directions with three distances over a
+0.6-metre radius, and caps darkening at 45%. Surface-aware normals and distance weighting suppress edge halos;
+the near-camera exclusion avoids shading held weapons. Normal and night views support it; thermal, motion and
+EMF skip it. Sky pixels are not shaded. This is an independent implementation, not a claim of
+matching Reloaded's GTAO algorithm. `ambient-occlusion` verifies contact shading, unchanged flat regions, toggling,
+vision eligibility, viewport resizing and resolved MSAA off/4x with GPU pixel comparisons.
 
 ### Anti-aliasing
 
@@ -739,7 +752,7 @@ views and the HUD.
 allocations and GC pauses through the normal play path against recorded original-game cameras. GPU timing is opt-in
 because timestamp queries/readbacks can affect throughput. Raw captures stay in `local/fps`; see the benchmark README.
 
-**Options → Performance → Max FPS** sets a single cap for menus, the lobby and matches (`max_fps` in `settings.json`).
+**Options â†’ Performance â†’ Max FPS** sets a single cap for menus, the lobby and matches (`max_fps` in `settings.json`).
 The slider covers 30 to 700 FPS and has notches at common refresh rates. **Match refresh rate** (-1, the default)
 follows the screen the window is on. **Unlimited** (0) removes the engine's cap. Legacy profiles carry forward
 `fps_merc`, which previously applied in menus and the lobby, or `fps_spy` if only that cap is present. Version 1
@@ -764,11 +777,12 @@ Godot's own limiter holds a cap to a frame time standard
 deviation of 0.01 to 0.07 ms (measured below), so Reloaded's limiter (absolute deadlines, then sleep and spin: rules
 16 and 17) is not ported. The FPS readout includes 1% lows and highs from its recent frame history.
 
-**Input latency** (rl:gfx.pacing, `low_latency_mode` Off, On, Ultra; Off by default). The swap chain and the frame
+**Input latency** (rl:gfx.pacing, `low_latency_mode` Off or On; Off by default). The swap chain and the frame
 queue are read only at start, so Save writes `user://render_override.cfg`, which project.godot names as its
-`application/config/project_settings_override`: On and Ultra ask for 2 swap chain images (Godot's lowest; its default
-is 3). Godot allows a frame queue of 2 or 3 only, so Ultra cannot queue less than On and is the same for now; Off
-removes the file. Not measured.
+`application/config/project_settings_override`: On asks for 2 swap chain images (Godot's lowest; its default
+is 3). Legacy Ultra values migrate to On because they used the same override. Godot's frame queue remains at two.
+Double buffering can reduce latency, but with V-Sync it can lower frame rate when a refresh is missed. Off removes
+the latency override. End-to-end input latency has not been measured.
 
 **Process options** (rl:gfx.system): `--priority=` (idle, low, below, normal, medium, above, high) and
 `--affinity=` (a mask such as `0xF`, or CPUs such as `0,2-3`) after `--` on the client's command line

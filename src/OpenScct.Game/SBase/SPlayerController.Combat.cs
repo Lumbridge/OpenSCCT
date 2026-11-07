@@ -1553,7 +1553,7 @@ public partial class SPlayerController
         GlobalPawnTakeDamage(Damage, By, Hit, M, T, Pill, Pct);
     }
 
-    /// <summary>Not ported here: the undraw action when still armed (bomb spec).</summary>
+    /// <summary>The bomb end state's exit holsters an armed pistol on the input-owning machine.</summary>
     [Uc("SBase.SPlayerController.s_PlaceBomb_End.PawnTakeDamage", Sha1 = "85b3bff6b3a34e22608c009351a45c7a56e6c89d")]
     [PortOf("uc:SBase.SPlayerController:s_PlaceBomb_End.PawnTakeDamage", Spec = "spec/combat/state-damage-reactions.md#handler-behaviour")]
     private void DamagePlaceBombEnd(int Damage, Pawn? By, FVector Hit, FVector M, SDamageType T, int Pill, int Pct)

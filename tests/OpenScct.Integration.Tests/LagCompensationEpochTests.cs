@@ -94,16 +94,25 @@ public sealed class LagCompensationEpochTests
     }
 
     [Fact]
-    public void DefaultCeilingAcceptsThreeHundredMillisecondsAndBoundsOlderShots()
+    public void DefaultCeilingAcceptsTwoHundredMillisecondsAndBoundsOlderShots()
     {
         var world = new World(10);
         var pawn = world.Level.Spawn<SPawnAttaque>()!;
         var lag = LagCompensation.Install(world.Level);
         lag.Enabled = true;
-        Assert.Equal(300, lag.CeilingMs);
+        Assert.Equal(200, lag.CeilingMs);
         for (int i = 0; i < 60; i++) { world.Step(); lag.Record(); }
+        lag.BeginShot(54 * NetTimeline.Fraction);
+        Assert.Equal(100f, lag.LastRewindMs);
+        lag.EndShot();
+        lag.BeginShot(48 * NetTimeline.Fraction);
+        Assert.Equal(200f, lag.LastRewindMs);
+        lag.EndShot();
         lag.BeginShot(30 * NetTimeline.Fraction);
-        Assert.Equal(300f, lag.LastRewindMs);
+        Assert.Equal(200f, lag.LastRewindMs);
         Assert.True(lag.TryGetPills(pawn, new List<PillShape>(), out _));
+        lag.EndShot();
+        lag.Command("450");
+        Assert.Equal("lagcomp: on - ceiling 200ms", lag.Command("reset"));
     }
 }

@@ -57,7 +57,7 @@ Completion (`TakeObjective`, server):
 12. If `ControllerWhoTakesIt == None`, return (nothing happens).
 13. `complete = true`; `takenTime = GRI.ElapsedTime`; `GRI.LastTimeObjectif = takenTime`.
 14. Fire `Event` with instigator `ControllerWhoTakesIt.Pawn` (Untrigger if `bUntriggerEvent`).
-15. Unless this is an `SDisk`, if the taker is an `SPlayerController` with a `PRI.Stats` object: append `self.Name` to `Stats.Spy_ObjectivesTaken` and `takenTime` to `Stats.Spy_ObjectivesTakenTime`.
+15. Unless this is an `SDisk`, if the taker is an `SPlayerController` with a `PRI.Stats` object: append `self.Name` to `Stats.Spy_ObjectivesTaken` and `takenTime` to `Stats.Spy_ObjectivesTakenTime`. The Enhanced timeout correction is applied using the precise world match clock: a positive `TimeLimit` excludes completions at or after `TimeLimit * 60` seconds from these statistics. Unlimited rounds still count. Completion events and objective notifications are unchanged, including when a delayed input scope carries an older simulation timestamp.
 16. `Objective.NotifyTaken(ControllerWhoTakesIt)` (`missions.md` rules 23 to 29).
 
 Lock and unlock (called by `SAlarm.ObjectiveTriggersToLock`; SteeE has no SAlarm, so not reachable in the slice):

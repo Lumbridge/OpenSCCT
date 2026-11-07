@@ -666,6 +666,10 @@ public sealed class GameSettings
     [Provenance(ProvenanceKind.Decoded, "spec/reloaded/FEATURES.md rl:gfx.aa smaa first-run false")]
     public bool Smaa { get; set; }
 
+    /// <summary>Optional contact shading in normal and night vision; off preserves baked map lighting.</summary>
+    [JsonPropertyName("ambient_occlusion")]
+    public bool AmbientOcclusion { get; set; }
+
     /// <summary>Shadow map scale (Reloaded's shadow_quality, 0.5 to 16, first run 3): a spot light's map is 256 x this texels high.</summary>
     [JsonPropertyName("shadow_quality")]
     [Provenance(ProvenanceKind.Decoded, "spec/reloaded/FEATURES.md rl:gfx.shadows shadow_quality first-run 3.0, range 0.5 to 16.0")]
@@ -700,12 +704,12 @@ public sealed class GameSettings
 
     public static readonly string[] GraphicsDrivers = ["Vulkan", "Direct3D 12"];
 
-    /// <summary>"Reduce input lag": Off, On (one frame queued) or Ultra (one frame queued, two swap chain images). Needs a restart.</summary>
+    /// <summary>"Reduce input lag": On requests two swap-chain images. Needs a restart.</summary>
     [JsonPropertyName("low_latency_mode")]
     [Provenance(ProvenanceKind.Estimated, "rl:gfx.pacing: Reloaded's default is On; the rewrite starts Off until frame queue 1 is measured on Vulkan and D3D12")]
     public string LowLatencyMode { get; set; } = "Off";
 
-    public static readonly string[] LatencyModes = ["Off", "On", "Ultra"];
+    public static readonly string[] LatencyModes = ["Off", "On"];
 
     /// <summary>Windows: opt the game out of power throttling (EcoQoS) at start (Reloaded's throttle_stop, experimental).</summary>
     [JsonPropertyName("throttle_stop")]
@@ -1016,6 +1020,8 @@ public sealed class GameSettings
         WindowPosition = OneOf(WindowPositions, WindowPosition, "Centered");
         // Legacy "Default" profiles now select Vulkan explicitly, as do missing or invalid choices.
         GraphicsDriver = OneOf(GraphicsDrivers, GraphicsDriver);
+        // Older Ultra settings used exactly the same engine override as On.
+        if (string.Equals(LowLatencyMode, "Ultra", StringComparison.OrdinalIgnoreCase)) LowLatencyMode = "On";
         LowLatencyMode = OneOf(LatencyModes, LowLatencyMode);
         FilterLevel = FilterLevel <= 0 ? 0 : FilterLevel <= 2 ? 2 : FilterLevel <= 4 ? 4 : FilterLevel <= 8 ? 8 : 16;
         ShadowQuality = LookSettings.Range(ShadowQuality, 0.5f, 16f);

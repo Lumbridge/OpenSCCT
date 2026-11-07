@@ -488,6 +488,8 @@ public partial class OptionsMenu : Control
         Choice(g, "MSAA samples", "msaa_samples", ["2", "4", "8"], _edit.MsaaSamples.ToString(CultureInfo.InvariantCulture),
             v => _edit.MsaaSamples = int.Parse(v, CultureInfo.InvariantCulture), v => v + "x");
         Check(g, "Anti-aliasing: SMAA", "smaa", _edit.Smaa, v => _edit.Smaa = v);
+        Check(g, "Ambient occlusion", "ambient_occlusion", _edit.AmbientOcclusion, v => _edit.AmbientOcclusion = v);
+        _controls["ambient_occlusion"].TooltipText = "Adds subtle contact shading in normal and night vision. Off preserves the map's baked lighting.";
         Slider(g, "Shadow quality (next map)", "shadow_quality", 0.5f, 16f, 0.5f, _edit.ShadowQuality, v => _edit.ShadowQuality = v, "0.0");
         Choice(g, "Responsive smoke quality", "responsive_smoke_quality", GameSettings.SmokeQualities,
             GameSettings.SmokeQualities[(int)_edit.SmokeQuality], v => _edit.SmokeQuality = (ResponsiveSmokeQuality)Array.IndexOf(GameSettings.SmokeQualities, v));
@@ -523,6 +525,7 @@ public partial class OptionsMenu : Control
         }
         Section(g, "Latency & power", "These settings require restarting the game.");
         Choice(g, "Reduce input lag (restart)", "low_latency_mode", GameSettings.LatencyModes, _edit.LowLatencyMode, v => _edit.LowLatencyMode = v);
+        _controls["low_latency_mode"].TooltipText = "On uses double buffering. This can lower latency, but may reduce frame rate when vertical sync is enabled and your PC cannot keep up.";
         if (OperatingSystem.IsWindows())
         {
             Check(g, "Stop Windows power throttling (restart)", "throttle_stop", _edit.ThrottleStop, v => _edit.ThrottleStop = v);

@@ -203,7 +203,7 @@ public partial class LobbyRoomScreen
         UpdateSettingsDraft();
         ApplyButton!.Visible = Session.CanControl;
         SettingsTabs!.CurrentTab = 0;
-        if (Session.CanControl) ParameterRows!.Find("ModeChoice")?.GrabFocus();
+        if (Session.CanControl) FocusSettingsMap();
         else _settingsPanel.FindChild("DiscardSettings", true, false)?.Call("grab_focus");
     }
 

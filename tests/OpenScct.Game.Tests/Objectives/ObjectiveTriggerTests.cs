@@ -115,6 +115,37 @@ public sealed class ObjectiveTriggerTests
         Assert.False(t.IsInState(K.s_TemporaryInactive));
     }
 
+    [Theory]
+    [InlineData(1, 59, 0.75f, true)]
+    [InlineData(1, 60, 0f, false)]
+    [InlineData(1, 60, 0.25f, false)]
+    [InlineData(1, 59, 1.25f, false)]
+    [InlineData(0, 600, 0.25f, true)]
+    public void Objective_statistics_obey_the_precise_match_deadline_without_suppressing_completion(
+        int timeLimit, int elapsed, float sinceSecond, bool counted)
+    {
+        (ObjWorld w, SObjectiveTrigger t, SObjective o) = Plain();
+        o.Reset();
+        TestPC spy = w.AddPlayer(spy: true, default);
+        t.ControllerWhoTakesIt = spy;
+        w.Run(2f);
+        w.Gri.TimeLimit = timeLimit;
+        w.Gri.ElapsedTime = elapsed;
+        w.Gri.SecondCount = w.Level.WorldTimeSeconds - sinceSecond;
+
+        // Completion runs on the world timeline even if an old player's input scope is active.
+        using (w.Level.CommandTime(1, 0.01f, Sim.DeltaTime))
+        {
+            t.eventTakeObjective();
+        }
+
+        Assert.True(t.complete);
+        Assert.True(o.ObjectiveTaken);
+        Assert.Equal(counted ? 1 : 0, spy.PlayerReplicationInfo!.Stats!.Spy_ObjectivesTaken.Count);
+        Assert.Equal(counted ? 1 : 0, spy.PlayerReplicationInfo.Stats.Spy_ObjectivesTakenTime.Count);
+        Assert.Equal(elapsed, w.Gri.LastTimeObjectif);
+    }
+
     [Fact]
     public void A_terminal_destroys_its_entry_with_it()
     {

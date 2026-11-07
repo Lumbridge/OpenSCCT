@@ -8,6 +8,24 @@ namespace OpenScctGame.Logic.Tests;
 /// <summary>The settings file: Reloaded's first-run defaults, ranges, comments and recovery.</summary>
 public sealed class GameSettingsTests : IDisposable
 {
+    [Fact]
+    public void LegacyUltraPreservesItsActualLowLatencyBehavior()
+    {
+        var settings = GameSettings.FromJson("{\"low_latency_mode\":\"Ultra\"}");
+        Assert.Equal("On", settings.LowLatencyMode);
+        Assert.DoesNotContain("Ultra", GameSettings.LatencyModes);
+    }
+
+    [Fact]
+    public void AmbientOcclusionIsOptInAndSurvivesSaving()
+    {
+        Assert.False(new GameSettings().AmbientOcclusion);
+        var settings = GameSettings.FromJson("{\"ambient_occlusion\":true}");
+        string path = Path.Combine(_dir, "ao.json");
+        settings.Save(path);
+        Assert.True(GameSettings.Load(path).AmbientOcclusion);
+    }
+
     private readonly string _dir = Path.Combine(Path.GetTempPath(), "svm-settings-" + Guid.NewGuid().ToString("N"));
 
     public void Dispose()

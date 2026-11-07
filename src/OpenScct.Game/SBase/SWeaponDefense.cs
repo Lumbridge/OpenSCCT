@@ -495,7 +495,7 @@ public partial class SWeaponDefense
         return (moving ? eye : GetFireStart(), eye + rotation.Vector() * K.TraceLength);
     }
 
-    /// <summary>Whether the owner predicts this gun's impacts (the shotgun draws its own pellet marks instead).</summary>
+    /// <summary>Whether the owner predicts this gun's impacts.</summary>
     protected virtual bool PredictsImpacts => true;
 
     /// <summary>
@@ -505,7 +505,7 @@ public partial class SWeaponDefense
     /// with the server, which does not send this shot's impacts back to this player.
     /// </summary>
     [Provenance(ProvenanceKind.Estimated, "Our design of rl:net.fireprediction; the impact rolls are hashed on the client, not the server's FRand")]
-    private void PredictTraceFire(int ShotId, float Accuracy, FVector TraceStartLocation = default)
+    protected virtual void PredictTraceFire(int ShotId, float Accuracy, FVector TraceStartLocation = default)
     {
         if (Instigator is not { } shooter)
         {

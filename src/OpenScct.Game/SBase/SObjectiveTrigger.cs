@@ -259,7 +259,11 @@ public partial class SObjectiveTrigger
             TriggerEvent(Event, this, taker.Pawn);
         }
 
-        if (this is not SDisk && taker is SPlayerController { PlayerReplicationInfo.Stats: { } stats })
+        // Use the world clock, including the fraction since the GRI's last second. A delayed input command
+        // must not turn an expired completion into an in-time statistic; objective events still run above/below.
+        bool withinTimeLimit = gri is null || gri.TimeLimit <= 0 ||
+            ObjectiveNatives.PreciseElapsedTime(Level) < gri.TimeLimit * 60f;
+        if (withinTimeLimit && this is not SDisk && taker is SPlayerController { PlayerReplicationInfo.Stats: { } stats })
         {
             stats.Spy_ObjectivesTaken.Add(ObjectiveNatives.ObjectName(this));
             stats.Spy_ObjectivesTakenTime.Add(takenTime);

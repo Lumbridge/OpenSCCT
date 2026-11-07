@@ -17,15 +17,15 @@ namespace OpenScct.Server;
 /// and while the call runs the bone traces it makes (the merc guns, the spy pistol, the shotgun's pellets) see the
 /// other pawns at that time, never further back than <see cref="CeilingMs"/>. Nothing is moved: the trace only reads the
 /// recorded pills, so the world, the physics and every other actor stay as they are.
-/// <para>Off by default; a server setting (<see cref="ServerSettings.LagCompensation"/>, the console's <c>lagcomp</c>
-/// and the chat command <c>!lagcomp</c>).</para>
+/// <para>Enabled by default through <see cref="ServerSettings.LagCompensation"/>; configurable with the console's
+/// <c>lagcomp</c> and the chat command <c>!lagcomp</c>.</para>
 /// </summary>
 [Provenance(ProvenanceKind.Estimated, "Our design of Reloaded's server-side lag compensation; only its switch, its ceiling and its messages are observed")]
 public sealed class LagCompensation : IPillHistory
 {
     /// <summary>The ceiling a fresh server (and <c>!lagcomp reset</c>) uses.</summary>
-    [Provenance(ProvenanceKind.Estimated, "Modern synchronization: 200 ms RTT plus up to 100 ms presentation buffering")]
-    public const int DefaultCeilingMs = 300;
+    [Provenance(ProvenanceKind.Estimated, "OpenSCCT tuning: cap the total displayed-view rewind at 200 ms")]
+    public const int DefaultCeilingMs = 200;
 
     /// <summary>The largest ceiling accepted (the history holds more than this).</summary>
     [Provenance(ProvenanceKind.Decoded, "Reloaded.Core !lagcomp <n> (0x10076435): below 0 gives 0, above 500 gives 500")]

@@ -210,8 +210,8 @@ public partial class HostScreen : MenuPage
         }
         PageButton("Back", Back, "Back");
         HostButton = PageButton("Create session", Host, "Host");
-        HostButton.GrabFocus();
         FitHostLayout();
+        Picker.FocusSearch();
     }
 
     private VBoxContainer SettingsTab(string title)

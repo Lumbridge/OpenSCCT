@@ -1,3 +1,4 @@
+using System;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
 using OpenScct.Core.Uc;
@@ -11,7 +12,7 @@ namespace OpenScct.Game.SBase;
 /// <summary>
 /// SBase.SWeaponDefense_Shotgun: the merc shotgun (spec/equipment/merc-guns.md). The rifle's trigger, clip and
 /// states with a six-shell clip, no fire-mode switch, a pump on the third-person body after each shot, a reload that
-/// stops after the shells it needs, and the native nine-pellet trace on the server (natives2-damage.md rule 7).
+/// stops after the shells it needs, and Reloaded's nine-pellet trace and accumulated damage on the server.
 /// </summary>
 public partial class SWeaponDefense_Shotgun
 {
@@ -21,12 +22,10 @@ public partial class SWeaponDefense_Shotgun
 
     private static readonly Name CNAME_s_Selected = new("s_Selected");
     private static readonly AssetRef PumpSound = new("Armes_impacts.Armes.Reload_Def_Pump");
-    private static readonly ClassRef ShotGunProjectorClass = new("SBase.SShotGunProjector");
 
-    // The actors the pellets of one shot hit, each with its largest pellet (TraceFire scratch, cleared after use).
+    // The actors hit by one shot, each with its accumulated pellet damage and first hit point.
     private readonly Actor?[] _pelletActor = new Actor?[K.ShotgunPellets];
     private readonly int[] _pelletDamage = new int[K.ShotgunPellets];
-    private readonly int[] _pelletPill = new int[K.ShotgunPellets];
     private readonly FVector[] _pelletHit = new FVector[K.ShotgunPellets];
 
     /// <summary>The shotgun has one fire mode.</summary>
@@ -49,95 +48,18 @@ public partial class SWeaponDefense_Shotgun
     }
 
     /// <summary>
-    /// The first-person muzzle effects; a client also draws the pellet marks of its own shot at once (the host draws
-    /// them from the third-person gun).
-    /// </summary>
-    [Uc("SBase.SWeaponDefense_Shotgun.SpawnSFX", Sha1 = "6de5a8775bdf7117f4777993cc928031d2dbcc24")]
-    [PortOf("uc:SBase.SWeaponDefense_Shotgun:SpawnSFX", Spec = "spec/equipment/merc-guns.md#rules")]
-    public override void SpawnSFX()
-    {
-        base.SpawnSFX();
-        if (Role != ENetRole.ROLE_Authority)
-        {
-            SpawnImpacts();
-        }
-    }
-
-    /// <summary>
-    /// The owner's pellet marks: two traces along the gun at the pattern's sides give the near and far range, then
-    /// eight marks are thrown at it. Drawing only; no damage.
+    /// Legacy script entry point. Pellet marks now come from the same nine traces as damage, rather than a
+    /// separately randomized projector pattern. Owner prediction runs through PredictTraceFire.
     /// </summary>
     [Uc("SBase.SWeaponDefense_Shotgun.SpawnImpacts", Sha1 = "23634eafdb43f0533b798bdb8b6f95b04d88e4ca")]
-    [PortOf("uc:SBase.SWeaponDefense_Shotgun:SpawnImpacts", Spec = "spec/equipment/merc-guns.md#rules")]
+    [Provenance(ProvenanceKind.Estimated, "OpenSCCT: actual pellet impacts replace the original decorative projectors")]
     public void SpawnImpacts()
     {
-        if (Instigator is not SBasePawn { MyWeapon: { } gun })
-        {
-            return;
-        }
-
-        FCoords fx = CombatServices.Ports(this).BoneCoords(gun, FxBone);
-        FVector orig = fx.Origin - fx.XAxis * K.ShotgunDecalPullBack;
-        FVector start = gun.GetFireStart();
-        FVector end = start + fx.XAxis * gun.ShootingRange;
-        IHitZones zones = CombatServices.HitZones(this);
-
-        // The first side trace still has the range at 0, so it runs straight along the gun.
-        int near = 0;
-        BoneTraceResult hit = zones.TraceBone(this, end + fx.YAxis * (near * K.ShotgunDecalSpread), start, true);
-        if (!hit.bHit)
-        {
-            return;
-        }
-
-        near = SvmMath.Trunc(FVector.Dist(hit.HitLocation, orig));
-        int far = near;
-        hit = zones.TraceBone(this, end - fx.YAxis * (near * K.ShotgunDecalSpread), start, true);
-        if (!hit.bHit)
-        {
-            return;
-        }
-
-        int d = SvmMath.Trunc(FVector.Dist(hit.HitLocation, orig));
-        near = SvmMath.Min(near, d) - K.ShotgunDecalMargin;
-        far = SvmMath.Max(far, d) + K.ShotgunDecalMargin;
-        SpawnPelletMarks(this, fx, near, far);
     }
 
-    /// <summary>
-    /// The eight pellet marks (SShotGunProjector) thrown from 50 behind the gun's FX bone towards the near range,
-    /// spread by it, each left for 10 s. Shared by the owner's gun and the third-person gun.
-    /// </summary>
-    internal static void SpawnPelletMarks(Actor Spawner, FCoords Fx, int MinProjDistance, int MaxProjDistance)
-    {
-        SimRandom rng = Spawner.XLevel.World.Random;
-        FVector x = Fx.XAxis;
-        FVector y = Fx.YAxis;
-        FVector z = Fx.ZAxis;
-        FVector orig = Fx.Origin - x * K.ShotgunDecalPullBack;
-        FRotator rot = x.Rotation();
-        float near = MinProjDistance;
-        for (int i = 0; i < K.ShotgunDecals; i++)
-        {
-            rot.Roll = rng.Rand(K.FullRoll);
-            FVector at = orig + x * SvmMath.Max(0f, near - K.ShotgunDecalMargin) + z * K.ShotgunDecalOffset - y * K.ShotgunDecalOffset;
-            at += y * ((rng.FRand() - 0.5f) * near * K.ShotgunDecalSpread);
-            at += z * ((rng.FRand() - 0.5f) * near * K.ShotgunDecalSpread);
-            if (Devices.DeviceClasses.Spawn(Spawner, ShotGunProjectorClass, Spawner, default, at, rot) is not SShotGunProjector mark)
-            {
-                continue;
-            }
-
-            mark.MaxTraceDistance = K.ShotgunDecalTraceExtra + MaxProjDistance - MinProjDistance;
-            mark.DrawScale = near * K.ShotgunDecalScale;
-            mark.AttachProjector();
-            mark.AbandonProjector(K.ShotgunDecalLifetime);
-            mark.Destroy();
-        }
-    }
-
-    /// <summary>The owner already draws its pellet marks at once (<see cref="SpawnImpacts"/>), so nothing is predicted.</summary>
-    protected override bool PredictsImpacts => false;
+    /// <summary>The owner's immediate pellet impacts use exactly the authority's numbered shot geometry.</summary>
+    protected override void PredictTraceFire(int ShotId, float Accuracy, FVector TraceStartLocation = default) =>
+        TracePellets(Accuracy, ShotId, TraceStartLocation, prediction: true);
 
     /// <summary>The barrel smoke of each shot: an SSmokeCanonEmitter at each barrel, 22 uu along the FX bone, 3 uu to each side.</summary>
     [Uc("SBase.SWeaponDefense_Shotgun.CreateSmoke1", Sha1 = "d75ca1e15a97bd9960893ce4b334a2f728cdb4f7")]
@@ -167,61 +89,32 @@ public partial class SWeaponDefense_Shotgun
         return (still ? eye : GetFireStart(), eye + rotation.Vector() * ShootingRange);
     }
 
-    // ---- the native pellet trace ------------------------------------------------------------------------------
+    // ---- the Reloaded pellet trace -----------------------------------------------------------------------------
 
     /// <summary>
-    /// TraceFire (native 1799, server): nine pellets around the aim, each a bone trace through fake ceilings; each
-    /// hit actor takes only its largest pellet, with the distance damage of the merc gun bands (flat CMax up close)
-    /// times 1, 0.3 (ring) or 0.5 (diagonals). The near and far hit ranges go to the third-person gun for the marks.
+    /// Reloaded 4.0.4: a centre pellet and eight equally spaced ring pellets. Each actor takes the sum of its
+    /// distance- and pill-scaled pellets times TotalShotgunDamageMultipler, with each truncation preserved.
+    /// World impacts use those same rays; responsive smoke retains every traversed segment.
     /// </summary>
     [UcNative("ASWeaponDefense_Shotgun::execTraceFire", Exe = 0x10ab9d00, Editor = 0x111d69c0)]
     [Uc("SBase.SWeaponDefense_Shotgun.TraceFire", Sha1 = "205915467dd36e8dcbd313d69a76ff8fee165888")]
-    [PortOf("nat:SBase.SWeaponDefense_Shotgun.TraceFire", Spec = "spec/native/natives2-damage.md#rules")]
-    [Provenance(ProvenanceKind.Estimated, "The eye and mover aim offsets are taken along world Z; the fire start is the rifle's GetFireStart (the native 0x111d66e0 is not ported)")]
-    public override void TraceFire(float Accuracy, float YOffset, float ZOffset, FVector TraceStartLocation = default)
+    [PortOf("nat:SBase.SWeaponDefense_Shotgun.TraceFire", Spec = "spec/equipment/merc-guns.md#reloaded-404-pellets")]
+    [Provenance(ProvenanceKind.Decoded, "Reloaded.Core 4.0.4 0x10145d80: nine circular traces, RadiusScale, sum of truncated pill-scaled pellets, TotalShotgunDamageMultipler; evidence ev_f843119571540e69c44ec9d9b2ad88bb11b2bf0021d1f1800c66bb9bed1ee379")]
+    public override void TraceFire(float Accuracy, float YOffset, float ZOffset, FVector TraceStartLocation = default) =>
+        TracePellets(Accuracy, ActiveShotId, TraceStartLocation, prediction: false);
+
+    private void TracePellets(float accuracy, int shotId, FVector traceStart, bool prediction)
     {
-        if (Instigator is not { Controller: not null } shooter)
-        {
-            return;
-        }
-
+        if (Instigator is not { Controller: not null } shooter) return;
         using var activity = CombatDeathContext.Push(new(CombatDeathCause.Shotgun));
-        AccurateRotation.GetAxes(out FVector fwd, out FVector right, out FVector up);
-        bool onStillMover = shooter.Base is Mover { Velocity: var mv } && mv.IsZero();
-        FVector aim = onStillMover
-            ? shooter.Location + new FVector(0f, 0f, shooter.bIsCrouched ? K.MoverAimCrouched : K.MoverAimStanding)
-            : shooter.Location + new FVector(0f, 0f, shooter.EyeHeight) + shooter.WalkBob;
-        FVector start = !TraceStartLocation.IsZero() ? TraceStartLocation : onStillMover ? aim : GetFireStart();
-        float range = ShootingRange;
-        float f1 = (FRand() - 0.5f) * Accuracy;
-        float f2 = (FRand() - 0.5f) * Accuracy;
-        FVector end = aim + fwd * range + up * (f1 * range * K.ShotgunSpread) + right * (f2 * range * K.ShotgunSpread);
-        FVector ring = range * K.ShotgunRing * up;
-        FVector side = range * K.ShotgunRing * right;
-        FVector diagonal = range * K.ShotgunDiagonal * (up + right);
-
+        Span<FVector> ends = stackalloc FVector[K.ShotgunPellets];
+        PelletRays(shooter, accuracy, shotId, traceStart, ends, out FVector start, out FVector aim);
         int nearest = ShootingRange;
         int farthest = 0;
         int count = 0;
-        for (int i = 0; i < K.ShotgunPellets; i++)
-        {
-            // Each pellet's end steps from the last: centre, up, down, right, left, then the four diagonals.
-            end += i switch
-            {
-                1 => ring,
-                2 => -2f * ring,
-                3 => ring + side,
-                4 => -2f * side,
-                5 => diagonal,
-                6 => side,
-                7 => -1f * ring,
-                8 => -1f * side,
-                _ => default,
-            };
-
-            float factor = i == 0 ? 1f : i <= 4 ? K.ShotgunRingFactor : K.ShotgunDiagonalFactor;
-            Pellet(start, end, factor, ref nearest, ref farthest, ref count);
-        }
+        for (int i = 0; i < ends.Length; i++)
+            Pellet(start, ends[i], shotId, i, prediction, ref nearest, ref farthest, ref count);
+        if (prediction) return;
 
         if (Dummy is SWeaponDefenseDummy_Shotgun gun)
         {
@@ -229,83 +122,111 @@ public partial class SWeaponDefense_Shotgun
             gun.MaxProjDistance = SvmMath.Min(farthest, nearest + K.ShotgunImpactWindow);
         }
 
+        bool countedHit = false;
         for (int i = 0; i < count; i++)
         {
             Actor victim = _pelletActor[i]!;
-            int damage = _pelletDamage[i];
-            FVector momentum = (_pelletHit[i] - aim) * K.BulletMomentumScale;
+            int damage = SvmMath.Trunc(_pelletDamage[i] * TotalShotgunDamageMultipler);
+            FVector hit = _pelletHit[i];
             _pelletActor[i] = null;
-            if (damage == 0 || victim.bDeleteMe)
+            if (victim.bDeleteMe) continue;
+            if (!countedHit && victim is SBasePawn target && OwnerPC is { } pc &&
+                (pc.IsMercDeathMatch || SGameInfo.TeamIndexOf(pc) != SGameInfo.TeamIndexOf(target.Controller)))
             {
-                continue;
+                SPlayerController.IncStat(pc, static s => s.ShotsHit++);
+                countedHit = true;
             }
-
+            if (damage <= 0) continue;
+            FVector momentum = (hit - aim) * K.BulletMomentumScale;
             if (victim is SBasePawn pawn)
             {
                 pawn.LastBulletWeapon = this;
-                pawn.Controller?.PawnTakeDamage(damage, shooter, _pelletHit[i], momentum, MyDamageType, _pelletPill[i], PercentDamageRefillable);
+                // Pill multipliers were applied to each pellet already. An unspecified pill preserves that
+                // damage and lets the normal reaction choose an approximate pill from the first hit position.
+                pawn.Controller?.PawnTakeDamage(damage, shooter, hit, momentum, MyDamageType, 0, PercentDamageRefillable);
+                if (pawn is SPawnAttaque spy) spy.BloodDropStartTime = Level.TimeSeconds;
             }
-            else
-            {
-                victim.eventTakeDamage(damage, shooter, _pelletHit[i], momentum, MyDamageType);
-            }
+            else victim.eventTakeDamage(damage, shooter, hit, momentum, MyDamageType);
         }
     }
 
-    /// <summary>One pellet: the trace (again from behind a fake ceiling), the ranges, the actor's largest pellet.</summary>
-    private void Pellet(FVector start, FVector end, float factor, ref int nearest, ref int farthest, ref int count)
+    private void PelletRays(Pawn shooter, float accuracy, int shotId, FVector traceStart, Span<FVector> ends,
+        out FVector start, out FVector aim)
+    {
+        AccurateRotation.GetAxes(out FVector fwd, out FVector right, out FVector up);
+        bool onStillMover = shooter.Base is Mover { Velocity: var mv } && mv.IsZero();
+        aim = onStillMover
+            ? shooter.Location + new FVector(0f, 0f, shooter.bIsCrouched ? K.MoverAimCrouched : K.MoverAimStanding)
+            : shooter.Location + new FVector(0f, 0f, shooter.EyeHeight) + shooter.WalkBob;
+        start = !traceStart.IsZero() ? traceStart : onStillMover ? aim : GetFireStart();
+        float spread = ShootingRange * accuracy * K.ShotgunSpread;
+        FVector centre = aim + fwd * ShootingRange
+            + up * ((SpreadRandom(shotId, AccurateRotation.Yaw, ShotSpread.Merc, 0) - 0.5f) * spread)
+            + right * ((SpreadRandom(shotId, AccurateRotation.Yaw, ShotSpread.Merc, 1) - 0.5f) * spread);
+        FVector direction = (centre - start).SafeNormal();
+        FVector ringUp = up - direction * (up | direction);
+        if (ringUp.Size() < 0.0001f)
+        {
+            FVector axis = MathF.Abs(direction.Z) > 0.99f ? new FVector(0, 1, 0) : new FVector(0, 0, 1);
+            ringUp = (axis ^ direction).SafeNormal();
+        }
+        else ringUp = ringUp.SafeNormal();
+        FVector ringRight = (direction ^ ringUp).SafeNormal();
+        float radius = ShootingRange * K.ShotgunRing * RadiusScale;
+        ends[0] = centre;
+        for (int i = 1; i < ends.Length; i++)
+        {
+            int angle = (i - 1) * 8192; // pi/4 in UE angle units; the deterministic sine table.
+            ends[i] = centre + (ringRight * SvmMath.Cos(angle) + ringUp * SvmMath.Sin(angle)) * radius;
+        }
+    }
+
+    private void Pellet(FVector start, FVector end, int shotId, int pellet, bool prediction,
+        ref int nearest, ref int farthest, ref int count)
     {
         IHitZones zones = CombatServices.HitZones(this);
         BoneTraceResult hit = zones.TraceBone(this, end, start, true);
-        ResponsiveSmokeWorld.Bullet(this, start, hit.bHit ? hit.HitLocation : end);
-        if (!hit.bHit)
-        {
-            return;
-        }
-
+        if (!prediction) ResponsiveSmokeWorld.Bullet(this, start, hit.bHit ? hit.HitLocation : end);
+        if (!hit.bHit) return;
         int range = SvmMath.Trunc(FVector.Dist(hit.HitLocation, start));
-        if (range <= nearest)
-        {
-            nearest = range;
-        }
-
-        if (farthest <= range)
-        {
-            farthest = range;
-        }
-
+        nearest = SvmMath.Min(nearest, range);
+        farthest = SvmMath.Max(farthest, range);
+        PelletImpact(hit, shotId, pellet, prediction);
         if (hit.SurfaceType == ESurfaceType.SURFACE_FakeCeiling)
         {
             FVector continuation = hit.HitLocation - hit.HitNormal * K.FakeCeilingExit;
             hit = zones.TraceBone(this, end, continuation, true);
-            ResponsiveSmokeWorld.Bullet(this, continuation, hit.bHit ? hit.HitLocation : end);
-            if (!hit.bHit)
-            {
-                return;
-            }
+            if (!prediction) ResponsiveSmokeWorld.Bullet(this, continuation, hit.bHit ? hit.HitLocation : end);
+            if (!hit.bHit) return;
+            PelletImpact(hit, shotId, pellet + K.ShotgunPellets, prediction);
         }
+        if (prediction) return;
 
-        int damage = SvmMath.Trunc(SvmMath.Trunc(PelletDamage(FVector.Dist(hit.HitLocation, start))) * factor);
+        int damage = SvmMath.Trunc(PelletDamage(FVector.Dist(hit.HitLocation, start)));
+        if (hit.Actor is SBasePawn && hit.PillTag > 0 && hit.PillTag <= DamageLookupTable.Length)
+            damage = SvmMath.Trunc(damage * DamageLookupTable[hit.PillTag - 1] * 0.01f);
         int slot = 0;
-        while (slot < count && !ReferenceEquals(_pelletActor[slot], hit.Actor))
-        {
-            slot++;
-        }
-
-        if (slot < count && damage <= _pelletDamage[slot])
-        {
-            return;
-        }
-
+        while (slot < count && !ReferenceEquals(_pelletActor[slot], hit.Actor)) slot++;
         if (slot == count)
         {
             _pelletActor[slot] = hit.Actor;
+            _pelletHit[slot] = hit.HitLocation;
+            _pelletDamage[slot] = damage;
             count++;
         }
+        else _pelletDamage[slot] += damage;
+    }
 
-        _pelletDamage[slot] = damage;
-        _pelletPill[slot] = hit.PillTag;
-        _pelletHit[slot] = hit.HitLocation;
+    private void PelletImpact(in BoneTraceResult hit, int shotId, int pellet, bool prediction)
+    {
+        if (hit.bIsAFakeBackdrop || hit.Actor is Pawn) return;
+        FRotator rotation = hit.HitNormal.Rotation();
+        rotation.Roll = SvmMath.Trunc(ShotSpread.Unit(shotId, AccurateRotation.Yaw, ShotSpread.Merc,
+            2 + pellet) * K.RandomRoll);
+        Name effect = hit.SurfaceType == ESurfaceType.SURFACE_FakeCeiling
+            ? new Name("SImpactEffectHole") : ImpactClass(hit.SurfaceType);
+        if (prediction) ImpactManager.AddImpactHere(XLevel, effect, hit.HitLocation, rotation, hit.Actor);
+        else ImpactManager.AddImpact(this, effect, hit.HitLocation, rotation, PredictedBy, hit.Actor);
     }
 
     /// <summary>BaseDamage times the band factor at distance <paramref name="d"/>: flat CMax before DistCac (rule 7.6).</summary>

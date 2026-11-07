@@ -47,8 +47,8 @@ public static partial class K
     [Provenance(ProvenanceKind.Decoded, "ASWeaponDefense_Shotgun::execTraceFire editor 0x111d69c0: 0.067")]
     public const float ShotgunSpread = 0.067f;
 
-    /// <summary>The four ring pellets sit 0.194 x ShootingRange up, down, right and left of the centre.</summary>
-    [Provenance(ProvenanceKind.Decoded, "ASWeaponDefense_Shotgun::execTraceFire editor 0x111d69c0: 0.194 and 0.388 steps")]
+    /// <summary>Reloaded's eight ring pellets sit ShootingRange x 0.194 x RadiusScale from the centre.</summary>
+    [Provenance(ProvenanceKind.Decoded, "Reloaded.Core 4.0.4 0x10146555..0x10146568: range * 0.194 * RadiusScale")]
     public const float ShotgunRing = 0.194f;
 
     /// <summary>The four diagonal pellets sit 0.097 x ShootingRange on each axis.</summary>
@@ -61,8 +61,8 @@ public static partial class K
     [Provenance(ProvenanceKind.Decoded, "ASWeaponDefense_Shotgun::execTraceFire editor 0x111d69c0: diagonal pellet factor 0.5")]
     public const float ShotgunDiagonalFactor = 0.5f;
 
-    /// <summary>The pellets of one shot: the centre, four ring and four diagonal pellets.</summary>
-    [Provenance(ProvenanceKind.Decoded, "ASWeaponDefense_Shotgun::execTraceFire editor 0x111d69c0: nine traces, nine actor slots")]
+    /// <summary>The pellets of one shot: the centre and eight equally spaced ring pellets.</summary>
+    [Provenance(ProvenanceKind.Decoded, "Reloaded.Core 4.0.4 0x101465e0..0x10146a28: nine traces, eight ring angles at pi/4")]
     public const int ShotgunPellets = 9;
 
     /// <summary>The impact dummy's far range is at most this much past the near one.</summary>

@@ -233,7 +233,9 @@ public sealed class CombatDeathProvenanceTests
         public BoneTraceResult TraceBone(Actor shooter, FVector end, FVector start, bool realFire) => new()
         {
             bHit = true, Actor = victim, PillTag = pill,
-            HitLocation = victim.Location, HitNormal = new FVector(-1f, 0f, 0f),
+            // Shotgun damage carries pre-scaled pellets and derives the reaction pill from the hit position.
+            HitLocation = victim.Location + (pill == 1 ? new FVector(0, 0, victim.CollisionHeight * .9f) : FVector.Zero),
+            HitNormal = new FVector(-1f, 0f, 0f),
         };
     }
 

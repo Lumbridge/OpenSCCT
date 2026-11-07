@@ -69,6 +69,11 @@ Planting (spy):
 6. `s_PlaceBomb_End`: BeginState `SA_BOMB_END`. `AnimEnd(0)`: with a loaded weapon the undraw action for the stance
    (`SA_WALK_CR_2Hto0H` or `SA_WALK_ST_2Hto0H`), then back to walking as in rule 5. `PlayerMove` as rule 5. Damage
    while alive: `MirrorState('s_PlayerWalkingSt0H')` and the undraw action when a weapon is loaded.
+   In OpenSCCT the end-state exit performs this holster on the input-owning machine, including a mirrored damage
+   exit; an already-running holster is preserved. A shock/taser callback in either bomb state starts the normal
+   holster, leaves the bomb state for the unarmed walk, then applies the electric reaction. The pistol's draw-channel
+   notifies, laser cleanup and weapon-model animation complete normally; the weapon byte is not cleared separately
+   from the visible holster.
 7. `SGadBomb.Use(V)` (simulated): `LastUsed = TimeSeconds`, `Charge -= 1`, then `ActivateBombTarget()` (reliable
    client-to-server): `BombTrigger.Triggering(true)` and `BombTrigger.ControllerWhoTakesIt` = the owner pawn's
    controller.
