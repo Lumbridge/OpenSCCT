@@ -101,6 +101,9 @@ public sealed partial class MercAi : AiBrain
     private float _fragPhaseAt;
     private FVector _fragTarget;
     private FRotator _fragAim;
+    private SComputerObjectiveTrigger? _fragObjective;
+    private FVector _fragObjectivePoint;
+    private float _nextObjectiveFrag;
     private SGadFragGrenade? _fragLauncher;
     private int _fragCharge;
     private float _torchAt = -100f;
@@ -108,6 +111,9 @@ public sealed partial class MercAi : AiBrain
     private SComputerObjectiveTrigger? _alert;
     private SComputerObjectiveTrigger? _respondTo;
     private FVector _respondSpot;
+    private FVector _responseApproach;
+    private bool _responseCover;
+    private bool _respondingAsCover;
     private bool _guardTorch;
     private bool _guardMotion;
     private float _meleeRollAt = -10f;
@@ -138,6 +144,8 @@ public sealed partial class MercAi : AiBrain
         : base(bot)
     {
         Search = new AiSearch(bot.World, bot, 1);
+        _strafeLeft = bot.Personality.AimYaw < 0;
+        _trapNext = bot.World.Now + bot.Personality.ScanDelay * .35f;
     }
 
     public AiSearch Search { get; }
@@ -180,6 +188,7 @@ public sealed partial class MercAi : AiBrain
         _target = null;
         _burstStart = -1f;
         _fragPhase = 0;
+        _fragObjective = null;
         _post = null;
         _postUntil = 0f;
         _downed = null;
@@ -201,7 +210,7 @@ public sealed partial class MercAi : AiBrain
 
         Span<AiOption> options = stackalloc AiOption[6];
         int n = 0;
-        options[n++] = new AiOption(GGuard, 0.4f);
+        options[n++] = new AiOption(GGuard, 0.4f + .2f * (1f - Bot.Personality.Aggression));
         _target = null;
         _investigating = null;
         AiContact? lost = null;
@@ -239,7 +248,8 @@ public sealed partial class MercAi : AiBrain
         _alert = HackAlert();
         if (_alert is not null)
         {
-            options[n++] = new AiOption(GRespond, 1.3f);
+            (bool assigned, _responseCover, _responseApproach) = World.RespondTo(Bot, _alert, now);
+            if (assigned) options[n++] = new AiOption(GRespond, _responseCover ? 1.35f : 1.55f);
         }
 
         // Hurt by someone it cannot see: turn and search where the nearest known spy was, or behind.
@@ -254,7 +264,7 @@ public sealed partial class MercAi : AiBrain
         {
             _investigating = lost;
             options[n++] = new AiOption(GInvestigate, (lost.Visible ? 0.95f : 0.55f) + 0.6f * lost.Confidence +
-                (now - Bot.HurtAt < 3f ? 0.5f : 0f));
+                (now - Bot.HurtAt < 3f ? 0.5f : 0f) + .3f * (Bot.Personality.Aggression - 1f));
             if (Goal != GInvestigate || NavFollower.Horizontal(_investigate - lost.Position) > 200f)
             {
                 _investigate = lost.Position;
@@ -262,12 +272,19 @@ public sealed partial class MercAi : AiBrain
             }
         }
 
-        if (GrenadeOpportunity(_target ?? lost, now, out FVector grenadeTarget) && Bot.Random.FRand() < Difficulty.GadgetUse)
+        if (GrenadeOpportunity(_target ?? lost, now, out FVector grenadeTarget) && Bot.Random.FRand() < Bot.Utility)
         {
             // An accepted tactical throw must beat routine investigation (including its keep-goal bonus).
             // Visible, stationary targets at range are also opportunities; rifle fire is not the only combat option.
             options[n++] = new AiOption(GFrag, _target is not null ? 2.35f : 1.45f);
             _fragTarget = grenadeTarget;
+            _fragObjective = null;
+        }
+        else if (_target is null && _alert is { } alarm && ObjectiveGrenadeOpportunity(alarm, now, out grenadeTarget))
+        {
+            options[n++] = new AiOption(GFrag, 1.95f);
+            _fragTarget = grenadeTarget;
+            _fragObjective = alarm;
         }
 
         return Pick(options[..n]);
@@ -318,18 +335,6 @@ public sealed partial class MercAi : AiBrain
                 {
                     bestD = d;
                     best = t;
-                }
-            }
-        }
-
-        // A teammate nearer to it goes; the others keep their posts (with teamwork).
-        if (best is not null && Difficulty.Teamwork > 0.3f)
-        {
-            foreach (SPAWNDEFENSE mate in World.Level.DynamicActors<SPAWNDEFENSE>())
-            {
-                if (!ReferenceEquals(mate, Pawn) && mate.Health > 0 && (mate.Location - best.Location).Size() < bestD * 0.6f)
-                {
-                    return null;
                 }
             }
         }
@@ -436,7 +441,7 @@ public sealed partial class MercAi : AiBrain
                 break;
         }
 
-        if (!Doors.Busy && Goal is not (GEngage or GFinish) && now - _feltAt < MercAiK.FeltLookSeconds)
+        if (!Doors.Busy && Goal is not (GEngage or GFinish or GFrag) && now - _feltAt < MercAiK.FeltLookSeconds)
         {
             // Something stopped the walk: stand and look at it (down at the feet for a crouched spy).
             plan.Keys.BT_Up = 0;
@@ -462,10 +467,11 @@ public sealed partial class MercAi : AiBrain
             return;
         }
 
-        if (!ReferenceEquals(_alert, _respondTo))
+        if (!ReferenceEquals(_alert, _respondTo) || _responseCover != _respondingAsCover)
         {
             _respondTo = _alert;
-            _respondSpot = Vantage(spot);
+            _respondingAsCover = _responseCover;
+            _respondSpot = Vantage(spot, _responseCover);
             Follower.Clear();
         }
 
@@ -479,22 +485,32 @@ public sealed partial class MercAi : AiBrain
     }
 
     /// <summary>The nearest node 200 to 600 uu from <paramref name="spot"/> that sees it, or the spot itself.</summary>
-    private FVector Vantage(FVector spot)
+    private FVector Vantage(FVector spot, bool cover)
     {
-        FVector best = spot;
+        FVector best = cover ? Feet : spot;
+        FVector approach = _responseApproach - spot;
+        FVector entry = new FVector(approach.X, approach.Y, 0).SafeNormal();
+        NavGraph graph = Follower.Graph;
+        float[] costs = ReachabilityCosts(graph.NearestNode(Pawn.Location, Pawn.CollisionHeight), maxCost: 5600f);
         float bestScore = float.MaxValue;
         List<int> nodes = NodesAround(spot, 600f);
         int stride = Math.Max(1, nodes.Count / 64);
         for (int i = 0; i < nodes.Count; i += stride)
         {
-            FVector f = Follower.Graph.Node(nodes[i]).Floor;
-            float d = (f - spot).Size();
-            if (d < 200f || !World.LineOpen(f + new FVector(0f, 0f, 120f), spot + new FVector(0f, 0f, 40f)))
+            int node = nodes[i];
+            FVector f = graph.Node(node).Floor;
+            FVector away = f - spot;
+            float d = away.Size();
+            float angle = new FVector(away.X, away.Y, 0).SafeNormal() | entry;
+            if (d < (cover ? 300f : 200f) || !float.IsFinite(costs[node]) || !graph.Node(node).Standing ||
+                (cover && angle > .25f) ||
+                !World.LineOpen(f + new FVector(0f, 0f, 120f), spot + new FVector(0f, 0f, 40f)))
             {
                 continue;
             }
 
-            float score = (f - Pawn.Location).Size() + MathF.Abs(d - 400f);
+            float score = costs[node] + MathF.Abs(d - (cover ? 520f : 350f));
+            if (cover) score += angle * 180f - World.Patrol.Interest(f) * 130f;
             if (score < bestScore)
             {
                 bestScore = score;
@@ -544,14 +560,14 @@ public sealed partial class MercAi : AiBrain
         }
 
         float spread = Spread(now);
-        FVector aimPoint = c.Position - new FVector(0f, 0f, c.Pose is { Downed: true } p ? p.CollisionHeight * MercAiK.LyingAimDrop : 20f);
-        aimPoint += c.Velocity * (Difficulty.ReactionTime * 0.5f * Difficulty.LeadFactor);
+        FVector aimPoint = c.Position - new FVector(0f, 0f, c.Pose is { Downed: true } p ? p.CollisionHeight * MercAiK.LyingAimDrop : Bot.Personality.AimHeight);
+        aimPoint += c.Velocity * (Bot.ReactionTime * 0.5f * Difficulty.LeadFactor);
         Aim(aimPoint, ref plan);
 
         // Movement: the better mercs side-step between bursts at range.
         if (Difficulty.Skill >= AiSkill.Hard && (c.Position - Pawn.Location).Size() > 600f)
         {
-            if (now - _strafeAt > 0.8f)
+            if (now - _strafeAt > 0.8f * Bot.Personality.Tempo)
             {
                 _strafeAt = now;
                 _strafeLeft = !_strafeLeft;
@@ -571,7 +587,7 @@ public sealed partial class MercAi : AiBrain
         // fire, as a player sees; the elbow or the spin then, else a step back to shoot.
         bool pointBlank = NavFollower.Horizontal(c.Position - Pawn.Location) < MercAiK.PointBlank;
         bool muzzleBlocked = pointBlank && !Pc.CheckIfCanFire();
-        bool reacted = c.VisibleSince >= 0f && now - c.VisibleSince >= Difficulty.ReactionTime;
+        bool reacted = c.VisibleSince >= 0f && now - c.VisibleSince >= Bot.ReactionTime;
         if (reacted && c.BodyVisible && c.Pawn is SBasePawn spy && Melee(now, spy, muzzleBlocked, ref plan))
         {
             _burstStart = -1f;
@@ -602,7 +618,7 @@ public sealed partial class MercAi : AiBrain
         float spread = SvmMath.Lerp(Difficulty.AimErrorDegrees, Difficulty.AimSettledDegrees,
             SvmMath.Clamp(tracked / SvmMath.Max(0.05f, Difficulty.AimSettleSeconds), 0f, 1f));
         if (multiplier > 1f) spread = MathF.Max(8f, spread * multiplier);
-        if (now - _errorAt > 0.25f)
+        if (now - _errorAt > 0.25f * Bot.Personality.Tempo)
         {
             _errorAt = now;
             _errorYaw = (Bot.Random.FRand() + Bot.Random.FRand() - 1f) * spread;
@@ -623,7 +639,7 @@ public sealed partial class MercAi : AiBrain
             plan.MoveYaw = moving;
         }
 
-        plan.Yaw = (aim.Yaw + (int)(_errorYaw * unitsPerDegree)) & 0xFFFF;
+        plan.Yaw = (aim.Yaw + (int)(_errorYaw * unitsPerDegree) + Bot.Personality.AimYaw / 8) & 0xFFFF;
         plan.Pitch = aim.Pitch + (int)(_errorPitch * unitsPerDegree);
         plan.Tolerance = 65536;
     }
@@ -653,14 +669,14 @@ public sealed partial class MercAi : AiBrain
             return;
         }
 
-        if (now - _burstStart < AiK.BurstSeconds)
+        if (now - _burstStart < AiK.BurstSeconds * Bot.Personality.Burst)
         {
             plan.Keys.bFire = 1;
             return;
         }
 
         _burstStart = -1f;
-        _pauseUntil = now + AiK.BurstPause * (Difficulty.Skill >= AiSkill.Hard ? 0.7f : 1.2f);
+        _pauseUntil = now + AiK.BurstPause * Bot.Personality.Tempo * (Difficulty.Skill >= AiSkill.Hard ? 0.7f : 1.2f);
     }
 
     /// <summary>
@@ -1117,7 +1133,8 @@ public sealed partial class MercAi : AiBrain
                 continue;
             }
 
-            float score = (t.Location - Pawn.Location).Size() * (0.5f + Bot.Random.FRand());
+            float score = (t.Location - Pawn.Location).Size() * (0.5f + Bot.Random.FRand()) -
+                World.Patrol.Interest(post) * 180f * Bot.Personality.Curiosity;
             if (World.Teams[1].IsClaimedByOther(t, Bot))
             {
                 score += 5000f * Difficulty.Teamwork;
@@ -1140,7 +1157,7 @@ public sealed partial class MercAi : AiBrain
 
         _post = best;
         _postFloor = bestPost;
-        _postUntil = now + 12f + Bot.Random.FRand() * 18f;
+        _postUntil = now + (12f + Bot.Random.FRand() * 18f) / Bot.Personality.Aggression;
         _guardTorch = Bot.Random.FRand() < Difficulty.GadgetUse;
         _guardMotion = !_guardTorch && Bot.Random.FRand() < Difficulty.GadgetUse;
         World.Teams[1].Claim(best, Bot);
@@ -1175,7 +1192,8 @@ public sealed partial class MercAi : AiBrain
             }
 
             // Prefer 150 to 300 uu beside the use spot, with a closer reachable post only in cramped rooms.
-            float s = MathF.Abs(d - 220f) + (d < 150f ? 300f : 0f) + Bot.Random.FRand() * 60f;
+            float s = MathF.Abs(d - 235f / Bot.Personality.Aggression) + (d < 150f ? 300f : 0f) +
+                Bot.Random.FRand() * 60f - World.Patrol.Interest(f) * 65f * Bot.Personality.Curiosity;
             if (s < postScore)
             {
                 postScore = s;
@@ -1191,8 +1209,8 @@ public sealed partial class MercAi : AiBrain
     {
         if (now >= _lookAt)
         {
-            _lookAt = now + 1.5f + Bot.Random.FRand() * 1.5f;
-            int toward = NavFollower.YawTo(Pawn.Location, focus);
+            _lookAt = now + (1.5f + Bot.Random.FRand() * 1.5f) * Bot.Personality.Tempo;
+            int toward = NavFollower.YawTo(Pawn.Location, focus) + Bot.Personality.AimYaw;
             int spreadUnits = (int)(Bot.Random.RandRange(-1f, 1f) * 20000f);
             _lookYaw = Bot.Random.FRand() < 0.5f ? (toward + 32768 + spreadUnits) & 0xFFFF : (toward + spreadUnits / 2) & 0xFFFF;
         }
@@ -1207,7 +1225,11 @@ public sealed partial class MercAi : AiBrain
         FRotator aim = _fragAim;
         if (_fragPhase < 2)
         {
-            if (!GrenadeAim(_fragTarget, out aim) || !GrenadeBlastClear(_fragTarget))
+            bool safe = _fragObjective is { } objective
+                ? objective.bTriggering && !World.IsTaken(objective) &&
+                  SolveFragAim(_fragTarget, _fragLauncher?.ProjectileDefaults, out aim, out _, out _, out _)
+                : GrenadeAim(_fragTarget, out aim) && GrenadeBlastClear(_fragTarget);
+            if (!safe)
             {
                 _fragPhase = 4;
                 _fragAt = now - 8f;
@@ -1231,6 +1253,13 @@ public sealed partial class MercAi : AiBrain
                     return;
                 }
 
+                if (_fragObjective is { } alarm && !World.Teams[1].ReserveObjectiveFrag(alarm, Bot, now))
+                {
+                    _fragPhase = 4;
+                    _fragAt = now - 8f;
+                    return;
+                }
+
                 if (!ReferenceEquals(Pawn.SelectedGadget, _fragLauncher))
                 {
                     plan.Keys.Press(AiCommand.SelectGadget, slot);
@@ -1242,8 +1271,8 @@ public sealed partial class MercAi : AiBrain
                 return;
             case 1:
                 if (!ReferenceEquals(Pawn.SelectedGadget, _fragLauncher) || !GrenadeWeaponReady() ||
-                    now - _fragPhaseAt < 0.3f || NavFollower.YawError(Pc.Rotation.Yaw & 0xffff, aim.Yaw & 0xffff) > 1000 ||
-                    NavFollower.YawError(Pc.Rotation.Pitch & 0xffff, aim.Pitch & 0xffff) > 1000 ||
+                    now - _fragPhaseAt < 0.3f || NavFollower.YawError(Pc.Rotation.Yaw & 0xffff, aim.Yaw & 0xffff) > (_fragObjective is null ? 1000 : 125) ||
+                    NavFollower.YawError(Pc.Rotation.Pitch & 0xffff, aim.Pitch & 0xffff) > (_fragObjective is null ? 1000 : 125) ||
                     NavFollower.Horizontal(Pawn.Velocity) > 5f)
                 {
                     if (now - _fragPhaseAt > 2f)
@@ -1252,6 +1281,13 @@ public sealed partial class MercAi : AiBrain
                         _fragAt = now - 8f;
                     }
 
+                    return;
+                }
+
+                if (_fragObjective is not null && !TryObjectiveArc(_fragTarget, _fragObjectivePoint, out _))
+                {
+                    _fragPhase = 4;
+                    _fragAt = now - 8f;
                     return;
                 }
 

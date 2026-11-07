@@ -284,18 +284,29 @@ public sealed class TeamAiTests
         Assert.Equal(1, hangs);
     }
 
-    [Fact]
-    public void TheBotOffersABoostToAPlayerWaitingUnderAHighLedge()
+    [Theory]
+    [InlineData(false, false)]
+    [InlineData(true, false)]
+    [InlineData(true, true)]
+    public void TheBotOffersABoostToAPlayerWaitingUnderAHighLedge(bool ping, bool remote)
     {
         (CollisionDataBuilder level, TraversalDoc ges) = Wall(512f);
         // The player stands at the foot of the wall looking up at the ledge.
-        PawnRig rig = GeRig(PawnTeam.Spy, level, ges, V(120f, -20f, 0f), yaw: 16384);
-        rig.SetView(6000, 16384);
+        PawnRig rig = GeRig(PawnTeam.Spy, level, ges, V(120f, remote ? -700f : -20f, 0f), yaw: 16384);
+        int pitch = ping ? 0 : 6000;
+        rig.SetView(pitch, 16384);
         BotMate b = Setup(rig, V(-500f, -500f, 0f), 16384, level, ges);
-        PlayerInputFrame lookUp = new() { View = new FRotator(6000, 16384, 0) };
+        PlayerInputFrame lookUp = new() { View = new FRotator(pitch, 16384, 0) };
         rig.Step(lookUp);
-        Assert.True(rig.Driver.CheckIfCanStartSHL(rig.Pawn, true, out FVector spotLoc, out _, out _, out _), "no boost spot by the player");
+        Assert.Equal(!remote, rig.Driver.CheckIfCanStartSHL(rig.Pawn, true, out FVector spotLoc, out _, out _, out _));
+        if (remote) spotLoc = V(120f, 100f, 512f);
         _output.WriteLine($"spot {spotLoc} player {rig.Pawn.Location} pitch {rig.Controller.Rotation.Pitch} viewport {rig.Controller.Player?.GetType().Name} vel {rig.Pawn.Velocity}");
+        if (ping)
+        {
+            b.Bot.Tick();
+            Assert.Same(b.Bot, b.Bot.World.IssueOrder(rig.Controller, 0, AiOrder.Boost, spotLoc));
+        }
+
         bool helper = b.Run(25f, () => b.Mate.Pawn.bReadyForShortLadder, lookUp);
         Dump(b);
         Assert.True(helper, b.Bot.Status);

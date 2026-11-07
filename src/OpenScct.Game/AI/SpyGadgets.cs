@@ -84,6 +84,8 @@ public sealed class SpyGadgets
     private float _nextFlash;
     private float _nextChaff;
     private float _nextScan;
+    private SComputerObjectiveTrigger? _supportTerminal;
+    private bool _supportThrown;
     private float _nextCam;
     private float _nextGuard;
     private float _gassedAt = -1f;
@@ -148,6 +150,7 @@ public sealed class SpyGadgets
 
     public void Reset()
     {
+        ClearSupport();
         _act = SpyGadgetAct.None;
         _step = Step.Idle;
         _gadget = null;
@@ -172,6 +175,8 @@ public sealed class SpyGadgets
         {
             _pawn = spy;
             Reset();
+            _nextCheck = now + _bot.Personality.ScanDelay * .12f;
+            _nextScan = now + _bot.Personality.ScanDelay;
         }
 
         if (_act != SpyGadgetAct.None)
@@ -185,7 +190,7 @@ public sealed class SpyGadgets
             return;
         }
 
-        _nextCheck = now + SpyGadgetK.CheckSeconds;
+        _nextCheck = now + SpyGadgetK.CheckSeconds * _bot.Personality.Tempo;
         if (CanStart(spy, brain))
         {
             Decide(spy, brain, now, ref plan);
@@ -203,7 +208,7 @@ public sealed class SpyGadgets
 
     private void Decide(SBasePawn spy, SpyAi brain, float now, ref AiPlan plan)
     {
-        float use = _bot.Difficulty.GadgetUse;
+        float use = _bot.Utility;
         bool holstered = spy.WeaponLoaded == 0;
         bool hurt = now - _bot.HurtAt < 1.5f;
         bool careful = use >= SpyGadgetK.AimedGadgetUse;
@@ -244,6 +249,8 @@ public sealed class SpyGadgets
             return;
         }
 
+        if (!hurt && (merc is null || !facing || dist > 650f) && TryPairedSmoke(spy, brain, now)) return;
+
         if (brain.Goal is SpyAi.GHack or SpyAi.GIdle && merc is null || brain.Goal == SpyAi.GHack && merc is not null && !facing)
         {
             if (GuardPlay(spy, brain, now, careful, holstered))
@@ -269,11 +276,64 @@ public sealed class SpyGadgets
         {
             bool unsure = !MercKnownWithin(spy.Location, float.MaxValue, 0.3f);
             float toTarget = brain.Target is { } tt ? (tt.Location - spy.Location).Size() : float.MaxValue;
-            if ((unsure || toTarget is > SpyGadgetK.ScanMinRange and < SpyGadgetK.ScanMaxRange) && Roll(use * 0.5f))
+            if (unsure || toTarget is > SpyGadgetK.ScanMinRange and < SpyGadgetK.ScanMaxRange)
             {
-                StartScan(hs, hb!, brain, unsure, now);
+                if (Roll(_bot.Difficulty.GadgetUse * _bot.Personality.HeartbeatLikelihood))
+                    StartScan(hs, hb!, brain, unsure, now);
+                else
+                    _nextScan = now + _bot.Random.RandRange(1f, 2.5f) * _bot.Personality.Tempo;
             }
         }
+    }
+
+    private bool TryPairedSmoke(SBasePawn spy, SpyAi brain, float now)
+    {
+        if (_bot.Difficulty.Teamwork <= .3f || now < _nextSmoke ||
+            Slot(spy, out SGadSmokeGrenade? smoke) is not (>= 0 and var slot) || !Ready(smoke!, now)) return false;
+
+        var world = _bot.World;
+        foreach (AiController mate in world.Bots)
+        {
+            if (ReferenceEquals(mate, _bot) || mate.Team != 0 || mate.Held || mate.Stopped || mate.Route is not null ||
+                mate.Pawn is not SPawnAttaque { Health: > 0, bLyingOnGround: false } hacker ||
+                mate.Brain is not SpyAi { ApproachingHack: true, Target: { } terminal } ||
+                (hacker.Location - terminal.Location).SizeSquared() > 650f * 650f ||
+                ReferenceEquals(brain.Target, terminal) && (spy.Location - terminal.Location).SizeSquared() < 170f * 170f ||
+                !brain.HackUseSpot(terminal, out FVector floor)) continue;
+
+            AiContact? threat = null;
+            foreach (AiContact c in _bot.Memory.Contacts)
+            {
+                if (c.Pawn is SPAWNDEFENSE && c.Confidence >= .5f && now - c.Time < 4f &&
+                    (c.Position - terminal.Location).SizeSquared() < 950f * 950f &&
+                    (threat is null || c.Confidence > threat.Confidence)) threat = c;
+            }
+            if (threat is null) continue;
+
+            // Screen the line from the guard's last credible position to the hacker's approach.
+            FVector delta = threat.Position - floor;
+            FVector along = new FVector(delta.X, delta.Y, 0).SafeNormal();
+            FVector screen = floor + along * 135f + new FVector(0, 0, 40f);
+            FVector eye = AiSight.Eye(spy);
+            float distance = (screen - eye).Size();
+            if (distance is < 250f or > 1000f || MathF.Abs(screen.Z - eye.Z) > 200f ||
+                world.InSmoke(screen, 40f) || !world.LineOpen(eye, screen) ||
+                !world.Teams[0].ReserveSmoke(terminal, mate, _bot, screen, now)) continue;
+
+            _supportTerminal = terminal;
+            _supportThrown = false;
+            StartAimed(SpyGadgetAct.Smoke, slot, smoke!, null, screen, now);
+            return true;
+        }
+
+        return false;
+    }
+
+    private void ClearSupport()
+    {
+        if (!_supportThrown && _supportTerminal is { } terminal) _bot.World.Teams[0].CancelSmoke(terminal, _bot);
+        _supportTerminal = null;
+        _supportThrown = false;
     }
 
     /// <summary>
@@ -310,7 +370,7 @@ public sealed class SpyGadgets
         }
 
         _nextGuard = now + SpyGadgetK.GuardPause;
-        float use = _bot.Difficulty.GadgetUse;
+        float use = _bot.Utility;
         bool moving = guard.BodyVisible && guard.Velocity.Size() > 120f;
 
         // A cam whose gas point lands on the guard's spot.
@@ -571,7 +631,7 @@ public sealed class SpyGadgets
                 _nextChaff = now + pause;
                 break;
             case SpyGadgetAct.Heartbeat:
-                _nextScan = now + pause;
+                _nextScan = now + pause * _bot.Personality.Tempo / _bot.Personality.Curiosity * _bot.Random.RandRange(.8f, 1.2f);
                 break;
             case SpyGadgetAct.StickyCam:
                 _nextCam = now + pause;
@@ -584,6 +644,7 @@ public sealed class SpyGadgets
             _bot.Brain?.Follower.Clear();
         }
 
+        ClearSupport();
         _act = SpyGadgetAct.None;
         _step = Step.Idle;
         _gadget = null;
@@ -741,6 +802,7 @@ public sealed class SpyGadgets
         if (Thrown())
         {
             Count();
+            if (_supportTerminal is not null) _supportThrown = true;
             if (_act == SpyGadgetAct.StickyCam)
             {
                 Enter(Step.CamWait, now);
@@ -1028,6 +1090,7 @@ public sealed class SpyGadgets
         float angle = disc < 0f || x < 1f ? MathF.PI / 4f : SvmMath.Atan((s * s - SvmMath.Sqrt(disc)) / (g * x));
         int yaw = to.Rotation().Yaw & 0xFFFF;
         int pitch = (int)(angle * (32768f / MathF.PI));
+        if (_supportTerminal is not null) return new FRotator(pitch, yaw, 0);
         float spread = _bot.Difficulty.AimSettledDegrees * (65536f / 360f);
         return new FRotator(pitch + (int)(_bot.Random.RandRange(-spread, spread) * 0.5f), yaw + (int)_bot.Random.RandRange(-spread, spread), 0);
     }

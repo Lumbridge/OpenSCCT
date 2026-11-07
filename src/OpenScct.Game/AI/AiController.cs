@@ -54,10 +54,13 @@ public sealed class AiController
         Difficulty = difficulty ?? throw new ArgumentNullException(nameof(difficulty));
         Index = index;
         Random = world.Level.World.CreateRandom(1000 + index, 77);
+        int styleOffset = world.Level.World.CreateRandom(1000, 79).Rand(4);
+        Personality = AiPersonality.Create((AiStyle)((styleOffset + index) % 4), world.Level.World.CreateRandom(1000 + index, 78));
         TeamPlay = new TeamAi(this);
         Evasion = new SpyEvasion(this);
         Gadgets = new SpyGadgets(this);
         _nextSight = index * 0.017f;
+        world.RegisterBot(this);
     }
 
     public AiWorld World { get; }
@@ -72,6 +75,10 @@ public sealed class AiController
     public int Index { get; }
 
     public SimRandom Random { get; }
+    public AiPersonality Personality { get; }
+    public float DecisionPeriod => Difficulty.DecisionPeriod * Personality.Tempo;
+    public float ReactionTime => Difficulty.ReactionTime * Personality.Reaction;
+    public float Utility => Difficulty.GadgetUse * Personality.Utility;
 
     public AiMemory Memory { get; } = new();
 
@@ -122,7 +129,7 @@ public sealed class AiController
     private bool _teamHeld;
 
     /// <summary>A one-line state for diagnostics.</summary>
-    public string Status => Brain is null ? "no pawn" : TeamPlay.Goal == TeamGoal.None ? Brain.Status : TeamPlay.Status + " | " + Brain.Status;
+    public string Status => Brain is null ? "no pawn" : $"{Personality.Style} | " + (TeamPlay.Goal == TeamGoal.None ? Brain.Status : TeamPlay.Status + " | " + Brain.Status);
 
     /// <summary>The bot's part of a tick: perceive, decide, write the input. Call before the world steps.</summary>
     public void Tick()
@@ -134,6 +141,7 @@ public sealed class AiController
         World.Messages.Take(Controller, _messages);
         if (Stopped)
         {
+            TeamPlay.CancelOrder(now);
             var idle = AiInput.Idle;
             if (Controller.Pawn is SBasePawn { Health: > 0 } stoppedPawn)
             {
@@ -155,6 +163,8 @@ public sealed class AiController
             if (_pawn is not null)
             {
                 Brain?.Reset();
+                Gadgets.Reset();
+                TeamPlay.CancelOrder(now);
                 World.Teams[Team & 1].Release(this);
                 _pawn = null;
             }
@@ -166,6 +176,7 @@ public sealed class AiController
 
         if (!ReferenceEquals(pawn, _pawn))
         {
+            TeamPlay.CancelOrder(now);
             _pawn = pawn;
             EnsureGoggle(pawn);
             _lastHealth = pawn.Health;
@@ -213,7 +224,8 @@ public sealed class AiController
 
         if (Route is null && pawn is SPawnAttaque && Brain is not SpyAi { Security.Handling: true })
         {
-            Gadgets.Apply(ref plan, now);
+            if (TeamPlay.OrderRequester is null || Gadgets.Active != SpyGadgetAct.None)
+                Gadgets.Apply(ref plan, now);
             Evasion.Apply(ref plan, now);
         }
 
@@ -364,6 +376,8 @@ public sealed class AiController
                 if (c.Visible && c.Confirmed)
                 {
                     World.Teams[Team & 1].Call(enemy, c.Position, now, Difficulty.Teamwork, this);
+                    if (pawn is SPAWNDEFENSE && enemy is SPawnAttaque && bodyVisible && Difficulty.Teamwork > .3f)
+                        World.ObserveApproach(enemy, c.Position, now);
                 }
             }
 

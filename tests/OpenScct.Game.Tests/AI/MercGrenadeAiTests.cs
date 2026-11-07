@@ -74,4 +74,56 @@ public sealed class MercGrenadeAiTests
         Assert.Equal(expected ? charges - 1 : charges, grenade.Charge);
         Assert.Equal(expected ? 1 : 0, Assert.IsType<MercAi>(bot.Brain).FragsThrown);
     }
+
+    [Theory]
+    [InlineData(true, false, true)]
+    [InlineData(false, false, false)]
+    [InlineData(true, true, false)]
+    public void MercUsesTheWindowToReachAnElevatedHackAlarm(bool window, bool teammateInside, bool expected)
+    {
+        var geometry = Floor();
+        geometry.AddBox(V(-400f, 780f, 0f), V(400f, 1600f, 320f));
+        geometry.AddBox(V(-400f, 450f, 0f), V(400f, 480f, window ? 188f : 760f));
+        if (window)
+        {
+            geometry.AddBox(V(-400f, 450f, 410f), V(400f, 480f, 760f));
+            geometry.AddBox(V(-400f, 450f, 188f), V(-90f, 480f, 410f));
+            geometry.AddBox(V(90f, 450f, 188f), V(400f, 480f, 410f));
+        }
+        geometry.AddBox(V(-400f, 1350f, 320f), V(400f, 1380f, 760f));
+        PawnRig rig = Rig(geometry, null, default, PawnTeam.Merc);
+        CombatEquipment.Install(rig.Level);
+        AiWorld world = World(rig, V(-350f, -320f, -100f), V(350f, 1500f, 820f));
+        var rifle = rig.Level.SpawnActor(new SWeaponDefense(), rig.Pawn.Location, default)!;
+        rifle.GiveTo(rig.Pawn);
+        rig.Pawn.WeaponLoaded = 2;
+        var frag = rig.Level.SpawnActor(new SGadFragGrenade(), rig.Pawn.Location, default)!;
+        frag.GiveTo(rig.Pawn);
+        var terminal = rig.Level.SpawnActor(new SComputerObjectiveTrigger
+        {
+            bStatic = false, bNoDelete = false, bCollideActors = false, bBlockPlayers = false,
+            UseRelativeLocation = default,
+        }, V(0f, 1050f, 400f), default)!;
+        if (teammateInside)
+            rig.Level.SpawnActor(new SPAWNDEFENSE(), V(60f, 1110f, 410f), default);
+
+        for (int i = 0; i < 3 * Sim.Hz; i++) rig.World.Step();
+        var difficulty = AiDifficulty.For(AiSkill.Hard) with { SightRange = 1f, HearingScale = 0f };
+        var bot = new AiController(world, rig.Controller, difficulty, 0);
+        int charges = frag.Charge;
+        bool inside = false;
+        for (int i = 0; i < 5 * Sim.Hz; i++)
+        {
+            terminal.bTriggering = true;
+            bot.Tick();
+            rig.World.Step();
+            foreach (SProjFrag launched in rig.Level.DynamicActors<SProjFrag>())
+                inside |= launched.Location.Y > 780f && launched.Location.Z > 320f;
+        }
+
+        Assert.Equal(expected ? charges - 1 : charges, frag.Charge);
+        Assert.Equal(expected, inside);
+        Assert.Equal(expected ? 1 : 0, Assert.IsType<MercAi>(bot.Brain).FragsThrown);
+    }
+
 }

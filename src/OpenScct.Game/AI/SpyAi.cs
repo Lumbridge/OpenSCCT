@@ -161,6 +161,8 @@ public sealed partial class SpyAi : AiBrain
 
     /// <summary>The terminal the spy is going for, if any (SpyGadgets reads it).</summary>
     public SComputerObjectiveTrigger? Target => _target;
+    internal bool ApproachingHack => Goal == GHack && _hack is HackPhase.Walk or HackPhase.Settle;
+    internal bool HackUseSpot(SComputerObjectiveTrigger terminal, out FVector floor) => UseSpot(terminal, out floor, out _);
 
     /// <summary>At the terminal: settling, asking or hacking (no gadget then).</summary>
     public bool AtTerminal => Goal == GHack && _hack != HackPhase.Walk || Goal == GObjective && (_objectiveUseAt >= 0f || InOtherObjectiveState());
@@ -276,7 +278,7 @@ public sealed partial class SpyAi : AiBrain
         if (now - _meleeRollAt > SpyAiK.MeleeRollSeconds)
         {
             _meleeRollAt = now;
-            _meleeRollOk = Bot.Random.FRand() < Difficulty.MeleeUse;
+            _meleeRollOk = Bot.Random.FRand() < Difficulty.MeleeUse * Bot.Personality.Aggression;
         }
 
         if (_meleeRollOk && !hurt && Bot.Gadgets.Active == SpyGadgetAct.None)
@@ -352,10 +354,10 @@ public sealed partial class SpyAi : AiBrain
             return 0f;
         }
 
-        if (now - _shockRollAt > SpyAiK.ShockRollSeconds)
+        if (now - _shockRollAt > SpyAiK.ShockRollSeconds * Bot.Personality.Tempo)
         {
             _shockRollAt = now;
-            _shockRollOk = Bot.Random.FRand() < 0.25f + Difficulty.GadgetUse * 0.75f;
+            _shockRollOk = Bot.Random.FRand() < (0.25f + Difficulty.GadgetUse * 0.75f) * Bot.Personality.Aggression;
         }
 
         if (!_shockRollOk)
@@ -406,7 +408,7 @@ public sealed partial class SpyAi : AiBrain
             }
         }
 
-        return _shockCandidate is null ? 0f : 0.45f + Difficulty.GadgetUse * 0.5f + best;
+        return _shockCandidate is null ? 0f : (0.45f + Difficulty.GadgetUse * 0.5f + best) * Bot.Personality.Aggression;
     }
 
     /// <summary>A merc the shocker can stun: alive, on its feet, not shocked now nor by this spy in the last seconds.</summary>
@@ -950,6 +952,8 @@ public sealed partial class SpyAi : AiBrain
             case HackPhase.Settle:
                 plan.Yaw = _useYaw;
                 plan.Crouched = null;
+                if (_target is { } coverTarget && now - _hackAt < 4.5f && now - Bot.HurtAt > 1.5f &&
+                    World.Teams[0].AwaitSmoke(coverTarget, Bot, now)) return;
 
                 // The gun out (the holster check puts it away): the Use key would not reach the terminal.
                 if (now - _hackAt < 0.4f || Pawn.WeaponLoaded != 0 || !Pawn.Velocity.IsZero() || NavFollower.YawError(Pc.Rotation.Yaw & 0xFFFF, _useYaw) > 600)
@@ -1234,7 +1238,7 @@ public sealed partial class SpyAi : AiBrain
                     return;
                 }
 
-                if (now - _shockAt < SvmMath.Min(Difficulty.ReactionTime, SpyAiK.MaxAimSettle))
+                if (now - _shockAt < SvmMath.Min(Bot.ReactionTime, SpyAiK.MaxAimSettle))
                 {
                     return;
                 }

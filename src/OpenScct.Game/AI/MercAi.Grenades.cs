@@ -50,45 +50,134 @@ public sealed partial class MercAi
         return true;
     }
 
+    private const float FragGravity = 750f;
+    private const ETraceFlags FragArcTrace = ETraceFlags.TRACE_World | ETraceFlags.TRACE_Others | ETraceFlags.TRACE_OnlyProjActor;
+    private static readonly float[] ObjectiveArcOffsets = [0f, -100f, 100f, -200f, 200f];
+    private static readonly (float Forward, float Height)[] ObjectiveArcs = [(0f, 12f), (110f, 100f), (110f, 180f), (110f, 55f)];
+    private static readonly (float Forward, float Height)[] ElevatedArcs =
+        [(0f, 100f), (0f, 195f), (-130f, 80f), (-130f, 165f), (230f, 75f), (230f, 155f), (230f, 250f)];
+
+    private bool ObjectiveGrenadeOpportunity(SComputerObjectiveTrigger alarm, float now, out FVector target)
+    {
+        target = default;
+        if (now < _nextObjectiveFrag || now - _fragAt <= 10f || Bot.Utility <= 0f ||
+            !GrenadeWeaponReady() || GadgetSlot<SGadFragGrenade>(out var grenade) < 0 || grenade is not { Charge: > 0 } ||
+            World.Teams[1].ObjectiveFragReserved(alarm, Bot, now))
+            return false;
+
+        _nextObjectiveFrag = now + 1.1f * Bot.Personality.Tempo;
+        if (!UseSpot(alarm, out FVector useFloor, out _)) return false;
+        FVector usePoint = useFloor + new FVector(0, 0, 70f);
+        FVector from = usePoint - Feet;
+        float range = from.Size();
+        if (range is < 490f or > 2450f ||
+            MathF.Abs(from.Z) < 130f && range < 950f && World.LineOpen(AiSight.Eye(Pawn), usePoint)) return false;
+
+        // Try the hack spot and its near side. Different heights and side offsets send the round
+        // through different apertures, while every accepted blast must still reach the use spot.
+        FVector direction = new FVector(from.X, from.Y, 0).SafeNormal();
+        FVector side = new(-direction.Y, direction.X, 0);
+        if (!TryAperture(ObjectiveArcs, useFloor, usePoint, direction, side, out target) &&
+            (from.Z < 250f || !TryAperture(ElevatedArcs, useFloor, usePoint, direction, side, out target))) return false;
+        _fragObjectivePoint = usePoint;
+        return true;
+    }
+
+    private bool TryAperture(ReadOnlySpan<(float Forward, float Height)> arcs, FVector useFloor, FVector usePoint,
+        FVector direction, FVector side, out FVector target)
+    {
+        foreach (float lateral in ObjectiveArcOffsets)
+        foreach ((float forward, float height) in arcs)
+        {
+            FVector candidate = useFloor + side * lateral - direction * forward + new FVector(0, 0, height);
+            if (!TryObjectiveArc(candidate, usePoint, out _)) continue;
+            target = candidate;
+            return true;
+        }
+
+        target = default;
+        return false;
+    }
+
+    private bool TryObjectiveArc(FVector target, FVector usePoint, out FRotator aim)
+    {
+        aim = default;
+        if (GadgetSlot<SGadFragGrenade>(out var grenade) < 0 || grenade?.ProjectileDefaults is not SProjFrag frag ||
+            !SolveFragAim(target, frag, out aim, out FVector position, out FVector velocity, out _)) return false;
+
+        // Carry the arc through the fuse. A round clipping the outside wall, rolling too far,
+        // or landing behind a second partition does not make the objective a valid target.
+        const float step = .04f;
+        var gravity = new FVector(0, 0, -FragGravity);
+        var extent = new FVector(frag.CollisionRadius + 1f, frag.CollisionRadius + 1f, frag.CollisionHeight + 1f);
+        for (float elapsed = 0; elapsed < frag.TempsExplosion - .001f; elapsed += step)
+        {
+            FVector next = position + (velocity + gravity * (.5f * step)) * step;
+            velocity += gravity * step;
+            if (!World.Collision.LineCheck(out var hit, frag, next, position, extent, FragArcTrace))
+            {
+                position = next;
+                continue;
+            }
+
+            if (hit.bStartPenetrating) return false;
+            position = hit.Location + hit.Normal * 1.5f;
+            if (hit.Actor is null or LevelInfo &&
+                !World.Collision.LineCheck(out _, frag, position + velocity, position, default, ETraceFlags.TRACE_World)) break;
+            velocity = (velocity - 2f * (velocity | hit.Normal) * hit.Normal) * frag.WallReboundFactor;
+            if (velocity.Z > Equipment.K.GrenadeUpBounceCap)
+                velocity.Z = (velocity.Z + Equipment.K.GrenadeUpBounceCap) * .5f;
+            if (velocity.SizeSquared() < 20f * 20f && hit.Normal.Z > .7f) break;
+        }
+
+        float range = MathF.Min(frag.Range * .7f, 340f);
+        return (position - usePoint).SizeSquared() < range * range &&
+            World.LineOpen(position, usePoint) && GrenadeBlastClear(position);
+    }
+
     /// <summary>A low lob using the actual full-tap launch speed, rejected when the grenade would hit cover en route.</summary>
     private bool GrenadeAim(FVector target, out FRotator aim)
     {
-        const float gravity = 750f;
-        float speed = 2010f; // Frag: 2 * ProjectileSpeed (900) + the native launch bonus (210).
-        if (GadgetSlot<SGadFragGrenade>(out SGadFragGrenade? grenade) >= 0 && grenade?.ProjectileDefaults is { } defaults)
-        {
-            speed = 2f * defaults.ProjectileSpeed + Equipment.K.GrenadeLaunchBonus;
-        }
+        GadgetSlot<SGadFragGrenade>(out var grenade);
+        if (!SolveFragAim(target, grenade?.ProjectileDefaults, out aim, out FVector start, out FVector velocity, out float flight))
+            return false;
 
-        FVector start = AiSight.Eye(Pawn);
-        aim = default;
-        float flight = 0f;
-        // Recompute once from the rifle's offset release point, instead of assuming an eye-centred projectile.
-        for (int pass = 0; pass < 2; pass++)
-        {
-            FVector to = target - start;
-            float flat = NavFollower.Horizontal(to);
-            float squared = speed * speed;
-            float discriminant = squared * squared - gravity * (gravity * flat * flat + 2f * to.Z * squared);
-            if (flat < 1f || discriminant <= 0f) return false;
-            float pitch = SvmMath.Atan2(squared - SvmMath.Sqrt(discriminant), gravity * flat);
-            aim = new FRotator((int)(pitch * (32768f / MathF.PI)), NavFollower.YawTo(start, target), 0);
-            flight = flat / (speed * SvmMath.Cos(pitch));
-            if (pass == 0) start = CombatNatives.MercThrowFxCoords(Pawn, aim).Origin + aim.Vector() * 40f;
-        }
-
-        FVector velocity = aim.Vector() * speed;
         FVector previous = start;
         int steps = Math.Max(1, (int)MathF.Ceiling(flight / 0.04f));
         for (int i = 1; i <= steps; i++)
         {
             float time = flight * i / steps;
-            FVector point = start + velocity * time - new FVector(0f, 0f, 0.5f * gravity * time * time);
+            FVector point = start + velocity * time - new FVector(0f, 0f, 0.5f * FragGravity * time * time);
             if (World.Collision.LineCheck(out _, Pawn, point, previous, new FVector(5f, 5f, 5f),
-                ETraceFlags.TRACE_LevelGeometry | ETraceFlags.TRACE_Level | ETraceFlags.TRACE_Movers)) return false;
+                ETraceFlags.TRACE_World)) return false;
             previous = point;
         }
 
+        return true;
+    }
+
+    private bool SolveFragAim(FVector target, SProjGrenade? grenade, out FRotator aim, out FVector start,
+        out FVector velocity, out float flight)
+    {
+        float speed = 2f * (grenade?.ProjectileSpeed ?? 900f) + Equipment.K.GrenadeLaunchBonus;
+        start = AiSight.Eye(Pawn);
+        aim = default;
+        velocity = default;
+        flight = 0f;
+        for (int pass = 0; pass < 3; pass++)
+        {
+            FVector to = target - start;
+            float flat = NavFollower.Horizontal(to);
+            float squared = speed * speed;
+            float discriminant = squared * squared - FragGravity * (FragGravity * flat * flat + 2f * to.Z * squared);
+            if (flat < 1f || discriminant <= 0f) return false;
+            float pitch = SvmMath.Atan2(squared - SvmMath.Sqrt(discriminant), FragGravity * flat);
+            aim = new FRotator((int)(pitch * (32768f / MathF.PI)), NavFollower.YawTo(start, target), 0);
+            flight = flat / (speed * SvmMath.Cos(pitch));
+            start = CombatNatives.MercThrowFxCoords(Pawn, aim).Origin + aim.Vector() * 40f;
+        }
+
+        velocity = aim.Vector() * speed;
         return true;
     }
 }

@@ -20,9 +20,9 @@ public sealed class MercMapTrapTests
     private static readonly AiNavCache Nav = new();
 
     [Theory]
-    [InlineData("Greek Temple")]
-    [InlineData("Pirates' Room")]
-    public void AquariusGuardPlacesACarriedTrapNearAnActiveObjective(string objectiveName)
+    [InlineData("Greek Temple", 2)]
+    [InlineData("Pirates' Room", 1)]
+    public void AquariusGuardMinesActiveObjectives(string objectiveName, int expectedMines)
     {
         Assert.SkipWhen(Maps.FindFolder("AquaE") is null, "AquaE content is required.");
         AiDifficulty quiet = AiDifficulty.For(AiSkill.Normal) with
@@ -90,11 +90,11 @@ public sealed class MercMapTrapTests
                 trace.AppendLine($"{merc.World.Now:F2} {merc.Status} state={merc.Controller.GetStateName()} at={pawn.Location} selected={pawn.SelectedGadget?.GetUcClass().Path} mines={merc.Controller.NbBasicMineInMapIOwn}/{merc.Controller.NbTrapMineInMapIOwn}");
             }
 
-            if (merc.Controller.NbBasicMineInMapIOwn + merc.Controller.NbTrapMineInMapIOwn > 0) break;
+            if (merc.Controller.NbBasicMineInMapIOwn >= expectedMines) break;
         }
 
         AiTestKit.SaveReport($"traps-AquaE-{objectiveName.Replace(' ', '-')}", trace.ToString());
-        Assert.True(merc.Controller.NbBasicMineInMapIOwn + merc.Controller.NbTrapMineInMapIOwn > 0, trace.ToString());
-        Assert.Equal(initialCharges - 1, launchers.Sum(launcher => launcher.Charge));
+        Assert.True(merc.Controller.NbBasicMineInMapIOwn >= expectedMines, trace.ToString());
+        Assert.Equal(initialCharges - expectedMines, launchers.Sum(launcher => launcher.Charge));
     }
 }

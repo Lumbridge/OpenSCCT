@@ -5,6 +5,7 @@ using System.Linq;
 using OpenScct.Bots;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
+using OpenScct.Game.AI;
 using OpenScct.Core.Uc;
 using OpenScct.Game.Camera;
 using OpenScct.Game.Equipment;
@@ -264,6 +265,53 @@ public sealed class TeamPingNetworkTests
         session.Client.SendTeamPing(TeamPingKind.Generic, clientCamera, point);
         Step(30);
         Assert.Equal(point, Assert.Single(seen).Location);
+    }
+
+    [Theory]
+    [InlineData(TeamPingKind.Watch, TeamGoal.Watch)]
+    [InlineData(TeamPingKind.Check, TeamGoal.Check)]
+    public void ValidatedTeamPingReachesExactlyOneServerBot(TeamPingKind kind, TeamGoal goal)
+    {
+        var clock = new StepClock();
+        using var session = new PlaySession(new PlaySettings
+        {
+            Map = MapCatalog.TestBox, Side = PlaySide.Merc, Bots = 3,
+            HostMode = PlayHostMode.Inline, MatchSeed = 3,
+        }, clock);
+        var chat = new List<ChatLine>();
+        session.Client.ChatReceived += chat.Add;
+        List<TeamPingMark> marks = Observe(session.Client);
+
+        void Step(int count)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                clock.NowMicroseconds += 1_000_000 / Sim.Hz;
+                session.Step(clock.NowMicroseconds);
+                session.Input.EndTick();
+            }
+        }
+
+        Step(300);
+        Assert.True(session.Client.SupportsTeamPings);
+        var client = Assert.IsType<SPlayerController>(session.LocalController);
+        var human = Assert.IsType<SPlayerController>(session.ServerController);
+        var bots = Assert.IsType<ServerBots>(session.Bots).Bots;
+        AiController merc = Assert.Single(bots, b => b.Team == 1);
+        foreach (AiController bot in bots.Where(b => b.Team == 0)) bot.Held = true;
+        merc.Difficulty = merc.Difficulty with { SightRange = 1f, HearingScale = 0f, GadgetUse = 0f };
+        merc.Memory.Clear();
+        Step(180);
+        Assert.True((session.Host.World.Level.Info.Game as SGameInfo)?.GameReplicationInfo?.bMatchHasBegun);
+        Assert.True(TeamPingPlacement.TryGetSource(client, out Actor source, out _));
+        FVector point = ValidNearbyTarget(human);
+        session.Client.SendTeamPing(kind, source, point);
+        Step(25);
+
+        Assert.Contains(marks, m => m.Kind == kind);
+        Assert.True(merc.TeamPlay.Goal == goal, $"{merc.Status}, target {point}, replies {string.Join(", ", chat)}");
+        Assert.Same(merc, Assert.Single(bots, b => b.TeamPlay.Goal == goal));
+        Assert.Contains(chat, line => line.Scope == EChatScope.TeamSay && line.SenderName == merc.Controller.PlayerReplicationInfo!.PlayerName);
     }
 
     private static List<TeamPingMark> Observe(ClientSession session)

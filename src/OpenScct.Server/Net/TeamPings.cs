@@ -2,6 +2,7 @@ using System;
 using System.Buffers.Binary;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
+using OpenScct.Game.AI;
 using OpenScct.Game.SBase;
 using OpenScct.Net;
 using OpenScct.Server.Hub;
@@ -56,6 +57,7 @@ public sealed partial class ServerHost
         if (!TeamPingPlacement.TryValidateTarget(player, source, location)) return true;
 
         ControlMessage message = ControlMessage.TextLine(TeamPingWire.Event(new TeamPingMark(slot.PlayerId, team, kind, location, tick)));
+        AcknowledgeBotOrder(connection, player, team, kind, location);
         foreach (PlayerSlot recipient in _players)
         {
             if (recipient.SupportsTeamPings && recipient.Connection is
@@ -65,6 +67,24 @@ public sealed partial class ServerHost
         }
 
         return true;
+    }
+
+    private void AcknowledgeBotOrder(NetConnection connection, SPlayerController player, byte team, TeamPingKind kind, FVector location)
+    {
+        (AiOrder order, string reply) = kind switch
+        {
+            TeamPingKind.Watch => (AiOrder.Watch, "I'll watch that angle."),
+            TeamPingKind.Check => (AiOrder.Check, "I'll check it."),
+            TeamPingKind.CoopBoost => (AiOrder.Boost, "Coming to boost you."),
+            _ => default,
+        };
+        if (reply is null || connection.ReliableBunchesInFlight >= TeamPingWire.MaxInFlight ||
+            AiWorld.Of(World.Level) is not { } ai || !ai.HasOrderRecipients(team)) return;
+        PlayerReplicationInfo? pri = ai.IssueOrder(player, team, order, location)?.Controller.PlayerReplicationInfo;
+        ChatLine line = pri is null
+            ? new(EChatScope.TeamSay, -1, "Bots", team, "No bot can take that order right now.")
+            : new(EChatScope.TeamSay, pri.PlayerID, pri.PlayerName, team, reply);
+        connection.ControlChannel?.Send(ControlMessage.Chat(line));
     }
 }
 

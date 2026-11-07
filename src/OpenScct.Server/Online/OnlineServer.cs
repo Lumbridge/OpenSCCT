@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using OpenScct.Content;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
+using OpenScct.Game.AI;
 using OpenScct.Game.GameFlow;
 using OpenScct.Game.SBase;
 using OpenScct.Net;
@@ -639,6 +640,8 @@ public sealed partial class OnlineServer : IDisposable
 
     // ---- map servers and travel ---------------------------------------------------------------------------------
 
+    private readonly Dictionary<(ulong Content, byte Variant), AiPatrolHistory> _botPatrols = new();
+
     private ServerHost CreateHost(string map, string? gameOptions)
     {
         SessionTransport.Generation generation = _transport.NewGeneration();
@@ -730,6 +733,11 @@ public sealed partial class OnlineServer : IDisposable
         if (!isLobby)
         {
             StartDemo(host, map, gameOptions!);
+            var patrolKey = (host.Map.ContentHash, host.World.Level.Info.GEActivationMask);
+            if (!_botPatrols.TryGetValue(patrolKey, out AiPatrolHistory? patrol))
+                _botPatrols[patrolKey] = patrol = new AiPatrolHistory();
+            patrol.StartRound();
+            host.World.Level.SetService(patrol);
             _bots = StartBots(host);
             StartPracticeRound(host);
         }

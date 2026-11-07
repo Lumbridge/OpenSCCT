@@ -73,7 +73,7 @@ public abstract class AiBrain
 
         if (now >= _nextDecision)
         {
-            _nextDecision = now + Difficulty.DecisionPeriod;
+            _nextDecision = now + Bot.DecisionPeriod;
             int choice = Choose(now);
             if (choice != Goal)
             {
@@ -297,12 +297,12 @@ public abstract class AiBrain
     /// Fresh reachability from one node, using this bot's scratch storage. Consume before this bot's next call;
     /// other bots and A* path planning do not overwrite it. Blocked links/edges are reread for every decision.
     /// </summary>
-    protected float[] ReachabilityCosts(int from)
+    protected float[] ReachabilityCosts(int from, float maxCost = float.MaxValue)
     {
         NavGraph graph = Follower.Graph;
         if (_reachabilityCosts is null || _reachabilityCosts.Length != graph.NodeCount)
             _reachabilityCosts = new float[graph.NodeCount];
-        graph.CostsFrom(from, _reachabilityCosts.AsSpan(), badLinks: World.BadLinks(Spy), badEdges: World.BadEdges(Spy));
+        graph.CostsFrom(from, _reachabilityCosts.AsSpan(), maxCost, badLinks: World.BadLinks(Spy), badEdges: World.BadEdges(Spy));
         return _reachabilityCosts;
     }
 

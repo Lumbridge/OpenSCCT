@@ -21,6 +21,109 @@ public sealed class AiWorld
     private readonly Dictionary<int, float>[] _badEdges = [new(), new()];
     private readonly HashSet<int>[] _badEdgeSets = [new(), new()];
     private long _gatheredTick = -1;
+    private readonly List<AiController> _bots = new();
+    private readonly Dictionary<SComputerObjectiveTrigger, MercResponse> _responses = new();
+    private readonly Dictionary<(Pawn Enemy, (int X, int Y, int Z) Cell), float> _patrolSeen = new();
+
+    internal AiPatrolHistory Patrol { get; }
+    private sealed record MercResponse(AiController Primary, AiController? Cover, FVector Approach, float ReassignAt);
+
+    internal (bool Assigned, bool Cover, FVector Approach) RespondTo(AiController bot, SComputerObjectiveTrigger terminal, float now)
+    {
+        if (bot.Difficulty.Teamwork <= .3f) return (true, false, default);
+        // Simultaneous alerts split the team by objective. One alarm gets a responder and an exit guard.
+        int alarms = 0;
+        foreach (SComputerObjectiveTrigger t in _terminals)
+            if (t.bTriggering && !IsTaken(t) && ++alarms > 1) return (true, false, default);
+
+        if (!_responses.TryGetValue(terminal, out MercResponse? response) ||
+            now >= response.ReassignAt || !AvailableForAlarm(response.Primary))
+        {
+            AiController? primary = null;
+            AiController? cover = null;
+            float first = float.MaxValue;
+            float second = float.MaxValue;
+            foreach (AiController mate in _bots)
+            {
+                if (!AvailableForAlarm(mate) || mate.Difficulty.Teamwork <= .3f) continue;
+                FVector delta = mate.Pawn!.Location - terminal.Location;
+                float score = (NavFollower.Horizontal(delta) + 2f * MathF.Abs(delta.Z)) / mate.Personality.Aggression;
+                if (score < first)
+                {
+                    cover = primary;
+                    second = first;
+                    primary = mate;
+                    first = score;
+                }
+                else if (score < second)
+                {
+                    cover = mate;
+                    second = score;
+                }
+            }
+
+            if (primary is null) return (true, false, default);
+            response = new(primary, cover, primary.Pawn!.Location, now + 7f);
+            _responses[terminal] = response;
+        }
+
+        bool covering = ReferenceEquals(response.Cover, bot);
+        return (covering || ReferenceEquals(response.Primary, bot), covering, response.Approach);
+    }
+
+    private static bool AvailableForAlarm(AiController bot) =>
+        bot.Team == 1 && bot.Route is null && !bot.Held && !bot.Stopped &&
+        bot.TeamPlay.Goal == TeamGoal.None && bot.Pawn is SPAWNDEFENSE { Health: > 0, bDeleteMe: false, bLyingOnGround: false, bSleeping: false } pawn &&
+        ReferenceEquals(pawn, bot.Controller.Pawn);
+
+    internal void ObserveApproach(Pawn enemy, FVector point, float now)
+    {
+        var key = (enemy, AiPatrolHistory.Cell(point));
+        if (_patrolSeen.TryGetValue(key, out float lastSeen) && now - lastSeen < 14f)
+        {
+            _patrolSeen[key] = now;
+            return;
+        }
+
+        _patrolSeen[key] = now;
+        Patrol.Record(point);
+    }
+
+    internal IReadOnlyList<AiController> Bots => _bots;
+    internal void RegisterBot(AiController bot) => _bots.Add(bot);
+
+    public bool HasOrderRecipients(int team) => _bots.Exists(bot => bot.Team == team && bot.Route is null && !bot.Controller.bDeleteMe);
+
+    public AiController? IssueOrder(SPlayerController player, int team, AiOrder order, FVector location)
+    {
+        if (player.Pawn is not SBasePawn requester || team is < 0 or > 1) return null;
+        var candidates = new List<(AiController Bot, float Cost)>();
+        foreach (AiController bot in _bots)
+        {
+            if (bot.Team != team) continue;
+            if (!bot.TeamPlay.CanTakeOrder(requester))
+            {
+                if (ReferenceEquals(bot.TeamPlay.OrderRequester, requester)) return null;
+                continue;
+            }
+
+            float cost = (bot.Pawn!.Location - location).Size() / bot.Personality.Teamwork;
+            if (ReferenceEquals(bot.TeamPlay.OrderRequester, requester)) cost *= .5f;
+            if (cost < 5500f) candidates.Add((bot, cost));
+        }
+
+        candidates.Sort((a, b) => a.Cost != b.Cost ? a.Cost.CompareTo(b.Cost) : a.Bot.Index.CompareTo(b.Bot.Index));
+        foreach (var candidate in candidates)
+        {
+            if (!candidate.Bot.TeamPlay.TryOrder(requester, order, location, Now)) continue;
+            foreach (var other in candidates)
+                if (other.Bot != candidate.Bot && ReferenceEquals(other.Bot.TeamPlay.OrderRequester, requester))
+                    other.Bot.TeamPlay.CancelOrder(Now);
+            return candidate.Bot;
+        }
+
+        return null;
+    }
 
     public AiWorld(Level level, ICollisionWorld collision, NavGraph spyNav, NavGraph mercNav, AiLightField? light = null)
     {
@@ -29,6 +132,7 @@ public sealed class AiWorld
         SpyNav = spyNav ?? throw new ArgumentNullException(nameof(spyNav));
         MercNav = mercNav ?? throw new ArgumentNullException(nameof(mercNav));
         Light = light ?? AiLightField.Unknown;
+        Patrol = level.GetService<AiPatrolHistory>() ?? new AiPatrolHistory();
         Teams = [new AiTeamBoard(0), new AiTeamBoard(1)];
     }
 
@@ -86,6 +190,7 @@ public sealed class AiWorld
         }
 
         _gatheredTick = Level.TickCount;
+        _bots.RemoveAll(bot => bot.Controller.bDeleteMe);
         _smokes.Clear();
         foreach (SSmokeEmitter s in Level.DynamicActors<SSmokeEmitter>())
         {
@@ -114,6 +219,8 @@ public sealed class AiWorld
             }
         }
 
+        foreach (SComputerObjectiveTrigger terminal in _terminals)
+            if (!terminal.bTriggering) _responses.Remove(terminal);
         Noise.Gather(Level);
         foreach (AiTeamBoard team in Teams)
         {
@@ -308,6 +415,38 @@ public sealed class AiTeamBoard
     }
 
     public int Team { get; }
+    private readonly Dictionary<SComputerObjectiveTrigger, (AiController Lead, AiController Helper, FVector Screen, float HoldUntil, float Expires)> _smokePlays = new();
+
+    internal bool ReserveSmoke(SComputerObjectiveTrigger target, AiController lead, AiController helper, FVector screen, float now)
+    {
+        if (_smokePlays.TryGetValue(target, out var play) && now < play.Expires) return false;
+        _smokePlays[target] = (lead, helper, screen, now + 4.5f, now + 12f);
+        return true;
+    }
+
+    internal bool AwaitSmoke(SComputerObjectiveTrigger target, AiController lead, float now)
+    {
+        return _smokePlays.TryGetValue(target, out var play) && ReferenceEquals(lead, play.Lead) &&
+            now < play.HoldUntil && !play.Helper.World.InSmoke(play.Screen, 30f) &&
+            play.Helper.Pawn is { Health: > 0, bLyingOnGround: false } && !play.Helper.Stopped && !play.Helper.Held;
+    }
+
+    internal void CancelSmoke(SComputerObjectiveTrigger target, AiController helper)
+    {
+        if (_smokePlays.TryGetValue(target, out var play) && ReferenceEquals(helper, play.Helper))
+            _smokePlays.Remove(target);
+    }
+    private readonly Dictionary<SComputerObjectiveTrigger, (AiController Owner, float Until)> _objectiveFrags = new();
+
+    internal bool ObjectiveFragReserved(SComputerObjectiveTrigger alarm, AiController bot, float now) =>
+        _objectiveFrags.TryGetValue(alarm, out var frag) && !ReferenceEquals(bot, frag.Owner) && now < frag.Until;
+
+    internal bool ReserveObjectiveFrag(SComputerObjectiveTrigger alarm, AiController bot, float now)
+    {
+        if (ObjectiveFragReserved(alarm, bot, now)) return false;
+        _objectiveFrags[alarm] = (bot, now + 4.5f);
+        return true;
+    }
 
     /// <summary>An enemy position a teammate saw or heard.</summary>
     public readonly record struct Callout(Pawn Enemy, FVector Position, float Time, float Confidence, object From);

@@ -32,6 +32,8 @@ public enum TeamGoal : byte
 
     /// <summary>A human mate waits at the foot of a high ledge: take the boost spot and press the co-op key.</summary>
     OfferBoost,
+    Watch,
+    Check,
 }
 
 /// <summary>Tuning of the bots' team play (choices of the bots, not game values; docs/AI.md).</summary>
@@ -137,7 +139,7 @@ public static class TeamAiK
 /// entries find the mate themselves: 200 uu, in front, facing), S moves the selection, releasing Use acts; Use at a
 /// downed mate revives him; the co-op key (T) starts the co-op moves. Godot-free and deterministic.
 /// </summary>
-public sealed class TeamAi
+public sealed partial class TeamAi
 {
     private static readonly Name NAME_s_MenuInteraction = new("s_MenuInteraction");
     private static readonly Name NAME_OnLedge = new("OnLedge");
@@ -173,7 +175,7 @@ public sealed class TeamAi
     public SBasePawn? Target => _target;
 
     /// <summary>Goals finished (diagnostics), by goal.</summary>
-    public int[] Done { get; } = new int[8];
+    public int[] Done { get; } = new int[(int)TeamGoal.Check + 1];
 
     public string Status => Goal == TeamGoal.None
         ? "team none"
@@ -193,10 +195,13 @@ public sealed class TeamAi
             return false;
         }
 
-        _follower ??= new NavFollower(_bot.World, pawn is SPawnAttaque);
-        if (now >= _nextDecision && !Committed(pawn))
+        if (_follower is null || !ReferenceEquals(_follower.Graph, _bot.World.NavFor(pawn is SPawnAttaque)))
+            _follower = new NavFollower(_bot.World, pawn is SPawnAttaque);
+        if (OrderRequester is not null && !Committed(pawn) && !OrderStillValid(pawn, now))
+            CancelOrder(now);
+        if (OrderRequester is null && now >= _nextDecision && !Committed(pawn))
         {
-            _nextDecision = now + _bot.Difficulty.DecisionPeriod;
+            _nextDecision = now + _bot.DecisionPeriod;
             Choose(pawn, now);
         }
 
@@ -222,6 +227,7 @@ public sealed class TeamAi
             TeamGoal.ClimbBoost => Climb(pawn, now, ref plan, hoist: false),
             TeamGoal.ClimbHoist => Climb(pawn, now, ref plan, hoist: true),
             TeamGoal.OfferBoost => Offer(pawn, now, ref plan),
+            TeamGoal.Watch or TeamGoal.Check => ActOnPing(pawn, now, ref plan),
             _ => false,
         };
 
@@ -426,6 +432,9 @@ public sealed class TeamAi
 
         _stuckSince = -1f;
         _readySince = -1f;
+        OrderRequester = null;
+        _orderDoors = null;
+        _boostLedge = null;
         _doneGoal = Goal;
         _doneTarget = _target;
         _doneAt = now;
@@ -809,18 +818,19 @@ public sealed class TeamAi
     /// <summary>Offer a boost: take the spot under the high ledge, press the co-op key, wait for the climb.</summary>
     private bool Offer(SBasePawn pawn, float now, ref AiPlan plan)
     {
-        if (_target is not { } mate || mate.bDeleteMe || mate.Health <= 0)
-        {
-            return false;
-        }
-
+        SBasePawn? mate = _target;
+        bool requesterGone = mate is null || mate.bDeleteMe || mate.Health <= 0;
         string state = Pc.GetStateName().ToString();
         if (state.StartsWith("s_ShortLadder_P", StringComparison.Ordinal))
         {
             // Ready (or walking to the spot): hold still; stand down when nobody comes.
             if (state == "s_ShortLadder_P_Waiting" && pawn.bReadyForShortLadder)
             {
-                if (_readySince < 0f)
+                if (requesterGone)
+                {
+                    plan.Keys.Press(AiCommand.PerformCoopMvt);
+                }
+                else if (_readySince < 0f)
                 {
                     _readySince = now;
                 }
@@ -840,7 +850,9 @@ public sealed class TeamAi
             return false;
         }
 
-        if (!BoostSpot(mate, out FVector loc, out FVector dir))
+        if (!requesterGone && _boostLedge is { } ledge) return StageRemoteBoost(pawn, ledge, now, ref plan);
+
+        if (requesterGone || mate is null || !BoostSpot(mate, out FVector loc, out FVector dir))
         {
             return false;
         }
@@ -915,6 +927,8 @@ public sealed class TeamAi
                 return WalkStraight(pawn, floor, ref plan);
             }
         }
+
+        if (_orderDoors?.Steer(now, ref plan) == true) return true;
 
         NavCommand c = f.Steer(pawn, now, Pc.Rotation.Yaw & 0xFFFF, sneak: false);
         plan.Keys = c.Keys;

@@ -310,8 +310,8 @@ at the actual interaction point, and off-grid route endpoints require a clear fi
 | Defuse | an active planted bomb, unless a confirmed spy is within immediate melee range | stop pursuing distant spies, approach the bomb and select its normal removal interaction |
 | Finish | a spy it saw go down (lying, in sight or seen lying in the last 3 s) | run to him, face him, press Use when the game's finishing search would take him (FindPawnToReanimateOrTerminate: 250 uu, in front, feet within 10 uu, clear box to the spot 110 uu behind him), then Use again in the hold to kill at once; shoot him low (0.6 of his height under his centre) until then |
 | Engage | a confirmed spy in sight | after the reaction time aim at the chest (leading by the lead factor) with an error that shrinks from the first-shot to the settled spread while tracking; fire short bursts, not through a teammate; side-step at range (hard and expert); reload on an empty clip |
-| Respond | a terminal is being hacked (the nearest merc goes, with teamwork) | run to a spot 200 to 600 uu from the use spot that sees it, watching the spot |
-| Frag | a recent visual or teammate report 600 to 1600 uu away, including a slowly moving visible spy | check the lob path and nearby teammates, select the frag, aim at the ground near the known position, then tap the throw key when the rifle and aim are ready |
+| Respond | the objective radar reports an active hack | one Merc approaches the use spot. With enough teamwork a second watches a different angle. If multiple terminals go hot, Mercs prioritize the nearest alarm |
+| Frag | a recent visual or teammate report, or a hack alert that is distant, on a different floor, or behind cover | fire from the normal rifle launcher. For a hack alert, sample arcs near the terminal use spot and predict the bounce and blast through openings. A viable blast must reach the use spot with the Merc team clear |
 | Investigate | a visible shape, noise, callout, lost spy, or hurt by something unseen | inspect visible shapes without attacking; search reachable locations around lost contacts, retaining checked places and dividing areas with teammates |
 | Guard | otherwise | a reachable standing post beside an untaken terminal no teammate holds, look round, change post every 12 to 30 s |
 
@@ -424,6 +424,22 @@ charge. A revive presses only while the mate still sleeps (one who is getting up
 the goal) and within 225 uu in 3D (a mate lying lower or higher gets a step closer). A menu press waits until the bot
 and the mate are nearly still, the bot is within 175 uu and both facings are above 0.8.
 
+### Team pings and coordinated plays
+
+Watch, Check and Co-op Boost pings can assign one available teammate. The host checks the ping and finds a reachable
+position before replying privately in team chat. Watch holds an angle, Check approaches and sweeps the area, and
+Co-op Boost uses the normal boost move under a valid ledge near the ping. Bots can decline or abandon
+an order under pressure. Pings identify places and never create enemy contacts.
+
+A Spy with smoke can cover a teammate approaching a terminal when there is recent evidence of a nearby guard.
+The hacker waits briefly at the terminal for the screen when safe. Mercs split an active hack response between
+the use spot and another angle, with familiar enemy approaches weighing on cover and patrol choices. Only confirmed
+sightings feed patrol history. It fades across rounds and is kept per map variant in the current online session.
+
+Mercs prioritize explosive mines at active objectives and the narrow routes leading to them. They look for a new
+placement after a short cooldown, spread mines across distinct sites, and use normal gadget charges, placement
+rules and loadout restrictions. Presence detectors are a fallback when an explosive mine launcher is unavailable.
+
 ### Goggles, torch and the host's ability switches
 
 - **Goggles**: the game spawns a player's SGoggle on the machine that draws (never on a dedicated host), so a server
@@ -458,6 +474,12 @@ and the mate are nearly still, the bot is within 175 uu and both facings are abo
 | SearchSeconds | 5 | 10 | 14 | 18 |
 | GadgetUse / Teamwork / Stealth | 0.2 / 0.1 / 0.2 | 0.6 / 0.5 / 0.6 | 0.85 / 0.8 / 0.85 | 1 / 1 / 1 |
 | MeleeUse | 0.15 | 0.45 | 0.7 | 0.9 |
+
+Each bot also has a seeded profile, independent of its difficulty preset. Patient, Aggressive, Support and Scout
+profiles start from different aggression, teamwork, utility and curiosity weights. Each bot varies those weights
+and its timing, aiming and burst habits. A profile persists through respawns. Heartbeat likelihood, scan timing and
+retry intervals vary independently for each Spy. The layered design is inspired by the shipped Counter-Strike 2 bot profiles, which combine
+aggression, teamwork, reaction and attack timing, and equipment preferences with difficulty.
 
 ## Using it
 
@@ -521,5 +543,5 @@ tracking, and the harder mercs kill more. The reports are in `local/test-results
   pawn stayed in PHYS_Ledge with no control for the rest of the match. The group now hands 106 (and the landings 92
   and 101) on (DropAttackedOnLedgeTests).
 - **Balance**: search and vision have automated coverage, but perception thresholds, the motion blur factor and
-  approximate prone samples still need visual gameplay calibration. Strategic patrols, coordinated ambushes,
-  additional objective modes and training learned policies remain future work.
+  approximate prone samples still need visual gameplay calibration. Additional objective modes and learned policies
+  remain future work.
