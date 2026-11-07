@@ -54,8 +54,6 @@ public sealed class OptionsSmoke : SmokeTest
             if (_options.Tabs.GetCurrentTabControl().GetNodeOrNull<TabContainer>("Sections") is { } sections)
             {
                 sections.CurrentTab = _section;
-                if (sections.GetCurrentTabControl().FindChild("ControllerAimSettings", true, false) is CheckButton tuning)
-                    tuning.ButtonPressed = _advanced;
                 foreach (Node node in sections.GetCurrentTabControl().FindChildren("*", nameof(CheckButton), true, false))
                     if (node is CheckButton button && button.Text == "Advanced settings") button.ButtonPressed = _advanced;
                 if (_allBindings && sections.GetCurrentTabControl().FindChild("BindingCategory", true, false) is OptionButton category)
@@ -116,7 +114,7 @@ public sealed class OptionsSmoke : SmokeTest
                 _allBindings = false;
                 _previousBindingCategory = null;
             }
-            if (!_advanced && _section is 1 or 2) { _advanced = true; return SmokeResult.Running; }
+            if (!_advanced && _section == 1) { _advanced = true; return SmokeResult.Running; }
             _advanced = false;
             if (++_section < _options.Tabs!.GetCurrentTabControl().GetNode<TabContainer>("Sections").GetTabCount()) return SmokeResult.Running;
             _section = 0;
@@ -696,9 +694,12 @@ public sealed class OptionsSmoke : SmokeTest
             if (padSearch is not null) Search(padSearch, "Primary fire");
             Expect(controller.FindChild("BindingSlot_fire_0", true, false) is Button fire && fire.TooltipText.Contains("contextual", StringComparison.OrdinalIgnoreCase),
                 "controller actions expose their linked contextual assignment");
-            Expect(controller.FindChild("ControllerAimSettings", true, false) is CheckButton { ButtonPressed: false },
-                "controller tuning starts collapsed");
+            Expect(sections.GetTabTitle(2) == "Controller Bindings", "controller bindings tab is labeled");
             if (padSearch is not null) Search(padSearch, "");
+            sections.CurrentTab = 3;
+            Expect(sections.GetTabTitle(3) == "Controller Movement & Aim" &&
+                sections.GetCurrentTabControl().FindChild("SettingsSearch", true, false) is LineEdit { Visible: true } &&
+                !controller.Visible, "controller tuning opens in its own searchable tab");
         }
         finally
         {

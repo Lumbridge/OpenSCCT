@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using Godot;
 using OpenScctGame.Play.Session;
 
@@ -6,31 +5,16 @@ namespace OpenScctGame.Options;
 
 public partial class OptionsMenu
 {
-    private readonly Dictionary<PlaySide, bool> _controllerTuningVisible = new();
-
-    private Control CreateControllerRoleEditor(PlaySide side)
+    private Control CreateControllerTuningPage(PlaySide side)
     {
         bool merc = side == PlaySide.Merc;
         string prefix = merc ? "controls_merc_pad" : "controls_spy_pad";
         LookSettings Look() => _edit.LookOf(merc, true);
-        var page = new VBoxContainer { Name = "Controller", SizeFlagsVertical = SizeFlags.ExpandFill };
-        page.AddThemeConstantOverride("separation", 6);
-        var toolbar = new HBoxContainer();
-        bool showingTuning = _controllerTuningVisible.GetValueOrDefault(side);
-        var toggle = new CheckButton
-        {
-            Name = "ControllerAimSettings", Text = "Aim & movement", ButtonPressed = showingTuning,
-            TooltipText = "Switch between this role's controller bindings and its aim and movement settings.",
-        };
-        toolbar.AddChild(toggle);
-        toolbar.AddChild(new Control { SizeFlagsHorizontal = SizeFlags.ExpandFill });
         var reset = new MenuButton { Name = "ResetController", Text = "Reset…", CustomMinimumSize = new Vector2(90, 32) };
         reset.GetPopup().AddItem("Reset controller for this role", 0);
         reset.GetPopup().IdPressed += _ => Confirm("Reset controller",
             "Restore this role's controller bindings, sensitivity and movement settings? Changes take effect when you Apply or Save & Close.",
             () => ResetLook(side, true), "Reset controller");
-        toolbar.AddChild(reset);
-        page.AddChild(toolbar);
 
         var settings = Grid("ControllerRoleSettings");
         Section(settings, "Sensitivity", "Controller turning speed for this role. Base speed and deadzones are configured in Controller (Shared).");
@@ -65,7 +49,7 @@ public partial class OptionsMenu
         Slider(settings, "Remote camera sensitivity", prefix + ".cam", .05f, 10f, SensStep,
             Look().Cam, v => Look().Cam = v, SensFormat, typed: true);
 
-        Section(settings, "Modifiers", "Temporarily change sensitivity while holding a controller input. Assign modifier inputs in the Controller category of the bindings editor.");
+        Section(settings, "Modifiers", "Temporarily change sensitivity while holding a controller input. Assign modifier inputs in the Controller category of Controller Bindings.");
         Check(settings, "Enable sensitivity modifier", prefix + ".clutch_one_enabled", Look().ClutchOneEnabled,
             v => Look().ClutchOneEnabled = v);
         Slider(settings, "Modifier strength", prefix + ".clutch_one", .1f, 10f, .05f,
@@ -86,19 +70,6 @@ public partial class OptionsMenu
         Check(settings, "Swap right stick click and bumper", prefix + ".swap_rs_rb", Look().SwapRsRb,
             v => { Look().SwapRsRb = v; RebuildKeys(); });
 
-        Control tuning = CreateSettingsEditor("ControllerTuning", settings, "controller_tuning." + side);
-        tuning.Visible = showingTuning;
-        page.AddChild(tuning);
-        Control bindingEditor = CreateBindingEditor(side, pad: true);
-        MergeControllerBindingToolbar(side, toolbar, toggle, reset);
-        bindingEditor.Visible = !showingTuning;
-        page.AddChild(bindingEditor);
-        toggle.Toggled += on =>
-        {
-            _controllerTuningVisible[side] = on;
-            tuning.Visible = on;
-            bindingEditor.Visible = !on;
-        };
-        return page;
+        return CreateSettingsEditor("Controller Movement & Aim", settings, "controller_tuning." + side, reset);
     }
 }

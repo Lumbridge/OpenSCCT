@@ -32,12 +32,12 @@ public sealed class OptionsCategoriesSmoke : SmokeTest
             tree.CurrentScene = _options;
             CheckStagedControls(_options);
             CheckHudEditor(_options);
-            foreach (CheckButton toggle in _options.FindChildren("ControllerAimSettings", nameof(CheckButton), true, false).OfType<CheckButton>())
-                toggle.ButtonPressed = true;
             _browsers = _options.FindChildren("*", nameof(Control), true, false).OfType<Control>()
                 .Where(c => c.HasMeta("settings_browser") && c.GetMeta("settings_browser").AsBool()).ToArray();
             foreach (string name in new[] { "Display", "Performance", "Audio", "Voice", "HUD", "Controller (Shared)", "Crosshair" })
                 Expect(_browsers.Any(c => Ancestors(c).Any(n => n.Name == name)), name + " uses a settings browser");
+            Expect(_browsers.Count(c => c.Name == "Controller Movement & Aim" && c.GetParent() is TabContainer) == 2,
+                "both roles have a Controller Movement & Aim settings tab");
             if (_browsers.Length == 0) return SmokeResult.Fail("no settings browsers were found");
             Resize(tree, _sizes[_size]);
         }
@@ -178,6 +178,8 @@ public sealed class OptionsCategoriesSmoke : SmokeTest
     private void CheckLayout(Control page, string where)
     {
         Expect(page.IsVisibleInTree(), where + ": browser can be opened");
+        if (_case == 0 && page.Name == "Controller Movement & Aim" && page.GetParent() is TabContainer sections)
+            Expect(!sections.GetTabBar().GetOffsetButtonsVisible(), where + ": role tabs fit without scrolling");
         _problems.AddRange(LayoutCheck.Problems(_options!, _sizes[_size].X).Select(p => where + ": " + p));
         _problems.AddRange(LayoutCheck.BoundsProblems(_options!, _sizes[_size]).Select(p => where + ": " + p));
         if (page.FindChild("SettingsList", true, false) is not ScrollContainer list)

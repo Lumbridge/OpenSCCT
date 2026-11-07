@@ -43,7 +43,7 @@ public partial class OptionsMenu
     }
 
     /// <summary>Give existing controls a common browser while retaining their draft callbacks and live state.</summary>
-    private Control CreateSettingsEditor(string name, GridContainer source, string? stateKey = null)
+    private Control CreateSettingsEditor(string name, GridContainer source, string? stateKey = null, Control? toolbarAction = null)
     {
         string identity = stateKey ?? name;
         var entries = new List<(int Category, string Key, string Label, string Description, Control[] Cells, bool Panel)>();
@@ -102,6 +102,7 @@ public partial class OptionsMenu
         category.AddItem("All");
         foreach (string label in categories) category.AddItem(label);
         toolbar.AddChild(category);
+        if (toolbarAction is not null) toolbar.AddChild(toolbarAction);
         page.AddChild(toolbar);
         var body = new HBoxContainer { SizeFlagsVertical = SizeFlags.ExpandFill };
         body.AddThemeConstantOverride("separation", 14);

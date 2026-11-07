@@ -39,14 +39,12 @@ public partial class OptionsMenu
         public required Control HeadingTail;
         public required Label Description;
         public required Label Context;
-        public CheckButton? TuningToggle;
         public readonly Dictionary<string, Button> CategoryButtons = new();
         public readonly Dictionary<string, Button> RowButtons = new();
         public readonly List<Control> SlotColumns = new();
         public List<BindingEntry> Entries = new();
         public string[] CategoryNames = Array.Empty<string>();
         public bool Building;
-        public bool Tuning;
     }
     private readonly Dictionary<PlaySide, BindingEditor> _bindingEditors = new();
     private readonly Dictionary<PlaySide, BindingEditor> _padBindingEditors = new();
@@ -57,7 +55,7 @@ public partial class OptionsMenu
     {
         if (!_bindingViews.TryGetValue((side, pad), out BindingView? view))
             _bindingViews[(side, pad)] = view = new BindingView();
-        var page = new VBoxContainer { Name = pad ? "ControllerBindings" : "Bindings", SizeFlagsVertical = SizeFlags.ExpandFill, SizeFlagsHorizontal = SizeFlags.ExpandFill };
+        var page = new VBoxContainer { Name = pad ? "Controller Bindings" : "Bindings", SizeFlagsVertical = SizeFlags.ExpandFill, SizeFlagsHorizontal = SizeFlags.ExpandFill };
         page.AddThemeConstantOverride("separation", 6);
         var toolbar = new HBoxContainer { Name = "BindingToolbar" };
         var search = new LineEdit { Name = "BindingSearch", PlaceholderText = "Search all actions or keys", TooltipText = "Search all actions, descriptions and assigned keys across every category.", Text = view.Search, ClearButtonEnabled = true, SizeFlagsHorizontal = SizeFlags.ExpandFill };
@@ -158,7 +156,7 @@ public partial class OptionsMenu
         PadSettings.CrouchAction => "Contextual preset: crouch during play or leave the camera you are using. Editing a preset changes both linked behaviors.",
         PadSettings.LongRollAction => "Contextual preset: long roll or leave a camera. Hold B reaches its held assignment after 0.2 seconds.",
         PadSettings.WallLaserAction => "Contextual preset: back to wall while unarmed, or toggle the weapon laser with the weapon drawn.",
-        PadSettings.ClutchOneAction or PadSettings.ClutchTwoAction => "Hold this control to use the sensitivity multiplier configured in Aim & movement settings.",
+        PadSettings.ClutchOneAction or PadSettings.ClutchTwoAction => "Hold this control to use the sensitivity multiplier configured in Controller Movement & Aim.",
         _ => label + ". This assignment is independent of keyboard bindings unless explicitly saved as keyboard-linked.",
     };
 
@@ -493,11 +491,10 @@ public partial class OptionsMenu
         foreach (BindingEditor editor in _bindingEditors.Values.Concat(_padBindingEditors.Values))
         {
             editor.Search.PlaceholderText = sidebar ? "Search all actions or keys" : "Search";
-            if (editor.TuningToggle is { } toggle) toggle.Text = sidebar ? "Aim & movement" : "Aim settings";
             editor.Sidebar.Visible = sidebar;
             editor.CategoryMargin.Visible = sidebar;
             editor.ColumnDivider.Visible = sidebar;
-            editor.CompactCategory.Visible = !sidebar && !editor.Tuning;
+            editor.CompactCategory.Visible = !sidebar;
             foreach (Control column in editor.SlotColumns) column.CustomMinimumSize = new Vector2(FrameWidth < 900f ? 90 : 108, column is Button ? 32 : 0);
         }
     }
@@ -512,34 +509,5 @@ public partial class OptionsMenu
             var minimum = new Vector2(BindingMoreWidth + gutter, 0f);
             if (editor.HeadingTail.CustomMinimumSize != minimum) editor.HeadingTail.CustomMinimumSize = minimum;
         }
-    }
-
-    private void MergeControllerBindingToolbar(PlaySide side, HBoxContainer toolbar, CheckButton toggle, MenuButton reset)
-    {
-        BindingEditor editor = _padBindingEditors[side];
-        editor.TuningToggle = toggle;
-        HBoxContainer original = editor.Page.GetNode<HBoxContainer>("BindingToolbar");
-        Control[] bindingControls = original.GetChildren().OfType<Control>().ToArray();
-        foreach (Control spacer in toolbar.GetChildren().OfType<Control>().Where(c => c is not BaseButton).ToArray())
-        {
-            toolbar.RemoveChild(spacer); spacer.QueueFree();
-        }
-        int position = 0;
-        foreach (Control control in bindingControls)
-        {
-            original.RemoveChild(control); toolbar.AddChild(control); toolbar.MoveChild(control, position++);
-        }
-        toolbar.MoveChild(toggle, position++);
-        toolbar.MoveChild(reset, position);
-        editor.Page.RemoveChild(original); original.QueueFree();
-        void ShowTuning(bool tuning)
-        {
-            editor.Tuning = tuning;
-            foreach (Control control in bindingControls) control.Visible = !tuning;
-            reset.Visible = tuning;
-            UpdateBindingEditorLayout();
-        }
-        toggle.Toggled += ShowTuning;
-        ShowTuning(toggle.ButtonPressed);
     }
 }

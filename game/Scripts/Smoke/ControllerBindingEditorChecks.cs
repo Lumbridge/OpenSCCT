@@ -24,7 +24,7 @@ internal static class ControllerBindingEditorChecks
         var spyOrder = options.Editing.Pad.SpyBindingOrder.ToDictionary(p => p.Key, p => new List<string>(p.Value), StringComparer.Ordinal);
         var mercOrder = options.Editing.Pad.MercBindingOrder.ToDictionary(p => p.Key, p => new List<string>(p.Value), StringComparer.Ordinal);
         bool swapLs = options.Editing.SpyPad.SwapLsLb, swapRs = options.Editing.SpyPad.SwapRsRb;
-        Control controller = options.Tabs.GetTabControl(0).GetNode<Control>("Sections/Controller");
+        Control controller = options.Tabs.GetTabControl(0).GetNode<Control>("Sections/Controller Bindings");
         var search = (LineEdit)controller.FindChild("BindingSearch", true, false);
         var category = (OptionButton)controller.FindChild("BindingCategory", true, false);
         var filter = (OptionButton)controller.FindChild("BindingFilter", true, false);

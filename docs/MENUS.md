@@ -429,11 +429,11 @@ cancellation (experimental) sit under Microphone Volume (docs/VOICE.md "Micropho
 ## Role configuration and shared controls
 
 Options has **Spy**, **Mercenary**, Display, Performance, Audio, Voice, HUD, HUD editor and **Controller (Shared)** tabs. Each role contains
-Bindings, Mouse & Aim and Controller sections. Mercenary also contains the custom Crosshair editor and preview;
-the spy retains its original contextual reticle. Performance sits beside Display and holds the shared frame cap,
+Bindings, Mouse & Aim, Controller Bindings and Controller Movement & Aim tabs. Mercenary also contains the custom
+Crosshair editor and preview. The spy retains its original contextual reticle. Performance sits beside Display and holds the shared frame cap,
 separate Spy and Mercenary caps, vertical sync, and latency/power settings. The mercenary FOV cap and shared vertical mouse
 inversion remain under Mouse & Aim. The Controller (Shared) tab holds shared controller setup, stick behavior and
-vibration settings; role-specific sensitivity and button bindings live in each role's Controller section.
+vibration settings.
 Mouse & Aim follows the binding editor's category navigation and search, with Sensitivity, Scope & cameras,
 Modifiers and View categories. Each setting has its own aligned row and exact numeric fields;
 focusing or hovering a control explains it below the list. A category dropdown replaces the sidebar on narrow
@@ -443,7 +443,8 @@ Display, Performance, Audio, Voice, HUD and Controller (Shared) use the same cat
 screen setup, widescreen layout and image quality. Performance groups Max FPS and Vertical sync under Frame pacing,
 separate from latency and power settings. Voice keeps playback,
 microphone processing, transmission, shortcuts and microphone testing in distinct categories; the live meter
-and test retain their existing behavior. Role controller tuning uses categories beside its bindings view.
+and test retain their existing behavior. Controller Movement & Aim uses the same settings browser for role-specific
+sensitivity, movement and button layout.
 Crosshair settings use the same rows with a live preview dock on wide windows and a Preview button on smaller
 ones. These settings browsers and Mouse & Aim open with **All** selected, show category headings across the combined
 list and search results, and use the binding editor's divider between the category sidebar and settings.
@@ -460,9 +461,8 @@ Right-click an assigned
 input for Change binding or Clear binding, or hover it and press Delete to clear only that input. Delete still edits
 text normally in search fields and remains bindable during capture. The capture panel also offers Clear binding and Cancel.
 Adding an input keeps the existing primary and alternate in place; replacing one keeps its column, including after
-saving and reopening Options. Controller bindings use the same editor in the
-separate Controller section, with an Aim & movement switch for its tuning settings. Teammate-name visibility
-settings live on the HUD page; role resets are available through the binding editor's More menu.
+saving and reopening Options. Controller Bindings uses the same editor for controller inputs. Teammate-name visibility
+settings live on the HUD page. The binding editor's More menu includes role resets.
 
 The internal `FireMode` is the spy's ready/holster input (tap draws with laser, hold
 past 0.5 seconds draws without it); mercenary **Switch fire mode** uses `bROF`, switching burst/full auto.

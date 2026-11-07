@@ -53,9 +53,18 @@ public partial class OptionsMenu
         _sharingLabels[side] = sharing;
         page.AddChild(sharing);
         var sections = new TabContainer { Name = "Sections", SizeFlagsVertical = SizeFlags.ExpandFill };
+        // Keep the full role tab titles visible on compact windows.
+        foreach (string state in new[] { "tab_selected", "tab_unselected", "tab_hovered", "tab_disabled" })
+        {
+            var style = (StyleBox)GetThemeStylebox(state, nameof(TabContainer)).Duplicate();
+            style.ContentMarginLeft = Mathf.Min(style.GetMargin(Side.Left), 4f);
+            style.ContentMarginRight = Mathf.Min(style.GetMargin(Side.Right), 4f);
+            sections.AddThemeStyleboxOverride(state, style);
+        }
         sections.AddChild(RoleBindingsPage(side));
         sections.AddChild(RoleMousePage(side));
-        sections.AddChild(RolePadPage(side));
+        sections.AddChild(CreateBindingEditor(side, pad: true));
+        sections.AddChild(CreateControllerTuningPage(side));
         if (merc) sections.AddChild(CrosshairPage());
         page.AddChild(sections);
         return page;
@@ -80,8 +89,6 @@ public partial class OptionsMenu
     }
 
     private Control RoleMousePage(PlaySide side) => CreateMouseAimEditor(side);
-
-    private Control RolePadPage(PlaySide side) => CreateControllerRoleEditor(side);
 
     private static void AddAdvanced(VBoxContainer content, Control details)
     {
