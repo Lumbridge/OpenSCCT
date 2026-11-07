@@ -52,6 +52,8 @@ uniform float svm_glass = 0.0;
 uniform sampler2D svm_behind : hint_screen_texture, filter_linear, repeat_disable;
 varying float v_cloak_shift;
 #endif
+// Cosmetic pane fragments duplicate their original material and fade without changing its tint or finish.
+uniform float svm_fragment_opacity = 1.0;
 
 // Turns a colour's hue around the grey axis; the sum of the channels (its brightness) stays the same.
 vec3 svm_hue_turn(vec3 c, float angle) {
@@ -1079,7 +1081,7 @@ void fragment() {
 	}
 #endif
 #if defined(BLEND_TRANSLUCENT) || defined(BLEND_MASKED) || defined(BLEND_ADDITIVE) || defined(BLEND_MODULATE) || defined(BLEND_DARKEN) || defined(VISION_SEE_THROUGH)
-	ALPHA = a;
+	ALPHA = a * svm_fragment_opacity;
 #endif
 #if defined(BLEND_MASKED)
 	ALPHA_SCISSOR_THRESHOLD = 0.5;

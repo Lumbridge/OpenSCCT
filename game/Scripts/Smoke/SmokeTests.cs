@@ -32,6 +32,7 @@ public static class SmokeTests
 
     public static SmokeTest? Create(string name) => name switch
     {
+        WindowBreakSmoke.TestName => new WindowBreakSmoke(),
         AmbientOcclusionSmoke.TestName => new AmbientOcclusionSmoke(),
         ResponsiveSmokePoolSmoke.TestName => new ResponsiveSmokePoolSmoke(),
         ResponsiveSmokeSpySmoke.TestName => new ResponsiveSmokeSpySmoke(),

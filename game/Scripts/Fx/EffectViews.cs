@@ -254,6 +254,7 @@ public sealed partial class EffectViews : Node3D
 
             var t = new Tracked(a, a.GetUcClass().Name);
             _tracked[a] = t;
+            if (OpenScctGame.Views.GlassBreakViews.ReplacesEmitter(level, a)) continue;
             // The authoritative responsive field is drawn by the shared volume shader. Keep the grenade's
             // launch trail and every other emitter on the legacy path; never draw both cloud representations.
             if (a is SSmokeEmitter && OpenScct.Game.Equipment.ResponsiveSmokeWorld.IsEnabled(level)) continue;

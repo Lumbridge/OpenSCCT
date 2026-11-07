@@ -17,6 +17,10 @@ namespace OpenScct.Game.SBase;
 /// </summary>
 public partial class SGamePlayObject
 {
+    /// <summary>Authoritative glass impact for the cosmetic fracture; ordinary glass damage and collision stay unchanged.</summary>
+    public FVector GlassImpactLocation { get; set; }
+    public FVector GlassImpactDirection { get; set; }
+    public int GlassImpactSerial { get; set; }
     public static new readonly StateTable ClassStates = new(SBasicGamePlayObject.ClassStates,
         s_Flying.Instance, s_LockedByChaff.Instance, s_PickedUp.Instance, s_WaitForDamageReset.Instance);
 
@@ -251,6 +255,13 @@ public partial class SGamePlayObject
             return;
         }
 
+        if (this is SVitre && Damage > 0 && bDamageable && !bAlreadyDestroyed)
+        {
+            GlassImpactLocation = HitLocation;
+            GlassImpactDirection = Momentum.SizeSquared() > 0.0001f ? Momentum.SafeNormal()
+                : EventInstigator is not null ? (HitLocation - EventInstigator.Location).SafeNormal() : default;
+            GlassImpactSerial = GlassImpactSerial == int.MaxValue ? 1 : GlassImpactSerial + 1;
+        }
         Instigator = EventInstigator;
         float size = Momentum.Size();
         if (size > 0f)

@@ -57,6 +57,14 @@ public static class NetClasses
                 pawn.Functions.AddRange(equipment.Functions);
                 registry.Extend(type, pawn);
             }
+            if (typeof(SVitre).IsAssignableFrom(type))
+            {
+                var glass = new RepExtension();
+                glass.Properties.Add(new(nameof(SGamePlayObject.GlassImpactLocation), nameof(SGamePlayObject.GlassImpactLocation), RepLeafKind.VectorFine));
+                glass.Properties.Add(new(nameof(SGamePlayObject.GlassImpactDirection), nameof(SGamePlayObject.GlassImpactDirection), RepLeafKind.VectorFine));
+                glass.Properties.Add(new(nameof(SGamePlayObject.GlassImpactSerial), nameof(SGamePlayObject.GlassImpactSerial), RepLeafKind.Int));
+                registry.Extend(type, glass);
+            }
             if (typeof(SInteractObject).IsAssignableFrom(type))
             {
                 // The script property list omits UsableBy. Startup copies the initial team from the

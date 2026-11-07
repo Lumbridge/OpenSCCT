@@ -490,6 +490,18 @@ public sealed class GameplayObjectTests
     }
 
     [Fact]
+    public void GlassKeepsItsAuthoritativeImpactAndIgnoresHitsAfterBreaking()
+    {
+        DeviceScene s = DeviceScene.Create(); SVitre pane = s.Add(new SVitre()); s.Begin();
+        var impact = new FVector(2, 17, 23);
+        pane.eventTakeDamage(1, null, impact, new FVector(200,0,0), SDamageType.SDTFlash);
+        Assert.Equal(impact, pane.GlassImpactLocation); Assert.Equal(new FVector(1,0,0), pane.GlassImpactDirection);
+        Assert.Equal(1, pane.GlassImpactSerial);
+        pane.eventTakeDamage(1, null, new FVector(500,0,0), default, SDamageType.SDTFlash);
+        Assert.Equal(impact, pane.GlassImpactLocation); Assert.Equal(1, pane.GlassImpactSerial);
+    }
+
+    [Fact]
     public void AFlyingPropStopsWhereItLandsAndHurtsAPawnItHitsFast()
     {
         DeviceScene s = DeviceScene.Create();

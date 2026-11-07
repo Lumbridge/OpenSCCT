@@ -26,6 +26,11 @@ public sealed class DeviceViews
     private const float RelightSeconds = 0.1f;
 
     private readonly RenderMap _map;
+    private readonly GlassBreakViews _glass;
+    private readonly WindowLightingView _windowLighting;
+    public int GlassFragmentCount => _glass.LiveFragments;
+    public int GlassBreakCount => _glass.Started;
+    public int WindowLightingUpdates => _windowLighting.Updates;
     private readonly List<MeshFollower> _meshes = [];
     private readonly List<AnimatedMeshView> _animated = [];
     private readonly List<LightSwitch> _lights = [];
@@ -88,6 +93,8 @@ public sealed class DeviceViews
         _map = map ?? throw new ArgumentNullException(nameof(map));
         ArgumentNullException.ThrowIfNull(loaded);
         ArgumentNullException.ThrowIfNull(parent);
+        _glass = new GlassBreakViews(); parent.AddChild(_glass); _glass.Bind(map, loaded);
+        _windowLighting = new WindowLightingView(map, loaded);
         Mounts = new CameraMountViews(map, parent, FindMesh);
         foreach (ActorRecord record in loaded.Gameplay.Actors)
         {
@@ -315,6 +322,8 @@ public sealed class DeviceViews
     /// <summary>Places, shows and swaps for a frame <paramref name="alpha"/> of the way from the previous tick to the last.</summary>
     public void Draw(float alpha, float dt, PawnViews? pawns = null)
     {
+        _glass.Draw(dt);
+        _windowLighting.Update();
         _relightClock -= dt;
         bool relight = _relightClock <= 0f;
         if (relight)
