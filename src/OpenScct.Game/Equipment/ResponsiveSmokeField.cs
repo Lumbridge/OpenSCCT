@@ -30,6 +30,7 @@ public sealed partial class ResponsiveSmokeField
     public const int CellCount = Dimension * Dimension * Dimension;
     public const float CellSize = 25f;
     public const float Radius = 300f;
+    public const float QueryRadius = 450f;
     public const float Lifetime = 10f;
     public const float TickRate = 20f;
     public const float GrowthFade = .10f;
@@ -190,7 +191,7 @@ public sealed partial class ResponsiveSmokeField
             // Budgeted classification can reveal a cell after the physical front would have arrived. Preserve
             // the path's sub-tick distance, but give newly published air its local fade instead of popping dense.
             ushort activation = (ushort)Math.Min(65534, Math.Max(publishedTick,
-                _frontTick + (int)MathF.Ceiling(priority.Distance * CellSize * TickRate / (FaceCost * GrowthSpeed))));
+                _frontTick + (int)MathF.Ceiling(BloomArrival(priority.Distance * CellSize / FaceCost) * TickRate)));
             if (ActivationTicks[current] > publishedTick && ActivationTicks[current] > activation)
             {
                 ActivationTicks[current] = activation;
@@ -230,7 +231,7 @@ public sealed partial class ResponsiveSmokeField
         int nearest = CellIndex(point);
         float age = now - CreatedAt;
         if (nearest < 0 || age < 0f || age >= Lifetime) return 0f;
-        float radial = Envelope(point - Center, age);
+        float radial = Envelope(point - Center, age, ShapeExtents);
         if (radial <= 0f) return 0f;
         FVector p = (point - Origin) / CellSize - new FVector(.5f, .5f, .5f);
         int x = (int)MathF.Floor(p.X), y = (int)MathF.Floor(p.Y), z = (int)MathF.Floor(p.Z);
@@ -347,19 +348,24 @@ public sealed partial class ResponsiveSmokeField
         return relative;
     }
 
-    /// <summary>Shared rolling rim; lighting quality never changes the gas/visibility envelope.</summary>
-    public static float Envelope(FVector relative, float age)
+    /// <summary>A broad rounded body and rolling rim; lighting quality never changes gas or visibility.</summary>
+    public static float Envelope(FVector relative, float age) => Envelope(relative, age, DefaultShapeExtents);
+
+    public static float Envelope(FVector relative, float age, FVector extents)
     {
         float radiusSquared = relative.SizeSquared();
         if (radiusSquared <= 150f * 150f) return 1f;
-        if (radiusSquared >= Radius * Radius) return 0f;
+        if (radiusSquared >= QueryRadius * QueryRadius) return 0f;
         float radius = MathF.Sqrt(radiusSquared);
         FVector material = MaterialCoordinate(relative, age);
         float macro = Smooth(.28f, .72f, ResponsiveSmokeNoise.Sample(material / 135f + new FVector(11.17f, 7.31f, 19.83f)));
         float fine = ResponsiveSmokeNoise.Sample(material / 55f + new FVector(23.41f, 3.71f, 13.29f));
-        float edge = 240f + 54f * macro + 6f * fine;
-        float shell = .55f + .45f * macro;
-        float density = 1f + (shell - 1f) * Smooth(150f, 210f, radius);
-        return density * (1f - Smooth(edge - 18f, edge, radius));
+        float taper = 1 - .16f * Smooth(-.1f, 1, relative.Z / extents.Z);
+        FVector p = new(MathF.Abs(relative.X / (extents.X * taper)), MathF.Abs(relative.Y / (extents.Y * taper)), MathF.Abs(relative.Z / extents.Z));
+        float body = MathF.Cbrt(p.X * p.X * p.X + p.Y * p.Y * p.Y + p.Z * p.Z * p.Z);
+        float edge = .90f + .08f * macro + .02f * fine;
+        float shell = 1f + (.70f + .30f * macro - 1f) * Smooth(.55f, .88f, body);
+        float density = shell * (1f - Smooth(edge - .07f, edge, body));
+        return Math.Max(1f - Smooth(150f, 180f, radius), density);
     }
 }

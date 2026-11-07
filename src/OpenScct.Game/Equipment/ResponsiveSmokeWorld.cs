@@ -270,7 +270,7 @@ public sealed partial class ResponsiveSmokeWorld
             if (pair.Key.bDeleteMe) continue;
             FVector toCenter = pair.Value.Center - start;
             float projection = toCenter | direction;
-            float discriminant = ResponsiveSmokeField.Radius * ResponsiveSmokeField.Radius - (toCenter.SizeSquared() - projection * projection);
+            float discriminant = ResponsiveSmokeField.QueryRadius * ResponsiveSmokeField.QueryRadius - (toCenter.SizeSquared() - projection * projection);
             if (discriminant < 0f) continue;
             float half = MathF.Sqrt(discriminant), from = Math.Max(0f, projection - half), to = Math.Min(length, projection + half);
             if (to > from) _rayIntervals.Add((from, to));
@@ -301,7 +301,7 @@ public sealed partial class ResponsiveSmokeWorld
         float now = world.CurrentTime;
         foreach (var pair in world._fields)
         {
-            if (pair.Key.bDeleteMe || ResponsiveSmokeField.DistanceToSegment(pair.Value.Center, start, end) > ResponsiveSmokeField.Radius + 18f) continue;
+            if (pair.Key.bDeleteMe || ResponsiveSmokeField.DistanceToSegment(pair.Value.Center, start, end) > ResponsiveSmokeField.QueryRadius + 18f) continue;
             pair.Value.AddCarve(new(++world._sequence, ResponsiveSmokeCarveKind.Bullet, start, end, 12f, 6f, now, .10f, .40f, null));
         }
     }
@@ -317,7 +317,7 @@ public sealed partial class ResponsiveSmokeWorld
         foreach (var pair in world._fields)
         {
             ResponsiveSmokeField field = pair.Value;
-            if (pair.Key.bDeleteMe || FVector.Dist(center, field.Center) > radius + ResponsiveSmokeField.Radius + 25f) continue;
+            if (pair.Key.bDeleteMe || FVector.Dist(center, field.Center) > radius + ResponsiveSmokeField.QueryRadius + 25f) continue;
             var mask = new byte[ResponsiveSmokeField.CellCount];
             bool any = false;
             for (int i = 0; i < mask.Length; i++)
@@ -391,7 +391,7 @@ public sealed partial class ResponsiveSmokeWorld
     private void Classify(ResponsiveSmokeField field, int index, ref int budget)
     {
         FVector center = field.CellCenter(index);
-        GeometryCell geometry = FVector.DistSquared(center, field.Center) > 322f * 322f ? default : CellGeometry(Key(center), ref budget);
+        GeometryCell geometry = FVector.DistSquared(center, field.Center) > 472f * 472f ? default : CellGeometry(Key(center), ref budget);
         byte cell = geometry.Free ? (byte)1 : (byte)0;
         field.Boundaries.TryGetValue(index, out var priorPlanes);
         if (!ReferenceEquals(priorPlanes, geometry.Planes)) { field.SetBoundary(index, geometry.Planes); field.GeometryDirty = true; }

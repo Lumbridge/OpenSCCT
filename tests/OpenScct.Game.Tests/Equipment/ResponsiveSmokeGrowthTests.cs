@@ -12,7 +12,7 @@ namespace OpenScct.Game.Tests.Equipment;
 public sealed class ResponsiveSmokeGrowthTests(ITestOutputHelper output)
 {
     [Fact]
-    public void ClassifiedAirAdvancesTwoHundredUnitsAndFillsWithinThreeTenths()
+    public void ClassifiedAirReleasesQuicklyAndEasesIntoItsOuterBloom()
     {
         FVector source = new(12.5f, 12.5f, 12.5f);
         var field = new ResponsiveSmokeField(default, 0, source);
@@ -21,9 +21,10 @@ public sealed class ResponsiveSmokeGrowthTests(ITestOutputHelper output)
         int budget = int.MaxValue; field.AdvanceFront(0, ref budget);
         FVector near = source + new FVector(50, 0, 0), far = source + new FVector(200, 0, 0);
         Assert.Equal((ushort)1, field.ActivationTicks[field.CellIndex(near)]);
-        Assert.Equal((ushort)4, field.ActivationTicks[field.CellIndex(far)]);
+        Assert.Equal((ushort)6, field.ActivationTicks[field.CellIndex(far)]);
         Assert.InRange(field.SampleDensity(near, .15f), .999f, 1f);
-        Assert.True(field.SampleDensity(far, .30f) > .5f);
+        Assert.Equal(0f, field.SampleDensity(far, .25f));
+        Assert.True(field.SampleDensity(far, .40f) > .5f);
     }
 
     [Fact]
@@ -35,15 +36,16 @@ public sealed class ResponsiveSmokeGrowthTests(ITestOutputHelper output)
         field.RebuildFront(0, static (_, _) => true);
         int budget = int.MaxValue; field.AdvanceFront(0, ref budget);
         // Reveal air over multiple simulation ticks, as the bounded geometry classifier does.
-        // The 400uu path should take ceil(400/1200*20)=7 ticks, without rounding every extension separately.
+        // The 400uu path takes ceil((400/1200 + .25*(400/300)^2)*20)=16 ticks.
+        // Incremental discovery must not restart this whole curve at each newly classified cell.
         for (int cell = 1; cell <= 16; cell++)
         {
             field.Cells[seed + cell] = 1; field.CellOpened(seed + cell);
             field.RebuildFront(cell / 60f, static (_, _) => true);
             budget = int.MaxValue; field.AdvanceFront(cell / 60f, ref budget);
         }
-        Assert.Equal((ushort)7, field.ActivationTicks[seed + 16]);
-        Assert.True(field.SampleDensity(field.CellCenter(seed + 16), .45f) > .5f);
+        Assert.Equal((ushort)16, field.ActivationTicks[seed + 16]);
+        Assert.True(field.SampleDensity(field.CellCenter(seed + 16), .90f) > .5f);
     }
 
     [Fact]
@@ -52,18 +54,18 @@ public sealed class ResponsiveSmokeGrowthTests(ITestOutputHelper output)
         FVector source = new(-237.5f, -237.5f, 12.5f);
         var field = new ResponsiveSmokeField(default, 0, source);
         int seed = field.CellIndex(source);
-        for (int x = 0; x <= 4; x++) field.Cells[seed + x] = 1;
-        int target = seed + 4 + ResponsiveSmokeField.Dimension;
+        for (int x = 0; x <= 8; x++) field.Cells[seed + x] = 1;
+        int target = seed + 8 + ResponsiveSmokeField.Dimension;
         field.Cells[target] = 1;
         field.RebuildFront(0, static (_, _) => true);
         int budget = int.MaxValue; field.AdvanceFront(0, ref budget);
-        Assert.Equal((ushort)3, field.ActivationTicks[target]); // 75uu prefix + 50uu around the blocked corner.
+        Assert.Equal((ushort)7, field.ActivationTicks[target]); // 175uu prefix + 50uu around the blocked corner.
 
-        int corner = seed + 3 + ResponsiveSmokeField.Dimension;
+        int corner = seed + 7 + ResponsiveSmokeField.Dimension;
         field.Cells[corner] = 1; field.CellOpened(corner);
         field.RebuildFront(1f / 60f, static (_, _) => true);
         budget = int.MaxValue; field.AdvanceFront(1f / 60f, ref budget);
-        Assert.Equal((ushort)2, field.ActivationTicks[target]); // 75uu prefix + 35.35uu newly opened diagonal.
+        Assert.Equal((ushort)6, field.ActivationTicks[target]); // 175uu prefix + 35.35uu newly opened diagonal.
     }
 
     [Fact]
@@ -75,7 +77,7 @@ public sealed class ResponsiveSmokeGrowthTests(ITestOutputHelper output)
         for (int i = 0; i <= 16; i++) field.Cells[seed + i] = 1;
         field.RebuildFront(0, static (_, _) => true);
         int budget = int.MaxValue; field.AdvanceFront(0, ref budget);
-        Assert.Equal((ushort)7, field.ActivationTicks[seed + 16]);
+        Assert.Equal((ushort)16, field.ActivationTicks[seed + 16]);
         field.Cells[seed + 8] = 0; field.InvalidateFront();
         field.RebuildFront(.1f, static (_, _) => true);
         budget = int.MaxValue; field.AdvanceFront(.1f, ref budget);
@@ -84,7 +86,8 @@ public sealed class ResponsiveSmokeGrowthTests(ITestOutputHelper output)
         field.Cells[seed + 8] = 1; field.InvalidateFront();
         field.RebuildFront(.15f, static (_, _) => true);
         budget = int.MaxValue; field.AdvanceFront(.15f, ref budget);
-        Assert.InRange(field.ActivationTicks[seed + 16], (ushort)4, (ushort)12);
+        Assert.NotEqual(ResponsiveSmokeField.Unreached, field.ActivationTicks[seed + 16]);
+        Assert.True(field.SampleDensity(field.CellCenter(seed + 16), 1.5f) > .5f);
     }
 
     [Fact]
@@ -124,8 +127,9 @@ public sealed class ResponsiveSmokeGrowthTests(ITestOutputHelper output)
             if (b >= .5f) farHalf = Math.Min(farHalf, age);
         }
         output.WriteLine($"Grounded source {field.SourcePosition}, standing eye z=180: near gas {nearGas:F3}s / half density {nearHalf:F3}s; far x=220 gas {farGas:F3}s / half density {farHalf:F3}s.");
-        Assert.InRange(nearGas, .1f, .35f); Assert.InRange(farGas, .1f, .50f);
-        Assert.InRange(nearHalf, .1f, .45f); Assert.InRange(farHalf, .1f, .60f);
+        Assert.InRange(nearGas, .1f, .35f); Assert.InRange(farGas, .35f, .65f);
+        Assert.InRange(nearHalf, .1f, .45f); Assert.InRange(farHalf, .4f, .75f);
+        Assert.True(farGas > nearGas + .15f);
     }
 
     [Fact]

@@ -139,16 +139,19 @@ vec3 smoke_material_coordinate(vec3 p, float age) {
 float smoke_material_macro(vec3 material) {
     return smoothstep(.28,.72,smoke_shape_noise(material/135.0+vec3(11.17,7.31,19.83)));
 }
-float smoke_shape_density(vec3 relative, float age) {
+float smoke_shape_density(vec3 relative, float age, vec3 extents) {
     float radius_squared = dot(relative,relative);
     if (radius_squared <= 22500.0) return 1.0;
-    if (radius_squared >= 90000.0) return 0.0;
+    if (radius_squared >= 202500.0) return 0.0;
     vec3 material = smoke_material_coordinate(relative,age);
     float macro = smoke_material_macro(material);
     float fine = smoke_shape_noise(material/55.0+vec3(23.41,3.71,13.29));
-    float radius = sqrt(radius_squared), edge = 240.0+54.0*macro+6.0*fine;
-    float shell = mix(1.0,.55+.45*macro,smoothstep(150.0,210.0,radius));
-    return shell*(1.0-smoothstep(edge-18.0,edge,radius));
+    float taper = 1.0-.16*smoothstep(-.1,1.0,relative.z/extents.z);
+    vec3 p = abs(relative/(extents*vec3(taper,taper,1.0)));
+    float body = pow(dot(p,p*p),1.0/3.0), edge = .90+.08*macro+.02*fine;
+    float shell = mix(1.0,.70+.30*macro,smoothstep(.55,.88,body));
+    float density = shell*(1.0-smoothstep(edge-.07,edge,body));
+    return max(1.0-smoothstep(150.0,180.0,sqrt(radius_squared)),density);
 }
 float smoke_density(int field, vec3 p, float now, bool include_bullets) {
     vec4 origin = smoke_field_row(field), info = smoke_field_row(field + 1);
@@ -159,7 +162,7 @@ float smoke_density(int field, vec3 p, float now, bool include_bullets) {
     float age = now - info.x;
     float fade = 1.0 - smoothstep(8.0, 10.0, age);
     if (fade <= 0.0 || age < 0.0) return 0.0;
-    fade *= smoke_shape_density(p-smoke_field_row(field+2).xyz,age);
+    fade *= smoke_shape_density(p-smoke_field_row(field+2).xyz,age,smoke_field_row(field+3).yzw);
     if (fade <= 0.0) return 0.0;
     int lookup = int(smoke_field_row(field+3).x);
     float d;

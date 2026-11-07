@@ -58,15 +58,18 @@ public sealed class ResponsiveSmokeNoiseTests
     [InlineData(2f)]
     [InlineData(5f)]
     [InlineData(9f)]
-    public void MacroShapeRetainsFullCoreAndStrictOuterBoundAtEveryAge(float age)
+    public void MacroShapeRetainsFullCoreAndBoundedFlattenedBodyAtEveryAge(float age)
     {
         for (int y = -4; y <= 4; y++) for (int x = -4; x <= 4; x++)
         {
             FVector direction = new FVector(x, y, 2).SafeNormal();
             Assert.Equal(1f, ResponsiveSmokeField.Envelope(direction * 149.99f, age));
-            Assert.Equal(0f, ResponsiveSmokeField.Envelope(direction * 300.01f, age));
-            Assert.InRange(ResponsiveSmokeField.Envelope(direction * 210, age), .54999f, 1f);
+            Assert.Equal(0f, ResponsiveSmokeField.Envelope(direction * 450.01f, age));
         }
+        Assert.True(ResponsiveSmokeField.Envelope(new FVector(230, 0, 0), age) > .55f);
+        Assert.Equal(0f, ResponsiveSmokeField.Envelope(new FVector(0, 0, 230), age));
+        Assert.Equal(0f, ResponsiveSmokeField.Envelope(new FVector(301, 0, 0), age));
+        Assert.Equal(0f, ResponsiveSmokeField.Envelope(new FVector(0, 301, 0), age));
     }
 
     [Fact]

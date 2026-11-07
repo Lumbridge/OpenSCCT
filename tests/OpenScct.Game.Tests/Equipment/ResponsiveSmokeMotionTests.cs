@@ -40,8 +40,7 @@ public sealed class ResponsiveSmokeMotionTests
             if (x == 0 && y == 0 && z == 0) continue;
             FVector direction = new FVector(x, y, z).SafeNormal();
             Assert.Equal(1f, ResponsiveSmokeField.Envelope(direction * 149.99f, age));
-            Assert.InRange(ResponsiveSmokeField.Envelope(direction * 221.99f, age), .54999f, 1f);
-            Assert.Equal(0f, ResponsiveSmokeField.Envelope(direction * 300.01f, age));
+            Assert.Equal(0f, ResponsiveSmokeField.Envelope(direction * 450.01f, age));
         }
     }
 

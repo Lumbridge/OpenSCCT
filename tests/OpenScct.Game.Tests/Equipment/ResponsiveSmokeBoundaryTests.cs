@@ -64,7 +64,8 @@ public sealed class ResponsiveSmokeBoundaryTests
         Assert.InRange(field.SampleDensity(new FVector(0, 0, floor + .1f), scene.Time), .99f, 1f);
         Assert.Equal(0f, field.SampleDensity(new FVector(0, 0, floor - .1f), scene.Time));
         Assert.InRange(field.SampleDensity(new FVector(0, 0, floor + 200), scene.Time), .99f, 1f);
-        Assert.InRange(field.SampleDensity(new FVector(0, 0, floor + 350), scene.Time), .55f, 1f);
+        Assert.InRange(field.SampleDensity(new FVector(0, 0, floor + 275), scene.Time), .99f, 1f);
+        Assert.Equal(0f, field.SampleDensity(new FVector(0, 0, floor + 350), scene.Time));
         Assert.True(ResponsiveSmokeWorld.For(scene.Level).OpticalDepth(new FVector(-400, 0, floor + 200), new FVector(400, 0, floor + 200)) > 6f);
         Assert.Equal(0f, field.SampleDensity(field.Center + new FVector(301, 0, 0), scene.Time));
         Assert.Equal(0f, field.SampleDensity(field.Center, field.CreatedAt + 10));

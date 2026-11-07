@@ -597,7 +597,8 @@ public static class ResponsiveSmokeRenderer
         Add(FieldData, field.Origin.X, field.Origin.Y, field.Origin.Z, blasts);
         Add(FieldData, field.CreatedAt, begin + 4, 0, field.Carves.Count);
         Add(FieldData, field.Center.X, field.Center.Y, field.Center.Z, growthLayer);
-        Add(FieldData, 0, 0, 0, 0); // Sparse boundary lookup; zero means no partial cells.
+        FVector extents = ResponsiveSmokeField.GeometryShapeExtents(field.Cells, field.ActivationTicks, field.Origin, field.Center);
+        Add(FieldData, 0, extents.X, extents.Y, extents.Z); // Boundary lookup and geometry-directed shape.
         for (int i = 0; i < field.Cells.Length; i++)
             FieldData.Add(field.Cells[i] == 0 ? 0 : field.ActivationTicks[i] == ushort.MaxValue ? -1 : field.ActivationTicks[i] + 1);
         Pad(FieldData);
