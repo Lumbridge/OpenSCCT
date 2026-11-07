@@ -73,9 +73,15 @@ if ($withMaps) { $archives += 'svm-hubmaps.tgz' }
 function New-Packages {
   foreach ($program in $programs) {
     $project = ($table.Values | Where-Object { $_.Program -eq $program } | Select-Object -First 1).Project
-    $out = if ($SkipBuild) { Join-Path $root "local/publish/$program" } else { Join-Path $work $program }
+    $out = if ($PackageOnly) { Join-Path $work $program } else { Join-Path $root "local/publish/$program" }
     if (-not $SkipBuild) {
         Write-Host "Publishing $program..."
+        if (Test-Path -LiteralPath $out) {
+            $resolved = (Resolve-Path -LiteralPath $out).Path
+            $publishRoot = [IO.Path]::GetFullPath((Join-Path $root 'local/publish'))
+            if ((Split-Path -Parent $resolved) -ne $publishRoot) { throw "Unexpected publish directory: $resolved" }
+            Remove-Item -LiteralPath $resolved -Recurse -Force
+        }
         Invoke-Checked "publish $program" { dotnet publish (Join-Path $root $project) -c Release -r linux-x64 --self-contained true -o $out -nologo -v q }
     }
 
