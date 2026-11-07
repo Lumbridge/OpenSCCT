@@ -23,17 +23,24 @@ public sealed class MovingTargetHitRegistrationTests(ITestOutputHelper output)
         }
     }
     [Theory]
-    [InlineData(ENetMode.NM_ListenServer, 35)]
-    [InlineData(ENetMode.NM_ListenServer, 200)]
-    [InlineData(ENetMode.NM_DedicatedServer, 35)]
-    [InlineData(ENetMode.NM_DedicatedServer, 200)]
-    public void MercShotRewindsMovingSpyAfterJoiningAnEstablishedHost(ENetMode mode, int ping)
+    [InlineData(ENetMode.NM_ListenServer, 35, 200, true)]
+    [InlineData(ENetMode.NM_ListenServer, 120, 200, false)]
+    [InlineData(ENetMode.NM_ListenServer, 120, 300, true)]
+    [InlineData(ENetMode.NM_ListenServer, 200, 200, false)]
+    [InlineData(ENetMode.NM_ListenServer, 200, 300, true)]
+    [InlineData(ENetMode.NM_DedicatedServer, 35, 200, true)]
+    [InlineData(ENetMode.NM_DedicatedServer, 120, 200, false)]
+    [InlineData(ENetMode.NM_DedicatedServer, 120, 300, true)]
+    [InlineData(ENetMode.NM_DedicatedServer, 200, 200, false)]
+    [InlineData(ENetMode.NM_DedicatedServer, 200, 300, true)]
+    public void MercShotHonorsTheRewindCeilingAfterJoiningAnEstablishedHost(ENetMode mode, int ping, int ceiling, bool hits)
     {
         using var rig = WalkerRig.Create(new SimLinkProfile("moving target", ping, 10, 0), 379, 0,
             new ServerSettings
             {
                 GameOptions = "?GameMode=5?TimeLimit=0?LivesATT=4?LivesDEF=4",
                 PlayersToStart = 1, Profile = NetProfile.Enhanced, NetMode = mode, UseStartGate = true,
+                LagCompensationCeilingMs = ceiling,
             }, new ClientSettings { Gameplay = true, LoginOptions = "?Team=1" });
         // A server's lifetime and a newly connected player's command clock are deliberately different.
         for (int i = 0; i < 600; i++) rig.Step();
@@ -77,8 +84,22 @@ public sealed class MovingTargetHitRegistrationTests(ITestOutputHelper output)
         output.WriteLine($"view={shotTime / 256.0} world={traces.WorldTick} input={traces.CommandTick} proxy={proxy.Location} aim={aimAt} hit={traces.Last.Actor} location={traces.Last.HitLocation}");
         Assert.Equal(1, serverRifle.ShotCounter);
         Assert.True(rig.Server.LagCompensation.RewoundShots > 0);
-        Assert.Same(target, traces.Last.Actor);
-        // This scripted target has no controller; HitPawn still records the weapon after resolving the trace.
-        Assert.Same(serverRifle, target.LastBulletWeapon);
+        Assert.InRange(rig.Server.LagCompensation.LastRewindMs, 0, ceiling);
+        if (hits)
+        {
+            Assert.Same(target, traces.Last.Actor);
+            // This scripted target has no controller; HitPawn still records the weapon after resolving the trace.
+            Assert.Same(serverRifle, target.LastBulletWeapon);
+        }
+        else
+        {
+            // Network travel plus the client's presentation delay exceeds the permitted history here.
+            // The tighter policy must not silently stretch its window just to preserve an old on-screen hit.
+            Assert.True((traces.WorldTick * NetTimeline.Fraction - shotTime) * 1000.0 /
+                (Sim.Hz * NetTimeline.Fraction) > ceiling);
+            Assert.Equal((float)ceiling, rig.Server.LagCompensation.LastRewindMs);
+            Assert.NotSame(target, traces.Last.Actor);
+            Assert.Null(target.LastBulletWeapon);
+        }
     }
 }
