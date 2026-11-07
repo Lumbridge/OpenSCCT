@@ -39,13 +39,13 @@ public sealed class HubSceneryTraversalTests(ITestOutputHelper output)
     }
 
     [Theory]
-    [InlineData("mediumLift", "A")]
-    [InlineData("hardLift", "A")]
-    [InlineData("hardShuttle", "A")]
-    [InlineData("mediumLift", "B")]
-    [InlineData("hardLift", "B")]
-    [InlineData("hardShuttle", "B")]
-    public void NativeLedgeGrabAttachesToTheMovingPlatform(string id, string link)
+    [InlineData("mediumLift", "A", "S")]
+    [InlineData("hardLift", "A", "E")]
+    [InlineData("hardShuttle", "A", "S")]
+    [InlineData("mediumLift", "B", "S")]
+    [InlineData("hardLift", "B", "E")]
+    [InlineData("hardShuttle", "B", "S")]
+    public void NativeLedgeGrabAttachesToTheMovingPlatform(string id, string link, string face)
     {
         using var run = new PlacedPlayer("Hub", PlaySide.Spy, OpenScct.Net.SimLinkProfile.Get(link));
         var driver = (PhysicsDriver)run.Server.XLevel.PhysicsDriver!;
@@ -53,7 +53,9 @@ public sealed class HubSceneryTraversalTests(ITestOutputHelper output)
         Assert.Equal(4, ledges.Length);
         var mover = (Mover)driver.GEs.OwnerOf(ledges[0])!;
         bool grabbed = false;
-        foreach (var ge in ledges)
+        // Use a clear side face: the Hard lift docks against its south edge at the top.
+        // Hanging under that exit terrace correctly dislodges the pawn as the lift arrives.
+        foreach (var ge in ledges.Where(g => g.Id == id + "LG" + face))
         {
             var delta = ge.P1 - ge.P0; var d = new FVector(delta.X, delta.Y, 0).SafeNormal();
             var outward = new FVector(d.Y, -d.X, 0);
