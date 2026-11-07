@@ -167,6 +167,7 @@ jobs:
           if ($crowd -in (./tools/ci/integration-shard.ps1 -Shard ${{ matrix.shard }} -Plan)) {
             bash tools/ci/prepare-crowd-memory.sh
             if ($LASTEXITCODE -ne 0) { throw 'Could not provision memory for the full-world Hub soak.' }
+            'DOTNET_GCConserveMemory=9' | Add-Content $env:GITHUB_ENV
           }
       - name: Run integration shard
         shell: pwsh
