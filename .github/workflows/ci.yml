@@ -214,17 +214,17 @@ jobs:
 
       - name: Godot headless smokes
         env:
-          RELEASE_CANDIDATE: ${{ inputs.release_candidate || false }}
+          RELEASE_CANDIDATE: ${{ inputs.release_candidate || github.event_name == 'push' }}
         run: |
           ./tools/ci/godot-smoke.ps1 -Tests boot,testbox,range-sim,help-feedback -ExpectedFailures selftest-fail -TimeoutSeconds 180 -Export:($env:RELEASE_CANDIDATE -eq 'true')
 
       - name: Record Windows export provenance
-        if: inputs.release_candidate
+        if: inputs.release_candidate || github.event_name == 'push'
         run: |
           @{ commit = $env:GITHUB_SHA; platform = 'win-x64' } | ConvertTo-Json | Set-Content local/build/openscct-build.json
 
       - uses: actions/upload-artifact@v7
-        if: inputs.release_candidate
+        if: inputs.release_candidate || github.event_name == 'push'
         with:
           name: openscct-windows-export
           path: local/build
@@ -244,7 +244,7 @@ jobs:
     uses: ./.github/workflows/linux-export.yml
 
   release-vps:
-    if: inputs.release_candidate
+    if: inputs.release_candidate || github.event_name == 'push'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:

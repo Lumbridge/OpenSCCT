@@ -214,9 +214,10 @@ sources under an already-published launcher version.
 
 ### Making a release
 
-To prepare a full release candidate, dispatch the `ci` workflow on the candidate ref with
-`release_candidate=true`. It runs the Windows export and smokes, Linux and Flatpak packaging and smokes,
-VPS packaging, and the usual CI checks in parallel. Use the artifacts from the successful run for that commit.
+Each push to main prepares the Windows export and VPS packages in `ci`, while `linux-export` prepares Linux
+and Flatpak for the same commit. These jobs run alongside the validation suite. Use the artifacts from the
+successful workflows for that exact commit. To prepare a branch candidate before merging, dispatch `ci`
+with `release_candidate=true`; that run also includes Linux and Flatpak preparation.
 Download `openscct-windows-export` into `local/build` for the packaging step below. Use the existing versioned
 launcher cache so the launcher checksum stays stable across game releases. The Linux release and Flatpak
 artifacts are already packaged. The `openscct-vps` artifact works with
