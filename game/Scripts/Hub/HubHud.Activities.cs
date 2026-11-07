@@ -37,14 +37,7 @@ public partial class HubHud
         _boardTitle.Modulate = UiArt.Accent;
         _board = MakeLabel("Board", UiArt.CaptionFont, 15, HorizontalAlignment.Left);
         _emoteMenu = MakeLabel("EmoteMenu", UiArt.CaptionFont, 16, HorizontalAlignment.Left);
-        var sb = new StringBuilder("EMOTES\n");
-        for (int i = 0; i < HubEmotes.All.Count; i++)
-        {
-            sb.Append((i + 1).ToString(CultureInfo.InvariantCulture)).Append("  ").Append(HubEmotes.All[i]).Append('\n');
-        }
-
-        sb.Append("Esc  close");
-        _emoteMenu.Text = sb.ToString();
+        _emoteMenu.Text = "EMOTES"; // Filled from the loaded bindings by UpdateBindingHints.
         _emoteMenu.Visible = false;
     }
 
@@ -76,9 +69,10 @@ public partial class HubHud
         string activity = string.Empty;
         if (play.Running)
         {
-            activity = $"COURSE  {HubScores.Time(play.RunMs)}\ncheckpoint {play.Passed}/{play.Checkpoints}" +
+            activity = $"{play.CourseTitle}  {HubScores.Time(play.RunMs)}\n" +
+                       (play.CourseId == "easy" ? $"checkpoint {play.Passed}/{play.Checkpoints}" : $"section {System.Math.Min(play.Passed + 1, play.Checkpoints)}/{play.Checkpoints}  {play.SectionTitle}") +
                        (play.LastSplit >= 0 ? $"   split {HubScores.Time(play.LastSplit)}" : string.Empty) +
-                       (play.Falls > 0 ? $"   falls {play.Falls}" : string.Empty);
+                       $"   falls {play.Falls}";
         }
         else if (play.InRound)
         {
@@ -161,43 +155,46 @@ public partial class HubHud
     }
 
     /// <summary>What U (or walking on) does here.</summary>
-    private static string Prompt(HubClient client, HubPlayState play, FVector at)
+    private string Prompt(HubClient client, HubPlayState play, FVector at)
     {
+        FVector feet = client.LocalPlayer?.Pawn is { } pawn ? pawn.Location : at;
         if (client.Queue.PadId is not null)
         {
             // On a match pad U readies up (the queue panel above says who is ready).
             return client.Queue.Side >= 0
-                ? (client.Queue.Text.Contains("you are ready", System.StringComparison.Ordinal) ? "U  unready" : "U  ready up")
+                ? KeyHint("HubUse") + (client.Queue.Text.Contains("you are ready", System.StringComparison.Ordinal) ? "  unready" : "  ready up")
                 : string.Empty;
         }
 
         // The hub checks the laptop's range from the pawn, not the camera.
-        FVector feet = client.LocalPlayer?.Pawn is { } pawn ? pawn.Location : at;
         if (play.Nearest("laptop", feet, out float ld) is { } laptop && ld <= HubPads.LaptopUseRange)
         {
-            return $"U  set the match of Pad {laptop.Id[^1]} (laptop)";
+            return $"{KeyHint("HubUse")}  set the match of Pad {laptop.Id[^1]} (laptop)";
         }
 
         if (play.Nearest("jukebox", at, out float jd) is not null && jd <= HubPlayK.JukeboxUseRange)
         {
-            return $"U  next record   (playing \"{play.TrackTitle}\")";
+            return $"{KeyHint("HubUse")}  next record   (playing \"{play.TrackTitle}\")";
         }
 
         if (!play.InRound && play.Nearest("firingline", at, out _) is { } line &&
             at.X >= line.At.X - HubPlayK.FiringLineSlack && at.X <= line.At.X + 320f && System.Math.Abs(at.Y - line.At.Y) <= line.Radius)
         {
-            return client.Team == 1 ? $"U  start a {HubPlayK.RoundSeconds:0} s round at the aim range" : "The aim range is for mercs (K to play merc)";
+            return client.Team == 1 ? $"{KeyHint("HubUse")}  start a {HubPlayK.RoundSeconds:0} s round at the aim range" : $"The aim range is for mercs ({KeyHint("HubMerc")} to play merc)";
         }
 
         if (play.InRound || play.Running)
         {
-            return "X  stop";
+            return KeyHint("HubCancel") + "  stop";
         }
 
         if (play.Nearest("start", at, out float sd) is { } start && sd <= start.Radius + 256f)
         {
-            return client.Team == 0 ? "Spy course: step out of the green gate to start the clock" : "The movement course is for spies (J to play spy)";
+            return client.Team == 0 ? "Spy course: step out of the green gate to start the clock" : $"The movement course is for spies ({KeyHint("HubSpy")} to play spy)";
         }
+
+        if (play.Nearest("travel", feet, out float td) is not null && td <= 320)
+            return KeyHint("HubTravel") + "  travel to another district";
 
         return string.Empty;
     }
@@ -221,32 +218,19 @@ public partial class HubHud
     }
 
     /// <summary>Keys while the emote menu is open: 1 to 8 play one, Escape or G closes. True when the key was the menu's.</summary>
-    private bool EmoteMenuInput(InputEventKey key)
+    private bool EmoteMenuInput(InputEvent input)
     {
         if (!_emoteOpen)
         {
             return false;
         }
 
-        int index = key.Keycode switch
-        {
-            >= Key.Key1 and <= Key.Key9 => (int)(key.Keycode - Key.Key1),
-            >= Key.Kp1 and <= Key.Kp9 => (int)(key.Keycode - Key.Kp1),
-            _ => -1,
-        };
-        if (index >= 0 && index < HubEmotes.All.Count)
-        {
-            Client?.Emote(HubEmotes.All[index]);
-            CloseEmoteMenu();
-            return true;
-        }
-
-        if (key.Keycode is Key.Escape or Key.G)
+        if (HubBound(input, "ShowMenu"))
         {
             CloseEmoteMenu();
             return true;
         }
 
-        return false;
+        return HubCommandOf(input) is { } command && RunHubCommand(command);
     }
 }

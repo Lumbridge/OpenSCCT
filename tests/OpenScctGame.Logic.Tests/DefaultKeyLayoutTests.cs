@@ -57,7 +57,7 @@ public sealed class DefaultKeyLayoutTests
 
         Assert.Equal(snapshot, reloaded.ToIni());
         Assert.Equal("ChangeGear", Assert.Single(reloaded.Resolve("I")).Name);
-        Assert.Equal("SwapWeapon", Assert.Single(reloaded.Resolve("G")).Name);
+        Assert.Equal(new[] { "SwapWeapon", "HubEmotes" }, reloaded.Resolve("G").Select(a => a.Name));
         Assert.Equal("PushToTalk", Assert.Single(reloaded.Resolve("CapsLock")).Name);
         Assert.Equal("TeamPushToTalk", Assert.Single(reloaded.Resolve("Y")).Name);
         Assert.Equal(new[] { "DisplaySessionStatus", "ToggleVoiceMute" }, reloaded.Resolve("F8").Select(a => a.Name));
@@ -98,10 +98,10 @@ public sealed class DefaultKeyLayoutTests
         KeyLayout loaded = DefaultKeyLayout.ApplyProfile(DefaultKeyLayout.Create(), overlay, "Gadget");
 
         Assert.False(loaded.Bindings.ContainsKey("I"));
-        Assert.Equal("ChangeGear", Assert.Single(loaded.Resolve("J")).Name);
-        Assert.Equal("CustomGadget", Assert.Single(loaded.Resolve("G")).Name);
+        Assert.Equal(new[] { "ChangeGear", "HubSpy" }, loaded.Resolve("J").Select(a => a.Name));
+        Assert.Equal(new[] { "CustomGadget", "HubEmotes" }, loaded.Resolve("G").Select(a => a.Name));
         Assert.Equal("CustomVoiceAction", Assert.Single(loaded.Resolve("CapsLock")).Name);
-        Assert.Equal("PushToTalk", Assert.Single(loaded.Resolve("U")).Name);
+        Assert.Equal(new[] { "PushToTalk", "HubUse" }, loaded.Resolve("U").Select(a => a.Name));
         Assert.Equal(new[] { "CustomStatus", "ToggleVoiceMute" }, loaded.Resolve("F8").Select(a => a.Name));
     }
 

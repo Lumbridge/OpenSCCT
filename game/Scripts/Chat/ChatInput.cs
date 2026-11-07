@@ -51,6 +51,7 @@ public partial class ChatInput : CanvasLayer, IHudOverlay
 
     /// <summary>The hub supplies its own chat stream; do not also display the match relay's copy.</summary>
     public bool ReceiveMatchMessages { get; set; } = true;
+    public bool AllowEnterShortcut { get; set; } = true;
     public bool IsOpen { get; private set; }
     public static ChatInput? Typing { get; private set; }
     public EChatScope Scope => Panel.Channel == ChatChannel.Team ? EChatScope.TeamSay : EChatScope.Say;
@@ -177,7 +178,7 @@ public partial class ChatInput : CanvasLayer, IHudOverlay
             if (BindingInput.Current?.CaptureSuspended == true) return;
             string? ik = BindingInput.ResolveKey(@event, input.Bindings);
             EChatScope? scope = ik is null ? null : CommandOf(ik);
-            bool enter = @event is InputEventKey enterKey && Code(enterKey) is Key.Enter or Key.KpEnter &&
+            bool enter = AllowEnterShortcut && @event is InputEventKey enterKey && Code(enterKey) is Key.Enter or Key.KpEnter &&
                 !enterKey.AltPressed && !enterKey.CtrlPressed && !enterKey.MetaPressed &&
                 (ik is null || (input.Bindings?.Actions(ik).Count ?? 0) == 0);
             if (scope is null && !enter) return;

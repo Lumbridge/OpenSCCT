@@ -1,0 +1,168 @@
+[
+  {
+    "asset": "pine-tree-1",
+    "source": "https://raw.githubusercontent.com/GamesNotDeveloped/godot-forest-demo/623212ffeb4efbf4c95323a4a6a57e726be4f6e9/objects/pine-tree-1/scene.gltf",
+    "sha256": "0276694946cef0e01ce01f58a19da7da1c85d69dd2287f7f6d21a50e694a9253",
+    "changes": "Embedded materials and textures; textures capped at 1024px; unused animations removed.",
+    "license": "CC-BY-4.0"
+  },
+  {
+    "asset": "pine-tree-2",
+    "source": "https://raw.githubusercontent.com/GamesNotDeveloped/godot-forest-demo/623212ffeb4efbf4c95323a4a6a57e726be4f6e9/objects/pine-tree-2/scene.gltf",
+    "sha256": "3ecb266a58a56b4937c79cdbd6f1270cb712abfc9c5eb7664cebbc5e9fc204a7",
+    "changes": "Embedded materials and textures; textures capped at 1024px; unused animations removed.",
+    "license": "CC-BY-4.0"
+  },
+  {
+    "asset": "birch-tree-1",
+    "source": "https://raw.githubusercontent.com/GamesNotDeveloped/godot-forest-demo/623212ffeb4efbf4c95323a4a6a57e726be4f6e9/objects/birch-tree-1/scene.gltf",
+    "sha256": "fbf1fbb69dcef3e8eb4e9b36a2282631ed9d194a7fcc49b0c05010abeba6ea16",
+    "changes": "Embedded materials and textures; textures capped at 1024px; unused animations removed.",
+    "license": "CC-BY-4.0"
+  },
+  {
+    "asset": "flower-1",
+    "source": "https://raw.githubusercontent.com/GamesNotDeveloped/godot-forest-demo/623212ffeb4efbf4c95323a4a6a57e726be4f6e9/objects/flower-1/scene.gltf",
+    "sha256": "91707c141ea1f0b841a0f1c0fa6618f33481ee1493cbe29577835695fb847df3",
+    "changes": "Embedded materials and textures; textures capped at 1024px; unused animations removed.",
+    "license": "CC-BY-4.0"
+  },
+  {
+    "asset": "old-house",
+    "source": "https://raw.githubusercontent.com/GamesNotDeveloped/godot-forest-demo/623212ffeb4efbf4c95323a4a6a57e726be4f6e9/objects/old-house/scene.gltf",
+    "sha256": "7a87e2dab8a60aef50d23195f413421e2e18df0b7f72447a1e4644b0bf0c6e76",
+    "changes": "Embedded materials and textures; textures capped at 1024px; unused animations removed.",
+    "license": "CC-BY-4.0"
+  },
+  {
+    "asset": "old-well",
+    "source": "https://raw.githubusercontent.com/GamesNotDeveloped/godot-forest-demo/623212ffeb4efbf4c95323a4a6a57e726be4f6e9/objects/old-well/scene.gltf",
+    "sha256": "acb3c2cef3836ae01af811bcca10ac79dfe98c5bde0b37b96f9679f3ea2f5a45",
+    "changes": "Embedded materials and textures; textures capped at 1024px; unused animations removed.",
+    "license": "CC-BY-4.0"
+  },
+  {
+    "asset": "painted_wooden_bench",
+    "source": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/1k/painted_wooden_bench/painted_wooden_bench_1k.gltf",
+    "sha256": "fea0de8649c47e10f126a3e17c38d83633690053c956d333fcc570bf146e92ea",
+    "changes": "Embedded materials and textures; textures capped at 1024px; unused animations removed.",
+    "license": "CC0-1.0"
+  },
+  {
+    "asset": "boulder_01",
+    "source": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/1k/boulder_01/boulder_01_1k.gltf",
+    "sha256": "fd8bc2bceb86965bb54374c0aff00a5cd2a8566e201f9acd87f3202ebcc6389a",
+    "changes": "Embedded materials and textures; textures capped at 1024px; unused animations removed.",
+    "license": "CC0-1.0"
+  },
+  {
+    "asset": "old_military_crate",
+    "source": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/1k/old_military_crate/old_military_crate_1k.gltf",
+    "sha256": "1a0f64223b3d1cd715aa4c1ed78d001c1b5ca8c53e2cf5537013470df64fae44",
+    "changes": "Embedded materials and textures; textures capped at 1024px; unused animations removed.",
+    "license": "CC0-1.0"
+  },
+  {
+    "asset": "wooden_picnic_table",
+    "source": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/1k/wooden_picnic_table/wooden_picnic_table_1k.gltf",
+    "sha256": "51dbb316b944af6c61846af3847c5fb11f2e5a181fb23830570ccc17ea875fcc",
+    "changes": "Embedded materials and textures; textures capped at 1024px; unused animations removed.",
+    "license": "CC0-1.0"
+  },
+  {
+    "asset": "Barrel_01",
+    "source": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/1k/Barrel_01/Barrel_01_1k.gltf",
+    "sha256": "5186087a4787abbad5406c2d1d2c9cc5375c41ec064253a1b0837fbb9714a598",
+    "changes": "Embedded materials and textures; textures capped at 1024px; unused animations removed.",
+    "license": "CC0-1.0"
+  },
+  {
+    "asset": "Sofa_01",
+    "source": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/1k/Sofa_01/Sofa_01_1k.gltf",
+    "sha256": "7a29869eec47e9ea40cbbe0daa5ed6886ce3b682d3d55bde0b0ba1ea7e6705b8",
+    "changes": "Embedded materials and textures; textures capped at 1024px; unused animations removed.",
+    "license": "CC0-1.0"
+  },
+  {
+    "asset": "CoffeeTable_01",
+    "source": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/1k/CoffeeTable_01/CoffeeTable_01_1k.gltf",
+    "sha256": "0c83a6acc4b9c7d46d59b5777ae3cad0040da5961b71e5d4725f9e44944866ba",
+    "changes": "Embedded materials and textures; textures capped at 1024px; unused animations removed.",
+    "license": "CC0-1.0"
+  },
+  {
+    "asset": "street_lamp_01",
+    "source": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/1k/street_lamp_01/street_lamp_01_1k.gltf",
+    "sha256": "d2bf79d82c7ed4c6cca3c70ef2d743abfde749ca7e8863712cbc467f3b2eba78",
+    "changes": "Embedded materials and textures; textures capped at 1024px; unused animations removed.",
+    "license": "CC0-1.0"
+  },
+  {
+    "asset": "grass_ground",
+    "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/grass_ground/grass_ground_diff_1k.jpg",
+    "license": "CC0-1.0",
+    "sha256": "a79cc5ed65af0f80261b39a383b64a8c5272c5144d724deb43dbc29f0e4cd19b"
+  },
+  {
+    "asset": "mossy_stone_wall",
+    "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/mossy_stone_wall/mossy_stone_wall_diff_1k.jpg",
+    "license": "CC0-1.0",
+    "sha256": "7240e55cfc662ea403600fc7d5143f72983fbe8098d55fc6ccae75d21421dce4"
+  },
+  {
+    "asset": "castle_brick_broken_06",
+    "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/castle_brick_broken_06/castle_brick_broken_06_diff_1k.jpg",
+    "license": "CC0-1.0",
+    "sha256": "316405f7a082508efc8876bb16f250c93eda76f24cc8866769fcf5374a0aa590"
+  },
+  {
+    "asset": "snow_02",
+    "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/snow_02/snow_02_diff_1k.jpg",
+    "license": "CC0-1.0",
+    "sha256": "523a4e69c90b96d787dd69b897f29a2b3761a017024405c60aa630d1e8e9009a"
+  },
+  {
+    "asset": "weathered_planks",
+    "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/weathered_planks/weathered_planks_diff_1k.jpg",
+    "license": "CC0-1.0",
+    "sha256": "01c9a372cfd7a7bf471b59c2458ed3ccecc93448aebf7ba0cc5b3b5b6ed24349"
+  },
+  {
+    "asset": "concrete_floor_worn_02",
+    "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/concrete_floor_worn_02/concrete_floor_worn_02_diff_1k.jpg",
+    "license": "CC0-1.0",
+    "sha256": "ff489f9196bb19d908981f4e9cde48f915a9860986b6718357c04e8a088bb744"
+  },
+  {
+    "asset": "grassy_cobblestone",
+    "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/grassy_cobblestone/grassy_cobblestone_diff_1k.jpg",
+    "license": "CC0-1.0",
+    "sha256": "9e7ba40919fd1bb4b98397b9522de0e6e537be8ea4121344772238d63fe50fcc"
+  },
+  {
+    "asset": "autumn_field_puresky",
+    "source": "https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/2k/autumn_field_puresky_2k.hdr",
+    "license": "CC0-1.0",
+    "sha256": "c54d0b38c90417419f83ed695c56f47675565536b0d3aa9a023a7472a70ed844"
+  },
+  {
+    "asset": "fern_02",
+    "source": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/1k/fern_02/fern_02_1k.gltf",
+    "sha256": "d5ec467237271a82bc99ba9e73d7cda26160739bbb93af09371ccf9310062d2a",
+    "changes": "Embedded materials and textures; textures capped at 1024px; unused animations removed.",
+    "license": "CC0-1.0"
+  },
+  {
+    "asset": "leafy_grass",
+    "sha256": "cfa40bc9d9417d1852db8753a8d5917f110c40101179f63543c382e39bc05e4a",
+    "license": "CC0-1.0",
+    "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/leafy_grass/leafy_grass_diff_1k.jpg"
+  },
+  {
+    "asset": "grassbushcc008",
+    "source": "https://raw.githubusercontent.com/GamesNotDeveloped/godot-forest-demo/623212ffeb4efbf4c95323a4a6a57e726be4f6e9/grass/grassbushcc008.png",
+    "license": "MIT",
+    "author": "IcterusGames / SimpleGrassTextured",
+    "sha256": "b09c287f65e5c2ced9aeec591674241d5cf846619c26dababfaba81a1fe29982"
+  }
+]

@@ -104,7 +104,13 @@ public partial class PlayInput : Node
     public event Action? LocalActionsReset;
     public void SendLocalAction(string command, string source, bool pressed) => LocalAction?.Invoke(command, source, pressed);
 
-    public void SendLocalCommand(string command) => LocalCommand?.Invoke(command);
+    /// <summary>A local overlay may consume controller commands while gameplay is paused.</summary>
+    public Func<string, bool>? ModalCommand { get; set; }
+    public Func<bool>? ModalInputActive { get; set; }
+    public void SendLocalCommand(string command)
+    {
+        if (ModalCommand?.Invoke(command) != true) LocalCommand?.Invoke(command);
+    }
 
     /// <summary>The gamepad must obey the same native focus guard as keyboard input.</summary>
     public bool HasInputFocus => !RequireCapture || HasPlayFocus;

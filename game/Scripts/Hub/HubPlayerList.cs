@@ -57,7 +57,7 @@ public partial class HubPlayerList : Control
 
         var head = new HBoxContainer();
         head.AddChild(new Label { Text = "Players in the hub", SizeFlagsHorizontal = SizeFlags.ExpandFill });
-        var close = new Button { Text = "Close (P)" };
+        var close = new Button { Text = "Close" };
         close.Pressed += () => Closed?.Invoke();
         head.AddChild(close);
         outer.AddChild(head);
@@ -90,15 +90,6 @@ public partial class HubPlayerList : Control
         {
             _refresh = 1.0;
             Refresh();
-        }
-    }
-
-    public override void _UnhandledInput(InputEvent @event)
-    {
-        if (@event is InputEventKey { Pressed: true, Echo: false } key && key.Keycode is Key.P or Key.Escape)
-        {
-            Closed?.Invoke();
-            GetViewport().SetInputAsHandled();
         }
     }
 

@@ -51,6 +51,7 @@ public partial class ArmouryScreen : MenuPage
     /// Achievements button is left out. Saved choices reach the hub through the saved settings (HubService); the lobby sends them on Back.
     /// </summary>
     public Action? Closed { get; init; }
+    public Func<InputEvent, bool>? CloseInput { get; init; }
 
     public override void _Ready()
     {
@@ -149,7 +150,7 @@ public partial class ArmouryScreen : MenuPage
             return;
         }
 
-        if (key.Keycode == Key.Escape && !key.Echo)
+        if (CloseInput?.Invoke(@event) ?? (key.Keycode == Key.Escape && !key.Echo))
         {
             closed();
         }

@@ -50,7 +50,7 @@ public sealed class GERecord
 {
     private readonly FVector[] _points;
 
-    public GERecord(int index, string id, GEKind kind, IReadOnlyList<FVector> points, byte mask, GEPlatform platform, GESource source)
+    public GERecord(int index, string id, GEKind kind, IReadOnlyList<FVector> points, byte mask, GEPlatform platform, GESource source, string? attachedTo = null)
     {
         ArgumentNullException.ThrowIfNull(id);
         ArgumentNullException.ThrowIfNull(points);
@@ -72,6 +72,7 @@ public sealed class GERecord
         Mask = mask;
         Platform = platform;
         Source = source;
+        AttachedTo = attachedTo;
     }
 
     /// <summary>Position in the GE list (original level order).</summary>
@@ -94,6 +95,9 @@ public sealed class GERecord
     public GEPlatform Platform { get; }
 
     public GESource Source { get; }
+
+    /// <summary>Optional authored moving actor. Points are local to that actor; legacy GEs remain world-space.</summary>
+    public string? AttachedTo { get; }
 
     /// <summary>Active under <paramref name="activationMask"/> (<c>LevelInfo.GEActivationMask</c>).</summary>
     public bool IsActive(byte activationMask) => Mask == 0 || (Mask & activationMask) != 0;
@@ -219,7 +223,9 @@ public sealed class TraversalDoc
 
             byte mask = (byte)j.IntegerMember(ge, "mask", at, 0, 255);
             var platform = (GEPlatform)j.IntegerMember(ge, "platform", at, 0, 2);
-            ges.Add(new GERecord(i, id, kind, points, mask, platform, ReadSource(j, j.ObjectMember(ge, "src", at), $"{at}/src")));
+            string? attachedTo = j.OptionalString(ge, "attachedTo", at);
+            if (attachedTo is not null && !PropJson.IsIdentifier(attachedTo)) throw j.Error(at + "/attachedTo", "invalid actor id");
+            ges.Add(new GERecord(i, id, kind, points, mask, platform, ReadSource(j, j.ObjectMember(ge, "src", at), $"{at}/src"), attachedTo));
         }
 
         return new TraversalDoc(version, map, ges);
@@ -249,6 +255,7 @@ public sealed class TraversalDoc
             var o = new SvJsonObject();
             o.Add("id", SvJsonNode.String(ge.Id));
             o.Add("kind", SvJsonNode.String(ge.Kind.ToString()));
+            if (ge.AttachedTo is { } owner) o.Add("attachedTo", SvJsonNode.String(owner));
             var points = new SvJsonArray();
             foreach (FVector p in ge.Points)
             {

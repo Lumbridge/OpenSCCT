@@ -67,7 +67,7 @@ public static class HubProtocol
     /// Version of this line set (2: signs, pads, queues and matches; 3: signs mounted on boards; 4: votes, watching,
     /// matches through the master, the roster and local chat; 5: looks; 6: pad laptops replace votes).
     /// </summary>
-    public const int Version = 6;
+    public const int Version = 7; // Multiple courses, sections, personal bests and destination-ID travel.
 
     /// <summary>The login option a player back from a pad's match carries.</summary>
     public const string ReturnOption = "HubReturn";

@@ -105,7 +105,25 @@ public sealed class HubTable
 /// </summary>
 public sealed class HubScores
 {
-    public HubTable Course { get; } = new(lowerIsBetter: true);
+    private readonly Dictionary<string, HubTable> _courses = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, int> _revisions = new(StringComparer.Ordinal);
+    public HubTable Course => ForCourse("easy");
+    public HubTable ForCourse(string id)
+    {
+        if (!_courses.TryGetValue(id, out var table)) _courses[id] = table = new(lowerIsBetter: true);
+        return table;
+    }
+
+    public void KeepCourses(IEnumerable<HubCourseDefinition> courses)
+    {
+        foreach (var course in courses)
+        {
+            int previous = _revisions.GetValueOrDefault(course.Id, course.Id == "easy" ? CourseLayout : 0);
+            if (previous != course.Revision) ForCourse(course.Id).Clear();
+            _revisions[course.Id] = course.Revision;
+        }
+        Save();
+    }
 
     public HubTable Range { get; } = new(lowerIsBetter: false);
 
@@ -154,6 +172,13 @@ public sealed class HubScores
                 scores.CourseLayout = cl.GetInt32();
             }
 
+            if (doc.RootElement.TryGetProperty("courses", out var courses))
+                foreach (var course in courses.EnumerateObject())
+                {
+                    scores._revisions[course.Name] = course.Value.GetProperty("revision").GetInt32();
+                    scores.ForCourse(course.Name).Clear();
+                    ReadTable(course.Value, "bests", scores.ForCourse(course.Name));
+                }
             ReadTable(doc.RootElement, "range", scores.Range);
             ReadTable(doc.RootElement, "goals", scores.Goals);
         }
@@ -179,9 +204,18 @@ public sealed class HubScores
             using (var w = new Utf8JsonWriter(stream, new JsonWriterOptions { Indented = true }))
             {
                 w.WriteStartObject();
-                w.WriteString("format", "openscct.hubscores/1");
+                w.WriteString("format", "openscct.hubscores/2");
                 w.WriteNumber("courseLayout", CourseLayout);
                 WriteTable(w, "course", Course);
+                w.WriteStartObject("courses");
+                foreach (var (id, table) in _courses)
+                {
+                    w.WriteStartObject(id);
+                    w.WriteNumber("revision", _revisions.GetValueOrDefault(id, id == "easy" ? CourseLayout : 0));
+                    WriteTable(w, "bests", table);
+                    w.WriteEndObject();
+                }
+                w.WriteEndObject();
                 WriteTable(w, "range", Range);
                 WriteTable(w, "goals", Goals);
                 w.WriteEndObject();

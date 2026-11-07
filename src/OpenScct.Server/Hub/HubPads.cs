@@ -300,7 +300,11 @@ public sealed class HubPads
         };
         var config = pad.Default with
         {
-            Map = entry.Id, Mode = s.Mode, TeamSize = teamSize, Bots = s.Bots, MinPlayers = minPlayers,
+            Map = entry.Id,
+            Mode = s.Mode,
+            TeamSize = teamSize,
+            Bots = s.Bots,
+            MinPlayers = minPlayers,
             Setup = s with { Map = entry.Id, MaxPlayers = slots },
         };
         if (!Reconfigure(pad.Config.Id, config, maps))
@@ -317,7 +321,7 @@ public sealed class HubPads
 
         string what = $"{pad.Config.Title} {pad.Config.Format}";
         _hub.LogLine($"{player.Slot.Name} set {pad.Config.Id} at its laptop: {SetupOf(pad).Describe()}");
-        string note = $"{player.Slot.Name} set {PadName(pad)} to {what}. Ready up again (U).";
+        string note = $"{player.Slot.Name} set {PadName(pad)} to {what}. Ready up again.";
         foreach (HubQueueEntry e in pad.Queue)
         {
             Send(e.Player.Slot, HubProtocol.Message(note));
@@ -484,6 +488,9 @@ public sealed class HubPads
 
     internal void Left(HubPlayer player)
     {
+        foreach (var pending in _pending) pending.Offers.RemoveAll(o => ReferenceEquals(o.Player, player));
+        player.QueueLine = string.Empty;
+        player.DepartedAt = -1f;
         if (player.Pad is { } pad)
         {
             pad.Queue.RemoveAll(e => ReferenceEquals(e.Player, player));
@@ -837,9 +844,21 @@ public sealed class HubPads
         HubPadConfig c = pad.Config;
         return new HubPadInfo
         {
-            Id = c.Id, State = pad.State, Seconds = seconds, Map = c.Map, Mode = c.Mode, TeamSize = c.TeamSize,
-            Spies = pad.Spies, SpySlots = c.SpySlots, Mercs = pad.Mercs, MercSlots = c.MercSlots,
-            LoX = pad.Area.LoX, LoY = pad.Area.LoY, HiX = pad.Area.HiX, HiY = pad.Area.HiY, FloorZ = pad.Area.FloorZ,
+            Id = c.Id,
+            State = pad.State,
+            Seconds = seconds,
+            Map = c.Map,
+            Mode = c.Mode,
+            TeamSize = c.TeamSize,
+            Spies = pad.Spies,
+            SpySlots = c.SpySlots,
+            Mercs = pad.Mercs,
+            MercSlots = c.MercSlots,
+            LoX = pad.Area.LoX,
+            LoY = pad.Area.LoY,
+            HiX = pad.Area.HiX,
+            HiY = pad.Area.HiY,
+            FloorZ = pad.Area.FloorZ,
             Title = c.Title.Length > 0 ? c.Title : c.Map,
         };
     }
@@ -963,7 +982,7 @@ public sealed class HubPads
         if (pad.InLineup >= c.Needed && !pad.AllReady)
         {
             int unready = pad.InLineup - pad.ReadyCount;
-            return unready == 1 ? "Waiting for 1 player to ready up (U)" : $"Waiting for {unready} players to ready up (U)";
+            return unready == 1 ? "Waiting for 1 player to ready up" : $"Waiting for {unready} players to ready up";
         }
 
         if (c.Needed < c.Slots)
@@ -1042,7 +1061,7 @@ public sealed class HubPads
             }
             else
             {
-                string you = entry.Ready ? "you are ready (U to unready)" : "press U to ready up";
+                string you = entry.Ready ? "you are ready" : "use Ready up to join";
                 text = $"Queued on {PadName(pad)}{side}: {count}, {you}; {FirstLower(Missing(pad, c))}";
             }
 

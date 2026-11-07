@@ -53,24 +53,24 @@ public sealed record UvAnim(string Type, Vector4 A, Vector4 B, Vector4 C = defau
         switch (type)
         {
             case "panner":
-            {
-                // PanDirection is a rotator; the pan is its unit vector's X and Y times PanRate per second.
-                JsonElement d = e.GetProperty("direction");
-                float pitch = RotatorRadians(d[0].GetInt32());
-                float yaw = RotatorRadians(d[1].GetInt32());
-                float rate = Num(e, "rate");
-                float dx = MathF.Cos(pitch) * MathF.Cos(yaw);
-                float dy = MathF.Cos(pitch) * MathF.Sin(yaw);
-                return new UvAnim(type, new Vector4(dx, dy, rate, 0f), Vector4.Zero);
-            }
+                {
+                    // PanDirection is a rotator; the pan is its unit vector's X and Y times PanRate per second.
+                    JsonElement d = e.GetProperty("direction");
+                    float pitch = RotatorRadians(d[0].GetInt32());
+                    float yaw = RotatorRadians(d[1].GetInt32());
+                    float rate = Num(e, "rate");
+                    float dx = MathF.Cos(pitch) * MathF.Cos(yaw);
+                    float dy = MathF.Cos(pitch) * MathF.Sin(yaw);
+                    return new UvAnim(type, new Vector4(dx, dy, rate, 0f), Vector4.Zero);
+                }
 
             case "friendly_panner":
-            {
-                float rate = Num(e, "rate");
-                float u = Num(e, "pan_u") / MathF.Max(1e-6f, Num(e, "scale_u", 1f));
-                float v = Num(e, "pan_v") / MathF.Max(1e-6f, Num(e, "scale_v", 1f));
-                return new UvAnim(type, new Vector4(u, v, rate, 0f), Vector4.Zero);
-            }
+                {
+                    float rate = Num(e, "rate");
+                    float u = Num(e, "pan_u") / MathF.Max(1e-6f, Num(e, "scale_u", 1f));
+                    float v = Num(e, "pan_v") / MathF.Max(1e-6f, Num(e, "scale_v", 1f));
+                    return new UvAnim(type, new Vector4(u, v, rate, 0f), Vector4.Zero);
+                }
 
             case "oscillator":
                 return new UvAnim(type,
@@ -79,11 +79,11 @@ public sealed record UvAnim(string Type, Vector4 A, Vector4 B, Vector4 C = defau
                     new Vector4(Num(e, "UOscillationPhase"), Num(e, "VOscillationPhase"), Num(e, "UOffset"), Num(e, "VOffset")));
 
             case "rotator":
-            {
-                JsonElement r = e.GetProperty("rotation");
-                float yawRate = RotatorRadians(r[1].GetInt32());
-                return new UvAnim(type, new Vector4(yawRate, Num(e, "rotation_type"), Num(e, "u_offset"), Num(e, "v_offset")), Vector4.Zero);
-            }
+                {
+                    JsonElement r = e.GetProperty("rotation");
+                    float yawRate = RotatorRadians(r[1].GetInt32());
+                    return new UvAnim(type, new Vector4(yawRate, Num(e, "rotation_type"), Num(e, "u_offset"), Num(e, "v_offset")), Vector4.Zero);
+                }
 
             default:
                 return null;
@@ -641,6 +641,8 @@ public sealed class LightingDoc
     public OpenScct.Core.FRotator SkyRotation { get; private set; }
 
     public int SkyZone { get; private set; } = -1;
+    /// <summary>Original outdoor backdrop for authored maps, independent of legacy miniature sky zones.</summary>
+    public bool OutdoorSky { get; private set; }
 
     /// <summary>LevelInfo.GlowThreshold (224 when the map does not store it).</summary>
     public int GlowThreshold { get; private set; } = 224;
@@ -788,6 +790,7 @@ public sealed class LightingDoc
             }
         }
 
+        doc.OutdoorSky = MaterialsDoc.Bool(root, "outdoor_sky");
         if (root.TryGetProperty("sky", out JsonElement sky) && sky.ValueKind == JsonValueKind.Object)
         {
             doc.SkyLocation = Vec(sky, "location");

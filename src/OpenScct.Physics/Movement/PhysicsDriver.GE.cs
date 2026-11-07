@@ -280,6 +280,7 @@ public sealed partial class PhysicsDriver
             sb.ZipP2 = best.P1;
         }
 
+        EPhysics previousPhysics = Pawn.Physics;
         FVector z = ArmsZonePoint(Pawn, sb.m_CurrentArmsZone);
         switch (best.Kind)
         {
@@ -300,7 +301,29 @@ public sealed partial class PhysicsDriver
                 break;
         }
 
+        AttachMovingGE(Pawn, best, previousPhysics);
         _ = second;
+    }
+
+    private void AttachMovingGE(Pawn pawn, GERecord ge, EPhysics previous)
+    {
+        if (GEs.OwnerOf(ge) is not { } owner || pawn.Physics == previous ||
+            pawn.Physics is not (EPhysics.PHYS_Ledge or EPhysics.PHYS_RootMotion or EPhysics.PHYS_Repositionnal)) return;
+        GetState(pawn).TraversalBase = owner;
+        pawn.SetBase(owner);
+    }
+
+    private void BindMovingTraversal(Pawn pawn)
+    {
+        // The authoritative copy enters traversal through a mirrored movement action,
+        // so it does not run the local player's GE selection callback. Resolve its
+        // transmitted segment against the live authored movers before simulating it.
+        if (!GEs.HasMovingLedges || pawn is not ISBasePawnPhysics sb ||
+            pawn.Physics is not (EPhysics.PHYS_Ledge or EPhysics.PHYS_Repositionnal or EPhysics.PHYS_RootMotion) ||
+            GetState(pawn).TraversalBase is not null) return;
+        if (GEs.MovingLedgeNear(sb.ZipP1, sb.ZipP2, 128) is not { } ge || GEs.OwnerOf(ge) is not { } owner) return;
+        GetState(pawn).TraversalBase = owner;
+        pawn.SetBase(owner);
     }
 
     /// <summary>The wall normal of a ledge as the ledge test uses it: (Dir.Y, -Dir.X, 0), turned to point from the wall to the pawn.</summary>
@@ -600,6 +623,7 @@ public sealed partial class PhysicsDriver
         }
 
         GERecord ge = hits[best].GE;
+        EPhysics previousPhysics = Pawn.Physics;
         sb.ZipP1 = ge.P0;
         sb.ZipP2 = ge.P1;
         switch (ge.Kind)
@@ -614,6 +638,7 @@ public sealed partial class PhysicsDriver
                 CheckPipeFeet(Pawn, sb, pc, ge, z);
                 break;
         }
+        AttachMovingGE(Pawn, ge, previousPhysics);
     }
 
     /// <summary>The LG feet test: a low ledge ahead at the feet while not falling fast, with room up and over: FeetLedge.</summary>

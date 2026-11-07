@@ -51,6 +51,7 @@ public sealed class PhysicsWorld
     {
         ArgumentNullException.ThrowIfNull(loaded);
         Collision.BindLevel(loaded);
+        GEs.BindActors(loaded.FindActor);
         loaded.Level.PhysicsDriver = Driver;
 
         // Actor zones (Region) and the zone events, then kept up to date by moves and spawns (spec/devices/zone-info.md).

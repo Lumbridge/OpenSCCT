@@ -320,6 +320,32 @@ public sealed partial class PhysicsDriver
             }
 
             MoveActorCore(rider, move, rotation, out _, bTest: false, bIgnorePawns: false, bIgnoreBases: true, bNoFail: false, baseActor);
+            // Authored moving ledges keep the native traversal's world-space anchors on
+            // their carrier. No changes to movement constants or legacy static GEs.
+            if (rider is Pawn pawn && rider is ISBasePawnPhysics sb && ReferenceEquals(GetState(pawn).TraversalBase, baseActor) &&
+                pawn.Physics is EPhysics.PHYS_Ledge or EPhysics.PHYS_RootMotion or EPhysics.PHYS_Repositionnal)
+            {
+                FVector Carry(FVector p)
+                {
+                    if (!rotated) return p + delta;
+                    var relative = p - oldLocation;
+                    return baseActor.Location + newAxes.XAxis * (relative | oldAxes.XAxis) +
+                        newAxes.YAxis * (relative | oldAxes.YAxis) + newAxes.ZAxis * (relative | oldAxes.ZAxis);
+                }
+                sb.ZipP1 = Carry(sb.ZipP1); sb.ZipP2 = Carry(sb.ZipP2);
+                if (!sb.NewZipP1.IsZero()) sb.NewZipP1 = Carry(sb.NewZipP1);
+                if (!sb.NewZipP2.IsZero()) sb.NewZipP2 = Carry(sb.NewZipP2);
+                pawn.vLocationBeforeRM = Carry(pawn.vLocationBeforeRM);
+                sb.vVandammePos = Carry(sb.vVandammePos);
+                if (rotated)
+                {
+                    FVector Turn(FVector v) => newAxes.XAxis * (v | oldAxes.XAxis) + newAxes.YAxis * (v | oldAxes.YAxis) + newAxes.ZAxis * (v | oldAxes.ZAxis);
+                    sb.m_geoNormal = Turn(sb.m_geoNormal);
+                    sb.vMoveAfterRM = Turn(sb.vMoveAfterRM);
+                    sb.vWallJumpDir = Turn(sb.vWallJumpDir);
+                    pawn.rRotBeforeRM += baseActor.Rotation.Yaw - oldRotation.Yaw;
+                }
+            }
         }
     }
 }

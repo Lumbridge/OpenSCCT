@@ -20,7 +20,7 @@ public sealed partial class HubServer
         }
 
         _rosterAt = now;
-        foreach (HubPlayer p in _players)
+        foreach (HubPlayer p in _players.ToArray())
         {
             Host.Broadcast(HubProtocol.Who(p.Slot.PlayerId, SGameInfo.TeamIndexOf(p.Slot.Controller), PingOf(p), p.Verified, p.Slot.Name));
         }

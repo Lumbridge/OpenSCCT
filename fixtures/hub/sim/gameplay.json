@@ -644,15 +644,102 @@
    "class": "Engine.ZoneInfo",
    "id": "ZoneHall",
    "props": {
-    "AmbientBrightness": 34,
+    "AmbientBrightness": 104,
     "Location": {"X": 6144.0, "Y": 6144.0, "Z": 1400.0},
     "LocationName": "Hub",
     "Tag": "ZoneInfo"
    }
+  },
+  {
+   "class": "Engine.Mover",
+   "id": "mediumLift",
+   "props": {
+    "BasePos": {"X": 7857.0, "Y": 16000.0, "Z": 1976.0},
+    "DrawType": 8,
+    "InitialState": "TriggerPound",
+    "KeyPos": {
+     "$elements": {
+      "0": {"X": 0.0, "Y": 0.0, "Z": 0.0},
+      "1": {"X": 0.0, "Y": 0.0, "Z": 640.0}
+     }
+    },
+    "Location": {"X": 7857.0, "Y": 16000.0, "Z": 1976.0},
+    "MoveTime": 3.5,
+    "MoverEncroachType": 0,
+    "NetUpdateFrequency": 4.0,
+    "NumKeys": 2,
+    "OtherTime": 3.0,
+    "StaticMesh": {"$asset": "Hub.mediumLift"},
+    "StayOpenTime": 3.0,
+    "Tag": "HubCourseMover",
+    "bAlwaysRelevant": true,
+    "bBlockActors": true,
+    "bBlockPlayers": true,
+    "bCollideActors": true,
+    "bCollideWorld": true
+   }
+  },
+  {
+   "class": "Engine.Mover",
+   "id": "hardShuttle",
+   "props": {
+    "BasePos": {"X": 22448.0, "Y": 15488.0, "Z": 2336.0},
+    "DrawType": 8,
+    "InitialState": "TriggerPound",
+    "KeyPos": {
+     "$elements": {
+      "0": {"X": 0.0, "Y": 0.0, "Z": 0.0},
+      "1": {"X": 1136.0, "Y": 0.0, "Z": 0.0}
+     }
+    },
+    "Location": {"X": 22448.0, "Y": 15488.0, "Z": 2336.0},
+    "MoveTime": 8.0,
+    "MoverEncroachType": 0,
+    "NetUpdateFrequency": 4.0,
+    "NumKeys": 2,
+    "OtherTime": 3.0,
+    "StaticMesh": {"$asset": "Hub.hardShuttle"},
+    "StayOpenTime": 3.0,
+    "Tag": "HubCourseMover",
+    "bAlwaysRelevant": true,
+    "bBlockActors": true,
+    "bBlockPlayers": true,
+    "bCollideActors": true,
+    "bCollideWorld": true
+   }
+  },
+  {
+   "class": "Engine.Mover",
+   "id": "hardLift",
+   "props": {
+    "BasePos": {"X": 21888.0, "Y": 20304.0, "Z": 4280.0},
+    "DrawType": 8,
+    "InitialState": "TriggerPound",
+    "KeyPos": {
+     "$elements": {
+      "0": {"X": 0.0, "Y": 0.0, "Z": 0.0},
+      "1": {"X": 0.0, "Y": 0.0, "Z": 640.0}
+     }
+    },
+    "Location": {"X": 21888.0, "Y": 20304.0, "Z": 4280.0},
+    "MoveTime": 3.5,
+    "MoverEncroachType": 0,
+    "NetUpdateFrequency": 4.0,
+    "NumKeys": 2,
+    "OtherTime": 3.0,
+    "StaticMesh": {"$asset": "Hub.hardLift"},
+    "StayOpenTime": 3.0,
+    "Tag": "HubCourseMover",
+    "bAlwaysRelevant": true,
+    "bBlockActors": true,
+    "bBlockPlayers": true,
+    "bCollideActors": true,
+    "bCollideWorld": true
+   }
   }
  ],
  "eventEdges": [],
- "formatVersion": "1.1.0",
+ "formatVersion": "1.2.0",
  "levelInfo": {
   "class": "Engine.LevelInfo",
   "id": "LevelInfo0",
@@ -670,6 +757,7 @@
  },
  "missionTree": [],
  "tagIndex": {
+  "HubCourseMover": ["mediumLift", "hardShuttle", "hardLift"],
   "LevelInfo": ["LevelInfo0"],
   "PlayerStart": [
    "PlayerStart0",

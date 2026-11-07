@@ -55,6 +55,7 @@
     <Compile Include="..\..\game\Scripts\Input\BindingKey.cs" Link="Linked\BindingKey.cs" />
     <Compile Include="..\..\game\Scripts\Input\BindingInputState.cs" Link="Linked\BindingInputState.cs" />
     <Compile Include="..\..\game\Scripts\Input\DefaultKeyLayout.cs" Link="Linked\DefaultKeyLayout.cs" />
+    <Compile Include="..\..\game\Scripts\Input\HubBindings.cs" Link="Linked\HubBindings.cs" />
     <Compile Include="..\..\game\Scripts\Options\PadBindingState.cs" Link="Linked\PadBindingState.cs" />
     <Compile Include="..\..\game\Scripts\Options\PadBindingCapture.cs" Link="Linked\PadBindingCapture.cs" />
     <Compile Include="..\..\game\Scripts\Options\PadBindingOrder.cs" Link="Linked\PadBindingOrder.cs" />

@@ -182,10 +182,19 @@ def _subtract(polys: list[Poly], vol: Convex, keep_same: bool) -> list[Poly]:
     return out
 
 
-def boundary(carves: list[Convex], solids: list[Convex], cut_carve) -> list[Poly]:
+def boundary(carves: list[Convex], solids: list[Convex], cut_carve, spatial=False) -> list[Poly]:
     """The polygons between empty space (the carves less the solids) and solid, each facing the empty side.
     `cut_carve(poly, carve_index)` removes the parts of a carve's face that open into another carve."""
     out: list[Poly] = []
+    cells = {}
+    def keys(volume):
+        lo,hi=volume.bounds()
+        for x in range(math.floor((lo[0]-EPS)/1024),math.floor((hi[0]+EPS)/1024)+1):
+            for y in range(math.floor((lo[1]-EPS)/1024),math.floor((hi[1]+EPS)/1024)+1):
+                for z in range(math.floor((lo[2]-EPS)/1024),math.floor((hi[2]+EPS)/1024)+1): yield x,y,z
+    if spatial:
+        for i,s in enumerate(solids):
+            for key in keys(s): cells.setdefault(key,[]).append(i)
     for c in carves:
         for f in c.faces:
             inward = Poly(list(reversed(f.verts)), f.plane.flipped(), f.material, c.index)
@@ -194,9 +203,14 @@ def boundary(carves: list[Convex], solids: list[Convex], cut_carve) -> list[Poly
                 parts = _subtract(parts, s, keep_same=False)
             out += parts
     for s in solids:
+        neighbours = solids
+        if spatial:
+            indices = set()
+            for key in keys(s): indices.update(cells.get(key, ()))
+            neighbours = [solids[i] for i in sorted(indices)]
         for f in s.faces:
             parts = [Poly(list(f.verts), f.plane, f.material, s.index)]
-            for o in solids:
+            for o in neighbours:
                 if o.index != s.index:
                     # Coplanar faces of two solids facing the same way: the later brush's face is the one the
                     # editor's CSG keeps (its texture shows), so this one stays only against earlier solids.
@@ -231,22 +245,23 @@ class Leaf:
     zone: int
 
 
-def _pick(polys: list[Poly]) -> Poly:
+def _pick(polys: list[Poly], balance=0.0) -> Poly:
     """The splitter: the polygon whose plane splits fewest others, larger first on ties (deterministic)."""
     best, best_key = None, None
     sample = polys if len(polys) <= 64 else polys[:: max(1, len(polys) // 64)]
     for p in sample:
-        splits = sum(1 for q in polys if classify(q, p.plane) == SPLIT)
-        key = (splits, -round(p.area(), 3))
+        counts = [classify(q, p.plane) for q in polys]
+        splits = counts.count(SPLIT)
+        key = (splits + balance * abs(counts.count(FRONT) - counts.count(BACK)), -round(p.area(), 3))
         if best_key is None or key < best_key:
             best, best_key = p, key
     return best
 
 
-def _build(polys: list[Poly], zone: int, empty_default: bool):
+def _build(polys: list[Poly], zone: int, empty_default: bool, balance=0.0):
     if not polys:
         return Leaf(empty_default, zone if empty_default else 0)
-    sp = _pick(polys)
+    sp = _pick(polys, balance)
     node = Node(sp.plane)
     fr, bk = [], []
     for q in polys:
@@ -266,18 +281,19 @@ def _build(polys: list[Poly], zone: int, empty_default: bool):
                 fr.append(a)
             if b:
                 bk.append(b)
-    node.front = _build(fr, zone, True)
-    node.back = _build(bk, zone, False)
+    node.front = _build(fr, zone, True, balance)
+    node.back = _build(bk, zone, False, balance)
     return node
 
 
-def build(polys: list[Poly], zones: list[tuple[int, tuple, tuple]], outside_zone: int):
+def build(polys: list[Poly], zones: list[tuple[int, tuple, tuple]], outside_zone: int, balance=0.0):
     """The tree: `zones` [(zone index, lo, hi)] are boxes split off first by chains of non-CSG planes (outward
-    normals: front is outside the box); what is outside them all is `outside_zone`."""
+    normals: front is outside the box); what is outside them all is `outside_zone`.
+    An optional balance penalty avoids deep one-sided trees in large authored worlds; zero preserves existing maps."""
 
     def chain(polys, rest):
         if not rest:
-            return _build(polys, outside_zone, False)
+            return _build(polys, outside_zone, False, balance)
         zi, lo, hi = rest[0]
         planes = [Plane((-1.0, 0.0, 0.0), -lo[0]), Plane((1.0, 0.0, 0.0), hi[0]), Plane((0.0, -1.0, 0.0), -lo[1]),
                   Plane((0.0, 1.0, 0.0), hi[1]), Plane((0.0, 0.0, -1.0), -lo[2]), Plane((0.0, 0.0, 1.0), hi[2])]
@@ -308,7 +324,7 @@ def build(polys: list[Poly], zones: list[tuple[int, tuple, tuple]], outside_zone
                 parent.back = node
             parent = node
             inside = bk
-        parent.back = _build(inside, zi, False)
+        parent.back = _build(inside, zi, False, balance)
         return top
 
     return chain(polys, list(zones))

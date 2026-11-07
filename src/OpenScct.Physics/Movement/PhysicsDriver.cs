@@ -190,6 +190,7 @@ public sealed partial class PhysicsDriver : IActorPhysics
             return;
         }
 
+        BindMovingTraversal(pawn);
         switch (pawn.Physics)
         {
             case EPhysics.PHYS_Walking:
@@ -299,6 +300,15 @@ public sealed partial class PhysicsDriver : IActorPhysics
         else if (Actor.Base is not null)
         {
             Actor.SetBase(null);
+        }
+
+        // An authored moving GE carries its grab/reposition/climb transitions. Static
+        // traversal and ordinary movement retain the native base rules above.
+        if (pawn is not null && GetState(pawn) is { TraversalBase: { bDeleteMe: false } carrier } state)
+        {
+            if (NewPhysics is EPhysics.PHYS_Ledge or EPhysics.PHYS_RootMotion or EPhysics.PHYS_Repositionnal)
+                pawn.SetBase(carrier);
+            else state.TraversalBase = null;
         }
 
         if (NewPhysics is EPhysics.PHYS_None or EPhysics.PHYS_Rotating)

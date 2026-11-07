@@ -372,6 +372,13 @@ public sealed partial class SBasePawnMoves : IMovePawn, IMovePrediction, IMoveCo
 
         p.SetBase(newBase);
         p.Rotation = rotation;
+        if (ReferenceEquals(_pc.XLevel.GetService<OpenScct.Game.Modes.PlayRules>(), OpenScct.Game.Modes.PlayRules.Hub))
+        {
+            // Hub placements intentionally choose a new facing. Updating only the
+            // pawn leaves the local camera (and the merc's desired aim) facing back.
+            _pc.SetViewRotation(rotation);
+            _pc.MyDesiredRotation = _pc.LocalMyDesiredRotation = rotation;
+        }
     }
 }
 

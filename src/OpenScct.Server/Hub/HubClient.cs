@@ -252,6 +252,8 @@ public sealed class HubClient : IDisposable
     public void Use() => Session.SendText(HubPlayProtocol.Use());
 
     /// <summary>Stops the player's course run or range round.</summary>
+    public void Travel(string destinationId) => Session.SendText(HubPlayProtocol.Travel(destinationId));
+
     public void CancelActivity() => Session.SendText(HubPlayProtocol.Cancel());
 
     /// <summary>Says a line to everyone in the hub (or to the player's side).</summary>
@@ -384,12 +386,12 @@ public sealed class HubClient : IDisposable
                 Add(new HubChatEntry(0, string.Empty, -1, SessionProtocol.Text(fields, 0), false));
                 break;
             case "who" when fields.Count >= 5:
-            {
-                int id = SessionProtocol.Int(fields, 0);
-                _roster[id] = new HubRosterEntry(id, SessionProtocol.Text(fields, 4), SessionProtocol.Int(fields, 1),
-                    SessionProtocol.Int(fields, 2), SessionProtocol.Int(fields, 3) == 1);
-                break;
-            }
+                {
+                    int id = SessionProtocol.Int(fields, 0);
+                    _roster[id] = new HubRosterEntry(id, SessionProtocol.Text(fields, 4), SessionProtocol.Int(fields, 1),
+                        SessionProtocol.Int(fields, 2), SessionProtocol.Int(fields, 3) == 1);
+                    break;
+                }
 
             case "gone":
                 if (_roster.Remove(SessionProtocol.Int(fields, 0), out HubRosterEntry goneEntry))
@@ -399,12 +401,12 @@ public sealed class HubClient : IDisposable
 
                 break;
             case "local" when fields.Count >= 3:
-            {
-                int id = SessionProtocol.Int(fields, 0);
-                string who = _roster.TryGetValue(id, out HubRosterEntry r) ? r.Name : "?";
-                Add(new HubChatEntry(id, who, SessionProtocol.Int(fields, 1), SessionProtocol.Text(fields, 2), false, Local: true));
-                break;
-            }
+                {
+                    int id = SessionProtocol.Int(fields, 0);
+                    string who = _roster.TryGetValue(id, out HubRosterEntry r) ? r.Name : "?";
+                    Add(new HubChatEntry(id, who, SessionProtocol.Int(fields, 1), SessionProtocol.Text(fields, 2), false, Local: true));
+                    break;
+                }
             case "sign" when fields.Count >= 9:
                 var sign = new HubSign(fields[0],
                     new FVector(HubProtocol.Float(fields, 1), HubProtocol.Float(fields, 2), HubProtocol.Float(fields, 3)),
@@ -429,12 +431,12 @@ public sealed class HubClient : IDisposable
                 PadChanged?.Invoke(pad, configChanged);
                 break;
             case "padsetup" when fields.Count >= 3:
-            {
-                string id = fields[0];
-                _padSetups[id] = (LobbySetup.FromOptions(SessionProtocol.Text(fields, 2)), SessionProtocol.Int(fields, 1) == 1);
-                PadSetupChanged?.Invoke(id);
-                break;
-            }
+                {
+                    string id = fields[0];
+                    _padSetups[id] = (LobbySetup.FromOptions(SessionProtocol.Text(fields, 2)), SessionProtocol.Int(fields, 1) == 1);
+                    PadSetupChanged?.Invoke(id);
+                    break;
+                }
 
             case "laptop" when fields.Count >= 1:
                 LaptopOpened?.Invoke(SessionProtocol.Text(fields, 0));

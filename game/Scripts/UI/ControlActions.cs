@@ -91,6 +91,7 @@ public static class ControlActions
         A("freecam", "Interface", "Toggle cinematic free camera", "Toggle cinematic free camera when allowed by the host.", "FreeCam", "FreeCam"),
         A("menu", "Interface", "Open game menu", "Open the in-game menu.", "ShowMenu", "ShowMenu"),
         A("quit", "Interface", "Quit shortcut (unavailable)", "This legacy shortcut has no active handler in the current build. Use the game menu to quit.", "Quit", "Quit") with { Available = false },
+        .. HubBindings.All.Select(h => A(h.Id, "Hub", h.Label, "Available while visiting a Hub. Emote choices apply while the emote menu is open.", h.Command, h.Command)),
     ];
 
     public const string PadPrefix = "Action:";

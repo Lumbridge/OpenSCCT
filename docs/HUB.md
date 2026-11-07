@@ -3,7 +3,7 @@
 [Documentation](README.md)
 
 The hub is a shared space where spies and mercenaries can chat, queue for matches and use practice activities.
-It supports proximity voice, match pads, an assault course, an aim range, emotes and a jukebox.
+It supports proximity voice, match pads, three assault courses, an aim range, emotes and a jukebox.
 The design targets about 50 players; the [recorded soak test](#the-soak-test) describes the test conditions.
 The hub is an OpenSCCT addition, with rules in [the hub specification](../spec/additions/hub.md).
 
@@ -17,6 +17,7 @@ after the match. A hub hosted in the game closes when its host leaves.
 | --- | --- |
 | J / K | Play as spy / mercenary |
 | N | Return to the plaza |
+| F4 / Travel button | Travel to any district |
 | U | Use a laptop or activity; ready on a pad |
 | H | Watch the pad's match |
 | X | Stop an activity |
@@ -25,6 +26,11 @@ after the match. A hub hosted in the game closes when its host leaves.
 | Enter or F5 / F6 | Chat to everyone / your side |
 | Tab while typing | Cycle everyone, team and nearby chat |
 | Escape | Open the menu to leave |
+
+All Hub shortcuts, including individual emote choices, are available in **Options → Controls → Hub** for
+keyboard/mouse and controller assignment. Chat and menu commands remain in their existing categories. HUD hints
+show the saved keys; removing a binding stays removed after reload. U is the default ready/use key and does not
+open travel, including at stations. The Travel button remains available when its shortcut is unbound.
 
 Voice is heard by nearby players. See [proximity voice](#proximity-voice) and the [voice setup guide](VOICE.md).
 Server owners can jump to [Running a hub](#running-a-hub) or [Match pads](#match-pads-h2).
@@ -89,18 +95,41 @@ tools/hubmap -q`). Nothing in it comes from the game.
 
 ## The map
 
-A night rooftop compound over a city, in OpenSCCT's colours (night-vision green for spies, amber for mercs). All of
-it is generated: the geometry by `layout.py`, every texture by `art.py` (numpy patterns with seeded noise, signs drawn
-with JetBrains Mono Bold from `game/branding/fonts`, SIL Open Font License 1.1). No texture, mesh or text comes from
-the game or from Ubisoft, and no third-party art is used. The folder is about 3.3 MB (world.glb 2.0 MB, 125 textures
-1.0 MB, collision 0.1 MB).
+A 49,152 × 49,152 uu outdoor world, with 16,384 uu of vertical space, a photographic daylight skybox,
+lawns, dense pine and birch groves, three shallow lakes and a stream footbridge. The enclosing collision boundary is invisible;
+buildings and covered passages belong to individual districts. Its footprint is sixteen times layout v3.
+Gameplay geometry is authored by `layout.py`, `expansion.py`, `landscape.py` and `courses.py`; `scenery.py` places the outdoor models
+and `foliage.py` plants the soft ground cover.
+Trees, flowers, the house and well come from the linked GamesNotDeveloped forest demo, with individual CC BY 4.0
+author credits. Poly Haven supplies CC0 benches, sofas, tables, street lamps, rocks, crates, barrels, scanned surface
+textures and the photographic sky. Sources, prepared hashes, licenses and modifications are tracked in
+[`tools/hubmap/assets/CREDITS.txt`](../tools/hubmap/assets/CREDITS.txt) and copied into the map's `render/scenery/`.
+`fetch_assets.py` refreshes this source cache explicitly; ordinary generation is offline and deterministic.
+Install `tools/hubmap/requirements.txt` for generation/checks. Refreshing source models additionally uses
+`tools/hubmap/requirements-assets.txt`; `prepare_collision.py` then rebuilds the tracked collision cache.
+Original signs use JetBrains Mono Bold (SIL OFL 1.1). No Ubisoft assets are copied. Hard Jump 5.1 remains reference only.
 
-- **Hall**: the walls are a painted skyline (towers with lit windows, red aircraft lights) above a parapet with a
-  green neon line; the ceiling is a starry sky (both fullbright); the floor is dark roof concrete. A sparse cool fill
-  light, zone ambient 34 and a light distance fog (navy, 3000 to 19000 uu).
+- **Outdoor grounds**: open horizons, grass between paved district paths, warm daylight ambient and distant haze.
+- **Woodland and lakes**: 805 trees across irregular groves and shore plantings, with clear walking corridors and
+  arrival spaces. Three lakes have actual carved, sloping collision beds, shallow water and solid piers. Their
+  surfaces are water effects, not invisible walkable floors. Timber edges retain the same GE coverage checks.
+- **Ground cover**: 267,374 grass clumps and 1,756 ferns fill the woodland floor, meadows and lake banks. Shorter
+  grass surrounds the plaza; paved paths, arrivals, start gates, recovery terraces and water stay clear. The grass
+  texture comes from the forest demo's MIT-licensed SimpleGrassTextured assets; the four fern variants and leafy
+  terrain photograph are CC0 Poly Haven assets. The source photograph remains intact; baked terrain colour blends
+  with the vegetation at distance. Original wind shading anchors the plants at their roots. Each 2,048 uu cell
+  uses MultiMesh batches, shared meshes/materials and bounded culling, with gradual distance fading. These soft
+  fronds do not obstruct movement; solid terrain, props and tree trunks retain their collision and usable GEs.
+- **Scenery**: textured birch and pine groves, flower beds, scanned rock outcrops, houses, a well, picnic tables and
+  street lamps replace placeholder dressing. Every rigid imported instance has collision derived from its transformed
+  model, including furniture legs, walls, roofs, trunks and branches. Leaf cards stay soft. Explicit source pivots
+  and scales are shared by rendering and collision so rotated props do not retain their old blockout boxes.
+  Imported albedo and normal maps use display-space shading and the existing per-camera fog and vision globals.
 - **Plaza** (spawn): granite pavers with the OpenSCCT ring inlaid round the fountain (water in the basin, neon on its
   lip and up the column), a four-sided "OPENSCCT HUB" sign hung over the lookout, four neon pylons (green west, amber
   east), eight benches, a SPIES banner on the west side and a MERCS banner on the east, and floor arrows to every area.
+  An open timber pavilion surrounds the fountain and supports the suspended signs. Other district titles use
+  grounded timber frames. The plaza has one travel directory; duplicate entrance/leaderboard title panels are removed.
 - **Garden** (traversal): the station kit on striped turf, a label on every station (block faces and turf paint),
   ladder rungs, zip cables, six trees (trunks collide, canopies are above any jump), a "TRAVERSAL GARDEN" wall sign.
 - **Match pads**: four 1024 courts, each railed (16 thick, 96 high, vaultable LGs on both faces, a 256 opening in the
@@ -110,40 +139,188 @@ the game or from Ubisoft, and no third-party art is used. The folder is about 3.
 - **Aim range**: a wooden booth with a counter on the firing line (LGs on both faces) and five numbered stalls
   under a canopy with amber neon, painted targets on the berm, distance marks every 512 uu (5 M to 20 M), a
   leaderboard board at the north end facing the plaza.
-- **Movement course**: a cyan-edged track along y 1920 with numbered gates and floor arrows naming the move: 1 vault
-  wall (96), 2 climb block (208), 3 fence (376), 4 hand over hand bar (277, between pillars), 5 tower (384: pipe on the
-  west face, ladder on the south face), 6 zip line (TestRange's 1760 run and 320 drop) to 7 the finish deck (160).
+- **Easy — Training Grounds**: the original course translated south with its obstacle dimensions and order preserved:
+  climb, fence, hand over hand, shimmy, split jump chimney, wall jump and zip line to the finish.
   A start line, a "MOVEMENT COURSE" sign over the route and a leaderboard board near the start facing the plaza.
 - **Lounge** (new area, south-west): a carpet, two sofas with coffee tables and two side sofas facing a big screen on
   the west wall with a scrolling ticker, a bar with stools and magenta neon, planters, warm light, "LOUNGE" signs.
-- **Rooftop dressing**: a water tower with "OPENSCCT" on it and a mast (north-east), air-conditioning units, a helipad
+- **District landmarks**: a water tower with "OPENSCCT" on it and a mast, air-conditioning units, a helipad
   (south-east).
 
-**Collision and ledges.** Collision comes only from `layout.py`'s `solid()` boxes and wedges; `box()`, `beam()`,
-signs, decals, skins and the theme kits draw only. Solid: every block, deck, wall, rail, post, bench, sofa, bar,
-stool, planter, hedge, tree trunk, berm, counter, stall divider, board and board post, the water tower's legs and
-mast, the air-conditioning units, the helipad's corner lights, and the props the client builds in code
-(`HubProps`): the jukebox (72 x 48 x 128 at the Plaza's `jukebox` anchor), the ball goals' posts (10 x 10 x 120 at
-the plaza's west and east edges, 288 either side of its middle) and each pad's laptop desk. Drawn only, on purpose:
-the goals' crossbar (it spans the walkways out of the plaza at 115 to 125, under a standing pawn's head), canopies,
-hanging signs, banners, the gantry boards (above any jump), the tree canopies, neon trims, ladder rungs, zip cables
-and the zip lines' end posts (they stand on the zip ends; a solid post would stop a rider), the garden pipe (a
-climber hangs inside any thicker pipe) and the theme kits' props on the pad corner posts (each client shows its own
-kit over the shared collision).
+### Courses and travel
 
-LGs run along every top edge a spy can reach and use: the fountain basin and all four lips of its column, the bench
-backs (both faces), every garden block's front and side faces, the vault barrier, the stairs landing (south, east,
-north), the deck (south, west below the ramp, north, east), the tower top (south, north, east; the ladder is on the
-west), the zip landing deck (all four), the pad rails (both faces) and laptop desks (south), the bleachers' north rail
-(both faces), the range berm (east), counter (both faces) and stall dividers (both faces), the lounge's bar, sofa
-backs (both faces) and hedges (all four), and the air-conditioning units (all four). Lips under 205 over the floor in
-front are vault and pull-up ledges (the hang spot, 117 under the line, would be in the floor), as on the stock maps.
-The course keeps only its pieces' ledges plus the finish deck's side lips: a lip along a deck's pit side would let a
-spy shimmy past the fence or hang over the pit out of the fall reset, and the decks' gap ends would let him skip the
-hand over hand and the shimmy. `layout.py` checks every LG when the map is generated (`ledge_report`): it must sit on
-a solid's top edge with open space on one side, the hang box (39 out, 117 down, extent 35 x 35 x 87.5, and 50
-higher) or a low ledge's front column must be clear along the middle of its length, and the top must have room to
-pull up onto, standing or crouched.
+| Stable course ID | Theme | Sections | Target clean run | Attempt limit |
+| --- | --- | --- | --- | --- |
+| `easy` | Training Grounds, original route | Original checkpoints | Original course | 5 minutes |
+| `medium` | Overgrown Ruins: aqueduct, ledge gallery, service courtyard, canopy lift, ramparts and tower extraction | 6 | 2.5–4 minutes | 45 minutes |
+| `hard` | Frozen Observatory: razor approach, split shafts, frozen gallery, shuttle, utility spine, vaulted passages, high lift and summit | 8 | 4–6 minutes | 90 minutes |
+
+The course-design report supplied on 2026-11-06 informed revision 2 of Medium and Hard. The user selected its shorter
+clean-run targets. `courses.py` replaces the repeated stepping-stone rings with connected architectural galleries:
+calibrated run-jumps, rail vaults, roll-under arches, ledge catches, long shimmies, pipes, ladders, hand-over-hand
+crossings, fence transfers and zip-line extraction. Hard combines these transitions and narrows the landing lanes.
+Its 408-uu faces support contextual wall kicks, with 192-uu side-wall chambers retaining the native split-jump space.
+The existing three replicated movers remain shared timing challenges. Broad belvederes provide section recovery,
+views and optional exploration space. Invisible validation gates stay separate from the visible section markers.
+Native collision probes determine the actual dimensions: for example, the roll arches clear the standing roll's
+initiation probe, and pipe GEs sit on the physical pipe's outer surface so the top-exit sweep is unobstructed.
+Fence tops retain their full-span FENCE GE; adding a nearer LG there would mask the native climb-over transition.
+The authored `playtestRoute` metadata describes normal-control verification, and is not displayed as route arrows.
+
+The two new courses use ordinary spy movement and normal friction, including on ice. Their ordered validation
+gates are invisible and vertically bounded; only section checkpoints are marked. Falls restore the current
+section's gate progress and safe landing while time continues. A fall before the first checkpoint returns to the
+start with the same timer. Progress ends with the attempt. Each course has its own personal bests, top-ten board
+and revision. The legacy reader migrates layout-v3 scores when Easy retains revision 3. The final traversal coverage
+pass adds perimeter grabs and advances Easy to revision 4, so those old times are not mixed with the changed route.
+Changing another course's revision clears only that course's table.
+
+The rebindable Travel action (default F4) or HUD button opens the eight-destination directory anywhere in the hub.
+U remains ready/use, including beside stations. Every destination is immediately available. Selecting one cancels an activity and leaves the match queue
+only after the server finds a collision-free arrival. A busy destination leaves the attempt intact. Successful
+travel clears movement, traversal attachment, readiness and prediction history, applies the destination facing,
+and starts a two-second cooldown. Arrival decks are outside course gates and match queues. Recovery uses the same
+placement path and tries additional positions on a crowded checkpoint deck.
+Course stations face the nearby start ramps. Entrance titles sit at the actual start approach, with mounted
+leaderboards on adjacent terraces; Easy's title and board have also been brought to its original start.
+
+Static render meshes are split into spatial cells and grouped by material within each cell. Course movers use
+native `Engine.Mover` interpolation with local collision hulls and matching render instances. The server refreshes
+the three movers' interpolation phase for late arrivals. Within a leg, Hub clients correct speed gradually instead
+of restarting interpolation at each rounded, delayed snapshot. Collision, based riders and attached GEs use the
+same continuous motion. First snapshots and new legs still use native mover interpolation. Exact per-leg timings
+in `sim/movers.json` avoid rate rounding on the wire; ordinary map movers retain their native receive behavior.
+Medium's Canopy Lift and Hard's High Lift travel each way in 3.5 seconds (twice their former speed), with the same
+three-second boarding stops. Hard's horizontal shuttle retains its eight-second travel time.
+The finish circle accepts any approach across the final open terrace once the last obstacle is validated; the
+normal-input test's final walking waypoints are no longer extra hidden scoring gates. Overlapping ordered gates
+advance in one activity tick. Medium uses score revision 4, Hard revision 3, and Easy remains revision 4.
+The 2026-11-07 Medium change passed all 24 generator checks, the Canopy Lift section and full Medium normal-input runs,
+and both network travel/late-join mover checks. The revised full Medium run took 185.2 seconds.
+The subsequent 2026-11-07 course fixes passed 24 generator checks, 12 Hub runtime cases, all 16 normal-input
+course runs, six additional platform boarding/riding/exit cases (perfect transport and 60 ms ping/1% loss),
+and 15 mover network/prediction cases including ordinary map doors. The full Hard run took 292.0 seconds.
+Before the fix, both finish-edge regression cases failed and network refreshes moved platforms backward by
+15.752 uu. After the fix, 30-second samples of all three movers showed zero backward motion at 0/60/120 ms
+ping, including jitter, duplication, reordering and up to 2% loss. Largest per-tick travel was 4.572 uu and
+server/client separation stayed below 52 uu. Stationary rider drift relative to the platforms was below .002 uu.
+The windowed Hub smoke also passed travel, rebound controls, checkpoint pivots, team changes, chat and voice.
+Every moving platform also has four full-span ledge GEs attached to the mover. Their world query positions and
+the hanging/climbing pawn's anchors follow the carrier; jumping, falling, recovery and travel release it.
+Static exposed usable edges receive full-span GEs, split only by physical obstructions. Trees and street lamps
+have native PIPE climbs ending before obstructing branches. Tiny surfaces below the native grab span and soft
+foliage are not assigned unusable ledges. `contacts.py` and its coverage tests guard subsequent additions.
+`areas.json` keeps its legacy format reader and adds course IDs, revisions, sections, failure volumes and travel
+destinations. Scores write `openscct.hubscores/2`, while reading the old singleton score file. Hub protocol 7 adds
+course, section, personal-best and travel metadata. Client, server and generated assets should be delivered together.
+Long leaderboards are split between reliable `board`/`boardadd` messages; the HUD and world signs use the complete
+reassembled rows, so long player names do not remove entries from the top ten.
+
+Local checks are `python -B -m pytest tools/hubmap -q`, the `ExpandedHubTests` and `ExpandedHubTraversalTests`
+integration suites, the existing hub regression/soak suites, and `godot-smoke.ps1 -Tests hub` (which tours all eight
+destinations). `SVM_HUB_TRAVERSAL_REPORT` records automated normal-input traversal times; `SVM_HUB_SCALE_REPORT`
+records concentrated/spread 50-client metrics. `SVM_HUB_BASELINE_ROOT` optionally points at a layout-v3 fixture root
+for a same-process comparison. `SVM_HUB_RENDER_REPORT` opts the windowed Hub smoke into a 50-visitor renderer
+capture (crowd, spread plaza, spread observatory); `SVM_CONTENT` can point at a content root containing the baseline
+map under `svmap/` for the old-map comparison. Automated controls establish movement reachability; human route discovery and
+camera/readability assessment remain distinct playtest checks. This expansion does not publish or deploy a hub.
+
+#### Outdoor dressing and controls follow-up, 2026-11-06
+
+- Current generated map: **1,164 imported instances**, including **805 climbable trees**, three carved lakes,
+  the open plaza pavilion, supported district signs and **4,726 traversal GEs**. Old planting inside the new
+  lakes was relocated onto their banks. The generator checks the actual BSP lake openings as well as their bounds.
+- **24 generator tests**, **117 input/binding logic tests**, **16 native route tests** and **8 expanded Hub runtime
+  tests** passed. The latter includes U at stations doing nothing, followed by ready/unready on a match pad.
+- The windowed Hub smoke passed the rebound keyboard/mouse/controller actions, modal close bindings, emote
+  selection while gameplay is paused, eight travel arrivals, three stationary checkpoint pulses, chat/voice and
+  side switching. The controller-defaults smoke also passed. Build: zero warnings/errors.
+- The ground-cover follow-up adds 269,130 soft plants in 511 spatial cells. All 25 source-asset hashes match the
+  recorded lock; the generated simulation hash remains `c45a1075e7bd058e667d5cb06d43cd58100bac498a31b0e3e031dd44cc5202d8`.
+  The windowed smoke additionally checks foliage presence and culling bounds, and the refreshed standalone local
+  preview passed its startup smoke. Eight mapshot views were inspected, including the woodland at player height.
+- The first foliage crowd-render attempt timed out after the real client disconnected during visitor map loads.
+  The benchmark held the render thread behind the visitor update lock. Visitor registration is now nonblocking,
+  joins wait asynchronously for the preceding visitor to load, and visitor travel runs on its owning worker.
+  Its setup budget is ten minutes; the ordinary two-client smoke keeps its existing limit.
+- The corrected **50-player renderer capture passed** at **1280×720**: frame p50/p99 was **4.58/6.83 ms**
+  concentrated, **3.87/5.48 ms** spread at the plaza and **3.79/5.50 ms** spread at the observatory. Draw calls
+  were 711/667/392; video memory was 2,372 MiB and initial local load 12.03 s. The preceding outdoor map without
+  ground cover measured 4.56/14.07, 4.08/10.02 and 3.49/6.82 ms, 676/631/385 draws and 2,351 MiB video memory.
+  These are local observations with variable CPU/GC conditions, not a claim of improved performance. Managed
+  memory was 24,366–24,545 MiB for the server plus 50 complete client simulations, not the dedicated server alone.
+- The 50-client simulation check passed before the render-only foliage update: server ticks p50/p99 were
+  3.25/28.81 ms concentrated and 3.25/20.74 ms spread. The unchanged simulation hash makes that result applicable
+  to the final foliage assets; no course score revision or movement dimensions changed in this pass.
+- Course arrival signage is now beside the real start. Duplicate title panels and the overlapping plaza directory
+  were removed; score boards are mounted with a fixed facing. The final native runs still satisfy the report's
+  clean-run targets. Human route-discovery, camera and visual review remain part of local playtesting.
+
+#### Report-based course validation, 2026-11-06
+
+- All 14 sections and both continuous courses completed with normal input over the client/server simulation,
+  using the converted character and root-motion clips. Medium took **184.7 seconds (3m05s)** across 56 route
+  actions; Hard took **294.5 seconds (4m55s)** across 75. Full-run tests assert the selected 150–240 and
+  240–360 second ranges. These are scripted clean runs; first-time route discovery still needs human playtesting.
+- Generator checks: **21 passed**, including material chunk bounds, clear gates/recovery/arrivals, mover
+  collision, every rigid imported instance, full usable edge coverage and varied mechanics in every section.
+- The **51 Hub cases** were verified across the full suite and focused reruns. The recovery fixture was updated
+  to fall beside the raised start apron rather than request placement inside its solid volume. Seven expanded
+  Hub runtime cases passed again after moving the new-course stations to their entrance ramps. The baseline
+  benchmark now asserts that it actually loaded the one-course legacy map, preventing a silent fallback.
+- The windowed Hub smoke passed all eight travel destinations, all three stationary checkpoint-pulse checks,
+  chat, voice relay and the spy-to-merc change. The Godot solution built with zero warnings or errors.
+- With 50 complete clients in the same process as the server, the revised map measured server tick p50/p99 of
+  **3.14/23.32 ms concentrated** and **3.04/20.02 ms spread**; managed memory deltas were 7,203/7,383 MiB.
+  A separate legacy-map rerun measured 5.74/64.58 ms and 1,816 MiB. Local CPU/cache conditions varied;
+  these are observations, not evidence that the expansion improves performance or dedicated-server memory figures.
+- The headless play loader now ignores the repository's `shared/ProjectLinks.cs` source directory when locating
+  game content. Previously it could hide the real character clips and use placeholder animation timings.
+  Native route playthroughs require converted clips and explicitly skip when that content is unavailable.
+
+#### Initial expansion validation, 2026-11-06 (before the report-based route revision)
+
+- Generator and collision checks: 20 passed, including deterministic tracked output, all three courses,
+  spatial render bounds, clear arrivals, mover hulls, imported collision and full-span usable ledges.
+- Hub integration: 49 passed, followed by two native-input zip-line regression cases after moving their
+  newly physical supports out of the riding lane. Coverage includes complete Medium and Hard attempts,
+  independent runners, recovery and gate rewind, long attempts, travel under packet loss, crowded arrivals,
+  cancellation, score migration, queues, chat, voice relay and 50-player sessions.
+- Physics: 211 passed; content: 162 passed. The Godot solution built with zero warnings or errors.
+- A reported orange-checkpoint animation bug was traced to scaling world-offset children around the map origin.
+  Marker roots now sit at their own checkpoint positions. The windowed smoke exercises the minimum and maximum
+  pulse on all three courses and checks that each ring's centre stays fixed. Travel/recovery also applies the
+  destination rotation to the owning client's view and the merc's desired aim, not only to the pawn mesh.
+- Automated normal controls completed Medium in 690.1 seconds (11m30s) and Hard in 1342.6 seconds (22m23s).
+  These establish reachability and a clean-run timing baseline; they do not measure a new player's route discovery.
+- Native traversal checks cover all three movers with perfect transport and with 60 ms latency plus packet loss,
+  duplication and reordering, all three tree models, street lamps, both original zip lines and imported ledge support.
+  The generated map has 319 imported instances, including 116 climbable trees, and 10,991 ledge GEs.
+- The final 50-client simulation measured median server ticks of 3.03 ms on layout v3 and 3.32 ms on the expanded
+  map with a concentrated crowd; spread players measured 3.13 ms. The corresponding p99 values were 24.24,
+  30.91 and 20.72 ms. These are local measurements, not a production capacity guarantee.
+  Managed memory deltas were 1,820 MiB for the baseline and 7,954–8,145 MiB for the expansion with **one server
+  and 50 complete client worlds in the same test process**; these are not dedicated-server memory figures.
+  Cold/cache state affected map loading (1.5–7.3 seconds in that run), so load timings need a controlled hardware run.
+
+Human assessment of route discovery, camera clearance, scenery quality and the full original Easy moveset remains
+part of playtesting. Live public connectivity and two-person microphone checks are separate from local loopback tests.
+
+**Collision and ledges.** `contacts.py` completes physical coverage after layout and scenery placement. Authored
+boxes and wedges form the world BSP; uncovered beams, cables, rungs and signs receive spatial mesh collision.
+Imported props receive simplified mesh collision in precisely the render transform. Physical model bounds and
+collision source hashes are checked during generation. The goal crossbars stand above both teams' heads and
+collide; the jukebox, desks and laptop lids also have simulation geometry. Decals, light effects and leaf cards
+remain surface effects. All theme variants share their lantern silhouette and collision.
+
+Usable rectangular edges receive full-span LGs. Physical intersections split a span; native clearance checks
+reject edges with no hanging or pull-up space. Imported ledges follow the model's upward surface boundaries,
+including holes and irregular outlines, and require a consistent clear approach along the usable span. They are checked
+with native-sized hanging, raised and pull-up boxes. High roof rims can support a hang/shimmy even where the roof
+blocks a pull-up; low edges require a usable vault/front-column approach and clear standing or crouched top.
+Runtime collision traces additionally verify support beneath imported ledges. Trees and lamps receive PIPEs
+fitted to the solid trunk, with their climb height capped before obstructing branches. Movers have four LGs in
+actor-local coordinates. Existing garden ladders, wall jumps, split jumps, hand-over-hand bars and zip lines remain.
 
 ### Anchors for the other hub features (fixtures/hubmap/areas.json)
 
@@ -287,7 +464,7 @@ clients are told and their pad hook runs.
 
 **Pad laptops** (they replaced votes). Each pad has a laptop on a desk outside its south rail, west of the gap
 (`HubPadArea.Laptop`: 112 uu in from the pad's west edge, 112 uu south of it; a code-built prop, sent as a `laptop`
-mark, whose desk is solid in the map's collision: `layout.py` `PadnDesk`, 128 x 64 x 72, with an LG on its south face). Anyone standing within 200 uu of it presses U (`hubplay use`; the hub answers
+mark, whose desk is solid in the map's collision: `layout.py` `PadnDesk`, 192 x 128 x 72, with an LG on its south face). Anyone standing within 200 uu of it presses U (`hubplay use`; the hub answers
 `hub laptop <pad>`) and gets the pad's match as a lobby's Session Parameters (`HubLaptopPanel`): map, mode, Max
 Players, voice, auto balance, alternate rules, time, lives, respawn, disks, bots and practice. There is no password,
 games in a row, revenge, random map or voice in lobby, because a hub match is one game with its own password and a lobby that launches at once.
@@ -410,7 +587,7 @@ are from the map's area manifest (`HubLayout`) and keeps the boards in `HubScore
 
 | Activity | How it plays | Board |
 |---|---|---|
-| Spy assault course | step out of the green start gate: the clock runs (top middle of the HUD) until the white finish, through every amber checkpoint in order (the next one pulses); a fall into the pit puts you back on the last deck, the clock still running | fastest times |
+| Spy assault courses | leave the start gate to start the clock; follow the route to the summit, passing its validation gates in order; falls return to a checkpoint while the timer continues | separate fastest-time boards |
 | Merc aim range | U at the yellow firing line: a 30 s round, two pop-up targets at a time downrange (yours red, other rounds grey); 10 per body hit, 25 per headshot, plus up to 50 for accuracy | best round scores |
 | Plaza ball | walk into the orange ball to kick it; into the west or east goal scores for the last kicker | most goals |
 | Emotes | G then 1 to 8, or `/wave` in chat: your character does it (a pose laid over its animation) and the caption shows under your name, for everyone within 4500 uu; moving ends it | |
@@ -421,7 +598,7 @@ are from the map's area manifest (`HubLayout`) and keeps the boards in `HubScore
   `TraceFire` then treats the target as any non-pawn actor and calls its `TakeDamage`, which only scores (when the
   level's `PlayRules.RangeTargetsTakeHits` is on, as in `PlayRules.Hub`). No pawn is touched, so no damage reaches
   anyone. Targets are not spawned or replicated: the clients draw them from `hubplay target` lines.
-- **Boards.** Every board text goes through `HubActivities.PublishBoard(id, text)` (ids `CourseBoard`, `RangeBoard`,
+- **Boards.** Every board text goes through `HubActivities.PublishBoard(id, text)` (ids `CourseBoard`, `CourseBoard.medium`, `CourseBoard.hard`, `RangeBoard`,
   `BallBoard`), which sends a `hubplay board` line to everyone (and to each joiner) and raises
   `HubActivities.BoardPublished` for the world signs. The HUD's board panel shows the nearest board within 2200 uu
   only when the world has no sign for it (a board is read once). A board stands at its area's `leaderboardAnchor`
@@ -443,9 +620,9 @@ are from the map's area manifest (`HubLayout`) and keeps the boards in `HubScore
   other client; a kick moved the ball on both, a ball sent into the west goal scored; the boards came back from the
   scores file on a second start.
 
-### The assault course (layout version 3)
+### Easy: the preserved layout-v3 route
 
-The course south of the plaza is a raised route of decks over a pit (the course floor), along y 1920 from x 3072 to
+The course south of the plaza is a raised route of decks over a pit (the course floor), along y -10368 from x 3072 to
 9472 (`tools/hubmap/layout.py`, "Spy assault course"). Each deck reaches the next only through its piece, and the
 decks are 384 wide with drops on both sides, so nothing can be run past or round:
 
@@ -461,10 +638,10 @@ decks are 384 wide with drops on both sides, so nothing can be run past or round
 Each checkpoint stands on a landing deck at its height (radius 192, 48 deep: `HubGate.Depth`; areas.json's
 checkpoints carry `radius` and `depth`), so it counts only once its piece is behind you. A running spy whose centre
 goes under `fallZ` (96, the manifest's course area) once past the first checkpoint fell into the pit: the server
-puts him back on the last passed checkpoint's deck (`pawn.SetLocation`, as pad returns are; the client follows the
-server's position correction), the clock still running, with `hubplay run fall <falls> <checkpoint>`, a notice, a
-chime and the falls on the HUD's clock. The course board is cleared when the layout version changes
-(`courseLayout` in `hub-scores.json`): old times were set on another route. The heights are the garden's kit
+puts him back on the last passed checkpoint's deck using the shared collision-checked placement and movement reset,
+the clock still running, with `hubplay run fall <falls> <checkpoint>`, a notice, a
+chime and the falls on the HUD's clock. The additional perimeter grabs advance Easy to score revision 4; future route
+changes must bump its own revision. The heights are the garden's kit
 heights; the route is laid out by numbers and needs walking with the full moveset (the chimney's split jump up to a
 408 lip and the shimmy under the soffit most of all).
 

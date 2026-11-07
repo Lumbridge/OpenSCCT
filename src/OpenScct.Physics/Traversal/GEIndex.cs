@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using OpenScct.Content;
 using OpenScct.Core;
+using OpenScct.Core.Engine;
 using OpenScct.Physics.Collision;
 
 namespace OpenScct.Physics.Traversal;
@@ -25,6 +26,9 @@ public sealed class GEIndex
     private readonly FVector[] _min;
     private readonly FVector[] _max;
     private readonly int[] _stack = new int[128];
+    private readonly List<int> _moving = [];
+    private readonly Dictionary<int, (FVector At, FRotator Rotation, GERecord Record)> _movingCache = [];
+    private Func<string, Actor?>? _resolveActor;
 
     public GEIndex(IReadOnlyList<GERecord> ges)
     {
@@ -36,6 +40,7 @@ public sealed class GEIndex
         {
             GERecord ge = ges[i];
             _ges[i] = ge;
+            if (ge.AttachedTo is not null) _moving.Add(i);
             _min[i] = CollisionMath.MinV(ge.P0, ge.P1);
             _max[i] = CollisionMath.MaxV(ge.P0, ge.P1);
         }
@@ -50,7 +55,47 @@ public sealed class GEIndex
 
     public int Count => _ges.Length;
 
-    public GERecord this[int index] => _ges[index];
+    public bool HasMovingLedges => _moving.Count != 0;
+
+    /// <summary>Match an existing traversal payload to a nearby authored carrier, allowing for network phase delay.</summary>
+    public GERecord? MovingLedgeNear(FVector a, FVector b, float radius)
+    {
+        GERecord? best = null;
+        float limit = radius * radius * 2;
+        foreach (int index in _moving)
+        {
+            if (Resolve(index) is not { Kind: GEKind.LG } ge) continue;
+            float error = Math.Min((ge.P0 - a).SizeSquared() + (ge.P1 - b).SizeSquared(),
+                (ge.P1 - a).SizeSquared() + (ge.P0 - b).SizeSquared());
+            if (error >= limit) continue;
+            limit = error; best = ge;
+        }
+        return best;
+    }
+
+    public GERecord this[int index] => Resolve(index) ?? _ges[index];
+
+    public void BindActors(Func<string, Actor?> resolver) => _resolveActor = resolver;
+
+    public Actor? OwnerOf(GERecord ge) => ge.AttachedTo is { } owner ? _resolveActor?.Invoke(owner) : null;
+
+    private GERecord? Resolve(int index)
+    {
+        var ge = _ges[index];
+        if (ge.AttachedTo is null) return ge;
+        if (OwnerOf(ge) is not { bDeleteMe: false } actor) return null;
+        if (_movingCache.TryGetValue(index, out var cached) && cached.At == actor.Location && cached.Rotation == actor.Rotation) return cached.Record;
+        var axes = FCoords.FromRotator(actor.Rotation);
+        var points = new FVector[ge.Points.Length];
+        for (int i = 0; i < points.Length; i++)
+        {
+            var p = ge.Points[i];
+            points[i] = actor.Location + axes.XAxis * p.X + axes.YAxis * p.Y + axes.ZAxis * p.Z;
+        }
+        var world = new GERecord(index, ge.Id, ge.Kind, points, ge.Mask, ge.Platform, ge.Source, ge.AttachedTo);
+        _movingCache[index] = (actor.Location, actor.Rotation, world);
+        return world;
+    }
 
     /// <summary>
     /// GEs within <paramref name="radius"/> of <paramref name="center"/>, of the kinds in
@@ -81,7 +126,7 @@ public sealed class GEIndex
             {
                 for (int i = node.Start; i < node.Start + node.Count; i++)
                 {
-                    Test(_order[i], center, radius, kindMask, activationMask, results);
+                    if (_ges[_order[i]].AttachedTo is null) Test(_order[i], center, radius, kindMask, activationMask, results);
                 }
 
                 continue;
@@ -91,6 +136,7 @@ public sealed class GEIndex
             _stack[sp++] = node.Start;
         }
 
+        foreach (int index in _moving) Test(index, center, radius, kindMask, activationMask, results);
         results.Sort(s_byIndex);
         return results.Count;
     }
@@ -109,7 +155,8 @@ public sealed class GEIndex
 
     private void Test(int i, FVector center, float radius, int kindMask, byte activationMask, List<GEHit> results)
     {
-        GERecord ge = _ges[i];
+        GERecord? ge = Resolve(i);
+        if (ge is null) return;
         if (((int)ge.Kind & kindMask) == 0 || !ge.IsActive(activationMask))
         {
             return;

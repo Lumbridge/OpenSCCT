@@ -258,6 +258,7 @@ public sealed partial class HubServer : IDisposable
     {
         ArgumentNullException.ThrowIfNull(transport);
         Settings = settings ?? new HubSettings();
+        Settings = Settings with { Maps = Settings.Maps ?? MapCatalog.CreateDefault() };
         if (Settings.MaxPlayers < 1)
         {
             throw new ArgumentOutOfRangeException(nameof(settings), Settings.MaxPlayers, "MaxPlayers must be at least 1.");
@@ -320,7 +321,7 @@ public sealed partial class HubServer : IDisposable
         {
             // The leaderboards stand in the world as signs at their anchors, for everyone in range to read.
             activities.BoardPublished += (id, text) => Signs.Set(id, activities.BoardAt(id), text, face: activities.BoardFace(id));
-            foreach (string id in HubActivities.BoardIds)
+            foreach (string id in activities.BoardIds)
             {
                 if (activities.BoardText(id) is { Length: > 0 } text)
                 {
@@ -733,20 +734,20 @@ public sealed partial class HubServer : IDisposable
                 break;
             case "vote":
                 // An older game's V key: pads are set at their laptops now.
-                connection.ControlChannel?.Send(ControlMessage.TextLine(HubProtocol.Message("Pads have no votes now: walk up to a pad's laptop and press U to set its match.")));
+                connection.ControlChannel?.Send(ControlMessage.TextLine(HubProtocol.Message("Pads have no votes now: walk up to a pad's laptop and use it to set its match.")));
                 break;
             case "padsetup":
-            {
-                string? refused = Pads is null
-                    ? "This hub has no match pads."
-                    : Pads.ApplySetup(player, SessionProtocol.Text(fields, 0), LobbySetup.FromOptions(SessionProtocol.Text(fields, 1)));
-                if (refused is not null)
                 {
-                    connection.ControlChannel?.Send(ControlMessage.TextLine(HubProtocol.Message(refused)));
-                }
+                    string? refused = Pads is null
+                        ? "This hub has no match pads."
+                        : Pads.ApplySetup(player, SessionProtocol.Text(fields, 0), LobbySetup.FromOptions(SessionProtocol.Text(fields, 1)));
+                    if (refused is not null)
+                    {
+                        connection.ControlChannel?.Send(ControlMessage.TextLine(HubProtocol.Message(refused)));
+                    }
 
-                break;
-            }
+                    break;
+                }
             case "local":
                 SayLocal(player, SessionProtocol.Text(fields, 0), now);
                 break;
@@ -777,10 +778,18 @@ public sealed partial class HubServer : IDisposable
 
         return new ServerInfo
         {
-            Name = Settings.Name, Map = Settings.Map, Phase = SessionPhase.Match, Players = _players.Count,
-            MaxPlayers = Settings.MaxPlayers, GamePort = _udp?.LocalPort ?? 0, ProtocolHash = Host.Driver.ProtocolHash,
-            ContentHash = Settings.Maps?.FindMap(Settings.Map)?.ContentHash ?? 0, Dedicated = Settings.Dedicated,
-            PlayerList = list, MasterId = Master?.ServerId ?? string.Empty, IsHub = true,
+            Name = Settings.Name,
+            Map = Settings.Map,
+            Phase = SessionPhase.Match,
+            Players = _players.Count,
+            MaxPlayers = Settings.MaxPlayers,
+            GamePort = _udp?.LocalPort ?? 0,
+            ProtocolHash = Host.Driver.ProtocolHash,
+            ContentHash = Settings.Maps?.FindMap(Settings.Map)?.ContentHash ?? 0,
+            Dedicated = Settings.Dedicated,
+            PlayerList = list,
+            MasterId = Master?.ServerId ?? string.Empty,
+            IsHub = true,
         };
     }
 
@@ -790,22 +799,22 @@ public sealed partial class HubServer : IDisposable
         switch (DiscoveryPackets.TypeOf(data))
         {
             case DiscoveryPackets.Query when DiscoveryPackets.IsQuery(data) && _answers.Allow(from.Address, nowMs):
-            {
-                int n = DiscoveryPackets.WriteInfo(_infoBuffer, DiscoveryPackets.NonceOf(data), Info());
-                if (n > 0 && n <= _infoBuffer.Length)
                 {
-                    _udp!.SendUnconnected(from, _infoBuffer.AsSpan(0, n));
+                    int n = DiscoveryPackets.WriteInfo(_infoBuffer, DiscoveryPackets.NonceOf(data), Info());
+                    if (n > 0 && n <= _infoBuffer.Length)
+                    {
+                        _udp!.SendUnconnected(from, _infoBuffer.AsSpan(0, n));
+                    }
+
+                    break;
                 }
 
-                break;
-            }
-
             case DiscoveryPackets.Probe:
-            {
-                int n = DiscoveryPackets.WriteHeader(_probeBuffer, DiscoveryPackets.ProbeReply, DiscoveryPackets.NonceOf(data));
-                _udp!.SendUnconnected(from, _probeBuffer.AsSpan(0, n));
-                break;
-            }
+                {
+                    int n = DiscoveryPackets.WriteHeader(_probeBuffer, DiscoveryPackets.ProbeReply, DiscoveryPackets.NonceOf(data));
+                    _udp!.SendUnconnected(from, _probeBuffer.AsSpan(0, n));
+                    break;
+                }
         }
     }
 

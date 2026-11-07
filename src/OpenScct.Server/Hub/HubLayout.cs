@@ -7,7 +7,7 @@ using OpenScct.Core;
 namespace OpenScct.Server.Hub;
 
 /// <summary>One gate of the course: a disc on the floor (radius in uu), passed when a pawn's centre is over it.</summary>
-public readonly record struct HubGate(string Id, FVector At, float Radius, float Depth = HubPlayK.GateDepth)
+public readonly record struct HubGate(string Id, FVector At, float Radius, float Depth = HubPlayK.GateDepth, float Height = HubPlayK.GateHeight)
 {
     /// <summary>
     /// True when <paramref name="p"/> is over the gate: within the radius on the floor, from <see cref="Depth"/> below
@@ -19,7 +19,7 @@ public readonly record struct HubGate(string Id, FVector At, float Radius, float
         float dx = p.X - At.X;
         float dy = p.Y - At.Y;
         float dz = p.Z - At.Z;
-        return dx * dx + dy * dy <= Radius * Radius && dz > -Depth && dz < HubPlayK.GateHeight;
+        return dx * dx + dy * dy <= Radius * Radius && dz > -Depth && dz < Height;
     }
 }
 
@@ -29,7 +29,7 @@ public readonly record struct HubGate(string Id, FVector At, float Radius, float
 /// map's area manifest (<c>fixtures/hubmap/areas.json</c>, made by tools/hubmap), with our own defaults for anything
 /// it lacks (the manifest of layout version 1 has no checkpoints or anchors).
 /// </summary>
-public sealed class HubLayout
+public sealed partial class HubLayout
 {
     public HubGate CourseStart { get; private set; } = new("Start", new FVector(3328f, 1920f, 0f), HubPlayK.StartRadius);
 
@@ -88,7 +88,7 @@ public sealed class HubLayout
     /// <summary>Where the layout came from (a file path, or "defaults").</summary>
     public string Source { get; private set; } = "defaults";
 
-    public HubLayout() => Derive(new Dictionary<string, FVector>());
+    public HubLayout() { Derive(new Dictionary<string, FVector>()); LegacyCourse(); }
 
     /// <summary>The layout of the hub map at <paramref name="path"/>'s manifest, or the defaults when it is missing or unreadable.</summary>
     public static HubLayout Load(string? path)
@@ -105,7 +105,7 @@ public sealed class HubLayout
             layout.Read(doc.RootElement);
             layout.Source = path;
         }
-        catch (Exception e) when (e is JsonException or IOException or InvalidOperationException or FormatException or UnauthorizedAccessException)
+        catch (Exception e) when (e is JsonException or IOException or InvalidOperationException or FormatException or UnauthorizedAccessException or KeyNotFoundException)
         {
             layout = new HubLayout();
         }
@@ -175,6 +175,7 @@ public sealed class HubLayout
                 (float, float, float, float)? box = Box(area);
                 if (area.TryGetProperty("leaderboardAnchor", out JsonElement anchor))
                 {
+                    if (kind == "movementCourse" && area.TryGetProperty("courseId", out var cid) && cid.GetString() != "easy") continue;
                     anchors[kind] = Vec(anchor, Floor + HubPlayK.BoardHeight);
                     if (area.TryGetProperty("leaderboardSize", out JsonElement size) && size.GetArrayLength() >= 2)
                     {
@@ -184,7 +185,7 @@ public sealed class HubLayout
 
                 switch (kind)
                 {
-                    case "movementCourse":
+                    case "movementCourse" when !area.TryGetProperty("courseId", out var courseId) || courseId.GetString() == "easy":
                         ReadCourse(area, box, ges);
                         break;
                     case "aimRange":
@@ -212,6 +213,7 @@ public sealed class HubLayout
         CourseBoardFace = faces.GetValueOrDefault("movementCourse", HubSignFace.None);
         RangeBoardFace = faces.GetValueOrDefault("aimRange", HubSignFace.None);
         Derive(anchors);
+        ReadExpansion(root);
     }
 
     private void ReadCourse(JsonElement area, (float, float, float, float)? box, Dictionary<string, FVector> ges)

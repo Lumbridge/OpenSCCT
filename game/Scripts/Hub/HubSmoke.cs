@@ -26,7 +26,7 @@ namespace OpenScctGame.Hub;
 /// voice (a tone) heard by the player at the proximity gain of the distance between them, a side change to merc (the
 /// local pawn becomes a merc), and O back to the main menu.
 /// </summary>
-public sealed class HubSmoke : SmokeTest
+public sealed partial class HubSmoke : SmokeTest
 {
     public const string TestName = "hub";
 
@@ -37,6 +37,7 @@ public sealed class HubSmoke : SmokeTest
     private readonly List<HubNameTag> _tags = new();
     private readonly ConcurrentQueue<string> _adminCommands = new();
     private Thread? _serverThread;
+    private Thread? _visitorThread;
     private HubServer? _server;
     private HubClient? _guest;
     private HubVoice? _guestVoice;
@@ -48,18 +49,24 @@ public sealed class HubSmoke : SmokeTest
     private int _phase;
     private string _notes = string.Empty;
     private Exception? _serverFailure;
+    private int _district;
+    private double _travelAt;
+    private bool _groundcoverChecked;
+    private static readonly string[] TravelTour = ["range", "garden", "matches", "lounge", "easy", "medium", "hard", "plaza"];
 
     public override string Name => TestName;
 
     public override SmokeResult Step(SmokeContext context)
     {
-        TickGuest();
+        if (RenderReport is null) TickGuest();
         if (_serverFailure is { } failure)
         {
             return Fail("hub server stopped: " + failure.Message);
         }
 
-        if (context.ElapsedSeconds > TimeoutSeconds)
+        // Fifty complete simulation worlds load serially on the benchmark worker;
+        // keep its setup budget separate from the ordinary two-client smoke.
+        if (context.ElapsedSeconds > (RenderReport is null ? TimeoutSeconds : 600))
         {
             return Fail($"timed out in phase {_phase}: scene={context.Tree.CurrentScene?.Name} status={HubService.Get(context.Tree).Status} error={HubService.Get(context.Tree).LastError}");
         }
@@ -101,6 +108,19 @@ public sealed class HubSmoke : SmokeTest
                     return SmokeResult.Running;
                 }
 
+                if (!_groundcoverChecked && service.Client!.Play.Destinations.Count > 0)
+                {
+                    if (root.FindChild("OutdoorGroundcover", true, false) is not Node3D cover)
+                        return Fail("expanded Hub has no groundcover");
+                    var batches = cover.GetChildren().OfType<MultiMeshInstance3D>().ToArray();
+                    if (batches.Sum(b => b.Multimesh.InstanceCount) < 240000 ||
+                        batches.Any(b => b.Multimesh.CustomAabb.Size.X > 24 || b.VisibilityRangeEnd > 110))
+                        return Fail("groundcover density or spatial culling bounds are incorrect");
+                    _groundcoverChecked = true;
+                    _notes += " foliage=" + batches.Sum(b => b.Multimesh.InstanceCount);
+                }
+                if (RenderReport is not null) return CaptureCrowd(context, service);
+
                 if (Linger(context, "spy"))
                 {
                     return SmokeResult.Running;
@@ -112,45 +132,45 @@ public sealed class HubSmoke : SmokeTest
                 _guestTalking = true;
                 return Next();
             case 4:
-            {
-                if (service.Client is not { } client || !client.Chat.Any(c => c.Text == "hello from the guest"))
                 {
-                    return SmokeResult.Running;
-                }
+                    if (service.Client is not { } client || !client.Chat.Any(c => c.Text == "hello from the guest"))
+                    {
+                        return SmokeResult.Running;
+                    }
 
-                var composer = (context.Tree.CurrentScene as PlayRoot)?.Menu?.Hud?.Chat;
-                if (composer is null || composer.ReceiveMatchMessages || !composer.AllowNearby ||
-                    composer.Transcript.Entries.Count(c => c.Text == "hello from the guest") != 1)
-                {
-                    return Fail("hub chat must display the guest relay exactly once through its Nearby-capable composer");
-                }
+                    var composer = (context.Tree.CurrentScene as PlayRoot)?.Menu?.Hud?.Chat;
+                    if (composer is null || composer.ReceiveMatchMessages || !composer.AllowNearby ||
+                        composer.Transcript.Entries.Count(c => c.Text == "hello from the guest") != 1)
+                    {
+                        return Fail("hub chat must display the guest relay exactly once through its Nearby-capable composer");
+                    }
 
-                if (!client.Chat.Any(c => c.Text == "[admin] Admin hub notice")) return SmokeResult.Running;
-                if (composer.Transcript.Entries.Count(c => c.Text == "[admin] Admin hub notice") != 1 ||
-                    composer.Transcript.Entries.Single(c => c.Text == "[admin] Admin hub notice").Channel != ChatChannel.System)
-                {
-                    return Fail("admin hub notice must appear exactly once as a System chat entry");
-                }
+                    if (!client.Chat.Any(c => c.Text == "[admin] Admin hub notice")) return SmokeResult.Running;
+                    if (composer.Transcript.Entries.Count(c => c.Text == "[admin] Admin hub notice") != 1 ||
+                        composer.Transcript.Entries.Single(c => c.Text == "[admin] Admin hub notice").Channel != ChatChannel.System)
+                    {
+                        return Fail("admin hub notice must appear exactly once as a System chat entry");
+                    }
 
-                client.NameTags(client.LocalPlayer!.Pawn!.Location, _tags);
-                if (!_tags.Exists(t => t.Name == "Guest" && t.Team == 1))
-                {
-                    return SmokeResult.Running;
-                }
+                    client.NameTags(client.LocalPlayer!.Pawn!.Location, _tags);
+                    if (!_tags.Exists(t => t.Name == "Guest" && t.Team == 1))
+                    {
+                        return SmokeResult.Running;
+                    }
 
-                // The guest's voice: heard by the player for a second, at the gain of the distance between them.
-                if (service.VoiceChat is not { Voice: { } voice } chat || chat.Heard("Guest").Samples < VoiceK.SampleRate)
-                {
-                    return SmokeResult.Running;
-                }
+                    // The guest's voice: heard by the player for a second, at the gain of the distance between them.
+                    if (service.VoiceChat is not { Voice: { } voice } chat || chat.Heard("Guest").Samples < VoiceK.SampleRate)
+                    {
+                        return SmokeResult.Running;
+                    }
 
-                (double rms, _) = chat.Heard("Guest");
-                _guestTalking = false;
-                _notes += $" chat={client.Chat.Count} tags={_tags.Count}" +
-                    System.FormattableString.Invariant($" voice=heard rms={rms:F3} gain={voice.MixOf("Guest").Gain:F2} relayed={_server?.VoiceRelay?.Stats.DownPackets}");
-                client.RequestSide(1);
-                return Next();
-            }
+                    (double rms, _) = chat.Heard("Guest");
+                    _guestTalking = false;
+                    _notes += $" chat={client.Chat.Count} tags={_tags.Count}" +
+                        System.FormattableString.Invariant($" voice=heard rms={rms:F3} gain={voice.MixOf("Guest").Gain:F2} relayed={_server?.VoiceRelay?.Stats.DownPackets}");
+                    client.RequestSide(1);
+                    return Next();
+                }
 
             case 5:
                 if (context.Tree.CurrentScene is not PlayRoot { Session.LocalPawn: { SPawnType: PawnType.SPAWNDEFENSE } merc } round)
@@ -164,9 +184,44 @@ public sealed class HubSmoke : SmokeTest
                 }
 
                 _notes += $" switched={merc.GetType().Name} tagsShown={round.GetNodeOrNull<HubHud>("HubHud")?.TagsShown}";
-                service.Leave();
                 return Next();
             case 6:
+                {
+                    if (context.Tree.CurrentScene is not PlayRoot travelRoot || service.Client is not { } traveller) return SmokeResult.Running;
+                    if (traveller.Play.Destinations.Count != 8) return Fail("expected eight travel destinations");
+                    if (_district == 0 && CheckCheckpointPivots(travelRoot, traveller.Play) is { } pivotError) return Fail(pivotError);
+                    if (_district == 0 && CheckBindings(travelRoot) is { } bindingError) return Fail(bindingError);
+                    if (travelRoot.FindChild("HubTravelButton", true, false) is not Button travelButton) return Fail("missing Travel HUD button");
+                    travelButton.EmitSignal(BaseButton.SignalName.Pressed);
+                    return Next();
+                }
+            case 7:
+                {
+                    if (context.Tree.CurrentScene?.FindChild("Travel_" + TravelTour[_district], true, false) is not Button destination)
+                        return Fail("travel menu did not open");
+                    string? shots = System.Environment.GetEnvironmentVariable("SVM_PLAY_SHOTS");
+                    if (_district == 0 && !string.IsNullOrEmpty(shots) && DisplayServer.GetName() != "headless")
+                        context.Tree.Root.GetTexture().GetImage().SavePng(System.IO.Path.Combine(shots, "hub-travel-menu.png"));
+                    destination.EmitSignal(BaseButton.SignalName.Pressed);
+                    _travelAt = context.ElapsedSeconds;
+                    return Next();
+                }
+            case 8:
+                {
+                    if (context.ElapsedSeconds - _travelAt < 2.2) return SmokeResult.Running;
+                    var dest = _server!.Activities!.Layout.TeleportDestinations[TravelTour[_district]];
+                    if (service.Client?.LocalPlayer?.Pawn is not { } visitor || (visitor.Location - dest.Station).Size() > 1000)
+                        return Fail("travel did not arrive at " + dest.Title);
+                    if (_lingerFrames == 0 && Math.Abs(FRotator.NormalizeAxis(service.Client.LocalPlayer.Rotation.Yaw - dest.Yaw)) > 128)
+                        return Fail("travel did not apply the arrival facing for " + dest.Title);
+                    if (Linger(context, TravelTour[_district])) return SmokeResult.Running;
+                    _district++;
+                    if (_district < TravelTour.Length) { _phase = 6; return SmokeResult.Running; }
+                    _notes += " travel=8/8";
+                    service.Leave();
+                    return Next();
+                }
+            case 9:
                 if (context.Tree.CurrentScene is not MainMenu || service.Client is not null)
                 {
                     return SmokeResult.Running;
@@ -180,6 +235,43 @@ public sealed class HubSmoke : SmokeTest
     }
 
     private int _lingerFrames;
+
+    private string? CheckCheckpointPivots(PlayRoot root, HubPlayState play)
+    {
+        if (root.FindChild("HubProps", true, false) is not HubProps props) return "missing activity props";
+        var clock = play.Clock;
+        int checkedCourses = 0;
+        try
+        {
+            foreach (string course in new[] { "easy", "medium", "hard" })
+            {
+                var mark = play.Marks.FirstOrDefault(m => m.Kind == "checkpoint" && m.Id.StartsWith(course + "/", StringComparison.Ordinal));
+                if (mark.Id is null) return "missing checkpoint for " + course;
+                play.Read(HubPlayProtocol.RunStart(8, course));
+                var expected = UeSpace.ToGodot(mark.At + new FVector(0, 0, 4));
+                foreach (double phase in new[] { 0.0, Math.PI / 12, Math.PI / 4 })
+                {
+                    play.Clock = () => phase;
+                    props._Process(0);
+                    if (props.GetNodeOrNull<Node3D>("Mark_" + mark.Id.Replace('/', '_') + "/Ring") is not { } ring ||
+                        ring.GlobalPosition.DistanceTo(expected) > .001f)
+                        return course + " checkpoint moved during its highlight pulse";
+                    var marker = (Node3D)ring.GetParent();
+                    if (Math.Abs(marker.Scale.X - (1 + .08 * Math.Sin(phase * 6))) > .001)
+                        return course + " checkpoint did not exercise its highlight animation";
+                }
+                checkedCourses++;
+            }
+        }
+        finally
+        {
+            play.Clock = clock;
+            play.Read(HubPlayProtocol.RunCancel("Checkpoint marker check complete"));
+            props._Process(0);
+        }
+        _notes += " checkpoint-pivots=" + checkedCourses + "/3";
+        return null;
+    }
 
     /// <summary>
     /// With a window and SVM_PLAY_SHOTS, stays a few seconds in the hub and saves the window, turning the view so the
@@ -196,7 +288,7 @@ public sealed class HubSmoke : SmokeTest
         _lingerFrames++;
         if (context.Tree.CurrentScene is PlayRoot { Session.LocalController: { } pc } && _lingerFrames % 60 == 0)
         {
-            pc.Rotation = new OpenScct.Core.FRotator(pc.Rotation.Pitch, pc.Rotation.Yaw + 16384, pc.Rotation.Roll);
+            pc.SetViewRotation(new FRotator(pc.Rotation.Pitch, pc.Rotation.Yaw + 16384, pc.Rotation.Roll));
         }
 
         if (_lingerFrames % 60 == 45)
@@ -219,9 +311,10 @@ public sealed class HubSmoke : SmokeTest
 
     private void StartServer()
     {
-        var transport = LiteNetLibTransport.Listen(0, 16, loopbackOnly: true);
+        var transport = LiteNetLibTransport.Listen(0, RenderReport is null ? 16 : 64, loopbackOnly: true);
         Port = transport.LocalPort;
-        _server = new HubServer(transport, new HubSettings { Name = "Smoke hub", MaxPlayers = 8, Motd = "Welcome to the smoke hub." });
+        var maps = MapCatalog.CreateDefault();
+        _server = new HubServer(transport, new HubSettings { Maps = maps, Name = "Smoke hub", MaxPlayers = RenderReport is null ? 8 : 50, Motd = "Welcome to the smoke hub." });
         _serverThread = new Thread(() =>
         {
             try
@@ -240,13 +333,31 @@ public sealed class HubSmoke : SmokeTest
                 _server.Dispose();
                 transport.Dispose();
             }
-        }) { IsBackground = true, Name = "hub smoke server" };
+        })
+        { IsBackground = true, Name = "hub smoke server" };
         _serverThread.Start();
         _guestStart = _clock.NowMicroseconds;
         _guest = new HubClient(LiteNetLibTransport.CreateClient(loopbackOnly: true), "127.0.0.1:" + Port, _guestStart,
-            new HubClientSettings { PlayerName = "Guest", Team = 1 }, ownsTransport: true);
-        _guestVoice = new HubVoice(_guest, new VoiceClient(new VoiceSettings(), _clock));
+            new HubClientSettings { Maps = maps, PlayerName = "Guest", Team = 1 }, ownsTransport: true);
+        if (RenderReport is null) _guestVoice = new HubVoice(_guest, new VoiceClient(new VoiceSettings(), _clock));
         _toneFed = 0;
+        if (RenderReport is not null)
+        {
+            _visitorThread = new Thread(() =>
+            {
+                try
+                {
+                    while (!_stop.IsCancellationRequested)
+                    {
+                        while (_visitorCommands.TryDequeue(out var command)) command();
+                        TickGuest();
+                        Thread.Sleep(1);
+                    }
+                }
+                catch (Exception e) { _serverFailure = e; }
+            }) { IsBackground = true, Name = "hub benchmark visitors" };
+            _visitorThread.Start();
+        }
     }
 
     private void TickGuest()
@@ -265,6 +376,7 @@ public sealed class HubSmoke : SmokeTest
         while (_guestTicks < due)
         {
             _guest.Tick(_guestStart + (_guestTicks + 1) * 1_000_000 / Sim.Hz);
+            foreach (var visitor in _crowd) visitor.Tick(_guestStart + (_guestTicks + 1) * 1_000_000 / Sim.Hz);
             _guestTicks++;
         }
 
@@ -301,11 +413,14 @@ public sealed class HubSmoke : SmokeTest
 
     private void Stop()
     {
+        _stop.Cancel();
+        _visitorThread?.Join(5000);
         _guestVoice?.Dispose();
         _guestVoice = null;
         _guest?.Dispose();
         _guest = null;
-        _stop.Cancel();
+        foreach (var visitor in _crowd) visitor.Dispose();
+        _crowd.Clear();
         _serverThread?.Join(5000);
     }
 

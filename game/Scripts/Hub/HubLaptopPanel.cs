@@ -272,15 +272,6 @@ public partial class HubLaptopPanel : Control
         }
     }
 
-    public override void _UnhandledInput(InputEvent @event)
-    {
-        if (@event is InputEventKey { Pressed: true, Echo: false, Keycode: Key.Escape })
-        {
-            Closed?.Invoke();
-            GetViewport().SetInputAsHandled();
-        }
-    }
-
     /// <summary>"1" of "Pad1".</summary>
     private string PadNumber => _padId.Length > 0 && char.IsDigit(_padId[^1]) ? _padId[^1].ToString() : _padId;
 

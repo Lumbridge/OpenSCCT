@@ -472,6 +472,8 @@ public static class MapBuilder
         map.SkipProjectorDecals = projectors is not null;
         map.SoftBodies = new OpenScctGame.Render.SoftBodies.SoftBodyViews(root);
         new Builder(map, glb, options).Run();
+        OutdoorScenery.Build(map);
+        OutdoorGroundcover.Build(map);
         if (options.GameplayObjects)
         {
             OpenScctGame.Render.GameplayObjects.Build(map, map.Actors, pack);

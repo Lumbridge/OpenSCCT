@@ -90,7 +90,8 @@ public partial class GamepadInput : Node
             foreach (string control in PadSettings.PhysicalControls)
                 if (IsDown(Device, swaps.PhysicalControl(control), Settings.Pad.TriggerThreshold)) down.Add(control);
 
-        if (!Settings.Pad.Enabled || PlayInput is not { Enabled: true, Bindings: { } bindings } input || Typing() || !input.HasInputFocus)
+        if (!Settings.Pad.Enabled || PlayInput is not { Bindings: { } bindings } input || Typing() || !input.HasInputFocus ||
+            (!input.Enabled && input.ModalInputActive?.Invoke() != true))
         {
             ReleaseAll();
             _buttonsState.Reset(down);
@@ -116,6 +117,14 @@ public partial class GamepadInput : Node
 
         s_drivenFrame = Engine.GetProcessFrames();
         PadSettings pad = Settings.Pad;
+        if (!input.Enabled)
+        {
+            ClearStick();
+            foreach (string key in _held.Values) SendControl(input, key, false);
+            _held.Clear();
+            if (pad.Binds) UpdateButtons(input, merc, down, delta);
+            return;
+        }
         if (pad.Move)
         {
             Vector2 move = Stick(JoyAxis.LeftX, JoyAxis.LeftY, pad.DeadzoneLeft);
@@ -187,7 +196,9 @@ public partial class GamepadInput : Node
             CameraTransition: pc?.IsInState("s_UseObject_StickyCam_SmoothToPosition") == true);
         foreach (PadBindingEvent ev in _actionState.Update(_buttonsState.Update(Settings.Pad.ButtonsOf(merc), down, delta), delta, context))
         {
-            if (ev.Pressed && !input.Enabled) break; // A menu command can stop gameplay during this batch.
+            if (ev.Pressed && !input.Enabled &&
+                (input.ModalInputActive?.Invoke() != true ||
+                 !(ev.Action.StartsWith("Action:hub_", StringComparison.Ordinal) || ev.Action == "Action:menu"))) continue;
             if (ev.Action is PadSettings.ClutchOneAction or PadSettings.ClutchTwoAction)
             {
                 HashSet<string> held = ev.Action == PadSettings.ClutchOneAction ? _clutchOne : _clutchTwo;
@@ -406,6 +417,12 @@ public partial class GamepadInput : Node
         }
         if (down)
         {
+            if (action.StartsWith("Action:hub_", StringComparison.Ordinal))
+            {
+                var binding = OpenScctGame.Controls.HubBindings.All.FirstOrDefault(h => "Action:" + h.Id == action);
+                if (binding.Command is not null) input.SendLocalCommand(binding.Command);
+                return;
+            }
             if (action is "Action:menu" or "Action:session")
             {
                 input.SendLocalCommand(action == "Action:menu" ? "ShowMenu" : "DisplaySessionStatus");

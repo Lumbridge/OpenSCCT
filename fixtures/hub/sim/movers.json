@@ -1,0 +1,26 @@
+{
+ "format": "svm.movers/1",
+ "movers": [
+  {
+   "actor": "mediumLift",
+   "keys": [
+    {},
+    {"time": 3.5}
+   ]
+  },
+  {
+   "actor": "hardShuttle",
+   "keys": [
+    {},
+    {"time": 8.0}
+   ]
+  },
+  {
+   "actor": "hardLift",
+   "keys": [
+    {},
+    {"time": 3.5}
+   ]
+  }
+ ]
+}

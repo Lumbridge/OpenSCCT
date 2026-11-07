@@ -20,7 +20,8 @@ H3 minigames and leaderboards; H4 polish.
    railed courts with sign gantries and bleachers, each wearing a swappable theme kit), the merc aim range (H3: a
    booth of five stalls, a berm with painted targets, a leaderboard), the spy movement course (H3: a numbered route of
    vault, climb, fence, hand over hand, pipe or ladder and zip line, a leaderboard) and the lounge (seats, a screen).
-   The look (night rooftop, signage, theme kits) is described in docs/HUB.md "The map"; it changes nothing in play.
+   Layout 4 expands this to a 49,152-square outdoor world with a daylight skybox and eight travel districts, including
+   Easy, Medium and Hard course areas. The look is described in docs/HUB.md "The map"; spy physics are unchanged.
 2. **The match never ends.** The server runs the SBase game rules as a Story match with no time limit and lives that
    never run out (`HubK.GameOptions`), started before anyone joins (`SHubGameInfo.StartHub`). The end checks never
    run: a leaver is treated as a spectator for the end check, a death scores nothing and ends nothing, and the map has
@@ -98,22 +99,35 @@ only draw what it says (`HubActivities` on the server, `HubPlayState` on the cli
 A1. **Course gates.** A gate is a disc on the floor: a pawn is over it when its centre is within the gate's radius
     on the floor and between the gate's depth (192 uu unless the manifest gives one) below and 320 uu above the gate's
     height. The start gate is 192 uu across the middle, the finish 256.
-A2. **A run.** Only spies run (a merc in the start gate is told the course is for spies). The clock starts the moment
+A2. **A run.** Only spies run. A player has at most one active course, keyed by `easy`, `medium` or `hard`.
+    The clock starts the moment
     a spy who stood in the start gate steps out of it. Checkpoints must be passed in order; the finish counts only
     once all of them are passed (otherwise the runner is told which one he missed). Going back into the start gate
-    resets the run; it is cancelled by a respawn or side change, by going more than 512 uu outside the course's area,
-    after 300 s, or with X. The time is the server's, in milliseconds, from the tick he left the start to the tick
+    resets Easy; Medium and Hard keep their current attempt. It is cancelled by a respawn, side change, disconnect,
+    successful travel, going more than 512 uu outside the course's area, the attempt limit, or X.
+    Limits are 300 s for Easy, 2700 s for Medium and 5400 s for Hard. The time is the server's, in milliseconds, from the tick he left the start to the tick
     he reached the finish.
 A3. **Checkpoints.** The course's own `checkpoints` list if the manifest has one (each a point, radius 640, or an
     object with `at` and its own `radius` and `depth`: the assault course's are on its decks, radius 192, 48 deep);
     else one checkpoint
     over the middle of each of the course's traversal pieces (`ges`, in the manifest's order, radius 256), so each
     piece has to be climbed or crossed; else three on the line from start to finish (radius 640).
-A3a. **Falls.** On a raised course (the manifest's course area has `fallZ`), a running spy whose centre goes under
-    `fallZ` once he passed the first checkpoint fell: the server sets him down, standing still, 64 uu over the deck of
-    the last checkpoint he passed, the clock still running, and tells him `hubplay run fall <falls> <checkpoint>`. A
-    second fall within 1 s of a put-back is not counted. The course board is cleared when the map's layout version
-    changes (the scores file keeps the version the course's times were set on).
+A3a. **Falls.** Easy keeps its original checkpoint recovery and fall threshold. Medium and Hard define six/eight
+    visible section checkpoints separately from their invisible ordered validation gates. Gate height separates
+    stacked routes. Each section owns failure volumes, a recovery position, facing and the validation progress to
+    restore. Recovery keeps the clock running, increments falls and rewinds partial section progress; before the
+    first checkpoint it returns to the start without restarting. A second fall within 1 s is ignored. Placement
+    collision-checks the landing, clears velocity and traversal state, and resets the movement epoch.
+    Each course has its own score revision; legacy layout-v3 scores migrate into equivalent Easy revision 3.
+    Expanded perimeter traversal advances the delivered Easy course to revision 4, which starts a fresh table.
+A3b. **Travel.** The rebindable Travel action (default F4) or HUD button opens the directory. U is reserved for
+ready/use and never opens travel. All Hub shortcuts and emote choices are saved keyboard/mouse and controller
+actions in the controls editor; hints follow the current bindings, and intentional unbinding persists. The client sends a
+    destination ID, never coordinates. All eight destinations are free and available immediately. The server picks
+    a clear arrival outside gates and queues, applies facing, detaches movers/traversal, clears motion and resets
+    prediction. Only successful travel cancels activities and queued/held match offers. Unknown, blocked or
+    cooldown-rejected destinations preserve them. Successful travel has a 2 s cooldown. The menu warns that travel
+    cancels the activity; selecting a destination performs it without another confirmation.
 A4. **Aim range rounds.** A merc at the firing line (at most 96 uu in front of it, anywhere behind it in the range)
     presses U to start a 30 s round; at most four rounds run at once, one per merc. Each round keeps two targets up
     at random places between 256 uu in front of the backstop and 512 uu short of the firing line, across the lane;
@@ -127,7 +141,7 @@ A5. **Targets and hits.** A target is two boxes facing the firing line: a body 4
     targets; every rifle shot during his round counts as a shot.
 A6. **Range score.** 10 points for a body hit, 25 for a headshot, plus an accuracy bonus at the end: 50 times the
     share of shots that hit, rounded. The shooter sees the clock, points, hits, shots and headshots live.
-A7. **Boards.** Three boards, each the top 10 of every player's best by name: the course (fastest time), the range
+A7. **Boards.** Five boards, each the top 10 of every player's best by name: three courses (fastest time), the range
     (highest round score; shown with accuracy and headshots) and the plaza ball (most goals). A tie goes to whoever
     set it first. The player is told his time or score, whether it is his personal best and his place. A new first
     place sends a fanfare (a chime and a notice) to the players within 3500 uu and a line to everyone's chat. The
@@ -170,7 +184,7 @@ A12. **Where.** From `fixtures/hubmap/areas.json` (next to the map's folder, or 
     outside the lineup cannot be ready, and one pushed out of it loses his ready. When the lineup has as many people
     as the pad needs (every place, or the pad's minimum when bots fill) and all of them are ready, a countdown runs
     (10 s by default); it stops as soon as the lineup has fewer or anyone in it unreadies. The sign shows "Ready n/m"
-    and "Waiting for n players to ready up (U)". A start that failed waits 10 s before the next countdown.
+    and "Waiting for n players to ready up". A start that failed waits 10 s before the next countdown.
 23. **Starting.** At the countdown's end the hub opens an online session for the lineup: its own UDP port from the
     config's range (28890 to 28897 by default, never the hub's), the pad's map and mode as its setup, one game, bots
     as the pad says, and a new random password as the join token. Each lineup player is sent `hub match <pad> <port>

@@ -362,6 +362,15 @@ anything missing falls back to the base language. Schema: [schemas/text.schema.j
 
 ## Versioning
 
+### Authored moving traversal
+
+An optional `attachedTo` actor ID on a GE makes its points local to that actor's location and rotation (UU, before
+render conversion). Hub moving platforms use four LGs on their perimeter. Runtime GE queries resolve the current
+pose; a hanging/climbing pawn is based on the carrier and its native world-space traversal anchors move with it.
+Unresolved or deleted carriers provide no grab. Static GEs, including all legacy manifests, keep world coordinates.
+Packages using attachments require the matching client/server implementation; `platform` still means the original
+console platform selector and is never a mover reference.
+
 SemVer on `formatVersion`. Patch: clarifications only. Minor: new optional fields, new optional files, new
 collision chunks (readers skip unknown chunks); schemas move to a new `1.<minor>` folder. Major: anything a 1.x
 reader would misread.

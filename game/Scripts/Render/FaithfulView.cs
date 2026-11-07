@@ -199,6 +199,22 @@ public partial class FaithfulView : Node3D
     {
         ArgumentNullException.ThrowIfNull(map);
         Map = map;
+        if (map.Lighting.OutdoorSky)
+        {
+            Camera.Environment.BackgroundMode = Godot.Environment.BGMode.Sky;
+            Camera.Environment.Sky = new Sky
+            {
+                SkyMaterial = new ShaderMaterial { Shader = GD.Load<Shader>("res://Shaders/hub_sky.gdshader") },
+            };
+            string panorama = System.IO.Path.Combine(map.Folder, "render", "scenery", "autumn_field_puresky.hdr");
+            if (System.IO.File.Exists(panorama))
+            {
+                using var image = Image.LoadFromFile(panorama);
+                var sky = new ShaderMaterial { Shader = GD.Load<Shader>("res://Shaders/hub_panorama.gdshader") };
+                sky.SetShaderParameter("panorama", ImageTexture.CreateFromImage(image));
+                Camera.Environment.Sky.SkyMaterial = sky;
+            }
+        }
         _coronas = new Coronas(map, map.Root);
         _rain = new RainVolumes(map, map.Root);
         ApplyVision();
@@ -670,6 +686,8 @@ public partial class FaithfulView : Node3D
         // Sets both cameras' clear again below (the sky camera may be new).
         _clear = new Color(-1f, -1f, -1f);
         bool sceneVision = IsSceneVision(_rendMap);
+        if (Map?.Lighting.OutdoorSky == true)
+            Camera.Environment.BackgroundMode = sceneVision ? Godot.Environment.BGMode.Color : Godot.Environment.BGMode.Sky;
         // Thermal and EMF draw no sky zone: the frame keeps its clear colour there (thermal black reads as the far,
         // cold end of the table).
         if (_backdrop is not null)

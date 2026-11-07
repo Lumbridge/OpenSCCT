@@ -5,6 +5,7 @@ using OpenScct.Server.Hub;
 using OpenScctGame.Chat;
 using OpenScctGame.Hud;
 using OpenScctGame.Play;
+using OpenScctGame.Controls;
 
 namespace OpenScctGame.Hub;
 
@@ -52,6 +53,8 @@ public partial class HubHud : CanvasLayer
 
     /// <summary>Name tags drawn last frame (tests and smokes).</summary>
     public int TagsShown { get; private set; }
+    internal bool TravelMenuOpen => _travel is not null;
+    internal bool PlayerListOpen => _playerList is not null;
 
     public override void _Ready()
     {
@@ -59,9 +62,12 @@ public partial class HubHud : CanvasLayer
         Layer = HudLayer.DefaultLayer + 3;
         _help = new Label
         {
-            Name = "Help", Position = new Vector2(16f, 40f), Modulate = new Color(1f, 1f, 1f, 0.75f),
-            AutowrapMode = TextServer.AutowrapMode.WordSmart, MouseFilter = Control.MouseFilterEnum.Ignore,
-            Text = "Hub   J spy   K merc   N plaza   G emotes   U use   X stop   H watch   P players   O armoury   Enter/F5 chat   F6 team chat   Esc menu   Stand on a match pad to queue; set its match at its laptop",
+            Name = "Help",
+            Position = new Vector2(16f, 40f),
+            Modulate = new Color(1f, 1f, 1f, 0.75f),
+            AutowrapMode = TextServer.AutowrapMode.WordSmart,
+            MouseFilter = Control.MouseFilterEnum.Ignore,
+            Text = "Hub",
         };
         if (OpenScctGame.UI.UiArt.CaptionFont is { } caption)
         {
@@ -107,14 +113,21 @@ public partial class HubHud : CanvasLayer
             // The player's rank emblem, left of the name (OpenSCCT's own; hidden for guests).
             label.AddChild(new TextureRect
             {
-                Name = "Rank", Visible = false, Size = new Vector2(TagIconSize, TagIconSize), ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
-                StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered, MouseFilter = Control.MouseFilterEnum.Ignore,
+                Name = "Rank",
+                Visible = false,
+                Size = new Vector2(TagIconSize, TagIconSize),
+                ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
+                StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered,
+                MouseFilter = Control.MouseFilterEnum.Ignore,
             });
             _tagLabels.Add(label);
             AddChild(label);
         }
 
         ReadyActivities();
+        ReadyTravel();
+        AttachHubInput();
+        UpdateBindingHints();
         _laptopClient = Client;
         if (_laptopClient is not null)
         {
@@ -127,6 +140,8 @@ public partial class HubHud : CanvasLayer
 
     public override void _ExitTree()
     {
+        DetachHubInput();
+        if (Client is { } travelClient) travelClient.Play.TravelMenuOpened -= OpenTravel;
         if (_chatClient is not null)
         {
             _chatClient.ChatAdded -= AddChat;
@@ -152,6 +167,8 @@ public partial class HubHud : CanvasLayer
 
     public override void _Process(double delta)
     {
+        AttachHubInput();
+        UpdateBindingHints();
         Vector2 size = GetViewport().GetVisibleRect().Size;
         if (_help is not null)
         {
@@ -238,13 +255,14 @@ public partial class HubHud : CanvasLayer
 
         _composer = composer;
         composer.ReceiveMatchMessages = false;
+        composer.AllowEnterShortcut = false;
         composer.Transcript = _transcript;
         composer.Clock = () => Time.GetTicksMsec() / 1000d;
         composer.AllowNearby = true;
         composer.HubLayout = true;
         composer.SendMessage = Send;
         System.Func<bool>? canOpen = composer.CanOpen;
-        composer.CanOpen = () => _playerList is null && _armoury is null && _laptop is null && !_emoteOpen &&
+        composer.CanOpen = () => _playerList is null && _armoury is null && _laptop is null && _travel is null && !_emoteOpen &&
             (canOpen?.Invoke() ?? true);
         System.Func<bool>? visible = composer.VisibilityAllowed;
         composer.VisibilityAllowed = () => _playerList is null && _armoury is null && _laptop is null &&
@@ -259,6 +277,7 @@ public partial class HubHud : CanvasLayer
 
     private void DrawTags(HubClient client)
     {
+        if (_travel is not null) { HideTags(0); return; }
         Camera3D? camera = Round?.View?.Camera;
         TagsShown = 0;
         if (camera is null || !Round!.IsLoaded)
@@ -344,12 +363,12 @@ public partial class HubHud : CanvasLayer
 
     public override void _UnhandledInput(InputEvent @event)
     {
-        if (@event is not InputEventKey { Pressed: true, Echo: false } key || Client is not { } client || _armoury is not null || _laptop is not null)
+        if (!HubInputAvailable || _travel is not null || !@event.IsPressed() || @event is InputEventKey { Echo: true })
         {
             return;
         }
 
-        if (EmoteMenuInput(key))
+        if (EmoteMenuInput(@event))
         {
             GetViewport().SetInputAsHandled();
             return;
@@ -360,40 +379,127 @@ public partial class HubHud : CanvasLayer
             return;
         }
 
-        switch (key.Keycode)
+        if (HubCommandOf(@event) is { } command && RunHubCommand(command))
+            GetViewport().SetInputAsHandled();
+    }
+
+    private bool HubInputAvailable => Client is not null && !Typing && _armoury is null && _laptop is null &&
+        Round?.Menu?.IsOpen != true && BindingInput.Current?.CaptureSuspended != true;
+
+    private bool HubModalActive => Client is not null && !Typing && Round?.Menu?.IsOpen != true &&
+        BindingInput.Current?.CaptureSuspended != true &&
+        (_travel is not null || _emoteOpen || _playerList is not null || _laptop is not null || _armoury is not null);
+
+    private bool CloseOverlayCommand(string command)
+    {
+        if (_travel is not null && command is "ShowMenu" or "HubTravel") CloseTravel();
+        else if (_emoteOpen && command is "ShowMenu" or "HubEmotes") CloseEmoteMenu();
+        else if (_playerList is not null && command is "ShowMenu" or "HubPlayers") TogglePlayerList(Client!);
+        else if (_laptop is not null && command == "ShowMenu") CloseLaptop();
+        else if (_armoury is not null && command is "ShowMenu" or "HubArmoury") CloseArmoury();
+        else return false;
+        return true;
+    }
+
+    private string? HubCommandOf(InputEvent input)
+    {
+        if (Round?.Controls?.Bindings is not { } bindings || BindingInput.ResolveKey(input, bindings) is not { } key) return null;
+        foreach (var action in bindings.Actions(key))
+            if (action.Name.StartsWith("Hub", System.StringComparison.Ordinal)) return action.Name;
+        return null;
+    }
+
+    private bool HubBound(InputEvent input, string command)
+    {
+        if (Round?.Controls?.Bindings is not { } bindings || BindingInput.ResolveKey(input, bindings) is not { } key) return false;
+        foreach (var action in bindings.Actions(key)) if (action.Name == command) return true;
+        return false;
+    }
+
+    private PlayInput? _hubInput;
+
+    private void AttachHubInput()
+    {
+        if (ReferenceEquals(_hubInput, Round?.Controls)) return;
+        DetachHubInput();
+        _hubInput = Round?.Controls;
+        if (_hubInput is { } hubInput)
         {
-            case Key.J:
+            hubInput.LocalCommand += HubLocalCommand;
+            hubInput.ModalInputActive = () => HubModalActive;
+            hubInput.ModalCommand = command =>
+            {
+                if (!HubModalActive) return false;
+                if (CloseOverlayCommand(command)) return true;
+                if (_playerList is not null || _laptop is not null || _armoury is not null) return true;
+                return RunHubCommand(command);
+            };
+        }
+    }
+
+    private void DetachHubInput()
+    {
+        if (_hubInput is not { } input) return;
+        input.LocalCommand -= HubLocalCommand;
+        input.ModalInputActive = null;
+        input.ModalCommand = null;
+        _hubInput = null;
+    }
+
+    private void HubLocalCommand(string command)
+    {
+        if (HubInputAvailable) RunHubCommand(command);
+    }
+
+    private bool RunHubCommand(string command)
+    {
+        if (Client is not { } client) return false;
+        if (_travel is not null)
+        {
+            if (command is "HubTravel" or "ShowMenu") CloseTravel();
+            return true;
+        }
+        if (_emoteOpen && command.StartsWith("HubEmote", System.StringComparison.Ordinal) &&
+            int.TryParse(command[8..], out int choice) && choice >= 1 && choice <= HubEmotes.All.Count)
+        {
+            client.Emote(HubEmotes.All[choice - 1]); CloseEmoteMenu(); return true;
+        }
+        switch (command)
+        {
+            case "HubTravel":
+                OpenTravel();
+                break;
+            case "HubSpy":
                 client.RequestSide(0);
                 break;
-            case Key.K:
+            case "HubMerc":
                 client.RequestSide(1);
                 break;
-            case Key.N:
+            case "HubPlaza":
                 client.Respawn();
                 break;
-            case Key.G:
-                OpenEmoteMenu();
+            case "HubEmotes":
+                if (_emoteOpen) CloseEmoteMenu(); else OpenEmoteMenu();
                 break;
-            case Key.U:
+            case "HubUse":
                 client.Use();
                 break;
-            case Key.X:
+            case "HubCancel":
                 client.CancelActivity();
                 break;
-            case Key.H when client.Queue.PadId is { } watchPad:
+            case "HubWatch" when client.Queue.PadId is { } watchPad:
                 client.Watch(watchPad);
                 break;
-            case Key.P:
+            case "HubPlayers":
                 TogglePlayerList(client);
                 break;
-            case Key.O when _playerList is null:
+            case "HubArmoury" when _playerList is null:
                 OpenArmoury();
                 break;
             default:
-                return;
+                return false;
         }
-
-        GetViewport().SetInputAsHandled();
+        return true;
     }
 
     /// <summary>P: the hub's players, with each one's voice volume and mute and a chat mute.</summary>
@@ -470,7 +576,7 @@ public partial class HubHud : CanvasLayer
     /// </summary>
     private void OpenArmoury()
     {
-        _armoury = new OpenScctGame.UI.ArmouryScreen { Closed = CloseArmoury };
+        _armoury = new OpenScctGame.UI.ArmouryScreen { Closed = CloseArmoury, CloseInput = _ => false };
         AddChild(_armoury);
         if (Round?.Controls is { } input)
         {

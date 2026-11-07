@@ -27,7 +27,10 @@ public static class SharedContent
         }
 
         string beside = Path.GetFullPath(Path.Combine(mapFolder, "..", "..", "shared"));
-        if (Directory.Exists(beside))
+        // A checkout also has shared/ProjectLinks.cs. That source directory must
+        // not hide the actual character/root-motion packs in .content/shared.
+        if (Directory.Exists(Path.Combine(beside, "chars")) || Directory.Exists(Path.Combine(beside, "render")) ||
+            Directory.Exists(Path.Combine(beside, "fx")) || Directory.Exists(Path.Combine(beside, "audio")))
         {
             return beside;
         }

@@ -6,8 +6,8 @@
 
 The layout is tools/hubmap/layout.py; the Hub is an OpenSCCT addition (spec/additions/hub.md). The world is built
 the way TestRange's is (tools/testmap: the boundary of the carved hall less the solids, a solid-leaf BSP over its
-polygons, vertex-lit render meshes on our own grid textures). Everything in the folder is generated from the layout:
-no game files are read, so the folder is tracked like TestBox. The output is byte-identical on every run.
+polygons and vertex-lit render meshes), with credited scanned textures and glTF scenery. The folder is built from
+the layout and the tracked source-asset cache. No game files or network are read. Output is byte-identical on every run.
 """
 
 from __future__ import annotations
@@ -45,11 +45,12 @@ L = _load("hub_layout", HERE / "layout.py")
 A = _load("hub_art", HERE / "art.py")
 
 from svmbuild import canonical  # noqa: E402
-from svmbuild.svmap import LATEST_VERSION, with_derived, write_svmap  # noqa: E402
+from svmbuild.svmap import with_derived, write_svmap  # noqa: E402
 from svmbuild.writers import collision as C  # noqa: E402
 
 GENERATOR = "tools.hubmap"
-GENERATOR_VERSION = 2
+GENERATOR_VERSION = 3
+MAP_FORMAT_VERSION = '1.2.0' # optional moving-GE attachments; older Hub manifests are still readable
 DEFAULT_OUT = REPO / "fixtures" / "hub"
 MANIFEST = REPO / "fixtures" / "hubmap" / "areas.json"
 SUBDIVIDE = 512.0          # render cells: coarser than TestRange's 128, the hall is 12288 wide
@@ -65,6 +66,15 @@ def world_volumes() -> tuple[list[B.Convex], list[B.Convex]]:
         # The carve's faces point out of the hall: the floor's normal is down, the ceiling's up.
         f.material = "roof" if nz < -0.5 else "sky" if nz > 0.5 else "skyline"
     carves = [T._convex(faces, 0)]
+    for lake in L.LAKES:
+        cx,cy=lake['centre']
+        top=[(x,y,1) for x,y in lake['shore']]
+        bottom=[(cx+(x-cx)*.72,cy+(y-cy)*.72,-lake['depth']) for x,y in lake['shore']]
+        fs=[T.Face(list(reversed(bottom)), 'ruin_moss'),T.Face(top,'ruin_moss')]
+        for i in range(len(top)):
+            j=(i+1)%len(top)
+            fs.append(T.Face([bottom[i],bottom[j],top[j],top[i]],'ruin_moss'))
+        carves.append(T._convex(fs,-len(carves)))
     solids = []
     for j, s in enumerate(L.SOLIDS):
         fs = T.wedge_faces(s.lo, s.hi, s.up, s.material) if s.up else T.box_faces(s.lo, s.hi, s.material)
@@ -74,7 +84,12 @@ def world_volumes() -> tuple[list[B.Convex], list[B.Convex]]:
 
 def world_polys() -> list[B.Poly]:
     carves, solids = world_volumes()
-    return B.boundary(carves, solids, lambda poly, index: [poly])
+    def cut_carve(poly, index):
+        parts=[poly]
+        for other in carves:
+            if other.index!=index:parts=B._subtract(parts,other,keep_same=False)
+        return parts
+    return B.boundary(carves, solids, cut_carve, spatial=True)
 
 
 def build_gameplay() -> dict:
@@ -85,7 +100,7 @@ def build_gameplay() -> dict:
             props["Rotation"] = T._rot(a.yaw, a.pitch)
         props.update(a.props)
         actors.append({"id": a.id, "class": a.cls, "props": props})
-    return with_derived({"formatVersion": LATEST_VERSION, "map": L.MAP_ID,
+    return with_derived({"formatVersion": MAP_FORMAT_VERSION, "map": L.MAP_ID,
                          "levelInfo": {"id": "LevelInfo0", "class": "Engine.LevelInfo", "props": dict(L.LEVEL_INFO)},
                          "mapSettings": L.MAP_SETTINGS, "actors": actors})
 
@@ -93,7 +108,13 @@ def build_gameplay() -> dict:
 def build_traversal() -> dict:
     ges = [{"id": g.id, "kind": g.kind, "points": [[float(c) for c in p] for p in g.points], "mask": 0, "platform": 0,
             "src": {"kind": "synthetic", "note": g.note}, "activeAtStart": True} for g in L.GES]
-    return {"formatVersion": LATEST_VERSION, "map": L.MAP_ID, "activationMask": L.LEVEL_INFO["GEActivationMask"], "ges": ges}
+    for mover in L.MOVERS:
+        x,y,z=mover['half']
+        for face,a,b in (('S',(-x,-y,z),(x,-y,z)),('N',(x,y,z),(-x,y,z)),
+                         ('W',(-x,y,z),(-x,-y,z)),('E',(x,-y,z),(x,y,z))):
+            ges.append({'id':mover['id']+'LG'+face,'kind':'LG','points':[list(a),list(b)],'mask':0,'platform':0,
+                'attachedTo':mover['id'],'src':{'kind':'synthetic','note':'moving platform perimeter'},'activeAtStart':True})
+    return {"formatVersion": MAP_FORMAT_VERSION, "map": L.MAP_ID, "activationMask": L.LEVEL_INFO["GEActivationMask"], "ges": ges}
 
 
 def build_collision(polys: list[B.Poly]) -> bytes:
@@ -118,7 +139,7 @@ def build_collision(polys: list[B.Poly]) -> bytes:
             d.tris.append((idx[0], idx[i], idx[i + 1], 0, mats[material]))
 
     # One zone: no zone planes, the whole tree is zone 1.
-    root = B.build(polys, [], 1)
+    root = B.build(polys, [], 1, balance=0.25)
     for plane, front, back, node_polys, csg, zf, zb in B.flatten(root):
         t0 = len(d.tris)
         for q in node_polys:
@@ -131,7 +152,30 @@ def build_collision(polys: list[B.Poly]) -> bytes:
                                   bsp_start=0, bsp_count=len(d.bsp), aabb_min=lo, aabb_max=hi))
     d.sources.append(C.ColliderSource(source=d.string(L.MAP_ID + ".World"), set=C.SOURCE_SETS.index("worldBsp")))
     d.zones.append(C.Zone(d.string("LevelInfo0"), 0, lo, hi))
-    d.zones.append(C.Zone(d.string("ZoneHall"), 0, (L.HALL_LO[0], L.HALL_LO[1], -16.0), L.HALL_HI))
+    d.zones.append(C.Zone(d.string("ZoneHall"), 0, (L.HALL_LO[0], L.HALL_LO[1], -128.0), L.HALL_HI))
+    # Moving platforms own local hulls; their geometry must never enter the static BSP.
+    for mover in L.MOVERS:
+        x,y,z = mover["half"]
+        low,high=(-x,-y,-z),(x,y,z)
+        v0,p0,h0=len(d.verts),len(d.planes),len(d.hulls)
+        d.verts.extend(T._box_corners(low,high))
+        d.planes.extend(T._box_planes(low,high))
+        d.hulls.append(C.Hull(p0,6,v0,8,mats[mover["material"]],low,high))
+        at=mover["at"]
+        d.colliders.append(C.Collider(kind=C.KINDS.index("mover"),flags=C.flag_bits(WORLD_FLAGS,C.COLLIDER_FLAGS),
+            actor=d.string(mover["id"]),vert_start=v0,vert_count=8,hull_start=h0,hull_count=1,location=at,
+            aabb_min=tuple(at[i]+low[i] for i in range(3)),aabb_max=tuple(at[i]+high[i] for i in range(3))))
+        d.sources.append(C.ColliderSource(source=d.string(mover["id"]),asset=d.string("Hub."+mover["id"]),set=C.SOURCE_SETS.index("simple")))
+    # Shared transformed source geometry, also used to locate the model's traversal rims.
+    for model in L.SCENERY_COLLISION:
+        ci=len(d.colliders);v0=len(d.verts);t0=len(d.tris)
+        d.verts.extend(model['vertices'])
+        material=mats[model.get('material','bark' if '-tree-' in model['asset'] else 'concrete')]
+        d.tris.extend((v0+a,v0+b,v0+c,ci,material) for a,b,c in model['triangles'])
+        low,high=T._aabb(model['vertices'])
+        d.colliders.append(C.Collider(kind=C.KINDS.index('meshPoly'),flags=C.flag_bits(WORLD_FLAGS,C.COLLIDER_FLAGS),
+            vert_start=v0,vert_count=len(model['vertices']),tri_start=t0,tri_count=len(model['triangles']),aabb_min=low,aabb_max=high))
+        d.sources.append(C.ColliderSource(source=d.string(model['id']),asset=d.string(model['asset']),set=C.SOURCE_SETS.index('perPoly')))
     return C.write_collision(d)
 
 
@@ -151,13 +195,20 @@ def light_colour(li) -> tuple[float, float, float]:
 
 
 MAP_LIGHTS = [li for li in L.LIGHTS if li.kit is None]
+LIGHT_CELLS = {}
+for light in L.LIGHTS:
+    reach = 25.0 * (light.radius + 1.0)
+    ranges = [range(math.floor((v-reach)/4096), math.floor((v+reach)/4096)+1) for v in light.location]
+    for x in ranges[0]:
+        for y in ranges[1]:
+            for z in ranges[2]: LIGHT_CELLS.setdefault((x,y,z), []).append(light)
 
 
 def light_at(p: Vec3, n: Vec3, kit=None) -> tuple[float, float, float]:
     """Zone ambient plus every map light (and a theme kit's own lights), the actor lighting model as TestRange bakes it."""
     a = L.ZONE_AMBIENT / 255.0
     total = [a, a, a]
-    for li in L.LIGHTS:
+    for li in LIGHT_CELLS.get(tuple(math.floor(v/4096) for v in p), ()):
         if li.kit is not None and li.kit != kit:
             continue
         dv = T._sub(li.location, p)
@@ -176,9 +227,21 @@ def light_at(p: Vec3, n: Vec3, kit=None) -> tuple[float, float, float]:
 
 
 def _cells(corners, uvs):
-    """Splits a quad into cells of at most SUBDIVIDE uu (UVs interpolated); other polygons pass whole."""
+    """Splits all polygons into bounded cells, including the triangles left by BSP clipping."""
     if len(corners) != 4:
-        yield corners, uvs
+        def triangles(v, uv):
+            lengths=[math.dist(v[i],v[(i+1)%3]) for i in range(3)]
+            edge=max(range(3),key=lambda i:lengths[i])
+            if lengths[edge]<=SUBDIVIDE:
+                yield v,uv
+                return
+            a,b,c=edge,(edge+1)%3,(edge+2)%3
+            mid=tuple((v[a][i]+v[b][i])/2 for i in range(3))
+            mu=tuple((uv[a][i]+uv[b][i])/2 for i in range(2)) if uv else None
+            yield from triangles([v[a],mid,v[c]], [uv[a],mu,uv[c]] if uv else None)
+            yield from triangles([mid,v[b],v[c]], [mu,uv[b],uv[c]] if uv else None)
+        for i in range(1,len(corners)-1):
+            yield from triangles([corners[0],corners[i],corners[i+1]], [uvs[0],uvs[i],uvs[i+1]] if uvs else None)
         return
     a, b, c, dd = corners
     nu = max(1, math.ceil(max(math.dist(a, b), math.dist(dd, c)) / SUBDIVIDE))
@@ -223,6 +286,10 @@ def mesh_arrays(polys, kit=None):
                     col.append((255, 255, 255, 255))
                 else:
                     light = light_at(p, n, kit)
+                    if material in ('roof','turf','ruin_moss'):
+                        # Match the green understory at distance, where individual
+                        # grass cards fade out. Keep the source photograph intact.
+                        light = tuple(c*t for c,t in zip(light,(.70,.95,.52)))
                     col.append(tuple(int(round(min(1.0, c / 2.0) * 255)) for c in light) + (255,))
             for i in range(1, len(cell) - 1):
                 idx.append((base, base + i, base + i + 1))
@@ -268,6 +335,17 @@ def _clip_rect(poly: B.Poly, lo, hi):
 
 
 def _texture_bytes(key: str) -> bytes:
+    photos = {'roof':'leafy_grass','turf':'leafy_grass','ruin_moss':'leafy_grass',
+              'ruin_stone':'mossy_stone_wall','frozen_stone':'concrete_floor_worn_02','frozen_ice':'snow_02',
+              'wood':'weathered_planks','ruin_wood':'weathered_planks','deck':'weathered_planks',
+              'plaza':'grassy_cobblestone','concrete':'concrete_floor_worn_02','track':'concrete_floor_worn_02',
+              'booth':'weathered_planks','steel_concrete':'concrete_floor_worn_02'}
+    if key in photos:
+        import io
+        from PIL import Image
+        out=io.BytesIO()
+        Image.open(HERE/'assets'/(photos[key]+'.jpg')).save(out,format='PNG')
+        return out.getvalue()
     m = L.MATERIALS[key]
     if m.art in L.ART:
         fn, args, kwargs = L.ART[m.art]
@@ -309,31 +387,33 @@ def build_render(faces: list[T.Face]) -> dict[str, bytes]:
             inst["unlit"] = True
         instances.append(inst)
 
-    by_material: dict[str, list] = {}
-    for f in _split_floor(faces):
-        if not L.MATERIALS[f.material].hidden:
-            by_material.setdefault(f.material, []).append((f.corners, f.material, None))
-    for key in sorted(by_material):
-        mi = add_material(key)
-        add_instance(f"World_{key}", glb.mesh(f"Hub_World_{key}", *mesh_arrays(by_material[key]), material=mi),
-                     unlit=L.MATERIALS[key].unlit)
+    def chunks(polys):
+        buckets = {}
+        for corners,key,uv in polys:
+            for cell,cuv in _cells(corners,uv):
+                centre=tuple(sum(p[i] for p in cell)/len(cell) for i in range(3))
+                chunk=tuple(math.floor(v/4096) for v in centre)
+                buckets.setdefault((key,chunk),[]).append((cell,key,cuv))
+        return buckets
 
-    # Render-only groups, one mesh per material. Theme kits are gameplay instances: nodes of their own that the client
-    # shows or hides by name (HubTheme_<pad>_<theme>_<material>); only each pad's default theme starts shown.
-    for gname, g in L.GROUPS.items():
-        per: dict[str, list] = {}
-        for pc in g.pieces:
-            per.setdefault(pc.material, []).append((pc.corners, pc.material, pc.uvs))
-        for key in sorted(per):
-            mi = add_material(key)
-            name = f"{gname}_{key}"
-            mesh = glb.mesh(f"Hub_{name}", *mesh_arrays(per[key], g.kit), material=mi)
-            if g.kit:
-                pad, theme = g.kit
-                add_instance(name, mesh, unlit=L.MATERIALS[key].unlit, gameplay=True,
-                             hidden=theme != L.PAD_DEFAULT_THEMES[pad])
-            else:
-                add_instance(name, mesh, unlit=L.MATERIALS[key].unlit)
+    world=[(f.corners,f.material,None) for f in _split_floor(faces) if not L.MATERIALS[f.material].hidden]
+    for (key,chunk),polys in sorted(chunks(world).items()):
+        name="World_"+key+"_"+"_".join(map(str,chunk))
+        add_instance(name,glb.mesh("Hub_"+name,*mesh_arrays(polys),material=add_material(key)),unlit=L.MATERIALS[key].unlit)
+
+    for gname,g in L.GROUPS.items():
+        for (key,chunk),polys in sorted(chunks([(p.corners,p.material,p.uvs) for p in g.pieces if not L.MATERIALS[p.material].hidden]).items()):
+            name=gname+"_"+key+"_"+"_".join(map(str,chunk))
+            mesh=glb.mesh("Hub_"+name,*mesh_arrays(polys,g.kit),material=add_material(key))
+            add_instance(name,mesh,unlit=L.MATERIALS[key].unlit,gameplay=g.kit is not None,
+                         hidden=g.kit is not None and g.kit[1]!=L.PAD_DEFAULT_THEMES[g.kit[0]])
+
+    for mover in L.MOVERS:
+        x,y,z=mover["half"];key=mover["material"];name=mover["id"]
+        faces=T.box_faces((-x,-y,-z),(x,y,z),key)
+        mesh=glb.mesh("Hub_"+name,*mesh_arrays([(f.corners,key,None) for f in faces]),material=add_material(key))
+        add_instance(name,mesh,gameplay=True)
+        instances[-1].update(kind="mover",**{"class":"Mover"},location=list(mover["at"]))
 
     glb.node("Library", children=library, extras={"svmap": {"role": "library"}}, root=True)
     files["world.glb"] = glb.to_bytes({"svmap": {"map": L.MAP_ID, "instances": instances}})
@@ -342,6 +422,16 @@ def build_render(faces: list[T.Face]) -> dict[str, bytes]:
         "lightmapped": [], "authoredColorMeshes": [],
         "vertexLitMeshes": [{"base": i["mesh"].split("#")[0], "name": i["mesh"]} for i in instances if i["vertexLit"]]})
     files["lighting.json"] = canonical.dump_file(build_lighting())
+    files["scenery.json"] = canonical.dump_file({'format':1,'instances':L.SCENERY})
+    # Compact numeric arrays keep the dense soft foliage manifest small.
+    import json
+    files['foliage.json'] = (json.dumps(L.FOLIAGE,separators=(',',':'))+'\n').encode()
+    for asset in sorted((HERE/'assets').iterdir()):
+        if asset.suffix in ('.glb', '.hdr', '.txt', '.json', '.png'):
+            data = asset.read_bytes()
+            if asset.suffix in ('.txt', '.json'):
+                data = data.replace(b'\r\n', b'\n')
+            files['scenery/' + asset.name] = data
     return files
 
 
@@ -370,12 +460,12 @@ def build_lighting() -> dict:
               "rotation": [0, 0, 0], "scale": [1.0, 1.0, 1.0], "sky": False, "tag": "ZoneInfo", "zoneIndex": 1}]
     return {"lights": lights, "zones": zones, "look": {"glow_enabled": False, "glow_threshold": 255,
                                                          "glow_threshold_stored": False},
-            "sky": None, "lightmaps": []}
+            "sky": None, "outdoor_sky": True, "lightmaps": []}
 
 
 def build_mapinfo() -> dict:
     return {"MapName": "HUB", "LegendMap": "The OpenSCCT hub: meet, move and pick a match.",
-            "LegendMapInBrief": "1. Spawn plaza||2. Traversal garden||3. Match pads||4. Aim range||5. Movement course||6. Lounge",
+            "LegendMapInBrief": "1. Central plaza||2. Training garden||3. Match district||4. Industrial range||5. Easy course||6. Waterfront lounge||7. Overgrown ruins||8. Frozen observatory",
             "ExpliMapInBriefSpy": "Walk, climb and meet other players.",
             "ExpliMapInBriefSentry": "Walk, climb and meet other players.", "modes": {}}
 
@@ -387,6 +477,7 @@ def areas_manifest(gameplay: dict, traversal: dict) -> dict:
     return {"format": "openscct.hub/1", "map": L.MAP_ID, "layoutVersion": L.LAYOUT_VERSION,
             "generator": f"{GENERATOR} {GENERATOR_VERSION}", "units": "uu, UE space (Z up, yaw 16384 = +Y)",
             "hall": {"lo": list(L.HALL_LO), "hi": list(L.HALL_HI)},
+            "teleports": L.TELEPORTS,
             "areas": [{"id": a.id, "kind": a.kind, "title": a.title, "lo": list(a.lo), "hi": list(a.hi), "phase": a.phase,
                        **a.data} for a in L.AREAS],
             "starts": starts, "ges": [{"id": g["id"], "kind": g["kind"], "points": g["points"]} for g in traversal["ges"]]}
@@ -397,11 +488,15 @@ def generate(out: Path) -> tuple[dict, dict]:
     faces = [T.Face(list(p.verts), p.material) for p in polys]
     gameplay = build_gameplay()
     traversal = build_traversal()
-    files = {"ui/mapinfo.json": canonical.dump_file(build_mapinfo(), ascii_keys=False)}
+    movers = {"format": "svm.movers/1", "movers": [
+        {"actor": a["id"], "keys": [{}, {"time": a["props"]["MoveTime"]}]}
+        for a in gameplay["actors"] if a["class"] == "Engine.Mover" and a["props"].get("Tag") == "HubCourseMover"]}
+    files = {"ui/mapinfo.json": canonical.dump_file(build_mapinfo(), ascii_keys=False),
+             "sim/movers.json": canonical.dump_file(movers)}
     manifest = write_svmap(Path(out), map_id=L.MAP_ID, title=L.TITLE,
                            source={"kind": "synthetic", "generator": GENERATOR, "generatorVersion": GENERATOR_VERSION},
                            gameplay=gameplay, traversal=traversal, collision=build_collision(polys),
-                           render=build_render(faces), requires=[], files=files, format_version=LATEST_VERSION)
+                           render=build_render(faces), requires=[], files=files, format_version=MAP_FORMAT_VERSION)
     return manifest, areas_manifest(gameplay, traversal)
 
 

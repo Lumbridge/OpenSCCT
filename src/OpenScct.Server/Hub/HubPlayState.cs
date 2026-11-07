@@ -57,6 +57,8 @@ public sealed class HubPlayState
 
     public IReadOnlyDictionary<string, HubBoard> Boards => _boards;
 
+    public event Action<string>? BoardChanged;
+
     public IReadOnlyList<HubMark> Marks => _marks;
 
     public IReadOnlyDictionary<int, HubTargetView> Targets => _targets;
@@ -64,6 +66,14 @@ public sealed class HubPlayState
     // ---- the course run ------------------------------------------------------------------------------------------
 
     public bool Running { get; private set; }
+    public string CourseId { get; private set; } = "easy";
+    public string CourseTitle => CourseTitles.GetValueOrDefault(CourseId, "Course");
+    public Dictionary<string, string> CourseTitles { get; } = new(StringComparer.Ordinal);
+    public Dictionary<string, string> Destinations { get; } = new(StringComparer.Ordinal);
+    public Dictionary<(string Course, int Index), string> Sections { get; } = new();
+    public Dictionary<string, int> PersonalBests { get; } = new(StringComparer.Ordinal);
+    public string SectionTitle => Sections.GetValueOrDefault((CourseId, Passed), "");
+    public event Action? TravelMenuOpened;
 
     /// <summary>Client time the run started (the server's start line arrived).</summary>
     public double RunStartedAt { get; private set; }
@@ -177,6 +187,7 @@ public sealed class HubPlayState
 
     public void Notice(string text, bool big = false, double seconds = 4.0)
     {
+        _toasts.RemoveAll(t => t.Text == text && t.Big == big);
         _toasts.Add((text, Now + seconds, big));
         if (_toasts.Count > MaxToasts)
         {
@@ -191,7 +202,7 @@ public sealed class HubPlayState
         distance = float.MaxValue;
         foreach (HubMark m in _marks)
         {
-            if (m.Kind != kind)
+            if (m.Kind != kind || Math.Abs(m.At.Z - at.Z) > 320)
             {
                 continue;
             }
@@ -221,19 +232,23 @@ public sealed class HubPlayState
         switch (verb)
         {
             case "board":
-            {
-                string id = SessionProtocol.Text(f, 0);
-                _boards[id] = new HubBoard(id, Vec(f, 1), HubPlayProtocol.BoardLines(SessionProtocol.Text(f, 4)));
-                break;
-            }
+            case "boardadd":
+                {
+                    string id = SessionProtocol.Text(f, 0);
+                    string[] rows = HubPlayProtocol.BoardLines(SessionProtocol.Text(f, 4));
+                    if (verb == "boardadd" && _boards.TryGetValue(id, out var previous)) rows = [.. previous.Lines, .. rows];
+                    _boards[id] = new HubBoard(id, Vec(f, 1), rows);
+                    BoardChanged?.Invoke(id);
+                    break;
+                }
 
             case "mark":
-            {
-                var mark = new HubMark(SessionProtocol.Text(f, 0), SessionProtocol.Text(f, 1), Vec(f, 2), HubPlayProtocol.Float(f, 5));
-                _marks.RemoveAll(m => m.Id == mark.Id);
-                _marks.Add(mark);
-                break;
-            }
+                {
+                    var mark = new HubMark(SessionProtocol.Text(f, 0), SessionProtocol.Text(f, 1), Vec(f, 2), HubPlayProtocol.Float(f, 5));
+                    _marks.RemoveAll(m => m.Id == mark.Id);
+                    _marks.Add(mark);
+                    break;
+                }
 
             case "run":
                 ReadRun(f, now);
@@ -242,38 +257,53 @@ public sealed class HubPlayState
                 ReadRange(f, now);
                 break;
             case "target":
-            {
-                int id = SessionProtocol.Int(f, 0);
-                if (!_targets.TryGetValue(id, out HubTargetView? t))
                 {
-                    t = new HubTargetView { Id = id };
-                    _targets[id] = t;
-                }
+                    int id = SessionProtocol.Int(f, 0);
+                    if (!_targets.TryGetValue(id, out HubTargetView? t))
+                    {
+                        t = new HubTargetView { Id = id };
+                        _targets[id] = t;
+                    }
 
-                t.Owner = SessionProtocol.Int(f, 1);
-                t.Up = SessionProtocol.Int(f, 2) == 1;
-                t.Foot = Vec(f, 3);
-                t.ChangedAt = now;
-                break;
-            }
+                    t.Owner = SessionProtocol.Int(f, 1);
+                    t.Up = SessionProtocol.Int(f, 2) == 1;
+                    t.Foot = Vec(f, 3);
+                    t.ChangedAt = now;
+                    break;
+                }
 
             case "emote":
-            {
-                // "-" ends the player's emote (he moved off).
-                string emote = SessionProtocol.Text(f, 1);
-                int who = SessionProtocol.Int(f, 0);
-                if (HubEmotes.IsEmote(emote))
                 {
-                    _emotes[who] = new HubEmoteView(emote, now, now + HubEmotes.Seconds(emote));
+                    // "-" ends the player's emote (he moved off).
+                    string emote = SessionProtocol.Text(f, 1);
+                    int who = SessionProtocol.Int(f, 0);
+                    if (HubEmotes.IsEmote(emote))
+                    {
+                        _emotes[who] = new HubEmoteView(emote, now, now + HubEmotes.Seconds(emote));
+                    }
+                    else if (_emotes.TryGetValue(who, out HubEmoteView e) && e.Until > now)
+                    {
+                        // Kept for the blend out: it ends now.
+                        _emotes[who] = e with { Until = now };
+                    }
+                    break;
                 }
-                else if (_emotes.TryGetValue(who, out HubEmoteView e) && e.Until > now)
-                {
-                    // Kept for the blend out: it ends now.
-                    _emotes[who] = e with { Until = now };
-                }
-                break;
-            }
 
+            case "course" when f.Count >= 2:
+                CourseTitles[f[0]] = f[1];
+                break;
+            case "section" when f.Count >= 3:
+                Sections[(f[0], SessionProtocol.Int(f, 1))] = f[2];
+                break;
+            case "best" when f.Count >= 2:
+                PersonalBests[f[0]] = SessionProtocol.Int(f, 1);
+                break;
+            case "destination" when f.Count >= 2:
+                Destinations[f[0]] = f[1];
+                break;
+            case "travelmenu":
+                TravelMenuOpened?.Invoke();
+                break;
             case "jukebox":
                 Track = SessionProtocol.Int(f, 0);
                 TrackTitle = SessionProtocol.Text(f, 1);
@@ -306,6 +336,7 @@ public sealed class HubPlayState
                 Running = true;
                 RunStartedAt = now;
                 Checkpoints = SessionProtocol.Int(f, 1);
+                CourseId = f.Count > 2 ? f[2] : "easy";
                 Passed = 0;
                 Falls = 0;
                 LastSplit = -1;
@@ -315,29 +346,31 @@ public sealed class HubPlayState
                 Passed = SessionProtocol.Int(f, 1);
                 Checkpoints = SessionProtocol.Int(f, 2);
                 LastSplit = SessionProtocol.Int(f, 3);
+                RunStartedAt = now - LastSplit / 1000.0;
                 Cue?.Invoke("cp");
                 break;
             case "fall":
-            {
-                Falls = SessionProtocol.Int(f, 1);
-                int back = SessionProtocol.Int(f, 2);
-                Notice(back > 0 ? $"Fell! Back to checkpoint {back}" : "Fell! Back to the start", seconds: 2.5);
-                Cue?.Invoke("fall");
-                break;
-            }
+                {
+                    Falls = SessionProtocol.Int(f, 1);
+                    int back = SessionProtocol.Int(f, 2);
+                    Passed = back;
+                    Notice(back > 0 ? $"Fell! Back to checkpoint {back}" : "Fell! Back to the start", seconds: 2.5);
+                    Cue?.Invoke("fall");
+                    break;
+                }
 
             case "finish":
-            {
-                Running = false;
-                LastRun = SessionProtocol.Int(f, 1);
-                LastRunAt = now;
-                int rank = SessionProtocol.Int(f, 2);
-                bool best = SessionProtocol.Int(f, 3) == 1;
-                string place = rank > 0 ? $", #{rank} on the board" : string.Empty;
-                Notice($"Finished in {HubScores.Time(LastRun)}{(best ? "  personal best" : string.Empty)}{place}", big: true, seconds: 6.0);
-                Cue?.Invoke(best ? "best" : "finish");
-                break;
-            }
+                {
+                    Running = false;
+                    LastRun = SessionProtocol.Int(f, 1);
+                    LastRunAt = now;
+                    int rank = SessionProtocol.Int(f, 2);
+                    bool best = SessionProtocol.Int(f, 3) == 1;
+                    string place = rank > 0 ? $", #{rank} on the board" : string.Empty;
+                    Notice($"Finished in {HubScores.Time(LastRun)}{(best ? "  personal best" : string.Empty)}{place}", big: true, seconds: 6.0);
+                    Cue?.Invoke(best ? "best" : "finish");
+                    break;
+                }
 
             case "cancel":
                 Running = false;
@@ -358,45 +391,45 @@ public sealed class HubPlayState
                 Cue?.Invoke("start");
                 break;
             case "score":
-            {
-                int heads = SessionProtocol.Int(f, 4);
-                int hits = SessionProtocol.Int(f, 2);
-                if (hits > RangeHits)
                 {
-                    Cue?.Invoke(heads > RangeHeads ? "head" : "hit");
-                }
+                    int heads = SessionProtocol.Int(f, 4);
+                    int hits = SessionProtocol.Int(f, 2);
+                    if (hits > RangeHits)
+                    {
+                        Cue?.Invoke(heads > RangeHeads ? "head" : "hit");
+                    }
 
-                RangePoints = SessionProtocol.Int(f, 1);
-                RangeHits = hits;
-                RangeShots = SessionProtocol.Int(f, 3);
-                RangeHeads = heads;
-                RoundEndsAt = now + SessionProtocol.Int(f, 5) / 1000.0;
-                break;
-            }
-
-            case "end":
-            {
-                InRound = false;
-                int score = SessionProtocol.Int(f, 1);
-                RangeHits = SessionProtocol.Int(f, 2);
-                RangeShots = SessionProtocol.Int(f, 3);
-                RangeHeads = SessionProtocol.Int(f, 4);
-                if (score < 0)
-                {
+                    RangePoints = SessionProtocol.Int(f, 1);
+                    RangeHits = hits;
+                    RangeShots = SessionProtocol.Int(f, 3);
+                    RangeHeads = heads;
+                    RoundEndsAt = now + SessionProtocol.Int(f, 5) / 1000.0;
                     break;
                 }
 
-                int rank = SessionProtocol.Int(f, 5);
-                bool best = SessionProtocol.Int(f, 6) == 1;
-                LastRangeScore = score;
-                LastRangeAt = now;
-                int accuracy = RangeShots > 0 ? (int)Math.Round(100.0 * RangeHits / RangeShots) : 0;
-                string place = rank > 0 ? $", #{rank} on the board" : string.Empty;
-                Notice($"Round over: {score} points ({RangeHits}/{RangeShots} hits, {accuracy}%, {RangeHeads} headshots){(best ? "  personal best" : string.Empty)}{place}",
-                    big: true, seconds: 7.0);
-                Cue?.Invoke(best ? "best" : "end");
-                break;
-            }
+            case "end":
+                {
+                    InRound = false;
+                    int score = SessionProtocol.Int(f, 1);
+                    RangeHits = SessionProtocol.Int(f, 2);
+                    RangeShots = SessionProtocol.Int(f, 3);
+                    RangeHeads = SessionProtocol.Int(f, 4);
+                    if (score < 0)
+                    {
+                        break;
+                    }
+
+                    int rank = SessionProtocol.Int(f, 5);
+                    bool best = SessionProtocol.Int(f, 6) == 1;
+                    LastRangeScore = score;
+                    LastRangeAt = now;
+                    int accuracy = RangeShots > 0 ? (int)Math.Round(100.0 * RangeHits / RangeShots) : 0;
+                    string place = rank > 0 ? $", #{rank} on the board" : string.Empty;
+                    Notice($"Round over: {score} points ({RangeHits}/{RangeShots} hits, {accuracy}%, {RangeHeads} headshots){(best ? "  personal best" : string.Empty)}{place}",
+                        big: true, seconds: 7.0);
+                    Cue?.Invoke(best ? "best" : "end");
+                    break;
+                }
         }
     }
 

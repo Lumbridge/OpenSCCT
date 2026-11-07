@@ -1,10 +1,10 @@
 """Hub: the layout of the OpenSCCT social hub map, as data. An OpenSCCT addition (spec/additions/hub.md), not a port:
-our own geometry (one carved hall, boxes and wedges), our own procedural art (tools/hubmap/art.py), no game content.
+authored gameplay geometry, original signage, and credited outdoor models/textures (tools/hubmap/assets).
 
-The look: a night rooftop compound over a city. The hall's walls are a painted skyline behind a parapet with a green
-neon line, the ceiling a starry sky; concrete roof decking, neon strips (OpenSCCT green for spies, amber for mercs),
-our own signage in JetBrains Mono (OFL). Units are Unreal units in UE space (left-handed, Z up, yaw 0 = +X,
-16384 = +Y). The hall is x 0..12288, y 0..12288, z 0..1536. "North" is +Y, "east" +X. Areas:
+Layout 4 expands these original district kits into an outdoor world through expansion.py: daylight skybox, lawns,
+pine groves, waterfront, ruins and a frozen observatory. The outer collision walls and ceiling are invisible.
+Signage uses JetBrains Mono (OFL). Units are Unreal units in UE space (left-handed, Z up, yaw 0 = +X,
+16384 = +Y). Bounds are x/y -18432..30720 and z 0..16384. "North" is +Y, "east" +X. Original kits:
 
 - the spawn plaza in the middle: 64 player starts on two rings (spies west, mercs east) round a fountain with ledges
   on its lips, the OpenSCCT ring inlaid in the pavers, a four-sided "OPENSCCT HUB" sign hanging over the fountain,
@@ -23,7 +23,7 @@ our own signage in JetBrains Mono (OFL). Units are Unreal units in UE space (lef
 - the lounge in the south-west: sofas facing a big screen with a scrolling ticker, a bar, warm light;
 - rooftop dressing in the other corners: a water tower landmark, air-conditioning units, a helipad.
 
-Nothing here reads files or the clock: the layout is the same on every run. tools/hubmap/generate.py writes the
+Only the tracked model metadata is read; there are no clock or network inputs. tools/hubmap/generate.py writes the
 SVMap folder (fixtures/hub) and the area manifest (fixtures/hubmap/areas.json).
 """
 
@@ -34,12 +34,12 @@ from dataclasses import dataclass, field
 
 MAP_ID = "Hub"
 TITLE = "Hub"
-LAYOUT_VERSION = 3
+LAYOUT_VERSION = 4
 
 Vec3 = tuple[float, float, float]
 
-HALL_LO: Vec3 = (0.0, 0.0, 0.0)
-HALL_HI: Vec3 = (12288.0, 12288.0, 1536.0)
+HALL_LO: Vec3 = (-18432.0, -18432.0, 0.0)
+HALL_HI: Vec3 = (30720.0, 30720.0, 16384.0)
 CENTRE = (6144.0, 6144.0)
 
 
@@ -171,6 +171,7 @@ class Group:
     name: str
     pieces: list[Piece] = field(default_factory=list)
     kit: tuple[str, str] | None = None
+    volumes: list = field(default_factory=list) # physical boxes, before decorative face clipping
 
 
 SOLIDS: list[Solid] = []
@@ -251,6 +252,8 @@ def box(g, lo, hi, material, faces="all"):
     """A render-only box (outward faces); `faces` 'all' or a string of the faces to keep: t b n s e w."""
     x0, y0, z0 = lo
     x1, y1, z1 = hi
+    if all(a < b for a,b in zip(lo,hi)):
+        group(g).volumes.append((tuple(lo),tuple(hi),material))
     sides = {
         "t": ([(x0, y0, z1), (x1, y0, z1), (x1, y1, z1), (x0, y1, z1)], (0, 0, 1)),
         "b": ([(x0, y0, z0), (x1, y0, z0), (x1, y1, z0), (x0, y1, z0)], (0, 0, -1)),
@@ -363,6 +366,36 @@ def lips(s: Solid, faces, note, span=None, ident=None):
 YAW_E, YAW_N, YAW_W, YAW_S = 0, 16384, 32768, 49152
 N, S, E, W = (0, 1), (0, -1), (1, 0), (-1, 0)
 
+
+def _district_begin():
+    return (len(SOLIDS), len(GES), len(ACTORS), len(LIGHTS), len(AREAS), len(FLOOR_ZONES), {k: (len(g.pieces),len(g.volumes)) for k, g in GROUPS.items()})
+
+
+def _district_move(snapshot, dx, dy):
+    from dataclasses import replace
+    def shift(p): return (p[0] + dx, p[1] + dy, *p[2:])
+    def data(v, key=""):
+        if isinstance(v, dict): return {k: data(x, k) for k, x in v.items()}
+        if isinstance(v, (list, tuple)):
+            if key in ("lo", "hi", "centre", "start", "finish", "at", "leaderboardAnchor", "signAnchor", "musicAnchor", "screenAnchor", "zipHigh", "zipLow"): return list(shift(v))
+            if key in ("lane", "route"): return [x + dy for x in v]
+            if key == "stalls": return [[x + dy for x in pair] for pair in v]
+            if key == "seats": return [list(shift(p)) for p in v]
+            return [data(x) for x in v]
+        if key in ("firingLine", "backstop"): return v + dx
+        return v
+    a,b,c,d,e,f,groups = snapshot
+    SOLIDS[a:] = [replace(s, lo=shift(s.lo), hi=shift(s.hi)) for s in SOLIDS[a:]]
+    GES[b:] = [replace(g, points=tuple(shift(p) for p in g.points)) for g in GES[b:]]
+    ACTORS[c:] = [replace(x, location=shift(x.location)) for x in ACTORS[c:]]
+    LIGHTS[d:] = [replace(x, location=shift(x.location)) for x in LIGHTS[d:]]
+    AREAS[e:] = [replace(x, lo=shift(x.lo), hi=shift(x.hi), data=data(x.data)) for x in AREAS[e:]]
+    FLOOR_ZONES[f:] = [(shift(lo),shift(hi),mat) for lo,hi,mat in FLOOR_ZONES[f:]]
+    for k,g in GROUPS.items():
+        np,nv=groups.get(k,(0,0))
+        for pc in g.pieces[np:]: pc.corners = [shift(p) for p in pc.corners]
+        g.volumes[nv:]=[(shift(lo),shift(hi),mat) for lo,hi,mat in g.volumes[nv:]]
+
 # ---- Hall ----------------------------------------------------------------------------------------------------------
 # Fill light: a sparse grid of dim, cool lights (night), so nothing is pitch black between the areas' own lights.
 for i in range(6):
@@ -471,25 +504,26 @@ for k, (text, centre, facing) in enumerate((("MATCH PADS", (CX + 1290, CY), E), 
 JUKEBOX = (PLAZA_HI[0] - 384, PLAZA_HI[1] - 384)
 solid("PlazaJukebox", (JUKEBOX[0] - 36, JUKEBOX[1] - 24, 0), (JUKEBOX[0] + 36, JUKEBOX[1] + 24, 128), "hidden")
 # The ball's goals on the plaza's west and east edges (HubActivities.BuildMarks: the edge, the plaza's middle,
-# HubPlayK.GoalHalfWidth 288): posts 10 x 10 x 120. The crossbar stays drawn only: it spans the walkways out of the
-# plaza to the range and the pads at 115 to 125, under a standing pawn's head (175), so a solid bar would wall them off.
+# HubPlayK.GoalHalfWidth 288): raise the physical crossbar above both teams' standing height.
 GOAL_HALF_WIDTH = 288.0
 for k, gx in enumerate((PLAZA_LO[0], PLAZA_HI[0])):
     for j, gy in enumerate((CY - GOAL_HALF_WIDTH, CY + GOAL_HALF_WIDTH)):
-        solid(f"PlazaGoalPost{k}{j}", (gx - 5, gy - 5, 0), (gx + 5, gy + 5, 120), "hidden_metal")
+        solid(f"PlazaGoalPost{k}{j}", (gx - 5, gy - 5, 0), (gx + 5, gy + 5, 240), "hidden_metal")
+    solid(f"PlazaGoalBar{k}", (gx - 5, CY - GOAL_HALF_WIDTH - 5, 235), (gx + 5, CY + GOAL_HALF_WIDTH + 5, 245), "hidden_metal")
 area("Plaza", "spawn", "Spawn plaza", PLAZA_LO, PLAZA_HI, "H1", centre=list(CENTRE), rings=list(START_RINGS),
      spyStarts=len(spy_starts), mercStarts=len(merc_starts), signCentre=[CX, CY, sum(SIGN_Z) / 2],
      jukebox=list(JUKEBOX))
 
+_district = _district_begin()
 # ---- Traversal garden (north): the TestRange station kit at the same heights --------------------------------------
 NORTH_FACE = 11776.0
 GARDEN_LO = (2816.0, 8448.0)
-GARDEN_HI = (9472.0, HALL_HI[1])
+GARDEN_HI = (9472.0, 12288.0)
 floor_zone(GARDEN_LO, GARDEN_HI, "turf")
 
 
 def ledge_block(ident, x0, x1, top, note):
-    solid(ident, (x0, NORTH_FACE, 0), (x1, HALL_HI[1], top))
+    solid(ident, (x0, NORTH_FACE, 0), (x1, 12288.0, top))
     ge(ident + "LG", "LG", (x0, NORTH_FACE, top), (x1, NORTH_FACE, top), note=note)
     lips(SOLIDS[-1], "we", "block side")
 
@@ -498,23 +532,23 @@ ledge_block("Ledge128", 3072, 3328, 128, "under the hang height: hop-up")
 ledge_block("Ledge208", 3584, 3840, 208, "lowest hang and climb")
 ledge_block("Ledge264", 4096, 4352, 264, "container lip height")
 ledge_block("Ledge320", 4608, 4864, 320, "highest standing-jump grab")
-solid("WallJump408", (5120, NORTH_FACE, 0), (5504, HALL_HI[1], 408))
+solid("WallJump408", (5120, NORTH_FACE, 0), (5504, 12288.0, 408))
 ge("WallJump408LG", "LG", (5120, NORTH_FACE, 408), (5504, NORTH_FACE, 408), note="wall jump: kick up to this lip")
 lips(SOLIDS[-1], "we", "block side")
-solid("Pipe512", (5760, NORTH_FACE, 0), (6016, HALL_HI[1], 512))
+solid("Pipe512", (5760, NORTH_FACE, 0), (6016, 12288.0, 512))
 lips(SOLIDS[-1], "we", "block side")
 PIPE_X, PIPE_Y = 5888.0, NORTH_FACE - 16
 # Drawn, not collided with: a climber hangs 35 from the GE line, inside any solid pipe thicker than a hair.
 box("GardenKit", (PIPE_X - 4, PIPE_Y - 4, 0.0), (PIPE_X + 4, PIPE_Y + 4, 512.0), "metal")
 ge("Pipe512PIPE", "PIPE", (PIPE_X, PIPE_Y, 0), (PIPE_X, PIPE_Y, 512), (PIPE_X, PIPE_Y - 10, 0),
    note="bottom, top flush with the block top, side 10 toward the climber")
-solid("Ladder320", (6272, NORTH_FACE, 0), (6528, HALL_HI[1], 320))
+solid("Ladder320", (6272, NORTH_FACE, 0), (6528, 12288.0, 320))
 lips(SOLIDS[-1], "we", "block side")
 LADDER_X, LADDER_Y = 6400.0, NORTH_FACE - 4
 ge("Ladder320LADDER", "LADDER", (LADDER_X, LADDER_Y, 0), (LADDER_X, LADDER_Y, 320), (LADDER_X, LADDER_Y - 10, 0),
    note="bottom, top flush with the block top, side 10 toward the climber")
-solid("SplitWallW", (6784, 11264, 0), (6816, HALL_HI[1], 512))
-solid("SplitWallE", (7008, 11264, 0), (7040, HALL_HI[1], 512))
+solid("SplitWallW", (6784, 11264, 0), (6816, 12288.0, 512))
+solid("SplitWallE", (7008, 11264, 0), (7040, 12288.0, 512))
 
 # Free-standing pieces in the middle of the garden.
 solid("Vault96", (3072, 10240, 0), (3456, 10272, 96))
@@ -574,8 +608,11 @@ ladder_visual("GardenKit", LADDER_X, LADDER_Y - 3, 0, 320)
 ladder_visual("PlazaFountain", CX, CY - 64 - 7, 96, 416)   # the fountain column's ladder
 ladder_visual("GardenKit", TOWER_LADDER_X - 3, 10240, 384, 600, along="y")
 beam("GardenKit", ZIP_HIGH, ZIP_LOW, 3, "metal")
-beam("GardenKit", (ZIP_HIGH[0], ZIP_HIGH[1], 384), (ZIP_HIGH[0], ZIP_HIGH[1], ZIP_HIGH[2] + 24), 8, "metal")
-beam("GardenKit", (ZIP_LOW[0], ZIP_LOW[1] - 200, 160), (ZIP_LOW[0], ZIP_LOW[1] - 200, ZIP_LOW[2] + 24), 8, "metal")
+for name,wire,floor,dy in (("ZipHighSupport",ZIP_HIGH,384,0),("ZipLowSupport",ZIP_LOW,160,-200)):
+    foot=(wire[0]+96,wire[1]+dy,floor);top=(foot[0],foot[1],wire[2]+24)
+    beam("GardenKit",foot,top,8,"metal")
+    beam("GardenKit",top,(wire[0],wire[1]+dy,wire[2]+24),8,"metal")
+    ge(name,"PIPE",foot,top,(foot[0]+10,foot[1],floor),note="solid outboard zip support; clear rider lane")
 # Station labels: on the block faces, and painted on the turf in front of the free-standing pieces.
 for k, (text, x0, x1, top) in enumerate((("LEDGE 128", 3072, 3328, 128), ("LEDGE 208", 3584, 3840, 208),
                                          ("LEDGE 264", 4096, 4352, 264), ("LEDGE 320", 4608, 4864, 320),
@@ -594,13 +631,16 @@ for k, (tx, ty) in enumerate(((3200, 9000), (4800, 9100), (6100, 8900), (7000, 9
     box("GardenTrees", (tx - 160, ty - 160, 320), (tx + 160, ty + 160, 470), "foliage")
     box("GardenTrees", (tx - 104, ty - 104, 470), (tx + 104, ty + 104, 560), "foliage")
 art_mat("art_sign_garden", "sign", ["TRAVERSAL GARDEN", "ledges  pipes  ladders  zip line"], 768, 144)
-wall_sign("GardenSign", (6144, HALL_HI[1] - 1, 860), 2048, 384, S, "art_sign_garden")
+wall_sign("GardenSign", (6144, 12288.0 - 1, 860), 2048, 384, S, "art_sign_garden")
 for k, (lx, ly) in enumerate(((3800, 9400), (5600, 9400), (7400, 9400), (4600, 11000), (8200, 11000))):
     light(f"GardenLight{k}", (lx, ly, 760), 170, 68, hue=95, saturation=200)
 area("Garden", "traversal", "Traversal garden", GARDEN_LO, GARDEN_HI, "H1",
      ges=[g.id for g in GES if g.id.startswith(("Ledge", "WallJump", "Pipe", "Ladder", "Vault", "Fence", "Hoh", "Tower", "Deck", "Zip"))],
      zipHigh=list(ZIP_HIGH), zipLow=list(ZIP_LOW))
 
+_district_move(_district, -12288, 14336)
+
+_district = _district_begin()
 # ---- Match pads (east): railed courts, sign gantries, bleachers, a theme kit per pad -------------------------------
 PADS_LO, PADS_HI = (8960.0, 4352.0), (12288.0, 7936.0)
 PAD_SIZE = 1024.0
@@ -639,29 +679,10 @@ for _t in THEMES:
 
 def kit_props(g, style, x, y, top, theme):
     """The theme's dressing on one corner post (top at `top`), render only."""
-    t = THEMES[theme]
-    if style == "antenna":
-        beam(g, (x, y, top), (x, y, top + 300), 6, "polar_frost")
-        for dz in (120, 200, 270):
-            beam(g, (x - 40, y, top + dz), (x + 40, y, top + dz), 4, "polar_frost")
-        box(g, (x - 4, y - 4, top + 300), (x + 4, y + 4, top + 308), "neon_red")
-        box(g, (x - 34, y - 34, top), (x + 34, y + 34, top + 10), "polar_ice")
-    elif style == "lamp":
-        beam(g, (x, y, top), (x, y, top + 260), 10, "metal")
-        beam(g, (x, y, top + 260), (x + 60, y, top + 260), 8, "metal")
-        box(g, (x + 40, y - 14, top + 236), (x + 80, y + 14, top + 254), "neon_sodium")
-    elif style == "pipes":
-        for dx in (-16, 16):
-            beam(g, (x + dx, y, top), (x + dx, y, top + 200), 14, "aqua_metal")
-        box(g, (x - 30, y - 10, top + 150), (x + 30, y + 10, top + 170), "neon_teal")
-    elif style == "beacon_lab":
-        box(g, (x - 20, y - 20, top), (x + 20, y + 20, top + 40), "lab_panel")
-        box(g, (x - 12, y - 12, top + 40), (x + 12, y + 12, top + 90), "neon_lab")
-    elif style == "plinth":
-        box(g, (x - 26, y - 26, top), (x + 26, y + 26, top + 70), "museum_marble")
-        box(g, (x - 14, y - 14, top + 70), (x + 14, y + 14, top + 110), "neon_gold")
-    else:
-        box(g, (x - 10, y - 10, top), (x + 10, y + 10, top + 60), t["neon"])
+    # Shared physical silhouette keeps collision identical when the queued map changes.
+    box(g,(x-10,y-10,top),(x+10,y+10,top+180),THEMES[theme]['post'])
+    box(g,(x-18,y-18,top+180),(x+18,y+18,top+220),THEMES[theme]['neon'])
+    return
 
 
 pads = []
@@ -688,14 +709,20 @@ for i in range(4):
         g1 = (mid[0] + RAIL_GAP / 2, mid[1]) if horizontal else (mid[0], mid[1] + RAIL_GAP / 2)
         rails.append(railing(f"{pad_id}Rail{side}0", lo_end, g0))
         rails.append(railing(f"{pad_id}Rail{side}1", g1, hi_end))
-    # The laptop's desk (HubProps.MakeLaptop draws it: a top 128 x 64 x 6 up to 72 on two leg panels 8 x 56), solid
+    # The laptop's desk leaves a clear ledge around the physical computer: 192 x 128 x 6 up to 72.
     # here in the same shapes so the floor under it still draws: centred on HubPadArea.Laptop, (x0 + 112, y0 - 112)
     # (src/OpenScct.Server/Hub/HubConfig.cs; keep the two in step), with a lip on its south face.
     lx, ly = x0 + 112, y0 - 112
-    for k, dx in enumerate((-56, 56)):
-        solid(f"{pad_id}DeskLeg{k}", (lx + dx - 4, ly - 28, 0), (lx + dx + 4, ly + 28, 66), "hidden")
-    solid(f"{pad_id}Desk", (lx - 64, ly - 32, 66), (lx + 64, ly + 32, 72), "hidden")
+    for k, dx in enumerate((-88, 88)):
+        solid(f"{pad_id}DeskLeg{k}", (lx + dx - 4, ly - 60, 0), (lx + dx + 4, ly + 60, 66), "hidden")
+    solid(f"{pad_id}Desk", (lx - 96, ly - 64, 66), (lx + 96, ly + 64, 72), "hidden")
     lips(SOLIDS[-1], "s", "desk top")
+    solid(f"{pad_id}LaptopBase", (lx - 22, ly - 21, 72), (lx + 22, ly + 9, 75), "hidden_metal")
+    # Thin screen collision follows its 15-degree lean (HubProps.MakeLaptop).
+    laptop_lid=[(lx-22,ly+8,75),(lx+22,ly+8,75),
+                (lx+22,ly+8+math.sin(math.radians(15))*28,75+math.cos(math.radians(15))*28),
+                (lx-22,ly+8+math.sin(math.radians(15))*28,75+math.cos(math.radians(15))*28)]
+    piece(f"{pad_id}Laptop",laptop_lid,"hidden_metal")
     # The sign gantry north of the court: two posts, a board facing south (and its back facing north).
     gy = y1 + GANTRY
     for k, gx in enumerate((x0 + 64, x1 - 96)):
@@ -749,6 +776,9 @@ for k, (lx, ly) in enumerate(((10368, 7700), (12000, 6144), (9300, 6000))):
 area("MatchPads", "matchPads", "Match pads", PADS_LO, PADS_HI, "H2", pads=pads,
      themes=[{"id": k, "title": v["title"], "maps": v["maps"]} for k, v in THEMES.items()], defaultTheme=DEFAULT_THEME)
 
+_district_move(_district, 14336, 0)
+
+_district = _district_begin()
 # ---- Merc aim range (west): booth, stalls, targets, distance marks, leaderboard ------------------------------------
 RANGE_LO, RANGE_HI = (512.0, 4352.0), (3328.0, 7936.0)
 LANE = (4864.0, 7424.0)
@@ -801,6 +831,9 @@ area("AimRange", "aimRange", "Merc aim range", RANGE_LO, RANGE_HI, "H3", firingL
      leaderboardAnchor=[RANGE_BOARD[0] - 14.0, RANGE_BOARD[1], 464.0], leaderboardYaw=YAW_E,
      leaderboardSize=[384.0, 416.0])
 
+_district_move(_district, -14336, 0)
+
+_district = _district_begin()
 # ---- Spy assault course (south): a raised route of decks over a pit, along y 1920 -----------------------------------
 # Layout version 3. Every deck stands alone over the pit (the course floor) and reaches the next only through its
 # piece, so no piece can be run past: climb, fence, hand over hand across a gap, ledge shimmy across a gap, split
@@ -878,8 +911,11 @@ deck("CourseFinish", fx0, fx1, ftop, y=(fy0, fy1))
 ledge("CourseFinishLGW", (fx0, fy1, ftop), (fx0, fy0, ftop), "finish deck, west lip")
 lips(SOLIDS[-1], "sn", "finish deck, side lip", ident="CourseFinish")
 beam("CourseKit", CZIP_HIGH, CZIP_LOW, 3, "metal")
-beam("CourseKit", (CZIP_HIGH[0], ROUTE_Y, ETOP), (CZIP_HIGH[0], ROUTE_Y, CZIP_HIGH[2] + 24), 8, "metal")
-beam("CourseKit", (CZIP_LOW[0] + 200, ROUTE_Y, ftop), (CZIP_LOW[0] + 200, ROUTE_Y, CZIP_LOW[2] + 24), 8, "metal")
+for name,wire,floor,dx in (("CourseZipHighSupport",CZIP_HIGH,ETOP,0),("CourseZipLowSupport",CZIP_LOW,ftop,200)):
+    foot=(wire[0]+dx,ROUTE_Y+96,floor);top=(foot[0],foot[1],wire[2]+24)
+    beam("CourseKit",foot,top,8,"metal")
+    beam("CourseKit",top,(wire[0]+dx,ROUTE_Y,wire[2]+24),8,"metal")
+    ge(name,"PIPE",foot,top,(foot[0],foot[1]+10,floor),note="solid outboard zip support; clear rider lane")
 # The way down after the finish: a ladder on the finish deck's east face, and the pit's east end is the exit apron.
 CLADDER = (fx1 + 4, ROUTE_Y)
 ge("CourseExitLADDER", "LADDER", (CLADDER[0], CLADDER[1], 0), (CLADDER[0], CLADDER[1], ftop),
@@ -911,16 +947,14 @@ for k, (kind, (x, z)) in enumerate(ARROWS):
     art_mat(f"art_move_{k}", "floor_label", f"{k + 1} {MOVES[kind]}", arrow=True, fg=(90, 220, 255), bg=(24, 60, 72),
             unlit=False)
     decal("CourseArrows", (x, ROUTE_Y), 320 if kind in ("chimney",) else 352, 88, E, f"art_move_{k}", z=z + 0.7)
-art_mat("art_sign_course", "sign", ["SPY ASSAULT COURSE", "don't touch the floor: beat the clock"], 768, 144,
+art_mat("art_sign_course", "sign", ["EASY - TRAINING GROUNDS", "learn the spy moves: beat the clock"], 768, 144,
         fg=(90, 220, 255))
-wall_sign("CourseSign", (6144, COURSE_HI[1] + 2, 1100), 2048, 384, N, "art_sign_course", double=True)
-for dx in (-900, 900):
-    beam("CourseSign", (6144 + dx, COURSE_HI[1] + 1, 1292), (6144 + dx, COURSE_HI[1] + 1, 1536), 5, "metal")
+wall_sign("CourseSign", (COURSE_START[0], ROUTE_Y + 384, 576), 1024, 192, N, "art_sign_course", double=True)
 # The leaderboard: on two posts near the start, facing north toward the plaza.
-COURSE_BOARD = (3712.0, 3200.0)
+COURSE_BOARD = (2464.0, 2176.0)
 for k, x in enumerate((COURSE_BOARD[0] - 256, COURSE_BOARD[0] + 224)):
     solid(f"CourseBoardPost{k}", (x, COURSE_BOARD[1] - 32, 0), (x + 32, COURSE_BOARD[1], 680), "metal")
-art_mat("art_board_course", "board", "ASSAULT COURSE", "best times")
+art_mat("art_board_course", "board", "EASY COURSE", "best times")
 box("CourseBoard", (COURSE_BOARD[0] - 224, COURSE_BOARD[1] - 32, 256), (COURSE_BOARD[0] + 224, COURSE_BOARD[1] - 16, 672),
     "darkpanel", faces="tbsew")
 solid("CourseBoard", (COURSE_BOARD[0] - 224, COURSE_BOARD[1] - 32, 256), (COURSE_BOARD[0] + 224, COURSE_BOARD[1] - 16, 672),
@@ -934,6 +968,9 @@ area("Course", "movementCourse", "Spy assault course", COURSE_LO, COURSE_HI, "H3
      leaderboardAnchor=[COURSE_BOARD[0], COURSE_BOARD[1] - 14.0, 464.0], leaderboardYaw=YAW_N,
      leaderboardSize=[448.0, 416.0])
 
+_district_move(_district, 0, -12288)
+
+_district = _district_begin()
 # ---- Lounge (south-west): sofas, a big screen with a ticker, a bar -------------------------------------------------
 LOUNGE_LO, LOUNGE_HI = (256.0, 256.0), (2816.0, 3840.0)
 floor_zone((512.0, 512.0), (2560.0, 3584.0), "carpet")
@@ -984,6 +1021,8 @@ for k, (lx, ly, hue, sat) in enumerate(((1408, 1100, 20, 150), (1536, 2048, 20, 
 area("Lounge", "lounge", "Lounge", LOUNGE_LO, LOUNGE_HI, "H1",
      screenAnchor=[SCREEN[0] + 3, SCREEN[1], SCREEN[2]], screenYaw=YAW_E, screenSize=[SCREEN[3], SCREEN[4]],
      musicAnchor=[1536.0, 2048.0, 256.0], seats=[[1536.0, 1536.0], [1536.0, 2560.0], [2240.0, 1600.0], [2240.0, 2496.0]])
+
+_district_move(_district, -12288, -12288)
 
 # ---- Rooftop dressing: a water tower (north-east), air-conditioning units, a helipad (south-east) ------------------
 WT = (10880.0, 10880.0)
@@ -1042,10 +1081,28 @@ def _overlaps(s: Solid, lo, hi, eps=0.01) -> bool:
     return lo[2] < s.lo[2] + t * (s.hi[2] - s.lo[2]) - eps
 
 
+_solid_cells = None
+
+
+def _near_solids(lo, hi):
+    global _solid_cells
+    if _solid_cells is None:
+        _solid_cells = {}
+        for index, s in enumerate(SOLIDS):
+            for x in range(math.floor(s.lo[0]/512), math.floor(s.hi[0]/512)+1):
+                for y in range(math.floor(s.lo[1]/512), math.floor(s.hi[1]/512)+1):
+                    _solid_cells.setdefault((x,y), []).append(index)
+    candidates = set()
+    for x in range(math.floor(lo[0]/512), math.floor(hi[0]/512)+1):
+        for y in range(math.floor(lo[1]/512), math.floor(hi[1]/512)+1):
+            candidates.update(_solid_cells.get((x,y), ()))
+    return (SOLIDS[i] for i in sorted(candidates))
+
+
 def _box_hits(centre, ext):
     lo = tuple(centre[i] - ext[i] for i in range(3))
     hi = tuple(centre[i] + ext[i] for i in range(3))
-    return [s.name for s in SOLIDS if _overlaps(s, lo, hi)] + (["floor"] if lo[2] < -0.01 else [])
+    return [s.name for s in _near_solids(lo,hi) if _overlaps(s, lo, hi)] + (["floor"] if lo[2] < -0.01 else [])
 
 
 def ledge_report(g: GE) -> dict:
@@ -1083,7 +1140,7 @@ def ledge_report(g: GE) -> dict:
     floor = 0.0
     for p in pts:
         c = (p[0] + out * n[0], p[1] + out * n[1])
-        for s in SOLIDS:
+        for s in _near_solids((c[0]-LG_BOX[0],c[1]-LG_BOX[1]),(c[0]+LG_BOX[0],c[1]+LG_BOX[1])):
             if s.up is None and s.hi[2] <= z - 1 and _overlaps(s, (c[0] - LG_BOX[0], c[1] - LG_BOX[1], -1),
                                                                     (c[0] + LG_BOX[0], c[1] + LG_BOX[1], z - 1)):
                 floor = max(floor, s.hi[2])
@@ -1117,13 +1174,15 @@ def _check_ledges() -> None:
     for g in GES:
         if g.kind != "LG":
             continue
+        if g.id in MODEL_GE_IDS:
+            continue # model outlines are checked against mesh collision, not axis-aligned brushes
         r = ledge_report(g)
         if "error" in r:
             bad.append(f"{g.id}: {r['error']}")
             continue
         if not r["clear"]:
             bad.append(f"{g.id}: the {'hang' if r['hang'] else 'front'} box on the open side hits {', '.join(r['blocked'])}")
-        if not r["climb"]:
+        if not r["climb"] and not g.note.startswith("hang-only:"):
             bad.append(f"{g.id}: no room to pull up onto the top")
     if bad:
         raise ValueError("LG clearance:\n  " + "\n  ".join(bad))
@@ -1141,7 +1200,7 @@ def _check() -> None:
         raise ValueError("duplicate actor id")
     for s in SOLIDS:
         if not all(HALL_LO[i] <= s.lo[i] and s.hi[i] <= HALL_HI[i] for i in range(3)):
-            raise ValueError(f"{s.name} leaves the hall")
+            raise ValueError(f"{s.name} {s.lo}..{s.hi} leaves hall {HALL_LO}..{HALL_HI}")
     for g in GROUPS.values():
         for p in g.pieces:
             if p.material not in MATERIALS:
@@ -1151,4 +1210,28 @@ def _check() -> None:
             raise ValueError(f"{a.name}: unknown material {a.material}")
 
 
+# Additional districts and courses share the same deterministic geometry pipeline.
+import importlib.util as _importlib
+from pathlib import Path as _Path
+import sys as _sys
+_spec = _importlib.spec_from_file_location("hub_expansion", _Path(__file__).with_name("expansion.py"))
+_expansion = _importlib.module_from_spec(_spec)
+_spec.loader.exec_module(_expansion)
+_expansion.expand(_sys.modules[__name__])
+_spec = _importlib.spec_from_file_location("hub_landscape", _Path(__file__).with_name("landscape.py"))
+_landscape = _importlib.module_from_spec(_spec)
+_spec.loader.exec_module(_landscape)
+_landscape.build(_sys.modules[__name__])
+_spec = _importlib.spec_from_file_location("hub_scenery", _Path(__file__).with_name("scenery.py"))
+_scenery = _importlib.module_from_spec(_spec)
+_spec.loader.exec_module(_scenery)
+_scenery.dress(_sys.modules[__name__])
+_spec = _importlib.spec_from_file_location("hub_contacts", _Path(__file__).with_name("contacts.py"))
+_contacts = _importlib.module_from_spec(_spec)
+_spec.loader.exec_module(_contacts)
+_contacts.build(_sys.modules[__name__])
+_spec = _importlib.spec_from_file_location("hub_foliage", _Path(__file__).with_name("foliage.py"))
+_foliage = _importlib.module_from_spec(_spec)
+_spec.loader.exec_module(_foliage)
+_foliage.build(_sys.modules[__name__])
 _check()

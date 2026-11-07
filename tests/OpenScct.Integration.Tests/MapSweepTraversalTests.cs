@@ -73,7 +73,7 @@ internal sealed class PlacedPlayer : IDisposable
 {
     private readonly StepClock _clock = new();
 
-    public PlacedPlayer(string map, PlaySide side)
+    public PlacedPlayer(string map, PlaySide side, OpenScct.Net.SimLinkProfile? link = null)
     {
         Session = new PlaySession(new PlaySettings
         {
@@ -83,6 +83,7 @@ internal sealed class PlacedPlayer : IDisposable
             Mode = OpenScct.Server.MapCatalog.ModeKey(OpenScct.Server.MapCatalog.CreateDefault().GetCatalogEntry(map)?.DefaultMode ?? OpenScct.Core.EGameMode.GM_Multi),
             Rules = PlayRules.PlayLevel,
             HostMode = PlayHostMode.Inline,
+            SimLink = link,
         }, _clock);
         for (int i = 0; i < 1200 && (Session.LocalPawn is null || Session.ServerController?.Pawn is null ||
             Session.LocalController!.IsInState("WaitingForPawn")); i++)

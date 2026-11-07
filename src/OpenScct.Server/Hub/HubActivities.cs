@@ -31,11 +31,15 @@ public sealed partial class HubActivities
     private readonly Dictionary<string, (FVector At, string Text)> _boards = new(StringComparer.Ordinal);
     private readonly List<string> _marks = new();
     private readonly SimRandom _random;
+    private readonly List<Mover> _courseMovers = new();
+    private double _moverSyncAt;
 
     /// <summary>One player's activity state.</summary>
     private sealed class PlayState
     {
-        public bool InStart;
+        public readonly Queue<string> Pending = new();
+        public string? InStart;
+        public double TravelAt = double.NegativeInfinity;
         public Run? Run;
         public double MercNoticeAt = double.NegativeInfinity;
         public double MissNoticeAt = double.NegativeInfinity;
@@ -50,10 +54,16 @@ public sealed partial class HubActivities
         Layout = layout;
         Scores = scores;
         _random = new SimRandom(seed, 0x4855, 1);
-        scores.KeepCourseLayout(layout.LayoutVersion);
-        _boards[CourseBoardId] = (layout.CourseBoard, string.Empty);
+        scores.KeepCourses(layout.Courses.Values);
+        foreach (var course in layout.Courses.Values) _boards[course.BoardId] = (course.Board, string.Empty);
         _boards[RangeBoardId] = (layout.RangeBoard, string.Empty);
         _boards[BallBoardId] = (layout.BallBoard, string.Empty);
+        foreach (var actor in hub.Host.Map.MapActors)
+            if (actor is Mover mover && mover.Tag == "HubCourseMover")
+            {
+                _courseMovers.Add(mover);
+                mover.eventTrigger(hub.World.Level.Info, null);
+            }
         BuildMarks();
         InitBall();
         hub.Host.PlayerJoined += OnJoined;
@@ -61,7 +71,7 @@ public sealed partial class HubActivities
         hub.Host.SessionLineReceived += OnLine;
         hub.World.Level.SetService<OpenScct.Game.Combat.IHitZones>(
             new HubRangeHitZones(OpenScct.Game.Combat.CombatServices.HitZones(hub.World.Level.Info), this));
-        PublishCourseBoard();
+        foreach (var course in layout.Courses.Values) PublishCourseBoard(course);
         PublishRangeBoard();
         PublishBallBoard();
     }
@@ -83,15 +93,14 @@ public sealed partial class HubActivities
     public FVector BoardAt(string id) => _boards.TryGetValue(id, out var b) ? b.At : Layout.CourseBoard;
 
     /// <summary>The board's face on the map (its text lies on it), or a billboard for a board with no mounted board.</summary>
-    public HubSignFace BoardFace(string id) => id switch
+    public HubSignFace BoardFace(string id)
     {
-        CourseBoardId => Layout.CourseBoardFace,
-        RangeBoardId => Layout.RangeBoardFace,
-        _ => HubSignFace.None,
-    };
+        foreach (var course in Layout.Courses.Values) if (course.BoardId == id) return course.BoardFace;
+        return id == RangeBoardId ? Layout.RangeBoardFace : HubSignFace.None;
+    }
 
     /// <summary>Every board id.</summary>
-    public static IReadOnlyList<string> BoardIds { get; } = [CourseBoardId, RangeBoardId, BallBoardId];
+    public IEnumerable<string> BoardIds => _boards.Keys;
 
     /// <summary>
     /// Publishes a score board's text (lines separated by '\n'): the one place every leaderboard and score text of the
@@ -104,27 +113,45 @@ public sealed partial class HubActivities
         text ??= string.Empty;
         FVector at = _boards.TryGetValue(id, out var old) ? old.At : Layout.CourseBoard;
         _boards[id] = (at, text);
-        _hub.Host.Broadcast(BoardLine(id, at, text));
+        foreach (string line in BoardLines(id, at, text))
+            foreach (PlayerSlot slot in _states.Keys) Send(slot, line);
         BoardPublished?.Invoke(id, text);
     }
 
-    /// <summary>A board's line, dropping rows from the end until it fits a control message.</summary>
-    private static string BoardLine(string id, FVector at, string text)
+    /// <summary>Keep every top-ten row, splitting between rows to fit the reliable control channel.</summary>
+    private static IEnumerable<string> BoardLines(string id, FVector at, string text)
     {
-        string line = HubPlayProtocol.Board(id, at, text);
-        while (Encoding.UTF8.GetByteCount(line) > MaxLineBytes && text.LastIndexOf('\n') is var cut and > 0)
+        string part = "";
+        bool append = false;
+        foreach (string row in text.Split('\n'))
         {
-            text = text[..cut];
-            line = HubPlayProtocol.Board(id, at, text);
+            string next = part.Length == 0 ? row : part + "\n" + row;
+            if (part.Length > 0 && Encoding.UTF8.GetByteCount(HubPlayProtocol.Board(id, at, next, append)) > MaxLineBytes)
+            {
+                yield return HubPlayProtocol.Board(id, at, part, append);
+                append = true; part = row;
+            }
+            else part = next;
         }
-
-        return line;
+        yield return HubPlayProtocol.Board(id, at, part, append);
     }
 
     /// <summary>One step, after the host's tick.</summary>
     internal void Tick()
     {
         double now = Now;
+        if (now >= _moverSyncAt)
+        {
+            _moverSyncAt = now + 0.25;
+            // Native mover replication carries the leg's alpha, not its start time. Refresh it so late joins
+            // and visitors arriving from distant districts enter the shared cycle at its current phase.
+            foreach (var mover in _courseMovers)
+            {
+                mover.SimOldPos = mover.OldPos;
+                mover.SimInterpolate = new FVector(mover.bInterpolating ? 100 * mover.PhysAlpha : 100,
+                    100 * Math.Max(0.01f, mover.PhysRate), 256 * mover.PrevKeyNum + mover.KeyNum);
+            }
+        }
         foreach (PlayerSlot slot in _hub.Host.Players)
         {
             if (!_states.TryGetValue(slot, out PlayState? state))
@@ -139,11 +166,25 @@ public sealed partial class HubActivities
 
         TickRange(now);
         TickBall(now);
+        // The expanded directory and course metadata must share the reliable control channel with roster/sign
+        // updates. Pace them so a simultaneous crowd join cannot exhaust the channel before its first ACK.
+        foreach (var (slot, state) in _states)
+            for (int sent = 0; sent < 8 && state.Pending.Count > 0 && slot.Connection.ControlChannel is { NumOutRec: < 48 } channel; sent++)
+                channel.Send(ControlMessage.TextLine(state.Pending.Dequeue()));
     }
 
     private void OnJoined(PlayerSlot slot)
     {
         _states[slot] = new PlayState();
+        foreach (var course in Layout.Courses.Values)
+        {
+            Send(slot, HubPlayProtocol.CourseInfo(course.Id, course.Title));
+            for (int i = 0; i < course.Sections.Count; i++)
+                Send(slot, HubPlayProtocol.CourseSection(course.Id, i, course.Sections[i].Name));
+            if (Scores.ForCourse(course.Id).Best(slot.Name) is { } best)
+                Send(slot, HubPlayProtocol.PersonalBest(course.Id, best.Value));
+        }
+        foreach (var destination in Layout.TeleportDestinations.Values) Send(slot, HubPlayProtocol.Destination(destination));
         foreach (string mark in _marks)
         {
             Send(slot, mark);
@@ -157,7 +198,7 @@ public sealed partial class HubActivities
 
         foreach (var (id, board) in _boards)
         {
-            Send(slot, BoardLine(id, board.At, board.Text));
+            foreach (string line in BoardLines(id, board.At, board.Text)) Send(slot, line);
         }
 
         Send(slot, HubPlayProtocol.Jukebox(_track, HubJukeboxTracks.Title(_track)));
@@ -196,6 +237,9 @@ public sealed partial class HubActivities
 
         switch (verb)
         {
+            case "travel" when fields.Count == 1:
+                Travel(slot, state, fields[0]);
+                break;
             case "emote":
                 Emote(slot, state, OpenScct.Server.Online.SessionProtocol.Text(fields, 0));
                 break;
@@ -268,7 +312,10 @@ public sealed partial class HubActivities
 
     private static float Flat(FVector d) => MathF.Sqrt(d.X * d.X + d.Y * d.Y);
 
-    private static void Send(PlayerSlot slot, string line) => slot.Connection.ControlChannel?.Send(ControlMessage.TextLine(line));
+    private void Send(PlayerSlot slot, string line)
+    {
+        if (_states.TryGetValue(slot, out var state)) state.Pending.Enqueue(line);
+    }
 
     /// <summary>Sends <paramref name="line"/> to every player whose pawn is within <paramref name="range"/> of <paramref name="at"/>, and to <paramref name="also"/>.</summary>
     private void SendNear(FVector at, float range, string line, PlayerSlot? also = null)
@@ -286,12 +333,15 @@ public sealed partial class HubActivities
     private void BuildMarks()
     {
         HubLayout l = Layout;
-        _marks.Add(HubPlayProtocol.Mark("start", l.CourseStart.Id, l.CourseStart.At, l.CourseStart.Radius));
-        _marks.Add(HubPlayProtocol.Mark("finish", l.CourseFinish.Id, l.CourseFinish.At, l.CourseFinish.Radius));
-        foreach (HubGate cp in l.Checkpoints)
+        foreach (var course in l.Courses.Values)
         {
-            _marks.Add(HubPlayProtocol.Mark("checkpoint", cp.Id, cp.At, cp.Radius));
+            _marks.Add(HubPlayProtocol.Mark("start", course.Id + "/Start", course.Start.At, course.Start.Radius));
+            _marks.Add(HubPlayProtocol.Mark("finish", course.Id + "/Finish", course.Finish.At, course.Finish.Radius));
+            for (int i = 1; i < course.Sections.Count; i++)
+                _marks.Add(HubPlayProtocol.Mark("checkpoint", course.Id + "/" + i, course.Sections[i].Recovery, 96));
         }
+        foreach (var destination in l.TeleportDestinations.Values)
+            _marks.Add(HubPlayProtocol.Mark("travel", destination.Id, destination.Station, 256));
 
         float laneMid = (l.Lane.Y0 + l.Lane.Y1) / 2f;
         _marks.Add(HubPlayProtocol.Mark("firingline", "FiringLine", new FVector(l.FiringLine, laneMid, l.Floor), (l.Lane.Y1 - l.Lane.Y0) / 2f));

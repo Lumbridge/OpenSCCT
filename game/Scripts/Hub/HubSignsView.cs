@@ -56,6 +56,7 @@ public partial class HubSignsView : Node3D
             {
                 _client.SignChanged -= OnSign;
                 _client.SignRemoved -= OnRemoved;
+                _client.Play.BoardChanged -= OnBoardChanged;
             }
 
             _client = value;
@@ -64,6 +65,7 @@ public partial class HubSignsView : Node3D
             {
                 _client.SignChanged += OnSign;
                 _client.SignRemoved += OnRemoved;
+                _client.Play.BoardChanged += OnBoardChanged;
                 foreach (HubSign sign in _client.Signs.Values)
                 {
                     OnSign(sign);
@@ -92,6 +94,8 @@ public partial class HubSignsView : Node3D
 
     private void OnSign(HubSign sign)
     {
+        if (_client?.Play.Boards.TryGetValue(sign.Id, out var board) == true)
+            sign = sign with { Text = string.Join('\n', board.Lines) };
         if (!_labels.TryGetValue(sign.Id, out Label3D? label))
         {
             label = new Label3D
@@ -138,6 +142,11 @@ public partial class HubSignsView : Node3D
             label.PixelSize = PixelSize * sign.Scale;
             label.Transform = new Transform3D(Basis.Identity, UeSpace.ToGodot(sign.Position));
         }
+    }
+
+    private void OnBoardChanged(string id)
+    {
+        if (_signs.TryGetValue(id, out var sign)) OnSign(sign);
     }
 
     /// <summary>The largest glyph size (m per pixel) at which every line fits the board, no larger than a standard sign's.</summary>

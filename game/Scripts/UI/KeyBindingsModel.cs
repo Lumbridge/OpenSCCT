@@ -123,11 +123,6 @@ public sealed class KeyBindingsModel
             }
         }
 
-        foreach ((string key, string label) in HubKeys)
-        {
-            choices.Add((OpenScctGame.Options.PadSettings.KeyPrefix + key, "Hub: " + label));
-        }
-
         return choices;
     }
 
@@ -143,22 +138,6 @@ public sealed class KeyBindingsModel
         string[] other = side == PlaySide.Merc ? SpyOnly : MercOnly;
         return Array.FindIndex(other, c => string.Equals(c, command.Trim(), StringComparison.OrdinalIgnoreCase)) < 0;
     }
-
-    /// <summary>The hub's own keys (HubHud), which are not layout commands.</summary>
-    public static readonly (string Key, string Label)[] HubKeys =
-    [
-        ("Enter", "chat"),
-        ("N", "back to the plaza"),
-        ("U", "use"),
-        ("X", "leave the activity"),
-        ("G", "emotes"),
-        ("P", "player list"),
-        ("O", "armoury"),
-        ("V", "vote"),
-        ("H", "watch"),
-        ("J", "play spy"),
-        ("K", "play mercenary"),
-    ];
 
     /// <summary>The command bound to <paramref name="key"/>, or null.</summary>
     public string? CommandOf(string key) => Layout.Bindings.TryGetValue(key, out string? c) ? c : null;

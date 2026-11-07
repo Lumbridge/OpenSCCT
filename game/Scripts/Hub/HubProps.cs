@@ -78,62 +78,71 @@ public partial class HubProps : Node3D
 
     private Node3D MakeMark(HubMark m)
     {
-        var root = new Node3D { Name = "Mark_" + m.Id };
+        var root = new Node3D { Name = "Mark_" + m.Id.Replace('/', '_') };
         AddChild(root);
+        // The checkpoint highlight scales this root. Keep its pivot at the mark,
+        // otherwise its world-space child offsets pulse around the map origin.
+        root.GlobalPosition = UeSpace.ToGodot(m.At);
         switch (m.Kind)
         {
             case "start":
             case "finish":
             case "checkpoint":
-            {
-                Color colour = m.Kind switch
+            case "travel":
                 {
-                    "start" => new Color(0.3f, 1f, 0.45f, 0.35f),
-                    "finish" => new Color(1f, 1f, 1f, 0.4f),
-                    _ => new Color(1f, 0.75f, 0.2f, 0.22f),
-                };
-                var ring = new MeshInstance3D
-                {
-                    Name = "Ring",
-                    Mesh = new CylinderMesh
+                    Color colour = m.Kind switch
                     {
-                        TopRadius = M(m.Radius), BottomRadius = M(m.Radius), Height = M(6f), RadialSegments = 48, Rings = 1,
-                    },
-                    MaterialOverride = Material(colour, glow: true, unshaded: true),
-                    CastShadow = GeometryInstance3D.ShadowCastingSetting.Off,
-                };
-                root.AddChild(ring);
-                ring.GlobalPosition = UeSpace.ToGodot(m.At + new FVector(0f, 0f, 4f));
+                        "start" => new Color(0.3f, 1f, 0.45f, 0.35f),
+                        "travel" => new Color(0.25f, 0.75f, 1f, 0.45f),
+                        "finish" => new Color(1f, 1f, 1f, 0.4f),
+                        _ => new Color(1f, 0.75f, 0.2f, 0.22f),
+                    };
+                    var ring = new MeshInstance3D
+                    {
+                        Name = "Ring",
+                        Mesh = new CylinderMesh
+                        {
+                            TopRadius = M(m.Radius),
+                            BottomRadius = M(m.Radius),
+                            Height = M(6f),
+                            RadialSegments = 48,
+                            Rings = 1,
+                        },
+                        MaterialOverride = Material(colour, glow: true, unshaded: true),
+                        CastShadow = GeometryInstance3D.ShadowCastingSetting.Off,
+                    };
+                    root.AddChild(ring);
+                    ring.GlobalPosition = UeSpace.ToGodot(m.At + new FVector(0f, 0f, 4f));
 
-                // A post at the gate so it shows from afar.
-                Box(root, m.At + new FVector(0f, 0f, 160f), new FVector(12f, 12f, 320f), Material(colour with { A = 0.9f }, glow: true));
-                break;
-            }
+                    // A post at the gate so it shows from afar.
+                    Box(root, m.At + new FVector(0f, 0f, 160f), new FVector(12f, 12f, 320f), Material(colour with { A = 0.9f }, glow: true));
+                    break;
+                }
 
             case "firingline":
                 Box(root, m.At + new FVector(0f, 0f, 2f), new FVector(16f, m.Radius * 2f, 4f), Material(new Color(1f, 0.85f, 0.1f, 0.9f), glow: true, unshaded: true));
                 break;
             case "jukebox":
-            {
-                Box(root, m.At + new FVector(0f, 0f, 64f), new FVector(72f, 48f, 128f), Material(new Color(0.12f, 0.1f, 0.16f)));
-                Box(root, m.At + new FVector(-25f, 0f, 96f), new FVector(4f, 40f, 40f), Material(new Color(0.9f, 0.3f, 1f), glow: true));
-                Box(root, m.At + new FVector(-25f, 0f, 40f), new FVector(4f, 40f, 24f), Material(new Color(0.2f, 0.9f, 1f), glow: true));
-                break;
-            }
+                {
+                    Box(root, m.At + new FVector(0f, 0f, 64f), new FVector(72f, 48f, 128f), Material(new Color(0.12f, 0.1f, 0.16f)));
+                    Box(root, m.At + new FVector(-25f, 0f, 96f), new FVector(4f, 40f, 40f), Material(new Color(0.9f, 0.3f, 1f), glow: true));
+                    Box(root, m.At + new FVector(-25f, 0f, 40f), new FVector(4f, 40f, 24f), Material(new Color(0.2f, 0.9f, 1f), glow: true));
+                    break;
+                }
 
             case "laptop":
                 MakeLaptop(root, m.At);
                 break;
             case "goal":
-            {
-                var post = Material(new Color(0.95f, 0.95f, 0.95f));
-                float w = m.Radius;
-                Box(root, m.At + new FVector(0f, -w, 60f), new FVector(10f, 10f, 120f), post);
-                Box(root, m.At + new FVector(0f, w, 60f), new FVector(10f, 10f, 120f), post);
-                Box(root, m.At + new FVector(0f, 0f, 120f), new FVector(10f, w * 2f + 10f, 10f), post);
-                Box(root, m.At + new FVector(0f, 0f, 1f), new FVector(24f, w * 2f, 2f), Material(new Color(1f, 1f, 1f, 0.6f), unshaded: true));
-                break;
-            }
+                {
+                    var post = Material(new Color(0.95f, 0.95f, 0.95f));
+                    float w = m.Radius;
+                    Box(root, m.At + new FVector(0f, -w, 120f), new FVector(10f, 10f, 240f), post);
+                    Box(root, m.At + new FVector(0f, w, 120f), new FVector(10f, 10f, 240f), post);
+                    Box(root, m.At + new FVector(0f, 0f, 240f), new FVector(10f, w * 2f + 10f, 10f), post);
+                    Box(root, m.At + new FVector(0f, 0f, 1f), new FVector(24f, w * 2f, 2f), Material(new Color(1f, 1f, 1f, 0.6f), unshaded: true));
+                    break;
+                }
         }
 
         return root;
@@ -147,9 +156,9 @@ public partial class HubProps : Node3D
     {
         const float deskTop = 72f;
         var frame = Material(new Color(0.16f, 0.17f, 0.2f));
-        Box(root, at + new FVector(0f, 0f, deskTop - 3f), new FVector(128f, 64f, 6f), Material(new Color(0.34f, 0.28f, 0.22f)));
-        Box(root, at + new FVector(-56f, 0f, (deskTop - 6f) / 2f), new FVector(8f, 56f, deskTop - 6f), frame);
-        Box(root, at + new FVector(56f, 0f, (deskTop - 6f) / 2f), new FVector(8f, 56f, deskTop - 6f), frame);
+        Box(root, at + new FVector(0f, 0f, deskTop - 3f), new FVector(192f, 128f, 6f), Material(new Color(0.34f, 0.28f, 0.22f)));
+        Box(root, at + new FVector(-88f, 0f, (deskTop - 6f) / 2f), new FVector(8f, 120f, deskTop - 6f), frame);
+        Box(root, at + new FVector(88f, 0f, (deskTop - 6f) / 2f), new FVector(8f, 120f, deskTop - 6f), frame);
 
         // The laptop: its base on the desk, the lid hinged at the base's back edge and leaning back 15 degrees.
         var shell = Material(new Color(0.55f, 0.57f, 0.6f));
@@ -165,7 +174,7 @@ public partial class HubProps : Node3D
             .RotationDegrees = new Vector3(lean, 0f, 0f);
 
         // Where to stand to use it.
-        Box(root, at + new FVector(0f, -88f, 1f), new FVector(96f, 64f, 2f), Material(new Color(0.35f, 0.85f, 1f, 0.25f), glow: true, unshaded: true));
+        Box(root, at + new FVector(0f, -112f, 1f), new FVector(96f, 64f, 2f), Material(new Color(0.35f, 0.85f, 1f, 0.25f), glow: true, unshaded: true));
     }
 
     private void HighlightNextCheckpoint(HubPlayState play)
@@ -178,6 +187,12 @@ public partial class HubProps : Node3D
                 continue;
             }
 
+            if (!m.Id.StartsWith(play.CourseId + "/", System.StringComparison.Ordinal))
+            {
+                node.Visible = true;
+                node.Scale = Vector3.One;
+                continue;
+            }
             index++;
             bool next = play.Running && index == play.Passed + 1;
             bool done = play.Running && index <= play.Passed;

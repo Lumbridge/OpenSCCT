@@ -1,0 +1,127 @@
+OPENSCCT EXPANDED HUB — SCENERY CREDITS
+
+Forest assets selected from GamesNotDeveloped, Godot Procedural Forest Demo:
+https://github.com/GamesNotDeveloped/godot-forest-demo/tree/623212ffeb4efbf4c95323a4a6a57e726be4f6e9
+Pack adaptations: CC BY 4.0. Original model authors and licenses follow.
+OpenSCCT changes: embedded model data; textures capped at 1024 px, opaque images JPEG-compressed; animations removed; authored placement and scale; materials adapted to the display-space renderer; simplified physical meshes and traversal outlines derived from the models.
+No upstream music, addons or runtime scripts included.
+
+Model Information:
+* title:	Tree Bake Upload
+* source:	https://sketchfab.com/3d-models/tree-bake-upload-4e78d13152cf4214a256230765f6d6d3
+* author:	restlessmonkey (https://sketchfab.com/restlessmonkey)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Tree Bake Upload" (https://sketchfab.com/3d-models/tree-bake-upload-4e78d13152cf4214a256230765f6d6d3) by restlessmonkey (https://sketchfab.com/restlessmonkey) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+
+
+Model Information:
+* title:	Margarita flower bush
+* source:	https://sketchfab.com/3d-models/margarita-flower-bush-c88faac7729b49e688dbc4d95f182168
+* author:	Maf'j Alvarez (https://sketchfab.com/blujay)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Margarita flower bush" (https://sketchfab.com/3d-models/margarita-flower-bush-c88faac7729b49e688dbc4d95f182168) by Maf'j Alvarez (https://sketchfab.com/blujay) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+
+Model Information:
+* title:	Old house
+* source:	https://sketchfab.com/3d-models/old-house-94af1270d0be4faabf61e3d0dbd875b4
+* author:	Ashkod (https://sketchfab.com/askod192)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Old house" (https://sketchfab.com/3d-models/old-house-94af1270d0be4faabf61e3d0dbd875b4) by Ashkod (https://sketchfab.com/askod192) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+
+Model Information:
+* title:	Old Well from Soviet Village
+* source:	https://sketchfab.com/3d-models/old-well-from-soviet-village-c6497c1c7ba04daba45f6d43fcf3a88b
+* author:	Danila Ivankov (https://sketchfab.com/ivankov.danila)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Old Well from Soviet Village" (https://sketchfab.com/3d-models/old-well-from-soviet-village-c6497c1c7ba04daba45f6d43fcf3a88b) by Danila Ivankov (https://sketchfab.com/ivankov.danila) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+
+Model Information:
+* title:	Pine Tree
+* source:	https://sketchfab.com/3d-models/pine-tree-d45218a3fab349e5b1de040f29e7b6f9
+* author:	evolveduk (https://sketchfab.com/evolveduk)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Pine Tree" (https://sketchfab.com/3d-models/pine-tree-d45218a3fab349e5b1de040f29e7b6f9) by evolveduk (https://sketchfab.com/evolveduk) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+
+Model Information:
+* title:	Pine tree low-poly
+* source:	https://sketchfab.com/3d-models/pine-tree-low-poly-e72f2c31aac544e58b667c13ec718daf
+* author:	Ricardo Sanchez (https://sketchfab.com/380660711785)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Pine tree low-poly" (https://sketchfab.com/3d-models/pine-tree-low-poly-e72f2c31aac544e58b667c13ec718daf) by Ricardo Sanchez (https://sketchfab.com/380660711785) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+
+POLY HAVEN — CC0 1.0
+https://polyhaven.com/license
+https://creativecommons.org/publicdomain/zero/1.0/
+
+Painted Wooden Bench — Kirill Sannikov
+https://polyhaven.com/a/painted_wooden_bench
+Boulder 01 — Rico Cilliers
+https://polyhaven.com/a/boulder_01
+Old Military Crate — Jack Mava
+https://polyhaven.com/a/old_military_crate
+Wooden Picnic Table — Ulan Cabanilla
+https://polyhaven.com/a/wooden_picnic_table
+Barrel_01 — Jorge Camacho
+https://polyhaven.com/a/Barrel_01
+Sofa 01 — Kirill Sannikov
+https://polyhaven.com/a/Sofa_01
+Coffee Table 01 — Fernando Quinn
+https://polyhaven.com/a/CoffeeTable_01
+Street Lamp 01 — Josh Dean
+https://polyhaven.com/a/street_lamp_01
+Grass Ground — Charlotte Baglioni
+https://polyhaven.com/a/grass_ground
+Mossy Stone Wall — Amal Kumar
+https://polyhaven.com/a/mossy_stone_wall
+Castle Brick Broken 06 — Rob Tuytel
+https://polyhaven.com/a/castle_brick_broken_06
+Snow 02 — Rob Tuytel
+https://polyhaven.com/a/snow_02
+Weathered Planks — Dario Barresi, Dimitrios Savva
+https://polyhaven.com/a/weathered_planks
+Concrete Floor Worn 02 — Dimitrios Savva
+https://polyhaven.com/a/concrete_floor_worn_02
+Grassy Cobblestone — Dario Barresi, Charlotte Baglioni
+https://polyhaven.com/a/grassy_cobblestone
+Autumn Field (Pure Sky) — Jarod Guest, Sergej Majboroda
+https://polyhaven.com/a/autumn_field_puresky
+
+Fern 02 — Rico Cilliers, Rob Tuytel (CC0)
+https://polyhaven.com/a/fern_02
+Leafy Grass — Charlotte Baglioni (CC0)
+https://polyhaven.com/a/leafy_grass
+
+GRASS TEXTURE — IcterusGames / SimpleGrassTextured (MIT)
+https://github.com/IcterusGames/SimpleGrassTextured
+Selected from the pinned forest demo grass/grassbushcc008.png.
+See SimpleGrassTextured-MIT.txt. Texture unchanged; original OpenSCCT mesh, wind and batch renderer.

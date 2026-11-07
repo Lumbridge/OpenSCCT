@@ -12,6 +12,7 @@ namespace OpenScct.Server.Hub;
 /// <code>
 /// server -> client
 ///   hubplay board &lt;id&gt; &lt;x&gt; &lt;y&gt; &lt;z&gt; &lt;text&gt;     a score board (its lines joined by '|') and where it stands
+///   hubplay boardadd &lt;id&gt; &lt;x&gt; &lt;y&gt; &lt;z&gt; &lt;text&gt;  append remaining rows in reliable message order
 ///   hubplay mark &lt;kind&gt; &lt;id&gt; &lt;x&gt; &lt;y&gt; &lt;z&gt; &lt;radius&gt;   a spot the HUD draws and prompts at (gate, checkpoint, jukebox, goal, line)
 ///   hubplay run start &lt;checkpoints&gt;          the course clock started for you
 ///   hubplay run cp &lt;passed&gt; &lt;of&gt; &lt;ms&gt;        you passed a checkpoint (split time)
@@ -39,14 +40,21 @@ public static class HubPlayProtocol
     /// <summary>Line separator inside a board's text (session lines cannot carry control characters).</summary>
     public const char BoardLineSeparator = '|';
 
-    public static string Board(string id, FVector at, string text) =>
-        SessionProtocol.Line(Command, "board", id, Whole(at.X), Whole(at.Y), Whole(at.Z),
+    public static string Board(string id, FVector at, string text, bool append = false) =>
+        SessionProtocol.Line(Command, append ? "boardadd" : "board", id, Whole(at.X), Whole(at.Y), Whole(at.Z),
             text.Replace('|', '/').Replace("\r", string.Empty, System.StringComparison.Ordinal).Replace('\n', BoardLineSeparator));
 
     public static string Mark(string kind, string id, FVector at, float radius) =>
         SessionProtocol.Line(Command, "mark", kind, id, Whole(at.X), Whole(at.Y), Whole(at.Z), Whole(radius));
 
-    public static string RunStart(int checkpoints) => SessionProtocol.Line(Command, "run", "start", checkpoints);
+    public static string RunStart(int checkpoints, string courseId = "easy") => SessionProtocol.Line(Command, "run", "start", checkpoints, courseId);
+
+    public static string CourseInfo(string id, string title) => SessionProtocol.Line(Command, "course", id, title);
+    public static string CourseSection(string id, int index, string title) => SessionProtocol.Line(Command, "section", id, index, title);
+    public static string PersonalBest(string id, int ms) => SessionProtocol.Line(Command, "best", id, ms);
+    public static string Destination(HubTeleportDestination destination) => SessionProtocol.Line(Command, "destination", destination.Id, destination.Title);
+    public static string Travel(string id) => SessionProtocol.Line(Command, "travel", id);
+    public static string TravelMenu() => SessionProtocol.Line(Command, "travelmenu");
 
     public static string RunCheckpoint(int passed, int of, int ms) => SessionProtocol.Line(Command, "run", "cp", passed, of, ms);
 
@@ -100,9 +108,10 @@ public static class HubPlayProtocol
         string rest = head.Count > 1 ? head[1] : string.Empty;
         int count = verb switch
         {
-            "board" => 5,
+            "board" or "boardadd" => 5,
             "toast" or "fanfare" => 1,
-            "jukebox" => 2,
+            "jukebox" or "course" or "destination" => 2,
+            "section" => 3,
             "run" => rest.StartsWith("cancel", System.StringComparison.Ordinal) ? 2 : int.MaxValue,
             _ => int.MaxValue,
         };

@@ -9,6 +9,8 @@ namespace OpenScct.Physics.Movement;
 /// </summary>
 public sealed class PawnPhysicsState
 {
+    /// <summary>Authored moving GE currently carrying this pawn. Absent on all legacy/static traversal.</summary>
+    public OpenScct.Core.Engine.Actor? TraversalBase;
     /// <summary>Highest Z of the current airborne phase when the controller has no fZMaxFalling of its own.</summary>
     public float fZMaxFalling;
 

@@ -88,6 +88,7 @@ public static class DefaultKeyLayout
             AddIfFree(layout, SpyPerspectiveKey, "SwitchSpyPerspective");
         if (saved?.Contains(CloakBindingMarker, StringComparison.Ordinal) != true)
             AddIfFree(layout, CloakKey, "Button bCloak");
+        HubBindings.Upgrade(layout, saved);
         layout.UpgradeWheelBindings(wheelMode);
         return layout;
     }
