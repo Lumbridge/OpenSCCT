@@ -16,6 +16,31 @@ public sealed class ResponsiveSmokeBoundaryTests
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
+    public void GrowingFloorContactInterpolatesAcrossColumnsWithoutSkippingUnreachedAir(bool unreached)
+    {
+        var builder = new CollisionDataBuilder();
+        builder.AddBox(new FVector(-1000, -1000, -50), new FVector(1000, 1000, 0));
+        CombatScene scene = Scene(builder);
+        SSmokeEmitter cloud = scene.Level.SpawnActor(new SSmokeEmitter(), new FVector(0, 0, 5), default)!;
+        scene.Run(2);
+        ResponsiveSmokeField field = Field(scene, cloud);
+        for (int i = 0; i < field.Cells.Length; i++)
+            if (field.Cells[i] != 0)
+                field.ActivationTicks[i] = field.CellCenter(i).X < 25 ? (ushort)0
+                    : unreached ? ResponsiveSmokeField.Unreached : (ushort)2;
+        float time = field.CreatedAt + .075f;
+        float left = field.SampleDensity(new FVector(24.99f, 0, .1f), time);
+        float right = field.SampleDensity(new FVector(25.01f, 0, .1f), time);
+        // At the halfway point: .5 * .75 grown left column + .5 * 0 future/unreached right column.
+        Assert.InRange(field.SampleDensity(new FVector(25, 0, .1f), time), .374f, .376f);
+        Assert.InRange(MathF.Abs(left - right), 0, .002f);
+        Assert.InRange(field.SampleDensity(new FVector(25, 0, 25.1f), time), .374f, .376f);
+        Assert.Equal(0f, field.SampleDensity(new FVector(25, 0, -.1f), time));
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
     public void DoorwayPassesSmokeIntoTheNextRoomButItsSolidJambAndHeaderDoNot(bool sealedOpening)
     {
         var builder = new CollisionDataBuilder();

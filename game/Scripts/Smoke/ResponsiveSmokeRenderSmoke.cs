@@ -85,6 +85,7 @@ public sealed class ResponsiveSmokeRenderSmoke : SmokeTest
                 #include "res://Shaders/svm_fog.gdshaderinc"
                 uniform bool diagnostic = true;
                 uniform bool finite_depth = false;
+                uniform bool boundary_probe = false;
                 uniform vec3 backdrop = vec3(1.0);
                 void fragment() {
                     vec4 smoke = surface_fog(CAMERA_VISIBLE_LAYERS, VERTEX, FRAGCOORD.xy, VIEWPORT_SIZE);
@@ -93,6 +94,13 @@ public sealed class ResponsiveSmokeRenderSmoke : SmokeTest
                         // R exposes extinction directly; G is actual black/white backdrop contrast with scattering.
                         float white = step(VIEWPORT_SIZE.x*.5,FRAGCOORD.x);
                         ALBEDO = vec3(smoke.a,white*smoke.a+smoke.rgb.r,smoke.rgb.r);
+                    }
+                    if (boundary_probe) {
+                        int view = int((CAMERA_VISIBLE_LAYERS>>8u)&127u)*14;
+                        vec4 frame = smoke_frame_row(view);
+                        int field = int(smoke_frame_row(int(frame.x)).x);
+                        vec3 point = vec3(SCREEN_UV.x < .5 ? 24.99 : 25.01,-500.0,-4.9);
+                        ALBEDO = vec3(smoke_density(field,point,frame.z,false));
                     }
                 }
                 """ } };
@@ -415,12 +423,20 @@ public sealed class ResponsiveSmokeRenderSmoke : SmokeTest
                 return Finish(SmokeResult.Fail($"phase={_phase}: smoke behind an opaque wall leaked onto its foreground face by {worst:F5}"));
             GD.Print($"RESPONSIVE_SMOKE wall_occlusion_error={worst:F5} phase={_phase}");
         }
-        if (_phase >= 77)
+        if (_phase is >= 77 and <= 80)
         {
             bool confined = _phase >= 79;
             if (confined ? pixel.R > .02f : pixel.R < .98f)
                 return Finish(SmokeResult.Fail($"phase={_phase}: geometry-directed upper fill has transmission={pixel.R}, confined={confined}"));
             GD.Print($"RESPONSIVE_SMOKE redirected_fill confined={confined} transmission={pixel.R:F5} phase={_phase}");
+        }
+        if (_phase >= 81)
+        {
+            float left = shot.GetPixel(shot.GetWidth()/4, shot.GetHeight()/2).R;
+            float right = shot.GetPixel(shot.GetWidth()*3/4, shot.GetHeight()/2).R;
+            if (MathF.Abs(left-.375f) > .005f || MathF.Abs(right-.375f) > .005f || MathF.Abs(left-right) > .005f)
+                return Finish(SmokeResult.Fail($"phase={_phase}: growing floor seam left={left}, right={right}; expected continuous .375 density"));
+            GD.Print($"RESPONSIVE_SMOKE growing_floor left={left:F5} right={right:F5} phase={_phase}");
         }
         if (_phase == 1) _lowHole = pixel.R;
         _gpu.Sort();
@@ -428,8 +444,8 @@ public sealed class ResponsiveSmokeRenderSmoke : SmokeTest
         GD.Print($"RESPONSIVE_SMOKE phase={_phase} clouds={_emitters.Count} quality={SettingsStore.Current.SmokeQuality} gpu_p95_ms={p95:F3} viewport_p95_ms={Percentile95(_surfaceGpu):F3} prefix_p95_ms={Percentile95(_prefixGpu):F3} flow_p95_ms={Percentile95(_flowGpu):F3} upload_ms={ResponsiveSmokeRenderer.LastUploadMilliseconds:F3} fields_bytes={ResponsiveSmokeRenderer.LastFieldUploadBytes} frame_bytes={ResponsiveSmokeRenderer.LastFrameUploadBytes}");
         if (_phase == 35)
             GD.Print($"RESPONSIVE_SMOKE live_flow_steps={ResponsiveSmokeVisualFlow.Dispatches-_flowDispatchesAtPhaseStart} new_cloud_impulses={ResponsiveSmokeVisualFlow.AppliedImpulses-_flowImpulsesAtPhaseStart} active_shots={_benchmarkShots.Count}; 60Hz published time, three rifles at10Hz, final60frames sampled; completed GPU frame timestamps");
-        int phaseCount = _benchmark ? 34 : 80;
-        if (++_phase >= (_benchmark ? 36 : 81)) return Finish(SmokeResult.Pass(_benchmark
+        int phaseCount = _benchmark ? 34 : 82;
+        if (++_phase >= (_benchmark ? 36 : 83)) return Finish(SmokeResult.Pass(_benchmark
             ? $"{phaseCount} benchmark phases; phase 35 measures six clouds under sustained fire"
             : $"{phaseCount} rendered scenarios: shared density, Low/Medium holes, blast/refill, depth/vision/alpha surfaces, two-pixel CPU parity, sustained overlap, two cameras, resource release, evolving/idempotent GPU flow, immediate holes, temporal reuse/cuts/resizing/quality/rewind, blocked geometry, cloud identity replacement, queued initialization/draw teardown/rebind, zero-time rim preservation, partial-cell wall contact/both-side/solid/corner parity, finite-depth core/shell contrast with distant clouds, shallow/before-entry/cleared surfaces, and moving rim at ages 1/3/6 on Low and Medium"));
         if (_benchmark && _phase == 33) _phase = 35; // Diagnostic rate-readbacks are excluded from performance runs.
@@ -588,6 +604,7 @@ public sealed class ResponsiveSmokeRenderSmoke : SmokeTest
         if (_phase == 19 && _auxiliary is not null) { _auxiliaryBinding!.Dispose(); _auxiliary.RenderTargetUpdateMode = SubViewport.UpdateMode.Disabled; }
         _material!.SetShaderParameter("diagnostic",_phase is not (11 or 24));
         _material.SetShaderParameter("finite_depth",_phase >= 47);
+        _material.SetShaderParameter("boundary_probe",_phase >= 81);
         _material.SetShaderParameter("backdrop",_phase == 24 ? Vector3.Zero : Vector3.One);
         _viewport.Msaa3D = _phase is >= 6 and < 12 ? Viewport.Msaa.Msaa4X : Viewport.Msaa.Disabled;
         if (_phase is >= 47 and <= 54)
@@ -632,7 +649,7 @@ public sealed class ResponsiveSmokeRenderSmoke : SmokeTest
             _camera.RotationDegrees = new(0, _phase <= 74 ? 35 : 65, 0);
             _surface.Position = new(0, 0, -4);
         }
-        if (_phase >= 77)
+        if (_phase is >= 77 and <= 80)
         {
             SettingsStore.Current.SmokeQuality = _phase % 2 == 0 ? ResponsiveSmokeQuality.Low : ResponsiveSmokeQuality.Medium;
             _camera.Fov = 1;
@@ -654,6 +671,29 @@ public sealed class ResponsiveSmokeRenderSmoke : SmokeTest
                     new((uint)(_phase*100), 0, 2, template.Origin, template.Center, cells, activation, []));
             }
             ResponsiveSmokeWorld.For(_world.Level).SynchronizeTime(2);
+        }
+        if (_phase >= 81)
+        {
+            SettingsStore.Current.SmokeQuality = _phase == 81 ? ResponsiveSmokeQuality.Medium : ResponsiveSmokeQuality.Low;
+            foreach (SSmokeEmitter emitter in _emitters)
+            {
+                var template = new ResponsiveSmokeField(emitter.Location, 0);
+                var cells = new byte[ResponsiveSmokeField.CellCount];
+                var activation = new ushort[cells.Length];
+                var boundaries = new List<ResponsiveSmokeBoundaryCell>();
+                for (int i = 0; i < cells.Length; i++)
+                {
+                    FVector point = template.CellCenter(i);
+                    cells[i] = point.Z > 0 ? (byte)1 : (byte)0;
+                    activation[i] = cells[i] == 0 || _phase == 82 && point.X >= 25 ? ResponsiveSmokeField.Unreached
+                        : point.X < 25 ? (ushort)0 : (ushort)2;
+                    if (MathF.Abs(point.Z+5) <= 12.5f)
+                        boundaries.Add(new((ushort)i, [new(new FVector(0,0,1), -5-point.Z)]));
+                }
+                ResponsiveSmokeWorld.For(_world.Level).ApplySnapshot(emitter,
+                    new((uint)(_phase*100), 0, .075f, template.Origin, template.Center, cells, activation, [], boundaries.ToArray()));
+            }
+            ResponsiveSmokeWorld.For(_world.Level).SynchronizeTime(.075f);
         }
     }
 

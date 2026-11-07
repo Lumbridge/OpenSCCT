@@ -73,7 +73,7 @@ bool smoke_boundary_path(int cells, int lookup, vec3 origin, ivec3 cell, ivec3 o
     // Complete supercover, shared with the simulation: no diagonal borrowing through a wall corner.
     ivec3 extent = abs(offset);
     for (int z = 0; z <= extent.z; z++) for (int y = 0; y <= extent.y; y++) for (int x = 0; x <= extent.x; x++) {
-        ivec3 at = cell + ivec3(x,y,z)*offset;
+        ivec3 at = cell + ivec3(x,y,z)*sign(offset);
         int index = smoke_index(at);
         if (smoke_scalar(cells,index) != 0.0) continue;
         if (lookup == 0) return false;
@@ -91,7 +91,9 @@ bool smoke_boundary_path(int cells, int lookup, vec3 origin, ivec3 cell, ivec3 o
 }
 float smoke_boundary_density(int cells, int lookup, vec3 origin, ivec3 cell, vec3 p, float age, out int mask_cell) {
     mask_cell = -1;
-    if (lookup == 0 || smoke_scalar(lookup,smoke_index(cell)) == 0.0) return 0.0;
+    if (lookup == 0) return 0.0;
+    int record = int(smoke_scalar(lookup,smoke_index(cell)));
+    if (record == 0) return 0.0;
     float best = 1e30, density = 0.0;
     // A face neighbor normally bounds the nearest donor at a floor or flat wall. Most later candidates
     // then need only arithmetic, rather than repeated atlas and plane lookups. Ties retain CPU index order.
@@ -104,9 +106,8 @@ float smoke_boundary_density(int cells, int lookup, vec3 origin, ivec3 cell, vec
         float distance_squared = dot(delta,delta);
         if (distance_squared > best || (distance_squared == best && index >= mask_cell)) continue;
         float activation = smoke_scalar(cells,index);
-        if (activation <= 0.0 || !smoke_boundary_path(cells,lookup,origin,cell,offset,p,target)) continue;
+        if (activation == 0.0 || !smoke_boundary_path(cells,lookup,origin,cell,offset,p,target)) continue;
         best = distance_squared; mask_cell = index;
-        density = clamp((age-(activation-1.0)/20.0)/SMOKE_GROWTH_FADE,0.0,1.0);
     }
     for (int z = -1; z <= 1; z++) for (int y = -1; y <= 1; y++) for (int x = -1; x <= 1; x++) {
         ivec3 offset = ivec3(x,y,z), donor = cell+offset;
@@ -116,11 +117,38 @@ float smoke_boundary_density(int cells, int lookup, vec3 origin, ivec3 cell, vec
         float distance_squared = dot(delta,delta);
         if (distance_squared > best || (distance_squared == best && index >= mask_cell)) continue;
         float activation = smoke_scalar(cells,index);
-        if (activation <= 0.0 || !smoke_boundary_path(cells,lookup,origin,cell,offset,p,target)) continue;
+        if (activation == 0.0 || !smoke_boundary_path(cells,lookup,origin,cell,offset,p,target)) continue;
         best = distance_squared; mask_cell = index;
-        density = clamp((age-(activation-1.0)/20.0)/SMOKE_GROWTH_FADE,0.0,1.0);
     }
-    return density;
+    if (mask_cell < 0) return 0.0;
+    vec3 nearest = origin+(vec3(ivec3(mask_cell%25,(mask_cell/25)%25,mask_cell/625))+vec3(.5))*25.0;
+    vec3 center = origin+(vec3(cell)+vec3(.5))*25.0, sample_point = p;
+    int plane_count = int(smoke_field_row(record).x);
+    for (int i = 0; i < plane_count; i++) {
+        vec4 plane = smoke_field_row(record+1+i);
+        float side = dot(plane.xyz,nearest-center)-plane.w > 0.0 ? 1.0 : -1.0;
+        float distance = dot(plane.xyz,sample_point-center)-plane.w;
+        float clearance = 25.0*dot(abs(plane.xyz),vec3(1.0));
+        sample_point += plane.xyz*(side*max(clearance,side*distance)-distance);
+    }
+    vec3 local = (sample_point-origin)/25.0-vec3(.5), fraction = fract(local);
+    ivec3 base = ivec3(floor(local));
+    float weight = 0.0;
+    for (int z = 0; z <= 1; z++) for (int y = 0; y <= 1; y++) for (int x = 0; x <= 1; x++) {
+        ivec3 corner = ivec3(x,y,z), donor = base+corner;
+        if (!smoke_cell_valid(donor)) continue;
+        float activation = smoke_scalar(cells,smoke_index(donor));
+        if (activation == 0.0) continue;
+        vec3 w = mix(vec3(1.0)-fraction,fraction,vec3(corner));
+        float part = w.x*w.y*w.z;
+        vec3 target = origin+(vec3(donor)+vec3(.5))*25.0;
+        if (part <= 0.0 || !smoke_boundary_path(cells,lookup,origin,cell,donor-cell,p,target)) continue;
+        weight += part;
+        if (activation > 0.0) density += part*clamp((age-(activation-1.0)/20.0)/SMOKE_GROWTH_FADE,0.0,1.0);
+    }
+    if (weight > 0.0) return density/weight;
+    float activation = smoke_scalar(cells,mask_cell);
+    return activation < 0.0 ? 0.0 : clamp((age-(activation-1.0)/20.0)/SMOKE_GROWTH_FADE,0.0,1.0);
 }
 float smoke_shape_noise(vec3 p) {
     // The baked cellular field has eight texels per feature cell. Plain trilinear interpolation matches the
