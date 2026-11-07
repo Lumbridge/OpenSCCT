@@ -111,12 +111,15 @@ public sealed class AiMatchTests
         Assert.True(r.Ended, "the round did not end");
     }
 
-    /// <summary>Mercs that neither see nor hear: the spies walk to every terminal, use it and win on objectives.</summary>
+    /// <summary>Mercs with perception and gadget attacks disabled: the spies use every terminal and win on objectives.</summary>
     [Fact]
     public void SpiesHackTheTerminalsWhenNobodyStopsThem()
     {
         Assert.SkipWhen(Maps.FindFolder(MapCatalog.TestBox) is null, "The TestBox fixture is not in this checkout.");
-        AiDifficulty blind = AiDifficulty.For(AiSkill.Easy) with { SightRange = 1f, HearingScale = 0f, Teamwork = 0f };
+        AiDifficulty blind = AiDifficulty.For(AiSkill.Easy) with
+        {
+            SightRange = 1f, HearingScale = 0f, Teamwork = 0f, GadgetUse = 0f, MeleeUse = 0f,
+        };
         // This synthetic fixture has a primitive terminal collider wider than its use spot. Isolate objective
         // behaviour here; converted real-map matches below retain production terminal collision.
         AiBotMatchReport r = Play(MapCatalog.TestBox, AiSkill.Normal, 12UL, 240f, BotMatchSettings.StoryOptions, blind,
