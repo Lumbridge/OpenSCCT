@@ -13,6 +13,7 @@ import fast_simplification
 from collections import defaultdict
 
 HERE = Path(__file__).resolve().parent
+ASSETS = HERE.parents[1] / "fixtures" / "hub-assets"
 
 def edges(points,faces):
     """Boundary of upward surface patches; weld seams and merge collinear adjoining segments.
@@ -81,7 +82,7 @@ def read(path):
 
 def prepare():
     result={}
-    for path in sorted((HERE/'assets').glob('*.glb')):
+    for path in sorted(ASSETS.glob('*.glb')):
         if path.stem=='fern_02':continue # soft, render-only fronds; terrain beneath remains solid
         parts,size,pivot=read(path);points=[];faces=[];count=0
         tree='-tree-' in path.stem
@@ -110,6 +111,6 @@ def prepare():
             'size':size.tolist(),'pivot':pivot.tolist(),'vertices':np.round(points,7).tolist(),'triangles':faces.tolist(),
             'ledges':[] if tree or path.stem in ('flower-1','street_lamp_01') else edges(points,faces)}
         print(path.stem,len(points),'vertices',len(faces),'triangles', 'dimensions',np.round(size,3))
-    (HERE/'assets'/'collision.json').write_text(json.dumps(result,separators=(',',':'))+'\n',encoding='utf8')
+    (ASSETS / 'collision.json').write_text(json.dumps(result,separators=(',',':'))+'\n',encoding='utf8')
 
 if __name__=='__main__':prepare()

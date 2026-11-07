@@ -1,5 +1,5 @@
 """Hub: the layout of the OpenSCCT social hub map, as data. An OpenSCCT addition (spec/additions/hub.md), not a port:
-authored gameplay geometry, original signage, and credited outdoor models/textures (tools/hubmap/assets).
+authored gameplay geometry, original signage, and credited outdoor models/textures (fixtures/hub-assets).
 
 Layout 4 expands these original district kits into an outdoor world through expansion.py: daylight skybox, lawns,
 pine groves, waterfront, ruins and a frozen observatory. The outer collision walls and ceiling are invisible.

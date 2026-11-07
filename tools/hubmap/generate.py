@@ -21,6 +21,7 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[1]
+ASSETS = REPO / "fixtures" / "hub-assets"
 TESTMAP = REPO / "tools" / "testmap"
 sys.path.insert(0, str(REPO / "content"))
 
@@ -344,7 +345,7 @@ def _texture_bytes(key: str) -> bytes:
         import io
         from PIL import Image
         out=io.BytesIO()
-        Image.open(HERE/'assets'/(photos[key]+'.jpg')).save(out,format='PNG')
+        Image.open(ASSETS / (photos[key] + '.jpg')).save(out, format='PNG')
         return out.getvalue()
     m = L.MATERIALS[key]
     if m.art in L.ART:
@@ -426,7 +427,7 @@ def build_render(faces: list[T.Face]) -> dict[str, bytes]:
     # Compact numeric arrays keep the dense soft foliage manifest small.
     import json
     files['foliage.json'] = (json.dumps(L.FOLIAGE,separators=(',',':'))+'\n').encode()
-    for asset in sorted((HERE/'assets').iterdir()):
+    for asset in sorted(ASSETS.iterdir()):
         if asset.suffix in ('.glb', '.hdr', '.txt', '.json', '.png'):
             data = asset.read_bytes()
             if asset.suffix in ('.txt', '.json'):

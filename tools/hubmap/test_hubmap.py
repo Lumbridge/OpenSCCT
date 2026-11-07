@@ -188,7 +188,7 @@ def test_static_render_chunks_are_spatially_bounded_and_movers_are_local():
 def test_credited_scenery_is_embedded_and_matches_the_source_lock():
     import hashlib
     validator=_load('hub_glb_validator',HERE.parent/'assets'/'validate_glb.py')
-    assets=HERE/'assets'
+    assets=G.ASSETS
     sources={r['asset']:r for r in json.loads((assets/'sources.json').read_text())}
     assert 'GamesNotDeveloped' in (assets/'CREDITS.txt').read_text(encoding='utf8')
     for name in {i['asset'] for i in L.SCENERY}|{L.FOLIAGE['fernAsset']}:
@@ -226,22 +226,22 @@ def test_groundcover_is_dense_bounded_and_keeps_arrivals_and_course_recovery_cle
                 for lake in L.LAKES:
                     cx,cy=lake['centre'];rx,ry=lake['radii'];ny=(y-cy)/ry;nx=(x-cx-rx*.13*ny)/rx
                     assert nx*nx+ny*ny>1.06**2
-    sources={r['asset']:r for r in json.loads((HERE/'assets/sources.json').read_text())}
-    grass=HERE/'assets'/data['grassTexture']
+    sources={r['asset']:r for r in json.loads((G.ASSETS/'sources.json').read_text())}
+    grass=G.ASSETS/data['grassTexture']
     assert hashlib.sha256(grass.read_bytes()).hexdigest()==sources[grass.stem]['sha256']
     assert sources[grass.stem]['license']=='MIT'
-    assert 'Copyright (c) 2023 IcterusGames' in (HERE/'assets/SimpleGrassTextured-MIT.txt').read_text()
+    assert 'Copyright (c) 2023 IcterusGames' in (G.ASSETS/'SimpleGrassTextured-MIT.txt').read_text()
 
 
 def test_every_scenery_instance_has_matching_collision_and_tree_climbs():
     import hashlib
-    models=json.loads((HERE/'assets/collision.json').read_text())
+    models=json.loads((G.ASSETS/'collision.json').read_text())
     collision=G.C.read_collision((G.DEFAULT_OUT/'sim/collision.bin').read_bytes())
     sources={collision.strings[s.source] for s in collision.sources}
     ges={g.id:g for g in L.GES}
     for entry in L.SCENERY:
         assert entry['collision']==entry['id'] and entry['id'] in sources
-        assert hashlib.sha256((HERE/'assets'/entry['asset']).read_bytes()).hexdigest()==models[entry['asset']]['sourceSha256']
+        assert hashlib.sha256((G.ASSETS/entry['asset']).read_bytes()).hexdigest()==models[entry['asset']]['sourceSha256']
         if '-tree-' in entry['asset']:
             assert len(entry['ges'])>=1,(entry['id'],'missing climb')
             assert all(ges[g].kind=='PIPE' for g in entry['ges'])

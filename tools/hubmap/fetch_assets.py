@@ -9,7 +9,7 @@ import concurrent.futures, hashlib, io, json, struct, urllib.request
 from PIL import Image
 
 HERE = Path(__file__).resolve().parent
-OUT = HERE / "assets"
+OUT = HERE.parents[1] / "fixtures" / "hub-assets"
 CACHE = HERE.parents[1] / "local" / "hub-asset-downloads"
 FOREST = "https://raw.githubusercontent.com/GamesNotDeveloped/godot-forest-demo/623212ffeb4efbf4c95323a4a6a57e726be4f6e9/"
 

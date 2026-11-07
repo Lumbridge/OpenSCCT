@@ -103,7 +103,7 @@ and `foliage.py` plants the soft ground cover.
 Trees, flowers, the house and well come from the linked GamesNotDeveloped forest demo, with individual CC BY 4.0
 author credits. Poly Haven supplies CC0 benches, sofas, tables, street lamps, rocks, crates, barrels, scanned surface
 textures and the photographic sky. Sources, prepared hashes, licenses and modifications are tracked in
-[`tools/hubmap/assets/CREDITS.txt`](../tools/hubmap/assets/CREDITS.txt) and copied into the map's `render/scenery/`.
+[`fixtures/hub-assets/CREDITS.txt`](../fixtures/hub-assets/CREDITS.txt) and copied into the map's `render/scenery/`.
 `fetch_assets.py` refreshes this source cache explicitly; ordinary generation is offline and deterministic.
 Install `tools/hubmap/requirements.txt` for generation/checks. Refreshing source models additionally uses
 `tools/hubmap/requirements-assets.txt`; `prepare_collision.py` then rebuilds the tracked collision cache.
