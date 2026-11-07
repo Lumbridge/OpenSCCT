@@ -50,6 +50,9 @@ The server reads only `sim/`, so everything there uses the original engine's con
 
 ## Names and ids
 
+- **Map ids** preserve the original file stem, including hyphens (`new-island`). Pattern
+  `^[A-Za-z_][A-Za-z0-9_-]*$`, at most 63 characters; actor and GE ids keep their stricter rules.
+
 - **Actor ids** are the original export names (`SFlag28768`, `PlayerStart254`), unique within a map. Native maps use
   the same `ClassN` style (`SFlag0`). Pattern `^[A-Za-z_][A-Za-z0-9_]*$`, at most 63 characters (UE2 `NAME_SIZE`).
   UE2 names are case-insensitive, so ids MUST also be unique ignoring ASCII case.

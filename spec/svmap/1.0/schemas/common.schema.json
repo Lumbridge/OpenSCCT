@@ -11,7 +11,7 @@
     "mapId": {
       "description": "Map id: the original map file stem (SteeE) or a native map name.",
       "type": "string",
-      "pattern": "^[A-Za-z_][A-Za-z0-9_]*$",
+      "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$",
       "maxLength": 63
     },
     "id": {

@@ -349,7 +349,7 @@ public sealed class GameplayDoc
     private static string MapId(JsonRead j, SvJsonObject root)
     {
         string map = j.StringMember(root, "map", "");
-        return PropJson.IsIdentifier(map) ? map : throw j.Error("/map", $"'{map}' is not a map id");
+        return SvMap.IsValidId(map) ? map : throw j.Error("/map", $"'{map}' is not a map id");
     }
 
     private static List<string> IdList(JsonRead j, SvJsonArray array, string path)

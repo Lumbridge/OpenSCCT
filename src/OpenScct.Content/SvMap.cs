@@ -48,6 +48,22 @@ public sealed class SvMap
 
     public string Id => Manifest.Map;
 
+    /// <summary>A map file stem: an ASCII letter or underscore, then letters, digits, underscores or hyphens; at most 63 characters.</summary>
+    public static bool IsValidId(string id)
+    {
+        if (id.Length is 0 or > PropJson.MaxNameLength || !(char.IsAsciiLetter(id[0]) || id[0] == '_'))
+        {
+            return false;
+        }
+
+        foreach (char c in id)
+        {
+            if (!(char.IsAsciiLetterOrDigit(c) || c is '_' or '-')) return false;
+        }
+
+        return true;
+    }
+
     public SvMapManifest Manifest { get; }
 
     public GameplayDoc Gameplay { get; }

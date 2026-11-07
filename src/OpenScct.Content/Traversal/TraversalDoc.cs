@@ -173,7 +173,7 @@ public sealed class TraversalDoc
         SvJsonObject root = j.Object(node, "");
         string version = j.FormatVersion(root, "");
         string map = j.StringMember(root, "map", "");
-        if (!PropJson.IsIdentifier(map))
+        if (!SvMap.IsValidId(map))
         {
             throw j.Error("/map", $"'{map}' is not a map id");
         }

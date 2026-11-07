@@ -552,3 +552,6 @@ Bots reject landings on the wrong floor, plan short jumps and Spy barrier hops, 
 densely. Spies can chain pipes, overhead bars and ziplines without requiring an intermediate floor. Navigation
 caches rebuild once for the updated graph format. These changes extend route planning; map-specific playtesting
 remains useful for identifying difficult approaches.
+
+Version 0.8.109 accepts hyphens in map file stems, including the community map `new-island`. Actor, class and GE
+names retain their existing validation rules. Its prebuilt navigation uses the same graph format as 0.8.108.

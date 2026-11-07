@@ -84,6 +84,7 @@ public sealed class SvMapManifest
 
         string version = j.FormatVersion(root, "");
         string map = j.StringMember(root, "map", "");
+        if (!SvMap.IsValidId(map)) throw j.Error("/map", $"'{map}' is not a map id");
         string title = j.StringMember(root, "title", "");
 
         SvJsonObject src = j.ObjectMember(root, "source", "");
