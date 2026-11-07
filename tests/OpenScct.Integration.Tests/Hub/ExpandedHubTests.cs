@@ -391,12 +391,16 @@ public sealed class ExpandedHubTests(ITestOutputHelper output)
     }
 
     [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
-    public void FiftyPlayersCanTravelToSeparateDistricts(bool baseline)
+    [InlineData(16, false)]
+    [InlineData(50, false)]
+    [InlineData(50, true)]
+    public void PlayersCanTravelToSeparateDistricts(int count, bool baseline)
     {
         string? baselineRoot = Environment.GetEnvironmentVariable("SVM_HUB_BASELINE_ROOT");
+        string? reportPath = Environment.GetEnvironmentVariable("SVM_HUB_SCALE_REPORT");
         Assert.SkipWhen(baseline && baselineRoot is null, "Set SVM_HUB_BASELINE_ROOT to a layout-v3 fixture root for the comparison.");
+        Assert.SkipWhen(count == 50 && reportPath is null && baselineRoot is null,
+            "Set SVM_HUB_SCALE_REPORT to run the 50-client benchmark on a machine with sufficient memory.");
         long before = GC.GetTotalMemory(true);
         var loading = Stopwatch.StartNew();
         MapCatalog? maps = baseline ? new MapCatalog(new[] { baselineRoot! }.Concat(WalkerRig.Maps.Roots).ToArray()) : null;
@@ -406,20 +410,20 @@ public sealed class ExpandedHubTests(ITestOutputHelper output)
         {
             text = (baseline ? "baseline " : "expanded ") + text;
             output.WriteLine(text);
-            if (Environment.GetEnvironmentVariable("SVM_HUB_SCALE_REPORT") is { } report) File.AppendAllText(report, text + "\n");
+            if (count == 50 && reportPath is not null) File.AppendAllText(reportPath, text + "\n");
         }
         Report($"Hub server load {loading.Elapsed.TotalMilliseconds:F0} ms");
-        for (int i = 0; i < 50; i++) { rig.Join(i % 2); if (i % 10 == 9) rig.Step(1); }
+        for (int i = 0; i < count; i++) { rig.Join(i % 2); if (i % 10 == 9) rig.Step(1); }
         rig.Step(8);
         rig.Ticks.Clear(); rig.Step(8);
         double[] crowded = rig.Ticks.Order().ToArray();
-        Report($"50 concentrated visitors: tick p50 {crowded[crowded.Length / 2]:F2} ms, p99 {crowded[(int)(crowded.Length * .99)]:F2} ms; managed memory delta {(GC.GetTotalMemory(false) - before) / 1048576:F0} MiB (server plus 50 clients)");
-        Assert.True(rig.Server.Players.Count == 50, string.Join("; ", rig.Departures));
+        Report($"{count} concentrated visitors: tick p50 {crowded[crowded.Length / 2]:F2} ms, p99 {crowded[(int)(crowded.Length * .99)]:F2} ms; managed memory delta {(GC.GetTotalMemory(false) - before) / 1048576:F0} MiB (server plus {count} clients)");
+        Assert.True(rig.Server.Players.Count == count, string.Join("; ", rig.Departures));
         if (baseline) return;
         string[] destinations = rig.Layout.TeleportDestinations.Keys.ToArray();
         foreach (var client in rig.Clients) client.Travel(destinations[rig.Clients.IndexOf(client) % destinations.Length]);
         rig.Step(4);
-        Assert.Equal(50, rig.Server.Players.Count);
+        Assert.Equal(count, rig.Server.Players.Count);
         foreach (var client in rig.Clients)
         {
             var destination = rig.Layout.TeleportDestinations[destinations[rig.Clients.IndexOf(client) % destinations.Length]];
@@ -427,7 +431,7 @@ public sealed class ExpandedHubTests(ITestOutputHelper output)
         }
         rig.Ticks.Clear(); rig.Step(8);
         double[] ticks = rig.Ticks.Order().ToArray();
-        Report($"50 spread visitors: tick p50 {ticks[ticks.Length / 2]:F2} ms, p99 {ticks[(int)(ticks.Length * .99)]:F2} ms; managed memory delta {(GC.GetTotalMemory(false) - before) / 1048576:F0} MiB (server plus 50 clients)");
+        Report($"{count} spread visitors: tick p50 {ticks[ticks.Length / 2]:F2} ms, p99 {ticks[(int)(ticks.Length * .99)]:F2} ms; managed memory delta {(GC.GetTotalMemory(false) - before) / 1048576:F0} MiB (server plus {count} clients)");
         Assert.False(rig.Server.Game.bGameEnded);
     }
 }

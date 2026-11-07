@@ -218,12 +218,13 @@ reassembled rows, so long player names do not remove entries from the top ten.
 
 Local checks are `python -B -m pytest tools/hubmap -q`, the `ExpandedHubTests` and `ExpandedHubTraversalTests`
 integration suites, the existing hub regression/soak suites, and `godot-smoke.ps1 -Tests hub` (which tours all eight
-destinations). `SVM_HUB_TRAVERSAL_REPORT` records automated normal-input traversal times; `SVM_HUB_SCALE_REPORT`
-records concentrated/spread 50-client metrics. `SVM_HUB_BASELINE_ROOT` optionally points at a layout-v3 fixture root
-for a same-process comparison. `SVM_HUB_RENDER_REPORT` opts the windowed Hub smoke into a 50-visitor renderer
+destinations). `SVM_HUB_TRAVERSAL_REPORT` records automated normal-input traversal times. The standard crowd check
+uses 16 clients across the eight districts. Set `SVM_HUB_SCALE_REPORT` to a report path to run the 50-client
+benchmark and record concentrated and spread measurements. `SVM_HUB_BASELINE_ROOT` points at a layout-v3 fixture root
+for a 50-client comparison. `SVM_HUB_RENDER_REPORT` opts the windowed Hub smoke into a 50-visitor renderer
 capture (crowd, spread plaza, spread observatory); `SVM_CONTENT` can point at a content root containing the baseline
-map under `svmap/` for the old-map comparison. Automated controls establish movement reachability; human route discovery and
-camera/readability assessment remain distinct playtest checks. This expansion does not publish or deploy a hub.
+map under `svmap/` for the old-map comparison. Automated controls establish movement reachability. Human playtests
+cover route discovery, camera behavior and readability.
 
 #### Outdoor dressing and controls follow-up, 2026-11-06
 
