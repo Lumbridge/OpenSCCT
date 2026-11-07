@@ -60,6 +60,14 @@ public partial class SWeaponAttaque
     [Provenance(ProvenanceKind.Estimated, "The muzzle mesh is raised as the SMuzzleSticky view event; the original also requires the pistol's bone-driven rotation to have no zero component, which the simulation does not pose")]
     public void TickSWeaponAttaque(float DeltaTime)
     {
+        // Offline play also uses a client/server connection. Predict only the owner's requested laser,
+        // using the same state gate as the server, so finishing the draw does not wait for a round trip.
+        if (_predictLaserRequest && Role < ENetRole.ROLE_Authority && OwnerPC is { } pc &&
+            ReferenceEquals(Level.GetLocalPlayerController(), pc))
+        {
+            bLaserOn = bLaserShouldBeOn && CombatStateEvents.CanActivateLaser(pc);
+        }
+
         SBPawn ??= Instigator as SBasePawn;
         if (SBPawn is { } pawn && pawn.WeaponLoaded != OldWeaponLoaded)
         {

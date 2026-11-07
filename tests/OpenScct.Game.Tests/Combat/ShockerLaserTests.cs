@@ -17,6 +17,53 @@ namespace OpenScct.Game.Tests.Combat;
 /// </summary>
 public sealed class ShockerLaserTests
 {
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void OwnerLaserAppearsWhenDrawFinishesWithoutWaitingForReplication(bool crouched)
+    {
+        var scene = new CombatScene(ENetMode.NM_Client);
+        var (pc, pawn) = scene.Player(true, default);
+        scene.Level.Info.LocalPlayerController = pc;
+        var pistol = scene.Give(new SStickyShocker(), pawn);
+        pistol.GiveTo(pawn);
+        pistol.Role = ENetRole.ROLE_AutonomousProxy;
+        var net = new RecordingCombatNet();
+        scene.Level.SetService<ICombatNet>(net);
+
+        pc.GotoState(new Name("s_PlayerWalkingMario_T_0HTo2H"));
+        pistol.ServerSwitchLaser(true);
+        pistol.TickSWeaponAttaque(Sim.DeltaTime);
+        Assert.False(pistol.bLaserOn);
+        Assert.Null(pistol.LaserBeam);
+
+        pawn.WeaponLoaded = 2;
+        pc.GotoState(new Name(crouched ? "s_PlayerWalkingCr2H" : "s_PlayerWalkingSt2H"));
+        pistol.TickSWeaponAttaque(Sim.DeltaTime);
+        Assert.True(pistol.bLaserOn);
+        Assert.NotNull(pistol.LaserProjector);
+        SLaserBeam beam = Assert.IsType<SLaserBeam>(pistol.LaserBeam);
+
+        // A snapshot sent before the server processed the draw must not flicker the predicted laser.
+        pistol.bLaserOn = false;
+        pistol.TickSWeaponAttaque(Sim.DeltaTime);
+        Assert.True(pistol.bLaserOn);
+        Assert.Same(beam, pistol.LaserBeam);
+        Assert.Single(net.ToServer, x => x.Call.Function == new Name("ServerSwitchLaser"));
+
+        pc.GotoState(new Name("s_PlayerWalkingMario_T_2HToOH"));
+        pistol.TickSWeaponAttaque(Sim.DeltaTime);
+        Assert.False(pistol.bLaserOn);
+        Assert.Null(pistol.LaserBeam);
+
+        pistol.ServerSwitchLaser(false);
+        pc.GotoState(new Name(crouched ? "s_PlayerWalkingCr2H" : "s_PlayerWalkingSt2H"));
+        pistol.bLaserOn = true;
+        pistol.TickSWeaponAttaque(Sim.DeltaTime);
+        Assert.False(pistol.bLaserOn);
+        Assert.Null(pistol.LaserProjector);
+    }
+
     /// <summary>A wall across +X at <see cref="X"/>, and a glass pane (bBulletGoTru) in front of it when given.</summary>
     private sealed class Wall : ICollisionWorld
     {
