@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using OpenScct.Launcher.Editor;
 using OpenScct.Launcher.GitHub;
+using OpenScct.Launcher.Install;
 
 namespace OpenScct.Launcher.App;
 
@@ -123,6 +124,7 @@ internal sealed partial class MainForm
         ProductStatus state = VisibleStatus;
         _status.Text = state.Text;
         _status.Visible = state.Text.Length > 0;
+        _forceClose.Text = _editorSelected ? "Force close and retry…" : "Force close all…";
         _forceClose.Visible = _work is null && state.CanForceClose;
         _status.ForeColor = state.Kind switch
         {
@@ -203,11 +205,45 @@ internal sealed partial class MainForm
             await SetupOrUpdateEditorCoreAsync(cancel);
             _editorSetupFailed = false;
         }
+        catch (Exception ex) when ((ex is InvalidOperationException or IOException) && _editor.IsRunning)
+        {
+            _editorSetupFailed = true;
+            if (_editor.UpdateInProgress)
+                SetStatus("Wait for the editor updater to finish before trying again.", Theme.Warning);
+            else
+                SetStatus("Save your work and close the editor and its command-line tools, then retry. Downloads will resume where they stopped.",
+                    Theme.Error, canForceClose: true);
+        }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _editorSetupFailed = true;
             throw;
         }
+    }
+
+    private async Task ForceCloseAndUpdateEditorAsync()
+    {
+        if (_work is not null || !VisibleStatus.CanForceClose) return;
+        if (MessageBox.Show(this,
+            "Force close the installed editor and its command-line tools, then retry editor setup or update?\n\nUnsaved work will be lost.",
+            "Force close OpenSCCT Editor", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) != DialogResult.OK)
+            return;
+
+        await RunAsync(async cancel =>
+        {
+            _operationCanCancel = false;
+            SetOperation("Closing editor processes");
+            RefreshLocal();
+            try { await InstallReset.ForceCloseEditorProcessesAsync(_layout); }
+            catch (Win32Exception ex)
+            {
+                SetStatus("Could not check running editor processes: " + ex.Message, Theme.Warning, canForceClose: true);
+                return;
+            }
+            finally { _operationCanCancel = true; }
+            RefreshLocal();
+            await SetupOrUpdateEditorAsync(cancel);
+        });
     }
 
     private async Task SetupOrUpdateEditorCoreAsync(CancellationToken cancel)

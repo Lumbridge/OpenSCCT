@@ -223,7 +223,11 @@ internal sealed partial class MainForm : Form
         _forceClose.Anchor = AnchorStyles.Left;
         _forceClose.Margin = new Padding(0, 6, 0, 0);
         _forceClose.Visible = false;
-        _forceClose.Click += async (_, _) => await ForceCloseAndRemoveAsync();
+        _forceClose.Click += async (_, _) =>
+        {
+            if (_editorSelected) await ForceCloseAndUpdateEditorAsync();
+            else await ForceCloseAndRemoveAsync();
+        };
         _progress.Name = "DownloadProgress";
         _progress.Visible = false;
         _progress.Anchor = AnchorStyles.Left | AnchorStyles.Right;
