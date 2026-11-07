@@ -820,11 +820,11 @@
     },
     "fixtures/hub/render/world.glb": {
       "bytes": 10565172,
-      "sha256": "06c74aed746567436d2b5fa8e9c10d479fcf120e93e2c8f19a1d00fe21b546b2"
+      "sha256": "113a803b93656a861dc3b51e53eea81db1ebcac55082388b57e0cac67e1fabfb"
     },
     "fixtures/hub/sim/collision.bin": {
       "bytes": 24771792,
-      "sha256": "07b8743b6de38d2e43250e4c837c70c6c8650cf6d1d4a1c8eb401ded8b7a10b7"
+      "sha256": "ce29580636cb9e25c9a5de0022b011d0f41ce3c24b4305ec935355eebaa805ca"
     }
   },
   "additional_credits": [

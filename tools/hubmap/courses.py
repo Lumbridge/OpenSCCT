@@ -147,7 +147,8 @@ class Course:
         # Board from a broad stationary quay and transfer to an upper gallery.
         start=self.point(176,up=-32);end=(start[0],start[1],start[2]+640)
         self.mover(ident,start,end,'ruin_wood' if self.id=='medium' else 'observatory',travel_seconds)
-        self.floor(352,992,384,height=640,name='LiftExit')
+        # Leave room for a spy hanging on the exit-facing rim as the lift rises.
+        self.floor(448,992,384,height=640,name='LiftExit')
         self.step('lift',self.point(672,up=640),140,approach=list(self.point(-96)),mover=ident)
         self.advance(992,640)
 

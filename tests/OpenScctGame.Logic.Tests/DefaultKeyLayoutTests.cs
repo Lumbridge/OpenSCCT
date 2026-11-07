@@ -113,7 +113,7 @@ public sealed class DefaultKeyLayoutTests
         KeyLayout legacy = LegacyMercLayout();
         Assert.Equal("BT_Up", Assert.Single(legacy.Resolve("Up")).Name);
         Assert.Empty(legacy.Resolve("W"));
-        KeyLayout saved = DefaultKeyLayout.ApplyProfile(legacy, null, wheelMode);
+        KeyLayout saved = DefaultKeyLayout.ApplyProfile(legacy, HubBindings.Marker, wheelMode);
         string old = BeforeEnhancedDefaults(saved);
         Assert.True(DefaultKeyLayout.IsLegacyMercDefault(old, wheelMode));
         Assert.False(DefaultKeyLayout.IsLegacyMercDefault(saved.ToIni(), wheelMode));
@@ -127,13 +127,15 @@ public sealed class DefaultKeyLayoutTests
     [InlineData("MouseX", "Axis aMouseX Speed=3.00")]
     public void OnePersonalMercBindingPreventsAutomaticDefaultUpgrade(string key, string command)
     {
-        KeyLayout legacy = DefaultKeyLayout.ApplyProfile(LegacyMercLayout(), null, "Gadget");
+        KeyLayout legacy = DefaultKeyLayout.ApplyProfile(LegacyMercLayout(), HubBindings.Marker, "Gadget");
         legacy.Bind(key, command);
         Assert.False(DefaultKeyLayout.IsLegacyMercDefault(BeforeEnhancedDefaults(legacy), "Gadget"));
     }
 
-    private static string BeforeEnhancedDefaults(KeyLayout layout) =>
-        layout.ToIni().Replace(DefaultKeyLayout.EnhancedDefaultsMarker + "\n", "", StringComparison.Ordinal);
+    // Released Merc defaults predate both the Enhanced migration and the configurable Hub actions.
+    private static string BeforeEnhancedDefaults(KeyLayout layout) => layout.ToIni()
+        .Replace(DefaultKeyLayout.EnhancedDefaultsMarker + "\n", "", StringComparison.Ordinal)
+        .Replace(HubBindings.Marker + "\n", "", StringComparison.Ordinal);
 
     // Captured from the installed public shared pack, whose vanilla merc layout caused the report.
     private static KeyLayout LegacyMercLayout([CallerFilePath] string source = "") =>

@@ -68,7 +68,7 @@ public sealed partial class HubSmoke : SmokeTest
         // keep its setup budget separate from the ordinary two-client smoke.
         if (context.ElapsedSeconds > (RenderReport is null ? TimeoutSeconds : 600))
         {
-            return Fail($"timed out in phase {_phase}: scene={context.Tree.CurrentScene?.Name} status={HubService.Get(context.Tree).Status} error={HubService.Get(context.Tree).LastError}");
+            return Fail($"timed out in phase {_phase}: scene={context.Tree.CurrentScene?.Name} status={HubService.Get(context.Tree).Status} error={HubService.Get(context.Tree).LastError} guest={_guest?.Error}");
         }
 
         HubService service = HubService.Get(context.Tree);
@@ -103,10 +103,15 @@ public sealed partial class HubSmoke : SmokeTest
                 return Next();
             case 3:
                 if (context.Tree.CurrentScene is not PlayRoot { IsLoaded: true, Session.LocalPawn: { } pawn } root ||
-                    root.GetNodeOrNull<HubHud>("HubHud") is null || _guest?.LocalPlayer?.Pawn is null)
+                    root.GetNodeOrNull<HubHud>("HubHud") is null)
                 {
                     return SmokeResult.Running;
                 }
+
+                // The ordinary smoke pumps both clients on this thread. Connect the guest after
+                // rendering loads so the main client's blocking load cannot starve its connection.
+                if (_guest is null) StartGuest();
+                if (_guest?.LocalPlayer?.Pawn is null) return SmokeResult.Running;
 
                 if (!_groundcoverChecked && service.Client!.Play.Destinations.Count > 0)
                 {
@@ -336,28 +341,32 @@ public sealed partial class HubSmoke : SmokeTest
         })
         { IsBackground = true, Name = "hub smoke server" };
         _serverThread.Start();
+        if (RenderReport is null) return;
+
+        StartGuest();
+        _visitorThread = new Thread(() =>
+        {
+            try
+            {
+                while (!_stop.IsCancellationRequested)
+                {
+                    while (_visitorCommands.TryDequeue(out var command)) command();
+                    TickGuest();
+                    Thread.Sleep(1);
+                }
+            }
+            catch (Exception e) { _serverFailure = e; }
+        }) { IsBackground = true, Name = "hub benchmark visitors" };
+        _visitorThread.Start();
+    }
+
+    private void StartGuest()
+    {
         _guestStart = _clock.NowMicroseconds;
         _guest = new HubClient(LiteNetLibTransport.CreateClient(loopbackOnly: true), "127.0.0.1:" + Port, _guestStart,
-            new HubClientSettings { Maps = maps, PlayerName = "Guest", Team = 1 }, ownsTransport: true);
+            new HubClientSettings { Maps = MapCatalog.CreateDefault(), PlayerName = "Guest", Team = 1 }, ownsTransport: true);
         if (RenderReport is null) _guestVoice = new HubVoice(_guest, new VoiceClient(new VoiceSettings(), _clock));
         _toneFed = 0;
-        if (RenderReport is not null)
-        {
-            _visitorThread = new Thread(() =>
-            {
-                try
-                {
-                    while (!_stop.IsCancellationRequested)
-                    {
-                        while (_visitorCommands.TryDequeue(out var command)) command();
-                        TickGuest();
-                        Thread.Sleep(1);
-                    }
-                }
-                catch (Exception e) { _serverFailure = e; }
-            }) { IsBackground = true, Name = "hub benchmark visitors" };
-            _visitorThread.Start();
-        }
     }
 
     private void TickGuest()

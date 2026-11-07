@@ -28,8 +28,9 @@ internal sealed class HubMoverSmoothing
                     float nominal = 1f / Math.Max(.01f, seconds);
                     float error = mover.SimInterpolate.X * .01f - mover.PhysAlpha;
                     // The wire phase is rounded to 1%. Ignore that noise and converge over half a
-                    // second. Always move forward, even when a delayed snapshot is behind us.
-                    mover.PhysRate = Math.Clamp(nominal + (Math.Abs(error) > .015f ? error / .5f : 0), nominal * .5f, nominal * 1.5f);
+                    // second. Limit catch-up on the steep part of the eased leg so
+                    // riders never move more than five units in one simulation tick.
+                    mover.PhysRate = Math.Clamp(nominal + (Math.Abs(error) > .015f ? error / .5f : 0), nominal * .5f, nominal * 1.08f);
                     return true;
                 }
             }

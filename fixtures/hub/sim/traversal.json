@@ -52213,7 +52213,7 @@
    "mask": 0,
    "platform": 0,
    "points": [
-    [8033.0, 15808.0, 2648.0],
+    [8129.0, 15808.0, 2648.0],
     [8673.0, 15808.0, 2648.0]
    ],
    "src": {"kind": "synthetic", "note": "exposed edge, full physical span"}
@@ -52226,7 +52226,7 @@
    "platform": 0,
    "points": [
     [8673.0, 16192.0, 2648.0],
-    [8033.0, 16192.0, 2648.0]
+    [8129.0, 16192.0, 2648.0]
    ],
    "src": {"kind": "synthetic", "note": "exposed edge, full physical span"}
   },
@@ -52237,8 +52237,8 @@
    "mask": 0,
    "platform": 0,
    "points": [
-    [8033.0, 16192.0, 2648.0],
-    [8033.0, 15808.0, 2648.0]
+    [8129.0, 16192.0, 2648.0],
+    [8129.0, 15808.0, 2648.0]
    ],
    "src": {"kind": "synthetic", "note": "exposed edge, full physical span"}
   },
@@ -57037,8 +57037,8 @@
    "mask": 0,
    "platform": 0,
    "points": [
-    [22080.0, 20128.0, 4952.0],
-    [21696.0, 20128.0, 4952.0]
+    [22080.0, 20032.0, 4952.0],
+    [21696.0, 20032.0, 4952.0]
    ],
    "src": {"kind": "synthetic", "note": "exposed edge, full physical span"}
   },
@@ -57049,7 +57049,7 @@
    "mask": 0,
    "platform": 0,
    "points": [
-    [21696.0, 20128.0, 4952.0],
+    [21696.0, 20032.0, 4952.0],
     [21696.0, 19488.0, 4952.0]
    ],
    "src": {"kind": "synthetic", "note": "exposed edge, full physical span"}
@@ -57062,7 +57062,7 @@
    "platform": 0,
    "points": [
     [22080.0, 19488.0, 4952.0],
-    [22080.0, 20128.0, 4952.0]
+    [22080.0, 20032.0, 4952.0]
    ],
    "src": {"kind": "synthetic", "note": "exposed edge, full physical span"}
   },

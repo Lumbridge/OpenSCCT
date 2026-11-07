@@ -5,7 +5,7 @@ from dataclasses import replace
 from pathlib import Path
 
 def build(L):
-    data=json.loads((Path(__file__).parent/'assets'/'collision.json').read_text())
+    data=json.loads((Path(__file__).resolve().parents[2]/'fixtures'/'hub-assets'/'collision.json').read_text())
     L.SCENERY_COLLISION=[]
     L.CONTACT_AUDIT=[]
     for group in L.GROUPS.values():
