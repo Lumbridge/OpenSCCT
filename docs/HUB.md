@@ -381,9 +381,8 @@ and a server pass far over its frame. The hub opts in to three changes; a normal
 
 ## The soak test
 
-Automated (`HubSoakTests`, SimLink A, virtual clock, Debug): 50 bots join ten a second, wander the hall (half their
-walks end near the plaza), chat and change side; after 15 s every bot must be in and playing, the match still running,
-and the mean download per client (from 8 s on, server side) under 5 KB/s. It takes a few minutes in a Debug build.
+The automated 50-client Hub soak was retired on 2026-11-07. With the expanded Hub, its 50 complete client
+worlds reached 26.66 GiB working set in a local Release run and the hosted Linux CI shard shut down.
 
 The long soak, two processes on one machine over UDP on localhost (Release):
 

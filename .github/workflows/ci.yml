@@ -5,6 +5,11 @@ on:
     branches: [main]
   pull_request:
   workflow_dispatch:
+    inputs:
+      release_candidate:
+        description: Prepare Windows, Linux, Flatpak and VPS release artifacts for this commit
+        type: boolean
+        default: false
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -58,7 +63,7 @@ jobs:
       # Microsoft.Testing.Platform runner (global.json). Exit code 8 means a test project has no
       # tests yet; drop the ignore once every project has some.
       - name: Test
-        run: dotnet test --solution OpenSCCT.slnx -c Release --no-build --ignore-exit-code 8 --max-parallel-test-modules 2
+        run: dotnet test --solution OpenSCCT.slnx -c Release --no-build --ignore-exit-code 8 --max-parallel-test-modules 2 -- --filter-not-namespace 'OpenScct.Integration.Tests*'
 
       - name: Publish dedicated server (linux-x64)
         run: >-
@@ -119,7 +124,7 @@ jobs:
       # Microsoft.Testing.Platform runner (global.json). Exit code 8 means a test project has no
       # tests yet; drop the ignore once every project has some.
       - name: Test
-        run: dotnet test --solution OpenSCCT.slnx -c Release --no-build --ignore-exit-code 8 --max-parallel-test-modules 2
+        run: dotnet test --solution OpenSCCT.slnx -c Release --no-build --ignore-exit-code 8 --max-parallel-test-modules 2 -- --filter-not-namespace 'OpenScct.Integration.Tests*'
 
       - name: Banned API check
         run: ./tools/ci/check-banned-api.ps1
@@ -132,6 +137,37 @@ jobs:
           else
             echo "tools/OpenScct.Tools does not exist yet, skipping"
           fi
+
+  integration:
+    name: Integration (${{ matrix.os }}, ${{ matrix.shard }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        shard: [1, 2, 3, 4]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+      - uses: actions/cache/restore@v6
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('Directory.Packages.props', '**/*.csproj', 'global.json') }}
+          restore-keys: nuget-${{ runner.os }}-
+      - name: Build integration tests
+        run: dotnet build tests/OpenScct.Integration.Tests -c Release
+      - name: Run integration shard
+        shell: pwsh
+        run: ./tools/ci/integration-shard.ps1 -Shard ${{ matrix.shard }}
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: integration-${{ matrix.os }}-${{ matrix.shard }}
+          path: local/test-results/integration-*.xml
+          retention-days: 7
 
   # The smokes that need no game content (docs/TESTING-PLAY.md, "Trusting the smokes", CI): boot, TestBox (a tracked fixture)
   # and TestRange generated here from tools/testmap without the install. Every other smoke plays converted maps and
@@ -177,7 +213,24 @@ jobs:
           python -c "import json,sys; a=json.load(open(sys.argv[1])); b=json.load(open(sys.argv[2])); sys.exit(0 if a == b else 'fixtures/testrange/stations.json is not what tools/testmap makes')" fixtures/testrange/stations.json "$env:RUNNER_TEMP/stations.json"
 
       - name: Godot headless smokes
-        run: ./tools/ci/godot-smoke.ps1 -Tests boot,testbox,range-sim,help-feedback -ExpectedFailures selftest-fail -TimeoutSeconds 180
+        env:
+          RELEASE_CANDIDATE: ${{ inputs.release_candidate || github.event_name == 'push' }}
+        run: |
+          ./tools/ci/godot-smoke.ps1 -Tests boot,testbox,range-sim,help-feedback -ExpectedFailures selftest-fail -TimeoutSeconds 180 -Export:($env:RELEASE_CANDIDATE -eq 'true')
+
+      - name: Record Windows export provenance
+        if: inputs.release_candidate || github.event_name == 'push'
+        run: |
+          @{ commit = $env:GITHUB_SHA; platform = 'win-x64' } | ConvertTo-Json | Set-Content local/build/openscct-build.json
+
+      - uses: actions/upload-artifact@v7
+        if: inputs.release_candidate || github.event_name == 'push'
+        with:
+          name: openscct-windows-export
+          path: local/build
+          compression-level: 0
+          if-no-files-found: error
+          retention-days: 14
 
       - uses: actions/upload-artifact@v7
         if: always()
@@ -185,3 +238,27 @@ jobs:
           name: godot-smoke
           path: local/test-results
           retention-days: 7
+
+  release-linux:
+    if: inputs.release_candidate
+    uses: ./.github/workflows/linux-export.yml
+
+  release-vps:
+    if: inputs.release_candidate || github.event_name == 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+      - name: Prepare self-contained VPS packages
+        shell: pwsh
+        run: ./tools/deploy/Deploy-Vps.ps1 -PackageOnly local/deploy-package
+      - uses: actions/upload-artifact@v7
+        with:
+          name: openscct-vps
+          path: local/deploy-package
+          compression-level: 0
+          if-no-files-found: error
+          retention-days: 14

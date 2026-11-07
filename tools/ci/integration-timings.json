@@ -1,0 +1,21 @@
+{
+  "BotMatchTests.FourDedicatedClientsFinishAtHighPingWithChangingDirectedLinks": 12,
+  "BotMatchTests.StoryMatchOnSteeE": 53,
+  "BotMatchTests.StoryMatchOnTestBox": 147,
+  "BotMatchTests.StoryMatchOnTestBoxWithStalls": 12,
+  "BotMatchTests.StoryMatchOverUdpOnLocalhost": 32,
+  "CombatActivityNetworkTests.MercExplosiveKillArrivesAsOneAttributedDeathMessageAcrossLatency": 20,
+  "CombatLifetimeNetworkTests.DamageSentByThePreviousPawnCannotKillItsReplacement": 17,
+  "CooperativeLatencyTests.TwoOwnersBoostThenHoistOnSteeEAndAllViewersRecoverThePairedClips": 29,
+  "LedgeKillNetworkTests.HangingSpyPullsAMercThroughNormalUseAndAllPeersFinishTheKill": 17,
+  "MoverNetworkTests.TechRoomDoorClosesAfterPlayerPasses": 15,
+  "Online.OnlineUdpTests.FourPlayersFindAListedServerPlayARoundAndGoBackToTheLobby": 48,
+  "Online.PersonalDemoTests.GuestCanRequestAFullDemoWithoutHostRecordingAndDownloadAcrossTravel": 19,
+  "Online.RenderedClientMovementTests.BatchedClientFramesDoNotAccumulateInputDelay": 14,
+  "Online.RenderedClientMovementTests.RealMapClientBudgetKeepsInputCurrent": 31,
+  "PairedActionLatencyTests.LethalDamageDeathPoseAndRespawnRemainAuthoritativeAcrossPawnLifetimes": 17,
+  "PolarPipeTraversalTests.SpyClimbsAndDescendsSpawnPipesWithoutASidewaysAttachSnap": 22,
+  "RubberBandTraversalTests.TraversalPlaysWithoutSnapBack": 96,
+  "StickyGasNetworkTests.SpyCameraGasReachesMercWithItsPositionAndDirection": 15,
+  "StuckKnockdownTests.ADropAttackedWalkingSpyGetsUp": 16
+}

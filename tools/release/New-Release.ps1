@@ -113,6 +113,14 @@ $pushed = [bool](& git -C $repoRoot branch -r --contains $commit 2>$null)
 if ($dirty) { Write-Warning 'The working tree has uncommitted changes; the build may not match a commit.' }
 if (-not $pushed) { Write-Warning "Commit $commit is not on any remote branch yet." }
 
+$buildRecord = Join-Path $BuildDir 'openscct-build.json'
+if (Test-Path -LiteralPath $buildRecord) {
+    $record = Get-Content -LiteralPath $buildRecord -Raw | ConvertFrom-Json
+    if ($record.commit -cne $commit -or $record.platform -ne $Platform -or $record.dirty) {
+        throw "Export provenance does not match $Platform at $commit. Use the candidate artifact for this checkout."
+    }
+}
+
 # The game shows the version stamped into its assemblies (BuildInfo): a build exported for another version would
 # show the wrong one in game.
 $stamped = Get-ChildItem -LiteralPath $BuildDir -Directory -Filter 'data_*' |
