@@ -2,6 +2,7 @@
 global uniform sampler2D svm_smoke_fields : filter_nearest, repeat_disable;
 global uniform sampler2D svm_smoke_frame : filter_nearest, repeat_disable;
 global uniform sampler2D svm_smoke_growth : filter_linear, repeat_disable;
+global uniform sampler2D svm_smoke_probes : filter_linear, repeat_disable;
 global uniform sampler3D svm_smoke_flow : filter_linear, repeat_disable;
 global uniform sampler3D svm_smoke_shape : filter_linear, repeat_enable;
 global uniform bool svm_smoke_flow_ready;
@@ -371,7 +372,6 @@ vec4 responsive_smoke_exact(uint layers, vec3 view_position_metres, bool transmi
     return vec4(radiance,exp(-tau));
 }
 
-#ifndef SVM_SMOKE_COMPUTE
 // Full mode shadows scene lighting with the same clipped density used for visibility. Work is bounded to
 // the receiving surface's nearest cloud light set, four sources and eight taps per intersected cloud.
 float smoke_scene_ray_transmission(int base, int count, vec3 point, vec3 direction, float distance, float now) {
@@ -391,6 +391,51 @@ float smoke_scene_ray_transmission(int base, int count, vec3 point, vec3 directi
     return exp(-optical);
 }
 
+#ifndef SVM_SMOKE_COMPUTE
+vec4 smoke_scene_cache_slice(vec3 local, int slice, vec4 cache) {
+    vec2 pixel = local.xy*(cache.y-1.0)+vec2(.5);
+    pixel += vec2(float(slice%8)*cache.y,cache.x+float(slice/8)*cache.y);
+    return textureLod(svm_smoke_prefix,pixel/vec2(textureSize(svm_smoke_prefix,0)),0.0);
+}
+vec4 smoke_scene_cached_transmission(int field, vec3 point, out bool available) {
+    vec4 cache = smoke_field_row(field+4);
+    vec3 local = (point-smoke_field_row(field).xyz)/625.0;
+    available = svm_smoke_prefix_ready && cache.y > .5 && all(greaterThanEqual(local,vec3(0.0))) && all(lessThanEqual(local,vec3(1.0)));
+    if (!available) return vec4(1.0);
+    float z = clamp(local.z*(cache.y-1.0),0.0,cache.y-1.0);
+    int low = int(floor(z)), high = min(low+1,int(cache.y)-1);
+    return mix(smoke_scene_cache_slice(local,low,cache),smoke_scene_cache_slice(local,high,cache),fract(z));
+}
+// Outside a cloud box, the empty segment before its first entry contributes no smoke extinction. Reuse the
+// cached light path at that entry, including for receivers far outside the cache. Other light sets fall back.
+float smoke_scene_projected_transmission(int base, int count, int light_cloud, int light_index,
+                                        vec3 point, vec3 direction, float distance, float now) {
+    int entry_cloud = -1;
+    float entry = distance;
+    for (int c = 0; c < count; c++) {
+        int cloud = base+c*14, field = int(smoke_frame_row(cloud).x);
+        vec3 origin = smoke_field_row(field).xyz;
+        vec2 span;
+        if (smoke_box(point,direction,origin,origin+vec3(625.0),distance,span) && span.x < entry) {
+            entry = span.x; entry_cloud = cloud;
+        }
+    }
+    if (entry_cloud < 0) return 1.0;
+    vec4 requested = smoke_frame_row(light_cloud+2+light_index*3);
+    for (int i = 0; i < int(smoke_frame_row(entry_cloud).y); i++) {
+        vec4 light = smoke_frame_row(entry_cloud+2+i*3);
+        if (all(equal(light.xyz,requested.xyz)) && (light.w < 0.0) == (requested.w < 0.0)) {
+            bool available;
+            vec3 at_entry = point+direction*entry;
+            int field = int(smoke_frame_row(entry_cloud).x);
+            vec3 origin = smoke_field_row(field).xyz;
+            at_entry = clamp(at_entry,origin,origin+vec3(625.0));
+            vec4 cached = smoke_scene_cached_transmission(field,at_entry,available);
+            if (available) return cached[i];
+        }
+    }
+    return smoke_scene_ray_transmission(base,count,point,direction,distance,now);
+}
 float responsive_smoke_scene_light(uint layers, vec3 world_position, vec3 world_normal) {
     if (!svm_smoke_active || !svm_smoke_scene_shadows || (layers&262144u) != 0u) return 1.0;
     int slot = int((layers>>8u)&127u), view = slot*14;
@@ -408,6 +453,8 @@ float responsive_smoke_scene_light(uint layers, vec3 world_position, vec3 world_
     }
     float ambient = max(dot(smoke_frame_row(nearest+1).rgb,vec3(.2126,.7152,.0722)),.01);
     float incident = ambient, attenuated = ambient;
+    bool cached = false, cache_checked = false;
+    vec4 cached_transmission = vec4(1.0);
     for (int i = 0; i < int(smoke_frame_row(nearest).y); i++) {
         vec4 light = smoke_frame_row(nearest+2+i*3), color = smoke_frame_row(nearest+3+i*3), cone = smoke_frame_row(nearest+4+i*3);
         vec3 delta = light.w < 0.0 ? light.xyz : light.xyz-world_position;
@@ -422,7 +469,11 @@ float responsive_smoke_scene_light(uint layers, vec3 world_position, vec3 world_
         }
         float energy = dot(color.rgb,vec3(.2126,.7152,.0722))*attenuation*max(dot(world_normal,direction),0.0);
         if (energy <= .00001) continue;
-        float transmission = smoke_scene_ray_transmission(int(frame.x),int(frame.y),point+world_normal.xzy*.1,
+        if (!cache_checked) {
+            cached_transmission = smoke_scene_cached_transmission(int(smoke_frame_row(nearest).x),point,cached);
+            cache_checked = true;
+        }
+        float transmission = cached ? cached_transmission[i] : smoke_scene_projected_transmission(int(frame.x),int(frame.y),nearest,i,point+world_normal.xzy*.1,
             direction.xzy,light.w < 0.0 ? 100000.0 : distance*100.0,frame.z);
         incident += energy; attenuated += energy*transmission;
     }
@@ -434,6 +485,23 @@ vec4 smoke_prefix_slice(vec2 uv, int slice, vec4 grid) {
     vec2 local = clamp(uv*grid.yz,vec2(.5),grid.yz-vec2(.5));
     vec2 tile = vec2(float(slice%8)*grid.y,grid.x+float(slice/8)*grid.z);
     return textureLod(svm_smoke_prefix,(tile+local)/size,0.0);
+}
+
+// Resolve only the unresolved depth interval. Bullet apertures retain their complete full-pixel trace below.
+float smoke_interval_transmission(int base, int count, vec3 eye, vec3 ray, float start, float stop, float now, int quality, int mode) {
+    float stride = quality == 0 ? 12.5 : quality == 1 ? 8.333333 : 6.25;
+    int steps = max(1,int(ceil(max(0.0,stop-start)/stride)));
+    float step_length = max(0.0,stop-start)/float(steps), optical = 0.0;
+    for (int s = 0; s < steps && optical < SMOKE_OPAQUE_TAU; s++) {
+        vec3 p = eye+ray*(start+(float(s)+.5)*step_length);
+        float density = 0.0;
+        for (int c = 0; c < count; c++) {
+            density += smoke_density(int(smoke_frame_row(base+c*14).x),p,now,false);
+            if (density >= 1.0) break;
+        }
+        optical += min(density,1.0)*step_length*SMOKE_EXTINCTION*(mode == 36 ? .2 : 1.0);
+    }
+    return exp(-optical);
 }
 
 vec4 responsive_smoke(uint layers, vec3 position) {
@@ -477,11 +545,13 @@ vec4 responsive_smoke(uint layers, vec3 position) {
     // over a coarse depth interval can expose that surface. Monotone cumulative T bounds depth interpolation
     // error by the endpoint span; refine larger spans instead of inventing opacity across clear geometry or
     // blast intervals with log-space interpolation. This bound excludes spatial filtering/integration error.
-    if (low != high && fraction > 0.0 && fraction < 1.0 && abs(low_value.a-high_value.a) > .015) refine = true;
-    if (refine) {
+    bool depth_refine = low != high && fraction > 0.0 && fraction < 1.0 && abs(low_value.a-high_value.a) > .015;
+    if (refine || depth_refine) {
         // Apertures and unresolved surface depths use full-pixel extinction with the opaque-tail cutoff. Illumination
         // keeps cached soft scattering; multiplying by the new opacity prevents a sub-grid milky halo.
-        float transmission = responsive_smoke_exact(layers,position,true).a;
+        float low_depth = mix(depths.x,depths.y,float(low)/(grid.w-1.0))*ray_scale;
+        float transmission = refine ? responsive_smoke_exact(layers,position,true).a
+            : low_value.a*smoke_interval_transmission(int(frame.x),int(frame.y),eye.xyz,ray,low_depth,limit,frame.z,int(frame.w),int(eye.w));
         result.rgb *= (1.0-transmission)/max(1.0-result.a,.00001);
         result.a = transmission;
     }

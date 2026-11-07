@@ -427,7 +427,7 @@ public sealed class ResponsiveSmokeSpySmoke : SmokeTest
         float leftBaffle = shaft ? SightlineTransmission(serverSmoke,camera,new FVector(4496,5632,head.Z)) : -1;
         float rightBaffle = shaft ? SightlineTransmission(serverSmoke,camera,new FVector(4720,5632,head.Z)) : -1;
         string row = string.Create(CultureInfo.InvariantCulture,
-            $"{_captures},{Current.Name},{SettingsStore.Current.SmokeQuality},{(session.LocalController?.SpyFirstPersonActive == true ? 1 : 0)},{_stage},{_ticks},{serverSmoke.CurrentTime:F4},{(_projectile is null ? 0 : 1)},{_lastProjectile.X:F3},{_lastProjectile.Y:F3},{_lastProjectile.Z:F3},{emitter.X:F3},{emitter.Y:F3},{emitter.Z:F3},{center.X:F3},{center.Y:F3},{center.Z:F3},{(_field is null ? -1 : serverSmoke.CurrentTime - _field.CreatedAt):F4},{Current.Feet.Z:F3},{floor.Z:F3},{head.Z:F3},{serverSmoke.SampleDensity(floor):F5},{serverSmoke.SampleDensity(head):F5},{clientSmoke.SampleDensity(head):F5},{HeadTransmission(serverSmoke, head):F5},{_field?.Carves.Count ?? 0},{pawn.Location.X:F3},{pawn.Location.Y:F3},{pawn.Location.Z:F3},{camera.X:F3},{camera.Y:F3},{camera.Z:F3},{pawn.WeaponLoaded},{_root.Fx?.MuzzleMeshes ?? 0},{pawn.SelectedGadget?.Charge ?? -1},{(PracticeRules.IsOn(pawn) ? 1 : 0)},{_drawAltTick},{_drawHandTick},{_drawLaunchTick},{RenderingServer.ViewportGetMeasuredRenderTimeGpu(_root.GetViewport().GetViewportRid()):F4},{ResponsiveSmokeRenderer.LastVolumeGpuMilliseconds:F4}\n");
+            $"{_captures},{Current.Name},{ResponsiveSmokeRenderer.Quality},{(session.LocalController?.SpyFirstPersonActive == true ? 1 : 0)},{_stage},{_ticks},{serverSmoke.CurrentTime:F4},{(_projectile is null ? 0 : 1)},{_lastProjectile.X:F3},{_lastProjectile.Y:F3},{_lastProjectile.Z:F3},{emitter.X:F3},{emitter.Y:F3},{emitter.Z:F3},{center.X:F3},{center.Y:F3},{center.Z:F3},{(_field is null ? -1 : serverSmoke.CurrentTime - _field.CreatedAt):F4},{Current.Feet.Z:F3},{floor.Z:F3},{head.Z:F3},{serverSmoke.SampleDensity(floor):F5},{serverSmoke.SampleDensity(head):F5},{clientSmoke.SampleDensity(head):F5},{HeadTransmission(serverSmoke, head):F5},{_field?.Carves.Count ?? 0},{pawn.Location.X:F3},{pawn.Location.Y:F3},{pawn.Location.Z:F3},{camera.X:F3},{camera.Y:F3},{camera.Z:F3},{pawn.WeaponLoaded},{_root.Fx?.MuzzleMeshes ?? 0},{pawn.SelectedGadget?.Charge ?? -1},{(PracticeRules.IsOn(pawn) ? 1 : 0)},{_drawAltTick},{_drawHandTick},{_drawLaunchTick},{RenderingServer.ViewportGetMeasuredRenderTimeGpu(_root.GetViewport().GetViewportRid()):F4},{ResponsiveSmokeRenderer.LastVolumeGpuMilliseconds:F4}\n");
         row = row.TrimEnd('\n') + string.Create(CultureInfo.InvariantCulture,$",{leftBaffle:F5},{rightBaffle:F5}\n");
         File.AppendAllText(Path.Combine(_folder, "frames.csv"), row);
         _captures++;
@@ -529,7 +529,7 @@ public sealed class ResponsiveSmokeSpySmoke : SmokeTest
         WriteCpuPerformance();
         File.WriteAllText(Path.Combine(_folder,"events.txt"),_perfEvents.ToString());
         var summary = new StringBuilder();
-        summary.AppendLine($"legacy={_legacy}; quality={SettingsStore.Current.SmokeQuality}; real_clock=true; driver_max_hz=60; image_readbacks=0; samples={_perfSamples.Count}");
+        summary.AppendLine($"legacy={_legacy}; quality={ResponsiveSmokeRenderer.Quality}; real_clock=true; driver_max_hz=60; image_readbacks=0; samples={_perfSamples.Count}");
         summary.AppendLine("GPU columns are completed-frame timestamp measurements and can lag the CPU sample. Reported volume bytes already include flow storage; prefix bytes are separate. Input driver never catches up multiple presses in one rendered frame.");
         summary.AppendLine("The unchanged CPU opacity assertions are timed separately; frames containing that harness-only validation are excluded from summaries, and remain in the raw CSV.");
         for (int index = -1; index < _scenarios.Count; index++)
@@ -628,7 +628,7 @@ public sealed class ResponsiveSmokeSpySmoke : SmokeTest
     private void Log(string phase)
     {
         string line = string.Create(CultureInfo.InvariantCulture,
-            $"SVM_RESPONSIVE_SPY case={Current.Name} quality={SettingsStore.Current.SmokeQuality} first_person={_firstPerson} phase={phase} tick={_ticks} projectile={_lastProjectile} cloud={_field?.Center} floor_density={_floorDensity:F4} head_density={_headDensity:F4} head_T={_headTransmission:F4}");
+            $"SVM_RESPONSIVE_SPY case={Current.Name} quality={ResponsiveSmokeRenderer.Quality} first_person={_firstPerson} phase={phase} tick={_ticks} projectile={_lastProjectile} cloud={_field?.Center} floor_density={_floorDensity:F4} head_density={_headDensity:F4} head_T={_headTransmission:F4}");
         if (_perf) _perfEvents.AppendLine(line);
         else
         {

@@ -731,6 +731,9 @@ vec3 svm_combine_rgb(vec3 first, vec3 second, vec3 mask, float alpha) {
 #endif
 
 void fragment() {
+	vec4 surfaceFog = vec4(0.0,0.0,0.0,1.0);
+	bool fogReady = svm_smoke_active && svm_smoke_scene_shadows && (CAMERA_VISIBLE_LAYERS & SVM_SHADOW_PASS) == 0u;
+	if (fogReady) surfaceFog = surface_fog(CAMERA_VISIBLE_LAYERS, VERTEX, FRAGCOORD.xy, VIEWPORT_SIZE);
 	// Depth cameras need coverage only. Blended surfaces write no opaque depth, and ordinary solid surfaces
 	// need none of the material textures or colour stages. Masked materials keep their exact alpha test below.
 #ifdef SVM_DEPTH_SOLID
@@ -859,7 +862,7 @@ void fragment() {
 	vec3 lit = t.rgb;
 #endif
 #if defined(LIGHT_LIGHTMAP) || defined(LIGHT_VERTEX) || defined(LIGHT_ACTOR)
-	if (!unlit) lit *= responsive_smoke_scene_light(CAMERA_VISIBLE_LAYERS, v_wpos, wn);
+	if (!unlit && surfaceFog.a > .0004) lit *= responsive_smoke_scene_light(CAMERA_VISIBLE_LAYERS, v_wpos, wn);
 #endif
 #ifdef COMBINE_LIGHT_FIRST
 	lit = clamp(svm_combine_rgb(min(lit, vec3(1.0)), m2.rgb, mk.rgb, ma) * float(combine.z), 0.0, 1.0);
@@ -1030,8 +1033,7 @@ void fragment() {
 	}
 	// Fog belongs to this fragment's surface depth, before framebuffer blending. Applying a full-scene
 	// fog pass after transparency would instead use the opaque depth behind glass, effects or cloaked bodies.
-	vec4 surfaceFog = vec4(0.0, 0.0, 0.0, 1.0);
-	if ((CAMERA_VISIBLE_LAYERS & SVM_SHADOW_PASS) == 0u) {
+	if (!fogReady && (CAMERA_VISIBLE_LAYERS & SVM_SHADOW_PASS) == 0u) {
 		surfaceFog = surface_fog(CAMERA_VISIBLE_LAYERS, VERTEX, FRAGCOORD.xy, VIEWPORT_SIZE);
 	}
 #if defined(BLEND_ADDITIVE)

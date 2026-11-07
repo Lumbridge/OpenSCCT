@@ -77,6 +77,7 @@ public sealed class ResponsiveSmokeLightingSmoke : SmokeTest
                 #include "res://Shaders/svm_fog.gdshaderinc"
                 uniform int diagnostic = 0;
                 uniform bool body_probe = false;
+                uniform bool shadow_reverse = false;
                 void fragment() {
                     int view = int((CAMERA_VISIBLE_LAYERS>>8u)&127u)*14;
                     vec4 frame = smoke_frame_row(view);
@@ -89,12 +90,18 @@ public sealed class ResponsiveSmokeLightingSmoke : SmokeTest
                         if (body_probe) p = vec3(200.0,-500.0,0.0);
                         ALBEDO = smoke_light(cloud,p,vec3(0.0,-1.0,0.0),1.0,frame.z,int(frame.w),cloud,int(frame.y));
                     } else if (diagnostic == 2) {
-                        vec3 p = vec3(SCREEN_UV.x < .5 ? 0.0 : 200.0,-500.0,0.0);
+                        vec3 p = vec3(SCREEN_UV.x < .5 ? 0.0 : 150.0,-500.0,0.0);
                         float transmission = smoke_light_transmission(cloud,int(frame.y),p,vec3(1.0,0.0,0.0),625.0,frame.z,int(frame.w));
                         ALBEDO = vec3(transmission);
                     } else if (diagnostic == 4) {
                         vec3 p = vec3(SCREEN_UV.x < .5 ? 0.0 : 900.0,-900.0,0.0);
                         ALBEDO = vec3(responsive_smoke_scene_light(CAMERA_VISIBLE_LAYERS,p.xzy*.01,vec3(0.0,0.0,1.0)));
+                    } else if (diagnostic == 5) {
+                        vec3 p = vec3(SCREEN_UV.x < .5 ? 0.0 : 900.0,SCREEN_UV.x < .5 ? -795.0 : -900.0,0.0);
+                        ALBEDO = vec3(responsive_smoke_scene_light(CAMERA_VISIBLE_LAYERS,p.xzy*.01,vec3(0.0,0.0,shadow_reverse ? -1.0 : 1.0)));
+                    } else if (diagnostic == 6) {
+                        vec3 direction = vec3(SCREEN_UV.x < .5 ? 1.0 : -1.0,0.0,0.0);
+                        ALBEDO = vec3(smoke_light_transmission(cloud,int(frame.y),vec3(0.0,-500.0,0.0),direction,625.0,frame.z,int(frame.w)));
                     } else {
                         vec3 p = vec3(SCREEN_UV.x < .5 ? -150.0 : 150.0,-500.0,0.0);
                         vec3 ambient; vec3 direct; vec3 direction; float distance;
@@ -143,8 +150,11 @@ public sealed class ResponsiveSmokeLightingSmoke : SmokeTest
             5 when !ValidDensityShadow(left.R,right.R) => "density-path self-shadow left the analytic core/shell transmission bounds",
             6 when left.R <= _shadowBeforeBlast+.2f => "blast clearing did not transmit more incident light",
             7 when Math.Min(left.R,_bodyBeforeTurn) < .06f || MathF.Abs(left.R-_bodyBeforeTurn) < .01f => "same-point map-lit body lost diffuse support or directional self-shadow contrast",
-            8 or 10 or 11 or 12 when left.R < .98f || right.R < .98f => "disabled, cleared or unlit scene shadow retained attenuation",
+            8 or 10 or 11 or 12 or 15 or 16 when left.R < .98f || right.R < .98f => "disabled, cleared or unlit scene shadow retained attenuation",
             9 when left.R > .45f || right.R < .98f => "Full smoke did not shadow the receiving surface while retaining clear light paths",
+            13 when left.R > .05f || right.R < .98f => "cached scene shadow lost the occluded receiver or clear path",
+            14 when left.R < .95f || right.R < .98f => "moving a light at frozen density did not refresh cached transmission",
+            17 when left.R < .55f || left.R > .58f || right.R > .01f => "Fast shadow skipped the dense near segment beside a blocked wall",
             _ => null,
         };
         GD.Print($"RESPONSIVE_SMOKE_LIGHTING phase={_phase} left={left} right={right}");
@@ -154,7 +164,7 @@ public sealed class ResponsiveSmokeLightingSmoke : SmokeTest
         if (failure is not null) return Finish(SmokeResult.Fail($"phase={_phase}: {failure}; left={left}, right={right}"));
         if (_phase == 1) { _redBeforeSwitch = left.R; _rightBeforeMove = right.R; }
         if (_phase == 5) _shadowBeforeBlast = left.R;
-        if (++_phase >= 13) return Finish(SmokeResult.Pass("13 rendered lighting scenarios: spatial red/blue scattering, switched/moved lighting, directional invariance, self-shadow, blast transmission, diffuse fill, Full scene shadows and Fast/clear/light-off recovery"));
+        if (++_phase >= 18) return Finish(SmokeResult.Pass("18 rendered lighting scenarios: spatial scattering, switched/moved lighting, directional invariance, self-shadow, blast transmission, diffuse fill, scene shadows, cached receivers, moving-light invalidation, Fast/clear/light-off recovery and Fast wall-adjacent self-shadow"));
         _frames = 0; _gpu.Clear(); Configure();
         return SmokeResult.Running;
     }
@@ -164,14 +174,16 @@ public sealed class ResponsiveSmokeLightingSmoke : SmokeTest
 
     private static bool ValidDensityShadow(float center, float rim)
     {
-        // Medium's two cubic segments cover [0,31.875] and [31.875,255]. From the center both
-        // midpoints (15.9375/143.4375) lie in the unit-density 150 uu core. From x=200, the second
-        // midpoint is outside the 300 uu envelope; the first is inside the guaranteed >=.55 shell
-        // (215.9375 < 222). These independent density bounds hold for every allowed rolling lobe.
+        // Three cubic segments end at 255/27, 8*255/27 and 255. From the center the first two
+        // midpoints are in the unit-density core and the last is >=.55 in the inner shell, making
+        // transmission less than one display step.
+        // From x=150 the first midpoint is guaranteed >=.93 by the 150..180 core fade, the second
+        // >=.55 by the inner shell (192.5 < 222), and the last is outside the 300 uu envelope.
+        // These independent bounds hold for every allowed rolling lobe.
         // The diagnostic writes transmission directly; allow one R8 display quantization step.
-        const float pixel = 1f/255f, firstSegment = 255f/8f;
-        float minimumRim = MathF.Exp(-ResponsiveSmokeField.Extinction*firstSegment);
-        float maximumRim = MathF.Exp(-.55f*ResponsiveSmokeField.Extinction*firstSegment);
+        const float pixel = 1f/255f, firstSegment = 255f/27f, secondSegment = firstSegment*7;
+        float minimumRim = MathF.Exp(-ResponsiveSmokeField.Extinction*(firstSegment+secondSegment));
+        float maximumRim = MathF.Exp(-ResponsiveSmokeField.Extinction*(.93f*firstSegment+.55f*secondSegment));
         return center <= pixel && rim >= minimumRim-pixel && rim <= maximumRim+pixel;
     }
 
@@ -217,15 +229,35 @@ public sealed class ResponsiveSmokeLightingSmoke : SmokeTest
         }
         if (_phase == 6) Apply(true);
         if (_phase == 7) Apply(false);
+        if (_phase == 17)
+        {
+            SettingsStore.Current.SmokeQuality = ResponsiveSmokeQuality.Low;
+            ResponsiveSmokeRenderer.SceneShadows = false;
+            _material.SetShaderParameter("diagnostic",6);
+            foreach (SSmokeEmitter emitter in new[] { _emitter! }.Concat(_overlap))
+            {
+                var template = new ResponsiveSmokeField(emitter.Location,0);
+                var cells = new byte[ResponsiveSmokeField.CellCount];
+                for (int i = 0; i < cells.Length; i++)
+                {
+                    float x = template.Origin.X + (i%25+.5f)*25;
+                    cells[i] = x >= 25 && x <= 175 ? (byte)0 : (byte)1;
+                }
+                ResponsiveSmokeWorld.For(_world.Level).ApplySnapshot(emitter,
+                    new(300,0,2,template.Origin,template.Center,cells,new ushort[cells.Length],[]));
+            }
+            return;
+        }
         if (_phase >= 8)
         {
-            _material.SetShaderParameter("diagnostic",4);
-            ResponsiveSmokeRenderer.SceneShadows = _phase != 8;
+            _material.SetShaderParameter("diagnostic",_phase >= 13 ? 5 : 4);
+            _material.SetShaderParameter("shadow_reverse",_phase == 14);
+            ResponsiveSmokeRenderer.SceneShadows = _phase is not (8 or 16);
             _map!.ActorLighting.SetOn("red",false);
             _map.ActorLighting.SetOn("blue",false);
             _map.ActorLighting.SetSpawned(_phase == 12 ? [] :
-                [Point("shadow-source",default,0) with { Radius = 64, Saturation = 255 }]);
-            Apply(_phase == 10);
+                [Point("shadow-source",_phase == 14 ? new(0,-1000,0) : default,0) with { Radius = 64, Saturation = 255 }]);
+            if (_phase != 14) Apply(_phase is 10 or 15);
             if (_phase == 11)
             {
                 var template = new ResponsiveSmokeField(_emitter!.Location,0);

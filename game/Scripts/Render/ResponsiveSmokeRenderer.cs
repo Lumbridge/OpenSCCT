@@ -27,6 +27,9 @@ public static class ResponsiveSmokeRenderer
     private const int Width = 1024;
     private const int ViewRows = 14;
     private const int CloudRows = 14;
+    internal const int SceneShadowGrid = 24, SceneShadowCapacity = 8, SceneShadowRows = (SceneShadowGrid + 7) / 8;
+    private sealed record SceneShadowStamp(float Time, ulong Density, ulong Lights, int Offset);
+    private static readonly Dictionary<object, SceneShadowStamp> SceneHistory = new(ReferenceEqualityComparer.Instance);
     private static readonly ConditionalWeakTable<RenderMap, WorldBinding> Maps = new();
     private static readonly ViewBinding?[] Views = new ViewBinding?[SurfaceFogRegistry.SlotCount];
     private static readonly List<float> FieldData = [];
@@ -34,12 +37,13 @@ public static class ResponsiveSmokeRenderer
     private static readonly Dictionary<object, FieldBinding> Fields = new(ReferenceEqualityComparer.Instance);
     private static readonly List<SmokeRenderCloud> Live = [];
     private static readonly List<SmokeFlowInput> FlowInputs = [];
-    private static ImageTexture? s_empty, s_fields, s_frame, s_growth;
+    private static ImageTexture? s_empty, s_fields, s_frame, s_growth, s_probes;
     private static ImageTexture3D? s_shape;
     private static byte[] s_fieldBytes = [], s_frameBytes = [], s_growthBytes = [];
     private static readonly AtlasPool FieldPool = new(Width, 16, 256, Image.Format.Rgbaf, 16);
     private static readonly AtlasPool FramePool = new(Width, 4, 64, Image.Format.Rgbaf, 16);
     private static readonly AtlasPool GrowthPool = new(675, 27, 216, Image.Format.Rgf, 8);
+    private static readonly AtlasPool ProbePool = new(6, 4, 64, Image.Format.Rgbaf, 16);
     private static bool s_initialized;
     private static bool s_hadClouds;
     private static bool s_active;
@@ -105,7 +109,7 @@ public static class ResponsiveSmokeRenderer
     /// <summary>Sum of dispatched view-grid width x height x depth slices, not inner integration steps.</summary>
     public static long LastPrefixVoxelCount { get; private set; }
     public static double LastVolumeGpuMilliseconds => ResponsiveSmokeVolumeCache.LastGpuMilliseconds + ResponsiveSmokeVisualFlow.LastGpuMilliseconds;
-    public static long AllocatedFieldBytes => FieldPool.Bytes+FramePool.Bytes+GrowthPool.Bytes+ResponsiveSmokeVisualFlow.AllocatedBytes
+    public static long AllocatedFieldBytes => FieldPool.Bytes+FramePool.Bytes+GrowthPool.Bytes+ProbePool.Bytes+ResponsiveSmokeVisualFlow.AllocatedBytes
         + (s_shape is null ? 0 : ResponsiveSmokeNoise.Dimension*ResponsiveSmokeNoise.Dimension*ResponsiveSmokeNoise.Dimension);
     public static string? VolumeError => ResponsiveSmokeVolumeCache.Error ?? ResponsiveSmokeVisualFlow.Error;
     public static long HistoryAcceptedViews => History.AcceptedViews;
@@ -133,6 +137,7 @@ public static class ResponsiveSmokeRenderer
         RenderingServer.GlobalShaderParameterAdd("svm_smoke_fields", RenderingServer.GlobalShaderParameterType.Sampler2D, s_empty);
         RenderingServer.GlobalShaderParameterAdd("svm_smoke_frame", RenderingServer.GlobalShaderParameterType.Sampler2D, s_empty);
         RenderingServer.GlobalShaderParameterAdd("svm_smoke_growth", RenderingServer.GlobalShaderParameterType.Sampler2D, s_empty);
+        RenderingServer.GlobalShaderParameterAdd("svm_smoke_probes", RenderingServer.GlobalShaderParameterType.Sampler2D, s_empty);
         RenderingServer.GlobalShaderParameterAdd("svm_smoke_shape", RenderingServer.GlobalShaderParameterType.Sampler3D, ResponsiveSmokeVisualFlow.EmptyTexture);
         RenderingServer.GlobalShaderParameterAdd("svm_smoke_prefix", RenderingServer.GlobalShaderParameterType.Sampler2D, s_empty);
         RenderingServer.GlobalShaderParameterAdd("svm_smoke_active", RenderingServer.GlobalShaderParameterType.Bool, false);
@@ -156,6 +161,7 @@ public static class ResponsiveSmokeRenderer
         s_fields = FieldPool.Get(1).Texture;
         s_frame = FramePool.Get(1).Texture;
         s_growth = GrowthPool.Get(1).Texture;
+        s_probes = ProbePool.Get(1).Texture;
         int side = ResponsiveSmokeNoise.Dimension;
         var slices = new Godot.Collections.Array<Image>();
         for (int z = 0; z < side; z++)
@@ -168,21 +174,22 @@ public static class ResponsiveSmokeRenderer
         RenderingServer.GlobalShaderParameterSet("svm_smoke_fields",s_fields);
         RenderingServer.GlobalShaderParameterSet("svm_smoke_frame",s_frame);
         RenderingServer.GlobalShaderParameterSet("svm_smoke_growth",s_growth);
+        RenderingServer.GlobalShaderParameterSet("svm_smoke_probes",s_probes);
         RenderingServer.GlobalShaderParameterSet("svm_smoke_shape",s_shape);
     }
 
     private static void ReleaseFields()
     {
         SetActive(false);
-        foreach (string name in new[] { "svm_smoke_fields", "svm_smoke_frame", "svm_smoke_growth", "svm_smoke_prefix" })
+        foreach (string name in new[] { "svm_smoke_fields", "svm_smoke_frame", "svm_smoke_growth", "svm_smoke_prefix", "svm_smoke_probes" })
             RenderingServer.GlobalShaderParameterSet(name,s_empty!);
         ResponsiveSmokeVolumeCache.Release();
         RenderingServer.GlobalShaderParameterSet("svm_smoke_shape",ResponsiveSmokeVisualFlow.EmptyTexture);
         ResponsiveSmokeVisualFlow.Shutdown();
-        FieldPool.Release(); FramePool.Release(); GrowthPool.Release();
+        FieldPool.Release(); FramePool.Release(); GrowthPool.Release(); ProbePool.Release();
         s_shape?.Dispose(); s_shape = null;
-        s_fields = s_frame = s_growth = null;
-        Fields.Clear(); FieldData.Clear(); FrameData.Clear(); FlowInputs.Clear();
+        s_fields = s_frame = s_growth = s_probes = null;
+        Fields.Clear(); FieldData.Clear(); FrameData.Clear(); FlowInputs.Clear(); SceneHistory.Clear();
         History.Clear();
         GrowthCache.Clear();
         s_fieldBytes = s_frameBytes = s_growthBytes = [];
@@ -193,13 +200,14 @@ public static class ResponsiveSmokeRenderer
         SetActive(false);
         ResponsiveSmokeVolumeCache.Idle();
         ResponsiveSmokeVisualFlow.Idle();
-        Fields.Clear(); FieldData.Clear(); FrameData.Clear(); FlowInputs.Clear(); History.Clear();
+        Fields.Clear(); FieldData.Clear(); FrameData.Clear(); FlowInputs.Clear(); History.Clear(); SceneHistory.Clear();
         GrowthCache.Clear();
-        FieldPool.TrimIdle(); FramePool.TrimIdle(); GrowthPool.TrimIdle();
+        FieldPool.TrimIdle(); FramePool.TrimIdle(); GrowthPool.TrimIdle(); ProbePool.TrimIdle();
         // Rebind the persistent small uploads after trimming a rare oversized packet.
         BindTexture(ref s_fields,FieldPool.Get(1).Texture,"svm_smoke_fields");
         BindTexture(ref s_frame,FramePool.Get(1).Texture,"svm_smoke_frame");
         BindTexture(ref s_growth,GrowthPool.Get(1).Texture,"svm_smoke_growth");
+        BindTexture(ref s_probes,ProbePool.Get(1).Texture,"svm_smoke_probes");
         s_fieldBytes = s_frameBytes = s_growthBytes = [];
     }
 
@@ -426,12 +434,20 @@ public static class ResponsiveSmokeRenderer
         if (Profile) { LastGrowthMilliseconds = System.Diagnostics.Stopwatch.GetElapsedTime(stage).TotalMilliseconds; stage = System.Diagnostics.Stopwatch.GetTimestamp(); }
         for (int i = 0; i < Views.Length * ViewRows * 4; i++) FrameData.Add(0);
         var cacheSlots = new List<int>();
-        int prefixWidth = 1, prefixHeight = 0;
+        var probeSets = new List<Vector4[]>();
+        var sceneSlots = new List<int>();
+        var sceneFields = new HashSet<object>(ReferenceEqualityComparer.Instance);
+        foreach (object identity in new List<object>(SceneHistory.Keys))
+            if (!Live.Exists(cloud => ReferenceEquals(cloud.Identity, identity))) SceneHistory.Remove(identity);
+        // Reserve shared light-transmission tiles before the per-camera fog slices. A cloud's result can be
+        // reused by every camera and by receivers outside its box, without tracing at every surface pixel.
+        int sceneCount = SceneShadows ? Math.Min(Live.Count, SceneShadowCapacity) : 0;
+        int prefixWidth = sceneCount > 0 ? SceneShadowGrid * 8 : 1, prefixHeight = sceneCount * SceneShadowGrid * SceneShadowRows;
         for (int slot = 1; slot < Views.Length - 1; slot++)
         {
             if (Views[slot] is not { } view || !GodotObject.IsInstanceValid(view.Camera) || FrameOf(view) is not { Enabled: true } frame) continue;
             int cloudBase = FrameData.Count / 4, count = 0;
-            var probes = new List<(int Row,Vector4[] Data)>();
+            int firstProbe = probeSets.Count;
             bool hasFlow = false;
             foreach (SmokeRenderCloud field in frame.Clouds)
             {
@@ -454,15 +470,14 @@ public static class ResponsiveSmokeRenderer
                 if (Profile) lightingStart = System.Diagnostics.Stopwatch.GetTimestamp();
                 Vector4[] lighting = ResponsiveSmokeLighting.Capture(view.Map,field);
                 if (Profile) LastLightingMilliseconds += System.Diagnostics.Stopwatch.GetElapsedTime(lightingStart).TotalMilliseconds;
-                if (lighting.Length != 0) probes.Add((cloudRow,lighting));
+                if (lighting.Length != 0)
+                {
+                    FrameData[(cloudRow+1)*4+3] = probeSets.Count+1;
+                    probeSets.Add(lighting);
+                }
             }
             if (count == 0) continue;
-            foreach (var probe in probes)
-            {
-                FrameData[(probe.Row+1)*4+3] = FrameData.Count/4;
-                foreach (Vector4 value in probe.Data) Add(FrameData,value);
-            }
-            bool sharedLights = !hasFlow && probes.Count == 0;
+            bool sharedLights = !hasFlow && probeSets.Count == firstProbe;
             for (int c = 1; c < count && sharedLights; c++)
                 for (int component = 4; component < CloudRows*4; component++)
                     if (FrameData[(cloudBase+c*CloudRows)*4+component] != FrameData[cloudBase*4+component])
@@ -480,9 +495,11 @@ public static class ResponsiveSmokeRenderer
             Set(FrameData, row + 4, forward.X, forward.Y, forward.Z, camera.Far * UeSpace.UnitsPerMetre);
             Vector2I pixels = (Vector2I)camera.GetViewport().GetVisibleRect().Size;
             int quality = (int)Quality;
-            int scale = quality == 0 ? 10 : quality == 1 ? 8 : 3;
+            // Filter scattering at this internal resolution; bullet apertures still resolve at full pixel
+            // resolution, and surface-depth correction integrates just the remaining depth interval.
+            int scale = quality == 0 ? 12 : 8;
             int gridWidth = Math.Max(1, (pixels.X + scale - 1) / scale), gridHeight = Math.Max(1, (pixels.Y + scale - 1) / scale);
-            int slices = quality == 0 ? 16 : quality == 1 ? 32 : 64;
+            int slices = quality == 0 ? 24 : quality == 1 ? 32 : 48;
             float near = float.PositiveInfinity, far = 0;
             foreach (SmokeRenderCloud field in frame.Clouds)
                 for (int corner = 0; corner < 8; corner++)
@@ -499,6 +516,32 @@ public static class ResponsiveSmokeRenderer
             {
                 geometry = (geometry ^ (uint)RuntimeHelpers.GetHashCode(field.Identity)) * 1099511628211UL;
                 geometry = (geometry ^ field.SnapshotRevision) * 1099511628211UL;
+            }
+            if (SceneShadows && view.Mode is not (36 or 38))
+            {
+                ulong density = geometry;
+                foreach (SmokeRenderCloud cloud in frame.Clouds) density = (density ^ cloud.Revision) * 1099511628211UL;
+                for (int c = 0; c < frame.Clouds.Count; c++)
+                {
+                    SmokeRenderCloud cloud = frame.Clouds[c];
+                    int layer = LayerOf(cloud);
+                    if (layer < 0 || layer >= SceneShadowCapacity || !sceneFields.Add(cloud.Identity)) continue;
+                    int offset = layer * SceneShadowGrid * SceneShadowRows;
+                    ulong lights = 14695981039346656037UL;
+                    int lightRow = cloudBase + c * CloudRows;
+                    lights ^= (uint)FrameData[lightRow*4+1];
+                    for (int light = 0; light < (int)FrameData[lightRow*4+1]; light++)
+                        for (int component = 0; component < 4; component++)
+                        {
+                            float value = FrameData[(lightRow+2+light*3)*4+component];
+                            if (component == 3) value = value < 0 ? -1 : 1;
+                            lights = (lights ^ (uint)BitConverter.SingleToInt32Bits(value)) * 1099511628211UL;
+                        }
+                    bool update = !SceneHistory.TryGetValue(cloud.Identity, out var old) || old.Density != density
+                        || old.Lights != lights || old.Offset != offset || frame.CurrentTime < old.Time || frame.CurrentTime - old.Time >= 1f / 30;
+                    if (update) SceneHistory[cloud.Identity] = new(frame.CurrentTime, density, lights, offset);
+                    sceneSlots.Add(slot); sceneSlots.Add(c); sceneSlots.Add(update ? 1 : 0);
+                }
             }
             var temporal = new SmokeTemporalView(camera.GetInstanceId(), eye, right, up, forward,
                 camera.GetCameraProjection().X.X, camera.GetCameraProjection().Y.Y, frame.CurrentTime, near, Math.Max(near + 1, far),
@@ -553,10 +596,23 @@ public static class ResponsiveSmokeRenderer
                 prefixHeight += gridHeight * ((slices + 7) / 8);
             }
         }
+        // One 6x4 tile holds ambient, direct/distance and direction as three pairs of bilinear XY planes.
+        // Z blends the two planes in the shader; filtering never crosses into an adjacent cloud's tile.
+        AtlasPool.Entry probeAtlas = ProbePool.Get(Math.Max(4,probeSets.Count*4));
+        probeAtlas.Bytes.AsSpan().Clear();
+        Span<float> probeValues = MemoryMarshal.Cast<byte,float>(probeAtlas.Bytes.AsSpan());
+        for (int set = 0; set < probeSets.Count; set++) for (int probe = 0; probe < 8; probe++) for (int component = 0; component < 3; component++)
+        {
+            int at = ((set*4+(probe/4)*2+((probe/2)%2))*6+component*2+probe%2)*4;
+            Vector4 value = probeSets[set][probe*3+component];
+            probeValues[at] = value.X; probeValues[at+1] = value.Y; probeValues[at+2] = value.Z; probeValues[at+3] = value.W;
+        }
+        BindTexture(ref s_probes,probeAtlas.Texture,"svm_smoke_probes");
+        using (var probeImage = Image.CreateFromData(6,probeAtlas.Height,false,Image.Format.Rgbaf,probeAtlas.Bytes)) s_probes!.Update(probeImage);
         if (Profile) { LastFramePackingMilliseconds = Math.Max(0,System.Diagnostics.Stopwatch.GetElapsedTime(stage).TotalMilliseconds-LastLightingMilliseconds); stage = System.Diagnostics.Stopwatch.GetTimestamp(); }
         LastFrameUploadBytes = Upload(FramePool, ref s_frame, FrameData, ref s_frameBytes, "svm_smoke_frame");
         if (Profile) { LastFrameUploadMilliseconds = System.Diagnostics.Stopwatch.GetElapsedTime(stage).TotalMilliseconds; stage = System.Diagnostics.Stopwatch.GetTimestamp(); }
-        ResponsiveSmokeVolumeCache.Queue(s_fields!, s_frame!, s_growth!, s_shape!, cacheSlots.ToArray(), new(prefixWidth,Math.Max(1,prefixHeight)));
+        ResponsiveSmokeVolumeCache.Queue(s_fields!, s_frame!, s_growth!, s_shape!, s_probes!, cacheSlots.ToArray(), new(prefixWidth,Math.Max(1,prefixHeight)), sceneSlots.ToArray());
         if (Profile) LastPrefixQueueMilliseconds = System.Diagnostics.Stopwatch.GetElapsedTime(stage).TotalMilliseconds;
         LastUploadMilliseconds = System.Diagnostics.Stopwatch.GetElapsedTime(start).TotalMilliseconds;
     }
@@ -595,10 +651,11 @@ public static class ResponsiveSmokeRenderer
         int blasts = carves.FindLastIndex(static c => c.Kind == ResponsiveSmokeCarveKind.Blast) + 1;
         int begin = FieldData.Count / 4;
         Add(FieldData, field.Origin.X, field.Origin.Y, field.Origin.Z, blasts);
-        Add(FieldData, field.CreatedAt, begin + 4, 0, field.Carves.Count);
+        Add(FieldData, field.CreatedAt, begin + 5, 0, field.Carves.Count);
         Add(FieldData, field.Center.X, field.Center.Y, field.Center.Z, growthLayer);
         FVector extents = ResponsiveSmokeField.GeometryShapeExtents(field.Cells, field.ActivationTicks, field.Origin, field.Center);
         Add(FieldData, 0, extents.X, extents.Y, extents.Z); // Boundary lookup and geometry-directed shape.
+        Add(FieldData, growthLayer * SceneShadowGrid * SceneShadowRows, growthLayer < SceneShadowCapacity ? SceneShadowGrid : 0, 0, 0);
         for (int i = 0; i < field.Cells.Length; i++)
             FieldData.Add(field.Cells[i] == 0 ? 0 : field.ActivationTicks[i] == ushort.MaxValue ? -1 : field.ActivationTicks[i] + 1);
         Pad(FieldData);

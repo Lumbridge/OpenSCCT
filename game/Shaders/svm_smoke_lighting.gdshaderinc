@@ -14,7 +14,9 @@ float smoke_scattered_light(float phase, float transmission) {
 
 float smoke_light_transmission(int cloud_base, int cloud_count, vec3 ue, vec3 toward_light,
                                float light_distance, float now, int quality) {
-    int taps = quality == 0 ? 1 : quality == 1 ? 2 : 3;
+    // Keep a nearby sample in every mode. A single distant sample can land inside a wall and make
+    // whole columns suddenly fully lit; the coarse Fast view grid makes that discontinuity conspicuous.
+    const int taps = 3;
     float stop = min(max(light_distance,0.0),255.0);
     float optical = 0.0;
     for (int tap = 0; tap < taps; tap++) {
@@ -39,19 +41,16 @@ float smoke_light_transmission(int cloud_base, int cloud_count, vec3 ue, vec3 to
 // retaining zone-local ambient and light selection when one cloud straddles a doorway or differently lit rooms.
 void smoke_sample_light_probes(int cloud, vec3 ue, out vec3 ambient, out vec3 direct,
                               out vec3 direction, out float light_distance) {
-    int base = int(smoke_frame_row(cloud+1).w);
+    float base = (smoke_frame_row(cloud+1).w-1.0)*4.0;
     int field = int(smoke_frame_row(cloud).x);
     vec3 f = clamp((ue-smoke_field_row(field+2).xyz)/300.0+vec3(.5),vec3(0.0),vec3(1.0));
-    ambient = vec3(0.0); direct = vec3(0.0); direction = vec3(0.0); light_distance = 0.0;
-    for (int i = 0; i < 8; i++) {
-        vec3 corner = vec3(float(i&1),float((i>>1)&1),float((i>>2)&1));
-        vec3 axis_weight = mix(vec3(1.0)-f,f,corner);
-        float weight = axis_weight.x*axis_weight.y*axis_weight.z;
-        vec4 a = smoke_frame_row(base+i*3), d = smoke_frame_row(base+i*3+1);
-        ambient += a.rgb*weight; direct += d.rgb*weight;
-        direction += smoke_frame_row(base+i*3+2).xyz*weight;
-        light_distance += d.w*weight;
-    }
+    vec2 size = vec2(textureSize(svm_smoke_probes,0));
+    vec2 uv = vec2(.5+f.x,base+.5+f.y)/size;
+    vec2 dz = vec2(0.0,2.0/size.y), dx = vec2(2.0/size.x,0.0);
+    ambient = mix(textureLod(svm_smoke_probes,uv,0.0),textureLod(svm_smoke_probes,uv+dz,0.0),f.z).rgb;
+    vec4 illumination = mix(textureLod(svm_smoke_probes,uv+dx,0.0),textureLod(svm_smoke_probes,uv+dx+dz,0.0),f.z);
+    direct = illumination.rgb; light_distance = illumination.w;
+    direction = mix(textureLod(svm_smoke_probes,uv+dx*2.0,0.0),textureLod(svm_smoke_probes,uv+dx*2.0+dz,0.0),f.z).xyz;
 }
 
 // Map spots and the merc torch reuse their existing shadow/cookie atlas. Density attenuation is a separate,

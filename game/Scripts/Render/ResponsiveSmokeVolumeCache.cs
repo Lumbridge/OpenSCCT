@@ -43,16 +43,17 @@ internal static class ResponsiveSmokeVolumeCache
         s_source = Header + source + Main;
     }
 
-    public static void Queue(ImageTexture fields, ImageTexture frame, ImageTexture growth, ImageTexture3D shape, int[] slots, Vector2I size)
+    public static void Queue(ImageTexture fields, ImageTexture frame, ImageTexture growth, ImageTexture3D shape, ImageTexture probes, int[] slots, Vector2I size, int[] sceneSlots)
     {
-        if (slots.Length == 0) { Idle(); return; }
+        if (slots.Length == 0 && sceneSlots.Length == 0) { Idle(); return; }
         if (Error is not null) return;
         PrepareSource();
         // Values are rendering resources, not scene objects; their RD identities are resolved only on the render thread.
         var (spots,depth,cookies,spotCount) = SpotShadowLight.VolumeInputs();
         Rid f = fields.GetRid(), p = frame.GetRid(), g = growth.GetRid(), s = spots.GetRid(), d = depth.GetRid(), c = cookies.GetRid();
         Rid n = shape.GetRid();
-        RenderingServer.CallOnRenderThread(Callable.From(() => Draw(f,p,g,n,s,d,c,slots,size,spotCount)));
+        Rid lighting = probes.GetRid();
+        RenderingServer.CallOnRenderThread(Callable.From(() => Draw(f,p,g,n,s,d,c,slots,size,spotCount,sceneSlots,lighting)));
     }
 
     private static void Init()
@@ -81,10 +82,10 @@ internal static class ResponsiveSmokeVolumeCache
             RenderingDevice.UniformType.SamplerWithTexture,RenderingDevice.UniformType.SamplerWithTexture,
             RenderingDevice.UniformType.SamplerWithTexture,RenderingDevice.UniformType.SamplerWithTexture,RenderingDevice.UniformType.Image,
             RenderingDevice.UniformType.SamplerWithTexture,RenderingDevice.UniformType.SamplerWithTexture,
-            RenderingDevice.UniformType.SamplerWithTexture);
+            RenderingDevice.UniformType.SamplerWithTexture,RenderingDevice.UniformType.SamplerWithTexture);
     }
 
-    private static void Draw(Rid fields, Rid frame, Rid growth, Rid shape, Rid spots, Rid depth, Rid cookies, int[] slots, Vector2I size, int spotCount)
+    private static void Draw(Rid fields, Rid frame, Rid growth, Rid shape, Rid spots, Rid depth, Rid cookies, int[] slots, Vector2I size, int spotCount, int[] sceneSlots, Rid probes)
     {
         Init();
         if (s_rd is not { } rd || !s_pipeline.IsValid || Error is not null) return;
@@ -103,7 +104,8 @@ internal static class ResponsiveSmokeVolumeCache
         }
         // Capacity survives an enabled match's quiet periods and smaller view layouts. Every active tile is
         // overwritten, and textureSize supplies the retained atlas dimensions to both sampling paths.
-        if (s_size.X < size.X || s_size.Y < size.Y || !s_output.IsValid)
+        bool resized = s_size.X < size.X || s_size.Y < size.Y || !s_output.IsValid;
+        if (resized)
         {
             if (s_texture is not null) s_texture.TextureRdRid = default;
             if (s_output.IsValid) rd.FreeRid(s_output);
@@ -142,11 +144,22 @@ internal static class ResponsiveSmokeVolumeCache
         uniforms.Set(7,s_linear,s_history);
         uniforms.Set(8,s_linear,ResponsiveSmokeVisualFlow.StateRid);
         uniforms.Set(9,s_repeat,RenderingServer.TextureGetRdTexture(shape));
+        uniforms.Set(10,s_linear,RenderingServer.TextureGetRdTexture(probes));
         Rid set = UniformSetCacheRD.GetCache(s_shader,0,uniforms.Array);
         rd.CaptureTimestamp("ResponsiveSmokeBegin");
         long list = rd.ComputeListBegin();
         rd.ComputeListBindComputePipeline(list,s_pipeline);
         rd.ComputeListBindUniformSet(list,set,0);
+        for (int i = 0; i < sceneSlots.Length; i += 3)
+        {
+            if (!resized && sceneSlots[i+2] == 0) continue;
+            int[] parameters = [sceneSlots[i],sceneSlots[i+1],-1,0];
+            byte[] bytes = MemoryMarshal.AsBytes(parameters.AsSpan()).ToArray();
+            rd.ComputeListSetPushConstant(list,bytes,(uint)bytes.Length);
+            rd.ComputeListDispatch(list,ResponsiveSmokeRenderer.SceneShadowGrid,
+                (uint)((ResponsiveSmokeRenderer.SceneShadowGrid * ResponsiveSmokeRenderer.SceneShadowRows + 7) / 8),1);
+            Dispatches++;
+        }
         for (int i = 0; i < slots.Length; i += 3)
         {
             int[] parameters = [slots[i],spotCount,s_hasHistory ? 1 : 0,s_frameNumber];
@@ -228,6 +241,7 @@ internal static class ResponsiveSmokeVolumeCache
         layout(set=0,binding=7) uniform sampler2D smoke_history;
         layout(set=0,binding=8) uniform sampler3D svm_smoke_flow;
         layout(set=0,binding=9) uniform sampler3D svm_smoke_shape;
+        layout(set=0,binding=10) uniform sampler2D svm_smoke_probes;
         #define svm_smoke_flow_ready true
         layout(push_constant,std430) uniform Parameters { ivec4 dispatch; } pc;
         #define svm_spot_count pc.dispatch.y
@@ -266,6 +280,26 @@ internal static class ResponsiveSmokeVolumeCache
         void main() {
             int view = pc.dispatch.x*14;
             vec4 frame = smoke_frame_row(view), eye = smoke_frame_row(view+1);
+            if (pc.dispatch.z < 0) {
+                int cloud = int(frame.x)+pc.dispatch.y*14, field = int(smoke_frame_row(cloud).x);
+                vec4 cache = smoke_field_row(field+4);
+                int grid = int(cache.y);
+                ivec2 xy = ivec2(gl_GlobalInvocationID.xy);
+                if (xy.x >= grid*8 || xy.y >= grid*((grid+7)/8)) return;
+                ivec3 voxel = ivec3(xy.x%grid,xy.y%grid,(xy.y/grid)*8+xy.x/grid);
+                if (voxel.z >= grid) return;
+                vec3 point = smoke_field_row(field).xyz+vec3(voxel)*(625.0/float(grid-1));
+                vec4 transmission = vec4(1.0);
+                for (int i = 0; i < int(smoke_frame_row(cloud).y); i++) {
+                    vec4 light = smoke_frame_row(cloud+2+i*3);
+                    vec3 delta = light.w < 0.0 ? light.xyz : light.xyz-point.xzy*.01;
+                    float distance = length(delta);
+                    transmission[i] = smoke_scene_ray_transmission(int(frame.x),int(frame.y),point,
+                        delta.xzy/max(distance,.00001),light.w < 0.0 ? 100000.0 : distance*100.0,frame.z);
+                }
+                imageStore(smoke_prefix_image,xy+ivec2(0,int(cache.x)),transmission);
+                return;
+            }
             vec4 right = smoke_frame_row(view+2), up = smoke_frame_row(view+3), forward = smoke_frame_row(view+4);
             vec4 layout_info = smoke_frame_row(view+5), depth_info = smoke_frame_row(view+6);
             ivec2 grid = ivec2(layout_info.yz), xy = ivec2(gl_GlobalInvocationID.xy);
