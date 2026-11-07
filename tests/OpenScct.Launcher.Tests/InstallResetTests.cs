@@ -14,8 +14,10 @@ public sealed class InstallResetTests
 {
     public static bool OnWindows => OperatingSystem.IsWindows();
 
-    [Fact(Skip = "Uses Windows executable names and the editor swap lock.", SkipUnless = nameof(OnWindows))]
-    public async Task ForceCloseStopsGamesAndManagedEditorToolsButLeavesOtherProcessesAndActiveUpdates()
+    [Theory(Skip = "Uses Windows executable names and the editor swap lock.", SkipUnless = nameof(OnWindows))]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task ForceCloseStopsSelectedProcessesButLeavesOtherInstallsAndActiveUpdates(bool includeGame)
     {
         using var temp = new TempDir();
         var layout = new LauncherLayout(temp.Path);
@@ -33,12 +35,13 @@ public sealed class InstallResetTests
 
             using (FileStream updateLock = File.Open(Path.Combine(layout.Editor, ".update", "swap.lock"), FileMode.Create, FileAccess.ReadWrite, FileShare.None))
             {
-                await InstallReset.ForceCloseProcessesAsync(layout, Find);
+                await InstallReset.ForceCloseProcessesAsync(layout, Find, includeGame);
                 Assert.All(processes, p => Assert.False(p.HasExited));
             }
 
-            await InstallReset.ForceCloseProcessesAsync(layout, Find);
-            Assert.All(new[] { game, console, editor, cli, anotherCli }, p => Assert.True(p.HasExited));
+            await InstallReset.ForceCloseProcessesAsync(layout, Find, includeGame);
+            Assert.All(new[] { editor, cli, anotherCli }, p => Assert.True(p.HasExited));
+            Assert.All(new[] { game, console }, p => Assert.Equal(includeGame, p.HasExited));
             Assert.False(otherCli.HasExited);
             Assert.False(updateHelper.HasExited);
         }

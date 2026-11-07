@@ -22,11 +22,15 @@ public static class InstallReset
     /// <summary>Force closes the game and installed editor tools, then waits briefly for their handles to close.</summary>
     public static Task ForceCloseProcessesAsync(LauncherLayout layout) => ForceCloseProcessesAsync(layout, Process.GetProcessesByName);
 
-    internal static async Task ForceCloseProcessesAsync(LauncherLayout layout, Func<string, Process[]> findProcesses)
+    /// <summary>Force closes the installed editor and its CLI while leaving running games alone.</summary>
+    public static Task ForceCloseEditorProcessesAsync(LauncherLayout layout) =>
+        ForceCloseProcessesAsync(layout, Process.GetProcessesByName, includeGame: false);
+
+    internal static async Task ForceCloseProcessesAsync(LauncherLayout layout, Func<string, Process[]> findProcesses, bool includeGame = true)
     {
         if (!OperatingSystem.IsWindows() || EditorService.IsUpdateInProgress(layout.Editor)) return;
 
-        string[] gameNames = GameProcessProbe.ProcessNames(LauncherPlatform.WindowsX64);
+        string[] gameNames = includeGame ? GameProcessProbe.ProcessNames(LauncherPlatform.WindowsX64) : [];
         string editorExe = Path.Combine(layout.Editor, EditorService.ExeName);
         string cliExe = Path.Combine(layout.Editor, "ose", "ose.exe");
         string[] processNames = [.. gameNames, Path.GetFileNameWithoutExtension(editorExe), Path.GetFileNameWithoutExtension(cliExe)];

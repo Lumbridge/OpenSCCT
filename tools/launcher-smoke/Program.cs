@@ -658,13 +658,26 @@ internal static class Program
             Settle(form);
             Button retry = Field<Button>(form, "_main");
             Button current = Field<Button>(form, "_playCurrent");
+            Button forceClose = Field<Button>(form, "_forceClose");
             Check(retry.Visible && retry.Enabled && retry.Text == "Retry update", $"Failed editor setup retains retry even when installed version matches latest (text={retry.Text}, visible={retry.Visible}, enabled={retry.Enabled})");
             Check(current.Visible && current.Enabled && current.Text == "Use current version", "Failed editor setup offers the usable installed version");
             Check(Field<Label>(form, "_status").Text.Contains("close the editor", StringComparison.Ordinal), "Retry preserves the actual setup failure");
+            Check(forceClose.Visible && forceClose.Enabled && forceClose.Text == "Force close and retry…",
+                "Running editor offers force close and retry");
             Call(form, "SelectProduct", false);
+            Check(!forceClose.Visible, "Editor force close is hidden on the Game tab");
             Call(form, "SelectProduct", true);
             Settle(form);
-            Check(retry.Text == "Retry update" && current.Visible, "Editor retry and current-version actions survive tab changes");
+            Check(retry.Text == "Retry update" && current.Visible && forceClose.Visible, "Editor retry actions survive tab changes");
+            string swapLock = Path.Combine(fixture.Layout.Editor, ".update", "swap.lock");
+            Directory.CreateDirectory(Path.GetDirectoryName(swapLock)!);
+            using (File.Create(swapLock))
+            {
+                PumpUntil((Task)MainType.GetMethod("RunAsync", Hidden)!.Invoke(form, [operation])!);
+                Settle(form);
+                Check(!forceClose.Visible && Field<Label>(form, "_status").Text.Contains("updater to finish", StringComparison.Ordinal),
+                    "A locked editor swap asks the user to wait");
+            }
             form.Hide();
         });
         foreach (bool applying in new[] { false, true })
