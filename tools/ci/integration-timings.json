@@ -1,0 +1,7 @@
+{
+  "BotMatchTests": 45,
+  "CombatActivityNetworkTests": 30,
+  "Online.OnlineUdpTests": 65,
+  "Online.PersonalDemoTests": 32,
+  "RubberBandTraversalTests": 85
+}

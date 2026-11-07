@@ -214,6 +214,17 @@ sources under an already-published launcher version.
 
 ### Making a release
 
+To prepare a full release candidate, dispatch the `ci` workflow on the candidate ref with
+`release_candidate=true`. It runs the Windows export and smokes, Linux and Flatpak packaging and smokes,
+VPS packaging, and the usual CI checks in parallel. Use the artifacts from the successful run for that commit.
+Download `openscct-windows-export` into `local/build` for the packaging step below. Use the existing versioned
+launcher cache so the launcher checksum stays stable across game releases. The Linux release and Flatpak
+artifacts are already packaged. The `openscct-vps` artifact works with
+`tools/deploy/Deploy-Vps.ps1 -FromPackage <directory>`.
+
+Review the release scope and draft before publishing. Prepare Editor or shared content separately when
+included, and verify the deployed services after promotion.
+
 1. Export the game from a pushed commit using Godot's **Windows Desktop** preset to
    `local/build/OpenSCCT.exe`.
 2. Run `tools/release/New-Release.ps1 -Version <version>`.

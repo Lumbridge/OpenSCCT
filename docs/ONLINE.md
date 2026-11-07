@@ -905,8 +905,13 @@ The official London deployment uses three Lightsail instances.
 `-Services hub` or `-Services hubmaps` to deploy selectively. For a custom deployment, `-VpsHost` sets the
 shared target, and `-ServerVpsHost` and `-HubVpsHost` set individual targets.
 
+Use `-PackageOnly local/deploy-package` from a clean checkout to build and hash the self-contained packages without SSH.
+Pass the completed artifact to `-FromPackage local/deploy-package` from the same commit to reuse those bytes. The
+script checks the commit and archive hashes before connecting. It uploads to the selected hosts in parallel, checks
+the master first when included, then installs server and hub in parallel if they are on separate hosts.
+
 For each service the script does the following.
-1. publishes the program (linux-x64, self-contained) and uploads it;
+1. stages the program and any hub maps before stopping the service;
 2. stops the service and backs up its folder to `/opt/svm/backups` (program, config, `accounts.db`, `ticket-key.pem`;
    not the converted maps and characters). It keeps the last ten backups of each service;
 3. unpacks the new program over the old one, starts it, and checks it is up (the master's `/api/v1/status`);

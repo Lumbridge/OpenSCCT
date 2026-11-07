@@ -20,7 +20,11 @@
     pwsh tools/deploy/Deploy-Vps.ps1 -Services hubmaps  # the hub's maps alone, program unchanged
 .EXAMPLE
     pwsh tools/deploy/Deploy-Vps.ps1 -VpsHost staging.example.org  # all selected services on one custom host
+.EXAMPLE
+    pwsh tools/deploy/Deploy-Vps.ps1 -PackageOnly local/deploy-package
+    pwsh tools/deploy/Deploy-Vps.ps1 -FromPackage local/deploy-package
 #>
+#Requires -Version 7
 [CmdletBinding()]
 param(
     [ValidateSet('master', 'server', 'hub', 'hubmaps')]
@@ -29,13 +33,15 @@ param(
     [string] $User = 'ubuntu',
     [string] $Key = (Join-Path $HOME '.ssh/lightsail-eu-west-2.pem'),
     [switch] $SkipBuild,
+    [string] $PackageOnly,
+    [string] $FromPackage,
     [string] $ServerVpsHost,
     [string] $HubVpsHost
 )
 
 $ErrorActionPreference = 'Stop'
 $root = Resolve-Path (Join-Path $PSScriptRoot '../..')
-$publish = Join-Path $root 'local/publish'
+$work = Join-Path ([IO.Path]::GetTempPath()) "openscct-deploy-$([guid]::NewGuid().ToString('N'))"
 $ssh = @('-i', $Key, '-o', 'BatchMode=yes', '-o', 'ConnectTimeout=15')
 $customVps = $PSBoundParameters.ContainsKey('VpsHost')
 if (-not $ServerVpsHost) { $ServerVpsHost = if ($customVps) { $VpsHost } else { '35.176.22.150' } }
@@ -49,7 +55,9 @@ $table = @{
     # The hub's maps alone (fixtures/hub, fixtures/hubmap), its program unchanged.
     hubmaps = @{ Vps = $HubVpsHost; Unit = 'svm-hub'; Dir = '/opt/svm/hub'; Program = $null; Health = $false; Maps = $true }
 }
-$deployments = $Services | Group-Object { $table[$_].Vps }
+$Services = @($Services | Select-Object -Unique)
+if ('hub' -in $Services) { $Services = @($Services | Where-Object { $_ -ne 'hubmaps' }) }
+$deployments = @($Services | Group-Object { $table[$_].Vps })
 
 function Invoke-Checked([string] $what, [scriptblock] $block) {
     & $block
@@ -57,24 +65,26 @@ function Invoke-Checked([string] $what, [scriptblock] $block) {
 }
 
 # ---- build and pack ------------------------------------------------------------------------------------------------
-$programs = $Services | ForEach-Object { $table[$_].Program } | Where-Object { $_ } | Sort-Object -Unique
-foreach ($program in $programs) {
+$programs = @($Services | ForEach-Object { $table[$_].Program } | Where-Object { $_ } | Sort-Object -Unique)
+$withMaps = [bool]($Services | Where-Object { $table[$_].Maps })
+$archives = @($programs | ForEach-Object { "$_.tgz" })
+if ($withMaps) { $archives += 'svm-hubmaps.tgz' }
+
+function New-Packages {
+  foreach ($program in $programs) {
     $project = ($table.Values | Where-Object { $_.Program -eq $program } | Select-Object -First 1).Project
-    $out = Join-Path $publish $program
+    $out = if ($SkipBuild) { Join-Path $root "local/publish/$program" } else { Join-Path $work $program }
     if (-not $SkipBuild) {
         Write-Host "Publishing $program..."
-        if (Test-Path $out) { Remove-Item -Recurse -Force $out }
         Invoke-Checked "publish $program" { dotnet publish (Join-Path $root $project) -c Release -r linux-x64 --self-contained true -o $out -nologo -v q }
     }
 
-    Invoke-Checked "pack $program" { tar -czf (Join-Path $publish "$program.tgz") -C $out . }
-}
+    Invoke-Checked "pack $program" { tar -czf (Join-Path $work "$program.tgz") -C $out . }
+  }
 
-# The hub's own maps, laid out as the hub folder has them (maps/Hub, maps/hubmap).
-$withMaps = @($Services | Where-Object { $table[$_].Maps }).Count -gt 0
-if ($withMaps) {
-    $stage = Join-Path $publish 'hubmaps'
-    if (Test-Path $stage) { Remove-Item -Recurse -Force $stage }
+  # The hub's own maps, laid out as the hub folder has them (maps/Hub, maps/hubmap).
+  if ($withMaps) {
+    $stage = Join-Path $work 'hubmaps'
     foreach ($pair in @(@('hub', 'Hub'), @('hubmap', 'hubmap'))) {
         $from = Join-Path $root "fixtures/$($pair[0])"
         if (-not (Test-Path $from)) { throw "fixtures/$($pair[0]) is missing." }
@@ -82,7 +92,8 @@ if ($withMaps) {
         Copy-Item -LiteralPath $from -Destination (Join-Path $stage "maps/$($pair[1])") -Recurse
     }
 
-    Invoke-Checked 'pack the hub maps' { tar -czf (Join-Path $publish 'svm-hubmaps.tgz') -C $stage maps }
+    Invoke-Checked 'pack the hub maps' { tar -czf (Join-Path $work 'svm-hubmaps.tgz') -C $stage maps }
+  }
 }
 
 # ---- install on the VPS ----------------------------------------------------------------------------------------------
@@ -158,36 +169,118 @@ exit 1
 
 '@ -replace "`r`n", "`n"
 
-# Sent as a file with Unix line ends (piping text to ssh would add Windows ones).
-$script = Join-Path $publish 'deploy-remote.sh'
-[IO.File]::WriteAllText($script, $remote)
-foreach ($deployment in $deployments) {
-    $target = "$User@$($deployment.Name)"
-    $packages = $deployment.Group | ForEach-Object { $table[$_].Program } | Where-Object { $_ } | Sort-Object -Unique
-    foreach ($program in $packages) {
-        Invoke-Checked "upload $program to $target" { scp @ssh (Join-Path $publish "$program.tgz") "${target}:/tmp/$program.tgz" }
-    }
-    if ($deployment.Group | Where-Object { $table[$_].Maps }) {
-        Invoke-Checked "upload hub maps to $target" { scp @ssh (Join-Path $publish 'svm-hubmaps.tgz') "${target}:/tmp/svm-hubmaps.tgz" }
-    }
-    Invoke-Checked "upload the install script to $target" { scp @ssh $script "${target}:/tmp/svm-deploy.sh" }
+if (($PackageOnly -and $FromPackage) -or ($SkipBuild -and ($PackageOnly -or $FromPackage))) {
+    throw 'Choose only one of -PackageOnly, -FromPackage and -SkipBuild.'
+}
+$commit = & git -C $root rev-parse HEAD
+if ($LASTEXITCODE -ne 0) { throw 'Could not determine the deployment commit.' }
+if ($PackageOnly) {
+    $dirty = & git -C $root status --porcelain
+    if ($LASTEXITCODE -ne 0 -or $dirty) { throw 'Build a deploy package from a clean checkout.' }
+    if (Test-Path -LiteralPath $PackageOnly) { throw "Package output already exists: $PackageOnly" }
 }
 
-$failed = @()
-foreach ($service in $Services) {
-    $s = $table[$service]
-    $target = "$User@$($s.Vps)"
-    Write-Host "Installing $service on $target..."
-    $pkg = if ($s.Program) { "/tmp/$($s.Program).tgz" } else { '-' }
-    $program = if ($s.Program) { $s.Program } else { '-' }
-    $maps = if ($s.Maps) { '/tmp/svm-hubmaps.tgz' } else { '-' }
-    ssh @ssh $target "bash /tmp/svm-deploy.sh $($s.Unit) $($s.Dir) $pkg $([int]$s.Health) $program $maps"
-    if ($LASTEXITCODE -ne 0) { $failed += $service }
-}
+$timer = [Diagnostics.Stopwatch]::StartNew()
+New-Item -ItemType Directory $work | Out-Null
+try {
+    if ($FromPackage) {
+        $package = (Resolve-Path -LiteralPath $FromPackage).Path
+        $manifest = Get-Content -LiteralPath (Join-Path $package 'manifest.json') -Raw | ConvertFrom-Json -AsHashtable
+        if ($manifest.commit -cne $commit) { throw "Package commit $($manifest.commit) differs from checkout $commit." }
+        foreach ($archive in $archives) {
+            $copy = Join-Path $work $archive
+            Copy-Item -LiteralPath (Join-Path $package $archive) -Destination $copy
+            if ((Get-FileHash -LiteralPath $copy).Hash -ne $manifest.sha256[$archive]) { throw "Hash mismatch: $archive" }
+        }
+    } else {
+        New-Packages
+    }
+    Write-Host ("Packages ready in {0:n1}s" -f $timer.Elapsed.TotalSeconds)
 
-foreach ($deployment in $deployments) {
-    $target = "$User@$($deployment.Name)"
-    ssh @ssh $target "rm -f /tmp/svm-master.tgz /tmp/svm-server.tgz /tmp/svm-hubmaps.tgz /tmp/svm-deploy.sh" | Out-Null
+    if ($PackageOnly) {
+        $output = New-Item -ItemType Directory $PackageOnly
+        $hashes = [ordered]@{}
+        foreach ($archive in $archives) {
+            $file = Join-Path $work $archive
+            $hashes[$archive] = (Get-FileHash -LiteralPath $file).Hash
+            Copy-Item -LiteralPath $file -Destination $output.FullName
+        }
+        @{ commit = $commit; sha256 = $hashes } | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $output.FullName 'manifest.json')
+        return
+    }
+
+    # Each attempt uses its own private staging directory on each host.
+    $remoteDir = "/tmp/$([IO.Path]::GetFileName($work))"
+    $script = Join-Path $work 'svm-deploy.sh'
+    [IO.File]::WriteAllText($script, $remote)
+    $timer.Restart()
+    try {
+        $uploadErrors = @($deployments | ForEach-Object -ThrottleLimit 3 -Parallel {
+            $target = "$($using:User)@$($_.Name)"
+            $sshArgs = $using:ssh
+            $stage = $using:remoteDir
+            $services = $using:table
+            $localStage = $using:work
+            $files = @($_.Group | ForEach-Object {
+                $service = $services[$_]
+                if ($service.Program) { "$($service.Program).tgz" }
+                if ($service.Maps) { 'svm-hubmaps.tgz' }
+            } | Select-Object -Unique | ForEach-Object { Join-Path $localStage $_ })
+            try {
+                $ErrorActionPreference = 'Stop'
+                ssh @sshArgs $target "mkdir -m 700 '$stage'" | Out-Host
+                if ($LASTEXITCODE -ne 0) { throw "Could not create staging directory (exit $LASTEXITCODE)." }
+                scp @sshArgs @files $using:script "${target}:${stage}/" | Out-Host
+                if ($LASTEXITCODE -ne 0) { throw "Could not transfer packages (exit $LASTEXITCODE)." }
+            } catch {
+                Write-Warning "${target}: $_"
+                $target
+            }
+        })
+        if ($uploadErrors.Count) { throw "Upload failed for $($uploadErrors -join ', ')." }
+        Write-Host ("Uploads completed in {0:n1}s" -f $timer.Elapsed.TotalSeconds)
+
+        $timer.Restart()
+        # Install the dependency first. Keep services on a shared staging host sequential.
+        $waves = @()
+        if ('master' -in $Services) { $waves += ,@('master') }
+        $workers = @($Services | Where-Object { $_ -ne 'master' })
+        if ($workers.Count) { $waves += ,$workers }
+        foreach ($wave in $waves) {
+            $failed = @($wave | Group-Object { $table[$_].Vps } | ForEach-Object -ThrottleLimit 2 -Parallel {
+                $services = $using:table
+                $target = "$($using:User)@$($_.Name)"
+                $sshArgs = $using:ssh
+                $stage = $using:remoteDir
+                foreach ($service in $_.Group) {
+                    $s = $services[$service]
+                    Write-Host "Installing $service on $target..."
+                    $pkg = if ($s.Program) { "$stage/$($s.Program).tgz" } else { '-' }
+                    $program = if ($s.Program) { $s.Program } else { '-' }
+                    $maps = if ($s.Maps) { "$stage/svm-hubmaps.tgz" } else { '-' }
+                    try {
+                        $ErrorActionPreference = 'Stop'
+                        ssh @sshArgs $target "bash '$stage/svm-deploy.sh' $($s.Unit) $($s.Dir) $pkg $([int]$s.Health) $program $maps" | Out-Host
+                        if ($LASTEXITCODE -ne 0) { throw "Remote installer exited with $LASTEXITCODE." }
+                    } catch {
+                        Write-Warning "${service}: $_"
+                        $service
+                    }
+                }
+            })
+            if ($failed.Count) { throw "Installation failed for $($failed -join ', '). Check the remote status above." }
+        }
+        Write-Host ("Services installed in {0:n1}s" -f $timer.Elapsed.TotalSeconds)
+    } finally {
+        $deployments | ForEach-Object -ThrottleLimit 3 -Parallel {
+            $target = "$($using:User)@$($_.Name)"
+            $sshArgs = $using:ssh
+            $stage = $using:remoteDir
+            ssh @sshArgs $target "if test -d '$stage'; then rm -f '$stage/svm-master.tgz' '$stage/svm-server.tgz' '$stage/svm-hubmaps.tgz' '$stage/svm-deploy.sh' && rmdir '$stage'; fi" | Out-Null
+            if ($LASTEXITCODE -ne 0) { Write-Warning "Could not clean up staging on $target." }
+        }
+    }
+    Write-Host "Done: $($Services -join ', ')."
+} finally {
+    Remove-Item -LiteralPath $work -Recurse -Force
 }
-if ($failed.Count -gt 0) { throw "Not updated (restored from backup): $($failed -join ', ')." }
-Write-Host "Done: $($Services -join ', ')."

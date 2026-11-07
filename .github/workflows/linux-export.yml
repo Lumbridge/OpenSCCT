@@ -31,6 +31,7 @@ on:
       - 'global.json'
       - 'godot-version.txt'
   workflow_dispatch:
+  workflow_call:
 
 permissions:
   contents: read
