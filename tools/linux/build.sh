@@ -7,12 +7,16 @@ GODOT=$(realpath "$GODOT")
 export DOTNET_CLI_TELEMETRY_OPTOUT=1 DOTNET_PROCESSOR_COUNT=${DOTNET_PROCESSOR_COUNT:-2}
 export MSBUILDDISABLENODEREUSE=1
 mkdir -p local/linux
-bash "$repo_root/tools/audio/build-native-audio.sh"
+echo 'Building native audio'
+time bash "$repo_root/tools/audio/build-native-audio.sh"
 # The editor loads Debug assemblies during import. The exporter publishes ExportRelease itself.
 # Compile sequentially, avoiding persistent compiler servers on shared build machines.
-nice -n 10 dotnet build game/OpenScctGame.csproj -c Debug -m:1 -p:UseSharedCompilation=false
-nice -n 10 "$GODOT" --headless --path game --editor --import
-nice -n 10 "$GODOT" --headless --path game --export-release Linux "$repo_root/local/linux/OpenSCCT.x86_64"
+echo 'Building the editor assemblies'
+time nice -n 10 dotnet build game/OpenScctGame.csproj -c Debug -m:1 -p:UseSharedCompilation=false
+echo 'Importing the Godot project'
+time nice -n 10 "$GODOT" --headless --path game --editor --import
+echo 'Exporting the Linux game'
+time nice -n 10 "$GODOT" --headless --path game --export-release Linux "$repo_root/local/linux/OpenSCCT.x86_64"
 mkdir -p local/linux/licenses
 cp -a packaging/licenses/. local/linux/licenses/
 cp -a game/addons/scct_audio/licenses/. local/linux/licenses/
@@ -28,4 +32,5 @@ Path('local/linux/openscct-build.json').write_text(json.dumps({
     'built':datetime.datetime.now(datetime.timezone.utc).isoformat(),
 },indent=2)+'\n')
 PY
-"$repo_root/tools/linux/package-flatpak.sh" local/linux
+echo 'Packaging the Flatpak'
+time "$repo_root/tools/linux/package-flatpak.sh" local/linux
