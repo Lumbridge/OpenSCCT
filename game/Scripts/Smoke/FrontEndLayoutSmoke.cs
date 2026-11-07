@@ -46,7 +46,10 @@ public sealed class FrontEndLayoutSmoke : SmokeTest
         ("stats", () => new StatsScreen(), false),
         ("content", () => new ContentScreen(), false),
         ("armoury", () => new ArmouryScreen(), false),
+        ("armoury-merc", () => new ArmouryScreen(), false),
+        ("armoury-pistol", () => new ArmouryScreen(), false),
         ("achievements", () => new AchievementsScreen(), false),
+        ("achievements-maps", () => new AchievementsScreen(), false),
         ("tutorials", () => new TutorialsScreen(), false),
         ("tips", () => new TipsScreen(), false),
         ("tip-detail", () => new TipsScreen { Tip = 0 }, false),
@@ -87,6 +90,22 @@ public sealed class FrontEndLayoutSmoke : SmokeTest
             SettingsStore.Current.MapListView = Pages[_page].List;
             Resize(context.Tree, Sizes[_size]);
             _screen = FrontEnd.Show(context.Tree, Pages[_page].Create());
+            string? collectionTab = Pages[_page].Name switch
+            {
+                "armoury-merc" => "SideMerc",
+                "armoury-pistol" => "SlotTabPistol",
+                "achievements-maps" => "FilterMaps",
+                _ => null,
+            };
+            if (collectionTab is not null)
+            {
+                if (_screen.FindChild(collectionTab, true, false) is Button tab)
+                {
+                    tab.ButtonPressed = true;
+                    tab.EmitSignal(BaseButton.SignalName.Pressed);
+                }
+                else _problems.Add("Missing collection tab: " + collectionTab);
+            }
             if (Pages[_page].Name == "account-locked-titles" && _screen.FindChild("BrowseTitles", true, false) is Button browse)
                 browse.ButtonPressed = true;
             if (Pages[_page].Name == "account-actions") _savedTitle = SettingsStore.Current.Title;
@@ -103,6 +122,13 @@ public sealed class FrontEndLayoutSmoke : SmokeTest
         Vector2I size = Sizes[_size];
         string where = $"{Pages[_page].Name} {size.X}x{size.Y}";
         _problems.AddRange(LayoutCheck.BoundsProblems(_screen, size).Select(p => where + ": " + p));
+        if (Pages[_page].Name == "armoury-pistol" && _screen.FindChild("SlotPistol", true, false) is null)
+            _problems.Add(where + ": pistol tab did not show its equipment slot");
+        if (Pages[_page].Name == "armoury-merc" && _screen.FindChild("SlotTabGunAr", true, false) is null)
+            _problems.Add(where + ": mercenary tab did not show its weapon slots");
+        if (Pages[_page].Name == "achievements-maps" &&
+            (_screen.FindChild("HeaderMap", true, false) is null || _screen.FindChild("HeaderGeneral", true, false) is not null))
+            _problems.Add(where + ": map filter did not restrict achievement groups");
         // The main menu's optional splash line intentionally ellipsizes. Content must remain readable.
         Node content = _screen.FindChild("Body", true, false) ?? _screen;
         _problems.AddRange(LayoutCheck.Problems(content, size.X).Select(p => where + ": " + p));

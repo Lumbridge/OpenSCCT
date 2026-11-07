@@ -24,13 +24,13 @@ public partial class AchievementsScreen : MenuPage
     private const float BodyWidth = 1180f;
     private const float ListWidth = 712f;
     private const float DetailWidth = 448f;
-    private const int TileColumns = 3;
-    private static readonly Vector2 TileSize = new(222f, 84f);
+    private const int TileColumns = 2;
+    private static readonly Vector2 TileSize = new(330f, 100f);
     private const int TileIcon = 52;
 
-    /// <summary>The page's own rows above the split (summary, overall bar, filters) and the frame's title and buttons.</summary>
-    private const float ChromeHeight = 156f + 104f;
+    protected override Vector2 ResponsiveReference => new(1600f, 900f);
 
+    private readonly ButtonGroup _filterGroup = new();
     private readonly ButtonGroup _tileGroup = new();
     private readonly ButtonGroup _rewardGroup = new();
     private readonly Dictionary<string, Button> _tiles = new(StringComparer.Ordinal);
@@ -56,10 +56,13 @@ public partial class AchievementsScreen : MenuPage
     {
         Name = "Achievements";
         _selected = InitialAchievement;
-        BuildFrame("Achievements", BodyWidth);
+        BuildFrame("Achievements", BodyWidth, responsive: true);
+        Body.AddThemeConstantOverride("separation", 12);
         _service = AccountService.Get(GetTree());
 
-        var header = new HBoxContainer { Name = "Header" };
+        var overview = CareerPanels.Card(Body, "ProgressOverview", "Your achievements");
+        var header = new BoxContainer { Name = "Header" };
+        header.Resized += () => header.Vertical = header.Size.X < 700f;
         header.AddThemeConstantOverride("separation", 16);
         _summary = new Label
         {
@@ -69,9 +72,11 @@ public partial class AchievementsScreen : MenuPage
         header.AddChild(_summary);
         _overall = new UiProgress { Name = "Overall", CustomMinimumSize = new Vector2(260f, 6f), SizeFlagsVertical = SizeFlags.ShrinkCenter };
         header.AddChild(_overall);
-        Body.AddChild(header);
+        overview.AddChild(header);
 
         var filters = new HFlowContainer { Name = "Filters" };
+        filters.AddThemeConstantOverride("h_separation", 8);
+        filters.AddThemeConstantOverride("v_separation", 8);
         filters.AddChild(Filter("All", null));
         foreach (AchievementCategory c in Enum.GetValues<AchievementCategory>())
         {
@@ -101,11 +106,12 @@ public partial class AchievementsScreen : MenuPage
         split.AddChild(_detailScroll);
         var detailFrame = new VBoxContainer { Name = "DetailFrame", SizeFlagsHorizontal = SizeFlags.ExpandFill };
         _detailScroll.AddChild(detailFrame);
-        _detail = Panel(detailFrame, "Detail", null);
+        _detail = CareerPanels.Card(detailFrame, "Detail", "Challenge details");
         _detail.AddThemeConstantOverride("separation", 6);
 
         PageButton("Back", () => FrontEnd.ShowMainMenu(GetTree()), "Back").GrabFocus();
         PageButton("Armoury", () => FrontEnd.ShowArmoury(GetTree()), "Armoury");
+        foreach (Button button in PageButtons) button.CustomMinimumSize = new Vector2(144f, 44f);
         FitHeight();
         if (AccountService.HasMaster && AccountSettings.Current.SignedIn)
         {
@@ -159,7 +165,8 @@ public partial class AchievementsScreen : MenuPage
         float width = Math.Min(BodyWidth, AvailableBodyWidth);
         bool stacked = width < BodyWidth;
         _split.Vertical = stacked;
-        float height = Math.Max(240f, GetViewportRect().Size.Y - ChromeHeight);
+        float top = 78f + Body.Position.Y + _split.Position.Y;
+        float height = Math.Max(240f, LayoutSize.Y - top - 90f);
         _listScroll.CustomMinimumSize = new Vector2(stacked ? 0f : ListWidth, height);
         _detailScroll.CustomMinimumSize = new Vector2(stacked ? 0f : DetailWidth, height);
         int columns = Math.Clamp((int)(((stacked ? width : ListWidth) - 18f + 8f) / (TileSize.X + 8f)), 1, TileColumns);
@@ -173,7 +180,11 @@ public partial class AchievementsScreen : MenuPage
             _filter = category;
             Rebuild();
         }, "Filter" + text);
-        b.CustomMinimumSize = new Vector2(150f, 40f);
+        b.ToggleMode = true;
+        b.ButtonGroup = _filterGroup;
+        b.SetPressedNoSignal(category == _filter);
+        b.CustomMinimumSize = new Vector2(0f, 34f);
+        b.AddThemeFontSizeOverride("font_size", 14);
         return b;
     }
 
@@ -270,9 +281,9 @@ public partial class AchievementsScreen : MenuPage
 
     private static Control GroupHeader(AchievementCategory c, int earned, int total)
     {
-        var row = new HBoxContainer { Name = "Header" + c };
+        var row = new VBoxContainer { Name = "Header" + c };
         row.AddThemeConstantOverride("separation", 12);
-        var name = new Label { Text = CategoryName(c), Modulate = UiStyle.MenuFocus, Uppercase = true };
+        var name = new Label { Text = $"{CategoryName(c)} · {earned} / {total}", Modulate = UiStyle.MenuFocus, Uppercase = true };
         name.AddThemeFontSizeOverride("font_size", 18);
         if (!UiStyle.IsOriginal && UiArt.CaptionFont is { } mono)
         {
@@ -280,11 +291,6 @@ public partial class AchievementsScreen : MenuPage
         }
 
         row.AddChild(name);
-        row.AddChild(new Label
-        {
-            Text = string.Create(CultureInfo.InvariantCulture, $"{earned} / {total}"), Modulate = UiStyle.Dim,
-            VerticalAlignment = VerticalAlignment.Center,
-        });
         string note = CategoryNote(c);
         if (note.Length > 0)
         {
@@ -431,7 +437,7 @@ public partial class AchievementsScreen : MenuPage
         var frame = new PanelContainer { Name = "PreviewFrame" };
         frame.AddThemeStyleboxOverride("panel", UiStyle.ThumbBox());
         _detail.AddChild(frame);
-        var stack = new Control { Name = "Stack", CustomMinimumSize = new Vector2(DetailWidth - 44f, 250f), MouseFilter = MouseFilterEnum.Pass };
+        var stack = new Control { Name = "Stack", CustomMinimumSize = new Vector2(0f, 250f), MouseFilter = MouseFilterEnum.Pass };
         frame.AddChild(stack);
         _preview = new CosmeticPreview(new Vector2(DetailWidth - 44f, 250f));
         _preview.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);

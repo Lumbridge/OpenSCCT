@@ -11,6 +11,7 @@ namespace OpenScctGame.Options;
 public partial class OptionsMenu
 {
     private const float BindingMoreWidth = 56f;
+    private const float BindingBehaviorWidth = 120f;
     private sealed record BindingEntry(string Id, string Category, string Label, string Description,
         ControlAction? Action = null, string? PadAction = null, string? CustomKey = null);
     private sealed record BindingSlot(string Input, string? PadAction = null);
@@ -93,7 +94,7 @@ public partial class OptionsMenu
         var heading = new HBoxContainer();
         heading.AddThemeConstantOverride("separation", 8);
         heading.AddChild(new Label { Text = "Action", Modulate = UiStyle.Dim, SizeFlagsHorizontal = SizeFlags.ExpandFill });
-        heading.AddChild(new Label { Name = "BindingBehaviorHeading", Text = "Behavior", CustomMinimumSize = new Vector2(88, 0), HorizontalAlignment = HorizontalAlignment.Center, Modulate = UiStyle.Dim });
+        heading.AddChild(new Label { Name = "BindingBehaviorHeading", Text = "Behavior", CustomMinimumSize = new Vector2(BindingBehaviorWidth, 0), HorizontalAlignment = HorizontalAlignment.Center, Modulate = UiStyle.Dim });
         var first = new Label { Name = "BindingPrimaryHeading", Text = "Primary", HorizontalAlignment = HorizontalAlignment.Center, Modulate = UiStyle.Dim };
         var second = new Label { Name = "BindingAlternateHeading", Text = "Alternate", HorizontalAlignment = HorizontalAlignment.Center, Modulate = UiStyle.Dim };
         heading.AddChild(first); heading.AddChild(second);
@@ -421,11 +422,11 @@ public partial class OptionsMenu
     private Control CreateBindingBehavior(BindingEditor editor, BindingEntry entry)
     {
         string? behavior = entry.Action?.Id switch { "speed" => "walk", "scope" when editor.Side == PlaySide.Merc => "scope", "perspective" => "perspective", "cloak" => "cloak", _ => null };
-        if (behavior is null) return new Control { CustomMinimumSize = new Vector2(88, 0), MouseFilter = MouseFilterEnum.Ignore };
+        if (behavior is null) return new Control { CustomMinimumSize = new Vector2(BindingBehaviorWidth, 0), MouseFilter = MouseFilterEnum.Ignore };
         bool merc = editor.Side == PlaySide.Merc;
         LookSettings look = _edit.LookOf(merc, behavior == "walk" && editor.Pad);
         string value = behavior switch { "walk" => look.WalkBehavior, "scope" => _edit.MercKbm.ScopeBehavior, "perspective" => _edit.SpyKbm.PerspectiveBehavior, _ => _edit.SpyKbm.CloakBehavior };
-        var choice = new OptionButton { Name = "BindingBehavior_" + BindingNodeId(entry.Id), CustomMinimumSize = new Vector2(88, 32), FitToLongestItem = false, ClipText = true, TooltipText = "Hold stays active while pressed. Toggle switches on each press. Mouse wheel bindings always toggle." };
+        var choice = new OptionButton { Name = "BindingBehavior_" + BindingNodeId(entry.Id), CustomMinimumSize = new Vector2(BindingBehaviorWidth, 32), FitToLongestItem = true, ClipText = false, TooltipText = "Hold stays active while pressed. Toggle switches on each press. Mouse wheel bindings always toggle." };
         choice.FocusEntered += () => SelectBindingEntry(editor, entry);
         choice.AddItem("Hold"); choice.AddItem("Toggle"); choice.Select(value == "Hold" ? 0 : 1);
         choice.ItemSelected += index =>

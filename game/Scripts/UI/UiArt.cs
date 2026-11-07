@@ -494,6 +494,7 @@ public static class UiArt
         tabHover.BorderWidthBottom = 1;
         foreach (StyleBoxFlat t in new[] { tabOn, tabOff, tabHover })
         {
+            t.BorderWidthRight = 1;
             t.ContentMarginLeft = t.ContentMarginRight = 16f;
             t.ContentMarginTop = t.ContentMarginBottom = 7f;
         }

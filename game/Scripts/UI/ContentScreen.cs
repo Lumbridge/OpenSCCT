@@ -19,6 +19,8 @@ public partial class ContentScreen : MenuPage
 {
     private const string AllCategories = "All categories";
 
+    protected override Vector2 ResponsiveReference => new(1600f, 900f);
+
     private VBoxContainer? _maps;
     private VBoxContainer? _shared;
     private Label? _where;
@@ -52,17 +54,22 @@ public partial class ContentScreen : MenuPage
     public override void _Ready()
     {
         Name = "Content";
-        BuildFrame("Content", 980f);
+        BuildFrame("Maps & Content", 1180f, responsive: true);
+        Body.AddThemeConstantOverride("separation", 12);
+        PageCanvas.GetNode<ScrollContainer>("BodyScroll").AddChild(new CareerScroll());
 
-        VBoxContainer where = Panel(Body, "Where", "Your content");
+        VBoxContainer where = CareerPanels.Card(Body, "Where", "Your library");
+        CareerPanels.Text(where, "Help", "Download maps and keep your shared game content up to date.", dim: true, size: 14);
         _where = new Label { Name = "WhereText", AutowrapMode = TextServer.AutowrapMode.WordSmart, Modulate = UiStyle.Dim };
+        _where.AddThemeFontSizeOverride("font_size", 13);
         where.AddChild(_where);
 
-        VBoxContainer maps = Panel(Body, "Maps", "Maps");
-        var filters = new HBoxContainer { Name = "Filters" };
-        filters.AddThemeConstantOverride("separation", 12);
+        VBoxContainer maps = CareerPanels.Card(Body, "Maps", "Map catalogue");
+        var filters = new HFlowContainer { Name = "Filters" };
+        filters.AddThemeConstantOverride("h_separation", 8);
+        filters.AddThemeConstantOverride("v_separation", 8);
         maps.AddChild(filters);
-        _search = new LineEdit { Name = "Search", PlaceholderText = "Search maps", SizeFlagsHorizontal = SizeFlags.ExpandFill, ClearButtonEnabled = true };
+        _search = new LineEdit { Name = "Search", CustomMinimumSize = new Vector2(260f, 36f), PlaceholderText = "Search maps", SizeFlagsHorizontal = SizeFlags.ExpandFill, ClearButtonEnabled = true };
         _search.TextChanged += _ => Fill();
         filters.AddChild(_search);
         _category = new OptionButton { Name = "Category", CustomMinimumSize = new Vector2(200f, 0f), FitToLongestItem = false, ClipText = true };
@@ -76,11 +83,15 @@ public partial class ContentScreen : MenuPage
         var mapScroll = new ScrollContainer { CustomMinimumSize = new Vector2(0f, 300f), HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled };
         maps.AddChild(mapScroll);
         _maps = new VBoxContainer { Name = "MapRows", SizeFlagsHorizontal = SizeFlags.ExpandFill };
+        _maps.AddThemeConstantOverride("separation", 8);
+        mapScroll.FollowFocus = true;
         mapScroll.AddChild(_maps);
 
-        VBoxContainer shared = Panel(Body, "Shared", "Shared packs (characters, sounds, the game's common files)");
+        VBoxContainer shared = CareerPanels.Card(Body, "Shared", "Shared content");
+        CareerPanels.Text(shared, "Help", "Characters, sounds and common files used across maps. Required packs download with each map.", dim: true, size: 14);
         shared.GetNode<Label>("Caption").AutowrapMode = TextServer.AutowrapMode.WordSmart;
         _shared = new VBoxContainer { Name = "SharedRows", SizeFlagsHorizontal = SizeFlags.ExpandFill };
+        _shared.AddThemeConstantOverride("separation", 8);
         shared.AddChild(_shared);
 
         _status = new Label { Name = "Status", Modulate = UiStyle.MenuFocus, AutowrapMode = TextServer.AutowrapMode.WordSmart };
@@ -96,6 +107,7 @@ public partial class ContentScreen : MenuPage
             Fill();
         }, "Refresh");
 
+        foreach (Button button in PageButtons) button.CustomMinimumSize = new Vector2(144f, 44f);
         ContentPacks.RefreshIndex();
         Fill();
         _search.GrabFocus();
@@ -398,7 +410,7 @@ public partial class ContentScreen : MenuPage
         var bar = new UiProgress { Name = "Progress", Visible = job is { Running: true }, Value = (float)(job?.Fraction ?? 0) };
         column.AddChild(bar);
         _views.Add(new RowView(code, false, JobState(job), status, bar, row));
-        return column;
+        return RowFrame(column);
     }
 
     private static string StatusText(MapState state, ContentMap? map, InstalledContent? pack) => state switch
@@ -503,7 +515,7 @@ public partial class ContentScreen : MenuPage
         var bar = new UiProgress { Name = "Progress", Visible = job is { Running: true }, Value = (float)(job?.Fraction ?? 0) };
         column.AddChild(bar);
         _views.Add(new RowView(pack.Id, true, JobState(job), status, bar, row));
-        return column;
+        return RowFrame(column);
     }
 
     // ---- actions ---------------------------------------------------------------------------------------------------
@@ -546,9 +558,23 @@ public partial class ContentScreen : MenuPage
         }
     }
 
+    private static Control RowFrame(VBoxContainer column)
+    {
+        var frame = new PanelContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill };
+        var style = (StyleBox)UiStyle.ThumbBox().Duplicate();
+        style.ContentMarginLeft = style.ContentMarginRight = 12f;
+        style.ContentMarginTop = style.ContentMarginBottom = 10f;
+        frame.AddThemeStyleboxOverride("panel", style);
+        frame.AddChild(column);
+        foreach (Node node in column.FindChildren("*", nameof(Label), true, false))
+            if (node is Label label) label.AddThemeFontSizeOverride("font_size", label.Name.ToString() is "MapTitle" or "PackTitle" ? 16 : 14);
+        return frame;
+    }
+
     private static Button SmallButton(string text, Action pressed)
     {
-        var b = new Button { Text = text, Name = text };
+        var b = new Button { Text = text, Name = text, CustomMinimumSize = new Vector2(88f, 34f) };
+        b.AddThemeFontSizeOverride("font_size", 14);
         b.Pressed += pressed;
         return b;
     }
