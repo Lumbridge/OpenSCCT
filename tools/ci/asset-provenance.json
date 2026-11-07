@@ -815,16 +815,16 @@
       "sha256": "cb148891a9cdbda0c06bda5a7aa29d0fa46a2213b09a6093773686d657076b42"
     },
     "fixtures/hub/render/foliage.json": {
-      "bytes": 7697901,
-      "sha256": "ad0488009707cb02b2d1e047250325e3affb8922991d44c0f757044e785c6e6e"
+      "bytes": 7775853,
+      "sha256": "3d7af5033ebd543742d4fceb8de9f974526e06433da9611efde92ace09bb0a5f"
     },
     "fixtures/hub/render/world.glb": {
-      "bytes": 10565172,
-      "sha256": "113a803b93656a861dc3b51e53eea81db1ebcac55082388b57e0cac67e1fabfb"
+      "bytes": 10703488,
+      "sha256": "0842df20961b9d6d7319e84a79a69575a5a39f6fdae5c19e97d7566668c28422"
     },
     "fixtures/hub/sim/collision.bin": {
-      "bytes": 24771792,
-      "sha256": "ce29580636cb9e25c9a5de0022b011d0f41ce3c24b4305ec935355eebaa805ca"
+      "bytes": 24314672,
+      "sha256": "239218f9bba7cfd94d35167194e49bf7ed780ed3018af0210a4bc2d6b818901a"
     }
   },
   "additional_credits": [

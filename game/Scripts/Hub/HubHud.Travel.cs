@@ -60,7 +60,7 @@ public partial class HubHud
     {
         _travel?.QueueFree();
         _travel = null;
-        if (Round?.Controls is { } input && !Typing) input.Enabled = true;
+        if (Round?.Controls is { } input && !Typing) input.ResumePointer();
     }
 
     public override void _Input(InputEvent @event)

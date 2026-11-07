@@ -214,6 +214,9 @@ public sealed partial class HubSmoke : SmokeTest
             case 8:
                 {
                     if (context.ElapsedSeconds - _travelAt < 2.2) return SmokeResult.Running;
+                    if ((context.Tree.CurrentScene as PlayRoot)?.Controls is { } travelInput &&
+                        (!travelInput.Enabled || (DisplayServer.GetName() != "headless" && !travelInput.IsCaptured)))
+                        return Fail("travel did not restore mouse capture without a click");
                     var dest = _server!.Activities!.Layout.TeleportDestinations[TravelTour[_district]];
                     if (service.Client?.LocalPlayer?.Pawn is not { } visitor || (visitor.Location - dest.Station).Size() > 1000)
                         return Fail("travel did not arrive at " + dest.Title);
@@ -244,6 +247,12 @@ public sealed partial class HubSmoke : SmokeTest
     private string? CheckCheckpointPivots(PlayRoot root, HubPlayState play)
     {
         if (root.FindChild("HubProps", true, false) is not HubProps props) return "missing activity props";
+        foreach (var travel in play.Marks.Where(m => m.Kind == "travel"))
+        {
+            var ring = props.GetNodeOrNull<Node3D>("Mark_" + travel.Id + "/Ring");
+            if (ring is null || ring.GlobalPosition.DistanceTo(UeSpace.ToGodot(travel.At - new FVector(0, 0, 82))) > .001f)
+                return "travel marker is floating above its station: " + travel.Id;
+        }
         var clock = play.Clock;
         int checkedCourses = 0;
         try

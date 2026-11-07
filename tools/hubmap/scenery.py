@@ -1,6 +1,8 @@
 """Place credited outdoor models around the authored gameplay geometry."""
 import math
 import random
+import json
+from pathlib import Path
 
 def dress(L):
     L.SCENERY=[]
@@ -30,9 +32,12 @@ def dress(L):
     L.SOLIDS[:]=[s for s in L.SOLIDS if s.name not in removed]
     L.GES[:]=[g for g in L.GES if not any(g.id.startswith(n) for n in removed)]
     L.GROUPS.pop('OutdoorPines',None);L.GROUPS.pop('GardenTrees',None)
+    lamp_positions=[]
     for light in L.LIGHTS:
         if light.id.startswith('Walk_'):
+            if any(math.dist(light.location[:2],p)<480 for p in lamp_positions):continue
             model('street_lamp_01',(light.location[0],light.location[1],0),420)
+            lamp_positions.append(light.location[:2])
     for name,group in L.GROUPS.items():
         if name.startswith('Walk_'):
             group.pieces[:]=[p for p in group.pieces if max(v[2] for v in p.corners)<=4]
@@ -53,11 +58,14 @@ def dress(L):
     for i,(x,y) in enumerate(((13900,15400),(-11200,23500))):
         model('old-house',(x,y,0),800,90*i,size=(1800,1700,800))
     model('old-well',(12000,18000,0),240)
-    # Scanned rock outcrops give the ruins and observatory foundations an organic outline.
-    for district,(cx,cy,radius) in enumerate(((8640,18400,1050),(24600,18100,1400))):
-        for k in range(12):
-            a=k*math.pi/6;at=(cx+math.cos(a)*radius,cy+math.sin(a)*radius,0)
-            model('boulder_01',at,1800+(k%3)*650,k*37,size=(1000,1200,1800+(k%3)*650))
+    # Architectural keeps replace the piles of stretched rocks under the courses.
+    for wall in L.CASTLE_WALLS:
+        model('castle-wall',wall['at'],wall['height'],wall['yaw'],size=wall['size'])
+    for cx,cy in ((8640,18400),(24600,18100)):
+        model('castle-tower-square',(cx,cy,0),2600,size=(1800,1800,2600))
+        for side in (-1,1):
+            model('castle-tower-square',(cx+side*1500,cy,0),1600,size=(900,900,1600))
+            model('castle-wall',(cx+side*1050,cy,0),1000,size=(1200,400,1000))
     for k in range(6):
         model('old_military_crate',(-15000+k*400,3600,0),150,k*9,size=(220,200,150))
         model('Barrel_01',(-15000+k*400,3200,0),170,k*25)
@@ -125,3 +133,53 @@ def dress(L):
                 model('birch-tree-1' if k%3==0 else 'pine-tree-2',(x,y,0),1100+k%4*170,k*47)
                 occupied.append((x,y))
         model('wooden_picnic_table',(cx+640,cy-ry-400,0),120,90)
+
+    # One final placement policy covers legacy plantings AND new woodland. Use
+    # the entire rotated canopy footprint, rather than just a trunk-sized probe.
+    dimensions=json.loads((Path(__file__).resolve().parents[2]/'fixtures'/'hub-assets'/'collision.json').read_text())
+    L.TREE_CLEARANCE=[]
+    planted=[]
+    rigid_cells={}
+    for group in L.GROUPS.values():
+        for lo,hi,_ in group.volumes:
+            if hi[2]-lo[2]<=4:continue
+            for ix in range(math.floor(lo[0]/2048),math.floor(hi[0]/2048)+1):
+                for iy in range(math.floor(lo[1]/2048),math.floor(hi[1]/2048)+1):
+                    rigid_cells.setdefault((ix,iy),[]).append((lo,hi))
+    def tree_clear(e,x,y):
+        sx,sy,sz=dimensions[e['asset']]['size'];h=e['height']
+        a=math.radians(e['yaw']);c,s=abs(math.cos(a)),abs(math.sin(a))
+        hx=(c*sx+s*sz)*h/sy/2+96;hy=(s*sx+c*sz)*h/sy/2+96
+        if not (L.HALL_LO[0]+hx<x<L.HALL_HI[0]-hx and L.HALL_LO[1]+hy<y<L.HALL_HI[1]-hy):return False
+        if any(lo[0]-hx<x<hi[0]+hx and lo[1]-hy<y<hi[1]+hy for lo,hi,_ in L.FLOOR_ZONES):return False
+        if any(a.lo[0]-hx<x<a.hi[0]+hx and a.lo[1]-hy<y<a.hi[1]+hy for a in L.AREAS):return False
+        if any(abs(x-t['station'][0])<hx+600 and abs(y-t['station'][1])<hy+800 for t in L.TELEPORTS):return False
+        if L._box_hits((x,y,h/2),(hx,hy,h/2)):return False
+        # contacts.py promotes rigid render volumes to solids after dressing.
+        # Include them here too, especially the lounge's wall-mounted screen.
+        for ix in range(math.floor((x-hx)/2048),math.floor((x+hx)/2048)+1):
+            for iy in range(math.floor((y-hy)/2048),math.floor((y+hy)/2048)+1):
+                if any(lo[0]-hx<x<hi[0]+hx and lo[1]-hy<y<hi[1]+hy and lo[2]<h and hi[2]>0
+                       for lo,hi in rigid_cells.get((ix,iy),[])):return False
+        if any(math.dist((x,y),p)<420 for p in planted):return False
+        for lake in L.LAKES:
+            cx,cy=lake['centre'];rx,ry=lake['radii']
+            if ((x-cx)/(rx+hx+400))**2+((y-cy)/(ry+hy))**2<1:return False
+        for other in L.SCENERY:
+            if other is e or '-tree-' in other['asset'] or other['asset']=='flower-1.glb':continue
+            ox,oy,_=other['at'];w,d,_=other.get('size',(other['height']*2,other['height']*2,other['height']))
+            if abs(x-ox)<hx+max(w,d)/2 and abs(y-oy)<hy+max(w,d)/2:return False
+        return True
+    rejected=[]
+    for e in L.SCENERY:
+        if '-tree-' not in e['asset']:continue
+        if not tree_clear(e,*e['at'][:2]):
+            origin=e['at'][:2]
+            for attempt in range(1200):
+                angle=attempt*2.399963;r=384+240*math.sqrt(attempt)
+                px=round(origin[0]+math.cos(angle)*r);py=round(origin[1]+math.sin(angle)*r)
+                if tree_clear(e,px,py):e['at']=[px,py,0];break
+            else:rejected.append(e['id']);continue
+        L.TREE_CLEARANCE.append(e['id'])
+        planted.append(tuple(e['at'][:2]))
+    L.SCENERY[:]=[e for e in L.SCENERY if e['id'] not in rejected]

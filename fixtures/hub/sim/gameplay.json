@@ -654,7 +654,7 @@
    "class": "Engine.Mover",
    "id": "mediumLift",
    "props": {
-    "BasePos": {"X": 7857.0, "Y": 16000.0, "Z": 1976.0},
+    "BasePos": {"X": 7857.0, "Y": 16000.0, "Z": 944.0},
     "DrawType": 8,
     "InitialState": "TriggerPound",
     "KeyPos": {
@@ -663,7 +663,7 @@
       "1": {"X": 0.0, "Y": 0.0, "Z": 640.0}
      }
     },
-    "Location": {"X": 7857.0, "Y": 16000.0, "Z": 1976.0},
+    "Location": {"X": 7857.0, "Y": 16000.0, "Z": 944.0},
     "MoveTime": 3.5,
     "MoverEncroachType": 0,
     "NetUpdateFrequency": 4.0,
@@ -683,7 +683,7 @@
    "class": "Engine.Mover",
    "id": "hardShuttle",
    "props": {
-    "BasePos": {"X": 22448.0, "Y": 15488.0, "Z": 2336.0},
+    "BasePos": {"X": 22448.0, "Y": 15488.0, "Z": 1600.0},
     "DrawType": 8,
     "InitialState": "TriggerPound",
     "KeyPos": {
@@ -692,7 +692,7 @@
       "1": {"X": 1136.0, "Y": 0.0, "Z": 0.0}
      }
     },
-    "Location": {"X": 22448.0, "Y": 15488.0, "Z": 2336.0},
+    "Location": {"X": 22448.0, "Y": 15488.0, "Z": 1600.0},
     "MoveTime": 8.0,
     "MoverEncroachType": 0,
     "NetUpdateFrequency": 4.0,
@@ -712,7 +712,7 @@
    "class": "Engine.Mover",
    "id": "hardLift",
    "props": {
-    "BasePos": {"X": 21888.0, "Y": 20304.0, "Z": 4280.0},
+    "BasePos": {"X": 21888.0, "Y": 20304.0, "Z": 2624.0},
     "DrawType": 8,
     "InitialState": "TriggerPound",
     "KeyPos": {
@@ -721,7 +721,7 @@
       "1": {"X": 0.0, "Y": 0.0, "Z": 640.0}
      }
     },
-    "Location": {"X": 21888.0, "Y": 20304.0, "Z": 4280.0},
+    "Location": {"X": 21888.0, "Y": 20304.0, "Z": 2624.0},
     "MoveTime": 3.5,
     "MoverEncroachType": 0,
     "NetUpdateFrequency": 4.0,

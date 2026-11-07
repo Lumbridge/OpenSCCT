@@ -338,7 +338,8 @@ public sealed partial class HubActivities
             _marks.Add(HubPlayProtocol.Mark("start", course.Id + "/Start", course.Start.At, course.Start.Radius));
             _marks.Add(HubPlayProtocol.Mark("finish", course.Id + "/Finish", course.Finish.At, course.Finish.Radius));
             for (int i = 1; i < course.Sections.Count; i++)
-                _marks.Add(HubPlayProtocol.Mark("checkpoint", course.Id + "/" + i, course.Sections[i].Recovery, 96));
+                _marks.Add(HubPlayProtocol.Mark("checkpoint", course.Id + "/" + i, course.Sections[i].Recovery,
+                    course.LegacyRecovery ? 96 : course.Gates[course.Sections[i].FirstGate - 1].Radius));
         }
         foreach (var destination in l.TeleportDestinations.Values)
             _marks.Add(HubPlayProtocol.Mark("travel", destination.Id, destination.Station, 256));

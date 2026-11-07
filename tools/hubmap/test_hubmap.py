@@ -226,16 +226,16 @@ def test_groundcover_is_dense_bounded_and_keeps_arrivals_and_course_recovery_cle
                 for lake in L.LAKES:
                     cx,cy=lake['centre'];rx,ry=lake['radii'];ny=(y-cy)/ry;nx=(x-cx-rx*.13*ny)/rx
                     assert nx*nx+ny*ny>1.06**2
-    sources={r['asset']:r for r in json.loads((G.ASSETS/'sources.json').read_text())}
+    sources={r['asset']:r for r in json.loads((HERE.parents[1]/'fixtures'/'hub-assets/sources.json').read_text())}
     grass=G.ASSETS/data['grassTexture']
     assert hashlib.sha256(grass.read_bytes()).hexdigest()==sources[grass.stem]['sha256']
     assert sources[grass.stem]['license']=='MIT'
-    assert 'Copyright (c) 2023 IcterusGames' in (G.ASSETS/'SimpleGrassTextured-MIT.txt').read_text()
+    assert 'Copyright (c) 2023 IcterusGames' in (HERE.parents[1]/'fixtures'/'hub-assets/SimpleGrassTextured-MIT.txt').read_text()
 
 
 def test_every_scenery_instance_has_matching_collision_and_tree_climbs():
     import hashlib
-    models=json.loads((G.ASSETS/'collision.json').read_text())
+    models=json.loads((HERE.parents[1]/'fixtures'/'hub-assets/collision.json').read_text())
     collision=G.C.read_collision((G.DEFAULT_OUT/'sim/collision.bin').read_bytes())
     sources={collision.strings[s.source] for s in collision.sources}
     ges={g.id:g for g in L.GES}
@@ -297,17 +297,76 @@ def test_report_routes_alternate_native_mechanics_and_keep_short_clean_run_targe
     for area in L.AREAS:
         if area.kind!='movementCourse' or area.data.get('courseId')=='easy':continue
         data=area.data
-        assert data['revision']==(4 if data['courseId']=='medium' else 3)
-        assert data['cleanRunSeconds']==([150,240] if data['courseId']=='medium' else [240,360])
+        assert data['revision']==(6 if data['courseId']=='medium' else 5)
+        assert data['cleanRunSeconds']==([110,180] if data['courseId']=='medium' else [180,270])
         route=data['playtestRoute']
         kinds={step['kind'] for step in route}
-        assert {'jump','ledge' if data['courseId']=='medium' else 'wallkick','pipe','ladder','hoh','shimmy','roll','fence','zip','lift'}<=kinds
+        assert {'jump','ledge','ladder','hoh','shimmy','roll','fence','zip','lift'}<=kinds
+        if data['courseId']=='hard':assert {'wallkick','pipe'}<=kinds
+        assert sum(s['kind']=='shimmy' for s in route)==1
+        assert sum(s['kind']=='hoh' for s in route)==1
+        assert sum(s['kind']=='wallkick' for s in route)<=1
         assert len(route)<150
         last_obstacle=next(s for s in reversed(route) if s['kind']!='walk')
         assert last_obstacle['gate']==len(data['checkpoints'])-1
         assert route[-1]['gate'] is None and route[-1]['at']==data['finish']
         for index in range(len(data['sections'])):
-            assert len({step['kind'] for step in route if step['section']==index})>=3
+            assert len({step['kind'] for step in route if step['section']==index})>=2
+
+
+def test_fountain_ladder_stays_with_the_fountain_and_lamps_are_separated():
+    ladder=[p for p in L.GROUPS['PlazaFountain'].pieces if p.material=='metal']
+    assert ladder
+    assert all(abs(v[0]-L.CX)<64 and abs(v[1]-(L.CY-71))<16 for p in ladder for v in p.corners)
+    lamps=[e for e in L.SCENERY if e['asset']=='street_lamp_01.glb']
+    assert lamps
+    assert all(math.dist(a['at'][:2],b['at'][:2])>=480 for i,a in enumerate(lamps) for b in lamps[i+1:])
+
+
+def test_all_tree_canopies_clear_paths_districts_and_buildings():
+    dimensions=json.loads((HERE.parents[1]/'fixtures'/'hub-assets/collision.json').read_text())
+    trees=[e for e in L.SCENERY if '-tree-' in e['asset']]
+    assert len(trees)>500
+    assert {e['id'] for e in trees}==set(L.TREE_CLEARANCE)
+    for e in trees:
+        x,y,_=e['at'];sx,sy,sz=dimensions[e['asset']]['size'];h=e['height']
+        a=math.radians(e['yaw']);c,s=abs(math.cos(a)),abs(math.sin(a))
+        hx=(c*sx+s*sz)*h/sy/2+96;hy=(s*sx+c*sz)*h/sy/2+96
+        assert not L._box_hits((x,y,h/2),(hx,hy,h/2)),e['id']
+        assert not any(lo[0]-hx<x<hi[0]+hx and lo[1]-hy<y<hi[1]+hy for lo,hi,_ in L.FLOOR_ZONES),e['id']
+        assert not any(a.lo[0]-hx<x<a.hi[0]+hx and a.lo[1]-hy<y<a.hi[1]+hy for a in L.AREAS),e['id']
+
+
+def test_course_platforms_have_no_one_sided_neon_strip():
+    assert 'mediumEdgeTrim' not in L.GROUPS and 'hardEdgeTrim' not in L.GROUPS
+
+
+def test_only_visible_section_checkpoints_validate_walking():
+    for area in L.AREAS:
+        if area.kind!='movementCourse' or area.data['courseId']=='easy':continue
+        data=area.data
+        visible={tuple(s['recovery']) for s in data['sections'][1:]}
+        walking=[s for s in data['playtestRoute'] if s['kind']=='walk' and s['gate'] is not None]
+        assert {tuple(s['at']) for s in walking}==visible
+        assert all(data['checkpoints'][s['gate']]['radius']==256 for s in walking)
+
+
+def test_fences_render_as_fine_open_wire_mesh_with_the_native_thin_climbing_plane():
+    assert L.MATERIALS['fence'].hidden
+    for fence in (s for s in L.SOLIDS if s.material=='fence'):
+        mesh=L.GROUPS[fence.name+'WireMesh']
+        frame=L.GROUPS[fence.name+'WireFrame']
+        axis=0 if fence.hi[0]-fence.lo[0]>fence.hi[1]-fence.lo[1] else 1
+        assert len(mesh.pieces)>200
+        assert all(p.material=='fence_wire' for p in mesh.pieces)
+        slopes=set()
+        for p in mesh.pieces:
+            a,b=p.corners[:2];du=b[axis]-a[axis];dz=b[2]-a[2]
+            assert abs(abs(du)-abs(dz))<.01
+            slopes.add(1 if du*dz>0 else -1)
+        assert slopes=={-1,1}
+        assert all(fence.lo[k]<=v[k]<=fence.hi[k] for group in (mesh,frame)
+                   for p in group.pieces for v in p.corners for k in range(3))
 
 
 def test_outdoor_dressing_has_dense_woodland_and_real_shallow_lake_beds():

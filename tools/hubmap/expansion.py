@@ -86,8 +86,8 @@ def expand(L):
     station("matches","Match District",(22528,6144,0),0)
     station("lounge","Waterfront Lounge",(-8192,-10240,0),32768)
     station("easy","Easy - Training Grounds",(3328,-8704,0),49152)
-    station("medium","Medium - Overgrown Ruins",(11008,14336,0),16384)
-    station("hard","Hard - Frozen Observatory",(27264,13824,0),16384)
+    station("medium","Medium - Castle Ramparts",(11008,14336,0),16384)
+    station("hard","Hard - Frozen Citadel",(27264,13824,0),16384)
     for t in L.TELEPORTS[1:]:path("Walk_"+t["id"],(6144,8192),tuple(t["station"][:2]))
 
     # Outdoor groves between the districts. Original faceted pine canopies keep the horizon open.

@@ -7,6 +7,22 @@ It supports proximity voice, match pads, three assault courses, an aim range, em
 The design targets about 50 players; the [recorded soak test](#the-soak-test) describes the test conditions.
 The hub is an OpenSCCT addition, with rules in [the hub specification](../spec/additions/hub.md).
 
+## Hub revision in 0.8.108
+
+Medium is Castle Ramparts and Hard is Frozen Citadel, using credited Kenney castle modules. Faster routes combine
+running, ramps, bridges, vaults and linked jumps with one shimmy and one overhead traverse per course. Hard has one
+split-jump shaft. Current score revisions are Medium 6, Hard 5 and Easy 4.
+
+Checkpoint detection sweeps the runner's movement using body width and foot height. Only ordered obstacles and
+visible section checkpoints validate the route; ordinary walking waypoints do not block progression. Expanded
+section discs match their 256-unit triggers. Recovery resets the sweep, and relocations over 512 units do not
+earn gates crossed along the relocation. Travel restores mouse capture automatically and places its discs at foot height.
+
+All chain-link panels use fine, framed diamond wire geometry with open gaps, retaining the thin native climbing
+plane. Tree canopies clear paths, buildings, lounge furniture and arrivals; nearby path lamps are deduplicated.
+The fountain ladder remains in the plaza, cables and overhead bars have endpoint connectors, and one-sided platform
+stripes and stretched rock foundations are removed. New assets and licenses are in `fixtures/hub-assets`.
+
 ## Visit a hub
 
 Open **Hub** from the main menu, select a listed hub and join. You can also join by address or host your own.

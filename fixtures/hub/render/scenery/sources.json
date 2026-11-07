@@ -164,5 +164,33 @@
     "license": "MIT",
     "author": "IcterusGames / SimpleGrassTextured",
     "sha256": "b09c287f65e5c2ced9aeec591674241d5cf846619c26dababfaba81a1fe29982"
+  },
+  {
+    "asset": "castle-tower-square",
+    "source": "https://raw.githubusercontent.com/Hidencod/tge-assets/ea2f2aa1ca8da0898330c97df8a5489976b051d0/packs/castle-kit/tower-square.glb",
+    "license": "CC0-1.0",
+    "author": "Kenney",
+    "sha256": "f2242fe7ec92673137e37ee7fb8fd797c9a9133ed07052d3e1fd7c7afdf8c3a9"
+  },
+  {
+    "asset": "castle-wall",
+    "source": "https://raw.githubusercontent.com/Hidencod/tge-assets/ea2f2aa1ca8da0898330c97df8a5489976b051d0/packs/castle-kit/wall.glb",
+    "license": "CC0-1.0",
+    "author": "Kenney",
+    "sha256": "196df14932c4277adcc71696722b04c0f1911d34fa3316fff74fab6bb72ffd9c"
+  },
+  {
+    "asset": "castle-gate",
+    "source": "https://raw.githubusercontent.com/Hidencod/tge-assets/ea2f2aa1ca8da0898330c97df8a5489976b051d0/packs/castle-kit/gate.glb",
+    "license": "CC0-1.0",
+    "author": "Kenney",
+    "sha256": "ae32a26b2038c50bb1da0b2302550d6697e797c91f662a85fdd52c475d948ed2"
+  },
+  {
+    "asset": "castle-bridge-straight-pillar",
+    "source": "https://raw.githubusercontent.com/Hidencod/tge-assets/ea2f2aa1ca8da0898330c97df8a5489976b051d0/packs/castle-kit/bridge-straight-pillar.glb",
+    "license": "CC0-1.0",
+    "author": "Kenney",
+    "sha256": "e45ea21af67b776588087fd93c9ebbd0d8dbbf29ca530477328b539950170810"
   }
 ]

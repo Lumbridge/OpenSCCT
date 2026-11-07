@@ -29,6 +29,17 @@ public sealed record HubCourseDefinition(
         while (next < Gates.Count && Gates[next].Contains(at)) next++;
         return next;
     }
+
+    public int AdvanceGates(int next, FVector from, FVector at, float bodyRadius, float halfHeight, out FVector remaining)
+    {
+        remaining = from;
+        while (next < Gates.Count && Gates[next].Crosses(remaining, at, bodyRadius, halfHeight, out float entry))
+        {
+            remaining += (at - remaining) * entry;
+            next++;
+        }
+        return next;
+    }
 }
 
 public sealed record HubTeleportDestination(string Id, string Title, FVector Station, IReadOnlyList<FVector> Arrivals, int Yaw);

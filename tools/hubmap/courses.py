@@ -40,8 +40,31 @@ class Course:
             for side in (-1, 1):
                 r=side*(width/2+112)
                 self.box('Buttress', (f-40, r-32, max(-self.p[2],height-512)), (f+40, r+32, height))
-        self.L.box(self.id+'EdgeTrim', self._bounds(begin,end,-width/2,-width/2+4,height-6,height+1)[0],
-                   self._bounds(begin,end,-width/2,-width/2+4,height-6,height+1)[1], self.accent)
+
+    def ramp(self, distance=1024, rise=192, width=384):
+        lo,hi=self._bounds(0,distance,-width/2,width/2,-64,rise)
+        axis=0 if self.d[0] else 1
+        direction=('+' if self.d[axis]>0 else '-')+('x' if axis==0 else 'y')
+        self.serial+=1
+        self.L.solid(self.id+str(self.serial)+'BattlementRamp',lo,hi,self.material,up=direction)
+        self.advance(distance,rise)
+        self.floor(0,512,width,name='RampCrown')
+        self.step('walk',self.point(256),min(140,width/2-12),validate=False)
+        self.advance(512)
+
+    def bridge(self, distance=1280, width=192):
+        self.floor(-160,distance,width,name='TimberBridge')
+        # Outboard frames carry a timber span; the running lane stays open.
+        for f in (256,distance-256):
+            for side in (-1,1):
+                r=side*320
+                self.box('BridgePier',(f-32,r-24,-self.p[2]),(f+32,r+24,72))
+            self.box('BridgeCrossbeam',(f-32,-344,-56),(f+32,344,-32),'ruin_wood')
+        for side in (-1,1):
+            r=side*320
+            self.L.beam(self.id+'BridgeRail',self.point(256,r,72),self.point(distance-256,r,72),8,'ruin_wood')
+        self.step('walk',self.point(distance-128),min(140,width/2-12),validate=False)
+        self.advance(distance)
 
     def _bounds(self, f0, f1, r0, r1, z0, z1):
         pts=[self.point(f,r,z) for f in (f0,f1) for r in (r0,r1) for z in (z0,z1)]
@@ -55,9 +78,9 @@ class Course:
         self.guide.append({'kind':kind, 'at':list(at), 'yaw':int(math.atan2(self.d[1],self.d[0])*65536/(2*math.pi)) & 65535,
                            'gate':len(self.gates)-1 if validate else None, 'section':len(self.sections)-1, **data})
 
-    def walk(self, distance, width=384, gate=True):
+    def walk(self, distance, width=384, gate=False):
         self.floor(-160, distance, width)
-        if gate:self.step('walk', self.point(distance-128), min(140,width/2-12))
+        self.step('walk', self.point(distance-128), min(140,width/2-12),validate=gate)
         self.advance(distance)
 
     def jumps(self, gaps, width=240, landing=384):
@@ -101,6 +124,10 @@ class Course:
         ge=self.id+str(self.serial)+'HOH'
         self.L.ge(ge,'HOH',a,b,note='ceiling traverse; crouch releases above the exit')
         self.L.beam(self.id+'Overhead',a,b,4,'metal')
+        for end in (a,b):
+            self.L.beam(self.id+'OverheadHanger',end,(end[0],end[1],end[2]+59),6,'metal')
+        for f0,f1 in ((-224,-192),(gap+192,gap+224)):
+            self.L.beam(self.id+'OverheadBracket',self.point(f0,up=336),self.point(f1,up=336),8,'metal')
         self.floor(gap,gap+512,name='HohExit')
         for f in (-224,gap+224):
             for r in (-288,288):self.box('OverheadSupport',(f-16,r-16,-self.p[2]),(f+16,r+16,400))
@@ -122,6 +149,8 @@ class Course:
         self.advance(gap+512)
 
     def rail_roll(self, rail=True, length=448):
+        # Use a consistent vaulted gate module; approaches vary around it.
+        length=max(length,448)
         self.floor(-160,length+1056,name='GateGallery')
         if rail:
             self.box('VaultRail',(64,-192,0),(88,192,100))
@@ -147,8 +176,7 @@ class Course:
         # Board from a broad stationary quay and transfer to an upper gallery.
         start=self.point(176,up=-32);end=(start[0],start[1],start[2]+640)
         self.mover(ident,start,end,'ruin_wood' if self.id=='medium' else 'observatory',travel_seconds)
-        # Leave room for a spy hanging on the exit-facing rim as the lift rises.
-        self.floor(448,992,384,height=640,name='LiftExit')
+        self.floor(352,992,384,height=640,name='LiftExit')
         self.step('lift',self.point(672,up=640),140,approach=list(self.point(-96)),mover=ident)
         self.advance(992,640)
 
@@ -160,23 +188,27 @@ class Course:
         self.advance(2128)
 
     def zip(self):
+        # Give the previous landing/roll a clear run-up before the cable grab.
+        self.walk(512)
         high=self.point(-112,up=304);low=self.point(1648,up=-16)
         ge=self.id+str(self.serial)+'Zip'
         self.L.ge(ge,'ZL',low,high,note='native downhill cable; broad landing')
         self.L.beam(self.id+'ZipCable',high,low,3,'metal')
         self.floor(1408,1920,height=-224,name='ZipExit')
-        for f,z,base in ((-112,328,0),(1848,8,-224)):
+        for f,z,base in ((-112,328,0),(1648,8,-224)):
             a=self.point(f,96,base);b=self.point(f,96,z)
             self.L.beam(self.id+'ZipSupport',a,b,8,'metal')
             self.L.beam(self.id+'ZipSupport',b,self.point(f,0,z),8,'metal')
             self.L.ge(self.id+str(self.serial)+'ZipPost'+str(f).replace('-','Neg'),'PIPE',a,b,self.point(f,106,base),note='outboard cable support')
+        self.L.beam(self.id+'ZipAnchor',high,self.point(-112,0,328),6,'metal')
+        self.L.beam(self.id+'ZipAnchor',low,self.point(1648,0,8),6,'metal')
         self.step('zip',self.point(1744,up=-224),140,approach=list(self.point(-52)),ge=ge)
         self.advance(1920,-224)
 
     def section(self,name,operations):
         # Each section begins on a generous solid breather/recovery terrace.
         recovery=self.point(-128)
-        if self.sections:self.step('walk',recovery,140)
+        if self.sections:self.step('walk',recovery,256)
         index=len(self.sections)
         self.sections.append({'name':name,'firstGate':len(self.gates),'recovery':list(recovery),
                               'yaw':int(math.atan2(self.d[1],self.d[0])*65536/(2*math.pi)) & 65535})
@@ -189,10 +221,20 @@ class Course:
         for op,args in operations:getattr(self,op)(*args)
         used=(self.p[0]-initial[0])*self.d[0]+(self.p[1]-initial[1])*self.d[1]
         if used < self.length:self.walk(self.length-used)
+        # A continuous outer curtain wall makes the running terraces part of a
+        # castle. Keep it outside the route and its recovery balconies; heights
+        # follow the ascent without filling the lower running gallery.
+        if not hasattr(self.L,'CASTLE_WALLS'):self.L.CASTLE_WALLS=[]
+        direction=self.d
+        for f in (800,2400):
+            at=(initial[0]+direction[0]*f+direction[1]*640,
+                initial[1]+direction[1]*f-direction[0]*640,0)
+            self.L.CASTLE_WALLS.append(dict(at=at,height=max(initial[2]+192,512),
+                yaw=0 if direction[0] else 90,size=(1600,192,max(initial[2]+192,512))))
         # A stone belvedere joins each perpendicular district facade. It provides
         # an optional view/exploration branch and a clear preview of the next leg.
         self.floor(-384,256,768,name='Belvedere')
-        self.step('walk',self.point(-128),140)
+        self.step('walk',self.point(-128),140,validate=False)
         self.p=self.point(-128)
         self.d=(-self.d[1],self.d[0])
         self.walk(384)
@@ -204,7 +246,7 @@ class Course:
         last_obstacle=next(s['gate'] for s in reversed(self.guide) if s['kind']!='walk')
         del self.gates[last_obstacle+1:]
         for step in self.guide:
-            if step['gate']>last_obstacle:step['gate']=None
+            if step['gate'] is not None and step['gate']>last_obstacle:step['gate']=None
         self.step('walk',finish,140,validate=False)
         points=[self.start,finish,*[tuple(g['at']) for g in self.gates]]
         lo=[min(p[k] for p in points)-768 for k in range(2)]
@@ -237,22 +279,22 @@ class Course:
 
 
 def build(L,sign,path,mover):
-    medium=Course(L,'medium','Medium - Overgrown Ruins',(11008,15872,320),4608,sign,path,mover)
-    medium.section('Broken Aqueduct',[('walk',(384,)),('jumps',([155,180,205],)),('rail_roll',()),('climb',(208,))])
-    medium.section('Ledge Gallery',[('climb',(264,)),('walk',(384,)),('shimmy',(640,)),('hoh',(640,)),('vertical',('ladder',320))])
-    medium.section('Service Courtyard',[('vertical',('pipe',512)),('hoh',(768,)),('walk',(512,)),('fence',()),('vertical',('ladder',384))])
-    medium.section('Canopy Lift',[('jumps',([180,205],)),('lift',('mediumLift',3.5)),('hoh',(640,)),('climb',(208,))])
-    medium.section('Outer Ramparts',[('rail_roll',()),('shimmy',(768,)),('jumps',([180,205],)),('climb',(264,))])
-    medium.section('Tower Extraction',[('vertical',('ladder',640)),('climb',(264,)),('hoh',(768,)),('zip',())])
-    medium.finish((150,240),revision=4)
+    medium=Course(L,'medium','Medium - Castle Ramparts',(11008,15872,320),4608,sign,path,mover)
+    medium.section('Gatehouse Dash',[('rail_roll',()),('ramp',(1024,192)),('jumps',([155,205],))])
+    medium.section('Broken Aqueduct',[('bridge',(1280,192)),('jumps',([180,205,155],)),('climb',(208,))])
+    medium.section('Castle Courtyard',[('fence',()),('ramp',(1024,256)),('rail_roll',(True,256)),('bridge',(768,240))])
+    medium.section('Siege Lift',[('jumps',([180,205],)),('lift',('mediumLift',3.5)),('rail_roll',(False,256)),('climb',(208,))])
+    medium.section('Wallside Escape',[('shimmy',(384,)),('bridge',(1152,176)),('jumps',([205,180],)),('ramp',(768,192))])
+    medium.section('Tower Extraction',[('vertical',('ladder',384)),('hoh',(384,)),('climb',(264,)),('zip',())])
+    medium.finish((110,180),revision=6)
 
-    hard=Course(L,'hard','Hard - Frozen Observatory',(27264,15360,512),5120,sign,path,mover)
-    hard.section('Razor Approach',[('walk',(384,)),('jumps',([220,240,255],112,384)),('climb',(264,)),('shimmy',(768,))])
-    hard.section('Split Shaft',[('climb',(408,'wallkick')),('walk',(512,)),('climb',(408,'wallkick')),('hoh',(896,)),('jumps',([230],128,384))])
-    hard.section('Frozen Gallery',[('shimmy',(1024,)),('climb',(264,)),('rail_roll',(False,640)),('vertical',('pipe',512))])
+    hard=Course(L,'hard','Hard - Frozen Citadel',(27264,15360,512),5120,sign,path,mover)
+    hard.section('Razor Approach',[('jumps',([220,240,255],112,384)),('rail_roll',(True,256)),('ramp',(1024,256))])
+    hard.section('Split Bell Tower',[('climb',(408,'wallkick')),('bridge',(1024,112)),('jumps',([230,250],128,384)),('ramp',(768,192))])
+    hard.section('Frozen Gallery',[('shimmy',(512,)),('climb',(264,)),('rail_roll',(False,384)),('bridge',(1280,128))])
     hard.section('Shuttle Crossing',[('shuttle',()),('jumps',([235,250],112,384)),('fence',()),('vertical',('ladder',384))])
-    hard.section('Utility Spine',[('vertical',('pipe',640)),('hoh',(1024,)),('vertical',('ladder',512)),('shimmy',(768,))])
-    hard.section('Vaulted Passages',[('rail_roll',(True,576)),('climb',(408,'wallkick')),('jumps',([240,255],104,384)),('hoh',(768,))])
-    hard.section('High Lift',[('lift',('hardLift',3.5)),('shimmy',(1024,)),('jumps',([235,250],112,384)),('vertical',('pipe',512))])
-    hard.section('Observatory Summit',[('climb',(408,'wallkick')),('hoh',(1024,)),('vertical',('ladder',512)),('zip',())])
-    hard.finish((240,360),revision=3)
+    hard.section('Roofline Chase',[('vertical',('pipe',384)),('ramp',(1024,256)),('jumps',([240,255],104,384)),('rail_roll',(True,256))])
+    hard.section('Vaulted Passages',[('rail_roll',(True,384)),('hoh',(512,)),('jumps',([240,255],104,384)),('bridge',(1024,112))])
+    hard.section('High Lift',[('lift',('hardLift',3.5)),('ramp',(768,192)),('jumps',([235,250],112,384)),('bridge',(1024,112))])
+    hard.section('Citadel Summit',[('climb',(264,)),('vertical',('ladder',384)),('rail_roll',(True,256)),('zip',())])
+    hard.finish((180,270),revision=5)

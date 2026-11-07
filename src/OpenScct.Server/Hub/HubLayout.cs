@@ -21,6 +21,43 @@ public readonly record struct HubGate(string Id, FVector At, float Radius, float
         float dz = p.Z - At.Z;
         return dx * dx + dy * dy <= Radius * Radius && dz > -Depth && dz < Height;
     }
+
+    /// <summary>First contact along movement, using the runner's feet and body width.</summary>
+    public bool Crosses(FVector from, FVector to, float bodyRadius, float halfHeight, out float entry)
+    {
+        entry = 0;
+        float low = 0, high = 1;
+        float z = from.Z - halfHeight - At.Z, dz = to.Z - from.Z;
+        if (Math.Abs(dz) < .0001f)
+        {
+            if (z <= -Depth || z >= Height) return false;
+        }
+        else
+        {
+            float a = (-Depth - z) / dz, b = (Height - z) / dz;
+            low = Math.Max(low, Math.Min(a, b));
+            high = Math.Min(high, Math.Max(a, b));
+        }
+        float x = from.X - At.X, y = from.Y - At.Y;
+        float dx = to.X - from.X, dy = to.Y - from.Y;
+        float radius = Radius + bodyRadius;
+        float aa = dx * dx + dy * dy, bb = 2 * (x * dx + y * dy);
+        float cc = x * x + y * y - radius * radius;
+        if (aa < .0001f)
+        {
+            if (cc > 0) return false;
+        }
+        else
+        {
+            float discriminant = bb * bb - 4 * aa * cc;
+            if (discriminant < 0) return false;
+            float root = MathF.Sqrt(discriminant);
+            low = Math.Max(low, (-bb - root) / (2 * aa));
+            high = Math.Min(high, (-bb + root) / (2 * aa));
+        }
+        entry = low;
+        return low <= high;
+    }
 }
 
 /// <summary>

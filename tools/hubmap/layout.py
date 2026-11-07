@@ -90,7 +90,7 @@ mat("booth")
 mat("wood", tile=(128.0, 128.0))
 mat("deck", surface=17)
 mat("metal", surface=14, occlusion=4)
-mat("fence", surface=22, occlusion=1, climbable=True)
+mat("fence", surface=22, occlusion=1, climbable=True, hidden=True)
 mat("hedge", tile=(128.0, 128.0))
 mat("foliage")
 mat("bark", tile=(128.0, 128.0))
@@ -605,13 +605,13 @@ def ladder_visual(g, x, y, z0, z1, along="x"):
 
 
 ladder_visual("GardenKit", LADDER_X, LADDER_Y - 3, 0, 320)
-ladder_visual("PlazaFountain", CX, CY - 64 - 7, 96, 416)   # the fountain column's ladder
 ladder_visual("GardenKit", TOWER_LADDER_X - 3, 10240, 384, 600, along="y")
 beam("GardenKit", ZIP_HIGH, ZIP_LOW, 3, "metal")
-for name,wire,floor,dy in (("ZipHighSupport",ZIP_HIGH,384,0),("ZipLowSupport",ZIP_LOW,160,-200)):
+for name,wire,floor,dy in (("ZipHighSupport",ZIP_HIGH,384,0),("ZipLowSupport",ZIP_LOW,160,0)):
     foot=(wire[0]+96,wire[1]+dy,floor);top=(foot[0],foot[1],wire[2]+24)
     beam("GardenKit",foot,top,8,"metal")
     beam("GardenKit",top,(wire[0],wire[1]+dy,wire[2]+24),8,"metal")
+    beam("GardenKit",(wire[0],wire[1]+dy,wire[2]+24),wire,6,"metal")
     ge(name,"PIPE",foot,top,(foot[0]+10,foot[1],floor),note="solid outboard zip support; clear rider lane")
 # Station labels: on the block faces, and painted on the turf in front of the free-standing pieces.
 for k, (text, x0, x1, top) in enumerate((("LEDGE 128", 3072, 3328, 128), ("LEDGE 208", 3584, 3840, 208),
@@ -639,6 +639,9 @@ area("Garden", "traversal", "Traversal garden", GARDEN_LO, GARDEN_HI, "H1",
      zipHigh=list(ZIP_HIGH), zipLow=list(ZIP_LOW))
 
 _district_move(_district, -12288, 14336)
+
+# This ladder belongs to the plaza, outside the garden relocation snapshot.
+ladder_visual("PlazaFountain", CX, CY - 64 - 7, 96, 416)
 
 _district = _district_begin()
 # ---- Match pads (east): railed courts, sign gantries, bleachers, a theme kit per pad -------------------------------
@@ -911,10 +914,11 @@ deck("CourseFinish", fx0, fx1, ftop, y=(fy0, fy1))
 ledge("CourseFinishLGW", (fx0, fy1, ftop), (fx0, fy0, ftop), "finish deck, west lip")
 lips(SOLIDS[-1], "sn", "finish deck, side lip", ident="CourseFinish")
 beam("CourseKit", CZIP_HIGH, CZIP_LOW, 3, "metal")
-for name,wire,floor,dx in (("CourseZipHighSupport",CZIP_HIGH,ETOP,0),("CourseZipLowSupport",CZIP_LOW,ftop,200)):
+for name,wire,floor,dx in (("CourseZipHighSupport",CZIP_HIGH,ETOP,0),("CourseZipLowSupport",CZIP_LOW,ftop,0)):
     foot=(wire[0]+dx,ROUTE_Y+96,floor);top=(foot[0],foot[1],wire[2]+24)
     beam("CourseKit",foot,top,8,"metal")
     beam("CourseKit",top,(wire[0]+dx,ROUTE_Y,wire[2]+24),8,"metal")
+    beam("CourseKit",(wire[0]+dx,ROUTE_Y,wire[2]+24),wire,6,"metal")
     ge(name,"PIPE",foot,top,(foot[0],foot[1]+10,floor),note="solid outboard zip support; clear rider lane")
 # The way down after the finish: a ladder on the finish deck's east face, and the pit's east end is the exit apron.
 CLADDER = (fx1 + 4, ROUTE_Y)
@@ -1218,6 +1222,11 @@ _spec = _importlib.spec_from_file_location("hub_expansion", _Path(__file__).with
 _expansion = _importlib.module_from_spec(_spec)
 _spec.loader.exec_module(_expansion)
 _expansion.expand(_sys.modules[__name__])
+
+_spec = _importlib.spec_from_file_location("hub_fencing", _Path(__file__).with_name("fencing.py"))
+_fencing = _importlib.module_from_spec(_spec)
+_spec.loader.exec_module(_fencing)
+_fencing.build(_sys.modules[__name__])
 _spec = _importlib.spec_from_file_location("hub_landscape", _Path(__file__).with_name("landscape.py"))
 _landscape = _importlib.module_from_spec(_spec)
 _spec.loader.exec_module(_landscape)

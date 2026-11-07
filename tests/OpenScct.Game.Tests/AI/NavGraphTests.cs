@@ -208,7 +208,11 @@ public sealed class NavGraphTests
         level.AddBox(V(16f, -400f, -64f), V(400f, 400f, 0f));
         NavGraph graph = Build(level, NavProfile.Spy, null, V(-256f, -128f, -100f), V(256f, 128f, 300f));
         var path = new List<NavStep>();
-        Assert.False(graph.FindPath(graph.NearestNode(V(-128f, 0f, 17f)), graph.NearestNode(V(128f, 0f, 1f)), path));
+        var jumps = new HashSet<int>();
+        for (int i = 0; i < graph.Links.Count; i++)
+            if (graph.Links[i].Kind == NavEdgeKind.Jump) jumps.Add(i);
+        Assert.False(graph.FindPath(graph.NearestNode(V(-128f, 0f, 17f)), graph.NearestNode(V(128f, 0f, 1f)), path,
+            badLinks: jumps));
     }
 
     [Fact]
@@ -488,6 +492,29 @@ public sealed class NavGraphTests
         _output.WriteLine(string.Join("\n", trace));
         Assert.True(ok, string.Join("\n", trace));
         Assert.True(rig.Pawn.Location.Z > 250f, $"z {rig.Pawn.Location.Z}");
+        Assert.Equal(1, follower.LinksDone);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void LedgeWithAnUnsupportedMiddleStillHasUsableClimbSections(bool reversed)
+    {
+        CollisionDataBuilder level = Floor();
+        level.AddBox(V(-500f, 100f, 0f), V(-120f, 600f, 250f));
+        level.AddBox(V(120f, 100f, 0f), V(500f, 600f, 250f));
+        FVector a = V(-500f, 100f, 250f);
+        FVector b = V(500f, 100f, 250f);
+        TraversalDoc ges = Doc(Ge(0, GEKind.LG, reversed ? b : a, reversed ? a : b));
+        PawnRig rig = Rig(level, ges, V(-300f, -150f, 0f));
+        AiWorld world = World(rig, V(-600f, -300f, -100f), V(600f, 700f, 450f), ges);
+        Assert.Contains(world.SpyNav.Links, link => link.Kind == NavEdgeKind.LedgeClimb && link.Start.X < -120f);
+        Assert.Contains(world.SpyNav.Links, link => link.Kind == NavEdgeKind.LedgeClimb && link.Start.X > 120f);
+        Assert.DoesNotContain(world.SpyNav.Links, link => link.Kind == NavEdgeKind.LedgeClimb &&
+            link.Start.X > -80f && link.Start.X < 80f);
+        var follower = new NavFollower(world, spy: true);
+        var trace = new List<string>();
+        Assert.True(Follow(rig, follower, V(-300f, 350f, 250f), 20f, trace), string.Join("\n", trace));
         Assert.Equal(1, follower.LinksDone);
     }
 

@@ -125,3 +125,9 @@ GRASS TEXTURE — IcterusGames / SimpleGrassTextured (MIT)
 https://github.com/IcterusGames/SimpleGrassTextured
 Selected from the pinned forest demo grass/grassbushcc008.png.
 See SimpleGrassTextured-MIT.txt. Texture unchanged; original OpenSCCT mesh, wind and batch renderer.
+
+Castle Kit by Kenney — CC0 1.0 (public domain).
+https://kenney.nl/assets/castle-kit
+Distributed GLB mirror: https://github.com/Hidencod/tge-assets
+Pinned mirror revision: ea2f2aa1ca8da0898330c97df8a5489976b051d0
+OpenSCCT adaptations: authored scale, placement, collision and traversal outlines.

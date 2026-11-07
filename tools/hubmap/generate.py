@@ -337,15 +337,20 @@ def _clip_rect(poly: B.Poly, lo, hi):
 
 def _texture_bytes(key: str) -> bytes:
     photos = {'roof':'leafy_grass','turf':'leafy_grass','ruin_moss':'leafy_grass',
-              'ruin_stone':'mossy_stone_wall','frozen_stone':'concrete_floor_worn_02','frozen_ice':'snow_02',
+              'ruin_stone':'mossy_stone_wall','frozen_stone':'castle_brick_broken_06','frozen_ice':'snow_02',
               'wood':'weathered_planks','ruin_wood':'weathered_planks','deck':'weathered_planks',
               'plaza':'grassy_cobblestone','concrete':'concrete_floor_worn_02','track':'concrete_floor_worn_02',
               'booth':'weathered_planks','steel_concrete':'concrete_floor_worn_02'}
     if key in photos:
         import io
-        from PIL import Image
+        from PIL import Image, ImageOps
         out=io.BytesIO()
-        Image.open(ASSETS / (photos[key] + '.jpg')).save(out, format='PNG')
+        image=Image.open(ASSETS/(photos[key]+'.jpg'))
+        if key=='frozen_stone':
+            # Frosted masonry keeps the scanned brick relief without warm red
+            # mortar competing with the district's ice and snow palette.
+            image=ImageOps.colorize(image.convert('L'),(36,48,62),(190,211,225))
+        image.save(out,format='PNG')
         return out.getvalue()
     m = L.MATERIALS[key]
     if m.art in L.ART:

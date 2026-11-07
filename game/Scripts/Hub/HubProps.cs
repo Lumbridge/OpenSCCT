@@ -82,7 +82,10 @@ public partial class HubProps : Node3D
         AddChild(root);
         // The checkpoint highlight scales this root. Keep its pivot at the mark,
         // otherwise its world-space child offsets pulse around the map origin.
-        root.GlobalPosition = UeSpace.ToGodot(m.At);
+        // Travel stations use pawn-centre height for interaction range. The
+        // painted disc belongs at foot height; other course marks already do.
+        FVector markAt = m.Kind == "travel" ? m.At - new FVector(0f, 0f, 86f) : m.At;
+        root.GlobalPosition = UeSpace.ToGodot(markAt);
         switch (m.Kind)
         {
             case "start":
@@ -112,10 +115,11 @@ public partial class HubProps : Node3D
                         CastShadow = GeometryInstance3D.ShadowCastingSetting.Off,
                     };
                     root.AddChild(ring);
-                    ring.GlobalPosition = UeSpace.ToGodot(m.At + new FVector(0f, 0f, 4f));
+                    ring.GlobalPosition = UeSpace.ToGodot(markAt + new FVector(0f, 0f, 4f));
 
                     // A post at the gate so it shows from afar.
-                    Box(root, m.At + new FVector(0f, 0f, 160f), new FVector(12f, 12f, 320f), Material(colour with { A = 0.9f }, glow: true));
+                    if (m.Kind != "travel")
+                        Box(root, markAt + new FVector(0f, 0f, 160f), new FVector(12f, 12f, 320f), Material(colour with { A = 0.9f }, glow: true));
                     break;
                 }
 

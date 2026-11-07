@@ -545,3 +545,10 @@ tracking, and the harder mercs kill more. The reports are in `local/test-results
 - **Balance**: search and vision have automated coverage, but perception thresholds, the motion blur factor and
   approximate prone samples still need visual gameplay calibration. Additional objective modes and learned policies
   remain future work.
+
+### Traversal navigation in 0.8.108
+
+Bots reject landings on the wrong floor, plan short jumps and Spy barrier hops, and sample ledges and fences more
+densely. Spies can chain pipes, overhead bars and ziplines without requiring an intermediate floor. Navigation
+caches rebuild once for the updated graph format. These changes extend route planning; map-specific playtesting
+remains useful for identifying difficult approaches.

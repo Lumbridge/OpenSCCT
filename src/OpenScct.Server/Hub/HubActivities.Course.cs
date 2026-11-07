@@ -15,6 +15,7 @@ public sealed partial class HubActivities
         public int Falls;
         public double PutBackAt = double.NegativeInfinity;
         public Pawn? Pawn;
+        public FVector Previous;
     }
 
     private void TickCourse(PlayerSlot slot, PlayState state, Pawn? pawn, double now)
@@ -27,6 +28,8 @@ public sealed partial class HubActivities
         }
         var at = pawn.Location;
         Run? run = state.Run;
+        var previous = run?.Previous ?? at;
+        if (run is not null) run.Previous = at;
         if (run is not null && now - run.Start > run.Course.MaxSeconds)
         {
             CancelRun(slot, state, "Run cancelled: out of time.");
@@ -47,7 +50,7 @@ public sealed partial class HubActivities
         {
             state.InStart = null;
             var course = Layout.Courses[armed];
-            state.Run = new Run { Course = course, Start = now, Pawn = pawn };
+            state.Run = new Run { Course = course, Start = now, Pawn = pawn, Previous = at };
             Send(slot, HubPlayProtocol.RunStart(course.ProgressCount, course.Id));
             return;
         }
@@ -71,16 +74,18 @@ public sealed partial class HubActivities
             PutBack(slot, run, now);
             return;
         }
-        int next = c.AdvanceGates(run.Next, at);
+        // Sweep normal motion, but never award gates crossed by an administrative relocation.
+        if ((at - previous).SizeSquared() > 512 * 512) previous = at;
+        int next = c.AdvanceGates(run.Next, previous, at, pawn.CollisionRadius, pawn.CollisionHeight, out var remaining);
         if (next != run.Next)
         {
             run.Next = next;
-            int previous = run.Section;
+            int previousSection = run.Section;
             while (run.Section + 1 < c.Sections.Count && c.Sections[run.Section + 1].FirstGate <= run.Next) run.Section++;
-            if (previous != run.Section)
+            if (previousSection != run.Section)
                 Send(slot, HubPlayProtocol.RunCheckpoint(run.Section, c.ProgressCount, ms));
         }
-        if (!c.Finish.Contains(at)) return;
+        if (!c.Finish.Crosses(remaining, at, pawn.CollisionRadius, pawn.CollisionHeight, out _)) return;
         if (run.Next < c.Gates.Count)
         {
             if (now - state.MissNoticeAt > 3)
@@ -119,6 +124,7 @@ public sealed partial class HubActivities
         if (!placed) return;
         run.Falls++;
         run.PutBackAt = now;
+        run.Previous = run.Pawn!.Location;
         run.Next = section.FirstGate;
         Send(slot, HubPlayProtocol.RunFall(run.Falls, run.Section));
     }

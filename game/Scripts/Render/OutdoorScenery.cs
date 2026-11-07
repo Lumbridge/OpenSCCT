@@ -25,7 +25,10 @@ public static class OutdoorScenery
             {
                 string file = item.GetProperty("asset").GetString()!;
                 if (Path.GetFileName(file) != file || Path.GetExtension(file) != ".glb") throw new InvalidDataException("Invalid scenery asset path");
-                if (!templates.TryGetValue(file, out var template))
+                bool castle = file.StartsWith("castle-", StringComparison.Ordinal);
+                string masonryTexture = item.GetProperty("at")[0].GetSingle() > 16000 ? "Hub_frozen_stone.png" : "Hub_ruin_stone.png";
+                string templateKey = castle ? file + "/" + masonryTexture : file;
+                if (!templates.TryGetValue(templateKey, out var template))
                 {
                     var importer = new GltfDocument();
                     var state = new GltfState { CreateAnimations = false };
@@ -49,6 +52,12 @@ public static class OutdoorScenery
                                 if (source.AlbedoTexture is { } albedo) material.SetShaderParameter("diffuse", albedo);
                                 material.SetShaderParameter("tint", source.AlbedoColor);
                                 material.SetShaderParameter("alpha_cut", source.Transparency == BaseMaterial3D.TransparencyEnum.Disabled ? 0f : .25f);
+                                if (castle)
+                                {
+                                    var stone = Image.LoadFromFile(Path.Combine(map.Folder, "render", "textures", masonryTexture));
+                                    material.SetShaderParameter("masonry", true);
+                                    material.SetShaderParameter("masonry_texture", ImageTexture.CreateFromImage(stone));
+                                }
                                 if (source.NormalTexture is { } normal)
                                 {
                                     material.SetShaderParameter("normal_map", normal);
@@ -60,7 +69,7 @@ public static class OutdoorScenery
                         }
                     });
                     template = (node, bounds ?? throw new InvalidDataException("Empty scenery model: " + file));
-                    templates[file] = template;
+                    templates[templateKey] = template;
                 }
                 var at = item.GetProperty("at");
                 var wrapper = new Node3D

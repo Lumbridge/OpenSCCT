@@ -9,7 +9,7 @@ import concurrent.futures, hashlib, io, json, struct, urllib.request
 from PIL import Image
 
 HERE = Path(__file__).resolve().parent
-OUT = HERE.parents[1] / "fixtures" / "hub-assets"
+OUT = HERE.parents[1] / 'fixtures' / 'hub-assets'
 CACHE = HERE.parents[1] / "local" / "hub-asset-downloads"
 FOREST = "https://raw.githubusercontent.com/GamesNotDeveloped/godot-forest-demo/623212ffeb4efbf4c95323a4a6a57e726be4f6e9/"
 
@@ -103,6 +103,8 @@ if __name__=='__main__':
         info=json.loads(fetch('https://api.polyhaven.com/info/'+record['asset']))
         credits.extend([info['name']+' — '+', '.join(info.get('authors',{})), 'https://polyhaven.com/a/'+record['asset']])
     (OUT/'CREDITS.txt').write_text('\n'.join(credits)+'\n',encoding='utf8')
+    from fetch_castle import fetch as fetch_castle
+    fetch_castle()
     from prepare_collision import prepare
     prepare()
     print('Prepared',len(records),'credited assets;',sum(p.stat().st_size for p in OUT.iterdir()),'bytes')

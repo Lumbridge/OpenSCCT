@@ -65,7 +65,10 @@ public sealed class ExpandedHubTraversalTests(ITestOutputHelper output)
                     mover.SimInterpolate = new FVector(mover.bInterpolating ? mover.PhysAlpha * 100 : 100,
                         Math.Max(.01f, mover.PhysRate) * 100, 256 * mover.PrevKeyNum + mover.KeyNum);
                 }
+            var before = run.Server.Location;
             run.Tick(); total++; modes.Add(run.Client.Physics);
+            Assert.True(run.Session.ServerController?.Pawn is not null,
+                $"{id}/{section} {label}: server pawn lost after {before}; client={run.Client.Location} state={run.ClientController.GetStateName()}");
             nextGate = course.AdvanceGates(nextGate, run.Server.Location);
         }
         void Wait(int frames) { for (int f = 0; f < frames; f++) Tick(); }
@@ -136,7 +139,12 @@ public sealed class ExpandedHubTraversalTests(ITestOutputHelper output)
                     run.Session.Input.Set("BT_Up", true); Wait(15); Jump(); Walk(target);
                     Assert.Contains(EPhysics.PHYS_RootMotion, modes); break;
                 case "roll":
-                    Walk(Vec(step.GetProperty("approach")), settle: false); Face(forward); Button("bRoll");
+                    Walk(Vec(step.GetProperty("approach")), settle: false); Face(forward);
+                    // Target steering can brake just before the approach point.
+                    // A native roll requires moving faster than 65 uu/s.
+                    run.Session.Input.Set("BT_Up", true);
+                    Until(() => run.Client.Velocity.Size() > 100, 30);
+                    Button("bRoll");
                     bool rolled = run.Client.bIsRolling;
                     for (int f = 0; f < 360 && (Flat(Vec(step.GetProperty("exit")) - run.Client.Location) | forward) > 0; f++)
                     { run.Session.Input.Set("BT_Up", true); Tick(); rolled |= run.Client.bIsRolling; }

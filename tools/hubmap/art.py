@@ -329,6 +329,7 @@ TILES = {
     "booth": lambda k: _planks(k, (110, 76, 46)),
     "wood": lambda k: _planks(k, (138, 98, 58)),
     "metal": lambda k: _concrete(k, (70, 74, 82), seams=False, spread=0.08),
+    "fence_wire": lambda k: _concrete(k, (44, 50, 53), seams=False, spread=0.035),
     "deck": lambda k: _diamond_plate(k, (92, 98, 108)),
     "fence": lambda k: np.where((((np.mgrid[0:128, 0:128][0] + np.mgrid[0:128, 0:128][1]) % 16 < 2)
                                  | ((np.mgrid[0:128, 0:128][0] - np.mgrid[0:128, 0:128][1]) % 16 < 2))[..., None],

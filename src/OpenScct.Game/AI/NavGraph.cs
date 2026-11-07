@@ -37,6 +37,21 @@ public enum NavEdgeKind : byte
 
     /// <summary>Run into a climbable fence under its top (FENCE), climb it, cross the top and climb down the far side.</summary>
     FenceClimb = 9,
+
+    /// <summary>A collision-checked jump between supported floor points.</summary>
+    Jump = 10,
+
+    /// <summary>Jump at a low rail and vault to the floor beyond it (spies).</summary>
+    BarrierHop = 11,
+
+    /// <summary>Climb a vertical pipe, transfer to a bar and drop onto the destination floor.</summary>
+    PipeToBar = 12,
+
+    /// <summary>Catch a bar, continue onto a zip line and ride to the destination floor.</summary>
+    BarToZip = 13,
+
+    /// <summary>Climb a pipe, cross a bar and continue onto a zip line without touching floor.</summary>
+    PipeToBarToZip = 14,
 }
 
 /// <summary>A node: a floor point where the walker fits, standing or only crouched.</summary>
@@ -44,8 +59,10 @@ public readonly record struct NavNode(FVector Floor, bool Standing);
 
 /// <summary>
 /// A traversal link: where the move starts (a floor point and the yaw to face), where it ends, and the GE it uses.
+/// Chains also store the following GEs, the bar exit at hand height (Transfer), and its travel heading.
 /// </summary>
-public readonly record struct NavLink(NavEdgeKind Kind, int From, int To, FVector Start, int Yaw, FVector End, int GE, float Height);
+public readonly record struct NavLink(NavEdgeKind Kind, int From, int To, FVector Start, int Yaw, FVector End, int GE, float Height,
+    int NextGE = -1, int ExitGE = -1, FVector Transfer = default, int TravelYaw = 0);
 
 /// <summary>One step of a path: the node reached and the edge taken to it (Link -1 for plain moves).</summary>
 public readonly record struct NavStep(int Node, NavEdgeKind Kind, int Link, FVector Point);
@@ -75,6 +92,11 @@ public sealed record NavProfile
 
     public float Spacing { get; init; } = AiK.NavSpacing;
 
+    /// <summary>Jump impulse and running speed used to validate a conservative airborne arc.</summary>
+    public float JumpZ { get; init; } = 610f;
+
+    public float JumpSpeed { get; init; } = 385f;
+
     public static NavProfile Spy { get; } = new();
 
     public static NavProfile Merc { get; } = new()
@@ -83,11 +105,12 @@ public sealed record NavProfile
         CrouchHeight = AiK.MercCrouchHeight,
         MaxDrop = AiK.MercFallDamageHeight - 50f,
         SafeDrop = AiK.MercFallDamageHeight,
+        JumpZ = 495f,
     };
 
     /// <summary>A short key of the profile's values for cache file names.</summary>
     public string Key => string.Create(System.Globalization.CultureInfo.InvariantCulture,
-        $"{(Traversal ? "t" : "w")}{Radius:F0}-{StandingHeight:F1}-{CrouchHeight:F0}-{StepUp:F0}-{MaxDrop:F0}-{Spacing:F0}");
+        $"{(Traversal ? "t" : "w")}{Radius:F0}-{StandingHeight:F1}-{CrouchHeight:F0}-{StepUp:F0}-{MaxDrop:F0}-{Spacing:F0}-j{JumpZ:F0}-{JumpSpeed:F0}");
 }
 
 /// <summary>
@@ -98,7 +121,7 @@ public sealed record NavProfile
 public sealed class NavGraph
 {
     /// <summary>Format of <see cref="Write"/>; a cache with another version is rebuilt.</summary>
-    public const int FormatVersion = 13;
+    public const int FormatVersion = 15;
 
     private readonly NavNode[] _nodes;
     private readonly int[] _edgeStart;
@@ -597,6 +620,10 @@ public sealed class NavGraph
             WriteVector(w, l.End);
             w.Write(l.GE);
             w.Write(l.Height);
+            w.Write(l.NextGE);
+            w.Write(l.ExitGE);
+            WriteVector(w, l.Transfer);
+            w.Write(l.TravelYaw);
         }
     }
 
@@ -652,19 +679,19 @@ public sealed class NavGraph
                 kinds[e] = (NavEdgeKind)r.ReadByte();
                 costs[e] = r.ReadSingle();
                 linkOf[e] = r.ReadInt32();
-                if ((uint)to[e] >= (uint)nodes.Length || kinds[e] > NavEdgeKind.FenceClimb ||
+                if ((uint)to[e] >= (uint)nodes.Length || kinds[e] > NavEdgeKind.PipeToBarToZip ||
                     !float.IsFinite(costs[e]) || costs[e] < 0f || linkOf[e] < -1)
                 {
                     return null;
                 }
             }
 
-            var links = new NavLink[ReadCount(r, 45)];
+            var links = new NavLink[ReadCount(r, 69)];
             for (int i = 0; i < links.Length; i++)
             {
                 links[i] = new NavLink((NavEdgeKind)r.ReadByte(), r.ReadInt32(), r.ReadInt32(), ReadVector(r), r.ReadInt32(), ReadVector(r),
-                    r.ReadInt32(), r.ReadSingle());
-                if (links[i].Kind is < NavEdgeKind.LedgeClimb or > NavEdgeKind.FenceClimb ||
+                    r.ReadInt32(), r.ReadSingle(), r.ReadInt32(), r.ReadInt32(), ReadVector(r), r.ReadInt32());
+                if (links[i].Kind is < NavEdgeKind.LedgeClimb or > NavEdgeKind.PipeToBarToZip ||
                     (uint)links[i].From >= (uint)nodes.Length || (uint)links[i].To >= (uint)nodes.Length)
                 {
                     return null;

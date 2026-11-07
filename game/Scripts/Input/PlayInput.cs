@@ -330,6 +330,13 @@ public partial class PlayInput : Node
         }
     }
 
+    /// <summary>Resume play after a modal closes, once its controls have left the input path.</summary>
+    public void ResumePointer()
+    {
+        Enabled = true;
+        QueueRefocusCapture();
+    }
+
     /// <summary>Frees the pointer and releases every held key.</summary>
     public void ReleasePointer()
     {

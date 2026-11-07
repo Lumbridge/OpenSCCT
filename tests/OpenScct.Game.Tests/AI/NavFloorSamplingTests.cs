@@ -38,7 +38,11 @@ public sealed class NavFloorSamplingTests
         int start = graph.NearestNode(new FVector(0f, -400f, 0f));
         int top = graph.NearestNode(new FVector(0f, 500f, height));
         Assert.InRange(graph.Node(top).Floor.Z, height, height + 1f);
-        Assert.False(graph.FindPath(start, top, new List<NavStep>()));
+        // A real jump onto a low block is now allowed; the floor sampler must still not fabricate walkable stairs.
+        var jumps = new HashSet<int>();
+        for (int i = 0; i < graph.Links.Count; i++)
+            if (graph.Links[i].Kind == NavEdgeKind.Jump) jumps.Add(i);
+        Assert.False(graph.FindPath(start, top, new List<NavStep>(), badLinks: jumps));
     }
 
     [Theory]

@@ -25,7 +25,7 @@ namespace OpenScct.Game.AI;
 /// states, and no converted map has a POLE GE).</item>
 /// </list>
 /// </summary>
-public sealed class NavBuilder
+public sealed partial class NavBuilder
 {
     // What a walking pawn collides with, without other pawns and movers (doors open as they are reached).
     private const ETraceFlags WorldFlags = ETraceFlags.TRACE_Blocking | ETraceFlags.TRACE_Level | ETraceFlags.TRACE_LevelGeometry |
@@ -77,9 +77,11 @@ public sealed class NavBuilder
         var b = new NavBuilder(world, profile, min, max);
         b.SampleFloors();
         b.Connect();
+        b.AddJumps();
         if (ges is not null)
         {
             b.AddLinks(ges, activationMask);
+            b.AddTraversalChains(ges, activationMask);
         }
 
         return b.Finish();
@@ -415,6 +417,7 @@ public sealed class NavBuilder
             {
                 case GEKind.LG:
                     AddLedge(ge);
+                    AddBarrierHops(ge);
                     break;
                 case GEKind.PIPE:
                     AddPipe(ge);
@@ -447,31 +450,30 @@ public sealed class NavBuilder
         var side = new FVector(-along.Y, along.X, 0f);
         float lip = (p0.Z + p1.Z) * 0.5f;
 
-        // Which side is the top: a floor at the lip's height just behind it.
-        FVector mid = (p0 + p1) * 0.5f;
-        FVector inward;
-        if (FloorNear(mid + side * 40f, lip + 30f, lip - 40f) is not null)
-        {
-            inward = side;
-        }
-        else if (FloorNear(mid - side * 40f, lip + 30f, lip - 40f) is not null)
-        {
-            inward = -side;
-        }
-        else
-        {
-            return;
-        }
-
-        FVector outward = -inward;
-        int yaw = FaceYaw(inward);
         int lastBottom = -1;
         float margin = AiK.LedgeEndMargin + _profile.Radius + 8f;
-        int samples = Math.Clamp((int)((length - 2f * margin) / 96f) + 1, 1, 6);
+        int samples = Math.Max(1, (int)MathF.Ceiling((length - 2f * margin) / 96f) + 1);
         for (int i = 0; i < samples; i++)
         {
             float t = samples == 1 ? length * 0.5f : margin + (length - 2f * margin) * (i / (float)(samples - 1));
             FVector at = p0 + along * t;
+            // Determine the top locally: a gap in the middle of a GE must not hide usable sections at its ends.
+            FVector inward;
+            if (FloorNear(at + side * 40f, lip + 30f, lip - 40f) is not null)
+            {
+                inward = side;
+            }
+            else if (FloorNear(at - side * 40f, lip + 30f, lip - 40f) is not null)
+            {
+                inward = -side;
+            }
+            else
+            {
+                continue;
+            }
+
+            FVector outward = -inward;
+            int yaw = FaceYaw(inward);
             FVector approach = at + outward * 45f;
             float? bottomZ = FloorNear(approach, lip - 20f, lip - AiK.LedgeJumpMax - 10f);
             if (bottomZ is not { } bz)
@@ -695,7 +697,7 @@ public sealed class NavBuilder
         var side = new FVector(-along.Y, along.X, 0f);
         float topZ = (p0.Z + p1.Z) * 0.5f;
         float reach = _profile.Radius + 25f;
-        int samples = Math.Clamp((int)((length - 2f * margin) / 256f) + 1, 1, 4);
+        int samples = Math.Max(1, (int)MathF.Ceiling((length - 2f * margin) / 96f) + 1);
         for (int i = 0; i < samples; i++)
         {
             float t = samples == 1 ? length * 0.5f : margin + (length - 2f * margin) * (i / (float)(samples - 1));
