@@ -78,6 +78,9 @@ public sealed partial class PlayAudio : Node
         var audio = new PlayAudio { _session = session, _view = view, _demo = demo };
         audio.Library = AudioLibrary.Load(shared, session.MapFolder);
         audio.Library.Preload("Armes_impacts.Armes.RA_GunDef_1shot");
+        // The blast sound is a nested random list. Decode every leaf while loading rather than reading
+        // and decoding a different WAV on the frame of each of the first few explosions.
+        audio.Library.Preload("Armes_impacts.Grenade.RA_GrenExpl");
         foreach (var pistol in Sidearms.All)
             foreach (string action in new[] { "fire", "reload" })
                 if (audio.Library.Find("OpenScctSidearms." + pistol.Id + "_" + action) is { } sound)

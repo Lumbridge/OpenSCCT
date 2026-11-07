@@ -17,6 +17,7 @@ public static class PawnOutfits
     // 1 head; the merc's 0 and 2 body and 1 head).
     private static readonly string[] s_body = ["SPersoTextures.Shadw_agent", "SPersoTextures.DEF_01_A_Body"];
     private static readonly string[] s_head = ["SPersoTextures.Shadw_agent_2", "SPersoTextures.DEF_01_A_Face"];
+    private static readonly string[] s_weapons = ["SWeaponFirst.p190", "SWeaponFirst.M160", "SWeaponFirst.Hk81", "SWeaponFirst.BM401"];
 
     /// <summary>A pawn's model as the map dresses it.</summary>
     /// <param name="Model">The model drawn.</param>
@@ -51,20 +52,21 @@ public static class PawnOutfits
     }
 
     /// <summary>
-    /// Makes what the map's outfit models need before play (each model with its heat and EMF masks, and in a map with
-    /// rain its wet skins for either side of the local player), so that no pawn's first appearance or first rain stops
-    /// the game for the masks to be made.
+    /// Loads both teams' rigs, their common attachments, and map outfits before reporting scene readiness. Stock
+    /// rigs need the same preparation as custom outfits: waiting until the first replicated pawn appears blocks
+    /// the client after the server has already started the round. Rain also prepares custom outfits' wet skins.
     /// </summary>
     public static void Prepare(MapOutfits outfits, string mapFolder, string? sharedRoot, bool rain)
     {
         ArgumentNullException.ThrowIfNull(outfits);
         foreach (bool spy in new[] { true, false })
         {
-            if (outfits.For(spy) is not { Model: not null } outfit || SkeletalModel.FindGlb(StockAsset(spy), sharedRoot) is not { } stock)
+            if (SkeletalModel.FindGlb(StockAsset(spy), sharedRoot) is not { } stock)
             {
                 continue;
             }
 
+            TeamOutfit? outfit = outfits.For(spy);
             Dressed dressed = Load(stock, outfit, mapFolder, sharedRoot);
             dressed.Model.Root.Free();
             if (rain && dressed.Outfit is not null)
@@ -72,6 +74,61 @@ public static class PawnOutfits
                 WetSkins.For(dressed.Glb, localSpy: true, dressed.DryBody, dressed.DryHead, dressed.Stock);
                 WetSkins.For(dressed.Glb, localSpy: false, dressed.DryBody, dressed.DryHead, dressed.Stock);
             }
+        }
+
+        // PawnAttachments and GoggleGlowView create these on the first drawn pawn. Sidearm models are already
+        // prepared with their first-person counterparts by FirstPersonView.PreloadSidearms.
+        foreach (string asset in s_weapons)
+            if (SkeletalModel.FindGlb(asset, sharedRoot) is { } attachment)
+                SkeletalModel.Load(attachment).Root.Free();
+        foreach (string asset in new[] { "SGoggle.ATT01_beams", "SGoggle.DEF01_beams" })
+            if (SkeletalModel.FindGlb(asset, sharedRoot) is { } glow)
+                SkeletalModel.Load(glow).Root.Free();
+    }
+
+    /// <summary>
+    /// Draws the prepared bodies and carried meshes in the private loading viewport. Reading a template alone
+    /// cannot compile its skinned-mesh draw pipelines; their first appearance must happen before scene readiness.
+    /// </summary>
+    public static void Warmup(MapOutfits outfits, string mapFolder, string? sharedRoot, Node3D samples)
+    {
+        foreach (bool spy in new[] { true, false })
+        {
+            if (SkeletalModel.FindGlb(StockAsset(spy), sharedRoot) is { } stock)
+                Add(Load(stock, outfits.For(spy), mapFolder, sharedRoot).Model);
+
+            // Use the live glow view's material setup (alpha blended spy, added merc), not the raw glTF skin.
+            var glow = new GoggleGlowView(samples, sharedRoot, _ => (true, Transform3D.Identity));
+            glow.DrawStill(merc: !spy, hueTurn: null);
+            if (glow.Model is { } model) Fit(model);
+        }
+        foreach (string asset in s_weapons)
+            if (SkeletalModel.FindGlb(asset, sharedRoot) is { } glb) Add(SkeletalModel.Load(glb));
+        foreach (var sidearm in OpenScct.Core.Engine.Sidearms.All)
+            if (SkeletalModel.FindGlb(sidearm.Asset, sharedRoot) is { } glb) Add(SkeletalModel.Load(glb));
+
+        void Add(SkeletalModel model)
+        {
+            samples.AddChild(model.Root);
+            Fit(model);
+        }
+
+        static void Fit(SkeletalModel model)
+        {
+            // Keep every mesh in the tiny viewport's frustum, including differently sized map outfits.
+            Aabb? bounds = null;
+            Transform3D local = model.Root.GlobalTransform.AffineInverse();
+            foreach (MeshInstance3D mesh in model.Meshes)
+            {
+                Aabb box = local * mesh.GlobalTransform * mesh.GetAabb();
+                bounds = bounds is { } combined ? combined.Merge(box) : box;
+            }
+            if (bounds is not { } extent) return;
+            float size = Math.Max(extent.Size.X, Math.Max(extent.Size.Y, extent.Size.Z));
+            if (size <= 0f) return;
+            float scale = 1.5f / size;
+            model.Root.Scale = Vector3.One * scale;
+            model.Root.Position = -extent.GetCenter() * scale;
         }
     }
 

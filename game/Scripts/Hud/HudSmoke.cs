@@ -925,6 +925,19 @@ public sealed class HudSmoke(bool spectatorOnly = false) : SmokeTest
         Run(1);
         Expect(layer.Merc.DrawList.Find("Ammo/TextAmmoStock")?.Anchor == MagmaAnchor.Left, "widescreen on anchors again");
         Expect(layer.Markers.DrawList.Items.Count == 0, "no objective markers for mercs");
+        var alarmLocation = new FVector(1000f, 120f, 40f);
+        s.MercPc.AddGPOOnHud(alarmLocation);
+        Run(1);
+        Expect(layer.Markers.DrawList.Find("GPO/1/icon") is { } alarmMarker && alarmMarker.Colors[0].R > alarmMarker.Colors[0].B,
+            "merc sees the orange alarm diamond");
+        Expect(!layer.Markers.DrawList.Any("ER/"), "merc alarm does not enable spy objective markers");
+        s.MercHud.EnhancedRealityLevel = 0;
+        Run(1);
+        Expect(layer.Markers.DrawList.Find("GPO/1/icon") is not null, "merc alarm diamond is independent of Enhanced Reality");
+        s.MercPc.RemoveGPOFromHud(alarmLocation);
+        s.MercHud.EnhancedRealityLevel = 1;
+        Run(1);
+        Expect(layer.Markers.DrawList.Find("GPO/1/icon") is null, "merc alarm diamond clears at stand-down");
         Expect(layer.Interaction!.DrawList.Items.Count == 0, "no interaction list for mercs");
         Expect(!layer.Merc.Root.Children.Any(c => c.Name == "Flash" && c.Visible), "no white-out in motion vision (immune)");
         CheckAssets(layer);

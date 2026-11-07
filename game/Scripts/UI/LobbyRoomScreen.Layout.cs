@@ -132,6 +132,7 @@ public partial class LobbyRoomScreen
         HelpButton = HelpUtility(() => HelpFeedbackScreen.Open(this, HelpButton,
             GameReportContext.Capture(GetTree(), Session), HelpActions));
 
+        StartButton = PageButton("Start match", () => Session?.Start(GetTree()), "StartMatch");
         MainButton = PageButton("Ready", PressMain, "Main");
         foreach (Button button in PageButtons)
         {
@@ -298,12 +299,13 @@ public partial class LobbyRoomScreen
     {
         var local = Local();
         string? download = s.MapFetch is { } fetch ? fetch.Text + (fetch.Running ? " — " + Math.Round(fetch.Fraction * 100) + "%" : "") : null;
-        _status!.Text = s.PreparingBots ? "Preparing bots for this map…" : LobbyPresentation.Preparation(s.CanControl, local is not null, local?.Side is null, local?.Ready ?? false,
+        _status!.Text = s.PreparingBots ? "Preparing bots for this map…" : LobbyPresentation.Preparation(s.IsHost, local is not null, local?.Side is null, local?.Ready ?? false,
             s.Launching, seconds, s.Members.Where(p => p.Side is not null && !p.IsBot && !p.IsHost && !p.Ready).Select(p => p.Name),
-            s.Members.Where(p => p.Side is not null && p.MapNote.Length > 0).Select(p => p.Name + ": " + p.MapNote), download);
+            s.Members.Where(p => p.Side is not null && p.MapNote.Length > 0).Select(p => p.Name + ": " + p.MapNote), download, s.CanLaunch);
         if (!s.Launching && s.Members.All(p => p.Side is null)) _status.Text = "No players have joined a team.";
         _status.TooltipText = _status.Text;
         MainButton!.TooltipText = _status.Text;
+        StartButton!.TooltipText = _status.Text;
     }
 
     public override void _UnhandledKeyInput(InputEvent e)

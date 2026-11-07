@@ -584,6 +584,9 @@ public sealed partial class NetMovementBridge : IMovementNet, IMoveEndpointSourc
     public bool RepositionsHeldPawnOnWorldClock(SBasePawn pawn) => pawn.m_AttackedBy is not null &&
         pawn.Controller is SPlayerController pc && PeekEndpoint(pc)?.Sequenced is not null;
 
+    public bool SimulatesCorpseOnWorldClock(SBasePawn pawn) =>
+        pawn.Controller is SPlayerController pc && SBasePawnMoves.IsCorpse(pc, pawn) && PeekEndpoint(pc)?.Sequenced is not null;
+
     private SPlayerController? _worldClockOwnerPhysics;
 
     public void BeforeOwnerAnimation(SBasePawn pawn)

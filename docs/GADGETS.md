@@ -73,7 +73,7 @@ What each side fires in SCCT Versus Enhanced 4.0 (DefaultProfile.ini `ATTWeapCla
 (`SWeaponDefense`, "FN2000 Auto"). The Shocker deals no health damage: it costs 15 of the spy's energy per shot (6 shots
 from a full bar, 7 back each second), freezes the pawn it hits (sticky shock), and disables devices
 ([spec/equipment/spy-shocker.md](../spec/equipment/spy-shocker.md)). The rifle has a 25-round clip and 100 in reserve, three rates of fire and
-distance-banded damage ([spec/equipment/merc-rifle.md](../spec/equipment/merc-rifle.md)). The same keys on both layouts (Default_kbd_0.ini / _1.ini):
+distance-banded damage ([spec/equipment/merc-rifle.md](../spec/equipment/merc-rifle.md)). The same keys on both Enhanced layouts (Default_kbd_0.ini / _1.ini):
 
 | Key | Spy | Merc |
 |---|---|---|

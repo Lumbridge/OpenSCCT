@@ -15,6 +15,7 @@ public interface INetworkPawnCommands
 {
     bool DrivesPawn(SBasePawn pawn);
     bool RepositionsHeldPawnOnWorldClock(SBasePawn pawn) => false;
+    bool SimulatesCorpseOnWorldClock(SBasePawn pawn) => false;
     void BeforeOwnerAnimation(SBasePawn pawn) { }
 }
 

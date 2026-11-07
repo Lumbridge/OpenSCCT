@@ -63,6 +63,16 @@ public partial class FaithfulView : Node3D
 
     public RemanenceEffect DoubleVision { get; }
 
+    /// <summary>Prepare the live camera's smoke surface while the loading gate covers the view.</summary>
+    public void PreloadSmokeBackground()
+    {
+        if (_smokeBackdrop is not null) return;
+        _smokeBackdrop = ResponsiveSmokeRenderer.CreateBackground(Camera);
+        _smokeBackdrop.Visible = false;
+    }
+
+    public bool SmokeBackgroundPrepared => _smokeBackdrop is not null;
+
     public RenderMap? Map { get; private set; }
 
     /// <summary>The sky zone's SubViewport, when the map has a sky zone.</summary>
@@ -604,7 +614,7 @@ public partial class FaithfulView : Node3D
         if (_surfaceFog is not null)
             ResponsiveSmokeRenderer.BindView(_surfaceFog.Slot, Camera, Map, _rendMap);
         bool smoke = ResponsiveSmokeRenderer.HasSmoke(Map);
-        if (smoke && _smokeBackdrop is null) _smokeBackdrop = ResponsiveSmokeRenderer.CreateBackground(Camera);
+        if (smoke) PreloadSmokeBackground();
         if (_smokeBackdrop is not null) _smokeBackdrop.Visible = smoke;
 
         if (_skySurfaceFog is not null)

@@ -166,6 +166,12 @@ stateDiagram-v2
   the velocity; the server switches the pawn to PHYS_Falling with that velocity.
 - Normal fall damage is server authoritative (server fZMaxFalling and Location). Blast, KO and ledge falls are owner
   authoritative (`DamagePawn_C2S`).
+- OpenSCCT's sequenced movement stops new input commands after death. Both the autonomous owner and the authority
+  advance the corpse's physics once per world tick, including fatal blast flight before `s_Dead`. The authority
+  must not wait for the legacy 0.1 s stalled-move catch-up timer: that produces repeated frozen positions followed
+  by large steps while the animation itself continues smoothly. The legacy live-player catch-up remains unchanged.
+  `MercBlastAnimationNetworkTests` covers the real frag path, owner and observer phases, and the authority's physics
+  step size through flight, impact and landing over a 35 ms jittered link, including a short packet outage.
 
 ## Edge cases
 - A blast victim's death state is reached on landing; until then the pawn is in `s_Blast` with Health <= 0.

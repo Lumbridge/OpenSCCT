@@ -40,6 +40,50 @@ public sealed class LobbyTests
 
     private static bool TestBoxMissing => WalkerRig.Maps.FindFolder(MapCatalog.TestBox) is null;
 
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void DedicatedPlayersIncludingAdminsMustReadyBeforeAnyPlayerCanLaunch(bool authenticatedAdmin)
+    {
+        Assert.SkipWhen(TestBoxMissing, "The TestBox fixture is not in this checkout.");
+        (OnlineRig rig, SimLinkNetwork network) = Create(OnlineRig.Settings(MapCatalog.TestBox) with
+        {
+            Dedicated = true, AdminPassword = authenticatedAdmin ? "root" : null, AutoLaunch = false,
+            OpenMapCommands = true, LaunchCountdownSeconds = 1,
+        }, SimLinkProfile.B);
+        using (rig)
+        {
+            OnlineClient admin = Join(rig, network, "Admin", 0);
+            OnlineClient guest = Join(rig, network, "Guest", 1);
+            Assert.True(rig.RunUntil(() => admin.Lobby.Players.Count == 2 && guest.Lobby.Players.Count == 2 &&
+                admin.Lobby.Players.All(p => p.Map == MapState.Ok), 15), Describe(rig));
+            if (authenticatedAdmin)
+            {
+                admin.Admin("root");
+                Assert.True(rig.RunUntil(() => admin.Lobby.CanControl, 5), Describe(rig));
+                Assert.False(guest.Lobby.CanControl);
+            }
+            Assert.True(admin.Lobby.CanControl);
+            Assert.False(admin.Lobby.IsHost);
+            Assert.True(admin.Lobby.CanLaunch);
+            Assert.True(guest.Lobby.CanLaunch);
+            Assert.False(admin.Lobby.CanStart);
+
+            guest.SetReady(true);
+            Assert.True(rig.RunUntil(() => admin.Lobby.Players.Single(p => p.Name == "Guest").Ready, 5), Describe(rig));
+            admin.Launch();
+            Assert.True(rig.RunUntil(() => admin.Lobby.Messages.Any(m => m.Text == "Could not start. Not all players are ready."), 5), Describe(rig));
+            Assert.False(admin.Lobby.CanStart);
+            Assert.Equal(SessionPhase.Lobby, rig.Server.Phase);
+
+            admin.SetReady(true);
+            Assert.True(rig.RunUntil(() => admin.Lobby.CanStart && guest.Lobby.CanStart, 5), Describe(rig));
+            guest.Launch();
+            Assert.True(rig.RunUntil(() => admin.State == OnlineClientState.Match && guest.State == OnlineClientState.Match, 20), Describe(rig));
+            Assert.Equal(1, rig.Server.RoundsStarted);
+        }
+    }
+
     [Fact]
     public void DefaultLaunchTravelsWithoutAFiveSecondCountdown()
     {

@@ -69,6 +69,9 @@ public sealed class Level
     /// <summary>The host/world clock, independent of temporary movement-command or replay time scopes.</summary>
     public float WorldTimeSeconds => _clockDepth == 0 ? TimeSeconds : _worldSeconds;
 
+    /// <summary>The host/world tick, independent of temporary movement-command or replay time scopes.</summary>
+    public long WorldTickCount => _clockDepth == 0 ? TickCount : _worldTick;
+
     /// <summary>
     /// Map events caused by a movement command run on the world's clock. Their timers and latent code are
     /// subsequently advanced by world ticks, so a client's older input timestamp cannot set their deadlines.

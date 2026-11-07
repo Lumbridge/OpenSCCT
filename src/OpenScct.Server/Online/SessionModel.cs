@@ -130,6 +130,26 @@ public sealed class LobbyState
     /// <summary>The local player may change the setup and launch: the host, or an admin.</summary>
     public bool CanControl => Local?.CanControl ?? false;
 
+    /// <summary>Any player on a dedicated server may launch; setup permissions do not make that player ready.</summary>
+    public bool CanLaunch => Local is { } local && (local.CanControl || (Dedicated && !local.IsSpectator));
+
+    /// <summary>The client-side launch gate; the server validates the roster and map checks again.</summary>
+    public bool CanStart
+    {
+        get
+        {
+            if (!CanLaunch) return false;
+            bool present = false;
+            foreach (LobbyPlayer player in _players)
+            {
+                if (player.IsSpectator) continue;
+                present = true;
+                if (player.Map != MapState.Ok || (!player.Ready && !player.IsHost)) return false;
+            }
+            return present;
+        }
+    }
+
     public int Count(byte team) => _players.FindAll(p => p.Team == team).Count;
 
     /// <summary>The people of the lobby (the bots left out).</summary>

@@ -912,6 +912,31 @@ public sealed class LobbyLayoutSmoke : SmokeTest
             Expect(session.Kicks == 1, "confirmed kick dispatches once");
         }
         else Expect(admin?.Visible == false, "moderation hidden from clients");
+        CheckPublicLaunchControls(room, session);
+    }
+
+    private void CheckPublicLaunchControls(LobbyRoomScreen room, FixtureLobby session)
+    {
+        bool control = session.CanControl;
+        session.Dedicated = true;
+        foreach (bool admin in new[] { true, false })
+        {
+            session.CanControl = admin;
+            session.SetReady(false);
+            Expect(room.MainButton!.Text == "Ready" && !room.MainButton.Disabled,
+                "public player can ready regardless of admin permissions");
+            Expect(room.StartButton is { Visible: true, Disabled: true }, "public start waits for everyone's ready flag");
+            Click(room, "Main");
+            Expect(session.Members[0].Ready && !session.Launching && room.MainButton.Text == "Not ready",
+                "public Ready sets readiness without launching");
+            Expect(room.StartButton is { Visible: true, Disabled: false }, "every ready public player may start");
+            Click(room, "StartMatch");
+            Expect(session.Launching && room.StartButton!.Text == "Cancel countdown", "public Start dispatches launch");
+            session.Launching = false;
+        }
+        session.Dedicated = false;
+        session.CanControl = control;
+        session.SetReady(false);
     }
 
     private void CheckPersonalRecording(LobbyRoomScreen room, FixtureLobby session)
@@ -997,14 +1022,16 @@ public sealed class LobbyLayoutSmoke : SmokeTest
         public OpenScct.Net.Scoreboards.RoundScoreboard? LastScoreboard { get; set; }
         public int LastScoreboardLocalParticipantId { get; set; } = -1;
         public bool CanControl { get; set; } = true;
-        public bool IsHost => CanControl;
+        public bool Dedicated { get; set; }
+        public bool IsHost => CanControl && !Dedicated;
+        public bool CanLaunch => CanControl || (Dedicated && _members[0].Side is not null);
         public LobbySetup Setup { get; set; } = new() { Map = "TestBox", TimeLimit = 10, SpyLives = 3, MercLives = 3,
             Bots = BotFill.Custom, SpyBots = 1, MercBots = 0,
             Alternate = AlternateRules.Default with { On = true } };
         public string Map => Setup.Map;
         public string Status => "Offline practice";
         public string ServerName => "Lobby layout test";
-        public bool CanStart => true;
+        public bool CanStart => !Dedicated || _members.All(p => p.Side is null || p.Ready);
         public bool Launching { get; set; }
         public float Countdown { get; set; }
         public bool TeamVoiceOnly { get; private set; }

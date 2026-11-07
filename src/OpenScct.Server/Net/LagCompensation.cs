@@ -176,7 +176,9 @@ public sealed class LagCompensation : IPillHistory
             return;
         }
 
-        long nowFixed = _level.TickCount * NetTimeline.Fraction;
+        // Owner combat calls execute inside the movement command's clock. Its input tick starts when that
+        // client joined, while view times and recorded pills use the server's lifetime clock.
+        long nowFixed = _level.WorldTickCount * NetTimeline.Fraction;
         long ceilingFixed = (long)_ceilingMs * Sim.Hz * NetTimeline.Fraction / 1000;
         if (ViewTimeFixed > nowFixed) return;
         long rewind = Math.Clamp(nowFixed - ViewTimeFixed, 0, ceilingFixed);

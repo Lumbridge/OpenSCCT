@@ -244,13 +244,19 @@ public partial class PlayRoot : Node3D
                 if (Session is { } smokeSession && OpenScct.Game.Equipment.ResponsiveSmokeWorld.IsEnabled(smokeSession.Client.World.Level))
                 {
                     SetSmokeLoading(true);
+                    View?.PreloadSmokeBackground();
                     warmup.PreloadResponsiveSmoke(smokeSession.Client.World.Level,Map,GetViewport());
                 }
+                warmup.PreloadView(View);
                 Fx.Preload(warmup.Samples);
                 MercLasers.Preload(warmup.Samples);
                 SpyLasers?.Preload(warmup.Samples);
                 SpyFirstPerson?.Warmup(warmup.Samples);
-                if (Map is { } map) DeviceViews.PreloadSecuritySkins(map, warmup.Samples);
+                if (Map is { } map)
+                {
+                    Render.Characters.PawnOutfits.Warmup(map.Outfits, map.Folder, map.SharedRoot, warmup.Samples);
+                    DeviceViews.PreloadSecuritySkins(map, warmup.Samples);
+                }
                 warmup.Begin(FinishLoading);
             }
             else FinishLoading();
@@ -314,6 +320,7 @@ public partial class PlayRoot : Node3D
             // an explicit cover/input gate prevents a playable transparent-smoke interval during preparation.
             SetSmokeLoading(true);
             var warmup = GameplayFxWarmup.For(GetViewport()); AddChild(warmup);
+            View?.PreloadSmokeBackground();
             warmup.PreloadResponsiveSmoke(session.Client.World.Level,Map,GetViewport());
             warmup.Begin(() => SetSmokeLoading(false));
         }

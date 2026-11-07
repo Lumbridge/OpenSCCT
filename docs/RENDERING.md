@@ -1095,6 +1095,13 @@ and scale. Materials are the actor-lit template, with the spy's masked self-illu
 textures (`SPersoTextures` modifiers: Shadw_agent_Heat, DEF_01_Body_Heat... HEATTEX_Cool). `SetVision` writes a
 pawn's vision values. `Views/PawnView` wraps one pawn for views. The core animation channels will replace the sampler.
 
+`PawnOutfits.Prepare` loads both stock character rigs, map outfits, third-person primary weapons and goggle meshes
+before the client reports its scene ready. Their first replicated appearance reuses those templates instead of
+blocking the render thread after the round has begun. `PawnOutfits.Warmup` draws the dressed bodies, carried weapons
+and goggle glow in the private loading viewport so their skinned draw pipelines are prepared too.
+`gameplay-fx-warmup` checks that spawning the first pawn does
+not read additional skeletal-model files; the network lab records `modelFilesRead` alongside readiness and spawn times.
+
 `SetSlotSkin(slot, material)` puts a material over one material slot, as UE2's `Skins[slot]`: the mesh's materials
 are its slots in order, and the skin's texture is the chars step's `textures/Package_Name.png` next to the model,
 built on the slot's own material. The first-person view applies its weapon's Skins every frame: the merc rifle's

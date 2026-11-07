@@ -7,8 +7,7 @@ using OpenScctGame.Play.Session;
 namespace OpenScctGame.Controls;
 
 /// <summary>
-/// The key layout of one side: the original <c>Default_kbd_0.ini</c> (spy) or <c>Default_kbd_1.ini</c> (merc) from
-/// the game's System folder, with the player's own changes from <c>user://svm_keys_spy.ini</c> or
+/// The key layout of one side: the built-in SCCT Enhanced defaults, with the player's own changes from <c>user://svm_keys_spy.ini</c> or
 /// <c>user://svm_keys_merc.ini</c> on top (same <c>[Engine.Input]</c> IK_ format, written on the first run so it can
 /// be edited). The Godot InputMap gets one action per bound key (<c>svm_IK_W</c> and so on), so the layout is also
 /// visible to Godot tools.
@@ -109,27 +108,10 @@ public sealed class InputBindings
     {
         // Shared layouts (rl:input.keyboard, use_split_spy_merc_keyboard off): both sides play the spy's files.
         PlaySide fileSide = (sharedOverride ?? Shared) ? PlaySide.Spy : side;
-        string file = fileSide == PlaySide.Spy ? "Default_kbd_0.ini" : "Default_kbd_1.ini";
-        string root = GameRoot(gameRoot);
-        string? original = root.Length > 0 ? Path.Combine(root, "System", file) : null;
-        KeyLayout layout;
-        string source;
-        if (File.Exists(original))
-        {
-            layout = KeyLayout.Load(original);
-            source = original;
-        }
-        else if (SharedLayout(file) is { } shared)
-        {
-            // No install: the stock layout the ui step copied into the shared content (built or downloaded).
-            layout = KeyLayout.Load(shared);
-            source = shared;
-        }
-        else
-        {
-            layout = DefaultKeyLayout.Create();
-            source = "built-in";
-        }
+        // Content packs may have been converted from vanilla SCCT, whose merc preset is arrows/numpad.
+        // Defaults belong to this build, including Reset: use the verified Enhanced layout on every machine.
+        KeyLayout layout = DefaultKeyLayout.Create();
+        const string source = "built-in (SCCT Enhanced)";
 
         string userFile = fileSide == PlaySide.Spy ? "user://svm_keys_spy.ini" : "user://svm_keys_merc.ini";
         string userPath = ProjectSettings.GlobalizePath(userFile);
@@ -142,6 +124,11 @@ public sealed class InputBindings
         else if (File.Exists(userPath))
         {
             userText = File.ReadAllText(userPath);
+            if (fileSide == PlaySide.Merc && DefaultKeyLayout.IsLegacyMercDefault(userText, OpenScctGame.Options.SettingsStore.Current.MouseWheel))
+            {
+                userText = null;
+                writeInitialSnapshot = !draft;
+            }
         }
         else if (!draft)
         {
@@ -158,13 +145,6 @@ public sealed class InputBindings
         }
 
         return bindings;
-    }
-
-    /// <summary>The stock layout <paramref name="file"/> in the shared content's ui/keys, or null.</summary>
-    private static string? SharedLayout(string file)
-    {
-        string path = Path.Combine(OpenScctGame.Hud.HudAssets.DefaultRoot(), "keys", file);
-        return File.Exists(path) ? path : null;
     }
 
     /// <summary>The gear picker's default key: free in both stock layouts and among the hub's keys.</summary>

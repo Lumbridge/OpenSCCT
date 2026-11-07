@@ -33,6 +33,8 @@ public partial class RemanenceEffect : CompositorEffect
     private bool _released;
     private UniformSlots? _slots;
     private byte[]? _push;
+    private volatile bool _warmupRequested;
+    private volatile bool _warmupComplete;
     // The colour buffer as a storage image (a copy of it with MSAA, rl:gfx.aa).
     private readonly StorageColor _storage = new("remanence");
 
@@ -55,6 +57,16 @@ public partial class RemanenceEffect : CompositorEffect
 
     /// <summary>Frames the after-image was drawn on so far (render thread writes).</summary>
     public int Draws { get; private set; }
+
+    /// <summary>Allocate this view's full-size capture/storage and descriptors while the loading gate is held.</summary>
+    public void Preload() => _warmupRequested = true;
+
+    public bool WarmupComplete => _warmupComplete || Error is not null || !Enabled || _released;
+
+    public string? Error { get; private set; }
+
+    /// <summary>Capture allocations, for first-use and resize diagnostics.</summary>
+    public int CaptureAllocations { get; private set; }
 
     /// <summary>Asks for the next frame to be captured (bCaptureRemanence).</summary>
     [Provenance(ProvenanceKind.Decoded, "game 0x10a0b050: bCaptureRemanence (bit 0x800 of 0x5f0) -> render device virtual 0x80, then the bit clears")]
@@ -99,17 +111,20 @@ public partial class RemanenceEffect : CompositorEffect
         _rd = RenderingServer.GetRenderingDevice();
         if (_rd is null)
         {
+            Error = "no RenderingDevice";
             return;
         }
 
         _shader = ComputeShaderSource.CreateShader(_rd, ShaderPath, "svm_remanence", out string? error);
         if (!_shader.IsValid)
         {
+            Error = error ?? "shader creation failed";
             GD.PushError("svm_remanence: " + error);
             return;
         }
 
         _pipeline = _rd.ComputePipelineCreate(_shader);
+        if (!_pipeline.IsValid) Error = "compute pipeline creation failed";
     }
 
     public override void _RenderCallback(int effectCallbackType, RenderData renderData)
@@ -128,14 +143,15 @@ public partial class RemanenceEffect : CompositorEffect
         }
 
         float factor = _factor;
+        bool warmup = _warmupRequested && !_warmupComplete;
         bool capture = DoubleVision ? factor > DrawThreshold : _captureRequests != _capturesDone;
         bool draw = factor > DrawThreshold && _capture.IsValid && _captureSize == size;
-        if (!capture && !draw)
+        if (!warmup && !capture && !draw)
         {
             return;
         }
 
-        if (capture && (!_capture.IsValid || _captureSize != size))
+        if ((warmup || capture) && (!_capture.IsValid || _captureSize != size))
         {
             if (_capture.IsValid)
             {
@@ -150,6 +166,7 @@ public partial class RemanenceEffect : CompositorEffect
                 UsageBits = RenderingDevice.TextureUsageBits.StorageBit | RenderingDevice.TextureUsageBits.SamplingBit,
             }, new RDTextureView());
             _captureSize = size;
+            CaptureAllocations++;
         }
 
         Rid color = _storage.Begin(_rd, buffers.GetColorLayer(0, false), size);
@@ -158,10 +175,11 @@ public partial class RemanenceEffect : CompositorEffect
             return;
         }
 
-        if (capture)
+        if (capture || warmup)
         {
             Dispatch(color, 1f, 0f, size);
-            _capturesDone = _captureRequests;
+            if (capture) _capturesDone = _captureRequests;
+            if (warmup) _warmupComplete = true;
         }
 
         if (factor > DrawThreshold && _capture.IsValid && _captureSize == size)

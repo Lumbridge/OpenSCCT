@@ -118,7 +118,8 @@ public sealed class HudMarkers
     {
         ArgumentNullException.ThrowIfNull(s);
         DrawList.Clear();
-        if (Projector is null || !s.Valid || s.HideHud || s.Side != HudSide.Spy || !s.EnhancedReality || !s.HasPawn)
+        if (Projector is null || !s.Valid || s.HideHud || !s.HasPawn ||
+            (s.Side != HudSide.Spy && s.Side != HudSide.Merc))
         {
             return;
         }
@@ -127,6 +128,14 @@ public sealed class HudMarkers
         // scale H / 480, without it the 640 wide canvas is kept and they grow with the width.
         float pageS = HudLayout.ErScale(screen.X, screen.Y, Widescreen, WidescreenHud, ErSmall);
         bool moving = s.PawnSpeed > 0f;
+        // HudDef (game 0x10af8060) calls the same GPO drawer (0x10afb090) as HudAtt,
+        // unconditionally: the merc's alarm diamond does not depend on the spy's ER switch.
+        if (s.Side == HudSide.Merc)
+        {
+            DrawGpos(s, screen, pageS, moving);
+            return;
+        }
+        if (!s.EnhancedReality) return;
         DrawGpos(s, screen, pageS, moving);
         List<(float D, HudObjective O, Vector2 P)> labelled = _labelled;
         labelled.Clear();

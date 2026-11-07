@@ -22,6 +22,8 @@ public partial class GameplayFxWarmup : SubViewport
     private SurfaceFogRegistry? _smokeView;
     private SmokeRenderCloud? _smokeCloud;
     private int _smokeFrames;
+    private FaithfulView? _view;
+    private ulong _started;
     public Node3D Samples { get; } = new() { Name = "Samples" };
 
     public GameplayFxWarmup()
@@ -43,9 +45,19 @@ public partial class GameplayFxWarmup : SubViewport
         UseDebanding = target.UseDebanding,
     };
 
+    /// <summary>Warm persistent post resources on the gameplay view itself, including its real MSAA/resolution.</summary>
+    public void PreloadView(FaithfulView? view)
+    {
+        _view = view;
+        view?.Effect.Preload();
+        view?.Remanence.Preload();
+        view?.DoubleVision.Preload();
+    }
+
     public void Begin(Action completed)
     {
         _completed = completed;
+        _started = Time.GetTicksMsec();
         if (DisplayServer.GetName() == "headless") Finish();
         else
         {
@@ -121,7 +133,16 @@ public partial class GameplayFxWarmup : SubViewport
     {
         // Let CPU particles emit and render their instanced geometry as well as the static samples.
         bool smokeReady = PrepareSmokeFrame();
-        if (++_frames >= 3 && smokeReady) Finish();
+        bool viewReady = _view is null || (_view.Effect.WarmupComplete &&
+            _view.Remanence.WarmupComplete && _view.DoubleVision.WarmupComplete);
+        // A hidden/disabled target may never deliver a compositor callback. It can warm on its first real draw;
+        // don't strand loading forever on a window/renderer configuration that cannot draw this view yet.
+        bool viewTimedOut = Time.GetTicksMsec() - _started >= 5000;
+        if (++_frames >= 3 && smokeReady && (viewReady || viewTimedOut))
+        {
+            if (!viewReady) GD.PushWarning("Gameplay post warmup did not draw before loading timeout.");
+            Finish();
+        }
     }
 
     private void Finish()

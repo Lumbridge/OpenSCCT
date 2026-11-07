@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Threading;
 using Godot;
 using OpenScct.Core;
@@ -28,6 +29,8 @@ public sealed class ResponsiveSmokePoolSmoke : SmokeTest
     private bool _warmed, _drained;
     private Counters _idle;
     private long _ordinaryBytes, _ordinaryFlowBytes;
+    private long _stamp;
+    private double _maxFrameMs, _drawPipelines;
     private SmokeResult? _result;
     private readonly record struct Counters(long Fields, long Prefix, long Flow, long PrefixDispatch, long FlowDispatch, long Growth);
     private static Counters Read() => new(ResponsiveSmokeRenderer.FieldAllocationCount,ResponsiveSmokeVolumeCache.AllocationCount,
@@ -44,7 +47,8 @@ public sealed class ResponsiveSmokePoolSmoke : SmokeTest
         {
             _quality = SettingsStore.Current.SmokeQuality; SettingsStore.Current.SmokeQuality = ResponsiveSmokeQuality.Medium;
             _rules = _world.Level.Spawn<GameReplicationInfo>()!; _rules.ResponsiveSmokeEnabled = true;
-            _viewport = new SubViewport { Size = new(256,256), OwnWorld3D = true, RenderTargetUpdateMode = SubViewport.UpdateMode.Always };
+            _viewport = new SubViewport { Size = (Vector2I)context.Tree.Root.GetVisibleRect().Size,
+                Msaa3D = Viewport.Msaa.Msaa4X, OwnWorld3D = true, RenderTargetUpdateMode = SubViewport.UpdateMode.Always };
             context.Tree.Root.AddChild(_viewport);
             _camera = new Camera3D { Current = true, Position = new(0,0,3), Far = 100 };
             _viewport.AddChild(_camera); _binding = new(_camera);
@@ -56,6 +60,9 @@ public sealed class ResponsiveSmokePoolSmoke : SmokeTest
             return SmokeResult.Running;
         }
         if (ResponsiveSmokeRenderer.VolumeError is { } error) return Finish(SmokeResult.Fail(error));
+        long now = Stopwatch.GetTimestamp();
+        if (_stage is 2 or 4 && _stamp != 0) _maxFrameMs = Math.Max(_maxFrameMs, Stopwatch.GetElapsedTime(_stamp,now).TotalMilliseconds);
+        _stamp = now;
         if (_binding is not null) ResponsiveSmokeRenderer.BindView(_binding.Slot,_camera!,null,5,_world.Level);
         _frames++;
         switch (_stage)
@@ -81,6 +88,9 @@ public sealed class ResponsiveSmokePoolSmoke : SmokeTest
                 if (active.PrefixDispatch <= _idle.PrefixDispatch || active.FlowDispatch <= _idle.FlowDispatch)
                     return Finish(SmokeResult.Fail("active smoke did not dispatch both GPU paths"));
                 if (ResponsiveSmokeRenderer.LastGrowthUploadBytes != 0) return Finish(SmokeResult.Fail("mature smoke kept uploading growth"));
+                double pipes = Performance.GetMonitor(Performance.Monitor.PipelineCompilationsDraw) - _drawPipelines;
+                GD.Print(FormattableString.Invariant($"SVM_FIRST_USE responsive-smoke-{(_stage == 2 ? "first" : "repeat")} size={_viewport.Size} maxFrameMs={_maxFrameMs:F2} drawPipelines={pipes:F0} fieldAllocations={active.Fields-_idle.Fields} prefixAllocations={active.Prefix-_idle.Prefix} flowAllocations={active.Flow-_idle.Flow}"));
+                if (pipes != 0) return Finish(SmokeResult.Fail("ordinary smoke pop compiled a new draw pipeline"));
                 if (_stage == 2) { _emitter!.Destroy(); Next(); }
                 else { _emitter!.Destroy(); Pop(80); Next(); }
                 break;
@@ -125,6 +135,8 @@ public sealed class ResponsiveSmokePoolSmoke : SmokeTest
 
     private void Pop(int blasts = 0)
     {
+        _drawPipelines = Performance.GetMonitor(Performance.Monitor.PipelineCompilationsDraw);
+        _maxFrameMs = 0; _stamp = Stopwatch.GetTimestamp();
         FVector center = new(0,100,0);
         _emitter = _world.Level.Spawn<SSmokeEmitter>(center)!;
         var cells = new byte[ResponsiveSmokeField.CellCount]; Array.Fill(cells,(byte)1);

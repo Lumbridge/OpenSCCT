@@ -225,6 +225,15 @@ public static class NativeRepLists
         Add("SBase.SBasicGamePlayObject", false,
             ("AmbientGlow", Initial),
             ("StaticMesh", Auth + " && DrawType == DT_StaticMesh"));
+        // A sensor's confirmation state owns its warning loop on the authority. Clients only receive
+        // bLightState and do not enter that state; Actor's initial-only audio leaves them silent (or
+        // looping forever when their channel opens during confirmation).
+        Add("SBase.SVolumetricSensor", false,
+            ("AmbientSound", Auth),
+            ("SoundOcclusion", Auth + " && AmbientSound != None"),
+            ("SoundRadius", Auth + " && AmbientSound != None"),
+            ("SoundVolume", Auth + " && AmbientSound != None"),
+            ("SoundPitch", Auth + " && AmbientSound != None"));
         Add("SBase.SGamePlayObject", false,
             ("Base", Auth + " && bPickable"));
         Add("SBase.SAnimatedMesh", false,

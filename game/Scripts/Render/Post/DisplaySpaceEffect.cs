@@ -159,6 +159,13 @@ public partial class DisplaySpaceEffect : CompositorEffect
 
     private volatile int _lastDrawnCleanRects;
     private bool _released;
+    private volatile bool _warmupRequested;
+    private volatile bool _warmupComplete;
+
+    /// <summary>Prepare the view's vision blur/glow descriptors at its actual resolution before gameplay.</summary>
+    public void Preload() => _warmupRequested = true;
+
+    public bool WarmupComplete => _warmupComplete || Error is not null || !Enabled || _released;
 
     /// <summary>True once the compute pipelines exist.</summary>
     public bool Ready => _pipeline.IsValid && _blurPipeline.IsValid && _glowPipeline.IsValid;
@@ -308,7 +315,8 @@ public partial class DisplaySpaceEffect : CompositorEffect
         }
 
         pipeline = _rd!.ComputePipelineCreate(shader);
-        return true;
+        if (!pipeline.IsValid) Error = name + ": compute pipeline creation failed";
+        return pipeline.IsValid;
     }
 
     private Rid Upload(byte[] rgbaOrR8, int width, int height)
@@ -519,6 +527,17 @@ public partial class DisplaySpaceEffect : CompositorEffect
             }
 
             Rid depth = buffers.GetDepthLayer(view, false);
+            if (_warmupRequested && !_warmupComplete)
+            {
+                // These write only this effect's scratch targets. Do not switch the live view's vision mode,
+                // mutate the gameplay colour buffer or advance a goggle/flash animation during loading.
+                Glow(color, size, 228f / 255f, emf: true);
+                Blur(color, size, _levels[0], new Vector2(0f, 1f), fromFrame: true);
+                Blur(_levels[0], _levelSizes[0], _levels[1], new Vector2(1f, 0f), fromFrame: false);
+                Blur(_levels[1], _levelSizes[1], _levels[2], new Vector2(0f, 1f), fromFrame: false);
+                Blur(_levels[2], _levelSizes[2], _levels[3], new Vector2(1f, 0f), fromFrame: false);
+                _warmupComplete = true;
+            }
             if (glow)
             {
                 // The bright pass reads the fogged scene, so fog runs first; the gate and glow follow the pyramid.

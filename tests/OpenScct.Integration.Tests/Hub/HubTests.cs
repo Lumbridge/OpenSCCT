@@ -37,10 +37,10 @@ public sealed class HubTests
         private readonly VirtualClock _clock = new();
         private long _frame;
 
-        public Rig(int bots, string profile = "A", ulong seed = 5, bool interest = true, HubSoakSettings? soak = null)
+        public Rig(int bots, string profile = "A", ulong seed = 5, bool interest = true, HubSoakSettings? soak = null, HubSettings? settings = null)
         {
             Network = new SimLinkNetwork(_clock, seed, SimLinkProfile.Get(profile));
-            Server = new HubServer(Network.Bind("server"), new HubSettings
+            Server = new HubServer(Network.Bind("server"), (settings ?? new HubSettings()) with
             {
                 Maps = WalkerRig.Maps, Classes = WalkerRig.Classes, Seed = seed, InterestManagement = interest, Motd = "Welcome to the test hub.",
             });

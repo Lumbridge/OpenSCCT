@@ -167,6 +167,21 @@ HUD and the HUD reads `Duration`, `StartTime` and `MessagePriority` for the box.
 `ReceiveLocalizedMessage` to each player's controller; `AddMessageOnHud` reliably to the instigator's machine. The
 marked gameplay object is made always relevant so its HUD marker reaches everyone.
 
+The orange world-space device diamond is drawn for mercs as well as spies. Original `HudDef`
+(`0x10af8060`, reached by native 1443) calls the same malfunction drawer (`0x10afb090`) as `HudAtt`,
+without gating it on `EnhancedRealityLevel`. OpenSCCT previously limited that drawer to spies,
+leaving a merc with radar blips but no world diamond. `HudMarkers` now follows the merc call path;
+spy ER visibility remains controlled by its toggle. The remote controller marker add/remove path is
+covered for lasers, cameras and volumetric sensors at 200 ms RTT by `PassiveSecurityNetworkTests`.
+`HudSmoke` checks the merc diamond, its independence from ER and its removal.
+
+Static parity evidence: executable SHA-256
+`a98873aaec1de21fdcccc0afb9985e3ddcf38a9ddce1207214872d6428ec9950`,
+REA `ev_75845ae9310529cc958f8eb5863461330b0b72578091808e06c983e8401f8f2a`
+(merc caller) and `ev_e8081376afe27a937e6714f06fb98f9d3ce27a6ec00df71b4a95058be3caa9b8`
+(shared diamond drawer). This confirms the native drawing path; a live original-game capture has
+not been performed for this change.
+
 ## Edge cases
 
 - The "re-tell and restart" test compares whole game seconds with a precise start time: within the first second

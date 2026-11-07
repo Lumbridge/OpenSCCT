@@ -112,6 +112,9 @@ public partial class LobbyRoomScreen : MenuPage
     /// <summary>Launch / Cancel (host) or Ready / Not Ready (client).</summary>
     public Button? MainButton { get; private set; }
 
+    /// <summary>Public-server players and admins retain a Ready button alongside their launch action.</summary>
+    public Button? StartButton { get; private set; }
+
     public Button? LeaveButton { get; private set; }
     public Button? HelpButton { get; private set; }
     internal ProjectLinkActions? HelpActions { get; init; }
@@ -383,7 +386,7 @@ public partial class LobbyRoomScreen : MenuPage
             return;
         }
 
-        if (s.CanControl)
+        if (s.IsHost)
         {
             s.Start(GetTree());
         }
@@ -666,9 +669,12 @@ public partial class LobbyRoomScreen : MenuPage
         SpectateButton!.Disabled = local is null || local.Side is null || (local.Ready && !control);
         EquipmentButton!.Disabled = local?.Side is null || s.Launching;
         NoteJoins(s);
-        MainButton!.Text = control && s.PreparingBots ? "Cancel start" : LobbyRoomModel.MainButton(control, local?.Ready ?? false, s.Launching);
-        MainButton.Disabled = local is null || (!control && (local.Side is null || !LobbyRoomModel.CanToggleReady(local.Ready, s.HasReadyMap)))
-            || (control && !s.Launching && !s.CanStart);
+        MainButton!.Text = s.IsHost && s.PreparingBots ? "Cancel start" : LobbyRoomModel.MainButton(s.IsHost, local?.Ready ?? false, s.Launching);
+        MainButton.Disabled = local is null || (!s.IsHost && (local.Side is null || !LobbyRoomModel.CanToggleReady(local.Ready, s.HasReadyMap)))
+            || (s.IsHost && !s.Launching && !s.CanStart);
+        StartButton!.Visible = !s.IsHost && s.CanLaunch;
+        StartButton.Text = s.PreparingBots ? "Cancel start" : LobbyRoomModel.MainButton(true, false, s.Launching);
+        StartButton.Disabled = !s.Launching && !s.CanStart;
         UpdateOverview();
         UpdateLoadout();
         UpdateTeamCards();

@@ -10,6 +10,41 @@ namespace OpenScct.Integration.Tests;
 
 public sealed class LagCompensationEpochTests
 {
+    [Theory]
+    [InlineData(60)]
+    [InlineData(1500)]
+    public void MovingTargetRewindUsesServerTimeInsideAnOwnerCommandClock(long inputTick)
+    {
+        var world = new World(21);
+        var pawn = world.Level.Spawn<SPawnAttaque>()!;
+        var shooter = world.Level.Spawn<SPAWNDEFENSE>()!;
+        var lag = LagCompensation.Install(world.Level);
+        lag.Enabled = true;
+        for (int i = 0; i < 1000; i++)
+        {
+            world.Step();
+            pawn.Location = new FVector(500, (i - 990) * 10, 0);
+            lag.Record();
+        }
+
+        // The client saw tick 991, where the spy crossed y=0; now the spy is 90 uu past the crosshair.
+        var start = new FVector(0, 0, 0);
+        var end = new FVector(1000, 0, 0);
+        using (world.Level.CommandTime(inputTick, inputTick * Sim.DeltaTime, Sim.DeltaTime))
+        using (world.Level.CommandTime(inputTick + 1, (inputTick + 1) * Sim.DeltaTime, Sim.DeltaTime))
+        {
+            lag.BeginShot(991 * NetTimeline.Fraction);
+            try
+            {
+                Assert.Equal(150f, lag.LastRewindMs);
+                Assert.Same(pawn, TraceHitZones.Instance.TraceBone(shooter, end, start, true).Actor);
+            }
+            finally { lag.EndShot(); }
+        }
+        Assert.Equal(1000, world.Level.TickCount);
+        Assert.NotSame(pawn, TraceHitZones.Instance.TraceBone(shooter, end, start, true).Actor);
+    }
+
     [Fact]
     public void ShotTimeRemainsTheDisplayedFrameWhileAdaptiveSimulationAdvances()
     {

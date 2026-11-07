@@ -41,7 +41,17 @@ public sealed partial class PawnStateReplication : INetworkPawnPose, IPawnAnimat
     public long RenderTimeFixed { get; set; } = -1;
     public long SnapshotsSent { get; private set; }
     public long SnapshotsReceived { get; private set; }
-    public long LatestSnapshotTick { get; private set; } = -1;
+    /// <summary>Newest snapshot of a current pawn; a departed last peer must not leave a stale age forever.</summary>
+    public long LatestSnapshotTick
+    {
+        get
+        {
+            long newest = -1;
+            foreach (var track in _tracks)
+                if (!track.Key.bDeleteMe) newest = Math.Max(newest, track.Value.Newest);
+            return newest;
+        }
+    }
     internal long SourceTick => _sourceTick;
     public long AnimationRecords { get; private set; }
     public long SnapshotPayloadBytes { get; private set; }
@@ -630,7 +640,6 @@ public sealed partial class PawnStateReplication : INetworkPawnPose, IPawnAnimat
             t.Channels[i].Push(new Phase { Tick = tick, Revision = frame.Revisions[i], Frame = c.Frame, Rate = c.Rate, Alpha = c.Alpha, Tween = c.TweenWeight, Snapshot = true });
         }
         t.Motion.Recover(tick, MeshAnchorMotion(frame)); t.Newest = tick; stream.SnapshotsReceived++;
-        stream.LatestSnapshotTick = Math.Max(stream.LatestSnapshotTick, tick);
     }
 
     public bool Tick(SBasePawn pawn, float deltaTime)

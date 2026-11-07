@@ -48,6 +48,8 @@ public sealed class OnlineLobby : IOnlineLobbySession
 
     public bool CanControl => State.CanControl;
 
+    public bool CanLaunch => State.CanLaunch;
+
     public bool CanModerate => State.Local?.CanModerate ?? false;
 
     public string Map => State.Setup.Map;
@@ -131,7 +133,7 @@ public sealed class OnlineLobby : IOnlineLobbySession
     }
 
     /// <summary>The host or a dedicated lobby may start once everyone on a side is ready (the server checks again).</summary>
-    public bool CanStart => (CanControl || State.Dedicated) && State.Players.Count > 0;
+    public bool CanStart => State.CanStart;
 
     public event Action? Changed;
 

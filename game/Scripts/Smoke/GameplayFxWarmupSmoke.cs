@@ -1,5 +1,8 @@
 using System;
+using System.Collections.Generic;
 using Godot;
+using OpenScct.Game.SBase;
+using OpenScctGame.Audio;
 using OpenScctGame.Play;
 using OpenScctGame.Play.Session;
 using OpenScctGame.Render;
@@ -18,6 +21,8 @@ public sealed class GameplayFxWarmupSmoke : SmokeTest
     private bool _complete;
     private double _drawCompiles;
     private int _securitySamples;
+    private int _modelFilesAtLoad;
+    private int _explosionSounds;
     private int _teardown;
     private SmokeResult? _result;
 
@@ -36,15 +41,19 @@ public sealed class GameplayFxWarmupSmoke : SmokeTest
             {
                 _root = TestRange.Start(context, PlaySide.Merc, 0);
             }
+            _modelFilesAtLoad = Render.Characters.SkeletalModel.FilesRead;
             return SmokeResult.Running;
         }
         if (_root.LoadError is { } error) return Finish(SmokeResult.Fail(error));
-        if (!_root.IsLoaded || ++_frames < 30) return SmokeResult.Running;
+        if (!_root.IsLoaded || _root.Session?.LocalPawn is null || ++_frames < 30) return SmokeResult.Running;
+        if (Render.Characters.SkeletalModel.FilesRead != _modelFilesAtLoad)
+            return Finish(SmokeResult.Fail($"first pawn appearance read {Render.Characters.SkeletalModel.FilesRead - _modelFilesAtLoad} model files after scene loading"));
         if (_root.GetNodeOrNull("GameplayFxWarmup") is not null) return Finish(SmokeResult.Fail("loading viewport leaked into gameplay"));
         if (_root.Fx?.Effects is not { } effects || _root.MercLasers is not { } lasers)
             return Finish(SmokeResult.Fail("missing effects views"));
         if (_repeat is null)
         {
+            if (CheckExplosionSounds() is { } soundError) return Finish(SmokeResult.Fail(soundError));
             int started = effects.Started.Count;
             int cameras = _root.Fx.DisabledCameraCount;
             int beams = lasers.BeamsDrawn;
@@ -56,6 +65,8 @@ public sealed class GameplayFxWarmupSmoke : SmokeTest
             lasers.Preload(_repeat.Samples);
             _root.SpyLasers?.Preload(_repeat.Samples);
             _root.SpyFirstPerson?.Warmup(_repeat.Samples);
+            if (_root.Map is { } characterMap)
+                Render.Characters.PawnOutfits.Warmup(characterMap.Outfits, characterMap.Folder, characterMap.SharedRoot, _repeat.Samples);
             int effectSamples = _repeat.Samples.GetChildCount();
             if (_root.Map is { } map) DeviceViews.PreloadSecuritySkins(map, _repeat.Samples);
             _securitySamples = _repeat.Samples.GetChildCount() - effectSamples;
@@ -67,7 +78,35 @@ public sealed class GameplayFxWarmupSmoke : SmokeTest
         if (!_complete) return SmokeResult.Running;
         double late = Performance.GetMonitor(Performance.Monitor.PipelineCompilationsDraw) - _drawCompiles;
         if (late != 0) return Finish(SmokeResult.Fail($"first-use sample draw compiled {late} new pipelines after loading"));
-        return Finish(SmokeResult.Pass($"effects warmed during loading; no gameplay effects spawned; cleanup complete; security skin samples={_securitySamples}; repeat draw pipeline compilations={late}"));
+        return Finish(SmokeResult.Pass($"effects warmed during loading; no gameplay effects spawned; cleanup complete; security skin samples={_securitySamples}; explosion sound leaves cached={_explosionSounds}; repeat draw pipeline compilations={late}"));
+    }
+
+    private string? CheckExplosionSounds()
+    {
+        if (_root?.Audio?.Library is not { } library || library.Find(new SProjFrag().SoundExplode.Path) is not { } sound)
+            return "missing explosion audio fixture";
+        int reads = library.FilesRead;
+        var pending = new Stack<SoundDef>(); pending.Push(sound);
+        var visited = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        while (pending.TryPop(out SoundDef? next))
+        {
+            if (!visited.Add(next.Path)) continue;
+            if (next.IsList)
+            {
+                foreach (var entry in next.Entries)
+                {
+                    if (library.Find(entry.Sound) is not { } child) return $"missing explosion sound {entry.Sound}";
+                    pending.Push(child);
+                }
+            }
+            else
+            {
+                if (library.Stream(next, false) is null) return $"unplayable explosion sound {next.Path}";
+                _explosionSounds++;
+            }
+        }
+        if (_explosionSounds == 0) return "explosion random list has no playable leaves";
+        return library.FilesRead == reads ? null : "first explosion still read an audio file after loading";
     }
 
     private SmokeResult Finish(SmokeResult result)

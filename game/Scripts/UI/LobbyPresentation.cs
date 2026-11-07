@@ -13,7 +13,7 @@ public static class LobbyPresentation
         host ? countdown ? "Cancel countdown" : "Start match" : ready ? "Not ready" : "Ready";
 
     public static string Preparation(bool host, bool localPresent, bool spectator, bool ready, bool countdown,
-        int seconds, IEnumerable<string> waiting, IEnumerable<string> mapProblems, string? download = null)
+        int seconds, IEnumerable<string> waiting, IEnumerable<string> mapProblems, string? download = null, bool canLaunch = false)
     {
         if (countdown) return "Starting in " + Math.Max(0, seconds) + " seconds";
         if (!localPresent) return "Connecting to the lobby...";
@@ -24,7 +24,7 @@ public static class LobbyPresentation
         if (!host && !ready) return "Choose your equipment, then select Ready.";
         string[] names = waiting.ToArray();
         if (names.Length > 0) return "Waiting for " + string.Join(", ", names) + " to ready up.";
-        if (host) return "Players are ready. You can start the match.";
+        if (host || canLaunch) return "Players are ready. You can start the match.";
         return ready ? "You are ready. Waiting for the host to start." : "Choose your equipment, then select Ready.";
     }
 

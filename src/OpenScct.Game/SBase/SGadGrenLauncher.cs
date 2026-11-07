@@ -43,7 +43,7 @@ public partial class SGadGrenLauncher
         }
 
         float speed = ProjectileDefaults?.ProjectileSpeed ?? 0f;
-        UseGren(WeaponRules.ThrowForce(Value, speed));
+        if (!TryUseGren(WeaponRules.ThrowForce(Value, speed))) return;
         if (pawn?.Controller is SPlayerController pc)
         {
             pc.Vibration_Gadget(K.GadgetRumble);
@@ -62,25 +62,27 @@ public partial class SGadGrenLauncher
     [UcNative("ASGadGrenLauncher::execUseGren", Exe = 0x10aa03e0)]
     [Uc("SBase.SGadGrenLauncher.UseGren", Sha1 = "d3377d08be628f09813bfb5c77d1e045ac92db93")]
     [PortOf("nat:SBase.SGadGrenLauncher.UseGren", Spec = "spec/equipment/grenade-throw.md#rules")]
-    public void UseGren(int Force)
+    public void UseGren(int Force) => TryUseGren(Force);
+
+    private bool TryUseGren(int Force)
     {
         // Decoded at game 0x10aa03e0: nothing without a drawn weapon; the throw starts at the weapon's FX bone, a merc's
         // 40 uu along his aim (MyDesiredRotation, which is also the throw's rotation), a spy's 10 uu along the FX bone.
         if (OwnerPawn is not { WeaponLoaded: not 0 } pawn || pawn.MyWeapon is not { } weapon)
         {
-            return;
+            return false;
         }
 
         // Then the refire time of this gadget (another gadget has its own LastUsed) and the charge; the clock starts here.
         if (Level.TimeSeconds - LastUsed < RefireRate)
         {
-            return;
+            return false;
         }
 
         if (Charge < 1 && Charge != K.UnlimitedCharge && !GadgetWorld.CurLevelIsTutorial(this))
         {
             pawn.PlaySound(SND_EmptyCharge, ESoundSlot.SLOT_Misc, null, false, K.EmptyChargeRadius);
-            return;
+            return false;
         }
 
         LastUsed = Level.TimeSeconds;
@@ -103,6 +105,7 @@ public partial class SGadGrenLauncher
         }
 
         ThrowGren(Force, origin, rotation, false);
+        return true;
     }
 
     /// <summary>
@@ -229,7 +232,10 @@ public partial class SGadGrenLauncher
     /// </summary>
     public void ServerThrowGren(int Force, FVector Origin, FRotator Rotation, bool bQuickLaunch)
     {
-        if (Level.TimeSeconds - LastUsed < RefireRate - K.RemoteRefireSlack)
+        // The owner's charge update can lag behind another queued click. Spend only charges that still
+        // exist on the authority; otherwise rapid throws can spawn extra projectiles and drive Charge negative.
+        if ((Charge < 1 && Charge != K.UnlimitedCharge && !GadgetWorld.CurLevelIsTutorial(this)) ||
+            Level.TimeSeconds - LastUsed < RefireRate - K.RemoteRefireSlack)
         {
             return;
         }

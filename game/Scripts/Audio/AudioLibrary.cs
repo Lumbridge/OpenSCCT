@@ -69,6 +69,9 @@ public sealed class AudioLibrary
 
     public int Count => _sounds.Count;
 
+    /// <summary>Uncached stream file reads/decodes attempted, for first-use diagnostics.</summary>
+    public int FilesRead { get; private set; }
+
     /// <summary>Files that failed to load, for reports.</summary>
     public List<string> LoadErrors { get; } = [];
 
@@ -138,6 +141,7 @@ public sealed class AudioLibrary
         string? error = null;
         try
         {
+            FilesRead++;
             if (def.File.EndsWith(".ogg", StringComparison.OrdinalIgnoreCase))
             {
                 AudioStreamOggVorbis ogg = AudioStreamOggVorbis.LoadFromFile(def.File);

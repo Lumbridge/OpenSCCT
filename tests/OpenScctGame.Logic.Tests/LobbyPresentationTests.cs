@@ -38,6 +38,16 @@ public sealed class LobbyPresentationTests
     }
 
     [Fact]
+    public void PublicLaunchPermissionDoesNotReplaceThePlayersReadyInstruction()
+    {
+        string State(bool ready, string[] waiting) => LobbyPresentation.Preparation(false, true, false, ready, false,
+            0, waiting, Array.Empty<string>(), canLaunch: true);
+        Assert.Contains("select Ready", State(false, new[] { "You" }));
+        Assert.Contains("Alex", State(true, new[] { "Alex" }));
+        Assert.Contains("can start", State(true, Array.Empty<string>()));
+    }
+
+    [Fact]
     public void ChangeNoticesDescribeAppliedSettingsAndIgnoreUnchangedSetups()
     {
         var before = new LobbySetup { Map = "Old", TimeLimit = 10 };

@@ -579,6 +579,16 @@ public sealed class OptionsSmoke : SmokeTest
 
     private void CheckBindingConflicts(OptionsMenu options)
     {
+        foreach (PlaySide role in new[] { PlaySide.Spy, PlaySide.Merc })
+        {
+            var defaults = InputBindings.Load(role, seedInputMap: false, sharedOverride: false, draft: true, defaults: true);
+            KeyLayout expected = DefaultKeyLayout.ApplyProfile(DefaultKeyLayout.Create(), null, SettingsStore.Current.MouseWheel);
+            Expect(defaults.Layout.Bindings.Count == expected.Bindings.Count, role + " defaults have the complete Enhanced action set");
+            foreach (string key in expected.Bindings.Keys)
+                Expect(defaults.Layout.Resolve(key).SequenceEqual(expected.Resolve(key)), role + " Enhanced default " + key);
+            Expect(defaults.Actions("Up").Count == 0 && defaults.Actions("NumPad1").Count == 0,
+                role + " defaults do not load the vanilla merc arrow/numpad preset");
+        }
         bool originalSplit = options.Editing.SplitKeyboard;
         int originalTab = options.Tabs!.CurrentTab;
         var originals = new Dictionary<PlaySide, KeyLayout>();

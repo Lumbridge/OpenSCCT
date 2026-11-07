@@ -214,6 +214,15 @@ stateDiagram-v2
   standalone games raise any charge in 1..998 to 999 (`SGadget.PostNetBeginPlay`); tutorials set -10.
 - Two FRand draws per throw for spin direction and speed, one for the flash, all cosmetic.
 
+### OpenSCCT request handling
+
+The server rechecks remaining charges when receiving a throw, in addition to its refire window.
+A client can queue another click before its previous throw's charge update arrives; that request must
+not spawn a projectile after the final charge was spent. A locally rejected aimed launch also leaves
+the merc weapon animation unchanged, so cooldown or empty-charge rejection cannot replay a throw.
+These checks apply with both the primary weapon and an added sidearm. `MercGrenadeRequestTests`
+covers exhausted remote requests and rejected local presentation.
+
 ## Evidence
 - local/re-out/uc/SBase/SGadGrenLauncher.uc, SProjGrenade.uc, SGadLaunchEffects.uc, SGadget.uc,
   SPlayerController.uc 2065-2143 (AltFire), 3398-3423 and 3475-3510 (PlayerTick), 3639-3658, 9818-9848, 10165-10175,

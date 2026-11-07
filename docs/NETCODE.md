@@ -444,6 +444,8 @@ view time's fixed fraction (never across a jump of 200 uu or more, a respawn). S
 makes is rewound: the merc rifle and SMG (`SWeaponDefense.TraceFire`), the shotgun's nine pellets, the spy pistol
 (`SWeaponAttaque.TraceFireWithPos`) and the spy bullet laser's trace. The shooter is never rewound (the trace skips
 it), the world, movers and the water probe stay live, and nothing is moved: the trace only reads recorded pills.
+Rewind validation and its ceiling use the host's world tick even when a shot is dispatched inside a movement
+command. That command's input tick belongs to the joining client and cannot be compared with server snapshot times.
 Shots of the host's own authority-side code and bots on the server have no view time and see the live pose.
 The setting: `ServerSettings.LagCompensation` and `LagCompensationCeilingMs` (modern default 300, range 0 to 500), changed at run
 time through `ServerHost.LagCompensation` (`Enabled`, `CeilingMs`, `Command`); online sessions keep it across rounds
@@ -660,6 +662,10 @@ An SBasePawn replaces that catch-up with its own (`ASBasePawn::Tick`, spec/nativ
 controls, the server runs the pawn's physics every tick, since the client sends no moves then; a falling pawn whose
 moves stopped for 0.1 s falls on for the elapsed time and that time counts as processed (`CurrentTimeStamp`, which
 `ServerMoves` shares with the controller); other modes wait for their moves.
+
+Sequenced movement disables new commands for corpses. Their authority and autonomous owner therefore run physics
+once per world tick, including a fatal blast's airborne phase. Applying the legacy 0.1 s falling catch-up here would
+make the remote body freeze between large position updates even though its animation phase advances normally.
 
 ## Traversal over the network
 

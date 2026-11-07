@@ -190,7 +190,10 @@ and a server pass far over its frame. The hub opts in to three changes; a normal
 (`NetDriverSettings.Interest` null, the shared send budget):
 
 - **Per-connection budget.** The game's one shared send budget would split one client's rate between 50 clients; the
-  hub uses stock UE2's budget per connection.
+  hub gives each visitor an independent adaptive budget. Stock uses a 5 KB/s ceiling; Enhanced (the dedicated
+  server default) uses 20 KB/s so 60 Hz replication does not starve nearby pawn snapshots and animation descriptors.
+  `HubSettings.MaxClientRate` can override either ceiling. Snapshot age only counts pawns still present, so the last
+  visitor leaving does not leave a permanent stale-snapshot warning.
 - **Distance and rank bands** (`DistanceInterest`, rules 12 to 14 of the spec): the 4 nearest other pawns within
   2500 uu replicate as in a match; the rest of a crowd, and everything from 2500 uu, updates at most every 0.5 s, from
   4500 uu every 0.75 s, from 6500 uu every 1 s; beyond 7000 uu nothing new opens, and open channels close past

@@ -63,8 +63,11 @@ public sealed record HubSettings
 
     public DistanceInterestSettings Interest { get; init; } = new();
 
-    /// <summary>Per-visitor download budget, including packet overhead. The crowd uses interest management within it.</summary>
-    public int MaxClientRate { get; init; } = 5000;
+    /// <summary>
+    /// Per-visitor download budget, including packet overhead. Zero selects 5 KB/s for Stock or 20 KB/s for
+    /// Enhanced; the 60 Hz profile needs room for nearby pawn snapshots and their reliable animation descriptors.
+    /// </summary>
+    public int MaxClientRate { get; init; }
 
     public NetUpdateGate UpdateGate { get; init; } = NetUpdateGate.DecodedGuarded;
 
@@ -282,7 +285,8 @@ public sealed partial class HubServer : IDisposable
                 LanPlay = Settings.LanPlay,
                 IsLan = Settings.LanPlay,
                 Interest = Interest,
-                MaxClientRate = Settings.MaxClientRate,
+                MaxClientRate = Settings.MaxClientRate > 0 ? Settings.MaxClientRate
+                    : Settings.Profile == NetProfile.Enhanced ? OpenScct.Net.K.MaxClientRate : 5000,
                 // The game's one shared send budget would split one client's rate between fifty clients: each
                 // connection pays for its own sends, as stock UE2 does.
                 Budget = SendBudgetMode.PerConnection,

@@ -181,6 +181,7 @@ public sealed class NetworkLabSmoke(bool host, bool observer = false, bool secon
                 onlineError = online.LastError,
                 lobby = online.Client?.State == OnlineClientState.Lobby ? online.Client.Lobby.Players.Select(p => new { p.Name, p.Team, p.Ready, p.Map }).ToArray() : null,
                 loaded = _root?.IsLoaded ?? false, pilotReady = _pilot?.Ready ?? false,
+                modelFilesRead = Render.Characters.SkeletalModel.FilesRead,
                 hudSleeping = _root?.Hud?.Effects.Sfx.Sleeping,
                 hud = _root?.Hud is { } hud ? new
                 {

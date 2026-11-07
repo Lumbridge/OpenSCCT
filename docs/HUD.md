@@ -397,6 +397,15 @@ Save & Close; Back confirms discarding edits. `OptionsRuntime` applies role sens
 FOV and controller settings. `GamepadInput` retains keyboard-linked assignments and supports independent action
 bindings, alongside radial dead zones, response curves and the spy's run threshold.
 
+**Keyboard defaults:** both roles use the built-in SCCT Enhanced keyboard layout. This is independent of
+the original install or downloaded content: older public content packs contain vanilla SCCT's arrow/numpad
+merc preset. First load and Reset now use the same Enhanced defaults (WASD, Space jump, C crouch,
+Shift use, E flashlight, Q laser, F rate of fire, R reload). Exact untouched old merc-default snapshots
+upgrade automatically; customized bindings and edited input orders remain authoritative. New snapshots
+carry a defaults-version marker so subsequent intentional arrow/numpad layouts are preserved.
+`DefaultKeyLayoutTests` compares every binding against installed Enhanced Beta 3 and Beta 5 presets,
+and tests migration using the old public pack's actual merc INI.
+
 **First-time controller layout** (Reloaded, `controller.layout_version` 1): controller support starts off and
 the first connected pad prompts to enable it. Bindings call independent actions, so changing or removing keyboard
 bindings does not change controller behavior. Existing unversioned settings retain their earlier controls and aim;
@@ -433,7 +442,7 @@ the decoded original behavior. In camera
 views, RT releases sticky-camera gas and B leaves the view. Long roll pulses crouch when needed to stand first.
 Triggers press above 7680/32767 (about 23.4%). Spy free look uses Aggressive and gun look uses Soft response.
 These are the defaults with analog slow walk enabled and stick/bumper swaps disabled. The built-in keyboard
-fallback now contains the same resolved stock actions as the original INIs; additions and wheel preferences are
+layout contains the same resolved actions as the Enhanced INIs; additions and wheel preferences are
 applied before the first saved snapshot, so first launch and later launches agree without original key files.
 The `controller-defaults` smoke exercises both roles with the fallback and with an empty keyboard layout;
 logic tests cover contextual trigger timing and execute gadget, cloak, camera and long-roll commands.

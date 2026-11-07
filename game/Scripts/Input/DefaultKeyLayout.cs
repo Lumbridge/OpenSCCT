@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace OpenScctGame.Controls;
 
-/// <summary>The stock keyboard actions, also available without an original install or converted UI keys.</summary>
+/// <summary>The SCCT Enhanced keyboard defaults, independent of the original install or converted UI keys.</summary>
 public static class DefaultKeyLayout
 {
     public const string GearKey = "I";
@@ -11,9 +11,55 @@ public static class DefaultKeyLayout
     public const string PerspectiveBindingMarker = "; OpenSCCT spy perspective binding v1";
     public const string CloakKey = "K";
     public const string CloakBindingMarker = "; OpenSCCT innate cloak binding v1";
+    public const string EnhancedDefaultsMarker = "; OpenSCCT Enhanced keyboard defaults v1";
 
-    /// <summary>Both original Default_kbd_0/1.ini layouts resolve to these same bindings.</summary>
+    /// <summary>Both Enhanced Beta 3 and Beta 5 Default_kbd_0/1.ini layouts resolve to these same bindings.</summary>
     public static KeyLayout Create() => KeyLayout.Parse(StockLayout);
+
+    /// <summary>
+    /// Old downloaded content shipped the original arrow/numpad merc preset. Only untouched complete snapshots
+    /// of that preset are upgraded; one changed or unbound action, or an edited slot order, preserves the file.
+    /// </summary>
+    public static bool IsLegacyMercDefault(string? saved, string wheelMode)
+    {
+        if (saved is null || !saved.StartsWith(KeyLayout.SnapshotMarker, StringComparison.Ordinal) ||
+            saved.Contains(EnhancedDefaultsMarker, StringComparison.Ordinal) ||
+            saved.Contains("; OpenSCCT input order", StringComparison.Ordinal)) return false;
+
+        KeyLayout legacy = Create();
+        (string From, string To)[] remaps =
+        [
+            ("A", "Left"), ("D", "Right"), ("W", "Up"), ("S", "Down"), ("Shift", "Enter"),
+            ("Q", "NumPad0"), ("T", "Insert"), ("E", "NumPad1"), ("Space", "Shift"), ("C", "Ctrl"),
+            ("H", "GreyMinus"), ("Z", "NumPadPeriod"), ("B", "Home"), ("L", "GreyStar"), ("R", "GreyPlus"),
+            ("F", "GreySlash"), ("V", "NumPad2"), ("1", "NumPad4"), ("2", "NumPad5"), ("3", "NumPad7"),
+            ("4", "NumPad8"), ("5", "NumPad6"), ("6", "NumPad9"), ("Tab", "Backspace"), ("F1", "Delete"), ("F2", "End"),
+        ];
+        KeyLayout enhanced = Create();
+        foreach (var pair in remaps) legacy.Bind(pair.From, "");
+        foreach (var pair in remaps) legacy.Bind(pair.To, enhanced.Bindings[pair.From]);
+        foreach (string key in new[] { "MouseX", "MouseY", "MouseWheelUp", "MouseWheelDown", "Escape" }) legacy.Bind(key, "");
+        legacy.UpgradeWheelBindings(wheelMode);
+
+        KeyLayout candidate = KeyLayout.Parse(saved);
+        candidate.UpgradeWheelBindings(wheelMode);
+        foreach ((string key, string command) in new[]
+        {
+            (GearKey, "ChangeGear"), ("G", "SwapWeapon"), ("N", "ToggleTeammateNames"),
+            ("CapsLock", "PushToTalk"), ("Y", "TeamPushToTalk"),
+            (SpyPerspectiveKey, "SwitchSpyPerspective"), (CloakKey, "Button bCloak"),
+        })
+        {
+            KeyLayout action = KeyLayout.Parse("IK_" + key + "=" + command);
+            if (candidate.Resolve(key).SequenceEqual(action.Resolve(key))) candidate.Bind(key, "");
+        }
+        if (candidate.Resolve("F8").Select(a => a.Name).SequenceEqual(new[] { "DisplaySessionStatus", "ToggleVoiceMute" }))
+            candidate.Bind("F8", "DisplaySessionStatus");
+
+        string[] keys = candidate.Bindings.Keys.Where(key => candidate.Resolve(key).Count > 0).ToArray();
+        return keys.Length == legacy.Bindings.Count && keys.All(key =>
+            legacy.Bindings.ContainsKey(key) && candidate.Resolve(key).SequenceEqual(legacy.Resolve(key)));
+    }
 
     /// <summary>
     /// Prepares the complete layout before it is used or saved. Complete snapshots remain authoritative, including

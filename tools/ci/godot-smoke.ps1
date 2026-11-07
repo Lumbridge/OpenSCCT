@@ -104,7 +104,7 @@ $minimumTimeouts = @{
     'play-shocker' = 240.0; 'play-merc' = 240.0; 'play-combat' = 240.0
 }
 # Smokes that only run with a window (-All leaves them out of a headless run), and helpers another smoke starts.
-$windowOnly = @('detector-laser', 'golden', 'frame-rate', 'merc-status-visual', 'spy-back-light', 'laser-dot', 'cloak-render', 'demo-xray', 'spy-first-person-visual')
+$windowOnly = @('detector-laser', 'golden', 'frame-rate', 'merc-status-visual', 'spy-back-light', 'laser-dot', 'cloak-render', 'demo-xray', 'spy-first-person-visual', 'gameplay-first-use', 'gameplay-smoke-first-use', 'responsive-smoke-pool', 'merc-network-pose')
 $helpers = @('net-lobby-guest', 'net-bots-guest')
 $esc = [char]27
 $results = New-Object System.Collections.Generic.List[object]

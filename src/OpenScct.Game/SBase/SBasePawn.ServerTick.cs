@@ -24,11 +24,11 @@ public partial class SBasePawn
         var commands = XLevel.GetService<OpenScct.Game.Animation.INetworkPawnCommands>();
         if (commands?.DrivesPawn(this) == true) return;
         float now = XLevel.TimeSeconds;
-        if (pc is SPlayerController { bGameEnded: true })
+        if (pc is SPlayerController { bGameEnded: true } || commands?.SimulatesCorpseOnWorldClock(this) == true)
         {
-            // Sequenced input stops at the result boundary. The original GameEnded state still
-            // simulates zero-input movement, so finish braking/falling on the server world clock
-            // instead of leaving a walking pawn's last velocity (and run blend) stuck indefinitely.
+            // Sequenced input stops at death and results. The body keeps moving on the owner's
+            // world clock, so the authority must do the same. Waiting for the legacy falling
+            // catch-up threshold freezes a fatal blast body for 0.1 s between large physics steps.
             Acceleration = default;
             XLevel.PhysicsDriver?.performPhysics(this, XLevel.DeltaTime);
             pc.ServerTimeStamp = now;

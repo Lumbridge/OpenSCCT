@@ -33,9 +33,33 @@ alone does not exercise the draw pipelines. The temporary viewport is freed befo
 play; its particles use separate simulations and never spawn gameplay actors or audio.
 Headless runs prepare CPU resources and finish without waiting for rendered frames.
 
+The live camera also prepares its vision blur/glow descriptors, flash capture and double-vision
+storage at the actual viewport resolution/MSAA during this gate. The scratch passes never
+switch the player's vision mode, change the displayed colour buffer or count as gameplay
+flash captures. Responsive smoke keeps its existing full-size private cloud warmup and
+prepares the live camera's background surface before the first pop. Stock body/weapon
+samples exercise their skinned draw pipelines in the private world too.
+
 The windowed `gameplay-fx-warmup` smoke checks loading completion, viewport cleanup,
 unchanged live effect counters, and zero new draw-pipeline compilations when the same
 samples are drawn again. This checks pipeline reuse, not a hardware-independent frame-time guarantee.
+The windowed `gameplay-first-use` smoke records first/repeat vision and legacy smoke frame
+times, requires zero new draw pipelines, and verifies that flash/double-vision captures do
+not allocate again. `responsive-smoke-pool` measures first/repeat responsive pops at window
+resolution with 4x MSAA and checks texture/pipeline reuse. Actual smoke geometry and lighting
+depend on its location; these checks do not remove that ongoing simulation/rendering work.
+`gameplay-smoke-first-use` exercises two real authoritative smoke pops on Aquarius (or
+`--svm-play=<map>`), including geometry growth, replication and the map's spatial light probes.
+It reports registration, simulation/view, and wall-frame costs separately from GPU allocations.
+This fixture deliberately runs an inline host so authoritative geometry classification is
+included in its simulation/frame timings. A normal **Create a session** listen host runs that
+work on its dedicated background thread. The fixture checks one spawn location and ordinary
+cloud capacity, not a cold driver cache, every map position, or a delayed remote connection.
+Warm pipelines/storage do not eliminate location-dependent classification and lighting work.
+The three leaves of the frag explosion's nested random sound list are decoded during audio
+loading too; the warmup smoke checks that requesting every leaf afterward performs no file
+read. This avoids confirmed first-use audio work and does not explain a choppy body animation
+when the rest of the frame remains smooth.
 
 | Path | What |
 |---|---|

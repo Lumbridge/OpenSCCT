@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using OpenScctGame.Controls;
 using Xunit;
 
@@ -28,12 +29,14 @@ public sealed class DefaultKeyLayoutTests
     }
 
     [Theory]
-    [InlineData("Default_kbd_0.ini")]
-    [InlineData("Default_kbd_1.ini")]
-    public void FallbackResolvesExactlyLikeOriginalLayoutWhenInstalled(string file)
+    [InlineData("Default_kbd_0.ini", @"Desktop\Enhanced SCCT Versus v4.0 Public Beta 3")]
+    [InlineData("Default_kbd_1.ini", @"Desktop\Enhanced SCCT Versus v4.0 Public Beta 3")]
+    [InlineData("Default_kbd_0.ini", @"Desktop\Enhanced SCCT Versus 4.0 Beta 5")]
+    [InlineData("Default_kbd_1.ini", @"Desktop\Enhanced SCCT Versus 4.0 Beta 5")]
+    public void FallbackResolvesExactlyLikeOriginalLayoutWhenInstalled(string file, string folder)
     {
         string root = Environment.GetEnvironmentVariable("SVM_GAME")
-            ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), @"Desktop\Enhanced SCCT Versus v4.0 Public Beta 3");
+            ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), folder);
         string original = Path.Combine(root, "System", file);
         Assert.SkipUnless(File.Exists(original), "The reference game's stock keyboard layout is not installed.");
         KeyLayout stock = KeyLayout.Load(original);
@@ -101,4 +104,38 @@ public sealed class DefaultKeyLayoutTests
         Assert.Equal("PushToTalk", Assert.Single(loaded.Resolve("U")).Name);
         Assert.Equal(new[] { "CustomStatus", "ToggleVoiceMute" }, loaded.Resolve("F8").Select(a => a.Name));
     }
+
+    [Theory]
+    [InlineData("Gadget")]
+    [InlineData("Speed")]
+    public void UntouchedDownloadedMercDefaultsAreRecognizedForEnhancedUpgrade(string wheelMode)
+    {
+        KeyLayout legacy = LegacyMercLayout();
+        Assert.Equal("BT_Up", Assert.Single(legacy.Resolve("Up")).Name);
+        Assert.Empty(legacy.Resolve("W"));
+        KeyLayout saved = DefaultKeyLayout.ApplyProfile(legacy, null, wheelMode);
+        string old = BeforeEnhancedDefaults(saved);
+        Assert.True(DefaultKeyLayout.IsLegacyMercDefault(old, wheelMode));
+        Assert.False(DefaultKeyLayout.IsLegacyMercDefault(saved.ToIni(), wheelMode));
+        Assert.False(DefaultKeyLayout.IsLegacyMercDefault(DefaultKeyLayout.ApplyProfile(DefaultKeyLayout.Create(), null, wheelMode).ToIni(), wheelMode));
+    }
+
+    [Theory]
+    [InlineData("Up", "")]
+    [InlineData("G", "CustomAction")]
+    [InlineData("E", "GadTorcheSwitch")]
+    [InlineData("MouseX", "Axis aMouseX Speed=3.00")]
+    public void OnePersonalMercBindingPreventsAutomaticDefaultUpgrade(string key, string command)
+    {
+        KeyLayout legacy = DefaultKeyLayout.ApplyProfile(LegacyMercLayout(), null, "Gadget");
+        legacy.Bind(key, command);
+        Assert.False(DefaultKeyLayout.IsLegacyMercDefault(BeforeEnhancedDefaults(legacy), "Gadget"));
+    }
+
+    private static string BeforeEnhancedDefaults(KeyLayout layout) =>
+        layout.ToIni().Replace(DefaultKeyLayout.EnhancedDefaultsMarker + "\n", "", StringComparison.Ordinal);
+
+    // Captured from the installed public shared pack, whose vanilla merc layout caused the report.
+    private static KeyLayout LegacyMercLayout([CallerFilePath] string source = "") =>
+        KeyLayout.Load(Path.Combine(Path.GetDirectoryName(source)!, "Fixtures", "legacy-merc-default.ini"));
 }

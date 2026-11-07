@@ -81,6 +81,13 @@ by s_SomethingDetected.
 `src/OpenScct.Game/Devices/SensorK.cs`. Volumes keep their `Touching` list from the physics touch pass (plain Volume
 brushes are touch colliders in `collision.bin`).
 
+The authority's confirmation-loop `AmbientSound` and its sound parameters replicate on change.
+Clients do not execute `s_SomethingDetected`; Actor's initial-only audio otherwise leaves an existing
+client silent, or keeps the loop playing after confirmation if its channel opened during the alert.
+`PassiveSecurityNetworkTests` covers start and stop at 200 ms RTT. This is a network transport
+correction based on the original scripted sound lifecycle; the sensor's original native replication
+list remains undecoded.
+
 Shooting feedback follows the original shared gameplay-object damage script: an immediate `SSparkShocker`
 burst at the hit, followed by the black LED, shutdown sound and `SMalfunctionEmitter` (intermittent sparks
 and smoke) during the lock. In the rewrite's separate server/client worlds, the immediate burst is forwarded

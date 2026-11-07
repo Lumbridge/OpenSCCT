@@ -63,7 +63,7 @@ keys.Update();                                // once per frame: setup, taps, ti
 - An action is named the way the layout names it: an input byte (`BT_Up`, `bCrouch`, `bFire`), an exec command
   (`Jump`, `ChangeSpeed`, `SelectGadget 1`, `ShowMenu`), an alias (`Crouch`, `AliasHaut`) or a key itself
   (`IK_C`, `IK_Escape`). `KeyOf(action)` gives the IK key the player's bindings use for it (the user file
-  `user://svm_keys_spy.ini` over `Default_kbd_0.ini`), so a rebind is followed. When several keys carry the
+  `user://svm_keys_spy.ini` over the built-in Enhanced defaults), so a rebind is followed. When several keys carry the
   action, the one with the fewest other actions is used. An action no key is bound to is listed in `Missing`.
 - `Ready` is true once the delivery and capture are set up (a few frames); the timeline starts then. `Step` is the
   label of the running step (`""` before and after), `Done` is true when the timeline has run out. Keys are released
@@ -285,6 +285,19 @@ Run `tools/ci/godot-smoke.ps1 -Tests nearby-grenade -Windowed` and check the pro
 as the verdict. For a driver comparison, launch Godot directly with `--rendering-driver vulkan` or
 `--rendering-driver d3d12` before `-- --svm-smoke=nearby-grenade --svm-smoke-timeout=240`.
 An optional `--svm-play=<map>` selects another map; its geometry can obstruct the distant blasts.
+
+## Merc body animation (merc-network-pose smoke)
+
+The windowed `merc-network-pose` smoke draws a remote merc through the real network and skeleton paths.
+Its default case checks sidearm actions, camera-gas collapse and recovery. Set `SVM_MERC_POSE_BLAST=1`
+for a fatal frag with 144 rendered samples per second; it checks that the airborne body keeps moving
+between simulation ticks and lands. Captures and motion traces go to `local/merc-network-pose`.
+
+To inspect a recording, leave the blast flag unset and set `SVM_MERC_POSE_DEMO` to its path,
+`SVM_MERC_POSE_START` and `SVM_MERC_POSE_SECONDS` to the interval, and optionally `SVM_MERC_POSE_FPS`
+(default 60). `SVM_MERC_POSE_MAPS` can select the matching map pack; content/protocol checks still apply.
+Recorded server positions remain recorded positions: replay cannot demonstrate that a server physics fix
+changes an old recording. Use the live blast case for that regression.
 
 ## Leaving a session and quitting (play-exit smoke)
 
