@@ -176,12 +176,17 @@ float smoke_shape_density(vec3 relative, float age, vec3 extents) {
     float radius_squared = dot(relative,relative);
     if (radius_squared <= 22500.0) return 1.0;
     if (radius_squared >= 202500.0) return 0.0;
+    float taper = 1.0-.16*smoothstep(-.1,1.0,relative.z/extents.z);
+    vec3 p = abs(relative/(extents*vec3(taper,taper,1.0)));
+    float body_cube = dot(p,p*p);
+    // Constant regions do not depend on material noise. Keep small rounding margins around the
+    // .55 inner shell and 1.0 largest possible rim, preserving the original transition samples.
+    if (body_cube < .1663) return 1.0;
+    if (body_cube > 1.0001) return 1.0-smoothstep(150.0,180.0,sqrt(radius_squared));
     vec3 material = smoke_material_coordinate(relative,age);
     float macro = smoke_material_macro(material);
     float fine = smoke_shape_noise(material/55.0+vec3(23.41,3.71,13.29));
-    float taper = 1.0-.16*smoothstep(-.1,1.0,relative.z/extents.z);
-    vec3 p = abs(relative/(extents*vec3(taper,taper,1.0)));
-    float body = pow(dot(p,p*p),1.0/3.0), edge = .90+.08*macro+.02*fine;
+    float body = pow(body_cube,1.0/3.0), edge = .90+.08*macro+.02*fine;
     float shell = mix(1.0,.70+.30*macro,smoothstep(.55,.88,body));
     float density = shell*(1.0-smoothstep(edge-.07,edge,body));
     return max(1.0-smoothstep(150.0,180.0,sqrt(radius_squared)),density);

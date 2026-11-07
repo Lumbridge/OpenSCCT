@@ -9,13 +9,15 @@ namespace OpenScctGame.Render;
 /// <summary>Integrates one cumulative view volume before surface shading; bullet silhouettes retain the exact path.</summary>
 internal static class ResponsiveSmokeVolumeCache
 {
+    // Match Header: wider rows keep adjacent atlas writes and sampling rays together without changing samples.
+    private const int GroupWidth = 16, GroupHeight = 4;
     private static RenderingDevice? s_rd;
-    private static Rid s_shader, s_pipeline, s_nearest, s_linear, s_repeat, s_output, s_history;
+    private static Rid s_shader, s_pipeline, s_singleShader, s_singlePipeline, s_nearest, s_linear, s_repeat, s_output, s_history;
     private static Texture2Drd? s_texture;
     private static UniformSlots? s_uniforms;
     private static Vector2I s_size;
     private static bool s_initialized;
-    private static string? s_source;
+    private static string? s_source, s_singleSource;
     private static bool s_hasHistory;
     private static int s_frameNumber;
     public static string? Error { get; private set; }
@@ -25,7 +27,7 @@ internal static class ResponsiveSmokeVolumeCache
     public static long AllocatedBytes { get; private set; }
     public static long Dispatches { get; private set; }
     internal static bool HasResources => s_initialized || s_output.IsValid || s_history.IsValid ||
-        s_pipeline.IsValid || s_shader.IsValid || s_nearest.IsValid || s_linear.IsValid || s_repeat.IsValid;
+        s_pipeline.IsValid || s_shader.IsValid || s_singleShader.IsValid || s_singlePipeline.IsValid || s_nearest.IsValid || s_linear.IsValid || s_repeat.IsValid;
 
     public static void Prewarm()
     {
@@ -41,6 +43,7 @@ internal static class ResponsiveSmokeVolumeCache
         string source = Expand("res://Shaders/svm_responsive_smoke.gdshaderinc");
         source = Regex.Replace(source, @"global uniform [^;]+;", "");
         s_source = Header + source + Main;
+        s_singleSource = Header + "\n#define SVM_SMOKE_SINGLE_CLOUD\n" + source + Main;
     }
 
     public static void Queue(ImageTexture fields, ImageTexture frame, ImageTexture growth, ImageTexture3D shape, ImageTexture probes, int[] slots, Vector2I size, int[] sceneSlots)
@@ -67,7 +70,12 @@ internal static class ResponsiveSmokeVolumeCache
         if (!string.IsNullOrEmpty(spirv.CompileErrorCompute)) { Error = spirv.CompileErrorCompute; GD.PushError(Error); return; }
         s_shader = s_rd.ShaderCreateFromSpirV(spirv,"responsive_smoke_prefix");
         s_pipeline = s_rd.ComputePipelineCreate(s_shader);
-        if (!s_shader.IsValid || !s_pipeline.IsValid)
+        using var singleSource = new RDShaderSource { Language = RenderingDevice.ShaderLanguage.Glsl, SourceCompute = s_singleSource! };
+        using RDShaderSpirV singleSpirv = s_rd.ShaderCompileSpirVFromSource(singleSource);
+        if (!string.IsNullOrEmpty(singleSpirv.CompileErrorCompute)) { Error = singleSpirv.CompileErrorCompute; GD.PushError(Error); return; }
+        s_singleShader = s_rd.ShaderCreateFromSpirV(singleSpirv,"responsive_smoke_prefix_single");
+        s_singlePipeline = s_rd.ComputePipelineCreate(s_singleShader);
+        if (!s_shader.IsValid || !s_pipeline.IsValid || !s_singleShader.IsValid || !s_singlePipeline.IsValid)
         { Error = "Could not create the responsive smoke compute pipeline."; GD.PushError(Error); return; }
         s_nearest = s_rd.SamplerCreate(new RDSamplerState { MinFilter = RenderingDevice.SamplerFilter.Nearest,
             MagFilter = RenderingDevice.SamplerFilter.Nearest, RepeatU = RenderingDevice.SamplerRepeatMode.ClampToEdge,
@@ -156,16 +164,19 @@ internal static class ResponsiveSmokeVolumeCache
             int[] parameters = [sceneSlots[i],sceneSlots[i+1],-1,0];
             byte[] bytes = MemoryMarshal.AsBytes(parameters.AsSpan()).ToArray();
             rd.ComputeListSetPushConstant(list,bytes,(uint)bytes.Length);
-            rd.ComputeListDispatch(list,ResponsiveSmokeRenderer.SceneShadowGrid,
-                (uint)((ResponsiveSmokeRenderer.SceneShadowGrid * ResponsiveSmokeRenderer.SceneShadowRows + 7) / 8),1);
+            rd.ComputeListDispatch(list,(uint)((ResponsiveSmokeRenderer.SceneShadowGrid*8+GroupWidth-1)/GroupWidth),
+                (uint)((ResponsiveSmokeRenderer.SceneShadowGrid * ResponsiveSmokeRenderer.SceneShadowRows + GroupHeight-1) / GroupHeight),1);
             Dispatches++;
         }
-        for (int i = 0; i < slots.Length; i += 3)
+        for (int i = 0; i < slots.Length; i += 4)
         {
+            bool single = slots[i+3] == 1;
+            rd.ComputeListBindComputePipeline(list,single ? s_singlePipeline : s_pipeline);
+            rd.ComputeListBindUniformSet(list,single ? UniformSetCacheRD.GetCache(s_singleShader,0,uniforms.Array) : set,0);
             int[] parameters = [slots[i],spotCount,s_hasHistory ? 1 : 0,s_frameNumber];
             byte[] bytes = MemoryMarshal.AsBytes(parameters.AsSpan()).ToArray();
             rd.ComputeListSetPushConstant(list,bytes,(uint)bytes.Length);
-            rd.ComputeListDispatch(list,(uint)((slots[i+1]+7)/8),(uint)((slots[i+2]+7)/8),1);
+            rd.ComputeListDispatch(list,(uint)((slots[i+1]+GroupWidth-1)/GroupWidth),(uint)((slots[i+2]+GroupHeight-1)/GroupHeight),1);
             Dispatches++;
         }
         rd.ComputeListEnd();
@@ -219,8 +230,8 @@ internal static class ResponsiveSmokeVolumeCache
                 AllocatedBytes = 0;
                 return;
             }
-            foreach (Rid rid in new[] {s_output,s_history,s_pipeline,s_shader,s_nearest,s_linear,s_repeat}) if (rid.IsValid) rd.FreeRid(rid);
-            s_output = s_history = s_pipeline = s_shader = s_nearest = s_linear = s_repeat = default;
+            foreach (Rid rid in new[] {s_output,s_history,s_pipeline,s_shader,s_singlePipeline,s_singleShader,s_nearest,s_linear,s_repeat}) if (rid.IsValid) rd.FreeRid(rid);
+            s_output = s_history = s_pipeline = s_shader = s_singlePipeline = s_singleShader = s_nearest = s_linear = s_repeat = default;
             AllocatedBytes = 0;
             s_hasHistory = false;
             s_rd = null; s_initialized = false; s_size = default;
@@ -230,7 +241,7 @@ internal static class ResponsiveSmokeVolumeCache
     private const string Header = """
         #version 450
         #define SVM_SMOKE_COMPUTE
-        layout(local_size_x=8,local_size_y=8,local_size_z=1) in;
+        layout(local_size_x=16,local_size_y=4,local_size_z=1) in;
         layout(set=0,binding=0) uniform sampler2D svm_smoke_fields;
         layout(set=0,binding=1) uniform sampler2D svm_smoke_frame;
         layout(set=0,binding=2) uniform sampler2D svm_smoke_growth;
@@ -280,6 +291,7 @@ internal static class ResponsiveSmokeVolumeCache
         void main() {
             int view = pc.dispatch.x*14;
             vec4 frame = smoke_frame_row(view), eye = smoke_frame_row(view+1);
+        #ifndef SVM_SMOKE_SINGLE_CLOUD
             if (pc.dispatch.z < 0) {
                 int cloud = int(frame.x)+pc.dispatch.y*14, field = int(smoke_frame_row(cloud).x);
                 vec4 cache = smoke_field_row(field+4);
@@ -300,6 +312,11 @@ internal static class ResponsiveSmokeVolumeCache
                 imageStore(smoke_prefix_image,xy+ivec2(0,int(cache.x)),transmission);
                 return;
             }
+        #else
+            // The exact same integration for one cloud, with the unused scene-shadow branch and
+            // union loops removed at compile time. Temporal jitter and every sample remain unchanged.
+            frame.y = 1.0;
+        #endif
             vec4 right = smoke_frame_row(view+2), up = smoke_frame_row(view+3), forward = smoke_frame_row(view+4);
             vec4 layout_info = smoke_frame_row(view+5), depth_info = smoke_frame_row(view+6);
             ivec2 grid = ivec2(layout_info.yz), xy = ivec2(gl_GlobalInvocationID.xy);

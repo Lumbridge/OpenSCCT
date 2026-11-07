@@ -60,7 +60,12 @@ public static class ResponsiveSmokeRenderer
     private sealed class AtlasPool(int width, int baseHeight, int retainedHeight, Image.Format format, int bytesPerPixel)
     {
         internal sealed class Entry(ImageTexture texture, byte[] bytes, int height)
-        { public readonly ImageTexture Texture = texture; public readonly byte[] Bytes = bytes; public readonly int Height = height; }
+        {
+            public readonly ImageTexture Texture = texture;
+            public readonly byte[] Bytes = bytes;
+            public readonly int Height = height;
+            public byte[]? Uploaded;
+        }
         private Entry? _base, _large;
         public long Bytes => (_base?.Bytes.Length ?? 0L) + (_large?.Bytes.Length ?? 0L);
         public Entry Get(int neededHeight)
@@ -79,6 +84,17 @@ public static class ResponsiveSmokeRenderer
             FieldAllocationCount++;
             return new(ImageTexture.CreateFromImage(image),bytes,height);
         }
+        public int UploadIfChanged(Entry entry)
+        {
+            // Retain the last submitted bytes with this texture identity. Equal data needs no transfer
+            // or texture transition; changed light values, layout and newly allocated resources upload immediately.
+            if (entry.Uploaded is { } old && entry.Bytes.AsSpan().SequenceEqual(old)) return 0;
+            using Image image = Image.CreateFromData(width,entry.Height,false,format,entry.Bytes);
+            entry.Texture.Update(image);
+            entry.Uploaded ??= new byte[entry.Bytes.Length];
+            entry.Bytes.CopyTo(entry.Uploaded,0);
+            return entry.Bytes.Length;
+        }
         public void TrimIdle()
         { if (_large is { Height: var height } && height > retainedHeight) { _large.Texture.Dispose(); _large = null; } }
         public void Release()
@@ -89,6 +105,8 @@ public static class ResponsiveSmokeRenderer
     public static int LastFieldUploadBytes { get; private set; }
     public static int LastFrameUploadBytes { get; private set; }
     public static int LastGrowthUploadBytes { get; private set; }
+    public static int LastProbeUploadBytes { get; private set; }
+    public static long ProbeUploadCount { get; private set; }
     public static long GrowthUploadCount { get; private set; }
     public static double LastUploadMilliseconds { get; private set; }
     public static double LastFlowQueueMilliseconds { get; private set; }
@@ -332,6 +350,7 @@ public static class ResponsiveSmokeRenderer
         LastBoundViewCount = LastActiveViewCount = LastCacheViewCount = 0;
         LastPrefixVoxelCount = 0;
         LastGrowthUploadBytes = 0;
+        LastProbeUploadBytes = 0;
         LastFlowQueueMilliseconds = LastFieldMilliseconds = LastGrowthMilliseconds = LastLightingMilliseconds
             = LastFramePackingMilliseconds = LastFrameUploadMilliseconds = LastPrefixQueueMilliseconds = 0;
         bool changed = false;
@@ -589,7 +608,7 @@ public static class ResponsiveSmokeRenderer
             Set(FrameData, row + 7, pixels.X, pixels.Y, bulletBase, bullets.Count);
             if (view.Mode != 38 && far > near)
             {
-                cacheSlots.Add(slot); cacheSlots.Add(gridWidth); cacheSlots.Add(gridHeight);
+                cacheSlots.Add(slot); cacheSlots.Add(gridWidth); cacheSlots.Add(gridHeight); cacheSlots.Add(count);
                 LastCacheViewCount++;
                 LastPrefixVoxelCount += (long)gridWidth*gridHeight*slices;
                 prefixWidth = Math.Max(prefixWidth, gridWidth * 8);
@@ -608,7 +627,8 @@ public static class ResponsiveSmokeRenderer
             probeValues[at] = value.X; probeValues[at+1] = value.Y; probeValues[at+2] = value.Z; probeValues[at+3] = value.W;
         }
         BindTexture(ref s_probes,probeAtlas.Texture,"svm_smoke_probes");
-        using (var probeImage = Image.CreateFromData(6,probeAtlas.Height,false,Image.Format.Rgbaf,probeAtlas.Bytes)) s_probes!.Update(probeImage);
+        LastProbeUploadBytes = ProbePool.UploadIfChanged(probeAtlas);
+        if (LastProbeUploadBytes != 0) ProbeUploadCount++;
         if (Profile) { LastFramePackingMilliseconds = Math.Max(0,System.Diagnostics.Stopwatch.GetElapsedTime(stage).TotalMilliseconds-LastLightingMilliseconds); stage = System.Diagnostics.Stopwatch.GetTimestamp(); }
         LastFrameUploadBytes = Upload(FramePool, ref s_frame, FrameData, ref s_frameBytes, "svm_smoke_frame");
         if (Profile) { LastFrameUploadMilliseconds = System.Diagnostics.Stopwatch.GetElapsedTime(stage).TotalMilliseconds; stage = System.Diagnostics.Stopwatch.GetTimestamp(); }
@@ -698,8 +718,6 @@ public static class ResponsiveSmokeRenderer
         BindTexture(ref texture,atlas.Texture,parameter); bytes = atlas.Bytes; height = atlas.Height;
         bytes.AsSpan().Clear();
         CollectionsMarshal.AsSpan(values).CopyTo(MemoryMarshal.Cast<byte, float>(bytes.AsSpan()));
-        using Image image = Image.CreateFromData(Width, height, false, Image.Format.Rgbaf, bytes);
-        texture!.Update(image);
-        return bytes.Length;
+        return pool.UploadIfChanged(atlas);
     }
 }

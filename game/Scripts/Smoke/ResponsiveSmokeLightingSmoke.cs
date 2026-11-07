@@ -140,6 +140,7 @@ public sealed class ResponsiveSmokeLightingSmoke : SmokeTest
         }
         string? failure = _phase switch
         {
+            0 when ResponsiveSmokeRenderer.LastProbeUploadBytes != 0 => "unchanged frozen light probes were uploaded again",
             0 when left.R <= left.B+.01f || right.B <= right.R+.01f => "rendered cloud lost the red/blue regional lighting",
             1 when left.R <= left.B+.02f || right.B <= right.R+.02f => "probe shading did not retain different light regions",
             2 when left.R >= _redBeforeSwitch*.7f => "switched light remained in cached probes",
