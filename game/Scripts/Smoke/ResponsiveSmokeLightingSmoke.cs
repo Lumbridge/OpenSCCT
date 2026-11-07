@@ -34,7 +34,7 @@ public sealed class ResponsiveSmokeLightingSmoke : SmokeTest
     private ResponsiveSmokeQuality _oldQuality;
     private int _phase, _frames;
     private float _redBeforeSwitch, _rightBeforeMove, _shadowBeforeBlast;
-    private float _bodyBeforeTurn;
+    private float _bodyBeforeTurn, _sceneMatureTransmission;
     private bool _bodyTurned;
 
     public override SmokeResult Step(SmokeContext context)
@@ -151,10 +151,11 @@ public sealed class ResponsiveSmokeLightingSmoke : SmokeTest
             6 when left.R <= _shadowBeforeBlast+.2f => "blast clearing did not transmit more incident light",
             7 when Math.Min(left.R,_bodyBeforeTurn) < .06f || MathF.Abs(left.R-_bodyBeforeTurn) < .01f => "same-point map-lit body lost diffuse support or directional self-shadow contrast",
             8 or 10 or 11 or 12 or 15 or 16 when left.R < .98f || right.R < .98f => "disabled, cleared or unlit scene shadow retained attenuation",
-            9 when left.R > .45f || right.R < .98f => "Full smoke did not shadow the receiving surface while retaining clear light paths",
-            13 when left.R > .05f || right.R < .98f => "cached scene shadow lost the occluded receiver or clear path",
+            9 or 13 when left.R < .24f || left.R > .65f || right.R < .98f => "Full scene shadow lost partial light transmission or the clear path",
             14 when left.R < .95f || right.R < .98f => "moving a light at frozen density did not refresh cached transmission",
             17 when left.R < .55f || left.R > .58f || right.R > .01f => "Fast shadow skipped the dense near segment beside a blocked wall",
+            18 when left.R < _sceneMatureTransmission+.10f || left.R > .95f || right.R < .98f => "thinning Full smoke did not progressively transmit more scene light",
+            19 when left.R < .98f || right.R < .98f => "expired Full smoke retained a scene shadow",
             _ => null,
         };
         GD.Print($"RESPONSIVE_SMOKE_LIGHTING phase={_phase} left={left} right={right}");
@@ -164,7 +165,8 @@ public sealed class ResponsiveSmokeLightingSmoke : SmokeTest
         if (failure is not null) return Finish(SmokeResult.Fail($"phase={_phase}: {failure}; left={left}, right={right}"));
         if (_phase == 1) { _redBeforeSwitch = left.R; _rightBeforeMove = right.R; }
         if (_phase == 5) _shadowBeforeBlast = left.R;
-        if (++_phase >= 18) return Finish(SmokeResult.Pass("18 rendered lighting scenarios: spatial scattering, switched/moved lighting, directional invariance, self-shadow, blast transmission, diffuse fill, scene shadows, cached receivers, moving-light invalidation, Fast/clear/light-off recovery and Fast wall-adjacent self-shadow"));
+        if (_phase == 13) _sceneMatureTransmission = left.R;
+        if (++_phase >= 20) return Finish(SmokeResult.Pass("20 rendered lighting scenarios: spatial scattering, switched/moved lighting, directional invariance, self-shadow, blast transmission, diffuse fill, partial scene shadows, cached receivers, moving-light invalidation, Fast/clear/light-off recovery, Fast wall-adjacent self-shadow and progressive thinning/expiry transmission"));
         _frames = 0; _gpu.Clear(); Configure();
         return SmokeResult.Running;
     }
@@ -244,7 +246,7 @@ public sealed class ResponsiveSmokeLightingSmoke : SmokeTest
                     cells[i] = x >= 25 && x <= 175 ? (byte)0 : (byte)1;
                 }
                 ResponsiveSmokeWorld.For(_world.Level).ApplySnapshot(emitter,
-                    new(300,0,2,template.Origin,template.Center,cells,new ushort[cells.Length],[]));
+                    new(270,0,2,template.Origin,template.Center,cells,new ushort[cells.Length],[]));
             }
             return;
         }
@@ -264,6 +266,7 @@ public sealed class ResponsiveSmokeLightingSmoke : SmokeTest
                 ResponsiveSmokeWorld.For(_world.Level).ApplySnapshot(_emitter,
                     new((uint)(_phase*10+101),0,2,template.Origin,template.Center,new byte[ResponsiveSmokeField.CellCount],new ushort[ResponsiveSmokeField.CellCount],[]));
             }
+            if (_phase is 18 or 19) ResponsiveSmokeWorld.For(_world.Level).SynchronizeTime(_phase == 18 ? 9.25f : 10f);
         }
     }
 

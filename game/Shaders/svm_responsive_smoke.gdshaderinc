@@ -22,8 +22,12 @@ global uniform sampler2D svm_spot_atten;
 // A skipped opaque tail changes transmittance by at most exp(-8), about .000336. Rays that remain
 // transmissive, including thermal and bullet apertures, keep integrating at their normal full resolution.
 const float SMOKE_OPAQUE_TAU = 8.0;
-// Shared with ResponsiveSmokeField.Extinction. All qualities, light paths and optical queries agree.
+// Shared with ResponsiveSmokeField.Extinction. Visibility, gas and smoke self-shadow use this extinction.
 const float SMOKE_EXTINCTION = .060;
+// Surface lighting includes unresolved scattered light. A cloud dims it instead of acting like an opaque
+// wall; this approximation does not weaken visibility through the cloud or change its own shaded detail.
+const float SMOKE_SCENE_EXTINCTION = SMOKE_EXTINCTION*.12;
+const float SMOKE_SCENE_DIFFUSE = .25;
 
 // Shared with ResponsiveSmokeField.GrowthFade; quality cannot change the initial fill time.
 const float SMOKE_GROWTH_FADE = .10;
@@ -194,19 +198,21 @@ float smoke_density(int field, vec3 p, float now, bool include_bullets) {
     fade *= smoke_shape_density(p-smoke_field_row(field+2).xyz,age,smoke_field_row(field+3).yzw);
     if (fade <= 0.0) return 0.0;
     int lookup = int(smoke_field_row(field+3).x);
-    float d;
-    if (smoke_scalar(cells,index) == 0.0) {
-        d = smoke_boundary_density(cells,lookup,origin.xyz,nearest,p,age,index);
-    } else {
-        float z = local.z-.5, z0 = floor(z), layer = smoke_field_row(field+2).w;
-        vec2 size = vec2(textureSize(svm_smoke_growth,0));
-        vec2 uv0 = vec2(z0*27.0+local.x+1.0,layer*27.0+local.y+1.0)/size;
-        vec2 uv1 = uv0+vec2(27.0/size.x,0.0);
-        vec2 a0 = z0 < 0.0 ? vec2(0.0) : textureLod(svm_smoke_growth,uv0,0.0).rg;
-        vec2 a1 = z0 >= 24.0 ? vec2(0.0) : textureLod(svm_smoke_growth,uv1,0.0).rg;
-        vec2 growth = mix(a0,a1,fract(z));
-        d = growth.x;
-        if (growth.y < .99999) {
+    float z = local.z-.5, z0 = floor(z), layer = smoke_field_row(field+2).w;
+    vec2 size = vec2(textureSize(svm_smoke_growth,0));
+    vec2 uv0 = vec2(z0*27.0+local.x+1.0,layer*27.0+local.y+1.0)/size;
+    vec2 uv1 = uv0+vec2(27.0/size.x,0.0);
+    vec2 a0 = z0 < 0.0 ? vec2(0.0) : textureLod(svm_smoke_growth,uv0,0.0).rg;
+    vec2 a1 = z0 >= 24.0 ? vec2(0.0) : textureLod(svm_smoke_growth,uv1,0.0).rg;
+    vec2 growth = mix(a0,a1,fract(z));
+    float d = growth.x;
+    // Full geometry support proves every interpolation donor, including the nearest cell, is open.
+    // Ordinary samples can therefore avoid the dependent packed-cell fetch. Mixed support retains
+    // the exact same boundary projection and corner visibility checks below.
+    if (growth.y < .99999) {
+        if (smoke_scalar(cells,index) == 0.0) {
+            d = smoke_boundary_density(cells,lookup,origin.xyz,nearest,p,age,index);
+        } else {
             // Only samples beside geometry need explicit corner visibility and normalized valid weights.
             ivec3 base = ivec3(floor(local-vec3(.5)));
             vec3 fraction = fract(local-vec3(.5));
@@ -384,11 +390,11 @@ float smoke_scene_ray_transmission(int base, int count, vec3 point, vec3 directi
         float step_length = (span.y-span.x)/8.0;
         for (int tap = 0; tap < 8; tap++) {
             vec3 sample_point = point+direction*(span.x+(float(tap)+.5)*step_length);
-            optical += smoke_density(field,sample_point,now,false)*step_length*SMOKE_EXTINCTION;
-            if (optical >= SMOKE_OPAQUE_TAU) return exp(-SMOKE_OPAQUE_TAU);
+            optical += smoke_density(field,sample_point,now,false)*step_length*SMOKE_SCENE_EXTINCTION;
+            if (optical >= SMOKE_OPAQUE_TAU) return SMOKE_SCENE_DIFFUSE+(1.0-SMOKE_SCENE_DIFFUSE)*exp(-SMOKE_OPAQUE_TAU);
         }
     }
-    return exp(-optical);
+    return SMOKE_SCENE_DIFFUSE+(1.0-SMOKE_SCENE_DIFFUSE)*exp(-optical);
 }
 
 #ifndef SVM_SMOKE_COMPUTE
@@ -511,17 +517,33 @@ vec4 responsive_smoke(uint layers, vec3 position) {
     vec4 frame = smoke_frame_row(view), eye = smoke_frame_row(view+1);
     if (frame.y < .5 || int(eye.w) == 38) return vec4(0.0,0.0,0.0,1.0);
     vec4 grid = smoke_frame_row(view+5), depths = smoke_frame_row(view+6);
-    vec4 right = smoke_frame_row(view+2), up = smoke_frame_row(view+3), forward = smoke_frame_row(view+4);
     if (!svm_smoke_prefix_ready || depths.z < .5) return responsive_smoke_exact(layers,position,false);
+    float z = max(-position.z*100.0,0.0);
+    if (z <= depths.x) return vec4(0.0,0.0,0.0,1.0);
+    vec4 right = smoke_frame_row(view+2), up = smoke_frame_row(view+3);
+    vec2 uv = (vec2(1.0)+vec2(position.x*right.w,-position.y*up.w)/max(-position.z,.00001))*.5;
+    float slice = clamp((z-depths.x)/(depths.y-depths.x),0.0,1.0)*(grid.w-1.0);
+    int low = int(floor(slice)), high = min(low+1,int(grid.w)-1);
+    vec4 low_value = smoke_prefix_slice(uv,low,grid);
+    vec4 bullets = smoke_frame_row(view+7);
+    // Most world fragments are behind the final slice and have no bullet capsule to resolve. Their
+    // complete result is already cached: no second slice fetch, world ray or capsule math is needed.
+    if (low == high && bullets.w < .5) return low_value;
+    vec4 high_value = low == high ? low_value : smoke_prefix_slice(uv,high,grid);
+    float fraction = fract(slice);
+    vec4 result = mix(low_value,high_value,fraction);
+    // Monotone cumulative transmission bounds interpolation error by this endpoint span. Refine the
+    // same intervals as before, but construct a world ray only for those pixels and bullet candidates.
+    bool depth_refine = low != high && fraction > 0.0 && fraction < 1.0 && abs(low_value.a-high_value.a) > .015;
+    if (bullets.w < .5 && !depth_refine) return result;
+    vec4 forward = smoke_frame_row(view+4);
     vec3 delta = right.xyz*position.x+up.xyz*position.y-forward.xyz*position.z;
     float limit = length(delta)*100.0;
     vec3 ray = normalize(delta);
     // Refine the finite capsule inside the smoke depth interval. A muzzle at the eye or a diagonal shot must not
     // trigger full-screen work merely because its axis-aligned box crosses the camera. The cache omits bullets.
-    vec4 bullets = smoke_frame_row(view+7);
     float ray_scale = length(position)/max(-position.z,.00001);
     vec2 span = depths.xy*ray_scale;
-    vec2 uv = (vec2(1.0)+vec2(position.x*right.w,-position.y*up.w)/max(-position.z,.00001))*.5;
     bool refine = false;
     for (int k = 0; k < int(bullets.w); k++) {
         int at = int(bullets.z)+k*4;
@@ -534,18 +556,10 @@ vec4 responsive_smoke(uint layers, vec3 position) {
         if (stop > span.x && smoke_segment_segment_distance(eye.xyz+ray*span.x,eye.xyz+ray*stop,a.xyz,b.xyz) <= radius)
             { refine = true; break; }
     }
-    float z = max(-position.z*100.0,0.0);
-    if (z <= depths.x) return vec4(0.0,0.0,0.0,1.0);
-    float slice = clamp((z-depths.x)/(depths.y-depths.x),0.0,1.0)*(grid.w-1.0);
-    int low = int(floor(slice)), high = min(low+1,int(grid.w)-1);
-    vec4 low_value = smoke_prefix_slice(uv,low,grid), high_value = smoke_prefix_slice(uv,high,grid);
-    float fraction = fract(slice);
-    vec4 result = mix(low_value,high_value,fraction);
     // A surface inside the cloud may sit behind only a short, optically thick path. Linear T interpolation
     // over a coarse depth interval can expose that surface. Monotone cumulative T bounds depth interpolation
     // error by the endpoint span; refine larger spans instead of inventing opacity across clear geometry or
     // blast intervals with log-space interpolation. This bound excludes spatial filtering/integration error.
-    bool depth_refine = low != high && fraction > 0.0 && fraction < 1.0 && abs(low_value.a-high_value.a) > .015;
     if (refine || depth_refine) {
         // Apertures and unresolved surface depths use full-pixel extinction with the opaque-tail cutoff. Illumination
         // keeps cached soft scattering; multiplying by the new opacity prevents a sub-grid milky halo.
