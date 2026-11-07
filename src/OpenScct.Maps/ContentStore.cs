@@ -288,6 +288,45 @@ public sealed class ContentStore
         }
     }
 
+    /// <summary>Navigation is shared by matching converted and downloaded maps and survives map pack updates.</summary>
+    public static string? BotNavigationPath(string root, string simHash, int formatVersion) =>
+        ContentIndex.IsSha256(simHash) && formatVersion > 0
+            ? Path.Combine(root, "bot-nav", $"{simHash}-v{formatVersion}.zip") : null;
+
+    public async Task InstallBotNavigationAsync(ContentBotNavigation nav, Func<string, bool> matches,
+        IProgress<PackProgress>? progress, CancellationToken cancel)
+    {
+        ArgumentNullException.ThrowIfNull(nav);
+        ArgumentNullException.ThrowIfNull(matches);
+        string path = BotNavigationPath(Root, nav.SimHash, nav.FormatVersion)
+            ?? throw new InvalidDataException("Invalid bot navigation identity.");
+        if (!ContentIndex.IsSha256(nav.Download.Sha256)) throw new InvalidDataException("Invalid bot navigation checksum.");
+
+        SemaphoreSlim busy = Busy(path);
+        await busy.WaitAsync(cancel).ConfigureAwait(false);
+        try
+        {
+            if (matches(path)) return;
+
+            string archive = await DownloadAsync(nav.Download, progress, cancel).ConfigureAwait(false);
+            try
+            {
+                if (!matches(archive)) throw new InvalidDataException("The downloaded bot navigation is for a different map or game version.");
+                cancel.ThrowIfCancellationRequested();
+                Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+                File.Move(archive, path, overwrite: true);
+            }
+            finally
+            {
+                TryDelete(archive);
+            }
+        }
+        finally
+        {
+            busy.Release();
+        }
+    }
+
     /// <summary>The shared pack is installed as the index has it now.</summary>
     public bool HasShared(ContentSharedPack pack) =>
         Installed().Any(c => c.IsShared && string.Equals(c.Code, pack.Id, StringComparison.OrdinalIgnoreCase) &&

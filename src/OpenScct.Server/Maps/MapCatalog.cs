@@ -29,7 +29,8 @@ public sealed class MapInfo
     /// Maps built in code pass their own actors and no loader result.
     /// </summary>
     public MapInfo(string name, string contentFile, ulong contentHash, string simHash, IReadOnlyList<SvMapFileDigest> files,
-        MapStart[] playerStarts, IReadOnlyList<Actor?> mapActors, MapLoadResult? loaded = null, PhysicsWorld? physics = null)
+        MapStart[] playerStarts, IReadOnlyList<Actor?> mapActors, MapLoadResult? loaded = null, PhysicsWorld? physics = null,
+        string? sourceFolder = null)
     {
         Name = name;
         ContentFile = contentFile;
@@ -47,6 +48,7 @@ public sealed class MapInfo
         MapActors = mapActors;
         Loaded = loaded;
         Physics = physics;
+        SourceFolder = sourceFolder;
     }
 
     public string Name { get; }
@@ -71,6 +73,9 @@ public sealed class MapInfo
     public MapLoadResult? Loaded { get; }
 
     public PhysicsWorld? Physics { get; }
+
+    /// <summary>The SVMap folder that supplied this map, when it was loaded from disk.</summary>
+    public string? SourceFolder { get; }
 
     /// <summary>The map actors by SVMap record index, for <see cref="NetMapBinding"/> (empty for the stub).</summary>
     public IReadOnlyList<Actor?> MapActors { get; }
@@ -567,7 +572,7 @@ public sealed partial class MapCatalog
         }
 
         return new MapInfo(map.Id, map.Id + "/" + SvMapHash.ManifestFile, ContentHashOf(map.Manifest.SimHash), map.Manifest.SimHash,
-            map.SimFiles, starts.ToArray(), loaded.Actors, loaded, physics);
+            map.SimFiles, starts.ToArray(), loaded.Actors, loaded, physics, map.Root);
     }
 
     /// <summary>

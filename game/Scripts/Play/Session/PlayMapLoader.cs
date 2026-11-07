@@ -115,7 +115,7 @@ public sealed class PlayMapLoader
         }
 
         return new MapInfo(_map.Id, _map.Id + "/" + SvMapHash.ManifestFile, MapCatalog.ContentHashOf(_map.Manifest.SimHash),
-            _map.Manifest.SimHash, _map.SimFiles, starts.ToArray(), loaded.Actors, loaded, physics);
+            _map.Manifest.SimHash, _map.SimFiles, starts.ToArray(), loaded.Actors, loaded, physics, _map.Root);
     }
 
     /// <summary>

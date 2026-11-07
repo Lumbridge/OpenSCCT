@@ -2,11 +2,16 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.IO.Compression;
+using System.Runtime.ExceptionServices;
+using System.Threading;
+using System.Threading.Tasks;
 using OpenScct.Content;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
 using OpenScct.Game.AI;
 using OpenScct.Game.SBase;
+using OpenScct.Maps;
 using OpenScct.Server;
 
 namespace OpenScct.Bots;
@@ -19,8 +24,12 @@ namespace OpenScct.Bots;
 /// </summary>
 public sealed class AiNavCache
 {
-    private readonly Dictionary<string, NavGraph> _graphs = new(StringComparer.Ordinal);
-    private readonly object _gate = new();
+    private static readonly FVector DefaultMargin = new(1200f, 1200f, 700f);
+    private const int MaxPackedGraphBytes = 128 * 1024 * 1024;
+    private readonly Dictionary<string, NavGraph> _spyGraphs = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, NavGraph> _mercGraphs = new(StringComparer.Ordinal);
+    private int _built;
+    private int _loaded;
 
     /// <summary>A cache over <paramref name="directory"/>; null for the default folder, empty for memory only.</summary>
     public AiNavCache(string? directory = null)
@@ -32,13 +41,13 @@ public sealed class AiNavCache
     public string Directory { get; }
 
     /// <summary>Widening of the sampled box around the map's starts, objectives and GEs (uu): X, Y, below and above.</summary>
-    public FVector Margin { get; init; } = new(1200f, 1200f, 700f);
+    public FVector Margin { get; init; } = DefaultMargin;
 
     /// <summary>Graphs built (not loaded) by this cache (diagnostics).</summary>
-    public int Built { get; private set; }
+    public int Built => Volatile.Read(ref _built);
 
     /// <summary>Graphs loaded from disk by this cache.</summary>
-    public int Loaded { get; private set; }
+    public int Loaded => Volatile.Read(ref _loaded);
 
     public static string DefaultDirectory()
     {
@@ -53,7 +62,9 @@ public sealed class AiNavCache
     }
 
     /// <summary>The graph of <paramref name="map"/> for a spy (traversal links) or a merc.</summary>
-    public NavGraph Get(MapInfo map, bool spy, byte activationMask)
+    public NavGraph Get(MapInfo map, bool spy, byte activationMask) => GetGraph(map, spy, activationMask).Graph;
+
+    private (NavGraph Graph, bool Built) GetGraph(MapInfo map, bool spy, byte activationMask, Func<MapInfo>? reload = null)
     {
         ArgumentNullException.ThrowIfNull(map);
         if (map.Physics is not { } physics)
@@ -62,13 +73,14 @@ public sealed class AiNavCache
         }
 
         NavProfile profile = spy ? NavProfile.Spy : NavProfile.Merc;
-        string mapKey = string.Create(CultureInfo.InvariantCulture, $"{map.Name}-{map.SimHash}-m{activationMask}");
+        string mapKey = MapKey(map, activationMask);
         string key = mapKey + "|" + profile.Key;
-        lock (_gate)
+        Dictionary<string, NavGraph> graphs = spy ? _spyGraphs : _mercGraphs;
+        lock (graphs)
         {
-            if (_graphs.TryGetValue(key, out NavGraph? graph))
+            if (graphs.TryGetValue(key, out NavGraph? graph))
             {
-                return graph;
+                return (graph, false);
             }
 
             string? file = Directory.Length == 0 ? null : Path.Combine(Directory, SafeName(mapKey + "-" + profile.Key) + ".svmnav");
@@ -79,19 +91,39 @@ public sealed class AiNavCache
                     using FileStream s = File.OpenRead(file);
                     graph = NavGraph.Read(s, mapKey, profile);
                 }
-                catch (IOException)
+                catch (Exception error) when (error is IOException or UnauthorizedAccessException)
                 {
                     graph = null;
                 }
-
-                if (graph is not null)
-                {
-                    Loaded++;
-                }
             }
 
+            if (graph is null && Margin == DefaultMargin)
+            {
+                string? downloaded = DownloadPath(map.SimHash);
+                if (downloaded is not null) graph = ReadPackedGraph(downloaded, spy, mapKey, profile);
+                if (graph is null && map.SourceFolder is { } folder) graph = ReadPackedGraph(PackPath(folder), spy, mapKey, profile);
+            }
+
+            if (graph is not null)
+            {
+                Interlocked.Increment(ref _loaded);
+            }
+
+            bool built = graph is null;
             if (graph is null)
             {
+                if (reload is not null)
+                {
+                    MapInfo reloaded = reload();
+                    if (reloaded.Name != map.Name || reloaded.SimHash != map.SimHash || reloaded.Physics is null)
+                    {
+                        throw new InvalidOperationException($"Map {map.Name} changed while preparing bots.");
+                    }
+
+                    map = reloaded;
+                    physics = reloaded.Physics;
+                }
+
                 var ges = new List<GERecord>(physics.GEs.Count);
                 for (int i = 0; i < physics.GEs.Count; i++)
                 {
@@ -99,16 +131,104 @@ public sealed class AiNavCache
                 }
 
                 (FVector min, FVector max) = Bounds(map, ges);
-                graph = NavBuilder.Build(physics.Collision, min, max, profile, ges, activationMask);
-                Built++;
+                // Collision queries reuse scratch buffers. Public Get callers may share a map between sides.
+                lock (physics.Collision)
+                {
+                    graph = NavBuilder.Build(physics.Collision, min, max, profile, ges, activationMask);
+                }
+                Interlocked.Increment(ref _built);
                 if (file is not null)
                 {
                     TryWrite(file, graph, mapKey);
                 }
             }
 
-            _graphs[key] = graph;
-            return graph;
+            graphs[key] = graph;
+            return (graph, built);
+        }
+    }
+
+    private static string MapKey(MapInfo map, byte activationMask) => MapKey(map.Name, map.SimHash, activationMask);
+
+    private static string MapKey(string map, string simHash, byte activationMask) =>
+        string.Create(CultureInfo.InvariantCulture, $"{map}-{simHash}-m{activationMask}");
+
+    private static string PackPath(string folder) => Path.Combine(folder, "catalog", "bot-nav.zip");
+
+    private static string EntryName(bool spy) => spy ? "spy.svmnav" : "merc.svmnav";
+
+    private static string? DownloadPath(string simHash) =>
+        ContentStore.BotNavigationPath(ContentPaths.PacksFolder, simHash, NavGraph.FormatVersion);
+
+    /// <summary>Checks both graph headers without loading the graph data.</summary>
+    public static bool PackMatches(string path, string map, string simHash, byte mask)
+    {
+        if (!File.Exists(path)) return false;
+
+        string key = MapKey(map, simHash, mask);
+        try
+        {
+            using var archive = ZipFile.OpenRead(path);
+            return Matches(true, NavProfile.Spy) && Matches(false, NavProfile.Merc);
+
+            bool Matches(bool spy, NavProfile profile)
+            {
+                ZipArchiveEntry? entry = archive.GetEntry(EntryName(spy));
+                if (entry is null || entry.Length is <= 0 or > MaxPackedGraphBytes) return false;
+                using Stream stream = entry.Open();
+                return NavGraph.MatchesHeader(stream, key, profile);
+            }
+        }
+        catch (Exception error) when (error is IOException or UnauthorizedAccessException or InvalidDataException or NotSupportedException or FormatException)
+        {
+            return false;
+        }
+    }
+
+    public static bool HasPreparedGraphs(string folder, string map, string simHash, byte mask)
+    {
+        string key = MapKey(map, simHash, mask);
+        string directory = DefaultDirectory();
+        return directory.Length > 0 && Cached(NavProfile.Spy) && Cached(NavProfile.Merc) ||
+            DownloadPath(simHash) is { } download && PackMatches(download, map, simHash, mask) ||
+            PackMatches(PackPath(folder), map, simHash, mask);
+
+        bool Cached(NavProfile profile)
+        {
+            string path = Path.Combine(directory, SafeName(key + "-" + profile.Key) + ".svmnav");
+            try
+            {
+                if (!File.Exists(path)) return false;
+                using FileStream stream = File.OpenRead(path);
+                return NavGraph.MatchesHeader(stream, key, profile);
+            }
+            catch (Exception error) when (error is IOException or UnauthorizedAccessException or FormatException)
+            {
+                return false;
+            }
+        }
+    }
+
+    private static NavGraph? ReadPackedGraph(string path, bool spy, string mapKey, NavProfile profile)
+    {
+        if (!File.Exists(path)) return null;
+
+        try
+        {
+            using var archive = ZipFile.OpenRead(path);
+            ZipArchiveEntry? entry = archive.GetEntry(EntryName(spy));
+            if (entry is null || entry.Length is <= 0 or > MaxPackedGraphBytes) return null;
+
+            var bytes = new byte[(int)entry.Length];
+            using Stream data = entry.Open();
+            data.ReadExactly(bytes);
+            if (data.ReadByte() != -1) return null;
+            using var graph = new MemoryStream(bytes, writable: false);
+            return NavGraph.Read(graph, mapKey, profile);
+        }
+        catch (Exception error) when (error is IOException or UnauthorizedAccessException or InvalidDataException or NotSupportedException)
+        {
+            return null;
         }
     }
 
@@ -156,24 +276,105 @@ public sealed class AiNavCache
     {
         ArgumentNullException.ThrowIfNull(maps);
         progress?.Invoke($"nav prepare map={mapName}");
+        MapInfo map = LoadMap(maps, mapName, out byte defaultMask);
+        PrepareGraphs(maps, mapName, map, activationMask ?? defaultMask, progress);
+    }
+
+    /// <summary>Writes the default Spy and Merc graphs as optional map-pack data outside the simulation hash.</summary>
+    public static string BakeMapPack(string folder, Action<string>? progress = null, string? cacheDirectory = null)
+    {
+        string fullPath = Path.TrimEndingDirectorySeparator(Path.GetFullPath(folder));
+        string mapName = Path.GetFileName(fullPath);
+        var maps = new MapCatalog(Path.GetDirectoryName(fullPath) ?? fullPath);
+        MapInfo map = LoadMap(maps, mapName, out byte mask);
+        if (!string.Equals(map.SourceFolder, fullPath,
+                OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal))
+        {
+            throw new InvalidOperationException($"{fullPath} is not an SVMap folder.");
+        }
+
+        var cache = new AiNavCache(cacheDirectory);
+        (NavGraph spy, NavGraph merc) = cache.PrepareGraphs(maps, mapName, map, mask, progress);
+        string path = PackPath(fullPath);
+        System.IO.Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+        string temp = path + "." + Guid.NewGuid().ToString("N") + ".tmp";
+        try
+        {
+            using (var archive = ZipFile.Open(temp, ZipArchiveMode.Create))
+            {
+                string mapKey = MapKey(map, mask);
+                WritePackedGraph(archive, spy, spy: true, mapKey);
+                WritePackedGraph(archive, merc, spy: false, mapKey);
+            }
+
+            File.Move(temp, path, overwrite: true);
+            return path;
+        }
+        finally
+        {
+            File.Delete(temp);
+        }
+    }
+
+    private static void WritePackedGraph(ZipArchive archive, NavGraph graph, bool spy, string mapKey)
+    {
+        ZipArchiveEntry entry = archive.CreateEntry(EntryName(spy), CompressionLevel.Optimal);
+        entry.LastWriteTime = new DateTimeOffset(1980, 1, 1, 0, 0, 0, TimeSpan.Zero);
+        using Stream stream = entry.Open();
+        graph.Write(stream, mapKey);
+    }
+
+    private (NavGraph Spy, NavGraph Merc) PrepareGraphs(MapCatalog maps, string mapName, MapInfo map, byte mask,
+        Action<string>? progress)
+    {
+        progress?.Invoke("nav spy start");
+        progress?.Invoke("nav merc start");
+
+        (NavGraph Graph, bool Built) spy = default;
+        (NavGraph Graph, bool Built) merc = default;
+        if (Environment.ProcessorCount > 1)
+        {
+            // The second collision world is only needed for a cold build. Cache hits reuse the first map's key.
+            try
+            {
+                Parallel.Invoke(
+                    () => spy = GetGraph(map, spy: true, mask),
+                    () => merc = GetGraph(map, spy: false, mask, () => LoadMap(maps, mapName, out _)));
+            }
+            catch (AggregateException error)
+            {
+                // Keep the load error type that the callers handle, and wait for both builders before returning.
+                ExceptionDispatchInfo.Throw(error.InnerExceptions[0]);
+            }
+        }
+        else
+        {
+            spy = GetGraph(map, spy: true, mask);
+            merc = GetGraph(map, spy: false, mask);
+        }
+
+        ReportGraph("spy", spy);
+        ReportGraph("merc", merc);
+        progress?.Invoke("nav ready");
+        return (spy.Graph!, merc.Graph!);
+
+        void ReportGraph(string side, (NavGraph Graph, bool Built) result)
+        {
+            progress?.Invoke(string.Create(CultureInfo.InvariantCulture,
+                $"nav {side} {(result.Built ? "built" : "cached")} nodes={result.Graph.NodeCount} edges={result.Graph.EdgeCount}"));
+        }
+    }
+
+    private static MapInfo LoadMap(MapCatalog maps, string mapName, out byte activationMask)
+    {
         var world = new World(0, ENetMode.NM_DedicatedServer);
         if (!maps.TryLoad(world, mapName, false, out MapInfo? map, out string? error) || map is null)
         {
             throw new InvalidOperationException($"Map {mapName} did not load: {error}");
         }
 
-        byte mask = activationMask ?? world.Level.Info.GEActivationMask;
-        foreach (bool spy in new[] { true, false })
-        {
-            string side = spy ? "spy" : "merc";
-            progress?.Invoke($"nav {side} start");
-            int built = Built;
-            NavGraph graph = Get(map, spy, mask);
-            progress?.Invoke(string.Create(CultureInfo.InvariantCulture,
-                $"nav {side} {(Built > built ? "built" : "cached")} nodes={graph.NodeCount} edges={graph.EdgeCount}"));
-        }
-
-        progress?.Invoke("nav ready");
+        activationMask = world.Level.Info.GEActivationMask;
+        return map;
     }
 
     /// <summary>The box the graph samples: the map's starts, objective actors and GE points, widened by <see cref="Margin"/>.</summary>

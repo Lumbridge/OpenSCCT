@@ -113,6 +113,18 @@ image files take precedence; a missing image kind or a reference to a missing fi
 inside the spec instead (`ui/identity.json` and `ui/pictures/`, SVMap 1.2), which the catalog reads before the shared
 catalog and before `catalog/entry.json` (docs/MAPS.md "Map identity").
 
+### Prebuilt bot navigation
+
+The optional `botNavigation` index entry points to a separate archive containing compressed Spy and Merc graphs for
+the map's initial gameplay-element state. A player starting a local game with bots can download it or build the
+graphs locally. The download is reused for the same simulation revision and navigation format. Match guests and
+games with bots disabled continue directly. Custom maps, other activation masks and unavailable downloads can
+still build navigation locally.
+
+The content repository's `occ.py bot-nav` command prepares these independent assets using
+`svm-server --bake-bot-nav <svmap-folder>`. Navigation files stay outside the map's simulation data and do not change
+its multiplayer compatibility hash.
+
 ## Where packs install
 
 | Who | Root | Layout |

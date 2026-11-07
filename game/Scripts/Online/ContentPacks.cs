@@ -43,6 +43,8 @@ public static class ContentPacks
             Title = pack.Title.Length > 0 ? pack.Title : pack.Id;
         }
 
+        internal DownloadJob(string title) => Title = title;
+
         /// <summary>The map being downloaded, or null for a shared pack.</summary>
         public ContentMap? Map { get; }
 
@@ -250,6 +252,32 @@ public static class ContentPacks
         }
 
         _ = Task.Run(() => RunAsync(job, index));
+        return job;
+    }
+
+    public static DownloadJob DownloadBotNavigation(string map, ContentBotNavigation navigation)
+    {
+        var job = new DownloadJob("Bot navigation");
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                job.Step = "Downloading bot navigation";
+                await Store.InstallBotNavigationAsync(navigation,
+                    path => OpenScct.Bots.AiNavCache.PackMatches(path, map, navigation.SimHash, navigation.ActivationMask),
+                    Progress(job), job.Stop.Token).ConfigureAwait(false);
+                job.Done = true;
+            }
+            catch (OperationCanceledException) when (job.Stop.IsCancellationRequested)
+            {
+                job.Error = "stopped";
+            }
+            catch (Exception e) when (e is HttpRequestException or System.IO.IOException or System.IO.InvalidDataException or UnauthorizedAccessException or TaskCanceledException)
+            {
+                NetworkDiagnostics.Report("bot navigation download: " + map, e);
+                job.Error = e is TaskCanceledException ? "the download timed out" : NetworkDiagnostics.Describe(e);
+            }
+        });
         return job;
     }
 

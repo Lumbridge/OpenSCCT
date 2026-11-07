@@ -48,7 +48,7 @@ public sealed class NavBuilder
     private readonly int _nx;
     private readonly int _ny;
     private readonly List<NavNode> _nodes = new();
-    private readonly Dictionary<long, List<int>> _columns = new();
+    private readonly Dictionary<(int X, int Y), List<int>> _columns = new();
     private readonly List<List<(int To, NavEdgeKind Kind, float Cost, int Link)>> _edges = new();
     private readonly List<NavLink> _links = new();
 
@@ -103,8 +103,6 @@ public sealed class NavBuilder
     }
 
     // ---- floors ----------------------------------------------------------------------------------------------
-
-    private static long Key(int ix, int iy) => ((long)ix << 32) | (uint)iy;
 
     private FVector ColumnXY(int ix, int iy) => new(_min.X + ix * _profile.Spacing, _min.Y + iy * _profile.Spacing, 0f);
 
@@ -166,7 +164,7 @@ public sealed class NavBuilder
 
                 if (column is not null)
                 {
-                    _columns[Key(ix, iy)] = column;
+                    _columns[(ix, iy)] = column;
                 }
             }
         }
@@ -198,7 +196,7 @@ public sealed class NavBuilder
                     {
                         int cx = ix + sign * dx * k;
                         int cy = iy + sign * dy * k;
-                        if (!_columns.TryGetValue(Key(cx, cy), out List<int>? column))
+                        if (!_columns.TryGetValue((cx, cy), out List<int>? column))
                         {
                             continue;
                         }
@@ -217,14 +215,20 @@ public sealed class NavBuilder
 
     private void TryPair(int n, int m, int k, bool diagonal)
     {
+        FVector a = _nodes[n].Floor;
+        FVector b = _nodes[m].Floor;
+        float dz = b.Z - a.Z;
+        // Two-way edges are tested by the lower index. A drop can only start at the higher floor.
+        if (m <= n && dz >= 0f)
+        {
+            return;
+        }
+
         if (k > 1 && HasWalkChain(n, m, k))
         {
             return;
         }
 
-        FVector a = _nodes[n].Floor;
-        FVector b = _nodes[m].Floor;
-        float dz = b.Z - a.Z;
         float horizontal = k * _profile.Spacing * (diagonal ? 1.4142f : 1f);
         float rise = MathF.Abs(dz);
         // Adjacent grid columns can span several narrow treads. Validate each half-cell's support instead
@@ -835,7 +839,7 @@ public sealed class NavBuilder
         {
             for (int dy = -cells; dy <= cells; dy++)
             {
-                if (!_columns.TryGetValue(Key(cx + dx, cy + dy), out List<int>? column))
+                if (!_columns.TryGetValue((cx + dx, cy + dy), out List<int>? column))
                 {
                     continue;
                 }

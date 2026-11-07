@@ -57,6 +57,7 @@ internal sealed record CliOptions
                             stochastic or always
           --bots <script>   with --game: also run four bot clients in this process over UDP on
                             localhost (scripts: spies, mercs, timeout) and print a report at the end
+          --bake-bot-nav <map-folder>  write both bot graphs into an SVMap's catalog/bot-nav.zip and exit
 
         Every mode:
           --priority <p>    process priority: idle, low, below, normal, medium, above or high
@@ -101,6 +102,8 @@ internal sealed record CliOptions
 
     /// <summary>Bot script to run in process (spies, mercs, timeout), or null.</summary>
     public string? Bots { get; init; }
+
+    public string? BakeBotNav { get; init; }
 
     public bool Help { get; init; }
 
@@ -260,6 +263,9 @@ internal sealed record CliOptions
                     break;
                 case "--bots" when value is "spies" or "mercs" or "timeout":
                     options = options with { Bots = value };
+                    break;
+                case "--bake-bot-nav" when value.Length > 0:
+                    options = options with { BakeBotNav = value };
                     break;
                 case "--config" when value.Length > 0:
                     options = options with { Config = value };

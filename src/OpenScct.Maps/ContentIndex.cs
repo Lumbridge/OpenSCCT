@@ -9,6 +9,9 @@ namespace OpenScct.Maps;
 /// <summary>One downloadable archive of the content index: where, how big, its SHA-256.</summary>
 public sealed record ContentDownload(string Url, long Size, string Sha256);
 
+/// <summary>Optional Spy and Merc navigation for one simulation revision and the map's initial activation mask.</summary>
+public sealed record ContentBotNavigation(string SimHash, int FormatVersion, byte ActivationMask, ContentDownload Download);
+
 /// <summary>A shared pack (core, chars, audio): what converted maps need from outside their own folder.</summary>
 public sealed record ContentSharedPack
 {
@@ -64,6 +67,8 @@ public sealed record ContentMap
 
     /// <summary>manifest.json and sim/ only (servers); the full archive when the index has none.</summary>
     public required ContentDownload Sim { get; init; }
+
+    public ContentBotNavigation? BotNavigation { get; init; }
 
     public string DisplayTitle => Title.Length > 0 ? Title : Code;
 }
@@ -161,6 +166,22 @@ public sealed record ContentIndex
         return null;
     }
 
+    /// <summary>A navigation download must match the full simulation hash, including when map codes are reused.</summary>
+    public ContentBotNavigation? FindBotNavigation(string code, string simHash, int formatVersion)
+    {
+        foreach (ContentMap map in Maps)
+        {
+            if (map.BotNavigation is { } nav && nav.FormatVersion == formatVersion &&
+                string.Equals(map.Code, code, StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(nav.SimHash, simHash, StringComparison.OrdinalIgnoreCase))
+            {
+                return nav;
+            }
+        }
+
+        return null;
+    }
+
     /// <summary>
     /// Reads an index. Throws <see cref="InvalidDataException"/> for one this game cannot read (another format, a
     /// newer major version); a map or pack with a bad field is left out, not the whole index.
@@ -231,6 +252,7 @@ public sealed record ContentIndex
                         }
                     }
 
+                    string contentHash = Str(m, "contentHash").ToLowerInvariant();
                     maps.Add(new ContentMap
                     {
                         Id = Str(m, "id") is { Length: > 0 } id ? id : code,
@@ -240,11 +262,12 @@ public sealed record ContentIndex
                         Version = Str(m, "version"),
                         SourceKind = m.TryGetProperty("source", out JsonElement source) ? Str(source, "kind") : string.Empty,
                         Modes = Strings(m, "modes"),
-                        ContentHash = Str(m, "contentHash").ToLowerInvariant(),
+                        ContentHash = contentHash,
                         ManifestSha256 = Str(m, "manifestSha256").ToLowerInvariant(),
                         Requires = requires,
                         Full = full,
                         Sim = Download(m, "sim") ?? full,
+                        BotNavigation = ReadBotNavigation(m, contentHash),
                     });
                 }
             }
@@ -279,6 +302,23 @@ public sealed record ContentIndex
         return true;
     }
 
+    internal static bool IsSha256(string value) => value.Length == 64 && value.AsSpan().IndexOfAnyExcept("0123456789abcdef") < 0;
+
+    private static ContentBotNavigation? ReadBotNavigation(JsonElement map, string contentHash)
+    {
+        if (!map.TryGetProperty("botNavigation", out JsonElement nav) || nav.ValueKind != JsonValueKind.Object)
+        {
+            return null;
+        }
+
+        string hash = Str(nav, "simHash").ToLowerInvariant();
+        return IsSha256(hash) && contentHash == hash[..16] &&
+            nav.TryGetProperty("formatVersion", out JsonElement v) && v.ValueKind == JsonValueKind.Number && v.TryGetInt32(out int version) && version > 0 &&
+            nav.TryGetProperty("activationMask", out JsonElement a) && a.ValueKind == JsonValueKind.Number && a.TryGetByte(out byte mask) &&
+            Download(nav, "download") is { } download
+            ? new ContentBotNavigation(hash, version, mask, download) : null;
+    }
+
     private static int? MajorOf(string version)
     {
         int dot = version.IndexOf('.', StringComparison.Ordinal);
@@ -294,9 +334,9 @@ public sealed record ContentIndex
 
         string url = Str(d, "url");
         string sha = Str(d, "sha256").ToLowerInvariant();
-        long size = d.TryGetProperty("size", out JsonElement s) && s.TryGetInt64(out long n) ? n : -1;
+        long size = d.TryGetProperty("size", out JsonElement s) && s.ValueKind == JsonValueKind.Number && s.TryGetInt64(out long n) ? n : -1;
         bool https = Uri.TryCreate(url, UriKind.Absolute, out Uri? uri) && uri.Scheme == Uri.UriSchemeHttps;
-        return https && size > 0 && sha.Length == 64 ? new ContentDownload(url, size, sha) : null;
+        return https && size > 0 && IsSha256(sha) ? new ContentDownload(url, size, sha) : null;
     }
 
     private static IEnumerable<JsonElement> Array(JsonElement e, string name) =>

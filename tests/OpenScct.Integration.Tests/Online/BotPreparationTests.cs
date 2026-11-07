@@ -2,8 +2,15 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Security.Cryptography;
+using System.Threading;
 using System.Threading.Tasks;
 using OpenScct.Bots;
+using OpenScct.Content;
+using OpenScct.Game.AI;
+using OpenScct.Maps;
 using OpenScct.Net;
 using OpenScct.Net.Discovery;
 using OpenScct.Server;
@@ -235,6 +242,101 @@ public sealed class BotPreparationTests
         Assert.Equal(1, factories);
         Assert.NotNull(rig.Server.RoundBots);
         Assert.All(rig.Clients, client => Assert.Equal(OnlineClientState.Match, client.State));
+    }
+
+    [Fact]
+    public async Task PackedNavigationWorksWithAnEmptyCacheAndFallsBackForAnotherMask()
+    {
+        string? fixture = WalkerRig.Maps.FindFolder(MapCatalog.TestBox);
+        Assert.SkipWhen(fixture is null, "TestBox content required.");
+        string root = Path.Combine(Path.GetTempPath(), "openscct-nav-pack-" + Guid.NewGuid().ToString("N"));
+        string staged = Path.Combine(root, MapCatalog.TestBox);
+        try
+        {
+            foreach (string rel in SvMapHash.GroupFiles(fixture!, SvMapHash.SimGroup).Append(SvMapHash.ManifestFile))
+            {
+                string target = Path.Combine(staged, rel);
+                Directory.CreateDirectory(Path.GetDirectoryName(target)!);
+                File.Copy(Path.Combine(fixture!, rel), target);
+            }
+
+            SvMap map = SvMap.Load(staged);
+            string archive = AiNavCache.BakeMapPack(staged, cacheDirectory: string.Empty);
+            Assert.Equal(map.SimHash, SvMap.Load(staged).SimHash);
+
+            byte[] bytes = File.ReadAllBytes(archive);
+            using var handler = new NavigationResponse(bytes);
+            using var http = new HttpClient(handler);
+            var store = new ContentStore(Path.Combine(root, "packs"), http);
+            var download = new ContentDownload("https://example.test/bot-nav.zip", bytes.Length, Convert.ToHexStringLower(SHA256.HashData(bytes)));
+            var asset = new ContentBotNavigation(map.SimHash, NavGraph.FormatVersion, map.Gameplay.GEActivationMask, download);
+            string installed = ContentStore.BotNavigationPath(store.Root, map.SimHash, asset.FormatVersion)!;
+            var cancel = TestContext.Current.CancellationToken;
+            bool Matches(string path) => AiNavCache.PackMatches(path, map.Id, asset.SimHash, asset.ActivationMask);
+
+            var bad = asset with { Download = download with { Sha256 = new string('a', 64) } };
+            await Assert.ThrowsAsync<InvalidDataException>(() => store.InstallBotNavigationAsync(bad, Matches, null, cancel));
+            Assert.False(File.Exists(installed));
+            await Assert.ThrowsAsync<InvalidDataException>(() => store.InstallBotNavigationAsync(asset, _ => false, null, cancel));
+            Assert.False(File.Exists(installed));
+            await store.InstallBotNavigationAsync(asset, Matches, null, cancel);
+            await store.InstallBotNavigationAsync(asset, Matches, null, cancel);
+            Assert.Equal(3, handler.Requests);
+            Assert.True(Matches(installed));
+            Assert.False(Directory.Exists(store.SvMapRoot));
+
+            var maps = new MapCatalog(root);
+            var nav = new AiNavCache(string.Empty);
+            nav.Prepare(maps, MapCatalog.TestBox);
+            Assert.Equal(2, nav.Loaded);
+            Assert.Equal(0, nav.Built);
+
+            nav.Prepare(maps, MapCatalog.TestBox, activationMask: (byte)(map.Gameplay.GEActivationMask ^ 1));
+            Assert.Equal(2, nav.Loaded);
+            Assert.Equal(2, nav.Built);
+
+            File.WriteAllText(archive, "invalid archive");
+            var fallback = new AiNavCache(string.Empty);
+            fallback.Prepare(maps, MapCatalog.TestBox);
+            Assert.Equal(0, fallback.Loaded);
+            Assert.Equal(2, fallback.Built);
+        }
+        finally
+        {
+            Directory.Delete(root, recursive: true);
+        }
+    }
+
+    private sealed class NavigationResponse(byte[] bytes) : HttpMessageHandler
+    {
+        public int Requests { get; private set; }
+
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        {
+            Requests++;
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK) { Content = new ByteArrayContent(bytes) });
+        }
+    }
+
+    [Fact]
+    public async Task ConcurrentPreparationsBuildEachSideOnlyOnce()
+    {
+        Assert.SkipWhen(WalkerRig.Maps.FindFolder(MapCatalog.TestBox) is null, "TestBox content required.");
+        var nav = new AiNavCache(string.Empty);
+        var first = new List<string>();
+        var second = new List<string>();
+        var cancellationToken = TestContext.Current.CancellationToken;
+
+        await Task.WhenAll(
+            Task.Run(() => nav.Prepare(WalkerRig.Maps, MapCatalog.TestBox, first.Add), cancellationToken),
+            Task.Run(() => nav.Prepare(WalkerRig.Maps, MapCatalog.TestBox, second.Add), cancellationToken));
+
+        Assert.Equal(2, nav.Built);
+        foreach (string side in new[] { "spy", "merc" })
+        {
+            Assert.Single(first.Concat(second), line => line.StartsWith($"nav {side} built", StringComparison.Ordinal));
+            Assert.Single(first.Concat(second), line => line.StartsWith($"nav {side} cached", StringComparison.Ordinal));
+        }
     }
 
     [Fact]

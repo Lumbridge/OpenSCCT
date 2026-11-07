@@ -107,7 +107,7 @@ public sealed class NavGraph
     private readonly float[] _edgeCost;
     private readonly int[] _edgeLink;
     private readonly NavLink[] _links;
-    private readonly Dictionary<long, int[]> _columns = new();
+    private readonly Dictionary<(int X, int Y), int[]> _columns = new();
     private readonly float[] _light;
 
     // A* scratch, reused between plans (one planner at a time per graph: plans run on the host's thread).
@@ -134,11 +134,10 @@ public sealed class NavGraph
         _links = links;
         _light = new float[nodes.Length];
         Array.Fill(_light, -1f);
-        var lists = new Dictionary<long, List<int>>();
+        var lists = new Dictionary<(int X, int Y), List<int>>();
         for (int i = 0; i < nodes.Length; i++)
         {
-            (int ix, int iy) = Cell(nodes[i].Floor);
-            long key = Key(ix, iy);
+            var key = Cell(nodes[i].Floor);
             if (!lists.TryGetValue(key, out List<int>? list))
             {
                 list = new List<int>(2);
@@ -148,9 +147,9 @@ public sealed class NavGraph
             list.Add(i);
         }
 
-        foreach (KeyValuePair<long, List<int>> kv in lists)
+        foreach (var (cell, list) in lists)
         {
-            _columns[kv.Key] = kv.Value.ToArray();
+            _columns[cell] = list.ToArray();
         }
     }
 
@@ -239,8 +238,6 @@ public sealed class NavGraph
     private (int, int) Cell(FVector p) =>
         ((int)MathF.Round((p.X - Origin.X) / Profile.Spacing), (int)MathF.Round((p.Y - Origin.Y) / Profile.Spacing));
 
-    private static long Key(int ix, int iy) => ((long)ix << 32) | (uint)iy;
-
     /// <summary>
     /// The node nearest <paramref name="p"/> whose floor is within <paramref name="below"/> under and 40 above the feet
     /// at <paramref name="p"/> minus <paramref name="footOffset"/>, horizontally closest (5 cells out), or -1.
@@ -257,7 +254,7 @@ public sealed class NavGraph
             {
                 for (int dy = -r; dy <= r; dy++)
                 {
-                    if (Math.Max(Math.Abs(dx), Math.Abs(dy)) != r || !_columns.TryGetValue(Key(cx + dx, cy + dy), out int[]? column))
+                    if (Math.Max(Math.Abs(dx), Math.Abs(dy)) != r || !_columns.TryGetValue((cx + dx, cy + dy), out int[]? column))
                     {
                         continue;
                     }
@@ -296,7 +293,7 @@ public sealed class NavGraph
         {
             for (int dy = -cells; dy <= cells; dy++)
             {
-                if (!_columns.TryGetValue(Key(cx + dx, cy + dy), out int[]? column))
+                if (!_columns.TryGetValue((cx + dx, cy + dy), out int[]? column))
                 {
                     continue;
                 }
@@ -611,25 +608,40 @@ public sealed class NavGraph
         using var r = new BinaryReader(stream, System.Text.Encoding.UTF8, leaveOpen: true);
         try
         {
-            if (r.ReadString() != "SVMNAV" || r.ReadInt32() != FormatVersion || r.ReadString() != mapKey || r.ReadString() != profile.Key)
+            if (!MatchesHeader(r, mapKey, profile))
             {
                 return null;
             }
 
             FVector origin = ReadVector(r);
-            var nodes = new NavNode[r.ReadInt32()];
+            var nodes = new NavNode[ReadCount(r, 13)];
             for (int i = 0; i < nodes.Length; i++)
             {
                 nodes[i] = new NavNode(ReadVector(r), r.ReadBoolean());
             }
 
-            var starts = new int[r.ReadInt32()];
+            int startCount = ReadCount(r, sizeof(int));
+            if (startCount != nodes.Length + 1)
+            {
+                return null;
+            }
+
+            var starts = new int[startCount];
             for (int i = 0; i < starts.Length; i++)
             {
                 starts[i] = r.ReadInt32();
+                if (i == 0 ? starts[i] != 0 : starts[i] < starts[i - 1])
+                {
+                    return null;
+                }
             }
 
-            int edges = r.ReadInt32();
+            int edges = ReadCount(r, 13);
+            if (starts[^1] != edges)
+            {
+                return null;
+            }
+
             var to = new int[edges];
             var kinds = new NavEdgeKind[edges];
             var costs = new float[edges];
@@ -640,26 +652,65 @@ public sealed class NavGraph
                 kinds[e] = (NavEdgeKind)r.ReadByte();
                 costs[e] = r.ReadSingle();
                 linkOf[e] = r.ReadInt32();
+                if ((uint)to[e] >= (uint)nodes.Length || kinds[e] > NavEdgeKind.FenceClimb ||
+                    !float.IsFinite(costs[e]) || costs[e] < 0f || linkOf[e] < -1)
+                {
+                    return null;
+                }
             }
 
-            var links = new NavLink[r.ReadInt32()];
+            var links = new NavLink[ReadCount(r, 45)];
             for (int i = 0; i < links.Length; i++)
             {
                 links[i] = new NavLink((NavEdgeKind)r.ReadByte(), r.ReadInt32(), r.ReadInt32(), ReadVector(r), r.ReadInt32(), ReadVector(r),
                     r.ReadInt32(), r.ReadSingle());
+                if (links[i].Kind is < NavEdgeKind.LedgeClimb or > NavEdgeKind.FenceClimb ||
+                    (uint)links[i].From >= (uint)nodes.Length || (uint)links[i].To >= (uint)nodes.Length)
+                {
+                    return null;
+                }
             }
 
-            if (starts.Length != nodes.Length + 1)
+            foreach (int link in linkOf)
             {
-                return null;
+                if (link >= links.Length) return null;
             }
 
             return new NavGraph(profile, origin, nodes, starts, to, kinds, costs, linkOf, links);
         }
-        catch (EndOfStreamException)
+        catch (Exception error) when (error is EndOfStreamException or InvalidDataException or FormatException)
         {
             return null;
         }
+    }
+
+    /// <summary>Checks a cache identity without loading its nodes and edges.</summary>
+    public static bool MatchesHeader(Stream stream, string mapKey, NavProfile profile)
+    {
+        using var reader = new BinaryReader(stream, System.Text.Encoding.UTF8, leaveOpen: true);
+        return MatchesHeader(reader, mapKey, profile);
+    }
+
+    private static bool MatchesHeader(BinaryReader reader, string mapKey, NavProfile profile) =>
+        MatchString(reader, "SVMNAV") && reader.ReadInt32() == FormatVersion &&
+        MatchString(reader, mapKey) && MatchString(reader, profile.Key);
+
+    private static bool MatchString(BinaryReader reader, string expected)
+    {
+        byte[] bytes = System.Text.Encoding.UTF8.GetBytes(expected);
+        return reader.Read7BitEncodedInt() == bytes.Length && reader.ReadBytes(bytes.Length).AsSpan().SequenceEqual(bytes);
+    }
+
+    private static int ReadCount(BinaryReader reader, int recordSize)
+    {
+        int count = reader.ReadInt32();
+        Stream stream = reader.BaseStream;
+        if (count < 0 || stream.CanSeek && count > (stream.Length - stream.Position) / recordSize)
+        {
+            throw new InvalidDataException("Invalid navigation record count.");
+        }
+
+        return count;
     }
 
     /// <summary>A digest of the graph's content (nodes, edges, links), equal for equal builds.</summary>

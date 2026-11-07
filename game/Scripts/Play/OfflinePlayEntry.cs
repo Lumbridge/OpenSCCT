@@ -4,6 +4,7 @@ using System.IO;
 using Godot;
 using OpenScct.Server;
 using OpenScctGame.Hud;
+using OpenScctGame.Online;
 using OpenScctGame.Play.Session;
 using OpenScctGame.UI;
 
@@ -66,9 +67,17 @@ public sealed class OfflinePlayEntry : IPlayEntry
                 PlayerName = string.IsNullOrWhiteSpace(request.PlayerName) ? "Player" : request.PlayerName,
             },
         };
-        // The loading page with the map's picture is drawn first; the play scene then loads behind it and replaces it.
-        LoadingScreen.Open(tree, request.Map, request.Side == HudSide.Merc, LoadingScreen.ModeOf(config.Settings.Mode), catalog,
-            () => PlayRoot.Enter(tree, config));
+        if (config.Settings.Bots > 0 && tree.CurrentScene is { } scene &&
+            BotNavigationPrompt.Offer(scene, catalog, request.Map, Launch, () => tree.CurrentScene == scene))
+        {
+            return;
+        }
+
+        Launch();
+
+        // Draw the map's loading picture before replacing the scene.
+        void Launch() => LoadingScreen.Open(tree, request.Map, request.Side == HudSide.Merc,
+            LoadingScreen.ModeOf(config.Settings.Mode), catalog, () => PlayRoot.Enter(tree, config));
     }
 
     public void Host(SceneTree tree, PlayRequest request) => PlayOffline(tree, request);

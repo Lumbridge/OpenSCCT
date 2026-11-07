@@ -28,6 +28,20 @@ internal static class Program
         // Reloaded's process switches, as the game takes them (rl:gfx.system).
         ProcessOptions.Apply(options.Priority, options.Affinity, done => Console.WriteLine("svm-server: " + done), Console.Error.WriteLine);
 
+        if (options.BakeBotNav is { } mapFolder)
+        {
+            try
+            {
+                Console.WriteLine($"Wrote {AiNavCache.BakeMapPack(mapFolder, Console.WriteLine)}");
+                return 0;
+            }
+            catch (Exception e) when (e is InvalidOperationException or System.IO.IOException or UnauthorizedAccessException)
+            {
+                Console.Error.WriteLine(e.Message);
+                return 3;
+            }
+        }
+
         if (options.WriteConfig is { } path)
         {
             System.IO.File.WriteAllText(path, ServerConfig.Example().ToJson());

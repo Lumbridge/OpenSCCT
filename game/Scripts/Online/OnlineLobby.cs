@@ -32,6 +32,7 @@ public sealed class OnlineLobby : IOnlineLobbySession
         }
 
         _service.Changed += Raise;
+        if (_service.Hosting is not null) ContentPacks.RefreshIndex();
     }
 
     private LobbyState State => _client.Lobby;
@@ -147,7 +148,18 @@ public sealed class OnlineLobby : IOnlineLobbySession
         if (!ready || HasReadyMap) _client.SetReady(ready);
     }
 
-    public void Start(SceneTree tree) => _client.Launch();
+    public void Start(SceneTree tree)
+    {
+        string map = Map;
+        bool CanOffer() => ReferenceEquals(_service.Client, _client) && _service.Hosting is not null && CanControl &&
+            State.Phase == SessionPhase.Lobby && !Launching && Map == map && State.Players.Any(player => player.IsBot);
+        if (CanOffer() && tree.CurrentScene is { } scene && BotNavigationPrompt.Offer(scene, _client.Maps, map, _client.Launch, CanOffer))
+        {
+            return;
+        }
+
+        _client.Launch();
+    }
 
     public void Leave()
     {
