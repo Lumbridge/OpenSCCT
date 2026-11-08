@@ -955,14 +955,14 @@ public sealed class HudSmoke(bool spectatorOnly = false) : SmokeTest
         bool HasSleep() => names.DrawList.Items.Any(i => i.Path.EndsWith("/Sleep", StringComparison.Ordinal));
         mate.bSleeping = true;
         Draw();
-        Check(HasSleep(), "Merc teammate nametag shows a sleeping icon");
+        Expect(HasSleep(), "Merc teammate nametag shows a sleeping icon");
         mate.bSleeping = false;
         Draw();
-        Check(!HasSleep(), "Waking removes the teammate sleeping icon");
+        Expect(!HasSleep(), "Waking removes the teammate sleeping icon");
         mate.bSleeping = true;
         mate.Health = 0;
         Draw();
-        Check(!HasSleep(), "Dead teammates do not keep a sleeping icon");
+        Expect(!HasSleep(), "Dead teammates do not keep a sleeping icon");
         mate.Destroy();
     }
 
