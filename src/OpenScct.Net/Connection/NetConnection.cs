@@ -943,7 +943,9 @@ public sealed partial class NetConnection : INetObjectMap
         }
 
         _lastTickTime = now;
-        if (_recorder is not null || _driver.Transport.IsPlayback)
+        // A local player can stop pumping packets while loading or compiling render resources, while its listen
+        // server keeps ticking. Explicit closes still travel over loopback; remote peers retain their timeout.
+        if (IsLocal || _recorder is not null || _driver.Transport.IsPlayback)
         {
             LastReceiveTime = now;
         }

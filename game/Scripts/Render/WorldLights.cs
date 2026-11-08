@@ -418,6 +418,7 @@ public sealed class WorldLights
 
     public static void EnsureGlobals()
     {
+        WindowLightFilter.EnsureGlobals();
         if (s_globalsAdded)
         {
             return;

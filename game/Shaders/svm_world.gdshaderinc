@@ -572,6 +572,8 @@ int svm_dyn_falloff() {
 #endif
 }
 
+#include "res://Shaders/svm_window_light.gdshaderinc"
+
 vec3 svm_dynamic(vec3 wp, vec3 wn, float zone) {
 	// The grid bounds use the normal light radius. Use the full list for radius calibration overrides.
 	bool indexed = svm_dyn_indexed_rows > 0 && svm_dyn_tune.y == 1.0;
@@ -605,7 +607,9 @@ vec3 svm_dynamic(vec3 wp, vec3 wn, float zone) {
 		vec4 c = texelFetch(svm_dyn_lights, ivec2(1, i), 0);
 		vec4 s = texelFetch(svm_dyn_lights, ivec2(2, i), 0);
 		p.w *= svm_dyn_tune.y;
-		sum += svm_one_light(p, c, s, wp, wn, svm_dyn_falloff());
+        vec3 live = svm_one_light(p, c, s, wp, wn, svm_dyn_falloff());
+        if (any(greaterThan(live, vec3(0.0)))) live *= svm_window_filter(wp, p);
+        sum += live;
 	}
 	return sum * svm_dyn_tune.x;
 }

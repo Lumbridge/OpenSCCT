@@ -14,6 +14,7 @@ namespace OpenScctGame.Views;
 public sealed class WindowLightingView
 {
     private readonly RenderMap map;
+    private readonly WindowLightFilter liveFilter = new();
     private readonly WindowLightTransfer? data;
     private readonly Dictionary<string, SVitre> panes = new(StringComparer.OrdinalIgnoreCase);
     private readonly HashSet<string> broken = new(StringComparer.OrdinalIgnoreCase);
@@ -37,6 +38,21 @@ public sealed class WindowLightingView
             using var stream = File.OpenRead(file); data = WindowLightTransfer.Load(stream);
             foreach (var record in loaded.Gameplay.Actors)
                 if (loaded.ActorOf(record) is SVitre pane) panes[record.Id] = pane;
+            var sheets = new List<WindowLightFilter.Pane>();
+            foreach (var p in data.Panes)
+            {
+                if (!map.Gameplay.TryGetValue(p.Actor, out GameplayMesh? mesh) || GlassPaneGeometry.Read(mesh.Node.Mesh) is not { } geometry) continue;
+                var points = new List<Vector3>();
+                Transform3D world = mesh.Node.GlobalTransform;
+                foreach (var triangle in geometry.Triangles)
+                {
+                    points.Add(world * geometry.Point(triangle.A.Point));
+                    points.Add(world * geometry.Point(triangle.B.Point));
+                    points.Add(world * geometry.Point(triangle.C.Point));
+                }
+                sheets.Add(new(p.Actor, new Color(p.Tint[0], p.Tint[1], p.Tint[2]), points.ToArray()));
+            }
+            liveFilter.SetPanes(sheets);
         }
         catch (Exception e) when (e is IOException or InvalidDataException or System.Text.Json.JsonException)
         { GD.PushWarning("Window lighting could not load: " + e.Message); }
@@ -53,6 +69,7 @@ public sealed class WindowLightingView
         }
         if (changed)
         {
+            liveFilter.SetBroken(broken);
             revision++;
             // The shipped bake already represents intact panes; avoid touching its GPU resources on initial load.
             if (broken.Count == 0 && Updates == 0) { Updates++; appliedRevision = revision; }

@@ -771,6 +771,16 @@ public partial class PlayRoot : Node3D
             GD.PrintErr("SVM_HOST_FAILURE " + serverFailure);
         }
 
+        if (Config.Demo is null && session.Client.State is OpenScct.Server.EClientState.Disconnected or OpenScct.Server.EClientState.Rejected)
+        {
+            LoadError = session.LoginError ?? session.Client.RejectReason ?? session.Client.Connection?.CloseReason ?? "Connection closed";
+            IsLoaded = false;
+            session.Stop();
+            if (_status is not null) _status.Text = $"Could not play '{Config.Settings.Map}': {LoadError}. Press Escape to leave.";
+            GD.PushError("Play connection failed: " + LoadError);
+            return;
+        }
+
         if (Config.Render && OpenScct.Game.Equipment.ResponsiveSmokeWorld.IsEnabled(session.Client.World.Level)
             && ResponsiveSmokeRenderer.UnsupportedReason is { } rendererError)
         {

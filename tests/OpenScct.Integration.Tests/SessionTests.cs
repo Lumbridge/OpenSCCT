@@ -187,6 +187,36 @@ public sealed class SessionTests
         }
     }
 
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void LocalPlayerSurvivesLongMapAndRenderLoads(bool beforeJoin)
+    {
+        var clock = new VirtualClock();
+        var network = new LoopbackNetwork();
+        using var host = new ServerHost(network.Bind("server"), new ServerSettings { Classes = WalkerRig.Classes, Maps = WalkerRig.Maps });
+        using var client = new ClientSession(network.Bind("client"), "server", 0,
+            new ClientSettings { Classes = WalkerRig.Classes, Maps = WalkerRig.Maps });
+        long frame = 0;
+        void Step(bool pumpClient)
+        {
+            clock.AdvanceTo(VirtualClock.TickToMicroseconds(++frame, Sim.Hz));
+            host.Tick(clock.NowMicroseconds);
+            if (pumpClient) client.Tick(clock.NowMicroseconds);
+        }
+        for (int i = 0; i < 120 && (host.Players.Count == 0 || (!beforeJoin && client.LocalWalker is null)); i++) Step(!beforeJoin);
+        Assert.Single(host.Players);
+        // The render thread is busy, but the local server continues at 60 Hz, past both 15-second timeouts.
+        for (int i = 0; i < Sim.Hz * 40; i++) Step(false);
+        Assert.Single(host.Players);
+        for (int i = 0; i < 120; i++) Step(true);
+        Assert.Equal(EClientState.Joined, client.State);
+        Assert.NotNull(client.LocalWalker);
+        client.Disconnect();
+        for (int i = 0; i < 5; i++) Step(true);
+        Assert.Empty(host.Players);
+    }
+
     [Fact]
     public void ListenServerRunsOnItsOwnThreadWithALoopbackPlayer()
     {
