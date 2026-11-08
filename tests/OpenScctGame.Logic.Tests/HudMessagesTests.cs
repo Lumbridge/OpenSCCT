@@ -182,7 +182,7 @@ public sealed class HudMessagesTests
         Assert.SkipUnless(UcText.HasText, "the game text (shared/classes.json) is not in .content");
         var rig = new Rig();
         HudMessages.ReceiveLocalizedMessage(rig.Pc, HudMessages.GameMessagesClass, 56, rig.Mate, null, null);
-        Assert.Contains(rig.Hud.MessageStack, m => m.Message == "Ghost used his last life");
+        Assert.Contains(rig.Hud.MessageStack, m => m.Message == "Ghost used their last life");
         HudMessages.ReceiveLocalizedMessage(rig.Pc, HudMessages.GameMessagesClass, 4, null, null, null);
         HudMessages.ReceiveLocalizedMessage(rig.Pc, HudMessages.GameMessagesClass, 23, null, null, null);
         // 23 adds its line and a one-second blank; the stack keeps two, so the oldest went.

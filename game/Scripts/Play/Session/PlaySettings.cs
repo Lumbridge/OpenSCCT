@@ -86,6 +86,7 @@ public sealed record PlaySettings
     public PlayHostMode HostMode { get; init; } = PlayHostMode.Thread;
 
     public string PlayerName { get; init; } = "Player";
+    public string Pronouns { get; init; } = OpenScct.Core.Engine.PlayerPronouns.Default;
 
     /// <summary>
     /// Replication passes per second of the listen server, 1 to 60 (<c>--svm-netrate=</c>); 0 (the default) takes the
@@ -208,5 +209,6 @@ public sealed record PlaySettings
 
     /// <summary>The login options of the local player.</summary>
     public string LoginOptions =>
-        string.Create(CultureInfo.InvariantCulture, $"?Name={PlayerName}?Team={Team}") + (Rules == PlayRules.PlayLevel ? "?Editeur=true" : string.Empty);
+        string.Create(CultureInfo.InvariantCulture, $"?Name={PlayerName}?Team={Team}?SvmPronouns={OpenScct.Core.Engine.PlayerPronouns.Normalize(Pronouns)}") +
+        (Rules == PlayRules.PlayLevel ? "?Editeur=true" : string.Empty);
 }

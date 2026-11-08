@@ -332,6 +332,8 @@ public partial class PlayRoot : Node3D
         // Local TestRange is a practice space. A supplied session belongs to an online host or demo and keeps
         // its own rules; do not infer client-side practice from that server's map name.
         PlaySettings settings = Config.CreateSession is null ? Config.Settings.ForLocalLaunch() : Config.Settings;
+        if (Config.CreateSession is null && OpenScctGame.Online.AccountSettings.Current.SignedIn)
+            settings = settings with { Pronouns = OpenScctGame.Online.AccountSettings.Current.Pronouns };
         if (Config.Render && settings.ResponsiveSmoke && ResponsiveSmokeRenderer.UnsupportedReason is { } rendererError)
             throw new InvalidOperationException(rendererError);
         IClock clock;

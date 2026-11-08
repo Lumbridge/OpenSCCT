@@ -106,7 +106,7 @@ public static class HudMessages
             K.MsgGoToDropZone => Texts.ExtractionAtt,
             K.MsgRetrieveHardDrive => Texts.ExtractionDef,
             55 => Texts.SabotageNoModem,
-            56 => Join(name1, Texts.TeammateNoLivesLeft),
+            56 => Join(name1, "used " + PlayerPronouns.For(pri1?.SvmPronouns).Possessive + " last life"),
             57 => Texts.CounterGrabWin,
             58 => Texts.CounterGrabLose,
             60 => Texts.SpyLockedByDef,
@@ -163,7 +163,7 @@ public static class HudMessages
 
         if (killer is not null && ReferenceEquals(killer, victim))
         {
-            return Join(victimName, DeathTexts.SuicideString);
+            return Join(victimName, "eliminated " + PlayerPronouns.For(victim?.SvmPronouns).Reflexive);
         }
 
         return Join(Join(killerName, Word(Switch < 18 ? Switch : 5)), victimName);

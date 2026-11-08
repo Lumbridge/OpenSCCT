@@ -95,6 +95,9 @@ public sealed class MasterClient : IDisposable
     public Task<AccountInfo> ClaimNameAsync(string name, CancellationToken cancellationToken = default) =>
         SendAsync<AccountInfo>(HttpMethod.Post, MasterApi.AccountNamePath, new NameRequest { Name = name }, cancellationToken);
 
+    public Task<AccountInfo> SetPronounsAsync(string pronouns, CancellationToken cancellationToken = default) =>
+        SendAsync<AccountInfo>(HttpMethod.Put, MasterApi.AccountPronounsPath, new PronounsRequest { Pronouns = pronouns }, cancellationToken);
+
     /// <summary>Prestiges the account (level 55 only); the answer is the account after it.</summary>
     public Task<AccountInfo> PrestigeAsync(CancellationToken cancellationToken = default) =>
         SendAsync<AccountInfo>(HttpMethod.Post, MasterApi.PrestigePath, new { }, cancellationToken);

@@ -67,6 +67,9 @@ internal sealed partial class AccountApi
         app.MapGet(MasterApi.DiscordCallbackPath, (Delegate)((HttpContext context) => CallbackAsync(context)));
         app.MapGet(MasterApi.AccountPath, (HttpContext context) => WithAccount(context, a => Results.Json(Info(a), MasterApi.Json)));
         app.MapPost(MasterApi.AccountNamePath, (HttpContext context, NameRequest request) => WithAccountMutation(context, a => ClaimName(a, request)));
+        app.MapPut(MasterApi.AccountPronounsPath, (HttpContext context, PronounsRequest request) => WithAccountMutation(context, a =>
+            _store.SetPronouns(a.Id, request.Pronouns) ? Results.Json(Info(a), MasterApi.Json) :
+            Error(StatusCodes.Status400BadRequest, "Choose a pronoun set from the list.")));
         app.MapPost(MasterApi.SignOutPath, SignOut);
         app.MapPost(MasterApi.PrestigePath, (HttpContext context) => WithAccountMutation(context, Prestige));
         app.MapGet(MasterApi.ProfilePath, (HttpContext context) => WithAccount(context, a =>
@@ -104,6 +107,7 @@ internal sealed partial class AccountApi
             Page(StatusCodes.Status503ServiceUnavailable, "Sign-in is off", "Sign-in is not set up on this master."));
         app.MapGet(MasterApi.AccountPath, Off);
         app.MapPost(MasterApi.AccountNamePath, Off);
+        app.MapPut(MasterApi.AccountPronounsPath, Off);
         app.MapPost(MasterApi.SignOutPath, Off);
         app.MapPost(MasterApi.PrestigePath, Off);
         app.MapGet(MasterApi.ProfilePath, Off);
@@ -325,6 +329,7 @@ internal sealed partial class AccountApi
         return new AccountInfo
         {
             Id = account.Id, Name = account.Name, Admin = _options.IsAdmin(account.DiscordId), AppearanceSync = true,
+            Pronouns = _store.Pronouns(account.Id),
             NameChangeAllowed = allowed is { } t ? DateTimeOffset.FromUnixTimeSeconds(t) : null,
             RecentResults = _store.RecentResults(account.Id),
             Stats = progress.Stats, Achievements = achievements, Unlocked = _store.Unlocked(account.Id),
@@ -448,6 +453,7 @@ internal sealed partial class AccountApi
             TicketId = PlayerTicket.NewTicketId(), Flags = _options.IsAdmin(account.DiscordId) ? PlayerTicketFlags.Admin : PlayerTicketFlags.None,
             Unlocks = CosmeticUnlocks.Of(_store.Unlocked(account.Id)).ToBytes(),
             Rank = _store.ProgressionOf(account.Id).Rank.Pack(), Titles = TitleCatalog.ToBytes(_store.Titles(account.Id)),
+            Pronouns = _store.Pronouns(account.Id),
         };
         return (_signer.Sign(ticket), null);
     }

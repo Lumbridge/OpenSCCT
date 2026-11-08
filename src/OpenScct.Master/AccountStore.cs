@@ -50,7 +50,7 @@ internal enum NameClaim
 /// </summary>
 internal sealed partial class AccountStore : IDisposable
 {
-    public const int SchemaVersion = 11;
+    public const int SchemaVersion = 12;
 
     /// <summary>Seconds between renames.</summary>
     public const long RenameCooldown = 30 * 86400;
@@ -171,6 +171,7 @@ internal sealed partial class AccountStore : IDisposable
             MigratePlayerPortal();
             MigrateAppearance();
             MigrateAdminFeatures();
+            Exec("CREATE TABLE IF NOT EXISTS account_pronouns (account_id INTEGER PRIMARY KEY REFERENCES accounts(id), pronouns TEXT NOT NULL);");
             Exec("DELETE FROM schema_version; INSERT INTO schema_version (version) VALUES ($v);", ("$v", SchemaVersion));
             return 0;
         });

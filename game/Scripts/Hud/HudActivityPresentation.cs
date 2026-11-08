@@ -1,5 +1,6 @@
 using System;
 using OpenScct.Game.Combat;
+using OpenScct.Core.Engine;
 
 namespace OpenScctGame.Hud;
 
@@ -122,7 +123,7 @@ public static class HudActivityPresentation
         {
             HudActivityKind.Join => "Joined the match",
             HudActivityKind.Leave => "Left the match",
-            HudActivityKind.LastLife => "Used their last life",
+            HudActivityKind.LastLife => "Used " + PlayerPronouns.For(entry.Actor?.Pronouns).Possessive + " last life",
             HudActivityKind.Match => Clean(entry.Text) is { Length: > 0 } text ? text : "Match status updated",
             _ => Action(entry.Kind),
         };

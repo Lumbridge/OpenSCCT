@@ -5,4 +5,5 @@ namespace OpenScct.Server.Online;
 /// (as the master last told the host's game), and its rank (OpenScct.Net.Cosmetics.PlayerRank packed, no title) and titles.
 /// </summary>
 public sealed record HostAccount(long AccountId, string Name, System.Collections.Generic.IReadOnlyList<string>? Unlocked = null,
-    int Rank = 0, System.Collections.Generic.IReadOnlyList<string>? Titles = null);
+    int Rank = 0, System.Collections.Generic.IReadOnlyList<string>? Titles = null,
+    string Pronouns = OpenScct.Core.Engine.PlayerPronouns.Default);

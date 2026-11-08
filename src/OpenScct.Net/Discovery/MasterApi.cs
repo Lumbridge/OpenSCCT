@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using OpenScct.Core.Engine;
 
 namespace OpenScct.Net.Discovery;
 
@@ -57,6 +58,7 @@ public static class MasterApi
     public const string LinkPath = "/api/v1/account/link";
 
     public const string AccountNamePath = "/api/v1/account/name";
+    public const string AccountPronounsPath = "/api/v1/account/pronouns";
 
     public const string SignOutPath = "/api/v1/account/signout";
 
@@ -248,7 +250,7 @@ public sealed record MasterCommandResult
 }
 
 /// <summary>The master's answer to a heartbeat.</summary>
-public sealed record LiveAccountAppearance(int Rank, byte[] Unlocks, AccountAppearance Appearance);
+public sealed record LiveAccountAppearance(int Rank, byte[] Unlocks, AccountAppearance Appearance, string Pronouns = PlayerPronouns.Default);
 
 public sealed record HeartbeatResponse
 {
@@ -540,6 +542,7 @@ public sealed record LinkPollResponse
 public sealed record AccountInfo
 {
     public long Id { get; init; }
+    public string Pronouns { get; init; } = PlayerPronouns.Default;
 
     /// <summary>The claimed name, or null until the player picks one.</summary>
     public string? Name { get; init; }
@@ -704,6 +707,11 @@ public sealed record AchievementInfo
 
     /// <summary>The cosmetics it unlocks (catalogue ids).</summary>
     public IReadOnlyList<string> Rewards { get; init; } = [];
+}
+
+public sealed record PronounsRequest
+{
+    public string Pronouns { get; init; } = PlayerPronouns.Default;
 }
 
 public sealed record NameRequest

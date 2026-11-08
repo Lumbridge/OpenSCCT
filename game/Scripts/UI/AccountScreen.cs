@@ -117,6 +117,7 @@ public partial class AccountScreen : MenuPage
     {
         base._Process(delta);
         if (Preview is not null) return;
+        ProcessPronouns();
         if (_start is { IsCompleted: true } start)
         {
             _start = null;
@@ -504,6 +505,7 @@ public partial class AccountScreen : MenuPage
             CareerPanels.Text(panel, "NameCooldown", "You can change your name again on " + allowed.ToLocalTime().ToString("d MMMM yyyy", CultureInfo.InvariantCulture) + ".", dim: true, size: 14);
         }
 
+        BuildPronouns(info);
         var overview = CareerPanels.Grid(_content!, "AccountOverview", 470f);
         BuildRank(overview, info);
         VBoxContainer stats = CareerPanels.Card(overview, "Stats", "Career snapshot");

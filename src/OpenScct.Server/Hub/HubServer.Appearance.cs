@@ -11,6 +11,8 @@ public sealed partial class HubServer
         foreach (var player in _players)
         {
             if (player.AccountId is not { } id || !updates.TryGetValue(id, out var update)) continue;
+            if (player.Slot.Controller?.PlayerReplicationInfo is { } identity)
+                identity.SvmPronouns = OpenScct.Core.Engine.PlayerPronouns.Normalize(update.Pronouns);
             if (player.AppearanceRevision > update.Appearance.Revision) continue;
             player.Unlocks = new CosmeticUnlocks(update.Unlocks);
             if (player.AppearanceRevision >= update.Appearance.Revision) continue;

@@ -393,6 +393,16 @@ the existing reports. Receipt cleanup does not delete public issues on GitHub.
 
 ## Accounts
 
+The Account page in the game and on the player website includes **Pronouns**. The default is they/them;
+players can choose they/them, she/her or he/him from a preset dropdown. Saves use authenticated
+`PUT /api/v1/account/pronouns`; the account response includes `pronouns`. Schema 12 adds `account_pronouns`
+without changing existing account identities or sessions. The selection travels in the signed join ticket
+and the replicated `PlayerReplicationInfo.SvmPronouns`. Trusted server heartbeats update connected players
+independently of cosmetic revisions. Older tickets, guests, bots and missing selections use they/them.
+Last-life and self-elimination messages use the relevant player's forms; an activity-feed entry captures
+them when received, so later account changes do not rewrite previous events. Generic instructions and
+gadget descriptions use neutral wording through `NeutralPlayerText`, without editing converted game files.
+
 Players sign in with **Discord** (nothing else: no passwords, no email). Signing in gives a claimed, unique name,
 stats and achievements, settings that follow the player between PCs, and entry to **signed-in only** servers.
 Everyone else still plays offline, on LAN and on open servers; on a server linked to a master a guest shows as

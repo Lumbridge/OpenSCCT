@@ -91,7 +91,7 @@ public static class HudActivityClassifier
         if (message == 56)
         {
             entry = new(0, HudActivityKind.LastLife, a, null, HudActivityCause.None, "LAST LIFE",
-                (a?.Name ?? "Unknown player") + " used their last life", now, local);
+                (a?.Name ?? "Unknown player") + " used " + PlayerPronouns.For(a?.Pronouns).Possessive + " last life", now, local);
             return true;
         }
 
@@ -99,7 +99,8 @@ public static class HudActivityClassifier
     }
 
     private static HudActivityParticipant? Capture(PlayerReplicationInfo? pri) => pri is null ? null :
-        new(pri.PlayerID, string.IsNullOrWhiteSpace(pri.PlayerName) ? "Unknown player" : Clean(pri.PlayerName), pri.Team?.TeamIndex ?? -1);
+        new(pri.PlayerID, string.IsNullOrWhiteSpace(pri.PlayerName) ? "Unknown player" : Clean(pri.PlayerName), pri.Team?.TeamIndex ?? -1,
+            PlayerPronouns.Normalize(pri.SvmPronouns));
 
     private static bool IsLocal(PlayerReplicationInfo? pri, PlayerReplicationInfo? own) =>
         pri is not null && own is not null && ReferenceEquals(pri, own);

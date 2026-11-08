@@ -268,6 +268,7 @@ public sealed class SessionPlayer
 
     /// <summary>The rank with the checked title (PlayerRank packed; 0 for guests and bots).</summary>
     public int Rank { get; internal set; }
+    public string Pronouns { get; internal set; } = PlayerPronouns.Default;
 
     /// <summary>The round place this player came back to (he dropped out of it), until he is in again.</summary>
     internal DroppedPlayer? Rejoin { get; set; }
@@ -1684,6 +1685,7 @@ public sealed partial class OnlineServer : IDisposable
                 SpyLook = CheckedLook(options, "SvmLookS", CosmeticSide.Spy, unlocks),
                 MercLook = CheckedLook(options, "SvmLookM", CosmeticSide.Merc, unlocks),
                 Rank = PlayerRanks.Checked(UcOptions.ParseOption(options, "SvmTitle"), ticket, hostAccount),
+                Pronouns = PlayerPronouns.Normalize(ticket?.Pronouns ?? hostAccount?.Pronouns),
                 IsAdmin = masterAdmin,
                 IsHost = host,
                 Ready = Settings.ReadyOnJoin,
@@ -1876,6 +1878,7 @@ public sealed partial class OnlineServer : IDisposable
         (p.IsSpectator ? "?SpectatorOnly=true" : string.Empty) +
         (p.Team switch { 0 => p.SpyLook, 1 => p.MercLook, _ => CosmeticLook.Default } is var look && !look.IsDefault ? "?SvmLook=" + look.ToHex() : string.Empty) +
         (p.Rank != 0 ? "?SvmRank=" + p.Rank.ToString(CultureInfo.InvariantCulture) : string.Empty) +
+        "?SvmPronouns=" + p.Pronouns +
         (p.Rejoin is not null ? "?SvmRejoin=1" : string.Empty);
 
     /// <summary>A look from the join's options with every item the ticket does not unlock set back to retail.</summary>

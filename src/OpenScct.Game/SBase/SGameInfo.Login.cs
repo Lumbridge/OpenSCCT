@@ -178,6 +178,7 @@ public partial class SGameInfo
 
             // OpenSCCT's own: the level, prestige and title the online server checked against the player's ticket.
             pri.SvmRank = GetIntOption(Options, "SvmRank", 0);
+            pri.SvmPronouns = PlayerPronouns.Normalize(ParseOption(Options, "SvmPronouns"));
             pri.SvmSidearmsUnrestricted = GetIntOption(Options, "SvmSidearmsAll", 1) == 1;
         }
 

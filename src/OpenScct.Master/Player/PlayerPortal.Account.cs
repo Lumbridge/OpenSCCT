@@ -45,6 +45,7 @@ internal sealed partial class PlayerPortal
                 Form("/account/prestige", viewer.Session.Csrf, "<label class=\"checkbox-label\"><input type=\"checkbox\" name=\"confirm\" value=\"yes\" required><span>I understand that I will return to level 1 and need to unlock level-based items again.</span></label><button class=\"button\">Start prestige " + (p.Prestige + 1) + "</button>",
                     "Start the next prestige rank? You will return to level 1 and need to unlock level-based items again. Your lifetime stats, achievements and permanent rewards are kept.") :
                 "<p class=\"field-help\">" + (p.Rank.IsMaster ? "You have reached the final prestige." : "Reach level " + ProgressionK.MaxLevel + " to enter the next prestige.") + "</p>") + "</div>"));
+        body.Append(PronounsPanel(viewer));
         body.Append(Section("Your stats and matches", ProfileBody(account, true, PageOf(c))));
         return Show(c, "My account", "account", body.ToString(), notice, bad);
     }

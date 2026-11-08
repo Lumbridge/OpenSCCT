@@ -35,6 +35,7 @@ public sealed class FrontEndLayoutSmoke : SmokeTest
         ("account-pick-name", () => AccountPreview("pick-name"), false),
         ("account-change-name", () => AccountPreview("change-name"), false),
         ("account-signed-in", () => AccountPreview("signed-in"), false),
+        ("account-selected-pronouns", () => AccountPreview("selected-pronouns"), false),
         ("account-locked-titles", () => AccountPreview("new"), false),
         ("account-actions", () => AccountPreview("actions"), false),
         ("account-loading", () => AccountPreview("loading"), false),
@@ -235,6 +236,7 @@ public sealed class FrontEndLayoutSmoke : SmokeTest
             "pick-name" => new(AccountScreen.View.PickName, account with { Name = null, Admin = false }),
             "change-name" => new(AccountScreen.View.PickName, account with { NameChangeAllowed = null }, ChangingName: true),
             "loading" => new(AccountScreen.View.SignedIn),
+            "selected-pronouns" => new(AccountScreen.View.SignedIn, account with { Pronouns = "she/her" }),
             "legacy" => new(AccountScreen.View.SignedIn, account with { Progress = null, NameChangeAllowed = null }),
             "prestige" or "prestige-confirm" or "actions" => new(AccountScreen.View.SignedIn, account with
             {
@@ -272,6 +274,23 @@ public sealed class FrontEndLayoutSmoke : SmokeTest
         if (preview.View == AccountScreen.View.PickName &&
             !screen.FindChildren("*", nameof(LineEdit), true, false).OfType<LineEdit>().Any(field => field.Editable))
             _problems.Add(where + ": name picker has no editable field");
+        if (Pages[_page].Name == "account-selected-pronouns")
+        {
+            var choice = screen.FindChild("PronounsChoice", true, false) as OptionButton;
+            var example = screen.FindChild("PronounsExample", true, false) as Label;
+            if (choice is null || choice.ItemCount != OpenScct.Core.Engine.PlayerPronouns.Presets.Count || example is null ||
+                !example.Text.EndsWith("used her last life", StringComparison.Ordinal))
+                _problems.Add(where + ": pronoun selection lost its preset choices or example");
+            else
+            {
+                choice.Select(0);
+                choice.EmitSignal(OptionButton.SignalName.ItemSelected, 0L);
+                if (!example.Text.EndsWith("used their last life", StringComparison.Ordinal))
+                    _problems.Add(where + ": choosing they/them did not update the message example");
+                choice.Select(1);
+                choice.EmitSignal(OptionButton.SignalName.ItemSelected, 1L);
+            }
+        }
         if (preview.Status is { Length: > 0 } status && !labels.Contains(status))
             _problems.Add(where + ": account status was lost");
         if (Pages[_page].Name == "account-locked-titles")

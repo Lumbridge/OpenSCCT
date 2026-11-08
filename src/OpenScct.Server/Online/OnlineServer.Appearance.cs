@@ -11,6 +11,8 @@ public sealed partial class OnlineServer
         foreach (var player in _players)
         {
             if (player.AccountId is not { } id || !updates.TryGetValue(id, out var update)) continue;
+            player.Pronouns = OpenScct.Core.Engine.PlayerPronouns.Normalize(update.Pronouns);
+            if (player.Slot?.Controller?.PlayerReplicationInfo is { } identity) identity.SvmPronouns = player.Pronouns;
             if (player.AppearanceRevision > update.Appearance.Revision) continue;
             player.Unlocks = new CosmeticUnlocks(update.Unlocks);
             if (player.AppearanceRevision >= update.Appearance.Revision) continue;

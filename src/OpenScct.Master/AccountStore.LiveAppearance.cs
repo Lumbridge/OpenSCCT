@@ -12,7 +12,7 @@ internal sealed partial class AccountStore
             var appearance = Appearance(accountId);
             int bit = TitleCatalog.Find(appearance.Title)?.Bit ?? -1;
             return new(ProgressionLocked(accountId).Rank.WithTitle(bit).Pack(),
-                CosmeticUnlocks.Of(Unlocked(accountId)).ToBytes(), appearance);
+                CosmeticUnlocks.Of(Unlocked(accountId)).ToBytes(), appearance, Pronouns(accountId));
         }
     }
 }

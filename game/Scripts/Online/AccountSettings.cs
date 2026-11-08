@@ -26,6 +26,7 @@ public sealed class AccountSettings
     public string Name { get; set; } = string.Empty;
 
     public bool Admin { get; set; }
+    public string Pronouns { get; set; } = OpenScct.Core.Engine.PlayerPronouns.Default;
 
     /// <summary>When this PC's synced settings (settings and key layouts) last changed, or null when never.</summary>
     public DateTimeOffset? ProfileUpdated { get; set; }
@@ -66,6 +67,7 @@ public sealed class AccountSettings
         s.AccountId = file.GetValue("account", "id", s.AccountId).AsInt64();
         s.Name = file.GetValue("account", "name", s.Name).AsString();
         s.Admin = file.GetValue("account", "admin", s.Admin).AsBool();
+        s.Pronouns = OpenScct.Core.Engine.PlayerPronouns.Normalize(file.GetValue("account", "pronouns", s.Pronouns).AsString());
         string updated = file.GetValue("profile", "updated", string.Empty).AsString();
         s.ProfileUpdated = DateTimeOffset.TryParse(updated, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out DateTimeOffset when)
             ? when
@@ -90,6 +92,7 @@ public sealed class AccountSettings
         file.SetValue("account", "id", AccountId);
         file.SetValue("account", "name", Name);
         file.SetValue("account", "admin", Admin);
+        file.SetValue("account", "pronouns", Pronouns);
         file.SetValue("profile", "updated", ProfileUpdated?.ToString("O", CultureInfo.InvariantCulture) ?? string.Empty);
         file.SetValue("profile", "synced_account", SyncedAccountId);
         file.SetValue("appearance", "account", AppearanceAccountId);
@@ -106,6 +109,7 @@ public sealed class AccountSettings
         AccountId = account.Id;
         Name = account.Name ?? string.Empty;
         Admin = account.Admin;
+        Pronouns = OpenScct.Core.Engine.PlayerPronouns.Normalize(account.Pronouns);
     }
 
     /// <summary>Forgets the sign-in on this PC (the profile bookkeeping stays).</summary>
@@ -115,6 +119,7 @@ public sealed class AccountSettings
         AccountId = 0;
         Name = string.Empty;
         Admin = false;
+        Pronouns = OpenScct.Core.Engine.PlayerPronouns.Default;
         Save();
     }
 }

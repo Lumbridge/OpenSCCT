@@ -38,5 +38,7 @@ public partial class PlayerReplicationInfo : ReplicationInfo
     /// guests and bots), set by the server at login from its checked <c>?SvmRank=</c> option and replicated to every client.
     /// </summary>
     public int SvmRank;
+    /// <summary>Account-selected pronouns, replicated for player-specific messages; neutral for guests and bots.</summary>
+    public string SvmPronouns = PlayerPronouns.Default;
     public bool SvmSidearmsUnrestricted;
 }

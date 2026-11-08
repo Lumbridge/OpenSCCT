@@ -8,7 +8,8 @@ namespace OpenScct.Core.Uc;
 /// <summary>
 /// The game's localized text (the <c>.int</c> strings of its script classes), read from the content the player built
 /// from their own install: <c>shared/classes.json</c>, whose class defaults hold that text in the chosen language.
-/// The repository never holds the text itself. The generated SetDefaults methods ask for each localized string
+/// The repository does not hold the original text. OpenSCCT's neutral replacements live in NeutralPlayerText.
+/// The generated SetDefaults methods ask for each localized string
 /// property here (<see cref="Get(string, string, string)"/>) and keep the inherited value when the table has none.
 /// <para>
 /// The file is found on first use: the path given to <see cref="Use"/> (an installed build: the launcher's content),
@@ -39,7 +40,8 @@ public static class UcText
 
     /// <summary>The localized value of <paramref name="property"/> in class <paramref name="classPath"/>, or <paramref name="fallback"/>.</summary>
     public static string Get(string classPath, string property, string fallback) =>
-        Find(classPath, property) is { ValueKind: JsonValueKind.String } v ? v.GetString() ?? fallback : fallback;
+        NeutralPlayerText.Apply(classPath, property, -1,
+            Find(classPath, property) is { ValueKind: JsonValueKind.String } v ? v.GetString() ?? fallback : fallback);
 
     /// <summary>Element <paramref name="index"/> of a localized static array, or <paramref name="fallback"/>.</summary>
     public static string Get(string classPath, string property, int index, string fallback)
@@ -63,7 +65,8 @@ public static class UcText
             JsonValueKind.Array when index >= 0 && index < v.GetArrayLength() => (e = v[index]).ValueKind != JsonValueKind.Undefined,
             _ => false,
         };
-        return found && e.ValueKind == JsonValueKind.String ? e.GetString() ?? fallback : fallback;
+        return NeutralPlayerText.Apply(classPath, property, index,
+            found && e.ValueKind == JsonValueKind.String ? e.GetString() ?? fallback : fallback);
     }
 
     /// <summary>
@@ -79,9 +82,10 @@ public static class UcText
         }
 
         list.Clear();
+        int index = 0;
         foreach (JsonElement e in v.EnumerateArray())
         {
-            list.Add(e.ValueKind == JsonValueKind.String ? e.GetString() ?? string.Empty : string.Empty);
+            list.Add(NeutralPlayerText.Apply(classPath, property, index++, e.ValueKind == JsonValueKind.String ? e.GetString() ?? string.Empty : string.Empty));
         }
     }
 

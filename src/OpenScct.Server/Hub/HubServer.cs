@@ -634,9 +634,10 @@ public sealed partial class HubServer : IDisposable
             ? ticket.Name
             : UniqueName(Master is not null ? PlayerNames.GuestName(CleanName(name), installId) : CleanName(name));
         int rank = OpenScct.Server.Online.PlayerRanks.Checked(ReadText(options, "SvmTitle"), ticket, hostAccount);
+        string pronouns = PlayerPronouns.Normalize(ticket?.Pronouns ?? hostAccount?.Pronouns);
         CosmeticLook look = team == 1 ? mercLook : spyLook;
         return LoginDecision.Allow(clean, string.Create(CultureInfo.InvariantCulture,
-            $"?SvmSidearmsAll={(Settings.Master is null ? 1 : 0)}?Team={team}?Mesh={mesh}{(rank != 0 ? $"?SvmRank={rank}" : string.Empty)}{(!look.IsDefault ? "?SvmLook=" + look.ToHex() : string.Empty)}"));
+            $"?SvmSidearmsAll={(Settings.Master is null ? 1 : 0)}?SvmPronouns={pronouns}?Team={team}?Mesh={mesh}{(rank != 0 ? $"?SvmRank={rank}" : string.Empty)}{(!look.IsDefault ? "?SvmLook=" + look.ToHex() : string.Empty)}"));
     }
 
     private void OnJoined(PlayerSlot slot)

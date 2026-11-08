@@ -22,7 +22,7 @@ public enum HudActivityCause
 }
 
 /// <summary>Receipt-time identity: rows remain readable after a player leaves, changes team or renames.</summary>
-public sealed record HudActivityParticipant(int PlayerId, string Name, int Team);
+public sealed record HudActivityParticipant(int PlayerId, string Name, int Team, string Pronouns = PlayerPronouns.Default);
 
 /// <summary>One captured match event, independent of the live replicated objects and Godot.</summary>
 public sealed record HudActivityEntry(

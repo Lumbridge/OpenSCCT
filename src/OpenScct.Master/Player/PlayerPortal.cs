@@ -54,6 +54,7 @@ internal sealed partial class PlayerPortal(MasterOptions options, AccountStore s
         Get(app, "/account/privacy", c => WithViewer(c, v => Privacy(c, v)));
         Get(app, "/auth/player/login", Login);
         Post(app, "/account/name", (c, v, f) => ChangeName(c, v, f));
+        Post(app, "/account/pronouns", (c, v, f) => ChangePronouns(c, v, f));
         Post(app, "/account/privacy", (c, v, f) => ChangePrivacy(c, v, f));
         Post(app, "/account/prestige", (c, v, f) => Prestige(c, v, f));
         Post(app, "/account/appearance", (c, v, f) => ChangeAppearance(c, v, f));
