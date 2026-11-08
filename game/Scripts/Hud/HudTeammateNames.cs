@@ -41,8 +41,23 @@ public sealed class HudTeammateNames
             var colour = new Color(0.78f, 0.96f, 0.75f, (0.85f - 0.70f * fade) * Math.Clamp(Opacity, 0f, 1f));
             // Health already replicates from the authority with the pawn; do not infer a maximum or percentage.
             string text = ShowHealth ? string.Create(CultureInfo.InvariantCulture, $"{pri.PlayerName} ({pawn.Health} HP)") : pri.PlayerName;
-            DrawList.Items.Add(HudText.Item("TeammateNames/" + index++, text,
+            string path = "TeammateNames/" + index++;
+            DrawList.Items.Add(HudText.Item(path, text,
                 new Rect2(point.X - screen.X / 2f, point.Y - height, screen.X, height), height, MagmaAlign.Center, colour));
+            // Sleep already replicates with the pawn, so the icon clears as soon as the teammate wakes.
+            if (merc && pawn.bSleeping && HudActivityIcons.Load("zzz") is { } texture)
+            {
+                float size = Mathf.Round(height * 1.75f);
+                float gap = 2f * screen.Y / MagmaRenderer.PageHeight;
+                var rect = new Rect2(Mathf.Round(point.X - size / 2f), Mathf.Round(point.Y - height - gap - size), size, size);
+                var sleepColour = new Color(0.55f, 0.77f, 1f, colour.A);
+                MagmaDrawItem icon = DrawList.Add(MagmaWidgetKind.Image);
+                icon.Path = path + "/Sleep";
+                icon.NativeTexture = texture;
+                icon.Clamp = true;
+                icon.SetGeometry([rect.Position, new Vector2(rect.End.X, rect.Position.Y), rect.End, new Vector2(rect.Position.X, rect.End.Y)],
+                    [Vector2.Zero, Vector2.Right, Vector2.One, Vector2.Down], [sleepColour, sleepColour, sleepColour, sleepColour]);
+            }
         }
     }
 }

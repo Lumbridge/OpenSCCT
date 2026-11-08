@@ -1060,10 +1060,10 @@ public partial class SPlayerController
 
     /// <summary>
     /// The local player's goggles (vision-goggles.md rule 1): one SGoggle owned by the controller on every machine
-    /// that draws (never on a dedicated server), spawned the first time the local player ticks with a pawn.
+    /// that draws (never on a dedicated server), spawned at the first local pawn tick or spectator vision input.
     /// </summary>
     [PortOf("uc:SBase.SPlayerController:PostBeginPlay", Spec = "spec/equipment/vision-goggles.md#rules")]
-    [Provenance(ProvenanceKind.Estimated, "The goggles spawn at the first local tick with a pawn instead of in PostBeginPlay (not ported here)")]
+    [Provenance(ProvenanceKind.Estimated, "The goggles spawn at the first local pawn tick or spectator vision input instead of in PostBeginPlay (not ported here)")]
     public SGoggle? EnsureGoggle()
     {
         if (Goggle is null && Level.NetMode != ENetMode.NM_DedicatedServer &&

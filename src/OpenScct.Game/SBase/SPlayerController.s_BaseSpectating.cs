@@ -10,19 +10,50 @@ namespace OpenScct.Game.SBase;
 public partial class SPlayerController
 {
     /// <remarks>
-    /// Not ported here: the free-fly PlayerMove and MyProcessMove (they need the MoveSmooth native), the vision
-    /// SwitchHeadset (vision spec) and the HUD toggle of GadTorcheSwitch, and the ignored input functions that have no
-    /// state dispatch yet. Fire and AltFire are ignored (the spectating states below give Fire its meaning); damage is
-    /// ignored by the combat dispatch.
+    /// Not ported here: the free-fly PlayerMove and MyProcessMove (they need the MoveSmooth native), the HUD toggle
+    /// of GadTorcheSwitch, and the ignored input functions that have no state dispatch yet. Fire and AltFire are
+    /// ignored (the spectating states below give Fire its meaning); damage is ignored by the combat dispatch.
     /// </remarks>
     [Uc("SBase.SPlayerController.s_BaseSpectating")]
-    public class s_BaseSpectating : UcActorState, IPlayerTick, IAntiBugTellServerIAmDead, IFire, IAltFire
+    public class s_BaseSpectating : UcActorState, IPlayerTick, IAntiBugTellServerIAmDead, IFire, IAltFire, ISwitchHeadset
     {
         public static readonly s_BaseSpectating Instance = new(UcMeta.s_BaseSpectating, null);
 
         protected s_BaseSpectating(UcStateInfo info, ActorState? super)
             : base(info, super)
         {
+        }
+
+        /// <summary>The watched side's available modes, applied locally without animating a pawn (rule 5).</summary>
+        [Uc("SBase.SPlayerController.s_BaseSpectating.SwitchHeadset", Sha1 = "7f12644033a067452bafe548451477ede3822b45")]
+        [PortOf("uc:SBase.SPlayerController:s_BaseSpectating.SwitchHeadset", Spec = "spec/game/spectating.md#rules")]
+        public void SwitchHeadset(SPlayerController self, int i)
+        {
+            if (i is < 1 or > 3 || self.EnsureGoggle() is not { } goggle)
+            {
+                return;
+            }
+
+            bool merc = (self.SpecTarget?.SPawnType ?? self.SPawnType) == PawnType.SPAWNDEFENSE;
+            GameReplicationInfo? gri = self.GameReplicationInfo;
+            bool first = gri is null || (merc ? gri.bAvlb_MERC_MotiontrackingVision : gri.bAvlb_SPY_NightVision);
+            bool second = gri is null || (merc ? gri.bAvlb_MERC_EMFVision : gri.bAvlb_SPY_ThermalVision);
+            if ((i == 1 && !first) || (i == 2 && !second) || (i == 3 && !first && !second))
+            {
+                return;
+            }
+
+            int firstMode = merc ? SGoggle.REN_MotionTrackingVision : SGoggle.REN_NightVision;
+            int secondMode = merc ? SGoggle.REN_EMFVision : SGoggle.REN_ThermalVision;
+            int mode = i switch
+            {
+                1 => firstMode,
+                2 => secondMode,
+                _ => goggle.CurrentMode == SGoggle.REN_DynLight ? (first ? firstMode : secondMode)
+                    : goggle.CurrentMode == firstMode && second ? secondMode : SGoggle.REN_DynLight,
+            };
+            goggle.CurrentMode = goggle.CurrentMode == mode ? SGoggle.REN_DynLight : mode;
+            goggle.Activate();
         }
 
         [Uc("SBase.SPlayerController.s_BaseSpectating.BeginState", Sha1 = "e8843a4cbfa520331982a18eb02ec92e3a49b4d0")]

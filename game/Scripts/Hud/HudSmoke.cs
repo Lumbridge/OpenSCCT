@@ -891,6 +891,7 @@ public sealed class HudSmoke(bool spectatorOnly = false) : SmokeTest
 
     private void CheckMerc()
     {
+        CheckSleepingTeammateName();
         HudLayer layer = _layer!;
         Scene s = _scene!;
         HudSnapshot snap = layer.Snapshot;
@@ -942,6 +943,27 @@ public sealed class HudSmoke(bool spectatorOnly = false) : SmokeTest
         Expect(!layer.Merc.Root.Children.Any(c => c.Name == "Flash" && c.Visible), "no white-out in motion vision (immune)");
         CheckAssets(layer);
         _notes.Add(string.Create(CultureInfo.InvariantCulture, $"merc={list.Items.Count}"));
+    }
+
+    private void CheckSleepingTeammateName()
+    {
+        var mate = _scene!.World.Level.SpawnActor(new SPawnDefense_1Mesh(), new FVector(500, 0, 0), default)!;
+        mate.Health = 100;
+        mate.PlayerReplicationInfo = new PlayerReplicationInfo { PlayerName = "Sleeping teammate" };
+        var names = new HudTeammateNames { ShowMerc = true, ShowSpy = true, Opacity = 1 };
+        void Draw() => names.Draw(_scene.MercPc, _ => new Vector2(640, 360), Screen);
+        bool HasSleep() => names.DrawList.Items.Any(i => i.Path.EndsWith("/Sleep", StringComparison.Ordinal));
+        mate.bSleeping = true;
+        Draw();
+        Check(HasSleep(), "Merc teammate nametag shows a sleeping icon");
+        mate.bSleeping = false;
+        Draw();
+        Check(!HasSleep(), "Waking removes the teammate sleeping icon");
+        mate.bSleeping = true;
+        mate.Health = 0;
+        Draw();
+        Check(!HasSleep(), "Dead teammates do not keep a sleeping icon");
+        mate.Destroy();
     }
 
     /// <summary>The merc page's effects, one after another.</summary>
