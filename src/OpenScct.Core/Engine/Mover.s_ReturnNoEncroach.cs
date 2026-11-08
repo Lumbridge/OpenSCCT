@@ -77,8 +77,8 @@ public partial class Mover
         {
             case s_ReturnNoEncroach_Begin:
                 Segment(ref f, s_ReturnNoEncroach_Begin);
-                bool closing = KeyNum < PrevKeyNum;
-                InterpolateTo(PrevKeyNum, MoveTime);
+                bool closing = CurrentKey < PreviousKey;
+                InterpolateTo(PreviousKey, MoveTime);
                 f.Pc = closing ? 2 : 4;
                 FinishInterpolation();
                 return;

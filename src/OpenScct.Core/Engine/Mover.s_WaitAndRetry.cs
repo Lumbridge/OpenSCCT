@@ -37,11 +37,11 @@ public partial class Mover
         {
             case s_WaitAndRetry_Begin:
                 Segment(ref f, s_WaitAndRetry_Begin);
-                if (KeyNum < PrevKeyNum)
+                if (CurrentKey < PreviousKey)
                 {
                     if (PhysAlpha == 0f)
                     {
-                        KeyNum = PrevKeyNum;
+                        CurrentKey = PreviousKey;
                     }
 
                     InterpolateTo(1, MoveTime);
@@ -51,10 +51,10 @@ public partial class Mover
                 {
                     if (PhysAlpha == 0f)
                     {
-                        KeyNum = PrevKeyNum;
+                        CurrentKey = PreviousKey;
                     }
 
-                    InterpolateTo((byte)SvmMath.Max(0, KeyNum - 1), MoveTime);
+                    InterpolateTo(SvmMath.Max(0, CurrentKey - 1), MoveTime);
                     f.Pc = 4;
                 }
 

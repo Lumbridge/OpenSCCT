@@ -4,7 +4,7 @@ using OpenScct.Provenance;
 namespace OpenScct.Core.Engine;
 
 /// <summary>
-/// Engine.Mover: a static-mesh actor that travels between up to 8 keyframes under PHYS_MovingBrush, written from
+/// Engine.Mover: an actor that follows legacy keys or a native OpenSCCT path under PHYS_MovingBrush, written from
 /// spec/devices/mover.md. Its InitialState decides how it answers triggers, bumps and standing pawns, and
 /// MoverEncroachType what it does when its motion runs into an actor. States are in the Mover.&lt;State&gt;.cs files.
 /// <para>
@@ -23,14 +23,14 @@ public partial class Mover
     /// </summary>
     [Uc("Engine.Mover.InterpolateTo", Sha1 = "2a90b15a36b833d207cc5ee7e445f791ac6480d0")]
     [PortOf("uc:Engine.Mover:InterpolateTo", Spec = "spec/devices/mover.md#interpolation")]
-    public virtual void InterpolateTo(byte NewKeyNum, float Seconds)
+    public virtual void InterpolateTo(int NewKeyNum, float Seconds)
     {
-        NewKeyNum = (byte)SvmMath.Clamp(NewKeyNum, 0, MoverK.MaxKeys - 1);
-        if (NewKeyNum == PrevKeyNum && KeyNum != PrevKeyNum)
+        NewKeyNum = SvmMath.Clamp(NewKeyNum, 0, KeyCapacity - 1);
+        if (NewKeyNum == PreviousKey && CurrentKey != PreviousKey)
         {
             PhysAlpha = 1f - PhysAlpha;
-            OldPos = BasePos + KeyPos[KeyNum];
-            OldRot = BaseRot + KeyRot[KeyNum];
+            OldPos = BasePos + KeyPosition(CurrentKey);
+            OldRot = BaseRot + KeyRotation(CurrentKey);
         }
         else
         {
@@ -41,8 +41,8 @@ public partial class Mover
 
         SetPhysics(EPhysics.PHYS_MovingBrush);
         bInterpolating = true;
-        PrevKeyNum = KeyNum;
-        KeyNum = NewKeyNum;
+        PreviousKey = CurrentKey;
+        CurrentKey = NewKeyNum;
         // OpenSCCT: a map can give this leg its own time and easing (spec/additions/mover-legs.md).
         PhysRate = 1f / SvmMath.Max(LegSeconds(Seconds), MoverK.MinLegTime);
         ClientUpdate++;
@@ -55,17 +55,17 @@ public partial class Mover
     [PortOf("uc:Engine.Mover:KeyFrameReached", Spec = "spec/devices/mover.md#interpolation")]
     public virtual void KeyFrameReached()
     {
-        byte OldKeyNum = PrevKeyNum;
-        PrevKeyNum = KeyNum;
+        int OldKeyNum = PreviousKey;
+        PreviousKey = CurrentKey;
         PhysAlpha = 0f;
         ClientUpdate--;
-        if (KeyNum > 0 && KeyNum < OldKeyNum)
+        if (CurrentKey > 0 && CurrentKey < OldKeyNum)
         {
-            InterpolateTo((byte)(KeyNum - 1), MoveTime);
+            InterpolateTo(CurrentKey - 1, MoveTime);
         }
-        else if (KeyNum < NumKeys - 1 && KeyNum > OldKeyNum)
+        else if (CurrentKey < KeyCount - 1 && CurrentKey > OldKeyNum)
         {
-            InterpolateTo((byte)(KeyNum + 1), MoveTime);
+            InterpolateTo(CurrentKey + 1, MoveTime);
         }
         else
         {
@@ -109,7 +109,7 @@ public partial class Mover
     private void MovingBrushLegs(float DeltaTime)
     {
         float dt = DeltaTime;
-        for (int step = 0; bInterpolating && dt > 0f && step < MaxLegSteps && !bDeleteMe; step++)
+        for (int step = 0; bInterpolating && dt > 0f && step < System.Math.Max(MaxLegSteps, KeyCount) && !bDeleteMe; step++)
         {
             float alpha = PhysAlpha;
             float newAlpha = alpha + dt * PhysRate;
@@ -125,9 +125,9 @@ public partial class Mover
 
             double a = newAlpha;
             double s = LegEase(a);
-            int key = SvmMath.Clamp(KeyNum, 0, MoverK.MaxKeys - 1);
-            FVector target = OldPos + (BasePos + KeyPos[key] - OldPos) * (float)s;
-            FRotator to = BaseRot + KeyRot[key] - OldRot;
+            int key = SvmMath.Clamp(CurrentKey, 0, KeyCapacity - 1);
+            FVector target = OldPos + (BasePos + KeyPosition(key) - OldPos) * (float)s;
+            FRotator to = BaseRot + KeyRotation(key) - OldRot;
             var rotation = new FRotator(
                 OldRot.Pitch + (int)(to.Pitch * s),
                 OldRot.Yaw + (int)(to.Yaw * s),
@@ -188,11 +188,11 @@ public partial class Mover
         OldPos = SimOldPos;
         PhysAlpha = SimInterpolate.X * 0.01f;
         int keys = (int)SimInterpolate.Z;
-        KeyNum = (byte)SvmMath.Clamp(keys & 0xff, 0, MoverK.MaxKeys - 1);
-        PrevKeyNum = (byte)SvmMath.Clamp((keys >> 8) & 0xff, 0, MoverK.MaxKeys - 1);
+        CurrentKey = Path is null ? SvmMath.Clamp(keys & 0xff, 0, MoverK.MaxKeys - 1) : PathTarget;
+        PreviousKey = Path is null ? SvmMath.Clamp((keys >> 8) & 0xff, 0, MoverK.MaxKeys - 1) : PathPrevious;
         // OpenSCCT: a leg's own time and easing come from the map file (spec/additions/mover-legs.md).
         PhysRate = ClientLegRate(SimInterpolate.Y * 0.01f);
-        OldRot = NearestTurn(Rotation, BaseRot + KeyRot[PrevKeyNum]);
+        OldRot = NearestTurn(Rotation, BaseRot + KeyRotation(PreviousKey));
         SetPhysics(EPhysics.PHYS_MovingBrush);
         bInterpolating = true;
     }
@@ -216,9 +216,10 @@ public partial class Mover
     /// <summary>Stores key <paramref name="NewKeyNum"/> and makes it the current key.</summary>
     [Uc("Engine.Mover.SetKeyframe", Sha1 = "5d2cf7d26a6508a3209214e8e783bec05580662d")]
     [PortOf("uc:Engine.Mover:SetKeyframe", Spec = "spec/devices/mover.md#client-side-bookkeeping")]
-    public void SetKeyframe(byte NewKeyNum, FVector NewLocation, FRotator NewRotation)
+    public void SetKeyframe(int NewKeyNum, FVector NewLocation, FRotator NewRotation)
     {
-        KeyNum = (byte)SvmMath.Clamp(NewKeyNum, 0, MoverK.MaxKeys - 1);
+        if (Path is not null) throw new System.InvalidOperationException("Native paths are immutable during play");
+        CurrentKey = SvmMath.Clamp(NewKeyNum, 0, KeyCapacity - 1);
         KeyPos[KeyNum] = NewLocation;
         KeyRot[KeyNum] = NewRotation;
     }
@@ -249,7 +250,7 @@ public partial class Mover
     {
         bOpening = false;
         bDelaying = false;
-        InterpolateTo((byte)SvmMath.Max(0, KeyNum - 1), MoveTime);
+        InterpolateTo(SvmMath.Max(0, CurrentKey - 1), MoveTime);
         MakeNoise(1f);
         PlayMoverSound(ClosingSound);
         UntriggerEvent(Event, this, Instigator);
@@ -333,7 +334,7 @@ public partial class Mover
         OriginalMoveTime = MoveTime;
         OriginalStayOpenTime = StayOpenTime;
         OriginalMoverEncroachType = MoverEncroachType;
-        PrevKeyNum = KeyNum;
+        PreviousKey = CurrentKey;
         if (!AntiPortalTag.IsNone)
         {
             foreach (AntiPortalActor antiPortal in XLevel.AllActors<AntiPortalActor>(AntiPortalTag))
@@ -352,10 +353,10 @@ public partial class Mover
         }
 
         base.BeginPlay();
-        KeyNum = (byte)SvmMath.Clamp(KeyNum, 0, MoverK.MaxKeys - 1);
+        CurrentKey = SvmMath.Clamp(CurrentKey, 0, KeyCapacity - 1);
         PhysAlpha = 0f;
-        Location = BasePos + KeyPos[KeyNum];
-        Rotation = BaseRot + KeyRot[KeyNum];
+        Location = BasePos + KeyPosition(CurrentKey);
+        Rotation = BaseRot + KeyRotation(CurrentKey);
         if (Level.NetMode != ENetMode.NM_Client)
         {
             RealPosition = Location;
@@ -553,7 +554,7 @@ public partial class Mover
     [PortOf("uc:Engine.Mover:IsTriggerable", Spec = "spec/devices/mover.md#triggering")]
     public bool IsTriggerable(Actor? Other)
     {
-        if (KeyNum == PrevKeyNum)
+        if (CurrentKey == PreviousKey)
         {
             return true;
         }
@@ -753,7 +754,7 @@ public partial class Mover
         AmbientSound = AssetRef.None;
         if (bIsLeader || ReferenceEquals(Leader, this))
         {
-            GotoState(GetStateName(), KeyNum < PrevKeyNum ? NAME_Open : NAME_Close);
+            GotoState(GetStateName(), CurrentKey < PreviousKey ? NAME_Open : NAME_Close);
         }
 
         Follower?.MakeGroupReturn();

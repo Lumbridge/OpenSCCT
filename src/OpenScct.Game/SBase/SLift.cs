@@ -43,7 +43,7 @@ public partial class SLift
             var switches = DoorsAndSwitches[i].Switches;
             for (j = 0; j < switches.Count; j++)
             {
-                SetSwitch(switches[j], i != KeyNum);
+                SetSwitch(switches[j], i != CurrentKey);
             }
         }
 
@@ -156,7 +156,7 @@ public partial class SLift
         bInterpolating = false;
         AmbientSound = AssetRef.None;
         LastEncroachTime = (int)Level.TimeSeconds;
-        DestinationKey = PrevKeyNum < KeyNum ? KeyNum - 1 : KeyNum + 1;
+        DestinationKey = PreviousKey < CurrentKey ? CurrentKey - 1 : CurrentKey + 1;
         GotoState(nameof(Go), NAME_Begin);
         return false;
     }
@@ -166,7 +166,7 @@ public partial class SLift
     [PortOf("uc:SBase.SLift:KeyFrameReached", Spec = "spec/devices/lift.md#rules")]
     public override void KeyFrameReached()
     {
-        PrevKeyNum = KeyNum;
+        PreviousKey = CurrentKey;
         PhysAlpha = 0f;
         ClientUpdate--;
         AmbientSound = AssetRef.None;
@@ -203,9 +203,9 @@ public partial class SLift
     private static readonly System.Collections.Generic.List<Mover?> NoDoors = new();
 
     // A None door reads as key 0 at rest and ignores triggers (Access None), as in the script.
-    private static int KeyOf(Mover? m) => m?.KeyNum ?? 0;
+    private static int KeyOf(Mover? m) => m?.CurrentKey ?? 0;
 
-    private static bool Moving(Mover? m) => m is not null && m.KeyNum != m.PrevKeyNum;
+    private static bool Moving(Mover? m) => m is not null && m.CurrentKey != m.PreviousKey;
 
     private void TriggerDoor(Mover? m) => m?.eventTrigger(this, null);
 
@@ -227,12 +227,12 @@ public partial class SLift
                 {
                     bBadPosition = true;
                 }
-                else if (i == KeyNum && KeyOf(d) == (arrived ? 1 : 0))
+                else if (i == CurrentKey && KeyOf(d) == (arrived ? 1 : 0))
                 {
                     TriggerDoor(d);
                     bBadPosition = true;
                 }
-                else if (i != KeyNum && KeyOf(d) == 0)
+                else if (i != CurrentKey && KeyOf(d) == 0)
                 {
                     TriggerDoor(d);
                     bBadPosition = true;
@@ -292,7 +292,7 @@ public partial class SLift
         public override void BeginState(Actor self)
         {
             var lift = (SLift)self;
-            var doors = lift.DoorsOf(lift.KeyNum);
+            var doors = lift.DoorsOf(lift.CurrentKey);
             for (lift.j = 0; lift.j < doors.Count; lift.j++)
             {
                 if (KeyOf(doors[lift.j]) != 1)
@@ -344,7 +344,7 @@ public partial class SLift
         switch (f.Pc)
         {
             case Go_Begin:
-                InterpolateTo((byte)DestinationKey, MoveTime * Math.Abs(KeyNum - DestinationKey));
+                InterpolateTo(DestinationKey, MoveTime * Math.Abs(CurrentKey - DestinationKey));
                 MakeNoise(1f);
                 AmbientSound = MoveAmbientSound;
                 f.Pc = Go_Arrive;
@@ -368,7 +368,7 @@ public partial class SLift
     [PortOf("uc:SBase.SLift:Go.Arrived", Spec = "spec/devices/lift.md#rules")]
     private void Arrived()
     {
-        var doors = DoorsOf(KeyNum);
+        var doors = DoorsOf(CurrentKey);
         for (j = 0; j < doors.Count; j++)
         {
             if (KeyOf(doors[j]) != 0)
@@ -381,7 +381,7 @@ public partial class SLift
         {
             if (LiftDoors[i] is { } d)
             {
-                d.BasePos = d.Location - d.KeyPos[d.KeyNum];
+                d.BasePos = d.Location - d.KeyPosition(d.CurrentKey);
                 TriggerDoor(d);
             }
         }
@@ -423,7 +423,7 @@ public partial class SLift
                 var switches = lift.DoorsAndSwitches[lift.i].Switches;
                 for (lift.j = 0; lift.j < switches.Count; lift.j++)
                 {
-                    lift.SetSwitch(switches[lift.j], lift.i != lift.KeyNum);
+                    lift.SetSwitch(switches[lift.j], lift.i != lift.CurrentKey);
                 }
             }
 

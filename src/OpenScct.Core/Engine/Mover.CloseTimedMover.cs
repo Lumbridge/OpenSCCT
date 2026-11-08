@@ -46,7 +46,7 @@ public partial class Mover
         {
             case CloseTimedMover_Close:
                 Segment(ref f, CloseTimedMover_Close);
-                if (KeyNum != 1)
+                if (CurrentKey != 1)
                 {
                     GotoState(Name.None);
                     return;

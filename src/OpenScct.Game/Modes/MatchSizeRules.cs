@@ -249,14 +249,14 @@ public sealed class MatchSizeRules
             case HoldKind.Key:
                 // Out of its trigger behaviour first, so the short leg runs alone; then locked where it stands.
                 mover.GotoState(Name.None);
-                byte key = (byte)Math.Clamp(hold.Key, 0, MoverK.MaxKeys - 1);
-                if (mover.bInterpolating || mover.KeyNum != key)
+                int key = Math.Clamp(hold.Key, 0, mover.KeyCount - 1);
+                if (mover.bInterpolating || mover.CurrentKey != key)
                 {
                     // A leg that starts "from" the key it goes to: KeyFrameReached carries a leg on through the keys
                     // in its direction, and a leg with no direction stops at its key. A client starts the same leg
                     // from SimInterpolate, which carries both keys, so it stops there too.
-                    mover.KeyNum = key;
-                    mover.PrevKeyNum = key;
+                    mover.CurrentKey = key;
+                    mover.PreviousKey = key;
                     mover.InterpolateTo(key, 0f);
                 }
 

@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://svmap.invalid/1.2/mover-paths.schema.json",
+  "title": "Native mover paths",
+  "type": "object",
+  "required": [
+    "format",
+    "movers"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "format": {
+      "const": "svm.mover-paths/1"
+    },
+    "movers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "actor",
+          "keys"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "actor": {
+            "$ref": "common.schema.json#/$defs/id"
+          },
+          "start": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 65535
+          },
+          "keys": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 65536,
+            "items": {
+              "type": "object",
+              "required": [
+                "offset",
+                "turn"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "offset": {
+                  "type": "array",
+                  "minItems": 3,
+                  "maxItems": 3,
+                  "items": {
+                    "type": "number"
+                  }
+                },
+                "turn": {
+                  "type": "array",
+                  "minItems": 3,
+                  "maxItems": 3,
+                  "items": {
+                    "type": "integer",
+                    "minimum": -2147483648,
+                    "maximum": 2147483647
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

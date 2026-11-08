@@ -16,8 +16,8 @@ public static class MatchDoc
 
     public const string FormatId = "svm.match/1";
 
-    /// <summary>The highest mover key a rule may name (UE2 movers have at most 24 keys).</summary>
-    public const int MostKeys = 24;
+    /// <summary>Native path resource guard; the original game retains its fixed-array limit.</summary>
+    public const int MostKeys = OpenScct.Core.Engine.MoverPath.MaxKeys;
 
     /// <summary>Reads the file of the SVMap folder <paramref name="mapRoot"/>; null when it has none.</summary>
     public static MatchRuleSet? Load(string mapRoot)

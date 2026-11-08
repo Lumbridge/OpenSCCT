@@ -45,7 +45,7 @@
         "key": {
           "type": "integer",
           "minimum": 0,
-          "maximum": 7
+          "maximum": 65535
         }
       }
     },

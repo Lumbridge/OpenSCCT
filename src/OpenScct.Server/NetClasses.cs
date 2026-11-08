@@ -49,6 +49,13 @@ public static class NetClasses
                 rules.Properties.Add(new RepExtensionProperty("MatchPlayers", "MatchPlayers", RepLeafKind.Int));
                 registry.Extend(type, rules);
             }
+            if (typeof(OpenScct.Core.Engine.Mover).IsAssignableFrom(type))
+            {
+                var path = new RepExtension();
+                path.Properties.Add(new("PathTarget", "PathTarget", RepLeafKind.Int));
+                path.Properties.Add(new("PathPrevious", "PathPrevious", RepLeafKind.Int));
+                registry.Extend(type, path);
+            }
             if (typeof(SBasePawn).IsAssignableFrom(type))
             {
                 RepExtension pawn = PawnStateReplication.CreateExtension();

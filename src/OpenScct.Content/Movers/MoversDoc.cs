@@ -42,9 +42,9 @@ public static class MoversDoc
             SvJsonObject m = j.Object(list[i], at);
             string actor = j.StringMember(m, "actor", at);
             SvJsonArray keys = j.ArrayMember(m, "keys", at);
-            if (keys.Count > MoverK.MaxKeys)
+            if (keys.Count > MoverPath.MaxKeys)
             {
-                throw j.Error($"{at}/keys", $"a mover has at most {MoverK.MaxKeys} keys");
+                throw j.Error($"{at}/keys", $"a mover has at most {MoverPath.MaxKeys} keys");
             }
 
             var timings = new MoverKeyTiming[keys.Count];

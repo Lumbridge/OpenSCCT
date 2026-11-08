@@ -63,7 +63,7 @@ public partial class MoverRotating
     [PortOf("rep:Engine.MoverRotating.SimOldRotPitch", Spec = "spec/devices/mover-rotating.md#network")]
     [PortOf("rep:Engine.MoverRotating.SimOldRotYaw", Spec = "spec/devices/mover-rotating.md#network")]
     [PortOf("rep:Engine.MoverRotating.SimOldRotRoll", Spec = "spec/devices/mover-rotating.md#network")]
-    public override void InterpolateTo(byte NewKeyNum, float Seconds)
+    public override void InterpolateTo(int NewKeyNum, float Seconds)
     {
         base.InterpolateTo(NewKeyNum, Seconds);
         SimOldRotYaw = OldRot.Yaw;
@@ -76,17 +76,17 @@ public partial class MoverRotating
     [PortOf("uc:Engine.MoverRotating:KeyFrameReached", Spec = "spec/devices/mover-rotating.md#rules")]
     public override void KeyFrameReached()
     {
-        byte OldKeyNum = PrevKeyNum;
-        PrevKeyNum = KeyNum;
+        int OldKeyNum = PreviousKey;
+        PreviousKey = CurrentKey;
         PhysAlpha = 0f;
         ClientUpdate--;
-        if (KeyNum > 0 && KeyNum < OldKeyNum)
+        if (CurrentKey > 0 && CurrentKey < OldKeyNum)
         {
-            InterpolateTo((byte)(KeyNum - 1), MoveTime);
+            InterpolateTo(CurrentKey - 1, MoveTime);
         }
-        else if (KeyNum < NumKeys - 1 && KeyNum > OldKeyNum)
+        else if (CurrentKey < KeyCount - 1 && CurrentKey > OldKeyNum)
         {
-            InterpolateTo((byte)(KeyNum + 1), MoveTime);
+            InterpolateTo(CurrentKey + 1, MoveTime);
         }
         else
         {
@@ -130,10 +130,10 @@ public partial class MoverRotating
         }
 
         base.BeginPlay();
-        KeyNum = (byte)SvmMath.Clamp(KeyNum, 0, MoverK.MaxKeys - 1);
+        CurrentKey = SvmMath.Clamp(CurrentKey, 0, KeyCapacity - 1);
         PhysAlpha = 0f;
-        Location = BasePos + KeyPos[KeyNum];
-        Rotation = BaseRot + KeyRot[KeyNum];
+        Location = BasePos + KeyPosition(CurrentKey);
+        Rotation = BaseRot + KeyRotation(CurrentKey);
         if (Level.NetMode != ENetMode.NM_Client)
         {
             RealPosition = Location;

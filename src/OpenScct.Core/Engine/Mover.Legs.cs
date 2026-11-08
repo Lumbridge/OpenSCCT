@@ -14,7 +14,7 @@ public partial class Mover
     private bool _legSmoothEnd;
 
     /// <summary>
-    /// The seconds of the leg just set up from PrevKeyNum to KeyNum: the key's own time when the map gives one (also on
+    /// The seconds of the leg just set up from PreviousKey to CurrentKey: the key's own time when the map gives one (also on
     /// a mover whose MoveTime is 0), else <paramref name="seconds"/>. A move that is not between neighbouring keys,
     /// such as the match-size rules' hold at the key the mover is at, keeps <paramref name="seconds"/>. Also picks the
     /// leg's easing.
@@ -27,11 +27,11 @@ public partial class Mover
         }
 
         PickLegEasing(legs);
-        return legs.LegTime(PrevKeyNum, KeyNum) ?? seconds;
+        return legs.LegTime(PreviousKey, CurrentKey) ?? seconds;
     }
 
     /// <summary>
-    /// Client: the rate of the leg the server started from PrevKeyNum to KeyNum. A leg with its own time runs at that
+    /// Client: the rate of the leg the server started from PreviousKey to CurrentKey. A leg with its own time runs at that
     /// time from the map file, as on the server: the replicated rate is rounded to a whole number x 100 on the wire,
     /// which would make a long leg end at a different time on the client.
     /// </summary>
@@ -43,7 +43,7 @@ public partial class Mover
         }
 
         PickLegEasing(legs);
-        return legs.LegTime(PrevKeyNum, KeyNum) is { } own ? 1f / SvmMath.Max(own, MoverK.MinLegTime) : replicatedRate;
+        return legs.LegTime(PreviousKey, CurrentKey) is { } own ? 1f / SvmMath.Max(own, MoverK.MinLegTime) : replicatedRate;
     }
 
     /// <summary>The longest single leg this mover can take: its MoveTime, or a key's own longer time.</summary>
@@ -52,8 +52,8 @@ public partial class Mover
     private void PickLegEasing(MoverLegs legs)
     {
         bool glides = MoverGlideType == EMoverGlideType.MV_GlideByTime;
-        _legSmoothStart = legs.SmoothAt(PrevKeyNum, glides);
-        _legSmoothEnd = legs.SmoothAt(KeyNum, glides);
+        _legSmoothStart = legs.SmoothAt(PreviousKey, glides);
+        _legSmoothEnd = legs.SmoothAt(CurrentKey, glides);
     }
 
     /// <summary>How far along the leg the mover is at <paramref name="alpha"/> of its time.</summary>

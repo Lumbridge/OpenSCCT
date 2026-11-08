@@ -50,7 +50,7 @@ public partial class Mover
             self.SavedTrigger = Other;
             self.Instigator = EventInstigator;
             self.SavedTrigger?.eventBeginEvent();
-            bool open = self.KeyNum == 0 || self.KeyNum < self.PrevKeyNum;
+            bool open = self.CurrentKey == 0 || self.CurrentKey < self.PreviousKey;
             self.GotoState(nameof(TriggerToggle), open ? NAME_Open : NAME_Close);
             self.bAllowLock = false;
         }

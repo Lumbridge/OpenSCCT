@@ -32,7 +32,7 @@ Writers leave out trailing empty keys and movers with nothing set. The file hold
 
 ## Validation
 
-Schema: [schemas/movers.schema.json](schemas/movers.schema.json) (the format id, at most 8 keys, no `time` on key 0,
+Schema: [schemas/movers.schema.json](schemas/movers.schema.json) (the format id, at most 65,536 timing entries, no `time` on key 0,
 the time range and a boolean `smooth`). The validator also checks that every `actor` is a mover of the map and is
 listed once. A mover is `Engine.Mover` or a subclass, by the super classes in `sim/classes.json`, else by the game's
 stock class tree (`SBase.SLift`, `SBase.SLiftDoor`, `Engine.MoverRotating`): a map built against the shared class
@@ -42,3 +42,5 @@ pack need not carry the table. Keys past the mover's `NumKeys` are allowed (they
 
 The original game and RE+ have no per-key timing, so converted maps never have this file. A map with it cannot be
 exported to `.sdc` as authored: an exporter keeps each mover's own `MoveTime` and glide and says so.
+
+Native poses longer than the original eight keys are carried by `sim/mover-paths.json`; see [native mover paths](../../additions/mover-paths.md). Timing entries use the same integer stop indices.

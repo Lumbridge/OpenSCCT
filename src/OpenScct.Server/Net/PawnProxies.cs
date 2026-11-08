@@ -478,6 +478,7 @@ public static class PawnProxyReceiver
         private bool _buffered;
         private Mover? _mover;
         private FVector _simInterpolate;
+        private int _pathTarget, _pathPrevious;
         private readonly HubMoverSmoothing _hubMovers = new();
         private FRotator _rotation;
         private int _aim;
@@ -502,6 +503,8 @@ public static class PawnProxyReceiver
             _matchPlayers = _clock?.MatchPlayers ?? 0;
             _mover = actor as Mover;
             _simInterpolate = _mover?.SimInterpolate ?? default;
+            _pathTarget = _mover?.PathTarget ?? 0;
+            _pathPrevious = _mover?.PathPrevious ?? 0;
             _meshActor = actor;
             _mesh = actor.StaticMesh;
             _skin = actor.RepSkin;
@@ -590,7 +593,8 @@ public static class PawnProxyReceiver
             }
 
             _mover = null;
-            if (mover.SimInterpolate != _simInterpolate)
+            if (mover.SimInterpolate != _simInterpolate || mover.Path is not null &&
+                (mover.PathTarget != _pathTarget || mover.PathPrevious != _pathPrevious))
             {
                 if (mover.Tag != "HubCourseMover" || !_hubMovers.Receive(mover))
                     mover.ClientStartInterpolation();

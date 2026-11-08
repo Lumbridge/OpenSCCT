@@ -44,13 +44,15 @@ internal static class DemoCheckpointActor
 {
     internal const string Prefix = "#demo-checkpoint-actor ";
     private const int MoverBytes = 75;
+    private const int PathMoverBytes = MoverBytes + 6;
+    private const int PathMoverChars = ((PathMoverBytes + 2) / 3) * 4;
     private const int GrenadeBytes = 62;
     private const int MoverChars = ((MoverBytes + 2) / 3) * 4;
     private const int GrenadeChars = ((GrenadeBytes + 2) / 3) * 4;
 
     internal static string Encode(uint netGuid, Mover mover)
     {
-        var w = new FBitWriter(MoverBytes * 8);
+        var w = new FBitWriter((mover.Path is null ? MoverBytes : PathMoverBytes) * 8);
         w.WriteUInt32(netGuid);
         Write(w, mover.Location);
         Write(w, mover.Rotation);
@@ -59,8 +61,8 @@ internal static class DemoCheckpointActor
         Write(w, mover.Velocity);
         w.WriteFloat(mover.PhysAlpha);
         w.WriteFloat(mover.PhysRate);
-        w.WriteByte(mover.KeyNum);
-        w.WriteByte(mover.PrevKeyNum);
+        if (mover.Path is null) { w.WriteByte(mover.KeyNum); w.WriteByte(mover.PrevKeyNum); }
+        else { w.WriteInt32(mover.CurrentKey); w.WriteInt32(mover.PreviousKey); }
         w.WriteByte(mover.bInterpolating && mover.Physics == EPhysics.PHYS_MovingBrush ? (byte)1 : (byte)0);
         return Prefix + Convert.ToBase64String(w.Data);
     }
@@ -84,18 +86,18 @@ internal static class DemoCheckpointActor
 
     internal static void Apply(NetDriver driver, ReadOnlySpan<char> encoded)
     {
-        if (encoded.Length is not (MoverChars or GrenadeChars)) return;
-        byte[] data = new byte[MoverBytes];
+        if (encoded.Length is not (MoverChars or PathMoverChars or GrenadeChars)) return;
+        byte[] data = new byte[PathMoverBytes];
         if (!Convert.TryFromBase64Chars(encoded, data, out int count)) return;
         var r = new FBitReader(data, count * 8);
         switch (driver.FindActorByNetGuid(r.ReadUInt32()))
         {
-            case Mover { bDeleteMe: false } mover when count == MoverBytes: Apply(r, mover); break;
+            case Mover { bDeleteMe: false } mover when count is MoverBytes or PathMoverBytes: Apply(r, mover, count == PathMoverBytes); break;
             case SProjGrenade { bDeleteMe: false } grenade when count == GrenadeBytes: Apply(r, grenade); break;
         }
     }
 
-    private static void Apply(FBitReader r, Mover mover)
+    private static void Apply(FBitReader r, Mover mover, bool path)
     {
         FVector location = ReadVector(r);
         FRotator rotation = ReadRotation(r);
@@ -104,12 +106,12 @@ internal static class DemoCheckpointActor
         FVector velocity = ReadVector(r);
         float alpha = r.ReadFloat();
         float rate = r.ReadFloat();
-        byte key = r.ReadByte();
-        byte prev = r.ReadByte();
+        int key = path ? r.ReadInt32() : r.ReadByte();
+        int prev = path ? r.ReadInt32() : r.ReadByte();
         bool moving = r.ReadByte() == 1;
         if (!Finite(location) || !Finite(oldPos) || !Finite(velocity) ||
             !float.IsFinite(alpha) || alpha is < 0f or > 1f || !float.IsFinite(rate) || rate is < 0f or > 1000f ||
-            key >= mover.KeyPos.Length || prev >= mover.KeyPos.Length)
+            key < 0 || prev < 0 || key >= mover.KeyCount || prev >= mover.KeyCount || path != (mover.Path is not null))
             return;
 
         Place(mover, location, rotation, velocity);
@@ -117,8 +119,8 @@ internal static class DemoCheckpointActor
         mover.OldRot = oldRot;
         mover.PhysAlpha = alpha;
         mover.PhysRate = rate;
-        mover.KeyNum = key;
-        mover.PrevKeyNum = prev;
+        mover.CurrentKey = key;
+        mover.PreviousKey = prev;
         mover.ClientUpdate = moving ? 1 : 0;
         mover.bInterpolating = moving;
         mover.SetPhysics(moving ? EPhysics.PHYS_MovingBrush : EPhysics.PHYS_None);

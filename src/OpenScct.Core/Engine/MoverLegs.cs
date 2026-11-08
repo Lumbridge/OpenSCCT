@@ -25,9 +25,9 @@ public sealed class MoverLegs
     public MoverLegs(IReadOnlyList<MoverKeyTiming> keys)
     {
         ArgumentNullException.ThrowIfNull(keys);
-        if (keys.Count > MoverK.MaxKeys)
+        if (keys.Count > MoverPath.MaxKeys)
         {
-            throw new ArgumentException($"a mover has at most {MoverK.MaxKeys} keys", nameof(keys));
+            throw new ArgumentException($"a mover has at most {MoverPath.MaxKeys} keys", nameof(keys));
         }
 
         if (keys.Count > 0 && keys[0].Time is not null)

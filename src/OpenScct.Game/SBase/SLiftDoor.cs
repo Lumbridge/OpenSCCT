@@ -20,7 +20,7 @@ public partial class SLiftDoor
     protected override bool EncroachingOn(Actor? Other)
     {
         // Not simulated: on a client the engine's call returns false (mover.md, Network).
-        if (Role < ENetRole.ROLE_Authority || KeyNum == PrevKeyNum)
+        if (Role < ENetRole.ROLE_Authority || CurrentKey == PreviousKey)
         {
             return false;
         }

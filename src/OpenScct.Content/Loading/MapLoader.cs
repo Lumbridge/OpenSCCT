@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using OpenScct.Content.Actors;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
@@ -66,7 +67,21 @@ public sealed class MapLoader
         ArgumentNullException.ThrowIfNull(world);
         ArgumentNullException.ThrowIfNull(map);
         world.Level.SetService(RainVolumeLoader.Load(map.Root));
+        bool ownLoad = !world.Level.IsLoading;
+        if (ownLoad) world.Level.BeginLoad();
         MapLoadResult result = Load(world.Level, map.Gameplay, map.Classes);
+        if (map.MoverPaths is { } paths)
+        {
+            foreach ((Actor actor, string id) in result.PlacedActors())
+                if (paths.TryGetValue(id, out MoverPath? path))
+                {
+                    if (actor is not Mover mover) throw new SvMapFormatException(MoverPathsDoc.RelativePath, $"{id} is not a mover");
+                    mover.Path = path;
+                }
+            foreach (string id in paths.Keys)
+                if (!result.PlacedActors().Any(a => AsciiCaseComparer.Instance.Equals(a.Item2, id)))
+                    throw new SvMapFormatException(MoverPathsDoc.RelativePath, $"Unknown mover {id}");
+        }
         world.Level.SetService(map.Match is { IsEmpty: false } match ? new LevelMatchRules(match, result.PlacedActors()) : null);
         if (map.Movers is { Count: > 0 } movers)
         {
@@ -79,6 +94,7 @@ public sealed class MapLoader
             }
         }
 
+        if (ownLoad) { world.Level.EndLoad(); result.AttachStartupBases(); }
         return result;
     }
 
