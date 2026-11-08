@@ -31,7 +31,7 @@ namespace OpenScctGame.Hud;
 /// (<c>python -m svmbuild ui</c>); headless it checks the draw lists, not pixels. With a renderer and
 /// <c>--svm-hud-capture=dir</c> it also saves each screen as a PNG there (for a look, kept out of git).
 /// </summary>
-public sealed class HudSmoke(bool spectatorOnly = false) : SmokeTest
+public sealed class HudSmoke(bool spectatorOnly = false, bool teammateNamesOnly = false) : SmokeTest
 {
     public const string TestName = "hud";
 
@@ -53,10 +53,17 @@ public sealed class HudSmoke(bool spectatorOnly = false) : SmokeTest
     private readonly string? _captureDir = CaptureDir();
 
     public const string SpectatorTestName = "hud-spectator";
-    public override string Name => spectatorOnly ? SpectatorTestName : TestName;
+    public const string TeammateNamesTestName = "hud-teammate-names";
+    public override string Name => teammateNamesOnly ? TeammateNamesTestName : spectatorOnly ? SpectatorTestName : TestName;
 
     public override SmokeResult Step(SmokeContext context)
     {
+        if (teammateNamesOnly)
+        {
+            if (_phase++ == 0) return Setup(context);
+            CheckSleepingTeammateName();
+            return _failures.Count == 0 ? SmokeResult.Pass() : SmokeResult.Fail(string.Join("; ", _failures));
+        }
         if (spectatorOnly)
         {
             if (_phase++ == 0) return Setup(context);
