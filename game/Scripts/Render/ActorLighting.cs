@@ -46,16 +46,24 @@ public sealed class ActorLighting
     private readonly List<int> _moved = [];
     private readonly bool[] _hasMoved;
 
-    public ActorLighting(LightingDoc lighting)
+    private readonly LightingDoc _source;
+    private ActorLighting? _smokeLighting;
+    private readonly Dictionary<string, bool> _switches = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, (FVector Location, FRotator Rotation)> _places = new(StringComparer.OrdinalIgnoreCase);
+
+    public ActorLighting(LightingDoc lighting) : this(lighting, false) { }
+
+    private ActorLighting(LightingDoc lighting, bool includeBaked)
     {
         ArgumentNullException.ThrowIfNull(lighting);
+        _source = lighting;
         foreach (LightEntry l in lighting.Lights)
         {
             // Lights that reach actors: the ones the game keeps for run time, bApplyToInGameLighting or bDynamicLight
             // (as WorldLights), with a light type, and not the runtime ESpotShadow projectors, which have their own
             // path. A light not initially on (STriggerLight.bInitialyOn) starts off. Dynamic lights without the in-game
             // flag were left out until AquaE's kiosk (SGamePlayObject2126, beside STriggerLight303) drew black.
-            if (ActorLightRules.LightsActors(l.ApplyInGame, l.Dynamic, l.LightType, l.Effect))
+            if (ActorLightRules.LightsActors(l.ApplyInGame || (includeBaked && l.ApplyStatic), l.Dynamic, l.LightType, l.Effect))
             {
                 if (!_byName.TryGetValue(l.Name, out List<int>? sameName))
                 {
@@ -114,14 +122,23 @@ public sealed class ActorLighting
                 _spawned.Add(l);
             }
         }
+        _smokeLighting?.SetSpawned(_spawned);
     }
 
+    private float _time;
+
     /// <summary>Scene time (Level.TimeSeconds) the light types are evaluated at; the map sets it each frame.</summary>
-    public float Time { get; set; }
+    public float Time
+    {
+        get => _time;
+        set { _time = value; if (_smokeLighting is { } smoke) smoke.Time = value; }
+    }
 
     /// <summary>Switches a light on or off for actors (a triggered STriggerLight); takes effect at the next <see cref="Select"/>.</summary>
     public void SetOn(string name, bool on)
     {
+        _switches[name] = on;
+        _smokeLighting?.SetOn(name, on);
         if (on)
         {
             _off.Remove(name);
@@ -135,6 +152,8 @@ public sealed class ActorLighting
     /// <summary>Moves a light (one riding a mover or a bone); takes effect at the next <see cref="Select"/>.</summary>
     public void SetPlace(string name, FVector location, FRotator rotation)
     {
+        _places[name] = (location, rotation);
+        _smokeLighting?.SetPlace(name, location, rotation);
         if (!_byName.TryGetValue(name, out List<int>? indices)) return;
         foreach (int i in indices)
         {
@@ -149,6 +168,20 @@ public sealed class ActorLighting
                 }
             }
         }
+    }
+
+    /// <summary>Smoke also scatters baked room lights, even when those lights deliberately exclude characters.</summary>
+    internal ActorLightSet SelectForSmoke(FVector center, float radius, Vector3 ambient, int zone = -1)
+    {
+        if (_smokeLighting is null)
+        {
+            var smoke = new ActorLighting(_source, true) { Time = Time };
+            foreach (var (name, on) in _switches) smoke.SetOn(name, on);
+            foreach (var (name, place) in _places) smoke.SetPlace(name, place.Location, place.Rotation);
+            smoke.SetSpawned(_spawned);
+            _smokeLighting = smoke;
+        }
+        return _smokeLighting.Select(center, radius, ambient, zone);
     }
 
     /// <summary>

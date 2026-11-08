@@ -46,7 +46,7 @@ internal static class ResponsiveSmokeLighting
             FVector point = positions[probe];
             // A point probe chooses its own zone and nearby lights. Sampling a cloud-sized sphere here would
             // admit lights which do not reach this region, defeating the spatial lighting field.
-            ActorLightSet lights = map.LightActor(point, 0, 0);
+            ActorLightSet lights = map.LightSmoke(point, 0);
             Vector3 direct = Vector3.Zero, moment = Vector3.Zero;
             float weightedDistance = 0, energy = 0;
             for (int i = 0; i < lights.Count; i++)
@@ -63,7 +63,7 @@ internal static class ResponsiveSmokeLighting
             // actor-volume fit supplies bounded neighboring irradiance for indirect support; preserve the exact
             // point selection above for direct light. Only excess neighboring light contributes, avoiding a
             // second copy of bright local light, and the cap preserves color without flooding a bright region.
-            ActorLightSet nearby = map.LightActor(point,IndirectRadius,0);
+            ActorLightSet nearby = map.LightSmoke(point,IndirectRadius);
             Vector3 broad = Vector3.Zero;
             for (int i = 0; i < nearby.Count; i++) broad += Evaluate(nearby.Lights[i],UeSpace.ToGodot(point)).Radiance;
             broadSamples[probe] = broad;

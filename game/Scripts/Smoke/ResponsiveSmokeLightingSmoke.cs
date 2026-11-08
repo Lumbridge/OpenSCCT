@@ -51,6 +51,11 @@ public sealed class ResponsiveSmokeLightingSmoke : SmokeTest
             var lighting = new LightingDoc();
             lighting.Lights.Add(Point("red",new(-230,-500,80),0));
             lighting.Lights.Add(Point("blue",new(230,-500,80),170));
+            lighting.Lights.Add(Point("baked-only",new(0,-500,300),0) with
+            {
+                Brightness = 64, Radius = 64, Saturation = 255,
+                ApplyInGame = false, ApplyStatic = true, Dynamic = false, InitiallyOn = false,
+            });
             var materials = new MaterialsDoc();
             var textures = new TextureCache("");
             _map = new RenderMap("",TestName,new Node3D(),materials,lighting,textures,
@@ -157,6 +162,8 @@ public sealed class ResponsiveSmokeLightingSmoke : SmokeTest
             17 when left.R < .55f || left.R > .58f || right.R > .01f => "Fast shadow skipped the dense near segment beside a blocked wall",
             18 when left.R < _sceneMatureTransmission+.10f || left.R > .95f || right.R < .98f => "thinning Full smoke did not progressively transmit more scene light",
             19 when left.R < .98f || right.R < .98f => "expired Full smoke retained a scene shadow",
+            20 or 21 when Math.Min(left.R, right.R) < .04f => "baked-only room lighting left the rendered smoke black",
+            22 when Math.Max(left.R, right.R) > .01f => "switched-off baked light remained in smoke probes",
             _ => null,
         };
         GD.Print($"RESPONSIVE_SMOKE_LIGHTING phase={_phase} left={left} right={right}");
@@ -167,7 +174,7 @@ public sealed class ResponsiveSmokeLightingSmoke : SmokeTest
         if (_phase == 1) { _redBeforeSwitch = left.R; _rightBeforeMove = right.R; }
         if (_phase == 5) _shadowBeforeBlast = left.R;
         if (_phase == 13) _sceneMatureTransmission = left.R;
-        if (++_phase >= 20) return Finish(SmokeResult.Pass("20 rendered lighting scenarios: spatial scattering, switched/moved lighting, directional invariance, self-shadow, blast transmission, diffuse fill, partial scene shadows, cached receivers, moving-light invalidation, Fast/clear/light-off recovery, Fast wall-adjacent self-shadow and progressive thinning/expiry transmission"));
+        if (++_phase >= 23) return Finish(SmokeResult.Pass("23 rendered lighting scenarios: spatial scattering, switched/moved lighting, directional invariance, self-shadow, blast transmission, diffuse fill, partial scene shadows, cached receivers, moving-light invalidation, Fast/clear/light-off recovery, Fast wall-adjacent self-shadow, progressive thinning/expiry transmission, baked-only room illumination in Fast/Full and baked-light switching"));
         _frames = 0; _gpu.Clear(); Configure();
         return SmokeResult.Running;
     }
@@ -219,6 +226,18 @@ public sealed class ResponsiveSmokeLightingSmoke : SmokeTest
     {
         _material!.SetShaderParameter("diagnostic",_phase == 0 ? 0 : _phase is 5 or 6 ? 2 : _phase == 4 ? 3 : 1);
         _material.SetShaderParameter("body_probe",_phase == 7);
+        if (_phase >= 20)
+        {
+            _map!.ActorLighting.SetSpawned([]);
+            _map.ActorLighting.SetOn("baked-only", _phase != 22);
+            if (_map.LightActor(new(0,-500,0),0,0).Count != 0)
+                throw new InvalidOperationException("Baked-only smoke lighting changed character light selection");
+            SettingsStore.Current.SmokeQuality = _phase == 20 ? ResponsiveSmokeQuality.Low : ResponsiveSmokeQuality.Medium;
+            ResponsiveSmokeRenderer.SceneShadows = _phase == 21;
+            _material.SetShaderParameter("diagnostic", _phase == 22 ? 3 : 0);
+            Apply(false);
+            return;
+        }
         if (_phase == 2) _map!.ActorLighting.SetOn("red",false);
         if (_phase == 3)
         {

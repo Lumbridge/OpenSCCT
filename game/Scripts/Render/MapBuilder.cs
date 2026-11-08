@@ -318,6 +318,10 @@ public sealed class RenderMap
     public ActorLightSet LightActor(FVector location, float radius, int ambientGlow) =>
         ActorLighting.Select(location, radius, AmbientAt(location, ambientGlow), ZoneIndexAt(location));
 
+    /// <summary>Incident room lighting for volumes, including sources already baked into the surrounding surfaces.</summary>
+    public ActorLightSet LightSmoke(FVector location, float radius) =>
+        ActorLighting.SelectForSmoke(location, radius, AmbientAt(location, 0), ZoneIndexAt(location));
+
     /// <summary>The zone of a point (UE space) through the collision BSP, or null without zone data.</summary>
     public ZoneEntry? ZoneAt(FVector location) => Zones is null ? null : Lighting.ZoneByIndex(Zones.GetZoneIndex(location));
 

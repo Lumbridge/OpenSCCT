@@ -472,7 +472,7 @@ public static class ResponsiveSmokeRenderer
             {
                 if (!Fields.TryGetValue(field.Identity, out FieldBinding? binding)) continue;
                 long lightingStart = Profile ? System.Diagnostics.Stopwatch.GetTimestamp() : 0;
-                ActorLightSet? light = view.Map?.LightActor(field.Center, 300, 0);
+                ActorLightSet? light = view.Map?.LightSmoke(field.Center, 300);
                 if (Profile) LastLightingMilliseconds += System.Diagnostics.Stopwatch.GetElapsedTime(lightingStart).TotalMilliseconds;
                 int flowSlot = ResponsiveSmokeVisualFlow.GetSlot(field.Identity);
                 hasFlow |= flowSlot >= 0;
