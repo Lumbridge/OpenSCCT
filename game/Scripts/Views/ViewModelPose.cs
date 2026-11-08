@@ -77,7 +77,7 @@ public sealed class ViewModelPose
             return remaining;
         }
 
-        float full = ViewModelClips.DataOf(sequence).Seconds(anim.Rate(c)) + anim.TweenTime(c);
+        float full = anim.Data(c).Seconds(anim.Rate(c)) + anim.TweenTime(c);
         return OneShotClock.Remaining(_samples > 1, _prevSequence[c], _prevRemaining[c], sequence, remaining, full, alpha);
     }
 
@@ -112,14 +112,17 @@ public sealed class ViewModelPose
                     _landingBlendLeft = 0f;
                 // A new clip, or the same one-shot played again: its length at its play rate (what remains now when
                 // the clip's data is not known).
-                float full = ViewModelClips.DataOf(sequence).Seconds(anim.Rate(c)) + anim.TweenTime(c);
+                float full = anim.Data(c).Seconds(anim.Rate(c)) + anim.TweenTime(c);
                 _duration[c] = full > remaining ? full : remaining;
                 _loopTime[c] = 0f;
             }
 
             _sequence[c] = sequence;
             _remaining[c] = remaining;
-            if (sequence.IsNone || sampler.Find(sequence.ToString()) is not { } clip)
+            string clipName = sequence.ToString();
+            bool authoredHolster = anim.IsBackward(c) && sequence == ViewModelClips.FirstDrawStEd2 && sampler.Has("FirstHolsterStFd2");
+            if (authoredHolster) clipName = "FirstHolsterStFd2";
+            if (sequence.IsNone || sampler.Find(clipName) is not { } clip)
             {
                 continue;
             }
@@ -130,7 +133,8 @@ public sealed class ViewModelPose
                 continue;
             }
 
-            int frames = Math.Max(1, (int)MathF.Round(clip.Length * DefaultFps) + 1);
+            float fps = clip.NativeFrameRate ?? DefaultFps;
+            int frames = Math.Max(1, (int)MathF.Round(clip.Length * fps) + 1);
             float last = (frames - 1f) / frames;
             bool loop = anim.IsAnimating(c) && remaining <= 0f;
             float frame;
@@ -139,7 +143,7 @@ public sealed class ViewModelPose
             {
                 // LoopAnim's rate scales the clip's own frame rate (the merc's walk loop runs at 0.006 x his speed).
                 _loopTime[c] += dt * anim.Rate(c);
-                frame = _loopTime[c] * DefaultFps / frames;
+                frame = _loopTime[c] * fps / frames;
                 frame -= MathF.Floor(frame);
             }
             else
@@ -153,18 +157,18 @@ public sealed class ViewModelPose
                 frame = Math.Clamp(progress, 0f, 1f) * last;
             }
 
-            float clipFrame = anim.IsBackward(c) ? MathF.Max(0f, last - frame) : frame;
+            float clipFrame = anim.IsBackward(c) && !authoredHolster ? MathF.Max(0f, last - frame) : frame;
             _channels[c] = new ChannelPose
             {
                 Clip = clip,
-                Sequence = sequence.ToString(),
+                Sequence = clipName,
                 Frame = tweenLeft > 0f && anim.TweenTime(c) > 0f
                     ? -tweenLeft / (anim.TweenTime(c) * frames)
                     : c == 0 && _landingBlendLeft > 0f
                     ? -_landingBlendLeft / (LandingBlendSeconds * frames) : frame,
                 ClipFrame = clipFrame,
                 Frames = frames,
-                Fps = DefaultFps,
+                Fps = fps,
                 Alpha = alpha,
                 StartBone = 0,
                 Loop = loop,

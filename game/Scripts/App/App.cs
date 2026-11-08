@@ -34,7 +34,18 @@ public partial class App : Node
 
     public override void _Ready()
     {
+        if (System.Array.IndexOf(OS.GetCmdlineUserArgs(), "--svm-animation-probe") >= 0)
+        { GD.Print("OPENSCCT_ANIMATION_RUNTIME=1"); GetTree().Quit(); return; }
         Options = LaunchOptions.Parse(OS.GetCmdlineUserArgs());
+        string animationSelection = ProjectSettings.GlobalizePath(UI.ContentScreen.AnimationSelectionFile);
+        if (Options.SmokeTest is null && System.IO.File.Exists(animationSelection))
+        {
+            string selected = System.IO.File.ReadAllText(animationSelection).Trim();
+            if (System.IO.Directory.Exists(selected)) System.Environment.SetEnvironmentVariable("SVM_ANIMATION_PACK", selected);
+        }
+        foreach (string argument in OS.GetCmdlineUserArgs())
+            if (argument.StartsWith("--svm-animation-pack=", System.StringComparison.Ordinal))
+                System.Environment.SetEnvironmentVariable("SVM_ANIMATION_PACK", argument[21..]);
         Render.ResponsiveSmokeRenderer.SceneShadows = Options.SmokeMode == "full";
         Render.ResponsiveSmokeRenderer.LaunchQuality = Options.SmokeMode switch
         {
@@ -65,7 +76,7 @@ public partial class App : Node
         OpenScctGame.Online.MapDownloads.Configure(Options);
         foreach (string arg in Options.Unknown)
         {
-            if (arg != BackgroundWindow.Flag && !OpenScctGame.Controls.InputMirror.IsFlag(arg) &&
+            if (arg != BackgroundWindow.Flag && !arg.StartsWith("--svm-animation-", System.StringComparison.Ordinal) && !OpenScctGame.Controls.InputMirror.IsFlag(arg) &&
                 !(arg.StartsWith(Online.WebsiteJoinService.ArgumentPrefix, System.StringComparison.Ordinal) &&
                     Online.WebsiteJoinService.IsServerId(arg[Online.WebsiteJoinService.ArgumentPrefix.Length..])))
             {

@@ -36,7 +36,7 @@ public static class Ue2PoseApplier
             switch (type)
             {
                 case Animation.TrackType.Position3D:
-                    Vector3 position = clip.Animation.PositionTrackInterpolate(track, t);
+                    Vector3 position = clip.Position(track, t);
                     if ((state.Known[bone] & 1) == 0 || state.Positions[bone] != position)
                     {
                         state.Positions[bone] = position;
@@ -45,7 +45,7 @@ public static class Ue2PoseApplier
                     }
                     break;
                 case Animation.TrackType.Rotation3D:
-                    Quaternion rotation = clip.Animation.RotationTrackInterpolate(track, t);
+                    Quaternion rotation = clip.Rotation(track, t);
                     if ((state.Known[bone] & 2) == 0 || state.Rotations[bone] != rotation)
                     {
                         state.Rotations[bone] = rotation;
@@ -54,7 +54,7 @@ public static class Ue2PoseApplier
                     }
                     break;
                 case Animation.TrackType.Scale3D:
-                    Vector3 scale = clip.Animation.ScaleTrackInterpolate(track, t);
+                    Vector3 scale = clip.Scale(track, t);
                     if ((state.Known[bone] & 4) == 0 || state.Scales[bone] != scale)
                     {
                         state.Scales[bone] = scale;

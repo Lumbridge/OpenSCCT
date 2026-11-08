@@ -4,6 +4,7 @@
     <RootNamespace>OpenScct.Game</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <ProjectReference Include="..\OpenScct.Animation\OpenScct.Animation.csproj" />
     <ProjectReference Include="..\OpenScct.Core\OpenScct.Core.csproj" />
     <ProjectReference Include="..\OpenScct.Physics\OpenScct.Physics.csproj" />
   </ItemGroup>

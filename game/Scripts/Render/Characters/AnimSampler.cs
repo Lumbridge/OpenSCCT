@@ -22,6 +22,27 @@ public sealed class AnimClip
     public float Length => (float)Animation.Length;
 
     internal List<(int Bone, int Track, Animation.TrackType Type)> Tracks { get; }
+    internal Dictionary<int, OpenScct.Animation.BoneTrack>? NativeTracks { get; set; }
+    internal float NativeTimeScale { get; set; } = 1;
+    public float? NativeFrameRate { get; internal set; }
+    public Vector3 Position(int track, double time)
+    {
+        if (NativeTracks is null) return Animation.PositionTrackInterpolate(track, time);
+        System.Numerics.Vector4 value = OpenScct.Animation.ClipEvaluator.Sample(NativeTracks[track].Keys, (float)time * NativeTimeScale);
+        return new(value.X, value.Y, value.Z);
+    }
+    public Quaternion Rotation(int track, double time)
+    {
+        if (NativeTracks is null) return Animation.RotationTrackInterpolate(track, time);
+        System.Numerics.Quaternion value = OpenScct.Animation.ClipEvaluator.SafeRotation(OpenScct.Animation.ClipEvaluator.Sample(NativeTracks[track].Keys, (float)time * NativeTimeScale, true));
+        return new(value.X, value.Y, value.Z, value.W);
+    }
+    public Vector3 Scale(int track, double time)
+    {
+        if (NativeTracks is null) return Animation.ScaleTrackInterpolate(track, time);
+        System.Numerics.Vector4 value = OpenScct.Animation.ClipEvaluator.Sample(NativeTracks[track].Keys, (float)time * NativeTimeScale);
+        return new(value.X, value.Y, value.Z);
+    }
 }
 
 /// <summary>
@@ -79,6 +100,33 @@ public sealed class AnimSampler
         return new AnimSampler(skeleton, _clips);
     }
 
+    public AnimSampler WithBindings(OpenScct.Animation.AnimationProject project, string target)
+    {
+        var clips = new Dictionary<string, AnimClip>(_clips, StringComparer.OrdinalIgnoreCase);
+        foreach (OpenScct.Animation.AnimationBinding binding in project.Bindings)
+        {
+            if (binding.Clip is null || !binding.Target.Equals(target, StringComparison.OrdinalIgnoreCase)) continue;
+            OpenScct.Animation.AnimationClip? source = project.Clips.Find(c => c.Id == binding.Clip);
+            if (source is null) continue;
+            float length = binding.Mode == OpenScct.Animation.ReplacementMode.Visual && _clips.TryGetValue(binding.Slot, out AnimClip? original) && original.Length > 0 ? original.Length : source.Duration;
+            var animation = new Animation { Length = length };
+            var tracks = new List<(int, int, Animation.TrackType)>();
+            var native = new Dictionary<int, OpenScct.Animation.BoneTrack>();
+            foreach (OpenScct.Animation.BoneTrack track in source.Tracks)
+            {
+                int bone = Skeleton.FindBone(track.Bone); if (bone < 0 || track.Keys.Count == 0) continue;
+                Animation.TrackType type = track.Channel switch { OpenScct.Animation.TrackChannel.Translation => Animation.TrackType.Position3D,
+                    OpenScct.Animation.TrackChannel.Rotation => Animation.TrackType.Rotation3D, _ => Animation.TrackType.Scale3D };
+                int index = animation.AddTrack(type); animation.TrackSetPath(index, new NodePath("Skeleton3D:" + track.Bone));
+                tracks.Add((bone, index, type)); native.Add(index, track);
+            }
+            if (tracks.Count == 0) throw new System.IO.InvalidDataException("Replacement animation has no compatible bone tracks: " + binding.Slot);
+            clips[binding.Slot] = new AnimClip(binding.Slot, animation, tracks) { NativeTracks = native, NativeTimeScale = source.Duration / length,
+                NativeFrameRate = binding.Mode == OpenScct.Animation.ReplacementMode.Gameplay ? source.FramesPerSecond : null };
+        }
+        return new AnimSampler(Skeleton, clips);
+    }
+
     public Skeleton3D Skeleton { get; }
     internal Ue2PoseApplier.PoseState? LastPose { get; set; }
 
@@ -132,9 +180,9 @@ public sealed class AnimSampler
                 if (index != b) continue;
                 switch (type)
                 {
-                    case Animation.TrackType.Position3D: position = clip.Animation.PositionTrackInterpolate(track, time); break;
-                    case Animation.TrackType.Rotation3D: rotation = clip.Animation.RotationTrackInterpolate(track, time).Normalized(); break;
-                    case Animation.TrackType.Scale3D: scale = clip.Animation.ScaleTrackInterpolate(track, time); break;
+                    case Animation.TrackType.Position3D: position = clip.Position(track, time); break;
+                    case Animation.TrackType.Rotation3D: rotation = clip.Rotation(track, time).Normalized(); break;
+                    case Animation.TrackType.Scale3D: scale = clip.Scale(track, time); break;
                 }
             }
             result = new Transform3D(new Basis(rotation).ScaledLocal(scale), position) * result;

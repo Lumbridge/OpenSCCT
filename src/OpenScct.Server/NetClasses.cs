@@ -84,6 +84,7 @@ public static class NetClasses
         cameras.Properties.Add(new RepExtensionProperty(nameof(SCamNetwork.DisabledSeconds), nameof(SCamNetwork.DisabledSeconds), RepLeafKind.Int));
         registry.Extend<SCamNetwork>(cameras);
         registry.Register<CubeWalker>(CubeWalkerNet.CreateExtension());
+        registry.Register<AnimationController>(AnimationController.Replication());
         registry.Register<Conveyor>(ConveyorExtension());
         return registry;
     }

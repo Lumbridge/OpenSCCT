@@ -302,8 +302,7 @@ public partial class FaithfulView : Node3D
     /// </summary>
     public static float VerticalFov(float horizontalDegrees)
     {
-        float half = Mathf.DegToRad(horizontalDegrees) * 0.5f;
-        return Mathf.RadToDeg(2f * MathF.Atan(MathF.Tan(half) / RenderK.FovReferenceAspect));
+        return Characters.FirstPersonFraming.VerticalFov(horizontalDegrees, RenderK.FovReferenceAspect);
     }
 
     /// <summary>A sphere around the eye enclosing the near plane, including its pixel-centre offset, in uu.</summary>

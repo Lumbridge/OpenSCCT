@@ -35,6 +35,11 @@ public sealed partial class MapCatalog
                 if (_characterContentHash is { } cached) return cached;
                 string? folder = FindCharacterContent();
                 var files = new List<(string Path, string Digest)> { ("contract", "character-content-1") };
+                if (AnimationPackFolder is { } pack)
+                {
+                    _ = OpenScct.Content.AnimationBundle.Load(pack) ?? throw new InvalidDataException("The selected animation pack has no manifest.");
+                    files.Add(("animation-pack", SvMapHash.Sha256Hex(CanonicalJson.Canonicalize(File.ReadAllBytes(Path.Combine(pack, OpenScct.Content.AnimationBundle.RelativePath)), OpenScct.Content.AnimationBundle.RelativePath))));
+                }
                 foreach (string relative in new[] { "SPerso/PRO.anim.json", "SPerso/Def.anim.json", "SPerso/ATT_01.glb", "SPerso/DEF_01.glb" })
                 {
                     string? path = folder is null ? null : Path.Combine(folder, relative);

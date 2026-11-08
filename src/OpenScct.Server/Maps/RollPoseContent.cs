@@ -26,7 +26,7 @@ public sealed class RollPoseContent
     private string[] _packageBones = [];
 
     private sealed record Node(string? Name, int Parent, Vector3 Translation, Quaternion Rotation, Vector3 Scale);
-    private sealed record Track(int Node, string Path, float[] Times, float[] Values, int Components);
+    private sealed record Track(int Node, string Path, float[] Times, float[] Values, int Components, OpenScct.Animation.BoneTrack? Native = null);
     private sealed record Clip(float Duration, Track[] Tracks);
 
     private RollPoseContent(Node[] nodes, int[] order, Dictionary<string, Clip> clips, FRotator rotOrigin, FVector meshScale)
@@ -52,6 +52,27 @@ public sealed class RollPoseContent
     /// <summary>Converted mesh orientation and scale, applied by the renderer after the glTF-to-Unreal conversion.</summary>
     public FRotator RotOrigin { get; }
     public FVector MeshScale { get; }
+
+    public RollPoseContent WithAnimations(OpenScct.Animation.AnimationProject project, string target)
+    {
+        var clips = new Dictionary<string, Clip>(_clips, StringComparer.OrdinalIgnoreCase);
+        foreach (var binding in project.Bindings.Where(b => b.Mode == OpenScct.Animation.ReplacementMode.Gameplay && b.Clip is not null && b.Target.Equals(target, StringComparison.OrdinalIgnoreCase)))
+        {
+            var source = project.Clips.Single(c => c.Id == binding.Clip); var tracks = new List<Track>();
+            foreach (var track in source.Tracks)
+            {
+                if (!_nodeNames.TryGetValue(track.Bone, out int node) || track.Keys.Count == 0) continue;
+                string path = track.Channel switch { OpenScct.Animation.TrackChannel.Translation => "translation", OpenScct.Animation.TrackChannel.Rotation => "rotation", _ => "scale" };
+                int width = path == "rotation" ? 4 : 3;
+                var values = new List<float>();
+                foreach (var key in track.Keys) { values.Add(key.Value.X); values.Add(key.Value.Y); values.Add(key.Value.Z); if (width == 4) values.Add(key.Value.W); }
+                tracks.Add(new(node, path, track.Keys.Select(k => k.Time).ToArray(), values.ToArray(), width, track));
+            }
+            clips[binding.Slot] = new(source.Duration, tracks.ToArray());
+        }
+        var result = new RollPoseContent(_nodes, _order, clips, RotOrigin, MeshScale) { _packageBones = _packageBones };
+        return result;
+    }
     internal ReadOnlySpan<string> NamedBones => _namedBones;
 
     /// <summary>An animation channel's sampled time and weight. Callers pass channel 0 at weight 1.</summary>
@@ -225,7 +246,7 @@ public sealed class RollPoseContent
                 if (track.Path == "rotation")
                 {
                     // glTF LINEAR rotations interpolate on the shortest arc, including antipodal quaternion keys.
-                    Quaternion value = Quaternion.Normalize(Quaternion.Slerp(
+                    Quaternion value = track.Native is { } nativeRotation ? OpenScct.Animation.ClipEvaluator.SafeRotation(OpenScct.Animation.ClipEvaluator.Sample(nativeRotation.Keys, seconds, true)) : Quaternion.Normalize(Quaternion.Slerp(
                         new Quaternion(v[a], v[a + 1], v[a + 2], v[a + 3]),
                         new Quaternion(v[b], v[b + 1], v[b + 2], v[b + 3]), amount));
                     if (wrap) value = Quaternion.Normalize(Quaternion.Slerp(value,
@@ -235,7 +256,7 @@ public sealed class RollPoseContent
                 }
                 else
                 {
-                    Vector3 value = Vector3.Lerp(new Vector3(v[a], v[a + 1], v[a + 2]),
+                    Vector3 value = track.Native is { } nativeVector ? OpenScct.Animation.ClipEvaluator.Xyz(OpenScct.Animation.ClipEvaluator.Sample(nativeVector.Keys, seconds)) : Vector3.Lerp(new Vector3(v[a], v[a + 1], v[a + 2]),
                         new Vector3(v[b], v[b + 1], v[b + 2]), amount);
                     if (track.Path == "translation")
                     {

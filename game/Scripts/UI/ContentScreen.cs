@@ -93,6 +93,7 @@ public partial class ContentScreen : MenuPage
         _shared = new VBoxContainer { Name = "SharedRows", SizeFlagsHorizontal = SizeFlags.ExpandFill };
         _shared.AddThemeConstantOverride("separation", 8);
         shared.AddChild(_shared);
+        AnimationPacks();
 
         _status = new Label { Name = "Status", Modulate = UiStyle.MenuFocus, AutowrapMode = TextServer.AutowrapMode.WordSmart };
         Body.AddChild(_status);

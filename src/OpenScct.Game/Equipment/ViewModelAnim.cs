@@ -23,6 +23,11 @@ public sealed class ViewModelAnim
     private readonly float[] _alpha = new float[ChannelCount];
     private readonly float[] _rate = new float[ChannelCount];
     private readonly float[] _tweenTime = new float[ChannelCount];
+    private readonly ClipData[] _clips = new ClipData[ChannelCount];
+    private readonly float[] _elapsed = new float[ChannelCount];
+    private readonly bool[] _notifyStart = new bool[ChannelCount];
+    public Func<Name, ClipData, ClipData>? ResolveClip { get; init; }
+    public ClipData Data(int channel) => _clips[channel].Fps > 0 ? _clips[channel] : ViewModelClips.DataOf(_sequence[channel]);
 
     /// <summary>The clip a channel plays or last played (a finished one-shot keeps its name, as in the engine).</summary>
     public Name Sequence(int Channel) => _sequence[Channel];
@@ -51,6 +56,10 @@ public sealed class ViewModelAnim
     /// <summary>PlayAnim: a one-shot of <paramref name="Clip"/> at <paramref name="Rate"/>.</summary>
     public void Play(int Channel, Name Sequence, ClipData Clip, float Rate = 1f, bool Backward = false, float TweenTime = 0f)
     {
+        Clip = ResolveClip?.Invoke(Sequence, Clip) ?? Clip;
+        if (Backward && Sequence == ViewModelClips.FirstDrawStEd2)
+            Clip = ResolveClip?.Invoke(new Name("FirstHolsterStFd2"), Clip) ?? Clip;
+        _clips[Channel] = Clip; _elapsed[Channel] = 0; _notifyStart[Channel] = true;
         _sequence[Channel] = Sequence;
         _rate[Channel] = Rate;
         _tweenTime[Channel] = MathF.Max(0f, TweenTime);
@@ -66,6 +75,8 @@ public sealed class ViewModelAnim
     /// </summary>
     public void Loop(int Channel, Name Sequence, float Rate = 1f)
     {
+        if (_sequence[Channel] != Sequence || !_loop[Channel]) { _elapsed[Channel] = 0; _notifyStart[Channel] = true; }
+        _clips[Channel] = ResolveClip?.Invoke(Sequence, ViewModelClips.DataOf(Sequence)) ?? ViewModelClips.DataOf(Sequence);
         _rate[Channel] = Rate;
         _sequence[Channel] = Sequence;
         _remaining[Channel] = 0f;
@@ -81,6 +92,7 @@ public sealed class ViewModelAnim
     /// </summary>
     public void SetFrame(int Channel, float Frame, ClipData Clip)
     {
+        Clip = Data(Channel);
         if (!_playing[Channel] || _loop[Channel] || Clip.Frames <= 1 || _rate[Channel] <= 0f)
         {
             return;
@@ -88,11 +100,13 @@ public sealed class ViewModelAnim
 
         float left = (Clip.Frames - 1 - Frame) / (Clip.Fps * _rate[Channel]);
         _remaining[Channel] = left > 0f ? left : 0f;
+        _elapsed[Channel] = _tweenTime[Channel] + MathF.Max(0, Frame / (Clip.Fps * _rate[Channel]));
+        _notifyStart[Channel] = false;
     }
 
     /// <summary>Seconds a channel's one-shot of <paramref name="Clip"/> has played (0 for a loop or a stopped channel).</summary>
     public float Elapsed(int Channel, ClipData Clip) =>
-        _playing[Channel] && !_loop[Channel] ? MathF.Max(0f, Clip.Seconds(_rate[Channel]) - _remaining[Channel]) : 0f;
+        _playing[Channel] && !_loop[Channel] ? MathF.Max(0f, Data(Channel).Seconds(_rate[Channel]) - _remaining[Channel]) : 0f;
 
     /// <summary>Stops a channel (no AnimEnd).</summary>
     public void Stop(int Channel)
@@ -111,6 +125,14 @@ public sealed class ViewModelAnim
     {
         for (int c = 0; c < ChannelCount; c++)
         {
+            if (_playing[c] && Owner.XLevel?.GetService<IViewAnimationSource>() is { } source)
+            {
+                float from = MathF.Max(0, _elapsed[c] - _tweenTime[c]) * _rate[c];
+                _elapsed[c] += DeltaTime;
+                float to = MathF.Max(0, _elapsed[c] - _tweenTime[c]) * _rate[c];
+                if (!_loop[c]) to = MathF.Min(to, Data(c).Seconds(1));
+                if (_elapsed[c] >= _tweenTime[c]) { source.Advance(Owner, _sequence[c], from, to, _notifyStart[c], _backward[c], _loop[c]); _notifyStart[c] = false; }
+            }
             if (!_playing[c] || _loop[c])
             {
                 continue;

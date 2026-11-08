@@ -70,6 +70,14 @@ public sealed class RollPillPose : IPillPose
     public void GetPills(SBasePawn Pawn, List<PillShape> Shapes)
         => GetPills(Pawn, Shapes, _histories.GetOrCreateValue(Pawn).QueryCopy());
 
+    public static IPillPose FromContentWithAnimations(OpenScct.Animation.AnimationProject project, IPillPose? fallback)
+    {
+        if (fallback is not RollPillPose source) return fallback ?? EstimatedPillPose.Instance;
+        RollPoseContent? spy = source._spyContent?.WithAnimations(project, "SPerso.ATT_01");
+        RollPoseContent? merc = source._mercContent?.WithAnimations(project, "SPerso.DEF_01");
+        return spy is null && merc is null ? fallback : new RollPillPose(spy, merc);
+    }
+
     public void UpdatePose(SBasePawn Pawn)
     {
         if (Pawn.XLevel.World.IsReplaying) return; // Prediction replays must not replace the last presented history.

@@ -40,7 +40,11 @@ public partial class SWeapon
     }
 
     /// <summary>The view model's animation channels (first-person clips; their ends drive the weapon states).</summary>
-    public ViewModelAnim ViewAnim { get; } = new();
+    private ViewModelAnim? _viewAnim;
+    public ViewModelAnim ViewAnim => _viewAnim ??= new()
+    {
+        ResolveClip = (sequence, fallback) => XLevel?.GetService<IViewAnimationSource>()?.Resolve(this, sequence, fallback) ?? fallback,
+    };
 
     /// <summary>The owner's controller as an SPlayerController.</summary>
     public SPlayerController? OwnerPC => (Controller ?? Instigator?.Controller) as SPlayerController;

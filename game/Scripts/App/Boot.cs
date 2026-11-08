@@ -14,12 +14,20 @@ public partial class Boot : Node
 
     public override void _Ready()
     {
+        if (System.Array.IndexOf(OS.GetCmdlineUserArgs(), "--svm-animation-probe") >= 0) return;
         var info = Engine.GetVersionInfo();
         string text = $"OpenSCCT - Godot {info["string"]} - .NET {System.Environment.Version}";
         GetNode<Label>("Status").Text = text;
         IsReady = true;
 
         App app = App.From(this);
+        string? animationPreview = System.Linq.Enumerable.FirstOrDefault(OS.GetCmdlineUserArgs(), a => a.StartsWith("--svm-animation-preview=", System.StringComparison.Ordinal));
+        if (animationPreview is not null)
+        {
+            string? profile = System.Linq.Enumerable.FirstOrDefault(OS.GetCmdlineUserArgs(), a => a.StartsWith("--svm-animation-fp=", System.StringComparison.Ordinal));
+            Callable.From(() => { GetTree().Root.AddChild(new AnimationStudio.AnimationPreview { Folder = animationPreview[24..], FirstPersonId = profile?[19..] }); QueueFree(); }).CallDeferred();
+            return;
+        }
         OfflinePlayEntry.Register();
         if (app.IsMapShotRun)
         {

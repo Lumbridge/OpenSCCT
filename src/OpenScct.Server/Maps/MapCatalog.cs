@@ -159,6 +159,13 @@ public sealed partial class MapCatalog
     private readonly object _gate = new();
     private OpenScct.Game.Movement.IPawnAnimationSource? _animations;
 
+    private string? _animationPackFolder = Environment.GetEnvironmentVariable("SVM_ANIMATION_PACK");
+    public string? AnimationPackFolder
+    {
+        get => _animationPackFolder;
+        set { lock (_gate) { _animationPackFolder = value; _characterContentHash = null; } }
+    }
+
     /// <summary>A catalog searching <paramref name="roots"/> for SVMap folders (map name as folder name, ASCII case ignored).</summary>
     public MapCatalog(params string[] roots)
     {
@@ -332,7 +339,7 @@ public sealed partial class MapCatalog
             }
             else if (FindFolder(mapName) is { } folder)
             {
-                map = LoadSvMap(world, GetSvMap(folder), isClient, beforeBeginPlay: beforeBeginPlay);
+                map = LoadSvMap(world, GetSvMap(folder), isClient, beforeBeginPlay: beforeBeginPlay, animationPack: AnimationPackFolder);
             }
             else
             {
@@ -341,6 +348,8 @@ public sealed partial class MapCatalog
 
             if (map is not null)
             {
+                if (world.Level.GetService<AnimationWorld>() is null && AnimationPackFolder is { } pack)
+                    AnimationWorld.Install(world.Level, null, map.Loaded, isClient, pack);
                 // Custom play loaders install their own gameplay services, but use the same shot geometry.
                 if (map.Physics is { } physics && GadgetMeshes is { } meshes)
                 {
@@ -357,6 +366,10 @@ public sealed partial class MapCatalog
             error = $"Map '{mapName}' is damaged: {e.File}: {e.Message}";
             return false;
         }
+        catch (InvalidDataException e)
+        {
+            map = null; error = $"Map '{mapName}' animation content is damaged: {e.Message}"; return false;
+        }
 
         if (string.Equals(mapName, TestBox, StringComparison.OrdinalIgnoreCase))
         {
@@ -368,6 +381,7 @@ public sealed partial class MapCatalog
                 new MapStart(new FVector(-512f, 0f, 0f), default, 1),
                 new MapStart(new FVector(0f, -512f, 0f), default, 1),
             ], []);
+            if (AnimationPackFolder is { } pack) AnimationWorld.Install(world.Level, null, null, isClient, pack);
             error = null;
             return true;
         }
@@ -540,7 +554,7 @@ public sealed partial class MapCatalog
     /// animated props (AquaE's falling crate and breaking amphoras, SteeE's crane) and fires their notify events.
     /// </summary>
     public static MapInfo LoadSvMap(World world, SvMap map, bool isClient, ActorClassRegistry? classes = null,
-        Action<Level>? beforeBeginPlay = null)
+        Action<Level>? beforeBeginPlay = null, string? animationPack = null)
     {
         ArgumentNullException.ThrowIfNull(world);
         ArgumentNullException.ThrowIfNull(map);
@@ -553,6 +567,9 @@ public sealed partial class MapCatalog
             NetMapBinding.PrepareClientMap(level, loaded.Actors);
         }
 
+        // Auto-start props resolve their sequence metadata during BeginPlay, so authored timing must exist first.
+        AnimationWorld? animations = AnimationWorld.Install(level, map, loaded, isClient, animationPack);
+        if (animations is not null) level.SetService<IMeshAnimations>(animations.MeshSource(level.GetService<IMeshAnimations>()!));
         beforeBeginPlay?.Invoke(level);
         level.EndLoad();
         loaded.AttachStartupBases();

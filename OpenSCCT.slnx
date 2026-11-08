@@ -1,5 +1,6 @@
 <Solution>
   <Folder Name="/src/">
+    <Project Path="src/OpenScct.Animation/OpenScct.Animation.csproj" />
     <Project Path="src/OpenScct.Bots/OpenScct.Bots.csproj" />
     <Project Path="src/OpenScct.Content/OpenScct.Content.csproj" />
     <Project Path="src/OpenScct.Core/OpenScct.Core.csproj" />

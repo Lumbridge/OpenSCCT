@@ -16,7 +16,7 @@ namespace OpenScctGame.Render.Characters;
 /// <see cref="Ue2PoseApplier"/>. Placement follows UE2: world = Location + PrePivot, then Rotation, then the mesh's
 /// RotOrigin and scale. docs/RENDERING.md#characters.
 /// </summary>
-public sealed class SkeletalModel
+public sealed class SkeletalModel : OpenScctGame.Views.IFirstPersonRigModel
 {
     private readonly List<MeshInstance3D> _meshes = [];
     private readonly List<(MeshInstance3D Mesh, int Surface, string Name, Material? Own)> _surfaces = [];
@@ -41,6 +41,12 @@ public sealed class SkeletalModel
     public Node3D Pivot { get; }
 
     public Skeleton3D Skeleton { get; }
+    public bool SampleClip(string name, float frame)
+    {
+        if (!Sampler.Play(name, loop: false, frame: frame)) return false;
+        Pose(); return true;
+    }
+    public Transform3D BonePose(int bone) => CurrentBonePose(bone);
 
     /// <summary>Original package bone order, retained through glTF import for pawn BoneMirrors indices.</summary>
     public IReadOnlyList<string> PackageBones => _template?.PackageBones ?? Array.Empty<string>();
@@ -54,7 +60,17 @@ public sealed class SkeletalModel
         return pose;
     }
 
-    public AnimSampler Sampler { get; }
+    public AnimSampler Sampler { get; private set; }
+
+    public void ApplyAnimations(OpenScct.Animation.AnimationProject? project, string? target = null)
+    {
+        if (project is null || _template is null || ReferenceEquals(_studioProject, project)) return;
+        _studioProject = project;
+        string glb = _template.Glb;
+        target ??= Path.GetFileName(Path.GetDirectoryName(glb)) + "." + Path.GetFileNameWithoutExtension(glb);
+        Sampler = Sampler.WithBindings(project, target);
+    }
+    private OpenScct.Animation.AnimationProject? _studioProject;
 
     public IReadOnlyList<MeshInstance3D> Meshes => _meshes;
 

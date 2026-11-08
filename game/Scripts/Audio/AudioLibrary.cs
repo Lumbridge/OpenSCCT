@@ -102,7 +102,20 @@ public sealed class AudioLibrary
                            $"sounds are silent (python -m svmbuild audio-map --maps {System.IO.Path.GetFileName(mapFolder)})");
         }
 
+        lib.ReadAnimationPack(System.Environment.GetEnvironmentVariable("SVM_ANIMATION_PACK"));
+        lib.ReadAnimationPack(mapFolder);
         return lib;
+    }
+
+    private void ReadAnimationPack(string? folder)
+    {
+        if (folder is null || OpenScct.Content.AnimationBundle.Load(folder) is not { } bundle) return;
+        foreach (var asset in bundle.Assets)
+            if (asset.Key.StartsWith("audio/animations/", StringComparison.Ordinal))
+            {
+                string id = "osanim." + System.IO.Path.GetFileNameWithoutExtension(asset.Key);
+                _sounds[id] = new SoundDef { Path = id, Kind = "stream", File = OpenScct.Content.AnimationBundle.AssetPath(folder, asset.Key) };
+            }
     }
 
     public SoundDef? Find(string? path) => path is not null && _sounds.TryGetValue(path, out SoundDef? d) ? d : null;

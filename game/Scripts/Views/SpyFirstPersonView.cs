@@ -23,9 +23,7 @@ public sealed partial class SpyFirstPersonView : Node3D
     private static readonly Name s_laser = new("Laser");
     private static readonly Name s_muzzle = new("FX");
     // X is forward, Y is up and Z is screen-right. Distances are metres from the eye.
-    private static readonly Transform3D s_ready = new(
-        new Basis(Vector3.Up, .032f) * new Basis(Vector3.Back, .013f) * new Basis(Vector3.Right, .045f),
-        new Vector3(.294f, -.132f, .143f));
+    private static readonly Transform3D s_ready = SpyFirstPersonRig.Ready;
     private static readonly Transform3D s_lowered = new(
         new Basis(Vector3.Up, -.23f) * new Basis(Vector3.Back, -.44f) * new Basis(Vector3.Right, .30f),
         new Vector3(.20f, -.35f, .27f));
@@ -49,6 +47,7 @@ public sealed partial class SpyFirstPersonView : Node3D
     private int _muzzleBone;
     private int _stockBone;
     private Vector3 _stockRest;
+    private float _studioClock, _studioFireAge = float.MaxValue, _studioLastShot = float.MinValue;
 
     public SpyFirstPersonView() => Name = "SpyFirstPerson";
 
@@ -156,6 +155,8 @@ public sealed partial class SpyFirstPersonView : Node3D
         }
 
         // The stance can arrive before the weapon references on the owning client.
+        arms.ApplyAnimations(pawn.XLevel.GetService<OpenScct.Server.AnimationWorld>()?.Project, ArmsAsset);
+        model.ApplyAnimations(pawn.XLevel.GetService<OpenScct.Server.AnimationWorld>()?.Project, WeaponAsset);
         _weapon = pawn.MyWeapon is SWeaponAttaque { bDeleteMe: false } pistol ? pistol
             : pawn.WeaponDummy is { bDeleteMe: false } dummy ? dummy : null;
         bool wasShown = Shown;
@@ -175,7 +176,39 @@ public sealed partial class SpyFirstPersonView : Node3D
         model.Root.Transform = gun;
         arms.Root.Transform = drawing ? gun * _gripInverse * _armsRest : _armsRest;
         PoseWeapon(model, drawing ? ViewModelClips.DrawP190 : ViewModelClips.SnipeP190, drawing ? amount : 0f);
+        DrawStudioActions(pawn, arms, model, drawing, amount, dt);
         DrawLooks(arms, model, pawn, dt);
+    }
+
+    private void DrawStudioActions(SPawnAttaque pawn, SkeletalModel arms, SkeletalModel weapon, bool drawing, float drawPhase, float dt)
+    {
+        var project = pawn.XLevel.GetService<OpenScct.Server.AnimationWorld>()?.Project;
+        var profile = project?.FirstPersonProfiles.FindLast(p => p.Enabled && p.Role == OpenScct.Animation.FirstPersonRole.Spy && p.MainAsset == WeaponAsset);
+        if (profile is null || project is null) return;
+        var mainRig = project.Scene.Find(r => r.Id == profile.MainRig);
+        var armRig = project.Scene.Find(r => r.Id == profile.ArmsRig);
+        if (mainRig is not null)
+        {
+            Transform3D mount = StudioPoseBridge.Transform(mainRig.Transform);
+            weapon.Root.Transform = drawing ? s_lowered.InterpolateWith(mount, drawPhase * drawPhase * (3 - 2 * drawPhase)) : mount;
+            Transform3D supportMount = armRig is null ? Transform3D.Identity : StudioPoseBridge.Transform(armRig.Transform);
+            arms.Root.Transform = drawing ? weapon.Root.Transform * mount.AffineInverse() * supportMount : supportMount;
+        }
+        _studioClock += dt; _studioFireAge += dt;
+        if (_weapon is { } source && source.LastShot != _studioLastShot)
+        {
+            _studioLastShot = source.LastShot;
+            if (!drawing && source.LastShot <= pawn.Level.TimeSeconds && pawn.Level.TimeSeconds - source.LastShot < .1f) _studioFireAge = 0;
+        }
+        string slot = drawing ? pawn.WeaponLoaded == 4 ? "HolsterP190" : "DrawP190"
+            : _studioFireAge < OpenScct.Animation.FirstPersonEvaluation.Duration(project, profile, "FireP190") ? "FireP190"
+            : pawn.WeaponLoaded == 2 ? "AimP190" : pawn.Velocity.SizeSquared() > 100 ? "MoveP190" : "SnipeP190";
+        float duration = OpenScct.Animation.FirstPersonEvaluation.Duration(project, profile, slot);
+        float phase = drawing ? pawn.WeaponLoaded == 4 ? 1 - drawPhase : drawPhase : slot == "FireP190" ? _studioFireAge / duration : (_studioClock % duration) / duration;
+        var primary = OpenScct.Animation.FirstPersonEvaluation.Evaluate(project, profile, slot, phase, false);
+        var support = OpenScct.Animation.FirstPersonEvaluation.Evaluate(project, profile, slot, phase, true);
+        if (primary is not null) StudioPoseBridge.Apply(weapon.Skeleton, project.Skeletons.Find(s => s.Id == primary.Skeleton)!, primary.Bones);
+        if (support is not null) StudioPoseBridge.Apply(arms.Skeleton, project.Skeletons.Find(s => s.Id == support.Skeleton)!, support.Bones);
     }
 
     private static bool HideForAction(SPlayerController pc, SPawnAttaque pawn) =>
@@ -194,7 +227,7 @@ public sealed partial class SpyFirstPersonView : Node3D
         const int channel = SWeaponAttaque.DEFAULTCHANNEL;
         if (anim is not null && anim.Sequence(channel) == ViewModelClips.DrawP190)
         {
-            float duration = ViewModelClips.DataOf(ViewModelClips.DrawP190).Seconds(anim.Rate(channel));
+            float duration = anim.Data(channel).Seconds(anim.Rate(channel));
             if (duration > 0f)
             {
                 float remaining = anim.Remaining(channel) + ((1f - Mathf.Clamp(alpha, 0f, 1f)) * Sim.DeltaTime);

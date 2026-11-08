@@ -22,6 +22,7 @@ public sealed class PlayCamera
 
     private readonly FaithfulView _view;
     private bool _placed;
+    private bool _wasCinematic;
 
     public PlayCamera(FaithfulView view)
     {
@@ -47,7 +48,7 @@ public sealed class PlayCamera
             return false;
         }
 
-        bool cut = !_placed || ViewBlend.IsCut(previous, current);
+        bool cut = !_placed || _wasCinematic || ViewBlend.IsCut(previous, current);
         (FVector Location, FRotator Rotation, float Fov) camera = cut ? (current.Location, current.Rotation, current.Fov) : ViewBlend.Blend(previous, current, alpha);
         if (!cut)
         {
@@ -63,10 +64,18 @@ public sealed class PlayCamera
             camera.Rotation = turned;
         }
         Occluded = false;
+        bool cinematic = false;
+        if (controller?.XLevel.GetService<OpenScct.Server.AnimationWorld>() is not null)
+            foreach (OpenScct.Server.AnimationController sequence in controller.XLevel.AllActors<OpenScct.Server.AnimationController>())
+                if (sequence.Camera() is { } view)
+                {
+                    camera = (OpenScct.Animation.StudioSpace.ToUe(view.Transform.Position), OpenScct.Animation.StudioSpace.ToUe(view.Transform.Rotation), view.FieldOfView ?? camera.Fov);
+                    cinematic = true; cut = true; break;
+                }
         // Recheck the final rendered location: interpolation and reconciliation can cross a corner even
         // when both simulation samples were clear. The volume encloses every near-plane corner at this FOV.
         // Also protect the return to third person, including its pending mouse orbit.
-        if ((current.SpyFirstPerson || previous.SpyFirstPerson) && controller?.Pawn is SPawnAttaque pawn
+        if (!cinematic && (current.SpyFirstPerson || previous.SpyFirstPerson) && controller?.Pawn is SPawnAttaque pawn
             && ReferenceEquals(controller.ViewTarget, pawn)
             && PlayerCalcView.SourceOf(controller) == PlayerCalcView.EViewSource.Default
             && controller.FreeCameraFlying == 0)
@@ -75,6 +84,7 @@ public sealed class PlayCamera
                 _view.CameraClearance(camera.Fov), withinBody: current.SpyFirstPerson);
         }
         _view.SetUeCamera(camera.Location, camera.Rotation, camera.Fov, cut);
+        _wasCinematic = cinematic;
         Current = camera;
         _placed = true;
         return true;

@@ -4,6 +4,9 @@ Pawn animation starts in simulation channels and ends in a rendered skeleton pos
 This guide covers that path, including movement blending, actions, root motion, aiming
 and weapon models.
 
+Native authored clips, Spy/Merc first-person profiles, packs, graphs and sequences are described in
+[Animation Studio runtime](ANIMATION-STUDIO.md). Stock channels below remain the default action-selection path.
+
 The source rules are in [animation](../spec/native/anim.md),
 [decoded animation details](../spec/native/ANSWERS-anim.md) and
 [action dispatch](../spec/native/execute-action.md). Ports keep the original names.

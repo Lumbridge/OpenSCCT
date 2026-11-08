@@ -110,7 +110,8 @@ public partial class FirstPersonView : Node3D
             return;
         }
 
-        _model!.Place(cameraLocation, cameraRotation, default);
+        _model!.ApplyAnimations(weapon!.XLevel.GetService<OpenScct.Server.AnimationWorld>()?.Project, weapon.Mesh.Path);
+        _model.Place(cameraLocation, cameraRotation, default);
         _model.SetVision(GameplayObjects.VisionOf(weapon!));
         if (!ReferenceEquals(_lastWeapon, weapon))
         {

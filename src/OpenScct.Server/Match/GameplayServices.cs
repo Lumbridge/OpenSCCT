@@ -23,6 +23,12 @@ public static class GameplayServices
     {
         ArgumentNullException.ThrowIfNull(level);
         DeviceNatives.Install(level, physics?.Driver);
+        if (level.GetService<AnimationWorld>() is { } studio)
+        {
+            animations = studio.PawnSource(animations ?? PawnAnimationSource.Default);
+            level.SetService<IViewAnimationSource>(new StudioViewAnimationSource(studio));
+            pillPose = RollPillPose.FromContentWithAnimations(studio.Project, pillPose);
+        }
         level.SetService(new MovementService(animations ?? PawnAnimationSource.Default));
         if (pillPose is not null) level.SetService<IPillPose>(pillPose);
         level.SetService<IGameFlowPorts>(new MovementGameFlowPorts(level.GetService<IGameFlowPorts>()));

@@ -65,6 +65,7 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
     public AudioLibrary? Library { get; private set; }
 
     public IAudioWorld? World { get; private set; }
+    private AnimationSequenceAudio? _animationAudio;
 
     public ReverbBuses? Buses { get; private set; }
 
@@ -164,6 +165,8 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
         Buses?.Dispose();
         Library = library ?? throw new ArgumentNullException(nameof(library));
         World = world;
+        if (_animationAudio is null) { _animationAudio = new AnimationSequenceAudio { Name = "AnimationSequenceAudio" }; AddChild(_animationAudio); }
+        _animationAudio.World = (world as LevelAudioWorld)?.Level; _animationAudio.Library = library;
         _random = new Random(seed);
         Buses = new ReverbBuses(library.Map);
         _listenerZone = null;

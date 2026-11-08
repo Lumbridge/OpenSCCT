@@ -118,6 +118,7 @@ public partial class SimPawnView : Node3D
 
         _dressed = PawnOutfits.Load(glb, Map?.Outfits.For(spy), Map?.Folder, root);
         _model = _dressed.Model;
+        _model.ApplyAnimations(pawn.XLevel.GetService<OpenScct.Server.AnimationWorld>()?.Project, asset);
         _glb = _dressed.Glb;
         AddChild(_model.Root);
         _stickySkins = StickySkins.For(root);

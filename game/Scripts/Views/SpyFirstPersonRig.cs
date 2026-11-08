@@ -7,9 +7,11 @@ namespace OpenScctGame.Views;
 /// <summary>Fits the stock two-handed grip to the camera-relative P190 once at load.</summary>
 internal static class SpyFirstPersonRig
 {
+    public static Transform3D Ready => new(
+        new Basis(Vector3.Up, .032f) * new Basis(Vector3.Back, .013f) * new Basis(Vector3.Right, .045f), new Vector3(.294f, -.132f, .143f));
     private static readonly Vector3 s_supportUpperArm = new Vector3(-.83f, -.52f, -.20f).Normalized();
 
-    public static bool TryPose(SkeletalModel model, Transform3D camera, Transform3D ready,
+    public static bool TryPose(IFirstPersonRigModel model, Transform3D camera, Transform3D ready,
         out Transform3D weapon, out float supportError)
     {
         weapon = ready;
@@ -17,14 +19,13 @@ internal static class SpyFirstPersonRig
         var skeleton = model.Skeleton;
         var left = new Arm(skeleton, "L");
         var right = new Arm(skeleton, "R");
-        if (!left.Valid || !right.Valid || !model.Sampler.Play("WaitStSpFd2", loop: false, frame: .25f))
+        if (!left.Valid || !right.Valid || !model.SampleClip("WaitStSpFd2", .25f))
             return false;
 
-        model.Pose();
         // The world P190 mounts on the right hand. Capture the stock support wrist and elbow in that frame.
-        Transform3D toGun = model.CurrentBonePose(right.Wrist).AffineInverse();
-        Transform3D supportWrist = toGun * model.CurrentBonePose(left.Wrist);
-        Vector3 supportElbow = toGun * model.CurrentBonePose(left.Forearm).Origin;
+        Transform3D toGun = model.BonePose(right.Wrist).AffineInverse();
+        Transform3D supportWrist = toGun * model.BonePose(left.Wrist);
+        Vector3 supportElbow = toGun * model.BonePose(left.Forearm).Origin;
         for (int i = 0; i < skeleton.GetBoneCount(); i++)
         {
             string name = skeleton.GetBoneName(i);
@@ -42,7 +43,7 @@ internal static class SpyFirstPersonRig
         Vector3 elbow = wrist.Origin + ((weapon * supportElbow) - wrist.Origin).Normalized() * left.ForeLength;
         left.Solve(toSkeleton * (elbow + s_supportUpperArm * left.UpperLength), toSkeleton.Basis * -s_supportUpperArm,
             toSkeleton * wrist);
-        supportError = (toCamera * model.CurrentBonePose(left.Wrist).Origin).DistanceTo(wrist.Origin);
+        supportError = (toCamera * model.BonePose(left.Wrist).Origin).DistanceTo(wrist.Origin);
         return true;
     }
 
@@ -106,4 +107,11 @@ internal static class SpyFirstPersonRig
 
         private static Basis Aim(Basis basis, Vector3 direction) => new Basis(new Quaternion(basis.X, direction)) * basis;
     }
+}
+
+public interface IFirstPersonRigModel
+{
+    Skeleton3D Skeleton { get; }
+    bool SampleClip(string name, float frame);
+    Transform3D BonePose(int bone);
 }

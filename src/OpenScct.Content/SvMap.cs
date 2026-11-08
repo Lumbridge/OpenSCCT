@@ -81,6 +81,8 @@ public sealed class SvMap
 
     public TraversalDoc Traversal { get; }
 
+    public AnimationBundle? Animations { get; private set; }
+
     /// <summary>The sim hash computed from the files on disk.</summary>
     public string SimHash { get; }
 
@@ -159,7 +161,8 @@ public sealed class SvMap
             }
         }
 
-        return new SvMap(fullRoot, manifest, gameplay, classes, match, movers, collision, traversal, simHash, simFiles);
+        return new SvMap(fullRoot, manifest, gameplay, classes, match, movers, collision, traversal, simHash, simFiles)
+        { Animations = AnimationBundle.Load(fullRoot) };
     }
 
     /// <summary>Sim files whose digest differs from the manifest's, or that only one side has.</summary>

@@ -447,10 +447,10 @@ public sealed class ChannelPoseApplier
             {
                 case Animation.TrackType.Position3D:
                 {
-                    Vector3 p = animation.PositionTrackInterpolate(track, wrap ? length : t);
+                    Vector3 p = clip.Position(track, wrap ? length : t);
                     if (wrap)
                     {
-                        p = p.Lerp(animation.PositionTrackInterpolate(track, 0.0), wrapAlpha);
+                        p = p.Lerp(clip.Position(track, 0.0), wrapAlpha);
                     }
 
                     if (tween < 1f)
@@ -465,10 +465,10 @@ public sealed class ChannelPoseApplier
                 case Animation.TrackType.Rotation3D:
                 {
                     // Sampled keys can be a little off unit length; Godot's slerp needs unit quaternions.
-                    Quaternion q = animation.RotationTrackInterpolate(track, wrap ? length : t).Normalized();
+                    Quaternion q = clip.Rotation(track, wrap ? length : t).Normalized();
                     if (wrap)
                     {
-                        q = q.Slerp(animation.RotationTrackInterpolate(track, 0.0).Normalized(), wrapAlpha).Normalized();
+                        q = q.Slerp(clip.Rotation(track, 0.0).Normalized(), wrapAlpha).Normalized();
                     }
 
                     if (tween < 1f)
@@ -482,7 +482,7 @@ public sealed class ChannelPoseApplier
 
                 case Animation.TrackType.Scale3D:
                 {
-                    Vector3 s = animation.ScaleTrackInterpolate(track, wrap ? length : t);
+                    Vector3 s = clip.Scale(track, wrap ? length : t);
                     if (tween < 1f)
                     {
                         s = _fromScale[target].Lerp(s, tween);
@@ -520,18 +520,18 @@ public sealed class ChannelPoseApplier
             switch (type)
             {
                 case Animation.TrackType.Position3D:
-                    Vector3 p = animation.PositionTrackInterpolate(track, wrap ? length : time);
-                    _samplePos[bone] = wrap ? p.Lerp(animation.PositionTrackInterpolate(track, 0.0), wrapAlpha) : p;
+                    Vector3 p = clip.Position(track, wrap ? length : time);
+                    _samplePos[bone] = wrap ? p.Lerp(clip.Position(track, 0.0), wrapAlpha) : p;
                     _sampled[bone] |= 1;
                     break;
                 case Animation.TrackType.Rotation3D:
-                    Quaternion q = animation.RotationTrackInterpolate(track, wrap ? length : time).Normalized();
-                    _sampleRot[bone] = wrap ? q.Slerp(animation.RotationTrackInterpolate(track, 0.0).Normalized(), wrapAlpha).Normalized() : q;
+                    Quaternion q = clip.Rotation(track, wrap ? length : time).Normalized();
+                    _sampleRot[bone] = wrap ? q.Slerp(clip.Rotation(track, 0.0).Normalized(), wrapAlpha).Normalized() : q;
                     _sampled[bone] |= 2;
                     break;
                 case Animation.TrackType.Scale3D:
-                    Vector3 scale = animation.ScaleTrackInterpolate(track, wrap ? length : time);
-                    _sampleScale[bone] = wrap && ch.Mirror ? scale.Lerp(animation.ScaleTrackInterpolate(track, 0.0), wrapAlpha) : scale;
+                    Vector3 scale = clip.Scale(track, wrap ? length : time);
+                    _sampleScale[bone] = wrap && ch.Mirror ? scale.Lerp(clip.Scale(track, 0.0), wrapAlpha) : scale;
                     _sampled[bone] |= 4;
                     break;
             }
@@ -654,11 +654,11 @@ public sealed class ChannelPoseApplier
 
             if (type == Animation.TrackType.Position3D && (rootLock & RootLock.Translation) != 0 && rootOffset is null)
             {
-                _pos[root] = (Vector3)clip0.Animation.PositionTrackInterpolate(track, lockTime);
+                _pos[root] = clip0.Position(track, lockTime);
             }
             else if (type == Animation.TrackType.Rotation3D && (rootLock & RootLock.Yaw) != 0)
             {
-                Quaternion atLock = clip0.Animation.RotationTrackInterpolate(track, lockTime).Normalized();
+                Quaternion atLock = clip0.Rotation(track, lockTime).Normalized();
                 float turn = YawOf(_rot[root]) - YawOf(atLock);
                 _rot[root] = (new Quaternion(Vector3.Up, -turn) * _rot[root]).Normalized();
             }

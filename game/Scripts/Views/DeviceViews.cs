@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Godot;
 using OpenScct.Content;
 using OpenScct.Content.Loading;
@@ -135,7 +136,8 @@ public sealed class DeviceViews
             if (IsSkeletal(actor))
             {
                 string asset = actor.Mesh.Path!;
-                string? glb = SkeletalModel.FindMapGlb(asset, map.Folder, sharedRoot ?? map.SharedRoot);
+                string? glb = actor.XLevel.GetService<OpenScct.Server.AnimationWorld>()?.Model(asset)?.Model
+                    ?? SkeletalModel.FindMapGlb(asset, map.Folder, sharedRoot ?? map.SharedRoot);
                 if (glb is null)
                 {
                     _missing.Add(asset);
@@ -143,6 +145,7 @@ public sealed class DeviceViews
                 }
 
                 SkeletalModel model = SkeletalModel.Load(glb);
+                model.ApplyAnimations(actor.XLevel.GetService<OpenScct.Server.AnimationWorld>()?.Project, asset);
                 model.Root.Name = record.Id;
                 parent.AddChild(model.Root);
                 _animated.Add(new AnimatedMeshView(record.Id, actor, model, map));
@@ -760,6 +763,14 @@ public sealed class AnimatedMeshView
         }
 
         Place(alpha);
+
+        if (_actor.XLevel.GetService<OpenScct.Server.AnimationWorld>() is { } studio)
+            foreach (OpenScct.Server.AnimationController controller in _actor.XLevel.AllActors<OpenScct.Server.AnimationController>())
+                if (controller.Pose("actor:" + Id, out string? skeleton) is { } pose)
+                {
+                    StudioPoseBridge.Apply(Model.Skeleton, studio.Project.Skeletons.Single(s => s.Id == skeleton), pose);
+                    return;
+                }
 
         // The actor's vision values (HeatIntensity 0.1 to 0.15 on the sharks, mantas and dolphins), as gameplay meshes
         // take theirs: without them a skeletal prop draws cold in thermal.
