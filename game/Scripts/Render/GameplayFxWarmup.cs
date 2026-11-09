@@ -23,8 +23,11 @@ public partial class GameplayFxWarmup : SubViewport
     private SmokeRenderCloud? _smokeCloud;
     private int _smokeFrames;
     private FaithfulView? _view;
+    private LightReach? _reach;
     private ulong _started;
     private static readonly string[] WarmupFrames = ["warmup.frame1", "warmup.frame2", "warmup.frame3"];
+    // LightReach needs six drawn frames; far more means its map is not drawing (LightReach.Warming).
+    private const int MapWarmFrameCap = 120;
     public Node3D Samples { get; } = new() { Name = "Samples" };
 
     public GameplayFxWarmup()
@@ -55,6 +58,15 @@ public partial class GameplayFxWarmup : SubViewport
         view?.DoubleVision.Preload();
     }
 
+    /// <summary>
+    /// Waits for the map's cell meshes to draw each of their material variants (<see cref="LightReach.Warm"/>) on the
+    /// gameplay view before finishing; those frames draw wrong light, so the caller covers the view until then.
+    /// </summary>
+    public void PreloadMap(RenderMap? map)
+    {
+        if (map is not null) _reach = map.LightReach;
+    }
+
     public void Begin(Action completed)
     {
         _completed = completed;
@@ -74,8 +86,12 @@ public partial class GameplayFxWarmup : SubViewport
         // Rules that arrive after the map was built switch its shaders here, so the surfaces below warm that variant.
         bool switching = !Materials.ResponsiveSmokeShaders.Enabled;
         Materials.ResponsiveSmokeShaders.Use(true);
-        // The map's cell meshes draw all three of their material variants again, in the new code (LightReach.Warm).
-        if (switching) map?.LightReach.Warm();
+        // The map's cell meshes draw all six of their material variants again, in the new code (LightReach.Warm).
+        if (switching)
+        {
+            map?.LightReach.Warm();
+            PreloadMap(map);
+        }
         if (DisplayServer.GetName() == "headless") return;
         ResponsiveSmokeRenderer.Publish(map,level);
         ResponsiveSmokeRenderer.Preparing = true;
@@ -146,11 +162,17 @@ public partial class GameplayFxWarmup : SubViewport
         // A hidden/disabled target may never deliver a compositor callback. It can warm on its first real draw;
         // don't strand loading forever on a window/renderer configuration that cannot draw this view yet.
         bool viewTimedOut = Time.GetTicksMsec() - _started >= 5000;
+        // The map's cell meshes draw one variant a frame on the gameplay view (LightReach.Warm). Every drawn frame
+        // advances it, so the view's timeout does not cut it short (those frames draw wrong light: lifting the cover
+        // during them would show it); the frame cap only guards a map root that never enters the tree.
+        bool mapWarming = _reach is { Warming: true };
+        bool mapReady = !mapWarming || _frames >= MapWarmFrameCap;
         // The first warm frames draw (and compile) the samples: time each of them.
         if (_frames < 3) OpenScctGame.Diagnostics.LoadTimer.Mark(WarmupFrames[_frames]);
-        if (++_frames >= 3 && smokeReady && (viewReady || viewTimedOut))
+        if (++_frames >= 3 && smokeReady && mapReady && (viewReady || viewTimedOut))
         {
             if (!viewReady) GD.PushWarning("Gameplay post warmup did not draw before loading timeout.");
+            if (mapWarming) GD.PushWarning("Map material warmup did not finish within its frame cap.");
             Finish();
         }
     }

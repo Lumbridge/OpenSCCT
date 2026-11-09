@@ -131,7 +131,7 @@ public partial class PlayRoot : Node3D
     private Exception? _reportedServerFailure;
     private Label? _prompt;
     private ColorRect? _cameraOcclusion;
-    private ColorRect? _smokeLoadingCover;
+    private ColorRect? _loadingCover;
     private bool _smokePreparing, _smokeRestoreControls;
     private bool _smokeRestoreLoaded;
     private int _lastRendMap = -1;
@@ -247,8 +247,12 @@ public partial class PlayRoot : Node3D
             if (Config.Render && Fx is not null && MercLasers is not null)
             {
                 _status.Text = "Preparing effects...";
+                // The warm frames draw the map's cell meshes in every material variant, wrong light included
+                // (LightReach.Warm): black under the status until loading finishes.
+                ShowLoadingCover(true);
                 var warmup = GameplayFxWarmup.For(GetViewport());
                 AddChild(warmup);
+                warmup.PreloadMap(Map);
                 LoadTimer.Mark("ready.warmup-viewport");
                 if (Session is { } smokeSession && OpenScct.Game.Equipment.ResponsiveSmokeWorld.IsEnabled(smokeSession.Client.World.Level))
                 {
@@ -295,6 +299,7 @@ public partial class PlayRoot : Node3D
     {
         SetSmokeLoading(false);
         IsLoaded = true;
+        ShowLoadingCover(false);
         Session?.Client.MarkReadyToPlay();
         if (_status is not null) _status.Text = "";
         LoadTimer.Mark("ready.finish");
@@ -307,13 +312,6 @@ public partial class PlayRoot : Node3D
         if (loading)
         {
             _smokeRestoreLoaded = IsLoaded; IsLoaded = false;
-            if (_smokeLoadingCover is null && _status?.GetParent() is { } layer)
-            {
-                _smokeLoadingCover = new ColorRect { Name = "SmokeLoadingCover", Color = Colors.Black,
-                    MouseFilter = Control.MouseFilterEnum.Stop };
-                layer.AddChild(_smokeLoadingCover); layer.MoveChild(_smokeLoadingCover,0);
-                _smokeLoadingCover.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
-            }
             if (Controls is { } controls)
             {
                 _smokeRestoreControls = controls.Enabled; controls.Enabled = false;
@@ -327,7 +325,22 @@ public partial class PlayRoot : Node3D
             if (Controls is { } controls) controls.Enabled = _smokeRestoreControls;
             if (_status is not null) _status.Text = "";
         }
-        if (_smokeLoadingCover is not null) _smokeLoadingCover.Visible = loading;
+        // While the match is still loading the cover stays up: FinishLoading lifts it.
+        ShowLoadingCover(loading || !IsLoaded);
+    }
+
+    /// <summary>Black over the view, under the status text, while loading draws frames the player must not see.</summary>
+    private void ShowLoadingCover(bool visible)
+    {
+        if (visible && _loadingCover is null && _status?.GetParent() is { } layer)
+        {
+            _loadingCover = new ColorRect { Name = "LoadingCover", Color = Colors.Black, MouseFilter = Control.MouseFilterEnum.Stop };
+            layer.AddChild(_loadingCover);
+            layer.MoveChild(_loadingCover, 0);
+            _loadingCover.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
+        }
+
+        if (_loadingCover is not null) _loadingCover.Visible = visible;
     }
 
     private bool PrepareLateSmoke(PlaySession session)

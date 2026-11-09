@@ -504,14 +504,26 @@ travel starts with a fresh cookie array.
 
 ### Light reach
 
-`LightReach` (an OpenSCCT optimisation, same pixels) draws each merged cell mesh in one of three states, with a twin
-of every material for the two reduced ones (`MaterialCompiler.GetUnreached`):
+`LightReach` (an OpenSCCT optimisation, same pixels) draws each merged cell mesh in one of three light states, each in
+one of two vision states, with a twin of every material for the reduced ones (`MaterialCompiler.GetUnreached`,
+`MaterialCompiler.GetNormalVision`):
 
 | State | When | Defines (baked: lightmap, vertex) | Defines (actor-lit) |
 |---|---|---|---|
 | full | a spot shadow light reaches the mesh | none | none |
 | no spot | no spot reaches, a dynamic world light does | SVM_NO_SPOT | SVM_NO_SPOT |
 | neither | neither reaches | SVM_NO_SPOT, SVM_NO_DYN | SVM_NO_SPOT (same material as no spot) |
+
+| Vision | When | Extra defines |
+|---|---|---|
+| thermal / EMF | `svm_vision` 36 or 38 | none: the bucket's own material (plain, cut or see-through) |
+| normal | every other mode | SVM_NORMAL_VISION (plain buckets keep SVM_PLAIN_DEPTH) |
+
+Without the thermal and EMF outputs nothing in the shader cuts a surface out. The normal vision twin keeps its bucket's
+vertex transform (plain buckets Godot's own, cut and see-through buckets the explicit POSITION write), so depth stays
+bit-identical, and has no see-through pass (it draws nothing outside thermal and EMF). See-through
+buckets keep their own material in all three light states in thermal and EMF. A missing twin falls back to the nearest
+one (no spot to full, neither to no spot); the sky zone keeps its materials.
 
 A light reaches a mesh when it is on and some point of the mesh's world box lies inside a slot's row 8 sphere, or
 within a dynamic light's radius x `svm_dyn_tune.y`; outside those the template adds exactly zero. The spot code is the
@@ -521,10 +533,16 @@ sun reaches everything; a map light counts while it is switched on, whatever its
 flickering lights never swap materials. Each light keeps the meshes it reaches and works them out again only when it
 moves or switches; a mesh keeps separate counts of the spots and the dynamic lights that reach it and changes state
 only when one of them goes to or from zero, by setting the render instance's surface overrides on `FramePreDraw`.
-Authored, see-through, fullbright and switching MaterialSequence materials keep one material; twins with the same code
-share one shader. The first three frames after a build (and after a late responsive smoke switch) draw every mesh full,
-then no spot, then neither, so all three pipelines are made behind the loading screen. `SVM_REACH_STATS=1` prints the
-meshes in each state and the spot slots and dynamic lights on, at most once a second (`SVM_REACH ...`).
+The vision is read there too (`MaterialCompiler.Vision`, set by `FaithfulView.ApplyVision` in the process step of the
+same frame), so the first frame drawn in thermal or EMF, or back out of them, already has its materials; a change
+touches only the surfaces whose material differs (a few hundred calls on a large map). Authored, fullbright and
+switching MaterialSequence materials have no light twins (state switches have no vision twin either); twins with the
+same code share one shader. The first six frames after a build (and after a late responsive smoke switch) draw every
+mesh in each state, full first, so all six pipelines are made while loading. Those frames draw wrong light where a
+reaching term is left out, so `PlayRoot` keeps a black cover under the "Preparing effects..." text until
+`GameplayFxWarmup` has seen `LightReach.Warming` end (a late smoke switch raises the same cover). `SVM_REACH_STATS=1`
+prints the meshes in each state, the vision state and the spot slots and dynamic lights on, at most once a second
+(`SVM_REACH ...`).
 
 ## Flare lights
 
@@ -962,6 +980,8 @@ hot spots stopped at yellow, his head read cold, a wide halo ringed him). The co
   The shared glow targets are rebuilt each EMF frame, before the ordinary vision pyramid overwrites its levels.
   A rendered AquaE kiosk regression checks the border against the interior and the EMF-to-normal transition.
 - Particles draw the translucent thermal rule for alpha styles and nothing in EMF.
+- Merged map cells draw twins without the thermal and EMF code (`SVM_NORMAL_VISION`) in every other mode, swapped in
+  the same frame as the vision changes ([light reach](#light-reach)); the pixels are the same.
 - Not yet: the night glow term and its pre-draws, the heat-source pass (HeatRadius actors; SteeE has none), the
   the remanence overlay (PlayerController.RemanenceBlendFactor).
 
@@ -1155,6 +1175,10 @@ scales into the `Skeleton3D`. Placement is UE2's: `Location + PrePivot`, the act
 and scale. Materials are the actor-lit template, with the spy's masked self-illumination and the skins' heat and EMF
 textures (`SPersoTextures` modifiers: Shadw_agent_Heat, DEF_01_Body_Heat... HEATTEX_Cool). `SetVision` writes a
 pawn's vision values. `Views/PawnView` wraps one pawn for views. The core animation channels will replace the sampler.
+OpenSCCT's cosmetics (`svm_tint`, `svm_glow_hue`, the camo finish mask and sheen) are compiled only into materials of
+compilers with `MaterialCompiler.Cosmetics` (`SVM_COSMETIC`): the model's own, and the sticky, wet and goggle skins put
+over its surfaces. Map and gameplay materials draw as if those held their defaults, with less code; the instance
+uniforms stay declared in every variant, so materials of both kinds on one instance index them alike.
 
 `PawnOutfits.Prepare` loads both stock character rigs, map outfits, third-person primary weapons and goggle meshes
 before the client reports its scene ready. Their first replicated appearance reuses those templates instead of
