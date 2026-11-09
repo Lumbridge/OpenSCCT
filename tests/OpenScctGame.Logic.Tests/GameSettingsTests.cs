@@ -9,6 +9,25 @@ namespace OpenScctGame.Logic.Tests;
 public sealed class GameSettingsTests : IDisposable
 {
     [Fact]
+    public void BothControllerRolesDefaultToGentleAimAndPreserveSavedSensitivities()
+    {
+        var defaults = new GameSettings();
+        foreach (LookSettings look in new[] { defaults.SpyPad, defaults.MercPad })
+        {
+            Assert.Equal(.6f, look.FreeLook);
+            Assert.Equal(.6f, look.Look);
+            Assert.Equal(.6f, look.Vertical);
+        }
+        var saved = GameSettings.FromJson("{\"controls_spy_pad\":{\"free_look\":1.1,\"look\":1.2,\"vertical\":1.3},\"controls_merc_pad\":{\"free_look\":1.4,\"look\":1.5,\"vertical\":1.6}}");
+        Assert.Equal(1.1f, saved.SpyPad.FreeLook);
+        Assert.Equal(1.2f, saved.SpyPad.Look);
+        Assert.Equal(1.3f, saved.SpyPad.Vertical);
+        Assert.Equal(1.4f, saved.MercPad.FreeLook);
+        Assert.Equal(1.5f, saved.MercPad.Look);
+        Assert.Equal(1.6f, saved.MercPad.Vertical);
+    }
+
+    [Fact]
     public void LegacyUltraPreservesItsActualLowLatencyBehavior()
     {
         var settings = GameSettings.FromJson("{\"low_latency_mode\":\"Ultra\"}");

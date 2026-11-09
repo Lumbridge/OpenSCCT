@@ -8,6 +8,8 @@
     without the Godot runtime. Only files that use no Godot type may be listed.
   -->
   <ItemGroup>
+    <Compile Include="..\..\game\Scripts\Options\PadMenuNavigation.cs" Link="Linked\PadMenuNavigation.cs" />
+    <Compile Include="..\..\game\Scripts\Chat\QuickChatState.cs" Link="Linked\QuickChatState.cs" />
     <Compile Include="..\..\game\Scripts\App\LaunchOptions.cs" Link="Linked\LaunchOptions.cs" />
     <Compile Include="..\..\game\Scripts\Render\GlassFracture.cs" Link="Render\GlassFracture.cs" />
     <Compile Include="..\..\game\Scripts\Discord\DiscordInvitePipe.cs" Link="Linked\DiscordInvitePipe.cs" />

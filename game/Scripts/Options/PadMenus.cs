@@ -1,11 +1,12 @@
 using Godot;
+using OpenScctGame.Controls;
 
 namespace OpenScctGame.Options;
 
 /// <summary>
-/// Controller use of the menus, whenever no controller drives a player (<see cref="GamepadInput.Driving"/>). Godot's
-/// own ui actions move the focus with the D-pad and left stick and press the focused control with A; this node adds
-/// what they leave out: the first press of a direction or A, when nothing has the focus, focuses the first control of
+/// Controller use of the menus, whenever no controller drives a player. Raw pad events are consumed before GUI
+/// dispatch; a paced keyboard pulse moves focus with the D-pad and left stick and activates with A. The first
+/// press of a direction or A, when nothing has focus, focuses the first control of
 /// the topmost menu; B, Back and Start press Escape (the key every screen and overlay closes on). It also remembers
 /// the controller that last sent input, which <see cref="GamepadInput"/> plays with, shows Reloaded's hot plug lines
 /// ("Gamepad connected", "Gamepad disconnected") and asks once whether to turn controller support on when a
@@ -16,6 +17,8 @@ public partial class PadMenus : Node
     public const string NodeName = "PadMenus";
 
     private static int s_lastDevice = -1;
+    private readonly PadMenuNavigation _navigation = new();
+    private int _navigationDevice = -1;
 
     public PadMenus()
     {
@@ -41,30 +44,62 @@ public partial class PadMenus : Node
         {
             s_lastDevice = @event.Device;
         }
+        if (@event is not (InputEventJoypadButton or InputEventJoypadMotion) || BindingInput.Current?.CaptureSuspended == true)
+        {
+            return;
+        }
+        // Native ui_accept/ui_cancel must never activate the chat or menu behind gameplay.
+        GetViewport().SetInputAsHandled();
+        if (!SettingsStore.Current.Pad.Enabled || GamepadInput.GameplayActive)
+        {
+            _navigation.Reset();
+            return;
+        }
+        if (_navigationDevice != @event.Device)
+        {
+            _navigation.Reset();
+            _navigationDevice = @event.Device;
+        }
+        double now = Time.GetTicksMsec() / 1000d;
+        string? command = @event switch
+        {
+            InputEventJoypadButton button => Button(button, now),
+            InputEventJoypadMotion { Axis: JoyAxis.LeftX } axis => _navigation.Axis(true, axis.AxisValue, now),
+            InputEventJoypadMotion { Axis: JoyAxis.LeftY } axis => _navigation.Axis(false, axis.AxisValue, now),
+            _ => null,
+        };
+        Navigate(command);
+        // Nested keyboard dispatch changes the viewport's handled flag. Consume the original pad event again.
+        GetViewport().SetInputAsHandled();
     }
 
-    public override void _UnhandledInput(InputEvent @event)
+    private string? Button(InputEventJoypadButton button, double now)
     {
-        if (!SettingsStore.Current.Pad.Enabled || GamepadInput.Driving || @event is not (InputEventJoypadButton or InputEventJoypadMotion))
+        string? key = button.ButtonIndex switch
         {
-            return;
-        }
+            JoyButton.DpadUp => "Up", JoyButton.DpadDown => "Down", JoyButton.DpadLeft => "Left", JoyButton.DpadRight => "Right",
+            JoyButton.A => "Enter", JoyButton.B or JoyButton.Back or JoyButton.Start => "Escape", _ => null,
+        };
+        return key is null ? null : _navigation.Button(key, button.Pressed, now);
+    }
 
-        if (@event is InputEventJoypadButton { Pressed: true, ButtonIndex: JoyButton.B or JoyButton.Back or JoyButton.Start })
+    private void Navigate(string? key)
+    {
+        if (key is null) return;
+        if (key != "Escape" && GetViewport().GuiGetFocusOwner() is null && FirstFocusable(GetViewport()) is { } first)
         {
-            GetViewport().SetInputAsHandled();
-            GamepadInput.Send(GetViewport(), "Escape", true);
-            GamepadInput.Send(GetViewport(), "Escape", false);
-            return;
-        }
-
-        bool moves = @event.IsActionPressed("ui_up") || @event.IsActionPressed("ui_down") || @event.IsActionPressed("ui_left") ||
-                     @event.IsActionPressed("ui_right") || @event.IsActionPressed("ui_accept");
-        if (moves && GetViewport().GuiGetFocusOwner() is null && FirstFocusable(GetTree().Root) is { } first)
-        {
-            GetViewport().SetInputAsHandled();
             first.GrabFocus();
+            return;
         }
+        if (GodotKeys.ToEvent(key) is not InputEventKey press) return;
+        press.Keycode = press.PhysicalKeycode;
+        press.Pressed = true;
+        BindingInput.Current?.Resolve(press);
+        GetViewport().PushInput(press);
+        var release = new InputEventKey { Keycode = press.Keycode, PhysicalKeycode = press.PhysicalKeycode };
+        BindingInput.Current?.Resolve(release);
+        GetViewport().PushInput(release);
+        if (GamepadInput.GameplayActive) GamepadInput.SuppressHeldButtons();
     }
 
     /// <summary>
@@ -151,6 +186,10 @@ public partial class PadMenus : Node
 
     public override void _Process(double delta)
     {
+        if (!SettingsStore.Current.Pad.Enabled || GamepadInput.GameplayActive || BindingInput.Current?.CaptureSuspended == true ||
+            !GetWindow().HasFocus() && !Pointer.Detached)
+            _navigation.Reset();
+        else Navigate(_navigation.Advance(Time.GetTicksMsec() / 1000d));
         if (_notice is not null && _noticeLeft > 0 && (_noticeLeft -= delta) <= 0)
         {
             _notice.Visible = false;
@@ -163,6 +202,7 @@ public partial class PadMenus : Node
 
     private void OnJoyConnectionChanged(long device, bool connected)
     {
+        if (!connected && device == _navigationDevice) _navigation.Reset();
         string name = connected ? Input.GetJoyName((int)device) : string.Empty;
         GD.Print("SVM_PAD " + NoticeText(connected, name));
         ShowNotice(NoticeText(connected, name));

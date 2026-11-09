@@ -511,6 +511,14 @@ again. Controller curves remain: the inner 75% is linear and the outer 25% ramps
 modify sensitivity** replaces the clutch label. For mouse input its multiplier scales sensitivity directly;
 controller input is scaled before its curve. The merc's two enabled held modifiers multiply together.
 
+Both roles now default controller free look, gun/look and vertical sensitivity to **0.6**. Saved sensitivity
+values remain intact; resetting the role's controller settings applies the new defaults. While gameplay owns
+the controller, raw A/B presses cannot activate menu controls or text chat; their role bindings still apply,
+with Start opening the game menu by default. In menus, the D-pad and left stick make one initial step, wait
+0.4 seconds, then repeat at 0.16-second intervals. Stick press/release thresholds of 0.65/0.35 prevent noisy
+axis updates from advancing several rows. A activates, and B/Back/Start return. The optional **Quick chat**
+action starts unbound in Communication for keyboard/mouse and controller; see [text chat](HUD.md#text-chat).
+
 Options pages scroll vertically and wrap setting labels. Long controller choices have full-text tooltips. The
 Display mode list reads "Borderless fullscreen" for Reloaded's `BorderlessFullscreen` value. `--svm-smoke=options`
 checks draft/apply/discard, shared and separate layouts, independent controller dispatch, and every role subsection

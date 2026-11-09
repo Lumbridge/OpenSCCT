@@ -504,21 +504,21 @@ public sealed class GameSettings
     [Provenance(ProvenanceKind.Decoded, "spec/reloaded/FEATURES.md rl:input.sens controls_merc_config_kbm")]
     public LookSettings MercKbm { get; set; } = new() { FreeLook = 1f, Look = 1f, Scope = 0.75f, ScopeVertical = 2.45f, Vertical = 1f, Cam = 1f };
 
-    /// <summary>controls_spy_config_controller (cam 1.8, free look 1.6 aggressive, gun look 1.2 soft, vertical 3.5, clutch 2.0 on).</summary>
+    /// <summary>Spy controller tuning, with gentler 0.6 free look, gun look and vertical defaults.</summary>
     [JsonPropertyName("controls_spy_pad")]
-    [Provenance(ProvenanceKind.Decoded, "spec/reloaded/FEATURES.md appendix A controls_spy_config_controller")]
+    [Provenance(ProvenanceKind.Estimated, "OpenSCCT 0.6 controller aim defaults; other tuning from spec/reloaded/FEATURES.md appendix A controls_spy_config_controller")]
     public LookSettings SpyPad { get; set; } = new()
     {
-        FreeLook = 1.6f, Look = 1.2f, Scope = 0.75f, Vertical = 3.5f, Cam = 1.8f, LookResponse = "CurveAggressive", GunLookResponse = "CurveSoft",
+        FreeLook = 0.6f, Look = 0.6f, Scope = 0.75f, Vertical = 0.6f, Cam = 1.8f, LookResponse = "CurveAggressive", GunLookResponse = "CurveSoft",
         ClutchOne = 2f, ClutchOneEnabled = true,
     };
 
-    /// <summary>controls_merc_config_controller (look 1.8 medium, scope 0.75, scope_vertical 2.45, cam 1.0, clutches 0.5 and 2.0 on).</summary>
+    /// <summary>Mercenary controller tuning, with gentler 0.6 free look, gun look and vertical defaults.</summary>
     [JsonPropertyName("controls_merc_pad")]
-    [Provenance(ProvenanceKind.Decoded, "spec/reloaded/FEATURES.md appendix A controls_merc_config_controller")]
+    [Provenance(ProvenanceKind.Estimated, "OpenSCCT 0.6 controller aim defaults; other tuning from spec/reloaded/FEATURES.md appendix A controls_merc_config_controller")]
     public LookSettings MercPad { get; set; } = new()
     {
-        FreeLook = 1f, Look = 1.8f, Scope = 0.75f, ScopeVertical = 2.45f, Vertical = 1f, Cam = 1f, LookResponse = "CurveMedium",
+        FreeLook = 0.6f, Look = 0.6f, Scope = 0.75f, ScopeVertical = 2.45f, Vertical = 0.6f, Cam = 1f, LookResponse = "CurveMedium",
         ClutchOne = 0.5f, ClutchOneEnabled = true, ClutchTwo = 2f, ClutchTwoEnabled = true,
     };
 
