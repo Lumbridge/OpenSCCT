@@ -18,6 +18,8 @@ internal sealed class RdProtoFrame
     public int DrawCount;
     public Color Clear;
     public Vector2I Size;
+    /// <summary>SVM_RD_PROTO=frame: where the sky zone is seen from (the SkyZoneInfo).</summary>
+    public Vector3 SkyOrigin;
 }
 
 /// <summary>
@@ -49,6 +51,16 @@ internal sealed class RdProtoGpu
     private int[] _batchPipelines = [];
     private readonly Dictionary<(Rid, Rid), Rid> _sets = [];
     private readonly Rid[] _pipelines = new Rid[12];
+
+    // SVM_RD_PROTO=frame: framebuffers over Godot's own colour and depth layers, the pipelines per framebuffer format
+    // (the format changes with the MSAA setting), and the last frame the main thread submitted.
+    private readonly Dictionary<(Rid Color, Rid Depth), Rid> _sceneFramebuffers = [];
+    private readonly Dictionary<long, Rid[]> _scenePipelines = [];
+    private readonly byte[] _sceneUbo = new byte[RdProtoFrame.UboSize];
+    // The sky zone's depth scale in the frame: behind the whole world, and under the 2^-40 that readers of the view's
+    // depth take as sky or nothing drawn (svm_sky_depth.gdshaderinc).
+    private const float SceneSkyDepthScale = 8.8817842e-16f;
+    private RdProtoFrame? _current;
 
     // Targets: the current one, and older ones freed a few frames after a resize (the canvas may still show them).
     private Rid _color, _depth, _framebuffer;
@@ -149,7 +161,7 @@ internal sealed class RdProtoGpu
         _frame++;
         if (!_ready)
         {
-            Init(frame.Size);
+            Init(frame.Size, ownTargets: true);
             if (_failed) return;
         }
 
@@ -164,6 +176,19 @@ internal sealed class RdProtoGpu
         _clear[0] = frame.Clear;
         // Reverse Z: clear depth to 0 (far), test GREATER_OR_EQUAL.
         long dl = rd.DrawListBegin(_framebuffer, RD.DrawFlags.ClearAll, _clear, 0f, 0, null, 0);
+        Draw(rd, dl, frame, _pipelines);
+        rd.DrawListEnd();
+        rd.CaptureTimestamp(EndStamp);
+        double recordMs = _record.Elapsed.TotalMilliseconds;
+        lock (s_statsLock)
+        {
+            s_recordSum += recordMs;
+            s_recordCount++;
+        }
+    }
+
+    private void Draw(RenderingDevice rd, long dl, RdProtoFrame frame, Rid[] pipelines)
+    {
         int pipeline = -1;
         Rid set = default;
         for (int k = 0; k < frame.DrawCount; k++)
@@ -173,7 +198,7 @@ internal sealed class RdProtoGpu
             {
                 bool first = pipeline < 0;
                 pipeline = _batchPipelines[i];
-                rd.DrawListBindRenderPipeline(dl, _pipelines[pipeline]);
+                rd.DrawListBindRenderPipeline(dl, pipelines[pipeline]);
                 if (first)
                 {
                     rd.DrawListBindVertexArray(dl, _vertexArray);
@@ -190,7 +215,96 @@ internal sealed class RdProtoGpu
             rd.DrawListBindIndexArray(dl, _indexArrays[i]);
             rd.DrawListDraw(dl, true, 1, 0);
         }
+    }
 
+    /// <summary>
+    /// SVM_RD_PROTO=frame (render thread, from the main camera's compositor between Godot's depth pre-pass and its
+    /// opaque pass): clears the colour (the environment keeps the background, so Godot's opaque pass loads it) and
+    /// draws the newest submitted frame into Godot's own colour and depth buffers with the projection and view
+    /// Godot's shaders use this frame. The cells and everything Godot draws share one depth buffer, and Godot's
+    /// opaque pass is hidden by the cells where they are nearer.
+    /// </summary>
+    public void RenderInFrame(RenderSceneBuffersRD buffers, RenderSceneData scene)
+    {
+        lock (_queueLock)
+        {
+            while (_pending.TryDequeue(out RdProtoFrame? next))
+            {
+                if (_current is not null) _free.Push(_current);
+                _current = next;
+            }
+        }
+
+        if (_current is null || _failed) return;
+        try
+        {
+            DrawInFrame(_current, buffers, scene);
+        }
+        catch (Exception error)
+        {
+            _failed = true;
+            GD.PushError("SVM_RD_PROTO in-frame render failed: " + error);
+        }
+    }
+
+    private void DrawInFrame(RdProtoFrame frame, RenderSceneBuffersRD buffers, RenderSceneData scene)
+    {
+        _frame++;
+        if (!_ready)
+        {
+            Init(default, ownTargets: false);
+            if (_failed) return;
+        }
+
+        RenderingDevice rd = _rd!;
+        bool msaa = buffers.GetMsaa3D() != RenderingServer.ViewportMsaa.Disabled;
+        Rid color = buffers.GetColorLayer(0, msaa);
+        Rid depth = buffers.GetDepthLayer(0, msaa);
+        if (!color.IsValid || !depth.IsValid) return;
+        if (!_sceneFramebuffers.TryGetValue((color, depth), out Rid framebuffer) || !rd.FramebufferIsValid(framebuffer))
+        {
+            // A resize frees Godot's textures and, with them, the framebuffers made here.
+            foreach ((Rid, Rid) key in new List<(Rid, Rid)>(_sceneFramebuffers.Keys))
+            {
+                if (!rd.FramebufferIsValid(_sceneFramebuffers[key])) _sceneFramebuffers.Remove(key);
+            }
+
+            framebuffer = rd.FramebufferCreate([color, depth], -1, 1);
+            _sceneFramebuffers[(color, depth)] = framebuffer;
+        }
+
+        long format = rd.FramebufferGetFormat(framebuffer);
+        if (!_scenePipelines.TryGetValue(format, out Rid[]? pipelines))
+        {
+            pipelines = new Rid[12];
+            using RDTextureFormat colorFormat = rd.TextureGetFormat(color);
+            CreatePipelines(rd, pipelines, format, colorFormat.Samples);
+            _scenePipelines[format] = pipelines;
+            GD.Print($"SVM_RD_PROTO in-frame pipelines: colour {colorFormat.Format}, samples {colorFormat.Samples}");
+        }
+
+        // Godot's corrected projection (y flipped, reverse Z) and its view: the same clip space as its own shaders.
+        // The sky zone is seen from the SkyZoneInfo with the camera's rotation, its depth scaled towards the far plane.
+        frame.Ubo.CopyTo(_sceneUbo, 0);
+        Projection projection = scene.GetCamProjection();
+        Transform3D eye = scene.GetCamTransform();
+        Projection clip = projection * new Projection(eye.AffineInverse());
+        Projection sky = projection * new Projection(new Transform3D(eye.Basis, frame.SkyOrigin).AffineInverse());
+        sky = new Projection(
+            new Vector4(sky.X.X, sky.X.Y, sky.X.Z * SceneSkyDepthScale, sky.X.W),
+            new Vector4(sky.Y.X, sky.Y.Y, sky.Y.Z * SceneSkyDepthScale, sky.Y.W),
+            new Vector4(sky.Z.X, sky.Z.Y, sky.Z.Z * SceneSkyDepthScale, sky.Z.W),
+            new Vector4(sky.W.X, sky.W.Y, sky.W.Z * SceneSkyDepthScale, sky.W.W));
+        Span<float> ubo = MemoryMarshal.Cast<byte, float>(_sceneUbo.AsSpan());
+        RdProtoRenderer.Write(clip, ubo[..16]);
+        RdProtoRenderer.Write(sky, ubo[16..32]);
+
+        _record.Restart();
+        rd.BufferUpdate(_ubo, 0, RdProtoFrame.UboSize, _sceneUbo);
+        rd.CaptureTimestamp(BeginStamp);
+        _clear[0] = frame.Clear;
+        long dl = rd.DrawListBegin(framebuffer, RD.DrawFlags.ClearColor0, _clear, 0f, 0, null, 0);
+        Draw(rd, dl, frame, pipelines);
         rd.DrawListEnd();
         rd.CaptureTimestamp(EndStamp);
         double recordMs = _record.Elapsed.TotalMilliseconds;
@@ -225,7 +339,7 @@ internal sealed class RdProtoGpu
         }
     }
 
-    private void Init(Vector2I size)
+    private void Init(Vector2I size, bool ownTargets)
     {
         _ready = true;
         _rd = RenderingServer.GetRenderingDevice();
@@ -301,7 +415,7 @@ internal sealed class RdProtoGpu
 
         // The pipelines need the framebuffer format: made with the first target, all twelve up front (creating one
         // inside a draw list would also work, but would stall the first frame that needs it).
-        EnsureTargets(rd, size);
+        if (ownTargets) EnsureTargets(rd, size);
         GD.Print(string.Create(System.Globalization.CultureInfo.InvariantCulture,
             $"SVM_RD_PROTO ready: {_geometry.Vertices.Length} vertices, {_geometry.Indices.Length / 3} triangles, {batches.Count} batches, {_sets.Count} texture sets, upload {clock.Elapsed.TotalMilliseconds:F0} ms"));
     }
@@ -361,7 +475,7 @@ internal sealed class RdProtoGpu
 
     private static int PipelineIndex(MaterialBlend blend, bool twoSided) => ((int)blend * 2) + (twoSided ? 1 : 0);
 
-    private void CreatePipelines(RenderingDevice rd)
+    private void CreatePipelines(RenderingDevice rd, Rid[] pipelines, long framebufferFormat, RD.TextureSamples samples)
     {
         foreach (MaterialBlend blend in Enum.GetValues<MaterialBlend>())
         {
@@ -401,9 +515,9 @@ internal sealed class RdProtoGpu
                     // that in Vulkan's framebuffer space.
                     FrontFace = RD.PolygonFrontFace.Clockwise,
                 };
-                _pipelines[PipelineIndex(blend, twoSided == 1)] = rd.RenderPipelineCreate(
-                    blend == MaterialBlend.Masked ? _shaderMasked : _shaderSolid, _framebufferFormat, _vertexFormat,
-                    RD.RenderPrimitive.Triangles, raster, new RDPipelineMultisampleState(), depth, colorBlend, 0, 0, []);
+                pipelines[PipelineIndex(blend, twoSided == 1)] = rd.RenderPipelineCreate(
+                    blend == MaterialBlend.Masked ? _shaderMasked : _shaderSolid, framebufferFormat, _vertexFormat,
+                    RD.RenderPrimitive.Triangles, raster, new RDPipelineMultisampleState { SampleCount = samples }, depth, colorBlend, 0, 0, []);
             }
         }
     }
@@ -430,7 +544,7 @@ internal sealed class RdProtoGpu
         if (_framebufferFormat < 0)
         {
             _framebufferFormat = rd.FramebufferGetFormat(_framebuffer);
-            CreatePipelines(rd);
+            CreatePipelines(rd, _pipelines, _framebufferFormat, RD.TextureSamples.Samples1);
         }
 
         lock (_queueLock) _latestColor = _color;
@@ -465,6 +579,22 @@ internal sealed class RdProtoGpu
         {
             if (pipeline.IsValid) rd.FreeRid(pipeline);
         }
+
+        foreach (Rid[] pipelines in _scenePipelines.Values)
+        {
+            foreach (Rid pipeline in pipelines)
+            {
+                if (pipeline.IsValid) rd.FreeRid(pipeline);
+            }
+        }
+
+        foreach (Rid framebuffer in _sceneFramebuffers.Values)
+        {
+            if (rd.FramebufferIsValid(framebuffer)) rd.FreeRid(framebuffer);
+        }
+
+        _scenePipelines.Clear();
+        _sceneFramebuffers.Clear();
 
         foreach (Rid array in _indexArrays)
         {

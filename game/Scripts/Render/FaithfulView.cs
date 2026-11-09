@@ -27,6 +27,9 @@ public partial class FaithfulView : Node3D
     // Every other sky zone is drawn by the main camera: its nodes, their places in their cell's surface order and their
     // last sort offsets.
     private bool _skyMerged;
+
+    /// <summary>The main view draws the sky zone's geometry this frame (not a sky fogged solid, not thermal or EMF).</summary>
+    internal bool SkyInMainView => _skyMerged && !IsSceneVision(_rendMap);
     private Vector3 _skyOrigin;
     private readonly System.Collections.Generic.List<GeometryInstance3D> _skyNodes = [];
     private readonly System.Collections.Generic.List<int> _skyOrder = [];

@@ -71,7 +71,7 @@ internal static class RdProtoShaders
                 : min(texture(tex_lightmap, v_uv2).rgb * frame.params.x + v_light, vec3(2.0));
             // Raw display values into the RGBA8 target, as the original's back buffer. Blended passes keep the
             // target's alpha (write mask), solid ones write 1 so the canvas shows the picture opaque.
-            frag = vec4(t.rgb * light, t.a);
+            frag = vec4(min(t.rgb * light, vec3(1.0)), t.a);
         }
         """;
 }

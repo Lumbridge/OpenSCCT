@@ -1478,6 +1478,9 @@ public static class MapBuilder
                 // A cell with more materials than one mesh can hold (MoonD's cells pass 256) is split over several
                 // meshes, so no surface is dropped.
                 int part = 0;
+                // SVM_RD_PROTO=frame draws only what it can hide from the main view by layer (StaticWorld, Sky): a
+                // cell with an animated shadow material goes on the World layer, so it stays with Godot, whole.
+                bool keptByGodot = RdProto.RdProtoGeometry.InFrame && cell.sky == 0 && drawn.Exists(d => AnimatesShadow(d.Material));
                 var surfaces = new List<(SurfaceBuilder Surface, Material Material, LightReach.Twins Twins, bool Split)>(MaxSurfacesPerMesh);
                 foreach (((string, LightSource, VisionPass) key, Material material, LightReach.Twins twins, SurfaceBuilder b) in drawn)
                 {
@@ -1488,7 +1491,7 @@ public static class MapBuilder
 
                     if (surfaces.Count == MaxSurfacesPerMesh)
                     {
-                        FlushCellPart(surfaces, CellPartName(baseName, part++), cell.sky != 0);
+                        FlushCellPart(surfaces, CellPartName(baseName, part++), cell.sky != 0, keptByGodot);
                         surfaces.Clear();
                     }
 
@@ -1501,10 +1504,13 @@ public static class MapBuilder
                     bool split = cell.sky == 0 ? key.Item3 != VisionPass.SeeThrough && material.NextPass is null && solid : !solid;
                     surfaces.Add((b, material, twins, split));
                     _map.Stats.Vertices += b.VertexCount;
-                    _map.RdGeometry?.Add(cell, key.Item2, material, entry, b, _map.Textures);
+                    if (!keptByGodot)
+                    {
+                        _map.RdGeometry?.Add(cell, key.Item2, material, entry, b, _map.Textures);
+                    }
                 }
 
-                FlushCellPart(surfaces, CellPartName(baseName, part), cell.sky != 0);
+                FlushCellPart(surfaces, CellPartName(baseName, part), cell.sky != 0, keptByGodot);
             }
         }
 
@@ -1532,23 +1538,23 @@ public static class MapBuilder
         private static string CellPartName(string baseName, int part) =>
             part == 0 ? baseName : string.Create(CultureInfo.InvariantCulture, $"{baseName}_{part}");
 
-        private void FlushCellPart(List<(SurfaceBuilder Surface, Material Material, LightReach.Twins Twins, bool Split)> surfaces, string name, bool sky)
+        private static bool AnimatesShadow(Material material) =>
+            material is ShaderMaterial { Shader: { } shader } && shader.HasMeta("svm_shadow_animated") && shader.GetMeta("svm_shadow_animated").AsBool();
+
+        private void FlushCellPart(List<(SurfaceBuilder Surface, Material Material, LightReach.Twins Twins, bool Split)> surfaces, string name, bool sky, bool worldLayer = false)
         {
             if (surfaces.Count == 0)
             {
                 return;
             }
 
-            bool animatedShadow = false;
+            bool animatedShadow = worldLayer;
             var grouped = new ArrayMesh { ResourceName = name };
             var groupedTwins = new List<LightReach.Twins>();
             var bounded = new List<(ArrayMesh Mesh, LightReach.Twins Twins)>();
             foreach ((SurfaceBuilder surface, Material material, LightReach.Twins twins, bool split) in surfaces)
             {
-                if (!sky && material is ShaderMaterial { Shader: { } shader })
-                {
-                    animatedShadow |= shader.HasMeta("svm_shadow_animated") && shader.GetMeta("svm_shadow_animated").AsBool();
-                }
+                animatedShadow |= !sky && AnimatesShadow(material);
 
                 // Each material was already a draw call. A tight instance AABB lets Godot cull
                 // it without splitting the material's merged triangles into additional calls.

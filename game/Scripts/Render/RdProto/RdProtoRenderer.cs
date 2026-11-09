@@ -39,6 +39,8 @@ public partial class RdProtoRenderer : Node
     private double _sinceReport;
     private int _framesSinceReport;
     private int _lastDraws, _lastTriangles;
+    private RdProtoFrameEffect? _effect;
+    private bool _drawSky = true;
 
     internal RdProtoRenderer(RenderMap map, FaithfulView view)
     {
@@ -65,6 +67,29 @@ public partial class RdProtoRenderer : Node
 
     public override void _Ready()
     {
+        if (RdProtoGeometry.InFrame)
+        {
+            if (_map.Lighting.OutdoorSky)
+            {
+                // Godot's sky pass needs its own background mode: such a map stays with Godot.
+                GD.Print("SVM_RD_PROTO in-frame: off (outdoor sky), " + _map.MapId);
+                SetProcess(false);
+                return;
+            }
+
+            // Godot keeps drawing everything but the merged cells: they leave the main view (the shadow cameras still
+            // draw them) and this renderer draws them from the camera's compositor between Godot's depth pre-pass and
+            // its opaque pass. The environment keeps the background, so that pass loads what was drawn here.
+            _effect = new RdProtoFrameEffect(_gpu);
+            Compositor compositor = _view.Camera.Compositor ??= new Compositor();
+            Godot.Collections.Array<CompositorEffect> effects = compositor.CompositorEffects;
+            effects.Insert(0, _effect);
+            compositor.CompositorEffects = effects;
+            GD.Print(string.Create(CultureInfo.InvariantCulture,
+                $"SVM_RD_PROTO in-frame: {_map.MapId}, {_geometry.Batches.Count} batches, {_geometry.Vertices.Length} vertices, {_geometry.Indices.Length / 3} triangles"));
+            return;
+        }
+
         // Under every other canvas layer (the HUD is at 10, the camera occlusion mask at 9).
         var layer = new CanvasLayer { Name = "RdProtoLayer", Layer = -100 };
         _rect = new TextureRect
@@ -86,6 +111,21 @@ public partial class RdProtoRenderer : Node
 
     public override void _ExitTree()
     {
+        if (_effect is not null)
+        {
+            if (GodotObject.IsInstanceValid(_view.Camera) && _view.Camera.Compositor is { } compositor)
+            {
+                Godot.Collections.Array<CompositorEffect> effects = compositor.CompositorEffects;
+                effects.Remove(_effect);
+                compositor.CompositorEffects = effects;
+                RestoreGodotWorld();
+            }
+
+            RdProtoGpu inFrameGpu = _gpu;
+            RenderingServer.CallOnRenderThread(Callable.From(inFrameGpu.Free));
+            return;
+        }
+
         GetViewport().Disable3D = false;
         if (_rect is not null) _rect.Texture = null;
         _shown.TextureRdRid = default;
@@ -96,10 +136,24 @@ public partial class RdProtoRenderer : Node
 
     public override void _Process(double delta)
     {
-        if (_gpu.Failed) return;
-        ShowLatest();
+        if (_gpu.Failed)
+        {
+            // In-frame: Godot draws the cells again.
+            if (_effect is not null) RestoreGodotWorld();
+            return;
+        }
+
+        bool inFrame = _effect is not null;
+        if (!inFrame) ShowLatest();
         Camera3D camera = _view.Camera;
         if (!camera.IsInsideTree()) return;
+        _drawSky = !inFrame || _view.SkyInMainView;
+        if (inFrame)
+        {
+            uint hidden = RenderLayers.StaticWorld | (_drawSky ? RenderLayers.Sky : 0u);
+            if ((camera.CullMask & hidden) != 0) camera.CullMask &= ~hidden;
+            if (camera.Environment is { BackgroundMode: Godot.Environment.BGMode.Color } env) env.BackgroundMode = Godot.Environment.BGMode.Keep;
+        }
 
         Viewport viewport = GetViewport();
         Vector2 visible = viewport.GetVisibleRect().Size;
@@ -119,6 +173,7 @@ public partial class RdProtoRenderer : Node
         frame.Size = size;
         Color clear = camera.Environment?.BackgroundColor.SrgbToLinear() ?? new Color(0f, 0f, 0f);
         frame.Clear = new Color(clear.R, clear.G, clear.B, 1f);
+        frame.SkyOrigin = _skyOrigin;
         Span<float> ubo = MemoryMarshal.Cast<byte, float>(frame.Ubo.AsSpan());
         Write(ToVulkan(world, 1f - SkyDepth, SkyDepth), ubo[..16]);
         Write(ToVulkan(sky, SkyDepth, 0f), ubo[16..32]);
@@ -126,15 +181,24 @@ public partial class RdProtoRenderer : Node
         ubo[33] = ubo[34] = ubo[35] = 0f;
         CullAndSort(frame, eye.Origin);
         _gpu.Submit(frame);
-        RenderingServer.CallOnRenderThread(_render);
+        // In-frame, the compositor effect draws the frame inside Godot's own render of the main view.
+        if (!inFrame) RenderingServer.CallOnRenderThread(_render);
 
         _framesSinceReport++;
         _sinceReport += delta;
         if (_sinceReport >= 1.0)
         {
             Report();
-            DisableAuxViewports();
+            if (!inFrame) DisableAuxViewports();
         }
+    }
+
+    /// <summary>In-frame: Godot's main view draws the cells and the sky zone itself again, over its own clear.</summary>
+    private void RestoreGodotWorld()
+    {
+        Camera3D camera = _view.Camera;
+        camera.CullMask |= RenderLayers.StaticWorld | (_view.SkyInMainView ? RenderLayers.Sky : 0u);
+        if (camera.Environment is { BackgroundMode: Godot.Environment.BGMode.Keep } env) env.BackgroundMode = Godot.Environment.BGMode.Color;
     }
 
     /// <summary>Points the Texture2DRD at the render thread's newest colour target (new after a resize).</summary>
@@ -179,6 +243,7 @@ public partial class RdProtoRenderer : Node
         for (int i = 0; i < batches.Count; i++)
         {
             RdProtoGeometry.Batch b = batches[i];
+            if (b.Sky && !_drawSky) continue;
             if (!Inside(b.Sky ? _skyPlanes : _worldPlanes, b.Bounds)) continue;
             float d = (b.Sky ? _skyOrigin : eye).DistanceSquaredTo(b.Bounds.GetCenter());
             bool blended = b.Blend is not (MaterialBlend.Opaque or MaterialBlend.Masked);
@@ -240,7 +305,7 @@ public partial class RdProtoRenderer : Node
     }
 
     /// <summary>Column-major, as GLSL reads a std140 mat4.</summary>
-    private static void Write(in Projection m, Span<float> to)
+    internal static void Write(in Projection m, Span<float> to)
     {
         ReadOnlySpan<Vector4> columns = [m.X, m.Y, m.Z, m.W];
         for (int c = 0; c < 4; c++)

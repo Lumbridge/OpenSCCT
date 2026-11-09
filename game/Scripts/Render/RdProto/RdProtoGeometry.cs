@@ -16,7 +16,15 @@ namespace OpenScctGame.Render.RdProto;
 /// </summary>
 internal sealed class RdProtoGeometry
 {
-    public static bool Enabled { get; } = System.Environment.GetEnvironmentVariable("SVM_RD_PROTO") == "1";
+    private static readonly string? s_mode = System.Environment.GetEnvironmentVariable("SVM_RD_PROTO");
+
+    public static bool Enabled { get; } = s_mode is "1" or "frame";
+
+    /// <summary>
+    /// SVM_RD_PROTO=frame: the cells are drawn inside Godot's own frame (after its opaque pass, into its colour and
+    /// depth buffers), and Godot keeps drawing everything else. SVM_RD_PROTO=1 replaces Godot's 3D drawing entirely.
+    /// </summary>
+    public static bool InFrame { get; } = s_mode == "frame";
 
     /// <summary>Vertex flags in the colour's alpha byte (the shader reads them back as an integer).</summary>
     public const byte FlagSky = 1, FlagFullbright = 2;
