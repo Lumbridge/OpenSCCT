@@ -37,6 +37,7 @@
   </ItemGroup>
   <ItemGroup>
     <!-- Embed licensed vector icons so desktop/export builds do not depend on editor import caches. -->
+    <EmbeddedResource Include="Shaders/svm_authored.gdshaderinc" LogicalName="AuthoredMaterialShader" />
     <EmbeddedResource Include="branding/icons/event-feed/*.svg" LogicalName="EventFeed/%(Filename)%(Extension)" />
   </ItemGroup>
 </Project>

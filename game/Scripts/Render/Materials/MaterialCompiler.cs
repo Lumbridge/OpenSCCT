@@ -339,6 +339,8 @@ public sealed partial class MaterialCompiler
         CombineEntry? combine = entry.Combine;
         FlipbookEntry? flipbook = combine is null ? entry.Flipbook : null;
         var extras = new List<string>();
+        AddIf(extras, entry.Authored is not null, "AUTHORED_MATERIAL");
+        AddIf(extras, entry.Authored is { Refraction: > 0, Surface: "translucent" }, "AM_REFRACTION");
         AddIf(extras, billboard, "BILLBOARD");
         AddIf(extras, combine is not null && entry.LightBeforeCombine && light != LightSource.None, "COMBINE_LIGHT_FIRST");
         AddIf(extras, selfIllum, "SELF_ILLUM");
@@ -456,6 +458,9 @@ public sealed partial class MaterialCompiler
             }
         }
 
+        if (entry.Authored is { } authored) AuthoredMaterialBinding.Apply(material, authored, file => _textures.Get(file), _textures.GetAuthored);
+        if (entry.AuthoredDirection is { } direction)
+        { SetTexture(material, "am_bakedDirection", _textures.Get(direction)); material.SetShaderParameter("am_hasBakedDirection", true); }
         return material;
     }
 
@@ -685,10 +690,12 @@ public sealed partial class MaterialCompiler
 
         Define(code, coverage ? "ALPHA_COVERAGE" : null);
 
+        if (extras.Contains("AUTHORED_MATERIAL")) code.Append(AuthoredMaterialBinding.ShaderCode);
+
         code.Append("#include \"").Append(TemplatePath).Append("\"\n");
         shader = new Shader { Code = code.ToString(), ResourceName = "svm_world " + key };
         shader.SetMeta("svm_shadow_animated", blend == MaterialBlend.Masked &&
-            (extras.Contains("UV_ANIM") || extras.Contains("FLIPBOOK") || extras.Contains("OPACITY_LAYER") || extras.Contains("COMBINE") || extras.Contains("SEQUENCE_D")));
+            (extras.Contains("UV_ANIM") || extras.Contains("FLIPBOOK") || extras.Contains("OPACITY_LAYER") || extras.Contains("COMBINE") || extras.Contains("SEQUENCE_D") || extras.Contains("AUTHORED_MATERIAL")));
         _shaders[key] = shader;
         return shader;
     }

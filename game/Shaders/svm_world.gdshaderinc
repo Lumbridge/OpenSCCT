@@ -229,6 +229,11 @@ uniform int c2_env = 0;
 uniform vec4 c2_flip = vec4(1.0, 1.0, 1.0, 0.0);
 #endif
 
+#if defined(AUTHORED_MATERIAL) && !defined(LIGHT_LIGHTMAP) && !defined(LIGHT_VERTEX) && !defined(LIGHT_ACTOR)
+varying vec3 v_wpos;
+varying vec3 v_wnormal;
+#endif
+
 #ifdef FLIPBOOK
 // Texture.AnimNext chain as an atlas (tex_diffuse): x columns, y rows, z frames, w frames per second.
 uniform vec4 flipbook = vec4(1.0, 1.0, 1.0, 30.0);
@@ -614,6 +619,38 @@ vec3 svm_dynamic(vec3 wp, vec3 wn, float zone) {
 	return sum * svm_dyn_tune.x;
 }
 
+#ifdef AUTHORED_MATERIAL
+vec3 svm_authored_highlights(AuthoredSample material_value, vec3 wp, vec3 n, vec3 view_vector, vec3 tangent, float zone, int ignore) {
+    vec3 sum = vec3(0.0);
+    bool indexed = svm_dyn_indexed_rows > 0 && svm_dyn_tune.y == 1.0;
+    int cell = 256, local_count = 0, count = svm_dyn_light_count;
+    if (indexed) {
+        vec2 coord = (wp.xz - svm_dyn_cell_transform.xy) * svm_dyn_cell_transform.zw;
+        if (all(greaterThanEqual(coord, vec2(0.0))) && all(lessThan(coord, vec2(16.0)))) cell = int(coord.y) * 16 + int(coord.x);
+        local_count = int(texelFetch(svm_dyn_cells, ivec2(0, cell), 0).r);
+        count += local_count - svm_dyn_indexed_rows;
+    }
+    for (int j = 0; j < count; j++) {
+        int i = indexed ? (j < local_count ? int(texelFetch(svm_dyn_cells, ivec2(j + 1, cell), 0).r) : svm_dyn_indexed_rows + j - local_count) : j;
+        float own = texelFetch(svm_dyn_lights, ivec2(3, i), 0).x;
+        if (svm_dyn_tune.w > 0.5 && own >= 0.0 && abs(own - zone) > 0.5) continue;
+        vec4 p = texelFetch(svm_dyn_lights, ivec2(0, i), 0), c = texelFetch(svm_dyn_lights, ivec2(1, i), 0), s = texelFetch(svm_dyn_lights, ivec2(2, i), 0);
+        p.w *= svm_dyn_tune.y;
+        vec3 l = p.w < 0.0 ? normalize(p.xyz) : normalize(p.xyz - wp);
+        vec3 radiance = svm_one_light(p, c, s, wp, l, svm_dyn_falloff()) * svm_window_filter(wp, p) * svm_dyn_tune.x;
+        sum += am_highlight(material_value, n, view_vector, l, am_linear(radiance), tangent);
+    }
+    for (int i = 0; i < svm_spot_count; i++) {
+        vec4 r0 = texelFetch(svm_spots, ivec2(0, i), 0), r1 = texelFetch(svm_spots, ivec2(1, i), 0), r2 = texelFetch(svm_spots, ivec2(2, i), 0);
+        vec4 w = vec4(wp, 1.0); vec3 local = vec3(dot(r0, w), dot(r1, w), dot(r2, w));
+        vec3 local_light = texelFetch(svm_spots, ivec2(5, i), 0).z > 0.5 ? vec3(0.0, 0.0, 1.0) : normalize(-local);
+        vec3 l = normalize(r0.xyz * local_light.x + r1.xyz * local_light.y + r2.xyz * local_light.z);
+        sum += am_highlight(material_value, n, view_vector, l, am_linear(svm_spot_slot(i, wp, l, zone, ignore)), tangent);
+    }
+    return sum;
+}
+#endif
+
 // The zone ambient of world surfaces (m_RefAmbientColor x gain, WorldLights.ZoneAmbientTexture), one texel per zone.
 global uniform sampler2D svm_zone_ambient;
 
@@ -630,6 +667,10 @@ vec3 svm_zone_amb(float zone) {
 #endif
 
 void vertex() {
+#if defined(AUTHORED_MATERIAL) && !defined(LIGHT_LIGHTMAP) && !defined(LIGHT_VERTEX) && !defined(LIGHT_ACTOR)
+    v_wpos = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
+    v_wnormal = MODEL_NORMAL_MATRIX * NORMAL;
+#endif
 #ifdef SVM_CLOAK
 	v_cloak_shift = 10.0 * max(0.0, 1.0 - length(NODE_POSITION_VIEW) * 100.0 / 1500.0);
 #endif
@@ -759,7 +800,12 @@ void fragment() {
 #if defined(OPACITY_LAYER) || defined(SPEC_LAYER) || defined(SI_LAYER) || defined(SEQUENCE_D) || defined(SEQUENCE_SI) || defined(SEQUENCE_SIM)
 	vec2 raw_uv = svm_affine(surface_uv, base_row_u, base_row_v);
 #endif
-#if defined(SEQUENCE_D)
+#if defined(AUTHORED_MATERIAL)
+    mat3 authored_frame = am_frame(v_wpos, normalize(v_wnormal), am_mapping(surface_uv, svm_time));
+    vec3 authored_view = normalize(CAMERA_POSITION_WORLD - v_wpos);
+    AuthoredSample authored = am_evaluate(surface_uv, v_wpos, normalize(v_wnormal), transpose(authored_frame) * authored_view, svm_time);
+    vec4 t = vec4(am_display(authored.color.rgb), authored.color.a);
+#elif defined(SEQUENCE_D)
     vec4 t = seq_d_sample(raw_uv);
 #elif defined(COMBINE)
 	// Each input through its own modifiers (after the Combiner's own), then CombineOperation / AlphaOperation.
@@ -819,6 +865,9 @@ void fragment() {
 	}
 #if defined(LIGHT_LIGHTMAP) || defined(LIGHT_VERTEX) || defined(LIGHT_ACTOR)
 	vec3 wn = normalize(v_wnormal) * (FRONT_FACING ? 1.0 : -1.0);
+#ifdef AUTHORED_MATERIAL
+    wn = normalize(am_triplanar ? authored.normal : authored_frame * authored.normal) * (FRONT_FACING ? 1.0 : -1.0);
+#endif
 #ifdef NORMAL_MAP
 	vec3 detail = texture(tex_normal, uv, svm_mip_bias).xyz * 2.0 - 1.0;
 	wn = normalize(mat3(normalize(v_wtangent), normalize(v_wbinormal), wn) * detail);
@@ -853,7 +902,7 @@ void fragment() {
 	// The flares per pixel, with the actor model's falloff (their shadows fall across the actor), past the 2x cap.
 	vec3 flare = svm_flare_count > 0 && !unlit ? svm_flare_light(v_wpos, wn, 1.0, 0) : vec3(0.0);
 	vec3 actor_light = v_light;
-#ifdef NORMAL_MAP
+#if defined(NORMAL_MAP) || defined(AUTHORED_MATERIAL)
 	actor_light = svm_ambient.rgb;
 	actor_light += svm_actor_light(svm_l0_pos, svm_l0_col, svm_l0_spot, v_wpos, wn);
 	actor_light += svm_actor_light(svm_l1_pos, svm_l1_col, svm_l1_spot, v_wpos, wn);
@@ -863,6 +912,46 @@ void fragment() {
 	vec3 lit = t.rgb * (min(actor_light + spot + vec3(svm_vision_ambient), vec3(2.0)) + flare);
 #else
 	vec3 lit = t.rgb;
+#endif
+#ifdef AUTHORED_MATERIAL
+    vec3 authored_irradiance = am_linear(max(lit / max(t.rgb, vec3(0.0001)), vec3(0.0)));
+#ifdef LIGHT_LIGHTMAP
+    if (am_hasBakedDirection) {
+        vec4 direction = texture(am_bakedDirection, UV2);
+        vec3 light_direction = normalize(direction.xyz * 2.0 - 1.0);
+        float base_incidence = max(dot(normalize(v_wnormal), light_direction), 0.1);
+        float normal_incidence = max(dot(normalize(am_triplanar ? authored.normal : authored_frame * authored.normal), light_direction), 0.0);
+        authored_irradiance *= mix(1.0, clamp(normal_incidence / base_incidence, 0.0, 4.0), direction.a);
+    }
+#endif
+    vec3 authored_result = authored.color.rgb * authored_irradiance * authored.ao * (1.0 - authored.metallic);
+    vec3 authored_n = normalize(am_triplanar ? authored.normal : authored_frame * authored.normal);
+#ifdef LIGHT_LIGHTMAP
+    if (am_hasBakedDirection) {
+        vec4 direction = texture(am_bakedDirection, UV2);
+        authored_result += am_highlight(authored, authored_n, authored_view, normalize(direction.xyz * 2.0 - 1.0), authored_irradiance * direction.a, authored_frame[0]);
+    }
+#endif
+#if defined(LIGHT_LIGHTMAP) || defined(LIGHT_VERTEX)
+    if (!unlit) authored_result += svm_authored_highlights(authored, v_wpos, authored_n, authored_view, authored_frame[0], zone, echelon_ignore);
+#endif
+    if (am_has_environment) {
+        vec3 reflected = reflect(-authored_view, authored_n);
+        vec2 env_uv = vec2(atan(reflected.z, reflected.x) / 6.2831853 + 0.5, acos(clamp(reflected.y, -1.0, 1.0)) / 3.14159265);
+        vec3 env_rgb = textureLod(am_tex_environment, env_uv, authored.roughness * 7.0).rgb;
+        if (am_srgb_environment) env_rgb = am_linear(env_rgb);
+        vec3 f0 = mix(am_specularColor * 0.08 * authored.specular, authored.color.rgb, authored.metallic);
+        authored_result += env_rgb * (f0 + (1.0 - f0) * pow(1.0 - max(dot(authored_n, authored_view), 0.0), 5.0)) * authored.ao;
+    }
+#if defined(LIGHT_ACTOR)
+    vec3 l0 = normalize(svm_l0_pos.xyz - v_wpos), l1 = normalize(svm_l1_pos.xyz - v_wpos);
+    vec3 l2 = normalize(svm_l2_pos.xyz - v_wpos), l3 = normalize(svm_l3_pos.xyz - v_wpos);
+    authored_result += am_highlight(authored, authored_n, authored_view, l0, am_linear(svm_actor_light(svm_l0_pos, svm_l0_col, svm_l0_spot, v_wpos, l0)), authored_frame[0]);
+    authored_result += am_highlight(authored, authored_n, authored_view, l1, am_linear(svm_actor_light(svm_l1_pos, svm_l1_col, svm_l1_spot, v_wpos, l1)), authored_frame[0]);
+    authored_result += am_highlight(authored, authored_n, authored_view, l2, am_linear(svm_actor_light(svm_l2_pos, svm_l2_col, svm_l2_spot, v_wpos, l2)), authored_frame[0]);
+    authored_result += am_highlight(authored, authored_n, authored_view, l3, am_linear(svm_actor_light(svm_l3_pos, svm_l3_col, svm_l3_spot, v_wpos, l3)), authored_frame[0]);
+#endif
+    lit = am_display(authored_result + authored.emission);
 #endif
 	// Evaluate once for both scene-light visibility and the final surface blend. Keeping two inlined fog
 	// paths inflated these material shaders even when Fast skipped scene shadows.
@@ -877,6 +966,10 @@ void fragment() {
 	lit = clamp(svm_combine_rgb(min(lit, vec3(1.0)), m2.rgb, mk.rgb, ma) * float(combine.z), 0.0, 1.0);
 #endif
 	vec3 c = min(lit, vec3(1.0));
+#ifdef AM_REFRACTION
+    vec2 refraction_offset = (mat3(VIEW_MATRIX) * authored_n).xy * am_refraction;
+    c = mix(c, textureLod(am_scene, SCREEN_UV + refraction_offset, authored.roughness * 5.0).rgb, 1.0 - authored.color.a);
+#endif
 #ifdef SELF_ILLUM
 #ifdef SI_LAYER
 	vec2 siuv = svm_affine(svm_anim(svm_affine(raw_uv, si_row_u, si_row_v), si_anim_type, si_anim_a, si_anim_b, si_anim_c,

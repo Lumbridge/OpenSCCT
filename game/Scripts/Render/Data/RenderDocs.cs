@@ -205,6 +205,8 @@ public sealed record FlipbookEntry(string Texture, int Cols, int Rows, int Frame
 /// <summary>One material of render/materials.json, keyed by its glTF material name.</summary>
 public sealed class MaterialEntry
 {
+    public OpenScct.Content.Materials.AuthoredMaterial? Authored { get; init; }
+    public string? AuthoredDirection { get; init; }
     public IReadOnlyDictionary<string, MaterialSequenceEntry> Sequences { get; init; } = new Dictionary<string, MaterialSequenceEntry>();
     public required string Name { get; init; }
 
@@ -406,9 +408,13 @@ public sealed class MaterialsDoc
             "textures/SGameplayObjectsTex_led_heat_si_alarm_redA__op.png" or
             "textures/SGPOTexE_led_heat_si_alarm_yellowA__op.png" or
             "textures/SGameplayObjectsTex_led_heat_SI_blackA__op.png";
+        var definition = has && f.TryGetProperty("authored", out JsonElement authored) ? OpenScct.Content.Materials.AuthoredMaterial.From(authored) : null;
+        if (definition is not null && definition.Problems().Count > 0) throw new System.IO.InvalidDataException(name + ": " + string.Join("; ", definition.Problems()));
         return new MaterialEntry
         {
             Name = name,
+            Authored = definition,
+            AuthoredDirection = has ? Str(f, "authored_direction") : null,
             Source = source,
             Texture = texture,
             Masked = has && Bool(f, "masked") && !opaqueCombiner,

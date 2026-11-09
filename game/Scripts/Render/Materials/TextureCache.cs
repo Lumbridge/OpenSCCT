@@ -26,6 +26,16 @@ public sealed class TextureCache
 
     public int Count => _textures.Count;
 
+    public Texture2D? GetAuthored(string slot, OpenScct.Content.Materials.MaterialTexture binding)
+    {
+        string key = binding.File + "#authored:" + AuthoredTextureImage.Key(slot, binding);
+        if (_textures.TryGetValue(key, out var known)) return known;
+        string file = Path.Combine(_root, binding.File);
+        if (!File.Exists(file)) { Missing.Add(binding.File); return null; }
+        using Image image = AuthoredTextureImage.Decode(File.ReadAllBytes(file), slot, binding);
+        return _textures[key] = ImageTexture.CreateFromImage(image);
+    }
+
     /// <summary>
     /// Top mip levels left out of colour textures (the original's TextureDetail settings drop levels of large
     /// textures); textures stay at least <see cref="MipDropMinSize"/> wide. Lightmaps keep every texel.

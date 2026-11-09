@@ -157,7 +157,11 @@ internal sealed class SurfaceBuilder
             flags |= (Mesh.ArrayFormat)((long)Mesh.ArrayCustomFormat.RFloat << (int)Mesh.ArrayFormat.FormatCustom1Shift);
         }
 
-        mesh.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, arrays, null, null, flags);
+        using var lods = material?.HasMeta("authored_displacement") == true && material.GetMeta("authored_displacement").AsBool()
+            ? Materials.AuthoredMeshLods.Create(arrays, (ulong)flags) : new Godot.Collections.Dictionary();
+        var blendShapes = new Godot.Collections.Array<Godot.Collections.Array>();
+        mesh.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, arrays, blendShapes, lods, flags);
+        GC.KeepAlive(blendShapes);
         if (material is not null)
         {
             mesh.SurfaceSetMaterial(mesh.GetSurfaceCount() - 1, material);
