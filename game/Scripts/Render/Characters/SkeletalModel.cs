@@ -657,7 +657,7 @@ public sealed class SkeletalModel : OpenScctGame.Views.IFirstPersonRigModel
     /// </summary>
     private static Node3D ImportScene(string glbPath, JsonElement root, Dictionary<string, MaterialEntry> materials, bool authored)
     {
-        if (WithoutImages(glbPath, root) is { } stripped)
+        if (ForImport(glbPath, root, authored) is { } stripped)
         {
             if (Import(glbPath, stripped, authored, out _) is { } scene)
             {
@@ -726,27 +726,43 @@ public sealed class SkeletalModel : OpenScctGame.Views.IFirstPersonRigModel
     private static string? s_pixelUri;
 
     /// <summary>
-    /// The .glb with its "images" array replaced by 1x1 PNGs (same count, order and names); every other byte as it is.
-    /// Null when the file has no images or names an image format extension.
+    /// The .glb as Godot's importer needs it, every other byte as it is: its "images" array replaced by 1x1 PNGs (same
+    /// count, order and names; left alone when the file names an image format extension), and, for a file whose clips
+    /// are read here (<paramref name="authored"/>), without its "animations" and the accessors and buffer views after
+    /// the last one a mesh or skin uses. The importer decodes every clip's keys while it parses, wanted or not: the
+    /// stock spy's 339 clips cost half a second a load. Null when nothing is to change.
     /// </summary>
-    private static byte[]? WithoutImages(string glbPath, JsonElement root)
+    private static byte[]? ForImport(string glbPath, JsonElement root, bool authored)
     {
-        if (!root.TryGetProperty("images", out JsonElement images) || images.ValueKind != JsonValueKind.Array ||
-            images.GetArrayLength() == 0)
-        {
-            return null;
-        }
-
-        if (root.TryGetProperty("extensionsUsed", out JsonElement used) && used.ValueKind == JsonValueKind.Array)
+        bool extensions = root.TryGetProperty("extensionsUsed", out JsonElement used) && used.ValueKind == JsonValueKind.Array &&
+            used.GetArrayLength() > 0;
+        bool images = root.TryGetProperty("images", out JsonElement imageList) && imageList.ValueKind == JsonValueKind.Array &&
+            imageList.GetArrayLength() > 0;
+        if (images && extensions)
         {
             foreach (JsonElement e in used.EnumerateArray())
             {
                 if (e.GetString() is "KHR_texture_basisu" or "EXT_texture_webp" or "EXT_texture_avif" or "MSFT_texture_dds"
                     or "KHR_materials_pbrSpecularGlossiness")
                 {
-                    return null;
+                    images = false;
                 }
             }
+        }
+
+        bool clips = authored && root.TryGetProperty("animations", out JsonElement clipList) && clipList.ValueKind == JsonValueKind.Array &&
+            clipList.GetArrayLength() > 0;
+        if (!images && !clips)
+        {
+            return null;
+        }
+
+        // What a mesh or skin reads comes first in the files the converter writes; the clips' data follows. An image
+        // kept in the file may name a buffer view, and an extension anything: nothing is cut then.
+        int keepAccessors = -1, keepViews = -1;
+        if (clips && !extensions && (images || !root.TryGetProperty("images", out _)))
+        {
+            UsedByGeometry(root, out keepAccessors, out keepViews);
         }
 
         byte[] file = File.ReadAllBytes(glbPath);
@@ -763,34 +779,144 @@ public sealed class SkeletalModel : OpenScctGame.Views.IFirstPersonRigModel
             return null;
         }
 
-        // The byte range of the root "images" value.
+        // The byte ranges of the root values to replace, in file order.
         ReadOnlySpan<byte> json = span.Slice(20, jsonLength);
+        var edits = new List<(int Start, int End, byte[] Put)>();
         var reader = new Utf8JsonReader(json);
-        int start = -1, end = -1;
         while (reader.Read())
         {
-            if (reader.TokenType == JsonTokenType.PropertyName && reader.CurrentDepth == 1)
+            if (reader.TokenType != JsonTokenType.PropertyName || reader.CurrentDepth != 1)
             {
-                bool isImages = reader.ValueTextEquals("images"u8);
-                reader.Read();
-                if (isImages && reader.TokenType == JsonTokenType.StartArray)
+                continue;
+            }
+
+            bool isImages = images && reader.ValueTextEquals("images"u8);
+            bool isClips = clips && reader.ValueTextEquals("animations"u8);
+            int keep = reader.ValueTextEquals("accessors"u8) ? keepAccessors : reader.ValueTextEquals("bufferViews"u8) ? keepViews : -1;
+            reader.Read();
+            if (reader.TokenType != JsonTokenType.StartArray)
+            {
+                reader.Skip();
+                continue;
+            }
+
+            int start = (int)reader.TokenStartIndex;
+            if (isImages || isClips)
+            {
+                reader.Skip();
+                edits.Add((start, (int)reader.BytesConsumed, isImages ? ImageStubs(imageList) : "[]"u8.ToArray()));
+            }
+            else if (keep > 0)
+            {
+                // Everything after the last element kept, up to the closing bracket.
+                int count = 0, cut = -1;
+                while (reader.Read() && reader.TokenType != JsonTokenType.EndArray)
                 {
-                    start = (int)reader.TokenStartIndex;
                     reader.Skip();
-                    end = (int)reader.BytesConsumed;
+                    if (++count == keep) cut = (int)reader.BytesConsumed;
                 }
-                else
-                {
-                    reader.Skip();
-                }
+
+                if (cut >= 0 && count > keep) edits.Add((cut, (int)reader.TokenStartIndex, []));
+            }
+            else
+            {
+                reader.Skip();
             }
         }
 
-        if (start < 0 || end <= start)
+        if (edits.Count == 0)
         {
             return null;
         }
 
+        using var body = new MemoryStream(jsonLength);
+        int at = 0;
+        foreach ((int start, int end, byte[] put) in edits)
+        {
+            body.Write(json[at..start]);
+            body.Write(put);
+            at = end;
+        }
+
+        body.Write(json[at..]);
+        int newLength = (int)body.Length;
+        int padded = (newLength + 3) & ~3;
+        int rest = span.Length - (20 + jsonLength);
+        byte[] result = new byte[20 + padded + rest];
+        Span<byte> output = result;
+        span[..12].CopyTo(output);
+        System.Buffers.Binary.BinaryPrimitives.WriteUInt32LittleEndian(output[8..], (uint)result.Length);
+        System.Buffers.Binary.BinaryPrimitives.WriteInt32LittleEndian(output[12..], padded);
+        System.Buffers.Binary.BinaryPrimitives.WriteUInt32LittleEndian(output[16..], 0x4E4F534A);
+        Span<byte> target = output.Slice(20, padded);
+        body.GetBuffer().AsSpan(0, newLength).CopyTo(target);
+        target[newLength..].Fill((byte)' ');
+        span[(20 + jsonLength)..].CopyTo(output[(20 + padded)..]);
+        return result;
+    }
+
+    /// <summary>
+    /// How many accessors, and buffer views, from the first to the last one a mesh or skin reads (-1 each when the
+    /// file is not laid out as expected).
+    /// </summary>
+    private static void UsedByGeometry(JsonElement root, out int accessors, out int views)
+    {
+        accessors = views = -1;
+        try
+        {
+            int last = -1;
+            if (root.TryGetProperty("meshes", out JsonElement meshes))
+            {
+                foreach (JsonElement mesh in meshes.EnumerateArray())
+                {
+                    foreach (JsonElement prim in mesh.GetProperty("primitives").EnumerateArray())
+                    {
+                        foreach (JsonProperty attribute in prim.GetProperty("attributes").EnumerateObject()) last = Math.Max(last, attribute.Value.GetInt32());
+                        if (prim.TryGetProperty("indices", out JsonElement indices)) last = Math.Max(last, indices.GetInt32());
+                        if (prim.TryGetProperty("targets", out JsonElement targets))
+                        {
+                            foreach (JsonElement target in targets.EnumerateArray())
+                            {
+                                foreach (JsonProperty attribute in target.EnumerateObject()) last = Math.Max(last, attribute.Value.GetInt32());
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (root.TryGetProperty("skins", out JsonElement skins))
+            {
+                foreach (JsonElement skin in skins.EnumerateArray())
+                {
+                    if (skin.TryGetProperty("inverseBindMatrices", out JsonElement bind)) last = Math.Max(last, bind.GetInt32());
+                }
+            }
+
+            if (last < 0 || !root.TryGetProperty("accessors", out JsonElement list))
+            {
+                return;
+            }
+
+            int lastView = -1, index = 0;
+            foreach (JsonElement accessor in list.EnumerateArray())
+            {
+                if (index++ > last) break;
+                if (accessor.TryGetProperty("sparse", out _)) return;
+                if (accessor.TryGetProperty("bufferView", out JsonElement view)) lastView = Math.Max(lastView, view.GetInt32());
+            }
+
+            accessors = last + 1;
+            views = lastView + 1;
+        }
+        catch (Exception e) when (e is KeyNotFoundException or InvalidOperationException or FormatException)
+        {
+            accessors = views = -1;
+        }
+    }
+
+    /// <summary>An "images" array of 1x1 PNGs with the names of <paramref name="images"/>.</summary>
+    private static byte[] ImageStubs(JsonElement images)
+    {
         if (s_pixelUri is null)
         {
             using Image pixel = Image.CreateEmpty(1, 1, false, Image.Format.Rgba8);
@@ -818,22 +944,7 @@ public sealed class SkeletalModel : OpenScctGame.Views.IFirstPersonRigModel
             writer.WriteEndArray();
         }
 
-        int newLength = start + (int)stub.Length + (jsonLength - end);
-        int padded = (newLength + 3) & ~3;
-        int rest = span.Length - (20 + jsonLength);
-        byte[] result = new byte[20 + padded + rest];
-        Span<byte> output = result;
-        span[..12].CopyTo(output);
-        System.Buffers.Binary.BinaryPrimitives.WriteUInt32LittleEndian(output[8..], (uint)result.Length);
-        System.Buffers.Binary.BinaryPrimitives.WriteInt32LittleEndian(output[12..], padded);
-        System.Buffers.Binary.BinaryPrimitives.WriteUInt32LittleEndian(output[16..], 0x4E4F534A);
-        Span<byte> body = output.Slice(20, padded);
-        json[..start].CopyTo(body);
-        stub.GetBuffer().AsSpan(0, (int)stub.Length).CopyTo(body[start..]);
-        json[end..].CopyTo(body[(start + (int)stub.Length)..]);
-        body[newLength..].Fill((byte)' ');
-        span[(20 + jsonLength)..].CopyTo(output[(20 + padded)..]);
-        return result;
+        return stub.ToArray();
     }
 
     /// <summary>UE2 placement: Location + PrePivot, the actor rotation, and DrawScale on the mesh.</summary>

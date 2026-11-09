@@ -551,7 +551,10 @@ public sealed partial class MaterialCompiler
         AddIf(extras, Cosmetics, "SVM_COSMETIC");
         Shader shader = seeThroughPass ? SeeThroughShaderFor(light, blend, entry.TwoSided, extras) : ShaderFor(light, blend, entry.TwoSided, extras);
 
+        // The first material of a shader makes the server's shader, unless ResponsiveSmokeShaders.Prewarm already did.
+        long making = System.Diagnostics.Stopwatch.GetTimestamp();
         var material = new ShaderMaterial { Shader = shader, ResourceName = entry.Name };
+        OpenScctGame.Diagnostics.LoadTimer.Add("material-shader", making);
         if (sky && blend is not (MaterialBlend.Opaque or MaterialBlend.Masked))
         {
             // Before every other transparent surface, as the sky's picture lay under them all. Solid sky keeps the

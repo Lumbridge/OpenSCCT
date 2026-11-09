@@ -135,9 +135,13 @@ public sealed class TextureCache
         // A CPU image kept for GetImage stays; any other image is only the source of the upload.
         Image? source = null;
         bool retained = !mipmaps && _images.TryGetValue(uri, out source);
+        long started = System.Diagnostics.Stopwatch.GetTimestamp();
         Image? image = retained ? source
             : _decoded.TryRemove(key, out Image? pre) ? pre : Decode(uri, mipmaps);
+        OpenScctGame.Diagnostics.LoadTimer.Add("texture-decode", started);
+        started = System.Diagnostics.Stopwatch.GetTimestamp();
         Texture2D? texture = image is null ? null : ImageTexture.CreateFromImage(image);
+        OpenScctGame.Diagnostics.LoadTimer.Add("texture-create", started);
         if (!retained)
         {
             image?.Dispose();

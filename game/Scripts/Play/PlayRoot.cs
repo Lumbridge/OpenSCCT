@@ -222,6 +222,7 @@ public partial class PlayRoot : Node3D
         // The front end's entry may have started the timer already (before its loading picture). A play scene still
         // current is the last round: a load it never finished is not this one.
         if (!LoadTimer.Running || tree.CurrentScene is PlayRoot) LoadTimer.Begin("play " + config.Settings.Map);
+        if (config.Render) OpenScctGame.Render.Materials.ResponsiveSmokeShaders.Prewarm(config.Settings.Map);
         LoadTimer.Mark("play.enter");
         PlayRoot root = Create(config);
         Node? previous = tree.CurrentScene;
@@ -897,6 +898,7 @@ public partial class PlayRoot : Node3D
             // The first frame the player (or the test pilot) drives his pawn ends the load.
             _loadTimed = true;
             if (LoadTimer.Id == _loadId) LoadTimer.End("first-control");
+            OpenScctGame.Render.Materials.ResponsiveSmokeShaders.SaveList();
         }
         if (session.ServerFailure is { } failure && _status is not null)
         {

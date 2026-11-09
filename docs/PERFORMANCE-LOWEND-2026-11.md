@@ -19,7 +19,7 @@ Work on branch `perf/low-end` towards running OpenSCCT as well as the original o
   - memory: VRAM, private bytes, GC
   - pipeline compilations
 - `--gpu-profile` prints Godot's per-stage GPU times. Stages with the same name in different viewports are summed.
-- Every play load prints `SVM_LOAD <phase> ms= total= pipelines= texmem= ws=` lines (`Diagnostics/LoadTimer.cs`).
+- Every play load prints `SVM_LOAD <phase> ms= total= pipelines= texmem= ws=` lines (`Diagnostics/LoadTimer.cs`). `SVM_LOAD sum <what> ms= calls=` lines before a phase line total work done in many small calls during it.
 
 ## Results so far (UHD 770, 2560×1440, gameplay cameras)
 
@@ -332,6 +332,40 @@ UHD 770, 2560×1440, off-screen, gameplay cameras, world pass and shadow pass on
 - **The bright pass read the frame four times a texel.** It filtered four image loads by hand into a 1024² target. The normal view now reads the frame through a bilinear sampler, one fetch a texel. The sampler's weights have 8 fractional bits, so values can differ in their last bits; EMF's mask pass is unchanged.
 - **Parity.** Both renderers capped at 30 FPS, lean against `SVM_POST_LEAN=0`: SteeE's crane, shop and spy spawn views identical in every pixel; the courtyard view (0.06% of pixels) and AquaE (2.1%) differ by as much as two runs of the unchanged chain differ from each other (0.06% and 2.7%: signs and rain).
 - **Left.** Godot's tonemap pass (0.85 ms) is a copy of the frame into the viewport's texture with a linear curve; our decode cannot be folded into it without changing the engine. The four blurs and the composite are 0.43 ms together.
+
+## Load time (2026-11-09)
+
+Time from starting a load to the first frame the player controls (`SVM_LOAD done`), UHD 770, 2560×1440, world pass and shadow pass on, Godot's shader cache and pipeline cache warm:
+
+| | AquaE | SteeE |
+|---|---:|---:|
+| Before | 8.6 s | 7.8 s |
+| Character files stripped for the importer | 8.0 s | 6.9 s |
+| Shaders made ahead on worker threads (second load of the map onwards) | 5.4 s | 5.3 s |
+
+- **Godot decoded every animation clip of a character file it was not asked to make.** The stock spy's file is 14.6 MB with 339 clips in 26,442 channels and 52,892 accessors; the importer decodes every key while it parses, although `CreateAnimations` is off and the clips are read by `AuthoredAnimationTracks`. `SkeletalModel.ForImport` hands the importer the file without its `animations` and without the accessors and buffer views after the last one a mesh or skin uses (the converter writes geometry first). Import of the spy 554 → 54 ms, of the mercenary 203 → 19 ms.
+- **Making a shader costs 20 ms and happened on the main thread, one material at a time.** `shader.Code = ...` only stores the code. Godot makes the server's shader when its RID is first asked for, which was inside `new ShaderMaterial { Shader = ... }` for the first material of each shader: the code is parsed and its compiled variants read from the shader cache, on the calling thread. AquaE asks for about 180 shaders: 3.5 s of its load, spread over the cell materials (1.8 s), instances, objects, effects and outfits. `ResponsiveSmokeShaders.Prewarm` now reads the list of shader codes the map's last load asked for (`load_shaders/<map>.json` in the user folder, written at the end of every load that asked for other shaders) and makes them on worker threads from the moment the load starts; a material that needs one before the workers reach it waits for that one. The workers finish in 1.8–2.3 s, overlapping the session start and the map build. `SVM_SHADER_PREWARM=0` turns it off.
+  - The first load of a map after an install has no list and loads as before.
+  - The list holds the two shader flags of that load (responsive smoke, portal fog) and sets them early. A match whose rules differ sets its own afterwards and makes its shaders where they are used, as before.
+  - Godot serialises most of a shader's making behind one lock, so the workers together are 1.5 times as fast as one thread. The gain is that the main thread does other work meanwhile.
+- **`SVM_LOAD sum` lines.** `LoadTimer.Add` totals work done in many small calls (shader code, shaders made by materials, textures); each phase line is preceded by the sums gathered during it. `build.cells` is now three lines: `build.cell-materials`, `build.cell-geometry`, `build.cells`.
+
+### Where the 5.4 s of AquaE goes now
+
+| Phase | ms | What it is |
+|---|---:|---|
+| `session.*` | 2000 | The host's world, the map's actors and the client's world (1.5 s without the shader workers beside it) |
+| `warmup.frame1` to `warmup.finish` | 1000 | First frames: 269 pipelines made, the world pass's own shaders |
+| `play.outfits` | 450–850 | Two character models; the 9.9 MB JSON of the spy's file is still parsed by us (100 ms) and its clips built |
+| `build.*` | 600 | Map build with its shaders ready |
+| `first-control` | 330 | Frames until the pawn is controlled |
+| `play.view`, `play.hud`, `play.spy-first-person` | 450 | |
+
+### Open
+
+- The original loads a map in 0.3–0.4 s. Nothing here gets within an order of magnitude; the session start and the first frames are the next two seconds to look at.
+- The Godot caches on this PC are large: the shader cache is 2.1 GB (7,844 files in the newest folder) and the Intel pipeline cache 704 MB, read whole at start. Not measured here: what start-up pays for them, and what a player's first run without them costs.
+- Clips could be stored outside the character files' JSON (a binary block read on demand), which removes most of `play.outfits`.
 
 ## The target
 

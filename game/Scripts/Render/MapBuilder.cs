@@ -1479,7 +1479,9 @@ public static class MapBuilder
                 cells.Add((cell, drawn));
             }
 
+            LoadTimer.Mark("build.cell-materials");
             ParallelFor(merged.Count, i => merged[i].Prepare());
+            LoadTimer.Mark("build.cell-geometry");
             foreach (((int x, int y, int sky) cell, List<((string, LightSource, VisionPass) Key, Material Material, LightReach.Twins Twins, SurfaceBuilder Surface)> drawn) in cells)
             {
                 string baseName = string.Create(CultureInfo.InvariantCulture, $"{(cell.sky != 0 ? "Sky" : "Cell")}_{cell.x}_{cell.y}");

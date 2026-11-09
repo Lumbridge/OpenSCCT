@@ -19,6 +19,7 @@ public static class LoadTimer
     private static long s_begin;
     private static long s_last;
     private static double s_pipelines;
+    private static readonly System.Collections.Generic.SortedDictionary<string, (long Ticks, int Calls)> s_sums = new(StringComparer.Ordinal);
 
     /// <summary>True between <see cref="Begin"/> and <see cref="End"/> (or <see cref="Abandon"/>).</summary>
     public static bool Running
@@ -47,6 +48,7 @@ public static class LoadTimer
             s_id++;
             s_mainThread = System.Environment.CurrentManagedThreadId;
             s_begin = s_last = Stopwatch.GetTimestamp();
+            s_sums.Clear();
             s_pipelines = Pipelines();
             OpenScct.Server.ClientSession.LoadPhase = Mark;
             GD.Print(FormattableString.Invariant(
@@ -67,7 +69,29 @@ public static class LoadTimer
             string godot = System.Environment.CurrentManagedThreadId == s_mainThread
                 ? FormattableString.Invariant($"pipelines={Pipelines() - s_pipelines:F0} texmem={TextureMiB():F0}")
                 : "pipelines=- texmem=-";
+            foreach ((string what, (long ticks, int calls)) in s_sums)
+            {
+                GD.Print(FormattableString.Invariant($"SVM_LOAD sum {what} ms={ticks * 1000.0 / Stopwatch.Frequency:F1} calls={calls}"));
+            }
+
+            s_sums.Clear();
             GD.Print(FormattableString.Invariant($"SVM_LOAD {phase} ms={ms:F1} total={total:F1} {godot} ws={WorkingSetMiB():F0}"));
+        }
+    }
+
+    /// <summary>
+    /// Adds the time since <paramref name="since"/> (a <see cref="Stopwatch.GetTimestamp"/>) to the load's total for
+    /// <paramref name="what"/>: work done in many small calls across phases. Each <see cref="Mark"/> prints, as
+    /// <c>SVM_LOAD sum</c> lines, the totals gathered since the mark before it.
+    /// </summary>
+    public static void Add(string what, long since)
+    {
+        long ticks = Stopwatch.GetTimestamp() - since;
+        lock (s_lock)
+        {
+            if (!s_running) return;
+            s_sums.TryGetValue(what, out (long Ticks, int Calls) sum);
+            s_sums[what] = (sum.Ticks + ticks, sum.Calls + 1);
         }
     }
 

@@ -40,11 +40,132 @@ public static class ResponsiveSmokeShaders
     {
         lock (s_lock)
         {
-            if (s_byCode.TryGetValue(code, out Shader? shader)) return Refresh(shader);
+            s_used?.Add(code);
+            if (s_byCode.TryGetValue(code, out Shader? shader))
+            {
+                // Made ahead by Prewarm, which knows neither the name nor what init sets.
+                if (s_ahead.Remove(shader))
+                {
+                    shader.ResourceName = name;
+                    init?.Invoke(shader);
+                }
+
+                return Refresh(shader);
+            }
+
             shader = Make(code, name);
             init?.Invoke(shader);
             s_byCode[code] = shader;
             return shader;
+        }
+    }
+
+    private static readonly HashSet<Shader> s_ahead = new(ReferenceEqualityComparer.Instance);
+    private static HashSet<string>? s_used;
+    private static string? s_listPath;
+    private static string[] s_listed = [];
+    private static int s_listedFlags = -1;
+    private static System.Threading.Tasks.Task? s_prewarm;
+
+    /// <summary>SVM_SHADER_PREWARM=0 makes every shader where it is first asked for, as before (a measurement switch).</summary>
+    private static bool PrewarmEnabled { get; } = System.Environment.GetEnvironmentVariable("SVM_SHADER_PREWARM") != "0";
+
+    /// <summary>The file <see cref="Prewarm"/> reads: the flags and the codes of a map's last load.</summary>
+    private sealed record ShaderList(int Flags, string[] Codes);
+
+    /// <summary>
+    /// Makes the shaders the last load of <paramref name="map"/> asked <see cref="Shared"/> for, on worker threads,
+    /// while the load goes on. Godot makes the server's shader when its RID is first asked for, on the thread that asks
+    /// (20 ms each with the world template: its code parsed, its variants read from the shader cache or compiled), and
+    /// its renderer allows that from any thread. Made one by one as materials first use them, they were 3.5 s of
+    /// AquaE's load on the main thread. A material that needs one before the workers reach it waits for it.
+    /// The list is a file in the user folder (load_shaders), written by <see cref="SaveList"/>. It holds the flags of
+    /// that load too, set here so the shaders are made as that load made them; a match with other rules sets its own
+    /// flags afterwards as always, and then only loses the time saved. Call it as early in a load as the map is known.
+    /// </summary>
+    public static void Prewarm(string map)
+    {
+        if (!PrewarmEnabled) return;
+        ShaderList? list = null;
+        string path = System.IO.Path.Combine(OS.GetUserDataDir(), "load_shaders", map + ".json");
+        try
+        {
+            if (System.IO.File.Exists(path))
+            {
+                list = System.Text.Json.JsonSerializer.Deserialize<ShaderList>(System.IO.File.ReadAllBytes(path));
+            }
+        }
+        catch (Exception e) when (e is System.IO.IOException or UnauthorizedAccessException or System.Text.Json.JsonException)
+        {
+            list = null;
+        }
+
+        string[] codes = list?.Codes ?? [];
+        if (list is not null && codes.Length != 0)
+        {
+            SetFlag(SmokeFlag, (list.Flags & SmokeFlag) != 0);
+            SetFlag(PortalFogFlag, (list.Flags & PortalFogFlag) != 0);
+        }
+
+        long started = System.Diagnostics.Stopwatch.GetTimestamp();
+        var made = new List<Shader>();
+        lock (s_lock)
+        {
+            s_listPath = path;
+            s_listed = codes;
+            s_listedFlags = list?.Flags ?? -1;
+            s_used = new HashSet<string>(StringComparer.Ordinal);
+            foreach (string code in codes)
+            {
+                if (string.IsNullOrEmpty(code) || s_byCode.ContainsKey(code)) continue;
+                Shader shader = Make(code, "svm prewarmed");
+                s_byCode[code] = shader;
+                s_ahead.Add(shader);
+                made.Add(shader);
+            }
+        }
+
+        if (made.Count != 0)
+        {
+            s_prewarm = System.Threading.Tasks.Task.Run(() =>
+            {
+                System.Threading.Tasks.Parallel.ForEach(made,
+                    new System.Threading.Tasks.ParallelOptions { MaxDegreeOfParallelism = Math.Max(1, System.Environment.ProcessorCount - 2) },
+                    shader => _ = shader.GetRid());
+                OpenScctGame.Diagnostics.LoadTimer.Add("shader-prewarm-threads", started);
+            });
+        }
+
+        OpenScctGame.Diagnostics.LoadTimer.Add("shader-prewarm", started);
+    }
+
+    /// <summary>Writes the list <see cref="Prewarm"/> reads, when the load asked for other shaders than it holds.</summary>
+    public static void SaveList()
+    {
+        string? path;
+        string[] used;
+        int flags;
+        lock (s_lock)
+        {
+            if (s_used is null || s_listPath is null) return;
+            path = s_listPath;
+            used = [.. s_used];
+            flags = s_flags;
+            bool same = flags == s_listedFlags && used.Length == s_listed.Length && s_used.IsSupersetOf(s_listed);
+            s_used = null;
+            s_listPath = null;
+            if (same) return;
+        }
+
+        try
+        {
+            Array.Sort(used, StringComparer.Ordinal);
+            System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(path)!);
+            System.IO.File.WriteAllBytes(path, System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(new ShaderList(flags, used)));
+        }
+        catch (Exception e) when (e is System.IO.IOException or UnauthorizedAccessException)
+        {
+            // The next load makes its shaders one by one again.
         }
     }
 
@@ -107,6 +228,21 @@ public static class ResponsiveSmokeShaders
     {
         lock (s_lock)
         {
+            if (s_flags == (enabled ? s_flags | flag : s_flags & ~flag)) return;
+        }
+
+        // The workers of Prewarm are making shaders with the flags as they are: a shader's code is not changed under them.
+        try
+        {
+            s_prewarm?.Wait();
+        }
+        catch (AggregateException)
+        {
+            // A shader the workers failed on is made where it is used, as without the list.
+        }
+
+        lock (s_lock)
+        {
             int flags = enabled ? s_flags | flag : s_flags & ~flag;
             if (s_flags == flags) return;
             s_flags = flags;
@@ -143,7 +279,9 @@ public static class ResponsiveSmokeShaders
     private static void Apply(Shader shader, Entry entry)
     {
         entry.Flags = s_flags;
+        long started = System.Diagnostics.Stopwatch.GetTimestamp();
         shader.Code = s_flags == 0 ? entry.Code : WithDefines(entry.Code, s_flags);
+        OpenScctGame.Diagnostics.LoadTimer.Add("shader-code", started);
     }
 
     // The defines go after the shader_type statement, which must stay the code's first statement.
