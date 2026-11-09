@@ -257,6 +257,14 @@ internal sealed class SurfaceBuilder
         _anyEchelon ? _echelon.ToArray() : null,
         _anyBakedDirection ? _bakedDirections.ToArray() : null);
 
+    /// <summary>The packed streams (SVM_RD_PROTO copies them into its own buffers, RdProtoGeometry).</summary>
+    internal (Vector3[] Positions, Vector2[] Uvs, Vector2[]? Uv2s, Color[]? Colours, int[] Indices) RawStreams()
+    {
+        Prepare();
+        Streams s = _streams!;
+        return (s.Positions, s.Uvs, s.Uv2s, s.Colours, s.Indices);
+    }
+
     /// <summary>Appends this surface to <paramref name="mesh"/>.</summary>
     public void AddTo(ArrayMesh mesh, Material? material)
     {

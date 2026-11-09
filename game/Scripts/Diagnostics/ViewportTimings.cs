@@ -50,6 +50,12 @@ public static class ViewportTimings
         }
     }
 
+    /// <summary>The registered viewports still alive (SVM_RD_PROTO turns their rendering off, RdProtoRenderer).</summary>
+    public static List<SubViewport> Alive()
+    {
+        lock (s_lock) return s_entries.FindAll(e => GodotObject.IsInstanceValid(e.Viewport)).ConvertAll(e => e.Viewport);
+    }
+
     public static void Unregister(SubViewport viewport)
     {
         lock (s_lock) s_entries.RemoveAll(e => ReferenceEquals(e.Viewport, viewport));

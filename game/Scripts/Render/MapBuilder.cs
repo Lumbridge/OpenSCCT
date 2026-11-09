@@ -276,6 +276,9 @@ public sealed class RenderMap
 
     public RenderMapStats Stats { get; } = new();
 
+    /// <summary>SVM_RD_PROTO only: the merged cell geometry for the RenderingDevice prototype, else null.</summary>
+    internal OpenScctGame.Render.RdProto.RdProtoGeometry? RdGeometry { get; set; }
+
     public List<string> Warnings { get; } = [];
 
     /// <summary>Gameplay mesh actors by actor id (movers, SGamePlayObjects, switches...).</summary>
@@ -502,7 +505,10 @@ public static class MapBuilder
         map.SkipProjectorDecals = projectors is not null;
         map.SoftBodies = new OpenScctGame.Render.SoftBodies.SoftBodyViews(root);
         LoadTimer.Mark("build.actors");
+        // SVM_RD_PROTO: copy the merged cell geometry out for the RenderingDevice prototype (RdProto/RdProtoRenderer).
+        map.RdGeometry = RdProto.RdProtoGeometry.Enabled ? new RdProto.RdProtoGeometry() : null;
         new Builder(map, glb, options).Run();
+        map.RdGeometry?.Finish();
         OutdoorScenery.Build(map);
         OutdoorGroundcover.Build(map);
         LoadTimer.Mark("build.outdoor");
@@ -1495,6 +1501,7 @@ public static class MapBuilder
                     bool split = cell.sky == 0 ? key.Item3 != VisionPass.SeeThrough && material.NextPass is null && solid : !solid;
                     surfaces.Add((b, material, twins, split));
                     _map.Stats.Vertices += b.VertexCount;
+                    _map.RdGeometry?.Add(cell, key.Item2, material, entry, b, _map.Textures);
                 }
 
                 FlushCellPart(surfaces, CellPartName(baseName, part), cell.sky != 0);

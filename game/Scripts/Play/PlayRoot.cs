@@ -434,6 +434,11 @@ public partial class PlayRoot : Node3D
             AddChild(View);
             View.Attach(Map);
             View.Camera.MakeCurrent();
+            // SVM_RD_PROTO=1: the RenderingDevice world renderer prototype replaces Godot's 3D drawing.
+            if (OpenScctGame.Render.RdProto.RdProtoRenderer.Enabled && !headless)
+            {
+                AddChild(new OpenScctGame.Render.RdProto.RdProtoRenderer(Map, View));
+            }
             GameplayObjects.ShowMode(Map, settings.Mode);
             LoadTimer.Mark("play.view");
             Camera = new PlayCamera(View);
