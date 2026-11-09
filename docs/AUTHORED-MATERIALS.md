@@ -1,5 +1,7 @@
 # Authored and animated materials
 
+Available in OpenSCCT 0.8.120 with Editor 0.2.34. The editor's built-in Help tutorials cover texture import, animation, lighting and shine, depth/collision, emissive baking and original-game export. See the [release notes](releases/0.8.120.md) for validation boundaries.
+
 Authored materials explicitly select the shared version 1 material path. Stock materials retain the existing renderer. The editor and game share `OpenScct.Content.Materials.AuthoredMaterial`, `AuthoredMaterialBinding` and `svm_authored.gdshaderinc`.
 
 `render/materials.json` keeps its existing entries and flags and adds `flags.authored`. The definition contains named texture bindings, channel/inversion/colour-space choices, surface factors, mapping, depth and scene-clock animation. `flags.texture` remains a basic colour/opacity approximation for older readers. Unknown versions or invalid definitions are rejected when loading an authored material.
