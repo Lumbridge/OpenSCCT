@@ -104,6 +104,7 @@ public sealed record AuthoredMaterial
         foreach (float value in new[] { Opacity, Roughness, Metallic, Specular, Cutoff, AoStrength, Clearcoat, ClearcoatGloss, Anisotropy, HeightMidpoint })
             if (value < 0 || value > 1) errors.Add("Surface factors must be between zero and one.");
         if (NormalStrength < 0 || EmissionEnergy < 0 || Refraction < 0 || DetailStrength < 0 || ParallaxDepth < 0) errors.Add("Material strengths must be nonnegative.");
+        if (Math.Abs(TileU) < .000001f || Math.Abs(TileV) < .000001f) errors.Add("Mapping tiling cannot be zero.");
         if ((Displacement != 0 || ParallaxDepth > 0 || BumpFromHeight) && !Textures.ContainsKey("height")) errors.Add("Depth and height-to-normal conversion need a height map.");
         if (Animation.Columns is < 1 or > 128 || Animation.Rows is < 1 or > 128 || Animation.Frames < 1 || Animation.Frames > Animation.Columns * Animation.Rows)
             errors.Add("Animation frames must fit the atlas grid (1–128 rows/columns).");

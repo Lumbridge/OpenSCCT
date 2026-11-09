@@ -26,13 +26,19 @@ public sealed class TextureCache
 
     public int Count => _textures.Count;
 
-    public Texture2D? GetAuthored(string slot, OpenScct.Content.Materials.MaterialTexture binding)
+    public Texture2D? GetAuthored(string slot, OpenScct.Content.Materials.MaterialTexture binding, OpenScct.Content.Materials.MaterialAnimation? animation = null)
     {
-        string key = binding.File + "#authored:" + AuthoredTextureImage.Key(slot, binding);
+        string key = binding.File + "#authored:" + AuthoredTextureImage.Key(slot, binding, animation);
         if (_textures.TryGetValue(key, out var known)) return known;
         string file = Path.Combine(_root, binding.File);
         if (!File.Exists(file)) { Missing.Add(binding.File); return null; }
-        using Image image = AuthoredTextureImage.Decode(File.ReadAllBytes(file), slot, binding);
+        using Image image = AuthoredTextureImage.Decode(File.ReadAllBytes(file), slot, binding, animation);
+        if (image.HasMipmaps() && MipDrop > 0)
+        {
+            int columns = slot == "environment" ? 1 : animation?.Columns ?? 1, rows = slot == "environment" ? 1 : animation?.Rows ?? 1, level = 0;
+            while (level < Math.Min(MipDrop, image.GetMipmapCount()) && (image.GetWidth() >> (level + 1)) / columns >= Math.Max(1, MipDropMinSize) && (image.GetHeight() >> (level + 1)) / rows >= 1) level++;
+            if (level > 0) { byte[] bytes = image.GetData(); int offset = (int)image.GetMipmapOffset(level); image.SetData(image.GetWidth() >> level, image.GetHeight() >> level, level < image.GetMipmapCount(), image.GetFormat(), bytes[offset..]); }
+        }
         return _textures[key] = ImageTexture.CreateFromImage(image);
     }
 

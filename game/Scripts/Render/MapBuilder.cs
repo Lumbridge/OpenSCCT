@@ -733,6 +733,7 @@ public static class MapBuilder
                     Uvs = attrs.TryGetProperty("TEXCOORD_0", out JsonElement t0) ? _glb.ReadFloats(t0.GetInt32()) : null,
                     Uv2s = attrs.TryGetProperty("TEXCOORD_1", out JsonElement t1) ? _glb.ReadFloats(t1.GetInt32()) : null,
                     Colours = attrs.TryGetProperty("COLOR_0", out JsonElement c0) ? _glb.ReadColours(c0.GetInt32()) : null,
+                    BakedDirections = attrs.TryGetProperty("COLOR_1", out JsonElement c1) ? _glb.ReadFloats(c1.GetInt32()) : null,
                     Indices = indices,
                 });
             }
@@ -806,6 +807,7 @@ public static class MapBuilder
                     Uvs = prim.Uvs,
                     Uv2s = prim.Uv2s,
                     Colours = prim.Colours,
+                    BakedDirections = prim.BakedDirections,
                     Indices = [.. tris],
                 };
                 Bucket(cell, prim.Material, light, light == LightSource.Lightmap, true)
@@ -1038,6 +1040,7 @@ public static class MapBuilder
                 Uvs = prim.Uvs,
                 Uv2s = prim.Uv2s,
                 Colours = colours,
+                BakedDirections = prim.BakedDirections,
                 Indices = prim.Indices,
             };
             bucket.Add(transform, lit, 0, zones);

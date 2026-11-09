@@ -15,6 +15,8 @@ internal sealed class SurfaceBuilder
     private readonly List<float> _vision = [];
     private readonly List<float> _echelon = [];
     private bool _anyEchelon;
+    private readonly List<float> _bakedDirections = [];
+    private bool _anyBakedDirection;
     private readonly List<int> _indices = [];
 
     public SurfaceBuilder(bool hasUv2, bool hasColour, bool hasVision = false)
@@ -115,6 +117,8 @@ internal sealed class SurfaceBuilder
 
         _echelon.Add(Echelon);
         _anyEchelon |= Echelon != 0;
+        _anyBakedDirection |= prim.BakedDirections is not null;
+        for (int k = 0; k < 4; k++) _bakedDirections.Add(prim.BakedDirections is { } data ? data[i * 4 + k] : k == 3 ? 0 : .5f);
         if (HasVision)
         {
             // w + 2 marks the stream as present: a mesh without CUSTOM0 reads w below 1.5.
@@ -156,6 +160,11 @@ internal sealed class SurfaceBuilder
             arrays[(int)Mesh.ArrayType.Custom1] = _echelon.ToArray();
             flags |= (Mesh.ArrayFormat)((long)Mesh.ArrayCustomFormat.RFloat << (int)Mesh.ArrayFormat.FormatCustom1Shift);
         }
+        if (_anyBakedDirection)
+        {
+            arrays[(int)Mesh.ArrayType.Custom2] = _bakedDirections.ToArray();
+            flags |= (Mesh.ArrayFormat)((long)Mesh.ArrayCustomFormat.RgbaFloat << (int)Mesh.ArrayFormat.FormatCustom2Shift);
+        }
 
         using var lods = material?.HasMeta("authored_displacement") == true && material.GetMeta("authored_displacement").AsBool()
             ? Materials.AuthoredMeshLods.Create(arrays, (ulong)flags) : new Godot.Collections.Dictionary();
@@ -186,6 +195,8 @@ internal sealed class MeshPrimitive
 
     /// <summary>COLOR_0 as normalized RGBA bytes.</summary>
     public byte[]? Colours { get; init; }
+    /// <summary>COLOR_1: encoded world-space dominant light direction and coherence for authored materials.</summary>
+    public float[]? BakedDirections { get; init; }
 
     public required int[] Indices { get; init; }
 

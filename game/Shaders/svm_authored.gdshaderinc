@@ -72,8 +72,13 @@ vec2 am_uv(vec2 original_uv, float clock) {
 
 vec4 am_image(sampler2D tex, vec2 uv) {
     if (am_atlas.x > 1.0 || am_atlas.y > 1.0) {
-        vec2 cell = floor(uv * am_atlas.xy), texel = 0.5 / vec2(textureSize(tex, 0));
-        return textureLod(tex, clamp(uv, cell / am_atlas.xy + texel, (cell + 1.0) / am_atlas.xy - texel), 0.0);
+        vec2 dimensions = vec2(textureSize(tex, 0)), frame_size = dimensions / am_atlas.xy;
+        vec2 powers = log2(frame_size);
+        float max_level = all(lessThan(abs(powers - round(powers)), vec2(0.0001))) ? min(powers.x, powers.y) : 0.0;
+        vec2 dx = dFdx(uv) * dimensions, dy = dFdy(uv) * dimensions;
+        float level = clamp(0.5 * log2(max(max(dot(dx, dx), dot(dy, dy)), 1.0)), 0.0, max_level);
+        vec2 cell = floor(uv * am_atlas.xy), texel = 0.5 * exp2(ceil(level)) / dimensions;
+        return textureLod(tex, clamp(uv, cell / am_atlas.xy + texel, (cell + 1.0) / am_atlas.xy - texel), level);
     }
     return texture(tex, uv);
 }
@@ -116,7 +121,9 @@ AuthoredSample am_evaluate(vec2 original_uv, vec3 position, vec3 normal, vec3 vi
         float layer = 0.0;
         for (int i = 0; i < 64; i++) {
             vec2 height_uv = (fract(uv * am_atlas.xy) + atlas_cell) / am_atlas.xy;
-            if (i >= am_parallaxSteps || layer >= 1.0 - am_value(am_image(am_tex_height, height_uv), am_channel_height, am_invert_height, am_srgb_height)) break;
+            vec2 margin = 0.5 / vec2(textureSize(am_tex_height, 0));
+            height_uv = clamp(height_uv, atlas_cell / am_atlas.xy + margin, (atlas_cell + 1.0) / am_atlas.xy - margin);
+            if (i >= am_parallaxSteps || layer >= 1.0 - am_value(textureLod(am_tex_height, height_uv, 0.0), am_channel_height, am_invert_height, am_srgb_height)) break;
             uv -= delta_uv; layer += 1.0 / float(am_parallaxSteps);
         }
         uv = (fract(uv * am_atlas.xy) + atlas_cell) / am_atlas.xy;

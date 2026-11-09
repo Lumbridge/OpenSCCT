@@ -1,5 +1,7 @@
 # Rendering
 
+For project-authored and animated materials, see [Authored materials](AUTHORED-MATERIALS.md) for the shared path, bake data and supported limits.
+
 The Faithful renderer aims to reproduce the original game's appearance. This reference
 records its rules, evidence, tests and remaining gaps. It is not a claim of complete
 visual parity.

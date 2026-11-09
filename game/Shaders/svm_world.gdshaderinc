@@ -62,6 +62,9 @@ vec3 svm_hue_turn(vec3 c, float angle) {
 	return c * co + cross(k, c) * sin(angle) + k * dot(k, c) * (1.0 - co);
 }
 varying vec4 v_vision;
+#ifdef AUTHORED_MATERIAL
+varying vec4 v_authored_direction;
+#endif
 // OpenSCCT's own: a polished sheen on cosmetic camo materials (SkeletalModel.Cosmetic): its strength (0 off, 1 on the
 // golden camo), the colour of its highlights (gold, or near white for the pyre camo's black lacquer), and how much of a
 // mirror it is (1 on the golden camo: a full reflection of a bright fake environment, whatever the local light; 0: a
@@ -667,6 +670,9 @@ vec3 svm_zone_amb(float zone) {
 #endif
 
 void vertex() {
+#ifdef AUTHORED_MATERIAL
+    v_authored_direction = CUSTOM2;
+#endif
 #if defined(AUTHORED_MATERIAL) && !defined(LIGHT_LIGHTMAP) && !defined(LIGHT_VERTEX) && !defined(LIGHT_ACTOR)
     v_wpos = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
     v_wnormal = MODEL_NORMAL_MATRIX * NORMAL;
@@ -915,6 +921,14 @@ void fragment() {
 #endif
 #ifdef AUTHORED_MATERIAL
     vec3 authored_irradiance = am_linear(max(lit / max(t.rgb, vec3(0.0001)), vec3(0.0)));
+#ifdef LIGHT_VERTEX
+    if (v_authored_direction.a > 0.0) {
+        vec3 light_direction = normalize(v_authored_direction.xyz * 2.0 - 1.0);
+        float base_incidence = max(dot(normalize(v_wnormal), light_direction), 0.1);
+        float normal_incidence = max(dot(normalize(am_triplanar ? authored.normal : authored_frame * authored.normal), light_direction), 0.0);
+        authored_irradiance *= mix(1.0, clamp(normal_incidence / base_incidence, 0.0, 4.0), v_authored_direction.a);
+    }
+#endif
 #ifdef LIGHT_LIGHTMAP
     if (am_hasBakedDirection) {
         vec4 direction = texture(am_bakedDirection, UV2);
@@ -924,7 +938,10 @@ void fragment() {
         authored_irradiance *= mix(1.0, clamp(normal_incidence / base_incidence, 0.0, 4.0), direction.a);
     }
 #endif
-    vec3 authored_result = authored.color.rgb * authored_irradiance * authored.ao * (1.0 - authored.metallic);
+    vec3 authored_result = authored.color.rgb * authored_irradiance * authored.ao;
+#if defined(LIGHT_LIGHTMAP) || defined(LIGHT_VERTEX) || defined(LIGHT_ACTOR)
+    authored_result *= 1.0 - authored.metallic;
+#endif
     vec3 authored_n = normalize(am_triplanar ? authored.normal : authored_frame * authored.normal);
 #ifdef LIGHT_LIGHTMAP
     if (am_hasBakedDirection) {
@@ -932,17 +949,13 @@ void fragment() {
         authored_result += am_highlight(authored, authored_n, authored_view, normalize(direction.xyz * 2.0 - 1.0), authored_irradiance * direction.a, authored_frame[0]);
     }
 #endif
+#ifdef LIGHT_VERTEX
+    if (v_authored_direction.a > 0.0) authored_result += am_highlight(authored, authored_n, authored_view, normalize(v_authored_direction.xyz * 2.0 - 1.0), authored_irradiance * v_authored_direction.a, authored_frame[0]);
+#endif
 #if defined(LIGHT_LIGHTMAP) || defined(LIGHT_VERTEX)
     if (!unlit) authored_result += svm_authored_highlights(authored, v_wpos, authored_n, authored_view, authored_frame[0], zone, echelon_ignore);
 #endif
-    if (am_has_environment) {
-        vec3 reflected = reflect(-authored_view, authored_n);
-        vec2 env_uv = vec2(atan(reflected.z, reflected.x) / 6.2831853 + 0.5, acos(clamp(reflected.y, -1.0, 1.0)) / 3.14159265);
-        vec3 env_rgb = textureLod(am_tex_environment, env_uv, authored.roughness * 7.0).rgb;
-        if (am_srgb_environment) env_rgb = am_linear(env_rgb);
-        vec3 f0 = mix(am_specularColor * 0.08 * authored.specular, authored.color.rgb, authored.metallic);
-        authored_result += env_rgb * (f0 + (1.0 - f0) * pow(1.0 - max(dot(authored_n, authored_view), 0.0), 5.0)) * authored.ao;
-    }
+    authored_result += am_environment(authored, authored_n, authored_view);
 #if defined(LIGHT_ACTOR)
     vec3 l0 = normalize(svm_l0_pos.xyz - v_wpos), l1 = normalize(svm_l1_pos.xyz - v_wpos);
     vec3 l2 = normalize(svm_l2_pos.xyz - v_wpos), l3 = normalize(svm_l3_pos.xyz - v_wpos);

@@ -458,7 +458,7 @@ public sealed partial class MaterialCompiler
             }
         }
 
-        if (entry.Authored is { } authored) AuthoredMaterialBinding.Apply(material, authored, file => _textures.Get(file), _textures.GetAuthored);
+        if (entry.Authored is { } authored) AuthoredMaterialBinding.Apply(material, authored, file => _textures.Get(file), (slot, binding) => _textures.GetAuthored(slot, binding, authored.Animation));
         if (entry.AuthoredDirection is { } direction)
         { SetTexture(material, "am_bakedDirection", _textures.Get(direction)); material.SetShaderParameter("am_hasBakedDirection", true); }
         return material;

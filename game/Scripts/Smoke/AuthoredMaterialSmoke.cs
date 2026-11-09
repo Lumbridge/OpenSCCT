@@ -19,7 +19,7 @@ public sealed class AuthoredMaterialSmoke : SmokeTest
     private MaterialCompiler? _compiler;
     private int _phase, _frames;
     private Color _flat, _normal;
-    private Color _rough, _metal;
+    private Color _rough, _metal, _vertexFlat;
     private byte[]? _parallaxBaseline;
     private int _lods;
     private readonly string _folder = Path.Combine(RenderSmokeArgs.RepoRoot, "local", "authored-material-smoke");
@@ -32,6 +32,20 @@ public sealed class AuthoredMaterialSmoke : SmokeTest
             using var atlas = Image.CreateEmpty(32, 16, false, Image.Format.Rgba8);
             for (int y = 0; y < 16; y++) for (int x = 0; x < 32; x++) atlas.SetPixel(x, y, x < 16 ? Colors.Red : Colors.Blue);
             atlas.SavePng(Path.Combine(_folder, "atlas.png"));
+            using var atlasMips = AuthoredTextureImage.Decode(File.ReadAllBytes(Path.Combine(_folder, "atlas.png")), "baseColor", new() { Srgb = true }, new() { Columns = 2, Rows = 1, Frames = 2 });
+            byte[] mipData = atlasMips.GetData(); int mipAt = (int)atlasMips.GetMipmapOffset(4);
+            if (mipData[mipAt] < 250 || mipData[mipAt + 2] > 2 || mipData[mipAt + 4] > 2 || mipData[mipAt + 6] < 250) return SmokeResult.Fail("Independent animation mip frames bled into each other.");
+            var reduced = new TextureCache(_folder) { MipDrop = 4, MipDropMinSize = 1 }.GetAuthored("baseColor", new() { File = "atlas.png", Srgb = true }, new() { Columns = 2, Frames = 2 });
+            using (var reducedImage = reduced!.GetImage())
+                if (reducedImage.GetWidth() != 2 || reducedImage.GetHeight() != 1 || reducedImage.GetPixel(0, 0).R < .98f || reducedImage.GetPixel(1, 0).B < .98f) return SmokeResult.Fail("Texture quality reduction lost the independent animation frames.");
+            if (System.Environment.GetEnvironmentVariable("OPENSCCT_AUTHORED_SMOKE_MAP") is { Length: > 0 } fixture)
+            {
+                var map = MapBuilder.Build(fixture, new() { GameplayObjects = false, Emitters = false });
+                bool hasDirections = HasDirections(map.Root);
+                GD.Print("AUTHORED_COMPILED_MAP " + map.Stats + " directional=" + hasDirections);
+                map.Root.Free();
+                if (!hasDirections || map.Textures.Missing.Count > 0) return SmokeResult.Fail("Compiled material map lost baked mesh directions or texture references.");
+            }
             using var white = Image.CreateEmpty(8, 8, false, Image.Format.Rgba8); white.Fill(Colors.White); white.SavePng(Path.Combine(_folder, "light.png"));
             using var normal = Image.CreateEmpty(8, 8, false, Image.Format.Rgba8); normal.Fill(new(.75f, .75f, 1)); normal.SavePng(Path.Combine(_folder, "normal.png"));
             using var checker = Image.CreateEmpty(32, 32, false, Image.Format.Rgba8);
@@ -66,10 +80,21 @@ public sealed class AuthoredMaterialSmoke : SmokeTest
         if (_phase == 17 && (center.G < .7f || center.R > .1f)) return SmokeResult.Fail("Green emission is not visible in the unlit game material.");
         if (_phase == 19) _parallaxBaseline = capture.GetData();
         if (_phase == 20) { byte[] bytes = capture.GetData(); long difference = 0; for (int i = 0; i < bytes.Length; i++) difference += Math.Abs(bytes[i] - _parallaxBaseline![i]); if (difference < 2000) return SmokeResult.Fail("Parallax did not shift the grazing-angle checker texture."); }
+        if (_phase == 21) _vertexFlat = center;
+        if (_phase == 22 && Math.Abs(center.R - _vertexFlat.R) < .015f) return SmokeResult.Fail("Baked vertex direction did not produce visible static normal response.");
         _frames = 0;
-        if (++_phase < 21) return SmokeResult.Running;
+        if (++_phase < 23) return SmokeResult.Running;
         _viewport.QueueFree(); MaterialCompiler.SetVision(RenderK.RendMapNormal);
-        return SmokeResult.Pass("21 rendered variants: animation, alpha, lighting, refraction, vision modes, normals, conventions, triplanar, metal, roughness, emission, grazing parallax; " + _lods + " generated render LODs; " + _folder);
+        return SmokeResult.Pass("23 rendered variants: animation/mips, alpha, lighting, refraction, vision modes, normals/conventions, triplanar, finishes, emission, parallax and directional static-mesh normal response; " + _lods + " generated render LODs; " + _folder);
+    }
+
+    private static bool HasDirections(Node node)
+    {
+        if (node is MeshInstance3D { Mesh: ArrayMesh mesh })
+            for (int i = 0; i < mesh.GetSurfaceCount(); i++)
+                if ((mesh.SurfaceGetFormat(i) & Mesh.ArrayFormat.FormatCustom2) != 0) return true;
+        foreach (Node child in node.GetChildren()) if (HasDirections(child)) return true;
+        return false;
     }
 
     private void Configure()
@@ -97,7 +122,17 @@ public sealed class AuthoredMaterialSmoke : SmokeTest
             if (_phase == 16) definition.Roughness = .15f;
             if (_phase == 17) { definition.BaseColor = [0,0,0]; definition.EmissionEnergy = 4; definition.EmissionColor = [0,1,0]; light = LightSource.None; }
             if (_phase == 18) { definition.Surface = "translucent"; definition.Opacity = .25f; }
-            if (_phase >= 19) { definition.Textures["baseColor"].File = "checker.png"; definition.Textures["height"] = new() { File = "height.png" }; definition.BaseColor = [1,1,1]; definition.ParallaxDepth = _phase == 20 ? .2f : 0; definition.ParallaxSteps = 48; light = LightSource.None; _quad.Rotation = new(0,.9f,0); }
+            if (_phase is 19 or 20) { definition.Textures["baseColor"].File = "checker.png"; definition.Textures["height"] = new() { File = "height.png" }; definition.BaseColor = [1,1,1]; definition.ParallaxDepth = _phase == 20 ? .2f : 0; definition.ParallaxSteps = 48; light = LightSource.None; _quad.Rotation = new(0,.9f,0); }
+            if (_phase >= 21)
+            {
+                definition.Specular = 0; if (_phase == 22) definition.Textures["normal"] = new() { File = "normal.png" };
+                light = LightSource.Vertex;
+                using var quad = new QuadMesh { Size = Vector2.One * 2 }; using var arrays = quad.GetMeshArrays(); int count = arrays[(int)Mesh.ArrayType.Vertex].AsVector3Array().Length;
+                var colors = new Color[count]; var directions = new float[count * 4]; Vector3 direction = new Vector3(1,2,2).Normalized() * .5f + Vector3.One * .5f;
+                for (int i = 0; i < count; i++) { colors[i] = new(.3f,.3f,.3f,0); directions[i * 4] = direction.X; directions[i * 4 + 1] = direction.Y; directions[i * 4 + 2] = direction.Z; directions[i * 4 + 3] = 1; }
+                arrays[(int)Mesh.ArrayType.Color] = colors; arrays[(int)Mesh.ArrayType.Custom2] = directions;
+                var generated = new ArrayMesh(); var blends = new Godot.Collections.Array<Godot.Collections.Array>(); using var lods = new Godot.Collections.Dictionary(); generated.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, arrays, blends, lods, (Mesh.ArrayFormat)((long)Mesh.ArrayCustomFormat.RgbaFloat << (int)Mesh.ArrayFormat.FormatCustom2Shift)); GC.KeepAlive(blends); _quad.Mesh = generated;
+            }
         }
         var entry = new MaterialEntry { Name = "authored-check-" + _phase, Texture = "atlas.png", Authored = definition, TwoSided = true, Masked = definition.Surface == "masked", Translucent = definition.Surface == "translucent", Lightmap = _phase == 5 ? "light.png" : null };
         var material = (ShaderMaterial)_compiler!.Build(entry, light);
