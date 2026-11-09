@@ -74,7 +74,8 @@ The loading page between maps is the original's (GUI.loading): "Loading...", the
 `L_diskhunt`, `L_Death`) and name, and the map's explanation of the mode for the player's side
 (SMapSettings.ModesStrings). Under them a tip for that side (enh:ui.tips, `LoadingTip`): one of the team class's
 aTipStrings, which Enhanced rewrote (silent movement, proxy mine speed, EMF ghosting; converted from SBase.int into
-`shared/classes.json`), with its key tokens named from the player's layout. The original shows those tips only on the
+`shared/classes.json`), with its key tokens named from the player's configured actions and preferred input order,
+including custom aliases and split command groups. An action without a key shows `Unbound`. The original shows those tips only on the
 death page. The results open with the HUD's `P_EndGame` banner (a Magma page), then the end menu; in Merc Deathmatch
 its headline is Reloaded's line instead of a side: "*name* wins with *n* kills", "Draw at *n* kills" or "No kills
 scored".

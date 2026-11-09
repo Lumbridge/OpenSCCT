@@ -1,3 +1,5 @@
+using OpenScct.Core.Uc;
+using OpenScct.Game.SBase;
 using OpenScctGame.Controls;
 using OpenScctGame.Hud;
 using Xunit;
@@ -79,5 +81,67 @@ public sealed class KeyTokensTests
         Assert.Equal("Press F2, then Shift.",
             KeyTokens.Expand(@"Press \\VISION2, then \\USE.", binding => binding == "SwitchHeadset 2" ? "F2" : Name(binding)));
         Assert.Equal(@"\\JUMP and \\NOTATOKEN", KeyTokens.Expand(@"\\JUMP and \\NOTATOKEN", Name));
+    }
+
+    [Theory]
+    [InlineData(1)]
+    [InlineData(2)]
+    [InlineData(4)]
+    public void Hints_resolve_every_token_without_original_aliases(int slashes)
+    {
+        KeyLayout layout = DefaultKeyLayout.ApplyProfile(DefaultKeyLayout.Create(), null, "Gadget");
+        string prefix = new('\\', slashes);
+        Assert.Equal("Shift LeftMouse RightMouse H MiddleMouse",
+            KeyTokens.ExpandHint($"{prefix}USE {prefix}PRIMARYFIRE {prefix}SECONDARYFIRE {prefix}HACKCOMM {prefix}SPEEDMODE", layout, merc: false));
+        foreach (bool merc in new[] { false, true })
+            foreach (var token in KeyTokens.Tokens)
+            {
+                string expanded = KeyTokens.ExpandHint(prefix + token.Token, layout, merc);
+                Assert.DoesNotContain('\\', expanded);
+                Assert.NotEqual("Unbound", expanded);
+            }
+    }
+
+    [Fact]
+    public void Hints_follow_split_actions_custom_aliases_chords_and_preferred_inputs()
+    {
+        var layout = KeyLayout.Parse("""
+            [Engine.Input]
+            Aliases[0]=(Command="InvButton bUsing | TeamPing",Alias="CustomUse")
+            IK_F=CustomUse
+            IK_Ctrl+K=CustomUse
+            IK_X=Button bFire | Function Fire
+            IK_Y=GadgetQuickChoice 0
+            IK_Z=Button bAltFire | Function AltFire
+            IK_H=Button bHoldBreath
+            IK_Q=Button bRoll
+            IK_L=GadLaserSwitch
+            IK_E=InvButton bFireMode
+            IK_T=GadTorcheSwitch
+            """);
+        layout.SetInputOrder("use", ["F", "Ctrl+K"]);
+        Assert.Equal("F X Z Q E", KeyTokens.ExpandHint(@"\\USE \\PRIMARYFIRE \\SECONDARYFIRE \\ACTION1 \\ACTION2", layout, merc: false));
+        Assert.Equal("L T", KeyTokens.ExpandHint(@"\\ACTION1 \\ACTION2", layout, merc: true));
+        layout.Bind("F", "TeamPing");
+        Assert.Equal("[Ctrl+K]", KeyTokens.ExpandHint(@"\\USE", layout, merc: false, key => "[" + key + "]"));
+    }
+
+    [Fact]
+    public void Hints_name_unbound_actions_and_preserve_unknown_text()
+    {
+        var layout = KeyLayout.Parse("[Engine.Input]\nIK_X=SelectGadget 1");
+        Assert.Equal(@"Unbound X Unbound \\NOTATOKEN",
+            KeyTokens.ExpandHint(@"\\USE \\GADGET2 \\GADGET1 \\NOTATOKEN", layout, merc: false));
+    }
+
+    [Fact]
+    public void Every_converted_loading_tip_expands_with_default_and_unbound_layouts()
+    {
+        Assert.SkipUnless(UcText.HasText, "Converted loading tips are not installed.");
+        KeyLayout defaults = DefaultKeyLayout.ApplyProfile(DefaultKeyLayout.Create(), null, "Gadget");
+        foreach (STeamInfo team in new STeamInfo[] { new STeamAttaquant(), new STeamDefenseur() })
+            foreach (string tip in team.aTipStrings)
+                foreach (KeyLayout layout in new[] { defaults, KeyLayout.Parse("") })
+                    Assert.DoesNotContain('\\', KeyTokens.ExpandHint(tip, layout, team is STeamDefenseur));
     }
 }
