@@ -65,6 +65,12 @@ public sealed partial class MaterialCompiler
     public static float NightAmbientScale { get; set; } = 1f;
     public const string EmfEnvironmentParameter = "svm_emf_env";
 
+    /// <summary>The sky camera's eye (Godot space) that sky zone surfaces are drawn from (SVM_SKY_ZONE).</summary>
+    public const string SkyOriginParameter = "svm_sky_origin";
+
+    /// <summary>The sky camera's visibility layers (its fog slot) that sky zone surfaces shade with.</summary>
+    public const string SkyLayersParameter = "svm_sky_layers";
+
     // The RenderingServer's global parameters live as long as the process; this only remembers the one add.
     private static bool s_globalsAdded;
 
@@ -74,6 +80,7 @@ public sealed partial class MaterialCompiler
     private readonly Dictionary<(string, LightSource), Material?> _materials = new();
     private readonly Dictionary<(string, LightSource), Material?> _seeThrough = new();
     private readonly Dictionary<(string, LightSource), Material?> _plain = new();
+    private readonly Dictionary<(string, LightSource), Material?> _sky = new();
 
     public MaterialCompiler(MaterialsDoc doc, TextureCache textures)
     {
@@ -134,6 +141,8 @@ public sealed partial class MaterialCompiler
         white.Fill(new Color(1f, 1f, 1f, 1f));
         RenderingServer.GlobalShaderParameterAdd(EmfEnvironmentParameter, RenderingServer.GlobalShaderParameterType.Sampler2D,
             ImageTexture.CreateFromImage(white));
+        RenderingServer.GlobalShaderParameterAdd(SkyOriginParameter, RenderingServer.GlobalShaderParameterType.Vec3, Vector3.Zero);
+        RenderingServer.GlobalShaderParameterAdd(SkyLayersParameter, RenderingServer.GlobalShaderParameterType.Int, (int)RenderLayers.Sky);
         s_globalsAdded = true;
     }
 
@@ -324,14 +333,44 @@ public sealed partial class MaterialCompiler
         return material;
     }
 
+    /// <summary>
+    /// The material of <paramref name="name"/> for a surface of the sky zone (SVM_SKY_ZONE): drawn as the sky camera
+    /// sees it (from <see cref="SkyOriginParameter"/>, shaded with <see cref="SkyLayersParameter"/>) by whichever camera
+    /// draws it, behind every surface of the main world, before every other transparent surface (lowest render
+    /// priority), without stencil marks. Thermal and EMF draw no sky zone, so it needs no see-through pass. Null when
+    /// <see cref="Get"/> draws nothing.
+    /// </summary>
+    public Material? GetSky(string name, LightSource light)
+    {
+        ArgumentNullException.ThrowIfNull(name);
+        if (_sky.TryGetValue((name, light), out Material? cached))
+        {
+            return cached;
+        }
+
+        Material? material = Get(name, light);
+        if (material is not null && _doc.Find(name) is { } entry)
+        {
+            int counted = VisionMaterials;
+            material = Compose(entry, light, sky: true);
+            VisionMaterials = counted;
+        }
+
+        _sky[(name, light)] = material;
+        return material;
+    }
+
     /// <summary>The template's flag that hands partly see-through surfaces to the blended pass in thermal and EMF.</summary>
     public const string SeeThroughParameter = "vision_see_through";
 
-    /// <summary>A material built from loose flags, for meshes outside the map (characters, animated props).</summary>
-    public Material Build(MaterialEntry entry, LightSource light, bool billboard = false)
+    /// <summary>
+    /// A material built from loose flags, for meshes outside the map (characters, animated props, light sprites);
+    /// <paramref name="sky"/> for one in the sky zone, as <see cref="GetSky"/>.
+    /// </summary>
+    public Material Build(MaterialEntry entry, LightSource light, bool billboard = false, bool sky = false)
     {
         ArgumentNullException.ThrowIfNull(entry);
-        return Compose(entry, light, billboard: billboard);
+        return Compose(entry, light, billboard: billboard, sky: sky);
     }
 
     private Material? Build(string name, LightSource light)
@@ -347,10 +386,10 @@ public sealed partial class MaterialCompiler
     }
 
     private ShaderMaterial Compose(MaterialEntry entry, LightSource light, bool seeThroughPass = false, bool billboard = false,
-        bool plainDepth = false)
+        bool plainDepth = false, bool sky = false)
     {
         if (entry.Sequences.TryGetValue("diffuse", out MaterialSequenceEntry? sequence) && sequence.SwitchMaterial)
-            return ComposeSequence(entry, sequence, light, seeThroughPass, billboard);
+            return ComposeSequence(entry, sequence, light, seeThroughPass, billboard, sky);
         // Unlit materials draw fullbright; self-illumination keeps the lit diffuse under its mask (UE2 lerp).
         if (entry.Unlit && entry.SelfIllum is null)
         {
@@ -398,10 +437,17 @@ public sealed partial class MaterialCompiler
         foreach ((string slot, string prefix) in SequenceSlots)
             AddIf(extras, entry.Sequences.ContainsKey(slot), "SEQUENCE_" + prefix.ToUpperInvariant());
         AddIf(extras, entry.NormalTexture is not null && light == LightSource.Actor, "NORMAL_MAP");
-        AddIf(extras, plainDepth && blend == MaterialBlend.Opaque && !entry.TwoSided && !billboard && !seeThroughPass, "SVM_PLAIN_DEPTH");
+        AddIf(extras, plainDepth && blend == MaterialBlend.Opaque && !entry.TwoSided && !billboard && !seeThroughPass && !sky, "SVM_PLAIN_DEPTH");
+        AddIf(extras, sky && !seeThroughPass, "SVM_SKY_ZONE");
         Shader shader = seeThroughPass ? SeeThroughShaderFor(light, blend, entry.TwoSided, extras) : ShaderFor(light, blend, entry.TwoSided, extras);
 
         var material = new ShaderMaterial { Shader = shader, ResourceName = entry.Name };
+        if (sky)
+        {
+            // Before every other transparent surface, as the sky's picture lay under them all.
+            material.RenderPriority = (int)Material.RenderPriorityMin;
+        }
+
         Texture2D? diffuse = combine is not null ? _textures.Get(combine.First.Texture, mipmaps: true)
             : flipbook is not null ? _textures.Get(flipbook.Texture, mipmaps: true)
             : _textures.Get(entry.Texture, Mipmapped(entry, "Diffuse"));
@@ -677,7 +723,14 @@ public sealed partial class MaterialCompiler
             return ResponsiveSmokeShaders.Current(shader);
         }
 
+        bool sky = extras.Contains("SVM_SKY_ZONE");
         var modes = new List<string> { "unshaded", "fog_disabled", twoSided ? "cull_disabled" : "cull_back" };
+        if (sky)
+        {
+            // The template places sky surfaces itself (SVM_SKY_ZONE).
+            modes.Add("skip_vertex_transform");
+        }
+
         switch (blend)
         {
             case MaterialBlend.Translucent:
@@ -705,7 +758,8 @@ public sealed partial class MaterialCompiler
 
         var code = new StringBuilder();
         code.Append("shader_type spatial;\nrender_mode ").Append(string.Join(", ", modes)).Append(";\n");
-        if (blend is MaterialBlend.Opaque or MaterialBlend.Masked && StencilMarks)
+        // The sky zone leaves no marks: the main view's stencil stays as the sky backdrop left it.
+        if (blend is MaterialBlend.Opaque or MaterialBlend.Masked && StencilMarks && !sky)
         {
             // Solid surfaces mark what they are in the stencil: projectors with bProjectStaticMesh off skip static meshes.
             code.Append("stencil_mode write, compare_always, ").Append(light switch

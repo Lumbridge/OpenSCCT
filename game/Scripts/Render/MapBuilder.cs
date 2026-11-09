@@ -1439,7 +1439,8 @@ public static class MapBuilder
                 var drawn = new List<((string, LightSource, VisionPass) Key, Material Material, SurfaceBuilder Surface)>(keys.Count);
                 foreach ((string, LightSource, VisionPass) key in keys)
                 {
-                    Material? material = key.Item3 switch
+                    // The sky zone draws as its own camera sees it, and never in thermal or EMF (GetSky).
+                    Material? material = cell.sky != 0 ? _map.Compiler.GetSky(key.Item1, key.Item2) : key.Item3 switch
                     {
                         VisionPass.SeeThrough => _map.Compiler.GetSeeThrough(key.Item1, key.Item2),
                         VisionPass.Plain => _map.Compiler.GetPlain(key.Item1, key.Item2),
@@ -1480,9 +1481,10 @@ public static class MapBuilder
                     // Transparent and vision see-through passes keep the original cell sort bounds.
                     // A MaterialSequence can change its blend mode by replacing the shader at runtime.
                     MaterialEntry? entry = _map.Materials.Find(key.Item1);
-                    bool split = cell.sky == 0 && key.Item3 != VisionPass.SeeThrough && material.NextPass is null &&
-                        entry is { Blend: MaterialBlend.Opaque or MaterialBlend.Masked } &&
+                    bool solid = entry is { Blend: MaterialBlend.Opaque or MaterialBlend.Masked } &&
                         !(entry.Sequences.TryGetValue("diffuse", out var sequence) && sequence.SwitchMaterial);
+                    // Sky cells split the other way: each transparent surface gets a node of its own (FlushCellPart).
+                    bool split = cell.sky == 0 ? key.Item3 != VisionPass.SeeThrough && material.NextPass is null && solid : !solid;
                     surfaces.Add((b, material, split));
                     _map.Stats.Vertices += b.VertexCount;
                 }
@@ -1526,9 +1528,27 @@ public static class MapBuilder
             }
 
             uint layer = sky ? RenderLayers.Sky : animatedShadow ? RenderLayers.World : RenderLayers.StaticWorld;
+            if (sky && bounded.Count != 0)
+            {
+                // The sky camera sorted a cell's transparent surfaces by the cell's box and, at that one distance, in
+                // surface order (Godot's sort keeps the order of up to 16 transparent surfaces). Drawn by the main view
+                // among many more, they keep both: the cell's box on each split mesh, the surface order as a node meta
+                // (FaithfulView.UpdateSkySort).
+                Aabb cellBounds = grouped.GetSurfaceCount() != 0 ? grouped.GetAabb() : bounded[0].GetAabb();
+                foreach (ArrayMesh mesh in bounded)
+                {
+                    cellBounds = cellBounds.Merge(mesh.GetAabb());
+                }
+
+                for (int i = 0; i < bounded.Count; i++)
+                {
+                    bounded[i].CustomAabb = cellBounds;
+                }
+            }
+
             if (grouped.GetSurfaceCount() != 0)
             {
-                if (bounded.Count != 0)
+                if (bounded.Count != 0 && !sky)
                 {
                     Aabb originalBounds = grouped.GetAabb();
                     foreach (ArrayMesh mesh in bounded)
@@ -1544,22 +1564,28 @@ public static class MapBuilder
                 grouped.Dispose();
             }
 
-            foreach (ArrayMesh mesh in bounded)
+            for (int i = 0; i < bounded.Count; i++)
             {
-                AddCellMesh(mesh, layer);
+                MeshInstance3D node = AddCellMesh(bounded[i], layer);
+                if (sky)
+                {
+                    node.SetMeta(FaithfulView.SkySortOrderMeta, i);
+                }
             }
         }
 
-        private void AddCellMesh(ArrayMesh mesh, uint layer)
+        private MeshInstance3D AddCellMesh(ArrayMesh mesh, uint layer)
         {
-            _static.AddChild(new MeshInstance3D
+            var node = new MeshInstance3D
             {
                 Name = mesh.ResourceName,
                 Mesh = mesh,
                 Layers = layer,
-            });
+            };
+            _static.AddChild(node);
             _map.Stats.StaticNodes++;
             _map.Stats.StaticSurfaces += mesh.GetSurfaceCount();
+            return node;
         }
 
         private static string? Str(JsonElement e, string name) =>

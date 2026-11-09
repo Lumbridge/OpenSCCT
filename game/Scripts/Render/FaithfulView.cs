@@ -10,7 +10,8 @@ namespace OpenScctGame.Render;
 
 /// <summary>
 /// The Faithful view of a <see cref="RenderMap"/>: a camera placed from a UE camera (location, rotation, FovAngle), an environment that leaves colours alone (Linear tonemap, exposure 1, no glow, AO, fog or auto exposure), the
-/// display-space post pass, and the sky zone drawn behind the world from the SkyZoneInfo through a SubViewport.
+/// display-space post pass, and the sky zone drawn behind the world as seen from the SkyZoneInfo: in the main view
+/// itself, or, for a sky zone fogged solid, once through a small SubViewport.
 /// Add it, untransformed, under the node whose viewport it should draw in. docs/RENDERING.md#view.
 /// </summary>
 [PortOf("eng:Render.View", Spec = "docs/RENDERING.md#view")]
@@ -19,10 +20,18 @@ public partial class FaithfulView : Node3D
     public const string BackdropShaderPath = "res://Shaders/svm_sky_backdrop.gdshader";
 
 
+    // The sky view exists only for a sky zone that is fog in every direction (FoggedSkyZone): its picture is drawn
+    // once, small, and kept.
     private SubViewport? _skyViewport;
     private Camera3D? _skyCamera;
-    // The sky zone is fog in every direction (FoggedSkyZone): its view is drawn once, small, and kept.
-    private bool _skyFogOnly;
+    // Every other sky zone is drawn by the main camera: its nodes, their places in their cell's surface order and their
+    // last sort offsets.
+    private bool _skyMerged;
+    private Vector3 _skyOrigin;
+    private readonly System.Collections.Generic.List<GeometryInstance3D> _skyNodes = [];
+    private readonly System.Collections.Generic.List<int> _skyOrder = [];
+    private readonly System.Collections.Generic.List<Vector3> _skyCentre = [];
+    private float[] _skySort = [];
     private SurfaceFogRegistry? _surfaceFog;
     private SurfaceFogRegistry? _skySurfaceFog;
     private MeshInstance3D? _backdrop;
@@ -84,7 +93,7 @@ public partial class FaithfulView : Node3D
 
     public RenderMap? Map { get; private set; }
 
-    /// <summary>The sky zone's SubViewport, when the map has a sky zone.</summary>
+    /// <summary>The sky zone's SubViewport, when the map has a sky zone fogged solid (else the main view draws it).</summary>
     public SubViewport? SkyViewport => _skyViewport;
 
     private int _rendMap = RenderK.RendMapNormal;
@@ -203,7 +212,7 @@ public partial class FaithfulView : Node3D
         DofBlurNearEnabled = false,
     };
 
-    /// <summary>Shows <paramref name="map"/> and sets up its sky zone view when it has one.</summary>
+    /// <summary>Shows <paramref name="map"/> and sets up its sky zone when it has one.</summary>
     public void Attach(RenderMap map)
     {
         ArgumentNullException.ThrowIfNull(map);
@@ -232,6 +241,15 @@ public partial class FaithfulView : Node3D
             return;
         }
 
+        _skyOrigin = UeSpace.ToGodot(skyLocation);
+        // Every pixel of a sky zone fogged solid is the same value, so the 16 x 16 target drawn once (ApplyVision)
+        // holds exactly what each pixel of a full-size view would, through the same pipeline.
+        if (!FoggedSkyZone.IsSolid(map, _skyOrigin))
+        {
+            AttachSkyToMainView(map);
+            return;
+        }
+
         _skyViewport = new SubViewport
         {
             Name = "SkyZone",
@@ -255,15 +273,10 @@ public partial class FaithfulView : Node3D
         };
         _skyViewport.AddChild(_skyCamera);
         _skySurfaceFog = new SurfaceFogRegistry(_skyCamera);
-        // Every pixel of a sky zone fogged solid is the same value, so the 16 x 16 target drawn once (ApplyVision)
-        // holds exactly what each pixel of a full-size view would, through the same pipeline. The camera only turns,
-        // so place it now: the one draw may come before the first SetUeCamera.
-        _skyFogOnly = FoggedSkyZone.IsSolid(map, UeSpace.ToGodot(skyLocation));
-        if (_skyFogOnly)
-        {
-            _skyCamera.Transform = CameraTransform(skyLocation, _cameraRotation);
-            GD.Print($"SVM_SKY {map.MapId}: sky zone {map.Lighting.SkyZone} is fogged solid, its view is drawn once");
-        }
+        SetSkyGlobals();
+        // The camera only turns, so place it now: the one draw may come before the first SetUeCamera.
+        _skyCamera.Transform = CameraTransform(skyLocation, _cameraRotation);
+        GD.Print($"SVM_SKY {map.MapId}: sky zone {map.Lighting.SkyZone} is fogged solid, its view is drawn once");
 
         AddChild(_skyViewport);
         Diagnostics.ViewportTimings.Register(_skyViewport, Diagnostics.ViewportTimings.Sky);
@@ -284,6 +297,122 @@ public partial class FaithfulView : Node3D
         Camera.AddChild(_backdrop);
     }
 
+    // A box this much bigger on every side holds every camera of the map, so the main camera never culls a sky
+    // surface by its place in the world (metres; the old backdrop's margin).
+    private const float SkyCullMargin = 16384f;
+
+    /// <summary>
+    /// Node meta (int) on a transparent sky surface split out of a cell mesh (MapBuilder): its place in the cell's
+    /// surface order, the order the sky camera drew the cell's surfaces in at their one shared sort distance.
+    /// </summary>
+    public const string SkySortOrderMeta = "svm_sky_order";
+
+    // Each later surface of a cell sorts this much nearer (metres): far below any distance between two cells, far above
+    // the float rounding of the sort distance.
+    private const float SkySortStep = 0.001f;
+
+    /// <summary>
+    /// The sky zone drawn by the main camera as the sky camera saw it (UE2's sky pass, in the same frame buffer): the
+    /// sky materials (MaterialCompiler.GetSky) place each surface from the SkyZoneInfo with this camera's rotation and
+    /// projection, behind the whole world, and shade it with the sky's own fog slot. No second scene render.
+    /// </summary>
+    private void AttachSkyToMainView(RenderMap map)
+    {
+        _skyMerged = true;
+        _skySurfaceFog = new SurfaceFogRegistry();
+        SetSkyGlobals();
+        CollectSky(map.Root);
+        _skySort = new float[_skyNodes.Count];
+        Array.Fill(_skySort, float.NaN);
+        GD.Print($"SVM_SKY {map.MapId}: sky zone {map.Lighting.SkyZone} is drawn in the main view ({_skyNodes.Count} nodes)");
+        ApplyVision();
+        UpdateSkySort();
+    }
+
+    private void CollectSky(Node node)
+    {
+        if (node is GeometryInstance3D geometry && (geometry.Layers & RenderLayers.Sky) != 0)
+        {
+            geometry.ExtraCullMargin = SkyCullMargin;
+            geometry.IgnoreOcclusionCulling = true;
+            // Transparent surfaces then sort by the distance to the node's origin, which UpdateSkySort turns into the
+            // distance the sky camera sorted them by.
+            geometry.SortingUseAabbCenter = false;
+            _skyNodes.Add(geometry);
+            _skyOrder.Add(geometry.HasMeta(SkySortOrderMeta) ? geometry.GetMeta(SkySortOrderMeta).AsInt32() : 0);
+            // Sky meshes never change, so their box centres are read once, not on every UpdateSkySort.
+            _skyCentre.Add(LocalSortCentre(geometry));
+        }
+
+        foreach (Node child in node.GetChildren())
+        {
+            CollectSky(child);
+        }
+    }
+
+    /// <summary>
+    /// The sky camera sorted transparent sky surfaces far to near by its distance to each node's box centre (Godot
+    /// 4.7.2 render_forward_clustered.cpp: depth = |eye - centre| - sorting offset, sort_by_reverse_depth_and_priority),
+    /// and the surfaces of one cell at that one distance in surface order. Each node's SortingOffset makes the main
+    /// camera's depth that same distance, less a step per place in its cell (Godot's sort keeps the order of equal
+    /// depths only up to 16 transparent surfaces), so the sky keeps its order; its lowest render priority draws it
+    /// before every other transparent surface.
+    /// </summary>
+    private void UpdateSkySort()
+    {
+        if (!_skyMerged || !Camera.IsInsideTree())
+        {
+            return;
+        }
+
+        // The eye the renderer sorts by (Camera3D.get_camera_transform).
+        Vector3 eye = Camera.GetCameraTransform().Origin;
+        for (int i = 0; i < _skyNodes.Count; i++)
+        {
+            GeometryInstance3D node = _skyNodes[i];
+            if (!IsInstanceValid(node) || !node.IsInsideTree())
+            {
+                continue;
+            }
+
+            Transform3D transform = node.GlobalTransform;
+            float offset = eye.DistanceTo(transform.Origin) - _skyOrigin.DistanceTo(transform * _skyCentre[i]) +
+                _skyOrder[i] * SkySortStep;
+            if (offset != _skySort[i])
+            {
+                _skySort[i] = offset;
+                node.SortingOffset = offset;
+            }
+        }
+    }
+
+    /// <summary>The centre of the box the renderer sorts a node by: its mesh's custom box when it has one.</summary>
+    private static Vector3 LocalSortCentre(GeometryInstance3D node) => node switch
+    {
+        MeshInstance3D { Mesh: ArrayMesh { CustomAabb: var custom } } when custom != default => custom.GetCenter(),
+        MeshInstance3D { Mesh: PrimitiveMesh { CustomAabb: var custom } } when custom != default => custom.GetCenter(),
+        _ => node.GetAabb().GetCenter(),
+    };
+
+    /// <summary>The sky camera's layers: the sky layer and the fog slot of its scene.</summary>
+    private uint SkyLayers => _skyCamera?.CullMask ?? (RenderLayers.Sky | (_skySurfaceFog?.Layers ?? 0u));
+
+    private static readonly StringName s_skyOriginName = Materials.MaterialCompiler.SkyOriginParameter;
+    private static readonly StringName s_skyLayersName = Materials.MaterialCompiler.SkyLayersParameter;
+
+    /// <summary>Hands the sky materials their camera's eye and layers (process-wide globals, set by each live view).</summary>
+    private void SetSkyGlobals()
+    {
+        if (_skySurfaceFog is null)
+        {
+            return;
+        }
+
+        Materials.MaterialCompiler.EnsureGlobals();
+        RenderingServer.GlobalShaderParameterSet(s_skyOriginName, _skyOrigin);
+        RenderingServer.GlobalShaderParameterSet(s_skyLayersName, (int)SkyLayers);
+    }
+
     /// <summary>
     /// Places the camera at a UE camera: location in uu, rotation, FovAngle in degrees. <paramref name="cut"/> settles
     /// time-smoothed effects (corona fades) at once, as for a new shot.
@@ -302,6 +431,8 @@ public partial class FaithfulView : Node3D
             _skyCamera.Transform = CameraTransform(sky, rotation);
         }
 
+        SetSkyGlobals();
+        UpdateSkySort();
         UpdateEffect();
         _coronas?.Update(location, 0f, _cut);
         _rain?.Update(location);
@@ -482,20 +613,8 @@ public partial class FaithfulView : Node3D
             ApplyProjection();
         }
 
-        if (_skyViewport is not null && !_skyFogOnly)
-        {
-            // The main view's internal 3D size (Godot: viewport size x Scaling3DScale, truncated), so the backdrop
-            // reads one sky texel per pixel and a lower render scale draws a smaller sky too.
-            Viewport viewport = GetViewport();
-            Vector2I visible = (Vector2I)viewport.GetVisibleRect().Size;
-            float scale = viewport.Scaling3DScale;
-            var size = new Vector2I((int)(visible.X * scale), (int)(visible.Y * scale));
-            if (size.X > 0 && size.Y > 0 && _skyViewport.Size != size)
-            {
-                _skyViewport.Size = size;
-            }
-        }
-
+        // Light sprites of the sky can move.
+        UpdateSkySort();
         _fog.Tick((float)delta);
         UpdateEffect();
         _coronas?.Update(_cameraLocation, (float)delta, _cut);
@@ -724,12 +843,16 @@ public partial class FaithfulView : Node3D
             _backdrop.Visible = !sceneVision;
         }
 
+        if (_skyMerged)
+        {
+            Camera.CullMask = sceneVision ? Camera.CullMask & ~RenderLayers.Sky : Camera.CullMask | RenderLayers.Sky;
+        }
+
         if (_skyViewport is not null)
         {
-            // A sky fogged solid is drawn once on each return to a normal mode (the fog and vision globals of this
-            // frame are set before the draw) and then kept: the picture cannot change while the mode stays.
-            _skyViewport.RenderTargetUpdateMode = sceneVision ? SubViewport.UpdateMode.Disabled
-                : _skyFogOnly ? SubViewport.UpdateMode.Once : SubViewport.UpdateMode.Always;
+            // The sky view only draws a sky fogged solid: once on each return to a normal mode (the fog and vision
+            // globals of this frame are set before the draw) and then kept: the picture cannot change while the mode stays.
+            _skyViewport.RenderTargetUpdateMode = sceneVision ? SubViewport.UpdateMode.Disabled : SubViewport.UpdateMode.Once;
         }
 
         if (_coronas is not null)

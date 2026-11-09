@@ -48,12 +48,12 @@ Without the pack the client still draws, with a seeded stand-in grain, no therma
 - Gameplay meshes (movers, SGamePlayObject, switches, help paths) and meshes without baked colours keep a node of
   their own, named by actor id, so views can move, hide and relight them (`RenderMap.Gameplay`). Hidden ones are
   built with `Visible = false`. Their vision values are instance uniforms.
-- Sky zone geometry goes on the sky layer, drawn only by the sky view: the BSP node with `sky: true` (every polygon
+- Sky zone geometry goes on the sky layer, drawn as the sky camera sees it ([Sky zone](#sky-zone)): the BSP node with `sky: true` (every polygon
   whose front zone, iZone[1], is the zone holding the SkyZoneInfo) and the instances flagged `skyZone` (actor location
   in that zone, UModel::PointRegion). Nothing else is moved by position: the sky ZONE record's bounds are not a test,
   since a zone number can also cover a stray corner of the play area (PanaS has 64 zones; four polygons of a 128 uu
   niche at x 8416 share the sky zone's number 10, so its bounds spanned the map and the spawn office was drawn only
-  by the sky view, SSIM 0.34; per polygon it is 0.98, like PanaD).
+  as sky, SSIM 0.34; per polygon it is 0.98, like PanaD).
 - Skeletal props (`SAnimatedMesh`, DrawType DT_Mesh with a mesh from the shared packs) are placed by
   `AnimatedProps.Build` at the first frame of their first sequence and lit for their mesh's bounding sphere (the
   crane, at DrawScale 10, reaches 2440 uu from its centre). Map props use conservative bounds over every linear-keyed
@@ -177,9 +177,9 @@ are saved, so they apply at once:
   edges are smoothed by the samples too. Shaders are made when a map is built, so this follows from the next map.
 - SMAA is the viewport's `ScreenSpaceAA`. Godot runs it after the tonemap, so it smooths the frame as shown, after
   fog, glow and the vision passes (Reloaded applies SMAA last as well). It combines with MSAA.
-- The sky zone, spot shadow, golden and display check viewports keep both off, so the golden captures and the
-  readback stay exact. The sky zone's picture is copied in without MSAA; its edges are not smoothed by MSAA (SMAA
-  smooths the whole frame). The armoury preview keeps its own FXAA.
+- The fogged sky zone, spot shadow, golden and display check viewports keep both off, so the golden captures and the
+  readback stay exact. The sky zone drawn in the main view takes the main view's MSAA like the world (it used to be
+  copied in without it). The armoury preview keeps its own FXAA.
 
 **Glow.** The normal composite (0x10966010, while PlayerController.DoGlow & 3, default 1) runs the glow driver
 0x10967740 in mode 0 and then writes `frame x saturate(16 (dot(frame, (0.311, 0.524, 0.165)) - 0.03)) + glow`
@@ -615,8 +615,8 @@ FDynamicLight colour.
   100 uu behind its housing at 2398 uu; lounge's coronas behind floors stay hidden at 8 % and 15 %). A full collision
   trace hides coronas the original shows (blocking volumes, cables); BSP alone lets a corona shine through mesh floors.
 - Fade moves at 6 x ScaleGlow per second; a camera cut settles it at once. Thermal and EMF draw no coronas.
-- The sky backdrop has the lowest render priority, so a corona or a particle over the sky is never overdrawn by it
-  (the crane lamp's corona was).
+- Sky zone materials have the lowest render priority, so a corona or a particle over the sky is never overdrawn by
+  it (the crane lamp's corona was).
 
 ## Projectors
 
@@ -685,10 +685,31 @@ Lights with `UsesLightBeam` and a `LightBeamMesh` (200 placed, `TestMapStaticM.A
 
 ## Sky zone
 
-When `lighting.json` has a sky zone, `FaithfulView` renders it in a SubViewport from the SkyZoneInfo's location with
-the main camera's rotation and projection, through its own display-space pass, and a full-screen quad on the far
-plane copies that picture (raw display values) wherever the world drew nothing. The sky camera draws only the sky
-layer; the backdrop quad is on a layer the sky camera leaves out.
+When `lighting.json` has a sky zone, the main camera draws it in the same frame, as UE2's sky pass does: the sky
+layer's materials (`MaterialCompiler.GetSky`, `SVM_SKY_ZONE` in `svm_world.gdshaderinc`) place each surface as the
+sky camera sees it (the main camera's rotation and projection, the eye at the SkyZoneInfo, `svm_sky_origin`) and
+shade it as that camera (its fog slot in `svm_sky_layers`, the eye as the camera position). Their depth is scaled
+by 2^-50 towards the far plane, so the whole world lies in front of the sky while the sky keeps its own depth order
+(`svm_sky_depth.gdshaderinc`); readers of the view's depth (the display-space fog stage, ambient occlusion, the
+responsive smoke background) treat depths up to 2^-40 as sky or nothing drawn, as depth 0 before. Solid sky surfaces
+write the 8-bit value the old sky picture had (`svm_sky_display`); blended ones blend over it, at most one level from
+the old composite. Transparent sky surfaces draw before every other transparent surface (lowest render priority) and
+in the sky camera's order: each sky node's `SortingOffset` turns the main camera's sort depth into the distance from
+the SkyZoneInfo to the node's box centre (Godot 4.7.2 `render_forward_clustered.cpp`). Each transparent surface of
+a sky cell is a node of its own that keeps the whole cell's box (MapBuilder) and sorts 1 mm nearer per place in the
+cell's surface order (`svm_sky_order`), the order the sky camera drew a cell's surfaces in at their shared distance;
+Godot's sort keeps equal depths in order only up to 16 transparent surfaces. Sky nodes get a cull margin
+of 16384 m, so their place in the world never culls them. Sky surfaces write no stencil marks.
+
+Known differences from the old SubViewport picture: transparent sky surfaces are drawn in the transparent pass, so
+the screen copies taken before it (the cloak's see-through, authored refraction, the coronas' scene colour) hold the
+sky without them; additive sky layers that push the sky above 1.0 are no longer clamped before main-world
+transparent surfaces blend over them; sky surfaces nearer than the near plane to the SkyZoneInfo are not clipped.
+
+A sky zone fogged solid (`FoggedSkyZone`) keeps the old way: a 16 x 16 SubViewport drawn once from the
+SkyZoneInfo's location through the same sky materials, and a full-screen quad on the far plane copies that picture
+(raw display values) wherever the world drew nothing. The sky camera draws only the sky layer; the backdrop quad is
+on a layer the sky camera leaves out.
 
 The sky zone's own walls are fake-backdrop surfaces (SteeE's star box: 8 polygons of `SQU13_txt.Tsky06`, plus the
 floor); the exporter now keeps fake-backdrop polygons of the sky zone (`scctpkg` `extract_polygons(...,

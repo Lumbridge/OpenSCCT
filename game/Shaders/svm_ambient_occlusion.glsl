@@ -3,6 +3,7 @@
 layout(local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
 layout(rgba16f, set = 0, binding = 0) uniform image2D color_image;
 layout(set = 0, binding = 1) uniform sampler2D depth_texture;
+#include "res://Shaders/svm_sky_depth.gdshaderinc"
 layout(push_constant, std430) uniform Params {
     vec4 frame; // size, radius in metres, strength
     vec4 projection; // focal scales and asymmetric frustum offsets
@@ -21,7 +22,7 @@ vec3 position_at(ivec2 pixel) {
 void main() {
     ivec2 xy = ivec2(gl_GlobalInvocationID.xy), size = ivec2(p.frame.xy);
     if (any(greaterThanEqual(xy, size))) return;
-    if (texelFetch(depth_texture, xy, 0).r <= 0.0) return; // sky
+    if (texelFetch(depth_texture, xy, 0).r <= SVM_SKY_DEPTH_LIMIT) return; // sky zone or nothing drawn
     vec3 center = position_at(xy);
     float z = -center.z;
     if (z <= p.range.z || z >= p.range.w) return; // held weapon and distant scene
@@ -44,7 +45,7 @@ void main() {
         for (int step = 1; step <= 3; step++) {
             ivec2 sample_xy = xy + ivec2(round(direction * max(1.0, pixels * float(step) / 3.0)));
             if (any(lessThan(sample_xy, ivec2(0))) || any(greaterThanEqual(sample_xy, size))) continue;
-            if (texelFetch(depth_texture, sample_xy, 0).r <= 0.0) continue;
+            if (texelFetch(depth_texture, sample_xy, 0).r <= SVM_SKY_DEPTH_LIMIT) continue;
             vec3 delta = position_at(sample_xy) - center;
             float distance = length(delta);
             if (distance < .001 || distance >= radius) continue;

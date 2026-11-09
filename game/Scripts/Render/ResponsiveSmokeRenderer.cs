@@ -275,7 +275,7 @@ public static class ResponsiveSmokeRenderer
     public static bool HasSmoke(RenderMap? map) => map is not null && Maps.TryGetValue(map, out WorldBinding? binding)
         && binding.Frame.Enabled && binding.Frame.Clouds.Count != 0;
 
-    /// <summary>Only draws where no opaque surface wrote depth, after the sky backdrop and before other transparency.</summary>
+    /// <summary>Only draws where no opaque surface but the sky zone wrote depth, after the sky and before other transparency.</summary>
     public static MeshInstance3D CreateBackground(Camera3D camera)
     {
         EnsureGlobals();

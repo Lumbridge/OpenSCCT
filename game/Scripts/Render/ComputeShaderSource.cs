@@ -184,6 +184,10 @@ public static class ComputeShaderSource
         return rd.ShaderCreateFromSpirV(spirv, name);
     }
 
+    // The material shader includes the compute shaders share (each holds no includes of its own).
+    private static readonly string[] SharedIncludes =
+        ["res://Shaders/svm_fog_math.gdshaderinc", "res://Shaders/svm_sky_depth.gdshaderinc"];
+
     private static (string? Text, string? Error) ReadFile(string path)
     {
         string text = FileAccess.GetFileAsString(path);
@@ -199,20 +203,24 @@ public static class ComputeShaderSource
             text = text.Remove(tag, ComputeTag.Length);
         }
 
-        const string fogInclude = "res://Shaders/svm_fog_math.gdshaderinc";
-        const string fogDirective = "#include \"" + fogInclude + "\"";
-        if (text.Contains(fogDirective, StringComparison.Ordinal))
+        foreach (string include in SharedIncludes)
         {
+            string directive = "#include \"" + include + "\"";
+            if (!text.Contains(directive, StringComparison.Ordinal))
+            {
+                continue;
+            }
+
             // Shader includes may be remapped to resources in an exported build; load their code through the
             // resource loader instead of requiring the original text file to remain beside the exported pack.
-            string? shared = ResourceLoader.Load<ShaderInclude>(fogInclude)?.Code;
+            string? shared = ResourceLoader.Load<ShaderInclude>(include)?.Code;
             if (string.IsNullOrEmpty(shared))
             {
-                return (null, $"{fogInclude} shader include not found");
+                return (null, $"{include} shader include not found");
             }
 
             // RenderingDevice compiles a source string without Godot's material include resolver.
-            text = text.Replace(fogDirective, shared, StringComparison.Ordinal);
+            text = text.Replace(directive, shared, StringComparison.Ordinal);
         }
 
         return (text, null);

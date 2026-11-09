@@ -16,7 +16,10 @@ public static class RenderLayers
     /// <summary>Colour-only effects: visible in the main view, excluded from custom depth cameras.</summary>
     public const uint Effects = 1u << 15;
 
-    /// <summary>The sky zone's geometry: seen only by the sky view, as in UE2's sky pass.</summary>
+    /// <summary>
+    /// The sky zone's geometry, as in UE2's sky pass: drawn by the main view (FaithfulView adds the layer) or, for a sky
+    /// zone fogged solid, by the sky view. Its materials place it as the sky camera sees it (MaterialCompiler.GetSky).
+    /// </summary>
     public const uint Sky = 1u << 1;
 
     /// <summary>

@@ -23,7 +23,7 @@ public sealed class SurfaceFogRegistry : IDisposable
     private static bool s_dirty;
     private static List<float> s_values = new(TableFloats);
     private static byte[] s_upload = [];
-    private readonly Camera3D _camera;
+    private readonly Camera3D? _camera;
     private readonly int _slot;
     public int Slot => _slot;
     private FogState _state;
@@ -38,21 +38,37 @@ public sealed class SurfaceFogRegistry : IDisposable
     public SurfaceFogRegistry(Camera3D camera)
     {
         ArgumentNullException.ThrowIfNull(camera);
-        EnsureGlobals();
         _camera = camera;
+        _slot = Register();
+        camera.CullMask = (camera.CullMask & ~RenderLayers.FogViewMask) | Layers;
+    }
+
+    /// <summary>
+    /// A slot without a camera: materials that shade as a camera no longer drawn (the sky zone in the main view,
+    /// FaithfulView) take its <see cref="Layers"/> from a global parameter instead.
+    /// </summary>
+    public SurfaceFogRegistry()
+    {
+        _slot = Register();
+    }
+
+    private int Register()
+    {
+        EnsureGlobals();
         // 127 is also unregistered: Godot's default all-layers camera has every reserved bit set.
         for (int i = 1; i < Views.Length - 1; i++)
         {
             if (Views[i] is not null) continue;
-            _slot = i;
             Views[i] = this;
-            camera.CullMask = (camera.CullMask & ~RenderLayers.FogViewMask) | ((uint)i << RenderLayers.FogViewShift);
             s_dirty = true;
-            return;
+            return i;
         }
 
         throw new InvalidOperationException("All 126 per-camera fog slots are in use.");
     }
+
+    /// <summary>The slot's reserved visibility bits, as a registered camera carries them in its cull mask.</summary>
+    public uint Layers => (uint)_slot << RenderLayers.FogViewShift;
 
     /// <summary>Registers the sampler before a shader referencing it is compiled.</summary>
     public static void EnsureGlobals()
@@ -141,7 +157,7 @@ public sealed class SurfaceFogRegistry : IDisposable
         _disposed = true;
         Views[_slot] = null;
         ResponsiveSmokeRenderer.ReleaseView(_slot);
-        if (GodotObject.IsInstanceValid(_camera) && ((_camera.CullMask & RenderLayers.FogViewMask) >> RenderLayers.FogViewShift) == (uint)_slot)
+        if (_camera is not null && GodotObject.IsInstanceValid(_camera) && ((_camera.CullMask & RenderLayers.FogViewMask) >> RenderLayers.FogViewShift) == (uint)_slot)
             _camera.CullMask &= ~RenderLayers.FogViewMask;
         s_dirty = true;
     }
