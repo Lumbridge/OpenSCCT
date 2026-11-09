@@ -63,6 +63,14 @@ public sealed class AuthoredMaterialSmoke : SmokeTest
             }
             repeat.SavePng(Path.Combine(_folder, "repeat.png")); repeatAtlas.SavePng(Path.Combine(_folder, "repeat-atlas.png"));
             height.Fill(Colors.Black); height.SavePng(Path.Combine(_folder, "constant-height.png"));
+            using var ramp = Image.CreateEmpty(512, 512, false, Image.Format.Rgba8);
+            using var slope = Image.CreateEmpty(512, 512, false, Image.Format.Rgba8);
+            for (int y = 0; y < 512; y++) for (int x = 0; x < 512; x++)
+            {
+                ramp.SetPixel(x, y, new(x / 511f, y / 511f, .25f));
+                float value = .25f + .5f * x / 511f; slope.SetPixel(x, y, new(value, value, value));
+            }
+            ramp.SavePng(Path.Combine(_folder, "uv-ramp.png")); slope.SavePng(Path.Combine(_folder, "slope-height.png"));
             using var grid = new PlaneMesh { Size = Vector2.One, SubdivideWidth = 16, SubdivideDepth = 16 };
             using var arrays = grid.GetMeshArrays(); using var lods = AuthoredMeshLods.Create(arrays); _lods = lods.Count;
             if (_lods == 0) return SmokeResult.Fail("Generated geometry has no render LODs.");
@@ -101,14 +109,15 @@ public sealed class AuthoredMaterialSmoke : SmokeTest
             {
                 long difference = 0; int peak = 0;
                 for (int i = 0; i < pixels.Length; i++) { int error = Math.Abs(pixels[i] - _samplingBaseline![i]); difference += error; peak = Math.Max(peak, error); }
-                GD.Print($"AUTHORED_REPEAT case={(_phase - 23) / 2} mean={(double)difference / pixels.Length:F4} peak={peak}");
-                if (peak > 4 || difference > pixels.Length) return SmokeResult.Fail("Repeated material differs from independent hardware-repeat reference: phase " + _phase);
+                string test = _phase >= 35 ? "PARALLAX_INTERSECTION" : "AUTHORED_REPEAT";
+                GD.Print($"{test} phase={_phase} mean={(double)difference / pixels.Length:F4} peak={peak}");
+                if (peak > 4 || difference > pixels.Length) return SmokeResult.Fail((_phase >= 35 ? "Parallax intersection differs from the analytic sloped-height reference: phase " : "Repeated material differs from independent hardware-repeat reference: phase ") + _phase);
             }
         }
         _frames = 0;
-        if (++_phase < 35) return SmokeResult.Running;
+        if (++_phase < 41) return SmokeResult.Running;
         _viewport.QueueFree(); MaterialCompiler.SetVision(RenderK.RendMapNormal);
-        return SmokeResult.Pass("35 rendered variants: animation/mips, alpha, lighting, refraction, vision modes, normals/conventions, triplanar, finishes, emission, parallax, directional static-mesh normal response and six repeat-boundary comparisons against hardware sampling; " + _lods + " generated render LODs; " + _folder);
+        return SmokeResult.Pass("41 rendered variants: animation/mips, alpha, lighting, refraction, vision modes, normals/conventions, triplanar, finishes, emission, parallax, directional static-mesh normal response, six repeat-boundary comparisons and analytic parallax intersections at qualities 4/16/64; " + _lods + " generated render LODs; " + _folder);
     }
 
     private static bool HasDirections(Node node)
@@ -122,6 +131,7 @@ public sealed class AuthoredMaterialSmoke : SmokeTest
 
     private void Configure()
     {
+        if (_phase >= 35) { ConfigureParallaxProbe(); return; }
         if (_phase >= 23) { ConfigureSamplingProbe(); return; }
         var definition = new AuthoredMaterial { TwoSided = true, Roughness = .3f, Clearcoat = .5f, Anisotropy = .2f };
         definition.Textures["baseColor"] = new() { File = "atlas.png", Srgb = true };
@@ -187,6 +197,25 @@ public sealed class AuthoredMaterialSmoke : SmokeTest
         var material = new ShaderMaterial { Shader = new Shader { Code = "shader_type spatial; render_mode unshaded, cull_disabled;\n" + sampling + "\nvoid fragment() { vec2 p = UV * 3.7 - vec2(1.21, 1.37); " + evaluate + " }" } };
         var textures = new TextureCache(_folder);
         AuthoredMaterialBinding.Apply(material, definition, fileName => textures.Get(fileName), (slot, binding) => textures.GetAuthored(slot, binding, definition.Animation));
+        _quad!.Rotation = Vector3.Zero; _quad.Mesh = new QuadMesh { Size = Vector2.One * 2 }; _quad.MaterialOverride = material;
+        MaterialCompiler.SetVision(RenderK.RendMapNormal);
+    }
+
+    private void ConfigureParallaxProbe()
+    {
+        bool reference = (_phase - 35) % 2 == 0;
+        int steps = new[] { 4, 16, 64 }[(_phase - 35) / 2];
+        var definition = new AuthoredMaterial { ParallaxDepth = .14f, ParallaxSteps = steps };
+        definition.Textures["baseColor"] = new() { File = "uv-ramp.png" };
+        definition.Textures["height"] = new() { File = "slope-height.png" };
+        // For h(u)=a*u+b and a ray p-k*t, solve t=1-h(p-k*t)
+        // independently of the ray marcher. PNG quantization is below one output level.
+        string evaluate = reference
+            ? "vec2 k = vec2(0.94, 0.17) / 0.34 * 0.14; float a = 256.0 / 511.0; float b = 0.25 - 0.25 / 511.0; float t = (1.0 - b - a * p.x) / (1.0 - a * k.x); ALBEDO = texture(am_tex_baseColor, p - k * t).rgb;"
+            : "AuthoredSample s = am_evaluate(p, vec3(0.0), vec3(0.0, 0.0, 1.0), vec3(0.94, 0.17, 0.34), 0.0); ALBEDO = s.color.rgb;";
+        var material = new ShaderMaterial { Shader = new Shader { Code = "shader_type spatial; render_mode unshaded, cull_disabled;\n" + AuthoredMaterialBinding.ShaderCode + "\nvoid fragment() { vec2 p = UV * 0.35 + vec2(0.5, 0.3); " + evaluate + " }" } };
+        var textures = new TextureCache(_folder);
+        AuthoredMaterialBinding.Apply(material, definition, file => textures.Get(file), (slot, binding) => textures.GetAuthored(slot, binding, definition.Animation));
         _quad!.Rotation = Vector3.Zero; _quad.Mesh = new QuadMesh { Size = Vector2.One * 2 }; _quad.MaterialOverride = material;
         MaterialCompiler.SetVision(RenderK.RendMapNormal);
     }
