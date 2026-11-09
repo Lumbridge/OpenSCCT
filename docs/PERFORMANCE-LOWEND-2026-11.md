@@ -285,6 +285,33 @@ A shader that holds more code shades slower on this GPU whether or not the code 
 - **The rest of the frame is unchanged:** spot shadow viewports (3.7 ms on AquaE), the post chain (1.7–3.0 ms), rain (1.8 ms), presentation.
 - Measurement switches: `SVM_RD_WORLD_STATS=1`, `SVM_RD_WORLD_OUT`/`_IN` (force features out or in), `SVM_RD_WORLD_TIGHT=0`, `SVM_RD_WORLD_DYNBITS=0`, `SVM_RD_WORLD_PREPASS=0`, `SVM_RD_WORLD_CACHE=0`, `SVM_RD_WORLD_LEAVE=name,…`, `SVM_RD_DUMP=folder`.
 
+## The shadow pass (`SVM_RD_SHADOWS=1`, 2026-11-09)
+
+Step 2 of the plan, built: the moving casters of a spot shadow light are drawn by our own code instead of a Godot SubViewport per light per frame. Off unless `SVM_RD_SHADOWS=1` is set; it works with or without the world pass. Code: `game/Scripts/Render/Rd/RdShadowPass.cs`, called from `SpotShadowLight.RefreshShadowPass`.
+
+UHD 770, 2560×1440, off-screen, gameplay cameras, build `build-s9` (another game was running on the RTX 4070 during these runs; the earlier figures reproduce within 1 FPS):
+
+| | SteeE FPS (1% low) | AquaE FPS (1% low) | AquaE GPU ms | of which shadows |
+|---|---:|---:|---:|---:|
+| Forward+, shadow viewports | 90.9 (75.4) | 36.0 (31.8) | 23.80 | 3.76 |
+| Forward+, our shadow pass | 90.8 (74.8) | 40.6 (37.0) | 20.18 | 0.57 |
+| World pass, shadow viewports | 106.7 (88.6) | 51.3 (44.7) | 15.37 | 3.75 |
+| World pass, our shadow pass | 106.0 (90.0) | 61.4 (54.8) | 11.70 | 0.57 |
+
+SteeE's camera has no live shadow pass, so nothing changes there.
+
+- **Why the viewports cost so much.** Four of AquaE's lights redrew every frame because something that is not static world sat in their frusta: the player, sharks, cloth, objective props. Each redraw was a whole Godot frame at up to 1707×1024: pre-pass, colour pass, depth copy and tonemap, about 0.95 ms a light, half of it for a colour image nobody reads.
+- **What ours does.** A light whose static world is already cached gets its tile as a copy of the cached tile with the casters drawn over it. Each caster writes its distance along the light's axis and the nearest wins (minimum blending), which is the value the viewport pass and its depth copy produce. Skinned meshes are skinned in the vertex shader from the skeleton's pose; cloth is drawn from the arrays its simulation rewrites. Only the boxes the casters cover now, or covered at the last write, are copied from the cache.
+- **Checked against Godot texel by texel.** `SVM_RD_SHADOWS=verify` keeps the viewport passes and, every 150 frames, draws the same tiles of the same frame with our pass into a scratch texture, reads both back and compares them. On AquaE, with the player, sharks, cloth and props in the frusta: two tiles identical to 2 mm, the other two with 10 to 38 texels of 1.5 million apart by more than the shadow bias, all on silhouette edges.
+- **Still tracked without drawing.** A caster whose mesh never changes (MapBuilder's gameplay meshes, `SpotShadowLight.MarkRigid`) no longer forces any redraw while it keeps its place: the tile is kept until it moves, hides or takes another mesh. This also holds without `SVM_RD_SHADOWS` (`SVM_SHADOW_RIGID=0` turns it off).
+- **Falls back per light, per frame.** A light keeps its viewport pass while its static cache is not written (a light that moves every frame, so the merc's torch), and whenever its frustum holds something our pass cannot draw as Godot would: a node that is not a MeshInstance3D, a mesh rewritten in place that does not hand over its shape (`MarkMutable` without `SetDynamic`: the escalator steps), eight bone weights, a material outside the Faithful template, a cut-out that animates or fades. `SVM_SHADOW_STATS=1` names the caster that keeps a pass live.
+
+### Open
+
+- The torch and the flares' cube shadows still use viewports.
+- 0.57 ms is mostly the copies: two of the four tiles have casters close to the light whose boxes cover half the tile or more.
+- Not exercised: cloaked spies and other material swaps on casters, broken glass, maps other than AquaE and SteeE, leaving a map.
+
 ## The target
 
 - 240 FPS at 1440p on this PC leaves 0.8 ms for the whole game on stock Godot (presentation floor above). No renderer fits a lit world, shadows, characters, effects and post in that.
@@ -300,7 +327,7 @@ Building our own renderer on RenderingDevice stays the direction for the map: Go
 - **Lighting is designed for cost, not translated.** The original lights a surface with what reaches that surface. The world pass gets per-draw light lists (which spot slots, which dynamic lights, which fog) chosen on the CPU, with pipelines specialised by count, so a pixel that no spot reaches runs no spot code. Vertex fog where the original's fog is per vertex.
 - **Order: the hard case first.**
   1. AquaE with its real lighting, shadows lookups and fog in the world pass. Gate: world pass at or under 3 ms at 1440p on the UHD 770 with a picture matching Forward+. If the lighting cannot be made that cheap, no renderer reaches the target and the lighting model is the work. **Built (see "The world pass"): 3.7 ms with the same pixels, 0.7 ms over the gate; portal fog is the part left.**
-  2. Spot shadow depth from our own depth-only passes over the same buffers, replacing the SubViewports (3.7 ms on AquaE). Godot draws only the moving casters.
+  2. Spot shadow depth from our own depth-only passes over the same buffers, replacing the SubViewports (3.7 ms on AquaE). Godot draws only the moving casters. **Built (see "The shadow pass"): 3.75 → 0.57 ms on AquaE; our pass draws the moving casters too.**
   3. The post chain: one fused full-screen pass where there are two or three now (1.7–3.0 ms plus the tonemap).
   4. Per-map parity and release behind a setting, Forward+ as the fallback.
   5. Then decide on replacing the rest of Godot's 3D, and on a Godot build with direct presentation, from the numbers at that point.

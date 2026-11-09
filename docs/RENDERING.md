@@ -502,6 +502,16 @@ travel starts with a fresh cookie array.
   switches the eight-lookup disc (`SpotShadowSoftRadius`, 1.5 texels) on or off. Reloaded's `shadow_optimized`
   (per-light resolution by screen size) is not done.
 
+### Shadow pass on the RenderingDevice
+
+With `SVM_RD_SHADOWS=1` (off by default) a light whose static world is cached does not redraw through its SubViewport:
+`Rd/RdShadowPass` copies the cached static tile into the light's tile where casters are or were, and draws the other
+casters in its frustum over it (rigid, skinned and cloth meshes with Faithful template materials), each writing its
+distance along the light's axis with minimum blending. A light with anything else in its frustum, or without a written
+static cache, keeps its viewport pass for the frame. A caster whose mesh never changes (`SpotShadowLight.MarkRigid`)
+forces no redraw at all while it keeps still, with or without this pass. `SVM_RD_SHADOWS=verify` compares both passes
+texel by texel. Measurements: docs/PERFORMANCE-LOWEND-2026-11.md.
+
 ### Light reach
 
 `LightReach` (an OpenSCCT optimisation, same pixels) draws each merged cell mesh in one of three light states, each in

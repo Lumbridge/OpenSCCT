@@ -1398,6 +1398,10 @@ public static class MapBuilder
 
                 ActorLighting.ReadSphere(arrayMesh, _meshes[mesh]);
                 _shared[(shareKey, light, glowKey)] = arrayMesh;
+                // Never rewritten after this, so its instances are rigid shadow casters, unless a cut-out of it animates.
+                bool animatedCutOut = false;
+                for (int s = 0; s < arrayMesh.GetSurfaceCount(); s++) animatedCutOut |= arrayMesh.SurfaceGetMaterial(s) is { } m && AnimatesShadow(m);
+                if (!animatedCutOut) SpotShadowLight.MarkRigid(arrayMesh);
             }
 
             var node = new MeshInstance3D { Name = actor.Length > 0 ? actor : meshName, Mesh = arrayMesh, Transform = transform, Visible = !hidden };

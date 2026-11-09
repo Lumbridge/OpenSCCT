@@ -403,6 +403,8 @@ public sealed class SoftBodyViews
             }
 
             Mesh = new ArrayMesh { ResourceName = "SoftBody_" + actor };
+            // Its vertices are rewritten as the cloth moves.
+            Rd.RdShadowPass.MarkMutable(Mesh);
             Node = new MeshInstance3D { Name = actor.Length > 0 ? actor : "SoftBody", Mesh = Mesh, Transform = transform };
             Notifier = new VisibleOnScreenNotifier3D { Name = "Seen" };
             Min = new FVector(float.MaxValue, float.MaxValue, float.MaxValue);
@@ -512,6 +514,7 @@ public sealed class SoftBodyViews
                 }
                 RenderingServer.MeshSurfaceUpdateVertexRegion(_meshRid, 0, 0, _vertexData);
                 Mesh.CustomAabb = new Aabb(min, max - min).Grow(0.001f);
+                Rd.RdShadowPass.SetDynamic(Mesh, _verts, _uvs, _indices);
                 return;
             }
 
@@ -541,6 +544,8 @@ public sealed class SoftBodyViews
                 byte[] data = surface["vertex_data"].AsByteArray();
                 if (data.Length == count * (12 + _normalStride)) _vertexData = data;
             }
+
+            Rd.RdShadowPass.SetDynamic(Mesh, _verts, _uvs, _indices);
         }
     }
 }

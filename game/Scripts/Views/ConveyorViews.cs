@@ -367,6 +367,8 @@ public sealed class ConveyorViews
             _light = light;
             _echelon = echelon;
             _u = u;
+            // Rebuilt as the steps move.
+            OpenScctGame.Render.Rd.RdShadowPass.MarkMutable(_mesh);
             node.Mesh = _mesh;
         }
 
