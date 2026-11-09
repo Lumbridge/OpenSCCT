@@ -132,6 +132,9 @@ is the identity at the default settings. The Faithful pipeline does the same:
    (gate, plus the glow from `svm_glow.glsl` when the level's threshold is below 255); the vision pass of RendMap and
    the exact sRGB decode. Registered cameras skip post fog to avoid applying it twice. Thermal, motion and EMF run
    the blur pyramid (`svm_vision_blur.glsl`) before the vision pass.
+   The normal view's frame does not need that shader: its last pass is `svm_display_normal.glsl` (gate, glow add and
+   decode only) and its bright pass `svm_glow_bright.glsl` (the frame through a bilinear sampler), because on
+   integrated GPUs a shader costs by the code it holds. `SVM_POST_LEAN=0` runs everything through the full shaders.
 3. The environment passes colours through: Linear tonemapper, exposure 1, no glow, AO, SSR, SDFGI, fog, adjustments
    or auto exposure; no TAA or debanding, and MSAA and SMAA only when the player turns them on (see
    [Anti-aliasing](#anti-aliasing)). Godot's output encode is the exact sRGB curve, so the screen shows

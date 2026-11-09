@@ -312,6 +312,27 @@ SteeE's camera has no live shadow pass, so nothing changes there.
 - 0.57 ms is mostly the copies: two of the four tiles have casters close to the light whose boxes cover half the tile or more.
 - Not exercised: cloaked spies and other material swaps on casters, broken glass, maps other than AquaE and SteeE, leaving a map.
 
+## The post chain (2026-11-09)
+
+Step 3 of the plan. On by default for every renderer path; `SVM_POST_LEAN=0` runs the chain as before. Code: `Post/DisplaySpaceEffect` (`Normal`, `Bright`), `Shaders/svm_display_normal.glsl`, `Shaders/svm_glow_bright.glsl`.
+
+UHD 770, 2560×1440, off-screen, gameplay cameras, world pass and shadow pass on (builds `build-p1` before, `build-p4` after):
+
+| | SteeE before | SteeE after | AquaE before | AquaE after |
+|---|---:|---:|---:|---:|
+| FPS | 106.7 | 121.2 | 61.1 | 68.7 |
+| GPU ms | 5.72 | 4.52 | 11.76 | 9.98 |
+| Final display pass | 1.77 | 0.54 | 1.83 | 0.71 |
+| Glow: bright pass | none | none | 0.88 | 0.31 |
+| Glow: four blurs | none | none | 0.24 | 0.24 |
+| Glow: composite | none | none | 0.18 | 0.19 |
+| Godot's tonemap pass | 0.86 | 0.85 | 0.84 | 0.85 |
+
+- **The final pass was paying for code it never ran.** `svm_display_post.glsl` holds fallback fog, portal fog, the gate, the glow and five vision modes behind branches, and binds ten resources. A normal frame runs the gate, the glow add and the sRGB decode. Those three now have a shader of their own with two bindings and push constants; the full shader still runs for vision modes, fallback fog and the warm-up. Same rule as the world shaders: on this GPU a shader costs by what it holds.
+- **The bright pass read the frame four times a texel.** It filtered four image loads by hand into a 1024² target. The normal view now reads the frame through a bilinear sampler, one fetch a texel. The sampler's weights have 8 fractional bits, so values can differ in their last bits; EMF's mask pass is unchanged.
+- **Parity.** Both renderers capped at 30 FPS, lean against `SVM_POST_LEAN=0`: SteeE's crane, shop and spy spawn views identical in every pixel; the courtyard view (0.06% of pixels) and AquaE (2.1%) differ by as much as two runs of the unchanged chain differ from each other (0.06% and 2.7%: signs and rain).
+- **Left.** Godot's tonemap pass (0.85 ms) is a copy of the frame into the viewport's texture with a linear curve; our decode cannot be folded into it without changing the engine. The four blurs and the composite are 0.43 ms together.
+
 ## The target
 
 - 240 FPS at 1440p on this PC leaves 0.8 ms for the whole game on stock Godot (presentation floor above). No renderer fits a lit world, shadows, characters, effects and post in that.
@@ -328,7 +349,7 @@ Building our own renderer on RenderingDevice stays the direction for the map: Go
 - **Order: the hard case first.**
   1. AquaE with its real lighting, shadows lookups and fog in the world pass. Gate: world pass at or under 3 ms at 1440p on the UHD 770 with a picture matching Forward+. If the lighting cannot be made that cheap, no renderer reaches the target and the lighting model is the work. **Built (see "The world pass"): 3.7 ms with the same pixels, 0.7 ms over the gate; portal fog is the part left.**
   2. Spot shadow depth from our own depth-only passes over the same buffers, replacing the SubViewports (3.7 ms on AquaE). Godot draws only the moving casters. **Built (see "The shadow pass"): 3.75 → 0.57 ms on AquaE; our pass draws the moving casters too.**
-  3. The post chain: one fused full-screen pass where there are two or three now (1.7–3.0 ms plus the tonemap).
+  3. The post chain: one fused full-screen pass where there are two or three now (1.7–3.0 ms plus the tonemap). **Built (see "The post chain"): 1.8 → 0.5–0.7 ms for the final pass, 0.88 → 0.31 ms for the glow's bright pass; the tonemap copy stays.**
   4. Per-map parity and release behind a setting, Forward+ as the fallback.
   5. Then decide on replacing the rest of Godot's 3D, and on a Godot build with direct presentation, from the numbers at that point.
 - **Driver.** Intel pays about 3.4 ms a frame to present through Vulkan and draws slower on D3D12. That choice is worth more than several of the items above on real Intel machines and needs its own measurement on the in-frame build.
