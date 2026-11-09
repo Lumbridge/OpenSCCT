@@ -487,9 +487,11 @@ public sealed partial class MaterialCompiler
         Shader shader = seeThroughPass ? SeeThroughShaderFor(light, blend, entry.TwoSided, extras) : ShaderFor(light, blend, entry.TwoSided, extras);
 
         var material = new ShaderMaterial { Shader = shader, ResourceName = entry.Name };
-        if (sky)
+        if (sky && blend is not (MaterialBlend.Opaque or MaterialBlend.Masked))
         {
-            // Before every other transparent surface, as the sky's picture lay under them all.
+            // Before every other transparent surface, as the sky's picture lay under them all. Solid sky keeps the
+            // default: its squeezed depth already puts it behind the world, and Godot sorts opaque draws by priority
+            // too, so a lowest priority would draw it first in the depth pre-pass, before anything could hide it.
             material.RenderPriority = (int)Material.RenderPriorityMin;
         }
 

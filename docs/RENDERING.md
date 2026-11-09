@@ -639,8 +639,8 @@ FDynamicLight colour.
   100 uu behind its housing at 2398 uu; lounge's coronas behind floors stay hidden at 8 % and 15 %). A full collision
   trace hides coronas the original shows (blocking volumes, cables); BSP alone lets a corona shine through mesh floors.
 - Fade moves at 6 x ScaleGlow per second; a camera cut settles it at once. Thermal and EMF draw no coronas.
-- Sky zone materials have the lowest render priority, so a corona or a particle over the sky is never overdrawn by
-  it (the crane lamp's corona was).
+- Blended sky zone materials have the lowest render priority, so a corona or a particle over the sky is never
+  overdrawn by them (the crane lamp's corona was). Solid sky sits behind everything by depth.
 
 ## Projectors
 
