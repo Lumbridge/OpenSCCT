@@ -154,6 +154,7 @@ public partial class FpsBenchmark : Node
             for (int i = 0; i < Pipelines.Length; i++) _pipelines[i] = Performance.GetMonitor(Pipelines[i].Monitor);
             // Discard the interval which straddled the warm-up boundary.
             _frames.Add(default);
+            Render.RdProto.RdProtoGpu.ResetCase();
             if (_profiling) AppendAux();
             return;
         }
@@ -236,6 +237,8 @@ public partial class FpsBenchmark : Node
             p99Ms = times[Math.Min(times.Length - 1, (int)(times.Length * 0.99))], maxMs = times[^1],
             simMs = frames.Average(f => f.SimMs), viewMs = frames.Average(f => f.ViewMs),
             renderCpuMs = frames.Average(f => f.RenderCpuMs), gpuMs = mainGpuMs,
+            // SVM_RD_PROTO only: the custom pass's mean GPU ms over the measured window (RD timestamps), else null.
+            rdProtoGpuMs = Render.RdProto.RdProtoGpu.CaseGpuMs,
             // Profiling only: auxiliary viewports per kind, their GPU sum, and main plus auxiliary GPU.
             viewports = auxViews, auxGpuMs, totalGpuMs = mainGpuMs + auxGpuMs,
             allocatedMbPerSecond = allocated / (total * 1000), gcPauseMs = pauseMs, gen0, gen1, gen2,
