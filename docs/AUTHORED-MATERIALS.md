@@ -1,6 +1,6 @@
 # Authored and animated materials
 
-Available in OpenSCCT 0.8.121 with Editor 0.2.34. The editor's built-in Help tutorials cover texture import, animation, lighting and shine, depth/collision, emissive baking and original-game export. See the [release notes](releases/0.8.121.md) for validation boundaries.
+Available in OpenSCCT 0.8.122 with Editor 0.2.34. The editor's built-in Help tutorials cover texture import, animation, lighting and shine, depth/collision, emissive baking and original-game export. See the [release notes](releases/0.8.122.md) for validation boundaries.
 
 Authored materials explicitly select the shared version 1 material path. Stock materials retain the existing renderer. The editor and game share `OpenScct.Content.Materials.AuthoredMaterial`, `AuthoredMaterialBinding` and `svm_authored.gdshaderinc`.
 
