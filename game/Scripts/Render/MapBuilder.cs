@@ -127,6 +127,7 @@ public sealed class RenderMap
         ActorLighting = actorLighting;
         Zones = zones;
         WorldLights = new WorldLights(lighting);
+        LightReach = new LightReach(root, WorldLights);
     }
 
     /// <summary>The map folder (the one holding manifest.json and render/).</summary>
@@ -221,6 +222,9 @@ public sealed class RenderMap
 
     /// <summary>Dynamic world lights (triggered, pulsing): applied per pixel to BSP and static meshes.</summary>
     public WorldLights WorldLights { get; }
+
+    /// <summary>The merged cell meshes' choice of materials without the spot (and dynamic) light terms where no such light reaches.</summary>
+    public LightReach LightReach { get; }
 
     private readonly Dictionary<string, bool> _lightSwitches = new(StringComparer.OrdinalIgnoreCase);
 
@@ -1429,14 +1433,14 @@ public static class MapBuilder
             // The materials first, in the order the cells ask for them. The merged geometry of every drawn bucket is
             // then written on worker threads (plain data, each bucket in its own queued order), and the meshes are made
             // here in cell order.
-            var cells = new List<((int x, int y, int sky) Cell, List<((string, LightSource, VisionPass) Key, Material Material, SurfaceBuilder Surface)> Drawn)>();
+            var cells = new List<((int x, int y, int sky) Cell, List<((string, LightSource, VisionPass) Key, Material Material, LightReach.Twins Twins, SurfaceBuilder Surface)> Drawn)>();
             var merged = new List<SurfaceBuilder>();
             foreach (((int x, int y, int sky) cell, Dictionary<(string, LightSource, VisionPass), SurfaceBuilder> buckets) in _cells)
             {
                 var keys = new List<(string, LightSource, VisionPass)>(buckets.Keys);
                 keys.Sort((a, b) => string.CompareOrdinal(a.Item1, b.Item1) is var n and not 0 ? n
                     : a.Item2 != b.Item2 ? a.Item2.CompareTo(b.Item2) : a.Item3.CompareTo(b.Item3));
-                var drawn = new List<((string, LightSource, VisionPass) Key, Material Material, SurfaceBuilder Surface)>(keys.Count);
+                var drawn = new List<((string, LightSource, VisionPass) Key, Material Material, LightReach.Twins Twins, SurfaceBuilder Surface)>(keys.Count);
                 foreach ((string, LightSource, VisionPass) key in keys)
                 {
                     Material? material = key.Item3 switch
@@ -1447,7 +1451,12 @@ public static class MapBuilder
                     };
                     if (material is not null)
                     {
-                        drawn.Add((key, material, buckets[key]));
+                        // The twins LightReach swaps in where no spot (and no dynamic) light reaches; see-through passes keep theirs.
+                        bool plain = key.Item3 == VisionPass.Plain;
+                        LightReach.Twins twins = key.Item3 == VisionPass.SeeThrough ? default : new(
+                            _map.Compiler.GetUnreached(key.Item1, key.Item2, plain, keepDynamic: true),
+                            _map.Compiler.GetUnreached(key.Item1, key.Item2, plain, keepDynamic: false));
+                        drawn.Add((key, material, twins, buckets[key]));
                         merged.Add(buckets[key]);
                     }
                 }
@@ -1456,15 +1465,15 @@ public static class MapBuilder
             }
 
             ParallelFor(merged.Count, i => merged[i].Prepare());
-            foreach (((int x, int y, int sky) cell, List<((string, LightSource, VisionPass) Key, Material Material, SurfaceBuilder Surface)> drawn) in cells)
+            foreach (((int x, int y, int sky) cell, List<((string, LightSource, VisionPass) Key, Material Material, LightReach.Twins Twins, SurfaceBuilder Surface)> drawn) in cells)
             {
                 string baseName = string.Create(CultureInfo.InvariantCulture, $"{(cell.sky != 0 ? "Sky" : "Cell")}_{cell.x}_{cell.y}");
 
                 // A cell with more materials than one mesh can hold (MoonD's cells pass 256) is split over several
                 // meshes, so no surface is dropped.
                 int part = 0;
-                var surfaces = new List<(SurfaceBuilder Surface, Material Material, bool Split)>(MaxSurfacesPerMesh);
-                foreach (((string, LightSource, VisionPass) key, Material material, SurfaceBuilder b) in drawn)
+                var surfaces = new List<(SurfaceBuilder Surface, Material Material, LightReach.Twins Twins, bool Split)>(MaxSurfacesPerMesh);
+                foreach (((string, LightSource, VisionPass) key, Material material, LightReach.Twins twins, SurfaceBuilder b) in drawn)
                 {
                     if (b.TriangleCount == 0)
                     {
@@ -1483,7 +1492,7 @@ public static class MapBuilder
                     bool split = cell.sky == 0 && key.Item3 != VisionPass.SeeThrough && material.NextPass is null &&
                         entry is { Blend: MaterialBlend.Opaque or MaterialBlend.Masked } &&
                         !(entry.Sequences.TryGetValue("diffuse", out var sequence) && sequence.SwitchMaterial);
-                    surfaces.Add((b, material, split));
+                    surfaces.Add((b, material, twins, split));
                     _map.Stats.Vertices += b.VertexCount;
                 }
 
@@ -1494,7 +1503,7 @@ public static class MapBuilder
         private static string CellPartName(string baseName, int part) =>
             part == 0 ? baseName : string.Create(CultureInfo.InvariantCulture, $"{baseName}_{part}");
 
-        private void FlushCellPart(List<(SurfaceBuilder Surface, Material Material, bool Split)> surfaces, string name, bool sky)
+        private void FlushCellPart(List<(SurfaceBuilder Surface, Material Material, LightReach.Twins Twins, bool Split)> surfaces, string name, bool sky)
         {
             if (surfaces.Count == 0)
             {
@@ -1503,8 +1512,9 @@ public static class MapBuilder
 
             bool animatedShadow = false;
             var grouped = new ArrayMesh { ResourceName = name };
-            var bounded = new List<ArrayMesh>();
-            foreach ((SurfaceBuilder surface, Material material, bool split) in surfaces)
+            var groupedTwins = new List<LightReach.Twins>();
+            var bounded = new List<(ArrayMesh Mesh, LightReach.Twins Twins)>();
+            foreach ((SurfaceBuilder surface, Material material, LightReach.Twins twins, bool split) in surfaces)
             {
                 if (!sky && material is ShaderMaterial { Shader: { } shader })
                 {
@@ -1517,11 +1527,12 @@ public static class MapBuilder
                 {
                     var mesh = new ArrayMesh { ResourceName = string.Create(CultureInfo.InvariantCulture, $"{name}_Surface{bounded.Count}") };
                     surface.AddTo(mesh, material);
-                    bounded.Add(mesh);
+                    bounded.Add((mesh, twins));
                 }
                 else
                 {
                     surface.AddTo(grouped, material);
+                    groupedTwins.Add(twins);
                 }
             }
 
@@ -1531,33 +1542,35 @@ public static class MapBuilder
                 if (bounded.Count != 0)
                 {
                     Aabb originalBounds = grouped.GetAabb();
-                    foreach (ArrayMesh mesh in bounded)
+                    foreach ((ArrayMesh mesh, _) in bounded)
                     {
                         originalBounds = originalBounds.Merge(mesh.GetAabb());
                     }
                     grouped.CustomAabb = originalBounds;
                 }
-                AddCellMesh(grouped, layer);
+                AddCellMesh(grouped, layer, groupedTwins);
             }
             else
             {
                 grouped.Dispose();
             }
 
-            foreach (ArrayMesh mesh in bounded)
+            foreach ((ArrayMesh mesh, LightReach.Twins twins) in bounded)
             {
-                AddCellMesh(mesh, layer);
+                AddCellMesh(mesh, layer, [twins]);
             }
         }
 
-        private void AddCellMesh(ArrayMesh mesh, uint layer)
+        private void AddCellMesh(ArrayMesh mesh, uint layer, IReadOnlyList<LightReach.Twins> twins)
         {
-            _static.AddChild(new MeshInstance3D
+            var node = new MeshInstance3D
             {
                 Name = mesh.ResourceName,
                 Mesh = mesh,
                 Layers = layer,
-            });
+            };
+            _static.AddChild(node);
+            _map.LightReach.Add(node, twins);
             _map.Stats.StaticNodes++;
             _map.Stats.StaticSurfaces += mesh.GetSurfaceCount();
         }

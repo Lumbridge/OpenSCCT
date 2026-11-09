@@ -72,7 +72,10 @@ public partial class GameplayFxWarmup : SubViewport
     {
         if (!ResponsiveSmokeWorld.IsEnabled(level)) return;
         // Rules that arrive after the map was built switch its shaders here, so the surfaces below warm that variant.
+        bool switching = !Materials.ResponsiveSmokeShaders.Enabled;
         Materials.ResponsiveSmokeShaders.Use(true);
+        // The map's cell meshes draw all three of their material variants again, in the new code (LightReach.Warm).
+        if (switching) map?.LightReach.Warm();
         if (DisplayServer.GetName() == "headless") return;
         ResponsiveSmokeRenderer.Publish(map,level);
         ResponsiveSmokeRenderer.Preparing = true;

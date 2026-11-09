@@ -8,6 +8,9 @@
 //     thermal and EMF. The vision cut-outs below never fire there, so they are left out, and so is the vertex position
 //     (no foreground depth on map geometry): without discard or POSITION Godot draws the depth pre-pass with its shared
 //     depth-only shader (scene_shader_forward_clustered.h uses_shared_shadow_material).
+//   SVM_NO_SPOT, SVM_NO_DYN (MaterialCompiler.GetUnreached): merged map geometry that no spot shadow light (SVM_NO_SPOT
+//     alone), or neither a spot nor a dynamic world light (both), can reach this frame (LightReach). The left-out
+//     terms are exactly zero there, so the pixels match.
 // Textures are sampled raw (no sRGB decode): they hold display values like the original's.
 // Vision modes (global svm_vision = PlayerController.RendMap, docs/RENDERING.md#vision-modes) replace the output:
 //   36 thermal: the Z pass, (0, heat, 1 - viewZ / 5000); translucent surfaces blend (0, 0, fade) by alpha x HeatOpacity
@@ -68,6 +71,9 @@ vec3 svm_hue_turn(vec3 c, float angle) {
 varying vec4 v_vision;
 #ifdef AUTHORED_MATERIAL
 varying vec4 v_authored_direction;
+#if defined(SVM_NO_SPOT) || defined(SVM_NO_DYN)
+#error "Authored highlights read every spot and dynamic light: authored materials keep the full variant."
+#endif
 #endif
 // OpenSCCT's own: a polished sheen on cosmetic camo materials (SkeletalModel.Cosmetic): its strength (0 off, 1 on the
 // golden camo), the colour of its highlights (gold, or near white for the pyre camo's black lacquer), and how much of a
@@ -916,10 +922,21 @@ void fragment() {
 	// Zone 255 (MapBuilder.AuthoredOverlayZone): an additive mesh with painted colours, lit by its colours alone.
 	bool overlay = zone > 254.5;
 	bool unlit = overlay || shadow_pass;
+#ifdef SVM_NO_SPOT
+	// No slot's bounding sphere holds any point of the mesh (LightReach): every slot adds exactly nothing.
+	vec3 spot = vec3(0.0);
+#else
 	vec3 spot = svm_spot_count > 0 && !unlit ? svm_spot_light(v_wpos, wn, zone, echelon_ignore) : vec3(0.0);
 #endif
+#endif
 #if defined(LIGHT_LIGHTMAP) || defined(LIGHT_VERTEX)
-	vec3 dyn = (svm_dyn_light_count > 0 && !unlit ? svm_dynamic(v_wpos, wn, zone) : vec3(0.0)) + spot + svm_zone_amb(zone);
+#ifdef SVM_NO_DYN
+	// Every dynamic world light is a point light whose radius stops short of the mesh (LightReach).
+	vec3 dyn_lights = vec3(0.0);
+#else
+	vec3 dyn_lights = svm_dyn_light_count > 0 && !unlit ? svm_dynamic(v_wpos, wn, zone) : vec3(0.0);
+#endif
+	vec3 dyn = dyn_lights + spot + svm_zone_amb(zone);
 	// The flares, with the dynamic world lights' gain, radius scale and falloff. They add past the 2x cap of the baked
 	// and dynamic light (an OpenSCCT addition, docs/RENDERING.md#flare-lights): under a bright baked light the term is
 	// already at the cap, so a flare would add nothing there.

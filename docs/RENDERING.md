@@ -502,6 +502,30 @@ travel starts with a fresh cookie array.
   switches the eight-lookup disc (`SpotShadowSoftRadius`, 1.5 texels) on or off. Reloaded's `shadow_optimized`
   (per-light resolution by screen size) is not done.
 
+### Light reach
+
+`LightReach` (an OpenSCCT optimisation, same pixels) draws each merged cell mesh in one of three states, with a twin
+of every material for the two reduced ones (`MaterialCompiler.GetUnreached`):
+
+| State | When | Defines (baked: lightmap, vertex) | Defines (actor-lit) |
+|---|---|---|---|
+| full | a spot shadow light reaches the mesh | none | none |
+| no spot | no spot reaches, a dynamic world light does | SVM_NO_SPOT | SVM_NO_SPOT |
+| neither | neither reaches | SVM_NO_SPOT, SVM_NO_DYN | SVM_NO_SPOT (same material as no spot) |
+
+A light reaches a mesh when it is on and some point of the mesh's world box lies inside a slot's row 8 sphere, or
+within a dynamic light's radius x `svm_dyn_tune.y`; outside those the template adds exactly zero. The spot code is the
+costly part to have in the shader (2.0 ms on SteeE on a UHD 770 just by being compiled in) and spot slots reach few
+meshes, while dynamic map lights have large radii and reach most of them, so most meshes draw in the no spot state. A
+sun reaches everything; a map light counts while it is switched on, whatever its light type does, so pulsing and
+flickering lights never swap materials. Each light keeps the meshes it reaches and works them out again only when it
+moves or switches; a mesh keeps separate counts of the spots and the dynamic lights that reach it and changes state
+only when one of them goes to or from zero, by setting the render instance's surface overrides on `FramePreDraw`.
+Authored, see-through, fullbright and switching MaterialSequence materials keep one material; twins with the same code
+share one shader. The first three frames after a build (and after a late responsive smoke switch) draw every mesh full,
+then no spot, then neither, so all three pipelines are made behind the loading screen. `SVM_REACH_STATS=1` prints the
+meshes in each state and the spot slots and dynamic lights on, at most once a second (`SVM_REACH ...`).
+
 ## Flare lights
 
 An OpenSCCT addition (`FlareLights`): the original lights a burning flare (SFlareEmitter) as an unshadowed point light

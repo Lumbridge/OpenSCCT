@@ -74,6 +74,7 @@ public sealed partial class MaterialCompiler
     private readonly Dictionary<(string, LightSource), Material?> _materials = new();
     private readonly Dictionary<(string, LightSource), Material?> _seeThrough = new();
     private readonly Dictionary<(string, LightSource), Material?> _plain = new();
+    private readonly Dictionary<(string, LightSource, bool, bool), Material?> _unreached = new();
 
     public MaterialCompiler(MaterialsDoc doc, TextureCache textures)
     {
@@ -324,6 +325,50 @@ public sealed partial class MaterialCompiler
         return material;
     }
 
+    /// <summary>
+    /// A twin of the material <see cref="Get"/> (with <paramref name="plain"/>, <see cref="GetPlain"/>) hands out, for
+    /// merged map geometry that no spot shadow light can reach this frame (<see cref="LightReach"/>): the template leaves
+    /// the spot term out (SVM_NO_SPOT). Without <paramref name="keepDynamic"/> the geometry is out of reach of every
+    /// dynamic world light too, and a baked surface (lightmap, vertex light) also leaves their term out (SVM_NO_DYN); an
+    /// actor-lit surface has no such term, so both of its twins are one material. The terms left out are exactly zero
+    /// there, so the twin draws the same pixels with a smaller shader; twins with the same code share one
+    /// <see cref="Shader"/> (<see cref="ShaderFor"/>). Null when the material has no twin: fullbright materials have no
+    /// such terms, authored ones light their highlights from every light, and MaterialSequence state switches change
+    /// their shader at run time.
+    /// </summary>
+    public Material? GetUnreached(string name, LightSource light, bool plain, bool keepDynamic)
+    {
+        ArgumentNullException.ThrowIfNull(name);
+        if (_unreached.TryGetValue((name, light, plain, keepDynamic), out Material? cached))
+        {
+            return cached;
+        }
+
+        Material? full = plain ? GetPlain(name, light) : Get(name, light);
+        MaterialEntry? entry = _doc.Find(name);
+        Material? twin = null;
+        if (full is not null && entry is { Authored: null }
+            && !(entry.Sequences.TryGetValue("diffuse", out MaterialSequenceEntry? sequence) && sequence.SwitchMaterial)
+            && LitBy(entry, light) is var lit and not LightSource.None)
+        {
+            if (keepDynamic && lit is not (LightSource.Lightmap or LightSource.Vertex))
+            {
+                // No dynamic term to keep: the same defines as the twin without it.
+                twin = GetUnreached(name, light, plain, keepDynamic: false);
+            }
+            else
+            {
+                // The same flags as the full material (GetPlain's conditions are Compose's own), plus the terms left out.
+                int counted = VisionMaterials;
+                twin = Compose(entry, light, plainDepth: plain, noSpot: true, noDynamic: !keepDynamic);
+                VisionMaterials = counted;
+            }
+        }
+
+        _unreached[(name, light, plain, keepDynamic)] = twin;
+        return twin;
+    }
+
     /// <summary>The template's flag that hands partly see-through surfaces to the blended pass in thermal and EMF.</summary>
     public const string SeeThroughParameter = "vision_see_through";
 
@@ -346,22 +391,19 @@ public sealed partial class MaterialCompiler
         return Compose(entry, light);
     }
 
+    /// <summary>
+    /// The light a material draws with: unlit materials draw fullbright (self-illumination keeps the lit diffuse under
+    /// its mask, UE2 lerp), and so does a lightmapped surface without a lightmap.
+    /// </summary>
+    private static LightSource LitBy(MaterialEntry entry, LightSource light) =>
+        (entry.Unlit && entry.SelfIllum is null) || (light == LightSource.Lightmap && entry.Lightmap is null) ? LightSource.None : light;
+
     private ShaderMaterial Compose(MaterialEntry entry, LightSource light, bool seeThroughPass = false, bool billboard = false,
-        bool plainDepth = false)
+        bool plainDepth = false, bool noSpot = false, bool noDynamic = false)
     {
         if (entry.Sequences.TryGetValue("diffuse", out MaterialSequenceEntry? sequence) && sequence.SwitchMaterial)
             return ComposeSequence(entry, sequence, light, seeThroughPass, billboard);
-        // Unlit materials draw fullbright; self-illumination keeps the lit diffuse under its mask (UE2 lerp).
-        if (entry.Unlit && entry.SelfIllum is null)
-        {
-            light = LightSource.None;
-        }
-
-        if (light == LightSource.Lightmap && entry.Lightmap is null)
-        {
-            light = LightSource.None;
-        }
-
+        light = LitBy(entry, light);
         MaterialBlend blend = entry.Blend;
         bool selfIllum = entry.SelfIllum is not null;
         bool selfIllumMask = selfIllum && entry.SelfIllumMask is not null;
@@ -399,6 +441,9 @@ public sealed partial class MaterialCompiler
             AddIf(extras, entry.Sequences.ContainsKey(slot), "SEQUENCE_" + prefix.ToUpperInvariant());
         AddIf(extras, entry.NormalTexture is not null && light == LightSource.Actor, "NORMAL_MAP");
         AddIf(extras, plainDepth && blend == MaterialBlend.Opaque && !entry.TwoSided && !billboard && !seeThroughPass, "SVM_PLAIN_DEPTH");
+        // LightReach's twins (GetUnreached): the spot term of every lit surface, the dynamic term of baked ones.
+        AddIf(extras, noSpot && light != LightSource.None, "SVM_NO_SPOT");
+        AddIf(extras, noDynamic && light is LightSource.Lightmap or LightSource.Vertex, "SVM_NO_DYN");
         Shader shader = seeThroughPass ? SeeThroughShaderFor(light, blend, entry.TwoSided, extras) : ShaderFor(light, blend, entry.TwoSided, extras);
 
         var material = new ShaderMaterial { Shader = shader, ResourceName = entry.Name };
