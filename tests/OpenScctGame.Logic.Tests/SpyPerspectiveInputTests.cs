@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
 using OpenScct.Game.SBase;
@@ -65,6 +66,71 @@ public sealed class SpyPerspectiveInputTests
         Assert.False(state.SpyPerspective("MouseWheelUp", true, hold: true, pulse: true));
         Assert.True(state.ScopeHeld);
         Assert.True(state.Walk("Shift", true, hold: true, pulse: false));
+    }
+
+    [Fact]
+    public void DirectChoicesAreIdempotentAndTheToggleContinuesFromTheChosenView()
+    {
+        var state = new InputActionState();
+        foreach (bool firstPerson in new[] { true, true, false, false, true })
+        {
+            state.SetSpyFirstPerson(firstPerson);
+            Assert.Equal(firstPerson, state.SpyFirstPersonRequested);
+        }
+        Assert.False(state.SpyPerspective("X", true, hold: false, pulse: false));
+        state.SetSpyFirstPerson(false);
+        Assert.True(state.SpyPerspective("X", true, hold: false, pulse: false));
+        state.Clear();
+        Assert.False(state.SpyFirstPersonRequested);
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void DirectChoiceOverridesHeldPerspectiveAndSurvivesItsRelease(bool firstPerson)
+    {
+        var state = new InputActionState();
+        state.SpyPerspective("X", true, hold: true, pulse: false);
+        state.SpyPerspective("svm-action:RB:perspective", true, hold: true, pulse: false);
+        state.SetSpyFirstPerson(firstPerson);
+        Assert.Equal(firstPerson, state.SpyFirstPersonRequested);
+        Assert.Equal(firstPerson, state.SpyPerspective("X", false, hold: true, pulse: false));
+        Assert.Equal(firstPerson, state.SpyPerspective("svm-action:RB:perspective", false, hold: true, pulse: false));
+    }
+
+    [Theory]
+    [InlineData("firstperson", 1)]
+    [InlineData("thirdperson", 0)]
+    public void DirectActionsAreSpyOnlyAndUnboundForKeyboardAndController(string id, int arg)
+    {
+        ControlAction action = Assert.Single(ControlActions.ForRole(false), a => a.Id == id);
+        Assert.DoesNotContain(ControlActions.ForRole(true), a => a.Id == id);
+        Assert.True(ControlActions.Direct(action));
+        KeyAction pad = Assert.Single(ControlActions.VirtualActions(ControlActions.VirtualPrefix + "RB:" + id));
+        Assert.Equal("SetSpyFirstPerson", pad.Name);
+        Assert.Equal(arg, pad.Arg);
+        var draft = new ActionBindingDraft(DefaultKeyLayout.ApplyProfile(DefaultKeyLayout.Create(), null, "Gadget"));
+        Assert.Empty(draft.Keys(action));
+        Assert.DoesNotContain("Action:" + id, new PadSettings().SpyButtons.Values);
+    }
+
+    [Fact]
+    public void OppositeWheelBindingsRoundTripAndCanBeEditedIndependently()
+    {
+        var draft = new ActionBindingDraft(DefaultKeyLayout.ApplyProfile(DefaultKeyLayout.Create(), null, "Gadget"));
+        ControlAction firstPerson = ControlActions.All.Single(a => a.Id == "firstperson");
+        ControlAction thirdPerson = ControlActions.All.Single(a => a.Id == "thirdperson");
+        draft.Assign(firstPerson, "MouseWheelUp", replace: true);
+        draft.Assign(thirdPerson, "MouseWheelDown", replace: true);
+        var loaded = new ActionBindingDraft(DefaultKeyLayout.ApplyProfile(DefaultKeyLayout.Create(), draft.Layout.ToIni(), "Speed"));
+        Assert.Equal(new[] { "MouseWheelUp" }, loaded.Keys(firstPerson));
+        Assert.Equal(new[] { "MouseWheelDown" }, loaded.Keys(thirdPerson));
+        Assert.Equal(1, Assert.Single(loaded.Layout.Resolve("MouseWheelUp")).Arg);
+        Assert.Equal(0, Assert.Single(loaded.Layout.Resolve("MouseWheelDown")).Arg);
+        Assert.Equal("SwitchSpyPerspective", Assert.Single(loaded.Layout.Resolve("X")).Name);
+        loaded.Remove(firstPerson);
+        Assert.Empty(loaded.Layout.Resolve("MouseWheelUp"));
+        Assert.Equal(new[] { "MouseWheelDown" }, loaded.Keys(thirdPerson));
     }
 
     [Fact]

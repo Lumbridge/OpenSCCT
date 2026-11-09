@@ -35,6 +35,12 @@ public sealed class InputActionState
         else if (pressed) _perspectiveToggle = !_perspectiveToggle;
         return SpyFirstPersonRequested;
     }
+    public void SetSpyFirstPerson(bool firstPerson)
+    {
+        // A direct choice supersedes both the toggle and any held perspective sources.
+        _perspectiveToggle = firstPerson;
+        _perspectiveHeld.Clear();
+    }
     public void Run() { _walkToggle = false; _walkHeld.Clear(); }
     public void Clear() { Run(); _scopeHeld.Clear(); _perspectiveHeld.Clear(); _perspectiveToggle = false; }
 }

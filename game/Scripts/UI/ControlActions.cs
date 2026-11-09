@@ -67,6 +67,8 @@ public static class ControlActions
         A("visioncycle", "Vision", "Cycle vision modes", "Cycle the available vision modes.", "SwitchHeadset 3", "SwitchHeadset 3"),
         A("scope", "Vision", "Binoculars / sniper scope", "Toggle the role's zoom view. A spy with the weapon drawn first requests holstering it.", "SwitchBinocularVision", "SwitchBinocularVision"),
         A("perspective", "Vision", "First / third person", "Use first person for tight spaces. Toggle switches perspective on each press; Hold uses first person until released. Wheel bindings always toggle. The selected perspective behavior also applies to controller bindings.", "SwitchSpyPerspective", "SwitchSpyPerspective") with { Merc = false },
+        A("firstperson", "Vision", "First person", "Select first person on press, including each scroll notch. Repeated presses keep first person selected. Starts unbound.", "SetSpyFirstPerson 1", "SetSpyFirstPerson 1") with { Merc = false },
+        A("thirdperson", "Vision", "Third person", "Select third person on press, including each scroll notch. Repeated presses keep third person selected. Starts unbound.", "SetSpyFirstPerson 0", "SetSpyFirstPerson 0") with { Merc = false },
         A("zoomin", "Vision", "Zoom in", "Increase zoom in views that support it.", "Button bZoomIn | Function ZoomIn", "ZoomIn", "bZoomIn"),
         A("zoomout", "Vision", "Zoom out", "Decrease zoom in views that support it.", "Button bZoomOut | Function ZoomOut", "ZoomOut", "bZoomOut"),
         A("er", "Vision", "Toggle Enhanced Reality", "Toggle the Enhanced Reality display.", "SwitchEnhancedReality", "SwitchEnhancedReality"),
@@ -131,7 +133,7 @@ public static class ControlActions
         if (start >= words.Length) return raw;
         string name = words[start];
         return name.Equals("SelectGadget", StringComparison.OrdinalIgnoreCase) || name.Equals("GadgetQuickChoice", StringComparison.OrdinalIgnoreCase) || name.Equals("LaunchGadget", StringComparison.OrdinalIgnoreCase) ||
-            name.Equals("SwitchHeadset", StringComparison.OrdinalIgnoreCase) ? name + " " + (words.Length > start + 1 ? words[start + 1] : "0") : name;
+            name.Equals("SwitchHeadset", StringComparison.OrdinalIgnoreCase) || name.Equals("SetSpyFirstPerson", StringComparison.OrdinalIgnoreCase) ? name + " " + (words.Length > start + 1 ? words[start + 1] : "0") : name;
     }
 }
 

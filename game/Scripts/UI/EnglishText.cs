@@ -40,6 +40,8 @@ public static class EnglishText
         ["Btw"] = "Back to wall",
         ["SwitchBinocularVision"] = "Binoculars or scope",
         ["SwitchSpyPerspective"] = "First / third person",
+        ["SetSpyFirstPerson 1"] = "First person",
+        ["SetSpyFirstPerson 0"] = "Third person",
         ["SwitchLaser"] = "Weapon laser",
         ["Reload"] = "Reload",
         ["ROF"] = "Rate of fire",
