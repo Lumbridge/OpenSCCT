@@ -460,11 +460,19 @@ public static class MapBuilder
         Task<LightingDoc> lightingRead = Task.Run(() => LightingDoc.Load(Path.Combine(mapFolder, LightingFile)));
         Task<GlbDocument> glbRead = Task.Run(() => GlbDocument.Load(glbPath));
         Task<GameplayActors> actorsRead = Task.Run(() => GameplayActors.Load(mapFolder));
+        Task<List<OpenScctGame.Render.Projectors.ProjectorEntry>?> projectorsRead =
+            Task.Run(() => OpenScctGame.Render.Projectors.ProjectorsDoc.Load(mapFolder));
         var textures = new TextureCache(renderDir) { MipDrop = options.MipDrop };
         RenderPack? pack = RenderPack.Load(RenderMap.SharedRootOf(mapFolder));
         MaterialsDoc materials = materialsRead.GetAwaiter().GetResult();
         LightingDoc lighting = lightingRead.GetAwaiter().GetResult();
-        var compiler = new MaterialCompiler(materials, textures) { LightmapScale = options.LightmapScale, Pack = pack };
+        List<OpenScctGame.Render.Projectors.ProjectorEntry>? projectors = projectorsRead.GetAwaiter().GetResult();
+        // Only projectors with bProjectStaticMesh off read the solid surfaces' stencil marks.
+        bool stencilMarks = projectors?.Exists(p => !p.ProjectStaticMesh) == true;
+        var compiler = new MaterialCompiler(materials, textures)
+        {
+            LightmapScale = options.LightmapScale, Pack = pack, StencilMarks = stencilMarks,
+        };
         MaterialCompiler.SetEmfEnvironment(pack?.Texture(RenderPack.EmfEnvironment));
         LoadTimer.Mark("build.docs");
         CollisionWorld? zones = null;
@@ -485,7 +493,6 @@ public static class MapBuilder
         map.Actors = actorsRead.GetAwaiter().GetResult();
         map.Outfits = RenderMap.OutfitsOf(mapFolder);
         Characters.PawnCosmetics.Outfits = map.Outfits;
-        List<OpenScctGame.Render.Projectors.ProjectorEntry>? projectors = OpenScctGame.Render.Projectors.ProjectorsDoc.Load(mapFolder);
         map.SkipProjectorDecals = projectors is not null;
         map.SoftBodies = new OpenScctGame.Render.SoftBodies.SoftBodyViews(root);
         LoadTimer.Mark("build.actors");
@@ -554,7 +561,20 @@ public static class MapBuilder
         private readonly HashSet<string> _usedLibraryMeshes = new(StringComparer.Ordinal);
         private readonly HashSet<string> _particleMeshes = new(StringComparer.Ordinal);
         private readonly Dictionary<int, MeshPrimitive[]> _primitives = [];
-        private readonly SortedDictionary<(int X, int Y, int Sky), Dictionary<(string, LightSource, bool), SurfaceBuilder>> _cells = new();
+        private readonly SortedDictionary<(int X, int Y, int Sky), Dictionary<(string, LightSource, VisionPass), SurfaceBuilder>> _cells = new();
+
+        /// <summary>How the merged surfaces of a cell bucket draw in thermal and EMF vision.</summary>
+        private enum VisionPass : byte
+        {
+            /// <summary>Every actor fully visible: no vision cut-out can fire (<see cref="MaterialCompiler.GetPlain"/>).</summary>
+            Plain,
+
+            /// <summary>Some actor hidden in a vision (HeatOpacity or EMFOpacity 0): the solid pass cuts it out.</summary>
+            Cut,
+
+            /// <summary>Partly see-through actors (<see cref="MaterialCompiler.GetSeeThrough"/>).</summary>
+            SeeThrough,
+        }
         private readonly Dictionary<(string Mesh, LightSource Light, int Glow), ArrayMesh> _shared = [];
         private readonly Node3D _static = new() { Name = "Static" };
         private readonly Node3D _gameplay = new() { Name = "Gameplay" };
@@ -1111,18 +1131,19 @@ public static class MapBuilder
             return ((int)MathF.Floor(godot.X / size), (int)MathF.Floor(godot.Z / size), sky ? 1 : 0);
         }
 
-        private SurfaceBuilder Bucket((int, int, int) cell, string material, LightSource light, bool uv2, bool colour, bool seeThrough = false)
+        private SurfaceBuilder Bucket((int, int, int) cell, string material, LightSource light, bool uv2, bool colour,
+            VisionPass pass = VisionPass.Plain)
         {
-            if (!_cells.TryGetValue(cell, out Dictionary<(string, LightSource, bool), SurfaceBuilder>? buckets))
+            if (!_cells.TryGetValue(cell, out Dictionary<(string, LightSource, VisionPass), SurfaceBuilder>? buckets))
             {
                 buckets = [];
                 _cells[cell] = buckets;
             }
 
-            if (!buckets.TryGetValue((material, light, seeThrough), out SurfaceBuilder? b))
+            if (!buckets.TryGetValue((material, light, pass), out SurfaceBuilder? b))
             {
                 b = new SurfaceBuilder(uv2, colour, hasVision: true);
-                buckets[(material, light, seeThrough)] = b;
+                buckets[(material, light, pass)] = b;
             }
 
             // BSP and instances without values of their own draw at the Actor defaults.
@@ -1185,7 +1206,7 @@ public static class MapBuilder
             Aabb box = Bounds(prims, transform);
             (int, int, int) cell = CellOf(box.GetCenter(), Bool(inst, "skyZone"));
             Vector4 vision = VisionOf(inst);
-            bool seeThrough = SeeThrough(vision);
+            VisionPass pass = PassOf(vision);
             bool authored = Bool(inst, "authoredColors");
             foreach (MeshPrimitive prim in prims)
             {
@@ -1193,7 +1214,7 @@ public static class MapBuilder
                 bool overlay = authored && prim.Colours is not null &&
                     _map.Materials.Find(prim.Material)?.Blend == MaterialBlend.Additive;
                 LightSource surfaceLight = overlay ? LightSource.Vertex : light;
-                SurfaceBuilder bucket = Bucket(cell, prim.Material, surfaceLight, false, surfaceLight == LightSource.Vertex, seeThrough);
+                SurfaceBuilder bucket = Bucket(cell, prim.Material, surfaceLight, false, surfaceLight == LightSource.Vertex, pass);
                 bucket.Vision = vision;
                 bucket.Echelon = echelon;
                 byte[]? zones = surfaceLight == LightSource.Vertex ? ZonesOf(prim, location) : null;
@@ -1296,6 +1317,13 @@ public static class MapBuilder
         /// </summary>
         private static bool SeeThrough(Vector4 vision) =>
             vision.Y is > 0f and < 1f || vision.W is > 0f and < RenderK.EmfOpaqueFrom;
+
+        /// <summary>
+        /// The vision pass of an actor's merged surfaces. Outside the see-through range, HeatOpacity and EMFOpacity above 0
+        /// mean 1 and at least <see cref="RenderK.EmfOpaqueFrom"/>: the template's cut-outs cannot fire on them.
+        /// </summary>
+        private static VisionPass PassOf(Vector4 vision) =>
+            SeeThrough(vision) ? VisionPass.SeeThrough : vision.Y > 0f && vision.W > 0f ? VisionPass.Plain : VisionPass.Cut;
 
         private static Aabb Bounds(MeshPrimitive[] prims, in Transform3D transform)
         {
@@ -1401,17 +1429,22 @@ public static class MapBuilder
             // The materials first, in the order the cells ask for them. The merged geometry of every drawn bucket is
             // then written on worker threads (plain data, each bucket in its own queued order), and the meshes are made
             // here in cell order.
-            var cells = new List<((int x, int y, int sky) Cell, List<((string, LightSource, bool) Key, Material Material, SurfaceBuilder Surface)> Drawn)>();
+            var cells = new List<((int x, int y, int sky) Cell, List<((string, LightSource, VisionPass) Key, Material Material, SurfaceBuilder Surface)> Drawn)>();
             var merged = new List<SurfaceBuilder>();
-            foreach (((int x, int y, int sky) cell, Dictionary<(string, LightSource, bool), SurfaceBuilder> buckets) in _cells)
+            foreach (((int x, int y, int sky) cell, Dictionary<(string, LightSource, VisionPass), SurfaceBuilder> buckets) in _cells)
             {
-                var keys = new List<(string, LightSource, bool)>(buckets.Keys);
+                var keys = new List<(string, LightSource, VisionPass)>(buckets.Keys);
                 keys.Sort((a, b) => string.CompareOrdinal(a.Item1, b.Item1) is var n and not 0 ? n
                     : a.Item2 != b.Item2 ? a.Item2.CompareTo(b.Item2) : a.Item3.CompareTo(b.Item3));
-                var drawn = new List<((string, LightSource, bool) Key, Material Material, SurfaceBuilder Surface)>(keys.Count);
-                foreach ((string, LightSource, bool) key in keys)
+                var drawn = new List<((string, LightSource, VisionPass) Key, Material Material, SurfaceBuilder Surface)>(keys.Count);
+                foreach ((string, LightSource, VisionPass) key in keys)
                 {
-                    Material? material = key.Item3 ? _map.Compiler.GetSeeThrough(key.Item1, key.Item2) : _map.Compiler.Get(key.Item1, key.Item2);
+                    Material? material = key.Item3 switch
+                    {
+                        VisionPass.SeeThrough => _map.Compiler.GetSeeThrough(key.Item1, key.Item2),
+                        VisionPass.Plain => _map.Compiler.GetPlain(key.Item1, key.Item2),
+                        _ => _map.Compiler.Get(key.Item1, key.Item2),
+                    };
                     if (material is not null)
                     {
                         drawn.Add((key, material, buckets[key]));
@@ -1423,7 +1456,7 @@ public static class MapBuilder
             }
 
             ParallelFor(merged.Count, i => merged[i].Prepare());
-            foreach (((int x, int y, int sky) cell, List<((string, LightSource, bool) Key, Material Material, SurfaceBuilder Surface)> drawn) in cells)
+            foreach (((int x, int y, int sky) cell, List<((string, LightSource, VisionPass) Key, Material Material, SurfaceBuilder Surface)> drawn) in cells)
             {
                 string baseName = string.Create(CultureInfo.InvariantCulture, $"{(cell.sky != 0 ? "Sky" : "Cell")}_{cell.x}_{cell.y}");
 
@@ -1431,7 +1464,7 @@ public static class MapBuilder
                 // meshes, so no surface is dropped.
                 int part = 0;
                 var surfaces = new List<(SurfaceBuilder Surface, Material Material, bool Split)>(MaxSurfacesPerMesh);
-                foreach (((string, LightSource, bool) key, Material material, SurfaceBuilder b) in drawn)
+                foreach (((string, LightSource, VisionPass) key, Material material, SurfaceBuilder b) in drawn)
                 {
                     if (b.TriangleCount == 0)
                     {
@@ -1447,7 +1480,7 @@ public static class MapBuilder
                     // Transparent and vision see-through passes keep the original cell sort bounds.
                     // A MaterialSequence can change its blend mode by replacing the shader at runtime.
                     MaterialEntry? entry = _map.Materials.Find(key.Item1);
-                    bool split = cell.sky == 0 && !key.Item3 && material.NextPass is null &&
+                    bool split = cell.sky == 0 && key.Item3 != VisionPass.SeeThrough && material.NextPass is null &&
                         entry is { Blend: MaterialBlend.Opaque or MaterialBlend.Masked } &&
                         !(entry.Sequences.TryGetValue("diffuse", out var sequence) && sequence.SwitchMaterial);
                     surfaces.Add((b, material, split));

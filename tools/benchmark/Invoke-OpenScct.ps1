@@ -12,6 +12,10 @@ param(
     [string]$Content = '.content',
     [ValidateRange(0, 63)][Nullable[int]]$GpuIndex,
     [string[]]$Settings = @(),
+    # Extra engine options placed before '--' (for example --gpu-profile).
+    [string[]]$EngineArgs = @(),
+    # Project settings written to override.cfg as section/key=value (for example rendering/driver/depth_prepass/enable=false).
+    [string[]]$ProjectOverrides = @(),
     [ValidateRange(0, 3600)][int]$QuietWaitSeconds = 120,
     [string[]]$IgnoreCompetitors = @()
 )
@@ -150,6 +154,10 @@ $previous = @{}
 foreach ($key in $keys) { $previous[$key] = [Environment]::GetEnvironmentVariable($key) }
 try {
     $overrideText = "[display]`n`nwindow/size/no_focus=true`nwindow/size/mode=1`n"
+    foreach ($entry in @($ProjectOverrides | ForEach-Object { $_ -split ',' } | Where-Object { $_ })) {
+        $section, $rest = $entry -split '/', 2
+        $overrideText += "`n[$section]`n`n$rest`n"
+    }
     [IO.File]::WriteAllText($override, $overrideText)
     $env:SVM_BENCHMARK = $cameraPath
     $env:SVM_BENCHMARK_OUT = $outPath
@@ -159,6 +167,7 @@ try {
     $env:SVM_AUDIO_MUTE = '1'
     $arguments = @('--rendering-driver', $Driver)
     if ($null -ne $GpuIndex) { $arguments += @('--gpu-index', "$GpuIndex") }
+    $arguments += @($EngineArgs | ForEach-Object { $_ -split ',' } | Where-Object { $_ })
     $arguments += @('--', '--svm-background', "--svm-play=$Map", "--side=$Side", '--rules=playlevel',
         "--bots=$Bots", ('"--svm-content=' + $contentPath + '"'))
     # Double trailing backslashes so the closing quote is not read as an escaped one.

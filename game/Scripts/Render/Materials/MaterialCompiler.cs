@@ -73,6 +73,7 @@ public sealed partial class MaterialCompiler
     private readonly Dictionary<string, Shader> _shaders = new(StringComparer.Ordinal);
     private readonly Dictionary<(string, LightSource), Material?> _materials = new();
     private readonly Dictionary<(string, LightSource), Material?> _seeThrough = new();
+    private readonly Dictionary<(string, LightSource), Material?> _plain = new();
 
     public MaterialCompiler(MaterialsDoc doc, TextureCache textures)
     {
@@ -98,6 +99,13 @@ public sealed partial class MaterialCompiler
 
     /// <summary>Masks for materials (by name) that have no vision modifiers in <see cref="Pack"/>; null for none.</summary>
     public Func<string, VisionMasks?>? OwnVision { get; set; }
+
+    /// <summary>
+    /// Whether solid surfaces mark what they are in the stencil (<see cref="StencilBsp"/> and the others). Only projectors
+    /// with bProjectStaticMesh off read the marks (14 of the 85 maps). A map without them leaves the marks out, so its
+    /// plain surfaces (<see cref="GetPlain"/>) can take Godot's shared depth-only shader.
+    /// </summary>
+    public bool StencilMarks { get; init; } = true;
 
     /// <summary>Materials given a heat or EMF texture from the pack.</summary>
     public int VisionMaterials { get; private set; }
@@ -286,6 +294,36 @@ public sealed partial class MaterialCompiler
         return material;
     }
 
+    /// <summary>
+    /// The material of <paramref name="name"/> for merged map geometry whose actors are all fully visible in thermal and
+    /// EMF (HeatOpacity and EMFOpacity above 0, none partly see-through), so the template's vision cut-outs never fire on
+    /// it. A one-sided opaque material then compiles without them and without its own vertex position (SVM_PLAIN_DEPTH,
+    /// same pixels). Godot draws the depth pre-pass of such a material with its shared depth-only shader when the stencil
+    /// marks are off too, instead of running the whole world shader twice per pixel. Every other material is the one
+    /// <see cref="Get"/> returns.
+    /// </summary>
+    public Material? GetPlain(string name, LightSource light)
+    {
+        ArgumentNullException.ThrowIfNull(name);
+        if (_plain.TryGetValue((name, light), out Material? cached))
+        {
+            return cached;
+        }
+
+        Material? material = Get(name, light);
+        MaterialEntry? entry = _doc.Find(name);
+        if (material is not null && entry is { Blend: MaterialBlend.Opaque, TwoSided: false }
+            && !(entry.Sequences.TryGetValue("diffuse", out MaterialSequenceEntry? sequence) && sequence.SwitchMaterial))
+        {
+            int counted = VisionMaterials;
+            material = Compose(entry, light, plainDepth: true);
+            VisionMaterials = counted;
+        }
+
+        _plain[(name, light)] = material;
+        return material;
+    }
+
     /// <summary>The template's flag that hands partly see-through surfaces to the blended pass in thermal and EMF.</summary>
     public const string SeeThroughParameter = "vision_see_through";
 
@@ -308,7 +346,8 @@ public sealed partial class MaterialCompiler
         return Compose(entry, light);
     }
 
-    private ShaderMaterial Compose(MaterialEntry entry, LightSource light, bool seeThroughPass = false, bool billboard = false)
+    private ShaderMaterial Compose(MaterialEntry entry, LightSource light, bool seeThroughPass = false, bool billboard = false,
+        bool plainDepth = false)
     {
         if (entry.Sequences.TryGetValue("diffuse", out MaterialSequenceEntry? sequence) && sequence.SwitchMaterial)
             return ComposeSequence(entry, sequence, light, seeThroughPass, billboard);
@@ -359,6 +398,7 @@ public sealed partial class MaterialCompiler
         foreach ((string slot, string prefix) in SequenceSlots)
             AddIf(extras, entry.Sequences.ContainsKey(slot), "SEQUENCE_" + prefix.ToUpperInvariant());
         AddIf(extras, entry.NormalTexture is not null && light == LightSource.Actor, "NORMAL_MAP");
+        AddIf(extras, plainDepth && blend == MaterialBlend.Opaque && !entry.TwoSided && !billboard && !seeThroughPass, "SVM_PLAIN_DEPTH");
         Shader shader = seeThroughPass ? SeeThroughShaderFor(light, blend, entry.TwoSided, extras) : ShaderFor(light, blend, entry.TwoSided, extras);
 
         var material = new ShaderMaterial { Shader = shader, ResourceName = entry.Name };
@@ -631,7 +671,7 @@ public sealed partial class MaterialCompiler
     private Shader ShaderFor(LightSource light, MaterialBlend blend, bool twoSided, List<string> extras)
     {
         bool coverage = blend == MaterialBlend.Masked && AlphaToCoverage;
-        string key = $"{light}|{blend}|{twoSided}|{coverage}|{string.Join(',', extras)}";
+        string key = $"{light}|{blend}|{twoSided}|{coverage}|{StencilMarks}|{string.Join(',', extras)}";
         if (_shaders.TryGetValue(key, out Shader? shader))
         {
             return ResponsiveSmokeShaders.Current(shader);
@@ -665,7 +705,7 @@ public sealed partial class MaterialCompiler
 
         var code = new StringBuilder();
         code.Append("shader_type spatial;\nrender_mode ").Append(string.Join(", ", modes)).Append(";\n");
-        if (blend is MaterialBlend.Opaque or MaterialBlend.Masked)
+        if (blend is MaterialBlend.Opaque or MaterialBlend.Masked && StencilMarks)
         {
             // Solid surfaces mark what they are in the stencil: projectors with bProjectStaticMesh off skip static meshes.
             code.Append("stencil_mode write, compare_always, ").Append(light switch

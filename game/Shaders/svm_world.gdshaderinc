@@ -4,6 +4,10 @@
 //   light:  LIGHT_LIGHTMAP | LIGHT_VERTEX | LIGHT_ACTOR | (none: fullbright)
 //   blend:  BLEND_MASKED | BLEND_TRANSLUCENT | BLEND_ADDITIVE | BLEND_MODULATE | BLEND_DARKEN | (none: opaque)
 //   extras: SELF_ILLUM, SELF_ILLUM_MASK, ENV_COLOR (+ ENV_TEX, SPEC_LAYER), UV_ANIM, OPACITY_LAYER, COMBINE, FLIPBOOK
+//   SVM_PLAIN_DEPTH (MaterialCompiler.GetPlain): one-sided opaque merged map geometry whose actors are fully visible in
+//     thermal and EMF. The vision cut-outs below never fire there, so they are left out, and so is the vertex position
+//     (no foreground depth on map geometry): without discard or POSITION Godot draws the depth pre-pass with its shared
+//     depth-only shader (scene_shader_forward_clustered.h uses_shared_shadow_material).
 // Textures are sampled raw (no sRGB decode): they hold display values like the original's.
 // Vision modes (global svm_vision = PlayerController.RendMap, docs/RENDERING.md#vision-modes) replace the output:
 //   36 thermal: the Z pass, (0, heat, 1 - viewZ / 5000); translucent surfaces blend (0, 0, fade) by alpha x HeatOpacity
@@ -731,10 +735,12 @@ void vertex() {
 	sum += svm_actor_light(svm_l3_pos, svm_l3_col, svm_l3_spot, wp, wn);
 	v_light = min(sum, vec3(2.0));
 #endif
+#ifndef SVM_PLAIN_DEPTH
 	POSITION = PROJECTION_MATRIX * MODELVIEW_MATRIX * vec4(VERTEX, 1.0);
 	if (svm_glow_hue.w > 0.5) {
 		POSITION.z = mix(0.99 * POSITION.w, POSITION.w, POSITION.z / POSITION.w);
 	}
+#endif
 }
 
 // One animated texture modifier (the UV_ANIM layout) at the scene time (Level.TimeSeconds).
@@ -1101,6 +1107,7 @@ void fragment() {
 		discard;
 #else
 		float fade = 1.0 - clamp(-VERTEX.z * 100.0 / 5000.0, 0.0, 1.0);
+#ifndef SVM_PLAIN_DEPTH
 		// HeatOpacity 0 leaves the actor out of the thermal frame (as EMFOpacity does in EMF).
 		if (v_vision.y <= 0.0) {
 			discard;
@@ -1114,6 +1121,7 @@ void fragment() {
 		if (vision_see_through && partial_heat) {
 			discard;
 		}
+#endif
 #endif
 #if defined(BLEND_TRANSLUCENT)
 		c = vec3(0.0, 0.0, fade);
@@ -1137,6 +1145,7 @@ void fragment() {
 #if defined(BLEND_ADDITIVE) || defined(BLEND_MODULATE) || defined(BLEND_DARKEN)
 		discard;
 #else
+#ifndef SVM_PLAIN_DEPTH
 		float opacity = v_vision.w;
 		// EMFOpacity 0 hides the actor; partial opacity is blended by the see-through pass where the material has one,
 		// else drawn as a 4 x 4 screen-door pattern (actors built outside the map: pawn weapons, gadgets).
@@ -1154,6 +1163,7 @@ void fragment() {
 		if (opacity <= 0.0 || (vision_see_through && partial_emf) || (partial_emf && threshold >= opacity)) {
 			discard;
 		}
+#endif
 #endif
 		vec3 r = reflect(normalize(VERTEX), normalize(NORMAL));
 		// RenderingModeEMF's D3D texture matrix (0x1097766d..0x109776e5): its second row
