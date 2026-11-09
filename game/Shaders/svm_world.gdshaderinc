@@ -344,9 +344,12 @@ vec3 svm_actor_light(vec4 pos, vec4 col, vec4 spot, vec3 wp, vec3 wn) {
 //   5   x, y the view to clip scale (perspective: divided by depth), z 1 for parallel rays, w cookie layer
 //   6   the slot's tile of the depth atlas (uv origin, uv size)
 //   7   x own zone (or -1), y bias (m), z bias per metre, w edge softening disc radius (texels; 0 one lookup)
+//   8   a sphere holding every point the slot can light: xyz centre, w radius squared (0 when off)
 #define SVM_SMOKE_SPOT_GLOBALS
 global uniform sampler2D svm_spots;
 global uniform int svm_spot_count;
+// Bits 0-15: the slots that are on (row 3 x not below 0.5); bits 16-31: those of a bDynamicLight (row 3 x above 1.5).
+global uniform int svm_spot_bits;
 global uniform sampler2D svm_spot_depth;
 global uniform sampler2DArray svm_spot_cookies;
 global uniform sampler2D svm_spot_atten;
@@ -390,6 +393,12 @@ float svm_spot_shadow(vec4 tile, vec2 suv, float zref, float soft) {
 
 // ignore: the surface's Echelon code (v_echelon; game 0x10a37310).
 vec3 svm_spot_slot(int i, vec3 wp, vec3 wn, float zone, int ignore) {
+	// Outside the slot's bounding sphere the frustum tests below reject the point: one lookup instead of seven.
+	vec4 s = texelFetch(svm_spots, ivec2(8, i), 0);
+	vec3 ds = wp - s.xyz;
+	if (dot(ds, ds) >= s.w) {
+		return vec3(0.0);
+	}
 	vec4 a = texelFetch(svm_spots, ivec2(3, i), 0);
 	if (a.x < 0.5 || (ignore & (a.x > 1.5 ? 2 : 1)) != 0) {
 		return vec3(0.0);
@@ -442,8 +451,20 @@ vec3 svm_spot_slot(int i, vec3 wp, vec3 wn, float zone, int ignore) {
 // Every spot shadow light at a surface point; zone is the surface's zone (-1 unknown: own-zone lights still reach it),
 // ignore its Echelon flags (svm_spot_slot).
 vec3 svm_spot_light(vec3 wp, vec3 wn, float zone, int ignore) {
+	// Only the slots that are on and not ignored by the surface's static (bit 0) or dynamic (bit 1) flag, in slot
+	// order: every other slot adds exactly nothing.
+	int on = svm_spot_bits & 65535;
+	int dynamic_slots = (svm_spot_bits >> 16) & 65535;
+	if ((ignore & 1) != 0) {
+		on &= dynamic_slots;
+	}
+	if ((ignore & 2) != 0) {
+		on &= ~dynamic_slots;
+	}
 	vec3 sum = vec3(0.0);
-	for (int i = 0; i < svm_spot_count; i++) {
+	while (on != 0) {
+		int i = findLSB(on);
+		on &= on - 1;
 		sum += svm_spot_slot(i, wp, wn, zone, ignore);
 	}
 	return sum;

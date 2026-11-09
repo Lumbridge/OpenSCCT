@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using OpenScct.Content.Actors;
 using OpenScct.Core;
@@ -87,8 +86,10 @@ public sealed class MapLoader
                     if (actor is not Mover mover) throw new SvMapFormatException(MoverPathsDoc.RelativePath, $"{id} is not a mover");
                     mover.Path = path;
                 }
+            var placed = new HashSet<string>(AsciiCaseComparer.Instance);
+            foreach ((_, string id) in result.PlacedActors()) placed.Add(id);
             foreach (string id in paths.Keys)
-                if (!result.PlacedActors().Any(a => AsciiCaseComparer.Instance.Equals(a.Item2, id)))
+                if (!placed.Contains(id))
                     throw new SvMapFormatException(MoverPathsDoc.RelativePath, $"Unknown mover {id}");
         }
         world.Level.SetService(map.Match is { IsEmpty: false } match ? new LevelMatchRules(match, result.PlacedActors()) : null);
@@ -679,7 +680,12 @@ public sealed class MapLoadResult
         return count;
     }
 
-    private static bool HasPortedCode(Type type)
+    /// <summary>Whether a type declares ported code, by type: the reflection depends only on the type.</summary>
+    private static readonly ConcurrentDictionary<Type, bool> s_portedCode = new();
+
+    private static bool HasPortedCode(Type type) => s_portedCode.GetOrAdd(type, FindPortedCode);
+
+    private static bool FindPortedCode(Type type)
     {
         const System.Reflection.BindingFlags Flags = System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic |
             System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.DeclaredOnly;

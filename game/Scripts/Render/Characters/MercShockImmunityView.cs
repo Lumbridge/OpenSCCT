@@ -24,7 +24,7 @@ public sealed class MercShockImmunityView
     public MercShockImmunityView(SkeletalModel model)
     {
         _model = model;
-        _material = new ShaderMaterial { Shader = GD.Load<Shader>(ShaderPath) };
+        _material = new ShaderMaterial { Shader = Materials.ResponsiveSmokeShaders.Load(ShaderPath) };
     }
 
     public bool Shown { get; private set; }

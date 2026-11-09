@@ -53,7 +53,7 @@ public sealed class MapLightBeams
         var beams = new MapLightBeams(map);
         var root = new Node3D { Name = "LightBeams" };
         parent.AddChild(root);
-        var shader = GD.Load<Shader>(ShaderPath);
+        var shader = Materials.ResponsiveSmokeShaders.Load(ShaderPath);
         var meshes = new Dictionary<string, ArrayMesh>(StringComparer.OrdinalIgnoreCase);
         var spots = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         foreach (Data.LightEntry l in map.Lighting.Lights)

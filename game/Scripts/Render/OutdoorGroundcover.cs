@@ -44,7 +44,7 @@ public static class OutdoorGroundcover
 
     private static ShaderMaterial Material(Texture2D texture, Color tint, float distance, float wind)
     {
-        var material = new ShaderMaterial { Shader = GD.Load<Shader>("res://Shaders/hub_groundcover.gdshader") };
+        var material = new ShaderMaterial { Shader = Materials.ResponsiveSmokeShaders.Load("res://Shaders/hub_groundcover.gdshader") };
         material.SetShaderParameter("diffuse", texture);
         material.SetShaderParameter("tint", tint);
         material.SetShaderParameter("fade_end", distance);

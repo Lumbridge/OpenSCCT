@@ -77,8 +77,10 @@ public sealed class SurfaceFogRegistry : IDisposable
     public void Update(bool fog, Color color, float start, float end, PortalFogFrame? portal = null)
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
-        int mode = portal is not null ? 2 : fog ? 1 : 0;
-        var next = new FogState(mode, color, start, end, portal);
+        // An empty portal frame fogs no pixel, the same as mode 0. Flush writes nothing for mode 0, so its state is
+        // left at default: a moving camera then neither re-uploads the table nor runs the portal shader path.
+        int mode = portal is { Empty: false } ? 2 : portal is null && fog ? 1 : 0;
+        FogState next = mode == 0 ? default : new FogState(mode, color, start, end, portal);
         if (_state == next) return;
         _state = next;
         s_dirty = true;

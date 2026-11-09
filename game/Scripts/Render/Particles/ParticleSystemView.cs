@@ -443,7 +443,7 @@ public sealed class ParticleSystemView
         string key = $"{drawStyle}{zWrite}{zTest}{mesh}";
         if (s_shaders.TryGetValue(key, out Shader? cached))
         {
-            return cached;
+            return Materials.ResponsiveSmokeShaders.Current(cached);
         }
 
         Materials.MaterialCompiler.EnsureGlobals();
@@ -468,7 +468,7 @@ public sealed class ParticleSystemView
         }
 
         code.Append("#include \"").Append(ShaderPath).Append("\"\n");
-        var shader = new Shader { Code = code.ToString(), ResourceName = "svm_particle " + define };
+        Shader shader = Materials.ResponsiveSmokeShaders.Shared(code.ToString(), "svm_particle " + define);
         s_shaders[key] = shader;
         return shader;
     }

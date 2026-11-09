@@ -18,6 +18,15 @@ internal sealed class SurfaceBuilder
     private readonly List<float> _bakedDirections = [];
     private bool _anyBakedDirection;
     private readonly List<int> _indices = [];
+    private readonly List<Pending> _pending = [];
+    private Streams? _streams;
+
+    /// <summary>A primitive queued by <see cref="Queue"/>, with the Vision and Echelon current when it was queued.</summary>
+    private readonly record struct Pending(Transform3D Transform, MeshPrimitive Prim, byte Zone, byte[]? Zones, Vector4 Vision, int Echelon);
+
+    /// <summary>The streams as the arrays a mesh surface takes (<see cref="Pack"/>).</summary>
+    private sealed record Streams(Vector3[] Positions, Vector3[] Normals, Vector2[] Uvs, Vector2[]? Uv2s, Color[]? Colours,
+        int[] Indices, float[]? Vision, float[]? Echelon, float[]? BakedDirections);
 
     public SurfaceBuilder(bool hasUv2, bool hasColour, bool hasVision = false)
     {
@@ -51,9 +60,23 @@ internal sealed class SurfaceBuilder
 
     public bool HasColour { get; }
 
-    public int VertexCount => _positions.Count;
+    public int VertexCount
+    {
+        get
+        {
+            Merge();
+            return _positions.Count;
+        }
+    }
 
-    public int TriangleCount => _indices.Count / 3;
+    public int TriangleCount
+    {
+        get
+        {
+            Merge();
+            return _indices.Count / 3;
+        }
+    }
 
     /// <summary>
     /// Appends a primitive in render space (glTF), transformed by <paramref name="transform"/>. Only the vertices its
@@ -66,10 +89,81 @@ internal sealed class SurfaceBuilder
     /// </summary>
     public void Add(in Transform3D transform, MeshPrimitive prim, byte zone, byte[]? triangleZones = null)
     {
+        Merge();
+        _streams = null;
+        Write(transform, prim, zone, triangleZones, Vision, Echelon);
+    }
+
+    /// <summary>
+    /// <see cref="Add"/> later: queues the primitive with the current <see cref="Vision"/> and <see cref="Echelon"/>
+    /// until <see cref="Prepare"/> (or anything that reads the surface) writes the queue in order. The arrays it is
+    /// given must not change meanwhile.
+    /// </summary>
+    public void Queue(in Transform3D transform, MeshPrimitive prim, byte zone, byte[]? triangleZones = null)
+    {
+        _streams = null;
+        _pending.Add(new Pending(transform, prim, zone, triangleZones, Vision, Echelon));
+    }
+
+    /// <summary>
+    /// Writes the queued primitives in order and packs the streams for <see cref="AddTo"/>. Plain data work: a worker
+    /// thread may run it, one thread per builder, with the same result as on the main thread.
+    /// </summary>
+    public void Prepare()
+    {
+        Merge();
+        _streams ??= Pack();
+    }
+
+    private void Merge()
+    {
+        if (_pending.Count == 0)
+        {
+            return;
+        }
+
+        int indices = 0;
+        int vertices = 0;
+        foreach (Pending p in _pending)
+        {
+            indices += p.Prim.Indices.Length;
+            vertices += Math.Min(p.Prim.VertexCount, p.Prim.Indices.Length);
+        }
+
+        Reserve(_positions.Count + vertices, _indices.Count + indices);
+        foreach (Pending p in _pending)
+        {
+            Write(p.Transform, p.Prim, p.Zone, p.Zones, p.Vision, p.Echelon);
+        }
+
+        _pending.Clear();
+    }
+
+    private void Reserve(int vertices, int indices)
+    {
+        _positions.EnsureCapacity(vertices);
+        _normals.EnsureCapacity(vertices);
+        _uvs.EnsureCapacity(vertices);
+        if (HasUv2) _uv2s.EnsureCapacity(vertices);
+        if (HasColour) _colours.EnsureCapacity(vertices);
+        if (HasVision) _vision.EnsureCapacity(vertices * 4);
+        _echelon.EnsureCapacity(vertices);
+        _bakedDirections.EnsureCapacity(vertices * 4);
+        _indices.EnsureCapacity(indices);
+    }
+
+    private void Write(in Transform3D transform, MeshPrimitive prim, byte zone, byte[]? triangleZones, Vector4 vision, int echelon)
+    {
         Basis normalBasis = transform.Basis.Inverse().Transposed();
         bool mirrored = transform.Basis.Determinant() < 0f;
-        var written = new Dictionary<long, int>();
         int[] idx = prim.Indices;
+
+        // Where each source vertex was first written, and with which zone. The same vertex in a triangle of another
+        // zone (BSP surfaces) is looked up by vertex and zone: one copy per vertex and zone, in first-use order.
+        var first = new int[prim.VertexCount];
+        Array.Fill(first, -1);
+        var firstZone = new byte[first.Length];
+        Dictionary<long, int>? other = null;
         Span<int> tri = stackalloc int[3];
         for (int t = 0; t + 2 < idx.Length; t += 3)
         {
@@ -77,12 +171,24 @@ internal sealed class SurfaceBuilder
             for (int k = 0; k < 3; k++)
             {
                 int v = idx[t + k];
-                long key = ((long)v << 8) | z;
-                if (!written.TryGetValue(key, out int at))
+                int at = first[v];
+                if (at < 0)
                 {
                     at = _positions.Count;
-                    Write(transform, normalBasis, prim, v, z);
-                    written[key] = at;
+                    WriteVertex(transform, normalBasis, prim, v, z, vision, echelon);
+                    first[v] = at;
+                    firstZone[v] = z;
+                }
+                else if (firstZone[v] != z)
+                {
+                    other ??= [];
+                    long key = ((long)v << 8) | z;
+                    if (!other.TryGetValue(key, out at))
+                    {
+                        at = _positions.Count;
+                        WriteVertex(transform, normalBasis, prim, v, z, vision, echelon);
+                        other[key] = at;
+                    }
                 }
 
                 tri[k] = at;
@@ -94,7 +200,7 @@ internal sealed class SurfaceBuilder
         }
     }
 
-    private void Write(in Transform3D transform, in Basis normalBasis, MeshPrimitive prim, int i, byte zone)
+    private void WriteVertex(in Transform3D transform, in Basis normalBasis, MeshPrimitive prim, int i, byte zone, Vector4 vision, int echelon)
     {
         var p = new Vector3(prim.Positions[i * 3], prim.Positions[(i * 3) + 1], prim.Positions[(i * 3) + 2]);
         _positions.Add(transform * p);
@@ -115,54 +221,78 @@ internal sealed class SurfaceBuilder
             _colours.Add(c);
         }
 
-        _echelon.Add(Echelon);
-        _anyEchelon |= Echelon != 0;
-        _anyBakedDirection |= prim.BakedDirections is not null;
-        for (int k = 0; k < 4; k++) _bakedDirections.Add(prim.BakedDirections is { } data ? data[i * 4 + k] : k == 3 ? 0 : .5f);
+        _echelon.Add(echelon);
+        _anyEchelon |= echelon != 0;
+        if (prim.BakedDirections is { } data)
+        {
+            _anyBakedDirection = true;
+            for (int k = 0; k < 4; k++) _bakedDirections.Add(data[i * 4 + k]);
+        }
+        else
+        {
+            _bakedDirections.Add(.5f);
+            _bakedDirections.Add(.5f);
+            _bakedDirections.Add(.5f);
+            _bakedDirections.Add(0f);
+        }
+
         if (HasVision)
         {
             // w + 2 marks the stream as present: a mesh without CUSTOM0 reads w below 1.5.
-            _vision.Add(Vision.X);
-            _vision.Add(Vision.Y);
-            _vision.Add(Vision.Z);
-            _vision.Add(Vision.W + 2f);
+            _vision.Add(vision.X);
+            _vision.Add(vision.Y);
+            _vision.Add(vision.Z);
+            _vision.Add(vision.W + 2f);
         }
     }
+
+    private Streams Pack() => new(
+        _positions.ToArray(),
+        _normals.ToArray(),
+        _uvs.ToArray(),
+        HasUv2 ? _uv2s.ToArray() : null,
+        HasColour ? _colours.ToArray() : null,
+        _indices.ToArray(),
+        HasVision ? _vision.ToArray() : null,
+        _anyEchelon ? _echelon.ToArray() : null,
+        _anyBakedDirection ? _bakedDirections.ToArray() : null);
 
     /// <summary>Appends this surface to <paramref name="mesh"/>.</summary>
     public void AddTo(ArrayMesh mesh, Material? material)
     {
+        Prepare();
+        Streams s = _streams!;
         var arrays = new Godot.Collections.Array();
         arrays.Resize((int)Mesh.ArrayType.Max);
-        arrays[(int)Mesh.ArrayType.Vertex] = _positions.ToArray();
-        arrays[(int)Mesh.ArrayType.Normal] = _normals.ToArray();
-        arrays[(int)Mesh.ArrayType.TexUV] = _uvs.ToArray();
-        if (HasUv2)
+        arrays[(int)Mesh.ArrayType.Vertex] = s.Positions;
+        arrays[(int)Mesh.ArrayType.Normal] = s.Normals;
+        arrays[(int)Mesh.ArrayType.TexUV] = s.Uvs;
+        if (s.Uv2s is not null)
         {
-            arrays[(int)Mesh.ArrayType.TexUV2] = _uv2s.ToArray();
+            arrays[(int)Mesh.ArrayType.TexUV2] = s.Uv2s;
         }
 
-        if (HasColour)
+        if (s.Colours is not null)
         {
-            arrays[(int)Mesh.ArrayType.Color] = _colours.ToArray();
+            arrays[(int)Mesh.ArrayType.Color] = s.Colours;
         }
 
-        arrays[(int)Mesh.ArrayType.Index] = _indices.ToArray();
+        arrays[(int)Mesh.ArrayType.Index] = s.Indices;
         Mesh.ArrayFormat flags = 0;
-        if (HasVision)
+        if (s.Vision is not null)
         {
-            arrays[(int)Mesh.ArrayType.Custom0] = _vision.ToArray();
+            arrays[(int)Mesh.ArrayType.Custom0] = s.Vision;
             flags = (Mesh.ArrayFormat)((long)Mesh.ArrayCustomFormat.RgbaFloat << (int)Mesh.ArrayFormat.FormatCustom0Shift);
         }
 
-        if (_anyEchelon)
+        if (s.Echelon is not null)
         {
-            arrays[(int)Mesh.ArrayType.Custom1] = _echelon.ToArray();
+            arrays[(int)Mesh.ArrayType.Custom1] = s.Echelon;
             flags |= (Mesh.ArrayFormat)((long)Mesh.ArrayCustomFormat.RFloat << (int)Mesh.ArrayFormat.FormatCustom1Shift);
         }
-        if (_anyBakedDirection)
+        if (s.BakedDirections is not null)
         {
-            arrays[(int)Mesh.ArrayType.Custom2] = _bakedDirections.ToArray();
+            arrays[(int)Mesh.ArrayType.Custom2] = s.BakedDirections;
             flags |= (Mesh.ArrayFormat)((long)Mesh.ArrayCustomFormat.RgbaFloat << (int)Mesh.ArrayFormat.FormatCustom2Shift);
         }
 

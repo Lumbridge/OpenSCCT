@@ -1,5 +1,6 @@
 using System;
 using System.Runtime.InteropServices;
+using System.Threading;
 using Godot;
 
 namespace OpenScctGame.Render;
@@ -31,6 +32,7 @@ internal sealed partial class ShadowDepthCapture : CompositorEffect
     /// <param name="origin">The tile's first texel in the atlas.</param>
     /// <param name="parallel">True for an orthographic camera.</param>
     /// <param name="atlas">The atlas texture, read each frame (invalid while it is not made yet).</param>
+    /// <param name="staticAtlas">Cached static depth to take the nearest of, read each frame (invalid: none this frame).</param>
     public ShadowDepthCapture(Vector2I size, float near, float far, Vector2I origin, bool parallel, Func<Rid> atlas, Func<Rid>? staticAtlas = null)
     {
         _size = size;
@@ -46,9 +48,18 @@ internal sealed partial class ShadowDepthCapture : CompositorEffect
     }
 
     /// <summary>The pipeline is made and the atlas exists: the tile is written each frame the camera renders.</summary>
-    public bool Ready => _pipeline.IsValid && _atlas().IsValid && (_staticAtlas is null || _staticAtlas().IsValid);
+    public bool Ready => _pipeline.IsValid && _atlas().IsValid;
 
     private volatile bool _released;
+
+    // Tile writes so far x 2, plus 1 when the last one took the cached static depth (written on the render thread).
+    private long _stamp;
+
+    /// <summary>
+    /// Changes each time the tile is written; bit 0 is set when that write took the cached static depth. The atlas is
+    /// never cleared, so a frame without a write keeps the tile's last depth (SpotShadowLight skips unchanged passes).
+    /// </summary>
+    public long Stamp => Interlocked.Read(ref _stamp);
 
     private void Init()
     {
@@ -125,7 +136,7 @@ internal sealed partial class ShadowDepthCapture : CompositorEffect
         using RenderSceneBuffers? sceneBuffers = renderData?.GetRenderSceneBuffers();
         Rid atlas = _atlas();
         Rid staticAtlas = _staticAtlas?.Invoke() ?? default;
-        if (_rd is null || !_pipeline.IsValid || !atlas.IsValid || (_staticAtlas is not null && !staticAtlas.IsValid) || sceneBuffers is not RenderSceneBuffersRD buffers)
+        if (_rd is null || !_pipeline.IsValid || !atlas.IsValid || sceneBuffers is not RenderSceneBuffersRD buffers)
         {
             return;
         }
@@ -152,5 +163,6 @@ internal sealed partial class ShadowDepthCapture : CompositorEffect
         _rd.ComputeListSetPushConstant(list, bytes, (uint)bytes.Length);
         _rd.ComputeListDispatch(list, (uint)((size.X + 7) / 8), (uint)((size.Y + 7) / 8), 1);
         _rd.ComputeListEnd();
+        Interlocked.Exchange(ref _stamp, (((_stamp >> 1) + 1) << 1) | (staticAtlas.IsValid ? 1L : 0L));
     }
 }

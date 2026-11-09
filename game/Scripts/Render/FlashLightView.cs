@@ -92,7 +92,7 @@ public sealed partial class FlashLightView : Node
             return;
         }
 
-        _light ??= new SpotShadowLight(this, Map.Pack, SpotShadowShape.Torch);
+        _light ??= new SpotShadowLight(this, Map.Pack, SpotShadowShape.Torch, cacheStatic: true);
         FVector location = best.Location;
         FRotator rotation = best.Rotation;
         FromBone = false;
@@ -177,7 +177,7 @@ public sealed partial class FlashLightView : Node
             _projo = null;
         }
 
-        _projo ??= new SpotShadowLight(this, Map.Pack, shape);
+        _projo ??= new SpotShadowLight(this, Map.Pack, shape, cacheStatic: true);
         _projo.Zone = Map.ZoneIndexAt(best.Location);
         _projo.Place(best.Location, best.Rotation);
         if (!_projo.On)

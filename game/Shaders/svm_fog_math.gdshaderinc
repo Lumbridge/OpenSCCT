@@ -26,13 +26,14 @@ bool svm_fog_portal_crossing(int fog_base, int at, vec3 origin, vec3 ray, float 
 	return true;
 }
 
-bool svm_fog_distinct_crossing(int fog_base, int portal_base, int k, vec4 cell, vec3 origin, vec3 ray, float distance, out float at, out ivec2 zones) {
-	int index = int(svm_fog_row(fog_base, int(cell.x) + k).x);
-	if (!svm_fog_portal_crossing(fog_base, portal_base + index * 2, origin, ray, distance, at, zones)) return false;
-	for (int earlier = 0; earlier < k; earlier++) {
+// A candidate row is (portal, first partner row, partner count, 0). Partners are the earlier candidates in the same
+// tile that join the same two zones: no other earlier candidate can match zones, so none can repeat this crossing.
+bool svm_fog_distinct_crossing(int fog_base, int portal_base, vec4 candidate, vec3 origin, vec3 ray, float distance, out float at, out ivec2 zones) {
+	if (!svm_fog_portal_crossing(fog_base, portal_base + int(candidate.x) * 2, origin, ray, distance, at, zones)) return false;
+	for (int p = 0; p < int(candidate.z); p++) {
 		float other_at;
 		ivec2 other_zones;
-		int other = int(svm_fog_row(fog_base, int(cell.x) + earlier).x);
+		int other = int(svm_fog_row(fog_base, int(candidate.y) + p).x);
 		if (svm_fog_portal_crossing(fog_base, portal_base + other * 2, origin, ray, distance, other_at, other_zones)
 			&& all(equal(zones, other_zones)) && abs(other_at - at) < 0.001 * max(at, 1.0)) return false;
 	}
@@ -111,7 +112,8 @@ vec4 svm_fog_evaluate(int fog_base, vec2 screen_uv, vec3 ray, float distance) {
 	for (int k = 0; k < int(cell.y); k++) {
 		float at;
 		ivec2 zones;
-		if (!svm_fog_distinct_crossing(fog_base, portal_base, k, cell, origin, ray, distance, at, zones)) continue;
+		vec4 candidate = svm_fog_row(fog_base, int(cell.x) + k);
+		if (!svm_fog_distinct_crossing(fog_base, portal_base, candidate, origin, ray, distance, at, zones)) continue;
 		svm_fog_add_zone(fog_base, cover, weighted_color, zones.x, at, 1.0);
 		svm_fog_add_zone(fog_base, cover, weighted_color, zones.y, at, -1.0);
 		if (at > last_at) { last_at = at; last = zones.y; }
@@ -127,7 +129,11 @@ vec4 svm_fog_evaluate(int fog_base, vec2 screen_uv, vec3 ray, float distance) {
 			for (int k = 0; k < int(cell.y); k++) {
 				float at;
 				ivec2 zones;
-				if (!svm_fog_distinct_crossing(fog_base, portal_base, k, cell, origin, ray, distance, at, zones)) continue;
+				vec4 candidate = svm_fog_row(fog_base, int(cell.x) + k);
+				// Only a portal with this zone on exactly one side changes the depth; skip the others' crossing tests.
+				vec4 sides = svm_fog_row(fog_base, portal_base + int(candidate.x) * 2 + 1);
+				if (float(int(sides.x) == zone) == float(int(sides.y) == zone)) continue;
+				if (!svm_fog_distinct_crossing(fog_base, portal_base, candidate, origin, ray, distance, at, zones)) continue;
 				float change = float(zones.y == zone) - float(zones.x == zone);
 				if (change != 0.0) depth += change * svm_fog_volume_depth(fog_base, header, ray, distance, at);
 			}

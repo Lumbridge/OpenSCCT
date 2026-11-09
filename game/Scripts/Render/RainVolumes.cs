@@ -62,12 +62,10 @@ public sealed class RainVolumes
             {
                 string modes = r.Additive ? "blend_add" : "blend_mix";
                 string define = r.Additive ? "" : "#define RAIN_ALPHA\n";
-                shader = new Shader
-                {
-                    Code = "shader_type spatial;\nrender_mode unshaded, fog_disabled, cull_disabled, depth_draw_never, " + modes
+                shader = Materials.ResponsiveSmokeShaders.Shared(
+                    "shader_type spatial;\nrender_mode unshaded, fog_disabled, cull_disabled, depth_draw_never, " + modes
                         + ";\n" + define + "#include \"" + TemplatePath + "\"\n",
-                    ResourceName = "svm_rain " + modes,
-                };
+                    "svm_rain " + modes);
                 shaders[r.Additive] = shader;
             }
 

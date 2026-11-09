@@ -68,12 +68,6 @@ public sealed partial class MaterialCompiler
     // The RenderingServer's global parameters live as long as the process; this only remembers the one add.
     private static bool s_globalsAdded;
 
-    // Shaders by their code, shared by every compiler for the life of the process: identical code is one Shader (one
-    // RID), so Godot compiles it once and every map and model shares its pipelines. Shaders are never changed after
-    // they are made here.
-    private static readonly Dictionary<string, Shader> s_sharedShaders = new(StringComparer.Ordinal);
-    private static readonly System.Threading.Lock s_sharedShadersLock = new();
-
     private readonly MaterialsDoc _doc;
     private readonly TextureCache _textures;
     private readonly Dictionary<string, Shader> _shaders = new(StringComparer.Ordinal);
@@ -628,21 +622,11 @@ public sealed partial class MaterialCompiler
     /// <summary>
     /// The process-wide Shader of <paramref name="code"/>, made (named <paramref name="name"/>, then given to
     /// <paramref name="init"/>) on first use. Callers must not change it: other materials use the same Shader.
+    /// Identical code is one Shader (one RID), so every map and model shares its pipelines; its responsive smoke
+    /// variant follows the match (<see cref="ResponsiveSmokeShaders"/>).
     /// </summary>
-    internal static Shader SharedShader(string code, string name, Action<Shader>? init = null)
-    {
-        lock (s_sharedShadersLock)
-        {
-            if (!s_sharedShaders.TryGetValue(code, out Shader? shader))
-            {
-                shader = new Shader { Code = code, ResourceName = name };
-                init?.Invoke(shader);
-                s_sharedShaders[code] = shader;
-            }
-
-            return shader;
-        }
-    }
+    internal static Shader SharedShader(string code, string name, Action<Shader>? init = null) =>
+        ResponsiveSmokeShaders.Shared(code, name, init);
 
     private Shader ShaderFor(LightSource light, MaterialBlend blend, bool twoSided, List<string> extras)
     {
@@ -650,7 +634,7 @@ public sealed partial class MaterialCompiler
         string key = $"{light}|{blend}|{twoSided}|{coverage}|{string.Join(',', extras)}";
         if (_shaders.TryGetValue(key, out Shader? shader))
         {
-            return shader;
+            return ResponsiveSmokeShaders.Current(shader);
         }
 
         var modes = new List<string> { "unshaded", "fog_disabled", twoSided ? "cull_disabled" : "cull_back" };
@@ -736,7 +720,7 @@ public sealed partial class MaterialCompiler
         string key = $"seethrough|{light}|{blend}|{twoSided}|{string.Join(',', extras)}";
         if (_shaders.TryGetValue(key, out Shader? shader))
         {
-            return shader;
+            return ResponsiveSmokeShaders.Current(shader);
         }
 
         var code = new StringBuilder();

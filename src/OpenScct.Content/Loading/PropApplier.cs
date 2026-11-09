@@ -754,15 +754,22 @@ internal sealed class PropApplier
 
     /// <summary>The element count of an <see cref="InlineArrayAttribute"/> struct (FixedArrayN), or null.</summary>
     internal static int? InlineLength(Type t) =>
-        t.IsValueType && t.IsGenericType && t.GetCustomAttribute<InlineArrayAttribute>() is { } a ? a.Length : null;
+        t.IsValueType && t.IsGenericType ? s_inlineLengths.GetOrAdd(t, static type => type.GetCustomAttribute<InlineArrayAttribute>()?.Length) : null;
+
+    // The attribute and the generic accessors depend only on the type: looked up once per type, not per element.
+    private static readonly ConcurrentDictionary<Type, int?> s_inlineLengths = new();
+    private static readonly ConcurrentDictionary<Type, MethodInfo> s_inlineGets = new();
+    private static readonly ConcurrentDictionary<Type, MethodInfo> s_inlineSets = new();
+
+    private static MethodInfo InlineAccessor(ConcurrentDictionary<Type, MethodInfo> cache, Type array, string name) =>
+        cache.GetOrAdd(array, static (t, n) => typeof(PropApplier).GetMethod(n, BindingFlags.NonPublic | BindingFlags.Static)!
+            .MakeGenericMethod(t, t.GetGenericArguments()[0]), name);
 
     internal static object? InlineGet(object boxed, int index) =>
-        typeof(PropApplier).GetMethod(nameof(InlineGetT), BindingFlags.NonPublic | BindingFlags.Static)!
-            .MakeGenericMethod(boxed.GetType(), boxed.GetType().GetGenericArguments()[0]).Invoke(null, [boxed, index]);
+        InlineAccessor(s_inlineGets, boxed.GetType(), nameof(InlineGetT)).Invoke(null, [boxed, index]);
 
     private static object InlineSet(object boxed, int index, object? value) =>
-        typeof(PropApplier).GetMethod(nameof(InlineSetT), BindingFlags.NonPublic | BindingFlags.Static)!
-            .MakeGenericMethod(boxed.GetType(), boxed.GetType().GetGenericArguments()[0]).Invoke(null, [boxed, index, value])!;
+        InlineAccessor(s_inlineSets, boxed.GetType(), nameof(InlineSetT)).Invoke(null, [boxed, index, value])!;
 
     private static TElement InlineGetT<TArray, TElement>(object boxed, int index)
         where TArray : struct

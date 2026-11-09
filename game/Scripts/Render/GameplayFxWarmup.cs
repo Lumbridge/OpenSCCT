@@ -70,7 +70,10 @@ public partial class GameplayFxWarmup : SubViewport
     /// <summary>Exercise real smoke uploads, flow, view-volume and surface shader in this private loading world.</summary>
     public void PreloadResponsiveSmoke(Level level, RenderMap? map, Viewport target)
     {
-        if (!ResponsiveSmokeWorld.IsEnabled(level) || DisplayServer.GetName() == "headless") return;
+        if (!ResponsiveSmokeWorld.IsEnabled(level)) return;
+        // Rules that arrive after the map was built switch its shaders here, so the surfaces below warm that variant.
+        Materials.ResponsiveSmokeShaders.Use(true);
+        if (DisplayServer.GetName() == "headless") return;
         ResponsiveSmokeRenderer.Publish(map,level);
         ResponsiveSmokeRenderer.Preparing = true;
         _smokeLevel = level;

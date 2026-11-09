@@ -341,10 +341,29 @@ public partial class PlayRoot : Node3D
             SetSmokeLoading(true);
             var warmup = GameplayFxWarmup.For(GetViewport()); AddChild(warmup);
             View?.PreloadSmokeBackground();
+            bool switching = !OpenScctGame.Render.Materials.ResponsiveSmokeShaders.Enabled;
             warmup.PreloadResponsiveSmoke(session.Client.World.Level,Map,GetViewport());
+            // The match's shaders were built without smoke and switch now: draw the first-use samples of _Ready again
+            // under the cover, so the first effect, laser or outfit does not compile in play.
+            if (switching && DisplayServer.GetName() != "headless") PreloadGameplaySamples(warmup.Samples);
             warmup.Begin(() => SetSmokeLoading(false));
         }
         return true;
+    }
+
+    // The first-use samples _Ready draws while loading (effects, lasers, spy first person, outfits, security skins).
+    private void PreloadGameplaySamples(Node3D samples)
+    {
+        Fx?.Preload(samples);
+        MercLasers?.Preload(samples);
+        SpyLasers?.Preload(samples);
+        SpyFirstPerson?.Warmup(samples);
+        if (Map is { } map)
+        {
+            Render.Characters.PawnOutfits.Warmup(map.Outfits, map.Folder, map.SharedRoot, samples,
+                sidearms: FirstPerson?.Needs.Sidearms ?? true);
+            DeviceViews.PreloadSecuritySkins(map, samples);
+        }
     }
 
     private void Load()
@@ -371,6 +390,9 @@ public partial class PlayRoot : Node3D
         Session = Config.CreateSession?.Invoke(clock) ?? new PlaySession(settings, clock,
             message => GD.Print($"SVM_PLAY load seconds={sessionLoad.Elapsed.TotalSeconds:F2} {message}"));
         LoadTimer.Mark("play.session");
+        // Compile responsive smoke into this match's shaders only when its rules use it. Rules that arrive later
+        // switch them (GameplayFxWarmup.PreloadResponsiveSmoke, ResponsiveSmokeRenderer).
+        OpenScctGame.Render.Materials.ResponsiveSmokeShaders.Use(OpenScct.Game.Equipment.ResponsiveSmokeWorld.IsEnabled(Session.Client.World.Level));
         if (Config.Render && OpenScct.Game.Equipment.ResponsiveSmokeWorld.IsEnabled(Session.Client.World.Level)
             && ResponsiveSmokeRenderer.UnsupportedReason is { } sessionRendererError)
         {
@@ -390,6 +412,8 @@ public partial class PlayRoot : Node3D
         {
             Map = MapBuilder.Build(Session.MapFolder);
             LoadTimer.Mark("play.map");
+            // Read the effects and decode their PNGs on a worker while the views and outfits load (CombatFxView takes it).
+            OpenScctGame.Fx.FxLibrary.BeginLoad(Map.SharedRoot);
             _spyShadowLighting = new SpyShadowLighting(Map, Session.Client, () => Pawns);
             Session.StickyCamShadowUpdate = _spyShadowLighting.Update;
             AddChild(Map.Root);

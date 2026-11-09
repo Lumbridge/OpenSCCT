@@ -386,6 +386,9 @@ public static class ResponsiveSmokeRenderer
         ResponsiveSmokeVisualFlow.Queue(FlowInputs,Quality);
         if (Profile) { LastFlowQueueMilliseconds = System.Diagnostics.Stopwatch.GetElapsedTime(stage).TotalMilliseconds; stage = System.Diagnostics.Stopwatch.GetTimestamp(); }
         AllocateFields();
+        // Shaders built without smoke draw it as inactive, so they must have it before it turns on. A match sets this
+        // at load; this covers any other world with smoke rules.
+        Materials.ResponsiveSmokeShaders.Use(true);
         SetActive(true);
         if (changed)
         {

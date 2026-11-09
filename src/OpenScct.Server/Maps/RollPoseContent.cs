@@ -1,5 +1,6 @@
 using System;
 using System.Buffers.Binary;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -130,6 +131,36 @@ public sealed class RollPoseContent
         name.Equals("RollStAlFdR", StringComparison.OrdinalIgnoreCase) ||
         name.Equals("RollStJpFdL", StringComparison.OrdinalIgnoreCase) ||
         name.Equals("RollStJpFdR", StringComparison.OrdinalIgnoreCase);
+
+    private static readonly ConcurrentDictionary<(string Path, bool AllClips), (long Length, DateTime Written, RollPoseContent Content)> s_shared = new();
+
+    /// <summary>
+    /// <see cref="Load"/>, kept for the process while the file is unchanged (same length and write time). The content
+    /// never changes after it is read (samplers keep their own history), so every session and world can share it.
+    /// </summary>
+    public static RollPoseContent? LoadShared(string path, bool allClips = false)
+    {
+        var file = new FileInfo(path);
+        if (!file.Exists)
+        {
+            return Load(path, allClips);
+        }
+
+        (string, bool) key = (file.FullName, allClips);
+        if (s_shared.TryGetValue(key, out (long Length, DateTime Written, RollPoseContent Content) kept) &&
+            kept.Length == file.Length && kept.Written == file.LastWriteTimeUtc)
+        {
+            return kept.Content;
+        }
+
+        RollPoseContent? content = Load(path, allClips);
+        if (content is not null)
+        {
+            s_shared[key] = (file.Length, file.LastWriteTimeUtc, content);
+        }
+
+        return content;
+    }
 
     /// <summary>Missing optional character content returns null; malformed or unsupported roll data is diagnosed.</summary>
     public static RollPoseContent? Load(string path, bool allClips = false)

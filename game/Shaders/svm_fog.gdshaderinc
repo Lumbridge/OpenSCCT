@@ -8,7 +8,23 @@ vec4 svm_fog_texel(int index) {
 vec4 svm_fog_row(int fog_base, int index) { return svm_fog_texel(fog_base + index); }
 
 #include "res://Shaders/svm_fog_math.gdshaderinc"
+#ifdef SVM_RESPONSIVE_SMOKE
 #include "res://Shaders/svm_responsive_smoke.gdshaderinc"
+#else
+// A match without responsive smoke (ResponsiveSmokeShaders) compiles none of it: these are the values its functions
+// return while it is inactive. The spot globals block is the include's own, kept for includers that rely on it.
+#ifndef SVM_SMOKE_SPOT_GLOBALS
+#define SVM_SMOKE_SPOT_GLOBALS
+global uniform sampler2D svm_spots;
+global uniform int svm_spot_count;
+global uniform sampler2D svm_spot_depth;
+global uniform sampler2DArray svm_spot_cookies;
+global uniform sampler2D svm_spot_atten;
+#endif
+vec4 responsive_smoke(uint layers, vec3 position) { return vec4(0.0,0.0,0.0,1.0); }
+float responsive_smoke_scene_light(uint layers, vec3 world_position, vec3 world_normal) { return 1.0; }
+vec4 responsive_smoke_background(uint layers, vec2 uv) { return vec4(0.0,0.0,0.0,1.0); }
+#endif
 
 // Returns premultiplied fog colour and transmittance at this fragment's own depth.
 vec4 surface_zone_fog(uint camera_layers, vec3 view_position_metres, vec2 pixel, vec2 viewport_size) {

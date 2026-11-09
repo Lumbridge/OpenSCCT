@@ -21,6 +21,8 @@ public partial class FaithfulView : Node3D
 
     private SubViewport? _skyViewport;
     private Camera3D? _skyCamera;
+    // The sky zone is fog in every direction (FoggedSkyZone): its view is drawn once, small, and kept.
+    private bool _skyFogOnly;
     private SurfaceFogRegistry? _surfaceFog;
     private SurfaceFogRegistry? _skySurfaceFog;
     private MeshInstance3D? _backdrop;
@@ -50,7 +52,8 @@ public partial class FaithfulView : Node3D
         AmbientOcclusion = new AmbientOcclusionEffect();
         Remanence = new RemanenceEffect();
         DoubleVision = new RemanenceEffect { DoubleVision = true };
-        Camera.Compositor = new Compositor { CompositorEffects = new Godot.Collections.Array<CompositorEffect> { AmbientOcclusion, Effect, DoubleVision, Remanence } };
+        CoronaSamples = new CoronaSampleEffect(Camera);
+        Camera.Compositor = new Compositor { CompositorEffects = new Godot.Collections.Array<CompositorEffect> { CoronaSamples, AmbientOcclusion, Effect, DoubleVision, Remanence } };
         AddChild(Camera);
         _surfaceFog = new SurfaceFogRegistry(Camera);
     }
@@ -65,6 +68,9 @@ public partial class FaithfulView : Node3D
     public RemanenceEffect Remanence { get; }
 
     public RemanenceEffect DoubleVision { get; }
+
+    /// <summary>The scene colour and depth under this frame's coronas, which they read instead of full-screen copies.</summary>
+    public CoronaSampleEffect CoronaSamples { get; }
 
     /// <summary>Prepare the live camera's smoke surface while the loading gate covers the view.</summary>
     public void PreloadSmokeBackground()
@@ -218,10 +224,10 @@ public partial class FaithfulView : Node3D
                 Camera.Environment.Sky.SkyMaterial = sky;
             }
         }
-        _coronas = new Coronas(map, map.Root);
+        _coronas = new Coronas(map, map.Root, CoronaSamples);
         _rain = new RainVolumes(map, map.Root);
         ApplyVision();
-        if (map.Lighting.SkyLocation is null)
+        if (map.Lighting.SkyLocation is not { } skyLocation)
         {
             return;
         }
@@ -249,6 +255,16 @@ public partial class FaithfulView : Node3D
         };
         _skyViewport.AddChild(_skyCamera);
         _skySurfaceFog = new SurfaceFogRegistry(_skyCamera);
+        // Every pixel of a sky zone fogged solid is the same value, so the 16 x 16 target drawn once (ApplyVision)
+        // holds exactly what each pixel of a full-size view would, through the same pipeline. The camera only turns,
+        // so place it now: the one draw may come before the first SetUeCamera.
+        _skyFogOnly = FoggedSkyZone.IsSolid(map, UeSpace.ToGodot(skyLocation));
+        if (_skyFogOnly)
+        {
+            _skyCamera.Transform = CameraTransform(skyLocation, _cameraRotation);
+            GD.Print($"SVM_SKY {map.MapId}: sky zone {map.Lighting.SkyZone} is fogged solid, its view is drawn once");
+        }
+
         AddChild(_skyViewport);
         Diagnostics.ViewportTimings.Register(_skyViewport, Diagnostics.ViewportTimings.Sky);
         ApplyVision();
@@ -380,10 +396,12 @@ public partial class FaithfulView : Node3D
             AmbientOcclusion.Release();
             Remanence.Release();
             DoubleVision.Release();
+            CoronaSamples.Release();
             Effect.Dispose();
             AmbientOcclusion.Dispose();
             Remanence.Dispose();
             DoubleVision.Dispose();
+            CoronaSamples.Dispose();
         }
 
         base._Notification(what);
@@ -464,9 +482,14 @@ public partial class FaithfulView : Node3D
             ApplyProjection();
         }
 
-        if (_skyViewport is not null)
+        if (_skyViewport is not null && !_skyFogOnly)
         {
-            Vector2I size = (Vector2I)GetViewport().GetVisibleRect().Size;
+            // The main view's internal 3D size (Godot: viewport size x Scaling3DScale, truncated), so the backdrop
+            // reads one sky texel per pixel and a lower render scale draws a smaller sky too.
+            Viewport viewport = GetViewport();
+            Vector2I visible = (Vector2I)viewport.GetVisibleRect().Size;
+            float scale = viewport.Scaling3DScale;
+            var size = new Vector2I((int)(visible.X * scale), (int)(visible.Y * scale));
             if (size.X > 0 && size.Y > 0 && _skyViewport.Size != size)
             {
                 _skyViewport.Size = size;
@@ -703,7 +726,10 @@ public partial class FaithfulView : Node3D
 
         if (_skyViewport is not null)
         {
-            _skyViewport.RenderTargetUpdateMode = sceneVision ? SubViewport.UpdateMode.Disabled : SubViewport.UpdateMode.Always;
+            // A sky fogged solid is drawn once on each return to a normal mode (the fog and vision globals of this
+            // frame are set before the draw) and then kept: the picture cannot change while the mode stays.
+            _skyViewport.RenderTargetUpdateMode = sceneVision ? SubViewport.UpdateMode.Disabled
+                : _skyFogOnly ? SubViewport.UpdateMode.Once : SubViewport.UpdateMode.Always;
         }
 
         if (_coronas is not null)

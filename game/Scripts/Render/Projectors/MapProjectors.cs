@@ -186,15 +186,13 @@ public sealed class MapProjectors
             string stencil = staticMeshes
                 ? ""
                 : $"stencil_mode read, compare_not_equal, {Materials.MaterialCompiler.StencilStaticMesh};\n";
-            shader = new Shader
-            {
-                Code = "shader_type spatial;\nrender_mode unshaded, fog_disabled, cull_disabled, depth_test_disabled, depth_draw_never, "
+            shader = Materials.ResponsiveSmokeShaders.Shared(
+                "shader_type spatial;\nrender_mode unshaded, fog_disabled, cull_disabled, depth_test_disabled, depth_draw_never, "
                     + blend + ";\n" + stencil + "#define " + define + "\n#include \"" + ShaderInclude + "\"\n",
-                ResourceName = "svm_projector " + key,
-            };
+                "svm_projector " + key);
             Shaders[key] = shader;
         }
 
-        return shader;
+        return Materials.ResponsiveSmokeShaders.Current(shader);
     }
 }

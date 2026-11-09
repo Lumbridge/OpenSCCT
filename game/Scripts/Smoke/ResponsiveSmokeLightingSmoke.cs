@@ -79,6 +79,7 @@ public sealed class ResponsiveSmokeLightingSmoke : SmokeTest
             _material = new ShaderMaterial { Shader = new Shader { Code = """
                 shader_type spatial;
                 render_mode unshaded, cull_disabled;
+                #define SVM_RESPONSIVE_SMOKE
                 #include "res://Shaders/svm_fog.gdshaderinc"
                 uniform int diagnostic = 0;
                 uniform bool body_probe = false;

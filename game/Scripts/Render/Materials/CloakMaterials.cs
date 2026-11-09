@@ -31,9 +31,10 @@ public sealed class CloakMaterials
         if (material is ShaderMaterial faithful && faithful.Shader is { } shader &&
             shader.Code.Contains(MaterialCompiler.TemplatePath, StringComparison.Ordinal))
         {
-            if (!s_shaders.TryGetValue(shader, out Shader? variant))
+            if (s_shaders.TryGetValue(shader, out Shader? variant)) variant = ResponsiveSmokeShaders.Current(variant);
+            else
             {
-                string code = shader.Code;
+                string code = ResponsiveSmokeShaders.BaseCode(shader);
                 int start = code.IndexOf("render_mode ", StringComparison.Ordinal);
                 int end = code.IndexOf(';', start);
                 string cull = code[start..end].Contains("cull_disabled", StringComparison.Ordinal) ? "cull_disabled" : "cull_back";
@@ -52,7 +53,7 @@ public sealed class CloakMaterials
         {
             // Imported materials without Faithful metadata still cloak as a whole, rather than keeping an
             // opaque base pass. Converted game characters use the full actor-lit variant above.
-            cloak = new ShaderMaterial { Shader = GD.Load<Shader>(ShaderPath) };
+            cloak = new ShaderMaterial { Shader = ResponsiveSmokeShaders.Load(ShaderPath) };
             if (material is BaseMaterial3D imported)
             {
                 cloak.SetShaderParameter("base_color", imported.AlbedoColor);

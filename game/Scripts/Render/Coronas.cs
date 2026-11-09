@@ -21,6 +21,9 @@ public sealed class Coronas
 {
     public const string ShaderPath = "res://Shaders/svm_corona.gdshader";
 
+    /// <summary>The same corona reading <see cref="CoronaSampleEffect"/>'s copies instead of the screen and depth textures.</summary>
+    public const string CopiesShaderPath = "res://Shaders/svm_corona_copies.gdshader";
+
     private static readonly StringName SizeParam = "svm_corona";
     private static readonly StringName ColourParam = "svm_corona_colour";
 
@@ -31,15 +34,24 @@ public sealed class Coronas
     // The light of each corona (for its light type), or null when the light list does not hold it.
     private readonly LightEntry?[] _lights;
 
-    public Coronas(RenderMap map, Node3D parent)
+    // Each corona's material on the screen-texture shader, and on the copies shader when the view has the effect.
+    private readonly List<(ShaderMaterial Screen, ShaderMaterial? Copies)> _materials = [];
+    private readonly CoronaSampleEffect? _samples;
+    private readonly List<CoronaSampleEffect.Sample> _drawn = [];
+    private bool _useCopies;
+
+    /// <param name="samples">The view's corona copies; without it the coronas always read the screen and depth textures.</param>
+    public Coronas(RenderMap map, Node3D parent, CoronaSampleEffect? samples = null)
     {
         ArgumentNullException.ThrowIfNull(map);
         ArgumentNullException.ThrowIfNull(parent);
         _map = map;
+        _samples = samples;
         var root = new Node3D { Name = "Coronas" };
         parent.AddChild(root);
-        var shader = GD.Load<Shader>(ShaderPath);
-        var materials = new Dictionary<string, ShaderMaterial>(StringComparer.Ordinal);
+        var shader = Materials.ResponsiveSmokeShaders.Load(ShaderPath);
+        Shader? copiesShader = samples is null ? null : Materials.ResponsiveSmokeShaders.Load(CopiesShaderPath);
+        var materials = new Dictionary<string, (ShaderMaterial Screen, ShaderMaterial? Copies)>(StringComparer.Ordinal);
         var quad = new QuadMesh { Size = Vector2.One };
         foreach (CoronaEntry c in map.Lighting.Coronas)
         {
@@ -48,18 +60,28 @@ public sealed class Coronas
                 continue;
             }
 
-            if (!materials.TryGetValue(c.Texture, out ShaderMaterial? material))
+            if (!materials.TryGetValue(c.Texture, out (ShaderMaterial Screen, ShaderMaterial? Copies) pair))
             {
-                material = new ShaderMaterial { Shader = shader };
+                var material = new ShaderMaterial { Shader = shader };
                 material.SetShaderParameter("corona_tex", texture);
-                materials[c.Texture] = material;
+                ShaderMaterial? copies = null;
+                if (samples is not null && copiesShader is not null)
+                {
+                    copies = new ShaderMaterial { Shader = copiesShader };
+                    copies.SetShaderParameter("corona_tex", texture);
+                    copies.SetShaderParameter("depth_tex", samples.Depth);
+                    copies.SetShaderParameter("scene_tex", samples.Scene);
+                }
+
+                pair = (material, copies);
+                materials[c.Texture] = pair;
             }
 
             var node = new MeshInstance3D
             {
                 Name = "Corona_" + c.Light,
                 Mesh = quad,
-                MaterialOverride = material,
+                MaterialOverride = pair.Screen,
                 Position = UeSpace.ToGodot(c.Location),
                 ExtraCullMargin = UeSpace.LengthToGodot(c.MaxSize * 2f),
                 Visible = false,
@@ -67,6 +89,17 @@ public sealed class Coronas
             };
             root.AddChild(node);
             _coronas.Add((c, node));
+            _materials.Add(pair);
+        }
+
+        if (samples is not null)
+        {
+            samples.UseCopies = UseCopies;
+            // Compile the copy pass and make its textures while the map loads, not at the first corona in play.
+            if (_coronas.Count > 0)
+            {
+                samples.Preload();
+            }
         }
 
         _fade = new float[_coronas.Count];
@@ -92,6 +125,7 @@ public sealed class Coronas
     [Provenance(ProvenanceKind.Decoded, "corona draw maths, game disassembly (bridge docs/EFFECTS.md, Coronas)")]
     public void Update(FVector camera, float delta, bool settle)
     {
+        _drawn.Clear();
         for (int i = 0; i < _coronas.Count; i++)
         {
             (CoronaEntry c, MeshInstance3D node) = _coronas[i];
@@ -118,12 +152,38 @@ public sealed class Coronas
             float half = Math.Clamp(baseSize * MathF.Max(c.Scale3D.X, c.Scale3D.Y), c.MinSize, c.MaxSize);
             float roll = ((s * c.Rotation01 * 16384f) + c.RotationOffset) * (MathF.Tau / 65536f);
             node.Visible = true;
-            node.SetInstanceShaderParameter(SizeParam, new Vector4(UeSpace.LengthToGodot(half), roll, 0f, 0f));
+            float halfMetres = UeSpace.LengthToGodot(half);
+            node.SetInstanceShaderParameter(SizeParam, new Vector4(halfMetres, roll, 0f, 0f));
             // Estimated (the corona colour's source is not decoded): the corona follows the light's FDynamicLight colour,
             // which carries its light type, so a pulsing or flickering light's corona pulses and flickers with it.
             float m = _lights[i] is { } light ? WorldLights.Modulation(light, _map.Time) : 1f;
             Color k = c.Colour * (0.5f * fade * m * RenderK.CoronaStageGain);
             node.SetInstanceShaderParameter(ColourParam, new Vector4(k.R, k.G, k.B, 1f));
+            if (node.IsInsideTree())
+            {
+                _drawn.Add(new CoronaSampleEffect.Sample(node.GlobalPosition, halfMetres));
+            }
+        }
+
+        _samples?.Publish(System.Runtime.InteropServices.CollectionsMarshal.AsSpan(_drawn));
+    }
+
+    // Before each frame, from the view's CoronaSampleEffect: draw with the copies shader while its copies match the frame.
+    private void UseCopies(bool on)
+    {
+        if (on == _useCopies)
+        {
+            return;
+        }
+
+        _useCopies = on;
+        for (int i = 0; i < _coronas.Count; i++)
+        {
+            MeshInstance3D node = _coronas[i].Node;
+            if (GodotObject.IsInstanceValid(node))
+            {
+                node.MaterialOverride = on && _materials[i].Copies is { } copies ? copies : _materials[i].Screen;
+            }
         }
     }
 
