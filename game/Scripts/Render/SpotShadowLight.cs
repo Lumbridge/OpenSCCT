@@ -297,7 +297,7 @@ public sealed partial class SpotShadowLight : IDisposable
             {
                 Name = "StaticLightCamera", KeepAspect = _camera.KeepAspect, Near = near, Far = far,
                 Projection = _camera.Projection, Size = _camera.Size,
-                CullMask = RenderLayers.StaticWorld | RenderLayers.ShadowPass,
+                CullMask = RenderLayers.StaticWorldAll | RenderLayers.ShadowPass,
                 Environment = FaithfulView.CreateEnvironment(), Attributes = FaithfulView.CreateAttributes(),
                 Compositor = new Compositor { CompositorEffects = new Godot.Collections.Array<CompositorEffect> { _staticCapture } },
                 Current = true,
@@ -567,7 +567,7 @@ public sealed partial class SpotShadowLight : IDisposable
 
             // Only the merged map geometry is fixed (RenderLayers.StaticWorld, the static cache's own premise): anything
             // else may move, animate or change its material.
-            if (layers != RenderLayers.StaticWorld)
+            if ((layers & ~RenderLayers.StaticWorldAll) != 0)
             {
                 return null;
             }
@@ -677,6 +677,53 @@ public sealed partial class SpotShadowLight : IDisposable
         slot < 0 || slot >= Math.Min(s_slots.Length, BitSlots) || s_rowValues[(slot * SlotTexels) + 3].X < 0.5f
             ? Vector4.Zero : s_rowValues[(slot * SlotTexels) + 8];
 
+    /// <summary>
+    /// The template's own tests of a slot (svm_spot_slot: the lit span along the light's axis and the sides of its
+    /// frustum) against a world box: false only when no point of the box passes them all, so the slot adds exactly
+    /// nothing anywhere in it. Tighter than <see cref="ReachSphere"/>, which holds the whole frustum.
+    /// </summary>
+    internal static bool ReachesBox(int slot, in Aabb box)
+    {
+        if (slot < 0 || slot >= Math.Min(s_slots.Length, BitSlots)) return false;
+        int at = slot * SlotTexels;
+        Vector4 r0 = s_rowValues[at], r1 = s_rowValues[at + 1], r2 = s_rowValues[at + 2];
+        Vector4 a = s_rowValues[at + 3], c = s_rowValues[at + 4], f = s_rowValues[at + 5];
+        float near = c.W, far = c.W + a.Y;
+        if (!float.IsFinite(r0.X + r0.Y + r0.Z + r0.W + r1.X + r1.Y + r1.Z + r1.W + r2.X + r2.Y + r2.Z + r2.W + near + far + f.X + f.Y)) return true;
+        bool parallel = f.Z > 0.5f;
+        // A point is lit only where all six are above zero; each is linear, so its largest value over the box is at a corner.
+        Span<float> best = stackalloc float[6];
+        best.Fill(float.NegativeInfinity);
+        Vector3 min = box.Position, max = box.End;
+        for (int corner = 0; corner < 8; corner++)
+        {
+            var p = new Vector3((corner & 1) != 0 ? max.X : min.X, (corner & 2) != 0 ? max.Y : min.Y, (corner & 4) != 0 ? max.Z : min.Z);
+            float x = (r0.X * p.X) + (r0.Y * p.Y) + (r0.Z * p.Z) + r0.W;
+            float y = (r1.X * p.X) + (r1.Y * p.Y) + (r1.Z * p.Z) + r1.W;
+            float z = -((r2.X * p.X) + (r2.Y * p.Y) + (r2.Z * p.Z) + r2.W);
+            float side = parallel ? 1f : z;
+            best[0] = MathF.Max(best[0], z - near);
+            best[1] = MathF.Max(best[1], far - z);
+            best[2] = MathF.Max(best[2], side - (x * f.X));
+            best[3] = MathF.Max(best[3], side + (x * f.X));
+            best[4] = MathF.Max(best[4], side - (y * f.Y));
+            best[5] = MathF.Max(best[5], side + (y * f.Y));
+        }
+
+        // A margin for the rounding of the template's own arithmetic on the GPU.
+        float margin = 0.01f + (1e-4f * MathF.Abs(far)) * MathF.Max(1f, MathF.Max(MathF.Abs(f.X), MathF.Abs(f.Y)));
+        foreach (float value in best)
+        {
+            if (value < -margin) return false;
+        }
+
+        return true;
+    }
+
+    /// <summary>The zone a slot's light is limited to (row 7 x), or below 0 when it lights every zone.</summary>
+    internal static float OwnZone(int slot) =>
+        slot < 0 || slot >= Math.Min(s_slots.Length, BitSlots) ? -1f : s_rowValues[(slot * SlotTexels) + 7].X;
+
     /// <summary>The slots <see cref="ReachSphere"/> reads.</summary>
     internal const int ReachSlots = RenderK.SpotShadowSlots;
 
@@ -720,7 +767,7 @@ public sealed partial class SpotShadowLight : IDisposable
         if (count != s_lastCount)
         {
             s_lastCount = count;
-            RenderingServer.GlobalShaderParameterSet(s_countName, count);
+            ShaderGlobals.Set(s_countName, count);
         }
 
         // The template's slot loop visits only the slots below the count that row 3 marks on, as its own tests do.
@@ -742,7 +789,7 @@ public sealed partial class SpotShadowLight : IDisposable
         if (bits != s_lastBits)
         {
             s_lastBits = bits;
-            RenderingServer.GlobalShaderParameterSet(s_bitsName, bits);
+            ShaderGlobals.Set(s_bitsName, bits);
         }
     }
 
@@ -754,22 +801,22 @@ public sealed partial class SpotShadowLight : IDisposable
             s_rows = Image.CreateEmpty(SlotTexels, RenderK.SpotShadowSlots, false, Image.Format.Rgbaf);
             s_rowsTexture = ImageTexture.CreateFromImage(s_rows);
             s_noDepth = ImageTexture.CreateFromImage(Image.CreateEmpty(1, 1, false, Image.Format.Rf));
-            RenderingServer.GlobalShaderParameterAdd(ParamSlots, RenderingServer.GlobalShaderParameterType.Sampler2D, s_rowsTexture);
-            RenderingServer.GlobalShaderParameterAdd(ParamCount, RenderingServer.GlobalShaderParameterType.Int, 0);
-            RenderingServer.GlobalShaderParameterAdd(ParamDepth, RenderingServer.GlobalShaderParameterType.Sampler2D, s_noDepth);
-            RenderingServer.GlobalShaderParameterAdd(ParamCookies, RenderingServer.GlobalShaderParameterType.Sampler2Darray, Cookies());
-            RenderingServer.GlobalShaderParameterAdd(ParamAttenuation, RenderingServer.GlobalShaderParameterType.Sampler2D, Ramps(null));
+            ShaderGlobals.Add(ParamSlots, RenderingServer.GlobalShaderParameterType.Sampler2D, s_rowsTexture);
+            ShaderGlobals.Add(ParamCount, RenderingServer.GlobalShaderParameterType.Int, 0);
+            ShaderGlobals.Add(ParamDepth, RenderingServer.GlobalShaderParameterType.Sampler2D, s_noDepth);
+            ShaderGlobals.Add(ParamCookies, RenderingServer.GlobalShaderParameterType.Sampler2Darray, Cookies());
+            ShaderGlobals.Add(ParamAttenuation, RenderingServer.GlobalShaderParameterType.Sampler2D, Ramps(null));
             s_ignore = Image.CreateEmpty(RenderK.SpotShadowSlots, 1, false, Image.Format.Rf);
             s_ignoreTexture = ImageTexture.CreateFromImage(s_ignore);
-            RenderingServer.GlobalShaderParameterAdd(ParamIgnore, RenderingServer.GlobalShaderParameterType.Sampler2D, s_ignoreTexture);
-            RenderingServer.GlobalShaderParameterAdd(ParamBits, RenderingServer.GlobalShaderParameterType.Int, 0);
+            ShaderGlobals.Add(ParamIgnore, RenderingServer.GlobalShaderParameterType.Sampler2D, s_ignoreTexture);
+            ShaderGlobals.Add(ParamBits, RenderingServer.GlobalShaderParameterType.Int, 0);
             RenderingServer.FramePreDraw += RefreshShadowPasses;
             s_globalsAdded = true;
         }
 
         if (pack is not null)
         {
-            RenderingServer.GlobalShaderParameterSet(ParamAttenuation, Ramps(pack));
+            ShaderGlobals.Set(ParamAttenuation, Ramps(pack));
         }
     }
 
@@ -820,7 +867,7 @@ public sealed partial class SpotShadowLight : IDisposable
         {
             s_ignore = image;
             s_ignoreTexture = ImageTexture.CreateFromImage(image);
-            RenderingServer.GlobalShaderParameterSet(ParamIgnore, s_ignoreTexture);
+            ShaderGlobals.Set(ParamIgnore, s_ignoreTexture);
         }
     }
 
@@ -871,7 +918,7 @@ public sealed partial class SpotShadowLight : IDisposable
         image.Resize(RenderK.SpotCookieSize, RenderK.SpotCookieSize, Image.Interpolation.Bilinear);
         s_cookies.Add(image);
         s_cookieLayers.Add(cookie, s_cookies.Count);
-        RenderingServer.GlobalShaderParameterSet(s_cookiesName, Cookies());
+        ShaderGlobals.Set(s_cookiesName, Cookies());
         return s_cookies.Count;
     }
 
@@ -951,7 +998,7 @@ public sealed partial class SpotShadowLight : IDisposable
         if (atlas.IsValid && s_atlasTexture.TextureRdRid != atlas)
         {
             s_atlasTexture.TextureRdRid = atlas;
-            RenderingServer.GlobalShaderParameterSet(s_depthName, s_atlasTexture);
+            ShaderGlobals.Set(s_depthName, s_atlasTexture);
         }
     }
 
@@ -990,14 +1037,14 @@ public sealed partial class SpotShadowLight : IDisposable
     {
         if (s_noDepth is not null)
         {
-            RenderingServer.GlobalShaderParameterSet(s_depthName, s_noDepth);
+            ShaderGlobals.Set(s_depthName, s_noDepth);
         }
 
         s_atlasTexture.TextureRdRid = default;
         s_cookieLayers.Clear();
         foreach (Image image in s_cookies) image.Dispose();
         s_cookies.Clear();
-        RenderingServer.GlobalShaderParameterSet(s_cookiesName, Cookies());
+        ShaderGlobals.Set(s_cookiesName, Cookies());
         Rid atlas = s_atlas;
         Rid staticAtlas = s_staticAtlas;
         s_atlas = default;

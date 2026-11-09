@@ -118,7 +118,7 @@ internal static class FoggedSkyZone
     /// <summary>The sky-layer meshes under <paramref name="node"/>; false when the sky layer holds anything else.</summary>
     private static bool CollectSkyMeshes(RenderMap map, Node node, List<MeshInstance3D> meshes)
     {
-        if (node is VisualInstance3D visual && (visual.Layers & RenderLayers.Sky) != 0)
+        if (node is VisualInstance3D visual && (visual.Layers & RenderLayers.SkyAll) != 0)
         {
             if (visual is not MeshInstance3D mesh || !IsPlainOpaque(map, mesh))
             {

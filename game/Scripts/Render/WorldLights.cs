@@ -90,8 +90,8 @@ public sealed class WorldLights
         _written = new bool[_packed.Length];
         _texture = ImageTexture.CreateFromImage(_image);
         EnsureGlobals();
-        RenderingServer.GlobalShaderParameterSet(ZoneAmbientParameter, ZoneAmbientTexture(lighting));
-        RenderingServer.GlobalShaderParameterSet(ZoneAmbientGainParameter,
+        ShaderGlobals.Set(ZoneAmbientParameter, ZoneAmbientTexture(lighting));
+        ShaderGlobals.Set(ZoneAmbientGainParameter,
             new Vector2(RenderK.ZoneAmbientLightmapGain, RenderK.ZoneAmbientVertexGain));
     }
 
@@ -134,7 +134,7 @@ public sealed class WorldLights
     {
         EnsureGlobals();
         Tune = tune;
-        RenderingServer.GlobalShaderParameterSet(TuneParameter, tune);
+        ShaderGlobals.Set(TuneParameter, tune);
     }
 
     /// <summary>The calibration in use (process wide, like the global shader parameter it feeds).</summary>
@@ -200,6 +200,14 @@ public sealed class WorldLights
     /// <summary>The rows of the lights spawned this frame (<see cref="SetSpawned"/>), as the template reads them.</summary>
     internal ReadOnlySpan<PackedLight> SpawnedRows =>
         _lastRows < 0 ? default : _packed.AsSpan(_lastMapRows, _lastRows - _lastMapRows);
+
+    /// <summary>
+    /// Every row of the light texture as the template reads it this frame (map lights that give light, then the spawned
+    /// ones), and each row's own zone (below 0: every zone), as of the last <see cref="Update"/>.
+    /// </summary>
+    internal ReadOnlySpan<PackedLight> Rows => _lastRows < 0 ? default : _packed.AsSpan(0, _lastRows);
+
+    internal ReadOnlySpan<float> RowZones => _lastRows < 0 ? default : _zones.AsSpan(0, _lastRows);
 
     /// <summary>Lights spawned during play now drawn (after the map's own).</summary>
     public int SpawnedCount => _spawned.Count;
@@ -274,7 +282,7 @@ public sealed class WorldLights
         {
             // The same texture every frame (only its pixels change): set once, a texture variant is a finalizable wrapper.
             _textureSet = true;
-            RenderingServer.GlobalShaderParameterSet(s_textureName, _texture);
+            ShaderGlobals.Set(s_textureName, _texture);
         }
 
         if (cellsDirty || mapRows != _lastMapRows)
@@ -286,7 +294,7 @@ public sealed class WorldLights
         if (rows != _lastRows)
         {
             _lastRows = rows;
-            RenderingServer.GlobalShaderParameterSet(s_countName, rows);
+            ShaderGlobals.Set(s_countName, rows);
         }
     }
 
@@ -355,13 +363,13 @@ public sealed class WorldLights
         if (_cellTexture is null)
         {
             _cellTexture = ImageTexture.CreateFromImage(_cellImage);
-            RenderingServer.GlobalShaderParameterSet(s_cellTextureName, _cellTexture);
+            ShaderGlobals.Set(s_cellTextureName, _cellTexture);
         }
         else
         {
             _cellTexture.Update(_cellImage);
         }
-        RenderingServer.GlobalShaderParameterSet(s_cellTransformName, new Vector4(min.X, min.Y, scale.X, scale.Y));
+        ShaderGlobals.Set(s_cellTransformName, new Vector4(min.X, min.Y, scale.X, scale.Y));
         SetIndexedRows(rows);
     }
 
@@ -370,7 +378,7 @@ public sealed class WorldLights
         if (_indexedRows != rows)
         {
             _indexedRows = rows;
-            RenderingServer.GlobalShaderParameterSet(s_indexedRowsName, rows);
+            ShaderGlobals.Set(s_indexedRowsName, rows);
         }
     }
 
@@ -462,17 +470,17 @@ public sealed class WorldLights
         }
 
         Image empty = Image.CreateEmpty(4, 1, false, Image.Format.Rgbaf);
-        RenderingServer.GlobalShaderParameterAdd(TextureParameter, RenderingServer.GlobalShaderParameterType.Sampler2D,
+        ShaderGlobals.Add(TextureParameter, RenderingServer.GlobalShaderParameterType.Sampler2D,
             ImageTexture.CreateFromImage(empty));
-        RenderingServer.GlobalShaderParameterAdd(CountParameter, RenderingServer.GlobalShaderParameterType.Int, 0);
-        RenderingServer.GlobalShaderParameterAdd(s_cellTextureName, RenderingServer.GlobalShaderParameterType.Sampler2D,
+        ShaderGlobals.Add(CountParameter, RenderingServer.GlobalShaderParameterType.Int, 0);
+        ShaderGlobals.Add(s_cellTextureName, RenderingServer.GlobalShaderParameterType.Sampler2D,
             ImageTexture.CreateFromImage(empty));
-        RenderingServer.GlobalShaderParameterAdd(s_cellTransformName, RenderingServer.GlobalShaderParameterType.Vec4, Vector4.Zero);
-        RenderingServer.GlobalShaderParameterAdd(s_indexedRowsName, RenderingServer.GlobalShaderParameterType.Int, 0);
-        RenderingServer.GlobalShaderParameterAdd(TuneParameter, RenderingServer.GlobalShaderParameterType.Vec4, DefaultTune);
-        RenderingServer.GlobalShaderParameterAdd(ZoneAmbientParameter, RenderingServer.GlobalShaderParameterType.Sampler2D,
+        ShaderGlobals.Add(s_cellTransformName, RenderingServer.GlobalShaderParameterType.Vec4, Vector4.Zero);
+        ShaderGlobals.Add(s_indexedRowsName, RenderingServer.GlobalShaderParameterType.Int, 0);
+        ShaderGlobals.Add(TuneParameter, RenderingServer.GlobalShaderParameterType.Vec4, DefaultTune);
+        ShaderGlobals.Add(ZoneAmbientParameter, RenderingServer.GlobalShaderParameterType.Sampler2D,
             ImageTexture.CreateFromImage(Image.CreateEmpty(256, 1, false, Image.Format.Rgbaf)));
-        RenderingServer.GlobalShaderParameterAdd(ZoneAmbientGainParameter, RenderingServer.GlobalShaderParameterType.Vec2, Vector2.Zero);
+        ShaderGlobals.Add(ZoneAmbientGainParameter, RenderingServer.GlobalShaderParameterType.Vec2, Vector2.Zero);
         s_globalsAdded = true;
     }
 }

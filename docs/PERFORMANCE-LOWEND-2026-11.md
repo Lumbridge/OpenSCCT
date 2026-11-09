@@ -231,6 +231,60 @@ What the table says:
 2. **Staying inside Godot's frame costs about 1.3 ms at 1440p**: the tonemap pass (0.85 ms) and the wider colour buffer under our pass (1.59 against 1.21 ms). That is all a full replacement of Godot's 3D can still win over the in-frame world pass, in exchange for rewriting characters, particles, effects, vision modes, post and the capture tools.
 3. **Most of the time is in work that is ours either way.** The world's real shading costs 1.8 ms more than the trivial one on SteeE and 10.8 ms more on AquaE (Forward+'s pre-pass and opaque pass against the in-frame run's). Then the post chain (1.7–3.0 ms), the spot shadow viewports (3.7 ms), rain (1.8 ms) and presentation. Porting `svm_world` to GLSL with the same variant matrix would carry its cost over unchanged.
 
+## The world pass (`SVM_RD_WORLD=1`, 2026-11-09)
+
+Step 1 of the plan above, built: the merged map and the sky zone's solid surfaces are drawn by our own pass inside Godot's frame, with the template's real lighting, shadows lookups and fog. It is off unless `SVM_RD_WORLD=1` is set. Code: `game/Scripts/Render/Rd/`.
+
+UHD 770, 2560×1440, off-screen, build `build-w14`:
+
+| View | Forward+ FPS (1% low) | World pass FPS (1% low) | Forward+ GPU ms | World pass GPU ms |
+|---|---:|---:|---:|---:|
+| SteeE gameplay camera (player, HUD) | 93.8 (80.6) | 107.9 (93.0) | 7.10 | 5.59 |
+| SteeE spy spawn | 100.9 (83.6) | 119.4 (104.8) | 6.85 | 5.28 |
+| SteeE shop | 69.6 (61.2) | 76.2 (69.1) | 11.23 | 9.99 |
+| SteeE courtyard | 75.5 (63.1) | 100.5 (84.5) | 10.12 | 6.84 |
+| SteeE crane | 81.9 (72.5) | 109.2 (91.3) | 9.07 | 6.10 |
+| AquaE gameplay camera (player, HUD) | 36.4 (33.4) | 51.8 (46.7) | 23.52 | 15.17 |
+| AquaE spawn | 37.7 (33.9) | 56.0 (49.6) | 23.32 | 14.71 |
+| AquaE spawn, MSAA on | 31.2 | 43.5 | 28.89 | 19.81 |
+
+The world itself (Godot's depth pre-pass and opaque pass before, our pass plus what Godot still draws after): SteeE 4.07 → 2.53 ms, AquaE 14.65 → 6.29 ms, of which our pass is 1.85 and 3.69 ms. **The gate of 3 ms on AquaE is missed by 0.7 ms**; portal fog is 1.4 ms of it (below).
+
+**Same pixels.** With both renderers held at 30 FPS (so time-driven content is in step), the five views match Forward+ to within one 8-bit level, apart from single pixels on edges where a surface of ours meets one of Godot's (at most 0.03 % of a frame differ by more than 2 levels). Uncapped runs differ in the rain and the animated signs only because they are captured at different times. With MSAA 1.2 % of pixels differ by a level or two; not looked into.
+
+### How it draws
+
+- **The template itself.** `GdShaderTranslator` turns each material's Godot shader code (the defines and `svm_world.gdshaderinc` with its includes) into GLSL 450: the preprocessor conditionals are resolved, global parameters become one std140 block and combined samplers, material uniforms a second block, instance uniforms their defaults, varyings stage inputs and outputs, and `vertex()` and `fragment()` run inside a `main()` that supplies Godot's built-ins. There is one source for both renderers, so a change to the template reaches both. Engine free; a shader it cannot carry leaves that surface with Godot.
+- **Global parameters.** `ShaderGlobals` wraps `GlobalShaderParameterSet`/`Add` (Godot gives the values back only in the editor) and gives every parameter a fixed place in the block. The pass reads the values at draw time, after every pre-draw handler has run. This relies on Godot's default thread model.
+- **Which surfaces.** Solid and masked buckets of the merged cells whose normal-vision twin translates. Blended surfaces, authored materials, material sequences and masked materials with animated shadows stay with Godot (SteeE 34 of 324 buckets, AquaE 16 of 385). Taken buckets keep a Godot mesh on layers of their own (`StaticWorldRd`, `SkyRd`): the shadow cameras draw it, and the main view draws it whenever the pass sits out.
+- **When it sits out.** Thermal and EMF, responsive smoke compiled in, maps with an outdoor sky, and after any failure of the pass. Godot then draws everything, as before.
+- **Geometry as Godot packs it.** Normals octahedral in 16 bits, colours cut to bytes, so vertex data is bit for bit what Godot's own meshes hold.
+- **Frame.** One draw list: our own depth pre-pass for the solid world, then colour front to back. A clip position computed by one expression in both (`invariant`) lets the colour pass find its own depth.
+
+### What makes it faster than Forward+ with the same shading
+
+A shader that holds more code shades slower on this GPU whether or not the code runs: with the spot code compiled in but never run, AquaE's world pass cost 3.2 ms more. So every draw gets the smallest shader that draws the same pixels, chosen each frame on the CPU:
+
+| Step | AquaE world pass ms | SteeE world pass ms |
+|---|---:|---:|
+| Template as it is, no depth pre-pass | 15.63 | 3.80 |
+| Own depth pre-pass | 10.40 | 2.44 |
+| Spot slots tested by their frustum and own zone, not their sphere | 8.88 | 2.27 |
+| Draws cut into 8 m blocks | 4.90 | 1.86 |
+| Dynamic lights tested per row (radius, cone, own zone), rows handed to the draw as a mask | 3.62 | 1.78 |
+| No light state, no spot, neither; with or without portal fog | 3.69 | 1.85 |
+
+- MapBuilder's cells are 4096 uu (78 m) wide, so one material's draw touched most lights of the map. 8 m blocks (`SVM_RD_WORLD_BLOCK`) keep the costly variants to surfaces a light can reach. 4 m blocks draw the world in 3.14 ms on AquaE but cost more CPU; frame rate is the same.
+- Tried and removed, no gain: variants without the flare term (0.1 ms), without the window pane filter (0), and portal fog without its crossings chosen per draw from the fog tiles (0: a block near the camera covers too many tiles).
+- **Shaders at load.** Each material's shader in its three light states, with and without portal fog, is compiled in the first frame: 35 shaders on SteeE, 61 on AquaE. The first load of a map on a machine takes 0.4–6.5 s for this (12 s with MSAA); the SPIR-V is cached in the user folder (`rd_shaders`), and later loads take 0.15–0.3 s. Nothing compiles during play.
+
+### Open
+
+- **Portal fog, 1.4 ms on AquaE.** Its cost is its code's presence in every draw. Forcing the plain variant on every draw gives 2.5 ms (wrong picture). Choosing it per screen tile needs a stencil mask and each draw recorded twice.
+- **Not exercised:** thermal and EMF switching, responsive smoke rounds, window resize, leaving a map, other maps. Only SteeE and AquaE captures were run, in normal vision.
+- **The rest of the frame is unchanged:** spot shadow viewports (3.7 ms on AquaE), the post chain (1.7–3.0 ms), rain (1.8 ms), presentation.
+- Measurement switches: `SVM_RD_WORLD_STATS=1`, `SVM_RD_WORLD_OUT`/`_IN` (force features out or in), `SVM_RD_WORLD_TIGHT=0`, `SVM_RD_WORLD_DYNBITS=0`, `SVM_RD_WORLD_PREPASS=0`, `SVM_RD_WORLD_CACHE=0`, `SVM_RD_WORLD_LEAVE=name,…`, `SVM_RD_DUMP=folder`.
+
 ## The target
 
 - 240 FPS at 1440p on this PC leaves 0.8 ms for the whole game on stock Godot (presentation floor above). No renderer fits a lit world, shadows, characters, effects and post in that.
@@ -245,7 +299,7 @@ Building our own renderer on RenderingDevice stays the direction for the map: Go
 - **Fallback is per cell and per frame.** A cell the world pass cannot draw exactly stays on Godot's layer (as cells with animated shadows do now), and thermal, EMF or any unsupported state turns the pass off for that frame. Each map can ship as soon as it matches, compared against Forward+ in the same process.
 - **Lighting is designed for cost, not translated.** The original lights a surface with what reaches that surface. The world pass gets per-draw light lists (which spot slots, which dynamic lights, which fog) chosen on the CPU, with pipelines specialised by count, so a pixel that no spot reaches runs no spot code. Vertex fog where the original's fog is per vertex.
 - **Order: the hard case first.**
-  1. AquaE with its real lighting, shadows lookups and fog in the world pass. Gate: world pass at or under 3 ms at 1440p on the UHD 770 with a picture matching Forward+. If the lighting cannot be made that cheap, no renderer reaches the target and the lighting model is the work.
+  1. AquaE with its real lighting, shadows lookups and fog in the world pass. Gate: world pass at or under 3 ms at 1440p on the UHD 770 with a picture matching Forward+. If the lighting cannot be made that cheap, no renderer reaches the target and the lighting model is the work. **Built (see "The world pass"): 3.7 ms with the same pixels, 0.7 ms over the gate; portal fog is the part left.**
   2. Spot shadow depth from our own depth-only passes over the same buffers, replacing the SubViewports (3.7 ms on AquaE). Godot draws only the moving casters.
   3. The post chain: one fused full-screen pass where there are two or three now (1.7–3.0 ms plus the tonemap).
   4. Per-map parity and release behind a setting, Forward+ as the fallback.

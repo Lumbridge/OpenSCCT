@@ -141,7 +141,7 @@ public partial class GameplayFxWarmup : SubViewport
         {
             Node node = pending.Pop();
             // Sky zone materials shade as the sky camera, which never sees responsive smoke.
-            if (node is MeshInstance3D { Mesh: { } mesh } instance && (instance.Layers & RenderLayers.Sky) == 0)
+            if (node is MeshInstance3D { Mesh: { } mesh } instance && (instance.Layers & RenderLayers.SkyAll) == 0)
                 for (int surface = 0; surface < mesh.GetSurfaceCount() && shaders.Count < 4; surface++)
                     if (instance.GetActiveMaterial(surface) is ShaderMaterial { Shader: { } shader } material
                         && shaders.Add(shader.GetInstanceId()))

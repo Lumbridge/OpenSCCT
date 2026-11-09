@@ -19,8 +19,8 @@ public sealed class WindowLightFilter
         using var empty = Image.CreateEmpty(4, 1, false, Image.Format.Rgbaf);
         texture = ImageTexture.CreateFromImage(empty);
         EnsureGlobals();
-        RenderingServer.GlobalShaderParameterSet(TextureName, texture);
-        RenderingServer.GlobalShaderParameterSet(CountName, 0);
+        ShaderGlobals.Set(TextureName, texture);
+        ShaderGlobals.Set(CountName, 0);
     }
 
     public static void EnsureGlobals()
@@ -28,8 +28,8 @@ public sealed class WindowLightFilter
         if (!registered)
         {
             using var empty = Image.CreateEmpty(4, 1, false, Image.Format.Rgbaf);
-            RenderingServer.GlobalShaderParameterAdd(TextureName, RenderingServer.GlobalShaderParameterType.Sampler2D, ImageTexture.CreateFromImage(empty));
-            RenderingServer.GlobalShaderParameterAdd(CountName, RenderingServer.GlobalShaderParameterType.Int, 0);
+            ShaderGlobals.Add(TextureName, RenderingServer.GlobalShaderParameterType.Sampler2D, ImageTexture.CreateFromImage(empty));
+            ShaderGlobals.Add(CountName, RenderingServer.GlobalShaderParameterType.Int, 0);
             registered = true;
         }
     }
@@ -60,7 +60,7 @@ public sealed class WindowLightFilter
             }
         }
         texture.SetImage(image);
-        RenderingServer.GlobalShaderParameterSet(TextureName, texture);
-        RenderingServer.GlobalShaderParameterSet(CountName, count);
+        ShaderGlobals.Set(TextureName, texture);
+        ShaderGlobals.Set(CountName, count);
     }
 }

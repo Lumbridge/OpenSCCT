@@ -279,6 +279,9 @@ public sealed class RenderMap
     /// <summary>SVM_RD_PROTO only: the merged cell geometry for the RenderingDevice prototype, else null.</summary>
     internal OpenScctGame.Render.RdProto.RdProtoGeometry? RdGeometry { get; set; }
 
+    /// <summary>SVM_RD_WORLD=1: the merged geometry the world pass on the RenderingDevice draws (Rd/RdWorldRenderer).</summary>
+    internal Rd.RdWorldGeometry? RdWorld { get; set; }
+
     public List<string> Warnings { get; } = [];
 
     /// <summary>Gameplay mesh actors by actor id (movers, SGamePlayObjects, switches...).</summary>
@@ -507,8 +510,10 @@ public static class MapBuilder
         LoadTimer.Mark("build.actors");
         // SVM_RD_PROTO: copy the merged cell geometry out for the RenderingDevice prototype (RdProto/RdProtoRenderer).
         map.RdGeometry = RdProto.RdProtoGeometry.Enabled ? new RdProto.RdProtoGeometry() : null;
+        map.RdWorld = Rd.RdWorldGeometry.Enabled ? new Rd.RdWorldGeometry(map.Compiler) : null;
         new Builder(map, glb, options).Run();
         map.RdGeometry?.Finish();
+        map.RdWorld?.Finish();
         OutdoorScenery.Build(map);
         OutdoorGroundcover.Build(map);
         LoadTimer.Mark("build.outdoor");
@@ -1482,6 +1487,10 @@ public static class MapBuilder
                 // cell with an animated shadow material goes on the World layer, so it stays with Godot, whole.
                 bool keptByGodot = RdProto.RdProtoGeometry.InFrame && cell.sky == 0 && drawn.Exists(d => AnimatesShadow(d.Material));
                 var surfaces = new List<(SurfaceBuilder Surface, Material Material, LightReach.Twins Twins, bool Split)>(MaxSurfacesPerMesh);
+                // The buckets the world pass draws get meshes of their own, on its layers (RdWorldGeometry).
+                var rdSurfaces = new List<(SurfaceBuilder Surface, Material Material, LightReach.Twins Twins, bool Split)>();
+                uint rdLayer = cell.sky != 0 ? RenderLayers.SkyRd : RenderLayers.StaticWorldRd;
+                int rdPart = 0;
                 foreach (((string, LightSource, VisionPass) key, Material material, LightReach.Twins twins, SurfaceBuilder b) in drawn)
                 {
                     if (b.TriangleCount == 0)
@@ -1502,8 +1511,20 @@ public static class MapBuilder
                         !(entry.Sequences.TryGetValue("diffuse", out var sequence) && sequence.SwitchMaterial);
                     // Sky cells split the other way: each transparent surface gets a node of its own (FlushCellPart).
                     bool split = cell.sky == 0 ? key.Item3 != VisionPass.SeeThrough && material.NextPass is null && solid : !solid;
-                    surfaces.Add((b, material, twins, split));
                     _map.Stats.Vertices += b.VertexCount;
+                    if (_map.RdWorld is { } rdWorld && !AnimatesShadow(material) && rdWorld.TryAdd(cell, key.Item1, key.Item2, entry, b))
+                    {
+                        if (rdSurfaces.Count == MaxSurfacesPerMesh)
+                        {
+                            FlushCellPart(rdSurfaces, CellPartName(baseName + "_Rd", rdPart++), cell.sky != 0, rdLayer: rdLayer);
+                            rdSurfaces.Clear();
+                        }
+
+                        rdSurfaces.Add((b, material, twins, split));
+                        continue;
+                    }
+
+                    surfaces.Add((b, material, twins, split));
                     if (!keptByGodot)
                     {
                         _map.RdGeometry?.Add(cell, key.Item2, material, entry, b, _map.Textures);
@@ -1511,6 +1532,7 @@ public static class MapBuilder
                 }
 
                 FlushCellPart(surfaces, CellPartName(baseName, part), cell.sky != 0, keptByGodot);
+                FlushCellPart(rdSurfaces, CellPartName(baseName + "_Rd", rdPart), cell.sky != 0, rdLayer: rdLayer);
             }
         }
 
@@ -1541,7 +1563,7 @@ public static class MapBuilder
         private static bool AnimatesShadow(Material material) =>
             material is ShaderMaterial { Shader: { } shader } && shader.HasMeta("svm_shadow_animated") && shader.GetMeta("svm_shadow_animated").AsBool();
 
-        private void FlushCellPart(List<(SurfaceBuilder Surface, Material Material, LightReach.Twins Twins, bool Split)> surfaces, string name, bool sky, bool worldLayer = false)
+        private void FlushCellPart(List<(SurfaceBuilder Surface, Material Material, LightReach.Twins Twins, bool Split)> surfaces, string name, bool sky, bool worldLayer = false, uint rdLayer = 0)
         {
             if (surfaces.Count == 0)
             {
@@ -1571,7 +1593,7 @@ public static class MapBuilder
                 }
             }
 
-            uint layer = sky ? RenderLayers.Sky : animatedShadow ? RenderLayers.World : RenderLayers.StaticWorld;
+            uint layer = rdLayer != 0 ? rdLayer : sky ? RenderLayers.Sky : animatedShadow ? RenderLayers.World : RenderLayers.StaticWorld;
             if (sky && bounded.Count != 0)
             {
                 // The sky camera sorted a cell's transparent surfaces by the cell's box and, at that one distance, in

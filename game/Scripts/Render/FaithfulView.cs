@@ -273,7 +273,7 @@ public partial class FaithfulView : Node3D
             Far = Camera.Far,
             Environment = CreateEnvironment(),
             Attributes = CreateAttributes(),
-            CullMask = RenderLayers.Sky,
+            CullMask = RenderLayers.SkyAll,
             Current = true,
         };
         _skyViewport.AddChild(_skyCamera);
@@ -336,7 +336,7 @@ public partial class FaithfulView : Node3D
 
     private void CollectSky(Node node)
     {
-        if (node is GeometryInstance3D geometry && (geometry.Layers & RenderLayers.Sky) != 0)
+        if (node is GeometryInstance3D geometry && (geometry.Layers & RenderLayers.SkyAll) != 0)
         {
             geometry.ExtraCullMargin = SkyCullMargin;
             geometry.IgnoreOcclusionCulling = true;
@@ -414,8 +414,8 @@ public partial class FaithfulView : Node3D
         }
 
         Materials.MaterialCompiler.EnsureGlobals();
-        RenderingServer.GlobalShaderParameterSet(s_skyOriginName, _skyOrigin);
-        RenderingServer.GlobalShaderParameterSet(s_skyLayersName, (int)SkyLayers);
+        ShaderGlobals.Set(s_skyOriginName, _skyOrigin);
+        ShaderGlobals.Set(s_skyLayersName, (int)SkyLayers);
     }
 
     /// <summary>
@@ -849,7 +849,7 @@ public partial class FaithfulView : Node3D
 
         if (_skyMerged)
         {
-            Camera.CullMask = sceneVision ? Camera.CullMask & ~RenderLayers.Sky : Camera.CullMask | RenderLayers.Sky;
+            Camera.CullMask = sceneVision ? Camera.CullMask & ~RenderLayers.SkyAll : Camera.CullMask | RenderLayers.SkyAll;
         }
 
         if (_skyViewport is not null)

@@ -89,10 +89,10 @@ public sealed class SurfaceFogRegistry : IDisposable
         using var empty = Image.CreateEmpty(TextureWidth, 1, false, Image.Format.Rgbaf);
         empty.Fill(Colors.Transparent);
         s_texture = ImageTexture.CreateFromImage(empty);
-        RenderingServer.GlobalShaderParameterAdd(Parameter, RenderingServer.GlobalShaderParameterType.Sampler2D, s_texture);
-        RenderingServer.GlobalShaderParameterAdd(MainSlotName, RenderingServer.GlobalShaderParameterType.Int, 0);
+        ShaderGlobals.Add(Parameter, RenderingServer.GlobalShaderParameterType.Sampler2D, s_texture);
+        ShaderGlobals.Add(MainSlotName, RenderingServer.GlobalShaderParameterType.Int, 0);
         foreach (StringName name in MainRowNames)
-            RenderingServer.GlobalShaderParameterAdd(name, RenderingServer.GlobalShaderParameterType.Vec4, Vector4.Zero);
+            ShaderGlobals.Add(name, RenderingServer.GlobalShaderParameterType.Vec4, Vector4.Zero);
         RenderingServer.FramePreDraw += Flush;
         s_initialized = true;
     }
@@ -177,14 +177,14 @@ public sealed class SurfaceFogRegistry : IDisposable
         int frame = mode == 2f ? block + 1 : -1;
         // The shader's camera zone ramp row: 6 + clamp(int(eye.w), 0, 63) * 2 in the frame.
         int ramp = frame < 0 ? -1 : frame + 6 + Math.Clamp((int)values[frame * 4 + 3], 0, 63) * 2;
-        RenderingServer.GlobalShaderParameterSet(MainSlotName, slot);
+        ShaderGlobals.Set(MainSlotName, slot);
         Set(0, slot);
         Set(1, mode >= 1f ? block : -1);
         for (int row = 0; row < 6; row++) Set(2 + row, frame < 0 ? -1 : frame + row);
         Set(8, ramp);
         Set(9, ramp < 0 ? -1 : ramp + 1);
 
-        void Set(int parameter, int row) => RenderingServer.GlobalShaderParameterSet(MainRowNames[parameter],
+        void Set(int parameter, int row) => ShaderGlobals.Set(MainRowNames[parameter],
             row >= 0 && row * 4 + 3 < values.Count
                 ? new Vector4(values[row * 4], values[row * 4 + 1], values[row * 4 + 2], values[row * 4 + 3])
                 : Vector4.Zero);

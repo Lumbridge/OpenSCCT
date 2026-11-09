@@ -265,6 +265,14 @@ internal sealed class SurfaceBuilder
         return (s.Positions, s.Uvs, s.Uv2s, s.Colours, s.Indices);
     }
 
+    /// <summary>The packed streams the world pass on the RenderingDevice copies into its own buffers (Rd/RdWorldGeometry).</summary>
+    internal (Vector3[] Positions, Vector3[] Normals, Vector2[] Uvs, Vector2[]? Uv2s, Color[]? Colours, float[]? Echelon, int[] Indices) RdStreams()
+    {
+        Prepare();
+        Streams s = _streams!;
+        return (s.Positions, s.Normals, s.Uvs, s.Uv2s, s.Colours, s.Echelon, s.Indices);
+    }
+
     /// <summary>Appends this surface to <paramref name="mesh"/>.</summary>
     public void AddTo(ArrayMesh mesh, Material? material)
     {

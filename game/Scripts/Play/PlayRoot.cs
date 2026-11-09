@@ -439,6 +439,12 @@ public partial class PlayRoot : Node3D
             {
                 AddChild(new OpenScctGame.Render.RdProto.RdProtoRenderer(Map, View));
             }
+            // SVM_RD_WORLD=1: our own world pass draws the merged map inside Godot's frame.
+            if (OpenScctGame.Render.Rd.RdWorldRenderer.Enabled && !headless && Map.RdWorld is not null)
+            {
+                AddChild(new OpenScctGame.Render.Rd.RdWorldRenderer(Map, View));
+            }
+
             GameplayObjects.ShowMode(Map, settings.Mode);
             LoadTimer.Mark("play.view");
             Camera = new PlayCamera(View);

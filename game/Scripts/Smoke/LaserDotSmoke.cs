@@ -103,7 +103,7 @@ public sealed class LaserDotSmoke : SmokeTest
         _scene = new Node3D();
         _viewport!.AddChild(_scene);
         Case test = Cases[_case];
-        RenderingServer.GlobalShaderParameterSet("svm_vision", test.Vision);
+        OpenScctGame.Render.ShaderGlobals.Set("svm_vision", test.Vision);
         float width = UeSpace.LengthToGodot(SpyLaserView.DotTexels * test.Scale);
         float size = width * 3f;
         _scene.AddChild(new WorldEnvironment { Environment = new Godot.Environment
@@ -192,7 +192,7 @@ public sealed class LaserDotSmoke : SmokeTest
 
     private SmokeResult Finish(SmokeResult result)
     {
-        RenderingServer.GlobalShaderParameterSet("svm_vision", 0);
+        OpenScctGame.Render.ShaderGlobals.Set("svm_vision", 0);
         _viewport?.QueueFree();
         _viewport = null;
         _scene = null;

@@ -544,6 +544,18 @@ reaching term is left out, so `PlayRoot` keeps a black cover under the "Preparin
 prints the meshes in each state, the vision state and the spot slots and dynamic lights on, at most once a second
 (`SVM_REACH ...`).
 
+### World pass on the RenderingDevice
+
+With `SVM_RD_WORLD=1` (off by default) the solid and masked surfaces of the merged cells and of the sky zone are drawn
+by `Rd/RdWorldRenderer` instead of Godot's renderer: from the main camera's compositor, between Godot's depth pre-pass
+and its opaque pass, into Godot's own colour and depth buffers, with this template translated to GLSL 450
+(`Rd/GdShaderTranslator`). Each draw is one material in an 8 m block and takes the smallest shader that draws the same
+pixels: without the spot code where no slot's frustum reaches the block, without the dynamic light code where no row
+does, without portal fog while the view has none. Their Godot meshes stay on the `StaticWorldRd` and `SkyRd` layers for
+the shadow cameras, and for the main view in thermal and EMF, with responsive smoke, and on maps with an outdoor sky.
+Global shader parameters are set through `ShaderGlobals`, which the pass reads back. Measurements and limits:
+docs/PERFORMANCE-LOWEND-2026-11.md.
+
 ## Flare lights
 
 An OpenSCCT addition (`FlareLights`): the original lights a burning flare (SFlareEmitter) as an unshadowed point light

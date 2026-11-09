@@ -682,6 +682,13 @@ vec3 svm_dynamic(vec3 wp, vec3 wn, float zone) {
 			i = j < local_count ? int(texelFetch(svm_dyn_cells, ivec2(j + 1, cell), 0).r)
 				: svm_dyn_indexed_rows + j - local_count;
 		}
+#ifdef SVM_RD_WORLD
+		// The world pass on the RenderingDevice (Rd/RdWorldRenderer) hands each draw the rows that can reach it (bit
+		// i for row i below 32): every other row adds exactly nothing to it.
+		if (i < 32 && ((svm_draw_dyn_bits >> i) & 1) == 0) {
+			continue;
+		}
+#endif
 		float own = texelFetch(svm_dyn_lights, ivec2(3, i), 0).x;
 		if (svm_dyn_tune.w > 0.5 && own >= 0.0 && abs(own - zone) > 0.5) {
 			continue;

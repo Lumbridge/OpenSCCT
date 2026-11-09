@@ -108,9 +108,9 @@ public sealed partial class FlareLights : Node3D
         s_rows = Image.CreateEmpty(RowTexels, MaxFlares, false, Image.Format.Rgbaf);
         s_rowsTexture = ImageTexture.CreateFromImage(s_rows);
         s_noDepth = ImageTexture.CreateFromImage(Image.CreateEmpty(1, 1, false, Image.Format.Rf));
-        RenderingServer.GlobalShaderParameterAdd(ParamRows, RenderingServer.GlobalShaderParameterType.Sampler2D, s_rowsTexture);
-        RenderingServer.GlobalShaderParameterAdd(ParamCount, RenderingServer.GlobalShaderParameterType.Int, 0);
-        RenderingServer.GlobalShaderParameterAdd(ParamDepth, RenderingServer.GlobalShaderParameterType.Sampler2D, s_noDepth);
+        ShaderGlobals.Add(ParamRows, RenderingServer.GlobalShaderParameterType.Sampler2D, s_rowsTexture);
+        ShaderGlobals.Add(ParamCount, RenderingServer.GlobalShaderParameterType.Int, 0);
+        ShaderGlobals.Add(ParamDepth, RenderingServer.GlobalShaderParameterType.Sampler2D, s_noDepth);
         s_globalsAdded = true;
     }
 
@@ -177,7 +177,7 @@ public sealed partial class FlareLights : Node3D
     private static void PublishCount(int rows)
     {
         if (s_publishedCount == rows) return;
-        RenderingServer.GlobalShaderParameterSet(s_countName, rows);
+        ShaderGlobals.Set(s_countName, rows);
         s_publishedCount = rows;
     }
 
@@ -294,7 +294,7 @@ public sealed partial class FlareLights : Node3D
         if (atlas.IsValid && (!_bound || _atlasTexture.TextureRdRid != atlas))
         {
             _atlasTexture.TextureRdRid = atlas;
-            RenderingServer.GlobalShaderParameterSet(s_depthName, _atlasTexture);
+            ShaderGlobals.Set(s_depthName, _atlasTexture);
             _bound = true;
         }
     }
@@ -312,7 +312,7 @@ public sealed partial class FlareLights : Node3D
             PublishCount(0);
             if (_bound && s_noDepth is not null)
             {
-                RenderingServer.GlobalShaderParameterSet(s_depthName, s_noDepth);
+                ShaderGlobals.Set(s_depthName, s_noDepth);
             }
         }
 

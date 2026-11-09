@@ -142,16 +142,16 @@ public sealed partial class MaterialCompiler
             return;
         }
 
-        RenderingServer.GlobalShaderParameterAdd(TimeParameter, RenderingServer.GlobalShaderParameterType.Float, 0f);
-        RenderingServer.GlobalShaderParameterAdd(VisionParameter, RenderingServer.GlobalShaderParameterType.Int, RenderK.RendMapNormal);
-        RenderingServer.GlobalShaderParameterAdd(MipBiasParameter, RenderingServer.GlobalShaderParameterType.Float, 0f);
-        RenderingServer.GlobalShaderParameterAdd(VisionAmbientParameter, RenderingServer.GlobalShaderParameterType.Float, 0f);
+        ShaderGlobals.Add(TimeParameter, RenderingServer.GlobalShaderParameterType.Float, 0f);
+        ShaderGlobals.Add(VisionParameter, RenderingServer.GlobalShaderParameterType.Int, RenderK.RendMapNormal);
+        ShaderGlobals.Add(MipBiasParameter, RenderingServer.GlobalShaderParameterType.Float, 0f);
+        ShaderGlobals.Add(VisionAmbientParameter, RenderingServer.GlobalShaderParameterType.Float, 0f);
         Image white = Image.CreateEmpty(1, 1, false, Image.Format.Rgba8);
         white.Fill(new Color(1f, 1f, 1f, 1f));
-        RenderingServer.GlobalShaderParameterAdd(EmfEnvironmentParameter, RenderingServer.GlobalShaderParameterType.Sampler2D,
+        ShaderGlobals.Add(EmfEnvironmentParameter, RenderingServer.GlobalShaderParameterType.Sampler2D,
             ImageTexture.CreateFromImage(white));
-        RenderingServer.GlobalShaderParameterAdd(SkyOriginParameter, RenderingServer.GlobalShaderParameterType.Vec3, Vector3.Zero);
-        RenderingServer.GlobalShaderParameterAdd(SkyLayersParameter, RenderingServer.GlobalShaderParameterType.Int, (int)RenderLayers.Sky);
+        ShaderGlobals.Add(SkyOriginParameter, RenderingServer.GlobalShaderParameterType.Vec3, Vector3.Zero);
+        ShaderGlobals.Add(SkyLayersParameter, RenderingServer.GlobalShaderParameterType.Int, (int)RenderLayers.Sky);
         s_globalsAdded = true;
     }
 
@@ -166,17 +166,17 @@ public sealed partial class MaterialCompiler
     {
         Vision = rendMap;
         EnsureGlobals();
-        RenderingServer.GlobalShaderParameterSet(VisionParameter, rendMap);
+        ShaderGlobals.Set(VisionParameter, rendMap);
         float boost = rendMap == RenderK.RendMapNight ? RenderK.NightSceneBoost * NightAmbientScale
             : rendMap == RenderK.RendMapNormal ? RenderK.SquintSceneBoost(squintingFactor) : 0f;
-        RenderingServer.GlobalShaderParameterSet(VisionAmbientParameter, boost);
+        ShaderGlobals.Set(VisionAmbientParameter, boost);
     }
 
     /// <summary>The LOD bias of colour textures (D3DDrv DefaultTexMipBias is 0 in the shipped ini); for calibration runs.</summary>
     public static void SetMipBias(float bias)
     {
         EnsureGlobals();
-        RenderingServer.GlobalShaderParameterSet(MipBiasParameter, bias);
+        ShaderGlobals.Set(MipBiasParameter, bias);
     }
 
     /// <summary>The EMF environment map (LevelInfo.pEMFTexture, Echelon.EMFInvDarkBlue) the EMF scene samples.</summary>
@@ -185,14 +185,14 @@ public sealed partial class MaterialCompiler
         EnsureGlobals();
         if (texture is not null)
         {
-            RenderingServer.GlobalShaderParameterSet(EmfEnvironmentParameter, texture);
+            ShaderGlobals.Set(EmfEnvironmentParameter, texture);
         }
     }
 
     /// <summary>The scene time animated texture modifiers run on (Level.TimeSeconds in the original).</summary>
     public static void SetTime(float seconds)
     {
-        RenderingServer.GlobalShaderParameterSet(s_timeName, seconds);
+        ShaderGlobals.Set(s_timeName, seconds);
         for (int i = s_sequenceCompilers.Count - 1; i >= 0; i--)
         {
             if (s_sequenceCompilers[i].TryGetTarget(out MaterialCompiler? compiler)) compiler.UpdateSequences(seconds);
