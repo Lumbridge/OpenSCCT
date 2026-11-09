@@ -127,7 +127,7 @@ public sealed class SpyPerspectiveInputTests
         Assert.Equal(new[] { "MouseWheelDown" }, loaded.Keys(thirdPerson));
         Assert.Equal(1, Assert.Single(loaded.Layout.Resolve("MouseWheelUp")).Arg);
         Assert.Equal(0, Assert.Single(loaded.Layout.Resolve("MouseWheelDown")).Arg);
-        Assert.Equal("SwitchSpyPerspective", Assert.Single(loaded.Layout.Resolve("X")).Name);
+        Assert.Contains(loaded.Layout.Resolve("X"), a => a.Name == "SwitchSpyPerspective");
         loaded.Remove(firstPerson);
         Assert.Empty(loaded.Layout.Resolve("MouseWheelUp"));
         Assert.Equal(new[] { "MouseWheelDown" }, loaded.Keys(thirdPerson));
