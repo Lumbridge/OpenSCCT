@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using OpenScct.Core.Engine;
 using OpenScct.Provenance;
+using OpenScctGame.UI;
 
 namespace OpenScctGame.Controls;
 
@@ -93,6 +94,39 @@ public static class KeyTokens
                 return input;
 
         return null;
+    }
+
+    /// <summary>
+    /// Loading and tutorial hints follow the action editor's bindings and preferred input order. Modern layouts
+    /// can split the original command groups, combine actions, or omit the original aliases entirely.
+    /// </summary>
+    public static string ExpandHint(string text, KeyLayout layout, bool merc, Func<string, string>? keyName = null)
+    {
+        ArgumentNullException.ThrowIfNull(layout);
+        return Expand(text, binding =>
+        {
+            string actionId = binding switch
+            {
+                "AliasHaut" => "forward", "AliasBas" => "back", "AliasGauche" => "left", "AliasDroite" => "right",
+                "Use" => "use", "Fire | GadgetQuickChoice 0" => "fire",
+                "AltFire | GadgetQuickChoice 1 | HoldBreath" => "altfire",
+                "Jump" => "jump", "Crouch" => "crouch", "ChangeSpeed" => "speed", "HackComm" => "hackcomms",
+                "SwitchHeadset 3" => "visioncycle", "SwitchHeadset 1" => "vision1", "SwitchHeadset 2" => "vision2",
+                "SelectGadget 0" => "slot1", "SelectGadget 1" => "slot2", "SelectGadget 2" => "slot3", "SelectGadget 3" => "slot4",
+                "AliasNextItem" => "next", "AliasPrevItem" => "previous",
+                "Roll | GadLaserSwitch" => merc ? "laser" : "roll",
+                "FireMode | GadTorcheSwitch" => merc ? "torch" : "ready",
+                "PerformCoopMvt" => "coop", "Btw" => "wall", "SwitchBinocularVision" => "scope",
+                "Reload" => "reload", "ROF" => "rof", "SwitchLaser" => "weaponlaser", "PrevStickyCam" => "sticky",
+                "ZoomIn" => "zoomin", "ZoomOut" => "zoomout", "SwitchEnhancedReality" => "er",
+                "DisplayHud" => "hudhelp", "ShowMenu" => "menu",
+                _ => throw new InvalidOperationException("Missing hint action for " + binding),
+            };
+            ControlAction action = ControlActions.All.First(a => a.Id == actionId);
+            string? key = layout.InputOrder(action.Id, layout.Bindings
+                .Where(b => layout.Expanded(b.Value).Any(action.Matches)).Select(b => b.Key)).FirstOrDefault();
+            return key is null ? "Unbound" : keyName?.Invoke(key) ?? key;
+        });
     }
 
     /// <summary>

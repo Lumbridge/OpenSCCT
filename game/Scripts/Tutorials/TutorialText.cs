@@ -76,7 +76,7 @@ public static class TutorialText
         }
 
         KeyLayout layout = InputBindings.Load(side, null, seedInputMap: false).Layout;
-        return KeyTokens.Expand(text, binding =>
-            KeyTokens.KeyBoundTo(layout, binding) is { } key ? UiStyle.Assets?.KeyDisplayName(key) ?? key : null);
+        return KeyTokens.ExpandHint(text, layout, side == PlaySide.Merc,
+            key => UiStyle.Assets?.KeyDisplayName(key) ?? key);
     }
 }
