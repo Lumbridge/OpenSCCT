@@ -181,7 +181,10 @@ public sealed class AuthoredMaterialSmoke : SmokeTest
                 ? "vec3 n = normalize(texture(am_tex_normal, p).xyz * 2.0 - 1.0); ALBEDO = vec3(n.xy * 0.25 + 0.5, texture(am_tex_roughness, p).r);"
                 : "ALBEDO = texture(am_tex_baseColor, p).rgb;")
             : "AuthoredSample s = am_evaluate(p, vec3(0.0), vec3(0.0, 0.0, 1.0), vec3(0.5, 0.25, 1.0), 0.0); ALBEDO = " + (data ? "vec3(s.normal.xy * 0.25 + 0.5, s.roughness);" : "s.color.rgb;");
-        var material = new ShaderMaterial { Shader = new Shader { Code = "shader_type spatial; render_mode unshaded, cull_disabled;\n" + AuthoredMaterialBinding.ShaderCode + "\nvoid fragment() { vec2 p = UV * 3.7 - vec2(1.21, 1.37); " + evaluate + " }" } };
+        // Atlas sampling is trilinear. Compare like filters: Vulkan's anisotropic
+        // hardware sampler can choose a different footprint even on this flat quad.
+        string sampling = AuthoredMaterialBinding.ShaderCode.Replace("filter_linear_mipmap_anisotropic", "filter_linear_mipmap", StringComparison.Ordinal);
+        var material = new ShaderMaterial { Shader = new Shader { Code = "shader_type spatial; render_mode unshaded, cull_disabled;\n" + sampling + "\nvoid fragment() { vec2 p = UV * 3.7 - vec2(1.21, 1.37); " + evaluate + " }" } };
         var textures = new TextureCache(_folder);
         AuthoredMaterialBinding.Apply(material, definition, fileName => textures.Get(fileName), (slot, binding) => textures.GetAuthored(slot, binding, definition.Animation));
         _quad!.Rotation = Vector3.Zero; _quad.Mesh = new QuadMesh { Size = Vector2.One * 2 }; _quad.MaterialOverride = material;
