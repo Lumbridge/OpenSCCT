@@ -1454,12 +1454,8 @@ public static class MapBuilder
                     };
                     if (material is not null)
                     {
-                        // The twins LightReach swaps in where no spot (and no dynamic) light reaches; see-through passes and the
-                        // sky zone (its own material variant) keep theirs.
-                        bool plain = key.Item3 == VisionPass.Plain;
-                        LightReach.Twins twins = key.Item3 == VisionPass.SeeThrough || cell.sky != 0 ? default : new(
-                            _map.Compiler.GetUnreached(key.Item1, key.Item2, plain, keepDynamic: true),
-                            _map.Compiler.GetUnreached(key.Item1, key.Item2, plain, keepDynamic: false));
+                        // The sky zone (its own material variant, never drawn in thermal or EMF) keeps its materials.
+                        LightReach.Twins twins = cell.sky != 0 ? default : TwinsOf(key);
                         drawn.Add((key, material, twins, buckets[key]));
                         merged.Add(buckets[key]);
                     }
@@ -1503,6 +1499,27 @@ public static class MapBuilder
 
                 FlushCellPart(surfaces, CellPartName(baseName, part), cell.sky != 0);
             }
+        }
+
+        /// <summary>
+        /// The twins LightReach swaps in: where no spot (and no dynamic) light reaches, and outside thermal and EMF. Every
+        /// vision pass draws the same normal vision twins; see-through passes keep their own material in thermal and EMF
+        /// whatever reaches them (their twins would lose the blended pass). A twin a material lacks falls back to the
+        /// nearest it has: no spot to full, neither to no spot.
+        /// </summary>
+        private LightReach.Twins TwinsOf((string Name, LightSource Light, VisionPass Pass) key)
+        {
+            MaterialCompiler compiler = _map.Compiler;
+            bool plain = key.Pass == VisionPass.Plain;
+            bool seeThrough = key.Pass == VisionPass.SeeThrough;
+            Material? normal = compiler.GetNormalVision(key.Name, key.Light, plain);
+            Material? normalNoSpot = compiler.GetNormalVision(key.Name, key.Light, plain, keepSpot: false) ?? normal;
+            return new(
+                seeThrough ? null : compiler.GetUnreached(key.Name, key.Light, plain, keepDynamic: true),
+                seeThrough ? null : compiler.GetUnreached(key.Name, key.Light, plain, keepDynamic: false),
+                normal,
+                normalNoSpot,
+                compiler.GetNormalVision(key.Name, key.Light, plain, keepSpot: false, keepDynamic: false) ?? normalNoSpot);
         }
 
         private static string CellPartName(string baseName, int part) =>

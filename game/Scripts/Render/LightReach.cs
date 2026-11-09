@@ -7,15 +7,17 @@ using OpenScctGame.Render.Materials;
 namespace OpenScctGame.Render;
 
 /// <summary>
-/// Chooses, per merged map mesh and frame, between three sets of materials: the full ones, their twins without the spot
-/// shadow light term, and their twins without the spot term and the dynamic world light term
-/// (<see cref="MaterialCompiler.GetUnreached"/>). A mesh drops a term only while no light of that kind that is on can
-/// reach any point of its world box: there the term is exactly zero, so the pixels stay the same and the GPU runs a
-/// smaller shader. The spot code is the expensive part to have in the shader and spot slots reach few meshes, so most
-/// meshes draw without it even where dynamic lights (large radii) reach them. Each light keeps the list of meshes it
-/// reaches and works it out again only when it moves or switches; a mesh changes its materials only when its count of
-/// reaching spots or of reaching dynamic lights goes to or from zero. Runs on <see cref="RenderingServer.FramePreDraw"/>,
-/// after every node has moved and every light was written.
+/// Chooses, per merged map mesh and frame, between six sets of materials. For each of three light states: the full ones,
+/// their twins without the spot shadow light term, and their twins without the spot term and the dynamic world light term
+/// (<see cref="MaterialCompiler.GetUnreached"/>); each with the thermal and EMF code, or while the vision is neither,
+/// without it (<see cref="MaterialCompiler.GetNormalVision"/>). A mesh drops a light term only while no light of that
+/// kind that is on can reach any point of its world box: there the term is exactly zero, so the pixels stay the same and
+/// the GPU runs a smaller shader. The spot code is the expensive part to have in the shader and spot slots reach few
+/// meshes, so most meshes draw without it even where dynamic lights (large radii) reach them. Each light keeps the list
+/// of meshes it reaches and works it out again only when it moves or switches; a mesh changes its materials only when its
+/// count of reaching spots or of reaching dynamic lights goes to or from zero, or the vision goes to or from thermal or
+/// EMF. Runs on <see cref="RenderingServer.FramePreDraw"/>, after every node has moved, every light was written and the
+/// frame's vision was set (<see cref="MaterialCompiler.Vision"/>), so the first frame drawn in a vision has its materials.
 /// </summary>
 /// <remarks>
 /// The tests, against what the template reads (svm_world.gdshaderinc):
@@ -33,15 +35,20 @@ namespace OpenScctGame.Render;
 public sealed class LightReach
 {
     /// <summary>
-    /// The twins of one surface's material: without the spot term (<see cref="NoSpot"/>), and without the spot and
-    /// dynamic terms (<see cref="Neither"/>; the same material where the surface has no dynamic term). Both null where
-    /// the surface keeps its material.
+    /// The twins of one surface's material, each null where the surface keeps its own material in that state. With the
+    /// thermal and EMF code: without the spot term (<see cref="NoSpot"/>), and without the spot and dynamic terms
+    /// (<see cref="Neither"/>; the same material where the surface has no dynamic term). Without it, for the other
+    /// visions: every term (<see cref="Normal"/>), no spot (<see cref="NormalNoSpot"/>) and neither
+    /// (<see cref="NormalNeither"/>).
     /// </summary>
-    public readonly record struct Twins(Material? NoSpot, Material? Neither)
+    public readonly record struct Twins(Material? NoSpot, Material? Neither, Material? Normal = null, Material? NormalNoSpot = null,
+        Material? NormalNeither = null)
     {
-        public bool Any => NoSpot is not null || Neither is not null;
+        public bool Any => NoSpot is not null || Neither is not null || Normal is not null || NormalNoSpot is not null
+            || NormalNeither is not null;
     }
 
+    /// <summary>A mesh's materials: its light state, plus <see cref="Normal"/> outside thermal and EMF.</summary>
     private enum State : byte
     {
         /// <summary>A spot reaches the mesh (or it has no world box): its own materials.</summary>
@@ -52,7 +59,16 @@ public sealed class LightReach
 
         /// <summary>Neither reaches: the twins without either term.</summary>
         Neither,
+
+        /// <summary>Full outside thermal and EMF: the twins without their code. The light states follow in order.</summary>
+        Normal,
+
+        NormalNoSpot,
+
+        NormalNeither,
     }
+
+    private const int States = 6;
 
     // Float noise between this test and the template's (positions interpolated across triangles, sums in float): far
     // below the size of any light, far above the error.
@@ -60,7 +76,7 @@ public sealed class LightReach
     private const float RelativeMargin = 1e-4f;
 
     // One frame in each state, full first.
-    private const int WarmFrames = 3;
+    private const int WarmFrames = States;
 
     private static readonly bool Stats = System.Environment.GetEnvironmentVariable("SVM_REACH_STATS") == "1";
 
@@ -85,11 +101,10 @@ public sealed class LightReach
     private readonly List<MeshInstance3D> _nodes = [];
     private readonly List<Rid> _instances = [];
 
-    // Per mesh, per surface: the twins (held so their RIDs stay valid) and their RIDs, default where the surface keeps
-    // its material.
+    // Per mesh, per surface: the twins (held so their RIDs stay valid) and, at surface x States + state, the RID drawn
+    // in each state, default where the surface keeps its own material.
     private readonly List<Twins[]> _twins = [];
-    private readonly List<Rid[]> _noSpotRids = [];
-    private readonly List<Rid[]> _neitherRids = [];
+    private readonly List<Rid[]> _rids = [];
     private Aabb[] _boxes = [];
     private bool[] _placed = [];
     private int[] _spotReach = [];
@@ -101,7 +116,8 @@ public sealed class LightReach
     private int _boxed;
     private int _spotEverywhere;
     private int _dynEverywhere;
-    private readonly int[] _inState = new int[3];
+    private bool _normal = true;
+    private readonly int[] _inState = new int[States];
 
     private readonly Source[] _spots = new Source[SpotShadowLight.ReachSlots];
     private Source[] _mapLights = [];
@@ -126,10 +142,16 @@ public sealed class LightReach
     public int Meshes => _nodes.Count;
 
     /// <summary>Meshes drawing their twins without the spot term this frame.</summary>
-    public int NoSpotMeshes => _inState[(int)State.NoSpot];
+    public int NoSpotMeshes => _inState[(int)State.NoSpot] + _inState[(int)State.NormalNoSpot];
 
     /// <summary>Meshes drawing their twins without the spot and dynamic terms this frame.</summary>
-    public int NeitherMeshes => _inState[(int)State.Neither];
+    public int NeitherMeshes => _inState[(int)State.Neither] + _inState[(int)State.NormalNeither];
+
+    /// <summary>
+    /// True until every registered mesh has drawn one frame in each state after a build or <see cref="Warm"/>: loading
+    /// waits for it (GameplayFxWarmup) behind its cover.
+    /// </summary>
+    public bool Warming => _subscribed && _warm > 0;
 
     /// <summary>
     /// Registers a merged map mesh (static: it never moves) with the twins of each surface's material (none for a
@@ -147,20 +169,22 @@ public sealed class LightReach
         }
 
         var held = new Twins[twins.Count];
-        var noSpot = new Rid[twins.Count];
-        var neither = new Rid[twins.Count];
+        var rids = new Rid[twins.Count * States];
         for (int s = 0; s < twins.Count; s++)
         {
-            held[s] = twins[s];
-            noSpot[s] = twins[s].NoSpot?.GetRid() ?? default;
-            neither[s] = twins[s].Neither?.GetRid() ?? default;
+            Twins t = held[s] = twins[s];
+            int at = s * States;
+            rids[at + (int)State.NoSpot] = t.NoSpot?.GetRid() ?? default;
+            rids[at + (int)State.Neither] = t.Neither?.GetRid() ?? default;
+            rids[at + (int)State.Normal] = t.Normal?.GetRid() ?? default;
+            rids[at + (int)State.NormalNoSpot] = t.NormalNoSpot?.GetRid() ?? default;
+            rids[at + (int)State.NormalNeither] = t.NormalNeither?.GetRid() ?? default;
         }
 
         _nodes.Add(node);
         _instances.Add(node.GetInstance());
         _twins.Add(held);
-        _noSpotRids.Add(noSpot);
-        _neitherRids.Add(neither);
+        _rids.Add(rids);
         if (!_subscribed)
         {
             _subscribed = true;
@@ -169,10 +193,11 @@ public sealed class LightReach
     }
 
     /// <summary>
-    /// Draws every registered mesh with its full materials for one frame, then without the spot term for one, then
-    /// without either term for one, so the pipelines of all three are made behind the loading screen (and instanced,
-    /// for the meshes out of view). Runs on its own after the map is built; call again when the shaders' code changes
-    /// (a late responsive smoke switch).
+    /// Draws every registered mesh in each state for one frame (full, no spot, neither, then each again without the
+    /// thermal and EMF code), so the pipelines of all six are made while loading (and instanced, for the meshes out of
+    /// view). Those frames draw wrong light where a reaching term is left out: whoever shows the view covers it while
+    /// <see cref="Warming"/> (PlayRoot's loading cover). Runs on its own after the map is built; call again when the
+    /// shaders' code changes (a late responsive smoke switch).
     /// </summary>
     public void Warm() => _warm = WarmFrames;
 
@@ -208,6 +233,14 @@ public sealed class LightReach
             for (int i = 0; i < _boxed; i++) SetState(i, state);
             _markedAll = true;
             return;
+        }
+
+        // Set by this frame's process step (FaithfulView.ApplyVision), before this draw: the meshes change with it.
+        bool normal = !FaithfulView.IsSceneVision(MaterialCompiler.Vision);
+        if (normal != _normal)
+        {
+            _normal = normal;
+            _markedAll = true;
         }
 
         float tune = WorldLights.Tune.Y;
@@ -261,8 +294,9 @@ public sealed class LightReach
         foreach (Source source in _spots) spots += source.On ? 1 : 0;
         foreach (Source source in _mapLights) dynamic += source.On ? 1 : 0;
         foreach (Source source in _spawned) dynamic += source.On ? 1 : 0;
+        int full = _inState[(int)State.Full] + _inState[(int)State.Normal];
         GD.Print(string.Create(CultureInfo.InvariantCulture,
-            $"SVM_REACH meshes={_boxed} full={_inState[(int)State.Full]} noSpot={NoSpotMeshes} neither={NeitherMeshes} spots={spots} dynamic={dynamic}"));
+            $"SVM_REACH meshes={_boxed} full={full} noSpot={NoSpotMeshes} neither={NeitherMeshes} normalVision={_normal} spots={spots} dynamic={dynamic}"));
     }
 
     /// <summary>
@@ -388,9 +422,9 @@ public sealed class LightReach
     }
 
     private State StateOf(int i) =>
-        _spotEverywhere != 0 || _spotReach[i] != 0 ? State.Full
+        (_spotEverywhere != 0 || _spotReach[i] != 0 ? State.Full
         : _dynEverywhere != 0 || _dynReach[i] != 0 ? State.NoSpot
-        : State.Neither;
+        : State.Neither) + (_normal ? (byte)State.Normal : (byte)0);
 
     private void Apply()
     {
@@ -410,7 +444,8 @@ public sealed class LightReach
 
     private void SetState(int i, State state)
     {
-        if (!_placed[i]) state = State.Full;
+        // Without a world box only the vision changes.
+        if (!_placed[i]) state = state >= State.Normal ? State.Normal : State.Full;
         State was = _state[i];
         if (was == state)
         {
@@ -423,13 +458,11 @@ public sealed class LightReach
         // The instance's own override, not the node's: the node keeps reporting the materials it was built with. A
         // surface with the same material in both states (an actor-lit one between its two twins) is left as it is.
         Rid instance = _instances[i];
-        Rid[] noSpot = _noSpotRids[i];
-        Rid[] neither = _neitherRids[i];
-        for (int s = 0; s < noSpot.Length; s++)
+        Rid[] rids = _rids[i];
+        for (int at = 0, s = 0; at < rids.Length; at += States, s++)
         {
-            Rid from = was switch { State.NoSpot => noSpot[s], State.Neither => neither[s], _ => default };
-            Rid to = state switch { State.NoSpot => noSpot[s], State.Neither => neither[s], _ => default };
-            if (from != to)
+            Rid to = rids[at + (int)state];
+            if (rids[at + (int)was] != to)
             {
                 RenderingServer.InstanceSetSurfaceOverrideMaterial(instance, s, to);
             }

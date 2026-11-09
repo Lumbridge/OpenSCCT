@@ -82,6 +82,7 @@ public sealed partial class MaterialCompiler
     private readonly Dictionary<(string, LightSource), Material?> _plain = new();
     private readonly Dictionary<(string, LightSource), Material?> _sky = new();
     private readonly Dictionary<(string, LightSource, bool, bool), Material?> _unreached = new();
+    private readonly Dictionary<(string, LightSource, bool, bool, bool), Material?> _normalVision = new();
 
     public MaterialCompiler(MaterialsDoc doc, TextureCache textures)
     {
@@ -107,6 +108,13 @@ public sealed partial class MaterialCompiler
 
     /// <summary>Masks for materials (by name) that have no vision modifiers in <see cref="Pack"/>; null for none.</summary>
     public Func<string, VisionMasks?>? OwnVision { get; set; }
+
+    /// <summary>
+    /// Whether the materials compile OpenSCCT's cosmetics (SVM_COSMETIC: svm_tint, svm_glow_hue, the camo finish and
+    /// sheen). Only character models set them (SkeletalModel, and the skins put over its surfaces); without it the
+    /// template draws as they hold their defaults, with less code.
+    /// </summary>
+    public bool Cosmetics { get; init; }
 
     /// <summary>
     /// Whether solid surfaces mark what they are in the stencil (<see cref="StencilBsp"/> and the others). Only projectors
@@ -383,11 +391,9 @@ public sealed partial class MaterialCompiler
         Material? full = plain ? GetPlain(name, light) : Get(name, light);
         MaterialEntry? entry = _doc.Find(name);
         Material? twin = null;
-        if (full is not null && entry is { Authored: null }
-            && !(entry.Sequences.TryGetValue("diffuse", out MaterialSequenceEntry? sequence) && sequence.SwitchMaterial)
-            && LitBy(entry, light) is var lit and not LightSource.None)
+        if (full is not null && entry is not null && HasUnreached(entry, light))
         {
-            if (keepDynamic && lit is not (LightSource.Lightmap or LightSource.Vertex))
+            if (keepDynamic && !Baked(entry, light))
             {
                 // No dynamic term to keep: the same defines as the twin without it.
                 twin = GetUnreached(name, light, plain, keepDynamic: false);
@@ -404,6 +410,61 @@ public sealed partial class MaterialCompiler
         _unreached[(name, light, plain, keepDynamic)] = twin;
         return twin;
     }
+
+    /// <summary>
+    /// The twin of the material <see cref="Get"/> hands out that merged map geometry draws while the vision is neither
+    /// thermal nor EMF (<see cref="LightReach"/>): the template leaves the thermal and EMF outputs and their cut-outs out
+    /// (SVM_NORMAL_VISION). The other modes never run that code, so the twin draws the pixels of <see cref="Get"/>,
+    /// <see cref="GetPlain"/> and <see cref="GetSeeThrough"/> there alike, without the see-through pass (which draws
+    /// nothing outside thermal and EMF). With <paramref name="plain"/> it keeps <see cref="GetPlain"/>'s depth
+    /// (SVM_PLAIN_DEPTH); other buckets keep their own vertex transform, so depth stays bit-identical. Without
+    /// <paramref name="keepSpot"/> it also leaves out the terms <see cref="GetUnreached"/> leaves out, and is null where
+    /// that has no twin. Null for MaterialSequence state switches, which change their shader at run time.
+    /// </summary>
+    public Material? GetNormalVision(string name, LightSource light, bool plain, bool keepSpot = true, bool keepDynamic = true)
+    {
+        ArgumentNullException.ThrowIfNull(name);
+        keepDynamic |= keepSpot;
+        if (_normalVision.TryGetValue((name, light, plain, keepSpot, keepDynamic), out Material? cached))
+        {
+            return cached;
+        }
+
+        Material? full = Get(name, light);
+        MaterialEntry? entry = _doc.Find(name);
+        Material? twin = null;
+        if (full is not null && entry is not null && !SwitchesShader(entry))
+        {
+            if (keepSpot)
+            {
+                twin = Compose(entry, light, plainDepth: plain, normalVision: true);
+            }
+            else if (HasUnreached(entry, light))
+            {
+                twin = keepDynamic && !Baked(entry, light)
+                    ? GetNormalVision(name, light, plain, keepSpot: false, keepDynamic: false)
+                    : Compose(entry, light, plainDepth: plain, normalVision: true, noSpot: true, noDynamic: !keepDynamic);
+            }
+        }
+
+        _normalVision[(name, light, plain, keepSpot, keepDynamic)] = twin;
+        return twin;
+    }
+
+    /// <summary>A MaterialSequence that switches whole material states: its shader changes at run time.</summary>
+    private static bool SwitchesShader(MaterialEntry entry) =>
+        entry.Sequences.TryGetValue("diffuse", out MaterialSequenceEntry? sequence) && sequence.SwitchMaterial;
+
+    /// <summary>
+    /// Whether the material has twins without the spot (and dynamic) light terms: fullbright materials have no such
+    /// terms, authored ones light their highlights from every light, and state switches change their shader.
+    /// </summary>
+    private static bool HasUnreached(MaterialEntry entry, LightSource light) =>
+        entry.Authored is null && !SwitchesShader(entry) && LitBy(entry, light) != LightSource.None;
+
+    /// <summary>A baked surface (lightmap, vertex light): the only kind with a dynamic world light term.</summary>
+    private static bool Baked(MaterialEntry entry, LightSource light) =>
+        LitBy(entry, light) is LightSource.Lightmap or LightSource.Vertex;
 
     /// <summary>The template's flag that hands partly see-through surfaces to the blended pass in thermal and EMF.</summary>
     public const string SeeThroughParameter = "vision_see_through";
@@ -438,7 +499,7 @@ public sealed partial class MaterialCompiler
         (entry.Unlit && entry.SelfIllum is null) || (light == LightSource.Lightmap && entry.Lightmap is null) ? LightSource.None : light;
 
     private ShaderMaterial Compose(MaterialEntry entry, LightSource light, bool seeThroughPass = false, bool billboard = false,
-        bool plainDepth = false, bool sky = false, bool noSpot = false, bool noDynamic = false)
+        bool plainDepth = false, bool sky = false, bool noSpot = false, bool noDynamic = false, bool normalVision = false)
     {
         if (entry.Sequences.TryGetValue("diffuse", out MaterialSequenceEntry? sequence) && sequence.SwitchMaterial)
             return ComposeSequence(entry, sequence, light, seeThroughPass, billboard, sky);
@@ -484,6 +545,10 @@ public sealed partial class MaterialCompiler
         // LightReach's twins (GetUnreached): the spot term of every lit surface, the dynamic term of baked ones.
         AddIf(extras, noSpot && light != LightSource.None, "SVM_NO_SPOT");
         AddIf(extras, noDynamic && light is LightSource.Lightmap or LightSource.Vertex, "SVM_NO_DYN");
+        // LightReach's twins for the modes other than thermal and EMF (GetNormalVision).
+        normalVision &= !seeThroughPass;
+        AddIf(extras, normalVision, "SVM_NORMAL_VISION");
+        AddIf(extras, Cosmetics, "SVM_COSMETIC");
         Shader shader = seeThroughPass ? SeeThroughShaderFor(light, blend, entry.TwoSided, extras) : ShaderFor(light, blend, entry.TwoSided, extras);
 
         var material = new ShaderMaterial { Shader = shader, ResourceName = entry.Name };
@@ -561,21 +626,10 @@ public sealed partial class MaterialCompiler
             material.SetShaderParameter("env_color", new Vector3(ToDisplay(c.X), ToDisplay(c.Y), ToDisplay(c.Z)));
         }
 
-        VisionTextures? vision = VisionLookup switch
+        // A normal vision twin draws no heat or EMF.
+        if (!normalVision)
         {
-            // A cosmetic camo is named "<skin>+<pattern>": it keeps the heat and EMF textures of the skin it repaints.
-            VisionLookup.SkinBase => Pack?.VisionOfModifierName(entry.Source)
-                ?? Pack?.VisionOfSkin(entry.Name is { } skin && skin.IndexOf('+') is var plus and > 0 ? skin[..plus] : entry.Name),
-            VisionLookup.ModifierName => Pack?.VisionOfModifierName(entry.Name),
-            _ => Pack?.VisionOf(entry.Source),
-        };
-        if (vision is null && entry.Name is { } name && OwnVision?.Invoke(name) is { } masks)
-        {
-            ApplyVision(material, masks);
-        }
-        else
-        {
-            ApplyVision(material, vision);
+            ApplyVision(material, entry);
         }
 
         if (uvAnim)
@@ -614,6 +668,27 @@ public sealed partial class MaterialCompiler
         string? texture = _doc.TextureOf(entry.Source, input)
             ?? (entry.Source is null || VisionLookup == VisionLookup.SkinBase ? entry.Name : null);
         return Pack.MipLevels(texture) is not int levels || levels > 1;
+    }
+
+    /// <summary>The heat and EMF textures of <paramref name="entry"/>'s vision modifiers, or its own masks.</summary>
+    private void ApplyVision(ShaderMaterial material, MaterialEntry entry)
+    {
+        VisionTextures? vision = VisionLookup switch
+        {
+            // A cosmetic camo is named "<skin>+<pattern>": it keeps the heat and EMF textures of the skin it repaints.
+            VisionLookup.SkinBase => Pack?.VisionOfModifierName(entry.Source)
+                ?? Pack?.VisionOfSkin(entry.Name is { } skin && skin.IndexOf('+') is var plus and > 0 ? skin[..plus] : entry.Name),
+            VisionLookup.ModifierName => Pack?.VisionOfModifierName(entry.Name),
+            _ => Pack?.VisionOf(entry.Source),
+        };
+        if (vision is null && entry.Name is { } name && OwnVision?.Invoke(name) is { } masks)
+        {
+            ApplyVision(material, masks);
+        }
+        else
+        {
+            ApplyVision(material, vision);
+        }
     }
 
     /// <summary>
