@@ -142,13 +142,61 @@ four spot-shadow SubViewport renders (3.8 ms, each with its own tonemap and copi
 the World layer) and 1.8 ms of rain. The original draws straight into an 8-bit back buffer with none of these passes,
 so matching it needs our own 3D renderer on Godot's RenderingDevice, with Godot keeping UI, audio and input.
 
-## Next
+## A renderer of our own (RenderingDevice prototype, 2026-11-09)
 
-- **Sky zone in the main pass.** Draw the sky zone in the main view instead of a second full-resolution render (3.4 ms on SteeE; 67 of 86 maps have a sky zone).
-- **Light reach variants.** Choose per map mesh, on the CPU each frame:
-  - A mesh that no spot light's bounding sphere reaches gets a material compiled without the spot code. It adds exactly nothing there, so the pixels are the same.
-  - The same applies to dynamic lights.
-- **Portal fog:** reduce its per-pixel cost on fogged maps.
-- **Display post:** fuse the fog pass into the glow bright pass, saving one full-screen read and write.
-- **Integrated-graphics profile (Phase 3):** OpenSCCT-only extras off, and FSR or texture detail as options.
-- **Load:** the remaining time is pipeline warm-up, outfits, effects and map merging, about 6–7 s against the original's 0.3–0.4 s. Closing that gap needs pre-baked map data and GPU-ready (BC) textures.
+To find out whether our own renderer on Godot's RenderingDevice would beat Forward+, we built a prototype: `perf/rd-proto`, `game/Scripts/Render/RdProto/`, switched on with `SVM_RD_PROTO=1`. It draws only the static map cells, as texture × (lightmap + vertex light). That is the same shading as the "trivial" Forward+ ceiling run. Godot's 3D is turned off; the image is shown under the HUD through a `Texture2DRD`.
+
+| UHD 770, 2560×1440 | SteeE | AquaE |
+|---|---|---|
+| Forward+, trivial shading, no post | 144.4 FPS | 78.9 FPS |
+| Prototype, same shading | 196–215 FPS | 203 FPS |
+| Prototype, GPU time of the world pass | 0.94–1.2 ms | 0.98 ms |
+| Prototype, frame time | 4.65–5.1 ms | 4.9 ms |
+| Prototype at 640×360 | | 1049 FPS (0.95 ms) |
+
+- The picture is correct: winding, orientation and depth all match Forward+.
+- Recording the draw list costs 0.03–0.06 ms of CPU.
+- Main-thread game work is small: simulation 0.17 ms, views 0.33 ms.
+- With RenderingDevice, the world pass is several times cheaper than Forward+ for the same shading. Forward+'s fixed passes (pre-pass, tonemap, copies) are gone.
+
+## The presentation floor on this PC
+
+The prototype's frame (4.9 ms) is much longer than its timed GPU work (about 1.6 ms, world plus canvas). The Intel 3D engine is still about 94% busy (Windows GPU engine counters). So the rest is untimed GPU work, and it scales with the window's pixel count.
+
+The cause is how this PC is wired: **both monitors are connected to the RTX 4070**. Every frame the UHD 770 renders has to be copied across to the NVIDIA card before it can be shown, and that copy runs on the Intel GPU. Measured with a blank window (one clear per frame, nothing else), off-screen, 2560×1440:
+
+| Blank window, 2560×1440 | FPS | ms per frame |
+|---|---|---|
+| Native D3D11, flip model with tearing, UHD 770 | 430 | 2.32 |
+| Native D3D11, legacy blit model, UHD 770 | 317 | 3.15 |
+| Godot 4.7.2 Vulkan, empty canvas, UHD 770 | 348 | 2.88 |
+| Godot 4.7.2 Vulkan, one full-screen rectangle, UHD 770 | 298 | 3.36 |
+| Godot 4.7.2 D3D12, one full-screen rectangle, UHD 770 | 280 | 3.57 |
+| Native D3D11 at 640×360, UHD 770 | 4654 | 0.21 |
+| Native D3D11, RTX 4070 (the display GPU) | 17 910 | 0.06 |
+
+- **Any program** on this PC pays about 2.3 ms per 1440p frame just to get an Intel-rendered frame onto the screen. 240 FPS is 4.17 ms, so that leaves 1.85 ms for everything else.
+- **Godot adds about 1 ms more**: the canvas pass into the root viewport's own target, then a full-screen copy into the swapchain. `viewport_set_render_direct_to_screen` changes nothing on Forward+/Vulkan. That leaves 0.8 ms for the game on stock Godot.
+- **On a real low-end machine** (a laptop, or a desktop with the monitor in the motherboard's port), the integrated GPU drives the screen itself and this copy does not exist. At 640×360, where the copy is small, the prototype runs at over 1000 FPS.
+- Reloaded holds 240 because `fps_spy` and `fps_merc` default to 240 in `SCCT_Versus.config`. That is a frame cap, not its ceiling. We have not yet measured Reloaded uncapped on the UHD 770.
+
+## Plan: a RenderingDevice renderer
+
+Forward+ cannot reach the target: even its trivial-shading ceiling on AquaE is 79 FPS. The prototype shows that our own renderer can. The full plan input (inventories of every world, character, effect and frame feature, plus the port order) is summarised here.
+
+- **Shape.**
+  - New code goes in `game/Scripts/Render/Rd/`, grown from the prototype.
+  - Godot keeps the canvas (HUD, menus), audio, input and game code.
+  - View classes draw through an `IRenderScene` facade with a Godot backend (today's nodes) and an RD backend. Forward+ stays the fallback and screenshot reference until the new renderer reaches parity.
+- **Shaders.** `svm_world.gdshaderinc` and its includes are split into a shared core that compiles both as Godot shader language and as GLSL 450. The same variant matrix stays; cheap toggles (no spot, no dynamic lights, see-through cut, portal fog) become specialisation constants. Precompiled SPIR-V and pipelines are cached on disk.
+- **Frame.**
+  - Uploads, compute pre-skin, then the spot-shadow atlas as depth-only tiles. Static tiles are copied in instead of redrawn.
+  - The main pass: sky, then opaque front to back, then masked.
+  - Depth and colour copies only when a projector, corona, cloak or refraction needs them.
+  - Then transparents, first-person view models, and the existing post compute shaders.
+- **Order.**
+  - Static world in normal vision first.
+  - Then lights, shadows and fog.
+  - Then movers and gameplay objects, then characters, then effects and vision modes.
+  - Each step is benchmarked and screenshot-compared against Forward+ on the golden cameras.
+- **Presentation.** To get under Godot's extra 1 ms we need an engine change: draw the HUD canvas straight into our target, then present that target directly. This is a small patch to Godot's viewport and present code, so it means building our own Godot. We will decide once the renderer's own cost is known.
