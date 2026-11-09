@@ -61,40 +61,63 @@ vec2 am_mapping(vec2 uv, float clock) {
 }
 
 vec2 am_uv(vec2 original_uv, float clock) {
-    vec2 uv = am_mapping(original_uv, clock);
+    // Keep derivatives continuous across repeats. fract() here produces a high-mip
+    // cross at every integer U/V boundary, even on ordinary nonanimated textures.
+    return am_mapping(original_uv, clock);
+}
+
+ivec2 am_cell(float clock) {
     float frames = max(1.0, am_atlas.z);
     float period = am_pingPong && frames > 1.0 ? frames * 2.0 - 2.0 : frames;
     float tick = max(0.0, floor(clock * am_atlas.w + am_motion.w));
     float frame = am_loop ? mod(tick, period) : min(tick, am_pingPong && frames > 1.0 ? period : period - 1.0);
     if (frame >= frames) frame = period - frame;
-    return (fract(uv) + vec2(mod(frame, am_atlas.x), floor(frame / am_atlas.x))) / am_atlas.xy;
+    return ivec2(vec2(mod(frame, am_atlas.x), floor(frame / am_atlas.x)));
 }
 
-vec4 am_image(sampler2D tex, vec2 uv) {
+vec4 am_frame_level(sampler2D tex, vec2 uv, ivec2 cell, int level) {
+    // Filter a repeating frame without ever fetching a neighbouring atlas frame.
+    ivec2 size = textureSize(tex, level) / ivec2(am_atlas.xy);
+    vec2 pixel = fract(uv) * vec2(size) - vec2(0.5);
+    ivec2 p = ivec2(floor(pixel));
+    ivec2 a = (p % size + size) % size;
+    ivec2 b = ((p + ivec2(1)) % size + size) % size;
+    ivec2 origin = cell * size;
+    vec2 f = fract(pixel);
+    return mix(mix(texelFetch(tex, origin + a, level), texelFetch(tex, origin + ivec2(b.x, a.y), level), f.x),
+        mix(texelFetch(tex, origin + ivec2(a.x, b.y), level), texelFetch(tex, origin + b, level), f.x), f.y);
+}
+
+vec4 am_image_level(sampler2D tex, vec2 uv, float clock) {
+    if (am_atlas.x > 1.0 || am_atlas.y > 1.0) return am_frame_level(tex, uv, am_cell(clock), 0);
+    return textureLod(tex, uv, 0.0);
+}
+
+vec4 am_image(sampler2D tex, vec2 uv, float clock) {
     if (am_atlas.x > 1.0 || am_atlas.y > 1.0) {
         vec2 dimensions = vec2(textureSize(tex, 0)), frame_size = dimensions / am_atlas.xy;
         vec2 powers = log2(frame_size);
         float max_level = all(lessThan(abs(powers - round(powers)), vec2(0.0001))) ? min(powers.x, powers.y) : 0.0;
-        vec2 dx = dFdx(uv) * dimensions, dy = dFdy(uv) * dimensions;
+        vec2 dx = dFdx(uv) * frame_size, dy = dFdy(uv) * frame_size;
         float level = clamp(0.5 * log2(max(max(dot(dx, dx), dot(dy, dy)), 1.0)), 0.0, max_level);
-        vec2 cell = floor(uv * am_atlas.xy), texel = 0.5 * exp2(ceil(level)) / dimensions;
-        return textureLod(tex, clamp(uv, cell / am_atlas.xy + texel, (cell + 1.0) / am_atlas.xy - texel), level);
+        ivec2 cell = am_cell(clock);
+        return mix(am_frame_level(tex, uv, cell, int(floor(level))), am_frame_level(tex, uv, cell, int(ceil(level))), fract(level));
     }
     return texture(tex, uv);
 }
 
 vec4 am_sample(sampler2D tex, vec2 uv, vec3 position, vec3 normal, float clock) {
-    if (!am_triplanar) return am_image(tex, uv);
+    if (!am_triplanar) return am_image(tex, uv, clock);
     vec3 weights = pow(abs(normal), vec3(4.0));
     weights /= max(dot(weights, vec3(1.0)), 0.0001);
-    return am_image(tex, am_uv(position.zy, clock)) * weights.x + am_image(tex, am_uv(position.xz, clock)) * weights.y + am_image(tex, am_uv(position.xy, clock)) * weights.z;
+    return am_image(tex, am_uv(position.zy, clock), clock) * weights.x + am_image(tex, am_uv(position.xz, clock), clock) * weights.y + am_image(tex, am_uv(position.xy, clock), clock) * weights.z;
 }
 
 vec3 am_triplanar_normal(sampler2D tex, vec3 position, vec3 normal, float clock, float strength, bool srgb) {
     vec3 weights = pow(abs(normal), vec3(4.0)); weights /= max(dot(weights, vec3(1.0)), 0.0001);
-    vec3 nx = am_image(tex, am_uv(position.zy, clock)).xyz;
-    vec3 ny = am_image(tex, am_uv(position.xz, clock)).xyz;
-    vec3 nz = am_image(tex, am_uv(position.xy, clock)).xyz;
+    vec3 nx = am_image(tex, am_uv(position.zy, clock), clock).xyz;
+    vec3 ny = am_image(tex, am_uv(position.xz, clock), clock).xyz;
+    vec3 nz = am_image(tex, am_uv(position.xy, clock), clock).xyz;
     if (srgb) { nx = am_linear(nx); ny = am_linear(ny); nz = am_linear(nz); }
     nx = nx * 2.0 - 1.0; ny = ny * 2.0 - 1.0; nz = nz * 2.0 - 1.0;
     vec2 scale = vec2(strength, strength * (am_normalDirectX ? -1.0 : 1.0)); nx.xy *= scale; ny.xy *= scale; nz.xy *= scale;
@@ -115,18 +138,13 @@ struct AuthoredSample { vec4 color; vec3 normal; vec3 emission; float roughness;
 
 AuthoredSample am_evaluate(vec2 original_uv, vec3 position, vec3 normal, vec3 view_tangent, float clock) {
     vec2 uv = am_uv(original_uv, clock);
-    vec2 atlas_cell = floor(uv * am_atlas.xy);
     if (am_has_height && am_parallaxDepth > 0.0 && !am_triplanar) {
-        vec2 delta_uv = view_tangent.xy / max(abs(view_tangent.z), 0.15) * am_parallaxDepth / float(am_parallaxSteps) / am_atlas.xy;
+        vec2 delta_uv = view_tangent.xy / max(abs(view_tangent.z), 0.15) * am_parallaxDepth / float(am_parallaxSteps);
         float layer = 0.0;
         for (int i = 0; i < 64; i++) {
-            vec2 height_uv = (fract(uv * am_atlas.xy) + atlas_cell) / am_atlas.xy;
-            vec2 margin = 0.5 / vec2(textureSize(am_tex_height, 0));
-            height_uv = clamp(height_uv, atlas_cell / am_atlas.xy + margin, (atlas_cell + 1.0) / am_atlas.xy - margin);
-            if (i >= am_parallaxSteps || layer >= 1.0 - am_value(textureLod(am_tex_height, height_uv, 0.0), am_channel_height, am_invert_height, am_srgb_height)) break;
+            if (i >= am_parallaxSteps || layer >= 1.0 - am_value(am_image_level(am_tex_height, uv, clock), am_channel_height, am_invert_height, am_srgb_height)) break;
             uv -= delta_uv; layer += 1.0 / float(am_parallaxSteps);
         }
-        uv = (fract(uv * am_atlas.xy) + atlas_cell) / am_atlas.xy;
     }
     AuthoredSample result;
     vec4 base = am_has_baseColor ? am_sample(am_tex_baseColor, uv, position, normal, clock) : vec4(1.0);
@@ -145,10 +163,10 @@ AuthoredSample am_evaluate(vec2 original_uv, vec3 position, vec3 normal, vec3 vi
         result.normal.xy *= vec2(am_normalStrength, am_normalStrength * (am_normalDirectX ? -1.0 : 1.0));
         if (am_triplanar) result.normal = am_triplanar_normal(am_tex_normal, position, normal, clock, am_normalStrength, am_srgb_normal);
     } else if (am_has_height && am_bumpFromHeight) {
-        vec2 texel = 1.0 / vec2(textureSize(am_tex_height, 0));
-        float h = am_value(texture(am_tex_height, uv), am_channel_height, am_invert_height, am_srgb_height);
-        float x = am_value(texture(am_tex_height, uv + vec2(texel.x, 0.0)), am_channel_height, am_invert_height, am_srgb_height);
-        float y = am_value(texture(am_tex_height, uv + vec2(0.0, texel.y)), am_channel_height, am_invert_height, am_srgb_height);
+        vec2 texel = am_atlas.xy / vec2(textureSize(am_tex_height, 0));
+        float h = am_value(am_image(am_tex_height, uv, clock), am_channel_height, am_invert_height, am_srgb_height);
+        float x = am_value(am_image(am_tex_height, uv + vec2(texel.x, 0.0), clock), am_channel_height, am_invert_height, am_srgb_height);
+        float y = am_value(am_image(am_tex_height, uv + vec2(0.0, texel.y), clock), am_channel_height, am_invert_height, am_srgb_height);
         result.normal = vec3((h - x) * am_normalStrength, (h - y) * am_normalStrength, 1.0);
         if (am_triplanar) {
             float height_value = am_value(am_sample(am_tex_height, uv, position, normal, clock), am_channel_height, am_invert_height, am_srgb_height);
