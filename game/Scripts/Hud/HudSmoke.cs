@@ -31,7 +31,7 @@ namespace OpenScctGame.Hud;
 /// (<c>python -m svmbuild ui</c>); headless it checks the draw lists, not pixels. With a renderer and
 /// <c>--svm-hud-capture=dir</c> it also saves each screen as a PNG there (for a look, kept out of git).
 /// </summary>
-public sealed class HudSmoke(bool spectatorOnly = false) : SmokeTest
+public sealed class HudSmoke(bool spectatorOnly = false, bool teammateNamesOnly = false) : SmokeTest
 {
     public const string TestName = "hud";
 
@@ -53,10 +53,17 @@ public sealed class HudSmoke(bool spectatorOnly = false) : SmokeTest
     private readonly string? _captureDir = CaptureDir();
 
     public const string SpectatorTestName = "hud-spectator";
-    public override string Name => spectatorOnly ? SpectatorTestName : TestName;
+    public const string TeammateNamesTestName = "hud-teammate-names";
+    public override string Name => teammateNamesOnly ? TeammateNamesTestName : spectatorOnly ? SpectatorTestName : TestName;
 
     public override SmokeResult Step(SmokeContext context)
     {
+        if (teammateNamesOnly)
+        {
+            if (_phase++ == 0) return Setup(context);
+            CheckSleepingTeammateName();
+            return _failures.Count == 0 ? SmokeResult.Pass() : SmokeResult.Fail(string.Join("; ", _failures));
+        }
         if (spectatorOnly)
         {
             if (_phase++ == 0) return Setup(context);
@@ -891,6 +898,7 @@ public sealed class HudSmoke(bool spectatorOnly = false) : SmokeTest
 
     private void CheckMerc()
     {
+        CheckSleepingTeammateName();
         HudLayer layer = _layer!;
         Scene s = _scene!;
         HudSnapshot snap = layer.Snapshot;
@@ -942,6 +950,27 @@ public sealed class HudSmoke(bool spectatorOnly = false) : SmokeTest
         Expect(!layer.Merc.Root.Children.Any(c => c.Name == "Flash" && c.Visible), "no white-out in motion vision (immune)");
         CheckAssets(layer);
         _notes.Add(string.Create(CultureInfo.InvariantCulture, $"merc={list.Items.Count}"));
+    }
+
+    private void CheckSleepingTeammateName()
+    {
+        var mate = _scene!.World.Level.SpawnActor(new SPawnDefense_1Mesh(), new FVector(500, 0, 0), default)!;
+        mate.Health = 100;
+        mate.PlayerReplicationInfo = new PlayerReplicationInfo { PlayerName = "Sleeping teammate" };
+        var names = new HudTeammateNames { ShowMerc = true, ShowSpy = true, Opacity = 1 };
+        void Draw() => names.Draw(_scene.MercPc, _ => new Vector2(640, 360), Screen);
+        bool HasSleep() => names.DrawList.Items.Any(i => i.Path.EndsWith("/Sleep", StringComparison.Ordinal));
+        mate.bSleeping = true;
+        Draw();
+        Expect(HasSleep(), "Merc teammate nametag shows a sleeping icon");
+        mate.bSleeping = false;
+        Draw();
+        Expect(!HasSleep(), "Waking removes the teammate sleeping icon");
+        mate.bSleeping = true;
+        mate.Health = 0;
+        Draw();
+        Expect(!HasSleep(), "Dead teammates do not keep a sleeping icon");
+        mate.Destroy();
     }
 
     /// <summary>The merc page's effects, one after another.</summary>

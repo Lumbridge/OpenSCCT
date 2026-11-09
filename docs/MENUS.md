@@ -526,8 +526,11 @@ details of the measurements and issue detection are in [HUD.md](HUD.md).
 
 Spies can switch between third and first person with **X** (rebind **First / third person** under
 **Options → Spy → Bindings**). **Perspective** selects **Toggle** or **Hold**; the same choice applies to
-controller assignments, while wheel bindings always toggle. Existing X bindings are preserved. First person
-uses a collision-checked eye position inside the current standing or crouching body, with a final rendered-frame
+controller assignments, while wheel bindings always toggle. Separate **First person** and **Third person**
+actions select that view on press and start unbound for keyboard, mouse and controller. For example, bind
+**First person** to scroll up and **Third person** to scroll down; repeated notches keep the chosen view.
+Existing X bindings are preserved. First person uses a collision-checked eye position inside the current
+standing or crouching body, with a final rendered-frame
 check that includes the near plane. Perspective changes cut immediately. If solid geometry leaves no safe eye
 position, the world is obscured until the view is clear. Binoculars, remote cameras and scripted views take
 priority; focus loss and a new possession reset the perspective to third person.

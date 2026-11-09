@@ -50,17 +50,37 @@ public sealed class SpectatorNetworkTests
         Assert.True(local.PlayerReplicationInfo!.bOnlySpectator);
         Assert.True(local.IsSpectating());
         var first = Assert.IsType<SPlayerController>(source.PC_spectated);
+        CheckVisionCycle(local);
         local.eventFire(1f);
         Step(120);
         var second = Assert.IsType<SPlayerController>(source.PC_spectated);
         Assert.NotSame(first, second);
         Assert.NotEqual(first.PlayerReplicationInfo!.Team, second.PlayerReplicationInfo!.Team);
         Assert.Equal(second.PlayerReplicationInfo.PlayerName, local.SpecTarget?.PlayerReplicationInfo?.PlayerName);
+        Assert.Equal(SGoggle.REN_DynLight, local.Goggle!.CurrentMode);
+        Assert.Equal(SGoggle.REN_DynLight, local.RendMap);
+        CheckVisionCycle(local);
         second.PawnTakeDamage(1000, null, second.Pawn!.Location, default, SDamageType.SDTBase);
         Step(600);
         Assert.Same(first, source.PC_spectated);
         Assert.Equal(first.PlayerReplicationInfo.PlayerName, local.SpecTarget?.PlayerReplicationInfo?.PlayerName);
+        Assert.Equal(SGoggle.REN_DynLight, local.Goggle!.CurrentMode);
+        Assert.Equal(SGoggle.REN_DynLight, local.RendMap);
         Assert.False(match.Server.Game!.bGameEnded);
+    }
+
+    private static void CheckVisionCycle(SPlayerController viewer)
+    {
+        bool merc = Assert.IsAssignableFrom<SBasePawn>(viewer.SpecTarget).SPawnType == PawnType.SPAWNDEFENSE;
+        int first = merc ? SGoggle.REN_MotionTrackingVision : SGoggle.REN_NightVision;
+        int second = merc ? SGoggle.REN_EMFVision : SGoggle.REN_ThermalVision;
+        Assert.Null(viewer.Pawn);
+        foreach (int mode in new[] { first, second, SGoggle.REN_DynLight, first })
+        {
+            viewer.eventSwitchHeadset(3);
+            Assert.Equal(mode, Assert.IsType<SGoggle>(viewer.Goggle).CurrentMode);
+            Assert.Equal(mode, viewer.RendMap);
+        }
     }
 
     [Theory]
@@ -106,6 +126,7 @@ public sealed class SpectatorNetworkTests
         Kill(watcher);
         Step(900);
         Assert.True(owner.Controller!.IsSpectating());
+        CheckVisionCycle(owner.Controller);
         var first = Assert.IsType<SPlayerController>(watcher.PC_spectated);
         if (manuallyCycleFirst)
         {
@@ -126,6 +147,8 @@ public sealed class SpectatorNetworkTests
             $"owner target={owner.Controller.SpecTarget?.PlayerReplicationInfo?.PlayerName}, state={owner.Controller.GetStateName()}");
         Assert.Same(remaining.Pawn, watcher.SpecTarget);
         Assert.Equal(remaining.PlayerReplicationInfo!.PlayerName, owner.Controller.SpecTarget?.PlayerReplicationInfo?.PlayerName);
+        Assert.Equal(team == BotTeam.Merc ? SGoggle.REN_MotionTrackingVision : SGoggle.REN_NightVision,
+            owner.Controller.RendMap);
         Assert.False(match.Server.Game!.bGameEnded);
         Assert.Equal(1, match.Server.Game.GameReplicationInfo!.TotalTeamLives[(int)team]);
         Assert.Equal(1, owner.Controller.GameReplicationInfo!.TotalTeamLives[(int)team]);

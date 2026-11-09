@@ -458,6 +458,15 @@ public partial class PlayInput : Node
                     if (pressed) input.Commands.Add(new InputCommand("ToggleCloak"));
                     continue;
                 }
+                if (a.Kind == KeyActionKind.Command && a.Name.Equals("SetSpyFirstPerson", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (!merc && pressed)
+                    {
+                        _actionState.SetSpyFirstPerson(a.Arg != 0);
+                        input.Commands.Add(new InputCommand("SetSpyFirstPerson", a.Arg != 0 ? 1 : 0));
+                    }
+                    continue;
+                }
                 if (a.Kind == KeyActionKind.Command && a.Name.Equals("SwitchSpyPerspective", StringComparison.OrdinalIgnoreCase))
                 {
                     if (!merc)

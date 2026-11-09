@@ -245,6 +245,42 @@ internal static class BindingRuntimeChecks
             held.Remove(Key.F22);
             Expect(!service.VoiceAllHeld, "synthetic controller voice chord releases");
             input.Enabled = true;
+
+            ReleaseAll();
+            layout.Bind("MouseWheelUp", "SetSpyFirstPerson 1");
+            layout.Bind("MouseWheelDown", "SetSpyFirstPerson 0");
+            layout.Bind("X", "SwitchSpyPerspective");
+            input.Bindings = InputBindings.FromLayout(layout, PlaySide.Spy);
+            foreach (MouseButton direction in new[] { MouseButton.WheelUp, MouseButton.WheelUp, MouseButton.WheelDown, MouseButton.WheelDown })
+            {
+                Send(new InputEventMouseButton { ButtonIndex = direction, Pressed = true });
+                Tick();
+                int expected = direction == MouseButton.WheelUp ? 1 : 0;
+                Expect(local.Commands.LastOrDefault(c => c.Name == "SetSpyFirstPerson").Arg == expected &&
+                    local.Commands.Any(c => c.Name == "SetSpyFirstPerson") &&
+                    !local.Commands.Any(c => c.Name is "NextGadget" or "PreviousGadget"),
+                    "direct perspective wheel notches select a view without toggling or changing gadgets");
+                Tick();
+                Expect(local.Commands.All(c => c.Name != "SetSpyFirstPerson" || c.Arg == expected),
+                    "direct perspective survives the wheel pulse release");
+            }
+            foreach (string id in new[] { "firstperson", "thirdperson" })
+            {
+                string key = UI.ControlActions.VirtualPrefix + "RB:" + id;
+                input.Key(key, true);
+                input.Key(key, false);
+                Tick();
+                Expect(local.Commands.Any(c => c.Name == "SetSpyFirstPerson") &&
+                    local.Commands.Last(c => c.Name == "SetSpyFirstPerson").Arg == (id == "firstperson" ? 1 : 0),
+                    "controller direct perspective selects its view independently of keyboard bindings");
+            }
+            ReleaseAll();
+            input.Bindings = InputBindings.FromLayout(layout, PlaySide.Merc);
+            Send(new InputEventMouseButton { ButtonIndex = MouseButton.WheelUp, Pressed = true });
+            input.Key(UI.ControlActions.VirtualPrefix + "RB:firstperson", true);
+            input.Key(UI.ControlActions.VirtualPrefix + "RB:thirdperson", true);
+            Tick();
+            Expect(!local.Commands.Any(c => c.Name == "SetSpyFirstPerson"), "merc ignores direct spy perspective bindings");
         }
         catch (Exception error)
         {
