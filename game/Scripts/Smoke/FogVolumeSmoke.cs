@@ -46,6 +46,7 @@ public sealed class FogVolumeSmoke : SmokeTest
             _mesh!.MaterialOverride = new ShaderMaterial { Shader = new Shader { Code = """
                 shader_type spatial;
                 render_mode unshaded;
+                #define SVM_PORTAL_FOG
                 #include "res://Shaders/svm_fog.gdshaderinc"
                 void fragment() { ALBEDO = surface_fog(CAMERA_VISIBLE_LAYERS, VERTEX, FRAGCOORD.xy, VIEWPORT_SIZE).rgb; }
                 """ } };

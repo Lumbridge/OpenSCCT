@@ -10,22 +10,26 @@ namespace OpenScctGame.Render.Materials;
 /// <see cref="Define"/>; without it, stubs return the values the smoke code gives while inactive
 /// (svm_smoke_active false), so a match without responsive smoke draws the same image without that code.
 /// A match picks the variant with <see cref="Use"/> before it builds materials. Each shader is one object whose code
-/// follows the flag, so rules that arrive later switch the materials already built.
+/// follows the flags, so rules that arrive later switch the materials already built.
+/// Portal fog (<see cref="PortalFogDefine"/>) is the same kind of switch, set per map by <see cref="UsePortalFog"/>.
 /// </summary>
 public static class ResponsiveSmokeShaders
 {
     public const string Define = "SVM_RESPONSIVE_SMOKE";
+    public const string PortalFogDefine = "SVM_PORTAL_FOG";
+    private const int SmokeFlag = 1, PortalFogFlag = 2;
     private static readonly Regex ShaderType = new(@"\bshader_type\s+\w+\s*;", RegexOptions.CultureInvariant);
     private static readonly System.Threading.Lock s_lock = new();
     private static readonly Dictionary<string, Shader> s_byCode = new(StringComparer.Ordinal);
     private static readonly Dictionary<string, Shader> s_byPath = new(StringComparer.Ordinal);
     private static readonly Dictionary<Shader, Entry> s_entries = new(ReferenceEqualityComparer.Instance);
-    private static bool s_enabled;
+    // Portal fog stays compiled until a map decides, so a view nothing decided for still draws it.
+    private static int s_flags = PortalFogFlag;
 
     private sealed class Entry(string code)
     {
         public string Code { get; } = code;
-        public bool Smoke;
+        public int Flags;
     }
 
     /// <summary>
@@ -62,7 +66,7 @@ public static class ResponsiveSmokeShaders
         lock (s_lock) return Refresh(shader);
     }
 
-    /// <summary>The code <paramref name="shader"/> was made from, without the define.</summary>
+    /// <summary>The code <paramref name="shader"/> was made from, without the defines.</summary>
     public static string BaseCode(Shader shader)
     {
         lock (s_lock) return s_entries.TryGetValue(shader, out Entry? entry) ? entry.Code : shader.Code;
@@ -73,7 +77,16 @@ public static class ResponsiveSmokeShaders
     {
         get
         {
-            lock (s_lock) return s_enabled;
+            lock (s_lock) return (s_flags & SmokeFlag) != 0;
+        }
+    }
+
+    /// <summary>True when the shaders compile portal fog (<see cref="UsePortalFog"/>).</summary>
+    public static bool PortalFogEnabled
+    {
+        get
+        {
+            lock (s_lock) return (s_flags & PortalFogFlag) != 0;
         }
     }
 
@@ -81,12 +94,22 @@ public static class ResponsiveSmokeShaders
     /// Compile responsive smoke into the shaders (or leave it out). Shaders that materials use switch now; idle cached
     /// ones switch when next handed out (<see cref="Shared"/>, <see cref="Load"/>, <see cref="Current"/>).
     /// </summary>
-    public static void Use(bool enabled)
+    public static void Use(bool enabled) => SetFlag(SmokeFlag, enabled);
+
+    /// <summary>
+    /// Compile portal fog into the shaders (or leave it out), switching them as <see cref="Use"/> does. MapBuilder
+    /// decides it per map (<see cref="Post.PortalFogFrame.MapUses"/>) before the map's materials are built; a map
+    /// without it never draws portal fog.
+    /// </summary>
+    public static void UsePortalFog(bool enabled) => SetFlag(PortalFogFlag, enabled);
+
+    private static void SetFlag(int flag, bool enabled)
     {
         lock (s_lock)
         {
-            if (s_enabled == enabled) return;
-            s_enabled = enabled;
+            int flags = enabled ? s_flags | flag : s_flags & ~flag;
+            if (s_flags == flags) return;
+            s_flags = flags;
             foreach ((Shader shader, Entry entry) in s_entries)
             {
                 // The registry's own wrapper holds one reference; a material holds another.
@@ -113,21 +136,22 @@ public static class ResponsiveSmokeShaders
 
     private static Shader Refresh(Shader shader)
     {
-        if (s_entries.TryGetValue(shader, out Entry? entry) && entry.Smoke != s_enabled) Apply(shader, entry);
+        if (s_entries.TryGetValue(shader, out Entry? entry) && entry.Flags != s_flags) Apply(shader, entry);
         return shader;
     }
 
     private static void Apply(Shader shader, Entry entry)
     {
-        entry.Smoke = s_enabled;
-        shader.Code = s_enabled ? WithDefine(entry.Code) : entry.Code;
+        entry.Flags = s_flags;
+        shader.Code = s_flags == 0 ? entry.Code : WithDefines(entry.Code, s_flags);
     }
 
-    // The define goes after the shader_type statement, which must stay the code's first statement.
-    private static string WithDefine(string code)
+    // The defines go after the shader_type statement, which must stay the code's first statement.
+    private static string WithDefines(string code, int flags)
     {
         System.Text.RegularExpressions.Match match = ShaderType.Match(code);
-        string line = "\n#define " + Define + "\n";
-        return match.Success ? code.Insert(match.Index + match.Length, line) : line + code;
+        string lines = "\n" + ((flags & SmokeFlag) != 0 ? "#define " + Define + "\n" : "")
+            + ((flags & PortalFogFlag) != 0 ? "#define " + PortalFogDefine + "\n" : "");
+        return match.Success ? code.Insert(match.Index + match.Length, lines) : lines + code;
     }
 }

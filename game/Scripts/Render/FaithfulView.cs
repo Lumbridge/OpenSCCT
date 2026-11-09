@@ -64,7 +64,7 @@ public partial class FaithfulView : Node3D
         CoronaSamples = new CoronaSampleEffect(Camera);
         Camera.Compositor = new Compositor { CompositorEffects = new Godot.Collections.Array<CompositorEffect> { CoronaSamples, AmbientOcclusion, Effect, DoubleVision, Remanence } };
         AddChild(Camera);
-        _surfaceFog = new SurfaceFogRegistry(Camera);
+        _surfaceFog = new SurfaceFogRegistry(Camera, main: true);
     }
 
     public Camera3D Camera { get; }
@@ -217,6 +217,8 @@ public partial class FaithfulView : Node3D
     {
         ArgumentNullException.ThrowIfNull(map);
         Map = map;
+        // MapBuilder decided this already; the shown map keeps it if another map was built since.
+        Materials.ResponsiveSmokeShaders.UsePortalFog(PortalFogFrame.MapUses(map.Lighting));
         if (map.Lighting.OutdoorSky)
         {
             Camera.Environment.BackgroundMode = Godot.Environment.BGMode.Sky;
@@ -636,10 +638,9 @@ public partial class FaithfulView : Node3D
     private PortalFogFrame? PortalFog(ViewFog fog, int zone)
     {
         if (Map?.Lighting is not { } lighting || IsSceneVision(_rendMap)) return null;
-        // Converted maps can have a portal table even when no zone uses fog. Keep the portal
-        // path during a camera fog transition and whenever a fog volume can use the crossings.
-        if (lighting.FogVolumes.Count == 0 &&
-            (!lighting.HasFogPortals || (!fog.On && !lighting.Zones.Exists(static zone => zone.Fog)))) return null;
+        // Converted maps can have a portal table even when no zone uses fog. The view's fog (fog.On, also during a
+        // transition) only comes from a fogged zone, so this is the same test that decided the shaders' portal fog.
+        if (!PortalFogFrame.MapUses(lighting)) return null;
         Transform3D transform = Camera.GlobalTransform;
         Projection projection = Camera.GetCameraProjection();
         Vector2I size = (Vector2I)Camera.GetViewport().GetVisibleRect().Size;

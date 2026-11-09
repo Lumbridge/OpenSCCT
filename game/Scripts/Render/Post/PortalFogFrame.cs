@@ -21,6 +21,14 @@ public sealed record PortalFogFrame(float[] Data)
     /// </summary>
     public bool Empty { get; init; }
 
+    /// <summary>
+    /// True when a view of the map can draw portal fog: it has fog volumes, or a portal table and a fogged zone (a
+    /// view's own fog only comes from a fogged zone, FaithfulView.ZoneFog). Decided once per map before its materials
+    /// are built: only then do the shaders compile portal fog (ResponsiveSmokeShaders.UsePortalFog).
+    /// </summary>
+    public static bool MapUses(LightingDoc lighting) =>
+        lighting.FogVolumes.Count > 0 || (lighting.HasFogPortals && lighting.Zones.Exists(static zone => zone.Fog));
+
     public static PortalFogFrame Build(LightingDoc lighting, Camera3D camera, FVector origin, int cameraZone,
         bool cameraFog, Color cameraColor, float cameraStart, float cameraEnd)
     {
