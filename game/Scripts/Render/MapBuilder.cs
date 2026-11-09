@@ -466,6 +466,8 @@ public static class MapBuilder
         RenderPack? pack = RenderPack.Load(RenderMap.SharedRootOf(mapFolder));
         MaterialsDoc materials = materialsRead.GetAwaiter().GetResult();
         LightingDoc lighting = lightingRead.GetAwaiter().GetResult();
+        // Shaders compile portal fog only for a map that can draw it; decided before any of its materials is built.
+        ResponsiveSmokeShaders.UsePortalFog(Post.PortalFogFrame.MapUses(lighting));
         List<OpenScctGame.Render.Projectors.ProjectorEntry>? projectors = projectorsRead.GetAwaiter().GetResult();
         // Only projectors with bProjectStaticMesh off read the solid surfaces' stencil marks.
         bool stencilMarks = projectors?.Exists(p => !p.ProjectStaticMesh) == true;

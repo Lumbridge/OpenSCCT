@@ -9,10 +9,12 @@ namespace OpenScctGame.Render.Post;
 /// Fog data for every live camera, selected by its reserved visibility bits. A material can be shared by main,
 /// sky and auxiliary views without borrowing whichever camera last set a global uniform. No geometry uses these
 /// bits. Slot zero is deliberately unregistered, so independent diagnostic views keep their compositor fallback.
+/// The main view's rows are also global vec4 uniforms (svm_fog.gdshaderinc), so its pixels skip the fetches.
 /// </summary>
 public sealed class SurfaceFogRegistry : IDisposable
 {
     public const string Parameter = "svm_surface_fog";
+    public const string MainSlotParameter = "svm_fog_main_slot";
     public const int TextureWidth = 1024;
     public const int SlotCount = 128;
     private const int TableFloats = SlotCount * 4;
@@ -23,6 +25,12 @@ public sealed class SurfaceFogRegistry : IDisposable
     private static bool s_dirty;
     private static List<float> s_values = new(TableFloats);
     private static byte[] s_upload = [];
+    private static SurfaceFogRegistry? s_main;
+    private static readonly StringName MainSlotName = MainSlotParameter;
+    // The main view's rows in this order: its table row, simple fog colour, frame rows 0-5, camera zone ramp pair.
+    private static readonly StringName[] MainRowNames = [
+        "svm_fog_main_view", "svm_fog_main_color", "svm_fog_main_eye", "svm_fog_main_right", "svm_fog_main_up",
+        "svm_fog_main_forward", "svm_fog_main_grid", "svm_fog_main_layout", "svm_fog_main_ramp", "svm_fog_main_ramp_color"];
     private readonly Camera3D _camera;
     private readonly int _slot;
     public int Slot => _slot;
@@ -35,7 +43,9 @@ public sealed class SurfaceFogRegistry : IDisposable
 
     private readonly record struct FogState(int Mode, Color Color, float Start, float End, PortalFogFrame? Portal);
 
-    public SurfaceFogRegistry(Camera3D camera)
+    /// <param name="camera">The view's camera; its reserved visibility bits are set to the view's slot.</param>
+    /// <param name="main">The gameplay view: its rows also go to uniforms (the latest main view takes them).</param>
+    public SurfaceFogRegistry(Camera3D camera, bool main = false)
     {
         ArgumentNullException.ThrowIfNull(camera);
         EnsureGlobals();
@@ -46,6 +56,7 @@ public sealed class SurfaceFogRegistry : IDisposable
             if (Views[i] is not null) continue;
             _slot = i;
             Views[i] = this;
+            if (main) s_main = this;
             camera.CullMask = (camera.CullMask & ~RenderLayers.FogViewMask) | ((uint)i << RenderLayers.FogViewShift);
             s_dirty = true;
             return;
@@ -54,7 +65,7 @@ public sealed class SurfaceFogRegistry : IDisposable
         throw new InvalidOperationException("All 126 per-camera fog slots are in use.");
     }
 
-    /// <summary>Registers the sampler before a shader referencing it is compiled.</summary>
+    /// <summary>Registers the sampler and the main view's uniforms before a shader referencing them is compiled.</summary>
     public static void EnsureGlobals()
     {
         ResponsiveSmokeRenderer.EnsureGlobals();
@@ -63,6 +74,9 @@ public sealed class SurfaceFogRegistry : IDisposable
         empty.Fill(Colors.Transparent);
         s_texture = ImageTexture.CreateFromImage(empty);
         RenderingServer.GlobalShaderParameterAdd(Parameter, RenderingServer.GlobalShaderParameterType.Sampler2D, s_texture);
+        RenderingServer.GlobalShaderParameterAdd(MainSlotName, RenderingServer.GlobalShaderParameterType.Int, 0);
+        foreach (StringName name in MainRowNames)
+            RenderingServer.GlobalShaderParameterAdd(name, RenderingServer.GlobalShaderParameterType.Vec4, Vector4.Zero);
         RenderingServer.FramePreDraw += Flush;
         s_initialized = true;
     }
@@ -127,6 +141,7 @@ public sealed class SurfaceFogRegistry : IDisposable
         using var image = Image.CreateFromData(TextureWidth, height, false, Image.Format.Rgbaf, upload);
         if (s_texture.GetWidth() == TextureWidth && s_texture.GetHeight() == height) s_texture.Update(image);
         else s_texture.SetImage(image);
+        SetMainRows(values);
         LastUploadBytes = byteCount;
         LastUploadMilliseconds = System.Diagnostics.Stopwatch.GetElapsedTime(started).TotalMilliseconds;
         LastUploadAllocatedBytes = GC.GetAllocatedBytesForCurrentThread() - allocated;
@@ -135,11 +150,36 @@ public sealed class SurfaceFogRegistry : IDisposable
         s_dirty = false;
     }
 
+    // The main view's rows as uniforms, copied from the floats just uploaded: the texture is 32-bit float, so the
+    // shader reads the same values either way. Set together with the texture, they always describe the table the
+    // frame draws with; no other view's slot matches the main slot, and slot 0 (no main view) matches no view.
+    private static void SetMainRows(List<float> values)
+    {
+        int slot = s_main is { _disposed: false } main ? main._slot : 0;
+        int block = (int)values[slot * 4];
+        float mode = values[slot * 4 + 1];
+        int frame = mode == 2f ? block + 1 : -1;
+        // The shader's camera zone ramp row: 6 + clamp(int(eye.w), 0, 63) * 2 in the frame.
+        int ramp = frame < 0 ? -1 : frame + 6 + Math.Clamp((int)values[frame * 4 + 3], 0, 63) * 2;
+        RenderingServer.GlobalShaderParameterSet(MainSlotName, slot);
+        Set(0, slot);
+        Set(1, mode >= 1f ? block : -1);
+        for (int row = 0; row < 6; row++) Set(2 + row, frame < 0 ? -1 : frame + row);
+        Set(8, ramp);
+        Set(9, ramp < 0 ? -1 : ramp + 1);
+
+        void Set(int parameter, int row) => RenderingServer.GlobalShaderParameterSet(MainRowNames[parameter],
+            row >= 0 && row * 4 + 3 < values.Count
+                ? new Vector4(values[row * 4], values[row * 4 + 1], values[row * 4 + 2], values[row * 4 + 3])
+                : Vector4.Zero);
+    }
+
     public void Dispose()
     {
         if (_disposed) return;
         _disposed = true;
         Views[_slot] = null;
+        if (s_main == this) s_main = null;
         ResponsiveSmokeRenderer.ReleaseView(_slot);
         if (GodotObject.IsInstanceValid(_camera) && ((_camera.CullMask & RenderLayers.FogViewMask) >> RenderLayers.FogViewShift) == (uint)_slot)
             _camera.CullMask &= ~RenderLayers.FogViewMask;
