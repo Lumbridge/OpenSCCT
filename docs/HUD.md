@@ -324,6 +324,14 @@ Matches offer All/Team and the hub also offers Nearby. The native editor support
 movement and copy/paste, with a 100-character message-body limit. Opening it releases the pointer and clears and
 blocks gameplay input; closing restores the prior input/capture state without overriding another menu.
 
+**Quick chat** is an optional, initially unbound action under Communication in each role's keyboard/mouse and
+controller bindings. Open it, choose Attack, Defend, Information or Responses, then a phrase. Number keys 1–4
+and D-pad Up/Right/Down/Left make both choices; the visible buttons also work with a mouse. Escape or B returns
+to the categories, then closes. It sends preset text through the existing Team channel, including its server
+rules and chat history. It clears held gameplay inputs during selection, restores controls on send/cancel,
+expires after eight seconds without a choice, and allows one completed message every 1.5 seconds. The
+`controller-ui` smoke checks keyboard/controller selection, team scope, cancellation and input restoration.
+
 The client sends `ControlMessage.Chat(scope, text)` on the control channel; the server's `ChatRelay` applies the
 original's rules (spectators may not chat unless dead and the voice mode allows it, a shared budget of 260
 characters a second, team lines to the sender's team) and sends each recipient a chat message with the sender's id,

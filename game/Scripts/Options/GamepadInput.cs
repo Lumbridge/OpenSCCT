@@ -61,6 +61,23 @@ public partial class GamepadInput : Node
     private bool _wasFlying;
 
     private static ulong s_drivenFrame = ulong.MaxValue;
+    private static readonly HashSet<GamepadInput> s_instances = new();
+    private bool _suppressButtonsUntilRelease;
+
+    // Event dispatch can precede the first process frame. Query the actual owner, not last frame's marker.
+    public static bool GameplayActive => s_instances.Any(pad => pad.Settings.Pad.Enabled &&
+        pad.PlayInput is { Enabled: true });
+
+    public override void _EnterTree()
+    {
+        s_instances.Add(this);
+        _suppressButtonsUntilRelease = true;
+    }
+
+    public static void SuppressHeldButtons()
+    {
+        foreach (GamepadInput pad in s_instances) pad._suppressButtonsUntilRelease = true;
+    }
 
     public GamepadInput()
     {
@@ -167,7 +184,8 @@ public partial class GamepadInput : Node
         Vector2 look = pad.Aim || wheelOpen ? Stick(JoyAxis.RightX, JoyAxis.RightY, pad.DeadzoneRight) : Vector2.Zero;
         if (wheelOpen) input.TeamPing.StickDirection(look.X, look.Y);
 
-        if (pad.Binds) UpdateButtons(input, merc, down, delta);
+        if (_suppressButtonsUntilRelease && down.Count == 0) _suppressButtonsUntilRelease = false;
+        if (pad.Binds && !_suppressButtonsUntilRelease) UpdateButtons(input, merc, down, delta);
         else { ReleaseButtons(); _buttonsState.Reset(down); }
 
         if (pad.Aim && !wheelOpen && Session is { } session)
@@ -261,7 +279,11 @@ public partial class GamepadInput : Node
     private GameSettings? _padLookFor;
     private MouseLook _padLook = new();
 
-    public override void _ExitTree() => ReleaseAll();
+    public override void _ExitTree()
+    {
+        s_instances.Remove(this);
+        ReleaseAll();
+    }
 
     private bool _lbWas;
     private bool _rbWas;
@@ -428,6 +450,13 @@ public partial class GamepadInput : Node
                 input.SendLocalCommand(action == "Action:menu" ? "ShowMenu" : "DisplaySessionStatus");
                 return;
             }
+            if (action is "Action:quickchat" or "Action:chat" or "Action:teamchat")
+            {
+                if (_held.ContainsKey(control)) return;
+                _held[control] = "chat-local:" + control;
+                input.SendLocalCommand(action == "Action:quickchat" ? "QuickChat" : action == "Action:teamchat" ? "TeamTalk" : "Talk");
+                return;
+            }
             string? resolved = action.StartsWith(UI.ControlActions.PadPrefix, StringComparison.Ordinal)
                 ? UI.ControlActions.VirtualPrefix + control + ":" + action[UI.ControlActions.PadPrefix.Length..]
                 : KeyFor(input, action);
@@ -458,6 +487,7 @@ public partial class GamepadInput : Node
 
     private void SendControl(PlayInput? input, string key, bool pressed)
     {
+        if (key.StartsWith("chat-local:", StringComparison.Ordinal)) return;
         if (key.StartsWith("scoreboard-local:", StringComparison.Ordinal)) input?.SendLocalAction(key[(key.LastIndexOf(':') + 1)..], key, pressed);
         else if (key.StartsWith(UI.ControlActions.VirtualPrefix, StringComparison.Ordinal)) input?.Key(key, pressed);
         else Send(IsInsideTree() ? GetViewport() : null, key, pressed);

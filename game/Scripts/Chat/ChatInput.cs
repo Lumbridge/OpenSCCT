@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Godot;
 using OpenScct.Net;
@@ -37,6 +38,7 @@ public partial class ChatInput : CanvasLayer, IHudOverlay
     }
 
     public ChatPanel Panel { get; } = new();
+    public QuickChatMenu QuickChat { get; } = new();
     public ChatTranscript Transcript { get => Panel.Transcript; set => Panel.Transcript = value; }
     public Func<double> Clock { get => Panel.Clock; set => Panel.Clock = value; }
     public bool AllowNearby { get => Panel.AllowNearby; set => Panel.AllowNearby = value; }
@@ -63,6 +65,9 @@ public partial class ChatInput : CanvasLayer, IHudOverlay
         Panel.Name = "ChatPanel";
         Panel.Submitted += OnSubmitted;
         AddChild(Panel);
+        QuickChat.Composer = this;
+        AddChild(QuickChat);
+        if (PlayInput is { } input) input.LocalCommand += OnLocalCommand;
         _ready = true;
         Panel.SetExpanded(IsOpen);
     }
@@ -96,6 +101,7 @@ public partial class ChatInput : CanvasLayer, IHudOverlay
     {
         if (!IsOpen) return;
         IsOpen = false;
+        Options.GamepadInput.SuppressHeldButtons();
         if (Typing == this) Typing = null;
         Panel.Draft = "";
         if (_ready) Panel.SetExpanded(false);
@@ -114,6 +120,7 @@ public partial class ChatInput : CanvasLayer, IHudOverlay
 
     public override void _ExitTree()
     {
+        if (PlayInput is { } input) input.LocalCommand -= OnLocalCommand;
         Close(restorePointer: false);
         if (Typing == this) Typing = null;
         Panel.Submitted -= OnSubmitted;
@@ -142,6 +149,21 @@ public partial class ChatInput : CanvasLayer, IHudOverlay
     }
 
     public void Submit() => OnSubmitted(Panel.Draft);
+
+    private void OnLocalCommand(string command)
+    {
+        if (command == "QuickChat") QuickChat.Open();
+        else if (command == "Talk") Open(EChatScope.Say);
+        else if (command == "TeamTalk") Open(EChatScope.TeamSay);
+    }
+
+    internal void SendQuickMessage(string text)
+    {
+        Sent.Add((EChatScope.TeamSay, text));
+        if (Sent.Count > 64) Sent.RemoveAt(0);
+        if (SendMessage is { } send) send(ChatChannel.Team, text);
+        else Link?.Send(EChatScope.TeamSay, text);
+    }
 
     private void OnSubmitted(string draft)
     {
@@ -177,6 +199,14 @@ public partial class ChatInput : CanvasLayer, IHudOverlay
                 GetViewport().GuiGetFocusOwner() is LineEdit or TextEdit) return;
             if (BindingInput.Current?.CaptureSuspended == true) return;
             string? ik = BindingInput.ResolveKey(@event, input.Bindings);
+            if (ik is not null && input.Bindings is { } bindings &&
+                bindings.Actions(ik).Any(action => action.Kind == KeyActionKind.Command &&
+                    action.Name.Equals("QuickChat", StringComparison.OrdinalIgnoreCase)))
+            {
+                QuickChat.Open();
+                GetViewport().SetInputAsHandled();
+                return;
+            }
             EChatScope? scope = ik is null ? null : CommandOf(ik);
             bool enter = AllowEnterShortcut && @event is InputEventKey enterKey && Code(enterKey) is Key.Enter or Key.KpEnter &&
                 !enterKey.AltPressed && !enterKey.CtrlPressed && !enterKey.MetaPressed &&
