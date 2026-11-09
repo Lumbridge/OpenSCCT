@@ -198,7 +198,8 @@ public partial class DisplaySpaceEffect : CompositorEffect
         }
 
         _released = true;
-        Rid[] rids = [.. _levelSets, .. _glowPairSets, _pipeline, _shader, _blurPipeline, _blurShader, _glowPipeline, _glowShader, _nearest, _linearRepeat, _linearClamp, _noise, _lut, _sonar, _portalFog, .. _params, .. _levels, _bright];
+        Rid[] rids = [.. _levelSets, .. _glowPairSets, _nearest, _linearRepeat, _linearClamp, _noise, _lut, _sonar, _portalFog, .. _params, .. _levels, _bright];
+        Rid[] shaders = [_shader, _blurShader, _glowShader];
         RenderingServer.CallOnRenderThread(Callable.From(() =>
         {
             // On the render thread, between frames: the pass stops drawing before its resources go.
@@ -210,6 +211,12 @@ public partial class DisplaySpaceEffect : CompositorEffect
                 {
                     rd.FreeRid(rid);
                 }
+            }
+
+            // Shaders and pipelines are shared with other views (ComputeShaderSource).
+            foreach (Rid shader in shaders)
+            {
+                ComputeShaderSource.ReleaseShared(rd, shader);
             }
         }));
     }
@@ -304,19 +311,14 @@ public partial class DisplaySpaceEffect : CompositorEffect
 
     private bool Compile(string path, string name, out Rid shader, out Rid pipeline)
     {
-        shader = default;
-        pipeline = default;
-        shader = ComputeShaderSource.CreateShader(_rd!, path, name, out string? error);
-        if (!shader.IsValid)
+        if (!ComputeShaderSource.AcquireShared(_rd!, path, name, out shader, out pipeline, out string? error))
         {
             Error = name + ": " + error;
             GD.PushError(Error);
             return false;
         }
 
-        pipeline = _rd!.ComputePipelineCreate(shader);
-        if (!pipeline.IsValid) Error = name + ": compute pipeline creation failed";
-        return pipeline.IsValid;
+        return true;
     }
 
     private Rid Upload(byte[] rgbaOrR8, int width, int height)

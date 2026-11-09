@@ -70,7 +70,7 @@ public sealed partial class MaterialCompiler
         ShaderMaterial[] frames = sequence.Items.Select(item =>
         {
             MaterialEntry frame = item.Material!.WithLightmap(owner.Lightmap);
-            return frame.Skip ? new ShaderMaterial { Shader = new Shader { Code = "shader_type spatial; void fragment() { discard; }" } }
+            return frame.Skip ? new ShaderMaterial { Shader = SharedShader("shader_type spatial; void fragment() { discard; }", "") }
                 : Compose(frame, light, seeThroughPass, billboard);
         }).ToArray();
         var material = new ShaderMaterial { ResourceName = owner.Name };

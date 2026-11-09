@@ -59,7 +59,7 @@ public sealed partial class SpyFirstPersonView : Node3D
     public bool Shown => Visible;
     internal float SupportContactError => Shown ? _supportContactError : -1f;
 
-    /// <summary>Loads the optional eye-view model during map loading.</summary>
+    /// <summary>Loads the optional eye-view model during map loading (when the round can show it, else on first use).</summary>
     public void Preload()
     {
         if (_preloaded) return;
@@ -145,6 +145,10 @@ public sealed partial class SpyFirstPersonView : Node3D
 
     public void Draw(SPlayerController? pc, SPawnAttaque? pawn, FVector eye, FRotator look, float dt, float alpha)
     {
+        // A round not expected to show the eye view (FirstPersonNeeds) reads it on first use. This node has not
+        // moved yet (only a drawn view places it), so the grip is solved as at map load.
+        if (!_preloaded && pawn is not null && pc is not null && ReferenceEquals(pc.Pawn, pawn)) Preload();
+
         if (ArmsModel is not { } arms || WeaponModel is not { } model || pc is null ||
             pawn is not { bDeleteMe: false, bHidden: false, Health: > 0 } || !ReferenceEquals(pc.Pawn, pawn))
         {

@@ -269,7 +269,8 @@ public partial class PlayRoot : Node3D
                 LoadTimer.Mark("ready.spy-first-person");
                 if (Map is { } map)
                 {
-                    Render.Characters.PawnOutfits.Warmup(map.Outfits, map.Folder, map.SharedRoot, warmup.Samples);
+                    Render.Characters.PawnOutfits.Warmup(map.Outfits, map.Folder, map.SharedRoot, warmup.Samples,
+                        sidearms: FirstPerson?.Needs.Sidearms ?? true);
                     LoadTimer.Mark("ready.outfits");
                     DeviceViews.PreloadSecuritySkins(map, warmup.Samples);
                     LoadTimer.Mark("ready.security-skins");
@@ -412,11 +413,14 @@ public partial class PlayRoot : Node3D
             FirstPerson = new FirstPersonView { Map = Map, SharedRoot = Map.SharedRoot };
             AddChild(FirstPerson);
             LoadTimer.Mark("play.pawn-views");
-            FirstPerson.PreloadSidearms();
+            PlaySettings built = Session.Settings;
+            var needs = FirstPersonNeeds.Of(Config.Demo is not null, Session.IsRemote, built.Side == PlaySide.Merc,
+                built.Mode, built.Sidearms, Session.Client.World.Level);
+            FirstPerson.Preload(needs);
             LoadTimer.Mark("play.sidearms");
             SpyFirstPerson = new SpyFirstPersonView { Map = Map, SharedRoot = Map.SharedRoot };
             AddChild(SpyFirstPerson);
-            SpyFirstPerson.Preload();
+            if (needs.Spy) SpyFirstPerson.Preload();
             LoadTimer.Mark("play.spy-first-person");
             Render.Characters.PawnOutfits.Prepare(Map.Outfits, Map.Folder, Map.SharedRoot,
                 rain: Session.Client.World.Level.GetService<RainVolumeList>() is { Volumes.Count: > 0 });

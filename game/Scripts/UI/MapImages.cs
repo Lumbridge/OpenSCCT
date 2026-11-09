@@ -105,7 +105,8 @@ public static class MapImages
             return cached;
         }
 
-        var image = new Image();
+        // Only the source of the upload: released as soon as the texture is made.
+        using var image = new Image();
         Texture2D? texture = null;
         if (image.Load(path) == Error.Ok)
         {

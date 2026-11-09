@@ -88,12 +88,13 @@ public sealed class PlaySession : IDisposable
         // installs the gameplay services itself.
         var client = new ClientSettings { PlayerName = settings.PlayerName, Maps = Catalog, Gameplay = true, InstallGameplayServices = false };
 
-        // The bots' navigation is built (or loaded from its cache) before the host starts ticking.
+        // The bots' navigation is built (or loaded from its cache) before the host starts ticking. The loader's map is
+        // what the catalog loads for map.Id, so its manifest finds the stored graphs without a scratch world.
         AiNavCache? nav = null;
         if (settings.Bots > 0 || settings.Route is not null || settings.UnlimitedGear)
         {
             nav = new AiNavCache();
-            nav.Prepare(Catalog, map.Id, loadProgress);
+            nav.Prepare(Catalog, map.Id, loadProgress, content: map);
             ClientSession.LoadPhase?.Invoke("session.nav");
         }
 

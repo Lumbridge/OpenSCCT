@@ -68,6 +68,12 @@ public sealed partial class MaterialCompiler
     // The RenderingServer's global parameters live as long as the process; this only remembers the one add.
     private static bool s_globalsAdded;
 
+    // Shaders by their code, shared by every compiler for the life of the process: identical code is one Shader (one
+    // RID), so Godot compiles it once and every map and model shares its pipelines. Shaders are never changed after
+    // they are made here.
+    private static readonly Dictionary<string, Shader> s_sharedShaders = new(StringComparer.Ordinal);
+    private static readonly System.Threading.Lock s_sharedShadersLock = new();
+
     private readonly MaterialsDoc _doc;
     private readonly TextureCache _textures;
     private readonly Dictionary<string, Shader> _shaders = new(StringComparer.Ordinal);
@@ -619,6 +625,25 @@ public sealed partial class MaterialCompiler
     /// </summary>
     public const int StencilFirstPerson = 4;
 
+    /// <summary>
+    /// The process-wide Shader of <paramref name="code"/>, made (named <paramref name="name"/>, then given to
+    /// <paramref name="init"/>) on first use. Callers must not change it: other materials use the same Shader.
+    /// </summary>
+    internal static Shader SharedShader(string code, string name, Action<Shader>? init = null)
+    {
+        lock (s_sharedShadersLock)
+        {
+            if (!s_sharedShaders.TryGetValue(code, out Shader? shader))
+            {
+                shader = new Shader { Code = code, ResourceName = name };
+                init?.Invoke(shader);
+                s_sharedShaders[code] = shader;
+            }
+
+            return shader;
+        }
+    }
+
     private Shader ShaderFor(LightSource light, MaterialBlend blend, bool twoSided, List<string> extras)
     {
         bool coverage = blend == MaterialBlend.Masked && AlphaToCoverage;
@@ -693,9 +718,10 @@ public sealed partial class MaterialCompiler
         if (extras.Contains("AUTHORED_MATERIAL")) code.Append(AuthoredMaterialBinding.ShaderCode);
 
         code.Append("#include \"").Append(TemplatePath).Append("\"\n");
-        shader = new Shader { Code = code.ToString(), ResourceName = "svm_world " + key };
-        shader.SetMeta("svm_shadow_animated", blend == MaterialBlend.Masked &&
-            (extras.Contains("UV_ANIM") || extras.Contains("FLIPBOOK") || extras.Contains("OPACITY_LAYER") || extras.Contains("COMBINE") || extras.Contains("SEQUENCE_D") || extras.Contains("AUTHORED_MATERIAL")));
+        // The code holds the blend and every extra, so every key that shares a Shader gives it the same meta.
+        bool shadowAnimated = blend == MaterialBlend.Masked &&
+            (extras.Contains("UV_ANIM") || extras.Contains("FLIPBOOK") || extras.Contains("OPACITY_LAYER") || extras.Contains("COMBINE") || extras.Contains("SEQUENCE_D") || extras.Contains("AUTHORED_MATERIAL"));
+        shader = SharedShader(code.ToString(), "svm_world " + key, s => s.SetMeta("svm_shadow_animated", shadowAnimated));
         _shaders[key] = shader;
         return shader;
     }
@@ -731,7 +757,7 @@ public sealed partial class MaterialCompiler
         }
 
         code.Append("#include \"").Append(TemplatePath).Append("\"\n");
-        shader = new Shader { Code = code.ToString(), ResourceName = "svm_world " + key };
+        shader = SharedShader(code.ToString(), "svm_world " + key);
         _shaders[key] = shader;
         return shader;
     }

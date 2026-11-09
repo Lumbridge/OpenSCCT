@@ -47,6 +47,27 @@ internal sealed class PrimitiveSet
 
     public bool IsEmpty => Tris.Length == 0 && Hulls.Length == 0;
 
+    /// <summary>
+    /// A copy whose world data and BVHs move on their own (one moving collider in another world). The local source
+    /// is never written after the build, so the copies share it.
+    /// </summary>
+    public PrimitiveSet CopyForWorld() => new()
+    {
+        Tris = Tris.AsSpan().ToArray(),
+        TriNodes = TriNodes.AsSpan().ToArray(),
+        Hulls = Hulls.AsSpan().ToArray(),
+        Planes = Planes.AsSpan().ToArray(),
+        HullNodes = HullNodes.AsSpan().ToArray(),
+        LocalTris = LocalTris,
+        LocalHulls = LocalHulls,
+        LocalPlanes = LocalPlanes,
+        LocalCorners = LocalCorners,
+        LocalMin = LocalMin,
+        LocalMax = LocalMax,
+        Min = Min,
+        Max = Max,
+    };
+
     /// <summary>Rewrites the world data from the local source and refits the BVHs (dynamic sets only).</summary>
     public void ApplyTransform(in ColliderTransform xf)
     {

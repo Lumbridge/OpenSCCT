@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 using OpenScct.Content;
 using OpenScct.Content.Loading;
 using OpenScct.Core;
@@ -35,6 +36,10 @@ public sealed class PlayMapLoader
     private readonly ContentMeshAnimations _meshAnimations;
     private readonly USPersistentData? _hostSettings;
     private readonly bool _unlimitedGear;
+
+    // One class registry for every load of this map (server, client, bot navigation): the loaders then share their
+    // class default plans. Loads only read it, so concurrent loads are safe.
+    private ActorClassRegistry? _classes;
 
     /// <param name="hostSettings">The host's settings object the rules read (SPersistentData), or null for an empty one.</param>
     public PlayMapLoader(SvMap map, string gameOptions, string? charsDir, USPersistentData? hostSettings = null,
@@ -81,7 +86,8 @@ public sealed class PlayMapLoader
         InstallBeforeLoad(level);
 
         level.BeginLoad();
-        MapLoadResult loaded = new MapLoader(MapCatalog.CreateMapClasses()).Load(world, _map);
+        ActorClassRegistry classes = LazyInitializer.EnsureInitialized(ref _classes, MapCatalog.CreateMapClasses);
+        MapLoadResult loaded = new MapLoader(classes).Load(world, _map);
         if (isClient)
         {
             NetMapBinding.PrepareClientMap(level, loaded.Actors);

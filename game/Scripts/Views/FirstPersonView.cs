@@ -35,16 +35,30 @@ public partial class FirstPersonView : Node3D
     private readonly Dictionary<SkeletalModel, Transform3D> _sidearmSightOffsets = new();
     private readonly ObservedWeaponViewModel _observed = new();
 
-    /// <summary>Read and convert pistol scenes during map loading, before the player can switch weapons.</summary>
-    public void PreloadSidearms()
+    /// <summary>What <see cref="Preload"/> read for this match.</summary>
+    public FirstPersonNeeds Needs { get; private set; } = FirstPersonNeeds.All;
+
+    /// <summary>
+    /// Reads and converts the view models this match can draw during map loading, so a weapon switch (a pistol drawn
+    /// mid-fight) never reads a file. A model left out still loads on its first draw, as before any preload.
+    /// </summary>
+    public void Preload(FirstPersonNeeds needs)
     {
-        foreach (string primary in new[] { "SWeaponFirst.1DEF_01", "SWeaponFirst.1DEF_Uzi", "SWeaponFirst.1DEF_shotgun" })
-            Load(primary);
-        foreach (var pistol in Sidearms.All)
+        Needs = needs;
+        if (needs.Merc)
         {
-            Load(pistol.Asset + "_first");
-            if (SkeletalModel.FindGlb(pistol.Asset, SharedRoot ?? Map?.SharedRoot) is { } third)
-                SkeletalModel.Load(third).Root.Free();
+            foreach (string primary in new[] { "SWeaponFirst.1DEF_01", "SWeaponFirst.1DEF_Uzi", "SWeaponFirst.1DEF_shotgun" })
+                Load(primary);
+        }
+        if (needs.Sidearms)
+        {
+            foreach (var pistol in Sidearms.All)
+            {
+                if (needs.Merc) Load(pistol.Asset + "_first");
+                // Any merc can carry one, the local player or not: his body draws it (PawnAttachments).
+                if (SkeletalModel.FindGlb(pistol.Asset, SharedRoot ?? Map?.SharedRoot) is { } third)
+                    SkeletalModel.Load(third).Root.Free();
+            }
         }
         if (_model is not null) _model.Root.Visible = false;
         _asset = null;
@@ -312,4 +326,43 @@ public partial class FirstPersonView : Node3D
 
     private void Pose(ViewModelAnim anim, float dt, float alpha, bool exclusiveAction, bool blendLandingRecovery) =>
         _applier!.Apply(_pose.Update(anim, _model!.Sampler, dt, alpha, exclusiveAction, blendLandingRecovery));
+}
+
+/// <summary>
+/// The view models a match can draw, decided when its map loads.
+/// </summary>
+/// <param name="Merc">The merc's guns in first person: the local player can be a merc, or a demo shows observed mercs.</param>
+/// <param name="Spy">The spy's eye-view P190: the local player can be a spy in a live round.</param>
+/// <param name="Sidearms">The session can give mercs pistols, or its rules have not arrived yet.</param>
+public readonly record struct FirstPersonNeeds(bool Merc, bool Spy, bool Sidearms)
+{
+    /// <summary>Everything, as every match read before.</summary>
+    public static readonly FirstPersonNeeds All = new(true, true, true);
+
+    /// <summary>
+    /// The needs of a round. Offline the local player keeps the side he asked for (no Switch Team, no travel); a remote
+    /// round can move him to the other side (the hub's side change, practice Switch Team), so it keeps both. Merc
+    /// Deathmatch puts everyone on the mercs. A demo draws observed mercs' guns and never the spy eye view
+    /// (PlayRoot draws it only without FirstPersonOverride). Pistols exist only with SvmSidearms
+    /// (SidearmEquipment.Available): offline that is the host's own option, remote the replicated rules when they are
+    /// already here, else they are assumed.
+    /// </summary>
+    public static FirstPersonNeeds Of(bool demo, bool remote, bool merc, string? mode, bool sidearms, Level level)
+    {
+        ArgumentNullException.ThrowIfNull(level);
+        bool mercsOnly = OpenScct.Server.MapCatalog.ModeOfKey(mode) == EGameMode.GM_MercDeathMatch;
+        bool mayBeMerc = demo || mercsOnly || remote || merc;
+        bool mayBeSpy = !demo && !mercsOnly && (remote || !merc);
+        bool pistols = !remote && !demo ? sidearms : RulesAllowSidearms(level) ?? true;
+        return new FirstPersonNeeds(mayBeMerc, mayBeSpy, pistols);
+    }
+
+    // The client's replicated game rules, or null before they arrive.
+    private static bool? RulesAllowSidearms(Level level)
+    {
+        if (level.Info.GRI is { bDeleteMe: false } rules) return rules.SidearmsEnabled;
+        foreach (GameReplicationInfo info in level.AllActors<GameReplicationInfo>())
+            if (!info.bDeleteMe) return info.SidearmsEnabled;
+        return null;
+    }
 }

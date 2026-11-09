@@ -219,7 +219,8 @@ public sealed class HudAssets
         Texture2D? texture = null;
         if (File.Exists(file))
         {
-            Image image = Image.LoadFromFile(file);
+            // Only the source of the upload: released as soon as the texture is made.
+            using Image? image = Image.LoadFromFile(file);
             if (image is not null && !image.IsEmpty())
             {
                 BlackenNearBlack(image);

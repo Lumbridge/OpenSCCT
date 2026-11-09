@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using OpenScct.Content.Actors;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
@@ -43,8 +45,15 @@ public sealed class MapLoader
         "Outer", "ObjectFlags", "ObjectInternal", "bDeleteMe",
     };
 
+    /// <summary>
+    /// Class default plans by registry and class table. A plan depends only on the table, the class and a new object
+    /// from the registry's factory, so loaders sharing a registry and a map (server, client and bot navigation worlds
+    /// of one play session) reuse each other's plans. The entries live as long as the registry and the table.
+    /// </summary>
+    private static readonly ConditionalWeakTable<ActorClassRegistry, ConditionalWeakTable<ClassTable, PlanSet>> s_plans = new();
+
     private readonly PropApplier _applier = new();
-    private readonly Dictionary<(string Class, Type Type), ClassDefaultsPlan> _plans = new();
+    private PlanSet? _plans;
     private ClassTable? _plansTable;
 
     public MapLoader(ActorClassRegistry? registry = null)
@@ -117,9 +126,9 @@ public sealed class MapLoader
             level.BeginLoad();
         }
 
-        if (!ReferenceEquals(_plansTable, classes))
+        if (!ReferenceEquals(_plansTable, classes) || _plans is null)
         {
-            _plans.Clear();
+            _plans = classes is null ? new PlanSet() : s_plans.GetOrCreateValue(Registry).GetOrCreateValue(classes);
             _plansTable = classes;
         }
 
@@ -280,7 +289,7 @@ public sealed class MapLoader
     /// </summary>
     private ClassDefaultsPlan PlanFor(string classPath, Type type, PropBag defaults, Func<Actor> create)
     {
-        if (_plans.TryGetValue((classPath, type), out ClassDefaultsPlan? cached))
+        if (_plans!.TryGetValue((classPath, type), out ClassDefaultsPlan? cached))
         {
             return cached;
         }
@@ -334,9 +343,13 @@ public sealed class MapLoader
             }
         }
 
-        var plan = new ClassDefaultsPlan(changes, unapplied);
-        _plans[(classPath, type)] = plan;
-        return plan;
+        // Another loader may have built the same plan meanwhile; both are equal, the first one stays.
+        return _plans.GetOrAdd((classPath, type), new ClassDefaultsPlan(changes, unapplied));
+    }
+
+    /// <summary>The class default plans of one registry and class table, by class path and C# type.</summary>
+    private sealed class PlanSet : ConcurrentDictionary<(string Class, Type Type), ClassDefaultsPlan>
+    {
     }
 
     internal sealed record DefaultChange(string Prop, PropApplier.Member Member, PropValue? Value);

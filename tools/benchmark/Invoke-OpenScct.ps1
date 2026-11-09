@@ -16,6 +16,9 @@ param(
     [string[]]$IgnoreCompetitors = @()
 )
 $ErrorActionPreference = 'Stop'
+# pwsh -File passes "a,b" as one string, so split comma lists here.
+$Settings = @($Settings | ForEach-Object { $_ -split ',' } | Where-Object { $_ })
+$IgnoreCompetitors = @($IgnoreCompetitors | ForEach-Object { $_ -split ',' } | Where-Object { $_ })
 if (-not ('FpsBenchmarkProcess' -as [type])) {
     Add-Type -TypeDefinition @'
 using System;

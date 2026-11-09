@@ -5,7 +5,6 @@ using System.Globalization;
 using System.IO;
 using System.Text.Json;
 using Godot;
-using OpenScct.Content.Collision;
 using OpenScct.Core;
 using OpenScct.Physics.Collision;
 using OpenScct.Provenance;
@@ -463,7 +462,8 @@ public static class MapBuilder
         string collisionPath = Path.Combine(mapFolder, CollisionFile);
         if (options.LoadZones && File.Exists(collisionPath))
         {
-            zones = CollisionWorld.Build(CollisionReader.Load(collisionPath));
+            // Shares the static collision the play session's worlds built from the same file (or builds it for them).
+            zones = CollisionWorld.Load(collisionPath);
         }
 
         LoadTimer.Mark("build.zones");

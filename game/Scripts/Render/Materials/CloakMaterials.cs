@@ -41,7 +41,7 @@ public sealed class CloakMaterials
                 // the screen puts this in the transparent pass; ALPHA=1 prevents a second blend with the body.
                 code = code[..start] + $"render_mode unshaded, fog_disabled, {cull}, blend_mix, depth_draw_always" + code[end..];
                 code = code.Replace("#include", "#define SVM_CLOAK\n#include", StringComparison.Ordinal);
-                variant = new Shader { Code = code, ResourceName = shader.ResourceName + " cloak" };
+                variant = MaterialCompiler.SharedShader(code, shader.ResourceName + " cloak");
                 s_shaders[shader] = variant;
             }
 

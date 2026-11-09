@@ -78,9 +78,8 @@ public partial class AmbientOcclusionEffect : CompositorEffect
         _attempted = true;
         _rd = RenderingServer.GetRenderingDevice();
         if (_rd is null) { Error = "requires RenderingDevice"; return; }
-        _shader = ComputeShaderSource.CreateShader(_rd, ShaderPath, "svm_ambient_occlusion", out string? error);
-        if (!_shader.IsValid) { Error = error; GD.PushError("Ambient occlusion: " + error); return; }
-        _pipeline = _rd.ComputePipelineCreate(_shader);
+        if (!ComputeShaderSource.AcquireShared(_rd, ShaderPath, "svm_ambient_occlusion", out _shader, out _pipeline, out string? error))
+        { Error = error; GD.PushError("Ambient occlusion: " + error); return; }
         using var sampler = new RDSamplerState { MinFilter = RenderingDevice.SamplerFilter.Nearest, MagFilter = RenderingDevice.SamplerFilter.Nearest };
         _sampler = _rd.SamplerCreate(sampler);
     }
@@ -96,11 +95,13 @@ public partial class AmbientOcclusionEffect : CompositorEffect
         if (_released) return;
         _released = true;
         if (_rd is not { } rd) return;
-        Rid[] rids = [_pipeline, _shader, _sampler];
+        Rid shader = _shader, sampler = _sampler;
         RenderingServer.CallOnRenderThread(Callable.From(() =>
         {
             _storage.Free();
-            foreach (Rid rid in rids) if (rid.IsValid) rd.FreeRid(rid);
+            if (sampler.IsValid) rd.FreeRid(sampler);
+            // The shader and pipeline are shared with other views (ComputeShaderSource).
+            ComputeShaderSource.ReleaseShared(rd, shader);
             _rd = null;
         }));
     }

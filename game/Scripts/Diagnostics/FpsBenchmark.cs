@@ -62,6 +62,8 @@ public partial class FpsBenchmark : Node
         var settings = new GameSettings { FpsLimit = DisplayFrameCap.Unlimited, VSync = false, ThrottleStop = true };
         SettingsStore.Save(settings);
         SettingsApplier.ApplyPacing(settings);
+        // Window size comes from the camera records; only the 3D scale is taken from the display settings.
+        viewport.Scaling3DScale = settings.RenderScale;
         SettingsApplier.ApplyRendering(settings, viewport);
         SettingsApplier.ApplyAudio(settings);
     }
