@@ -669,6 +669,17 @@ public sealed partial class SpotShadowLight : IDisposable
         return new Vector4(centre.X, centre.Y, centre.Z, radius * radius);
     }
 
+    /// <summary>
+    /// Row 8 of a slot the template visits this frame (on in svm_spot_bits): the sphere (centre, radius squared) outside
+    /// which the slot adds exactly nothing. Zero for a slot it skips (<see cref="LightReach"/>).
+    /// </summary>
+    internal static Vector4 ReachSphere(int slot) =>
+        slot < 0 || slot >= Math.Min(s_slots.Length, BitSlots) || s_rowValues[(slot * SlotTexels) + 3].X < 0.5f
+            ? Vector4.Zero : s_rowValues[(slot * SlotTexels) + 8];
+
+    /// <summary>The slots <see cref="ReachSphere"/> reads.</summary>
+    internal const int ReachSlots = RenderK.SpotShadowSlots;
+
     private static Vector2I TileOrigin(int slot) =>
         slot < 0 ? Vector2I.Zero : new Vector2I(slot % AtlasColumns * TileWidth, slot / AtlasColumns * TileHeight);
 

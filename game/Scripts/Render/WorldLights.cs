@@ -61,6 +61,10 @@ public sealed class WorldLights
     private int _lastRows = -1;
     private int _lastMapRows = -1;
     private int _indexedRows = -1;
+    // Switches and moves since the last Update, and the map lights' rows as that Update wrote them (LightReach).
+    private int _placeChanges = 1;
+    private int _placeWritten;
+    private readonly Vector4?[] _reachRows;
 
     public WorldLights(LightingDoc lighting)
     {
@@ -74,6 +78,7 @@ public sealed class WorldLights
         }
 
         _on = new bool[_lights.Count];
+        _reachRows = new Vector4?[_lights.Count];
         for (int i = 0; i < _on.Length; i++)
         {
             _on[i] = _lights[i].InitiallyOn && _lights[i].LightType != 0;
@@ -156,9 +161,10 @@ public sealed class WorldLights
     {
         for (int i = 0; i < _lights.Count; i++)
         {
-            if (string.Equals(_lights[i].Name, name, StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(_lights[i].Name, name, StringComparison.OrdinalIgnoreCase) && _on[i] != on)
             {
                 _on[i] = on;
+                _placeChanges++;
             }
         }
     }
@@ -168,12 +174,32 @@ public sealed class WorldLights
     {
         for (int i = 0; i < _lights.Count; i++)
         {
-            if (string.Equals(_lights[i].Name, name, StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(_lights[i].Name, name, StringComparison.OrdinalIgnoreCase)
+                && (_lights[i].Location != location || _lights[i].Rotation != rotation))
             {
                 _lights[i] = _lights[i] with { Location = location, Rotation = rotation };
+                _placeChanges++;
             }
         }
     }
+
+    /// <summary>
+    /// Changes whenever an <see cref="Update"/> writes a map light switched or moved since the last one
+    /// (<see cref="LightReach"/> looks at them again only then).
+    /// </summary>
+    internal int PlaceStamp { get; private set; }
+
+    /// <summary>
+    /// Map light <paramref name="index"/>'s position row as the template reads it (xyz, radius in w; w below 0 a sun's
+    /// direction), or null while it is switched off, as of the last <see cref="Update"/>: a switch or move takes effect
+    /// in the texture only there. Its light type only scales the colour, so the row stays put while the light pulses,
+    /// blinks or flickers.
+    /// </summary>
+    internal Vector4? ReachOf(int index) => _reachRows[index];
+
+    /// <summary>The rows of the lights spawned this frame (<see cref="SetSpawned"/>), as the template reads them.</summary>
+    internal ReadOnlySpan<PackedLight> SpawnedRows =>
+        _lastRows < 0 ? default : _packed.AsSpan(_lastMapRows, _lastRows - _lastMapRows);
 
     /// <summary>Lights spawned during play now drawn (after the map's own).</summary>
     public int SpawnedCount => _spawned.Count;
@@ -202,6 +228,17 @@ public sealed class WorldLights
     public void Update(float time)
     {
         _time = time;
+        if (_placeWritten != _placeChanges)
+        {
+            // The switches and moves this Update writes, for LightReach (positions do not depend on the modulation).
+            _placeWritten = _placeChanges;
+            for (int i = 0; i < _lights.Count; i++)
+            {
+                _reachRows[i] = _on[i] ? ActorLighting.PackWorld(_lights[i], 1f).Pos : null;
+            }
+
+            PlaceStamp++;
+        }
 
         // Only lights that give light this frame take rows, so the shader's per-pixel loop skips the ones off.
         int rows = 0;
