@@ -11,6 +11,7 @@ using OpenScct.Game.SBase;
 using OpenScct.Net;
 using OpenScctGame.Cameras;
 using OpenScctGame.Controls;
+using OpenScctGame.Diagnostics;
 using OpenScctGame.Hud;
 using OpenScctGame.Match;
 using OpenScctGame.Play.Session;
@@ -143,6 +144,8 @@ public partial class PlayRoot : Node3D
     private readonly DrawnTime _time = new();
     private float _alpha = 1f;
     private SpyShadowLighting? _spyShadowLighting;
+    private int _loadId;
+    private bool _loadTimed;
 
     public PlayConfig Config { get; private set; } = new();
 
@@ -216,6 +219,10 @@ public partial class PlayRoot : Node3D
     public static PlayRoot Enter(SceneTree tree, PlayConfig config)
     {
         ArgumentNullException.ThrowIfNull(tree);
+        // The front end's entry may have started the timer already (before its loading picture). A play scene still
+        // current is the last round: a load it never finished is not this one.
+        if (!LoadTimer.Running || tree.CurrentScene is PlayRoot) LoadTimer.Begin("play " + config.Settings.Map);
+        LoadTimer.Mark("play.enter");
         PlayRoot root = Create(config);
         Node? previous = tree.CurrentScene;
         tree.Root.AddChild(root);
@@ -226,6 +233,7 @@ public partial class PlayRoot : Node3D
 
     public override void _Ready()
     {
+        _loadId = LoadTimer.Id;
         var hud = new CanvasLayer { Name = "PlayStatus", Layer = HudLayer.DefaultLayer + 1 };
         _status = new Label { Name = "Status", Position = new Vector2(16f, 12f) };
         _prompt = new Label { Name = "Prompt", Visible = false };
@@ -241,23 +249,33 @@ public partial class PlayRoot : Node3D
                 _status.Text = "Preparing effects...";
                 var warmup = GameplayFxWarmup.For(GetViewport());
                 AddChild(warmup);
+                LoadTimer.Mark("ready.warmup-viewport");
                 if (Session is { } smokeSession && OpenScct.Game.Equipment.ResponsiveSmokeWorld.IsEnabled(smokeSession.Client.World.Level))
                 {
                     SetSmokeLoading(true);
                     View?.PreloadSmokeBackground();
                     warmup.PreloadResponsiveSmoke(smokeSession.Client.World.Level,Map,GetViewport());
+                    LoadTimer.Mark("ready.smoke");
                 }
                 warmup.PreloadView(View);
+                LoadTimer.Mark("ready.view-post");
                 Fx.Preload(warmup.Samples);
+                LoadTimer.Mark("ready.fx");
                 MercLasers.Preload(warmup.Samples);
+                LoadTimer.Mark("ready.merc-lasers");
                 SpyLasers?.Preload(warmup.Samples);
+                LoadTimer.Mark("ready.spy-lasers");
                 SpyFirstPerson?.Warmup(warmup.Samples);
+                LoadTimer.Mark("ready.spy-first-person");
                 if (Map is { } map)
                 {
                     Render.Characters.PawnOutfits.Warmup(map.Outfits, map.Folder, map.SharedRoot, warmup.Samples);
+                    LoadTimer.Mark("ready.outfits");
                     DeviceViews.PreloadSecuritySkins(map, warmup.Samples);
+                    LoadTimer.Mark("ready.security-skins");
                 }
                 warmup.Begin(FinishLoading);
+                LoadTimer.Mark("ready.warmup-begin");
             }
             else FinishLoading();
         }
@@ -278,6 +296,7 @@ public partial class PlayRoot : Node3D
         IsLoaded = true;
         Session?.Client.MarkReadyToPlay();
         if (_status is not null) _status.Text = "";
+        LoadTimer.Mark("ready.finish");
     }
 
     private void SetSmokeLoading(bool loading)
@@ -350,6 +369,7 @@ public partial class PlayRoot : Node3D
         var sessionLoad = Stopwatch.StartNew();
         Session = Config.CreateSession?.Invoke(clock) ?? new PlaySession(settings, clock,
             message => GD.Print($"SVM_PLAY load seconds={sessionLoad.Elapsed.TotalSeconds:F2} {message}"));
+        LoadTimer.Mark("play.session");
         if (Config.Render && OpenScct.Game.Equipment.ResponsiveSmokeWorld.IsEnabled(Session.Client.World.Level)
             && ResponsiveSmokeRenderer.UnsupportedReason is { } sessionRendererError)
         {
@@ -368,6 +388,7 @@ public partial class PlayRoot : Node3D
         if (Config.Render)
         {
             Map = MapBuilder.Build(Session.MapFolder);
+            LoadTimer.Mark("play.map");
             _spyShadowLighting = new SpyShadowLighting(Map, Session.Client, () => Pawns);
             Session.StickyCamShadowUpdate = _spyShadowLighting.Update;
             AddChild(Map.Root);
@@ -376,6 +397,7 @@ public partial class PlayRoot : Node3D
             View.Attach(Map);
             View.Camera.MakeCurrent();
             GameplayObjects.ShowMode(Map, settings.Mode);
+            LoadTimer.Mark("play.view");
             Camera = new PlayCamera(View);
             var cameraMask = new CanvasLayer { Name = "CameraOcclusion", Layer = HudLayer.DefaultLayer - 1 };
             _cameraOcclusion = new ColorRect
@@ -389,12 +411,16 @@ public partial class PlayRoot : Node3D
             AddChild(Pawns);
             FirstPerson = new FirstPersonView { Map = Map, SharedRoot = Map.SharedRoot };
             AddChild(FirstPerson);
+            LoadTimer.Mark("play.pawn-views");
             FirstPerson.PreloadSidearms();
+            LoadTimer.Mark("play.sidearms");
             SpyFirstPerson = new SpyFirstPersonView { Map = Map, SharedRoot = Map.SharedRoot };
             AddChild(SpyFirstPerson);
             SpyFirstPerson.Preload();
+            LoadTimer.Mark("play.spy-first-person");
             Render.Characters.PawnOutfits.Prepare(Map.Outfits, Map.Folder, Map.SharedRoot,
                 rain: Session.Client.World.Level.GetService<RainVolumeList>() is { Volumes.Count: > 0 });
+            LoadTimer.Mark("play.outfits");
             Fx = new OpenScctGame.Fx.CombatFxView
             {
                 Pawns = Pawns, FirstPerson = FirstPerson, SpyFirstPerson = SpyFirstPerson, SharedRoot = Map.SharedRoot,
@@ -412,6 +438,7 @@ public partial class PlayRoot : Node3D
             LaserTriggers = new OpenScctGame.Fx.LaserTriggerView(Map);
             ShockFx = new OpenScctGame.Fx.ShockFxView { Name = "ShockFx", Pawns = Pawns };
             AddChild(ShockFx);
+            LoadTimer.Mark("play.fx");
             if (Map.Warnings.Count > 0)
             {
                 GD.Print($"SVM_PLAY {Map.MapId} render warnings={Map.Warnings.Count} first: {Map.Warnings[0]}");
@@ -436,11 +463,13 @@ public partial class PlayRoot : Node3D
             AddChild(new Demo.DemoHud(demo));
         }
 
+        LoadTimer.Mark("play.input");
         if (Config.Audio)
         {
             // Before the HUD: the sound takes the client world's event sink first and the HUD's tap wraps it.
             Audio = PlayAudio.Attach(this, Session, ListenerView, Config.Demo);
             if (Map is { } map) Audio?.PreloadSecuritySounds(map.Actors);
+            LoadTimer.Mark("play.audio");
         }
 
         Session.BeforeClientTick = BeforeTick;
@@ -489,6 +518,8 @@ public partial class PlayRoot : Node3D
         {
             TeamPingHud.Attach(this, Session, Controls, hud, view.Camera);
         }
+
+        LoadTimer.Mark("play.hud");
     }
 
     /// <summary>The local player's link totals for the network readout (main thread, between client ticks).</summary>
@@ -809,6 +840,12 @@ public partial class PlayRoot : Node3D
         DrawViews(session, alpha, viewDt);
         double viewMs = _watch.Elapsed.TotalMilliseconds;
         Stats.Add(simMs, viewMs, delta * 1000.0);
+        if (!_loadTimed && session.LocalPawn is not null && (Controls?.Enabled == true || Config.Pilot is not null))
+        {
+            // The first frame the player (or the test pilot) drives his pawn ends the load.
+            _loadTimed = true;
+            if (LoadTimer.Id == _loadId) LoadTimer.End("first-control");
+        }
         if (session.ServerFailure is { } failure && _status is not null)
         {
             _status.Text = "Server stopped: " + failure.Message;
@@ -958,6 +995,7 @@ public partial class PlayRoot : Node3D
     {
         // Whatever ends the round (results, the lobby, a disconnect, a map change), the pointer it took goes back.
         OpenScctGame.Controls.Pointer.Release();
+        LoadTimer.Abandon(_loadId);
         InputBindings.Rebound -= OnKeysRebound;
         CrashLog.Context = "";
         _scoreboardCapture?.Dispose();

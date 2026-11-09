@@ -532,7 +532,9 @@ public sealed class SkeletalModel : OpenScctGame.Views.IFirstPersonRigModel
 
     private static Template BuildTemplate(string glbPath, Template? clipsFrom)
     {
+        long started = System.Diagnostics.Stopwatch.GetTimestamp();
         using GlbDocument glb = GlbDocument.Load(glbPath);
+        long parsed = System.Diagnostics.Stopwatch.GetTimestamp();
         bool authored = clipsFrom is null && AuthoredAnimationTracks.IsConverted(glb);
         var document = new GltfDocument();
         // Converted clips already contain the original key times. The default 30 Hz bake misses
@@ -544,6 +546,7 @@ public sealed class SkeletalModel : OpenScctGame.Views.IFirstPersonRigModel
             throw new InvalidDataException($"{glbPath}: glTF load failed ({error})");
         }
 
+        long generated = System.Diagnostics.Stopwatch.GetTimestamp();
         Skeleton3D skeleton = FindFirst<Skeleton3D>(scene) ?? throw new InvalidDataException($"{glbPath}: no skeleton");
         var animations = authored ? AuthoredAnimationTracks.Read(glb, skeleton) : new List<(string, Animation)>();
         if (FindFirst<AnimationPlayer>(scene) is { } player)
@@ -583,6 +586,7 @@ public sealed class SkeletalModel : OpenScctGame.Views.IFirstPersonRigModel
             }
         }
 
+        long compiling = System.Diagnostics.Stopwatch.GetTimestamp();
         var textures = new TextureCache(Path.GetDirectoryName(glbPath) ?? ".");
         // shared/chars/<Package>/<Mesh>.glb: the render pack (heat and EMF skins) is shared/render.
         string? shared = Path.GetDirectoryName(Path.GetDirectoryName(Path.GetDirectoryName(Path.GetFullPath(glbPath))));
@@ -614,6 +618,10 @@ public sealed class SkeletalModel : OpenScctGame.Views.IFirstPersonRigModel
             }
         }
 
+        OpenScctGame.Diagnostics.LoadTimer.Glb(glbPath,
+            System.Diagnostics.Stopwatch.GetElapsedTime(started, parsed).TotalMilliseconds,
+            System.Diagnostics.Stopwatch.GetElapsedTime(parsed, generated).TotalMilliseconds,
+            System.Diagnostics.Stopwatch.GetElapsedTime(compiling).TotalMilliseconds, textures.Count);
         bool warm = clipsFrom is not null ||
             string.Equals(Path.GetFileName(Path.GetDirectoryName(Path.GetFullPath(glbPath))), "SPerso", StringComparison.OrdinalIgnoreCase);
         return new Template(scene, new AnimSampler(skeleton, animations), rotOrigin, meshScale, warm,

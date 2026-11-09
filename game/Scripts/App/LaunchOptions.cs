@@ -42,6 +42,7 @@ public sealed class LaunchOptions
     public const string LanHostPrefix = "--svm-lan-host=";
     public const string JoinPrefix = "--svm-join=";
     public const string TestRoundFlag = "--svm-test-round";
+    public const string SettingPrefix = "--svm-setting=";
     public const double DefaultSmokeTimeoutSeconds = 120.0;
     public const int DefaultBots = 3;
     public const int MaxBots = 15;
@@ -160,6 +161,12 @@ public sealed class LaunchOptions
     /// </summary>
     public bool TestRound { get; private init; }
 
+    /// <summary>
+    /// Settings for this run only (<c>--svm-setting=key=value</c>, repeatable, keys as in settings.json), in order.
+    /// <see cref="Options.SettingsStore"/> applies them and never saves them.
+    /// </summary>
+    public IReadOnlyList<KeyValuePair<string, string>> SettingOverrides { get; private init; } = [];
+
     /// <summary>Arguments that were not recognised, kept so callers can report them.</summary>
     public IReadOnlyList<string> Unknown { get; private init; } = [];
 
@@ -204,6 +211,7 @@ public sealed class LaunchOptions
         int? lanHost = null;
         string? join = null;
         bool testRound = false;
+        var settings = new List<KeyValuePair<string, string>>();
         foreach (string arg in userArgs)
         {
             if (arg.StartsWith(SmokePrefix, StringComparison.Ordinal))
@@ -343,6 +351,10 @@ public sealed class LaunchOptions
             {
                 testRound = true;
             }
+            else if (arg.StartsWith(SettingPrefix, StringComparison.Ordinal) && ParseSetting(arg[SettingPrefix.Length..]) is { } setting)
+            {
+                settings.Add(setting);
+            }
             else
             {
                 unknown.Add(arg);
@@ -382,8 +394,18 @@ public sealed class LaunchOptions
             NetHostPort = lanHost,
             NetJoin = join,
             TestRound = testRound,
+            SettingOverrides = settings,
             Unknown = unknown,
         };
+    }
+
+    /// <summary>"key=value" (the value may be empty or hold more '='), or null without a key.</summary>
+    private static KeyValuePair<string, string>? ParseSetting(string text)
+    {
+        text = text.Trim('"');
+        int equals = text.IndexOf('=', StringComparison.Ordinal);
+        string key = equals > 0 ? text[..equals].Trim() : string.Empty;
+        return key.Length > 0 ? new KeyValuePair<string, string>(key, text[(equals + 1)..]) : null;
     }
 
     /// <summary>"X,Y,Z" with an optional yaw and pitch, or null when it does not read as one.</summary>

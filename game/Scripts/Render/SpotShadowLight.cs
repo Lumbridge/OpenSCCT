@@ -270,11 +270,13 @@ public sealed partial class SpotShadowLight : IDisposable
             _staticViewport.AddChild(_staticCamera);
             // Child viewports render before their parent: populate the static tile before the dynamic pass reads it.
             _viewport.AddChild(_staticViewport);
+            Diagnostics.ViewportTimings.Register(_staticViewport, Diagnostics.ViewportTimings.SpotStatic);
             _camera.CullMask = RenderLayers.World | RenderLayers.ShadowPass;
         }
 
         _viewport.AddChild(_camera);
         parent.AddChild(_viewport);
+        Diagnostics.ViewportTimings.Register(_viewport, Diagnostics.ViewportTimings.SpotLive);
         cookie ??= string.IsNullOrEmpty(shape.Cookie) ? null : pack?.Image(shape.Cookie);
         _cookieLayer = CookieLayer(cookie);
         _colour = Colour(shape) * RenderK.SpotShadowGain;

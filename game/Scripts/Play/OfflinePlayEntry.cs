@@ -76,8 +76,12 @@ public sealed class OfflinePlayEntry : IPlayEntry
         Launch();
 
         // Draw the map's loading picture before replacing the scene.
-        void Launch() => LoadingScreen.Open(tree, request.Map, request.Side == HudSide.Merc,
-            LoadingScreen.ModeOf(config.Settings.Mode), catalog, () => PlayRoot.Enter(tree, config));
+        void Launch()
+        {
+            OpenScctGame.Diagnostics.LoadTimer.Begin("offline " + request.Map);
+            LoadingScreen.Open(tree, request.Map, request.Side == HudSide.Merc,
+                LoadingScreen.ModeOf(config.Settings.Mode), catalog, () => PlayRoot.Enter(tree, config));
+        }
     }
 
     public void Host(SceneTree tree, PlayRequest request) => PlayOffline(tree, request);

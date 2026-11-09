@@ -65,10 +65,13 @@ public sealed class PlaySession : IDisposable
         string folder = Catalog.FindFolder(settings.Map)
             ?? throw new FileNotFoundException($"Map '{settings.Map}' not found in: {string.Join("; ", roots)}");
         MapFolder = folder;
+        ClientSession.LoadPhase?.Invoke("session.catalog");
         SvMap map = SvMap.Load(folder);
+        ClientSession.LoadPhase?.Invoke("session.svmap");
         Loader = new PlayMapLoader(map, settings.GameOptions(map.Gameplay), PlayMapLoader.FindCharsDir(folder),
             settings.HostSettings(map.Gameplay), unlimitedGear: settings.UnlimitedGear);
         Loader.Register(Catalog);
+        ClientSession.LoadPhase?.Invoke("session.loader");
 
         var server = new ServerSettings
         {
@@ -91,6 +94,7 @@ public sealed class PlaySession : IDisposable
         {
             nav = new AiNavCache();
             nav.Prepare(Catalog, map.Id, loadProgress);
+            ClientSession.LoadPhase?.Invoke("session.nav");
         }
 
         _start = clock.NowMicroseconds;
@@ -98,6 +102,7 @@ public sealed class PlaySession : IDisposable
         {
             _listen = new ListenServer(clock, server);
             Host = _listen.Host;
+            ClientSession.LoadPhase?.Invoke("session.host");
             AddBots(nav);
             Host.PlayerJoined += OnPlayerJoined;
             Client = _listen.ConnectLocalPlayer(_start, client);
@@ -106,6 +111,7 @@ public sealed class PlaySession : IDisposable
         {
             SimLink = new SimLinkNetwork(clock, settings.MatchSeed, link);
             Host = new ServerHost(SimLink.Bind(HostAddress), server);
+            ClientSession.LoadPhase?.Invoke("session.host");
             AddBots(nav);
             Host.PlayerJoined += OnPlayerJoined;
             Client = new ClientSession(SimLink.Bind("local-player-1"), HostAddress, _start, client, ownsTransport: true);
@@ -114,6 +120,7 @@ public sealed class PlaySession : IDisposable
         {
             _network = new LoopbackNetwork();
             Host = new ServerHost(_network.Bind(HostAddress), server);
+            ClientSession.LoadPhase?.Invoke("session.host");
             AddBots(nav);
             Host.PlayerJoined += OnPlayerJoined;
             Client = new ClientSession(_network.Bind("local-player-1"), HostAddress, _start, client, ownsTransport: true);
@@ -130,6 +137,7 @@ public sealed class PlaySession : IDisposable
 
         // The zone hints (SZoneTips) show for the local player, as in the original's standalone game.
         System.Threading.Interlocked.Increment(ref s_offlineSessions);
+        ClientSession.LoadPhase?.Invoke("session.client");
     }
 
     /// <summary>The demo file this match records into (<see cref="PlaySettings.DemoFolder"/>), or null.</summary>

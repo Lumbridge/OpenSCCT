@@ -250,6 +250,7 @@ public partial class FaithfulView : Node3D
         _skyViewport.AddChild(_skyCamera);
         _skySurfaceFog = new SurfaceFogRegistry(_skyCamera);
         AddChild(_skyViewport);
+        Diagnostics.ViewportTimings.Register(_skyViewport, Diagnostics.ViewportTimings.Sky);
         ApplyVision();
 
         // Lowest render priority: the backdrop never draws (or sorts) after a corona or a particle over the sky.

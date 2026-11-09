@@ -181,6 +181,12 @@ public sealed partial class ClientSession : INetworkNotify, IDisposable
     /// </summary>
     public event Action<ClientSession>? BeforeWorldTick;
 
+    /// <summary>
+    /// Diagnostics only: called with a phase name around the client's map load (the game's load timer). It must not
+    /// change anything; null by default.
+    /// </summary>
+    public static Action<string>? LoadPhase { get; set; }
+
     public EClientState State { get; private set; } = EClientState.Connecting;
 
     /// <summary>The server connection (kept after it closes, for its stats and close reason).</summary>
@@ -477,7 +483,10 @@ public sealed partial class ClientSession : INetworkNotify, IDisposable
         ServerNetRate = message.NetRate is >= 1 and <= Sim.Hz ? message.NetRate : K.NetServerMaxTickRate;
         PawnProxies = message.PawnProxies;
         MapCatalog maps = _maps;
-        if (!maps.TryLoad(World, MapName ?? string.Empty, isClient: true, out MapInfo? map, out string? error))
+        LoadPhase?.Invoke("client.welcome");
+        bool loaded = maps.TryLoad(World, MapName ?? string.Empty, isClient: true, out MapInfo? map, out string? error);
+        LoadPhase?.Invoke("client.map");
+        if (!loaded)
         {
             RejectReason = error;
             State = EClientState.Rejected;
@@ -513,6 +522,7 @@ public sealed partial class ClientSession : INetworkNotify, IDisposable
             PawnProxyReceiver.Install(World.Level, Driver, PawnInterpolation);
         }
 
+        LoadPhase?.Invoke("client.services");
         connection.SetOpen();
         connection.ControlChannel?.Send(ControlMessage.Join());
         State = EClientState.Joined;

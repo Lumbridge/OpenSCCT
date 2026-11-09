@@ -9,6 +9,7 @@ using OpenScct.Content.Collision;
 using OpenScct.Core;
 using OpenScct.Physics.Collision;
 using OpenScct.Provenance;
+using OpenScctGame.Diagnostics;
 using OpenScctGame.Render.Data;
 using OpenScctGame.Render.Geometry;
 using OpenScctGame.Render.Gltf;
@@ -457,6 +458,7 @@ public static class MapBuilder
         RenderPack? pack = RenderPack.Load(RenderMap.SharedRootOf(mapFolder));
         var compiler = new MaterialCompiler(materials, textures) { LightmapScale = options.LightmapScale, Pack = pack };
         MaterialCompiler.SetEmfEnvironment(pack?.Texture(RenderPack.EmfEnvironment));
+        LoadTimer.Mark("build.docs");
         CollisionWorld? zones = null;
         string collisionPath = Path.Combine(mapFolder, CollisionFile);
         if (options.LoadZones && File.Exists(collisionPath))
@@ -464,7 +466,9 @@ public static class MapBuilder
             zones = CollisionWorld.Build(CollisionReader.Load(collisionPath));
         }
 
+        LoadTimer.Mark("build.zones");
         using GlbDocument glb = GlbDocument.Load(glbPath);
+        LoadTimer.Mark("build.glb");
         string mapId = Path.GetFileName(Path.GetFullPath(mapFolder));
         var root = new Node3D { Name = "RenderMap" };
         var map = new RenderMap(mapFolder, mapId, root, materials, lighting, textures, compiler, new ActorLighting(lighting), zones);
@@ -475,9 +479,11 @@ public static class MapBuilder
         List<OpenScctGame.Render.Projectors.ProjectorEntry>? projectors = OpenScctGame.Render.Projectors.ProjectorsDoc.Load(mapFolder);
         map.SkipProjectorDecals = projectors is not null;
         map.SoftBodies = new OpenScctGame.Render.SoftBodies.SoftBodyViews(root);
+        LoadTimer.Mark("build.actors");
         new Builder(map, glb, options).Run();
         OutdoorScenery.Build(map);
         OutdoorGroundcover.Build(map);
+        LoadTimer.Mark("build.outdoor");
         if (options.GameplayObjects)
         {
             OpenScctGame.Render.GameplayObjects.Build(map, map.Actors, pack);
@@ -485,18 +491,22 @@ public static class MapBuilder
 
         OpenScctGame.Render.GameplayObjects.ApplyVision(map, map.Actors);
         SpotShadowLight.SetIgnoreGroups(map.EchelonGroups);
+        LoadTimer.Mark("build.objects");
         if (options.Emitters)
         {
             map.Emitters = new Particles.Emitters(map, root);
             map.Stats.Emitters = map.Emitters.Count;
         }
 
+        LoadTimer.Mark("build.emitters");
         if (projectors is not null)
         {
             map.Projectors = OpenScctGame.Render.Projectors.MapProjectors.Build(map, projectors, root);
         }
 
+        LoadTimer.Mark("build.projectors");
         map.LightBeams = OpenScctGame.Render.LightBeams.MapLightBeams.Build(map, root);
+        LoadTimer.Mark("build.beams");
         map.LightSprites = new MapLightSprites(map);
         foreach (string missing in map.LightSprites.Missing) map.Warnings.Add("light sprite texture missing: " + missing);
         if (pack is null)
@@ -504,6 +514,7 @@ public static class MapBuilder
             map.Warnings.Add("no render pack (.content/shared/render): vision textures and gameplay object meshes are missing");
         }
         map.SetTime(0f);
+        LoadTimer.Mark("build.sprites");
         map.Stats.LoadSeconds = clock.Elapsed.TotalSeconds;
         map.Stats.Textures = textures.Count;
         map.Stats.Materials = compiler.MaterialCount;
@@ -552,11 +563,15 @@ public static class MapBuilder
             _map.Root.AddChild(_gameplay);
             ReadMaterials();
             ReadNodes(out List<(int Mesh, bool Sky)> bspMeshes);
+            LoadTimer.Mark("build.nodes");
             Prefetch();
+            LoadTimer.Mark("build.prefetch");
             foreach ((int mesh, bool sky) in bspMeshes)
             {
                 AddBsp(mesh, sky);
             }
+
+            LoadTimer.Mark("build.bsp");
 
             if (_glb.Root.TryGetProperty("extras", out JsonElement extras) && extras.TryGetProperty("svmap", out JsonElement svmap)
                 && svmap.TryGetProperty("instances", out JsonElement instances))
@@ -567,8 +582,11 @@ public static class MapBuilder
                 }
             }
 
+            LoadTimer.Mark("build.instances");
             AddSwapMeshes();
+            LoadTimer.Mark("build.swap-meshes");
             FlushCells();
+            LoadTimer.Mark("build.cells");
         }
 
         /// <summary>

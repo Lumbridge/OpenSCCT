@@ -374,6 +374,7 @@ public sealed partial class FlareLights : Node3D
                 };
                 _viewports[f].AddChild(_cameras[f]);
                 parent.AddChild(_viewports[f]);
+                Diagnostics.ViewportTimings.Register(_viewports[f], Diagnostics.ViewportTimings.FlareFace);
             }
         }
 

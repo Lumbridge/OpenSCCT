@@ -24,6 +24,7 @@ public partial class GameplayFxWarmup : SubViewport
     private int _smokeFrames;
     private FaithfulView? _view;
     private ulong _started;
+    private static readonly string[] WarmupFrames = ["warmup.frame1", "warmup.frame2", "warmup.frame3"];
     public Node3D Samples { get; } = new() { Name = "Samples" };
 
     public GameplayFxWarmup()
@@ -138,6 +139,8 @@ public partial class GameplayFxWarmup : SubViewport
         // A hidden/disabled target may never deliver a compositor callback. It can warm on its first real draw;
         // don't strand loading forever on a window/renderer configuration that cannot draw this view yet.
         bool viewTimedOut = Time.GetTicksMsec() - _started >= 5000;
+        // The first warm frames draw (and compile) the samples: time each of them.
+        if (_frames < 3) OpenScctGame.Diagnostics.LoadTimer.Mark(WarmupFrames[_frames]);
         if (++_frames >= 3 && smokeReady && (viewReady || viewTimedOut))
         {
             if (!viewReady) GD.PushWarning("Gameplay post warmup did not draw before loading timeout.");
@@ -147,6 +150,7 @@ public partial class GameplayFxWarmup : SubViewport
 
     private void Finish()
     {
+        OpenScctGame.Diagnostics.LoadTimer.Mark("warmup.finish");
         Unsubscribe();
         RenderTargetUpdateMode = UpdateMode.Disabled;
         _smokeView?.Dispose(); _smokeView = null;
