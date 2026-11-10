@@ -1474,7 +1474,7 @@ internal sealed class RdWorldGpu
                 RdFeatures lights = RdFeatures.NoSpot | RdFeatures.NoDynamic;
                 bool lit = (b.Material.Applicable & lights & ~(RdFeatures)frame.Features[k]) != 0 && !Test.Contains("unlit");
                 // Blended surfaces always take the template: its blend, opacity and fog rules are the material's own.
-                if (!b.Sky && (lit || b.Material.Blended || b.Material.Layered))
+                if (b.Sky ? b.Material.Layered : lit || b.Material.Blended || b.Material.Layered)
                 {
                     Variant variant = _drawVariants[k];
                     rd.DrawListBindRenderPipeline(dl, _drawPipelines[k]);
@@ -1816,7 +1816,9 @@ internal sealed class RdWorldGpu
     }
 
     /// <summary>The share of the depth range the sky zone is squeezed into, behind the world (RdWorldRenderer.SkyDepth).</summary>
-    internal const float OwnSkyDepth = 0.001f;
+    // 2^-50, the template's own SVM_SKY_DEPTH_SCALE (svm_sky_depth.gdshaderinc): a sky surface drawn by the template
+    // (a layered material) and one drawn by a small shader then share one depth order.
+    internal const float OwnSkyDepth = 8.8817841970012523e-16f;
 
     private Rid _ownColorFramebuffer, _coronaShader, _coronaPipeline, _coronaBuffer, _coronaFrameSet;
     private readonly Dictionary<Rid, Rid> _coronaSets = [];

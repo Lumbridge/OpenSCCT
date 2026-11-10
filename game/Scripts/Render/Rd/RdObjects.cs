@@ -190,7 +190,8 @@ internal sealed class RdObjects
     /// </summary>
     private void Prepare(MeshInstance3D node, List<Upload> uploads, List<RdMaterial> warm)
     {
-        if (node.Mesh is not ArrayMesh mesh || (node.Layers & (RenderLayers.World | RenderLayers.FirstPerson)) == 0) return;
+        bool sky = (node.Layers & (RenderLayers.World | RenderLayers.FirstPerson | RenderLayers.Effects)) == 0;
+        if (node.Mesh is not { } mesh || (sky && (node.Layers & RenderLayers.Sky) == 0)) return;
         bool skinned = false;
         if (node.Skin is not null)
         {
@@ -215,7 +216,7 @@ internal sealed class RdObjects
                 _wantsTemplate[material] = WantsTemplate(material);
             }
 
-            RdMaterial? template = _wantsTemplate.GetValueOrDefault(material) ? TemplateOf(material, skinned) : null;
+            RdMaterial? template = !sky && _wantsTemplate.GetValueOrDefault(material) ? TemplateOf(material, skinned) : null;
             if (template is null && !m.Drawn) continue;
             if (template is not null) warm.Add(template);
             // Cloth is uploaded as it is rewritten.
@@ -234,7 +235,7 @@ internal sealed class RdObjects
     }
 
     public void Gather(Node root, Plane[] planes, Func<Plane[], Aabb, bool> inside, Func<Aabb, int> spots, List<Draw> draws, List<byte> objects, List<float> palette, List<Upload> uploads,
-        List<RdMaterial> warm)
+        List<RdMaterial> warm, Basis view)
     {
         Span<float> block = stackalloc float[ObjectBytes / 4];
         RefreshTemplates();
@@ -262,10 +263,12 @@ internal sealed class RdObjects
 
         foreach (MeshInstance3D node in _nodes)
         {
-            if (!GodotObject.IsInstanceValid(node) || node.Mesh is not ArrayMesh mesh || !node.IsVisibleInTree()) continue;
+            if (!GodotObject.IsInstanceValid(node) || node.Mesh is not { } mesh || !node.IsVisibleInTree()) continue;
             // Actors, characters and the first-person model. Effects (their own shaders) and a body hidden from its
             // own eyes (the shadow-only layer) are not this pass's.
-            if ((node.Layers & (RenderLayers.World | RenderLayers.FirstPerson)) == 0) continue;
+            // Template materials on the effects layer too (light sprites); the effects' own shaders are not described.
+            bool sky = (node.Layers & (RenderLayers.World | RenderLayers.FirstPerson | RenderLayers.Effects)) == 0;
+            if (sky && (node.Layers & RenderLayers.Sky) == 0) continue;
             SkinInfo? skin = null;
             if (node.Skin is not null)
             {
@@ -279,10 +282,12 @@ internal sealed class RdObjects
             }
 
             Transform3D model = node.GlobalTransform;
+            // A sprite (the template's BILLBOARD) faces the camera whatever its node's own basis: turned here.
+            if (node.MaterialOverride is ShaderMaterial facing && IsBillboard(facing)) model = new Transform3D(view, model.Origin);
             // A posed mesh leaves its rest box: it is culled by a generous one.
             s_dynamic.TryGetValue(mesh, out DynamicSource? dynamic);
-            Aabb box = model * (mesh.CustomAabb.Size != Vector3.Zero ? mesh.CustomAabb : mesh.GetAabb());
-            if (!inside(planes, skin is null ? box : box.Grow(1.5f))) continue;
+            Aabb box = model * (mesh is ArrayMesh { CustomAabb.Size: var custom } own && custom != Vector3.Zero ? own.CustomAabb : mesh.GetAabb());
+            if (!sky && !inside(planes, skin is null ? box : box.Grow(1.5f))) continue;
             int objectIndex = -1, paletteBase = -1;
             int spotBits = spots(skin is null ? box : box.Grow(1.5f));
             for (int s = 0; s < mesh.GetSurfaceCount(); s++)
@@ -295,7 +300,8 @@ internal sealed class RdObjects
                     _wantsTemplate[material] = WantsTemplate(material);
                 }
 
-                RdMaterial? template = _wantsTemplate.GetValueOrDefault(material) ? TemplateOf(material, skin is not null) : null;
+                // The sky zone's meshes are drawn by the small programs (the template's sky code is for Godot's sky camera).
+                RdMaterial? template = !sky && _wantsTemplate.GetValueOrDefault(material) ? TemplateOf(material, skin is not null) : null;
                 if (template is null && !m.Drawn) continue;
                 if (!_surfaces.TryGetValue((mesh, s), out SurfaceInfo? surface))
                 {
@@ -367,8 +373,8 @@ internal sealed class RdObjects
 
                 draws.Add(new Draw
                 {
-                    Surface = surface.Id, Object = objectIndex, Kind = m.Kind, Palette = paletteBase, Masked = m.Masked, TwoSided = m.TwoSided, Texture = m.Texture,
-                    Blend = template is null ? m.Blend : template.Cloak ? 3 : template.Blended ? 1 : 0, SpotBits = m.Kind == 0 && template is null ? 0 : spotBits, Material = template,
+                    Surface = surface.Id, Object = objectIndex, Kind = m.Kind | (sky ? 128 : 0), Palette = paletteBase, Masked = m.Masked, TwoSided = m.TwoSided, Texture = m.Texture,
+                    Blend = template is null ? m.Blend : template.Cloak ? 3 : template.Blended ? 1 : 0, SpotBits = sky || (m.Kind == 0 && template is null) ? 0 : spotBits, Material = template,
                 });
             }
         }
@@ -432,7 +438,19 @@ internal sealed class RdObjects
         if (material.Shader is not { } shader) return false;
         string code = ResponsiveSmokeShaders.BaseCode(shader);
         if (!code.Contains("svm_world.gdshaderinc", StringComparison.Ordinal) || code.Contains("#define VISION_SEE_THROUGH", StringComparison.Ordinal)) return false;
-        return LayersOf(code).Length > 0 || code.Contains("#define SVM_CLOAK", StringComparison.Ordinal) || code.Contains("#define BLEND_MODULATE", StringComparison.Ordinal) || code.Contains("#define BLEND_DARKEN", StringComparison.Ordinal);
+        // A sprite with nothing else is turned to the camera by its model matrix and drawn by the small programs.
+        string layers = LayersOf(code);
+        return (layers.Length > 0 && layers != "BILLBOARD") || code.Contains("#define SVM_CLOAK", StringComparison.Ordinal) || code.Contains("#define BLEND_MODULATE", StringComparison.Ordinal) || code.Contains("#define BLEND_DARKEN", StringComparison.Ordinal);
+    }
+
+    private readonly Dictionary<ShaderMaterial, bool> _billboards = [];
+
+    private bool IsBillboard(ShaderMaterial material)
+    {
+        if (_billboards.TryGetValue(material, out bool billboard)) return billboard;
+        billboard = material.Shader is { } shader && ResponsiveSmokeShaders.BaseCode(shader).Contains("#define BILLBOARD", StringComparison.Ordinal);
+        _billboards[material] = billboard;
+        return billboard;
     }
 
     /// <summary>Statistics: the actor materials met so far, by what they hold (materials and whether they are drawn).</summary>
@@ -459,7 +477,7 @@ internal sealed class RdObjects
         return (kind, code.Contains("#define BLEND_MASKED", StringComparison.Ordinal), code.Contains("cull_disabled", StringComparison.Ordinal), true, texture, blend);
     }
 
-    private static Upload? Pack(ArrayMesh mesh, int surface, int id, bool skinned)
+    private static Upload? Pack(Mesh mesh, int surface, int id, bool skinned)
     {
         Godot.Collections.Array arrays = mesh.SurfaceGetArrays(surface);
         Vector3[] positions = arrays[(int)Mesh.ArrayType.Vertex].AsVector3Array();
@@ -744,7 +762,7 @@ internal sealed class RdObjects
         #endif
             vec4 wp = model * vec4(a_pos, 1.0);
             v_uv = a_uv;
-            int kind = draw.kind & 255;
+            int kind = draw.kind & 127;
             vec3 wn = normalize(mat3(model) * a_normal);
         #ifdef SPOT
             v_wpos = wp.xyz;
@@ -761,8 +779,10 @@ internal sealed class RdObjects
             } else {
                 v_light = vec3(1.0);
             }
-            v_rel = wp.xyz - frame.eye.xyz;
-            gl_Position = frame.world * wp;
+            // A mesh of the sky zone is seen from the sky origin, behind the world, and is not fogged here.
+            bool sky = (draw.kind & 128) != 0;
+            v_rel = sky ? vec3(0.0) : wp.xyz - frame.eye.xyz;
+            gl_Position = (sky ? frame.sky : frame.world) * wp;
         }
 
         """;

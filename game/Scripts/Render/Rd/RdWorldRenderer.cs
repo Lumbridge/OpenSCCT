@@ -128,6 +128,10 @@ public partial class RdWorldRenderer : Node
             GetTree().NodeRemoved -= OnTreeChanged;
             _ownRect.Texture = null;
             _ownRect.Material = null;
+            // The material lets go of the glow target before the render thread frees it.
+            _ownFinal?.SetShaderParameter("glow", default(Variant));
+            _ownGlow.TextureRdRid = default;
+            _ownShown.TextureRdRid = default;
             GetViewport().Disable3D = false;
             // Queued after the Texture2DRD let go of the target.
             RenderingServer.CallOnRenderThread(Callable.From(_gpu.Free));
@@ -412,7 +416,7 @@ public partial class RdWorldRenderer : Node
         // Every mesh of the play scene on the actors' layers: gameplay objects, animated props, characters, the
         // first-person model.
         _objects.Gather(GetParent() ?? _map.Root, _worldPlanes, static (planes, box) => Inside(planes, box), _spotsReachingBox ??= SpotsReachingBox,
-            frame.Objects, frame.ObjectData, frame.Palette, _objectUploads, _objectWarm);
+            frame.Objects, frame.ObjectData, frame.Palette, _objectUploads, _objectWarm, eye.Basis);
         foreach (RdMaterial material in _objectWarm) _gpu.QueueWarm(material);
         _objectWarm.Clear();
 
