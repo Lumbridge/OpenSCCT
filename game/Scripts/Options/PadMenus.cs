@@ -175,10 +175,9 @@ public partial class PadMenus : Node
             _navigation.Reset();
             return;
         }
-        // Only the controller in use moves the menus (a mirrored second device would repeat every step).
-        if (@event.Device == s_lastDevice && (@event is InputEventJoypadMotion { Axis: JoyAxis.LeftX or JoyAxis.LeftY } ||
+        if (@event is InputEventJoypadMotion { Axis: JoyAxis.LeftX or JoyAxis.LeftY } ||
             @event is InputEventJoypadButton { ButtonIndex: JoyButton.DpadUp or JoyButton.DpadDown or JoyButton.DpadLeft or JoyButton.DpadRight or
-                JoyButton.A or JoyButton.B or JoyButton.Back or JoyButton.Start or JoyButton.LeftShoulder or JoyButton.RightShoulder }))
+                JoyButton.A or JoyButton.B or JoyButton.Back or JoyButton.Start or JoyButton.LeftShoulder or JoyButton.RightShoulder })
             DispatchMenuInput(@event, Time.GetTicksMsec() / 1000d);
         // Nested keyboard dispatch changes the viewport's handled flag. Consume the original pad event again.
         GetViewport().SetInputAsHandled();
