@@ -369,6 +369,22 @@ Time from starting a load to the first frame the player controls (`SVM_LOAD done
 
 ## The target
 
+### The original at 2560×1440 on the UHD 770 (measured 2026-11-10)
+
+Reloaded editor Play Level in the automation sandbox, hidden desktop, gameplay view (HUD and character), same spawn cameras as ours, `tools/benchmark/capture_original.py --cap 240 --width 2560 --height 1440`. The Windows GPU counters showed the play process at 99% 3D use on the Intel adapter, so both figures are below the cap and are what the GPU can do.
+
+| | Original FPS (1% low) | Frame ms | OpenSCCT, world + shadow pass + lean post (1% low) | Frame ms |
+|---|---:|---:|---:|---:|
+| SteeE spy spawn | 144.3 (137.9) | 6.9 | 121–123 (85–98) | 8.2 |
+| AquaE spy spawn, turned 180° | 159.1 (129.7) | 6.3 | 69 (57–58) | 14.5 |
+
+- **The bar is 144 and 159 FPS on these two cameras, not 240.** The 1080p captures sat on the cap; at 1440p the original is GPU-bound too.
+- SteeE is 1.3 ms a frame away. AquaE is 8.2 ms away: our frame is 2.3 times the original's.
+- The play process is the image `System\SCCT Versus` (no extension) in the sandbox, not `SCCT_Versus.exe`: the Windows per-app GPU preference must name that path, or the capture runs on the Nvidia card (239.9 FPS on both maps, which says nothing).
+- `--uncap` refuses in this sandbox (its Reloaded.Core is not the verified build). Not needed at this resolution.
+- An OpenSCCT Editor window was open on the Nvidia card during the captures (7% of that GPU).
+
+
 - 240 FPS at 1440p on this PC leaves 0.8 ms for the whole game on stock Godot (presentation floor above). No renderer fits a lit world, shadows, characters, effects and post in that.
 - The original has not been measured where that target sits. Its captures are at 1080p under its 240 cap: 239.5 FPS with a 1% low of 203 on SteeE, with the Intel 3D engine about 95% busy (`tools/benchmark/RESULTS-2026-11-08.md` on `feature/low-end-renderer`), and 226 FPS with a 1% low of 59 on AquaE. A GPU that busy at 1080p is unlikely to hold 240 at 1.78× the pixels. Reloaded's cap setting stops at 240, so the measurement that settles it is the original at 2560×1440 on the UHD 770.
 - Until then the bar is: at least the original's mean and 1% low on the same camera, resolution and display path. The reported low-end machine is an i5-1135G7 (Iris Xe) laptop, which presents on its own panel.
