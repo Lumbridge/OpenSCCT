@@ -251,7 +251,12 @@ public partial class RdWorldRenderer : Node
 
         int threshold = OpenScctGame.Options.SettingsStore.Current.PostQuality == 0 ? 255 : _map.Lighting.GlowThreshold;
         frame.GlowCut = Post.DisplaySpaceEffect.GlowCut(threshold) ?? -1f;
-        Select(frame, eye.Origin, true, RdFeatures.None);
+        frame.Eye = eye;
+        frame.Proj = projection;
+        frame.Layers = camera.CullMask;
+        ReadLights();
+        // Portal fog stays out of the template's draws: the frame has the camera zone's one ramp (RdWorldGpu.OverrideFog).
+        Select(frame, eye.Origin, true, RdFeatures.NoPortalFog);
         // The map's gameplay meshes and the characters.
         _objects.Begin(frame.Objects, frame.ObjectData, frame.Palette, _objectUploads);
         if (_map.Root.GetNodeOrNull("Gameplay") is { } gameplay)

@@ -33,6 +33,9 @@ internal sealed class RdWorldFrame
     public bool Gate;
     /// <summary>Own-frame mode: eye (4 floats), fog colour and on flag (4), fog scale, start, rate (4), as the Frame block holds them.</summary>
     public readonly float[] FogBlock = new float[12];
+    /// <summary>Own-frame mode: the camera, for the draws that keep the template's lighting.</summary>
+    public Transform3D Eye;
+    public Projection Proj;
     public float GlowCut = -1f;
 
     public void Reserve(int draws)
@@ -1157,6 +1160,29 @@ internal sealed class RdWorldGpu
         frame.FogBlock.AsSpan().CopyTo(block[36..48]);
         rd.BufferUpdate(_stageFrameBuffer, 0, (uint)_stageFrameBlock.Length, _stageFrameBlock);
 
+        // The draws a spot or dynamic light reaches keep the template's own lighting (the translated shader, with the
+        // light terms that reach them); its frame block and globals are filled as for the pass inside Godot's frame.
+        UpdateGlobals(rd);
+        OverrideFog(rd, frame);
+        Span<float> f = MemoryMarshal.Cast<byte, float>(_frameBlock.AsSpan());
+        Write(new Projection(frame.Eye.AffineInverse()), f[..16]);
+        Write(new Projection(frame.Eye), f[16..32]);
+        Projection p = frame.Proj;
+        static Vector4 Fix(Vector4 c) => new(c.X, -c.Y, 0.5f * (c.W - c.Z), c.W);
+        Write(new Projection(Fix(p.X), Fix(p.Y), Fix(p.Z), Fix(p.W)), f[32..48]);
+        frame.Clip.AsSpan(0, 16).CopyTo(f[48..64]);
+        (f[64], f[65], f[66], f[67]) = (size.X, size.Y, 0f, 0f);
+        (f[68], f[69], f[70], f[71]) = (frame.Eye.Origin.X, frame.Eye.Origin.Y, frame.Eye.Origin.Z, 0f);
+        MemoryMarshal.Cast<byte, uint>(_frameBlock.AsSpan(288))[0] = frame.Layers;
+        rd.BufferUpdate(_frameBuffer, 0, (uint)_frameBlock.Length, _frameBlock);
+        if (!_ownWarmed)
+        {
+            _ownWarmed = true;
+            if (!Warm(rd, _ownFormat, _ownColor, _ownDepth)) return;
+        }
+
+        if (!Resolve(rd, frame, _ownFormat, _ownColor, _ownDepth)) return;
+
         // Everything a draw binds is made before the list opens.
         List<RdWorldGeometry.Batch> batches = _geometry.Batches;
         for (int k = 0; k < frame.DrawCount; k++)
@@ -1180,6 +1206,26 @@ internal sealed class RdWorldGpu
             for (int k = 0; k < frame.DrawCount; k++)
             {
                 RdWorldGeometry.Batch b = batches[frame.Draws[k]];
+                // A light term left in the draw's shader: a spot or a dynamic light reaches it.
+                RdFeatures lights = RdFeatures.NoSpot | RdFeatures.NoDynamic;
+                if (!b.Sky && (b.Material.Applicable & lights & ~(RdFeatures)frame.Features[k]) != 0 && !Test.Contains("unlit"))
+                {
+                    Variant variant = _drawVariants[k];
+                    rd.DrawListBindRenderPipeline(dl, _drawPipelines[k]);
+                    rd.DrawListBindUniformSet(dl, variant.Shader.GlobalSet, 0);
+                    rd.DrawListBindUniformSet(dl, variant.Set, 1);
+                    push[0] = frame.SpotBits[k];
+                    push[1] = frame.DynBits[k];
+                    rd.DrawListSetPushConstant(dl, _drawBlock, (uint)_drawBlock.Length);
+                    rd.DrawListBindIndexArray(dl, _indexArrays[frame.Draws[k]]);
+                    rd.DrawListDraw(dl, true, 1, 0);
+                    pipeline = default;
+                    set = default;
+                    sky = -1;
+                    push[1] = 0;
+                    continue;
+                }
+
                 (int stage, Rid materialSet, bool twoSided) = _stageMaterials[b.Material.GpuIndex];
                 StageShader shader = _stages[stage]!;
                 Rid wanted = twoSided ? shader.TwoSided : shader.OneSided;
@@ -1227,6 +1273,39 @@ internal sealed class RdWorldGpu
         rd.CaptureTimestamp("RD Own Frame End");
         LastDraws = frame.DrawCount;
         LastRecordMs = clock.Elapsed.TotalMilliseconds;
+    }
+
+    private bool _ownWarmed;
+
+    /// <summary>
+    /// The template's draws in the own frame get the frame's one fog too: its globals say "one zone's ramp" (mode 1 of
+    /// svm_fog.gdshaderinc) with the camera zone's ramp, whatever the Godot path's mode is.
+    /// </summary>
+    private void OverrideFog(RenderingDevice rd, RdWorldFrame frame)
+    {
+        float[] fog = frame.FogBlock;
+        bool on = fog[7] > 0.5f && fog[8] > 0f && fog[10] > 0f;
+        // Mode 1 measures in hundredths of a metre: start and rate are carried over from the ramp's units.
+        float start = on ? fog[9] * 100f / fog[8] : 0f, rate = on ? fog[10] * fog[8] / 100f : 0f;
+        bool changed = false;
+        foreach (ShaderGlobals.Slot slot in _slots)
+        {
+            if (slot.Size < 16 || slot.Place + 16 > _globalBlock.Length) continue;
+            string name = slot.Name.ToString();
+            Span<float> to = MemoryMarshal.Cast<byte, float>(_globalBlock.AsSpan(slot.Place, 16));
+            if (name == "svm_fog_main_view")
+            {
+                (to[1], to[2], to[3]) = (on ? 1f : 0f, start, on ? start + (1f / rate) : 0f);
+                changed = true;
+            }
+            else if (name == "svm_fog_main_color" && on)
+            {
+                (to[0], to[1], to[2]) = (fog[4], fog[5], fog[6]);
+                changed = true;
+            }
+        }
+
+        if (changed) rd.BufferUpdate(_globalBuffer, 0, (uint)_globalBlock.Length, _globalBlock);
     }
 
     /// <summary>The stage shader of a material's kind, with its pipelines, and the material's textures bound for it.</summary>
