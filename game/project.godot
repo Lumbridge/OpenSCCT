@@ -43,5 +43,5 @@ project/assembly_name="OpenScctGame"
 [rendering]
 
 renderer/rendering_method="forward_plus"
-; Keep Direct3D 12 opt-in: some laptops fail to start with it.
+; Vulkan only: Direct3D 12 was an option until 0.8.125 (slower, and some laptops failed to start with it).
 rendering_device/driver.windows="vulkan"

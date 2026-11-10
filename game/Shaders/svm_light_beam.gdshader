@@ -11,10 +11,8 @@ render_mode unshaded, fog_disabled, cull_disabled, depth_draw_never, blend_add, 
 #include "res://Shaders/svm_fog.gdshaderinc"
 
 global uniform int svm_vision;
-// The spot shadow lights' slot rows and depth atlas (SpotShadowLight; layout in svm_world.gdshaderinc).
-global uniform sampler2D svm_spots;
-global uniform sampler2D svm_spot_depth;
-global uniform sampler2DArray svm_spot_cookies;
+// The spot shadow lights' slot rows, depth atlas and cookies (svm_spots, svm_spot_depth, svm_spot_cookies; layout in
+// svm_world.gdshaderinc) are declared by svm_fog.gdshaderinc, with or without responsive smoke.
 
 // Light frame in Godot space: origin (m) and its forward (x), right (y, SpotWidth) and up (z, SpotHeight) axes.
 uniform vec3 beam_origin = vec3(0.0);

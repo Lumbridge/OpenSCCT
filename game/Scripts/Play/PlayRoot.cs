@@ -11,6 +11,7 @@ using OpenScct.Game.SBase;
 using OpenScct.Net;
 using OpenScctGame.Cameras;
 using OpenScctGame.Controls;
+using OpenScctGame.Diagnostics;
 using OpenScctGame.Hud;
 using OpenScctGame.Match;
 using OpenScctGame.Play.Session;
@@ -130,7 +131,7 @@ public partial class PlayRoot : Node3D
     private Exception? _reportedServerFailure;
     private Label? _prompt;
     private ColorRect? _cameraOcclusion;
-    private ColorRect? _smokeLoadingCover;
+    private ColorRect? _loadingCover;
     private bool _smokePreparing, _smokeRestoreControls;
     private bool _smokeRestoreLoaded;
     private int _lastRendMap = -1;
@@ -143,6 +144,8 @@ public partial class PlayRoot : Node3D
     private readonly DrawnTime _time = new();
     private float _alpha = 1f;
     private SpyShadowLighting? _spyShadowLighting;
+    private int _loadId;
+    private bool _loadTimed;
 
     public PlayConfig Config { get; private set; } = new();
 
@@ -216,6 +219,11 @@ public partial class PlayRoot : Node3D
     public static PlayRoot Enter(SceneTree tree, PlayConfig config)
     {
         ArgumentNullException.ThrowIfNull(tree);
+        // The front end's entry may have started the timer already (before its loading picture). A play scene still
+        // current is the last round: a load it never finished is not this one.
+        if (!LoadTimer.Running || tree.CurrentScene is PlayRoot) LoadTimer.Begin("play " + config.Settings.Map);
+        if (config.Render) OpenScctGame.Render.Materials.ResponsiveSmokeShaders.Prewarm(config.Settings.Map);
+        LoadTimer.Mark("play.enter");
         PlayRoot root = Create(config);
         Node? previous = tree.CurrentScene;
         tree.Root.AddChild(root);
@@ -226,6 +234,7 @@ public partial class PlayRoot : Node3D
 
     public override void _Ready()
     {
+        _loadId = LoadTimer.Id;
         var hud = new CanvasLayer { Name = "PlayStatus", Layer = HudLayer.DefaultLayer + 1 };
         _status = new Label { Name = "Status", Position = new Vector2(16f, 12f) };
         _prompt = new Label { Name = "Prompt", Visible = false };
@@ -239,25 +248,40 @@ public partial class PlayRoot : Node3D
             if (Config.Render && Fx is not null && MercLasers is not null)
             {
                 _status.Text = "Preparing effects...";
+                // The warm frames draw the map's cell meshes in every material variant, wrong light included
+                // (LightReach.Warm): black under the status until loading finishes.
+                ShowLoadingCover(true);
                 var warmup = GameplayFxWarmup.For(GetViewport());
                 AddChild(warmup);
+                warmup.PreloadMap(Map);
+                LoadTimer.Mark("ready.warmup-viewport");
                 if (Session is { } smokeSession && OpenScct.Game.Equipment.ResponsiveSmokeWorld.IsEnabled(smokeSession.Client.World.Level))
                 {
                     SetSmokeLoading(true);
                     View?.PreloadSmokeBackground();
                     warmup.PreloadResponsiveSmoke(smokeSession.Client.World.Level,Map,GetViewport());
+                    LoadTimer.Mark("ready.smoke");
                 }
                 warmup.PreloadView(View);
+                LoadTimer.Mark("ready.view-post");
                 Fx.Preload(warmup.Samples);
+                LoadTimer.Mark("ready.fx");
                 MercLasers.Preload(warmup.Samples);
+                LoadTimer.Mark("ready.merc-lasers");
                 SpyLasers?.Preload(warmup.Samples);
+                LoadTimer.Mark("ready.spy-lasers");
                 SpyFirstPerson?.Warmup(warmup.Samples);
+                LoadTimer.Mark("ready.spy-first-person");
                 if (Map is { } map)
                 {
-                    Render.Characters.PawnOutfits.Warmup(map.Outfits, map.Folder, map.SharedRoot, warmup.Samples);
+                    Render.Characters.PawnOutfits.Warmup(map.Outfits, map.Folder, map.SharedRoot, warmup.Samples,
+                        sidearms: FirstPerson?.Needs.Sidearms ?? true);
+                    LoadTimer.Mark("ready.outfits");
                     DeviceViews.PreloadSecuritySkins(map, warmup.Samples);
+                    LoadTimer.Mark("ready.security-skins");
                 }
                 warmup.Begin(FinishLoading);
+                LoadTimer.Mark("ready.warmup-begin");
             }
             else FinishLoading();
         }
@@ -276,8 +300,10 @@ public partial class PlayRoot : Node3D
     {
         SetSmokeLoading(false);
         IsLoaded = true;
+        ShowLoadingCover(false);
         Session?.Client.MarkReadyToPlay();
         if (_status is not null) _status.Text = "";
+        LoadTimer.Mark("ready.finish");
     }
 
     private void SetSmokeLoading(bool loading)
@@ -287,13 +313,6 @@ public partial class PlayRoot : Node3D
         if (loading)
         {
             _smokeRestoreLoaded = IsLoaded; IsLoaded = false;
-            if (_smokeLoadingCover is null && _status?.GetParent() is { } layer)
-            {
-                _smokeLoadingCover = new ColorRect { Name = "SmokeLoadingCover", Color = Colors.Black,
-                    MouseFilter = Control.MouseFilterEnum.Stop };
-                layer.AddChild(_smokeLoadingCover); layer.MoveChild(_smokeLoadingCover,0);
-                _smokeLoadingCover.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
-            }
             if (Controls is { } controls)
             {
                 _smokeRestoreControls = controls.Enabled; controls.Enabled = false;
@@ -307,7 +326,24 @@ public partial class PlayRoot : Node3D
             if (Controls is { } controls) controls.Enabled = _smokeRestoreControls;
             if (_status is not null) _status.Text = "";
         }
-        if (_smokeLoadingCover is not null) _smokeLoadingCover.Visible = loading;
+        // While the match is still loading the cover stays up: FinishLoading lifts it.
+        ShowLoadingCover(loading || !IsLoaded);
+    }
+
+    /// <summary>Black over the view, under the status text, while loading draws frames the player must not see.</summary>
+    private void ShowLoadingCover(bool visible)
+    {
+        // The Fast renderer lets Godot draw too while the cover is up, so both make their pipelines behind it.
+        Render.Rd.RdWorldRenderer.Loading = visible;
+        if (visible && _loadingCover is null && _status?.GetParent() is { } layer)
+        {
+            _loadingCover = new ColorRect { Name = "LoadingCover", Color = Colors.Black, MouseFilter = Control.MouseFilterEnum.Stop };
+            layer.AddChild(_loadingCover);
+            layer.MoveChild(_loadingCover, 0);
+            _loadingCover.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
+        }
+
+        if (_loadingCover is not null) _loadingCover.Visible = visible;
     }
 
     private bool PrepareLateSmoke(PlaySession session)
@@ -321,10 +357,29 @@ public partial class PlayRoot : Node3D
             SetSmokeLoading(true);
             var warmup = GameplayFxWarmup.For(GetViewport()); AddChild(warmup);
             View?.PreloadSmokeBackground();
+            bool switching = !OpenScctGame.Render.Materials.ResponsiveSmokeShaders.Enabled;
             warmup.PreloadResponsiveSmoke(session.Client.World.Level,Map,GetViewport());
+            // The match's shaders were built without smoke and switch now: draw the first-use samples of _Ready again
+            // under the cover, so the first effect, laser or outfit does not compile in play.
+            if (switching && DisplayServer.GetName() != "headless") PreloadGameplaySamples(warmup.Samples);
             warmup.Begin(() => SetSmokeLoading(false));
         }
         return true;
+    }
+
+    // The first-use samples _Ready draws while loading (effects, lasers, spy first person, outfits, security skins).
+    private void PreloadGameplaySamples(Node3D samples)
+    {
+        Fx?.Preload(samples);
+        MercLasers?.Preload(samples);
+        SpyLasers?.Preload(samples);
+        SpyFirstPerson?.Warmup(samples);
+        if (Map is { } map)
+        {
+            Render.Characters.PawnOutfits.Warmup(map.Outfits, map.Folder, map.SharedRoot, samples,
+                sidearms: FirstPerson?.Needs.Sidearms ?? true);
+            DeviceViews.PreloadSecuritySkins(map, samples);
+        }
     }
 
     private void Load()
@@ -350,6 +405,10 @@ public partial class PlayRoot : Node3D
         var sessionLoad = Stopwatch.StartNew();
         Session = Config.CreateSession?.Invoke(clock) ?? new PlaySession(settings, clock,
             message => GD.Print($"SVM_PLAY load seconds={sessionLoad.Elapsed.TotalSeconds:F2} {message}"));
+        LoadTimer.Mark("play.session");
+        // Compile responsive smoke into this match's shaders only when its rules use it. Rules that arrive later
+        // switch them (GameplayFxWarmup.PreloadResponsiveSmoke, ResponsiveSmokeRenderer).
+        OpenScctGame.Render.Materials.ResponsiveSmokeShaders.Use(OpenScct.Game.Equipment.ResponsiveSmokeWorld.IsEnabled(Session.Client.World.Level));
         if (Config.Render && OpenScct.Game.Equipment.ResponsiveSmokeWorld.IsEnabled(Session.Client.World.Level)
             && ResponsiveSmokeRenderer.UnsupportedReason is { } sessionRendererError)
         {
@@ -368,6 +427,9 @@ public partial class PlayRoot : Node3D
         if (Config.Render)
         {
             Map = MapBuilder.Build(Session.MapFolder);
+            LoadTimer.Mark("play.map");
+            // Read the effects and decode their PNGs on a worker while the views and outfits load (CombatFxView takes it).
+            OpenScctGame.Fx.FxLibrary.BeginLoad(Map.SharedRoot);
             _spyShadowLighting = new SpyShadowLighting(Map, Session.Client, () => Pawns);
             Session.StickyCamShadowUpdate = _spyShadowLighting.Update;
             AddChild(Map.Root);
@@ -375,7 +437,19 @@ public partial class PlayRoot : Node3D
             AddChild(View);
             View.Attach(Map);
             View.Camera.MakeCurrent();
+            // SVM_RD_PROTO=1: the RenderingDevice world renderer prototype replaces Godot's 3D drawing.
+            if (OpenScctGame.Render.RdProto.RdProtoRenderer.Enabled && !headless)
+            {
+                AddChild(new OpenScctGame.Render.RdProto.RdProtoRenderer(Map, View));
+            }
+            // SVM_RD_WORLD=1: our own world pass draws the merged map inside Godot's frame.
+            if (OpenScctGame.Render.Rd.RdWorldRenderer.Enabled && !headless && Map.RdWorld is not null)
+            {
+                AddChild(new OpenScctGame.Render.Rd.RdWorldRenderer(Map, View));
+            }
+
             GameplayObjects.ShowMode(Map, settings.Mode);
+            LoadTimer.Mark("play.view");
             Camera = new PlayCamera(View);
             var cameraMask = new CanvasLayer { Name = "CameraOcclusion", Layer = HudLayer.DefaultLayer - 1 };
             _cameraOcclusion = new ColorRect
@@ -389,12 +463,19 @@ public partial class PlayRoot : Node3D
             AddChild(Pawns);
             FirstPerson = new FirstPersonView { Map = Map, SharedRoot = Map.SharedRoot };
             AddChild(FirstPerson);
-            FirstPerson.PreloadSidearms();
+            LoadTimer.Mark("play.pawn-views");
+            PlaySettings built = Session.Settings;
+            var needs = FirstPersonNeeds.Of(Config.Demo is not null, Session.IsRemote, built.Side == PlaySide.Merc,
+                built.Mode, built.Sidearms, Session.Client.World.Level);
+            FirstPerson.Preload(needs);
+            LoadTimer.Mark("play.sidearms");
             SpyFirstPerson = new SpyFirstPersonView { Map = Map, SharedRoot = Map.SharedRoot };
             AddChild(SpyFirstPerson);
-            SpyFirstPerson.Preload();
+            if (needs.Spy) SpyFirstPerson.Preload();
+            LoadTimer.Mark("play.spy-first-person");
             Render.Characters.PawnOutfits.Prepare(Map.Outfits, Map.Folder, Map.SharedRoot,
                 rain: Session.Client.World.Level.GetService<RainVolumeList>() is { Volumes.Count: > 0 });
+            LoadTimer.Mark("play.outfits");
             Fx = new OpenScctGame.Fx.CombatFxView
             {
                 Pawns = Pawns, FirstPerson = FirstPerson, SpyFirstPerson = SpyFirstPerson, SharedRoot = Map.SharedRoot,
@@ -412,6 +493,7 @@ public partial class PlayRoot : Node3D
             LaserTriggers = new OpenScctGame.Fx.LaserTriggerView(Map);
             ShockFx = new OpenScctGame.Fx.ShockFxView { Name = "ShockFx", Pawns = Pawns };
             AddChild(ShockFx);
+            LoadTimer.Mark("play.fx");
             if (Map.Warnings.Count > 0)
             {
                 GD.Print($"SVM_PLAY {Map.MapId} render warnings={Map.Warnings.Count} first: {Map.Warnings[0]}");
@@ -436,11 +518,13 @@ public partial class PlayRoot : Node3D
             AddChild(new Demo.DemoHud(demo));
         }
 
+        LoadTimer.Mark("play.input");
         if (Config.Audio)
         {
             // Before the HUD: the sound takes the client world's event sink first and the HUD's tap wraps it.
             Audio = PlayAudio.Attach(this, Session, ListenerView, Config.Demo);
             if (Map is { } map) Audio?.PreloadSecuritySounds(map.Actors);
+            LoadTimer.Mark("play.audio");
         }
 
         Session.BeforeClientTick = BeforeTick;
@@ -489,6 +573,8 @@ public partial class PlayRoot : Node3D
         {
             TeamPingHud.Attach(this, Session, Controls, hud, view.Camera);
         }
+
+        LoadTimer.Mark("play.hud");
     }
 
     /// <summary>The local player's link totals for the network readout (main thread, between client ticks).</summary>
@@ -809,6 +895,13 @@ public partial class PlayRoot : Node3D
         DrawViews(session, alpha, viewDt);
         double viewMs = _watch.Elapsed.TotalMilliseconds;
         Stats.Add(simMs, viewMs, delta * 1000.0);
+        if (!_loadTimed && session.LocalPawn is not null && (Controls?.Enabled == true || Config.Pilot is not null))
+        {
+            // The first frame the player (or the test pilot) drives his pawn ends the load.
+            _loadTimed = true;
+            if (LoadTimer.Id == _loadId) LoadTimer.End("first-control");
+            OpenScctGame.Render.Materials.ResponsiveSmokeShaders.SaveList();
+        }
         if (session.ServerFailure is { } failure && _status is not null)
         {
             _status.Text = "Server stopped: " + failure.Message;
@@ -958,6 +1051,7 @@ public partial class PlayRoot : Node3D
     {
         // Whatever ends the round (results, the lobby, a disconnect, a map change), the pointer it took goes back.
         OpenScctGame.Controls.Pointer.Release();
+        LoadTimer.Abandon(_loadId);
         InputBindings.Rebound -= OnKeysRebound;
         CrashLog.Context = "";
         _scoreboardCapture?.Dispose();

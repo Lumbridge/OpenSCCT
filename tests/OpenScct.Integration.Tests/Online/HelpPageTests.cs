@@ -102,7 +102,6 @@ public sealed class HelpPageTests
         string home = await http.GetStringAsync("/", ct);
         Assert.Contains("showcase-editor.webp", improvements, StringComparison.Ordinal);
         Assert.Contains("showcase-scoreboard.webp", improvements, StringComparison.Ordinal);
-        Assert.Contains("showcase-graphics-driver.webp", home, StringComparison.Ordinal);
         var files = Regex.Matches(improvements + home, "src=\"/web/assets/(showcase-[a-z-]+\\.(?:png|webp))\\?v=[a-f0-9]{16}\"")
             .Select(match => match.Groups[1].Value).Distinct();
         foreach (string file in files)

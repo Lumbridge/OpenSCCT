@@ -39,6 +39,14 @@ public sealed class RainVolumes
     private readonly ImmediateMesh _mesh = new();
     private FVector? _drawnCamera;
 
+    /// <summary>
+    /// The sheets as last built, for the own frame (Rd/RdSheets): six floats a vertex (position, UV, grey), the runs of
+    /// vertices by material, and a number that changes with every rebuild.
+    /// </summary>
+    internal List<float> RdVertices { get; } = [];
+    internal List<(ShaderMaterial Material, int First, int Count)> RdRuns { get; } = [];
+    internal int RdVersion { get; private set; }
+
     private sealed record Volume(RainEntry Entry, FVector Min, FVector Max, ShaderMaterial Material);
 
     public RainVolumes(RenderMap map, Node3D parent)
@@ -62,12 +70,10 @@ public sealed class RainVolumes
             {
                 string modes = r.Additive ? "blend_add" : "blend_mix";
                 string define = r.Additive ? "" : "#define RAIN_ALPHA\n";
-                shader = new Shader
-                {
-                    Code = "shader_type spatial;\nrender_mode unshaded, fog_disabled, cull_disabled, depth_draw_never, " + modes
+                shader = Materials.ResponsiveSmokeShaders.Shared(
+                    "shader_type spatial;\nrender_mode unshaded, fog_disabled, cull_disabled, depth_draw_never, " + modes
                         + ";\n" + define + "#include \"" + TemplatePath + "\"\n",
-                    ResourceName = "svm_rain " + modes,
-                };
+                    "svm_rain " + modes);
                 shaders[r.Additive] = shader;
             }
 
@@ -107,6 +113,9 @@ public sealed class RainVolumes
         if (_drawnCamera == camera) return;
         _drawnCamera = camera;
         _mesh.ClearSurfaces();
+        RdVertices.Clear();
+        RdRuns.Clear();
+        RdVersion++;
         Sheets = 0;
         foreach (Volume v in _volumes)
         {
@@ -155,6 +164,7 @@ public sealed class RainVolumes
                 if (!begun)
                 {
                     _mesh.SurfaceBegin(Mesh.PrimitiveType.Triangles, v.Material);
+                    RdRuns.Add((v.Material, RdVertices.Count / 6, 0));
                     begun = true;
                 }
 
@@ -196,5 +206,8 @@ public sealed class RainVolumes
         _mesh.SurfaceSetColor(colour);
         _mesh.SurfaceSetUV(new Vector2(u, v));
         _mesh.SurfaceAddVertex(position);
+        RdVertices.AddRange([position.X, position.Y, position.Z, u, v, colour.R]);
+        (ShaderMaterial material, int first, int count) = RdRuns[^1];
+        RdRuns[^1] = (material, first, count + 1);
     }
 }

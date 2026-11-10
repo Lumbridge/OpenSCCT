@@ -139,8 +139,8 @@ public static class ResponsiveSmokeRenderer
     /// <summary>Availability is explicit: clients must not silently substitute legacy smoke in a responsive match.</summary>
     public static string? UnsupportedReason => DisplayServer.GetName() == "headless" ? null
         : RenderingServer.GetCurrentRenderingMethod() != "forward_plus" ? "Responsive smoke requires the Forward+ renderer."
-        : RenderingServer.GetCurrentRenderingDriverName() is not ("vulkan" or "d3d12")
-            ? "Responsive smoke requires the Vulkan or Direct3D 12 rendering driver."
+        : RenderingServer.GetCurrentRenderingDriverName() != "vulkan"
+            ? "Responsive smoke requires the Vulkan rendering driver."
         : VolumeError is { } error ? "Responsive smoke could not initialize: " + error : null;
 
     public static void EnsureGlobals()
@@ -152,15 +152,15 @@ public static class ResponsiveSmokeRenderer
         using var empty = Image.CreateEmpty(1, 1, false, Image.Format.Rgbaf);
         empty.Fill(Colors.Transparent);
         s_empty = ImageTexture.CreateFromImage(empty);
-        RenderingServer.GlobalShaderParameterAdd("svm_smoke_fields", RenderingServer.GlobalShaderParameterType.Sampler2D, s_empty);
-        RenderingServer.GlobalShaderParameterAdd("svm_smoke_frame", RenderingServer.GlobalShaderParameterType.Sampler2D, s_empty);
-        RenderingServer.GlobalShaderParameterAdd("svm_smoke_growth", RenderingServer.GlobalShaderParameterType.Sampler2D, s_empty);
-        RenderingServer.GlobalShaderParameterAdd("svm_smoke_probes", RenderingServer.GlobalShaderParameterType.Sampler2D, s_empty);
-        RenderingServer.GlobalShaderParameterAdd("svm_smoke_shape", RenderingServer.GlobalShaderParameterType.Sampler3D, ResponsiveSmokeVisualFlow.EmptyTexture);
-        RenderingServer.GlobalShaderParameterAdd("svm_smoke_prefix", RenderingServer.GlobalShaderParameterType.Sampler2D, s_empty);
-        RenderingServer.GlobalShaderParameterAdd("svm_smoke_active", RenderingServer.GlobalShaderParameterType.Bool, false);
-        RenderingServer.GlobalShaderParameterAdd("svm_smoke_scene_shadows", RenderingServer.GlobalShaderParameterType.Bool, false);
-        RenderingServer.GlobalShaderParameterAdd("svm_smoke_prefix_ready", RenderingServer.GlobalShaderParameterType.Bool, false);
+        ShaderGlobals.Add("svm_smoke_fields", RenderingServer.GlobalShaderParameterType.Sampler2D, s_empty);
+        ShaderGlobals.Add("svm_smoke_frame", RenderingServer.GlobalShaderParameterType.Sampler2D, s_empty);
+        ShaderGlobals.Add("svm_smoke_growth", RenderingServer.GlobalShaderParameterType.Sampler2D, s_empty);
+        ShaderGlobals.Add("svm_smoke_probes", RenderingServer.GlobalShaderParameterType.Sampler2D, s_empty);
+        ShaderGlobals.Add("svm_smoke_shape", RenderingServer.GlobalShaderParameterType.Sampler3D, ResponsiveSmokeVisualFlow.EmptyTexture);
+        ShaderGlobals.Add("svm_smoke_prefix", RenderingServer.GlobalShaderParameterType.Sampler2D, s_empty);
+        ShaderGlobals.Add("svm_smoke_active", RenderingServer.GlobalShaderParameterType.Bool, false);
+        ShaderGlobals.Add("svm_smoke_scene_shadows", RenderingServer.GlobalShaderParameterType.Bool, false);
+        ShaderGlobals.Add("svm_smoke_prefix_ready", RenderingServer.GlobalShaderParameterType.Bool, false);
         RenderingServer.FramePreDraw += Flush;
     }
 
@@ -189,20 +189,20 @@ public static class ResponsiveSmokeRenderer
         foreach (Image slice in slices) slice.Dispose();
         if (created != Error.Ok) throw new InvalidOperationException($"Could not allocate responsive smoke shape texture: {created}");
         FieldAllocationCount++;
-        RenderingServer.GlobalShaderParameterSet("svm_smoke_fields",s_fields);
-        RenderingServer.GlobalShaderParameterSet("svm_smoke_frame",s_frame);
-        RenderingServer.GlobalShaderParameterSet("svm_smoke_growth",s_growth);
-        RenderingServer.GlobalShaderParameterSet("svm_smoke_probes",s_probes);
-        RenderingServer.GlobalShaderParameterSet("svm_smoke_shape",s_shape);
+        ShaderGlobals.Set("svm_smoke_fields",s_fields);
+        ShaderGlobals.Set("svm_smoke_frame",s_frame);
+        ShaderGlobals.Set("svm_smoke_growth",s_growth);
+        ShaderGlobals.Set("svm_smoke_probes",s_probes);
+        ShaderGlobals.Set("svm_smoke_shape",s_shape);
     }
 
     private static void ReleaseFields()
     {
         SetActive(false);
         foreach (string name in new[] { "svm_smoke_fields", "svm_smoke_frame", "svm_smoke_growth", "svm_smoke_prefix", "svm_smoke_probes" })
-            RenderingServer.GlobalShaderParameterSet(name,s_empty!);
+            ShaderGlobals.Set(name,s_empty!);
         ResponsiveSmokeVolumeCache.Release();
-        RenderingServer.GlobalShaderParameterSet("svm_smoke_shape",ResponsiveSmokeVisualFlow.EmptyTexture);
+        ShaderGlobals.Set("svm_smoke_shape",ResponsiveSmokeVisualFlow.EmptyTexture);
         ResponsiveSmokeVisualFlow.Shutdown();
         FieldPool.Release(); FramePool.Release(); GrowthPool.Release(); ProbePool.Release();
         s_shape?.Dispose(); s_shape = null;
@@ -235,16 +235,16 @@ public static class ResponsiveSmokeRenderer
         if (s_sceneShadows != shadows)
         {
             s_sceneShadows = shadows;
-            RenderingServer.GlobalShaderParameterSet("svm_smoke_scene_shadows", shadows);
+            ShaderGlobals.Set("svm_smoke_scene_shadows", shadows);
         }
         if (s_active == active) return;
-        s_active = active; RenderingServer.GlobalShaderParameterSet("svm_smoke_active",active);
+        s_active = active; ShaderGlobals.Set("svm_smoke_active",active);
     }
 
     private static void BindTexture(ref ImageTexture? current, ImageTexture next, string parameter)
     {
         if (ReferenceEquals(current,next)) return;
-        current = next; RenderingServer.GlobalShaderParameterSet(parameter,next);
+        current = next; ShaderGlobals.Set(parameter,next);
     }
 
     public static void Publish(RenderMap? map, Level level)
@@ -275,7 +275,7 @@ public static class ResponsiveSmokeRenderer
     public static bool HasSmoke(RenderMap? map) => map is not null && Maps.TryGetValue(map, out WorldBinding? binding)
         && binding.Frame.Enabled && binding.Frame.Clouds.Count != 0;
 
-    /// <summary>Only draws where no opaque surface wrote depth, after the sky backdrop and before other transparency.</summary>
+    /// <summary>Only draws where no opaque surface but the sky zone wrote depth, after the sky and before other transparency.</summary>
     public static MeshInstance3D CreateBackground(Camera3D camera)
     {
         EnsureGlobals();
@@ -386,6 +386,9 @@ public static class ResponsiveSmokeRenderer
         ResponsiveSmokeVisualFlow.Queue(FlowInputs,Quality);
         if (Profile) { LastFlowQueueMilliseconds = System.Diagnostics.Stopwatch.GetElapsedTime(stage).TotalMilliseconds; stage = System.Diagnostics.Stopwatch.GetTimestamp(); }
         AllocateFields();
+        // Shaders built without smoke draw it as inactive, so they must have it before it turns on. A match sets this
+        // at load; this covers any other world with smoke rules.
+        Materials.ResponsiveSmokeShaders.Use(true);
         SetActive(true);
         if (changed)
         {

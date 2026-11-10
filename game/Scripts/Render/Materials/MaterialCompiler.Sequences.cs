@@ -55,7 +55,8 @@ public sealed partial class MaterialCompiler
         public int Last = -1;
     }
 
-    private ShaderMaterial ComposeSequence(MaterialEntry owner, MaterialSequenceEntry sequence, LightSource light, bool seeThroughPass, bool billboard)
+    private ShaderMaterial ComposeSequence(MaterialEntry owner, MaterialSequenceEntry sequence, LightSource light, bool seeThroughPass, bool billboard,
+        bool sky)
     {
         if (sequence.Items.Length == 0 || sequence.Items.Any(item => item.Material is null || item.Timing.Fade))
             throw new InvalidOperationException($"MaterialSequence {sequence.Source} needs complete Show frame states");
@@ -70,10 +71,15 @@ public sealed partial class MaterialCompiler
         ShaderMaterial[] frames = sequence.Items.Select(item =>
         {
             MaterialEntry frame = item.Material!.WithLightmap(owner.Lightmap);
-            return frame.Skip ? new ShaderMaterial { Shader = new Shader { Code = "shader_type spatial; void fragment() { discard; }" } }
-                : Compose(frame, light, seeThroughPass, billboard);
+            return frame.Skip ? new ShaderMaterial { Shader = SharedShader("shader_type spatial; void fragment() { discard; }", "") }
+                : Compose(frame, light, seeThroughPass, billboard, sky: sky);
         }).ToArray();
         var material = new ShaderMaterial { ResourceName = owner.Name };
+        if (sky)
+        {
+            // The frames' shaders are swapped in below; the priority stays this material's own (GetSky).
+            material.RenderPriority = (int)Material.RenderPriorityMin;
+        }
         var binding = new SequenceStateBinding(material, frames, clock);
         _sequenceStates.Add(binding);
         UpdateSequenceState(binding, _sequenceTime);

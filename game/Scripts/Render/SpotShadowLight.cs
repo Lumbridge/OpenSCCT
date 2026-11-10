@@ -88,9 +88,25 @@ public sealed partial class SpotShadowLight : IDisposable
     public const string ParamCookies = "svm_spot_cookies";
     public const string ParamAttenuation = "svm_spot_atten";
     public const string ParamIgnore = "svm_spot_ignore";
+    public const string ParamBits = "svm_spot_bits";
 
     /// <summary>Texels per slot row of the slot texture (the template's layout, svm_world.gdshaderinc).</summary>
-    private const int SlotTexels = 8;
+    private const int SlotTexels = 9;
+
+    /// <summary>Slots svm_spot_bits can hold (16 on bits, 16 bDynamicLight bits).</summary>
+    private const int BitSlots = 16;
+
+    /// <summary>
+    /// How far (m) the caster search reaches past the shadow camera's frustum: more than float noise between the
+    /// search and Godot's own culling of the same bounds.
+    /// </summary>
+    private const float CasterMargin = 0.25f;
+
+    /// <summary>
+    /// Frames a light with a static cache keeps still before the static world is drawn into it. Until then the live
+    /// pass draws the static world too (the same depth): a torch swept every frame would otherwise draw it twice.
+    /// </summary>
+    private const int StillFrames = 3;
 
     /// <summary>
     /// The shadow map height the next set of lights uses (Reloaded's shadow_quality, <see cref="MapSizeFor"/>): read
@@ -126,6 +142,8 @@ public sealed partial class SpotShadowLight : IDisposable
     private static readonly StringName s_countName = ParamCount;
     private static readonly StringName s_depthName = ParamDepth;
     private static readonly StringName s_cookiesName = ParamCookies;
+    private static readonly StringName s_bitsName = ParamBits;
+    private static int s_lastBits;
 
     private static bool s_globalsAdded;
 
@@ -181,13 +199,33 @@ public sealed partial class SpotShadowLight : IDisposable
     private readonly Camera3D? _staticCamera;
     private readonly ShadowDepthCapture? _staticCapture;
     private bool _staticDirty = true;
+    private long _staticScheduledStamp;
+    private bool _tileByRd;
+    private List<Rect2I>? _rdWritten;
     private (bool Live, FVector Location, FRotator Rotation, float Scale, float Visibility, int Zone, float Soft)? _lastPush;
+
+    // The live pass is drawn only when its tile could change (RefreshShadowPass): what the tile holds, the pass asked
+    // for this frame, static passes scheduled so far, and the search planes for the camera's frustum.
+    private ShadowTile? _tile;
+    private ShadowTile? _asked;
+    private int _staticRenders;
+    private bool _liveDrawn;
+    private Transform3D _lastCamera;
+    private int _stillFrames;
+
+    // Set just before the frame draws: the live pass takes the cached static depth (read by its capture on the render
+    // thread) and leaves the static world out of its camera.
+    private volatile bool _combine;
+    private Godot.Collections.Array<Plane>? _searchPlanes;
+    private Transform3D _searchFor;
 
     /// <param name="parent">Node the light's shadow viewport goes under.</param>
     /// <param name="pack">The render pack (attenuation ramps; the cookie when <paramref name="cookie"/> is null).</param>
     /// <param name="shape">The light.</param>
     /// <param name="cookie">The projected texture's CPU image, else the pack's <see cref="SpotShadowShape.Cookie"/>
     /// (none: white). The source is retained without changing or disposing it.</param>
+    /// <param name="cacheStatic">Keep the static world's depth in a cached tile once the light keeps still; the live
+    /// pass then draws only the other casters and takes the nearest of both (the same depth as one pass of everything).</param>
     public SpotShadowLight(Node parent, RenderPack? pack, SpotShadowShape shape, Image? cookie = null, bool cacheStatic = false)
     {
         ArgumentNullException.ThrowIfNull(parent);
@@ -218,7 +256,7 @@ public sealed partial class SpotShadowLight : IDisposable
         float near = UeSpace.LengthToGodot(MathF.Max(1f, _apex));
         float far = UeSpace.LengthToGodot(_apex + shape.Range);
         _capture = new ShadowDepthCapture(_size, near, far, TileOrigin(_slot), _parallel, static () => s_atlas,
-            cacheStatic ? () => _staticCapture is { Ready: true } && !_staticDirty ? s_staticAtlas : default : null);
+            cacheStatic ? () => _combine ? s_staticAtlas : default : null);
         _viewport = new SubViewport
         {
             Name = "SpotShadow",
@@ -262,19 +300,21 @@ public sealed partial class SpotShadowLight : IDisposable
             {
                 Name = "StaticLightCamera", KeepAspect = _camera.KeepAspect, Near = near, Far = far,
                 Projection = _camera.Projection, Size = _camera.Size,
-                CullMask = RenderLayers.StaticWorld | RenderLayers.ShadowPass,
+                CullMask = RenderLayers.StaticWorldAll | RenderLayers.ShadowPass,
                 Environment = FaithfulView.CreateEnvironment(), Attributes = FaithfulView.CreateAttributes(),
                 Compositor = new Compositor { CompositorEffects = new Godot.Collections.Array<CompositorEffect> { _staticCapture } },
                 Current = true,
             };
             _staticViewport.AddChild(_staticCamera);
             // Child viewports render before their parent: populate the static tile before the dynamic pass reads it.
+            // The live camera leaves the static world out only while it takes the cached depth (RefreshShadowPass).
             _viewport.AddChild(_staticViewport);
-            _camera.CullMask = RenderLayers.World | RenderLayers.ShadowPass;
+            Diagnostics.ViewportTimings.Register(_staticViewport, Diagnostics.ViewportTimings.SpotStatic);
         }
 
         _viewport.AddChild(_camera);
         parent.AddChild(_viewport);
+        Diagnostics.ViewportTimings.Register(_viewport, Diagnostics.ViewportTimings.SpotLive);
         cookie ??= string.IsNullOrEmpty(shape.Cookie) ? null : pack?.Image(shape.Cookie);
         _cookieLayer = CookieLayer(cookie);
         _colour = Colour(shape) * RenderK.SpotShadowGain;
@@ -330,7 +370,6 @@ public sealed partial class SpotShadowLight : IDisposable
         set
         {
             _on = value;
-            UpdateShadowViewport();
             Push();
         }
     }
@@ -372,32 +411,309 @@ public sealed partial class SpotShadowLight : IDisposable
             _influenceBounds = Shape.InfluenceBounds(location, rotation);
         }
 
-        if (_staticViewport is not null && _staticDirty) UpdateShadowViewport();
-
         Push();
     }
 
     /// <summary>Conservative culling of the shadow pass, keeping the light and its atlas slot intact.</summary>
-    public void CullShadow(ReadOnlySpan<Plane> frustum)
-    {
-        bool visible = ViewFrustum.Intersects(_influenceBounds, frustum);
+    public void CullShadow(ReadOnlySpan<Plane> frustum) => _cameraVisible = ViewFrustum.Intersects(_influenceBounds, frustum);
 
-        if (_cameraVisible != visible)
+    /// <summary>
+    /// What a light's tile of the atlas holds: drawn from <paramref name="Camera"/>, with the cached static depth or
+    /// not, after static pass <paramref name="StaticRender"/>, with only the static-world instances
+    /// <paramref name="Static"/> (sorted, the first <paramref name="StaticCount"/>) in the frustum; null when other
+    /// casters were there. <paramref name="Stamp"/> is the capture's stamp when the pass was asked for.
+    /// </summary>
+    private sealed record ShadowTile(Transform3D Camera, bool Combined, int StaticRender, long[]? Static, int StaticCount, long Stamp, ulong Rigid = 0)
+    {
+        public bool Holds(Transform3D camera, bool combined, int staticRender, long[] statics, int count, ulong rigid) =>
+            Static is not null && Camera == camera && Combined == combined && StaticRender == staticRender && StaticCount == count
+            && Rigid == rigid && Static.AsSpan(0, StaticCount).SequenceEqual(statics.AsSpan(0, count));
+    }
+
+    // Meshes that never change after they are built (MapBuilder's gameplay meshes): an instance of one casts the same
+    // shadow until it moves, hides or takes another mesh. Held weakly, by the mesh object itself.
+    private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<Mesh, object> s_rigidMeshes = new();
+    private static readonly object s_rigid = new();
+
+    /// <summary>
+    /// Marks a mesh whose surfaces are never rewritten or animated: its instances (without a skeleton) are rigid casters,
+    /// whose shadow the shadow pass redraws only when one of them moves, hides, shows or takes another mesh. A mesh
+    /// rebuilt in place (soft bodies, escalator steps), a skinned one or one with an animated cut-out must not be marked.
+    /// </summary>
+    public static void MarkRigid(Mesh mesh)
+    {
+        ArgumentNullException.ThrowIfNull(mesh);
+        s_rigidMeshes.AddOrUpdate(mesh, s_rigid);
+    }
+
+    /// <summary>SVM_SHADOW_STATS=1 prints, at most once a second per light, the caster that keeps its shadow pass live.</summary>
+    private static bool Stats { get; } = System.Environment.GetEnvironmentVariable("SVM_SHADOW_STATS") == "1";
+    private ulong _reportedAt;
+
+    private void ReportLive(VisualInstance3D node)
+    {
+        ulong now = Time.GetTicksMsec();
+        if (now - _reportedAt < 1000) return;
+        _reportedAt = now;
+        GD.Print($"SVM_SHADOW slot {_slot} ({LightName}) live: {node.GetClass()} {node.GetPath()} layers={node.Layers} mesh={(node as MeshInstance3D)?.Mesh?.ResourceName} skin={(node as MeshInstance3D)?.Skin is not null}");
+    }
+
+    /// <summary>SVM_SHADOW_RIGID=0 redraws a light's shadow pass whenever anything but the static world is in its frustum, as before.</summary>
+    private static bool TrackRigid { get; } = System.Environment.GetEnvironmentVariable("SVM_SHADOW_RIGID") != "0";
+
+    private static void RefreshShadowPasses()
+    {
+        foreach (SpotShadowLight? light in s_slots)
         {
-            _cameraVisible = visible;
-            UpdateShadowViewport();
+            light?.RefreshShadowPass();
+        }
+
+        // The tiles our own pass writes this frame (Rd/RdShadowPass), before anything draws.
+        Rd.RdShadowPass.Flush(s_atlas, s_staticAtlas);
+    }
+
+    /// <summary>
+    /// Runs just before the frame draws, after every node has moved. The live pass is skipped when the tile already
+    /// holds exactly what it would draw: the camera, the static cache and the static-world instances in the frustum are
+    /// unchanged, and no other caster (a pawn, mover, animated surface or anything not known to be static) is in the
+    /// frustum now or was at the tile's last pass. The atlas keeps a tile until its own capture writes it again.
+    /// </summary>
+    private void RefreshShadowPass()
+    {
+        if (_disposed || !GodotObject.IsInstanceValid(_viewport) || !GodotObject.IsInstanceValid(_camera))
+        {
+            return;
+        }
+
+        // Settle last frame's pass: a write replaces the tile (its stamp tells whether it took the static depth).
+        if (_asked is { } asked)
+        {
+            _asked = null;
+            long stamp = _capture.Stamp;
+            _tile = stamp != asked.Stamp && asked.Static is not null ? asked with { Combined = (stamp & 1) != 0 } : null;
+        }
+
+        bool draw = _on && HasSlot && _cameraVisible && _camera.IsInsideTree();
+        Transform3D camera = _camera.GlobalTransform;
+        _stillFrames = camera == _lastCamera ? _stillFrames + 1 : 0;
+        _lastCamera = camera;
+        if (_staticViewport is not null)
+        {
+            _combine = _staticCapture is { Ready: true } && !_staticDirty;
+            SetLiveMask();
+        }
+
+        if (_tileByRd && Rd.RdShadowPass.Failed)
+        {
+            // Our own pass failed: its tiles are drawn again by the viewport pass.
+            _tileByRd = false;
+            _tile = null;
+        }
+
+        // Our own pass draws the casters over the cached static tile, once that tile was written (a frame after the
+        // static pass was scheduled) and when it can draw every caster in the frustum as Godot would.
+        if (draw && Rd.RdShadowPass.Enabled && !Rd.RdShadowPass.Failed && _combine && s_staticAtlas.IsValid
+            && _staticCapture is { } cache && cache.Stamp != _staticScheduledStamp)
+        {
+            object job = Rd.RdShadowPass.Begin(TileOrigin(_slot), _size, _camera);
+            long[]? found = StaticCasters(camera, out int found_count, out ulong found_rigid, job, out bool moving);
+            if (found is not null)
+            {
+                bool held = !moving && _tile is { } now && now.Holds(camera, true, _staticRenders, found, found_count, found_rigid);
+                if (held)
+                {
+                    Rd.RdShadowPass.Discard(job);
+                }
+                else
+                {
+                    // A tile last written by the viewport pass is copied whole.
+                    if (!_tileByRd) _rdWritten = null;
+                    Rd.RdShadowPass.Commit(job, ref _rdWritten);
+                    _tile = moving ? null : new ShadowTile(camera, true, _staticRenders, found, found_count, _capture.Stamp, found_rigid);
+                    _tileByRd = true;
+                }
+
+                _asked = null;
+                draw = false;
+            }
+            else
+            {
+                Rd.RdShadowPass.Discard(job);
+            }
+        }
+
+        if (draw)
+        {
+            long[]? statics = StaticCasters(camera, out int count, out ulong rigid);
+            bool keep = statics is not null && _tile is { } tile && tile.Holds(camera, _combine, _staticRenders, statics, count, rigid);
+            // Draw the static world into its cache only when the live pass runs anyway and the light has kept still. The
+            // static pass draws first (child viewport); either way the tile gets the same depth: the nearest of both
+            // passes, or one pass of everything.
+            if (!keep && _staticViewport is not null && _staticDirty && _stillFrames >= StillFrames && _staticCapture is { Ready: true })
+            {
+                _staticScheduledStamp = _staticCapture.Stamp;
+                _staticViewport.RenderTargetUpdateMode = SubViewport.UpdateMode.Once;
+                _staticDirty = false;
+                _staticRenders++;
+                _combine = true;
+                SetLiveMask();
+                statics = StaticCasters(camera, out count, out rigid);
+            }
+
+            if (keep)
+            {
+                draw = false;
+            }
+            else
+            {
+                _asked = new ShadowTile(camera, _combine, _staticRenders, statics, count, _capture.Stamp, rigid);
+                _tileByRd = false;
+            }
+        }
+
+        // SVM_RD_SHADOWS=verify: now and then our own pass draws the tile the viewport pass draws this frame, to compare.
+        if (draw && Rd.RdShadowPass.Verify && _combine && s_staticAtlas.IsValid && _staticCapture is { } cached
+            && cached.Stamp != _staticScheduledStamp && Engine.GetProcessFrames() % 150 == 100)
+        {
+            object job = Rd.RdShadowPass.Begin(TileOrigin(_slot), _size, _camera);
+            if (StaticCasters(camera, out _, out _, job, out _) is not null) Rd.RdShadowPass.CommitVerify(job, $"slot {_slot} ({LightName})");
+            else
+            {
+                Rd.RdShadowPass.Discard(job);
+                GD.Print($"SVM_RD_SHADOW verify slot {_slot} ({LightName}): a caster our pass cannot draw");
+            }
+        }
+
+        if (_liveDrawn != draw)
+        {
+            _liveDrawn = draw;
+            _viewport.RenderTargetUpdateMode = draw ? SubViewport.UpdateMode.Always : SubViewport.UpdateMode.Disabled;
         }
     }
 
-    private void UpdateShadowViewport()
+    /// <summary>The live camera leaves the static world out while it takes the cached static depth.</summary>
+    private void SetLiveMask()
     {
-        bool draw = _on && HasSlot && _cameraVisible;
-        _viewport.RenderTargetUpdateMode = draw ? SubViewport.UpdateMode.Always : SubViewport.UpdateMode.Disabled;
-        if (draw && _staticDirty && _staticCapture is { Ready: true } && _staticViewport is not null)
+        uint mask = _combine ? RenderLayers.World | RenderLayers.ShadowPass : RenderLayers.SpotShadow;
+        if (_camera.CullMask != mask)
         {
-            _staticViewport.RenderTargetUpdateMode = SubViewport.UpdateMode.Once;
-            _staticDirty = false;
+            _camera.CullMask = mask;
         }
+    }
+
+    /// <summary>
+    /// The static-world instances the live camera draws (sorted ids, the first <paramref name="count"/>) and a
+    /// fingerprint of the rigid casters in its frustum (<see cref="MarkRigid"/>: which, where, with which mesh), or null
+    /// when anything else it draws is in its frustum. The search uses the instance bounds Godot culls the camera with.
+    /// </summary>
+    private long[]? StaticCasters(Transform3D camera, out int count, out ulong rigid) =>
+        StaticCasters(camera, out count, out rigid, null, out _);
+
+    /// <summary>
+    /// As above, for our own shadow pass when <paramref name="job"/> is given (Rd/RdShadowPass): every caster that is not
+    /// static world is added to the job, and null is returned only when the pass cannot draw one of them.
+    /// <paramref name="moving"/> is set when a caster's shadow can change while this fingerprint stays (a skeleton, a
+    /// mesh not marked rigid): the tile is then drawn every frame.
+    /// </summary>
+    private long[]? StaticCasters(Transform3D camera, out int count, out ulong rigid, object? job, out bool moving)
+    {
+        count = 0;
+        rigid = 0;
+        moving = false;
+        if (_camera.GetWorld3D() is not { } world)
+        {
+            return null;
+        }
+
+        if (_searchPlanes is null || _searchFor != camera)
+        {
+            Godot.Collections.Array<Plane> planes = _camera.GetFrustum();
+            if (planes.Count != 6)
+            {
+                return null;
+            }
+
+            // Godot's frustum planes face outwards: moving each out widens the search.
+            for (int i = 0; i < planes.Count; i++)
+            {
+                Plane p = planes[i];
+                planes[i] = new Plane(p.Normal, p.D + CasterMargin);
+            }
+
+            _searchPlanes = planes;
+            _searchFor = camera;
+        }
+
+        long[] ids = RenderingServer.InstancesCullConvex(_searchPlanes, world.Scenario);
+        uint drawn = _camera.CullMask & ~RenderLayers.ShadowPass;
+        int kept = 0;
+        for (int i = 0; i < ids.Length; i++)
+        {
+            long id = ids[i];
+            // An instance without a node (or one being freed) may change unseen: draw the pass.
+            if (GodotObject.InstanceFromId((ulong)id) is not VisualInstance3D node)
+            {
+                return null;
+            }
+
+            // Lights, decals and probes write no depth.
+            if (node is not GeometryInstance3D)
+            {
+                continue;
+            }
+
+            uint layers = node.Layers & drawn;
+            if (layers == 0)
+            {
+                continue;
+            }
+
+            // Only the merged map geometry is fixed (RenderLayers.StaticWorld, the static cache's own premise). A rigid
+            // caster keeps its shadow while it keeps its place, its mesh and its layers; anything else may move, animate
+            // or change unseen.
+            if ((layers & ~RenderLayers.StaticWorldAll) != 0)
+            {
+                bool tracked = TrackRigid && node is MeshInstance3D { Mesh: { } marked, Skin: null } && s_rigidMeshes.TryGetValue(marked, out _)
+                    && node.IsVisibleInTree();
+                if (job is not null)
+                {
+                    bool moves = !tracked;
+                    if (node is not MeshInstance3D caster || !caster.IsVisibleInTree() || !Rd.RdShadowPass.TryAdd(job, caster, ref moves))
+                    {
+                        if (Stats) ReportLive(node);
+                        return null;
+                    }
+
+                    moving |= moves;
+                    if (!tracked) continue;
+                }
+
+                if (!tracked || node is not MeshInstance3D { Mesh: { } mesh } instance)
+                {
+                    if (Stats) ReportLive(node);
+                    return null;
+                }
+
+                // Order free (the search returns instances in no fixed order): each caster's own hash, summed.
+                Transform3D at = instance.GlobalTransform;
+                var hash = new HashCode();
+                hash.Add(id);
+                hash.Add(layers);
+                hash.Add(mesh.GetRid());
+                hash.Add(at.Basis.X);
+                hash.Add(at.Basis.Y);
+                hash.Add(at.Basis.Z);
+                hash.Add(at.Origin);
+                rigid += (ulong)(uint)hash.ToHashCode() * 0x9E3779B97F4A7C15UL + 0x632BE59BD9B4E019UL;
+                continue;
+            }
+
+            ids[kept++] = id;
+        }
+
+        Array.Sort(ids, 0, kept);
+        count = kept;
+        return ids;
     }
 
     /// <summary>Writes the light into its slot of the template (or clears the slot when off).</summary>
@@ -420,6 +736,7 @@ public sealed partial class SpotShadowLight : IDisposable
         if (!live)
         {
             SetRow(_slot, 3, Vector4.Zero);
+            SetRow(_slot, 8, Vector4.Zero);
             Flush();
             return;
         }
@@ -454,8 +771,97 @@ public sealed partial class SpotShadowLight : IDisposable
         SetRow(_slot, 6, new Vector4(origin.X / (float)AtlasWidth, origin.Y / (float)AtlasHeight, _size.X / (float)AtlasWidth,
             _size.Y / (float)AtlasHeight));
         SetRow(_slot, 7, new Vector4(Zone, UeSpace.LengthToGodot(2f), 0.01f, SoftRadius));
+        SetRow(_slot, 8, LitSphere(_camera.GlobalTransform, UeSpace.LengthToGodot(_apex), range, frustum));
         Flush();
     }
+
+    /// <summary>
+    /// A sphere (centre, radius squared) around every point the template can light from a slot: depth from the apex
+    /// within (apex, apex + range) and the clip position within -1..1, the convex hull of the frustum's eight corners.
+    /// The margin is far above the float error of the template's own tests, so the sphere only rejects points they reject.
+    /// </summary>
+    private static Vector4 LitSphere(Transform3D toWorld, float near, float range, Vector4 frustum)
+    {
+        float far = near + range;
+        bool parallel = frustum.Z > 0.5f;
+        float nx = parallel ? 1f / frustum.X : near / frustum.X;
+        float ny = parallel ? 1f / frustum.Y : near / frustum.Y;
+        float fx = parallel ? 1f / frustum.X : far / frustum.X;
+        float fy = parallel ? 1f / frustum.Y : far / frustum.Y;
+        // The axis point as far from the near corners as from the far ones (clamped to the span).
+        float z = Math.Clamp(((fx * fx) + (fy * fy) - (nx * nx) - (ny * ny) + (far * far) - (near * near)) / (2f * range), near, far);
+        Vector3 centre = toWorld * new Vector3(0f, 0f, -z);
+        float radius = 0f;
+        for (int x = -1; x <= 1; x += 2)
+        {
+            for (int y = -1; y <= 1; y += 2)
+            {
+                radius = MathF.Max(radius, centre.DistanceTo(toWorld * new Vector3(x * nx, y * ny, -near)));
+                radius = MathF.Max(radius, centre.DistanceTo(toWorld * new Vector3(x * fx, y * fy, -far)));
+            }
+        }
+
+        radius = (radius * 1.001f) + 0.05f;
+        return new Vector4(centre.X, centre.Y, centre.Z, radius * radius);
+    }
+
+    /// <summary>
+    /// Row 8 of a slot the template visits this frame (on in svm_spot_bits): the sphere (centre, radius squared) outside
+    /// which the slot adds exactly nothing. Zero for a slot it skips (<see cref="LightReach"/>).
+    /// </summary>
+    internal static Vector4 ReachSphere(int slot) =>
+        slot < 0 || slot >= Math.Min(s_slots.Length, BitSlots) || s_rowValues[(slot * SlotTexels) + 3].X < 0.5f
+            ? Vector4.Zero : s_rowValues[(slot * SlotTexels) + 8];
+
+    /// <summary>
+    /// The template's own tests of a slot (svm_spot_slot: the lit span along the light's axis and the sides of its
+    /// frustum) against a world box: false only when no point of the box passes them all, so the slot adds exactly
+    /// nothing anywhere in it. Tighter than <see cref="ReachSphere"/>, which holds the whole frustum.
+    /// </summary>
+    internal static bool ReachesBox(int slot, in Aabb box)
+    {
+        if (slot < 0 || slot >= Math.Min(s_slots.Length, BitSlots)) return false;
+        int at = slot * SlotTexels;
+        Vector4 r0 = s_rowValues[at], r1 = s_rowValues[at + 1], r2 = s_rowValues[at + 2];
+        Vector4 a = s_rowValues[at + 3], c = s_rowValues[at + 4], f = s_rowValues[at + 5];
+        float near = c.W, far = c.W + a.Y;
+        if (!float.IsFinite(r0.X + r0.Y + r0.Z + r0.W + r1.X + r1.Y + r1.Z + r1.W + r2.X + r2.Y + r2.Z + r2.W + near + far + f.X + f.Y)) return true;
+        bool parallel = f.Z > 0.5f;
+        // A point is lit only where all six are above zero; each is linear, so its largest value over the box is at a corner.
+        Span<float> best = stackalloc float[6];
+        best.Fill(float.NegativeInfinity);
+        Vector3 min = box.Position, max = box.End;
+        for (int corner = 0; corner < 8; corner++)
+        {
+            var p = new Vector3((corner & 1) != 0 ? max.X : min.X, (corner & 2) != 0 ? max.Y : min.Y, (corner & 4) != 0 ? max.Z : min.Z);
+            float x = (r0.X * p.X) + (r0.Y * p.Y) + (r0.Z * p.Z) + r0.W;
+            float y = (r1.X * p.X) + (r1.Y * p.Y) + (r1.Z * p.Z) + r1.W;
+            float z = -((r2.X * p.X) + (r2.Y * p.Y) + (r2.Z * p.Z) + r2.W);
+            float side = parallel ? 1f : z;
+            best[0] = MathF.Max(best[0], z - near);
+            best[1] = MathF.Max(best[1], far - z);
+            best[2] = MathF.Max(best[2], side - (x * f.X));
+            best[3] = MathF.Max(best[3], side + (x * f.X));
+            best[4] = MathF.Max(best[4], side - (y * f.Y));
+            best[5] = MathF.Max(best[5], side + (y * f.Y));
+        }
+
+        // A margin for the rounding of the template's own arithmetic on the GPU.
+        float margin = 0.01f + (1e-4f * MathF.Abs(far)) * MathF.Max(1f, MathF.Max(MathF.Abs(f.X), MathF.Abs(f.Y)));
+        foreach (float value in best)
+        {
+            if (value < -margin) return false;
+        }
+
+        return true;
+    }
+
+    /// <summary>The zone a slot's light is limited to (row 7 x), or below 0 when it lights every zone.</summary>
+    internal static float OwnZone(int slot) =>
+        slot < 0 || slot >= Math.Min(s_slots.Length, BitSlots) ? -1f : s_rowValues[(slot * SlotTexels) + 7].X;
+
+    /// <summary>The slots <see cref="ReachSphere"/> reads.</summary>
+    internal const int ReachSlots = RenderK.SpotShadowSlots;
 
     private static Vector2I TileOrigin(int slot) =>
         slot < 0 ? Vector2I.Zero : new Vector2I(slot % AtlasColumns * TileWidth, slot / AtlasColumns * TileHeight);
@@ -497,7 +903,29 @@ public sealed partial class SpotShadowLight : IDisposable
         if (count != s_lastCount)
         {
             s_lastCount = count;
-            RenderingServer.GlobalShaderParameterSet(s_countName, count);
+            ShaderGlobals.Set(s_countName, count);
+        }
+
+        // The template's slot loop visits only the slots below the count that row 3 marks on, as its own tests do.
+        int bits = 0;
+        for (int i = 0; i < Math.Min(count, BitSlots); i++)
+        {
+            float on = s_rowValues[(i * SlotTexels) + 3].X;
+            if (!(on < 0.5f))
+            {
+                bits |= 1 << i;
+            }
+
+            if (on > 1.5f)
+            {
+                bits |= 1 << (i + BitSlots);
+            }
+        }
+
+        if (bits != s_lastBits)
+        {
+            s_lastBits = bits;
+            ShaderGlobals.Set(s_bitsName, bits);
         }
     }
 
@@ -509,20 +937,22 @@ public sealed partial class SpotShadowLight : IDisposable
             s_rows = Image.CreateEmpty(SlotTexels, RenderK.SpotShadowSlots, false, Image.Format.Rgbaf);
             s_rowsTexture = ImageTexture.CreateFromImage(s_rows);
             s_noDepth = ImageTexture.CreateFromImage(Image.CreateEmpty(1, 1, false, Image.Format.Rf));
-            RenderingServer.GlobalShaderParameterAdd(ParamSlots, RenderingServer.GlobalShaderParameterType.Sampler2D, s_rowsTexture);
-            RenderingServer.GlobalShaderParameterAdd(ParamCount, RenderingServer.GlobalShaderParameterType.Int, 0);
-            RenderingServer.GlobalShaderParameterAdd(ParamDepth, RenderingServer.GlobalShaderParameterType.Sampler2D, s_noDepth);
-            RenderingServer.GlobalShaderParameterAdd(ParamCookies, RenderingServer.GlobalShaderParameterType.Sampler2Darray, Cookies());
-            RenderingServer.GlobalShaderParameterAdd(ParamAttenuation, RenderingServer.GlobalShaderParameterType.Sampler2D, Ramps(null));
+            ShaderGlobals.Add(ParamSlots, RenderingServer.GlobalShaderParameterType.Sampler2D, s_rowsTexture);
+            ShaderGlobals.Add(ParamCount, RenderingServer.GlobalShaderParameterType.Int, 0);
+            ShaderGlobals.Add(ParamDepth, RenderingServer.GlobalShaderParameterType.Sampler2D, s_noDepth);
+            ShaderGlobals.Add(ParamCookies, RenderingServer.GlobalShaderParameterType.Sampler2Darray, Cookies());
+            ShaderGlobals.Add(ParamAttenuation, RenderingServer.GlobalShaderParameterType.Sampler2D, Ramps(null));
             s_ignore = Image.CreateEmpty(RenderK.SpotShadowSlots, 1, false, Image.Format.Rf);
             s_ignoreTexture = ImageTexture.CreateFromImage(s_ignore);
-            RenderingServer.GlobalShaderParameterAdd(ParamIgnore, RenderingServer.GlobalShaderParameterType.Sampler2D, s_ignoreTexture);
+            ShaderGlobals.Add(ParamIgnore, RenderingServer.GlobalShaderParameterType.Sampler2D, s_ignoreTexture);
+            ShaderGlobals.Add(ParamBits, RenderingServer.GlobalShaderParameterType.Int, 0);
+            RenderingServer.FramePreDraw += RefreshShadowPasses;
             s_globalsAdded = true;
         }
 
         if (pack is not null)
         {
-            RenderingServer.GlobalShaderParameterSet(ParamAttenuation, Ramps(pack));
+            ShaderGlobals.Set(ParamAttenuation, Ramps(pack));
         }
     }
 
@@ -573,7 +1003,7 @@ public sealed partial class SpotShadowLight : IDisposable
         {
             s_ignore = image;
             s_ignoreTexture = ImageTexture.CreateFromImage(image);
-            RenderingServer.GlobalShaderParameterSet(ParamIgnore, s_ignoreTexture);
+            ShaderGlobals.Set(ParamIgnore, s_ignoreTexture);
         }
     }
 
@@ -624,7 +1054,7 @@ public sealed partial class SpotShadowLight : IDisposable
         image.Resize(RenderK.SpotCookieSize, RenderK.SpotCookieSize, Image.Interpolation.Bilinear);
         s_cookies.Add(image);
         s_cookieLayers.Add(cookie, s_cookies.Count);
-        RenderingServer.GlobalShaderParameterSet(s_cookiesName, Cookies());
+        ShaderGlobals.Set(s_cookiesName, Cookies());
         return s_cookies.Count;
     }
 
@@ -666,7 +1096,10 @@ public sealed partial class SpotShadowLight : IDisposable
                     Format = RenderingDevice.DataFormat.R32Sfloat,
                     Width = (uint)AtlasWidth,
                     Height = (uint)AtlasHeight,
-                    UsageBits = RenderingDevice.TextureUsageBits.SamplingBit | RenderingDevice.TextureUsageBits.StorageBit,
+                    // Written by the depth copies (storage) and by Rd/RdShadowPass (a copy of the static tile, then draws).
+                    UsageBits = RenderingDevice.TextureUsageBits.SamplingBit | RenderingDevice.TextureUsageBits.StorageBit
+                        | RenderingDevice.TextureUsageBits.ColorAttachmentBit | RenderingDevice.TextureUsageBits.CanCopyToBit
+                        | RenderingDevice.TextureUsageBits.CanCopyFromBit,
                 }, new RDTextureView());
             }
 
@@ -687,7 +1120,8 @@ public sealed partial class SpotShadowLight : IDisposable
                 {
                     Format = RenderingDevice.DataFormat.R32Sfloat,
                     Width = (uint)AtlasWidth, Height = (uint)AtlasHeight,
-                    UsageBits = RenderingDevice.TextureUsageBits.SamplingBit | RenderingDevice.TextureUsageBits.StorageBit,
+                    UsageBits = RenderingDevice.TextureUsageBits.SamplingBit | RenderingDevice.TextureUsageBits.StorageBit
+                        | RenderingDevice.TextureUsageBits.CanCopyFromBit,
                 };
                 using var view = new RDTextureView();
                 s_staticAtlas = rd.TextureCreate(format, view);
@@ -704,7 +1138,7 @@ public sealed partial class SpotShadowLight : IDisposable
         if (atlas.IsValid && s_atlasTexture.TextureRdRid != atlas)
         {
             s_atlasTexture.TextureRdRid = atlas;
-            RenderingServer.GlobalShaderParameterSet(s_depthName, s_atlasTexture);
+            ShaderGlobals.Set(s_depthName, s_atlasTexture);
         }
     }
 
@@ -720,6 +1154,7 @@ public sealed partial class SpotShadowLight : IDisposable
         if (HasSlot)
         {
             SetRow(_slot, 3, Vector4.Zero);
+            SetRow(_slot, 8, Vector4.Zero);
             s_slots[_slot] = null;
             s_ignoreDirty = true;
             Flush();
@@ -730,6 +1165,7 @@ public sealed partial class SpotShadowLight : IDisposable
         // process quits its predelete never comes, so its render device objects are freed here.
         _capture.Release();
         _staticCapture?.Release();
+        _searchPlanes = null;
         if (Array.TrueForAll(s_slots, s => s is null))
         {
             ReleaseShared();
@@ -741,14 +1177,15 @@ public sealed partial class SpotShadowLight : IDisposable
     {
         if (s_noDepth is not null)
         {
-            RenderingServer.GlobalShaderParameterSet(s_depthName, s_noDepth);
+            ShaderGlobals.Set(s_depthName, s_noDepth);
         }
 
         s_atlasTexture.TextureRdRid = default;
+        Rd.RdShadowPass.Release();
         s_cookieLayers.Clear();
         foreach (Image image in s_cookies) image.Dispose();
         s_cookies.Clear();
-        RenderingServer.GlobalShaderParameterSet(s_cookiesName, Cookies());
+        ShaderGlobals.Set(s_cookiesName, Cookies());
         Rid atlas = s_atlas;
         Rid staticAtlas = s_staticAtlas;
         s_atlas = default;

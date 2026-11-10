@@ -42,7 +42,7 @@ public sealed class Lasers
         map.Root.AddChild(_root);
         _mesh = GameplayObjects.MeshFor(map, BeamMesh, unlit: true);
         Materials.MaterialCompiler.EnsureGlobals();
-        _material = new ShaderMaterial { Shader = GD.Load<Shader>(ShaderPath) };
+        _material = new ShaderMaterial { Shader = ResponsiveSmokeShaders.Load(ShaderPath) };
         _material.SetShaderParameter("heat", Vision.X);
     }
 

@@ -125,13 +125,16 @@ public sealed class StorageColor
             return;
         }
 
-        foreach (Rid rid in (Rid[])[_work, _copyPipeline, _copyShader, _nearest])
+        foreach (Rid rid in (Rid[])[_work, _nearest])
         {
             if (rid.IsValid)
             {
                 _rd.FreeRid(rid);
             }
         }
+
+        // The copy shader and pipeline are shared with the other helpers (ComputeShaderSource).
+        ComputeShaderSource.ReleaseShared(_rd, _copyShader);
 
         _work = _copyPipeline = _copyShader = _nearest = default;
         _rd = null;
@@ -143,16 +146,12 @@ public sealed class StorageColor
         if (_rd is null)
         {
             _rd = rd;
-            using var source = new RDShaderSource { Language = RenderingDevice.ShaderLanguage.Glsl, SourceCompute = CopySource };
-            using RDShaderSpirV? spirv = rd.ShaderCompileSpirVFromSource(source);
-            if (spirv is null || !string.IsNullOrEmpty(spirv.CompileErrorCompute))
+            if (!ComputeShaderSource.AcquireSharedSource(rd, CopySource, "svm_colour_copy", out _copyShader, out _copyPipeline, out string? error))
             {
-                GD.PushError($"SVM_RENDER {_owner}: colour copy shader: {spirv?.CompileErrorCompute ?? "no SPIR-V"}");
+                GD.PushError($"SVM_RENDER {_owner}: colour copy shader: {error}");
                 return false;
             }
 
-            _copyShader = rd.ShaderCreateFromSpirV(spirv, "svm_colour_copy");
-            _copyPipeline = rd.ComputePipelineCreate(_copyShader);
             using var sampler = new RDSamplerState
             {
                 MinFilter = RenderingDevice.SamplerFilter.Nearest,

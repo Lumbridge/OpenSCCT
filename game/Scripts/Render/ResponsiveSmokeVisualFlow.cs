@@ -74,8 +74,8 @@ internal static class ResponsiveSmokeVisualFlow
         pixel.Fill(Colors.Transparent);
         s_empty = new ImageTexture3D();
         s_empty.Create(Image.Format.Rgbah,1,1,1,false,[pixel]);
-        RenderingServer.GlobalShaderParameterAdd("svm_smoke_flow",RenderingServer.GlobalShaderParameterType.Sampler3D,s_empty);
-        RenderingServer.GlobalShaderParameterAdd("svm_smoke_flow_ready",RenderingServer.GlobalShaderParameterType.Bool,false);
+        ShaderGlobals.Add("svm_smoke_flow",RenderingServer.GlobalShaderParameterType.Sampler3D,s_empty);
+        ShaderGlobals.Add("svm_smoke_flow_ready",RenderingServer.GlobalShaderParameterType.Bool,false);
     }
 
     public static void Prewarm()
@@ -225,7 +225,7 @@ internal static class ResponsiveSmokeVisualFlow
         rd.TextureClear(s_exportImage,Colors.Transparent,0,1,0,1);
         s_export ??= new Texture3Drd();
         s_export.TextureRdRid = s_exportImage;
-        RenderingServer.GlobalShaderParameterSet("svm_smoke_flow",s_export);
+        ShaderGlobals.Set("svm_smoke_flow",s_export);
         s_gpuGrid = grid; s_read = 0;
         AllocatedBytes = (long)grid*grid*grid*Capacity*8*3 + Capacity*LogicalCells*sizeof(uint);
     }
@@ -301,11 +301,11 @@ internal static class ResponsiveSmokeVisualFlow
         if (copied != Godot.Error.Ok)
         {
             Error = $"Could not publish responsive smoke flow: {copied}";
-            RenderingServer.GlobalShaderParameterSet("svm_smoke_flow_ready",false);
+            ShaderGlobals.Set("svm_smoke_flow_ready",false);
             GD.PushError(Error);
             return;
         }
-        RenderingServer.GlobalShaderParameterSet("svm_smoke_flow_ready",true);
+        ShaderGlobals.Set("svm_smoke_flow_ready",true);
     }
 
     /// <summary>Diagnostic readback only; never called during ordinary rendering or performance measurements.</summary>
@@ -324,10 +324,10 @@ internal static class ResponsiveSmokeVisualFlow
     {
         Entries.Clear(); Array.Clear(Slots); Live.Clear(); Gone.Clear();
         if (!s_globals) return;
-        RenderingServer.GlobalShaderParameterSet("svm_smoke_flow_ready",false);
+        ShaderGlobals.Set("svm_smoke_flow_ready",false);
         RenderingServer.CallOnRenderThread(Callable.From(() =>
         {
-            RenderingServer.GlobalShaderParameterSet("svm_smoke_flow_ready",false);
+            ShaderGlobals.Set("svm_smoke_flow_ready",false);
             if (s_rd is { } rd && s_impulseBytes > MaxRetainedImpulseBytes)
             {
                 rd.FreeRid(s_impulses);
@@ -345,13 +345,13 @@ internal static class ResponsiveSmokeVisualFlow
         // A pending warmup/Draw can allocate after this call, so cleanup must always follow it in the queue.
         Entries.Clear(); Array.Clear(Slots); Live.Clear(); Gone.Clear();
         if (!s_globals) return;
-        RenderingServer.GlobalShaderParameterSet("svm_smoke_flow_ready",false);
-        RenderingServer.GlobalShaderParameterSet("svm_smoke_flow",s_empty!);
+        ShaderGlobals.Set("svm_smoke_flow_ready",false);
+        ShaderGlobals.Set("svm_smoke_flow",s_empty!);
         RenderingServer.CallOnRenderThread(Callable.From(() =>
         {
             // A previously queued Draw may have rebound its atlas after the main-thread reset above.
-            RenderingServer.GlobalShaderParameterSet("svm_smoke_flow_ready",false);
-            RenderingServer.GlobalShaderParameterSet("svm_smoke_flow",s_empty!);
+            ShaderGlobals.Set("svm_smoke_flow_ready",false);
+            ShaderGlobals.Set("svm_smoke_flow",s_empty!);
             if (s_rd is { } rd) ReleaseTextures(rd);
             LastGpuMilliseconds = 0;
         }));

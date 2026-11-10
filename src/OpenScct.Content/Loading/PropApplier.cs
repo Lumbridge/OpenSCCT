@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -59,13 +60,17 @@ public enum UnappliedReason : byte
 /// stored member replacing that member whole; a stored static array element replaces that element; a dynamic array
 /// replaces the whole value, its struct elements starting from zero.
 /// </para>
-/// <para>Member lookups are cached per type; not thread-safe.</para>
+/// <para>Member lookups are cached per type for the whole process, so every map load reuses them; thread-safe.</para>
 /// </summary>
 internal sealed class PropApplier
 {
-    private readonly Dictionary<Type, TypeMembers> _members = new();
-    private readonly Dictionary<Type, Dictionary<string, FieldInfo>> _structFields = new();
-    private readonly Dictionary<Type, bool> _holdsActors = new();
+    // Reflection results depend only on the type (its UcClassInfo is static per type), so loaders share them.
+    // Built entries are never changed; s_buildGate guards the builds and s_holdsActors, whose cycle guard is a
+    // temporary false another thread must not see.
+    private static readonly object s_buildGate = new();
+    private static readonly ConcurrentDictionary<Type, TypeMembers> s_members = new();
+    private static readonly ConcurrentDictionary<Type, Dictionary<string, FieldInfo>> s_structFields = new();
+    private static readonly Dictionary<Type, bool> s_holdsActors = new();
 
     public enum Pass
     {
@@ -82,11 +87,19 @@ internal sealed class PropApplier
     /// <summary>The members of a type, by UnrealScript name.</summary>
     public TypeMembers MembersOf(Type type, UcClassInfo? meta)
     {
-        if (_members.TryGetValue(type, out TypeMembers? cached))
+        if (s_members.TryGetValue(type, out TypeMembers? cached))
         {
             return cached;
         }
 
+        lock (s_buildGate)
+        {
+            return s_members.TryGetValue(type, out cached) ? cached : BuildMembers(type, meta);
+        }
+    }
+
+    private static TypeMembers BuildMembers(Type type, UcClassInfo? meta)
+    {
         var byName = new Dictionary<string, Member>(AsciiCaseComparer.Instance);
         for (Type? t = type; t is not null && t != typeof(object); t = t.BaseType)
         {
@@ -139,7 +152,7 @@ internal sealed class PropApplier
         }
 
         var members = new TypeMembers(byName, script);
-        _members[type] = members;
+        s_members[type] = members;
         return members;
     }
 
@@ -637,9 +650,9 @@ internal sealed class PropApplier
         return false;
     }
 
-    private Dictionary<string, FieldInfo> StructFieldsOf(Type type)
+    private static Dictionary<string, FieldInfo> StructFieldsOf(Type type)
     {
-        if (!_structFields.TryGetValue(type, out Dictionary<string, FieldInfo>? fields))
+        if (!s_structFields.TryGetValue(type, out Dictionary<string, FieldInfo>? fields))
         {
             fields = new Dictionary<string, FieldInfo>(AsciiCaseComparer.Instance);
             foreach (FieldInfo f in type.GetFields(BindingFlags.Public | BindingFlags.Instance))
@@ -650,20 +663,22 @@ internal sealed class PropApplier
                 }
             }
 
-            _structFields[type] = fields;
+            // Built in full before it is published; a racing thread builds an equal one.
+            fields = s_structFields.GetOrAdd(type, fields);
         }
 
         return fields;
     }
 
-    private bool HoldsActorRefs(Type t)
+    /// <summary>Called only under <see cref="s_buildGate"/>.</summary>
+    private static bool HoldsActorRefs(Type t)
     {
-        if (_holdsActors.TryGetValue(t, out bool cached))
+        if (s_holdsActors.TryGetValue(t, out bool cached))
         {
             return cached;
         }
 
-        _holdsActors[t] = false; // cycle guard
+        s_holdsActors[t] = false; // cycle guard
         bool holds;
         if (typeof(Actor).IsAssignableFrom(t))
         {
@@ -694,7 +709,7 @@ internal sealed class PropApplier
             holds = false;
         }
 
-        _holdsActors[t] = holds;
+        s_holdsActors[t] = holds;
         return holds;
     }
 
@@ -739,15 +754,22 @@ internal sealed class PropApplier
 
     /// <summary>The element count of an <see cref="InlineArrayAttribute"/> struct (FixedArrayN), or null.</summary>
     internal static int? InlineLength(Type t) =>
-        t.IsValueType && t.IsGenericType && t.GetCustomAttribute<InlineArrayAttribute>() is { } a ? a.Length : null;
+        t.IsValueType && t.IsGenericType ? s_inlineLengths.GetOrAdd(t, static type => type.GetCustomAttribute<InlineArrayAttribute>()?.Length) : null;
+
+    // The attribute and the generic accessors depend only on the type: looked up once per type, not per element.
+    private static readonly ConcurrentDictionary<Type, int?> s_inlineLengths = new();
+    private static readonly ConcurrentDictionary<Type, MethodInfo> s_inlineGets = new();
+    private static readonly ConcurrentDictionary<Type, MethodInfo> s_inlineSets = new();
+
+    private static MethodInfo InlineAccessor(ConcurrentDictionary<Type, MethodInfo> cache, Type array, string name) =>
+        cache.GetOrAdd(array, static (t, n) => typeof(PropApplier).GetMethod(n, BindingFlags.NonPublic | BindingFlags.Static)!
+            .MakeGenericMethod(t, t.GetGenericArguments()[0]), name);
 
     internal static object? InlineGet(object boxed, int index) =>
-        typeof(PropApplier).GetMethod(nameof(InlineGetT), BindingFlags.NonPublic | BindingFlags.Static)!
-            .MakeGenericMethod(boxed.GetType(), boxed.GetType().GetGenericArguments()[0]).Invoke(null, [boxed, index]);
+        InlineAccessor(s_inlineGets, boxed.GetType(), nameof(InlineGetT)).Invoke(null, [boxed, index]);
 
     private static object InlineSet(object boxed, int index, object? value) =>
-        typeof(PropApplier).GetMethod(nameof(InlineSetT), BindingFlags.NonPublic | BindingFlags.Static)!
-            .MakeGenericMethod(boxed.GetType(), boxed.GetType().GetGenericArguments()[0]).Invoke(null, [boxed, index, value])!;
+        InlineAccessor(s_inlineSets, boxed.GetType(), nameof(InlineSetT)).Invoke(null, [boxed, index, value])!;
 
     private static TElement InlineGetT<TArray, TElement>(object boxed, int index)
         where TArray : struct

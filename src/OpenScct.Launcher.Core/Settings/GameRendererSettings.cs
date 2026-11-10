@@ -10,32 +10,19 @@ namespace OpenScct.Launcher.Settings;
 public static class GameRendererSettings
 {
     public const string Vulkan = "Vulkan";
-    public const string Direct3D12 = "Direct3D 12";
-    public static readonly string[] Choices = [Vulkan, Direct3D12];
+    public static readonly string[] Choices = [Vulkan];
 
     private const string FileName = "render_override.cfg";
     private const string DriverKey = "rendering_device/driver.windows";
 
-    /// <summary>Reads the next-start renderer. Missing or unsupported selections use Vulkan.</summary>
+    /// <summary>
+    /// Reads the next-start renderer: Vulkan, whatever the file names (Direct3D 12 was a choice until game 0.8.125).
+    /// An override file that cannot be read is still reported.
+    /// </summary>
     public static string Load(string userDataDirectory)
     {
-        string content = Read(userDataDirectory);
-        bool rendering = false;
-        string selected = Vulkan;
-        foreach (Line line in SplitLines(content))
-        {
-            if (Section(line.Text) is { } section)
-            {
-                rendering = section == "rendering";
-                continue;
-            }
-
-            if (!rendering || !IsDriver(line.Text, out int equals)) continue;
-            string value = BeforeComment(line.Text[(equals + 1)..]).Trim();
-            selected = value == "\"d3d12\"" ? Direct3D12 : Vulkan;
-        }
-
-        return selected;
+        _ = Read(userDataDirectory);
+        return Vulkan;
     }
 
     /// <summary>Changes only the Windows driver, keeping latency settings and other override content.</summary>
@@ -94,8 +81,7 @@ public static class GameRendererSettings
     public static string ToDriverName(string renderer) => renderer switch
     {
         Vulkan => "vulkan",
-        Direct3D12 => "d3d12",
-        _ => throw new ArgumentException("Choose Vulkan or Direct3D 12.", nameof(renderer)),
+        _ => throw new ArgumentException("Vulkan is the only renderer.", nameof(renderer)),
     };
 
     private static string Read(string userDataDirectory)

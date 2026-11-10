@@ -132,14 +132,14 @@ internal static class ResponsiveSmokeVolumeCache
             if (!s_output.IsValid || !s_history.IsValid)
             {
                 Error = $"Could not allocate the responsive smoke view volume ({size.X} x {size.Y}).";
-                RenderingServer.GlobalShaderParameterSet("svm_smoke_prefix_ready",false);
+                ShaderGlobals.Set("svm_smoke_prefix_ready",false);
                 GD.PushError(Error);
                 return;
             }
             s_size = size;
             s_texture ??= new Texture2Drd();
             s_texture.TextureRdRid = s_output;
-            RenderingServer.GlobalShaderParameterSet("svm_smoke_prefix",s_texture);
+            ShaderGlobals.Set("svm_smoke_prefix",s_texture);
         }
         UniformSlots uniforms = s_uniforms!;
         uniforms.Set(0,s_nearest,RenderingServer.TextureGetRdTexture(fields));
@@ -189,11 +189,11 @@ internal static class ResponsiveSmokeVolumeCache
         {
             Error = $"Could not preserve responsive smoke history: {copied}";
             s_hasHistory = false;
-            RenderingServer.GlobalShaderParameterSet("svm_smoke_prefix_ready",false);
+            ShaderGlobals.Set("svm_smoke_prefix_ready",false);
             GD.PushError(Error);
             return;
         }
-        RenderingServer.GlobalShaderParameterSet("svm_smoke_prefix_ready",true);
+        ShaderGlobals.Set("svm_smoke_prefix_ready",true);
         s_hasHistory = true;
         s_frameNumber++;
     }
@@ -202,10 +202,10 @@ internal static class ResponsiveSmokeVolumeCache
     public static void Idle()
     {
         LastGpuMilliseconds = 0;
-        RenderingServer.GlobalShaderParameterSet("svm_smoke_prefix_ready",false);
+        ShaderGlobals.Set("svm_smoke_prefix_ready",false);
         RenderingServer.CallOnRenderThread(Callable.From(() =>
         {
-            RenderingServer.GlobalShaderParameterSet("svm_smoke_prefix_ready",false);
+            ShaderGlobals.Set("svm_smoke_prefix_ready",false);
             s_hasHistory = false;
             LastGpuMilliseconds = 0;
         }));
@@ -215,10 +215,10 @@ internal static class ResponsiveSmokeVolumeCache
     {
         // Initialization is queued too. Always enqueue cleanup after it, even if it has not run yet.
         LastGpuMilliseconds = 0;
-        RenderingServer.GlobalShaderParameterSet("svm_smoke_prefix_ready",false);
+        ShaderGlobals.Set("svm_smoke_prefix_ready",false);
         RenderingServer.CallOnRenderThread(Callable.From(() =>
         {
-            RenderingServer.GlobalShaderParameterSet("svm_smoke_prefix_ready",false);
+            ShaderGlobals.Set("svm_smoke_prefix_ready",false);
             LastGpuMilliseconds = 0;
             if (s_rd is not { } rd) return;
             if (s_texture is not null) s_texture.TextureRdRid = default;

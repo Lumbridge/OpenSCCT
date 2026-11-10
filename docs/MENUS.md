@@ -442,6 +442,8 @@ windows. Reset is a compact menu and remains staged until Apply. Role resets pre
 
 Display, Performance, Audio, Voice, HUD and Controller (Shared) use the same category/search browser. Display separates
 screen setup, widescreen layout and image quality. Performance groups Max FPS and Vertical sync under Frame pacing,
+then the Renderer choice (`renderer`: Standard, or Fast (beta), the game's own frame of
+[PERFORMANCE-LOWEND-2026-11.md](PERFORMANCE-LOWEND-2026-11.md); it applies from the next map and `SVM_RD_FRAME=1` or `0` overrides it),
 separate from latency and power settings. Voice keeps playback,
 microphone processing, transmission, shortcuts and microphone testing in distinct categories; the live meter
 and test retain their existing behavior. Controller Movement & Aim uses the same settings browser for role-specific

@@ -4,6 +4,24 @@
 //   light:  LIGHT_LIGHTMAP | LIGHT_VERTEX | LIGHT_ACTOR | (none: fullbright)
 //   blend:  BLEND_MASKED | BLEND_TRANSLUCENT | BLEND_ADDITIVE | BLEND_MODULATE | BLEND_DARKEN | (none: opaque)
 //   extras: SELF_ILLUM, SELF_ILLUM_MASK, ENV_COLOR (+ ENV_TEX, SPEC_LAYER), UV_ANIM, OPACITY_LAYER, COMBINE, FLIPBOOK
+//   SVM_PLAIN_DEPTH (MaterialCompiler.GetPlain): one-sided opaque merged map geometry whose actors are fully visible in
+//     thermal and EMF, or any under SVM_NORMAL_VISION. The vision cut-outs below never fire there, so they are left
+//     out, and so is the vertex position (no foreground depth on map geometry): without discard or POSITION Godot
+//     draws the depth pre-pass with its shared depth-only shader (scene_shader_forward_clustered.h
+//     uses_shared_shadow_material).
+//   SVM_SKY_ZONE (MaterialCompiler.GetSky, with skip_vertex_transform): a surface of the sky zone, drawn as the sky
+//     camera sees it whichever camera draws it (the main view, or the sky view of a sky zone fogged solid): the drawing
+//     camera's rotation and projection, the eye at the SkyZoneInfo (svm_sky_origin), the sky camera's layers (fog slot)
+//     and its depth squeezed behind the whole main world (svm_sky_depth.gdshaderinc). Lighting stays in world space.
+//   SVM_NO_SPOT, SVM_NO_DYN (MaterialCompiler.GetUnreached): merged map geometry that no spot shadow light (SVM_NO_SPOT
+//     alone), or neither a spot nor a dynamic world light (both), can reach this frame (LightReach). The left-out
+//     terms are exactly zero there, so the pixels match.
+//   SVM_NORMAL_VISION (MaterialCompiler.GetNormalVision): merged map geometry drawn while svm_vision is neither 36 nor
+//     38 (LightReach). The thermal and EMF outputs and their cut-outs are left out; every other mode draws the same.
+//   SVM_COSMETIC (MaterialCompiler.Cosmetics): materials that can draw on a character model, the only meshes that set
+//     OpenSCCT's cosmetics (svm_tint, svm_glow_hue, the camo and sheen). Without it the template draws as those hold
+//     their defaults. The instance uniforms stay declared either way, so every material of an instance indexes them
+//     alike.
 // Textures are sampled raw (no sRGB decode): they hold display values like the original's.
 // Vision modes (global svm_vision = PlayerController.RendMap, docs/RENDERING.md#vision-modes) replace the output:
 //   36 thermal: the Z pass, (0, heat, 1 - viewZ / 5000); translucent surfaces blend (0, 0, fade) by alpha x HeatOpacity
@@ -16,10 +34,32 @@ const uint SVM_SHADOW_PASS = 262144u;
 // Texture LOD bias of colour textures (0 at the original's DefaultTexMipBias; a calibration switch).
 global uniform float svm_mip_bias;
 global uniform int svm_vision;
+#ifndef SVM_NORMAL_VISION
 global uniform sampler2D svm_emf_env;
+#endif
 // Light night vision adds to every lit surface's light term: the render interface's boost byte (30 in night vision),
 // halved into the texture factor and added before the 2x modulation (docs/RENDERING.md#vision-modes).
 global uniform float svm_vision_ambient;
+
+#ifdef SVM_SKY_ZONE
+#include "res://Shaders/svm_sky_depth.gdshaderinc"
+// The sky camera's eye (Godot space, the SkyZoneInfo) and its visibility layers (RenderLayers.Sky and its fog slot),
+// set by FaithfulView.
+global uniform vec3 svm_sky_origin;
+global uniform int svm_sky_layers;
+#define SVM_LAYERS uint(svm_sky_layers)
+#define SVM_EYE_WORLD svm_sky_origin
+
+// What the sky view and its backdrop left in the frame for a solid surface: the half-float sky target, clamped and
+// rounded to 8 bits (svm_sky_backdrop.gdshader). Exact where the GPU rounds both conversions to nearest.
+vec3 svm_sky_display(vec3 c) {
+	vec3 h = vec3(unpackHalf2x16(packHalf2x16(c.rg)), unpackHalf2x16(packHalf2x16(vec2(c.b, 0.0))).x);
+	return roundEven(clamp(h, 0.0, 1.0) * 255.0) / 255.0;
+}
+#else
+#define SVM_LAYERS CAMERA_VISIBLE_LAYERS
+#define SVM_EYE_WORLD CAMERA_POSITION_WORLD
+#endif
 
 #ifdef BLEND_ADDITIVE
 uniform float additive_gain = 1.0;
@@ -28,20 +68,26 @@ uniform float additive_gain = 1.0;
 // Vision data of the material (its heat and EMF modifiers) and of the actor drawing it.
 // heat_mode: 0 flat HeatIntensity, 1 HEATTEX_Cool 4 x lum x HeatIntensity, 2 HEATTEX_Heat lum + HeatIntensity.
 // emf_mode: 0 none, 1 the EMF texture, 2 the EMF texture inverted.
+#ifndef SVM_NORMAL_VISION
 uniform sampler2D tex_heat : filter_linear_mipmap_anisotropic, repeat_enable, hint_default_black;
 uniform sampler2D tex_emf : filter_linear_mipmap_anisotropic, repeat_enable, hint_default_white;
 uniform int heat_mode = 0;
 uniform int emf_mode = 0;
+#endif
 // x HeatIntensity, y HeatOpacity, z EMF glow (EMFIntensity while bEMFIsOn), w EMFOpacity (0 hides the actor in EMF).
 // Merged geometry carries the values of each instance per vertex instead (CUSTOM0, w + 2); actors use the instance uniform.
 instance uniform vec4 svm_vision_actor = vec4(0.0, 1.0, 0.0, 1.0);
+#ifndef SVM_NORMAL_VISION
 // Set on solid and masked materials that carry a VISION_SEE_THROUGH next pass (MaterialCompiler.GetSeeThrough): in
 // thermal and EMF the solid pass leaves out a surface whose HeatOpacity (EMFOpacity) is partial, and the blended pass
 // draws it over what lies behind, by that opacity, writing no depth.
 uniform bool vision_see_through = false;
+#elif defined(VISION_SEE_THROUGH)
+#error "The see-through pass draws only in thermal and EMF: it has no normal vision variant."
+#endif
 // OpenSCCT's own cosmetics (actors only): a colour tint (rgb, a = strength; keeps each texel's brightness) and a hue
 // turn of the self-illumination (x radians, y > 0 on; keeps brightness), for goggle lenses and lamps; z > 0 turns the
-// diffuse too (the goggle beams, whose colour is their texture).
+// diffuse too (the goggle beams, whose colour is their texture). Read only under SVM_COSMETIC.
 instance uniform vec4 svm_tint = vec4(1.0, 1.0, 1.0, 0.0);
 // w reserves foreground depth for the local weapon. Packed here because actor lighting uses all 16 instance slots.
 instance uniform vec4 svm_glow_hue = vec4(0.0);
@@ -55,16 +101,23 @@ varying float v_cloak_shift;
 // Cosmetic pane fragments duplicate their original material and fade without changing its tint or finish.
 uniform float svm_fragment_opacity = 1.0;
 
+#ifndef SVM_NORMAL_VISION
+varying vec4 v_vision;
+#endif
+#ifdef AUTHORED_MATERIAL
+varying vec4 v_authored_direction;
+#if defined(SVM_NO_SPOT) || defined(SVM_NO_DYN)
+#error "Authored highlights read every spot and dynamic light: authored materials keep the full variant."
+#endif
+#endif
+#ifdef SVM_COSMETIC
 // Turns a colour's hue around the grey axis; the sum of the channels (its brightness) stays the same.
 vec3 svm_hue_turn(vec3 c, float angle) {
 	const vec3 k = vec3(0.57735);
 	float co = cos(angle);
 	return c * co + cross(k, c) * sin(angle) + k * dot(k, c) * (1.0 - co);
 }
-varying vec4 v_vision;
-#ifdef AUTHORED_MATERIAL
-varying vec4 v_authored_direction;
-#endif
+
 // OpenSCCT's own: a polished sheen on cosmetic camo materials (SkeletalModel.Cosmetic): its strength (0 off, 1 on the
 // golden camo), the colour of its highlights (gold, or near white for the pyre camo's black lacquer), and how much of a
 // mirror it is (1 on the golden camo: a full reflection of a bright fake environment, whatever the local light; 0: a
@@ -102,6 +155,7 @@ vec3 svm_cosmetic_level(vec3 c) {
 		: knee + slope * (l - knee);
 	return clamp(c * (m / l), 0.0, 1.0);
 }
+#endif
 
 uniform sampler2D tex_diffuse : filter_linear_mipmap_anisotropic, repeat_enable, hint_default_white;
 #ifdef NORMAL_MAP
@@ -344,9 +398,12 @@ vec3 svm_actor_light(vec4 pos, vec4 col, vec4 spot, vec3 wp, vec3 wn) {
 //   5   x, y the view to clip scale (perspective: divided by depth), z 1 for parallel rays, w cookie layer
 //   6   the slot's tile of the depth atlas (uv origin, uv size)
 //   7   x own zone (or -1), y bias (m), z bias per metre, w edge softening disc radius (texels; 0 one lookup)
+//   8   a sphere holding every point the slot can light: xyz centre, w radius squared (0 when off)
 #define SVM_SMOKE_SPOT_GLOBALS
 global uniform sampler2D svm_spots;
 global uniform int svm_spot_count;
+// Bits 0-15: the slots that are on (row 3 x not below 0.5); bits 16-31: those of a bDynamicLight (row 3 x above 1.5).
+global uniform int svm_spot_bits;
 global uniform sampler2D svm_spot_depth;
 global uniform sampler2DArray svm_spot_cookies;
 global uniform sampler2D svm_spot_atten;
@@ -390,6 +447,12 @@ float svm_spot_shadow(vec4 tile, vec2 suv, float zref, float soft) {
 
 // ignore: the surface's Echelon code (v_echelon; game 0x10a37310).
 vec3 svm_spot_slot(int i, vec3 wp, vec3 wn, float zone, int ignore) {
+	// Outside the slot's bounding sphere the frustum tests below reject the point: one lookup instead of seven.
+	vec4 s = texelFetch(svm_spots, ivec2(8, i), 0);
+	vec3 ds = wp - s.xyz;
+	if (dot(ds, ds) >= s.w) {
+		return vec3(0.0);
+	}
 	vec4 a = texelFetch(svm_spots, ivec2(3, i), 0);
 	if (a.x < 0.5 || (ignore & (a.x > 1.5 ? 2 : 1)) != 0) {
 		return vec3(0.0);
@@ -442,8 +505,20 @@ vec3 svm_spot_slot(int i, vec3 wp, vec3 wn, float zone, int ignore) {
 // Every spot shadow light at a surface point; zone is the surface's zone (-1 unknown: own-zone lights still reach it),
 // ignore its Echelon flags (svm_spot_slot).
 vec3 svm_spot_light(vec3 wp, vec3 wn, float zone, int ignore) {
+	// Only the slots that are on and not ignored by the surface's static (bit 0) or dynamic (bit 1) flag, in slot
+	// order: every other slot adds exactly nothing.
+	int on = svm_spot_bits & 65535;
+	int dynamic_slots = (svm_spot_bits >> 16) & 65535;
+	if ((ignore & 1) != 0) {
+		on &= dynamic_slots;
+	}
+	if ((ignore & 2) != 0) {
+		on &= ~dynamic_slots;
+	}
 	vec3 sum = vec3(0.0);
-	for (int i = 0; i < svm_spot_count; i++) {
+	while (on != 0) {
+		int i = findLSB(on);
+		on &= on - 1;
 		sum += svm_spot_slot(i, wp, wn, zone, ignore);
 	}
 	return sum;
@@ -607,6 +682,13 @@ vec3 svm_dynamic(vec3 wp, vec3 wn, float zone) {
 			i = j < local_count ? int(texelFetch(svm_dyn_cells, ivec2(j + 1, cell), 0).r)
 				: svm_dyn_indexed_rows + j - local_count;
 		}
+#ifdef SVM_RD_WORLD
+		// The world pass on the RenderingDevice (Rd/RdWorldRenderer) hands each draw the rows that can reach it (bit
+		// i for row i below 32): every other row adds exactly nothing to it.
+		if (i < 32 && ((svm_draw_dyn_bits >> i) & 1) == 0) {
+			continue;
+		}
+#endif
 		float own = texelFetch(svm_dyn_lights, ivec2(3, i), 0).x;
 		if (svm_dyn_tune.w > 0.5 && own >= 0.0 && abs(own - zone) > 0.5) {
 			continue;
@@ -686,7 +768,9 @@ void vertex() {
 	VERTEX = view_to_local * VERTEX;
 	NORMAL = view_to_local * NORMAL;
 #endif
+#ifndef SVM_NORMAL_VISION
 	v_vision = CUSTOM0.w > 1.5 ? vec4(CUSTOM0.xyz, CUSTOM0.w - 2.0) : svm_vision_actor;
+#endif
 #if defined(LIGHT_LIGHTMAP) || defined(LIGHT_VERTEX) || defined(LIGHT_ACTOR)
 	v_wpos = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
 	v_wnormal = MODEL_NORMAL_MATRIX * NORMAL;
@@ -710,10 +794,21 @@ void vertex() {
 	sum += svm_actor_light(svm_l3_pos, svm_l3_col, svm_l3_spot, wp, wn);
 	v_light = min(sum, vec3(2.0));
 #endif
+#ifdef SVM_SKY_ZONE
+	// The sky camera's view space: this camera's rotation (the sky camera always shares it), the eye at the sky origin.
+	// VERTEX and NORMAL reach the fragment as the sky camera's, so its fog, reflections and view vector are too.
+	VERTEX = mat3(VIEW_MATRIX) * ((MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz - svm_sky_origin);
+	NORMAL = mat3(VIEW_MATRIX) * (MODEL_NORMAL_MATRIX * NORMAL);
+	POSITION = PROJECTION_MATRIX * vec4(VERTEX, 1.0);
+	POSITION.z *= SVM_SKY_DEPTH_SCALE;
+#elif !defined(SVM_PLAIN_DEPTH)
 	POSITION = PROJECTION_MATRIX * MODELVIEW_MATRIX * vec4(VERTEX, 1.0);
+#ifdef SVM_COSMETIC
 	if (svm_glow_hue.w > 0.5) {
 		POSITION.z = mix(0.99 * POSITION.w, POSITION.w, POSITION.z / POSITION.w);
 	}
+#endif
+#endif
 }
 
 // One animated texture modifier (the UV_ANIM layout) at the scene time (Level.TimeSeconds).
@@ -787,11 +882,11 @@ void fragment() {
 	// Depth cameras need coverage only. Blended surfaces write no opaque depth, and ordinary solid surfaces
 	// need none of the material textures or colour stages. Masked materials keep their exact alpha test below.
 #ifdef SVM_DEPTH_SOLID
-	if ((CAMERA_VISIBLE_LAYERS & SVM_SHADOW_PASS) != 0u) {
+	if ((SVM_LAYERS & SVM_SHADOW_PASS) != 0u) {
 		ALBEDO = vec3(0.0);
 	} else {
 #elif defined(SVM_CLOAK) || defined(BLEND_TRANSLUCENT) || defined(BLEND_ADDITIVE) || defined(BLEND_MODULATE) || defined(BLEND_DARKEN) || defined(VISION_SEE_THROUGH)
-	if ((CAMERA_VISIBLE_LAYERS & SVM_SHADOW_PASS) != 0u) {
+	if ((SVM_LAYERS & SVM_SHADOW_PASS) != 0u) {
 		discard;
 	}
 #endif
@@ -808,7 +903,7 @@ void fragment() {
 #endif
 #if defined(AUTHORED_MATERIAL)
     mat3 authored_frame = am_frame(v_wpos, normalize(v_wnormal), am_mapping(surface_uv, svm_time));
-    vec3 authored_view = normalize(CAMERA_POSITION_WORLD - v_wpos);
+    vec3 authored_view = normalize(SVM_EYE_WORLD - v_wpos);
     AuthoredSample authored = am_evaluate(surface_uv, v_wpos, normalize(v_wnormal), transpose(authored_frame) * authored_view, svm_time);
     vec4 t = vec4(am_display(authored.color.rgb), authored.color.a);
 #elif defined(SEQUENCE_D)
@@ -856,6 +951,7 @@ void fragment() {
 	vec4 op = texture(tex_opacity, opuv, svm_mip_bias);
 	t.a = op_lum != 0 ? dot(op.rgb, vec3(0.299, 0.587, 0.114)) : op.a;
 #endif
+#ifdef SVM_COSMETIC
 	if (svm_tint.a > 0.0) {
 		const vec3 luma = vec3(0.3, 0.59, 0.11);
 		vec3 recolour = svm_tint.rgb * (dot(t.rgb, luma) / SVM_TINT_REF);
@@ -869,6 +965,7 @@ void fragment() {
 	if (svm_glow_hue.z > 0.0) {
 		t.rgb = clamp(svm_hue_turn(t.rgb, svm_glow_hue.x), 0.0, 1.0);
 	}
+#endif
 #if defined(LIGHT_LIGHTMAP) || defined(LIGHT_VERTEX) || defined(LIGHT_ACTOR)
 	vec3 wn = normalize(v_wnormal) * (FRONT_FACING ? 1.0 : -1.0);
 #ifdef AUTHORED_MATERIAL
@@ -885,14 +982,25 @@ void fragment() {
 #endif
 	int echelon_ignore = int(v_echelon + 0.5);
 	// A shadow camera keeps only depth: no lighting (RenderLayers.ShadowPass).
-	bool shadow_pass = (CAMERA_VISIBLE_LAYERS & SVM_SHADOW_PASS) != 0u;
+	bool shadow_pass = (SVM_LAYERS & SVM_SHADOW_PASS) != 0u;
 	// Zone 255 (MapBuilder.AuthoredOverlayZone): an additive mesh with painted colours, lit by its colours alone.
 	bool overlay = zone > 254.5;
 	bool unlit = overlay || shadow_pass;
+#ifdef SVM_NO_SPOT
+	// No slot's bounding sphere holds any point of the mesh (LightReach): every slot adds exactly nothing.
+	vec3 spot = vec3(0.0);
+#else
 	vec3 spot = svm_spot_count > 0 && !unlit ? svm_spot_light(v_wpos, wn, zone, echelon_ignore) : vec3(0.0);
 #endif
+#endif
 #if defined(LIGHT_LIGHTMAP) || defined(LIGHT_VERTEX)
-	vec3 dyn = (svm_dyn_light_count > 0 && !unlit ? svm_dynamic(v_wpos, wn, zone) : vec3(0.0)) + spot + svm_zone_amb(zone);
+#ifdef SVM_NO_DYN
+	// Every dynamic world light is a point light whose radius stops short of the mesh (LightReach).
+	vec3 dyn_lights = vec3(0.0);
+#else
+	vec3 dyn_lights = svm_dyn_light_count > 0 && !unlit ? svm_dynamic(v_wpos, wn, zone) : vec3(0.0);
+#endif
+	vec3 dyn = dyn_lights + spot + svm_zone_amb(zone);
 	// The flares, with the dynamic world lights' gain, radius scale and falloff. They add past the 2x cap of the baked
 	// and dynamic light (an OpenSCCT addition, docs/RENDERING.md#flare-lights): under a bright baked light the term is
 	// already at the cap, so a flare would add nothing there.
@@ -969,11 +1077,11 @@ void fragment() {
 	// Evaluate once for both scene-light visibility and the final surface blend. Keeping two inlined fog
 	// paths inflated these material shaders even when Fast skipped scene shadows.
 	vec4 surfaceFog = vec4(0.0,0.0,0.0,1.0);
-	if ((CAMERA_VISIBLE_LAYERS & SVM_SHADOW_PASS) == 0u) {
-		surfaceFog = surface_fog(CAMERA_VISIBLE_LAYERS, VERTEX, FRAGCOORD.xy, VIEWPORT_SIZE);
+	if ((SVM_LAYERS & SVM_SHADOW_PASS) == 0u) {
+		surfaceFog = surface_fog(SVM_LAYERS, VERTEX, FRAGCOORD.xy, VIEWPORT_SIZE);
 	}
 #if defined(LIGHT_LIGHTMAP) || defined(LIGHT_VERTEX) || defined(LIGHT_ACTOR)
-	if (!unlit && surfaceFog.a > .0004) lit *= responsive_smoke_scene_light(CAMERA_VISIBLE_LAYERS, v_wpos, wn);
+	if (!unlit && surfaceFog.a > .0004) lit *= responsive_smoke_scene_light(SVM_LAYERS, v_wpos, wn);
 #endif
 #ifdef COMBINE_LIGHT_FIRST
 	lit = clamp(svm_combine_rgb(min(lit, vec3(1.0)), m2.rgb, mk.rgb, ma) * float(combine.z), 0.0, 1.0);
@@ -1010,7 +1118,11 @@ void fragment() {
 #else
 	float m = si.a;
 #endif
+#ifdef SVM_COSMETIC
 	vec3 glow = svm_glow_hue.y > 0.0 ? clamp(svm_hue_turn(si.rgb, svm_glow_hue.x), 0.0, 1.0) : si.rgb;
+#else
+	vec3 glow = si.rgb;
+#endif
 	c = mix(c, glow, m);
 #endif
 #ifdef ENV_COLOR
@@ -1035,6 +1147,7 @@ void fragment() {
 	c = min(c + specular, vec3(1.0));
 #endif
 #endif
+#ifdef SVM_COSMETIC
 	if (svm_sheen > 0.0) {
 		// Polished metal or lacquer: mostly a fake studio reflection of the texture (dark floor, bright sky, a hot strip
 		// at the horizon) instead of its diffuse lighting, two highlights, a Fresnel rim and a slow glint across the
@@ -1062,6 +1175,7 @@ void fragment() {
 		vec3 shine = svm_sheen_tint * (spec * 1.8 + spec2 * 0.5 + rim * 0.6 + glint * 0.5 * svm_sheen_mirror) * shade * svm_sheen;
 		c = mix(c, min(metal + shine, vec3(1.0)), finish_coverage);
 	}
+#endif
 	float a = t.a;
 #if defined(BLEND_MODULATE)
 	c = t.rgb * 2.0;
@@ -1074,12 +1188,14 @@ void fragment() {
 #endif
 	// A shadow camera always uses physical coverage. Vision modes change the main colour/depth picture, not the
 	// cached occluders; in particular a thermal glass cut or EMF screen door must not persist in a map-light tile.
-	if (svm_vision == 36 && (CAMERA_VISIBLE_LAYERS & SVM_SHADOW_PASS) == 0u) {
+#ifndef SVM_NORMAL_VISION
+	if (svm_vision == 36 && (SVM_LAYERS & SVM_SHADOW_PASS) == 0u) {
 		// Thermal Z pass: heat in G, the depth fade in B. Additive, modulating and darkening surfaces are left out.
 #if defined(BLEND_ADDITIVE) || defined(BLEND_MODULATE) || defined(BLEND_DARKEN)
 		discard;
 #else
 		float fade = 1.0 - clamp(-VERTEX.z * 100.0 / 5000.0, 0.0, 1.0);
+#ifndef SVM_PLAIN_DEPTH
 		// HeatOpacity 0 leaves the actor out of the thermal frame (as EMFOpacity does in EMF).
 		if (v_vision.y <= 0.0) {
 			discard;
@@ -1093,6 +1209,7 @@ void fragment() {
 		if (vision_see_through && partial_heat) {
 			discard;
 		}
+#endif
 #endif
 #if defined(BLEND_TRANSLUCENT)
 		c = vec3(0.0, 0.0, fade);
@@ -1111,11 +1228,12 @@ void fragment() {
 #endif
 #endif
 #endif
-	} else if (svm_vision == 38 && (CAMERA_VISIBLE_LAYERS & SVM_SHADOW_PASS) == 0u) {
+	} else if (svm_vision == 38 && (SVM_LAYERS & SVM_SHADOW_PASS) == 0u) {
 		// EMF: the environment map by camera-space reflection, darkened by the actor's EMF glow (the post pass inverts).
 #if defined(BLEND_ADDITIVE) || defined(BLEND_MODULATE) || defined(BLEND_DARKEN)
 		discard;
 #else
+#ifndef SVM_PLAIN_DEPTH
 		float opacity = v_vision.w;
 		// EMFOpacity 0 hides the actor; partial opacity is blended by the see-through pass where the material has one,
 		// else drawn as a 4 x 4 screen-door pattern (actors built outside the map: pawn weapons, gadgets).
@@ -1134,6 +1252,7 @@ void fragment() {
 			discard;
 		}
 #endif
+#endif
 		vec3 r = reflect(normalize(VERTEX), normalize(NORMAL));
 		// RenderingModeEMF's D3D texture matrix (0x1097766d..0x109776e5): its second row
 		// contributes to both U and V. The old uniform 0.25 scale sampled only the middle quarter.
@@ -1146,13 +1265,18 @@ void fragment() {
 		}
 #endif
 	}
+#endif
 	// Fog belongs to this fragment's surface depth, before framebuffer blending. Applying a full-scene
 	// fog pass after transparency would instead use the opaque depth behind glass, effects or cloaked bodies.
 #if defined(BLEND_ADDITIVE)
 	c *= surfaceFog.a;
+#ifdef SVM_NORMAL_VISION
+	c *= additive_gain;
+#else
 	if (svm_vision != 36 && svm_vision != 38) {
 		c *= additive_gain;
 	}
+#endif
 #elif defined(BLEND_MODULATE)
     // Decoded SetShaderMaterial 0x10f36a30 / FinalBlend helper 0x10f33c90: fog override 127/255,
     // doubled here because Godot's multiply draw already folds in the native 2x modulation.
@@ -1167,9 +1291,13 @@ void fragment() {
 	// Fold the original alpha-blended diffuse and additive Specular passes into one
 	// premultiplied draw. Glass opacity must not attenuate its reflection a second time.
 	c *= a;
+#ifdef SVM_NORMAL_VISION
+	c += specular * surfaceFog.a;
+#else
 	if (svm_vision != 36 && svm_vision != 38) {
 		c += specular * surfaceFog.a;
 	}
+#endif
 #endif
 #ifdef SVM_CLOAK
 #ifdef BLEND_MASKED
@@ -1184,6 +1312,11 @@ void fragment() {
 	ALPHA = 1.0;
 #else
 	ALBEDO = c;
+#if defined(SVM_SKY_ZONE) && (defined(SVM_DEPTH_SOLID) || defined(BLEND_MASKED))
+	// A solid sky surface holds the value the sky view's picture had; blended ones blend over it, as they blended over
+	// the unrounded picture in the sky view (at most one 8-bit level apart).
+	ALBEDO = svm_sky_display(c);
+#endif
 #if defined(SEE_THROUGH_CUT)
 	// A masked material's blended pass keeps the alpha cut of its solid pass.
 	if (t.a < 0.5) {

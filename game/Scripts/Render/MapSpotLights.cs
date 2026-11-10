@@ -91,7 +91,7 @@ public sealed class MapSpotLights : IDisposable
             {
                 EchelonSpot e = l.Echelon!;
                 Image? cookie = _map.Textures.GetImage(e.Texture);
-                light = new SpotShadowLight(_parent, _map.Pack, SpotShadowShape.Of(l, e), cookie, cacheStatic: !l.Dynamic)
+                light = new SpotShadowLight(_parent, _map.Pack, SpotShadowShape.Of(l, e), cookie, cacheStatic: true)
                 {
                     Zone = l.OwnZoneOnly ? l.ZoneIndex : -1,
                     LightName = l.Name,

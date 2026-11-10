@@ -19,7 +19,6 @@ public partial class CombatFxView
     private readonly List<int> _projectionsGone = new();
     private readonly Dictionary<string, EffectMaterial?> _projectionMaterials = new(StringComparer.Ordinal);
     private readonly Dictionary<string, ShaderMaterial> _tintedProjectionMaterials = new(StringComparer.Ordinal);
-    private Shader? _tintedProjectionShader;
     private AbandonedProjectors? _projectionList;
     private int _lastProjection;
     private readonly Dictionary<MeshInstance3D, (Actor Surface, Transform3D Local)> _decalAttachments = new();
@@ -218,8 +217,7 @@ public partial class CombatFxView
         Render.Post.SurfaceFogRegistry.EnsureGlobals();
         if (!_tintedProjectionMaterials.TryGetValue(path, out ShaderMaterial? material))
         {
-            _tintedProjectionShader ??= new Shader { Code = TintedProjectionShaderCode };
-            material = new ShaderMaterial { Shader = _tintedProjectionShader };
+            material = new ShaderMaterial { Shader = ResponsiveSmokeShaders.Shared(TintedProjectionShaderCode, "svm_tinted_projection") };
             material.SetShaderParameter("svm_tex", texture);
             _tintedProjectionMaterials[path] = material;
         }

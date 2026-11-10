@@ -276,6 +276,8 @@ public sealed class ParticleSystemView
             return 0;
         }
 
+        // The own frame draws the sprites itself, from the quads as they are here (Rd/RdSheets).
+        if (Rd.RdWorldRenderer.OwnFrame) Rd.RdSheets.CollectParticles(layer.Node?.MaterialOverride as ShaderMaterial, quads);
         if (layer.Quads is { } buffer && buffer.Fill(quads, bounds))
         {
             layer.Show(true);
@@ -417,6 +419,7 @@ public sealed class ParticleSystemView
         }
 
         mm.VisibleInstanceCount = n;
+        if (Rd.RdWorldRenderer.OwnFrame) Rd.RdSheets.CollectMeshes(layer.MultiNode?.MaterialOverride as ShaderMaterial, mm.Mesh, meshes, n);
         return n;
     }
 
@@ -443,7 +446,7 @@ public sealed class ParticleSystemView
         string key = $"{drawStyle}{zWrite}{zTest}{mesh}";
         if (s_shaders.TryGetValue(key, out Shader? cached))
         {
-            return cached;
+            return Materials.ResponsiveSmokeShaders.Current(cached);
         }
 
         Materials.MaterialCompiler.EnsureGlobals();
@@ -468,7 +471,7 @@ public sealed class ParticleSystemView
         }
 
         code.Append("#include \"").Append(ShaderPath).Append("\"\n");
-        var shader = new Shader { Code = code.ToString(), ResourceName = "svm_particle " + define };
+        Shader shader = Materials.ResponsiveSmokeShaders.Shared(code.ToString(), "svm_particle " + define);
         s_shaders[key] = shader;
         return shader;
     }

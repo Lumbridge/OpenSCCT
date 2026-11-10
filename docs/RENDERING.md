@@ -48,12 +48,12 @@ Without the pack the client still draws, with a seeded stand-in grain, no therma
 - Gameplay meshes (movers, SGamePlayObject, switches, help paths) and meshes without baked colours keep a node of
   their own, named by actor id, so views can move, hide and relight them (`RenderMap.Gameplay`). Hidden ones are
   built with `Visible = false`. Their vision values are instance uniforms.
-- Sky zone geometry goes on the sky layer, drawn only by the sky view: the BSP node with `sky: true` (every polygon
+- Sky zone geometry goes on the sky layer, drawn as the sky camera sees it ([Sky zone](#sky-zone)): the BSP node with `sky: true` (every polygon
   whose front zone, iZone[1], is the zone holding the SkyZoneInfo) and the instances flagged `skyZone` (actor location
   in that zone, UModel::PointRegion). Nothing else is moved by position: the sky ZONE record's bounds are not a test,
   since a zone number can also cover a stray corner of the play area (PanaS has 64 zones; four polygons of a 128 uu
   niche at x 8416 share the sky zone's number 10, so its bounds spanned the map and the spawn office was drawn only
-  by the sky view, SSIM 0.34; per polygon it is 0.98, like PanaD).
+  as sky, SSIM 0.34; per polygon it is 0.98, like PanaD).
 - Skeletal props (`SAnimatedMesh`, DrawType DT_Mesh with a mesh from the shared packs) are placed by
   `AnimatedProps.Build` at the first frame of their first sequence and lit for their mesh's bounding sphere (the
   crane, at DrawScale 10, reaches 2440 uu from its centre). Map props use conservative bounds over every linear-keyed
@@ -132,6 +132,9 @@ is the identity at the default settings. The Faithful pipeline does the same:
    (gate, plus the glow from `svm_glow.glsl` when the level's threshold is below 255); the vision pass of RendMap and
    the exact sRGB decode. Registered cameras skip post fog to avoid applying it twice. Thermal, motion and EMF run
    the blur pyramid (`svm_vision_blur.glsl`) before the vision pass.
+   The normal view's frame does not need that shader: its last pass is `svm_display_normal.glsl` (gate, glow add and
+   decode only) and its bright pass `svm_glow_bright.glsl` (the frame through a bilinear sampler), because on
+   integrated GPUs a shader costs by the code it holds. `SVM_POST_LEAN=0` runs everything through the full shaders.
 3. The environment passes colours through: Linear tonemapper, exposure 1, no glow, AO, SSR, SDFGI, fog, adjustments
    or auto exposure; no TAA or debanding, and MSAA and SMAA only when the player turns them on (see
    [Anti-aliasing](#anti-aliasing)). Godot's output encode is the exact sRGB curve, so the screen shows
@@ -177,9 +180,9 @@ are saved, so they apply at once:
   edges are smoothed by the samples too. Shaders are made when a map is built, so this follows from the next map.
 - SMAA is the viewport's `ScreenSpaceAA`. Godot runs it after the tonemap, so it smooths the frame as shown, after
   fog, glow and the vision passes (Reloaded applies SMAA last as well). It combines with MSAA.
-- The sky zone, spot shadow, golden and display check viewports keep both off, so the golden captures and the
-  readback stay exact. The sky zone's picture is copied in without MSAA; its edges are not smoothed by MSAA (SMAA
-  smooths the whole frame). The armoury preview keeps its own FXAA.
+- The fogged sky zone, spot shadow, golden and display check viewports keep both off, so the golden captures and the
+  readback stay exact. The sky zone drawn in the main view takes the main view's MSAA like the world (it used to be
+  copied in without it). The armoury preview keeps its own FXAA.
 
 **Glow.** The normal composite (0x10966010, while PlayerController.DoGlow & 3, default 1) runs the glow driver
 0x10967740 in mode 0 and then writes `frame x saturate(16 (dot(frame, (0.311, 0.524, 0.165)) - 0.03)) + glow`
@@ -502,6 +505,70 @@ travel starts with a fresh cookie array.
   switches the eight-lookup disc (`SpotShadowSoftRadius`, 1.5 texels) on or off. Reloaded's `shadow_optimized`
   (per-light resolution by screen size) is not done.
 
+### Shadow pass on the RenderingDevice
+
+With `SVM_RD_SHADOWS=1` (off by default) a light whose static world is cached does not redraw through its SubViewport:
+`Rd/RdShadowPass` copies the cached static tile into the light's tile where casters are or were, and draws the other
+casters in its frustum over it (rigid, skinned and cloth meshes with Faithful template materials), each writing its
+distance along the light's axis with minimum blending. A light with anything else in its frustum, or without a written
+static cache, keeps its viewport pass for the frame. A caster whose mesh never changes (`SpotShadowLight.MarkRigid`)
+forces no redraw at all while it keeps still, with or without this pass. `SVM_RD_SHADOWS=verify` compares both passes
+texel by texel. Measurements: docs/PERFORMANCE-LOWEND-2026-11.md.
+
+### Light reach
+
+`LightReach` (an OpenSCCT optimisation, same pixels) draws each merged cell mesh in one of three light states, each in
+one of two vision states, with a twin of every material for the reduced ones (`MaterialCompiler.GetUnreached`,
+`MaterialCompiler.GetNormalVision`):
+
+| State | When | Defines (baked: lightmap, vertex) | Defines (actor-lit) |
+|---|---|---|---|
+| full | a spot shadow light reaches the mesh | none | none |
+| no spot | no spot reaches, a dynamic world light does | SVM_NO_SPOT | SVM_NO_SPOT |
+| neither | neither reaches | SVM_NO_SPOT, SVM_NO_DYN | SVM_NO_SPOT (same material as no spot) |
+
+| Vision | When | Extra defines |
+|---|---|---|
+| thermal / EMF | `svm_vision` 36 or 38 | none: the bucket's own material (plain, cut or see-through) |
+| normal | every other mode | SVM_NORMAL_VISION (plain buckets keep SVM_PLAIN_DEPTH) |
+
+Without the thermal and EMF outputs nothing in the shader cuts a surface out. The normal vision twin keeps its bucket's
+vertex transform (plain buckets Godot's own, cut and see-through buckets the explicit POSITION write), so depth stays
+bit-identical, and has no see-through pass (it draws nothing outside thermal and EMF). See-through
+buckets keep their own material in all three light states in thermal and EMF. A missing twin falls back to the nearest
+one (no spot to full, neither to no spot); the sky zone keeps its materials.
+
+A light reaches a mesh when it is on and some point of the mesh's world box lies inside a slot's row 8 sphere, or
+within a dynamic light's radius x `svm_dyn_tune.y`; outside those the template adds exactly zero. The spot code is the
+costly part to have in the shader (2.0 ms on SteeE on a UHD 770 just by being compiled in) and spot slots reach few
+meshes, while dynamic map lights have large radii and reach most of them, so most meshes draw in the no spot state. A
+sun reaches everything; a map light counts while it is switched on, whatever its light type does, so pulsing and
+flickering lights never swap materials. Each light keeps the meshes it reaches and works them out again only when it
+moves or switches; a mesh keeps separate counts of the spots and the dynamic lights that reach it and changes state
+only when one of them goes to or from zero, by setting the render instance's surface overrides on `FramePreDraw`.
+The vision is read there too (`MaterialCompiler.Vision`, set by `FaithfulView.ApplyVision` in the process step of the
+same frame), so the first frame drawn in thermal or EMF, or back out of them, already has its materials; a change
+touches only the surfaces whose material differs (a few hundred calls on a large map). Authored, fullbright and
+switching MaterialSequence materials have no light twins (state switches have no vision twin either); twins with the
+same code share one shader. The first six frames after a build (and after a late responsive smoke switch) draw every
+mesh in each state, full first, so all six pipelines are made while loading. Those frames draw wrong light where a
+reaching term is left out, so `PlayRoot` keeps a black cover under the "Preparing effects..." text until
+`GameplayFxWarmup` has seen `LightReach.Warming` end (a late smoke switch raises the same cover). `SVM_REACH_STATS=1`
+prints the meshes in each state, the vision state and the spot slots and dynamic lights on, at most once a second
+(`SVM_REACH ...`).
+
+### World pass on the RenderingDevice
+
+With `SVM_RD_WORLD=1` (off by default) the solid and masked surfaces of the merged cells and of the sky zone are drawn
+by `Rd/RdWorldRenderer` instead of Godot's renderer: from the main camera's compositor, between Godot's depth pre-pass
+and its opaque pass, into Godot's own colour and depth buffers, with this template translated to GLSL 450
+(`Rd/GdShaderTranslator`). Each draw is one material in an 8 m block and takes the smallest shader that draws the same
+pixels: without the spot code where no slot's frustum reaches the block, without the dynamic light code where no row
+does, without portal fog while the view has none. Their Godot meshes stay on the `StaticWorldRd` and `SkyRd` layers for
+the shadow cameras, and for the main view in thermal and EMF, with responsive smoke, and on maps with an outdoor sky.
+Global shader parameters are set through `ShaderGlobals`, which the pass reads back. Measurements and limits:
+docs/PERFORMANCE-LOWEND-2026-11.md.
+
 ## Flare lights
 
 An OpenSCCT addition (`FlareLights`): the original lights a burning flare (SFlareEmitter) as an unshadowed point light
@@ -615,8 +682,8 @@ FDynamicLight colour.
   100 uu behind its housing at 2398 uu; lounge's coronas behind floors stay hidden at 8 % and 15 %). A full collision
   trace hides coronas the original shows (blocking volumes, cables); BSP alone lets a corona shine through mesh floors.
 - Fade moves at 6 x ScaleGlow per second; a camera cut settles it at once. Thermal and EMF draw no coronas.
-- The sky backdrop has the lowest render priority, so a corona or a particle over the sky is never overdrawn by it
-  (the crane lamp's corona was).
+- Blended sky zone materials have the lowest render priority, so a corona or a particle over the sky is never
+  overdrawn by them (the crane lamp's corona was). Solid sky sits behind everything by depth.
 
 ## Projectors
 
@@ -652,6 +719,11 @@ ignored) are left out when the file is there.
   grate, ceiling-grid and caustic patterns are LE_ESpotShadow lights (shadow map and cookie, see
   [Spot shadow lights](#spot-shadow-lights)), not projectors.
 
+A projector's box is two surfaces with the same triangles (svm_projector.gdshaderinc, `PROJ_SIDES`): for a camera inside
+the box, or within 1 m of it, the faces turned away draw with no depth test; for a camera outside, the faces turned
+towards it draw with the depth test on (the box 2% larger, so a surface lying in a face stays behind it), and a box
+hidden behind a wall costs nothing. The vertex shader picks the surface from the box's six planes, for each camera.
+
 ## Light beams
 
 Lights with `UsesLightBeam` and a `LightBeamMesh` (200 placed, `TestMapStaticM.Accessories.LightBeam` and its copy
@@ -685,10 +757,31 @@ Lights with `UsesLightBeam` and a `LightBeamMesh` (200 placed, `TestMapStaticM.A
 
 ## Sky zone
 
-When `lighting.json` has a sky zone, `FaithfulView` renders it in a SubViewport from the SkyZoneInfo's location with
-the main camera's rotation and projection, through its own display-space pass, and a full-screen quad on the far
-plane copies that picture (raw display values) wherever the world drew nothing. The sky camera draws only the sky
-layer; the backdrop quad is on a layer the sky camera leaves out.
+When `lighting.json` has a sky zone, the main camera draws it in the same frame, as UE2's sky pass does: the sky
+layer's materials (`MaterialCompiler.GetSky`, `SVM_SKY_ZONE` in `svm_world.gdshaderinc`) place each surface as the
+sky camera sees it (the main camera's rotation and projection, the eye at the SkyZoneInfo, `svm_sky_origin`) and
+shade it as that camera (its fog slot in `svm_sky_layers`, the eye as the camera position). Their depth is scaled
+by 2^-50 towards the far plane, so the whole world lies in front of the sky while the sky keeps its own depth order
+(`svm_sky_depth.gdshaderinc`); readers of the view's depth (the display-space fog stage, ambient occlusion, the
+responsive smoke background) treat depths up to 2^-40 as sky or nothing drawn, as depth 0 before. Solid sky surfaces
+write the 8-bit value the old sky picture had (`svm_sky_display`); blended ones blend over it, at most one level from
+the old composite. Transparent sky surfaces draw before every other transparent surface (lowest render priority) and
+in the sky camera's order: each sky node's `SortingOffset` turns the main camera's sort depth into the distance from
+the SkyZoneInfo to the node's box centre (Godot 4.7.2 `render_forward_clustered.cpp`). Each transparent surface of
+a sky cell is a node of its own that keeps the whole cell's box (MapBuilder) and sorts 1 mm nearer per place in the
+cell's surface order (`svm_sky_order`), the order the sky camera drew a cell's surfaces in at their shared distance;
+Godot's sort keeps equal depths in order only up to 16 transparent surfaces. Sky nodes get a cull margin
+of 16384 m, so their place in the world never culls them. Sky surfaces write no stencil marks.
+
+Known differences from the old SubViewport picture: transparent sky surfaces are drawn in the transparent pass, so
+the screen copies taken before it (the cloak's see-through, authored refraction, the coronas' scene colour) hold the
+sky without them; additive sky layers that push the sky above 1.0 are no longer clamped before main-world
+transparent surfaces blend over them; sky surfaces nearer than the near plane to the SkyZoneInfo are not clipped.
+
+A sky zone fogged solid (`FoggedSkyZone`) keeps the old way: a 16 x 16 SubViewport drawn once from the
+SkyZoneInfo's location through the same sky materials, and a full-screen quad on the far plane copies that picture
+(raw display values) wherever the world drew nothing. The sky camera draws only the sky layer; the backdrop quad is
+on a layer the sky camera leaves out.
 
 The sky zone's own walls are fake-backdrop surfaces (SteeE's star box: 8 polygons of `SQU13_txt.Tsky06`, plus the
 floor); the exporter now keeps fake-backdrop polygons of the sky zone (`scctpkg` `extract_polygons(...,
@@ -917,6 +1010,8 @@ hot spots stopped at yellow, his head read cold, a wide halo ringed him). The co
   The shared glow targets are rebuilt each EMF frame, before the ordinary vision pyramid overwrites its levels.
   A rendered AquaE kiosk regression checks the border against the interior and the EMF-to-normal transition.
 - Particles draw the translucent thermal rule for alpha styles and nothing in EMF.
+- Merged map cells draw twins without the thermal and EMF code (`SVM_NORMAL_VISION`) in every other mode, swapped in
+  the same frame as the vision changes ([light reach](#light-reach)); the pixels are the same.
 - Not yet: the night glow term and its pre-draws, the heat-source pass (HeatRadius actors; SteeE has none), the
   the remanence overlay (PlayerController.RemanenceBlendFactor).
 
@@ -1110,6 +1205,10 @@ scales into the `Skeleton3D`. Placement is UE2's: `Location + PrePivot`, the act
 and scale. Materials are the actor-lit template, with the spy's masked self-illumination and the skins' heat and EMF
 textures (`SPersoTextures` modifiers: Shadw_agent_Heat, DEF_01_Body_Heat... HEATTEX_Cool). `SetVision` writes a
 pawn's vision values. `Views/PawnView` wraps one pawn for views. The core animation channels will replace the sampler.
+OpenSCCT's cosmetics (`svm_tint`, `svm_glow_hue`, the camo finish mask and sheen) are compiled only into materials of
+compilers with `MaterialCompiler.Cosmetics` (`SVM_COSMETIC`): the model's own, and the sticky, wet and goggle skins put
+over its surfaces. Map and gameplay materials draw as if those held their defaults, with less code; the instance
+uniforms stay declared in every variant, so materials of both kinds on one instance index them alike.
 
 `PawnOutfits.Prepare` loads both stock character rigs, map outfits, third-person primary weapons and goggle meshes
 before the client reports its scene ready. Their first replicated appearance reuses those templates instead of

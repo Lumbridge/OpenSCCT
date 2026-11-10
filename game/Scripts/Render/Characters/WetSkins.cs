@@ -103,6 +103,8 @@ public sealed class WetSkins
         {
             Pack = shared is null ? null : RenderPack.Load(shared),
             VisionLookup = VisionLookup.SkinBase,
+            // Drawn over character models, which carry OpenSCCT's cosmetics.
+            Cosmetics = true,
         };
 
         using GlbDocument glb = GlbDocument.Load(glbPath);

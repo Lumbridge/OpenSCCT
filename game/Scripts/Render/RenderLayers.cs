@@ -13,10 +13,28 @@ public static class RenderLayers
     /// <summary>Fixed merged BSP and static geometry, cached separately in map-light shadow maps.</summary>
     public const uint StaticWorld = 1u << 16;
 
+    /// <summary>
+    /// Fixed merged geometry the world pass on the RenderingDevice draws (Rd/RdWorldRenderer): as
+    /// <see cref="StaticWorld"/> for the shadow cameras; the main view draws it only while that pass is off.
+    /// </summary>
+    public const uint StaticWorldRd = 1u << 4;
+
+    /// <summary>Sky zone geometry the world pass draws: as <see cref="Sky"/> for every other purpose.</summary>
+    public const uint SkyRd = 1u << 5;
+
+    /// <summary>The fixed merged geometry, whoever draws it in the main view.</summary>
+    public const uint StaticWorldAll = StaticWorld | StaticWorldRd;
+
+    /// <summary>The sky zone's geometry, whoever draws it in the main view.</summary>
+    public const uint SkyAll = Sky | SkyRd;
+
     /// <summary>Colour-only effects: visible in the main view, excluded from custom depth cameras.</summary>
     public const uint Effects = 1u << 15;
 
-    /// <summary>The sky zone's geometry: seen only by the sky view, as in UE2's sky pass.</summary>
+    /// <summary>
+    /// The sky zone's geometry, as in UE2's sky pass: drawn by the main view (FaithfulView adds the layer) or, for a sky
+    /// zone fogged solid, by the sky view. Its materials place it as the sky camera sees it (MaterialCompiler.GetSky).
+    /// </summary>
     public const uint Sky = 1u << 1;
 
     /// <summary>
@@ -44,11 +62,11 @@ public static class RenderLayers
     public const uint Backdrop = 1u << 19;
 
     /// <summary>The geometry visible to the main camera.</summary>
-    public const uint MainView = 0xFFFFFu & ~Sky & ~ShadowOnly & ~ShadowPass & ~FogViewMask & ~DemoXRay;
+    public const uint MainView = 0xFFFFFu & ~SkyAll & ~ShadowOnly & ~ShadowPass & ~FogViewMask & ~DemoXRay;
 
     /// <summary>What a spot light's shadow camera draws.</summary>
-    public const uint SpotShadow = World | StaticWorld | ShadowPass;
+    public const uint SpotShadow = World | StaticWorldAll | ShadowPass;
 
     /// <summary>What a flare's shadow camera draws: the world and the local pawn's hidden body.</summary>
-    public const uint FlareShadow = World | StaticWorld | ShadowOnly | ShadowPass;
+    public const uint FlareShadow = World | StaticWorldAll | ShadowOnly | ShadowPass;
 }

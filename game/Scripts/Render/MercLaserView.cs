@@ -384,25 +384,20 @@ public sealed partial class MercLaserView : Node3D
         material.StencilReference = Materials.MaterialCompiler.StencilFirstPerson;
         if (material.NextPass is ShaderMaterial vision)
         {
-            s_maskedVision ??= new Shader
-            {
-                Code = "shader_type spatial;\nrender_mode unshaded, fog_disabled, cull_disabled, depth_draw_opaque;\n"
-                    + $"stencil_mode read, compare_not_equal, {Materials.MaterialCompiler.StencilFirstPerson};\n"
-                    + "#define SVM_FIRST_PERSON_MASK\n#include \"res://Shaders/svm_laser.gdshaderinc\"\n",
-            };
-            vision.Shader = s_maskedVision;
+            vision.Shader = ResponsiveSmokeShaders.Shared("shader_type spatial;\nrender_mode unshaded, fog_disabled, cull_disabled, depth_draw_opaque;\n"
+                + $"stencil_mode read, compare_not_equal, {Materials.MaterialCompiler.StencilFirstPerson};\n"
+                + "#define SVM_FIRST_PERSON_MASK\n#include \"res://Shaders/svm_laser.gdshaderinc\"\n", "");
             vision.SetShaderParameter("thermal_only", false);
         }
     }
-
-    private static Shader? s_maskedVision;
 
     private Mesh BeamMeshOrStandIn()
     {
         if (!_meshTried)
         {
             _meshTried = true;
-            if (Map is not null && GameplayObjects.MeshFor(Map, BeamMesh, unlit: true) is { } packed)
+            // The same mesh the spy laser view draws, read once per map.
+            if (Map is not null && OpenScctGame.Fx.SpyLaserView.PackedBeamMesh(Map) is { } packed)
             {
                 _mesh = packed;
                 PackMesh = true;

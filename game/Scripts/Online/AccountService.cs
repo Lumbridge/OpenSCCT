@@ -382,7 +382,8 @@ public partial class AccountService : Node
     /// <summary>Sends this PC's settings now (a send already on its way sends again when it is back).</summary>
     private void Push()
     {
-        if (!CanSync)
+        // --svm-setting overrides are for this run only: never send them to the account (another run would save them).
+        if (!CanSync || SettingsStore.Overrides.Count > 0)
         {
             return;
         }

@@ -1,4 +1,7 @@
 using System;
+using System.Collections.Generic;
+using System.Reflection;
+using System.Text.Json.Serialization;
 using Godot;
 using OpenScctGame.UI;
 
@@ -14,6 +17,8 @@ public static class SettingsStore
     public const string FilePath = "user://settings.json";
 
     private static GameSettings? _current;
+    private static IReadOnlyList<KeyValuePair<string, string>>? _overrides;
+    private static bool _overridesReported;
 
     /// <summary>Raised after <see cref="Save"/> with the saved settings (the play scene applies them).</summary>
     public static event Action<GameSettings>? Saved;
@@ -31,12 +36,20 @@ public static class SettingsStore
     /// </summary>
     public static bool Isolated { get; set; }
 
+    /// <summary>
+    /// The <c>--svm-setting=key=value</c> launch overrides (<see cref="LaunchOptions.SettingOverrides"/>). They apply
+    /// to every load and save of this process; while there are any, <see cref="Save"/> writes no file.
+    /// </summary>
+    public static IReadOnlyList<KeyValuePair<string, string>> Overrides =>
+        _overrides ??= LaunchOptions.Parse(OS.GetCmdlineUserArgs()).SettingOverrides;
+
     private static GameSettings LoadCurrent()
     {
         if (Isolated)
         {
             var defaults = new GameSettings();
             defaults.Clamp();
+            ApplyOverrides(defaults);
             return defaults;
         }
 
@@ -50,27 +63,49 @@ public static class SettingsStore
             s.Clamp();
         }
 
-        // The launcher or a recovery command can change the renderer before this settings file is read.
-        // Show the driver the engine actually started, so applying another setting keeps that choice.
-        if (OperatingSystem.IsWindows() && DisplayServer.GetName() != "headless")
+        ApplyOverrides(s);
+        return s;
+    }
+
+    /// <summary>
+    /// Sets the launch overrides on <paramref name="settings"/> in place, so callers that apply the object they saved
+    /// see them too. The first call prints each override and reports a bad one as an error.
+    /// </summary>
+    private static void ApplyOverrides(GameSettings settings)
+    {
+        if (Overrides.Count == 0) return;
+        bool report = !_overridesReported;
+        _overridesReported = true;
+        GameSettings result = settings;
+        foreach ((string key, string value) in Overrides)
         {
-            s.GraphicsDriver = RenderingServer.GetCurrentRenderingDriverName() switch
+            if (SettingsConsole.Set(result, key, value, out string problem) is { } next)
             {
-                "vulkan" => "Vulkan",
-                "d3d12" => "Direct3D 12",
-                _ => s.GraphicsDriver,
-            };
+                result = next;
+                if (report) GD.Print($"Setting override for this run only: {key} = {SettingsConsole.Get(next, key)}");
+            }
+            else if (report)
+            {
+                GD.PushError($"--svm-setting={key}={value} ignored: {problem}");
+            }
         }
 
-        return s;
+        if (ReferenceEquals(result, settings)) return;
+        foreach (PropertyInfo property in typeof(GameSettings).GetProperties())
+        {
+            if (property.SetMethod is not null && property.IsDefined(typeof(JsonPropertyNameAttribute), false))
+                property.SetValue(settings, property.GetValue(result));
+        }
     }
 
     /// <summary>Makes <paramref name="settings"/> the current ones, writes the file and tells the listeners.</summary>
     public static Error Save(GameSettings settings)
     {
         ArgumentNullException.ThrowIfNull(settings);
+        ApplyOverrides(settings);
         settings.Clamp();
-        if (Isolated)
+        // Launch overrides are for this run only: keep the player's file as it is.
+        if (Isolated || Overrides.Count > 0)
         {
             _current = settings;
             Saved?.Invoke(settings);

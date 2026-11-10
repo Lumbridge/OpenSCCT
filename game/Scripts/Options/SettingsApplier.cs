@@ -49,7 +49,7 @@ public static class SettingsApplier
     /// <summary>
     /// The texture filtering (filter_level on the viewport, and as the default of the viewports made later) and the
     /// spot shadows' map size and edge smoothing (shadow_quality, shadow_edge_smoothing: from the next map, when the
-    /// shadow atlas is made again).
+    /// shadow atlas is made again), and the renderer (renderer: from the next map).
     /// </summary>
     public static void ApplyRendering(GameSettings s, Viewport? viewport)
     {
@@ -73,6 +73,7 @@ public static class SettingsApplier
 
         Render.SpotShadowLight.MapSize = Render.SpotShadowLight.MapSizeFor(s.ShadowQuality);
         Render.SpotShadowLight.SoftRadius = s.ShadowEdgeSmoothing ? Render.RenderK.SpotShadowSoftRadius : 0f;
+        Render.Rd.RdWorldRenderer.OwnFrameSetting = s.Renderer == "Fast";
     }
 
     /// <summary>
@@ -106,11 +107,8 @@ public static class SettingsApplier
     public static void WriteStartOverrides(GameSettings s)
     {
         ArgumentNullException.ThrowIfNull(s);
-        string? driver = OperatingSystem.IsWindows() ? s.GraphicsDriver switch
-        {
-            "Direct3D 12" => "d3d12",
-            _ => "vulkan",
-        } : null;
+        // Always written on Windows: it replaces a Direct3D 12 choice an older build stored in this file.
+        string? driver = OperatingSystem.IsWindows() ? "vulkan" : null;
         bool lowLatency = s.LowLatencyMode != "Off";
         string path = ProjectSettings.GlobalizePath(StartOverridePath);
         try

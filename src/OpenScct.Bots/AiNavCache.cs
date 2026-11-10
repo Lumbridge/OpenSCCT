@@ -78,73 +78,99 @@ public sealed class AiNavCache
         Dictionary<string, NavGraph> graphs = spy ? _spyGraphs : _mercGraphs;
         lock (graphs)
         {
-            if (graphs.TryGetValue(key, out NavGraph? graph))
+            NavGraph? graph = FindStoredLocked(graphs, mapKey, spy, map.SimHash, map.SourceFolder, out string? file);
+            if (graph is not null)
             {
                 return (graph, false);
             }
 
-            string? file = Directory.Length == 0 ? null : Path.Combine(Directory, SafeName(mapKey + "-" + profile.Key) + ".svmnav");
-            if (file is not null && File.Exists(file))
+            if (reload is not null)
             {
-                try
+                MapInfo reloaded = reload();
+                if (reloaded.Name != map.Name || reloaded.SimHash != map.SimHash || reloaded.Physics is null)
                 {
-                    using FileStream s = File.OpenRead(file);
-                    graph = NavGraph.Read(s, mapKey, profile);
+                    throw new InvalidOperationException($"Map {map.Name} changed while preparing bots.");
                 }
-                catch (Exception error) when (error is IOException or UnauthorizedAccessException)
-                {
-                    graph = null;
-                }
+
+                map = reloaded;
+                physics = reloaded.Physics;
             }
 
-            if (graph is null && Margin == DefaultMargin)
+            var ges = new List<GERecord>(physics.GEs.Count);
+            for (int i = 0; i < physics.GEs.Count; i++)
             {
-                string? downloaded = DownloadPath(map.SimHash);
-                if (downloaded is not null) graph = ReadPackedGraph(downloaded, spy, mapKey, profile);
-                if (graph is null && map.SourceFolder is { } folder) graph = ReadPackedGraph(PackPath(folder), spy, mapKey, profile);
+                ges.Add(physics.GEs[i]);
             }
 
-            if (graph is not null)
+            (FVector min, FVector max) = Bounds(map, ges);
+            // Collision queries reuse scratch buffers. Public Get callers may share a map between sides.
+            lock (physics.Collision)
             {
-                Interlocked.Increment(ref _loaded);
+                graph = NavBuilder.Build(physics.Collision, min, max, profile, ges, activationMask);
             }
-
-            bool built = graph is null;
-            if (graph is null)
+            Interlocked.Increment(ref _built);
+            if (file is not null)
             {
-                if (reload is not null)
-                {
-                    MapInfo reloaded = reload();
-                    if (reloaded.Name != map.Name || reloaded.SimHash != map.SimHash || reloaded.Physics is null)
-                    {
-                        throw new InvalidOperationException($"Map {map.Name} changed while preparing bots.");
-                    }
-
-                    map = reloaded;
-                    physics = reloaded.Physics;
-                }
-
-                var ges = new List<GERecord>(physics.GEs.Count);
-                for (int i = 0; i < physics.GEs.Count; i++)
-                {
-                    ges.Add(physics.GEs[i]);
-                }
-
-                (FVector min, FVector max) = Bounds(map, ges);
-                // Collision queries reuse scratch buffers. Public Get callers may share a map between sides.
-                lock (physics.Collision)
-                {
-                    graph = NavBuilder.Build(physics.Collision, min, max, profile, ges, activationMask);
-                }
-                Interlocked.Increment(ref _built);
-                if (file is not null)
-                {
-                    TryWrite(file, graph, mapKey);
-                }
+                TryWrite(file, graph, mapKey);
             }
 
             graphs[key] = graph;
-            return (graph, built);
+            return (graph, true);
+        }
+    }
+
+    /// <summary>
+    /// The graph already in memory, in the cache folder, in a downloaded pack or in the map's own pack, or null.
+    /// A graph read from disk is kept in memory. The caller holds the lock of <paramref name="graphs"/>.
+    /// <paramref name="file"/> is the cache file a built graph is written to (null for a memory-only cache).
+    /// </summary>
+    private NavGraph? FindStoredLocked(Dictionary<string, NavGraph> graphs, string mapKey, bool spy, string simHash,
+        string? folder, out string? file)
+    {
+        NavProfile profile = spy ? NavProfile.Spy : NavProfile.Merc;
+        string key = mapKey + "|" + profile.Key;
+        file = Directory.Length == 0 ? null : Path.Combine(Directory, SafeName(mapKey + "-" + profile.Key) + ".svmnav");
+        if (graphs.TryGetValue(key, out NavGraph? graph))
+        {
+            return graph;
+        }
+
+        if (file is not null && File.Exists(file))
+        {
+            try
+            {
+                using FileStream s = File.OpenRead(file);
+                graph = NavGraph.Read(s, mapKey, profile);
+            }
+            catch (Exception error) when (error is IOException or UnauthorizedAccessException)
+            {
+                graph = null;
+            }
+        }
+
+        if (graph is null && Margin == DefaultMargin)
+        {
+            string? downloaded = DownloadPath(simHash);
+            if (downloaded is not null) graph = ReadPackedGraph(downloaded, spy, mapKey, profile);
+            if (graph is null && folder is not null) graph = ReadPackedGraph(PackPath(folder), spy, mapKey, profile);
+        }
+
+        if (graph is not null)
+        {
+            Interlocked.Increment(ref _loaded);
+            graphs[key] = graph;
+        }
+
+        return graph;
+    }
+
+    /// <summary>Looks up a stored graph without a loaded map (see <see cref="FindStoredLocked"/>).</summary>
+    private NavGraph? FindStored(string mapKey, bool spy, string simHash, string? folder)
+    {
+        Dictionary<string, NavGraph> graphs = spy ? _spyGraphs : _mercGraphs;
+        lock (graphs)
+        {
+            return FindStoredLocked(graphs, mapKey, spy, simHash, folder, out _);
         }
     }
 
@@ -269,16 +295,114 @@ public sealed class AiNavCache
     }
 
     /// <summary>
-    /// Builds (or loads) both sides' graphs of <paramref name="mapName"/> now, from a scratch server load of the map, so
-    /// a real-time host does not stall on its first tick (SteeE takes tens of seconds to build in a Debug build).
+    /// Builds (or loads) both sides' graphs of <paramref name="mapName"/> now, so a real-time host does not stall on its
+    /// first tick (SteeE takes tens of seconds to build in a Debug build). Stored graphs are looked up from the map's
+    /// manifest first; only when one is missing is the map loaded into a scratch server world to build it.
     /// </summary>
-    public void Prepare(MapCatalog maps, string mapName, Action<string>? progress = null, byte? activationMask = null)
+    /// <param name="content">
+    /// The map's sim files when the caller has them already (the map the catalog loads for <paramref name="mapName"/>),
+    /// so the lookup does not read them again.
+    /// </param>
+    public void Prepare(MapCatalog maps, string mapName, Action<string>? progress = null, byte? activationMask = null,
+        SvMap? content = null)
     {
         ArgumentNullException.ThrowIfNull(maps);
         progress?.Invoke($"nav prepare map={mapName}");
+        if (TryPrepareStored(maps, mapName, activationMask, content, progress))
+        {
+            return;
+        }
+
         MapInfo map = LoadMap(maps, mapName, out byte defaultMask);
         PrepareGraphs(maps, mapName, map, activationMask ?? defaultMask, progress);
     }
+
+    /// <summary>
+    /// Loads both stored graphs without a world: the key is the manifest's map id and sim hash, and the mask the caller
+    /// gave or the LevelInfo's GEActivationMask from gameplay.json (what the load puts in the level). A wrong guess
+    /// cannot load a wrong graph: graphs are only stored under the key of the map they were built from, so it misses
+    /// and the scratch-world path runs as before.
+    /// </summary>
+    private bool TryPrepareStored(MapCatalog maps, string mapName, byte? activationMask, SvMap? content, Action<string>? progress)
+    {
+        // The lobby is always the built-in empty level, never a map folder of that name.
+        if (string.Equals(mapName, MapCatalog.Lobby, StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        string name;
+        string simHash;
+        string folder;
+        byte mask;
+        if (content is not null)
+        {
+            name = content.Id;
+            simHash = content.Manifest.SimHash;
+            folder = content.Root;
+            mask = activationMask ?? content.Gameplay.GEActivationMask;
+        }
+        else
+        {
+            if (maps.FindFolder(mapName) is not { } found)
+            {
+                return false;
+            }
+
+            try
+            {
+                folder = Path.GetFullPath(found);
+                SvMapManifest manifest = SvMapManifest.Load(Path.Combine(folder, SvMapHash.ManifestFile));
+                name = manifest.Map;
+                simHash = manifest.SimHash;
+                mask = activationMask ?? GameplayDoc.Load(Path.Combine(folder, GameplayDoc.RelativePath)).GEActivationMask;
+            }
+            catch (Exception error) when (error is SvMapFormatException or IOException or UnauthorizedAccessException or KeyNotFoundException)
+            {
+                // The scratch load reports a damaged map with its usual error.
+                return false;
+            }
+        }
+
+        string mapKey = MapKey(name, simHash, mask);
+        NavGraph? spy = null;
+        NavGraph? merc = null;
+        if (Environment.ProcessorCount > 1)
+        {
+            try
+            {
+                Parallel.Invoke(
+                    () => spy = FindStored(mapKey, spy: true, simHash, folder),
+                    () => merc = FindStored(mapKey, spy: false, simHash, folder));
+            }
+            catch (AggregateException error)
+            {
+                ExceptionDispatchInfo.Throw(error.InnerExceptions[0]);
+            }
+        }
+        else
+        {
+            spy = FindStored(mapKey, spy: true, simHash, folder);
+            merc = FindStored(mapKey, spy: false, simHash, folder);
+        }
+
+        if (spy is null || merc is null)
+        {
+            // A graph found here stays in memory, so the scratch path below reports it as cached.
+            return false;
+        }
+
+        progress?.Invoke("nav spy start");
+        progress?.Invoke("nav merc start");
+        ReportGraph(progress, "spy", spy, built: false);
+        ReportGraph(progress, "merc", merc, built: false);
+        progress?.Invoke("nav ready");
+        return true;
+    }
+
+    private static void ReportGraph(Action<string>? progress, string side, NavGraph graph, bool built) =>
+        progress?.Invoke(string.Create(CultureInfo.InvariantCulture,
+            $"nav {side} {(built ? "built" : "cached")} nodes={graph.NodeCount} edges={graph.EdgeCount}"));
 
     /// <summary>Writes the default Spy and Merc graphs as optional map-pack data outside the simulation hash.</summary>
     public static string BakeMapPack(string folder, Action<string>? progress = null, string? cacheDirectory = null)
@@ -353,16 +477,10 @@ public sealed class AiNavCache
             merc = GetGraph(map, spy: false, mask);
         }
 
-        ReportGraph("spy", spy);
-        ReportGraph("merc", merc);
+        ReportGraph(progress, "spy", spy.Graph!, spy.Built);
+        ReportGraph(progress, "merc", merc.Graph!, merc.Built);
         progress?.Invoke("nav ready");
         return (spy.Graph!, merc.Graph!);
-
-        void ReportGraph(string side, (NavGraph Graph, bool Built) result)
-        {
-            progress?.Invoke(string.Create(CultureInfo.InvariantCulture,
-                $"nav {side} {(result.Built ? "built" : "cached")} nodes={result.Graph.NodeCount} edges={result.Graph.EdgeCount}"));
-        }
     }
 
     private static MapInfo LoadMap(MapCatalog maps, string mapName, out byte activationMask)

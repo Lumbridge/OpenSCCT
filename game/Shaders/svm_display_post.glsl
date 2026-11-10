@@ -45,6 +45,7 @@ layout(set = 0, binding = 9, std430) readonly buffer PortalFog { vec4 fog_data[]
 
 vec4 svm_fog_row(int fog_base, int index) { return pf.fog_data[index]; }
 #include "res://Shaders/svm_fog_math.gdshaderinc"
+#include "res://Shaders/svm_sky_depth.gdshaderinc"
 
 vec4 portal_fog(ivec2 pixel, vec2 size, float view_depth) {
     vec2 uv = (vec2(pixel) + 0.5) / size;
@@ -72,9 +73,9 @@ void main() {
 
 	if ((stage & 1) != 0 && p.fog_color.a > 0.5) {
 		// Linear table fog on view depth (D3D W fog, 0x1095d640) over what was drawn. Reverse Z: 1 at the near plane, 0
-		// at the far plane and where nothing was drawn (the clear colour stays).
+		// at the far plane and where nothing was drawn (the clear colour stays); the sky zone lies just above 0.
 		float d = texelFetch(depth_texture, xy, 0).r;
-		if (d > 0.0) {
+		if (d > SVM_SKY_DEPTH_LIMIT) {
 			float n = p.fog_range.z;
 			float f = p.fog_range.w;
 			float z = n * f / (d * (f - n) + n);

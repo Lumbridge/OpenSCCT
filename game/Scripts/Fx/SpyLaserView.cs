@@ -238,18 +238,14 @@ public sealed partial class SpyLaserView : Node3D
         material.SetShaderParameter("proj_shape", new Vector4(width * 0.5f, width * 0.5f, 0f, projectOnBackfaces ? 1f : 0f));
     }
 
-    private static readonly Shader DotShader = new()
-    {
-        Code = "shader_type spatial;\n"
-            + "render_mode unshaded, fog_disabled, blend_add, cull_disabled, depth_test_disabled, depth_draw_never;\n"
-            + "#define PROJ_LASER\n#include \"res://Shaders/svm_projector.gdshaderinc\"\n",
-        ResourceName = "spy laser projector",
-    };
+    private const string DotShaderCode = "shader_type spatial;\n"
+        + "render_mode unshaded, fog_disabled, blend_add, cull_disabled, depth_test_disabled, depth_draw_never;\n"
+        + "#define PROJ_LASER\n#include \"res://Shaders/svm_projector.gdshaderinc\"\n";
 
     internal static MeshInstance3D CreateDot(Texture2D texture)
     {
         Render.Materials.MaterialCompiler.EnsureGlobals();
-        var material = new ShaderMaterial { Shader = DotShader };
+        var material = new ShaderMaterial { Shader = ResponsiveSmokeShaders.Shared(DotShaderCode, "spy laser projector") };
         material.SetShaderParameter("proj_tex", texture);
         return new MeshInstance3D
         {
@@ -328,7 +324,7 @@ public sealed partial class SpyLaserView : Node3D
         if (!_beamTried)
         {
             _beamTried = true;
-            if (Map is not null && GameplayObjects.MeshFor(Map, BeamMesh, unlit: true) is { } mesh)
+            if (Map is not null && PackedBeamMesh(Map) is { } mesh)
             {
                 _beamMesh = mesh;
                 _packedBeam = true;
@@ -358,6 +354,47 @@ public sealed partial class SpyLaserView : Node3D
 
     private bool _packedBeam;
 
+    // The packed beam mesh and beam textures of a map, made once for all its laser views (merc, spy, detectors) and
+    // kept only while the map lives. Neither is changed after it is made: the views set their own materials.
+    private sealed class BeamAssets
+    {
+        public bool MeshTried { get; set; }
+
+        public Mesh? Mesh { get; set; }
+
+        public Dictionary<string, ImageTexture?> Textures { get; } = new(StringComparer.Ordinal);
+    }
+
+    private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<RenderMap, BeamAssets> s_beamAssets = new();
+
+    /// <summary>The render pack's SLaserBeam mesh (unlit), read once per map; null when the pack lacks it.</summary>
+    internal static Mesh? PackedBeamMesh(RenderMap map)
+    {
+        ArgumentNullException.ThrowIfNull(map);
+        BeamAssets assets = s_beamAssets.GetOrCreateValue(map);
+        if (!assets.MeshTried)
+        {
+            assets.MeshTried = true;
+            assets.Mesh = GameplayObjects.MeshFor(map, BeamMesh, unlit: true);
+        }
+
+        return assets.Mesh;
+    }
+
+    // The PNG at path as a texture (as it is stored: no mipmaps), read once per map; null when missing or empty.
+    private static ImageTexture? BeamTextureOf(RenderMap map, string path)
+    {
+        BeamAssets assets = s_beamAssets.GetOrCreateValue(map);
+        if (!assets.Textures.TryGetValue(path, out ImageTexture? tex))
+        {
+            using Image? image = File.Exists(path) ? Image.LoadFromFile(path) : null;
+            tex = image is null || image.IsEmpty() ? null : ImageTexture.CreateFromImage(image);
+            assets.Textures[path] = tex;
+        }
+
+        return tex;
+    }
+
     /// <summary>
     /// The beam's look: the SLaserBeam mesh's LaserBeamShader adds its texture (a dark red band with a bright core) to
     /// the picture. The render pack keeps the texture but not the shader's blending (its material is opaque), which drew
@@ -372,12 +409,11 @@ public sealed partial class SpyLaserView : Node3D
         }
 
         string path = Path.Combine(Path.GetDirectoryName(glb)!, "textures", texture + ".png");
-        if (!File.Exists(path) || Image.LoadFromFile(path) is not { } image || image.IsEmpty())
+        if (BeamTextureOf(map, path) is not { } tex)
         {
             return null;
         }
 
-        ImageTexture tex = ImageTexture.CreateFromImage(image);
         return new EffectMaterial
         {
             ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded,
@@ -413,7 +449,7 @@ public sealed partial class SpyLaserView : Node3D
     [Provenance(ProvenanceKind.Decoded, "SBase.SLaserBeam defaults HeatIntensity 1.0")]
     internal static ShaderMaterial ThermalBeamPass(Texture2D? mask)
     {
-        var pass = new ShaderMaterial { Shader = GD.Load<Shader>(Lasers.ShaderPath) };
+        var pass = new ShaderMaterial { Shader = ResponsiveSmokeShaders.Load(Lasers.ShaderPath) };
         pass.SetShaderParameter("heat", Lasers.Vision.X);
         pass.SetShaderParameter("thermal_only", true);
         if (mask is not null)

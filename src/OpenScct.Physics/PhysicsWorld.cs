@@ -20,9 +20,13 @@ namespace OpenScct.Physics;
 public sealed class PhysicsWorld
 {
     public PhysicsWorld(CollisionData collision, TraversalDoc? traversal = null)
+        : this(CollisionWorld.Build(collision ?? throw new ArgumentNullException(nameof(collision))), traversal)
     {
-        ArgumentNullException.ThrowIfNull(collision);
-        Collision = CollisionWorld.Build(collision);
+    }
+
+    private PhysicsWorld(CollisionWorld collision, TraversalDoc? traversal)
+    {
+        Collision = collision;
         GEs = traversal is null ? new GEIndex([]) : new GEIndex(traversal);
         Traversal = new GEQueries(GEs, Collision);
         Driver = new PhysicsDriver(Collision, GEs);
@@ -41,7 +45,8 @@ public sealed class PhysicsWorld
     {
         ArgumentNullException.ThrowIfNull(map);
         ArgumentNullException.ThrowIfNull(loaded);
-        var physics = new PhysicsWorld(map.Collision, map.Traversal);
+        // Shares the map's static collision with its other worlds (server, client, render zones, bot navigation).
+        var physics = new PhysicsWorld(CollisionWorld.Build(map), map.Traversal);
         physics.Bind(loaded);
         return physics;
     }

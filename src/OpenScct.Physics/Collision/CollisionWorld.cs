@@ -1,7 +1,7 @@
 using System;
-using System.Buffers.Binary;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
+using System.IO;
+using OpenScct.Content;
 using OpenScct.Content.Collision;
 using OpenScct.Content.Loading;
 using OpenScct.Core;
@@ -66,6 +66,14 @@ internal sealed class ColliderState
     public bool BaseCollideActors;
     public bool BaseBlockActors;
     public bool BaseBlockPlayers;
+
+    /// <summary>A copy for one world: a moving collider gets its own primitive set, which its transforms rewrite.</summary>
+    public ColliderState CopyForWorld()
+    {
+        var copy = (ColliderState)MemberwiseClone();
+        copy.Set = Set?.CopyForWorld();
+        return copy;
+    }
 }
 
 /// <summary>Per-actor collision data, indexed by Actor.ActorId.</summary>
@@ -87,7 +95,8 @@ internal struct ActorSlot
 /// The collision world of one map, built from <c>sim/collision.bin</c> (<see cref="CollisionData"/>): a static BVH
 /// over every collider that never moves (world BSP polygons, brushes, static mesh triangles and hulls), one BVH per
 /// dynamic collider (movers, glass, gameplay objects, attached collision) that follows its actor, and the
-/// collision cylinders of the level's actors. Not thread-safe: queries share scratch buffers.
+/// collision cylinders of the level's actors. Not thread-safe: queries share scratch buffers. The static geometry is
+/// built once per map and shared read-only by every world of it (<see cref="CollisionModel"/>).
 /// </summary>
 [PortOf("fmt:svmap.collision", Spec = "spec/svmap/1.0/collision.md#coll-colliders-stride-128")]
 public sealed partial class CollisionWorld : ICollisionWorld
@@ -122,272 +131,89 @@ public sealed partial class CollisionWorld : ICollisionWorld
     private Level? _level;
     private ActorSlot[] _slots = [];
 
-    private CollisionWorld(CollisionData data)
+    /// <summary>The shared read-only build this world queries; held so the model outlives its weak cache entry.</summary>
+    private readonly CollisionModel _model;
+
+    internal CollisionModel Model => _model;
+
+    private CollisionWorld(CollisionModel model)
     {
-        int nc = data.Colliders.Length;
+        _model = model;
+        int nc = model.Colliders.Length;
+
+        // Collider states and moving colliders' sets change per world (binding, enabling, transforms): copy them.
         _colliders = new ColliderState[nc];
         _nextColliderOfActor = new int[nc];
-        var staticBuilder = new PrimitiveSetBuilder(dynamic: false);
-        var dynamic = new List<int>();
-        var localPlanes = new List<HullPlane>();
-        bool hasWorld = false;
-        FVector worldMin = default;
-        FVector worldMax = default;
-        int degenerate = 0;
-        int triangles = 0;
-        int hulls = 0;
-
         for (int ci = 0; ci < nc; ci++)
         {
-            Collider c = data.Colliders[ci];
-            var state = new ColliderState
-            {
-                Index = ci,
-                Kind = c.Kind,
-                Flags = c.Flags,
-                TraceBits = KindBits(c.Kind, c.Flags),
-                ActorId = data.GetString(c.Actor),
-                Enabled = (c.Flags & ColliderFlags.StartsDisabled) == 0,
-                IsDynamic = IsDynamicKind(c.Kind),
-                Location = c.Location,
-                Rotation = c.Rotation,
-                Scale = c.Scale,
-                PrePivot = c.PrePivot,
-            };
+            _colliders[ci] = model.Colliders[ci].CopyForWorld();
             _nextColliderOfActor[ci] = -1;
-
-            var xf = new ColliderTransform(c.Location, c.Rotation, c.Scale, c.PrePivot);
-            PrimitiveSetBuilder target = state.IsDynamic ? new PrimitiveSetBuilder(dynamic: true) : staticBuilder;
-            FVector cmin = default;
-            FVector cmax = default;
-            bool has = false;
-            if (xf.Valid)
-            {
-                if (c.HullCount > 0)
-                {
-                    for (int h = (int)c.HullStart; h < (int)(c.HullStart + c.HullCount); h++)
-                    {
-                        CollisionHull hull = data.Hulls[h];
-                        localPlanes.Clear();
-                        foreach (CollisionPlane p in data.PlanesOf(hull))
-                        {
-                            localPlanes.Add(new HullPlane(p.Normal, p.W));
-                        }
-
-                        target.AddHull(ci, hull.Material, h, CollectionsMarshal.AsSpan(localPlanes), data.CornersOf(hull), hull.Min,
-                            hull.Max, xf, ref cmin, ref cmax, ref has);
-                        hulls++;
-                    }
-                }
-                else
-                {
-                    // Colliders with BSP nodes collide by the triangles of their polygons (BSPN is provisional).
-                    for (int t = (int)c.TriStart; t < (int)(c.TriStart + c.TriCount); t++)
-                    {
-                        CollisionTriangle tri = data.Triangles[t];
-                        target.AddTriangle(ci, tri.Material, t, data.Vertices[(int)tri.I0], data.Vertices[(int)tri.I1],
-                            data.Vertices[(int)tri.I2], xf, ref cmin, ref cmax, ref has);
-                        triangles++;
-                    }
-                }
-            }
-            else
-            {
-                state.Enabled = false;
-            }
-
-            if (state.IsDynamic)
-            {
-                state.Set = target.Build();
-                degenerate += target.DegenerateTriangles;
-                dynamic.Add(ci);
-                _dynamicTraceBits |= state.TraceBits;
-            }
-
-            state.Min = has ? cmin : c.AabbMin;
-            state.Max = has ? cmax : c.AabbMax;
-            if (has)
-            {
-                worldMin = hasWorld ? CollisionMath.MinV(worldMin, cmin) : cmin;
-                worldMax = hasWorld ? CollisionMath.MaxV(worldMax, cmax) : cmax;
-                hasWorld = true;
-            }
-
-            if (_bspRoot < 0 && c.Kind == ColliderKind.WorldBsp && c.BspCount > 0)
-            {
-                _bspRoot = (int)c.BspStart;
-
-                // The level model is untransformed; its tree answers zero-extent traces (UModel::LineCheck).
-                if (!state.IsDynamic && c.Location.IsZero() && c.Rotation == default && c.PrePivot.IsZero() &&
-                    c.Scale == new FVector(1f, 1f, 1f))
-                {
-                    _bspCollider = ci;
-                }
-            }
-
-            _colliders[ci] = state;
         }
 
-        PairMeshSets(data);
-        _static = staticBuilder.Build();
-        degenerate += staticBuilder.DegenerateTriangles;
-        _dynamicColliders = dynamic.ToArray();
-        _materials = data.Materials.AsSpan().ToArray();
-        _materialPolyFlags = ReadPolyFlags(data, _materials.Length);
-        _materialOcclusion = ReadOcclusionTypes(data, _materials.Length);
-        _bsp =data.BspNodes.AsSpan().ToArray();
-        if (_bspCollider >= 0)
-        {
-            _bspTris = data.Triangles.AsSpan().ToArray();
-            _bspVerts = data.Vertices.AsSpan().ToArray();
-        }
-        _zones = data.Zones.AsSpan().ToArray();
-        _zoneActorIds = new string?[_zones.Length];
+        _dynamicColliders = model.DynamicColliders;
+        _dynamicTraceBits = model.DynamicTraceBits;
+        _static = model.Static;
+        _materials = model.Materials;
+        _materialPolyFlags = model.MaterialPolyFlags;
+        _materialOcclusion = model.MaterialOcclusion;
+        _bsp = model.Bsp;
+        _bspRoot = model.BspRoot;
+        _bspCollider = model.BspCollider;
+        _bspTris = model.BspTris;
+        _bspVerts = model.BspVerts;
+        _zones = model.Zones;
+        _zoneActorIds = model.ZoneActorIds;
         _zoneActors = new ZoneInfo?[_zones.Length];
-        for (int i = 0; i < _zones.Length; i++)
-        {
-            _zoneActorIds[i] = data.GetString(_zones[i].Actor);
-        }
-
-        _cylinders = data.Cylinders.AsSpan().ToArray();
-        _cylinderActorIds = new string?[_cylinders.Length];
-        for (int i = 0; i < _cylinders.Length; i++)
-        {
-            _cylinderActorIds[i] = data.GetString(_cylinders[i].Actor);
-        }
+        _cylinders = model.Cylinders;
+        _cylinderActorIds = model.CylinderActorIds;
 
         _filterStamp = new int[nc];
         _filterValue = new bool[nc];
         _multiStamp = new int[nc];
         _multiSlot = new int[nc];
-        WorldMin = worldMin;
-        WorldMax = worldMax;
-        KillZ = hasWorld ? worldMin.Z - K.KillZBelowWorld : -K.KillZBelowWorld;
-        DegenerateTriangles = degenerate;
-        TriangleCount = triangles - degenerate;
-        HullCount = hulls;
-    }
-
-    /// <summary>
-    /// Pairs each static mesh's per-poly collider with its simple-collision collider. Traces use the simple set when a
-    /// mesh has one and the per-poly set only with TRACE_ShadowCast (UStaticMesh::LineCheck tree selection). The
-    /// converter writes the two sets of one mesh one after the other (per-poly then simple) with the same owner and
-    /// transform. Plain meshes tell them apart by kind (meshPoly, meshHull); movers, glass and gameplay objects use one
-    /// kind for both, so their sets come from the SVMap 1.1 CSRC chunk (set 2 per-poly, 3 simple, same source, asset
-    /// and variants). Maps without CSRC keep both sets of those actors colliding.
-    /// </summary>
-    [Provenance(ProvenanceKind.Decoded, "UStaticMesh::LineCheck tree selector editor 0x111b47a0 (spec/native/collision-primitives.md)")]
-    [Provenance(ProvenanceKind.Decoded, "Terminal mode_neutralisation: per-poly reaches X 33.2, simple hulls 28.2; the 64 uu use spot only fits a 35 uu spy against the simple set (spec/objectives/terminal-hack.md)")]
-    private void PairMeshSets(CollisionData data)
-    {
-        ReadOnlySpan<byte> sources = default;
-        foreach (CollisionUnknownChunk chunk in data.UnknownChunks)
-        {
-            if (chunk.FourCC == "CSRC" && chunk.Count == (uint)_colliders.Length && chunk.Payload.Length >= _colliders.Length * CsrcStride)
-            {
-                sources = chunk.Payload;
-                break;
-            }
-        }
-
-        if (!sources.IsEmpty)
-        {
-            for (int ci = 0; ci < _colliders.Length; ci++)
-            {
-                _colliders[ci].Variants = BinaryPrimitives.ReadUInt16LittleEndian(sources.Slice(ci * CsrcStride + 10, 2));
-            }
-        }
-
-        for (int ci = 0; ci + 1 < _colliders.Length; ci++)
-        {
-            Collider a = data.Colliders[ci];
-            Collider b = data.Colliders[ci + 1];
-            if (a.Actor != b.Actor || a.Location != b.Location || a.Rotation != b.Rotation || a.Scale != b.Scale ||
-                a.PrePivot != b.PrePivot)
-            {
-                continue;
-            }
-
-            bool pair = a.Kind == ColliderKind.MeshPoly && b.Kind == ColliderKind.MeshHull;
-            if (!pair && !sources.IsEmpty && a.Kind == b.Kind)
-            {
-                ReadOnlySpan<byte> sa = sources.Slice(ci * CsrcStride, CsrcStride);
-                ReadOnlySpan<byte> sb = sources.Slice((ci + 1) * CsrcStride, CsrcStride);
-                pair = sa[8] == CsrcSetPerPoly && sb[8] == CsrcSetSimple && sa[..8].SequenceEqual(sb[..8]) &&
-                       sa.Slice(10, 2).SequenceEqual(sb.Slice(10, 2));
-            }
-
-            if (!pair)
-            {
-                continue;
-            }
-
-            _colliders[ci].SimpleTwin = ci + 1;
-            _colliders[ci + 1].PerPolyTwin = ci;
-        }
-    }
-
-    /// <summary>The poly flags of the SVMap 1.1 TFLX rows (u32 polyFlags, u16 materialBits, u8 occlusion, u8), one per material.</summary>
-    private static uint[] ReadPolyFlags(CollisionData data, int count)
-    {
-        var flags = new uint[count];
-        foreach (CollisionUnknownChunk chunk in data.UnknownChunks)
-        {
-            if (chunk.FourCC == "TFLX" && chunk.Count == (uint)count && chunk.Payload.Length >= count * TflxStride)
-            {
-                ReadOnlySpan<byte> rows = chunk.Payload;
-                for (int i = 0; i < count; i++)
-                {
-                    flags[i] = BinaryPrimitives.ReadUInt32LittleEndian(rows.Slice(i * TflxStride, 4));
-                }
-
-                break;
-            }
-        }
-
-        return flags;
-    }
-
-    /// <summary>The occlusion type byte of the TFLX rows, one per material (the sound system's occlusion, spec/native/audio.md rule 18).</summary>
-    private static byte[] ReadOcclusionTypes(CollisionData data, int count)
-    {
-        var types = new byte[count];
-        foreach (CollisionUnknownChunk chunk in data.UnknownChunks)
-        {
-            if (chunk.FourCC == "TFLX" && chunk.Count == (uint)count && chunk.Payload.Length >= count * TflxStride)
-            {
-                for (int i = 0; i < count; i++)
-                {
-                    types[i] = chunk.Payload[(i * TflxStride) + TflxOcclusionOffset];
-                }
-
-                break;
-            }
-        }
-
-        return types;
+        WorldMin = model.WorldMin;
+        WorldMax = model.WorldMax;
+        KillZ = model.KillZ;
+        DegenerateTriangles = model.DegenerateTriangles;
+        TriangleCount = model.TriangleCount;
+        HullCount = model.HullCount;
     }
 
     /// <summary>The hit material's own OcclusionType (0, Generic, for -1 or a map without TFLX).</summary>
     public byte OcclusionTypeOf(int material) =>
         material >= 0 && material < _materialOcclusion.Length ? _materialOcclusion[material] : (byte)0;
 
-    private const int TflxStride = 8;
-    private const int TflxOcclusionOffset = 6;
-
-    // SVMap 1.1 CSRC rows (spec/svmap/1.1/collision.md): u32 source, u32 asset, u8 set, u8, u16 variants, u16 traceUse, u16.
-    private const int CsrcStride = 16;
-    private const byte CsrcSetPerPoly = 2;
-    private const byte CsrcSetSimple = 3;
-
     /// <summary>Mesh-state bits from CSRC, or 0 for a collider without variant metadata.</summary>
     public ushort GetColliderVariants(int index) => _colliders[index].Variants;
 
-    /// <summary>Builds the collision world of a map.</summary>
+    /// <summary>
+    /// Builds the collision world of a map. Worlds built from the same <paramref name="data"/> share its static
+    /// geometry (built once); each has its own colliders, bindings and query buffers.
+    /// </summary>
     public static CollisionWorld Build(CollisionData data)
     {
         ArgumentNullException.ThrowIfNull(data);
-        return new CollisionWorld(data);
+        return new CollisionWorld(CollisionModel.Of(data));
+    }
+
+    /// <summary>
+    /// Builds the collision world of a loaded SVMap. It shares its static geometry with every other world of the same
+    /// collision.bin, including one read from the file by <see cref="Load"/>.
+    /// </summary>
+    public static CollisionWorld Build(SvMap map)
+    {
+        ArgumentNullException.ThrowIfNull(map);
+        return new CollisionWorld(CollisionModel.Of(map.Collision, CollisionModel.ContentKeyOf(map)));
+    }
+
+    /// <summary>
+    /// Builds the collision world of a collision.bin file. The file is only parsed when no world of the same bytes
+    /// exists (such as the play session's server and client worlds of that map).
+    /// </summary>
+    public static CollisionWorld Load(string path)
+    {
+        ArgumentNullException.ThrowIfNull(path);
+        return new CollisionWorld(CollisionModel.OfFile(File.ReadAllBytes(path)));
     }
 
     /// <summary>Bounds of all collision geometry at its initial transforms.</summary>
@@ -709,7 +535,7 @@ public sealed partial class CollisionWorld : ICollisionWorld
         return ref _slots[id];
     }
 
-    private static bool IsDynamicKind(ColliderKind kind) =>
+    internal static bool IsDynamicKind(ColliderKind kind) =>
         kind is ColliderKind.Mover or ColliderKind.Glass or ColliderKind.Gpo or ColliderKind.Attached;
 
     /// <summary>

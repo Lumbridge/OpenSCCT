@@ -81,7 +81,7 @@ jobs:
             packages: dnf install -y ca-certificates tar gzip diffutils libX11 libICE libSM fontconfig dejavu-sans-fonts mesa-libGL libicu openssl3-libs zlib libstdc++ xorg-x11-server-Xvfb xorg-x11-xauth desktop-file-utils
           - distro: Arch Linux
             image: archlinux:base
-            packages: pacman -Syu --noconfirm --needed ca-certificates tar gzip diffutils libx11 libice libsm fontconfig ttf-dejavu mesa icu openssl zlib gcc-libs xorg-server-xvfb xorg-xauth desktop-file-utils
+            packages: pacman -Syu --noconfirm --needed ca-certificates tar gzip diffutils libx11 libice libsm fontconfig ttf-dejavu mesa icu openssl openssl-3 zlib gcc-libs xorg-server-xvfb xorg-xauth desktop-file-utils
     name: Launcher on ${{ matrix.distro }}
     steps:
       - uses: actions/checkout@v7

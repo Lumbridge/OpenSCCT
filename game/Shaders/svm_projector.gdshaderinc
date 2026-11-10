@@ -6,6 +6,12 @@
 //   PROJ_MODULATE  PB_None and PB_Modulate: DESTCOLOR, SRCCOLOR (frame x texture x 2)
 //   PROJ_LASER     spy laser dot: texture and alpha as its former additive material, in every vision mode
 // Map projectors use display values, like the frame. Thermal and EMF draw no map projections.
+//
+// PROJ_SIDES (map projectors): the box is drawn by two surfaces, and for each camera exactly one of them makes pixels.
+// A camera outside the box (by more than PROJ_MARGIN, so its near plane cannot cut a face) gets the faces turned
+// towards it with the depth test on (PROJ_FRONT): a pixel whose surface lies in front of the box, which the range tests
+// below would discard, is rejected before the shader runs, so a box hidden behind a wall costs nothing. A camera inside
+// gets the faces turned away with no depth test, as before. Either way a pixel of the box is drawn once.
 
 global uniform float svm_time;
 global uniform int svm_vision;
@@ -35,10 +41,35 @@ uniform int uv_anim_type = 0;
 uniform vec4 uv_anim_a = vec4(0.0);
 uniform vec4 uv_anim_b = vec4(0.0);
 
+#ifdef PROJ_SIDES
+// The box's six faces as planes with outward normals: xyz normal, w = -dot(normal, point).
+uniform vec4 proj_planes[6];
+uniform vec3 proj_centre = vec3(0.0);
+const float PROJ_MARGIN = 1.0;
+#endif
+
 varying vec3 v_outward;
 
 void vertex() {
 	v_outward = (MODELVIEW_MATRIX * vec4(NORMAL, 0.0)).xyz;
+#ifdef PROJ_SIDES
+	float outside = -1.0e9;
+	for (int i = 0; i < 6; i++) {
+		outside = max(outside, dot(proj_planes[i].xyz, CAMERA_POSITION_WORLD) + proj_planes[i].w);
+	}
+#ifdef PROJ_FRONT
+	if (outside <= PROJ_MARGIN) {
+		VERTEX = vec3(0.0);
+	} else {
+		// A little larger, so a surface lying in one of the box's faces is behind it for the depth test.
+		VERTEX = proj_centre + (VERTEX - proj_centre) * 1.02;
+	}
+#else
+	if (outside > PROJ_MARGIN) {
+		VERTEX = vec3(0.0);
+	}
+#endif
+#endif
 }
 
 void fragment() {
@@ -51,10 +82,17 @@ void fragment() {
 	if (dot(n, CAMERA_POSITION_WORLD - world) < 0.0) {
 		n = -n;
 	}
+#ifdef PROJ_FRONT
+	// Only the faces turned towards the camera draw, so each pixel of the box is drawn once.
+	if (dot(v_outward, VERTEX) >= 0.0) {
+		discard;
+	}
+#else
 	// Only the faces turned away from the camera draw, so each pixel of the box is drawn once, inside or outside it.
 	if (dot(v_outward, VERTEX) < 0.0) {
 		discard;
 	}
+#endif
 #ifndef PROJ_LASER
 	if (svm_vision == 36 || svm_vision == 38) {
 		discard;

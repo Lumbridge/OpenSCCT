@@ -77,7 +77,7 @@ public static class PawnOutfits
         }
 
         // PawnAttachments and GoggleGlowView create these on the first drawn pawn. Sidearm models are already
-        // prepared with their first-person counterparts by FirstPersonView.PreloadSidearms.
+        // prepared with their first-person counterparts by FirstPersonView.Preload (when the round can have them).
         foreach (string asset in s_weapons)
             if (SkeletalModel.FindGlb(asset, sharedRoot) is { } attachment)
                 SkeletalModel.Load(attachment).Root.Free();
@@ -89,8 +89,9 @@ public static class PawnOutfits
     /// <summary>
     /// Draws the prepared bodies and carried meshes in the private loading viewport. Reading a template alone
     /// cannot compile its skinned-mesh draw pipelines; their first appearance must happen before scene readiness.
+    /// <paramref name="sidearms"/> false leaves out the pistols of a round that cannot give them (FirstPersonNeeds).
     /// </summary>
-    public static void Warmup(MapOutfits outfits, string mapFolder, string? sharedRoot, Node3D samples)
+    public static void Warmup(MapOutfits outfits, string mapFolder, string? sharedRoot, Node3D samples, bool sidearms = true)
     {
         foreach (bool spy in new[] { true, false })
         {
@@ -104,8 +105,9 @@ public static class PawnOutfits
         }
         foreach (string asset in s_weapons)
             if (SkeletalModel.FindGlb(asset, sharedRoot) is { } glb) Add(SkeletalModel.Load(glb));
-        foreach (var sidearm in OpenScct.Core.Engine.Sidearms.All)
-            if (SkeletalModel.FindGlb(sidearm.Asset, sharedRoot) is { } glb) Add(SkeletalModel.Load(glb));
+        if (sidearms)
+            foreach (var sidearm in OpenScct.Core.Engine.Sidearms.All)
+                if (SkeletalModel.FindGlb(sidearm.Asset, sharedRoot) is { } glb) Add(SkeletalModel.Load(glb));
 
         void Add(SkeletalModel model)
         {

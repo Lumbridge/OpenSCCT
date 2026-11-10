@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 using OpenScct.Content;
 using OpenScct.Content.Loading;
 using OpenScct.Core;
@@ -36,6 +37,10 @@ public sealed class PlayMapLoader
     private readonly USPersistentData? _hostSettings;
     private readonly bool _unlimitedGear;
 
+    // One class registry for every load of this map (server, client, bot navigation): the loaders then share their
+    // class default plans. Loads only read it, so concurrent loads are safe.
+    private ActorClassRegistry? _classes;
+
     /// <param name="hostSettings">The host's settings object the rules read (SPersistentData), or null for an empty one.</param>
     public PlayMapLoader(SvMap map, string gameOptions, string? charsDir, USPersistentData? hostSettings = null,
         bool unlimitedGear = false)
@@ -44,11 +49,15 @@ public sealed class PlayMapLoader
         _gameOptions = gameOptions ?? throw new ArgumentNullException(nameof(gameOptions));
         _hostSettings = hostSettings;
         _unlimitedGear = unlimitedGear;
+
+        // The pill skeletons are the slowest read here and share nothing with the animation tables: they are read on
+        // worker threads meanwhile (no names are interned there, so the name table fills in the same order).
+        System.Threading.Tasks.Task<IPillPose> pillPose = System.Threading.Tasks.Task.Run(() => RollPillPose.FromContent(charsDir));
         _pawnAnimations = charsDir is not null && Directory.Exists(charsDir)
             ? PawnAnimationSource.FromContent(charsDir)
             : PawnAnimationSource.Default;
         _meshAnimations = new ContentMeshAnimations(map.Gameplay);
-        _pillPose = RollPillPose.FromContent(charsDir);
+        _pillPose = pillPose.GetAwaiter().GetResult();
     }
 
     public SvMap Map => _map;
@@ -81,7 +90,8 @@ public sealed class PlayMapLoader
         InstallBeforeLoad(level);
 
         level.BeginLoad();
-        MapLoadResult loaded = new MapLoader(MapCatalog.CreateMapClasses()).Load(world, _map);
+        ActorClassRegistry classes = LazyInitializer.EnsureInitialized(ref _classes, MapCatalog.CreateMapClasses);
+        MapLoadResult loaded = new MapLoader(classes).Load(world, _map);
         if (isClient)
         {
             NetMapBinding.PrepareClientMap(level, loaded.Actors);

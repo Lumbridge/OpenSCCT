@@ -32,8 +32,58 @@ public partial class App : Node
         Render.Characters.SkeletalModel.ReleaseTemplates();
     }
 
+    /// <summary>
+    /// Direct3D 12 is no longer offered (0.8.126), but an older launcher still passes the driver a player chose there,
+    /// and a stored start override can name it. Started that way, the game starts itself again on Vulkan, once.
+    /// </summary>
+    private bool RestartedOnVulkan()
+    {
+        if (!System.OperatingSystem.IsWindows() || DisplayServer.GetName() == "headless" ||
+            RenderingServer.GetCurrentRenderingDriverName() != "d3d12")
+        {
+            return false;
+        }
+
+        var arguments = new System.Collections.Generic.List<string>();
+        string[] given = OS.GetCmdlineArgs();
+        for (int i = 0; i < given.Length && given[i] != "--"; i++)
+        {
+            if (given[i] == "--rendering-driver")
+            {
+                // Asked for Vulkan and still on Direct3D 12: nothing more to try.
+                if (i + 1 < given.Length && given[i + 1] == "vulkan") return false;
+                i++;
+                continue;
+            }
+
+            arguments.Add(given[i]);
+        }
+
+        arguments.Add("--rendering-driver");
+        arguments.Add("vulkan");
+        if (!OS.HasFeature("template"))
+        {
+            // Run from the editor's binary: the engine does not hand the project path back.
+            arguments.Add("--path");
+            arguments.Add(ProjectSettings.GlobalizePath("res://"));
+        }
+
+        string[] user = OS.GetCmdlineUserArgs();
+        if (user.Length > 0)
+        {
+            arguments.Add("--");
+            arguments.AddRange(user);
+        }
+
+        GD.Print("Direct3D 12 is no longer supported: restarting on Vulkan.");
+        OS.SetRestartOnExit(true, [.. arguments]);
+        GetTree().Quit();
+        return true;
+    }
+
     public override void _Ready()
     {
+        if (RestartedOnVulkan()) return;
         if (System.Array.IndexOf(OS.GetCmdlineUserArgs(), "--svm-animation-probe") >= 0)
         { GD.Print("OPENSCCT_ANIMATION_RUNTIME=1"); GetTree().Quit(); return; }
         Options = LaunchOptions.Parse(OS.GetCmdlineUserArgs());

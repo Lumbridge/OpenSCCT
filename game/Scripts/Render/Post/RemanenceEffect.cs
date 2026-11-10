@@ -91,18 +91,18 @@ public partial class RemanenceEffect : CompositorEffect
         }
 
         _released = true;
-        Rid[] rids = [_pipeline, _shader, _capture];
+        Rid shader = _shader, capture = _capture;
         RenderingServer.CallOnRenderThread(Callable.From(() =>
         {
             _rd = null;
             _storage.Free();
-            foreach (Rid rid in rids)
+            if (capture.IsValid)
             {
-                if (rid.IsValid)
-                {
-                    rd.FreeRid(rid);
-                }
+                rd.FreeRid(capture);
             }
+
+            // The shader and pipeline are shared with the other remanence views (ComputeShaderSource).
+            ComputeShaderSource.ReleaseShared(rd, shader);
         }));
     }
 
@@ -115,16 +115,11 @@ public partial class RemanenceEffect : CompositorEffect
             return;
         }
 
-        _shader = ComputeShaderSource.CreateShader(_rd, ShaderPath, "svm_remanence", out string? error);
-        if (!_shader.IsValid)
+        if (!ComputeShaderSource.AcquireShared(_rd, ShaderPath, "svm_remanence", out _shader, out _pipeline, out string? error))
         {
             Error = error ?? "shader creation failed";
             GD.PushError("svm_remanence: " + error);
-            return;
         }
-
-        _pipeline = _rd.ComputePipelineCreate(_shader);
-        if (!_pipeline.IsValid) Error = "compute pipeline creation failed";
     }
 
     public override void _RenderCallback(int effectCallbackType, RenderData renderData)

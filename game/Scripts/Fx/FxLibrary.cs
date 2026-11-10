@@ -71,17 +71,63 @@ public sealed class FxLibrary : IParticleAssets
     private FxLibrary(string folder)
     {
         _folder = folder;
-        _textures = new TextureCache(folder);
+        // Shared: the textures are made once per process and reused by every later play scene (released at exit).
+        _textures = new TextureCache(folder) { Shared = true };
     }
+
+    // The library BeginLoad is reading on a worker thread, by its fx folder; the next Load of that folder takes it.
+    private static readonly System.Threading.Lock s_pendingLock = new();
+    private static (string Folder, System.Threading.Tasks.Task<FxLibrary> Library)? s_pending;
 
     /// <summary>
     /// The effects of a shared content root (an empty library when the fx step has not run). Each play scene loads its
-    /// own: the library holds Godot resources, which must go with the scene rather than outlive the engine.
+    /// own: the library holds Godot resources, which must go with the scene rather than outlive the engine. Takes the
+    /// library <see cref="BeginLoad"/> started for the same root, if any.
     /// </summary>
     public static FxLibrary Load(string sharedRoot)
     {
         ArgumentException.ThrowIfNullOrEmpty(sharedRoot);
-        string folder = System.IO.Path.GetFullPath(System.IO.Path.Combine(sharedRoot, "fx"));
+        string folder = FolderOf(sharedRoot);
+        System.Threading.Tasks.Task<FxLibrary>? pending = null;
+        lock (s_pendingLock)
+        {
+            if (s_pending is { } p)
+            {
+                s_pending = null;
+                pending = string.Equals(p.Folder, folder, StringComparison.OrdinalIgnoreCase) ? p.Library : null;
+            }
+        }
+
+        // A read that failed on the worker throws its own exception here, as the read on this thread would.
+        return pending?.GetAwaiter().GetResult() ?? ReadLibrary(sharedRoot, folder);
+    }
+
+    /// <summary>
+    /// Starts <see cref="Load"/> of <paramref name="sharedRoot"/> on a worker thread while the scene goes on loading:
+    /// effects.json is read and the PNGs <see cref="Warm"/> uploads are decoded there. No Godot resource is made there;
+    /// the textures are made from the decoded images on the main thread, as before.
+    /// </summary>
+    public static void BeginLoad(string sharedRoot)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(sharedRoot);
+        string folder = FolderOf(sharedRoot);
+        var read = System.Threading.Tasks.Task.Run(() =>
+        {
+            FxLibrary lib = ReadLibrary(sharedRoot, folder);
+            lib.PrefetchTextures();
+            return lib;
+        });
+        lock (s_pendingLock)
+        {
+            s_pending = (folder, read);
+        }
+    }
+
+    private static string FolderOf(string sharedRoot) => System.IO.Path.GetFullPath(System.IO.Path.Combine(sharedRoot, "fx"));
+
+    // Plain C# data only (JSON, tables, particle parameters): safe on any thread.
+    private static FxLibrary ReadLibrary(string sharedRoot, string folder)
+    {
         var lib = new FxLibrary(folder);
         string path = System.IO.Path.Combine(folder, "effects.json");
         if (File.Exists(path))
@@ -202,17 +248,23 @@ public sealed class FxLibrary : IParticleAssets
         Mesh? mesh = null;
         if (_meshTable.TryGetValue(objectPath, out (string Glb, string Node) entry) || PackageMesh(objectPath, out entry))
         {
-            if (!_packages.TryGetValue(entry.Glb, out MeshPackage? package))
-            {
-                package = MeshPackage.Open(System.IO.Path.Combine(_folder, entry.Glb));
-                _packages[entry.Glb] = package;
-            }
-
-            mesh = package?.Build(entry.Node, lit ? LightSource.Actor : LightSource.None);
+            mesh = Package(entry.Glb)?.Build(entry.Node, lit ? LightSource.Actor : LightSource.None);
         }
 
         _meshes[key] = mesh;
         return mesh;
+    }
+
+    // The mesh package of meshes/Package.glb, opened on first use; null when the file is missing.
+    private MeshPackage? Package(string glb)
+    {
+        if (!_packages.TryGetValue(glb, out MeshPackage? package))
+        {
+            package = MeshPackage.Open(System.IO.Path.Combine(_folder, glb));
+            _packages[glb] = package;
+        }
+
+        return package;
     }
 
     /// <summary>
@@ -247,6 +299,10 @@ public sealed class FxLibrary : IParticleAssets
     /// </summary>
     public int Warm()
     {
+        // Decode every PNG below on worker threads first (those BeginLoad decoded already are kept); the textures
+        // are then made from them here in the same order as before.
+        PrefetchTextures();
+        PrefetchMeshTextures();
         int textures = 0;
         foreach (string png in _textureTable.Values)
         {
@@ -274,7 +330,76 @@ public sealed class FxLibrary : IParticleAssets
             }
         }
 
+        // An image decoded ahead that no material asked for after all is not kept.
+        _textures.DropPrefetched();
+        foreach (MeshPackage? package in _packages.Values)
+        {
+            package?.DropPrefetched();
+        }
+
         return textures;
+    }
+
+    // The PNGs Warm makes textures of: the texture table's and the emitters' (with mipmaps, as Texture makes them).
+    private void PrefetchTextures()
+    {
+        var wanted = new List<(string Uri, bool Mipmaps)>();
+        foreach (string png in _textureTable.Values)
+        {
+            wanted.Add((png, true));
+        }
+
+        foreach (FxClass c in _classes.Values)
+        {
+            foreach (ParticleParams p in c.Emitters)
+            {
+                if (p.Texture is { } png)
+                {
+                    wanted.Add((png, true));
+                }
+            }
+        }
+
+        _textures.Prefetch(wanted);
+    }
+
+    // The textures of the materials of the meshes Warm builds, decoded per package on worker threads.
+    private void PrefetchMeshTextures()
+    {
+        var nodes = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+        void Want(string? objectPath)
+        {
+            if (objectPath is not null && (_meshTable.TryGetValue(objectPath, out (string Glb, string Node) entry) || PackageMesh(objectPath, out entry)))
+            {
+                if (!nodes.TryGetValue(entry.Glb, out List<string>? list))
+                {
+                    nodes[entry.Glb] = list = [];
+                }
+
+                list.Add(entry.Node);
+            }
+        }
+
+        foreach (FxClass c in _classes.Values)
+        {
+            foreach (ParticleParams p in c.Emitters)
+            {
+                if (p.Kind == ParticleKind.Mesh)
+                {
+                    Want(p.StaticMesh);
+                }
+            }
+
+            if (c.Assets.TryGetValue("StaticMesh", out string? path))
+            {
+                Want(path);
+            }
+        }
+
+        foreach ((string glb, List<string> wanted) in nodes)
+        {
+            Package(glb)?.Prefetch(wanted);
+        }
     }
 
     /// <summary>
@@ -394,11 +519,15 @@ public sealed class FxLibrary : IParticleAssets
         private readonly Dictionary<string, int> _nodes = new(StringComparer.Ordinal);
         private readonly List<string> _materials = [];
         private readonly GlbDocument _glb;
+        private readonly MaterialsDoc _document;
+        private readonly TextureCache _textures;
         private readonly MaterialCompiler _compiler;
 
-        private MeshPackage(GlbDocument glb, MaterialCompiler compiler)
+        private MeshPackage(GlbDocument glb, MaterialsDoc document, TextureCache textures, MaterialCompiler compiler)
         {
             _glb = glb;
+            _document = document;
+            _textures = textures;
             _compiler = compiler;
             foreach (JsonElement n in glb.Root.GetProperty("nodes").EnumerateArray())
             {
@@ -428,9 +557,39 @@ public sealed class FxLibrary : IParticleAssets
             string materials = System.IO.Path.Combine(folder, System.IO.Path.GetFileNameWithoutExtension(glbPath) + ".materials.json");
             MaterialsDoc document = MaterialsDoc.Load(materials);
             RecoverAnimatedGlows(document, folder);
-            var compiler = new MaterialCompiler(document, new TextureCache(folder)) { VisionLookup = VisionLookup.ModifierName };
-            return new MeshPackage(GlbDocument.Load(glbPath), compiler);
+            // Shared: both packages and every later play scene use the same textures of this folder.
+            var textures = new TextureCache(folder) { Shared = true };
+            var compiler = new MaterialCompiler(document, textures) { VisionLookup = VisionLookup.ModifierName };
+            return new MeshPackage(GlbDocument.Load(glbPath), document, textures, compiler);
         }
+
+        /// <summary>Decodes on worker threads the textures of the materials <see cref="Build"/> draws <paramref name="nodes"/> with.</summary>
+        public void Prefetch(IEnumerable<string> nodes)
+        {
+            var wanted = new List<(string Uri, bool Mipmaps)>();
+            foreach (string node in nodes)
+            {
+                if (!_nodes.TryGetValue(node, out int mesh))
+                {
+                    continue;
+                }
+
+                foreach (JsonElement p in _glb.Root.GetProperty("meshes")[mesh].GetProperty("primitives").EnumerateArray())
+                {
+                    int index = p.TryGetProperty("material", out JsonElement mi) ? mi.GetInt32() : -1;
+                    // The materials MaterialCompiler.Get builds (a skipped or untextured one is not drawn).
+                    if (index >= 0 && index < _materials.Count && _document.Find(_materials[index]) is { Skip: false, Texture: not null } entry)
+                    {
+                        wanted.AddRange(_compiler.TexturesOf(entry));
+                    }
+                }
+            }
+
+            _textures.Prefetch(wanted);
+        }
+
+        /// <summary>Disposes the images <see cref="Prefetch"/> decoded that no material took.</summary>
+        public void DropPrefetched() => _textures.DropPrefetched();
 
         /// <summary>
         /// Older mesh packs bake the mine LED's zero-opacity diffuse separately from its unmasked glow, then

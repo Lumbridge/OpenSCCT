@@ -192,7 +192,9 @@ function Invoke-Smoke {
 
 function Invoke-SmokeSet {
     param([string]$Suite, [string]$Exe, [string[]]$PrefixArgs)
-    if ($Windowed) { $PrefixArgs = @($PrefixArgs | Where-Object { $_ -ne '--headless' }) }
+    # Vulkan by name: a start override in the developer's user folder must not pick the driver (the game restarts itself
+    # when started on Direct3D 12, and the restarted process is not the one watched here).
+    if ($Windowed) { $PrefixArgs = @($PrefixArgs | Where-Object { $_ -ne '--headless' }) + @('--rendering-driver', 'vulkan') }
     $names = @($Tests | ForEach-Object { $_ -split "," } | ForEach-Object { $_.Trim() } | Where-Object { $_ })
     if ($All) {
         # An unknown name makes the game print every registered smoke and exit with 2.

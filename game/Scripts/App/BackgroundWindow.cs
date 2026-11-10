@@ -99,12 +99,24 @@ public partial class BackgroundWindow : Node
 
         int w = place.Normal.Right - place.Normal.Left;
         int h = place.Normal.Bottom - place.Normal.Top;
-        if (place.Normal.Left != OffScreen || place.ShowCmd != SwShowNoActivate || restyle)
+        (int x, int y) = Spot();
+        if (place.Normal.Left != x || place.Normal.Top != y || place.ShowCmd != SwShowNoActivate || restyle)
         {
-            place.Normal = new Rect { Left = OffScreen, Top = OffScreen, Right = OffScreen + w, Bottom = OffScreen + h };
+            place.Normal = new Rect { Left = x, Top = y, Right = x + w, Bottom = y + h };
             place.ShowCmd = SwShowNoActivate;
             SetWindowPlacement(hwnd, ref place);
         }
+    }
+
+    // Benchmarks only: SVM_BACKGROUND_AT=x,y (physical desktop pixels) puts the window on a display nobody is
+    // looking at, such as an output of the integrated GPU, so it presents there instead of through an off-screen copy.
+    private static (int X, int Y) Spot()
+    {
+        string? at = System.Environment.GetEnvironmentVariable("SVM_BACKGROUND_AT");
+        string[] parts = at?.Split(',') ?? [];
+        return parts.Length == 2 && int.TryParse(parts[0], out int x) && int.TryParse(parts[1], out int y)
+            ? (x, y)
+            : (OffScreen, OffScreen);
     }
 
     [StructLayout(LayoutKind.Sequential)]

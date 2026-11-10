@@ -15,6 +15,20 @@ public sealed record PortalFogFrame(float[] Data)
     private const int ZoneBase = 6;
     private const int PortalBase = ZoneBase + 64 * 2;
 
+    /// <summary>
+    /// True when no tile has a candidate, the camera zone has no fog and no fog volume is visible: svm_fog_evaluate
+    /// then returns no fog for every pixel, exactly as a view without fog does.
+    /// </summary>
+    public bool Empty { get; init; }
+
+    /// <summary>
+    /// True when a view of the map can draw portal fog: it has fog volumes, or a portal table and a fogged zone (a
+    /// view's own fog only comes from a fogged zone, FaithfulView.ZoneFog). Decided once per map before its materials
+    /// are built: only then do the shaders compile portal fog (ResponsiveSmokeShaders.UsePortalFog).
+    /// </summary>
+    public static bool MapUses(LightingDoc lighting) =>
+        lighting.FogVolumes.Count > 0 || (lighting.HasFogPortals && lighting.Zones.Exists(static zone => zone.Fog));
+
     public static PortalFogFrame Build(LightingDoc lighting, Camera3D camera, FVector origin, int cameraZone,
         bool cameraFog, Color cameraColor, float cameraStart, float cameraEnd)
     {
@@ -102,14 +116,34 @@ public sealed record PortalFogFrame(float[] Data)
         foreach (FogPortal portal in lighting.FogPortals)
         foreach (System.Numerics.Vector4 edge in portal.Edges) Add(edge.X, edge.Y, edge.Z, edge.W);
         data[19] = data.Count / 4;
-        int candidateAt = data.Count / 4 + cells.Length;
+        int candidateCount = 0;
+        foreach (List<int>? cell in cells) candidateCount += cell?.Count ?? 0;
+        int candidateAt = data.Count / 4 + cells.Length, partnerAt = candidateAt + candidateCount;
         foreach (List<int>? cell in cells)
         {
             Add(candidateAt, cell?.Count ?? 0, 0, 0);
             candidateAt += cell?.Count ?? 0;
         }
+        // Candidate rows are (portal, first partner row, partner count, 0). A crossing can only repeat an earlier
+        // candidate's when both join the same two zones, so the shader tests just those partners.
+        var partners = new List<int>();
         foreach (List<int>? cell in cells)
-            if (cell is not null) foreach (int portal in cell) Add(portal, 0, 0, 0);
+        {
+            if (cell is null) continue;
+            for (int k = 0; k < cell.Count; k++)
+            {
+                FogPortal portal = lighting.FogPortals[cell[k]];
+                int first = partners.Count;
+                for (int earlier = 0; earlier < k; earlier++)
+                {
+                    FogPortal other = lighting.FogPortals[cell[earlier]];
+                    if ((other.Back == portal.Back && other.Front == portal.Front) || (other.Back == portal.Front && other.Front == portal.Back))
+                        partners.Add(cell[earlier]);
+                }
+                Add(cell[k], partnerAt + first, partners.Count - first, 0);
+            }
+        }
+        foreach (int partner in partners) Add(partner, 0, 0, 0);
         var volumes = new List<FogVolumePiece>();
         foreach (FogVolumePiece piece in lighting.FogVolumes)
             if (BoundsVisible(piece)) volumes.Add(piece);
@@ -126,7 +160,7 @@ public sealed record PortalFogFrame(float[] Data)
         foreach (FogVolumePiece piece in volumes)
         foreach (System.Numerics.Vector4 plane in piece.Planes)
             Add(plane.X, plane.Y, plane.Z, plane.W - NVector3.Dot(new(plane.X, plane.Y, plane.Z), eye));
-        return new(data.ToArray());
+        return new(data.ToArray()) { Empty = candidateCount == 0 && !cameraFog && volumes.Count == 0 };
 
         bool BoundsVisible(FogVolumePiece piece)
         {

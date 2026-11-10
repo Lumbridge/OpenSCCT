@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
 using OpenScct.Game.Combat;
@@ -62,8 +63,21 @@ public sealed class RollPillPose : IPillPose
     public static IPillPose FromContent(string? characters)
     {
         if (characters is null) return EstimatedPillPose.Instance;
-        RollPoseContent? spy = RollPoseContent.Load(Path.Combine(characters, "SPerso", "ATT_01.glb"), allClips: true);
-        RollPoseContent? merc = RollPoseContent.Load(Path.Combine(characters, "SPerso", "DEF_01.glb"), allClips: true);
+        // The two skeletons are separate files read into separate objects: the spy's (the larger) is read on a worker
+        // meanwhile. A failure of the spy's file is still the one reported when both fail.
+        Task<RollPoseContent?> spyRead = Task.Run(() => RollPoseContent.LoadShared(Path.Combine(characters, "SPerso", "ATT_01.glb"), allClips: true));
+        RollPoseContent? merc;
+        try
+        {
+            merc = RollPoseContent.LoadShared(Path.Combine(characters, "SPerso", "DEF_01.glb"), allClips: true);
+        }
+        catch (Exception e) when (e is InvalidDataException or IOException or UnauthorizedAccessException)
+        {
+            _ = spyRead.GetAwaiter().GetResult();
+            throw;
+        }
+
+        RollPoseContent? spy = spyRead.GetAwaiter().GetResult();
         return spy is null && merc is null ? EstimatedPillPose.Instance : new RollPillPose(spy, merc);
     }
 

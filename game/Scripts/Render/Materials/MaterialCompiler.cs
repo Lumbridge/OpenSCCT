@@ -65,6 +65,12 @@ public sealed partial class MaterialCompiler
     public static float NightAmbientScale { get; set; } = 1f;
     public const string EmfEnvironmentParameter = "svm_emf_env";
 
+    /// <summary>The sky camera's eye (Godot space) that sky zone surfaces are drawn from (SVM_SKY_ZONE).</summary>
+    public const string SkyOriginParameter = "svm_sky_origin";
+
+    /// <summary>The sky camera's visibility layers (its fog slot) that sky zone surfaces shade with.</summary>
+    public const string SkyLayersParameter = "svm_sky_layers";
+
     // The RenderingServer's global parameters live as long as the process; this only remembers the one add.
     private static bool s_globalsAdded;
 
@@ -73,6 +79,10 @@ public sealed partial class MaterialCompiler
     private readonly Dictionary<string, Shader> _shaders = new(StringComparer.Ordinal);
     private readonly Dictionary<(string, LightSource), Material?> _materials = new();
     private readonly Dictionary<(string, LightSource), Material?> _seeThrough = new();
+    private readonly Dictionary<(string, LightSource), Material?> _plain = new();
+    private readonly Dictionary<(string, LightSource), Material?> _sky = new();
+    private readonly Dictionary<(string, LightSource, bool, bool), Material?> _unreached = new();
+    private readonly Dictionary<(string, LightSource, bool, bool, bool), Material?> _normalVision = new();
 
     public MaterialCompiler(MaterialsDoc doc, TextureCache textures)
     {
@@ -99,6 +109,20 @@ public sealed partial class MaterialCompiler
     /// <summary>Masks for materials (by name) that have no vision modifiers in <see cref="Pack"/>; null for none.</summary>
     public Func<string, VisionMasks?>? OwnVision { get; set; }
 
+    /// <summary>
+    /// Whether the materials compile OpenSCCT's cosmetics (SVM_COSMETIC: svm_tint, svm_glow_hue, the camo finish and
+    /// sheen). Only character models set them (SkeletalModel, and the skins put over its surfaces); without it the
+    /// template draws as they hold their defaults, with less code.
+    /// </summary>
+    public bool Cosmetics { get; init; }
+
+    /// <summary>
+    /// Whether solid surfaces mark what they are in the stencil (<see cref="StencilBsp"/> and the others). Only projectors
+    /// with bProjectStaticMesh off read the marks (14 of the 85 maps). A map without them leaves the marks out, so its
+    /// plain surfaces (<see cref="GetPlain"/>) can take Godot's shared depth-only shader.
+    /// </summary>
+    public bool StencilMarks { get; init; } = true;
+
     /// <summary>Materials given a heat or EMF texture from the pack.</summary>
     public int VisionMaterials { get; private set; }
 
@@ -118,14 +142,16 @@ public sealed partial class MaterialCompiler
             return;
         }
 
-        RenderingServer.GlobalShaderParameterAdd(TimeParameter, RenderingServer.GlobalShaderParameterType.Float, 0f);
-        RenderingServer.GlobalShaderParameterAdd(VisionParameter, RenderingServer.GlobalShaderParameterType.Int, RenderK.RendMapNormal);
-        RenderingServer.GlobalShaderParameterAdd(MipBiasParameter, RenderingServer.GlobalShaderParameterType.Float, 0f);
-        RenderingServer.GlobalShaderParameterAdd(VisionAmbientParameter, RenderingServer.GlobalShaderParameterType.Float, 0f);
+        ShaderGlobals.Add(TimeParameter, RenderingServer.GlobalShaderParameterType.Float, 0f);
+        ShaderGlobals.Add(VisionParameter, RenderingServer.GlobalShaderParameterType.Int, RenderK.RendMapNormal);
+        ShaderGlobals.Add(MipBiasParameter, RenderingServer.GlobalShaderParameterType.Float, 0f);
+        ShaderGlobals.Add(VisionAmbientParameter, RenderingServer.GlobalShaderParameterType.Float, 0f);
         Image white = Image.CreateEmpty(1, 1, false, Image.Format.Rgba8);
         white.Fill(new Color(1f, 1f, 1f, 1f));
-        RenderingServer.GlobalShaderParameterAdd(EmfEnvironmentParameter, RenderingServer.GlobalShaderParameterType.Sampler2D,
+        ShaderGlobals.Add(EmfEnvironmentParameter, RenderingServer.GlobalShaderParameterType.Sampler2D,
             ImageTexture.CreateFromImage(white));
+        ShaderGlobals.Add(SkyOriginParameter, RenderingServer.GlobalShaderParameterType.Vec3, Vector3.Zero);
+        ShaderGlobals.Add(SkyLayersParameter, RenderingServer.GlobalShaderParameterType.Int, (int)RenderLayers.Sky);
         s_globalsAdded = true;
     }
 
@@ -140,17 +166,17 @@ public sealed partial class MaterialCompiler
     {
         Vision = rendMap;
         EnsureGlobals();
-        RenderingServer.GlobalShaderParameterSet(VisionParameter, rendMap);
+        ShaderGlobals.Set(VisionParameter, rendMap);
         float boost = rendMap == RenderK.RendMapNight ? RenderK.NightSceneBoost * NightAmbientScale
             : rendMap == RenderK.RendMapNormal ? RenderK.SquintSceneBoost(squintingFactor) : 0f;
-        RenderingServer.GlobalShaderParameterSet(VisionAmbientParameter, boost);
+        ShaderGlobals.Set(VisionAmbientParameter, boost);
     }
 
     /// <summary>The LOD bias of colour textures (D3DDrv DefaultTexMipBias is 0 in the shipped ini); for calibration runs.</summary>
     public static void SetMipBias(float bias)
     {
         EnsureGlobals();
-        RenderingServer.GlobalShaderParameterSet(MipBiasParameter, bias);
+        ShaderGlobals.Set(MipBiasParameter, bias);
     }
 
     /// <summary>The EMF environment map (LevelInfo.pEMFTexture, Echelon.EMFInvDarkBlue) the EMF scene samples.</summary>
@@ -159,14 +185,14 @@ public sealed partial class MaterialCompiler
         EnsureGlobals();
         if (texture is not null)
         {
-            RenderingServer.GlobalShaderParameterSet(EmfEnvironmentParameter, texture);
+            ShaderGlobals.Set(EmfEnvironmentParameter, texture);
         }
     }
 
     /// <summary>The scene time animated texture modifiers run on (Level.TimeSeconds in the original).</summary>
     public static void SetTime(float seconds)
     {
-        RenderingServer.GlobalShaderParameterSet(s_timeName, seconds);
+        ShaderGlobals.Set(s_timeName, seconds);
         for (int i = s_sequenceCompilers.Count - 1; i >= 0; i--)
         {
             if (s_sequenceCompilers[i].TryGetTarget(out MaterialCompiler? compiler)) compiler.UpdateSequences(seconds);
@@ -286,14 +312,171 @@ public sealed partial class MaterialCompiler
         return material;
     }
 
+    /// <summary>
+    /// The material of <paramref name="name"/> for merged map geometry whose actors are all fully visible in thermal and
+    /// EMF (HeatOpacity and EMFOpacity above 0, none partly see-through), so the template's vision cut-outs never fire on
+    /// it. A one-sided opaque material then compiles without them and without its own vertex position (SVM_PLAIN_DEPTH,
+    /// same pixels). Godot draws the depth pre-pass of such a material with its shared depth-only shader when the stencil
+    /// marks are off too, instead of running the whole world shader twice per pixel. Every other material is the one
+    /// <see cref="Get"/> returns.
+    /// </summary>
+    public Material? GetPlain(string name, LightSource light)
+    {
+        ArgumentNullException.ThrowIfNull(name);
+        if (_plain.TryGetValue((name, light), out Material? cached))
+        {
+            return cached;
+        }
+
+        Material? material = Get(name, light);
+        MaterialEntry? entry = _doc.Find(name);
+        if (material is not null && entry is { Blend: MaterialBlend.Opaque, TwoSided: false }
+            && !(entry.Sequences.TryGetValue("diffuse", out MaterialSequenceEntry? sequence) && sequence.SwitchMaterial))
+        {
+            int counted = VisionMaterials;
+            material = Compose(entry, light, plainDepth: true);
+            VisionMaterials = counted;
+        }
+
+        _plain[(name, light)] = material;
+        return material;
+    }
+
+    /// <summary>
+    /// The material of <paramref name="name"/> for a surface of the sky zone (SVM_SKY_ZONE): drawn as the sky camera
+    /// sees it (from <see cref="SkyOriginParameter"/>, shaded with <see cref="SkyLayersParameter"/>) by whichever camera
+    /// draws it, behind every surface of the main world, before every other transparent surface (lowest render
+    /// priority), without stencil marks. Thermal and EMF draw no sky zone, so it needs no see-through pass. Null when
+    /// <see cref="Get"/> draws nothing.
+    /// </summary>
+    public Material? GetSky(string name, LightSource light)
+    {
+        ArgumentNullException.ThrowIfNull(name);
+        if (_sky.TryGetValue((name, light), out Material? cached))
+        {
+            return cached;
+        }
+
+        Material? material = Get(name, light);
+        if (material is not null && _doc.Find(name) is { } entry)
+        {
+            int counted = VisionMaterials;
+            material = Compose(entry, light, sky: true);
+            VisionMaterials = counted;
+        }
+
+        _sky[(name, light)] = material;
+        return material;
+    }
+
+    /// <summary>
+    /// A twin of the material <see cref="Get"/> (with <paramref name="plain"/>, <see cref="GetPlain"/>) hands out, for
+    /// merged map geometry that no spot shadow light can reach this frame (<see cref="LightReach"/>): the template leaves
+    /// the spot term out (SVM_NO_SPOT). Without <paramref name="keepDynamic"/> the geometry is out of reach of every
+    /// dynamic world light too, and a baked surface (lightmap, vertex light) also leaves their term out (SVM_NO_DYN); an
+    /// actor-lit surface has no such term, so both of its twins are one material. The terms left out are exactly zero
+    /// there, so the twin draws the same pixels with a smaller shader; twins with the same code share one
+    /// <see cref="Shader"/> (<see cref="ShaderFor"/>). Null when the material has no twin: fullbright materials have no
+    /// such terms, authored ones light their highlights from every light, and MaterialSequence state switches change
+    /// their shader at run time.
+    /// </summary>
+    public Material? GetUnreached(string name, LightSource light, bool plain, bool keepDynamic)
+    {
+        ArgumentNullException.ThrowIfNull(name);
+        if (_unreached.TryGetValue((name, light, plain, keepDynamic), out Material? cached))
+        {
+            return cached;
+        }
+
+        Material? full = plain ? GetPlain(name, light) : Get(name, light);
+        MaterialEntry? entry = _doc.Find(name);
+        Material? twin = null;
+        if (full is not null && entry is not null && HasUnreached(entry, light))
+        {
+            if (keepDynamic && !Baked(entry, light))
+            {
+                // No dynamic term to keep: the same defines as the twin without it.
+                twin = GetUnreached(name, light, plain, keepDynamic: false);
+            }
+            else
+            {
+                // The same flags as the full material (GetPlain's conditions are Compose's own), plus the terms left out.
+                int counted = VisionMaterials;
+                twin = Compose(entry, light, plainDepth: plain, noSpot: true, noDynamic: !keepDynamic);
+                VisionMaterials = counted;
+            }
+        }
+
+        _unreached[(name, light, plain, keepDynamic)] = twin;
+        return twin;
+    }
+
+    /// <summary>
+    /// The twin of the material <see cref="Get"/> hands out that merged map geometry draws while the vision is neither
+    /// thermal nor EMF (<see cref="LightReach"/>): the template leaves the thermal and EMF outputs and their cut-outs out
+    /// (SVM_NORMAL_VISION). The other modes never run that code, so the twin draws the pixels of <see cref="Get"/>,
+    /// <see cref="GetPlain"/> and <see cref="GetSeeThrough"/> there alike, without the see-through pass (which draws
+    /// nothing outside thermal and EMF). With <paramref name="plain"/> it keeps <see cref="GetPlain"/>'s depth
+    /// (SVM_PLAIN_DEPTH); other buckets keep their own vertex transform, so depth stays bit-identical. Without
+    /// <paramref name="keepSpot"/> it also leaves out the terms <see cref="GetUnreached"/> leaves out, and is null where
+    /// that has no twin. Null for MaterialSequence state switches, which change their shader at run time.
+    /// </summary>
+    public Material? GetNormalVision(string name, LightSource light, bool plain, bool keepSpot = true, bool keepDynamic = true)
+    {
+        ArgumentNullException.ThrowIfNull(name);
+        keepDynamic |= keepSpot;
+        if (_normalVision.TryGetValue((name, light, plain, keepSpot, keepDynamic), out Material? cached))
+        {
+            return cached;
+        }
+
+        Material? full = Get(name, light);
+        MaterialEntry? entry = _doc.Find(name);
+        Material? twin = null;
+        if (full is not null && entry is not null && !SwitchesShader(entry))
+        {
+            if (keepSpot)
+            {
+                twin = Compose(entry, light, plainDepth: plain, normalVision: true);
+            }
+            else if (HasUnreached(entry, light))
+            {
+                twin = keepDynamic && !Baked(entry, light)
+                    ? GetNormalVision(name, light, plain, keepSpot: false, keepDynamic: false)
+                    : Compose(entry, light, plainDepth: plain, normalVision: true, noSpot: true, noDynamic: !keepDynamic);
+            }
+        }
+
+        _normalVision[(name, light, plain, keepSpot, keepDynamic)] = twin;
+        return twin;
+    }
+
+    /// <summary>A MaterialSequence that switches whole material states: its shader changes at run time.</summary>
+    private static bool SwitchesShader(MaterialEntry entry) =>
+        entry.Sequences.TryGetValue("diffuse", out MaterialSequenceEntry? sequence) && sequence.SwitchMaterial;
+
+    /// <summary>
+    /// Whether the material has twins without the spot (and dynamic) light terms: fullbright materials have no such
+    /// terms, authored ones light their highlights from every light, and state switches change their shader.
+    /// </summary>
+    private static bool HasUnreached(MaterialEntry entry, LightSource light) =>
+        entry.Authored is null && !SwitchesShader(entry) && LitBy(entry, light) != LightSource.None;
+
+    /// <summary>A baked surface (lightmap, vertex light): the only kind with a dynamic world light term.</summary>
+    private static bool Baked(MaterialEntry entry, LightSource light) =>
+        LitBy(entry, light) is LightSource.Lightmap or LightSource.Vertex;
+
     /// <summary>The template's flag that hands partly see-through surfaces to the blended pass in thermal and EMF.</summary>
     public const string SeeThroughParameter = "vision_see_through";
 
-    /// <summary>A material built from loose flags, for meshes outside the map (characters, animated props).</summary>
-    public Material Build(MaterialEntry entry, LightSource light, bool billboard = false)
+    /// <summary>
+    /// A material built from loose flags, for meshes outside the map (characters, animated props, light sprites);
+    /// <paramref name="sky"/> for one in the sky zone, as <see cref="GetSky"/>.
+    /// </summary>
+    public Material Build(MaterialEntry entry, LightSource light, bool billboard = false, bool sky = false)
     {
         ArgumentNullException.ThrowIfNull(entry);
-        return Compose(entry, light, billboard: billboard);
+        return Compose(entry, light, billboard: billboard, sky: sky);
     }
 
     private Material? Build(string name, LightSource light)
@@ -308,21 +491,19 @@ public sealed partial class MaterialCompiler
         return Compose(entry, light);
     }
 
-    private ShaderMaterial Compose(MaterialEntry entry, LightSource light, bool seeThroughPass = false, bool billboard = false)
+    /// <summary>
+    /// The light a material draws with: unlit materials draw fullbright (self-illumination keeps the lit diffuse under
+    /// its mask, UE2 lerp), and so does a lightmapped surface without a lightmap.
+    /// </summary>
+    private static LightSource LitBy(MaterialEntry entry, LightSource light) =>
+        (entry.Unlit && entry.SelfIllum is null) || (light == LightSource.Lightmap && entry.Lightmap is null) ? LightSource.None : light;
+
+    private ShaderMaterial Compose(MaterialEntry entry, LightSource light, bool seeThroughPass = false, bool billboard = false,
+        bool plainDepth = false, bool sky = false, bool noSpot = false, bool noDynamic = false, bool normalVision = false)
     {
         if (entry.Sequences.TryGetValue("diffuse", out MaterialSequenceEntry? sequence) && sequence.SwitchMaterial)
-            return ComposeSequence(entry, sequence, light, seeThroughPass, billboard);
-        // Unlit materials draw fullbright; self-illumination keeps the lit diffuse under its mask (UE2 lerp).
-        if (entry.Unlit && entry.SelfIllum is null)
-        {
-            light = LightSource.None;
-        }
-
-        if (light == LightSource.Lightmap && entry.Lightmap is null)
-        {
-            light = LightSource.None;
-        }
-
+            return ComposeSequence(entry, sequence, light, seeThroughPass, billboard, sky);
+        light = LitBy(entry, light);
         MaterialBlend blend = entry.Blend;
         bool selfIllum = entry.SelfIllum is not null;
         bool selfIllumMask = selfIllum && entry.SelfIllumMask is not null;
@@ -359,9 +540,29 @@ public sealed partial class MaterialCompiler
         foreach ((string slot, string prefix) in SequenceSlots)
             AddIf(extras, entry.Sequences.ContainsKey(slot), "SEQUENCE_" + prefix.ToUpperInvariant());
         AddIf(extras, entry.NormalTexture is not null && light == LightSource.Actor, "NORMAL_MAP");
+        AddIf(extras, plainDepth && blend == MaterialBlend.Opaque && !entry.TwoSided && !billboard && !seeThroughPass && !sky, "SVM_PLAIN_DEPTH");
+        AddIf(extras, sky && !seeThroughPass, "SVM_SKY_ZONE");
+        // LightReach's twins (GetUnreached): the spot term of every lit surface, the dynamic term of baked ones.
+        AddIf(extras, noSpot && light != LightSource.None, "SVM_NO_SPOT");
+        AddIf(extras, noDynamic && light is LightSource.Lightmap or LightSource.Vertex, "SVM_NO_DYN");
+        // LightReach's twins for the modes other than thermal and EMF (GetNormalVision).
+        normalVision &= !seeThroughPass;
+        AddIf(extras, normalVision, "SVM_NORMAL_VISION");
+        AddIf(extras, Cosmetics, "SVM_COSMETIC");
         Shader shader = seeThroughPass ? SeeThroughShaderFor(light, blend, entry.TwoSided, extras) : ShaderFor(light, blend, entry.TwoSided, extras);
 
+        // The first material of a shader makes the server's shader, unless ResponsiveSmokeShaders.Prewarm already did.
+        long making = System.Diagnostics.Stopwatch.GetTimestamp();
         var material = new ShaderMaterial { Shader = shader, ResourceName = entry.Name };
+        OpenScctGame.Diagnostics.LoadTimer.Add("material-shader", making);
+        if (sky && blend is not (MaterialBlend.Opaque or MaterialBlend.Masked))
+        {
+            // Before every other transparent surface, as the sky's picture lay under them all. Solid sky keeps the
+            // default: its squeezed depth already puts it behind the world, and Godot sorts opaque draws by priority
+            // too, so a lowest priority would draw it first in the depth pre-pass, before anything could hide it.
+            material.RenderPriority = (int)Material.RenderPriorityMin;
+        }
+
         Texture2D? diffuse = combine is not null ? _textures.Get(combine.First.Texture, mipmaps: true)
             : flipbook is not null ? _textures.Get(flipbook.Texture, mipmaps: true)
             : _textures.Get(entry.Texture, Mipmapped(entry, "Diffuse"));
@@ -428,21 +629,10 @@ public sealed partial class MaterialCompiler
             material.SetShaderParameter("env_color", new Vector3(ToDisplay(c.X), ToDisplay(c.Y), ToDisplay(c.Z)));
         }
 
-        VisionTextures? vision = VisionLookup switch
+        // A normal vision twin draws no heat or EMF.
+        if (!normalVision)
         {
-            // A cosmetic camo is named "<skin>+<pattern>": it keeps the heat and EMF textures of the skin it repaints.
-            VisionLookup.SkinBase => Pack?.VisionOfModifierName(entry.Source)
-                ?? Pack?.VisionOfSkin(entry.Name is { } skin && skin.IndexOf('+') is var plus and > 0 ? skin[..plus] : entry.Name),
-            VisionLookup.ModifierName => Pack?.VisionOfModifierName(entry.Name),
-            _ => Pack?.VisionOf(entry.Source),
-        };
-        if (vision is null && entry.Name is { } name && OwnVision?.Invoke(name) is { } masks)
-        {
-            ApplyVision(material, masks);
-        }
-        else
-        {
-            ApplyVision(material, vision);
+            ApplyVision(material, entry);
         }
 
         if (uvAnim)
@@ -481,6 +671,27 @@ public sealed partial class MaterialCompiler
         string? texture = _doc.TextureOf(entry.Source, input)
             ?? (entry.Source is null || VisionLookup == VisionLookup.SkinBase ? entry.Name : null);
         return Pack.MipLevels(texture) is not int levels || levels > 1;
+    }
+
+    /// <summary>The heat and EMF textures of <paramref name="entry"/>'s vision modifiers, or its own masks.</summary>
+    private void ApplyVision(ShaderMaterial material, MaterialEntry entry)
+    {
+        VisionTextures? vision = VisionLookup switch
+        {
+            // A cosmetic camo is named "<skin>+<pattern>": it keeps the heat and EMF textures of the skin it repaints.
+            VisionLookup.SkinBase => Pack?.VisionOfModifierName(entry.Source)
+                ?? Pack?.VisionOfSkin(entry.Name is { } skin && skin.IndexOf('+') is var plus and > 0 ? skin[..plus] : entry.Name),
+            VisionLookup.ModifierName => Pack?.VisionOfModifierName(entry.Name),
+            _ => Pack?.VisionOf(entry.Source),
+        };
+        if (vision is null && entry.Name is { } name && OwnVision?.Invoke(name) is { } masks)
+        {
+            ApplyVision(material, masks);
+        }
+        else
+        {
+            ApplyVision(material, vision);
+        }
     }
 
     /// <summary>
@@ -619,16 +830,32 @@ public sealed partial class MaterialCompiler
     /// </summary>
     public const int StencilFirstPerson = 4;
 
+    /// <summary>
+    /// The process-wide Shader of <paramref name="code"/>, made (named <paramref name="name"/>, then given to
+    /// <paramref name="init"/>) on first use. Callers must not change it: other materials use the same Shader.
+    /// Identical code is one Shader (one RID), so every map and model shares its pipelines; its responsive smoke
+    /// variant follows the match (<see cref="ResponsiveSmokeShaders"/>).
+    /// </summary>
+    internal static Shader SharedShader(string code, string name, Action<Shader>? init = null) =>
+        ResponsiveSmokeShaders.Shared(code, name, init);
+
     private Shader ShaderFor(LightSource light, MaterialBlend blend, bool twoSided, List<string> extras)
     {
         bool coverage = blend == MaterialBlend.Masked && AlphaToCoverage;
-        string key = $"{light}|{blend}|{twoSided}|{coverage}|{string.Join(',', extras)}";
+        string key = $"{light}|{blend}|{twoSided}|{coverage}|{StencilMarks}|{string.Join(',', extras)}";
         if (_shaders.TryGetValue(key, out Shader? shader))
         {
-            return shader;
+            return ResponsiveSmokeShaders.Current(shader);
         }
 
+        bool sky = extras.Contains("SVM_SKY_ZONE");
         var modes = new List<string> { "unshaded", "fog_disabled", twoSided ? "cull_disabled" : "cull_back" };
+        if (sky)
+        {
+            // The template places sky surfaces itself (SVM_SKY_ZONE).
+            modes.Add("skip_vertex_transform");
+        }
+
         switch (blend)
         {
             case MaterialBlend.Translucent:
@@ -656,7 +883,8 @@ public sealed partial class MaterialCompiler
 
         var code = new StringBuilder();
         code.Append("shader_type spatial;\nrender_mode ").Append(string.Join(", ", modes)).Append(";\n");
-        if (blend is MaterialBlend.Opaque or MaterialBlend.Masked)
+        // The sky zone leaves no marks: the main view's stencil stays as the sky backdrop left it.
+        if (blend is MaterialBlend.Opaque or MaterialBlend.Masked && StencilMarks && !sky)
         {
             // Solid surfaces mark what they are in the stencil: projectors with bProjectStaticMesh off skip static meshes.
             code.Append("stencil_mode write, compare_always, ").Append(light switch
@@ -693,9 +921,10 @@ public sealed partial class MaterialCompiler
         if (extras.Contains("AUTHORED_MATERIAL")) code.Append(AuthoredMaterialBinding.ShaderCode);
 
         code.Append("#include \"").Append(TemplatePath).Append("\"\n");
-        shader = new Shader { Code = code.ToString(), ResourceName = "svm_world " + key };
-        shader.SetMeta("svm_shadow_animated", blend == MaterialBlend.Masked &&
-            (extras.Contains("UV_ANIM") || extras.Contains("FLIPBOOK") || extras.Contains("OPACITY_LAYER") || extras.Contains("COMBINE") || extras.Contains("SEQUENCE_D") || extras.Contains("AUTHORED_MATERIAL")));
+        // The code holds the blend and every extra, so every key that shares a Shader gives it the same meta.
+        bool shadowAnimated = blend == MaterialBlend.Masked &&
+            (extras.Contains("UV_ANIM") || extras.Contains("FLIPBOOK") || extras.Contains("OPACITY_LAYER") || extras.Contains("COMBINE") || extras.Contains("SEQUENCE_D") || extras.Contains("AUTHORED_MATERIAL"));
+        shader = SharedShader(code.ToString(), "svm_world " + key, s => s.SetMeta("svm_shadow_animated", shadowAnimated));
         _shaders[key] = shader;
         return shader;
     }
@@ -710,7 +939,7 @@ public sealed partial class MaterialCompiler
         string key = $"seethrough|{light}|{blend}|{twoSided}|{string.Join(',', extras)}";
         if (_shaders.TryGetValue(key, out Shader? shader))
         {
-            return shader;
+            return ResponsiveSmokeShaders.Current(shader);
         }
 
         var code = new StringBuilder();
@@ -731,7 +960,7 @@ public sealed partial class MaterialCompiler
         }
 
         code.Append("#include \"").Append(TemplatePath).Append("\"\n");
-        shader = new Shader { Code = code.ToString(), ResourceName = "svm_world " + key };
+        shader = SharedShader(code.ToString(), "svm_world " + key);
         _shaders[key] = shader;
         return shader;
     }

@@ -110,15 +110,16 @@ public sealed class MapLightSprites
             UeSpace.LengthToGodot(textureSize * scale * y));
         FVector location = light.TryGetProperty("location", out var loc) && loc.ValueKind == JsonValueKind.Array
             ? new FVector(loc[0].GetSingle(), loc[1].GetSingle(), loc[2].GetSingle()) : default;
+        bool sky = Flag(light, "sky_zone");
         var node = new MeshInstance3D
         {
             Name = "LightSprite_" + id,
             Mesh = new QuadMesh { Size = size },
-            MaterialOverride = map.Compiler.Build(entry, LightSource.None, billboard: true),
+            MaterialOverride = map.Compiler.Build(entry, LightSource.None, billboard: true, sky: sky),
             Position = UeSpace.ToGodot(location),
             // The shader rotates the quad to the view; its unrotated zero-depth AABB must cover every orientation.
             ExtraCullMargin = size.Length() * .5f,
-            Layers = Flag(light, "sky_zone") ? RenderLayers.Sky : RenderLayers.Effects,
+            Layers = sky ? RenderLayers.Sky : RenderLayers.Effects,
             CastShadow = GeometryInstance3D.ShadowCastingSetting.Off,
         };
         map.Root.AddChild(node);

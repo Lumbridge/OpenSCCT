@@ -92,9 +92,9 @@ public partial class EffectMaterial : ShaderMaterial
             if (_billboard != BaseMaterial3D.BillboardModeEnum.Disabled) code += "#define EFFECT_BILLBOARD\n";
             if (_fixedSize) code += "#define EFFECT_FIXED_SIZE\n";
             if (_vertexColor) code += "#define EFFECT_VERTEX_COLOR\n";
-            shader = new Shader { ResourceName = "svm_effect " + key, Code = code + "#include \"res://Shaders/svm_effect.gdshaderinc\"\n" };
+            shader = ResponsiveSmokeShaders.Shared(code + "#include \"res://Shaders/svm_effect.gdshaderinc\"\n", "svm_effect " + key);
             Shaders[key] = shader;
         }
-        Shader = shader;
+        Shader = ResponsiveSmokeShaders.Current(shader);
     }
 }

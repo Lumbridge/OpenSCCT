@@ -82,6 +82,7 @@ public sealed class ResponsiveSmokeRenderSmoke : SmokeTest
             _material = new ShaderMaterial { Shader = new Shader { Code = """
                 shader_type spatial;
                 render_mode unshaded, cull_disabled;
+                #define SVM_RESPONSIVE_SMOKE
                 #include "res://Shaders/svm_fog.gdshaderinc"
                 uniform bool diagnostic = true;
                 uniform bool finite_depth = false;
@@ -109,6 +110,7 @@ public sealed class ResponsiveSmokeRenderSmoke : SmokeTest
             var glass = new ShaderMaterial { Shader = new Shader { Code = """
                 shader_type spatial;
                 render_mode unshaded, cull_disabled, blend_mix, depth_draw_never;
+                #define SVM_RESPONSIVE_SMOKE
                 #include "res://Shaders/svm_fog.gdshaderinc"
                 void fragment() {
                     vec4 smoke = surface_fog(CAMERA_VISIBLE_LAYERS, VERTEX, FRAGCOORD.xy, VIEWPORT_SIZE);

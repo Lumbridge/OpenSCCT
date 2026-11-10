@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.Runtime.ExceptionServices;
 using System.Text.Json;
+using System.Threading.Tasks;
 using Godot;
-using OpenScct.Content.Collision;
 using OpenScct.Core;
 using OpenScct.Physics.Collision;
 using OpenScct.Provenance;
+using OpenScctGame.Diagnostics;
 using OpenScctGame.Render.Data;
 using OpenScctGame.Render.Geometry;
 using OpenScctGame.Render.Gltf;
@@ -125,6 +127,7 @@ public sealed class RenderMap
         ActorLighting = actorLighting;
         Zones = zones;
         WorldLights = new WorldLights(lighting);
+        LightReach = new LightReach(root, WorldLights);
     }
 
     /// <summary>The map folder (the one holding manifest.json and render/).</summary>
@@ -220,6 +223,9 @@ public sealed class RenderMap
     /// <summary>Dynamic world lights (triggered, pulsing): applied per pixel to BSP and static meshes.</summary>
     public WorldLights WorldLights { get; }
 
+    /// <summary>The merged cell meshes' choice of materials without the spot (and dynamic) light terms where no such light reaches.</summary>
+    public LightReach LightReach { get; }
+
     private readonly Dictionary<string, bool> _lightSwitches = new(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
@@ -269,6 +275,12 @@ public sealed class RenderMap
     internal CollisionWorld? Zones { get; }
 
     public RenderMapStats Stats { get; } = new();
+
+    /// <summary>SVM_RD_PROTO only: the merged cell geometry for the RenderingDevice prototype, else null.</summary>
+    internal OpenScctGame.Render.RdProto.RdProtoGeometry? RdGeometry { get; set; }
+
+    /// <summary>SVM_RD_WORLD=1: the merged geometry the world pass on the RenderingDevice draws (Rd/RdWorldRenderer).</summary>
+    internal Rd.RdWorldGeometry? RdWorld { get; set; }
 
     public List<string> Warnings { get; } = [];
 
@@ -451,33 +463,61 @@ public static class MapBuilder
         }
 
         string renderDir = Path.Combine(mapFolder, "render");
-        MaterialsDoc materials = MaterialsDoc.Load(Path.Combine(mapFolder, MaterialsFile));
-        LightingDoc lighting = LightingDoc.Load(Path.Combine(mapFolder, LightingFile));
+
+        // These files are plain data (no Godot objects): they are read on worker threads at once, and each is taken
+        // where it was read before, so a bad file fails the same way.
+        Task<MaterialsDoc> materialsRead = Task.Run(() => MaterialsDoc.Load(Path.Combine(mapFolder, MaterialsFile)));
+        Task<LightingDoc> lightingRead = Task.Run(() => LightingDoc.Load(Path.Combine(mapFolder, LightingFile)));
+        Task<GlbDocument> glbRead = Task.Run(() => GlbDocument.Load(glbPath));
+        Task<GameplayActors> actorsRead = Task.Run(() => GameplayActors.Load(mapFolder));
+        Task<List<OpenScctGame.Render.Projectors.ProjectorEntry>?> projectorsRead =
+            Task.Run(() => OpenScctGame.Render.Projectors.ProjectorsDoc.Load(mapFolder));
         var textures = new TextureCache(renderDir) { MipDrop = options.MipDrop };
         RenderPack? pack = RenderPack.Load(RenderMap.SharedRootOf(mapFolder));
-        var compiler = new MaterialCompiler(materials, textures) { LightmapScale = options.LightmapScale, Pack = pack };
+        MaterialsDoc materials = materialsRead.GetAwaiter().GetResult();
+        LightingDoc lighting = lightingRead.GetAwaiter().GetResult();
+        // Shaders compile portal fog only for a map that can draw it; decided before any of its materials is built.
+        ResponsiveSmokeShaders.UsePortalFog(Post.PortalFogFrame.MapUses(lighting));
+        List<OpenScctGame.Render.Projectors.ProjectorEntry>? projectors = projectorsRead.GetAwaiter().GetResult();
+        // Only projectors with bProjectStaticMesh off read the solid surfaces' stencil marks.
+        bool stencilMarks = projectors?.Exists(p => !p.ProjectStaticMesh) == true;
+        var compiler = new MaterialCompiler(materials, textures)
+        {
+            LightmapScale = options.LightmapScale, Pack = pack, StencilMarks = stencilMarks,
+        };
         MaterialCompiler.SetEmfEnvironment(pack?.Texture(RenderPack.EmfEnvironment));
+        LoadTimer.Mark("build.docs");
         CollisionWorld? zones = null;
         string collisionPath = Path.Combine(mapFolder, CollisionFile);
         if (options.LoadZones && File.Exists(collisionPath))
         {
-            zones = CollisionWorld.Build(CollisionReader.Load(collisionPath));
+            // Shares the static collision the play session's worlds built from the same file (or builds it for them).
+            zones = CollisionWorld.Load(collisionPath);
         }
 
-        using GlbDocument glb = GlbDocument.Load(glbPath);
+        LoadTimer.Mark("build.zones");
+        using GlbDocument glb = glbRead.GetAwaiter().GetResult();
+        LoadTimer.Mark("build.glb");
         string mapId = Path.GetFileName(Path.GetFullPath(mapFolder));
         var root = new Node3D { Name = "RenderMap" };
         var map = new RenderMap(mapFolder, mapId, root, materials, lighting, textures, compiler, new ActorLighting(lighting), zones);
         map.Pack = pack;
-        map.Actors = GameplayActors.Load(mapFolder);
+        map.Actors = actorsRead.GetAwaiter().GetResult();
         map.Outfits = RenderMap.OutfitsOf(mapFolder);
         Characters.PawnCosmetics.Outfits = map.Outfits;
-        List<OpenScctGame.Render.Projectors.ProjectorEntry>? projectors = OpenScctGame.Render.Projectors.ProjectorsDoc.Load(mapFolder);
         map.SkipProjectorDecals = projectors is not null;
         map.SoftBodies = new OpenScctGame.Render.SoftBodies.SoftBodyViews(root);
+        LoadTimer.Mark("build.actors");
+        // SVM_RD_PROTO: copy the merged cell geometry out for the RenderingDevice prototype (RdProto/RdProtoRenderer).
+        map.RdGeometry = RdProto.RdProtoGeometry.Enabled ? new RdProto.RdProtoGeometry() : null;
+        Rd.RdWorldRenderer.LatchOwnFrame();
+        map.RdWorld = Rd.RdWorldGeometry.Enabled ? new Rd.RdWorldGeometry(map.Compiler) : null;
         new Builder(map, glb, options).Run();
+        map.RdGeometry?.Finish();
+        map.RdWorld?.Finish();
         OutdoorScenery.Build(map);
         OutdoorGroundcover.Build(map);
+        LoadTimer.Mark("build.outdoor");
         if (options.GameplayObjects)
         {
             OpenScctGame.Render.GameplayObjects.Build(map, map.Actors, pack);
@@ -485,18 +525,22 @@ public static class MapBuilder
 
         OpenScctGame.Render.GameplayObjects.ApplyVision(map, map.Actors);
         SpotShadowLight.SetIgnoreGroups(map.EchelonGroups);
+        LoadTimer.Mark("build.objects");
         if (options.Emitters)
         {
             map.Emitters = new Particles.Emitters(map, root);
             map.Stats.Emitters = map.Emitters.Count;
         }
 
+        LoadTimer.Mark("build.emitters");
         if (projectors is not null)
         {
             map.Projectors = OpenScctGame.Render.Projectors.MapProjectors.Build(map, projectors, root);
         }
 
+        LoadTimer.Mark("build.projectors");
         map.LightBeams = OpenScctGame.Render.LightBeams.MapLightBeams.Build(map, root);
+        LoadTimer.Mark("build.beams");
         map.LightSprites = new MapLightSprites(map);
         foreach (string missing in map.LightSprites.Missing) map.Warnings.Add("light sprite texture missing: " + missing);
         if (pack is null)
@@ -504,6 +548,7 @@ public static class MapBuilder
             map.Warnings.Add("no render pack (.content/shared/render): vision textures and gameplay object meshes are missing");
         }
         map.SetTime(0f);
+        LoadTimer.Mark("build.sprites");
         map.Stats.LoadSeconds = clock.Elapsed.TotalSeconds;
         map.Stats.Textures = textures.Count;
         map.Stats.Materials = compiler.MaterialCount;
@@ -534,16 +579,40 @@ public static class MapBuilder
         private readonly HashSet<string> _usedLibraryMeshes = new(StringComparer.Ordinal);
         private readonly HashSet<string> _particleMeshes = new(StringComparer.Ordinal);
         private readonly Dictionary<int, MeshPrimitive[]> _primitives = [];
-        private readonly SortedDictionary<(int X, int Y, int Sky), Dictionary<(string, LightSource, bool), SurfaceBuilder>> _cells = new();
+        private readonly SortedDictionary<(int X, int Y, int Sky), Dictionary<(string, LightSource, VisionPass), SurfaceBuilder>> _cells = new();
+
+        /// <summary>How the merged surfaces of a cell bucket draw in thermal and EMF vision.</summary>
+        private enum VisionPass : byte
+        {
+            /// <summary>Every actor fully visible: no vision cut-out can fire (<see cref="MaterialCompiler.GetPlain"/>).</summary>
+            Plain,
+
+            /// <summary>Some actor hidden in a vision (HeatOpacity or EMFOpacity 0): the solid pass cuts it out.</summary>
+            Cut,
+
+            /// <summary>Partly see-through actors (<see cref="MaterialCompiler.GetSeeThrough"/>).</summary>
+            SeeThrough,
+        }
         private readonly Dictionary<(string Mesh, LightSource Light, int Glow), ArrayMesh> _shared = [];
         private readonly Node3D _static = new() { Name = "Static" };
         private readonly Node3D _gameplay = new() { Name = "Gameplay" };
+
+        /// <summary>The glTF meshes by index (indexing the JSON array walks it from the start each time).</summary>
+        private readonly List<JsonElement> _meshes = [];
+        private HashSet<string>? _conveyorItems;
 
         public Builder(RenderMap map, GlbDocument glb, RenderOptions options)
         {
             _map = map;
             _glb = glb;
             _options = options;
+            if (glb.Root.TryGetProperty("meshes", out JsonElement meshes))
+            {
+                foreach (JsonElement m in meshes.EnumerateArray())
+                {
+                    _meshes.Add(m);
+                }
+            }
         }
 
         public void Run()
@@ -552,14 +621,32 @@ public static class MapBuilder
             _map.Root.AddChild(_gameplay);
             ReadMaterials();
             ReadNodes(out List<(int Mesh, bool Sky)> bspMeshes);
+            LoadTimer.Mark("build.nodes");
+
+            // The meshes this build reads are decoded on worker threads while the textures are prefetched.
+            List<(int Mesh, PrimitiveSource[] Sources)> wanted = MeshesToRead(bspMeshes);
+            var decoded = new MeshPrimitive[]?[wanted.Count];
+            Task decoding = Task.Run(() => ParallelFor(wanted.Count, i => decoded[i] = TryDecode(wanted[i].Sources)));
             Prefetch();
+            decoding.GetAwaiter().GetResult();
+            for (int i = 0; i < wanted.Count; i++)
+            {
+                // A mesh that failed to decode is read again where it is first used, and fails there as before.
+                if (decoded[i] is { } prims)
+                {
+                    _primitives[wanted[i].Mesh] = prims;
+                }
+            }
+
+            LoadTimer.Mark("build.prefetch");
             foreach ((int mesh, bool sky) in bspMeshes)
             {
                 AddBsp(mesh, sky);
             }
 
-            if (_glb.Root.TryGetProperty("extras", out JsonElement extras) && extras.TryGetProperty("svmap", out JsonElement svmap)
-                && svmap.TryGetProperty("instances", out JsonElement instances))
+            LoadTimer.Mark("build.bsp");
+
+            if (Instances() is { } instances)
             {
                 foreach (JsonElement inst in instances.EnumerateArray())
                 {
@@ -567,8 +654,11 @@ public static class MapBuilder
                 }
             }
 
+            LoadTimer.Mark("build.instances");
             AddSwapMeshes();
+            LoadTimer.Mark("build.swap-meshes");
             FlushCells();
+            LoadTimer.Mark("build.cells");
         }
 
         /// <summary>
@@ -579,18 +669,18 @@ public static class MapBuilder
         /// </summary>
         private void AddSwapMeshes()
         {
-            HashSet<string> items = ConveyorItemMeshes();
+            // Materials are fetched here in the same order as one mesh at a time; the geometry, plain data, is then
+            // written on worker threads and the meshes are made here, in the same order.
+            var meshes = new List<(string Name, int Mesh, bool Used, bool Particle, bool Item, int First, int Count)>();
+            var surfaces = new List<(MeshPrimitive Prim, Material Material, SurfaceBuilder Surface)>();
             foreach ((string name, int mesh) in _libraryMeshes)
             {
-                bool used = _usedLibraryMeshes.Contains(name);
-                bool particle = _particleMeshes.Contains(name);
-                bool item = items.Contains(name);
-                if ((used && !particle && !item) || name.Contains('#', StringComparison.Ordinal))
+                if (!IsSwapMesh(name, _usedLibraryMeshes, out bool used, out bool particle, out bool item))
                 {
                     continue;
                 }
 
-                var arrayMesh = new ArrayMesh { ResourceName = name };
+                int first = surfaces.Count;
                 foreach (MeshPrimitive prim in Primitives(mesh))
                 {
                     if (_map.Compiler.Get(prim.Material, LightSource.Actor) is not { } material)
@@ -599,12 +689,25 @@ public static class MapBuilder
                     }
 
                     var surface = new SurfaceBuilder(false, false);
-                    surface.Add(Transform3D.Identity, prim, 0, null);
+                    surface.Queue(Transform3D.Identity, prim, 0, null);
+                    surfaces.Add((prim, material, surface));
+                }
+
+                meshes.Add((name, mesh, used, particle, item, first, surfaces.Count - first));
+            }
+
+            ParallelFor(surfaces.Count, i => surfaces[i].Surface.Prepare());
+            foreach ((string name, int mesh, bool used, bool particle, bool item, int first, int count) in meshes)
+            {
+                var arrayMesh = new ArrayMesh { ResourceName = name };
+                for (int i = first; i < first + count; i++)
+                {
+                    (MeshPrimitive prim, Material material, SurfaceBuilder surface) = surfaces[i];
                     surface.AddTo(arrayMesh, material);
                     arrayMesh.SurfaceSetName(arrayMesh.GetSurfaceCount() - 1, "section" + prim.Section);
                 }
 
-                ActorLighting.ReadSphere(arrayMesh, _glb.Root.GetProperty("meshes")[mesh]);
+                ActorLighting.ReadSphere(arrayMesh, _meshes[mesh]);
                 if (arrayMesh.GetSurfaceCount() > 0)
                 {
                     if (!used || item)
@@ -619,6 +722,92 @@ public static class MapBuilder
                 }
             }
         }
+
+        /// <summary>
+        /// Whether a library mesh is built for <see cref="RenderMap.SwapMeshes"/> or <see cref="RenderMap.ParticleMeshes"/>:
+        /// unused by placed actors, or a particle or conveyor item mesh; never a per-actor mesh (# in its name).
+        /// </summary>
+        private bool IsSwapMesh(string name, HashSet<string> usedMeshes, out bool used, out bool particle, out bool item)
+        {
+            _conveyorItems ??= ConveyorItemMeshes();
+            used = usedMeshes.Contains(name);
+            particle = _particleMeshes.Contains(name);
+            item = _conveyorItems.Contains(name);
+            return !((used && !particle && !item) || name.Contains('#', StringComparison.Ordinal));
+        }
+
+        /// <summary>The placed instances (extras.svmap.instances), or null.</summary>
+        private JsonElement? Instances() =>
+            _glb.Root.TryGetProperty("extras", out JsonElement extras) && extras.TryGetProperty("svmap", out JsonElement svmap)
+                && svmap.TryGetProperty("instances", out JsonElement instances)
+                ? instances
+                : null;
+
+        /// <summary>
+        /// The meshes the build will read, with their accessors: the BSP, the meshes of the placed instances (except
+        /// projector decals left out) and the swap meshes, the same set <see cref="AddInstance"/> and
+        /// <see cref="AddSwapMeshes"/> read. A mesh whose JSON cannot be read is left out, to fail where it is used.
+        /// </summary>
+        private List<(int Mesh, PrimitiveSource[] Sources)> MeshesToRead(List<(int Mesh, bool Sky)> bspMeshes)
+        {
+            var meshes = new List<int>();
+            foreach ((int mesh, _) in bspMeshes)
+            {
+                meshes.Add(mesh);
+            }
+
+            var used = new HashSet<string>(StringComparer.Ordinal);
+            if (Instances() is { } instances)
+            {
+                foreach (JsonElement inst in instances.EnumerateArray())
+                {
+                    string meshName = Str(inst, "mesh") ?? "";
+                    if (!_libraryMeshes.TryGetValue(meshName, out int mesh))
+                    {
+                        continue;
+                    }
+
+                    used.Add(meshName);
+                    if (!(_map.SkipProjectorDecals && inst.TryGetProperty("projectorOf", out _)))
+                    {
+                        meshes.Add(mesh);
+                    }
+                }
+            }
+
+            foreach ((string name, int mesh) in _libraryMeshes)
+            {
+                if (IsSwapMesh(name, used, out _, out _, out _))
+                {
+                    meshes.Add(mesh);
+                }
+            }
+
+            var result = new List<(int, PrimitiveSource[])>();
+            var seen = new HashSet<int>();
+            foreach (int mesh in meshes)
+            {
+                if (!seen.Add(mesh) || _primitives.ContainsKey(mesh))
+                {
+                    continue;
+                }
+
+                try
+                {
+                    result.Add((mesh, SourcesOf(mesh)));
+                }
+                catch (Exception e) when (IsBadData(e))
+                {
+                    // Read again (and reported) where the mesh is first used.
+                }
+            }
+
+            return result;
+        }
+
+        private static bool IsBadData(Exception e) =>
+            e is KeyNotFoundException or InvalidOperationException or InvalidDataException or IndexOutOfRangeException
+                or ArgumentException or FormatException or OverflowException;
 
         /// <summary>The asset paths of the meshes the map's conveyors carry as items (Svm.Conveyor ItemMeshes).</summary>
         private HashSet<string> ConveyorItemMeshes()
@@ -714,33 +903,85 @@ public static class MapBuilder
                 return cached;
             }
 
-            JsonElement prims = _glb.Root.GetProperty("meshes")[mesh].GetProperty("primitives");
-            var list = new List<MeshPrimitive>();
+            MeshPrimitive[] result = Array.ConvertAll(SourcesOf(mesh), Decode);
+            _primitives[mesh] = result;
+            return result;
+        }
+
+        /// <summary>The accessors of one glTF primitive (-1: absent), its section and material name.</summary>
+        private sealed record PrimitiveSource(int Section, string Material, int Positions, int Indices, int Normals, int Uvs,
+            int Uv2s, int Colours, int BakedDirections);
+
+        /// <summary>The primitives of a mesh as read from the JSON (main thread only: the JSON is not read by workers).</summary>
+        private PrimitiveSource[] SourcesOf(int mesh)
+        {
+            JsonElement prims = _meshes[mesh].GetProperty("primitives");
+            var list = new List<PrimitiveSource>();
             foreach (JsonElement p in prims.EnumerateArray())
             {
                 JsonElement attrs = p.GetProperty("attributes");
                 int material = p.TryGetProperty("material", out JsonElement mi) ? mi.GetInt32() : -1;
-                float[] positions = _glb.ReadFloats(attrs.GetProperty("POSITION").GetInt32());
-                int[] indices = p.TryGetProperty("indices", out JsonElement ii)
-                    ? _glb.ReadIndices(ii.GetInt32())
-                    : Sequence(positions.Length / 3);
-                list.Add(new MeshPrimitive
-                {
-                    Section = p.TryGetProperty("extras", out JsonElement pe) && pe.TryGetProperty("scctSection", out JsonElement ps) ? ps.GetInt32() : list.Count,
-                    Material = material >= 0 && material < _materialNames.Count ? _materialNames[material] : "",
-                    Positions = positions,
-                    Normals = attrs.TryGetProperty("NORMAL", out JsonElement nn) ? _glb.ReadFloats(nn.GetInt32()) : null,
-                    Uvs = attrs.TryGetProperty("TEXCOORD_0", out JsonElement t0) ? _glb.ReadFloats(t0.GetInt32()) : null,
-                    Uv2s = attrs.TryGetProperty("TEXCOORD_1", out JsonElement t1) ? _glb.ReadFloats(t1.GetInt32()) : null,
-                    Colours = attrs.TryGetProperty("COLOR_0", out JsonElement c0) ? _glb.ReadColours(c0.GetInt32()) : null,
-                    BakedDirections = attrs.TryGetProperty("COLOR_1", out JsonElement c1) ? _glb.ReadFloats(c1.GetInt32()) : null,
-                    Indices = indices,
-                });
+                list.Add(new PrimitiveSource(
+                    p.TryGetProperty("extras", out JsonElement pe) && pe.TryGetProperty("scctSection", out JsonElement ps) ? ps.GetInt32() : list.Count,
+                    material >= 0 && material < _materialNames.Count ? _materialNames[material] : "",
+                    attrs.GetProperty("POSITION").GetInt32(),
+                    p.TryGetProperty("indices", out JsonElement ii) ? ii.GetInt32() : -1,
+                    AccessorOf(attrs, "NORMAL"),
+                    AccessorOf(attrs, "TEXCOORD_0"),
+                    AccessorOf(attrs, "TEXCOORD_1"),
+                    AccessorOf(attrs, "COLOR_0"),
+                    AccessorOf(attrs, "COLOR_1")));
             }
 
-            MeshPrimitive[] result = [.. list];
-            _primitives[mesh] = result;
-            return result;
+            return [.. list];
+        }
+
+        private static int AccessorOf(JsonElement attrs, string name) =>
+            attrs.TryGetProperty(name, out JsonElement a) ? a.GetInt32() : -1;
+
+        /// <summary>Reads one primitive's arrays from the binary chunk: plain data, safe on worker threads.</summary>
+        private MeshPrimitive Decode(PrimitiveSource s)
+        {
+            float[] positions = _glb.ReadFloats(s.Positions);
+            return new MeshPrimitive
+            {
+                Section = s.Section,
+                Material = s.Material,
+                Positions = positions,
+                Normals = s.Normals >= 0 ? _glb.ReadFloats(s.Normals) : null,
+                Uvs = s.Uvs >= 0 ? _glb.ReadFloats(s.Uvs) : null,
+                Uv2s = s.Uv2s >= 0 ? _glb.ReadFloats(s.Uv2s) : null,
+                Colours = s.Colours >= 0 ? _glb.ReadColours(s.Colours) : null,
+                BakedDirections = s.BakedDirections >= 0 ? _glb.ReadFloats(s.BakedDirections) : null,
+                Indices = s.Indices >= 0 ? _glb.ReadIndices(s.Indices) : Sequence(positions.Length / 3),
+            };
+        }
+
+        /// <summary>The primitives of a mesh, or null when its data is bad (the main thread reads it again and fails).</summary>
+        private MeshPrimitive[]? TryDecode(PrimitiveSource[] sources)
+        {
+            try
+            {
+                return Array.ConvertAll(sources, Decode);
+            }
+            catch (Exception e) when (IsBadData(e))
+            {
+                return null;
+            }
+        }
+
+        /// <summary>Runs <paramref name="body"/> for 0 to <paramref name="count"/> - 1 on worker threads; a failure is rethrown as itself.</summary>
+        private static void ParallelFor(int count, Action<int> body)
+        {
+            try
+            {
+                Parallel.For(0, count, body);
+            }
+            catch (AggregateException e) when (e.InnerExceptions.Count > 0)
+            {
+                ExceptionDispatchInfo.Capture(e.InnerExceptions[0]).Throw();
+                throw;
+            }
         }
 
         private static int[] Sequence(int n)
@@ -811,7 +1052,7 @@ public static class MapBuilder
                     Indices = [.. tris],
                 };
                 Bucket(cell, prim.Material, light, light == LightSource.Lightmap, true)
-                    .Add(Transform3D.Identity, part, 0, [.. byCellZones[cell]]);
+                    .Queue(Transform3D.Identity, part, 0, [.. byCellZones[cell]]);
             }
         }
 
@@ -908,18 +1149,19 @@ public static class MapBuilder
             return ((int)MathF.Floor(godot.X / size), (int)MathF.Floor(godot.Z / size), sky ? 1 : 0);
         }
 
-        private SurfaceBuilder Bucket((int, int, int) cell, string material, LightSource light, bool uv2, bool colour, bool seeThrough = false)
+        private SurfaceBuilder Bucket((int, int, int) cell, string material, LightSource light, bool uv2, bool colour,
+            VisionPass pass = VisionPass.Plain)
         {
-            if (!_cells.TryGetValue(cell, out Dictionary<(string, LightSource, bool), SurfaceBuilder>? buckets))
+            if (!_cells.TryGetValue(cell, out Dictionary<(string, LightSource, VisionPass), SurfaceBuilder>? buckets))
             {
                 buckets = [];
                 _cells[cell] = buckets;
             }
 
-            if (!buckets.TryGetValue((material, light, seeThrough), out SurfaceBuilder? b))
+            if (!buckets.TryGetValue((material, light, pass), out SurfaceBuilder? b))
             {
                 b = new SurfaceBuilder(uv2, colour, hasVision: true);
-                buckets[(material, light, seeThrough)] = b;
+                buckets[(material, light, pass)] = b;
             }
 
             // BSP and instances without values of their own draw at the Actor defaults.
@@ -982,7 +1224,7 @@ public static class MapBuilder
             Aabb box = Bounds(prims, transform);
             (int, int, int) cell = CellOf(box.GetCenter(), Bool(inst, "skyZone"));
             Vector4 vision = VisionOf(inst);
-            bool seeThrough = SeeThrough(vision);
+            VisionPass pass = PassOf(vision);
             bool authored = Bool(inst, "authoredColors");
             foreach (MeshPrimitive prim in prims)
             {
@@ -990,7 +1232,7 @@ public static class MapBuilder
                 bool overlay = authored && prim.Colours is not null &&
                     _map.Materials.Find(prim.Material)?.Blend == MaterialBlend.Additive;
                 LightSource surfaceLight = overlay ? LightSource.Vertex : light;
-                SurfaceBuilder bucket = Bucket(cell, prim.Material, surfaceLight, false, surfaceLight == LightSource.Vertex, seeThrough);
+                SurfaceBuilder bucket = Bucket(cell, prim.Material, surfaceLight, false, surfaceLight == LightSource.Vertex, pass);
                 bucket.Vision = vision;
                 bucket.Echelon = echelon;
                 byte[]? zones = surfaceLight == LightSource.Vertex ? ZonesOf(prim, location) : null;
@@ -999,7 +1241,7 @@ public static class MapBuilder
                     // An additive overlay with painted colours (AquaD's caustic quads: 40 inside, 0 on the rim) is drawn by
                     // its colours alone: no glow, no dynamic or spot light, which would fill the faded rim to a square.
                     Array.Fill(zones!, AuthoredOverlayZone);
-                    bucket.Add(transform, prim, 0, zones);
+                    bucket.Queue(transform, prim, 0, zones);
                 }
                 else if (surfaceLight == LightSource.Vertex && glow > 0)
                 {
@@ -1007,7 +1249,7 @@ public static class MapBuilder
                 }
                 else
                 {
-                    bucket.Add(transform, prim, 0, zones);
+                    bucket.Queue(transform, prim, 0, zones);
                 }
 
                 _map.Stats.Triangles += prim.Indices.Length / 3;
@@ -1043,7 +1285,7 @@ public static class MapBuilder
                 BakedDirections = prim.BakedDirections,
                 Indices = prim.Indices,
             };
-            bucket.Add(transform, lit, 0, zones);
+            bucket.Queue(transform, lit, 0, zones);
         }
 
         private static byte ToByte(float v) => (byte)Math.Clamp((int)MathF.Round(v * 255f), 0, 255);
@@ -1093,6 +1335,13 @@ public static class MapBuilder
         /// </summary>
         private static bool SeeThrough(Vector4 vision) =>
             vision.Y is > 0f and < 1f || vision.W is > 0f and < RenderK.EmfOpaqueFrom;
+
+        /// <summary>
+        /// The vision pass of an actor's merged surfaces. Outside the see-through range, HeatOpacity and EMFOpacity above 0
+        /// mean 1 and at least <see cref="RenderK.EmfOpaqueFrom"/>: the template's cut-outs cannot fire on them.
+        /// </summary>
+        private static VisionPass PassOf(Vector4 vision) =>
+            SeeThrough(vision) ? VisionPass.SeeThrough : vision.Y > 0f && vision.W > 0f ? VisionPass.Plain : VisionPass.Cut;
 
         private static Aabb Bounds(MeshPrimitive[] prims, in Transform3D transform)
         {
@@ -1148,8 +1397,12 @@ public static class MapBuilder
                     _map.Stats.Vertices += surface.VertexCount;
                 }
 
-                ActorLighting.ReadSphere(arrayMesh, _glb.Root.GetProperty("meshes")[mesh]);
+                ActorLighting.ReadSphere(arrayMesh, _meshes[mesh]);
                 _shared[(shareKey, light, glowKey)] = arrayMesh;
+                // Never rewritten after this, so its instances are rigid shadow casters, unless a cut-out of it animates.
+                bool animatedCutOut = false;
+                for (int s = 0; s < arrayMesh.GetSurfaceCount(); s++) animatedCutOut |= arrayMesh.SurfaceGetMaterial(s) is { } m && AnimatesShadow(m);
+                if (!animatedCutOut) SpotShadowLight.MarkRigid(arrayMesh);
             }
 
             var node = new MeshInstance3D { Name = actor.Length > 0 ? actor : meshName, Mesh = arrayMesh, Transform = transform, Visible = !hidden };
@@ -1195,26 +1448,58 @@ public static class MapBuilder
 
         private void FlushCells()
         {
-            foreach (((int x, int y, int sky) cell, Dictionary<(string, LightSource, bool), SurfaceBuilder> buckets) in _cells)
+            // The materials first, in the order the cells ask for them. The merged geometry of every drawn bucket is
+            // then written on worker threads (plain data, each bucket in its own queued order), and the meshes are made
+            // here in cell order.
+            var cells = new List<((int x, int y, int sky) Cell, List<((string, LightSource, VisionPass) Key, Material Material, LightReach.Twins Twins, SurfaceBuilder Surface)> Drawn)>();
+            var merged = new List<SurfaceBuilder>();
+            foreach (((int x, int y, int sky) cell, Dictionary<(string, LightSource, VisionPass), SurfaceBuilder> buckets) in _cells)
             {
-                string baseName = string.Create(CultureInfo.InvariantCulture, $"{(cell.sky != 0 ? "Sky" : "Cell")}_{cell.x}_{cell.y}");
-                var keys = new List<(string, LightSource, bool)>(buckets.Keys);
+                var keys = new List<(string, LightSource, VisionPass)>(buckets.Keys);
                 keys.Sort((a, b) => string.CompareOrdinal(a.Item1, b.Item1) is var n and not 0 ? n
                     : a.Item2 != b.Item2 ? a.Item2.CompareTo(b.Item2) : a.Item3.CompareTo(b.Item3));
+                var drawn = new List<((string, LightSource, VisionPass) Key, Material Material, LightReach.Twins Twins, SurfaceBuilder Surface)>(keys.Count);
+                foreach ((string, LightSource, VisionPass) key in keys)
+                {
+                    // The sky zone draws as its own camera sees it, and never in thermal or EMF (GetSky).
+                    Material? material = cell.sky != 0 ? _map.Compiler.GetSky(key.Item1, key.Item2) : key.Item3 switch
+                    {
+                        VisionPass.SeeThrough => _map.Compiler.GetSeeThrough(key.Item1, key.Item2),
+                        VisionPass.Plain => _map.Compiler.GetPlain(key.Item1, key.Item2),
+                        _ => _map.Compiler.Get(key.Item1, key.Item2),
+                    };
+                    if (material is not null)
+                    {
+                        // The sky zone (its own material variant, never drawn in thermal or EMF) keeps its materials.
+                        LightReach.Twins twins = cell.sky != 0 ? default : TwinsOf(key);
+                        drawn.Add((key, material, twins, buckets[key]));
+                        merged.Add(buckets[key]);
+                    }
+                }
+
+                cells.Add((cell, drawn));
+            }
+
+            LoadTimer.Mark("build.cell-materials");
+            ParallelFor(merged.Count, i => merged[i].Prepare());
+            LoadTimer.Mark("build.cell-geometry");
+            foreach (((int x, int y, int sky) cell, List<((string, LightSource, VisionPass) Key, Material Material, LightReach.Twins Twins, SurfaceBuilder Surface)> drawn) in cells)
+            {
+                string baseName = string.Create(CultureInfo.InvariantCulture, $"{(cell.sky != 0 ? "Sky" : "Cell")}_{cell.x}_{cell.y}");
 
                 // A cell with more materials than one mesh can hold (MoonD's cells pass 256) is split over several
                 // meshes, so no surface is dropped.
                 int part = 0;
-                var surfaces = new List<(SurfaceBuilder Surface, Material Material, bool Split)>(MaxSurfacesPerMesh);
-                foreach ((string, LightSource, bool) key in keys)
+                // SVM_RD_PROTO=frame draws only what it can hide from the main view by layer (StaticWorld, Sky): a
+                // cell with an animated shadow material goes on the World layer, so it stays with Godot, whole.
+                bool keptByGodot = RdProto.RdProtoGeometry.InFrame && cell.sky == 0 && drawn.Exists(d => AnimatesShadow(d.Material));
+                var surfaces = new List<(SurfaceBuilder Surface, Material Material, LightReach.Twins Twins, bool Split)>(MaxSurfacesPerMesh);
+                // The buckets the world pass draws get meshes of their own, on its layers (RdWorldGeometry).
+                var rdSurfaces = new List<(SurfaceBuilder Surface, Material Material, LightReach.Twins Twins, bool Split)>();
+                uint rdLayer = cell.sky != 0 ? RenderLayers.SkyRd : RenderLayers.StaticWorldRd;
+                int rdPart = 0;
+                foreach (((string, LightSource, VisionPass) key, Material material, LightReach.Twins twins, SurfaceBuilder b) in drawn)
                 {
-                    Material? material = key.Item3 ? _map.Compiler.GetSeeThrough(key.Item1, key.Item2) : _map.Compiler.Get(key.Item1, key.Item2);
-                    if (material is null)
-                    {
-                        continue;
-                    }
-
-                    SurfaceBuilder b = buckets[key];
                     if (b.TriangleCount == 0)
                     {
                         continue;
@@ -1222,43 +1507,84 @@ public static class MapBuilder
 
                     if (surfaces.Count == MaxSurfacesPerMesh)
                     {
-                        FlushCellPart(surfaces, CellPartName(baseName, part++), cell.sky != 0);
+                        FlushCellPart(surfaces, CellPartName(baseName, part++), cell.sky != 0, keptByGodot);
                         surfaces.Clear();
                     }
 
                     // Transparent and vision see-through passes keep the original cell sort bounds.
                     // A MaterialSequence can change its blend mode by replacing the shader at runtime.
                     MaterialEntry? entry = _map.Materials.Find(key.Item1);
-                    bool split = cell.sky == 0 && !key.Item3 && material.NextPass is null &&
-                        entry is { Blend: MaterialBlend.Opaque or MaterialBlend.Masked } &&
+                    bool solid = entry is { Blend: MaterialBlend.Opaque or MaterialBlend.Masked } &&
                         !(entry.Sequences.TryGetValue("diffuse", out var sequence) && sequence.SwitchMaterial);
-                    surfaces.Add((b, material, split));
+                    // Sky cells split the other way: each transparent surface gets a node of its own (FlushCellPart).
+                    bool split = cell.sky == 0 ? key.Item3 != VisionPass.SeeThrough && material.NextPass is null && solid : !solid;
                     _map.Stats.Vertices += b.VertexCount;
+                    // The own frame draws cut-outs that animate too (its colour pass does not care how their shadow is cached).
+                    if (_map.RdWorld is { } rdWorld && (Rd.RdWorldRenderer.OwnFrame || !AnimatesShadow(material)) && rdWorld.TryAdd(cell, key.Item1, key.Item2, entry, b))
+                    {
+                        if (rdSurfaces.Count == MaxSurfacesPerMesh)
+                        {
+                            FlushCellPart(rdSurfaces, CellPartName(baseName + "_Rd", rdPart++), cell.sky != 0, rdLayer: rdLayer);
+                            rdSurfaces.Clear();
+                        }
+
+                        rdSurfaces.Add((b, material, twins, split));
+                        continue;
+                    }
+
+                    surfaces.Add((b, material, twins, split));
+                    if (!keptByGodot)
+                    {
+                        _map.RdGeometry?.Add(cell, key.Item2, material, entry, b, _map.Textures);
+                    }
                 }
 
-                FlushCellPart(surfaces, CellPartName(baseName, part), cell.sky != 0);
+                FlushCellPart(surfaces, CellPartName(baseName, part), cell.sky != 0, keptByGodot);
+                FlushCellPart(rdSurfaces, CellPartName(baseName + "_Rd", rdPart), cell.sky != 0, rdLayer: rdLayer);
             }
+        }
+
+        /// <summary>
+        /// The twins LightReach swaps in: where no spot (and no dynamic) light reaches, and outside thermal and EMF. Every
+        /// vision pass draws the same normal vision twins; see-through passes keep their own material in thermal and EMF
+        /// whatever reaches them (their twins would lose the blended pass). A twin a material lacks falls back to the
+        /// nearest it has: no spot to full, neither to no spot.
+        /// </summary>
+        private LightReach.Twins TwinsOf((string Name, LightSource Light, VisionPass Pass) key)
+        {
+            MaterialCompiler compiler = _map.Compiler;
+            bool plain = key.Pass == VisionPass.Plain;
+            bool seeThrough = key.Pass == VisionPass.SeeThrough;
+            Material? normal = compiler.GetNormalVision(key.Name, key.Light, plain);
+            Material? normalNoSpot = compiler.GetNormalVision(key.Name, key.Light, plain, keepSpot: false) ?? normal;
+            return new(
+                seeThrough ? null : compiler.GetUnreached(key.Name, key.Light, plain, keepDynamic: true),
+                seeThrough ? null : compiler.GetUnreached(key.Name, key.Light, plain, keepDynamic: false),
+                normal,
+                normalNoSpot,
+                compiler.GetNormalVision(key.Name, key.Light, plain, keepSpot: false, keepDynamic: false) ?? normalNoSpot);
         }
 
         private static string CellPartName(string baseName, int part) =>
             part == 0 ? baseName : string.Create(CultureInfo.InvariantCulture, $"{baseName}_{part}");
 
-        private void FlushCellPart(List<(SurfaceBuilder Surface, Material Material, bool Split)> surfaces, string name, bool sky)
+        private static bool AnimatesShadow(Material material) =>
+            material is ShaderMaterial { Shader: { } shader } && shader.HasMeta("svm_shadow_animated") && shader.GetMeta("svm_shadow_animated").AsBool();
+
+        private void FlushCellPart(List<(SurfaceBuilder Surface, Material Material, LightReach.Twins Twins, bool Split)> surfaces, string name, bool sky, bool worldLayer = false, uint rdLayer = 0)
         {
             if (surfaces.Count == 0)
             {
                 return;
             }
 
-            bool animatedShadow = false;
+            bool animatedShadow = worldLayer;
             var grouped = new ArrayMesh { ResourceName = name };
-            var bounded = new List<ArrayMesh>();
-            foreach ((SurfaceBuilder surface, Material material, bool split) in surfaces)
+            var groupedTwins = new List<LightReach.Twins>();
+            var bounded = new List<(ArrayMesh Mesh, LightReach.Twins Twins)>();
+            foreach ((SurfaceBuilder surface, Material material, LightReach.Twins twins, bool split) in surfaces)
             {
-                if (!sky && material is ShaderMaterial { Shader: { } shader })
-                {
-                    animatedShadow |= shader.HasMeta("svm_shadow_animated") && shader.GetMeta("svm_shadow_animated").AsBool();
-                }
+                animatedShadow |= !sky && AnimatesShadow(material);
 
                 // Each material was already a draw call. A tight instance AABB lets Godot cull
                 // it without splitting the material's merged triangles into additional calls.
@@ -1266,49 +1592,75 @@ public static class MapBuilder
                 {
                     var mesh = new ArrayMesh { ResourceName = string.Create(CultureInfo.InvariantCulture, $"{name}_Surface{bounded.Count}") };
                     surface.AddTo(mesh, material);
-                    bounded.Add(mesh);
+                    bounded.Add((mesh, twins));
                 }
                 else
                 {
                     surface.AddTo(grouped, material);
+                    groupedTwins.Add(twins);
                 }
             }
 
-            uint layer = sky ? RenderLayers.Sky : animatedShadow ? RenderLayers.World : RenderLayers.StaticWorld;
+            uint layer = rdLayer != 0 ? rdLayer : sky ? RenderLayers.Sky : animatedShadow ? RenderLayers.World : RenderLayers.StaticWorld;
+            if (sky && bounded.Count != 0)
+            {
+                // The sky camera sorted a cell's transparent surfaces by the cell's box and, at that one distance, in
+                // surface order (Godot's sort keeps the order of up to 16 transparent surfaces). Drawn by the main view
+                // among many more, they keep both: the cell's box on each split mesh, the surface order as a node meta
+                // (FaithfulView.UpdateSkySort).
+                Aabb cellBounds = grouped.GetSurfaceCount() != 0 ? grouped.GetAabb() : bounded[0].Mesh.GetAabb();
+                foreach ((ArrayMesh mesh, _) in bounded)
+                {
+                    cellBounds = cellBounds.Merge(mesh.GetAabb());
+                }
+
+                for (int i = 0; i < bounded.Count; i++)
+                {
+                    bounded[i].Mesh.CustomAabb = cellBounds;
+                }
+            }
+
             if (grouped.GetSurfaceCount() != 0)
             {
-                if (bounded.Count != 0)
+                if (bounded.Count != 0 && !sky)
                 {
                     Aabb originalBounds = grouped.GetAabb();
-                    foreach (ArrayMesh mesh in bounded)
+                    foreach ((ArrayMesh mesh, _) in bounded)
                     {
                         originalBounds = originalBounds.Merge(mesh.GetAabb());
                     }
                     grouped.CustomAabb = originalBounds;
                 }
-                AddCellMesh(grouped, layer);
+                AddCellMesh(grouped, layer, groupedTwins);
             }
             else
             {
                 grouped.Dispose();
             }
 
-            foreach (ArrayMesh mesh in bounded)
+            for (int i = 0; i < bounded.Count; i++)
             {
-                AddCellMesh(mesh, layer);
+                MeshInstance3D node = AddCellMesh(bounded[i].Mesh, layer, [bounded[i].Twins]);
+                if (sky)
+                {
+                    node.SetMeta(FaithfulView.SkySortOrderMeta, i);
+                }
             }
         }
 
-        private void AddCellMesh(ArrayMesh mesh, uint layer)
+        private MeshInstance3D AddCellMesh(ArrayMesh mesh, uint layer, IReadOnlyList<LightReach.Twins> twins)
         {
-            _static.AddChild(new MeshInstance3D
+            var node = new MeshInstance3D
             {
                 Name = mesh.ResourceName,
                 Mesh = mesh,
                 Layers = layer,
-            });
+            };
+            _static.AddChild(node);
+            _map.LightReach.Add(node, twins);
             _map.Stats.StaticNodes++;
             _map.Stats.StaticSurfaces += mesh.GetSurfaceCount();
+            return node;
         }
 
         private static string? Str(JsonElement e, string name) =>

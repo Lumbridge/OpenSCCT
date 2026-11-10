@@ -21,8 +21,6 @@ internal sealed partial class PlayerPortal
             "Fill out both teams with bots and practise co-op moves like boosts and hoists.", 1280, 720)),
         ("MERCENARY SIDEARMS", new("showcase-sidearm.png", "A mercenary holding a Desert Eagle during a Steel Squat match.",
             "Draw a backup pistol in sessions with sidearms enabled.")),
-        ("WINDOWS GRAPHICS DRIVERS", new("showcase-graphics-driver.webp", "The Performance menu's graphics driver list offers Default, Vulkan and Direct3D 12.",
-            "OpenSCCT 0.8.99 adds a choice of Vulkan or Direct3D 12 for the Faithful renderer on Windows.")),
         ("GAMEPLAY REPLAYS", new("showcase-replays.png", "A mercenary replay on Aquarius, with playback controls visible.",
             "Watch a recorded match with playback controls and first-person or free camera views.")),
         ("COMMUNITY HUBS", new("showcase-hub.png", "A spy in the OpenSCCT community hub.",

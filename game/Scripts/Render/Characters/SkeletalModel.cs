@@ -228,6 +228,7 @@ public sealed class SkeletalModel : OpenScctGame.Views.IFirstPersonRigModel
         }
 
         s_templates.Clear();
+        TextureCache.ReleaseShared();
     }
 
     private sealed record Template(Node3D Scene, AnimSampler Sampler, FRotator RotOrigin, Vector3 MeshScale, bool Warm,
@@ -532,18 +533,13 @@ public sealed class SkeletalModel : OpenScctGame.Views.IFirstPersonRigModel
 
     private static Template BuildTemplate(string glbPath, Template? clipsFrom)
     {
+        long started = System.Diagnostics.Stopwatch.GetTimestamp();
         using GlbDocument glb = GlbDocument.Load(glbPath);
+        long parsed = System.Diagnostics.Stopwatch.GetTimestamp();
         bool authored = clipsFrom is null && AuthoredAnimationTracks.IsConverted(glb);
-        var document = new GltfDocument();
-        // Converted clips already contain the original key times. The default 30 Hz bake misses
-        // their sharp changes (including 8 Hz death clips), shifting limbs between authored keys.
-        var state = new GltfState { CreateAnimations = !authored };
-        Error error = document.AppendFromFile(glbPath, state);
-        if (error != Error.Ok || document.GenerateScene(state) is not Node3D scene)
-        {
-            throw new InvalidDataException($"{glbPath}: glTF load failed ({error})");
-        }
-
+        Dictionary<string, MaterialEntry> materials = ReadMaterials(glb.Root);
+        Node3D scene = ImportScene(glbPath, glb.Root, materials, authored);
+        long generated = System.Diagnostics.Stopwatch.GetTimestamp();
         Skeleton3D skeleton = FindFirst<Skeleton3D>(scene) ?? throw new InvalidDataException($"{glbPath}: no skeleton");
         var animations = authored ? AuthoredAnimationTracks.Read(glb, skeleton) : new List<(string, Animation)>();
         if (FindFirst<AnimationPlayer>(scene) is { } player)
@@ -570,11 +566,9 @@ public sealed class SkeletalModel : OpenScctGame.Views.IFirstPersonRigModel
 
         FRotator rotOrigin = default;
         Vector3 meshScale = Vector3.One;
-        Dictionary<string, MaterialEntry> materials;
         var packageBones = new List<string>();
         {
             ReadExtras(glb.Root, ref rotOrigin, ref meshScale);
-            materials = ReadMaterials(glb.Root);
             if (glb.Root.TryGetProperty("skins", out JsonElement skins) && skins.GetArrayLength() > 0)
             {
                 JsonElement nodes = glb.Root.GetProperty("nodes");
@@ -583,7 +577,9 @@ public sealed class SkeletalModel : OpenScctGame.Views.IFirstPersonRigModel
             }
         }
 
-        var textures = new TextureCache(Path.GetDirectoryName(glbPath) ?? ".");
+        long compiling = System.Diagnostics.Stopwatch.GetTimestamp();
+        // Shared: the sidearm, arms and outfit models of a package name the same PNGs, made once for all of them.
+        var textures = new TextureCache(Path.GetDirectoryName(glbPath) ?? ".") { Shared = true };
         // shared/chars/<Package>/<Mesh>.glb: the render pack (heat and EMF skins) is shared/render.
         string? shared = Path.GetDirectoryName(Path.GetDirectoryName(Path.GetDirectoryName(Path.GetFullPath(glbPath))));
         var compiler = new MaterialCompiler(new MaterialsDoc(), textures)
@@ -591,9 +587,29 @@ public sealed class SkeletalModel : OpenScctGame.Views.IFirstPersonRigModel
             // A map's own mesh (render/chars) has no render pack beside it: an outfit model takes its team's.
             Pack = clipsFrom?.Compiler.Pack ?? (shared is null ? null : RenderPack.Load(shared)),
             VisionLookup = VisionLookup.SkinBase,
+            // Character models carry OpenSCCT's cosmetics (tints, light hues, camos).
+            Cosmetics = true,
             // Its own materials have no heat or EMF skins: masks made from the stock mesh it stands in for.
             OwnVision = clipsFrom is null ? null : name => OutfitSkins.For(glbPath, clipsFrom.Glb)?.Vision(name),
         };
+
+        // The PNGs of the materials built below, decoded on worker threads first (textures are made here).
+        var wanted = new List<(string Uri, bool Mipmaps)>();
+        var seen = new HashSet<string>(StringComparer.Ordinal);
+        foreach (MeshInstance3D mesh in FindAll<MeshInstance3D>(scene))
+        {
+            for (int s = 0; s < (mesh.Mesh?.GetSurfaceCount() ?? 0); s++)
+            {
+                if (mesh.Mesh!.SurfaceGetMaterial(s)?.ResourceName is { } name && seen.Add(name) &&
+                    materials.TryGetValue(name, out MaterialEntry? entry))
+                {
+                    wanted.AddRange(compiler.TexturesOf(entry));
+                    if (entry.NormalTexture is { } normal) wanted.Add((normal, true));
+                }
+            }
+        }
+
+        textures.Prefetch(wanted);
         foreach (MeshInstance3D mesh in FindAll<MeshInstance3D>(scene))
         {
             // The pose moves skinned vertices far from the rest pose the culling box is made of (SteeE's crane, drawn
@@ -614,6 +630,13 @@ public sealed class SkeletalModel : OpenScctGame.Views.IFirstPersonRigModel
             }
         }
 
+        // A texture the materials did not ask for after all (a self-illum image of an unlit pass) is not kept.
+        textures.DropPrefetched();
+
+        OpenScctGame.Diagnostics.LoadTimer.Glb(glbPath,
+            System.Diagnostics.Stopwatch.GetElapsedTime(started, parsed).TotalMilliseconds,
+            System.Diagnostics.Stopwatch.GetElapsedTime(parsed, generated).TotalMilliseconds,
+            System.Diagnostics.Stopwatch.GetElapsedTime(compiling).TotalMilliseconds, textures.Count);
         bool warm = clipsFrom is not null ||
             string.Equals(Path.GetFileName(Path.GetDirectoryName(Path.GetFullPath(glbPath))), "SPerso", StringComparison.OrdinalIgnoreCase);
         return new Template(scene, new AnimSampler(skeleton, animations), rotOrigin, meshScale, warm,
@@ -623,6 +646,305 @@ public sealed class SkeletalModel : OpenScctGame.Views.IFirstPersonRigModel
             Glb = Path.GetFullPath(glbPath),
             Textures = textures,
         };
+    }
+
+    /// <summary>
+    /// The glTF scene of <paramref name="glbPath"/>. Godot's importer reads, decodes and uploads every image the file
+    /// names, yet every surface with a named material draws a Faithful material made from the same PNGs instead. So the
+    /// file is read with a 1x1 stand-in for each image (nothing else in it changes: names, texture indices and texCoord
+    /// sets stay, so meshes and UVs come out the same), and read again as it is if any surface would keep the
+    /// importer's own material.
+    /// </summary>
+    private static Node3D ImportScene(string glbPath, JsonElement root, Dictionary<string, MaterialEntry> materials, bool authored)
+    {
+        if (ForImport(glbPath, root, authored) is { } stripped)
+        {
+            if (Import(glbPath, stripped, authored, out _) is { } scene)
+            {
+                if (AllReplaced(scene, materials))
+                {
+                    return scene;
+                }
+
+                scene.Free();
+            }
+        }
+
+        return Import(glbPath, null, authored, out Error error) ?? throw new InvalidDataException($"{glbPath}: glTF load failed ({error})");
+    }
+
+    private static Node3D? Import(string glbPath, byte[]? bytes, bool authored, out Error error)
+    {
+        using var document = new GltfDocument();
+        // Converted clips already contain the original key times. The default 30 Hz bake misses
+        // their sharp changes (including 8 Hz death clips), shifting limbs between authored keys.
+        using var state = new GltfState { CreateAnimations = !authored };
+        if (bytes is null)
+        {
+            error = document.AppendFromFile(glbPath, state);
+        }
+        else
+        {
+            // What AppendFromFile sets besides: the name the scene and meshes are named from (the file's base name).
+            // The base path is the file's folder in both.
+            state.FileName = Path.GetFileNameWithoutExtension(glbPath);
+            error = document.AppendFromBuffer(bytes, Path.GetDirectoryName(glbPath) ?? "", state);
+        }
+
+        if (error != Error.Ok)
+        {
+            return null;
+        }
+
+        Node? generated = document.GenerateScene(state);
+        if (generated is Node3D scene)
+        {
+            return scene;
+        }
+
+        generated?.Free();
+        return null;
+    }
+
+    /// <summary>True when every surface with a material gets a Faithful one (BuildTemplate's rule).</summary>
+    private static bool AllReplaced(Node3D scene, Dictionary<string, MaterialEntry> materials)
+    {
+        foreach (MeshInstance3D mesh in FindAll<MeshInstance3D>(scene))
+        {
+            for (int s = 0; s < (mesh.Mesh?.GetSurfaceCount() ?? 0); s++)
+            {
+                if (mesh.Mesh!.SurfaceGetMaterial(s) is { } material && !materials.ContainsKey(material.ResourceName))
+                {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    private static string? s_pixelUri;
+
+    /// <summary>
+    /// The .glb as Godot's importer needs it, every other byte as it is: its "images" array replaced by 1x1 PNGs (same
+    /// count, order and names; left alone when the file names an image format extension), and, for a file whose clips
+    /// are read here (<paramref name="authored"/>), without its "animations" and the accessors and buffer views after
+    /// the last one a mesh or skin uses. The importer decodes every clip's keys while it parses, wanted or not: the
+    /// stock spy's 339 clips cost half a second a load. Null when nothing is to change.
+    /// </summary>
+    private static byte[]? ForImport(string glbPath, JsonElement root, bool authored)
+    {
+        bool extensions = root.TryGetProperty("extensionsUsed", out JsonElement used) && used.ValueKind == JsonValueKind.Array &&
+            used.GetArrayLength() > 0;
+        bool images = root.TryGetProperty("images", out JsonElement imageList) && imageList.ValueKind == JsonValueKind.Array &&
+            imageList.GetArrayLength() > 0;
+        if (images && extensions)
+        {
+            foreach (JsonElement e in used.EnumerateArray())
+            {
+                if (e.GetString() is "KHR_texture_basisu" or "EXT_texture_webp" or "EXT_texture_avif" or "MSFT_texture_dds"
+                    or "KHR_materials_pbrSpecularGlossiness")
+                {
+                    images = false;
+                }
+            }
+        }
+
+        bool clips = authored && root.TryGetProperty("animations", out JsonElement clipList) && clipList.ValueKind == JsonValueKind.Array &&
+            clipList.GetArrayLength() > 0;
+        if (!images && !clips)
+        {
+            return null;
+        }
+
+        // What a mesh or skin reads comes first in the files the converter writes; the clips' data follows. An image
+        // kept in the file may name a buffer view, and an extension anything: nothing is cut then.
+        int keepAccessors = -1, keepViews = -1;
+        if (clips && !extensions && (images || !root.TryGetProperty("images", out _)))
+        {
+            UsedByGeometry(root, out keepAccessors, out keepViews);
+        }
+
+        byte[] file = File.ReadAllBytes(glbPath);
+        ReadOnlySpan<byte> span = file;
+        if (span.Length < 20 || System.Buffers.Binary.BinaryPrimitives.ReadUInt32LittleEndian(span) != 0x46546C67 ||
+            System.Buffers.Binary.BinaryPrimitives.ReadUInt32LittleEndian(span[16..]) != 0x4E4F534A)
+        {
+            return null;
+        }
+
+        int jsonLength = System.Buffers.Binary.BinaryPrimitives.ReadInt32LittleEndian(span[12..]);
+        if (jsonLength <= 0 || 20 + jsonLength > span.Length)
+        {
+            return null;
+        }
+
+        // The byte ranges of the root values to replace, in file order.
+        ReadOnlySpan<byte> json = span.Slice(20, jsonLength);
+        var edits = new List<(int Start, int End, byte[] Put)>();
+        var reader = new Utf8JsonReader(json);
+        while (reader.Read())
+        {
+            if (reader.TokenType != JsonTokenType.PropertyName || reader.CurrentDepth != 1)
+            {
+                continue;
+            }
+
+            bool isImages = images && reader.ValueTextEquals("images"u8);
+            bool isClips = clips && reader.ValueTextEquals("animations"u8);
+            int keep = reader.ValueTextEquals("accessors"u8) ? keepAccessors : reader.ValueTextEquals("bufferViews"u8) ? keepViews : -1;
+            reader.Read();
+            if (reader.TokenType != JsonTokenType.StartArray)
+            {
+                reader.Skip();
+                continue;
+            }
+
+            int start = (int)reader.TokenStartIndex;
+            if (isImages || isClips)
+            {
+                reader.Skip();
+                edits.Add((start, (int)reader.BytesConsumed, isImages ? ImageStubs(imageList) : "[]"u8.ToArray()));
+            }
+            else if (keep > 0)
+            {
+                // Everything after the last element kept, up to the closing bracket.
+                int count = 0, cut = -1;
+                while (reader.Read() && reader.TokenType != JsonTokenType.EndArray)
+                {
+                    reader.Skip();
+                    if (++count == keep) cut = (int)reader.BytesConsumed;
+                }
+
+                if (cut >= 0 && count > keep) edits.Add((cut, (int)reader.TokenStartIndex, []));
+            }
+            else
+            {
+                reader.Skip();
+            }
+        }
+
+        if (edits.Count == 0)
+        {
+            return null;
+        }
+
+        using var body = new MemoryStream(jsonLength);
+        int at = 0;
+        foreach ((int start, int end, byte[] put) in edits)
+        {
+            body.Write(json[at..start]);
+            body.Write(put);
+            at = end;
+        }
+
+        body.Write(json[at..]);
+        int newLength = (int)body.Length;
+        int padded = (newLength + 3) & ~3;
+        int rest = span.Length - (20 + jsonLength);
+        byte[] result = new byte[20 + padded + rest];
+        Span<byte> output = result;
+        span[..12].CopyTo(output);
+        System.Buffers.Binary.BinaryPrimitives.WriteUInt32LittleEndian(output[8..], (uint)result.Length);
+        System.Buffers.Binary.BinaryPrimitives.WriteInt32LittleEndian(output[12..], padded);
+        System.Buffers.Binary.BinaryPrimitives.WriteUInt32LittleEndian(output[16..], 0x4E4F534A);
+        Span<byte> target = output.Slice(20, padded);
+        body.GetBuffer().AsSpan(0, newLength).CopyTo(target);
+        target[newLength..].Fill((byte)' ');
+        span[(20 + jsonLength)..].CopyTo(output[(20 + padded)..]);
+        return result;
+    }
+
+    /// <summary>
+    /// How many accessors, and buffer views, from the first to the last one a mesh or skin reads (-1 each when the
+    /// file is not laid out as expected).
+    /// </summary>
+    private static void UsedByGeometry(JsonElement root, out int accessors, out int views)
+    {
+        accessors = views = -1;
+        try
+        {
+            int last = -1;
+            if (root.TryGetProperty("meshes", out JsonElement meshes))
+            {
+                foreach (JsonElement mesh in meshes.EnumerateArray())
+                {
+                    foreach (JsonElement prim in mesh.GetProperty("primitives").EnumerateArray())
+                    {
+                        foreach (JsonProperty attribute in prim.GetProperty("attributes").EnumerateObject()) last = Math.Max(last, attribute.Value.GetInt32());
+                        if (prim.TryGetProperty("indices", out JsonElement indices)) last = Math.Max(last, indices.GetInt32());
+                        if (prim.TryGetProperty("targets", out JsonElement targets))
+                        {
+                            foreach (JsonElement target in targets.EnumerateArray())
+                            {
+                                foreach (JsonProperty attribute in target.EnumerateObject()) last = Math.Max(last, attribute.Value.GetInt32());
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (root.TryGetProperty("skins", out JsonElement skins))
+            {
+                foreach (JsonElement skin in skins.EnumerateArray())
+                {
+                    if (skin.TryGetProperty("inverseBindMatrices", out JsonElement bind)) last = Math.Max(last, bind.GetInt32());
+                }
+            }
+
+            if (last < 0 || !root.TryGetProperty("accessors", out JsonElement list))
+            {
+                return;
+            }
+
+            int lastView = -1, index = 0;
+            foreach (JsonElement accessor in list.EnumerateArray())
+            {
+                if (index++ > last) break;
+                if (accessor.TryGetProperty("sparse", out _)) return;
+                if (accessor.TryGetProperty("bufferView", out JsonElement view)) lastView = Math.Max(lastView, view.GetInt32());
+            }
+
+            accessors = last + 1;
+            views = lastView + 1;
+        }
+        catch (Exception e) when (e is KeyNotFoundException or InvalidOperationException or FormatException)
+        {
+            accessors = views = -1;
+        }
+    }
+
+    /// <summary>An "images" array of 1x1 PNGs with the names of <paramref name="images"/>.</summary>
+    private static byte[] ImageStubs(JsonElement images)
+    {
+        if (s_pixelUri is null)
+        {
+            using Image pixel = Image.CreateEmpty(1, 1, false, Image.Format.Rgba8);
+            s_pixelUri = "data:image/png;base64," + Convert.ToBase64String(pixel.SavePngToBuffer());
+        }
+
+        using var stub = new MemoryStream();
+        var options = new JsonWriterOptions { Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping };
+        using (var writer = new Utf8JsonWriter(stub, options))
+        {
+            writer.WriteStartArray();
+            foreach (JsonElement image in images.EnumerateArray())
+            {
+                writer.WriteStartObject();
+                if (image.TryGetProperty("name", out JsonElement name) && name.ValueKind == JsonValueKind.String)
+                {
+                    writer.WriteString("name", name.GetString());
+                }
+
+                writer.WriteString("mimeType", "image/png");
+                writer.WriteString("uri", s_pixelUri);
+                writer.WriteEndObject();
+            }
+
+            writer.WriteEndArray();
+        }
+
+        return stub.ToArray();
     }
 
     /// <summary>UE2 placement: Location + PrePivot, the actor rotation, and DrawScale on the mesh.</summary>

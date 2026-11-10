@@ -17,17 +17,16 @@ public sealed class GameRendererSettingsTests
         Assert.Equal(GameRendererSettings.Vulkan, GameRendererSettings.Load(data));
         Assert.False(Directory.Exists(data));
 
-        GameRendererSettings.Save(data, GameRendererSettings.Direct3D12);
+        GameRendererSettings.Save(data, GameRendererSettings.Vulkan);
 
-        Assert.Equal(GameRendererSettings.Direct3D12, GameRendererSettings.Load(data));
-        Assert.Equal("[rendering]\nrendering_device/driver.windows=\"d3d12\"\n", File.ReadAllText(Path.Combine(data, "render_override.cfg")));
+        Assert.Equal(GameRendererSettings.Vulkan, GameRendererSettings.Load(data));
+        Assert.Equal("[rendering]\nrendering_device/driver.windows=\"vulkan\"\n", File.ReadAllText(Path.Combine(data, "render_override.cfg")));
         Assert.False(File.Exists(Path.Combine(data, "settings.json")));
     }
 
     [Theory]
     [InlineData(GameRendererSettings.Vulkan, "vulkan")]
-    [InlineData(GameRendererSettings.Direct3D12, "d3d12")]
-    public void SavesBothChoicesAndPreservesOtherSettings(string renderer, string driver)
+    public void SavesTheChoiceAndPreservesOtherSettings(string renderer, string driver)
     {
         using var dir = new TempDir();
         string path = dir.Combine("render_override.cfg");
@@ -46,7 +45,8 @@ public sealed class GameRendererSettingsTests
         using var dir = new TempDir();
         string path = dir.Combine("render_override.cfg");
         File.WriteAllText(path, "[rendering]\nrendering_device/driver.windows=\"vulkan\"\nrendering_device/driver.windows=\"d3d12\" ; last wins\n[display]\nrendering_device/driver.windows=\"keep\"\n[rendering]\nrendering_device/driver.windows=\"d3d12\"\n");
-        Assert.Equal(GameRendererSettings.Direct3D12, GameRendererSettings.Load(dir.Path));
+        // Direct3D 12 was a choice until game 0.8.125: a file that still names it reads as Vulkan.
+        Assert.Equal(GameRendererSettings.Vulkan, GameRendererSettings.Load(dir.Path));
 
         GameRendererSettings.Save(dir.Path, GameRendererSettings.Vulkan);
 
@@ -74,6 +74,7 @@ public sealed class GameRendererSettingsTests
 
     [Theory]
     [InlineData("\"unknown\"")]
+    [InlineData("\"d3d12\"")]
     [InlineData("d3d12")]
     [InlineData("\"d3d12")]
     [InlineData("\"d3d12\" extra")]
@@ -87,6 +88,7 @@ public sealed class GameRendererSettingsTests
 
     [Theory]
     [InlineData("Default")]
+    [InlineData("Direct3D 12")]
     [InlineData("OpenGL")]
     [InlineData("")]
     [InlineData(null)]
@@ -113,7 +115,6 @@ public sealed class GameRendererSettingsTests
 
     [Theory]
     [InlineData(GameRendererSettings.Vulkan, "vulkan")]
-    [InlineData(GameRendererSettings.Direct3D12, "d3d12")]
     public void EngineRendererPrecedesWebsiteJoinArguments(string renderer, string driver)
     {
         using var dir = new TempDir();

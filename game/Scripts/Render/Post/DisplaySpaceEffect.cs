@@ -96,6 +96,8 @@ public partial class DisplaySpaceEffect : CompositorEffect
     public const string ShaderPath = "res://Shaders/svm_display_post.glsl";
     public const string BlurShaderPath = "res://Shaders/svm_vision_blur.glsl";
     public const string GlowShaderPath = "res://Shaders/svm_glow.glsl";
+    public const string NormalShaderPath = "res://Shaders/svm_display_normal.glsl";
+    public const string BrightShaderPath = "res://Shaders/svm_glow_bright.glsl";
     private const int NoiseSize = 128;
     private const int ParamVectors = 17 + DisplayPostSettings.MaxCleanRects;
 
@@ -106,6 +108,10 @@ public partial class DisplaySpaceEffect : CompositorEffect
     private Rid _blurPipeline;
     private Rid _glowShader;
     private Rid _glowPipeline;
+    private Rid _normalShader;
+    private Rid _normalPipeline;
+    private Rid _brightShader;
+    private Rid _brightPipeline;
     private Rid _bright;
     private Rid _nearest;
     private Rid _linearRepeat;
@@ -198,7 +204,8 @@ public partial class DisplaySpaceEffect : CompositorEffect
         }
 
         _released = true;
-        Rid[] rids = [.. _levelSets, .. _glowPairSets, _pipeline, _shader, _blurPipeline, _blurShader, _glowPipeline, _glowShader, _nearest, _linearRepeat, _linearClamp, _noise, _lut, _sonar, _portalFog, .. _params, .. _levels, _bright];
+        Rid[] rids = [.. _levelSets, .. _glowPairSets, _nearest, _linearRepeat, _linearClamp, _noise, _lut, _sonar, _portalFog, .. _params, .. _levels, _bright];
+        Rid[] shaders = [_shader, _blurShader, _glowShader, _normalShader, _brightShader];
         RenderingServer.CallOnRenderThread(Callable.From(() =>
         {
             // On the render thread, between frames: the pass stops drawing before its resources go.
@@ -210,6 +217,12 @@ public partial class DisplaySpaceEffect : CompositorEffect
                 {
                     rd.FreeRid(rid);
                 }
+            }
+
+            // Shaders and pipelines are shared with other views (ComputeShaderSource).
+            foreach (Rid shader in shaders)
+            {
+                ComputeShaderSource.ReleaseShared(rd, shader);
             }
         }));
     }
@@ -225,7 +238,9 @@ public partial class DisplaySpaceEffect : CompositorEffect
 
         if (!Compile(ShaderPath, "svm_display_post", out _shader, out _pipeline) ||
             !Compile(BlurShaderPath, "svm_vision_blur", out _blurShader, out _blurPipeline) ||
-            !Compile(GlowShaderPath, "svm_glow", out _glowShader, out _glowPipeline))
+            !Compile(GlowShaderPath, "svm_glow", out _glowShader, out _glowPipeline) ||
+            !Compile(NormalShaderPath, "svm_display_normal", out _normalShader, out _normalPipeline) ||
+            !Compile(BrightShaderPath, "svm_glow_bright", out _brightShader, out _brightPipeline))
         {
             return;
         }
@@ -304,19 +319,14 @@ public partial class DisplaySpaceEffect : CompositorEffect
 
     private bool Compile(string path, string name, out Rid shader, out Rid pipeline)
     {
-        shader = default;
-        pipeline = default;
-        shader = ComputeShaderSource.CreateShader(_rd!, path, name, out string? error);
-        if (!shader.IsValid)
+        if (!ComputeShaderSource.AcquireShared(_rd!, path, name, out shader, out pipeline, out string? error))
         {
             Error = name + ": " + error;
             GD.PushError(Error);
             return false;
         }
 
-        pipeline = _rd!.ComputePipelineCreate(shader);
-        if (!pipeline.IsValid) Error = name + ": compute pipeline creation failed";
-        return pipeline.IsValid;
+        return true;
     }
 
     private Rid Upload(byte[] rgbaOrR8, int width, int height)
@@ -546,8 +556,12 @@ public partial class DisplaySpaceEffect : CompositorEffect
                     Main(values, StageFog, color, depth, size);
                 }
 
+                _rd.CaptureTimestamp("Display Glow");
                 Glow(color, size, cut!.Value);
-                Main(values, StageGlow | StageVision, color, depth, size);
+                _rd.CaptureTimestamp("Display Main");
+                if (LeanNormal) Normal(color, size, gate, glow: true, s.Linearize);
+                else Main(values, StageGlow | StageVision, color, depth, size);
+                _rd.CaptureTimestamp("Display End");
             }
             else if (pyramid)
             {
@@ -572,7 +586,11 @@ public partial class DisplaySpaceEffect : CompositorEffect
             }
             else
             {
-                Main(values, StageFog | StageGlow | StageVision, color, depth, size);
+                // The normal view without fallback fog: the gate and the decode alone, in a shader that holds no more.
+                _rd.CaptureTimestamp("Display Main");
+                if (LeanNormal && !fog && !grain) Normal(color, size, gate, glow: false, s.Linearize);
+                else Main(values, StageFog | StageGlow | StageVision, color, depth, size);
+                _rd.CaptureTimestamp("Display End");
             }
 
             _storage.End();
@@ -589,6 +607,38 @@ public partial class DisplaySpaceEffect : CompositorEffect
     private const int StageFog = 1;
     private const int StageVision = 2;
     private const int StageGlow = 4;
+
+    /// <summary>SVM_POST_LEAN=0 runs the normal view through the full post shader, as before (a measurement switch).</summary>
+    private static bool LeanNormal { get; } = System.Environment.GetEnvironmentVariable("SVM_POST_LEAN") != "0";
+
+    private UniformSlots? _normalSlots;
+    private readonly byte[] _normalBytes = new byte[48];
+
+    /// <summary>
+    /// The last pass of a normal frame (svm_display_normal.glsl): the glow composite's gate, the glow when
+    /// <paramref name="glow"/>, and the sRGB decode, as stages 4 and 2 of <see cref="Main"/> compute them.
+    /// </summary>
+    private void Normal(Rid color, Vector2I size, bool gate, bool glow, bool linearize)
+    {
+        RenderingDevice rd = _rd!;
+        UniformSlots slots = _normalSlots ??= new UniformSlots(RenderingDevice.UniformType.Image, RenderingDevice.UniformType.SamplerWithTexture);
+        slots.Set(0, color);
+        slots.Set(1, _linearClamp, _bright);
+        Rid set = UniformSetCacheRD.GetCache(_normalShader, 0, slots.Array);
+        Span<float> push =
+        [
+            gate ? 1f : 0f, RenderK.GlowGateGain, RenderK.GlowGateOffset, glow ? 1f : 0f,
+            RenderK.GlowGateLuma.X, RenderK.GlowGateLuma.Y, RenderK.GlowGateLuma.Z, linearize ? 1f : 0f,
+            size.X, size.Y, 0f, 0f,
+        ];
+        MemoryMarshal.AsBytes(push).CopyTo(_normalBytes);
+        long list = rd.ComputeListBegin();
+        rd.ComputeListBindComputePipeline(list, _normalPipeline);
+        rd.ComputeListBindUniformSet(list, set, 0);
+        rd.ComputeListSetPushConstant(list, _normalBytes, (uint)_normalBytes.Length);
+        rd.ComputeListDispatch(list, (uint)((size.X + 7) / 8), (uint)((size.Y + 7) / 8), 1);
+        rd.ComputeListEnd();
+    }
 
     private void Main(Span<float> values, int stage, Rid color, Rid depth, Vector2I size)
     {
@@ -697,7 +747,9 @@ public partial class DisplaySpaceEffect : CompositorEffect
     [Provenance(ProvenanceKind.Estimated, "the bright pass samples the frame bilinear; the original asks for texture filter 5 (gaussian cubic), which drivers do not offer")]
     private void Glow(Rid color, Vector2I size, float cut, bool emf = false)
     {
-        GlowPass(color, size, emf ? 2f : 0f, cut);
+        if (LeanNormal && !emf) Bright(color, cut);
+        else GlowPass(color, size, emf ? 2f : 0f, cut);
+        _rd!.CaptureTimestamp("Display Glow Blur");
         Rid source = _bright;
         Vector2I sourceSize = _brightSize;
         // Levels 1 (256), 3 (128), 5 (64) and 7 (32) are the pyramid.
@@ -708,7 +760,34 @@ public partial class DisplaySpaceEffect : CompositorEffect
             sourceSize = _levelSizes[i];
         }
 
+        _rd!.CaptureTimestamp("Display Glow Composite");
         GlowPass(color, size, emf ? 3f : 1f, cut);
+    }
+
+    private UniformSlots? _brightSlots;
+    private readonly byte[] _brightBytes = new byte[32];
+
+    /// <summary>The normal view's bright pass (GlowPass mode 0) with the frame read through a bilinear sampler (svm_glow_bright.glsl).</summary>
+    private void Bright(Rid color, float cut)
+    {
+        RenderingDevice rd = _rd!;
+        UniformSlots slots = _brightSlots ??= new UniformSlots(RenderingDevice.UniformType.SamplerWithTexture, RenderingDevice.UniformType.Image);
+        slots.Set(0, _linearClamp, color);
+        slots.Set(1, _bright);
+        Rid set = UniformSetCacheRD.GetCache(_brightShader, 0, slots.Array);
+        Vector2I target = _brightSize;
+        Span<float> push =
+        [
+            cut, RenderK.GlowBrightGain, target.X, target.Y,
+            RenderK.GlowBrightLuma.X, RenderK.GlowBrightLuma.Y, RenderK.GlowBrightLuma.Z, 0f,
+        ];
+        MemoryMarshal.AsBytes(push).CopyTo(_brightBytes);
+        long list = rd.ComputeListBegin();
+        rd.ComputeListBindComputePipeline(list, _brightPipeline);
+        rd.ComputeListBindUniformSet(list, set, 0);
+        rd.ComputeListSetPushConstant(list, _brightBytes, (uint)_brightBytes.Length);
+        rd.ComputeListDispatch(list, (uint)((target.X + 7) / 8), (uint)((target.Y + 7) / 8), 1);
+        rd.ComputeListEnd();
     }
 
     /// <summary>One pass into the bright target: normal bright/composite (0/1), EMF mask/halo (2/3).</summary>

@@ -48,7 +48,7 @@ public static class OutdoorScenery
                             if (mesh.GetActiveMaterial(surface) is not BaseMaterial3D source) continue;
                             if (!materials.TryGetValue(source, out var material))
                             {
-                                material = new ShaderMaterial { Shader = GD.Load<Shader>("res://Shaders/hub_scenery.gdshader") };
+                                material = new ShaderMaterial { Shader = Materials.ResponsiveSmokeShaders.Load("res://Shaders/hub_scenery.gdshader") };
                                 if (source.AlbedoTexture is { } albedo) material.SetShaderParameter("diffuse", albedo);
                                 material.SetShaderParameter("tint", source.AlbedoColor);
                                 material.SetShaderParameter("alpha_cut", source.Transparency == BaseMaterial3D.TransparencyEnum.Disabled ? 0f : .25f);

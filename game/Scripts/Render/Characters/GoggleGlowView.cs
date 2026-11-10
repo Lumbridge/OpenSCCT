@@ -226,7 +226,8 @@ public sealed class GoggleGlowView
                 Translucent = opacity,
                 ListBlend = opacity ? MaterialBlend.Translucent : MaterialBlend.Additive,
             };
-            material = new MaterialCompiler(new MaterialsDoc(), new TextureCache(folder)).Build(entry, LightSource.None);
+            // The beams turn their hue with the light cosmetic (svm_glow_hue).
+            material = new MaterialCompiler(new MaterialsDoc(), new TextureCache(folder)) { Cosmetics = true }.Build(entry, LightSource.None);
         }
 
         s_materials[cacheKey] = material;

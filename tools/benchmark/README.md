@@ -57,6 +57,22 @@ The comparison's `--require-parity` requires both average FPS and 1% low parity 
 background runs of a Reloaded editor Play Level and a release export; they do not establish retail foreground
 performance, moving-camera behavior, combat, network load or performance on another GPU.
 
+### GPU, settings and other processes
+
+`-GpuIndex <n>` passes Godot's `--gpu-index <n>` to pick the adapter. The runner cannot list Godot's adapters, so
+check the `gpu` name in `summary.json` to see which one ran. `runner.json` in the output folder records the
+requested index, driver and settings.
+
+`-Settings 'key=value', ...` overrides settings.json keys for that run only, through the game's repeatable
+`--svm-setting=key=value` flag (keys as in the settings console, groups with a dot). Overrides are never saved: while
+any are given, the game writes no settings file. A key it does not know logs an `ERROR:` line, which fails the run.
+
+Before launch the runner waits up to `-QuietWaitSeconds` (default 120) until no other game, editor or renderer runs:
+names starting `OpenSCCT`, `Godot`, `ClassicGame`, `SCCT`, `SplinterCell` or `UnrealEd`, or anything under
+`F:\SCCT-Automation`. If one is still there it does not start. While the game runs it checks once a second; a
+newcomer marks the run `"contaminated": true` in `runner.json`, lists it under `competitors` and prints a warning.
+Discard contaminated runs. `-IgnoreCompetitors 'OpenSCCT.Launcher*'` skips names you know are idle.
+
 Direct exported-game controls are `SVM_BENCHMARK=<cameras.json>`, `SVM_BENCHMARK_OUT=<folder>`,
 `SVM_BENCHMARK_SECONDS`, `SVM_BENCHMARK_WARMUP`, `SVM_BENCHMARK_PROFILING=1`, and `SVM_BENCHMARK_GAMEPLAY=1`;
 pass `--svm-play=<map>` after `--`.

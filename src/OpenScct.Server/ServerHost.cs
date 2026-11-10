@@ -411,6 +411,8 @@ public sealed partial class ServerHost : INetworkNotify, IDisposable
         int maxCatchUpTicks = 5)
     {
         ArgumentNullException.ThrowIfNull(clock);
+        // Sleeps on a high-resolution timer instead of spinning out the last 2 ms of each tick (Windows only).
+        using HighResolutionWait wait = HighResolutionWait.Create();
         long start = clock.NowMicroseconds;
         long ticks = 0;
         while (!cancellationToken.IsCancellationRequested)
@@ -419,15 +421,7 @@ public sealed partial class ServerHost : INetworkNotify, IDisposable
             long due = start + VirtualClock.TickToMicroseconds(ticks + 1, Sim.Hz);
             if (now < due)
             {
-                if (due - now > 2000)
-                {
-                    Thread.Sleep(1);
-                }
-                else
-                {
-                    Thread.Yield();
-                }
-
+                wait.Pause(due - now);
                 continue;
             }
 

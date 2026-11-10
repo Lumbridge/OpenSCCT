@@ -2,6 +2,7 @@ using System;
 using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Text.Json;
 
 namespace OpenScctGame.Render.Gltf;
@@ -108,6 +109,13 @@ public sealed class GlbDocument : IDisposable
         BufferView view = _views[a.View];
         int stride = view.Stride > 0 ? view.Stride : a.Components * 4;
         int baseOffset = view.Offset + a.Offset;
+        if (stride == a.Components * 4 && BitConverter.IsLittleEndian && result.Length > 0)
+        {
+            // Tightly packed little-endian floats: the same bits in one copy.
+            _bin.AsSpan(baseOffset, result.Length * 4).CopyTo(MemoryMarshal.AsBytes(result.AsSpan()));
+            return result;
+        }
+
         for (int i = 0; i < a.Count; i++)
         {
             int at = baseOffset + (i * stride);
@@ -150,6 +158,18 @@ public sealed class GlbDocument : IDisposable
         BufferView view = _views[a.View];
         int stride = view.Stride > 0 ? view.Stride : a.Components * size;
         var result = new byte[a.Count * 4];
+        if (a.ComponentType == 5121)
+        {
+            // Bytes round-trip exactly through byte / 255f * 255f, so they are copied as they are.
+            for (int i = 0; i < a.Count; i++)
+            {
+                result[i * 4 + 3] = 255;
+                _bin.AsSpan(view.Offset + a.Offset + i * stride, a.Components).CopyTo(result.AsSpan(i * 4));
+            }
+
+            return result;
+        }
+
         for (int i = 0; i < a.Count; i++)
         {
             result[i * 4 + 3] = 255;
@@ -186,6 +206,26 @@ public sealed class GlbDocument : IDisposable
         };
         int stride = view.Stride > 0 ? view.Stride : size * a.Components;
         int baseOffset = view.Offset + a.Offset;
+        if (stride == size * a.Components && result.Length > 0)
+        {
+            // Tightly packed: one span over the run instead of one per value.
+            ReadOnlySpan<byte> run = _bin.AsSpan(baseOffset, result.Length * size);
+            switch (size)
+            {
+                case 1:
+                    for (int i = 0; i < result.Length; i++) result[i] = run[i];
+                    break;
+                case 2:
+                    for (int i = 0; i < result.Length; i++) result[i] = BinaryPrimitives.ReadUInt16LittleEndian(run[(i * 2)..]);
+                    break;
+                default:
+                    for (int i = 0; i < result.Length; i++) result[i] = (int)BinaryPrimitives.ReadUInt32LittleEndian(run[(i * 4)..]);
+                    break;
+            }
+
+            return result;
+        }
+
         for (int i = 0; i < a.Count; i++)
         {
             for (int c = 0; c < a.Components; c++)

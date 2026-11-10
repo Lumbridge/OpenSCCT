@@ -698,11 +698,14 @@ public sealed class GameSettings
     /// <summary>Video_Settings' sQuality captions for the post-render row (Normal, High).</summary>
     public static readonly string[] PostQualities = ["Normal", "High"];
 
-    /// <summary>The Windows graphics driver to request at the next start. Vulkan is selected for new profiles.</summary>
+    /// <summary>
+    /// The Windows graphics driver. Vulkan is the only one since 0.8.126: a profile that chose Direct3D 12 loads as
+    /// Vulkan. The value stays in the settings file for older builds that read it.
+    /// </summary>
     [JsonPropertyName("graphics_driver")]
     public string GraphicsDriver { get; set; } = "Vulkan";
 
-    public static readonly string[] GraphicsDrivers = ["Vulkan", "Direct3D 12"];
+    public static readonly string[] GraphicsDrivers = ["Vulkan"];
 
     /// <summary>"Reduce input lag": On requests two swap-chain images. Needs a restart.</summary>
     [JsonPropertyName("low_latency_mode")]
@@ -710,6 +713,16 @@ public sealed class GameSettings
     public string LowLatencyMode { get; set; } = "Off";
 
     public static readonly string[] LatencyModes = ["Off", "On"];
+
+    /// <summary>
+    /// What draws a map: Standard is Godot's renderer; Fast is the game's own frame (Render/Rd), made for integrated
+    /// graphics, in beta. Fast hands vision modes, responsive smoke and outdoor-sky maps to Standard. From the next map.
+    /// </summary>
+    [JsonPropertyName("renderer")]
+    [Provenance(ProvenanceKind.Estimated, "OpenSCCT choice: Standard until Fast has been played (docs/PERFORMANCE-LOWEND-2026-11.md)")]
+    public string Renderer { get; set; } = "Standard";
+
+    public static readonly string[] Renderers = ["Standard", "Fast"];
 
     /// <summary>Windows: opt the game out of power throttling (EcoQoS) at start (Reloaded's throttle_stop, experimental).</summary>
     [JsonPropertyName("throttle_stop")]
@@ -1018,11 +1031,12 @@ public sealed class GameSettings
         ClutchTwoKey = (ClutchTwoKey ?? "").Trim();
         MouseWheel = OneOf(WheelModes, MouseWheel);
         WindowPosition = OneOf(WindowPositions, WindowPosition, "Centered");
-        // Legacy "Default" profiles now select Vulkan explicitly, as do missing or invalid choices.
+        // Legacy "Default" and "Direct3D 12" profiles select Vulkan, as do missing or invalid choices.
         GraphicsDriver = OneOf(GraphicsDrivers, GraphicsDriver);
         // Older Ultra settings used exactly the same engine override as On.
         if (string.Equals(LowLatencyMode, "Ultra", StringComparison.OrdinalIgnoreCase)) LowLatencyMode = "On";
         LowLatencyMode = OneOf(LatencyModes, LowLatencyMode);
+        Renderer = OneOf(Renderers, Renderer);
         FilterLevel = FilterLevel <= 0 ? 0 : FilterLevel <= 2 ? 2 : FilterLevel <= 4 ? 4 : FilterLevel <= 8 ? 8 : 16;
         ShadowQuality = LookSettings.Range(ShadowQuality, 0.5f, 16f);
         PostQuality = Math.Clamp(PostQuality, 0, 1);

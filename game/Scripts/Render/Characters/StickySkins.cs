@@ -72,7 +72,8 @@ public sealed class StickySkins
         }
 
         var skins = new StickySkins();
-        var compiler = new MaterialCompiler(new MaterialsDoc(), new TextureCache(fx));
+        // Drawn over character models, which carry OpenSCCT's cosmetics.
+        var compiler = new MaterialCompiler(new MaterialsDoc(), new TextureCache(fx)) { Cosmetics = true };
         foreach (JsonProperty p in list.EnumerateObject())
         {
             JsonElement s = p.Value;
