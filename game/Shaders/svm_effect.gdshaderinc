@@ -1,5 +1,8 @@
 // Unlit gameplay FX retain their StandardMaterial input colour/texture conventions.
 #include "res://Shaders/svm_fog.gdshaderinc"
+#ifdef EFFECT_HIDDEN_IN_VISION
+global uniform int svm_vision;
+#endif
 uniform vec4 effect_color : source_color = vec4(1.0);
 uniform sampler2D effect_texture : source_color, filter_linear_mipmap, repeat_enable;
 uniform bool effect_has_texture = false;
@@ -22,6 +25,12 @@ void vertex() {
 }
 
 void fragment() {
+#ifdef EFFECT_HIDDEN_IN_VISION
+    // Thermal and EMF read the frame as heat and field strength: a surface mark has neither.
+    if (svm_vision == 36 || svm_vision == 38) {
+        discard;
+    }
+#endif
     vec4 c = effect_color;
     if (effect_has_texture) c *= texture(effect_texture, UV);
 #ifdef EFFECT_VERTEX_COLOR

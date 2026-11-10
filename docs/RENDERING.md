@@ -988,6 +988,15 @@ hot spots stopped at yellow, his head read cold, a wide halo ringed him). The co
   the non-glowing EMF pass used by detector beams, with the same animated texture mask and first-person weapon
   stencil as its thermal pass. This covers the beam body, muzzle fin and fallback mesh. The spy pistol keeps its
   additive EMF look.
+- The Fast renderer draws `EffectMaterial` surfaces itself (`RdObjects.GatherEffect`: the weapon beams, the merc
+  sight's muzzle glow, impact marks, tracers and flashes; texture times colour, unlit, alpha or additive blend, with
+  the material's UV offset read each frame). Multiplied, subtracted and no-depth-test effects are left out. The spy
+  pistol's dot is a projector pass over the world surfaces its box reaches (`RdProjectors`, group
+  `svm_spy_laser_dot`); it does not land on objects or characters there. The merc beam's first-person weapon
+  stencil is not applied: the depth test alone hides the stretch inside the rifle.
+- Marks left on surfaces (bullet holes, burns, abandoned projections, footprints) are not drawn in thermal or EMF
+  (`EffectMaterial.HiddenInVision`, and the tinted projection shader): those modes read the frame's colours as heat
+  and field strength, so a mark's own colours showed as a glow on whatever it was stuck to.
 - Spawned gadget meshes (`EffectViews`) and the map's device nodes (`DeviceViews`) write their actor's live values
   (`GameplayObjects.VisionOf`) when they change, so a device whose bEMFIsOn goes off stops glowing; a map node keeps
   the map's HeatOpacity (not replicated).

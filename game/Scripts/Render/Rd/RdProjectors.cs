@@ -44,13 +44,22 @@ internal sealed class RdProjectors
     /// The projectors under <paramref name="root"/> whose box is in view, each with the frame's world draws its box
     /// reaches (main thread).
     /// </summary>
-    public void Gather(Node? root, Plane[] planes, Func<Plane[], Aabb, bool> inside, List<RdWorldGeometry.Batch> batches, int[] worldDraws, int worldDrawCount,
+    public void Gather(Node? root, SceneTree? tree, Plane[] planes, Func<Plane[], Aabb, bool> inside, List<RdWorldGeometry.Batch> batches, int[] worldDraws, int worldDrawCount,
         List<Draw> draws, List<float> blocks, List<Rid> textures, List<int> kinds)
     {
         draws.Clear();
         blocks.Clear();
         textures.Clear();
         kinds.Clear();
+        // The spy pistols' red dots: each is a small projector that moves every frame, so it is read again each time.
+        if (tree is not null)
+        {
+            foreach (Node dot in tree.GetNodesInGroup(s_laserDots))
+            {
+                if (dot is MeshInstance3D { Mesh: { } mesh } node && node.IsVisibleInTree() && Describe(node, mesh) is { } info) Reach(info, planes, inside, batches, worldDraws, worldDrawCount, draws, blocks, textures, kinds);
+            }
+        }
+
         if (root is null) return;
         if (!ReferenceEquals(root, _root))
         {
@@ -64,24 +73,34 @@ internal sealed class RdProjectors
 
         foreach (Info p in _projectors)
         {
-            if (!GodotObject.IsInstanceValid(p.Node) || !p.Node.IsVisibleInTree() || !inside(planes, p.Box)) continue;
-            int index = -1;
-            for (int k = 0; k < worldDrawCount; k++)
-            {
-                RdWorldGeometry.Batch b = batches[worldDraws[k]];
-                if (b.Sky || b.Material.Blended || !b.Bounds.Intersects(p.Box) || Outside(p.Planes, b.Bounds)) continue;
-                // bProjectStaticMesh off: baked static meshes are left alone.
-                if (p.SkipStaticMeshes && b.Material.Code.Contains("#define LIGHT_VERTEX", StringComparison.Ordinal)) continue;
-                if (index < 0)
-                {
-                    index = kinds.Count;
-                    blocks.AddRange(p.Block);
-                    textures.Add(p.Texture);
-                    kinds.Add(p.Kind);
-                }
+            if (!GodotObject.IsInstanceValid(p.Node) || !p.Node.IsVisibleInTree()) continue;
+            Reach(p, planes, inside, batches, worldDraws, worldDrawCount, draws, blocks, textures, kinds);
+        }
+    }
 
-                draws.Add(new Draw { Projector = index, WorldDraw = k });
+    private static readonly StringName s_laserDots = OpenScctGame.Fx.SpyLaserView.GroupDot;
+
+    /// <summary>Adds the frame's world draws the projector's box reaches.</summary>
+    private static void Reach(Info p, Plane[] planes, Func<Plane[], Aabb, bool> inside, List<RdWorldGeometry.Batch> batches, int[] worldDraws, int worldDrawCount,
+        List<Draw> draws, List<float> blocks, List<Rid> textures, List<int> kinds)
+    {
+        if (!inside(planes, p.Box)) return;
+        int index = -1;
+        for (int k = 0; k < worldDrawCount; k++)
+        {
+            RdWorldGeometry.Batch b = batches[worldDraws[k]];
+            if (b.Sky || b.Material.Blended || !b.Bounds.Intersects(p.Box) || Outside(p.Planes, b.Bounds)) continue;
+            // bProjectStaticMesh off: baked static meshes are left alone.
+            if (p.SkipStaticMeshes && b.Material.Code.Contains("#define LIGHT_VERTEX", StringComparison.Ordinal)) continue;
+            if (index < 0)
+            {
+                index = kinds.Count;
+                blocks.AddRange(p.Block);
+                textures.Add(p.Texture);
+                kinds.Add(p.Kind);
             }
+
+            draws.Add(new Draw { Projector = index, WorldDraw = k });
         }
     }
 
@@ -103,7 +122,9 @@ internal sealed class RdProjectors
     {
         if ((node.GetSurfaceOverrideMaterial(0) ?? node.MaterialOverride) is not ShaderMaterial { Shader: { } shader } material) return null;
         string code = ResponsiveSmokeShaders.BaseCode(shader);
-        int kind = code.Contains("#define PROJ_ADD", StringComparison.Ordinal) ? 0 : code.Contains("#define PROJ_MODULATE", StringComparison.Ordinal) ? 1
+        // The laser dot adds its texture times the texture's alpha: the added blend, marked 3 for the shader.
+        bool laser = code.Contains("#define PROJ_LASER", StringComparison.Ordinal);
+        int kind = laser || code.Contains("#define PROJ_ADD", StringComparison.Ordinal) ? 0 : code.Contains("#define PROJ_MODULATE", StringComparison.Ordinal) ? 1
             : code.Contains("#define PROJ_ALPHA", StringComparison.Ordinal) ? 2 : -1;
         if (kind < 0) return null;
         var block = new float[BlockFloats];
@@ -123,7 +144,7 @@ internal sealed class RdProjectors
 
         Variant anim = material.GetShaderParameter("uv_anim_type");
         block[40] = anim.VariantType == Variant.Type.Nil ? 0f : anim.AsInt32();
-        block[41] = kind;
+        block[41] = laser ? 3 : kind;
         Rid texture = material.GetShaderParameter("proj_tex").AsGodotObject() is Texture2D t ? RenderingServer.TextureGetRdTexture(t.GetRid(), false) : default;
         return new Info
         {
@@ -234,7 +255,10 @@ internal sealed class RdProjectors
             if (frame.fog_color.a > 0.5) {
                 cover = clamp((max(length(world - frame.eye.xyz) * frame.fog.x, frame.fog.y) - frame.fog.y) * frame.fog.z, 0.0, 1.0);
             }
-            if (p.kind.y < 0.5) {
+            if (p.kind.y > 2.5) {
+                // The spy pistol's dot (PROJ_LASER): added, weighted by the texture's alpha.
+                frag = vec4(c.rgb * c.a * (1.0 - cover), 1.0);
+            } else if (p.kind.y < 0.5) {
                 frag = vec4(c.rgb * (1.0 - cover), 1.0);
             } else if (p.kind.y < 1.5) {
                 // The original's multiplied draw: fog pulls the factor to one.

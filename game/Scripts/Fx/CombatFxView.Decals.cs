@@ -230,6 +230,7 @@ public partial class CombatFxView
 shader_type spatial;
 render_mode unshaded, blend_mix, cull_disabled, depth_draw_never;
 
+global uniform int svm_vision;
 #include ""res://Shaders/svm_fog.gdshaderinc""
 
 uniform sampler2D svm_tex : filter_linear_mipmap, repeat_disable;
@@ -237,6 +238,11 @@ instance uniform vec4 svm_tint = vec4(1.0);
 instance uniform float svm_flip_v = 0.0;
 
 void fragment() {
+    // Thermal and EMF read the frame as heat and field strength: a footprint has neither.
+    if (svm_vision == 36 || svm_vision == 38) {
+        discard;
+    }
+
     vec2 uv = UV;
     if (svm_flip_v > 0.5) {
         uv.y = 1.0 - uv.y;
@@ -264,6 +270,7 @@ void fragment() {
                     Transparency = BaseMaterial3D.TransparencyEnum.Alpha,
                     AlbedoTexture = t,
                     CullMode = BaseMaterial3D.CullModeEnum.Disabled,
+                    HiddenInVision = true,
                 }
                 : null;
             _projectionMaterials[texture] = material;

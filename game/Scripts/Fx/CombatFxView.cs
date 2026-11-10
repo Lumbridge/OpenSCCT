@@ -745,6 +745,7 @@ public partial class CombatFxView : Node3D
                 Transparency = BaseMaterial3D.TransparencyEnum.Alpha,
                 AlbedoTexture = texture,
                 CullMode = BaseMaterial3D.CullModeEnum.Disabled,
+                HiddenInVision = true,
             };
         }
 
@@ -844,6 +845,7 @@ public partial class CombatFxView : Node3D
         Transparency = BaseMaterial3D.TransparencyEnum.Alpha,
         AlbedoTexture = texture,
         CullMode = BaseMaterial3D.CullModeEnum.Disabled,
+        HiddenInVision = true,
     };
 
     /// <summary>A soft round spot of <paramref name="colour"/>, opaque in the middle (radius 0 to 1 of the hard core).</summary>

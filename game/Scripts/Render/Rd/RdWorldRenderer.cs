@@ -491,7 +491,7 @@ public partial class RdWorldRenderer : Node
         _coronas.Gather(GetTree().Root, frame.CoronaGroups, frame.CoronaBlocks);
         GatherSheets(frame);
         _gatherMs = System.Diagnostics.Stopwatch.GetElapsedTime(gathering).TotalMilliseconds;
-        _projectors.Gather(_map.Projectors?.Root, _worldPlanes, static (planes, box) => Inside(planes, box), _geometry.Batches, frame.Draws, frame.DrawCount,
+        _projectors.Gather(_map.Projectors?.Root, GetTree(), _worldPlanes, static (planes, box) => Inside(planes, box), _geometry.Batches, frame.Draws, frame.DrawCount,
             frame.ProjectorDraws, frame.ProjectorBlocks, frame.ProjectorTextures, frame.ProjectorKinds);
 
         if (_ownFinal is not null)

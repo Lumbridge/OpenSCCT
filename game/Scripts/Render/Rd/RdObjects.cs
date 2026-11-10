@@ -266,6 +266,12 @@ internal sealed class RdObjects
         for (int s = 0; s < mesh.GetSurfaceCount(); s++)
         {
             if ((node.MaterialOverride ?? node.GetSurfaceOverrideMaterial(s) ?? mesh.SurfaceGetMaterial(s)) is not ShaderMaterial material) continue;
+            if (material is EffectMaterial effect)
+            {
+                if (!skinned && !sky && EffectBlend(effect) >= 0) SurfaceReady(mesh, s, uploads);
+                continue;
+            }
+
             Known(material);
             if (!_materials.TryGetValue(material, out (int Kind, bool Masked, bool TwoSided, bool Drawn, Rid Texture, int Blend) m))
             {
@@ -391,6 +397,12 @@ internal sealed class RdObjects
             for (int s = 0; s < mesh.GetSurfaceCount(); s++)
             {
                 if ((node.MaterialOverride ?? node.GetSurfaceOverrideMaterial(s) ?? mesh.SurfaceGetMaterial(s)) is not ShaderMaterial material) continue;
+                if (material is EffectMaterial effect)
+                {
+                    if (skin is null && !sky) GatherEffect(mesh, s, effect, node.GlobalTransform, box, view, eye, draws, objects, uploads);
+                    continue;
+                }
+
                 Known(material);
                 if (!_materials.TryGetValue(material, out (int Kind, bool Masked, bool TwoSided, bool Drawn, Rid Texture, int Blend) m))
                 {
@@ -482,6 +494,88 @@ internal sealed class RdObjects
                 });
             }
         }
+    }
+
+    /// <summary>The kind of an unlit effect surface (<see cref="EffectMaterial"/>): its colour and UV placement ride in the object's block.</summary>
+    public const int KindEffect = 3;
+
+    private readonly Dictionary<EffectMaterial, (Texture2D? Source, Rid Texture)> _effectTextures = [];
+
+    /// <summary>How an effect material blends here: 0 solid, 1 by its alpha, 2 added; -1 when the own frame does not draw it.</summary>
+    private static int EffectBlend(EffectMaterial effect)
+    {
+        // Multiplied and subtracted effects, those drawn over everything and inside-out ones are left out.
+        if (effect.NoDepthTest || effect.CullMode == BaseMaterial3D.CullModeEnum.Front) return -1;
+        return effect.BlendMode switch
+        {
+            BaseMaterial3D.BlendModeEnum.Add => 2,
+            BaseMaterial3D.BlendModeEnum.Mix => effect.Transparency == BaseMaterial3D.TransparencyEnum.Alpha ? 1 : 0,
+            _ => -1,
+        };
+    }
+
+    private SurfaceInfo SurfaceReady(Mesh mesh, int s, List<Upload> uploads)
+    {
+        if (!_surfaces.TryGetValue((mesh, s), out SurfaceInfo? surface))
+        {
+            surface = new SurfaceInfo { Id = _nextSurface++ };
+            _surfaces[(mesh, s)] = surface;
+        }
+
+        if (!surface.Uploaded)
+        {
+            surface.Uploaded = true;
+            if (Pack(mesh, s, surface.Id, false) is { } upload) uploads.Add(upload);
+            else surface.Id = -1;
+        }
+
+        return surface;
+    }
+
+    /// <summary>
+    /// One surface with an <see cref="EffectMaterial"/> (a weapon laser's beam, a muzzle glow, a tracer), as
+    /// svm_effect.gdshaderinc draws it: its texture times its colour, unlit, blended as the material says. The
+    /// material's values are read every frame (a beam's texture slides), into a block of the surface's own.
+    /// </summary>
+    private void GatherEffect(Mesh mesh, int s, EffectMaterial effect, Transform3D model, Aabb box, Basis view, Vector3 eye, List<Draw> draws, List<byte> objects, List<Upload> uploads)
+    {
+        int blend = EffectBlend(effect);
+        Color colour = effect.AlbedoColor;
+        if (blend < 0 || (blend != 0 && colour.A <= 0f)) return;
+        SurfaceInfo surface = SurfaceReady(mesh, s, uploads);
+        if (surface.Id < 0) return;
+        if (effect.BillboardMode == BaseMaterial3D.BillboardModeEnum.Enabled)
+        {
+            // Turned to the camera; a fixed size grows with its depth, as the shader's vertex stage does it.
+            float size = effect.FixedSize ? (model.Origin - eye).Dot(-view.Z) : 1f;
+            model = new Transform3D(new Basis(view.X * size, view.Y * size, view.Z * size), model.Origin);
+        }
+
+        Texture2D? source = effect.AlbedoTexture;
+        if (!_effectTextures.TryGetValue(effect, out (Texture2D? Source, Rid Texture) texture) || !ReferenceEquals(texture.Source, source))
+        {
+            texture = (source, source is null ? default : RenderingServer.TextureGetRdTexture(source.GetRid(), false));
+            _effectTextures[effect] = texture;
+        }
+
+        Span<float> block = stackalloc float[ObjectBytes / 4];
+        block.Clear();
+        Basis b = model.Basis;
+        (block[0], block[1], block[2]) = (b.X.X, b.X.Y, b.X.Z);
+        (block[4], block[5], block[6]) = (b.Y.X, b.Y.Y, b.Y.Z);
+        (block[8], block[9], block[10]) = (b.Z.X, b.Z.Y, b.Z.Z);
+        (block[12], block[13], block[14], block[15]) = (model.Origin.X, model.Origin.Y, model.Origin.Z, 1f);
+        (block[16], block[17], block[18], block[19]) = (colour.R, colour.G, colour.B, colour.A);
+        (block[20], block[21], block[22], block[23]) = (effect.Uv1Scale.X, effect.Uv1Scale.Y, effect.Uv1Offset.X, effect.Uv1Offset.Y);
+        block[24] = effect.VertexColorUseAsAlbedo ? 1f : 0f;
+        (block[68], block[69], block[70]) = (1f, 1f, 1f);
+        int objectIndex = objects.Count / ObjectBytes;
+        objects.AddRange(MemoryMarshal.AsBytes(block));
+        draws.Add(new Draw
+        {
+            Surface = surface.Id, Object = objectIndex, Kind = KindEffect, Palette = -1, Mirrored = b.Determinant() < 0f, Distance = eye.DistanceSquaredTo(box.GetCenter()),
+            TwoSided = effect.CullMode == BaseMaterial3D.CullModeEnum.Disabled, Texture = texture.Texture, Blend = blend,
+        });
     }
 
     /// <summary>The bones of a skinned mesh's binds in its skeleton, or null when it has no skeleton to read.</summary>
@@ -869,6 +963,7 @@ internal sealed class RdObjects
         layout(location = 3) out vec3 v_wpos;
         layout(location = 4) out vec3 v_wn;
         #endif
+        layout(location = 5) out float v_alpha;
 
         vec3 actor_light(vec4 pos, vec4 col, vec4 spot, vec3 wp, vec3 wn)
         {
@@ -920,6 +1015,16 @@ internal sealed class RdObjects
             } else {
                 v_light = vec3(1.0);
             }
+            v_alpha = 1.0;
+            if (kind == 3) {
+                // An unlit effect: its colour in the ambient's place, its UV scale and offset in the first light's.
+                vec4 colour = objects[draw.object].ambient;
+                if (objects[draw.object].light[1].x > 0.5) colour *= a_col;
+                vec4 place = objects[draw.object].light[0];
+                v_uv = a_uv * place.xy + place.zw;
+                v_light = colour.rgb;
+                v_alpha = colour.a;
+            }
             // A mesh of the sky zone is seen from the sky origin, behind the world, and is not fogged here.
             bool sky = (draw.kind & 128) != 0;
             v_rel = sky ? vec3(0.0) : wp.xyz - frame.eye.xyz;
@@ -933,13 +1038,14 @@ internal sealed class RdObjects
         layout(location = 0) in vec2 v_uv;
         layout(location = 1) in vec3 v_light;
         layout(location = 2) in vec3 v_rel;
+        layout(location = 5) in float v_alpha;
         layout(location = 0) out vec4 frag;
 
         void main()
         {
             vec4 t = texture(tex_diffuse, v_uv);
 
-        """ + (masked ? "    if (t.a < 0.5) discard;\n" : "")
+        """ + (masked ? "    if (t.a < 0.5) discard;\n" : "") + "    t.a *= v_alpha;\n"
         // The template: texture x min(actor light + spot lights, 2); the Echelon code rides in the ambient's w.
         + (spot ? "    vec3 c = t.rgb * min(v_light + spot_light(v_wpos, normalize(v_wn), int(objects[draw.object].ambient.w + 0.5)), vec3(2.0));\n"
             : "    vec3 c = t.rgb * v_light;\n") + """
