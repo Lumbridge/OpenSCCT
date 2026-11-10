@@ -743,7 +743,8 @@ internal sealed class RdWorldGpu
         frame.AddId(_frameBuffer);
         uniforms.Add(frame);
         var values = new RDUniform { UniformType = RD.UniformType.UniformBuffer, Binding = 1 };
-        values.AddId(_globalBuffer);
+        // The sky zone's shaders keep the frame's real fog values (RenderOwn overrides them for the world's).
+        values.AddId(_skyGlobalBuffer.IsValid && shader.Source.RenderModes.Contains("skip_vertex_transform") ? _skyGlobalBuffer : _globalBuffer);
         uniforms.Add(values);
         Rid sampler = SamplerOf(rd, RdFilter.LinearMipmap, repeat: true);
         for (int place = 0; place < _globalTextures.Length; place++)
@@ -1201,7 +1202,14 @@ internal sealed class RdWorldGpu
         }
 
         _cloaks = false;
-        foreach (RdObjects.Draw draw in frame.Objects) _cloaks |= draw.Blend == 3;
+        _blendedObjects.Clear();
+        for (int i = 0; i < frame.Objects.Count; i++)
+        {
+            _cloaks |= frame.Objects[i].Blend == 3;
+            if (frame.Objects[i].Blend is 1 or 2) _blendedObjects.Add(i);
+        }
+
+        _blendedObjects.Sort((a, b) => frame.Objects[b].Distance.CompareTo(frame.Objects[a].Distance));
         if (_cloaks && (!_ownBehind.IsValid || _ownBehindSize != _ownSize))
         {
             if (_ownBehind.IsValid) rd.FreeRid(_ownBehind);
@@ -1238,6 +1246,8 @@ internal sealed class RdWorldGpu
     private readonly List<(Variant? Variant, Rid Pipeline)> _objectTemplates = [];
     private readonly Dictionary<int, (int Vertices, int Indices)> _objectSurfaceBytes = [];
     // The frame before the cloaked bodies, which they mix themselves with.
+    private Rid _skyGlobalBuffer;
+    private int _skyGlobalSize;
     private Rid _ownBehind;
     private Vector2I _ownBehindSize;
     private bool _cloaks;
@@ -1303,16 +1313,19 @@ internal sealed class RdWorldGpu
         return (variant, pipeline);
     }
 
-    private void RecordObjects(RenderingDevice rd, long dl, RdWorldFrame frame, bool cloaks = false)
+    // The frame's blended object draws, far to near.
+    private readonly List<int> _blendedObjects = [];
+
+    /// <param name="group">0: the solid draws. 1: the blended ones. 3: the cloaked bodies.</param>
+    /// <param name="only">One draw of the group, by its index; negative: all of them.</param>
+    private void RecordObjects(RenderingDevice rd, long dl, RdWorldFrame frame, int group, int only = -1)
     {
         Rid pipeline = default, set = default;
         Span<int> push = MemoryMarshal.Cast<byte, int>(_drawBlock.AsSpan());
-        // Solid surfaces first, then the blended ones over them.
-        for (int blendedPass = 0; blendedPass < 2; blendedPass++)
-        for (int at = 0; at < frame.Objects.Count; at++)
+        for (int at = Math.Max(0, only); at < (only >= 0 ? only + 1 : frame.Objects.Count); at++)
         {
             RdObjects.Draw draw = frame.Objects[at];
-            if ((draw.Blend == 3) != cloaks || (cloaks ? blendedPass == 1 : (draw.Blend != 0) != (blendedPass == 1))) continue;
+            if ((draw.Blend == 3 ? 3 : draw.Blend != 0 ? 1 : 0) != group) continue;
             if (!_objectSurfaces.TryGetValue(draw.Surface, out (Rid Vertices, Rid VertexArray, Rid Indices, Rid IndexArray, bool Skinned) surface)) continue;
             // A surface packed for one kind of vertex is only drawn by that kind's program.
             if (surface.Skinned != (draw.Palette >= 0)) continue;
@@ -1429,6 +1442,17 @@ internal sealed class RdWorldGpu
         // The draws a spot or dynamic light reaches keep the template's own lighting (the translated shader, with the
         // light terms that reach them); its frame block and globals are filled as for the pass inside Godot's frame.
         UpdateGlobals(rd);
+        // The sky zone is fogged as Godot's frame fogs it (its fog is read with the sky's own view positions, which the
+        // one ramp of the world's draws does not fit): its shaders read a copy of the values taken before the override.
+        if (!_skyGlobalBuffer.IsValid || _skyGlobalSize != _globalBlock.Length)
+        {
+            if (_skyGlobalBuffer.IsValid) rd.FreeRid(_skyGlobalBuffer);
+            _skyGlobalSize = _globalBlock.Length;
+            _skyGlobalBuffer = rd.UniformBufferCreate((uint)_globalBlock.Length, ReadOnlySpan<byte>.Empty, 0);
+            _globalVersion++;
+        }
+
+        rd.BufferUpdate(_skyGlobalBuffer, 0, (uint)_globalBlock.Length, _globalBlock);
         OverrideFog(rd, frame);
         Span<float> f = MemoryMarshal.Cast<byte, float>(_frameBlock.AsSpan());
         Write(new Projection(frame.Eye.AffineInverse()), f[..16]);
@@ -1474,11 +1498,15 @@ internal sealed class RdWorldGpu
             Span<int> push = MemoryMarshal.Cast<byte, int>(_drawBlock.AsSpan());
             // Solid first: the world, the sky zone, then the actors and the projections onto the world. Then
             // everything blended, over all of it: the world's blended surfaces far to near, then the sheets.
-            for (int pass = 0; pass < 2; pass++)
+            // Pass 0 the solid world and sky; then the actors and projections; pass 1 the sky's blended layers (the
+            // sky's picture lies under every other blended surface); pass 2 the world's blended surfaces with the
+            // blended actors among them, far to near.
+            int nextObject = 0;
+            for (int pass = 0; pass < 3; pass++)
             {
             if (pass == 1)
             {
-                if (objects) RecordObjects(rd, dl, frame);
+                if (objects) RecordObjects(rd, dl, frame, 0);
                 if (projectors) RecordProjectors(rd, dl, frame);
                 rd.DrawListBindVertexArray(dl, _vertexArray);
                 pipeline = default;
@@ -1486,10 +1514,33 @@ internal sealed class RdWorldGpu
                 sky = -1;
             }
 
-            for (int k = 0; k < frame.DrawCount; k++)
+            for (int k = 0; k <= frame.DrawCount; k++)
             {
+                if (pass == 2 && objects)
+                {
+                    // The blended actors further than this surface (all that are left after the last one).
+                    float reach = k < frame.DrawCount && batches[frame.Draws[k]] is { Sky: false, Material.Blended: true } next
+                        ? frame.Eye.Origin.DistanceSquaredTo(next.Bounds.GetCenter()) : k == frame.DrawCount ? -1f : float.MaxValue;
+                    bool drew = false;
+                    while (nextObject < _blendedObjects.Count && frame.Objects[_blendedObjects[nextObject]].Distance > reach)
+                    {
+                        RecordObjects(rd, dl, frame, 1, _blendedObjects[nextObject++]);
+                        drew = true;
+                    }
+
+                    if (drew)
+                    {
+                        rd.DrawListBindVertexArray(dl, _vertexArray);
+                        pipeline = default;
+                        set = default;
+                        sky = -1;
+                    }
+                }
+
+                if (k == frame.DrawCount) break;
                 RdWorldGeometry.Batch b = batches[frame.Draws[k]];
-                if (b.Material.Blended != (pass == 1)) continue;
+                if ((!b.Material.Blended ? 0 : b.Sky ? 1 : 2) != pass) continue;
+                if (b.Sky && b.Material.Blended && Test.Contains("noskyblend")) continue;
                 // A light term left in the draw's shader: a spot or a dynamic light reaches it.
                 RdFeatures lights = RdFeatures.NoSpot | RdFeatures.NoDynamic;
                 bool lit = (b.Material.Applicable & lights & ~(RdFeatures)frame.Features[k]) != 0 && !Test.Contains("unlit");
@@ -1564,7 +1615,7 @@ internal sealed class RdWorldGpu
             long cloakList = rd.DrawListBegin(_ownFramebuffer, 0, _clear, 0f, 0, null, 0);
             try
             {
-                RecordObjects(rd, cloakList, frame, cloaks: true);
+                RecordObjects(rd, cloakList, frame, 3);
             }
             finally
             {
@@ -2332,7 +2383,8 @@ internal sealed class RdWorldGpu
         }
 
         if (_ownBehind.IsValid) rd.FreeRid(_ownBehind);
-        _ownBehind = default;
+        if (_skyGlobalBuffer.IsValid) rd.FreeRid(_skyGlobalBuffer);
+        _ownBehind = _skyGlobalBuffer = default;
         _ownColor = _ownDepth = _ownFramebuffer = _stageFrameBuffer = default;
         if (rd.UniformSetIsValid(_depthSet)) rd.FreeRid(_depthSet);
         if (_depthShader.IsValid) rd.FreeRid(_depthShader);

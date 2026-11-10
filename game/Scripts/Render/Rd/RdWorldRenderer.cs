@@ -175,6 +175,17 @@ public partial class RdWorldRenderer : Node
         {
             GD.Print(string.Create(CultureInfo.InvariantCulture, $"SVM_RD_FRAME gatherMs={_gatherMs:F3}"));
             GD.Print("SVM_RD_FRAME fog " + _fogNote);
+            if (!_skyNoted)
+            {
+                _skyNoted = true;
+                foreach (RdWorldGeometry.Batch b in _geometry.Batches)
+                {
+                    if (!b.Sky) continue;
+                    string code = b.Material.Code;
+                    int at = code.IndexOf("render_mode", StringComparison.Ordinal);
+                    GD.Print($"SVM_RD_FRAME sky batch indices={b.IndexCount} blended={b.Material.Blended} layers={RdObjects.LayersOf(code)} masked={b.Material.Masked} {(at >= 0 ? code[at..code.IndexOf(';', at)] : "")} light={(code.Contains("#define LIGHT_VERTEX") ? "vertex" : code.Contains("#define LIGHT_LIGHTMAP") ? "lightmap" : "none")}");
+                }
+            }
             foreach ((string what, int count) in RdObjects.Met) GD.Print($"SVM_RD_FRAME actor materials {count}: {what}");
             RdObjects.Met.Clear();
         }
@@ -264,6 +275,7 @@ public partial class RdWorldRenderer : Node
 
     private bool _ownActive = true;
     private string _fogNote = "";
+    private bool _skyNoted;
     private Func<Aabb, int>? _spotsReachingBox;
     private static readonly StringName s_spotBits = "svm_spot_bits";
 
@@ -472,7 +484,7 @@ public partial class RdWorldRenderer : Node
         // Every mesh of the play scene on the actors' layers: gameplay objects, animated props, characters, the
         // first-person model.
         _objects.Gather(GetParent() ?? _map.Root, _worldPlanes, static (planes, box) => Inside(planes, box), _spotsReachingBox ??= SpotsReachingBox,
-            frame.Objects, frame.ObjectData, frame.Palette, _objectUploads, _objectWarm, eye.Basis);
+            frame.Objects, frame.ObjectData, frame.Palette, _objectUploads, _objectWarm, eye.Basis, eye.Origin);
         foreach (RdMaterial material in _objectWarm) _gpu.QueueWarm(material);
         _objectWarm.Clear();
 

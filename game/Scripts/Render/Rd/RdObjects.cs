@@ -52,6 +52,8 @@ internal sealed class RdObjects
         public RdMaterial? Material;
         /// <summary>A mirrored instance (its model matrix turns the triangles' winding over): the other face is the front.</summary>
         public bool Mirrored;
+        /// <summary>The squared distance from the eye to the mesh's box: blended draws go far to near.</summary>
+        public float Distance;
     }
 
     private sealed class SurfaceInfo
@@ -117,6 +119,8 @@ internal sealed class RdObjects
         public required Transform3D[] Binds;
     }
 
+    // The include line itself: other shaders name the template in their comments.
+    private const string TemplateInclude = "#include \"" + MaterialCompiler.TemplatePath + "\"";
     private static readonly StringName s_diffuse = "tex_diffuse";
     private static readonly StringName s_static = "Static";
     private static readonly StringName s_softBodies = "SoftBodies";
@@ -277,7 +281,7 @@ internal sealed class RdObjects
     }
 
     public void Gather(Node root, Plane[] planes, Func<Plane[], Aabb, bool> inside, Func<Aabb, int> spots, List<Draw> draws, List<byte> objects, List<float> palette, List<Upload> uploads,
-        List<RdMaterial> warm, Basis view)
+        List<RdMaterial> warm, Basis view, Vector3 eye)
     {
         Span<float> block = stackalloc float[ObjectBytes / 4];
         RefreshTemplates();
@@ -443,7 +447,7 @@ internal sealed class RdObjects
 
                 draws.Add(new Draw
                 {
-                    Surface = surface.Id, Object = objectIndex, Kind = m.Kind | (sky ? 128 : 0), Palette = paletteBase, Mirrored = skin is null && model.Basis.Determinant() < 0f, Masked = m.Masked, TwoSided = m.TwoSided, Texture = m.Texture,
+                    Surface = surface.Id, Object = objectIndex, Kind = m.Kind | (sky ? 128 : 0), Palette = paletteBase, Mirrored = skin is null && model.Basis.Determinant() < 0f, Distance = eye.DistanceSquaredTo(box.GetCenter()), Masked = m.Masked, TwoSided = m.TwoSided, Texture = m.Texture,
                     Blend = template is null ? m.Blend : template.Cloak ? 3 : template.Blended ? 1 : 0, SpotBits = sky || (m.Kind == 0 && template is null) ? 0 : spotBits, Material = template,
                 });
             }
@@ -507,11 +511,13 @@ internal sealed class RdObjects
     {
         if (material.Shader is not { } shader) return false;
         string code = ResponsiveSmokeShaders.BaseCode(shader);
-        if (!code.Contains("svm_world.gdshaderinc", StringComparison.Ordinal) || code.Contains("#define VISION_SEE_THROUGH", StringComparison.Ordinal)) return false;
+        if (!code.Contains(TemplateInclude, StringComparison.Ordinal) || code.Contains("#define VISION_SEE_THROUGH", StringComparison.Ordinal)) return false;
         // A sprite with nothing else is turned to the camera by its model matrix and drawn by the small programs.
         string layers = LayersOf(code);
         // A lightmapped map surface left to this pass needs the template's second UV and light term.
-        return (layers.Length > 0 && layers != "BILLBOARD") || code.Contains("#define SVM_CLOAK", StringComparison.Ordinal) || code.Contains("#define LIGHT_LIGHTMAP", StringComparison.Ordinal) || code.Contains("#define BLEND_MODULATE", StringComparison.Ordinal) || code.Contains("#define BLEND_DARKEN", StringComparison.Ordinal);
+        return (layers.Length > 0 && layers != "BILLBOARD") || code.Contains("#define SVM_CLOAK", StringComparison.Ordinal) || code.Contains("#define LIGHT_LIGHTMAP", StringComparison.Ordinal) ||
+            // Every blended surface: the template's own alpha, gain and fog rules for each blend.
+            code.Contains("#define BLEND_TRANSLUCENT", StringComparison.Ordinal) || code.Contains("#define BLEND_ADDITIVE", StringComparison.Ordinal) || code.Contains("#define BLEND_MODULATE", StringComparison.Ordinal) || code.Contains("#define BLEND_DARKEN", StringComparison.Ordinal);
     }
 
     private readonly Dictionary<ShaderMaterial, bool> _billboards = [];
@@ -555,7 +561,7 @@ internal sealed class RdObjects
     {
         if (material.Shader is not { } shader) return default;
         string code = ResponsiveSmokeShaders.BaseCode(shader);
-        string met = (code.Contains("svm_world.gdshaderinc", StringComparison.Ordinal) ? "world" : shader.ResourcePath) + " " + LayersOf(code)
+        string met = (code.Contains(TemplateInclude, StringComparison.Ordinal) ? "world" : shader.ResourcePath) + " " + LayersOf(code)
             + (code.Contains("#define SVM_CLOAK", StringComparison.Ordinal) ? " CLOAK" : "") + (code.Contains("#define BLEND_MODULATE", StringComparison.Ordinal) ? " MODULATE" : "")
             + (code.Contains("#define BLEND_DARKEN", StringComparison.Ordinal) ? " DARKEN" : "") + (code.Contains("#define BLEND_ADDITIVE", StringComparison.Ordinal) ? " ADD" : "")
             + (code.Contains("#define BLEND_TRANSLUCENT", StringComparison.Ordinal) ? " TRANSLUCENT" : "") + (code.Contains("#define LIGHT_ACTOR", StringComparison.Ordinal) ? " actor" : "");
@@ -565,7 +571,7 @@ internal sealed class RdObjects
         int blend = code.Contains("#define BLEND_ADDITIVE", StringComparison.Ordinal) ? 2 : code.Contains("#define BLEND_TRANSLUCENT", StringComparison.Ordinal) ? 1 : 0;
         // A cloaked body is not drawn at all for now: unseen is nearer the truth than plainly visible.
         if (blended || code.Contains("#define SVM_CLOAK", StringComparison.Ordinal) || code.Contains("#define VISION_SEE_THROUGH", StringComparison.Ordinal)
-            || !code.Contains("svm_world.gdshaderinc", StringComparison.Ordinal)) return default;
+            || !code.Contains(TemplateInclude, StringComparison.Ordinal)) return default;
         int kind = code.Contains("#define LIGHT_ACTOR", StringComparison.Ordinal) ? 2
             : code.Contains("#define LIGHT_VERTEX", StringComparison.Ordinal) || code.Contains("#define LIGHT_LIGHTMAP", StringComparison.Ordinal) ? 1 : 0;
         Rid texture = material.GetShaderParameter(s_diffuse).AsGodotObject() is Texture2D t ? RenderingServer.TextureGetRdTexture(t.GetRid(), false) : default;
