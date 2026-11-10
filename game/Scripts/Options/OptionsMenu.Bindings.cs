@@ -65,7 +65,7 @@ public partial class OptionsMenu
         if (!pad) filter.AddItem("Shared keys");
         view.Filter = Math.Clamp(view.Filter, 0, filter.ItemCount - 1);
         filter.Selected = view.Filter;
-        var more = new MenuButton { Name = "BindingOptions", Text = "More", CustomMinimumSize = new Vector2(64, 32) };
+        var more = new MenuButton { Name = "BindingOptions", Text = "More", FocusMode = FocusModeEnum.All, CustomMinimumSize = new Vector2(64, 32) };
         more.GetPopup().AddItem("Reset all bindings for this role", 0);
         more.GetPopup().AddItem("Reset this role's settings...", 1);
         more.GetPopup().IdPressed += id =>
@@ -268,7 +268,7 @@ public partial class OptionsMenu
             {
                 Name = "BindingMore_" + BindingNodeId(entry.Id), Text = inputs.Count > 2 ? "+" + (inputs.Count - 2) : "+",
                 TooltipText = inputs.Count > 2 ? (inputs.Count - 2) + " additional bindings. Click to view or add inputs." : "Add another binding",
-                CustomMinimumSize = new Vector2(BindingMoreWidth, 32), Flat = true, ClipText = true,
+                CustomMinimumSize = new Vector2(BindingMoreWidth, 32), Flat = true, ClipText = true, FocusMode = FocusModeEnum.All,
             };
             StyleQuietBindingButton(more, 4f);
             PopupMenu popup = more.GetPopup();

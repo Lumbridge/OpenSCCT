@@ -18,7 +18,7 @@ public sealed class PadMenuNavigation
     public string? Button(string key, bool pressed, double now)
     {
         if (pressed ? !_buttons.Add(key) : !_buttons.Remove(key)) return null;
-        if (key is "Enter" or "Escape") return pressed ? key : null;
+        if (key is not ("Up" or "Down" or "Left" or "Right")) return pressed ? key : null;
         return Change(now);
     }
 
@@ -49,6 +49,9 @@ public sealed class PadMenuNavigation
         _nextRepeat = now + RepeatInterval;
         return _direction;
     }
+
+    /// <summary>A button with this key is down, or the held direction is this key.</summary>
+    public bool Holds(string key) => _buttons.Contains(key) || _direction == key;
 
     public void Reset()
     {

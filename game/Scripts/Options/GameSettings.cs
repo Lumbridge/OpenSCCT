@@ -222,6 +222,8 @@ public sealed class PadSettings
     public static readonly string[] PhysicalControls =
     [
         "A", "B", "X", "Y", "LB", "RB", "LT", "RT", "LS", "RS", "DpadUp", "DpadDown", "DpadLeft", "DpadRight", "Start", "Back",
+        // Back paddles, on controllers that report them as buttons of their own (SDL paddle 1 to 4).
+        "P1", "P2", "P3", "P4",
     ];
 
     public static readonly string[] Controls =
@@ -268,6 +270,7 @@ public sealed class PadSettings
         ["DpadRight"] = "Action:vision2",
         ["Start"] = "Action:menu",
         ["Back"] = "Action:hackcomms",
+        ["P1"] = "", ["P2"] = "", ["P3"] = "", ["P4"] = "",
         ["B:Hold"] = merc ? "" : LongRollAction,
         ["LS+Y"] = "Action:slot1",
         ["LS+X"] = "Action:slot2",
@@ -301,6 +304,7 @@ public sealed class PadSettings
         ["DpadRight"] = "bReload",
         ["Start"] = MenuAction,
         ["Back"] = "DisplaySessionStatus",
+        ["P1"] = "", ["P2"] = "", ["P3"] = "", ["P4"] = "",
     };
 
     /// <summary>The spy's pad layout: control name to action (a layout command or button, <see cref="KeyPrefix"/> + a key, or "" for none).</summary>

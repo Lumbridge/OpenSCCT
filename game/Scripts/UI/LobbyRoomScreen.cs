@@ -776,7 +776,7 @@ public partial class LobbyRoomScreen : MenuPage
             var playerMenu = LobbyPanels.Button("•••", () => popup.PopupCentered(new Vector2I(320, 220)), "PlayerActions");
             playerMenu.TooltipText = "Voice and player actions for " + p.Name;
             line.AddChild(playerMenu);
-            admin = new MenuButton { Name = "Admin", Text = "Admin ▾", Flat = false, TooltipText = "Kick, ban or voice ban this player" };
+            admin = new MenuButton { Name = "Admin", Text = "Admin ▾", Flat = false, FocusMode = FocusModeEnum.All, TooltipText = "Kick, ban or voice ban this player" };
             PopupMenu items = admin.GetPopup();
             items.AddItem("Kick", AdminKick);
             items.AddItem("Ban", AdminBan);

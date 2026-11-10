@@ -401,6 +401,7 @@ public partial class OptionsMenu : Control
             "DpadRight" => "D-pad right",
             "Back" => "Back / View",
             "Start" => "Start / Menu",
+            "P1" or "P2" or "P3" or "P4" => "Paddle " + control[1..],
             _ => control + " button",
         };
     }

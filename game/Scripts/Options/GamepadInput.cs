@@ -38,6 +38,10 @@ public partial class GamepadInput : Node
         ["DpadRight"] = JoyButton.DpadRight,
         ["Start"] = JoyButton.Start,
         ["Back"] = JoyButton.Back,
+        ["P1"] = JoyButton.Paddle1,
+        ["P2"] = JoyButton.Paddle2,
+        ["P3"] = JoyButton.Paddle3,
+        ["P4"] = JoyButton.Paddle4,
     };
 
     /// <summary>How far a trigger goes down before it counts as pressed.</summary>
@@ -59,6 +63,11 @@ public partial class GamepadInput : Node
     private readonly HashSet<string> _clutchTwo = new(StringComparer.Ordinal);
     private GameSettings? _settingsFor;
     private bool _wasFlying;
+
+    /// <summary>The longest the look stick is ignored after the ping wheel closes while it has not recentred.</summary>
+    public const double WheelRecentreSeconds = 0.5;
+    private bool _wheelWas;
+    private double _lookHold;
 
     private static ulong s_drivenFrame = ulong.MaxValue;
     private static readonly HashSet<GamepadInput> s_instances = new();
@@ -183,6 +192,20 @@ public partial class GamepadInput : Node
         bool wheelOpen = input.TeamPing.WheelOpen;
         Vector2 look = pad.Aim || wheelOpen ? Stick(JoyAxis.RightX, JoyAxis.RightY, pad.DeadzoneRight) : Vector2.Zero;
         if (wheelOpen) input.TeamPing.StickDirection(look.X, look.Y);
+
+        // The stick that chose on the ping wheel is still pushed over when the wheel closes: it turns the view
+        // again only once it is back in the middle (or after WheelRecentreSeconds, for a stick held on purpose).
+        if (_wheelWas && !wheelOpen) _lookHold = WheelRecentreSeconds;
+        _wheelWas = wheelOpen;
+        if (_lookHold > 0)
+        {
+            if (look == Vector2.Zero) _lookHold = 0;
+            else
+            {
+                _lookHold -= delta;
+                look = Vector2.Zero;
+            }
+        }
 
         if (_suppressButtonsUntilRelease && down.Count == 0) _suppressButtonsUntilRelease = false;
         if (pad.Binds && !_suppressButtonsUntilRelease) UpdateButtons(input, merc, down, delta);

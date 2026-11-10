@@ -26,7 +26,6 @@ internal sealed partial class TeamPingHud : CanvasLayer
     private PlayInput _input = null!;
     private PlayHud.Parts _hud = null!;
     private (SBasePawn Pawn, byte Team)? _recipient;
-    private (Actor Source, FVector Location)? _lockedTarget;
 
     private readonly record struct ActiveMark(TeamPingMark Mark, long ReceivedTick);
 
@@ -45,7 +44,6 @@ internal sealed partial class TeamPingHud : CanvasLayer
     public override void _Ready()
     {
         _input.TeamPing.Context = InputContext;
-        _input.TeamPing.WheelOpened += LockTarget;
         _input.TeamPing.Submitted += Submit;
         _session.Client.TeamPingReceived += Receive;
     }
@@ -54,7 +52,6 @@ internal sealed partial class TeamPingHud : CanvasLayer
     {
         _session.Client.TeamPingReceived -= Receive;
         _input.TeamPing.Context = null;
-        _input.TeamPing.WheelOpened -= LockTarget;
         _input.TeamPing.Submitted -= Submit;
         _input.TeamPing.Cancel();
     }
@@ -92,13 +89,13 @@ internal sealed partial class TeamPingHud : CanvasLayer
             : null;
     }
 
-    private void LockTarget() => _lockedTarget = Target();
-
-    private void Submit(TeamPingKind kind, bool useLockedTarget)
+    /// <summary>
+    /// The ping lands where the player aims when the key or button is let go, whether it was a tap or a choice on
+    /// the wheel: a wheel held open while moving must not mark the spot aimed at when it opened.
+    /// </summary>
+    private void Submit(TeamPingKind kind, bool fromWheel)
     {
-        var target = useLockedTarget ? _lockedTarget : Target();
-        _lockedTarget = null;
-        if (target is { } ping && PlacementSource() is { } source && ReferenceEquals(source.Actor, ping.Source))
+        if (Target() is { } ping && PlacementSource() is { } source && ReferenceEquals(source.Actor, ping.Source))
         {
             _session.Client.SendTeamPing(kind, ping.Source, ping.Location);
         }

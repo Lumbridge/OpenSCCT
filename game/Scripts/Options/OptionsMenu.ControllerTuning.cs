@@ -10,7 +10,7 @@ public partial class OptionsMenu
         bool merc = side == PlaySide.Merc;
         string prefix = merc ? "controls_merc_pad" : "controls_spy_pad";
         LookSettings Look() => _edit.LookOf(merc, true);
-        var reset = new MenuButton { Name = "ResetController", Text = "Reset…", CustomMinimumSize = new Vector2(90, 32) };
+        var reset = new MenuButton { Name = "ResetController", Text = "Reset…", FocusMode = FocusModeEnum.All, CustomMinimumSize = new Vector2(90, 32) };
         reset.GetPopup().AddItem("Reset controller for this role", 0);
         reset.GetPopup().IdPressed += _ => Confirm("Reset controller",
             "Restore this role's controller bindings, sensitivity and movement settings? Changes take effect when you Apply or Save & Close.",

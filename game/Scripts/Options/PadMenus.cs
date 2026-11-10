@@ -16,8 +16,22 @@ public partial class PadMenus : Node
 {
     public const string NodeName = "PadMenus";
 
+    /// <summary>How close a key and a controller press must be to count as one press sent twice.</summary>
+    private const ulong MirrorMs = 150;
+
+    /// <summary>How long another controller must send input alone before it becomes the one in use.</summary>
+    private const ulong AdoptMs = 300;
+
     private static int s_lastDevice = -1;
+    private static int s_candidate = -1;
+    private static ulong s_candidateAt;
+    private static ulong s_buttonAt;
+    private static bool s_listening;
     private readonly PadMenuNavigation _navigation = new();
+    private readonly System.Collections.Generic.Dictionary<string, ulong> _padAt = new(System.StringComparer.Ordinal);
+    private readonly System.Collections.Generic.Dictionary<string, ulong> _keyAt = new(System.StringComparer.Ordinal);
+    private bool _pushing;
+    private int _mirrored;
     private int _navigationDevice = -1;
     private double _deviceLastInput = double.NegativeInfinity;
 
@@ -39,13 +53,118 @@ public partial class PadMenus : Node
         return pads.Contains(s_lastDevice) ? s_lastDevice : pads[0];
     }
 
-    public override void _Input(InputEvent @event)
+    /// <summary>A controller is connected and on, so a key press may be Steam Input's copy of a button press.</summary>
+    public static bool MayMirrorKeys => SettingsStore.Current.Pad.Enabled && Input.GetConnectedJoypads().Count > 0;
+
+    /// <summary>A controller button went down within <see cref="MirrorMs"/> of <paramref name="ms"/> (engine ticks).</summary>
+    public static bool ButtonPressedNear(ulong ms) =>
+        s_buttonAt != 0 && (s_buttonAt > ms ? s_buttonAt - ms : ms - s_buttonAt) <= MirrorMs;
+
+    /// <summary>
+    /// The binding editor is waiting for a control to bind, so controller input is its to read. Its dialogs and
+    /// menus also suspend key capture but must still answer the controller, hence the separate flag.
+    /// </summary>
+    public static bool ListeningForBinding
     {
-        if (@event is InputEventJoypadButton { Pressed: true } || @event is InputEventJoypadMotion { AxisValue: > 0.5f or < -0.5f })
+        get => s_listening && BindingInput.Current?.CaptureSuspended == true;
+        set => s_listening = value;
+    }
+
+    /// <summary>
+    /// Steam Input can show one controller as two devices that both send every press (the Steam Deck's own pad and
+    /// Steam's virtual one). The device in use therefore changes only when another one sends input while the
+    /// current one stays silent and idle; following every event would flip between the two on each press.
+    /// </summary>
+    private static void Adopt(InputEvent @event)
+    {
+        bool strong = @event is InputEventJoypadButton { Pressed: true } or InputEventJoypadMotion { AxisValue: > 0.5f or < -0.5f };
+        if (@event.Device == s_lastDevice)
+        {
+            if (strong || @event is InputEventJoypadButton) s_candidate = -1;
+            return;
+        }
+        if (!strong) return;
+        if (s_lastDevice < 0 || !Input.GetConnectedJoypads().Contains(s_lastDevice))
         {
             s_lastDevice = @event.Device;
+            s_candidate = -1;
         }
-        if (@event is not (InputEventJoypadButton or InputEventJoypadMotion) || BindingInput.Current?.CaptureSuspended == true)
+        else if (s_candidate != @event.Device)
+        {
+            s_candidate = @event.Device;
+            s_candidateAt = Time.GetTicksMsec();
+        }
+    }
+
+    private static void AdoptCandidate()
+    {
+        if (s_candidate < 0 || Time.GetTicksMsec() - s_candidateAt < AdoptMs) return;
+        if (Input.GetConnectedJoypads().Contains(s_lastDevice) && Busy(s_lastDevice)) return;
+        GD.Print($"SVM_PAD controller in use: device {s_candidate} ({Input.GetJoyName(s_candidate)}), was device {s_lastDevice}");
+        s_lastDevice = s_candidate;
+        s_candidate = -1;
+    }
+
+    private static bool Busy(int device)
+    {
+        foreach (JoyButton button in GamepadInput.Buttons.Values)
+            if (Input.IsJoyButtonPressed(device, button)) return true;
+        for (JoyAxis axis = JoyAxis.LeftX; axis <= JoyAxis.TriggerRight; axis++)
+            if (Mathf.Abs(Input.GetJoyAxis(device, axis)) > 0.5f) return true;
+        return false;
+    }
+
+    private static string? MenuKeyOf(InputEventKey key) => (key.Keycode == Key.None ? key.PhysicalKeycode : key.Keycode) switch
+    {
+        Key.Up => "Up", Key.Down => "Down", Key.Left => "Left", Key.Right => "Right",
+        Key.Enter or Key.KpEnter => "Enter", Key.Escape => "Escape", _ => null,
+    };
+
+    /// <summary>
+    /// Steam Input layouts that send keys with the buttons (the Deck's desktop layout: D-pad as arrows, A as Enter,
+    /// B as Escape) would move the menus twice per press. A key that arrives with the same controller press, or
+    /// while that button is held, is dropped here.
+    /// </summary>
+    private void DropMirroredKey(InputEventKey key)
+    {
+        if (_pushing || !SettingsStore.Current.Pad.Enabled || s_lastDevice < 0 || GamepadInput.GameplayActive ||
+            MenuKeyOf(key) is not { } name) return;
+        ulong now = Time.GetTicksMsec();
+        if (_navigation.Holds(name) || _padAt.TryGetValue(name, out ulong at) && now - at <= MirrorMs)
+        {
+            GetViewport().SetInputAsHandled();
+            if (key.Pressed && !key.Echo) NoteMirror();
+            return;
+        }
+        if (key.Pressed && !key.Echo) _keyAt[name] = now;
+    }
+
+    /// <summary>
+    /// The third doubled press says so on screen, once: the menus cope, but in play the same layout also sends
+    /// mouse clicks, mouse movement and other keys with the controller, which only a gamepad layout in Steam stops.
+    /// </summary>
+    private void NoteMirror()
+    {
+        if (++_mirrored != 3) return;
+        GD.Print("SVM_PAD Steam Input is sending keys together with the controller's buttons (a keyboard and mouse layout)");
+        ShowNotice("Steam is sending keyboard and mouse input with the controller. Start the game from Steam with a gamepad layout.");
+        _noticeLeft = 12.0;
+    }
+
+    public override void _Input(InputEvent @event)
+    {
+        if (@event is InputEventKey typed)
+        {
+            DropMirroredKey(typed);
+            return;
+        }
+        if (@event is not (InputEventJoypadButton or InputEventJoypadMotion))
+        {
+            return;
+        }
+        if (@event is InputEventJoypadButton { Pressed: true }) s_buttonAt = Time.GetTicksMsec();
+        Adopt(@event);
+        if (ListeningForBinding)
         {
             return;
         }
@@ -56,9 +175,10 @@ public partial class PadMenus : Node
             _navigation.Reset();
             return;
         }
-        if (@event is InputEventJoypadMotion { Axis: JoyAxis.LeftX or JoyAxis.LeftY } ||
+        // Only the controller in use moves the menus (a mirrored second device would repeat every step).
+        if (@event.Device == s_lastDevice && (@event is InputEventJoypadMotion { Axis: JoyAxis.LeftX or JoyAxis.LeftY } ||
             @event is InputEventJoypadButton { ButtonIndex: JoyButton.DpadUp or JoyButton.DpadDown or JoyButton.DpadLeft or JoyButton.DpadRight or
-                JoyButton.A or JoyButton.B or JoyButton.Back or JoyButton.Start })
+                JoyButton.A or JoyButton.B or JoyButton.Back or JoyButton.Start or JoyButton.LeftShoulder or JoyButton.RightShoulder }))
             DispatchMenuInput(@event, Time.GetTicksMsec() / 1000d);
         // Nested keyboard dispatch changes the viewport's handled flag. Consume the original pad event again.
         GetViewport().SetInputAsHandled();
@@ -83,6 +203,17 @@ public partial class PadMenus : Node
             _ => null,
         };
         if (wasActive || _navigation.IsActive) _deviceLastInput = now;
+        if (command is not null)
+        {
+            ulong at = Time.GetTicksMsec();
+            _padAt[command] = at;
+            // The same press already arrived as a key and moved the menu.
+            if (_keyAt.TryGetValue(command, out ulong keyAt) && at - keyAt <= MirrorMs)
+            {
+                command = null;
+                NoteMirror();
+            }
+        }
         Navigate(command);
     }
 
@@ -91,27 +222,69 @@ public partial class PadMenus : Node
         string? key = button.ButtonIndex switch
         {
             JoyButton.DpadUp => "Up", JoyButton.DpadDown => "Down", JoyButton.DpadLeft => "Left", JoyButton.DpadRight => "Right",
-            JoyButton.A => "Enter", JoyButton.B or JoyButton.Back or JoyButton.Start => "Escape", _ => null,
+            JoyButton.A => "Enter", JoyButton.B or JoyButton.Back or JoyButton.Start => "Escape",
+            JoyButton.LeftShoulder => PaneLeft, JoyButton.RightShoulder => PaneRight, _ => null,
         };
         return key is null ? null : _navigation.Button(key, button.Pressed, now);
     }
 
+    /// <summary>
+    /// Where a menu key goes: the dialog or popup that has the focus (controller events reach only the main
+    /// window, so its focused control would get them otherwise), else the main window.
+    /// </summary>
+    private Viewport FocusedView()
+    {
+        Window? focused = null;
+        foreach (Node node in GetTree().Root.FindChildren("*", nameof(Window), true, false))
+        {
+            if (node is Window { Visible: true } window && window.HasFocus()) focused = window;
+        }
+
+        return focused ?? GetViewport();
+    }
+
+    /// <summary>The shoulder buttons: jump to the column (scroll list) on the left or right.</summary>
+    private const string PaneLeft = "PaneLeft", PaneRight = "PaneRight";
+
     private void Navigate(string? key)
     {
         if (key is null) return;
-        if (key != "Escape" && GetViewport().GuiGetFocusOwner() is null && FirstFocusable(GetViewport()) is { } first)
+        Viewport view = FocusedView();
+        Control? focus = view.GuiGetFocusOwner();
+        if (key is PaneLeft or PaneRight)
+        {
+            if (focus is not null) PadFocusPanes.Step(focus, key == PaneLeft ? -1 : 1);
+            return;
+        }
+        // A popup menu takes the keys itself; anything else gets a focused control first.
+        if (key != "Escape" && focus is null && view is not PopupMenu && FirstFocusable(view) is { } first)
         {
             first.GrabFocus();
+            return;
+        }
+        // Left or right past the edge of a list goes to the neighbouring list's selected or last used entry, not
+        // to whatever control happens to sit at the same height.
+        if (key is "Left" or "Right" && focus is not null && PadFocusPanes.LeavesPane(focus, key == "Left") &&
+            PadFocusPanes.Step(focus, key == "Left" ? -1 : 1))
+        {
             return;
         }
         if (GodotKeys.ToEvent(key) is not InputEventKey press) return;
         press.Keycode = press.PhysicalKeycode;
         press.Pressed = true;
-        BindingInput.Current?.Resolve(press);
-        GetViewport().PushInput(press);
-        var release = new InputEventKey { Keycode = press.Keycode, PhysicalKeycode = press.PhysicalKeycode };
-        BindingInput.Current?.Resolve(release);
-        GetViewport().PushInput(release);
+        _pushing = true;
+        try
+        {
+            BindingInput.Current?.Resolve(press);
+            view.PushInput(press);
+            var release = new InputEventKey { Keycode = press.Keycode, PhysicalKeycode = press.PhysicalKeycode };
+            BindingInput.Current?.Resolve(release);
+            if (GodotObject.IsInstanceValid(view) && view.IsInsideTree()) view.PushInput(release);
+        }
+        finally
+        {
+            _pushing = false;
+        }
         if (GamepadInput.GameplayActive) GamepadInput.SuppressHeldButtons();
     }
 
@@ -192,15 +365,25 @@ public partial class PadMenus : Node
     public override void _Ready()
     {
         Input.JoyConnectionChanged += OnJoyConnectionChanged;
+        GetViewport().GuiFocusChanged += PadFocusPanes.Remember;
+        // One line per device: a controller listed twice here is being shown to the game as two devices.
+        foreach (int device in Input.GetConnectedJoypads()) GD.Print("SVM_PAD at start: " + Describe(device));
         // A controller already plugged in at start gets the prompt too (no connection event comes for it).
         Callable.From(PromptIfWanted).CallDeferred();
     }
 
-    public override void _ExitTree() => Input.JoyConnectionChanged -= OnJoyConnectionChanged;
+    public override void _ExitTree()
+    {
+        Input.JoyConnectionChanged -= OnJoyConnectionChanged;
+        GetViewport().GuiFocusChanged -= PadFocusPanes.Remember;
+    }
+
+    private static string Describe(int device) => $"device {device}, {Input.GetJoyName(device)}, guid {Input.GetJoyGuid(device)}";
 
     public override void _Process(double delta)
     {
-        if (!SettingsStore.Current.Pad.Enabled || GamepadInput.GameplayActive || BindingInput.Current?.CaptureSuspended == true ||
+        AdoptCandidate();
+        if (!SettingsStore.Current.Pad.Enabled || GamepadInput.GameplayActive || ListeningForBinding ||
             !GetWindow().HasFocus() && !Pointer.Detached)
             _navigation.Reset();
         else Navigate(_navigation.Advance(Time.GetTicksMsec() / 1000d));
@@ -224,7 +407,8 @@ public partial class PadMenus : Node
             _deviceLastInput = double.NegativeInfinity;
         }
         string name = connected ? Input.GetJoyName((int)device) : string.Empty;
-        GD.Print("SVM_PAD " + NoticeText(connected, name));
+        GD.Print("SVM_PAD " + NoticeText(connected, name) + (connected ? " (" + Describe((int)device) + ")" : " (device " + device + ")"));
+        if (!connected && device == s_candidate) s_candidate = -1;
         ShowNotice(NoticeText(connected, name));
         if (connected)
         {

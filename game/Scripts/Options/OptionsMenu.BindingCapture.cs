@@ -84,6 +84,7 @@ public partial class OptionsMenu
             if (capture.Pad.Armed) status.Text = "Press a controller control, or choose one below.";
         }
         _bindingCapture = capture;
+        PadMenus.ListeningForBinding = true;
         AddChild(overlay);
         cancel.GrabFocus();
     }
@@ -100,6 +101,7 @@ public partial class OptionsMenu
     {
         if (_bindingCapture is not { } capture) return;
         _bindingCapture = null;
+        PadMenus.ListeningForBinding = false;
         _listening = null; _listeningAction = null; _dialogOpen = false;
         capture.Suppression?.Dispose();
         if (IsInstanceValid(capture.Overlay)) { RemoveChild(capture.Overlay); capture.Overlay.QueueFree(); }

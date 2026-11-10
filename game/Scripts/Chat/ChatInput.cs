@@ -31,6 +31,10 @@ public partial class ChatInput : CanvasLayer, IHudOverlay
     private bool _inputWasEnabled;
     private Input.MouseModeEnum _pointerWas;
 
+    /// <summary>How long an unbound Enter waits for a controller button that may have sent it (a controller is connected).</summary>
+    private const ulong EnterSettleMs = 80;
+    private ulong? _enterAt;
+
     public ChatInput()
     {
         Name = "ChatInput";
@@ -131,6 +135,11 @@ public partial class ChatInput : CanvasLayer, IHudOverlay
         bool visible = VisibilityAllowed?.Invoke() != false;
         Visible = visible;
         if (IsOpen && (!visible || CanOpen?.Invoke() == false)) Close(restorePointer: true);
+        if (_enterAt is { } at && Time.GetTicksMsec() - at >= EnterSettleMs)
+        {
+            _enterAt = null;
+            if (!Options.PadMenus.ButtonPressedNear(at)) Open(EChatScope.Say);
+        }
     }
 
     /// <summary>Convenience for scripted checks; normal editing belongs to the native LineEdit.</summary>
@@ -212,6 +221,13 @@ public partial class ChatInput : CanvasLayer, IHudOverlay
                 !enterKey.AltPressed && !enterKey.CtrlPressed && !enterKey.MetaPressed &&
                 (ik is null || (input.Bindings?.Actions(ik).Count ?? 0) == 0);
             if (scope is null && !enter) return;
+            if (scope is null && Options.PadMenus.MayMirrorKeys)
+            {
+                // Steam Input layouts can send Enter together with a controller button (the Deck's desktop layout
+                // does for A). Wait a moment to see whether a button came with it before opening the chat.
+                _enterAt = Time.GetTicksMsec();
+                return;
+            }
             Open(scope ?? EChatScope.Say);
             if (IsOpen) GetViewport().SetInputAsHandled();
             return;

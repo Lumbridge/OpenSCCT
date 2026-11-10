@@ -108,6 +108,34 @@ public partial class FrontEndAudio : Node
         _ => null,
     };
 
+    /// <summary>
+    /// Stops the menu music at once. A map load blocks the frames the fade needs, so without this the menu track
+    /// keeps playing through the load and over the map's own Song.
+    /// </summary>
+    public static void Silence(SceneTree tree)
+    {
+        ArgumentNullException.ThrowIfNull(tree);
+        if (tree.Root.GetNodeOrNull<FrontEndAudio>(NodeName) is not { } audio) return;
+        audio._music?.Stop();
+        audio._fading?.Stop();
+        audio._track = null;
+    }
+
+    /// <summary>Every other player sounding on the music bus (a second copy of the music shows up here in the log).</summary>
+    private string OtherMusic()
+    {
+        var others = new List<string>();
+        foreach (Node node in GetTree().Root.FindChildren("*", nameof(AudioStreamPlayer), true, false))
+        {
+            if (node is AudioStreamPlayer { Playing: true } player && player != _music && player.Bus == ReverbBuses.MusicBus)
+            {
+                others.Add(player.GetPath() + (player == _fading ? " (fading out)" : string.Empty));
+            }
+        }
+
+        return others.Count == 0 ? string.Empty : "; also on the music bus: " + string.Join(", ", others);
+    }
+
     /// <summary>The lobby's join notification.</summary>
     public void PlayJoin()
     {
@@ -150,6 +178,7 @@ public partial class FrontEndAudio : Node
         _music.Stream = stream;
         _music.VolumeDb = 0f;
         _music.Play();
+        GD.Print($"SVM_AUDIO menu music: {track} ({song}), scene {GetTree().CurrentScene?.GetType().Name}{OtherMusic()}");
     }
 
     private AudioLibrary? Library(string map)

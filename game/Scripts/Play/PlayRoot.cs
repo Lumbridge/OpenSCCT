@@ -224,6 +224,8 @@ public partial class PlayRoot : Node3D
         if (!LoadTimer.Running || tree.CurrentScene is PlayRoot) LoadTimer.Begin("play " + config.Settings.Map);
         if (config.Render) OpenScctGame.Render.Materials.ResponsiveSmokeShaders.Prewarm(config.Settings.Map);
         LoadTimer.Mark("play.enter");
+        // The load below blocks the frames the menu music's fade needs.
+        OpenScctGame.Audio.FrontEndAudio.Silence(tree);
         PlayRoot root = Create(config);
         Node? previous = tree.CurrentScene;
         tree.Root.AddChild(root);

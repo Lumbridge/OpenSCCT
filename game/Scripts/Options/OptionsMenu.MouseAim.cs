@@ -29,7 +29,7 @@ public partial class OptionsMenu
             CustomMinimumSize = new Vector2(100, 32),
         };
         toolbar.AddChild(search);
-        var reset = new MenuButton { Name = "ResetMouse", Text = "Reset…", CustomMinimumSize = new Vector2(90, 32) };
+        var reset = new MenuButton { Name = "ResetMouse", Text = "Reset…", FocusMode = FocusModeEnum.All, CustomMinimumSize = new Vector2(90, 32) };
         reset.GetPopup().AddItem("Reset mouse & aim", 0);
         reset.GetPopup().IdPressed += _ => Confirm("Reset mouse & aim",
             "Restore this role's mouse sensitivity and camera settings? Changes take effect when you Apply or Save & Close.",

@@ -43,7 +43,7 @@ public partial class HudEditorPanel : VBoxContainer
         searchbar.AddChild(_search);
         _elements = new OptionButton { Name = "HudEditorElement", AllowReselect = true, FitToLongestItem = false, ClipText = true, CustomMinimumSize = new Vector2(220, 32) };
         searchbar.AddChild(_elements);
-        var more = new MenuButton { Name = "HudEditorTools", Text = "More…", CustomMinimumSize = new Vector2(80, 32) };
+        var more = new MenuButton { Name = "HudEditorTools", Text = "More…", FocusMode = FocusModeEnum.All, CustomMinimumSize = new Vector2(80, 32) };
         searchbar.AddChild(more);
         AddChild(searchbar);
         var toolbar = new HBoxContainer(); AddChild(toolbar);
