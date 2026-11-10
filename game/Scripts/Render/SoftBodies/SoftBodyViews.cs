@@ -137,7 +137,8 @@ public sealed class SoftBodyViews
         _bank = MathF.Max(0f, _bank - (steps * SoftBodyK.StepInterval));
         foreach (Body body in _bodies)
         {
-            if (body.Notifier.IsOnScreen())
+            // The own frame draws nothing through Godot's 3D view, so its notifier never fires there.
+            if (body.Notifier.IsOnScreen() || Rd.RdObjects.InView(body.Mesh))
             {
                 body.LastSeen = now;
                 body.Seen = true;

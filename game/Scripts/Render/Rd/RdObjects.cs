@@ -72,7 +72,13 @@ internal sealed class RdObjects
         public Vector2[] Uvs = [];
         public int[] Indices = [];
         public int Version;
+        public ulong SeenFrame = ulong.MaxValue;
     }
+
+    /// <summary>True when the own frame had the rewritten mesh in its view in the last frames (it is then kept moving).</summary>
+    public static bool InView(Mesh mesh) =>
+        RdWorldRenderer.OwnFrame && s_dynamic.TryGetValue(mesh, out DynamicSource? source) && source.SeenFrame != ulong.MaxValue
+        && Engine.GetProcessFrames() - source.SeenFrame <= 3;
 
     private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<Mesh, DynamicSource> s_dynamic = [];
 
@@ -361,6 +367,7 @@ internal sealed class RdObjects
             s_dynamic.TryGetValue(mesh, out DynamicSource? dynamic);
             Aabb box = model * (mesh is ArrayMesh { CustomAabb.Size: var custom } own && custom != Vector3.Zero ? own.CustomAabb : mesh.GetAabb());
             if (!sky && !inside(planes, skin is null ? box : box.Grow(1.5f))) continue;
+            if (dynamic is not null) dynamic.SeenFrame = Engine.GetProcessFrames();
             int objectIndex = -1, paletteBase = -1;
             int spotBits = spots(skin is null ? box : box.Grow(1.5f));
             for (int s = 0; s < mesh.GetSurfaceCount(); s++)
