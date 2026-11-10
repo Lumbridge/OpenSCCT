@@ -14,13 +14,15 @@ namespace OpenScct.Master.Admin;
 
 /// <summary>
 /// The admin portal (docs/ONLINE.md "Admin portal"): web pages under <c>/admin</c> for the master's admins
-/// (<see cref="MasterOptions.Admins"/>), signed in with Discord through the game's own callback. Sessions live in the
+/// (<see cref="MasterOptions.Admins"/>), signed in with Discord through the game's own callback or carried over from
+/// the admin's public website sign-in. Sessions live in the
 /// account database; every POST carries the session's CSRF token; every change is audited as "admin:&lt;name&gt;".
 /// </summary>
 internal sealed partial class AdminPortal
 {
     private const string SessionCookie = "svm_admin";
     private const string StateCookie = "svm_admin_state";
+    private const string WebSessionCookie = OpenScct.Master.Player.PlayerPortal.SessionCookie;
 
     private readonly MasterOptions _options;
     private readonly AccountStore _store;
@@ -171,25 +173,66 @@ internal sealed partial class AdminPortal
         }
 
         context.Response.Cookies.Delete(SessionCookie, new CookieOptions { Path = "/admin" });
-        return Results.Redirect("/admin");
+
+        // One sign-out for the whole site: the website session would otherwise sign the admin straight back in.
+        if (context.Request.Cookies[WebSessionCookie] is { Length: > 0 and < 100 } player)
+        {
+            _store.EndPlayerWebSession(player);
+        }
+
+        context.Response.Cookies.Delete(WebSessionCookie, new CookieOptions { Path = "/" });
+        return Results.Redirect("/");
     }
 
-    /// <summary>The signed-in admin of the request, or null (no cookie, session over, or no longer an admin).</summary>
+    /// <summary>
+    /// The signed-in admin of the request, or null (no session, session over, or not an admin). An admin who is signed
+    /// in to the public website gets a portal session from that sign-in instead of a second trip to Discord.
+    /// </summary>
     private AdminSessionRow? Admin(HttpContext context)
     {
-        if (context.Request.Cookies[SessionCookie] is not { Length: > 0 and < 100 } token || _store.AdminSession(token) is not { } session)
+        AdminSessionRow? session = null;
+        if (context.Request.Cookies[SessionCookie] is { Length: > 0 and < 100 } token)
         {
-            return null;
+            session = _store.AdminSession(token);
+            if (session is not null && !_options.IsAdmin(session.DiscordId))
+            {
+                _store.EndAdminSession(token);
+                return null;
+            }
         }
 
-        if (!_options.IsAdmin(session.DiscordId))
+        session ??= FromWebsiteSession(context);
+        if (session is not null)
         {
-            _store.EndAdminSession(token);
-            return null;
+            context.Items[CsrfField] = session.Csrf;
         }
 
-        context.Items[CsrfField] = session.Csrf;
         return session;
+    }
+
+    /// <summary>Starts a portal session for the admin signed in to the public website in this browser, if there is one.</summary>
+    private AdminSessionRow? FromWebsiteSession(HttpContext context)
+    {
+        if (context.Request.Cookies[WebSessionCookie] is not { Length: > 0 and < 100 } player ||
+            _store.PlayerWebSession(player) is not { } web || _store.FindById(web.AccountId) is not { } account ||
+            !_options.IsAdmin(account.DiscordId))
+        {
+            return null;
+        }
+
+        string name = account.Name ?? account.DiscordId;
+        string token = _store.CreateAdminSession(account.DiscordId, name, _clientIp(context).ToString(), context.Request.Headers.UserAgent.ToString());
+        context.Response.Cookies.Append(SessionCookie, token, new CookieOptions
+        {
+            HttpOnly = true, Secure = SecureCookies || context.Request.IsHttps, SameSite = SameSiteMode.Strict, Path = "/admin",
+            MaxAge = TimeSpan.FromSeconds(AccountStore.AdminSessionMax),
+        });
+        using (AccountStore.ActingAs("admin:" + name))
+        {
+            _store.Audit("admin.signin", "from " + _clientIp(context) + " (website session)");
+        }
+
+        return _store.AdminSession(token);
     }
 
     private IResult Get(HttpContext context, Func<HttpContext, AdminSessionRow, IResult> page) =>

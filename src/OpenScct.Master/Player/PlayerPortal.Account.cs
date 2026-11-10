@@ -127,6 +127,9 @@ internal sealed partial class PlayerPortal
 
     private IResult RevokeSession(HttpContext c, Viewer viewer, IFormCollection form)
     {
+        // Admin portal sessions follow website sign-ins, so revoking one ends them; this browser gets a new one on
+        // its next /admin visit while it stays signed in.
+        if (_options.IsAdmin(viewer.Account.DiscordId)) _store.EndAdminSessions(viewer.Account.DiscordId);
         if (Field(form, "action") == "others")
         {
             int ended = _store.RevokePlayerSessions(viewer.Account.Id, viewer.Session.Id);
@@ -134,7 +137,7 @@ internal sealed partial class PlayerPortal
         }
         string id = Field(form, "session"), kind = Field(form, "kind");
         bool endedOne = _store.RevokePlayerSession(viewer.Account.Id, kind, id);
-        if (endedOne && id == viewer.Session.Id && kind == "web") return Logout(c);
+        if (endedOne && id == viewer.Session.Id && kind == "web") return Logout(c, viewer);
         return Security(c, viewer, endedOne ? "Signed out successfully." : "That sign-in is no longer active.", !endedOne);
     }
 

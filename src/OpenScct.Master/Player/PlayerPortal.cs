@@ -17,7 +17,7 @@ namespace OpenScct.Master.Player;
 internal sealed partial class PlayerPortal(MasterOptions options, AccountStore store, ServerRegistry registry, Func<HttpContext, IPAddress> clientIp,
     ReleaseChangelog releases, GitHubBugReports? bugReports = null)
 {
-    private const string SessionCookie = "svm_player";
+    internal const string SessionCookie = "svm_player";
     private const string StateCookie = "svm_player_state";
     private const string ReturnCookie = "svm_player_return";
     private const string ReportReturnPath = "/help/report-bug";
@@ -59,7 +59,7 @@ internal sealed partial class PlayerPortal(MasterOptions options, AccountStore s
         Post(app, "/account/prestige", (c, v, f) => Prestige(c, v, f));
         Post(app, "/account/appearance", (c, v, f) => ChangeAppearance(c, v, f));
         Post(app, "/account/security", (c, v, f) => RevokeSession(c, v, f));
-        Post(app, "/account/logout", (c, v, f) => Logout(c));
+        Post(app, "/account/logout", (c, v, f) => Logout(c, v));
     }
 
     private static void Get(WebApplication app, string pattern, Func<HttpContext, IResult> handler) =>
@@ -189,10 +189,17 @@ internal sealed partial class PlayerPortal(MasterOptions options, AccountStore s
         SameSite = sameSite, Path = path, MaxAge = maxAge,
     };
 
-    private IResult Logout(HttpContext c)
+    private IResult Logout(HttpContext c, Viewer viewer)
     {
         if (c.Request.Cookies[SessionCookie] is { } token) _store.EndPlayerWebSession(token);
         c.Response.Cookies.Delete(SessionCookie, Cookie(c, "/", SameSiteMode.Strict, null));
+        // The admin portal session came from this sign-in (or sits beside it), so it ends with it. Its cookie is
+        // scoped to /admin and not sent here, so the sessions are ended by account.
+        if (_options.IsAdmin(viewer.Account.DiscordId))
+        {
+            _store.EndAdminSessions(viewer.Account.DiscordId);
+            c.Response.Cookies.Delete("svm_admin", Cookie(c, "/admin", SameSiteMode.Strict, null));
+        }
         return Results.Redirect("/");
     }
 

@@ -186,6 +186,15 @@ internal sealed partial class AccountStore
         }
     }
 
+    /// <summary>Ends every portal session of one admin (their website sign-out).</summary>
+    public void EndAdminSessions(string discordId)
+    {
+        lock (_gate)
+        {
+            Exec("DELETE FROM admin_sessions WHERE discord_id = $d;", ("$d", discordId));
+        }
+    }
+
     private static string NewToken() =>
         Convert.ToBase64String(RandomNumberGenerator.GetBytes(32)).TrimEnd('=').Replace('+', '-').Replace('/', '_');
 

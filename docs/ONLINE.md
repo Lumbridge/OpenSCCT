@@ -582,7 +582,9 @@ deployment and manual checks. It uses the same accounts, stats and match records
 `svm_player_state` cookie. The shared `/auth/discord/callback` checks the cookie, consumes the stored state once,
 then issues a separate `svm_player` cookie: HttpOnly, Secure on HTTPS, SameSite=Strict, path `/`. Only the token's
 hash is stored. The session expires after 12 hours unused or seven days total. Every account-changing form checks
-the session and its CSRF token. A player cookie never authorizes an admin page or a game API request.
+the session and its CSRF token. A player cookie never authorizes a game API request. For an account in `Admins` it
+starts an admin portal session on the first `/admin` visit (see "Admin portal"); signing out of the website also ends
+that admin's portal sessions.
 
 **Appearance API.** `GET /api/v1/account/appearance` returns `AccountAppearance` (`revision`, `spy`, `merc`,
 `title`). `PUT` accepts `AppearanceUpdateRequest` (`expectedRevision`, `spy`, `merc`, `title`) and returns
@@ -604,6 +606,9 @@ config's `Admins` list. It is on when Discord sign-in is set up.
 - `/admin/login` sends the browser to Discord with `state = admin.<nonce>` and the nonce in a short `svm_admin_state`
   cookie. Discord comes back to the game's own `/auth/discord/callback`, which hands `admin.` states to the portal.
   No second redirect URL needs registering with Discord.
+- An admin already signed in to the public website skips this: a request under `/admin` with a valid `svm_player`
+  session whose account is in `Admins` gets a portal session straight away (audited as `admin.signin` with
+  "(website session)"). Everyone else sees the sign-in page. The portal's "Sign out" ends both sessions.
 - A Discord id that is not in `Admins` is refused and audited (`admin.refused`).
 - A session is a random token in the `svm_admin` cookie: HttpOnly, Secure, SameSite=Strict, path `/admin`. Only its
   hash is kept, in `admin_sessions`. It ends after 12 hours unused or 7 days at most, and every request checks
