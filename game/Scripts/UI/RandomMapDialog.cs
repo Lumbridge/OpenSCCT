@@ -323,7 +323,7 @@ public partial class RandomMapDialog : Control
 
     private AudioStreamPlayer AddSound(AudioStream stream, float volume)
     {
-        var sound = new AudioStreamPlayer { Bus = ReverbBuses.FlatBus, Stream = stream, VolumeDb = volume };
+        var sound = new AudioStreamPlayer { Bus = ReverbBuses.MenuSoundBus, Stream = stream, VolumeDb = volume };
         AddChild(sound);
         return sound;
     }

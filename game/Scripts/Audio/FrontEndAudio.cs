@@ -13,9 +13,9 @@ namespace OpenScctGame.Audio;
 /// Song Menu_music2, Enhanced's longer lobby track, enh:audio.lobby_music). The rewrite's menus are Godot pages, so
 /// this node plays the same Song for the page on screen: the Lobby's in the lobby, the Entry's on the other menu
 /// pages, none on the loading pages, the results and in a round (the round's map plays its own). A change of track
-/// fades the old one out over the music's 2 s minimum, as PlayMusic does; the music bus carries the music volume.</item>
+/// fades the old one out over the music's 2 s minimum, as PlayMusic does; the menu music bus carries its volume.</item>
 /// <item>Join: Reloaded's lobby plays a notification sound when a player joins (rl:qol.lobby, rl:audio.join). Which
-/// sound it plays is not decoded; ours is the menus' message beep (Interface.Menu.bip_message), flat on the effects bus.</item>
+/// sound it plays is not decoded; ours is the menus' message beep (Interface.Menu.bip_message), on the menu sounds bus.</item>
 /// </list>
 /// The songs come from the converted Entry and Lobby maps (their audio tables and streams, the maps step); without
 /// them the menus are silent.
@@ -69,9 +69,9 @@ public partial class FrontEndAudio : Node
         _quiet = DisplayServer.GetName() == "headless" || System.Environment.GetEnvironmentVariable("SVM_AUDIO_MUTE") is "1" or "true";
         _ = new ReverbBuses(null);
         OpenScctGame.Options.SettingsApplier.ApplyAudio(OpenScctGame.Options.SettingsStore.Current);
-        _music = new AudioStreamPlayer { Name = "Music", Bus = ReverbBuses.MusicBus };
-        _fading = new AudioStreamPlayer { Name = "Fading", Bus = ReverbBuses.MusicBus };
-        _ui = new AudioStreamPlayer { Name = "Ui", Bus = ReverbBuses.FlatBus };
+        _music = new AudioStreamPlayer { Name = "Music", Bus = ReverbBuses.MenuMusicBus };
+        _fading = new AudioStreamPlayer { Name = "Fading", Bus = ReverbBuses.MenuMusicBus };
+        _ui = new AudioStreamPlayer { Name = "Ui", Bus = ReverbBuses.MenuSoundBus };
         AddChild(_music);
         AddChild(_fading);
         AddChild(_ui);
@@ -127,7 +127,8 @@ public partial class FrontEndAudio : Node
         var others = new List<string>();
         foreach (Node node in GetTree().Root.FindChildren("*", nameof(AudioStreamPlayer), true, false))
         {
-            if (node is AudioStreamPlayer { Playing: true } player && player != _music && player.Bus == ReverbBuses.MusicBus)
+            if (node is AudioStreamPlayer { Playing: true } player && player != _music &&
+                (player.Bus == ReverbBuses.MenuMusicBus || player.Bus == ReverbBuses.MusicBus))
             {
                 others.Add(player.GetPath() + (player == _fading ? " (fading out)" : string.Empty));
             }
@@ -174,7 +175,7 @@ public partial class FrontEndAudio : Node
             return;
         }
 
-        // Music plays without the Sound's own gain, at the music volume (the bus).
+        // Music plays without the Sound's own gain, at the menu music volume (the bus).
         _music.Stream = stream;
         _music.VolumeDb = 0f;
         _music.Play();

@@ -743,13 +743,32 @@ public sealed class GameSettings
     [Provenance(ProvenanceKind.Decoded, "spec/reloaded/FEATURES.md rl:audio.cache z_cache_sound_volume 0.5")]
     public float SoundVolume { get; set; } = 0.5f;
 
+    /// <summary>The music of a round (a map's Song, the end of round music).</summary>
     [JsonPropertyName("music_volume")]
     public float MusicVolume { get; set; } = 0.5f;
 
-    /// <summary>Profile bObjectiveSounds: the objective jingles play (Enhanced's "Objective Sounds").</summary>
-    [JsonPropertyName("objective_sounds")]
+    /// <summary>The menus' music (main menu, lobby, the hub's jukebox). A file without it takes <c>music_volume</c>.</summary>
+    [JsonPropertyName("menu_music_volume")]
+    public float MenuMusicVolume { get; set; } = 0.5f;
+
+    /// <summary>
+    /// The objective jingles. A file without it takes <c>sound_volume</c>, or 0 when its old <c>objective_sounds</c>
+    /// switch was off.
+    /// </summary>
+    [JsonPropertyName("objective_volume")]
+    public float ObjectiveVolume { get; set; } = 0.5f;
+
+    /// <summary>The menus' own sounds (button feedback, the join sound). A file without it takes <c>sound_volume</c>.</summary>
+    [JsonPropertyName("menu_sound_volume")]
+    public float MenuSoundVolume { get; set; } = 0.5f;
+
+    /// <summary>
+    /// Profile bObjectiveSounds: the objective jingles play (Enhanced's "Objective Sounds"). Off at objective volume 0,
+    /// so the script drops the jingles as the original does.
+    /// </summary>
+    [JsonIgnore]
     [Provenance(ProvenanceKind.Decoded, "SPlayerProfile defaults bObjectiveSounds=True")]
-    public bool ObjectiveSounds { get; set; } = true;
+    public bool ObjectiveSounds => ObjectiveVolume > 0f;
 
     /// <summary>Other players' voices (voice_output_volume).</summary>
     [JsonPropertyName("voice_output_volume")]
@@ -971,6 +990,18 @@ public sealed class GameSettings
                 : merc ?? spy ?? DisplayFrameCap.Monitor;
         }
 
+        // The volumes split off sound_volume and music_volume start where the file's old sliders left them.
+        if (root.ValueKind == JsonValueKind.Object)
+        {
+            if (!root.TryGetProperty("menu_music_volume", out _)) MenuMusicVolume = MusicVolume;
+            if (!root.TryGetProperty("menu_sound_volume", out _)) MenuSoundVolume = SoundVolume;
+            if (!root.TryGetProperty("objective_volume", out _))
+            {
+                bool off = root.TryGetProperty("objective_sounds", out JsonElement sounds) && sounds.ValueKind == JsonValueKind.False;
+                ObjectiveVolume = off ? 0f : SoundVolume;
+            }
+        }
+
         FileVersion = Version;
 
         int? ReadLegacyCap(string key) =>
@@ -1063,6 +1094,9 @@ public sealed class GameSettings
         MasterVolume = LookSettings.Range(MasterVolume, 0f, 1f);
         SoundVolume = LookSettings.Range(SoundVolume, 0f, 1f);
         MusicVolume = LookSettings.Range(MusicVolume, 0f, 1f);
+        MenuMusicVolume = LookSettings.Range(MenuMusicVolume, 0f, 1f);
+        ObjectiveVolume = LookSettings.Range(ObjectiveVolume, 0f, 1f);
+        MenuSoundVolume = LookSettings.Range(MenuSoundVolume, 0f, 1f);
         VoiceVolume = LookSettings.Range(VoiceVolume, 0f, 1f);
         VoiceThreshold = LookSettings.Range(VoiceThreshold, 0f, 1f);
         VoiceHoldMs = Math.Clamp(VoiceHoldMs, 0, 2000);

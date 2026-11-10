@@ -11,7 +11,17 @@ public sealed class ReverbBuses : IDisposable
 {
     public const string WorldBus = "SvmWorld";
     public const string FlatBus = "SvmFlat";
+    /// <summary>The music of a round (a map's Song, the end of round music).</summary>
     public const string MusicBus = "SvmMusic";
+
+    /// <summary>The menus' music (the Entry and Lobby songs, the hub's jukebox).</summary>
+    public const string MenuMusicBus = "SvmMenuMusic";
+
+    /// <summary>The objective jingles (<see cref="SoundRules.IsObjectiveJingle"/>).</summary>
+    public const string ObjectiveBus = "SvmObjective";
+
+    /// <summary>The menus' own sounds (button feedback, the lobby's join sound, the random map draw).</summary>
+    public const string MenuSoundBus = "SvmMenuSound";
     private const string EffectClass = "ScctEaxReverbEffect";
     private const string FilterClass = "ScctEaxSourceFilter";
     private static int _nextId;
@@ -29,6 +39,9 @@ public sealed class ReverbBuses : IDisposable
         Ensure(WorldBus);
         Ensure(FlatBus);
         Ensure(MusicBus);
+        Ensure(MenuMusicBus);
+        Ensure(ObjectiveBus);
+        Ensure(MenuSoundBus);
         NativeAvailable = ClassDB.ClassExists(EffectClass) && ClassDB.ClassExists(FilterClass);
         if (map is null) return;
         if (!NativeAvailable)

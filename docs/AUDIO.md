@@ -221,14 +221,20 @@ two maps' banks, converted by the maps step (`svmap/Entry/audio`, `svmap/Lobby/a
 pages, so `FrontEndAudio` (a node under the root, made by the first menu page) plays the Song of the level the page
 belongs to: the Lobby's for the Lobby Room and the offline lobby, the Entry's for the other menu pages, none for the
 loading pages, the results and the round's scene (its map plays its own Song). A change of track fades the old one
-out over 2 s (PlayMusic's minimum) and starts the new one at once, on `SvmMusic` at the music volume, without the
+out over 2 s (PlayMusic's minimum) and starts the new one at once, on `SvmMenuMusic` at the menu music volume, without the
 Sound's own gain (as the map music). It also plays the lobby's join sound (rl:qol.lobby, rl:audio.join: which sound
-Reloaded plays is not decoded; ours is `Interface.Menu.bip_message` at its own gain, flat on `SvmFlat`). Headless
+Reloaded plays is not decoded; ours is `Interface.Menu.bip_message` at its own gain, on `SvmMenuSound`). Headless
 runs and `SVM_AUDIO_MUTE=1` play nothing.
+
+Volume sliders (Options, Audio) each drive a bus under Master: sound effects (`SvmWorld`, `SvmFlat`, the reverb
+buses), objective sounds (`SvmObjective`: a 2D sound that `SoundRules.IsObjectiveJingle` names, the Jingl sounds of
+`Interface.Objectifs`; at 0 the script also drops the ClientSetMusic jingles, as bObjectiveSounds off does), in-game
+music (`SvmMusic`: a map's Song and the end of round music), menu music (`SvmMenuMusic`, also the hub's jukebox) and
+menu sounds (`SvmMenuSound`: button feedback, the join sound, the random map draw).
 
 `MenuFeedback`, installed by `App`, adds quiet button hover/focus and click sounds across menu pages and in-game
 overlays. These are original, short synthesized tones with softened attacks and decays, so they need no converted
-content: hover is 38 ms at -23 dB, click is 70 ms at -18 dB. They use `SvmFlat`, respecting Master and Sound volume.
+content: hover is 38 ms at -23 dB, click is 70 ms at -18 dB. They use `SvmMenuSound`, respecting the Overall and Menu sounds volumes.
 Hover/focus shares a 65 ms cooldown; programmatic focus and stationary-pointer page changes are silent. Clicks
 interrupt hover but use a separate player from lobby notifications and music. Headless and `SVM_AUDIO_MUTE` runs
 remain silent.

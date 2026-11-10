@@ -511,6 +511,7 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
         v.FollowListener = atListener;
         v.ListenerControllerId = atListener ? LocalControllerId : 0;
         v.Music = music;
+        v.Objective = !music && SoundRules.IsObjectiveJingle(call.Def.Path);
         v.Flat = call.flat;
         v.Ambient = call.ambient;
         // Rules 20 to 22: an ambient loop is 3D or 2D by its own Sound (the one the actor names), whatever the entry a
@@ -818,7 +819,8 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
             else gain *= SoundRules.DistanceGain(d, OccludedMinDistance(v));
         }
 
-        v.Apply(gain, v.Pitch * Doppler(v, dt), v.Music ? ReverbBuses.MusicBus : v.Positional ? worldBus : ReverbBuses.FlatBus,
+        v.Apply(gain, v.Pitch * Doppler(v, dt),
+            v.Music ? ReverbBuses.MusicBus : v.Positional ? worldBus : v.Objective ? ReverbBuses.ObjectiveBus : ReverbBuses.FlatBus,
             UeSpace.ToGodot(v.Location), roomGain, UeSpace.ToGodot(ListenerLocation));
         v.Priority = SoundRules.Priority(d * d, v.Radius, v.Volume,
             (v.Leaf?.Flags ?? 0) | (v.Music ? AudioK.FlagMusic | AudioK.Flag2D : 0), v.PriorityRadiusFactor);
@@ -1217,6 +1219,9 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
         public bool HasLastLocation;
         public float Priority;
         public bool Music;
+
+        /// <summary>An objective jingle: a 2D one plays on the objective bus (its own volume slider).</summary>
+        public bool Objective;
         public bool Flat;
         public bool Ambient;
         public bool AmbientPositional;
@@ -1393,6 +1398,7 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
             AmbientPositional = false;
             AmbientZoneId = null;
             Music = false;
+            Objective = false;
             Flat = false;
             Id = 0;
             Priority = 0f;

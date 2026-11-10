@@ -9,7 +9,7 @@ namespace OpenScctGame.Hub;
 /// <summary>
 /// The hub's own sounds (an OpenSCCT addition): the jukebox's music and the activities' chimes, all made here by a
 /// small synthesiser (no recorded audio, no samples, nothing from the game), so they carry no licence beyond the
-/// project's. The music fades in near the jukebox (<see cref="HubPlayK.JukeboxRange"/>) on the music bus; the chimes
+/// project's. The music fades in near the jukebox (<see cref="HubPlayK.JukeboxRange"/>) on the menu music bus; the chimes
 /// play flat on the effects bus.
 /// </summary>
 public partial class HubAudio : Node
@@ -33,7 +33,7 @@ public partial class HubAudio : Node
     public override void _Ready()
     {
         Name = "HubAudio";
-        _musicPlayer = MakePlayer("Music", AudioServer.GetBusIndex(ReverbBuses.MusicBus) >= 0 ? ReverbBuses.MusicBus : "Master");
+        _musicPlayer = MakePlayer("Music", AudioServer.GetBusIndex(ReverbBuses.MenuMusicBus) >= 0 ? ReverbBuses.MenuMusicBus : "Master");
         _chimePlayer = MakePlayer("Chimes", AudioServer.GetBusIndex(ReverbBuses.FlatBus) >= 0 ? ReverbBuses.FlatBus : "Master");
         _music = GeneratorPlayback.Get(_musicPlayer);
         _chime = GeneratorPlayback.Get(_chimePlayer);

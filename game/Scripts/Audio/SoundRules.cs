@@ -15,6 +15,16 @@ public static class SoundRules
         return Math.Clamp(Math.Max(v, AudioK.MinVolume), AudioK.MinVolume, 1f);
     }
 
+    /// <summary>
+    /// An objective jingle (ours, for the objective volume): a Jingl sound of an Interface package's Objectifs group
+    /// (Jingl_objectifTaken, Jingl_AttacB, Jingl_DefA, Jingl_alarm_Def, Jingl_AsomDrop_Attac, Objectif_Jingle1, ...).
+    /// The group's alarm loops (Alarme, Alarme_Volume) are world sounds, not jingles.
+    /// </summary>
+    public static bool IsObjectiveJingle(string? path) =>
+        path is not null && path.StartsWith("Interface", StringComparison.OrdinalIgnoreCase) &&
+        path.Contains(".Objectifs.", StringComparison.OrdinalIgnoreCase) &&
+        path.Contains("Jingl", StringComparison.OrdinalIgnoreCase);
+
     /// <summary>Rule 11: the Sound's own radius when above 0, else the call's.</summary>
     public static float Radius(float soundRadius, float callRadius) => soundRadius > 0f ? soundRadius : callRadius;
 

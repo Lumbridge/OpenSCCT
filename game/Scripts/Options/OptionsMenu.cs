@@ -588,10 +588,14 @@ public partial class OptionsMenu : Control
         GridContainer g = Grid("Audio");
         Section(g, "Volume", "Adjust the overall volume or individual sound categories. Voice volume is on the Voice tab.");
         Slider(g, "Overall volume", "master_volume", 0f, 100f, 1f, _edit.MasterVolume * 100f, v => _edit.MasterVolume = v / 100f, "0");
+        Section(g, "In game", "");
         Slider(g, "Sound effects volume", "sound_volume", 0f, 100f, 1f, _edit.SoundVolume * 100f, v => _edit.SoundVolume = v / 100f, "0");
-        Slider(g, "Music volume", "music_volume", 0f, 100f, 1f, _edit.MusicVolume * 100f, v => _edit.MusicVolume = v / 100f, "0");
-        Section(g, "Gameplay audio", "");
-        Check(g, "Objective sounds", "objective_sounds", _edit.ObjectiveSounds, v => _edit.ObjectiveSounds = v);
+        Slider(g, "Objective sounds volume", "objective_volume", 0f, 100f, 1f, _edit.ObjectiveVolume * 100f, v => _edit.ObjectiveVolume = v / 100f, "0");
+        _controls["objective_volume"].TooltipText = "The jingles for objectives and alarms. 0 turns them off.";
+        Slider(g, "In-game music volume", "music_volume", 0f, 100f, 1f, _edit.MusicVolume * 100f, v => _edit.MusicVolume = v / 100f, "0");
+        Section(g, "Menus", "");
+        Slider(g, "Menu music volume", "menu_music_volume", 0f, 100f, 1f, _edit.MenuMusicVolume * 100f, v => _edit.MenuMusicVolume = v / 100f, "0");
+        Slider(g, "Menu sounds volume", "menu_sound_volume", 0f, 100f, 1f, _edit.MenuSoundVolume * 100f, v => _edit.MenuSoundVolume = v / 100f, "0");
         return CreateSettingsEditor("Audio", g);
     }
 

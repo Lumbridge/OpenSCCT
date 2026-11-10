@@ -57,7 +57,7 @@ public partial class MenuFeedback : Node
 
     private AudioStreamPlayer Player(string name, AudioStream stream, float volume)
     {
-        var player = new AudioStreamPlayer { Name = name, Bus = ReverbBuses.FlatBus, Stream = stream, VolumeDb = volume };
+        var player = new AudioStreamPlayer { Name = name, Bus = ReverbBuses.MenuSoundBus, Stream = stream, VolumeDb = volume };
         AddChild(player);
         return player;
     }

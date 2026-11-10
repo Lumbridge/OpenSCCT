@@ -287,8 +287,9 @@ public static class SettingsApplier
     }
 
     /// <summary>
-    /// Bus volumes: Master, the effect buses (SvmWorld, SvmFlat and the zones' reverb buses), SvmMusic and the voice
-    /// bus. Buses made later by the sound system get theirs at the next call.
+    /// Bus volumes: Master, the effect buses (SvmWorld, SvmFlat and the zones' reverb buses), the objective jingles,
+    /// the round's music, the menus' music and sounds, and the voice bus. Buses made later by the sound system get
+    /// theirs at the next call.
     /// </summary>
     public static void ApplyAudio(GameSettings s)
     {
@@ -301,6 +302,9 @@ public static class SettingsApplier
             {
                 MasterBus => s.MasterVolume,
                 Audio.ReverbBuses.MusicBus => s.MusicVolume,
+                Audio.ReverbBuses.MenuMusicBus => s.MenuMusicVolume,
+                Audio.ReverbBuses.ObjectiveBus => s.ObjectiveVolume,
+                Audio.ReverbBuses.MenuSoundBus => s.MenuSoundVolume,
                 VoiceBus => s.VoiceVolume,
                 Audio.ReverbBuses.WorldBus or Audio.ReverbBuses.FlatBus => s.SoundVolume,
                 _ when name.StartsWith("SvmReverb", StringComparison.Ordinal) => s.SoundVolume,
