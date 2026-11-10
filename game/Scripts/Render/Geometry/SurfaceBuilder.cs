@@ -246,13 +246,72 @@ internal sealed class SurfaceBuilder
         }
     }
 
+    /// <summary>
+    /// A translucent surface: its triangles are drawn in the order that is right for every eye that can see them from
+    /// the front. A merged surface is one draw, so the renderer cannot sort its triangles; left in mesh order, the
+    /// back plate of one sign covers the lettering of the sign hung against it (BankD's "SAFE DEPOSIT ROOM" plates,
+    /// two meshes back to back 0.2 uu apart). Triangles that face the same way are ordered along that way, the
+    /// rearmost first: an eye in front of two parallel faces always has the further one behind the nearer.
+    /// </summary>
+    public bool OrderByFacing { get; set; }
+
+    private int[] OrderedIndices()
+    {
+        int[] indices = _indices.ToArray();
+        int triangles = indices.Length / 3;
+        if (!OrderByFacing || triangles < 2)
+        {
+            return indices;
+        }
+
+        var keys = new (int Facing, float Along, int Triangle)[triangles];
+        for (int t = 0; t < triangles; t++)
+        {
+            int a = indices[t * 3], b = indices[(t * 3) + 1], c = indices[(t * 3) + 2];
+            // The triangle's own plane, turned to the side its shading normals are on: the side it is seen from,
+            // whichever way the instance is wound (smoothed normals alone lean up to 30 degrees off a flat plate).
+            Vector3 n = (_positions[b] - _positions[a]).Cross(_positions[c] - _positions[a]);
+            Vector3 shaded = _normals[a] + _normals[b] + _normals[c];
+            n = n.LengthSquared() > 1e-18f ? n.Normalized() : shaded.LengthSquared() > 1e-12f ? shaded.Normalized() : Vector3.Up;
+            if (n.Dot(shaded) < 0f) n = -n;
+            Vector3 centre = (_positions[a] + _positions[b] + _positions[c]) / 3f;
+            // Facings within about 15 degrees share a group; the groups keep the mesh's order between them.
+            int facing = (Mathf.RoundToInt(n.X * 4f) + 4) | ((Mathf.RoundToInt(n.Y * 4f) + 4) << 4) | ((Mathf.RoundToInt(n.Z * 4f) + 4) << 8);
+            keys[t] = (facing, n.Dot(centre), t);
+        }
+
+        var first = new Dictionary<int, int>();
+        foreach ((int facing, _, int triangle) in keys)
+        {
+            first.TryAdd(facing, triangle);
+        }
+
+        Array.Sort(keys, (x, y) =>
+        {
+            int byGroup = first[x.Facing].CompareTo(first[y.Facing]);
+            if (byGroup != 0) return byGroup;
+            int byDepth = x.Along.CompareTo(y.Along);
+            return byDepth != 0 ? byDepth : x.Triangle.CompareTo(y.Triangle);
+        });
+        var ordered = new int[indices.Length];
+        for (int t = 0; t < triangles; t++)
+        {
+            int from = keys[t].Triangle * 3;
+            ordered[t * 3] = indices[from];
+            ordered[(t * 3) + 1] = indices[from + 1];
+            ordered[(t * 3) + 2] = indices[from + 2];
+        }
+
+        return ordered;
+    }
+
     private Streams Pack() => new(
         _positions.ToArray(),
         _normals.ToArray(),
         _uvs.ToArray(),
         HasUv2 ? _uv2s.ToArray() : null,
         HasColour ? _colours.ToArray() : null,
-        _indices.ToArray(),
+        OrderedIndices(),
         HasVision ? _vision.ToArray() : null,
         _anyEchelon ? _echelon.ToArray() : null,
         _anyBakedDirection ? _bakedDirections.ToArray() : null);
