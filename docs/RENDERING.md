@@ -719,6 +719,11 @@ ignored) are left out when the file is there.
   grate, ceiling-grid and caustic patterns are LE_ESpotShadow lights (shadow map and cookie, see
   [Spot shadow lights](#spot-shadow-lights)), not projectors.
 
+A projector's box is two surfaces with the same triangles (svm_projector.gdshaderinc, `PROJ_SIDES`): for a camera inside
+the box, or within 1 m of it, the faces turned away draw with no depth test; for a camera outside, the faces turned
+towards it draw with the depth test on (the box 2% larger, so a surface lying in a face stays behind it), and a box
+hidden behind a wall costs nothing. The vertex shader picks the surface from the box's six planes, for each camera.
+
 ## Light beams
 
 Lights with `UsesLightBeam` and a `LightBeamMesh` (200 placed, `TestMapStaticM.Accessories.LightBeam` and its copy

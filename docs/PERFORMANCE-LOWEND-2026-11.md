@@ -367,6 +367,26 @@ Time from starting a load to the first frame the player controls (`SVM_LOAD done
 - The Godot caches on this PC are large: the shader cache is 2.1 GB (7,844 files in the newest folder) and the Intel pipeline cache 704 MB, read whole at start. Not measured here: what start-up pays for them, and what a player's first run without them costs.
 - Clips could be stored outside the character files' JSON (a binary block read on demand), which removes most of `play.outfits`.
 
+## Where AquaE's frame goes against the original's (2026-11-10)
+
+The original draws the AquaE spawn view at 2560×1440 on the UHD 770 in 6.3 ms a frame (159 FPS, "The target" below). Ours took 14.6 ms. The frame taken apart with measurement switches (`SVM_RD_WORLD_TEST=only|clear|depth|nosky`, `SVM_RD_WORLD_MASK=<hex layers Godot's main view keeps>`, `SVM_PERF_HIDE=<words in node paths>`, `SVM_PERF_SURVEY=1`), world pass, shadow pass and lean post on, GPU 92% busy throughout:
+
+| Part | Frame ms | Notes |
+|---|---:|---|
+| Godot's frame with nothing in it, our post chain and shadow pass | 6.98 | 2.87 timed (tonemap 0.87, final display pass 0.64, glow 0.65, shadow pass 0.57, depth clear 0.25) and 4.1 untimed (the copy to the display's GPU, 2.3; Godot's own target and swapchain copy) |
+| World pass without portal fog | +2.75 | 2.25 timed: 0.53 depth pre-pass, 1.7 colour |
+| Portal fog in the world's shaders | +1.5 | |
+| Map projectors | +1.5 | fixed, below |
+| Objects and characters (World layer) | +0.95 | Godot's pre-pass and opaque pass |
+| Depth copy, other effects | +0.9 | the depth copy (0.48) is for the projectors' and coronas' depth reads |
+| Rain sheets | +0.1 | |
+| Cloth water (soft bodies) | +0.3 | hidden: 14.7 → 14.4 ms; 4 draws, 448 triangles; its simulation is part of 0.5 ms of CPU |
+
+- **An empty Godot frame is slower than the original's whole frame.** 6.98 ms against 6.3 ms. Nothing drawn inside Godot's 3D frame on this PC can match the original on this view; what is left after every cut is the tonemap copy, a 16-bit float target read back by two full-screen passes, and Godot's presentation.
+- **A full-screen pass costs 0.3–0.9 ms here whatever it computes.** The world's colour pass with no fog is 1.7 ms for the whole screen; a pass that only blends a constant over it costs about as much as the glow or the final display pass.
+- **Map projectors, fixed (1.77 → 0.37 ms of the transparent pass, 68.6 → 76.2 FPS).** A projector drew the back faces of its box with no depth test, so a box hidden behind a wall still ran its shader on every pixel it covered: AquaE's five rain-ripple boxes covered the screen from inside the spawn room. Each box is now two surfaces: a camera outside the box (by more than 1 m) draws the faces turned towards it with the depth test on, so pixels whose surface lies in front of the box are rejected before the shader runs; a camera inside draws the far faces as before. The choice is made in the vertex shader from the box's planes, per camera. Capped at 30 FPS the picture differs from the old one by 0.65% of pixels, less than two runs of the same build differ (rain).
+- **Portal fog, three attempts, no gain kept.** Its cost in the surfaces' shaders is 1.4 ms. (1) One fog draw over the screen after the world, reading depth: 2.2 ms, worse (the camera's own zone is fogged, so every pixel is covered). (2) The same split by screen tile, a ramp-only shader where no portal candidate lies (83% of tiles) and the whole function elsewhere: 0.81 + 0.62 ms, equal to the surfaces' own. (3) The ramp back in the surfaces behind one tile lookup, the fog draw on candidate tiles only: 0.66 + 0.61 ms, 0.16 ms better, not worth its code. Reverted. Fog on this GPU costs by the pixels it touches; computing it per vertex is the form that would be cheap, and it would not match the per-pixel portal crossings.
+
 ## The target
 
 ### The original at 2560×1440 on the UHD 770 (measured 2026-11-10)
