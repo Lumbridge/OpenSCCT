@@ -16,8 +16,11 @@ namespace OpenScctGame.Render.Rd;
 /// </summary>
 internal sealed class RdObjects
 {
-    /// <summary>36 bytes: position, normal, UV, colour. Skinned: 60 bytes, with four bone indices and weights.</summary>
-    public const int Stride = 36, SkinnedStride = 60;
+    /// <summary>
+    /// 44 bytes: position, normal, UV, colour, second UV (the lightmap's, for map surfaces left to this pass). Skinned:
+    /// 60 bytes: position, normal, UV, colour, four bone indices and weights.
+    /// </summary>
+    public const int Stride = 44, SkinnedStride = 60;
 
     /// <summary>Bytes of one object's block: model matrix, ambient, four lights (position, colour, spot).</summary>
     public const int ObjectBytes = 64 + 16 + (4 * 48) + 32;
@@ -182,6 +185,8 @@ internal sealed class RdObjects
 
     /// <summary>Adds the visible meshes under <paramref name="root"/> (main thread, after <see cref="Begin"/>).</summary>
     private readonly HashSet<ulong> _prepared = [];
+    private Node? _staticRoot;
+    private readonly List<MeshInstance3D> _staticLeft = [];
 
     /// <summary>
     /// Everything a mesh node will need when it is first drawn, made when the node is first met in the scene (at the
@@ -190,7 +195,7 @@ internal sealed class RdObjects
     /// </summary>
     private void Prepare(MeshInstance3D node, List<Upload> uploads, List<RdMaterial> warm)
     {
-        bool sky = (node.Layers & (RenderLayers.World | RenderLayers.FirstPerson | RenderLayers.Effects)) == 0;
+        bool sky = (node.Layers & (RenderLayers.World | RenderLayers.FirstPerson | RenderLayers.Effects | RenderLayers.StaticWorld)) == 0;
         if (node.Mesh is not { } mesh || (sky && (node.Layers & RenderLayers.Sky) == 0)) return;
         bool skinned = false;
         if (node.Skin is not null)
@@ -250,8 +255,33 @@ internal sealed class RdObjects
             while (_stack.Count > 0)
             {
                 Node at = _stack.Pop();
-                // The merged world is the world pass's own.
-                if (at.Name == s_static) continue;
+                if (at.Name == s_static)
+                {
+                    // The map's merged meshes do not change after the map is built: found once. Only those the world
+                    // pass left are this pass's (its own are on its own layers).
+                    if (!ReferenceEquals(at, _staticRoot))
+                    {
+                        _staticRoot = at;
+                        _staticLeft.Clear();
+                        var within = new Stack<Node>();
+                        within.Push(at);
+                        while (within.Count > 0)
+                        {
+                            Node part = within.Pop();
+                            foreach (Node child in part.GetChildren()) within.Push(child);
+                            if (part is MeshInstance3D left && (left.Layers & (RenderLayers.StaticWorld | RenderLayers.World | RenderLayers.Sky)) != 0) _staticLeft.Add(left);
+                        }
+                    }
+
+                    foreach (MeshInstance3D left in _staticLeft)
+                    {
+                        _nodes.Add(left);
+                        if (_prepared.Add(left.GetInstanceId())) Prepare(left, uploads, warm);
+                    }
+
+                    continue;
+                }
+
                 foreach (Node child in at.GetChildren()) _stack.Push(child);
                 if (at is MeshInstance3D found)
                 {
@@ -267,7 +297,8 @@ internal sealed class RdObjects
             // Actors, characters and the first-person model. Effects (their own shaders) and a body hidden from its
             // own eyes (the shadow-only layer) are not this pass's.
             // Template materials on the effects layer too (light sprites); the effects' own shaders are not described.
-            bool sky = (node.Layers & (RenderLayers.World | RenderLayers.FirstPerson | RenderLayers.Effects)) == 0;
+            // Of the map's merged meshes, those the world pass could not take (its own are on its own layers).
+            bool sky = (node.Layers & (RenderLayers.World | RenderLayers.FirstPerson | RenderLayers.Effects | RenderLayers.StaticWorld)) == 0;
             if (sky && (node.Layers & RenderLayers.Sky) == 0) continue;
             SkinInfo? skin = null;
             if (node.Skin is not null)
@@ -293,6 +324,7 @@ internal sealed class RdObjects
             for (int s = 0; s < mesh.GetSurfaceCount(); s++)
             {
                 if ((node.MaterialOverride ?? node.GetSurfaceOverrideMaterial(s) ?? mesh.SurfaceGetMaterial(s)) is not ShaderMaterial material) continue;
+                Known(material);
                 if (!_materials.TryGetValue(material, out (int Kind, bool Masked, bool TwoSided, bool Drawn, Rid Texture, int Blend) m))
                 {
                     m = Describe(material);
@@ -440,10 +472,35 @@ internal sealed class RdObjects
         if (!code.Contains("svm_world.gdshaderinc", StringComparison.Ordinal) || code.Contains("#define VISION_SEE_THROUGH", StringComparison.Ordinal)) return false;
         // A sprite with nothing else is turned to the camera by its model matrix and drawn by the small programs.
         string layers = LayersOf(code);
-        return (layers.Length > 0 && layers != "BILLBOARD") || code.Contains("#define SVM_CLOAK", StringComparison.Ordinal) || code.Contains("#define BLEND_MODULATE", StringComparison.Ordinal) || code.Contains("#define BLEND_DARKEN", StringComparison.Ordinal);
+        // A lightmapped map surface left to this pass needs the template's second UV and light term.
+        return (layers.Length > 0 && layers != "BILLBOARD") || code.Contains("#define SVM_CLOAK", StringComparison.Ordinal) || code.Contains("#define LIGHT_LIGHTMAP", StringComparison.Ordinal) || code.Contains("#define BLEND_MODULATE", StringComparison.Ordinal) || code.Contains("#define BLEND_DARKEN", StringComparison.Ordinal);
     }
 
     private readonly Dictionary<ShaderMaterial, bool> _billboards = [];
+    private readonly Dictionary<ShaderMaterial, Shader?> _shaders = [];
+
+    /// <summary>
+    /// A material whose shader was replaced since it was described (a material sequence switching its blend mode, a
+    /// cloak put on or taken off in place) is described again.
+    /// </summary>
+    private void Known(ShaderMaterial material)
+    {
+        Shader? now = material.Shader;
+        if (!_shaders.TryGetValue(material, out Shader? was))
+        {
+            _shaders[material] = now;
+            return;
+        }
+
+        if (ReferenceEquals(was, now)) return;
+        _shaders[material] = now;
+        _materials.Remove(material);
+        _wantsTemplate.Remove(material);
+        _billboards.Remove(material);
+        _templates.Remove((material, false));
+        _templates.Remove((material, true));
+        _refresh.RemoveAll(entry => ReferenceEquals(entry.Source, material));
+    }
 
     private bool IsBillboard(ShaderMaterial material)
     {
@@ -485,6 +542,7 @@ internal sealed class RdObjects
         Vector3[] normals = arrays[(int)Mesh.ArrayType.Normal].VariantType == Variant.Type.Nil ? [] : arrays[(int)Mesh.ArrayType.Normal].AsVector3Array();
         Vector2[] uvs = arrays[(int)Mesh.ArrayType.TexUV].VariantType == Variant.Type.Nil ? [] : arrays[(int)Mesh.ArrayType.TexUV].AsVector2Array();
         Color[] colors = arrays[(int)Mesh.ArrayType.Color].VariantType == Variant.Type.Nil ? [] : arrays[(int)Mesh.ArrayType.Color].AsColorArray();
+        Vector2[] uv2s = skinned || arrays[(int)Mesh.ArrayType.TexUV2].VariantType == Variant.Type.Nil ? [] : arrays[(int)Mesh.ArrayType.TexUV2].AsVector2Array();
         int[] indices = arrays[(int)Mesh.ArrayType.Index].VariantType == Variant.Type.Nil ? [] : arrays[(int)Mesh.ArrayType.Index].AsInt32Array();
         int[] bones = [];
         float[] weights = [];
@@ -512,8 +570,15 @@ internal sealed class RdObjects
             v[32] = (byte)Math.Clamp((int)MathF.Round(c.R * 255f), 0, 255);
             v[33] = (byte)Math.Clamp((int)MathF.Round(c.G * 255f), 0, 255);
             v[34] = (byte)Math.Clamp((int)MathF.Round(c.B * 255f), 0, 255);
-            v[35] = 255;
-            if (!skinned) continue;
+            // The alpha of a map surface's colour is its zone (255 where there is none).
+            v[35] = (byte)Math.Clamp((int)MathF.Round(c.A * 255f), 0, 255);
+            if (!skinned)
+            {
+                Vector2 uv2 = i < uv2s.Length ? uv2s[i] : Vector2.Zero;
+                MemoryMarshal.Write(v[36..], in uv2);
+                continue;
+            }
+
             // The first four influences (the heaviest come first in a Godot mesh), renormalised.
             Span<ushort> b = MemoryMarshal.Cast<byte, ushort>(v.Slice(36, 8));
             Span<float> w = MemoryMarshal.Cast<byte, float>(v.Slice(44, 16));

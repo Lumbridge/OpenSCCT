@@ -356,9 +356,19 @@ internal static partial class GdShaderTranslator
             layout(location = 3) in vec4 svm_a_color;
 
             """);
+        if (actor == 1)
+        {
+            vertex.Append("""
+                layout(location = 6) in vec2 svm_a_uv2;
+                #define SVM_A_UV2 svm_a_uv2
+
+                """);
+        }
+
         if (actor == 2)
         {
             vertex.Append("""
+                #define SVM_A_UV2 vec2(0.0)
                 layout(location = 4) in uvec4 svm_a_bones;
                 layout(location = 5) in vec4 svm_a_weights;
                 layout(set = 2, binding = 1, std430) readonly buffer SvmPalette
@@ -434,7 +444,7 @@ internal static partial class GdShaderTranslator
                 VERTEX = svm_a_vertex;
                 NORMAL = svm_a_normal;
                 UV = svm_a_uv;
-                UV2 = vec2(0.0);
+                UV2 = SVM_A_UV2;
                 COLOR = svm_a_color;
                 NODE_POSITION_VIEW = (VIEW_MATRIX * svm_model[3]).xyz;
                 POSITION = PROJECTION_MATRIX * (VIEW_MATRIX * (svm_model * vec4(VERTEX, 1.0)));

@@ -1043,6 +1043,10 @@ internal sealed class RdWorldGpu
                     attributes.Add(At(4, 36, RD.DataFormat.R16G16B16A16Uint, stride));
                     attributes.Add(At(5, 44, RD.DataFormat.R32G32B32A32Sfloat, stride));
                 }
+                else
+                {
+                    attributes.Add(At(6, 36, RD.DataFormat.R32G32Sfloat, stride));
+                }
 
                 _objectFormats[skinned] = rd.VertexFormatCreate(attributes);
             }
@@ -1305,7 +1309,8 @@ internal sealed class RdWorldGpu
                 rd.DrawListBindUniformSet(dl, variant.Shader.GlobalSet, 0);
                 rd.DrawListBindUniformSet(dl, variant.Set, 1);
                 rd.DrawListBindUniformSet(dl, variant.Shader.ObjectSet, 2);
-                (push[0], push[1], push[2], push[3]) = (draw.SpotBits, 0, draw.Object, Math.Max(0, draw.Palette));
+                // Every dynamic light row (a map surface left to this pass has that term; an actor's shader does not).
+                (push[0], push[1], push[2], push[3]) = (draw.SpotBits, -1, draw.Object, Math.Max(0, draw.Palette));
                 rd.DrawListSetPushConstant(dl, _drawBlock, (uint)_drawBlock.Length);
                 rd.DrawListBindVertexArray(dl, surface.VertexArray);
                 rd.DrawListBindIndexArray(dl, surface.IndexArray);
