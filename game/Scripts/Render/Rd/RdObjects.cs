@@ -38,6 +38,8 @@ internal sealed class RdObjects
         public int Palette;
         public bool Masked, TwoSided;
         public Rid Texture;
+        /// <summary>0 solid, 1 blended by the texture's alpha, 2 added.</summary>
+        public int Blend;
     }
 
     private sealed class SurfaceInfo
@@ -62,7 +64,7 @@ internal sealed class RdObjects
     private static readonly StringName[] s_spot = [new("svm_l0_spot"), new("svm_l1_spot"), new("svm_l2_spot"), new("svm_l3_spot")];
 
     private readonly Dictionary<(Mesh, int), SurfaceInfo> _surfaces = [];
-    private readonly Dictionary<Material, (int Kind, bool Masked, bool TwoSided, bool Drawn, Rid Texture)> _materials = [];
+    private readonly Dictionary<Material, (int Kind, bool Masked, bool TwoSided, bool Drawn, Rid Texture, int Blend)> _materials = [];
     private readonly Dictionary<MeshInstance3D, SkinInfo?> _skins = [];
     private readonly Stack<Node> _stack = new();
     private readonly List<MeshInstance3D> _nodes = [];
@@ -128,7 +130,7 @@ internal sealed class RdObjects
             for (int s = 0; s < mesh.GetSurfaceCount(); s++)
             {
                 if ((node.MaterialOverride ?? node.GetSurfaceOverrideMaterial(s) ?? mesh.SurfaceGetMaterial(s)) is not ShaderMaterial material) continue;
-                if (!_materials.TryGetValue(material, out (int Kind, bool Masked, bool TwoSided, bool Drawn, Rid Texture) m))
+                if (!_materials.TryGetValue(material, out (int Kind, bool Masked, bool TwoSided, bool Drawn, Rid Texture, int Blend) m))
                 {
                     m = Describe(material);
                     _materials[material] = m;
@@ -192,6 +194,7 @@ internal sealed class RdObjects
                 draws.Add(new Draw
                 {
                     Surface = surface.Id, Object = objectIndex, Kind = m.Kind, Palette = paletteBase, Masked = m.Masked, TwoSided = m.TwoSided, Texture = m.Texture,
+                    Blend = m.Blend,
                 });
             }
         }
@@ -224,18 +227,19 @@ internal sealed class RdObjects
     }
 
     /// <summary>How a template material draws here: 0 fullbright, 1 baked vertex colour, 2 actor light; not drawn when blended.</summary>
-    private static (int Kind, bool Masked, bool TwoSided, bool Drawn, Rid Texture) Describe(ShaderMaterial material)
+    private static (int Kind, bool Masked, bool TwoSided, bool Drawn, Rid Texture, int Blend) Describe(ShaderMaterial material)
     {
         if (material.Shader is not { } shader) return default;
         string code = ResponsiveSmokeShaders.BaseCode(shader);
-        bool blended = code.Contains("#define BLEND_TRANSLUCENT", StringComparison.Ordinal) || code.Contains("#define BLEND_ADDITIVE", StringComparison.Ordinal)
-            || code.Contains("#define BLEND_MODULATE", StringComparison.Ordinal) || code.Contains("#define BLEND_DARKEN", StringComparison.Ordinal);
+        // Translucent and additive surfaces are blended by the texture's alpha; multiplied ones are not drawn yet.
+        bool blended = code.Contains("#define BLEND_MODULATE", StringComparison.Ordinal) || code.Contains("#define BLEND_DARKEN", StringComparison.Ordinal);
+        int blend = code.Contains("#define BLEND_ADDITIVE", StringComparison.Ordinal) ? 2 : code.Contains("#define BLEND_TRANSLUCENT", StringComparison.Ordinal) ? 1 : 0;
         // A cloaked body is not drawn at all for now: unseen is nearer the truth than plainly visible.
         if (blended || code.Contains("#define SVM_CLOAK", StringComparison.Ordinal) || !code.Contains("svm_world.gdshaderinc", StringComparison.Ordinal)) return default;
         int kind = code.Contains("#define LIGHT_ACTOR", StringComparison.Ordinal) ? 2
             : code.Contains("#define LIGHT_VERTEX", StringComparison.Ordinal) || code.Contains("#define LIGHT_LIGHTMAP", StringComparison.Ordinal) ? 1 : 0;
         Rid texture = material.GetShaderParameter(s_diffuse).AsGodotObject() is Texture2D t ? RenderingServer.TextureGetRdTexture(t.GetRid(), false) : default;
-        return (kind, code.Contains("#define BLEND_MASKED", StringComparison.Ordinal), code.Contains("cull_disabled", StringComparison.Ordinal), true, texture);
+        return (kind, code.Contains("#define BLEND_MASKED", StringComparison.Ordinal), code.Contains("cull_disabled", StringComparison.Ordinal), true, texture, blend);
     }
 
     private static Upload? Pack(ArrayMesh mesh, int surface, int id, bool skinned)
@@ -349,7 +353,8 @@ internal sealed class RdObjects
             int object;
             int kind;
             int palette;
-            int pad1;
+            // 0 solid, 1 blended by alpha, 2 added (fog dims an added surface; it does not tint it).
+            int blend;
         } draw;
 
         """;
@@ -434,8 +439,15 @@ internal sealed class RdObjects
         {
             vec4 t = texture(tex_diffuse, v_uv);
 
-        """ + (masked ? "    if (t.a < 0.5) discard;\n" : "") + "    vec3 c = t.rgb * v_light;\n" + Fog + """
-            frag = vec4(min(c, vec3(1.0)), 1.0);
+        """ + (masked ? "    if (t.a < 0.5) discard;\n" : "") + "    vec3 c = t.rgb * v_light;\n" + """
+            if (draw.blend == 2) {
+                float cover = frame.fog_color.a > 0.5 ? clamp((max(length(v_rel) * frame.fog.x, frame.fog.y) - frame.fog.y) * frame.fog.z, 0.0, 1.0) : 0.0;
+                frag = vec4(min(c * (1.0 - cover), vec3(1.0)), t.a);
+                return;
+            }
+
+        """ + Fog + """
+            frag = vec4(min(c, vec3(1.0)), draw.blend == 0 ? 1.0 : t.a);
         }
 
         """;

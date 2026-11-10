@@ -978,7 +978,8 @@ internal sealed class RdWorldGpu
     private readonly Dictionary<int, (Rid Vertices, Rid VertexArray, Rid Indices, Rid IndexArray, bool Skinned)> _objectSurfaces = [];
     private readonly Dictionary<(Rid Texture, int Program), Rid> _objectSets = [];
     private readonly Rid[] _objectShaders = new Rid[4];
-    private readonly Rid[] _objectPipelines = new Rid[8];
+    // By program, one or two sided, and blend (solid, alpha, added).
+    private readonly Rid[] _objectPipelines = new Rid[24];
     private readonly Rid[] _objectFrameSets = new Rid[4];
     private readonly long[] _objectFormats = [-1, -1];
     private Rid _objectBuffer, _paletteBuffer;
@@ -1056,15 +1057,26 @@ internal sealed class RdWorldGpu
             {
                 _objectShaders[program] = Compile(rd, RdObjects.Vertex(skinned), RdObjects.Fragment(masked), "svm_rd_object", null);
                 if (!_objectShaders[program].IsValid) return false;
-                var depthState = new RDPipelineDepthStencilState { EnableDepthTest = true, EnableDepthWrite = true, DepthCompareOperator = RD.CompareOperator.GreaterOrEqual };
-                var blend = new RDPipelineColorBlendState { Attachments = [new RDPipelineColorBlendStateAttachment()] };
-                for (int twoSided = 0; twoSided < 2; twoSided++)
+                for (int variant = 0; variant < 6; variant++)
                 {
-                    _objectPipelines[(program * 2) + twoSided] = rd.RenderPipelineCreate(_objectShaders[program], _ownFormat, _objectFormats[skinned ? 1 : 0],
+                    int twoSided = variant & 1, blendKind = variant / 2;
+                    var depthState = new RDPipelineDepthStencilState { EnableDepthTest = true, EnableDepthWrite = blendKind == 0, DepthCompareOperator = RD.CompareOperator.GreaterOrEqual };
+                    var attachment = new RDPipelineColorBlendStateAttachment();
+                    if (blendKind != 0)
+                    {
+                        attachment.EnableBlend = true;
+                        attachment.WriteA = false;
+                        attachment.ColorBlendOp = attachment.AlphaBlendOp = RD.BlendOperation.Add;
+                        attachment.SrcColorBlendFactor = RD.BlendFactor.SrcAlpha;
+                        attachment.DstColorBlendFactor = blendKind == 2 ? RD.BlendFactor.One : RD.BlendFactor.OneMinusSrcAlpha;
+                        (attachment.SrcAlphaBlendFactor, attachment.DstAlphaBlendFactor) = (RD.BlendFactor.Zero, RD.BlendFactor.One);
+                    }
+
+                    _objectPipelines[(program * 6) + variant] = rd.RenderPipelineCreate(_objectShaders[program], _ownFormat, _objectFormats[skinned ? 1 : 0],
                         RD.RenderPrimitive.Triangles,
                         new RDPipelineRasterizationState { CullMode = twoSided == 1 ? RD.PolygonCullMode.Disabled : RD.PolygonCullMode.Back, FrontFace = RD.PolygonFrontFace.Clockwise },
-                        new RDPipelineMultisampleState(), depthState, blend, 0, 0, []);
-                    if (!_objectPipelines[(program * 2) + twoSided].IsValid) return false;
+                        new RDPipelineMultisampleState(), depthState, new RDPipelineColorBlendState { Attachments = [attachment] }, 0, 0, []);
+                    if (!_objectPipelines[(program * 6) + variant].IsValid) return false;
                 }
             }
 
@@ -1106,13 +1118,16 @@ internal sealed class RdWorldGpu
     {
         Rid pipeline = default, set = default;
         Span<int> push = MemoryMarshal.Cast<byte, int>(_drawBlock.AsSpan());
+        // Solid surfaces first, then the blended ones over them.
+        for (int blendedPass = 0; blendedPass < 2; blendedPass++)
         foreach (RdObjects.Draw draw in frame.Objects)
         {
+            if ((draw.Blend != 0) != (blendedPass == 1)) continue;
             if (!_objectSurfaces.TryGetValue(draw.Surface, out (Rid Vertices, Rid VertexArray, Rid Indices, Rid IndexArray, bool Skinned) surface)) continue;
             // A surface packed for one kind of vertex is only drawn by that kind's program.
             if (surface.Skinned != (draw.Palette >= 0)) continue;
             int program = (draw.Palette >= 0 ? 2 : 0) + (draw.Masked ? 1 : 0);
-            Rid wanted = _objectPipelines[(program * 2) + (draw.TwoSided ? 1 : 0)];
+            Rid wanted = _objectPipelines[(program * 6) + (Math.Clamp(draw.Blend, 0, 2) * 2) + (draw.TwoSided ? 1 : 0)];
             if (wanted != pipeline)
             {
                 pipeline = wanted;
@@ -1131,6 +1146,7 @@ internal sealed class RdWorldGpu
             push[0] = draw.Object;
             push[1] = draw.Kind;
             push[2] = Math.Max(0, draw.Palette);
+            push[3] = draw.Blend;
             rd.DrawListSetPushConstant(dl, _drawBlock, (uint)_drawBlock.Length);
             rd.DrawListBindVertexArray(dl, surface.VertexArray);
             rd.DrawListBindIndexArray(dl, surface.IndexArray);
