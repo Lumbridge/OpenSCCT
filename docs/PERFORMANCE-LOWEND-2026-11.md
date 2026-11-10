@@ -381,6 +381,7 @@ Reloaded editor Play Level in the automation sandbox, hidden desktop, gameplay v
 - **The bar is 144 and 159 FPS on these two cameras, not 240.** The 1080p captures sat on the cap; at 1440p the original is GPU-bound too.
 - SteeE is 1.3 ms a frame away. AquaE is 8.2 ms away: our frame is 2.3 times the original's.
 - The play process is the image `System\SCCT Versus` (no extension) in the sandbox, not `SCCT_Versus.exe`: the Windows per-app GPU preference must name that path, or the capture runs on the Nvidia card (239.9 FPS on both maps, which says nothing).
+- **At 1920×1080** the original holds its 240 cap on both cameras (1% low 237) with the Intel GPU 84% busy on AquaE and 94% on SteeE, so its ceiling there is a little above the cap. OpenSCCT on the same cameras (build `build-l7`, profiling on): SteeE 197 FPS (1% low 143, GPU 2.68 ms), AquaE 106 FPS (1% low 88, GPU 6.13 ms); without the world pass 147 and 71.
 - `--uncap` refuses in this sandbox (its Reloaded.Core is not the verified build). Not needed at this resolution.
 - An OpenSCCT Editor window was open on the Nvidia card during the captures (7% of that GPU).
 
