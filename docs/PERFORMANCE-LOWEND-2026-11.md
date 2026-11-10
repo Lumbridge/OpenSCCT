@@ -593,7 +593,15 @@ Open: the frame's time outside GPU work (Godot's canvas and swapchain copies); t
 
 **Both renderers draw behind the loading cover.** The own frame used to switch Godot's 3D off as soon as the map was built, so the warm frames (`GameplayFxWarmup`, `LightReach.Warm`) drew nothing: the load waited five seconds for the view's post effects (`Gameplay post warmup did not draw before loading timeout`) and Godot's pipelines for the vision modes were first made when a player switched to one. While `PlayRoot`'s cover is up (`RdWorldRenderer.Loading`) Godot now draws as it does in Standard and the own frame draws too, into its hidden target.
 
-**Nothing compiled in play.** Cloak materials are warmed with the others (the copy of the frame they read exists from the first frame), and a rigid material's mirrored pipelines too. A frame of the own pass that makes a shader or a pipeline after its thirtieth, or takes over 12 ms, is named in the log (`SVM_RD_FRAME late work`, with the shader's name).
+**Nothing compiled in play.** A frame of the own pass that makes a shader or a pipeline after its thirtieth, or takes over 12 ms, is named in the log (`SVM_RD_FRAME late work`, with the shader's name and its defines). What the map tour and a round with bots named, and what was done:
+
+- Cloak materials are warmed with the others (the copy of the frame they read exists from the first frame), and a rigid material's mirrored pipelines too.
+- The projector and corona shaders and every map material's small shader are made in the first frame, not when the first one comes into view.
+- A material given to a node after it was first met (an objective's marker, a switched screen) was made ready in the frame it came into view. `RdObjects.Gather` now looks at 24 nodes a frame again, in turn, in view or not.
+- A material first met in play whose shader this machine has never compiled cost 169 ms on the NVIDIA card (two shaders, four pipelines: the driver's own compile). After the thirtieth frame an actor shader is compiled from source on a worker thread and its pipelines are made there too (`RenderingDevice` allows both, as Godot's own compiler does); the surface is drawn from the frame they are ready. `SVM_RD_WORLD_TEST=defer` sends every actor shader that way, as a check.
+- Godot's renderer made 14 pipelines at the first switch to night vision (`gameplay-first-use`): the player's body and weapon enter the scene after the cover lifts and Godot had never drawn them. Godot draws under the own frame's picture for 30 more frames after a load (`SVM_RD_FRAME_BOTH`). The smoke then reads as it does in Standard (one pipeline at the first thermal view, in both).
+
+**Reads kept inside their buffers.** A device lost on the NVIDIA card is most often a read past a buffer, which the validation layer does not see. A packed vertex holds bone indices no higher than 255 (`RdObjects.MaxBone`) and both palette buffers (the frame's and the shadow pass's) keep that much room past their last matrix. GLSL's `length()` of a runtime array is no use for this: Godot's shader reflection answers `OpArrayLength is not supported yet`.
 
 ## The target
 
