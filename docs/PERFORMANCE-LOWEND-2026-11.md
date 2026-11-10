@@ -387,6 +387,32 @@ The original draws the AquaE spawn view at 2560×1440 on the UHD 770 in 6.3 ms a
 - **Map projectors, fixed (1.77 → 0.37 ms of the transparent pass, 68.6 → 76.2 FPS).** A projector drew the back faces of its box with no depth test, so a box hidden behind a wall still ran its shader on every pixel it covered: AquaE's five rain-ripple boxes covered the screen from inside the spawn room. Each box is now two surfaces: a camera outside the box (by more than 1 m) draws the faces turned towards it with the depth test on, so pixels whose surface lies in front of the box are rejected before the shader runs; a camera inside draws the far faces as before. The choice is made in the vertex shader from the box's planes, per camera. Capped at 30 FPS the picture differs from the old one by 0.65% of pixels, less than two runs of the same build differ (rain).
 - **Portal fog, three attempts, no gain kept.** Its cost in the surfaces' shaders is 1.4 ms. (1) One fog draw over the screen after the world, reading depth: 2.2 ms, worse (the camera's own zone is fogged, so every pixel is covered). (2) The same split by screen tile, a ramp-only shader where no portal candidate lies (83% of tiles) and the whole function elsewhere: 0.81 + 0.62 ms, equal to the surfaces' own. (3) The ramp back in the surfaces behind one tile lookup, the fog draw on candidate tiles only: 0.66 + 0.61 ms, 0.16 ms better, not worth its code. Reverted. Fog on this GPU costs by the pixels it touches; computing it per vertex is the form that would be cheap, and it would not match the per-pixel portal crossings.
 
+## The original's frame, traced (2026-11-10)
+
+What the original draws in one frame of the AquaE spawn view at 2560×1440 on the UHD 770, and what each part costs. Recorded by a tracing build of the sandbox's Direct3D 9 proxy (`D:\OpenSCCT\rd-notes\d3d9trace`, `SCCT_TRACE=1`: it counts draws between render target changes, clears, copies and blend switches, and ends each stretch with a GPU timestamp query; every 300th frame is written to the proxy's log). Eight traced frames agree within 0.2 ms.
+
+| Part | GPU ms | What it is |
+|---|---:|---|
+| Scene | 2.7–2.8 | 109–134 draws, 11,700 triangles, into one 2560×1440 A8R8G8B8 target |
+| Player shadow texture | 0.05 | 128×128 target: 6 untextured draws, then 9 blended ones |
+| Glow | 0.53 | bright pass 512×512 (0.08), eight blur passes 512×256 down to 32×32 (0.08 together), composite 512×512 (0.05), full-screen pass onto the back buffer (0.32) |
+| HUD | 0.11 | 17 draws on the back buffer |
+| Frame copy and present | 2.3 | the proxy's own copy of the frame (0.33) and Present |
+| **Frame** | **5.8–6.3** | 159 FPS measured |
+
+- **The scene has no pixel shaders and no vertex shaders.** Every scene draw is fixed-function: one texture stage on 48 of the 55 draws of the first stretch, two or three on the rest, fog switched on as a render state. The only pixel shaders in the frame are the four of the glow chain (ps_1_1 and one ps_1_4, 116 to 164 bytes).
+- **One pass, no depth pre-pass, 8 bits a channel.** Solid draws first, then blended ones, straight into the scene target.
+- **Filling the screen costs it about 0.9 ms.** Two draws with two textures (94 triangles, the room's large surfaces) take 0.89 ms; 55 single-texture draws take 0.44 ms.
+- **Its present costs about 2 ms on this PC**, hidden desktop or not. So the earlier comparison stands as measured: 6.3 ms against ours with both paying a copy to the display's GPU.
+
+Ours on the same view (13.1 ms): world 3.7, objects and characters 0.95, effects and depth copy 0.9, shadows 0.57 (scene 6.1 against 2.8); tonemap, final pass and glow 2.3 (against 0.53); presentation and untimed copies 4.1 (against 2.3).
+
+### What follows for a renderer of our own
+
+- **Target and passes as the original's:** one 8-bit scene target in display values, solid then blended, no pre-pass, the glow chain at its sizes, one full-screen pass to the screen that also adds the glow. No tonemap copy, no float target, no separate decode pass.
+- **Shaders as small as its texture stages.** A surface is its diffuse texture times its lightmap or vertex colour, with fog from the vertex. The Faithful template computes per pixel what the original gets from two or three texture stages and a fog state; the frame budget is the original's 0.9 ms a screen.
+- **To decode next (REA):** the texture stage and fog state the game sets for each kind of surface (BSP with lightmap, static mesh, actor, the three-stage draws), so each maps to one small shader; how its dynamic spot lights reach a surface (no shader in the scene, so stages or extra blended draws); what Reloaded's enhanced zone fog adds when it is on (none of it showed in this frame).
+
 ## The target
 
 ### The original at 2560×1440 on the UHD 770 (measured 2026-11-10)
