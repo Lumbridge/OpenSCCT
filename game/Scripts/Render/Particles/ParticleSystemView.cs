@@ -276,6 +276,8 @@ public sealed class ParticleSystemView
             return 0;
         }
 
+        // The own frame draws the sprites itself, from the quads as they are here (Rd/RdSheets).
+        if (Rd.RdWorldRenderer.OwnFrame) Rd.RdSheets.CollectParticles(layer.Node?.MaterialOverride as ShaderMaterial, quads);
         if (layer.Quads is { } buffer && buffer.Fill(quads, bounds))
         {
             layer.Show(true);

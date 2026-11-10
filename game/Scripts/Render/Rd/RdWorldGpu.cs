@@ -1340,36 +1340,61 @@ internal sealed class RdWorldGpu
 
     private bool _ownWarmed;
 
-    // Blended sheets (RdSheets): the newest vertices from the main thread, and what was made of them.
+    // Blended sheets (RdSheets): this frame's vertices from the main thread, and what was made for them.
     private byte[]? _sheetPending;
-    private int _sheetPendingVersion, _sheetVersion = -1, _sheetCapacity;
+    private int _sheetPendingBytes, _sheetCapacity;
+    private readonly Stack<byte[]> _sheetFree = new();
     private long _sheetFormat = -1;
     private Rid _sheetShader, _sheetVertexBuffer, _sheetVertexArray, _sheetIndexBuffer, _sheetFrameSet;
-    private readonly Rid[] _sheetPipelines = new Rid[2];
-    private readonly Dictionary<(int First, int Count), Rid> _sheetRanges = [];
-    private readonly Dictionary<Rid, Rid> _sheetSets = [];
+    // By style, then with and without the depth test.
+    private readonly Rid[] _sheetPipelines = new Rid[RdSheets.Styles * 2];
+    private readonly List<Rid> _sheetRanges = [];
+    private readonly Dictionary<(Rid Texture, bool Repeat), Rid> _sheetSets = [];
     private readonly byte[] _sheetPush = new byte[32];
+    private bool _sheetsUploaded;
 
-    /// <summary>Hands over the sheets' vertices after a rebuild (main thread); the draws that follow name ranges of them.</summary>
-    public void SubmitSheets(byte[] vertices, int version)
+    /// <summary>An array for the next frame's sheet vertices (main thread).</summary>
+    public byte[] RentSheets(int bytes)
     {
         lock (_queueLock)
         {
+            while (_sheetFree.Count > 0)
+            {
+                byte[] free = _sheetFree.Pop();
+                if (free.Length >= bytes) return free;
+            }
+        }
+
+        return new byte[Math.Max(bytes * 2, 4096)];
+    }
+
+    /// <summary>Hands over this frame's sheet vertices (main thread); the frame's draws name ranges of them.</summary>
+    public void SubmitSheets(byte[] vertices, int bytes)
+    {
+        lock (_queueLock)
+        {
+            if (_sheetPending is not null) _sheetFree.Push(_sheetPending);
             _sheetPending = vertices;
-            _sheetPendingVersion = version;
+            _sheetPendingBytes = bytes;
         }
     }
 
     private bool PrepareSheets(RenderingDevice rd, RdWorldFrame frame)
     {
         byte[]? pending;
-        int version;
+        int bytes;
         lock (_queueLock)
         {
-            (pending, version) = (_sheetPending, _sheetPendingVersion);
+            (pending, bytes) = (_sheetPending, _sheetPendingBytes);
             _sheetPending = null;
         }
 
+        foreach (Rid range in _sheetRanges)
+        {
+            if (range.IsValid) rd.FreeRid(range);
+        }
+
+        _sheetRanges.Clear();
         if (pending is not null)
         {
             if (_sheetFormat < 0)
@@ -1379,17 +1404,12 @@ internal sealed class RdWorldGpu
                 [
                     new RDVertexAttribute { Location = 0, Offset = 0, Format = RD.DataFormat.R32G32B32Sfloat, Stride = stride, Binding = 0 },
                     new RDVertexAttribute { Location = 1, Offset = 12, Format = RD.DataFormat.R32G32Sfloat, Stride = stride, Binding = 0 },
-                    new RDVertexAttribute { Location = 2, Offset = 20, Format = RD.DataFormat.R8G8B8A8Unorm, Stride = stride, Binding = 0 },
+                    new RDVertexAttribute { Location = 2, Offset = 20, Format = RD.DataFormat.R32G32Sfloat, Stride = stride, Binding = 0 },
+                    new RDVertexAttribute { Location = 3, Offset = 28, Format = RD.DataFormat.R8G8B8A8Unorm, Stride = stride, Binding = 0 },
                 ]);
             }
 
-            int vertices = pending.Length / RdSheets.Stride;
-            foreach (Rid range in _sheetRanges.Values)
-            {
-                if (range.IsValid) rd.FreeRid(range);
-            }
-
-            _sheetRanges.Clear();
+            int vertices = bytes / RdSheets.Stride;
             if (vertices > _sheetCapacity)
             {
                 foreach (Rid rid in new[] { _sheetVertexArray, _sheetVertexBuffer, _sheetIndexBuffer })
@@ -1397,7 +1417,7 @@ internal sealed class RdWorldGpu
                     if (rid.IsValid) rd.FreeRid(rid);
                 }
 
-                _sheetCapacity = Math.Max(vertices * 2, 1024);
+                _sheetCapacity = Math.Max(vertices * 2, 4096);
                 _sheetVertexBuffer = rd.VertexBufferCreate((uint)(_sheetCapacity * RdSheets.Stride), ReadOnlySpan<byte>.Empty, 0);
                 _sheetVertexArray = rd.VertexArrayCreate((uint)_sheetCapacity, _sheetFormat, [_sheetVertexBuffer], ReadOnlySpan<long>.Empty);
                 var indices = new uint[_sheetCapacity];
@@ -1405,29 +1425,36 @@ internal sealed class RdWorldGpu
                 _sheetIndexBuffer = rd.IndexBufferCreate((uint)indices.Length, RD.IndexBufferFormat.Uint32, MemoryMarshal.AsBytes(indices.AsSpan()), false, 0);
             }
 
-            if (pending.Length > 0) rd.BufferUpdate(_sheetVertexBuffer, 0, (uint)pending.Length, pending);
-            _sheetVersion = version;
+            if (bytes > 0) rd.BufferUpdate(_sheetVertexBuffer, 0, (uint)bytes, pending);
+            _sheetsUploaded = true;
+            lock (_queueLock) _sheetFree.Push(pending);
         }
 
-        if (frame.Sheets.Count == 0 || _sheetVersion < 0 || Test.Contains("nosheets")) return false;
+        if (frame.Sheets.Count == 0 || !_sheetsUploaded || Test.Contains("nosheets")) return false;
         if (!_sheetShader.IsValid)
         {
-            _sheetShader = Compile(rd, RdSheets.Vertex, RdSheets.Fragment, "svm_rd_sheet", null);
+            _sheetShader = Compile(rd, RdSheets.VertexShader, RdSheets.FragmentShader, "svm_rd_sheet", null);
             if (!_sheetShader.IsValid) return false;
-            var depthState = new RDPipelineDepthStencilState { EnableDepthTest = true, EnableDepthWrite = false, DepthCompareOperator = RD.CompareOperator.GreaterOrEqual };
-            for (int alpha = 0; alpha < 2; alpha++)
+            for (int i = 0; i < _sheetPipelines.Length; i++)
             {
+                int style = i / 2;
+                bool depthTest = (i & 1) == 0;
+                (RD.BlendFactor source, RD.BlendFactor destination, bool blended) = RdSheets.BlendOf(style);
                 var attachment = new RDPipelineColorBlendStateAttachment
                 {
-                    EnableBlend = true, WriteA = false, ColorBlendOp = RD.BlendOperation.Add, AlphaBlendOp = RD.BlendOperation.Add,
-                    SrcColorBlendFactor = alpha == 1 ? RD.BlendFactor.SrcAlpha : RD.BlendFactor.One,
-                    DstColorBlendFactor = alpha == 1 ? RD.BlendFactor.OneMinusSrcAlpha : RD.BlendFactor.One,
+                    EnableBlend = blended, WriteA = false, ColorBlendOp = RD.BlendOperation.Add, AlphaBlendOp = RD.BlendOperation.Add,
+                    SrcColorBlendFactor = source, DstColorBlendFactor = destination,
                     SrcAlphaBlendFactor = RD.BlendFactor.Zero, DstAlphaBlendFactor = RD.BlendFactor.One,
                 };
-                _sheetPipelines[alpha] = rd.RenderPipelineCreate(_sheetShader, _ownFormat, _sheetFormat, RD.RenderPrimitive.Triangles,
+                // Only the regular style (opaque, alpha tested) writes depth.
+                var depthState = new RDPipelineDepthStencilState
+                {
+                    EnableDepthTest = depthTest, EnableDepthWrite = depthTest && !blended, DepthCompareOperator = RD.CompareOperator.GreaterOrEqual,
+                };
+                _sheetPipelines[i] = rd.RenderPipelineCreate(_sheetShader, _ownFormat, _sheetFormat, RD.RenderPrimitive.Triangles,
                     new RDPipelineRasterizationState { CullMode = RD.PolygonCullMode.Disabled }, new RDPipelineMultisampleState(), depthState,
                     new RDPipelineColorBlendState { Attachments = [attachment] }, 0, 0, []);
-                if (!_sheetPipelines[alpha].IsValid) return false;
+                if (!_sheetPipelines[i].IsValid) return false;
             }
         }
 
@@ -1442,12 +1469,12 @@ internal sealed class RdWorldGpu
         foreach (RdSheets.Draw draw in frame.Sheets)
         {
             if (draw.First + draw.Count > _sheetCapacity) return false;
-            if (!_sheetRanges.ContainsKey((draw.First, draw.Count))) _sheetRanges[(draw.First, draw.Count)] = rd.IndexArrayCreate(_sheetIndexBuffer, (uint)draw.First, (uint)draw.Count);
-            if (_sheetSets.TryGetValue(draw.Texture, out Rid set) && rd.UniformSetIsValid(set)) continue;
+            _sheetRanges.Add(rd.IndexArrayCreate(_sheetIndexBuffer, (uint)draw.First, (uint)draw.Count));
+            if (_sheetSets.TryGetValue((draw.Texture, draw.Repeat), out Rid set) && rd.UniformSetIsValid(set)) continue;
             var uniform = new RDUniform { UniformType = RD.UniformType.SamplerWithTexture, Binding = 0 };
-            uniform.AddId(SamplerOf(rd, RdFilter.LinearMipmapAnisotropic, repeat: true));
-            uniform.AddId(draw.Texture.IsValid && rd.TextureIsValid(draw.Texture) ? draw.Texture : _black);
-            _sheetSets[draw.Texture] = rd.UniformSetCreate([uniform], _sheetShader, 1);
+            uniform.AddId(SamplerOf(rd, draw.Repeat ? RdFilter.LinearMipmapAnisotropic : RdFilter.LinearMipmap, draw.Repeat));
+            uniform.AddId(draw.Texture.IsValid && rd.TextureIsValid(draw.Texture) ? draw.Texture : _white);
+            _sheetSets[(draw.Texture, draw.Repeat)] = rd.UniformSetCreate([uniform], _sheetShader, 1);
         }
 
         return true;
@@ -1458,20 +1485,22 @@ internal sealed class RdWorldGpu
         rd.DrawListBindVertexArray(dl, _sheetVertexArray);
         Span<float> push = MemoryMarshal.Cast<byte, float>(_sheetPush.AsSpan());
         int bound = -1;
-        foreach (RdSheets.Draw draw in frame.Sheets)
+        for (int i = 0; i < frame.Sheets.Count; i++)
         {
-            int alpha = draw.Alpha ? 1 : 0;
-            if (alpha != bound)
+            RdSheets.Draw draw = frame.Sheets[i];
+            int pipeline = (Math.Clamp(draw.Style, 0, RdSheets.Styles - 1) * 2) + (draw.DepthTest ? 0 : 1);
+            if (pipeline != bound)
             {
-                bound = alpha;
-                rd.DrawListBindRenderPipeline(dl, _sheetPipelines[alpha]);
+                bound = pipeline;
+                rd.DrawListBindRenderPipeline(dl, _sheetPipelines[pipeline]);
                 rd.DrawListBindUniformSet(dl, _sheetFrameSet, 0);
             }
 
-            rd.DrawListBindUniformSet(dl, _sheetSets[draw.Texture], 1);
-            (push[0], push[1], push[2], push[3], push[4]) = (draw.Pan.X, draw.Pan.Y, draw.Pan.Z, draw.Pan.W, alpha);
+            rd.DrawListBindUniformSet(dl, _sheetSets[(draw.Texture, draw.Repeat)], 1);
+            (push[0], push[1], push[2], push[3]) = (draw.Pan.X, draw.Pan.Y, draw.Pan.Z, draw.Pan.W);
+            (push[4], push[5], push[6], push[7]) = (draw.Style, draw.BlendCells ? 1f : 0f, draw.AlphaRef, 0f);
             rd.DrawListSetPushConstant(dl, _sheetPush, (uint)_sheetPush.Length);
-            rd.DrawListBindIndexArray(dl, _sheetRanges[(draw.First, draw.Count)]);
+            rd.DrawListBindIndexArray(dl, _sheetRanges[i]);
             rd.DrawListDraw(dl, true, 1, 0);
         }
     }
@@ -1885,7 +1914,7 @@ internal sealed class RdWorldGpu
         }
 
         _post.Free(rd);
-        foreach (Rid rid in _sheetRanges.Values)
+        foreach (Rid rid in _sheetRanges)
         {
             if (rid.IsValid) rd.FreeRid(rid);
         }
@@ -1898,7 +1927,12 @@ internal sealed class RdWorldGpu
 
         _sheetSets.Clear();
         if (rd.UniformSetIsValid(_sheetFrameSet)) rd.FreeRid(_sheetFrameSet);
-        foreach (Rid rid in new[] { _sheetPipelines[0], _sheetPipelines[1], _sheetShader, _sheetVertexArray, _sheetVertexBuffer, _sheetIndexBuffer })
+        foreach (Rid rid in _sheetPipelines)
+        {
+            if (rid.IsValid) rd.FreeRid(rid);
+        }
+
+        foreach (Rid rid in new[] { _sheetShader, _sheetVertexArray, _sheetVertexBuffer, _sheetIndexBuffer })
         {
             if (rid.IsValid) rd.FreeRid(rid);
         }
@@ -1906,7 +1940,7 @@ internal sealed class RdWorldGpu
         Array.Clear(_sheetPipelines);
         _sheetShader = _sheetVertexArray = _sheetVertexBuffer = _sheetIndexBuffer = _sheetFrameSet = default;
         _sheetCapacity = 0;
-        _sheetVersion = -1;
+        _sheetsUploaded = false;
         foreach (Rid set in _coronaSets.Values)
         {
             if (rd.UniformSetIsValid(set)) rd.FreeRid(set);
