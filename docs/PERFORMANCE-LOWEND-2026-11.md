@@ -554,6 +554,35 @@ Against the original's own captures (`local/golden/allmaps/game`, mean absolute 
 
 Not drawn by the own frame: maps with an outdoor sky (OpenSCCT's own; none of the original's maps) and every vision mode but the normal one. Both go to Godot's renderer whole.
 
+### Tenth stage: every map compared, on by default
+
+The own frame is now what a map draws with unless `SVM_RD_FRAME=0` is set. Maps with an outdoor sky and every vision mode but the normal one still go to Godot's renderer.
+
+**All maps.** `own-sweep.sh` captured the eight golden views of one map of each family (34 maps, 268 views) with the Godot path and with the own frame, and both were measured against the original's own captures (`local/golden/allmaps/game`; `svm/` there holds ours). Mean absolute difference from the original, levels of 255: Godot path 2.84, own frame 2.86 before the last three fixes below, which each removed the largest remaining differences (MuseD spy-180 from +9.7 to -4.4 against the Godot path, SlauS from +5 to 0, DeftD from +5.6 to 0). What the sweep found and what was done:
+
+- **Zone ambient** (`svm_zone_amb`) was missing from the small world shaders: outdoor zones (OrphD, MissD, SancD's church) were dark. It is read at the vertex from the zone in the colour's alpha.
+- **Mirrored instances** (a model matrix with a negative determinant) drew their back faces: SancD's ammunition lockers stood open. They take pipelines with the other front face.
+- **The sky zone**: its props and light sprites are drawn (a sprite is turned to the camera by its model matrix); its surfaces all go through the template, which gives them the sky's own fog, and they read the frame's real fog values from a second copy of the global block; `OwnSkyDepth` is 2^-50, the template's own scale.
+- **Blended order**: the sky's blended layers, then the world's blended surfaces and the blended actors together, far to near (PolaD: window glass over an additive sky layer). Every blended actor surface takes the template.
+- **Light beams were also drawn as props** (the beam shader's comment names the template file; the test now looks for the include line).
+- **Map surfaces the world pass leaves** (a sequence, an authored material, no entry) are drawn by the object pass, with the lightmap's UV in the rigid vertex. No map of the sweep has any; unexercised.
+- **Cloth** kept still: its on-screen notifier never fires without Godot's 3D view. A cloth the own frame has in view counts as on screen.
+- **A fog rule tried and dropped**: MissD's spy views have no fog by our zone lookup while the original (traced, `missD-spy0.log`) fogs the frame 300 to 4000. Taking a neighbouring zone's fog hazed SlauS and MuseD and was not what made MissD right; the zone found for that eye is the open question, in both of our renderers.
+
+Differences that are not faults: rain, flickering and blinking lights and animated screens differ between any two runs; glow around saturated lights is nearer the original in the own frame (FactD, MissD, AquaE far views); additive sums past white clamp in the 8-bit target (RiveD's holograms, +0.3 to +0.6).
+
+**Speed** (quiet machine, UHD 770, 2560 x 1440, uncapped, gameplay spawn views, build `build-o44`):
+
+| | Godot path (`j1`) | Own frame | Original |
+|---|---:|---:|---:|
+| SteeE FPS (1% low) | 123 (102) | 188 (141) | 144 (138) |
+| AquaE FPS (1% low) | 76 (68) | 119 (99) | 159 (130) |
+| AquaE GPU ms | 8.98 | 4.96 | 4.0 (6.3 with its present) |
+
+AquaE's own frame: scene 3.07 ms, glow 0.19, the canvas item that shows it (with the gate and the glow, the former final pass) 0.85, shadow pass 0.56. The frame is 8.40 ms, so 3.4 ms lie outside GPU work on this machine (the copy to the other adapter's monitors and Godot's present); on a display driven by the integrated GPU itself that part is about 1 ms.
+
+Open: the frame's time outside GPU work (Godot's canvas and swapchain copies); the shadow pass redrawing tiles with a moving caster every frame; a smaller shader for world draws a light reaches; cloaked bodies, mesh particles and leftover map surfaces have not been seen in a capture; Ryan's laptop.
+
 ## The target
 
 ### The original at 2560×1440 on the UHD 770 (measured 2026-11-10)
