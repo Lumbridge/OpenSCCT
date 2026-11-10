@@ -462,6 +462,13 @@ The rigid meshes under the map's `Gameplay` node with solid or masked template m
 - **The picture is brighter than the current renderer's** (SteeE: 40% of pixels more than 2 levels apart; AquaE 73%). The current renderer's last pass applies the glow composite's gate to the frame, and the original does the same in its one full-screen pass; the own frame has no final pass yet. Nothing can be compared level for level until it has.
 - Not drawn: skinned meshes (characters, animated props), meshes rewritten in place (cloth), blended surfaces, and everything listed under the first stage except objects.
 
+### Third stage: the end of the frame and fog (`Rd/RdFramePost.cs`)
+
+- **The frame ends as the original's does.** Bright pass at 512×512, eight blur passes from 512×256 down to 32×32, the weighted sum back at 512×512, all on 8-bit targets, then one full-screen pass that gates the scene, adds the glow and writes the target the canvas shows. Same arithmetic as the compute chain of the Godot path. AquaE: glow 0.19 ms, final pass 0.74 ms; SteeE (no glow): final pass 0.46 ms.
+- **Fog as the original sets it.** A trace with the fog state (`aquaE-fog.log`) shows one linear fog for every scene draw of the AquaE frame: colour (27, 33, 32), start 100, end 3500, with the colour swapped to black on additive draws and to mid grey on the multiplied ones. No draw has a fog of its own and nothing is evaluated per portal. The own frame applies the camera zone's ramp to every world and object pixel (two lines in each shader); the scene still costs 1.0 ms.
+- **Picture against the Godot path** (uncapped runs, so rain and signs differ too): SteeE 1.2% of pixels more than 2 levels apart, AquaE 3.0% (it was 65% before the fog). What is left is what is not drawn yet: the character, the projector passes, rain and other blended surfaces.
+- Frame times of this build were taken while other work ran on the machine and are not quoted; the stage times are as before.
+
 ## The target
 
 ### The original at 2560×1440 on the UHD 770 (measured 2026-11-10)

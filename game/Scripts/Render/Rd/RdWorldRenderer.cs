@@ -226,6 +226,29 @@ public partial class RdWorldRenderer : Node
         WriteClip(ToTarget(world, 1f - SkyDepth, SkyDepth), frame.Clip.AsSpan(0, 16));
         WriteClip(ToTarget(sky, SkyDepth, 0f), frame.Clip.AsSpan(16, 16));
         frame.Gate = _view.GlowGate;
+        // The camera zone's own distance fog, as the surfaces' shaders read it (svm_fog.gdshaderinc): mode 1 holds it
+        // in the view row, mode 2 (portal fog) in the camera zone's ramp. The original fogs a frame with one such ramp.
+        Span<float> fogBlock = frame.FogBlock;
+        fogBlock.Clear();
+        (fogBlock[0], fogBlock[1], fogBlock[2]) = (eye.Origin.X, eye.Origin.Y, eye.Origin.Z);
+        if (ShaderGlobals.TryGet(s_fogMainView, out Variant fogView))
+        {
+            Vector4 view = fogView.AsVector4();
+            if (view.Y > 1.5f && ShaderGlobals.TryGet("svm_fog_main_ramp", out Variant rampValue) && ShaderGlobals.TryGet("svm_fog_main_ramp_color", out Variant rampColor)
+                && ShaderGlobals.TryGet("svm_fog_main_forward", out Variant forward))
+            {
+                Vector4 ramp = rampValue.AsVector4(), color = rampColor.AsVector4();
+                (fogBlock[4], fogBlock[5], fogBlock[6], fogBlock[7]) = (color.X, color.Y, color.Z, ramp.W > 0.5f ? 1f : 0f);
+                (fogBlock[8], fogBlock[9], fogBlock[10]) = (forward.AsVector4().W, ramp.X, ramp.Z);
+            }
+            else if (view.Y > 0.5f && view.Y < 1.5f && ShaderGlobals.TryGet("svm_fog_main_color", out Variant fogColor))
+            {
+                Vector4 color = fogColor.AsVector4();
+                (fogBlock[4], fogBlock[5], fogBlock[6], fogBlock[7]) = (color.X, color.Y, color.Z, 1f);
+                (fogBlock[8], fogBlock[9], fogBlock[10]) = (100f, view.Z, view.W > view.Z ? 1f / (view.W - view.Z) : 1e6f);
+            }
+        }
+
         int threshold = OpenScctGame.Options.SettingsStore.Current.PostQuality == 0 ? 255 : _map.Lighting.GlowThreshold;
         frame.GlowCut = Post.DisplaySpaceEffect.GlowCut(threshold) ?? -1f;
         Select(frame, eye.Origin, true, RdFeatures.None);

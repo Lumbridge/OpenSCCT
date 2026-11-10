@@ -29,6 +29,8 @@ internal sealed class RdWorldFrame
     public readonly List<byte> ObjectData = [];
     /// <summary>Own-frame mode: the final pass gates the scene; the glow's threshold (negative: no glow).</summary>
     public bool Gate;
+    /// <summary>Own-frame mode: eye (4 floats), fog colour and on flag (4), fog scale, start, rate (4), as the Frame block holds them.</summary>
+    public readonly float[] FogBlock = new float[12];
     public float GlowCut = -1f;
 
     public void Reserve(int draws)
@@ -819,6 +821,11 @@ internal sealed class RdWorldGpu
             mat4 world;
             mat4 sky;
             vec4 params;
+            // The eye (world, metres); the frame's distance fog: colour (a = 1 when on), then the distance scale to
+            // the fog's units, its start and its rate.
+            vec4 eye;
+            vec4 fog_color;
+            vec4 fog;
         } frame;
         layout(push_constant, std430) uniform Draw
         {
@@ -838,11 +845,14 @@ internal sealed class RdWorldGpu
         layout(location = 0) out vec2 v_uv;
         layout(location = 1) out vec2 v_uv2;
         layout(location = 2) out vec3 v_light;
+        layout(location = 3) out vec3 v_rel;
 
         void main()
         {
             v_uv = a_uv;
             v_uv2 = a_uv2;
+            // The sky zone is not fogged here (its fog is the sky camera's).
+            v_rel = draw.sky != 0 ? vec3(0.0) : a_pos - frame.eye.xyz;
             // The baked vertex colour holds half the light term: the original's MODULATE2X.
             v_light = a_col.rgb * 2.0;
             gl_Position = (draw.sky != 0 ? frame.sky : frame.world) * vec4(a_pos, 1.0);
@@ -858,6 +868,7 @@ internal sealed class RdWorldGpu
         layout(location = 0) in vec2 v_uv;
         layout(location = 1) in vec2 v_uv2;
         layout(location = 2) in vec3 v_light;
+        layout(location = 3) in vec3 v_rel;
         layout(location = 0) out vec4 frag;
 
         void main()
@@ -866,7 +877,7 @@ internal sealed class RdWorldGpu
 
         """ + (masked ? "    if (t.a < 0.5) discard;\n" : "")
         + (light == 2 ? "    vec3 c = t.rgb * min(texture(tex_lightmap, v_uv2).rgb * frame.params.x, vec3(2.0));\n"
-            : light == 1 ? "    vec3 c = t.rgb * v_light;\n" : "    vec3 c = t.rgb;\n") + """
+            : light == 1 ? "    vec3 c = t.rgb * v_light;\n" : "    vec3 c = t.rgb;\n") + RdObjects.Fog + """
             frag = vec4(min(c, vec3(1.0)), 1.0);
         }
 
@@ -886,7 +897,7 @@ internal sealed class RdWorldGpu
     private readonly List<(int Frame, Rid Color, Rid Depth)> _ownRetired = [];
     private int _ownFrame;
     private Rid _latestOwnColor;
-    private readonly byte[] _stageFrameBlock = new byte[144];
+    private readonly byte[] _stageFrameBlock = new byte[192];
 
     /// <summary>The newest colour target for the main thread to show (it changes on a resize).</summary>
     public Rid LatestOwnColor
@@ -1099,6 +1110,7 @@ internal sealed class RdWorldGpu
         Span<float> block = MemoryMarshal.Cast<byte, float>(_stageFrameBlock.AsSpan());
         frame.Clip.AsSpan().CopyTo(block);
         block[32] = RenderK.LightmapScale;
+        frame.FogBlock.AsSpan().CopyTo(block[36..48]);
         rd.BufferUpdate(_stageFrameBuffer, 0, (uint)_stageFrameBlock.Length, _stageFrameBlock);
 
         // Everything a draw binds is made before the list opens.

@@ -184,6 +184,15 @@ internal sealed class RdObjects
 
     // ---- Render thread ----
 
+    /// <summary>The frame's linear distance fog on a colour c, as the original's fog state: one colour, start and end.</summary>
+    public const string Fog = """
+            if (frame.fog_color.a > 0.5) {
+                float cover = clamp((max(length(v_rel) * frame.fog.x, frame.fog.y) - frame.fog.y) * frame.fog.z, 0.0, 1.0);
+                c = mix(c, frame.fog_color.rgb, cover);
+            }
+
+        """;
+
     public const string Common = """
         #version 450
         layout(set = 0, binding = 0, std140) uniform Frame
@@ -191,6 +200,11 @@ internal sealed class RdObjects
             mat4 world;
             mat4 sky;
             vec4 params;
+            // The eye (world, metres); the frame's distance fog: colour (a = 1 when on), then the distance scale to
+            // the fog's units, its start and its rate.
+            vec4 eye;
+            vec4 fog_color;
+            vec4 fog;
         } frame;
         struct Object
         {
@@ -220,6 +234,7 @@ internal sealed class RdObjects
         layout(location = 3) in vec4 a_col;
         layout(location = 0) out vec2 v_uv;
         layout(location = 1) out vec3 v_light;
+        layout(location = 2) out vec3 v_rel;
 
         vec3 actor_light(vec4 pos, vec4 col, vec4 spot, vec3 wp, vec3 wn)
         {
@@ -261,6 +276,7 @@ internal sealed class RdObjects
             } else {
                 v_light = vec3(1.0);
             }
+            v_rel = wp.xyz - frame.eye.xyz;
             gl_Position = frame.world * wp;
         }
 
@@ -270,14 +286,15 @@ internal sealed class RdObjects
         layout(set = 1, binding = 0) uniform sampler2D tex_diffuse;
         layout(location = 0) in vec2 v_uv;
         layout(location = 1) in vec3 v_light;
+        layout(location = 2) in vec3 v_rel;
         layout(location = 0) out vec4 frag;
 
         void main()
         {
             vec4 t = texture(tex_diffuse, v_uv);
 
-        """ + (masked ? "    if (t.a < 0.5) discard;\n" : "") + """
-            frag = vec4(min(t.rgb * v_light, vec3(1.0)), 1.0);
+        """ + (masked ? "    if (t.a < 0.5) discard;\n" : "") + "    vec3 c = t.rgb * v_light;\n" + Fog + """
+            frag = vec4(min(c, vec3(1.0)), 1.0);
         }
 
         """;
