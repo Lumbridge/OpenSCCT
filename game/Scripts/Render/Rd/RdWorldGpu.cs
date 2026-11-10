@@ -482,7 +482,13 @@ internal sealed class RdWorldGpu
     private static readonly string s_cacheFolder = System.IO.Path.Combine(OS.GetUserDataDir(), "rd_shaders");
     private int _compiled, _cached;
 
-    private Rid Compile(RenderingDevice rd, string vertex, string fragment, string name, RdTranslatedShader? dump)
+    // Shaders being compiled from source on a worker thread, by cache key.
+    private readonly Dictionary<string, System.Threading.Tasks.Task<RDShaderSpirV>> _compiling = [];
+
+    /// <summary>Set when a shader asked for this frame is still being compiled on a worker thread: its draw waits.</summary>
+    private bool Deferred { get; set; }
+
+    private Rid Compile(RenderingDevice rd, string vertex, string fragment, string name, RdTranslatedShader? dump, bool mayDefer = false)
     {
         string key = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(
             System.Text.Encoding.UTF8.GetBytes(Engine.GetVersionInfo()["string"].AsString() + "\n" + vertex + "\n\u0001\n" + fragment)))[..40];
@@ -503,7 +509,28 @@ internal sealed class RdWorldGpu
 
         if (spirv is null)
         {
-            spirv = rd.ShaderCompileSpirVFromSource(new RDShaderSource { Language = RD.ShaderLanguage.Glsl, SourceVertex = vertex, SourceFragment = fragment }, false);
+            if (mayDefer && _ownFrames > LateAfterFrames)
+            {
+                // In play a compile from source (tens of milliseconds) must not hold a frame: a worker thread does it,
+                // as Godot's own shader compiler does, and the surface is drawn from the frame it is ready.
+                if (!_compiling.TryGetValue(key, out System.Threading.Tasks.Task<RDShaderSpirV>? task))
+                {
+                    task = System.Threading.Tasks.Task.Run(() => rd.ShaderCompileSpirVFromSource(
+                        new RDShaderSource { Language = RD.ShaderLanguage.Glsl, SourceVertex = vertex, SourceFragment = fragment }, false));
+                    _compiling[key] = task;
+                }
+
+                if (!task.IsCompleted)
+                {
+                    Deferred = true;
+                    return default;
+                }
+
+                _compiling.Remove(key);
+                spirv = task.IsCompletedSuccessfully ? task.Result : null;
+            }
+
+            spirv ??= rd.ShaderCompileSpirVFromSource(new RDShaderSource { Language = RD.ShaderLanguage.Glsl, SourceVertex = vertex, SourceFragment = fragment }, false);
             if (!string.IsNullOrEmpty(spirv.CompileErrorVertex) || !string.IsNullOrEmpty(spirv.CompileErrorFragment))
             {
                 if (dump is not null) Dump(dump);
@@ -558,7 +585,20 @@ internal sealed class RdWorldGpu
                 return null;
             }
 
-            Rid rid = Compile(rd, translated.Vertex, translated.Fragment, source.Actor == 0 ? "svm_rd_world" : $"svm_rd_actor{source.Actor}_{features}", translated);
+            Rid rid = Compile(rd, translated.Vertex, translated.Fragment, source.Actor == 0 ? "svm_rd_world" : $"svm_rd_actor{source.Actor}_{features}", translated,
+                mayDefer: source.Actor != 0);
+            if (source.Actor != 0 && _ownFrames > LateAfterFrames)
+            {
+                // A late one is named by what its code is built of (its defines).
+                var defines = new System.Text.StringBuilder();
+                foreach (string line in source.Code.Split((char)10))
+                {
+                    if (line.StartsWith("#define ", StringComparison.Ordinal)) defines.Append(' ').Append(line.AsSpan(8).Trim());
+                }
+
+                _lastShaderName += defines.ToString();
+            }
+
             if (!rid.IsValid) return null;
             shader = new ShaderGpu { Source = translated, Shader = rid };
             _shaders[(source.Code, features, source.Actor)] = shader;
@@ -1042,6 +1082,7 @@ internal sealed class RdWorldGpu
 
     // Frames drawn; those after the first LateAfterFrames (the loading cover is up for longer) are play.
     private int _ownFrames, _lateNotes;
+    private bool _stagesMade;
     private string _lastShaderName = "";
     private const int LateAfterFrames = 30;
 
@@ -1065,6 +1106,7 @@ internal sealed class RdWorldGpu
     public void QueueObjectUpload(RdObjects.Upload upload) => _objectUploads.Enqueue(upload);
 
     private readonly System.Collections.Concurrent.ConcurrentQueue<RdMaterial> _objectWarm = new();
+    private readonly List<RdMaterial> _warmAgain = [];
 
     /// <summary>An actor material met in the scene: its shaders and pipelines are made before it is first drawn.</summary>
     public void QueueWarm(RdMaterial material) => _objectWarm.Enqueue(material);
@@ -1244,14 +1286,23 @@ internal sealed class RdWorldGpu
 
         // Materials that entered the scene: both light states of each (and a rigid one's mirrored pipelines), before
         // any is drawn.
+        _warmAgain.Clear();
         while (_ownFormat >= 0 && _objectBuffer.IsValid && _paletteBuffer.IsValid && _objectWarm.TryDequeue(out RdMaterial? warm))
         {
+            Deferred = false;
             PrepareTemplate(rd, warm, spot: false);
             PrepareTemplate(rd, warm, spot: true);
-            if (warm.Actor != 1) continue;
-            PrepareTemplate(rd, warm, spot: false, mirrored: true);
-            PrepareTemplate(rd, warm, spot: true, mirrored: true);
+            if (warm.Actor == 1)
+            {
+                PrepareTemplate(rd, warm, spot: false, mirrored: true);
+                PrepareTemplate(rd, warm, spot: true, mirrored: true);
+            }
+
+            // One of its shaders is still compiling on a worker thread: asked for again next frame.
+            if (Deferred) _warmAgain.Add(warm);
         }
+
+        foreach (RdMaterial again in _warmAgain) _objectWarm.Enqueue(again);
 
         _cloaks = false;
         _blendedObjects.Clear();
@@ -1516,6 +1567,16 @@ internal sealed class RdWorldGpu
 
         // Everything a draw binds is made before the list opens.
         List<RdWorldGeometry.Batch> batches = _geometry.Batches;
+        if (!_stagesMade)
+        {
+            // Every material of the map in the first frame, not as each first comes into view.
+            _stagesMade = true;
+            foreach (RdWorldGeometry.Batch batch in batches)
+            {
+                if (!_stageMaterials.ContainsKey(batch.Material.GpuIndex) && !MakeStageMaterial(rd, batch.Material)) return;
+            }
+        }
+
         for (int k = 0; k < frame.DrawCount; k++)
         {
             RdMaterial material = batches[frame.Draws[k]].Material;
@@ -1940,7 +2001,7 @@ internal sealed class RdWorldGpu
     /// <summary>Everything the corona draws bind, made before their draw list opens. False: none this frame.</summary>
     private bool PrepareCoronas(RenderingDevice rd, RdWorldFrame frame)
     {
-        if (frame.CoronaGroups.Count == 0 || Test.Contains("nocoronas")) return false;
+        // As the projectors': made in the first frame.
         if (!_coronaShader.IsValid)
         {
             _coronaShader = Compile(rd, RdCoronas.Vertex, RdCoronas.Fragment, "svm_rd_corona", null);
@@ -1958,6 +2019,7 @@ internal sealed class RdWorldGpu
             if (!_coronaPipeline.IsValid) return false;
         }
 
+        if (frame.CoronaGroups.Count == 0 || Test.Contains("nocoronas")) return false;
         int bytes = frame.CoronaBlocks.Count * 4;
         if (bytes > _coronaCapacity)
         {
@@ -2025,7 +2087,7 @@ internal sealed class RdWorldGpu
     /// <summary>Everything the projector passes bind, made before the draw list opens. False: none this frame.</summary>
     private bool PrepareProjectors(RenderingDevice rd, RdWorldFrame frame)
     {
-        if (frame.ProjectorDraws.Count == 0 || Test.Contains("noprojectors")) return false;
+        // The shader and its pipelines are made in the first frame, whether a projector is in view or not.
         if (!_projectorShader.IsValid)
         {
             _projectorShader = Compile(rd, RdProjectors.Vertex, RdProjectors.Fragment, "svm_rd_projector", null);
@@ -2049,6 +2111,7 @@ internal sealed class RdWorldGpu
             }
         }
 
+        if (frame.ProjectorDraws.Count == 0 || Test.Contains("noprojectors")) return false;
         int bytes = frame.ProjectorBlocks.Count * 4;
         if (bytes > _projectorCapacity)
         {

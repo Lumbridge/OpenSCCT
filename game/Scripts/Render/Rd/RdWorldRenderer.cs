@@ -197,7 +197,7 @@ public partial class RdWorldRenderer : Node
     }
 
     /// <summary>SVM_RD_WORLD_STATS=1 prints the draws by variant once a second.</summary>
-    private static bool Stats { get; } = System.Environment.GetEnvironmentVariable("SVM_RD_WORLD_STATS") == "1";
+    internal static bool Stats { get; } = System.Environment.GetEnvironmentVariable("SVM_RD_WORLD_STATS") == "1";
 
     /// <summary>
     /// SVM_RD_WORLD_OUT / SVM_RD_WORLD_IN = a sum of RdFeatures: code every world draw leaves out, or keeps, whatever

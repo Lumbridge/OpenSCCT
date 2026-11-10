@@ -233,6 +233,8 @@ internal sealed class RdObjects
         System.IO.File.WriteAllText(s_dump!, text.ToString());
     }
     private Node? _staticRoot;
+    private int _recheckAt;
+    private const int RecheckPerFrame = 24;
     private readonly List<MeshInstance3D> _staticLeft = [];
 
     /// <summary>
@@ -261,6 +263,7 @@ internal sealed class RdObjects
         for (int s = 0; s < mesh.GetSurfaceCount(); s++)
         {
             if ((node.MaterialOverride ?? node.GetSurfaceOverrideMaterial(s) ?? mesh.SurfaceGetMaterial(s)) is not ShaderMaterial material) continue;
+            Known(material);
             if (!_materials.TryGetValue(material, out (int Kind, bool Masked, bool TwoSided, bool Drawn, Rid Texture, int Blend) m))
             {
                 m = Describe(material);
@@ -268,9 +271,11 @@ internal sealed class RdObjects
                 _wantsTemplate[material] = WantsTemplate(material);
             }
 
+            bool fresh = !sky && _wantsTemplate.GetValueOrDefault(material) && !_templates.ContainsKey((material, skinned));
             RdMaterial? template = !sky && _wantsTemplate.GetValueOrDefault(material) ? TemplateOf(material, skinned) : null;
+            if (fresh && RdWorldRenderer.Stats) GD.Print($"SVM_RD_FRAME template for {node.GetPath()} surface {s} at process frame {Engine.GetProcessFrames()}");
             if (template is null && !m.Drawn) continue;
-            if (template is not null) warm.Add(template);
+            if (template is not null && fresh) warm.Add(template);
             // Cloth is uploaded as it is rewritten.
             if (dynamic && !skinned && s == 0) continue;
             if (!_surfaces.TryGetValue((mesh, s), out SurfaceInfo? surface))
@@ -338,6 +343,16 @@ internal sealed class RdObjects
             }
         }
 
+        // A material given to a node after it was first met (an objective's marker, a screen switched on, a cosmetic)
+        // would otherwise be made ready in the frame it first comes into view: a few nodes a frame are looked at
+        // again, in turn, in view or not, so its shaders and geometry are ready before that.
+        for (int n = 0; n < RecheckPerFrame && _nodes.Count > 0; n++)
+        {
+            _recheckAt = (_recheckAt + 1) % _nodes.Count;
+            MeshInstance3D again = _nodes[_recheckAt];
+            if (GodotObject.IsInstanceValid(again)) Prepare(again, uploads, warm);
+        }
+
         if (s_dump is not null && ++_dumpFrame == 300) Dump(root);
         foreach (MeshInstance3D node in _nodes)
         {
@@ -382,6 +397,11 @@ internal sealed class RdObjects
                 }
 
                 // The sky zone's meshes are drawn by the small programs (the template's sky code is for Godot's sky camera).
+                if (RdWorldRenderer.Stats && !sky && _wantsTemplate.GetValueOrDefault(material) && !_templates.ContainsKey((material, skin is not null)))
+                {
+                    GD.Print($"SVM_RD_FRAME template in a draw for {node.GetPath()} surface {s} at process frame {Engine.GetProcessFrames()}");
+                }
+
                 RdMaterial? template = !sky && _wantsTemplate.GetValueOrDefault(material) ? TemplateOf(material, skin is not null) : null;
                 if (template is null && !m.Drawn) continue;
                 if (!_surfaces.TryGetValue((mesh, s), out SurfaceInfo? surface))
