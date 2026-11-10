@@ -509,6 +509,17 @@ Four SteeE views at a 30 FPS cap, own frame (build `build-o12`) against the Godo
 
 **Still not drawn:** rain sheets, emitters, light beams, lasers, the first-person view model, cloth, cloaked or tinted characters, spot and projector light on objects and characters, skinned map props, maps with an outdoor sky.
 
+### Seventh stage: every actor, rain, particles
+
+- **Actors.** The object pass walks the whole play scene (cached; walked again when a node enters or leaves the tree) and draws every mesh on the actors' and the first-person layers with a solid or masked template material: gameplay objects, animated props (SteeE's crane), characters, the first-person model. The merged world's own nodes and the cloth are left out. Gathering costs 0.25–0.37 ms of CPU a frame. A cloaked body is not drawn at all yet.
+- **Draw order.** Solid world and sky, actors, projector passes, then everything blended over them: the world's blended surfaces far to near, then the sheets.
+- **Sheets** (`Rd/RdSheets.cs`). One pass for simple blended triangles with a texture and a colour: the rain as RainVolumes builds it, and the sprite particles as ParticleSystemView fills them, in the seven particle draw styles with their blend factors, cell blending, alpha test and fog rules. The frame's vertices are gathered on the main thread and handed over whole.
+- Cut-outs whose shadow animates are taken by the world geometry in this mode too.
+
+Own frame (build `build-o16`) against the Godot path at a 30 FPS cap, pixels more than 2 levels apart: SteeE spy spawn 0.02%, shop 0.55%, courtyard 0.82%, crane 0.82%; AquaE's eight reference views 0.04% to 6.6% (far-180 6.6%, spy-180 4.4%, merc-0 2.6%, spy-90 2.3%, the rest under 2%). The worst two look the same to the eye side by side: the differences are level shifts on lit floors and a grate, not missing things. Not yet tracked down.
+
+**Still not drawn:** mesh particles (MultiMesh emitters), light beams, lasers, cloth, cloaked bodies and character cosmetics, spot and projector light on actors, the moon on SteeE. Maps with an outdoor sky leave the mode off and draw with Godot.
+
 ## The target
 
 ### The original at 2560×1440 on the UHD 770 (measured 2026-11-10)

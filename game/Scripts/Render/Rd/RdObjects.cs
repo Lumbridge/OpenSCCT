@@ -230,7 +230,8 @@ internal sealed class RdObjects
         string code = ResponsiveSmokeShaders.BaseCode(shader);
         bool blended = code.Contains("#define BLEND_TRANSLUCENT", StringComparison.Ordinal) || code.Contains("#define BLEND_ADDITIVE", StringComparison.Ordinal)
             || code.Contains("#define BLEND_MODULATE", StringComparison.Ordinal) || code.Contains("#define BLEND_DARKEN", StringComparison.Ordinal);
-        if (blended || !code.Contains("svm_world.gdshaderinc", StringComparison.Ordinal)) return default;
+        // A cloaked body is not drawn at all for now: unseen is nearer the truth than plainly visible.
+        if (blended || code.Contains("#define SVM_CLOAK", StringComparison.Ordinal) || !code.Contains("svm_world.gdshaderinc", StringComparison.Ordinal)) return default;
         int kind = code.Contains("#define LIGHT_ACTOR", StringComparison.Ordinal) ? 2
             : code.Contains("#define LIGHT_VERTEX", StringComparison.Ordinal) || code.Contains("#define LIGHT_LIGHTMAP", StringComparison.Ordinal) ? 1 : 0;
         Rid texture = material.GetShaderParameter(s_diffuse).AsGodotObject() is Texture2D t ? RenderingServer.TextureGetRdTexture(t.GetRid(), false) : default;
