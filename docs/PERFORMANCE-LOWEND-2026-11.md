@@ -469,6 +469,19 @@ The rigid meshes under the map's `Gameplay` node with solid or masked template m
 - **Picture against the Godot path** (uncapped runs, so rain and signs differ too): SteeE 1.2% of pixels more than 2 levels apart, AquaE 3.0% (it was 65% before the fog). What is left is what is not drawn yet: the character, the projector passes, rain and other blended surfaces.
 - Frame times of this build were taken while other work ran on the machine and are not quoted; the stage times are as before.
 
+### Fourth stage: characters
+
+Skinned meshes (the pawns under PlayRoot's `Pawns` node) are drawn by the same object pass: four bone influences a vertex, the bone matrices of each visible skeleton handed over every frame and blended in the vertex shader, the light worked out at the posed vertex. Meshes on layers the main view does not draw (a body hidden from its own eyes) are left out.
+
+| Own frame, 2560×1440, UHD 770, build `build-o6` | Frame ms | FPS | Scene GPU ms | Pixels more than 2 levels from the Godot path |
+|---|---:|---:|---:|---:|
+| AquaE spawn | 6.7–7.0 | 143–150 | 1.04 | 0.6% |
+| SteeE spawn | 5.9–6.6 | 151–169 | 0.94 | 0.6% |
+
+- The character is posed and lit as in the Godot path to the eye. Frame times vary because other work ran on the machine (23% CPU load); the stage times do not.
+- AquaE's frame still holds 0.57 ms of shadow pass nothing reads, and lacks the projector passes, rain and other blended surfaces.
+- Not handled on characters: cloak, tints and other cosmetics, goggle glow, normal maps, first-person arms.
+
 ## The target
 
 ### The original at 2560×1440 on the UHD 770 (measured 2026-11-10)
