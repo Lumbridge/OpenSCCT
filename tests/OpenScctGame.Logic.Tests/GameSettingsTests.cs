@@ -70,9 +70,17 @@ public sealed class GameSettingsTests : IDisposable
         Assert.Equal("Vulkan", GameSettings.Load(path).GraphicsDriver);
     }
 
+    [Fact]
+    public void ADirect3D12ProfileLoadsAsVulkan()
+    {
+        var settings = new GameSettings { GraphicsDriver = "Direct3D 12" };
+        string path = Path.Combine(_dir, "settings.json");
+        settings.Save(path);
+        Assert.Equal("Vulkan", GameSettings.Load(path).GraphicsDriver);
+    }
+
     [Theory]
     [InlineData("Vulkan")]
-    [InlineData("Direct3D 12")]
     public void ExplicitGraphicsDriverChoicesSurviveSaveAndLoad(string driver)
     {
         var settings = new GameSettings { GraphicsDriver = driver };

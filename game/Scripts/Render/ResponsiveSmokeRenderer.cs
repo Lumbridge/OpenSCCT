@@ -139,8 +139,8 @@ public static class ResponsiveSmokeRenderer
     /// <summary>Availability is explicit: clients must not silently substitute legacy smoke in a responsive match.</summary>
     public static string? UnsupportedReason => DisplayServer.GetName() == "headless" ? null
         : RenderingServer.GetCurrentRenderingMethod() != "forward_plus" ? "Responsive smoke requires the Forward+ renderer."
-        : RenderingServer.GetCurrentRenderingDriverName() is not ("vulkan" or "d3d12")
-            ? "Responsive smoke requires the Vulkan or Direct3D 12 rendering driver."
+        : RenderingServer.GetCurrentRenderingDriverName() != "vulkan"
+            ? "Responsive smoke requires the Vulkan rendering driver."
         : VolumeError is { } error ? "Responsive smoke could not initialize: " + error : null;
 
     public static void EnsureGlobals()

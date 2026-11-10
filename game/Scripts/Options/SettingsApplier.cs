@@ -106,11 +106,8 @@ public static class SettingsApplier
     public static void WriteStartOverrides(GameSettings s)
     {
         ArgumentNullException.ThrowIfNull(s);
-        string? driver = OperatingSystem.IsWindows() ? s.GraphicsDriver switch
-        {
-            "Direct3D 12" => "d3d12",
-            _ => "vulkan",
-        } : null;
+        // Always written on Windows: it replaces a Direct3D 12 choice an older build stored in this file.
+        string? driver = OperatingSystem.IsWindows() ? "vulkan" : null;
         bool lowLatency = s.LowLatencyMode != "Off";
         string path = ProjectSettings.GlobalizePath(StartOverridePath);
         try

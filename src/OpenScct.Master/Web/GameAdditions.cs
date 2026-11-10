@@ -161,7 +161,7 @@ internal static class GameAdditions
 
             // docs/HUD.md, Options and settings; TelemetrySettings; FrameRateSlider; SettingsApplier.
             new("display-audio", "Graphics, performance and sound", "Adjust display, rendering, frame-rate and volume settings.",
-                ["Choose render scale, shadow quality and role-specific frame-rate limits.", "On Windows, version 0.8.99 adds a choice of Vulkan or Direct3D 12 under Performance. Restart to apply the driver change.", "Music, effects and voice have separate volume controls."],
+                ["Choose render scale, shadow quality and role-specific frame-rate limits.", "Music, effects and voice have separate volume controls."],
                 "/wiki/controls-and-hud#graphics", "Graphics and performance settings"),
 
             // OpenSCCT-Editor README.md and docs/PARITY.md.

@@ -512,17 +512,6 @@ public partial class OptionsMenu : Control
         Section(g, "Frame pacing", "Choose the frame-rate limit and vertical sync. Match refresh rate follows your display; Unlimited removes the cap.");
         Check(g, "Vertical sync", "vsync", _edit.VSync, v => _edit.VSync = v);
         AddFrameRateSlider(g);
-        if (OperatingSystem.IsWindows())
-        {
-            string active = RenderingServer.GetCurrentRenderingDriverName() switch
-            {
-                "vulkan" => "Vulkan",
-                "d3d12" => "Direct3D 12",
-                var driver => driver,
-            };
-            Section(g, "Graphics driver", $"Active driver: {active}. Switching drivers can change frame rate and requires restarting the game.");
-            Choice(g, "Graphics driver (restart)", "graphics_driver", GameSettings.GraphicsDrivers, _edit.GraphicsDriver, v => _edit.GraphicsDriver = v);
-        }
         Section(g, "Latency & power", "These settings require restarting the game.");
         Choice(g, "Reduce input lag (restart)", "low_latency_mode", GameSettings.LatencyModes, _edit.LowLatencyMode, v => _edit.LowLatencyMode = v);
         _controls["low_latency_mode"].TooltipText = "On uses double buffering. This can lower latency, but may reduce frame rate when vertical sync is enabled and your PC cannot keep up.";

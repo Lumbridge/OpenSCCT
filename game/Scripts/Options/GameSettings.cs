@@ -698,11 +698,14 @@ public sealed class GameSettings
     /// <summary>Video_Settings' sQuality captions for the post-render row (Normal, High).</summary>
     public static readonly string[] PostQualities = ["Normal", "High"];
 
-    /// <summary>The Windows graphics driver to request at the next start. Vulkan is selected for new profiles.</summary>
+    /// <summary>
+    /// The Windows graphics driver. Vulkan is the only one since 0.8.126: a profile that chose Direct3D 12 loads as
+    /// Vulkan. The value stays in the settings file for older builds that read it.
+    /// </summary>
     [JsonPropertyName("graphics_driver")]
     public string GraphicsDriver { get; set; } = "Vulkan";
 
-    public static readonly string[] GraphicsDrivers = ["Vulkan", "Direct3D 12"];
+    public static readonly string[] GraphicsDrivers = ["Vulkan"];
 
     /// <summary>"Reduce input lag": On requests two swap-chain images. Needs a restart.</summary>
     [JsonPropertyName("low_latency_mode")]
@@ -1018,7 +1021,7 @@ public sealed class GameSettings
         ClutchTwoKey = (ClutchTwoKey ?? "").Trim();
         MouseWheel = OneOf(WheelModes, MouseWheel);
         WindowPosition = OneOf(WindowPositions, WindowPosition, "Centered");
-        // Legacy "Default" profiles now select Vulkan explicitly, as do missing or invalid choices.
+        // Legacy "Default" and "Direct3D 12" profiles select Vulkan, as do missing or invalid choices.
         GraphicsDriver = OneOf(GraphicsDrivers, GraphicsDriver);
         // Older Ultra settings used exactly the same engine override as On.
         if (string.Equals(LowLatencyMode, "Ultra", StringComparison.OrdinalIgnoreCase)) LowLatencyMode = "On";

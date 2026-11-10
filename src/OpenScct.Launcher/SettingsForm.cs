@@ -94,14 +94,6 @@ internal sealed class SettingsForm : Form
         Row(Theme.Label("Updates", Theme.Heading, Theme.Accent));
         Row(_checkOnStart, 6);
         Row(_editorMode ? _editorPrereleases : _prereleases, 4);
-        if (!_editorMode)
-        {
-            Row(Theme.Label("Renderer", Theme.Heading, Theme.Accent), 18);
-            Row(_renderer, 6);
-            Row(Theme.Wrapping(Theme.Label(gameRunning
-                ? "Close the game to change its renderer."
-                : "Used the next time the game starts. Vulkan is recommended; try it if Direct3D 12 will not start.", Theme.Small, Theme.Muted)), 4);
-        }
         Row(Theme.Label("Folders", Theme.Heading, Theme.Accent), 18);
         if (_editorMode)
         {
