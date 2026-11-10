@@ -216,6 +216,7 @@ public partial class RdWorldRenderer : Node
     private readonly RdProjectors _projectors = new();
     private readonly RdCoronas _coronas = new();
     private readonly List<RdObjects.Upload> _objectUploads = [];
+    private readonly List<RdMaterial> _objectWarm = [];
     private readonly Texture2Drd _ownShown = new();
     private Rid _ownShownColor;
     private Callable _renderOwn;
@@ -296,6 +297,8 @@ public partial class RdWorldRenderer : Node
     /// <summary>The main thread's time in the last frame's gathering of objects, projectors and coronas (statistics).</summary>
     private double _gatherMs;
 
+    private static readonly double s_flip = double.TryParse(System.Environment.GetEnvironmentVariable("SVM_RD_FRAME_FLIP"), NumberStyles.Float, CultureInfo.InvariantCulture, out double flip) ? flip : 0.0;
+
     private void PreDrawOwn(Camera3D camera)
     {
         Viewport viewport = GetViewport();
@@ -304,6 +307,8 @@ public partial class RdWorldRenderer : Node
         // the map's meshes it had taken.
         bool own = !_gpu.Failed && _view.RendMap == RenderK.RendMapNormal && !ResponsiveSmokeShaders.Enabled
             && camera.IsInsideTree() && camera.Current;
+        // SVM_RD_FRAME_FLIP=seconds (a check of the hand-over, not a way to play): Godot's renderer takes every other period.
+        if (s_flip > 0.0 && ((long)(Time.GetTicksMsec() / 1000.0 / s_flip) & 1) == 1) own = false;
         if (own != _ownActive)
         {
             _ownActive = own;
@@ -371,7 +376,9 @@ public partial class RdWorldRenderer : Node
         // Every mesh of the play scene on the actors' layers: gameplay objects, animated props, characters, the
         // first-person model.
         _objects.Gather(GetParent() ?? _map.Root, _worldPlanes, static (planes, box) => Inside(planes, box), _spotsReachingBox ??= SpotsReachingBox,
-            frame.Objects, frame.ObjectData, frame.Palette, _objectUploads);
+            frame.Objects, frame.ObjectData, frame.Palette, _objectUploads, _objectWarm);
+        foreach (RdMaterial material in _objectWarm) _gpu.QueueWarm(material);
+        _objectWarm.Clear();
 
         foreach (RdObjects.Upload upload in _objectUploads) _gpu.QueueObjectUpload(upload);
         frame.Time = ShaderGlobals.TryGet("svm_time", out Variant time) ? time.AsSingle() : 0f;

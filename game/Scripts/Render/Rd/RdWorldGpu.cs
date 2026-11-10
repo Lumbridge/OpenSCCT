@@ -1001,6 +1001,11 @@ internal sealed class RdWorldGpu
 
     public void QueueObjectUpload(RdObjects.Upload upload) => _objectUploads.Enqueue(upload);
 
+    private readonly System.Collections.Concurrent.ConcurrentQueue<RdMaterial> _objectWarm = new();
+
+    /// <summary>An actor material met in the scene: its shaders and pipelines are made before it is first drawn.</summary>
+    public void QueueWarm(RdMaterial material) => _objectWarm.Enqueue(material);
+
     /// <summary>Everything the frame's object draws bind, made before the draw list opens. False: no objects this frame.</summary>
     private bool PrepareObjects(RenderingDevice rd, RdWorldFrame frame)
     {
@@ -1150,6 +1155,15 @@ internal sealed class RdWorldGpu
             }
         }
 
+        // Materials that entered the scene: both light states of each, before any is drawn.
+        while (_ownFormat >= 0 && _objectBuffer.IsValid && _paletteBuffer.IsValid && _objectWarm.TryDequeue(out RdMaterial? warm))
+        {
+            // A cloak binds the copy of the frame, which is made when the first cloaked body is drawn.
+            if (warm.Cloak) continue;
+            PrepareTemplate(rd, warm, spot: false);
+            PrepareTemplate(rd, warm, spot: true);
+        }
+
         _cloaks = false;
         foreach (RdObjects.Draw draw in frame.Objects) _cloaks |= draw.Blend == 3;
         if (_cloaks && (!_ownBehind.IsValid || _ownBehindSize != _ownSize))
@@ -1194,9 +1208,11 @@ internal sealed class RdWorldGpu
     private int _objectBufferVersion;
 
     /// <summary>Everything a template actor draw binds, made before the draw list opens; default when it cannot be drawn.</summary>
-    private (Variant? Variant, Rid Pipeline) PrepareTemplate(RenderingDevice rd, in RdObjects.Draw draw)
+    private (Variant? Variant, Rid Pipeline) PrepareTemplate(RenderingDevice rd, in RdObjects.Draw draw) =>
+        PrepareTemplate(rd, draw.Material!, draw.SpotBits != 0);
+
+    private (Variant? Variant, Rid Pipeline) PrepareTemplate(RenderingDevice rd, RdMaterial source, bool spot)
     {
-        RdMaterial source = draw.Material!;
         if (source.GpuIndex < 0)
         {
             var made = new MaterialGpu { Source = source, Version = source.Version, TextureVersion = source.TextureVersion };
@@ -1222,7 +1238,7 @@ internal sealed class RdWorldGpu
             }
         }
 
-        RdFeatures features = (RdFeatures.NoPortalFog | (draw.SpotBits == 0 ? RdFeatures.NoSpot : RdFeatures.None)) & source.Applicable;
+        RdFeatures features = (RdFeatures.NoPortalFog | (spot ? RdFeatures.None : RdFeatures.NoSpot)) & source.Applicable;
         // A set dies with a texture it holds (the frame copy after a resize, a freed cosmetic texture).
         if (material.Variants[(int)features] is { } held && !rd.UniformSetIsValid(held.Set)) material.Variants[(int)features] = null;
         Variant? variant = material.Variants[(int)features] ?? VariantOf(rd, material, features);
@@ -1652,20 +1668,20 @@ internal sealed class RdWorldGpu
         }
 
         _sheetRanges.Clear();
+        if (_sheetFormat < 0)
+        {
+            const uint stride = RdSheets.Stride;
+            _sheetFormat = rd.VertexFormatCreate(
+            [
+                new RDVertexAttribute { Location = 0, Offset = 0, Format = RD.DataFormat.R32G32B32Sfloat, Stride = stride, Binding = 0 },
+                new RDVertexAttribute { Location = 1, Offset = 12, Format = RD.DataFormat.R32G32Sfloat, Stride = stride, Binding = 0 },
+                new RDVertexAttribute { Location = 2, Offset = 20, Format = RD.DataFormat.R32G32Sfloat, Stride = stride, Binding = 0 },
+                new RDVertexAttribute { Location = 3, Offset = 28, Format = RD.DataFormat.R8G8B8A8Unorm, Stride = stride, Binding = 0 },
+            ]);
+        }
+
         if (pending is not null)
         {
-            if (_sheetFormat < 0)
-            {
-                const uint stride = RdSheets.Stride;
-                _sheetFormat = rd.VertexFormatCreate(
-                [
-                    new RDVertexAttribute { Location = 0, Offset = 0, Format = RD.DataFormat.R32G32B32Sfloat, Stride = stride, Binding = 0 },
-                    new RDVertexAttribute { Location = 1, Offset = 12, Format = RD.DataFormat.R32G32Sfloat, Stride = stride, Binding = 0 },
-                    new RDVertexAttribute { Location = 2, Offset = 20, Format = RD.DataFormat.R32G32Sfloat, Stride = stride, Binding = 0 },
-                    new RDVertexAttribute { Location = 3, Offset = 28, Format = RD.DataFormat.R8G8B8A8Unorm, Stride = stride, Binding = 0 },
-                ]);
-            }
-
             int vertices = bytes / RdSheets.Stride;
             if (vertices > _sheetCapacity)
             {
@@ -1687,7 +1703,8 @@ internal sealed class RdWorldGpu
             lock (_queueLock) _sheetFree.Push(pending);
         }
 
-        if (frame.Sheets.Count == 0 || !_sheetsUploaded || Test.Contains("nosheets")) return false;
+        // The shaders are made in the first frame, not when the first particle is drawn.
+        if (!_beamShader.IsValid && !PrepareBeams(rd)) return false;
         if (!_sheetShader.IsValid)
         {
             _sheetShader = Compile(rd, RdSheets.VertexShader, RdSheets.FragmentShader, "svm_rd_sheet", null);
@@ -1722,6 +1739,8 @@ internal sealed class RdWorldGpu
             _sheetFrameSet = rd.UniformSetCreate([frameBlock], _sheetShader, 0);
             if (!_sheetFrameSet.IsValid) return false;
         }
+
+        if (frame.Sheets.Count == 0 || !_sheetsUploaded || Test.Contains("nosheets")) return false;
 
         _beamsReady = false;
         foreach (RdSheets.Draw draw in frame.Sheets)

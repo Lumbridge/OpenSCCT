@@ -181,7 +181,60 @@ internal sealed class RdObjects
     }
 
     /// <summary>Adds the visible meshes under <paramref name="root"/> (main thread, after <see cref="Begin"/>).</summary>
-    public void Gather(Node root, Plane[] planes, Func<Plane[], Aabb, bool> inside, Func<Aabb, int> spots, List<Draw> draws, List<byte> objects, List<float> palette, List<Upload> uploads)
+    private readonly HashSet<ulong> _prepared = [];
+
+    /// <summary>
+    /// Everything a mesh node will need when it is first drawn, made when the node is first met in the scene (at the
+    /// map's load, or when a character spawns) instead of the frame it comes into view: its surfaces packed for
+    /// upload, and its template materials named for the render thread to compile.
+    /// </summary>
+    private void Prepare(MeshInstance3D node, List<Upload> uploads, List<RdMaterial> warm)
+    {
+        if (node.Mesh is not ArrayMesh mesh || (node.Layers & (RenderLayers.World | RenderLayers.FirstPerson)) == 0) return;
+        bool skinned = false;
+        if (node.Skin is not null)
+        {
+            if (!_skins.TryGetValue(node, out SkinInfo? skin))
+            {
+                skin = SkinOf(node);
+                _skins[node] = skin;
+            }
+
+            if (skin is null) return;
+            skinned = true;
+        }
+
+        bool dynamic = s_dynamic.TryGetValue(mesh, out _);
+        for (int s = 0; s < mesh.GetSurfaceCount(); s++)
+        {
+            if ((node.MaterialOverride ?? node.GetSurfaceOverrideMaterial(s) ?? mesh.SurfaceGetMaterial(s)) is not ShaderMaterial material) continue;
+            if (!_materials.TryGetValue(material, out (int Kind, bool Masked, bool TwoSided, bool Drawn, Rid Texture, int Blend) m))
+            {
+                m = Describe(material);
+                _materials[material] = m;
+                _wantsTemplate[material] = WantsTemplate(material);
+            }
+
+            RdMaterial? template = _wantsTemplate.GetValueOrDefault(material) ? TemplateOf(material, skinned) : null;
+            if (template is null && !m.Drawn) continue;
+            if (template is not null) warm.Add(template);
+            // Cloth is uploaded as it is rewritten.
+            if (dynamic && !skinned && s == 0) continue;
+            if (!_surfaces.TryGetValue((mesh, s), out SurfaceInfo? surface))
+            {
+                surface = new SurfaceInfo { Id = _nextSurface++ };
+                _surfaces[(mesh, s)] = surface;
+            }
+
+            if (surface.Uploaded) continue;
+            surface.Uploaded = true;
+            if (Pack(mesh, s, surface.Id, skinned) is { } upload) uploads.Add(upload);
+            else surface.Id = -1;
+        }
+    }
+
+    public void Gather(Node root, Plane[] planes, Func<Plane[], Aabb, bool> inside, Func<Aabb, int> spots, List<Draw> draws, List<byte> objects, List<float> palette, List<Upload> uploads,
+        List<RdMaterial> warm)
     {
         Span<float> block = stackalloc float[ObjectBytes / 4];
         RefreshTemplates();
@@ -199,7 +252,11 @@ internal sealed class RdObjects
                 // The merged world is the world pass's own.
                 if (at.Name == s_static) continue;
                 foreach (Node child in at.GetChildren()) _stack.Push(child);
-                if (at is MeshInstance3D found) _nodes.Add(found);
+                if (at is MeshInstance3D found)
+                {
+                    _nodes.Add(found);
+                    if (_prepared.Add(found.GetInstanceId())) Prepare(found, uploads, warm);
+                }
             }
         }
 
