@@ -339,6 +339,41 @@ public partial class RdWorldRenderer : Node
     /// <summary>The main thread's time in the last frame's gathering of objects, projectors and coronas (statistics).</summary>
     private double _gatherMs;
 
+    /// <summary>
+    /// The frame's fog when the camera's own zone has none: that of the nearest fogged zone a portal of the camera's
+    /// zone opens on, while the eye is within that fog's range of the portal. The original, traced on MissD's spy
+    /// spawn (d3d9trace missD-spy0.log), fogs the whole frame 300 to 4000 there although the zone found for that eye
+    /// has no fog; the Godot path's portal fog gives the same picture when the portal is nearer than the fog's start.
+    /// </summary>
+    private Data.ZoneEntry? NeighbourFog(Vector3 eye)
+    {
+        Data.LightingDoc lighting = _map.Lighting;
+        if (!lighting.HasFogPortals || _view.CameraZone is not { } own) return null;
+        OpenScct.Core.FVector ue = UeSpace.ToUe(eye);
+        var at = new System.Numerics.Vector3(ue.X, ue.Y, ue.Z);
+        Data.ZoneEntry? best = null;
+        float nearest = float.MaxValue;
+        foreach (Post.FogPortal portal in lighting.FogPortals)
+        {
+            int other = portal.Back == own.ZoneIndex ? portal.Front : portal.Front == own.ZoneIndex ? portal.Back : -1;
+            if (other < 0 || lighting.ZoneByIndex(other) is not { Fog: true } zone) continue;
+            float distance = float.MaxValue;
+            var centre = System.Numerics.Vector3.Zero;
+            foreach (System.Numerics.Vector3 vertex in portal.Vertices)
+            {
+                distance = MathF.Min(distance, System.Numerics.Vector3.Distance(vertex, at));
+                centre += vertex / portal.Vertices.Length;
+            }
+
+            distance = MathF.Min(distance, System.Numerics.Vector3.Distance(centre, at));
+            if (distance >= zone.FogEnd || distance >= nearest) continue;
+            nearest = distance;
+            best = zone;
+        }
+
+        return best;
+    }
+
     private static readonly double s_flip = double.TryParse(System.Environment.GetEnvironmentVariable("SVM_RD_FRAME_FLIP"), NumberStyles.Float, CultureInfo.InvariantCulture, out double flip) ? flip : 0.0;
 
     private void PreDrawOwn(Camera3D camera)
@@ -395,6 +430,11 @@ public partial class RdWorldRenderer : Node
                 Vector4 ramp = rampValue.AsVector4(), color = rampColor.AsVector4();
                 (fogBlock[4], fogBlock[5], fogBlock[6], fogBlock[7]) = (color.X, color.Y, color.Z, ramp.W > 0.5f ? 1f : 0f);
                 (fogBlock[8], fogBlock[9], fogBlock[10]) = (forward.AsVector4().W, ramp.X, ramp.Z);
+                if (ramp.W <= 0.5f && NeighbourFog(eye.Origin) is { } zone)
+                {
+                    (fogBlock[4], fogBlock[5], fogBlock[6], fogBlock[7]) = (zone.FogColor.R, zone.FogColor.G, zone.FogColor.B, 1f);
+                    (fogBlock[9], fogBlock[10]) = (zone.FogStart, Post.FogZone.Rate(zone.FogStart, zone.FogEnd));
+                }
             }
             else if (view.Y > 0.5f && view.Y < 1.5f && ShaderGlobals.TryGet("svm_fog_main_color", out Variant fogColor))
             {
