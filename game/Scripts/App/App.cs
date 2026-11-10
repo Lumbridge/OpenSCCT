@@ -61,6 +61,13 @@ public partial class App : Node
 
         arguments.Add("--rendering-driver");
         arguments.Add("vulkan");
+        if (!OS.HasFeature("template"))
+        {
+            // Run from the editor's binary: the engine does not hand the project path back.
+            arguments.Add("--path");
+            arguments.Add(ProjectSettings.GlobalizePath("res://"));
+        }
+
         string[] user = OS.GetCmdlineUserArgs();
         if (user.Length > 0)
         {
