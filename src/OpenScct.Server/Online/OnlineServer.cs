@@ -1156,6 +1156,24 @@ public sealed partial class OnlineServer : IDisposable
             return;
         }
 
+        // A listen server's own player loads on the machine the server runs on, and its game sends nothing while its
+        // load holds the main thread. A first load can pass the timeout (70 s on an Intel UHD 630 with no shader
+        // cache); dropping the host then returns the session to a lobby its game never sees. So neither the load
+        // timeout nor the connection's silence counts until the host's player has loaded. A host who leaves is
+        // removed from the players as usual.
+        if (!Settings.Dedicated && _players.Find(p => p.IsHost && !p.IsBot) is { } own &&
+            own.Slot?.Controller?.PlayerReplicationInfo?.bWaitingPlayer != true)
+        {
+            foreach ((NetConnection connection, SessionPlayer player) in _byConnection)
+            {
+                // ServerHost puts the usual limit back once the player reports waiting.
+                if (ReferenceEquals(player, own)) connection.ReceiveTimeoutNotBeforeMicros = long.MaxValue;
+            }
+
+            _phaseStart = _now;
+            return;
+        }
+
         if (_now - _phaseStart < (long)(Settings.LoadTimeoutSeconds * Second))
         {
             return;
