@@ -225,6 +225,9 @@ public partial class RdWorldRenderer : Node
         frame.Clear = new Color(clear.R, clear.G, clear.B, 1f);
         WriteClip(ToTarget(world, 1f - SkyDepth, SkyDepth), frame.Clip.AsSpan(0, 16));
         WriteClip(ToTarget(sky, SkyDepth, 0f), frame.Clip.AsSpan(16, 16));
+        frame.Gate = _view.GlowGate;
+        int threshold = OpenScctGame.Options.SettingsStore.Current.PostQuality == 0 ? 255 : _map.Lighting.GlowThreshold;
+        frame.GlowCut = Post.DisplaySpaceEffect.GlowCut(threshold) ?? -1f;
         Select(frame, eye.Origin, true, RdFeatures.None);
         if (_map.Root.GetNodeOrNull("Gameplay") is { } gameplay)
         {

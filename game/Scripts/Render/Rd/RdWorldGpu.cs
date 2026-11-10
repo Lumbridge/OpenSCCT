@@ -27,6 +27,9 @@ internal sealed class RdWorldFrame
     /// <summary>Own-frame mode: the gameplay meshes to draw after the world, and their object blocks (RdObjects).</summary>
     public readonly List<RdObjects.Draw> Objects = [];
     public readonly List<byte> ObjectData = [];
+    /// <summary>Own-frame mode: the final pass gates the scene; the glow's threshold (negative: no glow).</summary>
+    public bool Gate;
+    public float GlowCut = -1f;
 
     public void Reserve(int draws)
     {
@@ -876,7 +879,8 @@ internal sealed class RdWorldGpu
 
     private readonly StageShader?[] _stages = new StageShader?[6];
     private readonly Dictionary<int, (int Stage, Rid Set, bool TwoSided)> _stageMaterials = [];
-    private Rid _ownColor, _ownDepth, _ownFramebuffer, _stageFrameBuffer;
+    private Rid _ownColor, _ownDepth, _ownFramebuffer, _stageFrameBuffer, _ownShown;
+    private readonly RdFramePost _post = new();
     private Vector2I _ownSize;
     private long _ownFormat = -1;
     private readonly List<(int Frame, Rid Color, Rid Depth)> _ownRetired = [];
@@ -1054,7 +1058,12 @@ internal sealed class RdWorldGpu
         var size = new Vector2I(Math.Max(1, frame.Size.X), Math.Max(1, frame.Size.Y));
         if (!_ownFramebuffer.IsValid || size != _ownSize)
         {
-            if (_ownColor.IsValid) _ownRetired.Add((_ownFrame, _ownColor, _ownDepth));
+            if (_ownColor.IsValid)
+            {
+                _ownRetired.Add((_ownFrame, _ownColor, _ownDepth));
+                _ownRetired.Add((_ownFrame, _ownShown, default));
+            }
+
             _ownSize = size;
             _ownColor = rd.TextureCreate(new RDTextureFormat
             {
@@ -1068,7 +1077,13 @@ internal sealed class RdWorldGpu
             }, new RDTextureView(), []);
             _ownFramebuffer = rd.FramebufferCreate([_ownColor, _ownDepth], -1, 1);
             _ownFormat = rd.FramebufferGetFormat(_ownFramebuffer);
-            lock (_queueLock) _latestOwnColor = _ownColor;
+            // What the canvas shows: the scene after the final pass (RdFramePost).
+            _ownShown = rd.TextureCreate(new RDTextureFormat
+            {
+                Format = RD.DataFormat.R8G8B8A8Unorm, Width = (uint)size.X, Height = (uint)size.Y,
+                UsageBits = RD.TextureUsageBits.ColorAttachmentBit | RD.TextureUsageBits.SamplingBit | RD.TextureUsageBits.CanCopyFromBit,
+            }, new RDTextureView(), []);
+            lock (_queueLock) _latestOwnColor = _ownShown;
         }
 
         for (int i = _ownRetired.Count - 1; i >= 0; i--)
@@ -1076,7 +1091,7 @@ internal sealed class RdWorldGpu
             // The main thread shows the new target a frame later; four frames covers the frames in flight.
             if (_ownFrame - _ownRetired[i].Frame < 4) continue;
             rd.FreeRid(_ownRetired[i].Color);
-            rd.FreeRid(_ownRetired[i].Depth);
+            if (_ownRetired[i].Depth.IsValid) rd.FreeRid(_ownRetired[i].Depth);
             _ownRetired.RemoveAt(i);
         }
 
@@ -1151,6 +1166,8 @@ internal sealed class RdWorldGpu
             rd.DrawListEnd();
         }
 
+        if (_post.Ensure(rd, _ownColor, _ownShown, (vertex, fragment, name) => Compile(rd, vertex, fragment, name, null))) _post.Run(rd, frame.Gate, frame.GlowCut);
+        else Fail("own frame post failed");
         rd.CaptureTimestamp("RD Own Frame End");
         LastDraws = frame.DrawCount;
         LastRecordMs = clock.Elapsed.TotalMilliseconds;
@@ -1322,14 +1339,15 @@ internal sealed class RdWorldGpu
             _stages[i] = null;
         }
 
+        _post.Free(rd);
         foreach ((int frame, Rid color, Rid depth) in _ownRetired)
         {
             rd.FreeRid(color);
-            rd.FreeRid(depth);
+            if (depth.IsValid) rd.FreeRid(depth);
         }
 
         _ownRetired.Clear();
-        foreach (Rid rid in new[] { _ownColor, _ownDepth, _stageFrameBuffer })
+        foreach (Rid rid in new[] { _ownColor, _ownDepth, _ownShown, _stageFrameBuffer })
         {
             if (rid.IsValid) rd.FreeRid(rid);
         }
