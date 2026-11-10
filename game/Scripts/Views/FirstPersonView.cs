@@ -45,6 +45,25 @@ public partial class FirstPersonView : Node3D
     public void Preload(FirstPersonNeeds needs)
     {
         Needs = needs;
+        // Every file read below, started on worker threads first: the pistols are about 10 MB each.
+        string? shared = SharedRoot ?? Map?.SharedRoot;
+        var ahead = new List<string?>();
+        if (needs.Merc)
+        {
+            foreach (string primary in new[] { "SWeaponFirst.1DEF_01", "SWeaponFirst.1DEF_Uzi", "SWeaponFirst.1DEF_shotgun" })
+                ahead.Add(SkeletalModel.FindGlb(primary, shared));
+        }
+
+        if (needs.Sidearms)
+        {
+            foreach (var pistol in Sidearms.All)
+            {
+                if (needs.Merc) ahead.Add(SkeletalModel.FindGlb(pistol.Asset + "_first", shared));
+                ahead.Add(SkeletalModel.FindGlb(pistol.Asset, shared));
+            }
+        }
+
+        SkeletalModel.Prefetch(ahead);
         if (needs.Merc)
         {
             foreach (string primary in new[] { "SWeaponFirst.1DEF_01", "SWeaponFirst.1DEF_Uzi", "SWeaponFirst.1DEF_shotgun" })

@@ -603,6 +603,29 @@ Open: the frame's time outside GPU work (Godot's canvas and swapchain copies); t
 
 **Reads kept inside their buffers.** A device lost on the NVIDIA card is most often a read past a buffer, which the validation layer does not see. A packed vertex holds bone indices no higher than 255 (`RdObjects.MaxBone`) and both palette buffers (the frame's and the shadow pass's) keep that much room past their last matrix. GLSL's `length()` of a runtime array is no use for this: Godot's shader reflection answers `OpArrayLength is not supported yet`.
 
+## Twelfth stage: the first load of a map (2026-11-10, `perf/fast-load-times`)
+
+A player hosting AquaT on an Intel UHD 630 laptop waited 70 s for the first load on Fast: 21 s in the world pass's warm-up and 43 s in the first warm-up frame as a whole. Nearly all of it is the graphics driver compiling pipelines it has never seen, one after another on the render thread. Later loads read the driver's and Godot's caches.
+
+Measured cold on the UHD 770 (`tools` outside the repository: an empty user folder through `APPDATA`, and Intel's own per-program cache file under `LocalLow\Intel\ShaderCache` moved aside; without the second a "cold" run is warm). AquaT, three bots, editor build:
+
+| Step | Before | After |
+|---|---|---|
+| World pass warm-up (73 shaders, 73 pipelines) | 14.3 s | 2.0 s |
+| Objects and characters (96 fixed pipelines and the templates of the load) | 5.4 s | 0.8 s |
+| First warm-up frame as a whole | 22.3 s | 5.7 s |
+| Load to first control, Fast | 32.3 s | 15.3 s |
+| Load to first control, Standard | 12.5 s | 12.5 s |
+| First-person weapons with pistols on (`play.sidearms`) | 3.0 s | 1.1 s |
+
+- **Pipelines of a load are made together.** `RdWorldGpu.Warm`, the fixed object programs and the object queue of the first frames collect the pipelines they need and make them on every core but one (`InParallel`, `MakePipelines`); the render thread waits behind the loading cover. The driver compiles on any thread, as it does for Godot's own pipelines. `SVM_RD_WARM_THREADS=0` goes back to one after another.
+- **Shaders of a load are compiled together.** `Precompile` compiles the GLSL this machine has never compiled on the same threads before the variants are made (0.9 s to 0.25 s here; the SPIR-V cache makes it nothing on later loads).
+- **Model files are read on worker threads.** `SkeletalModel.Prefetch` reads a file, parses it and has Godot make its scene on a worker; `Load` takes the result and builds materials on the main thread as before. `FirstPersonView.Preload` asks for the mercenary's weapons and the five pistols (about 10 MB each) this way. `SVM_MODEL_THREADS=0` turns it off.
+- **`SVM_RD_FRAME first frame`** prints where a load's first Fast frame went, and the warm-up line now splits compile, shaders and pipelines.
+- `--svm-sidearms` gives a command-line round its pistols, so their load can be measured.
+
+Left: Godot's own 210 pipelines of the first frame (2.7 s here, the same on Standard), the map's Godot shaders on a machine's first load of a map (`build.cell-materials`, 1.7 s here and 5.5 s on the laptop; the list `ResponsiveSmokeShaders.Prewarm` reads exists only from the second load), and the 2.3 s between the cover lifting and first control on a cold machine.
+
 ## The target
 
 ### The original at 2560×1440 on the UHD 770 (measured 2026-11-10)

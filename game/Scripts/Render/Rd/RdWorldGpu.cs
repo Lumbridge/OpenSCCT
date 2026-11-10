@@ -310,6 +310,19 @@ internal sealed class RdWorldGpu
         var clock = Stopwatch.StartNew();
         ReadOnlySpan<RdFeatures> lights = [RdFeatures.None, RdFeatures.NoSpot, RdFeatures.NoSpot | RdFeatures.NoDynamic];
         ReadOnlySpan<RdFeatures> fogs = [RdFeatures.None, RdFeatures.NoPortalFog];
+        var wanted = new List<(ShaderGpu Shader, long Key, Func<Rid> Make)>();
+        var asked = new HashSet<ShaderGpu>();
+        var ahead = new List<(string Code, RdFeatures Features, int Actor)>();
+        foreach (MaterialGpu material in _materials)
+        {
+            foreach (RdFeatures light in lights)
+            {
+                foreach (RdFeatures fog in fogs) ahead.Add((material.Source.Code, (light | fog) & material.Source.Applicable, material.Source.Actor));
+            }
+        }
+
+        Precompile(rd, ahead);
+        double compileMs = clock.Elapsed.TotalMilliseconds;
         foreach (MaterialGpu material in _materials)
         {
             foreach (RdFeatures light in lights)
@@ -319,14 +332,58 @@ internal sealed class RdWorldGpu
                     RdFeatures features = (light | fog) & material.Source.Applicable;
                     Variant? variant = material.Variants[(int)features] ?? VariantOf(rd, material, features);
                     if (variant is null) return false;
-                    if (!variant.Shader.Pipelines.ContainsKey(format)) PipelineOf(rd, variant.Shader, format, color, depth);
+                    if (!variant.Shader.Pipelines.ContainsKey(format) && asked.Add(variant.Shader))
+                        wanted.Add((variant.Shader, format, PipelineMaker(rd, variant.Shader, format, color, depth, mirrored: false)));
                 }
             }
         }
 
+        double shadersMs = clock.Elapsed.TotalMilliseconds;
+        MakePipelines(wanted);
+
         GD.Print(string.Create(System.Globalization.CultureInfo.InvariantCulture,
-            $"SVM_RD_WORLD warm: {_shaders.Count} shaders ({_compiled} compiled, {_cached} from the cache) in {clock.Elapsed.TotalMilliseconds:F0} ms"));
+            $"SVM_RD_WORLD warm: {_shaders.Count} shaders ({_compiled} compiled, {_cached} from the cache) in {clock.Elapsed.TotalMilliseconds:F0} ms (compile {compileMs:F0}, shaders {shadersMs - compileMs:F0}, {wanted.Count} pipelines {clock.Elapsed.TotalMilliseconds - shadersMs:F0})"));
         return true;
+    }
+
+    /// <summary>SVM_RD_WARM_THREADS=0 makes the load's pipelines one after another on the render thread (measurement).</summary>
+    private static readonly bool s_warmThreads = System.Environment.GetEnvironmentVariable("SVM_RD_WARM_THREADS") != "0";
+
+    /// <summary>
+    /// Makes the pipelines of a load together, on every core but one: a driver that has never seen a pipeline compiles
+    /// it for tens to hundreds of milliseconds (the whole of a first load's wait on integrated graphics), and it
+    /// compiles on any thread, as for Godot's own pipelines. The render thread waits here, behind the loading cover.
+    /// </summary>
+    private void MakePipelines(List<(ShaderGpu Shader, long Key, Func<Rid> Make)> wanted)
+    {
+        var made = new Rid[wanted.Count];
+        InParallel(wanted.Count, i => made[i] = wanted[i].Make());
+
+        for (int i = 0; i < wanted.Count; i++)
+        {
+            if (!made[i].IsValid) throw new InvalidOperationException("render pipeline failed");
+            wanted[i].Shader.Pipelines[wanted[i].Key] = made[i];
+        }
+
+        Made = (Made.Framebuffers, Made.Pipelines + wanted.Count, Made.GlobalSets);
+    }
+
+    // The pipelines the first pass over the object queue of a load asked for (PrepareTemplate), made together after it.
+    private List<(ShaderGpu Shader, long Key, Func<Rid> Make)>? _batch;
+    private readonly HashSet<(ShaderGpu Shader, long Key)> _batchAsked = [];
+
+    /// <summary>Runs <paramref name="body"/> for 0..count-1 on every core but one (or in turn: SVM_RD_WARM_THREADS=0).</summary>
+    private static void InParallel(int count, Action<int> body)
+    {
+        if (s_warmThreads && count > 1)
+        {
+            System.Threading.Tasks.Parallel.For(0, count,
+                new System.Threading.Tasks.ParallelOptions { MaxDegreeOfParallelism = Math.Max(1, System.Environment.ProcessorCount - 1) }, body);
+        }
+        else
+        {
+            for (int i = 0; i < count; i++) body(i);
+        }
     }
 
     /// <summary>SVM_RD_WORLD_TEST: measurement only, parts of the pass left out (clear, depth, nosky) or of Godot's frame (only).</summary>
@@ -488,10 +545,44 @@ internal sealed class RdWorldGpu
     /// <summary>Set when a shader asked for this frame is still being compiled on a worker thread: its draw waits.</summary>
     private bool Deferred { get; set; }
 
+    private static readonly string s_engineVersion = Engine.GetVersionInfo()["string"].AsString();
+
+    private static string CacheKey(string vertex, string fragment) => Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(
+        System.Text.Encoding.UTF8.GetBytes(s_engineVersion + "\n" + vertex + "\n\u0001\n" + fragment)))[..40];
+
+    // SPIR-V compiled ahead by Precompile, by cache key, until Compile takes it.
+    private readonly Dictionary<string, RDShaderSpirV> _precompiled = [];
+
+    /// <summary>
+    /// Compiles, together on every core but one, the shaders of <paramref name="wanted"/> that this machine has never
+    /// compiled (a first load of a map: its 70 to 100 shaders, a tenth of a second and more each on a laptop). Compile
+    /// then finds each one ready. The compiler runs on any thread, as it does for a shader asked for in play.
+    /// </summary>
+    private void Precompile(RenderingDevice rd, IEnumerable<(string Code, RdFeatures Features, int Actor)> wanted)
+    {
+        var sources = new List<(string Key, string Vertex, string Fragment)>();
+        var seen = new HashSet<string>();
+        foreach ((string code, RdFeatures features, int actor) in wanted)
+        {
+            if (_shaders.ContainsKey((code, features, actor))) continue;
+            if (RdShaderLibrary.Get(code, features, out _, actor) is not { } translated) continue;
+            string key = CacheKey(translated.Vertex, translated.Fragment);
+            if (!seen.Add(key) || _precompiled.ContainsKey(key)) continue;
+            if (UseCache && System.IO.File.Exists(System.IO.Path.Combine(s_cacheFolder, key + ".vert.spv")) &&
+                System.IO.File.Exists(System.IO.Path.Combine(s_cacheFolder, key + ".frag.spv"))) continue;
+            sources.Add((key, translated.Vertex, translated.Fragment));
+        }
+
+        if (sources.Count < 2) return;
+        var compiled = new RDShaderSpirV[sources.Count];
+        InParallel(sources.Count, i => compiled[i] = rd.ShaderCompileSpirVFromSource(
+            new RDShaderSource { Language = RD.ShaderLanguage.Glsl, SourceVertex = sources[i].Vertex, SourceFragment = sources[i].Fragment }, false));
+        for (int i = 0; i < compiled.Length; i++) _precompiled[sources[i].Key] = compiled[i];
+    }
+
     private Rid Compile(RenderingDevice rd, string vertex, string fragment, string name, RdTranslatedShader? dump, bool mayDefer = false)
     {
-        string key = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(
-            System.Text.Encoding.UTF8.GetBytes(Engine.GetVersionInfo()["string"].AsString() + "\n" + vertex + "\n\u0001\n" + fragment)))[..40];
+        string key = CacheKey(vertex, fragment);
         string vertexFile = System.IO.Path.Combine(s_cacheFolder, key + ".vert.spv"), fragmentFile = System.IO.Path.Combine(s_cacheFolder, key + ".frag.spv");
         RDShaderSpirV? spirv = null;
         try
@@ -509,7 +600,8 @@ internal sealed class RdWorldGpu
 
         if (spirv is null)
         {
-            if (mayDefer && _ownFrames > LateAfterFrames)
+            if (_precompiled.Remove(key, out RDShaderSpirV? ahead)) spirv = ahead;
+            if (spirv is null && mayDefer && _ownFrames > LateAfterFrames)
             {
                 // In play a compile from source (tens of milliseconds) must not hold a frame: a worker thread does it,
                 // as Godot's own shader compiler does, and the surface is drawn from the frame it is ready.
@@ -1223,6 +1315,8 @@ internal sealed class RdWorldGpu
             Array.Clear(_objectSpotSets);
         }
 
+        // The pipelines of the fixed object programs (96 of them) are made together on the first frame.
+        List<(int At, Func<Rid> Make)>? objectPipelines = null;
         for (int program = 0; program < 8; program++)
         {
             bool skinned = (program & 2) != 0, masked = (program & 1) != 0, spot = (program & 4) != 0;
@@ -1230,6 +1324,7 @@ internal sealed class RdWorldGpu
             {
                 _objectShaders[program] = Compile(rd, RdObjects.Vertex(skinned, spot), RdObjects.Fragment(masked, spot), "svm_rd_object", null);
                 if (!_objectShaders[program].IsValid) return false;
+                objectPipelines ??= [];
                 for (int mirrored = 0; mirrored < 2; mirrored++)
                 for (int variant = 0; variant < 6; variant++)
                 {
@@ -1247,17 +1342,35 @@ internal sealed class RdWorldGpu
                         (attachment.SrcAlphaBlendFactor, attachment.DstAlphaBlendFactor) = (RD.BlendFactor.Zero, RD.BlendFactor.One);
                     }
 
-                    _objectPipelines[at] = rd.RenderPipelineCreate(_objectShaders[program], _ownFormat, _objectFormats[skinned ? 1 : 0],
-                        RD.RenderPrimitive.Triangles,
-                        new RDPipelineRasterizationState
-                        {
-                            CullMode = twoSided == 1 ? RD.PolygonCullMode.Disabled : RD.PolygonCullMode.Back,
-                            FrontFace = mirrored == 1 ? RD.PolygonFrontFace.CounterClockwise : RD.PolygonFrontFace.Clockwise,
-                        },
-                        new RDPipelineMultisampleState(), depthState, new RDPipelineColorBlendState { Attachments = [attachment] }, 0, 0, []);
-                    if (!_objectPipelines[at].IsValid) return false;
+                    Rid objectShader = _objectShaders[program];
+                    long objectFormat = _objectFormats[skinned ? 1 : 0], ownFormat = _ownFormat;
+                    var raster = new RDPipelineRasterizationState
+                    {
+                        CullMode = twoSided == 1 ? RD.PolygonCullMode.Disabled : RD.PolygonCullMode.Back,
+                        FrontFace = mirrored == 1 ? RD.PolygonFrontFace.CounterClockwise : RD.PolygonFrontFace.Clockwise,
+                    };
+                    var multisample = new RDPipelineMultisampleState();
+                    var blend = new RDPipelineColorBlendState { Attachments = [attachment] };
+                    objectPipelines.Add((at, () => rd.RenderPipelineCreate(objectShader, ownFormat, objectFormat,
+                        RD.RenderPrimitive.Triangles, raster, multisample, depthState, blend, 0, 0, [])));
                 }
             }
+        }
+
+        if (objectPipelines is not null)
+        {
+            var made = new Rid[objectPipelines.Count];
+            InParallel(objectPipelines.Count, i => made[i] = objectPipelines[i].Make());
+            for (int i = 0; i < made.Length; i++)
+            {
+                if (!made[i].IsValid) return false;
+                _objectPipelines[objectPipelines[i].At] = made[i];
+            }
+        }
+
+        for (int program = 0; program < 8; program++)
+        {
+            bool skinned = (program & 2) != 0, spot = (program & 4) != 0;
 
             if (!_objectFrameSets[program].IsValid || !rd.UniformSetIsValid(_objectFrameSets[program]))
             {
@@ -1303,7 +1416,36 @@ internal sealed class RdWorldGpu
         // Materials that entered the scene: both light states of each (and a rigid one's mirrored pipelines), before
         // any is drawn.
         _warmAgain.Clear();
-        while (_ownFormat >= 0 && _objectBuffer.IsValid && _paletteBuffer.IsValid && _objectWarm.TryDequeue(out RdMaterial? warm))
+        bool canWarm = _ownFormat >= 0 && _objectBuffer.IsValid && _paletteBuffer.IsValid;
+        if (canWarm && _ownFrames <= LateAfterFrames && _objectWarm.Count > 1)
+        {
+            // The queue of a load (hundreds of materials): a first pass makes their shaders and asks for their
+            // pipelines, which are then made together on every core; the pass below finds them made.
+            _batch = [];
+            _batchAsked.Clear();
+            var ahead = new List<(string Code, RdFeatures Features, int Actor)>();
+            foreach (RdMaterial queued in _objectWarm)
+            {
+                ahead.Add((queued.Code, RdFeatures.NoPortalFog & queued.Applicable, queued.Actor));
+                ahead.Add((queued.Code, (RdFeatures.NoPortalFog | RdFeatures.NoSpot) & queued.Applicable, queued.Actor));
+            }
+
+            Precompile(rd, ahead);
+            foreach (RdMaterial queued in _objectWarm)
+            {
+                PrepareTemplate(rd, queued, spot: false);
+                PrepareTemplate(rd, queued, spot: true);
+                if (queued.Actor != 1) continue;
+                PrepareTemplate(rd, queued, spot: false, mirrored: true);
+                PrepareTemplate(rd, queued, spot: true, mirrored: true);
+            }
+
+            List<(ShaderGpu Shader, long Key, Func<Rid> Make)> batch = _batch;
+            _batch = null;
+            MakePipelines(batch);
+        }
+
+        while (canWarm && _objectWarm.TryDequeue(out RdMaterial? warm))
         {
             Deferred = false;
             PrepareTemplate(rd, warm, spot: false);
@@ -1402,6 +1544,13 @@ internal sealed class RdWorldGpu
         long pipelineKey = mirrored ? ~_ownFormat : _ownFormat;
         if (!shader.Pipelines.TryGetValue(pipelineKey, out Rid pipeline))
         {
+            if (_batch is not null)
+            {
+                if (_batchAsked.Add((shader, pipelineKey)))
+                    _batch.Add((shader, pipelineKey, PipelineMaker(rd, shader, _ownFormat, _ownColor, _ownDepth, mirrored)));
+                return default;
+            }
+
             if (_ownFrames > LateAfterFrames)
             {
                 // In play the driver's compile of a pipeline it has never seen (tens of milliseconds each on a first
@@ -1603,12 +1752,15 @@ internal sealed class RdWorldGpu
         (f[68], f[69], f[70], f[71]) = (frame.Eye.Origin.X, frame.Eye.Origin.Y, frame.Eye.Origin.Z, 0f);
         MemoryMarshal.Cast<byte, uint>(_frameBlock.AsSpan(288))[0] = frame.Layers;
         rd.BufferUpdate(_frameBuffer, 0, (uint)_frameBlock.Length, _frameBlock);
+        bool first = !_ownWarmed;
+        var firstClock = first ? Stopwatch.StartNew() : null;
         if (!_ownWarmed)
         {
             _ownWarmed = true;
             if (!Warm(rd, _ownFormat, _ownColor, _ownDepth)) return;
         }
 
+        double warmMs = firstClock?.Elapsed.TotalMilliseconds ?? 0;
         if (!Resolve(rd, frame, _ownFormat, _ownColor, _ownDepth)) return;
 
         // Everything a draw binds is made before the list opens.
@@ -1629,10 +1781,18 @@ internal sealed class RdWorldGpu
             if (!_stageMaterials.ContainsKey(material.GpuIndex) && !MakeStageMaterial(rd, material)) return;
         }
 
+        double stagesMs = firstClock?.Elapsed.TotalMilliseconds ?? 0;
         bool objects = PrepareObjects(rd, frame);
+        double objectsMs = firstClock?.Elapsed.TotalMilliseconds ?? 0;
         bool projectors = PrepareProjectors(rd, frame);
         bool coronas = PrepareCoronas(rd, frame);
         bool sheets = PrepareSheets(rd, frame);
+        if (firstClock is not null)
+        {
+            // Where a load's first frame went (a first load on integrated graphics spends tens of seconds here).
+            GD.Print(string.Create(System.Globalization.CultureInfo.InvariantCulture,
+                $"SVM_RD_FRAME first frame: world {warmMs:F0} ms, stages {stagesMs - warmMs:F0} ms, objects {objectsMs - stagesMs:F0} ms, others {firstClock.Elapsed.TotalMilliseconds - objectsMs:F0} ms, {Made.Pipelines} pipelines"));
+        }
         var clock = Stopwatch.StartNew();
         rd.CaptureTimestamp("RD Own Frame");
         _clear[0] = frame.Clear;
