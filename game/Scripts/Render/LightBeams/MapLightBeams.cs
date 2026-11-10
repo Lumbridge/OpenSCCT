@@ -67,6 +67,7 @@ public sealed class MapLightBeams
         var meshes = new Dictionary<string, ArrayMesh>(StringComparer.OrdinalIgnoreCase);
         var spots = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         var projected = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var unshadowed = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         foreach (Data.LightEntry l in map.Lighting.Lights)
         {
             if (l.Echelon is not null)
@@ -74,11 +75,22 @@ public sealed class MapLightBeams
                 spots.Add(l.Name);
                 if (!string.IsNullOrEmpty(l.Echelon.Texture)) projected.Add(l.Name);
             }
+            else
+            {
+                unshadowed.Add(l.Name);
+            }
         }
 
         foreach (LightBeamEntry e in doc.Beams)
         {
             if (!doc.Meshes.TryGetValue(e.Mesh, out (Vector3[] Positions, int[] Indices) raw))
+            {
+                continue;
+            }
+
+            // A map light that is not an LE_ESpotShadow light draws no beam in the game, whatever UsesLightBeam says
+            // (BankD's and BankP's red alarm lights, STriggerLight10185 and 11326, switched on when the vault opens).
+            if (unshadowed.Contains(e.Name))
             {
                 continue;
             }

@@ -743,6 +743,9 @@ Lights with `UsesLightBeam` and a `LightBeamMesh` (200 placed, `TestMapStaticM.A
   light's brightness, times a constant less x along the beam. Original captures of BankD's vault lamp at brightness
   100 to 1000 and alpha 1 to 20 follow it. All eighteen planes are drawn from both sides: drawn one-sided, MissP's,
   RiveE's and FactD's beams disappear from views where the game shows them.
+- A map light that is not an LE_ESpotShadow light draws no beam (BankD's and BankP's red alarm lights,
+  STriggerLight10185 and 11326, LightType 2 with UsesLightBeam): the game after the vault opens, and an original
+  capture with both switched on, show none where ours filled the vault chamber with a pink fan.
 - A beam whose light projects a texture (EchelonLightMaterial, 66 of the 202) draws at `ProjectedBeamGain` (0.3) of
   that. Measured on BankD's vault lamp (STriggerLight1680, switched on by the vault event) against the game: its beam
   adds 60 to 77 of 255 seen from inside, where the rule above gave a solid white cone from every side. Which stage of
