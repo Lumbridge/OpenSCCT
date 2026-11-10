@@ -913,7 +913,8 @@ internal sealed class RdWorldGpu
         """ + (masked ? "    if (t.a < 0.5) discard;\n" : "")
         + (light == 2 ? "    vec3 c = t.rgb * min(texture(tex_lightmap, v_uv2).rgb * frame.params.x, vec3(2.0));\n"
             : light == 1 ? "    vec3 c = t.rgb * v_light;\n" : "    vec3 c = t.rgb;\n") + RdObjects.Fog + """
-            frag = vec4(min(c, vec3(1.0)), 1.0);
+            // The alpha is the texture's: a blended sky surface blends by it; nothing else reads the target's alpha.
+            frag = vec4(min(c, vec3(1.0)), t.a);
         }
 
         """;
@@ -925,6 +926,8 @@ internal sealed class RdWorldGpu
 
     private readonly StageShader?[] _stages = new StageShader?[6];
     private readonly Dictionary<int, (int Stage, Rid Set, bool TwoSided)> _stageMaterials = [];
+    // Blended sky surfaces (the moon, clouds) keep their stage shader with the material's blend: by material index.
+    private readonly Dictionary<int, Rid> _stageBlendPipelines = [];
     private Rid _ownColor, _ownDepth, _ownFramebuffer, _stageFrameBuffer, _ownShown;
     private readonly RdFramePost _post = new();
     private Vector2I _ownSize;
@@ -1267,7 +1270,8 @@ internal sealed class RdWorldGpu
 
                 (int stage, Rid materialSet, bool twoSided) = _stageMaterials[b.Material.GpuIndex];
                 StageShader shader = _stages[stage]!;
-                Rid wanted = twoSided ? shader.TwoSided : shader.OneSided;
+                Rid wanted = _stageBlendPipelines.TryGetValue(b.Material.GpuIndex, out Rid blendPipeline) ? blendPipeline
+                    : twoSided ? shader.TwoSided : shader.OneSided;
                 if (wanted != pipeline)
                 {
                     pipeline = wanted;
@@ -1582,6 +1586,33 @@ internal sealed class RdWorldGpu
         }
 
         _stageMaterials[material.GpuIndex] = (index, set, material.Shader.TwoSided);
+        if (material.Blended)
+        {
+            IReadOnlySet<string> modes = material.Shader.RenderModes;
+            var attachment = new RDPipelineColorBlendStateAttachment
+            {
+                EnableBlend = true, WriteA = false, ColorBlendOp = RD.BlendOperation.Add, AlphaBlendOp = RD.BlendOperation.Add,
+                SrcAlphaBlendFactor = RD.BlendFactor.Zero, DstAlphaBlendFactor = RD.BlendFactor.One,
+            };
+            (attachment.SrcColorBlendFactor, attachment.DstColorBlendFactor) =
+                modes.Contains("blend_add") ? (RD.BlendFactor.SrcAlpha, RD.BlendFactor.One)
+                : modes.Contains("blend_mul") ? (RD.BlendFactor.DstColor, RD.BlendFactor.Zero)
+                : modes.Contains("blend_premul_alpha") ? (RD.BlendFactor.One, RD.BlendFactor.OneMinusSrcAlpha)
+                : (RD.BlendFactor.SrcAlpha, RD.BlendFactor.OneMinusSrcAlpha);
+            Rid pipeline = rd.RenderPipelineCreate(stage.Shader, _ownFormat, _vertexFormat, RD.RenderPrimitive.Triangles,
+                new RDPipelineRasterizationState { CullMode = material.Shader.TwoSided ? RD.PolygonCullMode.Disabled : RD.PolygonCullMode.Back, FrontFace = RD.PolygonFrontFace.Clockwise },
+                new RDPipelineMultisampleState(),
+                new RDPipelineDepthStencilState { EnableDepthTest = true, EnableDepthWrite = false, DepthCompareOperator = RD.CompareOperator.GreaterOrEqual },
+                new RDPipelineColorBlendState { Attachments = [attachment] }, 0, 0, []);
+            if (!pipeline.IsValid)
+            {
+                Fail("stage blend pipeline failed");
+                return false;
+            }
+
+            _stageBlendPipelines[material.GpuIndex] = pipeline;
+        }
+
         return true;
     }
 
@@ -1681,6 +1712,12 @@ internal sealed class RdWorldGpu
         }
 
         _stageMaterials.Clear();
+        foreach (Rid pipeline in _stageBlendPipelines.Values)
+        {
+            if (pipeline.IsValid) rd.FreeRid(pipeline);
+        }
+
+        _stageBlendPipelines.Clear();
         for (int i = 0; i < _stages.Length; i++)
         {
             if (_stages[i] is not { } stage) continue;

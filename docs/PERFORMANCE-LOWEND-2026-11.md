@@ -498,6 +498,17 @@ Skinned meshes (the pawns under PlayRoot's `Pawns` node) are drawn by the same o
 
 **Not drawn in the own frame yet:** blended world surfaces (glass, water, grates), rain sheets, emitters, coronas, light beams, lasers, the first-person view model, cloth, cloaked or tinted characters, spot and projector light on objects and characters, maps with an outdoor sky. Until these exist the mode is a measurement of where the renderer can get to, not something to play with.
 
+### Sixth stage: blended surfaces and coronas
+
+- **Blended world surfaces.** With `SVM_RD_FRAME=1` the world geometry takes translucent, additive and multiplied buckets too (SteeE: all 324 buckets, none left to Godot). They are drawn after the solid scene, far to near, with the translated template and its own blend factors, testing depth and writing none. Blended sky-zone surfaces keep a stage shader with the material's blend.
+- **Coronas** (`Rd/RdCoronas.cs`). The quads the Coronas node shows are drawn after the scene, instanced by texture, blended ONE, INVSRCCOLOR as the original; the visibility rule of svm_corona.gdshaderinc is tested once a corona, in the vertex shader, against the frame's depth.
+
+Four SteeE views at a 30 FPS cap, own frame (build `build-o12`) against the Godot path, pixels more than 2 levels apart: spy spawn 0.03%, shop 0.55%, courtyard 0.83%, crane 1.76% (4.2% before the coronas).
+
+**Seen missing in the crane view:** the moon, the crane itself (a skinned map prop outside the nodes the object pass walks), one lit window. Not looked into yet.
+
+**Still not drawn:** rain sheets, emitters, light beams, lasers, the first-person view model, cloth, cloaked or tinted characters, spot and projector light on objects and characters, skinned map props, maps with an outdoor sky.
+
 ## The target
 
 ### The original at 2560×1440 on the UHD 770 (measured 2026-11-10)
