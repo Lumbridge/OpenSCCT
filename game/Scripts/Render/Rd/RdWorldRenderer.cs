@@ -203,6 +203,7 @@ public partial class RdWorldRenderer : Node
     private const float SkyDepth = 0.001f;
     private TextureRect? _ownRect;
     private readonly RdObjects _objects = new();
+    private readonly RdProjectors _projectors = new();
     private readonly List<RdObjects.Upload> _objectUploads = [];
     private readonly Texture2Drd _ownShown = new();
     private Rid _ownShownColor;
@@ -270,6 +271,9 @@ public partial class RdWorldRenderer : Node
         }
 
         foreach (RdObjects.Upload upload in _objectUploads) _gpu.QueueObjectUpload(upload);
+        frame.Time = ShaderGlobals.TryGet("svm_time", out Variant time) ? time.AsSingle() : 0f;
+        _projectors.Gather(_map.Projectors?.Root, _worldPlanes, static (planes, box) => Inside(planes, box), _geometry.Batches, frame.Draws, frame.DrawCount,
+            frame.ProjectorDraws, frame.ProjectorBlocks, frame.ProjectorTextures, frame.ProjectorKinds);
 
         _gpu.Submit(frame);
         RenderingServer.CallOnRenderThread(_renderOwn);

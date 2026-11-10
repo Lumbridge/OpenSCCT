@@ -36,6 +36,13 @@ internal sealed class RdWorldFrame
     /// <summary>Own-frame mode: the camera, for the draws that keep the template's lighting.</summary>
     public Transform3D Eye;
     public Projection Proj;
+    /// <summary>Own-frame mode: the scene time the materials animate by (svm_time).</summary>
+    public float Time;
+    /// <summary>Own-frame mode: the projector passes (RdProjectors): draws, one block, texture and blend kind a projector.</summary>
+    public readonly List<RdProjectors.Draw> ProjectorDraws = [];
+    public readonly List<float> ProjectorBlocks = [];
+    public readonly List<Rid> ProjectorTextures = [];
+    public readonly List<int> ProjectorKinds = [];
     public float GlowCut = -1f;
 
     public void Reserve(int draws)
@@ -851,6 +858,8 @@ internal sealed class RdWorldGpu
         layout(location = 1) out vec2 v_uv2;
         layout(location = 2) out vec3 v_light;
         layout(location = 3) out vec3 v_rel;
+        // The projector passes draw these surfaces again and must land on the same depth.
+        invariant gl_Position;
 
         void main()
         {
@@ -1157,6 +1166,7 @@ internal sealed class RdWorldGpu
         Span<float> block = MemoryMarshal.Cast<byte, float>(_stageFrameBlock.AsSpan());
         frame.Clip.AsSpan().CopyTo(block);
         block[32] = RenderK.LightmapScale;
+        block[33] = frame.Time;
         frame.FogBlock.AsSpan().CopyTo(block[36..48]);
         rd.BufferUpdate(_stageFrameBuffer, 0, (uint)_stageFrameBlock.Length, _stageFrameBlock);
 
@@ -1192,6 +1202,7 @@ internal sealed class RdWorldGpu
         }
 
         bool objects = PrepareObjects(rd, frame);
+        bool projectors = PrepareProjectors(rd, frame);
         var clock = Stopwatch.StartNew();
         rd.CaptureTimestamp("RD Own Frame");
         _clear[0] = frame.Clear;
@@ -1262,6 +1273,7 @@ internal sealed class RdWorldGpu
             }
 
             if (objects) RecordObjects(rd, dl, frame);
+            if (projectors) RecordProjectors(rd, dl, frame);
         }
         finally
         {
@@ -1276,6 +1288,93 @@ internal sealed class RdWorldGpu
     }
 
     private bool _ownWarmed;
+
+    private Rid _projectorShader, _projectorBuffer, _projectorFrameSet;
+    private readonly Rid[] _projectorPipelines = new Rid[3];
+    private readonly Dictionary<Rid, Rid> _projectorSets = [];
+    private int _projectorCapacity;
+
+    /// <summary>Everything the projector passes bind, made before the draw list opens. False: none this frame.</summary>
+    private bool PrepareProjectors(RenderingDevice rd, RdWorldFrame frame)
+    {
+        if (frame.ProjectorDraws.Count == 0 || Test.Contains("noprojectors")) return false;
+        if (!_projectorShader.IsValid)
+        {
+            _projectorShader = Compile(rd, RdProjectors.Vertex, RdProjectors.Fragment, "svm_rd_projector", null);
+            if (!_projectorShader.IsValid) return false;
+            // At the depth the surface already has; nothing is written to depth, and the target's alpha stays.
+            var depthState = new RDPipelineDepthStencilState { EnableDepthTest = true, EnableDepthWrite = false, DepthCompareOperator = RD.CompareOperator.Equal };
+            for (int kind = 0; kind < 3; kind++)
+            {
+                var attachment = new RDPipelineColorBlendStateAttachment { EnableBlend = true, WriteA = false, ColorBlendOp = RD.BlendOperation.Add, AlphaBlendOp = RD.BlendOperation.Add };
+                (attachment.SrcColorBlendFactor, attachment.DstColorBlendFactor) = kind switch
+                {
+                    0 => (RD.BlendFactor.One, RD.BlendFactor.One),
+                    1 => (RD.BlendFactor.DstColor, RD.BlendFactor.Zero),
+                    _ => (RD.BlendFactor.SrcAlpha, RD.BlendFactor.OneMinusSrcAlpha),
+                };
+                (attachment.SrcAlphaBlendFactor, attachment.DstAlphaBlendFactor) = (RD.BlendFactor.Zero, RD.BlendFactor.One);
+                _projectorPipelines[kind] = rd.RenderPipelineCreate(_projectorShader, _ownFormat, _vertexFormat, RD.RenderPrimitive.Triangles,
+                    new RDPipelineRasterizationState { CullMode = RD.PolygonCullMode.Disabled }, new RDPipelineMultisampleState(), depthState,
+                    new RDPipelineColorBlendState { Attachments = [attachment] }, 0, 0, []);
+                if (!_projectorPipelines[kind].IsValid) return false;
+            }
+        }
+
+        int bytes = frame.ProjectorBlocks.Count * 4;
+        if (bytes > _projectorCapacity)
+        {
+            if (_projectorBuffer.IsValid) rd.FreeRid(_projectorBuffer);
+            _projectorCapacity = Math.Max(bytes * 2, RdProjectors.BlockFloats * 4 * 16);
+            _projectorBuffer = rd.StorageBufferCreate((uint)_projectorCapacity);
+            _projectorFrameSet = default;
+        }
+
+        rd.BufferUpdate(_projectorBuffer, 0, (uint)bytes, MemoryMarshal.AsBytes(CollectionsMarshal.AsSpan(frame.ProjectorBlocks)));
+        if (!_projectorFrameSet.IsValid || !rd.UniformSetIsValid(_projectorFrameSet))
+        {
+            var frameBlock = new RDUniform { UniformType = RD.UniformType.UniformBuffer, Binding = 0 };
+            frameBlock.AddId(_stageFrameBuffer);
+            var blocks = new RDUniform { UniformType = RD.UniformType.StorageBuffer, Binding = 1 };
+            blocks.AddId(_projectorBuffer);
+            _projectorFrameSet = rd.UniformSetCreate([frameBlock, blocks], _projectorShader, 0);
+            if (!_projectorFrameSet.IsValid) return false;
+        }
+
+        foreach (Rid texture in frame.ProjectorTextures)
+        {
+            if (_projectorSets.TryGetValue(texture, out Rid set) && rd.UniformSetIsValid(set)) continue;
+            var uniform = new RDUniform { UniformType = RD.UniformType.SamplerWithTexture, Binding = 0 };
+            uniform.AddId(SamplerOf(rd, RdFilter.LinearMipmap, repeat: true));
+            uniform.AddId(texture.IsValid && rd.TextureIsValid(texture) ? texture : _black);
+            _projectorSets[texture] = rd.UniformSetCreate([uniform], _projectorShader, 1);
+        }
+
+        return true;
+    }
+
+    private void RecordProjectors(RenderingDevice rd, long dl, RdWorldFrame frame)
+    {
+        rd.DrawListBindVertexArray(dl, _vertexArray);
+        Span<int> push = MemoryMarshal.Cast<byte, int>(_drawBlock.AsSpan());
+        int bound = -1;
+        foreach (RdProjectors.Draw draw in frame.ProjectorDraws)
+        {
+            if (draw.Projector != bound)
+            {
+                bound = draw.Projector;
+                rd.DrawListBindRenderPipeline(dl, _projectorPipelines[Math.Clamp(frame.ProjectorKinds[bound], 0, 2)]);
+                rd.DrawListBindUniformSet(dl, _projectorFrameSet, 0);
+                rd.DrawListBindUniformSet(dl, _projectorSets[frame.ProjectorTextures[bound]], 1);
+                push[0] = bound;
+                push[1] = 0;
+                rd.DrawListSetPushConstant(dl, _drawBlock, (uint)_drawBlock.Length);
+            }
+
+            rd.DrawListBindIndexArray(dl, _indexArrays[frame.Draws[draw.WorldDraw]]);
+            rd.DrawListDraw(dl, true, 1, 0);
+        }
+    }
 
     /// <summary>
     /// The template's draws in the own frame get the frame's one fog too: its globals say "one zone's ramp" (mode 1 of
@@ -1479,6 +1578,21 @@ internal sealed class RdWorldGpu
         }
 
         _post.Free(rd);
+        foreach (Rid set in _projectorSets.Values)
+        {
+            if (rd.UniformSetIsValid(set)) rd.FreeRid(set);
+        }
+
+        _projectorSets.Clear();
+        if (rd.UniformSetIsValid(_projectorFrameSet)) rd.FreeRid(_projectorFrameSet);
+        foreach (Rid rid in new[] { _projectorPipelines[0], _projectorPipelines[1], _projectorPipelines[2], _projectorShader, _projectorBuffer })
+        {
+            if (rid.IsValid) rd.FreeRid(rid);
+        }
+
+        Array.Clear(_projectorPipelines);
+        _projectorShader = _projectorBuffer = _projectorFrameSet = default;
+        _projectorCapacity = 0;
         foreach ((int frame, Rid color, Rid depth) in _ownRetired)
         {
             rd.FreeRid(color);
