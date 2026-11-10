@@ -3,20 +3,21 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Godot;
 using OpenScctGame.Render.Materials;
-using RD = Godot.RenderingDevice;
 
 namespace OpenScctGame.Render.Rd;
 
 /// <summary>
-/// The map's gameplay meshes in the own frame (SVM_RD_FRAME=1): rigid objects with solid or masked materials, each
-/// surface drawn as the original draws an actor (docs/PERFORMANCE-LOWEND-2026-11.md, "The states it draws with"): its
-/// texture times a light worked out at each vertex (the baked vertex colour, or the actor's ambient and up to four
-/// lights), doubled. Blended surfaces, skinned meshes and meshes rewritten in place are not drawn yet.
+/// Meshes outside the merged world in the own frame (SVM_RD_FRAME=1): the map's gameplay meshes and the characters,
+/// with solid or masked template materials. Each surface is drawn as the original draws an actor
+/// (docs/PERFORMANCE-LOWEND-2026-11.md, "The states it draws with"): its texture times a light worked out at each
+/// vertex (the baked vertex colour, or the actor's ambient and up to four lights), doubled. Skinned meshes are posed in
+/// the vertex shader from their skeleton's bones. Blended surfaces, cloaks, tints and meshes rewritten in place are
+/// not drawn yet.
 /// </summary>
 internal sealed class RdObjects
 {
-    /// <summary>36 bytes: position, normal, UV, colour.</summary>
-    public const int Stride = 36;
+    /// <summary>36 bytes: position, normal, UV, colour. Skinned: 60 bytes, with four bone indices and weights.</summary>
+    public const int Stride = 36, SkinnedStride = 60;
 
     /// <summary>Bytes of one object's block: model matrix, ambient, four lights (position, colour, spot).</summary>
     public const int ObjectBytes = 64 + 16 + (4 * 48);
@@ -27,11 +28,14 @@ internal sealed class RdObjects
         public required byte[] Vertices;
         public required uint[] Indices;
         public required int VertexCount;
+        public required bool Skinned;
     }
 
     public struct Draw
     {
         public int Surface, Object, Kind;
+        /// <summary>The first bone matrix of the draw's skeleton in the frame's palette, or -1 for a rigid mesh.</summary>
+        public int Palette;
         public bool Masked, TwoSided;
         public Rid Texture;
     }
@@ -42,6 +46,13 @@ internal sealed class RdObjects
         public bool Uploaded;
     }
 
+    private sealed class SkinInfo
+    {
+        public required Skeleton3D Skeleton;
+        public required int[] Bones;
+        public required Transform3D[] Binds;
+    }
+
     private static readonly StringName s_diffuse = "tex_diffuse";
     private static readonly StringName s_ambient = "svm_ambient";
     private static readonly StringName[] s_pos = [new("svm_l0_pos"), new("svm_l1_pos"), new("svm_l2_pos"), new("svm_l3_pos")];
@@ -50,24 +61,48 @@ internal sealed class RdObjects
 
     private readonly Dictionary<(Mesh, int), SurfaceInfo> _surfaces = [];
     private readonly Dictionary<Material, (int Kind, bool Masked, bool TwoSided, bool Drawn, Rid Texture)> _materials = [];
+    private readonly Dictionary<MeshInstance3D, SkinInfo?> _skins = [];
+    private readonly Stack<Node> _stack = new();
     private int _nextSurface;
 
-    /// <summary>
-    /// Fills <paramref name="draws"/>, <paramref name="objects"/> and <paramref name="uploads"/> with the visible meshes
-    /// under <paramref name="root"/> (main thread).
-    /// </summary>
-    public void Gather(Node root, Plane[] planes, Func<Plane[], Aabb, bool> inside, List<Draw> draws, List<byte> objects, List<Upload> uploads)
+    public void Begin(List<Draw> draws, List<byte> objects, List<float> palette, List<Upload> uploads)
     {
         draws.Clear();
         objects.Clear();
+        palette.Clear();
         uploads.Clear();
+    }
+
+    /// <summary>Adds the visible meshes under <paramref name="root"/> (main thread, after <see cref="Begin"/>).</summary>
+    public void Gather(Node root, Plane[] planes, Func<Plane[], Aabb, bool> inside, List<Draw> draws, List<byte> objects, List<float> palette, List<Upload> uploads)
+    {
         Span<float> block = stackalloc float[ObjectBytes / 4];
-        foreach (Node child in root.GetChildren())
+        _stack.Clear();
+        _stack.Push(root);
+        while (_stack.Count > 0)
         {
-            if (child is not MeshInstance3D { Mesh: ArrayMesh mesh } node || !node.IsVisibleInTree() || node.Skin is not null) continue;
+            Node at = _stack.Pop();
+            foreach (Node child in at.GetChildren()) _stack.Push(child);
+            if (at is not MeshInstance3D { Mesh: ArrayMesh mesh } node || !node.IsVisibleInTree()) continue;
+            // The main view's layers: a body hidden from its own eyes is on the shadow-only layer.
+            if ((node.Layers & RenderLayers.MainView) == 0) continue;
+            SkinInfo? skin = null;
+            if (node.Skin is not null)
+            {
+                if (!_skins.TryGetValue(node, out skin))
+                {
+                    skin = SkinOf(node);
+                    _skins[node] = skin;
+                }
+
+                if (skin is null || !GodotObject.IsInstanceValid(skin.Skeleton)) continue;
+            }
+
             Transform3D model = node.GlobalTransform;
-            if (!inside(planes, model * mesh.GetAabb())) continue;
-            int objectIndex = -1;
+            // A posed mesh leaves its rest box: it is culled by a generous one.
+            Aabb box = model * mesh.GetAabb();
+            if (!inside(planes, skin is null ? box : box.Grow(1.5f))) continue;
+            int objectIndex = -1, paletteBase = -1;
             for (int s = 0; s < mesh.GetSurfaceCount(); s++)
             {
                 if ((node.GetSurfaceOverrideMaterial(s) ?? mesh.SurfaceGetMaterial(s)) is not ShaderMaterial material) continue;
@@ -87,7 +122,7 @@ internal sealed class RdObjects
                 if (!surface.Uploaded)
                 {
                     surface.Uploaded = true;
-                    if (Pack(mesh, s, surface.Id) is { } upload) uploads.Add(upload);
+                    if (Pack(mesh, s, surface.Id, skin is not null) is { } upload) uploads.Add(upload);
                     else surface.Id = -1;
                 }
 
@@ -96,11 +131,28 @@ internal sealed class RdObjects
                 {
                     objectIndex = objects.Count / ObjectBytes;
                     block.Clear();
-                    Basis b = model.Basis;
-                    (block[0], block[1], block[2]) = (b.X.X, b.X.Y, b.X.Z);
-                    (block[4], block[5], block[6]) = (b.Y.X, b.Y.Y, b.Y.Z);
-                    (block[8], block[9], block[10]) = (b.Z.X, b.Z.Y, b.Z.Z);
-                    (block[12], block[13], block[14], block[15]) = (model.Origin.X, model.Origin.Y, model.Origin.Z, 1f);
+                    if (skin is null)
+                    {
+                        Basis b = model.Basis;
+                        (block[0], block[1], block[2]) = (b.X.X, b.X.Y, b.X.Z);
+                        (block[4], block[5], block[6]) = (b.Y.X, b.Y.Y, b.Y.Z);
+                        (block[8], block[9], block[10]) = (b.Z.X, b.Z.Y, b.Z.Z);
+                        (block[12], block[13], block[14], block[15]) = (model.Origin.X, model.Origin.Y, model.Origin.Z, 1f);
+                    }
+                    else
+                    {
+                        // The bone matrices place the vertices in the world themselves.
+                        block[0] = block[5] = block[10] = block[15] = 1f;
+                        paletteBase = palette.Count / 16;
+                        Transform3D skeleton = skin.Skeleton.GlobalTransform;
+                        for (int i = 0; i < skin.Bones.Length; i++)
+                        {
+                            Transform3D bone = skin.Bones[i] >= 0 ? skeleton * skin.Skeleton.GetBoneGlobalPose(skin.Bones[i]) * skin.Binds[i] : model;
+                            Basis b = bone.Basis;
+                            palette.AddRange([b.X.X, b.X.Y, b.X.Z, 0f, b.Y.X, b.Y.Y, b.Y.Z, 0f, b.Z.X, b.Z.Y, b.Z.Z, 0f, bone.Origin.X, bone.Origin.Y, bone.Origin.Z, 1f]);
+                        }
+                    }
+
                     if (m.Kind == 2)
                     {
                         Put(block, 16, node.GetInstanceShaderParameter(s_ambient));
@@ -115,9 +167,30 @@ internal sealed class RdObjects
                     objects.AddRange(MemoryMarshal.AsBytes(block));
                 }
 
-                draws.Add(new Draw { Surface = surface.Id, Object = objectIndex, Kind = m.Kind, Masked = m.Masked, TwoSided = m.TwoSided, Texture = m.Texture });
+                draws.Add(new Draw
+                {
+                    Surface = surface.Id, Object = objectIndex, Kind = m.Kind, Palette = paletteBase, Masked = m.Masked, TwoSided = m.TwoSided, Texture = m.Texture,
+                });
             }
         }
+    }
+
+    /// <summary>The bones of a skinned mesh's binds in its skeleton, or null when it has no skeleton to read.</summary>
+    private static SkinInfo? SkinOf(MeshInstance3D node)
+    {
+        if (node.Skin is not { } skin || node.GetNodeOrNull(node.Skeleton) is not Skeleton3D skeleton) return null;
+        int count = skin.GetBindCount();
+        var bones = new int[count];
+        var binds = new Transform3D[count];
+        for (int i = 0; i < count; i++)
+        {
+            int bone = skin.GetBindBone(i);
+            if (bone < 0 && skin.GetBindName(i) is { } name && !name.IsEmpty) bone = skeleton.FindBone(name);
+            bones[i] = bone;
+            binds[i] = skin.GetBindPose(i);
+        }
+
+        return new SkinInfo { Skeleton = skeleton, Bones = bones, Binds = binds };
     }
 
     private static void Put(Span<float> block, int at, Variant value)
@@ -142,7 +215,7 @@ internal sealed class RdObjects
         return (kind, code.Contains("#define BLEND_MASKED", StringComparison.Ordinal), code.Contains("cull_disabled", StringComparison.Ordinal), true, texture);
     }
 
-    private static Upload? Pack(ArrayMesh mesh, int surface, int id)
+    private static Upload? Pack(ArrayMesh mesh, int surface, int id, bool skinned)
     {
         Godot.Collections.Array arrays = mesh.SurfaceGetArrays(surface);
         Vector3[] positions = arrays[(int)Mesh.ArrayType.Vertex].AsVector3Array();
@@ -151,10 +224,23 @@ internal sealed class RdObjects
         Vector2[] uvs = arrays[(int)Mesh.ArrayType.TexUV].VariantType == Variant.Type.Nil ? [] : arrays[(int)Mesh.ArrayType.TexUV].AsVector2Array();
         Color[] colors = arrays[(int)Mesh.ArrayType.Color].VariantType == Variant.Type.Nil ? [] : arrays[(int)Mesh.ArrayType.Color].AsColorArray();
         int[] indices = arrays[(int)Mesh.ArrayType.Index].VariantType == Variant.Type.Nil ? [] : arrays[(int)Mesh.ArrayType.Index].AsInt32Array();
-        var bytes = new byte[positions.Length * Stride];
+        int[] bones = [];
+        float[] weights = [];
+        int perVertex = 4;
+        if (skinned)
+        {
+            if (arrays[(int)Mesh.ArrayType.Bones].VariantType == Variant.Type.Nil || arrays[(int)Mesh.ArrayType.Weights].VariantType == Variant.Type.Nil) return null;
+            bones = arrays[(int)Mesh.ArrayType.Bones].AsInt32Array();
+            weights = arrays[(int)Mesh.ArrayType.Weights].AsFloat32Array();
+            perVertex = bones.Length / positions.Length;
+            if (perVertex is not (4 or 8) || weights.Length != bones.Length) return null;
+        }
+
+        int stride = skinned ? SkinnedStride : Stride;
+        var bytes = new byte[positions.Length * stride];
         for (int i = 0; i < positions.Length; i++)
         {
-            Span<byte> v = bytes.AsSpan(i * Stride, Stride);
+            Span<byte> v = bytes.AsSpan(i * stride, stride);
             MemoryMarshal.Write(v, in positions[i]);
             Vector3 n = i < normals.Length ? normals[i] : Vector3.Up;
             MemoryMarshal.Write(v[12..], in n);
@@ -165,6 +251,26 @@ internal sealed class RdObjects
             v[33] = (byte)Math.Clamp((int)MathF.Round(c.G * 255f), 0, 255);
             v[34] = (byte)Math.Clamp((int)MathF.Round(c.B * 255f), 0, 255);
             v[35] = 255;
+            if (!skinned) continue;
+            // The first four influences (the heaviest come first in a Godot mesh), renormalised.
+            Span<ushort> b = MemoryMarshal.Cast<byte, ushort>(v.Slice(36, 8));
+            Span<float> w = MemoryMarshal.Cast<byte, float>(v.Slice(44, 16));
+            float sum = 0f;
+            for (int k = 0; k < 4; k++)
+            {
+                b[k] = (ushort)Math.Max(0, bones[(i * perVertex) + k]);
+                w[k] = weights[(i * perVertex) + k];
+                sum += w[k];
+            }
+
+            if (sum > 1e-6f)
+            {
+                for (int k = 0; k < 4; k++) w[k] /= sum;
+            }
+            else
+            {
+                w[0] = 1f;
+            }
         }
 
         uint[] index;
@@ -179,7 +285,7 @@ internal sealed class RdObjects
             for (int i = 0; i < index.Length; i++) index[i] = (uint)i;
         }
 
-        return new Upload { Surface = id, Vertices = bytes, Indices = index, VertexCount = positions.Length };
+        return new Upload { Surface = id, Vertices = bytes, Indices = index, VertexCount = positions.Length, Skinned = skinned };
     }
 
     // ---- Render thread ----
@@ -193,8 +299,7 @@ internal sealed class RdObjects
 
         """;
 
-    public const string Common = """
-        #version 450
+    private const string Common = """
         layout(set = 0, binding = 0, std140) uniform Frame
         {
             mat4 world;
@@ -220,18 +325,26 @@ internal sealed class RdObjects
         {
             int object;
             int kind;
-            int pad0;
+            int palette;
             int pad1;
         } draw;
 
         """;
 
     // svm_actor_light of svm_world.gdshaderinc, at the vertex as the template's LIGHT_ACTOR does it.
-    public const string Vertex = Common + """
+    public static string Vertex(bool skinned) => "#version 450\n" + (skinned ? "#define SKINNED\n" : "") + Common + """
         layout(location = 0) in vec3 a_pos;
         layout(location = 1) in vec3 a_normal;
         layout(location = 2) in vec2 a_uv;
         layout(location = 3) in vec4 a_col;
+        #ifdef SKINNED
+        layout(location = 4) in uvec4 a_bones;
+        layout(location = 5) in vec4 a_weights;
+        layout(set = 0, binding = 2, std430) readonly buffer Palette
+        {
+            mat4 bones[];
+        };
+        #endif
         layout(location = 0) out vec2 v_uv;
         layout(location = 1) out vec3 v_light;
         layout(location = 2) out vec3 v_rel;
@@ -261,7 +374,12 @@ internal sealed class RdObjects
 
         void main()
         {
+        #ifdef SKINNED
+            mat4 model = bones[draw.palette + int(a_bones.x)] * a_weights.x + bones[draw.palette + int(a_bones.y)] * a_weights.y
+                + bones[draw.palette + int(a_bones.z)] * a_weights.z + bones[draw.palette + int(a_bones.w)] * a_weights.w;
+        #else
             mat4 model = objects[draw.object].model;
+        #endif
             vec4 wp = model * vec4(a_pos, 1.0);
             v_uv = a_uv;
             if (draw.kind == 2) {
@@ -282,7 +400,7 @@ internal sealed class RdObjects
 
         """;
 
-    public static string Fragment(bool masked) => Common + """
+    public static string Fragment(bool masked) => "#version 450\n" + Common + """
         layout(set = 1, binding = 0) uniform sampler2D tex_diffuse;
         layout(location = 0) in vec2 v_uv;
         layout(location = 1) in vec3 v_light;

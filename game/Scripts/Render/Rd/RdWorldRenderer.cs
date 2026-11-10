@@ -252,11 +252,19 @@ public partial class RdWorldRenderer : Node
         int threshold = OpenScctGame.Options.SettingsStore.Current.PostQuality == 0 ? 255 : _map.Lighting.GlowThreshold;
         frame.GlowCut = Post.DisplaySpaceEffect.GlowCut(threshold) ?? -1f;
         Select(frame, eye.Origin, true, RdFeatures.None);
+        // The map's gameplay meshes and the characters.
+        _objects.Begin(frame.Objects, frame.ObjectData, frame.Palette, _objectUploads);
         if (_map.Root.GetNodeOrNull("Gameplay") is { } gameplay)
         {
-            _objects.Gather(gameplay, _worldPlanes, static (planes, box) => Inside(planes, box), frame.Objects, frame.ObjectData, _objectUploads);
-            foreach (RdObjects.Upload upload in _objectUploads) _gpu.QueueObjectUpload(upload);
+            _objects.Gather(gameplay, _worldPlanes, static (planes, box) => Inside(planes, box), frame.Objects, frame.ObjectData, frame.Palette, _objectUploads);
         }
+
+        if ((GetParent() as OpenScctGame.Play.PlayRoot)?.Pawns is { } pawns)
+        {
+            _objects.Gather(pawns, _worldPlanes, static (planes, box) => Inside(planes, box), frame.Objects, frame.ObjectData, frame.Palette, _objectUploads);
+        }
+
+        foreach (RdObjects.Upload upload in _objectUploads) _gpu.QueueObjectUpload(upload);
 
         _gpu.Submit(frame);
         RenderingServer.CallOnRenderThread(_renderOwn);
