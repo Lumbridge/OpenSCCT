@@ -217,11 +217,43 @@ public sealed class AiController
             Evasion.Apply(ref plan, now);
         }
 
-        if (Route is null && pawn is SPAWNDEFENSE) GasProtection.Apply(this, now, ref plan);
+        if (Route is null && pawn is SPAWNDEFENSE)
+        {
+            GasProtection.Apply(this, now, ref plan);
+            ScopeKey(now, ref plan, !_teamHeld && Brain is MercAi merc && merc.WantsScope(now));
+        }
+
         AiInput input = Turn(plan, dt);
         Stance(pawn, ref input, plan.Crouched, now);
         Apply(input);
         GoggleClip(now);
+    }
+
+    private float _scopeKeyAt = -10f;
+
+    /// <summary>
+    /// The scope key, pressed when the scope is not as the brain wants it this tick: up for a far shot or a watch, down
+    /// for everything else (a walk, a team goal, a traversal). The key only asks: the controller's own rules decide.
+    /// </summary>
+    private void ScopeKey(float now, ref AiPlan plan, bool wanted)
+    {
+        if (Controller.bBinocularVision == wanted || now - _scopeKeyAt < 0.5f)
+        {
+            return;
+        }
+
+        _scopeKeyAt = now;
+        plan.Keys.Press(AiCommand.SwitchBinocularVision);
+    }
+
+    /// <summary>How much larger the screen shows the scene than the default view: 1, or the scope's magnification.</summary>
+    private float Zoom()
+    {
+        float fov = Controller.FovAngle;
+        float normal = Controller.DefaultFOV;
+        return fov > 1f && fov < normal - 1f
+            ? SvmMath.Clamp(SvmMath.Tan(normal * (MathF.PI / 360f)) / SvmMath.Tan(fov * (MathF.PI / 360f)), 1f, 8f)
+            : 1f;
     }
 
     private static readonly Name NameGoggleUp = new("GoggleUp");
@@ -348,9 +380,10 @@ public sealed class AiController
                 sightView = camView;
             }
 
+            float zoom = pawn is SPAWNDEFENSE ? Zoom() : 1f;
             foreach (Pawn enemy in Enemies)
             {
-                AiSighting s = AiSight.Look(World, sightEye, sightView, Controller.FovAngle, mode, enemy, Difficulty);
+                AiSighting s = AiSight.Look(World, sightEye, sightView, Controller.FovAngle, mode, enemy, Difficulty, zoom);
                 bool bodyVisible = s.Visible;
                 if (mode == AiVisionMode.Motion)
                 {
@@ -414,7 +447,11 @@ public sealed class AiController
     {
         AiInput input = plan.Keys;
         FRotator view = Controller.Rotation;
-        int maxStep = Math.Max(1, (int)(Difficulty.TurnRateDegrees * (65536f / 360f) * SvmMath.Max(dt, Sim.DeltaTime)));
+        // The scoped aim is slow (merc-scope.md rule 6): the bot turns it no faster than a player's scope does.
+        float turnRate = Controller.bBinocularVision && _pawn is SPAWNDEFENSE
+            ? SvmMath.Min(Difficulty.TurnRateDegrees, AiK.ScopeTurnDegrees)
+            : Difficulty.TurnRateDegrees;
+        int maxStep = Math.Max(1, (int)(turnRate * (65536f / 360f) * SvmMath.Max(dt, Sim.DeltaTime)));
         int yaw = view.Yaw & 0xFFFF;
         int pitch = view.Pitch;
         if (plan.Yaw is { } wantYaw)
@@ -427,15 +464,18 @@ public sealed class AiController
         {
             int cur = ((pitch + 32768) & 0xFFFF) - 32768;
             int want = ((wantPitch + 32768) & 0xFFFF) - 32768;
-            pitch = (cur + Math.Clamp(want - cur, -maxStep, maxStep)) & 0xFFFF;
+            pitch = cur + Math.Clamp(want - cur, -maxStep, maxStep);
         }
         else
         {
             // Level the view back out while walking.
             int cur = ((pitch + 32768) & 0xFFFF) - 32768;
-            pitch = (cur + Math.Clamp(-cur, -maxStep / 2, maxStep / 2)) & 0xFFFF;
+            pitch = cur + Math.Clamp(-cur, -maxStep / 2, maxStep / 2);
         }
 
+        // The pitch is written signed, as a player's view has it: the rifle's recoil clamps the pitch to +-13000
+        // (ApplyWeaponJump), and a view looking 2 degrees down written as 65172 was thrown to 13000 (71 degrees up)
+        // by every shot.
         var newView = new FRotator(pitch, yaw, 0);
         input.View = newView;
         input.Aim = newView;
@@ -470,7 +510,12 @@ public sealed class AiController
             return;
         }
 
-        if (crouched is not { } want || pawn.Physics != EPhysics.PHYS_Walking || pawn.bIsCrouched == want || now - _crouchAt < 0.6f)
+        // The crouch key flips the controller's crouch latch (ComputeCrouchOrRoll) and the walking state turns the latch
+        // into the stance when it can (ProcessCrouch). The bot compares the latch, which it knows as a player knows
+        // what he pressed: pressing again because the body has not followed yet would flip the latch back, which left
+        // mercs standing up and crouching again around a mine placement.
+        if (crouched is not { } want || pawn.Physics != EPhysics.PHYS_Walking || Controller.bCrouchWithRoll == want ||
+            now - _crouchAt < 0.6f)
         {
             return;
         }

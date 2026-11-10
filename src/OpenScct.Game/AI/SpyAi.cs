@@ -1239,6 +1239,13 @@ public sealed partial class SpyAi : AiBrain
                     return;
                 }
 
+                // Seen through glass or a grate the shot would only hit the cover: the shock is called off.
+                if (ShotBlocked(aimPoint))
+                {
+                    EndShock(now, SpyAiK.ShockAbortCooldown);
+                    return;
+                }
+
                 if (AimErrorTo(aimPoint) < 2f + Difficulty.AimSettledDegrees || now - _shockAt > SpyAiK.MaxAimSeconds)
                 {
                     plan.Keys.Press(AiCommand.Fire);

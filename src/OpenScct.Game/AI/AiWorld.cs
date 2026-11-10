@@ -30,7 +30,11 @@ public sealed class AiWorld
         MercNav = mercNav ?? throw new ArgumentNullException(nameof(mercNav));
         Light = light ?? AiLightField.Unknown;
         Teams = [new AiTeamBoard(0), new AiTeamBoard(1)];
+        Defence = new MercDefence(this);
     }
+
+    /// <summary>How the merc bots share out the objectives that are left (MercDefence.cs).</summary>
+    public MercDefence Defence { get; }
 
     public Level Level { get; }
 

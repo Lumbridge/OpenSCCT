@@ -20,7 +20,9 @@ OpenSCCT.exe -- --svm-play=SteeE --side=spy --bots=3 --difficulty=normal   # a 2
   (`BT_Up`, `bCrouch`, `bUsing`, `bFire`, `bFireMode`...), the view rotation a mouse would produce, and the exec
   commands a key press runs (`Jump`, `Fire`, `AltFire`, `SelectGadget`, `GadgetQuickChoice`, `SwitchHeadset`,
   `GadTorcheSwitch`). `NativeComputeControlVariables`, the movement states and the combat code then do the rest, so
-  every movement and combat rule binds the bots. The view turns no faster than the difficulty's turn rate.
+  every movement and combat rule binds the bots. The view turns no faster than the difficulty's turn rate, and its
+  pitch is written signed as a player's is: the rifle's recoil clamps the pitch to +-13000, and a view looking down
+  written as an unsigned value was thrown 71 degrees up by every shot.
 - **No hidden state.** Sight goes through the bot's own view (rotation, FovAngle), a line of sight, range and the light
   on the target; hearing through the sounds and noises of the level; objectives through what the HUD shows (the merc
   objective radar, the localized messages). The existence of the other players is public (the scoreboard); their
@@ -67,6 +69,7 @@ or practice is disabled. These commands are unavailable in ordinary matches and 
 | [src/OpenScct.Game/AI/AiBrain.cs](../src/OpenScct.Game/AI/AiBrain.cs), `SpyAi.cs`, `MercAi.cs` | utility choice and the two sides' goals |
 | [src/OpenScct.Game/AI/RouteAi.cs](../src/OpenScct.Game/AI/RouteAi.cs) | a route bot for test rounds (`--svm-route`): walks stops in order on its side's navigation and reports each one reached or where it got stuck; no fighting, gadgets or lifts |
 | [src/OpenScct.Game/AI/Evasion.cs](../src/OpenScct.Game/AI/Evasion.cs), `SpyGadgets.cs` | a spy's play round the motion tracker; its smoke, flash, chaff, heartbeat and sticky cam |
+| [src/OpenScct.Game/AI/MercDefence.cs](../src/OpenScct.Game/AI/MercDefence.cs), `MercAi.Defence.cs`, `MercAi.Traps.cs` | the mercs' defence: objectives shared out in sectors, the patrol and its posts, mines and trackers, the scope |
 | [src/OpenScct.Game/AI/TeamAi.cs](../src/OpenScct.Game/AI/TeamAi.cs) | team play: revive, heal and unspy a mate, climb on a mate's boost or hoist, offer a boost |
 | [src/OpenScct.Game/AI/AiDifficulty.cs](../src/OpenScct.Game/AI/AiDifficulty.cs), `AiK.cs` | presets and constants (decoded ones carry their provenance) |
 | [src/OpenScct.Bots/ServerBots.cs](../src/OpenScct.Bots/ServerBots.cs) | adds bots to a `ServerHost` (login, per-tick drive) |
@@ -309,11 +312,11 @@ at the actual interaction point, and off-grid route endpoints require a clear fi
 |---|---|---|
 | Defuse | an active planted bomb, unless a confirmed spy is within immediate melee range | stop pursuing distant spies, approach the bomb and select its normal removal interaction |
 | Finish | a spy it saw go down (lying, in sight or seen lying in the last 3 s) | run to him, face him, press Use when the game's finishing search would take him (FindPawnToReanimateOrTerminate: 250 uu, in front, feet within 10 uu, clear box to the spot 110 uu behind him), then Use again in the hold to kill at once; shoot him low (0.6 of his height under his centre) until then |
-| Engage | a confirmed spy in sight | after the reaction time aim at the chest (leading by the lead factor) with an error that shrinks from the first-shot to the settled spread while tracking; fire short bursts, not through a teammate; side-step at range (hard and expert); reload on an empty clip |
+| Engage | a confirmed spy in sight, within 2500 uu (4500 uu with a scope to raise) | after the reaction time aim at the chest (leading by the lead factor) with an error that shrinks from the first-shot to the settled spread while tracking; fire short bursts, not through a teammate; side-step at range (hard and expert); reload on an empty clip. A spy 1300 uu or farther is taken through the scope (see "The scope") |
 | Respond | a terminal is being hacked (the nearest merc goes, with teamwork) | run to a spot 200 to 600 uu from the use spot that sees it, watching the spot |
 | Frag | a recent visual or teammate report 600 to 1600 uu away, including a slowly moving visible spy | check the lob path and nearby teammates, select the frag, aim at the ground near the known position, then tap the throw key when the rifle and aim are ready |
 | Investigate | a visible shape, noise, callout, lost spy, or hurt by something unseen | inspect visible shapes without attacking; search reachable locations around lost contacts, retaining checked places and dividing areas with teammates |
-| Guard | otherwise | a reachable standing post beside an untaken terminal no teammate holds, look round, change post every 12 to 30 s |
+| Guard | otherwise | defend its sector: mine each objective of it, then patrol between them, stopping at a reachable standing post beside each (see "Defending the objectives") |
 
 Mercs light the torch in the dark (on below light 0.15, off above 0.35) while responding, investigating or engaging
 (and while guarding, by gadget use) and use motion tracking while investigating a noise in the dark (something moved
@@ -321,13 +324,69 @@ there) or on some dark posts; a terminal alert gets the torch, since a hacker st
 use a recent visual position or teammate callout, with a ten-second cooldown between accepted throws. The bot
 waits for the selected gadget and rifle to be ready, and counts a throw only when a charge is consumed.
 
-While guarding, mercs inspect clear walls around nearby active objectives and heal stations, scoring both route
-length and proximity to the key location. They vary between low crouched, crouched eye-level, lower standing and
-slightly raised placements, with a randomly preferred height and reachable alternatives. They crouch and wait for
-their eye height and aim to settle before placing carried mines or spy trackers through the normal gadget and
-animation path. They can follow a complete floor route around tables or pillars to reach a
-wall, while rejecting placements that require crossing a closed door. Placement respects charges, ownership limits and spacing, and combat or
-bomb response interrupts the approach. Waking or being revived restores the merc's armed state as well as its rifle.
+### Defending the objectives (`MercDefence`, `MercAi.Defence.cs`)
+
+The mercs divide the objectives that are left, as a team of players does. `MercDefence` (one per level) groups the
+defensible objectives (terminals not taken, active bomb sites, disks on the map) into as many groups as there are merc
+bots, objectives that lie together in one group, and gives each bot the group nearest to it: its sector.
+
+- A human merc keeps the objective he stays within 1500 uu of; the bots share out the others. When humans hold every
+  objective the bots back them up everywhere.
+- With more bots than groups (one objective left, two mercs) the extra bots roam over all the open objectives, and
+  avoid the post a team mate holds (the teamwork knob).
+- The sectors are worked out again when an objective is taken or a merc dies or respawns, and every 10 s for where the
+  humans stand. A bot keeps the sector it has unless another is less than half as far.
+- Only public facts are read: the objectives the HUD lists and the positions of team mates.
+
+A guarding bot walks its sector as a patrol. The next stop is, in order: the nearest objective of the sector that
+still lacks its traps while the bot carries one (unless it stopped there in the last 45 s and found no wall), then the
+objective it has left alone the longest, never the one it just left. At each stop it stands at a post 150 to 300 uu
+from the use spot with a line to it and looks round for 7 to 15 s (12 to 30 s when the sector is a single objective),
+timed from the arrival. Combat, a hack alert, a noise or a planted bomb interrupt the patrol as before; afterwards it
+resumes at the stop that is due.
+
+**Mines and trackers.** An objective wants two traps within 500 uu (a mine and a tracker, taken in turn) while the
+bot's sector is one or two objectives, and one each over a wider sector, so the charges go round; a heal station
+within 700 uu gets one once the objectives near are covered. Arriving at a stop that lacks a trap starts the placement
+at once. The bot looks at the walls within 400 uu round the use spot in 16 directions and at nine heights from 54 to
+156 uu above the floor (shin to above the head). Each placement prefers one band, low half the time (54 to 64 uu,
+where players hide them), chest height or head height a quarter each, and takes the nearest reachable height where the
+band cannot be had. Heights up to about 105 uu are placed crouched (eye 88 uu), the others standing (eye 143 uu). One
+route is planned per wall, around tables and pillars, never through a closed door.
+
+At the wall the bot stands 38 uu out (just clear of its cylinder, which leaves reach for the low and high spots),
+turns to the spot, takes the stance and waits for the stance clip and the eye height to settle. If the eye is still
+farther than 53.5 uu from the spot it steps in until it is within reach; it never places from the wrong stance. Then
+it selects the launcher and presses Alt-fire through the normal placement states, keeping its stance until the clip
+ends. A wall the launcher refuses, one too steep to look at, or one it could not get into reach of within 2.5 s is
+left alone for a minute and another is tried 3 s later. Placement respects charges, ownership limits and the 300 uu
+spacing between traps. Waking or being revived restores the merc's armed state as well as its rifle.
+
+**The crouch key.** The key flips the controller's crouch latch and the walking state turns the latch into the
+stance. The bot presses it when the latch differs from the stance it wants, not when the body does: pressing again
+while the body had not followed yet flipped the latch back, which made mercs stand up and crouch again round a
+placement.
+
+### The scope (`MercAi.Defence.cs`)
+
+Normal, Hard and Expert mercs (gadget use 0.5 and up) carrying the rifle use its scope through the scope key
+(`SwitchBinocularVision`); the uzi and the shotgun have none.
+
+- **Far shots.** A confirmed spy in sight at 1300 uu or more (800 uu once the scope is up) is taken through the scope
+  when the merc was not hurt in the last 2 s and no other spy is believed within 900 uu: the scoped view is 30 degrees
+  wide and a scoped merc can be grabbed. The bot stands still, waits for the raise clip and the zoom, then fires one
+  shot every 0.6 s while its view is on the target, never through a team mate. The scoped shot has no spread and no
+  distance falloff, so the bot's own aim error decides the hit: 0.35 of the difficulty's spread, since the picture is
+  2.9 times larger. An empty clip is reloaded inside the scope.
+- **Overwatch.** Arriving at a patrol stop, a bot (by its gadget use) looks for the longest open line from the post in
+  16 directions. With one of 1800 uu or more it raises the scope along it for 4 to 7 s of the stop and sweeps about 6
+  degrees each way.
+- **What it sees.** Sight already goes through the view's FovAngle, so the scope narrows what is on screen. A target
+  on screen is judged at the distance it appears at (the distance divided by the magnification), in range and in how
+  lit it must be.
+- **Limits.** The scoped view turns at 90 degrees a second at most. The controller lowers the scope for anything else:
+  a walk, a team goal, a traversal, a trap. The breath sway is corrected by re-aiming each tick; the bot does not hold
+  its breath and stays on the first zoom level.
 
 Merc bots spawn with frags, mines, intel traps and a gas mask, subject to host equipment restrictions. Wall approaches
 leave clearance above the floor; placements use the real eye height. Where a tracker beam has no opposite wall,
@@ -351,6 +410,16 @@ cone); within 130 uu in front, out of the spy's wake protection and with no team
 berserk spin when ready, the elbow while it cools). Each chance is taken by MeleeUse, looked at once a second; hard
 and expert mercs leave a spy holding his shocker alone (a charge into him shocks the merc). During a charge or a spin
 the bot leaves the keys and the view to the state.
+
+**Cover.** Seen is not shootable: sight and bullets are different lines, and glass or a grate shows a spy while it
+stops the bullet (Clubhouse's glass ceiling). Before any shot the bot runs the bullet's own trace (`AiBrain.ShotBlocked`:
+TraceBone's world pass from the gun's fire start). Level geometry, movers and objects that take no damage block it when
+they stop the line more than 60 uu short of the aim point; a fake ceiling is passed once, as the rifle's trace passes
+it, and an object bullets break is not cover. An engaging merc whose line to the chest is blocked aims at the head when
+that line is open. With both blocked it holds its fire, keeps watching the spy and walks to the nearest reachable
+standing spot within 1200 uu of him from which a bullet reaches (looked for every 1.5 s among up to 64 nodes); with
+none it stays and watches. Bursts, scoped shots and the blind shots into smoke all pass the same check. A spy calls
+its shock off when the line to the merc is blocked.
 
 At point blank (under 110 uu), when the spy's body blocks the muzzle (the game's CheckIfCanFire), the strike is always
 taken; without one the merc steps back to shoot. A charge is not started with a team mate within 120 uu of its line or
@@ -521,5 +590,8 @@ tracking, and the harder mercs kill more. The reports are in `local/test-results
   pawn stayed in PHYS_Ledge with no control for the rest of the match. The group now hands 106 (and the landings 92
   and 101) on (DropAttackedOnLedgeTests).
 - **Balance**: search and vision have automated coverage, but perception thresholds, the motion blur factor and
-  approximate prone samples still need visual gameplay calibration. Strategic patrols, coordinated ambushes,
-  additional objective modes and training learned policies remain future work.
+  approximate prone samples still need visual gameplay calibration. Coordinated ambushes, additional objective
+  modes and training learned policies remain future work.
+- **Defence**: sectors group objectives by straight-line distance, not by route. Traps go on walls round the use spot,
+  not on the approach routes a spy would take. The scope's enter range, shot interval and spread share are bot
+  choices, not measured from players.

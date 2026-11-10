@@ -204,6 +204,44 @@ public abstract class AiBrain
         return SvmMath.Acos(SvmMath.Clamp(cos, -1f, 1f)) * (180f / MathF.PI);
     }
 
+    /// <summary>
+    /// True when a bullet from the bot's gun would stop on cover before <paramref name="target"/>. Sight and bullets
+    /// are different lines: a spy shows through glass and grates that stop a bullet (Clubhouse's glass ceiling), as a
+    /// player sees him and learns the shot is wasted. The check is the bullet's own trace (TraceBone's world pass),
+    /// from the gun's fire start.
+    /// </summary>
+    protected bool ShotBlocked(FVector target) =>
+        ShotBlockedFrom(Pawn.MyWeapon is SWeapon gun ? gun.GetFireStart() : AiSight.Eye(Pawn), target);
+
+    /// <summary>
+    /// The bullet line from <paramref name="from"/>: blocked by level geometry, movers and objects that take no
+    /// damage more than <see cref="AiK.ShotCoverSlack"/> short of the target. A fake ceiling is passed once, as the
+    /// rifle's trace passes it; an object bullets break does not count as cover.
+    /// </summary>
+    protected bool ShotBlockedFrom(FVector from, FVector target)
+    {
+        FVector start = from;
+        for (int pass = 0; pass < 2; pass++)
+        {
+            if (!World.Collision.LineCheck(out FCheckResult hit, Pawn, target, start, default, Combat.TraceHitZones.WorldFlags) ||
+                (hit.Location - target).SizeSquared() < AiK.ShotCoverSlack * AiK.ShotCoverSlack ||
+                hit.Actor is SBasicGamePlayObject { bDamageable: true })
+            {
+                return false;
+            }
+
+            if (pass == 0 && !hit.bFakeBackdrop && (ESurfaceType)hit.SurfaceType == ESurfaceType.SURFACE_FakeCeiling)
+            {
+                start = hit.Location - hit.Normal * Equipment.K.FakeCeilingExit;
+                continue;
+            }
+
+            return true;
+        }
+
+        return true;
+    }
+
     /// <summary>The floor point and yaw of a terminal's use spot on the side's graph.</summary>
     protected bool UseSpot(SComputerObjectiveTrigger terminal, out FVector floor, out int yaw)
     {

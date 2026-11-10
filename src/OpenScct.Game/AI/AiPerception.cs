@@ -82,10 +82,11 @@ public static class AiSight
 
     /// <summary>
     /// One look from <paramref name="eye"/> along <paramref name="view"/> (horizontal FOV <paramref name="fovDegrees"/>)
-    /// at <paramref name="target"/>.
+    /// at <paramref name="target"/>. <paramref name="zoom"/> is how much larger than the default view the screen
+    /// shows the scene (the merc's scope): a target shows as one that much nearer, in range and in how lit it must be.
     /// </summary>
     public static AiSighting Look(AiWorld world, FVector eye, FRotator view, float fovDegrees, AiVisionMode mode, Pawn target,
-        AiDifficulty difficulty)
+        AiDifficulty difficulty, float zoom = 1f)
     {
         ArgumentNullException.ThrowIfNull(world);
         ArgumentNullException.ThrowIfNull(target);
@@ -114,7 +115,9 @@ public static class AiSight
             range = SvmMath.Min(range, AiK.ThermalRange);
         }
 
-        if (distance > range)
+        // Through the scope the picture is larger: the target is judged at the distance it appears at.
+        float shown = distance / SvmMath.Max(1f, zoom);
+        if (shown > range)
         {
             return default;
         }
@@ -153,7 +156,7 @@ public static class AiSight
         {
             case AiVisionMode.Thermal:
                 // Pawns are hot (HeatIntensity 1): seen in the dark, through smoke at 0.8 (HeatOpacity 0.2).
-                strength = 1f - distance / AiK.ThermalRange;
+                strength = 1f - shown / AiK.ThermalRange;
                 if (world.SmokeBetween(eye, target.Location))
                 {
                     strength *= 0.8f;
@@ -166,21 +169,21 @@ public static class AiSight
                     return default;
                 }
 
-                strength = 1f - distance / (range + 1f);
+                strength = 1f - shown / (range + 1f);
                 break;
             case AiVisionMode.Motion:
                 // The renderer still draws the normal scene (docs/RENDERING.md, vision modes). The blurred colour
                 // pass reduces detail; its tracker adds sharp brackets, but is not the only way to see a body.
                 light = world.LightOn(target, eye);
-                strength = LitStrength(light, distance, difficulty) * AiK.MotionSightFactor;
+                strength = LitStrength(light, shown, difficulty) * AiK.MotionSightFactor;
                 break;
             case AiVisionMode.Night:
                 light = (world.LightOn(target, eye) + AiK.NightBoost) * AiK.NightGain;
-                strength = LitStrength(light, distance, difficulty);
+                strength = LitStrength(light, shown, difficulty);
                 break;
             default:
                 light = world.LightOn(target, eye);
-                strength = LitStrength(light, distance, difficulty);
+                strength = LitStrength(light, shown, difficulty);
                 if (BotSpeed(target) > AiK.RunSpeed * 0.7f)
                 {
                     strength *= 1.5f;
