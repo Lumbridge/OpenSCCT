@@ -804,6 +804,19 @@ internal sealed class RdWorldGpu
 
     private Rid PipelineOf(RenderingDevice rd, ShaderGpu shader, long framebufferFormat, Rid color, Rid depth, bool mirrored = false)
     {
+        Rid pipeline = PipelineMaker(rd, shader, framebufferFormat, color, depth, mirrored)();
+        if (!pipeline.IsValid) throw new InvalidOperationException("render pipeline failed");
+        Made = (Made.Framebuffers, Made.Pipelines + 1, Made.GlobalSets);
+        shader.Pipelines[mirrored ? ~framebufferFormat : framebufferFormat] = pipeline;
+        return pipeline;
+    }
+
+    /// <summary>
+    /// The call that makes a shader's pipeline for a target, with its state read here: the call itself may run on a
+    /// worker thread (the driver compiles there, as for Godot's own pipelines).
+    /// </summary>
+    private Func<Rid> PipelineMaker(RenderingDevice rd, ShaderGpu shader, long framebufferFormat, Rid color, Rid depth, bool mirrored)
+    {
         using RDTextureFormat colorFormat = rd.TextureGetFormat(color);
         using RDTextureFormat depthFormat = rd.TextureGetFormat(depth);
         RdTranslatedShader source = shader.Source;
@@ -859,13 +872,13 @@ internal sealed class RdWorldGpu
 
         var blend = new RDPipelineColorBlendState { Attachments = [attachment] };
         long vertexFormat = source.Actor == 0 ? _vertexFormat : _objectFormats[source.Actor - 1];
-        Rid pipeline = rd.RenderPipelineCreate(shader.Shader, framebufferFormat, vertexFormat, RD.RenderPrimitive.Triangles,
+        Rid program = shader.Shader;
+        return () => rd.RenderPipelineCreate(program, framebufferFormat, vertexFormat, RD.RenderPrimitive.Triangles,
             raster, multisample, depthState, blend, 0, 0, []);
-        if (!pipeline.IsValid) throw new InvalidOperationException("render pipeline failed");
-        Made = (Made.Framebuffers, Made.Pipelines + 1, Made.GlobalSets);
-        shader.Pipelines[mirrored ? ~framebufferFormat : framebufferFormat] = pipeline;
-        return pipeline;
     }
+
+    // Pipelines being made on a worker thread, by shader and target (the mirrored ones under the complement).
+    private readonly Dictionary<(ShaderGpu Shader, long Key), System.Threading.Tasks.Task<Rid>> _pipelining = [];
 
     private (Rid OneSided, Rid TwoSided) DepthPipelinesOf(RenderingDevice rd, long framebufferFormat, Rid color)
     {
@@ -1084,7 +1097,8 @@ internal sealed class RdWorldGpu
     private int _ownFrames, _lateNotes;
     private bool _stagesMade;
     private string _lastShaderName = "";
-    private const int LateAfterFrames = 30;
+    // SVM_RD_WORLD_TEST=defer (a check of the worker-thread path): every actor shader and pipeline is made as a late one.
+    private static readonly int LateAfterFrames = Test.Contains("defer") ? 0 : 30;
 
     // Meshes outside the merged world (RdObjects): geometry handed over once a surface, by a queue no dropped frame
     // can lose. Programs: rigid or skinned vertex shader with the solid or masked fragment shader.
@@ -1107,6 +1121,7 @@ internal sealed class RdWorldGpu
 
     private readonly System.Collections.Concurrent.ConcurrentQueue<RdMaterial> _objectWarm = new();
     private readonly List<RdMaterial> _warmAgain = [];
+    private const int PaletteSlack = (RdObjects.MaxBone + 1) * 64;
 
     /// <summary>An actor material met in the scene: its shaders and pipelines are made before it is first drawn.</summary>
     public void QueueWarm(RdMaterial material) => _objectWarm.Enqueue(material);
@@ -1180,7 +1195,8 @@ internal sealed class RdWorldGpu
         CollectionsMarshal.AsSpan(frame.ObjectData).CopyTo(_objectBytes);
         rd.BufferUpdate(_objectBuffer, 0, (uint)bytes, _objectBytes);
 
-        int paletteBytes = Math.Max(64, frame.Palette.Count * 4);
+        // With room past the last matrix for the highest bone index a vertex can hold: a read is never past the end.
+        int paletteBytes = Math.Max(64, frame.Palette.Count * 4) + PaletteSlack;
         if (paletteBytes > _paletteCapacity)
         {
             if (_paletteBuffer.IsValid) rd.FreeRid(_paletteBuffer);
@@ -1383,7 +1399,37 @@ internal sealed class RdWorldGpu
         if (variant is null) return default;
         ShaderGpu shader = variant.Shader;
         if (shader.GlobalVersion != _globalVersion || !rd.UniformSetIsValid(shader.GlobalSet)) MakeGlobalSet(rd, shader);
-        if (!shader.Pipelines.TryGetValue(mirrored ? ~_ownFormat : _ownFormat, out Rid pipeline)) pipeline = PipelineOf(rd, shader, _ownFormat, _ownColor, _ownDepth, mirrored);
+        long pipelineKey = mirrored ? ~_ownFormat : _ownFormat;
+        if (!shader.Pipelines.TryGetValue(pipelineKey, out Rid pipeline))
+        {
+            if (_ownFrames > LateAfterFrames)
+            {
+                // In play the driver's compile of a pipeline it has never seen (tens of milliseconds each on a first
+                // run) must not hold a frame either: made on a worker thread, drawn from the frame it is ready.
+                if (!_pipelining.TryGetValue((shader, pipelineKey), out System.Threading.Tasks.Task<Rid>? making))
+                {
+                    making = System.Threading.Tasks.Task.Run(PipelineMaker(rd, shader, _ownFormat, _ownColor, _ownDepth, mirrored));
+                    _pipelining[(shader, pipelineKey)] = making;
+                }
+
+                if (!making.IsCompleted)
+                {
+                    Deferred = true;
+                    return default;
+                }
+
+                _pipelining.Remove((shader, pipelineKey));
+                pipeline = making.IsCompletedSuccessfully ? making.Result : default;
+                if (pipeline.IsValid)
+                {
+                    Made = (Made.Framebuffers, Made.Pipelines + 1, Made.GlobalSets);
+                    shader.Pipelines[pipelineKey] = pipeline;
+                }
+            }
+
+            if (!pipeline.IsValid) pipeline = PipelineOf(rd, shader, _ownFormat, _ownColor, _ownDepth, mirrored);
+        }
+
         if (shader.ObjectVersion != _objectBufferVersion || !shader.ObjectSet.IsValid || !rd.UniformSetIsValid(shader.ObjectSet))
         {
             var uniforms = new Godot.Collections.Array<RDUniform>();
@@ -2486,6 +2532,33 @@ internal sealed class RdWorldGpu
             if (rid.IsValid) rd.FreeRid(rid);
         }
 
+        // What the worker threads were still making.
+        foreach (System.Threading.Tasks.Task<Rid> making in _pipelining.Values)
+        {
+            try
+            {
+                if (making.Wait(5000) && making.Result.IsValid) rd.FreeRid(making.Result);
+            }
+            catch (AggregateException)
+            {
+                // The worker's own failure: nothing was made.
+            }
+        }
+
+        _pipelining.Clear();
+        foreach (System.Threading.Tasks.Task<RDShaderSpirV> compiling in _compiling.Values)
+        {
+            try
+            {
+                compiling.Wait(5000);
+            }
+            catch (AggregateException)
+            {
+                // As above.
+            }
+        }
+
+        _compiling.Clear();
         if (_ownBehind.IsValid) rd.FreeRid(_ownBehind);
         if (_skyGlobalBuffer.IsValid) rd.FreeRid(_skyGlobalBuffer);
         _ownBehind = _skyGlobalBuffer = default;

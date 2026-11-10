@@ -232,6 +232,9 @@ internal sealed class RdObjects
 
         System.IO.File.WriteAllText(s_dump!, text.ToString());
     }
+    /// <summary>The highest bone index a packed vertex holds.</summary>
+    internal const int MaxBone = 255;
+
     private Node? _staticRoot;
     private int _recheckAt;
     private const int RecheckPerFrame = 24;
@@ -656,7 +659,9 @@ internal sealed class RdObjects
             float sum = 0f;
             for (int k = 0; k < 4; k++)
             {
-                b[k] = (ushort)Math.Max(0, bones[(i * perVertex) + k]);
+                // Within the slack the palette buffer keeps past its last matrix (RdWorldGpu.PaletteSlack): an index a
+                // mesh holds beyond its skin's binds then reads inside the buffer, never past its end.
+                b[k] = (ushort)Math.Clamp(bones[(i * perVertex) + k], 0, MaxBone);
                 w[k] = weights[(i * perVertex) + k];
                 sum += w[k];
             }

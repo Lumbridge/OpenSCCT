@@ -649,7 +649,7 @@ internal static class RdShadowPass
                 Span<float> w = MemoryMarshal.Cast<byte, float>(v.Slice(28, 16));
                 for (int k = 0; k < 4; k++)
                 {
-                    b[k] = (ushort)Math.Clamp(bones![(i * 4) + k], 0, ushort.MaxValue);
+                    b[k] = (ushort)Math.Clamp(bones![(i * 4) + k], 0, RdObjects.MaxBone);
                     w[k] = weights![(i * 4) + k];
                 }
             }
@@ -787,7 +787,8 @@ internal static class RdShadowPass
             }
 
             // Everything a draw list needs is made before any list opens.
-            uint paletteBytes = (uint)Math.Max(48, paletteRows * 16);
+            // With room past the last row for the highest bone index a vertex can hold (three rows a bone).
+            uint paletteBytes = (uint)Math.Max(48, paletteRows * 16) + ((RdObjects.MaxBone + 1) * 48);
             if (paletteBytes > s_paletteBytes)
             {
                 if (s_paletteBuffer.IsValid) rd.FreeRid(s_paletteBuffer);

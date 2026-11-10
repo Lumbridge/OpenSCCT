@@ -292,6 +292,11 @@ public partial class RdWorldRenderer : Node
     private Callable _renderOwn;
 
     private bool _ownActive = true;
+    private int _loadNotes;
+    // Frames after the cover lifts in which Godot still draws under this pass's picture: the player's own body and
+    // weapon enter the scene then, and Godot makes their pipelines by drawing them once.
+    private int _bothFrames;
+    private static readonly int BothFramesAfterLoad = int.TryParse(System.Environment.GetEnvironmentVariable("SVM_RD_FRAME_BOTH"), out int both) ? both : 30;
 
     /// <summary>Set by the play scene while its loading cover is up (see <see cref="PreDrawOwn"/>).</summary>
     internal static bool Loading { get; set; }
@@ -387,7 +392,14 @@ public partial class RdWorldRenderer : Node
         // While the play scene loads (its cover is up) both renderers draw: Godot's makes the pipelines of the vision
         // modes, the responsive smoke and the view's post effects as it does without this pass (GameplayFxWarmup,
         // LightReach.Warm), and this pass makes its own, so neither waits for a compile in play.
-        bool alone = own && !Loading;
+        if (Loading) _bothFrames = BothFramesAfterLoad;
+        else if (_bothFrames > 0) _bothFrames--;
+        bool alone = own && !Loading && _bothFrames == 0;
+        if (Stats && (Loading || _loadNotes < 4))
+        {
+            if (!Loading) _loadNotes++;
+            GD.Print($"SVM_RD_FRAME loading={Loading} own={own} disable3d={viewport.Disable3D} mask={camera.CullMask:x} godotDraws={viewport.GetRenderInfo(Viewport.RenderInfoType.Visible, Viewport.RenderInfo.DrawCallsInFrame)} drawPipelines={Performance.GetMonitor(Performance.Monitor.PipelineCompilationsDraw)} surfacePipelines={Performance.GetMonitor(Performance.Monitor.PipelineCompilationsSurface)}");
+        }
         if (_ownRect is not null && _ownRect.Visible != own) _ownRect.Visible = own;
         if (alone != _ownActive)
         {
