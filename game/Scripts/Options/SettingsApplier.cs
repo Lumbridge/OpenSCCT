@@ -49,7 +49,7 @@ public static class SettingsApplier
     /// <summary>
     /// The texture filtering (filter_level on the viewport, and as the default of the viewports made later) and the
     /// spot shadows' map size and edge smoothing (shadow_quality, shadow_edge_smoothing: from the next map, when the
-    /// shadow atlas is made again).
+    /// shadow atlas is made again), and the renderer (renderer: from the next map).
     /// </summary>
     public static void ApplyRendering(GameSettings s, Viewport? viewport)
     {
@@ -73,6 +73,7 @@ public static class SettingsApplier
 
         Render.SpotShadowLight.MapSize = Render.SpotShadowLight.MapSizeFor(s.ShadowQuality);
         Render.SpotShadowLight.SoftRadius = s.ShadowEdgeSmoothing ? Render.RenderK.SpotShadowSoftRadius : 0f;
+        Render.Rd.RdWorldRenderer.OwnFrameSetting = s.Renderer == "Fast";
     }
 
     /// <summary>

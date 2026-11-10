@@ -7,7 +7,7 @@ using OpenScctGame.Render.Materials;
 namespace OpenScctGame.Render.Rd;
 
 /// <summary>
-/// Meshes outside the merged world in the own frame (the default; SVM_RD_FRAME=0 turns it off): the map's gameplay meshes and the characters,
+/// Meshes outside the merged world in the own frame (the options' Fast renderer): the map's gameplay meshes and the characters,
 /// with solid or masked template materials. Each surface is drawn as the original draws an actor
 /// (docs/PERFORMANCE-LOWEND-2026-11.md, "The states it draws with"): its texture times a light worked out at each
 /// vertex (the baked vertex colour, or the actor's ambient and up to four lights), doubled. Skinned meshes are posed in

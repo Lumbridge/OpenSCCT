@@ -714,6 +714,16 @@ public sealed class GameSettings
 
     public static readonly string[] LatencyModes = ["Off", "On"];
 
+    /// <summary>
+    /// What draws a map: Standard is Godot's renderer; Fast is the game's own frame (Render/Rd), made for integrated
+    /// graphics, in beta. Fast hands vision modes, responsive smoke and outdoor-sky maps to Standard. From the next map.
+    /// </summary>
+    [JsonPropertyName("renderer")]
+    [Provenance(ProvenanceKind.Estimated, "OpenSCCT choice: Standard until Fast has been played (docs/PERFORMANCE-LOWEND-2026-11.md)")]
+    public string Renderer { get; set; } = "Standard";
+
+    public static readonly string[] Renderers = ["Standard", "Fast"];
+
     /// <summary>Windows: opt the game out of power throttling (EcoQoS) at start (Reloaded's throttle_stop, experimental).</summary>
     [JsonPropertyName("throttle_stop")]
     [Provenance(ProvenanceKind.Decoded, "spec/reloaded/FEATURES.md rl:gfx.system throttle_stop = false")]
@@ -1026,6 +1036,7 @@ public sealed class GameSettings
         // Older Ultra settings used exactly the same engine override as On.
         if (string.Equals(LowLatencyMode, "Ultra", StringComparison.OrdinalIgnoreCase)) LowLatencyMode = "On";
         LowLatencyMode = OneOf(LatencyModes, LowLatencyMode);
+        Renderer = OneOf(Renderers, Renderer);
         FilterLevel = FilterLevel <= 0 ? 0 : FilterLevel <= 2 ? 2 : FilterLevel <= 4 ? 4 : FilterLevel <= 8 ? 8 : 16;
         ShadowQuality = LookSettings.Range(ShadowQuality, 0.5f, 16f);
         PostQuality = Math.Clamp(PostQuality, 0, 1);

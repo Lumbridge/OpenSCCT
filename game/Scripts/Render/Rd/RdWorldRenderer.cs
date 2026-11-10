@@ -232,10 +232,25 @@ public partial class RdWorldRenderer : Node
     }
 
     /// <summary>
-    /// SVM_RD_FRAME=1 (in development): the pass draws the scene into a target of its own, as the original draws its
-    /// frame, and Godot draws no 3D in the main viewport. So far the world's solid and masked surfaces only.
+    /// The "Fast (beta)" renderer of the options (renderer = Fast): the pass draws the scene into a target of its own,
+    /// as the original draws its frame, and Godot draws no 3D in the main viewport. Fixed for a map when it is built
+    /// (<see cref="LatchOwnFrame"/>): the map's geometry is sorted between the two renderers then.
     /// </summary>
-    internal static bool OwnFrame { get; } = System.Environment.GetEnvironmentVariable("SVM_RD_FRAME") != "0";
+    internal static bool OwnFrame { get; private set; }
+
+    /// <summary>The options' choice (Fast); takes effect at the next map.</summary>
+    internal static bool OwnFrameSetting { get; set; }
+
+    // SVM_RD_FRAME=1 or 0 overrides the options (benchmarks and sweeps).
+    private static readonly bool? s_ownFrameForced = System.Environment.GetEnvironmentVariable("SVM_RD_FRAME") switch
+    {
+        "1" => true,
+        "0" => false,
+        _ => null,
+    };
+
+    /// <summary>Takes the renderer for the map about to be built.</summary>
+    internal static void LatchOwnFrame() => OwnFrame = s_ownFrameForced ?? OwnFrameSetting;
 
     // The share of the depth range the sky zone is squeezed into, behind the world.
     private const float SkyDepth = RdWorldGpu.OwnSkyDepth;

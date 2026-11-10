@@ -556,7 +556,7 @@ Not drawn by the own frame: maps with an outdoor sky (OpenSCCT's own; none of th
 
 ### Tenth stage: every map compared, on by default
 
-The own frame is now what a map draws with unless `SVM_RD_FRAME=0` is set. Maps with an outdoor sky and every vision mode but the normal one still go to Godot's renderer.
+The own frame is the options' **Renderer: Fast (beta)** (Performance page, `renderer` in the settings; Standard, Godot's renderer, is the default until Fast has been played). `SVM_RD_FRAME=1` or `0` overrides the setting, as the benchmark scripts do. Maps with an outdoor sky and every vision mode but the normal one still go to Godot's renderer.
 
 **All maps.** `own-sweep.sh` captured the eight golden views of one map of each family (34 maps, 268 views) with the Godot path and with the own frame, and both were measured against the original's own captures (`local/golden/allmaps/game`; `svm/` there holds ours). Mean absolute difference from the original, levels of 255: Godot path 2.84, own frame 2.86 before the last three fixes below, which each removed the largest remaining differences (MuseD spy-180 from +9.7 to -4.4 against the Godot path, SlauS from +5 to 0, DeftD from +5.6 to 0). What the sweep found and what was done:
 

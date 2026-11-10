@@ -8,7 +8,7 @@ using OpenScctGame.Render.Particles;
 namespace OpenScctGame.Render.Rd;
 
 /// <summary>
-/// Simple blended geometry in the own frame (the default; SVM_RD_FRAME=0 turns it off): triangles with a position, two UVs and a colour at each
+/// Simple blended geometry in the own frame (the options' Fast renderer): triangles with a position, two UVs and a colour at each
 /// vertex, one texture a draw, blended by one of the particle draw styles. The rain sheets and the sprite particles
 /// are drawn this way, with the rules of svm_rain.gdshaderinc and svm_particle.gdshaderinc; the frame's vertices are
 /// gathered on the main thread and handed over whole every frame.

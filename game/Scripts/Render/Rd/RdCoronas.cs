@@ -4,7 +4,7 @@ using Godot;
 namespace OpenScctGame.Render.Rd;
 
 /// <summary>
-/// Light coronas in the own frame (the default; SVM_RD_FRAME=0 turns it off): the camera-facing quads the Coronas node shows this frame, drawn
+/// Light coronas in the own frame (the options' Fast renderer): the camera-facing quads the Coronas node shows this frame, drawn
 /// after the scene with the original's blend (ONE, INVSRCCOLOR: the quad adds to what the frame leaves of white) and
 /// svm_corona.gdshaderinc's visibility rule, tested once a corona at its centre against the frame's depth.
 /// </summary>

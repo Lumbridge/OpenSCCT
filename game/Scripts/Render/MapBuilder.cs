@@ -510,6 +510,7 @@ public static class MapBuilder
         LoadTimer.Mark("build.actors");
         // SVM_RD_PROTO: copy the merged cell geometry out for the RenderingDevice prototype (RdProto/RdProtoRenderer).
         map.RdGeometry = RdProto.RdProtoGeometry.Enabled ? new RdProto.RdProtoGeometry() : null;
+        Rd.RdWorldRenderer.LatchOwnFrame();
         map.RdWorld = Rd.RdWorldGeometry.Enabled ? new Rd.RdWorldGeometry(map.Compiler) : null;
         new Builder(map, glb, options).Run();
         map.RdGeometry?.Finish();

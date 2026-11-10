@@ -855,7 +855,7 @@ internal sealed class RdWorldGpu
         return pipelines;
     }
 
-    // ---- Own frame (the default; SVM_RD_FRAME=0 turns it off) ----
+    // ---- Own frame (the options' Fast renderer) ----
     // The scene as the original draws it (docs/PERFORMANCE-LOWEND-2026-11.md, "The original's frame, traced"): one
     // 8-bit target in display values, one pass with no pre-pass, each surface a shader as small as the original's
     // texture stages. Godot draws no 3D in the main viewport; the target is shown on the canvas under the HUD.
