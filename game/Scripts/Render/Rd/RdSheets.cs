@@ -8,7 +8,7 @@ using OpenScctGame.Render.Particles;
 namespace OpenScctGame.Render.Rd;
 
 /// <summary>
-/// Simple blended geometry in the own frame (SVM_RD_FRAME=1): triangles with a position, two UVs and a colour at each
+/// Simple blended geometry in the own frame (the default; SVM_RD_FRAME=0 turns it off): triangles with a position, two UVs and a colour at each
 /// vertex, one texture a draw, blended by one of the particle draw styles. The rain sheets and the sprite particles
 /// are drawn this way, with the rules of svm_rain.gdshaderinc and svm_particle.gdshaderinc; the frame's vertices are
 /// gathered on the main thread and handed over whole every frame.
@@ -79,9 +79,15 @@ internal static class RdSheets
     /// A particle layer's quads of this frame (ParticleSystemView, as it fills its own mesh): two triangles a quad,
     /// drawn with the layer's material rules.
     /// </summary>
+    /// <summary>
+    /// Set while a renderer takes the frame's sheets (the own frame drawing the normal view): nothing is collected
+    /// otherwise (menus, a map Godot's renderer draws, a vision mode), so nothing piles up unread.
+    /// </summary>
+    public static bool Active { get; set; }
+
     public static void CollectParticles(ShaderMaterial? material, List<SpriteQuad> quads)
     {
-        if (material is null || quads.Count == 0) return;
+        if (!Active || material is null || quads.Count == 0) return;
         Draw draw = DrawOf(material);
         draw.First = s_vertices.Count / Stride;
         foreach (SpriteQuad q in quads)
@@ -110,7 +116,7 @@ internal static class RdSheets
     /// </summary>
     public static void CollectMeshes(ShaderMaterial? material, Mesh? mesh, List<MeshInstance> meshes, int count)
     {
-        if (material is null || mesh is null || count <= 0) return;
+        if (!Active || material is null || mesh is null || count <= 0) return;
         if (!s_emitterMeshes.TryGetValue(mesh, out (Vector3[] Positions, Vector2[] Uvs) triangles))
         {
             var positions = new List<Vector3>();

@@ -126,6 +126,8 @@ public partial class RdWorldRenderer : Node
         {
             GetTree().NodeAdded -= OnTreeChanged;
             GetTree().NodeRemoved -= OnTreeChanged;
+            RdSheets.Active = false;
+            RdSheets.Clear();
             _ownRect.Texture = null;
             _ownRect.Material = null;
             // The material lets go of the glow target before the render thread frees it.
@@ -233,7 +235,7 @@ public partial class RdWorldRenderer : Node
     /// SVM_RD_FRAME=1 (in development): the pass draws the scene into a target of its own, as the original draws its
     /// frame, and Godot draws no 3D in the main viewport. So far the world's solid and masked surfaces only.
     /// </summary>
-    internal static bool OwnFrame { get; } = System.Environment.GetEnvironmentVariable("SVM_RD_FRAME") == "1";
+    internal static bool OwnFrame { get; } = System.Environment.GetEnvironmentVariable("SVM_RD_FRAME") != "0";
 
     // The share of the depth range the sky zone is squeezed into, behind the world.
     private const float SkyDepth = RdWorldGpu.OwnSkyDepth;
@@ -371,6 +373,7 @@ public partial class RdWorldRenderer : Node
             if (!own) SetActive(camera, false);
         }
 
+        RdSheets.Active = own;
         if (!own)
         {
             RdSheets.Clear();

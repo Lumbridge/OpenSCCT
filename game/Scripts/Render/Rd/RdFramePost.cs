@@ -6,7 +6,7 @@ using RD = Godot.RenderingDevice;
 namespace OpenScctGame.Render.Rd;
 
 /// <summary>
-/// The end of the own frame (SVM_RD_FRAME=1), as the original ends its frame (docs/PERFORMANCE-LOWEND-2026-11.md,
+/// The end of the own frame (the default; SVM_RD_FRAME=0 turns it off), as the original ends its frame (docs/PERFORMANCE-LOWEND-2026-11.md,
 /// "The original's frame, traced"): the glow chain on small 8-bit targets (bright pass 512 x 512, eight blur passes
 /// from 512 x 256 down to 32 x 32, the weighted sum of the four levels back at 512 x 512), then one full-screen pass
 /// that gates the scene and adds the glow into the target the canvas shows. The arithmetic is that of

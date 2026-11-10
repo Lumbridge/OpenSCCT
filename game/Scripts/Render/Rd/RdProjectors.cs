@@ -6,7 +6,7 @@ using OpenScctGame.Render.Materials;
 namespace OpenScctGame.Render.Rd;
 
 /// <summary>
-/// Map projectors in the own frame (SVM_RD_FRAME=1), as the original draws them (docs/PERFORMANCE-LOWEND-2026-11.md,
+/// Map projectors in the own frame (the default; SVM_RD_FRAME=0 turns it off), as the original draws them (docs/PERFORMANCE-LOWEND-2026-11.md,
 /// "The states it draws with"): the world surfaces a projector's box reaches are drawn a second time, at the depth
 /// they already have, with the projector's texture blended into the frame. The projection itself is that of
 /// svm_projector.gdshaderinc, with the surface's own position in place of one rebuilt from the depth buffer.
