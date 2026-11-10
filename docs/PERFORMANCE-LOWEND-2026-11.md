@@ -482,6 +482,22 @@ Skinned meshes (the pawns under PlayRoot's `Pawns` node) are drawn by the same o
 - AquaE's frame still holds 0.57 ms of shadow pass nothing reads, and lacks the projector passes, rain and other blended surfaces.
 - Not handled on characters: cloak, tints and other cosmetics, goggle glow, normal maps, first-person arms.
 
+### Fifth stage: lights, projectors, fallback
+
+| Own frame, AquaE spawn, 2560×1440, UHD 770 | Scene GPU ms | Pixels more than 2 levels from the Godot path |
+|---|---:|---:|
+| World, objects, characters (stage shaders only) | 1.04 | 0.6% |
+| With the template's lighting where a light reaches | 2.01 | 0.7% |
+| With the projector passes (build `build-o9`) | 2.61 | 0.36% |
+| The original's whole scene | 2.8 | |
+
+- **Spot and dynamic lights.** A world draw that a spot slot or a dynamic light reaches (the reach tests of the world pass) is drawn with the translated template and its light terms, in the same pass and target; every other draw keeps its stage shader. The template's fog globals are overridden for the pass so it applies the frame's one ramp. On this view that is 253 of 676 draws and 1.0 ms for almost no visible change: the reach tests are conservative. The original pays for a light only where it draws the light's pass.
+- **Projectors** (`Rd/RdProjectors.cs`). Each projector in view draws again the world batches its frustum box reaches (box against its six planes), depth test EQUAL, with svm_projector's projection on the surface's own position, blended as its kind says. 0.6 ms on AquaE (five rain-ripple projectors); the first version, testing by bounding box only, was 0.86 ms. Objects and characters receive no projection yet.
+- **Other vision modes.** When the view is not the normal one, or the round has responsive smoke, the main viewport draws 3D again and Godot's renderer takes the frame whole. Written, not exercised.
+- Frame times were not usable in these runs (other work on the machine: the same build read 98 to 150 FPS); the stage times were stable.
+
+**Not drawn in the own frame yet:** blended world surfaces (glass, water, grates), rain sheets, emitters, coronas, light beams, lasers, the first-person view model, cloth, cloaked or tinted characters, spot and projector light on objects and characters, maps with an outdoor sky. Until these exist the mode is a measurement of where the renderer can get to, not something to play with.
+
 ## The target
 
 ### The original at 2560×1440 on the UHD 770 (measured 2026-11-10)

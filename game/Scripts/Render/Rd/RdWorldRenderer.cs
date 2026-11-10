@@ -209,9 +209,30 @@ public partial class RdWorldRenderer : Node
     private Rid _ownShownColor;
     private Callable _renderOwn;
 
+    private bool _ownActive = true;
+
     private void PreDrawOwn(Camera3D camera)
     {
         Viewport viewport = GetViewport();
+        // Only the normal view is drawn here. Night, thermal, EMF and every other vision mode, and a round with
+        // responsive smoke, go back to Godot's renderer whole: it draws the 3D scene again and this pass hands over
+        // the map's meshes it had taken.
+        bool own = !_gpu.Failed && _view.RendMap == RenderK.RendMapNormal && !ResponsiveSmokeShaders.Enabled
+            && camera.IsInsideTree() && camera.Current;
+        if (own != _ownActive)
+        {
+            _ownActive = own;
+            viewport.Disable3D = own;
+            if (_ownRect is not null) _ownRect.Visible = own;
+            if (!own) SetActive(camera, false);
+        }
+
+        if (!own)
+        {
+            _gpu.Withdraw();
+            return;
+        }
+
         Vector2 visible = viewport.GetVisibleRect().Size;
         float scale = viewport.Scaling3DScale;
         Transform3D eye = camera.GetCameraTransform();
