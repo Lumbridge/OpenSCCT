@@ -71,6 +71,79 @@ internal static class RdSheets
     public static void CollectParticles(ShaderMaterial? material, List<SpriteQuad> quads)
     {
         if (material is null || quads.Count == 0) return;
+        Draw draw = DrawOf(material);
+        draw.First = s_vertices.Count / Stride;
+        foreach (SpriteQuad q in quads)
+        {
+            Vector3 c0 = UeSpace.ToGodot(q.C0), c1 = UeSpace.ToGodot(q.C1), c2 = UeSpace.ToGodot(q.C2), c3 = UeSpace.ToGodot(q.C3);
+            Vector2 u0 = new(q.U0, q.V1), u1 = new(q.U1, q.V1), u2 = new(q.U0, q.V0), u3 = new(q.U1, q.V0);
+            Vector2 b0 = new(q.BU0, q.BV1), b1 = new(q.BU1, q.BV1), b2 = new(q.BU0, q.BV0), b3 = new(q.BU1, q.BV0);
+            (byte r, byte g, byte b, byte a) = (q.Color.R, q.Color.G, q.Color.B, q.Color.A);
+            Vertex(c0, u0, b0, r, g, b, a);
+            Vertex(c1, u1, b1, r, g, b, a);
+            Vertex(c2, u2, b2, r, g, b, a);
+            Vertex(c2, u2, b2, r, g, b, a);
+            Vertex(c1, u1, b1, r, g, b, a);
+            Vertex(c3, u3, b3, r, g, b, a);
+        }
+
+        draw.Count = (s_vertices.Count / Stride) - draw.First;
+        s_draws.Add(draw);
+    }
+
+    private static readonly Dictionary<Mesh, (Vector3[] Positions, Vector2[] Uvs)> s_emitterMeshes = [];
+
+    /// <summary>
+    /// A mesh emitter's particles of this frame (ParticleSystemView.FillMeshes): the emitter's mesh placed by each
+    /// particle here, in the particle's colour, drawn with the layer's material rules.
+    /// </summary>
+    public static void CollectMeshes(ShaderMaterial? material, Mesh? mesh, List<MeshInstance> meshes, int count)
+    {
+        if (material is null || mesh is null || count <= 0) return;
+        if (!s_emitterMeshes.TryGetValue(mesh, out (Vector3[] Positions, Vector2[] Uvs) triangles))
+        {
+            var positions = new List<Vector3>();
+            var uvs = new List<Vector2>();
+            for (int s = 0; s < mesh.GetSurfaceCount(); s++)
+            {
+                Godot.Collections.Array arrays = mesh.SurfaceGetArrays(s);
+                Vector3[] p = arrays[(int)Mesh.ArrayType.Vertex].AsVector3Array();
+                Vector2[] t = arrays[(int)Mesh.ArrayType.TexUV].VariantType == Variant.Type.Nil ? [] : arrays[(int)Mesh.ArrayType.TexUV].AsVector2Array();
+                int[] index = arrays[(int)Mesh.ArrayType.Index].VariantType == Variant.Type.Nil ? [] : arrays[(int)Mesh.ArrayType.Index].AsInt32Array();
+                int n = index.Length > 0 ? index.Length : p.Length;
+                for (int i = 0; i < n; i++)
+                {
+                    int v = index.Length > 0 ? index[i] : i;
+                    positions.Add(p[v]);
+                    uvs.Add(v < t.Length ? t[v] : Vector2.Zero);
+                }
+            }
+
+            triangles = (positions.ToArray(), uvs.ToArray());
+            s_emitterMeshes[mesh] = triangles;
+        }
+
+        if (triangles.Positions.Length == 0) return;
+        Draw draw = DrawOf(material);
+        draw.BlendCells = false;
+        draw.Repeat = true;
+        draw.First = s_vertices.Count / Stride;
+        for (int i = 0; i < count && i < meshes.Count; i++)
+        {
+            MeshInstance m = meshes[i];
+            Transform3D place = UeSpace.TransformToGodot(m.Location, m.Rotation, m.Scale, default);
+            for (int v = 0; v < triangles.Positions.Length; v++)
+            {
+                Vertex(place * triangles.Positions[v], triangles.Uvs[v], Vector2.Zero, m.Color.R, m.Color.G, m.Color.B, m.Color.A);
+            }
+        }
+
+        draw.Count = (s_vertices.Count / Stride) - draw.First;
+        s_draws.Add(draw);
+    }
+
+    private static Draw DrawOf(ShaderMaterial material)
+    {
         if (!s_particleMaterials.TryGetValue(material, out Draw draw))
         {
             string code = material.Shader is { } shader ? ResponsiveSmokeShaders.BaseCode(shader) : "";
@@ -92,23 +165,7 @@ internal static class RdSheets
             s_particleMaterials[material] = draw;
         }
 
-        draw.First = s_vertices.Count / Stride;
-        foreach (SpriteQuad q in quads)
-        {
-            Vector3 c0 = UeSpace.ToGodot(q.C0), c1 = UeSpace.ToGodot(q.C1), c2 = UeSpace.ToGodot(q.C2), c3 = UeSpace.ToGodot(q.C3);
-            Vector2 u0 = new(q.U0, q.V1), u1 = new(q.U1, q.V1), u2 = new(q.U0, q.V0), u3 = new(q.U1, q.V0);
-            Vector2 b0 = new(q.BU0, q.BV1), b1 = new(q.BU1, q.BV1), b2 = new(q.BU0, q.BV0), b3 = new(q.BU1, q.BV0);
-            (byte r, byte g, byte b, byte a) = (q.Color.R, q.Color.G, q.Color.B, q.Color.A);
-            Vertex(c0, u0, b0, r, g, b, a);
-            Vertex(c1, u1, b1, r, g, b, a);
-            Vertex(c2, u2, b2, r, g, b, a);
-            Vertex(c2, u2, b2, r, g, b, a);
-            Vertex(c1, u1, b1, r, g, b, a);
-            Vertex(c3, u3, b3, r, g, b, a);
-        }
-
-        draw.Count = (s_vertices.Count / Stride) - draw.First;
-        s_draws.Add(draw);
+        return draw;
     }
 
     // ---- Render thread ----

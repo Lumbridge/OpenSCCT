@@ -515,6 +515,7 @@ public sealed class SoftBodyViews
                 RenderingServer.MeshSurfaceUpdateVertexRegion(_meshRid, 0, 0, _vertexData);
                 Mesh.CustomAabb = new Aabb(min, max - min).Grow(0.001f);
                 Rd.RdShadowPass.SetDynamic(Mesh, _verts, _uvs, _indices);
+                Rd.RdObjects.SetDynamic(Mesh, _verts, _normals, _uvs, _indices);
                 return;
             }
 
@@ -546,6 +547,7 @@ public sealed class SoftBodyViews
             }
 
             Rd.RdShadowPass.SetDynamic(Mesh, _verts, _uvs, _indices);
+                Rd.RdObjects.SetDynamic(Mesh, _verts, _normals, _uvs, _indices);
         }
     }
 }

@@ -436,6 +436,7 @@ internal static partial class GdShaderTranslator
                 UV = svm_a_uv;
                 UV2 = vec2(0.0);
                 COLOR = svm_a_color;
+                NODE_POSITION_VIEW = (VIEW_MATRIX * svm_model[3]).xyz;
                 POSITION = PROJECTION_MATRIX * (VIEW_MATRIX * (svm_model * vec4(VERTEX, 1.0)));
                 svm_vertex();
 

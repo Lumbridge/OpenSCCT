@@ -108,7 +108,7 @@ internal sealed class RdMaterial
                 bool Has(string name) => Code.Contains("#define " + name, StringComparison.Ordinal);
                 _flags = (Has("BLEND_MASKED") ? 1 : 0)
                     | (Has("BLEND_TRANSLUCENT") || Has("BLEND_ADDITIVE") || Has("BLEND_MODULATE") || Has("BLEND_DARKEN") ? 2 : 0)
-                    | (RdObjects.LayersOf(Code).Length > 0 ? 4 : 0);
+                    | (RdObjects.LayersOf(Code).Length > 0 ? 4 : 0) | (Has("SVM_CLOAK") ? 8 : 0);
             }
 
             return _flags;
@@ -123,6 +123,8 @@ internal sealed class RdMaterial
     /// material. The own frame's small shaders do not hold these; such a surface is drawn by the whole template.
     /// </summary>
     public bool Layered => (Flags & 4) != 0;
+    /// <summary>A cloaked body: it mixes its colour with the frame behind it (svm_behind).</summary>
+    public bool Cloak => (Flags & 8) != 0;
     /// <summary>Set by RdWorldGpu on first use: its index there.</summary>
     public int GpuIndex = -1;
 }

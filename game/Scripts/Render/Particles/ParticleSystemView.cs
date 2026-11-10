@@ -419,6 +419,7 @@ public sealed class ParticleSystemView
         }
 
         mm.VisibleInstanceCount = n;
+        if (Rd.RdWorldRenderer.OwnFrame) Rd.RdSheets.CollectMeshes(layer.MultiNode?.MaterialOverride as ShaderMaterial, mm.Mesh, meshes, n);
         return n;
     }
 

@@ -38,7 +38,7 @@ internal sealed class RdObjects
         public int Palette;
         public bool Masked, TwoSided;
         public Rid Texture;
-        /// <summary>0 solid, 1 blended by the texture's alpha, 2 added.</summary>
+        /// <summary>0 solid, 1 blended by the texture's alpha, 2 added, 3 a cloaked body (drawn last, over a copy of the frame).</summary>
         public int Blend;
         /// <summary>The spot slots whose sphere reaches the mesh (0: its shader holds no spot code).</summary>
         public int SpotBits;
@@ -53,6 +53,56 @@ internal sealed class RdObjects
     {
         public int Id;
         public bool Uploaded;
+        /// <summary>A mesh rewritten in place (cloth): the version of its arrays the GPU copy holds, and its index list.</summary>
+        public int Version = -1;
+        public uint[]? Indices;
+    }
+
+    /// <summary>The current shape of a mesh that is rewritten in place (SoftBodyViews), as it was last written.</summary>
+    private sealed class DynamicSource
+    {
+        public Vector3[] Positions = [], Normals = [];
+        public Vector2[] Uvs = [];
+        public int[] Indices = [];
+        public int Version;
+    }
+
+    private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<Mesh, DynamicSource> s_dynamic = [];
+
+    /// <summary>
+    /// The arrays a mesh was just rewritten from (one surface of triangles, a fixed vertex count and index list): the
+    /// own frame draws it from these, uploading them again when they changed and the mesh is in view.
+    /// </summary>
+    public static void SetDynamic(Mesh mesh, Vector3[] positions, Vector3[] normals, Vector2[] uvs, int[] indices)
+    {
+        if (!RdWorldRenderer.OwnFrame) return;
+        DynamicSource source = s_dynamic.GetValue(mesh, static _ => new DynamicSource());
+        (source.Positions, source.Normals, source.Uvs, source.Indices) = (positions, normals, uvs, indices);
+        source.Version++;
+    }
+
+    private static Upload PackDynamic(DynamicSource source, SurfaceInfo surface)
+    {
+        Vector3[] positions = source.Positions;
+        var bytes = new byte[positions.Length * Stride];
+        for (int i = 0; i < positions.Length; i++)
+        {
+            Span<byte> v = bytes.AsSpan(i * Stride, Stride);
+            MemoryMarshal.Write(v, in positions[i]);
+            Vector3 n = i < source.Normals.Length ? source.Normals[i] : Vector3.Up;
+            MemoryMarshal.Write(v[12..], in n);
+            Vector2 uv = i < source.Uvs.Length ? source.Uvs[i] : Vector2.Zero;
+            MemoryMarshal.Write(v[24..], in uv);
+            v[32] = v[33] = v[34] = v[35] = 255;
+        }
+
+        if (surface.Indices is null || surface.Indices.Length != source.Indices.Length)
+        {
+            surface.Indices = new uint[source.Indices.Length];
+            for (int i = 0; i < source.Indices.Length; i++) surface.Indices[i] = (uint)source.Indices[i];
+        }
+
+        return new Upload { Surface = surface.Id, Vertices = bytes, Indices = surface.Indices, VertexCount = positions.Length, Skinned = false };
     }
 
     private sealed class SkinInfo
@@ -87,7 +137,8 @@ internal sealed class RdObjects
         template = RdWorldGeometry.ActorMaterial(material, skinned ? 2 : 1);
         _templates[(material, skinned)] = template;
         // A conveyor slides its textures every frame; other values change now and then (cosmetics, switched screens).
-        if (template is not null) _refresh.Add((material, template, material.GetShaderParameter(s_scroll).VariantType != Variant.Type.Nil));
+        // A cloak fades in and out by its glass value.
+        if (template is not null) _refresh.Add((material, template, template.Cloak || material.GetShaderParameter(s_scroll).VariantType != Variant.Type.Nil));
         return template;
     }
 
@@ -145,8 +196,8 @@ internal sealed class RdObjects
             while (_stack.Count > 0)
             {
                 Node at = _stack.Pop();
-                // The merged world is the world pass's own; cloth is rewritten in place every frame and not handled yet.
-                if (at.Name == s_static || at.Name == s_softBodies) continue;
+                // The merged world is the world pass's own.
+                if (at.Name == s_static) continue;
                 foreach (Node child in at.GetChildren()) _stack.Push(child);
                 if (at is MeshInstance3D found) _nodes.Add(found);
             }
@@ -172,7 +223,8 @@ internal sealed class RdObjects
 
             Transform3D model = node.GlobalTransform;
             // A posed mesh leaves its rest box: it is culled by a generous one.
-            Aabb box = model * mesh.GetAabb();
+            s_dynamic.TryGetValue(mesh, out DynamicSource? dynamic);
+            Aabb box = model * (mesh.CustomAabb.Size != Vector3.Zero ? mesh.CustomAabb : mesh.GetAabb());
             if (!inside(planes, skin is null ? box : box.Grow(1.5f))) continue;
             int objectIndex = -1, paletteBase = -1;
             int spotBits = spots(skin is null ? box : box.Grow(1.5f));
@@ -194,7 +246,18 @@ internal sealed class RdObjects
                     _surfaces[(mesh, s)] = surface;
                 }
 
-                if (!surface.Uploaded)
+                if (dynamic is not null && skin is null && s == 0)
+                {
+                    // Cloth: its vertices again whenever they were rewritten since the last upload.
+                    if (dynamic.Positions.Length == 0 || dynamic.Indices.Length < 3) continue;
+                    if (surface.Version != dynamic.Version)
+                    {
+                        surface.Version = dynamic.Version;
+                        surface.Uploaded = true;
+                        uploads.Add(PackDynamic(dynamic, surface));
+                    }
+                }
+                else if (!surface.Uploaded)
                 {
                     surface.Uploaded = true;
                     if (Pack(mesh, s, surface.Id, skin is not null) is { } upload) uploads.Add(upload);
@@ -248,7 +311,7 @@ internal sealed class RdObjects
                 draws.Add(new Draw
                 {
                     Surface = surface.Id, Object = objectIndex, Kind = m.Kind, Palette = paletteBase, Masked = m.Masked, TwoSided = m.TwoSided, Texture = m.Texture,
-                    Blend = template is null ? m.Blend : template.Blended ? 1 : 0, SpotBits = m.Kind == 0 && template is null ? 0 : spotBits, Material = template,
+                    Blend = template is null ? m.Blend : template.Cloak ? 3 : template.Blended ? 1 : 0, SpotBits = m.Kind == 0 && template is null ? 0 : spotBits, Material = template,
                 });
             }
         }
@@ -304,16 +367,15 @@ internal sealed class RdObjects
     }
 
     /// <summary>
-    /// A template material the small actor shaders cannot draw as it is: layers, cosmetics or a multiplied blend. A
-    /// cloaked body (it reads the frame behind it) and a surface only thermal and EMF show are not drawn here.
+    /// A template material the small actor shaders cannot draw as it is: layers, cosmetics, a multiplied blend or a
+    /// cloak (it reads the frame behind it). A surface only thermal and EMF show is not drawn here.
     /// </summary>
     private static bool WantsTemplate(ShaderMaterial material)
     {
         if (material.Shader is not { } shader) return false;
         string code = ResponsiveSmokeShaders.BaseCode(shader);
-        if (!code.Contains("svm_world.gdshaderinc", StringComparison.Ordinal) || code.Contains("#define SVM_CLOAK", StringComparison.Ordinal)
-            || code.Contains("#define VISION_SEE_THROUGH", StringComparison.Ordinal)) return false;
-        return LayersOf(code).Length > 0 || code.Contains("#define BLEND_MODULATE", StringComparison.Ordinal) || code.Contains("#define BLEND_DARKEN", StringComparison.Ordinal);
+        if (!code.Contains("svm_world.gdshaderinc", StringComparison.Ordinal) || code.Contains("#define VISION_SEE_THROUGH", StringComparison.Ordinal)) return false;
+        return LayersOf(code).Length > 0 || code.Contains("#define SVM_CLOAK", StringComparison.Ordinal) || code.Contains("#define BLEND_MODULATE", StringComparison.Ordinal) || code.Contains("#define BLEND_DARKEN", StringComparison.Ordinal);
     }
 
     /// <summary>Statistics: the actor materials met so far, by what they hold (materials and whether they are drawn).</summary>

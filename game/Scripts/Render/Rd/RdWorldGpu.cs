@@ -575,6 +575,8 @@ internal sealed class RdWorldGpu
         {
             RdMaterialTexture slot = source.Shader.Textures[i];
             Rid texture = source.Textures[i] is { } t ? RenderingServer.TextureGetRdTexture(t.GetRid(), false) : default;
+            // A cloak reads the frame as it stood before the cloaked bodies (the own frame keeps a copy of it).
+            if (slot.Name == "svm_behind" && _ownBehind.IsValid) texture = _ownBehind;
             var uniform = new RDUniform { UniformType = RD.UniformType.SamplerWithTexture, Binding = slot.Binding };
             uniform.AddId(SamplerOf(rd, slot.Filter, slot.Repeat));
             uniform.AddId(texture.IsValid ? texture : slot.DefaultBlack ? _black : _white);
@@ -772,9 +774,12 @@ internal sealed class RdWorldGpu
         // A blended material (the own frame only) tests depth and writes none, as Godot's transparent pass.
         IReadOnlySet<string> modes = source.RenderModes;
         bool blended = modes.Contains("blend_mix") || modes.Contains("blend_add") || modes.Contains("blend_mul") || modes.Contains("blend_premul_alpha");
+        // A cloaked body replaces the pixel and writes its depth, once across its surfaces.
+        bool cloak = false;
+        foreach (RdMaterialTexture t in source.Textures) cloak |= t.Name == "svm_behind";
         var depthState = new RDPipelineDepthStencilState
         {
-            EnableDepthTest = true, EnableDepthWrite = !blended, DepthCompareOperator = RD.CompareOperator.GreaterOrEqual,
+            EnableDepthTest = true, EnableDepthWrite = !blended || cloak, DepthCompareOperator = RD.CompareOperator.GreaterOrEqual,
         };
         bool stencil = depthFormat.Format is RD.DataFormat.D24UnormS8Uint or RD.DataFormat.D32SfloatS8Uint or RD.DataFormat.D16UnormS8Uint;
         if (source.StencilWrite is { } reference && stencil)
@@ -1023,6 +1028,22 @@ internal sealed class RdWorldGpu
 
         while (_objectUploads.TryDequeue(out RdObjects.Upload? upload))
         {
+            if (_objectSurfaces.TryGetValue(upload.Surface, out (Rid Vertices, Rid VertexArray, Rid Indices, Rid IndexArray, bool Skinned) old))
+            {
+                // A mesh rewritten in place (cloth): the same buffers while its size holds.
+                if (old.Skinned == upload.Skinned && _objectSurfaceBytes.GetValueOrDefault(upload.Surface) == (upload.Vertices.Length, upload.Indices.Length))
+                {
+                    rd.BufferUpdate(old.Vertices, 0, (uint)upload.Vertices.Length, upload.Vertices);
+                    continue;
+                }
+
+                foreach (Rid rid in new[] { old.VertexArray, old.IndexArray, old.Vertices, old.Indices })
+                {
+                    if (rid.IsValid) rd.FreeRid(rid);
+                }
+            }
+
+            _objectSurfaceBytes[upload.Surface] = (upload.Vertices.Length, upload.Indices.Length);
             Rid vertices = rd.VertexBufferCreate((uint)upload.Vertices.Length, upload.Vertices, 0);
             Rid vertexArray = rd.VertexArrayCreate((uint)upload.VertexCount, _objectFormats[upload.Skinned ? 1 : 0], [vertices], ReadOnlySpan<long>.Empty);
             Rid indices = rd.IndexBufferCreate((uint)upload.Indices.Length, RD.IndexBufferFormat.Uint32, MemoryMarshal.AsBytes(upload.Indices.AsSpan()), false, 0);
@@ -1129,6 +1150,20 @@ internal sealed class RdWorldGpu
             }
         }
 
+        _cloaks = false;
+        foreach (RdObjects.Draw draw in frame.Objects) _cloaks |= draw.Blend == 3;
+        if (_cloaks && (!_ownBehind.IsValid || _ownBehindSize != _ownSize))
+        {
+            if (_ownBehind.IsValid) rd.FreeRid(_ownBehind);
+            _ownBehindSize = _ownSize;
+            using RDTextureFormat format = rd.TextureGetFormat(_ownColor);
+            _ownBehind = rd.TextureCreate(new RDTextureFormat
+            {
+                Format = format.Format, Width = (uint)_ownSize.X, Height = (uint)_ownSize.Y,
+                UsageBits = RD.TextureUsageBits.SamplingBit | RD.TextureUsageBits.CanCopyToBit,
+            }, new RDTextureView(), []);
+        }
+
         _objectTemplates.Clear();
         foreach (RdObjects.Draw draw in frame.Objects)
         {
@@ -1151,6 +1186,11 @@ internal sealed class RdWorldGpu
 
     // The frame's actor draws that take the template (RdObjects.Draw.Material): what each binds, by draw index.
     private readonly List<(Variant? Variant, Rid Pipeline)> _objectTemplates = [];
+    private readonly Dictionary<int, (int Vertices, int Indices)> _objectSurfaceBytes = [];
+    // The frame before the cloaked bodies, which they mix themselves with.
+    private Rid _ownBehind;
+    private Vector2I _ownBehindSize;
+    private bool _cloaks;
     private int _objectBufferVersion;
 
     /// <summary>Everything a template actor draw binds, made before the draw list opens; default when it cannot be drawn.</summary>
@@ -1183,6 +1223,8 @@ internal sealed class RdWorldGpu
         }
 
         RdFeatures features = (RdFeatures.NoPortalFog | (draw.SpotBits == 0 ? RdFeatures.NoSpot : RdFeatures.None)) & source.Applicable;
+        // A set dies with a texture it holds (the frame copy after a resize, a freed cosmetic texture).
+        if (material.Variants[(int)features] is { } held && !rd.UniformSetIsValid(held.Set)) material.Variants[(int)features] = null;
         Variant? variant = material.Variants[(int)features] ?? VariantOf(rd, material, features);
         if (variant is null) return default;
         ShaderGpu shader = variant.Shader;
@@ -1209,7 +1251,7 @@ internal sealed class RdWorldGpu
         return (variant, pipeline);
     }
 
-    private void RecordObjects(RenderingDevice rd, long dl, RdWorldFrame frame)
+    private void RecordObjects(RenderingDevice rd, long dl, RdWorldFrame frame, bool cloaks = false)
     {
         Rid pipeline = default, set = default;
         Span<int> push = MemoryMarshal.Cast<byte, int>(_drawBlock.AsSpan());
@@ -1218,7 +1260,7 @@ internal sealed class RdWorldGpu
         for (int at = 0; at < frame.Objects.Count; at++)
         {
             RdObjects.Draw draw = frame.Objects[at];
-            if ((draw.Blend != 0) != (blendedPass == 1)) continue;
+            if ((draw.Blend == 3) != cloaks || (cloaks ? blendedPass == 1 : (draw.Blend != 0) != (blendedPass == 1))) continue;
             if (!_objectSurfaces.TryGetValue(draw.Surface, out (Rid Vertices, Rid VertexArray, Rid Indices, Rid IndexArray, bool Skinned) surface)) continue;
             // A surface packed for one kind of vertex is only drawn by that kind's program.
             if (surface.Skinned != (draw.Palette >= 0)) continue;
@@ -1459,6 +1501,21 @@ internal sealed class RdWorldGpu
         finally
         {
             rd.DrawListEnd();
+        }
+
+        if (objects && _cloaks && _ownBehind.IsValid)
+        {
+            // Cloaked bodies last: each mixes its colour with the frame as it stood, from a copy.
+            rd.TextureCopy(_ownColor, _ownBehind, Vector3.Zero, Vector3.Zero, new Vector3(_ownSize.X, _ownSize.Y, 1f), 0, 0, 0, 0);
+            long cloakList = rd.DrawListBegin(_ownFramebuffer, 0, _clear, 0f, 0, null, 0);
+            try
+            {
+                RecordObjects(rd, cloakList, frame, cloaks: true);
+            }
+            finally
+            {
+                rd.DrawListEnd();
+            }
         }
 
         if (coronas) RecordCoronas(rd, frame);
@@ -2199,6 +2256,8 @@ internal sealed class RdWorldGpu
             if (rid.IsValid) rd.FreeRid(rid);
         }
 
+        if (_ownBehind.IsValid) rd.FreeRid(_ownBehind);
+        _ownBehind = default;
         _ownColor = _ownDepth = _ownFramebuffer = _stageFrameBuffer = default;
         if (rd.UniformSetIsValid(_depthSet)) rd.FreeRid(_depthSet);
         if (_depthShader.IsValid) rd.FreeRid(_depthShader);
