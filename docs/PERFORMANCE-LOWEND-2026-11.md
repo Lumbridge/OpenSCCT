@@ -537,6 +537,23 @@ Own frame (build `build-o16`) against the Godot path at a 30 FPS cap, pixels mor
 
 Own frame (build `build-o17`) against the Godot path, 30 FPS cap, pixels more than 2 levels apart: SteeE's eight reference views 0.00% to 1.64%; AquaE's 0.04% to 6.9% (the window above).
 
+### Ninth stage: the scene completed
+
+Everything the normal view draws on the maps of the original is now drawn by the own frame.
+
+- **Spot shadow lights on actors.** A mesh whose box a spot slot's sphere reaches is drawn by a second set of the small actor programs that adds `svm_spot_slot` at each pixel, for the slots that reach it (the mercenary's torch on a spy, a door or a crate). The others keep the programs without that code.
+- **Light beams** (`RdSheets.CollectBeams`): the slice meshes of `MapLightBeams`, stretched on the CPU each frame and drawn with their own small shader (cut by the light's shadow map, tinted by its cookie).
+- **Layered materials take the whole template.** The small shaders hold one texture and one light. A material with more (self-illumination, an animated or combined texture, a flipbook, an environment, an opacity layer, cosmetics, an authored material) is drawn by the translated template instead, on the world (`RdMaterial.Layered`) and on actors. For actors the translator has a second mode (`GdShaderTranslator.Translate(..., actor)`): RdObjects' vertices, the object's model matrix or the vertex's blend of bones, and the instance uniforms (`svm_ambient`, the four lights, `svm_tint`, `svm_glow_hue`) read from the object's block. `SVM_NORMAL_VISION` is defined for these, so they hold no thermal or EMF code. Multiplied and darkening blends go this way too. The values of an actor material are read again in turn (two materials a frame; every frame for a conveyor's scroll and a cloak's glass value).
+- **Cloth** (`RdObjects.SetDynamic`): the arrays `SoftBodyViews` rewrites its mesh from are uploaded again when they changed and the cloth is in view.
+- **Mesh particles** (`RdSheets.CollectMeshes`): the emitter's mesh placed on the CPU for each particle, as a sheet draw.
+- **Cloaked bodies**: drawn last, after a copy of the frame (`TextureCopy`, only in frames with a cloaked body in view), which the template's cloak code reads as `svm_behind`.
+- **No work at first sight.** When a mesh node enters the scene (the map's load, a character spawning) its surfaces are packed and its template shaders and pipelines are made, both light states. The sheet and beam shaders are made in the first frame.
+- **The hand-over to Godot's renderer was exercised** with `SVM_RD_FRAME_FLIP=0.7` (Godot's renderer takes every other 0.7 s): SteeE's and AquaE's reference views, some captured on each side of a switch, show no error, no black frame and no difference from the unswitched runs beyond rain and blinking lamps, which differ between any two runs.
+
+Against the original's own captures (`local/golden/allmaps/game`, mean absolute difference over 32 views of FactE, RiveE, AquaE and SteeE, levels of 255): the Godot path 3.28, the own frame 3.16. The own frame is nearer on FactE's windows (the glow around them: 66, 65, 65 at one point of the original, 67, 66, 66 in the own frame, 22, 21, 21 in the Godot path) and on AquaE's aquarium window; it is further by 0.3 to 0.6 on two RiveE views with additive holograms, where the 8-bit target clamps a sum the Godot path's float target carries on.
+
+Not drawn by the own frame: maps with an outdoor sky (OpenSCCT's own; none of the original's maps) and every vision mode but the normal one. Both go to Godot's renderer whole.
+
 ## The target
 
 ### The original at 2560×1440 on the UHD 770 (measured 2026-11-10)
