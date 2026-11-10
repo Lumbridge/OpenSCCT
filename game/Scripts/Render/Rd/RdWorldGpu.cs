@@ -43,6 +43,9 @@ internal sealed class RdWorldFrame
     public readonly List<float> ProjectorBlocks = [];
     public readonly List<Rid> ProjectorTextures = [];
     public readonly List<int> ProjectorKinds = [];
+    /// <summary>Own-frame mode: the coronas shown this frame (RdCoronas), grouped by texture.</summary>
+    public readonly List<RdCoronas.Group> CoronaGroups = [];
+    public readonly List<float> CoronaBlocks = [];
     public float GlowCut = -1f;
 
     public void Reserve(int draws)
@@ -1158,9 +1161,12 @@ internal sealed class RdWorldGpu
             _ownDepth = rd.TextureCreate(new RDTextureFormat
             {
                 Format = RD.DataFormat.D32Sfloat, Width = (uint)size.X, Height = (uint)size.Y,
-                UsageBits = RD.TextureUsageBits.DepthStencilAttachmentBit, IsDiscardable = true,
+                // Sampled after the scene by the passes that test against it (coronas).
+                UsageBits = RD.TextureUsageBits.DepthStencilAttachmentBit | RD.TextureUsageBits.SamplingBit,
             }, new RDTextureView(), []);
             _ownFramebuffer = rd.FramebufferCreate([_ownColor, _ownDepth], -1, 1);
+            _ownColorFramebuffer = rd.FramebufferCreate([_ownColor], -1, 1);
+            _coronaFrameSet = default;
             _ownFormat = rd.FramebufferGetFormat(_ownFramebuffer);
             // What the canvas shows: the scene after the final pass (RdFramePost).
             _ownShown = rd.TextureCreate(new RDTextureFormat
@@ -1185,6 +1191,7 @@ internal sealed class RdWorldGpu
         frame.Clip.AsSpan().CopyTo(block);
         block[32] = RenderK.LightmapScale;
         block[33] = frame.Time;
+        (block[34], block[35]) = (frame.Proj.Z.Z, frame.Proj.W.Z);
         frame.FogBlock.AsSpan().CopyTo(block[36..48]);
         rd.BufferUpdate(_stageFrameBuffer, 0, (uint)_stageFrameBlock.Length, _stageFrameBlock);
 
@@ -1221,6 +1228,7 @@ internal sealed class RdWorldGpu
 
         bool objects = PrepareObjects(rd, frame);
         bool projectors = PrepareProjectors(rd, frame);
+        bool coronas = PrepareCoronas(rd, frame);
         var clock = Stopwatch.StartNew();
         rd.CaptureTimestamp("RD Own Frame");
         _clear[0] = frame.Clear;
@@ -1300,6 +1308,7 @@ internal sealed class RdWorldGpu
             rd.DrawListEnd();
         }
 
+        if (coronas) RecordCoronas(rd, frame);
         if (_post.Ensure(rd, _ownColor, _ownShown, (vertex, fragment, name) => Compile(rd, vertex, fragment, name, null))) _post.Run(rd, frame.Gate, frame.GlowCut);
         else Fail("own frame post failed");
         rd.CaptureTimestamp("RD Own Frame End");
@@ -1308,6 +1317,93 @@ internal sealed class RdWorldGpu
     }
 
     private bool _ownWarmed;
+
+    /// <summary>The share of the depth range the sky zone is squeezed into, behind the world (RdWorldRenderer.SkyDepth).</summary>
+    internal const float OwnSkyDepth = 0.001f;
+
+    private Rid _ownColorFramebuffer, _coronaShader, _coronaPipeline, _coronaBuffer, _coronaFrameSet;
+    private readonly Dictionary<Rid, Rid> _coronaSets = [];
+    private int _coronaCapacity;
+
+    /// <summary>Everything the corona draws bind, made before their draw list opens. False: none this frame.</summary>
+    private bool PrepareCoronas(RenderingDevice rd, RdWorldFrame frame)
+    {
+        if (frame.CoronaGroups.Count == 0 || Test.Contains("nocoronas")) return false;
+        if (!_coronaShader.IsValid)
+        {
+            _coronaShader = Compile(rd, RdCoronas.Vertex, RdCoronas.Fragment, "svm_rd_corona", null);
+            if (!_coronaShader.IsValid) return false;
+            // The original's FB_Translucent for coronas: ONE, INVSRCCOLOR over the frame is src x (1 - frame) + frame.
+            var attachment = new RDPipelineColorBlendStateAttachment
+            {
+                EnableBlend = true, WriteA = false, ColorBlendOp = RD.BlendOperation.Add, AlphaBlendOp = RD.BlendOperation.Add,
+                SrcColorBlendFactor = RD.BlendFactor.OneMinusDstColor, DstColorBlendFactor = RD.BlendFactor.One,
+                SrcAlphaBlendFactor = RD.BlendFactor.Zero, DstAlphaBlendFactor = RD.BlendFactor.One,
+            };
+            _coronaPipeline = rd.RenderPipelineCreate(_coronaShader, rd.FramebufferGetFormat(_ownColorFramebuffer), -1, RD.RenderPrimitive.Triangles,
+                new RDPipelineRasterizationState { CullMode = RD.PolygonCullMode.Disabled }, new RDPipelineMultisampleState(), new RDPipelineDepthStencilState(),
+                new RDPipelineColorBlendState { Attachments = [attachment] }, 0, 0, []);
+            if (!_coronaPipeline.IsValid) return false;
+        }
+
+        int bytes = frame.CoronaBlocks.Count * 4;
+        if (bytes > _coronaCapacity)
+        {
+            if (_coronaBuffer.IsValid) rd.FreeRid(_coronaBuffer);
+            _coronaCapacity = Math.Max(bytes * 2, RdCoronas.BlockFloats * 4 * 64);
+            _coronaBuffer = rd.StorageBufferCreate((uint)_coronaCapacity);
+            _coronaFrameSet = default;
+        }
+
+        rd.BufferUpdate(_coronaBuffer, 0, (uint)bytes, MemoryMarshal.AsBytes(CollectionsMarshal.AsSpan(frame.CoronaBlocks)));
+        if (!_coronaFrameSet.IsValid || !rd.UniformSetIsValid(_coronaFrameSet))
+        {
+            var frameBlock = new RDUniform { UniformType = RD.UniformType.UniformBuffer, Binding = 0 };
+            frameBlock.AddId(_stageFrameBuffer);
+            var blocks = new RDUniform { UniformType = RD.UniformType.StorageBuffer, Binding = 1 };
+            blocks.AddId(_coronaBuffer);
+            var depth = new RDUniform { UniformType = RD.UniformType.SamplerWithTexture, Binding = 2 };
+            depth.AddId(SamplerOf(rd, RdFilter.Nearest, repeat: false));
+            depth.AddId(_ownDepth);
+            _coronaFrameSet = rd.UniformSetCreate([frameBlock, blocks, depth], _coronaShader, 0);
+            if (!_coronaFrameSet.IsValid) return false;
+        }
+
+        foreach (RdCoronas.Group group in frame.CoronaGroups)
+        {
+            if (_coronaSets.TryGetValue(group.Texture, out Rid set) && rd.UniformSetIsValid(set)) continue;
+            var uniform = new RDUniform { UniformType = RD.UniformType.SamplerWithTexture, Binding = 0 };
+            uniform.AddId(SamplerOf(rd, RdFilter.LinearMipmap, repeat: false));
+            uniform.AddId(group.Texture.IsValid && rd.TextureIsValid(group.Texture) ? group.Texture : _black);
+            _coronaSets[group.Texture] = rd.UniformSetCreate([uniform], _coronaShader, 1);
+        }
+
+        return true;
+    }
+
+    private void RecordCoronas(RenderingDevice rd, RdWorldFrame frame)
+    {
+        long dl = rd.DrawListBegin(_ownColorFramebuffer, 0, _clear, 0f, 0, null, 0);
+        try
+        {
+            rd.DrawListBindRenderPipeline(dl, _coronaPipeline);
+            rd.DrawListBindUniformSet(dl, _coronaFrameSet, 0);
+            MemoryMarshal.Cast<byte, float>(_drawBlock.AsSpan())[2] = 1f - OwnSkyDepth;
+            MemoryMarshal.Cast<byte, float>(_drawBlock.AsSpan())[3] = OwnSkyDepth;
+            foreach (RdCoronas.Group group in frame.CoronaGroups)
+            {
+                rd.DrawListBindUniformSet(dl, _coronaSets[group.Texture], 1);
+                MemoryMarshal.Cast<byte, int>(_drawBlock.AsSpan())[0] = group.First;
+                rd.DrawListSetPushConstant(dl, _drawBlock, (uint)_drawBlock.Length);
+                rd.DrawListDraw(dl, false, (uint)group.Count, 6);
+            }
+        }
+        finally
+        {
+            rd.DrawListEnd();
+            Array.Clear(_drawBlock);
+        }
+    }
 
     private Rid _projectorShader, _projectorBuffer, _projectorFrameSet;
     private readonly Rid[] _projectorPipelines = new Rid[3];
@@ -1598,6 +1694,20 @@ internal sealed class RdWorldGpu
         }
 
         _post.Free(rd);
+        foreach (Rid set in _coronaSets.Values)
+        {
+            if (rd.UniformSetIsValid(set)) rd.FreeRid(set);
+        }
+
+        _coronaSets.Clear();
+        if (rd.UniformSetIsValid(_coronaFrameSet)) rd.FreeRid(_coronaFrameSet);
+        foreach (Rid rid in new[] { _coronaPipeline, _coronaShader, _coronaBuffer })
+        {
+            if (rid.IsValid) rd.FreeRid(rid);
+        }
+
+        _coronaPipeline = _coronaShader = _coronaBuffer = _coronaFrameSet = _ownColorFramebuffer = default;
+        _coronaCapacity = 0;
         foreach (Rid set in _projectorSets.Values)
         {
             if (rd.UniformSetIsValid(set)) rd.FreeRid(set);
