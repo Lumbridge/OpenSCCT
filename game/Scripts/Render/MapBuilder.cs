@@ -1160,7 +1160,10 @@ public static class MapBuilder
 
             if (!buckets.TryGetValue((material, light, pass), out SurfaceBuilder? b))
             {
-                b = new SurfaceBuilder(uv2, colour, hasVision: true);
+                b = new SurfaceBuilder(uv2, colour, hasVision: true)
+                {
+                    OrderByFacing = _map.Materials.Find(material)?.Blend == MaterialBlend.Translucent,
+                };
                 buckets[(material, light, pass)] = b;
             }
 
