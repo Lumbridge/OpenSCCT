@@ -520,6 +520,23 @@ Own frame (build `build-o16`) against the Godot path at a 30 FPS cap, pixels mor
 
 **Still not drawn:** mesh particles (MultiMesh emitters), light beams, lasers, cloth, cloaked bodies and character cosmetics, spot and projector light on actors, the moon on SteeE. Maps with an outdoor sky leave the mode off and draw with Godot.
 
+### Eighth stage: blended actors, and the fog checked against the original
+
+- **Blended actor surfaces.** Translucent and additive template materials on actors are drawn after the solid actors, blended by the texture's alpha, writing no depth. Multiplied ones are not drawn yet.
+- **Lasers need nothing in the normal view:** svm_laser draws only in thermal and EMF, which go back to Godot's renderer.
+- **The largest difference from the Godot path is the Godot path's error.** In AquaE's far-180 view the aquarium window is where the two differ (6.9% of the frame). The original was traced and captured on that pose (`aquaE-far180.log`, `runs/orig-trace-far180`): all 46 of its draws use the camera zone's fog (100 to 3500, colour 27, 33, 32), although the zones behind the window have other ranges in the map's data. Mean colour of the window:
+
+| | R | G | B |
+|---|---:|---:|---:|
+| Original (today's capture, and the stored golden) | 21.4 | 87.7 | 202.2 |
+| Own frame | 21.6 | 89.4 | 203.5 |
+| Godot path (portal fog) | 5.8 | 57.9 | 171.4 |
+
+  The own frame's one ramp is what the original draws; the Godot path's fog through portals darkens the water by 30 levels. Whether Reloaded has a setting that turns per-zone fog on is not known; at the sandbox's settings it does not.
+- **Both of ours are darker than the original on that view's dark floor** (mean 6.0, 5.2, 4.5 against 11.5, 9.4, 7.5). The own frame and the Godot path agree with each other there, so it is not from this work: the gate of the final pass, or the floor's light. Not looked into.
+
+Own frame (build `build-o17`) against the Godot path, 30 FPS cap, pixels more than 2 levels apart: SteeE's eight reference views 0.00% to 1.64%; AquaE's 0.04% to 6.9% (the window above).
+
 ## The target
 
 ### The original at 2560×1440 on the UHD 770 (measured 2026-11-10)
