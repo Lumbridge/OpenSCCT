@@ -174,6 +174,7 @@ public partial class RdWorldRenderer : Node
         if (OwnFrame)
         {
             GD.Print(string.Create(CultureInfo.InvariantCulture, $"SVM_RD_FRAME gatherMs={_gatherMs:F3}"));
+            GD.Print("SVM_RD_FRAME fog " + _fogNote);
             foreach ((string what, int count) in RdObjects.Met) GD.Print($"SVM_RD_FRAME actor materials {count}: {what}");
             RdObjects.Met.Clear();
         }
@@ -262,6 +263,7 @@ public partial class RdWorldRenderer : Node
     private Callable _renderOwn;
 
     private bool _ownActive = true;
+    private string _fogNote = "";
     private Func<Aabb, int>? _spotsReachingBox;
     private static readonly StringName s_spotBits = "svm_spot_bits";
 
@@ -400,6 +402,20 @@ public partial class RdWorldRenderer : Node
                 (fogBlock[4], fogBlock[5], fogBlock[6], fogBlock[7]) = (color.X, color.Y, color.Z, 1f);
                 (fogBlock[8], fogBlock[9], fogBlock[10]) = (100f, view.Z, view.W > view.Z ? 1f / (view.W - view.Z) : 1e6f);
             }
+        }
+
+        // The zone ambient's gains for lightmapped and vertex-lit surfaces, in the block's two free places.
+        if (ShaderGlobals.TryGet(WorldLights.ZoneAmbientGainParameter, out Variant ambientGain))
+        {
+            (fogBlock[3], fogBlock[11]) = (ambientGain.AsVector2().X, ambientGain.AsVector2().Y);
+        }
+
+        if (Stats)
+        {
+            ShaderGlobals.TryGet(s_fogMainView, out Variant shownView);
+            ShaderGlobals.TryGet("svm_fog_main_ramp", out Variant shownRamp);
+            ShaderGlobals.TryGet("svm_fog_main_color", out Variant shownColor);
+            _fogNote = $"view={shownView} ramp={shownRamp} color={shownColor} block=({fogBlock[4]:F3},{fogBlock[5]:F3},{fogBlock[6]:F3},{fogBlock[7]:F0}) scale={fogBlock[8]:F3} start={fogBlock[9]:F1} rate={fogBlock[10]:G4}";
         }
 
         int threshold = OpenScctGame.Options.SettingsStore.Current.PostQuality == 0 ? 255 : _map.Lighting.GlowThreshold;

@@ -882,7 +882,10 @@ internal sealed class RdWorldGpu
 
         """;
 
-    private const string StageVertex = StageCommon + """
+    private static string StageVertex(int light) => StageCommon + """
+        // The zone ambient of world surfaces (svm_zone_amb of the template): one texel a zone, by the zone in the
+        // colour's alpha; its gain for lightmapped surfaces rides in eye.w, for vertex-lit ones in fog.w.
+        layout(set = 0, binding = 1) uniform sampler2D zone_ambient;
         layout(location = 0) in vec3 a_pos;
         layout(location = 2) in vec2 a_uv;
         layout(location = 3) in vec2 a_uv2;
@@ -900,8 +903,13 @@ internal sealed class RdWorldGpu
             v_uv2 = a_uv2;
             // The sky zone is not fogged here (its fog is the sky camera's).
             v_rel = draw.sky != 0 ? vec3(0.0) : a_pos - frame.eye.xyz;
+            int zone = int(a_col.a * 255.0 + 0.5);
+            vec3 ambient = zone < 255 && zone < textureSize(zone_ambient, 0).x ? texelFetch(zone_ambient, ivec2(zone, 0), 0).rgb : vec3(0.0);
+
+        """ + (light == 1
             // The baked vertex colour holds half the light term: the original's MODULATE2X.
-            v_light = a_col.rgb * 2.0;
+            ? "    v_light = min(a_col.rgb * 2.0 + ambient * frame.fog.w, vec3(2.0));\n"
+            : "    v_light = ambient * frame.eye.w;\n") + """
             gl_Position = (draw.sky != 0 ? frame.sky : frame.world) * vec4(a_pos, 1.0);
         }
 
@@ -923,7 +931,7 @@ internal sealed class RdWorldGpu
             vec4 t = texture(tex_diffuse, v_uv);
 
         """ + (masked ? "    if (t.a < 0.5) discard;\n" : "")
-        + (light == 2 ? "    vec3 c = t.rgb * min(texture(tex_lightmap, v_uv2).rgb * frame.params.x, vec3(2.0));\n"
+        + (light == 2 ? "    vec3 c = t.rgb * min(texture(tex_lightmap, v_uv2).rgb * frame.params.x + v_light, vec3(2.0));\n"
             : light == 1 ? "    vec3 c = t.rgb * v_light;\n" : "    vec3 c = t.rgb;\n") + RdObjects.Fog + """
             // The alpha is the texture's: a blended sky surface blends by it; nothing else reads the target's alpha.
             frag = vec4(min(c, vec3(1.0)), t.a);
@@ -2037,7 +2045,7 @@ internal sealed class RdWorldGpu
         StageShader? stage = _stages[index];
         if (stage is null)
         {
-            stage = new StageShader { Shader = Compile(rd, StageVertex, StageFragment(light, masked), "svm_rd_stage", null) };
+            stage = new StageShader { Shader = Compile(rd, StageVertex(light), StageFragment(light, masked), "svm_rd_stage", null) };
             if (!stage.Shader.IsValid) return false;
             var depthState = new RDPipelineDepthStencilState { EnableDepthTest = true, EnableDepthWrite = true, DepthCompareOperator = RD.CompareOperator.GreaterOrEqual };
             var blend = new RDPipelineColorBlendState { Attachments = [new RDPipelineColorBlendStateAttachment()] };
@@ -2049,7 +2057,19 @@ internal sealed class RdWorldGpu
             stage.TwoSided = Pipeline(true);
             var frame = new RDUniform { UniformType = RD.UniformType.UniformBuffer, Binding = 0 };
             frame.AddId(_stageFrameBuffer);
-            stage.FrameSet = rd.UniformSetCreate([frame], stage.Shader, 0);
+            Rid zoneAmbient = _black;
+            foreach (ShaderGlobals.Slot slot in _slots)
+            {
+                if (slot.Size == 0 && slot.Place < _globalTextures.Length && slot.Name.ToString() == WorldLights.ZoneAmbientParameter && _globalTextures[slot.Place].IsValid)
+                {
+                    zoneAmbient = _globalTextures[slot.Place];
+                }
+            }
+
+            var ambient = new RDUniform { UniformType = RD.UniformType.SamplerWithTexture, Binding = 1 };
+            ambient.AddId(SamplerOf(rd, RdFilter.Nearest, repeat: false));
+            ambient.AddId(zoneAmbient);
+            stage.FrameSet = rd.UniformSetCreate([frame, ambient], stage.Shader, 0);
             if (!stage.OneSided.IsValid || !stage.TwoSided.IsValid || !stage.FrameSet.IsValid)
             {
                 Fail("stage pipeline failed");
