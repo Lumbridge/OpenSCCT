@@ -216,6 +216,28 @@ public partial class RdWorldRenderer : Node
     private Callable _renderOwn;
 
     private bool _ownActive = true;
+    private Func<Aabb, int>? _spotsReachingBox;
+    private static readonly StringName s_spotBits = "svm_spot_bits";
+
+    /// <summary>
+    /// The spot slots that are on and whose sphere reaches the box, with the dynamic ones of them repeated in bits
+    /// 16 to 31 (the layout of svm_spot_bits): what an actor's shader may have to add.
+    /// </summary>
+    private int SpotsReachingBox(Aabb box)
+    {
+        int global = ShaderGlobals.TryGet(s_spotBits, out Variant bits) ? bits.AsInt32() : 0;
+        int reached = 0;
+        for (int i = 0; i < _spots.Length && i < 16; i++)
+        {
+            Vector4 s = _spots[i];
+            if (!(s.W > 0f) || (global & (1 << i)) == 0) continue;
+            var centre = new Vector3(s.X, s.Y, s.Z);
+            Vector3 nearest = centre.Clamp(box.Position, box.End);
+            if (centre.DistanceSquaredTo(nearest) < s.W) reached |= 1 << i;
+        }
+
+        return reached | ((global >> 16) & reached) << 16;
+    }
     private readonly Dictionary<ShaderMaterial, (Rid Texture, Vector4 Pan, bool Alpha)> _rainMaterials = [];
 
     /// <summary>
@@ -342,7 +364,8 @@ public partial class RdWorldRenderer : Node
         long gathering = System.Diagnostics.Stopwatch.GetTimestamp();
         // Every mesh of the play scene on the actors' layers: gameplay objects, animated props, characters, the
         // first-person model.
-        _objects.Gather(GetParent() ?? _map.Root, _worldPlanes, static (planes, box) => Inside(planes, box), frame.Objects, frame.ObjectData, frame.Palette, _objectUploads);
+        _objects.Gather(GetParent() ?? _map.Root, _worldPlanes, static (planes, box) => Inside(planes, box), _spotsReachingBox ??= SpotsReachingBox,
+            frame.Objects, frame.ObjectData, frame.Palette, _objectUploads);
 
         foreach (RdObjects.Upload upload in _objectUploads) _gpu.QueueObjectUpload(upload);
         frame.Time = ShaderGlobals.TryGet("svm_time", out Variant time) ? time.AsSingle() : 0f;

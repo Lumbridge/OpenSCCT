@@ -40,6 +40,8 @@ internal sealed class RdObjects
         public Rid Texture;
         /// <summary>0 solid, 1 blended by the texture's alpha, 2 added.</summary>
         public int Blend;
+        /// <summary>The spot slots whose sphere reaches the mesh (0: its shader holds no spot code).</summary>
+        public int SpotBits;
     }
 
     private sealed class SurfaceInfo
@@ -83,7 +85,7 @@ internal sealed class RdObjects
     }
 
     /// <summary>Adds the visible meshes under <paramref name="root"/> (main thread, after <see cref="Begin"/>).</summary>
-    public void Gather(Node root, Plane[] planes, Func<Plane[], Aabb, bool> inside, List<Draw> draws, List<byte> objects, List<float> palette, List<Upload> uploads)
+    public void Gather(Node root, Plane[] planes, Func<Plane[], Aabb, bool> inside, Func<Aabb, int> spots, List<Draw> draws, List<byte> objects, List<float> palette, List<Upload> uploads)
     {
         Span<float> block = stackalloc float[ObjectBytes / 4];
         if (Dirty || !ReferenceEquals(root, _walked))
@@ -127,6 +129,7 @@ internal sealed class RdObjects
             Aabb box = model * mesh.GetAabb();
             if (!inside(planes, skin is null ? box : box.Grow(1.5f))) continue;
             int objectIndex = -1, paletteBase = -1;
+            int spotBits = spots(skin is null ? box : box.Grow(1.5f));
             for (int s = 0; s < mesh.GetSurfaceCount(); s++)
             {
                 if ((node.MaterialOverride ?? node.GetSurfaceOverrideMaterial(s) ?? mesh.SurfaceGetMaterial(s)) is not ShaderMaterial material) continue;
@@ -194,7 +197,7 @@ internal sealed class RdObjects
                 draws.Add(new Draw
                 {
                     Surface = surface.Id, Object = objectIndex, Kind = m.Kind, Palette = paletteBase, Masked = m.Masked, TwoSided = m.TwoSided, Texture = m.Texture,
-                    Blend = m.Blend,
+                    Blend = m.Blend, SpotBits = m.Kind == 0 ? 0 : spotBits,
                 });
             }
         }
@@ -353,14 +356,125 @@ internal sealed class RdObjects
             int object;
             int kind;
             int palette;
-            // 0 solid, 1 blended by alpha, 2 added (fog dims an added surface; it does not tint it).
-            int blend;
+            // Bits 0-15: the spot slots that are on and reach the mesh; bits 16-31: those of them that are dynamic lights.
+            int spot_bits;
         } draw;
 
         """;
 
+
+    /// <summary>
+    /// The spot shadow lights at a point of an actor: svm_spot_lookup, svm_spot_shadow and svm_spot_slot of
+    /// svm_world.gdshaderinc, for the slots the draw names (those that are on and whose sphere reaches the mesh).
+    /// </summary>
+    private const string Spot = """
+        layout(set = 2, binding = 0) uniform sampler2D svm_spots;
+        layout(set = 2, binding = 1) uniform sampler2D svm_spot_depth;
+        layout(set = 2, binding = 2) uniform sampler2DArray svm_spot_cookies;
+        layout(set = 2, binding = 3) uniform sampler2D svm_spot_atten;
+        layout(set = 2, binding = 4) uniform sampler2D svm_spot_ignore;
+        layout(location = 3) in vec3 v_wpos;
+        layout(location = 4) in vec3 v_wn;
+
+        float spot_lookup(vec4 tile, vec2 suv, float zref)
+        {
+            vec2 atlas = vec2(textureSize(svm_spot_depth, 0));
+            vec2 lo = tile.xy * atlas + 0.5;
+            vec2 hi = (tile.xy + tile.zw) * atlas - 1.5;
+            vec2 p = clamp((tile.xy + suv * tile.zw) * atlas - 0.5, lo, max(lo, hi));
+            vec2 base = floor(p);
+            vec2 f = p - base;
+            vec4 d = textureGather(svm_spot_depth, (base + 1.0) / atlas, 0);
+            vec4 lit = step(vec4(zref), d);
+            return mix(mix(lit.w, lit.z, f.x), mix(lit.x, lit.y, f.x), f.y);
+        }
+
+        float spot_shadow(vec4 tile, vec2 suv, float zref, float soft)
+        {
+            if (soft <= 0.0) {
+                return spot_lookup(tile, suv, zref);
+            }
+            vec2 step_uv = soft / vec2(textureSize(svm_spot_depth, 0)) / tile.zw;
+            float sum = 0.0;
+            for (int k = 0; k < 8; k++) {
+                float a = float(k) * 0.78539816 + 0.39269908;
+                sum += spot_lookup(tile, suv + vec2(cos(a), sin(a)) * step_uv, zref);
+            }
+            return sum * 0.125;
+        }
+
+        vec3 spot_slot(int i, vec3 wp, vec3 wn, int ignore)
+        {
+            vec4 s = texelFetch(svm_spots, ivec2(8, i), 0);
+            vec3 ds = wp - s.xyz;
+            if (dot(ds, ds) >= s.w) {
+                return vec3(0.0);
+            }
+            vec4 a = texelFetch(svm_spots, ivec2(3, i), 0);
+            if (a.x < 0.5 || (ignore & (a.x > 1.5 ? 2 : 1)) != 0) {
+                return vec3(0.0);
+            }
+            int group = ignore >> 2;
+            if (group > 0 && group < textureSize(svm_spot_ignore, 0).y && texelFetch(svm_spot_ignore, ivec2(i, group), 0).r > 0.5) {
+                return vec3(0.0);
+            }
+            vec4 e = texelFetch(svm_spots, ivec2(7, i), 0);
+            vec4 r0 = texelFetch(svm_spots, ivec2(0, i), 0);
+            vec4 r1 = texelFetch(svm_spots, ivec2(1, i), 0);
+            vec4 r2 = texelFetch(svm_spots, ivec2(2, i), 0);
+            vec4 w = vec4(wp, 1.0);
+            vec3 v = vec3(dot(r0, w), dot(r1, w), dot(r2, w));
+            float z = -v.z;
+            vec4 c = texelFetch(svm_spots, ivec2(4, i), 0);
+            if (z <= c.a || z >= c.a + a.y) {
+                return vec3(0.0);
+            }
+            vec4 f = texelFetch(svm_spots, ivec2(5, i), 0);
+            vec2 ndc = f.z > 0.5 ? v.xy * f.xy : v.xy * f.xy / z;
+            if (abs(ndc.x) >= 1.0 || abs(ndc.y) >= 1.0) {
+                return vec3(0.0);
+            }
+            vec2 suv = vec2(ndc.x, -ndc.y) * 0.5 + 0.5;
+            float shadow = spot_shadow(texelFetch(svm_spots, ivec2(6, i), 0), suv, z - e.y - e.z * z, e.w);
+            if (shadow <= 0.0) {
+                return vec3(0.0);
+            }
+            vec3 cookie = texture(svm_spot_cookies, vec3(suv, f.w)).rgb;
+            vec2 aw = vec2(textureSize(svm_spot_atten, 0));
+            float at = (z - c.a) / a.y;
+            float au = clamp(at, 0.5 / aw.x, 1.0 - 0.5 / aw.x);
+            float atten = a.w < 0.5 ? 1.0
+                : texture(svm_spot_atten, vec2(au, a.w < 1.5 ? 0.25 : 0.75)).r * clamp((1.0 - at) * aw.x, 0.0, 1.0);
+            vec3 nv = vec3(dot(r0.xyz, wn), dot(r1.xyz, wn), dot(r2.xyz, wn));
+            vec3 l = f.z > 0.5 ? vec3(0.0, 0.0, 1.0) : normalize(-v);
+            float ndl = max(0.0, dot(nv, l));
+            return c.rgb * cookie * atten * mix(1.0, ndl, a.z) * shadow;
+        }
+
+        // An actor's zone is not known to its surface (the template passes -1: own-zone lights still reach it).
+        vec3 spot_light(vec3 wp, vec3 wn, int ignore)
+        {
+            int on = draw.spot_bits & 65535;
+            int dynamic_slots = (draw.spot_bits >> 16) & 65535;
+            if ((ignore & 1) != 0) {
+                on &= dynamic_slots;
+            }
+            if ((ignore & 2) != 0) {
+                on &= ~dynamic_slots;
+            }
+            vec3 sum = vec3(0.0);
+            while (on != 0) {
+                int i = findLSB(on);
+                on &= on - 1;
+                sum += spot_slot(i, wp, wn, ignore);
+            }
+            return sum;
+        }
+
+        """;
+
     // svm_actor_light of svm_world.gdshaderinc, at the vertex as the template's LIGHT_ACTOR does it.
-    public static string Vertex(bool skinned) => "#version 450\n" + (skinned ? "#define SKINNED\n" : "") + Common + """
+    public static string Vertex(bool skinned, bool spot) => "#version 450\n" + (skinned ? "#define SKINNED\n" : "") + (spot ? "#define SPOT\n" : "") + Common + """
         layout(location = 0) in vec3 a_pos;
         layout(location = 1) in vec3 a_normal;
         layout(location = 2) in vec2 a_uv;
@@ -376,6 +490,10 @@ internal sealed class RdObjects
         layout(location = 0) out vec2 v_uv;
         layout(location = 1) out vec3 v_light;
         layout(location = 2) out vec3 v_rel;
+        #ifdef SPOT
+        layout(location = 3) out vec3 v_wpos;
+        layout(location = 4) out vec3 v_wn;
+        #endif
 
         vec3 actor_light(vec4 pos, vec4 col, vec4 spot, vec3 wp, vec3 wn)
         {
@@ -410,14 +528,19 @@ internal sealed class RdObjects
         #endif
             vec4 wp = model * vec4(a_pos, 1.0);
             v_uv = a_uv;
-            if (draw.kind == 2) {
-                vec3 wn = normalize(mat3(model) * a_normal);
+            int kind = draw.kind & 255;
+            vec3 wn = normalize(mat3(model) * a_normal);
+        #ifdef SPOT
+            v_wpos = wp.xyz;
+            v_wn = wn;
+        #endif
+            if (kind == 2) {
                 vec3 sum = objects[draw.object].ambient.rgb;
                 for (int i = 0; i < 4; i++) {
                     sum += actor_light(objects[draw.object].light[i * 3], objects[draw.object].light[i * 3 + 1], objects[draw.object].light[i * 3 + 2], wp.xyz, wn);
                 }
                 v_light = min(sum, vec3(2.0));
-            } else if (draw.kind == 1) {
+            } else if (kind == 1) {
                 v_light = a_col.rgb * 2.0;
             } else {
                 v_light = vec3(1.0);
@@ -428,7 +551,7 @@ internal sealed class RdObjects
 
         """;
 
-    public static string Fragment(bool masked) => "#version 450\n" + Common + """
+    public static string Fragment(bool masked, bool spot) => "#version 450\n" + Common + (spot ? Spot : "") + """
         layout(set = 1, binding = 0) uniform sampler2D tex_diffuse;
         layout(location = 0) in vec2 v_uv;
         layout(location = 1) in vec3 v_light;
@@ -439,15 +562,19 @@ internal sealed class RdObjects
         {
             vec4 t = texture(tex_diffuse, v_uv);
 
-        """ + (masked ? "    if (t.a < 0.5) discard;\n" : "") + "    vec3 c = t.rgb * v_light;\n" + """
-            if (draw.blend == 2) {
+        """ + (masked ? "    if (t.a < 0.5) discard;\n" : "")
+        // The template: texture x min(actor light + spot lights, 2); the Echelon code rides in the ambient's w.
+        + (spot ? "    vec3 c = t.rgb * min(v_light + spot_light(v_wpos, normalize(v_wn), int(objects[draw.object].ambient.w + 0.5)), vec3(2.0));\n"
+            : "    vec3 c = t.rgb * v_light;\n") + """
+            int blend = draw.kind >> 8;
+            if (blend == 2) {
                 float cover = frame.fog_color.a > 0.5 ? clamp((max(length(v_rel) * frame.fog.x, frame.fog.y) - frame.fog.y) * frame.fog.z, 0.0, 1.0) : 0.0;
                 frag = vec4(min(c * (1.0 - cover), vec3(1.0)), t.a);
                 return;
             }
 
         """ + Fog + """
-            frag = vec4(min(c, vec3(1.0)), draw.blend == 0 ? 1.0 : t.a);
+            frag = vec4(min(c, vec3(1.0)), blend == 0 ? 1.0 : t.a);
         }
 
         """;

@@ -977,10 +977,13 @@ internal sealed class RdWorldGpu
     private readonly System.Collections.Concurrent.ConcurrentQueue<RdObjects.Upload> _objectUploads = new();
     private readonly Dictionary<int, (Rid Vertices, Rid VertexArray, Rid Indices, Rid IndexArray, bool Skinned)> _objectSurfaces = [];
     private readonly Dictionary<(Rid Texture, int Program), Rid> _objectSets = [];
-    private readonly Rid[] _objectShaders = new Rid[4];
+    // Programs: masked (1), skinned (2), with the spot lights (4).
+    private readonly Rid[] _objectShaders = new Rid[8];
     // By program, one or two sided, and blend (solid, alpha, added).
-    private readonly Rid[] _objectPipelines = new Rid[24];
-    private readonly Rid[] _objectFrameSets = new Rid[4];
+    private readonly Rid[] _objectPipelines = new Rid[48];
+    private readonly Rid[] _objectFrameSets = new Rid[8];
+    private readonly Rid[] _objectSpotSets = new Rid[8];
+    private int _objectSpotVersion = -1;
     private readonly long[] _objectFormats = [-1, -1];
     private Rid _objectBuffer, _paletteBuffer;
     private int _objectCapacity, _paletteCapacity;
@@ -1050,12 +1053,24 @@ internal sealed class RdWorldGpu
             rd.BufferUpdate(_paletteBuffer, 0, (uint)(frame.Palette.Count * 4), MemoryMarshal.AsBytes(CollectionsMarshal.AsSpan(frame.Palette)));
         }
 
-        for (int program = 0; program < 4; program++)
+        if (_objectSpotVersion != _globalVersion)
         {
-            bool skinned = program >= 2, masked = (program & 1) != 0;
+            // The spot lights' textures are global parameters: bound again when one of them is another texture.
+            _objectSpotVersion = _globalVersion;
+            foreach (Rid set in _objectSpotSets)
+            {
+                if (rd.UniformSetIsValid(set)) rd.FreeRid(set);
+            }
+
+            Array.Clear(_objectSpotSets);
+        }
+
+        for (int program = 0; program < 8; program++)
+        {
+            bool skinned = (program & 2) != 0, masked = (program & 1) != 0, spot = (program & 4) != 0;
             if (!_objectShaders[program].IsValid)
             {
-                _objectShaders[program] = Compile(rd, RdObjects.Vertex(skinned), RdObjects.Fragment(masked), "svm_rd_object", null);
+                _objectShaders[program] = Compile(rd, RdObjects.Vertex(skinned, spot), RdObjects.Fragment(masked, spot), "svm_rd_object", null);
                 if (!_objectShaders[program].IsValid) return false;
                 for (int variant = 0; variant < 6; variant++)
                 {
@@ -1099,11 +1114,33 @@ internal sealed class RdWorldGpu
                 _objectFrameSets[program] = rd.UniformSetCreate(uniforms, _objectShaders[program], 0);
                 if (!_objectFrameSets[program].IsValid) return false;
             }
+
+            if (spot && !_objectSpotSets[program].IsValid)
+            {
+                var uniforms = new Godot.Collections.Array<RDUniform>();
+                ReadOnlySpan<string> names = ["svm_spots", "svm_spot_depth", "svm_spot_cookies", "svm_spot_atten", "svm_spot_ignore"];
+                for (int i = 0; i < names.Length; i++)
+                {
+                    Rid texture = i == 2 ? _whiteArray : _white;
+                    foreach (ShaderGlobals.Slot slot in _slots)
+                    {
+                        if (slot.Size == 0 && slot.Place < _globalTextures.Length && slot.Name.ToString() == names[i]) texture = _globalTextures[slot.Place];
+                    }
+
+                    var uniform = new RDUniform { UniformType = RD.UniformType.SamplerWithTexture, Binding = i };
+                    uniform.AddId(SamplerOf(rd, RdFilter.LinearMipmap, repeat: true));
+                    uniform.AddId(texture);
+                    uniforms.Add(uniform);
+                }
+
+                _objectSpotSets[program] = rd.UniformSetCreate(uniforms, _objectShaders[program], 2);
+                if (!_objectSpotSets[program].IsValid) return false;
+            }
         }
 
         foreach (RdObjects.Draw draw in frame.Objects)
         {
-            int program = (draw.Palette >= 0 ? 2 : 0) + (draw.Masked ? 1 : 0);
+            int program = (draw.SpotBits != 0 ? 4 : 0) + (draw.Palette >= 0 ? 2 : 0) + (draw.Masked ? 1 : 0);
             if (_objectSets.TryGetValue((draw.Texture, program), out Rid set) && rd.UniformSetIsValid(set)) continue;
             var texture = new RDUniform { UniformType = RD.UniformType.SamplerWithTexture, Binding = 0 };
             texture.AddId(SamplerOf(rd, RdFilter.LinearMipmapAnisotropic, repeat: true));
@@ -1126,13 +1163,14 @@ internal sealed class RdWorldGpu
             if (!_objectSurfaces.TryGetValue(draw.Surface, out (Rid Vertices, Rid VertexArray, Rid Indices, Rid IndexArray, bool Skinned) surface)) continue;
             // A surface packed for one kind of vertex is only drawn by that kind's program.
             if (surface.Skinned != (draw.Palette >= 0)) continue;
-            int program = (draw.Palette >= 0 ? 2 : 0) + (draw.Masked ? 1 : 0);
+            int program = (draw.SpotBits != 0 ? 4 : 0) + (draw.Palette >= 0 ? 2 : 0) + (draw.Masked ? 1 : 0);
             Rid wanted = _objectPipelines[(program * 6) + (Math.Clamp(draw.Blend, 0, 2) * 2) + (draw.TwoSided ? 1 : 0)];
             if (wanted != pipeline)
             {
                 pipeline = wanted;
                 rd.DrawListBindRenderPipeline(dl, pipeline);
                 rd.DrawListBindUniformSet(dl, _objectFrameSets[program], 0);
+                if (draw.SpotBits != 0) rd.DrawListBindUniformSet(dl, _objectSpotSets[program], 2);
                 set = default;
             }
 
@@ -1144,9 +1182,9 @@ internal sealed class RdWorldGpu
             }
 
             push[0] = draw.Object;
-            push[1] = draw.Kind;
+            push[1] = draw.Kind | (draw.Blend << 8);
             push[2] = Math.Max(0, draw.Palette);
-            push[3] = draw.Blend;
+            push[3] = draw.SpotBits;
             rd.DrawListSetPushConstant(dl, _drawBlock, (uint)_drawBlock.Length);
             rd.DrawListBindVertexArray(dl, surface.VertexArray);
             rd.DrawListBindIndexArray(dl, surface.IndexArray);
@@ -1883,8 +1921,11 @@ internal sealed class RdWorldGpu
         for (int i = 0; i < _objectFrameSets.Length; i++)
         {
             if (rd.UniformSetIsValid(_objectFrameSets[i])) rd.FreeRid(_objectFrameSets[i]);
-            _objectFrameSets[i] = default;
+            if (rd.UniformSetIsValid(_objectSpotSets[i])) rd.FreeRid(_objectSpotSets[i]);
+            _objectFrameSets[i] = _objectSpotSets[i] = default;
         }
+
+        _objectSpotVersion = -1;
 
         for (int i = 0; i < _objectPipelines.Length; i++)
         {
