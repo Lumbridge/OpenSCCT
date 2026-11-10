@@ -579,6 +579,8 @@ Differences that are not faults: rain, flickering and blinking lights and animat
 | AquaE FPS (1% low) | 76 (68) | 119 (99) | 159 (130) |
 | AquaE GPU ms | 8.98 | 4.96 | 4.0 (6.3 with its present) |
 
+At 1920 x 1080 (build `build-o45`): SteeE 301 FPS (1% low 205), AquaE 179 FPS (1% low 140); the original holds its 240 cap on both there. A 20 s round with six bots on each map ran without an error.
+
 AquaE's own frame: scene 3.07 ms, glow 0.19, the canvas item that shows it (with the gate and the glow, the former final pass) 0.85, shadow pass 0.56. The frame is 8.40 ms, so 3.4 ms lie outside GPU work on this machine (the copy to the other adapter's monitors and Godot's present); on a display driven by the integrated GPU itself that part is about 1 ms.
 
 Open: the frame's time outside GPU work (Godot's canvas and swapchain copies); the shadow pass redrawing tiles with a moving caster every frame; a smaller shader for world draws a light reaches; cloaked bodies, mesh particles and leftover map surfaces have not been seen in a capture; Ryan's laptop.
