@@ -19,6 +19,7 @@ public partial class PadMenus : Node
     private static int s_lastDevice = -1;
     private readonly PadMenuNavigation _navigation = new();
     private int _navigationDevice = -1;
+    private double _deviceLastInput = double.NegativeInfinity;
 
     public PadMenus()
     {
@@ -55,12 +56,25 @@ public partial class PadMenus : Node
             _navigation.Reset();
             return;
         }
+        if (@event is InputEventJoypadMotion { Axis: JoyAxis.LeftX or JoyAxis.LeftY } ||
+            @event is InputEventJoypadButton { ButtonIndex: JoyButton.DpadUp or JoyButton.DpadDown or JoyButton.DpadLeft or JoyButton.DpadRight or
+                JoyButton.A or JoyButton.B or JoyButton.Back or JoyButton.Start })
+            DispatchMenuInput(@event, Time.GetTicksMsec() / 1000d);
+        // Nested keyboard dispatch changes the viewport's handled flag. Consume the original pad event again.
+        GetViewport().SetInputAsHandled();
+    }
+
+    private void DispatchMenuInput(InputEvent @event, double now)
+    {
         if (_navigationDevice != @event.Device)
         {
+            // Keep one controller in charge of a gesture. A short handover gap also covers virtual
+            // controllers that report a duplicate tap just after the physical controller releases it.
+            if (_navigation.IsActive || now < _deviceLastInput + .1) return;
             _navigation.Reset();
             _navigationDevice = @event.Device;
         }
-        double now = Time.GetTicksMsec() / 1000d;
+        bool wasActive = _navigation.IsActive;
         string? command = @event switch
         {
             InputEventJoypadButton button => Button(button, now),
@@ -68,9 +82,8 @@ public partial class PadMenus : Node
             InputEventJoypadMotion { Axis: JoyAxis.LeftY } axis => _navigation.Axis(false, axis.AxisValue, now),
             _ => null,
         };
+        if (wasActive || _navigation.IsActive) _deviceLastInput = now;
         Navigate(command);
-        // Nested keyboard dispatch changes the viewport's handled flag. Consume the original pad event again.
-        GetViewport().SetInputAsHandled();
     }
 
     private string? Button(InputEventJoypadButton button, double now)
@@ -172,6 +185,7 @@ public partial class PadMenus : Node
 
     private CanvasLayer? _noticeLayer;
     private Label? _notice;
+    private PanelContainer? _noticePanel;
     private double _noticeLeft;
     private Control? _prompt;
 
@@ -192,8 +206,9 @@ public partial class PadMenus : Node
         else Navigate(_navigation.Advance(Time.GetTicksMsec() / 1000d));
         if (_notice is not null && _noticeLeft > 0 && (_noticeLeft -= delta) <= 0)
         {
-            _notice.Visible = false;
+            _noticePanel!.Visible = false;
         }
+        if (_noticePanel is not null && _noticePanel.Visible) FitNotice();
     }
 
     /// <summary>The line shown for a connection change (Reloaded's "Gamepad connected").</summary>
@@ -202,7 +217,12 @@ public partial class PadMenus : Node
 
     private void OnJoyConnectionChanged(long device, bool connected)
     {
-        if (!connected && device == _navigationDevice) _navigation.Reset();
+        if (!connected && device == _navigationDevice)
+        {
+            _navigation.Reset();
+            _navigationDevice = -1;
+            _deviceLastInput = double.NegativeInfinity;
+        }
         string name = connected ? Input.GetJoyName((int)device) : string.Empty;
         GD.Print("SVM_PAD " + NoticeText(connected, name));
         ShowNotice(NoticeText(connected, name));
@@ -223,26 +243,55 @@ public partial class PadMenus : Node
         AddChild(_noticeLayer);
     }
 
-    private void ShowNotice(string text)
+    internal void ShowNotice(string text)
     {
         EnsureLayer();
         if (_notice is null)
         {
+            _noticePanel = new PanelContainer
+            {
+                Name = "PadNoticePanel", Theme = OpenScctGame.UI.UiStyle.Theme,
+                MouseFilter = Control.MouseFilterEnum.Ignore,
+                AnchorLeft = .5f, AnchorRight = .5f, AnchorTop = 1f, AnchorBottom = 1f,
+                GrowHorizontal = Control.GrowDirection.Both, GrowVertical = Control.GrowDirection.Begin,
+                OversamplingWithScale = CanvasItem.OversamplingWithScaleEnum.Enabled,
+            };
+            _noticePanel.AddThemeStyleboxOverride("panel", new StyleBoxFlat
+            {
+                BgColor = new Color(.035f, .055f, .045f, 1f),
+                BorderColor = OpenScctGame.UI.UiStyle.MenuFocus,
+                BorderWidthLeft = 1, BorderWidthRight = 1, BorderWidthTop = 1, BorderWidthBottom = 1,
+                ContentMarginLeft = 16, ContentMarginRight = 16, ContentMarginTop = 8, ContentMarginBottom = 8,
+            });
             _notice = new Label
             {
                 Name = "PadNotice", HorizontalAlignment = HorizontalAlignment.Center, Theme = OpenScctGame.UI.UiStyle.Theme,
                 Modulate = OpenScctGame.UI.UiStyle.Text, MouseFilter = Control.MouseFilterEnum.Ignore,
+                ClipText = true, TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis,
             };
-            _notice.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.CenterBottom);
-            _notice.OffsetTop = -64f;
-            _notice.OffsetBottom = -40f;
-            _notice.GrowHorizontal = Control.GrowDirection.Both;
-            _noticeLayer!.AddChild(_notice);
+            _noticePanel.AddChild(_notice);
+            _noticeLayer!.AddChild(_noticePanel);
         }
 
         _notice.Text = text;
-        _notice.Visible = true;
+        _noticePanel!.Visible = true;
+        FitNotice();
         _noticeLeft = NoticeSeconds;
+    }
+
+    private void FitNotice()
+    {
+        Vector2 viewport = GetViewport().GetVisibleRect().Size;
+        float scale = System.Math.Max(1f, System.Math.Min(viewport.X / 1600f, viewport.Y / 900f));
+        float width = System.Math.Min(560f, System.Math.Max(1f, (viewport.X - 48f) / scale));
+        // Leave the menu's footer, build line and decorative corners clear, including scaled dashboards.
+        float footer = System.Math.Max(88f, viewport.Y * .1f);
+        float height = _noticePanel!.GetCombinedMinimumSize().Y;
+        _noticePanel.Scale = new Vector2(scale, scale);
+        _noticePanel.OffsetLeft = -width * scale / 2f;
+        _noticePanel.OffsetRight = _noticePanel.OffsetLeft + width;
+        _noticePanel.OffsetTop = -footer - height * scale;
+        _noticePanel.OffsetBottom = _noticePanel.OffsetTop + height;
     }
 
     /// <summary>
