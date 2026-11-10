@@ -433,6 +433,23 @@ The same trace with each draw's fixed-function state (`STATE` lines of `D:\OpenS
 - **Shaders as small as its texture stages.** A surface is its diffuse texture times its lightmap or vertex colour, with fog from the vertex. The Faithful template computes per pixel what the original gets from two or three texture stages and a fog state; the frame budget is the original's 0.9 ms a screen.
 - **To decode next (REA):** the texture stage and fog state the game sets for each kind of surface (BSP with lightmap, static mesh, actor, the three-stage draws), so each maps to one small shader; how its dynamic spot lights reach a surface (no shader in the scene, so stages or extra blended draws); what Reloaded's enhanced zone fog adds when it is on (none of it showed in this frame).
 
+## Own frame, first stage (`SVM_RD_FRAME=1`, 2026-11-10, `perf/own-frame`)
+
+The world pass's batches, culling and draw order, drawn the original's way: into an RGBA8 target of our own with a 32-bit depth buffer, one pass, no pre-pass, each surface a shader the size of the original's texture stages (texture × vertex colour × 2, texture × lightmap × scale, or the texture alone; masked ones cut at half alpha). Godot draws no 3D in the main viewport (`Viewport.Disable3D`); the target is a full-screen `TextureRect` under the HUD. Code: `Rd/RdWorldGpu.RenderOwn`, `Rd/RdWorldRenderer.PreDrawOwn`. Off unless the variable is set.
+
+AquaE spawn view, 2560×1440, UHD 770, build `build-o2`:
+
+| | Frame ms | FPS | World GPU ms |
+|---|---:|---:|---:|
+| In Godot's frame (world pass, shadow pass, lean post) | 13.1 | 76 | 3.7 |
+| Own frame, world only | 6.04 | 166 | 1.01 |
+| The original, whole frame | 6.3 | 159 | 2.8 for its whole scene |
+
+- The room and the view through the door draw as before to the eye; not compared pixel by pixel yet.
+- **Not drawn yet:** characters, gameplay objects, blended surfaces, projector passes (shadows, lights, the rain ripples), rain, emitters, coronas, fog, glow, vision modes. The 6.04 ms is the floor these are added to; the original spends about 1.8 ms on the same things and 0.53 ms on glow.
+- The shadow pass still runs and is not read (0.58 ms of the 6.04).
+- 3.5 ms of the frame is outside the timed work: the copy to the display's GPU, Godot's canvas pass (0.68 ms timed, most of it showing our target) and its swapchain copy. The original's present costs about 2.3 ms with the proxy's copy.
+
 ## The target
 
 ### The original at 2560×1440 on the UHD 770 (measured 2026-11-10)

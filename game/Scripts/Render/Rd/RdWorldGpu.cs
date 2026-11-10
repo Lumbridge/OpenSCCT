@@ -21,6 +21,9 @@ internal sealed class RdWorldFrame
     public Color Clear;
     /// <summary>The main camera's cull mask, as the template reads CAMERA_VISIBLE_LAYERS (fog slot, shadow pass).</summary>
     public uint Layers;
+    /// <summary>Own-frame mode (RdWorldGpu.RenderOwn): the target's size and the world's and the sky zone's clip transforms.</summary>
+    public Vector2I Size;
+    public readonly float[] Clip = new float[32];
 
     public void Reserve(int draws)
     {
@@ -797,6 +800,294 @@ internal sealed class RdWorldGpu
         return pipelines;
     }
 
+    // ---- Own frame (SVM_RD_FRAME=1) ----
+    // The scene as the original draws it (docs/PERFORMANCE-LOWEND-2026-11.md, "The original's frame, traced"): one
+    // 8-bit target in display values, one pass with no pre-pass, each surface a shader as small as the original's
+    // texture stages. Godot draws no 3D in the main viewport; the target is shown on the canvas under the HUD.
+    // This is the first stage: the world's solid and masked surfaces only, unfogged.
+
+    private const string StageCommon = """
+        #version 450
+        layout(set = 0, binding = 0, std140) uniform Frame
+        {
+            mat4 world;
+            mat4 sky;
+            vec4 params;
+        } frame;
+        layout(push_constant, std430) uniform Draw
+        {
+            int sky;
+            int pad0;
+            int pad1;
+            int pad2;
+        } draw;
+
+        """;
+
+    private const string StageVertex = StageCommon + """
+        layout(location = 0) in vec3 a_pos;
+        layout(location = 2) in vec2 a_uv;
+        layout(location = 3) in vec2 a_uv2;
+        layout(location = 4) in vec4 a_col;
+        layout(location = 0) out vec2 v_uv;
+        layout(location = 1) out vec2 v_uv2;
+        layout(location = 2) out vec3 v_light;
+
+        void main()
+        {
+            v_uv = a_uv;
+            v_uv2 = a_uv2;
+            // The baked vertex colour holds half the light term: the original's MODULATE2X.
+            v_light = a_col.rgb * 2.0;
+            gl_Position = (draw.sky != 0 ? frame.sky : frame.world) * vec4(a_pos, 1.0);
+        }
+
+        """;
+
+    /// <summary>light 0: fullbright, 1: vertex colour x 2, 2: lightmap x scale.</summary>
+    private static string StageFragment(int light, bool masked) => StageCommon + """
+        layout(set = 1, binding = 0) uniform sampler2D tex_diffuse;
+
+        """ + (light == 2 ? "layout(set = 1, binding = 1) uniform sampler2D tex_lightmap;\n" : "") + """
+        layout(location = 0) in vec2 v_uv;
+        layout(location = 1) in vec2 v_uv2;
+        layout(location = 2) in vec3 v_light;
+        layout(location = 0) out vec4 frag;
+
+        void main()
+        {
+            vec4 t = texture(tex_diffuse, v_uv);
+
+        """ + (masked ? "    if (t.a < 0.5) discard;\n" : "")
+        + (light == 2 ? "    vec3 c = t.rgb * min(texture(tex_lightmap, v_uv2).rgb * frame.params.x, vec3(2.0));\n"
+            : light == 1 ? "    vec3 c = t.rgb * v_light;\n" : "    vec3 c = t.rgb;\n") + """
+            frag = vec4(min(c, vec3(1.0)), 1.0);
+        }
+
+        """;
+
+    private sealed class StageShader
+    {
+        public Rid Shader, OneSided, TwoSided, FrameSet;
+    }
+
+    private readonly StageShader?[] _stages = new StageShader?[6];
+    private readonly Dictionary<int, (int Stage, Rid Set, bool TwoSided)> _stageMaterials = [];
+    private Rid _ownColor, _ownDepth, _ownFramebuffer, _stageFrameBuffer;
+    private Vector2I _ownSize;
+    private long _ownFormat = -1;
+    private readonly List<(int Frame, Rid Color, Rid Depth)> _ownRetired = [];
+    private int _ownFrame;
+    private Rid _latestOwnColor;
+    private readonly byte[] _stageFrameBlock = new byte[144];
+
+    /// <summary>The newest colour target for the main thread to show (it changes on a resize).</summary>
+    public Rid LatestOwnColor
+    {
+        get
+        {
+            lock (_queueLock) return _latestOwnColor;
+        }
+    }
+
+    /// <summary>Draws the newest submitted frame into the pass's own target (render thread, queued once a frame).</summary>
+    public void RenderOwn()
+    {
+        lock (_queueLock)
+        {
+            while (_pending.TryDequeue(out RdWorldFrame? next))
+            {
+                if (_current is not null) _free.Push(_current);
+                _current = next;
+            }
+        }
+
+        if (_current is null || _failed) return;
+        try
+        {
+            DrawOwn(_current);
+        }
+        catch (Exception error)
+        {
+            _failed = true;
+            GD.PushError("RD own frame failed: " + error);
+        }
+    }
+
+    private void DrawOwn(RdWorldFrame frame)
+    {
+        if (!_ready)
+        {
+            Init();
+            if (_failed) return;
+        }
+
+        RenderingDevice rd = _rd!;
+        _ownFrame++;
+        var size = new Vector2I(Math.Max(1, frame.Size.X), Math.Max(1, frame.Size.Y));
+        if (!_ownFramebuffer.IsValid || size != _ownSize)
+        {
+            if (_ownColor.IsValid) _ownRetired.Add((_ownFrame, _ownColor, _ownDepth));
+            _ownSize = size;
+            _ownColor = rd.TextureCreate(new RDTextureFormat
+            {
+                Format = RD.DataFormat.R8G8B8A8Unorm, Width = (uint)size.X, Height = (uint)size.Y,
+                UsageBits = RD.TextureUsageBits.ColorAttachmentBit | RD.TextureUsageBits.SamplingBit | RD.TextureUsageBits.CanCopyFromBit,
+            }, new RDTextureView(), []);
+            _ownDepth = rd.TextureCreate(new RDTextureFormat
+            {
+                Format = RD.DataFormat.D32Sfloat, Width = (uint)size.X, Height = (uint)size.Y,
+                UsageBits = RD.TextureUsageBits.DepthStencilAttachmentBit, IsDiscardable = true,
+            }, new RDTextureView(), []);
+            _ownFramebuffer = rd.FramebufferCreate([_ownColor, _ownDepth], -1, 1);
+            _ownFormat = rd.FramebufferGetFormat(_ownFramebuffer);
+            lock (_queueLock) _latestOwnColor = _ownColor;
+        }
+
+        for (int i = _ownRetired.Count - 1; i >= 0; i--)
+        {
+            // The main thread shows the new target a frame later; four frames covers the frames in flight.
+            if (_ownFrame - _ownRetired[i].Frame < 4) continue;
+            rd.FreeRid(_ownRetired[i].Color);
+            rd.FreeRid(_ownRetired[i].Depth);
+            _ownRetired.RemoveAt(i);
+        }
+
+        if (!_stageFrameBuffer.IsValid) _stageFrameBuffer = rd.UniformBufferCreate((uint)_stageFrameBlock.Length, ReadOnlySpan<byte>.Empty, 0);
+        Span<float> block = MemoryMarshal.Cast<byte, float>(_stageFrameBlock.AsSpan());
+        frame.Clip.AsSpan().CopyTo(block);
+        block[32] = RenderK.LightmapScale;
+        rd.BufferUpdate(_stageFrameBuffer, 0, (uint)_stageFrameBlock.Length, _stageFrameBlock);
+
+        // Everything a draw binds is made before the list opens.
+        List<RdWorldGeometry.Batch> batches = _geometry.Batches;
+        for (int k = 0; k < frame.DrawCount; k++)
+        {
+            RdMaterial material = batches[frame.Draws[k]].Material;
+            if (!_stageMaterials.ContainsKey(material.GpuIndex) && !MakeStageMaterial(rd, material)) return;
+        }
+
+        var clock = Stopwatch.StartNew();
+        rd.CaptureTimestamp("RD Own Frame");
+        _clear[0] = frame.Clear;
+        long dl = rd.DrawListBegin(_ownFramebuffer, RD.DrawFlags.ClearAll, _clear, 0f, 0, null, 0);
+        try
+        {
+            rd.DrawListBindVertexArray(dl, _vertexArray);
+            Rid pipeline = default, set = default;
+            StageShader? bound = null;
+            int sky = -1;
+            Span<int> push = MemoryMarshal.Cast<byte, int>(_drawBlock.AsSpan());
+            for (int k = 0; k < frame.DrawCount; k++)
+            {
+                RdWorldGeometry.Batch b = batches[frame.Draws[k]];
+                (int stage, Rid materialSet, bool twoSided) = _stageMaterials[b.Material.GpuIndex];
+                StageShader shader = _stages[stage]!;
+                Rid wanted = twoSided ? shader.TwoSided : shader.OneSided;
+                if (wanted != pipeline)
+                {
+                    pipeline = wanted;
+                    rd.DrawListBindRenderPipeline(dl, pipeline);
+                    sky = -1;
+                    set = default;
+                    if (!ReferenceEquals(shader, bound))
+                    {
+                        bound = shader;
+                    }
+
+                    rd.DrawListBindUniformSet(dl, shader.FrameSet, 0);
+                }
+
+                if (materialSet != set)
+                {
+                    set = materialSet;
+                    rd.DrawListBindUniformSet(dl, set, 1);
+                }
+
+                int isSky = b.Sky ? 1 : 0;
+                if (isSky != sky)
+                {
+                    sky = isSky;
+                    push[0] = sky;
+                    rd.DrawListSetPushConstant(dl, _drawBlock, (uint)_drawBlock.Length);
+                }
+
+                rd.DrawListBindIndexArray(dl, _indexArrays[frame.Draws[k]]);
+                rd.DrawListDraw(dl, true, 1, 0);
+            }
+        }
+        finally
+        {
+            rd.DrawListEnd();
+        }
+
+        rd.CaptureTimestamp("RD Own Frame End");
+        LastDraws = frame.DrawCount;
+        LastRecordMs = clock.Elapsed.TotalMilliseconds;
+    }
+
+    /// <summary>The stage shader of a material's kind, with its pipelines, and the material's textures bound for it.</summary>
+    private bool MakeStageMaterial(RenderingDevice rd, RdMaterial material)
+    {
+        string code = material.Code;
+        int light = code.Contains("#define LIGHT_LIGHTMAP", StringComparison.Ordinal) ? 2 : code.Contains("#define LIGHT_VERTEX", StringComparison.Ordinal) ? 1 : 0;
+        bool masked = material.Masked;
+        int index = (light * 2) + (masked ? 1 : 0);
+        StageShader? stage = _stages[index];
+        if (stage is null)
+        {
+            stage = new StageShader { Shader = Compile(rd, StageVertex, StageFragment(light, masked), "svm_rd_stage", null) };
+            if (!stage.Shader.IsValid) return false;
+            var depthState = new RDPipelineDepthStencilState { EnableDepthTest = true, EnableDepthWrite = true, DepthCompareOperator = RD.CompareOperator.GreaterOrEqual };
+            var blend = new RDPipelineColorBlendState { Attachments = [new RDPipelineColorBlendStateAttachment()] };
+            Rid Pipeline(bool twoSided) => rd.RenderPipelineCreate(stage.Shader, _ownFormat, _vertexFormat, RD.RenderPrimitive.Triangles,
+                // Godot meshes are clockwise from the front; the clip transform's y flip keeps that in the target.
+                new RDPipelineRasterizationState { CullMode = twoSided ? RD.PolygonCullMode.Disabled : RD.PolygonCullMode.Back, FrontFace = RD.PolygonFrontFace.Clockwise },
+                new RDPipelineMultisampleState(), depthState, blend, 0, 0, []);
+            stage.OneSided = Pipeline(false);
+            stage.TwoSided = Pipeline(true);
+            var frame = new RDUniform { UniformType = RD.UniformType.UniformBuffer, Binding = 0 };
+            frame.AddId(_stageFrameBuffer);
+            stage.FrameSet = rd.UniformSetCreate([frame], stage.Shader, 0);
+            if (!stage.OneSided.IsValid || !stage.TwoSided.IsValid || !stage.FrameSet.IsValid)
+            {
+                Fail("stage pipeline failed");
+                return false;
+            }
+
+            _stages[index] = stage;
+        }
+
+        var uniforms = new Godot.Collections.Array<RDUniform>();
+        void Bind(string name, int binding)
+        {
+            RdMaterialTexture? slot = null;
+            int at = -1;
+            for (int i = 0; i < material.Shader.Textures.Count; i++)
+            {
+                if (material.Shader.Textures[i].Name == name) { slot = material.Shader.Textures[i]; at = i; }
+            }
+
+            Rid texture = at >= 0 && material.Textures[at] is { } t ? RenderingServer.TextureGetRdTexture(t.GetRid(), false) : default;
+            var uniform = new RDUniform { UniformType = RD.UniformType.SamplerWithTexture, Binding = binding };
+            uniform.AddId(SamplerOf(rd, slot?.Filter ?? RdFilter.LinearMipmap, slot?.Repeat ?? true));
+            uniform.AddId(texture.IsValid ? texture : _white);
+            uniforms.Add(uniform);
+        }
+
+        Bind("tex_diffuse", 0);
+        if (light == 2) Bind("tex_lightmap", 1);
+        Rid set = rd.UniformSetCreate(uniforms, stage.Shader, 1);
+        if (!set.IsValid)
+        {
+            Fail("stage material set failed");
+            return false;
+        }
+
+        _stageMaterials[material.GpuIndex] = (index, set, material.Shader.TwoSided);
+        return true;
+    }
+
     /// <summary>Column-major, as GLSL reads a std140 mat4.</summary>
     private static void Write(in Projection m, Span<float> to)
     {
@@ -847,6 +1138,37 @@ internal sealed class RdWorldGpu
             rd.FreeRid(twoSided);
         }
 
+        foreach ((int stage, Rid set, bool twoSided) in _stageMaterials.Values)
+        {
+            if (rd.UniformSetIsValid(set)) rd.FreeRid(set);
+        }
+
+        _stageMaterials.Clear();
+        for (int i = 0; i < _stages.Length; i++)
+        {
+            if (_stages[i] is not { } stage) continue;
+            if (rd.UniformSetIsValid(stage.FrameSet)) rd.FreeRid(stage.FrameSet);
+            foreach (Rid rid in new[] { stage.OneSided, stage.TwoSided, stage.Shader })
+            {
+                if (rid.IsValid) rd.FreeRid(rid);
+            }
+
+            _stages[i] = null;
+        }
+
+        foreach ((int frame, Rid color, Rid depth) in _ownRetired)
+        {
+            rd.FreeRid(color);
+            rd.FreeRid(depth);
+        }
+
+        _ownRetired.Clear();
+        foreach (Rid rid in new[] { _ownColor, _ownDepth, _stageFrameBuffer })
+        {
+            if (rid.IsValid) rd.FreeRid(rid);
+        }
+
+        _ownColor = _ownDepth = _ownFramebuffer = _stageFrameBuffer = default;
         if (rd.UniformSetIsValid(_depthSet)) rd.FreeRid(_depthSet);
         if (_depthShader.IsValid) rd.FreeRid(_depthShader);
         foreach (Rid array in _indexArrays)

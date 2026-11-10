@@ -72,6 +72,27 @@ public partial class RdWorldRenderer : Node
             return;
         }
 
+        if (OwnFrame)
+        {
+            // Under every other canvas layer (the HUD is at 10, the camera occlusion mask at 9).
+            var layer = new CanvasLayer { Name = "RdFrameLayer", Layer = -100 };
+            _ownRect = new TextureRect
+            {
+                Name = "RdFrameView", ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
+                StretchMode = TextureRect.StretchModeEnum.Scale, MouseFilter = Control.MouseFilterEnum.Ignore,
+            };
+            _ownRect.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
+            layer.AddChild(_ownRect);
+            AddChild(layer);
+            // Godot draws nothing 3D in the main viewport: no pre-pass, no float target, no tonemap copy.
+            GetViewport().Disable3D = true;
+            _renderOwn = Callable.From(_gpu.RenderOwn);
+            RenderingServer.FramePreDraw += OnPreDraw;
+            _subscribed = true;
+            GD.Print("SVM_RD_FRAME on for " + _map.MapId);
+            return;
+        }
+
         _effect = new RdWorldEffect(_gpu);
         Compositor compositor = _view.Camera.Compositor ??= new Compositor();
         Godot.Collections.Array<CompositorEffect> effects = compositor.CompositorEffects;
@@ -88,6 +109,15 @@ public partial class RdWorldRenderer : Node
         {
             RenderingServer.FramePreDraw -= OnPreDraw;
             _subscribed = false;
+        }
+
+        if (OwnFrame && _ownRect is not null)
+        {
+            _ownRect.Texture = null;
+            GetViewport().Disable3D = false;
+            // Queued after the Texture2DRD let go of the target.
+            RenderingServer.CallOnRenderThread(Callable.From(_gpu.Free));
+            return;
         }
 
         if (_effect is null) return;
@@ -163,6 +193,64 @@ public partial class RdWorldRenderer : Node
         return features;
     }
 
+    /// <summary>
+    /// SVM_RD_FRAME=1 (in development): the pass draws the scene into a target of its own, as the original draws its
+    /// frame, and Godot draws no 3D in the main viewport. So far the world's solid and masked surfaces only.
+    /// </summary>
+    internal static bool OwnFrame { get; } = System.Environment.GetEnvironmentVariable("SVM_RD_FRAME") == "1";
+
+    // The share of the depth range the sky zone is squeezed into, behind the world.
+    private const float SkyDepth = 0.001f;
+    private TextureRect? _ownRect;
+    private readonly Texture2Drd _ownShown = new();
+    private Rid _ownShownColor;
+    private Callable _renderOwn;
+
+    private void PreDrawOwn(Camera3D camera)
+    {
+        Viewport viewport = GetViewport();
+        Vector2 visible = viewport.GetVisibleRect().Size;
+        float scale = viewport.Scaling3DScale;
+        Transform3D eye = camera.GetCameraTransform();
+        Projection projection = camera.GetCameraProjection();
+        Projection world = projection * new Projection(eye.AffineInverse());
+        Projection sky = projection * new Projection(new Transform3D(eye.Basis, _skyOrigin).AffineInverse());
+        Planes(world, _worldPlanes);
+        Planes(sky, _skyPlanes);
+        RdWorldFrame frame = _gpu.Rent();
+        frame.Size = new Vector2I(Math.Max(1, (int)(visible.X * scale)), Math.Max(1, (int)(visible.Y * scale)));
+        Color clear = camera.Environment?.BackgroundColor.SrgbToLinear() ?? new Color(0f, 0f, 0f);
+        frame.Clear = new Color(clear.R, clear.G, clear.B, 1f);
+        WriteClip(ToTarget(world, 1f - SkyDepth, SkyDepth), frame.Clip.AsSpan(0, 16));
+        WriteClip(ToTarget(sky, SkyDepth, 0f), frame.Clip.AsSpan(16, 16));
+        Select(frame, eye.Origin, true, RdFeatures.None);
+        _gpu.Submit(frame);
+        RenderingServer.CallOnRenderThread(_renderOwn);
+        Rid latest = _gpu.LatestOwnColor;
+        if (latest.IsValid && latest != _ownShownColor && _ownRect is not null)
+        {
+            _ownShown.TextureRdRid = latest;
+            _ownShownColor = latest;
+            _ownRect.Texture = _ownShown;
+        }
+    }
+
+    /// <summary>
+    /// An OpenGL-style clip transform for the pass's own target: y flipped (rows top down, as Godot shows textures),
+    /// reverse Z (near 1, far 0), squeezed into [bias, bias + scale] of the depth range.
+    /// </summary>
+    private static Projection ToTarget(in Projection m, float scale, float bias)
+    {
+        static Vector4 Fix(Vector4 c, float scale, float bias) => new(c.X, -c.Y, (scale * 0.5f * (c.W - c.Z)) + (bias * c.W), c.W);
+        return new Projection(Fix(m.X, scale, bias), Fix(m.Y, scale, bias), Fix(m.Z, scale, bias), Fix(m.W, scale, bias));
+    }
+
+    private static void WriteClip(in Projection m, Span<float> to)
+    {
+        ReadOnlySpan<Vector4> columns = [m.X, m.Y, m.Z, m.W];
+        for (int c = 0; c < 4; c++) (to[c * 4], to[(c * 4) + 1], to[(c * 4) + 2], to[(c * 4) + 3]) = (columns[c].X, columns[c].Y, columns[c].Z, columns[c].W);
+    }
+
     private double _surveyAt;
     private bool _surveyed;
 
@@ -214,6 +302,12 @@ public partial class RdWorldRenderer : Node
         }
 
         Camera3D camera = _view.Camera;
+        if (OwnFrame)
+        {
+            PreDrawOwn(camera);
+            return;
+        }
+
         if (_gpu.Failed && !_reportedFailure)
         {
             _reportedFailure = true;
