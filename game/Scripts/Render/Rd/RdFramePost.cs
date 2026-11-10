@@ -216,7 +216,7 @@ internal sealed class RdFramePost
 
     private static Rid Target(RenderingDevice rd, Vector2I size) => rd.TextureCreate(new RDTextureFormat
     {
-        Format = RD.DataFormat.R8G8B8A8Unorm, Width = (uint)size.X, Height = (uint)size.Y,
+        Format = RdWorldGpu.Test.Contains("glow16") ? RD.DataFormat.R16G16B16A16Sfloat : RD.DataFormat.R8G8B8A8Unorm, Width = (uint)size.X, Height = (uint)size.Y,
         UsageBits = RD.TextureUsageBits.ColorAttachmentBit | RD.TextureUsageBits.SamplingBit,
     }, new RDTextureView(), []);
 

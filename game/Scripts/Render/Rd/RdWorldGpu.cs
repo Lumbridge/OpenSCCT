@@ -1291,7 +1291,7 @@ internal sealed class RdWorldGpu
             _ownSize = size;
             _ownColor = rd.TextureCreate(new RDTextureFormat
             {
-                Format = RD.DataFormat.R8G8B8A8Unorm, Width = (uint)size.X, Height = (uint)size.Y,
+                Format = Test.Contains("scene16") ? RD.DataFormat.R16G16B16A16Sfloat : RD.DataFormat.R8G8B8A8Unorm, Width = (uint)size.X, Height = (uint)size.Y,
                 UsageBits = RD.TextureUsageBits.ColorAttachmentBit | RD.TextureUsageBits.SamplingBit | RD.TextureUsageBits.CanCopyFromBit,
             }, new RDTextureView(), []);
             _ownDepth = rd.TextureCreate(new RDTextureFormat
