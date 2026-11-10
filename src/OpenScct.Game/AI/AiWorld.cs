@@ -134,7 +134,11 @@ public sealed class AiWorld
         Light = light ?? AiLightField.Unknown;
         Patrol = level.GetService<AiPatrolHistory>() ?? new AiPatrolHistory();
         Teams = [new AiTeamBoard(0), new AiTeamBoard(1)];
+        Defence = new MercDefence(this);
     }
+
+    /// <summary>How the merc bots share out the objectives that are left (MercDefence.cs).</summary>
+    public MercDefence Defence { get; }
 
     public Level Level { get; }
 

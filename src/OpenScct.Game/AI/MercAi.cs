@@ -65,7 +65,8 @@ public static class MercAiK
 /// <item><b>Frag</b>: a spy it just lost behind cover, 400 to 1600 uu away: throw a frag grenade at the spot.</item>
 /// <item><b>Investigate</b>: a noise, a teammate's callout or a lost spy: go to the place, torch on in the dark,
 /// motion tracking on, look round.</item>
-/// <item><b>Guard</b>: a post beside an untaken terminal no teammate holds; look round there, change post now and then.</item>
+/// <item><b>Guard</b>: the objectives left are shared out among the mercs (MercDefence); each mines its own, then
+/// patrols between them, stopping at a post beside each, with the scope along a long sight line now and then.</item>
 /// </list>
 /// </summary>
 public sealed partial class MercAi : AiBrain
@@ -169,7 +170,7 @@ public sealed partial class MercAi : AiBrain
     public int Touches { get; private set; }
 
     public override string Status => string.Create(System.Globalization.CultureInfo.InvariantCulture,
-        $"merc {GoalName(Goal)} post {_post?.TriggerName ?? "-"} bursts {Bursts} charges {Charges} strikes {CloseStrikes} finishes {Terminates} frags {FragsThrown} search {Search.Inspections}/{Search.Plans} path {Follower.NextIndex}/{Follower.Path.Count}");
+        $"merc {GoalName(Goal)} post {_post?.TriggerName ?? "-"} sector {_sector.Count} posts {PostsReached} traps {TrapsPlaced} scoped {ScopedShots} bursts {Bursts} charges {Charges} strikes {CloseStrikes} finishes {Terminates} frags {FragsThrown} search {Search.Inspections}/{Search.Plans} path {Follower.NextIndex}/{Follower.Path.Count}");
 
     public static string GoalName(int goal) => goal switch
     {
@@ -195,6 +196,11 @@ public sealed partial class MercAi : AiBrain
         _investigating = null;
         Search.Reset();
         _trapApproach = false;
+        _postReached = false;
+        _watchYaw = -1;
+        _sectorAt = -100f;
+        _lastPost = null;
+        _visited.Clear();
     }
 
     // ---- choice ----------------------------------------------------------------------------------------------
@@ -219,7 +225,7 @@ public sealed partial class MercAi : AiBrain
             bool smoke = World.SmokeBetween(AiSight.Eye(Pawn), c.Position);
             if (((c.Visible && c.Confirmed && !smoke) ||
                 MercSmokeTactics.LastSeenShot(World, AiSight.Eye(Pawn), c, now, out _, Difficulty.GadgetUse >= .5f ? 7f : 2.5f)) &&
-                (c.Position - Pawn.Location).Size() < AiK.MercEngageRange)
+                (c.Position - Pawn.Location).Size() < EngageRange)
             {
                 if (_target is null || (c.Position - Pawn.Location).SizeSquared() < (_target.Position - Pawn.Location).SizeSquared())
                 {
@@ -366,6 +372,8 @@ public sealed partial class MercAi : AiBrain
             World.Teams[1].Release(Bot);
             _post = null;
             _postUntil = 0f;
+            _postReached = false;
+            _watchYaw = -1;
         }
 
         if (from == GInvestigate)
@@ -412,7 +420,14 @@ public sealed partial class MercAi : AiBrain
             return;
         }
 
-        if (stateName.StartsWith("s_PutMineOnWall", StringComparison.Ordinal)) return;
+        if (stateName.StartsWith("s_PutMineOnWall", StringComparison.Ordinal))
+        {
+            // The placement clip holds the merc; the stance it was started in is kept until it ends (a crouch key
+            // pressed now would only flip the latch for afterwards).
+            plan.Crouched = null;
+            return;
+        }
+
         if (Goal != GGuard) _trapApproach = false;
 
         Feel(now);
@@ -559,10 +574,55 @@ public sealed partial class MercAi : AiBrain
             _trackSince = now;
         }
 
-        float spread = Spread(now);
         FVector aimPoint = c.Position - new FVector(0f, 0f, c.Pose is { Downed: true } p ? p.CollisionHeight * MercAiK.LyingAimDrop : Bot.Personality.AimHeight);
         aimPoint += c.Velocity * (Bot.ReactionTime * 0.5f * Difficulty.LeadFactor);
+
+        // Seen is not shootable: glass and grates show a spy and stop the bullet. With the chest covered the head is
+        // tried; with both covered the merc holds its fire and walks to a spot with a clear shot, watching him.
+        if (ShotBlocked(aimPoint))
+        {
+            FVector head = c.Position + new FVector(0f, 0f, c.Pose is { Downed: false } standing ? standing.CollisionHeight * 0.7f : 55f);
+            if (c.Pose is { Downed: true } || ShotBlocked(head))
+            {
+                _burstStart = -1f;
+                _trackSince = -1f;
+                if (now - _clearSpotAt > 1.5f)
+                {
+                    _clearSpotAt = now;
+                    _clearSpotFound = ClearShotSpot(c.Position, out _clearSpot);
+                }
+
+                if (_clearSpotFound && (Feet - _clearSpot).Size() > 60f)
+                {
+                    MoveTo(_clearSpot, now, ref plan, sneak: false);
+                    if (Doors.Busy) return;
+                }
+
+                LookAt(c.Position, ref plan);
+                HeldShots++;
+                return;
+            }
+
+            aimPoint = head;
+        }
+
+        // A spy far off is taken through the scope: no spread, no falloff, one shot at a time.
+        bool scope = ScopeWanted(c, now);
+        bool scoped = Scoped;
+        float spread = Spread(now, scope && scoped ? AiK.ScopeSpreadFactor : 1f);
         Aim(aimPoint, ref plan);
+        if (scope)
+        {
+            // Standing still while the scope comes up and through every shot.
+            _scopeWantAt = now;
+            _burstStart = -1f;
+            if (scoped && c.BodyVisible && c.VisibleSince >= 0f && now - c.VisibleSince >= Bot.ReactionTime)
+            {
+                ScopedShot(now, aimPoint, spread, ref plan);
+            }
+
+            return;
+        }
 
         // Movement: the better mercs side-step between bursts at range.
         if (Difficulty.Skill >= AiSkill.Hard && (c.Position - Pawn.Location).Size() > 600f)
@@ -618,6 +678,7 @@ public sealed partial class MercAi : AiBrain
         float spread = SvmMath.Lerp(Difficulty.AimErrorDegrees, Difficulty.AimSettledDegrees,
             SvmMath.Clamp(tracked / SvmMath.Max(0.05f, Difficulty.AimSettleSeconds), 0f, 1f));
         if (multiplier > 1f) spread = MathF.Max(8f, spread * multiplier);
+        else if (multiplier < 1f) spread *= multiplier;
         if (now - _errorAt > 0.25f * Bot.Personality.Tempo)
         {
             _errorAt = now;
@@ -639,7 +700,10 @@ public sealed partial class MercAi : AiBrain
             plan.MoveYaw = moving;
         }
 
-        plan.Yaw = (aim.Yaw + (int)(_errorYaw * unitsPerDegree) + Bot.Personality.AimYaw / 8) & 0xFFFF;
+        // The bot's own aiming habit (a constant offset) shrinks through the scope as its spread does.
+        int habit = Bot.Personality.AimYaw / 8;
+        if (Scoped) habit = (int)(habit * AiK.ScopeSpreadFactor);
+        plan.Yaw = (aim.Yaw + (int)(_errorYaw * unitsPerDegree) + habit) & 0xFFFF;
         plan.Pitch = aim.Pitch + (int)(_errorPitch * unitsPerDegree);
         plan.Tolerance = 65536;
     }
@@ -649,7 +713,8 @@ public sealed partial class MercAi : AiBrain
     {
         float error = AimErrorTo(target);
         bool onTarget = error < spread + 3f;
-        if (!onTarget || TeammateInTheWay(target) || Pawn.MyWeapon is not SWeaponDefense w || w.ClipAmmo <= 0)
+        // No burst into cover: the remembered spot of a blind shot through smoke can lie behind a wall or glass too.
+        if (!onTarget || TeammateInTheWay(target) || Pawn.MyWeapon is not SWeaponDefense w || w.ClipAmmo <= 0 || ShotBlocked(target))
         {
             _burstStart = -1f;
             return;
@@ -1089,121 +1154,6 @@ public sealed partial class MercAi : AiBrain
         LookRound(now, ref plan, _investigate);
     }
 
-    private void Guard(float now, ref AiPlan plan)
-    {
-        if (DefendWithTrap(now, ref plan)) return;
-        if ((_post is null && now >= _postUntil) || (_post is not null && (!Defensible(_post) || now > _postUntil)))
-        {
-            PickPost(now);
-        }
-
-        if (_post is null)
-        {
-            LookRound(now, ref plan, Pawn.Location + Pawn.Rotation.Vector() * 500f);
-            return;
-        }
-
-        if ((Feet - _postFloor).Size() > 60f)
-        {
-            if (!MoveTo(_postFloor, now, ref plan, sneak: false))
-            {
-                _postUntil = now;
-            }
-
-            return;
-        }
-
-        LookRound(now, ref plan, _post.Location);
-    }
-
-    private void PickPost(float now)
-    {
-        World.Teams[1].Release(Bot);
-        _post = null;
-        SObjectiveTrigger? best = null;
-        FVector bestPost = default;
-        float bestScore = float.MaxValue;
-        NavGraph graph = Follower.Graph;
-        int from = graph.NearestNode(Pawn.Location, Pawn.CollisionHeight);
-        float[] costs = ReachabilityCosts(from);
-        foreach (SObjectiveTrigger t in World.Level.AllActors<SObjectiveTrigger>())
-        {
-            if (!Defensible(t) || !GuardSpot(t, out FVector spot) || !GuardPost(spot, costs, out FVector post))
-            {
-                continue;
-            }
-
-            float score = (t.Location - Pawn.Location).Size() * (0.5f + Bot.Random.FRand()) -
-                World.Patrol.Interest(post) * 180f * Bot.Personality.Curiosity;
-            if (World.Teams[1].IsClaimedByOther(t, Bot))
-            {
-                score += 5000f * Difficulty.Teamwork;
-            }
-
-            if (score < bestScore)
-            {
-                bestScore = score;
-                best = t;
-                bestPost = post;
-            }
-        }
-
-        if (best is null)
-        {
-            Follower.Clear();
-            _postUntil = now + 5f;
-            return;
-        }
-
-        _post = best;
-        _postFloor = bestPost;
-        _postUntil = now + (12f + Bot.Random.FRand() * 18f) / Bot.Personality.Aggression;
-        _guardTorch = Bot.Random.FRand() < Difficulty.GadgetUse;
-        _guardMotion = !_guardTorch && Bot.Random.FRand() < Difficulty.GadgetUse;
-        World.Teams[1].Claim(best, Bot);
-    }
-
-    private bool GuardSpot(SObjectiveTrigger objective, out FVector spot)
-    {
-        if (objective is SComputerObjectiveTrigger terminal) return UseSpot(terminal, out spot, out _);
-        FVector location = objective is SDisk disk && disk.PickupInteraction is { } pickup ? pickup.Location :
-            objective.InteractionObj?.Location ?? objective.Location;
-        int node = Follower.Graph.NearestNode(location, 0f, 150f);
-        if (node < 0) { spot = default; return false; }
-        spot = new FVector(location.X, location.Y, Follower.Graph.Node(node).Floor.Z);
-        return true;
-    }
-
-    private bool GuardPost(FVector spot, float[] costs, out FVector post)
-    {
-        // A terminal's nearest node can be on a desk. Guard it from a reachable floor nearby instead of
-        // repeatedly walking to the frontier of an unreachable furniture island (Warehouse's Meeting Room).
-        post = default;
-        float postScore = float.MaxValue;
-        var eyeLift = new FVector(0f, 0f, Follower.Graph.Profile.StandingHeight + AiK.EyeHeightStanding);
-        foreach (int n in NodesAround(spot, 300f))
-        {
-            FVector f = Follower.Graph.Node(n).Floor;
-            float d = NavFollower.Horizontal(f - spot);
-            if (!float.IsFinite(costs[n]) || !Follower.Graph.Node(n).Standing ||
-                !World.LineOpen(f + eyeLift, spot + eyeLift))
-            {
-                continue;
-            }
-
-            // Prefer 150 to 300 uu beside the use spot, with a closer reachable post only in cramped rooms.
-            float s = MathF.Abs(d - 235f / Bot.Personality.Aggression) + (d < 150f ? 300f : 0f) +
-                Bot.Random.FRand() * 60f - World.Patrol.Interest(f) * 65f * Bot.Personality.Curiosity;
-            if (s < postScore)
-            {
-                postScore = s;
-                post = f;
-            }
-        }
-
-        return postScore < float.MaxValue;
-    }
-
     /// <summary>Looks round a point of interest: a new direction every 1.5 to 3 s, biased toward <paramref name="focus"/>.</summary>
     private void LookRound(float now, ref AiPlan plan, FVector focus)
     {
@@ -1329,7 +1279,8 @@ public sealed partial class MercAi : AiBrain
     /// <summary>The torch in the dark and motion tracking while searching, by the difficulty's gadget use.</summary>
     private void Lights(float now, ref AiPlan plan)
     {
-        if (Difficulty.GadgetUse < 0.15f)
+        // The scope state ignores the torch and laser keys.
+        if (Difficulty.GadgetUse < 0.15f || Pc.bBinocularVision)
         {
             return;
         }

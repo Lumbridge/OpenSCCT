@@ -27,6 +27,9 @@ public enum AiCommand : byte
 
     /// <summary>The co-op key (exec PerformCoopMvt, T): offer or take a boost or a hoist.</summary>
     PerformCoopMvt,
+
+    /// <summary>The scope key (exec SwitchBinocularVision): a merc raises or lowers the rifle's scope.</summary>
+    SwitchBinocularVision,
 }
 
 /// <summary>
@@ -170,6 +173,9 @@ public struct AiInput
                 break;
             case AiCommand.PerformCoopMvt:
                 pc.eventPerformCoopMvt();
+                break;
+            case AiCommand.SwitchBinocularVision:
+                pc.eventSwitchBinocularVision();
                 break;
         }
     }

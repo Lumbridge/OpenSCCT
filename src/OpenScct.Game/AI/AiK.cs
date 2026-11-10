@@ -239,6 +239,38 @@ public static class AiK
 
     public const float BurstPause = 0.3f;
 
+    /// <summary>A bullet line that stops within this distance of the aim point (uu) reaches the target: the floor under a lying body, the wall at his back.</summary>
+    public const float ShotCoverSlack = 60f;
+
+    /// <summary>A merc whose shot is blocked looks for a spot with a clear shot within this distance of the spy (uu).</summary>
+    public const float ClearShotRadius = 1200f;
+
+    /// <summary>Range at which a merc with the rifle's scope engages (uu): the scoped shot has no spread and no falloff.</summary>
+    public const float MercScopeRange = 4500f;
+
+    /// <summary>A merc bot raises the scope on a spy at least this far (uu), and lowers it when he is nearer than <see cref="ScopeLeaveRange"/>.</summary>
+    public const float ScopeEnterRange = 1300f;
+
+    public const float ScopeLeaveRange = 800f;
+
+    /// <summary>With the scope up no other spy may be believed this close (uu): the view is 30 degrees wide and the merc can be grabbed.</summary>
+    public const float ScopeSafeRange = 900f;
+
+    /// <summary>The share of the difficulty's aim spread left through the scope (the picture is 2.9 times larger at 30 degrees).</summary>
+    public const float ScopeSpreadFactor = 0.35f;
+
+    /// <summary>A scoped shot is taken with the view within the spread plus this (degrees).</summary>
+    public const float ScopeAimSlack = 0.35f;
+
+    /// <summary>Seconds between two scoped shots (the scope allows one every 0.5 s).</summary>
+    public const float ScopeShotSeconds = 0.6f;
+
+    /// <summary>The fastest a bot turns the scoped view (degrees per second): the scope's aim is slow.</summary>
+    public const float ScopeTurnDegrees = 90f;
+
+    /// <summary>A guard post watches a sight line through the scope when one is open at least this far (uu).</summary>
+    public const float OverwatchRange = 1800f;
+
     /// <summary>
     /// Furthest spy a merc bot charges (uu). The charge runs 1.0 s from 400 uu/s, gaining 750 uu/s each second up to
     /// 770 (melee-elbow-charge-berserk.md rules 16 and 18), about 650 uu on open floor; the bot keeps a margin for the
