@@ -22,7 +22,7 @@ namespace OpenScctGame.Render.Rd;
 /// </summary>
 internal static class RdShadowPass
 {
-    public static bool Enabled { get; } = System.Environment.GetEnvironmentVariable("SVM_RD_SHADOWS") == "1";
+    public static bool Enabled { get; } = System.Environment.GetEnvironmentVariable("SVM_RD_SHADOWS") != "0";
 
     /// <summary>
     /// SVM_RD_SHADOWS=verify: the viewport passes keep writing the atlas, and now and then this pass draws the same

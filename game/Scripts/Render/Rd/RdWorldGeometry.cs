@@ -105,7 +105,7 @@ internal sealed class RdMaterial
 /// </summary>
 internal sealed class RdWorldGeometry
 {
-    public static bool Enabled { get; } = System.Environment.GetEnvironmentVariable("SVM_RD_WORLD") == "1";
+    public static bool Enabled { get; } = System.Environment.GetEnvironmentVariable("SVM_RD_WORLD") != "0";
 
     /// <summary>One vertex, 40 bytes: the streams of a Godot mesh surface, packed as Godot packs them.</summary>
     [StructLayout(LayoutKind.Sequential, Pack = 4)]
