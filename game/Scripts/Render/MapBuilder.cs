@@ -1518,7 +1518,8 @@ public static class MapBuilder
                     // Sky cells split the other way: each transparent surface gets a node of its own (FlushCellPart).
                     bool split = cell.sky == 0 ? key.Item3 != VisionPass.SeeThrough && material.NextPass is null && solid : !solid;
                     _map.Stats.Vertices += b.VertexCount;
-                    if (_map.RdWorld is { } rdWorld && !AnimatesShadow(material) && rdWorld.TryAdd(cell, key.Item1, key.Item2, entry, b))
+                    // The own frame draws cut-outs that animate too (its colour pass does not care how their shadow is cached).
+                    if (_map.RdWorld is { } rdWorld && (Rd.RdWorldRenderer.OwnFrame || !AnimatesShadow(material)) && rdWorld.TryAdd(cell, key.Item1, key.Item2, entry, b))
                     {
                         if (rdSurfaces.Count == MaxSurfacesPerMesh)
                         {

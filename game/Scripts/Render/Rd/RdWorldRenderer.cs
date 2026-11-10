@@ -87,6 +87,8 @@ public partial class RdWorldRenderer : Node
             // Godot draws nothing 3D in the main viewport: no pre-pass, no float target, no tonemap copy.
             GetViewport().Disable3D = true;
             _renderOwn = Callable.From(_gpu.RenderOwn);
+            GetTree().NodeAdded += OnTreeChanged;
+            GetTree().NodeRemoved += OnTreeChanged;
             RenderingServer.FramePreDraw += OnPreDraw;
             _subscribed = true;
             GD.Print("SVM_RD_FRAME on for " + _map.MapId);
@@ -113,6 +115,8 @@ public partial class RdWorldRenderer : Node
 
         if (OwnFrame && _ownRect is not null)
         {
+            GetTree().NodeAdded -= OnTreeChanged;
+            GetTree().NodeRemoved -= OnTreeChanged;
             _ownRect.Texture = null;
             GetViewport().Disable3D = false;
             // Queued after the Texture2DRD let go of the target.
@@ -153,6 +157,7 @@ public partial class RdWorldRenderer : Node
         }
 
         GD.Print($"SVM_RD_WORLD spots{spots} dynamic={_lights.Count} soft={SpotShadowLight.SoftRadius}");
+        if (OwnFrame) GD.Print(string.Create(CultureInfo.InvariantCulture, $"SVM_RD_FRAME gatherMs={_gatherMs:F3}"));
         _sinceReport = 0;
         _frames = 0;
     }
@@ -211,6 +216,11 @@ public partial class RdWorldRenderer : Node
     private Callable _renderOwn;
 
     private bool _ownActive = true;
+
+    private void OnTreeChanged(Node node) => _objects.Dirty = true;
+
+    /// <summary>The main thread's time in the last frame's gathering of objects, projectors and coronas (statistics).</summary>
+    private double _gatherMs;
 
     private void PreDrawOwn(Camera3D camera)
     {
@@ -282,19 +292,15 @@ public partial class RdWorldRenderer : Node
         Select(frame, eye.Origin, true, RdFeatures.NoPortalFog);
         // The map's gameplay meshes and the characters.
         _objects.Begin(frame.Objects, frame.ObjectData, frame.Palette, _objectUploads);
-        if (_map.Root.GetNodeOrNull("Gameplay") is { } gameplay)
-        {
-            _objects.Gather(gameplay, _worldPlanes, static (planes, box) => Inside(planes, box), frame.Objects, frame.ObjectData, frame.Palette, _objectUploads);
-        }
-
-        if ((GetParent() as OpenScctGame.Play.PlayRoot)?.Pawns is { } pawns)
-        {
-            _objects.Gather(pawns, _worldPlanes, static (planes, box) => Inside(planes, box), frame.Objects, frame.ObjectData, frame.Palette, _objectUploads);
-        }
+        long gathering = System.Diagnostics.Stopwatch.GetTimestamp();
+        // Every mesh of the play scene on the actors' layers: gameplay objects, animated props, characters, the
+        // first-person model.
+        _objects.Gather(GetParent() ?? _map.Root, _worldPlanes, static (planes, box) => Inside(planes, box), frame.Objects, frame.ObjectData, frame.Palette, _objectUploads);
 
         foreach (RdObjects.Upload upload in _objectUploads) _gpu.QueueObjectUpload(upload);
         frame.Time = ShaderGlobals.TryGet("svm_time", out Variant time) ? time.AsSingle() : 0f;
         _coronas.Gather(GetTree().Root, frame.CoronaGroups, frame.CoronaBlocks);
+        _gatherMs = System.Diagnostics.Stopwatch.GetElapsedTime(gathering).TotalMilliseconds;
         _projectors.Gather(_map.Projectors?.Root, _worldPlanes, static (planes, box) => Inside(planes, box), _geometry.Batches, frame.Draws, frame.DrawCount,
             frame.ProjectorDraws, frame.ProjectorBlocks, frame.ProjectorTextures, frame.ProjectorKinds);
 

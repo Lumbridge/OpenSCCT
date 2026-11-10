@@ -54,6 +54,8 @@ internal sealed class RdObjects
     }
 
     private static readonly StringName s_diffuse = "tex_diffuse";
+    private static readonly StringName s_static = "Static";
+    private static readonly StringName s_softBodies = "SoftBodies";
     private static readonly StringName s_ambient = "svm_ambient";
     private static readonly StringName[] s_pos = [new("svm_l0_pos"), new("svm_l1_pos"), new("svm_l2_pos"), new("svm_l3_pos")];
     private static readonly StringName[] s_col = [new("svm_l0_col"), new("svm_l1_col"), new("svm_l2_col"), new("svm_l3_col")];
@@ -63,6 +65,11 @@ internal sealed class RdObjects
     private readonly Dictionary<Material, (int Kind, bool Masked, bool TwoSided, bool Drawn, Rid Texture)> _materials = [];
     private readonly Dictionary<MeshInstance3D, SkinInfo?> _skins = [];
     private readonly Stack<Node> _stack = new();
+    private readonly List<MeshInstance3D> _nodes = [];
+    private Node? _walked;
+
+    /// <summary>Set when a node entered or left the tree: the next <see cref="Gather"/> walks the scene again.</summary>
+    public bool Dirty { get; set; } = true;
     private int _nextSurface;
 
     public void Begin(List<Draw> draws, List<byte> objects, List<float> palette, List<Upload> uploads)
@@ -77,15 +84,30 @@ internal sealed class RdObjects
     public void Gather(Node root, Plane[] planes, Func<Plane[], Aabb, bool> inside, List<Draw> draws, List<byte> objects, List<float> palette, List<Upload> uploads)
     {
         Span<float> block = stackalloc float[ObjectBytes / 4];
-        _stack.Clear();
-        _stack.Push(root);
-        while (_stack.Count > 0)
+        if (Dirty || !ReferenceEquals(root, _walked))
         {
-            Node at = _stack.Pop();
-            foreach (Node child in at.GetChildren()) _stack.Push(child);
-            if (at is not MeshInstance3D { Mesh: ArrayMesh mesh } node || !node.IsVisibleInTree()) continue;
-            // The main view's layers: a body hidden from its own eyes is on the shadow-only layer.
-            if ((node.Layers & RenderLayers.MainView) == 0) continue;
+            // The scene's mesh nodes, walked again only after a node entered or left the tree.
+            Dirty = false;
+            _walked = root;
+            _nodes.Clear();
+            _stack.Clear();
+            _stack.Push(root);
+            while (_stack.Count > 0)
+            {
+                Node at = _stack.Pop();
+                // The merged world is the world pass's own; cloth is rewritten in place every frame and not handled yet.
+                if (at.Name == s_static || at.Name == s_softBodies) continue;
+                foreach (Node child in at.GetChildren()) _stack.Push(child);
+                if (at is MeshInstance3D found) _nodes.Add(found);
+            }
+        }
+
+        foreach (MeshInstance3D node in _nodes)
+        {
+            if (!GodotObject.IsInstanceValid(node) || node.Mesh is not ArrayMesh mesh || !node.IsVisibleInTree()) continue;
+            // Actors, characters and the first-person model. Effects (their own shaders) and a body hidden from its
+            // own eyes (the shadow-only layer) are not this pass's.
+            if ((node.Layers & (RenderLayers.World | RenderLayers.FirstPerson)) == 0) continue;
             SkinInfo? skin = null;
             if (node.Skin is not null)
             {
@@ -105,7 +127,7 @@ internal sealed class RdObjects
             int objectIndex = -1, paletteBase = -1;
             for (int s = 0; s < mesh.GetSurfaceCount(); s++)
             {
-                if ((node.GetSurfaceOverrideMaterial(s) ?? mesh.SurfaceGetMaterial(s)) is not ShaderMaterial material) continue;
+                if ((node.MaterialOverride ?? node.GetSurfaceOverrideMaterial(s) ?? mesh.SurfaceGetMaterial(s)) is not ShaderMaterial material) continue;
                 if (!_materials.TryGetValue(material, out (int Kind, bool Masked, bool TwoSided, bool Drawn, Rid Texture) m))
                 {
                     m = Describe(material);
