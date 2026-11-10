@@ -1075,9 +1075,14 @@ internal sealed partial class MainForm : Form
     private void OpenSettings()
     {
         string renderer = GameRendererSettings.Vulkan;
+        int monitor = 1;
         try
         {
-            if (!_editorSelected) renderer = GameRendererSettings.Load(LauncherLayout.GameUserData);
+            if (!_editorSelected)
+            {
+                renderer = GameRendererSettings.Load(LauncherLayout.GameUserData);
+                monitor = GameMonitorSettings.Load(LauncherLayout.GameUserData);
+            }
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
@@ -1085,7 +1090,7 @@ internal sealed partial class MainForm : Form
             return;
         }
 
-        using var dialog = new SettingsForm(_settings, _layout, Palette, renderer, _games.Running().Count > 0);
+        using var dialog = new SettingsForm(_settings, _layout, Palette, renderer, _games.Running().Count > 0, monitor);
         if (dialog.ShowDialog(this) != DialogResult.OK)
         {
             return;
@@ -1104,6 +1109,18 @@ internal sealed partial class MainForm : Form
                     return;
                 }
             }
+            if (dialog.MonitorChanged)
+            {
+                // As with the renderer: a running game would write its own value back over this one.
+                if (_games.Running().Count > 0)
+                {
+                    SetStatus("Close OpenSCCT before changing its monitor.", Theme.Warning);
+                    return;
+                }
+
+                GameMonitorSettings.Save(LauncherLayout.GameUserData, dialog.Monitor);
+            }
+
             dialog.Result.Save(_layout.Settings);
             _settings = dialog.Result;
         }

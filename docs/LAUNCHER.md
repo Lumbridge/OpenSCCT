@@ -88,6 +88,13 @@ Each Windows tab's settings includes its own update preferences, folder shortcut
 Save and Cancel stay visible while the settings scroll on smaller screens.
 The launcher gets updates from the public `Lumbridge/OpenSCCT` repository without a GitHub account or token.
 
+### Monitor
+
+In the Windows launcher's **Game** tab, **Settings > Monitor** chooses the screen the game opens on. It is the
+same setting as **Options > Display > Monitor** in the game: monitor 1 is the Windows primary screen and the
+others follow from left to right. Use it when the game opens on a screen you cannot see. Close the game
+before changing it.
+
 ### Graphics renderer
 
 The game draws with Vulkan on Windows. Versions 0.8.99 to 0.8.125 also offered Direct3D 12 in the launcher and in

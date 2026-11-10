@@ -23,8 +23,15 @@ internal sealed class SettingsForm : Form
         BackColor = Theme.Panel, ForeColor = Theme.Text, Font = Theme.Body,
     };
 
+    private readonly ComboBox _monitor = new()
+    {
+        Name = "GameMonitor", AccessibleName = "Game monitor", DropDownStyle = ComboBoxStyle.DropDownList, FlatStyle = FlatStyle.Flat,
+        BackColor = Theme.Panel, ForeColor = Theme.Text, Font = Theme.Body,
+    };
+    private readonly int _savedMonitor;
+
     public SettingsForm(LauncherSettings settings, LauncherLayout layout, ThemePalette? palette = null,
-        string graphicsDriver = GameRendererSettings.Vulkan, bool gameRunning = false)
+        string graphicsDriver = GameRendererSettings.Vulkan, bool gameRunning = false, int monitor = 1)
     {
         ArgumentNullException.ThrowIfNull(settings);
         ArgumentNullException.ThrowIfNull(layout);
@@ -58,6 +65,17 @@ internal sealed class SettingsForm : Form
         _renderer.SelectedItem = graphicsDriver;
         if (_renderer.SelectedIndex < 0) _renderer.SelectedItem = GameRendererSettings.Vulkan;
         _renderer.Enabled = !gameRunning;
+        _savedMonitor = monitor;
+        // The game's numbering: the primary screen is monitor 1, the others follow from left to right.
+        Screen[] screens = Screen.AllScreens;
+        foreach (int i in GameMonitorSettings.Order(Array.ConvertAll(screens, s => (s.Primary, s.Bounds.X, s.Bounds.Y))))
+        {
+            Screen screen = screens[i];
+            _monitor.Items.Add($"{_monitor.Items.Count + 1}: {screen.Bounds.Width} x {screen.Bounds.Height}{(screen.Primary ? " (primary)" : "")}");
+        }
+
+        _monitor.SelectedIndex = Math.Clamp(monitor, 1, Math.Max(1, _monitor.Items.Count)) - 1;
+        _monitor.Enabled = !gameRunning;
 
         Button ok = Theme.Button("Save");
         ok.Name = "SaveSettings";
@@ -94,6 +112,14 @@ internal sealed class SettingsForm : Form
         Row(Theme.Label("Updates", Theme.Heading, Theme.Accent));
         Row(_checkOnStart, 6);
         Row(_editorMode ? _editorPrereleases : _prereleases, 4);
+        if (!_editorMode)
+        {
+            Row(Theme.Label("Monitor", Theme.Heading, Theme.Accent), 18);
+            Row(_monitor, 6);
+            Row(Theme.Wrapping(Theme.Label(gameRunning
+                ? "Close the game to change its monitor."
+                : "The screen the game opens on, the same setting as Options > Display > Monitor in the game.", Theme.Small, Theme.Muted)), 4);
+        }
         Row(Theme.Label("Folders", Theme.Heading, Theme.Accent), 18);
         if (_editorMode)
         {
@@ -132,6 +158,12 @@ internal sealed class SettingsForm : Form
     public string GraphicsDriver => _renderer.SelectedItem as string ?? GameRendererSettings.Vulkan;
 
     public bool CanChangeRenderer => !_editorMode && _renderer.Enabled;
+
+    /// <summary>The chosen monitor, numbered from 1 as the game numbers them.</summary>
+    public int Monitor => _monitor.SelectedIndex + 1;
+
+    /// <summary>True when the player picked another monitor than the saved one (an untouched choice writes nothing).</summary>
+    public bool MonitorChanged => !_editorMode && _monitor.Enabled && _monitor.SelectedIndex >= 0 && Monitor != _savedMonitor;
 
     /// <summary>The player asked to remove downloaded game files; preferences and saves are kept.</summary>
     public bool RemoveGameFilesRequested { get; private set; }

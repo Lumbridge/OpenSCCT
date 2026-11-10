@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Godot;
 using OpenScctGame.Play.Session;
 
@@ -191,6 +193,28 @@ public static class SettingsApplier
         ApplyFrameCap(s);
     }
 
+    /// <summary>
+    /// The screen of the Monitor setting (numbered from 1): monitor 1 is the primary screen, the others follow from
+    /// left to right, then top to bottom. Windows lists screens in no useful order, so the system's own index could put
+    /// monitor 1 on a secondary screen.
+    /// </summary>
+    public static int ScreenForMonitor(int monitor)
+    {
+        int screens = DisplayServer.GetScreenCount();
+        if (screens <= 1)
+        {
+            return 0;
+        }
+
+        int primary = DisplayServer.GetPrimaryScreen();
+        List<int> order = Enumerable.Range(0, screens)
+            .OrderBy(i => i == primary ? 0 : 1)
+            .ThenBy(i => DisplayServer.ScreenGetPosition(i).X)
+            .ThenBy(i => DisplayServer.ScreenGetPosition(i).Y)
+            .ToList();
+        return order[Math.Clamp(monitor - 1, 0, screens - 1)];
+    }
+
     /// <summary>The window as the settings ask (nothing headless).</summary>
     public static void ApplyDisplay(GameSettings s, Viewport? viewport = null)
     {
@@ -200,8 +224,7 @@ public static class SettingsApplier
             return;
         }
 
-        int screens = DisplayServer.GetScreenCount();
-        int screen = Math.Clamp(s.Monitor - 1, 0, Math.Max(0, screens - 1));
+        int screen = ScreenForMonitor(s.Monitor);
         DisplayServer.WindowMode mode = s.DisplayMode switch
         {
             "Fullscreen" => DisplayServer.WindowMode.ExclusiveFullscreen,

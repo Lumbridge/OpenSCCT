@@ -552,7 +552,7 @@ public partial class OptionsMenu : Control
     {
         // Preview an unapplied monitor selection; otherwise follow the actual window, including manual moves.
         int screen = _previewSelectedMonitor || _edit.Monitor != SettingsStore.Current.Monitor
-            ? Math.Clamp(_edit.Monitor - 1, 0, Math.Max(0, DisplayServer.GetScreenCount() - 1))
+            ? SettingsApplier.ScreenForMonitor(_edit.Monitor)
             : DisplayServer.WindowGetCurrentScreen();
         return SettingsApplier.RefreshRateForScreen(screen);
     }
