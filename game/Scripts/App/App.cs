@@ -156,6 +156,9 @@ public partial class App : Node
 
         // Controller use of the menus (focus, B and Start back out).
         AddChild(new OpenScctGame.Options.PadMenus());
+        // Drops Steam Input's keyboard and mouse copies of controller input in play. Last child of the root, so it
+        // sees every event first (the root is still adding its own children here, hence deferred).
+        GetTree().Root.CallDeferred(Node.MethodName.AddChild, new OpenScctGame.Options.PadMirror());
         AddChild(new OpenScctGame.Audio.MenuFeedback { Name = "MenuFeedback" });
 
         // The player's saved gear and the gear-change HUD line on every level the game loads (spec/additions/gear-change.md).

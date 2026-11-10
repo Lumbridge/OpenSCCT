@@ -84,6 +84,7 @@ public sealed partial class BindingInput : Node
         // ParseInputEvent normally buffers. Observe immediately before its own dispatch, never ahead of
         // an older buffered physical event or of the release belonging to a later synthetic event.
         Input.FlushBufferedEvents();
+        Options.PadMirror.MarkSynthetic(input);
         Current?.Resolve(input);
         Input.ParseInputEvent(input);
         Input.FlushBufferedEvents();
@@ -142,6 +143,8 @@ public sealed partial class BindingInput : Node
         // consumer sees the raw-window dispatch token rather than treating the copy as another press.
         if (!input.HasMeta(EventToken)) input.SetMeta(EventToken, unchecked((long)id));
         _last = new BindingResolution(id, null, Array.Empty<BindingInputEvent>());
+        // Steam's keyboard and mouse copy of a controller press binds nothing (releases always pass).
+        if (Options.PadMirror.Screen(input)) return;
         if (input is InputEventKey { Echo: true } || input is not (InputEventKey or InputEventMouseButton) ||
             GodotKeys.ToIk(input) is not { } physical) return;
         bool pressed = input.IsPressed();

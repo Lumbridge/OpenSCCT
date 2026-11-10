@@ -140,14 +140,18 @@ public partial class PadMenus : Node
     }
 
     /// <summary>
-    /// The third doubled press says so on screen, once: the menus cope, but in play the same layout also sends
-    /// mouse clicks, mouse movement and other keys with the controller, which only a gamepad layout in Steam stops.
+    /// The third doubled press switches <see cref="PadMirror"/> on: the menus cope by themselves, but in play the
+    /// same layout also sends mouse clicks, mouse movement and other keys with the controller.
     /// </summary>
     private void NoteMirror()
     {
-        if (++_mirrored != 3) return;
-        GD.Print("SVM_PAD Steam Input is sending keys together with the controller's buttons (a keyboard and mouse layout)");
-        ShowNotice("Steam is sending keyboard and mouse input with the controller. Start the game from Steam with a gamepad layout.");
+        if (++_mirrored == 3) PadMirror.Declare();
+    }
+
+    /// <summary>Says once on screen that Steam's keyboard and mouse copies were found and are being ignored.</summary>
+    private void OnMirrorDetected()
+    {
+        ShowNotice("Steam is also sending keyboard and mouse input for the controller. The game ignores it while you play with the controller; a gamepad layout in Steam avoids it.");
         _noticeLeft = 12.0;
     }
 
@@ -274,9 +278,11 @@ public partial class PadMenus : Node
         _pushing = true;
         try
         {
+            PadMirror.MarkSynthetic(press);
             BindingInput.Current?.Resolve(press);
             view.PushInput(press);
             var release = new InputEventKey { Keycode = press.Keycode, PhysicalKeycode = press.PhysicalKeycode };
+            PadMirror.MarkSynthetic(release);
             BindingInput.Current?.Resolve(release);
             if (GodotObject.IsInstanceValid(view) && view.IsInsideTree()) view.PushInput(release);
         }
@@ -364,6 +370,7 @@ public partial class PadMenus : Node
     public override void _Ready()
     {
         Input.JoyConnectionChanged += OnJoyConnectionChanged;
+        PadMirror.Detected += OnMirrorDetected;
         GetViewport().GuiFocusChanged += PadFocusPanes.Remember;
         // One line per device: a controller listed twice here is being shown to the game as two devices.
         foreach (int device in Input.GetConnectedJoypads()) GD.Print("SVM_PAD at start: " + Describe(device));
@@ -374,6 +381,7 @@ public partial class PadMenus : Node
     public override void _ExitTree()
     {
         Input.JoyConnectionChanged -= OnJoyConnectionChanged;
+        PadMirror.Detected -= OnMirrorDetected;
         GetViewport().GuiFocusChanged -= PadFocusPanes.Remember;
     }
 

@@ -101,6 +101,12 @@ For a manual Steam entry, use `/usr/bin/flatpak` as the executable and `run io.g
 launch options. Leave compatibility-tool overrides off and choose a **Gamepad** Steam Input layout. The game
 already supports analog sticks, menu navigation and separate spy/mercenary bindings. Steam+X opens the keyboard.
 
+Started outside Steam (for example from the launcher in Desktop Mode), the Deck uses Steam's desktop layout, which
+sends keys, clicks and mouse movement together with the controller. The game notices these copies after a few
+presses, says so on screen and then ignores the keyboard and mouse in play while the controller is in use (they
+work again three seconds after the last controller input, and always in menus and text fields). Starting the game
+from Steam with a Gamepad layout avoids the copies altogether.
+
 Rendering uses Godot's Forward+ Vulkan path. For graphics troubleshooting, try
 `flatpak run io.github.Lumbridge.OpenSCCT --rendering-method gl_compatibility`; some effects require Forward+.
 Hardware frame rate, Gaming Mode integration, controller mapping and microphone capture need device testing.
