@@ -50,6 +50,8 @@ internal sealed class RdObjects
         /// multiplied blend): the surface is drawn by the translated template with this material's values.
         /// </summary>
         public RdMaterial? Material;
+        /// <summary>A mirrored instance (its model matrix turns the triangles' winding over): the other face is the front.</summary>
+        public bool Mirrored;
     }
 
     private sealed class SurfaceInfo
@@ -185,6 +187,41 @@ internal sealed class RdObjects
 
     /// <summary>Adds the visible meshes under <paramref name="root"/> (main thread, after <see cref="Begin"/>).</summary>
     private readonly HashSet<ulong> _prepared = [];
+    private static readonly string? s_dump = System.Environment.GetEnvironmentVariable("SVM_RD_FRAME_DUMP") is { Length: > 0 } path ? path : null;
+    private int _dumpFrame;
+
+    /// <summary>SVM_RD_FRAME_DUMP=file (diagnosis only): every geometry node of the scene, 300 frames in, with what this pass makes of it.</summary>
+    private void Dump(Node root)
+    {
+        var text = new System.Text.StringBuilder();
+        var stack = new Stack<Node>();
+        stack.Push(root);
+        while (stack.Count > 0)
+        {
+            Node at = stack.Pop();
+            foreach (Node child in at.GetChildren()) stack.Push(child);
+            if (at is not GeometryInstance3D g) continue;
+            if (at.GetPath().ToString().Contains("/Static/")) continue;
+            text.Append(at.GetPath()).Append(" | ").Append(at.GetClass()).Append(" layers=").Append(g.Layers.ToString("x")).Append(" visible=").Append(g.IsVisibleInTree())
+                .Append(" at=").Append(g.GlobalPosition);
+            if (at is MeshInstance3D m)
+            {
+                text.Append(" mesh=").Append(m.Mesh?.GetClass()).Append(" skin=").Append(m.Skin is not null).Append(" known=").Append(_nodes.Contains(m));
+                for (int i = 0; m.Mesh is { } mesh && i < mesh.GetSurfaceCount(); i++)
+                {
+                    Material? material = m.MaterialOverride ?? m.GetSurfaceOverrideMaterial(i) ?? mesh.SurfaceGetMaterial(i);
+                    text.Append(" [").Append(material?.GetClass());
+                    if (material is ShaderMaterial sm && _materials.TryGetValue(sm, out var d)) text.Append(" kind=").Append(d.Kind).Append(" drawn=").Append(d.Drawn).Append(" blend=").Append(d.Blend).Append(" template=").Append(_wantsTemplate.GetValueOrDefault(sm));
+                    else if (material is ShaderMaterial other) text.Append(' ').Append(other.Shader?.ResourcePath);
+                    text.Append(']');
+                }
+            }
+
+            text.AppendLine();
+        }
+
+        System.IO.File.WriteAllText(s_dump!, text.ToString());
+    }
     private Node? _staticRoot;
     private readonly List<MeshInstance3D> _staticLeft = [];
 
@@ -291,6 +328,7 @@ internal sealed class RdObjects
             }
         }
 
+        if (s_dump is not null && ++_dumpFrame == 300) Dump(root);
         foreach (MeshInstance3D node in _nodes)
         {
             if (!GodotObject.IsInstanceValid(node) || node.Mesh is not { } mesh || !node.IsVisibleInTree()) continue;
@@ -405,7 +443,7 @@ internal sealed class RdObjects
 
                 draws.Add(new Draw
                 {
-                    Surface = surface.Id, Object = objectIndex, Kind = m.Kind | (sky ? 128 : 0), Palette = paletteBase, Masked = m.Masked, TwoSided = m.TwoSided, Texture = m.Texture,
+                    Surface = surface.Id, Object = objectIndex, Kind = m.Kind | (sky ? 128 : 0), Palette = paletteBase, Mirrored = skin is null && model.Basis.Determinant() < 0f, Masked = m.Masked, TwoSided = m.TwoSided, Texture = m.Texture,
                     Blend = template is null ? m.Blend : template.Cloak ? 3 : template.Blended ? 1 : 0, SpotBits = sky || (m.Kind == 0 && template is null) ? 0 : spotBits, Material = template,
                 });
             }

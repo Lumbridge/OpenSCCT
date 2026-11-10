@@ -350,7 +350,7 @@ public partial class RdWorldRenderer : Node
         bool own = !_gpu.Failed && _view.RendMap == RenderK.RendMapNormal && !ResponsiveSmokeShaders.Enabled
             && camera.IsInsideTree() && camera.Current;
         // SVM_RD_FRAME_FLIP=seconds (a check of the hand-over, not a way to play): Godot's renderer takes every other period.
-        if (s_flip > 0.0 && ((long)(Time.GetTicksMsec() / 1000.0 / s_flip) & 1) == 1) own = false;
+        if (s_flip < 0.0 || (s_flip > 0.0 && ((long)(Time.GetTicksMsec() / 1000.0 / s_flip) & 1) == 1)) own = false;
         if (own != _ownActive)
         {
             _ownActive = own;

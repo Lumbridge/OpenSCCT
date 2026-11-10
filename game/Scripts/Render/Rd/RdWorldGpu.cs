@@ -760,7 +760,7 @@ internal sealed class RdWorldGpu
         if (!shader.GlobalSet.IsValid) throw new InvalidOperationException("global uniform set failed");
     }
 
-    private Rid PipelineOf(RenderingDevice rd, ShaderGpu shader, long framebufferFormat, Rid color, Rid depth)
+    private Rid PipelineOf(RenderingDevice rd, ShaderGpu shader, long framebufferFormat, Rid color, Rid depth, bool mirrored = false)
     {
         using RDTextureFormat colorFormat = rd.TextureGetFormat(color);
         using RDTextureFormat depthFormat = rd.TextureGetFormat(depth);
@@ -768,8 +768,9 @@ internal sealed class RdWorldGpu
         var raster = new RDPipelineRasterizationState
         {
             CullMode = source.TwoSided ? RD.PolygonCullMode.Disabled : RD.PolygonCullMode.Back,
-            // Godot meshes are clockwise from the front; its projection's y flip keeps that in the framebuffer.
-            FrontFace = RD.PolygonFrontFace.Clockwise,
+            // Godot meshes are clockwise from the front; its projection's y flip keeps that in the framebuffer. A
+            // mirrored instance's model matrix turns the winding over.
+            FrontFace = mirrored ? RD.PolygonFrontFace.CounterClockwise : RD.PolygonFrontFace.Clockwise,
         };
         // A blended material (the own frame only) tests depth and writes none, as Godot's transparent pass.
         IReadOnlySet<string> modes = source.RenderModes;
@@ -820,7 +821,7 @@ internal sealed class RdWorldGpu
             raster, multisample, depthState, blend, 0, 0, []);
         if (!pipeline.IsValid) throw new InvalidOperationException("render pipeline failed");
         Made = (Made.Framebuffers, Made.Pipelines + 1, Made.GlobalSets);
-        shader.Pipelines[framebufferFormat] = pipeline;
+        shader.Pipelines[mirrored ? ~framebufferFormat : framebufferFormat] = pipeline;
         return pipeline;
     }
 
@@ -1015,7 +1016,7 @@ internal sealed class RdWorldGpu
     // Programs: masked (1), skinned (2), with the spot lights (4).
     private readonly Rid[] _objectShaders = new Rid[8];
     // By program, one or two sided, and blend (solid, alpha, added).
-    private readonly Rid[] _objectPipelines = new Rid[48];
+    private readonly Rid[] _objectPipelines = new Rid[96];
     private readonly Rid[] _objectFrameSets = new Rid[8];
     private readonly Rid[] _objectSpotSets = new Rid[8];
     private int _objectSpotVersion = -1;
@@ -1134,9 +1135,11 @@ internal sealed class RdWorldGpu
             {
                 _objectShaders[program] = Compile(rd, RdObjects.Vertex(skinned, spot), RdObjects.Fragment(masked, spot), "svm_rd_object", null);
                 if (!_objectShaders[program].IsValid) return false;
+                for (int mirrored = 0; mirrored < 2; mirrored++)
                 for (int variant = 0; variant < 6; variant++)
                 {
                     int twoSided = variant & 1, blendKind = variant / 2;
+                    int at = (mirrored * 48) + (program * 6) + variant;
                     var depthState = new RDPipelineDepthStencilState { EnableDepthTest = true, EnableDepthWrite = blendKind == 0, DepthCompareOperator = RD.CompareOperator.GreaterOrEqual };
                     var attachment = new RDPipelineColorBlendStateAttachment();
                     if (blendKind != 0)
@@ -1149,11 +1152,15 @@ internal sealed class RdWorldGpu
                         (attachment.SrcAlphaBlendFactor, attachment.DstAlphaBlendFactor) = (RD.BlendFactor.Zero, RD.BlendFactor.One);
                     }
 
-                    _objectPipelines[(program * 6) + variant] = rd.RenderPipelineCreate(_objectShaders[program], _ownFormat, _objectFormats[skinned ? 1 : 0],
+                    _objectPipelines[at] = rd.RenderPipelineCreate(_objectShaders[program], _ownFormat, _objectFormats[skinned ? 1 : 0],
                         RD.RenderPrimitive.Triangles,
-                        new RDPipelineRasterizationState { CullMode = twoSided == 1 ? RD.PolygonCullMode.Disabled : RD.PolygonCullMode.Back, FrontFace = RD.PolygonFrontFace.Clockwise },
+                        new RDPipelineRasterizationState
+                        {
+                            CullMode = twoSided == 1 ? RD.PolygonCullMode.Disabled : RD.PolygonCullMode.Back,
+                            FrontFace = mirrored == 1 ? RD.PolygonFrontFace.CounterClockwise : RD.PolygonFrontFace.Clockwise,
+                        },
                         new RDPipelineMultisampleState(), depthState, new RDPipelineColorBlendState { Attachments = [attachment] }, 0, 0, []);
-                    if (!_objectPipelines[(program * 6) + variant].IsValid) return false;
+                    if (!_objectPipelines[at].IsValid) return false;
                 }
             }
 
@@ -1238,9 +1245,9 @@ internal sealed class RdWorldGpu
 
     /// <summary>Everything a template actor draw binds, made before the draw list opens; default when it cannot be drawn.</summary>
     private (Variant? Variant, Rid Pipeline) PrepareTemplate(RenderingDevice rd, in RdObjects.Draw draw) =>
-        PrepareTemplate(rd, draw.Material!, draw.SpotBits != 0);
+        PrepareTemplate(rd, draw.Material!, draw.SpotBits != 0, draw.Mirrored);
 
-    private (Variant? Variant, Rid Pipeline) PrepareTemplate(RenderingDevice rd, RdMaterial source, bool spot)
+    private (Variant? Variant, Rid Pipeline) PrepareTemplate(RenderingDevice rd, RdMaterial source, bool spot, bool mirrored = false)
     {
         if (source.GpuIndex < 0)
         {
@@ -1274,7 +1281,7 @@ internal sealed class RdWorldGpu
         if (variant is null) return default;
         ShaderGpu shader = variant.Shader;
         if (shader.GlobalVersion != _globalVersion || !rd.UniformSetIsValid(shader.GlobalSet)) MakeGlobalSet(rd, shader);
-        if (!shader.Pipelines.TryGetValue(_ownFormat, out Rid pipeline)) pipeline = PipelineOf(rd, shader, _ownFormat, _ownColor, _ownDepth);
+        if (!shader.Pipelines.TryGetValue(mirrored ? ~_ownFormat : _ownFormat, out Rid pipeline)) pipeline = PipelineOf(rd, shader, _ownFormat, _ownColor, _ownDepth, mirrored);
         if (shader.ObjectVersion != _objectBufferVersion || !shader.ObjectSet.IsValid || !rd.UniformSetIsValid(shader.ObjectSet))
         {
             var uniforms = new Godot.Collections.Array<RDUniform>();
@@ -1329,7 +1336,7 @@ internal sealed class RdWorldGpu
             }
 
             int program = (draw.SpotBits != 0 ? 4 : 0) + (draw.Palette >= 0 ? 2 : 0) + (draw.Masked ? 1 : 0);
-            Rid wanted = _objectPipelines[(program * 6) + (Math.Clamp(draw.Blend, 0, 2) * 2) + (draw.TwoSided ? 1 : 0)];
+            Rid wanted = _objectPipelines[(draw.Mirrored ? 48 : 0) + (program * 6) + (Math.Clamp(draw.Blend, 0, 2) * 2) + (draw.TwoSided ? 1 : 0)];
             if (wanted != pipeline)
             {
                 pipeline = wanted;
@@ -1487,7 +1494,8 @@ internal sealed class RdWorldGpu
                 RdFeatures lights = RdFeatures.NoSpot | RdFeatures.NoDynamic;
                 bool lit = (b.Material.Applicable & lights & ~(RdFeatures)frame.Features[k]) != 0 && !Test.Contains("unlit");
                 // Blended surfaces always take the template: its blend, opacity and fog rules are the material's own.
-                if (b.Sky ? b.Material.Layered : lit || b.Material.Blended || b.Material.Layered)
+                // The sky zone always: the template fogs it with the sky's own fog, from the sky origin.
+                if (b.Sky || lit || b.Material.Blended || b.Material.Layered)
                 {
                     Variant variant = _drawVariants[k];
                     rd.DrawListBindRenderPipeline(dl, _drawPipelines[k]);
