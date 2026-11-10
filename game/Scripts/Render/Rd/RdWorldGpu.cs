@@ -949,6 +949,23 @@ internal sealed class RdWorldGpu
     private Rid _latestOwnColor;
     private readonly byte[] _stageFrameBlock = new byte[192];
 
+    /// <summary>
+    /// The frame's last full-screen pass (the gate and the glow added) is the canvas item that shows the scene, not a
+    /// pass of its own into a second target: one full-screen pass fewer. SVM_RD_FRAME_FINAL=pass keeps the pass.
+    /// </summary>
+    public static bool CanvasFinal { get; } = System.Environment.GetEnvironmentVariable("SVM_RD_FRAME_FINAL") != "pass";
+
+    private Rid _latestOwnGlow;
+
+    /// <summary>The glow target for the canvas item to add (<see cref="CanvasFinal"/>); invalid until the first frame made it.</summary>
+    public Rid LatestOwnGlow
+    {
+        get
+        {
+            lock (_queueLock) return _latestOwnGlow;
+        }
+    }
+
     /// <summary>The newest colour target for the main thread to show (it changes on a resize).</summary>
     public Rid LatestOwnColor
     {
@@ -1368,7 +1385,7 @@ internal sealed class RdWorldGpu
                 Format = RD.DataFormat.R8G8B8A8Unorm, Width = (uint)size.X, Height = (uint)size.Y,
                 UsageBits = RD.TextureUsageBits.ColorAttachmentBit | RD.TextureUsageBits.SamplingBit | RD.TextureUsageBits.CanCopyFromBit,
             }, new RDTextureView(), []);
-            lock (_queueLock) _latestOwnColor = _ownShown;
+            lock (_queueLock) _latestOwnColor = CanvasFinal ? _ownColor : _ownShown;
         }
 
         for (int i = _ownRetired.Count - 1; i >= 0; i--)
@@ -1535,7 +1552,11 @@ internal sealed class RdWorldGpu
         }
 
         if (coronas) RecordCoronas(rd, frame);
-        if (_post.Ensure(rd, _ownColor, _ownShown, (vertex, fragment, name) => Compile(rd, vertex, fragment, name, null))) _post.Run(rd, frame.Gate, frame.GlowCut);
+        if (_post.Ensure(rd, _ownColor, _ownShown, (vertex, fragment, name) => Compile(rd, vertex, fragment, name, null))) 
+        {
+            _post.Run(rd, frame.Gate, frame.GlowCut, !CanvasFinal);
+            lock (_queueLock) _latestOwnGlow = _post.Glow;
+        }
         else Fail("own frame post failed");
         rd.CaptureTimestamp("RD Own Frame End");
         LastDraws = frame.DrawCount;

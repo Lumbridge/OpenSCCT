@@ -48,6 +48,17 @@ internal static class RdSheets
     /// <summary>Starts a frame's gathering; the particles collected since the last frame stay (they were built this frame).</summary>
     public static (List<byte> Vertices, List<Draw> Draws) Frame => (s_vertices, s_draws);
 
+    /// <summary>A new map: what was found in the last one and kept by material or mesh is let go.</summary>
+    public static void ResetScene()
+    {
+        Clear();
+        s_particleMaterials.Clear();
+        s_emitterMeshes.Clear();
+        s_beamMeshes.Clear();
+        s_beamRoot = null;
+        s_beamSearched = false;
+    }
+
     public static void Clear()
     {
         s_vertices.Clear();

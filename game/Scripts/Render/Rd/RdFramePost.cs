@@ -171,7 +171,11 @@ internal sealed class RdFramePost
     }
 
     /// <summary>The glow chain when <paramref name="glowCut"/> is not negative, then the final pass into the shown target.</summary>
-    public void Run(RenderingDevice rd, bool gate, float glowCut)
+    /// <summary>The glow to add to the gated scene (512 x 512), once <see cref="Ensure"/> has made it.</summary>
+    public Rid Glow => _glow;
+
+    /// <param name="final">False: the canvas item that shows the scene gates it and adds the glow itself.</param>
+    public void Run(RenderingDevice rd, bool gate, float glowCut, bool final = true)
     {
         bool glow = gate && glowCut >= 0f;
         if (glow)
@@ -193,6 +197,7 @@ internal sealed class RdFramePost
         }
 
         rd.CaptureTimestamp("RD Own Final");
+        if (!final) return;
         Pass(rd, _finalFb, _finalPipeline, _finalSet,
             [gate ? 1f : 0f, RenderK.GlowGateGain, RenderK.GlowGateOffset, glow ? 1f : 0f, RenderK.GlowGateLuma.X, RenderK.GlowGateLuma.Y, RenderK.GlowGateLuma.Z, 0f]);
     }

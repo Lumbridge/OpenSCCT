@@ -82,10 +82,19 @@ public partial class RdWorldRenderer : Node
                 StretchMode = TextureRect.StretchModeEnum.Scale, MouseFilter = Control.MouseFilterEnum.Ignore,
             };
             _ownRect.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
+            if (RdWorldGpu.CanvasFinal)
+            {
+                _ownFinal = new ShaderMaterial { Shader = new Shader { Code = FinalShader } };
+                _ownFinal.SetShaderParameter("luma", RenderK.GlowGateLuma);
+                _ownFinal.SetShaderParameter("gate", Vector4.Zero);
+                _ownRect.Material = _ownFinal;
+            }
+
             layer.AddChild(_ownRect);
             AddChild(layer);
             // Godot draws nothing 3D in the main viewport: no pre-pass, no float target, no tonemap copy.
             GetViewport().Disable3D = true;
+            RdSheets.ResetScene();
             _renderOwn = Callable.From(_gpu.RenderOwn);
             GetTree().NodeAdded += OnTreeChanged;
             GetTree().NodeRemoved += OnTreeChanged;
@@ -118,6 +127,7 @@ public partial class RdWorldRenderer : Node
             GetTree().NodeAdded -= OnTreeChanged;
             GetTree().NodeRemoved -= OnTreeChanged;
             _ownRect.Texture = null;
+            _ownRect.Material = null;
             GetViewport().Disable3D = false;
             // Queued after the Texture2DRD let go of the target.
             RenderingServer.CallOnRenderThread(Callable.From(_gpu.Free));
@@ -218,6 +228,32 @@ public partial class RdWorldRenderer : Node
     private readonly List<RdObjects.Upload> _objectUploads = [];
     private readonly List<RdMaterial> _objectWarm = [];
     private readonly Texture2Drd _ownShown = new();
+    private readonly Texture2Drd _ownGlow = new();
+    private ShaderMaterial? _ownFinal;
+    private Rid _ownGlowRid;
+    private Vector4 _ownGate = new(-1f, 0f, 0f, 0f);
+
+    // The end of the frame as the item that shows it (RdFramePost's final pass, svm_display_normal.glsl): the scene
+    // gated by its own brightness, plus the glow.
+    private const string FinalShader = """
+        shader_type canvas_item;
+        render_mode blend_disabled, unshaded;
+        uniform sampler2D glow : filter_linear, repeat_disable, hint_default_black;
+        // x gate on, y gain, z offset, w glow on
+        uniform vec4 gate;
+        uniform vec3 luma;
+
+        void fragment() {
+            vec3 c = texture(TEXTURE, UV).rgb;
+            if (gate.x > 0.5) {
+                c *= clamp(gate.y * (dot(c, luma) - gate.z), 0.0, 1.0);
+                if (gate.w > 0.5) {
+                    c = clamp(c + texture(glow, UV).rgb, vec3(0.0), vec3(1.0));
+                }
+            }
+            COLOR = vec4(c, 1.0);
+        }
+        """;
     private Rid _ownShownColor;
     private Callable _renderOwn;
 
@@ -387,6 +423,24 @@ public partial class RdWorldRenderer : Node
         _gatherMs = System.Diagnostics.Stopwatch.GetElapsedTime(gathering).TotalMilliseconds;
         _projectors.Gather(_map.Projectors?.Root, _worldPlanes, static (planes, box) => Inside(planes, box), _geometry.Batches, frame.Draws, frame.DrawCount,
             frame.ProjectorDraws, frame.ProjectorBlocks, frame.ProjectorTextures, frame.ProjectorKinds);
+
+        if (_ownFinal is not null)
+        {
+            Rid glowRid = _gpu.LatestOwnGlow;
+            if (glowRid.IsValid && glowRid != _ownGlowRid)
+            {
+                _ownGlowRid = glowRid;
+                _ownGlow.TextureRdRid = glowRid;
+                _ownFinal.SetShaderParameter("glow", _ownGlow);
+            }
+
+            var gate = new Vector4(frame.Gate ? 1f : 0f, RenderK.GlowGateGain, RenderK.GlowGateOffset, frame.Gate && frame.GlowCut >= 0f && _ownGlowRid.IsValid ? 1f : 0f);
+            if (gate != _ownGate)
+            {
+                _ownGate = gate;
+                _ownFinal.SetShaderParameter("gate", gate);
+            }
+        }
 
         _gpu.Submit(frame);
         RenderingServer.CallOnRenderThread(_renderOwn);
