@@ -216,7 +216,7 @@ jobs:
         env:
           RELEASE_CANDIDATE: ${{ inputs.release_candidate || github.event_name == 'push' }}
         run: |
-          ./tools/ci/godot-smoke.ps1 -Tests boot,testbox,range-sim,help-feedback -ExpectedFailures selftest-fail -TimeoutSeconds 180 -Export:($env:RELEASE_CANDIDATE -eq 'true')
+          ./tools/ci/godot-smoke.ps1 -Tests boot,testbox,range-sim,help-feedback,controller-ui -ExpectedFailures selftest-fail -TimeoutSeconds 180 -Export:($env:RELEASE_CANDIDATE -eq 'true')
 
       - name: Record Windows export provenance
         if: inputs.release_candidate || github.event_name == 'push'

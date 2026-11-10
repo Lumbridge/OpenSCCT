@@ -13,6 +13,8 @@ public sealed class PadMenuNavigation
     private string? _direction;
     private double _nextRepeat;
 
+    public bool IsActive => _direction is not null || _buttons.Count > 0;
+
     public string? Button(string key, bool pressed, double now)
     {
         if (pressed ? !_buttons.Add(key) : !_buttons.Remove(key)) return null;
