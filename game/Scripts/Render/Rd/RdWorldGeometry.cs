@@ -92,6 +92,9 @@ internal sealed class RdMaterial
     /// <summary>One per <see cref="RdTranslatedShader.Textures"/> entry; null draws the hint's default.</summary>
     public required Texture2D?[] Textures { get; init; }
     public bool Masked => Code.Contains("#define BLEND_MASKED", StringComparison.Ordinal);
+    /// <summary>Blended into the frame (translucent, additive, multiplied): drawn after the solid scene, far to near, writing no depth.</summary>
+    public bool Blended => Code.Contains("#define BLEND_TRANSLUCENT", StringComparison.Ordinal) || Code.Contains("#define BLEND_ADDITIVE", StringComparison.Ordinal)
+        || Code.Contains("#define BLEND_MODULATE", StringComparison.Ordinal) || Code.Contains("#define BLEND_DARKEN", StringComparison.Ordinal);
     /// <summary>Set by RdWorldGpu on first use: its index there.</summary>
     public int GpuIndex = -1;
 }
@@ -299,14 +302,15 @@ internal sealed class RdWorldGeometry
         string? reason = null;
         if (Array.Exists(s_leave, part => name.Contains(part, StringComparison.OrdinalIgnoreCase))) reason = "left by SVM_RD_WORLD_LEAVE";
         else if (entry is null) reason = "no material entry";
-        else if (entry.Blend is not (MaterialBlend.Opaque or MaterialBlend.Masked)) reason = "blended";
+        // The own frame draws blended surfaces itself; inside Godot's frame they stay with Godot's transparent pass.
+        else if (entry.Blend is not (MaterialBlend.Opaque or MaterialBlend.Masked) && !RdWorldRenderer.OwnFrame) reason = "blended";
         else if (entry.Authored is not null) reason = "authored";
         else if (entry.Sequences.Count > 0) reason = "sequence";
         else
         {
             // The normal vision twin with every light term (the pass leaves terms out per draw itself); the sky zone has
             // one material for every state.
-            Material? source = sky ? _compiler.GetSky(name, light) : _compiler.GetNormalVision(name, light, plain: false);
+            Material? source = sky ? _compiler.GetSky(name, light) : _compiler.GetNormalVision(name, light, plain: false) ?? _compiler.Get(name, light);
             if (source is ShaderMaterial shaderMaterial) material = MaterialOf(shaderMaterial, sky, out reason);
             else reason = "no normal vision material";
         }

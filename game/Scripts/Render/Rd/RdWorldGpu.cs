@@ -760,9 +760,12 @@ internal sealed class RdWorldGpu
             // Godot meshes are clockwise from the front; its projection's y flip keeps that in the framebuffer.
             FrontFace = RD.PolygonFrontFace.Clockwise,
         };
+        // A blended material (the own frame only) tests depth and writes none, as Godot's transparent pass.
+        IReadOnlySet<string> modes = source.RenderModes;
+        bool blended = modes.Contains("blend_mix") || modes.Contains("blend_add") || modes.Contains("blend_mul") || modes.Contains("blend_premul_alpha");
         var depthState = new RDPipelineDepthStencilState
         {
-            EnableDepthTest = true, EnableDepthWrite = true, DepthCompareOperator = RD.CompareOperator.GreaterOrEqual,
+            EnableDepthTest = true, EnableDepthWrite = !blended, DepthCompareOperator = RD.CompareOperator.GreaterOrEqual,
         };
         bool stencil = depthFormat.Format is RD.DataFormat.D24UnormS8Uint or RD.DataFormat.D32SfloatS8Uint or RD.DataFormat.D16UnormS8Uint;
         if (source.StencilWrite is { } reference && stencil)
@@ -782,7 +785,22 @@ internal sealed class RdWorldGpu
             SampleCount = colorFormat.Samples,
             EnableAlphaToCoverage = colorFormat.Samples != RD.TextureSamples.Samples1 && source.RenderModes.Contains("alpha_to_coverage"),
         };
-        var blend = new RDPipelineColorBlendState { Attachments = [new RDPipelineColorBlendStateAttachment()] };
+        var attachment = new RDPipelineColorBlendStateAttachment();
+        if (blended)
+        {
+            // Godot's factors for each blend mode; the target's alpha stays.
+            attachment.EnableBlend = true;
+            attachment.WriteA = false;
+            attachment.ColorBlendOp = attachment.AlphaBlendOp = RD.BlendOperation.Add;
+            (attachment.SrcColorBlendFactor, attachment.DstColorBlendFactor) =
+                modes.Contains("blend_add") ? (RD.BlendFactor.SrcAlpha, RD.BlendFactor.One)
+                : modes.Contains("blend_mul") ? (RD.BlendFactor.DstColor, RD.BlendFactor.Zero)
+                : modes.Contains("blend_premul_alpha") ? (RD.BlendFactor.One, RD.BlendFactor.OneMinusSrcAlpha)
+                : (RD.BlendFactor.SrcAlpha, RD.BlendFactor.OneMinusSrcAlpha);
+            (attachment.SrcAlphaBlendFactor, attachment.DstAlphaBlendFactor) = (RD.BlendFactor.Zero, RD.BlendFactor.One);
+        }
+
+        var blend = new RDPipelineColorBlendState { Attachments = [attachment] };
         Rid pipeline = rd.RenderPipelineCreate(shader.Shader, framebufferFormat, _vertexFormat, RD.RenderPrimitive.Triangles,
             raster, multisample, depthState, blend, 0, 0, []);
         if (!pipeline.IsValid) throw new InvalidOperationException("render pipeline failed");
@@ -1219,7 +1237,9 @@ internal sealed class RdWorldGpu
                 RdWorldGeometry.Batch b = batches[frame.Draws[k]];
                 // A light term left in the draw's shader: a spot or a dynamic light reaches it.
                 RdFeatures lights = RdFeatures.NoSpot | RdFeatures.NoDynamic;
-                if (!b.Sky && (b.Material.Applicable & lights & ~(RdFeatures)frame.Features[k]) != 0 && !Test.Contains("unlit"))
+                bool lit = (b.Material.Applicable & lights & ~(RdFeatures)frame.Features[k]) != 0 && !Test.Contains("unlit");
+                // Blended surfaces always take the template: its blend, opacity and fog rules are the material's own.
+                if (!b.Sky && (lit || b.Material.Blended))
                 {
                     Variant variant = _drawVariants[k];
                     rd.DrawListBindRenderPipeline(dl, _drawPipelines[k]);

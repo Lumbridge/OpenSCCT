@@ -476,8 +476,11 @@ public partial class RdWorldRenderer : Node
             if (b.Sky && !drawSky) continue;
             if (!Inside(b.Sky ? _skyPlanes : _worldPlanes, b.Bounds)) continue;
             float d = (b.Sky ? _skyOrigin : eye).DistanceSquaredTo(b.Bounds.GetCenter());
-            long group = (b.Sky ? 2 : 0) + (b.Material.Masked ? 1 : 0);
-            _keys[n] = (group << 32) | BitConverter.SingleToUInt32Bits(d);
+            // Solid world, masked world, the sky zone, then everything blended from far to near.
+            bool blended = b.Material.Blended;
+            long group = blended ? 4 : (b.Sky ? 2 : 0) + (b.Material.Masked ? 1 : 0);
+            uint bits = BitConverter.SingleToUInt32Bits(d);
+            _keys[n] = (group << 32) | (blended ? ~bits : bits);
             _order[n] = i;
             n++;
         }
