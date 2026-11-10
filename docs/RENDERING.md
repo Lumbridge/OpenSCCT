@@ -737,6 +737,16 @@ Lights with `UsesLightBeam` and a `LightBeamMesh` (200 placed, `TestMapStaticM.A
   fading as 1 - x along the beam (the fade is an estimate). Additive: MissP's lamp beam (STriggerLight1096, brightness
   100, alpha 5) shows over the black sky at 85 to 92 of 255 in the game, which a multiply cannot draw (0.046 gives 87
   to 104). The sqrt(alpha) and linear brightness are the bridge's FactD sweeps.
+  The game's own rule is the same shape (beam setup 0x1097bb4d..0x1097bbb3 and the vertex program text at
+  0x10c4dd1c): the plane colour is FGetHSV(LightHue, LightSaturation, LightBeamInitialAlpha), the alpha standing in
+  for the value byte (0.7 b / (sqrt(b) + 0.01), b = alpha x 1.4 / 255, close to 0.046 x sqrt(alpha)), times the
+  light's brightness, times a constant less x along the beam. Original captures of BankD's vault lamp at brightness
+  100 to 1000 and alpha 1 to 20 follow it. All eighteen planes are drawn from both sides: drawn one-sided, MissP's,
+  RiveE's and FactD's beams disappear from views where the game shows them.
+- A beam whose light projects a texture (EchelonLightMaterial, 66 of the 202) draws at `ProjectedBeamGain` (0.3) of
+  that. Measured on BankD's vault lamp (STriggerLight1680, switched on by the vault event) against the game: its beam
+  adds 60 to 77 of 255 seen from inside, where the rule above gave a solid white cone from every side. Which stage of
+  the game's beam draw takes the rest is not decoded.
 - A beam of an LE_ESpotShadow light (196 of the 202) is cut and tinted by that light: the game's beam setup
   (0x1097b3d0..0x1097bc12) picks its stages from the light's shadow buffer and its EchelonLightMaterial textures and
   hands the beam's vertex shader the light's projection. The shader projects each slice pixel through the light's spot

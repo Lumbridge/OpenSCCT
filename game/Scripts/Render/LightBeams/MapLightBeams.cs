@@ -25,6 +25,16 @@ public sealed class MapLightBeams
     [Provenance(ProvenanceKind.Measured, "MissP far-180 golden: STriggerLight1096's beam (brightness 100, alpha 5) over the black sky reads 85 to 92 of 255 in the game; 0.046 gives 87 to 104. Linear in brightness and sqrt(alpha): bridge FactD sweeps")]
     public const float BeamGain = 0.046f;
 
+    /// <summary>
+    /// What a beam keeps of that when its light projects a texture (an EchelonLightMaterial, 66 of the 202 beams).
+    /// The game's rule for a plane's colour is the one above for every beam (beam setup 0x1097bb4d..0x1097bbb3:
+    /// FGetHSV(LightHue, LightSaturation, LightBeamInitialAlpha) x the light's brightness, x 1 - x along the beam in
+    /// the vertex program at 0x10c4dd1c), yet the beams of such lights draw this much fainter there. Which stage of
+    /// the game's beam draw takes the rest is not decoded.
+    /// </summary>
+    [Provenance(ProvenanceKind.Measured, "BankD STriggerLight1680 (the vault lamp, TXT_BNK.sfx.BNK_EspotShader) against the game after the vault opens (Ryan's capture 2026-11-10) and original captures from five sides with the light switched on: the game's beam adds 60 to 77 of 255 seen from inside where ours added 250 or more; STriggerLight5933 (bnk_projo_gen) reads 0.5 to 0.7 of ours. Beams of lights without a texture (MissP STriggerLight1096, RiveE, FactD) match at 1")]
+    public const float ProjectedBeamGain = 0.3f;
+
     /// <summary>NearPlaneRatio outside (0, 1] (MissE's Light315 stores 500) is taken as this.</summary>
     [Provenance(ProvenanceKind.Estimated, "bridge SCCTLightBeams.cpp fallback; the native's handling of such values is not decoded")]
     public const float DefaultNearRatio = 0.1f;
@@ -56,11 +66,13 @@ public sealed class MapLightBeams
         var shader = Materials.ResponsiveSmokeShaders.Load(ShaderPath);
         var meshes = new Dictionary<string, ArrayMesh>(StringComparer.OrdinalIgnoreCase);
         var spots = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var projected = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         foreach (Data.LightEntry l in map.Lighting.Lights)
         {
             if (l.Echelon is not null)
             {
                 spots.Add(l.Name);
+                if (!string.IsNullOrEmpty(l.Echelon.Texture)) projected.Add(l.Name);
             }
         }
 
@@ -91,7 +103,7 @@ public sealed class MapLightBeams
                 Layers = RenderLayers.Effects,
             };
             root.AddChild(node);
-            var beam = new Beam(e, node) { Spot = spots.Contains(e.Name) };
+            var beam = new Beam(e, node) { Spot = spots.Contains(e.Name), Projected = projected.Contains(e.Name) };
             beam.Apply(e.LightOn && e.InitiallyOn, e.Location, e.Rotation, e.EchelonRange, e.SpotWidth, e.SpotHeight,
                 e.NearPlaneRatio, e.FalloffScale, e.Alpha, e.Brightness);
             beams._beams.Add(beam);
@@ -158,6 +170,9 @@ public sealed class MapLightBeams
         /// <summary>The light is an LE_ESpotShadow light: its shadow map cuts the beam.</summary>
         public bool Spot { get; init; }
 
+        /// <summary>The light projects a texture: its beam draws at <see cref="ProjectedBeamGain"/>.</summary>
+        public bool Projected { get; init; }
+
         /// <summary>Uses the light's spot shadow slot (-1: none) and shows the beam when it is on and, for a spot light, has one.</summary>
         public void SetSlot(int slot, float visibility)
         {
@@ -211,7 +226,7 @@ public sealed class MapLightBeams
 
             rotation.GetAxes(out FVector x, out FVector y, out FVector z);
             float nr = nearRatio > 0f && nearRatio <= 1f ? nearRatio : DefaultNearRatio;
-            float strength = BeamGain * brightness / 255f * MathF.Sqrt(alpha);
+            float strength = BeamGain * brightness / 255f * MathF.Sqrt(alpha) * (Projected ? ProjectedBeamGain : 1f);
             Color c = Entry.Colour * strength;
             var material = (ShaderMaterial)node.MaterialOverride;
             material.SetShaderParameter("beam_origin", UeSpace.ToGodot(location));
