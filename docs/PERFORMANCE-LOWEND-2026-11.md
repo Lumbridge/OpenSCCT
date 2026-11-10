@@ -585,6 +585,16 @@ AquaE's own frame: scene 3.07 ms, glow 0.19, the canvas item that shows it (with
 
 Open: the frame's time outside GPU work (Godot's canvas and swapchain copies); the shadow pass redrawing tiles with a moving caster every frame; a smaller shader for world draws a light reaches; cloaked bodies, mesh particles and leftover map surfaces have not been seen in a capture; Ryan's laptop.
 
+### Eleventh stage: an option, and made safe to ship
+
+**Renderer: Standard or Fast (beta)** (Options, Performance; `renderer` in the settings, Standard by default). A map takes the choice when it is built (`RdWorldRenderer.LatchOwnFrame`), so a change waits for the next map. Standard is Godot's renderer with none of our own passes: the world pass in Godot's frame (`SVM_RD_WORLD`) and the shadow pass (`SVM_RD_SHADOWS`) were on by default for a day and now follow Fast; each variable set to 1 or 0 still forces its pass, and `SVM_RD_FRAME=1` or `0` forces the renderer, for measurements.
+
+**The device lost on the NVIDIA card.** The smokes run on the RTX 4070 SUPER crashed now and then just after a map's load (`VK_ERROR_DEVICE_LOST`, then an access violation in `nvoglv64.dll`; `nvlddmkm` event 153 in the system log): three times in some sixty runs, never twice at the same place on demand, never on the UHD 770. Standard toured all 87 maps without it. The Vulkan validation layer (`--gpu-validation`; a copy of `VkLayer_khronos_validation.dll` found on the machine, named by a manifest in `VK_LAYER_PATH`) reported one error, four times in two map loads: `VUID-VkImageViewCreateInfo-image-01762`. Godot's texture storage makes an sRGB view of every 8-bit texture a `Texture2DRD` wraps, and the frame's targets were made for one format only, so that view was invalid. They are now made with both formats shareable (`RdWorldGpu.Shown`), and all three modes validate with no error. The layer's GPU-assisted checks crash the game themselves and were not used. The passes carry breadcrumb marks (`RdWorldGpu.Breadcrumb` plus 1 to 6), so a lost device names the pass it was in.
+
+**Both renderers draw behind the loading cover.** The own frame used to switch Godot's 3D off as soon as the map was built, so the warm frames (`GameplayFxWarmup`, `LightReach.Warm`) drew nothing: the load waited five seconds for the view's post effects (`Gameplay post warmup did not draw before loading timeout`) and Godot's pipelines for the vision modes were first made when a player switched to one. While `PlayRoot`'s cover is up (`RdWorldRenderer.Loading`) Godot now draws as it does in Standard and the own frame draws too, into its hidden target.
+
+**Nothing compiled in play.** Cloak materials are warmed with the others (the copy of the frame they read exists from the first frame), and a rigid material's mirrored pipelines too. A frame of the own pass that makes a shader or a pipeline after its thirtieth, or takes over 12 ms, is named in the log (`SVM_RD_FRAME late work`, with the shader's name).
+
 ## The target
 
 ### The original at 2560×1440 on the UHD 770 (measured 2026-11-10)

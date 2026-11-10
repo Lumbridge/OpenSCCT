@@ -257,7 +257,7 @@ internal sealed class RdWorldGpu
         (Rid OneSided, Rid TwoSided) depthPipelines = DepthPrepass ? DepthPipelinesOf(rd, format, color) : default;
         rd.CaptureTimestamp(Stamp);
         _clear[0] = frame.Clear;
-        long dl = rd.DrawListBegin(framebuffer, RD.DrawFlags.ClearColor0, _clear, 0f, 0, null, 0);
+        long dl = rd.DrawListBegin(framebuffer, RD.DrawFlags.ClearColor0, _clear, 0f, 0, null, RdWorldGpu.Breadcrumb + 3);
         try
         {
             Record(rd, dl, frame, depthPipelines);
@@ -528,6 +528,7 @@ internal sealed class RdWorldGpu
         }
 
         Rid shader = rd.ShaderCreateFromSpirV(spirv, name);
+        _lastShaderName = name;
         if (!shader.IsValid)
         {
             if (dump is not null) Dump(dump);
@@ -557,7 +558,7 @@ internal sealed class RdWorldGpu
                 return null;
             }
 
-            Rid rid = Compile(rd, translated.Vertex, translated.Fragment, "svm_rd_world", translated);
+            Rid rid = Compile(rd, translated.Vertex, translated.Fragment, source.Actor == 0 ? "svm_rd_world" : $"svm_rd_actor{source.Actor}_{features}", translated);
             if (!rid.IsValid) return null;
             shader = new ShaderGpu { Source = translated, Shader = rid };
             _shaders[(source.Code, features, source.Actor)] = shader;
@@ -1000,7 +1001,17 @@ internal sealed class RdWorldGpu
         if (_current is null || _failed) return;
         try
         {
+            long started = Stopwatch.GetTimestamp();
+            int shaders = _compiled + _cached, compiled = _compiled, pipelines = Made.Pipelines;
             DrawOwn(_current);
+            // Shader or pipeline work after the load is a hitch in play: every such frame is named in the log.
+            double ms = Stopwatch.GetElapsedTime(started).TotalMilliseconds;
+            if (++_ownFrames > LateAfterFrames && _lateNotes < 200 && (_compiled + _cached != shaders || Made.Pipelines != pipelines || ms > 12.0))
+            {
+                _lateNotes++;
+                GD.Print(string.Create(System.Globalization.CultureInfo.InvariantCulture,
+                    $"SVM_RD_FRAME late work: frame {_ownFrames}, {ms:F1} ms, shaders +{_compiled + _cached - shaders} ({_compiled - compiled} compiled), pipelines +{Made.Pipelines - pipelines}{(_compiled + _cached != shaders ? ", last " + _lastShaderName : "")}"));
+            }
         }
         catch (Exception error)
         {
@@ -1008,6 +1019,31 @@ internal sealed class RdWorldGpu
             GD.PushError("RD own frame failed: " + error);
         }
     }
+
+    /// <summary>
+    /// A texture a Texture2DRD may show. Godot's texture storage makes an sRGB view of an 8-bit texture it wraps, which
+    /// Vulkan only allows when the texture was made for both formats (VUID-VkImageViewCreateInfo-image-01762: without
+    /// it the view is invalid, and the NVIDIA driver can lose the device when it is used).
+    /// </summary>
+    internal static RDTextureFormat Shown(RDTextureFormat format)
+    {
+        if (format.Format != RD.DataFormat.R8G8B8A8Unorm) return format;
+        format.AddShareableFormat(RD.DataFormat.R8G8B8A8Unorm);
+        format.AddShareableFormat(RD.DataFormat.R8G8B8A8Srgb);
+        return format;
+    }
+
+    /// <summary>
+    /// The mark of this renderer's passes in the driver's record of a lost device (Godot prints the last passes it
+    /// began): plus 1 the post passes, 2 a shadow tile, 3 the world pass in Godot's frame, 4 the own frame's scene,
+    /// 5 its cloaked bodies, 6 its coronas.
+    /// </summary>
+    internal const uint Breadcrumb = 13000000;
+
+    // Frames drawn; those after the first LateAfterFrames (the loading cover is up for longer) are play.
+    private int _ownFrames, _lateNotes;
+    private string _lastShaderName = "";
+    private const int LateAfterFrames = 30;
 
     // Meshes outside the merged world (RdObjects): geometry handed over once a surface, by a queue no dropped frame
     // can lose. Programs: rigid or skinned vertex shader with the solid or masked fragment shader.
@@ -1192,13 +1228,29 @@ internal sealed class RdWorldGpu
             }
         }
 
-        // Materials that entered the scene: both light states of each, before any is drawn.
+        // The copy of the frame the cloaked bodies read: there from the start, so a cloak's shaders are made with the
+        // others and the first cloaked spy costs nothing.
+        if (_ownFormat >= 0 && (!_ownBehind.IsValid || _ownBehindSize != _ownSize))
+        {
+            if (_ownBehind.IsValid) rd.FreeRid(_ownBehind);
+            _ownBehindSize = _ownSize;
+            using RDTextureFormat format = rd.TextureGetFormat(_ownColor);
+            _ownBehind = rd.TextureCreate(new RDTextureFormat
+            {
+                Format = format.Format, Width = (uint)_ownSize.X, Height = (uint)_ownSize.Y,
+                UsageBits = RD.TextureUsageBits.SamplingBit | RD.TextureUsageBits.CanCopyToBit,
+            }, new RDTextureView(), []);
+        }
+
+        // Materials that entered the scene: both light states of each (and a rigid one's mirrored pipelines), before
+        // any is drawn.
         while (_ownFormat >= 0 && _objectBuffer.IsValid && _paletteBuffer.IsValid && _objectWarm.TryDequeue(out RdMaterial? warm))
         {
-            // A cloak binds the copy of the frame, which is made when the first cloaked body is drawn.
-            if (warm.Cloak) continue;
             PrepareTemplate(rd, warm, spot: false);
             PrepareTemplate(rd, warm, spot: true);
+            if (warm.Actor != 1) continue;
+            PrepareTemplate(rd, warm, spot: false, mirrored: true);
+            PrepareTemplate(rd, warm, spot: true, mirrored: true);
         }
 
         _cloaks = false;
@@ -1210,17 +1262,6 @@ internal sealed class RdWorldGpu
         }
 
         _blendedObjects.Sort((a, b) => frame.Objects[b].Distance.CompareTo(frame.Objects[a].Distance));
-        if (_cloaks && (!_ownBehind.IsValid || _ownBehindSize != _ownSize))
-        {
-            if (_ownBehind.IsValid) rd.FreeRid(_ownBehind);
-            _ownBehindSize = _ownSize;
-            using RDTextureFormat format = rd.TextureGetFormat(_ownColor);
-            _ownBehind = rd.TextureCreate(new RDTextureFormat
-            {
-                Format = format.Format, Width = (uint)_ownSize.X, Height = (uint)_ownSize.Y,
-                UsageBits = RD.TextureUsageBits.SamplingBit | RD.TextureUsageBits.CanCopyToBit,
-            }, new RDTextureView(), []);
-        }
 
         _objectTemplates.Clear();
         foreach (RdObjects.Draw draw in frame.Objects)
@@ -1397,11 +1438,11 @@ internal sealed class RdWorldGpu
             }
 
             _ownSize = size;
-            _ownColor = rd.TextureCreate(new RDTextureFormat
+            _ownColor = rd.TextureCreate(Shown(new RDTextureFormat
             {
                 Format = Test.Contains("scene16") ? RD.DataFormat.R16G16B16A16Sfloat : RD.DataFormat.R8G8B8A8Unorm, Width = (uint)size.X, Height = (uint)size.Y,
                 UsageBits = RD.TextureUsageBits.ColorAttachmentBit | RD.TextureUsageBits.SamplingBit | RD.TextureUsageBits.CanCopyFromBit,
-            }, new RDTextureView(), []);
+            }), new RDTextureView(), []);
             _ownDepth = rd.TextureCreate(new RDTextureFormat
             {
                 Format = RD.DataFormat.D32Sfloat, Width = (uint)size.X, Height = (uint)size.Y,
@@ -1413,11 +1454,11 @@ internal sealed class RdWorldGpu
             _coronaFrameSet = default;
             _ownFormat = rd.FramebufferGetFormat(_ownFramebuffer);
             // What the canvas shows: the scene after the final pass (RdFramePost).
-            _ownShown = rd.TextureCreate(new RDTextureFormat
+            _ownShown = rd.TextureCreate(Shown(new RDTextureFormat
             {
                 Format = RD.DataFormat.R8G8B8A8Unorm, Width = (uint)size.X, Height = (uint)size.Y,
                 UsageBits = RD.TextureUsageBits.ColorAttachmentBit | RD.TextureUsageBits.SamplingBit | RD.TextureUsageBits.CanCopyFromBit,
-            }, new RDTextureView(), []);
+            }), new RDTextureView(), []);
             lock (_queueLock) _latestOwnColor = CanvasFinal ? _ownColor : _ownShown;
         }
 
@@ -1488,7 +1529,7 @@ internal sealed class RdWorldGpu
         var clock = Stopwatch.StartNew();
         rd.CaptureTimestamp("RD Own Frame");
         _clear[0] = frame.Clear;
-        long dl = rd.DrawListBegin(_ownFramebuffer, RD.DrawFlags.ClearAll, _clear, 0f, 0, null, 0);
+        long dl = rd.DrawListBegin(_ownFramebuffer, RD.DrawFlags.ClearAll, _clear, 0f, 0, null, RdWorldGpu.Breadcrumb + 4);
         try
         {
             rd.DrawListBindVertexArray(dl, _vertexArray);
@@ -1612,7 +1653,7 @@ internal sealed class RdWorldGpu
         {
             // Cloaked bodies last: each mixes its colour with the frame as it stood, from a copy.
             rd.TextureCopy(_ownColor, _ownBehind, Vector3.Zero, Vector3.Zero, new Vector3(_ownSize.X, _ownSize.Y, 1f), 0, 0, 0, 0);
-            long cloakList = rd.DrawListBegin(_ownFramebuffer, 0, _clear, 0f, 0, null, 0);
+            long cloakList = rd.DrawListBegin(_ownFramebuffer, 0, _clear, 0f, 0, null, RdWorldGpu.Breadcrumb + 5);
             try
             {
                 RecordObjects(rd, cloakList, frame, 3);
@@ -1954,7 +1995,7 @@ internal sealed class RdWorldGpu
 
     private void RecordCoronas(RenderingDevice rd, RdWorldFrame frame)
     {
-        long dl = rd.DrawListBegin(_ownColorFramebuffer, 0, _clear, 0f, 0, null, 0);
+        long dl = rd.DrawListBegin(_ownColorFramebuffer, 0, _clear, 0f, 0, null, RdWorldGpu.Breadcrumb + 6);
         try
         {
             rd.DrawListBindRenderPipeline(dl, _coronaPipeline);

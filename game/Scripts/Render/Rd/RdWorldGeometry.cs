@@ -138,7 +138,13 @@ internal sealed class RdMaterial
 /// </summary>
 internal sealed class RdWorldGeometry
 {
-    public static bool Enabled { get; } = System.Environment.GetEnvironmentVariable("SVM_RD_WORLD") != "0";
+    /// <summary>
+    /// On with the options' Fast renderer (read after <see cref="RdWorldRenderer.LatchOwnFrame"/>, when a map is
+    /// built); SVM_RD_WORLD=1 or 0 overrides that.
+    /// </summary>
+    public static bool Enabled => s_forced ?? RdWorldRenderer.OwnFrame;
+
+    private static readonly bool? s_forced = System.Environment.GetEnvironmentVariable("SVM_RD_WORLD") switch { "1" => true, "0" => false, _ => null };
 
     /// <summary>One vertex, 40 bytes: the streams of a Godot mesh surface, packed as Godot packs them.</summary>
     [StructLayout(LayoutKind.Sequential, Pack = 4)]

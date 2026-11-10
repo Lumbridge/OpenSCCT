@@ -22,7 +22,10 @@ namespace OpenScctGame.Render.Rd;
 /// </summary>
 internal static class RdShadowPass
 {
-    public static bool Enabled { get; } = System.Environment.GetEnvironmentVariable("SVM_RD_SHADOWS") != "0";
+    /// <summary>On with the options' Fast renderer; SVM_RD_SHADOWS=1 or 0 overrides that.</summary>
+    public static bool Enabled => s_forced ?? RdWorldRenderer.OwnFrame;
+
+    private static readonly bool? s_forced = System.Environment.GetEnvironmentVariable("SVM_RD_SHADOWS") switch { "1" => true, "0" => false, _ => null };
 
     /// <summary>
     /// SVM_RD_SHADOWS=verify: the viewport passes keep writing the atlas, and now and then this pass draws the same
@@ -852,7 +855,7 @@ internal static class RdShadowPass
                 }
 
                 if (job.Items.Count == 0) continue;
-                long dl = rd.DrawListBegin(s_framebuffer, default, s_noClear, 1f, 0, new Rect2(job.Origin, job.Size), 0);
+                long dl = rd.DrawListBegin(s_framebuffer, default, s_noClear, 1f, 0, new Rect2(job.Origin, job.Size), RdWorldGpu.Breadcrumb + 2);
                 try
                 {
                     int bound = -1;

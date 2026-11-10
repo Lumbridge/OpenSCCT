@@ -333,6 +333,8 @@ public partial class PlayRoot : Node3D
     /// <summary>Black over the view, under the status text, while loading draws frames the player must not see.</summary>
     private void ShowLoadingCover(bool visible)
     {
+        // The Fast renderer lets Godot draw too while the cover is up, so both make their pipelines behind it.
+        Render.Rd.RdWorldRenderer.Loading = visible;
         if (visible && _loadingCover is null && _status?.GetParent() is { } layer)
         {
             _loadingCover = new ColorRect { Name = "LoadingCover", Color = Colors.Black, MouseFilter = Control.MouseFilterEnum.Stop };

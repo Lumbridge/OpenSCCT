@@ -205,7 +205,7 @@ internal sealed class RdFramePost
     private void Pass(RenderingDevice rd, Rid framebuffer, Rid pipeline, Rid set, ReadOnlySpan<float> values)
     {
         MemoryMarshal.AsBytes(values).CopyTo(_push);
-        long dl = rd.DrawListBegin(framebuffer, RD.DrawFlags.IgnoreAll, _clear, 0f, 0, null, 0);
+        long dl = rd.DrawListBegin(framebuffer, RD.DrawFlags.IgnoreAll, _clear, 0f, 0, null, RdWorldGpu.Breadcrumb + 1);
         try
         {
             rd.DrawListBindRenderPipeline(dl, pipeline);
@@ -219,11 +219,11 @@ internal sealed class RdFramePost
         }
     }
 
-    private static Rid Target(RenderingDevice rd, Vector2I size) => rd.TextureCreate(new RDTextureFormat
+    private static Rid Target(RenderingDevice rd, Vector2I size) => rd.TextureCreate(RdWorldGpu.Shown(new RDTextureFormat
     {
         Format = RdWorldGpu.Test.Contains("glow16") ? RD.DataFormat.R16G16B16A16Sfloat : RD.DataFormat.R8G8B8A8Unorm, Width = (uint)size.X, Height = (uint)size.Y,
         UsageBits = RD.TextureUsageBits.ColorAttachmentBit | RD.TextureUsageBits.SamplingBit,
-    }, new RDTextureView(), []);
+    }), new RDTextureView(), []);
 
     private static Rid Pipeline(RenderingDevice rd, Rid shader, long format) => rd.RenderPipelineCreate(shader, format, -1,
         RD.RenderPrimitive.Triangles, new RDPipelineRasterizationState(), new RDPipelineMultisampleState(), new RDPipelineDepthStencilState(),

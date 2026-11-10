@@ -116,6 +116,7 @@ public partial class RdWorldRenderer : Node
 
     public override void _ExitTree()
     {
+        Loading = false;
         if (_subscribed)
         {
             RenderingServer.FramePreDraw -= OnPreDraw;
@@ -291,6 +292,9 @@ public partial class RdWorldRenderer : Node
     private Callable _renderOwn;
 
     private bool _ownActive = true;
+
+    /// <summary>Set by the play scene while its loading cover is up (see <see cref="PreDrawOwn"/>).</summary>
+    internal static bool Loading { get; set; }
     private string _fogNote = "";
     private bool _skyNoted;
     private Func<Aabb, int>? _spotsReachingBox;
@@ -380,12 +384,16 @@ public partial class RdWorldRenderer : Node
             && camera.IsInsideTree() && camera.Current;
         // SVM_RD_FRAME_FLIP=seconds (a check of the hand-over, not a way to play): Godot's renderer takes every other period.
         if (s_flip < 0.0 || (s_flip > 0.0 && ((long)(Time.GetTicksMsec() / 1000.0 / s_flip) & 1) == 1)) own = false;
-        if (own != _ownActive)
+        // While the play scene loads (its cover is up) both renderers draw: Godot's makes the pipelines of the vision
+        // modes, the responsive smoke and the view's post effects as it does without this pass (GameplayFxWarmup,
+        // LightReach.Warm), and this pass makes its own, so neither waits for a compile in play.
+        bool alone = own && !Loading;
+        if (_ownRect is not null && _ownRect.Visible != own) _ownRect.Visible = own;
+        if (alone != _ownActive)
         {
-            _ownActive = own;
-            viewport.Disable3D = own;
-            if (_ownRect is not null) _ownRect.Visible = own;
-            if (!own) SetActive(camera, false);
+            _ownActive = alone;
+            viewport.Disable3D = alone;
+            if (!alone) SetActive(camera, false);
         }
 
         RdSheets.Active = own;
