@@ -165,6 +165,11 @@ public partial class SDisk
 
         if (Base is null)
         {
+            if (!bActive && HasInactiveVisibility)
+            {
+                UpdateInactiveVisibility();
+                return;
+            }
             if (!bHidden && !bActive)
             {
                 bHidden = true;

@@ -75,6 +75,7 @@ public partial class SComputerObjectiveTrigger
         bHidden = false;
         SetCollision(true, true, BlocksPlayers);
         SkinState = SKIN_Idle;
+        UpdateInactiveVisibility();
     }
 
     /// <summary>

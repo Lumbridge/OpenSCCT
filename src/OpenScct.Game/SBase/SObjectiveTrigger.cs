@@ -338,5 +338,6 @@ public partial class SObjectiveTrigger
         bLocked = false;
         eventTriggering(false);
         bEMFIsOn = false;
+        UpdateInactiveVisibility();
     }
 }

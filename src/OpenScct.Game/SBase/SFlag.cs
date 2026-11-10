@@ -97,7 +97,11 @@ public partial class SFlag
 
     [Uc("SBase.SFlag.Prepare", Sha1 = "f1e69d42e8d136f05406dc261d187f1e47bdb24a")]
     [PortOf("uc:SBase.SFlag:Prepare", Spec = "spec/objectives/disk-flag.md#rules")]
-    public override void Prepare() => bHidden = false;
+    public override void Prepare()
+    {
+        bHidden = false;
+        UpdateInactiveVisibility();
+    }
 
     /// <summary>
     /// Sends the disk home (rule 6): back on its rack, touchable, takeable through the menu again, unless a lock is

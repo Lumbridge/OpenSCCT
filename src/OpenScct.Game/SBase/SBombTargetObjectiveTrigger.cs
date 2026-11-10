@@ -66,6 +66,7 @@ public partial class SBombTargetObjectiveTrigger
         {
             InteractionObj.bUsable = false;
         }
+        UpdateInactiveVisibility();
     }
 
     /// <summary>
