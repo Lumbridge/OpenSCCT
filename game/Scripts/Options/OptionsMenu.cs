@@ -513,8 +513,8 @@ public partial class OptionsMenu : Control
         Check(g, "Vertical sync", "vsync", _edit.VSync, v => _edit.VSync = v);
         AddFrameRateSlider(g);
         Section(g, "Renderer", "Fast is a new renderer made for integrated graphics. It is in beta: switch back to Standard if a map looks wrong.");
-        Choice(g, "Renderer (next map)", "renderer", GameSettings.Renderers, _edit.Renderer, v => _edit.Renderer = v, v => v == "Fast" ? "Fast (beta)" : v);
-        _controls["renderer"].TooltipText = "Standard draws maps with the engine's renderer. Fast (beta) draws them the way the original game did and runs much quicker on integrated graphics. Vision modes and responsive smoke still use Standard. Applies from the next map.";
+        Choice(g, "Renderer", "renderer", GameSettings.Renderers, _edit.Renderer, v => _edit.Renderer = v, v => v == "Fast" ? "Fast (beta)" : v);
+        _controls["renderer"].TooltipText = "Standard draws maps with the engine's renderer. Fast (beta) draws them the way the original game did and runs much quicker on integrated graphics. Vision modes and responsive smoke still use Standard. A change takes effect on the next map, not the one you are playing.";
         Section(g, "Latency & power", "These settings require restarting the game.");
         Choice(g, "Reduce input lag (restart)", "low_latency_mode", GameSettings.LatencyModes, _edit.LowLatencyMode, v => _edit.LowLatencyMode = v);
         _controls["low_latency_mode"].TooltipText = "On uses double buffering. This can lower latency, but may reduce frame rate when vertical sync is enabled and your PC cannot keep up.";
