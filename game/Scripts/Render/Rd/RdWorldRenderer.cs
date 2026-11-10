@@ -216,6 +216,45 @@ public partial class RdWorldRenderer : Node
     private Callable _renderOwn;
 
     private bool _ownActive = true;
+    private int _rainVersion = -1;
+    private readonly Dictionary<ShaderMaterial, (Rid Texture, Vector4 Pan, bool Alpha)> _rainMaterials = [];
+
+    /// <summary>The rain sheets as RainVolumes last built them: their vertices once a rebuild, their draws every frame.</summary>
+    private void GatherRain(RdWorldFrame frame)
+    {
+        frame.Sheets.Clear();
+        if (_view.Rain is not { } rain || !rain.Node.IsVisibleInTree()) return;
+        if (rain.RdVersion != _rainVersion)
+        {
+            _rainVersion = rain.RdVersion;
+            List<float> source = rain.RdVertices;
+            var bytes = new byte[source.Count / 6 * RdSheets.Stride];
+            for (int i = 0, at = 0; i + 5 < source.Count; i += 6, at += RdSheets.Stride)
+            {
+                Span<float> v = System.Runtime.InteropServices.MemoryMarshal.Cast<byte, float>(bytes.AsSpan(at, 20));
+                (v[0], v[1], v[2], v[3], v[4]) = (source[i], source[i + 1], source[i + 2], source[i + 3], source[i + 4]);
+                byte grey = (byte)Math.Clamp((int)MathF.Round(source[i + 5] * 255f), 0, 255);
+                (bytes[at + 20], bytes[at + 21], bytes[at + 22], bytes[at + 23]) = (grey, grey, grey, 255);
+            }
+
+            _gpu.SubmitSheets(bytes, _rainVersion);
+        }
+
+        foreach ((ShaderMaterial material, int first, int count) in rain.RdRuns)
+        {
+            if (count == 0) continue;
+            if (!_rainMaterials.TryGetValue(material, out (Rid Texture, Vector4 Pan, bool Alpha) m))
+            {
+                Rid texture = material.GetShaderParameter("rain_tex").AsGodotObject() is Texture2D t ? RenderingServer.TextureGetRdTexture(t.GetRid(), false) : default;
+                Variant pan = material.GetShaderParameter("rain_pan");
+                m = (texture, pan.VariantType == Variant.Type.Nil ? new Vector4(1f, 1f, 0f, 0f) : pan.AsVector4(),
+                    material.Shader is { } shader && ResponsiveSmokeShaders.BaseCode(shader).Contains("#define RAIN_ALPHA", StringComparison.Ordinal));
+                _rainMaterials[material] = m;
+            }
+
+            frame.Sheets.Add(new RdSheets.Draw { First = first, Count = count, Texture = m.Texture, Pan = m.Pan, Alpha = m.Alpha });
+        }
+    }
 
     private void OnTreeChanged(Node node) => _objects.Dirty = true;
 
@@ -300,6 +339,7 @@ public partial class RdWorldRenderer : Node
         foreach (RdObjects.Upload upload in _objectUploads) _gpu.QueueObjectUpload(upload);
         frame.Time = ShaderGlobals.TryGet("svm_time", out Variant time) ? time.AsSingle() : 0f;
         _coronas.Gather(GetTree().Root, frame.CoronaGroups, frame.CoronaBlocks);
+        GatherRain(frame);
         _gatherMs = System.Diagnostics.Stopwatch.GetElapsedTime(gathering).TotalMilliseconds;
         _projectors.Gather(_map.Projectors?.Root, _worldPlanes, static (planes, box) => Inside(planes, box), _geometry.Batches, frame.Draws, frame.DrawCount,
             frame.ProjectorDraws, frame.ProjectorBlocks, frame.ProjectorTextures, frame.ProjectorKinds);
