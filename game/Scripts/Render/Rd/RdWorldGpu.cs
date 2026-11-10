@@ -297,8 +297,12 @@ internal sealed class RdWorldGpu
         return true;
     }
 
+    /// <summary>SVM_RD_WORLD_TEST: measurement only, parts of the pass left out (clear, depth, nosky) or of Godot's frame (only).</summary>
+    internal static string Test { get; } = System.Environment.GetEnvironmentVariable("SVM_RD_WORLD_TEST") ?? "";
+
     private void Record(RenderingDevice rd, long dl, RdWorldFrame frame, (Rid OneSided, Rid TwoSided) depthPipelines)
     {
+        if (Test.Contains("clear")) return;
         rd.DrawListBindVertexArray(dl, _vertexArray);
         List<RdWorldGeometry.Batch> batches = _geometry.Batches;
         // Depth first, for the solid world (masked surfaces need their texture, the sky zone lies behind it all): each
@@ -324,6 +328,8 @@ internal sealed class RdWorldGpu
             }
         }
 
+        if (Test.Contains("depth")) return;
+        bool noSky = Test.Contains("nosky");
         ShaderGpu? shader = null;
         Variant? variant = null;
         Rid pipeline = default;
@@ -331,6 +337,7 @@ internal sealed class RdWorldGpu
         bool pushed = false;
         for (int k = 0; k < frame.DrawCount; k++)
         {
+            if (noSky && batches[frame.Draws[k]].Sky) continue;
             Variant next = _drawVariants[k];
             if (!ReferenceEquals(next, variant))
             {

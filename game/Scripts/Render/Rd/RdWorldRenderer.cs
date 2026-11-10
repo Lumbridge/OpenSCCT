@@ -112,6 +112,7 @@ public partial class RdWorldRenderer : Node
     {
         _sinceReport += delta;
         _frames++;
+        Survey(delta);
         if (_sinceReport < 1.0 || !Stats) return;
         GD.Print(string.Create(CultureInfo.InvariantCulture,
             $"SVM_RD_WORLD active={_active} draws={_gpu.LastDraws} full={_full} noSpot={_noSpot} neither={_neither} shaders={_gpu.ShaderCount} made={_gpu.Made} recordMs={_gpu.LastRecordMs:F3} fps={_frames / _sinceReport:F1}"));
@@ -160,6 +161,49 @@ public partial class RdWorldRenderer : Node
         else if (ShaderGlobals.TryGet(s_fogMainSlot, out Variant mainSlot) && mainSlot.AsInt32() == slot
             && ShaderGlobals.TryGet(s_fogMainView, out Variant view) && view.AsVector4().Y < 1.5f) features |= RdFeatures.NoPortalFog;
         return features;
+    }
+
+    private double _surveyAt;
+    private bool _surveyed;
+
+    /// <summary>
+    /// SVM_PERF_SURVEY=1 (measurement only): six seconds into the round, lists what Godot's main view can still draw
+    /// that is not on the World layer alone; SVM_PERF_HIDE=a,b hides the nodes whose path holds one of the words.
+    /// </summary>
+    private void Survey(double delta)
+    {
+        if (_surveyed) return;
+        string? hide = System.Environment.GetEnvironmentVariable("SVM_PERF_HIDE");
+        bool list = System.Environment.GetEnvironmentVariable("SVM_PERF_SURVEY") == "1";
+        if (hide is null && !list)
+        {
+            _surveyed = true;
+            return;
+        }
+
+        _surveyAt += delta;
+        if (_surveyAt < 6.0) return;
+        _surveyed = true;
+        string[] words = hide?.Split(',', StringSplitOptions.RemoveEmptyEntries) ?? [];
+        var stack = new Stack<Node>();
+        stack.Push(GetTree().Root);
+        while (stack.Count > 0)
+        {
+            Node node = stack.Pop();
+            foreach (Node child in node.GetChildren()) stack.Push(child);
+            if (node is not GeometryInstance3D g || !g.IsVisibleInTree()) continue;
+            string path = node.GetPath().ToString();
+            bool hidden = false;
+            foreach (string word in words) hidden |= path.Contains(word, StringComparison.OrdinalIgnoreCase);
+            if (hidden) g.Visible = false;
+            if (list && (g.Layers & (RenderLayers.Effects | RenderLayers.FirstPerson | RenderLayers.Backdrop)) != 0)
+            {
+                string material = g is MeshInstance3D { Mesh: { } mesh } && mesh.GetSurfaceCount() > 0
+                    ? (g.MaterialOverride ?? ((MeshInstance3D)g).GetActiveMaterial(0)) is ShaderMaterial { Shader: { } sh } ? sh.ResourceName : "?"
+                    : "";
+                GD.Print($"SVM_PERF node {node.GetClass()} layers={g.Layers:X} hidden={hidden} {path} [{material}]");
+            }
+        }
     }
 
     private void OnPreDraw()
@@ -212,6 +256,11 @@ public partial class RdWorldRenderer : Node
         uint wanted = active
             ? mask & ~(RenderLayers.StaticWorldRd | RenderLayers.SkyRd)
             : (mask | RenderLayers.StaticWorldRd) & ~RenderLayers.SkyRd | ((mask & RenderLayers.Sky) != 0 ? RenderLayers.SkyRd : 0u);
+        if (active && RdWorldGpu.Test.Contains("only")) wanted = 0;
+        if (active && System.Environment.GetEnvironmentVariable("SVM_RD_WORLD_MASK") is { Length: > 0 } keep)
+        {
+            wanted &= Convert.ToUInt32(keep, 16) | RenderLayers.FogViewMask;
+        }
         if (wanted != mask) camera.CullMask = wanted;
         if (camera.Environment is { } env)
         {

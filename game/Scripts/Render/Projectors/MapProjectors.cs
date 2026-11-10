@@ -73,7 +73,7 @@ public sealed class MapProjectors
         p.Rotation.GetAxes(out FVector x, out FVector y, out FVector z);
         (float halfW, float halfH, float apex) = Shape(p);
         float farScale = apex > 0f ? (p.MaxTrace + apex) / apex : 1f;
-        var material = new ShaderMaterial { Shader = ShaderFor(p.FrameBufferBlending, p.ProjectStaticMesh) };
+        var material = new ShaderMaterial { Shader = ShaderFor(p.FrameBufferBlending, p.ProjectStaticMesh, front: false) };
         material.SetShaderParameter("proj_tex", texture);
         material.SetShaderParameter("proj_origin", new Vector4(0f, 0f, 0f, UeSpace.LengthToGodot(p.MaxTrace)) + Pos4(p.Location));
         material.SetShaderParameter("proj_x", UeSpace.DirectionToGodot(x));
@@ -114,14 +114,25 @@ public sealed class MapProjectors
             corners[i] = UeSpace.ToGodot(c);
         }
 
-        return new MeshInstance3D
+        // The box twice: surface 0 for a camera inside it, surface 1 for one outside (svm_projector.gdshaderinc, PROJ_SIDES).
+        ArrayMesh box = BoxMesh(corners, out Vector4[] planes);
+        box.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, box.SurfaceGetArrays(0));
+        material.SetShaderParameter("proj_planes", planes);
+        Vector3 centre = Vector3.Zero;
+        foreach (Vector3 corner in corners) centre += corner / 8f;
+        material.SetShaderParameter("proj_centre", centre);
+        var outside = (ShaderMaterial)material.Duplicate();
+        outside.Shader = ShaderFor(p.FrameBufferBlending, p.ProjectStaticMesh, front: true);
+        var node = new MeshInstance3D
         {
             Name = "Projector_" + p.Name,
-            Mesh = BoxMesh(corners),
-            MaterialOverride = material,
+            Mesh = box,
             CastShadow = GeometryInstance3D.ShadowCastingSetting.Off,
             Layers = RenderLayers.Effects,
         };
+        node.SetSurfaceOverrideMaterial(0, material);
+        node.SetSurfaceOverrideMaterial(1, outside);
+        return node;
     }
 
     private static Vector4 Pos4(FVector location)
@@ -131,9 +142,11 @@ public sealed class MapProjectors
     }
 
     /// <summary>The six faces of the frustum box, each with its outward normal (the shader keeps the far side).</summary>
-    private static ArrayMesh BoxMesh(Vector3[] c)
+    private static ArrayMesh BoxMesh(Vector3[] c, out Vector4[] planes)
     {
         int[][] faces = [[0, 1, 3, 2], [4, 5, 7, 6], [0, 1, 5, 4], [2, 3, 7, 6], [0, 2, 6, 4], [1, 3, 7, 5]];
+        planes = new Vector4[faces.Length];
+        int face = 0;
         Vector3 centre = Vector3.Zero;
         foreach (Vector3 v in c)
         {
@@ -157,6 +170,7 @@ public sealed class MapProjectors
                 n = -n;
             }
 
+            planes[face++] = new Vector4(n.X, n.Y, n.Z, -n.Dot(a));
             foreach (Vector3 v in new[] { a, b, d, a, d, e })
             {
                 st.SetNormal(n);
@@ -171,7 +185,7 @@ public sealed class MapProjectors
     /// <param name="staticMeshes">bProjectStaticMesh: false skips pixels whose visible surface is a baked static mesh
     /// (the world template writes <see cref="Materials.MaterialCompiler.StencilStaticMesh"/> there).</param>
     [Provenance(ProvenanceKind.Estimated, "bProjectStaticMesh by the stencil of the visible surface: vertex-lit static meshes are skipped, actor-lit ones (no baked colours) still receive")]
-    private static Shader ShaderFor(int frameBufferBlending, bool staticMeshes)
+    private static Shader ShaderFor(int frameBufferBlending, bool staticMeshes, bool front)
     {
         // PB_AlphaBlend and PB_Add blend as named; PB_None and PB_Modulate both modulate 2x (SetProjectorMaterial).
         (string define, string blend) = frameBufferBlending switch
@@ -180,15 +194,16 @@ public sealed class MapProjectors
             3 => ("PROJ_ADD", "blend_add"),
             _ => ("PROJ_MODULATE", "blend_mul"),
         };
-        string key = staticMeshes ? define : define + " NO_STATIC_MESH";
+        string key = (staticMeshes ? define : define + " NO_STATIC_MESH") + (front ? " FRONT" : "");
         if (!Shaders.TryGetValue(key, out Shader? shader))
         {
             string stencil = staticMeshes
                 ? ""
                 : $"stencil_mode read, compare_not_equal, {Materials.MaterialCompiler.StencilStaticMesh};\n";
             shader = Materials.ResponsiveSmokeShaders.Shared(
-                "shader_type spatial;\nrender_mode unshaded, fog_disabled, cull_disabled, depth_test_disabled, depth_draw_never, "
-                    + blend + ";\n" + stencil + "#define " + define + "\n#include \"" + ShaderInclude + "\"\n",
+                "shader_type spatial;\nrender_mode unshaded, fog_disabled, cull_disabled, " + (front ? "" : "depth_test_disabled, ")
+                    + "depth_draw_never, " + blend + ";\n" + stencil + "#define " + define + "\n#define PROJ_SIDES\n"
+                    + (front ? "#define PROJ_FRONT\n" : "") + "#include \"" + ShaderInclude + "\"\n",
                 "svm_projector " + key);
             Shaders[key] = shader;
         }
