@@ -531,14 +531,70 @@ public sealed class SkeletalModel : OpenScctGame.Views.IFirstPersonRigModel
         return parts;
     }
 
+    /// <summary>A model file read and turned into a scene ahead of <see cref="BuildTemplate"/>.</summary>
+    private sealed record Prefetched(GlbDocument Glb, bool Authored, Dictionary<string, MaterialEntry> Materials, Node3D Scene);
+
+    private static readonly Dictionary<string, System.Threading.Tasks.Task<Prefetched>> s_prefetched = new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>SVM_MODEL_THREADS=0 reads every model on the main thread, one after another (measurement).</summary>
+    private static readonly bool s_prefetchThreads = System.Environment.GetEnvironmentVariable("SVM_MODEL_THREADS") != "0";
+
+    /// <summary>
+    /// Starts reading the model files of <paramref name="glbPaths"/> on worker threads: the file, its JSON and the scene
+    /// Godot makes of it, which is most of a model's load (half a second to a second each for the first-person pistols
+    /// on a laptop). <see cref="Load"/> then takes each one as it is asked for and builds its materials on the main
+    /// thread as before. Paths already loaded, already asked for or missing are skipped.
+    /// </summary>
+    public static void Prefetch(IEnumerable<string?> glbPaths)
+    {
+        if (!s_prefetchThreads) return;
+        foreach (string? path in glbPaths)
+        {
+            if (path is null || !File.Exists(path)) continue;
+            string key = Path.GetFullPath(path);
+            if (s_prefetched.ContainsKey(key)) continue;
+            if (s_templates.TryGetValue(key, out Template? template) && GodotObject.IsInstanceValid(template.Scene)) continue;
+            s_prefetched[key] = System.Threading.Tasks.Task.Run(() => Read(key));
+        }
+    }
+
+    private static Prefetched Read(string glbPath)
+    {
+        GlbDocument glb = GlbDocument.Load(glbPath);
+        try
+        {
+            bool authored = AuthoredAnimationTracks.IsConverted(glb);
+            Dictionary<string, MaterialEntry> materials = ReadMaterials(glb.Root);
+            return new Prefetched(glb, authored, materials, ImportScene(glbPath, glb.Root, materials, authored));
+        }
+        catch
+        {
+            glb.Dispose();
+            throw;
+        }
+    }
+
     private static Template BuildTemplate(string glbPath, Template? clipsFrom)
     {
         long started = System.Diagnostics.Stopwatch.GetTimestamp();
-        using GlbDocument glb = GlbDocument.Load(glbPath);
+        Prefetched? ahead = null;
+        if (clipsFrom is null && s_prefetched.Remove(Path.GetFullPath(glbPath), out System.Threading.Tasks.Task<Prefetched>? reading))
+        {
+            try
+            {
+                ahead = reading.GetAwaiter().GetResult();
+            }
+            catch (Exception error) when (error is IOException or InvalidDataException or UnauthorizedAccessException or System.Text.Json.JsonException)
+            {
+                // Read again below, where the failure is reported as for any model.
+            }
+        }
+
+        using GlbDocument glb = ahead?.Glb ?? GlbDocument.Load(glbPath);
         long parsed = System.Diagnostics.Stopwatch.GetTimestamp();
-        bool authored = clipsFrom is null && AuthoredAnimationTracks.IsConverted(glb);
-        Dictionary<string, MaterialEntry> materials = ReadMaterials(glb.Root);
-        Node3D scene = ImportScene(glbPath, glb.Root, materials, authored);
+        bool authored = ahead?.Authored ?? (clipsFrom is null && AuthoredAnimationTracks.IsConverted(glb));
+        Dictionary<string, MaterialEntry> materials = ahead?.Materials ?? ReadMaterials(glb.Root);
+        Node3D scene = ahead?.Scene ?? ImportScene(glbPath, glb.Root, materials, authored);
         long generated = System.Diagnostics.Stopwatch.GetTimestamp();
         Skeleton3D skeleton = FindFirst<Skeleton3D>(scene) ?? throw new InvalidDataException($"{glbPath}: no skeleton");
         var animations = authored ? AuthoredAnimationTracks.Read(glb, skeleton) : new List<(string, Animation)>();
