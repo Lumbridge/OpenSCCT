@@ -32,6 +32,11 @@ internal static class RdSheets
         /// <summary>Texels at or under this alpha are cut; negative: no alpha test.</summary>
         public float AlphaRef;
         public bool DepthTest, Repeat;
+        /// <summary>
+        /// A light beam's slices (svm_light_beam.gdshader): Pan holds what a slice adds (rgb) and the light's spot
+        /// shadow slot (w, negative: no cut); the first UV's x runs along the beam.
+        /// </summary>
+        public bool Beam;
     }
 
     // ---- Main thread: this frame's vertices and draws ----
@@ -194,6 +199,117 @@ internal static class RdSheets
         }
 
         """;
+
+    /// <summary>
+    /// A light beam's slices: each adds boost x (1 - along) x what its light throws there (the cookie where the light
+    /// reaches, nothing outside its frustum or behind an occluder), dimmed by the fog. svm_light_beam.gdshader.
+    /// </summary>
+    public const string BeamFragmentShader = Common + """
+        layout(set = 2, binding = 0) uniform sampler2D svm_spots;
+        layout(set = 2, binding = 1) uniform sampler2D svm_spot_depth;
+        layout(set = 2, binding = 2) uniform sampler2DArray svm_spot_cookies;
+        layout(location = 0) in vec2 v_uv;
+        layout(location = 1) in vec2 v_uv2;
+        layout(location = 2) in vec4 v_col;
+        layout(location = 3) in vec3 v_rel;
+        layout(location = 0) out vec4 frag;
+
+        vec3 beam_lit(int i, vec3 wp)
+        {
+            vec4 a = texelFetch(svm_spots, ivec2(3, i), 0);
+            if (a.x < 0.5) {
+                return vec3(0.0);
+            }
+            vec4 w = vec4(wp, 1.0);
+            vec3 v = vec3(dot(texelFetch(svm_spots, ivec2(0, i), 0), w), dot(texelFetch(svm_spots, ivec2(1, i), 0), w),
+                dot(texelFetch(svm_spots, ivec2(2, i), 0), w));
+            float z = -v.z;
+            vec4 c = texelFetch(svm_spots, ivec2(4, i), 0);
+            if (z <= c.a || z >= c.a + a.y) {
+                return vec3(0.0);
+            }
+            vec4 f = texelFetch(svm_spots, ivec2(5, i), 0);
+            vec2 ndc = f.z > 0.5 ? v.xy * f.xy : v.xy * f.xy / z;
+            if (abs(ndc.x) >= 1.0 || abs(ndc.y) >= 1.0) {
+                return vec3(0.0);
+            }
+            vec2 suv = vec2(ndc.x, -ndc.y) * 0.5 + 0.5;
+            vec4 tile = texelFetch(svm_spots, ivec2(6, i), 0);
+            vec4 e = texelFetch(svm_spots, ivec2(7, i), 0);
+            float zref = z - e.y - e.z * z;
+            vec2 atlas = vec2(textureSize(svm_spot_depth, 0));
+            vec2 lo = tile.xy * atlas + 0.5;
+            vec2 hi = (tile.xy + tile.zw) * atlas - 1.5;
+            vec2 p = clamp((tile.xy + suv * tile.zw) * atlas - 0.5, lo, max(lo, hi));
+            vec2 base = floor(p);
+            vec2 fr = p - base;
+            vec4 d = textureGather(svm_spot_depth, (base + 1.0) / atlas, 0);
+            vec4 lit = step(vec4(zref), d);
+            float shadow = mix(mix(lit.w, lit.z, fr.x), mix(lit.x, lit.y, fr.x), fr.y);
+            return texture(svm_spot_cookies, vec3(suv, f.w)).rgb * shadow;
+        }
+
+        void main()
+        {
+            vec3 lit = draw.pan.w >= 0.0 ? beam_lit(int(draw.pan.w + 0.5), v_rel + frame.eye.xyz) : vec3(1.0);
+            float cover = 0.0;
+            if (frame.fog_color.a > 0.5) {
+                cover = clamp((max(length(v_rel) * frame.fog.x, frame.fog.y) - frame.fog.y) * frame.fog.z, 0.0, 1.0);
+            }
+            frag = vec4(max(draw.pan.rgb, vec3(0.0)) * clamp(1.0 - v_uv2.x, 0.0, 1.0) * lit * (1.0 - cover), 1.0);
+        }
+
+        """;
+
+    private static readonly Dictionary<Mesh, Vector3[]> s_beamMeshes = [];
+    private static Node? s_beamRoot;
+    private static bool s_beamSearched;
+
+    /// <summary>
+    /// The light beams shown this frame (the LightBeams node's meshes, MapLightBeams): each slice mesh stretched along
+    /// its light here as the beam shader's vertex stage does it, and added as one draw.
+    /// </summary>
+    public static void CollectBeams(Node scene)
+    {
+        if (!s_beamSearched || (s_beamRoot is not null && !GodotObject.IsInstanceValid(s_beamRoot)))
+        {
+            s_beamSearched = true;
+            s_beamRoot = scene.FindChild("LightBeams", true, false);
+        }
+
+        if (s_beamRoot is not Node3D root || !root.IsVisibleInTree()) return;
+        foreach (Node child in root.GetChildren())
+        {
+            if (child is not MeshInstance3D { Visible: true, Mesh: { } mesh, MaterialOverride: ShaderMaterial material }) continue;
+            if (!s_beamMeshes.TryGetValue(mesh, out Vector3[]? triangles))
+            {
+                Godot.Collections.Array arrays = mesh.SurfaceGetArrays(0);
+                Vector3[] positions = arrays[(int)Mesh.ArrayType.Vertex].AsVector3Array();
+                int[] indices = arrays[(int)Mesh.ArrayType.Index].AsInt32Array();
+                triangles = new Vector3[indices.Length];
+                for (int i = 0; i < indices.Length; i++) triangles[i] = positions[indices[i]];
+                s_beamMeshes[mesh] = triangles;
+            }
+
+            Vector3 origin = material.GetShaderParameter("beam_origin").AsVector3();
+            Vector3 x = material.GetShaderParameter("beam_x").AsVector3(), y = material.GetShaderParameter("beam_y").AsVector3(), z = material.GetShaderParameter("beam_z").AsVector3();
+            Vector4 shape = material.GetShaderParameter("beam_shape").AsVector4(), boost = material.GetShaderParameter("beam_boost").AsVector4();
+            Variant slot = material.GetShaderParameter("beam_slot"), visibility = material.GetShaderParameter("beam_visibility");
+            float shown = visibility.VariantType == Variant.Type.Nil ? 1f : visibility.AsSingle();
+            int first = s_vertices.Count / Stride;
+            foreach (Vector3 m in triangles)
+            {
+                float grow = shape.W + ((1f - shape.W) * boost.W * m.X);
+                Vertex(origin + (x * (m.X * shape.X)) + (y * (m.Y * shape.Y * grow)) + (z * (m.Z * shape.Z * grow)), Vector2.Zero, new Vector2(m.X, 0f), 255, 255, 255, 255);
+            }
+
+            s_draws.Add(new Draw
+            {
+                First = first, Count = triangles.Length, Style = StyleAdd, Beam = true, DepthTest = true, AlphaRef = -1f,
+                Pan = new Vector4(boost.X * shown, boost.Y * shown, boost.Z * shown, slot.VariantType == Variant.Type.Nil ? -1f : slot.AsInt32()),
+            });
+        }
+    }
 
     /// <summary>The blend factors of a style (source, destination), as Godot's blend modes for svm_particle's render modes.</summary>
     public static (RenderingDevice.BlendFactor Source, RenderingDevice.BlendFactor Destination, bool Blend) BlendOf(int style) => style switch

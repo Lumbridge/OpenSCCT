@@ -157,7 +157,12 @@ public partial class RdWorldRenderer : Node
         }
 
         GD.Print($"SVM_RD_WORLD spots{spots} dynamic={_lights.Count} soft={SpotShadowLight.SoftRadius}");
-        if (OwnFrame) GD.Print(string.Create(CultureInfo.InvariantCulture, $"SVM_RD_FRAME gatherMs={_gatherMs:F3}"));
+        if (OwnFrame)
+        {
+            GD.Print(string.Create(CultureInfo.InvariantCulture, $"SVM_RD_FRAME gatherMs={_gatherMs:F3}"));
+            foreach ((string what, int count) in RdObjects.Met) GD.Print($"SVM_RD_FRAME actor materials {count}: {what}");
+            RdObjects.Met.Clear();
+        }
         _sinceReport = 0;
         _frames = 0;
     }
@@ -277,6 +282,7 @@ public partial class RdWorldRenderer : Node
             }
         }
 
+        RdSheets.CollectBeams(GetParent() ?? _map.Root);
         frame.Sheets.Clear();
         frame.Sheets.AddRange(draws);
         byte[] bytes = _gpu.RentSheets(vertices.Count);

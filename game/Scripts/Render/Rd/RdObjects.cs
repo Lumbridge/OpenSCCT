@@ -20,7 +20,7 @@ internal sealed class RdObjects
     public const int Stride = 36, SkinnedStride = 60;
 
     /// <summary>Bytes of one object's block: model matrix, ambient, four lights (position, colour, spot).</summary>
-    public const int ObjectBytes = 64 + 16 + (4 * 48);
+    public const int ObjectBytes = 64 + 16 + (4 * 48) + 32;
 
     public sealed class Upload
     {
@@ -42,6 +42,11 @@ internal sealed class RdObjects
         public int Blend;
         /// <summary>The spot slots whose sphere reaches the mesh (0: its shader holds no spot code).</summary>
         public int SpotBits;
+        /// <summary>
+        /// Set for a material with more than a texture and a light (layers, a combiner, an environment, cosmetics, a
+        /// multiplied blend): the surface is drawn by the translated template with this material's values.
+        /// </summary>
+        public RdMaterial? Material;
     }
 
     private sealed class SurfaceInfo
@@ -68,6 +73,46 @@ internal sealed class RdObjects
     private readonly Dictionary<(Mesh, int), SurfaceInfo> _surfaces = [];
     private readonly Dictionary<Material, (int Kind, bool Masked, bool TwoSided, bool Drawn, Rid Texture, int Blend)> _materials = [];
     private readonly Dictionary<MeshInstance3D, SkinInfo?> _skins = [];
+    private readonly Dictionary<Material, bool> _wantsTemplate = [];
+    private readonly Dictionary<(ShaderMaterial, bool), RdMaterial?> _templates = [];
+    private readonly List<(ShaderMaterial Source, RdMaterial Material, bool Live)> _refresh = [];
+    private int _refreshAt;
+    private static readonly StringName s_tint = "svm_tint";
+    private static readonly StringName s_glowHue = "svm_glow_hue";
+    private static readonly StringName s_scroll = "svm_scroll";
+
+    private RdMaterial? TemplateOf(ShaderMaterial material, bool skinned)
+    {
+        if (_templates.TryGetValue((material, skinned), out RdMaterial? template)) return template;
+        template = RdWorldGeometry.ActorMaterial(material, skinned ? 2 : 1);
+        _templates[(material, skinned)] = template;
+        // A conveyor slides its textures every frame; other values change now and then (cosmetics, switched screens).
+        if (template is not null) _refresh.Add((material, template, material.GetShaderParameter(s_scroll).VariantType != Variant.Type.Nil));
+        return template;
+    }
+
+    /// <summary>Reads again the values of the materials that change every frame, and of two of the others in turn.</summary>
+    private void RefreshTemplates()
+    {
+        for (int i = _refresh.Count - 1; i >= 0; i--)
+        {
+            (ShaderMaterial source, RdMaterial material, bool live) = _refresh[i];
+            if (!GodotObject.IsInstanceValid(source))
+            {
+                _refresh.RemoveAt(i);
+                continue;
+            }
+
+            if (live) RdWorldGeometry.Refresh(source, material);
+        }
+
+        for (int n = 0; n < 2 && _refresh.Count > 0; n++)
+        {
+            _refreshAt = (_refreshAt + 1) % _refresh.Count;
+            (ShaderMaterial source, RdMaterial material, bool live) = _refresh[_refreshAt];
+            if (!live && GodotObject.IsInstanceValid(source)) RdWorldGeometry.Refresh(source, material);
+        }
+    }
     private readonly Stack<Node> _stack = new();
     private readonly List<MeshInstance3D> _nodes = [];
     private Node? _walked;
@@ -88,6 +133,7 @@ internal sealed class RdObjects
     public void Gather(Node root, Plane[] planes, Func<Plane[], Aabb, bool> inside, Func<Aabb, int> spots, List<Draw> draws, List<byte> objects, List<float> palette, List<Upload> uploads)
     {
         Span<float> block = stackalloc float[ObjectBytes / 4];
+        RefreshTemplates();
         if (Dirty || !ReferenceEquals(root, _walked))
         {
             // The scene's mesh nodes, walked again only after a node entered or left the tree.
@@ -137,9 +183,11 @@ internal sealed class RdObjects
                 {
                     m = Describe(material);
                     _materials[material] = m;
+                    _wantsTemplate[material] = WantsTemplate(material);
                 }
 
-                if (!m.Drawn) continue;
+                RdMaterial? template = _wantsTemplate.GetValueOrDefault(material) ? TemplateOf(material, skin is not null) : null;
+                if (template is null && !m.Drawn) continue;
                 if (!_surfaces.TryGetValue((mesh, s), out SurfaceInfo? surface))
                 {
                     surface = new SurfaceInfo { Id = _nextSurface++ };
@@ -180,8 +228,11 @@ internal sealed class RdObjects
                         }
                     }
 
-                    if (m.Kind == 2)
+                    // Every surface of the node shares the block: the lights and the cosmetics are the node's.
                     {
+                        Put(block, 68, node.GetInstanceShaderParameter(s_tint));
+                        Put(block, 72, node.GetInstanceShaderParameter(s_glowHue));
+                        if (node.GetInstanceShaderParameter(s_tint).VariantType == Variant.Type.Nil) (block[68], block[69], block[70]) = (1f, 1f, 1f);
                         Put(block, 16, node.GetInstanceShaderParameter(s_ambient));
                         for (int i = 0; i < 4; i++)
                         {
@@ -197,7 +248,7 @@ internal sealed class RdObjects
                 draws.Add(new Draw
                 {
                     Surface = surface.Id, Object = objectIndex, Kind = m.Kind, Palette = paletteBase, Masked = m.Masked, TwoSided = m.TwoSided, Texture = m.Texture,
-                    Blend = m.Blend, SpotBits = m.Kind == 0 ? 0 : spotBits,
+                    Blend = template is null ? m.Blend : template.Blended ? 1 : 0, SpotBits = m.Kind == 0 && template is null ? 0 : spotBits, Material = template,
                 });
             }
         }
@@ -230,15 +281,59 @@ internal sealed class RdObjects
     }
 
     /// <summary>How a template material draws here: 0 fullbright, 1 baked vertex colour, 2 actor light; not drawn when blended.</summary>
+    private static readonly string[] s_layers =
+    [
+        "AUTHORED_MATERIAL", "SELF_ILLUM", "SI_LAYER", "SPEC_LAYER", "OPACITY_LAYER", "NORMAL_MAP", "SEQUENCE_D", "SEQUENCE_SI", "SEQUENCE_SIM",
+        "COMBINE", "UV_ANIM", "FLIPBOOK", "ENV_COLOR", "BILLBOARD", "SVM_COSMETIC",
+    ];
+
+    /// <summary>The template features of a material's code that the own frame's small shaders leave out ("": none).</summary>
+    public static string LayersOf(string code)
+    {
+        string found = "";
+        foreach (string name in s_layers)
+        {
+            int at = code.IndexOf("#define " + name, StringComparison.Ordinal);
+            if (at < 0) continue;
+            int end = at + 8 + name.Length;
+            if (end < code.Length && (char.IsLetterOrDigit(code[end]) || code[end] == '_')) continue;
+            found += (found.Length > 0 ? "+" : "") + name;
+        }
+
+        return found;
+    }
+
+    /// <summary>
+    /// A template material the small actor shaders cannot draw as it is: layers, cosmetics or a multiplied blend. A
+    /// cloaked body (it reads the frame behind it) and a surface only thermal and EMF show are not drawn here.
+    /// </summary>
+    private static bool WantsTemplate(ShaderMaterial material)
+    {
+        if (material.Shader is not { } shader) return false;
+        string code = ResponsiveSmokeShaders.BaseCode(shader);
+        if (!code.Contains("svm_world.gdshaderinc", StringComparison.Ordinal) || code.Contains("#define SVM_CLOAK", StringComparison.Ordinal)
+            || code.Contains("#define VISION_SEE_THROUGH", StringComparison.Ordinal)) return false;
+        return LayersOf(code).Length > 0 || code.Contains("#define BLEND_MODULATE", StringComparison.Ordinal) || code.Contains("#define BLEND_DARKEN", StringComparison.Ordinal);
+    }
+
+    /// <summary>Statistics: the actor materials met so far, by what they hold (materials and whether they are drawn).</summary>
+    public static readonly Dictionary<string, int> Met = [];
+
     private static (int Kind, bool Masked, bool TwoSided, bool Drawn, Rid Texture, int Blend) Describe(ShaderMaterial material)
     {
         if (material.Shader is not { } shader) return default;
         string code = ResponsiveSmokeShaders.BaseCode(shader);
+        string met = (code.Contains("svm_world.gdshaderinc", StringComparison.Ordinal) ? "world" : shader.ResourcePath) + " " + LayersOf(code)
+            + (code.Contains("#define SVM_CLOAK", StringComparison.Ordinal) ? " CLOAK" : "") + (code.Contains("#define BLEND_MODULATE", StringComparison.Ordinal) ? " MODULATE" : "")
+            + (code.Contains("#define BLEND_DARKEN", StringComparison.Ordinal) ? " DARKEN" : "") + (code.Contains("#define BLEND_ADDITIVE", StringComparison.Ordinal) ? " ADD" : "")
+            + (code.Contains("#define BLEND_TRANSLUCENT", StringComparison.Ordinal) ? " TRANSLUCENT" : "") + (code.Contains("#define LIGHT_ACTOR", StringComparison.Ordinal) ? " actor" : "");
+        Met[met] = Met.GetValueOrDefault(met) + 1;
         // Translucent and additive surfaces are blended by the texture's alpha; multiplied ones are not drawn yet.
         bool blended = code.Contains("#define BLEND_MODULATE", StringComparison.Ordinal) || code.Contains("#define BLEND_DARKEN", StringComparison.Ordinal);
         int blend = code.Contains("#define BLEND_ADDITIVE", StringComparison.Ordinal) ? 2 : code.Contains("#define BLEND_TRANSLUCENT", StringComparison.Ordinal) ? 1 : 0;
         // A cloaked body is not drawn at all for now: unseen is nearer the truth than plainly visible.
-        if (blended || code.Contains("#define SVM_CLOAK", StringComparison.Ordinal) || !code.Contains("svm_world.gdshaderinc", StringComparison.Ordinal)) return default;
+        if (blended || code.Contains("#define SVM_CLOAK", StringComparison.Ordinal) || code.Contains("#define VISION_SEE_THROUGH", StringComparison.Ordinal)
+            || !code.Contains("svm_world.gdshaderinc", StringComparison.Ordinal)) return default;
         int kind = code.Contains("#define LIGHT_ACTOR", StringComparison.Ordinal) ? 2
             : code.Contains("#define LIGHT_VERTEX", StringComparison.Ordinal) || code.Contains("#define LIGHT_LIGHTMAP", StringComparison.Ordinal) ? 1 : 0;
         Rid texture = material.GetShaderParameter(s_diffuse).AsGodotObject() is Texture2D t ? RenderingServer.TextureGetRdTexture(t.GetRid(), false) : default;
@@ -346,6 +441,8 @@ internal sealed class RdObjects
             mat4 model;
             vec4 ambient;
             vec4 light[12];
+            vec4 tint;
+            vec4 glow_hue;
         };
         layout(set = 0, binding = 1, std430) readonly buffer Objects
         {

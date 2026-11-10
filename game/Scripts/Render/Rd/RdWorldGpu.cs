@@ -79,6 +79,9 @@ internal sealed class RdWorldGpu
         public Rid GlobalSet;
         public int GlobalVersion = -1;
         public readonly Dictionary<long, Rid> Pipelines = [];
+        // An actor shader's set 2: the frame's object blocks and bone matrices.
+        public Rid ObjectSet;
+        public int ObjectVersion = -1;
     }
 
     /// <summary>A material with one shader: the uniform set made for that shader's layout.</summary>
@@ -92,6 +95,7 @@ internal sealed class RdWorldGpu
     {
         public required RdMaterial Source;
         public Rid Values;
+        public int Version, TextureVersion;
         public readonly Variant?[] Variants = new Variant?[(int)RdFeatures.All + 1];
     }
 
@@ -113,7 +117,7 @@ internal sealed class RdWorldGpu
     private Rid _white, _black, _whiteArray, _white3D;
     private long _vertexFormat;
     private Rid[] _indexArrays = [];
-    private readonly Dictionary<(string Code, RdFeatures Features), ShaderGpu> _shaders = [];
+    private readonly Dictionary<(string Code, RdFeatures Features, int Actor), ShaderGpu> _shaders = [];
     private readonly List<MaterialGpu> _materials = [];
     private readonly Dictionary<(RdFilter, bool), Rid> _samplers = [];
     private readonly Dictionary<(Rid Color, Rid Depth), Rid> _framebuffers = [];
@@ -537,9 +541,9 @@ internal sealed class RdWorldGpu
     private Variant? VariantOf(RenderingDevice rd, MaterialGpu material, RdFeatures features)
     {
         RdMaterial source = material.Source;
-        if (!_shaders.TryGetValue((source.Code, features), out ShaderGpu? shader))
+        if (!_shaders.TryGetValue((source.Code, features, source.Actor), out ShaderGpu? shader))
         {
-            RdTranslatedShader? translated = RdShaderLibrary.Get(source.Code, features, out string? reason);
+            RdTranslatedShader? translated = RdShaderLibrary.Get(source.Code, features, out string? reason, source.Actor);
             if (translated is null)
             {
                 Fail("shader translation: " + reason);
@@ -556,7 +560,7 @@ internal sealed class RdWorldGpu
             Rid rid = Compile(rd, translated.Vertex, translated.Fragment, "svm_rd_world", translated);
             if (!rid.IsValid) return null;
             shader = new ShaderGpu { Source = translated, Shader = rid };
-            _shaders[(source.Code, features)] = shader;
+            _shaders[(source.Code, features, source.Actor)] = shader;
         }
 
         var uniforms = new Godot.Collections.Array<RDUniform>();
@@ -806,7 +810,8 @@ internal sealed class RdWorldGpu
         }
 
         var blend = new RDPipelineColorBlendState { Attachments = [attachment] };
-        Rid pipeline = rd.RenderPipelineCreate(shader.Shader, framebufferFormat, _vertexFormat, RD.RenderPrimitive.Triangles,
+        long vertexFormat = source.Actor == 0 ? _vertexFormat : _objectFormats[source.Actor - 1];
+        Rid pipeline = rd.RenderPipelineCreate(shader.Shader, framebufferFormat, vertexFormat, RD.RenderPrimitive.Triangles,
             raster, multisample, depthState, blend, 0, 0, []);
         if (!pipeline.IsValid) throw new InvalidOperationException("render pipeline failed");
         Made = (Made.Framebuffers, Made.Pipelines + 1, Made.GlobalSets);
@@ -1033,6 +1038,7 @@ internal sealed class RdWorldGpu
             _objectCapacity = Math.Max(bytes * 2, RdObjects.ObjectBytes * 64);
             _objectBuffer = rd.StorageBufferCreate((uint)_objectCapacity);
             Array.Clear(_objectFrameSets);
+            _objectBufferVersion++;
         }
 
         if (_objectBytes.Length < bytes) _objectBytes = new byte[_objectCapacity];
@@ -1046,6 +1052,7 @@ internal sealed class RdWorldGpu
             _paletteCapacity = Math.Max(paletteBytes * 2, 64 * 256);
             _paletteBuffer = rd.StorageBufferCreate((uint)_paletteCapacity);
             Array.Clear(_objectFrameSets);
+            _objectBufferVersion++;
         }
 
         if (frame.Palette.Count > 0)
@@ -1117,29 +1124,20 @@ internal sealed class RdWorldGpu
 
             if (spot && !_objectSpotSets[program].IsValid)
             {
-                var uniforms = new Godot.Collections.Array<RDUniform>();
-                ReadOnlySpan<string> names = ["svm_spots", "svm_spot_depth", "svm_spot_cookies", "svm_spot_atten", "svm_spot_ignore"];
-                for (int i = 0; i < names.Length; i++)
-                {
-                    Rid texture = i == 2 ? _whiteArray : _white;
-                    foreach (ShaderGlobals.Slot slot in _slots)
-                    {
-                        if (slot.Size == 0 && slot.Place < _globalTextures.Length && slot.Name.ToString() == names[i]) texture = _globalTextures[slot.Place];
-                    }
-
-                    var uniform = new RDUniform { UniformType = RD.UniformType.SamplerWithTexture, Binding = i };
-                    uniform.AddId(SamplerOf(rd, RdFilter.LinearMipmap, repeat: true));
-                    uniform.AddId(texture);
-                    uniforms.Add(uniform);
-                }
-
-                _objectSpotSets[program] = rd.UniformSetCreate(uniforms, _objectShaders[program], 2);
+                _objectSpotSets[program] = MakeSpotSet(rd, _objectShaders[program], 5);
                 if (!_objectSpotSets[program].IsValid) return false;
             }
         }
 
+        _objectTemplates.Clear();
         foreach (RdObjects.Draw draw in frame.Objects)
         {
+            _objectTemplates.Add(draw.Material is null ? default : PrepareTemplate(rd, draw));
+        }
+
+        foreach (RdObjects.Draw draw in frame.Objects)
+        {
+            if (draw.Material is not null) continue;
             int program = (draw.SpotBits != 0 ? 4 : 0) + (draw.Palette >= 0 ? 2 : 0) + (draw.Masked ? 1 : 0);
             if (_objectSets.TryGetValue((draw.Texture, program), out Rid set) && rd.UniformSetIsValid(set)) continue;
             var texture = new RDUniform { UniformType = RD.UniformType.SamplerWithTexture, Binding = 0 };
@@ -1151,18 +1149,97 @@ internal sealed class RdWorldGpu
         return true;
     }
 
+    // The frame's actor draws that take the template (RdObjects.Draw.Material): what each binds, by draw index.
+    private readonly List<(Variant? Variant, Rid Pipeline)> _objectTemplates = [];
+    private int _objectBufferVersion;
+
+    /// <summary>Everything a template actor draw binds, made before the draw list opens; default when it cannot be drawn.</summary>
+    private (Variant? Variant, Rid Pipeline) PrepareTemplate(RenderingDevice rd, in RdObjects.Draw draw)
+    {
+        RdMaterial source = draw.Material!;
+        if (source.GpuIndex < 0)
+        {
+            var made = new MaterialGpu { Source = source, Version = source.Version, TextureVersion = source.TextureVersion };
+            if (source.Values.Length > 0) made.Values = rd.UniformBufferCreate((uint)source.Values.Length, source.Values, 0);
+            source.GpuIndex = _materials.Count;
+            _materials.Add(made);
+        }
+
+        MaterialGpu material = _materials[source.GpuIndex];
+        if (material.Version != source.Version)
+        {
+            material.Version = source.Version;
+            if (material.Values.IsValid) rd.BufferUpdate(material.Values, 0, (uint)source.Values.Length, source.Values);
+        }
+
+        if (material.TextureVersion != source.TextureVersion)
+        {
+            material.TextureVersion = source.TextureVersion;
+            for (int i = 0; i < material.Variants.Length; i++)
+            {
+                if (material.Variants[i] is { } old && rd.UniformSetIsValid(old.Set)) rd.FreeRid(old.Set);
+                material.Variants[i] = null;
+            }
+        }
+
+        RdFeatures features = (RdFeatures.NoPortalFog | (draw.SpotBits == 0 ? RdFeatures.NoSpot : RdFeatures.None)) & source.Applicable;
+        Variant? variant = material.Variants[(int)features] ?? VariantOf(rd, material, features);
+        if (variant is null) return default;
+        ShaderGpu shader = variant.Shader;
+        if (shader.GlobalVersion != _globalVersion || !rd.UniformSetIsValid(shader.GlobalSet)) MakeGlobalSet(rd, shader);
+        if (!shader.Pipelines.TryGetValue(_ownFormat, out Rid pipeline)) pipeline = PipelineOf(rd, shader, _ownFormat, _ownColor, _ownDepth);
+        if (shader.ObjectVersion != _objectBufferVersion || !shader.ObjectSet.IsValid || !rd.UniformSetIsValid(shader.ObjectSet))
+        {
+            var uniforms = new Godot.Collections.Array<RDUniform>();
+            var objects = new RDUniform { UniformType = RD.UniformType.StorageBuffer, Binding = 0 };
+            objects.AddId(_objectBuffer);
+            uniforms.Add(objects);
+            if (source.Actor == 2)
+            {
+                var palette = new RDUniform { UniformType = RD.UniformType.StorageBuffer, Binding = 1 };
+                palette.AddId(_paletteBuffer);
+                uniforms.Add(palette);
+            }
+
+            shader.ObjectSet = rd.UniformSetCreate(uniforms, shader.Shader, 2);
+            shader.ObjectVersion = _objectBufferVersion;
+            if (!shader.ObjectSet.IsValid) return default;
+        }
+
+        return (variant, pipeline);
+    }
+
     private void RecordObjects(RenderingDevice rd, long dl, RdWorldFrame frame)
     {
         Rid pipeline = default, set = default;
         Span<int> push = MemoryMarshal.Cast<byte, int>(_drawBlock.AsSpan());
         // Solid surfaces first, then the blended ones over them.
         for (int blendedPass = 0; blendedPass < 2; blendedPass++)
-        foreach (RdObjects.Draw draw in frame.Objects)
+        for (int at = 0; at < frame.Objects.Count; at++)
         {
+            RdObjects.Draw draw = frame.Objects[at];
             if ((draw.Blend != 0) != (blendedPass == 1)) continue;
             if (!_objectSurfaces.TryGetValue(draw.Surface, out (Rid Vertices, Rid VertexArray, Rid Indices, Rid IndexArray, bool Skinned) surface)) continue;
             // A surface packed for one kind of vertex is only drawn by that kind's program.
             if (surface.Skinned != (draw.Palette >= 0)) continue;
+            if (draw.Material is not null)
+            {
+                // The whole template, with the material's own values.
+                if (at >= _objectTemplates.Count || _objectTemplates[at].Variant is not { } variant) continue;
+                rd.DrawListBindRenderPipeline(dl, _objectTemplates[at].Pipeline);
+                rd.DrawListBindUniformSet(dl, variant.Shader.GlobalSet, 0);
+                rd.DrawListBindUniformSet(dl, variant.Set, 1);
+                rd.DrawListBindUniformSet(dl, variant.Shader.ObjectSet, 2);
+                (push[0], push[1], push[2], push[3]) = (draw.SpotBits, 0, draw.Object, Math.Max(0, draw.Palette));
+                rd.DrawListSetPushConstant(dl, _drawBlock, (uint)_drawBlock.Length);
+                rd.DrawListBindVertexArray(dl, surface.VertexArray);
+                rd.DrawListBindIndexArray(dl, surface.IndexArray);
+                rd.DrawListDraw(dl, true, 1, 0);
+                pipeline = default;
+                set = default;
+                continue;
+            }
+
             int program = (draw.SpotBits != 0 ? 4 : 0) + (draw.Palette >= 0 ? 2 : 0) + (draw.Masked ? 1 : 0);
             Rid wanted = _objectPipelines[(program * 6) + (Math.Clamp(draw.Blend, 0, 2) * 2) + (draw.TwoSided ? 1 : 0)];
             if (wanted != pipeline)
@@ -1322,7 +1399,7 @@ internal sealed class RdWorldGpu
                 RdFeatures lights = RdFeatures.NoSpot | RdFeatures.NoDynamic;
                 bool lit = (b.Material.Applicable & lights & ~(RdFeatures)frame.Features[k]) != 0 && !Test.Contains("unlit");
                 // Blended surfaces always take the template: its blend, opacity and fog rules are the material's own.
-                if (!b.Sky && (lit || b.Material.Blended))
+                if (!b.Sky && (lit || b.Material.Blended || b.Material.Layered))
                 {
                     Variant variant = _drawVariants[k];
                     rd.DrawListBindRenderPipeline(dl, _drawPipelines[k]);
@@ -1433,6 +1510,75 @@ internal sealed class RdWorldGpu
         }
     }
 
+    /// <summary>
+    /// Set 2 of a shader that reads the spot shadow lights: the first <paramref name="count"/> of their global
+    /// textures (slot rows, depth atlas, cookies, attenuation, ignore table), as they are bound now.
+    /// </summary>
+    private Rid MakeSpotSet(RenderingDevice rd, Rid shader, int count)
+    {
+        var uniforms = new Godot.Collections.Array<RDUniform>();
+        ReadOnlySpan<string> names = ["svm_spots", "svm_spot_depth", "svm_spot_cookies", "svm_spot_atten", "svm_spot_ignore"];
+        for (int i = 0; i < count; i++)
+        {
+            Rid texture = i == 2 ? _whiteArray : _white;
+            foreach (ShaderGlobals.Slot slot in _slots)
+            {
+                if (slot.Size == 0 && slot.Place < _globalTextures.Length && slot.Name.ToString() == names[i]) texture = _globalTextures[slot.Place];
+            }
+
+            var uniform = new RDUniform { UniformType = RD.UniformType.SamplerWithTexture, Binding = i };
+            uniform.AddId(SamplerOf(rd, RdFilter.LinearMipmap, repeat: true));
+            uniform.AddId(texture);
+            uniforms.Add(uniform);
+        }
+
+        return rd.UniformSetCreate(uniforms, shader, 2);
+    }
+
+    private Rid _beamShader, _beamPipeline, _beamFrameSet, _beamSpotSet;
+    private int _beamSpotVersion = -1;
+
+    /// <summary>What the light beams among the sheets bind; false when it could not be made (they are then left out).</summary>
+    private bool PrepareBeams(RenderingDevice rd)
+    {
+        if (!_beamShader.IsValid)
+        {
+            _beamShader = Compile(rd, RdSheets.VertexShader, RdSheets.BeamFragmentShader, "svm_rd_beam", null);
+            if (!_beamShader.IsValid) return false;
+            var attachment = new RDPipelineColorBlendStateAttachment
+            {
+                EnableBlend = true, WriteA = false, ColorBlendOp = RD.BlendOperation.Add, AlphaBlendOp = RD.BlendOperation.Add,
+                SrcColorBlendFactor = RD.BlendFactor.One, DstColorBlendFactor = RD.BlendFactor.One,
+                SrcAlphaBlendFactor = RD.BlendFactor.Zero, DstAlphaBlendFactor = RD.BlendFactor.One,
+            };
+            _beamPipeline = rd.RenderPipelineCreate(_beamShader, _ownFormat, _sheetFormat, RD.RenderPrimitive.Triangles,
+                new RDPipelineRasterizationState { CullMode = RD.PolygonCullMode.Disabled }, new RDPipelineMultisampleState(),
+                new RDPipelineDepthStencilState { EnableDepthTest = true, EnableDepthWrite = false, DepthCompareOperator = RD.CompareOperator.GreaterOrEqual },
+                new RDPipelineColorBlendState { Attachments = [attachment] }, 0, 0, []);
+            if (!_beamPipeline.IsValid) return false;
+        }
+
+        if (!_beamFrameSet.IsValid || !rd.UniformSetIsValid(_beamFrameSet))
+        {
+            var frameBlock = new RDUniform { UniformType = RD.UniformType.UniformBuffer, Binding = 0 };
+            frameBlock.AddId(_stageFrameBuffer);
+            _beamFrameSet = rd.UniformSetCreate([frameBlock], _beamShader, 0);
+            if (!_beamFrameSet.IsValid) return false;
+        }
+
+        if (_beamSpotVersion != _globalVersion || !_beamSpotSet.IsValid || !rd.UniformSetIsValid(_beamSpotSet))
+        {
+            if (_beamSpotSet.IsValid && rd.UniformSetIsValid(_beamSpotSet)) rd.FreeRid(_beamSpotSet);
+            _beamSpotVersion = _globalVersion;
+            _beamSpotSet = MakeSpotSet(rd, _beamShader, 3);
+            if (!_beamSpotSet.IsValid) return false;
+        }
+
+        return true;
+    }
+
+    private bool _beamsReady;
+
     private bool PrepareSheets(RenderingDevice rd, RdWorldFrame frame)
     {
         byte[]? pending;
@@ -1520,10 +1666,21 @@ internal sealed class RdWorldGpu
             if (!_sheetFrameSet.IsValid) return false;
         }
 
+        _beamsReady = false;
+        foreach (RdSheets.Draw draw in frame.Sheets)
+        {
+            if (draw.Beam && !_beamsReady)
+            {
+                _beamsReady = PrepareBeams(rd);
+                break;
+            }
+        }
+
         foreach (RdSheets.Draw draw in frame.Sheets)
         {
             if (draw.First + draw.Count > _sheetCapacity) return false;
             _sheetRanges.Add(rd.IndexArrayCreate(_sheetIndexBuffer, (uint)draw.First, (uint)draw.Count));
+            if (draw.Beam) continue;
             if (_sheetSets.TryGetValue((draw.Texture, draw.Repeat), out Rid set) && rd.UniformSetIsValid(set)) continue;
             var uniform = new RDUniform { UniformType = RD.UniformType.SamplerWithTexture, Binding = 0 };
             uniform.AddId(SamplerOf(rd, draw.Repeat ? RdFilter.LinearMipmapAnisotropic : RdFilter.LinearMipmap, draw.Repeat));
@@ -1542,15 +1699,17 @@ internal sealed class RdWorldGpu
         for (int i = 0; i < frame.Sheets.Count; i++)
         {
             RdSheets.Draw draw = frame.Sheets[i];
-            int pipeline = (Math.Clamp(draw.Style, 0, RdSheets.Styles - 1) * 2) + (draw.DepthTest ? 0 : 1);
+            if (draw.Beam && !_beamsReady) continue;
+            int pipeline = draw.Beam ? -2 : (Math.Clamp(draw.Style, 0, RdSheets.Styles - 1) * 2) + (draw.DepthTest ? 0 : 1);
             if (pipeline != bound)
             {
                 bound = pipeline;
-                rd.DrawListBindRenderPipeline(dl, _sheetPipelines[pipeline]);
-                rd.DrawListBindUniformSet(dl, _sheetFrameSet, 0);
+                rd.DrawListBindRenderPipeline(dl, draw.Beam ? _beamPipeline : _sheetPipelines[pipeline]);
+                rd.DrawListBindUniformSet(dl, draw.Beam ? _beamFrameSet : _sheetFrameSet, 0);
+                if (draw.Beam) rd.DrawListBindUniformSet(dl, _beamSpotSet, 2);
             }
 
-            rd.DrawListBindUniformSet(dl, _sheetSets[(draw.Texture, draw.Repeat)], 1);
+            if (!draw.Beam) rd.DrawListBindUniformSet(dl, _sheetSets[(draw.Texture, draw.Repeat)], 1);
             (push[0], push[1], push[2], push[3]) = (draw.Pan.X, draw.Pan.Y, draw.Pan.Z, draw.Pan.W);
             (push[4], push[5], push[6], push[7]) = (draw.Style, draw.BlendCells ? 1f : 0f, draw.AlphaRef, 0f);
             rd.DrawListSetPushConstant(dl, _sheetPush, (uint)_sheetPush.Length);
@@ -1989,13 +2148,14 @@ internal sealed class RdWorldGpu
             if (rid.IsValid) rd.FreeRid(rid);
         }
 
-        foreach (Rid rid in new[] { _sheetShader, _sheetVertexArray, _sheetVertexBuffer, _sheetIndexBuffer })
+        foreach (Rid rid in new[] { _beamShader, _sheetShader, _sheetVertexArray, _sheetVertexBuffer, _sheetIndexBuffer })
         {
             if (rid.IsValid) rd.FreeRid(rid);
         }
 
         Array.Clear(_sheetPipelines);
         _sheetShader = _sheetVertexArray = _sheetVertexBuffer = _sheetIndexBuffer = _sheetFrameSet = default;
+        _beamShader = _beamPipeline = _beamFrameSet = _beamSpotSet = default;
         _sheetCapacity = 0;
         _sheetsUploaded = false;
         foreach (Rid set in _coronaSets.Values)

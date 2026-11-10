@@ -36,6 +36,8 @@ internal sealed class RdTranslatedShader
     public required IReadOnlySet<string> RenderModes { get; init; }
     /// <summary>The stencil reference solid surfaces write (stencil_mode write, compare_always, N), or null.</summary>
     public required int? StencilWrite { get; init; }
+    /// <summary>0: merged map geometry. 1: a rigid actor mesh, 2: a skinned one (RdObjects' vertices, object block and bones).</summary>
+    public int Actor { get; init; }
     public bool TwoSided => RenderModes.Contains("cull_disabled");
 }
 
@@ -96,17 +98,72 @@ internal static partial class GdShaderTranslator
             vec4 eye;
             uvec4 layers;
         } svm_f;
-        #define MODEL_MATRIX mat4(1.0)
-        #define MODEL_NORMAL_MATRIX mat3(1.0)
         #define VIEW_MATRIX svm_f.view
         #define INV_VIEW_MATRIX svm_f.inv_view
         #define PROJECTION_MATRIX svm_f.projection
-        #define MODELVIEW_MATRIX svm_f.view
         #define VIEWPORT_SIZE svm_f.viewport.xy
         #define CAMERA_VISIBLE_LAYERS svm_f.layers.x
         #define CAMERA_POSITION_WORLD svm_f.eye.xyz
 
         """;
+
+    // Merged map geometry is in world space already.
+    private const string WorldModel = """
+        #define MODEL_MATRIX mat4(1.0)
+        #define MODEL_NORMAL_MATRIX mat3(1.0)
+        #define MODELVIEW_MATRIX svm_f.view
+
+        """;
+
+    // An actor: its model matrix (the vertex stage sets it: the object's, or the vertex's blend of bones), its
+    // instance uniforms from its block (RdObjects), and the draw's push constant in both stages.
+    private const string ActorModel = """
+        mat4 svm_model = mat4(1.0);
+        #define MODEL_MATRIX svm_model
+        #define MODEL_NORMAL_MATRIX mat3(svm_model)
+        #define MODELVIEW_MATRIX (svm_f.view * svm_model)
+        struct SvmObject
+        {
+            mat4 model;
+            vec4 ambient;
+            vec4 light[12];
+            vec4 tint;
+            vec4 glow_hue;
+        };
+        layout(set = 2, binding = 0, std430) readonly buffer SvmObjects
+        {
+            SvmObject svm_objects[];
+        };
+        layout(push_constant, std430) uniform SvmDraw
+        {
+            int spot_bits;
+            int dyn_bits;
+            int object;
+            int palette;
+        } svm_draw;
+        #define svm_ambient svm_objects[svm_draw.object].ambient
+        #define svm_l0_pos svm_objects[svm_draw.object].light[0]
+        #define svm_l0_col svm_objects[svm_draw.object].light[1]
+        #define svm_l0_spot svm_objects[svm_draw.object].light[2]
+        #define svm_l1_pos svm_objects[svm_draw.object].light[3]
+        #define svm_l1_col svm_objects[svm_draw.object].light[4]
+        #define svm_l1_spot svm_objects[svm_draw.object].light[5]
+        #define svm_l2_pos svm_objects[svm_draw.object].light[6]
+        #define svm_l2_col svm_objects[svm_draw.object].light[7]
+        #define svm_l2_spot svm_objects[svm_draw.object].light[8]
+        #define svm_l3_pos svm_objects[svm_draw.object].light[9]
+        #define svm_l3_col svm_objects[svm_draw.object].light[10]
+        #define svm_l3_spot svm_objects[svm_draw.object].light[11]
+        #define svm_tint svm_objects[svm_draw.object].tint
+        #define svm_glow_hue svm_objects[svm_draw.object].glow_hue
+
+        """;
+
+    private static readonly HashSet<string> s_actorInstance = new(StringComparer.Ordinal)
+    {
+        "svm_ambient", "svm_l0_pos", "svm_l0_col", "svm_l0_spot", "svm_l1_pos", "svm_l1_col", "svm_l1_spot", "svm_l2_pos", "svm_l2_col", "svm_l2_spot",
+        "svm_l3_pos", "svm_l3_col", "svm_l3_spot", "svm_tint", "svm_glow_hue",
+    };
 
     [GeneratedRegex(@"^\s*#\s*(\w+)\s*(.*?)\s*$")]
     private static partial Regex Directive();
@@ -141,7 +198,7 @@ internal static partial class GdShaderTranslator
     /// <param name="define">Names defined before the code's first line.</param>
     /// <param name="suppress">Names whose #define lines in the code are dropped.</param>
     public static RdTranslatedShader Translate(string code, Func<string, string> include, IReadOnlyDictionary<string, RdGlobal> globals,
-        IReadOnlyCollection<string>? define = null, IReadOnlyCollection<string>? suppress = null)
+        IReadOnlyCollection<string>? define = null, IReadOnlyCollection<string>? suppress = null, int actor = 0)
     {
         ArgumentNullException.ThrowIfNull(code);
         ArgumentNullException.ThrowIfNull(include);
@@ -198,6 +255,8 @@ internal static partial class GdShaderTranslator
             {
                 // Merged map geometry never sets instance uniforms: each reads its default.
                 string type = m.Groups[1].Value, name = m.Groups[2].Value;
+                // An actor reads its light and cosmetic values from its block.
+                if (actor != 0 && s_actorInstance.Contains(name)) continue;
                 if (seen.Add("i:" + name))
                 {
                     body.Append("const ").Append(type).Append(' ').Append(name).Append(" = ")
@@ -243,6 +302,7 @@ internal static partial class GdShaderTranslator
 
         var shared = new StringBuilder();
         shared.Append(FrameBlock);
+        shared.Append(actor == 0 ? WorldModel : ActorModel);
         if (globalValues.Count > 0)
         {
             // Explicit offsets: the block holds only the parameters this shader names, at their places in the one buffer.
@@ -281,13 +341,35 @@ internal static partial class GdShaderTranslator
         bool skipTransform = modes.Contains("skip_vertex_transform");
         var vertex = new StringBuilder("#version 450\n");
         vertex.Append(shared);
-        vertex.Append("""
+        vertex.Append(actor == 0 ? """
             layout(location = 0) in vec3 svm_a_vertex;
             layout(location = 1) in vec2 svm_a_normal;
             layout(location = 2) in vec2 svm_a_uv;
             layout(location = 3) in vec2 svm_a_uv2;
             layout(location = 4) in vec4 svm_a_color;
             layout(location = 5) in float svm_a_echelon;
+
+            """ : """
+            layout(location = 0) in vec3 svm_a_vertex;
+            layout(location = 1) in vec3 svm_a_normal;
+            layout(location = 2) in vec2 svm_a_uv;
+            layout(location = 3) in vec4 svm_a_color;
+
+            """);
+        if (actor == 2)
+        {
+            vertex.Append("""
+                layout(location = 4) in uvec4 svm_a_bones;
+                layout(location = 5) in vec4 svm_a_weights;
+                layout(set = 2, binding = 1, std430) readonly buffer SvmPalette
+                {
+                    mat4 svm_bones[];
+                };
+
+                """);
+        }
+
+        vertex.Append("""
             layout(location = 0) out vec3 svm_v_vertex;
             layout(location = 1) out vec3 svm_v_normal;
             layout(location = 2) out vec2 svm_v_uv;
@@ -329,6 +411,9 @@ internal static partial class GdShaderTranslator
 
             void main()
             {
+
+            """);
+        vertex.Append(actor == 0 ? """
                 VERTEX = svm_a_vertex;
                 NORMAL = svm_oct_normal(svm_a_normal * 2.0 - 1.0);
                 UV = svm_a_uv;
@@ -338,26 +423,52 @@ internal static partial class GdShaderTranslator
                 POSITION = PROJECTION_MATRIX * (VIEW_MATRIX * vec4(VERTEX, 1.0));
                 svm_vertex();
 
+            """ : (actor == 2 ? """
+                svm_model = svm_bones[svm_draw.palette + int(svm_a_bones.x)] * svm_a_weights.x + svm_bones[svm_draw.palette + int(svm_a_bones.y)] * svm_a_weights.y
+                    + svm_bones[svm_draw.palette + int(svm_a_bones.z)] * svm_a_weights.z + svm_bones[svm_draw.palette + int(svm_a_bones.w)] * svm_a_weights.w;
+
+            """ : """
+                svm_model = svm_objects[svm_draw.object].model;
+
+            """) + """
+                VERTEX = svm_a_vertex;
+                NORMAL = svm_a_normal;
+                UV = svm_a_uv;
+                UV2 = vec2(0.0);
+                COLOR = svm_a_color;
+                POSITION = PROJECTION_MATRIX * (VIEW_MATRIX * (svm_model * vec4(VERTEX, 1.0)));
+                svm_vertex();
+
             """);
         // skip_vertex_transform: vertex() left VERTEX and NORMAL in view space itself.
         vertex.Append(skipTransform
             ? "    svm_v_vertex = VERTEX;\n    svm_v_normal = normalize(NORMAL);\n"
-            : "    svm_v_vertex = (VIEW_MATRIX * vec4(VERTEX, 1.0)).xyz;\n    svm_v_normal = normalize(mat3(VIEW_MATRIX) * NORMAL);\n");
+            : actor != 0
+                ? "    svm_v_vertex = (VIEW_MATRIX * (svm_model * vec4(VERTEX, 1.0))).xyz;\n    svm_v_normal = normalize(mat3(VIEW_MATRIX) * (mat3(svm_model) * NORMAL));\n"
+                : "    svm_v_vertex = (VIEW_MATRIX * vec4(VERTEX, 1.0)).xyz;\n    svm_v_normal = normalize(mat3(VIEW_MATRIX) * NORMAL);\n");
         // Merged map geometry is placed by the one clip matrix (the template's own POSITION is the same product in
         // another order); the sky zone keeps the position its vertex() wrote.
         vertex.Append("    svm_v_uv = UV;\n    svm_v_uv2 = UV2;\n    svm_v_color = COLOR;\n");
-        vertex.Append(skipTransform ? "    gl_Position = POSITION;\n}\n" : "    gl_Position = svm_f.clip * vec4(svm_a_vertex, 1.0);\n}\n");
+        vertex.Append(skipTransform ? "    gl_Position = POSITION;\n}\n"
+            : actor != 0 ? "    gl_Position = svm_f.clip * (svm_model * vec4(VERTEX, 1.0));\n}\n" : "    gl_Position = svm_f.clip * vec4(svm_a_vertex, 1.0);\n}\n");
 
         var fragment = new StringBuilder("#version 450\n");
         fragment.Append(shared);
+        if (actor == 0)
+        {
+            fragment.Append("""
+                layout(push_constant, std430) uniform SvmDraw
+                {
+                    int spot_bits;
+                    int dyn_bits;
+                    int pad1;
+                    int pad2;
+                } svm_draw;
+
+                """);
+        }
+
         fragment.Append("""
-            layout(push_constant, std430) uniform SvmDraw
-            {
-                int spot_bits;
-                int dyn_bits;
-                int pad1;
-                int pad2;
-            } svm_draw;
             layout(location = 0) in vec3 svm_v_vertex;
             layout(location = 1) in vec3 svm_v_normal;
             layout(location = 2) in vec2 svm_v_uv;
@@ -425,7 +536,7 @@ internal static partial class GdShaderTranslator
         return new RdTranslatedShader
         {
             Vertex = vertex.ToString(), Fragment = fragment.ToString(), Values = values, ValueBlockSize = (blockSize + 15) / 16 * 16,
-            Textures = textures, RenderModes = modes, StencilWrite = stencil,
+            Textures = textures, RenderModes = modes, Actor = actor, StencilWrite = stencil,
         };
     }
 

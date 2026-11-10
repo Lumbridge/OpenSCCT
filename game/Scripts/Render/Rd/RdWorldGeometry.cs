@@ -29,7 +29,7 @@ internal enum RdFeatures
 /// <summary>The translated shaders of the process, by Godot shader code and the features left out.</summary>
 internal static class RdShaderLibrary
 {
-    private static readonly Dictionary<(string Code, RdFeatures Features), (RdTranslatedShader? Shader, string? Reason)> s_shaders = [];
+    private static readonly Dictionary<(string Code, RdFeatures Features, int Actor), (RdTranslatedShader? Shader, string? Reason)> s_shaders = [];
 
     /// <summary>The features that change <paramref name="code"/>: leaving out any other gives the same shader.</summary>
     public static RdFeatures Applicable(string code)
@@ -41,11 +41,11 @@ internal static class RdShaderLibrary
     }
 
     /// <summary>The shader of <paramref name="code"/> without <paramref name="features"/>, or null with the reason.</summary>
-    public static RdTranslatedShader? Get(string code, RdFeatures features, out string? reason)
+    public static RdTranslatedShader? Get(string code, RdFeatures features, out string? reason, int actor = 0)
     {
         lock (s_shaders)
         {
-            if (s_shaders.TryGetValue((code, features), out (RdTranslatedShader? Shader, string? Reason) cached))
+            if (s_shaders.TryGetValue((code, features, actor), out (RdTranslatedShader? Shader, string? Reason) cached))
             {
                 reason = cached.Reason;
                 return cached.Shader;
@@ -65,15 +65,17 @@ internal static class RdShaderLibrary
                 var define = new List<string>();
                 if ((features & RdFeatures.NoSpot) != 0) define.Add("SVM_NO_SPOT");
                 if ((features & RdFeatures.NoDynamic) != 0) define.Add("SVM_NO_DYN");
+                // An actor's material is the one every vision mode draws with; the own frame draws normal vision only.
+                if (actor != 0) define.Add("SVM_NORMAL_VISION");
                 string[] suppress = (features & RdFeatures.NoPortalFog) != 0 ? [ResponsiveSmokeShaders.PortalFogDefine] : [];
-                translated = GdShaderTranslator.Translate(code, FileAccess.GetFileAsString, globals, define, suppress);
+                translated = GdShaderTranslator.Translate(code, FileAccess.GetFileAsString, globals, define, suppress, actor);
             }
             catch (NotSupportedException error)
             {
                 reason = error.Message;
             }
 
-            s_shaders[(code, features)] = (translated, reason);
+            s_shaders[(code, features, actor)] = (translated, reason);
             return translated;
         }
     }
@@ -88,13 +90,39 @@ internal sealed class RdMaterial
     public required RdFeatures Applicable { get; init; }
     /// <summary>The shader with every feature: the layout of <see cref="Values"/> and <see cref="Textures"/>.</summary>
     public required RdTranslatedShader Shader { get; init; }
-    public required byte[] Values { get; init; }
+    public required byte[] Values { get; set; }
     /// <summary>One per <see cref="RdTranslatedShader.Textures"/> entry; null draws the hint's default.</summary>
-    public required Texture2D?[] Textures { get; init; }
-    public bool Masked => Code.Contains("#define BLEND_MASKED", StringComparison.Ordinal);
+    public required Texture2D?[] Textures { get; set; }
+    /// <summary>0: merged map geometry; 1 and 2: an actor's material, for rigid and skinned meshes.</summary>
+    public int Actor { get; init; }
+    /// <summary>Counted up when the values, or the textures, were read again and had changed (actor materials).</summary>
+    public int Version, TextureVersion;
+    private int _flags = -1;
+
+    private int Flags
+    {
+        get
+        {
+            if (_flags < 0)
+            {
+                bool Has(string name) => Code.Contains("#define " + name, StringComparison.Ordinal);
+                _flags = (Has("BLEND_MASKED") ? 1 : 0)
+                    | (Has("BLEND_TRANSLUCENT") || Has("BLEND_ADDITIVE") || Has("BLEND_MODULATE") || Has("BLEND_DARKEN") ? 2 : 0)
+                    | (RdObjects.LayersOf(Code).Length > 0 ? 4 : 0);
+            }
+
+            return _flags;
+        }
+    }
+
+    public bool Masked => (Flags & 1) != 0;
     /// <summary>Blended into the frame (translucent, additive, multiplied): drawn after the solid scene, far to near, writing no depth.</summary>
-    public bool Blended => Code.Contains("#define BLEND_TRANSLUCENT", StringComparison.Ordinal) || Code.Contains("#define BLEND_ADDITIVE", StringComparison.Ordinal)
-        || Code.Contains("#define BLEND_MODULATE", StringComparison.Ordinal) || Code.Contains("#define BLEND_DARKEN", StringComparison.Ordinal);
+    public bool Blended => (Flags & 2) != 0;
+    /// <summary>
+    /// More than one texture times a light: layers, animated coordinates, a combiner, an environment, an authored
+    /// material. The own frame's small shaders do not hold these; such a surface is drawn by the whole template.
+    /// </summary>
+    public bool Layered => (Flags & 4) != 0;
     /// <summary>Set by RdWorldGpu on first use: its index there.</summary>
     public int GpuIndex = -1;
 }
@@ -354,6 +382,58 @@ internal sealed class RdWorldGeometry
 
         _materials[source] = material;
         return material;
+    }
+
+    /// <summary>
+    /// An actor's material as the own frame draws it with the whole template (main thread), or null when the template
+    /// cannot be carried: the caller then draws the surface plainly, or not at all.
+    /// </summary>
+    public static RdMaterial? ActorMaterial(ShaderMaterial source, int actor)
+    {
+        if (source.Shader is not { } shader) return null;
+        string code = ResponsiveSmokeShaders.BaseCode(shader);
+        if (RdShaderLibrary.Get(code, RdFeatures.None, out _, actor) is not { } translated) return null;
+        try
+        {
+            // Authored materials read every light: they keep the full variant.
+            bool authored = code.Contains("#define AUTHORED_MATERIAL", StringComparison.Ordinal);
+            return new RdMaterial
+            {
+                Code = code, Actor = actor, Applicable = authored ? RdFeatures.None : RdShaderLibrary.Applicable(code), Shader = translated,
+                Values = PackValues(source, translated), Textures = TexturesOf(source, translated),
+            };
+        }
+        catch (NotSupportedException)
+        {
+            return null;
+        }
+    }
+
+    /// <summary>Reads an actor material's values and textures again (they are set on the Godot material as play goes on).</summary>
+    public static void Refresh(ShaderMaterial source, RdMaterial material)
+    {
+        try
+        {
+            byte[] values = PackValues(source, material.Shader);
+            if (!values.AsSpan().SequenceEqual(material.Values))
+            {
+                material.Values = values;
+                material.Version++;
+            }
+
+            Texture2D?[] textures = TexturesOf(source, material.Shader);
+            for (int i = 0; i < textures.Length; i++)
+            {
+                if (ReferenceEquals(textures[i], material.Textures[i])) continue;
+                material.Textures = textures;
+                material.TextureVersion++;
+                break;
+            }
+        }
+        catch (NotSupportedException)
+        {
+            // A value of a kind the block cannot hold: the material keeps what it had.
+        }
     }
 
     private static byte[] PackValues(ShaderMaterial source, RdTranslatedShader shader)
