@@ -407,6 +407,26 @@ What the original draws in one frame of the AquaE spawn view at 2560×1440 on th
 
 Ours on the same view (13.1 ms): world 3.7, objects and characters 0.95, effects and depth copy 0.9, shadows 0.57 (scene 6.1 against 2.8); tonemap, final pass and glow 2.3 (against 0.53); presentation and untimed copies 4.1 (against 2.3).
 
+### The states it draws with
+
+The same trace with each draw's fixed-function state (`STATE` lines of `D:\OpenSCCT\rd-notes\d3d9trace\aquaE-state.log`: vertex format, depth, alpha test, blend factors, fog, lighting, and the colour and alpha operation of every texture stage with its texture's format). The AquaE spawn frame uses about forty distinct states; these carry nearly all of it:
+
+| Surface | Draws (triangles) | Vertex | Stages | Result |
+|---|---|---|---|---|
+| Static mesh, baked vertex light | 21 (1645) + 5 (595) + others | position, normal, colour, one UV; lighting off | 0: texture MODULATE2X vertex colour | texture × colour × 2 |
+| BSP, lightmapped | 8 (171) | position, normal, two UVs; lighting off | 0: texture; 1: lightmap (A8R8G8B8) MODULATE2X, second UV | texture × lightmap × 2 |
+| Actor-lit mesh (characters, props) | 13 + 8 + 8 and more | position, normal, one UV; **Direct3D lighting on**, ambient set per draw | 0: texture MODULATE2X lit colour | texture × per-vertex light × 2 |
+| Self-illuminated (mask) | several | as its base | 0: as base; 1: keeps colour, takes the mask's alpha; 2: BLENDCURRENTALPHA with the glow texture | lit colour blended to the glow texture by the mask |
+| Environment-mapped | 1 (5) | BSP | 0, 1: as BSP; 2: MODULATEALPHA_ADDCOLOR, camera-space reflection coordinates | adds the env texture through alpha |
+| Masked | many | any | alpha test on, reference 127 | cut at half alpha |
+| **Projector pass** (the player's shadow, map projectors, lights) | 1 (200) + 6 (643) + 1 (13) | the receiving meshes drawn again | 0: the projector's 128×128 render target, projected camera-space coordinates; 1: BLENDTEXTUREALPHA towards texture factor 0.5 with a DXT3 texture; 2: the same with a volume or cube texture | blended DESTCOLOR, SRCCOLOR: frame × value × 2, where 0.5 leaves the frame as it is |
+| Translucent, additive | 9 | with colour | one or two stages | SRCALPHA/INVSRCALPHA, or ONE/ONE |
+
+- **Fog is a render state on every scene draw:** table fog, linear, with no vertex fog mode. The hardware fogs each pixel by its depth; there is no fog code anywhere.
+- **Characters and props are lit per vertex** by Direct3D's own lights, with an ambient colour set for each draw.
+- **A light or shadow that falls on the world is a second draw of the surfaces it reaches,** multiplied into the frame, not a term in every surface's shader. Its 128×128 texture is drawn first: six untextured draws of the casters (2,618 triangles), then nine blended quads.
+- **Nothing in this frame is a shadow map lookup or a fog integral.** Our per-pixel spot shadow slots and portal fog either stand for something this view does not use, or for Reloaded features switched off at the capture's settings; which one is the next thing to settle before they are carried into a new renderer.
+
 ### What follows for a renderer of our own
 
 - **Target and passes as the original's:** one 8-bit scene target in display values, solid then blended, no pre-pass, the glow chain at its sizes, one full-screen pass to the screen that also adds the glow. No tonemap copy, no float target, no separate decode pass.
