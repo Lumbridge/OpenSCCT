@@ -24,6 +24,9 @@ internal sealed class RdWorldFrame
     /// <summary>Own-frame mode (RdWorldGpu.RenderOwn): the target's size and the world's and the sky zone's clip transforms.</summary>
     public Vector2I Size;
     public readonly float[] Clip = new float[32];
+    /// <summary>Own-frame mode: the gameplay meshes to draw after the world, and their object blocks (RdObjects).</summary>
+    public readonly List<RdObjects.Draw> Objects = [];
+    public readonly List<byte> ObjectData = [];
 
     public void Reserve(int draws)
     {
@@ -914,6 +917,130 @@ internal sealed class RdWorldGpu
         }
     }
 
+    // Gameplay meshes (RdObjects): geometry handed over once a surface, by a queue no dropped frame can lose.
+    private readonly System.Collections.Concurrent.ConcurrentQueue<RdObjects.Upload> _objectUploads = new();
+    private readonly Dictionary<int, (Rid Vertices, Rid VertexArray, Rid Indices, Rid IndexArray)> _objectSurfaces = [];
+    private readonly Dictionary<(Rid Texture, bool Masked), Rid> _objectSets = [];
+    private readonly Rid[] _objectShaders = new Rid[2];
+    private readonly Rid[] _objectPipelines = new Rid[4];
+    private readonly Rid[] _objectFrameSets = new Rid[2];
+    private Rid _objectBuffer;
+    private int _objectCapacity;
+    private long _objectFormat = -1;
+    private byte[] _objectBytes = [];
+
+    public void QueueObjectUpload(RdObjects.Upload upload) => _objectUploads.Enqueue(upload);
+
+    /// <summary>Everything the frame's object draws bind, made before the draw list opens. False: no objects this frame.</summary>
+    private bool PrepareObjects(RenderingDevice rd, RdWorldFrame frame)
+    {
+        while (_objectUploads.TryDequeue(out RdObjects.Upload? upload))
+        {
+            if (_objectFormat < 0)
+            {
+                const uint stride = RdObjects.Stride;
+                _objectFormat = rd.VertexFormatCreate(
+                [
+                    new RDVertexAttribute { Location = 0, Offset = 0, Format = RD.DataFormat.R32G32B32Sfloat, Stride = stride, Binding = 0 },
+                    new RDVertexAttribute { Location = 1, Offset = 12, Format = RD.DataFormat.R32G32B32Sfloat, Stride = stride, Binding = 0 },
+                    new RDVertexAttribute { Location = 2, Offset = 24, Format = RD.DataFormat.R32G32Sfloat, Stride = stride, Binding = 0 },
+                    new RDVertexAttribute { Location = 3, Offset = 32, Format = RD.DataFormat.R8G8B8A8Unorm, Stride = stride, Binding = 0 },
+                ]);
+            }
+
+            Rid vertices = rd.VertexBufferCreate((uint)upload.Vertices.Length, upload.Vertices, 0);
+            Rid vertexArray = rd.VertexArrayCreate((uint)upload.VertexCount, _objectFormat, [vertices], ReadOnlySpan<long>.Empty);
+            Rid indices = rd.IndexBufferCreate((uint)upload.Indices.Length, RD.IndexBufferFormat.Uint32, MemoryMarshal.AsBytes(upload.Indices.AsSpan()), false, 0);
+            Rid indexArray = rd.IndexArrayCreate(indices, 0, (uint)upload.Indices.Length);
+            _objectSurfaces[upload.Surface] = (vertices, vertexArray, indices, indexArray);
+        }
+
+        if (frame.Objects.Count == 0 || frame.ObjectData.Count == 0 || _objectFormat < 0) return false;
+        int bytes = frame.ObjectData.Count;
+        if (bytes > _objectCapacity)
+        {
+            if (_objectBuffer.IsValid) rd.FreeRid(_objectBuffer);
+            _objectCapacity = Math.Max(bytes * 2, RdObjects.ObjectBytes * 64);
+            _objectBuffer = rd.StorageBufferCreate((uint)_objectCapacity);
+            _objectFrameSets[0] = _objectFrameSets[1] = default;
+        }
+
+        if (_objectBytes.Length < bytes) _objectBytes = new byte[_objectCapacity];
+        CollectionsMarshal.AsSpan(frame.ObjectData).CopyTo(_objectBytes);
+        rd.BufferUpdate(_objectBuffer, 0, (uint)bytes, _objectBytes);
+        for (int masked = 0; masked < 2; masked++)
+        {
+            if (!_objectShaders[masked].IsValid)
+            {
+                _objectShaders[masked] = Compile(rd, RdObjects.Vertex, RdObjects.Fragment(masked == 1), "svm_rd_object", null);
+                if (!_objectShaders[masked].IsValid) return false;
+                var depthState = new RDPipelineDepthStencilState { EnableDepthTest = true, EnableDepthWrite = true, DepthCompareOperator = RD.CompareOperator.GreaterOrEqual };
+                var blend = new RDPipelineColorBlendState { Attachments = [new RDPipelineColorBlendStateAttachment()] };
+                for (int twoSided = 0; twoSided < 2; twoSided++)
+                {
+                    _objectPipelines[(masked * 2) + twoSided] = rd.RenderPipelineCreate(_objectShaders[masked], _ownFormat, _objectFormat, RD.RenderPrimitive.Triangles,
+                        new RDPipelineRasterizationState { CullMode = twoSided == 1 ? RD.PolygonCullMode.Disabled : RD.PolygonCullMode.Back, FrontFace = RD.PolygonFrontFace.Clockwise },
+                        new RDPipelineMultisampleState(), depthState, blend, 0, 0, []);
+                    if (!_objectPipelines[(masked * 2) + twoSided].IsValid) return false;
+                }
+            }
+
+            if (!_objectFrameSets[masked].IsValid || !rd.UniformSetIsValid(_objectFrameSets[masked]))
+            {
+                var frameBlock = new RDUniform { UniformType = RD.UniformType.UniformBuffer, Binding = 0 };
+                frameBlock.AddId(_stageFrameBuffer);
+                var objects = new RDUniform { UniformType = RD.UniformType.StorageBuffer, Binding = 1 };
+                objects.AddId(_objectBuffer);
+                _objectFrameSets[masked] = rd.UniformSetCreate([frameBlock, objects], _objectShaders[masked], 0);
+                if (!_objectFrameSets[masked].IsValid) return false;
+            }
+        }
+
+        foreach (RdObjects.Draw draw in frame.Objects)
+        {
+            if (_objectSets.TryGetValue((draw.Texture, draw.Masked), out Rid set) && rd.UniformSetIsValid(set)) continue;
+            var texture = new RDUniform { UniformType = RD.UniformType.SamplerWithTexture, Binding = 0 };
+            texture.AddId(SamplerOf(rd, RdFilter.LinearMipmapAnisotropic, repeat: true));
+            texture.AddId(draw.Texture.IsValid && rd.TextureIsValid(draw.Texture) ? draw.Texture : _white);
+            _objectSets[(draw.Texture, draw.Masked)] = rd.UniformSetCreate([texture], _objectShaders[draw.Masked ? 1 : 0], 1);
+        }
+
+        return true;
+    }
+
+    private void RecordObjects(RenderingDevice rd, long dl, RdWorldFrame frame)
+    {
+        Rid pipeline = default, set = default;
+        Span<int> push = MemoryMarshal.Cast<byte, int>(_drawBlock.AsSpan());
+        foreach (RdObjects.Draw draw in frame.Objects)
+        {
+            if (!_objectSurfaces.TryGetValue(draw.Surface, out (Rid Vertices, Rid VertexArray, Rid Indices, Rid IndexArray) surface)) continue;
+            int masked = draw.Masked ? 1 : 0;
+            Rid wanted = _objectPipelines[(masked * 2) + (draw.TwoSided ? 1 : 0)];
+            if (wanted != pipeline)
+            {
+                pipeline = wanted;
+                rd.DrawListBindRenderPipeline(dl, pipeline);
+                rd.DrawListBindUniformSet(dl, _objectFrameSets[masked], 0);
+                set = default;
+            }
+
+            Rid textureSet = _objectSets[(draw.Texture, draw.Masked)];
+            if (textureSet != set)
+            {
+                set = textureSet;
+                rd.DrawListBindUniformSet(dl, set, 1);
+            }
+
+            push[0] = draw.Object;
+            push[1] = draw.Kind;
+            rd.DrawListSetPushConstant(dl, _drawBlock, (uint)_drawBlock.Length);
+            rd.DrawListBindVertexArray(dl, surface.VertexArray);
+            rd.DrawListBindIndexArray(dl, surface.IndexArray);
+            rd.DrawListDraw(dl, true, 1, 0);
+        }
+    }
+
     private void DrawOwn(RdWorldFrame frame)
     {
         if (!_ready)
@@ -967,6 +1094,7 @@ internal sealed class RdWorldGpu
             if (!_stageMaterials.ContainsKey(material.GpuIndex) && !MakeStageMaterial(rd, material)) return;
         }
 
+        bool objects = PrepareObjects(rd, frame);
         var clock = Stopwatch.StartNew();
         rd.CaptureTimestamp("RD Own Frame");
         _clear[0] = frame.Clear;
@@ -1015,6 +1143,8 @@ internal sealed class RdWorldGpu
                 rd.DrawListBindIndexArray(dl, _indexArrays[frame.Draws[k]]);
                 rd.DrawListDraw(dl, true, 1, 0);
             }
+
+            if (objects) RecordObjects(rd, dl, frame);
         }
         finally
         {
@@ -1138,6 +1268,42 @@ internal sealed class RdWorldGpu
             rd.FreeRid(twoSided);
         }
 
+        foreach ((Rid vertices, Rid vertexArray, Rid indices, Rid indexArray) in _objectSurfaces.Values)
+        {
+            foreach (Rid rid in new[] { vertexArray, vertices, indexArray, indices })
+            {
+                if (rid.IsValid) rd.FreeRid(rid);
+            }
+        }
+
+        _objectSurfaces.Clear();
+        foreach (Rid set in _objectSets.Values)
+        {
+            if (rd.UniformSetIsValid(set)) rd.FreeRid(set);
+        }
+
+        _objectSets.Clear();
+        for (int i = 0; i < 2; i++)
+        {
+            if (rd.UniformSetIsValid(_objectFrameSets[i])) rd.FreeRid(_objectFrameSets[i]);
+            _objectFrameSets[i] = default;
+        }
+
+        for (int i = 0; i < 4; i++)
+        {
+            if (_objectPipelines[i].IsValid) rd.FreeRid(_objectPipelines[i]);
+            _objectPipelines[i] = default;
+        }
+
+        for (int i = 0; i < 2; i++)
+        {
+            if (_objectShaders[i].IsValid) rd.FreeRid(_objectShaders[i]);
+            _objectShaders[i] = default;
+        }
+
+        if (_objectBuffer.IsValid) rd.FreeRid(_objectBuffer);
+        _objectBuffer = default;
+        _objectCapacity = 0;
         foreach ((int stage, Rid set, bool twoSided) in _stageMaterials.Values)
         {
             if (rd.UniformSetIsValid(set)) rd.FreeRid(set);

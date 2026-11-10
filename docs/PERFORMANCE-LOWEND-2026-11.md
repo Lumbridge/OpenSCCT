@@ -450,6 +450,18 @@ AquaE spawn view, 2560×1440, UHD 770, build `build-o2`:
 - The shadow pass still runs and is not read (0.58 ms of the 6.04).
 - 3.5 ms of the frame is outside the timed work: the copy to the display's GPU, Godot's canvas pass (0.68 ms timed, most of it showing our target) and its swapchain copy. The original's present costs about 2.3 ms with the proxy's copy.
 
+### Second stage: gameplay meshes (`Rd/RdObjects.cs`)
+
+The rigid meshes under the map's `Gameplay` node with solid or masked template materials are drawn after the world in the same pass: texture × a light worked out at each vertex (the baked vertex colour, or the actor's ambient and four lights by the template's `svm_actor_light`), as the original lights its actors per vertex. Each surface's geometry is uploaded once; each frame hands over a model matrix and light block per visible object.
+
+| Own frame, 2560×1440, UHD 770, build `build-o3` | Frame ms | FPS | Scene GPU ms |
+|---|---:|---:|---:|
+| AquaE spawn, world and objects | 5.76 | 174 | 1.00 |
+| SteeE spawn, world and objects | 5.50 | 182 | 1.10 |
+
+- **The picture is brighter than the current renderer's** (SteeE: 40% of pixels more than 2 levels apart; AquaE 73%). The current renderer's last pass applies the glow composite's gate to the frame, and the original does the same in its one full-screen pass; the own frame has no final pass yet. Nothing can be compared level for level until it has.
+- Not drawn: skinned meshes (characters, animated props), meshes rewritten in place (cloth), blended surfaces, and everything listed under the first stage except objects.
+
 ## The target
 
 ### The original at 2560×1440 on the UHD 770 (measured 2026-11-10)

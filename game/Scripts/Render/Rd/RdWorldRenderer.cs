@@ -202,6 +202,8 @@ public partial class RdWorldRenderer : Node
     // The share of the depth range the sky zone is squeezed into, behind the world.
     private const float SkyDepth = 0.001f;
     private TextureRect? _ownRect;
+    private readonly RdObjects _objects = new();
+    private readonly List<RdObjects.Upload> _objectUploads = [];
     private readonly Texture2Drd _ownShown = new();
     private Rid _ownShownColor;
     private Callable _renderOwn;
@@ -224,6 +226,12 @@ public partial class RdWorldRenderer : Node
         WriteClip(ToTarget(world, 1f - SkyDepth, SkyDepth), frame.Clip.AsSpan(0, 16));
         WriteClip(ToTarget(sky, SkyDepth, 0f), frame.Clip.AsSpan(16, 16));
         Select(frame, eye.Origin, true, RdFeatures.None);
+        if (_map.Root.GetNodeOrNull("Gameplay") is { } gameplay)
+        {
+            _objects.Gather(gameplay, _worldPlanes, static (planes, box) => Inside(planes, box), frame.Objects, frame.ObjectData, _objectUploads);
+            foreach (RdObjects.Upload upload in _objectUploads) _gpu.QueueObjectUpload(upload);
+        }
+
         _gpu.Submit(frame);
         RenderingServer.CallOnRenderThread(_renderOwn);
         Rid latest = _gpu.LatestOwnColor;
