@@ -332,6 +332,7 @@ internal static class RdSheets
     private static readonly Dictionary<Mesh, Vector3[]> s_beamMeshes = [];
     private static Node? s_beamRoot;
     private static bool s_beamSearched;
+    private static int s_beamWait;
 
     /// <summary>
     /// The light beams shown this frame (the LightBeams node's meshes, MapLightBeams): each slice mesh stretched along
@@ -339,8 +340,10 @@ internal static class RdSheets
     /// </summary>
     public static void CollectBeams(Node scene)
     {
-        if (!s_beamSearched || (s_beamRoot is not null && !GodotObject.IsInstanceValid(s_beamRoot)))
+        // Looked for again now and then while there is none: a map builds its beams once, before or after this starts.
+        if (!s_beamSearched || (s_beamRoot is null && ++s_beamWait >= 120) || (s_beamRoot is not null && !GodotObject.IsInstanceValid(s_beamRoot)))
         {
+            s_beamWait = 0;
             s_beamSearched = true;
             s_beamRoot = scene.FindChild("LightBeams", true, false);
         }
