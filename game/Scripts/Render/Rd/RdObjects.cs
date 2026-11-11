@@ -205,7 +205,7 @@ internal sealed class RdObjects
     // transform alone: its mesh's box, and bit 0 known, bit 1 a sprite turned to the camera, bit 2 skinned. A node is
     // looked at in full again whenever it is in view, and in turn with the others (RecheckPerFrame).
     private readonly List<(Aabb Box, byte State)> _seen = [];
-    private readonly Dictionary<MeshInstance3D, (Rid Base, Mesh Mesh, int Surfaces, Aabb Box)> _meshOf = new(ReferenceEqualityComparer.Instance);
+    private readonly Dictionary<MeshInstance3D, (Rid Base, Mesh Mesh)> _meshOf = new(ReferenceEqualityComparer.Instance);
     private Node? _walked;
 
     /// <summary>Set when a node entered or left the tree: the next <see cref="Gather"/> walks the scene again.</summary>
@@ -432,23 +432,19 @@ internal sealed class RdObjects
                 }
             }
 
-            // The node's mesh, its surface count and its box from the last look, while the node still shows the same
-            // mesh resource (one read of its RID instead of three reads and a wrapper lookup).
+            // The node's mesh object from the last look, while the node still shows the same mesh resource (its RID is
+            // one plain read; the object is a lookup). Its surfaces and its box are read every time: a mesh can be
+            // rebuilt in place.
             Rid shown = node.GetBase();
-            if (!_meshOf.TryGetValue(node, out (Rid Base, Mesh Mesh, int Surfaces, Aabb Box) held) || held.Base != shown || !shown.IsValid)
+            if (!_meshOf.TryGetValue(node, out (Rid Base, Mesh Mesh) held) || held.Base != shown || !shown.IsValid)
             {
                 if (node.Mesh is not { } fresh) continue;
-                held = (shown, fresh, fresh.GetSurfaceCount(), fresh is ArrayMesh { CustomAabb.Size: var size } sized && size != Vector3.Zero ? sized.CustomAabb : fresh.GetAabb());
+                held = (shown, fresh);
                 _meshOf[node] = held;
             }
 
             Mesh mesh = held.Mesh;
             if (!node.IsVisibleInTree()) continue;
-            // A mesh its owner rebuilds in place (escalator steps): nothing of it is kept.
-            if (RdShadowPass.IsMutable(mesh))
-            {
-                held = (shown, mesh, mesh.GetSurfaceCount(), mesh is ArrayMesh { CustomAabb.Size: var rebuilt } again && rebuilt != Vector3.Zero ? again.CustomAabb : mesh.GetAabb());
-            }
 
             // Actors, characters and the first-person model. Effects (their own shaders) and a body hidden from its
             // own eyes (the shadow-only layer) are not this pass's.
@@ -474,17 +470,16 @@ internal sealed class RdObjects
             if (turned) model = new Transform3D(view, model.Origin);
             // A posed mesh leaves its rest box: it is culled by a generous one.
             s_dynamic.TryGetValue(mesh, out DynamicSource? dynamic);
-            // A mesh rewritten in place keeps its resource and changes its box: read again.
-            Aabb local = dynamic is null ? held.Box : mesh is ArrayMesh { CustomAabb.Size: var custom } own && custom != Vector3.Zero ? own.CustomAabb : mesh.GetAabb();
+            Aabb local = mesh is ArrayMesh { CustomAabb.Size: var custom } own && custom != Vector3.Zero ? own.CustomAabb : mesh.GetAabb();
             // A mesh rewritten in place (cloth) has a new box every time: it is looked at in full every frame.
-            _seen[at] = dynamic is null ? (local, (byte)(1 | (turned ? 2 : 0) | (skin is not null ? 4 : 0))) : default;
+            _seen[at] = dynamic is null && !RdShadowPass.IsMutable(mesh) ? (local, (byte)(1 | (turned ? 2 : 0) | (skin is not null ? 4 : 0))) : default;
             Aabb box = model * local;
             if (!sky && !inside(planes, skin is null ? box : box.Grow(1.5f))) continue;
             if (dynamic is not null) dynamic.SeenFrame = Engine.GetProcessFrames();
             int objectIndex = -1, paletteBase = -1;
             int spotBits = spots(skin is null ? box : box.Grow(1.5f));
             int flares = FlaresReaching(skin is null ? box : box.Grow(1.5f));
-            for (int s = 0; s < held.Surfaces; s++)
+            for (int s = 0; s < mesh.GetSurfaceCount(); s++)
             {
                 if ((node.MaterialOverride ?? node.GetSurfaceOverrideMaterial(s) ?? mesh.SurfaceGetMaterial(s)) is not ShaderMaterial material) continue;
                 if (material is EffectMaterial effect)

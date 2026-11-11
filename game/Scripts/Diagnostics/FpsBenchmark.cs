@@ -90,8 +90,27 @@ public partial class FpsBenchmark : Node
             if (_shots.Any(s => s.Width != _shots[0].Width || s.Height != _shots[0].Height))
                 throw new InvalidDataException("All benchmark cameras must have the same resolution");
             Directory.CreateDirectory(_output);
-            DisplayServer.WindowSetSize(new Vector2I(_shots[0].Width, _shots[0].Height));
-            GetTree().Root.Size = new Vector2I(_shots[0].Width, _shots[0].Height);
+            // SVM_BENCHMARK_FULLSCREEN=exclusive|borderless (a visible run, never with --svm-background): the window as a
+            // player has it, on the screen whose size is the cameras', since a hidden window and a fullscreen one do
+            // not present the same way.
+            string? fullscreen = Environment.GetEnvironmentVariable("SVM_BENCHMARK_FULLSCREEN");
+            if (fullscreen is "exclusive" or "borderless")
+            {
+                var wanted = new Vector2I(_shots[0].Width, _shots[0].Height);
+                for (int screen = 0; screen < DisplayServer.GetScreenCount(); screen++)
+                {
+                    if (DisplayServer.ScreenGetSize(screen) == wanted) DisplayServer.WindowSetCurrentScreen(screen);
+                }
+
+                DisplayServer.WindowSetMode(fullscreen == "exclusive" ? DisplayServer.WindowMode.ExclusiveFullscreen : DisplayServer.WindowMode.Fullscreen);
+                GD.Print($"SVM_BENCHMARK fullscreen {fullscreen} on screen {DisplayServer.WindowGetCurrentScreen()} size {DisplayServer.WindowGetSize()}");
+            }
+            else
+            {
+                DisplayServer.WindowSetSize(new Vector2I(_shots[0].Width, _shots[0].Height));
+                GetTree().Root.Size = new Vector2I(_shots[0].Width, _shots[0].Height);
+            }
+
             if (_profiling)
             {
                 RenderingServer.ViewportSetMeasureRenderTime(GetViewport().GetViewportRid(), true);
