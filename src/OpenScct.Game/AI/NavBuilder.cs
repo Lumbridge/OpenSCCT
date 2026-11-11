@@ -175,7 +175,11 @@ public sealed partial class NavBuilder
                 var floor = new FVector(c.X, c.Y, floorZ);
                 // Still require support under the centre: the wide probe must not bridge an open gap.
                 // A footprint can span two closely spaced stair treads, each within MAXSTEPHEIGHT.
-                if (FloorNear(floor, floorZ + 2f, floorZ - 2f * _profile.StepUp - 2f) is not null && !(shifted && HasFloor(column, floorZ)))
+                // A shifted sample must stand on its floor (one step under the centre at most): moved towards a
+                // block, its footprint grazes the block's top with the centre over the ground beside it, and a
+                // node there would let a walk climb the riser.
+                float support = shifted ? _profile.StepUp : 2f * _profile.StepUp;
+                if (FloorNear(floor, floorZ + 2f, floorZ - support - 2f) is not null && !(shifted && HasFloor(column, floorZ)))
                 {
                     if (Fits(floor, _profile.CrouchHeight))
                     {
@@ -279,7 +283,7 @@ public sealed partial class NavBuilder
         {
             var p = new FVector(c.X + dx * (last + 1) * ShiftStep, c.Y + dy * (last + 1) * ShiftStep, floor.Z);
             if (FloorNear(p, floor.Z + _profile.StepUp + 2f, floor.Z - 2f, supportProbe) is not { } height || MathF.Abs(height - floor.Z) >= 2f ||
-                FloorNear(p, floor.Z + 2f, floor.Z - 2f * _profile.StepUp - 2f) is null || !Fits(p, _profile.CrouchHeight))
+                FloorNear(p, floor.Z + 2f, floor.Z - _profile.StepUp - 2f) is null || !Fits(p, _profile.CrouchHeight))
             {
                 break;
             }
