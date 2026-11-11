@@ -107,6 +107,9 @@ holstering, 7 other hand. Controller fields: `bFireMode` (InvButton alias FireMo
    states), false globally and in traversal, interaction, grab and charge states. Key L (`SwitchLaser`) in the
    weapon states toggles: `ServerSwitchLaser(!bLaserOn)`. The beam, the red dot projector and the muzzle mesh are
    drawn by the native `TickSWeaponAttaque` on every client from `bLaserOn` and `MuzzleCount`.
+   The rewrite predicts the owning client's laser request with this same state gate, so the beam, dot and activation
+   cue appear when its local draw finishes instead of waiting for server replication (offline play also uses a
+   client/server connection). Remote observers continue to use the replicated state.
 7. **Firing input**: a press calls exec `Fire` -> weapon `Fire` immediately (no rate check); holding fire
    repeats from `s_Selected.Tick`: when `bFire != 0`, `now - LastShot > RateOfFire`, (not shocked or
    `now > iTimeToStopStickyShock`) and not in transit, call `Fire(0)`. Exec `Fire` itself is refused while

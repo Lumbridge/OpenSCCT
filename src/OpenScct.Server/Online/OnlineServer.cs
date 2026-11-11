@@ -1250,6 +1250,7 @@ public sealed partial class OnlineServer : IDisposable
         RecordHistory("end", "Round ended: " + MatchResults.ReasonText(results.WinningReason));
         _historyActive = false;
         LastResults = results;
+        Log($"results: {results.Rows.Count} rows, games left {results.GamesLeft}");
         SetPhase(SessionPhase.Results);
         if (results.GamesLeft == 0)
         {

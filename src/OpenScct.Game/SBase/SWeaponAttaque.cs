@@ -26,6 +26,9 @@ public partial class SWeaponAttaque
     private static readonly Name ImpactShocker = new("SImpactEffectShocker");
     private static readonly Name ImpactShockerMetal = new("SImpactEffectShockerMetal");
 
+    // Keep the owner's request while the server's replicated laser state catches up.
+    private bool _predictLaserRequest;
+
     /// <summary>The server sets the controller and the spy's third-person weapon reference (rule 12).</summary>
     [Uc("SBase.SWeaponAttaque.PostBeginPlay", Sha1 = "7bbc87a2eb46474b07bffbf929e9141c9742ce5d")]
     [PortOf("uc:SBase.SWeaponAttaque:PostBeginPlay", Spec = "spec/equipment/spy-shocker.md#rules")]
@@ -80,6 +83,12 @@ public partial class SWeaponAttaque
     {
         if (Role < ENetRole.ROLE_Authority && OwnerPC is { } pc)
         {
+            if (ReferenceEquals(Level.GetLocalPlayerController(), pc))
+            {
+                bLaserShouldBeOn = bOn;
+                _predictLaserRequest = true;
+            }
+
             CombatServices.Net(this).ServerCall(pc, new CombatCall(CNAME_ServerSwitchLaser) { Target = this, Bool1 = bOn });
             return;
         }
