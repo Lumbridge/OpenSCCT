@@ -17,7 +17,7 @@ public partial class SPlayerController
 {
     private static readonly Name VNAME_ReplicateSpecialsChatOnServer = new("ReplicateSpecialsChatOnServer");
     private static readonly Name VNAME_ServerSetAutoHackComms = new("ServerSetAutoHackComms");
-    private static readonly Name VNAME_ServerSetVoiceChatTarget =new("ServerSetVoiceChatTarget");
+    private static readonly Name VNAME_ServerSetVoiceChatTarget = new("ServerSetVoiceChatTarget");
     private static readonly Name VNAME_ServerClearVoiceChatTarget = new("ServerClearVoiceChatTarget");
     private static readonly Name VNAME_ServerSetVoiceComWhenGrabbing = new("ServerSetVoiceComWhenGrabbing");
     private static readonly Name VNAME_ClientSetVoiceChatMode = new("ClientSetVoiceChatMode");

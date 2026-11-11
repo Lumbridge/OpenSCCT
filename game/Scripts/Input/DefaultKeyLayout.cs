@@ -51,6 +51,8 @@ public static class DefaultKeyLayout
             (GearKey, "ChangeGear"), ("G", "SwapWeapon"), ("N", "ToggleTeammateNames"),
             ("CapsLock", "PushToTalk"), ("Y", "TeamPushToTalk"),
             (SpyPerspectiveKey, "SwitchSpyPerspective"), (CloakKey, "Button bCloak"),
+            // The old preset hacks on numpad minus; its double tap is the auto hack default added on load.
+            (new BindingKey("GreyMinus", BindingModifiers.Double).Canonical, AutoHackCommand),
         })
         {
             KeyLayout action = KeyLayout.Parse("IK_" + key + "=" + command);

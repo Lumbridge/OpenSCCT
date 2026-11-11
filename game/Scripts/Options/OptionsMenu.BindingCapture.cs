@@ -32,11 +32,11 @@ public partial class OptionsMenu
     }
 
     /// <summary>
-    /// Double taps run through the play input. Interface, chat and Enhanced Reality shortcuts are read by their own
+    /// Double taps run through the play input. Interface, Hub, chat and Enhanced Reality shortcuts are read by their own
     /// screens from the plain key, so they do not offer one.
     /// </summary>
     private static bool SupportsDoubleTap(BindingEditor editor, BindingEntry entry) => !editor.Pad &&
-        entry.Action is { } action && action.Category != "Interface" && action.Id is not ("chat" or "teamchat" or "quickchat" or "er");
+        entry.Action is { } action && action.Category is not ("Interface" or "Hub") && action.Id is not ("chat" or "teamchat" or "quickchat" or "er");
     private BindingCaptureSession? _bindingCapture;
 
     private void BeginBindingCapture(BindingEditor editor, BindingEntry entry, BindingSlot? slot)
