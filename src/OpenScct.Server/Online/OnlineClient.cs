@@ -808,6 +808,13 @@ public sealed partial class OnlineClient : IDisposable
                 Lobby.Phase = SessionProtocol.ParsePhase(SessionProtocol.Text(f, 0));
                 Lobby.Countdown = SessionProtocol.Int(f, 1) / 10f;
                 Lobby.PreparingBots = SessionProtocol.Int(f, 2) != 0;
+                if (Lobby.Phase != SessionPhase.Results)
+                {
+                    // The last round's results are over: the next results phase waits for its own "results" line.
+                    Results = null;
+                    _rows.Clear();
+                }
+
                 if (State is OnlineClientState.Lobby or OnlineClientState.Loading or OnlineClientState.Match or OnlineClientState.Results)
                 {
                     State = Lobby.Phase switch

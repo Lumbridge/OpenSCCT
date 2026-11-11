@@ -420,6 +420,14 @@ public partial class OnlineService : Node
             return;
         }
 
+        // The server's "phase results" line comes before the scoreboard, the rows and the "results" line, and they
+        // can land on later frames. Wait for them rather than marking the state shown with nothing to show: the round
+        // (and its end banner) would stay up for good.
+        if (state == OnlineClientState.Results && client.Results is null)
+        {
+            return;
+        }
+
         _shownState = state;
         SceneTree tree = GetTree();
         if (Hosting is null && _hubReturn is null)
