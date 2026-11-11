@@ -357,7 +357,24 @@ public sealed partial class MercAi : AiBrain
         {
             if (t.bTriggering && !World.IsTaken(t))
             {
+                // With several alarms each merc takes the one it is nearest to compared with its mates, so two
+                // hacks at once split the team instead of drawing both to the same terminal.
                 float d = (t.Location - Pawn.Location).Size();
+                if (Difficulty.Teamwork > .3f)
+                {
+                    float mate = float.MaxValue;
+                    foreach (AiController other in World.Bots)
+                    {
+                        if (!ReferenceEquals(other, Bot) && other.Team == 1 &&
+                            other.Pawn is SPAWNDEFENSE { Health: > 0, bDeleteMe: false, bSleeping: false, bLyingOnGround: false } p)
+                        {
+                            mate = MathF.Min(mate, (t.Location - p.Location).Size());
+                        }
+                    }
+
+                    if (mate < float.MaxValue) d -= mate;
+                }
+
                 if (d < bestD)
                 {
                     bestD = d;
@@ -657,10 +674,21 @@ public sealed partial class MercAi : AiBrain
             return;
         }
 
-        // Movement: the better mercs side-step between bursts at range.
-        if (Difficulty.Skill >= AiSkill.Hard && (c.Position - Pawn.Location).Size() > 600f)
+        // Movement. Too far for this merc's spread to hit a body: walk in while firing. A spy coming in close: back
+        // away from the grab. Otherwise Normal and better side-step between bursts at range (Normal more slowly).
+        float range = (c.Position - Pawn.Location).Size();
+        float miss = range * SvmMath.Sin(MathF.Min(spread, 45f) * (MathF.PI / 180f));
+        if (miss > AiK.EngageMissWidth && range > AiK.EngageCloseMin)
         {
-            if (now - _strafeAt > 0.8f * Bot.Personality.Tempo)
+            plan.Keys.BT_Up = 1;
+        }
+        else if (range < AiK.EngageBackOff && range > MercAiK.PointBlank && c.BodyVisible && (c.Velocity | (Pawn.Location - c.Position)) > 0f)
+        {
+            plan.Keys.BT_Down = 1;
+        }
+        else if (Difficulty.Skill >= AiSkill.Normal && range > 600f)
+        {
+            if (now - _strafeAt > (Difficulty.Skill >= AiSkill.Hard ? 0.8f : 1.4f) * Bot.Personality.Tempo)
             {
                 _strafeAt = now;
                 _strafeLeft = !_strafeLeft;
@@ -1354,7 +1382,10 @@ public sealed partial class MercAi : AiBrain
         {
             // Motion tracking for a noise (something moved there) and on some dark posts; the torch (normal view)
             // for a terminal alert, since a hacker stands still and motion tracking does not show it.
-            bool wantMotion = (Goal == GInvestigate || (Goal == GGuard && _guardMotion)) && Difficulty.GadgetUse >= 0.5f &&
+            // On the way to a noise only: once there (or with a shape in view) the search is by torch, since motion
+            // tracking halves what the eye makes out and shows nothing of a spy who sits still.
+            bool onTheWay = Goal == GInvestigate && _investigateArrived < 0f && _investigating is not { Visible: true };
+            bool wantMotion = (onTheWay || (Goal == GGuard && _guardMotion)) && Difficulty.GadgetUse >= 0.5f &&
                 World.LightAround(Feet) < 0.2f;
             if (wantMotion != (mode == SGoggle.REN_MotionTrackingVision) && plan.Keys.Command2 == AiCommand.None)
             {
@@ -1370,7 +1401,17 @@ public sealed partial class MercAi : AiBrain
         }
 
         // On below 0.15, off only above 0.35, so the torch does not flicker at the edge of a light.
-        bool dark = World.LightAround(Feet) < (torch.bInUse ? 0.35f : 0.15f);
+        // Dark where the merc stands or where it is looking (within the torch's reach): a merc in a lit corridor
+        // lights the dark room it searches.
+        float light = World.LightAround(Feet);
+        FVector focus = Goal == GInvestigate ? (_investigating is not null ? _searchFloor : _investigate)
+            : Goal == GRespond && _alert is not null ? _alert.Location : Feet;
+        if ((focus - Feet).SizeSquared() is > 1f and < AiK.TorchReach * AiK.TorchReach)
+        {
+            light = MathF.Min(light, World.LightAround(focus));
+        }
+
+        bool dark = light < (torch.bInUse ? 0.35f : 0.15f);
         bool wantTorch = dark && (searching || Goal == GEngage || _guardTorch);
         if (wantTorch != torch.bInUse)
         {

@@ -246,6 +246,21 @@ public static class AiK
     /// <summary>Half the size of a planted charge as a target (uu).</summary>
     public const float BombHalfSize = 9f;
 
+    /// <summary>The torch lights a place this near (uu): its light there decides the torch, as the light at the feet does.</summary>
+    public const float TorchReach = 1200f;
+
+    /// <summary>A spread that misses a body by more than this at the target's range sends the merc closer (uu).</summary>
+    public const float EngageMissWidth = 45f;
+
+    /// <summary>The merc does not walk in nearer than this to tighten its fire (uu).</summary>
+    public const float EngageCloseMin = 450f;
+
+    /// <summary>A spy coming on within this is backed away from while firing (uu).</summary>
+    public const float EngageBackOff = 300f;
+
+    /// <summary>A sight line at least this long from a guard post is a way in worth watching (uu).</summary>
+    public const float WatchLineMin = 600f;
+
     /// <summary>Seconds a merc looks at a shape it cannot make out before it walks up to it.</summary>
     public const float ShapeStareSeconds = 1.5f;
 

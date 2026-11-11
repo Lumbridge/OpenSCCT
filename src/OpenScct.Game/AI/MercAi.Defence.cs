@@ -181,7 +181,80 @@ public sealed partial class MercAi
             return;
         }
 
-        LookRound(now, ref plan, _post.Location);
+        WatchApproaches(now, ref plan);
+    }
+
+    private readonly List<int> _watchYaws = new();
+    private int _watchIndex;
+
+    /// <summary>
+    /// The ways in to watch from the post: the three longest open lines round it at eye height, at least 45 degrees
+    /// apart (a corridor, a doorway, the open side of a hall), found once on arrival.
+    /// </summary>
+    private void FindWatchLines()
+    {
+        _watchYaws.Clear();
+        _watchIndex = 0;
+        FVector eye = AiSight.Eye(Pawn);
+        Span<float> open = stackalloc float[16];
+        for (int i = 0; i < 16; i++)
+        {
+            FVector direction = new FRotator(0, i * 4096, 0).Vector();
+            open[i] = World.LineOpen(eye, eye + direction * 2400f) ? 2400f :
+                World.LineOpen(eye, eye + direction * 1400f) ? 1400f :
+                World.LineOpen(eye, eye + direction * AiK.WatchLineMin) ? AiK.WatchLineMin : 0f;
+        }
+
+        for (int pick = 0; pick < 3; pick++)
+        {
+            int best = -1;
+            for (int i = 0; i < 16; i++)
+            {
+                if (open[i] < AiK.WatchLineMin || (best >= 0 && open[i] <= open[best])) continue;
+                bool apart = true;
+                foreach (int yaw in _watchYaws)
+                {
+                    if (NavFollower.YawError(yaw, i * 4096) < 8192) apart = false;
+                }
+
+                if (apart) best = i;
+            }
+
+            if (best < 0) break;
+            _watchYaws.Add(best * 4096);
+            open[best] = 0f;
+        }
+    }
+
+    /// <summary>
+    /// At the post the merc looks down the ways in, one after another, with a glance at the objective now and then.
+    /// It used to look at the objective or directly away from it at random, which left the side approaches unwatched.
+    /// </summary>
+    private void WatchApproaches(float now, ref AiPlan plan)
+    {
+        if (_watchYaws.Count == 0)
+        {
+            LookRound(now, ref plan, _post!.Location);
+            return;
+        }
+
+        if (now >= _lookAt)
+        {
+            _lookAt = now + (2f + Bot.Random.FRand() * 2f) * Bot.Personality.Tempo;
+            if (Bot.Random.FRand() < 0.2f)
+            {
+                _lookYaw = NavFollower.YawTo(Pawn.Location, _post!.Location) & 0xFFFF;
+            }
+            else
+            {
+                _watchIndex = (_watchIndex + 1) % _watchYaws.Count;
+                _lookYaw = (_watchYaws[_watchIndex] + (int)(Bot.Random.RandRange(-1f, 1f) * 1500f)) & 0xFFFF;
+            }
+        }
+
+        plan.Yaw = _lookYaw;
+        plan.Pitch = 0;
+        plan.Tolerance = 65536;
     }
 
     /// <summary>
@@ -201,7 +274,15 @@ public sealed partial class MercAi
         }
 
         _watchYaw = -1;
-        if (CanSnipe && Bot.Random.FRand() < Bot.Utility)
+        FindWatchLines();
+        // No overwatch with a spy believed close: the scoped view is narrow and a scoped merc can be grabbed.
+        bool spyClose = false;
+        foreach (AiContact known in Bot.Memory.Contacts)
+        {
+            if (known.Confidence > 0.3f && (known.Position - Pawn.Location).Size() < AiK.ScopeSafeRange) spyClose = true;
+        }
+
+        if (CanSnipe && !spyClose && Bot.Random.FRand() < Bot.Utility)
         {
             FVector eye = AiSight.Eye(Pawn);
             float best = 0f;
