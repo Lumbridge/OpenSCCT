@@ -29,7 +29,27 @@ public abstract class AiBrain
     {
         Bot = bot ?? throw new ArgumentNullException(nameof(bot));
         Follower = new NavFollower(bot.World, Spy);
+        Follower.Trace = text => Bot.Events.Add(Bot.World.Now, text);
         Doors = new DoorAi(bot, Follower, Spy);
+    }
+
+    /// <summary>The name of goal <paramref name="goal"/> for the event log.</summary>
+    protected virtual string GoalText(int goal) => goal.ToString(System.Globalization.CultureInfo.InvariantCulture);
+
+    private readonly int[] _pickIds = new int[16];
+    private readonly float[] _pickScores = new float[16];
+    private int _pickCount;
+
+    private string PickText()
+    {
+        var text = new System.Text.StringBuilder();
+        for (int i = 0; i < _pickCount; i++)
+        {
+            text.Append(i == 0 ? string.Empty : ", ").Append(GoalText(_pickIds[i])).Append(' ')
+                .Append(_pickScores[i].ToString("F2", System.Globalization.CultureInfo.InvariantCulture));
+        }
+
+        return text.ToString();
     }
 
     public AiController Bot { get; }
@@ -77,9 +97,11 @@ public abstract class AiBrain
         {
             _nextDecision = now + Bot.DecisionPeriod;
             _decisionNow = now;
+            _pickCount = 0;
             int choice = Choose(now);
             if (choice != Goal)
             {
+                Bot.Events.Add(now, $"goal {GoalText(Goal)} -> {GoalText(choice)}" + (_pickCount > 0 ? $" ({PickText()})" : " (forced)"));
                 LeaveGoal(Goal, choice, now);
                 Goal = choice;
                 GoalSince = now;
@@ -136,6 +158,12 @@ public abstract class AiBrain
             }
 
             float score = o.Score + (o.Id == Goal ? stay : 0f) + OptionNoise(o.Id);
+            if (_pickCount < _pickIds.Length)
+            {
+                _pickIds[_pickCount] = o.Id;
+                _pickScores[_pickCount++] = score;
+            }
+
             if (score > bestScore)
             {
                 bestScore = score;

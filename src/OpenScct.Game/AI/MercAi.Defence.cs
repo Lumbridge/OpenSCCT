@@ -158,7 +158,8 @@ public sealed partial class MercAi
         {
             if (!MoveTo(_postFloor, now, ref plan, sneak: false))
             {
-                _postUntil = now;
+                // Another post, but not a full pick every tick while the plan keeps failing.
+                _postUntil = MathF.Min(_postUntil, now + 1f);
             }
 
             return;

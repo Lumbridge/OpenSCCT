@@ -196,6 +196,8 @@ public sealed partial class SpyAi : AiBrain
     public override string Status => string.Create(System.Globalization.CultureInfo.InvariantCulture,
         $"spy {GoalName(Goal)} {_hack} target {_target?.TriggerName ?? _otherObjective?.TriggerName ?? "-"} path {Follower.NextIndex}/{Follower.Path.Count} links {Follower.LinksDone}/{Follower.LinksFailed} hacked {Hacked} shock {ShockHits}/{ShocksFired} grab {NeckBreaks}/{Grabs}/{GrabPresses} drop {DropAttacks}/{DropTries} rolls {Rolls}");
 
+    protected override string GoalText(int goal) => GoalName(goal);
+
     public static string GoalName(int goal) => goal switch
     {
         GHack => "hack",

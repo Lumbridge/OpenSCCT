@@ -117,6 +117,9 @@ public sealed partial class NavFollower
     /// <summary>Traversals that failed while the pawn was hit or crowded, and were not blamed on the link (diagnostics).</summary>
     public int LinksInterrupted { get; private set; }
 
+    /// <summary>Told what the follower ran into (a failed link, a stuck walk), for the bot's event log.</summary>
+    public Action<string>? Trace { get; set; }
+
     public int ActiveLink => _phase != TPhase.None && _next < _path.Count ? _path[_next].Link : -1;
 
     /// <summary>The pawn is grabbing, climbing, or crossing a fence, including its root-motion transition.</summary>
@@ -725,6 +728,7 @@ public sealed partial class NavFollower
         _stuckTime = now;
         if (again && pawn is SBasePawn walker && BlockAhead(walker))
         {
+            Trace?.Invoke($"stuck again at {at}: the way ahead left out for the side");
             _stuckTime = -1f;
             if (++_replans > 6 || !Plan(pawn))
             {
@@ -740,9 +744,12 @@ public sealed partial class NavFollower
         if ((_replans & 1) == 0)
         {
             _replans++;
+            Trace?.Invoke($"stuck at {at}: wiggle (try {_replans})");
             StartWiggle(now);
             return false;
         }
+
+        Trace?.Invoke($"stuck at {at}: avoid the place ahead and plan again (try {_replans + 1})");
 
         if (_next < _path.Count)
         {
@@ -1289,11 +1296,13 @@ public sealed partial class NavFollower
         if (!interrupted || before >= 1)
         {
             _world.MarkBadLink(_spy, step.Link);
+            Trace?.Invoke($"link {link.Kind} at {link.Start} failed{(interrupted ? " (interrupted again)" : string.Empty)}: left out for the side");
         }
         else
         {
             _interrupted[step.Link] = before + 1;
             LinksInterrupted++;
+            Trace?.Invoke($"link {link.Kind} at {link.Start} interrupted (hit or crowded): tried again");
         }
         if (++_replans > 6 || !Plan(pawn))
         {

@@ -178,6 +178,8 @@ public sealed partial class MercAi : AiBrain
     public override string Status => string.Create(System.Globalization.CultureInfo.InvariantCulture,
         $"merc {GoalName(Goal)} post {_post?.TriggerName ?? "-"} sector {_sector.Count} posts {PostsReached} traps {TrapsPlaced} scoped {ScopedShots} bursts {Bursts} charges {Charges} strikes {CloseStrikes} finishes {Terminates} frags {FragsThrown} search {Search.Inspections}/{Search.Plans} path {Follower.NextIndex}/{Follower.Path.Count}");
 
+    protected override string GoalText(int goal) => GoalName(goal);
+
     public static string GoalName(int goal) => goal switch
     {
         GEngage => "engage",

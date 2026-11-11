@@ -814,8 +814,23 @@ public partial class PlayRoot : Node3D
         foreach (OpenScct.Game.AI.AiController bot in bots.Bots)
         {
             GD.Print($"SVM_PLAY bot {bot.Controller.PlayerReplicationInfo?.PlayerName}: {bot.Status} at {bot.Pawn?.Location}");
+            // SVM_AI_LOG=1: what each bot decided and ran into since the last print (AiEventLog).
+            if (_botEventLog)
+            {
+                _botEventsPrinted.TryGetValue(bot, out int printed);
+                foreach ((float time, string text) in bot.Events.Since(printed))
+                {
+                    GD.Print(string.Create(System.Globalization.CultureInfo.InvariantCulture,
+                        $"SVM_PLAY bot {bot.Controller.PlayerReplicationInfo?.PlayerName} @{time:F1}: {text}"));
+                }
+
+                _botEventsPrinted[bot] = bot.Events.Total;
+            }
         }
     }
+
+    private readonly bool _botEventLog = System.Environment.GetEnvironmentVariable("SVM_AI_LOG") is "1" or "true";
+    private readonly System.Collections.Generic.Dictionary<OpenScct.Game.AI.AiController, int> _botEventsPrinted = new();
 
     public override void _Process(double delta)
     {

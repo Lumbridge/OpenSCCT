@@ -97,6 +97,9 @@ public sealed class AiController
     public long ThinkTicks { get; private set; }
 
     /// <summary>Last time the pawn lost health, and how much.</summary>
+    /// <summary>What the bot decided and ran into lately (<see cref="AiEventLog"/>).</summary>
+    public AiEventLog Events { get; } = new();
+
     public float HurtAt { get; private set; } = -100f;
 
     /// <summary>When a team mate last fired within earshot or went down (mercs), and where he was.</summary>

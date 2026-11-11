@@ -477,6 +477,14 @@ public sealed class AiNoiseBoard : INoiseHearing
         ArgumentNullException.ThrowIfNull(world);
         ArgumentNullException.ThrowIfNull(difficulty);
         float d = (noise.Location - listener).Size();
+        // Out of earshot even with an open line: no trace needed (every bot hears every noise every tick).
+        if (noise.FromMakeNoise ? d >= noise.Radius * difficulty.HearingScale
+            : noise.Volume * (d <= noise.Radius ? 1f : noise.Radius / (noise.Radius + AiK.SoundRolloff * (d - noise.Radius))) *
+              difficulty.HearingScale < difficulty.SoundThreshold)
+        {
+            return 0f;
+        }
+
         bool open = world.LineOpen(listener, noise.Location + new FVector(0f, 0f, 10f));
         if (noise.FromMakeNoise)
         {
