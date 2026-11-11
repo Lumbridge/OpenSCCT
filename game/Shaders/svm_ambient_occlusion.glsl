@@ -35,15 +35,21 @@ void main() {
     if (dot(cross_normal, cross_normal) < 1e-12) return;
     vec3 normal = normalize(cross_normal);
     if (dot(normal, -center) < 0.0) normal = -normal;
-    float radius = p.frame.z;
-    float pixels = min(64.0, radius * p.projection.y * p.frame.y / (2.0 * z));
+    float full = p.frame.z * p.projection.y * p.frame.y / (2.0 * z);
+    float pixels = min(64.0, full);
+    // The radius the capped kernel covers, so the falloff reaches zero at the last sample. With the full radius
+    // a near occluder still had most of its weight where sampling stopped, and its darkening ended in a hard edge.
+    float radius = p.frame.z * pixels / max(full, 1e-6);
+    // Turn the directions and slide the steps per pixel (interleaved gradient noise). A fixed pattern stamped a
+    // shifted copy of an occluder's outline onto the floor for every sample offset.
+    float jitter = fract(52.9829189 * fract(dot(vec2(xy), vec2(.06711056, .00583715))));
     float total = 0.0;
     for (int dir = 0; dir < 8; dir++) {
-        float angle = float(dir) * .7853981634;
+        float angle = (float(dir) + jitter) * .7853981634;
         vec2 direction = vec2(cos(angle), sin(angle));
         float horizon = 0.0;
         for (int step = 1; step <= 3; step++) {
-            ivec2 sample_xy = xy + ivec2(round(direction * max(1.0, pixels * float(step) / 3.0)));
+            ivec2 sample_xy = xy + ivec2(round(direction * max(1.0, pixels * (float(step) - jitter) / 3.0)));
             if (any(lessThan(sample_xy, ivec2(0))) || any(greaterThanEqual(sample_xy, size))) continue;
             if (texelFetch(depth_texture, sample_xy, 0).r <= SVM_SKY_DEPTH_LIMIT) continue;
             vec3 delta = position_at(sample_xy) - center;
