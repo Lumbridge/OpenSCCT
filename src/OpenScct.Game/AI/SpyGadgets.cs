@@ -249,6 +249,9 @@ public sealed class SpyGadgets
             return;
         }
 
+        // A merc standing or strolling with his eyes elsewhere: the sleep cam, whatever the spy was on its way to.
+        if (!hurt && brain.Goal is SpyAi.GHack or SpyAi.GIdle or SpyAi.GObjective or SpyAi.GHide && SleepCam(spy, now)) return;
+
         if (!hurt && (merc is null || !facing || dist > 650f) && TryPairedSmoke(spy, brain, now)) return;
 
         if (brain.Goal is SpyAi.GHack or SpyAi.GIdle && merc is null || brain.Goal == SpyAi.GHack && merc is not null && !facing)
@@ -327,6 +330,78 @@ public sealed class SpyGadgets
         }
 
         return false;
+    }
+
+    private Pawn? _sleepRolledFor;
+    private float _sleepRollUntil = -100f;
+    private bool _sleepRollOk;
+    private float _gasInReachAt = -1f;
+
+    /// <summary>
+    /// The sleep cam as players use it: whenever a merc the spy sees (or saw a moment ago) stands or strolls within
+    /// the cam's range and is not looking at the spy, a sticky cam goes on a wall whose gas point reaches him, and the
+    /// gas is let off at once. One roll per merc per <see cref="SpyGadgetK.SleepRollSeconds"/>, likelier with skill.
+    /// </summary>
+    private bool SleepCam(SBasePawn spy, float now)
+    {
+        if (now < _nextCam || Slot(spy, out SGadStickyCam? cam) is not (>= 0 and var slot) || !HasCharge(cam!) || !Ready(cam!, now))
+        {
+            return false;
+        }
+
+        AiContact? best = null;
+        float bestD = float.MaxValue;
+        foreach (AiContact c in _bot.Memory.Contacts)
+        {
+            if (c.Pawn is not SPAWNDEFENSE m || c.Pose is not { OnFeet: true } ||
+                !(c.Visible && c.Confirmed || c.Confidence > 0.6f && now - c.Time < 1.5f) ||
+                c.BodyVisible && (m.bGasMask || c.Velocity.Size() > SpyGadgetK.SleepMaxSpeed))
+            {
+                continue;
+            }
+
+            FVector to = spy.Location - c.Position;
+            float d = to.Size();
+            if (d < SpyGadgetK.SleepMin || d > SpyGadgetK.SleepMax)
+            {
+                continue;
+            }
+
+            // Looking this way from close: he shoots before the cam is on the wall.
+            bool faces = c.Visible && d > 1f && (to | m.Rotation.Vector()) / d > 0.75f;
+            if (faces && d < SpyGadgetK.SleepFacedMin)
+            {
+                continue;
+            }
+
+            if (d < bestD)
+            {
+                bestD = d;
+                best = c;
+            }
+        }
+
+        if (best is null)
+        {
+            return false;
+        }
+
+        if (!ReferenceEquals(best.Pawn, _sleepRolledFor) || now >= _sleepRollUntil)
+        {
+            _sleepRolledFor = best.Pawn;
+            _sleepRollUntil = now + SpyGadgetK.SleepRollSeconds;
+            _sleepRollOk = Roll(SpyGadgetK.SleepBaseChance + SpyGadgetK.SleepSkillChance * _bot.Utility);
+        }
+
+        if (!_sleepRollOk || !FindCamSpot(spy, best.Position, out FRotator aim))
+        {
+            return false;
+        }
+
+        // One try per roll: a cam that finds no wall, or misses, is not shot again at once.
+        _sleepRollOk = false;
+        StartCam(slot, cam!, best.Pawn, aim, now);
+        return true;
     }
 
     private void ClearSupport()
@@ -527,7 +602,11 @@ public sealed class SpyGadgets
         _aimRot = aim;
         _straight = true;
         _gassedAt = -1f;
+        _gasInReachAt = -1f;
     }
+
+    /// <summary>How unpractised the bot is with the cam: 1 with no gadget skill, 0 at full skill.</summary>
+    private float CamClumsiness => SvmMath.Clamp(1f - _bot.Utility, 0f, 1f);
 
     // ---- carrying on ----------------------------------------------------------------------------------------------
 
@@ -784,6 +863,12 @@ public sealed class SpyGadgets
         int yawErr = NavFollower.YawError(view.Yaw & 0xFFFF, aim.Yaw & 0xFFFF);
         int pitchErr = Math.Abs(Wrap(view.Pitch) - Wrap(aim.Pitch));
         float tolerance = (_straight ? SpyGadgetK.CamAimDegrees : SpyGadgetK.ThrowAimDegrees + (1f - _bot.Difficulty.GadgetUse) * 3f) * (65536f / 360f);
+        // Lining a cam up takes a beginner most of a second; a practised player shoots as the sight arrives.
+        if (_straight && now - _stepAt < SpyGadgetK.CamAimSeconds * CamClumsiness)
+        {
+            return;
+        }
+
         if (yawErr <= tolerance && pitchErr <= tolerance || now - _stepAt > 1.5f)
         {
             _lastUsedBefore = _gadget!.LastUsed;
@@ -934,9 +1019,23 @@ public sealed class SpyGadgets
             return;
         }
 
-        bool leave = now - _stepAt > SpyGadgetK.CamWatchSeconds * (0.5f + 0.5f * _bot.Difficulty.GadgetUse) ||
-            _gassedAt >= 0f && now - _gassedAt > 1.5f || now - _bot.HurtAt < 0.5f;
         FVector gas = cam.Location + cam.Rotation.Vector() * EK.StickyGasAhead;
+        // Nobody near the gas point: the view is left after a few seconds (sooner with skill) instead of sat in.
+        bool mercNearGas = false;
+        foreach (AiContact c in _bot.Memory.Contacts)
+        {
+            if (c.Pawn is SPAWNDEFENSE && c.Confidence > 0.4f && (c.Position - gas).SizeSquared() < SpyGadgetK.CamStayRange * SpyGadgetK.CamStayRange)
+            {
+                mercNearGas = true;
+                break;
+            }
+        }
+
+        float watch = mercNearGas ? SpyGadgetK.CamWatchSeconds * (0.5f + 0.5f * _bot.Difficulty.GadgetUse)
+            : SpyGadgetK.CamIdleSeconds * (0.5f + 0.5f * CamClumsiness);
+        bool leave = now - _stepAt > watch ||
+            _gassedAt >= 0f && now - _gassedAt > 0.4f + 1.1f * CamClumsiness || now - _bot.HurtAt < 0.5f;
+        bool inReach = false;
         foreach (AiContact c in _bot.Memory.Contacts)
         {
             if (c.Pawn is not SPAWNDEFENSE m)
@@ -959,11 +1058,28 @@ public sealed class SpyGadgets
             FVector at = c.Position + (c.BodyVisible ? c.Velocity * SpyGadgetK.GasLead : default);
             if ((at - gas).Size() < SpyGadgetK.GasReach && _bot.World.LineOpen(cam.Location, at) && !_usingHeld)
             {
+                // The thumb is on the gas after the bot's reaction time, a little longer for the unpractised.
+                inReach = true;
+                if (_gasInReachAt < 0f)
+                {
+                    _gasInReachAt = now;
+                }
+
+                if (now - _gasInReachAt < _bot.ReactionTime * (0.5f + CamClumsiness))
+                {
+                    break;
+                }
+
                 plan.Keys.bUsing = 1;
                 _gassedAt = now;
                 Gassings++;
                 break;
             }
+        }
+
+        if (!inReach)
+        {
+            _gasInReachAt = -1f;
         }
 
         _usingHeld = plan.Keys.bUsing != 0;
@@ -1257,6 +1373,34 @@ public static class SpyGadgetK
 
     [Provenance(ProvenanceKind.Estimated, "Bot play choice: a merc believed this close to the spy's body ends the watch")]
     public const float CamLeaveRange = 600f;
+
+    [Provenance(ProvenanceKind.Estimated, "Bot play choice: the sleep cam is tried on a merc between these distances (uu)")]
+    public const float SleepMin = 250f;
+
+    public const float SleepMax = 1700f;
+
+    [Provenance(ProvenanceKind.Estimated, "Bot play choice: not at a merc who faces the spy from nearer than this (uu)")]
+    public const float SleepFacedMin = 1100f;
+
+    [Provenance(ProvenanceKind.Estimated, "Bot play choice: a merc walking faster than this is not a sleep cam target (uu/s)")]
+    public const float SleepMaxSpeed = 140f;
+
+    [Provenance(ProvenanceKind.Estimated, "Bot play choice: one sleep cam roll per merc per this many seconds")]
+    public const float SleepRollSeconds = 5f;
+
+    [Provenance(ProvenanceKind.Estimated, "Bot play choice: chance of a sleep cam roll, plus SleepSkillChance times the bot's gadget skill")]
+    public const float SleepBaseChance = 0.35f;
+
+    public const float SleepSkillChance = 0.6f;
+
+    [Provenance(ProvenanceKind.Estimated, "Bot play choice: seconds an unskilled bot takes to line a cam up (none at full skill)")]
+    public const float CamAimSeconds = 0.9f;
+
+    [Provenance(ProvenanceKind.Estimated, "Bot play choice: seconds in the cam view with no merc near the gas point (half of it at full skill)")]
+    public const float CamIdleSeconds = 5f;
+
+    [Provenance(ProvenanceKind.Estimated, "Bot play choice: a merc believed within this of the gas point is waited for (uu)")]
+    public const float CamStayRange = 500f;
 
     /// <summary>Gas reach from the gas point: the 128 uu radius plus a margin (the cloud catches for 6 s).</summary>
     [Provenance(ProvenanceKind.Decoded, "sticky-cam.md rule 23: 128 uu round the gas point; the 40 uu margin is a play choice")]
