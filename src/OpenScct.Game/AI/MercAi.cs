@@ -97,6 +97,9 @@ public sealed partial class MercAi : AiBrain
     private AiContact? _investigating;
     private FVector _searchFloor;
     private float _investigateArrived = -1f;
+    private AiContact? _shape;
+    private float _shapeSince;
+    private float _respondArrivedAt = -1f;
     private float _fragAt = -100f;
     private int _fragPhase;
     private float _fragPhaseAt;
@@ -208,7 +211,7 @@ public sealed partial class MercAi : AiBrain
     protected override int Choose(float now)
     {
         _bomb = ArmedBomb();
-        if (_bomb is not null && !ImmediateBombThreat()) return GDefuse;
+        if (_bomb is not null && !ImmediateBombThreat() && BombIsMine(_bomb)) return GDefuse;
         if (Goal == GFrag && _fragPhase is > 0 and < 4 && now - _fragPhaseAt < 2.5f)
         {
             return GFrag;
@@ -266,6 +269,22 @@ public sealed partial class MercAi : AiBrain
             _investigate = Pawn.Location - Pawn.Rotation.Vector() * 300f;
             _investigateArrived = now;
             options[n++] = new AiOption(GInvestigate, 1.1f);
+        }
+
+        // A team mate firing or going down within reach, and nothing of its own to go on: have a look there.
+        if (_target is null && lost is null && now - Bot.MateAlertAt < 4f)
+        {
+            float away = (Bot.MateAlertPosition - Pawn.Location).Size();
+            if (away is > 300f and < AiK.MercEngageRange)
+            {
+                if (Goal != GInvestigate || NavFollower.Horizontal(_investigate - Bot.MateAlertPosition) > 300f)
+                {
+                    _investigate = Bot.MateAlertPosition;
+                    _investigateArrived = -1f;
+                }
+
+                options[n++] = new AiOption(GInvestigate, 0.9f);
+            }
         }
 
         if (lost is not null)
@@ -489,11 +508,23 @@ public sealed partial class MercAi : AiBrain
             _respondTo = _alert;
             _respondingAsCover = _responseCover;
             _respondSpot = Vantage(spot, _responseCover);
+            _respondArrivedAt = -1f;
             Follower.Clear();
         }
 
         FVector watch = spot + new FVector(0f, 0f, 40f);
+        // The alarm still on a couple of seconds after the first merc reached his vantage, and no spy in sight (he
+        // hacks in the dark): onto the use spot, where bumping into him finds him.
+        if (!_responseCover && _respondArrivedAt >= 0f && now - _respondArrivedAt > AiK.RespondCloseSeconds)
+        {
+            MoveTo(spot, now, ref plan, sneak: false);
+            if (Doors.Busy) return;
+            LookAt(watch, ref plan);
+            return;
+        }
+
         MoveTo(_respondSpot, now, ref plan, sneak: false);
+        if (_respondArrivedAt < 0f && (Follower.Arrived || (Feet - _respondSpot).Size() < 80f)) _respondArrivedAt = now;
         if (Doors.Busy) return;
         if (World.LineOpen(AiSight.Eye(Pawn), watch))
         {
@@ -1078,9 +1109,25 @@ public sealed partial class MercAi : AiBrain
         {
             // Inspect a shape before committing to an attack. Walking through it while waiting to identify it
             // let close spies pass behind the camera and made the merc miss its melee opportunity.
+            if (!ReferenceEquals(shape, _shape))
+            {
+                _shape = shape;
+                _shapeSince = now;
+            }
+
+            // Still not made out after a moment (a spy sitting in dim light held a merc staring for good): walk
+            // up to it, the eyes on it, until it is close enough to tell.
+            if (now - _shapeSince > AiK.ShapeStareSeconds && (shape.Position - Pawn.Location).Size() > 250f &&
+                Follower.Graph.NearestNode(shape.Position, 0f, 300f) is >= 0 and var shapeNode)
+            {
+                MoveTo(Follower.Graph.Node(shapeNode).Floor, now, ref plan, sneak: false);
+            }
+
             LookAt(shape.Position, ref plan);
             return;
         }
+
+        _shape = null;
 
         if (_investigating is { } contact)
         {

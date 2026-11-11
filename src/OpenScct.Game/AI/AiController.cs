@@ -99,6 +99,63 @@ public sealed class AiController
     /// <summary>Last time the pawn lost health, and how much.</summary>
     public float HurtAt { get; private set; } = -100f;
 
+    /// <summary>When a team mate last fired within earshot or went down (mercs), and where he was.</summary>
+    public float MateAlertAt { get; private set; } = -100f;
+
+    public FVector MateAlertPosition { get; private set; }
+
+    private float _mercAlertsAt = -100f;
+    private readonly HashSet<SBasePawn> _matesDown = new(ReferenceEqualityComparer.Instance);
+
+    /// <summary>
+    /// What a merc's HUD and radar tell him twice a second: a presence detector that has caught a spy (the radar alarm
+    /// marks the detector, so the spy is believed there), and a team mate who has just gone down (the kill feed and
+    /// the radar).
+    /// </summary>
+    private void MercAlerts(SBasePawn pawn, float now)
+    {
+        if (now - _mercAlertsAt < 0.5f && now >= _mercAlertsAt)
+        {
+            return;
+        }
+
+        _mercAlertsAt = now;
+        foreach (SPresDetector detector in World.Level.AllActors<SPresDetector>())
+        {
+            if (detector.bDeleteMe || !detector.bDetected)
+            {
+                continue;
+            }
+
+            foreach (SBasePawn caught in detector.DetectedPawns)
+            {
+                if (caught is SPawnAttaque { Health: > 0, bDeleteMe: false })
+                {
+                    Memory.Report(caught, detector.Location, now, 0.6f, AiContactSource.Alert);
+                }
+            }
+        }
+
+        foreach (SPAWNDEFENSE mate in World.Level.DynamicActors<SPAWNDEFENSE>())
+        {
+            if (ReferenceEquals(mate, pawn) || mate.bDeleteMe)
+            {
+                continue;
+            }
+
+            bool down = mate.Health <= 0 || mate.bSleeping || mate.bLyingOnGround;
+            if (!down)
+            {
+                _matesDown.Remove(mate);
+            }
+            else if (_matesDown.Add(mate))
+            {
+                MateAlertAt = now;
+                MateAlertPosition = mate.Location;
+            }
+        }
+    }
+
     public int HurtAmount { get; private set; }
 
     /// <summary>HUD messages received since the brain last read them.</summary>
@@ -423,11 +480,24 @@ public sealed class AiController
             Memory.EndLook(now);
         }
 
+        if (pawn is SPAWNDEFENSE)
+        {
+            MercAlerts(pawn, now);
+        }
+
         // Hearing: every noise of the last tick that reaches this pawn and is not its own side's.
         IReadOnlyList<AiNoise> noises = World.Noise.Noises;
         for (int i = 0; i < noises.Count; i++)
         {
             AiNoise noise = noises[i];
+            // A team mate's rifle within earshot: something is going on there.
+            if (pawn is SPAWNDEFENSE && noise.Instigator is SPAWNDEFENSE { Health: > 0 } firing && !ReferenceEquals(firing, pawn) &&
+                !noise.FromMakeNoise && noise.Radius >= AiK.MateFireRadius && (noise.Location - eye).SizeSquared() < noise.Radius * noise.Radius)
+            {
+                MateAlertAt = now;
+                MateAlertPosition = firing.Location;
+            }
+
             if (noise.Instigator is not { } who || ReferenceEquals(who, pawn) || who.Health <= 0 || (who is SPawnAttaque) == (pawn is SPawnAttaque))
             {
                 continue;

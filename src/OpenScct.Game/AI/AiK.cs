@@ -234,6 +234,27 @@ public static class AiK
     /// <summary>Range at which a merc engages.</summary>
     public const float MercEngageRange = 2500f;
 
+    /// <summary>A spy in sight with a clear shot within this of a merc going for a charge is fought first (uu).</summary>
+    public const float BombThreatRange = 800f;
+
+    /// <summary>Another merc must be this much nearer a charge to be the one who deals with it (uu).</summary>
+    public const float BombNearerMargin = 300f;
+
+    /// <summary>Shots at a charge before the merc walks to it instead.</summary>
+    public const int BombShotTries = 6;
+
+    /// <summary>Half the size of a planted charge as a target (uu).</summary>
+    public const float BombHalfSize = 9f;
+
+    /// <summary>Seconds a merc looks at a shape it cannot make out before it walks up to it.</summary>
+    public const float ShapeStareSeconds = 1.5f;
+
+    /// <summary>Seconds at the vantage with the alarm still on before the responding merc walks onto the use spot.</summary>
+    public const float RespondCloseSeconds = 2f;
+
+    /// <summary>A played sound of a team mate with at least this radius is taken for gunfire (uu).</summary>
+    public const float MateFireRadius = 1500f;
+
     /// <summary>Seconds a drawn decision noise is held on an option (0.75 to 1.25 times this).</summary>
     public const float OptionNoiseSeconds = 3.2f;
 

@@ -45,7 +45,25 @@ public sealed class MercDefence
         ArgumentNullException.ThrowIfNull(objective);
         return !objective.bDeleteMe && !objective.complete && objective.Objective?.ObjectiveTaken != true &&
             (objective is SComputerObjectiveTrigger terminal ? !world.IsTaken(terminal) :
-                objective.bActive && (objective is SBombTargetObjectiveTrigger || objective is SDisk { bHidden: false, bPickable: true }));
+                objective.bActive && (objective is SBombTargetObjectiveTrigger || objective is SDisk { bHidden: false, bPickable: true } ||
+                    objective is SFlag flag && !Carried(world, flag) || objective is SFlagDropZone && Carried(world, null)));
+    }
+
+    /// <summary>
+    /// A spy carries <paramref name="flag"/> (any disk when null), as the HUD tells everyone. A disk at home is
+    /// defended; once one is taken the drop zones are what is left to hold.
+    /// </summary>
+    private static bool Carried(AiWorld world, SFlag? flag)
+    {
+        foreach (SPawnAttaque spy in world.Level.DynamicActors<SPawnAttaque>())
+        {
+            if (!spy.bDeleteMe && spy.Health > 0 && spy.CarriedFlag is { } carried && (flag is null || ReferenceEquals(carried, flag)))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /// <summary>The objectives <paramref name="merc"/> defends (empty when none is left or he is not on the team).</summary>

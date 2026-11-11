@@ -31,7 +31,9 @@ public sealed class MercBombTests
     }
 
     [Theory]
-    [InlineData(600f, MercAi.GDefuse)]
+    // Beyond AiK.BombThreatRange the charge comes first; a spy on his feet with a clear shot inside it is fought.
+    [InlineData(900f, MercAi.GDefuse)]
+    [InlineData(600f, MercAi.GEngage)]
     [InlineData(150f, MercAi.GEngage)]
     public void ArmedBombOverridesChasingButAllowsImmediateSelfDefense(float spyDistance, int expected)
     {
