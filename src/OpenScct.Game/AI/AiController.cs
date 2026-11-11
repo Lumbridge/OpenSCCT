@@ -439,6 +439,8 @@ public sealed class AiController
     private void Perceive(SBasePawn pawn, float now, float dt)
     {
         FVector eye = AiSight.Eye(pawn);
+        // A killed enemy is no longer hunted, searched for or shot at: the kill feed told everyone.
+        Memory.ForgetDead();
         bool look = now >= _nextSight;
         if (look)
         {
@@ -525,7 +527,7 @@ public sealed class AiController
             for (int i = 0; i < calls.Count; i++)
             {
                 AiTeamBoard.Callout call = calls[i];
-                if (!ReferenceEquals(call.From, this) && now - call.Time < 2f + 3f * Difficulty.Teamwork &&
+                if (!ReferenceEquals(call.From, this) && !AiMemory.IsDead(call.Enemy) && now - call.Time < 2f + 3f * Difficulty.Teamwork &&
                     now - call.Time > SvmMath.Max(AiK.CalloutDelay, 0.6f * (1f - Difficulty.Teamwork)))
                 {
                     Memory.Report(call.Enemy, call.Position, call.Time, 0.7f * Difficulty.Teamwork, AiContactSource.Told);

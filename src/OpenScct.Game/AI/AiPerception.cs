@@ -708,6 +708,23 @@ public sealed class AiMemory
         }
     }
 
+    /// <summary>
+    /// Drops every contact whose pawn has died. Not hidden knowledge: the death message goes to every player
+    /// (SGameInfo.BroadcastDeathMessage), so the whole server reads each kill on the HUD as it happens.
+    /// </summary>
+    public void ForgetDead()
+    {
+        for (int i = _contacts.Count - 1; i >= 0; i--)
+        {
+            if (IsDead(_contacts[i].Pawn))
+            {
+                _contacts.RemoveAt(i);
+            }
+        }
+    }
+
+    public static bool IsDead(Pawn pawn) => pawn.Health <= 0 || pawn.bDeleteMe;
+
     /// <summary>A report from outside sight (a noise, a teammate, an alert), kept when it is fresher or surer.</summary>
     public void Report(Pawn pawn, FVector position, float now, float confidence, AiContactSource source)
     {

@@ -107,6 +107,7 @@ public sealed partial class MercAi : AiBrain
     private int _fragPhase;
     private float _fragPhaseAt;
     private FVector _fragTarget;
+    private Pawn? _fragPawn;
     private FRotator _fragAim;
     private SComputerObjectiveTrigger? _fragObjective;
     private FVector _fragObjectivePoint;
@@ -321,6 +322,7 @@ public sealed partial class MercAi : AiBrain
             options[n++] = new AiOption(GFrag, _target is not null ? 2.35f : 1.45f);
             _fragTarget = grenadeTarget;
             _fragObjective = null;
+            _fragPawn = fragAt.Pawn;
         }
         else if (_target is null && _alert is { } alarm && Bot.Utility >= 0.3f && ObjectiveGrenadeOpportunity(alarm, now, out grenadeTarget))
         {
@@ -1271,7 +1273,8 @@ public sealed partial class MercAi : AiBrain
             bool safe = _fragObjective is { } objective
                 ? objective.bTriggering && !World.IsTaken(objective) &&
                   SolveFragAim(_fragTarget, _fragLauncher?.ProjectileDefaults, out aim, out _, out _, out _)
-                : GrenadeAim(_fragTarget, out aim) && GrenadeBlastClear(_fragTarget);
+                // The spy died while the launcher was coming up: keep the grenade.
+                : _fragPawn is not null && !AiMemory.IsDead(_fragPawn) && GrenadeAim(_fragTarget, out aim) && GrenadeBlastClear(_fragTarget);
             if (!safe)
             {
                 _fragPhase = 4;
