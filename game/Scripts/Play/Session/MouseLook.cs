@@ -67,7 +67,7 @@ public sealed record MouseLook
     public static float UnitsPerCount => OpenScct.Game.Movement.MovementK.LookScale * AxisEventScale / MultiplierDivisor * ReadInputScale
         * ReloadedSensibilite * OpenScct.Game.Movement.MovementK.RotationRateScale;
 
-    /// <summary>The look mode of the controller groups (GamepadInput's counts): the vertical scales apply, as Reloaded's pad path does.</summary>
+    /// <summary>The look mode of the controller groups (GamepadInput's counts).</summary>
     public bool Pad { get; init; }
 
     /// <summary>The spy mouse free look's response curve (Linear, CurveSoft, CurveMedium or CurveAggressive).</summary>
@@ -174,10 +174,10 @@ public sealed record MouseLook
     /// <item>the spy: <c>gun_look</c> with the gun drawn (WeaponLoaded 2), else <c>free_look</c> over its response
     /// curve's divisor; times <c>binoculars</c> under the binoculars.</item>
     /// </list>
-    /// The mouse ignores the groups' <c>vertical</c>; the controller groups (<see cref="Pad"/>) keep it.
+    /// Neither the mouse nor the controller groups (<see cref="Pad"/>) use the groups' <c>vertical</c>.
     /// </summary>
     [Provenance(ProvenanceKind.Decoded, "Reloaded.Core 0x100b6b70 (mouse: cl = 0): spy group 0x103ff9b0 (free 9b0, gun 9b4, sticky cam 9bc, binoculars 9c0, free curve 9cc), merc group 0x103ffa04 (look a04, cam net a0c, scope a10, scope vertical a14); bBinocularVision (0xc38 & 0x2000000) multiplies; vertical only on the pad path")]
-    [Provenance(ProvenanceKind.Estimated, "controller groups: the vertical scale relative to the side's default (3.5 spy, 1.0 merc), as before")]
+    [Provenance(ProvenanceKind.Decoded, "Reloaded.Core 0x100b2840 (pad): the same group fields from 0x103ff988 (spy) and 0x103ff9d8 (merc); the groups' vertical is not read")]
     public (float Horizontal, float Vertical) Multipliers(SPlayerController pc)
     {
         ArgumentNullException.ThrowIfNull(pc);
@@ -188,7 +188,8 @@ public sealed record MouseLook
             return (cam, cam);
         }
 
-        float vertical = !Pad ? 1f : merc ? MercVertical / MercVerticalDefault : SpyVertical / SpyVerticalDefault;
+        // Neither Reloaded's mouse path nor its pad code (0x100b2840) reads the groups' vertical for the look.
+        const float vertical = 1f;
         if (merc)
         {
             float look = MercLook;
@@ -199,7 +200,8 @@ public sealed record MouseLook
         return pc.bBinocularVision ? (spy * SpyScope, spy * SpyScope) : (spy, spy * vertical);
     }
 
-    private static bool InCameraView(SPlayerController pc) =>
+    /// <summary>The controller is in a camera view (sticky camera, camera network): Reloaded's camera-view flag.</summary>
+    public static bool InCameraView(SPlayerController pc) =>
         pc.SBPawn?.UsedObject is SOrientableObject &&
         (GadgetStates.InStickyCamViewState(pc) || pc.StateNode is SPlayerController.s_UseObject_Mirador);
 

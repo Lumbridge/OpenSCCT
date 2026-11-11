@@ -13,7 +13,7 @@ namespace OpenScctGame.Options;
 /// Controller play (rl:input.pad): the controller in use (the last one that sent input, else the first connected)
 /// drives the local player through independent actions (or a saved legacy key layout). The left stick (radial deadzone, optional eight-way snap) is
 /// the analog move (<see cref="LocalInput.PadForward"/>: full circle, a part push walks slower) and also holds the keys
-/// bound to BT_Up/Down/Left/Right past <see cref="MovePress"/>; the right stick adds look counts (deadzone, response curve, vertical
+/// bound to BT_Up/Down/Left/Right past <see cref="MovePress"/>; the right stick adds look counts (deadzone, radial response curve, vertical
 /// scale, the side's pad look multiplier). PadBindingState resolves the side's buttons, held actions and combinations
 /// (<see cref="PadSettings.SpyButtons"/>, <see cref="PadSettings.MercButtons"/>). Legacy assignments still send their
 /// keyboard/mouse events; new actions and local menu commands work without any keyboard binding. The spy runs above the
@@ -214,12 +214,14 @@ public partial class GamepadInput : Node
         if (pad.Aim && !wheelOpen && Session is { } session)
         {
             LookSettings group = Settings.LookOf(merc, pad: true);
-            float k = pad.LookSpeed * (float)delta * LegacyUnitsPerCount / MouseLook.UnitsPerCount;
+            float k = StickCountsPerSecond * pad.LookScale * (float)delta;
             float clutch = group.ClutchOf(_clutchOne.Count > 0, _clutchTwo.Count > 0);
             (float h, float v) = PadMultipliers(session);
             string response = !merc && session.LocalPawn?.WeaponLoaded == 2 ? group.GunLookResponse : group.LookResponse;
-            session.Input.MouseX += Response(look.X * clutch, response) * k * h;
-            session.Input.MouseY -= Response(look.Y * clutch, response) * k * v * pad.VerticalScale;
+            bool camera = session.LocalController is { } viewer && MouseLook.InCameraView(viewer);
+            Vector2 shaped = Shape(look, response) * clutch * CurveGain(response, camera, merc);
+            session.Input.MouseX += shaped.X * k * h;
+            session.Input.MouseY -= shaped.Y * k * v * pad.VerticalScale;
             if (look != Vector2.Zero)
             {
                 Capture(input);
@@ -292,12 +294,32 @@ public partial class GamepadInput : Node
     }
 
     /// <summary>
-    /// Rotation units a count turned (multiplier 1, sensitivity 40, the 1280-wide reference window) when the stick
-    /// speeds were tuned: Speed 6 x 1280 / 640 x 4 x 50 x the tick. The mouse now turns
-    /// <see cref="MouseLook.UnitsPerCount"/> at any window size, so the stick's counts are scaled by the ratio and the
-    /// controller turns as it did in a 1280-wide window.
+    /// The look stick's rate at full deflection with a multiplier of 1, in mouse counts a second. Reloaded's pad code
+    /// writes <c>aMouseX = frame seconds x 62 x stick x multiplier x clutch x 0.5</c> after the frame is presented, and
+    /// the next frame's UInput::ReadInput scales it by 2 / DeltaTime like every input float, so the engine sees
+    /// <c>aMouseX = 62 x stick x multiplier x clutch</c> at any frame rate. A mouse count gives
+    /// <c>0.1 x multiplier / 10 x 2 / DeltaTime</c> (<see cref="MouseLook"/>), so the stick is worth
+    /// 62 / (0.1 / 10 x 2) = 3100 counts a second: 9300 rotation units (51.1 degrees) a second per unit of multiplier.
     /// </summary>
-    private const float LegacyUnitsPerCount = 6f * (1280f / 640f) * 4f * 50f * OpenScct.Core.Sim.DeltaTime;
+    [Provenance(ProvenanceKind.Decoded, "Reloaded.Core 0x100b2840 (Enhanced 4.0 Beta 3): frame ms (0x1036e2bc, written at 0x100a6aae) x 62 / 1000 x 0.5 into PlayerController+0x4d4/+0x4d8 (aMouseX, aMouseY); called from the Present hook (0x100b63e0), before the next frame's ReadInput x 2 / DeltaTime (game 0x109fe9a0)")]
+    public const float StickCountsPerSecond = 62f / (MouseLook.AxisEventScale / MouseLook.MultiplierDivisor * MouseLook.ReadInputScale);
+
+    /// <summary>The look multiplier Reloaded's pad code uses in a camera view (sticky camera, camera network), before the side's cam setting.</summary>
+    [Provenance(ProvenanceKind.Decoded, "Reloaded.Core 0x100b2840: 3.2 in place of the look multiplier while the camera-view flag 0x1036abbc is set; 0x10019b20 then scales by the pad's cam setting x 10 with fSensibiliteSouris 0.4")]
+    public const float CameraStickMultiplier = 3.2f;
+
+    /// <summary>
+    /// What the shaped stick is multiplied by besides the side's look multiplier: the look multiplier is divided by
+    /// the curve's inner scale (so the knee turns at 1x and the rim at 2x, 2.5x or 3x); in a camera view the
+    /// multiplier is <see cref="CameraStickMultiplier"/>, divided by the scale for the merc only (the spy's camera
+    /// views keep the raw curve: its rim turns at 1x and its knee at the scale).
+    /// </summary>
+    [Provenance(ProvenanceKind.Decoded, "Reloaded.Core 0x100b2840: spy free or gun look / table[curve].scale, camera view 3.2 with no division; merc (look or 3.2) / table[curve].scale")]
+    public static float CurveGain(string curve, bool cameraView, bool merc)
+    {
+        float scale = Curve(curve).Scale;
+        return cameraView ? CameraStickMultiplier / (merc ? scale : 1f) : 1f / scale;
+    }
 
     private GameSettings? _padLookFor;
     private MouseLook _padLook = new();
@@ -379,28 +401,47 @@ public partial class GamepadInput : Node
     }
 
     /// <summary>
-    /// Reloaded's response curves (rl:input.curves): Linear; Soft keeps the inner 75 % linear and ramps the outer 25 %
-    /// to 2x; Medium and Aggressive ramp to 2.5x and 3x.
+    /// Reloaded's response curves of the look stick (rl:input.curves), as its pad code shapes them: the curve acts on
+    /// the stick's length (after the deadzone), never on each axis, so a diagonal push turns as fast as a straight one
+    /// and the direction of the push is kept. Each curve is a knee and an inner scale (Linear 1 and 1; Soft 0.75 and
+    /// 0.5; Medium 0.75 and 0.4; Aggressive 0.75 and 1/3): up to the knee the length rises in a straight line to the
+    /// scale, past it by the square of the way to the rim up to 1. With the look multiplier divided by the scale
+    /// (<see cref="CurveGain"/>) the inner 75 % is linear and reaches 1x at the knee, and the outer 25 % eases (no
+    /// jump in speed at the knee) up to 2x, 2.5x or 3x at the rim. A sensitivity clutch multiplies the result.
     /// </summary>
-    [Provenance(ProvenanceKind.Decoded, "spec/reloaded/FEATURES.md rl:input.curves: Soft inner 75 % linear, outer 25 % to 2x; Medium 2.5x; Aggressive 3x")]
-    public static float Response(float v, string curve)
+    [Provenance(ProvenanceKind.Decoded, "Reloaded.Core 0x100b2840 (Enhanced 4.0 Beta 3): radial deadzone with rescale, table 0x103411b0 {knee, scale} = {1, 1}, {0.75, 0.5}, {0.75, 0.4}, {0.75, 0.3333}; a > knee: ((a - knee) / (1 - knee))^2 x (1 - scale) + scale, else scale / knee x a; times direction, look multiplier / scale, clutch")]
+    public static Vector2 Shape(Vector2 stick, string curve)
     {
-        float top = curve switch
+        float len = stick.Length();
+        if (len <= 0f)
         {
-            "CurveSoft" => 2f,
-            "CurveMedium" => 2.5f,
-            "CurveAggressive" => 3f,
-            _ => 1f,
-        };
-        float a = Math.Abs(v);
-        if (top == 1f || a <= 0.75f)
-        {
-            return v;
+            return Vector2.Zero;
         }
 
-        float t = (a - 0.75f) / 0.25f;
-        return Math.Sign(v) * (0.75f + t * (top - 0.75f));
+        (float knee, float scale) = Curve(curve);
+        float a = Math.Min(1f, len);
+        float shaped;
+        if (a > knee)
+        {
+            float t = (a - knee) / (1f - knee);
+            shaped = t * t * (1f - scale) + scale;
+        }
+        else
+        {
+            shaped = scale / knee * a;
+        }
+
+        return stick / len * shaped;
     }
+
+    /// <summary>A response curve's knee and inner scale (Reloaded.Core table 0x103411b0).</summary>
+    private static (float Knee, float Scale) Curve(string curve) => curve switch
+    {
+        "CurveSoft" => (0.75f, 0.5f),
+        "CurveMedium" => (0.75f, 0.4f),
+        "CurveAggressive" => (0.75f, 1f / 3f),
+        _ => (1f, 1f),
+    };
 
     /// <summary>Sends a key or mouse button (IK name) as a real Godot event, as the keyboard or mouse would.</summary>
     public static void Send(Viewport? viewport, string ik, bool down)

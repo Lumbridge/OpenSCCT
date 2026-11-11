@@ -600,7 +600,7 @@ Faithful renderer rather than ports.
 - **Players get:** a held button that applies a temporary multiplier (one for spy, two for merc).
 - **Config:** `clutch_one`, `clutch_one_enabled`, `clutch_two`, `clutch_two_enabled` in the groups above;
   controller binds "Right Clutch" (spy), "Left Clutch" (merc).
-- **Rewrite:** input actions `clutch_1`, `clutch_2`; multiplier applied before the response curve.
+- **Rewrite:** input actions `clutch_1`, `clutch_2`; multiplier applied after the response curve (decoded, see rl:input.curves).
 - **Priority:** P1.
 
 ### rl:input.curves - Response curves
@@ -609,6 +609,26 @@ Faithful renderer rather than ports.
 - **Config:** `*_response` fields: "Linear", "CurveSoft", "CurveMedium", "CurveAggressive".
 - **Rewrite:** same curve family for stick look; mouse stays linear unless chosen.
 - **Priority:** P1.
+- **Decoded (2026-11-11):** the look stick's shaping in `Reloaded.Core.dll` `0x100b2840` (Enhanced 4.0 Beta 3). The
+  curve acts on the stick's length after the radial deadzone, not on each axis. Table `0x103411b0` holds a knee and
+  an inner scale per curve: Linear 1 and 1, Soft 0.75 and 0.5, Medium 0.75 and 0.4, Aggressive 0.75 and 1/3. Up to
+  the knee the length is `scale / knee x a`; past it `((a - knee) / (1 - knee))^2 x (1 - scale) + scale`. The look
+  multiplier is divided by the scale, so the inner 75 % reaches 1x at the knee and the outer 25 % eases (square) to
+  2x, 2.5x or 3x at the rim. The clutch multiplies after the curve, and the vertical axis is also times
+  `controller_right_thumb_vertical_sensitivty`. No smoothing and no ramp over time. `GamepadInput.Shape` follows it.
+  The turn rate (decoded the same day): the pad code runs from the Present hook (`0x100b63e0`) and writes
+  `aMouseX = frame seconds x 62 x stick x multiplier x clutch x 0.5` (frame ms at `0x1036e2bc`, written at `0x100a6aae`,
+  wall clock, not clamped) into PlayerController +0x4d4 and +0x4d8; the next frame's `UInput::ReadInput` (game
+  `0x109fe9a0`) scales it by 2 / DeltaTime, so the engine sees `aMouseX = 62 x stick x multiplier x clutch`, the same
+  at any steady frame rate. That is 3100 mouse counts a second per unit of multiplier: 9300 rotation units (51.1
+  degrees) a second. Spy free look 1.6 Aggressive: 82 degrees a second at the knee, 245 at the rim. A mouse axis event
+  in the same frame replaces the stick's value on that axis (they do not add). Multipliers: spy free or gun look over
+  the curve's scale, times scope under the binoculars; merc look over the scale, times scope in the scope and the
+  vertical also times scope_vertical; the groups' `vertical` is not used. In a camera view the multiplier is a fixed
+  3.2 (over the scale for the merc only), and `0x10019b20` then applies the pad's `cam` x 10 with fSensibiliteSouris
+  0.4. `GamepadInput.StickCountsPerSecond`, `CurveGain` and `CameraStickMultiplier` follow it; our `look_scale`
+  setting (1 = Enhanced) multiplies the whole. Open: whether the engine's DeltaTime is ever clamped against wall time
+  (the stick's rate would change by the ratio).
 
 ### rl:input.menu - Menu cursor speed
 - **Config:** `sens_menu` = 0.75.

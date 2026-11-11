@@ -371,7 +371,7 @@ public partial class OptionsMenu : Control
         Section(g, "Movement & aim", "Base turning speed combines with each role's sensitivity. The vertical multiplier changes up/down speed relative to horizontal turning.");
         Slider(g, "Up/down sensitivity multiplier", "controller.vertical_scale", 0.1f, 3f, 0.05f, p.VerticalScale, v => p.VerticalScale = v);
         Check(g, "Movement speed follows stick tilt", "controller.slow_walk", p.SlowWalk, v => p.SlowWalk = v);
-        Slider(g, "Base controller turning speed", "controller.look_speed", 100f, 3000f, 10f, p.LookSpeed, v => p.LookSpeed = v, "0");
+        Slider(g, "Controller turning speed (1 = Enhanced)", "controller.look_scale", 0.25f, 5f, 0.05f, p.LookScale, v => p.LookScale = v);
         Section(g, "Vibration", "Choose controller feedback strength and test it with a short pulse.");
         Check(g, "Vibration", "controller.rumble", p.Rumble, v => p.Rumble = v);
         Slider(g, "Vibration strength", "controller.rumble_strength", 0f, 100f, 1f, p.RumbleStrength * 100f, v => p.RumbleStrength = v / 100f, "0");

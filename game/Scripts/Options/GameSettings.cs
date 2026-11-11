@@ -396,10 +396,13 @@ public sealed class PadSettings
     [JsonPropertyName("merc_move8")]
     public bool MercMove8 { get; set; }
 
-    /// <summary>Stick speed in look counts a second at full deflection (the pad's look scale before the side's multipliers).</summary>
-    [JsonPropertyName("look_speed")]
-    [Provenance(ProvenanceKind.Estimated, "Reloaded's stick look scaling is not decoded (FEATURES open question 1)")]
-    public float LookSpeed { get; set; } = 900f;
+    /// <summary>
+    /// A multiplier over the look stick's whole speed: 1 is Enhanced's rate (GamepadInput.StickCountsPerSecond),
+    /// which has no such setting. It replaces look_speed (counts a second, default 900, about 4.6 times Enhanced's
+    /// rate), which is no longer read.
+    /// </summary>
+    [JsonPropertyName("look_scale")]
+    public float LookScale { get; set; } = 1f;
 
     internal void Clamp()
     {
@@ -409,7 +412,7 @@ public sealed class PadSettings
         RunThreshold = LookSettings.Range(RunThreshold, 0.1f, 1f);
         TriggerThreshold = LookSettings.Range(TriggerThreshold, 0f, 0.99f);
         RumbleStrength = LookSettings.Range(RumbleStrength, 0f, 1f);
-        LookSpeed = LookSettings.Range(LookSpeed, 50f, 5000f);
+        LookScale = LookSettings.Range(LookScale, 0.1f, 10f);
         SpyButtons = CleanButtons(SpyButtons, merc: false);
         MercButtons = CleanButtons(MercButtons, merc: true);
         SpyBindingOrder = CleanBindingOrder(SpyBindingOrder);
