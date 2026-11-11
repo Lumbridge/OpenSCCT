@@ -1,5 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <!-- Windows desktop launcher: WinForms on .NET 10, no third-party packages. Publish: see docs/LAUNCHER.md. -->
+  <!-- Windows desktop launcher: WinForms on .NET 10. Publish: see docs/LAUNCHER.md. -->
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net10.0-windows</TargetFramework>
@@ -37,6 +37,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- Keep the Windows-only WMI dependency version in the launcher release fingerprint. -->
+    <PackageVersion Include="System.Management" Version="10.0.8" />
+    <PackageReference Include="System.Management" />
     <ProjectReference Include="..\OpenScct.Launcher.Core\OpenScct.Launcher.Core.csproj" />
     <Compile Include="..\..\shared\ProjectLinks.cs" Link="Shared\ProjectLinks.cs" />
   </ItemGroup>

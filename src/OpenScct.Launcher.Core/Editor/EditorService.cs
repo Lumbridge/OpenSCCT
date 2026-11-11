@@ -92,6 +92,13 @@ public sealed partial class EditorService
 
     public bool IsRunning => (RunningOverride?.Invoke(_layout.Editor) ?? RunningIn(_layout.Editor)) || UpdateInProgress;
 
+    public bool SharedContentInUse(Func<int, bool> isLiveBridge)
+    {
+        string cli = Path.Combine(_layout.Editor, "ose", "ose.exe");
+        return (RunningOverride?.Invoke(_layout.Editor) ?? RunningIn(_layout.Editor,
+            (pid, exe) => string.Equals(exe, cli, StringComparison.OrdinalIgnoreCase) && isLiveBridge(pid))) || UpdateInProgress;
+    }
+
     public bool NeedsRecovery => File.Exists(Path.Combine(_layout.Editor, ".update", "journal.json"));
 
     public bool UpdateInProgress => IsUpdateInProgress(_layout.Editor);
@@ -106,7 +113,7 @@ public sealed partial class EditorService
         catch (UnauthorizedAccessException) { return true; }
     }
 
-    internal static bool RunningIn(string folder)
+    internal static bool RunningIn(string folder, Func<int, string, bool>? ignore = null)
     {
         string root = Path.GetFullPath(folder).TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar;
         foreach (Process process in Process.GetProcesses())
@@ -117,7 +124,8 @@ public sealed partial class EditorService
                 try
                 {
                     string? exe = process.MainModule?.FileName;
-                    if (exe is not null && exe.StartsWith(root, StringComparison.OrdinalIgnoreCase)) return true;
+                    if (exe is not null && exe.StartsWith(root, StringComparison.OrdinalIgnoreCase)
+                        && ignore?.Invoke(process.Id, exe) != true) return true;
                 }
                 catch (Exception ex) when (ex is Win32Exception or InvalidOperationException or NotSupportedException)
                 {

@@ -290,9 +290,11 @@ internal sealed partial class MainForm
         if (_editor.PrerequisiteProblem() is { } problem) throw new InvalidOperationException(problem);
     }
 
+    private bool EditorUsesSharedContent() => _editor.SharedContentInUse(EditorLiveBridge.IsLiveMcpProcess);
+
     private async Task DownloadEditorContentAsync(CancellationToken cancel)
     {
-        if (_editor.IsRunning) throw new InvalidOperationException("Close the editor before changing shared content.");
+        if (EditorUsesSharedContent()) throw new InvalidOperationException("Close the editor before changing shared content.");
         SetOperation("Downloading editor map assets");
         var index = await _packs.FetchIndexAsync(cancel);
         _packIndex = index;

@@ -767,7 +767,7 @@ internal sealed partial class MainForm : Form
             return;
         }
 
-        using var dialog = new MapsForm(Http, _layout.Packs, Palette, () => _editor.IsRunning);
+        using var dialog = new MapsForm(Http, _layout.Packs, Palette, EditorUsesSharedContent);
         dialog.ShowDialog(this);
         RefreshLocal();
     }
@@ -781,7 +781,6 @@ internal sealed partial class MainForm : Form
     /// </summary>
     private async Task DownloadContentAsync(CancellationToken cancel)
     {
-        if (_editor.IsRunning) throw new InvalidOperationException("Save your work and close the editor and its command-line tools before changing shared content.");
         _downloadingContent = true;
         SetOperation("Downloading game files");
         RefreshLocal();
@@ -799,6 +798,8 @@ internal sealed partial class MainForm : Form
             IReadOnlyList<ContentSharedPack> shared = PackedContent.SharedToFetch(index, _packs);
             IReadOnlyList<ContentMap> maps = PackedContent.MapsToFetch(index, _packs, first);
             int total = shared.Count + maps.Count;
+            if (total > 0 && EditorUsesSharedContent())
+                throw new InvalidOperationException("Save your work and close the editor and its command-line tools before changing shared content.");
             int n = 0;
             // Keep the first download incomplete until its stock maps are installed, so a restart continues
             // fetching missing maps instead of treating an interrupted setup as a later shared-pack update.
