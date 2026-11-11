@@ -65,13 +65,13 @@ public sealed partial class MercAi
             bool placed = _trapLauncher is { } launcher && launcher.Charge < _trapBeforeCharge;
             if (!placed && now < _trapVerifyUntil) return false;
             _trapVerifyUntil = 0f;
-            _trapNext = now + (placed ? 7f : 2f) * Bot.Personality.Tempo;
+            _trapNext = now + (placed ? (SettingUp(now) ? 1.5f : 7f) : 2f) * Bot.Personality.Tempo;
         }
 
         if (!_trapApproach)
         {
             if (now < _trapNext || Difficulty.GadgetUse <= 0f) return false;
-            _trapNext = now + 4f * Bot.Personality.Tempo;
+            _trapNext = now + (SettingUp(now) ? 2f : 4f) * Bot.Personality.Tempo;
             if (!ChooseTrap()) return false;
             float best = float.MaxValue;
             float bestRouteLength = 0f;

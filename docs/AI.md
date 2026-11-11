@@ -219,7 +219,7 @@ and visual inspections. These are bounded heuristic beliefs; learned policies an
   MAXSTEPHEIGHT, with support under the centre as well as the footprint. Immediate neighbours are connected first;
   longer edges are omitted only when a standing walk chain through the exact intermediate columns already reaches
   the target. Crouched chains still allow a faster standing shortcut. A shifted node is also reached by a sidestep
-  at either end of the edge when the straight sweep grazes a jamb. Navigation cache version 16 rebuilds older graphs.
+  at either end of the edge when the straight sweep grazes a jamb. Navigation cache version 17 rebuilds older graphs.
 - **Drops**: one way, up to three cells out, cleared all the way down; spies to 700 uu (a few points of damage past
   Fell_MinHeightForDmg 600), mercs to 400 (their damage starts at 450); deeper than the damage height costs extra.
   The landing floor must go on for two cells past the landing node in the direction of the drop: a narrow shelf over
@@ -231,7 +231,9 @@ and visual inspections. These are bounded heuristic beliefs; learned policies an
   the line near its high end to the floor under the low end; horizontal pipes (HOH) 190 to 360 uu above a floor, from
   80 uu in from one end (walked into along the bar, then a jump straight up), hand over hand to the far end and a
   drop; fences (FENCE) from the floor on one side, up, over the top and down to the floor on the other, at up to four
-  spots along the fence. Only GEs active under the level's activation mask at the start take part. Poles get no links
+  spots along the fence. Only GEs active under the level's activation mask at the start take part. No running jump is planned whose run-up
+or flight passes within a body's reach of a ladder: the pawn takes hold of it (a jump across a hatch with a ladder in
+it sent the bot back down the ladder it had just climbed). Poles get no links
   (no pole states, and no converted map has a POLE GE). Wall jumps, splits, back-to-wall gaps and barrier hops are not
   planned: they come from geometry, not GEs. Pipe-to-bar and bar-to-zip chains are not planned either.
 
@@ -351,6 +353,16 @@ from the use spot with a line to it and looks round for 7 to 15 s (12 to 30 s wh
 timed from the arrival and shortened by the bot's aggression. Posts and stops near where spies were seen before (the
 patrol memory) are preferred, by the bot's curiosity. Combat, a hack alert, a noise or a planted bomb interrupt the patrol as before; afterwards it
 resumes at the stop that is due.
+
+**Mines first.** While the bot carries a trap it may place and an objective of its sector lacks its traps (SettingUp),
+guarding outweighs a noise or a callout: only a spy in sight, a hack alert, a hit or a bomb takes the bot off its
+mines. It skips the overwatch, stops no longer than 6 s where no wall is found, walks on as soon as the objective has
+its traps, and looks for the next wall after 1.5 to 2 s instead of 4 to 7 s.
+
+**One spy, one merc.** A spy the bot does not see (heard, called out by a team mate, or lost) is left to a nearer
+merc when it is more than 900 uu from the bot and more than 1200 uu from every objective of the bot's sector
+(LeftToMate; not with teamwork at or under 0.3, nor within 3 s of being hit). One callout no longer draws the
+whole team to the same spot.
 
 **Mines and trackers.** An objective wants two traps within 600 uu (its own walls and the lanes into it) while the
 bot's sector is one or two objectives, and one each over a wider sector, so the charges go round. Arriving at a stop

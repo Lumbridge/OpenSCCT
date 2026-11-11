@@ -216,7 +216,8 @@ public sealed partial class MercAi : AiBrain
 
         Span<AiOption> options = stackalloc AiOption[6];
         int n = 0;
-        options[n++] = new AiOption(GGuard, 0.4f + .2f * (1f - Bot.Personality.Aggression));
+        // Mines first: until the sector has its traps, only a spy in sight, a hack or a hit takes the merc off them.
+        options[n++] = new AiOption(GGuard, SettingUp(now) ? 1.2f : 0.4f + .2f * (1f - Bot.Personality.Aggression));
         _target = null;
         _investigating = null;
         AiContact? lost = null;
@@ -233,6 +234,7 @@ public sealed partial class MercAi : AiBrain
                 }
             }
             else if ((c.Confidence > 0.2f || c.Visible && c.Spot > 0f) && (c.Visible || Search.CanSearch(c, now)) &&
+                !LeftToMate(c, now) &&
                 (lost is null || c.Visible && !lost.Visible || c.Visible == lost.Visible && c.Confidence > lost.Confidence))
             {
                 lost = c;

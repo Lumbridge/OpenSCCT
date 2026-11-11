@@ -57,10 +57,91 @@ public sealed partial class MercAi
         _sector.AddRange(World.Defence.Sector(Pawn, now));
     }
 
+    private float _setupAt = -100f;
+    private bool _setup;
+
+    /// <summary>
+    /// The merc still owes its sector mines: it carries one it may place and an objective of the sector lacks its
+    /// traps (one it stopped at within the last 45 s without managing counts as tried). While this holds the merc
+    /// walks straight from objective to objective, places without the usual pauses and is not drawn off by noises
+    /// or callouts, so the traps are down before the spies arrive.
+    /// </summary>
+    private bool SettingUp(float now)
+    {
+        if (now - _setupAt < 1f && now >= _setupAt)
+        {
+            return _setup;
+        }
+
+        _setupAt = now;
+        _setup = false;
+        if (!CanTrap())
+        {
+            return false;
+        }
+
+        RefreshSector(now);
+        foreach (SObjectiveTrigger t in _sector)
+        {
+            if (Defensible(t) && NeedsTrap(t) &&
+                (ReferenceEquals(t, _post) || !_visited.TryGetValue(t, out float at) || now - at > 45f))
+            {
+                _setup = true;
+                break;
+            }
+        }
+
+        return _setup;
+    }
+
+    /// <summary>
+    /// A spy this merc does not see, away from the objectives it defends, with another merc nearer: that one goes.
+    /// Without this one callout or noise drew the whole team to the same spot and left the other objectives open.
+    /// </summary>
+    private bool LeftToMate(AiContact contact, float now)
+    {
+        if (contact.Visible || Difficulty.Teamwork <= .3f || now - Bot.HurtAt < 3f)
+        {
+            return false;
+        }
+
+        float mine = (contact.Position - Pawn.Location).Size();
+        if (mine < AiK.MercOwnGround)
+        {
+            return false;
+        }
+
+        RefreshSector(now);
+        foreach (SObjectiveTrigger t in _sector)
+        {
+            if ((t.Location - contact.Position).Size() < AiK.MercSectorReach)
+            {
+                return false;
+            }
+        }
+
+        foreach (SPAWNDEFENSE mate in World.Level.DynamicActors<SPAWNDEFENSE>())
+        {
+            if (!ReferenceEquals(mate, Pawn) && mate is { bDeleteMe: false, Health: > 0, bSleeping: false, bLyingOnGround: false } &&
+                (contact.Position - mate.Location).Size() < mine)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private void Guard(float now, ref AiPlan plan)
     {
         RefreshSector(now);
         if (DefendWithTrap(now, ref plan)) return;
+        // This objective has its traps and another still lacks them: on to that one now.
+        if (_post is not null && _postReached && SettingUp(now) && !NeedsTrap(_post))
+        {
+            _postUntil = MathF.Min(_postUntil, now);
+        }
+
         if ((_post is null && now >= _postUntil) ||
             (_post is not null && (!Defensible(_post) || now > _postUntil || (_sector.Count > 0 && !_sector.Contains(_post)))))
         {
@@ -148,6 +229,12 @@ public sealed partial class MercAi
         }
 
         _postUntil = now + stay;
+        if (SettingUp(now))
+        {
+            // No overwatch and no long stop while mines are owed: a few seconds to find a wall here, then on.
+            _watchYaw = -1;
+            _postUntil = now + 6f;
+        }
     }
 
     /// <summary>

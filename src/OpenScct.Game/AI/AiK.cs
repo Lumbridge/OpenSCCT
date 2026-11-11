@@ -234,6 +234,12 @@ public static class AiK
     /// <summary>Range at which a merc engages.</summary>
     public const float MercEngageRange = 2500f;
 
+    /// <summary>A spy believed this near a merc is his to check, whoever else is about (uu).</summary>
+    public const float MercOwnGround = 900f;
+
+    /// <summary>A spy believed this near an objective of a merc's sector is his to check (uu).</summary>
+    public const float MercSectorReach = 1200f;
+
     /// <summary>Seconds of a rifle burst and the pause after it.</summary>
     public const float BurstSeconds = 0.3f;
 
