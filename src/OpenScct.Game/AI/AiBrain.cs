@@ -20,6 +20,8 @@ public abstract class AiBrain
 {
     private float _nextDecision;
     private float _failedAt = -10f;
+    private int _failCount;
+    private bool _failNoted;
     private readonly List<int> _scratchNodes = new();
     private float[]? _reachabilityCosts;
 
@@ -158,6 +160,8 @@ public abstract class AiBrain
         Follower.Clear();
         Doors.Reset();
         Goal = -1;
+        _failCount = 0;
+        _failNoted = false;
         Array.Clear(_optionNoiseUntil);
     }
 
@@ -172,10 +176,26 @@ public abstract class AiBrain
         bool moved = !Follower.HasGoal || NavFollower.Horizontal(Follower.Goal - floor) > 48f || MathF.Abs(Follower.Goal.Z - floor.Z) > 60f;
         if (moved || Follower.Failed)
         {
-            // A goal that just failed is not planned again every tick.
-            if (!moved && now - _failedAt < 1.5f)
+            // A goal that failed is not planned again every tick, and one that keeps failing is tried less and
+            // less often (1.5 s, 5 s, then every 15 s): a bot no longer grinds on the same obstacle in a loop.
+            if (moved)
             {
-                return false;
+                _failCount = 0;
+                _failNoted = false;
+            }
+            else
+            {
+                if (Follower.Failed && !_failNoted)
+                {
+                    _failNoted = true;
+                    _failedAt = now;
+                    _failCount++;
+                }
+
+                if (now - _failedAt < (_failCount <= 1 ? 1.5f : _failCount == 2 ? 5f : 15f))
+                {
+                    return false;
+                }
             }
 
             if (this is SpyAi spy)
@@ -184,11 +204,18 @@ public abstract class AiBrain
                 penalty = n => (other?.Invoke(n) ?? 0f) + spy.Security.Penalty(Bot, Follower.Graph.Node(n).Floor);
             }
 
+            _failNoted = false;
             if (!Follower.SetGoal(Pawn, floor, stealth, penalty))
             {
                 _failedAt = now;
+                _failNoted = true;
+                _failCount++;
                 return false;
             }
+        }
+        else if (Follower.Arrived)
+        {
+            _failCount = 0;
         }
 
         // A closed door on the route takes the keys while it is opened or waited for.

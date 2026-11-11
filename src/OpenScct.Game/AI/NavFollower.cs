@@ -48,6 +48,8 @@ public sealed partial class NavFollower
     private readonly List<NavStep> _path = new();
     private readonly List<int> _goalNodes = new();
     private readonly HashSet<int> _avoid = new();
+    private FVector _goalBefore;
+    private bool _hasGoalBefore;
     private int _next;
     private FVector _goal;
     private bool _hasGoal;
@@ -55,6 +57,10 @@ public sealed partial class NavFollower
     private float _stealth;
     private Func<int, float>? _penalty;
     private float _progressAt = -1f;
+    private float _steeredAt = -100f;
+    private int _calmHealth = int.MaxValue;
+    private readonly Dictionary<int, int> _interrupted = new();
+    private readonly List<int> _avoidScratch = new();
     private float _bestRemaining;
     private int _replans;
 
@@ -108,6 +114,9 @@ public sealed partial class NavFollower
     public int Plans { get; private set; }
 
     /// <summary>The traversal link running, or -1.</summary>
+    /// <summary>Traversals that failed while the pawn was hit or crowded, and were not blamed on the link (diagnostics).</summary>
+    public int LinksInterrupted { get; private set; }
+
     public int ActiveLink => _phase != TPhase.None && _next < _path.Count ? _path[_next].Link : -1;
 
     /// <summary>The pawn is grabbing, climbing, or crossing a fence, including its root-motion transition.</summary>
@@ -145,7 +154,15 @@ public sealed partial class NavFollower
         _hasGoal = true;
         _stealth = stealth;
         _penalty = penalty;
-        _avoid.Clear();
+        // The same goal set again after a failure keeps the places found blocked on the way to it.
+        if (!_hasGoalBefore || Horizontal(_goalBefore - goalFloor) > 48f || MathF.Abs(_goalBefore.Z - goalFloor.Z) > 60f)
+        {
+            _avoid.Clear();
+            _interrupted.Clear();
+        }
+
+        _goalBefore = goalFloor;
+        _hasGoalBefore = true;
         _replans = 0;
         Arrived = false;
         Failed = false;
@@ -272,6 +289,11 @@ public sealed partial class NavFollower
         if (!_hasGoal || Failed)
         {
             return cmd;
+        }
+
+        if (_phase == TPhase.None)
+        {
+            _calmHealth = pawn.Health;
         }
 
         FVector at = pawn.Location;
@@ -676,8 +698,12 @@ public sealed partial class NavFollower
             return true;
         }
 
+        // Only time the follower was steering counts: after a pause it did not steer through (the brain did
+        // something else, a gadget, a freeze) the stuck clock starts again.
+        bool paused = now - _steeredAt > 0.25f || now < _steeredAt;
+        _steeredAt = now;
         float remaining = Remaining(pawn.Location);
-        if (_progressAt < 0f || remaining < _bestRemaining - 24f)
+        if (_progressAt < 0f || paused || remaining < _bestRemaining - 24f)
         {
             _progressAt = now;
             _bestRemaining = remaining;
@@ -720,7 +746,13 @@ public sealed partial class NavFollower
 
         if (_next < _path.Count)
         {
+            // The place ahead and the nodes round it: one node alone is stepped round a cell further on.
             _avoid.Add(_path[_next].Node);
+            Graph.NodesNear(_path[_next].Point, AiK.StuckAvoidRadius, _avoidScratch);
+            foreach (int near in _avoidScratch)
+            {
+                _avoid.Add(near);
+            }
         }
 
         if (++_replans > 6 || !Plan(pawn))
@@ -1249,7 +1281,20 @@ public sealed partial class NavFollower
     {
         _phase = TPhase.None;
         LinksFailed++;
-        _world.MarkBadLink(_spy, step.Link);
+        // Shot on the way, or another pawn in the way: the link itself may be fine. It is tried once more before
+        // it is left out of the whole side's plans for a minute.
+        bool interrupted = pawn.Health < _calmHealth || PawnNear(pawn, AiK.PawnNoJumpGap);
+        _calmHealth = pawn.Health;
+        _interrupted.TryGetValue(step.Link, out int before);
+        if (!interrupted || before >= 1)
+        {
+            _world.MarkBadLink(_spy, step.Link);
+        }
+        else
+        {
+            _interrupted[step.Link] = before + 1;
+            LinksInterrupted++;
+        }
         if (++_replans > 6 || !Plan(pawn))
         {
             Failed = true;

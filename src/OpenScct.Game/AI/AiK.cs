@@ -246,6 +246,9 @@ public static class AiK
     /// <summary>Half the size of a planted charge as a target (uu).</summary>
     public const float BombHalfSize = 9f;
 
+    /// <summary>A place a walker stuck at is avoided with the nodes this near it (uu).</summary>
+    public const float StuckAvoidRadius = 64f;
+
     /// <summary>The torch lights a place this near (uu): its light there decides the torch, as the light at the feet does.</summary>
     public const float TorchReach = 1200f;
 
