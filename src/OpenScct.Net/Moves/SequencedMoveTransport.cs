@@ -76,7 +76,7 @@ public sealed class SequencedMoveTransport : IMoveTransport
     /// <summary>The admitted command currently executing, including its original client clock. Never a received duplicate.</summary>
     public readonly record struct AppliedCommandContext(uint Epoch, uint Sequence, long InputTick, float TimeSeconds, byte Flags);
     public AppliedCommandContext? ApplyingCommand { get; private set; }
-    public string DescribeInputClock() => $"world {_driver.World?.TickCount}, pump {_lastPumpTick}, offset {_inputTickOffset}, appliedInput {_appliedInputTick}, nextInput {_ring[Slot(_applied + 1)].InputTick}, reliable {_ring[Slot(_applied + 1)].CompletedReliable}/{Channel?.Connection.InReliable[Channel.ChIndex]}";
+    public string DescribeInputClock() => $"world {_driver.World?.TickCount}+{_driver.SkippedTicks}, pump {_lastPumpTick}, offset {_inputTickOffset}, appliedInput {_appliedInputTick}, nextInput {_ring[Slot(_applied + 1)].InputTick}, reliable {_ring[Slot(_applied + 1)].CompletedReliable}/{Channel?.Connection.InReliable[Channel.ChIndex]}";
     public string DescribePending() => $"applied {_applied}, received {_highestReceived}, next {_ring[Slot(_applied + 1)].Sequence}/reliable {_ring[Slot(_applied + 1)].RequiredReliable}, epoch {_epoch}, credit {_simulationCredit:F1}, sent {_sent}, ack {_acknowledged}, resend {_resendCursor}, oldest {_ring[Slot(_acknowledged + 1)].Sequence} kind {_ring[Slot(_acknowledged + 1)].Kind} dt {_ring[Slot(_acknowledged + 1)].Delta} msa {_ring[Slot(_acknowledged + 1)].Move.MSATime} vel {_ring[Slot(_acknowledged + 1)].Move.Vel}, resets {ResynchronizationRequests}, rejected {CommandsRejected}: {_lastRejected.Sequence}/{_lastRejected.Kind}/{_lastRejected.Delta}/{_lastRejected.Move.MSATime}/{_lastRejected.Move.Vel}, sentFirst {_lastSentFirst} at {_lastTransmitTick}, ignored {_ignoredBatches}/{_lastIgnoredEpoch}/{_lastIgnoredPawn} pawn {_pawnGuid} reads {_readErrors}";
     public long RecoveredCommands { get; private set; }
     public long DuplicateCommands { get; private set; }
@@ -309,7 +309,10 @@ public sealed class SequencedMoveTransport : IMoveTransport
     {
         SendPendingReset();
         if (!_hasEpoch || !HasCurrentPawn || Channel is not { } channel) return;
-        long tick = _driver.World!.TickCount;
+        // Real elapsed ticks, not world ticks: the host's loop drops the ticks of a stall, while the client kept
+        // producing one command a tick through it. On the world's count alone those commands stay behind the input
+        // clock (and outrun the credit) for the rest of the lifetime: every action lands later after each stall.
+        long tick = _driver.World!.TickCount + _driver.SkippedTicks;
         // Retain enough elapsed simulation time to recover every input still in prediction history.
         // A shorter credit cap permanently discards time during an outage: new input consumes all
         // subsequently earned credit, so the old commands can never catch up. Work is still bounded

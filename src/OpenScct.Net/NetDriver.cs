@@ -302,6 +302,13 @@ public sealed class NetDriver : IDisposable
         }
     }
 
+    /// <summary>
+    /// Server ticks the host's wall-clock loop dropped after stalls (it does not run them later). The world's tick
+    /// count runs this far behind real time, and behind the clients, which kept ticking: per-client input clocks
+    /// (<see cref="Moves.SequencedMoveTransport"/>) add it so a stall does not leave every later input held back.
+    /// </summary>
+    public long SkippedTicks { get; set; }
+
     private World? _world;
 
     /// <summary>The level's net mode (the driver's role when no world is attached).</summary>

@@ -22,13 +22,18 @@ public static class RealtimeLoop
     /// <paramref name="stop"/> says so. After each tick, when <paramref name="idle"/> says the server is empty, it
     /// sleeps a tenth of a second instead of waiting for the next 60 Hz slot.
     /// </summary>
+    /// <param name="skipped">
+    /// Told how many whole ticks a stall's dropped backlog held, before the next tick runs (the idle slowdown is
+    /// not reported: nobody is connected).
+    /// </param>
     public static void Run(IClock clock, CancellationToken token, Action<long> tick, Func<bool>? idle = null,
-        Func<bool>? stop = null, int maxCatchUpTicks = 5)
+        Func<bool>? stop = null, int maxCatchUpTicks = 5, Action<long>? skipped = null)
     {
         ArgumentNullException.ThrowIfNull(clock);
         ArgumentNullException.ThrowIfNull(tick);
         long start = clock.NowMicroseconds;
         long ticks = 0;
+        long skippedRemainder = 0;
         while (!token.IsCancellationRequested && !(stop?.Invoke() ?? false))
         {
             long now = clock.NowMicroseconds;
@@ -49,7 +54,13 @@ public static class RealtimeLoop
 
             if (now - due > VirtualClock.TickToMicroseconds(maxCatchUpTicks, Sim.Hz))
             {
-                start = now - VirtualClock.TickToMicroseconds(ticks + 1, Sim.Hz);
+                long restart = now - VirtualClock.TickToMicroseconds(ticks + 1, Sim.Hz);
+                long whole = SkippedTicks(restart - start, ref skippedRemainder);
+                start = restart;
+                if (whole > 0)
+                {
+                    skipped?.Invoke(whole);
+                }
             }
 
             tick(now);
@@ -61,5 +72,17 @@ public static class RealtimeLoop
                 start = clock.NowMicroseconds - VirtualClock.TickToMicroseconds(ticks, Sim.Hz);
             }
         }
+    }
+
+    /// <summary>
+    /// The whole ticks in a schedule moved later by <paramref name="shiftMicros"/> (a dropped backlog); the part of a
+    /// tick left over stays in <paramref name="remainderMicros"/> for the next drop.
+    /// </summary>
+    public static long SkippedTicks(long shiftMicros, ref long remainderMicros)
+    {
+        remainderMicros += Math.Max(0, shiftMicros);
+        long whole = remainderMicros * Sim.Hz / 1_000_000;
+        remainderMicros -= VirtualClock.TickToMicroseconds(whole, Sim.Hz);
+        return whole;
     }
 }

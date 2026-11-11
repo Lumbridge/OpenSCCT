@@ -590,7 +590,7 @@ public sealed partial class OnlineServer : IDisposable
             Tick(now);
             afterTick?.Invoke(this);
             ReportSlowTicks(now, clock.NowMicroseconds - now);
-        }, () => IsIdle, () => CloseRequested);
+        }, () => IsIdle, () => CloseRequested, skipped: ticks => Host.Driver.SkippedTicks += ticks);
 
     private const long SlowTickMicros = 1_000_000 / Sim.Hz;
     private long _slowTickReportAt;

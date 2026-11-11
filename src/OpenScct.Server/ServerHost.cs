@@ -415,6 +415,7 @@ public sealed partial class ServerHost : INetworkNotify, IDisposable
         using HighResolutionWait wait = HighResolutionWait.Create();
         long start = clock.NowMicroseconds;
         long ticks = 0;
+        long skippedRemainder = 0;
         while (!cancellationToken.IsCancellationRequested)
         {
             long now = clock.NowMicroseconds;
@@ -427,7 +428,9 @@ public sealed partial class ServerHost : INetworkNotify, IDisposable
 
             if (now - due > VirtualClock.TickToMicroseconds(maxCatchUpTicks, Sim.Hz))
             {
-                start = now - VirtualClock.TickToMicroseconds(ticks + 1, Sim.Hz);
+                long restart = now - VirtualClock.TickToMicroseconds(ticks + 1, Sim.Hz);
+                Driver.SkippedTicks += RealtimeLoop.SkippedTicks(restart - start, ref skippedRemainder);
+                start = restart;
             }
 
             Tick(now);
