@@ -188,7 +188,7 @@ public sealed class ConveyorViews
         while (_itemNodes.Count <= index)
         {
             var node = new MeshInstance3D { Name = $"Item{_itemNodes.Count}" };
-            node.SetInstanceShaderParameter(GameplayObjects.VisionActorParameter, SurfaceBuilder.DefaultVision);
+            OpenScctGame.Render.InstanceParams.Set(node, GameplayObjects.VisionActorParameter, SurfaceBuilder.DefaultVision);
             _itemRoot.AddChild(node);
             _itemNodes.Add(node);
         }

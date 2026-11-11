@@ -153,12 +153,12 @@ public sealed class Coronas
             float roll = ((s * c.Rotation01 * 16384f) + c.RotationOffset) * (MathF.Tau / 65536f);
             node.Visible = true;
             float halfMetres = UeSpace.LengthToGodot(half);
-            node.SetInstanceShaderParameter(SizeParam, new Vector4(halfMetres, roll, 0f, 0f));
+            OpenScctGame.Render.InstanceParams.Set(node, SizeParam, new Vector4(halfMetres, roll, 0f, 0f));
             // Estimated (the corona colour's source is not decoded): the corona follows the light's FDynamicLight colour,
             // which carries its light type, so a pulsing or flickering light's corona pulses and flickers with it.
             float m = _lights[i] is { } light ? WorldLights.Modulation(light, _map.Time) : 1f;
             Color k = c.Colour * (0.5f * fade * m * RenderK.CoronaStageGain);
-            node.SetInstanceShaderParameter(ColourParam, new Vector4(k.R, k.G, k.B, 1f));
+            OpenScctGame.Render.InstanceParams.Set(node, ColourParam, new Vector4(k.R, k.G, k.B, 1f));
             if (node.IsInsideTree())
             {
                 _drawn.Add(new CoronaSampleEffect.Sample(node.GlobalPosition, halfMetres));

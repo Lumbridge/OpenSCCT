@@ -1410,7 +1410,7 @@ public static class MapBuilder
 
             var node = new MeshInstance3D { Name = actor.Length > 0 ? actor : meshName, Mesh = arrayMesh, Transform = transform, Visible = !hidden };
             _gameplay.AddChild(node);
-            node.SetInstanceShaderParameter(OpenScctGame.Render.GameplayObjects.VisionActorParameter, vision);
+            OpenScctGame.Render.InstanceParams.Set(node, OpenScctGame.Render.GameplayObjects.VisionActorParameter, vision);
             if (light == LightSource.Actor)
             {
                 ActorLighting.SetEchelonIgnore(node, echelon);

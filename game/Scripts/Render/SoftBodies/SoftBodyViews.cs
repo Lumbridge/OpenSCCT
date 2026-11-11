@@ -71,7 +71,7 @@ public sealed class SoftBodyViews
             return false;
         }
 
-        body.Node.SetInstanceShaderParameter(GameplayObjects.VisionActorParameter, vision);
+        OpenScctGame.Render.InstanceParams.Set(body.Node, GameplayObjects.VisionActorParameter, vision);
         if (light == LightSource.Actor)
         {
             ActorLighting.SetEchelonIgnore(body.Node, echelon);

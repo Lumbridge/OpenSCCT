@@ -157,6 +157,9 @@ internal static class RdShadowPass
         s_mutable.AddOrUpdate(mesh, s_mark);
     }
 
+    /// <summary>True for a mesh marked <see cref="MarkMutable"/>: its surfaces and its box can change while its resource stays.</summary>
+    internal static bool IsMutable(Mesh mesh) => s_mutable.TryGetValue(mesh, out _);
+
     /// <summary>The current shape of a mesh that is rewritten in place, handed over by whoever rewrites it.</summary>
     private sealed class DynamicSource
     {

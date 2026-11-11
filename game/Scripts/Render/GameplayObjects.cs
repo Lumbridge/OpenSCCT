@@ -98,7 +98,7 @@ public static class GameplayObjects
             bool hidden = actor.Bool("bHidden") || ModeDependent.Contains(actor.ShortClass);
             var node = new MeshInstance3D { Name = actor.Id, Mesh = arrayMesh, Transform = transform, Visible = !hidden };
             parent.AddChild(node);
-            node.SetInstanceShaderParameter(VisionActorParameter, actor.Vision());
+            OpenScctGame.Render.InstanceParams.Set(node, VisionActorParameter, actor.Vision());
             var lightSphere = ActorLighting.SphereOf(arrayMesh, transform);
             float radius = lightSphere.Radius;
             int glow = actor.Int("AmbientGlow");
@@ -185,7 +185,7 @@ public static class GameplayObjects
             owner.Node.GetParent().AddChild(node);
             if (map.Actors.Find(owner.ActorId) is { } a)
             {
-                node.SetInstanceShaderParameter(VisionActorParameter, a.Vision());
+                OpenScctGame.Render.InstanceParams.Set(node, VisionActorParameter, a.Vision());
             }
 
             ActorLighting.Apply(node, map.LightActor(location, owner.Radius, owner.AmbientGlow));
@@ -264,7 +264,7 @@ public static class GameplayObjects
         {
             if (actors.Find(g.ActorId) is { } actor)
             {
-                g.Node.SetInstanceShaderParameter(VisionActorParameter, actor.Vision());
+                OpenScctGame.Render.InstanceParams.Set(g.Node, VisionActorParameter, actor.Vision());
                 if (g.Light == LightSource.Actor)
                 {
                     ActorLighting.SetEchelonIgnore(g.Node, ActorLighting.EchelonCode(map, actor));

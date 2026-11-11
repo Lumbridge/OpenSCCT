@@ -433,7 +433,7 @@ public sealed class MeshFollower
         _drawMesh = _mesh0;
         _wholeSkin = entry.Node.MaterialOverride;
         _drawnVisible = _visible0;
-        _vision = entry.Node.GetInstanceShaderParameter(GameplayObjects.VisionActorParameter).AsVector4();
+        _vision = OpenScctGame.Render.InstanceParams.Get(entry.Node, GameplayObjects.VisionActorParameter).AsVector4();
         Replaceable = !actor.bStatic && !actor.bNoDelete;
         Moved = mapPlace is { } m && Away(_location0 - m.Location, _rotation0, m.Rotation);
     }
@@ -629,7 +629,7 @@ public sealed class MeshFollower
         if (vision != _vision)
         {
             _vision = vision;
-            node.SetInstanceShaderParameter(GameplayObjects.VisionActorParameter, vision);
+            OpenScctGame.Render.InstanceParams.Set(node, GameplayObjects.VisionActorParameter, vision);
         }
 
         node.Layers = attached && carrier is { ShadowOnly: true }

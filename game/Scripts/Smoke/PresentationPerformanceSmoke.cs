@@ -75,7 +75,7 @@ public sealed class PresentationPerformanceSmoke : SmokeTest
             if (cached.Slots.Count > 0) cached.SplitPart(cached.Slots[0]);
             cached.SetVision(vision);
             foreach (MeshInstance3D mesh in cached.Meshes)
-                if (mesh.GetInstanceShaderParameter(GameplayObjects.VisionActorParameter).AsVector4() != vision)
+                if (OpenScctGame.Render.InstanceParams.Get(mesh, GameplayObjects.VisionActorParameter).AsVector4() != vision)
                     throw new InvalidOperationException("Vision differs after repeat/split");
             return poses;
         }

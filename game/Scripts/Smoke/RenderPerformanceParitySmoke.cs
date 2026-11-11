@@ -447,13 +447,13 @@ internal sealed class ActorUploadFixture
     private static void Original(GeometryInstance3D node, ActorLightSet set)
     {
         float code = node.HasMeta(Echelon) ? (float)node.GetMeta(Echelon) : 0f;
-        node.SetInstanceShaderParameter(Ambient, new Vector4(set.Ambient.X, set.Ambient.Y, set.Ambient.Z, code));
+        OpenScctGame.Render.InstanceParams.Set(node, Ambient, new Vector4(set.Ambient.X, set.Ambient.Y, set.Ambient.Z, code));
         for (int i = 0; i < 4; i++)
         {
             PackedLight p = i < set.Count ? set.Lights[i] : default;
-            node.SetInstanceShaderParameter(Positions[i], p.Pos);
-            node.SetInstanceShaderParameter(Colours[i], p.Col);
-            node.SetInstanceShaderParameter(Spots[i], i < set.Count ? p.Spot : new Vector4(0, 0, 0, -2));
+            OpenScctGame.Render.InstanceParams.Set(node, Positions[i], p.Pos);
+            OpenScctGame.Render.InstanceParams.Set(node, Colours[i], p.Col);
+            OpenScctGame.Render.InstanceParams.Set(node, Spots[i], i < set.Count ? p.Spot : new Vector4(0, 0, 0, -2));
         }
     }
 

@@ -163,8 +163,8 @@ public partial class CombatFxView
         if (p.Tint is { } tint)
         {
             node.MaterialOverride = TintedProjectionMaterial(p.ProjTexture.Path!, texture);
-            node.SetInstanceShaderParameter("svm_tint", new Color(tint.R / 255f, tint.G / 255f, tint.B / 255f, tint.A / 255f));
-            node.SetInstanceShaderParameter("svm_flip_v", p.FlipV ? 1f : 0f);
+            OpenScctGame.Render.InstanceParams.Set(node, "svm_tint", new Color(tint.R / 255f, tint.G / 255f, tint.B / 255f, tint.A / 255f));
+            OpenScctGame.Render.InstanceParams.Set(node, "svm_flip_v", p.FlipV ? 1f : 0f);
         }
         else if (ProjectionMaterial(p.ProjTexture.Path) is { } material)
         {

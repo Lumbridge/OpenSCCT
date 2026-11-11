@@ -485,10 +485,10 @@ public sealed class SkeletalModel : OpenScctGame.Views.IFirstPersonRigModel
             mesh.GetParent().AddChild(part);
             foreach (StringName p in InstanceParameters)
             {
-                Variant value = mesh.GetInstanceShaderParameter(p);
+                Variant value = OpenScctGame.Render.InstanceParams.Get(mesh, p);
                 if (value.VariantType != Variant.Type.Nil)
                 {
-                    part.SetInstanceShaderParameter(p, value);
+                    OpenScctGame.Render.InstanceParams.Set(part, p, value);
                 }
             }
 
@@ -1109,7 +1109,7 @@ public sealed class SkeletalModel : OpenScctGame.Views.IFirstPersonRigModel
     public static void SetTint(MeshInstance3D mesh, Vector3 rgb, float strength)
     {
         ArgumentNullException.ThrowIfNull(mesh);
-        mesh.SetInstanceShaderParameter(TintParameter, new Vector4(rgb.X, rgb.Y, rgb.Z, strength));
+        OpenScctGame.Render.InstanceParams.Set(mesh, TintParameter, new Vector4(rgb.X, rgb.Y, rgb.Z, strength));
     }
 
     /// <summary>
@@ -1121,9 +1121,11 @@ public sealed class SkeletalModel : OpenScctGame.Views.IFirstPersonRigModel
         Vector4 value = radians is { } r ? new Vector4(r, 1f, diffuse ? 1f : 0f, 0f) : Vector4.Zero;
         foreach (MeshInstance3D mesh in _meshes)
         {
-            Variant previous = mesh.GetInstanceShaderParameter(GlowHueParameter);
+            Variant previous = OpenScctGame.Render.InstanceParams.Get(mesh, GlowHueParameter);
             value.W = previous.VariantType == Variant.Type.Vector4 ? previous.AsVector4().W : 0f;
-            mesh.SetInstanceShaderParameter(GlowHueParameter, value);
+            // Called every frame for every character (GoggleGlowView): written only when it changes.
+            if (previous.VariantType == Variant.Type.Vector4 && previous.AsVector4() == value) continue;
+            OpenScctGame.Render.InstanceParams.Set(mesh, GlowHueParameter, value);
         }
     }
 
@@ -1132,10 +1134,10 @@ public sealed class SkeletalModel : OpenScctGame.Views.IFirstPersonRigModel
     {
         foreach (MeshInstance3D mesh in _meshes)
         {
-            Variant previous = mesh.GetInstanceShaderParameter(GlowHueParameter);
+            Variant previous = OpenScctGame.Render.InstanceParams.Get(mesh, GlowHueParameter);
             Vector4 value = previous.VariantType == Variant.Type.Vector4 ? previous.AsVector4() : Vector4.Zero;
             value.W = 1f;
-            mesh.SetInstanceShaderParameter(GlowHueParameter, value);
+            OpenScctGame.Render.InstanceParams.Set(mesh, GlowHueParameter, value);
         }
     }
 
@@ -1310,7 +1312,7 @@ public sealed class SkeletalModel : OpenScctGame.Views.IFirstPersonRigModel
 
         foreach (MeshInstance3D mesh in _meshes)
         {
-            mesh.SetInstanceShaderParameter(GameplayObjects.VisionActorParameter, vision);
+            OpenScctGame.Render.InstanceParams.Set(mesh, GameplayObjects.VisionActorParameter, vision);
         }
 
         _visionDrawn = vision;

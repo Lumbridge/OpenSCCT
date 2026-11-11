@@ -49,7 +49,7 @@ internal sealed class RdCoronas
                 _textures[material] = texture;
             }
 
-            Variant shape = node.GetInstanceShaderParameter(s_corona), colour = node.GetInstanceShaderParameter(s_colour);
+            Variant shape = OpenScctGame.Render.InstanceParams.Get(node, s_corona), colour = OpenScctGame.Render.InstanceParams.Get(node, s_colour);
             if (shape.VariantType == Variant.Type.Nil || colour.VariantType == Variant.Type.Nil) continue;
             _visible.Add((texture, node.GlobalPosition, shape.AsVector4(), colour.AsVector4()));
         }

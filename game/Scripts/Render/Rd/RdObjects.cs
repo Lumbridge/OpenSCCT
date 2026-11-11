@@ -205,6 +205,7 @@ internal sealed class RdObjects
     // transform alone: its mesh's box, and bit 0 known, bit 1 a sprite turned to the camera, bit 2 skinned. A node is
     // looked at in full again whenever it is in view, and in turn with the others (RecheckPerFrame).
     private readonly List<(Aabb Box, byte State)> _seen = [];
+    private readonly Dictionary<MeshInstance3D, (Rid Base, Mesh Mesh, int Surfaces, Aabb Box)> _meshOf = new(ReferenceEqualityComparer.Instance);
     private Node? _walked;
 
     /// <summary>Set when a node entered or left the tree: the next <see cref="Gather"/> walks the scene again.</summary>
@@ -353,6 +354,7 @@ internal sealed class RdObjects
             _walked = root;
             _nodes.Clear();
             _seen.Clear();
+            _meshOf.Clear();
             _stack.Clear();
             _stack.Push(root);
             while (_stack.Count > 0)
@@ -430,7 +432,24 @@ internal sealed class RdObjects
                 }
             }
 
-            if (node.Mesh is not { } mesh || !node.IsVisibleInTree()) continue;
+            // The node's mesh, its surface count and its box from the last look, while the node still shows the same
+            // mesh resource (one read of its RID instead of three reads and a wrapper lookup).
+            Rid shown = node.GetBase();
+            if (!_meshOf.TryGetValue(node, out (Rid Base, Mesh Mesh, int Surfaces, Aabb Box) held) || held.Base != shown || !shown.IsValid)
+            {
+                if (node.Mesh is not { } fresh) continue;
+                held = (shown, fresh, fresh.GetSurfaceCount(), fresh is ArrayMesh { CustomAabb.Size: var size } sized && size != Vector3.Zero ? sized.CustomAabb : fresh.GetAabb());
+                _meshOf[node] = held;
+            }
+
+            Mesh mesh = held.Mesh;
+            if (!node.IsVisibleInTree()) continue;
+            // A mesh its owner rebuilds in place (escalator steps): nothing of it is kept.
+            if (RdShadowPass.IsMutable(mesh))
+            {
+                held = (shown, mesh, mesh.GetSurfaceCount(), mesh is ArrayMesh { CustomAabb.Size: var rebuilt } again && rebuilt != Vector3.Zero ? again.CustomAabb : mesh.GetAabb());
+            }
+
             // Actors, characters and the first-person model. Effects (their own shaders) and a body hidden from its
             // own eyes (the shadow-only layer) are not this pass's.
             // Template materials on the effects layer too (light sprites); the effects' own shaders are not described.
@@ -455,7 +474,8 @@ internal sealed class RdObjects
             if (turned) model = new Transform3D(view, model.Origin);
             // A posed mesh leaves its rest box: it is culled by a generous one.
             s_dynamic.TryGetValue(mesh, out DynamicSource? dynamic);
-            Aabb local = mesh is ArrayMesh { CustomAabb.Size: var custom } own && custom != Vector3.Zero ? own.CustomAabb : mesh.GetAabb();
+            // A mesh rewritten in place keeps its resource and changes its box: read again.
+            Aabb local = dynamic is null ? held.Box : mesh is ArrayMesh { CustomAabb.Size: var custom } own && custom != Vector3.Zero ? own.CustomAabb : mesh.GetAabb();
             // A mesh rewritten in place (cloth) has a new box every time: it is looked at in full every frame.
             _seen[at] = dynamic is null ? (local, (byte)(1 | (turned ? 2 : 0) | (skin is not null ? 4 : 0))) : default;
             Aabb box = model * local;
@@ -464,7 +484,7 @@ internal sealed class RdObjects
             int objectIndex = -1, paletteBase = -1;
             int spotBits = spots(skin is null ? box : box.Grow(1.5f));
             int flares = FlaresReaching(skin is null ? box : box.Grow(1.5f));
-            for (int s = 0; s < mesh.GetSurfaceCount(); s++)
+            for (int s = 0; s < held.Surfaces; s++)
             {
                 if ((node.MaterialOverride ?? node.GetSurfaceOverrideMaterial(s) ?? mesh.SurfaceGetMaterial(s)) is not ShaderMaterial material) continue;
                 if (material is EffectMaterial effect)
@@ -557,10 +577,10 @@ internal sealed class RdObjects
                     // Every surface of the node shares the block: the lights and the cosmetics are the node's.
                     {
                         (block[76], block[77], block[78], block[79]) = (0f, 1f, 0f, 1f);
-                        Put(block, 76, node.GetInstanceShaderParameter(s_visionActor));
-                        Variant tint = node.GetInstanceShaderParameter(s_tint);
+                        Put(block, 76, OpenScctGame.Render.InstanceParams.Get(node, s_visionActor));
+                        Variant tint = OpenScctGame.Render.InstanceParams.Get(node, s_tint);
                         Put(block, 68, tint);
-                        Put(block, 72, node.GetInstanceShaderParameter(s_glowHue));
+                        Put(block, 72, OpenScctGame.Render.InstanceParams.Get(node, s_glowHue));
                         if (tint.VariantType == Variant.Type.Nil) (block[68], block[69], block[70]) = (1f, 1f, 1f);
                         if (ActorLighting.TryGetApplied(node, out Vector4 ambient, out PackedLight[] lights) && lights.Length >= 4)
                         {
@@ -577,12 +597,12 @@ internal sealed class RdObjects
                         }
                         else
                         {
-                            Put(block, 16, node.GetInstanceShaderParameter(s_ambient));
+                            Put(block, 16, OpenScctGame.Render.InstanceParams.Get(node, s_ambient));
                             for (int i = 0; i < 4; i++)
                             {
-                                Put(block, 20 + (i * 12), node.GetInstanceShaderParameter(s_pos[i]));
-                                Put(block, 24 + (i * 12), node.GetInstanceShaderParameter(s_col[i]));
-                                Put(block, 28 + (i * 12), node.GetInstanceShaderParameter(s_spot[i]));
+                                Put(block, 20 + (i * 12), OpenScctGame.Render.InstanceParams.Get(node, s_pos[i]));
+                                Put(block, 24 + (i * 12), OpenScctGame.Render.InstanceParams.Get(node, s_col[i]));
+                                Put(block, 28 + (i * 12), OpenScctGame.Render.InstanceParams.Get(node, s_spot[i]));
                             }
                         }
                     }

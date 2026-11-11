@@ -201,6 +201,8 @@ public sealed partial class SpotShadowLight : IDisposable
     private bool _staticDirty = true;
     private long _staticScheduledStamp;
     private bool _tileByRd;
+    // The last look at the light's casters found one that moves (the tile is then written every frame, or every other).
+    private bool _lastMoving;
     private List<Rect2I>? _rdWritten;
     private (bool Live, FVector Location, FRotator Rotation, float Scale, float Visibility, int Zone, float Soft)? _lastPush;
 
@@ -515,20 +517,28 @@ public sealed partial class SpotShadowLight : IDisposable
 
         // Our own pass draws the casters over the cached static tile, once that tile was written (a frame after the
         // static pass was scheduled) and when it can draw every caster in the frustum as Godot would.
-        if (draw && Rd.RdShadowPass.Enabled && !Rd.RdShadowPass.Failed && _combine && s_staticAtlas.IsValid
-            && _staticCapture is { } cache && cache.Stamp != _staticScheduledStamp)
+        // A tile kept live by a moving caster (a character, a cloth) is written every other frame while the game draws
+        // a hundred frames a second or more, half the tiles in each frame: its shadow is then still drawn fifty times a
+        // second or more, a frame behind its caster at most. A spared frame does not look for the light's casters.
+        bool rdTile = draw && Rd.RdShadowPass.Enabled && !Rd.RdShadowPass.Failed && _combine && s_staticAtlas.IsValid
+            && _staticCapture is { } cache && cache.Stamp != _staticScheduledStamp;
+        if (rdTile && _lastMoving && HalfRate && _tileByRd && _rdWritten is not null && _stillFrames > 0
+            && Engine.GetFramesPerSecond() >= 100.0 && ((Engine.GetProcessFrames() + (ulong)_slot) & 1) == 1)
+        {
+            _asked = null;
+            draw = false;
+            rdTile = false;
+        }
+
+        if (rdTile)
         {
             object job = Rd.RdShadowPass.Begin(TileOrigin(_slot), _size, _camera);
             long[]? found = StaticCasters(camera, out int found_count, out ulong found_rigid, job, out bool moving);
+            _lastMoving = found is not null && moving;
             if (found is not null)
             {
                 bool held = !moving && _tile is { } now && now.Holds(camera, true, _staticRenders, found, found_count, found_rigid);
-                // A tile kept live by a moving caster (a character, a cloth) is written every other frame while the game
-                // draws a hundred frames a second or more, half the tiles in each frame: its shadow is then still drawn
-                // fifty times a second or more, a frame behind its caster at most.
-                bool spared = moving && HalfRate && _tileByRd && _rdWritten is not null && _stillFrames > 0
-                    && Engine.GetFramesPerSecond() >= 100.0 && ((Engine.GetProcessFrames() + (ulong)_slot) & 1) == 1;
-                if (held || spared)
+                if (held)
                 {
                     Rd.RdShadowPass.Discard(job);
                 }
@@ -614,6 +624,10 @@ public sealed partial class SpotShadowLight : IDisposable
     /// fingerprint of the rigid casters in its frustum (<see cref="MarkRigid"/>: which, where, with which mesh), or null
     /// when anything else it draws is in its frustum. The search uses the instance bounds Godot culls the camera with.
     /// </summary>
+    // Instances known to be merged map geometry alone (layers within StaticWorldAll), with those layers: instance ids
+    // are not used again within a run of the game.
+    private static readonly Dictionary<long, uint> s_staticLayers = [];
+
     private long[]? StaticCasters(Transform3D camera, out int count, out ulong rigid) =>
         StaticCasters(camera, out count, out rigid, null, out _);
 
@@ -658,6 +672,14 @@ public sealed partial class SpotShadowLight : IDisposable
         for (int i = 0; i < ids.Length; i++)
         {
             long id = ids[i];
+            // The merged map geometry is most of what a light's frustum holds, and it never changes its layers: once
+            // known it is passed over without asking the engine for its node.
+            if (s_staticLayers.TryGetValue(id, out uint known))
+            {
+                if ((known & drawn) != 0) ids[kept++] = id;
+                continue;
+            }
+
             // An instance without a node (or one being freed) may change unseen: draw the pass.
             if (GodotObject.InstanceFromId((ulong)id) is not VisualInstance3D node)
             {
@@ -714,6 +736,12 @@ public sealed partial class SpotShadowLight : IDisposable
                 hash.Add(at.Origin);
                 rigid += (ulong)(uint)hash.ToHashCode() * 0x9E3779B97F4A7C15UL + 0x632BE59BD9B4E019UL;
                 continue;
+            }
+
+            if ((node.Layers & ~RenderLayers.StaticWorldAll) == 0)
+            {
+                if (s_staticLayers.Count > 200_000) s_staticLayers.Clear();
+                s_staticLayers[id] = node.Layers;
             }
 
             ids[kept++] = id;

@@ -91,7 +91,7 @@ public sealed class CameraMountViews
             if (vision != m.Vision)
             {
                 m.Vision = vision;
-                node.SetInstanceShaderParameter(GameplayObjects.VisionActorParameter, vision);
+                OpenScctGame.Render.InstanceParams.Set(node, GameplayObjects.VisionActorParameter, vision);
             }
 
             if (!m.Lit && node.Mesh is { } mesh)

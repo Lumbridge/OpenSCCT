@@ -398,9 +398,9 @@ public sealed class ActorLighting
     {
         ArgumentNullException.ThrowIfNull(node);
         node.SetMeta(EchelonMeta, (float)code);
-        Vector4 ambient = node.GetInstanceShaderParameter(AmbientParam).AsVector4();
+        Vector4 ambient = OpenScctGame.Render.InstanceParams.Get(node, AmbientParam).AsVector4();
         var updated = new Vector4(ambient.X, ambient.Y, ambient.Z, code);
-        node.SetInstanceShaderParameter(AmbientParam, updated);
+        OpenScctGame.Render.InstanceParams.Set(node, AmbientParam, updated);
         UniformWrites++;
         if (Applied.TryGetValue(node, out AppliedLights? applied)) applied.Ambient = updated;
     }
@@ -431,7 +431,7 @@ public sealed class ActorLighting
         var ambient = new Vector4(set.Ambient.X, set.Ambient.Y, set.Ambient.Z, echelon);
         if (!applied.Known || applied.Ambient != ambient)
         {
-            node.SetInstanceShaderParameter(AmbientParam, ambient);
+            OpenScctGame.Render.InstanceParams.Set(node, AmbientParam, ambient);
             UniformWrites++;
             applied.Ambient = ambient;
         }
@@ -441,17 +441,17 @@ public sealed class ActorLighting
             PackedLight previous = applied.Lights[i];
             if (!applied.Known || previous.Pos != p.Pos)
             {
-                node.SetInstanceShaderParameter(PosParams[i], p.Pos);
+                OpenScctGame.Render.InstanceParams.Set(node, PosParams[i], p.Pos);
                 UniformWrites++;
             }
             if (!applied.Known || previous.Col != p.Col)
             {
-                node.SetInstanceShaderParameter(ColParams[i], p.Col);
+                OpenScctGame.Render.InstanceParams.Set(node, ColParams[i], p.Col);
                 UniformWrites++;
             }
             if (!applied.Known || previous.Spot != p.Spot)
             {
-                node.SetInstanceShaderParameter(SpotParams[i], p.Spot);
+                OpenScctGame.Render.InstanceParams.Set(node, SpotParams[i], p.Spot);
                 UniformWrites++;
             }
             applied.Lights[i] = p;

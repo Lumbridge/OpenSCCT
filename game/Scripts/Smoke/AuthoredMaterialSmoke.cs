@@ -170,7 +170,7 @@ public sealed class AuthoredMaterialSmoke : SmokeTest
         }
         var entry = new MaterialEntry { Name = "authored-check-" + _phase, Texture = "atlas.png", Authored = definition, TwoSided = true, Masked = definition.Surface == "masked", Translucent = definition.Surface == "translucent", Lightmap = _phase == 5 ? "light.png" : null };
         var material = (ShaderMaterial)_compiler!.Build(entry, light);
-        if (_phase == 4 || _phase >= 10) { _quad!.SetInstanceShaderParameter("svm_ambient", new Vector4(.02f, .02f, .02f, 1)); _quad.SetInstanceShaderParameter("svm_l0_pos", new Vector4(1, 2, 2, 1)); _quad.SetInstanceShaderParameter("svm_l0_col", new Vector4(1, 1, 1, 1)); }
+        if (_phase == 4 || _phase >= 10) { _quad!.SetInstanceShaderParameter("svm_ambient", new Vector4(.02f, .02f, .02f, 1)); OpenScctGame.Render.InstanceParams.Set(_quad, "svm_l0_pos", new Vector4(1, 2, 2, 1)); OpenScctGame.Render.InstanceParams.Set(_quad, "svm_l0_col", new Vector4(1, 1, 1, 1)); }
         _quad!.MaterialOverride = material;
         MaterialCompiler.SetVision(_phase switch { 7 => 34, 8 => 36, 9 => 38, _ => RenderK.RendMapNormal });
     }

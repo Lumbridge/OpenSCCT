@@ -584,7 +584,7 @@ public sealed partial class EffectViews : Node3D
                 if (vision != t.Vision)
                 {
                     t.Vision = vision;
-                    mesh.SetInstanceShaderParameter(GameplayObjects.VisionActorParameter, vision);
+                    OpenScctGame.Render.InstanceParams.Set(mesh, GameplayObjects.VisionActorParameter, vision);
                 }
 
                 ApplySkins(t, a, mesh);
