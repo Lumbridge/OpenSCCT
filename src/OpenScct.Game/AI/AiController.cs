@@ -507,7 +507,9 @@ public sealed class AiController
             if (heard > 0f)
             {
                 // A heard noise gives a position as good as the ear: blurred with distance.
-                float blur = SvmMath.Min(300f, (noise.Location - eye).Size() * 0.15f) * (1f - heard);
+                // The ear places a sound roughly, and more roughly the farther it is, however loud.
+                float distance = (noise.Location - eye).Size();
+                float blur = SvmMath.Max(SvmMath.Min(300f, distance * 0.15f) * (1f - heard), distance * AiK.HearingBlur);
                 FVector guess = noise.Location + new FVector(Random.RandRange(-blur, blur), Random.RandRange(-blur, blur), 0f);
                 Memory.Report(who, guess, now, SvmMath.Clamp(0.35f + 0.5f * heard, 0f, 0.85f), AiContactSource.Heard);
             }
@@ -521,7 +523,7 @@ public sealed class AiController
             {
                 AiTeamBoard.Callout call = calls[i];
                 if (!ReferenceEquals(call.From, this) && now - call.Time < 2f + 3f * Difficulty.Teamwork &&
-                    now - call.Time > 0.6f * (1f - Difficulty.Teamwork))
+                    now - call.Time > SvmMath.Max(AiK.CalloutDelay, 0.6f * (1f - Difficulty.Teamwork)))
                 {
                     Memory.Report(call.Enemy, call.Position, call.Time, 0.7f * Difficulty.Teamwork, AiContactSource.Told);
                 }

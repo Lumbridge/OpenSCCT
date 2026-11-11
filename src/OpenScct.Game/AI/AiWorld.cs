@@ -457,18 +457,27 @@ public sealed class AiTeamBoard
 
     public IReadOnlyList<Callout> Callouts => _callouts;
 
+    /// <summary>A called position: where a player would say he is, to the nearest <see cref="AiK.CalloutGrid"/> uu.</summary>
+    private static FVector Rough(FVector p) => new(MathF.Round(p.X / AiK.CalloutGrid) * AiK.CalloutGrid,
+        MathF.Round(p.Y / AiK.CalloutGrid) * AiK.CalloutGrid, p.Z);
+
     public void Call(Pawn enemy, FVector position, float time, float confidence, object from)
     {
         for (int i = 0; i < _callouts.Count; i++)
         {
             if (ReferenceEquals(_callouts[i].Enemy, enemy))
             {
-                _callouts[i] = new Callout(enemy, position, time, confidence, from);
+                // A callout is a few words, not a live feed: one per enemy every 1.5 s.
+                if (time - _callouts[i].Time >= AiK.CalloutSeconds || time < _callouts[i].Time)
+                {
+                    _callouts[i] = new Callout(enemy, Rough(position), time, confidence, from);
+                }
+
                 return;
             }
         }
 
-        _callouts.Add(new Callout(enemy, position, time, confidence, from));
+        _callouts.Add(new Callout(enemy, Rough(position), time, confidence, from));
     }
 
     public void Expire(float now)

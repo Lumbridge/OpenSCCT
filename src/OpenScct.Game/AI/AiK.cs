@@ -246,6 +246,24 @@ public static class AiK
     /// <summary>Half the size of a planted charge as a target (uu).</summary>
     public const float BombHalfSize = 9f;
 
+    /// <summary>Seconds between two callouts of the same enemy.</summary>
+    public const float CalloutSeconds = 1.5f;
+
+    /// <summary>A called position is rounded to this (uu).</summary>
+    public const float CalloutGrid = 128f;
+
+    /// <summary>A callout reaches a team mate no sooner than this (s), whatever the teamwork.</summary>
+    public const float CalloutDelay = 0.4f;
+
+    /// <summary>A heard position is off by at least this share of its distance.</summary>
+    public const float HearingBlur = 0.06f;
+
+    /// <summary>Seconds of the target's motion a merc with LeadFactor 1 aims ahead by.</summary>
+    public const float LeadSeconds = 0.14f;
+
+    /// <summary>Seconds one roll for a frag at a contact stands.</summary>
+    public const float FragRollSeconds = 4f;
+
     /// <summary>A place a walker stuck at is avoided with the nodes this near it (uu).</summary>
     public const float StuckAvoidRadius = 64f;
 

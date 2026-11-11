@@ -97,6 +97,9 @@ public sealed partial class MercAi : AiBrain
     private AiContact? _investigating;
     private FVector _searchFloor;
     private float _investigateArrived = -1f;
+    private AiContact? _fragRolledFor;
+    private float _fragRollUntil = -100f;
+    private bool _fragRollOk;
     private AiContact? _shape;
     private float _shapeSince;
     private float _respondArrivedAt = -1f;
@@ -299,7 +302,17 @@ public sealed partial class MercAi : AiBrain
             }
         }
 
-        if (GrenadeOpportunity(_target ?? lost, now, out FVector grenadeTarget) && Bot.Random.FRand() < Bot.Utility)
+        // One roll per contact per 4 s (rolled at every decision, an Easy merc threw nearly as often as an Expert),
+        // and before the arc is traced.
+        AiContact? fragAt = _target ?? lost;
+        if (fragAt is not null && (!ReferenceEquals(fragAt, _fragRolledFor) || now >= _fragRollUntil))
+        {
+            _fragRolledFor = fragAt;
+            _fragRollUntil = now + AiK.FragRollSeconds;
+            _fragRollOk = Bot.Random.FRand() < Bot.Utility;
+        }
+
+        if (fragAt is not null && _fragRollOk && GrenadeOpportunity(fragAt, now, out FVector grenadeTarget))
         {
             // An accepted tactical throw must beat routine investigation (including its keep-goal bonus).
             // Visible, stationary targets at range are also opportunities; rifle fire is not the only combat option.
@@ -307,7 +320,7 @@ public sealed partial class MercAi : AiBrain
             _fragTarget = grenadeTarget;
             _fragObjective = null;
         }
-        else if (_target is null && _alert is { } alarm && ObjectiveGrenadeOpportunity(alarm, now, out grenadeTarget))
+        else if (_target is null && _alert is { } alarm && Bot.Utility >= 0.3f && ObjectiveGrenadeOpportunity(alarm, now, out grenadeTarget))
         {
             options[n++] = new AiOption(GFrag, 1.95f);
             _fragTarget = grenadeTarget;
@@ -625,7 +638,8 @@ public sealed partial class MercAi : AiBrain
         }
 
         FVector aimPoint = c.Position - new FVector(0f, 0f, c.Pose is { Downed: true } p ? p.CollisionHeight * MercAiK.LyingAimDrop : Bot.Personality.AimHeight);
-        aimPoint += c.Velocity * (Bot.ReactionTime * 0.5f * Difficulty.LeadFactor);
+        // Lead by skill alone (it used to shrink with the reaction time, so Expert led less than Normal).
+        aimPoint += c.Velocity * (AiK.LeadSeconds * Difficulty.LeadFactor);
 
         // Seen is not shootable: glass and grates show a spy and stop the bullet. With the chest covered the head is
         // tried; with both covered the merc holds its fire and walks to a spot with a clear shot, watching him.
