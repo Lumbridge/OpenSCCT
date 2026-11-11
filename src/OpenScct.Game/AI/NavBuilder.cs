@@ -77,6 +77,7 @@ public sealed partial class NavBuilder
         var b = new NavBuilder(world, profile, min, max);
         b.SampleFloors();
         b.Connect();
+        b.NoteLadders(ges, activationMask);
         b.AddJumps();
         if (ges is not null)
         {

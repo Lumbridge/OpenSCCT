@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using OpenScct.Content;
 using OpenScct.Core;
 
@@ -48,6 +49,7 @@ public sealed partial class NavBuilder
                         if (distance < time * _profile.JumpSpeed * 0.7f || distance > time * _profile.JumpSpeed - 12f) continue;
                         // Reject tall walls before the more expensive support queries. The same takeoff is reused
                         // for all destinations in this direction, so validate its run-up only once, on demand.
+                        if (CrossesLadder(runup, b, a.Z, peak)) continue;
                         if (!JumpArcClear(a, direction, time, gravity)) continue;
                         runupClear ??= ContinuousStep(runup, a, 3) && Sweep(runup, a, a.Z, _profile.StandingHeight);
                         if (!runupClear.Value) break;
@@ -63,6 +65,43 @@ public sealed partial class NavBuilder
         }
     }
 
+    // The ladders in play (their line, bottom first), noted before the jumps are planned.
+    private readonly List<(FVector Bottom, FVector Top)> _ladders = new();
+
+    private void NoteLadders(IReadOnlyList<GERecord>? ges, byte mask)
+    {
+        if (ges is null) return;
+        foreach (GERecord ge in ges)
+        {
+            if (ge.Kind != GEKind.LADDER || !ge.IsActive(mask) || ge.Platform == GEPlatform.PS2Only) continue;
+            _ladders.Add(ge.P0.Z <= ge.P1.Z ? (ge.P0, ge.P1) : (ge.P1, ge.P0));
+        }
+    }
+
+    /// <summary>
+    /// The run-up and flight from <paramref name="from"/> to <paramref name="to"/> pass a ladder at the body's
+    /// height. A pawn that runs onto a ladder's top or brushes it in the air takes hold of it, so a jump planned
+    /// across a hatch with a ladder in it (MoonD's tunnel shafts) sent the bot back down the ladder it had just
+    /// climbed, again and again.
+    /// </summary>
+    private bool CrossesLadder(FVector from, FVector to, float floorZ, float peak)
+    {
+        float reach = _profile.Radius + 24f;
+        var along = new FVector(to.X - from.X, to.Y - from.Y, 0f);
+        float length = along.Size();
+        if (length < 1f) return false;
+        along *= 1f / length;
+        foreach ((FVector bottom, FVector top) in _ladders)
+        {
+            if (top.Z < floorZ - 2f * _profile.StandingHeight || bottom.Z > floorZ + peak + 2f * _profile.StandingHeight) continue;
+            float t = Math.Clamp((bottom.X - from.X) * along.X + (bottom.Y - from.Y) * along.Y, 0f, length);
+            float dx = from.X + along.X * t - bottom.X;
+            float dy = from.Y + along.Y * t - bottom.Y;
+            if (dx * dx + dy * dy < reach * reach) return true;
+        }
+
+        return false;
+    }
     private bool SupportedLanding(FVector floor)
     {
         for (int x = -1; x <= 1; x += 2)
