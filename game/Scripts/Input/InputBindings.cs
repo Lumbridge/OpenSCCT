@@ -213,6 +213,10 @@ public sealed class InputBindings
         }
     }
 
+    /// <summary>Replaces a side's saved layout outside a round or the options (the start-up import); false when not written.</summary>
+    public static bool WriteUserFile(PlaySide side, KeyLayout layout) => TryWrite(
+        ProjectSettings.GlobalizePath(side == PlaySide.Spy ? "user://svm_keys_spy.ini" : "user://svm_keys_merc.ini"), layout);
+
     /// <summary>Writes the layout to a user file; false when nothing was written (smoke runs, a write error).</summary>
     private static bool TryWrite(string path, KeyLayout layout)
     {

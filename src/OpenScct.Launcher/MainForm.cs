@@ -1076,12 +1076,14 @@ internal sealed partial class MainForm : Form
     {
         string renderer = GameRendererSettings.Vulkan;
         int monitor = 1;
+        string? enhancedImport = null;
         try
         {
             if (!_editorSelected)
             {
                 renderer = GameRendererSettings.Load(LauncherLayout.GameUserData);
                 monitor = GameMonitorSettings.Load(LauncherLayout.GameUserData);
+                enhancedImport = EnhancedImportRequest.Pending(LauncherLayout.GameUserData);
             }
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
@@ -1090,7 +1092,7 @@ internal sealed partial class MainForm : Form
             return;
         }
 
-        using var dialog = new SettingsForm(_settings, _layout, Palette, renderer, _games.Running().Count > 0, monitor);
+        using var dialog = new SettingsForm(_settings, _layout, Palette, renderer, _games.Running().Count > 0, monitor, enhancedImport);
         if (dialog.ShowDialog(this) != DialogResult.OK)
         {
             return;
@@ -1121,6 +1123,9 @@ internal sealed partial class MainForm : Form
                 GameMonitorSettings.Save(LauncherLayout.GameUserData, dialog.Monitor);
             }
 
+            // The game reads the request when it starts, so a running game takes it at its next start.
+            if (!_editorSelected && dialog.EnhancedImport != enhancedImport)
+                EnhancedImportRequest.Save(LauncherLayout.GameUserData, dialog.EnhancedImport);
             dialog.Result.Save(_layout.Settings);
             _settings = dialog.Result;
         }

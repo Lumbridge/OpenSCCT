@@ -155,7 +155,7 @@ public partial class OptionsMenu : Control
 
         column.AddChild(_tabs);
 
-        _note = new Label { Name = "Note", Modulate = UiStyle.Dim, Text = _edit.LoadNote, AutowrapMode = TextServer.AutowrapMode.WordSmart };
+        _note = new Label { Name = "Note", Modulate = UiStyle.Dim, Text = EnhancedImportStartup.TakeResult() ?? _edit.LoadNote, AutowrapMode = TextServer.AutowrapMode.WordSmart };
         column.AddChild(_note);
         _dirtyLabel = Help("All changes applied");
         column.AddChild(_dirtyLabel);
@@ -165,6 +165,7 @@ public partial class OptionsMenu : Control
                      UiStyle.MenuButton("Apply", () => Save(), "Save"),
                      UiStyle.MenuButton("Save & Close", SaveAndClose, "SaveAndClose"),
                      UiStyle.MenuButton("Reset all", ConfirmDefaults, "Defaults"),
+                     UiStyle.MenuButton("Import from Enhanced", PickEnhancedInstall, "ImportEnhanced"),
                      UiStyle.MenuButton("Back", Back, "Back"),
                  })
         {

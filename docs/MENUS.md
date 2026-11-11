@@ -508,6 +508,16 @@ changes retain the 15-second rollback question, and Save & Close waits for its a
 format. New complete snapshots preserve aliases and intentionally cleared keys across reloads; older overlays
 are still accepted. Merely opening Options does not create key files.
 
+**Import from Enhanced** (the options' bottom row) opens the system folder picker; any folder inside an Enhanced
+SCCT Versus install will do. `EnhancedImport` reads Reloaded's `System\SCCT_Versus.config` (mouse and controller
+sensitivities, controller tuning, display, graphics, HUD and voice settings; controller support is switched on
+when it is on there, never off), and from the folder `System\_Profiles_.lnk` points to, the most recently played
+profile `<name>_prf.ini` (inverted axes, volumes, mouse wheel, gear; not the player name) with its key layouts `<name>_kbd_0.ini` (spy) and `<name>_kbd_1.ini` (merc; one
+layout for both roles when Reloaded's split keyboards are off). Closing the picker without a folder offers the
+profile and key layouts alone, straight from ProgramData (no install needed). The result is staged in the draft like any other
+edit and the note lists what was taken. Not imported: the microphone device, the profile's `MouseSensitivity`
+(without effect in Reloaded) and settings OpenSCCT has no counterpart for.
+
 The redundant mouse **Spy free look response** selector is removed. Loading/clamping an old profile folds its
 fixed gain (1, 2, 2.5 or 3) into `controls_spy_kbm.free_look`, then sets `look_response` to Linear. The free-look
 range extends to 30 so every valid legacy sensitivity retains its turning speed; repeated loads do not multiply

@@ -30,9 +30,13 @@ internal sealed class SettingsForm : Form
     };
     private readonly int _savedMonitor;
 
+    private readonly Label _importStatus = Theme.Label("", Theme.Small, Theme.Muted);
+    private readonly Button _importCancel = Theme.Button("Cancel import");
+
     public SettingsForm(LauncherSettings settings, LauncherLayout layout, ThemePalette? palette = null,
-        string graphicsDriver = GameRendererSettings.Vulkan, bool gameRunning = false, int monitor = 1)
+        string graphicsDriver = GameRendererSettings.Vulkan, bool gameRunning = false, int monitor = 1, string? enhancedImport = null)
     {
+        EnhancedImport = enhancedImport;
         ArgumentNullException.ThrowIfNull(settings);
         ArgumentNullException.ThrowIfNull(layout);
         _layout = layout;
@@ -43,7 +47,7 @@ internal sealed class SettingsForm : Form
         Icon = _editorMode ? Theme.LoadEditorIcon(32) : Theme.LoadIcon(32);
         AutoScaleMode = AutoScaleMode.Dpi;
         AutoScaleDimensions = new SizeF(96f, 96f);
-        ClientSize = new Size(560, _editorMode ? 440 : 540);
+        ClientSize = new Size(560, _editorMode ? 440 : 680);
         MinimumSize = new Size(460, 360);
         FormBorderStyle = FormBorderStyle.Sizable;
         MaximizeBox = false;
@@ -119,6 +123,23 @@ internal sealed class SettingsForm : Form
             Row(Theme.Wrapping(Theme.Label(gameRunning
                 ? "Close the game to change its monitor."
                 : "The screen the game opens on, the same setting as Options > Display > Monitor in the game.", Theme.Small, Theme.Muted)), 4);
+
+            Row(Theme.Label("Import from Enhanced SCCT Versus", Theme.Heading, Theme.Accent), 18);
+            Row(Theme.Wrapping(Theme.Label(
+                "Bring your Enhanced settings into OpenSCCT the next time the game starts: sensitivities, key bindings, display, HUD, voice, volumes and gear. " +
+                "Choose any folder of your Enhanced install. Without the install, only key bindings, volumes and gear can be imported.", Theme.Small, Theme.Muted)), 6);
+            Button choose = Theme.Button("Choose Enhanced folder...");
+            choose.Name = "ChooseEnhancedFolder";
+            choose.Click += (_, _) => ChooseEnhancedFolder();
+            Button profileOnly = Theme.Button("Bindings only (no install)");
+            profileOnly.Name = "ImportEnhancedProfileOnly";
+            profileOnly.Click += (_, _) => SetEnhancedImport("");
+            _importCancel.Name = "CancelEnhancedImport";
+            _importCancel.Click += (_, _) => SetEnhancedImport(null);
+            Row(Theme.Flow(false, choose, profileOnly, _importCancel), 4);
+            _importStatus.Name = "EnhancedImportStatus";
+            Row(Theme.Wrapping(_importStatus), 4);
+            SetEnhancedImport(EnhancedImport);
         }
         Row(Theme.Label("Folders", Theme.Heading, Theme.Accent), 18);
         if (_editorMode)
@@ -164,6 +185,46 @@ internal sealed class SettingsForm : Form
 
     /// <summary>True when the player picked another monitor than the saved one (an untouched choice writes nothing).</summary>
     public bool MonitorChanged => !_editorMode && _monitor.Enabled && _monitor.SelectedIndex >= 0 && Monitor != _savedMonitor;
+
+    /// <summary>
+    /// The Enhanced import to carry out at the game's next start: the install folder, empty for the profile and key
+    /// layouts alone, or null for none (<see cref="EnhancedImportRequest"/>).
+    /// </summary>
+    public string? EnhancedImport { get; private set; }
+
+    private void ChooseEnhancedFolder()
+    {
+        using var picker = new FolderBrowserDialog
+        {
+            Description = "Choose your Enhanced SCCT Versus folder",
+            UseDescriptionForTitle = true,
+            ShowNewFolderButton = false,
+            InitialDirectory = EnhancedImport is { Length: > 0 } current && Directory.Exists(current)
+                ? current : Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory),
+        };
+        if (picker.ShowDialog(this) != DialogResult.OK) return;
+        if (!EnhancedImportRequest.LooksLikeInstall(picker.SelectedPath))
+        {
+            MessageBox.Show(this,
+                "No Enhanced SCCT Versus install was found there.\n\nChoose the install's folder (the one holding System) or any folder inside it.",
+                "Import from Enhanced SCCT Versus", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            return;
+        }
+
+        SetEnhancedImport(picker.SelectedPath);
+    }
+
+    private void SetEnhancedImport(string? folder)
+    {
+        EnhancedImport = folder;
+        _importCancel.Visible = folder is not null;
+        _importStatus.Text = folder switch
+        {
+            null => "Nothing is queued.",
+            "" => "Queued for the next start: key bindings, volumes and gear from this PC's Enhanced profile. Save to confirm.",
+            _ => "Queued for the next start: everything from " + folder + ". Save to confirm.",
+        };
+    }
 
     /// <summary>The player asked to remove downloaded game files; preferences and saves are kept.</summary>
     public bool RemoveGameFilesRequested { get; private set; }

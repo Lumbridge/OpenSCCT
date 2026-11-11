@@ -197,6 +197,8 @@ public partial class App : Node
             else
             {
                 OpenScctGame.Options.UserDataMigration.Run(OS.GetUserDataDir());
+                // An import of Enhanced settings queued in the launcher's settings.
+                OpenScctGame.Options.EnhancedImportStartup.RunPending(OS.GetUserDataDir());
                 OpenScctGame.Options.SettingsApplier.ApplyAtStart(GetViewport());
             }
             if (OpenScctGame.Options.SettingsStore.Current.ThrottleStop)

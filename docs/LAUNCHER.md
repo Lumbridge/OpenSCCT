@@ -56,6 +56,14 @@ remain available on either tab. Editor Help and release links go to the editor p
 preferences, folder shortcuts and installation actions. Existing installations initially inherit the old
 startup-check choice for both products; changing it in one tab then leaves the other unchanged.
 
+In **Game settings**, **Import from Enhanced SCCT Versus** queues an import of the player's Enhanced settings
+for the game's next start. **Choose Enhanced folder…** takes any folder of the install (everything: sensitivities,
+key bindings, display, HUD, voice, volumes, gear); **Bindings only (no install)** takes just the profile and key
+layouts the original keeps in ProgramData. Saving writes `enhanced_import.request` (the folder, or empty) into the
+game's user data (`EnhancedImportRequest`); the game carries it out once at start, saves the result and removes the
+file (`EnhancedImportStartup`), and its Options note says what was imported. The same import is in the game's
+Options as **Import from Enhanced** ([MENUS.md](MENUS.md)), staged there until Apply.
+
 In **Editor settings**, **Uninstall editor…** removes the launcher-managed editor application and keeps
 projects, editor settings/autosaves, the game and shared assets. Close the editor and its command-line tools
 first; finish any interrupted update before uninstalling. Extra or modified files inside the installation

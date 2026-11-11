@@ -9,15 +9,14 @@ namespace OpenScctGame.Logic.Tests;
 public sealed class GameSettingsTests : IDisposable
 {
     [Fact]
-    public void BothControllerRolesDefaultToGentleAimAndPreserveSavedSensitivities()
+    public void BothControllerRolesDefaultToReloadedAimAndPreserveSavedSensitivities()
     {
         var defaults = new GameSettings();
-        foreach (LookSettings look in new[] { defaults.SpyPad, defaults.MercPad })
-        {
-            Assert.Equal(.6f, look.FreeLook);
-            Assert.Equal(.6f, look.Look);
-            Assert.Equal(.6f, look.Vertical);
-        }
+        Assert.Equal(1.6f, defaults.SpyPad.FreeLook);
+        Assert.Equal(1.2f, defaults.SpyPad.Look);
+        Assert.Equal(3.5f, defaults.SpyPad.Vertical);
+        Assert.Equal(1.8f, defaults.MercPad.Look);
+        Assert.Equal(1f, defaults.MercPad.Vertical);
         var saved = GameSettings.FromJson("{\"controls_spy_pad\":{\"free_look\":1.1,\"look\":1.2,\"vertical\":1.3},\"controls_merc_pad\":{\"free_look\":1.4,\"look\":1.5,\"vertical\":1.6}}");
         Assert.Equal(1.1f, saved.SpyPad.FreeLook);
         Assert.Equal(1.2f, saved.SpyPad.Look);
