@@ -91,7 +91,7 @@ internal sealed class RdProjectors
             RdWorldGeometry.Batch b = batches[worldDraws[k]];
             if (b.Sky || b.Material.Blended || !b.Bounds.Intersects(p.Box) || Outside(p.Planes, b.Bounds)) continue;
             // bProjectStaticMesh off: baked static meshes are left alone.
-            if (p.SkipStaticMeshes && b.Material.Code.Contains("#define LIGHT_VERTEX", StringComparison.Ordinal)) continue;
+            if (p.SkipStaticMeshes && b.Material.VertexLit) continue;
             if (index < 0)
             {
                 index = kinds.Count;

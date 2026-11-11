@@ -238,7 +238,7 @@ public partial class RdWorldRenderer : Node
         GD.Print($"SVM_RD_WORLD spots{spots} dynamic={_lights.Count} soft={SpotShadowLight.SoftRadius}");
         if (OwnFrame)
         {
-            GD.Print(string.Create(CultureInfo.InvariantCulture, $"SVM_RD_FRAME gatherMs={_gatherMs:F3}"));
+            GD.Print(string.Create(CultureInfo.InvariantCulture, $"SVM_RD_FRAME gatherMs={_gatherMs:F3} preDrawMs={_preDrawMs:F3}"));
             GD.Print("SVM_RD_FRAME fog " + _fogNote);
             if (!_skyNoted)
             {
@@ -439,6 +439,8 @@ public partial class RdWorldRenderer : Node
 
     /// <summary>The main thread's time in the last frame's gathering of objects, projectors and coronas (statistics).</summary>
     private double _gatherMs;
+    /// <summary>The main thread's time in the last frame's PreDrawOwn up to handing the frame over (statistics).</summary>
+    private double _preDrawMs;
 
     private static readonly double s_flip = double.TryParse(System.Environment.GetEnvironmentVariable("SVM_RD_FRAME_FLIP"), NumberStyles.Float, CultureInfo.InvariantCulture, out double flip) ? flip : 0.0;
 
@@ -506,6 +508,7 @@ public partial class RdWorldRenderer : Node
 
     private void PreDrawOwn(Camera3D camera)
     {
+        long preDraw = System.Diagnostics.Stopwatch.GetTimestamp();
         Viewport viewport = GetViewport();
         // Every vision mode is drawn here, its own pass ending the frame (RdFramePost.RunVision): night and motion
         // read the normal scene; thermal and EMF draw every surface by its material's vision outputs. A round with
@@ -669,6 +672,7 @@ public partial class RdWorldRenderer : Node
         }
 
         _gpu.Submit(frame);
+        _preDrawMs = System.Diagnostics.Stopwatch.GetElapsedTime(preDraw).TotalMilliseconds;
         RenderingServer.CallOnRenderThread(_renderOwn);
         Rid latest = normal ? _gpu.LatestOwnColor : _gpu.LatestOwnShown;
         if (latest.IsValid && latest != _ownShownColor && _ownRect is not null)

@@ -45,6 +45,8 @@ internal sealed class RdObjects
         public int Blend;
         /// <summary>The spot slots whose sphere reaches the mesh (0: its shader holds no spot code).</summary>
         public int SpotBits;
+        /// <summary>The lit flares (FlareLights) when one reaches the mesh, else 0: a small program then adds them at each pixel.</summary>
+        public int Flares;
         /// <summary>
         /// Set for a material with more than a texture and a light (layers, a combiner, an environment, cosmetics, a
         /// multiplied blend): the surface is drawn by the translated template with this material's values.
@@ -427,6 +429,7 @@ internal sealed class RdObjects
             if (dynamic is not null) dynamic.SeenFrame = Engine.GetProcessFrames();
             int objectIndex = -1, paletteBase = -1;
             int spotBits = spots(skin is null ? box : box.Grow(1.5f));
+            int flares = FlaresReaching(skin is null ? box : box.Grow(1.5f));
             for (int s = 0; s < mesh.GetSurfaceCount(); s++)
             {
                 if ((node.MaterialOverride ?? node.GetSurfaceOverrideMaterial(s) ?? mesh.SurfaceGetMaterial(s)) is not ShaderMaterial material) continue;
@@ -531,6 +534,7 @@ internal sealed class RdObjects
                 {
                     Surface = surface.Id, Object = objectIndex, Kind = m.Kind | (sky ? 128 : 0), Palette = paletteBase, Mirrored = skin is null && model.Basis.Determinant() < 0f, Distance = eye.DistanceSquaredTo(box.GetCenter()), Masked = m.Masked, TwoSided = m.TwoSided, Texture = m.Texture,
                     Blend = template is null ? m.Blend : template.Cloak ? 3 : template.Blended ? 1 : 0, SpotBits = vision || sky || (m.Kind == 0 && template is null) ? 0 : spotBits, Material = template,
+                    Flares = vision || sky || m.Kind == 0 || template is not null ? 0 : flares,
                 });
                 // The blended pass of a partly see-through surface, over what lies behind it.
                 if (vision && material.NextPass is ShaderMaterial next && VisionTemplateOf(next, skin is not null) is { } over)
@@ -887,6 +891,20 @@ internal sealed class RdObjects
     /// The spot shadow lights at a point of an actor: svm_spot_lookup, svm_spot_shadow and svm_spot_slot of
     /// svm_world.gdshaderinc, for the slots the draw names (those that are on and whose sphere reaches the mesh).
     /// </summary>
+    /// <summary>The number of lit flares when the sphere of one reaches the box (they are few: a pixel then walks them all), else 0.</summary>
+    private static int FlaresReaching(Aabb box)
+    {
+        IReadOnlyList<Vector4> flares = FlareLights.Reach;
+        for (int i = 0; i < flares.Count; i++)
+        {
+            Vector4 f = flares[i];
+            var centre = new Vector3(f.X, f.Y, f.Z);
+            if (!(f.W >= 0f) || centre.DistanceSquaredTo(centre.Clamp(box.Position, box.End)) < f.W * f.W) return Math.Min(flares.Count, 15);
+        }
+
+        return 0;
+    }
+
     private const string Spot = """
         layout(set = 2, binding = 0) uniform sampler2D svm_spots;
         layout(set = 2, binding = 1) uniform sampler2D svm_spot_depth;
@@ -969,6 +987,117 @@ internal sealed class RdObjects
             vec3 l = f.z > 0.5 ? vec3(0.0, 0.0, 1.0) : normalize(-v);
             float ndl = max(0.0, dot(nv, l));
             return c.rgb * cookie * atten * mix(1.0, ndl, a.z) * shadow;
+        }
+
+        // The burning flares (svm_one_light with falloff 0, svm_flare_lookup, svm_flare_shadow and svm_flare_light of
+        // svm_world.gdshaderinc, as the template's LIGHT_ACTOR adds them): the draw's kind holds their count.
+        layout(set = 2, binding = 5) uniform sampler2D svm_flares;
+        layout(set = 2, binding = 6) uniform sampler2D svm_flare_depth;
+
+        vec3 one_light(vec4 pos, vec4 col, vec4 spot, vec3 wp, vec3 wn)
+        {
+            if (dot(col.rgb, col.rgb) <= 0.0) {
+                return vec3(0.0);
+            }
+            vec3 l;
+            float att = 1.0;
+            float ambient = 0.0;
+            if (pos.w < 0.0) {
+                l = normalize(pos.xyz);
+            } else {
+                vec3 d = pos.xyz - wp;
+                float dist = length(d);
+                l = d / max(dist, 1e-5);
+                float x = dist / max(pos.w, 1e-5);
+                if (x >= 1.0) {
+                    att = 0.0;
+                } else if (spot.w < -2.5 && spot.w > -3.5) {
+                    att = 0.5 / max(8.0 * x * x, 1e-3);
+                } else if (spot.w < -3.5) {
+                    att = 1.0 - 3.0 * x * x + 2.0 * x * x * x;
+                    ambient = att;
+                } else {
+                    att = 1.0 - 3.0 * x * x + 2.0 * x * x * x;
+                }
+                if (spot.w > -1.5) {
+                    float c = dot(-l, spot.xyz);
+                    att *= clamp((c - spot.w) / max(col.a - spot.w, 1e-5), 0.0, 1.0);
+                }
+            }
+            return col.rgb * (att * max(0.0, dot(wn, l)) + ambient);
+        }
+
+        float flare_lookup(vec2 t0, vec2 ts, vec2 suv, float zref)
+        {
+            vec2 atlas = vec2(textureSize(svm_flare_depth, 0));
+            vec2 lo = t0 * atlas + 0.5;
+            vec2 hi = (t0 + ts) * atlas - 1.5;
+            vec2 p = clamp((t0 + suv * ts) * atlas - 0.5, lo, max(lo, hi));
+            vec2 base = floor(p);
+            vec2 f = p - base;
+            vec4 d = textureGather(svm_flare_depth, (base + 1.0) / atlas, 0);
+            vec4 lit = step(vec4(zref), d);
+            return mix(mix(lit.w, lit.z, f.x), mix(lit.x, lit.y, f.x), f.y);
+        }
+
+        float flare_shadow(vec3 d, vec4 sh, vec4 ex)
+        {
+            vec3 a = abs(d);
+            float face;
+            vec3 fwd;
+            vec3 up;
+            if (a.x >= a.y && a.x >= a.z) {
+                face = d.x > 0.0 ? 0.0 : 1.0;
+                fwd = vec3(d.x > 0.0 ? 1.0 : -1.0, 0.0, 0.0);
+                up = vec3(0.0, 1.0, 0.0);
+            } else if (a.y >= a.z) {
+                face = d.y > 0.0 ? 2.0 : 3.0;
+                fwd = vec3(0.0, d.y > 0.0 ? 1.0 : -1.0, 0.0);
+                up = vec3(0.0, 0.0, d.y > 0.0 ? -1.0 : 1.0);
+            } else {
+                face = d.z > 0.0 ? 4.0 : 5.0;
+                fwd = vec3(0.0, 0.0, d.z > 0.0 ? 1.0 : -1.0);
+                up = vec3(0.0, 1.0, 0.0);
+            }
+            float z = dot(d, fwd);
+            if (z <= 1e-4) {
+                return 1.0;
+            }
+            vec3 right = cross(fwd, up);
+            vec2 ndc = vec2(dot(d, right), dot(d, up)) / z * ex.x;
+            vec2 suv = vec2(ndc.x, -ndc.y) * 0.5 + 0.5;
+            vec2 atlas = vec2(textureSize(svm_flare_depth, 0));
+            vec2 ts = vec2(ex.y) / atlas;
+            vec2 t0 = vec2(face, sh.x) * ts;
+            float zref = z - sh.y - ex.z * z;
+            vec2 step_uv = sh.w / ex.y * vec2(1.0);
+            float sum = flare_lookup(t0, ts, suv, zref);
+            for (int k = 0; k < 8; k++) {
+                float an = float(k) * 0.78539816 + 0.39269908;
+                sum += flare_lookup(t0, ts, suv + vec2(cos(an), sin(an)) * step_uv, zref);
+            }
+            return sum / 9.0;
+        }
+
+        vec3 flare_light(vec3 wp, vec3 wn)
+        {
+            int count = (draw.kind >> 16) & 15;
+            vec3 sum = vec3(0.0);
+            for (int i = 0; i < count; i++) {
+                vec4 p = texelFetch(svm_flares, ivec2(0, i), 0);
+                vec3 l = one_light(p, texelFetch(svm_flares, ivec2(1, i), 0), texelFetch(svm_flares, ivec2(2, i), 0), wp, wn);
+                if (dot(l, l) <= 0.0) {
+                    continue;
+                }
+                vec4 sh = texelFetch(svm_flares, ivec2(3, i), 0);
+                if (sh.x >= 0.0) {
+                    vec4 ex = texelFetch(svm_flares, ivec2(4, i), 0);
+                    float offset = sh.z + 3.0 * 2.0 / ex.y * distance(wp, p.xyz);
+                    l *= flare_shadow(wp + wn * offset - p.xyz, sh, ex);
+                }
+                sum += l;
+            }
+            return sum;
         }
 
         // An actor's zone is not known to its surface (the template passes -1: own-zone lights still reach it).
@@ -1098,9 +1227,10 @@ internal sealed class RdObjects
 
         """ + (masked ? "    if (t.a < 0.5) discard;\n" : "") + "    t.a *= v_alpha;\n"
         // The template: texture x min(actor light + spot lights, 2); the Echelon code rides in the ambient's w.
-        + (spot ? "    vec3 c = t.rgb * min(v_light + spot_light(v_wpos, normalize(v_wn), int(objects[draw.object].ambient.w + 0.5)), vec3(2.0));\n"
+        // The flares add past the 2x cap, as in the template.
+        + (spot ? "    vec3 wn = normalize(v_wn);\n    vec3 c = t.rgb * (min(v_light + spot_light(v_wpos, wn, int(objects[draw.object].ambient.w + 0.5)), vec3(2.0)) + flare_light(v_wpos, wn));\n"
             : "    vec3 c = t.rgb * v_light;\n") + """
-            int blend = draw.kind >> 8;
+            int blend = (draw.kind >> 8) & 255;
             if (blend == 2) {
                 float cover = frame.fog_color.a > 0.5 ? clamp((max(length(v_rel) * frame.fog.x, frame.fog.y) - frame.fog.y) * frame.fog.z, 0.0, 1.0) : 0.0;
                 frag = vec4(min(c * (1.0 - cover), vec3(1.0)), t.a);

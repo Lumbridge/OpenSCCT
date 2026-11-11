@@ -1477,7 +1477,7 @@ internal sealed class RdWorldGpu
 
             if (spot && !_objectSpotSets[program].IsValid)
             {
-                _objectSpotSets[program] = MakeSpotSet(rd, _objectShaders[program], 5);
+                _objectSpotSets[program] = MakeSpotSet(rd, _objectShaders[program], 7);
                 if (!_objectSpotSets[program].IsValid) return false;
             }
         }
@@ -1564,7 +1564,7 @@ internal sealed class RdWorldGpu
         foreach (RdObjects.Draw draw in frame.Objects)
         {
             if (draw.Material is not null) continue;
-            int program = (draw.SpotBits != 0 ? 4 : 0) + (draw.Palette >= 0 ? 2 : 0) + (draw.Masked ? 1 : 0);
+            int program = (draw.SpotBits != 0 || draw.Flares != 0 ? 4 : 0) + (draw.Palette >= 0 ? 2 : 0) + (draw.Masked ? 1 : 0);
             if (_objectSets.TryGetValue((draw.Texture, program), out Rid set) && rd.UniformSetIsValid(set)) continue;
             var texture = new RDUniform { UniformType = RD.UniformType.SamplerWithTexture, Binding = 0 };
             texture.AddId(SamplerOf(rd, RdFilter.LinearMipmapAnisotropic, repeat: true));
@@ -1718,14 +1718,14 @@ internal sealed class RdWorldGpu
                 continue;
             }
 
-            int program = (draw.SpotBits != 0 ? 4 : 0) + (draw.Palette >= 0 ? 2 : 0) + (draw.Masked ? 1 : 0);
+            int program = (draw.SpotBits != 0 || draw.Flares != 0 ? 4 : 0) + (draw.Palette >= 0 ? 2 : 0) + (draw.Masked ? 1 : 0);
             Rid wanted = _objectPipelines[(draw.Mirrored ? 48 : 0) + (program * 6) + (Math.Clamp(draw.Blend, 0, 2) * 2) + (draw.TwoSided ? 1 : 0)];
             if (wanted != pipeline)
             {
                 pipeline = wanted;
                 rd.DrawListBindRenderPipeline(dl, pipeline);
                 rd.DrawListBindUniformSet(dl, _objectFrameSets[program], 0);
-                if (draw.SpotBits != 0) rd.DrawListBindUniformSet(dl, _objectSpotSets[program], 2);
+                if (program >= 4) rd.DrawListBindUniformSet(dl, _objectSpotSets[program], 2);
                 set = default;
             }
 
@@ -1737,7 +1737,7 @@ internal sealed class RdWorldGpu
             }
 
             push[0] = draw.Object;
-            push[1] = draw.Kind | (draw.Blend << 8);
+            push[1] = draw.Kind | (draw.Blend << 8) | (draw.Flares << 16);
             push[2] = Math.Max(0, draw.Palette);
             push[3] = draw.SpotBits;
             rd.DrawListSetPushConstant(dl, _drawBlock, (uint)_drawBlock.Length);
@@ -1746,6 +1746,8 @@ internal sealed class RdWorldGpu
             rd.DrawListDraw(dl, true, 1, 0);
         }
     }
+
+    private static readonly bool s_testDyn0 = Test.Contains("dyn0");
 
     private void DrawOwn(RdWorldFrame frame)
     {
@@ -1971,7 +1973,8 @@ internal sealed class RdWorldGpu
                     rd.DrawListBindUniformSet(dl, variant.Shader.GlobalSet, 0);
                     rd.DrawListBindUniformSet(dl, variant.Set, 1);
                     push[0] = frame.SpotBits[k];
-                    push[1] = frame.DynBits[k];
+                    // SVM_RD_WORLD_TEST=dyn0 (measurement): the light code stays in the draw's shader and walks no row.
+                    push[1] = s_testDyn0 ? 0 : frame.DynBits[k];
                     rd.DrawListSetPushConstant(dl, _drawBlock, (uint)_drawBlock.Length);
                     rd.DrawListBindIndexArray(dl, _indexArrays[frame.Draws[k]]);
                     rd.DrawListDraw(dl, true, 1, 0);
@@ -2102,7 +2105,7 @@ internal sealed class RdWorldGpu
     private Rid MakeSpotSet(RenderingDevice rd, Rid shader, int count)
     {
         var uniforms = new Godot.Collections.Array<RDUniform>();
-        ReadOnlySpan<string> names = ["svm_spots", "svm_spot_depth", "svm_spot_cookies", "svm_spot_atten", "svm_spot_ignore"];
+        ReadOnlySpan<string> names = ["svm_spots", "svm_spot_depth", "svm_spot_cookies", "svm_spot_atten", "svm_spot_ignore", FlareLights.ParamRows, FlareLights.ParamDepth];
         for (int i = 0; i < count; i++)
         {
             Rid texture = i == 2 ? _whiteArray : _white;
