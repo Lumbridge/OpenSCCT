@@ -41,7 +41,62 @@ public partial class RdWorldRenderer : Node
     private RdWorldEffect? _effect;
     private bool _subscribed, _active, _reportedFailure;
     private double _sinceReport;
-    private int _frames, _full, _noSpot, _neither;
+    private int _frames, _full, _noSpot, _neither, _dynDraws, _dynRows, _zoneCulled;
+    private readonly RdZoneVisibility _zones;
+    // The zones this frame's camera sees through the map's portals, or null: every batch in the frustum is drawn.
+    private ulong? _visibleZones;
+
+    /// <summary>
+    /// The own frame leaves out the world batches of zones the camera cannot see through the map's portals.
+    /// SVM_RD_WORLD_ZONES=0 draws every batch in the frustum, as before (a measurement switch).
+    /// </summary>
+    private static bool ZoneCull { get; } = System.Environment.GetEnvironmentVariable("SVM_RD_WORLD_ZONES") != "0";
+
+    // The zones each batch can be seen from, one bit each (zones 0 to 63), by batch index: worked out on a worker
+    // thread after the map is built; until it is done every batch in the frustum is drawn.
+    private System.Threading.Tasks.Task<ulong[]>? _batchZones;
+
+    /// <summary>
+    /// The zones a batch lies in. Its vertices carry a zone for the zone-limited lights, but a mesh carries the zone of
+    /// its actor alone, and a mesh that reaches into the next room must be drawn from there too: so every triangle is
+    /// looked up in the map's zones where it is, a little to each side of its plane and at four points of its face.
+    /// A point in no zone adds nothing.
+    /// </summary>
+    private static ulong[] BatchZones(RdWorldGeometry geometry, RenderMap map)
+    {
+        List<RdWorldGeometry.Batch> batches = geometry.Batches;
+        RdWorldGeometry.Vertex[] vertices = geometry.Vertices;
+        uint[] indices = geometry.Indices;
+        var seen = new ulong[batches.Count];
+        System.Threading.Tasks.Parallel.For(0, batches.Count, i =>
+        {
+            RdWorldGeometry.Batch b = batches[i];
+            ulong zones = b.Zones[0];
+            if (!b.Sky)
+            {
+                uint end = b.IndexOffset + b.IndexCount;
+                for (uint t = b.IndexOffset; t + 2 < end; t += 3)
+                {
+                    Vector3 p0 = vertices[indices[t]].Position, p1 = vertices[indices[t + 1]].Position, p2 = vertices[indices[t + 2]].Position;
+                    Vector3 centre = (p0 + p1 + p2) / 3f;
+                    Vector3 normal = (p1 - p0).Cross(p2 - p0);
+                    float length = normal.Length();
+                    if (length < 1e-9f) continue;
+                    Vector3 lift = normal * (0.02f / length);
+                    for (int k = 0; k < 4; k++)
+                    {
+                        Vector3 at = k switch { 0 => centre, 1 => p0.Lerp(centre, 0.1f), 2 => p1.Lerp(centre, 0.1f), _ => p2.Lerp(centre, 0.1f) };
+                        int front = map.ZoneIndexAt(UeSpace.ToUe(at + lift)), back = map.ZoneIndexAt(UeSpace.ToUe(at - lift));
+                        if (front is > 0 and < 64) zones |= 1UL << front;
+                        if (back is > 0 and < 64) zones |= 1UL << back;
+                    }
+                }
+            }
+
+            seen[i] = zones;
+        });
+        return seen;
+    }
 
     internal RdWorldRenderer(RenderMap map, FaithfulView view)
     {
@@ -53,6 +108,12 @@ public partial class RdWorldRenderer : Node
         float mipBias = (float)ProjectSettings.GetSetting("rendering/textures/default_filters/texture_mipmap_bias", 0.0).AsDouble();
         _gpu = new RdWorldGpu(_geometry, Math.Clamp(anisotropy, 0, 4), mipBias);
         _skyOrigin = map.Lighting.SkyLocation is { } sky ? UeSpace.ToGodot(sky) : Vector3.Zero;
+        _zones = new RdZoneVisibility(map.Lighting);
+        if (ZoneCull && _zones.HasPortals && map.Zones is not null)
+        {
+            RdWorldGeometry geometry = _geometry;
+            _batchZones = System.Threading.Tasks.Task.Run(() => BatchZones(geometry, map));
+        }
     }
 
     public override void _Ready()
@@ -167,7 +228,7 @@ public partial class RdWorldRenderer : Node
         Survey(delta);
         if (_sinceReport < 1.0 || !Stats) return;
         GD.Print(string.Create(CultureInfo.InvariantCulture,
-            $"SVM_RD_WORLD active={_active} draws={_gpu.LastDraws} full={_full} noSpot={_noSpot} neither={_neither} shaders={_gpu.ShaderCount} made={_gpu.Made} recordMs={_gpu.LastRecordMs:F3} fps={_frames / _sinceReport:F1}"));
+            $"SVM_RD_WORLD active={_active} draws={_gpu.LastDraws} full={_full} noSpot={_noSpot} neither={_neither} shaders={_gpu.ShaderCount} made={_gpu.Made} recordMs={_gpu.LastRecordMs:F3} fps={_frames / _sinceReport:F1} dynLights={_lights.Count} dynDraws={_dynDraws} dynRows={_dynRows} zoneCulled={_zoneCulled} zones={System.Numerics.BitOperations.PopCount(_zones.Visible)} windowTriangles={(ShaderGlobals.TryGet("svm_window_light_triangles", out Variant panes) ? panes.AsInt32() : -1)}"));
         var spots = new System.Text.StringBuilder();
         for (int i = 0; i < _spots.Length; i++)
         {
@@ -557,7 +618,19 @@ public partial class RdWorldRenderer : Node
         frame.Layers = camera.CullMask;
         ReadLights();
         // Portal fog stays out of the template's draws: the frame has the camera zone's one ramp (RdWorldGpu.OverrideFog).
+        _visibleZones = null;
+        if (_batchZones is { IsCompletedSuccessfully: true })
+        {
+            // The zone at the eye, and those a quarter of a metre around it and half a metre ahead.
+            Span<int> near = stackalloc int[7];
+            ReadOnlySpan<Vector3> around = [Vector3.Right, Vector3.Left, Vector3.Up, Vector3.Down, Vector3.Forward, Vector3.Back];
+            for (int i = 0; i < 6; i++) near[i] = _map.ZoneIndexAt(UeSpace.ToUe(eye.Origin + (around[i] * 0.25f)));
+            near[6] = _map.ZoneIndexAt(UeSpace.ToUe(eye.Origin - (eye.Basis.Z * 0.5f)));
+            if (_zones.Walk(_map.ZoneIndexAt(UeSpace.ToUe(eye.Origin)), near, world)) _visibleZones = _zones.Visible;
+        }
+
         Select(frame, eye.Origin, true, RdFeatures.NoPortalFog);
+        _visibleZones = null;
         // The map's gameplay meshes and the characters.
         _objects.Begin(frame.Objects, frame.ObjectData, frame.Palette, _objectUploads);
         long gathering = System.Diagnostics.Stopwatch.GetTimestamp();
@@ -769,11 +842,20 @@ public partial class RdWorldRenderer : Node
         }
 
         int n = 0;
+        _zoneCulled = 0;
         for (int i = 0; i < batches.Count; i++)
         {
             RdWorldGeometry.Batch b = batches[i];
             if (b.Sky && !drawSky) continue;
             if (!Inside(b.Sky ? _skyPlanes : _worldPlanes, b.Bounds)) continue;
+            // A batch with a vertex in zone 0 (outside every zone) or in a zone past the portal table is always drawn.
+            if (_visibleZones is { } seen && !b.Sky && _batchZones!.Result[i] is var lies && lies != 0 && (lies & (seen | 1UL)) == 0
+                && (b.Zones[1] | b.Zones[2] | b.Zones[3]) == 0)
+            {
+                _zoneCulled++;
+                continue;
+            }
+
             float d = (b.Sky ? _skyOrigin : eye).DistanceSquaredTo(b.Bounds.GetCenter());
             // Solid world, masked world, the sky zone, then everything blended from far to near.
             bool blended = b.Material.Blended;
@@ -785,7 +867,7 @@ public partial class RdWorldRenderer : Node
         }
 
         Array.Sort(_keys, _order, 0, n);
-        _full = _noSpot = _neither = 0;
+        _full = _noSpot = _neither = _dynDraws = _dynRows = 0;
         for (int k = 0; k < n; k++)
         {
             RdWorldGeometry.Batch b = batches[_order[k]];
@@ -797,10 +879,19 @@ public partial class RdWorldRenderer : Node
                 spots = SpotsReaching(b);
                 bool dynamic = DynamicReaching(b, out dynamicBits);
                 if (!TightDynamic) dynamicBits = -1;
+                // A burning flare lights through the same code as the dynamic rows (svm_flare_light): a draw one
+                // reaches keeps that code though no row reaches it.
+                dynamic |= FlareReaching(b);
                 // A draw a spot reaches keeps the dynamic term too (its mask is empty then): one shader fewer per material.
                 features = frameFeatures | (spots == 0 ? RdFeatures.NoSpot : 0) | (dynamic || spots != 0 ? 0 : RdFeatures.NoDynamic);
                 features = (features | ForcedOut) & ~ForcedIn;
                 if ((features & RdFeatures.NoSpot) != 0) spots = 0;
+            }
+
+            if (Stats && (features & RdFeatures.NoDynamic) == 0 && !b.Sky)
+            {
+                _dynDraws++;
+                _dynRows += System.Numerics.BitOperations.PopCount((uint)dynamicBits);
             }
 
             if ((features & RdFeatures.NoSpot) == 0) _full++;
@@ -890,6 +981,23 @@ public partial class RdWorldRenderer : Node
         }
 
         return any;
+    }
+
+    /// <summary>Whether a lit flare's sphere (FlareLights, radius scaled as the template scales it) reaches the batch's box.</summary>
+    private static bool FlareReaching(RdWorldGeometry.Batch batch)
+    {
+        IReadOnlyList<Vector4> flares = FlareLights.Reach;
+        if (flares.Count == 0) return false;
+        float scale = WorldLights.Tune.Y;
+        for (int i = 0; i < flares.Count; i++)
+        {
+            Vector4 f = flares[i];
+            if (!float.IsFinite(f.X + f.Y + f.Z + f.W) || f.W < 0f) return true;
+            float reach = (MathF.Max(f.W * scale, 1e-5f) * (1f + RelativeMargin)) + Margin;
+            if (DistanceSquared(batch.Bounds, new Vector3(f.X, f.Y, f.Z)) < reach * reach) return true;
+        }
+
+        return false;
     }
 
     private static float DistanceSquared(in Aabb box, Vector3 p)

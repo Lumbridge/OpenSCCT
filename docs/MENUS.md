@@ -441,7 +441,8 @@ focusing or hovering a control explains it below the list. A category dropdown r
 windows. Reset is a compact menu and remains staged until Apply. Role resets preserve the global Performance frame cap.
 
 Display, Performance, Audio, Voice, HUD and Controller (Shared) use the same category/search browser. Display separates
-screen setup, widescreen layout and image quality. Performance groups Max FPS and Vertical sync under Frame pacing,
+screen setup, widescreen layout and image quality (Render scale, and Automatic render scale, `auto_scale_fps`: off, or a
+frame rate that `DynamicRenderScale` holds by lowering the 3D resolution in 5% steps down to 50%, never above Render scale). Performance groups Max FPS and Vertical sync under Frame pacing,
 then the Renderer choice (`renderer`: Standard, or Fast (beta), the game's own frame of
 [PERFORMANCE-LOWEND-2026-11.md](PERFORMANCE-LOWEND-2026-11.md); it applies from the next map and `SVM_RD_FRAME=1` or `0` overrides it),
 separate from latency and power settings. Voice keeps playback,

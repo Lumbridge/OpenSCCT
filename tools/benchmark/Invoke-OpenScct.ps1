@@ -16,6 +16,8 @@ param(
     [string[]]$EngineArgs = @(),
     # Project settings written to override.cfg as section/key=value (for example rendering/driver/depth_prepass/enable=false).
     [string[]]$ProjectOverrides = @(),
+    # Extra arguments for the game itself (after --), such as --svm-responsive-smoke.
+    [string[]]$GameArgs = @(),
     [ValidateRange(0, 3600)][int]$QuietWaitSeconds = 120,
     [string[]]$IgnoreCompetitors = @()
 )
@@ -171,6 +173,7 @@ try {
     $arguments += @('--', '--svm-background', "--svm-play=$Map", "--side=$Side", '--rules=playlevel',
         "--bots=$Bots", ('"--svm-content=' + $contentPath + '"'))
     # Double trailing backslashes so the closing quote is not read as an escaped one.
+    $arguments += @($GameArgs | ForEach-Object { $_ -split ',' } | Where-Object { $_ })
     foreach ($pair in $Settings) { $arguments += ('"--svm-setting=' + ($pair -replace '(\\+)$', '$1$1') + '"') }
     $runner.startedUtc = [DateTime]::UtcNow.ToString('o')
     $process = Start-Process -FilePath $exePath -ArgumentList $arguments -WindowStyle Hidden -PassThru `

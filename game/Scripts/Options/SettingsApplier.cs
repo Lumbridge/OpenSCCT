@@ -45,6 +45,7 @@ public static class SettingsApplier
         if (viewport is not null && DisplayServer.GetName() != "headless")
         {
             DisplayFramePacer.Attach(viewport);
+            DynamicRenderScale.Attach(viewport);
         }
     }
 
@@ -250,7 +251,8 @@ public static class SettingsApplier
 
         if (viewport is not null)
         {
-            viewport.Scaling3DScale = s.RenderScale;
+            // With the automatic render scale on, DynamicRenderScale owns the scale; the setting is its upper bound.
+            viewport.Scaling3DScale = s.AutoScaleFps > 0 ? Math.Min(viewport.Scaling3DScale, s.RenderScale) : s.RenderScale;
         }
 
         ApplyRendering(s, viewport);

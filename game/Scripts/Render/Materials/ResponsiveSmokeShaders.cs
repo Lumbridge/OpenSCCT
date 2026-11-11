@@ -100,6 +100,8 @@ public static class ResponsiveSmokeShaders
             list = null;
         }
 
+        // A map this machine has not loaded yet: the list the build carries for it (BundledList).
+        list ??= BundledList(map);
         string[] codes = list?.Codes ?? [];
         if (list is not null && codes.Length != 0)
         {
@@ -139,6 +141,41 @@ public static class ResponsiveSmokeShaders
         OpenScctGame.Diagnostics.LoadTimer.Add("shader-prewarm", started);
     }
 
+    /// <summary>Where the build keeps the lists it carries: one gzip-compressed <see cref="ShaderList"/> a map.</summary>
+    private const string BundledFolder = "res://LoadShaders/";
+
+    /// <summary>
+    /// SVM_SHADER_LIST_OUT=folder (release tooling, tools/ci/bake-shader-lists.ps1): every load also writes its list
+    /// there, compressed, as the file a build carries; <see cref="Baking"/> then ends the game.
+    /// </summary>
+    private static readonly string? s_bakeFolder = System.Environment.GetEnvironmentVariable("SVM_SHADER_LIST_OUT") is { Length: > 0 } folder ? folder : null;
+
+    /// <summary>True while the game runs only to write a map's shader list (SVM_SHADER_LIST_OUT).</summary>
+    public static bool Baking => s_bakeFolder is not null;
+
+    /// <summary>
+    /// The list the build carries for a map (res://LoadShaders/&lt;map&gt;.json.gz, written by the bake at release time
+    /// from a load with first-run settings), or null. It lets the first load of a map on a machine make its shaders on
+    /// worker threads as every later load does. A list from other settings or an older template only names shaders the
+    /// load does not ask for: time lost on worker threads, nothing drawn differently.
+    /// </summary>
+    private static ShaderList? BundledList(string map)
+    {
+        if (Baking) return null;
+        string path = BundledFolder + map + ".json.gz";
+        try
+        {
+            if (!FileAccess.FileExists(path)) return null;
+            using var packed = new System.IO.MemoryStream(FileAccess.GetFileAsBytes(path));
+            using var gzip = new System.IO.Compression.GZipStream(packed, System.IO.Compression.CompressionMode.Decompress);
+            return System.Text.Json.JsonSerializer.Deserialize<ShaderList>(gzip);
+        }
+        catch (Exception e) when (e is System.IO.IOException or System.IO.InvalidDataException or System.Text.Json.JsonException)
+        {
+            return null;
+        }
+    }
+
     /// <summary>Writes the list <see cref="Prewarm"/> reads, when the load asked for other shaders than it holds.</summary>
     public static void SaveList()
     {
@@ -154,7 +191,17 @@ public static class ResponsiveSmokeShaders
             bool same = flags == s_listedFlags && used.Length == s_listed.Length && s_used.IsSupersetOf(s_listed);
             s_used = null;
             s_listPath = null;
-            if (same) return;
+            if (same && !Baking) return;
+        }
+
+        if (s_bakeFolder is not null)
+        {
+            Array.Sort(used, StringComparer.Ordinal);
+            System.IO.Directory.CreateDirectory(s_bakeFolder);
+            using System.IO.FileStream file = System.IO.File.Create(System.IO.Path.Combine(s_bakeFolder, System.IO.Path.GetFileNameWithoutExtension(path) + ".json.gz"));
+            using var gzip = new System.IO.Compression.GZipStream(file, System.IO.Compression.CompressionLevel.SmallestSize);
+            System.Text.Json.JsonSerializer.Serialize(gzip, new ShaderList(flags, used));
+            return;
         }
 
         try

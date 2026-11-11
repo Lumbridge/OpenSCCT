@@ -461,6 +461,9 @@ public sealed partial class SpotShadowLight : IDisposable
     /// <summary>SVM_SHADOW_RIGID=0 redraws a light's shadow pass whenever anything but the static world is in its frustum, as before.</summary>
     private static bool TrackRigid { get; } = System.Environment.GetEnvironmentVariable("SVM_SHADOW_RIGID") != "0";
 
+    /// <summary>SVM_SHADOW_HALF=0 writes a tile with a moving caster every frame at any frame rate (a measurement switch).</summary>
+    private static bool HalfRate { get; } = System.Environment.GetEnvironmentVariable("SVM_SHADOW_HALF") != "0";
+
     private static void RefreshShadowPasses()
     {
         foreach (SpotShadowLight? light in s_slots)
@@ -520,7 +523,12 @@ public sealed partial class SpotShadowLight : IDisposable
             if (found is not null)
             {
                 bool held = !moving && _tile is { } now && now.Holds(camera, true, _staticRenders, found, found_count, found_rigid);
-                if (held)
+                // A tile kept live by a moving caster (a character, a cloth) is written every other frame while the game
+                // draws a hundred frames a second or more, half the tiles in each frame: its shadow is then still drawn
+                // fifty times a second or more, a frame behind its caster at most.
+                bool spared = moving && HalfRate && _tileByRd && _rdWritten is not null && _stillFrames > 0
+                    && Engine.GetFramesPerSecond() >= 100.0 && ((Engine.GetProcessFrames() + (ulong)_slot) & 1) == 1;
+                if (held || spared)
                 {
                     Rd.RdShadowPass.Discard(job);
                 }

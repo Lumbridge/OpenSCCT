@@ -643,6 +643,16 @@ public sealed class GameSettings
     [JsonPropertyName("resolution_scale")]
     public float RenderScale { get; set; } = 1f;
 
+    /// <summary>
+    /// The frame rate the automatic render scale holds by lowering the 3D resolution, down to 50% and never above
+    /// Render scale (Options.DynamicRenderScale); 0 is off.
+    /// </summary>
+    [JsonPropertyName("auto_scale_fps")]
+    [Provenance(ProvenanceKind.Estimated, "OpenSCCT addition for integrated graphics; the original has no render scale")]
+    public int AutoScaleFps { get; set; }
+
+    public static readonly int[] AutoScaleTargets = [0, 30, 45, 60, 75, 90, 120, 144];
+
     /// <summary>Where a window goes in windowed mode: Default (the screen's top left), Centered or Stretched (the whole screen).</summary>
     [JsonPropertyName("window_position")]
     [Provenance(ProvenanceKind.Estimated, "OpenSCCT choice: Centered, as the rewrite placed windows; Reloaded's first run has Stretched (rl:gfx.modes)")]
@@ -1091,6 +1101,7 @@ public sealed class GameSettings
         MercFovCap = LookSettings.Range(MercFovCap, MinMercFov, MaxMercFov);
         FpsLimit = ClampFps(FpsLimit);
         RenderScale = LookSettings.Range(RenderScale, 0.5f, 1f);
+        if (Array.IndexOf(AutoScaleTargets, AutoScaleFps) < 0) AutoScaleFps = 0;
         MasterVolume = LookSettings.Range(MasterVolume, 0f, 1f);
         SoundVolume = LookSettings.Range(SoundVolume, 0f, 1f);
         MusicVolume = LookSettings.Range(MusicVolume, 0f, 1f);

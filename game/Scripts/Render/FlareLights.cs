@@ -134,6 +134,7 @@ public sealed partial class FlareLights : Node3D
         AssignCubes(lit);
         int shadowed = 0;
         int rows = 0;
+        s_reach.Clear();
         for (int i = 0; i < lit; i++)
         {
             Flare f = _frame[i];
@@ -149,6 +150,7 @@ public sealed partial class FlareLights : Node3D
 
             PackedLight p = ActorLighting.PackWorld(f.Light with { Location = at }, 1f);
             SetRow(rows, 0, p.Pos);
+            s_reach.Add(p.Pos);
             SetRow(rows, 1, p.Col);
             SetRow(rows, 2, p.Spot);
             SetRow(rows, 3, new Vector4(cube?.Row ?? -1, UeSpace.LengthToGodot(BiasUnits), UeSpace.LengthToGodot(NormalOffsetUnits), SoftRadius));
@@ -173,6 +175,11 @@ public sealed partial class FlareLights : Node3D
         Shadowed = shadowed;
         _frame.Clear();
     }
+
+    private static readonly System.Collections.Generic.List<Vector4> s_reach = [];
+
+    /// <summary>The lit flares of the last <see cref="Flush"/>: position and radius in metres, as their rows hold them.</summary>
+    internal static System.Collections.Generic.IReadOnlyList<Vector4> Reach => s_reach;
 
     private static void PublishCount(int rows)
     {

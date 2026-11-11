@@ -483,6 +483,10 @@ public partial class OptionsMenu : Control
         Check(g, "Small Enhanced Reality icons in widescreen", "ws_er_small", _edit.WideErSmall, v => _edit.WideErSmall = v);
         Section(g, "Image quality", "Lower render scale improves performance at the cost of sharpness. Texture filtering keeps angled surfaces clearer; anti-aliasing smooths jagged edges.");
         Slider(g, "Render scale", "resolution_scale", 0.5f, 1f, 0.05f, _edit.RenderScale, v => _edit.RenderScale = v);
+        Choice(g, "Automatic render scale", "auto_scale_fps", Array.ConvertAll(GameSettings.AutoScaleTargets, t => t.ToString(CultureInfo.InvariantCulture)),
+            _edit.AutoScaleFps.ToString(CultureInfo.InvariantCulture), v => _edit.AutoScaleFps = int.Parse(v, CultureInfo.InvariantCulture),
+            v => v == "0" ? "Off" : "Hold " + v + " FPS");
+        _controls["auto_scale_fps"].TooltipText = "Lowers the 3D resolution, down to 50%, while the frame rate is under the chosen rate, and raises it again when there is room. Render scale is the highest it goes. The HUD and menus stay sharp.";
         Choice(g, "Texture filtering", "filter_level", ["0", "2", "4", "8", "16"], _edit.FilterLevel.ToString(CultureInfo.InvariantCulture),
             v => _edit.FilterLevel = int.Parse(v, CultureInfo.InvariantCulture), v => v == "0" ? "Trilinear (off)" : v + "x anisotropic");
         Check(g, "Anti-aliasing: MSAA", "msaa", _edit.Msaa, v => _edit.Msaa = v);

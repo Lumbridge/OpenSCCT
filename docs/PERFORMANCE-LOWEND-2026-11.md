@@ -626,6 +626,85 @@ Measured cold on the UHD 770 (`tools` outside the repository: an empty user fold
 
 Left: Godot's own 210 pipelines of the first frame (2.7 s here, the same on Standard), the map's Godot shaders on a machine's first load of a map (`build.cell-materials`, 1.7 s here and 5.5 s on the laptop; the list `ResponsiveSmokeShaders.Prewarm` reads exists only from the second load), and the 2.3 s between the cover lifting and first control on a cold machine.
 
+## Thirteenth stage: frame rate on Fast (2026-11-11, `perf/fast-fps`)
+
+Where the Fast frame went on the UHD 770 at 2560 x 1440 (spawn views, uncapped, `--gpu-profile`), and what each cut
+bought. The scene was taken apart first with the measurement switches (`SVM_RD_WORLD_TEST=unlit|noprojectors`,
+`SVM_RD_WORLD_OUT`, `SVM_RD_SHADOWS=0`):
+
+| AquaE spawn, GPU ms | Before | After |
+|---|---:|---:|
+| Scene (`RD Own Frame`) | 3.04 | 2.60 |
+| Shadow pass | 0.53 | 0.31 |
+| Glow | 0.21 | 0.20 |
+| Canvas item that shows the frame (gate and glow) | 0.91 | 0.87 |
+| World draws | 728 | 364 |
+| Recording the draws (CPU) | 0.31 | 0.20 |
+| **Frame ms, FPS (1% low)** | **8.70, 115 (79)** | **7.65, 131 (111)** |
+
+SteeE spawn: 5.95 ms, 168 FPS (1% low 86) to 5.39 ms, 186 FPS (1% low 135).
+
+- **The dynamic lights were the cost of a lit draw, not the spots.** Of the scene's 3.04 ms, 0.89 was the template's
+  light code on the 254 draws a light reaches; with the dynamic code forced out it was 0.04. AquaE has six dynamic
+  rows and each lit draw is reached by one (266 rows over 253 draws), but a pixel walked the whole row list, with a
+  lookup of the light grid for each. Under `SVM_RD_WORLD` `svm_dynamic` now walks the bits the draw names
+  (`svm_draw_dyn_bits`, `findLSB`) and touches the grid only on a map with more than 32 rows. Scene 3.04 to 2.67 ms.
+  What is left of the lit draws (about 0.5 ms) is one light evaluated at every pixel of them.
+- **Shadow tiles with a moving caster are written every other frame at 100 FPS and over** (`SpotShadowLight`,
+  `SVM_SHADOW_HALF=0` turns it off). Four spot lights hold the player's character in AquaE's spawn room, so four
+  tiles were redrawn every frame; half of them are now, in turn, and each shadow is still drawn fifty times a second
+  or more, a frame behind its caster at most. Under 100 FPS nothing changes. 0.53 to 0.31 ms.
+- **World batches of zones the camera cannot see are left out** (`Rd/RdZoneVisibility`, `SVM_RD_WORLD_ZONES=0` turns it
+  off). The walk goes from the camera's zone through the world model's zone portals (`fogPortals` of the lighting
+  file: every portal of the map), narrowing the part of the screen left at each one, as the original walks its zones.
+  It starts from the zones a quarter of a metre around the eye too, so a camera pressed against a wall cannot lose
+  its own room. A batch's zones are looked up from where its triangles are (`RdWorldRenderer.BatchZones`, on a worker
+  thread after the map is built; until it is done everything in the frustum is drawn): a mesh carries the zone of its
+  actor alone in its vertices, and one that reaches into the next room must be drawn from there. A camera in zone 0
+  and a map without portals cull nothing. AquaE: 4 zones seen, 364 of 728 draws left out, scene 2.73 to 2.60 ms,
+  recording 0.29 to 0.20 ms. The depth test already rejected their pixels; what is saved is their vertices and
+  their draws.
+- **A burning flare now lights the world on Fast.** The small world shaders hold no flare code, so a flare lit only
+  the draws a spot or dynamic light already reached. A draw a lit flare's sphere reaches keeps the template's light
+  code (`RdWorldRenderer.FlareReaching`). Flares on characters and objects are still missing on Fast: their small
+  programs hold no flare code either.
+
+Measured and left alone:
+
+- **Texture filtering.** Trilinear, 4x and 16x anisotropic: scene 2.72, 2.70 and 2.82 ms. Not a cost on this GPU.
+- **A separate render thread** (`rendering/driver/threads/thread_model=2`): slower (118 FPS against 125, 1% low 65
+  against 97) and it logged errors. Not used.
+- **The canvas item that shows the frame** cannot be dropped by drawing straight into the viewport: the glow gate
+  scales every pixel by its own finished brightness, on every map, so the finished frame has to be read once.
+- **Maps with an outdoor sky** still go to Godot's renderer. None of the 86 installed maps has one (the hub and
+  editor-made maps do).
+- **A round with responsive smoke** still goes to Godot's renderer whole.
+
+### Automatic render scale
+
+Options, Display, Image quality: **Automatic render scale** (`auto_scale_fps`: off, or hold 30 to 144 FPS).
+`Options/DynamicRenderScale` reads the frame rate over half-second windows and lowers the root viewport's 3D scale a
+5% step at a time (two when far under) while the rate is under 94% of the target, down to 50%; it raises it again
+when the pixel count says there is room, or after the rate has held for four seconds (a raise that does not hold is
+taken back and the next one waits twice as long, up to a minute). The target is never more than the frame cap or,
+with V-Sync, the screen's refresh rate. A step down that gains under 2% is the processor's limit, not the GPU's: the
+scale goes back up and holds for fifteen seconds. Render scale is the upper bound. Fast resamples its frame in the
+item that shows it, so a lower scale costs no extra pass there; Standard takes the same viewport scale. Not measured
+in play yet.
+
+### Shader lists a build carries
+
+A load makes its map's shaders on worker threads from the list its last load saved (`load_shaders/<map>.json`, "Load
+time" above), so the first load of a map on a machine had none: `build.cell-materials` was 1.7 s on the UHD 770 and
+5.5 s on a UHD 630 laptop. The build now carries a list for each map (`res://LoadShaders/<map>.json.gz`, read when
+the user folder has none; `ResponsiveSmokeShaders.BundledList`). `tools/ci/bake-shader-lists.ps1` writes them: one
+load of each map by an exported game with `SVM_SHADER_LIST_OUT`, first-run settings in an empty user folder, window
+off screen; the export is then made again so it holds them. A list names shader source, which changes when the
+template changes, so the lists belong to the build and are baked for each release; a stale or differently set list
+only names shaders the load does not ask for. Maps that are not in the content folder at bake time (custom maps)
+load as before until their second load. The driver's own pipeline compile, most of a cold first load, is not
+touched by this.
+
 ## The target
 
 ### The original at 2560×1440 on the UHD 770 (measured 2026-11-10)

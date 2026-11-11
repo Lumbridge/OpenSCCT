@@ -657,7 +657,40 @@ int svm_dyn_falloff() {
 
 #include "res://Shaders/svm_window_light.gdshaderinc"
 
+// One row of svm_dyn_lights at a surface point.
+vec3 svm_dynamic_row(int i, vec3 wp, vec3 wn, float zone) {
+	float own = texelFetch(svm_dyn_lights, ivec2(3, i), 0).x;
+	if (svm_dyn_tune.w > 0.5 && own >= 0.0 && abs(own - zone) > 0.5) {
+		return vec3(0.0);
+	}
+	vec4 p = texelFetch(svm_dyn_lights, ivec2(0, i), 0);
+	vec4 c = texelFetch(svm_dyn_lights, ivec2(1, i), 0);
+	vec4 s = texelFetch(svm_dyn_lights, ivec2(2, i), 0);
+	p.w *= svm_dyn_tune.y;
+	vec3 live = svm_one_light(p, c, s, wp, wn, svm_dyn_falloff());
+	if (any(greaterThan(live, vec3(0.0)))) live *= svm_window_filter(wp, p);
+	return live;
+}
+
 vec3 svm_dynamic(vec3 wp, vec3 wn, float zone) {
+#ifdef SVM_RD_WORLD
+	// The world pass on the RenderingDevice (Rd/RdWorldRenderer) hands each draw the rows that can reach it (bit i for
+	// row i below 32): every other row adds exactly nothing to it. A pixel walks those rows alone, with no lookup of
+	// the light grid; only a map with more than 32 rows takes the loop below, for the rows from 32 on.
+	vec3 named = vec3(0.0);
+	int rows = svm_draw_dyn_bits;
+	if (svm_dyn_light_count < 32) {
+		rows &= (1 << svm_dyn_light_count) - 1;
+	}
+	while (rows != 0) {
+		int i = findLSB(rows);
+		rows &= rows - 1;
+		named += svm_dynamic_row(i, wp, wn, zone);
+	}
+	if (svm_dyn_light_count <= 32) {
+		return named * svm_dyn_tune.x;
+	}
+#endif
 	// The grid bounds use the normal light radius. Use the full list for radius calibration overrides.
 	bool indexed = svm_dyn_indexed_rows > 0 && svm_dyn_tune.y == 1.0;
 	int cell = 0;
@@ -683,24 +716,16 @@ vec3 svm_dynamic(vec3 wp, vec3 wn, float zone) {
 				: svm_dyn_indexed_rows + j - local_count;
 		}
 #ifdef SVM_RD_WORLD
-		// The world pass on the RenderingDevice (Rd/RdWorldRenderer) hands each draw the rows that can reach it (bit
-		// i for row i below 32): every other row adds exactly nothing to it.
-		if (i < 32 && ((svm_draw_dyn_bits >> i) & 1) == 0) {
+		// The rows below 32 were walked above.
+		if (i < 32) {
 			continue;
 		}
 #endif
-		float own = texelFetch(svm_dyn_lights, ivec2(3, i), 0).x;
-		if (svm_dyn_tune.w > 0.5 && own >= 0.0 && abs(own - zone) > 0.5) {
-			continue;
-		}
-		vec4 p = texelFetch(svm_dyn_lights, ivec2(0, i), 0);
-		vec4 c = texelFetch(svm_dyn_lights, ivec2(1, i), 0);
-		vec4 s = texelFetch(svm_dyn_lights, ivec2(2, i), 0);
-		p.w *= svm_dyn_tune.y;
-        vec3 live = svm_one_light(p, c, s, wp, wn, svm_dyn_falloff());
-        if (any(greaterThan(live, vec3(0.0)))) live *= svm_window_filter(wp, p);
-        sum += live;
+		sum += svm_dynamic_row(i, wp, wn, zone);
 	}
+#ifdef SVM_RD_WORLD
+	sum += named;
+#endif
 	return sum * svm_dyn_tune.x;
 }
 

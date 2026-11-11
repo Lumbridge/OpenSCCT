@@ -566,8 +566,9 @@ and its opaque pass, into Godot's own colour and depth buffers, with this templa
 pixels: without the spot code where no slot's frustum reaches the block, without the dynamic light code where no row
 does, without portal fog while the view has none. Their Godot meshes stay on the `StaticWorldRd` and `SkyRd` layers for
 the shadow cameras, and for the main view in thermal and EMF, with responsive smoke, and on maps with an outdoor sky.
-Global shader parameters are set through `ShaderGlobals`, which the pass reads back. Measurements and limits:
-docs/PERFORMANCE-LOWEND-2026-11.md.
+Global shader parameters are set through `ShaderGlobals`, which the pass reads back. A lit draw walks only the dynamic
+light rows that reach it, and the Fast renderer leaves out the batches of zones the camera cannot see through the map's
+portals (`Rd/RdZoneVisibility`). Measurements and limits: docs/PERFORMANCE-LOWEND-2026-11.md.
 
 ## Flare lights
 

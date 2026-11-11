@@ -904,6 +904,7 @@ public partial class PlayRoot : Node3D
             _loadTimed = true;
             if (LoadTimer.Id == _loadId) LoadTimer.End("first-control");
             OpenScctGame.Render.Materials.ResponsiveSmokeShaders.SaveList();
+            if (OpenScctGame.Render.Materials.ResponsiveSmokeShaders.Baking) GetTree().Quit();
         }
         if (session.ServerFailure is { } failure && _status is not null)
         {
