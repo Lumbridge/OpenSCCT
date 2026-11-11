@@ -51,7 +51,8 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
     private readonly List<AmbientSource> _ambient = [];
     private readonly Dictionary<int, Voice> _ambientVoices = [];
     private readonly HashSet<int> _ambientSeen = [];
-    private readonly Dictionary<string, (int ActorId, float Volume)> _loudest2D = new(StringComparer.OrdinalIgnoreCase);
+    // Counts UpdateAmbient passes: a 2D loop started in this pass is not yet "playing" for the others of the pass.
+    private int _ambientPass;
     private AudioListener3D? _listener;
     private Random _random = new(1);
     private int _freshId;
@@ -914,24 +915,7 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
 
         AddStaticAmbient();
         _ambientSeen.Clear();
-        _loudest2D.Clear();
-        // Pass 1: which actor is the loudest for each 2D sound (rule 22).
-        foreach (AmbientSource a in _ambient)
-        {
-            SoundDef? def = Library!.Find(a.Sound);
-            if (def is null || def.Positional || a.IsZone)
-            {
-                continue;
-            }
-
-            float v2 = SoundRules.Ambient2DVolume(AmbientVolume(a), def.Volume, FVector.Dist(a.Location, ListenerLocation),
-                def.Radius > 0f ? def.Radius : a.SoundRadius);
-            if (v2 >= AudioK.Ambient2DCut && (!_loudest2D.TryGetValue(def.Path, out var best) || v2 > best.Volume))
-            {
-                _loudest2D[def.Path] = (a.ActorId, v2);
-            }
-        }
-
+        _ambientPass++;
         foreach (AmbientSource a in _ambient)
         {
             SoundDef? def = Library!.Find(a.Sound);
@@ -957,12 +941,8 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
             }
             else
             {
-                audible = _loudest2D.TryGetValue(def.Path, out var best) && best.ActorId == a.ActorId;
-                if (audible)
-                {
-                    // The fall-off is applied as volume; the source plays 2D.
-                    playVolume = best.Volume / Math.Max(def.Volume, AudioK.MinVolume);
-                }
+                Update2DActorLoop(a, def, volume, radius, d);
+                continue;
             }
 
             if (!audible)
@@ -987,11 +967,6 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
                 if (Shared2DLoop(def.Path, a) is { } shared)
                 {
                     running = shared;
-                }
-                else if (!a.IsZone && ListenerZoneLoop(def.Path) is not null)
-                {
-                    // The listener's zone ambience keeps a sound it plays; no second copy starts.
-                    continue;
                 }
             }
 
@@ -1043,6 +1018,135 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
                 }
             }
         }
+    }
+
+    /// <summary>
+    /// Rule 22: the 2D ambient loop of an actor that is not a zone (UpdateAmbientSounds game 0x10b04bb0, Update
+    /// 0x10b0589c..0x10b05d26; checked against the running game on MoonD, 2026-11-11). An actor whose loop plays keeps
+    /// it, at its own volume falling off beyond the radius, until that is under 0.05. An actor without one is a
+    /// candidate when the unguarded formula gives 0.05: if a loop of the same Sound already plays, the candidate takes
+    /// it over when it is louder than that loop's actor and otherwise does nothing; if none plays, it starts its own.
+    /// Candidates are only compared with loops that played before this update, so actors that become candidates
+    /// together each start one: MoonD's seven park speakers all play, and their volumes add up.
+    /// </summary>
+    private void Update2DActorLoop(in AmbientSource a, SoundDef def, float volume, float radius, float d)
+    {
+        int id = (a.ActorId * 16) + AudioK.AmbientSlotId;
+        Voice? own = _ambientVoices.TryGetValue(a.ActorId, out Voice? kept) && OwnsAmbient(kept, id) ? kept : null;
+        if (kept is not null && own is null)
+        {
+            // Its voice went to another call (rule 15).
+            _ambientVoices.Remove(a.ActorId);
+            CountAmbientStop(a.ActorId);
+        }
+
+        float playing = SoundRules.Ambient2DPlayingVolume(volume, d, radius);
+        if (own is not null && string.Equals(own.CallPath, def.Path, StringComparison.OrdinalIgnoreCase))
+        {
+            if (SoundRules.SourceVolume(playing, own.Leaf?.Volume ?? def.Volume, false) >= AudioK.Ambient2DCut)
+            {
+                _ambientSeen.Add(a.ActorId);
+                Set2DLoop(own, a, playing, def);
+            }
+
+            // Else it is not seen this pass, and the pass's end stops it.
+            return;
+        }
+
+        if (own is not null)
+        {
+            own.Stop();
+            _ambientVoices.Remove(a.ActorId);
+            CountAmbientStop(a.ActorId);
+        }
+
+        float candidate = SoundRules.Ambient2DVolume(volume, def.Volume, d, radius);
+        if (candidate < AudioK.Ambient2DCut)
+        {
+            return;
+        }
+
+        int owner = 0;
+        Voice? found = null;
+        foreach (KeyValuePair<int, Voice> kv in _ambientVoices)
+        {
+            Voice v = kv.Value;
+            if (kv.Key != a.ActorId && OwnsAmbient(v, (kv.Key * 16) + AudioK.AmbientSlotId) && !v.AmbientPositional &&
+                v.AmbientPass != _ambientPass && string.Equals(v.CallPath, def.Path, StringComparison.OrdinalIgnoreCase))
+            {
+                owner = kv.Key;
+                found = v;
+                break;
+            }
+        }
+
+        if (found is not null)
+        {
+            if (found.AmbientZoneId is not null && string.Equals(found.AmbientZoneId, _listenerZone, StringComparison.OrdinalIgnoreCase))
+            {
+                // The listener's zone ambience keeps a sound it plays.
+                return;
+            }
+
+            if (found.AmbientZoneId is null && TryAmbientSource(owner, out AmbientSource other))
+            {
+                float theirs = SoundRules.Ambient2DVolume(AmbientVolume(other), def.Volume, FVector.Dist(other.Location, ListenerLocation),
+                    def.Radius > 0f ? def.Radius : other.SoundRadius);
+                if (candidate <= theirs)
+                {
+                    return;
+                }
+            }
+
+            // The loop carries on for this actor from where it was.
+            _ambientVoices.Remove(owner);
+            found.ActorId = a.ActorId;
+            found.Id = id;
+            found.Follow = a.ActorId > 0 && a.Follow;
+            found.Location = a.Location;
+            found.AmbientZoneId = null;
+            _ambientVoices[a.ActorId] = found;
+            _ambientSeen.Add(a.ActorId);
+            Set2DLoop(found, a, playing, def);
+            return;
+        }
+
+        var call = new PlayCall(def, a.ActorId, id, a.Location, playing, radius, SoundRules.AmbientPitch(a.SoundPitch),
+            music: false, loop: true, ambient: true, occlusion: a.SoundOcclusion);
+        if (Start(call, follow: a.ActorId > 0 && a.Follow) && LastStarted is { } started)
+        {
+            started.AmbientZoneId = null;
+            started.AmbientPass = _ambientPass;
+            _ambientVoices[a.ActorId] = started;
+            _ambientSeen.Add(a.ActorId);
+        }
+    }
+
+    private void Set2DLoop(Voice v, in AmbientSource a, float playVolume, SoundDef def)
+    {
+        v.BaseVolume = playVolume;
+        v.Volume = SoundRules.SourceVolume(playVolume, v.Leaf?.Volume ?? def.Volume, false);
+        v.Pitch = SoundRules.AmbientPitch(a.SoundPitch);
+        v.CallRadius = a.SoundRadius;
+        if (!v.Follow)
+        {
+            v.Location = a.Location;
+        }
+    }
+
+    private bool TryAmbientSource(int actorId, out AmbientSource source)
+    {
+        foreach (AmbientSource s in _ambient)
+        {
+            if (s.ActorId == actorId)
+            {
+                source = s;
+                return true;
+            }
+        }
+
+        source = default;
+        return false;
     }
 
     /// <summary>
@@ -1228,6 +1332,9 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
 
         /// <summary>The map id of the ZoneInfo whose ambience this loop is (rule 21), else null.</summary>
         public string? AmbientZoneId;
+
+        /// <summary>The UpdateAmbient pass that started this 2D loop.</summary>
+        public int AmbientPass;
         public float BaseVolume;
         public float Volume;
         public float CallRadius;

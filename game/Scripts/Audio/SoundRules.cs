@@ -128,6 +128,15 @@ public static class SoundRules
     }
 
     /// <summary>
+    /// Rule 22: the volume (before the Sound's gain) of a playing 2D ambient of a non-zone actor. Inside the radius it
+    /// is the actor's own volume; the start and takeover tests (<see cref="Ambient2DVolume"/>) have no such guard and
+    /// rise towards the actor.
+    /// </summary>
+    [OpenScct.Provenance.Provenance(OpenScct.Provenance.ProvenanceKind.Decoded, "game Update 0x10b05bf3..0x10b05d26: FCOMP d against the source's radius at 0x10b05c98, the fall-off only when d > R")]
+    public static float Ambient2DPlayingVolume(float volume, float distance, float radius, float rolloff = AudioK.Rolloff) =>
+        radius > 0f && distance > radius ? volume / ((((distance - radius) / radius) * rolloff) + 1f) : volume;
+
+    /// <summary>
     /// Rule 18 (GetOcclusion, game 0x10b07100): the occlusion factor of a source behind something, from the distance
     /// between the first surface seen from the listener and the first seen from the source (<paramref name="thickness"/>),
     /// the two surfaces' OcclusionTypes (the one that lets less through counts), their zone numbers and the portal

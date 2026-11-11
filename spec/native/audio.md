@@ -205,6 +205,19 @@ stream that has the Sound's own name.
     source's actor, or the source has no actor; a ZoneInfo of the listener's zone takes it over whatever its owner, so
     walking into another zone with the same ambience carries on; a non-zone actor never takes the source of the
     listener's zone. The sound keeps playing from where it was.
+    "Only the loudest plays" holds only between a candidate and a loop that already plays: candidates of one
+    update are not compared with each other, so actors that reach 0.05 together each start a loop. Read from the
+    running game (Play Level of MoonD as host, the subsystem's source table at seven listener spots): all seven
+    park speakers hold a voice of the 2D `ParkOrgan` everywhere on the map, each at its own
+    `V x Gain / (((d - R) / R) x Rolloff + 1)` (flat inside R), 0.09 to 0.57 apiece and about 2.3 summed in the
+    plaza. Ported 2026-11-11 (`SoundSystem.Update2DActorLoop`); before that the rewrite played one voice.
+    Checked against the game build 2026-11-11 (Update 0x10b05bf3..0x10b05d26, stop pass 0x10b0589c..0x10b05a28):
+    a playing source's volume is recalculated every update and falls off only when `d > R` (inside R it is
+    `V x Gain`; the start and takeover tests use the unguarded formula, which rises inside R), clamped to 1e-5..1.
+    Ported. Not ported: a 2D ambient starts with a 1 s fade-in and stops with a 1 s fade-out (2 s for a zone
+    the listener left) once its volume is under 0.05; the light's LightBrightness / 255 scales the buffer volume
+    only, after the clamp, not the candidate volume; a 3D ambient stops at `100 x R` without the zone factor unless
+    it is occluded.
 23. The listener is the viewport player controller's Location, turned by the scene's view (Update, game
     0x10b05260); its zone is the zone of that point (kept when the point is in zone 0). SCCT's following camera moves
     the controller to the camera spot, so in the third-person view it is the camera; the object views (sticky camera,
@@ -355,9 +368,8 @@ properties (spec/devices/sound-music.md).
 
 ## Open questions
 
-1. The listener roll-off: the 2D ambient formula reads the configured Rolloff (0.5); that the DirectSound 3D
-   listener gets the same factor is assumed. Scenario: a SoundTrigger at a known radius, listener at 1x, 2x and 4x
-   the radius; record the output level.
+1. Resolved 2026-11-11: Init (game 0x10b03230) and the viewport setter (0x10b035f0) call the DirectSound 3D
+   listener's SetRolloffFactor with the configured Rolloff (0.5; 1.0 when 0 or less) and SetDistanceFactor(0.0127).
 2. Decoded (rules 18 and 20). Open: whether the reference install runs the EAX path (its System folder has
    dsound.dll and eax.dll); the rewrite plays the DirectSound one.
 3. Resolved 2026-11-04: native one-shot PlaySound (`0x10b03d50`) clamps pitch to [0.5, 2], as for ambient sounds.
