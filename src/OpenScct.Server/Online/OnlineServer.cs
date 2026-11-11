@@ -589,7 +589,41 @@ public sealed partial class OnlineServer : IDisposable
         {
             Tick(now);
             afterTick?.Invoke(this);
+            ReportSlowTicks(now, clock.NowMicroseconds - now);
         }, () => IsIdle, () => CloseRequested);
+
+    private const long SlowTickMicros = 1_000_000 / Sim.Hz;
+    private long _slowTickReportAt;
+    private int _slowTicks;
+    private long _slowestTick;
+
+    /// <summary>
+    /// A tick longer than its 60 Hz slot puts the server behind its clients (they see it as lag with no packet lost):
+    /// the log says how many there were and the longest, at most every five seconds of a round.
+    /// </summary>
+    private void ReportSlowTicks(long now, long took)
+    {
+        if (took > SlowTickMicros && Phase != SessionPhase.Lobby && _travel is null)
+        {
+            _slowTicks++;
+            _slowestTick = Math.Max(_slowestTick, took);
+        }
+
+        if (now < _slowTickReportAt)
+        {
+            return;
+        }
+
+        if (_slowTicks > 0)
+        {
+            Log(string.Create(System.Globalization.CultureInfo.InvariantCulture,
+                $"{_slowTicks} slow server ticks in the last 5 s, the longest {_slowestTick / 1000.0:0.0} ms (a tick has {SlowTickMicros / 1000.0:0.0} ms)"));
+        }
+
+        _slowTickReportAt = now + 5 * Second;
+        _slowTicks = 0;
+        _slowestTick = 0;
+    }
 
     /// <summary>
     /// True when nobody is on the server: in the lobby, no players, no connections (not even one still connecting),
@@ -2071,6 +2105,13 @@ public sealed partial class OnlineServer : IDisposable
         if (ReferenceEquals(p.Slot, slot) || (p.Slot is null && !p.Expected))
         {
             p.Slot = null;
+            // Why the connection ended, when the player did not close it himself: the host's own log is the only
+            // place a server-side close (a protocol check, a full queue, a timeout) is recorded.
+            if (slot.Connection.CloseReason is not NetConnection.ClosedByRemote)
+            {
+                Log($"{p.Name}'s connection was closed by the server: {slot.Connection.CloseReason ?? "no reason given"}");
+            }
+
             KeepDropped(p, slot.Controller);
             RemovePlayer(p, $"{p.Name} left.");
         }

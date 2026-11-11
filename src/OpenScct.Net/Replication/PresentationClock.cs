@@ -8,6 +8,7 @@ public sealed class PresentationClock
 {
     private const int Window = 120;
     private const long ResyncDistance = 8 * NetTimeline.Fraction;
+    private const long AheadDistance = 2 * NetTimeline.Fraction;
     private readonly int[] _lateness = new int[Window];
     private long _lastServer = -1;
     private long _lastLocal;
@@ -63,7 +64,10 @@ public sealed class PresentationClock
             // Scene loading can stop client ticks while the server keeps running. Slewing a seconds-long gap
             // at 1/8 tick per tick would show stale poses and interaction targets for eight times that pause.
             // Recover forward discontinuities immediately; ordinary jitter still slews and time never rewinds.
-            _time = error > ResyncDistance ? desired : _time + step + Math.Clamp(error, -step / 8, step / 8);
+            // The other way (the server stalled or runs slow) displayed time is ahead of the data: nothing new can
+            // be shown, so it waits for the server instead of running on at 7/8 speed for seconds.
+            long slowest = error < -AheadDistance ? -step : -step / 8;
+            _time = error > ResyncDistance ? desired : _time + step + Math.Clamp(error, slowest, step / 8);
         }
 
         _lastAdvance = localTick;

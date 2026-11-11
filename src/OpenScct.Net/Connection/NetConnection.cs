@@ -390,7 +390,7 @@ public sealed partial class NetConnection : INetObjectMap
     {
         if (channel.ChType == EChannelType.CHTYPE_Control)
         {
-            CloseInternal("Closed by the other side", notifyRemote: false);
+            CloseInternal(ClosedByRemote, notifyRemote: false);
             return;
         }
 
@@ -1035,6 +1035,9 @@ public sealed partial class NetConnection : INetObjectMap
     /// channel 0), every channel is cleaned up and the driver is told.
     /// </summary>
     public void Close(string? reason = null) => CloseInternal(reason, notifyRemote: true);
+
+    /// <summary>The <see cref="CloseReason"/> of a connection the other side closed.</summary>
+    public const string ClosedByRemote = "Closed by the other side";
 
     private void CloseInternal(string? reason, bool notifyRemote)
     {

@@ -126,7 +126,7 @@ public sealed class OwnerLatencyTests
         moves.SealPredictionTick();
         Tick(60);
         Assert.Equal(EConnectionState.USOCK_Closed, source.State);
-        Assert.Equal("Movement input exceeds one simulation step per tick", source.CloseReason);
+        Assert.StartsWith("Movement input exceeds one simulation step per tick", source.CloseReason);
     }
 
     [Fact]

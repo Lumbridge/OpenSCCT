@@ -325,10 +325,10 @@ public sealed class SequencedMoveTransport : IMoveTransport
             Command c = next;
             float tickDelta = c.Delta + (_applied != 0 && c.InputTick == _appliedInputTick ? _appliedInputDelta : 0f);
             if (tickDelta > Sim.DeltaTime + 0.00001f)
-            { channel.Connection.Close("Movement input exceeds one simulation step per tick"); break; }
+            { channel.Connection.Close($"Movement input exceeds one simulation step per tick: delta {tickDelta}, {DescribeInputClock()}"); break; }
             if (_applied != 0 && (c.InputTick < _appliedInputTick || c.InputTick - _appliedInputTick > HistoryTicks ||
                 Math.Abs((c.Move.TimeStamp - (double)_appliedStamp) - (c.InputTick - _appliedInputTick) * (double)Sim.DeltaTime) > 2 * Sim.DeltaTime + 0.005))
-            { channel.Connection.Close("Invalid movement input timeline"); break; }
+            { channel.Connection.Close($"Invalid movement input timeline: stamp {_appliedStamp} to {c.Move.TimeStamp}, {DescribeInputClock()}"); break; }
             uint epoch = _epoch;
             float cost = c.Delta / Sim.DeltaTime;
             if (cost > _simulationCredit + 0.0001f) break;
