@@ -37,9 +37,11 @@ public sealed class SpySecurity
         FVector eye = AiSight.Eye(pawn);
         foreach (SBasicGamePlayObject device in bot.World.Level.AllActors<SBasicGamePlayObject>())
         {
-            if (device is not (SLaserTrigger or SCamera) || device.bDeleteMe || _known.Contains(device)) continue;
+            if (device is not (SLaserTrigger or SCamera) && !MercTrap(device) || device.bDeleteMe || _known.Contains(device)) continue;
             FVector d = device.Location - eye;
-            if (d.SizeSquared() > 1600f * 1600f || d.SafeNormal().Dot(bot.Controller.Rotation.Vector()) < .1f ||
+            // A mine or a tracker is a small thing on a wall: seen from nearer than a camera or a beam emitter.
+            float range = device is SMines ? MineSightRange : 1600f;
+            if (d.SizeSquared() > range * range || d.SafeNormal().Dot(bot.Controller.Rotation.Vector()) < .1f ||
                 !bot.World.LineOpen(eye, device.Location)) continue;
             _known.Add(device);
             // A newly seen beam or camera can invalidate the route chosen before it was visible.
@@ -48,10 +50,32 @@ public sealed class SpySecurity
         _known.RemoveAll(d => d.bDeleteMe);
     }
 
+    private static readonly Name NameActive = new("s_Active");
+    private static readonly Name NamePatrol = new("s_Patrol");
+
+    /// <summary>A mine or tracker is seen from this far (uu).</summary>
+    public const float MineSightRange = 900f;
+
+    /// <summary>Route cost of a node a laser mine's beam crosses: only taken when there is no other way.</summary>
+    public const float LaserMineCost = 4000f;
+
+    /// <summary>A trap the mercs place against spies: a laser mine of theirs, a proximity mine, a presence detector.</summary>
+    public static bool MercTrap(SBasicGamePlayObject device) => device switch
+    {
+        SMineLaser laser => laser.bMineDefenseur,
+        SMineProx or SPresDetector => true,
+        _ => false,
+    };
+
+    /// <summary>The trap goes off on speed, not on presence: a spy that creeps is let through.</summary>
+    public static bool SpeedTrap(SBasicGamePlayObject device) => device is SMineProx or SPresDetector;
+
     public static bool Active(SBasicGamePlayObject device) => !device.bDeleteMe && device switch
     {
-        SLaserTrigger laser => laser.IsInState(new Name("s_Active")) && !laser.bIsBroken,
-        SCamera camera => camera.IsInState(new Name("s_Patrol")),
+        SLaserTrigger laser => laser.IsInState(NameActive) && !laser.bIsBroken,
+        SCamera camera => camera.IsInState(NamePatrol),
+        SPresDetector detector => !detector.bExploding && !detector.bChaffed,
+        SMines mine => !mine.bExploding,
         _ => false,
     };
 
@@ -67,6 +91,24 @@ public sealed class SpySecurity
             float t = length > 0f ? Math.Clamp((center - a).Dot(delta) / length, 0f, 1f) : 0f;
             FVector separation = center - (a + delta * t);
             return separation.X * separation.X + separation.Y * separation.Y <= radius * radius && MathF.Abs(separation.Z) <= height;
+        }
+        if (device is SMineLaser mineLaser)
+        {
+            FVector a = mineLaser.Location;
+            FVector delta = mineLaser.vMurTouche - a;
+            float length = delta.SizeSquared();
+            float t = length > 0f ? Math.Clamp((center - a).Dot(delta) / length, 0f, 1f) : 0f;
+            FVector separation = center - (a + delta * t);
+            return separation.X * separation.X + separation.Y * separation.Y <= radius * radius && MathF.Abs(separation.Z) <= height;
+        }
+        if (device is SMineProx prox)
+        {
+            FVector at = prox.refloc.IsZero() ? prox.Location : prox.refloc;
+            return (center - at).SizeSquared() < (prox.MyRange + radius) * (prox.MyRange + radius);
+        }
+        if (device is SPresDetector detector)
+        {
+            return (center - detector.Location).SizeSquared() < (detector.fDetectionRadius + radius) * (detector.fDetectionRadius + radius);
         }
         if (device is SCamera camera)
         {
@@ -87,13 +129,34 @@ public sealed class SpySecurity
         {
             FVector center = floor + new FVector(0, 0, AiK.SpyCrouchHeight);
             if (Covers(device, center, AiK.PawnRadius + 40f, AiK.SpyCrouchHeight) &&
-                (device is SLaserTrigger || bot.World.LineOpen(device.Location, center)))
+                (device is SLaserTrigger or SMineLaser || bot.World.LineOpen(device.Location, center)))
             {
                 if (_avoidUntil.TryGetValue(device, out float until) && bot.World.Now < until) return float.PositiveInfinity;
-                cost += 150f;
+                // A laser mine kills: another way round unless there is none. A proximity mine or a tracker is
+                // crept through (MustCreep), which costs time.
+                cost += device is SMineLaser ? LaserMineCost : SpeedTrap(device) ? 60f : 150f;
             }
         }
         return cost;
+    }
+
+    /// <summary>
+    /// The spy stands in, or is about to walk into, the range of a proximity mine or a presence detector it has seen:
+    /// both only fire on a spy moving faster than their VitesseMin, so it creeps until it is through.
+    /// </summary>
+    public bool MustCreep(AiController bot, in AiPlan plan)
+    {
+        if (bot.Pawn is not { } pawn) return false;
+        int yaw = plan.MoveYaw ?? plan.Yaw ?? bot.Controller.Rotation.Yaw;
+        FVector ahead = pawn.Location + new FRotator(0, yaw, 0).Vector() * 90f;
+        foreach (SBasicGamePlayObject device in _known)
+        {
+            if (!SpeedTrap(device) || !Active(device)) continue;
+            if ((Covers(device, pawn.Location, pawn.CollisionRadius, pawn.CollisionHeight) ||
+                 Covers(device, ahead, pawn.CollisionRadius, pawn.CollisionHeight)) &&
+                bot.World.LineOpen(device.Location, pawn.Location)) return true;
+        }
+        return false;
     }
 
     public bool Steer(AiController bot, float now, ref AiPlan plan)
@@ -107,6 +170,8 @@ public sealed class SpySecurity
         foreach (SBasicGamePlayObject device in _known)
         {
             if (threat is not null) break;
+            // Mines are walked round or crept past, not shot at.
+            if (device is SMines) continue;
             if (_avoidUntil.TryGetValue(device, out float until) && now < until) continue;
             for (int step = 0; step <= (plan.Keys.Moving ? 6 : 0); step++)
             {

@@ -227,6 +227,12 @@ public sealed class AiController
             if (TeamPlay.OrderRequester is null || Gadgets.Active != SpyGadgetAct.None)
                 Gadgets.Apply(ref plan, now);
             Evasion.Apply(ref plan, now);
+            // Through a proximity mine's or a tracker's range at a creep, unless running from fire.
+            if (Brain is SpyAi spyBrain && plan.Keys.Moving && now - HurtAt > 2f && spyBrain.Security.MustCreep(this, plan))
+            {
+                plan.Keys.FastSpeed = false;
+                plan.Crouched = true;
+            }
         }
 
         if (Route is null && pawn is SPAWNDEFENSE)
