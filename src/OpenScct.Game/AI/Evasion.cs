@@ -42,6 +42,10 @@ public sealed class SpyEvasion
     /// <summary>What the last tick did.</summary>
     public SpyEvasionAct Last { get; private set; }
 
+    private float _freezeFrom = -1f;
+    private float _freezeLast = -100f;
+    private float _freezeBlockedUntil = -100f;
+
     /// <summary>Ticks that crept or froze (diagnostics).</summary>
     public int CreepTicks { get; private set; }
 
@@ -135,7 +139,24 @@ public sealed class SpyEvasion
             return;
         }
 
-        if (looking && _bot.Difficulty.Stealth >= EvasionK.FreezeStealth)
+        // A freeze lasts 6 s at most: a merc who goes on looking down the corridor is not waited out for ever.
+        float at = _bot.World.Now;
+        if (looking && _bot.Difficulty.Stealth >= EvasionK.FreezeStealth && at >= _freezeBlockedUntil)
+        {
+            if (_freezeFrom < 0f || at - _freezeLast > 0.5f)
+            {
+                _freezeFrom = at;
+            }
+
+            _freezeLast = at;
+            if (at - _freezeFrom > EvasionK.FreezeMaxSeconds)
+            {
+                _freezeFrom = -1f;
+                _freezeBlockedUntil = at + 4f;
+            }
+        }
+
+        if (looking && _bot.Difficulty.Stealth >= EvasionK.FreezeStealth && at >= _freezeBlockedUntil)
         {
             plan.Keys.BT_Up = 0;
             plan.Keys.BT_Down = 0;
@@ -229,6 +250,9 @@ public static class EvasionK
     /// <summary>Stealth from which a bot keeps still under a merc's eyes and draws with the long press (Hard, Expert).</summary>
     [Provenance(ProvenanceKind.Estimated, "Bot play choice: Hard (0.85) and Expert (1.0)")]
     public const float FreezeStealth = 0.8f;
+
+    /// <summary>The longest one freeze lasts (s); the spy then creeps on for 4 s before it may freeze again.</summary>
+    public const float FreezeMaxSeconds = 6f;
 
     /// <summary>Distance (uu, times stealth, plus 400) within which a merc looking on makes the bot keep still.</summary>
     [Provenance(ProvenanceKind.Estimated, "Bot play choice")]

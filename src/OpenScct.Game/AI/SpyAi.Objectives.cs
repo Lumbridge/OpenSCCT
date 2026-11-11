@@ -86,6 +86,8 @@ public sealed partial class SpyAi
         foreach (SObjectiveTrigger candidate in candidates)
         {
             if (!AvailableObjective(candidate, now) || ObjectiveEntry(candidate) is not { } entry) continue;
+            // The mate's objective costs extra, as a claimed terminal does, so the two spies split.
+            float claimed = World.Teams[0].IsClaimedByOther(candidate, Bot) ? 4000f * (0.3f + Difficulty.Teamwork) : 0f;
             bool standing = candidate is SFlag or SFlagDropZone;
             FVector useFloor = default;
             if (standing && !FlagUseFloor(entry, out useFloor)) continue;
@@ -96,11 +98,11 @@ public sealed partial class SpyAi
                 standing ? graph.Profile.Spacing * 5f : Math.Max(100f, entry.CollisionRadius + Pawn.CollisionRadius), nodes);
             foreach (int node in nodes)
             {
-                if (!float.IsFinite(costs[node]) || costs[node] >= best) continue;
+                if (!float.IsFinite(costs[node]) || costs[node] + claimed >= best) continue;
                 FVector floor = graph.Node(node).Floor;
                 if (standing)
                 {
-                    float cost = costs[node] + NavFollower.Horizontal(floor - useFloor);
+                    float cost = costs[node] + claimed + NavFollower.Horizontal(floor - useFloor);
                     if (cost >= best || !Follower.Clear(floor, useFloor, crouched: true)) continue;
                     best = cost;
                     _otherObjective = candidate;
@@ -112,7 +114,7 @@ public sealed partial class SpyAi
                 if (NavFollower.Horizontal(center - entry.Location) > entry.CollisionRadius + Pawn.CollisionRadius - 32f ||
                     MathF.Abs(center.Z - entry.Location.Z) > entry.CollisionHeight + AiK.SpyCrouchHeight - 4f ||
                     !World.LineOpen(center, entry.Location)) continue;
-                best = costs[node];
+                best = costs[node] + claimed;
                 _otherObjective = candidate;
                 _objectiveFloor = floor;
                 _objectiveStanding = false;
@@ -153,6 +155,7 @@ public sealed partial class SpyAi
         }
         SObjectiveTrigger? target = FindOtherObjective(now);
         if (target is null || ObjectiveEntry(target) is not { } entry) return;
+        World.Teams[0].Claim(target, Bot);
         if ((Pawn.Location - _objectiveProgress).SizeSquared() > 120f * 120f)
         {
             _objectiveProgress = Pawn.Location;

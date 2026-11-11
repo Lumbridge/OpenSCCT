@@ -101,6 +101,9 @@ public sealed partial class SpyAi : AiBrain
     private bool _shockRollOk;
     private SBasePawn? _shockedPawn;
     private float _shockedAt = -100f;
+    private float _exposedAt = -100f;
+    private float _exposedLevel;
+    private Pawn? _exposedBy;
     private float _holsterTapAt = -100f;
 
     // Grab and drop (melee).
@@ -208,7 +211,10 @@ public sealed partial class SpyAi : AiBrain
     public override void Reset()
     {
         base.Reset();
+        World.Teams[0].Release(Bot);
         _target = null;
+        _flushedFrom = null;
+        _exposedBy = null;
         _hack = HackPhase.Walk;
         _shockPhase = ShockPhase.None;
         _shockTarget = null;
@@ -268,6 +274,22 @@ public sealed partial class SpyAi : AiBrain
 
         if (FindOtherObjective(now) is not null)
             options[n++] = new AiOption(GObjective, hasTerminal ? .65f : .8f);
+
+        // A merc that faced the spy a moment ago is still a threat when the spy has turned its back to run: the
+        // exposure is remembered for a few seconds while that merc is believed to have a line to the spy.
+        if (exposure > 0.25f && threat is not null)
+        {
+            _exposedAt = now;
+            _exposedLevel = exposure;
+            _exposedBy = threat;
+        }
+        else if (exposure <= 0.25f && now - _exposedAt < SpyAiK.EvadeMemorySeconds && _exposedBy is { Health: > 0 } seenBy &&
+            Bot.Memory.Find(seenBy) is { Confidence: > 0.4f } remembered && World.LineOpen(remembered.BelievedEye, AiSight.Eye(Pawn)))
+        {
+            exposure = _exposedLevel * 0.8f;
+            _threat = seenBy;
+            _exposure = exposure;
+        }
 
         if (exposure > 0.25f || hurt)
         {
@@ -676,7 +698,15 @@ public sealed partial class SpyAi : AiBrain
             _hideCooldownUntil = now + 8f;
         }
 
-        if (to != GHack)
+        // Chased off a terminal (evading, or hit on the way): not straight back to the same one.
+        if (from == GHack && _target is not null && (to == GEvade || now - Bot.HurtAt < 1.5f))
+        {
+            _flushedFrom = _target;
+            _flushedUntil = now + 30f;
+        }
+
+        // The claim goes with a change of objective, not with a detour: Hack and Objective claim theirs each tick.
+        if (to is GHack or GObjective or GIdle)
         {
             World.Teams[0].Release(Bot);
         }
@@ -829,9 +859,19 @@ public sealed partial class SpyAi : AiBrain
     private SComputerObjectiveTrigger? NextTerminal(float now)
     {
         if (World.Terminals.Count == 0) return null;
-        if (_target is { bActive: true } current && !World.IsTaken(current) && !current.bLocked && !_givenUp.ContainsKey(current))
+        if (_target is { bActive: true } current && !World.IsTaken(current) && !current.bLocked &&
+            !(_givenUp.TryGetValue(current, out float gaveUp) && now - gaveUp < 25f))
         {
-            return current;
+            // The terminal in hand is kept while nothing speaks against it. Chased off it, a merc believed beside
+            // it or the mate hacking it: the choice is made again (every 2 s at most), and may come out the same.
+            bool contested = (ReferenceEquals(current, _flushedFrom) && now < _flushedUntil) ||
+                (current.bTriggering && _hack == HackPhase.Walk) || MercBelievedAt(current.Location, 700f);
+            if (!contested || now < _retargetAt)
+            {
+                return current;
+            }
+
+            _retargetAt = now + 2f;
         }
 
         SComputerObjectiveTrigger? best = null;
@@ -840,7 +880,8 @@ public sealed partial class SpyAi : AiBrain
         float[] reachable = ReachabilityCosts(start);
         foreach (SComputerObjectiveTrigger t in World.Terminals)
         {
-            if (!t.bActive || World.IsTaken(t) || t.bLocked || t.bTriggering && !ReferenceEquals(t, _target) || (_givenUp.TryGetValue(t, out float at) && now - at < 25f))
+            if (!t.bActive || World.IsTaken(t) || t.bLocked || t.bTriggering && !(ReferenceEquals(t, _target) && _hack != HackPhase.Walk) ||
+                (_givenUp.TryGetValue(t, out float at) && now - at < 25f))
             {
                 continue;
             }
@@ -867,6 +908,18 @@ public sealed partial class SpyAi : AiBrain
                 score += 4000f * (0.3f + Difficulty.Teamwork);
             }
 
+            // The terminal it was just chased off: a merc who flushed the spy is likely still there.
+            if (ReferenceEquals(t, _flushedFrom) && now < _flushedUntil)
+            {
+                score += 3000f;
+            }
+
+            // The one in hand needs a clearly better rival, so the route is not swapped for a few units.
+            if (ReferenceEquals(t, _target))
+            {
+                score -= 400f;
+            }
+
             if (score < bestScore)
             {
                 bestScore = score;
@@ -875,6 +928,24 @@ public sealed partial class SpyAi : AiBrain
         }
 
         return best;
+    }
+
+    private SComputerObjectiveTrigger? _flushedFrom;
+    private float _flushedUntil = -100f;
+    private float _retargetAt = -100f;
+
+    /// <summary>A merc the spy believes (confidence over 0.5) within <paramref name="range"/> of <paramref name="at"/>.</summary>
+    private bool MercBelievedAt(FVector at, float range)
+    {
+        foreach (AiContact c in Bot.Memory.Contacts)
+        {
+            if (c.Confidence > 0.5f && (c.Position - at).SizeSquared() < range * range)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private void Hack(float now, ref AiPlan plan)
@@ -898,7 +969,16 @@ public sealed partial class SpyAi : AiBrain
                     _progressAt = now;
                     _progressPosition = Pawn.Location;
                     Follower.Clear();
-                    World.Teams[0].Claim(t, Bot);
+                }
+
+                // Claimed for as long as it is walked to (a detour to evade or shock does not drop it), so the
+                // mate takes another terminal.
+                World.Teams[0].Claim(t, Bot);
+
+                // Standing still on purpose is not being stuck: a gadget in use, a door waited for, a freeze in the dark.
+                if (Bot.Gadgets.Active != SpyGadgetAct.None || Doors.Busy || Bot.Evasion.Last == SpyEvasionAct.Freeze)
+                {
+                    _progressAt = now;
                 }
 
                 if (!UseSpot(t, out FVector floor, out _useYaw))
@@ -1707,6 +1787,9 @@ public sealed partial class SpyAi : AiBrain
 /// <summary>Constants of the spy bots' shock, grab, drop and roll (play choices unless decoded).</summary>
 public static class SpyAiK
 {
+    /// <summary>Seconds a spy goes on evading a merc that faced it after losing sight of him (it turned to run).</summary>
+    public const float EvadeMemorySeconds = 4f;
+
     [Provenance(ProvenanceKind.Decoded, "spy-shocker.md: SStickyShocker EnergyNeeded 15")]
     public const float ShotEnergy = 15f;
 
