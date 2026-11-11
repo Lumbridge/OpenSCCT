@@ -332,7 +332,12 @@ yaw instead of along the foot bone, and the texture's axes on the floor are esti
 - Map loops over the network (read through, not run): SAmbientSoundTrigger.PreBeginPlay runs in every world, so a
   client starts with the server's on/off state; AmbientSound is replicated (Actor group 5 in the first bunch,
   SAmbientSoundTrigger and Mover on every change) against class-default shadows, so an initially-on trigger, a
-  trigger switched later and a mover's loop reach the client.
+  trigger switched later and a mover's loop reach the client. A trigger's channel carries AmbientSound and nothing
+  else (its replication list has no parent list), and the client's copy is spawned from the class, so it has the
+  class's SoundVolume 190, SoundRadius 64 and SoundPitch 64. The sound system takes those three and SoundOcclusion
+  from the trigger's row in the map's audio.json instead, found by its location (`LevelAudioWorld`): without that a
+  2D loop placed with radius 500 (MoonD's park music) faded out at 64 and was silent across the map. This is what
+  the original's host hears; a joined client of the original plays the class defaults.
 - Spy walk/run branches now call ClientNotifyNoise with original loudness. Authority delivers the cue once to
   remote listeners, with prediction/replay suppression. Default PlaySound/PlayOwnedSound slots are SLOT_Misc,
   while explicit SLOT_None keeps independent overlap. StopSound(None) stops the actor's sources and is retained

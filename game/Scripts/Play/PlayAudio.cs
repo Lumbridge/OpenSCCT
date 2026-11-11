@@ -169,7 +169,7 @@ public sealed partial class PlayAudio : Node
         {
             _bound = true;
             Level level = session.Client.World.Level;
-            sound.SetWorld(new LevelAudioWorld(level, map.Physics?.Collision, a => map.Loaded?.RecordOf(a)?.Id));
+            sound.SetWorld(new LevelAudioWorld(level, map.Physics?.Collision, a => map.Loaded?.RecordOf(a)?.Id, Library?.Map?.Actors));
         }
     }
 

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
+using OpenScct.Game.SBase;
 using OpenScct.Game.Svm;
 using OpenScct.Physics.Collision;
 
@@ -75,9 +76,44 @@ public interface IAudioWorld
 /// <see cref="IAudioWorld"/> over a <see cref="Level"/> (the client's world) and its collision. Actor ids for zones
 /// come from <paramref name="mapIdOf"/> (MapLoadResult.RecordOf(actor).Id); actors the map did not place have none.
 /// </summary>
-public sealed class LevelAudioWorld(Level level, ICollisionWorld? collision, Func<Actor, string?>? mapIdOf = null) : IAudioWorld
+public sealed class LevelAudioWorld(Level level, ICollisionWorld? collision, Func<Actor, string?>? mapIdOf = null,
+    IReadOnlyList<MapSoundActor>? placed = null) : IAudioWorld
 {
     public Level Level { get; } = level ?? throw new ArgumentNullException(nameof(level));
+
+    // The map's SAmbientSoundTriggers by where they stand (whole units, as an actor's location is sent).
+    private Dictionary<(int, int, int), MapSoundActor>? _placedTriggers;
+
+    /// <summary>
+    /// The map's own row of a sound trigger the server sent. Its channel carries AmbientSound and nothing else
+    /// (ASAmbientSoundTrigger::GetOptimizedRepList has no parent list), so the client's copy has the class's
+    /// SoundVolume, SoundRadius and SoundPitch, not the ones the map gives it: a 2D loop placed with a radius of 500
+    /// (a community map's music) faded out at the default 64. The map's table has the placed values.
+    /// </summary>
+    private MapSoundActor? PlacedTrigger(Actor a)
+    {
+        if (placed is null || a is not SAmbientSoundTrigger)
+        {
+            return null;
+        }
+
+        if (_placedTriggers is null)
+        {
+            _placedTriggers = new Dictionary<(int, int, int), MapSoundActor>();
+            foreach (MapSoundActor row in placed)
+            {
+                if (row.AmbientSound is not null && row.Class.EndsWith(".SAmbientSoundTrigger", StringComparison.Ordinal))
+                {
+                    _placedTriggers.TryAdd(Whole(row.Location), row);
+                }
+            }
+        }
+
+        return _placedTriggers.TryGetValue(Whole(a.Location), out MapSoundActor? found) ? found : null;
+    }
+
+    private static (int, int, int) Whole(FVector p) =>
+        ((int)MathF.Floor(p.X + 0.5f), (int)MathF.Floor(p.Y + 0.5f), (int)MathF.Floor(p.Z + 0.5f));
 
     public bool TryGetActorLocation(int actorId, out FVector location)
     {
@@ -117,6 +153,14 @@ public sealed class LevelAudioWorld(Level level, ICollisionWorld? collision, Fun
                         a.AmbientSound.Path!, a.SoundVolume, a.SoundRadius, a.SoundPitch, false, 0, 0f, (byte)a.SoundOcclusion, Follow: false));
                 }
 
+                continue;
+            }
+
+            if (PlacedTrigger(a) is { } row)
+            {
+                into.Add(new AmbientSource(a.ActorId, mapIdOf?.Invoke(a) ?? SpawnedId(a), a.Location,
+                    a.AmbientSound.Path!, row.SoundVolume, row.SoundRadius, row.SoundPitch, false, (int)a.LightType,
+                    a.LightBrightness, row.SoundOcclusion));
                 continue;
             }
 
