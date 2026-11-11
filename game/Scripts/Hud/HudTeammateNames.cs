@@ -44,20 +44,55 @@ public sealed class HudTeammateNames
             string path = "TeammateNames/" + index++;
             DrawList.Items.Add(HudText.Item(path, text,
                 new Rect2(point.X - screen.X / 2f, point.Y - height, screen.X, height), height, MagmaAlign.Center, colour));
-            // Sleep already replicates with the pawn, so the icon clears as soon as the teammate wakes.
-            if (merc && pawn.bSleeping && HudActivityIcons.Load("zzz") is { } texture)
+            if (!merc) continue;
+            bool backpack = HasBackpack(pc, pawn);
+            if (pawn.bSleeping || backpack)
             {
                 float size = Mathf.Round(height * 1.75f);
                 float gap = 2f * screen.Y / MagmaRenderer.PageHeight;
-                var rect = new Rect2(Mathf.Round(point.X - size / 2f), Mathf.Round(point.Y - height - gap - size), size, size);
-                var sleepColour = new Color(0.55f, 0.77f, 1f, colour.A);
-                MagmaDrawItem icon = DrawList.Add(MagmaWidgetKind.Image);
-                icon.Path = path + "/Sleep";
-                icon.NativeTexture = texture;
-                icon.Clamp = true;
-                icon.SetGeometry([rect.Position, new Vector2(rect.End.X, rect.Position.Y), rect.End, new Vector2(rect.Position.X, rect.End.Y)],
-                    [Vector2.Zero, Vector2.Right, Vector2.One, Vector2.Down], [sleepColour, sleepColour, sleepColour, sleepColour]);
+                float width = pawn.bSleeping && backpack ? size * 2f + gap : size;
+                var rect = new Rect2(Mathf.Round(point.X - width / 2f),
+                    Mathf.Round(point.Y - height - gap - size), size, size);
+                // Sleeping replicates with the pawn, so the marker clears on waking or revival without a HUD timer.
+                if (pawn.bSleeping)
+                {
+                    Icon(path + "/Sleep", "zzz", rect, new Color(0.55f, 0.77f, 1f, colour.A));
+                    rect.Position += new Vector2(size + gap, 0f);
+                }
+                if (backpack)
+                {
+                    // Each viewer has a separate share. A full inventory does not mean their share is exhausted.
+                    Color backpackColour = HasBackpackSupplies(pawn, own) ? colour : new Color(0.3f, 0.3f, 0.3f, colour.A);
+                    Icon(path + "/Backpack", "backpack", rect, backpackColour);
+                }
             }
         }
+    }
+
+    private static bool HasBackpack(SPlayerController pc, SBasePawn pawn)
+    {
+        // Other players' gadget inventories are owner-only; the carried mesh replicates its carrier to everyone.
+        foreach (SBackPack backpack in pc.XLevel.AllActors<SBackPack>())
+            if (ReferenceEquals(backpack.Instigator, pawn)) return true;
+        return false;
+    }
+
+    private static bool HasBackpackSupplies(SBasePawn carrier, SBasePawn viewer) =>
+        (ReferenceEquals(carrier.aBackPackOwner_A, viewer) &&
+            (carrier.aNbChargesGad_Mate_A0 > 0 || carrier.aNbChargesGad_Mate_A1 > 0 ||
+             carrier.aNbChargesGad_Mate_A2 > 0 || carrier.aNbChargesGad_Mate_A3 > 0)) ||
+        (ReferenceEquals(carrier.aBackPackOwner_B, viewer) &&
+            (carrier.aNbChargesGad_Mate_B0 > 0 || carrier.aNbChargesGad_Mate_B1 > 0 ||
+             carrier.aNbChargesGad_Mate_B2 > 0 || carrier.aNbChargesGad_Mate_B3 > 0));
+
+    private void Icon(string path, string name, Rect2 rect, Color colour)
+    {
+        if (HudActivityIcons.Load(name) is not { } texture) return;
+        MagmaDrawItem icon = DrawList.Add(MagmaWidgetKind.Image);
+        icon.Path = path;
+        icon.NativeTexture = texture;
+        icon.Clamp = true;
+        icon.SetGeometry([rect.Position, new Vector2(rect.End.X, rect.Position.Y), rect.End, new Vector2(rect.Position.X, rect.End.Y)],
+            [Vector2.Zero, Vector2.Right, Vector2.One, Vector2.Down], [colour, colour, colour, colour]);
     }
 }

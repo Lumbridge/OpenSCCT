@@ -1,5 +1,7 @@
 # Event feed icons
 
+`backpack.svg` is an original OpenSCCT teammate status icon, shared through the bundled HUD icon loader. The attribution below applies to the Game-icons.net artwork.
+
 Icons made by Lorc, Delapouite, Sbed, Skoll, John Colburn and Guard13007, from [Game-icons.net](https://game-icons.net/), licensed under [Creative Commons Attribution 3.0 Unported](https://creativecommons.org/licenses/by/3.0/).
 
 Source repository: [game-icons/icons at `82d948812bfe3f269ef8f731dcdb07b08160edc4`](https://github.com/game-icons/icons/tree/82d948812bfe3f269ef8f731dcdb07b08160edc4).
