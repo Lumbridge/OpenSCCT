@@ -45,6 +45,9 @@ public static class TeamAiK
     /// <summary>How far the bot goes to help (path start distance, uu).</summary>
     public const float HelpRange = 2500f;
 
+    /// <summary>A downed mate is not walked to while an enemy is believed within this of him (uu).</summary>
+    public const float ReviveDangerRange = 800f;
+
     /// <summary>How far the bot goes to climb on a ready mate.</summary>
     public const float ClimbRange = 1500f;
 
@@ -270,6 +273,15 @@ public sealed partial class TeamAi
             _follower?.Clear();
         }
 
+        // A revive under way is called off the same way when a merc turns up at the body.
+        if (Goal == TeamGoal.Revive && _target is { } reviving && (reviving.Location - pawn.Location).Size() >= 150f &&
+            EnemyBelievedNear(reviving.Location, TeamAiK.ReviveDangerRange))
+        {
+            Goal = TeamGoal.None;
+            _target = null;
+            _follower?.Clear();
+        }
+
         TeamGoal best = TeamGoal.None;
         SBasePawn? bestTarget = null;
         float bestScore = 0f;
@@ -281,7 +293,10 @@ public sealed partial class TeamAi
             }
 
             float d = (mate.Location - pawn.Location).Size();
-            Consider(TeamGoal.Revive, mate, mate.bLyingOnGround && mate.bSleeping && d < TeamAiK.HelpRange, 1.2f, d);
+            // A downed mate with a merc believed beside him is bait: the revive waits until the merc has moved off
+            // (he is looked for again every decision), unless the bot is already at the body.
+            Consider(TeamGoal.Revive, mate, mate.bLyingOnGround && mate.bSleeping && d < TeamAiK.HelpRange &&
+                (d < 150f || !EnemyBelievedNear(mate.Location, TeamAiK.ReviveDangerRange)), 1.2f, d);
             if (danger)
             {
                 continue;
@@ -344,6 +359,19 @@ public sealed partial class TeamAi
         }
     }
 
+    /// <summary>An enemy the bot believes (confidence over 0.5) within <paramref name="range"/> of <paramref name="at"/>.</summary>
+    private bool EnemyBelievedNear(FVector at, float range)
+    {
+        foreach (AiContact c in _bot.Memory.Contacts)
+        {
+            if (c.Confidence > 0.5f && (c.Position - at).SizeSquared() < range * range)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
     /// <summary>
     /// True while the mate's health dropped within the last <see cref="TeamAiK.MateUnderFireSeconds"/> (the team's
     /// health as the HUD shows it, watched every decision).

@@ -328,6 +328,12 @@ public sealed partial class SpyAi : AiBrain
         // The shocker (it stuns, it does not kill): a merc closing in, one facing the spy at mid range, or one guarding
         // the terminal the spy wants.
         float shock = ShockChoice(now, exposure, hurt);
+        // Under fire from beyond the shocker's sure range the spy breaks the line rather than stand still to draw.
+        if (hurt && threatDistance > SpyAiK.ShockUnderFireRange)
+        {
+            shock = 0f;
+        }
+
         if (shock > 0f)
         {
             options[n++] = new AiOption(GShock, shock);
@@ -987,7 +993,9 @@ public sealed partial class SpyAi : AiBrain
                     return;
                 }
 
-                bool sneak = Difficulty.Stealth >= 0.5f || MercsAbout(now);
+                // Crouched with a merc believed about, or on the last stretch to the terminal (the stealthier bots);
+                // across empty ground the spy runs, as a player does.
+                bool sneak = MercsAbout(now) || Difficulty.Stealth >= 0.5f && (floor - Feet).SizeSquared() < SpyAiK.SneakApproach * SpyAiK.SneakApproach;
                 if (!MoveTo(floor, now, ref plan, sneak, Difficulty.Stealth, DangerPenalty(Difficulty.Stealth)))
                 {
                     // No way from here: wiggle free a couple of times before the terminal is given up.
@@ -1789,6 +1797,12 @@ public static class SpyAiK
 {
     /// <summary>Seconds a spy goes on evading a merc that faced it after losing sight of him (it turned to run).</summary>
     public const float EvadeMemorySeconds = 4f;
+
+    /// <summary>With no merc about, the stealthier spies crouch only within this of their objective (uu).</summary>
+    public const float SneakApproach = 1500f;
+
+    /// <summary>Shot at from farther than this, a spy breaks away instead of standing to draw the shocker (uu).</summary>
+    public const float ShockUnderFireRange = 550f;
 
     [Provenance(ProvenanceKind.Decoded, "spy-shocker.md: SStickyShocker EnergyNeeded 15")]
     public const float ShotEnergy = 15f;
