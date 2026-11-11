@@ -43,6 +43,8 @@ internal sealed class RdWorldFrame
     public readonly List<float> ProjectorBlocks = [];
     public readonly List<Rid> ProjectorTextures = [];
     public readonly List<int> ProjectorKinds = [];
+    /// <summary>Where each projector's box shows in the target, in pixels: its draws are cut to it. A zero size is the whole target.</summary>
+    public readonly List<Rect2> ProjectorRects = [];
     /// <summary>Own-frame mode: the coronas shown this frame (RdCoronas), grouped by texture.</summary>
     public readonly List<RdCoronas.Group> CoronaGroups = [];
     public readonly List<float> CoronaBlocks = [];
@@ -2469,6 +2471,7 @@ internal sealed class RdWorldGpu
         rd.DrawListBindVertexArray(dl, _vertexArray);
         Span<int> push = MemoryMarshal.Cast<byte, int>(_drawBlock.AsSpan());
         int bound = -1;
+        bool scissored = false;
         foreach (RdProjectors.Draw draw in frame.ProjectorDraws)
         {
             if (draw.Projector != bound)
@@ -2480,12 +2483,29 @@ internal sealed class RdWorldGpu
                 push[0] = bound;
                 push[1] = 0;
                 rd.DrawListSetPushConstant(dl, _drawBlock, (uint)_drawBlock.Length);
+                // A receiving batch is an 8 m block; the projection falls on the part of it inside the projector's box.
+                Rect2 rect = bound < frame.ProjectorRects.Count && !s_testNoScissor ? frame.ProjectorRects[bound] : default;
+                if (rect.Size.X > 0f && rect.Size.Y > 0f)
+                {
+                    rd.DrawListEnableScissor(dl, rect);
+                    scissored = true;
+                }
+                else if (scissored)
+                {
+                    rd.DrawListDisableScissor(dl);
+                    scissored = false;
+                }
             }
 
             rd.DrawListBindIndexArray(dl, _indexArrays[frame.Draws[draw.WorldDraw]]);
             rd.DrawListDraw(dl, true, 1, 0);
         }
+
+        if (scissored) rd.DrawListDisableScissor(dl);
     }
+
+    /// <summary>SVM_RD_WORLD_TEST=noscissor draws every projector's batches whole, as before (a measurement switch).</summary>
+    private static readonly bool s_testNoScissor = Test.Contains("noscissor");
 
     /// <summary>
     /// The template's draws in the own frame get the frame's one fog too: its globals say "one zone's ramp" (mode 1 of

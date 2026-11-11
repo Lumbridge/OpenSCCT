@@ -38,6 +38,9 @@ internal sealed class RdProjectors
 
     private static readonly StringName[] s_vec4 = ["proj_origin", "proj_x", "proj_y", "proj_z", "proj_shape", "proj_flip", "uv_row_u", "uv_row_v", "uv_anim_a", "uv_anim_b"];
     private readonly List<Info> _projectors = [];
+
+    /// <summary>The world box of each projector of the last <see cref="Gather"/>, by its index among the frame's blocks.</summary>
+    public static readonly List<Aabb> Boxes = [];
     private Node? _root;
 
     /// <summary>
@@ -51,6 +54,7 @@ internal sealed class RdProjectors
         blocks.Clear();
         textures.Clear();
         kinds.Clear();
+        Boxes.Clear();
         // The spy pistols' red dots: each is a small projector that moves every frame, so it is read again each time.
         if (tree is not null)
         {
@@ -95,6 +99,7 @@ internal sealed class RdProjectors
             if (index < 0)
             {
                 index = kinds.Count;
+                Boxes.Add(p.Box);
                 blocks.AddRange(p.Block);
                 textures.Add(p.Texture);
                 kinds.Add(p.Kind);

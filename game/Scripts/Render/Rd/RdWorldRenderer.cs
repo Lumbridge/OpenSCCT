@@ -558,7 +558,8 @@ public partial class RdWorldRenderer : Node
         frame.Size = new Vector2I(Math.Max(1, (int)(visible.X * scale)), Math.Max(1, (int)(visible.Y * scale)));
         Color clear = camera.Environment?.BackgroundColor.SrgbToLinear() ?? new Color(0f, 0f, 0f);
         frame.Clear = new Color(clear.R, clear.G, clear.B, 1f);
-        WriteClip(ToTarget(world, 1f - SkyDepth, SkyDepth), frame.Clip.AsSpan(0, 16));
+        Projection worldClip = ToTarget(world, 1f - SkyDepth, SkyDepth);
+        WriteClip(worldClip, frame.Clip.AsSpan(0, 16));
         WriteClip(ToTarget(sky, SkyDepth, 0f), frame.Clip.AsSpan(16, 16));
         bool normal = Post.DisplaySpaceEffect.RunsGlowComposite(vision);
         frame.Gate = _view.GlowGate && normal;
@@ -651,6 +652,8 @@ public partial class RdWorldRenderer : Node
         _gatherMs = System.Diagnostics.Stopwatch.GetElapsedTime(gathering).TotalMilliseconds;
         _projectors.Gather(_map.Projectors?.Root, GetTree(), _worldPlanes, static (planes, box) => Inside(planes, box), _geometry.Batches, frame.Draws, frame.DrawCount,
             frame.ProjectorDraws, frame.ProjectorBlocks, frame.ProjectorTextures, frame.ProjectorKinds);
+        frame.ProjectorRects.Clear();
+        foreach (Aabb box in RdProjectors.Boxes) frame.ProjectorRects.Add(TargetRect(box, worldClip, frame.Size));
 
         if (_ownFinal is not null)
         {
@@ -691,6 +694,32 @@ public partial class RdWorldRenderer : Node
     {
         static Vector4 Fix(Vector4 c, float scale, float bias) => new(c.X, -c.Y, (scale * 0.5f * (c.W - c.Z)) + (bias * c.W), c.W);
         return new Projection(Fix(m.X, scale, bias), Fix(m.Y, scale, bias), Fix(m.Z, scale, bias), Fix(m.W, scale, bias));
+    }
+
+    /// <summary>
+    /// The pixels of the target a world box can show in (two pixels of margin), or an empty rectangle when a corner
+    /// lies at or behind the eye's plane: the box may then show anywhere.
+    /// </summary>
+    private static Rect2 TargetRect(Aabb box, in Projection clip, Vector2I size)
+    {
+        Vector3 low = box.Position, high = box.End;
+        float minX = float.PositiveInfinity, minY = float.PositiveInfinity, maxX = float.NegativeInfinity, maxY = float.NegativeInfinity;
+        for (int corner = 0; corner < 8; corner++)
+        {
+            Vector4 c = clip * new Vector4((corner & 1) != 0 ? high.X : low.X, (corner & 2) != 0 ? high.Y : low.Y, (corner & 4) != 0 ? high.Z : low.Z, 1f);
+            if (!(c.W > 0.05f) || !float.IsFinite(c.X + c.Y + c.W)) return default;
+            float x = ((c.X / c.W * 0.5f) + 0.5f) * size.X, y = ((c.Y / c.W * 0.5f) + 0.5f) * size.Y;
+            minX = MathF.Min(minX, x);
+            maxX = MathF.Max(maxX, x);
+            minY = MathF.Min(minY, y);
+            maxY = MathF.Max(maxY, y);
+        }
+
+        float x0 = Math.Clamp(MathF.Floor(minX) - 2f, 0f, size.X), x1 = Math.Clamp(MathF.Ceiling(maxX) + 2f, 0f, size.X);
+        float y0 = Math.Clamp(MathF.Floor(minY) - 2f, 0f, size.Y), y1 = Math.Clamp(MathF.Ceiling(maxY) + 2f, 0f, size.Y);
+        // Off the target altogether: one pixel, so nothing is drawn (an empty rectangle means the whole target).
+        if (x1 <= x0 || y1 <= y0) return new Rect2(0f, 0f, 1f, 1f);
+        return new Rect2(x0, y0, x1 - x0, y1 - y0);
     }
 
     private static void WriteClip(in Projection m, Span<float> to)
@@ -903,7 +932,10 @@ public partial class RdWorldRenderer : Node
             else _neither++;
             frame.Draws[k] = _order[k];
             frame.Features[k] = (byte)features;
-            frame.SpotBits[k] = spots;
+            // The reaching slots again in bits 16 to 31, where svm_spot_bits holds the dynamic ones: the shader's
+            // mask of the two then keeps which of the reaching slots are dynamic (a surface that ignores static spot
+            // lights is still lit by a torch).
+            frame.SpotBits[k] = spots < 0 ? spots : spots | (spots << 16);
             frame.DynBits[k] = dynamicBits;
         }
 
