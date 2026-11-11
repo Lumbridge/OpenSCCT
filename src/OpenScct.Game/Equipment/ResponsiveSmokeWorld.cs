@@ -196,7 +196,7 @@ public sealed partial class ResponsiveSmokeWorld
             if (pc.Pawn is not SBasePawn pawn) continue;
             SSmokeEmitter? source = ExposureSource(pawn, now, out float density);
             if (source is null || density < ExposureThreshold) continue;
-            if (source.Role == ENetRole.ROLE_Authority) pc.ObserveGasActivity(source, source.TimeBaseToCought, source.TimeBaseToFaint, false);
+            if (source.Role == ENetRole.ROLE_Authority) pc.ObserveGasActivity(source, source.TimeBaseToCought, source.TimeBaseToFaint, false, source.Thrower);
             if (!pawn.bGasMask && !pc.IsRemotePlayer && _level.Info.NetMode != ENetMode.NM_DedicatedServer)
                 source.DetectedSPlayerController(pc);
         }

@@ -162,7 +162,9 @@ public partial class SStickyCam
 
         NextUseTime = SvmMath.Trunc(Level.TimeSeconds + Smoke_ReusabilityPeriod);
         Smoke_NbDoses--;
-        XLevel.SpawnActor(new SStickyCamEmitter(), Location, Rotation);
+        // Spawn hands the cam's instigator to the gas, as UnrealScript's Spawn does: the gas knock-out statistics and
+        // the sleep notice credit the emitter's instigator.
+        XLevel.SpawnActor(new SStickyCamEmitter(), Location, Rotation, null, Instigator ?? Owner as Pawn);
         PlaySound(SpawnGasSound, ESoundSlot.SLOT_None, 1f, false, K.StickyGasSoundRadius);
         GadgetFx.Notify(this, GadgetFx.StickyCamGas);
     }

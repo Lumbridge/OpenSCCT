@@ -161,13 +161,11 @@ public sealed class RoundScoreboardTracker(ServerHost host)
 
     private RoundScoreboard Build(SGameInfo game, bool final, bool completed)
     {
-        int needed = 0, taken = 0;
         int mode = (int)(game.MatchInfo?.GameMode ?? EGameMode.GM_Undefined);
-        foreach (SMission mission in host.World.Level.AllActors<SMission>())
-        {
-            if ((int)mission.GameMode != mode) continue;
-            needed = mission.MinimumObjectives; taken += mission.Objectives.Count(o => o is { ObjectiveTaken: true });
-        }
+        // The HUD's mission counters. Unused objectives and inactive stages also carry ObjectiveTaken, so counting
+        // that flag over a mission's list reports more objectives than the round asks for.
+        int needed = Math.Max(0, game.GameReplicationInfo?.NumObjectives ?? 0);
+        int taken = Math.Clamp(needed - OpenScct.Game.Objectives.MissionRules.GetObjectivesLeft(host.World.Level), 0, needed);
         double elapsed = Math.Max(0, (_now - _start) / 1_000_000d);
         return new RoundScoreboard
         {

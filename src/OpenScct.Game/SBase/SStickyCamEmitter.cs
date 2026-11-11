@@ -47,8 +47,12 @@ public partial class SStickyCamEmitter
             return;
         }
 
+        Thrower = Instigator?.PlayerReplicationInfo ?? Thrower;
         GasScan();
     }
+
+    /// <summary>The cam owner's player record, remembered while his pawn lives (as <see cref="SSmokeEmitter.Thrower"/>).</summary>
+    internal PlayerReplicationInfo? Thrower;
 
     /// <summary>
     /// The gas scan: a gassed pawn's controller gets GoInSmoke every tick; a new pawn is gassed when awake, not
@@ -72,7 +76,7 @@ public partial class SStickyCamEmitter
             {
                 if (Role == ENetRole.ROLE_Authority && p.Controller is SPlayerController exposed)
                 {
-                    exposed.ObserveGasActivity(this, TimeBaseToCought, TimeBaseToFaint, stickyCamera: true);
+                    exposed.ObserveGasActivity(this, TimeBaseToCought, TimeBaseToFaint, stickyCamera: true, Thrower);
                 }
 
                 (p.Controller as SPlayerController)?.eventGoInSmoke(TimeBaseToCought, TimeBaseToFaint, TimeBaseToJamming, ForceBaseToJamming);
@@ -92,7 +96,7 @@ public partial class SStickyCamEmitter
 
             if (Role == ENetRole.ROLE_Authority)
             {
-                pc.ObserveGasActivity(this, TimeBaseToCought, TimeBaseToFaint, stickyCamera: true);
+                pc.ObserveGasActivity(this, TimeBaseToCought, TimeBaseToFaint, stickyCamera: true, Thrower);
             }
 
             pc.eventGoInSmoke(TimeBaseToCought, TimeBaseToFaint, TimeBaseToJamming, ForceBaseToJamming);

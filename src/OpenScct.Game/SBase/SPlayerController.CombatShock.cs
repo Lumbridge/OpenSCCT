@@ -596,30 +596,35 @@ public partial class SPlayerController
     {
         bool sticky = StickyCamInstigator is not null && StickyCamInstigatorTime >= SmokeInstigatorTime;
         Pawn? gasser = sticky ? StickyCamInstigator : SmokeInstigator;
-        if (gasser is null)
+        PlayerReplicationInfo? thrower = sticky ? _stickyGasThrower : _smokeGasThrower;
+        if (gasser is null && thrower is null)
         {
             return;
         }
 
+        // The gas outlives its thrower's pawn: a spy who died since keeps the credit through his remembered record.
+        USPlayerStats? gasserStats = (thrower ?? gasser?.Controller?.PlayerReplicationInfo)?.Stats;
         if (sticky)
         {
             IncStat(this, static s => s.Merc_KnockedFromStickyCam++);
-            if (gasser.Controller is { } c)
+            if (gasserStats is not null)
             {
-                IncStat(c, static s => s.Spy_StickyCamKOs++);
+                gasserStats.Spy_StickyCamKOs++;
             }
         }
         else
         {
             IncStat(this, static s => s.Merc_KnockedFromSmoke++);
-            if (gasser.Controller is { } c)
+            if (gasserStats is not null)
             {
-                IncStat(c, static s => s.Spy_SmokeKOs++);
+                gasserStats.Spy_SmokeKOs++;
             }
         }
 
         SmokeInstigator = null;
         StickyCamInstigator = null;
+        _smokeGasThrower = null;
+        _stickyGasThrower = null;
     }
 
     /// <summary>

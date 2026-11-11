@@ -12,6 +12,12 @@ namespace OpenScct.Game.SBase;
 /// </summary>
 public partial class SSmokeEmitter
 {
+    /// <summary>
+    /// The thrower's player record, remembered while his pawn lives: the cloud outlasts him, and a knock-out it makes
+    /// after his death is still his (OpenSCCT's statistics and sleep notice).
+    /// </summary>
+    internal PlayerReplicationInfo? Thrower;
+
     [Uc("SBase.SSmokeEmitter.PostBeginPlay", Sha1 = "92d178a71c19bac54fa9760320ae884a1f1ffce5")]
     [PortOf("uc:SBase.SSmokeEmitter:PostBeginPlay", Spec = "spec/equipment/smoke-grenade.md#rules")]
     protected override void PostBeginPlay()
@@ -58,6 +64,7 @@ public partial class SSmokeEmitter
     protected override void NativeTick(float DeltaSeconds)
     {
         base.NativeTick(DeltaSeconds);
+        Thrower = Instigator?.PlayerReplicationInfo ?? Thrower;
         if (OpenScct.Game.Equipment.ResponsiveSmokeWorld.IsEnabled(XLevel))
         {
             OpenScct.Game.Equipment.ResponsiveSmokeWorld.For(XLevel).ApplyLocalExposure();
@@ -74,7 +81,7 @@ public partial class SSmokeEmitter
             {
                 if (Role == ENetRole.ROLE_Authority)
                 {
-                    pc.ObserveGasActivity(this, TimeBaseToCought, TimeBaseToFaint, stickyCamera: false);
+                    pc.ObserveGasActivity(this, TimeBaseToCought, TimeBaseToFaint, stickyCamera: false, Thrower);
                 }
 
                 // Observation also invalidates a pending episode while the mask protects the victim.

@@ -19,6 +19,11 @@ public partial class SPlayerController
     private float _gasActivityFaintAt;
     private int _gasActivitySwitch;
 
+    // Who gets the knock-out statistic of each kind of gas, kept apart from the instigator pawns: a spy who died
+    // after throwing still made the knock-out.
+    private PlayerReplicationInfo? _stickyGasThrower;
+    private PlayerReplicationInfo? _smokeGasThrower;
+
     private readonly record struct GasSleepNotice(int Switch, PlayerReplicationInfo? Instigator, PlayerReplicationInfo? Victim);
 
     private bool CanObserveGasSleep() => Role == ENetRole.ROLE_Authority &&
@@ -30,8 +35,11 @@ public partial class SPlayerController
         XLevel.WorldTimeSeconds - fLastTimeWakeUp > K.SmokeWakeGrace;
 
     /// <summary>Records actual server-observed exposure without driving the owner's cough, input or state.</summary>
-    internal void ObserveGasActivity(Actor source, float coughTime, float faintTime, bool stickyCamera)
+    internal void ObserveGasActivity(Actor source, float coughTime, float faintTime, bool stickyCamera,
+        PlayerReplicationInfo? thrower = null)
     {
+        // A dead thrower's pawn has no player record any more; the emitter keeps the one it had while he lived.
+        thrower ??= source.Instigator?.PlayerReplicationInfo;
         if (!CanObserveGasSleep())
         {
             ClearGasActivity();
@@ -46,7 +54,7 @@ public partial class SPlayerController
         {
             // Credit the source that set the effective faint deadline, regardless of emitter iteration order.
             _gasActivityFaintAt = deadline;
-            _gasActivityInstigator = source.Instigator?.PlayerReplicationInfo;
+            _gasActivityInstigator = thrower;
             _gasActivitySwitch = stickyCamera ? K.MsgStickyCameraSleep : K.MsgSmokeSleep;
         }
 
@@ -57,11 +65,13 @@ public partial class SPlayerController
         {
             StickyCamInstigator = source.Instigator;
             StickyCamInstigatorTime = now;
+            _stickyGasThrower = thrower;
         }
         else
         {
             SmokeInstigator = source.Instigator;
             SmokeInstigatorTime = now;
+            _smokeGasThrower = thrower;
         }
     }
 
