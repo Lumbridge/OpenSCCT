@@ -54,6 +54,8 @@ public static class NetClasses
                 var path = new RepExtension();
                 path.Properties.Add(new("PathTarget", "PathTarget", RepLeafKind.Int));
                 path.Properties.Add(new("PathPrevious", "PathPrevious", RepLeafKind.Int));
+                // A spinning mover's rotation, about once a second (Mover.ClientSync.cs).
+                path.Properties.Add(new(nameof(OpenScct.Core.Engine.Mover.SpinSample), nameof(OpenScct.Core.Engine.Mover.SpinSample), RepLeafKind.RotatorFine));
                 registry.Extend(type, path);
             }
             if (typeof(SBasePawn).IsAssignableFrom(type))

@@ -31,19 +31,43 @@ public partial class Mover
     }
 
     /// <summary>
-    /// Client: the rate of the leg the server started from PreviousKey to CurrentKey. A leg with its own time runs at that
-    /// time from the map file, as on the server: the replicated rate is rounded to a whole number x 100 on the wire,
-    /// which would make a long leg end at a different time on the client.
+    /// Client: the rate of the leg the server started from PreviousKey to CurrentKey. The replicated rate is rounded
+    /// to a whole number x 100 on the wire, which makes a leg end at a different time on the client (a MoveTime of
+    /// 8.6 s arrives as 8.33 s: the client ran on into the next leg and was pulled back when the server started it).
+    /// A leg with its own time runs at that time from the map file, as on the server; any other leg runs at the map's
+    /// MoveTime, or a whole number of them (a lift crossing several keys), when that rounds to the rate received.
     /// </summary>
     private float ClientLegRate(float replicatedRate)
     {
-        if (Legs is not { } legs)
+        if (Legs is { } legs)
         {
-            return replicatedRate;
+            PickLegEasing(legs);
+            if (legs.LegTime(PreviousKey, CurrentKey) is { } own)
+            {
+                return 1f / SvmMath.Max(own, MoverK.MinLegTime);
+            }
         }
 
-        PickLegEasing(legs);
-        return legs.LegTime(PreviousKey, CurrentKey) is { } own ? 1f / SvmMath.Max(own, MoverK.MinLegTime) : replicatedRate;
+        return MapLegRate(replicatedRate * 100f) ?? replicatedRate;
+    }
+
+    /// <summary>The rate as the wire carries it (InterpolateTo's SimInterpolate.Y, rounded like a vector component).</summary>
+    private static float WireRate(float rate) => SvmMath.Floor(100f * SvmMath.Max(0.01f, rate) + 0.5f);
+
+    /// <summary>The exact rate of a leg of 1 to 7 MoveTimes (no more than the mover has keys to cross) whose wire value is <paramref name="wire"/>, else null.</summary>
+    private float? MapLegRate(float wire)
+    {
+        wire = SvmMath.Floor(wire + 0.5f);
+        for (int keys = 1; keys <= System.Math.Clamp(KeyCount - 1, 1, MoverK.MaxKeys - 1); keys++)
+        {
+            float rate = 1f / SvmMath.Max(MoveTime * keys, MoverK.MinLegTime);
+            if (WireRate(rate) == wire)
+            {
+                return rate;
+            }
+        }
+
+        return null;
     }
 
     /// <summary>The longest single leg this mover can take: its MoveTime, or a key's own longer time.</summary>

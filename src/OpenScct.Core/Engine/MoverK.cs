@@ -35,4 +35,23 @@ public static class MoverK
     /// </summary>
     [Provenance(ProvenanceKind.Decoded, "game 0x10a21d23..0x10a21d44: |Velocity.Z| < 0.1 stamps fLastTimeMoverMoves (lift.md open question 2)")]
     public const float VerticalMoveSpeed = 0.1f;
+
+    /// <summary>OpenSCCT: how often a server samples a spinning mover's rotation for its clients (seconds).</summary>
+    [Provenance(ProvenanceKind.Estimated, "Ours: once a second bounds a client's spin drift after a stalled frame; the original sends a spinning mover's rotation never")]
+    public const float SpinSampleSeconds = 1f;
+
+    /// <summary>OpenSCCT: a client leaves its spinning mover alone within this many seconds of spin of the server's sample.</summary>
+    [Provenance(ProvenanceKind.Estimated, "Ours: above the arrival jitter of a sample (a few ticks), below what a walking rider notices")]
+    public const float SpinSlackSeconds = 0.05f;
+
+    /// <summary>OpenSCCT: the least spin error (rotation units) a client corrects, whatever the rate.</summary>
+    [Provenance(ProvenanceKind.Estimated, "Ours: 128 units is 0.7 degrees")]
+    public const int SpinSlack = 128;
+
+    /// <summary>
+    /// OpenSCCT: a client that started a leg itself keeps it when the server's start of the same leg arrives no more
+    /// than this many seconds of travel behind it.
+    /// </summary>
+    [Provenance(ProvenanceKind.Estimated, "Ours: above network delay and jitter; a client further ahead than this is on a stale leg and restarts")]
+    public const float ClientLegLeadSeconds = 0.5f;
 }

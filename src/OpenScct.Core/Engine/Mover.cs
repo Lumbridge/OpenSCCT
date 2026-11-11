@@ -150,6 +150,7 @@ public partial class Mover
     protected internal override void NativeTick(float DeltaSeconds)
     {
         base.NativeTick(DeltaSeconds);
+        SampleSpin();
         if (!bDeleteMe && Physics == EPhysics.PHYS_MovingBrush && Role != ENetRole.ROLE_AutonomousProxy)
         {
             physMovingBrush(DeltaSeconds);

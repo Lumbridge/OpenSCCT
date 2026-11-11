@@ -479,6 +479,8 @@ public static class PawnProxyReceiver
         private Mover? _mover;
         private FVector _simInterpolate;
         private int _pathTarget, _pathPrevious;
+        private int _currentKey, _previousKey;
+        private FRotator _spinSample;
         private readonly HubMoverSmoothing _hubMovers = new();
         private FRotator _rotation;
         private int _aim;
@@ -505,6 +507,9 @@ public static class PawnProxyReceiver
             _simInterpolate = _mover?.SimInterpolate ?? default;
             _pathTarget = _mover?.PathTarget ?? 0;
             _pathPrevious = _mover?.PathPrevious ?? 0;
+            _currentKey = _mover?.CurrentKey ?? 0;
+            _previousKey = _mover?.PreviousKey ?? 0;
+            _spinSample = _mover?.SpinSample ?? default;
             _meshActor = actor;
             _mesh = actor.StaticMesh;
             _skin = actor.RepSkin;
@@ -596,9 +601,27 @@ public static class PawnProxyReceiver
             if (mover.SimInterpolate != _simInterpolate || mover.Path is not null &&
                 (mover.PathTarget != _pathTarget || mover.PathPrevious != _pathPrevious))
             {
-                if (mover.Tag != "HubCourseMover" || !_hubMovers.Receive(mover))
+                if (mover.Tag == "HubCourseMover" ? !_hubMovers.Receive(mover) : !OnAnnouncedLeg(mover))
                     mover.ClientStartInterpolation();
             }
+
+            if (mover.SpinSample != _spinSample)
+            {
+                mover.ClientSyncSpin();
+            }
+        }
+
+        /// <summary>
+        /// OpenSCCT: whether the leg in the received SimInterpolate (or path keys) is the one the client's mover ran
+        /// before the bunch and still runs (Mover.ClientAlreadyOnLeg). A path mover's received keys overwrite the
+        /// keys of its own leg, so those are the ones kept from before the bunch.
+        /// </summary>
+        private bool OnAnnouncedLeg(Mover mover)
+        {
+            int keys = (int)mover.SimInterpolate.Z;
+            int target = mover.Path is null ? keys & 0xff : mover.PathTarget;
+            int previous = mover.Path is null ? (keys >> 8) & 0xff : mover.PathPrevious;
+            return target == _currentKey && previous == _previousKey && mover.ClientAlreadyOnLeg(previous, target);
         }
 
         /// <summary>

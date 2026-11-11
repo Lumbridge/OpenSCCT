@@ -737,6 +737,30 @@ client's landing, which a 110 uu correction pulled down from the top of its jump
 probe kept the copy stuck while the client walked on (10 uu corrections every 0.3 s). With the skin the spy applies
 8 corrections of at most 8.8 uu in 36.6 s and the merc 6 of at most 4.3 uu.
 
+## Movers on clients
+
+Every machine runs its own copy of a mover. The original keeps them together only loosely, and three things of ours
+tighten that (`Mover.ClientSync.cs`, `Mover.Legs.cs`, `PawnProxies.PostMover`):
+
+- **Exact leg time.** A leg's rate goes over the wire in `SimInterpolate.Y`, a vector component rounded to a whole
+  number (rate x 100). A MoveTime of 8.6 s arrives as 8.33 s, so the client finished each leg early, ran on into the
+  next and was pulled back about a quarter of a second of travel when the server started it. The client now runs the
+  leg at the map's own MoveTime (or a whole number of them, for a lift crossing several keys) whenever that rounds to
+  the rate received; a leg with its own time in `sim/movers.json` already did.
+- **No restart of a leg already running.** A client that reached a key and carried on by itself keeps that leg when
+  the server's start of the same leg arrives: same keys, same start, same rate, and no more than 0.5 s ahead of the
+  announced alpha. A client that is behind, or on another leg, starts the server's leg as before.
+- **Spinning movers.** A PHYS_Rotating mover with bFixedRotationDir (a carousel, a fan) sends nothing in the original:
+  each machine turns it from its own ticks, so a client that began ticking later, or dropped ticks in a long frame,
+  stayed out of phase for the rest of the round. A player's corrections are made in the deck's frame, so on an
+  out-of-phase deck every correction put a walking player somewhere turned by that phase. The server now samples the
+  mover's rotation once a second into `SpinSample` (16 bits per axis) and the client turns its copy onto a sample
+  that is more than 0.05 s of spin away, carrying whoever stands on it. The sample is as old as the network delay,
+  so the client's copy runs that much behind the server's, as its keyed movers do.
+
+Not covered by a test: the moving platform owner test steps the server and the client in lockstep from the same
+start, so it never has a phase difference.
+
 ## Bot matches
 
 `OpenScct.Bots` plays matches with headless bot clients. Each `BotClient` is a `ClientSession` with gameplay on,
