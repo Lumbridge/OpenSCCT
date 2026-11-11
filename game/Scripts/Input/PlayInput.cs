@@ -450,6 +450,12 @@ public partial class PlayInput : Node
             foreach (KeyAction a in ActionsOf(ik))
             {
                 if (IsTeamPing(a)) continue;
+                if (a.Kind == KeyActionKind.Command && a.Name.Equals(UI.ControlActions.AutoHackCommand, StringComparison.OrdinalIgnoreCase))
+                {
+                    // A setting, not a pawn command: the HUD's commands flip it and show the message.
+                    if (pressed) SendLocalCommand(UI.ControlActions.AutoHackCommand);
+                    continue;
+                }
                 bool merc = Bindings.Side == PlaySide.Merc;
                 var behavior = Options.SettingsStore.Current.LookOf(merc, false);
                 if (!merc && a.Kind == KeyActionKind.Button && a.Name.Equals("bCloak", StringComparison.OrdinalIgnoreCase) &&

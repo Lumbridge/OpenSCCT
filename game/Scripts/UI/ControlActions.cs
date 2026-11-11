@@ -17,6 +17,8 @@ public static class ControlActions
 {
     public const string PingId = "ping";
     public const string PingCommand = "TeamPing";
+    public const string AutoHackId = "autohack";
+    public const string AutoHackCommand = DefaultKeyLayout.AutoHackCommand;
 
     // Sources: LocalInput.Buttons/PlayerCommands; SPlayerController.CombatInput, Movement, CombatScope;
     // spec/equipment/{spy-shocker,grenade-throw,vision-goggles,merc-rifle}.md and UI/PlayMenu handlers.
@@ -75,6 +77,7 @@ public static class ControlActions
         A("wheelup", "Gadgets", "Mouse wheel up action", "Uses the shared mouse-wheel preference: gadget selection or movement speed.", "WheelUp", "WheelUp") with { Available = false },
         A("wheeldown", "Gadgets", "Mouse wheel down action", "Uses the shared mouse-wheel preference: gadget selection or movement speed.", "WheelDown", "WheelDown") with { Available = false },
         A("hackcomms", "Communication", "Hack enemy communications", "Request communications hacking when available.", "Button bSpecialsChat", "bSpecialsChat"),
+        A(AutoHackId, "Communication", "Toggle auto-hack", "Switch auto-hack on or off. While it is on, enemy communications are hacked whenever they can be, without holding the hack key. Double tap the hack key by default.", AutoHackCommand, AutoHackCommand),
         A("chat", "Communication", "Chat", "Open public text chat.", "Talk", "Talk"),
         A("teamchat", "Communication", "Team chat", "Open team text chat.", "TeamTalk", "TeamTalk"),
         A("quickchat", "Communication", "Quick chat", "Open team quick chat, choose a category, then a phrase with 1–4 or the D-pad. Escape / B goes back. Starts unbound.", "QuickChat", "QuickChat"),
@@ -94,12 +97,11 @@ public static class ControlActions
         A("freecam", "Interface", "Toggle cinematic free camera", "Toggle cinematic free camera when allowed by the host.", "FreeCam", "FreeCam"),
         A("menu", "Interface", "Open game menu", "Open the in-game menu.", "ShowMenu", "ShowMenu"),
         A("quit", "Interface", "Quit shortcut (unavailable)", "This legacy shortcut has no active handler in the current build. Use the game menu to quit.", "Quit", "Quit") with { Available = false },
-        .. HubBindings.All.Select(h => A(h.Id, "Hub", h.Label, "Available while visiting a Hub. Emote choices apply while the emote menu is open.", h.Command, h.Command)),
     ];
 
     public const string PadPrefix = "Action:";
     public const string VirtualPrefix = "svm-action:";
-    public static bool Direct(ControlAction action) => action.Category is not ("Communication" or "Interface") && action.Id != "er" || action.Id is "freecam" or "hidehud" or "hackcomms" or "session" or "menu" or "players" or "scoreboard_hold" or "quickchat" or "chat" or "teamchat" or PingId;
+    public static bool Direct(ControlAction action) => action.Category is not ("Communication" or "Interface") && action.Id != "er" || action.Id is "freecam" or "hidehud" or "hackcomms" or AutoHackId or "session" or "menu" or "players" or "scoreboard_hold" or "quickchat" or "chat" or "teamchat" or PingId;
     private static readonly IReadOnlyDictionary<string, IReadOnlyList<KeyAction>> DirectActions = All.Where(Direct)
         .ToDictionary(a => a.Id, a => (IReadOnlyList<KeyAction>)KeyLayout.Parse("[Engine.Input]\nIK_X=" + a.Command).Resolve("X"));
 

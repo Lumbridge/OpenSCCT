@@ -198,7 +198,7 @@ public sealed class KeyLayout
     public string ToIni()
     {
         var text = new System.Text.StringBuilder(SnapshotMarker + "\n" + DefaultKeyLayout.PerspectiveBindingMarker + "\n" +
-            DefaultKeyLayout.CloakBindingMarker + "\n" + DefaultKeyLayout.EnhancedDefaultsMarker + "\n" + HubBindings.Marker + "\n");
+            DefaultKeyLayout.CloakBindingMarker + "\n" + DefaultKeyLayout.AutoHackBindingMarker + "\n" +DefaultKeyLayout.EnhancedDefaultsMarker + "\n" + HubBindings.Marker + "\n");
         foreach ((string action, string[] order) in _inputOrder.OrderBy(p => p.Key, StringComparer.OrdinalIgnoreCase))
             text.Append(InputOrderPrefix).Append(action).Append('=').Append(JsonSerializer.Serialize(order)).Append('\n');
         text.Append("[Engine.Input]\n");

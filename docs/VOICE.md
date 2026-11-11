@@ -122,6 +122,18 @@ merc (spec/game/voice-chat.md rules 13 and 14). "All" follows the routing rules 
 team plus eavesdroppers on hacked comms (rule R1 of the spec). In a Modern, Classic or Team match the two differ only
 for grab talk and downed chat; in Open mode and the lobby "team" keeps you off the other team.
 
+Auto hack (an OpenSCCT addition, setting `auto_hack_comms`, off by default; Options, Voice, "Enemy communications"):
+while it is on, hacked comms are heard whenever the Hack Comm rule allows it, with no key held. Off, the key is held
+as in the original. The `ToggleAutoHack` binding (action "Toggle auto-hack") switches it during play, shows
+"Auto-hack communications on / off" on the HUD and saves the setting. Its default input is a double tap of the Hack
+Comm key (`IK_Double+H=ToggleAutoHack`), and it can be rebound to any key, button, combination or controller control.
+Grab talk and downed chat still need the key held.
+
+Double taps are a binding input of their own: `Double+<key>` (shown as "2x H") fires on the second press of the key
+within 300 ms (`BindingInputState.DoubleTapMsec`), after the key's ordinary binding, which still runs on every press.
+The capture dialog's "Double tap" box makes one for any gameplay action; interface, chat and Enhanced Reality
+shortcuts do not offer it.
+
 Activation (`voice_push_to_talk` off, the Reloaded default): the frame RMS after gain opens the gate at
 `voice_activation_threshold` (0.02; 0 always transmits, 1 never), the gate stays open while the level is at least 60%
 of it, and closes after `voice_activation_hold_ms` (300) below that. The frame after the gate closes goes out marked
@@ -134,7 +146,7 @@ its copy of each controller and read by `SessionVoiceLinks` every 100 ms:
 
 | Feature | Owner's machine | Server state | Heard |
 |---|---|---|---|
-| Hack Comm (H held) | `UpdateSpecialsChat` after each PlayerMove sends each change of `bSpecialsChat` (`ReplicateSpecialsChatOnServer`) | `bSpecialsChat` | every enemy carrying your team's tag (spy bullet, merc laser mark), one way, while the key is down, neither side downed and not grabbing (any grab, a ledge grab too, from its start to its release) |
+| Hack Comm (H held, or auto hack on) | `UpdateSpecialsChat` after each PlayerMove sends each change of `bSpecialsChat` (`ReplicateSpecialsChatOnServer`) and of `bAutoHackComms` (`ServerSetAutoHackComms`) | `bSpecialsChat`, `bAutoHackComms` | every enemy carrying your team's tag (spy bullet, merc laser mark), one way, while the key is down or auto hack is on, neither side downed and not grabbing (any grab, a ledge grab too, from its start to its release) |
 | Grab talk (H while holding a merc) | `s_GrabbingPlayer.VoiceChatButtonToggle` sends `ServerSetVoiceComWhenGrabbing` | `bVoiceComWhenGrabbing` (cleared by the grab's EndState) | spy and merc both ways; the spy's team stops hearing him |
 | Voice trace (merc scope, spy binoculars) | once a second a trace along the view, 50 to 6000 × zoom uu (`BinocularVoiceTrace`); an enemy hit plays `Snd_VoiceHacking` and sends `ServerSetVoiceChatTarget`, losing it sends `ServerClearVoiceChatTarget` | `VoiceChatTargetPC`, accepted only for an enemy within 7000 uu | the target, one way |
 

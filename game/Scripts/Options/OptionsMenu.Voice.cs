@@ -72,6 +72,9 @@ public partial class OptionsMenu
         g.AddChild(new Label { Name = "MuteKey", Text = BindText(VoiceInput.ToggleMute), Modulate = UiStyle.Dim });
         g.AddChild(new Control());
 
+        Section(g, "Enemy communications", "Tagged enemies can be overheard when the match's voice mode allows hacking. Auto-hack listens whenever that is possible; otherwise hold the Hack enemy communications key. Double tap that key during play to switch auto-hack (change the shortcut in the role Bindings sections).");
+        Check(g, "Auto-hack enemy communications", "auto_hack_comms", _edit.AutoHackComms, v => _edit.AutoHackComms = v);
+
         Section(g, "Microphone test", "Record a short sample and hear what other players hear after microphone processing, transmission and playback.");
         _micTestButton = UiStyle.MenuButton("Test my microphone", StartMicTest, "MicTest");
         _micTestButton.CustomMinimumSize = new Vector2(300f, 40f);

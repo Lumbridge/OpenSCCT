@@ -28,7 +28,15 @@ public partial class OptionsMenu
         public int Device = -1;
         public PadBindingCapture? Pad;
         public readonly HashSet<string> EventDown = new(StringComparer.Ordinal);
+        public CheckBox? DoubleTap;
     }
+
+    /// <summary>
+    /// Double taps run through the play input. Interface, chat and Enhanced Reality shortcuts are read by their own
+    /// screens from the plain key, so they do not offer one.
+    /// </summary>
+    private static bool SupportsDoubleTap(BindingEditor editor, BindingEntry entry) => !editor.Pad &&
+        entry.Action is { } action && action.Category != "Interface" && action.Id is not ("chat" or "teamchat" or "quickchat" or "er");
     private BindingCaptureSession? _bindingCapture;
 
     private void BeginBindingCapture(BindingEditor editor, BindingEntry entry, BindingSlot? slot)
@@ -69,13 +77,24 @@ public partial class OptionsMenu
             choose.ItemSelected += index => { if (index > 0) CompleteBindingCapture(PadSettings.Controls[(int)index - 1]); };
             controls.AddChild(choose);
         }
+        CheckBox? doubleTap = null;
+        if (SupportsDoubleTap(editor, entry))
+        {
+            doubleTap = new CheckBox
+            {
+                Name = "BindingCaptureDoubleTap", Text = "Double tap: trigger on two quick presses", FocusMode = FocusModeEnum.None,
+                ButtonPressed = slot is not null && BindingKey.TryParse(slot.Input, out var current) && current.IsDoubleTap,
+                TooltipText = "Tick this with the mouse, then press the key once. The key's own action still runs on each press.",
+            };
+            controls.AddChild(doubleTap);
+        }
         var buttons = new HBoxContainer { Alignment = BoxContainer.AlignmentMode.End };
         var remove = new Button { Name = "BindingCaptureRemove", Text = "Clear binding", Disabled = slot is null, CustomMinimumSize = new Vector2(136, 36) };
         var cancel = new Button { Name = "BindingCaptureCancel", Text = "Cancel", CustomMinimumSize = new Vector2(120, 36) };
         remove.Pressed += RemoveCapturedBinding;
         cancel.Pressed += CancelBindingCapture;
         buttons.AddChild(remove); buttons.AddChild(cancel); controls.AddChild(buttons);
-        var capture = new BindingCaptureSession { Editor = editor, Entry = entry, Slot = slot, ReturnEntryId = returnEntryId, Overlay = overlay, Buttons = controls, Status = status, Suppression = BindingInput.SuspendCapture() };
+        var capture = new BindingCaptureSession { Editor = editor, Entry = entry, Slot = slot, ReturnEntryId = returnEntryId, Overlay = overlay, Buttons = controls, Status = status, Suppression = BindingInput.SuspendCapture(), DoubleTap = doubleTap };
         if (editor.Pad)
         {
             capture.Device = PadMenus.CurrentDevice();
@@ -210,6 +229,15 @@ public partial class OptionsMenu
     {
         if (_bindingCapture is not { } capture) return;
         PlaySide side = capture.Editor.Side;
+        if (capture.DoubleTap is { ButtonPressed: true } && BindingKey.TryParse(input, out var captured))
+        {
+            if (captured.IsPulse)
+            {
+                capture.Status.Text = "A double tap needs a key or mouse button, not the mouse wheel.";
+                return;
+            }
+            input = (captured with { Modifiers = captured.Modifiers | BindingModifiers.Double }).Canonical;
+        }
         if (!capture.Editor.Pad && capture.Entry.Action?.Id == ControlActions.PingId && GodotKeys.IsPulse(input))
         {
             capture.Status.Text = "Team ping needs a key or mouse button you can hold.";

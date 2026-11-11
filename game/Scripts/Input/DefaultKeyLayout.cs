@@ -11,6 +11,9 @@ public static class DefaultKeyLayout
     public const string PerspectiveBindingMarker = "; OpenSCCT spy perspective binding v1";
     public const string CloakKey = "K";
     public const string CloakBindingMarker = "; OpenSCCT innate cloak binding v1";
+    public const string StockHackKey = "H";
+    public const string AutoHackCommand = "ToggleAutoHack";
+    public const string AutoHackBindingMarker = "; OpenSCCT auto hack binding v1";
     public const string EnhancedDefaultsMarker = "; OpenSCCT Enhanced keyboard defaults v1";
 
     /// <summary>Both Enhanced Beta 3 and Beta 5 Default_kbd_0/1.ini layouts resolve to these same bindings.</summary>
@@ -88,9 +91,20 @@ public static class DefaultKeyLayout
             AddIfFree(layout, SpyPerspectiveKey, "SwitchSpyPerspective");
         if (saved?.Contains(CloakBindingMarker, StringComparison.Ordinal) != true)
             AddIfFree(layout, CloakKey, "Button bCloak");
+        if (saved?.Contains(AutoHackBindingMarker, StringComparison.Ordinal) != true)
+            AddIfFree(layout, new BindingKey(HackKey(layout), BindingModifiers.Double).Canonical, AutoHackCommand);
         HubBindings.Upgrade(layout, saved);
         layout.UpgradeWheelBindings(wheelMode);
         return layout;
+    }
+
+    /// <summary>The key that hacks communications (H in the stock layouts): its double tap toggles auto hack.</summary>
+    private static string HackKey(KeyLayout layout)
+    {
+        bool Hacks(string key) => BindingKey.TryParse(key, out var parsed) && parsed.Modifiers == BindingModifiers.None &&
+            !parsed.IsPulse && layout.Resolve(key).Any(a => a.Kind == KeyActionKind.Button &&
+                a.Name.Equals("bSpecialsChat", StringComparison.OrdinalIgnoreCase));
+        return Hacks(StockHackKey) ? StockHackKey : layout.Bindings.Keys.FirstOrDefault(Hacks) ?? StockHackKey;
     }
 
     private static bool HasAction(KeyLayout layout, string command) =>

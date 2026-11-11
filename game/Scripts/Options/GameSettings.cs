@@ -797,6 +797,13 @@ public sealed class GameSettings
     [Provenance(ProvenanceKind.Decoded, "spec/reloaded/FEATURES.md rl:voice.activation voice_push_to_talk = false")]
     public bool VoicePushToTalk { get; set; }
 
+    /// <summary>
+    /// Auto hack (an OpenSCCT addition): hacked enemy communications are heard whenever they can be, without holding
+    /// the Hack Comm key. The ToggleAutoHack binding flips it during play.
+    /// </summary>
+    [JsonPropertyName("auto_hack_comms")]
+    public bool AutoHackComms { get; set; }
+
     /// <summary>Mute Microphone: nothing is sent, everyone is still heard.</summary>
     [JsonPropertyName("voice_muted")]
     [Provenance(ProvenanceKind.Decoded, "spec/reloaded/FEATURES.md rl:voice.mix voice_muted = false")]

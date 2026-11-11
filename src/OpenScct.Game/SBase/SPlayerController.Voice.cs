@@ -16,7 +16,8 @@ namespace OpenScct.Game.SBase;
 public partial class SPlayerController
 {
     private static readonly Name VNAME_ReplicateSpecialsChatOnServer = new("ReplicateSpecialsChatOnServer");
-    private static readonly Name VNAME_ServerSetVoiceChatTarget = new("ServerSetVoiceChatTarget");
+    private static readonly Name VNAME_ServerSetAutoHackComms = new("ServerSetAutoHackComms");
+    private static readonly Name VNAME_ServerSetVoiceChatTarget =new("ServerSetVoiceChatTarget");
     private static readonly Name VNAME_ServerClearVoiceChatTarget = new("ServerClearVoiceChatTarget");
     private static readonly Name VNAME_ServerSetVoiceComWhenGrabbing = new("ServerSetVoiceComWhenGrabbing");
     private static readonly Name VNAME_ClientSetVoiceChatMode = new("ClientSetVoiceChatMode");
@@ -27,6 +28,16 @@ public partial class SPlayerController
     /// The original keeps no flag (it mutes and unmutes at once); the voice links read this one.
     /// </summary>
     public bool bVoiceComWhenGrabbing;
+
+    /// <summary>
+    /// Auto hack (an OpenSCCT addition, not in the original): hacked comms are heard whenever rule 13 allows it, as if
+    /// the Hack Comm key were held. On the owner's machine it is the player's choice; the server's copy, set by
+    /// <see cref="ServerSetAutoHackComms"/>, is what the voice links read. Grab talk and downed chat still need the key.
+    /// </summary>
+    public bool bAutoHackComms;
+
+    /// <summary>Owner: the auto hack choice the server was last told.</summary>
+    private bool _autoHackCommsSent;
 
     /// <summary>A state's VoiceChatButtonToggle (s_GrabbingPlayer: grab talk).</summary>
     public interface IVoiceChatButtonToggle
@@ -62,6 +73,23 @@ public partial class SPlayerController
         }
 
         OldbSpecialsChat = bSpecialsChat;
+        if (bAutoHackComms != _autoHackCommsSent)
+        {
+            _autoHackCommsSent = bAutoHackComms;
+            ServerSetAutoHackComms(bAutoHackComms);
+        }
+    }
+
+    /// <summary>Owner to server: auto hack was switched on or off (an OpenSCCT addition).</summary>
+    public void ServerSetAutoHackComms(bool bActivate)
+    {
+        if (Role < ENetRole.ROLE_Authority)
+        {
+            CombatNet.ServerCall(this, new CombatCall(VNAME_ServerSetAutoHackComms) { Bool1 = bActivate });
+            return;
+        }
+
+        bAutoHackComms = bActivate;
     }
 
     /// <summary>

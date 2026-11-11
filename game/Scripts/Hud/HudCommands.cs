@@ -142,6 +142,9 @@ public partial class HudCommands : Node
                         Hud.TeammateNames.ShowSpy = !Hud.TeammateNames.ShowSpy;
                 }
                 return true;
+            case "TOGGLEAUTOHACK":
+                ToggleAutoHack();
+                return true;
             case "SHOWCONNECTEDPLAYERS":
                 Scoreboard?.Toggle();
                 return true;
@@ -162,6 +165,31 @@ public partial class HudCommands : Node
                 return true;
             default:
                 return false;
+        }
+    }
+
+    /// <summary>
+    /// Auto hack (an OpenSCCT addition): flips the auto_hack_comms setting, keeps it for the next launch and says so on
+    /// the HUD. The options runtime hands the setting to the session, which sends it to the server.
+    /// </summary>
+    private void ToggleAutoHack()
+    {
+        Options.GameSettings settings = Options.SettingsStore.Current;
+        settings.AutoHackComms = !settings.AutoHackComms;
+        Options.SettingsStore.Persist();
+        if (Hud?.Controller?.Invoke() is not { myHUD: SHud hud } pc)
+        {
+            return;
+        }
+
+        string text = settings.AutoHackComms ? "Auto-hack communications on" : "Auto-hack communications off";
+        if ((pc.SBPawn?.SPawnType ?? pc.SPawnType) != PawnType.SPAWNDEFENSE)
+        {
+            HudMessages.AddMessageToStack(hud, text, 3, 0);
+        }
+        else
+        {
+            HudMessages.AddMessageToAuxiliaryStack(hud, text, 3, 0);
         }
     }
 

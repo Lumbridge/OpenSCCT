@@ -164,9 +164,14 @@ public partial class OptionsRuntime : Node
 
     public override void _Process(double delta)
     {
-        if (Session is { } session && _overlay is null)
+        if (Session is { } session)
         {
-            UpdateClutch(session);
+            // Read every frame: the ToggleAutoHack binding changes the setting without a full settings save.
+            session.AutoHackComms = _settings.AutoHackComms;
+            if (_overlay is null)
+            {
+                UpdateClutch(session);
+            }
         }
 
         if (GetParent() is PlayRoot { View: { } view } && !ReferenceEquals(view, _view))

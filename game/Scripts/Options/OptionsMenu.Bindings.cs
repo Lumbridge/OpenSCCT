@@ -410,8 +410,10 @@ public partial class OptionsMenu
         foreach ((string id, Button button) in editor.RowButtons) button.SetPressedNoSignal(id == entry.Id);
         var inputs = BindingInputs(editor, entry);
         string explanation = entry.Description;
-        if (!editor.Pad && inputs.Any(i => BindingKey.TryParse(i.Input, out var key) && key.Modifiers != BindingModifiers.None))
+        if (!editor.Pad && inputs.Any(i => BindingKey.TryParse(i.Input, out var key) && key.HeldModifiers != BindingModifiers.None))
             explanation += " The modifier's own action remains active alongside this combination.";
+        if (!editor.Pad && inputs.Any(i => BindingKey.TryParse(i.Input, out var key) && key.IsDoubleTap))
+            explanation += " A double tap (2x) triggers on the second quick press; the key's own action still runs on each press.";
         if (editor.Pad && entry.Id is "forward" or "back" or "left" or "right")
             explanation = "The left stick moves this direction when controller movement is enabled. Button bindings below are optional extras.";
         editor.Description.Text = explanation; editor.Description.TooltipText = explanation;

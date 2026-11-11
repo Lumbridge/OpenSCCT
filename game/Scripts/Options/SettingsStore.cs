@@ -139,6 +139,24 @@ public static class SettingsStore
         return result;
     }
 
+    /// <summary>
+    /// Writes the current settings after a key toggled one value during play. Listeners are not told: nothing else
+    /// changed, and applying everything again would undo other toggles made during the round. Like
+    /// <see cref="Save"/>, smoke runs and runs with launch overrides leave the player's file alone.
+    /// </summary>
+    public static void Persist()
+    {
+        if (Isolated || Overrides.Count > 0 || _current is null) return;
+        try
+        {
+            _current.Save(GlobalPath);
+        }
+        catch (Exception e) when (e is System.IO.IOException or UnauthorizedAccessException)
+        {
+            GD.PushWarning($"Could not save {FilePath}: {e.Message}");
+        }
+    }
+
     /// <summary>Forgets the loaded settings (tests).</summary>
     public static void Reset(GameSettings? settings = null) => _current = settings;
 }

@@ -39,7 +39,8 @@ public sealed class SessionVoiceLinks : IVoiceLinkSource
         member.TeamVoiceOnly = pc.bTeamVoiceOnly;
         member.VoiceTarget = TalkerOf(pc.ValidatedVoiceChatTarget());
         bool grabbing = pc.IsInState(NAME_s_GrabbingPlayer);
-        member.HackCommKey = pc.bSpecialsChat > 0 && !IsGrabbing(pc);
+        // Auto hack (bAutoHackComms, an OpenSCCT addition) counts as the key held, for hacked comms only.
+        member.HackCommKey = (pc.bSpecialsChat > 0 || pc.bAutoHackComms) && !IsGrabbing(pc);
         if (grabbing && pc.bVoiceComWhenGrabbing && pc.SPawnType == PawnType.SPAWNOFFENSE && pc.SBPawn?.m_AttackTarget?.Controller is SPlayerController held)
         {
             member.GrabTalkWith = TalkerOf(held);

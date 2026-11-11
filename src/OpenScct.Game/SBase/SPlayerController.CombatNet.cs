@@ -212,6 +212,9 @@ public partial class SPlayerController
             case "ReplicateSpecialsChatOnServer":
                 ReplicateSpecialsChatOnServer(c.Int1 != 0 ? (byte)1 : (byte)0);
                 break;
+            case "ServerSetAutoHackComms":
+                ServerSetAutoHackComms(c.Bool1);
+                break;
             case "ServerSetVoiceChatTarget":
                 ServerSetVoiceChatTarget(c.Actor1 as Pawn);
                 break;
