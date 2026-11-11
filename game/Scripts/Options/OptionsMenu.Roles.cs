@@ -53,14 +53,26 @@ public partial class OptionsMenu
         _sharingLabels[side] = sharing;
         page.AddChild(sharing);
         var sections = new TabContainer { Name = "Sections", SizeFlagsVertical = SizeFlags.ExpandFill };
-        // Keep the full role tab titles visible on compact windows.
+        // Keep every role tab visible in compact windows, with more padding when space permits.
+        var tabStyles = new List<StyleBox>();
         foreach (string state in new[] { "tab_selected", "tab_unselected", "tab_hovered", "tab_disabled" })
         {
             var style = (StyleBox)GetThemeStylebox(state, nameof(TabContainer)).Duplicate();
-            style.ContentMarginLeft = Mathf.Min(style.GetMargin(Side.Left), 4f);
-            style.ContentMarginRight = Mathf.Min(style.GetMargin(Side.Right), 4f);
+            style.ContentMarginLeft = 12f;
+            style.ContentMarginRight = 12f;
+            tabStyles.Add(style);
             sections.AddThemeStyleboxOverride(state, style);
         }
+        sections.Resized += () =>
+        {
+            float padding = sections.Size.X < 900f ? 4f : 12f;
+            foreach (StyleBox style in tabStyles)
+            {
+                if (style.ContentMarginLeft == padding) continue;
+                style.ContentMarginLeft = padding;
+                style.ContentMarginRight = padding;
+            }
+        };
         sections.AddChild(RoleBindingsPage(side));
         sections.AddChild(RoleMousePage(side));
         sections.AddChild(CreateBindingEditor(side, pad: true));
