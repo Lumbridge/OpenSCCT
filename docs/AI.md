@@ -649,3 +649,64 @@ remains useful for identifying difficult approaches.
 
 Version 0.8.109 accepts hyphens in map file stems, including the community map `new-island`. Actor, class and GE
 names retain their existing validation rules. Its prebuilt navigation uses the same graph format as 0.8.108.
+
+## Decision, awareness and movement rules added in 0.8.136
+
+These came out of a review of the bot logic (goal flapping, clumping, spies walking into mines, ladders written off).
+Constants are in `AiK`, `SpyAiK`, `SpyGadgetK`, `EvasionK` and `TeamAiK`.
+
+**Decisions** (`AiBrain.Pick`). The difficulty's noise is drawn per option and held 2.5 to 4 s instead of being drawn
+at every decision, and a goal under 1.5 s old is only interrupted by an option better by 0.5 (0.15 afterwards). A
+weaker bot makes a wrong choice and keeps to it; it no longer turns to and fro.
+
+**Spies.**
+- The terminal in hand is chosen again (at most every 2 s) when the spy was chased off it (30 s), a merc is believed
+  within 700 uu of it, or the mate is hacking it. A given-up terminal is sticky again after 25 s.
+- Claims last through a detour (evade, shock, grab) and cover bombs, disks and drop zones, so the two spies split.
+- Evade remembers a merc that faced the spy for 4 s after the spy turns its back, while he is believed to have a line.
+- Merc laser mines, proximity mines and presence detectors are seen (900 uu, in view, in line). A laser mine's beam
+  costs 4000 on a route; a proximity mine's or detector's range is crept through, since both fire on speed.
+- The sleep cam (`SpyGadgets.SleepCam`): a sticky cam with gas is tried on any merc seen, or believed there within
+  3 s (heard, sensed, called out), 200 to 2600 uu away, not running and not facing the spy from within 1100 uu. One
+  roll per merc per 5 s, chance 0.35 + 0.6 x gadget skill. Lining it up takes up to 0.9 s, the gas is pressed after
+  the reaction time (times 0.5 to 1.5) and the view is left 0.4 to 1.5 s later, all shorter with skill. With no merc
+  within 500 uu of the gas point the view is left after 2.5 to 5 s.
+- A downed mate is not walked to while an enemy is believed within 800 uu of him.
+- With no merc about a spy runs, and crouches only within 1500 uu of its objective (stealth 0.5 and up). A disk
+  carrier seen or hit in the last 8 s runs. Hit from beyond 550 uu, a spy evades instead of drawing the shocker.
+- A freeze in the dark lasts 6 s at most; standing still for a gadget, a door or a freeze is not being stuck.
+
+**Mercs.**
+- A planted charge is defused by any damage: a merc with a bullet line to it shoots it, through the scope beyond
+  `ScopeEnterRange`, single shots after the reaction time with the aim inside the charge's width (`ShootBomb`). Six
+  shots without effect and it walks there. Only the merc with a line, or the nearest by 300 uu, goes; a spy on his
+  feet with a clear shot within 800 uu is fought first.
+- A presence detector that caught a spy puts him in memory at the detector (confidence 0.6). A mate's gunfire in
+  earshot (a played sound of radius 1500 or more) or a mate going down is looked into (0.9) by a merc with no contact.
+- The disk at home and, once a spy carries it, its drop zones are objectives to defend.
+- A shape not made out after 1.5 s is walked up to. A hack still running 2 s after the first responder reached his
+  vantage is walked onto. With several alarms each merc takes the one it is relatively nearest to.
+- At a post the merc looks down the three longest open lines (600 uu or more, 45 degrees apart) in turn, with a
+  glance at the objective one time in five; no overwatch with a spy believed within `ScopeSafeRange`.
+- In a fight it walks in when its spread misses a body at that range (beyond 450 uu), backs away from a spy coming
+  on within 300 uu, and Normal side-steps too (every 1.4 s; Hard and Expert every 0.8 s). Aim lead is 0.14 s x LeadFactor.
+- Motion tracking is used on the way to a noise only; the torch goes by the light at the feet or at the place
+  searched (within 1200 uu), whichever is darker.
+- A frag at a contact is rolled once per 4 s, before the arc is traced; the banked objective frag needs utility 0.3.
+
+**Team talk and hearing.** A callout is one per enemy per 1.5 s, to the nearest 128 uu, heard 0.4 s later at the
+earliest. A heard position is off by at least 6% of its distance.
+
+**Movement.**
+- The stuck clock runs only while the follower steers. A goal that keeps failing is retried after 1.5 s, 5 s, then
+  every 15 s, keeping the places found blocked; the avoided place is 64 uu wide.
+- A traversal that fails while the pawn was hit or crowded is tried once more before the link is left out for the side.
+- Ladders and pipes: a pawn that took hold by itself on the way in goes straight to the climb; one already at the
+  link's far level has done it; one at neither end plans again. On a ladder with no link in hand the follower takes
+  over the route's ladder link when there is one near, else climbs one way until off it. (Before, a crouched bot
+  that grabbed a ladder early was waited on for 4.5 s and the ladder written off, the fallback climb turned round
+  near the top, and at the top the bot "walked into" the ladder again and fell down the hatch.)
+
+**Event log** (`AiEventLog`, `AiController.Events`): the last 64 events of a bot: goal changes with every option's
+score, links failed or interrupted with the phase and place, stuck walks. `SVM_AI_LOG=1` prints the new ones with an
+inline host's 10 s bot status.

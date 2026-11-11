@@ -58,6 +58,7 @@ public sealed partial class NavFollower
     private Func<int, float>? _penalty;
     private float _progressAt = -1f;
     private float _steeredAt = -100f;
+    private int _ladderWay;
     private int _calmHealth = int.MaxValue;
     private readonly Dictionary<int, int> _interrupted = new();
     private readonly List<int> _avoidScratch = new();
@@ -308,12 +309,24 @@ public sealed partial class NavFollower
             Failed = true;
             return cmd;
         }
-        if (_phase == TPhase.None && pawn.Physics == EPhysics.PHYS_OnLadder)
+        if (pawn.Physics != EPhysics.PHYS_OnLadder)
         {
+            _ladderWay = 0;
+        }
+
+        if (_phase == TPhase.None && pawn.Physics == EPhysics.PHYS_OnLadder && !AdoptLadderLink(at, now))
+        {
+            // On a ladder with no link of the route to follow: one way, chosen once, until the pawn is off it (chosen
+            // every tick against the goal's height it turned round near the top and went down and up for good).
+            if (_ladderWay == 0)
+            {
+                _ladderWay = _goal.Z > feet.Z + 80f ? 1 : -1;
+            }
+
             cmd.Crouched = null;
             cmd.Tolerance = 65536;
             cmd.Keys.FastSpeed = true;
-            if (_goal.Z > feet.Z + 80f)
+            if (_ladderWay > 0)
             {
                 cmd.Keys.BT_Up = 1;
             }
@@ -865,6 +878,39 @@ public sealed partial class NavFollower
         return true;
     }
 
+    /// <summary>
+    /// The pawn hangs on a ladder before the follower reached the ladder's link (it took hold on the way in): the next
+    /// ladder link of the route that starts or ends here is taken over in its climb, so the rest of the route follows.
+    /// </summary>
+    private bool AdoptLadderLink(FVector at, float now)
+    {
+        int last = Math.Min(_path.Count, _next + 40);
+        for (int i = _next; i < last; i++)
+        {
+            if (_path[i].Link < 0)
+            {
+                continue;
+            }
+
+            NavLink link = Graph.Links[_path[i].Link];
+            if (link.Kind is not (NavEdgeKind.LadderUp or NavEdgeKind.LadderDown))
+            {
+                continue;
+            }
+
+            if (Horizontal(link.Start - at) > 140f && Horizontal(link.End - at) > 180f)
+            {
+                return false;
+            }
+
+            _next = i;
+            Enter(TPhase.Climb, now);
+            return true;
+        }
+
+        return false;
+    }
+
     /// <summary>The walk goes on after a pause the follower did not steer (a door opened on the way): no stuck count for it.</summary>
     public void Resume()
     {
@@ -887,6 +933,38 @@ public sealed partial class NavFollower
             _tries = 0;
             _lined = false;
             _crossed = false;
+        }
+
+        // The pawn can be ahead of the phases: a crouched walker takes hold of a ladder or pipe by itself on the way
+        // in, and one that climbed outside a link stands at the far end already. Waiting for it to "face" a ladder
+        // it hangs on, or pressing forward at a link start it is 300 uu above, wrote good ladders off and walked
+        // bots back down the hatch they had just climbed out of.
+        if (_phase is TPhase.Approach or TPhase.Face &&
+            link.Kind is NavEdgeKind.LadderUp or NavEdgeKind.LadderDown or NavEdgeKind.PipeClimb)
+        {
+            bool onIt = link.Kind == NavEdgeKind.PipeClimb
+                ? pawn.Physics == EPhysics.PHYS_OnPipe || InState(pawn, "s_GrabPipe")
+                : pawn.Physics == EPhysics.PHYS_OnLadder || InState(pawn, "s_GrabLadder");
+            if (onIt)
+            {
+                Enter(TPhase.Climb, now);
+            }
+            else if (pawn.Physics == EPhysics.PHYS_Walking && MathF.Abs(feet.Z - link.Start.Z) > Graph.Profile.StepUp + 30f)
+            {
+                if (MathF.Abs(feet.Z - link.End.Z) <= Graph.Profile.StepUp + 6f && Horizontal(at - link.End) < 220f)
+                {
+                    return Done(pawn, link, step);
+                }
+
+                // Neither at the start nor at the end of it: plan again from where the pawn really is.
+                _phase = TPhase.None;
+                if (++_replans > 6 || !Plan(pawn))
+                {
+                    Failed = true;
+                }
+
+                return new NavCommand { Tolerance = 9000 };
+            }
         }
 
         switch (_phase)
@@ -1284,8 +1362,10 @@ public sealed partial class NavFollower
         return new NavCommand { Tolerance = 9000 };
     }
 
-    private NavCommand Fail(SBasePawn pawn, NavLink link, NavStep step, NavCommand? last = null)
+    private NavCommand Fail(SBasePawn pawn, NavLink link, NavStep step, NavCommand? last = null,
+        [System.Runtime.CompilerServices.CallerLineNumber] int where = 0)
     {
+        TPhase failedIn = _phase;
         _phase = TPhase.None;
         LinksFailed++;
         // Shot on the way, or another pawn in the way: the link itself may be fine. It is tried once more before
@@ -1296,13 +1376,13 @@ public sealed partial class NavFollower
         if (!interrupted || before >= 1)
         {
             _world.MarkBadLink(_spy, step.Link);
-            Trace?.Invoke($"link {link.Kind} at {link.Start} failed{(interrupted ? " (interrupted again)" : string.Empty)}: left out for the side");
+            Trace?.Invoke($"link {link.Kind} at {link.Start} failed in {failedIn} (line {where}, pawn at {pawn.Location}, {pawn.Physics}){(interrupted ? " (interrupted again)" : string.Empty)}: left out for the side");
         }
         else
         {
             _interrupted[step.Link] = before + 1;
             LinksInterrupted++;
-            Trace?.Invoke($"link {link.Kind} at {link.Start} interrupted (hit or crowded): tried again");
+            Trace?.Invoke($"link {link.Kind} at {link.Start} interrupted in {failedIn} (line {where}, pawn at {pawn.Location}, hit or crowded): tried again");
         }
         if (++_replans > 6 || !Plan(pawn))
         {

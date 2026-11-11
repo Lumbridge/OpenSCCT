@@ -333,6 +333,7 @@ public sealed class SpyGadgets
     }
 
     private Pawn? _sleepRolledFor;
+    private float _sleepLookAt = -100f;
     private float _sleepRollUntil = -100f;
     private bool _sleepRollOk;
     private float _gasInReachAt = -1f;
@@ -353,8 +354,10 @@ public sealed class SpyGadgets
         float bestD = float.MaxValue;
         foreach (AiContact c in _bot.Memory.Contacts)
         {
-            if (c.Pawn is not SPAWNDEFENSE m || c.Pose is not { OnFeet: true } ||
-                !(c.Visible && c.Confirmed || c.Confidence > 0.6f && now - c.Time < 1.5f) ||
+            // merc that way, and a cam on the spot gasses him when he is, or walks, within reach. One it has seen
+            // must be on his feet, without a mask and not running.
+            if (c.Pawn is not SPAWNDEFENSE m || c.Pose is { OnFeet: false } ||
+                !(c.Visible && c.Confirmed || c.Confidence > 0.5f && now - c.Time < SpyGadgetK.SleepFreshSeconds) ||
                 c.BodyVisible && (m.bGasMask || c.Velocity.Size() > SpyGadgetK.SleepMaxSpeed))
             {
                 continue;
@@ -393,7 +396,16 @@ public sealed class SpyGadgets
             _sleepRollOk = Roll(SpyGadgetK.SleepBaseChance + SpyGadgetK.SleepSkillChance * _bot.Utility);
         }
 
-        if (!_sleepRollOk || !FindCamSpot(spy, best.Position, out FRotator aim))
+        // A wall for it is looked for once a second while the roll stands (33 traces a look). A merc only believed
+        // there is given a wider fit: the cam is watched until he walks into the gas.
+        if (!_sleepRollOk || now < _sleepLookAt)
+        {
+            return false;
+        }
+
+        _sleepLookAt = now + 1f;
+        bool seen = best.Visible && best.Confirmed;
+        if (!FindCamSpot(spy, best.Position, out FRotator aim, seen ? SpyGadgetK.CamFit : SpyGadgetK.CamFitBelieved))
         {
             return false;
         }
@@ -1218,7 +1230,7 @@ public sealed class SpyGadgets
     /// to the spot are tried; the best fit wins.
     /// </summary>
     [Provenance(ProvenanceKind.Decoded, "sticky-cam.md rules 2, 10 and 22: 2.5 uu pull-back, the cam faces the pawn, gas 192 uu ahead, limits pitch 13000 / yaw 14000")]
-    private bool FindCamSpot(SBasePawn spy, FVector spot, out FRotator aim)
+    private bool FindCamSpot(SBasePawn spy, FVector spot, out FRotator aim, float fitWithin = SpyGadgetK.CamFit)
     {
         aim = default;
         FVector eye = AiSight.Eye(spy);
@@ -1230,7 +1242,7 @@ public sealed class SpyGadgets
         }
 
         FRotator baseRot = to.Rotation();
-        float best = SpyGadgetK.CamFit;
+        float best = fitWithin;
         bool found = false;
         for (int p = -1; p <= 1; p++)
         {
@@ -1359,6 +1371,9 @@ public static class SpyGadgetK
     [Provenance(ProvenanceKind.Estimated, "Bot play choice: how far the cam's gas point may land from the guard's spot (the gas reaches 128 uu)")]
     public const float CamFit = 90f;
 
+    [Provenance(ProvenanceKind.Estimated, "Bot play choice: the gas point may be this far from a merc who is only believed there (uu)")]
+    public const float CamFitBelieved = 180f;
+
     [Provenance(ProvenanceKind.Estimated, "Bot play choice: about 6 degrees between the lines tried for a cam")]
     public const int CamProbeStep = 1100;
 
@@ -1375,9 +1390,12 @@ public static class SpyGadgetK
     public const float CamLeaveRange = 600f;
 
     [Provenance(ProvenanceKind.Estimated, "Bot play choice: the sleep cam is tried on a merc between these distances (uu)")]
-    public const float SleepMin = 250f;
+    public const float SleepMin = 200f;
 
-    public const float SleepMax = 1700f;
+    public const float SleepMax = 2600f;
+
+    [Provenance(ProvenanceKind.Estimated, "Bot play choice: a merc heard or sensed within this many seconds is a sleep cam target")]
+    public const float SleepFreshSeconds = 3f;
 
     [Provenance(ProvenanceKind.Estimated, "Bot play choice: not at a merc who faces the spy from nearer than this (uu)")]
     public const float SleepFacedMin = 1100f;
