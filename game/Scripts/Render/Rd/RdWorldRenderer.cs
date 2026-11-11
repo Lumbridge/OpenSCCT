@@ -238,7 +238,7 @@ public partial class RdWorldRenderer : Node
         GD.Print($"SVM_RD_WORLD spots{spots} dynamic={_lights.Count} soft={SpotShadowLight.SoftRadius}");
         if (OwnFrame)
         {
-            GD.Print(string.Create(CultureInfo.InvariantCulture, $"SVM_RD_FRAME gatherMs={_gatherMs:F3} preDrawMs={_preDrawMs:F3}"));
+            GD.Print(string.Create(CultureInfo.InvariantCulture, $"SVM_RD_FRAME gatherMs={_gatherMs:F3} preDrawMs={_preDrawMs:F3} preDrawBytes={_preDrawBytes} recordBytes={_recordBytes} frameBytes={(GC.GetTotalAllocatedBytes() - _allBytes) / Math.Max(1, _frames)} processMs={Performance.GetMonitor(Performance.Monitor.TimeProcess) * 1000.0:F3} physicsMs={Performance.GetMonitor(Performance.Monitor.TimePhysicsProcess) * 1000.0:F3} setupMs={RenderingServer.GetFrameSetupTimeCpu():F3} nodes={_objects.NodeCount} objects={_gpu.LastObjects}"));
             GD.Print("SVM_RD_FRAME fog " + _fogNote);
             if (!_skyNoted)
             {
@@ -256,6 +256,7 @@ public partial class RdWorldRenderer : Node
         }
         _sinceReport = 0;
         _frames = 0;
+        _allBytes = GC.GetTotalAllocatedBytes();
     }
 
     /// <summary>SVM_RD_WORLD_STATS=1 prints the draws by variant once a second.</summary>
@@ -441,6 +442,7 @@ public partial class RdWorldRenderer : Node
     private double _gatherMs;
     /// <summary>The main thread's time in the last frame's PreDrawOwn up to handing the frame over (statistics).</summary>
     private double _preDrawMs;
+    private long _preDrawBytes, _recordBytes, _allBytes = GC.GetTotalAllocatedBytes();
 
     private static readonly double s_flip = double.TryParse(System.Environment.GetEnvironmentVariable("SVM_RD_FRAME_FLIP"), NumberStyles.Float, CultureInfo.InvariantCulture, out double flip) ? flip : 0.0;
 
@@ -509,6 +511,7 @@ public partial class RdWorldRenderer : Node
     private void PreDrawOwn(Camera3D camera)
     {
         long preDraw = System.Diagnostics.Stopwatch.GetTimestamp();
+        long preDrawBytes = Stats ? GC.GetAllocatedBytesForCurrentThread() : 0;
         Viewport viewport = GetViewport();
         // Every vision mode is drawn here, its own pass ending the frame (RdFramePost.RunVision): night and motion
         // read the normal scene; thermal and EMF draw every surface by its material's vision outputs. A round with
@@ -676,7 +679,10 @@ public partial class RdWorldRenderer : Node
 
         _gpu.Submit(frame);
         _preDrawMs = System.Diagnostics.Stopwatch.GetElapsedTime(preDraw).TotalMilliseconds;
+        if (Stats) _preDrawBytes = GC.GetAllocatedBytesForCurrentThread() - preDrawBytes;
+        long recordBytes = Stats ? GC.GetAllocatedBytesForCurrentThread() : 0;
         RenderingServer.CallOnRenderThread(_renderOwn);
+        if (Stats) _recordBytes = GC.GetAllocatedBytesForCurrentThread() - recordBytes;
         Rid latest = normal ? _gpu.LatestOwnColor : _gpu.LatestOwnShown;
         if (latest.IsValid && latest != _ownShownColor && _ownRect is not null)
         {

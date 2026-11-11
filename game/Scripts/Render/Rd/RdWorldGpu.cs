@@ -168,6 +168,8 @@ internal sealed class RdWorldGpu
 
     /// <summary>Draw calls and render-thread time of the last frame drawn, and the shaders made so far (statistics).</summary>
     public int LastDraws { get; private set; }
+    /// <summary>The last own frame's object draws (statistics).</summary>
+    public int LastObjects { get; private set; }
     public double LastRecordMs { get; private set; }
     public int ShaderCount => _shaders.Count;
     /// <summary>Objects made since the pass began: framebuffers, pipelines, global uniform sets (a steady frame makes none).</summary>
@@ -2056,6 +2058,7 @@ internal sealed class RdWorldGpu
         else Fail("own frame post failed");
         rd.CaptureTimestamp("RD Own Frame End");
         LastDraws = frame.DrawCount;
+        LastObjects = frame.Objects.Count;
         LastRecordMs = clock.Elapsed.TotalMilliseconds;
     }
 

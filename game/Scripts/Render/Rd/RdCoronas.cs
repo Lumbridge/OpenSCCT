@@ -58,7 +58,8 @@ internal sealed class RdCoronas
         for (int i = 0; i < _visible.Count; i++)
         {
             (Rid texture, Vector3 centre, Vector4 shape, Vector4 colour) = _visible[i];
-            blocks.AddRange([centre.X, centre.Y, centre.Z, shape.X, colour.X, colour.Y, colour.Z, shape.Y]);
+            System.Span<float> block = [centre.X, centre.Y, centre.Z, shape.X, colour.X, colour.Y, colour.Z, shape.Y];
+            blocks.AddRange(block);
             if (groups.Count > 0 && groups[^1].Texture == texture) groups[^1] = groups[^1] with { Count = groups[^1].Count + 1 };
             else groups.Add(new Group { Texture = texture, First = i, Count = 1 });
         }

@@ -199,6 +199,12 @@ internal sealed class RdObjects
     }
     private readonly Stack<Node> _stack = new();
     private readonly List<MeshInstance3D> _nodes = [];
+    /// <summary>The scene's mesh nodes this pass looks at each frame (statistics).</summary>
+    public int NodeCount => _nodes.Count;
+    // By node, what its last full look found, for leaving it out of a frame at the cost of its layers and its
+    // transform alone: its mesh's box, and bit 0 known, bit 1 a sprite turned to the camera, bit 2 skinned. A node is
+    // looked at in full again whenever it is in view, and in turn with the others (RecheckPerFrame).
+    private readonly List<(Aabb Box, byte State)> _seen = [];
     private Node? _walked;
 
     /// <summary>Set when a node entered or left the tree: the next <see cref="Gather"/> walks the scene again.</summary>
@@ -346,6 +352,7 @@ internal sealed class RdObjects
             Dirty = false;
             _walked = root;
             _nodes.Clear();
+            _seen.Clear();
             _stack.Clear();
             _stack.Push(root);
             while (_stack.Count > 0)
@@ -395,12 +402,35 @@ internal sealed class RdObjects
             _recheckAt = (_recheckAt + 1) % _nodes.Count;
             MeshInstance3D again = _nodes[_recheckAt];
             if (GodotObject.IsInstanceValid(again)) Prepare(again, uploads, warm);
+            if (_recheckAt < _seen.Count) _seen[_recheckAt] = default;
         }
 
+        while (_seen.Count < _nodes.Count) _seen.Add(default);
+
         if (s_dump is not null && ++_dumpFrame == 300) Dump(root);
-        foreach (MeshInstance3D node in _nodes)
+        for (int at = 0; at < _nodes.Count; at++)
         {
-            if (!GodotObject.IsInstanceValid(node) || node.Mesh is not { } mesh || !node.IsVisibleInTree()) continue;
+            MeshInstance3D node = _nodes[at];
+            if (!GodotObject.IsInstanceValid(node)) continue;
+            (Aabb known, byte state) = _seen[at];
+            if ((state & 1) != 0)
+            {
+                // Most of the scene's meshes are out of view in any frame: those are left with two reads.
+                uint layers = node.Layers;
+                if ((layers & (RenderLayers.World | RenderLayers.FirstPerson | RenderLayers.Effects | RenderLayers.StaticWorld)) != 0)
+                {
+                    Transform3D placed = node.GlobalTransform;
+                    if ((state & 2) != 0) placed = new Transform3D(view, placed.Origin);
+                    Aabb seen = placed * known;
+                    if (!inside(planes, (state & 4) != 0 ? seen.Grow(1.5f) : seen)) continue;
+                }
+                else if ((layers & RenderLayers.Sky) == 0)
+                {
+                    continue;
+                }
+            }
+
+            if (node.Mesh is not { } mesh || !node.IsVisibleInTree()) continue;
             // Actors, characters and the first-person model. Effects (their own shaders) and a body hidden from its
             // own eyes (the shadow-only layer) are not this pass's.
             // Template materials on the effects layer too (light sprites); the effects' own shaders are not described.
@@ -421,10 +451,14 @@ internal sealed class RdObjects
 
             Transform3D model = node.GlobalTransform;
             // A sprite (the template's BILLBOARD) faces the camera whatever its node's own basis: turned here.
-            if (node.MaterialOverride is ShaderMaterial facing && IsBillboard(facing)) model = new Transform3D(view, model.Origin);
+            bool turned = node.MaterialOverride is ShaderMaterial facing && IsBillboard(facing);
+            if (turned) model = new Transform3D(view, model.Origin);
             // A posed mesh leaves its rest box: it is culled by a generous one.
             s_dynamic.TryGetValue(mesh, out DynamicSource? dynamic);
-            Aabb box = model * (mesh is ArrayMesh { CustomAabb.Size: var custom } own && custom != Vector3.Zero ? own.CustomAabb : mesh.GetAabb());
+            Aabb local = mesh is ArrayMesh { CustomAabb.Size: var custom } own && custom != Vector3.Zero ? own.CustomAabb : mesh.GetAabb();
+            // A mesh rewritten in place (cloth) has a new box every time: it is looked at in full every frame.
+            _seen[at] = dynamic is null ? (local, (byte)(1 | (turned ? 2 : 0) | (skin is not null ? 4 : 0))) : default;
+            Aabb box = model * local;
             if (!sky && !inside(planes, skin is null ? box : box.Grow(1.5f))) continue;
             if (dynamic is not null) dynamic.SeenFrame = Engine.GetProcessFrames();
             int objectIndex = -1, paletteBase = -1;
@@ -503,11 +537,20 @@ internal sealed class RdObjects
                         block[0] = block[5] = block[10] = block[15] = 1f;
                         paletteBase = palette.Count / 16;
                         Transform3D skeleton = skin.Skeleton.GlobalTransform;
+                        Transform3D[] poses = RdSkeletonPoses.Of(skin.Skeleton);
+                        // Written in place: a list of sixteen floats a bone would be an array a bone, every frame.
+                        int first = palette.Count;
+                        CollectionsMarshal.SetCount(palette, first + (skin.Bones.Length * 16));
+                        Span<float> rows = CollectionsMarshal.AsSpan(palette)[first..];
                         for (int i = 0; i < skin.Bones.Length; i++)
                         {
-                            Transform3D bone = skin.Bones[i] >= 0 ? skeleton * skin.Skeleton.GetBoneGlobalPose(skin.Bones[i]) * skin.Binds[i] : model;
+                            Transform3D bone = skin.Bones[i] >= 0 && skin.Bones[i] < poses.Length ? skeleton * poses[skin.Bones[i]] * skin.Binds[i] : model;
                             Basis b = bone.Basis;
-                            palette.AddRange([b.X.X, b.X.Y, b.X.Z, 0f, b.Y.X, b.Y.Y, b.Y.Z, 0f, b.Z.X, b.Z.Y, b.Z.Z, 0f, bone.Origin.X, bone.Origin.Y, bone.Origin.Z, 1f]);
+                            Span<float> r = rows.Slice(i * 16, 16);
+                            (r[0], r[1], r[2], r[3]) = (b.X.X, b.X.Y, b.X.Z, 0f);
+                            (r[4], r[5], r[6], r[7]) = (b.Y.X, b.Y.Y, b.Y.Z, 0f);
+                            (r[8], r[9], r[10], r[11]) = (b.Z.X, b.Z.Y, b.Z.Z, 0f);
+                            (r[12], r[13], r[14], r[15]) = (bone.Origin.X, bone.Origin.Y, bone.Origin.Z, 1f);
                         }
                     }
 
@@ -515,15 +558,32 @@ internal sealed class RdObjects
                     {
                         (block[76], block[77], block[78], block[79]) = (0f, 1f, 0f, 1f);
                         Put(block, 76, node.GetInstanceShaderParameter(s_visionActor));
-                        Put(block, 68, node.GetInstanceShaderParameter(s_tint));
+                        Variant tint = node.GetInstanceShaderParameter(s_tint);
+                        Put(block, 68, tint);
                         Put(block, 72, node.GetInstanceShaderParameter(s_glowHue));
-                        if (node.GetInstanceShaderParameter(s_tint).VariantType == Variant.Type.Nil) (block[68], block[69], block[70]) = (1f, 1f, 1f);
-                        Put(block, 16, node.GetInstanceShaderParameter(s_ambient));
-                        for (int i = 0; i < 4; i++)
+                        if (tint.VariantType == Variant.Type.Nil) (block[68], block[69], block[70]) = (1f, 1f, 1f);
+                        if (ActorLighting.TryGetApplied(node, out Vector4 ambient, out PackedLight[] lights) && lights.Length >= 4)
                         {
-                            Put(block, 20 + (i * 12), node.GetInstanceShaderParameter(s_pos[i]));
-                            Put(block, 24 + (i * 12), node.GetInstanceShaderParameter(s_col[i]));
-                            Put(block, 28 + (i * 12), node.GetInstanceShaderParameter(s_spot[i]));
+                            // What ActorLighting last wrote onto the node, from its own record: thirteen reads fewer.
+                            (block[16], block[17], block[18], block[19]) = (ambient.X, ambient.Y, ambient.Z, ambient.W);
+                            for (int i = 0; i < 4; i++)
+                            {
+                                PackedLight l = lights[i];
+                                int to = 20 + (i * 12);
+                                (block[to], block[to + 1], block[to + 2], block[to + 3]) = (l.Pos.X, l.Pos.Y, l.Pos.Z, l.Pos.W);
+                                (block[to + 4], block[to + 5], block[to + 6], block[to + 7]) = (l.Col.X, l.Col.Y, l.Col.Z, l.Col.W);
+                                (block[to + 8], block[to + 9], block[to + 10], block[to + 11]) = (l.Spot.X, l.Spot.Y, l.Spot.Z, l.Spot.W);
+                            }
+                        }
+                        else
+                        {
+                            Put(block, 16, node.GetInstanceShaderParameter(s_ambient));
+                            for (int i = 0; i < 4; i++)
+                            {
+                                Put(block, 20 + (i * 12), node.GetInstanceShaderParameter(s_pos[i]));
+                                Put(block, 24 + (i * 12), node.GetInstanceShaderParameter(s_col[i]));
+                                Put(block, 28 + (i * 12), node.GetInstanceShaderParameter(s_spot[i]));
+                            }
                         }
                     }
 

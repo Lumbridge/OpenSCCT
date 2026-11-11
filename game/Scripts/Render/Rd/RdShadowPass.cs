@@ -550,10 +550,11 @@ internal static class RdShadowPass
         Span<float> to = s_palette.AsSpan(s_paletteRows * 4, count * 12);
         Aabb box = default;
         bool any = false;
+        Transform3D[] poses = RdSkeletonPoses.Of(skin.Skeleton);
         for (int i = 0; i < count; i++)
         {
-            int bone = skin.Bones[i];
-            Transform3D pose = bone >= 0 ? skin.Skeleton.GetBoneGlobalPose(bone) : Transform3D.Identity;
+            int bone = skin.Bones[i] < poses.Length ? skin.Bones[i] : -1;
+            Transform3D pose = bone >= 0 ? poses[bone] : Transform3D.Identity;
             if (bone >= 0)
             {
                 box = any ? box.Expand(pose.Origin) : new Aabb(pose.Origin, Vector3.Zero);

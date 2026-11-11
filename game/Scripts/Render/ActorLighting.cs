@@ -405,6 +405,22 @@ public sealed class ActorLighting
         if (Applied.TryGetValue(node, out AppliedLights? applied)) applied.Ambient = updated;
     }
 
+    /// <summary>
+    /// The ambient and lights last written onto an instance by <see cref="Apply"/>, as its instance parameters hold
+    /// them, without asking the engine for them: false for an instance <see cref="Apply"/> has not written.
+    /// </summary>
+    internal static bool TryGetApplied(GeometryInstance3D node, out Vector4 ambient, out PackedLight[] lights)
+    {
+        if (Applied.TryGetValue(node, out AppliedLights? applied) && applied.Known)
+        {
+            (ambient, lights) = (applied.Ambient, applied.Lights);
+            return true;
+        }
+
+        (ambient, lights) = (default, []);
+        return false;
+    }
+
     /// <summary>Writes a light set onto a drawn instance (its material must use the actor-lit template).</summary>
     public static void Apply(GeometryInstance3D node, ActorLightSet set)
     {

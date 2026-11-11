@@ -74,7 +74,8 @@ internal static class RdSheets
     {
         Span<float> floats = [position.X, position.Y, position.Z, uv.X, uv.Y, uv2.X, uv2.Y];
         s_vertices.AddRange(MemoryMarshal.AsBytes(floats));
-        s_vertices.AddRange([r, g, b, a]);
+        Span<byte> colour = [r, g, b, a];
+        s_vertices.AddRange(colour);
     }
 
     /// <summary>
