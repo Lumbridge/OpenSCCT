@@ -74,6 +74,7 @@ public abstract class AiBrain
         if (now >= _nextDecision)
         {
             _nextDecision = now + Bot.DecisionPeriod;
+            _decisionNow = now;
             int choice = Choose(now);
             if (choice != Goal)
             {
@@ -90,11 +91,41 @@ public abstract class AiBrain
         Act(now, ref plan);
     }
 
-    /// <summary>Scores the options and picks one, with the difficulty's noise and a bonus for staying.</summary>
+    private float _decisionNow;
+    private readonly float[] _optionNoise = new float[16];
+    private readonly float[] _optionNoiseUntil = new float[16];
+
+    /// <summary>
+    /// The difficulty's noise on option <paramref name="id"/>: drawn once and held for 2.5 to 4 s. Drawn again at
+    /// every decision it made two close options trade places several times a second, which showed as a bot turning
+    /// to and fro; held, a weaker bot makes a wrong choice and keeps to it for a while.
+    /// </summary>
+    private float OptionNoise(int id)
+    {
+        if ((uint)id >= (uint)_optionNoise.Length)
+        {
+            return (Bot.Random.FRand() - 0.5f) * 2f * Difficulty.DecisionNoise;
+        }
+
+        if (_decisionNow >= _optionNoiseUntil[id] || _decisionNow < _optionNoiseUntil[id] - AiK.OptionNoiseSeconds * 2f)
+        {
+            _optionNoise[id] = (Bot.Random.FRand() - 0.5f) * 2f * Difficulty.DecisionNoise;
+            _optionNoiseUntil[id] = _decisionNow + AiK.OptionNoiseSeconds * (0.75f + 0.5f * Bot.Random.FRand());
+        }
+
+        return _optionNoise[id];
+    }
+
+    /// <summary>
+    /// Scores the options and picks one, with the difficulty's noise (held per option, <see cref="OptionNoise"/>) and
+    /// a bonus for staying: large while the goal is new, so only a clearly better option interrupts what the bot has
+    /// just started.
+    /// </summary>
     protected int Pick(ReadOnlySpan<AiOption> options)
     {
         int best = -1;
         float bestScore = float.MinValue;
+        float stay = _decisionNow - GoalSince < AiK.GoalCommitSeconds && _decisionNow >= GoalSince ? AiK.GoalCommitBonus : AiK.GoalStayBonus;
         foreach (AiOption o in options)
         {
             if (o.Score <= 0f)
@@ -102,7 +133,7 @@ public abstract class AiBrain
                 continue;
             }
 
-            float score = o.Score + (o.Id == Goal ? 0.12f : 0f) + (Bot.Random.FRand() - 0.5f) * 2f * Difficulty.DecisionNoise;
+            float score = o.Score + (o.Id == Goal ? stay : 0f) + OptionNoise(o.Id);
             if (score > bestScore)
             {
                 bestScore = score;
@@ -127,6 +158,7 @@ public abstract class AiBrain
         Follower.Clear();
         Doors.Reset();
         Goal = -1;
+        Array.Clear(_optionNoiseUntil);
     }
 
     // ---- skills ----------------------------------------------------------------------------------------------

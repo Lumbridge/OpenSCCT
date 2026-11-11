@@ -234,6 +234,17 @@ public static class AiK
     /// <summary>Range at which a merc engages.</summary>
     public const float MercEngageRange = 2500f;
 
+    /// <summary>Seconds a drawn decision noise is held on an option (0.75 to 1.25 times this).</summary>
+    public const float OptionNoiseSeconds = 3.2f;
+
+    /// <summary>Seconds a new goal is committed to: only an option better by <see cref="GoalCommitBonus"/> interrupts it.</summary>
+    public const float GoalCommitSeconds = 1.5f;
+
+    public const float GoalCommitBonus = 0.5f;
+
+    /// <summary>The bonus of the current goal after the commitment.</summary>
+    public const float GoalStayBonus = 0.15f;
+
     /// <summary>A spy believed this near a merc is his to check, whoever else is about (uu).</summary>
     public const float MercOwnGround = 900f;
 
