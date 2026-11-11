@@ -108,6 +108,9 @@ public sealed partial class NavBuilder
 
     private FVector ColumnXY(int ix, int iy) => new(_min.X + ix * _profile.Spacing, _min.Y + iy * _profile.Spacing, 0f);
 
+    private (int X, int Y) ColumnOf(FVector p) =>
+        ((int)MathF.Round((p.X - _min.X) / _profile.Spacing), (int)MathF.Round((p.Y - _min.Y) / _profile.Spacing));
+
     /// <summary>The box a body of half height <paramref name="h"/> tests with, from half a step above the feet to the head.</summary>
     private FVector Body(float h) => new(_profile.Radius, _profile.Radius, h - _profile.StepUp * 0.25f);
 
@@ -120,48 +123,15 @@ public sealed partial class NavBuilder
         // On stairs the body rests on the highest tread under its footprint, not the tread under its centre.
         // Sampling only the centre makes the next tread appear to penetrate the body and deletes the stair nodes.
         var supportProbe = new FVector(_profile.Radius, _profile.Radius, FloorProbe.Z);
-        float bottom = _min.Z;
-        float top = _max.Z;
         for (int ix = 0; ix < _nx; ix++)
         {
             for (int iy = 0; iy < _ny; iy++)
             {
                 FVector c = ColumnXY(ix, iy);
-                float z = top;
                 List<int>? column = null;
-                for (int guard = 0; guard < 32 && z > bottom; guard++)
+                if (SampleColumn(c, supportProbe, ref column, shifted: false))
                 {
-                    var start = new FVector(c.X, c.Y, z);
-                    var end = new FVector(c.X, c.Y, bottom);
-                    if (!_world.LineCheck(out FCheckResult hit, CollisionProbe, end, start, supportProbe, WorldFlags))
-                    {
-                        break;
-                    }
-
-                    float floorZ = hit.Location.Z - FloorProbe.Z;
-                    if (!hit.bStartPenetrating && hit.Normal.Z >= _profile.MinFloorNormalZ)
-                    {
-                        var floor = new FVector(c.X, c.Y, floorZ);
-                        // Still require support under the centre: the wide probe must not bridge an open gap.
-                        // A footprint can span two closely spaced stair treads, each within MAXSTEPHEIGHT.
-                        if (FloorNear(floor, floorZ + 2f, floorZ - 2f * _profile.StepUp - 2f) is not null && Fits(floor, _profile.CrouchHeight))
-                        {
-                            column ??= new List<int>(2);
-                            column.Add(_nodes.Count);
-                            _nodes.Add(new NavNode(floor, Fits(floor, _profile.StandingHeight)));
-                        }
-                    }
-
-                    // Clear the same footprint used by the downward sweep. A centre-only point can already
-                    // be outside a stair/ledge while the wide probe still overlaps it; resweeping there
-                    // reports the same solid as another floor every few units and greatly inflates the graph.
-                    z = floorZ - 2f;
-                    for (int dig = 0; dig < 64 && z > bottom && _world.OverlapMoveShape(out _, CollisionProbe, new FVector(c.X, c.Y, z), supportProbe, WorldFlags); dig++)
-                    {
-                        // A usable lower floor needs a whole crouched body of clear space above it. Sampling
-                        // by half that height cannot skip such a gap and avoids hundreds of probes inside walls.
-                        z -= _profile.CrouchHeight;
-                    }
+                    SampleShifted(c, supportProbe, ref column);
                 }
 
                 if (column is not null)
@@ -175,6 +145,150 @@ public sealed partial class NavBuilder
         {
             _edges.Add(new List<(int, NavEdgeKind, float, int)>(8));
         }
+    }
+
+    /// <summary>
+    /// Adds the floors under <paramref name="c"/> to <paramref name="column"/>. A <paramref name="shifted"/> sample
+    /// only adds floors the column does not have yet. True when something as tall as a crouched body stood in the
+    /// footprint, or a floor was found where the body does not fit: a wall or jamb beside the sample may be hiding
+    /// floor from it.
+    /// </summary>
+    private bool SampleColumn(FVector c, FVector supportProbe, ref List<int>? column, bool shifted)
+    {
+        float bottom = _min.Z;
+        float z = _max.Z;
+        bool blocked = false;
+        bool blockedAbove = false;
+        for (int guard = 0; guard < 32 && z > bottom; guard++)
+        {
+            var start = new FVector(c.X, c.Y, z);
+            var end = new FVector(c.X, c.Y, bottom);
+            if (!_world.LineCheck(out FCheckResult hit, CollisionProbe, end, start, supportProbe, WorldFlags))
+            {
+                break;
+            }
+
+            blocked |= blockedAbove;
+            float floorZ = hit.Location.Z - FloorProbe.Z;
+            if (!hit.bStartPenetrating && hit.Normal.Z >= _profile.MinFloorNormalZ)
+            {
+                var floor = new FVector(c.X, c.Y, floorZ);
+                // Still require support under the centre: the wide probe must not bridge an open gap.
+                // A footprint can span two closely spaced stair treads, each within MAXSTEPHEIGHT.
+                if (FloorNear(floor, floorZ + 2f, floorZ - 2f * _profile.StepUp - 2f) is not null && !(shifted && HasFloor(column, floorZ)))
+                {
+                    if (Fits(floor, _profile.CrouchHeight))
+                    {
+                        if (shifted)
+                        {
+                            floor = TowardsMiddle(floor, c, supportProbe);
+                            _shifted.Add(_nodes.Count);
+                        }
+
+                        column ??= new List<int>(2);
+                        column.Add(_nodes.Count);
+                        _nodes.Add(new NavNode(floor, Fits(floor, _profile.StandingHeight)));
+                    }
+                    else
+                    {
+                        blocked = true;
+                    }
+                }
+            }
+
+            // Clear the same footprint used by the downward sweep. A centre-only point can already
+            // be outside a stair/ledge while the wide probe still overlaps it; resweeping there
+            // reports the same solid as another floor every few units and greatly inflates the graph.
+            z = floorZ - 2f;
+            int digs = 0;
+            for (; digs < 64 && z > bottom && _world.OverlapMoveShape(out _, CollisionProbe, new FVector(c.X, c.Y, z), supportProbe, WorldFlags); digs++)
+            {
+                // A usable lower floor needs a whole crouched body of clear space above it. Sampling
+                // by half that height cannot skip such a gap and avoids hundreds of probes inside walls.
+                z -= _profile.CrouchHeight;
+            }
+
+            // Only with something under it: solid ground hides no floor.
+            blockedAbove = digs >= 2;
+        }
+
+        return blocked;
+    }
+
+    // Shifts tried for a column whose centre is blocked, nearest first. All stay under half a cell, so the node
+    // keeps its column.
+    private static readonly (int X, int Y)[] ShiftDirections = [(1, 0), (-1, 0), (0, 1), (0, -1), (1, 1), (1, -1), (-1, 1), (-1, -1)];
+
+    private const float ShiftStep = 6f;
+
+    private const int ShiftSteps = 2;
+
+    // Nodes that stand off their column's centre (SampleShifted).
+    private readonly HashSet<int> _shifted = new();
+
+    /// <summary>
+    /// A passage narrower than the body plus one cell (a 96 uu doorway, a 93 uu stair lane) can lie between the grid
+    /// columns so that no column centre fits in it: the body-wide probe clips a jamb all the way down and never sees
+    /// the floor, which cuts the rooms behind the passage off. A blocked column is sampled again at points 6 and 12 uu
+    /// from its centre, nearest first, and gets the floors found there that it does not have.
+    /// </summary>
+    private void SampleShifted(FVector c, FVector supportProbe, ref List<int>? column)
+    {
+        for (int step = 1; step <= ShiftSteps; step++)
+        {
+            foreach ((int dx, int dy) in ShiftDirections)
+            {
+                // Diagonals (a doorway in a corner) at the first distance only.
+                if (step > 1 && dx != 0 && dy != 0)
+                {
+                    continue;
+                }
+
+                SampleColumn(new FVector(c.X + dx * step * ShiftStep, c.Y + dy * step * ShiftStep, 0f), supportProbe, ref column, shifted: true);
+            }
+        }
+    }
+
+    private bool HasFloor(List<int>? column, float z)
+    {
+        if (column is not null)
+        {
+            foreach (int n in column)
+            {
+                if (MathF.Abs(_nodes[n].Floor.Z - z) <= _profile.StepUp)
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// A shifted floor point moved on, away from what blocked the column's centre <paramref name="c"/>, to the middle
+    /// of the free run on the same floor (still within 12 uu of the centre), so the node does not graze the jamb.
+    /// </summary>
+    private FVector TowardsMiddle(FVector floor, FVector c, FVector supportProbe)
+    {
+        int dx = Math.Sign(floor.X - c.X);
+        int dy = Math.Sign(floor.Y - c.Y);
+        int first = (int)MathF.Round(MathF.Max(MathF.Abs(floor.X - c.X), MathF.Abs(floor.Y - c.Y)) / ShiftStep);
+        int last = first;
+        while (last < ShiftSteps)
+        {
+            var p = new FVector(c.X + dx * (last + 1) * ShiftStep, c.Y + dy * (last + 1) * ShiftStep, floor.Z);
+            if (FloorNear(p, floor.Z + _profile.StepUp + 2f, floor.Z - 2f, supportProbe) is not { } height || MathF.Abs(height - floor.Z) >= 2f ||
+                FloorNear(p, floor.Z + 2f, floor.Z - 2f * _profile.StepUp - 2f) is null || !Fits(p, _profile.CrouchHeight))
+            {
+                break;
+            }
+
+            last++;
+        }
+
+        float d = (first + last) * 0.5f * ShiftStep;
+        return new FVector(c.X + dx * d, c.Y + dy * d, floor.Z);
     }
 
     // ---- edges -----------------------------------------------------------------------------------------------
@@ -243,12 +357,14 @@ public sealed partial class NavBuilder
                 return;
             }
 
-            bool standing = _nodes[n].Standing && _nodes[m].Standing && Sweep(a, b, MathF.Max(a.Z, b.Z), _profile.StandingHeight);
+            // A node shifted off its column's centre is reached by a small sidestep as well as straight on.
+            bool jog = !diagonal && (_shifted.Contains(n) || _shifted.Contains(m));
+            bool standing = _nodes[n].Standing && _nodes[m].Standing && Clear(a, b, MathF.Max(a.Z, b.Z), _profile.StandingHeight, jog);
             if (standing)
             {
                 AddBoth(n, m, NavEdgeKind.Walk, horizontal);
             }
-            else if (Sweep(a, b, MathF.Max(a.Z, b.Z), _profile.CrouchHeight))
+            else if (Clear(a, b, MathF.Max(a.Z, b.Z), _profile.CrouchHeight, jog))
             {
                 AddBoth(n, m, NavEdgeKind.Crouch, horizontal * (AiK.RunSpeed / AiK.CrouchSpeed));
             }
@@ -304,10 +420,11 @@ public sealed partial class NavBuilder
 
     private bool HasWalkChain(int from, int to, int cells)
     {
-        FVector a = _nodes[from].Floor;
-        FVector b = _nodes[to].Floor;
-        float nextX = a.X + (b.X - a.X) / cells;
-        float nextY = a.Y + (b.Y - a.Y) / cells;
+        // By column, not by position: a shifted node stands off its column's centre.
+        (int ax, int ay) = ColumnOf(_nodes[from].Floor);
+        (int bx, int by) = ColumnOf(_nodes[to].Floor);
+        int nextX = ax + (bx - ax) / cells;
+        int nextY = ay + (by - ay) / cells;
         foreach (var edge in _edges[from])
         {
             // A crouched chain may be slower than a standing shortcut, so keep testing those candidates.
@@ -321,9 +438,7 @@ public sealed partial class NavBuilder
                 return true;
             }
 
-            FVector next = _nodes[edge.To].Floor;
-            if (cells > 1 && MathF.Abs(next.X - nextX) < 0.01f && MathF.Abs(next.Y - nextY) < 0.01f &&
-                HasWalkChain(edge.To, to, cells - 1))
+            if (cells > 1 && ColumnOf(_nodes[edge.To].Floor) == (nextX, nextY) && HasWalkChain(edge.To, to, cells - 1))
             {
                 return true;
             }
@@ -346,6 +461,29 @@ public sealed partial class NavBuilder
         }
 
         return false;
+    }
+
+    /// <summary>
+    /// A body of half height <paramref name="h"/> gets from <paramref name="a"/> to <paramref name="b"/>: straight, or
+    /// with <paramref name="jog"/> by stepping sideways at either end (a walker slides along a jamb it grazes).
+    /// </summary>
+    private bool Clear(FVector a, FVector b, float z, float h, bool jog)
+    {
+        if (Sweep(a, b, z, h))
+        {
+            return true;
+        }
+
+        if (!jog)
+        {
+            return false;
+        }
+
+        // The corner on the side of the longer axis keeps the sidestep the short leg.
+        bool alongX = MathF.Abs(b.X - a.X) >= MathF.Abs(b.Y - a.Y);
+        FVector first = alongX ? new FVector(a.X, b.Y, a.Z) : new FVector(b.X, a.Y, a.Z);
+        FVector second = alongX ? new FVector(b.X, a.Y, b.Z) : new FVector(a.X, b.Y, b.Z);
+        return Sweep(a, first, z, h) && Sweep(first, b, z, h) || Sweep(a, second, z, h) && Sweep(second, b, z, h);
     }
 
     private bool Sweep(FVector a, FVector b, float z, float h)

@@ -205,6 +205,11 @@ and visual inspections. These are bounded heuristic beliefs; learned policies an
   cannot cut off a route. Nodes are flagged standing when the standing body fits too. After a surface, sampling
   clears the same pawn-width footprint before descending again; this prevents overlapping ledge and stair probes
   from producing repeated floors inside the same solid. Clearance steps cannot skip a usable crouch-height gap.
+  A passage narrower than the body plus one cell (a 96 uu doorway, a 93 uu stair lane; MoonD's spy station) can lie
+  between the columns so that no column centre fits in it: the pawn-width probe clips a jamb all the way down and
+  never sees the floor. A column whose footprint was blocked by something as tall as a crouched body, or whose floor
+  the body does not fit, is sampled again 6 and 12 uu from its centre (the four axes, and the diagonals at 6) and
+  takes the floors found there that it lacks; the node stands at the middle of the free run and keeps its column.
 - **Walk and crouch edges** to the eight neighbours a swept body reaches with at most MAXSTEPHEIGHT 34 up, standing when
   both ends and the sweep fit a standing pawn, crouched otherwise (vents and crawl spaces; a crouched merc is 136 tall
   and fits fewer of them). A small step can leave a gap of two or three sampled cells because the lower cylinder
@@ -213,7 +218,8 @@ and visual inspections. These are bounded heuristic beliefs; learned policies an
   Narrow stairs may span several treads between grid columns; each half-cell transition must remain within
   MAXSTEPHEIGHT, with support under the centre as well as the footprint. Immediate neighbours are connected first;
   longer edges are omitted only when a standing walk chain through the exact intermediate columns already reaches
-  the target. Crouched chains still allow a faster standing shortcut. Navigation cache version 12 rebuilds older graphs.
+  the target. Crouched chains still allow a faster standing shortcut. A shifted node is also reached by a sidestep
+  at either end of the edge when the straight sweep grazes a jamb. Navigation cache version 16 rebuilds older graphs.
 - **Drops**: one way, up to three cells out, cleared all the way down; spies to 700 uu (a few points of damage past
   Fell_MinHeightForDmg 600), mercs to 400 (their damage starts at 450); deeper than the damage height costs extra.
   The landing floor must go on for two cells past the landing node in the direction of the drop: a narrow shelf over
