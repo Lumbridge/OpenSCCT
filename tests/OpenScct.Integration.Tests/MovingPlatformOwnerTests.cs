@@ -16,15 +16,17 @@ namespace OpenScct.Integration.Tests;
 public sealed class MovingPlatformOwnerTests(ITestOutputHelper output)
 {
     [Theory]
-    [InlineData(0)]
-    [InlineData(100)]
-    public void OwnerCanRideAndWalkOnMoonCarousel(int latency)
+    [InlineData(0, PlaySide.Merc)]
+    [InlineData(100, PlaySide.Merc)]
+    [InlineData(0, PlaySide.Spy)]
+    [InlineData(100, PlaySide.Spy)]
+    public void OwnerCanRideAndWalkOnMoonCarousel(int latency, PlaySide side)
     {
         Assert.SkipWhen(WalkerRig.Maps.FindFolder("MoonD") is null, "MoonD content is not installed.");
         var clock = new StepClock();
         using var session = new PlaySession(new PlaySettings
         {
-            Map = "MoonD", Side = PlaySide.Merc, Rules = PlayRules.PlayLevel, HostMode = PlayHostMode.Inline,
+            Map = "MoonD", Side = side, Rules = PlayRules.PlayLevel, HostMode = PlayHostMode.Inline,
             SimLink = latency == 0 ? null : SimLinkProfile.Get(latency.ToString()), MatchSeed = 119,
         }, clock);
         void Tick(int count = 1)
@@ -72,7 +74,9 @@ public sealed class MovingPlatformOwnerTests(ITestOutputHelper output)
         float largestStep = 0, largestError = 0, largestIdleDrift = 0, largestSettledDrift = 0;
         int corrections = owner.CorrectionsApplied;
         int settledCorrections = corrections;
-        for (int tick = 0; tick < 300; tick++)
+        // The carousel takes about 18 seconds per turn. Ride for multiple turns, including the
+        // outer deck, so rotation wraps and all surrounding collision are exercised on both sides.
+        for (int tick = 0; tick < 2400; tick++)
         {
             // This half-second walk reaches the outer deck, where a missed rotation step exceeds the
             // correction threshold. At the initial radius that same error can remain below tolerance.
@@ -96,14 +100,14 @@ public sealed class MovingPlatformOwnerTests(ITestOutputHelper output)
                 largestSettledDrift = MathF.Max(largestSettledDrift, (Relative(local, copy) - settledLocal).Size());
                 largestSettledDrift = MathF.Max(largestSettledDrift, (Relative(server, carousel) - settledServer).Size());
             }
-            if (tick % 30 == 0) trace.Add(
+            if (tick % 120 == 0) trace.Add(
                 $"{tick}: c={local.Location}/{local.Base?.Tag}/{local.Physics}/{local.ZoneConfig} v={local.Velocity}, " +
                 $"s={server.Location}/{server.Base?.Tag}/{server.Physics}/{server.ZoneConfig} v={server.Velocity}, " +
                 $"corrections={owner.CorrectionsApplied - corrections}, lastDistance={owner.LastCorrectionDistance}, " +
                 $"savedError={(owner.UpdatingSMove is { } updated ? (updated.SavedLocation - owner.vUpdateLocation).Size() : 0)}, updateBase={owner.aUpdateBase?.Tag}");
             previous = local.Location;
         }
-        string details = $"latency={latency}; largest step={largestStep}, relative error={largestError}, " +
+        string details = $"side={side}, latency={latency}; largest step={largestStep}, relative error={largestError}, " +
             $"idle drift={largestIdleDrift}, settled drift={largestSettledDrift};\n" + string.Join('\n', trace);
         output.WriteLine(details);
         Assert.True(largestStep < 25f, details);
