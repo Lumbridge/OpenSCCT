@@ -161,6 +161,7 @@ public partial class RdWorldRenderer : Node
             GetTree().NodeAdded += OnTreeChanged;
             GetTree().NodeRemoved += OnTreeChanged;
             RenderingServer.FramePreDraw += OnPreDraw;
+            if (Stats) RenderingServer.FramePostDraw += OnPostDraw;
             _subscribed = true;
             GD.Print("SVM_RD_FRAME on for " + _map.MapId);
             return;
@@ -173,6 +174,7 @@ public partial class RdWorldRenderer : Node
         compositor.CompositorEffects = effects;
         // After the lights, the fog and LightReach, which subscribed while the map was built and attached.
         RenderingServer.FramePreDraw += OnPreDraw;
+        if (Stats) RenderingServer.FramePostDraw += OnPostDraw;
         _subscribed = true;
     }
 
@@ -182,6 +184,7 @@ public partial class RdWorldRenderer : Node
         if (_subscribed)
         {
             RenderingServer.FramePreDraw -= OnPreDraw;
+            if (Stats) RenderingServer.FramePostDraw -= OnPostDraw;
             _subscribed = false;
         }
 
@@ -238,7 +241,7 @@ public partial class RdWorldRenderer : Node
         GD.Print($"SVM_RD_WORLD spots{spots} dynamic={_lights.Count} soft={SpotShadowLight.SoftRadius}");
         if (OwnFrame)
         {
-            GD.Print(string.Create(CultureInfo.InvariantCulture, $"SVM_RD_FRAME gatherMs={_gatherMs:F3} preDrawMs={_preDrawMs:F3} preDrawBytes={_preDrawBytes} recordBytes={_recordBytes} frameBytes={(GC.GetTotalAllocatedBytes() - _allBytes) / Math.Max(1, _frames)} processMs={Performance.GetMonitor(Performance.Monitor.TimeProcess) * 1000.0:F3} physicsMs={Performance.GetMonitor(Performance.Monitor.TimePhysicsProcess) * 1000.0:F3} setupMs={RenderingServer.GetFrameSetupTimeCpu():F3} nodes={_objects.NodeCount} objects={_gpu.LastObjects}"));
+            GD.Print(string.Create(CultureInfo.InvariantCulture, $"SVM_RD_FRAME gatherMs={_gatherMs:F3} preDrawMs={_preDrawMs:F3} preDrawBytes={_preDrawBytes} recordBytes={_recordBytes} frameBytes={(GC.GetTotalAllocatedBytes() - _allBytes) / Math.Max(1, _frames)} processMs={Performance.GetMonitor(Performance.Monitor.TimeProcess) * 1000.0:F3} physicsMs={Performance.GetMonitor(Performance.Monitor.TimePhysicsProcess) * 1000.0:F3} setupMs={RenderingServer.GetFrameSetupTimeCpu():F3} turnMs={_turnMs / Math.Max(1, _phaseFrames):F3} drawMs={_drawMs / Math.Max(1, _phaseFrames):F3} nodes={_objects.NodeCount} objects={_gpu.LastObjects}"));
             GD.Print("SVM_RD_FRAME fog " + _fogNote);
             if (!_skyNoted)
             {
@@ -257,6 +260,7 @@ public partial class RdWorldRenderer : Node
         _sinceReport = 0;
         _frames = 0;
         _allBytes = GC.GetTotalAllocatedBytes();
+        (_turnMs, _drawMs, _phaseFrames) = (0, 0, 0);
     }
 
     /// <summary>SVM_RD_WORLD_STATS=1 prints the draws by variant once a second.</summary>
@@ -777,8 +781,29 @@ public partial class RdWorldRenderer : Node
         }
     }
 
+    // Statistics: where a frame's time goes between the engine's phases. From the draw phase's end to its next start
+    // is the game's turn (process, physics, scripts); from its start to its end the drawing and the present.
+    private long _phaseAt;
+    private double _turnMs, _drawMs;
+    private int _phaseFrames;
+
+    private void OnPostDraw()
+    {
+        long now = System.Diagnostics.Stopwatch.GetTimestamp();
+        if (_phaseAt != 0) _drawMs += System.Diagnostics.Stopwatch.GetElapsedTime(_phaseAt, now).TotalMilliseconds;
+        _phaseAt = now;
+        _phaseFrames++;
+    }
+
     private void OnPreDraw()
     {
+        if (Stats)
+        {
+            long now = System.Diagnostics.Stopwatch.GetTimestamp();
+            if (_phaseAt != 0) _turnMs += System.Diagnostics.Stopwatch.GetElapsedTime(_phaseAt, now).TotalMilliseconds;
+            _phaseAt = now;
+        }
+
         if (!GodotObject.IsInstanceValid(this) || !IsInsideTree() || !GodotObject.IsInstanceValid(_view.Camera))
         {
             return;

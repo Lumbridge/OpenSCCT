@@ -44,6 +44,9 @@ public partial class App : Node
             return false;
         }
 
+        // SVM_ALLOW_D3D12=1 (measurement): stays on Direct3D 12 when started on it.
+        if (System.Environment.GetEnvironmentVariable("SVM_ALLOW_D3D12") == "1") return false;
+
         var arguments = new System.Collections.Generic.List<string>();
         string[] given = OS.GetCmdlineArgs();
         for (int i = 0; i < given.Length && given[i] != "--"; i++)

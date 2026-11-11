@@ -705,6 +705,77 @@ only names shaders the load does not ask for. Maps that are not in the content f
 load as before until their second load. The driver's own pipeline compile, most of a cold first load, is not
 touched by this.
 
+## Fourteenth stage: the frame's time outside the GPU (2026-11-11, night, `perf/fast-fps`, local only)
+
+Measured after the 1080p monitor was moved to the motherboard's output, so the UHD 770 drives the display the window
+is on (`SVM_BACKGROUND_AT=2560,0`). Placing the window there or off screen made no difference any more (AquaE 1080p
+214 against 212 FPS): the copy to the other adapter that earlier sections charge to this PC is gone in this layout.
+
+### More of the scene
+
+| AquaE spawn, 2560 x 1440, GPU ms | Thirteenth stage | Now |
+|---|---:|---:|
+| Scene | 2.60 | 2.22 |
+| Frame ms, FPS (1% low) | 7.65, 131 (111) | 7.22, 138 (110) |
+
+- **A projector's redraws are cut to its screen rectangle** (`RdWorldRenderer.TargetRect`, `SVM_RD_WORLD_TEST=noscissor`
+  off). A receiving batch is an 8 m block and was drawn whole; the projection falls only inside the projector's box.
+  Scene 2.58 to 2.22 ms on AquaE (five rain-ripple projectors now cost 0.20 ms).
+- **Reaching spot slots keep their dynamic flag** (`frame.SpotBits`, bits 16 to 31). The world draws named only the
+  low sixteen bits, so the template's mask lost which slots are dynamic and a surface that ignores static spot lights
+  (Echelon bit 0) took no torch light either. A fault of the world pass since it was written, not of this night.
+- **Flares light characters and objects drawn by the small programs** (`RdObjects.Spot`: `flare_light`, the draw's
+  kind holds the count). Written, compiled at load, never seen with a flare lit.
+- **Tried and backed out** (`D:\OpenSCCTd-builds\lit-experiments.patch`): a stage shader with only the spot and
+  dynamic light terms for lit draws, and the dynamic lights of static meshes at the vertices. 127 of AquaE's 133 lit
+  draws took the small shader and the scene did not move (2.22 ms either way): with the light walk forced empty the
+  small shader still cost 0.33 ms over the unlit stage, and the light itself 0.24 ms. The cost of a lit draw is
+  being lit at each pixel at all, not the template's size, and only 26 of the draws are static meshes.
+
+### The processor's share
+
+AquaE at three sizes on the Intel-driven display (`RD ...` rows are the timed GPU passes):
+
+| | Frame ms | Timed GPU ms | Rest |
+|---|---:|---:|---:|
+| 1920 x 1080 | 4.68 | 2.34 | 2.34 |
+| 1920 x 1080, render scale 50% | 3.76 | 1.46 | 2.30 |
+| 640 x 360 | 2.63 | 0.92 | 1.71 |
+
+About 1.7 ms of every frame does not depend on the picture's size. `SVM_RD_WORLD_STATS=1` now prints where it
+goes: `turnMs` (from the end of the engine's draw phase to the start of the next: the game's turn) and `drawMs` (the
+draw phase), `preDrawMs`, `gatherMs`, and the bytes allocated a frame.
+
+- **The game's turn and the GPU's frame do not overlap on Vulkan on this GPU.** AquaE 1080p: turn 1.5 ms, draw
+  phase 3.2 ms, frame 4.7 ms; at 360p 1.0 + 1.3. The draw phase lasts as long as the GPU takes, whatever
+  `frame_queue_size` (2 or 3) and `swapchain_image_count` (2, 3 or 4) are, and with a separate render thread too
+  (`thread_model=2`: same 212 FPS). So a millisecond of processor time costs a millisecond of frame, as a
+  millisecond of GPU time does. Mailbox presentation is not offered by the driver.
+- **On Direct3D 12 they overlap.** SteeE 1080p, same build (`SVM_ALLOW_D3D12=1`, `--rendering-driver d3d12`):
+  436 FPS (2.29 ms; turn 0.57, draw 1.69) against 301 FPS (3.32 ms) on Vulkan, although the timed GPU passes are
+  slower there (scene 1.21 against 0.78 ms). **AquaE hung on Direct3D 12 after its load**, and the hang left the
+  Intel driver unusable: every later process that enumerates Vulkan devices (the game on either GPU, `vulkaninfo`)
+  stops at start and cannot be ended, until the driver is restarted. Nothing after that point was measured.
+  Do not run Direct3D 12 on this machine unattended again. What AquaE draws that SteeE does not: the shadow pass
+  (its tile copies), the glow chain, projectors, lit draws, rain, cloth.
+- **Fewer engine reads a frame** (`RdObjects.Gather`): a mesh node out of view costs its layers and its transform
+  (its mesh's box is kept from its last full look; 355 nodes on AquaE); a skeleton's bone poses are read once a
+  frame for the object pass and the shadow pass together (`RdSkeletonPoses`); an actor's ambient and four lights
+  come from `ActorLighting`'s own record of what it wrote (thirteen reads a node fewer).
+- **Fewer allocations a frame**: 78 KB to 27 KB on AquaE (the bone matrices were a new array a bone; the sheet
+  vertices and coronas likewise). The collector ran 14 times in an 8 s run before, 3 ms a pause.
+- AquaE 640 x 360 (the processor's limit): 2.84 to 2.39-2.65 ms between runs (352 to 380-418 FPS); runs of the same
+  build differ by 5 to 10% at this size.
+
+Not verified: none of this stage's changes has been through the all-maps picture comparison (the Vulkan driver
+hung before it could run), and the zone culling of the thirteenth stage was compared on six maps only (46 views,
+no missing geometry). The shader lists have not been baked.
+
+Open, in order of what they are worth: a Direct3D 12 path for Intel that does not hang (the overlap is worth 30 to
+45% of the frame, more than everything else found); failing that, the processor's turn (a sampled profile through
+the runtime's EventPipe is set up in `D:\OpenSCCTd-builds\prof`, not yet taken); the engine's own time in the
+draw phase.
+
 ## The target
 
 ### The original at 2560×1440 on the UHD 770 (measured 2026-11-10)
