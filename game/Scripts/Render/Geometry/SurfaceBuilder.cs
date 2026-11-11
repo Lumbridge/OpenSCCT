@@ -332,6 +332,13 @@ internal sealed class SurfaceBuilder
         return (s.Positions, s.Normals, s.Uvs, s.Uv2s, s.Colours, s.Echelon, s.Indices);
     }
 
+    /// <summary>The vision stream (four floats a vertex: HeatIntensity, HeatOpacity, EMF glow, EMFOpacity + 2), or null when the surface has none.</summary>
+    internal float[]? RdVision()
+    {
+        Prepare();
+        return _streams!.Vision;
+    }
+
     /// <summary>Appends this surface to <paramref name="mesh"/>.</summary>
     public void AddTo(ArrayMesh mesh, Material? material)
     {

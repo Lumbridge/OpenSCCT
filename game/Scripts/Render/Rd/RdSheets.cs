@@ -32,6 +32,8 @@ internal static class RdSheets
         /// <summary>Texels at or under this alpha are cut; negative: no alpha test.</summary>
         public float AlphaRef;
         public bool DepthTest, Repeat;
+        /// <summary>The emitter's HeatOpacity: how much of its alpha a particle keeps in thermal vision (1 for everything else).</summary>
+        public float HeatOpacity;
         /// <summary>
         /// A light beam's slices (svm_light_beam.gdshader): Pan holds what a slice adds (rgb) and the light's spot
         /// shadow slot (w, negative: no cut); the first UV's x runs along the beam.
@@ -171,9 +173,10 @@ internal static class RdSheets
                 : code.Contains("#define STYLE_DARKEN", StringComparison.Ordinal) ? StyleDarken
                 : code.Contains("#define STYLE_BRIGHTEN", StringComparison.Ordinal) ? StyleBrighten : StyleAdd;
             Variant cells = material.GetShaderParameter("blend_cells"), alphaRef = material.GetShaderParameter("alpha_ref");
+            Variant heat = material.GetShaderParameter("heat_opacity");
             draw = new Draw
             {
-                Style = style, Pan = new Vector4(1f, 1f, 0f, 0f),
+                Style = style, Pan = new Vector4(1f, 1f, 0f, 0f), HeatOpacity = heat.VariantType == Variant.Type.Nil ? 1f : heat.AsSingle(),
                 Texture = material.GetShaderParameter("tex_sprite").AsGodotObject() is Texture2D t ? RenderingServer.TextureGetRdTexture(t.GetRid(), false) : default,
                 BlendCells = cells.VariantType == Variant.Type.Bool && cells.AsBool(),
                 AlphaRef = alphaRef.VariantType == Variant.Type.Nil ? -1f : alphaRef.AsSingle(),
@@ -197,11 +200,13 @@ internal static class RdSheets
             vec4 eye;
             vec4 fog_color;
             vec4 fog;
+            // x: the light the vision mode adds to every lit surface (svm_vision_ambient).
+            vec4 vision;
         } frame;
         layout(push_constant, std430) uniform Draw
         {
             vec4 pan;
-            // x style, y 1 to blend between texture cells, z alpha test reference (negative: none)
+            // x style, y 1 to blend between texture cells, z alpha test reference (negative: none), w HeatOpacity
             vec4 kind;
         } draw;
 
@@ -248,6 +253,16 @@ internal static class RdSheets
             vec4 c = style == 2 ? mix(v, t, v.a) : t * v;
             if (draw.kind.z >= 0.0 && c.a <= draw.kind.z) {
                 discard;
+            }
+            if (frame.vision.y > 35.5) {
+                // Thermal (svm_particle.gdshaderinc): the alpha styles draw the translucent rule, the depth fade by
+                // their alpha, over the heat behind them; the other styles draw nothing. The view depth is 1 / w.
+                if (style != 0 && style != 1 && style != 4) {
+                    discard;
+                }
+                float fade = 1.0 - clamp(100.0 / (gl_FragCoord.w * 5000.0), 0.0, 1.0);
+                frag = vec4(0.0, 0.0, fade, style == 0 ? 1.0 : c.a * draw.kind.w);
+                return;
             }
             float cover = 0.0;
             if (frame.fog_color.a > 0.5) {

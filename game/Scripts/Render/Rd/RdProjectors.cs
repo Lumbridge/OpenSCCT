@@ -166,6 +166,8 @@ internal sealed class RdProjectors
             vec4 eye;
             vec4 fog_color;
             vec4 fog;
+            // x: the light the vision mode adds to every lit surface (svm_vision_ambient).
+            vec4 vision;
         } frame;
         struct Projector
         {

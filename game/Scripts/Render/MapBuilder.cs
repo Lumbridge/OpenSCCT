@@ -1523,7 +1523,7 @@ public static class MapBuilder
                     bool split = cell.sky == 0 ? key.Item3 != VisionPass.SeeThrough && material.NextPass is null && solid : !solid;
                     _map.Stats.Vertices += b.VertexCount;
                     // The own frame draws cut-outs that animate too (its colour pass does not care how their shadow is cached).
-                    if (_map.RdWorld is { } rdWorld && (Rd.RdWorldRenderer.OwnFrame || !AnimatesShadow(material)) && rdWorld.TryAdd(cell, key.Item1, key.Item2, entry, b))
+                    if (_map.RdWorld is { } rdWorld && (Rd.RdWorldRenderer.OwnFrame || !AnimatesShadow(material)) && rdWorld.TryAdd(cell, key.Item1, key.Item2, entry, b, key.Item3 == VisionPass.SeeThrough))
                     {
                         if (rdSurfaces.Count == MaxSurfacesPerMesh)
                         {

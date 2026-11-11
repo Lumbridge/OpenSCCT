@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using Godot;
+using OpenScctGame.Render.Data;
 using OpenScctGame.Render.Materials;
 
 namespace OpenScctGame.Render.Rd;
@@ -330,10 +331,11 @@ public partial class RdWorldRenderer : Node
     /// This frame's sheets: the rain as RainVolumes last built it, after the sprite particles the particle views
     /// collected while they filled their own meshes this frame. Their vertices go to the render thread whole.
     /// </summary>
-    private void GatherSheets(RdWorldFrame frame)
+    /// <param name="particlesOnly">Thermal: rain and light beams are not part of the heat picture.</param>
+    private void GatherSheets(RdWorldFrame frame, bool particlesOnly)
     {
         (List<byte> vertices, List<RdSheets.Draw> draws) = RdSheets.Frame;
-        if (_view.Rain is { } rain && rain.Node.IsVisibleInTree())
+        if (!particlesOnly && _view.Rain is { } rain && rain.Node.IsVisibleInTree())
         {
             List<float> source = rain.RdVertices;
             foreach ((ShaderMaterial material, int first, int count) in rain.RdRuns)
@@ -363,7 +365,7 @@ public partial class RdWorldRenderer : Node
             }
         }
 
-        RdSheets.CollectBeams(GetParent() ?? _map.Root);
+        if (!particlesOnly) RdSheets.CollectBeams(GetParent() ?? _map.Root);
         frame.Sheets.Clear();
         frame.Sheets.AddRange(draws);
         byte[] bytes = _gpu.RentSheets(vertices.Count);
@@ -379,13 +381,77 @@ public partial class RdWorldRenderer : Node
 
     private static readonly double s_flip = double.TryParse(System.Environment.GetEnvironmentVariable("SVM_RD_FRAME_FLIP"), NumberStyles.Float, CultureInfo.InvariantCulture, out double flip) ? flip : 0.0;
 
+    /// <summary>True for the vision modes the own frame draws.</summary>
+    internal static bool OwnVision(int rendMap) =>
+        rendMap is RenderK.RendMapNormal or RenderK.RendMapBinoculars or RenderK.RendMapNight or RenderK.RendMapMotion or RenderK.RendMapThermal or RenderK.RendMapEmf;
+
+    // The grain's per-frame random numbers (DisplaySpaceEffect.NextGrain): a seeded sequence, so renders repeat.
+    private uint _grain = 0x2545F491u;
+    private RenderPack? _visionPack;
+    private Rid _visionNoise, _visionTable, _visionSonar;
+
+    private float NextGrain()
+    {
+        _grain ^= _grain << 13;
+        _grain ^= _grain >> 17;
+        _grain ^= _grain << 5;
+        return (_grain >> 8) / 16777216f;
+    }
+
+    /// <summary>The vision pass's block and textures for this frame, as DisplaySpaceEffect fills svm_display_post.glsl's.</summary>
+    private void WriteVision(RdWorldFrame frame, int vision)
+    {
+        if (!ReferenceEquals(_map.Pack, _visionPack))
+        {
+            _visionPack = _map.Pack;
+            static Rid Of(RenderPack? pack, string name) =>
+                pack?.Texture(name) is { } texture ? RenderingServer.TextureGetRdTexture(texture.GetRid(), false) : default;
+            _visionNoise = Of(_visionPack, RenderPack.Noise);
+            _visionTable = Of(_visionPack, RenderPack.ThermalTable);
+            _visionSonar = Of(_visionPack, RenderPack.Sonar);
+        }
+
+        (frame.VisionNoise, frame.VisionTable, frame.VisionSonar) = (_visionNoise, _visionTable, _visionSonar);
+        float angle = NextGrain() * RenderK.NoiseAngleRange;
+        float offU = NextGrain();
+        float offV = NextGrain();
+        float slope = 1f + (3f * _map.MtvSlope / 255f);
+        Rect2[] rects = vision == RenderK.RendMapMotion ? _view.MotionCleanRects : [];
+        int used = Math.Min(rects.Length, Post.DisplayPostSettings.MaxCleanRects);
+        frame.VisionCleanRects = used;
+        Span<float> v = frame.VisionParams;
+        v.Clear();
+        ReadOnlySpan<float> values =
+        [
+            MathF.Cos(angle), MathF.Sin(angle), offU, offV,
+            1f / 128f, 1f / 128f, RenderK.SonarTiles.X, RenderK.SonarTiles.Y,
+            RenderK.NightVisionTint.X, RenderK.NightVisionTint.Y, RenderK.NightVisionTint.Z, RenderK.NightVisionGain,
+            RenderK.NightVisionLuma.X, RenderK.NightVisionLuma.Y, RenderK.NightVisionLuma.Z, 0f,
+            RenderK.ThermalBlurAlpha, RenderK.ThermalLevelMix, RenderK.ThermalLutGain, RenderK.EmfGain,
+            2f * slope, _map.MtvOffset / 255f, RenderK.MotionRampScale, RenderK.MotionFoldAt,
+            RenderK.MotionLow.R, RenderK.MotionLow.G, RenderK.MotionLow.B, 0f,
+            RenderK.MotionHigh.R, RenderK.MotionHigh.G, RenderK.MotionHigh.B, 0f,
+            RenderK.MotionFold.X, RenderK.MotionFold.Y, RenderK.MotionFold.Z, 0f,
+            RenderK.MotionCleanTint.X, RenderK.MotionCleanTint.Y, RenderK.MotionCleanTint.Z, RenderK.MotionCleanGain,
+            RenderK.MotionCleanBias.X, RenderK.MotionCleanBias.Y, RenderK.MotionCleanBias.Z, 0f,
+        ];
+        values.CopyTo(v);
+        for (int i = 0; i < used; i++)
+        {
+            Rect2 r = rects[i];
+            (v[44 + (i * 4)], v[45 + (i * 4)], v[46 + (i * 4)], v[47 + (i * 4)]) = (r.Position.X, r.Position.Y, r.End.X, r.End.Y);
+        }
+    }
+
     private void PreDrawOwn(Camera3D camera)
     {
         Viewport viewport = GetViewport();
-        // Only the normal view is drawn here. Night, thermal, EMF and every other vision mode, and a round with
-        // responsive smoke, go back to Godot's renderer whole: it draws the 3D scene again and this pass hands over
+        // Every vision mode is drawn here, its own pass ending the frame (RdFramePost.RunVision): night and motion
+        // read the normal scene; thermal and EMF draw every surface by its material's vision outputs. A round with
+        // responsive smoke goes back to Godot's renderer whole: it draws the 3D scene again and this pass hands over
         // the map's meshes it had taken.
-        bool own = !_gpu.Failed && _view.RendMap == RenderK.RendMapNormal && !ResponsiveSmokeShaders.Enabled
+        int vision = _view.RendMap;
+        bool own = !_gpu.Failed && OwnVision(vision) && !ResponsiveSmokeShaders.Enabled
             && camera.IsInsideTree() && camera.Current;
         // SVM_RD_FRAME_FLIP=seconds (a check of the hand-over, not a way to play): Godot's renderer takes every other period.
         if (s_flip < 0.0 || (s_flip > 0.0 && ((long)(Time.GetTicksMsec() / 1000.0 / s_flip) & 1) == 1)) own = false;
@@ -430,7 +496,11 @@ public partial class RdWorldRenderer : Node
         frame.Clear = new Color(clear.R, clear.G, clear.B, 1f);
         WriteClip(ToTarget(world, 1f - SkyDepth, SkyDepth), frame.Clip.AsSpan(0, 16));
         WriteClip(ToTarget(sky, SkyDepth, 0f), frame.Clip.AsSpan(16, 16));
-        frame.Gate = _view.GlowGate;
+        bool normal = Post.DisplaySpaceEffect.RunsGlowComposite(vision);
+        frame.Gate = _view.GlowGate && normal;
+        frame.Vision = normal ? RenderK.RendMapNormal : vision;
+        frame.VisionAmbient = ShaderGlobals.TryGet(MaterialCompiler.VisionAmbientParameter, out Variant visionAmbient) ? visionAmbient.AsSingle() : 0f;
+        if (!normal) WriteVision(frame, vision);
         // The camera zone's own distance fog, as the surfaces' shaders read it (svm_fog.gdshaderinc): mode 1 holds it
         // in the view row, mode 2 (portal fog) in the camera zone's ramp. The original fogs a frame with one such ramp.
         Span<float> fogBlock = frame.FogBlock;
@@ -451,6 +521,18 @@ public partial class RdWorldRenderer : Node
                 Vector4 color = fogColor.AsVector4();
                 (fogBlock[4], fogBlock[5], fogBlock[6], fogBlock[7]) = (color.X, color.Y, color.Z, 1f);
                 (fogBlock[8], fogBlock[9], fogBlock[10]) = (100f, view.Z, view.W > view.Z ? 1f / (view.W - view.Z) : 1e6f);
+            }
+        }
+
+        // Thermal has no fog; EMF fogs to its clear colour (FaithfulView.UpdateEffect).
+        bool sceneVision = FaithfulView.IsSceneVision(vision);
+        if (sceneVision)
+        {
+            fogBlock[4..11].Clear();
+            if (vision == RenderK.RendMapEmf)
+            {
+                (fogBlock[4], fogBlock[5], fogBlock[6], fogBlock[7]) = (RenderK.EmfClear.R, RenderK.EmfClear.G, RenderK.EmfClear.B, 1f);
+                (fogBlock[8], fogBlock[9], fogBlock[10]) = (100f, RenderK.EmfFogStart, 1f / (RenderK.EmfFogEnd - RenderK.EmfFogStart));
             }
         }
 
@@ -482,14 +564,14 @@ public partial class RdWorldRenderer : Node
         // Every mesh of the play scene on the actors' layers: gameplay objects, animated props, characters, the
         // first-person model.
         _objects.Gather(GetParent() ?? _map.Root, _worldPlanes, static (planes, box) => Inside(planes, box), _spotsReachingBox ??= SpotsReachingBox,
-            frame.Objects, frame.ObjectData, frame.Palette, _objectUploads, _objectWarm, eye.Basis, eye.Origin);
+            frame.Objects, frame.ObjectData, frame.Palette, _objectUploads, _objectWarm, eye.Basis, eye.Origin, sceneVision);
         foreach (RdMaterial material in _objectWarm) _gpu.QueueWarm(material);
         _objectWarm.Clear();
 
         foreach (RdObjects.Upload upload in _objectUploads) _gpu.QueueObjectUpload(upload);
         frame.Time = ShaderGlobals.TryGet("svm_time", out Variant time) ? time.AsSingle() : 0f;
         _coronas.Gather(GetTree().Root, frame.CoronaGroups, frame.CoronaBlocks);
-        GatherSheets(frame);
+        GatherSheets(frame, sceneVision);
         _gatherMs = System.Diagnostics.Stopwatch.GetElapsedTime(gathering).TotalMilliseconds;
         _projectors.Gather(_map.Projectors?.Root, GetTree(), _worldPlanes, static (planes, box) => Inside(planes, box), _geometry.Batches, frame.Draws, frame.DrawCount,
             frame.ProjectorDraws, frame.ProjectorBlocks, frame.ProjectorTextures, frame.ProjectorKinds);
@@ -504,7 +586,8 @@ public partial class RdWorldRenderer : Node
                 _ownFinal.SetShaderParameter("glow", _ownGlow);
             }
 
-            var gate = new Vector4(frame.Gate ? 1f : 0f, RenderK.GlowGateGain, RenderK.GlowGateOffset, frame.Gate && frame.GlowCut >= 0f && _ownGlowRid.IsValid ? 1f : 0f);
+            // A vision mode's own pass has ended the frame: the item shows its target as it is.
+            var gate = !normal ? default : new Vector4(frame.Gate ? 1f : 0f, RenderK.GlowGateGain, RenderK.GlowGateOffset, frame.Gate && frame.GlowCut >= 0f && _ownGlowRid.IsValid ? 1f : 0f);
             if (gate != _ownGate)
             {
                 _ownGate = gate;
@@ -514,7 +597,7 @@ public partial class RdWorldRenderer : Node
 
         _gpu.Submit(frame);
         RenderingServer.CallOnRenderThread(_renderOwn);
-        Rid latest = _gpu.LatestOwnColor;
+        Rid latest = normal ? _gpu.LatestOwnColor : _gpu.LatestOwnShown;
         if (latest.IsValid && latest != _ownShownColor && _ownRect is not null)
         {
             _ownShown.TextureRdRid = latest;

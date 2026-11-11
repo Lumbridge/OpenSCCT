@@ -31,6 +31,14 @@ internal static class RdShaderLibrary
 {
     private static readonly Dictionary<(string Code, RdFeatures Features, int Actor), (RdTranslatedShader? Shader, string? Reason)> s_shaders = [];
 
+    /// <summary>
+    /// Ends the code of a material drawn in thermal and EMF vision (a comment: the code is the same): its shader keeps
+    /// the vision outputs, and merged map geometry reads each instance's heat and EMF values from its vertices.
+    /// </summary>
+    public const string VisionMark = "\n// svm_rd_vision\n";
+
+    public static bool IsVision(string code) => code.EndsWith(VisionMark, StringComparison.Ordinal);
+
     /// <summary>The features that change <paramref name="code"/>: leaving out any other gives the same shader.</summary>
     public static RdFeatures Applicable(string code)
     {
@@ -65,10 +73,11 @@ internal static class RdShaderLibrary
                 var define = new List<string>();
                 if ((features & RdFeatures.NoSpot) != 0) define.Add("SVM_NO_SPOT");
                 if ((features & RdFeatures.NoDynamic) != 0) define.Add("SVM_NO_DYN");
-                // An actor's material is the one every vision mode draws with; the own frame draws normal vision only.
-                if (actor != 0) define.Add("SVM_NORMAL_VISION");
+                // An actor's material is the one every vision mode draws with: outside thermal and EMF their code is left out.
+                bool vision = IsVision(code);
+                if (actor != 0 && !vision) define.Add("SVM_NORMAL_VISION");
                 string[] suppress = (features & RdFeatures.NoPortalFog) != 0 ? [ResponsiveSmokeShaders.PortalFogDefine] : [];
-                translated = GdShaderTranslator.Translate(code, FileAccess.GetFileAsString, globals, define, suppress, actor);
+                translated = GdShaderTranslator.Translate(code, FileAccess.GetFileAsString, globals, define, suppress, actor, vision);
             }
             catch (NotSupportedException error)
             {
@@ -125,6 +134,8 @@ internal sealed class RdMaterial
     public bool Layered => (Flags & 4) != 0;
     /// <summary>A cloaked body: it mixes its colour with the frame behind it (svm_behind).</summary>
     public bool Cloak => (Flags & 8) != 0;
+    /// <summary>Drawn in thermal and EMF vision only (<see cref="RdShaderLibrary.VisionMark"/>).</summary>
+    public bool Vision => RdShaderLibrary.IsVision(Code);
     /// <summary>Set by RdWorldGpu on first use: its index there.</summary>
     public int GpuIndex = -1;
 }
@@ -164,6 +175,12 @@ internal sealed class RdWorldGeometry
     {
         public required bool Sky { get; init; }
         public required RdMaterial Material { get; init; }
+        /// <summary>
+        /// What draws the batch in thermal and EMF vision: the material with its vision outputs, and for partly
+        /// see-through actors the blended pass drawn over it. Null: not drawn there (the sky zone).
+        /// </summary>
+        public RdMaterial? VisionMaterial { get; init; }
+        public RdMaterial? VisionOver { get; init; }
         public uint IndexOffset { get; set; }
         public uint IndexCount { get; set; }
         public Aabb Bounds { get; set; }
@@ -177,6 +194,7 @@ internal sealed class RdWorldGeometry
     {
         public readonly ulong[] Zones = new ulong[4];
         public readonly List<Vertex> Vertices = [];
+        public readonly List<Vector4> Vision = [];
         public readonly List<uint> Indices = [];
         public Aabb Bounds;
         public bool Any;
@@ -205,7 +223,9 @@ internal sealed class RdWorldGeometry
     private readonly MaterialCompiler _compiler;
     private readonly Dictionary<(string Name, LightSource Light, bool Sky), RdMaterial?> _byName = [];
     private readonly Dictionary<ShaderMaterial, RdMaterial?> _materials = new(ReferenceEqualityComparer.Instance);
-    private readonly Dictionary<(Vector3I Block, bool Sky, RdMaterial Material), Builder> _builders = [];
+    private readonly Dictionary<(Vector3I Block, bool Sky, RdMaterial Material, bool SeeThrough), Builder> _builders = [];
+    private readonly Dictionary<(string Name, LightSource Light, bool SeeThrough), (RdMaterial? Solid, RdMaterial? Over)> _vision = [];
+    private readonly Dictionary<RdMaterial, (string Name, LightSource Light)> _named = new(ReferenceEqualityComparer.Instance);
     private readonly Dictionary<Builder, int[]> _remap = new(ReferenceEqualityComparer.Instance);
 
     /// <summary>
@@ -221,6 +241,8 @@ internal sealed class RdWorldGeometry
     public RdWorldGeometry(MaterialCompiler compiler) => _compiler = compiler;
 
     public Vertex[] Vertices { get; private set; } = [];
+    /// <summary>One for each of <see cref="Vertices"/>: HeatIntensity, HeatOpacity, EMF glow and EMFOpacity + 2 of its instance.</summary>
+    public Vector4[] Vision { get; private set; } = [];
     public uint[] Indices { get; private set; } = [];
     public List<Batch> Batches { get; } = [];
     public int Taken { get; private set; }
@@ -231,7 +253,8 @@ internal sealed class RdWorldGeometry
     /// <summary>
     /// Takes one flushed cell bucket if the world pass can draw it; false leaves it with Godot's renderer.
     /// </summary>
-    public bool TryAdd((int X, int Y, int Sky) cell, string name, LightSource light, MaterialEntry? entry, SurfaceBuilder surface)
+    /// <param name="seeThrough">The bucket of partly see-through actors (MaterialCompiler.GetSeeThrough draws it in thermal and EMF).</param>
+    public bool TryAdd((int X, int Y, int Sky) cell, string name, LightSource light, MaterialEntry? entry, SurfaceBuilder surface, bool seeThrough = false)
     {
         bool sky = cell.Sky != 0;
         RdMaterial? material = MaterialOf(name, light, sky, entry);
@@ -242,6 +265,9 @@ internal sealed class RdWorldGeometry
         }
 
         (Vector3[] positions, Vector3[] normals, Vector2[] uvs, Vector2[]? uv2s, Color[]? colours, float[]? echelon, int[] indices) = surface.RdStreams();
+        float[]? vision = surface.RdVision();
+        _named[material] = (name, light);
+        seeThrough &= !sky;
         _remap.Clear();
         float perMetre = 1f / BlockSize;
         Span<int> corner = stackalloc int[3];
@@ -255,7 +281,7 @@ internal sealed class RdWorldGeometry
                 block = new Vector3I(Mathf.FloorToInt(centre.X), Mathf.FloorToInt(centre.Y), Mathf.FloorToInt(centre.Z));
             }
 
-            var key = (block, sky, material);
+            var key = (block, sky, material, seeThrough);
             if (!_builders.TryGetValue(key, out Builder? b))
             {
                 b = new Builder();
@@ -290,6 +316,9 @@ internal sealed class RdWorldGeometry
                         Rgba = rgba,
                         Echelon = echelon is null ? 0f : echelon[i],
                     });
+                    b.Vision.Add(vision is null
+                        ? new Vector4(SurfaceBuilder.DefaultVision.X, SurfaceBuilder.DefaultVision.Y, SurfaceBuilder.DefaultVision.Z, SurfaceBuilder.DefaultVision.W + 2f)
+                        : new Vector4(vision[i * 4], vision[(i * 4) + 1], vision[(i * 4) + 2], vision[(i * 4) + 3]));
                     b.Bounds = b.Any ? b.Bounds.Expand(positions[i]) : new Aabb(positions[i], Vector3.Zero);
                     b.Any = true;
                 }
@@ -356,6 +385,42 @@ internal sealed class RdWorldGeometry
         return material;
     }
 
+    /// <summary>
+    /// The materials that draw a batch in thermal and EMF vision: the map material with its vision outputs (the one
+    /// Godot's renderer swaps in there, LightReach), and its blended see-through pass when it has one.
+    /// </summary>
+    private (RdMaterial? Solid, RdMaterial? Over) VisionOf(string name, LightSource light, bool seeThrough)
+    {
+        if (_vision.TryGetValue((name, light, seeThrough), out (RdMaterial? Solid, RdMaterial? Over) found)) return found;
+        Material? source = seeThrough ? _compiler.GetSeeThrough(name, light) : _compiler.Get(name, light);
+        if (source is ShaderMaterial solid)
+        {
+            found = (VisionMaterial(solid), solid.NextPass is ShaderMaterial over ? VisionMaterial(over) : null);
+        }
+
+        _vision[(name, light, seeThrough)] = found;
+        return found;
+    }
+
+    private static RdMaterial? VisionMaterial(ShaderMaterial source)
+    {
+        if (source.Shader is not { } shader) return null;
+        string code = ResponsiveSmokeShaders.BaseCode(shader) + RdShaderLibrary.VisionMark;
+        if (RdShaderLibrary.Get(code, RdFeatures.None, out _) is not { } translated) return null;
+        try
+        {
+            return new RdMaterial
+            {
+                Code = code, Applicable = RdShaderLibrary.Applicable(code), Shader = translated,
+                Values = PackValues(source, translated), Textures = TexturesOf(source, translated),
+            };
+        }
+        catch (NotSupportedException)
+        {
+            return null;
+        }
+    }
+
     private RdMaterial? MaterialOf(ShaderMaterial source, bool sky, out string? reason)
     {
         reason = null;
@@ -396,10 +461,11 @@ internal sealed class RdWorldGeometry
     /// An actor's material as the own frame draws it with the whole template (main thread), or null when the template
     /// cannot be carried: the caller then draws the surface plainly, or not at all.
     /// </summary>
-    public static RdMaterial? ActorMaterial(ShaderMaterial source, int actor)
+    /// <param name="vision">The material as thermal and EMF vision draw it (its vision outputs kept).</param>
+    public static RdMaterial? ActorMaterial(ShaderMaterial source, int actor, bool vision = false)
     {
         if (source.Shader is not { } shader) return null;
-        string code = ResponsiveSmokeShaders.BaseCode(shader);
+        string code = ResponsiveSmokeShaders.BaseCode(shader) + (vision ? RdShaderLibrary.VisionMark : "");
         if (RdShaderLibrary.Get(code, RdFeatures.None, out _, actor) is not { } translated) return null;
         try
         {
@@ -559,19 +625,28 @@ internal sealed class RdWorldGeometry
         }
 
         var vs = new Vertex[vertices];
+        var vision = new Vector4[vertices];
         var ix = new uint[indices];
         int v = 0, n = 0;
-        foreach (((Vector3I _, bool sky, RdMaterial material), Builder b) in _builders)
+        foreach (((Vector3I _, bool sky, RdMaterial material, bool seeThrough), Builder b) in _builders)
         {
             if (b.Indices.Count == 0) continue;
             CollectionsMarshal.AsSpan(b.Vertices).CopyTo(vs.AsSpan(v));
-            var batch = new Batch { Sky = sky, Material = material, IndexOffset = (uint)n, IndexCount = (uint)b.Indices.Count, Bounds = b.Bounds, Zones = b.Zones };
+            CollectionsMarshal.AsSpan(b.Vision).CopyTo(vision.AsSpan(v));
+            (RdMaterial? solid, RdMaterial? over) = sky || !RdWorldRenderer.OwnFrame || !_named.TryGetValue(material, out (string Name, LightSource Light) named)
+                ? default : VisionOf(named.Name, named.Light, seeThrough);
+            var batch = new Batch
+            {
+                Sky = sky, Material = material, VisionMaterial = solid, VisionOver = over,
+                IndexOffset = (uint)n, IndexCount = (uint)b.Indices.Count, Bounds = b.Bounds, Zones = b.Zones,
+            };
             foreach (uint index in b.Indices) ix[n++] = index + (uint)v;
             v += b.Vertices.Count;
             Batches.Add(batch);
         }
 
         Vertices = vs;
+        Vision = vision;
         Indices = ix;
         _builders.Clear();
         _remap.Clear();

@@ -25,6 +25,7 @@ public partial class FpsBenchmark : Node
     private readonly List<Frame> _frames = new(65536);
     private readonly Stopwatch _clock = Stopwatch.StartNew();
     private PlayRoot? _play;
+    private static readonly int? s_rendMap = int.TryParse(Environment.GetEnvironmentVariable("SVM_BENCHMARK_RENDMAP"), out int forced) ? forced : null;
     private int _index = -1;
     private double _start;
     private long _last;
@@ -118,6 +119,8 @@ public partial class FpsBenchmark : Node
         if (_play is not { IsLoaded: true, Session: { LocalPawn: not null } session }) return;
         if (session.ServerFailure is { } failure) { Fail(failure.Message); return; }
         if (_play.Controls is { } controls) controls.Enabled = false;
+        // SVM_BENCHMARK_RENDMAP=34 (36, 37, 38): the views in that vision mode.
+        if (s_rendMap is { } rendMap && _play.View is { } view && view.RendMap != rendMap) view.RendMap = rendMap;
         // Environment/render comparison: neither run draws the HUD or the local character.
         if (!_gameplay)
         {

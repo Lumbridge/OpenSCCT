@@ -23,7 +23,7 @@ internal sealed class RdObjects
     public const int Stride = 44, SkinnedStride = 60;
 
     /// <summary>Bytes of one object's block: model matrix, ambient, four lights (position, colour, spot).</summary>
-    public const int ObjectBytes = 64 + 16 + (4 * 48) + 32;
+    public const int ObjectBytes = 64 + 16 + (4 * 48) + 32 + 16;
 
     public sealed class Upload
     {
@@ -145,6 +145,22 @@ internal sealed class RdObjects
     private static readonly StringName s_tint = "svm_tint";
     private static readonly StringName s_glowHue = "svm_glow_hue";
     private static readonly StringName s_scroll = "svm_scroll";
+    private static readonly StringName s_visionActor = "svm_vision_actor";
+    private const string LaserInclude = "#include \"res://Shaders/svm_laser.gdshaderinc\"";
+    // The materials as thermal and EMF vision draw them: the whole template with its vision outputs.
+    private readonly Dictionary<(ShaderMaterial, bool), RdMaterial?> _visionTemplates = [];
+
+    private RdMaterial? VisionTemplateOf(ShaderMaterial material, bool skinned)
+    {
+        if (_visionTemplates.TryGetValue((material, skinned), out RdMaterial? template)) return template;
+        // The template's materials, and the laser beams' own vision shader (svm_laser.gdshaderinc).
+        template = material.Shader is { } shader && ResponsiveSmokeShaders.BaseCode(shader) is { } code &&
+            (code.Contains(TemplateInclude, StringComparison.Ordinal) || code.Contains(LaserInclude, StringComparison.Ordinal))
+            ? RdWorldGeometry.ActorMaterial(material, skinned ? 2 : 1, vision: true) : null;
+        _visionTemplates[(material, skinned)] = template;
+        if (template is not null) _refresh.Add((material, template, template.Cloak || material.GetShaderParameter(s_scroll).VariantType != Variant.Type.Nil));
+        return template;
+    }
 
     private RdMaterial? TemplateOf(ShaderMaterial material, bool skinned)
     {
@@ -269,6 +285,12 @@ internal sealed class RdObjects
             if (material is EffectMaterial effect)
             {
                 if (!skinned && !sky && EffectBlend(effect) >= 0) SurfaceReady(mesh, s, uploads);
+                // A weapon beam's thermal and EMF pass (the next pass of its additive look).
+                for (ShaderMaterial? pass = effect.NextPass as ShaderMaterial; pass is not null && !sky; pass = pass.NextPass as ShaderMaterial)
+                {
+                    if (pass is not EffectMaterial && !_visionTemplates.ContainsKey((pass, skinned)) && VisionTemplateOf(pass, skinned) is { } seen) warm.Add(seen);
+                }
+
                 continue;
             }
 
@@ -283,7 +305,17 @@ internal sealed class RdObjects
             bool fresh = !sky && _wantsTemplate.GetValueOrDefault(material) && !_templates.ContainsKey((material, skinned));
             RdMaterial? template = !sky && _wantsTemplate.GetValueOrDefault(material) ? TemplateOf(material, skinned) : null;
             if (fresh && RdWorldRenderer.Stats) GD.Print($"SVM_RD_FRAME template for {node.GetPath()} surface {s} at process frame {Engine.GetProcessFrames()}");
-            if (template is null && !m.Drawn) continue;
+            if (!sky)
+            {
+                // Thermal and EMF draw every template material by the template: made ready with the others, and the
+                // see-through pass of a partly see-through one.
+                for (ShaderMaterial? pass = material; pass is not null; pass = pass.NextPass as ShaderMaterial)
+                {
+                    if (!_visionTemplates.ContainsKey((pass, skinned)) && VisionTemplateOf(pass, skinned) is { } seen) warm.Add(seen);
+                }
+            }
+
+            if (template is null && !m.Drawn && !_visionTemplates.ContainsKey((material, skinned))) continue;
             if (template is not null && fresh) warm.Add(template);
             // Cloth is uploaded as it is rewritten.
             if (dynamic && !skinned && s == 0) continue;
@@ -300,8 +332,9 @@ internal sealed class RdObjects
         }
     }
 
+    /// <param name="vision">Thermal or EMF: every template material is drawn by the template with its vision outputs.</param>
     public void Gather(Node root, Plane[] planes, Func<Plane[], Aabb, bool> inside, Func<Aabb, int> spots, List<Draw> draws, List<byte> objects, List<float> palette, List<Upload> uploads,
-        List<RdMaterial> warm, Basis view, Vector3 eye)
+        List<RdMaterial> warm, Basis view, Vector3 eye, bool vision = false)
     {
         Span<float> block = stackalloc float[ObjectBytes / 4];
         RefreshTemplates();
@@ -399,8 +432,11 @@ internal sealed class RdObjects
                 if ((node.MaterialOverride ?? node.GetSurfaceOverrideMaterial(s) ?? mesh.SurfaceGetMaterial(s)) is not ShaderMaterial material) continue;
                 if (material is EffectMaterial effect)
                 {
-                    if (skin is null && !sky) GatherEffect(mesh, s, effect, node.GlobalTransform, box, view, eye, draws, objects, uploads);
-                    continue;
+                    // A surface mark has neither heat nor field strength (svm_effect.gdshaderinc).
+                    if (skin is null && !sky && !(vision && effect.HiddenInVision)) GatherEffect(mesh, s, effect, node.GlobalTransform, box, view, eye, draws, objects, uploads);
+                    // A weapon beam's thermal and EMF pass follows its additive look.
+                    if (!vision || sky || effect.NextPass is not ShaderMaterial after || after is EffectMaterial) continue;
+                    material = after;
                 }
 
                 Known(material);
@@ -417,8 +453,10 @@ internal sealed class RdObjects
                     GD.Print($"SVM_RD_FRAME template in a draw for {node.GetPath()} surface {s} at process frame {Engine.GetProcessFrames()}");
                 }
 
-                RdMaterial? template = !sky && _wantsTemplate.GetValueOrDefault(material) ? TemplateOf(material, skin is not null) : null;
-                if (template is null && !m.Drawn) continue;
+                RdMaterial? template = vision ? (sky ? null : VisionTemplateOf(material, skin is not null))
+                    : !sky && _wantsTemplate.GetValueOrDefault(material) ? TemplateOf(material, skin is not null) : null;
+                // Thermal and EMF have no small program: what the template cannot draw is left out.
+                if (template is null && (vision || !m.Drawn)) continue;
                 if (!_surfaces.TryGetValue((mesh, s), out SurfaceInfo? surface))
                 {
                     surface = new SurfaceInfo { Id = _nextSurface++ };
@@ -472,6 +510,8 @@ internal sealed class RdObjects
 
                     // Every surface of the node shares the block: the lights and the cosmetics are the node's.
                     {
+                        (block[76], block[77], block[78], block[79]) = (0f, 1f, 0f, 1f);
+                        Put(block, 76, node.GetInstanceShaderParameter(s_visionActor));
                         Put(block, 68, node.GetInstanceShaderParameter(s_tint));
                         Put(block, 72, node.GetInstanceShaderParameter(s_glowHue));
                         if (node.GetInstanceShaderParameter(s_tint).VariantType == Variant.Type.Nil) (block[68], block[69], block[70]) = (1f, 1f, 1f);
@@ -490,8 +530,13 @@ internal sealed class RdObjects
                 draws.Add(new Draw
                 {
                     Surface = surface.Id, Object = objectIndex, Kind = m.Kind | (sky ? 128 : 0), Palette = paletteBase, Mirrored = skin is null && model.Basis.Determinant() < 0f, Distance = eye.DistanceSquaredTo(box.GetCenter()), Masked = m.Masked, TwoSided = m.TwoSided, Texture = m.Texture,
-                    Blend = template is null ? m.Blend : template.Cloak ? 3 : template.Blended ? 1 : 0, SpotBits = sky || (m.Kind == 0 && template is null) ? 0 : spotBits, Material = template,
+                    Blend = template is null ? m.Blend : template.Cloak ? 3 : template.Blended ? 1 : 0, SpotBits = vision || sky || (m.Kind == 0 && template is null) ? 0 : spotBits, Material = template,
                 });
+                // The blended pass of a partly see-through surface, over what lies behind it.
+                if (vision && material.NextPass is ShaderMaterial next && VisionTemplateOf(next, skin is not null) is { } over)
+                {
+                    draws.Add(draws[^1] with { Blend = 1, Material = over });
+                }
             }
         }
     }
@@ -667,6 +712,8 @@ internal sealed class RdObjects
         _billboards.Remove(material);
         _templates.Remove((material, false));
         _templates.Remove((material, true));
+        _visionTemplates.Remove((material, false));
+        _visionTemplates.Remove((material, true));
         _refresh.RemoveAll(entry => ReferenceEquals(entry.Source, material));
     }
 
@@ -807,6 +854,8 @@ internal sealed class RdObjects
             vec4 eye;
             vec4 fog_color;
             vec4 fog;
+            // x: the light the vision mode adds to every lit surface (svm_vision_ambient).
+            vec4 vision;
         } frame;
         struct Object
         {
@@ -815,6 +864,8 @@ internal sealed class RdObjects
             vec4 light[12];
             vec4 tint;
             vec4 glow_hue;
+            // x HeatIntensity, y HeatOpacity, z EMF glow, w EMFOpacity (svm_vision_actor): read by the template in thermal and EMF.
+            vec4 vision;
         };
         layout(set = 0, binding = 1, std430) readonly buffer Objects
         {
@@ -1009,9 +1060,9 @@ internal sealed class RdObjects
                 for (int i = 0; i < 4; i++) {
                     sum += actor_light(objects[draw.object].light[i * 3], objects[draw.object].light[i * 3 + 1], objects[draw.object].light[i * 3 + 2], wp.xyz, wn);
                 }
-                v_light = min(sum, vec3(2.0));
+                v_light = min(sum + vec3(frame.vision.x), vec3(2.0));
             } else if (kind == 1) {
-                v_light = a_col.rgb * 2.0;
+                v_light = min(a_col.rgb * 2.0 + vec3(frame.vision.x), vec3(2.0));
             } else {
                 v_light = vec3(1.0);
             }

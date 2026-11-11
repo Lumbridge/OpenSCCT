@@ -49,6 +49,13 @@ internal sealed class RdWorldFrame
     /// <summary>Own-frame mode: the blended sheets to draw (RdSheets), ranges of the vertices last handed over.</summary>
     public readonly List<RdSheets.Draw> Sheets = [];
     public float GlowCut = -1f;
+    /// <summary>Own-frame mode: PlayerController.RendMap, and the light it adds to every lit surface (svm_vision_ambient).</summary>
+    public int Vision = RenderK.RendMapNormal;
+    public float VisionAmbient;
+    /// <summary>Own-frame mode: the vision pass's block (RdFramePost.VisionFloats), its clean rectangles in use, and the render pack's grain, thermal table and sonar backdrop.</summary>
+    public readonly float[] VisionParams = new float[RdFramePost.VisionFloats];
+    public int VisionCleanRects;
+    public Rid VisionNoise, VisionTable, VisionSonar;
 
     public void Reserve(int draws)
     {
@@ -114,8 +121,10 @@ internal sealed class RdWorldGpu
     private bool _ready, _warmed;
     private volatile bool _failed;
     private Rid _vertexBuffer, _vertexArray, _indexBuffer, _frameBuffer, _globalBuffer;
+    // The vertices again with each one's vision values (thermal and EMF): a second buffer beside the first.
+    private Rid _visionBuffer, _visionVertexArray;
     private Rid _white, _black, _whiteArray, _white3D;
-    private long _vertexFormat;
+    private long _vertexFormat, _visionVertexFormat;
     private Rid[] _indexArrays = [];
     private readonly Dictionary<(string Code, RdFeatures Features, int Actor), ShaderGpu> _shaders = [];
     private readonly List<MaterialGpu> _materials = [];
@@ -126,8 +135,14 @@ internal sealed class RdWorldGpu
     private RdWorldFrame? _current;
 
     // What each draw of the frame binds, resolved before the draw list opens (nothing is made inside one).
-    private Variant[] _drawVariants = new Variant[256];
+    private Variant?[] _drawVariants = new Variant?[256];
     private Rid[] _drawPipelines = new Rid[256];
+    // Thermal and EMF: the blended see-through pass over a draw (partly see-through actors), where it has one.
+    private Variant?[] _overVariants = new Variant?[256];
+    private Rid[] _overPipelines = new Rid[256];
+
+    // The features a thermal or EMF draw leaves out: its output replaces the lit colour, so no light term is read.
+    private const RdFeatures VisionFeatures = RdFeatures.NoSpot | RdFeatures.NoDynamic | RdFeatures.NoPortalFog;
 
     // The global parameters' textures as RenderingDevice textures, by binding place; the version changes with them.
     private ShaderGlobals.Slot[] _slots = [];
@@ -274,17 +289,32 @@ internal sealed class RdWorldGpu
     }
 
     /// <summary>The shader variant, uniform sets and pipeline of every draw of the frame, made where they are new.</summary>
-    private bool Resolve(RenderingDevice rd, RdWorldFrame frame, long format, Rid color, Rid depth)
+    private bool Resolve(RenderingDevice rd, RdWorldFrame frame, long format, Rid color, Rid depth, bool vision = false)
     {
         if (_drawVariants.Length < frame.DrawCount)
         {
-            _drawVariants = new Variant[frame.DrawCount];
+            _drawVariants = new Variant?[frame.DrawCount];
             _drawPipelines = new Rid[frame.DrawCount];
+            _overVariants = new Variant?[frame.DrawCount];
+            _overPipelines = new Rid[frame.DrawCount];
         }
 
         List<RdWorldGeometry.Batch> batches = _geometry.Batches;
         for (int k = 0; k < frame.DrawCount; k++)
         {
+            _overVariants[k] = null;
+            if (vision)
+            {
+                // Thermal and EMF: the material with its vision outputs, and its see-through pass.
+                RdWorldGeometry.Batch b = batches[frame.Draws[k]];
+                _drawVariants[k] = null;
+                if (b.VisionMaterial is not { GpuIndex: >= 0 } solid) continue;
+                if (!ResolveVision(rd, _materials[solid.GpuIndex], format, color, depth, out _drawVariants[k], out _drawPipelines[k])) return false;
+                if (b.VisionOver is { GpuIndex: >= 0 } over &&
+                    !ResolveVision(rd, _materials[over.GpuIndex], format, color, depth, out _overVariants[k], out _overPipelines[k])) return false;
+                continue;
+            }
+
             MaterialGpu material = _materials[batches[frame.Draws[k]].Material.GpuIndex];
             RdFeatures features = (RdFeatures)frame.Features[k] & material.Source.Applicable;
             Variant? variant = material.Variants[(int)features] ?? VariantOf(rd, material, features);
@@ -296,6 +326,18 @@ internal sealed class RdWorldGpu
             _drawPipelines[k] = pipeline;
         }
 
+        return true;
+    }
+
+    private bool ResolveVision(RenderingDevice rd, MaterialGpu material, long format, Rid color, Rid depth, out Variant? variant, out Rid pipeline)
+    {
+        pipeline = default;
+        RdFeatures features = VisionFeatures & material.Source.Applicable;
+        variant = material.Variants[(int)features] ?? VariantOf(rd, material, features);
+        if (variant is null) return false;
+        ShaderGpu shader = variant.Shader;
+        if (shader.GlobalVersion != _globalVersion || !rd.UniformSetIsValid(shader.GlobalSet)) MakeGlobalSet(rd, shader);
+        if (!shader.Pipelines.TryGetValue(format, out pipeline)) pipeline = PipelineOf(rd, shader, format, color, depth);
         return true;
     }
 
@@ -315,6 +357,12 @@ internal sealed class RdWorldGpu
         var ahead = new List<(string Code, RdFeatures Features, int Actor)>();
         foreach (MaterialGpu material in _materials)
         {
+            if (material.Source.Vision)
+            {
+                ahead.Add((material.Source.Code, VisionFeatures & material.Source.Applicable, material.Source.Actor));
+                continue;
+            }
+
             foreach (RdFeatures light in lights)
             {
                 foreach (RdFeatures fog in fogs) ahead.Add((material.Source.Code, (light | fog) & material.Source.Applicable, material.Source.Actor));
@@ -329,6 +377,8 @@ internal sealed class RdWorldGpu
             {
                 foreach (RdFeatures fog in fogs)
                 {
+                    // A thermal and EMF material is drawn in one state.
+                    if (material.Source.Vision && (light | fog) != (RdFeatures.NoSpot | RdFeatures.NoDynamic | RdFeatures.NoPortalFog)) continue;
                     RdFeatures features = (light | fog) & material.Source.Applicable;
                     Variant? variant = material.Variants[(int)features] ?? VariantOf(rd, material, features);
                     if (variant is null) return false;
@@ -427,7 +477,7 @@ internal sealed class RdWorldGpu
         for (int k = 0; k < frame.DrawCount; k++)
         {
             if (noSky && batches[frame.Draws[k]].Sky) continue;
-            Variant next = _drawVariants[k];
+            Variant next = _drawVariants[k]!;
             if (!ReferenceEquals(next, variant))
             {
                 variant = next;
@@ -495,6 +545,23 @@ internal sealed class RdWorldGpu
 
         _vertexBuffer = rd.VertexBufferCreate((uint)vertices.Length, vertices, 0);
         _vertexArray = rd.VertexArrayCreate((uint)_geometry.Vertices.Length, _vertexFormat, [_vertexBuffer], ReadOnlySpan<long>.Empty);
+        if (_geometry.Vision.Length == _geometry.Vertices.Length)
+        {
+            _visionVertexFormat = rd.VertexFormatCreate(
+            [
+                new RDVertexAttribute { Location = 0, Offset = 0, Format = RD.DataFormat.R32G32B32Sfloat, Stride = stride, Binding = 0 },
+                new RDVertexAttribute { Location = 1, Offset = 12, Format = RD.DataFormat.R16G16Unorm, Stride = stride, Binding = 0 },
+                new RDVertexAttribute { Location = 2, Offset = 16, Format = RD.DataFormat.R32G32Sfloat, Stride = stride, Binding = 0 },
+                new RDVertexAttribute { Location = 3, Offset = 24, Format = RD.DataFormat.R32G32Sfloat, Stride = stride, Binding = 0 },
+                new RDVertexAttribute { Location = 4, Offset = 32, Format = RD.DataFormat.R8G8B8A8Unorm, Stride = stride, Binding = 0 },
+                new RDVertexAttribute { Location = 5, Offset = 36, Format = RD.DataFormat.R32Sfloat, Stride = stride, Binding = 0 },
+                new RDVertexAttribute { Location = 6, Offset = 0, Format = RD.DataFormat.R32G32B32A32Sfloat, Stride = 16, Binding = 1 },
+            ]);
+            ReadOnlySpan<byte> vision = MemoryMarshal.AsBytes(_geometry.Vision.AsSpan());
+            _visionBuffer = rd.VertexBufferCreate((uint)vision.Length, vision, 0);
+            _visionVertexArray = rd.VertexArrayCreate((uint)_geometry.Vertices.Length, _visionVertexFormat, [_vertexBuffer, _visionBuffer], ReadOnlySpan<long>.Empty);
+        }
+
         _indexBuffer = rd.IndexBufferCreate((uint)_geometry.Indices.Length, RD.IndexBufferFormat.Uint32, indices, false, 0);
         _frameBuffer = rd.UniformBufferCreate((uint)_frameBlock.Length, ReadOnlySpan<byte>.Empty, 0);
         // Room for parameters registered later: a shader compiled now names only those it knows.
@@ -517,12 +584,14 @@ internal sealed class RdWorldGpu
         {
             RdWorldGeometry.Batch b = batches[i];
             _indexArrays[i] = rd.IndexArrayCreate(_indexBuffer, b.IndexOffset, b.IndexCount);
-            RdMaterial material = b.Material;
-            if (material.GpuIndex >= 0) continue;
-            var gpu = new MaterialGpu { Source = material };
-            if (material.Values.Length > 0) gpu.Values = rd.UniformBufferCreate((uint)material.Values.Length, material.Values, 0);
-            material.GpuIndex = _materials.Count;
-            _materials.Add(gpu);
+            foreach (RdMaterial? material in (ReadOnlySpan<RdMaterial?>)[b.Material, b.VisionMaterial, b.VisionOver])
+            {
+                if (material is null || material.GpuIndex >= 0 || (material.Vision && !_visionVertexArray.IsValid)) continue;
+                var gpu = new MaterialGpu { Source = material };
+                if (material.Values.Length > 0) gpu.Values = rd.UniformBufferCreate((uint)material.Values.Length, material.Values, 0);
+                material.GpuIndex = _materials.Count;
+                _materials.Add(gpu);
+            }
         }
 
         GD.Print(string.Create(System.Globalization.CultureInfo.InvariantCulture,
@@ -963,7 +1032,7 @@ internal sealed class RdWorldGpu
         }
 
         var blend = new RDPipelineColorBlendState { Attachments = [attachment] };
-        long vertexFormat = source.Actor == 0 ? _vertexFormat : _objectFormats[source.Actor - 1];
+        long vertexFormat = source.Actor != 0 ? _objectFormats[source.Actor - 1] : source.VisionStream ? _visionVertexFormat : _vertexFormat;
         Rid program = shader.Shader;
         return () => rd.RenderPipelineCreate(program, framebufferFormat, vertexFormat, RD.RenderPrimitive.Triangles,
             raster, multisample, depthState, blend, 0, 0, []);
@@ -1019,6 +1088,8 @@ internal sealed class RdWorldGpu
             vec4 eye;
             vec4 fog_color;
             vec4 fog;
+            // x: the light the vision mode adds to every lit surface (svm_vision_ambient).
+            vec4 vision;
         } frame;
         layout(push_constant, std430) uniform Draw
         {
@@ -1056,7 +1127,9 @@ internal sealed class RdWorldGpu
 
         """ + (light == 1
             // The baked vertex colour holds half the light term: the original's MODULATE2X.
-            ? "    v_light = min(a_col.rgb * 2.0 + ambient * frame.fog.w, vec3(2.0));\n"
+            ? "    v_light = min(a_col.rgb * 2.0 + ambient * frame.fog.w + vec3(frame.vision.x), vec3(2.0));\n"
+            // The lightmap is added in the fragment stage, under the same limit.
+            : light == 2 ? "    v_light = ambient * frame.eye.w + vec3(frame.vision.x);\n"
             : "    v_light = ambient * frame.eye.w;\n") + """
             gl_Position = (draw.sky != 0 ? frame.sky : frame.world) * vec4(a_pos, 1.0);
         }
@@ -1103,7 +1176,7 @@ internal sealed class RdWorldGpu
     private readonly List<(int Frame, Rid Color, Rid Depth)> _ownRetired = [];
     private int _ownFrame;
     private Rid _latestOwnColor;
-    private readonly byte[] _stageFrameBlock = new byte[192];
+    private readonly byte[] _stageFrameBlock = new byte[208];
 
     /// <summary>
     /// The frame's last full-screen pass (the gate and the glow added) is the canvas item that shows the scene, not a
@@ -1112,6 +1185,16 @@ internal sealed class RdWorldGpu
     public static bool CanvasFinal { get; } = System.Environment.GetEnvironmentVariable("SVM_RD_FRAME_FINAL") != "pass";
 
     private Rid _latestOwnGlow;
+    private Rid _latestOwnShown;
+
+    /// <summary>The target a vision mode's pass writes, for the main thread to show in those modes.</summary>
+    public Rid LatestOwnShown
+    {
+        get
+        {
+            lock (_queueLock) return _latestOwnShown;
+        }
+    }
 
     /// <summary>The glow target for the canvas item to add (<see cref="CanvasFinal"/>); invalid until the first frame made it.</summary>
     public Rid LatestOwnGlow
@@ -1705,7 +1788,11 @@ internal sealed class RdWorldGpu
                 Format = RD.DataFormat.R8G8B8A8Unorm, Width = (uint)size.X, Height = (uint)size.Y,
                 UsageBits = RD.TextureUsageBits.ColorAttachmentBit | RD.TextureUsageBits.SamplingBit | RD.TextureUsageBits.CanCopyFromBit,
             }), new RDTextureView(), []);
-            lock (_queueLock) _latestOwnColor = CanvasFinal ? _ownColor : _ownShown;
+            lock (_queueLock)
+            {
+                _latestOwnColor = CanvasFinal ? _ownColor : _ownShown;
+                _latestOwnShown = _ownShown;
+            }
         }
 
         for (int i = _ownRetired.Count - 1; i >= 0; i--)
@@ -1724,6 +1811,8 @@ internal sealed class RdWorldGpu
         block[33] = frame.Time;
         (block[34], block[35]) = (frame.Proj.Z.Z, frame.Proj.W.Z);
         frame.FogBlock.AsSpan().CopyTo(block[36..48]);
+        // y: the RendMap of a mode with a scene of its own (thermal), for the particles' own rule there.
+        (block[48], block[49], block[50], block[51]) = (frame.VisionAmbient, FaithfulView.IsSceneVision(frame.Vision) ? frame.Vision : 0f, 0f, 0f);
         rd.BufferUpdate(_stageFrameBuffer, 0, (uint)_stageFrameBlock.Length, _stageFrameBlock);
 
         // The draws a spot or dynamic light reaches keep the template's own lighting (the translated shader, with the
@@ -1761,7 +1850,10 @@ internal sealed class RdWorldGpu
         }
 
         double warmMs = firstClock?.Elapsed.TotalMilliseconds ?? 0;
-        if (!Resolve(rd, frame, _ownFormat, _ownColor, _ownDepth)) return;
+        // Thermal and EMF draw another scene: every surface by its material's vision outputs (the whole template).
+        bool vision = FaithfulView.IsSceneVision(frame.Vision) && _visionVertexArray.IsValid;
+        if (!Resolve(rd, frame, _ownFormat, _ownColor, _ownDepth, vision)) return;
+        Rid worldArray = vision ? _visionVertexArray : _vertexArray;
 
         // Everything a draw binds is made before the list opens.
         List<RdWorldGeometry.Batch> batches = _geometry.Batches;
@@ -1784,9 +1876,11 @@ internal sealed class RdWorldGpu
         double stagesMs = firstClock?.Elapsed.TotalMilliseconds ?? 0;
         bool objects = PrepareObjects(rd, frame);
         double objectsMs = firstClock?.Elapsed.TotalMilliseconds ?? 0;
-        bool projectors = PrepareProjectors(rd, frame);
-        bool coronas = PrepareCoronas(rd, frame);
-        bool sheets = PrepareSheets(rd, frame);
+        // Light and shadow projections, coronas, rain, beams and particles are not part of the heat or the EMF picture.
+        bool projectors = !vision && PrepareProjectors(rd, frame);
+        bool coronas = !vision && PrepareCoronas(rd, frame);
+        // Thermal draws the particles' depth fade over the heat; EMF draws none.
+        bool sheets = (!vision || frame.Vision == RenderK.RendMapThermal) && PrepareSheets(rd, frame);
         if (firstClock is not null)
         {
             // Where a load's first frame went (a first load on integrated graphics spends tens of seconds here).
@@ -1799,7 +1893,7 @@ internal sealed class RdWorldGpu
         long dl = rd.DrawListBegin(_ownFramebuffer, RD.DrawFlags.ClearAll, _clear, 0f, 0, null, RdWorldGpu.Breadcrumb + 4);
         try
         {
-            rd.DrawListBindVertexArray(dl, _vertexArray);
+            rd.DrawListBindVertexArray(dl, worldArray);
             Rid pipeline = default, set = default;
             StageShader? bound = null;
             int sky = -1;
@@ -1816,7 +1910,7 @@ internal sealed class RdWorldGpu
             {
                 if (objects) RecordObjects(rd, dl, frame, 0);
                 if (projectors) RecordProjectors(rd, dl, frame);
-                rd.DrawListBindVertexArray(dl, _vertexArray);
+                rd.DrawListBindVertexArray(dl, worldArray);
                 pipeline = default;
                 set = default;
                 sky = -1;
@@ -1838,7 +1932,7 @@ internal sealed class RdWorldGpu
 
                     if (drew)
                     {
-                        rd.DrawListBindVertexArray(dl, _vertexArray);
+                        rd.DrawListBindVertexArray(dl, worldArray);
                         pipeline = default;
                         set = default;
                         sky = -1;
@@ -1847,6 +1941,22 @@ internal sealed class RdWorldGpu
 
                 if (k == frame.DrawCount) break;
                 RdWorldGeometry.Batch b = batches[frame.Draws[k]];
+                if (vision)
+                {
+                    // The sky zone is not drawn; a see-through pass is blended over the scene with the other blended surfaces.
+                    if (b.Sky) continue;
+                    Variant? seen = pass == 2 && !b.Material.Blended ? _overVariants[k] : (b.Material.Blended ? 2 : 0) == pass ? _drawVariants[k] : null;
+                    if (seen is null) continue;
+                    rd.DrawListBindRenderPipeline(dl, pass == 2 && !b.Material.Blended ? _overPipelines[k] : _drawPipelines[k]);
+                    rd.DrawListBindUniformSet(dl, seen.Shader.GlobalSet, 0);
+                    rd.DrawListBindUniformSet(dl, seen.Set, 1);
+                    (push[0], push[1]) = (0, 0);
+                    rd.DrawListSetPushConstant(dl, _drawBlock, (uint)_drawBlock.Length);
+                    rd.DrawListBindIndexArray(dl, _indexArrays[frame.Draws[k]]);
+                    rd.DrawListDraw(dl, true, 1, 0);
+                    continue;
+                }
+
                 if ((!b.Material.Blended ? 0 : b.Sky ? 1 : 2) != pass) continue;
                 if (b.Sky && b.Material.Blended && Test.Contains("noskyblend")) continue;
                 // A light term left in the draw's shader: a spot or a dynamic light reaches it.
@@ -1856,7 +1966,7 @@ internal sealed class RdWorldGpu
                 // The sky zone always: the template fogs it with the sky's own fog, from the sky origin.
                 if (b.Sky || lit || b.Material.Blended || b.Material.Layered)
                 {
-                    Variant variant = _drawVariants[k];
+                    Variant variant = _drawVariants[k]!;
                     rd.DrawListBindRenderPipeline(dl, _drawPipelines[k]);
                     rd.DrawListBindUniformSet(dl, variant.Shader.GlobalSet, 0);
                     rd.DrawListBindUniformSet(dl, variant.Set, 1);
@@ -1932,9 +2042,10 @@ internal sealed class RdWorldGpu
         }
 
         if (coronas) RecordCoronas(rd, frame);
-        if (_post.Ensure(rd, _ownColor, _ownShown, (vertex, fragment, name) => Compile(rd, vertex, fragment, name, null))) 
+        if (_post.Ensure(rd, _ownColor, _ownShown, (vertex, fragment, name) => Compile(rd, vertex, fragment, name, null), frame.VisionNoise, frame.VisionTable, frame.VisionSonar)) 
         {
-            _post.Run(rd, frame.Gate, frame.GlowCut, !CanvasFinal);
+            if (frame.Vision != RenderK.RendMapNormal) _post.RunVision(rd, frame.Vision, frame.VisionCleanRects, _ownSize, frame.VisionParams);
+            else _post.Run(rd, frame.Gate, frame.GlowCut, !CanvasFinal);
             lock (_queueLock) _latestOwnGlow = _post.Glow;
         }
         else Fail("own frame post failed");
@@ -2188,7 +2299,7 @@ internal sealed class RdWorldGpu
 
             if (!draw.Beam) rd.DrawListBindUniformSet(dl, _sheetSets[(draw.Texture, draw.Repeat)], 1);
             (push[0], push[1], push[2], push[3]) = (draw.Pan.X, draw.Pan.Y, draw.Pan.Z, draw.Pan.W);
-            (push[4], push[5], push[6], push[7]) = (draw.Style, draw.BlendCells ? 1f : 0f, draw.AlphaRef, 0f);
+            (push[4], push[5], push[6], push[7]) = (draw.Style, draw.BlendCells ? 1f : 0f, draw.AlphaRef, draw.HeatOpacity);
             rd.DrawListSetPushConstant(dl, _sheetPush, (uint)_sheetPush.Length);
             rd.DrawListBindIndexArray(dl, _sheetRanges[i]);
             rd.DrawListDraw(dl, true, 1, 0);
@@ -2731,7 +2842,7 @@ internal sealed class RdWorldGpu
         }
 
         foreach (Rid sampler in _samplers.Values) rd.FreeRid(sampler);
-        foreach (Rid rid in new[] { _vertexBuffer, _indexBuffer, _frameBuffer, _globalBuffer, _white, _black, _whiteArray, _white3D })
+        foreach (Rid rid in new[] { _vertexBuffer, _visionBuffer, _indexBuffer, _frameBuffer, _globalBuffer, _white, _black, _whiteArray, _white3D })
         {
             if (rid.IsValid) rd.FreeRid(rid);
         }

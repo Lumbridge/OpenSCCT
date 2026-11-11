@@ -38,6 +38,8 @@ internal sealed class RdTranslatedShader
     public required int? StencilWrite { get; init; }
     /// <summary>0: merged map geometry. 1: a rigid actor mesh, 2: a skinned one (RdObjects' vertices, object block and bones).</summary>
     public int Actor { get; init; }
+    /// <summary>Merged map geometry read with its vision stream (the vertex array that holds it), for thermal and EMF.</summary>
+    public bool VisionStream { get; init; }
     public bool TwoSided => RenderModes.Contains("cull_disabled");
 }
 
@@ -129,6 +131,7 @@ internal static partial class GdShaderTranslator
             vec4 light[12];
             vec4 tint;
             vec4 glow_hue;
+            vec4 vision;
         };
         layout(set = 2, binding = 0, std430) readonly buffer SvmObjects
         {
@@ -156,13 +159,14 @@ internal static partial class GdShaderTranslator
         #define svm_l3_spot svm_objects[svm_draw.object].light[11]
         #define svm_tint svm_objects[svm_draw.object].tint
         #define svm_glow_hue svm_objects[svm_draw.object].glow_hue
+        #define svm_vision_actor svm_objects[svm_draw.object].vision
 
         """;
 
     private static readonly HashSet<string> s_actorInstance = new(StringComparer.Ordinal)
     {
         "svm_ambient", "svm_l0_pos", "svm_l0_col", "svm_l0_spot", "svm_l1_pos", "svm_l1_col", "svm_l1_spot", "svm_l2_pos", "svm_l2_col", "svm_l2_spot",
-        "svm_l3_pos", "svm_l3_col", "svm_l3_spot", "svm_tint", "svm_glow_hue",
+        "svm_l3_pos", "svm_l3_col", "svm_l3_spot", "svm_tint", "svm_glow_hue", "svm_vision_actor",
     };
 
     [GeneratedRegex(@"^\s*#\s*(\w+)\s*(.*?)\s*$")]
@@ -198,8 +202,9 @@ internal static partial class GdShaderTranslator
     /// <param name="define">Names defined before the code's first line.</param>
     /// <param name="suppress">Names whose #define lines in the code are dropped.</param>
     public static RdTranslatedShader Translate(string code, Func<string, string> include, IReadOnlyDictionary<string, RdGlobal> globals,
-        IReadOnlyCollection<string>? define = null, IReadOnlyCollection<string>? suppress = null, int actor = 0)
+        IReadOnlyCollection<string>? define = null, IReadOnlyCollection<string>? suppress = null, int actor = 0, bool visionStream = false)
     {
+        visionStream &= actor == 0;
         ArgumentNullException.ThrowIfNull(code);
         ArgumentNullException.ThrowIfNull(include);
         ArgumentNullException.ThrowIfNull(globals);
@@ -298,6 +303,14 @@ internal static partial class GdShaderTranslator
         string text = body.ToString();
         (int vertexAt, int vertexEnd) = FunctionSpan(text, "vertex");
         (int fragmentAt, int fragmentEnd) = FunctionSpan(text, "fragment");
+        if (vertexAt < 0 && fragmentAt >= 0)
+        {
+            // A shader with no vertex stage of its own (the laser beams' vision shader): an empty one.
+            text = text.Insert(fragmentAt, "void vertex() {\n}\n");
+            (vertexAt, vertexEnd) = FunctionSpan(text, "vertex");
+            (fragmentAt, fragmentEnd) = FunctionSpan(text, "fragment");
+        }
+
         if (vertexAt < 0 || fragmentAt < 0 || fragmentAt < vertexEnd) throw new NotSupportedException("vertex() then fragment() expected");
 
         var shared = new StringBuilder();
@@ -340,6 +353,8 @@ internal static partial class GdShaderTranslator
 
         bool skipTransform = modes.Contains("skip_vertex_transform");
         var vertex = new StringBuilder("#version 450\n");
+        // Each instance's heat and EMF values, per vertex (the mesh's CUSTOM0, w + 2).
+        vertex.Append(visionStream ? "#define SVM_SET_VISION CUSTOM0 = svm_a_vision;\n" : "#define SVM_SET_VISION\n");
         vertex.Append(shared);
         vertex.Append(actor == 0 ? """
             layout(location = 0) in vec3 svm_a_vertex;
@@ -349,7 +364,7 @@ internal static partial class GdShaderTranslator
             layout(location = 4) in vec4 svm_a_color;
             layout(location = 5) in float svm_a_echelon;
 
-            """ : """
+            """ + (visionStream ? "layout(location = 6) in vec4 svm_a_vision;\n" : "") : """
             layout(location = 0) in vec3 svm_a_vertex;
             layout(location = 1) in vec3 svm_a_normal;
             layout(location = 2) in vec2 svm_a_uv;
@@ -430,6 +445,7 @@ internal static partial class GdShaderTranslator
                 UV2 = svm_a_uv2;
                 COLOR = svm_a_color;
                 CUSTOM1.x = svm_a_echelon;
+                SVM_SET_VISION
                 POSITION = PROJECTION_MATRIX * (VIEW_MATRIX * vec4(VERTEX, 1.0));
                 svm_vertex();
 
@@ -547,7 +563,7 @@ internal static partial class GdShaderTranslator
         return new RdTranslatedShader
         {
             Vertex = vertex.ToString(), Fragment = fragment.ToString(), Values = values, ValueBlockSize = (blockSize + 15) / 16 * 16,
-            Textures = textures, RenderModes = modes, Actor = actor, StencilWrite = stencil,
+            Textures = textures, RenderModes = modes, Actor = actor, StencilWrite = stencil, VisionStream = visionStream,
         };
     }
 
