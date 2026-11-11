@@ -726,7 +726,8 @@ is on (`SVM_BACKGROUND_AT=2560,0`). Placing the window there or off screen made 
   (Echelon bit 0) took no torch light either. A fault of the world pass since it was written, not of this night.
 - **Flares light characters and objects drawn by the small programs** (`RdObjects.Spot`: `flare_light`, the draw's
   kind holds the count). Written, compiled at load, never seen with a flare lit.
-- **Tried and backed out** (`D:\OpenSCCTd-builds\lit-experiments.patch`): a stage shader with only the spot and
+- **Tried and backed out** (`D:\OpenSCCT
+d-builds\lit-experiments.patch`): a stage shader with only the spot and
   dynamic light terms for lit draws, and the dynamic lights of static meshes at the vertices. 127 of AquaE's 133 lit
   draws took the small shader and the scene did not move (2.22 ms either way): with the light walk forced empty the
   small shader still cost 0.33 ms over the unlit stage, and the light itself 0.24 ms. The cost of a lit draw is
@@ -771,9 +772,33 @@ Not verified: none of this stage's changes has been through the all-maps picture
 hung before it could run), and the zone culling of the thirteenth stage was compared on six maps only (46 views,
 no missing geometry). The shader lists have not been baked.
 
+Checked on 2026-11-11 (morning, after a restart): the all-maps comparison of the Fast renderer before this work
+against this branch's head (33 map families, 8 views each, 30 FPS cap, on the NVIDIA card) shows no missing geometry;
+the views that differ (MuseD's haze, GhosS's screen, MissD's turning machine, rain) differ as much between two runs
+of one build. The shader lists are baked (85 maps, 293 KB together) and on main with the rest.
+
+Direct3D 12 on the UHD 770, looked into further (`SVM_ALLOW_D3D12=1`, each run under a watchdog):
+
+- AquaE runs on Direct3D 12 on the NVIDIA card (321 FPS at 1080p): the fault is the Intel driver's.
+- With Godot's renderer (`SVM_RD_FRAME=0`), and with Fast stripped of its optional passes, the game dies on
+  `Cannot create uniform set because there's not enough room in the RESOURCES descriptor heap`, then
+  `0x887a0005` (device removed) at the next buffer it makes: the default
+  `rendering/rendering_device/d3d12/max_resource_descriptors` is too small for this map.
+- With that heap raised to 524288 nothing is reported, and Fast hangs after the load as before, taking the Intel
+  driver with it a second time (a restart again). So the heap is one fault and the hang another.
+
+Each further step on the Intel GPU costs a restart of the machine when it goes wrong, and a path that can leave a
+player's graphics driver unusable cannot ship on what is known. Not pursued further without a decision.
+
+The same overlap may be had on Vulkan: with a separate render thread (`thread_model=2`) the render thread's frame
+was 4.1 ms of a 4.7 ms frame, because this pass's gathering (`PreDrawOwn`, 0.6 to 0.9 ms) and recording run on it
+before the wait for the GPU. Moved to the main thread's turn, only the recording and the engine's own drawing
+would stand in front of the GPU's time. Not tried.
+
 Open, in order of what they are worth: a Direct3D 12 path for Intel that does not hang (the overlap is worth 30 to
 45% of the frame, more than everything else found); failing that, the processor's turn (a sampled profile through
-the runtime's EventPipe is set up in `D:\OpenSCCTd-builds\prof`, not yet taken); the engine's own time in the
+the runtime's EventPipe is set up in `D:\OpenSCCT
+d-builds\prof`, not yet taken); the engine's own time in the
 draw phase.
 
 ## The target
