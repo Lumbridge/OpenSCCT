@@ -795,6 +795,44 @@ was 4.1 ms of a 4.7 ms frame, because this pass's gathering (`PreDrawOwn`, 0.6 t
 before the wait for the GPU. Moved to the main thread's turn, only the recording and the engine's own drawing
 would stand in front of the GPU's time. Not tried.
 
+### What the frame is made of, corrected (2026-11-11, afternoon)
+
+The reading above ("a millisecond of processor time costs a millisecond of frame") was wrong, and so was the hope
+put in a separate render thread. Tried in order:
+
+- **A separate render thread gives nothing.** In that mode the main thread waited on the render thread inside
+  `GetInstanceShaderParameter` (a call the rendering server answers, so it waits for the frame being drawn): 55%
+  of the main thread's time, in `SkeletalModel.SetGlowHue` every frame and in `RdObjects.Gather`. Those reads now
+  come from a record on our side (`Render/InstanceParams`: every write of an instance shader parameter goes through
+  it). With them gone, and with the benchmark's own profiling calls off, the frame is the same to a hundredth of a
+  millisecond with and without the thread (AquaE 4.64 and 4.66 ms, SteeE 3.29 and 3.29 at 1080p).
+- **Less processor time gives nothing either.** The shadow lights' caster scan (`SpotShadowLight.StaticCasters`, 0.45
+  ms a frame: the map's merged geometry is now passed over by instance id, and a spared frame does not scan), the
+  mesh lookups of `RdObjects.Gather` and the parameter reads took about 0.2 ms out of the turn and the gathering;
+  the draw phase grew by what they saved (turn 1.41 to 1.32 ms, draw 3.20 to 3.28 ms) and the frame stayed 4.62 ms.
+- So on Vulkan on this GPU **the frame is the timed GPU passes plus about 2.2 to 2.3 ms that neither the processor
+  nor a thread changes**, at 1080p; at 2560 x 1440 the remainder is about 3.6 ms. The processor's work lies under
+  it. A sampled profile of the main thread (the runtime's EventPipe, `D:\OpenSCCTd-builds\prof`) shows about
+  2.5 ms of managed work a frame on AquaE: the pre-draw handlers 1.6 ms (gathering 0.55, recording 0.33, the
+  shadow lights 0.45), `PlayRoot._Process` 0.66 (the views 0.45), the HUD 0.18, audio 0.12.
+- A visible window gives the same rate as the hidden one (AquaE 1080p 212.6 FPS). The fullscreen runs went to the
+  2560 x 1440 monitor on the NVIDIA card (141 to 143 FPS on AquaE, the hidden window's 1440p rate) and say nothing
+  about a fullscreen window on a display the Intel GPU drives.
+
+Reloaded captured again the same afternoon, same layout (`capture_original.py --cap 240`, hidden desktop, UHD 770):
+
+| 2560 x 1440 | Reloaded FPS (1% low) | Fast FPS (1% low) | Frame ms |
+|---|---:|---:|---:|
+| AquaE spawn-180 | 160.5 (116) | 137 to 140 (97 to 104) | 6.23 against 7.2 |
+| SteeE spawn | 145.1 (122) | 187 to 191 (125 to 130) | 6.89 against 5.3 |
+
+At 1920 x 1080 Reloaded holds its 240 cap on AquaE (1% low 237); Fast runs it at about 215. The timed GPU passes
+are level on AquaE (ours 3.6 ms, its 3.5): the millisecond between the two frames is outside them, and what Fast
+has there that Reloaded has not is a second full-screen copy: its last pass writes the viewport's target (0.86 ms,
+timed) and the engine then copies that target to the screen (not timed; a full-screen pass costs 0.3 to 0.9 ms on
+this GPU), where Reloaded's one pass writes the back buffer. Stock Godot offers no way to draw into the screen's
+own image, so that copy can only go with a change to the engine.
+
 Open, in order of what they are worth: a Direct3D 12 path for Intel that does not hang (the overlap is worth 30 to
 45% of the frame, more than everything else found); failing that, the processor's turn (a sampled profile through
 the runtime's EventPipe is set up in `D:\OpenSCCT
