@@ -232,7 +232,8 @@ public sealed class ClientMoves
     public void MyReplicateMoveWithoutMoving(float LeftTime, FVector NewAccel, float frameDelta)
     {
         bPhysicsChangeWithinPhysics = true;
-        float done = Math.Max(0f, frameDelta - LeftTime);
+        // A second split in the same frame (fell, then landed) only covers the time since the first one.
+        float done = Math.Max(0f, (fLeftTimeForSecondPhysics > 0f ? fLeftTimeForSecondPhysics : frameDelta) - LeftTime);
         float stamp = Controller.TimeSeconds - LeftTime;
         byte divers = CurrentDiversInfos();
         if (fPendingDeltaTime > 0f && (ePendingPhysics != Pawn.Physics || PendingDiversInfo != divers))

@@ -48,6 +48,7 @@ public sealed class SequencedMoveTransport : IMoveTransport
     private long _ignoredBatches, _readErrors;
     private long _commandTick = -1;
     private int _commandsThisTick;
+    private int _appliedThisInputTick;
     private bool _hasInputClock;
     private long _inputTickOffset;
     private const int InputBufferTicks = 2;
@@ -109,13 +110,15 @@ public sealed class SequencedMoveTransport : IMoveTransport
         _hasEpoch = true; _epoch = epoch; _sent = _sealed = _acknowledged = _applied = 0;
         _resetRequested = false; Array.Clear(_ring); HistoryResets++;
         _highestReceived = 0;
-        _appliedInputTick = 0; _appliedInputDelta = 0f;
+        _appliedInputTick = 0; _appliedInputDelta = 0f; _appliedThisInputTick = 0;
         _lastPumpTick = -1; _simulationCredit = 12f;
         _lastTransmitTick = -1; _lastAckSent = 0;
         _resendCursor = 1;
         _ackTick = -1;
         _commandTick = -1; _commandsThisTick = 0;
         _hasInputClock = false; _inputTickOffset = 0;
+        // A new lifetime does not compare positions in the frame of the mover the last one ended over.
+        _frame = null; _reportedFrame = null; _reportedBase = null;
         PredictionReset?.Invoke();
     }
 
@@ -351,6 +354,11 @@ public sealed class SequencedMoveTransport : IMoveTransport
             if (_applied != 0 && (c.InputTick < _appliedInputTick || c.InputTick - _appliedInputTick > HistoryTicks ||
                 Math.Abs((c.Move.TimeStamp - (double)_appliedStamp) - (c.InputTick - _appliedInputTick) * (double)Sim.DeltaTime) > 2 * Sim.DeltaTime + 0.005))
             { channel.Connection.Close($"Invalid movement input timeline: stamp {_appliedStamp} to {c.Move.TimeStamp}, {DescribeInputClock()}"); break; }
+            // The owner sends at most MaxCommandsPerTick commands for one of its ticks (Enqueue). More than that are
+            // not his: commands without time are free, and each big move among them could snap the pawn again.
+            int commandsThisInputTick = _applied != 0 && c.InputTick == _appliedInputTick ? _appliedThisInputTick + 1 : 1;
+            if (commandsThisInputTick > MaxCommandsPerTick)
+            { channel.Connection.Close($"Too many movement commands for one tick, {DescribeInputClock()}"); break; }
             uint epoch = _epoch;
             float cost = c.Delta / Sim.DeltaTime;
             if (cost > _simulationCredit + 0.0001f) break;
@@ -425,6 +433,7 @@ public sealed class SequencedMoveTransport : IMoveTransport
                 _reportedFrame = told; _reportedOffset = reportedOffset;
                 _frame = MoverFrame.Of(_pawn.Base, _pawn.Physics, _frame);
                 _appliedInputDelta = tickDelta;
+                _appliedThisInputTick = commandsThisInputTick;
                 _simulationCredit -= cost;
             }
             finally { ApplyingCommand = null; commandPawn?.EndMoveCommand(); }
@@ -515,7 +524,12 @@ public sealed class SequencedMoveTransport : IMoveTransport
     {
         uint epoch = r.ReadUInt32();
         if (!r.IsError && Endpoint(actor, connection)?.Sequenced is { } t && epoch == t._epoch)
+        {
             t._controller.ReinitPawnBecauseOfDivergences();
+            // The reinit is declined for a dead, held, grabbing or lying pawn. The client sends nothing until a new
+            // lifetime starts, so it gets one anyway, or it would stay silent for the rest of that pawn's life.
+            if (epoch == t._epoch) t.ResetLifetime();
+        }
     }
 
     public void MyServerMove(float TimeStamp, FVector InAccel, FVector ClientLoc, int View, byte DiversInfos, int OldTimeDelta, int OldAccel) => Enqueue(0, TimeStamp, InAccel, ClientLoc, View, DiversInfos);

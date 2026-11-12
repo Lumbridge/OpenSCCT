@@ -306,6 +306,14 @@ public sealed class NetMoveTransport : IMoveTransport
     {
         ServerMoves? s = endpoint.Server;
         ClientMoves? c = endpoint.Client;
+        // A server that takes sequenced commands has its stamp, time-margin and physics checks there: the original's
+        // move calls would run past all of them, and no client of ours sends them.
+        if (s is not null && endpoint.Sequenced is not null && name is "MyServerMove" or "MyShortServerMove" or
+            "MyServerMoveWithPCRot" or "BigServerMove" or "UnreliableReplicateBigServerMove")
+        {
+            return;
+        }
+
         switch (name)
         {
             case "MyServerMove":

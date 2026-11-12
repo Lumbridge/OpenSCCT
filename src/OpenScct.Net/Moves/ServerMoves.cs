@@ -235,7 +235,10 @@ public sealed class ServerMoves
         // included (game 0x10aae660).
         if (error < MoveK.BigMoveSnapRadius)
         {
-            Pawn.Velocity = move.Vel * (1f / MoveK.VelocityWireScale);
+            FVector velocity = move.Vel * (1f / MoveK.VelocityWireScale);
+            // No pawn moves faster than this: a velocity beyond it is not taken at its size.
+            float speed = velocity.Size();
+            Pawn.Velocity = speed > MoveK.MaxTrustedSpeed ? velocity * (MoveK.MaxTrustedSpeed / speed) : velocity;
         }
 
         if (resend)

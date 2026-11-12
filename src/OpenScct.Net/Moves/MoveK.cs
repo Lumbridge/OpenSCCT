@@ -116,6 +116,9 @@ public static class MoveK
     [Provenance(ProvenanceKind.Decoded, "net-moves.md rule 13: snap radius 100 (10000 squared)")]
     public const float BigMoveSnapRadius = 100f;
 
+    [Provenance(ProvenanceKind.Estimated, "Server bound added on the velocity a big move reports (the original takes any): well above a fall's top speed")]
+    public const float MaxTrustedSpeed = 4000f;
+
     [Provenance(ProvenanceKind.Decoded, "move-protocol.md rule 20: fErrorMax")]
     public const float fErrorMax = 1.73f;
 
