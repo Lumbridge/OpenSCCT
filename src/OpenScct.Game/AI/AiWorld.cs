@@ -349,7 +349,7 @@ public sealed class AiWorld
 
         int side = spy ? 0 : 1;
         _badLinks[side][link] = Now + AiK.BadLinkSeconds;
-        _badLinkSets[side].Add(link);
+        if (_badLinkSets[side].Add(link)) BadRevision++;
     }
 
     /// <summary>The links of the side's graph that are left out now.</summary>
@@ -369,7 +369,7 @@ public sealed class AiWorld
         foreach (int e in edges)
         {
             _badEdges[side][e] = Now + AiK.BlockedEdgeSeconds;
-            _badEdgeSets[side].Add(e);
+            if (_badEdgeSets[side].Add(e)) BadRevision++;
         }
     }
 
@@ -379,6 +379,12 @@ public sealed class AiWorld
         int side = spy ? 0 : 1;
         return Expire(_badEdgeSets[side], _badEdges[side]);
     }
+
+    /// <summary>
+    /// Changes whenever a link or edge is shut or opens again (either side): a search result stays valid for its
+    /// start while this is unchanged.
+    /// </summary>
+    public int BadRevision { get; private set; }
 
     private HashSet<int> Expire(HashSet<int> set, Dictionary<int, float> until)
     {
@@ -397,6 +403,7 @@ public sealed class AiWorld
             {
                 set.Remove(k);
                 until.Remove(k);
+                BadRevision++;
             }
         }
 

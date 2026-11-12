@@ -24,6 +24,9 @@ public abstract class AiBrain
     private bool _failNoted;
     private readonly List<int> _scratchNodes = new();
     private float[]? _reachabilityCosts;
+    private int _reachabilityFrom = -2;
+    private float _reachabilityMaxCost;
+    private int _reachabilityRevision;
 
     protected AiBrain(AiController bot)
     {
@@ -419,15 +422,29 @@ public abstract class AiBrain
     private readonly List<(FVector, float)> _danger = new();
 
     /// <summary>
-    /// Fresh reachability from one node, using this bot's scratch storage. Consume before this bot's next call;
-    /// other bots and A* path planning do not overwrite it. Blocked links/edges are reread for every decision.
+    /// Reachability from one node, in this bot's scratch storage (read only). Consume before this bot's next call;
+    /// other bots and A* path planning do not overwrite it. Blocked links and edges are reread for every decision;
+    /// the sweep itself is redone only when they or the start changed.
     /// </summary>
     protected float[] ReachabilityCosts(int from, float maxCost = float.MaxValue)
     {
         NavGraph graph = Follower.Graph;
+        // Reading the sets first expires what is due, so the revision below is this decision's.
+        IReadOnlySet<int> badLinks = World.BadLinks(Spy), badEdges = World.BadEdges(Spy);
         if (_reachabilityCosts is null || _reachabilityCosts.Length != graph.NodeCount)
+        {
             _reachabilityCosts = new float[graph.NodeCount];
-        graph.CostsFrom(from, _reachabilityCosts.AsSpan(), maxCost, badLinks: World.BadLinks(Spy), badEdges: World.BadEdges(Spy));
+            _reachabilityFrom = -2;
+        }
+
+        // The sweep crosses the whole graph. From the same node with the same links and edges shut it gives the
+        // same costs: a bot that asks twice in a tick, or stands still between decisions, keeps the last one.
+        if (_reachabilityFrom == from && _reachabilityMaxCost == maxCost && _reachabilityRevision == World.BadRevision)
+            return _reachabilityCosts;
+        graph.CostsFrom(from, _reachabilityCosts.AsSpan(), maxCost, badLinks, badEdges);
+        _reachabilityFrom = from;
+        _reachabilityMaxCost = maxCost;
+        _reachabilityRevision = World.BadRevision;
         return _reachabilityCosts;
     }
 

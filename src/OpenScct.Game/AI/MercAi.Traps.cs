@@ -104,6 +104,7 @@ public sealed partial class MercAi
             // the heights of one spot share its approach.
             var approachRoute = new NavFollower(World, spy: false);
             var approaches = new Dictionary<(int, int), (bool Ok, FVector Floor, float Route)>();
+            float[]? nearCosts = null;
             foreach (TrapCandidate candidate in candidates.OrderBy(c => c.Score)
                 .DistinctBy(c => ((int)(c.Wall.X / 16f), (int)(c.Wall.Y / 16f), (int)(c.Wall.Z / 16f))).Take(72))
             {
@@ -111,7 +112,10 @@ public sealed partial class MercAi
                 if (!approaches.TryGetValue(spot, out var approach))
                 {
                     if (approaches.Count >= 36) continue;
-                    bool ok = TrapApproach(candidate.Wall, candidate.Normal, approachRoute, out FVector approachFloor);
+                    // One short sweep from the merc says which spots are near enough at all. A full path search
+                    // for each far or unreachable spot crossed most of the map, up to 36 times in this one tick.
+                    nearCosts ??= ReachabilityCosts(Follower.Graph.NearestNode(Pawn.Location, Pawn.CollisionHeight), TrapSweepCost);
+                    bool ok = TrapApproach(candidate.Wall, candidate.Normal, approachRoute, nearCosts, out FVector approachFloor);
                     approach = (ok, approachFloor, ok ? approachRoute.Remaining(Pawn.Location) : 0f);
                     approaches[spot] = approach;
                 }
@@ -126,7 +130,7 @@ public sealed partial class MercAi
                 else continue;
                 float routeLength = approach.Route;
                 float score = candidate.Score + routeLength * .75f;
-                if (score >= best || routeLength > 1450f) continue;
+                if (score >= best || routeLength > TrapRouteLength) continue;
                 best = score;
                 bestRouteLength = routeLength;
                 _trapWall = candidate.Wall;
@@ -331,7 +335,17 @@ public sealed partial class MercAi
         }
     }
 
-    private bool TrapApproach(FVector wall, FVector normal, NavFollower route, out FVector floor)
+    /// <summary>
+    /// The graph cost a mine spot's approach may have at most to be searched for a path. A spot is taken only within
+    /// <see cref="TrapRouteLength"/> of route, and a route costs at least its length; the margin covers crouched
+    /// stretches and links, which cost more than their length.
+    /// </summary>
+    private const float TrapSweepCost = 4000f;
+
+    /// <summary>The longest route to a mine spot.</summary>
+    private const float TrapRouteLength = 1450f;
+
+    private bool TrapApproach(FVector wall, FVector normal, NavFollower route, float[] nearCosts, out FVector floor)
     {
         floor = default;
         // Leave room inside the 55 uu reach for a pitched view and the final walking tolerance.
@@ -343,6 +357,18 @@ public sealed partial class MercAi
             return false;
 
         floor = ground.Location - new FVector(0f, 0f, 2f);
+        // The same nodes the route's goal is chosen from (NavFollower.GoalNode).
+        bool near = false;
+        foreach (int node in NodesAround(floor, Follower.Graph.Profile.Spacing * 5f))
+        {
+            if (float.IsFinite(nearCosts[node]))
+            {
+                near = true;
+                break;
+            }
+        }
+
+        if (!near) return false;
         if (!route.SetGoal(Pawn, floor) || route.Path.Count == 0 || (route.Path[^1].Point - floor).SizeSquared() > 4f)
             return false;
 

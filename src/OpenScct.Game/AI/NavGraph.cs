@@ -138,6 +138,8 @@ public sealed class NavGraph
     private int[]? _came;
     private int[]? _cameEdge;
     private int[]? _stamp;
+    private float[]? _penalty;
+    private int[]? _penaltyStamp;
     private int _search;
     private readonly PriorityQueue<int, float> _open = new();
     // Separate from A*: its penalty callback may ask for a reachability field while a path is being planned.
@@ -359,6 +361,9 @@ public sealed class NavGraph
             return false;
         }
 
+        // An empty set costs a lookup per edge for nothing; most searches have nothing shut.
+        if (badLinks is { Count: 0 }) badLinks = null;
+        if (badEdges is { Count: 0 }) badEdges = null;
         int count = _nodes.Length;
         if (_g is null || _g.Length != count)
         {
@@ -367,6 +372,17 @@ public sealed class NavGraph
             _cameEdge = new int[count];
             _stamp = new int[count];
         }
+
+        // A node's penalty is the same along every edge into it: ask once per search, not once per edge (a spy's
+        // penalty walks the mines, cameras and contacts it knows).
+        if (penalty is not null && (_penalty is null || _penalty.Length != count))
+        {
+            _penalty = new float[count];
+            _penaltyStamp = new int[count];
+        }
+
+        float[]? penalties = _penalty;
+        int[]? penaltyStamp = _penaltyStamp;
 
         float[] g = _g;
         int[] came = _came!;
@@ -381,6 +397,7 @@ public sealed class NavGraph
         _open.Enqueue(from, Heuristic(from, to));
         bool found = from == to;
         int closest = from;
+        float closestLeft = Heuristic(from, to);
         while (!found && _open.TryDequeue(out int n, out float priority))
         {
             if (n == to)
@@ -389,14 +406,16 @@ public sealed class NavGraph
                 break;
             }
 
-            if (priority - Heuristic(n, to) > g[n] + 0.01f)
+            float left = Heuristic(n, to);
+            if (priority - left > g[n] + 0.01f)
             {
                 continue;
             }
 
-            if (allowPartial && Heuristic(n, to) < Heuristic(closest, to))
+            if (allowPartial && left < closestLeft)
             {
                 closest = n;
+                closestLeft = left;
             }
 
             for (int e = _edgeStart[n]; e < _edgeStart[n + 1]; e++)
@@ -421,7 +440,13 @@ public sealed class NavGraph
 
                 if (penalty is not null)
                 {
-                    cost += penalty(m);
+                    if (penaltyStamp![m] != search)
+                    {
+                        penaltyStamp[m] = search;
+                        penalties![m] = penalty(m);
+                    }
+
+                    cost += penalties![m];
                 }
 
                 float total = g[n] + cost;
@@ -486,6 +511,8 @@ public sealed class NavGraph
         if (costs.Length != _nodes.Length)
             throw new ArgumentException("The cost buffer must have one entry per navigation node.", nameof(costs));
 
+        if (badLinks is { Count: 0 }) badLinks = null;
+        if (badEdges is { Count: 0 }) badEdges = null;
         costs.Fill(float.PositiveInfinity);
         PriorityQueue<int, float> open = _costOpen;
         open.Clear();
