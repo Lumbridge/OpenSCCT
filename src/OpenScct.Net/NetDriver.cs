@@ -637,7 +637,23 @@ public sealed class NetDriver : IDisposable
                 Notify.NotifyAcceptedConnection(connection);
             }
 
-            connection.ReceivedRawPacket(buffer, length, now);
+            if (!IsServer)
+            {
+                connection.ReceivedRawPacket(buffer, length, now);
+                continue;
+            }
+
+            // One peer's packet must not end the server for everyone: whatever it makes fail closes that connection.
+#pragma warning disable CA1031
+            try
+            {
+                connection.ReceivedRawPacket(buffer, length, now);
+            }
+            catch (Exception e)
+            {
+                connection.Close($"A packet could not be handled: {e.GetType().Name}: {e.Message}");
+            }
+#pragma warning restore CA1031
         }
 
         RemoveClosedConnections();
@@ -1064,6 +1080,14 @@ public sealed class NetDriver : IDisposable
                 ReferenceEquals(actor.Owner, viewer.Viewer) || ReferenceEquals(actor.Owner, viewer.RealViewer);
             if (!candidate)
             {
+                // An owner-only actor this viewer no longer owns or watches (a spectator moved on, a weapon changed
+                // hands): its channel closes after the timeout like any other that stopped being relevant.
+                if (!recorder && !IsNetOwner(actor, connection) && connection.FindActorChannel(actor) is { Closing: false } unowned &&
+                    now - unowned.RelevantTime >= RelevantTimeoutMicros)
+                {
+                    CloseIrrelevant(connection, unowned, actor);
+                }
+
                 continue;
             }
 

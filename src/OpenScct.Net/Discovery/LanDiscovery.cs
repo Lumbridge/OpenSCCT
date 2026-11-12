@@ -286,6 +286,13 @@ public sealed class ServerQuery : IDisposable
                 continue;
             }
 
+            // A query sent to one server is only answered by that server: the nonces of a socket follow each other,
+            // so another listed server could otherwise answer in its place and put its own address on that row.
+            if (!p.Lan && !from.Address.MapToIPv6().Equals(p.Target.Address.MapToIPv6()))
+            {
+                break;
+            }
+
             // An answer to an earlier copy that lands after a resend reads short (0 at worst).
             int sample = (int)Math.Clamp((arrivedMicros - p.SentAt) / 1000, 0, 9999);
             var game = new IPEndPoint(from.Address, info.GamePort > 0 ? info.GamePort : from.Port);

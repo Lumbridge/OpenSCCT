@@ -25,6 +25,9 @@ public abstract class Channel
     /// <summary>True once a close bunch was sent; later bunches are not processed.</summary>
     public bool Closing { get; private set; }
 
+    /// <summary>True once the connection has let go of this channel (its close was acknowledged, or the other side closed it).</summary>
+    public bool Released => !ReferenceEquals(Connection.Channels[ChIndex], this);
+
     /// <summary>Reliable bunches sent and not yet acknowledged.</summary>
     public int NumOutRec { get; internal set; }
 

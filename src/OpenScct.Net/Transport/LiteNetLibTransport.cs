@@ -59,7 +59,18 @@ public sealed class LiteNetLibTransport : ITransport, ILiteNetEventListener, INa
         public bool IsClient { get; init; }
 
         public string Address { get; set; } = "relay";
+
+        /// <summary>Host side: when the relay last passed a frame of this session on (NowMilliseconds).</summary>
+        public long LastReceived { get; set; }
     }
+
+    /// <summary>Real time, for idle relay sessions only (the transport has no clock of its own).</summary>
+#pragma warning disable RS0030
+    private static long NowMilliseconds => Environment.TickCount64;
+#pragma warning restore RS0030
+
+    /// <summary>A relay session nothing came from for this long is let go (a live connection times out long before).</summary>
+    private const long SessionIdleMilliseconds = 120_000;
 
     private readonly record struct SessionKey(IPEndPoint Relay, uint Session);
 
@@ -74,6 +85,9 @@ public sealed class LiteNetLibTransport : ITransport, ILiteNetEventListener, INa
     private readonly Dictionary<IPEndPoint, int> _clientRoutes = new();
     private readonly Dictionary<IPEndPoint, ulong> _relays = new();
     private readonly List<NatPunchResult> _punches = new();
+    private readonly List<int> _gonePeers = new();
+    private readonly List<int> _idleSessions = new();
+    private long _sessionSweepAt;
     private readonly byte[] _frame = new byte[RelayFrames.MaxFrameBytes];
     private int _nextId = 1;
     private bool _disposed;
@@ -251,6 +265,7 @@ public sealed class LiteNetLibTransport : ITransport, ILiteNetEventListener, INa
     {
         if (_received.Count == 0)
         {
+            ForgetGone();
             Poll();
         }
 
@@ -288,6 +303,42 @@ public sealed class LiteNetLibTransport : ITransport, ILiteNetEventListener, INa
 
         _manager.PollEvents();
         _manager.NatPunchModule.PollEvents();
+    }
+
+    /// <summary>
+    /// Lets go of the endpoints nobody will disconnect: a peer that went away (everything it sent has been handed
+    /// out, the queue is empty) and a relay session gone quiet. Without this an endpoint that never became a connection
+    /// (refused during a map change, or it never sent a valid start) would count against the connection limit for good.
+    /// </summary>
+    private void ForgetGone()
+    {
+        foreach (int id in _gonePeers)
+        {
+            _peers.Remove(id);
+        }
+
+        _gonePeers.Clear();
+        long now = NowMilliseconds;
+        if (_hostSessions.Count == 0 || now < _sessionSweepAt)
+        {
+            return;
+        }
+
+        _sessionSweepAt = now + 1000;
+        foreach (int id in _hostSessions.Values)
+        {
+            if (_routes.TryGetValue(id, out RelayRoute? route) && now - route.LastReceived > SessionIdleMilliseconds)
+            {
+                _idleSessions.Add(id);
+            }
+        }
+
+        foreach (int id in _idleSessions)
+        {
+            Disconnect(new EndpointId(id));
+        }
+
+        _idleSessions.Clear();
     }
 
     public void Disconnect(EndpointId endpoint)
@@ -543,6 +594,8 @@ public sealed class LiteNetLibTransport : ITransport, ILiteNetEventListener, INa
             _routes[id] = new RelayRoute { Relay = from, Session = session };
         }
 
+        _routes[id].LastReceived = NowMilliseconds;
+
         if (type == RelayFrames.NewSession)
         {
             _routes[id].Address = "relay " + System.Text.Encoding.UTF8.GetString(frame[RelayFrames.HostHeaderBytes..]);
@@ -566,8 +619,12 @@ public sealed class LiteNetLibTransport : ITransport, ILiteNetEventListener, INa
 
     void ILiteNetEventListener.OnPeerDisconnected(LiteNetPeer peer, DisconnectInfo disconnectInfo)
     {
-        // The endpoint stays known until its connection lets go of it (Disconnect): datagrams that arrived before the
-        // remote went away (a kick's reason, the close) are still delivered. Sends fail from now on.
+        // The endpoint stays known until the datagrams that arrived before the remote went away (a kick's reason, the
+        // close) have been delivered (ForgetGone), or its connection lets go of it first (Disconnect). Sends fail from now on.
+        if (peer.Tag is int id)
+        {
+            _gonePeers.Add(id);
+        }
     }
 
     void ILiteNetEventListener.OnNetworkError(IPEndPoint endPoint, SocketError socketError)

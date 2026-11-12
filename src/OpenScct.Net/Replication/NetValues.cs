@@ -112,6 +112,9 @@ public static class NetWire
     /// <summary>Longest string a replicated value may carry, in UTF-8 bytes (longer text is clipped).</summary>
     public const int MaxStringBytes = 4096;
 
+    /// <summary>Longest name a replicated value may carry, in characters (UE2's NAME_SIZE).</summary>
+    public const int MaxNameLength = 64;
+
     /// <summary>Shadow words a leaf of this kind uses.</summary>
     public static int WordCount(RepLeafKind kind) => kind switch
     {
@@ -254,6 +257,9 @@ public static class NetWire
                 value.F = r.ReadFloat();
                 break;
             case RepLeafKind.Name:
+                // Names are interned for the life of the process: one longer than any real name is read as None.
+                value.O = r.ReadString(MaxStringBytes) is { Length: <= MaxNameLength } name ? name : null;
+                break;
             case RepLeafKind.String:
             case RepLeafKind.Asset:
             case RepLeafKind.Class:

@@ -101,6 +101,13 @@ public sealed partial class NetConnection : INetObjectMap
     /// <summary>Actor ids of bNetTemporary actors already sent on this connection (never sent again).</summary>
     internal readonly HashSet<int> SentTemporaries = new();
 
+    /// <summary>
+    /// Server: for a map actor whose channel closed (out of range), the properties this client was last sent a
+    /// value other than the default for. The client keeps the actor with those values, and a new channel starts from
+    /// the defaults: these are sent again on it, or one that went back to its default meanwhile would never be corrected.
+    /// </summary>
+    internal readonly Dictionary<int, bool[]> ResendOnReopen = new();
+
     internal NetConnection(NetDriver driver, EndpointId remoteEndpoint, int connectionId, long now, IDemoSink? recorder = null)
     {
         _driver = driver;
@@ -517,7 +524,9 @@ public sealed partial class NetConnection : INetObjectMap
         int chSequence = reliable ? (int)r.ReadInt(K.MAX_CHSEQUENCE) : 0;
         var chType = reliable || bOpen ? (EChannelType)r.ReadInt((uint)EChannelType.CHTYPE_MAX) : EChannelType.CHTYPE_None;
         int payloadBits = (int)r.ReadInt(BunchLengthMax);
-        if (r.IsError || payloadBits > r.BitsLeft)
+        // No sender writes more than _maxPayloadBits (FOutBunch's size): the buffers that hold a bunch waiting for
+        // an earlier one are that big, and a packet with the short header has room for a little more.
+        if (r.IsError || payloadBits > r.BitsLeft || payloadBits > _maxPayloadBits)
         {
             return false;
         }
@@ -544,6 +553,15 @@ public sealed partial class NetConnection : INetObjectMap
 
             if (!_driver.AcceptChannel(this, chType, chIndex))
             {
+                // A client's reliable call on a channel the server has closed since (the packet was lost and sent
+                // again, or came late): it is taken as received and dropped. Only an open the server did not ask for
+                // is an error.
+                if (_driver.IsServer && chIndex != 0 && !bOpen)
+                {
+                    InReliable[chIndex] = chSequence;
+                    return true;
+                }
+
                 return false;
             }
 
@@ -603,7 +621,11 @@ public sealed partial class NetConnection : INetObjectMap
     internal void ReturnQueued(QueuedBunch queued)
     {
         queued.Next = null;
-        _queuedPool.Push(queued);
+        // The pool keeps what ordinary reordering needs; a peer that parked bunches on many channels gets them collected.
+        if (_queuedPool.Count < K.RELIABLE_BUFFER * 2)
+        {
+            _queuedPool.Push(queued);
+        }
     }
 
     private void ReceivedAcks(in PacketHeader header, long now)
@@ -955,6 +977,14 @@ public sealed partial class NetConnection : INetObjectMap
             EndStatisticsPeriod(now);
         }
 
+        // A peer that never logs in does not keep its place by sending on: the server gives it the time to connect once.
+        if (_driver.IsServer && !IsLocal && State == EConnectionState.USOCK_Pending && now - ConnectTime > _driver.InitialConnectTimeoutMicros &&
+            now >= ReceiveTimeoutNotBeforeMicros)
+        {
+            Close("Connection timed out before login");
+            return;
+        }
+
         long timeout = State == EConnectionState.USOCK_Open ? _driver.ConnectionTimeoutMicros : _driver.InitialConnectTimeoutMicros;
         if (now - LastReceiveTime > timeout && now >= ReceiveTimeoutNotBeforeMicros)
         {
@@ -1050,6 +1080,12 @@ public sealed partial class NetConnection : INetObjectMap
         if (notifyRemote && Channels[0] is ControlChannel control && !control.Closing)
         {
             control.Close();
+            if (State == EConnectionState.USOCK_Closed)
+            {
+                // The close bunch itself failed (a full reliable buffer) and closed the connection from inside.
+                return;
+            }
+
             FlushNet(_driver.Time, force: true);
         }
 

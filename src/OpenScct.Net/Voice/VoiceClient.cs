@@ -68,6 +68,9 @@ public sealed class VoiceClient : IVoiceEndpoint, IDisposable
     private readonly float[] _resampleIn = new float[ResampleChunk];
     private readonly float[] _resampleOut = new float[ResampleChunk * VoiceK.SampleRate / 8000 + 16];
     private readonly Dictionary<ushort, VoiceTalker> _talkerById = new();
+    /// <summary>The most talkers heard in one visit (far above a full server with players coming and going).</summary>
+    private const int MaxTalkers = 256;
+
     private readonly List<VoiceTalker> _talkers = new();
     private readonly List<ushort> _muted = new();
     private readonly VoiceDsp _dsp = new();
@@ -396,6 +399,13 @@ public sealed class VoiceClient : IVoiceEndpoint, IDisposable
     {
         if (!Settings.Enabled || !VoiceWire.TryReadAudio(datagram, out VoiceHeader header, out ReadOnlySpan<byte> opus) ||
             header.Kind != EVoicePacketKind.Down || header.Talker == 0 || header.Talker == _localTalker)
+        {
+            Stats.Ignored++;
+            return;
+        }
+
+        // Each talker holds a decoder and a jitter buffer for the whole visit: a server naming endless ids gets no more.
+        if (_talkerById.Count >= MaxTalkers && !_talkerById.ContainsKey(header.Talker))
         {
             Stats.Ignored++;
             return;

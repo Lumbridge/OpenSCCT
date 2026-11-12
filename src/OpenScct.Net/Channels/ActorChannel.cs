@@ -125,6 +125,18 @@ public sealed partial class ActorChannel : Channel
         _recentObjects = new object?[layout.ObjectCount];
         layout.CopyDefaults(_recent, _recentObjects);
         _placedUnsent = Connection.Driver.MapBinding.PlacedDiffers(actor)?.Clone() as bool[];
+        if (Connection.ResendOnReopen.Remove(actor.ActorId, out bool[]? again) && again.Length == layout.PropertyCount)
+        {
+            if (_placedUnsent is null)
+            {
+                _placedUnsent = again;
+            }
+            else
+            {
+                for (int i = 0; i < again.Length; i++) _placedUnsent[i] |= again[i];
+            }
+        }
+
         _dirty = new bool[layout.PropertyCount];
         _retirement = new Retirement[layout.PropertyCount];
         _written = new int[layout.PropertyCount];
@@ -672,6 +684,34 @@ public sealed partial class ActorChannel : Channel
         }
     }
 
+    /// <summary>Server: notes what a map actor's next channel to this client must send again (<see cref="NetConnection.ResendOnReopen"/>).</summary>
+    private void RememberForReopen(Actor actor)
+    {
+        if (Connection.State == EConnectionState.USOCK_Closed || actor.bDeleteMe || !(actor.bStatic || actor.bNoDelete) ||
+            ClassInfo?.Layout is not { } layout || _recent.Length != layout.WordCount)
+        {
+            return;
+        }
+
+        var defaultWords = new int[layout.WordCount];
+        var defaultObjects = new object?[layout.ObjectCount];
+        layout.CopyDefaults(defaultWords, defaultObjects);
+        bool[]? resend = null;
+        RepProperty[] props = layout.Properties;
+        for (int i = 0; i < props.Length; i++)
+        {
+            if ((_placedUnsent?[i] ?? false) || !RepLayout.Same(props[i], _recent, defaultWords, _recentObjects, defaultObjects))
+            {
+                (resend ??= new bool[props.Length])[i] = true;
+            }
+        }
+
+        if (resend is not null)
+        {
+            Connection.ResendOnReopen[actor.ActorId] = resend;
+        }
+    }
+
     protected internal override void CleanUp()
     {
         NetDriver driver = Connection.Driver;
@@ -689,6 +729,7 @@ public sealed partial class ActorChannel : Channel
         if (driver.IsServer)
         {
             State?.RemoveChannel(this);
+            RememberForReopen(actor);
         }
         else
         {
