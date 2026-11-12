@@ -65,7 +65,9 @@ public sealed class PawnStateGapTests
             new ServerSettings { SpawnWalkers = false }, new ClientSettings { Gameplay = true, Classes = classes });
         SBasePawn pawn = AddPawn(rig);
         void Step(int count) { for (int i = 0; i < count; i++) rig.Step(); }
-        Step(180);
+        // Past the first 3.8 s, when the pawn's wake protection bit clears: a real state change inside the outage
+        // below would end it and start a second one.
+        Step(300);
         ClientSession client = rig.Clients[0];
         var copy = Assert.IsType<SPawnAttaque>(client.Driver.FindActorByNetGuid((uint)pawn.ActorId));
         PawnStateReplication states = client.PawnStates!;
