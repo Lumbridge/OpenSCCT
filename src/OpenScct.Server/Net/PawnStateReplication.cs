@@ -424,10 +424,14 @@ public sealed partial class PawnStateReplication : INetworkPawnPose, IPawnAnimat
             f.Tick = tick; f.Epoch = epoch; t.Newest = tick;
         }
         PruneDeleted();
-        foreach (var kv in _viewers) if (kv.Key.Closing || kv.Key.Connection.State == EConnectionState.USOCK_Closed) _closed.Add(kv.Key);
+        foreach (var kv in _viewers) if (Gone(kv.Key)) _closed.Add(kv.Key);
         foreach (ActorChannel channel in _closed) _viewers.Remove(channel);
         _closed.Clear();
     }
+
+    /// <summary>A channel no longer in use: closing, its connection closed, or released (the other side closed it).</summary>
+    internal static bool Gone(ActorChannel channel) => channel.Closing || channel.Connection.State == EConnectionState.USOCK_Closed ||
+        channel.Released;
 
     public void Send(SBasePawn pawn, NetConnection connection, int snapshotInterval = 2)
     {

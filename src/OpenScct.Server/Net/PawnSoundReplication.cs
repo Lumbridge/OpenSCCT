@@ -108,6 +108,10 @@ public sealed partial class PawnSoundReplication
     /// <summary>Spend the remaining per-client budget after owner corrections and active pawn state.</summary>
     public void Flush(long tick)
     {
+        foreach (var prior in _viewers)
+            if (prior.Key.State == EConnectionState.USOCK_Closed) _closed.Add(prior.Key);
+        foreach (NetConnection closed in _closed) _viewers.Remove(closed);
+        _closed.Clear();
         foreach (var entry in _viewers)
         {
             NetConnection connection = entry.Key;

@@ -163,6 +163,7 @@ public sealed class PawnProxySender
             }
         }
 
+        _lastPhysics.Clear();
         foreach (SBasePawn pawn in level.DynamicActors<SBasePawn>())
         {
             _lastPhysics[pawn.ActorId] = pawn.Physics;

@@ -242,7 +242,7 @@ public sealed partial class ResponsiveSmokeReplication
         foreach (SSmokeEmitter cloud in _gone) _sources.Remove(cloud);
         _gone.Clear();
         foreach (ActorChannel channel in _viewers.Keys)
-            if (channel.Closing || channel.Connection.State == EConnectionState.USOCK_Closed || channel.Actor?.bDeleteMe != false) _closed.Add(channel);
+            if (PawnStateReplication.Gone(channel) || channel.Actor?.bDeleteMe != false) _closed.Add(channel);
         foreach (ActorChannel channel in _closed) _viewers.Remove(channel);
         _closed.Clear();
         foreach (SSmokeEmitter cloud in _received.Keys) if (cloud.bDeleteMe) _gone.Add(cloud);

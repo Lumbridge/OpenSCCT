@@ -112,8 +112,11 @@ internal sealed class MercShockStream
         foreach (SBasePawn pawn in _sources.Keys) if (pawn.bDeleteMe) _gone.Add(pawn);
         foreach (SBasePawn pawn in _gone) _sources.Remove(pawn);
         _gone.Clear();
-        foreach (ActorChannel channel in _sent.Keys) if (channel.Closing || channel.Connection.State == EConnectionState.USOCK_Closed) _closed.Add(channel);
+        foreach (ActorChannel channel in _sent.Keys) if (PawnStateReplication.Gone(channel)) _closed.Add(channel);
         foreach (ActorChannel channel in _closed) { _sent.Remove(channel); _resetTokens.Remove(channel); }
+        _closed.Clear();
+        foreach (ActorChannel channel in _resetTokens.Keys) if (PawnStateReplication.Gone(channel)) _closed.Add(channel);
+        foreach (ActorChannel channel in _closed) _resetTokens.Remove(channel);
         _closed.Clear();
     }
 
