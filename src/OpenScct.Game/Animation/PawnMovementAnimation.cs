@@ -38,7 +38,7 @@ public static class PawnMovementAnimation
 
         TurnHead(pawn, dt);
         FVector v = pawn.Velocity;
-        if (pawn.Base is { } floor)
+        if (pawn.Base is { } floor && !CarriedBy(floor))
         {
             v -= floor.Velocity;
         }
@@ -76,6 +76,17 @@ public static class PawnMovementAnimation
             a.UpdateTweenCache();
         }
     }
+
+    /// <summary>
+    /// True when <paramref name="floor"/> is a mover. A mover carries its riders with its own move, so a rider's
+    /// Velocity is already its speed over the mover's floor, and taking the mover's Velocity off it as the decoded
+    /// rule does (V = Velocity - Base.Velocity) made a pawn standing still on a mover that travels sideways count as
+    /// moving: the blender then faded in the walk clips at rate 0 (they are blended by Velocity itself, which is 0),
+    /// and the pawn rode in a frozen walk or crouch-walk frame. The rule's still test reads X and Y only, so it never
+    /// showed on a lift.
+    /// </summary>
+    [Provenance(ProvenanceKind.Estimated, "Ours: the decoded blender takes Base.Velocity off for every base; kept for bases that are not movers")]
+    private static bool CarriedBy(Actor floor) => floor.bIsAMover;
 
     /// <summary>
     /// A whole-body hit clip (PlayDamage at rest: channel 17 with no start bone) ends as soon as the pawn walks off:
