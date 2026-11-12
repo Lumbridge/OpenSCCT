@@ -199,6 +199,9 @@ public static class K
     [Provenance(ProvenanceKind.Decoded, "CanGrabPawn front cone dot > 0.75")]
     public const float GrabFrontCone = 0.75f;
 
+    [Provenance(ProvenanceKind.Decoded, "Reloaded.Core 0x10017650, hooked at the end of ASPlayerController's constructor (game 0x10af0773): iGrabAreaShift = 1200, over the script default 7200")]
+    public const int GrabAreaShiftReloaded = 1200;
+
     [Provenance(ProvenanceKind.Decoded, "AskToGrabPawn: G = hit + (0, 0, 1.1 * CollisionHeight)")]
     public const float GrabSpotRaise = 1.1f;
 

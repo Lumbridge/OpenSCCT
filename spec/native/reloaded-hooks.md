@@ -201,9 +201,10 @@ transfer study and the physics and net studies. Not analysed yet beyond the list
 | 0x10ac6b40 | ASBasePawn::physWalking |
 | 0x10ad3dc0 | ASBasePawn::physFalling |
 | 0x10af8460 | ASHud::ERDrawOneObjective |
+| 0x10af0730 | ASPlayerController's internal constructor (grab angle: spy-grab.md rule 4) |
 | 0x10aaa910 | the NativePlayerInput body (`input.md`) |
 | 0x10b26ce0 to 0x10b33094 | 17 unnamed functions in the Direct3D renderer range |
-| others | 0x109128b0, 0x10992100, 0x1099b130, 0x109ab740, 0x109ade10, 0x109e9890, 0x10a31fb0, 0x10a3d3b0, 0x10a415e0, 0x10a42620, 0x10a666d0, 0x10a96280, 0x10ab5df0, 0x10ab8cf0, 0x10aef530, 0x10af0390, 0x10af0730, 0x10af1d10, 0x10b08730 |
+| others | 0x109128b0, 0x10992100, 0x1099b130, 0x109ab740, 0x109ade10, 0x109e9890, 0x10a31fb0, 0x10a3d3b0, 0x10a415e0, 0x10a42620, 0x10a666d0, 0x10a96280, 0x10ab5df0, 0x10ab8cf0, 0x10aef530, 0x10af0390, 0x10af1d10, 0x10b08730 |
 
 Patches decoded so far (each rule lives in the subsystem spec named):
 

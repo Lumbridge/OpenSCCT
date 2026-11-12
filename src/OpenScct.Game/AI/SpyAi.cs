@@ -1415,7 +1415,7 @@ public sealed partial class SpyAi : AiBrain
 
     /// <summary>
     /// The grab (spy-grab.md rules 1 to 4 and 13): creep to a spot behind the merc on the side the grab test favours
-    /// (his yaw + 7200), walk the last steps straight at him so the spy faces him, press Use when the controller's own
+    /// (his yaw + iGrabAreaShift), walk the last steps straight at him so the spy faces him, press Use when the controller's own
     /// test passes (within 160 uu, he in front within 41 degrees, his shifted facing within 60 degrees of the spy's);
     /// held, release Use and press it again (the neck break); after a few presses with no room for it, Fire (the
     /// knock-out). The 15 s hold chokes him anyway.
@@ -1904,8 +1904,8 @@ public static class SpyAiK
     [Provenance(ProvenanceKind.Estimated, "Bot play choice: a merc seen for sure this long ago still counts for a grab")]
     public const float GrabMemorySeconds = 1.5f;
 
-    [Provenance(ProvenanceKind.Decoded, "spy-grab.md Data: iGrabAreaShift 7200")]
-    public const int GrabAreaShift = 7200;
+    [Provenance(ProvenanceKind.Decoded, "spy-grab.md Data: iGrabAreaShift as Reloaded sets it (1200)")]
+    public const int GrabAreaShift = OpenScct.Game.Combat.K.GrabAreaShiftReloaded;
 
     /// <summary>The approach line within about 45 degrees of the merc's shifted facing before the last steps.</summary>
     [Provenance(ProvenanceKind.Estimated, "Bot play choice inside the decoded 0.5 facing test")]

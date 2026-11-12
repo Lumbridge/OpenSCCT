@@ -85,7 +85,7 @@ standing above him over the edge to his death.
 |---|---|---|---|---|
 | fGrabDistance | SPlayerController | float | 160.0 | client test; the server doubles it to 320 during its test |
 | fGrabHalfAngle | SPlayerController | float | 0.5 | cosine |
-| iGrabAreaShift | SPlayerController | int | 7200 | yaw units added to the target's facing in the angle test (39.55 deg) |
+| iGrabAreaShift | SPlayerController | int | 7200 in the script; **1200 in play** | yaw units added to the target's facing in the angle test. Reloaded writes 1200 (6.59 deg) into every player controller at construction (rule 4); the script default of 7200 (39.55 deg) is the retail behaviour |
 | fWakeInvulnerabilityTime | SPlayerController | float | 3.8 | |
 | fGrabInvulneralbilityTimeAfterStickyShock | SPlayerController | float | 5.0 | server test only |
 | fGrabFromLedgeDist1 / Dist2 | SPlayerController | float | 150 / 100 | forward / lateral box (uu) |
@@ -137,8 +137,15 @@ SA_EXIT_REPOS 326, SA_GRABBED_RELEASE_DROPTECH 327.
    further mercs).
 4. `CanGrabPawn(T)` (global): `now - T.iLastWakeTime > 3.8`, distance (3D) < fGrabDistance, the merc is in front:
    `Normal(T2D - me2D) . Normal(vector(my Rotation)) > 0.75` (within 41.4 deg), and the facing test with the merc's
-   yaw shifted by +7200: `Normal(vector(T.Rotation + (0,7200,0))) . Normal(vector(my Rotation)) > 0.5`. The spy must
-   be behind the merc and the accepted sector is skewed by 39.55 deg toward one side.
+   yaw shifted by +iGrabAreaShift: `Normal(vector(T.Rotation + (0,iGrabAreaShift,0))) . Normal(vector(my Rotation)) > 0.5`.
+   The spy must be behind the merc and the accepted sector is skewed toward one side: by 39.55 deg with the script's
+   7200 (retail), by 6.59 deg with Reloaded's 1200. Reloaded (rl:fix.grab_angle, "adjusted grab/neck angle" in its
+   v2.0 notes) makes no script change: `Reloaded.Core.dll` replaces the last instructions of ASPlayerController's
+   constructor (game 0x10af0773, `add esp, 0x10; ret`) with a jump to 0x10017660, which stores 1200 at +0xBB0
+   (iGrabAreaShift) of the controller being constructed and then returns as the original did. The script package still
+   says 7200 in retail, Enhanced 4.0 Beta 3 and Beta 5 alike. The rewrite sets 1200 in the controller's constructor.
+   Measured from straight behind the merc's facing, the sector runs from 20 deg on his right to 100 deg on his left
+   with 7200, and from 53 deg on his right to 67 deg on his left with 1200 (+yaw turns to the right).
 
 ### Server validation and approach
 5. `AskServerToGrabPawn(T)` (reliable RPC): refuse if the spy is dead. Crouch adjustments as rule 2. Require
@@ -436,7 +443,7 @@ stateDiagram-v2
 |---|---|---|---|---|
 | grab distance (client / server) | 160 / 320 | uu | decoded | fGrabDistance, AskServerToGrabPawn |
 | front cone | dot > 0.75 (41.4 deg) | cos | decoded | CanGrabPawn |
-| behind test | dot > 0.5 with +7200 yaw shift | cos, yaw units | decoded | CanGrabPawn |
+| behind test | dot > 0.5 with +1200 yaw shift (script 7200) | cos, yaw units | decoded | CanGrabPawn; Reloaded.Core 0x10017650 |
 | height tolerance | 15 (+ crouch delta) | uu | decoded | AskToGrabPawn |
 | grab offset | 70.8485 | uu | decoded | def:SBase.SBasePawn vGrabOffset |
 | approach timeout | 3.0 | s | decoded | s_Grabbing_GotoPosition |

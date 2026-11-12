@@ -776,10 +776,10 @@ Notes:
 - Decoded from Reloaded.Core (2026-10-28; spec/native/reloaded-hooks.md rules 29 to 37) and ported: jump_lockon
   (physics-falling.md section 4 rule 3), ko_after_interrupt (state entry hook, rule 35), disk_radar (200 uu/s,
   disk-flag.md rule 34), crosshair_shift (fixed reticle spot, merc-reticle.md rule 3), camo_detection for security
-  cameras (security-camera.md rule 8; the motion-vision draw hook is decoded but not ported). grab_angle: no
-  Reloaded patch touches the grab test (CanGrabPawn is script, iGrabAreaShift 7200 and fGrabHalfAngle 0.5 in the
-  Enhanced 4.0 package, ported as is), so the fix is in the shipped script or not identifiable without the stock
-  package. stickycam_none_left and camo_slot2: no Reloaded code; the Enhanced 4.0 script is ported as is.
+  cameras (security-camera.md rule 8; the motion-vision draw hook is decoded but not ported). grab_angle
+  (decoded 2026-11-12, spy-grab.md rule 4): a hook at the end of ASPlayerController's constructor sets
+  iGrabAreaShift to 1200 on every controller, over the script's 7200 (the same in retail and Enhanced); ported in
+  the controller's constructor. stickycam_none_left and camo_slot2: no Reloaded code; the Enhanced 4.0 script is ported as is.
   stickycam_east_sound: Reloaded sets SStickyCam's default iReplicatedPitch and iReplicatedYaw to 12345678
   (Reloaded.Core 0x1000f790) so that zero angles still replicate; not ported (spec/equipment/sticky-cam.md).
 

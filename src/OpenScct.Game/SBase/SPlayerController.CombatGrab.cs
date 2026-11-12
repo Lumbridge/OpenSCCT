@@ -59,6 +59,17 @@ public partial class SPlayerController
 
     // ---- starting -------------------------------------------------------------------------------------------
 
+    /// <summary>
+    /// Reloaded's grab angle (rl:fix.grab_angle, spy-grab.md rule 4): every player controller is given
+    /// iGrabAreaShift 1200 once its script defaults are in, as Reloaded's hook on the native constructor does. The
+    /// script default of 7200 put the grab window 40 degrees to one side of straight behind the merc's facing; 1200
+    /// leaves it 7 degrees off.
+    /// </summary>
+    public SPlayerController()
+    {
+        iGrabAreaShift = K.GrabAreaShiftReloaded;
+    }
+
     private float _grabOnlyPressedAt = float.NegativeInfinity;
 
     /// <summary>
