@@ -135,7 +135,7 @@ function start(host) {
     // it, rifle forward); the shoulders only say which way along that axis is the front.
     front = new THREE.Vector3(0, 0, frontSign(merc));
     right = front.clone().cross(new THREE.Vector3(0, 1, 0)).normalize();
-    buildOverlay(); view(false);
+    buildOverlay(); view(true);
   }).catch(() => fail('The mercenary model could not be loaded.'));
 
   function view(top) {
@@ -160,6 +160,7 @@ function start(host) {
     verdictEl.dataset.outcome = 'none'; detailEl.textContent = ' ';
   }
   follow.addEventListener('change', idle);
+  idle();
   const ray = new THREE.Raycaster(), ground = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0), hit = new THREE.Vector3();
   renderer.domElement.addEventListener('pointermove', e => {
     if (!follow.checked) return;
