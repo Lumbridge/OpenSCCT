@@ -57,46 +57,91 @@ public sealed partial class MercAi
     private static readonly (float Forward, float Height)[] ElevatedArcs =
         [(0f, 100f), (0f, 195f), (-130f, 80f), (-130f, 165f), (230f, 75f), (230f, 155f), (230f, 250f)];
 
+    // The sweep of arcs for a frag at a hacked terminal. It ran whole in one decision (up to 55 arcs, each a
+    // flight traced through the level: 40 ms); now AdvanceObjectiveArcs traces a few arcs a tick, as the tick's
+    // budget allows, and the decision takes what the sweep found.
+    private SComputerObjectiveTrigger? _arcAlarm;
+    private int _arcIndex = -1;
+    private FVector _arcUseFloor;
+    private FVector _arcFound;
+    private float _arcFoundAt = -100f;
+    private SComputerObjectiveTrigger? _arcFoundFor;
+
+    /// <summary>A found arc is offered to the decisions of this long (s); the throw traces it again before the key.</summary>
+    private const float ArcFoundSeconds = 1f;
+
     private bool ObjectiveGrenadeOpportunity(SComputerObjectiveTrigger alarm, float now, out FVector target)
     {
         target = default;
-        if (now < _nextObjectiveFrag || now - _fragAt <= 10f || Bot.Utility <= 0f ||
+        if (now - _fragAt <= 10f || Bot.Utility <= 0f ||
             !GrenadeWeaponReady() || GadgetSlot<SGadFragGrenade>(out var grenade) < 0 || grenade is not { Charge: > 0 } ||
             World.Teams[1].ObjectiveFragReserved(alarm, Bot, now))
+        {
+            _arcIndex = -1;
             return false;
+        }
 
+        if (ReferenceEquals(_arcFoundFor, alarm) && now - _arcFoundAt < ArcFoundSeconds)
+        {
+            target = _arcFound;
+            _fragObjectivePoint = _arcUseFloor + new FVector(0, 0, 70f);
+            return true;
+        }
+
+        // A sweep for this alarm is under way, or the next one is not due yet.
+        if ((_arcIndex >= 0 && ReferenceEquals(_arcAlarm, alarm)) || now < _nextObjectiveFrag) return false;
         _nextObjectiveFrag = now + 1.1f * Bot.Personality.Tempo;
+        _arcIndex = -1;
         if (!UseSpot(alarm, out FVector useFloor, out _)) return false;
         FVector usePoint = useFloor + new FVector(0, 0, 70f);
         FVector from = usePoint - Feet;
         float range = from.Size();
         if (range is < 490f or > 2450f ||
             MathF.Abs(from.Z) < 130f && range < 950f && World.LineOpen(AiSight.Eye(Pawn), usePoint)) return false;
+        _arcAlarm = alarm;
+        _arcUseFloor = useFloor;
+        _arcIndex = 0;
+        return false;
+    }
+
+    /// <summary>
+    /// Every tick: traces the next arcs of the sweep under way while the tick's budget lasts. The first whose blast
+    /// reaches the use spot is kept for the next decision (<see cref="ObjectiveGrenadeOpportunity"/>).
+    /// </summary>
+    private void AdvanceObjectiveArcs(float now)
+    {
+        if (_arcIndex < 0) return;
+        if (_target is not null || !ReferenceEquals(_alert, _arcAlarm))
+        {
+            _arcIndex = -1;
+            return;
+        }
 
         // Try the hack spot and its near side. Different heights and side offsets send the round
         // through different apertures, while every accepted blast must still reach the use spot.
+        FVector usePoint = _arcUseFloor + new FVector(0, 0, 70f);
+        FVector from = usePoint - Feet;
         FVector direction = new FVector(from.X, from.Y, 0).SafeNormal();
         FVector side = new(-direction.Y, direction.X, 0);
-        if (!TryAperture(ObjectiveArcs, useFloor, usePoint, direction, side, out target) &&
-            (from.Z < 250f || !TryAperture(ElevatedArcs, useFloor, usePoint, direction, side, out target))) return false;
-        _fragObjectivePoint = usePoint;
-        return true;
-    }
-
-    private bool TryAperture(ReadOnlySpan<(float Forward, float Height)> arcs, FVector useFloor, FVector usePoint,
-        FVector direction, FVector side, out FVector target)
-    {
-        foreach (float lateral in ObjectiveArcOffsets)
-        foreach ((float forward, float height) in arcs)
+        int low = ObjectiveArcOffsets.Length * ObjectiveArcs.Length;
+        int all = low + (from.Z < 250f ? 0 : ObjectiveArcOffsets.Length * ElevatedArcs.Length);
+        while (_arcIndex < all && !World.BudgetSpent)
         {
-            FVector candidate = useFloor + side * lateral - direction * forward + new FVector(0, 0, height);
+            int index = _arcIndex++;
+            (float Forward, float Height)[] arcs = index < low ? ObjectiveArcs : ElevatedArcs;
+            int within = index < low ? index : index - low;
+            float lateral = ObjectiveArcOffsets[within / arcs.Length];
+            (float forward, float height) = arcs[within % arcs.Length];
+            FVector candidate = _arcUseFloor + side * lateral - direction * forward + new FVector(0, 0, height);
             if (!TryObjectiveArc(candidate, usePoint, out _)) continue;
-            target = candidate;
-            return true;
+            _arcFound = candidate;
+            _arcFoundAt = now;
+            _arcFoundFor = _arcAlarm;
+            _arcIndex = -1;
+            return;
         }
 
-        target = default;
-        return false;
+        if (_arcIndex >= all) _arcIndex = -1;
     }
 
     private bool TryObjectiveArc(FVector target, FVector usePoint, out FRotator aim)
@@ -114,6 +159,7 @@ public sealed partial class MercAi
         {
             FVector next = position + (velocity + gravity * (.5f * step)) * step;
             velocity += gravity * step;
+            World.ChargeWork(AiK.SweptTraceWork);
             if (!World.Collision.LineCheck(out var hit, frag, next, position, extent, FragArcTrace))
             {
                 position = next;

@@ -194,6 +194,8 @@ public sealed class AiWorld
         }
 
         _gatheredTick = Level.TickCount;
+        _expansionsAtTick = SpyNav.Expansions + MercNav.Expansions;
+        _workCharged = 0;
         _bots.RemoveAll(bot => bot.Controller.bDeleteMe);
         _smokes.Clear();
         foreach (SSmokeEmitter s in Level.DynamicActors<SSmokeEmitter>())
@@ -233,6 +235,55 @@ public sealed class AiWorld
     }
 
     public NavGraph NavFor(bool spy) => spy ? SpyNav : MercNav;
+
+    private long _expansionsAtTick;
+    private long _workCharged;
+
+    /// <summary>
+    /// True once the bots' heavy work of this tick has used the tick's budget (<see cref="AiK.TickWorkBudget"/>):
+    /// the graph nodes their searches expanded, plus what the jobs that trace a lot charged
+    /// (<see cref="ChargeWork"/>). A job that can wait a tick asks first and waits when it is spent: a route plan,
+    /// a step of a merc's search for a mine wall or a grenade arc, a spy's scan of the other objectives. Counted in
+    /// work done, not time, so a match plays the same on any machine; bots tick in a fixed order, so the same bots
+    /// wait every time.
+    /// </summary>
+    public bool BudgetSpent => SpyNav.Expansions + MercNav.Expansions - _expansionsAtTick + _workCharged >= AiK.TickWorkBudget;
+
+    /// <summary>Counts work that is not a graph search against the tick's budget, in graph nodes (<see cref="AiK.TraceWork"/>).</summary>
+    public void ChargeWork(int nodes) => _workCharged += nodes;
+
+    private readonly Stack<NavGraph.PathSearch>[] _freeSearches = [new(), new()];
+    private readonly int[] _searchesOut = new int[2];
+
+    /// <summary>
+    /// A search for a route planned over several ticks (<see cref="NavFollower.BeginGoal"/>), or null while the side
+    /// has <see cref="AiK.PathSearches"/> out. Hand it back with <see cref="ReturnSearch"/>.
+    /// </summary>
+    public NavGraph.PathSearch? RentSearch(bool spy)
+    {
+        int side = spy ? 0 : 1;
+        if (_freeSearches[side].TryPop(out NavGraph.PathSearch? search))
+        {
+            _searchesOut[side]++;
+            return search;
+        }
+
+        if (_searchesOut[side] >= AiK.PathSearches)
+        {
+            return null;
+        }
+
+        _searchesOut[side]++;
+        return new NavGraph.PathSearch();
+    }
+
+    public void ReturnSearch(bool spy, NavGraph.PathSearch search)
+    {
+        ArgumentNullException.ThrowIfNull(search);
+        int side = spy ? 0 : 1;
+        _searchesOut[side]--;
+        _freeSearches[side].Push(search);
+    }
 
     // ---- lines ------------------------------------------------------------------------------------------------
 

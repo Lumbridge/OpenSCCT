@@ -267,7 +267,7 @@ public sealed partial class SpyAi : AiBrain
         Span<AiOption> options = stackalloc AiOption[9];
         int n = 0;
         options[n++] = new AiOption(GIdle, 0.05f);
-        bool hasTerminal = Pawn.CarriedFlag is null && NextTerminal(now) is not null;
+        bool hasTerminal = Pawn.CarriedFlag is null && (NextTerminal(now) is not null || _terminalPending);
         if (hasTerminal)
         {
             // Right after a shock the guard is stunned: the moment to hack.
@@ -832,8 +832,13 @@ public sealed partial class SpyAi : AiBrain
         plan.Crouched = true;
         if (now - _wanderAt > 6f || (Feet - _wander).Size() < 40f)
         {
+            // The sweep that says where it can walk is under way: picked next tick.
+            if (ReachableAround(700f, SpyAiK.HideSpotCost) is not { } nodes)
+            {
+                return;
+            }
+
             _wanderAt = now;
-            List<int> nodes = NodesAround(Pawn.Location, 700f);
             if (nodes.Count == 0)
             {
                 Follower.StartWiggle(now);
@@ -864,9 +869,17 @@ public sealed partial class SpyAi : AiBrain
         return false;
     }
 
+    /// <summary><see cref="NextTerminal"/> gave no new terminal only because the sweep its choice reads is still under way.</summary>
+    private bool _terminalPending;
+
+    /// <summary>The last choice made found a terminal (true before the first).</summary>
+    private bool _terminalFound = true;
+
     private SComputerObjectiveTrigger? NextTerminal(float now)
     {
+        _terminalPending = false;
         if (World.Terminals.Count == 0) return null;
+        SComputerObjectiveTrigger? kept = null;
         if (_target is { bActive: true } current && !World.IsTaken(current) && !current.bLocked &&
             !(_givenUp.TryGetValue(current, out float gaveUp) && now - gaveUp < 25f))
         {
@@ -879,13 +892,26 @@ public sealed partial class SpyAi : AiBrain
                 return current;
             }
 
+            kept = current;
+        }
+
+        // The choice reads the sweep of the whole graph. While that is under way the terminal in hand stays, or
+        // the spy waits for the choice (TerminalPending keeps it at the hack goal meanwhile).
+        if (WholeGraphCosts() is not { } reachable)
+        {
+            // Pending only where the last choice found one: with none to be had the spy does not go back and
+            // forth between waiting for a terminal and having nothing to do.
+            _terminalPending = _terminalFound;
+            return kept;
+        }
+
+        if (kept is not null)
+        {
             _retargetAt = now + 2f;
         }
 
         SComputerObjectiveTrigger? best = null;
         float bestScore = float.MaxValue;
-        int start = Follower.Graph.NearestNode(Pawn.Location, Pawn.CollisionHeight);
-        float[] reachable = ReachabilityCosts(start);
         foreach (SComputerObjectiveTrigger t in World.Terminals)
         {
             if (!t.bActive || World.IsTaken(t) || t.bLocked || t.bTriggering && !(ReferenceEquals(t, _target) && _hack != HackPhase.Walk) ||
@@ -935,6 +961,7 @@ public sealed partial class SpyAi : AiBrain
             }
         }
 
+        _terminalFound = best is not null;
         return best;
     }
 
@@ -1167,9 +1194,10 @@ public sealed partial class SpyAi : AiBrain
         FVector threatEye = (threat is not null ? Bot.Memory.Find(threat)?.BelievedEye : null) ??
             Bot.Memory.Best()?.BelievedEye ?? Pawn.Location;
 
-        if (now - _hideSpotAt > 1.5f || (Pawn.Location - _hideSpot).Size() < 40f)
+        // Picked again next tick while the sweep it reads is under way; the last spot stands meanwhile.
+        if ((now - _hideSpotAt > 1.5f || (Pawn.Location - _hideSpot).Size() < 40f) && FindHideSpot(threatEye) is { } spot)
         {
-            _hideSpot = FindHideSpot(threatEye);
+            _hideSpot = spot;
             _hideSpotAt = now;
         }
 
@@ -1184,11 +1212,15 @@ public sealed partial class SpyAi : AiBrain
         }
     }
 
-    /// <summary>The best spot within 900 uu: out of the threat's line of sight, dark, and away from it.</summary>
-    private FVector FindHideSpot(FVector threatEye)
+    /// <summary>The best spot within 900 uu the spy can walk to: out of the threat's line of sight, dark, and away from it.</summary>
+    private FVector? FindHideSpot(FVector threatEye)
     {
-        List<int> nodes = NodesAround(Pawn.Location, 900f);
         NavGraph g = Follower.Graph;
+        if (ReachableAround(900f, SpyAiK.HideSpotCost) is not { } nodes)
+        {
+            return null;
+        }
+
         FVector best = Feet;
         float bestScore = float.MaxValue;
         int stride = Math.Max(1, nodes.Count / 48);
@@ -1839,6 +1871,9 @@ public static class SpyAiK
     public const float DrawWaitSeconds = 1.1f;
 
     [Provenance(ProvenanceKind.Estimated, "Bot play choice: the reaction time, at most this, before the first shot")]
+    /// <summary>A hide spot or a spot to wander to is at most this far by the graph's costs (the straight-line limits are 900 and 700 uu).</summary>
+    public const float HideSpotCost = 2500f;
+
     public const float MaxAimSettle = 0.4f;
 
     [Provenance(ProvenanceKind.Estimated, "Bot play choice")]

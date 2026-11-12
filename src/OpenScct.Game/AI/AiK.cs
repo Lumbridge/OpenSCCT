@@ -421,4 +421,40 @@ public static class AiK
 
     /// <summary>Seconds from a goggle key to the clip's notify that starts or ends the mode (not measured).</summary>
     public const float GoggleClipSeconds = 0.5f;
+
+    /// <summary>
+    /// The heavy work all the bots of a level may do in one tick before the jobs that can wait are put off to the
+    /// next tick (<see cref="AiWorld.BudgetSpent"/>), in graph nodes expanded. A node costs 0.1 to 0.45 us on a
+    /// desktop (the larger the graph, the more), so this is one to three milliseconds. A tick then holds this
+    /// much plus, at most, the one job that crossed the line, however many bots there are and whatever the map.
+    /// </summary>
+    public const int TickWorkBudget = 6000;
+
+    /// <summary>What a line trace through the level counts for against <see cref="TickWorkBudget"/>, in graph nodes (measured: about 1.6 us).</summary>
+    public const int TraceWork = 8;
+
+    /// <summary>What a swept trace of a grenade's flight counts for, in graph nodes (measured: about 20 us).</summary>
+    public const int SweptTraceWork = 100;
+
+    /// <summary>
+    /// A bot's sweep of its whole graph (<see cref="AiBrain.WholeGraphCosts"/>) answers for this long after it
+    /// ends (s), from wherever the bot has walked to since: longer than the slowest decision period, so a choice
+    /// that waited for the sweep finds it on its next look.
+    /// </summary>
+    public const float FieldFreshSeconds = 1f;
+
+    /// <summary>What asking a route's penalty for a node counts for, in graph nodes (measured: up to 0.65 us with contacts and devices known).</summary>
+    public const int PenaltyWork = 3;
+
+    /// <summary>
+    /// A bot's route search runs this many nodes at a time, checking the tick's budget between; it gets this many
+    /// every tick even when the budget is spent, so a search always ends.
+    /// </summary>
+    public const int PlanChunkNodes = 1024;
+
+    /// <summary>Route searches a side's bots may have under way at once (each holds storage the size of the graph).</summary>
+    public const int PathSearches = 4;
+
+    /// <summary>A route plan that waits for one of the side's searches is made at once after this many ticks in a row (0.1 s).</summary>
+    public const int PlanWaitTicks = 6;
 }

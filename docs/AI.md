@@ -607,6 +607,38 @@ Debug build once the graphs are cached. The spies use ledges, drops and crawl sp
 traversal links each). SteeE's darkness favours them: the mercs find them by the hack alerts, torches and motion
 tracking, and the harder mercs kill more. The reports are in `local/test-results/ai/`.
 
+## Work per tick
+
+The bots' heavy work is metered per tick, so that it costs a tick about the same on every map and with any number
+of bots. Constants are in `AiK`.
+
+- **The budget** (`AiWorld.BudgetSpent`, `AiK.TickWorkBudget`): graph nodes expanded by the bots' searches this tick,
+  plus what jobs that trace a lot charge (`AiWorld.ChargeWork`; a line trace counts 8 nodes, a swept grenade trace
+  100). It is counted in work, not time, so a match plays the same on any machine. A job that can wait asks first and
+  waits a tick when the budget is spent. One chunk of a search (1024 nodes) runs every tick whatever the budget, so
+  every search ends.
+- **Route plans** (`AiBrain.MoveTo`, `SearchRoute`): the path search runs a chunk at a time while the budget lasts and
+  goes on next tick (`NavGraph.PathSearch`, `NavFollower.BeginGoal` and `ContinuePlan`); the bot keeps still
+  meanwhile. The follower's own new plans (out of path, stuck, a link failed, a door shut) go the same way: it drops
+  its path and asks its owner (`NavFollower.WantsPlan`). A side has four such searches; with all in use a plan waits
+  up to six ticks, then is made at once.
+- **The sweep of the whole graph** (`AiBrain.WholeGraphCosts`): the cost from the bot to every node, read by the
+  choice of a terminal, an objective, a post, a vantage, a spot to shoot from, a wall for a mine, a hide or wander
+  spot and an armed bomb. A choice asks; the sweep runs over the next ticks; the choice is made when it has ended
+  (it gets null until then and keeps what it had). A finished sweep answers for a second, from wherever the bot has
+  walked to since. On a graph of 100,000 nodes one sweep took 15 to 30 ms in a single tick before.
+- **A merc's search for a mine wall** (`MercAi.Traps.cs`): one tick probes the walls round one objective or heal
+  station, the spots are ranked from the sweep, then the route to one spot at a time is searched, best first, eight
+  at most. It ran whole in one tick before, with up to 36 path searches.
+- **The arcs for a frag at a hacked terminal** (`MercAi.Grenades.cs`): a few arcs a tick instead of up to 55 in one
+  decision; the decision takes the arc the sweep found.
+- **A spy's scan of the other objectives** (`SpyAi.Objectives.cs`): asked again after 2, 4, then every 8 s while the
+  same objectives stay out of reach, instead of every second.
+- **Hide and wander spots** (`AiBrain.ReachableAround`): picked among nodes the spy can walk to, not by radius alone.
+
+Not metered: the walk to a door's switch (`DoorAi`), the team goals' routes and ping orders (`TeamAi`), the route
+test bot (`RouteAi`), and a path search made at once when all four of a side's searches are in use.
+
 ## Deviations and open issues
 
 - **Terminals**: players collide with the terminal mesh's simple collision (it ends 28.2 uu out, the per-poly

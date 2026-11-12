@@ -46,6 +46,41 @@ public sealed partial class MercAi
     private readonly record struct TrapSite(FVector Floor, float Value);
     private readonly record struct TrapCandidate(FVector Wall, FVector Normal, float Score);
 
+    /// <summary>A wall spot ranked for a mine: where to stand, the stance, and its score with the graph cost of the way there.</summary>
+    private readonly record struct TrapOption(FVector Wall, FVector Floor, bool Crouched, float Score);
+
+    /// <summary>Where a search for a mine wall stands; each stage takes a tick or more (<see cref="DefendWithTrap"/>).</summary>
+    private enum TrapStage
+    {
+        Idle,
+        Probing,
+        Ranking,
+        Checking,
+    }
+
+    private TrapStage _trapStage;
+
+    /// <summary>What the search probes round, nearest first (objectives, then heal stations); <see cref="_trapSource"/> is the next.</summary>
+    private readonly List<Actor> _trapSources = new();
+    private int _trapSource;
+    private float _trapWanted;
+    private readonly List<TrapCandidate> _trapCandidates = new();
+
+    /// <summary>The ranked spots of the search under way, best first; <see cref="_trapOption"/> is the next to check.</summary>
+    private readonly List<TrapOption> _trapOptions = new();
+    private int _trapOption;
+    private float _trapSearchUntil;
+    private NavFollower? _trapRoute;
+    private NavGraph.PathSearch? _trapSearch;
+    private bool _trapChecking;
+    private readonly List<(FVector At, float RangeSquared)> _trapKeepOuts = new();
+
+    /// <summary>Routes checked for one search at most, one a tick: the best spots by the sweep.</summary>
+    private const int TrapRouteChecks = 8;
+
+    /// <summary>A search is dropped after this long (s): the merc was called away, or the budget kept it waiting.</summary>
+    private const float TrapSearchSeconds = 1.5f;
+
     // Guarding mercs inspect nearby walls, approach a clear placement, then use the same
     // selected gadget and animation-driven placement as a human. Combat always interrupts.
     private bool DefendWithTrap(float now, ref AiPlan plan)
@@ -70,77 +105,70 @@ public sealed partial class MercAi
 
         if (!_trapApproach)
         {
-            if (now < _trapNext || Difficulty.GadgetUse <= 0f) return false;
-            _trapNext = now + (SettingUp(now) ? 2f : 4f) * Bot.Personality.Tempo;
-            if (!ChooseTrap()) return false;
-            float best = float.MaxValue;
-            float bestRouteLength = 0f;
-            // A height band is preferred per placement: low most often (where players hide them), chest or head
-            // height otherwise; the nearest reachable height is taken where the band cannot be had.
-            float roll = Bot.Random.FRand();
-            float wanted = roll < 0.5f ? 56f : roll < 0.75f ? 95f : 150f;
-            float crouchEye = Pawn.CrouchHeight + ((SPAWNDEFENSE)Pawn).BaseCrouchEyeHeight;
-            float standEye = Follower.Graph.Profile.StandingHeight + Pawn.DefaultObject.BaseEyeHeight;
-            var candidates = new List<TrapCandidate>();
-            foreach (TrapSite site in TrapSites())
-            foreach (float height in TrapHeights)
-            for (int i = 0; i < 16; i++)
+            // The search is spread over ticks, where it ran whole in one (up to 70 ms on a map with many walls):
+            // a tick probes the walls round one objective or heal station, a tick ranks the spots found, then
+            // each tick checks the route to one of them, best first, and the first that holds is taken. Every
+            // step waits while the tick's budget is used up.
+            if (_trapStage == TrapStage.Idle)
             {
-                FVector from = site.Floor + new FVector(0, 0, height);
-                FVector direction = new FRotator(0, i * 4096, 0).Vector();
-                if (!World.Collision.LineCheck(out var hit, Pawn, from + direction * 400f, from, default,
-                    SGadMultiMinesLauncher.WallTraceFlags) || hit.bStartPenetrating || MathF.Abs(hit.Normal.Z) > .2f ||
-                    hit.Actor is Mover || OccupiedWall(hit.Location) ||
-                    (now < _trapBadUntil && (hit.Location - _trapBadWall).SizeSquared() < 120f * 120f)) continue;
-
-                float distance = (hit.Location - from).Size();
-                if (distance < 70f) continue;
-                float score = (hit.Location - Feet).Size() * .35f + MathF.Abs(distance - 120f) * 1.1f -
-                    site.Value + MathF.Abs(height - wanted) * 2f;
-                candidates.Add(new(hit.Location, hit.Normal, score));
+                if (now < _trapNext || Difficulty.GadgetUse <= 0f || World.BudgetSpent) return false;
+                _trapNext = now + (SettingUp(now) ? 2f : 4f) * Bot.Personality.Tempo;
+                if (ChooseTrap()) BeginTrapSearch(now);
+                return false;
             }
 
-            // Cheap wall probes rank first. Only the best candidates incur a path search, one per wall spot:
-            // the heights of one spot share its approach.
-            var approachRoute = new NavFollower(World, spy: false);
-            var approaches = new Dictionary<(int, int), (bool Ok, FVector Floor, float Route)>();
-            float[]? nearCosts = null;
-            foreach (TrapCandidate candidate in candidates.OrderBy(c => c.Score)
-                .DistinctBy(c => ((int)(c.Wall.X / 16f), (int)(c.Wall.Y / 16f), (int)(c.Wall.Z / 16f))).Take(72))
+            if (now > _trapSearchUntil || _trapLauncher is not { bDeleteMe: false, Charge: > 0 })
             {
-                var spot = ((int)(candidate.Wall.X / 16f), (int)(candidate.Wall.Y / 16f));
-                if (!approaches.TryGetValue(spot, out var approach))
+                _trapStage = TrapStage.Idle;
+                return false;
+            }
+
+            if (World.BudgetSpent) return false;
+            if (_trapStage == TrapStage.Probing)
+            {
+                ProbeTrapSource(now);
+                if (_trapSource >= _trapSources.Count) _trapStage = TrapStage.Ranking;
+                return false;
+            }
+
+            if (_trapStage == TrapStage.Ranking)
+            {
+                // Ranked when the sweep it reads has ended.
+                if (RankTrapWalls())
                 {
-                    if (approaches.Count >= 36) continue;
-                    // One short sweep from the merc says which spots are near enough at all. A full path search
-                    // for each far or unreachable spot crossed most of the map, up to 36 times in this one tick.
-                    nearCosts ??= ReachabilityCosts(Follower.Graph.NearestNode(Pawn.Location, Pawn.CollisionHeight), TrapSweepCost);
-                    bool ok = TrapApproach(candidate.Wall, candidate.Normal, approachRoute, nearCosts, out FVector approachFloor);
-                    approach = (ok, approachFloor, ok ? approachRoute.Remaining(Pawn.Location) : 0f);
-                    approaches[spot] = approach;
+                    _trapStage = _trapOptions.Count > 0 ? TrapStage.Checking : TrapStage.Idle;
                 }
 
-                if (!approach.Ok) continue;
-                FVector floor = approach.Floor;
-                // Slopes and raised platforms change the height at the actual placement floor: the stance is the
-                // one whose eye reaches the spot from there, crouched first.
-                bool crouched;
-                if (TrapInReach(candidate.Wall, floor, crouchEye)) crouched = true;
-                else if (TrapInReach(candidate.Wall, floor, standEye)) crouched = false;
-                else continue;
-                float routeLength = approach.Route;
-                float score = candidate.Score + routeLength * .75f;
-                if (score >= best || routeLength > TrapRouteLength) continue;
-                best = score;
-                bestRouteLength = routeLength;
-                _trapWall = candidate.Wall;
-                _trapFloor = floor;
-                _trapCrouched = crouched;
+                return false;
             }
-            if (best == float.MaxValue) return false;
+
+            // The route to the next option, searched over as many ticks as the budget makes it take.
+            TrapOption option = _trapOptions[_trapOption];
+            _trapRoute ??= new NavFollower(World, spy: false);
+            if (!_trapChecking)
+            {
+                _trapSearch ??= new NavGraph.PathSearch();
+                _trapChecking = _trapRoute.BeginGoal(Pawn, option.Floor, _trapSearch);
+            }
+
+            bool searched = !_trapChecking;
+            while (!searched && !World.BudgetSpent)
+            {
+                searched = _trapRoute.ContinuePlan(Pawn, AiK.PlanChunkNodes);
+            }
+
+            if (!searched) return false;
+            _trapChecking = false;
+            if (++_trapOption >= _trapOptions.Count) _trapStage = TrapStage.Idle;
+            if (!TrapRoute(option.Floor, out float routeLength) || routeLength > TrapRouteLength || OccupiedWall(option.Wall))
+                return false;
+            _trapStage = TrapStage.Idle;
+            _trapWall = option.Wall;
+            _trapFloor = option.Floor;
+            _trapCrouched = option.Crouched;
             _trapApproach = true;
             _trapAtWallSince = -1f;
-            _trapUntil = now + MathF.Max(8f, bestRouteLength / 150f + 6f);
+            _trapUntil = now + MathF.Max(8f, routeLength / 150f + 6f);
             Follower.Clear();
         }
         if (_trapAtWallSince < 0f && (NavFollower.Horizontal(Feet - _trapFloor) > 8f || MathF.Abs(Feet.Z - _trapFloor.Z) > 30f))
@@ -277,29 +305,6 @@ public sealed partial class MercAi
 
     private FVector TrapEye => Pawn.Location + Pawn.WalkBob + new FVector(0, 0, Pawn.EyeHeight);
 
-    private IEnumerable<TrapSite> TrapSites()
-    {
-        var objectives = new List<SObjectiveTrigger>();
-        foreach (SObjectiveTrigger objective in World.Level.AllActors<SObjectiveTrigger>())
-            if (Defensible(objective) && (objective.Location - Pawn.Location).SizeSquared() < 1100f * 1100f &&
-                NeedsTrap(objective))
-                objectives.Add(objective);
-        foreach (SObjectiveTrigger objective in objectives.OrderBy(o => (o.Location - Pawn.Location).SizeSquared()).Take(3))
-        {
-            if (!GuardSpot(objective, out FVector spot)) continue;
-            yield return new(spot, 210f);
-            foreach (TrapSite lane in TrapLanes(spot)) yield return lane;
-        }
-
-        foreach (SInfirmary station in World.Level.AllActors<SInfirmary>())
-        {
-            if (station.bDeleteMe || station.bHidden || (station.Location - Pawn.Location).SizeSquared() >= 700f * 700f) continue;
-            FVector location = station.InteractionObj?.Location ?? station.Location;
-            int node = Follower.Graph.NearestNode(location, 0f, 200f);
-            if (node >= 0) yield return new(Follower.Graph.Node(node).Floor, 30f);
-        }
-    }
-
     private IEnumerable<TrapSite> TrapLanes(FVector objective)
     {
         // Find narrow carriageways entering the objective area. Require floor, a sightline to the
@@ -309,6 +314,7 @@ public sealed partial class MercAi
         List<int> nodes = NodesAround(objective, 490f);
         var height = new FVector(0, 0, graph.Profile.StandingHeight);
         int stride = Math.Max(1, nodes.Count / 64);
+        World.ChargeWork(Math.Min(nodes.Count, 64) * 3 * AiK.TraceWork);
         for (int i = 0; i < nodes.Count; i += stride)
         {
             FVector floor = graph.Node(nodes[i]).Floor;
@@ -336,7 +342,7 @@ public sealed partial class MercAi
     }
 
     /// <summary>
-    /// The graph cost a mine spot's approach may have at most to be searched for a path. A spot is taken only within
+    /// The graph cost a mine spot's approach may have at most to be ranked. A spot is taken only within
     /// <see cref="TrapRouteLength"/> of route, and a route costs at least its length; the margin covers crouched
     /// stretches and links, which cost more than their length.
     /// </summary>
@@ -345,9 +351,136 @@ public sealed partial class MercAi
     /// <summary>The longest route to a mine spot.</summary>
     private const float TrapRouteLength = 1450f;
 
-    private bool TrapApproach(FVector wall, FVector normal, NavFollower route, float[] nearCosts, out FVector floor)
+    /// <summary>
+    /// Starts a search for a mine wall: lists what to probe round (the three nearest objectives that want a trap,
+    /// then the heal stations near), nearest first. Nothing is traced here.
+    /// </summary>
+    private void BeginTrapSearch(float now)
+    {
+        _trapSources.Clear();
+        _trapCandidates.Clear();
+        _trapOptions.Clear();
+        _trapSource = 0;
+        _trapOption = 0;
+        _trapChecking = false;
+        var objectives = new List<SObjectiveTrigger>();
+        foreach (SObjectiveTrigger objective in World.Level.AllActors<SObjectiveTrigger>())
+            if (Defensible(objective) && (objective.Location - Pawn.Location).SizeSquared() < 1100f * 1100f &&
+                NeedsTrap(objective))
+                objectives.Add(objective);
+        foreach (SObjectiveTrigger objective in objectives.OrderBy(o => (o.Location - Pawn.Location).SizeSquared()).Take(3))
+            _trapSources.Add(objective);
+        foreach (SInfirmary station in World.Level.AllActors<SInfirmary>())
+        {
+            if (station.bDeleteMe || station.bHidden || (station.Location - Pawn.Location).SizeSquared() >= 700f * 700f) continue;
+            _trapSources.Add(station);
+        }
+
+        if (_trapSources.Count == 0) return;
+        // A height band is preferred per placement: low most often (where players hide them), chest or head
+        // height otherwise; the nearest reachable height is taken where the band cannot be had.
+        float roll = Bot.Random.FRand();
+        _trapWanted = roll < 0.5f ? 56f : roll < 0.75f ? 95f : 150f;
+        GatherKeepOuts();
+        _trapSearchUntil = now + TrapSearchSeconds;
+        _trapStage = TrapStage.Probing;
+    }
+
+    /// <summary>Probes the walls round the next source of the search: an objective's use spot and the lanes into it, or a heal station.</summary>
+    private void ProbeTrapSource(float now)
+    {
+        Actor source = _trapSources[_trapSource++];
+        if (source.bDeleteMe) return;
+        if (source is SObjectiveTrigger objective)
+        {
+            if (!GuardSpot(objective, out FVector spot)) return;
+            ProbeTrapSite(new(spot, 210f), now);
+            foreach (TrapSite lane in TrapLanes(spot)) ProbeTrapSite(lane, now);
+        }
+        else if (source is SInfirmary station)
+        {
+            FVector location = station.InteractionObj?.Location ?? station.Location;
+            int node = Follower.Graph.NearestNode(location, 0f, 200f);
+            if (node >= 0) ProbeTrapSite(new(Follower.Graph.Node(node).Floor, 30f), now);
+        }
+    }
+
+    /// <summary>Wall probes round one site: 16 directions at six heights, each wall hit a candidate with its score.</summary>
+    private void ProbeTrapSite(TrapSite site, float now)
+    {
+        World.ChargeWork(TrapHeights.Length * 16 * AiK.TraceWork);
+        foreach (float height in TrapHeights)
+        for (int i = 0; i < 16; i++)
+        {
+            FVector from = site.Floor + new FVector(0, 0, height);
+            FVector direction = new FRotator(0, i * 4096, 0).Vector();
+            if (!World.Collision.LineCheck(out var hit, Pawn, from + direction * 400f, from, default,
+                SGadMultiMinesLauncher.WallTraceFlags) || hit.bStartPenetrating || MathF.Abs(hit.Normal.Z) > .2f ||
+                hit.Actor is Mover || KeptOut(hit.Location) ||
+                (now < _trapBadUntil && (hit.Location - _trapBadWall).SizeSquared() < 120f * 120f)) continue;
+
+            float distance = (hit.Location - from).Size();
+            if (distance < 70f) continue;
+            float score = (hit.Location - Feet).Size() * .35f + MathF.Abs(distance - 120f) * 1.1f -
+                site.Value + MathF.Abs(height - _trapWanted) * 2f;
+            _trapCandidates.Add(new(hit.Location, hit.Normal, score));
+        }
+    }
+
+    /// <summary>
+    /// Fills <see cref="_trapOptions"/> with the best of the wall spots probed, best first: the sweep from the merc
+    /// gives every spot's distance by the graph. No path is searched here; <see cref="TrapRoute"/> checks the route
+    /// to one option a tick. False while the sweep is under way.
+    /// </summary>
+    private bool RankTrapWalls()
+    {
+        if (_trapCandidates.Count == 0) return true;
+        if (WholeGraphCosts() is not { } costs) return false;
+        float crouchEye = Pawn.CrouchHeight + ((SPAWNDEFENSE)Pawn).BaseCrouchEyeHeight;
+        float standEye = Follower.Graph.Profile.StandingHeight + Pawn.DefaultObject.BaseEyeHeight;
+
+        // The sweep from the merc gives the graph cost to every node: a spot's route is judged from it, where a
+        // path search for each spot crossed the graph up to 36 times in one tick.
+        var approaches = new Dictionary<(int, int), (bool Ok, FVector Floor, float Cost)>();
+        foreach (TrapCandidate candidate in _trapCandidates.OrderBy(c => c.Score)
+            .DistinctBy(c => ((int)(c.Wall.X / 16f), (int)(c.Wall.Y / 16f), (int)(c.Wall.Z / 16f))).Take(72))
+        {
+            // The heights of one wall spot share its approach.
+            var spot = ((int)(candidate.Wall.X / 16f), (int)(candidate.Wall.Y / 16f));
+            if (!approaches.TryGetValue(spot, out var approach))
+            {
+                if (approaches.Count >= 36) continue;
+                bool ok = TrapStand(candidate.Wall, candidate.Normal, costs, out FVector approachFloor, out float cost);
+                approach = (ok, approachFloor, cost);
+                approaches[spot] = approach;
+            }
+
+            if (!approach.Ok) continue;
+            // Slopes and raised platforms change the height at the actual placement floor: the stance is the
+            // one whose eye reaches the spot from there, crouched first.
+            bool crouched;
+            if (TrapInReach(candidate.Wall, approach.Floor, crouchEye)) crouched = true;
+            else if (TrapInReach(candidate.Wall, approach.Floor, standEye)) crouched = false;
+            else continue;
+            _trapOptions.Add(new(candidate.Wall, approach.Floor, crouched, candidate.Score + approach.Cost * .75f));
+        }
+
+        // OrderBy is stable: equal scores keep the order the probes found them in.
+        var ranked = _trapOptions.OrderBy(o => o.Score).Take(TrapRouteChecks).ToList();
+        _trapOptions.Clear();
+        _trapOptions.AddRange(ranked);
+        return true;
+    }
+
+    /// <summary>
+    /// Where the bot stands to reach <paramref name="wall"/>, and the graph cost from the merc to the nearest node
+    /// the route's goal is chosen from (<paramref name="costs"/>: the sweep from the merc). False without floor
+    /// there or with no such node within <see cref="TrapSweepCost"/>.
+    /// </summary>
+    private bool TrapStand(FVector wall, FVector normal, float[] costs, out FVector floor, out float cost)
     {
         floor = default;
+        cost = float.PositiveInfinity;
         // Leave room inside the 55 uu reach for a pitched view and the final walking tolerance.
         FVector approach = wall + new FVector(normal.X, normal.Y, 0f).SafeNormal() * TrapStandOff;
         FVector top = approach + new FVector(0f, 0f, 40f);
@@ -358,22 +491,24 @@ public sealed partial class MercAi
 
         floor = ground.Location - new FVector(0f, 0f, 2f);
         // The same nodes the route's goal is chosen from (NavFollower.GoalNode).
-        bool near = false;
         foreach (int node in NodesAround(floor, Follower.Graph.Profile.Spacing * 5f))
         {
-            if (float.IsFinite(nearCosts[node]))
-            {
-                near = true;
-                break;
-            }
+            if (costs[node] < cost) cost = costs[node];
         }
 
-        if (!near) return false;
-        if (!route.SetGoal(Pawn, floor) || route.Path.Count == 0 || (route.Path[^1].Point - floor).SizeSquared() > 4f)
+        return cost <= TrapSweepCost;
+    }
+
+    /// <summary>The route just searched from the merc to <paramref name="floor"/> ends there and passes no closed door; its length.</summary>
+    private bool TrapRoute(FVector floor, out float length)
+    {
+        length = 0f;
+        if (_trapRoute is null || _trapRoute.Failed || _trapRoute.Planning || _trapRoute.Path.Count == 0 ||
+            (_trapRoute.Path[^1].Point - floor).SizeSquared() > 4f)
             return false;
 
         FVector from = Pawn.Location;
-        foreach (NavStep step in route.Path)
+        foreach (NavStep step in _trapRoute.Path)
         {
             FVector to = step.Point + new FVector(0f, 0f, Pawn.CollisionHeight);
             // The static graph assumes doors are open. Do not choose a placement beyond a closed door.
@@ -381,6 +516,7 @@ public sealed partial class MercAi
             from = to;
         }
 
+        length = _trapRoute.Remaining(Pawn.Location);
         return true;
     }
 
@@ -410,12 +546,29 @@ public sealed partial class MercAi
 
     private bool OccupiedWall(FVector wall)
     {
+        GatherKeepOuts();
+        return KeptOut(wall);
+    }
+
+    /// <summary>
+    /// The places a new trap keeps clear of, read from the level once for a whole round of wall probes: 220 uu
+    /// round each mine and tracker, 80 uu round each objective and heal station.
+    /// </summary>
+    private void GatherKeepOuts()
+    {
+        _trapKeepOuts.Clear();
         foreach (SMines mine in World.Level.AllActors<SMines>())
-            if (!mine.bDeleteMe && (mine.Location - wall).SizeSquared() < 220f * 220f) return true;
+            if (!mine.bDeleteMe) _trapKeepOuts.Add((mine.Location, 220f * 220f));
         foreach (SObjectiveTrigger terminal in World.Level.AllActors<SObjectiveTrigger>())
-            if ((terminal.Location - wall).SizeSquared() < 80f * 80f) return true;
+            _trapKeepOuts.Add((terminal.Location, 80f * 80f));
         foreach (SInfirmary station in World.Level.AllActors<SInfirmary>())
-            if ((station.Location - wall).SizeSquared() < 80f * 80f) return true;
+            _trapKeepOuts.Add((station.Location, 80f * 80f));
+    }
+
+    private bool KeptOut(FVector wall)
+    {
+        foreach ((FVector at, float rangeSquared) in _trapKeepOuts)
+            if ((at - wall).SizeSquared() < rangeSquared) return true;
         return false;
     }
 }

@@ -326,6 +326,12 @@ public sealed partial class MercAi
     /// </summary>
     private void PickPost(float now)
     {
+        // The sweep is under way: the pick is made when it ends, and nothing changes until then.
+        if (WholeGraphCosts() is not { } costs)
+        {
+            return;
+        }
+
         World.Teams[1].Release(Bot);
         _post = null;
         _postReached = false;
@@ -333,9 +339,6 @@ public sealed partial class MercAi
         SObjectiveTrigger? best = null;
         FVector bestPost = default;
         float bestScore = float.MaxValue;
-        NavGraph graph = Follower.Graph;
-        int from = graph.NearestNode(Pawn.Location, Pawn.CollisionHeight);
-        float[] costs = ReachabilityCosts(from);
         _candidates.Clear();
         foreach (SObjectiveTrigger t in _sector)
         {
@@ -454,12 +457,18 @@ public sealed partial class MercAi
     /// A standing spot within <see cref="AiK.ClearShotRadius"/> of <paramref name="target"/> from which a bullet reaches
     /// it: reachable on the graph, the nearest to the merc among up to 64 samples.
     /// </summary>
-    private bool ClearShotSpot(FVector target, out FVector spot)
+    private bool ClearShotSpot(FVector target, out FVector spot, out bool ready)
     {
         spot = default;
         float best = float.MaxValue;
         NavGraph graph = Follower.Graph;
-        float[] costs = ReachabilityCosts(graph.NearestNode(Pawn.Location, Pawn.CollisionHeight));
+        float[]? costs = WholeGraphCosts();
+        ready = costs is not null;
+        if (costs is null)
+        {
+            return false;
+        }
+
         var eyeLift = new FVector(0f, 0f, graph.Profile.StandingHeight + Pawn.DefaultObject.BaseEyeHeight);
         List<int> nodes = NodesAround(target, AiK.ClearShotRadius);
         int stride = Math.Max(1, nodes.Count / 64);

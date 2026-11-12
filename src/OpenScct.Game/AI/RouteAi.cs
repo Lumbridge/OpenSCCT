@@ -178,7 +178,7 @@ public sealed class RouteAi : AiBrain
             return null;
         }
 
-        float[] costs = ReachabilityCosts(start);
+        float[] costs = ReachabilityCosts(start, float.MaxValue);
         // Floors from 220 below the entry to 20 above it (a switch on a wall, a box on a shelf).
         List<int> near = NodesAround(entry.Location - new FVector(0f, 0f, 100f), Math.Max(entry.CollisionRadius, entry.ItRadius) + Pawn.CollisionRadius);
         FVector? best = null;

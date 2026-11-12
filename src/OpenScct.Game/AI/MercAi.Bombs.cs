@@ -18,13 +18,18 @@ public sealed partial class MercAi
         SBombTargetObjectiveTrigger? best = null;
         float distance = float.MaxValue;
         NavGraph graph = Follower.Graph;
-        int start = graph.NearestNode(Pawn.Location, Pawn.CollisionHeight);
         float[]? costs = null;
         // Planted bombs announce their location to defenders, just as the objective HUD does.
         foreach (SBombTargetObjectiveTrigger bomb in World.Level.AllActors<SBombTargetObjectiveTrigger>())
         {
             if (bomb.bDeleteMe || !bomb.bActive || !bomb.bTriggering || bomb.InteractionObj is not { } entry) continue;
-            costs ??= ReachabilityCosts(start);
+            costs ??= WholeGraphCosts();
+            if (costs is null)
+            {
+                // The sweep is under way: the charge it already went for stays, a new one is taken up when it ends.
+                return _bomb is { bDeleteMe: false, bActive: true, bTriggering: true } ? _bomb : null;
+            }
+
             var nodes = new List<int>();
             graph.NodesNear(entry.Location, Math.Max(140f, entry.CollisionRadius + Pawn.CollisionRadius), nodes);
             foreach (int node in nodes)

@@ -19,6 +19,8 @@ public sealed partial class SpyAi
     private float _objectiveUseAt = -1f;
     private bool _objectiveMenuDown;
     private float _objectiveSearchAt;
+    private int _objectiveMisses;
+    private readonly List<SObjectiveTrigger> _objectiveScanned = new();
     private bool _objectiveStanding;
 
     public SObjectiveTrigger? OtherObjectiveTarget => _otherObjective;
@@ -78,10 +80,28 @@ public sealed partial class SpyAi
         var candidates = new List<SObjectiveTrigger>();
         foreach (SObjectiveTrigger candidate in World.Level.AllActors<SObjectiveTrigger>())
             if (AvailableObjective(candidate, now)) candidates.Add(candidate);
+        // The same objectives as the scan that found none it could reach: asked again less and less often (2, 4,
+        // then every 8 s). A map can hold an objective the spies' graph never reaches, and the scan ran every
+        // second of the round for it.
+        bool same = candidates.Count == _objectiveScanned.Count;
+        for (int i = 0; same && i < candidates.Count; i++) same = ReferenceEquals(candidates[i], _objectiveScanned[i]);
+        if (!same)
+        {
+            _objectiveMisses = 0;
+            _objectiveScanned.Clear();
+            _objectiveScanned.AddRange(candidates);
+        }
+
         if (candidates.Count == 0) return null;
+        _objectiveSearchAt = now + MathF.Min(8f, 1 << Math.Min(_objectiveMisses, 3));
         NavGraph graph = Follower.Graph;
-        int start = graph.NearestNode(Pawn.Location, Pawn.CollisionHeight);
-        float[] costs = ReachabilityCosts(start);
+        if (WholeGraphCosts() is not { } costs)
+        {
+            // The sweep is under way: scanned again on the next look.
+            _objectiveSearchAt = now;
+            return null;
+        }
+
         float best = float.MaxValue;
         foreach (SObjectiveTrigger candidate in candidates)
         {
@@ -122,10 +142,16 @@ public sealed partial class SpyAi
         }
         if (_otherObjective is not null)
         {
+            _objectiveMisses = 0;
             _objectiveProgress = Pawn.Location;
             _objectiveProgressAt = now;
             _objectiveUseAt = -1f;
         }
+        else
+        {
+            _objectiveMisses++;
+        }
+
         return _otherObjective;
     }
 

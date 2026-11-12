@@ -22,6 +22,9 @@ public abstract class AiBrain
     private float _failedAt = -10f;
     private int _failCount;
     private bool _failNoted;
+    private int _planWaits;
+    private NavGraph.PathSearch? _planSearch;
+    private bool _moveToCalled;
     private readonly List<int> _scratchNodes = new();
     private float[]? _reachabilityCosts;
     private int _reachabilityFrom = -2;
@@ -115,7 +118,20 @@ public abstract class AiBrain
             }
         }
 
+        _moveToCalled = false;
         Act(now, ref plan);
+        // The whole-graph sweep a choice is waiting for goes on.
+        if (_fieldSweeping && now - _fieldWantedAt < 1.5f)
+        {
+            SweepWholeGraph(now);
+        }
+
+        // A route still being searched that this tick's goal no longer walks to: the search is given up.
+        if (_planSearch is not null && !_moveToCalled)
+        {
+            Follower.CancelPlan();
+            ReleaseSearch();
+        }
     }
 
     private float _decisionNow;
@@ -189,6 +205,7 @@ public abstract class AiBrain
     public virtual void Reset()
     {
         Follower.Clear();
+        ReleaseSearch();
         Doors.Reset();
         Goal = -1;
         _failCount = 0;
@@ -204,8 +221,15 @@ public abstract class AiBrain
     /// </summary>
     protected bool MoveTo(FVector floor, float now, ref AiPlan plan, bool sneak, float stealth = 0f, Func<int, float>? penalty = null)
     {
+        _moveToCalled = true;
+        // The search was dropped under us (the route cleared, or planned at once by someone else).
+        if (_planSearch is not null && !Follower.Planning)
+        {
+            ReleaseSearch();
+        }
+
         bool moved = !Follower.HasGoal || NavFollower.Horizontal(Follower.Goal - floor) > 48f || MathF.Abs(Follower.Goal.Z - floor.Z) > 60f;
-        if (moved || Follower.Failed)
+        if (moved || (Follower.Failed && !Follower.Planning))
         {
             // A goal that failed is not planned again every tick, and one that keeps failing is tried less and
             // less often (1.5 s, 5 s, then every 15 s): a bot no longer grinds on the same obstacle in a loop.
@@ -229,6 +253,24 @@ public abstract class AiBrain
                 }
             }
 
+            // The route is searched over as many ticks as the tick's budget makes it take (below), in one of the
+            // side's searches. With all of them out the plan waits a few ticks, then is made at once.
+            NavGraph.PathSearch? search = _planSearch ?? World.RentSearch(Spy);
+            if (search is null && _planWaits < AiK.PlanWaitTicks)
+            {
+                _planWaits++;
+                if (!moved)
+                {
+                    return false;
+                }
+
+                // Nothing of the old goal is left to follow or to report as reached while the new one waits.
+                Follower.Clear();
+                return true;
+            }
+
+            _planWaits = 0;
+            _planSearch = search;
             if (this is SpyAi spy)
             {
                 Func<int, float>? other = penalty;
@@ -236,8 +278,9 @@ public abstract class AiBrain
             }
 
             _failNoted = false;
-            if (!Follower.SetGoal(Pawn, floor, stealth, penalty))
+            if (!(search is null ? Follower.SetGoal(Pawn, floor, stealth, penalty) : Follower.BeginGoal(Pawn, floor, search, stealth, penalty)))
             {
+                ReleaseSearch();
                 _failedAt = now;
                 _failNoted = true;
                 _failCount++;
@@ -249,6 +292,11 @@ public abstract class AiBrain
             _failCount = 0;
         }
 
+        if (SearchRoute(now) is { } waiting)
+        {
+            return waiting;
+        }
+
         // A closed door on the route takes the keys while it is opened or waited for.
         if (Doors.Steer(now, ref plan))
         {
@@ -256,6 +304,19 @@ public abstract class AiBrain
         }
 
         NavCommand c = Follower.Steer(Pawn, now, Pc.Rotation.Yaw & 0xFFFF, sneak);
+        if (Follower.WantsPlan)
+        {
+            // The follower asked for another plan while steering (out of path, stuck, a link failed): searched in
+            // this same tick as far as the budget allows, so a walker pressing on at the end of its path does not
+            // lose a tick's keys each time.
+            if (SearchRoute(now) is { } replanning)
+            {
+                return replanning;
+            }
+
+            c = Follower.Steer(Pawn, now, Pc.Rotation.Yaw & 0xFFFF, sneak);
+        }
+
         plan.Keys = c.Keys;
         plan.Yaw = c.Yaw ?? plan.Yaw;
         plan.Tolerance = c.Tolerance;
@@ -426,7 +487,7 @@ public abstract class AiBrain
     /// other bots and A* path planning do not overwrite it. Blocked links and edges are reread for every decision;
     /// the sweep itself is redone only when they or the start changed.
     /// </summary>
-    protected float[] ReachabilityCosts(int from, float maxCost = float.MaxValue)
+    protected float[] ReachabilityCosts(int from, float maxCost)
     {
         NavGraph graph = Follower.Graph;
         // Reading the sets first expires what is due, so the revision below is this decision's.
@@ -446,6 +507,192 @@ public abstract class AiBrain
         _reachabilityMaxCost = maxCost;
         _reachabilityRevision = World.BadRevision;
         return _reachabilityCosts;
+    }
+
+    // The sweep of the whole graph: the cost from where the bot stands to every node, which its choice of a
+    // terminal, an objective, a post or a spot to shoot from reads. On a large map one sweep takes 15 to 30 ms, so
+    // it is no longer made on the spot: a choice asks, the sweep runs over the next ticks as the tick's budget
+    // allows (SweepWholeGraph), and the choice is made when it has ended.
+    private float[]? _field;
+    private float[]? _fieldNext;
+    private float _fieldAt = -100f;
+    private int _fieldFrom = -2;
+    private int _fieldRevision = -1;
+    private float _fieldWantedAt = -100f;
+    private NavGraph.CostSweep? _fieldSweep;
+    private bool _fieldSweeping;
+    private float _fieldSweepBegun;
+    private int _fieldSweepFrom;
+    private int _fieldSweepRevision;
+
+    /// <summary>
+    /// The graph cost from the pawn to every node (read only; infinity where it cannot walk), or null while the
+    /// sweep that gives it is under way: ask again next tick. What is returned was swept from where the bot stood
+    /// at most a moment ago (<see cref="AiK.FieldFreshSeconds"/> after the sweep ended).
+    /// </summary>
+    protected float[]? WholeGraphCosts()
+    {
+        NavGraph graph = Follower.Graph;
+        float now = World.Now;
+        if (FreshField(graph, now) is { } ready)
+        {
+            return ready;
+        }
+
+        _fieldWantedAt = now;
+        SweepWholeGraph(now);
+        return FreshField(graph, now);
+    }
+
+    private float[]? FreshField(NavGraph graph, float now)
+    {
+        if (_field is not { } field || field.Length != graph.NodeCount || now < _fieldAt)
+        {
+            return null;
+        }
+
+        if (now - _fieldAt <= AiK.FieldFreshSeconds)
+        {
+            return field;
+        }
+
+        // Reading the sets first expires what is due, so the revision is this tick's.
+        _ = World.BadLinks(Spy);
+        _ = World.BadEdges(Spy);
+        return _fieldFrom == graph.NearestNode(Pawn.Location, Pawn.CollisionHeight) && _fieldRevision == World.BadRevision ? field : null;
+    }
+
+    /// <summary>
+    /// Begins the sweep a choice asked for and runs it while the tick's budget lasts; one chunk is run whatever the
+    /// budget, so it always ends. Called when asked and then every tick (<see cref="Think"/>).
+    /// </summary>
+    private void SweepWholeGraph(float now)
+    {
+        NavGraph graph = Follower.Graph;
+        if (_field is null || _fieldNext is null || _field.Length != graph.NodeCount)
+        {
+            _field = new float[graph.NodeCount];
+            _fieldNext = new float[graph.NodeCount];
+            _fieldAt = -100f;
+            _fieldSweeping = false;
+        }
+
+        _fieldSweep ??= new NavGraph.CostSweep();
+        // A sweep left half done when nobody asked any more starts from an old place: begun again.
+        if (!_fieldSweeping || now - _fieldSweepBegun > 1.5f || now < _fieldSweepBegun)
+        {
+            IReadOnlySet<int> badLinks = World.BadLinks(Spy), badEdges = World.BadEdges(Spy);
+            _fieldSweepFrom = graph.NearestNode(Pawn.Location, Pawn.CollisionHeight);
+            _fieldSweepRevision = World.BadRevision;
+            _fieldSweepBegun = now;
+            _fieldSweeping = true;
+            graph.BeginCosts(_fieldSweep, _fieldSweepFrom, _fieldNext.AsSpan(), float.MaxValue, badLinks, badEdges);
+        }
+
+        bool done;
+        do
+        {
+            done = graph.StepCosts(_fieldSweep, _fieldNext.AsSpan(), AiK.PlanChunkNodes);
+        }
+        while (!done && !World.BudgetSpent);
+
+        if (!done)
+        {
+            return;
+        }
+
+        (_field, _fieldNext) = (_fieldNext, _field);
+        _fieldAt = now;
+        _fieldFrom = _fieldSweepFrom;
+        _fieldRevision = _fieldSweepRevision;
+        _fieldSweeping = false;
+    }
+
+    /// <summary>
+    /// Runs the route search under way, or the one the follower asks for, as far as this tick's budget allows. Null
+    /// when there is a path to steer by; otherwise what <see cref="MoveTo"/> returns this tick: true while the
+    /// search goes on (no keys), false when it found no way.
+    /// </summary>
+    private bool? SearchRoute(float now)
+    {
+        // The follower wants another plan: searched over ticks as well.
+        if (Follower.WantsPlan && _planSearch is null)
+        {
+            _planSearch = World.RentSearch(Spy);
+            if (_planSearch is null && _planWaits < AiK.PlanWaitTicks)
+            {
+                _planWaits++;
+                return true;
+            }
+
+            _planWaits = 0;
+            if (!(_planSearch is { } again ? Follower.BeginReplan(Pawn, again) : Follower.ReplanNow(Pawn)))
+            {
+                ReleaseSearch();
+                _failedAt = now;
+                _failNoted = true;
+                _failCount++;
+                return false;
+            }
+        }
+
+        if (_planSearch is { } running)
+        {
+            // A long search no longer holds the tick up: it runs while the tick's budget lasts and goes on next
+            // tick, the bot keeping still meanwhile. One chunk is run whatever the budget, so it always ends.
+            bool done;
+            do
+            {
+                done = !Follower.Planning || Follower.ContinuePlan(Pawn, AiK.PlanChunkNodes);
+                World.ChargeWork(running.TakePenaltyCalls() * AiK.PenaltyWork);
+            }
+            while (!done && !World.BudgetSpent);
+
+            if (!done)
+            {
+                return true;
+            }
+
+            ReleaseSearch();
+            if (Follower.Failed)
+            {
+                _failedAt = now;
+                _failNoted = true;
+                _failCount++;
+                return false;
+            }
+        }
+
+        return null;
+    }
+
+    /// <summary>Hands the route search back to the side (<see cref="AiWorld.RentSearch"/>).</summary>
+    private void ReleaseSearch()
+    {
+        if (_planSearch is { } search)
+        {
+            _planSearch = null;
+            World.ReturnSearch(Spy, search);
+        }
+    }
+
+    /// <summary>
+    /// Nodes within <paramref name="radius"/> of the pawn that it can walk to within <paramref name="maxCost"/> by
+    /// the graph. A place to go is picked from these, never from the radius alone: a node near in a straight line
+    /// but on another floor, or past a wall with no way round, sends the route search across everything the bot can
+    /// reach before it gives up. Null while the sweep that says so is under way (<see cref="WholeGraphCosts"/>):
+    /// ask again next tick.
+    /// </summary>
+    protected List<int>? ReachableAround(float radius, float maxCost)
+    {
+        if (WholeGraphCosts() is not { } reach)
+        {
+            return null;
+        }
+
+        List<int> nodes = NodesAround(Pawn.Location, radius);
+        nodes.RemoveAll(n => !(reach[n] <= maxCost));
+        return nodes;
     }
 
     /// <summary>Nodes of the side's graph within <paramref name="radius"/> of the pawn (sorted by index).</summary>

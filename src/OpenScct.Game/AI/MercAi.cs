@@ -443,6 +443,7 @@ public sealed partial class MercAi : AiBrain
 
     protected override void Act(float now, ref AiPlan plan)
     {
+        AdvanceObjectiveArcs(now);
         plan.Crouched = false;
 
         // A charge or a spin steers and turns the pawn itself (rules 16 and 26): no keys, the view left as it is.
@@ -539,9 +540,15 @@ public sealed partial class MercAi : AiBrain
 
         if (!ReferenceEquals(_alert, _respondTo) || _responseCover != _respondingAsCover)
         {
+            // The vantage is chosen when the sweep it reads has ended (a few ticks).
+            if (Vantage(spot, _responseCover) is not { } vantage)
+            {
+                return;
+            }
+
             _respondTo = _alert;
             _respondingAsCover = _responseCover;
-            _respondSpot = Vantage(spot, _responseCover);
+            _respondSpot = vantage;
             _respondArrivedAt = -1f;
             Follower.Clear();
         }
@@ -567,13 +574,17 @@ public sealed partial class MercAi : AiBrain
     }
 
     /// <summary>The nearest node 200 to 600 uu from <paramref name="spot"/> that sees it, or the spot itself.</summary>
-    private FVector Vantage(FVector spot, bool cover)
+    private FVector? Vantage(FVector spot, bool cover)
     {
+        if (WholeGraphCosts() is not { } costs)
+        {
+            return null;
+        }
+
         FVector best = cover ? Feet : spot;
         FVector approach = _responseApproach - spot;
         FVector entry = new FVector(approach.X, approach.Y, 0).SafeNormal();
         NavGraph graph = Follower.Graph;
-        float[] costs = ReachabilityCosts(graph.NearestNode(Pawn.Location, Pawn.CollisionHeight), maxCost: 5600f);
         float bestScore = float.MaxValue;
         List<int> nodes = NodesAround(spot, 600f);
         int stride = Math.Max(1, nodes.Count / 64);
@@ -584,7 +595,7 @@ public sealed partial class MercAi : AiBrain
             FVector away = f - spot;
             float d = away.Size();
             float angle = new FVector(away.X, away.Y, 0).SafeNormal() | entry;
-            if (d < (cover ? 300f : 200f) || !float.IsFinite(costs[node]) || !graph.Node(node).Standing ||
+            if (d < (cover ? 300f : 200f) || !(costs[node] <= 5600f) || !graph.Node(node).Standing ||
                 (cover && angle > .25f) ||
                 !World.LineOpen(f + new FVector(0f, 0f, 120f), spot + new FVector(0f, 0f, 40f)))
             {
@@ -656,8 +667,14 @@ public sealed partial class MercAi : AiBrain
                 _trackSince = -1f;
                 if (now - _clearSpotAt > 1.5f)
                 {
-                    _clearSpotAt = now;
-                    _clearSpotFound = ClearShotSpot(c.Position, out _clearSpot);
+                    // Asked again next tick while the sweep it reads is under way; the last spot stands meanwhile.
+                    bool found = ClearShotSpot(c.Position, out FVector clear, out bool ready);
+                    if (ready)
+                    {
+                        _clearSpotAt = now;
+                        _clearSpotFound = found;
+                        _clearSpot = clear;
+                    }
                 }
 
                 if (_clearSpotFound && (Feet - _clearSpot).Size() > 60f)

@@ -153,7 +153,100 @@ public sealed partial class NavFollower
     /// </summary>
     public bool SetGoal(Pawn pawn, FVector goalFloor, float stealth = 0f, Func<int, float>? penalty = null)
     {
+        _deferPlans = false;
+        return TakeGoal(pawn, goalFloor, stealth, penalty) || Plan(pawn);
+    }
+
+    /// <summary>
+    /// <see cref="SetGoal"/> without the search: the path is searched by <see cref="ContinuePlan"/>, a few nodes a
+    /// call, in <paramref name="search"/>, and <see cref="Planning"/> is true until it is found. False when the goal
+    /// has no node to plan to.
+    /// </summary>
+    public bool BeginGoal(Pawn pawn, FVector goalFloor, NavGraph.PathSearch search, float stealth = 0f, Func<int, float>? penalty = null)
+    {
+        ArgumentNullException.ThrowIfNull(search);
+        _deferPlans = true;
+        return TakeGoal(pawn, goalFloor, stealth, penalty) || PlanBegin(pawn, search);
+    }
+
+    /// <summary>
+    /// The follower wants a new plan (out of path, stuck, a link failed, a door shut) for a goal taken with
+    /// <see cref="BeginGoal"/>: the owner starts the search with <see cref="BeginReplan"/>, or plans at once with
+    /// <see cref="ReplanNow"/>.
+    /// </summary>
+    public bool WantsPlan { get; private set; }
+
+    /// <summary>Begins the search <see cref="WantsPlan"/> asks for, in <paramref name="search"/>.</summary>
+    public bool BeginReplan(Pawn pawn, NavGraph.PathSearch search)
+    {
         ArgumentNullException.ThrowIfNull(pawn);
+        ArgumentNullException.ThrowIfNull(search);
+        return PlanBegin(pawn, search);
+    }
+
+    private bool _deferPlans;
+
+    /// <summary>
+    /// A new plan from where the pawn is, wanted by the follower itself (out of path, stuck, a link failed). For a
+    /// goal taken with <see cref="SetGoal"/> it is searched now; false when there is no way. For one taken with
+    /// <see cref="BeginGoal"/> the path is dropped and the owner is asked (<see cref="WantsPlan"/>), so this
+    /// search too runs over ticks.
+    /// </summary>
+    private bool PlanAgain(Pawn pawn)
+    {
+        if (!_deferPlans)
+        {
+            return Plan(pawn);
+        }
+
+        _pending = null;
+        _path.Clear();
+        _next = 0;
+        _phase = TPhase.None;
+        _progressAt = -1f;
+        _partial = false;
+        WantsPlan = true;
+        return true;
+    }
+
+    /// <summary>A path search begun by <see cref="BeginGoal"/> is under way: there is no path to steer by yet.</summary>
+    public bool Planning => _pending is not null;
+
+    /// <summary>
+    /// Expands up to <paramref name="maxExpansions"/> nodes of the search under way. True when it is over: the path
+    /// is ready, or <see cref="Failed"/> says there is none.
+    /// </summary>
+    public bool ContinuePlan(Pawn pawn, int maxExpansions)
+    {
+        ArgumentNullException.ThrowIfNull(pawn);
+        if (_pending is not { } search)
+        {
+            return true;
+        }
+
+        if (!Graph.StepPath(search, maxExpansions))
+        {
+            return false;
+        }
+
+        _pending = null;
+        PlanEnd(pawn, search);
+        return true;
+    }
+
+    /// <summary>Drops the search under way, if any. The goal stays; nothing is planned to it.</summary>
+    public void CancelPlan() => _pending = null;
+
+    private NavGraph.PathSearch? _pending;
+    private int _pendingFrom;
+    private int _pendingTo;
+
+    /// <summary>Takes the goal. True when no plan is wanted yet (the pawn is on a ladder or a fence).</summary>
+    private bool TakeGoal(Pawn pawn, FVector goalFloor, float stealth, Func<int, float>? penalty)
+    {
+        ArgumentNullException.ThrowIfNull(pawn);
+        _pending = null;
+        WantsPlan = false;
         _goal = goalFloor;
         _hasGoal = true;
         _stealth = stealth;
@@ -180,11 +273,13 @@ public sealed partial class NavFollower
             return true;
         }
 
-        return Plan(pawn);
+        return false;
     }
 
     public void Clear()
     {
+        _pending = null;
+        WantsPlan = false;
         _hasGoal = false;
         _path.Clear();
         _next = 0;
@@ -193,8 +288,24 @@ public sealed partial class NavFollower
         Failed = false;
     }
 
+    /// <summary>Plans to the goal now, the whole search in this call.</summary>
     private bool Plan(Pawn pawn)
     {
+        NavGraph.PathSearch search = Graph.SharedSearch;
+        if (!PlanBegin(pawn, search))
+        {
+            return false;
+        }
+
+        _pending = null;
+        Graph.StepPath(search, int.MaxValue);
+        return PlanEnd(pawn, search);
+    }
+
+    private bool PlanBegin(Pawn pawn, NavGraph.PathSearch search)
+    {
+        _pending = null;
+        WantsPlan = false;
         _path.Clear();
         _next = 0;
         _phase = TPhase.None;
@@ -215,8 +326,25 @@ public sealed partial class NavFollower
             penalty = n => (_avoid.Contains(n) ? 5000f : 0f) + (inner?.Invoke(n) ?? 0f);
         }
 
-        if (!g.FindPath(from, to, _path, _stealth, penalty, _world.BadLinks(_spy), float.MaxValue, _world.BadEdges(_spy), allowPartial: true,
+        if (!g.BeginPath(search, from, to, _stealth, penalty, _world.BadLinks(_spy), float.MaxValue, _world.BadEdges(_spy), allowPartial: true,
                 BeltCost(g)))
+        {
+            Failed = true;
+            return false;
+        }
+
+        _pending = search;
+        _pendingFrom = from;
+        _pendingTo = to;
+        return true;
+    }
+
+    private bool PlanEnd(Pawn pawn, NavGraph.PathSearch search)
+    {
+        NavGraph g = Graph;
+        int from = _pendingFrom;
+        int to = _pendingTo;
+        if (!g.EndPath(search, _path))
         {
             Failed = true;
             return false;
@@ -356,12 +484,14 @@ public sealed partial class NavFollower
             return Wiggle(pawn, now);
         }
 
-        if (_next >= _path.Count && !Plan(pawn))
+        // Out of path short of the goal: another plan (asked of the owner when it plans over ticks).
+        if (_next >= _path.Count && (!PlanAgain(pawn) || WantsPlan))
         {
             return cmd;
         }
 
-        if (!CheckProgress(pawn, now))
+        // Stuck handling may ask for another plan as well: nothing to steer by until the owner has made it.
+        if (!CheckProgress(pawn, now) || WantsPlan)
         {
             return cmd;
         }
@@ -743,7 +873,7 @@ public sealed partial class NavFollower
         {
             Trace?.Invoke($"stuck again at {at}: the way ahead left out for the side");
             _stuckTime = -1f;
-            if (++_replans > 6 || !Plan(pawn))
+            if (++_replans > 6 || !PlanAgain(pawn))
             {
                 Failed = true;
                 return false;
@@ -775,7 +905,7 @@ public sealed partial class NavFollower
             }
         }
 
-        if (++_replans > 6 || !Plan(pawn))
+        if (++_replans > 6 || !PlanAgain(pawn))
         {
             Failed = true;
             return false;
@@ -860,7 +990,10 @@ public sealed partial class NavFollower
         return _across.Count;
     }
 
-    /// <summary>Plans again from here (after <see cref="BlockAcross"/>); false when the goal cannot be reached now.</summary>
+    /// <summary>
+    /// Plans again from here (after <see cref="BlockAcross"/>); false when the goal cannot be reached now. For a
+    /// goal taken with <see cref="BeginGoal"/> the owner is asked for the plan instead (<see cref="WantsPlan"/>).
+    /// </summary>
     public bool Replan(Pawn pawn)
     {
         ArgumentNullException.ThrowIfNull(pawn);
@@ -869,7 +1002,20 @@ public sealed partial class NavFollower
             return false;
         }
 
-        if (++_replans > 6 || !Plan(pawn))
+        if (++_replans > 6 || !PlanAgain(pawn))
+        {
+            Failed = true;
+            return false;
+        }
+
+        return true;
+    }
+
+    /// <summary>The plan <see cref="WantsPlan"/> asks for, searched whole in this call.</summary>
+    public bool ReplanNow(Pawn pawn)
+    {
+        ArgumentNullException.ThrowIfNull(pawn);
+        if (!Plan(pawn))
         {
             Failed = true;
             return false;
@@ -958,7 +1104,7 @@ public sealed partial class NavFollower
 
                 // Neither at the start nor at the end of it: plan again from where the pawn really is.
                 _phase = TPhase.None;
-                if (++_replans > 6 || !Plan(pawn))
+                if (++_replans > 6 || !PlanAgain(pawn))
                 {
                     Failed = true;
                 }
@@ -1352,7 +1498,7 @@ public sealed partial class NavFollower
         {
             // A cable can release beyond its sampled landing. On the correct floor, replan from the actual
             // touchdown instead of walking back through obsolete waypoints. A wrong floor fails above.
-            Plan(pawn);
+            PlanAgain(pawn);
         }
         else
         {
@@ -1384,7 +1530,7 @@ public sealed partial class NavFollower
             LinksInterrupted++;
             Trace?.Invoke($"link {link.Kind} at {link.Start} interrupted in {failedIn} (line {where}, pawn at {pawn.Location}, hit or crowded): tried again");
         }
-        if (++_replans > 6 || !Plan(pawn))
+        if (++_replans > 6 || !PlanAgain(pawn))
         {
             Failed = true;
         }

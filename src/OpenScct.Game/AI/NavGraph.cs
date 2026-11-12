@@ -133,17 +133,6 @@ public sealed class NavGraph
     private readonly Dictionary<(int X, int Y), int[]> _columns = new();
     private readonly float[] _light;
 
-    // A* scratch, reused between plans (one planner at a time per graph: plans run on the host's thread).
-    private float[]? _g;
-    private int[]? _came;
-    private int[]? _cameEdge;
-    private int[]? _stamp;
-    private float[]? _penalty;
-    private int[]? _penaltyStamp;
-    private int _search;
-    private readonly PriorityQueue<int, float> _open = new();
-    // Separate from A*: its penalty callback may ask for a reachability field while a path is being planned.
-    private readonly PriorityQueue<int, float> _costOpen = new();
 
     internal NavGraph(NavProfile profile, FVector origin, NavNode[] nodes, int[] edgeStart, int[] edgeTo, NavEdgeKind[] edgeKind,
         float[] edgeCost, int[] edgeLink, NavLink[] links)
@@ -356,54 +345,168 @@ public sealed class NavGraph
     {
         ArgumentNullException.ThrowIfNull(path);
         path.Clear();
+        PathSearch search = SharedSearch;
+        if (!BeginPath(search, from, to, stealth, penalty, badLinks, maxCost, badEdges, allowPartial, walkScale))
+        {
+            return false;
+        }
+
+        StepPath(search, int.MaxValue);
+        return EndPath(search, path);
+    }
+
+    /// <summary>
+    /// One path search and its working storage. <see cref="FindPath"/> runs one from start to end; a caller that
+    /// must not hold a tick up runs its own a few nodes at a time (<see cref="BeginPath"/>, <see cref="StepPath"/>,
+    /// <see cref="EndPath"/>), so the longest search on the largest map costs a tick no more than the nodes it is
+    /// given. Searches with their own storage do not disturb each other.
+    /// </summary>
+    public sealed class PathSearch
+    {
+        internal float[] G = [];
+        internal int[] Came = [];
+        internal int[] CameEdge = [];
+        internal int[] Stamp = [];
+        internal float[]? Penalties;
+        internal int[]? PenaltyStamp;
+        internal int Mark;
+        internal readonly PriorityQueue<int, float> Open = new();
+        internal int From;
+        internal int To;
+        internal int Closest;
+        internal float ClosestLeft;
+        internal float Stealth;
+        internal float MaxCost;
+        internal Func<int, float>? Penalty;
+        internal IReadOnlySet<int>? BadLinks;
+        internal IReadOnlySet<int>? BadEdges;
+        internal bool AllowPartial;
+        internal Func<int, int, float>? WalkScale;
+        internal bool Found;
+
+        /// <summary>Begun and not finished: <see cref="StepPath"/> has more to do.</summary>
+        public bool Running { get; internal set; }
+
+        /// <summary>Times the search asked its penalty for a node since this was last read (the asking can cost far more than the node).</summary>
+        public int TakePenaltyCalls()
+        {
+            int calls = PenaltyCalls;
+            PenaltyCalls = 0;
+            return calls;
+        }
+
+        internal int PenaltyCalls;
+    }
+
+    private PathSearch? _sync;
+
+    /// <summary>
+    /// The graph's own search, for a search run from start to end in one call (one at a time per graph: searches
+    /// run on the host's thread).
+    /// </summary>
+    internal PathSearch SharedSearch => _sync ??= new PathSearch();
+
+    /// <summary>
+    /// Starts <paramref name="search"/> on the path <see cref="FindPath"/> describes, expanding nothing yet. False
+    /// when an end is no node of the graph.
+    /// </summary>
+    public bool BeginPath(PathSearch search, int from, int to, float stealth = 0f, Func<int, float>? penalty = null,
+        IReadOnlySet<int>? badLinks = null, float maxCost = float.MaxValue, IReadOnlySet<int>? badEdges = null, bool allowPartial = false,
+        Func<int, int, float>? walkScale = null)
+    {
+        ArgumentNullException.ThrowIfNull(search);
+        search.Running = false;
+        search.Found = false;
         if (from < 0 || to < 0 || from >= _nodes.Length || to >= _nodes.Length)
         {
             return false;
         }
 
-        // An empty set costs a lookup per edge for nothing; most searches have nothing shut.
-        if (badLinks is { Count: 0 }) badLinks = null;
-        if (badEdges is { Count: 0 }) badEdges = null;
         int count = _nodes.Length;
-        if (_g is null || _g.Length != count)
+        if (search.G.Length != count)
         {
-            _g = new float[count];
-            _came = new int[count];
-            _cameEdge = new int[count];
-            _stamp = new int[count];
+            search.G = new float[count];
+            search.Came = new int[count];
+            search.CameEdge = new int[count];
+            search.Stamp = new int[count];
+            search.Penalties = null;
+            search.PenaltyStamp = null;
+            search.Mark = 0;
         }
 
         // A node's penalty is the same along every edge into it: ask once per search, not once per edge (a spy's
         // penalty walks the mines, cameras and contacts it knows).
-        if (penalty is not null && (_penalty is null || _penalty.Length != count))
+        if (penalty is not null && search.Penalties is null)
         {
-            _penalty = new float[count];
-            _penaltyStamp = new int[count];
+            search.Penalties = new float[count];
+            search.PenaltyStamp = new int[count];
         }
 
-        float[]? penalties = _penalty;
-        int[]? penaltyStamp = _penaltyStamp;
+        // An empty set costs a lookup per edge for nothing; most searches have nothing shut.
+        search.BadLinks = badLinks is { Count: 0 } ? null : badLinks;
+        search.BadEdges = badEdges is { Count: 0 } ? null : badEdges;
+        search.From = from;
+        search.To = to;
+        search.Stealth = stealth;
+        search.MaxCost = maxCost;
+        search.Penalty = penalty;
+        search.AllowPartial = allowPartial;
+        search.WalkScale = walkScale;
+        search.Mark++;
+        search.Open.Clear();
+        search.G[from] = 0f;
+        search.Came[from] = -1;
+        search.CameEdge[from] = -1;
+        search.Stamp[from] = search.Mark;
+        search.Closest = from;
+        search.ClosestLeft = Heuristic(from, to);
+        search.Open.Enqueue(from, search.ClosestLeft);
+        search.Found = from == to;
+        search.Running = !search.Found;
+        return true;
+    }
 
-        float[] g = _g;
-        int[] came = _came!;
-        int[] cameEdge = _cameEdge!;
-        int[] stamp = _stamp!;
-        int search = ++_search;
-        _open.Clear();
-        g[from] = 0f;
-        came[from] = -1;
-        cameEdge[from] = -1;
-        stamp[from] = search;
-        _open.Enqueue(from, Heuristic(from, to));
-        bool found = from == to;
-        int closest = from;
-        float closestLeft = Heuristic(from, to);
-        while (!found && _open.TryDequeue(out int n, out float priority))
+    /// <summary>
+    /// Expands up to <paramref name="maxExpansions"/> nodes of <paramref name="search"/>. True when the search is
+    /// over (the goal reached, or nothing left to expand): <see cref="EndPath"/> then gives the path.
+    /// </summary>
+    public bool StepPath(PathSearch search, int maxExpansions)
+    {
+        ArgumentNullException.ThrowIfNull(search);
+        if (!search.Running)
         {
+            return true;
+        }
+
+        float[] g = search.G;
+        int[] came = search.Came;
+        int[] cameEdge = search.CameEdge;
+        int[] stamp = search.Stamp;
+        float[]? penalties = search.Penalties;
+        int[]? penaltyStamp = search.PenaltyStamp;
+        int mark = search.Mark;
+        int to = search.To;
+        float stealth = search.Stealth;
+        float maxCost = search.MaxCost;
+        Func<int, float>? penalty = search.Penalty;
+        Func<int, int, float>? walkScale = search.WalkScale;
+        IReadOnlySet<int>? badLinks = search.BadLinks;
+        IReadOnlySet<int>? badEdges = search.BadEdges;
+        PriorityQueue<int, float> open = search.Open;
+        int expanded = 0;
+        while (expanded < maxExpansions)
+        {
+            if (!open.TryDequeue(out int n, out float priority))
+            {
+                search.Running = false;
+                return true;
+            }
+
             if (n == to)
             {
-                found = true;
-                break;
+                search.Found = true;
+                search.Running = false;
+                return true;
             }
 
             float left = Heuristic(n, to);
@@ -412,10 +515,12 @@ public sealed class NavGraph
                 continue;
             }
 
-            if (allowPartial && left < closestLeft)
+            expanded++;
+            Expansions++;
+            if (search.AllowPartial && left < search.ClosestLeft)
             {
-                closest = n;
-                closestLeft = left;
+                search.Closest = n;
+                search.ClosestLeft = left;
             }
 
             for (int e = _edgeStart[n]; e < _edgeStart[n + 1]; e++)
@@ -440,10 +545,11 @@ public sealed class NavGraph
 
                 if (penalty is not null)
                 {
-                    if (penaltyStamp![m] != search)
+                    if (penaltyStamp![m] != mark)
                     {
-                        penaltyStamp[m] = search;
+                        penaltyStamp[m] = mark;
                         penalties![m] = penalty(m);
+                        search.PenaltyCalls++;
                     }
 
                     cost += penalties![m];
@@ -455,39 +561,60 @@ public sealed class NavGraph
                     continue;
                 }
 
-                if (stamp[m] != search || total < g[m])
+                if (stamp[m] != mark || total < g[m])
                 {
-                    stamp[m] = search;
+                    stamp[m] = mark;
                     g[m] = total;
                     came[m] = n;
                     cameEdge[m] = e;
-                    _open.Enqueue(m, total + Heuristic(m, to));
+                    open.Enqueue(m, total + Heuristic(m, to));
                 }
             }
         }
 
-        if (!found)
+        return false;
+    }
+
+    /// <summary>
+    /// Fills <paramref name="path"/> with the steps <paramref name="search"/> found (start excluded) once it is
+    /// over. False when the goal was not reached and no partial route was asked for or found.
+    /// </summary>
+    public bool EndPath(PathSearch search, List<NavStep> path)
+    {
+        ArgumentNullException.ThrowIfNull(search);
+        ArgumentNullException.ThrowIfNull(path);
+        path.Clear();
+        search.Running = false;
+        int to = search.To;
+        if (!search.Found)
         {
-            if (!allowPartial || closest == from)
+            if (!search.AllowPartial || search.Closest == search.From)
             {
                 return false;
             }
-            to = closest;
+
+            to = search.Closest;
         }
 
-        for (int n = to; n != from; n = came[n])
+        for (int n = to; n != search.From; n = search.Came[n])
         {
-            int e = cameEdge[n];
+            int e = search.CameEdge[n];
             path.Add(new NavStep(n, _edgeKind[e], _edgeLink[e], _nodes[n].Floor));
         }
 
         path.Reverse();
-        LastCost = g[to];
+        LastCost = search.G[to];
         return true;
     }
 
     /// <summary>The cost of the last path found.</summary>
     public float LastCost { get; private set; }
+
+    /// <summary>
+    /// Nodes every search on this graph has expanded so far (paths and cost sweeps): what a search costs, whatever
+    /// the map. <see cref="AiWorld.BudgetSpent"/> meters a tick with it.
+    /// </summary>
+    public long Expansions { get; private set; }
 
     /// <summary>
     /// Costs from <paramref name="from"/> to every node (Dijkstra, plain lengths), up to <paramref name="maxCost"/>;
@@ -508,28 +635,87 @@ public sealed class NavGraph
     public void CostsFrom(int from, Span<float> costs, float maxCost = float.MaxValue,
         IReadOnlySet<int>? badLinks = null, IReadOnlySet<int>? badEdges = null)
     {
+        _syncSweep ??= new CostSweep();
+        BeginCosts(_syncSweep, from, costs, maxCost, badLinks, badEdges);
+        StepCosts(_syncSweep, costs, int.MaxValue);
+    }
+
+    /// <summary>
+    /// One cost sweep's queue and settings. <see cref="CostsFrom(int, Span{float}, float, IReadOnlySet{int}?, IReadOnlySet{int}?)"/>
+    /// runs one from start to end; a caller that must not hold a tick up runs its own a few nodes at a time
+    /// (<see cref="BeginCosts"/>, <see cref="StepCosts"/>) into storage it keeps for the whole sweep.
+    /// </summary>
+    public sealed class CostSweep
+    {
+        internal readonly PriorityQueue<int, float> Open = new();
+        internal float MaxCost;
+        internal IReadOnlySet<int>? BadLinks;
+        internal IReadOnlySet<int>? BadEdges;
+
+        /// <summary>Begun and not finished: <see cref="StepCosts"/> has more to do.</summary>
+        public bool Running { get; internal set; }
+    }
+
+    private CostSweep? _syncSweep;
+
+    /// <summary>
+    /// Starts <paramref name="sweep"/> from <paramref name="from"/> into <paramref name="costs"/> (one entry per
+    /// node; every node reads infinity until the sweep reaches it), expanding nothing yet.
+    /// </summary>
+    public void BeginCosts(CostSweep sweep, int from, Span<float> costs, float maxCost = float.MaxValue,
+        IReadOnlySet<int>? badLinks = null, IReadOnlySet<int>? badEdges = null)
+    {
+        ArgumentNullException.ThrowIfNull(sweep);
         if (costs.Length != _nodes.Length)
             throw new ArgumentException("The cost buffer must have one entry per navigation node.", nameof(costs));
 
-        if (badLinks is { Count: 0 }) badLinks = null;
-        if (badEdges is { Count: 0 }) badEdges = null;
+        sweep.BadLinks = badLinks is { Count: 0 } ? null : badLinks;
+        sweep.BadEdges = badEdges is { Count: 0 } ? null : badEdges;
+        sweep.MaxCost = maxCost;
         costs.Fill(float.PositiveInfinity);
-        PriorityQueue<int, float> open = _costOpen;
-        open.Clear();
+        sweep.Open.Clear();
+        sweep.Running = from >= 0;
         if (from < 0)
         {
             return;
         }
 
         costs[from] = 0f;
-        open.Enqueue(from, 0f);
-        while (open.TryDequeue(out int n, out float c))
+        sweep.Open.Enqueue(from, 0f);
+    }
+
+    /// <summary>
+    /// Expands up to <paramref name="maxExpansions"/> nodes of <paramref name="sweep"/> into the same
+    /// <paramref name="costs"/> it was begun with. True when the sweep is over.
+    /// </summary>
+    public bool StepCosts(CostSweep sweep, Span<float> costs, int maxExpansions)
+    {
+        ArgumentNullException.ThrowIfNull(sweep);
+        if (!sweep.Running)
         {
+            return true;
+        }
+
+        PriorityQueue<int, float> open = sweep.Open;
+        IReadOnlySet<int>? badLinks = sweep.BadLinks;
+        IReadOnlySet<int>? badEdges = sweep.BadEdges;
+        float maxCost = sweep.MaxCost;
+        int expanded = 0;
+        while (expanded < maxExpansions)
+        {
+            if (!open.TryDequeue(out int n, out float c))
+            {
+                sweep.Running = false;
+                return true;
+            }
+
             if (c > costs[n])
             {
                 continue;
             }
 
+            expanded++;
+            Expansions++;
             for (int e = _edgeStart[n]; e < _edgeStart[n + 1]; e++)
             {
                 if ((_edgeLink[e] >= 0 && badLinks is not null && badLinks.Contains(_edgeLink[e])) || (badEdges is not null && badEdges.Contains(e)))
@@ -547,6 +733,7 @@ public sealed class NavGraph
             }
         }
 
+        return false;
     }
 
     /// <summary>
