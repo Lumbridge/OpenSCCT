@@ -257,6 +257,53 @@ controller with the new state's name. The handlers that matter for gameplay:
 37. `s_Binoculars_Def` (0x10017c00): the sniper torch fix (rule 6). The `*_GoTo` states and `GameEnded`, `s_Dead`
     set flags for Reloaded's own frame limiter and HUD (no gameplay effect).
 
+### Sweep of every patch site (Enhanced 4.0 Beta 5 build, 2026-11-12)
+
+Made after the grab angle (spy-grab.md rule 4) turned out to be a value stored into an object rather than a change
+to any code that uses it. Method: every `VirtualProtect(target, size, 0x40)` in Reloaded.Core.dll whose target lies
+in the game executable was listed with the bytes written, and each stub a jump goes to was disassembled and searched
+for stores of a fixed value into `[register + offset]` and for constants it compares or multiplies with. Offsets were
+named from the generated property tables. Addresses of Reloaded code below are this build's; the game addresses match
+the list above.
+
+Counts: 161 sites. 66 are jumps or calls into Reloaded code (start-up routine around 0x1001dc00..0x10020b00), 19 are
+4-byte pointers (virtual table entries and data), and 76 are 5-byte rewrites made by a second installer
+(0x1011b400..0x1011d900) in the Direct3D range 0x10908000..0x1097b000 (rendering; not read further).
+
+Stores of a fixed value into an object:
+
+| Game site | What is written | Reading |
+|---|---|---|
+| 0x10af0773, end of ASPlayerController's constructor | `iGrabAreaShift` (+0xBB0) = 1200 | the grab angle; ported (spy-grab.md rule 4) |
+| 0x10b08790, internal constructor of a 480-byte class in the audio code (registered at 0x10b08730) | float at +0x174 = 1.0 | an audio object, not an actor (an Actor is 760 bytes, so this is not `HeatRadius`); no gameplay effect expected |
+| 0x10aaa973, 0x10aaaa32, NativePlayerInput | `fNormePadMove` (+0x4B0) = 1.0; `fSensibiliteSouris` (+0x5CC) = 0.4 or 4.0, then the mouse deltas recomputed by Reloaded (0x1001a960) | Reloaded's own mouse and pad handling (input.md); the rewrite has its own input layer |
+| 0x1099b222, soft body code | float at +0x110 = 0.01 when it is 0 | a guard against a zero step in the cloth simulation |
+| 0x109ec7e5, UGameEngine::Draw | +0x718 = 1 on an object reached there | part of the free camera (rule 24 sets `IK_Type`) |
+| 0x10bfac14, ASProjGrenade's Tick slot (-> 0x1001a940), and 0x10af0443, the end of its internal constructor | bit 0x1000 of the flag word at +0x2F0 (`bProjTarget` by declaration order) set when the float at +0x1D0 is not 0, cleared otherwise, at construction and before every Tick; 0x10ab89da clears the byte at +0x2D8 on a machine that is not the authority | belongs to the server-simulated grenades (rule 7); what the float at +0x1D0 holds is not decoded |
+
+No other controller, pawn, weapon or game-rules property is given a fixed value this way: the grab angle was the
+only one.
+
+Other gameplay sites read in this pass:
+
+- **ProcessServerMove (0x10aac8bd).** The test of the speed flag before `fmul AdrenalineFactor` is removed (the stub
+  at 0x1001b100 always multiplies), so the spy's server cap is 423.5 or 603.2 times `AdrenalineFactor` whether or
+  not the client set the flag. This is Reloaded's answer to the pull-back net-moves.md describes; the rewrite fixes
+  the same thing by moving the flag (net-moves.md, "OpenSCCT fixes it").
+- **0x10a96280 and its five sites (0x10a962a8..0x10a9641c).** A function that scales five values at +0x1810..+0x182C
+  of its object by `Level.m_dT` (+0x54C) reads Reloaded's own step instead (0x10485774, computed at 0x1001ae10 with
+  a 1/30 s limit and a factor of 8). A frame-rate correction; which object it is was not identified.
+- **Sticky camera view (0x10ab035f, 0x10ab03d4).** The smoothing reads a Reloaded timer that restarts when the
+  camera's value jumps by more than 4 steps: rule 36's quicker exit seen from the view side.
+- **Constructor captures (0x109ab77b, 0x109adfb3, 0x10a66746, 0x10aef546).** They store the object just built in a
+  Reloaded global (the level and engine objects its other hooks read) or copy Reloaded settings into a menu object
+  named `Video_Settings`. No gameplay value.
+- **Scene traversal (0x10a3d6e8).** A second render test beside rule 33's, taken in RendMap 5 or 6.
+
+Not understood beyond their stubs: 0x10910685, 0x10912900, 0x1099211a, 0x109ea4cd, 0x10af1d56 (sets a Reloaded flag
+when 0x10af1d10 returns), 0x10b83870, and the hooks in 0x10b26dee..0x10b33089 (the HUD and radar drawing: the
+17 functions of the table above).
+
 ## States
 
 None of their own. Free camera (rule 24) is a Reloaded mode on the local player.
