@@ -341,18 +341,27 @@ public sealed class ActorLighting
 
     public static void ReadSphere(Mesh mesh, JsonElement source)
     {
-        if (source.TryGetProperty("extras", out JsonElement extras) &&
-            extras.TryGetProperty("scctSphere", out JsonElement sphere) && sphere.GetArrayLength() == 4)
-            mesh.SetMeta(SphereMeta, new Vector4(sphere[0].GetSingle(), sphere[1].GetSingle(),
-                sphere[2].GetSingle(), sphere[3].GetSingle()));
+        if (CookedSphere(source) is { } sphere) mesh.SetMeta(SphereMeta, sphere);
+    }
+
+    /// <summary>A static mesh export's cooked bounding sphere (<c>scctSphere</c>: centre and radius in the mesh's space, metres), or null without one.</summary>
+    public static Vector4? CookedSphere(JsonElement source) =>
+        source.TryGetProperty("extras", out JsonElement extras) &&
+        extras.TryGetProperty("scctSphere", out JsonElement sphere) && sphere.GetArrayLength() == 4
+            ? new Vector4(sphere[0].GetSingle(), sphere[1].GetSingle(), sphere[2].GetSingle(), sphere[3].GetSingle())
+            : null;
+
+    /// <summary>The sphere older content falls back to: the one around a local box.</summary>
+    public static Vector4 BoxSphere(Aabb box)
+    {
+        Vector3 centre = box.GetCenter();
+        return new Vector4(centre.X, centre.Y, centre.Z, box.Size.Length() * .5005f);
     }
 
     /// <summary>The cooked local sphere scaled by the largest axis, rather than a rotation-expanded world AABB.</summary>
     public static (FVector Center, float Radius) SphereOf(Mesh mesh, Transform3D transform)
     {
-        Aabb box = mesh.GetAabb();
-        Vector4 sphere = mesh.HasMeta(SphereMeta) ? mesh.GetMeta(SphereMeta).AsVector4()
-            : new Vector4(box.GetCenter().X, box.GetCenter().Y, box.GetCenter().Z, box.Size.Length() * .5005f);
+        Vector4 sphere = mesh.HasMeta(SphereMeta) ? mesh.GetMeta(SphereMeta).AsVector4() : BoxSphere(mesh.GetAabb());
         float scale = MathF.Max(transform.Basis.X.Length(), MathF.Max(transform.Basis.Y.Length(), transform.Basis.Z.Length()));
         return (UeSpace.ToUe(transform * new Vector3(sphere.X, sphere.Y, sphere.Z)),
             sphere.W * scale * UeSpace.UnitsPerMetre);

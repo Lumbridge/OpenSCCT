@@ -1004,15 +1004,16 @@ public partial class RdWorldRenderer : Node
     }
 
     /// <summary>
-    /// The rows that can light some point of the batch (svm_one_light): bit i for row i below 32, and whether any row
-    /// can at all. A row is left out when its colour is black, its radius stops short of the batch's box, its cone
-    /// (a spot) misses the box's sphere, or its own zone is not among the batch's: it adds exactly nothing then.
+    /// The rows that can light some point of the batch (svm_one_light, svm_mesh_light): bit i for row i below 32, and
+    /// whether any row can at all. A row is left out when its colour is black, its radius stops short of the batch's
+    /// light box (its own box, with the light spheres of its static meshes), its cone (a spot) misses that box's
+    /// sphere, or its own zone is not among the batch's: it adds exactly nothing then.
     /// </summary>
     private bool DynamicReaching(RdWorldGeometry.Batch batch, out int bits)
     {
         bits = 0;
         bool any = false;
-        Aabb box = batch.Bounds;
+        Aabb box = batch.LightBounds;
         Vector3 centre = box.GetCenter();
         float radius = box.Size.Length() * 0.5f;
         for (int i = 0; i < _lights.Count; i++)

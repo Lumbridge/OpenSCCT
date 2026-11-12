@@ -127,8 +127,12 @@ public sealed class RenderMap
         ActorLighting = actorLighting;
         Zones = zones;
         WorldLights = new WorldLights(lighting);
+        MeshSpheres = new MeshLightSpheres();
         LightReach = new LightReach(root, WorldLights);
     }
+
+    /// <summary>The bounding spheres the map's vertex-lit static meshes take their dynamic lights over.</summary>
+    public MeshLightSpheres MeshSpheres { get; }
 
     /// <summary>The map folder (the one holding manifest.json and render/).</summary>
     public string Folder { get; }
@@ -523,6 +527,7 @@ public static class MapBuilder
         Rd.RdWorldRenderer.LatchOwnFrame();
         map.RdWorld = Rd.RdWorldGeometry.Enabled ? new Rd.RdWorldGeometry(map.Compiler) : null;
         new Builder(map, glb, options).Run();
+        map.MeshSpheres.Flush();
         map.RdGeometry?.Finish();
         map.RdWorld?.Finish();
         OutdoorScenery.Build(map);
@@ -1170,7 +1175,8 @@ public static class MapBuilder
 
             if (!buckets.TryGetValue((material, light, pass), out SurfaceBuilder? b))
             {
-                b = new SurfaceBuilder(uv2, colour, hasVision: true)
+                // Vertex-lit surfaces have no lightmap: their UV2 carries each instance's light sphere instead.
+                b = new SurfaceBuilder(uv2, colour, hasVision: true, hasSphere: light == LightSource.Vertex)
                 {
                     OrderByFacing = _map.Materials.Find(material)?.Blend == MaterialBlend.Translucent,
                 };
@@ -1179,7 +1185,25 @@ public static class MapBuilder
 
             // BSP and instances without values of their own draw at the Actor defaults.
             b.Vision = SurfaceBuilder.DefaultVision;
+            b.SetSphere(0);
             return b;
+        }
+
+        private readonly Dictionary<int, Vector4> _localSpheres = [];
+
+        /// <summary>
+        /// A library mesh's bounding sphere in its own space (metres): the cooked one of its export, else the sphere
+        /// around its box (as <see cref="ActorLighting.SphereOf"/>).
+        /// </summary>
+        private Vector4 LocalSphere(int mesh, MeshPrimitive[] prims)
+        {
+            if (!_localSpheres.TryGetValue(mesh, out Vector4 sphere))
+            {
+                sphere = ActorLighting.CookedSphere(_meshes[mesh]) ?? ActorLighting.BoxSphere(Bounds(prims, Transform3D.Identity));
+                _localSpheres[mesh] = sphere;
+            }
+
+            return sphere;
         }
 
         private void AddInstance(JsonElement inst)
@@ -1235,10 +1259,23 @@ public static class MapBuilder
             }
 
             Aabb box = Bounds(prims, transform);
-            (int, int, int) cell = CellOf(box.GetCenter(), Bool(inst, "skyZone"));
+            bool skyZone = Bool(inst, "skyZone");
+            (int, int, int) cell = CellOf(box.GetCenter(), skyZone);
             Vector4 vision = VisionOf(inst);
             VisionPass pass = PassOf(vision);
             bool authored = Bool(inst, "authoredColors");
+            // The sphere the instance's dynamic lights are chosen and fitted over, in the world (the merged geometry's
+            // space). Sky zone backdrops keep the light at the pixel alone: their spheres span the whole sky box.
+            int sphereIndex = 0;
+            Vector3 sphereCentre = default;
+            float sphereRadius = 0f;
+            if (light == LightSource.Vertex && !skyZone)
+            {
+                Vector4 local = LocalSphere(mesh, prims);
+                sphereCentre = transform * new Vector3(local.X, local.Y, local.Z);
+                sphereRadius = local.W * MathF.Max(transform.Basis.X.Length(), MathF.Max(transform.Basis.Y.Length(), transform.Basis.Z.Length()));
+                sphereIndex = _map.MeshSpheres.Add(sphereCentre, sphereRadius);
+            }
             foreach (MeshPrimitive prim in prims)
             {
                 // bUnlit skips lighting, but an additive overlay still needs its painted intensity and faded rim.
@@ -1248,6 +1285,7 @@ public static class MapBuilder
                 SurfaceBuilder bucket = Bucket(cell, prim.Material, surfaceLight, false, surfaceLight == LightSource.Vertex, pass);
                 bucket.Vision = vision;
                 bucket.Echelon = echelon;
+                bucket.SetSphere(overlay ? 0 : sphereIndex, sphereCentre, sphereRadius);
                 byte[]? zones = surfaceLight == LightSource.Vertex ? ZonesOf(prim, location) : null;
                 if (overlay)
                 {
@@ -1380,6 +1418,16 @@ public static class MapBuilder
             if (!_shared.TryGetValue((shareKey, light, glowKey), out ArrayMesh? arrayMesh))
             {
                 arrayMesh = new ArrayMesh { ResourceName = meshName };
+                // A vertex-lit gameplay mesh (a mover) carries its sphere in its own space: the template moves it with
+                // the node.
+                int sphereIndex = 0;
+                Vector4 localSphere = default;
+                if (light == LightSource.Vertex)
+                {
+                    localSphere = LocalSphere(mesh, Primitives(mesh));
+                    sphereIndex = _map.MeshSpheres.Add(new Vector3(localSphere.X, localSphere.Y, localSphere.Z), localSphere.W);
+                }
+
                 foreach (MeshPrimitive prim in Primitives(mesh))
                 {
                     Material? material = seeThrough ? _map.Compiler.GetSeeThrough(prim.Material, light) : _map.Compiler.Get(prim.Material, light);
@@ -1388,7 +1436,11 @@ public static class MapBuilder
                         continue;
                     }
 
-                    var surface = new SurfaceBuilder(false, light == LightSource.Vertex) { Echelon = light == LightSource.Vertex ? echelon : 0 };
+                    var surface = new SurfaceBuilder(false, light == LightSource.Vertex, hasSphere: light == LightSource.Vertex)
+                    {
+                        Echelon = light == LightSource.Vertex ? echelon : 0,
+                    };
+                    surface.SetSphere(sphereIndex, new Vector3(localSphere.X, localSphere.Y, localSphere.Z), localSphere.W);
                     byte[]? zones = light == LightSource.Vertex ? ZonesOf(prim, location) : null;
                     // Measured on AquaE's pump volume: preserve its saved intensity
                     // instead of adding an ambient floor. Restrict this inference to
@@ -1533,7 +1585,7 @@ public static class MapBuilder
                     bool split = cell.sky == 0 ? key.Item3 != VisionPass.SeeThrough && material.NextPass is null && solid : !solid;
                     _map.Stats.Vertices += b.VertexCount;
                     // The own frame draws cut-outs that animate too (its colour pass does not care how their shadow is cached).
-                    if (_map.RdWorld is { } rdWorld && (Rd.RdWorldRenderer.OwnFrame || !AnimatesShadow(material)) && rdWorld.TryAdd(cell, key.Item1, key.Item2, entry, b, key.Item3 == VisionPass.SeeThrough))
+                    if (_map.RdWorld is { } rdWorld && (Rd.RdWorldRenderer.OwnFrame || !AnimatesShadow(material)) && rdWorld.TryAdd(cell, key.Item1, key.Item2, entry, b, key.Item3 == VisionPass.SeeThrough, _map.MeshSpheres))
                     {
                         if (rdSurfaces.Count == MaxSurfacesPerMesh)
                         {
@@ -1594,7 +1646,9 @@ public static class MapBuilder
             bool animatedShadow = worldLayer;
             var grouped = new ArrayMesh { ResourceName = name };
             var groupedTwins = new List<LightReach.Twins>();
-            var bounded = new List<(ArrayMesh Mesh, LightReach.Twins Twins)>();
+            var bounded = new List<(ArrayMesh Mesh, LightReach.Twins Twins, Aabb? Spheres)>();
+            // The box around the light spheres of the grouped surfaces: dynamic lights reach the mesh through it too.
+            Aabb? groupedSpheres = null;
             foreach ((SurfaceBuilder surface, Material material, LightReach.Twins twins, bool split) in surfaces)
             {
                 animatedShadow |= !sky && AnimatesShadow(material);
@@ -1605,12 +1659,16 @@ public static class MapBuilder
                 {
                     var mesh = new ArrayMesh { ResourceName = string.Create(CultureInfo.InvariantCulture, $"{name}_Surface{bounded.Count}") };
                     surface.AddTo(mesh, material);
-                    bounded.Add((mesh, twins));
+                    bounded.Add((mesh, twins, surface.SphereBounds));
                 }
                 else
                 {
                     surface.AddTo(grouped, material);
                     groupedTwins.Add(twins);
+                    if (surface.SphereBounds is { } spheres)
+                    {
+                        groupedSpheres = groupedSpheres is { } all ? all.Merge(spheres) : spheres;
+                    }
                 }
             }
 
@@ -1622,7 +1680,7 @@ public static class MapBuilder
                 // among many more, they keep both: the cell's box on each split mesh, the surface order as a node meta
                 // (FaithfulView.UpdateSkySort).
                 Aabb cellBounds = grouped.GetSurfaceCount() != 0 ? grouped.GetAabb() : bounded[0].Mesh.GetAabb();
-                foreach ((ArrayMesh mesh, _) in bounded)
+                foreach ((ArrayMesh mesh, _, _) in bounded)
                 {
                     cellBounds = cellBounds.Merge(mesh.GetAabb());
                 }
@@ -1638,13 +1696,13 @@ public static class MapBuilder
                 if (bounded.Count != 0 && !sky)
                 {
                     Aabb originalBounds = grouped.GetAabb();
-                    foreach ((ArrayMesh mesh, _) in bounded)
+                    foreach ((ArrayMesh mesh, _, _) in bounded)
                     {
                         originalBounds = originalBounds.Merge(mesh.GetAabb());
                     }
                     grouped.CustomAabb = originalBounds;
                 }
-                AddCellMesh(grouped, layer, groupedTwins);
+                AddCellMesh(grouped, layer, groupedTwins, groupedSpheres);
             }
             else
             {
@@ -1653,7 +1711,7 @@ public static class MapBuilder
 
             for (int i = 0; i < bounded.Count; i++)
             {
-                MeshInstance3D node = AddCellMesh(bounded[i].Mesh, layer, [bounded[i].Twins]);
+                MeshInstance3D node = AddCellMesh(bounded[i].Mesh, layer, [bounded[i].Twins], bounded[i].Spheres);
                 if (sky)
                 {
                     node.SetMeta(FaithfulView.SkySortOrderMeta, i);
@@ -1661,7 +1719,7 @@ public static class MapBuilder
             }
         }
 
-        private MeshInstance3D AddCellMesh(ArrayMesh mesh, uint layer, IReadOnlyList<LightReach.Twins> twins)
+        private MeshInstance3D AddCellMesh(ArrayMesh mesh, uint layer, IReadOnlyList<LightReach.Twins> twins, Aabb? spheres = null)
         {
             var node = new MeshInstance3D
             {
@@ -1670,7 +1728,7 @@ public static class MapBuilder
                 Layers = layer,
             };
             _static.AddChild(node);
-            _map.LightReach.Add(node, twins);
+            _map.LightReach.Add(node, twins, spheres);
             _map.Stats.StaticNodes++;
             _map.Stats.StaticSurfaces += mesh.GetSurfaceCount();
             return node;

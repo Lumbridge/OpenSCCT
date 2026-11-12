@@ -415,6 +415,96 @@ vec3 svm_actor_light(vec4 pos, vec4 col, vec4 spot, vec3 wp, vec3 wn) {
     return col.rgb * att * (max(0.0, dot(wn, l)) + (spot.w < -3.5 ? 1.0 : 0.0));
 }
 
+#ifdef LIGHT_VERTEX
+// A dynamic world light on a static mesh with baked vertex colours. The original lights it through the D3D vertex lights
+// like any actor (the per-actor light gathering, editor 0x111a7300: a static mesh with static lighting takes its
+// leaves' dynamic lights only; the choice of lights, 0x111a6100; RenderingModeNormal::SetLight):
+//   - a light is a candidate while its centre is nearer the mesh's bounding sphere centre than its radius plus the
+//     sphere's, a sun always;
+//   - at most Actor.MaxLights (4) light the mesh, the highest LightBrightness x (1 - d^2 / (R + r)^2) first, suns
+//     before all (a spot whose cone misses the sphere scores 0);
+//   - a point or spot light's attenuation is 1 / (constant + linear x distance), fitted to 2 S(d / R) at the near and
+//     the far side of the sphere (ActorLightRules.FitAttenuation). It is not cut off at R: a large mesh beside a light
+//     is lit over its whole sphere (MoonD's Ferris wheel, 2700 uu from a flood of radius 2500).
+// sphere: xyz the centre, w the radius (m). pos, col, spot in the svm_one_light layout (col.rgb = 2 C).
+
+// constant and linear (per metre) of the fit for a light of radius light_r whose centre is centre_dist from the sphere's.
+vec2 svm_fit_attenuation(float centre_dist, float sphere_r, float light_r) {
+	float d = max(centre_dist, 0.001);
+	float d_far = clamp(d + sphere_r, light_r * 0.05, light_r * 0.9);
+	float d_near = clamp(d - sphere_r, light_r * 0.1, light_r * 0.95);
+	float xn = d_near / light_r;
+	float xf = d_far / light_r;
+	float a = 1.0 / (2.0 * (1.0 - 3.0 * xn * xn + 2.0 * xn * xn * xn));
+	float b = 1.0 / (2.0 * (1.0 - 3.0 * xf * xf + 2.0 * xf * xf * xf));
+	if (abs(a - b) < 1e-8 || abs(d_far - d_near) < 1e-10) {
+		return vec2(a, 0.0);
+	}
+	float constant = max(0.01, a - (b - a) / (d_far - d_near) * d_near);
+	return vec2(constant, max(0.0, (a - constant) / d_near));
+}
+
+// The light at a surface point, and its rank among the mesh's lights (0: not a candidate).
+vec3 svm_mesh_light(vec4 pos, vec4 col, vec4 spot, vec3 wp, vec3 wn, vec4 sphere, float brightness, out float score) {
+	score = 0.0;
+	if (dot(col.rgb, col.rgb) <= 0.0) {
+		return vec3(0.0);
+	}
+	if (pos.w < 0.0) {
+		score = 3.0e38;
+		return col.rgb * max(0.0, dot(wn, normalize(pos.xyz)));
+	}
+	float light_r = max(pos.w, 1e-5);
+	vec3 to_centre = sphere.xyz - pos.xyz;
+	float centre_dist = length(to_centre);
+	float reach = light_r + sphere.w;
+	float rank = brightness * (1.0 - centre_dist * centre_dist / (reach * reach));
+	if (rank <= 0.0) {
+		return vec3(0.0);
+	}
+	if (spot.w > -1.5 && centre_dist > sphere.w) {
+		// A spot whose cone, widened by the sphere's angular size, misses the sphere.
+		float off_axis = acos(clamp(dot(to_centre / centre_dist, spot.xyz), -1.0, 1.0));
+		if (off_axis - asin(clamp(sphere.w / centre_dist, 0.0, 1.0)) > acos(clamp(spot.w, -1.0, 1.0))) {
+			return vec3(0.0);
+		}
+	}
+	score = rank;
+	vec3 d = pos.xyz - wp;
+	float dist = length(d);
+	vec3 l = d / max(dist, 1e-5);
+	float att;
+	if (spot.w < -2.5 && spot.w > -3.5) {
+		// LE_QuadraticNonIncidence: D3D attenuation 1 / (8 d^2 / R^2), inside R (col carries the 2 of the other lights).
+		float x = dist / light_r;
+		att = x >= 1.0 ? 0.0 : 0.5 / max(8.0 * x * x, 1e-3);
+	} else {
+		vec2 fit = svm_fit_attenuation(centre_dist, sphere.w, light_r);
+		// The D3D range (256 - constant) / max(0.01 per uu, linear).
+		att = dist > (256.0 - fit.x) / max(1.0, fit.y) ? 0.0 : 0.5 / max(fit.x + fit.y * dist, 0.01);
+	}
+	if (spot.w > -1.5) {
+		att *= clamp((dot(-l, spot.xyz) - spot.w) / max(col.a - spot.w, 1e-5), 0.0, 1.0);
+	}
+	// LE_PointAmbient also adds its attenuated colour whatever the normal.
+	return col.rgb * att * (max(0.0, dot(wn, l)) + (spot.w < -3.5 ? 1.0 : 0.0));
+}
+
+// Keeps a light among the four highest scores so far (scores, with the lights' channels in r, g and b).
+void svm_keep_light(float score, vec3 light, inout vec4 scores, inout vec4 r, inout vec4 g, inout vec4 b) {
+	float low = min(min(scores.x, scores.y), min(scores.z, scores.w));
+	if (score <= low) {
+		return;
+	}
+	vec4 pick = scores.x == low ? vec4(1.0, 0.0, 0.0, 0.0) : scores.y == low ? vec4(0.0, 1.0, 0.0, 0.0)
+		: scores.z == low ? vec4(0.0, 0.0, 1.0, 0.0) : vec4(0.0, 0.0, 0.0, 1.0);
+	scores = mix(scores, vec4(score), pick);
+	r = mix(r, vec4(light.r), pick);
+	g = mix(g, vec4(light.g), pick);
+	b = mix(b, vec4(light.b), pick);
+}
+#endif
+
 
 #if defined(LIGHT_LIGHTMAP) || defined(LIGHT_VERTEX) || defined(LIGHT_ACTOR)
 // The spot shadow lights (LE_ESpotShadow: the merc torch, searchlights, window and sun projectors,
@@ -673,10 +763,19 @@ global uniform int svm_dyn_indexed_rows;
 // light pass for point lights on lightmapped surfaces and 1-x^2 otherwise, 2 1-x, 3 (1-x)^2), w 1 to honour
 // bAffectOwnZoneOnly on world surfaces. (1, 1, 0, 1) is the decoded actor model.
 global uniform vec4 svm_dyn_tune;
+#ifdef LIGHT_VERTEX
+// The light spheres of static meshes (MeshLightSpheres): one texel each, xyz the centre in the mesh's own space and w
+// the radius (m). UV2.x of a vertex holds its instance's texel + 1 (0: none), read in vertex().
+global uniform sampler2D svm_mesh_spheres;
+varying flat vec4 v_sphere;
+// WorldLights.MeshGridReach: the light grid is binned this much wider (m), for the meshes that look it up at their
+// sphere's centre.
+const float SVM_MESH_GRID_REACH = 2.0;
+#endif
 
 // The falloff of the dynamic world lights: BSP takes point lights through the attenuation texture pass (svm_bsp_light,
-// decoded) and spots and suns by 1 - x^2 (measured); static meshes through the D3D vertex lights, the actor falloff
-// 1 - 3x^2 + 2x^3 (RenderingModeNormal::SetLight).
+// decoded) and spots and suns by 1 - x^2 (measured); static meshes through the D3D vertex lights: the actor fit over
+// their bounding sphere (svm_mesh_light), or without a sphere the falloff it is fitted to, 1 - 3x^2 + 2x^3.
 int svm_dyn_falloff() {
 #ifdef LIGHT_VERTEX
 	// Calibration modes other than the default (1) apply to both.
@@ -689,8 +788,12 @@ int svm_dyn_falloff() {
 #include "res://Shaders/svm_window_light.gdshaderinc"
 
 // One row of svm_dyn_lights at a surface point. plane_n is the surface's own normal (wn may carry a detail normal).
-vec3 svm_dynamic_row(int i, vec3 wp, vec3 wn, vec3 plane_n, float zone) {
-	float own = texelFetch(svm_dyn_lights, ivec2(3, i), 0).x;
+// sphere: the light sphere of a static mesh (w 0: none). score: below 0 for a light that simply adds; otherwise the
+// light's rank among the lights of its mesh, of which the four highest light it (svm_mesh_light).
+vec3 svm_dynamic_row(int i, vec3 wp, vec3 wn, vec3 plane_n, float zone, vec4 sphere, out float score) {
+	score = -1.0;
+	vec4 own_row = texelFetch(svm_dyn_lights, ivec2(3, i), 0);
+	float own = own_row.x;
 	if (svm_dyn_tune.w > 0.5 && own >= 0.0 && abs(own - zone) > 0.5) {
 		return vec3(0.0);
 	}
@@ -704,6 +807,14 @@ vec3 svm_dynamic_row(int i, vec3 wp, vec3 wn, vec3 plane_n, float zone) {
 	vec3 live = svm_dyn_falloff() == 1 && p.w >= 0.0 && s.w < -1.5
 		? svm_bsp_light(p, c, s, wp, plane_n)
 		: svm_one_light(p, c, s, wp, wn, svm_dyn_falloff());
+#elif defined(LIGHT_VERTEX)
+	// The calibration falloffs other than the default (1) keep the light at the pixel alone.
+	vec3 live;
+	if (sphere.w > 0.0 && svm_dyn_falloff() == 0) {
+		live = svm_mesh_light(p, c, s, wp, wn, sphere, own_row.y, score);
+	} else {
+		live = svm_one_light(p, c, s, wp, wn, svm_dyn_falloff());
+	}
 #else
 	vec3 live = svm_one_light(p, c, s, wp, wn, svm_dyn_falloff());
 #endif
@@ -711,7 +822,26 @@ vec3 svm_dynamic_row(int i, vec3 wp, vec3 wn, vec3 plane_n, float zone) {
 	return live;
 }
 
-vec3 svm_dynamic(vec3 wp, vec3 wn, vec3 plane_n, float zone) {
+// Adds one row to the sum, or offers it to the four lights of a static mesh (top: their scores and channels).
+void svm_dynamic_add(int i, vec3 wp, vec3 wn, vec3 plane_n, float zone, vec4 sphere, inout vec3 sum, inout vec4 top,
+		inout vec4 top_r, inout vec4 top_g, inout vec4 top_b) {
+	float score;
+	vec3 live = svm_dynamic_row(i, wp, wn, plane_n, zone, sphere, score);
+#ifdef LIGHT_VERTEX
+	if (score >= 0.0) {
+		svm_keep_light(score, live, top, top_r, top_g, top_b);
+		return;
+	}
+#endif
+	sum += live;
+}
+
+vec3 svm_dynamic(vec3 wp, vec3 wn, vec3 plane_n, float zone, vec4 sphere) {
+	// The four lights of a static mesh (svm_keep_light); unused by every other surface.
+	vec4 top = vec4(0.0);
+	vec4 top_r = vec4(0.0);
+	vec4 top_g = vec4(0.0);
+	vec4 top_b = vec4(0.0);
 #ifdef SVM_RD_WORLD
 	// The world pass on the RenderingDevice (Rd/RdWorldRenderer) hands each draw the rows that can reach it (bit i for
 	// row i below 32): every other row adds exactly nothing to it. A pixel walks those rows alone, with no lookup of
@@ -724,20 +854,30 @@ vec3 svm_dynamic(vec3 wp, vec3 wn, vec3 plane_n, float zone) {
 	while (rows != 0) {
 		int i = findLSB(rows);
 		rows &= rows - 1;
-		named += svm_dynamic_row(i, wp, wn, plane_n, zone);
+		svm_dynamic_add(i, wp, wn, plane_n, zone, sphere, named, top, top_r, top_g, top_b);
 	}
 	if (svm_dyn_light_count <= 32) {
-		return named * svm_dyn_tune.x;
+		return (named + vec3(dot(top_r, vec4(1.0)), dot(top_g, vec4(1.0)), dot(top_b, vec4(1.0)))) * svm_dyn_tune.x;
 	}
 #endif
 	// The grid bounds use the normal light radius. Use the full list for radius calibration overrides.
 	bool indexed = svm_dyn_indexed_rows > 0 && svm_dyn_tune.y == 1.0;
+	vec2 grid_at = wp.xz;
+#ifdef LIGHT_VERTEX
+	// A static mesh is lit from as far as a light's radius plus its sphere's from the sphere's centre: it looks the grid
+	// up there (the grid is binned wider by SVM_MESH_GRID_REACH), or with a larger sphere walks every row.
+	if (sphere.w > SVM_MESH_GRID_REACH) {
+		indexed = false;
+	} else if (sphere.w > 0.0) {
+		grid_at = sphere.xz;
+	}
+#endif
 	int cell = 0;
 	int local_count = 0;
 	int count = svm_dyn_light_count;
 	if (indexed) {
 		const int side = 16; // WorldLights.CellSide
-		vec2 coord = (wp.xz - svm_dyn_cell_transform.xy) * svm_dyn_cell_transform.zw;
+		vec2 coord = (grid_at - svm_dyn_cell_transform.xy) * svm_dyn_cell_transform.zw;
 		cell = side * side; // Outside the grid, only directional lights can reach the pixel.
 		if (all(greaterThanEqual(coord, vec2(0.0))) && all(lessThan(coord, vec2(float(side))))) {
 			ivec2 tile = ivec2(coord);
@@ -760,11 +900,12 @@ vec3 svm_dynamic(vec3 wp, vec3 wn, vec3 plane_n, float zone) {
 			continue;
 		}
 #endif
-		sum += svm_dynamic_row(i, wp, wn, plane_n, zone);
+		svm_dynamic_add(i, wp, wn, plane_n, zone, sphere, sum, top, top_r, top_g, top_b);
 	}
 #ifdef SVM_RD_WORLD
 	sum += named;
 #endif
+	sum += vec3(dot(top_r, vec4(1.0)), dot(top_g, vec4(1.0)), dot(top_b, vec4(1.0)));
 	return sum * svm_dyn_tune.x;
 }
 
@@ -843,6 +984,17 @@ void vertex() {
 #else
 	v_echelon = CUSTOM1.x;
 #endif
+#endif
+#ifdef LIGHT_VERTEX
+	// The instance's light sphere, moved with the mesh; its radius scales by the largest axis.
+	v_sphere = vec4(0.0);
+	int sphere_at = int(UV2.x + 0.5);
+	if (sphere_at > 0) {
+		vec4 sphere = texelFetch(svm_mesh_spheres, ivec2(sphere_at & 255, sphere_at >> 8), 0);
+		mat3 sphere_basis = mat3(MODEL_MATRIX);
+		v_sphere = vec4((MODEL_MATRIX * vec4(sphere.xyz, 1.0)).xyz,
+			sphere.w * max(length(sphere_basis[0]), max(length(sphere_basis[1]), length(sphere_basis[2]))));
+	}
 #endif
 #ifdef LIGHT_ACTOR
 	vec3 wp = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
@@ -1064,7 +1216,12 @@ void fragment() {
 	// Every dynamic world light is a point light whose radius stops short of the mesh (LightReach).
 	vec3 dyn_lights = vec3(0.0);
 #else
-	vec3 dyn_lights = svm_dyn_light_count > 0 && !unlit ? svm_dynamic(v_wpos, wn, plane_n, zone) : vec3(0.0);
+#ifdef LIGHT_VERTEX
+	vec4 light_sphere = v_sphere;
+#else
+	vec4 light_sphere = vec4(0.0);
+#endif
+	vec3 dyn_lights = svm_dyn_light_count > 0 && !unlit ? svm_dynamic(v_wpos, wn, plane_n, zone, light_sphere) : vec3(0.0);
 #endif
 	vec3 dyn = dyn_lights + spot + svm_zone_amb(zone);
 	// The flares, with the dynamic world lights' gain, radius scale and falloff. They add past the 2x cap of the baked

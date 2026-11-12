@@ -25,7 +25,9 @@ namespace OpenScctGame.Render;
 /// <item>a spot slot adds nothing at a point outside its row 8 sphere (svm_spot_slot's first test), and nothing at all
 /// while svm_spot_bits leaves it out (<see cref="SpotShadowLight.ReachSphere"/>);</item>
 /// <item>a dynamic world light adds nothing at a point as far from it as its radius x svm_dyn_tune.y (svm_one_light's
-/// attenuation and ambient are both 0 there); a sun (w below 0) reaches everything. A map light counts while it is
+/// attenuation and ambient are both 0 there), except on a static mesh with a light sphere: there it adds nothing only
+/// while its centre is as far as that radius from the sphere (svm_mesh_light), so a mesh is tested by its own box
+/// merged with the box around its instances' spheres; a sun (w below 0) reaches everything. A map light counts while it is
 /// switched on, whatever its light type does to its brightness, so pulsing, blinking and flickering lights never swap
 /// materials; lights spawned during play (flashes) count while they have a row.</item>
 /// </list>
@@ -106,6 +108,10 @@ public sealed class LightReach
     private readonly List<Twins[]> _twins = [];
     private readonly List<Rid[]> _rids = [];
     private Aabb[] _boxes = [];
+    // Per mesh: the box around the light spheres of its instances in its own space (null without any), and the world
+    // box dynamic lights are tested against (the mesh's box merged with it).
+    private readonly List<Aabb?> _spheres = [];
+    private Aabb[] _dynBoxes = [];
     private bool[] _placed = [];
     private int[] _spotReach = [];
     private int[] _dynReach = [];
@@ -157,7 +163,8 @@ public sealed class LightReach
     /// Registers a merged map mesh (static: it never moves) with the twins of each surface's material (none for a
     /// surface that keeps its own). A mesh without any twin is left alone.
     /// </summary>
-    public void Add(MeshInstance3D node, IReadOnlyList<Twins> twins)
+    /// <param name="spheres">The box around the light spheres of the mesh's instances, in the mesh's space (SurfaceBuilder.SphereBounds).</param>
+    public void Add(MeshInstance3D node, IReadOnlyList<Twins> twins, Aabb? spheres = null)
     {
         ArgumentNullException.ThrowIfNull(node);
         ArgumentNullException.ThrowIfNull(twins);
@@ -182,6 +189,7 @@ public sealed class LightReach
         }
 
         _nodes.Add(node);
+        _spheres.Add(spheres);
         _instances.Add(node.GetInstance());
         _twins.Add(held);
         _rids.Add(rids);
@@ -333,12 +341,13 @@ public sealed class LightReach
         }
 
         int[] counts = source.Spot ? _spotReach : _dynReach;
+        Aabb[] boxes = source.Spot ? _boxes : _dynBoxes;
         var centre = new Vector3(key.X, key.Y, key.Z);
         float reach = (key.W * (1f + RelativeMargin)) + Margin;
         float reach2 = reach * reach;
         for (int i = 0; i < _boxed; i++)
         {
-            if (DistanceSquared(_boxes[i], centre) < reach2)
+            if (DistanceSquared(boxes[i], centre) < reach2)
             {
                 source.Hits.Add(i);
                 if (counts[i]++ == 0) Mark(i);
@@ -394,6 +403,7 @@ public sealed class LightReach
         foreach (Source source in _mapLights) Remove(source);
         foreach (Source source in _spawned) Remove(source);
         Array.Resize(ref _boxes, count);
+        Array.Resize(ref _dynBoxes, count);
         Array.Resize(ref _placed, count);
         Array.Resize(ref _spotReach, count);
         Array.Resize(ref _dynReach, count);
@@ -407,6 +417,7 @@ public sealed class LightReach
             // A mesh outside the tree has no world box: it never takes its twins.
             _placed[i] = node.IsInsideTree() && node.Mesh is not null;
             _boxes[i] = _placed[i] ? node.GlobalTransform * node.Mesh!.GetAabb() : default;
+            _dynBoxes[i] = _placed[i] && _spheres[i] is { } spheres ? _boxes[i].Merge(node.GlobalTransform * spheres) : _boxes[i];
         }
 
         _stamp = -1;

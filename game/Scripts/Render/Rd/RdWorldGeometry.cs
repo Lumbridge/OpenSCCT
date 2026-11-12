@@ -186,6 +186,11 @@ internal sealed class RdWorldGeometry
         public uint IndexOffset { get; set; }
         public uint IndexCount { get; set; }
         public Aabb Bounds { get; set; }
+        /// <summary>
+        /// The box a dynamic world light is tested against: <see cref="Bounds"/> merged with the box around the light
+        /// spheres of the batch's vertices (a static mesh is lit from as far as the light's radius from its sphere).
+        /// </summary>
+        public Aabb LightBounds { get; set; }
         /// <summary>The zones of the batch's vertices (the colour's alpha byte), one bit each.</summary>
         public required ulong[] Zones { get; init; }
 
@@ -199,6 +204,8 @@ internal sealed class RdWorldGeometry
         public readonly List<Vector4> Vision = [];
         public readonly List<uint> Indices = [];
         public Aabb Bounds;
+        public Aabb LightBounds;
+        public int LastSphere;
         public bool Any;
     }
 
@@ -256,7 +263,9 @@ internal sealed class RdWorldGeometry
     /// Takes one flushed cell bucket if the world pass can draw it; false leaves it with Godot's renderer.
     /// </summary>
     /// <param name="seeThrough">The bucket of partly see-through actors (MaterialCompiler.GetSeeThrough draws it in thermal and EMF).</param>
-    public bool TryAdd((int X, int Y, int Sky) cell, string name, LightSource light, MaterialEntry? entry, SurfaceBuilder surface, bool seeThrough = false)
+    /// <param name="spheres">The map's light spheres, which the UV2 stream of a vertex-lit surface names (SurfaceBuilder.HasSphere).</param>
+    public bool TryAdd((int X, int Y, int Sky) cell, string name, LightSource light, MaterialEntry? entry, SurfaceBuilder surface, bool seeThrough = false,
+        MeshLightSpheres? spheres = null)
     {
         bool sky = cell.Sky != 0;
         RdMaterial? material = MaterialOf(name, light, sky, entry);
@@ -322,7 +331,15 @@ internal sealed class RdWorldGeometry
                         ? new Vector4(SurfaceBuilder.DefaultVision.X, SurfaceBuilder.DefaultVision.Y, SurfaceBuilder.DefaultVision.Z, SurfaceBuilder.DefaultVision.W + 2f)
                         : new Vector4(vision[i * 4], vision[(i * 4) + 1], vision[(i * 4) + 2], vision[(i * 4) + 3]));
                     b.Bounds = b.Any ? b.Bounds.Expand(positions[i]) : new Aabb(positions[i], Vector3.Zero);
+                    b.LightBounds = b.Any ? b.LightBounds.Expand(positions[i]) : b.Bounds;
                     b.Any = true;
+                    if (spheres is not null && surface.HasSphere && uv2s is not null && (int)uv2s[i].X is var sphere && sphere != 0 && sphere != b.LastSphere)
+                    {
+                        b.LastSphere = sphere;
+                        Vector4 s = spheres.Get(sphere);
+                        var half = new Vector3(s.W, s.W, s.W);
+                        b.LightBounds = b.LightBounds.Merge(new Aabb(new Vector3(s.X, s.Y, s.Z) - half, half * 2f));
+                    }
                 }
 
                 b.Indices.Add((uint)remap[i]);
@@ -640,7 +657,7 @@ internal sealed class RdWorldGeometry
             var batch = new Batch
             {
                 Sky = sky, Material = material, VisionMaterial = solid, VisionOver = over,
-                IndexOffset = (uint)n, IndexCount = (uint)b.Indices.Count, Bounds = b.Bounds, Zones = b.Zones,
+                IndexOffset = (uint)n, IndexCount = (uint)b.Indices.Count, Bounds = b.Bounds, LightBounds = b.LightBounds, Zones = b.Zones,
             };
             foreach (uint index in b.Indices) ix[n++] = index + (uint)v;
             v += b.Vertices.Count;

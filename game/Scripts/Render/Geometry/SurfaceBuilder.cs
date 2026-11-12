@@ -22,17 +22,47 @@ internal sealed class SurfaceBuilder
     private Streams? _streams;
 
     /// <summary>A primitive queued by <see cref="Queue"/>, with the Vision and Echelon current when it was queued.</summary>
-    private readonly record struct Pending(Transform3D Transform, MeshPrimitive Prim, byte Zone, byte[]? Zones, Vector4 Vision, int Echelon);
+    private readonly record struct Pending(Transform3D Transform, MeshPrimitive Prim, byte Zone, byte[]? Zones, Vector4 Vision, int Echelon, int Sphere);
 
     /// <summary>The streams as the arrays a mesh surface takes (<see cref="Pack"/>).</summary>
     private sealed record Streams(Vector3[] Positions, Vector3[] Normals, Vector2[] Uvs, Vector2[]? Uv2s, Color[]? Colours,
         int[] Indices, float[]? Vision, float[]? Echelon, float[]? BakedDirections);
 
-    public SurfaceBuilder(bool hasUv2, bool hasColour, bool hasVision = false)
+    public SurfaceBuilder(bool hasUv2, bool hasColour, bool hasVision = false, bool hasSphere = false)
     {
-        HasUv2 = hasUv2;
+        HasUv2 = hasUv2 || hasSphere;
         HasColour = hasColour;
         HasVision = hasVision;
+        HasSphere = hasSphere;
+    }
+
+    /// <summary>
+    /// Whether the UV2 stream carries each vertex's light sphere (x: <see cref="Sphere"/>) instead of lightmap
+    /// coordinates: surfaces lit by baked vertex colours, which have no lightmap.
+    /// </summary>
+    public bool HasSphere { get; }
+
+    /// <summary>
+    /// The light sphere the next <see cref="Add"/> or <see cref="Queue"/> writes: its value in
+    /// <see cref="MeshLightSpheres"/> (0: none). Set with <see cref="SetSphere"/>.
+    /// </summary>
+    public int Sphere { get; private set; }
+
+    /// <summary>
+    /// The box around the light spheres of everything added so far, in the surface's space: a dynamic light can light
+    /// the surface from as far as its radius from this box, not only from the vertices' own box. Null without spheres.
+    /// </summary>
+    public Aabb? SphereBounds { get; private set; }
+
+    /// <summary>Sets the light sphere of the primitives added next (index 0: none), with its centre and radius in the surface's space.</summary>
+    public void SetSphere(int index, Vector3 centre = default, float radius = 0f)
+    {
+        Sphere = HasSphere ? index : 0;
+        if (Sphere != 0)
+        {
+            var box = new Aabb(centre - new Vector3(radius, radius, radius), new Vector3(radius, radius, radius) * 2f);
+            SphereBounds = SphereBounds is { } b ? b.Merge(box) : box;
+        }
     }
 
     /// <summary>
@@ -91,7 +121,7 @@ internal sealed class SurfaceBuilder
     {
         Merge();
         _streams = null;
-        Write(transform, prim, zone, triangleZones, Vision, Echelon);
+        Write(transform, prim, zone, triangleZones, Vision, Echelon, Sphere);
     }
 
     /// <summary>
@@ -102,7 +132,7 @@ internal sealed class SurfaceBuilder
     public void Queue(in Transform3D transform, MeshPrimitive prim, byte zone, byte[]? triangleZones = null)
     {
         _streams = null;
-        _pending.Add(new Pending(transform, prim, zone, triangleZones, Vision, Echelon));
+        _pending.Add(new Pending(transform, prim, zone, triangleZones, Vision, Echelon, Sphere));
     }
 
     /// <summary>
@@ -133,7 +163,7 @@ internal sealed class SurfaceBuilder
         Reserve(_positions.Count + vertices, _indices.Count + indices);
         foreach (Pending p in _pending)
         {
-            Write(p.Transform, p.Prim, p.Zone, p.Zones, p.Vision, p.Echelon);
+            Write(p.Transform, p.Prim, p.Zone, p.Zones, p.Vision, p.Echelon, p.Sphere);
         }
 
         _pending.Clear();
@@ -152,7 +182,7 @@ internal sealed class SurfaceBuilder
         _indices.EnsureCapacity(indices);
     }
 
-    private void Write(in Transform3D transform, MeshPrimitive prim, byte zone, byte[]? triangleZones, Vector4 vision, int echelon)
+    private void Write(in Transform3D transform, MeshPrimitive prim, byte zone, byte[]? triangleZones, Vector4 vision, int echelon, int sphere)
     {
         Basis normalBasis = transform.Basis.Inverse().Transposed();
         bool mirrored = transform.Basis.Determinant() < 0f;
@@ -175,7 +205,7 @@ internal sealed class SurfaceBuilder
                 if (at < 0)
                 {
                     at = _positions.Count;
-                    WriteVertex(transform, normalBasis, prim, v, z, vision, echelon);
+                    WriteVertex(transform, normalBasis, prim, v, z, vision, echelon, sphere);
                     first[v] = at;
                     firstZone[v] = z;
                 }
@@ -186,7 +216,7 @@ internal sealed class SurfaceBuilder
                     if (!other.TryGetValue(key, out at))
                     {
                         at = _positions.Count;
-                        WriteVertex(transform, normalBasis, prim, v, z, vision, echelon);
+                        WriteVertex(transform, normalBasis, prim, v, z, vision, echelon, sphere);
                         other[key] = at;
                     }
                 }
@@ -200,7 +230,7 @@ internal sealed class SurfaceBuilder
         }
     }
 
-    private void WriteVertex(in Transform3D transform, in Basis normalBasis, MeshPrimitive prim, int i, byte zone, Vector4 vision, int echelon)
+    private void WriteVertex(in Transform3D transform, in Basis normalBasis, MeshPrimitive prim, int i, byte zone, Vector4 vision, int echelon, int sphere)
     {
         var p = new Vector3(prim.Positions[i * 3], prim.Positions[(i * 3) + 1], prim.Positions[(i * 3) + 2]);
         _positions.Add(transform * p);
@@ -211,7 +241,8 @@ internal sealed class SurfaceBuilder
         _uvs.Add(prim.Uvs is null ? Vector2.Zero : new Vector2(prim.Uvs[i * 2], prim.Uvs[(i * 2) + 1]));
         if (HasUv2)
         {
-            _uv2s.Add(prim.Uv2s is null ? Vector2.Zero : new Vector2(prim.Uv2s[i * 2], prim.Uv2s[(i * 2) + 1]));
+            _uv2s.Add(HasSphere ? new Vector2(sphere, 0f)
+                : prim.Uv2s is null ? Vector2.Zero : new Vector2(prim.Uv2s[i * 2], prim.Uv2s[(i * 2) + 1]));
         }
 
         if (HasColour)

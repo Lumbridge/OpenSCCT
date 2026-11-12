@@ -409,10 +409,35 @@ shader parameter, and are summed per pixel into the baked term.
   goes from luma ratio 1.111 and mean luma error 0.043 to 1.067 and 0.023, the other eleven keep their error. The
   stage scale of the texture (it is stored at half intensity) is not decoded; the gain is the one measured before.
   Spots and suns keep `1 - (d / R)^2` with N.L (measured: the original's BSP pass leaves spot effects out).
-  Static meshes take dynamic lights through the D3D vertex lights like actors (`RenderingModeNormal::SetLight`,
-  2 S(d / R), editor 0x10f29790), so vertex-lit surfaces use the actor falloff `1 - 3x^2 + 2x^3`
-  (`svm_dyn_falloff`). KrauE's lab door at the merc start (two own-zone STriggerLights, radius 18): merc-180 SSIM
-  0.815 to 0.844, luma 1.33 to 1.23; SteeE unchanged.
+- Static meshes with baked vertex colours (and vertex-lit movers) take dynamic lights through the D3D vertex lights
+  like actors (`svm_mesh_light`), decoded from the editor build's per-actor light gathering (0x111a7300) and light
+  choice (0x111a6100):
+  - A static mesh with static lighting skips its leaves' baked lights and gathers their dynamic lights only (it needs
+    bUseDynamicLights, on by default). A light is a candidate while its centre is nearer the centre of the mesh's
+    bounding sphere than `R + r` (light radius plus sphere radius; a sun always), its bSpecialLit matches and, for a
+    bAffectOwnZoneOnly light, its zone is the actor's.
+  - At most `min(8, Actor.MaxLights)` lights are kept, 4 by default: the highest
+    `LightBrightness x (1 - d^2 / (R + r)^2)`, as for actors (the per-actor MaxLights is not exported; 4 is used).
+  - Each kept point or spot light is attenuated by the fit of "Actor lighting" below: `1 / (constant + linear x d)`
+    fitted to `2 S(d / R)` at the near and far side of the sphere. It is not cut off at R.
+  The sphere is the primitive's own (the cooked `scctSphere` of the export, moved with the actor, its radius scaled
+  by the largest axis). Merged map geometry has no values per instance, so `MeshLightSpheres` keeps one texel per
+  instance in `svm_mesh_spheres` (centre and radius in metres, in the mesh's own space) and each vertex names its
+  texel in UV2.x (texel + 1; vertex-lit surfaces have no lightmap coordinates). The template reads the sphere in its
+  vertex stage and, per pixel, ranks the rows by the score (row texel 3.y holds LightBrightness), keeps the four
+  highest and sums them. A surface without a sphere (sky zone backdrops, whose spheres span the sky box, and any
+  other vertex-lit mesh) keeps the light at the pixel alone with the falloff the fit approximates,
+  `1 - 3x^2 + 2x^3`, cut off at R, as do the calibration falloffs other than the default.
+  Before this every vertex-lit surface used that cut-off cubic per pixel. MoonD's Ferris wheel (mover `ParkWheel`,
+  sphere radius about 1100 uu, 2700 uu from `PlazaFlood1`, R 2500) got nothing from the flood; the fit gives
+  0.59 at its near side and 0.25 at its far side, times N.L, and the original shows the rim lit red (rim pixels of
+  the view from -1650,-2950,170: mean 10,10,17 before, 51,34,33 after). Checked on SteeE's twelve original frames
+  (mean luma error before to after): shop 0.0243 to 0.0230, yard-north 0.0155 to 0.0146, crane 0.0075 to 0.0074,
+  dark-room 0.0007 to 0.0008, yard-east 0.0112 to 0.0113, the other seven unchanged.
+  The light grid (`svm_dyn_cells`) bins every light 2 m wider (`WorldLights.MeshGridReach`): a mesh whose sphere is
+  no larger looks the grid up at its sphere's centre, a larger one walks every row.
+  Earlier check of the cubic against the BSP falloff on vertex-lit surfaces: KrauE's lab door at the merc start (two
+  own-zone STriggerLights, radius 18), merc-180 SSIM 0.815 to 0.844, luma 1.33 to 1.23.
 - Light types (FDynamicLight::Update, game 0x10a1de70, evaluated once a frame; `WorldLights.Modulation`, shared by
   the world term, actor lighting and coronas): pulse `0.6 + 0.39 sin(a)`, subtle pulse `0.9 + 0.09 sin(a)` with
   `a = t x 35 x 2 pi / max(1, LightPeriod) + (LightPhase << 8)` radians; blink off while the integer part of
@@ -426,7 +451,13 @@ shader parameter, and are summed per pixel into the baked term.
   on ShipD's elevator light (`Light17342`, zone 7) and lets its red flicker reach the overground yard.
   BSP takes the zone of a point 2, 8 or 32 uu in front of the face through the collision BSP. Static meshes
   take their actor's point region for every face, including zone 0 when the origin is inside solid (AquaE's temple
-  Techroom sign, StaticMeshActor3884). Sampling the room in front of a mesh instead lets room-restricted lights
+  Techroom sign, StaticMeshActor3884) or on a surface: 59 of MoonD's 1422 mesh instances (the Ferris wheel frames
+  and columns at z 0, the carousel drum) read zone 0 and take no own-zone light. The point region walk
+  (`CollisionWorld.GetZoneIndex`, front when the plane distance is not negative) gives the zone the map stores for
+  579 of MoonD's 580 gameplay actors, 69 of the 70 that lie exactly on a node's plane (taking the back side on a tie
+  gives 521 and 11), and 58 of the 59 instances read zone 0 under either rule, so the tie rule is not what puts
+  them there. Their own stored `Region` is not exported, so it is not confirmed that the original has them in
+  zone 0 too. Sampling the room in front of a mesh instead lets room-restricted lights
   brighten wall-mounted signs whose actor is outside that room. A vertex shared by BSP triangles of two zones is
   written once per zone, so no triangle blends zones. Without the rule SteeE's storage view reads 3.4x too bright.
 - `WorldLights.SetTune` (`--svm-dyn-tune=gain,radius,falloff,ownzone`) overrides the calibration for sweeps.
@@ -552,7 +583,9 @@ buckets keep their own material in all three light states in thermal and EMF. A 
 one (no spot to full, neither to no spot); the sky zone keeps its materials.
 
 A light reaches a mesh when it is on and some point of the mesh's world box lies inside a slot's row 8 sphere, or
-within a dynamic light's radius x `svm_dyn_tune.y`; outside those the template adds exactly zero. The spot code is the
+within a dynamic light's radius x `svm_dyn_tune.y`; outside those the template adds exactly zero. For the dynamic
+lights the box is the mesh's own merged with the box around the light spheres of its static meshes, which are lit
+from as far as a light's radius from their sphere (`SurfaceBuilder.SphereBounds`). The spot code is the
 costly part to have in the shader (2.0 ms on SteeE on a UHD 770 just by being compiled in) and spot slots reach few
 meshes, while dynamic map lights have large radii and reach most of them, so most meshes draw in the no spot state. A
 sun reaches everything; a map light counts while it is switched on, whatever its light type does, so pulsing and
@@ -580,7 +613,8 @@ pixels: without the spot code where no slot's frustum reaches the block, without
 does, without portal fog while the view has none. Their Godot meshes stay on the `StaticWorldRd` and `SkyRd` layers for
 the shadow cameras, and for the main view in thermal and EMF, with responsive smoke, and on maps with an outdoor sky.
 Global shader parameters are set through `ShaderGlobals`, which the pass reads back. A lit draw walks only the dynamic
-light rows that reach it, and the Fast renderer leaves out the batches of zones the camera cannot see through the map's
+light rows that reach it (tested against the draw's box merged with the light spheres of its static meshes,
+`Batch.LightBounds`), and the Fast renderer leaves out the batches of zones the camera cannot see through the map's
 portals (`Rd/RdZoneVisibility`). Measurements and limits: docs/PERFORMANCE-LOWEND-2026-11.md.
 
 ## Flare lights

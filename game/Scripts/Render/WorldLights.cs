@@ -11,8 +11,9 @@ namespace OpenScctGame.Render;
 /// <summary>
 /// The dynamic world lights of a map: lights the original does not bake (triggered STriggerLights, pulsing and
 /// other bDynamicLight lights, with or without bApplyToStaticLighting) that still light the world. The template
-/// adds them per pixel to the baked light term of BSP and static mesh surfaces, with the same falloff, colour and 2x gain as actor
-/// lighting. They live in a float texture (one row per light: position, colour, spot, zone), a global shader parameter,
+/// adds them per pixel to the baked light term of BSP and static mesh surfaces, with the colour and 2x gain of actor
+/// lighting (BSP through the original's BSP light pass, static meshes through the actor fit over their bounding sphere).
+/// They live in a float texture (one row per light: position, colour, spot, zone and brightness), a global shader parameter,
 /// so switching a light or animating its brightness is one texture update. A bAffectOwnZoneOnly light lights only
 /// surfaces of its zone (each vertex carries its zone in the colour alpha). docs/RENDERING.md#dynamic-lights.
 /// </summary>
@@ -36,6 +37,14 @@ public sealed class WorldLights
     private const int MinIndexedLights = 12;
     // Pad the influence bounds for floating-point differences at cell edges.
     private const float BoundsPadding = 0.001f;
+
+    /// <summary>
+    /// A static mesh with a light sphere (<see cref="MeshLightSpheres"/>) is lit by a light as far as the light's
+    /// radius plus the sphere's from the sphere's centre, so its pixels look the grid up at that centre and every
+    /// light is binned this much wider (metres); a mesh with a larger sphere walks every row instead
+    /// (svm_world.gdshaderinc, SVM_MESH_GRID_REACH).
+    /// </summary>
+    public const float MeshGridReach = 2f;
     private bool _textureSet;
     public const int MaxLights = 256;
 
@@ -53,6 +62,7 @@ public sealed class WorldLights
     private readonly ImageTexture _texture;
     private readonly PackedLight[] _packed;
     private readonly float[] _zones;
+    private readonly float[] _brightness;
     private readonly bool[] _written;
     private Image? _cellImage;
     private ImageTexture? _cellTexture;
@@ -87,6 +97,7 @@ public sealed class WorldLights
         _image = Image.CreateEmpty(4, _lights.Count + MaxSpawned, false, Image.Format.Rgbaf);
         _packed = new PackedLight[_lights.Count + MaxSpawned];
         _zones = new float[_packed.Length];
+        _brightness = new float[_packed.Length];
         _written = new bool[_packed.Length];
         _texture = ImageTexture.CreateFromImage(_image);
         EnsureGlobals();
@@ -385,7 +396,7 @@ public sealed class WorldLights
     private static int CellCoordinate(float value, float origin, float scale) =>
         Math.Clamp((int)MathF.Floor((value - origin) * scale), 0, CellSide - 1);
 
-    private static float CullExtent(float radius) => MathF.Max(radius, 1e-5f) + BoundsPadding;
+    private static float CullExtent(float radius) => MathF.Max(radius, 1e-5f) + BoundsPadding + MeshGridReach;
 
     private void AddCellLight(int cell, int row) =>
         _cellImage!.SetPixel(++_cellCounts[cell], cell, new Color(row, 0f, 0f));
@@ -394,7 +405,7 @@ public sealed class WorldLights
     {
         PackedLight p = ActorLighting.PackWorld(l, m);
         float zone = l.OwnZoneOnly ? l.ZoneIndex : -1f;
-        if (_written[row] && _packed[row] == p && _zones[row] == zone)
+        if (_written[row] && _packed[row] == p && _zones[row] == zone && _brightness[row] == l.Brightness)
         {
             return;
         }
@@ -402,11 +413,13 @@ public sealed class WorldLights
         _written[row] = true;
         _packed[row] = p;
         _zones[row] = zone;
+        _brightness[row] = l.Brightness;
         _dirty = true;
         _image.SetPixel(0, row, new Color(p.Pos.X, p.Pos.Y, p.Pos.Z, p.Pos.W));
         _image.SetPixel(1, row, new Color(p.Col.X, p.Col.Y, p.Col.Z, p.Col.W));
         _image.SetPixel(2, row, new Color(p.Spot.X, p.Spot.Y, p.Spot.Z, p.Spot.W));
-        _image.SetPixel(3, row, new Color(zone, 0f, 0f, 0f));
+        // y: LightBrightness alone, which ranks the light among those of a static mesh (the light type scales the colour only).
+        _image.SetPixel(3, row, new Color(zone, l.Brightness, 0f, 0f));
     }
 
     /// <summary>
@@ -481,6 +494,7 @@ public sealed class WorldLights
         ShaderGlobals.Add(ZoneAmbientParameter, RenderingServer.GlobalShaderParameterType.Sampler2D,
             ImageTexture.CreateFromImage(Image.CreateEmpty(256, 1, false, Image.Format.Rgbaf)));
         ShaderGlobals.Add(ZoneAmbientGainParameter, RenderingServer.GlobalShaderParameterType.Vec2, Vector2.Zero);
+        MeshLightSpheres.EnsureGlobals();
         s_globalsAdded = true;
     }
 }
