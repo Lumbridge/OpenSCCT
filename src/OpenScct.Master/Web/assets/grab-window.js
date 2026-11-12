@@ -78,10 +78,11 @@ function start(host) {
     overlay.add(line(at(FROM, 0), at(FROM, REACH), 0x2fbf8f), line(at(TO, 0), at(TO, REACH), 0x2fbf8f));
     overlay.add(line(at(180 + SHIFT, 0.25), at(180 + SHIFT, REACH + 0.25), 0x7fe0c0, true));
     overlay.add(new THREE.ArrowHelper(front, new THREE.Vector3(0, y, 0).addScaledVector(front, 0.35), 1.0, 0xd8e8dc, 0.18, 0.1));
+    overlay.add(new THREE.ArrowHelper(dir(SHIFT), new THREE.Vector3(0, y, 0).addScaledVector(dir(SHIFT), 0.35), 0.75, 0x8a8880, 0.14, 0.08));
     // Directions are named from the merc's body, not from his aim: he stands side-on, his body turned about as far
     // to the right of his rifle as the window is shifted, so the window's middle is straight behind his back.
     const BACK = 180 + SHIFT;
-    tag('aim', at(0, 1.55)); tag('straight behind his back', at(BACK, REACH + 0.45));
+    tag('aim', at(0, 1.55)); tag('body', at(SHIFT, 1.3)); tag('straight behind his back', at(BACK, REACH + 0.45));
     tag("merc's left", at(BACK + 90, REACH + 0.45)); tag("merc's right", at(BACK - 90, REACH + 0.45));
     tag('window right: ' + HALF + '° to his right', at(FROM, REACH + 0.3)); tag('window left: ' + HALF + '° to his left', at(TO, REACH + 0.3));
   }
@@ -138,8 +139,9 @@ function start(host) {
   }).catch(() => fail('The mercenary model could not be loaded.'));
 
   function view(top) {
-    if (top) camera.position.copy(new THREE.Vector3(0, 6.2, 0).addScaledVector(front, -0.01));
-    else camera.position.copy(dir(215).multiplyScalar(4.2).setY(2.9));
+    // Both views are turned to his body, not his aim: his back is toward the bottom of the screen or the viewer.
+    if (top) camera.position.copy(new THREE.Vector3(0, 6.2, 0).addScaledVector(dir(SHIFT), -0.01));
+    else camera.position.copy(dir(180 + SHIFT).multiplyScalar(4.2).setY(2.9));
     controls.target.set(0, top ? 0 : 0.7, 0); controls.update();
   }
   q('top').addEventListener('click', () => view(true));
