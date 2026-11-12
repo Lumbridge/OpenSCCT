@@ -40,8 +40,8 @@ public partial class SPlayerController
 
     /// <summary>
     /// The spy's carry move (rule 13): the stick clamped to 6000 and scaled to the grabbing speed, the pawn turning
-    /// toward the move at 48000 units/s with 0.6 of the input, the ground speed from the acceleration, no jump, and the
-    /// Use press releasing with a neck break.
+    /// its back to the move at 48000 units/s with 0.6 of the input (he drags the merc), the ground speed from the
+    /// acceleration (none below 0.47 of the grabbing speed), no jump, and the Use press releasing with a neck break.
     /// </summary>
     [Uc("SBase.SPlayerController.s_GrabbingPlayer.PlayerMove", Sha1 = "bc46839caa7b87a95fe7f28c8b9a4e13f4c67088")]
     [PortOf("uc:SBase.SPlayerController:s_GrabbingPlayer.PlayerMove", Spec = "spec/combat/spy-grab.md#holding-spy-s_grabbingplayer-merc-s_grabbedbyplayer")]
@@ -63,11 +63,14 @@ public partial class SPlayerController
         aForward *= speedScale;
         aStrafe *= speedScale;
         eventUpdateRotation(DeltaTime, 1f);
-        FVector newAccel = GrabCarryRotation(DeltaTime, ForwardRequest, StrafeRequest);
+        // The script passes int(0.6 * stick) here, not the walking states' int(0.5 * stick).
+        FVector newAccel = GrabCarryRotation(DeltaTime, Movement.MovementMath.Int(K.GrabCarryInputShare * aForward),
+            Movement.MovementMath.Int(K.GrabCarryInputShare * aStrafe));
         pawn.GroundSpeed = pawn.RunningSpeed * newAccel.Size() / K.GrabSpeedDivisor;
         if (pawn.GroundSpeed < K.GrabStopFactor * pawn.GrabbingSpeed)
         {
             pawn.GroundSpeed = 0f;
+            newAccel = default;
         }
 
         bPressedJump = false;
@@ -85,8 +88,10 @@ public partial class SPlayerController
     }
 
     /// <summary>
-    /// The carry turn (UpdatePawnRotationMario in s_GrabbingPlayer): the pawn yaw follows the move direction at
-    /// 48000 units/s (the step capped at 32000 / 48000 s) from 0.6 of the inputs.
+    /// The carry turn (UpdatePawnRotationMario in s_GrabbingPlayer): the spy drags the merc, so the pawn yaw goes to
+    /// the direction opposite the move, the short way round, at 48000 units/s (the step capped at 32000 / 48000 s)
+    /// from 0.6 of the inputs. While the turn left is more than one step and the pawn is slower than 10 uu/s, there is
+    /// no acceleration: he turns on the spot first.
     /// </summary>
     [Uc("SBase.SPlayerController.s_GrabbingPlayer.UpdatePawnRotationMario", Sha1 = "8a9e4706fb2fad1f79a7f368f4d21a2e9a2765fd")]
     [PortOf("uc:SBase.SPlayerController:s_GrabbingPlayer.UpdatePawnRotationMario", Spec = "spec/combat/spy-grab.md#holding-spy-s_grabbingplayer-merc-s_grabbedbyplayer")]
@@ -98,16 +103,34 @@ public partial class SPlayerController
         }
 
         new FRotator(0, Rotation.Yaw, 0).GetAxes(out FVector x, out FVector y, out _);
-        FVector a = x * (Forward * K.GrabCarryInputShare) + y * (Strafe * K.GrabCarryInputShare);
+        FVector a = x * Forward + y * Strafe;
         a.Z = 0f;
-        if (a.IsZero())
+        if (a.Size() < 1f)
         {
             return default;
         }
 
-        float dt = SvmMath.Min(DeltaTime, K.GrabCarryMaxStep / K.GrabCarryTurnRate);
+        float step = SvmMath.Min(DeltaTime, K.GrabCarryMaxStep / K.GrabCarryTurnRate) * K.GrabCarryTurnRate;
         FRotator r = pawn.Rotation;
-        r.Yaw = DampRotation(r.Yaw, a.Rotation().Yaw, K.GrabCarryTurnRate, dt);
+        float turn = ((-a).Rotation().Yaw - r.Yaw) & 65535;
+        bool partial = false;
+        if (turn < 32768f && turn > step)
+        {
+            turn = step;
+            partial = true;
+        }
+        else if (turn >= 32768f && turn < 65536f - step)
+        {
+            turn = 65536f - step;
+            partial = true;
+        }
+
+        if (partial && pawn.Velocity.Size() < K.GrabCarryTurnOnSpotSpeed)
+        {
+            a = default;
+        }
+
+        r.Yaw += SvmMath.Trunc(turn);
         pawn.Rotation = r;
         return a;
     }

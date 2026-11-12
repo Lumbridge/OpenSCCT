@@ -266,6 +266,9 @@ public static class K
     [Provenance(ProvenanceKind.Decoded, "spy-grab.md rule 13: carry turn step capped at 32000 / 48000 s")]
     public const float GrabCarryMaxStep = 32000f;
 
+    [Provenance(ProvenanceKind.Decoded, "s_GrabbingPlayer.UpdatePawnRotationMario: no acceleration while the turn is unfinished and VSize(Velocity) < 10")]
+    public const float GrabCarryTurnOnSpotSpeed = 10f;
+
     [Provenance(ProvenanceKind.Decoded, "spy-grab.md rule 13: view turn 50 * DeltaTime * input * sensitivity")]
     public const float GrabViewRate = 50f;
 
