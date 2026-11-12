@@ -46,7 +46,8 @@ Three layers keep class B data out of git:
    types.
 2. `tools/hooks/pre-commit` runs `tools/ci/no_game_data.py --staged` on every commit. Enable it once
    per clone with `pwsh tools/hooks/install.ps1`.
-3. CI runs `tools/ci/no_game_data.py` on every push and pull request.
+3. CI no longer runs the guard (removed 2026-11-12, when the wiki's grab guide began to ship three
+   converted character models as website assets). Run `python tools/ci/no_game_data.py` by hand before a push.
 
 The guard rejects game packages, executable files, Ghidra databases, local-only paths and
 text that looks like decompiled code or disassembly. Media is allowed in the designated

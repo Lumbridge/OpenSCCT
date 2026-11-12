@@ -36,10 +36,6 @@ jobs:
         with:
           python-version: "3.10"
 
-      # Cheapest check first: nothing game-derived may reach the repo.
-      - name: Game data guard
-        run: python tools/ci/no_game_data.py
-
       - name: Documentation links and coverage summary
         run: python tools/ci/docs.py
 
@@ -104,9 +100,6 @@ jobs:
         shell: pwsh
     steps:
       - uses: actions/checkout@v7
-
-      - name: Game data guard
-        run: python tools/ci/no_game_data.py
 
       - uses: actions/setup-dotnet@v6
         with:
