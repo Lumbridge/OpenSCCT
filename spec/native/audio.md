@@ -335,7 +335,17 @@ calls as SimEvents in whichever world runs the script (server, client, client pr
 - The server's network layer (`NetHearSound`, the server world's event sink) turns each PlaySound event of its world
   into `ClientHearSound` for every remote player whose view is within 100 x the radius (0 counts as 80; an
   unattenuated call always), skipping the owner of a PlayOwnedSound and the device events the device relay sends.
-  The reach test is an estimate (open question 4).
+  The reach test is decoded (2026-11-12, `APlayerController::HearSound` editor 0x11189770, vtable +0x14c, helper
+  0x111895e0): a hearer gets the call when Attenuate is false, or when
+  `|ViewTarget.Location - Source.Location|^2 < (100 x R)^2`, R the call's radius, multiplied by
+  `0.8^(ZoneDist^2)` between the two points' zones when the line between them is blocked (by the source's
+  SoundOcclusion: 0 or 2 a BSP line check, 3 an actor trace, otherwise never blocked). It runs for every hearer, the
+  local player included, and every hearer that passes goes through `ClientHearSound` (played directly on a
+  viewport player). So a client's own attenuated call is dropped too when the actor it views is out of reach: the
+  HUD's noise cue (`echo_indic1`, radius 1, on the controller at the camera spot) is heard by a first-person merc
+  and not by a third-person spy. The rewrite applies it to its own calls in `SoundSystem.InHearingReach`
+  (a zero radius still plays there; the native drops it on a client) and the server applies the distance part
+  without the blocked-line factor.
 - The receiving client (`PlayerController.ClientHearSound`) raises the sound in its own world, marked as heard.
 - Events raised between two ticks (a call received before the step, an input command) stay out of the ticks'
   buffers (`SimEvents.Late`); the server's relay and the client's sound router take them before the next step, so
@@ -374,5 +384,5 @@ properties (spec/devices/sound-music.md).
 2. Decoded (rules 18 and 20). Open: whether the reference install runs the EAX path (its System folder has
    dsound.dll and eax.dll); the rewrite plays the DirectSound one.
 3. Resolved 2026-11-04: native one-shot PlaySound (`0x10b03d50`) clamps pitch to [0.5, 2], as for ambient sounds.
-4. APlayerController::HearSound (the per-hearer reach test that decides who gets ClientHearSound) is not decoded.
+4. Resolved 2026-11-12: APlayerController::HearSound decoded (Network section).
 5. Which streamed sounds a map really plays when its bank lacks the package (rule in Map banks): assumed silent.

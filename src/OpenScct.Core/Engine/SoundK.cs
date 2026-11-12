@@ -21,7 +21,7 @@ public static class SoundK
     /// How far from the hearer's view a server sound is still sent to that player, in multiples of its radius (the
     /// range past which UNIAudio no longer ranks a sound, rule 16).
     /// </summary>
-    [Provenance(ProvenanceKind.Estimated, "APlayerController::HearSound's reach test is not decoded (spec/native/audio.md open question 4); the client's 100 x radius range is used")]
+    [Provenance(ProvenanceKind.Decoded, "APlayerController::HearSound editor 0x11189770 and helper 0x111895e0: 100.0 (0x115beffc) x Radius from the view target; the blocked-line factor 0.8^(ZoneDist^2) is not applied by the server relay")]
     public const float HearRangeFactor = 100f;
 
     /// <summary>ClientSetMusic's fade-in for every transition but MTRAN_None.</summary>

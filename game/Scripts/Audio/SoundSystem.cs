@@ -315,7 +315,7 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
             {
                 string sound = e.What.ToString();
                 int unknown = Unknown.Count;
-                bool started = PlaySound(e.ActorId, sound, e.Slot, e.NoOverride, e.Location, e.Volume, e.Radius, e.Pitch, !e.NoAttenuate,
+                bool started = InHearingReach(e) && PlaySound(e.ActorId, sound, e.Slot, e.NoOverride, e.Location, e.Volume, e.Radius, e.Pitch, !e.NoAttenuate,
                     flat: e.Flat, bone: e.Bone, missingSource: missingSource);
                 if (Calls.Count >= MaxStarts)
                 {
@@ -339,6 +339,35 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
                 _pendingSwitch = e.Slot;
                 break;
         }
+    }
+
+    /// <summary>
+    /// Rule 4's reach test for a call this machine's own simulation made (APlayerController::HearSound, which the
+    /// local player's calls go through as well): an attenuated sound plays only when the actor the player views is
+    /// nearer to the sound than 100 x its radius; with something in the way the radius first shrinks by
+    /// 0.8 ^ (ZoneDist ^ 2) between the two zones. The server tested its own calls before sending them (heard).
+    /// The HUD's noise cue (radius 1, at the controller, which is at the camera) so reaches a first-person merc and
+    /// not a third-person spy, whose pawn is further than 100 uu from the camera.
+    /// </summary>
+    [OpenScct.Provenance.Provenance(OpenScct.Provenance.ProvenanceKind.Decoded, "APlayerController::HearSound editor 0x11189770 (vtable +0x14c) and its helper 0x111895e0: |ViewTarget.Location - Source.Location|^2 < (100.0 (0x115beffc) x R)^2, R x pow(0.8, ZoneDist^2) when the line check is blocked; only Attenuate false passes regardless")]
+    [OpenScct.Provenance.Provenance(OpenScct.Provenance.ProvenanceKind.Estimated, "A zero radius still plays here (the native drops it on a client); the blocked test uses the occlusion trace, the native a BSP line check or, for SoundOcclusion 3, an actor trace")]
+    private bool InHearingReach(in SimEvent e)
+    {
+        if (e.Heard || e.NoAttenuate || e.ActorId == 0 || e.Radius == 0f || ViewActorId == 0 || World is null ||
+            !World.TryGetActorLocation(ViewActorId, out FVector ear))
+        {
+            return true;
+        }
+
+        float radius = e.Radius;
+        if (World.SoundOcclusionOf(e.ActorId) != AudioK.OcclusionNone && World.OcclusionBetween(ear, e.Location, out _))
+        {
+            radius *= SoundRules.AmbientZoneFactor(
+                Library?.Map?.ZoneDistance(World.ZoneIndexAt(ear), World.ZoneIndexAt(e.Location)) ?? 0);
+        }
+
+        float reach = AudioK.RangeFactor * radius;
+        return FVector.DistSquared(ear, e.Location) < reach * reach;
     }
 
     /// <summary>Rules 9 to 17 for one call. Returns false when nothing started.</summary>
