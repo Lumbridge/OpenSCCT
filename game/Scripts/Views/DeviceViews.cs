@@ -345,7 +345,7 @@ public sealed class DeviceViews
                 if (m.Entry.Light == LightSource.Actor && m.Entry.Node.Mesh is { } changedMesh)
                 {
                     var sphere = ActorLighting.SphereOf(changedMesh, m.Entry.Node.GlobalTransform);
-                    ActorLighting.Apply(m.Entry.Node, _map.LightActor(sphere.Center, sphere.Radius, m.Entry.AmbientGlow));
+                    ActorLighting.Apply(m.Entry.Node, _map.LightActor(sphere.Center, sphere.Radius, m.Entry.AmbientGlow, UeSpace.ToUe(m.Entry.Node.GlobalTransform.Origin)));
                 }
             }
 
@@ -354,7 +354,7 @@ public sealed class DeviceViews
             if (relight && m.Moved && m.Entry.Light == LightSource.Actor && m.Entry.Node.Visible)
             {
                 var sphere = ActorLighting.SphereOf(m.Entry.Node.Mesh, m.Entry.Node.GlobalTransform);
-                ActorLighting.Apply(m.Entry.Node, _map.LightActor(sphere.Center, sphere.Radius, m.Entry.AmbientGlow));
+                ActorLighting.Apply(m.Entry.Node, _map.LightActor(sphere.Center, sphere.Radius, m.Entry.AmbientGlow, UeSpace.ToUe(m.Entry.Node.GlobalTransform.Origin)));
             }
         }
 

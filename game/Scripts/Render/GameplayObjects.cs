@@ -115,7 +115,7 @@ public static class GameplayObjects
             map.Gameplay[actor.Id] = entry;
             if (!unlit)
             {
-                ActorLighting.Apply(node, map.LightActor(lightSphere.Center, radius, glow));
+                ActorLighting.Apply(node, map.LightActor(lightSphere.Center, radius, glow, location));
             }
 
             placed++;

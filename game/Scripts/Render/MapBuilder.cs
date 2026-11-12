@@ -330,6 +330,16 @@ public sealed class RenderMap
     public ActorLightSet LightActor(FVector location, float radius, int ambientGlow) =>
         ActorLighting.Select(location, radius, AmbientAt(location, ambientGlow), ZoneIndexAt(location));
 
+    /// <summary>
+    /// Light set of a mesh actor whose bounding sphere is (<paramref name="center"/>, <paramref name="radius"/>): the
+    /// lights are ranked and fitted over the sphere, but the zone (its ambient, and which own-zone lights reach it) is
+    /// the actor's point region, taken at <paramref name="actorLocation"/> as the original does. The sphere's centre of
+    /// a large mesh can sit inside solid geometry (zone 0) while the actor stands in a room: MoonD's carousel mover,
+    /// whose sphere centre is inside the drum, lost the zone ambient and both own-zone plaza floods that way.
+    /// </summary>
+    public ActorLightSet LightActor(FVector center, float radius, int ambientGlow, FVector actorLocation) =>
+        ActorLighting.Select(center, radius, AmbientAt(actorLocation, ambientGlow), ZoneIndexAt(actorLocation));
+
     /// <summary>Incident room lighting for volumes, including sources already baked into the surrounding surfaces.</summary>
     public ActorLightSet LightSmoke(FVector location, float radius) =>
         ActorLighting.SelectForSmoke(location, radius, AmbientAt(location, 0), ZoneIndexAt(location));
@@ -389,7 +399,7 @@ public sealed class RenderMap
             if (g.Light == LightSource.Actor)
             {
                 var sphere = ActorLighting.SphereOf(g.Node.Mesh, g.Node.GlobalTransform);
-                ActorLighting.Apply(g.Node, LightActor(sphere.Center, sphere.Radius, g.AmbientGlow));
+                ActorLighting.Apply(g.Node, LightActor(sphere.Center, sphere.Radius, g.AmbientGlow, UeSpace.ToUe(g.Node.GlobalTransform.Origin)));
             }
         }
 
@@ -1442,7 +1452,7 @@ public static class MapBuilder
 
             if (light == LightSource.Actor && arrayMesh.GetSurfaceCount() > 0)
             {
-                ActorLighting.Apply(node, _map.LightActor(lightSphere.Center, radius, glow));
+                ActorLighting.Apply(node, _map.LightActor(lightSphere.Center, radius, glow, location));
             }
         }
 

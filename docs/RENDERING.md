@@ -394,10 +394,21 @@ FactD/E/P/T and SancD. Only the lights that give light in a frame take rows, so 
 nothing. They live in a float texture (one row per light: position and radius, colour, spot cone, own zone), a global
 shader parameter, and are summed per pixel into the baked term.
 
-- Colour, gain and radius are the actor model's (below). The falloff over the world is `1 - (d / R)^2`: in a sweep
-  (gain, radius, falloff) on the SteeE shop and yard views it matched far better than the actor falloff (shop SSIM
-  0.70 to 0.81, luma ratio 0.54 to 1.00). Measured, not decoded. That is the BSP's: the editor builds BSP dynamic
-  light passes on an attenuation texture (`FBspLightAttenuationTexture`, `FBspQuadraticLightAttenuationTexture`).
+- Colour, gain and radius are the actor model's (below). On BSP a point light is the original's BSP light pass
+  (`svm_bsp_light`), decoded from the editor build: one additive pass per light whose vertex colour is
+  `Color x 2 sqrt(1 - h / R)` (`FBspLightVertexStream::GetStreamData`, 0x111b97a0; LE_QuadraticNonIncidence
+  `2 sqrt(1 - h^2 / R^2)`), `h` the light's distance from the surface's plane, times an attenuation texture laid over
+  the light's circle on that plane (radius `sqrt(R^2 - h^2)`, texture coordinates from the vertex writer 0x111b9a60)
+  whose texels hold `1 - d / 30.5` around the centre of 64 (`FBspLightAttenuationTexture::GetTextureData`,
+  0x111b9090): `1 - (32 / 30.5) rho / sqrt(R^2 - h^2)`, `rho` the distance along the plane. There is no N.L term, so
+  a light level with a wall lights it fully. Only the side the plane faces is lit (seen in play, not decoded: MoonD's
+  token kiosk has its wall facing PlazaFlood2 lit and the wall facing away black). Before this the BSP term was the
+  measured `(1 - (d / R)^2) N.L`, which gives nothing for a grazing light: PlazaFlood2 stands exactly in the plane of
+  that kiosk wall, which drew black here and plank texture x the flood's colour in the original (111, 35, 21 against
+  97, 45, 25 after). Checked on SteeE's twelve original frames: the shop view (the one lit mostly by dynamic lights)
+  goes from luma ratio 1.111 and mean luma error 0.043 to 1.067 and 0.023, the other eleven keep their error. The
+  stage scale of the texture (it is stored at half intensity) is not decoded; the gain is the one measured before.
+  Spots and suns keep `1 - (d / R)^2` with N.L (measured: the original's BSP pass leaves spot effects out).
   Static meshes take dynamic lights through the D3D vertex lights like actors (`RenderingModeNormal::SetLight`,
   2 S(d / R), editor 0x10f29790), so vertex-lit surfaces use the actor falloff `1 - 3x^2 + 2x^3`
   (`svm_dyn_falloff`). KrauE's lab door at the merc start (two own-zone STriggerLights, radius 18): merc-180 SSIM
@@ -635,7 +646,11 @@ local captures are under `local/cabinet-light-parity/`.
 Lights are ranked by `brightness x (1 - d^2 / (R + r)^2)`, suns first; spots score 0 outside their cone and use
 `phi = 1.15 acos((1 - LightCone / 256)^2)`, `theta = 0.05 phi`. Only lights kept for run time
 (`bApplyToInGameLighting` or `bDynamicLight`) that are on take part (dynamic ones without the in-game flag were left
-out until AquaE's kiosk beside STriggerLight303 drew black), and own-zone lights only for actors in their zone. The
+out until AquaE's kiosk beside STriggerLight303 drew black), and own-zone lights only for actors in their zone. A
+mesh actor's zone (its ambient too) is its point region, taken at the actor's location, while the lights are ranked
+and fitted over its bounding sphere (`RenderMap.LightActor` with the actor's location): the sphere centre of a large
+mesh can lie inside solid geometry, which reads as zone 0. MoonD's carousel mover (sphere centre inside the drum) lost
+the zone ambient and both own-zone plaza floods that way and drew its roof, tub and horses black. The
 light type scales each chosen light's colour (as for the world lights); ranking uses LightBrightness alone. LE_QuadraticNonIncidence (20) uses the D3D attenuation
 `1 / (8 d^2 / R^2)` instead of the ordinary fit; LE_PointAmbient (21) also
 adds its attenuated colour whatever the normal (its D3D ambient). LE_Cylinder and LE_NonIncidence stay plain points

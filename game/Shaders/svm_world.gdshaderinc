@@ -362,6 +362,35 @@ vec3 svm_one_light(vec4 pos, vec4 col, vec4 spot, vec3 wp, vec3 wn, int falloff)
 	return col.rgb * (att * max(0.0, dot(wn, l)) + ambient);
 }
 
+// A dynamic point light on a lightmapped (BSP) surface, as the original's BSP light pass draws it: one additive pass
+// per light, lit by a vertex colour and an attenuation texture, with no N.L term (FBspLightVertexStream::GetStreamData,
+// editor 0x111b97a0, and its vertex writer 0x111b9a60; FBspLightAttenuationTexture::GetTextureData, 0x111b9090).
+// With h the light's distance from the surface's plane and rho the distance along the plane from the light's foot:
+//   vertex colour  Color x 2 sqrt(1 - h / R)   (LE_QuadraticNonIncidence: 2 sqrt(1 - h^2 / R^2)), clamped as an FColor;
+//   texture        the light's circle on the plane, radius sqrt(R^2 - h^2), mapped over a 64 texel square whose texels
+//                  hold 1 - d / 30.5 around the centre: 1 - (32 / 30.5) rho / sqrt(R^2 - h^2), 0 outside.
+// So a light level with a wall still lights it fully (h = 0), where N.L gave nothing: MoonD's plaza floods on the kiosk
+// walls and building fronts. Only the side the plane faces is lit (the kiosk's far wall stays black in the original).
+// col.rgb is the packed 2 C. plane_n is the surface's own normal, not a detail normal.
+vec3 svm_bsp_light(vec4 pos, vec4 col, vec4 spot, vec3 wp, vec3 plane_n) {
+	if (dot(col.rgb, col.rgb) <= 0.0) {
+		return vec3(0.0);
+	}
+	float radius = max(pos.w, 1e-5);
+	vec3 d = pos.xyz - wp;
+	float h = dot(d, plane_n);
+	if (h < -1e-3 || h >= radius) {
+		return vec3(0.0);
+	}
+	h = max(h, 0.0);
+	float x = h / radius;
+	float incidence = sqrt(spot.w < -2.5 && spot.w > -3.5 ? 1.0 - x * x : 1.0 - x);
+	float circle = sqrt(max(radius * radius - h * h, 1e-10));
+	float rho = sqrt(max(dot(d, d) - h * h, 0.0));
+	float attenuation = max(0.0, 1.0 - (32.0 / 30.5) * rho / circle);
+	return min(col.rgb * incidence, vec3(1.0)) * attenuation;
+}
+
 // Actor lights use the original SetLight fit over the actor's sphere, rather than cutting off at R.
 // pos.w is linear attenuation per metre, col.w constant attenuation. Spot inner cone is 0.05 outer.
 vec3 svm_actor_light(vec4 pos, vec4 col, vec4 spot, vec3 wp, vec3 wn) {
@@ -640,12 +669,14 @@ global uniform int svm_dyn_light_count;
 global uniform sampler2D svm_dyn_cells;
 global uniform vec4 svm_dyn_cell_transform; // XZ origin and reciprocal cell size
 global uniform int svm_dyn_indexed_rows;
-// Calibration of the dynamic world lights: x gain, y radius scale, z falloff (0 smoothstep, 1 1-x^2, 2 1-x,
-// 3 (1-x)^2), w 1 to honour bAffectOwnZoneOnly on world surfaces. (1, 1, 0, 1) is the decoded actor model.
+// Calibration of the dynamic world lights: x gain, y radius scale, z falloff (0 smoothstep, 1 the default: the BSP
+// light pass for point lights on lightmapped surfaces and 1-x^2 otherwise, 2 1-x, 3 (1-x)^2), w 1 to honour
+// bAffectOwnZoneOnly on world surfaces. (1, 1, 0, 1) is the decoded actor model.
 global uniform vec4 svm_dyn_tune;
 
-// The falloff of the dynamic world lights: BSP takes them through the attenuation texture pass (1 - x^2, measured);
-// static meshes through the D3D vertex lights, the actor falloff 1 - 3x^2 + 2x^3 (RenderingModeNormal::SetLight).
+// The falloff of the dynamic world lights: BSP takes point lights through the attenuation texture pass (svm_bsp_light,
+// decoded) and spots and suns by 1 - x^2 (measured); static meshes through the D3D vertex lights, the actor falloff
+// 1 - 3x^2 + 2x^3 (RenderingModeNormal::SetLight).
 int svm_dyn_falloff() {
 #ifdef LIGHT_VERTEX
 	// Calibration modes other than the default (1) apply to both.
@@ -657,8 +688,8 @@ int svm_dyn_falloff() {
 
 #include "res://Shaders/svm_window_light.gdshaderinc"
 
-// One row of svm_dyn_lights at a surface point.
-vec3 svm_dynamic_row(int i, vec3 wp, vec3 wn, float zone) {
+// One row of svm_dyn_lights at a surface point. plane_n is the surface's own normal (wn may carry a detail normal).
+vec3 svm_dynamic_row(int i, vec3 wp, vec3 wn, vec3 plane_n, float zone) {
 	float own = texelFetch(svm_dyn_lights, ivec2(3, i), 0).x;
 	if (svm_dyn_tune.w > 0.5 && own >= 0.0 && abs(own - zone) > 0.5) {
 		return vec3(0.0);
@@ -667,12 +698,20 @@ vec3 svm_dynamic_row(int i, vec3 wp, vec3 wn, float zone) {
 	vec4 c = texelFetch(svm_dyn_lights, ivec2(1, i), 0);
 	vec4 s = texelFetch(svm_dyn_lights, ivec2(2, i), 0);
 	p.w *= svm_dyn_tune.y;
+#ifdef LIGHT_LIGHTMAP
+	// Point lights take the BSP light pass; spots and suns keep the measured model (the original's pass leaves spot
+	// effects out). The calibration falloffs other than the default (1) still apply to every light.
+	vec3 live = svm_dyn_falloff() == 1 && p.w >= 0.0 && s.w < -1.5
+		? svm_bsp_light(p, c, s, wp, plane_n)
+		: svm_one_light(p, c, s, wp, wn, svm_dyn_falloff());
+#else
 	vec3 live = svm_one_light(p, c, s, wp, wn, svm_dyn_falloff());
+#endif
 	if (any(greaterThan(live, vec3(0.0)))) live *= svm_window_filter(wp, p);
 	return live;
 }
 
-vec3 svm_dynamic(vec3 wp, vec3 wn, float zone) {
+vec3 svm_dynamic(vec3 wp, vec3 wn, vec3 plane_n, float zone) {
 #ifdef SVM_RD_WORLD
 	// The world pass on the RenderingDevice (Rd/RdWorldRenderer) hands each draw the rows that can reach it (bit i for
 	// row i below 32): every other row adds exactly nothing to it. A pixel walks those rows alone, with no lookup of
@@ -685,7 +724,7 @@ vec3 svm_dynamic(vec3 wp, vec3 wn, float zone) {
 	while (rows != 0) {
 		int i = findLSB(rows);
 		rows &= rows - 1;
-		named += svm_dynamic_row(i, wp, wn, zone);
+		named += svm_dynamic_row(i, wp, wn, plane_n, zone);
 	}
 	if (svm_dyn_light_count <= 32) {
 		return named * svm_dyn_tune.x;
@@ -721,7 +760,7 @@ vec3 svm_dynamic(vec3 wp, vec3 wn, float zone) {
 			continue;
 		}
 #endif
-		sum += svm_dynamic_row(i, wp, wn, zone);
+		sum += svm_dynamic_row(i, wp, wn, plane_n, zone);
 	}
 #ifdef SVM_RD_WORLD
 	sum += named;
@@ -993,6 +1032,8 @@ void fragment() {
 #endif
 #if defined(LIGHT_LIGHTMAP) || defined(LIGHT_VERTEX) || defined(LIGHT_ACTOR)
 	vec3 wn = normalize(v_wnormal) * (FRONT_FACING ? 1.0 : -1.0);
+	// The surface's own normal, before any authored or detail normal replaces wn (svm_bsp_light's plane).
+	vec3 plane_n = wn;
 #ifdef AUTHORED_MATERIAL
     wn = normalize(am_triplanar ? authored.normal : authored_frame * authored.normal) * (FRONT_FACING ? 1.0 : -1.0);
 #endif
@@ -1023,7 +1064,7 @@ void fragment() {
 	// Every dynamic world light is a point light whose radius stops short of the mesh (LightReach).
 	vec3 dyn_lights = vec3(0.0);
 #else
-	vec3 dyn_lights = svm_dyn_light_count > 0 && !unlit ? svm_dynamic(v_wpos, wn, zone) : vec3(0.0);
+	vec3 dyn_lights = svm_dyn_light_count > 0 && !unlit ? svm_dynamic(v_wpos, wn, plane_n, zone) : vec3(0.0);
 #endif
 	vec3 dyn = dyn_lights + spot + svm_zone_amb(zone);
 	// The flares, with the dynamic world lights' gain, radius scale and falloff. They add past the 2x cap of the baked
