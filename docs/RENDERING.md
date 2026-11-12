@@ -147,9 +147,11 @@ starts with it, and it must be exact within one step. It reads back exact (maxim
 ### Ambient occlusion
 
 Display's `ambient_occlusion` option adds subtle contact shading, off by default to preserve baked map lighting.
-`AmbientOcclusionEffect` reads resolved opaque depth and shades the resolved scene before the display/vision passes.
-It runs after transparent rendering so MSAA's final resolve cannot overwrite it; blended effects over surfaces
-receive the same subtle attenuation as the scene behind them.
+`AmbientOcclusionEffect` reads resolved opaque depth and shades the opaque scene right after the opaque pass, before
+the sky and every blended surface: one full-screen draw that multiplies the frame's colour target (the multisampled
+one with MSAA, so the later resolve keeps it). Smoke, gas, glass and particles are drawn afterwards, over the shaded
+scene. Run after them, as it first was, it darkened them by the shapes behind them, so the outlines of walls and
+characters showed through a smoke cloud.
 It reconstructs view-space surfaces from reverse-Z depth, samples eight directions with three distances over a
 0.6-metre radius, and caps darkening at 45%. Surface-aware normals and distance weighting suppress edge halos;
 the near-camera exclusion avoids shading held weapons. Normal and night views support it; thermal, motion and
