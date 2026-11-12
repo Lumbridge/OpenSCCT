@@ -73,13 +73,25 @@ public partial class LobbyRoomScreen : MenuPage
 
     private sealed class PlayerRow
     {
-        public required HBoxContainer Line { get; init; }
+        /// <summary>The whole row (its background and, inside, the columns).</summary>
+        public required PanelContainer Line { get; init; }
 
         public required TextureRect Speaker { get; init; }
 
         public required Label Name { get; init; }
 
+        /// <summary>The dim line under the name: mic to team, voice banned, the map check's note.</summary>
+        public required Label Note { get; init; }
+
         public required RankBadge Rank { get; init; }
+
+        /// <summary>The Rank column's cell: kept (empty) for a player without a rank while others have one.</summary>
+        public required Control RankSlot { get; init; }
+
+        /// <summary>The side whose colour the local player's row wears now (null: not drawn yet, or a spectator).</summary>
+        public HudSide? Worn { get; set; }
+
+        public bool Styled { get; set; }
 
         public required Label Ready { get; init; }
 
@@ -576,7 +588,9 @@ public partial class LobbyRoomScreen : MenuPage
 
         RefreshLastGame();
         var seen = new HashSet<int>();
-        foreach (OnlineLobbyPlayer p in s.Members)
+        var placed = new Dictionary<VBoxContainer, int> { [_spies] = 0, [_mercs] = 0, [_spectators] = 1 };
+        // People above bots, each group in the server's order.
+        foreach (OnlineLobbyPlayer p in s.Members.OrderBy(p => p.IsBot))
         {
             seen.Add(p.Id);
             if (!_rows.TryGetValue(p.Id, out PlayerRow? row))
@@ -597,14 +611,27 @@ public partial class LobbyRoomScreen : MenuPage
                 list.AddChild(row.Line);
             }
 
+            list.MoveChild(row.Line, placed[list]++);
+            if (p.IsLocal && (!row.Styled || row.Worn != p.Side))
+            {
+                row.Line.AddThemeStyleboxOverride("panel", RowBox(p.Side ?? HudSide.Spy));
+                row.Worn = p.Side;
+                row.Styled = true;
+            }
+
             row.PlayerName = p.Name;
-            row.Name.Text = p.Name + (p.IsLocal ? " (you)" : "") + (p.IsVerified ? VerifiedMark : string.Empty) + (p.IsHost ? " (host)" : string.Empty) +
-                (p.TeamVoiceOnly ? " (mic: team)" : string.Empty) + (p.VoiceBanned ? " (voice banned)" : string.Empty) +
-                (p.MapNote.Length > 0 ? "  [" + p.MapNote + "]" : string.Empty);
+            row.Name.Text = p.Name + (p.IsLocal ? " (you)" : string.Empty) + (p.IsVerified ? VerifiedMark : string.Empty);
             row.Name.Modulate = p.IsLocal ? UiStyle.SideColour(p.Side ?? HudSide.Spy) : UiStyle.MenuText;
+            var notes = new List<string>();
+            if (p.TeamVoiceOnly) notes.Add("mic to team only");
+            if (p.VoiceBanned) notes.Add("voice banned");
+            if (p.MapNote.Length > 0) notes.Add(p.MapNote);
+            row.Note.Text = string.Join(" · ", notes);
+            row.Note.Visible = notes.Count > 0;
             row.Rank.Show(OpenScct.Net.Cosmetics.PlayerRank.Unpack(p.Rank), withTitle: false);
-            // A bot is always ready: its column says what it is instead.
-            row.Ready.Text = p.IsBot ? BotText : p.Side is null || p.IsHost ? string.Empty : p.Ready ? "Ready" : "Not ready";
+            // A bot is always ready and the host launches instead: their column says what they are.
+            row.Ready.Text = p.IsBot ? BotText : p.IsHost ? "Host" : p.Side is null ? string.Empty : p.Ready ? "Ready" : "Not ready";
+            row.Ready.Modulate = p.IsBot ? UiStyle.Dim : p.IsHost ? UiStyle.MenuText : p.Ready ? UiStyle.MenuFocus : UiStyle.Dim;
             row.Ping.Text = p.PingMs > 0 ? string.Create(CultureInfo.InvariantCulture, $"{p.PingMs} ms") : string.Empty;
             row.VoiceBanned = p.VoiceBanned;
             if (row.Admin is not null)
@@ -623,9 +650,6 @@ public partial class LobbyRoomScreen : MenuPage
                 _rows.Remove(id);
             }
         }
-
-        _spiesWaiting!.Visible = _spies.GetChildCount() <= 2;
-        _mercsWaiting!.Visible = _mercs.GetChildCount() <= 2;
 
         // The spectators' frame only when someone watches (the original lobby has no such list).
         if (_spectators.GetParent() is Control spectatorFrame)
@@ -682,8 +706,11 @@ public partial class LobbyRoomScreen : MenuPage
         {
             bool locked = local is null || (local.Ready && !control) || s.Launching;
             SwitchTeamButton.Disabled = locked || s.Setup.Mode == OpenScct.Core.EGameMode.GM_MercDeathMatch;
-            _joinSpiesButton!.Disabled = locked || local?.Side == HudSide.Spy || s.Setup.Mode == OpenScct.Core.EGameMode.GM_MercDeathMatch;
-            JoinMercButton.Disabled = locked || local?.Side == HudSide.Merc;
+            // No Join button under the local player's own team.
+            _joinSpiesButton!.Visible = local?.Side != HudSide.Spy;
+            _joinSpiesButton.Disabled = locked || s.Setup.Mode == OpenScct.Core.EGameMode.GM_MercDeathMatch;
+            JoinMercButton.Visible = local?.Side != HudSide.Merc;
+            JoinMercButton.Disabled = locked;
             SpectateButton.Disabled = locked || local?.Side is null;
         }
         if (_rulesButton is not null) _rulesButton.Text = "Session Options";
@@ -716,23 +743,41 @@ public partial class LobbyRoomScreen : MenuPage
 
     private PlayerRow MakeRow(OnlineLobbyPlayer p, IOnlineLobbySession s)
     {
-        var line = new HBoxContainer { Name = "Player" + p.Id.ToString(CultureInfo.InvariantCulture) };
-        line.AddThemeConstantOverride("separation", 6);
+        // Fixed columns (LobbyRoomScreen.Layout's widths, shared with the titles): speaking, name, rank, status, ping, menu.
+        var box = new PanelContainer { Name = "Player" + p.Id.ToString(CultureInfo.InvariantCulture), CustomMinimumSize = new Vector2(0f, 32f) };
+        box.AddThemeStyleboxOverride("panel", RowBox(null));
+        var line = new HBoxContainer();
+        line.AddThemeConstantOverride("separation", RowGap);
+        box.AddChild(line);
+        // The icon shows only while the player talks; its cell stays so the name does not jump.
+        var speakerSlot = new Control { Name = "SpeakingSlot", CustomMinimumSize = new Vector2(SpeakerWidth, SpeakerWidth), SizeFlagsVertical = SizeFlags.ShrinkCenter };
         var speaker = new TextureRect
         {
-            Name = "Speaking", Texture = UiStyle.MenuTexture("Menu_PC", "CommunicatorON"), CustomMinimumSize = new Vector2(24f, 24f),
+            Name = "Speaking", Texture = UiStyle.MenuTexture("Menu_PC", "CommunicatorON"), Visible = false,
             ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize, StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered, Modulate = UiStyle.MenuFocus,
         };
-        line.AddChild(speaker);
-        var rank = new RankBadge(24, 14) { Name = "Rank", CustomMinimumSize = new Vector2(96f, 0f), Visible = false };
-        line.AddChild(rank);
-        // The name takes the row's spare width and the row grows for a long one ("Name#3d08 (host)"), nothing cut.
-        var name = new Label { Name = "Name", AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new Vector2(80f, 0f), SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
-        var ready = new Label { Name = "ReadyState", CustomMinimumSize = new Vector2(72f, 0f) };
-        var ping = new Label { Name = "Ping", CustomMinimumSize = new Vector2(50f, 0f) };
-        line.AddChild(name);
+        speakerSlot.AddChild(speaker);
+        speaker.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
+        line.AddChild(speakerSlot);
+        // The name takes the row's spare width and the row grows for a long one, nothing cut.
+        var who = new VBoxContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill, SizeFlagsVertical = SizeFlags.ShrinkCenter };
+        who.AddThemeConstantOverride("separation", 0);
+        var name = new Label { Name = "Name", AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new Vector2(80f, 0f), SizeFlagsHorizontal = SizeFlags.ExpandFill };
+        var note = new Label { Name = "Note", AutowrapMode = TextServer.AutowrapMode.WordSmart, SizeFlagsHorizontal = SizeFlags.ExpandFill, Modulate = UiStyle.Dim, Visible = false };
+        note.AddThemeFontSizeOverride("font_size", 13);
+        who.AddChild(name);
+        who.AddChild(note);
+        line.AddChild(who);
+        var rankSlot = new HBoxContainer { Name = "RankSlot", CustomMinimumSize = new Vector2(RankWidth, 0f), Visible = false };
+        var rank = new RankBadge(22, 14) { Name = "Rank", Visible = false };
+        rankSlot.AddChild(rank);
+        line.AddChild(rankSlot);
+        var ready = new Label { Name = "ReadyState", CustomMinimumSize = new Vector2(StatusWidth, 0f) };
+        var ping = new Label { Name = "Ping", CustomMinimumSize = new Vector2(PingWidth, 0f), HorizontalAlignment = HorizontalAlignment.Right, Modulate = UiStyle.Dim };
         line.AddChild(ready);
         line.AddChild(ping);
+        var menuSlot = new HBoxContainer { Name = "MenuSlot", CustomMinimumSize = new Vector2(MenuWidth, 0f) };
+        line.AddChild(menuSlot);
         HSlider? volume = null;
         Label? volumeText = null;
         CheckBox? mute = null;
@@ -774,8 +819,11 @@ public partial class LobbyRoomScreen : MenuPage
             menu.AddChild(volumeText);
             menu.AddChild(mute);
             var playerMenu = LobbyPanels.Button("•••", () => popup.PopupCentered(new Vector2I(320, 220)), "PlayerActions");
+            playerMenu.CustomMinimumSize = new Vector2(MenuWidth, 28f);
+            playerMenu.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+            playerMenu.SizeFlagsVertical = SizeFlags.ShrinkCenter;
             playerMenu.TooltipText = "Voice and player actions for " + p.Name;
-            line.AddChild(playerMenu);
+            menuSlot.AddChild(playerMenu);
             admin = new MenuButton { Name = "Admin", Text = "Admin ▾", Flat = false, FocusMode = FocusModeEnum.All, TooltipText = "Kick, ban or voice ban this player" };
             PopupMenu items = admin.GetPopup();
             items.AddItem("Kick", AdminKick);
@@ -786,7 +834,7 @@ public partial class LobbyRoomScreen : MenuPage
 
         var row = new PlayerRow
         {
-            Line = line, Speaker = speaker, Name = name, Rank = rank, Ready = ready, Ping = ping, Volume = volume, VolumeText = volumeText,
+            Line = box, Speaker = speaker, Name = name, Note = note, Rank = rank, RankSlot = rankSlot, Ready = ready, Ping = ping, Volume = volume, VolumeText = volumeText,
             Mute = mute, Admin = admin,
         };
         if (admin is not null)

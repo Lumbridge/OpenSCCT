@@ -10,6 +10,10 @@ namespace OpenScctGame.UI;
 public partial class LobbyRoomScreen
 {
     private PanelContainer? _settingsPanel;
+    private const int RowGap = 8;
+    private const float SpeakerWidth = 22f, RankWidth = 96f, StatusWidth = 84f, PingWidth = 56f, MenuWidth = 64f;
+    private readonly List<Label> _rankTitles = new();
+    private Label? _spiesCount, _mercsCount;
     private Label? _overviewTitle, _overviewRules, _overviewObjective, _loadout, _draftStatus;
     private Button? _rulesButton, _joinSpiesButton, _mapButton, _randomMapButton;
     private RandomMapDialog? _randomMapDialog;
@@ -40,23 +44,20 @@ public partial class LobbyRoomScreen
         var actions = new VBoxContainer { Name = "LobbyActions", SizeFlagsHorizontal = SizeFlags.ExpandFill, SizeFlagsStretchRatio = 0.65f };
         var mercs = new VBoxContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill };
         teams.AddChild(spies); teams.AddChild(actions); teams.AddChild(mercs);
-        _spies = LobbyPanels.Card(spies, "Spies", "Spies");
-        _spiesWaiting = LobbyPanels.Text("Open slots — join Spies"); _spies.AddChild(_spiesWaiting);
-        var sideActions = new HBoxContainer(); spies.AddChild(sideActions);
-        _joinSpiesButton = LobbyPanels.Button("Join Spies", () => session.SetSide(HudSide.Spy), "JoinSpies"); _joinSpiesButton.SizeFlagsHorizontal = SizeFlags.ExpandFill; sideActions.AddChild(_joinSpiesButton);
-        _mercs = LobbyPanels.Card(mercs, "Mercs", "Mercenaries");
-        _mercsWaiting = LobbyPanels.Text("Open slots — join Mercenaries"); _mercs.AddChild(_mercsWaiting);
-        JoinMercButton = LobbyPanels.Button("Join Mercenaries", () => session.SetSide(HudSide.Merc), "JoinMercs"); mercs.AddChild(JoinMercButton);
+        _spies = TeamCard(spies, "Spies", "Spies", HudSide.Spy, out _spiesWaiting, out _spiesCount);
+        _joinSpiesButton = LobbyPanels.Button("Join Spies", () => session.SetSide(HudSide.Spy), "JoinSpies"); _spies.GetParent().AddChild(_joinSpiesButton);
+        _mercs = TeamCard(mercs, "Mercs", "Mercenaries", HudSide.Merc, out _mercsWaiting, out _mercsCount);
+        JoinMercButton = LobbyPanels.Button("Join Mercenaries", () => session.SetSide(HudSide.Merc), "JoinMercs"); _mercs.GetParent().AddChild(JoinMercButton);
         _spectators = LobbyPanels.Card(spies, "Spectators", "Spectators");
 
         SwitchTeamButton = LobbyPanels.Button("Switch Team", SwitchTeam, "SwitchTeam"); actions.AddChild(SwitchTeamButton);
+        SpectateButton = LobbyPanels.Button("Spectate", session.Spectate, "Spectate"); actions.AddChild(SpectateButton);
         EquipmentButton = LobbyPanels.Button("Equipment", OpenEquipment, "Equipment"); actions.AddChild(EquipmentButton);
         ArmouryButton = LobbyPanels.Button("Cosmetics", OpenArmoury, "Armoury"); actions.AddChild(ArmouryButton);
         _rulesButton = LobbyPanels.Button("Session Options", OpenMatchSettings, "MatchSettings"); actions.AddChild(_rulesButton);
         _randomMapButton = LobbyPanels.Button("Random map", OpenRandomMap, "RandomMap"); actions.AddChild(_randomMapButton);
         BriefingButton = LobbyPanels.Button("Briefing", OpenBriefing, "Briefing"); actions.AddChild(BriefingButton);
         actions.AddChild(LobbyPanels.Button("Strategic map", OpenStrategicMap, "StrategicMap"));
-        SpectateButton = LobbyPanels.Button("Spectate", session.Spectate, "Spectate"); SpectateButton.SizeFlagsHorizontal = SizeFlags.ExpandFill; sideActions.AddChild(SpectateButton);
 
         foreach (Control action in actions.GetChildren()) action.CustomMinimumSize = new Vector2(0, 32);
         var lower = new LobbyColumns { Name = "LobbyDetails", SizeFlagsVertical = SizeFlags.ExpandFill };
@@ -280,19 +281,105 @@ public partial class LobbyRoomScreen
         _loadout.TooltipText = _loadout.Text;
     }
 
+    /// <summary>
+    /// A team's card: its name in the side's colour with the head count beside it, the column titles, the player rows
+    /// (the returned list), the line shown while nobody is on the side, and room at the bottom for the Join button.
+    /// The card fills its column, so both teams' cards end level with the central actions.
+    /// </summary>
+    private VBoxContainer TeamCard(Container column, string name, string title, HudSide side, out Label waiting, out Label count)
+    {
+        VBoxContainer body = LobbyPanels.Card(column, name, title);
+        ((Control)body.GetParent()).SizeFlagsVertical = SizeFlags.ExpandFill;
+        body.AddThemeConstantOverride("separation", 4);
+        var heading = body.GetNode<Label>("Heading");
+        heading.Modulate = UiStyle.SideColour(side);
+        heading.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+        var top = new HBoxContainer { Name = "Top" };
+        body.RemoveChild(heading);
+        top.AddChild(heading);
+        count = new Label { Name = "Count", Modulate = UiStyle.Dim };
+        top.AddChild(count);
+        body.AddChild(top);
+        body.AddChild(ColumnTitles());
+        waiting = LobbyPanels.Text();
+        waiting.Name = "Waiting";
+        waiting.Modulate = UiStyle.Dim;
+        body.AddChild(waiting);
+        var rows = new VBoxContainer { Name = "Players", SizeFlagsHorizontal = SizeFlags.ExpandFill, SizeFlagsVertical = SizeFlags.ExpandFill };
+        rows.AddThemeConstantOverride("separation", 2);
+        body.AddChild(rows);
+        return rows;
+    }
+
+    /// <summary>The titles over a team's rows, in the rows' own columns.</summary>
+    private PanelContainer ColumnTitles()
+    {
+        var box = new PanelContainer { Name = "Columns", Modulate = UiStyle.Dim };
+        box.AddThemeStyleboxOverride("panel", RowBox(null));
+        var line = new HBoxContainer();
+        line.AddThemeConstantOverride("separation", RowGap);
+        box.AddChild(line);
+        Label Title(string text, float width, HorizontalAlignment align = HorizontalAlignment.Left)
+        {
+            var label = new Label { Text = text, CustomMinimumSize = new Vector2(width, 0f), HorizontalAlignment = align };
+            label.AddThemeFontSizeOverride("font_size", 13);
+            line.AddChild(label);
+            return label;
+        }
+
+        Title(string.Empty, SpeakerWidth);
+        Title("Player", 80f).SizeFlagsHorizontal = SizeFlags.ExpandFill;
+        _rankTitles.Add(Title("Rank", RankWidth));
+        Title("Status", StatusWidth);
+        Title("Ping", PingWidth, HorizontalAlignment.Right);
+        Title(string.Empty, MenuWidth);
+        return box;
+    }
+
+    /// <summary>
+    /// A row's background: nothing for most, the side's colour (faint, with a bar on the left) for the local player's
+    /// row. Both keep the same margins so every row's columns line up with the titles.
+    /// </summary>
+    private static StyleBox RowBox(HudSide? localSide)
+    {
+        StyleBox box;
+        if (localSide is { } side)
+        {
+            Color colour = UiStyle.SideColour(side);
+            box = new StyleBoxFlat { BgColor = colour with { A = 0.1f }, BorderColor = colour, BorderWidthLeft = 2 };
+        }
+        else
+        {
+            box = new StyleBoxEmpty();
+        }
+
+        box.ContentMarginLeft = box.ContentMarginRight = 6f;
+        box.ContentMarginTop = box.ContentMarginBottom = 2f;
+        return box;
+    }
+
+    private static string Counted(int count, string what) => count + " " + what + (count == 1 ? string.Empty : "s");
+
     private void UpdateTeamCards()
     {
         if (Session is not { } s) return;
-        foreach (var entry in new[] { (_spies!, HudSide.Spy, "Spies"), (_mercs!, HudSide.Merc, "Mercenaries") })
+        bool mercsOnly = s.Setup.Mode == OpenScct.Core.EGameMode.GM_MercDeathMatch;
+        foreach (var (side, count, waiting) in new[] { (HudSide.Spy, _spiesCount!, _spiesWaiting!), (HudSide.Merc, _mercsCount!, _mercsWaiting!) })
         {
-            int count = s.Members.Count(p => p.Side == entry.Item2);
-            bool unavailable = entry.Item2 == HudSide.Spy && s.Setup.Mode == OpenScct.Core.EGameMode.GM_MercDeathMatch;
-            ((Label)entry.Item1.GetChild(0)).Text = entry.Item3 + " · " + count + (count == 1 ? " player" : " players");
-            var slots = entry.Item2 == HudSide.Spy ? _spiesWaiting! : _mercsWaiting!;
-            slots.Visible = !unavailable && count == 0;
-            slots.Text = "Open slots — join this team";
-            slots.Modulate = UiStyle.MenuDisabled;
+            int humans = s.Members.Count(p => p.Side == side && !p.IsBot);
+            int bots = s.Members.Count(p => p.Side == side && p.IsBot);
+            count.Text = humans + bots == 0 ? string.Empty
+                : bots == 0 ? Counted(humans, "player")
+                : humans == 0 ? Counted(bots, "bot")
+                : Counted(humans, "player") + " · " + Counted(bots, "bot");
+            waiting.Visible = humans + bots == 0;
+            waiting.Text = side == HudSide.Spy && mercsOnly ? "Everyone plays a mercenary in Merc Deathmatch." : "No players yet.";
         }
+
+        // The Rank column only while somebody in the lobby has a rank to show.
+        bool ranks = s.Members.Any(p => !OpenScct.Net.Cosmetics.PlayerRank.Unpack(p.Rank).IsNone);
+        foreach (Label title in _rankTitles) title.Visible = ranks;
+        foreach (PlayerRow row in _rows.Values) row.RankSlot.Visible = ranks;
     }
 
     private void UpdatePreparation(IOnlineLobbySession s, int seconds)
