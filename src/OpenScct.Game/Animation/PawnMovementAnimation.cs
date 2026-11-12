@@ -43,6 +43,7 @@ public static class PawnMovementAnimation
             v -= floor.Velocity;
         }
 
+        EndBodyHitWhenMoving(pawn, a, v);
         if (pawn.Health < 1 || pawn.bLyingOnGround)
         {
             for (int ch = 1; ch <= SBasePawn.LASTCHANNEL; ch++)
@@ -75,6 +76,39 @@ public static class PawnMovementAnimation
             a.UpdateTweenCache();
         }
     }
+
+    /// <summary>
+    /// A whole-body hit clip (PlayDamage at rest: channel 17 with no start bone) ends as soon as the pawn walks off:
+    /// the channel blends out and the damage action ends as it does at the clip's AnimEnd (IK type restored). PlayDamage
+    /// only picks these clips for a pawn standing exactly still; one that then started to run kept the clip over its
+    /// legs for up to a second and slid across the floor in the pain pose.
+    /// </summary>
+    [Provenance(ProvenanceKind.Estimated, "Ours: the decoded PlayDamage and AnimEnd have no rule for a pawn that starts moving during a body hit clip")]
+    private static void EndBodyHitWhenMoving(SBasePawn pawn, PawnAnimation a, FVector v)
+    {
+        PawnAnimChannel hit = a[SBasePawn.DAMAGECHANNEL];
+        if (!(hit.BlendAlpha > 0f) || !hit.StartBone.IsNone || (hit.bTimedBlend && hit.BlendTarget == 0f) ||
+            pawn.Physics != EPhysics.PHYS_Walking || pawn.Health < 1 || v.IsZero())
+        {
+            return;
+        }
+
+        a.BlendToAlpha(SBasePawn.DAMAGECHANNEL, 0f, BodyHitMoveBlendOut);
+        if (pawn.sAction is >= SBasePawn.SA_DMG_HEAD and <= SBasePawn.SA_DMG_LEG_RIGHT)
+        {
+            pawn.sAction = 0;
+        }
+
+        if (pawn.IK_Type == IK_Type_.IKT_NONE)
+        {
+            pawn.IK_Type = pawn.IK_TypeBeforeDamage;
+        }
+
+        pawn.IK_TypeBeforeDamage = IK_Type_.IKT_NONE;
+    }
+
+    [Provenance(ProvenanceKind.Estimated, "Ours: half the damage channel's 0.3 s blend out, so the legs show the walk at once")]
+    private const float BodyHitMoveBlendOut = 0.15f;
 
     /// <summary>
     /// The simulation's part of the script event SBasePawn.TurnHead, which the walk blender runs first: the packed
