@@ -71,19 +71,19 @@ function start(host) {
     const m = dashed ? new THREE.LineDashedMaterial({ color, dashSize: 0.06, gapSize: 0.05 }) : new THREE.LineBasicMaterial({ color });
     const l = new THREE.Line(g, m); if (dashed) l.computeLineDistances(); return l;
   }
-  const degrees = d => Math.abs(d - 180).toFixed(0) + '° to his ' + (d > 180 ? 'left' : 'right');
   function buildOverlay() {
     overlay.add(sector(0, 360, REACH, 0x8a8880, 0.22, 0.004));
     overlay.add(sector(FROM, TO, REACH, 0x2fbf8f, 0.5, 0.008));
     const y = 0.012, at = (deg, r) => dir(deg).multiplyScalar(r).setY(y);
     overlay.add(line(at(FROM, 0), at(FROM, REACH), 0x2fbf8f), line(at(TO, 0), at(TO, REACH), 0x2fbf8f));
-    overlay.add(line(at(180, 0.25), at(180, REACH + 0.25), 0xb4b2a9, true));
-    overlay.add(line(at(180 + SHIFT, 0.25), at(180 + SHIFT, REACH), 0x7fe0c0, true));
+    overlay.add(line(at(180 + SHIFT, 0.25), at(180 + SHIFT, REACH + 0.25), 0x7fe0c0, true));
     overlay.add(new THREE.ArrowHelper(front, new THREE.Vector3(0, y, 0).addScaledVector(front, 0.35), 1.0, 0xd8e8dc, 0.18, 0.1));
-    tag('front', at(0, 1.55)); tag('straight behind', at(180, REACH + 0.4));
-    tag("merc's left", at(270, REACH + 0.45)); tag("merc's right", at(90, REACH + 0.45));
-    tag('window centre: ' + degrees(180 + SHIFT), at(180 + SHIFT, REACH + 0.5));
-    tag('window right: ' + degrees(FROM), at(FROM, REACH + 0.3)); tag('window left: ' + degrees(TO), at(TO, REACH + 0.3));
+    // Directions are named from the merc's body, not from his aim: he stands side-on, his body turned about as far
+    // to the right of his rifle as the window is shifted, so the window's middle is straight behind his back.
+    const BACK = 180 + SHIFT;
+    tag('aim', at(0, 1.55)); tag('straight behind his back', at(BACK, REACH + 0.45));
+    tag("merc's left", at(BACK + 90, REACH + 0.45)); tag("merc's right", at(BACK - 90, REACH + 0.45));
+    tag('window right: ' + HALF + '° to his right', at(FROM, REACH + 0.3)); tag('window left: ' + HALF + '° to his left', at(TO, REACH + 0.3));
   }
 
   // The spy stands in a group that is turned to face the merc; a ring under him shows the outcome.
@@ -173,8 +173,8 @@ function start(host) {
     ringMat.color.set(!inReach ? 0x5f5e5a : inWindow ? 0x2fbf8f : 0xd85a30);
     verdictEl.textContent = !inReach ? 'Out of reach' : inWindow ? 'Grab' : 'Elbow';
     verdictEl.dataset.outcome = !inReach ? 'none' : inWindow ? 'grab' : 'elbow';
-    const off = deg - 180;
-    detailEl.textContent = (dist * 100).toFixed(0) + ' units away, ' + (Math.abs(off) < 0.5 ? 'straight behind' : Math.abs(off).toFixed(0) + '° to his ' + (off > 0 ? 'left' : 'right') + ' of straight behind');
+    const off = deg - (180 + SHIFT);
+    detailEl.textContent = (dist * 100).toFixed(0) + ' units away, ' + (Math.abs(off) < 0.5 ? 'straight behind his back' : Math.abs(off).toFixed(0) + '° to his ' + (off > 0 ? 'left' : 'right') + ' of straight behind his back');
   });
   renderer.domElement.addEventListener('pointerleave', () => { if (follow.checked) idle(); });
 
