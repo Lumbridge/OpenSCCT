@@ -229,8 +229,20 @@ public sealed class CombatActivityTests
     {
         var rig = new Rig();
         rig.Pawn.Health = 1;
+        // A remote owner's drop is only taken on a victim within reach (K.DropAttackServerReach).
+        rig.Spy.Pawn!.SetLocation(rig.Pawn.Location + new FVector(0f, 0f, 100f));
         rig.Spy.TellServerForDropAttack(rig.Pawn);
         Assert.True(rig.Pawn.Health <= 0);
         Assert.Empty(rig.World.Host.Messages(K.MsgNeutralized));
+    }
+
+    [Fact]
+    public void RemoteDropOnAVictimOutOfReachIsRefused()
+    {
+        var rig = new Rig();
+        int health = rig.Pawn.Health;
+        rig.Spy.Pawn!.SetLocation(rig.Pawn.Location + new FVector(K.DropAttackServerReach + 50f, 0f, 0f));
+        rig.Spy.TellServerForDropAttack(rig.Pawn);
+        Assert.Equal(health, rig.Pawn.Health);
     }
 }
