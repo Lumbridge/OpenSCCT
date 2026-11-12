@@ -281,6 +281,9 @@ public sealed class PlaySession : IDisposable
     /// </summary>
     public ServerHost Host { get; } = null!;
 
+    /// <summary>How long the server's ticks took (readable from any thread), or null for a remote round.</summary>
+    public TickTimes? ServerTicks => _remote ? null : Host.TickTimes;
+
     public ClientSession Client { get; }
 
     /// <summary>The input applied to the local controller at the next tick (the input layer fills it).</summary>

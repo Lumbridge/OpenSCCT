@@ -76,6 +76,7 @@ public sealed class ListenHost : IDisposable
     private readonly Thread _thread;
     private readonly UpnpPorts _upnp = new();
     private int _localPlayers;
+    private long _ticksPrintedAt;
     private bool _disposed;
 
     private ListenHost(HostRequest request, OnlineServer server, LiteNetLibTransport udp, LoopbackNetwork network, IClock clock, string hostKey)
@@ -191,6 +192,17 @@ public sealed class ListenHost : IDisposable
             {
                 while (_inspections.TryDequeue(out var inspect)) inspect(s);
                 Ticked?.Invoke(s);
+                // SVM_TICK_LOG=1: what the ticks cost, every 10 s of a round (the host is new on each map). Without
+                // it the session's own slow-tick report is all the log gets.
+                TickTimes ticks = s.Host.TickTimes;
+                long count = OpenScctGame.Play.PlayRoot.TickLogWanted ? ticks.Count : 0;
+                if (count < _ticksPrintedAt) _ticksPrintedAt = 0;
+                if (s.Phase != SessionPhase.Lobby && count - _ticksPrintedAt >= 10 * OpenScct.Core.Sim.Hz)
+                {
+                    _ticksPrintedAt = count;
+                    GD.Print($"SVM_HOST server ticks ({s.Host.Players.Count} players): {ticks.Recent(10 * OpenScct.Core.Sim.Hz)}");
+                }
+
                 while (_commands.TryDequeue(out string? line))
                 {
                     foreach (string reply in s.Execute(line))

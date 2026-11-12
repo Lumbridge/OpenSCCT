@@ -299,6 +299,9 @@ public sealed partial class ServerHost : INetworkNotify, IDisposable
     /// <summary>Replication flushes so far.</summary>
     public long FlushCount { get; private set; }
 
+    /// <summary>How long the last ticks took; safe to read from any thread.</summary>
+    public TickTimes TickTimes { get; } = new();
+
     /// <summary>
     /// Network frames per second in use: <see cref="ServerSettings.NetRate"/>, or the rate of
     /// <see cref="ServerSettings.Profile"/> when that is 0.
@@ -361,6 +364,8 @@ public sealed partial class ServerHost : INetworkNotify, IDisposable
     public void Tick(long nowMicros)
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
+        long started = TickTimes.Mark();
+        double flushMs = 0;
         PawnStates.BeginServerTick();
         Recorder?.CaptureTraining();
         Driver.TickDispatch(nowMicros);
@@ -390,6 +395,7 @@ public sealed partial class ServerHost : INetworkNotify, IDisposable
         if (_flushAccumulator >= Sim.Hz)
         {
             _flushAccumulator -= Sim.Hz;
+            long flushStarted = TickTimes.Mark();
             if (Driver.Settings.PawnProxies == PawnProxyMode.Snapshots) Driver.ReplicatePriorityOwners();
             ProxySender?.Pass(World.Level);
             World.Level.GetService<PawnSoundReplication>()?.Flush(World.TickCount);
@@ -399,7 +405,10 @@ public sealed partial class ServerHost : INetworkNotify, IDisposable
             Recorder?.CaptureCheckpoint();
             Combat?.Pump();
             FlushCount++;
+            flushMs = TickTimes.MillisecondsSince(flushStarted);
         }
+
+        TickTimes.Add(TickTimes.MillisecondsSince(started), flushMs);
     }
 
     /// <summary>

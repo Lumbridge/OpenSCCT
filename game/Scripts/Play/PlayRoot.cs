@@ -797,6 +797,32 @@ public partial class PlayRoot : Node3D
         GD.Print($"SVM_PLAY player {(session.Settings.Side == PlaySide.Merc ? "merc" : "spy")} spawned at {pawn.Location} yaw {pawn.Rotation.Yaw}");
     }
 
+    private long _serverTicksPrintedAt;
+
+    /// <summary>SVM_TICK_LOG=1: the server's tick costs go to the log every 10 s, slow ticks or not.</summary>
+    public static bool TickLogWanted { get; } = System.Environment.GetEnvironmentVariable("SVM_TICK_LOG") is "1" or "true";
+
+    /// <summary>
+    /// What the local server's ticks cost over the last 10 s of play (nothing for a remote round): only when some ran
+    /// over their slot, or always with <see cref="TickLogWanted"/>.
+    /// </summary>
+    private void PrintServerTicks(PlaySession session)
+    {
+        if (session.ServerTicks is not { } ticks || session.TicksRun - _serverTicksPrintedAt < 10 * Sim.Hz)
+        {
+            return;
+        }
+
+        _serverTicksPrintedAt = session.TicksRun;
+        OpenScct.Server.TickSummary recent = ticks.Recent(10 * Sim.Hz);
+        if (!TickLogWanted && recent.Slow == 0)
+        {
+            return;
+        }
+
+        GD.Print($"SVM_PLAY server ticks ({(session.Settings.HostMode == PlayHostMode.Inline ? "inline" : "host thread")}, {session.Settings.Bots} bots): {recent}");
+    }
+
     /// <summary>The server bots' status every 10 s of play, when the host runs inline (its state is safe to read here).</summary>
     private void PrintBots(PlaySession session)
     {
@@ -899,6 +925,7 @@ public partial class PlayRoot : Node3D
         if (PrepareLateSmoke(session) || _smokePreparing) return;
 
         PrintBots(session);
+        PrintServerTicks(session);
         PrintSpawn(session);
         Audio?._Process(delta);
 

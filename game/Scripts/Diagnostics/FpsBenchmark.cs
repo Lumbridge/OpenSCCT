@@ -251,6 +251,8 @@ public partial class FpsBenchmark : Node
         double mainGpuMs = frames.Average(f => f.GpuMs);
         Dictionary<string, AuxView>? auxViews = _profiling ? AuxSummary(frames.Length) : null;
         double? auxGpuMs = auxViews?.Values.Sum(v => v.gpuMs);
+        // The host thread's ticks over the measured window (at most the last TickTimes.Capacity of them).
+        OpenScct.Server.TickSummary server = _play.Session.ServerTicks?.Recent((int)(total / 1000 * OpenScct.Core.Sim.Hz)) ?? default;
         var result = new
         {
             id = _shots[_index].Id, width = _shots[_index].Width, height = _shots[_index].Height,
@@ -259,6 +261,8 @@ public partial class FpsBenchmark : Node
             p99Ms = times[Math.Min(times.Length - 1, (int)(times.Length * 0.99))], maxMs = times[^1],
             simMs = frames.Average(f => f.SimMs), viewMs = frames.Average(f => f.ViewMs),
             renderCpuMs = frames.Average(f => f.RenderCpuMs), gpuMs = mainGpuMs,
+            serverTicks = server.Ticks, serverTickMs = server.MeanMs, serverTickP99Ms = server.P99Ms,
+            serverTickMaxMs = server.MaxMs, serverSlowTicks = server.Slow, serverFlushMs = server.FlushMeanMs,
             // SVM_RD_PROTO only: the custom pass's mean GPU ms over the measured window (RD timestamps), else null.
             rdProtoGpuMs = Render.RdProto.RdProtoGpu.CaseGpuMs,
             // Profiling only: auxiliary viewports per kind, their GPU sum, and main plus auxiliary GPU.
