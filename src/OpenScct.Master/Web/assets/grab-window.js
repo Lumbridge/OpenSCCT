@@ -5,8 +5,10 @@ import { OrbitControls } from './three-OrbitControls.js';
 import { GLTFLoader } from './three-GLTFLoader.js';
 
 // SPlayerController.CanGrabPawn: reach 160 uu (1 uu is 1 cm on these models), the merc's facing shifted by
-// iGrabAreaShift 7200 (39.55 degrees to his right), and the spy's facing within 60 degrees of that (cos 0.5).
-const REACH = 1.6, SHIFT = 7200 / 65536 * 360, HALF = 60;
+// iGrabAreaShift (1200 as Reloaded sets it, 6.59 degrees to his right; the script's own 7200 is retail), and the
+// spy's facing within 60 degrees of that (cos 0.5). BODY is how far his body stands turned from his aim in the
+// standing idle (shoulders 38, hips 39 degrees), for the second arrow only.
+const REACH = 1.6, SHIFT = 1200 / 65536 * 360, HALF = 60, BODY = 38;
 const FROM = 180 + SHIFT - HALF, TO = 180 + SHIFT + HALF;   // clockwise from the merc's front, seen from above
 const rad = d => d * Math.PI / 180;
 const ASSETS = new URL('.', import.meta.url);
@@ -76,15 +78,15 @@ function start(host) {
     overlay.add(sector(FROM, TO, REACH, 0x2fbf8f, 0.5, 0.008));
     const y = 0.012, at = (deg, r) => dir(deg).multiplyScalar(r).setY(y);
     overlay.add(line(at(FROM, 0), at(FROM, REACH), 0x2fbf8f), line(at(TO, 0), at(TO, REACH), 0x2fbf8f));
-    overlay.add(line(at(180 + SHIFT, 0.25), at(180 + SHIFT, REACH + 0.25), 0x7fe0c0, true));
+    overlay.add(line(at(180, 0.25), at(180, REACH + 0.25), 0xb4b2a9, true));
     overlay.add(new THREE.ArrowHelper(front, new THREE.Vector3(0, y, 0).addScaledVector(front, 0.35), 1.0, 0xd8e8dc, 0.18, 0.1));
-    overlay.add(new THREE.ArrowHelper(dir(SHIFT), new THREE.Vector3(0, y, 0).addScaledVector(dir(SHIFT), 0.35), 0.75, 0x8a8880, 0.14, 0.08));
-    // Directions are named from the merc's body, not from his aim: he stands side-on, his body turned about as far
-    // to the right of his rifle as the window is shifted, so the window's middle is straight behind his back.
-    const BACK = 180 + SHIFT;
-    tag('aim', at(0, 1.55)); tag('body', at(SHIFT, 1.3)); tag('straight behind his back', at(BACK, REACH + 0.45));
-    tag("merc's left", at(BACK + 90, REACH + 0.45)); tag("merc's right", at(BACK - 90, REACH + 0.45));
-    tag('window right: ' + HALF + '° to his right', at(FROM, REACH + 0.3)); tag('window left: ' + HALF + '° to his left', at(TO, REACH + 0.3));
+    overlay.add(new THREE.ArrowHelper(dir(BODY), new THREE.Vector3(0, y, 0).addScaledVector(dir(BODY), 0.35), 0.75, 0x8a8880, 0.14, 0.08));
+    // Directions are named from where he faces and aims (the pawn's rotation, the white arrow), which is what the
+    // grab test uses. His body stands turned from that; the grey arrow shows it.
+    const side = d => Math.abs(d - 180).toFixed(0) + '° to his ' + (d > 180 ? 'left' : 'right');
+    tag('aim', at(0, 1.55)); tag('body', at(BODY, 1.3)); tag('straight behind', at(180, REACH + 0.45));
+    tag("merc's left", at(270, REACH + 0.45)); tag("merc's right", at(90, REACH + 0.45));
+    tag('window right: ' + side(FROM), at(FROM, REACH + 0.3)); tag('window left: ' + side(TO), at(TO, REACH + 0.3));
   }
 
   // The spy stands in a group that is turned to face the merc; a ring under him shows the outcome.
@@ -139,8 +141,8 @@ function start(host) {
   }).catch(() => fail('The mercenary model could not be loaded.'));
 
   function view(top) {
-    // Both views are turned to his body, not his aim: his back is toward the bottom of the screen or the viewer.
-    if (top) camera.position.copy(new THREE.Vector3(0, 6.2, 0).addScaledVector(dir(SHIFT), -0.01));
+    // Both views are turned to his aim: straight behind him is toward the bottom of the screen or the viewer.
+    if (top) camera.position.copy(new THREE.Vector3(0, 6.2, 0).addScaledVector(front, -0.01));
     else camera.position.copy(dir(180 + SHIFT).multiplyScalar(4.2).setY(2.9));
     controls.target.set(0, top ? 0 : 0.7, 0); controls.update();
   }
@@ -176,8 +178,8 @@ function start(host) {
     ringMat.color.set(!inReach ? 0x5f5e5a : inWindow ? 0x2fbf8f : 0xd85a30);
     verdictEl.textContent = !inReach ? 'Out of reach' : inWindow ? 'Grab' : 'Elbow';
     verdictEl.dataset.outcome = !inReach ? 'none' : inWindow ? 'grab' : 'elbow';
-    const off = deg - (180 + SHIFT);
-    detailEl.textContent = (dist * 100).toFixed(0) + ' units away, ' + (Math.abs(off) < 0.5 ? 'straight behind his back' : Math.abs(off).toFixed(0) + '° to his ' + (off > 0 ? 'left' : 'right') + ' of straight behind his back');
+    const off = deg - 180;
+    detailEl.textContent = (dist * 100).toFixed(0) + ' units away, ' + (Math.abs(off) < 0.5 ? 'straight behind' : Math.abs(off).toFixed(0) + '° to his ' + (off > 0 ? 'left' : 'right') + ' of straight behind');
   });
   renderer.domElement.addEventListener('pointerleave', () => { if (follow.checked) idle(); });
 
