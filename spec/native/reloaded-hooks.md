@@ -279,7 +279,7 @@ Stores of a fixed value into an object:
 | 0x10aaa973, 0x10aaaa32, NativePlayerInput | `fNormePadMove` (+0x4B0) = 1.0; `fSensibiliteSouris` (+0x5CC) = 0.4 or 4.0, then the mouse deltas recomputed by Reloaded (0x1001a960) | Reloaded's own mouse and pad handling (input.md); the rewrite has its own input layer |
 | 0x1099b222, soft body code | float at +0x110 = 0.01 when it is 0 | a guard against a zero step in the cloth simulation |
 | 0x109ec7e5, UGameEngine::Draw | +0x718 = 1 on an object reached there | part of the free camera (rule 24 sets `IK_Type`) |
-| 0x10bfac14, ASProjGrenade's Tick slot (-> 0x1001a940), and 0x10af0443, the end of its internal constructor | bit 0x1000 of the flag word at +0x2F0 (`bProjTarget` by declaration order) set when the float at +0x1D0 is not 0, cleared otherwise, at construction and before every Tick; 0x10ab89da clears the byte at +0x2D8 on a machine that is not the authority | belongs to the server-simulated grenades (rule 7); what the float at +0x1D0 holds is not decoded |
+| 0x10bfac14, SProjFrag's Tick slot (-> 0x1001a940), and 0x10af0443, the end of its internal constructor | `bCollideActors` (bit 0x1000 of the flag word at +0x2F0) = `TimerCounter` (+0x1D0) is not 0, at construction and before every Tick | a frag grenade does not collide with actors until its fuse timer has counted its first tick (see below) |
 
 No other controller, pawn, weapon or game-rules property is given a fixed value this way: the grab angle was the
 only one.
@@ -300,9 +300,42 @@ Other gameplay sites read in this pass:
   named `Video_Settings`. No gameplay value.
 - **Scene traversal (0x10a3d6e8).** A second render test beside rule 33's, taken in RendMap 5 or 6.
 
-Not understood beyond their stubs: 0x10910685, 0x10912900, 0x1099211a, 0x109ea4cd, 0x10af1d56 (sets a Reloaded flag
-when 0x10af1d10 returns), 0x10b83870, and the hooks in 0x10b26dee..0x10b33089 (the HUD and radar drawing: the
-17 functions of the table above).
+**Grenades (decoded 2026-11-13).** Seven native classes share the Tick at 0x10ab8990: SProjGrenade and its
+subclasses. Their virtual tables are laid out by name; the registered sizes identify them: 0x10bfa7c8 SProjChaffe
+(876 bytes), 0x10bfa910 SProjFlare (860), 0x10bfaa58 SProjFlashBang (860), 0x10bfaba0 SProjFrag (876), 0x10bfae20
+SProjPhospho (872), 0x10bfaf68 SProjSmoke (872), 0x10bfb0b0 SProjGrenade (852). Two changes:
+
+- *Frag only.* SProjFrag's Tick slot and the end of its internal constructor call 0x1001a8e0, which sets
+  `bCollideActors` when `TimerCounter` is not 0 and clears it otherwise. `PostNetBeginPlay` starts the fuse with
+  `SetTimer(TempsExplosion)`, and `TimerCounter` only leaves 0 once a Tick has added its time, so a frag passes through
+  actors when it is made and during its first Tick and collides with them from the second Tick on. It cannot bounce
+  off the thrower or a player standing against him at the moment of the throw. (An earlier note here called the flag
+  `bProjTarget` and the float unknown: both properties are hand-written entries of the property table and had been
+  skipped.)
+- *Every grenade except chaff.* In the Tick itself the test "ProjectileSpeed above 20: spin, else settle" (0x10ab89da)
+  first calls 0x1001b920. When `Level.NetMode` is 1 or 3 (dedicated server or client) and the object is not an
+  SProjChaffe, it sets `Physics` to PHYS_None and takes the settle branch, every Tick. On a client this stops the
+  grenade's own physics, so it is drawn where the server's replicated position puts it (the release note's "fully
+  simulated on the server and synchronised to players"). Standalone and listen hosts keep the stock physics. The same
+  test would stop grenades on a dedicated server running Reloaded; whether such a server exists, or moves them by
+  other code, was not established.
+
+The rewrite's grenades are simulated by the server and replicated; whether a frag can hit its thrower on the first
+frame there has not been checked.
+
+**The six hooks left over from the first pass (decoded 2026-11-13).** None changes a gameplay rule:
+
+| Game site | What Reloaded does |
+|---|---|
+| 0x10b83870, the C runtime start-up, straight after WinMain returns | Sets its "exiting" flag (0x1048ac8d) and runs two shutdown routines (0x100943b0, 0x1013f3f0) |
+| 0x1099211a, AActor's constructor (0x10992100, the base every actor's internal constructor calls) | When a mode chosen at start-up (0x1001c410) is 1, gives the new actor a zeroed 96-byte block of Reloaded's own, kept in a table indexed by the object's index (+0x20) and replacing any block left by an earlier object with that index: per-actor storage for its other features |
+| 0x109ea4cd, level loading (0x109e9890) | Jumps over the assignment that sets `Level.EngineVersion` (+0x4B8) to the engine's own number, formatted from 2110 with "%i"; Reloaded supplies the version string itself (rule 17, the server browser's version test) |
+| 0x10910685, the package file search | Replaces the file manager's size test on each candidate path (built with the platform folders) with its own function (0x1001b9b0), so Reloaded decides which package files are found |
+| 0x10912900, Localize (0x109128b0) | Wraps the config lookup of a localized string ("%s.%s": package and language) and passes the result through 0x1001a710, which can substitute Reloaded's own text |
+| 0x10af1d56, the end of the internal constructor of a 2200-byte class whose object is the controller's `myHUD` (SHud) | Sets a flag (0x1048572b); the next frame (0x10018250) clears it and copies a Reloaded setting (0x1051c739) into the HUD's `bShowConnectedPlayers` (bit 0x400 of +0x894), so the choice survives a new HUD |
+
+Still not read: the 76 rewrites in the Direct3D range and the hooks in 0x10b26dee..0x10b33089 (HUD and radar
+drawing: the 17 functions of the table above).
 
 ## States
 
