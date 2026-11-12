@@ -66,6 +66,15 @@ public sealed partial class MercAi
     private FVector _arcFound;
     private float _arcFoundAt = -100f;
     private SComputerObjectiveTrigger? _arcFoundFor;
+    private float _arcBegunAt;
+    private float _arcFoundBegunAt;
+
+    /// <summary>
+    /// The found arc's sweep began before the goal the merc is at was chosen: the frag was already being weighed
+    /// when that goal won only because the sweep had not ended. It is then weighed as it would have been at that
+    /// decision, not against a goal just committed to.
+    /// </summary>
+    private bool ArcWeighedBeforeGoal => GoalSince >= _arcFoundBegunAt;
 
     /// <summary>A found arc is offered to the decisions of this long (s); the throw traces it again before the key.</summary>
     private const float ArcFoundSeconds = 1f;
@@ -101,6 +110,7 @@ public sealed partial class MercAi
         _arcAlarm = alarm;
         _arcUseFloor = useFloor;
         _arcIndex = 0;
+        _arcBegunAt = now;
         return false;
     }
 
@@ -136,6 +146,7 @@ public sealed partial class MercAi
             if (!TryObjectiveArc(candidate, usePoint, out _)) continue;
             _arcFound = candidate;
             _arcFoundAt = now;
+            _arcFoundBegunAt = _arcBegunAt;
             _arcFoundFor = _arcAlarm;
             _arcIndex = -1;
             return;

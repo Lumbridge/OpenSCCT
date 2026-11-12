@@ -326,7 +326,7 @@ public sealed partial class MercAi : AiBrain
         }
         else if (_target is null && _alert is { } alarm && Bot.Utility >= 0.3f && ObjectiveGrenadeOpportunity(alarm, now, out grenadeTarget))
         {
-            options[n++] = new AiOption(GFrag, 1.95f);
+            options[n++] = new AiOption(GFrag, 1.95f + (Goal != GFrag && ArcWeighedBeforeGoal ? AiK.GoalCommitBonus : 0f));
             _fragTarget = grenadeTarget;
             _fragObjective = alarm;
         }
