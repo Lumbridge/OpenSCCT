@@ -236,7 +236,8 @@ stream that has the Sound's own name.
     overrides). On effect-pointer changes, `0x10b0c420` forwards the 112-byte EAX 3 listener block to the provider.
     The supplied Creative ALchemy 2.4.2.18 accepts 218 of the 232 distinct map blocks and rejects 14 whole updates;
     the caller ignores the failed result and keeps the prior environment. Initial NULL selection preserves Generic
-    driver defaults; changing from an effect to NULL sends a separate native fallback packet. Reverb affects 3D
+    driver defaults (the rewrite sends the NULL packet then too, since 2026-11-12: see the parity notes); changing
+    from an effect to NULL sends a separate native fallback packet. Reverb affects 3D
     sources through independent room sends. The rewrite uses one retained native HRvb effect per listener,
     preserving separate early/late reflections, spectral decay, pans, echo/modulation, flags and source room gain.
     See [implementation and reference measurements](reverb-parity-2026-11-04.md). SteeE: 29 of its 32 sound zones

@@ -27,7 +27,10 @@ in ignored `local/reverb-parity`.
   diffusion, Room/HF/LF gains, independent early and late delays/gains/pans, HF/LF decay ratios, echo, modulation,
   air absorption, frequency references, room rolloff and flags.
 - One effect belongs to each listener. Zone selection updates its retained delay network; it does not switch
-  between independent per-zone reverbs. Initial missing effects preserve Generic driver defaults. Leaving an
+  between independent per-zone reverbs. Initial missing effects preserve Generic driver defaults in the
+  original; the rewrite applies the NULL packet there too since 2026-11-12 (`ReverbBuses.SetEnvironment`): Generic has
+  room rolloff 0 and reverb +200 mB, so a source's room send did not fall with distance, and on a map with no zone
+  effects (MoonD) every loop and mine in range was heard map-wide. Leaving an
   effect for a missing effect applies the distinct native NULL packet.
 - Changes follow the original's 17 successive 512-frame delay stages, dual-tap delay crossfades, 512-frame gain
   ramps and 128-frame filter/rotation/modulation updates in the same network. The original's four-sample coefficient

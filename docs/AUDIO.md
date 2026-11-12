@@ -150,8 +150,10 @@ with its original first-apply LF shelf and late-pan routing quirks. It replaces 
 consumes the complete 112-byte EAX 3 block: independent early/late delays and pans, RoomHF/RoomLF, diffusion,
 frequency-dependent decay, echo, modulation, reference frequencies, room rolloff and flags.
 
-Zone changes update the same effect instance and retain its delay state. Initially missing effects retain the
-driver's Generic default; leaving an effect for a missing one applies the native NULL fallback. All 232 distinct
+Zone changes update the same effect instance and retain its delay state. A zone without an effect gets
+the native NULL fallback, at the start of a map too. (The original keeps the driver's Generic default until the first
+effect; ours departs from that since 2026-11-12, because in that room every 3D source feeds the reverb at full level
+whatever its distance, and a map with no zone effects, MoonD, stays in it for good.) All 232 distinct
 converted map blocks were tested against the original provider: 218 are accepted; 14 are rejected as whole
 updates, retaining the previous environment. The rewrite preserves those rejections. The original's malformed
 four-byte EAX 3 source-occlusion call is also rejected by this provider; the selected EAX path preserves its observed

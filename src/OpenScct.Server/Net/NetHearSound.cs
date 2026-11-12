@@ -116,6 +116,14 @@ public sealed class NetHearSound : ISimEventSink
             return;
         }
 
+        // What a controller plays on itself is feedback for its own player's machine (the flash whistle, the hit
+        // heartbeat, the camera network's clicks). A bot's controller runs that code on the server, which has no
+        // speakers: nobody else hears it (a spy heard the whistle of the bot merc he flashed).
+        if (source is PlayerController { IsRemotePlayer: false })
+        {
+            return;
+        }
+
         bool pawnSound = source is SBasePawn && _driver.Settings.PawnProxies == PawnProxyMode.Snapshots;
         if (e.Kind == SimEventKind.StopSound && !pawnSound) return;
 

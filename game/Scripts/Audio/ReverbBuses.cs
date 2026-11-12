@@ -32,6 +32,7 @@ public sealed class ReverbBuses : IDisposable
     private readonly AudioEffect? _effect;
     private EaxEnvironment? _applied;
     private EaxEnvironment? _selected;
+    private bool _decided;
     private bool _disposed;
 
     public ReverbBuses(MapAudioDoc? map)
@@ -71,7 +72,13 @@ public sealed class ReverbBuses : IDisposable
     {
         if (_effect is null) return;
         EaxEnvironment? selected = zoneId is not null && _environments.TryGetValue(zoneId, out EaxEnvironment? found) ? found : null;
-        if (ReferenceEquals(selected, _selected)) return;
+        // The first selection always goes to the effect, a zone without one included. The original leaves the
+        // driver's Generic room in place then (spec/native/audio.md rule 25), and in ours that room sends every 3D
+        // source to the reverb at full level whatever its distance (room rolloff 0, reverb +200 mB): on a map whose
+        // zones have no effect (MoonD) every loop and mine in range was heard all over the map and covered the
+        // 2D music. The NULL packet (room rolloff 0.1, reverb -1927 mB) is what such a zone gets after any effect.
+        if (_decided && ReferenceEquals(selected, _selected)) return;
+        _decided = true;
         _selected = selected;
         EaxEnvironment environment = selected ?? EaxEnvironment.NullZoneEffect;
         // The original records the selected object before calling EAX, ignores a failed SetAll, and leaves

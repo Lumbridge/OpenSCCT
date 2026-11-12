@@ -46,8 +46,8 @@ public sealed class ReverbSmoke : SmokeTest
                 return Finish(SmokeResult.Fail("Actual Creative-compatible HRVB backend is required: " + buses.BackendVersion));
             if (_library.Map!.Zones["Pan"].Effect["ReflectionsPanX"] != 0.2f)
                 return Finish(SmokeResult.Fail("Map reader dropped EAX pan vectors."));
-            if (!ReferenceEquals(buses.CurrentEnvironment, EaxEnvironment.DriverDefault))
-                return Finish(SmokeResult.Fail("Initial missing effect replaced the original driver default."));
+            if (!ReferenceEquals(buses.CurrentEnvironment, EaxEnvironment.NullZoneEffect))
+                return Finish(SmokeResult.Fail("Initial missing effect did not apply the NULL fallback."));
             _world.Zone = "Room";
             _sound.Update(0);
             EaxEnvironment room = buses.CurrentEnvironment!;
