@@ -119,10 +119,17 @@ public sealed class ClientMoves
                 if (!prediction.PredictionHistoryComplete(move.Slot))
                 { ((SequencedMoveTransport)Transport).RequestResynchronization(); return; }
                 if (!prediction.CanReplayPrediction(move.Slot)) { CorrectionsObsoletedByState++; return; }
+                FVector received = velocity;
                 if (basePosition is { } baseAt)
                     prediction.RebaseAuthoritativeState(move.Slot, @base, baseAt, baseRotation, ref location, ref velocity);
+                // On a turning base (a carousel) the velocity has no frame both machines share: the server's deck
+                // stands at another angle when it applies the move, a walking player's velocity follows an input
+                // that does not turn with the deck, and the carry turns it a little every tick. The rebased velocity
+                // was 1.4 to 7 uu/s off the saved one on MoonD's carousel with positions within 0.4 uu, which
+                // replayed every acknowledgement. There the position, exact in the deck's frame, decides alone.
+                bool turningBase = velocity != received || @base is { Physics: EPhysics.PHYS_Rotating };
                 if ((move.SavedLocation - location).SizeSquared() < MoveK.CorrectionErrorSquared &&
-                    (move.SavedVelocity - velocity).SizeSquared() < 1f && move.SavedPhysics == physics &&
+                    (turningBase || (move.SavedVelocity - velocity).SizeSquared() < 1f) && move.SavedPhysics == physics &&
                     move.ZoneConfig == zone && ReferenceEquals(move.SavedBase, @base)) return;
                 UpdatingSMove = move; vUpdateLocation = location; _authoritativeVelocity = velocity;
                 _authoritativePhysics = physics; _authoritativeZone = zone; aUpdateBase = @base; bUpdatePosition = true;

@@ -739,7 +739,7 @@ probe kept the copy stuck while the client walked on (10 uu corrections every 0.
 
 ## Movers on clients
 
-Every machine runs its own copy of a mover. The original keeps them together only loosely, and three things of ours
+Every machine runs its own copy of a mover. The original keeps them together only loosely, and four things of ours
 tighten that (`Mover.ClientSync.cs`, `Mover.Legs.cs`, `PawnProxies.PostMover`):
 
 - **Exact leg time.** A leg's rate goes over the wire in `SimInterpolate.Y`, a vector component rounded to a whole
@@ -758,8 +758,37 @@ tighten that (`Mover.ClientSync.cs`, `Mover.Legs.cs`, `PawnProxies.PostMover`):
   that is more than 0.05 s of spin away, carrying whoever stands on it. The sample is as old as the network delay,
   so the client's copy runs that much behind the server's, as its keyed movers do.
 
+- **Spin samples are confirmed.** A sample that was lost and sent again arrives later than the others and reads as
+  a deck far behind: on a 120 ms link with 2% loss the client turned its carousel back 10 ticks (36 uu for a rider at
+  the rim) and forward again on the next sample. A spinning copy is now turned only when two samples in a row ask for
+  the same turn (`Mover.ClientSyncSpin`); a copy that is really out of phase is put right a second later than before.
+
+A player walking on a spinning mover has two more rules of ours (`ClientMoves.ReceiveAuthoritativeState`,
+`SBasePawnMoves.AccelerationOnSpinningBase`):
+
+- **No velocity check on a turning base.** The server sends a correction with every acknowledgement of a rider (its
+  check is in world space, where the deck has moved on) and the client decides in the deck's frame. Positions agree
+  there (0.0 to 0.4 uu on MoonD's carousel), but the velocity has no frame both share: the server's deck stands at
+  another angle when it applies the move, and a walking player's velocity follows an input that does not turn with
+  the deck. The rebased velocity was 1.4 to 7 uu/s from the saved one against a limit of 1 uu/s, so the client
+  replayed its moves on every acknowledgement while walking: 266 to 280 corrections in 25 s of walking about, and
+  one of those replays lost a step up the client had made (a 49 uu pull back at 60 ms ping). When the rebase turned
+  the velocity, or the base is PHYS_Rotating, only the position decides.
+- **The acceleration is turned by the deck's lead.** The server applies a move about 8 ticks of spin after the
+  client's copy stood where the client predicted it (60 ms ping), so across its deck the player walks in a direction
+  turned by that angle: 0.3 uu a tick apart, a correction of 2 to 4 uu every 10 ticks. The client measures the lead
+  from each acknowledgement (the base's yaw in it less the yaw recorded with the acknowledged move, averaged) and
+  walks its predicted and replayed moves with the acceleration turned back by it; the move is sent unturned. With
+  both rules the same 25 s has 2 or 3 corrections on a perfect link, at 60 ms and at 120 ms with 2% loss.
+
+Still open: a player who jumps on a spinning mover has no base while in the air, so the server's world position is
+compared with a client deck that stands at another angle (not measured). A player the server places on the deck
+(`ClientReinitPawnBecauseOfDivergences` sends an offset from the mover's location, not turned by its rotation)
+stands 7 to 10 uu from the server's spot until the first move is corrected.
+
 Not covered by a test: the moving platform owner test steps the server and the client in lockstep from the same
-start, so it never has a phase difference.
+start, so it never has a phase difference. The figures above are from a scratch run of that scenario over SimLink
+profiles A, B and C (not kept).
 
 ## Bot matches
 

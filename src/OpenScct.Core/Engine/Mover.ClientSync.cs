@@ -54,21 +54,42 @@ public partial class Mover
     /// Client: a new <see cref="SpinSample"/> arrived. An axis further from it than a few ticks of spin is turned onto
     /// it, with a mover move, so whoever stands on the deck is carried round with it. The sample is as old as the
     /// network delay, so the client's copy ends up that much behind the server's, as its keyed movers are.
+    /// A sample that was lost and sent again arrives later still and reads as a deck far behind (10 ticks of spin on
+    /// a link with 120 ms ping and 2% loss, 36 uu for a rider at the rim, undone by the next sample a second later).
+    /// So a spinning copy is turned only when two samples in a row ask for the same turn.
     /// </summary>
     [Provenance(ProvenanceKind.Estimated, "Ours: the original never corrects a spinning mover on a client")]
     public void ClientSyncSpin()
     {
         FRotator r = Rotation;
-        int pitch = SpinError(SpinSample.Pitch, r.Pitch, RotationRate.Pitch);
-        int yaw = SpinError(SpinSample.Yaw, r.Yaw, RotationRate.Yaw);
-        int roll = SpinError(SpinSample.Roll, r.Roll, RotationRate.Roll);
-        if (pitch == 0 && yaw == 0 && roll == 0)
+        var error = new FRotator(
+            SpinError(SpinSample.Pitch, r.Pitch, RotationRate.Pitch),
+            SpinError(SpinSample.Yaw, r.Yaw, RotationRate.Yaw),
+            SpinError(SpinSample.Roll, r.Roll, RotationRate.Roll));
+        if (error == default)
         {
+            _spinErrorSeen = false;
             return;
         }
 
-        MoveBrush(default, new FRotator((r.Pitch + pitch) & 0xffff, (r.Yaw + yaw) & 0xffff, (r.Roll + roll) & 0xffff));
+        bool confirmed = _spinErrorSeen &&
+            SpinError(error.Pitch, _spinError.Pitch, RotationRate.Pitch) == 0 &&
+            SpinError(error.Yaw, _spinError.Yaw, RotationRate.Yaw) == 0 &&
+            SpinError(error.Roll, _spinError.Roll, RotationRate.Roll) == 0;
+        if (Spins && !confirmed)
+        {
+            _spinError = error;
+            _spinErrorSeen = true;
+            return;
+        }
+
+        _spinErrorSeen = false;
+        MoveBrush(default, new FRotator((r.Pitch + error.Pitch) & 0xffff, (r.Yaw + error.Yaw) & 0xffff, (r.Roll + error.Roll) & 0xffff));
     }
+
+    /// <summary>Client: the turn the last sample asked for, kept until the next one confirms it.</summary>
+    private FRotator _spinError;
+    private bool _spinErrorSeen;
 
     private static int SpinError(int sample, int current, int rate)
     {

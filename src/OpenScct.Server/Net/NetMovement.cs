@@ -242,7 +242,7 @@ public sealed partial class SBasePawnMoves : IMovePawn, IMovePrediction, IMoveCo
         // input ticks until that wall-clock receive time; each sequenced command is already executed once.
         if (CommandDriven && p.fLastRootMotionTimeCalled > _commandTime) p.fLastRootMotionTimeCalled = _commandTime;
         _pc.bPressedJump = jump || _pc.bPressedJump;
-        _pc.ScriptMyProcessMove(deltaTime, acceleration);
+        _pc.ScriptMyProcessMove(deltaTime, AccelerationOnSpinningBase(p, acceleration));
         FVector a = p.Acceleration;
         p.Acceleration = new FVector(SvmMath.Trunc(a.X), SvmMath.Trunc(a.Y), SvmMath.Trunc(a.Z));
         p.XLevel.PhysicsDriver?.performPhysics(p, deltaTime);

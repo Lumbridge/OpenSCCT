@@ -6,6 +6,7 @@ using OpenScct.Game.Movement;
 using OpenScct.Game.SBase;
 using OpenScct.Net.Moves;
 using OpenScct.Physics.Conveyors;
+using OpenScct.Provenance;
 
 namespace OpenScct.Server;
 
@@ -412,8 +413,61 @@ public sealed partial class SBasePawnMoves
     {
         if (_prediction is null || @base is null || !ReferenceEquals(_prediction[slot].Base, @base)) return;
         PredictionFrame frame = _prediction[slot];
+        NoteBaseLead(@base, FRotator.NormalizeAxis(baseRotation.Yaw - frame.BaseRotation.Yaw));
         position = TransformVector(position - basePosition, baseRotation, frame.BaseRotation) + frame.BasePosition;
         velocity = TransformVector(velocity, baseRotation, frame.BaseRotation);
+    }
+
+    // ---- a spinning base (docs/NETCODE.md, "Movers on clients") ----
+
+    private Actor? _leadBase;
+    private float _leadYaw;
+
+    /// <summary>
+    /// Client: how far round the server's copy of a spinning base stands when it applies one of this player's moves,
+    /// past where this client's copy stood when it predicted the move (the yaw of the base in an acknowledgement less
+    /// the yaw recorded with the acknowledged move). Averaged over acknowledgements: one is a tick or so late.
+    /// </summary>
+    private void NoteBaseLead(Actor @base, int yaw)
+    {
+        if (@base.Physics != EPhysics.PHYS_Rotating)
+        {
+            if (ReferenceEquals(_leadBase, @base)) _leadBase = null;
+            return;
+        }
+
+        if (!ReferenceEquals(_leadBase, @base) || SvmMath.Abs(yaw - _leadYaw) > BaseLeadSnap)
+        {
+            _leadBase = @base;
+            _leadYaw = yaw;
+            return;
+        }
+
+        _leadYaw += (yaw - _leadYaw) * BaseLeadBlend;
+    }
+
+    private const float BaseLeadBlend = 0.125f;
+
+    /// <summary>A measured lead this far (rotation units, 11 degrees) from the average replaces it: the client's copy was turned onto a server sample.</summary>
+    private const float BaseLeadSnap = 2048f;
+
+    /// <summary>
+    /// Client: the acceleration of a move walked on a spinning base, turned back by the base's lead. The server
+    /// applies the same world acceleration on a deck that has turned further, so across its deck the player walks in
+    /// a direction turned by that lead: 0.3 uu a tick apart at 60 ms ping on MoonD's carousel, a correction of 2 to
+    /// 4 uu every 10 ticks. Walking that same direction across this client's deck keeps the two together. The move
+    /// is sent with the acceleration as the player gave it.
+    /// </summary>
+    [Provenance(ProvenanceKind.Estimated, "Ours: the original predicts a rider with the world acceleration and corrects the difference")]
+    private FVector AccelerationOnSpinningBase(SBasePawn pawn, FVector acceleration)
+    {
+        if (_leadBase is null || pawn.Role != ENetRole.ROLE_AutonomousProxy || pawn.Physics != EPhysics.PHYS_Walking ||
+            !ReferenceEquals(pawn.Base, _leadBase) || _leadBase.bDeleteMe || _leadBase.Physics != EPhysics.PHYS_Rotating)
+        {
+            return acceleration;
+        }
+
+        return TransformVector(acceleration, new FRotator(0, (int)_leadYaw, 0), default);
     }
 
     private static FVector TransformVector(FVector vector, FRotator from, FRotator to)
