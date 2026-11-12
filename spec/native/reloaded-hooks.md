@@ -320,8 +320,9 @@ SProjPhospho (872), 0x10bfaf68 SProjSmoke (872), 0x10bfb0b0 SProjGrenade (852). 
   test would stop grenades on a dedicated server running Reloaded; whether such a server exists, or moves them by
   other code, was not established.
 
-The rewrite's grenades are simulated by the server and replicated; whether a frag can hit its thrower on the first
-frame there has not been checked.
+The rewrite's grenades are simulated by the server and replicated. The frag rule is ported (SProjFrag's constructor
+and NativeTick, frag-grenade.md rule 1); before that a frag, as in the script, touched every pawn but its owner from
+the moment it was made.
 
 **The six hooks left over from the first pass (decoded 2026-11-13).** None changes a gameplay rule:
 

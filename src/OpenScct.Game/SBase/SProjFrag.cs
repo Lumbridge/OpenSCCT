@@ -16,6 +16,24 @@ public partial class SProjFrag
     /// <summary>Kill credit survives the thrower's pawn being removed before the fuse expires.</summary>
     public PlayerReplicationInfo? ThrowerStatsOwner { get; private set; }
 
+    /// <summary>
+    /// Reloaded's frag (spec/native/reloaded-hooks.md, "Grenades"): the frag collides with actors only once its fuse
+    /// timer has counted a tick. It is made without actor collision and gets it from its second tick on, so a throw
+    /// cannot go off against a player standing against the thrower. Reloaded sets the flag from <c>TimerCounter</c>
+    /// at the end of the native constructor and before every Tick; the script and the retail game leave it on.
+    /// </summary>
+    public SProjFrag()
+    {
+        bCollideActors = TimerCounter != 0f;
+    }
+
+    [Provenance(ProvenanceKind.Decoded, "Reloaded.Core 0x1001a940 -> 0x1001a8e0 in SProjFrag's Tick slot (game 0x10bfac14): bCollideActors = TimerCounter != 0, then the original Tick")]
+    protected override void NativeTick(float DeltaSeconds)
+    {
+        bCollideActors = TimerCounter != 0f;
+        base.NativeTick(DeltaSeconds);
+    }
+
     /// <summary>The launch sound; the trail emitter is a view effect.</summary>
     [Uc("SBase.SProjFrag.PostBeginPlay", Sha1 = "91b7047a3fea44a33f4f28b61ee84ed41f95e96d")]
     [PortOf("uc:SBase.SProjFrag:PostBeginPlay", Spec = "spec/equipment/frag-grenade.md#rules")]

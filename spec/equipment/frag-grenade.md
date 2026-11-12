@@ -39,6 +39,9 @@ objects in range, shakes cameras, and leaves a smoke and shrapnel visual.
 ## Rules
 1. **Throw**: aimed only (`grenade-throw.md` Rules 1-4). A merc throw puts the rifle in `s_FireGrenade` (1.733 s,
    no firing). Launch sound (radius 100) and the SFragLaunchEmitter trail on non-dedicated machines.
+   With Reloaded the frag has no actor collision when it is made and during its first tick: `bCollideActors` follows
+   `TimerCounter != 0` (reloaded-hooks.md, "Grenades"), so it cannot go off against a player standing against the
+   thrower. The rewrite does the same.
 2. **Fuse**: 2 s after the projectile appears on each machine; the server explodes it (`Explode(Location, 0)`),
    clients destroy their copy.
 3. **Explode** (native 0x10ab4780, contract): runs once (`bExploding`). Spawns SGrenadeExplosion (whose

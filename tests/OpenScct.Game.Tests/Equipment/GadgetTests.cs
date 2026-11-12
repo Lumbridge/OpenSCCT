@@ -119,6 +119,21 @@ public sealed class GadgetTests
     }
 
     [Fact]
+    public void AFragCollidesWithActorsOnlyFromItsSecondTick()
+    {
+        // Reloaded: no actor collision until the fuse timer has counted a tick, so a throw cannot go off against a
+        // player standing against the thrower. The other grenades keep the script's collision from the start.
+        var scene = new CombatScene();
+        SProjFrag frag = scene.Level.SpawnActor(new SProjFrag(), new FVector(0f, 0f, 100f), default)!;
+        Assert.False(frag.bCollideActors);
+        scene.World.Step(1);
+        Assert.False(frag.bCollideActors);
+        scene.World.Step(1);
+        Assert.True(frag.bCollideActors);
+        Assert.True(new SProjSmoke().bCollideActors);
+    }
+
+    [Fact]
     public void SixSecondsOfSmokeKnockAMercDown()
     {
         var scene = new CombatScene();
