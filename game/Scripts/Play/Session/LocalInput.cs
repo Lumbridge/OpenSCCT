@@ -177,7 +177,7 @@ public static class PlayerCommands
     [
         "Fire", "AltFire", "Jump", "GadgetQuickChoice", "LaunchGadget", "LongRoll", "SelectGadget", "SwitchHeadset", "SwitchBinocularVision",
         "SetWalk", "SetScope", "SwitchSpyPerspective", "SetSpyFirstPerson", "Walk", "Run", "NextGadget", "PreviousGadget", "ChangeSpeed", "GadLaserSwitch", "GadTorcheSwitch", "SwitchLaser", "WheelUp", "WheelDown", "ZoomIn", "ZoomOut",
-        "SwapWeapon", "SwitchROF", "PrevStickyCam", "PerformCoopMvt", "FreeCam", "HideHud",
+        "SwapWeapon", "SwitchROF", "PrevStickyCam", "PerformCoopMvt", "GrabOnly", "FreeCam", "HideHud",
         "PadCloakQuick", "ToggleCloak", "PadCameraGas", "PadCameraExit",
     ];
 
@@ -333,6 +333,9 @@ public static class PlayerCommands
                 return true;
             case "PERFORMCOOPMVT":
                 pc.eventPerformCoopMvt();
+                return true;
+            case "GRABONLY":
+                pc.PressGrabOnly();
                 return true;
             default:
                 return false;

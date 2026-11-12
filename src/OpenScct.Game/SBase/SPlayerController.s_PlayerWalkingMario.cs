@@ -100,6 +100,14 @@ public partial class SPlayerController
             }
 
             self.bRollAction = false;
+            // The grab-only key: the grab test of Use and nothing after it.
+            if (self.TakeGrabOnly() && self.bToggleUsing != 1 && !self.bPressedJump && !pawn.bIsRolling)
+            {
+                IMovementHooks grabHooks = MovementService.HooksOf(self);
+                grabHooks.DiscardPickup(self);
+                grabHooks.UseSearch(self, 0, bCantRollCuzColl);
+            }
+
             if (self.bToggleUsing == 1 && !self.bPressedJump)
             {
                 IMovementHooks hooks = MovementService.HooksOf(self);

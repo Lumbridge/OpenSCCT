@@ -115,7 +115,8 @@ public partial class SPlayerController
             }
 
             // The Use press: a merc above the ledge is pulled over the edge (spy-grab.md rule 30).
-            if (self.bToggleUsing == 1 && self.bTestGrabLedgeGeo() && AskToGrabPawn(self) && pawn.m_AttackTarget is { } target)
+            bool grabOnly = self.TakeGrabOnly();
+            if ((self.bToggleUsing == 1 || grabOnly) && self.bTestGrabLedgeGeo() && AskToGrabPawn(self) && pawn.m_AttackTarget is { } target)
             {
                 self.CombatPorts.ChangeEnumAction(pawn, SBasePawn.SA_GRABFROMLEDGE_BEGIN, false);
                 self.GotoState(CNAME_s_GrabbingFromLedge_Begin);
