@@ -27,6 +27,11 @@ public sealed class SequencedMoveTransport : IMoveTransport
     private FVector _reportedLocation;
     private byte _reportedDivers;
     private Actor? _reportedBase;
+    // The mover the pawn's positions are told in (MoverFrame): the client's for its commands, the server's for its acknowledgements.
+    private Actor? _frame;
+    // Server: the mover and offset the last applied command reported, to compare where that mover stands at the acknowledgement.
+    private Actor? _reportedFrame;
+    private FVector _reportedOffset;
     private uint _highestReceived;
     private long _lastPumpTick = -1;
     private float _simulationCredit = 12f;
@@ -60,6 +65,8 @@ public sealed class SequencedMoveTransport : IMoveTransport
         public FVector ReportedLocation;
         public byte ReportedDivers;
         public Actor? ReportedBase;
+        /// <summary>The mover ClientLoc and <see cref="ReportedLocation"/> are offsets from (MoverFrame), or null for world positions.</summary>
+        public Actor? Frame;
         public bool Received;
     }
 
@@ -89,8 +96,8 @@ public sealed class SequencedMoveTransport : IMoveTransport
     public static RepExtension CreateExtension()
     {
         var ext = new RepExtension();
-        ext.Functions.Add(new(Commands, false, true, "move-commands-13", ReceiveCommands) { AcceptReordered = true });
-        ext.Functions.Add(new(Ack, false, false, "move-ack-5", ReceiveAck));
+        ext.Functions.Add(new(Commands, false, true, "move-commands-14", ReceiveCommands) { AcceptReordered = true });
+        ext.Functions.Add(new(Ack, false, false, "move-ack-6", ReceiveAck));
         ext.Functions.Add(new(Resync, true, true, "move-resync-1", ReceiveResync));
         ext.Functions.Add(new(Reset, true, false, "move-reset-1", ReceiveReset));
         return ext;
@@ -159,6 +166,8 @@ public sealed class SequencedMoveTransport : IMoveTransport
         uint sequence = ++_sent;
         _commandsThisTick++;
         BigServerMoveData move = big;
+        _frame = MoverFrame.Of(_pawn.Base, _pawn.Physics, _frame);
+        if (_frame is not null) location = MoverFrame.ToFrame(location, _frame);
         move.TimeStamp = stamp; move.InAccel = accel; move.ClientLoc = location; move.View = view; move.iDiversInfos = divers;
         ActorChannel? channel = Channel;
         _ring[Slot(sequence)] = new Command
@@ -169,6 +178,7 @@ public sealed class SequencedMoveTransport : IMoveTransport
             Delta = Math.Clamp(DeltaTime, 0f, Sim.DeltaTime), Move = move,
             ReportedLocation = location, ReportedDivers = divers,
             ReportedBase = _pawn.Base,
+            Frame = _frame,
         };
     }
 
@@ -185,7 +195,16 @@ public sealed class SequencedMoveTransport : IMoveTransport
             // command. Acknowledge against the same completed state stored by prediction, while retaining the
             // original big-move fields for its action/root handoff semantics.
             ref Command last = ref _ring[Slot(_sent)];
-            last.ReportedLocation = _pawn.Location;
+            Actor? told = last.Frame;
+            _frame = MoverFrame.Of(_pawn.Base, _pawn.Physics, _frame);
+            if (!ReferenceEquals(told, _frame))
+            {
+                // The state entry changed what the pawn stands on: the queued position goes into the new frame.
+                FVector queued = told is null ? last.Move.ClientLoc : MoverFrame.FromFrame(last.Move.ClientLoc, told);
+                last.Move.ClientLoc = _frame is null ? queued : MoverFrame.ToFrame(queued, _frame);
+                last.Frame = _frame;
+            }
+            last.ReportedLocation = _frame is null ? _pawn.Location : MoverFrame.ToFrame(_pawn.Location, _frame);
             last.ReportedDivers = (byte)(((int)_pawn.Physics << 4) | (_pawn.ZoneConfig & 3));
             last.ReportedBase = _pawn.Base;
         }
@@ -363,6 +382,14 @@ public sealed class SequencedMoveTransport : IMoveTransport
                 if (_epoch != epoch || !HasCurrentPawn) break;
                 if (transport._applied == 0) server.CurrentTimeStamp = c.Move.TimeStamp - c.Delta;
                 BigServerMoveData m = c.Move;
+                // Positions told from a mover are put on this machine's copy of it, where it stands now.
+                FVector reportedOffset = c.ReportedLocation;
+                Actor? told = c.Frame is { bDeleteMe: false } ? c.Frame : null;
+                if (told is not null)
+                {
+                    m.ClientLoc = MoverFrame.FromFrame(m.ClientLoc, told);
+                    c.ReportedLocation = MoverFrame.FromFrame(c.ReportedLocation, told);
+                }
                 long before = server.MovesApplied;
                 commandPawn?.SetCommandTime(m.TimeStamp, c.InputTick);
                 server.CommandDeltaTime = c.Delta;
@@ -395,6 +422,8 @@ public sealed class SequencedMoveTransport : IMoveTransport
                 transport._applied = c.Sequence; transport._appliedStamp = c.Move.TimeStamp; transport._appliedInputTick = c.InputTick; next = default;
                 _reportedLocation = c.ReportedLocation; _reportedDivers = c.ReportedDivers;
                 _reportedBase = c.ReportedBase;
+                _reportedFrame = told; _reportedOffset = reportedOffset;
+                _frame = MoverFrame.Of(_pawn.Base, _pawn.Physics, _frame);
                 _appliedInputDelta = tickDelta;
                 _simulationCredit -= cost;
             }
@@ -416,7 +445,8 @@ public sealed class SequencedMoveTransport : IMoveTransport
         for (uint offset = 1; offset <= received; offset++)
             b.Writer.WriteBit(_ring[Slot(_applied + offset)].Sequence == _applied + offset);
         b.Writer.WriteFloat(_appliedStamp);
-        bool correction = _applied != 0 && ((_pawn.Location - _reportedLocation).SizeSquared() >= MoveK.CorrectionErrorSquared ||
+        FVector reported = _reportedFrame is { bDeleteMe: false } reportedFrame ? MoverFrame.FromFrame(_reportedOffset, reportedFrame) : _reportedLocation;
+        bool correction = _applied != 0 && ((_pawn.Location - reported).SizeSquared() >= MoveK.CorrectionErrorSquared ||
             _pawn.Physics != MovePacking.DiversPhysics(_reportedDivers) || _pawn.ZoneConfig != MovePacking.DiversZone(_reportedDivers) ||
             !ReferenceEquals(_pawn.Base, _reportedBase));
         b.Writer.WriteBit(correction);
@@ -426,12 +456,18 @@ public sealed class SequencedMoveTransport : IMoveTransport
             b.Writer.WriteByte((byte)_pawn.Physics); b.Writer.WriteByte(_pawn.ZoneConfig);
             channel.Connection.WriteObject(b.Writer, _pawn.Base, out _);
             b.Writer.WriteIntPacked((_pawn as IMovePrediction)?.PredictionInputRevisionAt(_pawn.Location) ?? 0u);
-            bool based = _pawn.Base is { bWorldGeometry: false, bStatic: false };
+            // The pose of what the pawn stands on, or of the mover it jumped from while it is in the air: the
+            // client compares and replays in that actor's frame.
+            _frame = MoverFrame.Of(_pawn.Base, _pawn.Physics, _frame);
+            Actor? basis = _pawn.Base is { bWorldGeometry: false, bStatic: false } ? _pawn.Base : _frame;
+            bool based = basis is not null;
             b.Writer.WriteBit(based);
             if (based)
             {
-                Actor basis = _pawn.Base!;
-                Vec(b.Writer, basis.Location);
+                bool left = !ReferenceEquals(basis, _pawn.Base);
+                b.Writer.WriteBit(left);
+                if (left) channel.Connection.WriteObject(b.Writer, basis, out _);
+                Vec(b.Writer, basis!.Location);
                 b.Writer.WriteInt32(basis.Rotation.Pitch); b.Writer.WriteInt32(basis.Rotation.Yaw); b.Writer.WriteInt32(basis.Rotation.Roll);
             }
         }
@@ -447,7 +483,7 @@ public sealed class SequencedMoveTransport : IMoveTransport
         float stamp = r.ReadFloat(); bool correction = r.ReadBit();
         FVector location = default, velocity = default;
         FVector? basePosition = null; FRotator baseRotation = default;
-        EPhysics physics = default; byte zone = 0; Actor? @base = null; uint inputRevision = 0;
+        EPhysics physics = default; byte zone = 0; Actor? @base = null, frame = null; uint inputRevision = 0;
         if (correction)
         {
             location = Vec(r); velocity = Vec(r); physics = (EPhysics)r.ReadByte(); zone = r.ReadByte();
@@ -455,6 +491,7 @@ public sealed class SequencedMoveTransport : IMoveTransport
             inputRevision = r.ReadIntPacked();
             if (r.ReadBit())
             {
+                frame = r.ReadBit() ? connection.ReadObject(r) as Actor : @base;
                 basePosition = Vec(r);
                 baseRotation = new FRotator(r.ReadInt32(), r.ReadInt32(), r.ReadInt32());
             }
@@ -470,7 +507,7 @@ public sealed class SequencedMoveTransport : IMoveTransport
         }
         if (sequence == 0) return;
         if (epoch != transport.CommandEpoch) return;
-        if (correction) endpoint.Client?.ReceiveAuthoritativeState(epoch, sequence, stamp, location, velocity, physics, zone, @base, basePosition, baseRotation, serverTick, inputRevision);
+        if (correction) endpoint.Client?.ReceiveAuthoritativeState(epoch, sequence, stamp, location, velocity, physics, zone, @base, basePosition, baseRotation, serverTick, inputRevision, frame);
         else endpoint.Client?.AcknowledgePrediction(epoch, sequence, stamp);
     }
 
@@ -555,6 +592,8 @@ public sealed class SequencedMoveTransport : IMoveTransport
         if (completed) { WriteDeltaVector(w, c.ReportedLocation, m.ClientLoc); w.WriteByte(c.ReportedDivers); }
         w.WriteBit(!ReferenceEquals(c.ReportedBase, previous.ReportedBase));
         if (!ReferenceEquals(c.ReportedBase, previous.ReportedBase)) map.WriteObject(w, c.ReportedBase, out _);
+        w.WriteBit(!ReferenceEquals(c.Frame, previous.Frame));
+        if (!ReferenceEquals(c.Frame, previous.Frame)) map.WriteObject(w, c.Frame, out _);
     }
     private static void WriteDeltaVector(FBitWriter w, FVector value, FVector previous) => MoveBatchVector.Write(w, value, previous);
     private static FVector ReadDeltaVector(FBitReader r, FVector previous) => MoveBatchVector.Read(r, previous);
@@ -598,6 +637,7 @@ public sealed class SequencedMoveTransport : IMoveTransport
         c.ReportedLocation = c.Move.ClientLoc; c.ReportedDivers = (byte)c.Move.iDiversInfos;
         if (r.ReadBit()) { c.ReportedLocation = ReadDeltaVector(r, c.Move.ClientLoc); c.ReportedDivers = r.ReadByte(); }
         c.ReportedBase = r.ReadBit() ? map.ReadObject(r) as Actor : previous.ReportedBase;
+        c.Frame = r.ReadBit() ? map.ReadObject(r) as Actor : previous.Frame;
         return c;
     }
 }

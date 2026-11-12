@@ -92,8 +92,10 @@ public sealed class ClientMoves
     /// the state.
     /// </param>
     public void ReceiveAuthoritativeState(uint epoch, uint sequence, float stamp, FVector location, FVector velocity, EPhysics physics, byte zone, Actor? @base,
-        FVector? basePosition = null, FRotator baseRotation = default, long serverTick = -1, uint inputRevision = 0)
+        FVector? basePosition = null, FRotator baseRotation = default, long serverTick = -1, uint inputRevision = 0, Actor? frame = null)
     {
+        // The actor the base pose belongs to: the base, or the mover a falling pawn left (MoverFrame).
+        frame ??= @base;
         if (Pawn is not IMovePrediction prediction || (_correctionEpoch == epoch && sequence <= _acknowledgedSequence)) return;
         // The server moved the pawn under a change near it that this client has not received (its update was lost
         // or is late): replaying now would predict the old way again and earn another correction. Take the
@@ -121,13 +123,13 @@ public sealed class ClientMoves
                 if (!prediction.CanReplayPrediction(move.Slot)) { CorrectionsObsoletedByState++; return; }
                 FVector received = velocity;
                 if (basePosition is { } baseAt)
-                    prediction.RebaseAuthoritativeState(move.Slot, @base, baseAt, baseRotation, ref location, ref velocity);
+                    prediction.RebaseAuthoritativeState(move.Slot, frame, baseAt, baseRotation, ref location, ref velocity);
                 // On a turning base (a carousel) the velocity has no frame both machines share: the server's deck
                 // stands at another angle when it applies the move, a walking player's velocity follows an input
                 // that does not turn with the deck, and the carry turns it a little every tick. The rebased velocity
                 // was 1.4 to 7 uu/s off the saved one on MoonD's carousel with positions within 0.4 uu, which
                 // replayed every acknowledgement. There the position, exact in the deck's frame, decides alone.
-                bool turningBase = velocity != received || @base is { Physics: EPhysics.PHYS_Rotating };
+                bool turningBase = velocity != received || frame is { Physics: EPhysics.PHYS_Rotating };
                 if ((move.SavedLocation - location).SizeSquared() < MoveK.CorrectionErrorSquared &&
                     (turningBase || (move.SavedVelocity - velocity).SizeSquared() < 1f) && move.SavedPhysics == physics &&
                     move.ZoneConfig == zone && ReferenceEquals(move.SavedBase, @base)) return;

@@ -76,7 +76,7 @@ control from unnecessarily blocking movement commands fenced behind it until ret
 An unreliable extension can explicitly opt into late delivery only when it validates its own lifetime and
 sequence. Currently only `SvmMoveCommands` does so: epoch, pawn identity and command sequence still govern
 acceptance, ownership checks still apply, and ordinary calls/properties in the same packet remain excluded.
-The opt-in is part of the handshake hash (`move-commands-13:reordered`); previous builds are rejected.
+The opt-in is part of the handshake hash (`move-commands-14:reordered`); previous builds are rejected.
 
 ## Replication model
 
@@ -288,7 +288,7 @@ Simulation credit retains up to the 256-tick input-history window, with at most 
 and at most one full simulation step across commands sharing an input tick. Idle clients resume full-rate
 recovery when acknowledgements fall behind ordinary transit.
 
-The `move-commands-13` format omits repeated control fences, acceleration, position, view, stance bits, action fields and base
+The `move-commands-14` format omits repeated control fences, acceleration, position, view, stance bits, action fields and base
 references within a batch. Each batch begins with an empty reference; there is no dependency on a previous
 packet, and timestamps, input ticks and sequences remain explicit. Changed vectors use relative packed coordinates
 when smaller, retaining the same 1/16 uu precision and original coordinate bounds. This lets active recovery fit the existing
@@ -781,8 +781,28 @@ A player walking on a spinning mover has two more rules of ours (`ClientMoves.Re
   walks its predicted and replayed moves with the acceleration turned back by it; the move is sent unturned. With
   both rules the same 25 s has 2 or 3 corrections on a perfect link, at 60 ms and at 120 ms with 2% loss.
 
-Still open: a player who jumps on a spinning mover has no base while in the air, so the server's world position is
-compared with a client deck that stands at another angle (not measured). A player the server places on the deck
+**Positions on a mover are offsets from it** (`MoverFrame`, `move-commands-14`, `move-ack-6`). A command told the
+server where the client stood in world coordinates. On a mover that is a position on the client's copy, some ticks
+old: MoonD's monorail car travels 12.7 uu a tick. A jump is an action move, and the server snaps its pawn to the
+reported position when that is within 100 uu (rule 13), so it put a jumper 51 uu behind where they stood in the car
+on a perfect link (further with ping, or not at all past 100 uu) and then corrected the client back to it: a 64 uu
+pull at take-off, which is what dropped players back onto the car's floor. Now:
+
+- The client sends `ClientLoc` and the completed position as offsets along the axes of the pawn's frame: the mover it
+  stands on, or while it falls the mover it left, until it lands on something else. The command names that mover.
+  The server puts the offsets on its own copy where it stands when it applies the command, and compares the completed
+  position again on that copy where it stands at the acknowledgement, so it asks for a correction only when the two
+  differ on the mover (before, every acknowledgement of a rider did).
+- An acknowledgement carries the pose of that frame while the pawn is in the air over the mover it left, and the client
+  compares and replays from the same offset on its own copy (`PredictionFrame.Frame`).
+
+Measured on the monorail (spy, a jump every 2 s for 15 s, perfect link, 60 ms and 120 ms with loss): no correction at
+take-off on any of them (64 to 65 uu before). Left: one 12.7 uu correction in the air at 60 and 120 ms, where the
+server's car stops pushing the jumper one tick apart from the client's, and the landing on the ground. The landing is
+a world position again; the server takes the client's when they are within 100 uu (rule 13), which holds to about
+80 ms of ping on that car, and corrects by the difference above it (140 uu at 120 ms).
+
+Still open: a player the server places on the deck
 (`ClientReinitPawnBecauseOfDivergences` sends an offset from the mover's location, not turned by its rotation)
 stands 7 to 10 uu from the server's spot until the first move is corrected.
 

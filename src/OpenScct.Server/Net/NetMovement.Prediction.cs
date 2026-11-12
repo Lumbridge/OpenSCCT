@@ -39,6 +39,10 @@ public sealed partial class SBasePawnMoves
         public Actor? Base;
         public FVector BasePosition;
         public FRotator BaseRotation;
+        /// <summary>The mover this move's position is compared in (MoverFrame) and where it stood: the base, or the mover a falling pawn left.</summary>
+        public Actor? Frame;
+        public FVector FramePosition;
+        public FRotator FrameRotation;
         public int Action => _pawn_sAction;
         public LatentFrame ControllerState, PawnState;
         public PawnRootMotion.State Root;
@@ -378,6 +382,8 @@ public sealed partial class SBasePawnMoves
         long tick = frame.Tick;
         float time = frame.Time;
         frame.Capture(pawn, _pc);
+        _frame = MoverFrame.Of(pawn.Base, pawn.Physics, _frame);
+        frame.Frame = _frame; frame.FramePosition = _frame?.Location ?? default; frame.FrameRotation = _frame?.Rotation ?? default;
         frame.AuthoritativeOwnerAction = _authoritativeOwnerAction;
         if (pawn.XLevel.World.IsReplaying)
         {
@@ -385,6 +391,9 @@ public sealed partial class SBasePawnMoves
             frame.Time = time;
         }
     }
+
+    /// <summary>The frame of the last captured move (MoverFrame); a replay starts again from the acknowledged move's.</summary>
+    private Actor? _frame;
 
     public void BeginPredictionReplay(long serverTick = -1)
     {
@@ -411,11 +420,20 @@ public sealed partial class SBasePawnMoves
     public void RebaseAuthoritativeState(int slot, Actor? @base, FVector basePosition, FRotator baseRotation,
         ref FVector position, ref FVector velocity)
     {
-        if (_prediction is null || @base is null || !ReferenceEquals(_prediction[slot].Base, @base)) return;
+        if (_prediction is null || @base is null) return;
         PredictionFrame frame = _prediction[slot];
-        NoteBaseLead(@base, FRotator.NormalizeAxis(baseRotation.Yaw - frame.BaseRotation.Yaw));
-        position = TransformVector(position - basePosition, baseRotation, frame.BaseRotation) + frame.BasePosition;
-        velocity = TransformVector(velocity, baseRotation, frame.BaseRotation);
+        if (ReferenceEquals(frame.Base, @base))
+        {
+            NoteBaseLead(@base, FRotator.NormalizeAxis(baseRotation.Yaw - frame.BaseRotation.Yaw));
+            position = TransformVector(position - basePosition, baseRotation, frame.BaseRotation) + frame.BasePosition;
+            velocity = TransformVector(velocity, baseRotation, frame.BaseRotation);
+        }
+        else if (ReferenceEquals(frame.Frame, @base))
+        {
+            // In the air over the mover the pawn left: the same offset from this client's copy of it.
+            position = TransformVector(position - basePosition, baseRotation, frame.FrameRotation) + frame.FramePosition;
+            velocity = TransformVector(velocity, baseRotation, frame.FrameRotation);
+        }
     }
 
     // ---- a spinning base (docs/NETCODE.md, "Movers on clients") ----
@@ -503,6 +521,7 @@ public sealed partial class SBasePawnMoves
     {
         if (P is not { } pawn || _prediction is null) return;
         PredictionFrame frame = _prediction[slot];
+        _frame = frame.Frame;
         _replayAcknowledgedTick = frame.Tick;
         StageCollision(pawn, frame);
         StageCompletedBase(pawn, frame);
