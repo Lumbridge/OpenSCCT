@@ -186,6 +186,6 @@ public struct AiInput
 /// is a player controlled on the server's machine. Its PlayerTick runs the input and movement code there, as for a
 /// listen server's own player. It is never the level's LocalPlayerController.
 /// </summary>
-public sealed class AiViewport : UViewport
+public sealed class AiViewport : UViewport, OpenScct.Core.Engine.IHeadlessPlayer
 {
 }

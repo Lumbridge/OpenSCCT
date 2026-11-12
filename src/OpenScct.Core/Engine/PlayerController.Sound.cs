@@ -54,10 +54,9 @@ public partial class PlayerController
     public virtual void ClientPlaySound(AssetRef ASound, bool bVolumeControl = false, float inAtten = 0f,
         ESoundSlot Slot = ESoundSlot.SLOT_None)
     {
-        // A bot is a player on the server's machine with no screen or speakers (its Player is a viewport that is
-        // never the level's local one). Its interface sounds are for nobody: played at its pawn unattenuated, the
-        // server sent them to every player.
-        if (Player is not null && !IsRemotePlayer && !ReferenceEquals(Level?.GetLocalPlayerController(), this))
+        // A bot is a player on the server's machine with no screen or speakers. Its interface sounds are for nobody:
+        // played at its pawn unattenuated, the server sent them to every player.
+        if (Player is IHeadlessPlayer)
         {
             return;
         }

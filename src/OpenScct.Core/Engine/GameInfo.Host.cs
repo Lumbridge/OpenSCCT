@@ -139,6 +139,11 @@ public sealed class NullGameHost : IGameHost
     public bool IsDedicatedServerMode() => false;
 }
 
+/// <summary>A player object with no screen or speakers (a server-side bot's viewport): interface sounds for it play nowhere.</summary>
+public interface IHeadlessPlayer
+{
+}
+
 /// <summary>The local viewport of a player on this machine (UE2 UViewport), as set by <see cref="GameInfo.SpawnPlayActor"/>.</summary>
 public sealed class SimViewport : UViewport
 {
