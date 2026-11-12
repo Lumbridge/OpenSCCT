@@ -163,6 +163,9 @@ public sealed class OnlineLobby : IOnlineLobbySession
         _client.Launch();
     }
 
+    /// <summary>Stops listening to the service (a newer lobby model took this one's place).</summary>
+    public void Detach() => _service.Changed -= Raise;
+
     public void Leave()
     {
         // A map download carries on: the map is kept for next time.

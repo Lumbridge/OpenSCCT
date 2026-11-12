@@ -153,7 +153,7 @@ public sealed partial class OnlineClient
                     break;
             }
         }
-        catch (Exception error) when (error is IOException or UnauthorizedAccessException or FormatException or ArgumentException or System.Text.Json.JsonException or InvalidOperationException)
+        catch (Exception error) when (error is IOException or InvalidDataException or UnauthorizedAccessException or FormatException or ArgumentException or System.Text.Json.JsonException or InvalidOperationException)
         {
             bool trainingFailed = _demoDownload?.Training == true || command.StartsWith("demotraining", StringComparison.Ordinal);
             if (_demoDownload is { } download) SendLine(SessionProtocol.Line(download.Acknowledge, download.Id, -1));

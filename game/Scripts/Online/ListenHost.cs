@@ -78,6 +78,9 @@ public sealed class ListenHost : IDisposable
     private int _localPlayers;
     private long _ticksPrintedAt;
     private bool _disposed;
+    private readonly object _exitGate = new();
+    private bool _exited;
+    private bool _disposeOnExit;
 
     private ListenHost(HostRequest request, OnlineServer server, LiteNetLibTransport udp, LoopbackNetwork network, IClock clock, string hostKey)
     {
@@ -212,10 +215,30 @@ public sealed class ListenHost : IDisposable
                 }
             });
         }
-        catch (Exception e) when (e is InvalidOperationException or ObjectDisposedException or ArgumentException or System.IO.IOException)
+        catch (OperationCanceledException) when (_stop.IsCancellationRequested)
+        {
+            // Stop() cancelled the run: not a failure.
+        }
+#pragma warning disable CA1031 // An exception leaving this thread ends the whole game; any failure of a tick stops the host with a message instead.
+        catch (Exception e)
+#pragma warning restore CA1031
         {
             Failure = e;
-            GD.PushError("The listen host stopped: " + e.Message);
+            GD.PushError("The listen host stopped: " + e);
+        }
+        finally
+        {
+            // Dispose gave up waiting (a map load can outlast its wait): the server is disposed here, once this
+            // thread is done with it, not under it.
+            lock (_exitGate)
+            {
+                _exited = true;
+                if (_disposeOnExit)
+                {
+                    Server.Dispose();
+                    _stop.Dispose();
+                }
+            }
         }
     }
 
@@ -245,8 +268,17 @@ public sealed class ListenHost : IDisposable
         _disposed = true;
         Stop();
         _stop.Cancel();
-        Server.Dispose();
         _upnp.Remove();
+        lock (_exitGate)
+        {
+            if (!_exited)
+            {
+                _disposeOnExit = true;
+                return;
+            }
+        }
+
+        Server.Dispose();
         _stop.Dispose();
     }
 }

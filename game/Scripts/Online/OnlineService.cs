@@ -297,8 +297,13 @@ public partial class OnlineService : Node
         FrontEnd.ShowMainMenu(GetTree());
     }
 
+    /// <summary>The lobby page's model of this visit; each return to the lobby makes a new one.</summary>
+    private OnlineLobby? _lobby;
+
     private void EndVisit()
     {
+        _lobby?.Detach();
+        _lobby = null;
         if (Client is { } client)
         {
             client.Changed -= OnChanged;
@@ -439,7 +444,9 @@ public partial class OnlineService : Node
         {
             case OnlineClientState.Lobby:
                 StopRound();
-                FrontEnd.ShowLobby(tree, new OnlineLobby(this, client));
+                _lobby?.Detach();
+                _lobby = new OnlineLobby(this, client);
+                FrontEnd.ShowLobby(tree, _lobby);
                 break;
             case OnlineClientState.Results when client.Results is { } results:
                 StopRound();

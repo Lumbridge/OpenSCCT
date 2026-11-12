@@ -21,6 +21,8 @@ public sealed class UpnpPorts
 
     private Upnp? _upnp;
     private int _mapped;
+    private readonly object _gate = new();
+    private bool _removed;
 
     /// <summary>The router's public address once the mapping worked, else null.</summary>
     public string? ExternalAddress { get; private set; }
@@ -47,8 +49,19 @@ public sealed class UpnpPorts
                 return Manual(port, "the router refused the mapping (" + ((Upnp.UpnpResult)result).ToString() + ")");
             }
 
-            _upnp = upnp;
-            _mapped = port;
+            lock (_gate)
+            {
+                if (_removed)
+                {
+                    // The host closed while the router was being found: the mapping just made is taken back.
+                    upnp.DeletePortMapping(port, "UDP");
+                    return "UPnP: the host closed before the port was forwarded.";
+                }
+
+                _upnp = upnp;
+                _mapped = port;
+            }
+
             ExternalAddress = upnp.QueryExternalAddress();
             return string.Create(CultureInfo.InvariantCulture, $"UPnP: UDP port {port} is forwarded on the router ({ExternalAddress}).");
         }
@@ -65,7 +78,14 @@ public sealed class UpnpPorts
     /// <summary>Removes the mapping this host made.</summary>
     public void Remove()
     {
-        if (_upnp is { } upnp && _mapped > 0)
+        Upnp? upnp;
+        lock (_gate)
+        {
+            _removed = true;
+            upnp = _upnp;
+        }
+
+        if (upnp is not null && _mapped > 0)
         {
             try
             {

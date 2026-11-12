@@ -541,6 +541,7 @@ public sealed partial class OnlineServer : IDisposable
             switch (Phase)
             {
                 case SessionPhase.Lobby:
+                    DropAbsentPlayers();
                     TickLobby();
                     TickRelaunch();
                     break;
@@ -1037,6 +1038,28 @@ public sealed partial class OnlineServer : IDisposable
     // ---- lobby --------------------------------------------------------------------------------------------------
 
     private bool AutoLaunch => Settings.AutoLaunch ?? Settings.Dedicated;
+
+    /// <summary>
+    /// A player who never came back from the travel to the lobby (a crash, a lost relay) has no connection whose end
+    /// would remove him: once the load timeout has passed he is taken off the list, or he would keep his place and
+    /// his account could not join again.
+    /// </summary>
+    private void DropAbsentPlayers()
+    {
+        if (_now - _phaseStart < (long)(Settings.LoadTimeoutSeconds * Second))
+        {
+            return;
+        }
+
+        for (int i = _players.Count - 1; i >= 0; i--)
+        {
+            SessionPlayer p = _players[i];
+            if (!p.IsBot && p.Slot is null && !_byConnection.ContainsValue(p))
+            {
+                RemovePlayer(p, $"{p.Name} did not come back.");
+            }
+        }
+    }
 
     private void TickLobby()
     {

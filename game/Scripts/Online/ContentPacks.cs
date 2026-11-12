@@ -242,7 +242,8 @@ public static class ContentPacks
         DownloadJob job;
         lock (Gate)
         {
-            if (Jobs.TryGetValue(map.Code, out DownloadJob? running) && running.Error is null)
+            // A finished job is not handed out again: the index or the host may have a newer version by now.
+            if (Jobs.TryGetValue(map.Code, out DownloadJob? running) && running.Running)
             {
                 return running;
             }
