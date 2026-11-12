@@ -170,7 +170,7 @@ public sealed partial class PawnStateReplication : INetworkPawnPose, IPawnAnimat
         public int Health;
         public bool Crouched, Lying, Sleeping, Hidden;
         public bool ReadyBoost, ReadyHoist;
-        public bool Grabbable, Terminable, StickyShocking;
+        public bool Grabbable, Terminable, StickyShocking, WakeProtected;
         public MercShockSample Shock;
         public bool StateChanged;
         public uint StateSequence;
@@ -501,7 +501,7 @@ public sealed partial class PawnStateReplication : INetworkPawnPose, IPawnAnimat
     private static bool SameBody(Frame a, Frame b) =>
         a.Physics == b.Physics && a.Zone == b.Zone && a.Crouched == b.Crouched && a.Lying == b.Lying && a.Sleeping == b.Sleeping && a.Hidden == b.Hidden &&
         a.ReadyBoost == b.ReadyBoost && a.ReadyHoist == b.ReadyHoist && a.Grabbable == b.Grabbable && a.Terminable == b.Terminable &&
-        a.StickyShocking == b.StickyShocking && a.Shock.SameStatus(b.Shock) && a.Health == b.Health && a.Radius == b.Radius && a.Height == b.Height && a.PrePivot == b.PrePivot &&
+        a.StickyShocking == b.StickyShocking && a.WakeProtected == b.WakeProtected && a.Shock.SameStatus(b.Shock) && a.Health == b.Health && a.Radius == b.Radius && a.Height == b.Height && a.PrePivot == b.PrePivot &&
         a.Weapon == b.Weapon && a.Ik == b.Ik && a.Btw == b.Btw && a.Pipe == b.Pipe && a.MercVision == b.MercVision && a.Attachments == b.Attachments &&
         ReferenceEquals(a.Base, b.Base) && ReferenceEquals(a.Target, b.Target) && ReferenceEquals(a.Attacker, b.Attacker) &&
         ReferenceEquals(a.UsedObject, b.UsedObject) && ReferenceEquals(a.Interaction, b.Interaction) &&
@@ -580,6 +580,7 @@ public sealed partial class PawnStateReplication : INetworkPawnPose, IPawnAnimat
         f.PrePivot = pawn.PrePivot; f.Crouched = pawn.bIsCrouched; f.Lying = pawn.bLyingOnGround; f.Sleeping = pawn.bSleeping; f.Hidden = pawn.bHidden; f.Health = pawn.Health;
         f.ReadyBoost = pawn.bReadyForShortLadder; f.ReadyHoist = pawn.bReadyForHoistClimb;
         f.Grabbable = pawn.bCanBeGrabbed; f.Terminable = pawn.bCanBeTerminated; f.StickyShocking = pawn.bStickyShocking;
+        f.WakeProtected = !(pawn.Level.TimeSeconds - pawn.iLastWakeTime > OpenScct.Game.Combat.K.GrabWakeProtection);
         f.Weapon = pawn.WeaponLoaded; f.Ik = (byte)pawn.IK_Type; f.Btw = (byte)pawn.BTW; f.Pipe = (byte)pawn.PipHFire;
         f.MercVision = PawnVision.MercGlowMode(pawn);
         f.Attachments = NetworkPawnAttachments.Capture(pawn);
@@ -688,6 +689,29 @@ public sealed partial class PawnStateReplication : INetworkPawnPose, IPawnAnimat
         return true;
     }
 
+    /// <summary>
+    /// The wake protection of another player's pawn (spy-grab.md rule 4, melee rule 5). A snapshot proxy shows the
+    /// stand-up from sampled poses and never runs AnimateStandUp, so its iLastWakeTime stayed 0: the owner's grab and
+    /// elbow tests passed on a merc the server still protected, and every press sent a request the server refused.
+    /// The clocks of the two machines differ, so the server tells whether the protection runs and the wake time is
+    /// put where this machine's tests give the same answer.
+    /// </summary>
+    private static void ApplyWakeProtection(SBasePawn pawn, bool wakeProtected)
+    {
+        int now = SvmMath.Trunc(pawn.Level.TimeSeconds);
+        if (wakeProtected)
+        {
+            pawn.iLastWakeTime = now + 1;
+        }
+        else if (pawn.iLastWakeTime > now - WakeTimeLongPast)
+        {
+            pawn.iLastWakeTime = now - WakeTimeLongPast;
+        }
+    }
+
+    /// <summary>Whole seconds ago that pass both wake tests (3.8 s for the grab, 4 s for the elbow) at any fraction of a second.</summary>
+    private const int WakeTimeLongPast = 5;
+
     private void ApplyPresentation(SBasePawn pawn, float deltaTime, Track t, Frame f, in ProxyState motion, long time,
         bool presentationOnly = true)
     {
@@ -696,6 +720,7 @@ public sealed partial class PawnStateReplication : INetworkPawnPose, IPawnAnimat
         pawn.bSleeping = f.Sleeping; pawn.bHidden = f.Hidden;
         pawn.bReadyForShortLadder = f.ReadyBoost; pawn.bReadyForHoistClimb = f.ReadyHoist;
         pawn.bCanBeGrabbed = f.Grabbable; pawn.bCanBeTerminated = f.Terminable; pawn.bStickyShocking = f.StickyShocking;
+        ApplyWakeProtection(pawn, f.WakeProtected);
         pawn.ZoneConfig = pawn.ZoneConfigForClient = f.Zone; pawn.PrePivot = f.PrePivot;
         MovementNatives.SetCollisionSize(pawn, f.Radius, f.Height);
         MovementNatives.FarMoveActor(pawn, motion.Location); pawn.Rotation = motion.Rotation;
@@ -803,7 +828,7 @@ public sealed partial class PawnStateReplication : INetworkPawnPose, IPawnAnimat
         }
         w.WriteBit(f.Crouched); w.WriteBit(f.Lying); w.WriteBit(f.Sleeping); w.WriteBit(f.Hidden);
         w.WriteBit(f.ReadyBoost); w.WriteBit(f.ReadyHoist);
-        w.WriteBit(f.Grabbable); w.WriteBit(f.Terminable); w.WriteBit(f.StickyShocking);
+        w.WriteBit(f.Grabbable); w.WriteBit(f.Terminable); w.WriteBit(f.StickyShocking); w.WriteBit(f.WakeProtected);
         f.Shock.Write(w);
         w.WriteBit(f.Health != 100);
         if (f.Health != 100) w.WriteIntPacked((uint)((f.Health << 1) ^ (f.Health >> 31)));
@@ -937,7 +962,7 @@ public sealed partial class PawnStateReplication : INetworkPawnPose, IPawnAnimat
         else DefaultShape(pawn, f.Zone, out f.Radius, out f.Height, out f.PrePivot);
         f.Crouched = r.ReadBit(); f.Lying = r.ReadBit(); f.Sleeping = r.ReadBit(); f.Hidden = r.ReadBit();
         f.ReadyBoost = r.ReadBit(); f.ReadyHoist = r.ReadBit();
-        f.Grabbable = r.ReadBit(); f.Terminable = r.ReadBit(); f.StickyShocking = r.ReadBit();
+        f.Grabbable = r.ReadBit(); f.Terminable = r.ReadBit(); f.StickyShocking = r.ReadBit(); f.WakeProtected = r.ReadBit();
         f.Shock = MercShockSample.Read(r, tick);
         uint health = r.ReadBit() ? r.ReadIntPacked() : 200u;
         f.Health = (int)(health >> 1) ^ -(int)(health & 1);

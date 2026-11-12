@@ -131,6 +131,9 @@ public static class K
     [Provenance(ProvenanceKind.Decoded, "s_TerminatedPawn_Released.BeginState lying time 1.0")]
     public const float TerminateReleasedLyingTime = 1f;
 
+    [Provenance(ProvenanceKind.Decoded, "SPlayerController defaults: fWakeInvulnerabilityTime 3.8 (CanGrabPawn: now - iLastWakeTime > fWakeInvulnerabilityTime)")]
+    public const float GrabWakeProtection = 3.8f;
+
     [Provenance(ProvenanceKind.Decoded, "FindPawnToElbowShotAndGoForIt: now - iLastWakeTime > 3.8 + 0.2")]
     public const float ElbowWakeProtection = 4f;
 
