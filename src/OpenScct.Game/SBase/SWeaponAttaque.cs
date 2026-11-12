@@ -170,6 +170,12 @@ public partial class SWeaponAttaque
             SPlayerController.IncStat(pc, static s => s.ShotsFired++);
         }
 
+        // The pistol is in the spy's hand: a placement far from him (a remote owner's claim) is not taken.
+        if (Instigator is { } holder && !(FVector.Dist(Position, holder.Location) < OpenScct.Game.Combat.K.ShockerMaxPlacementDistance))
+        {
+            Position = holder.Location;
+        }
+
         TraceFireWithPos(Position, new FRotator(Pitch, Yaw, Roll), DispersionActuelle, 0f, 0f);
         if (Instigator is { } pawn)
         {

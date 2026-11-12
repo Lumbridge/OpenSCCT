@@ -59,6 +59,22 @@ public partial class SPlayerController
 
     // ---- starting -------------------------------------------------------------------------------------------
 
+    private float _grabOnlyPressedAt = float.NegativeInfinity;
+
+    /// <summary>
+    /// The grab-only key (OpenSCCT addition, not in the original): the next walking or ledge move runs the grab test
+    /// alone. Unlike Use it never goes on to the revive or the elbow when no merc can be grabbed.
+    /// </summary>
+    public void PressGrabOnly() => _grabOnlyPressedAt = Level.TimeSeconds;
+
+    /// <summary>True once for a grab-only press made just now (a press in a state that has no grab is dropped).</summary>
+    internal bool TakeGrabOnly()
+    {
+        float age = Level.TimeSeconds - _grabOnlyPressedAt;
+        _grabOnlyPressedAt = float.NegativeInfinity;
+        return age is >= 0f and <= 0.25f;
+    }
+
     /// <summary>
     /// The owner's grab test (rules 2 and 3): the first merc in reach that passes the ground and height probes and
     /// a clear path is asked for on the server. The search stops at the first merc whose probe fails.
@@ -142,10 +158,13 @@ public partial class SPlayerController
     /// The grab spot behind the merc (rule 3): the merc point (raised when crouched), the spot vGrabOffset short of
     /// him on the line from the spy, the ground probe under it with both height tests, then a clear world box path.
     /// </summary>
-    private GrabProbe GrabGeometry(SBasePawn spy, SBasePawn target, FVector myLoc, float h)
+    private GrabProbe GrabGeometry(SBasePawn spy, SBasePawn target, FVector myLoc, float h) =>
+        GrabGeometry(spy, target, target.Location, myLoc, h);
+
+    /// <summary><see cref="GrabGeometry(SBasePawn, SBasePawn, FVector, float)"/> with the merc standing at <paramref name="tl"/>.</summary>
+    private GrabProbe GrabGeometry(SBasePawn spy, SBasePawn target, FVector tl, FVector myLoc, float h)
     {
         ICollisionWorld? world = TraceHitZones.CollisionOf(this);
-        FVector tl = target.Location;
         if (target.bIsCrouched)
         {
             if (!target.CanUnCrouch())
@@ -188,15 +207,18 @@ public partial class SPlayerController
     /// </summary>
     [Uc("SBase.SPlayerController.CanGrabPawn", Sha1 = "d08845defc5f1dcc5cfabd2e64339b91709cbb93")]
     [PortOf("uc:SBase.SPlayerController:CanGrabPawn", Spec = "spec/combat/spy-grab.md#starting-a-grab-spy-owner")]
-    public bool CanGrabPawn(SBasePawn Target)
+    public bool CanGrabPawn(SBasePawn Target) => CanGrabPawn(Target, Target.Location, Target.Rotation);
+
+    /// <summary><see cref="CanGrabPawn(SBasePawn)"/> with the merc standing at <paramref name="location"/>, facing <paramref name="rotation"/>.</summary>
+    private bool CanGrabPawn(SBasePawn Target, FVector location, FRotator rotation)
     {
         if (Pawn is not { } me || !(Level.TimeSeconds - Target.iLastWakeTime > fWakeInvulnerabilityTime) ||
-            !(FVector.Dist(Target.Location, me.Location) < fGrabDistance))
+            !(FVector.Dist(location, me.Location) < fGrabDistance))
         {
             return false;
         }
 
-        FVector toTarget = Target.Location - me.Location;
+        FVector toTarget = location - me.Location;
         toTarget.Z = 0f;
         FVector facing = me.Rotation.Vector().SafeNormal();
         if (!((toTarget.SafeNormal() | facing) > K.GrabFrontCone))
@@ -204,7 +226,7 @@ public partial class SPlayerController
             return false;
         }
 
-        FRotator shifted = Target.Rotation;
+        FRotator shifted = rotation;
         shifted.Yaw += iGrabAreaShift;
         return (shifted.Vector().SafeNormal() | facing) > fGrabHalfAngle;
     }
@@ -233,9 +255,18 @@ public partial class SPlayerController
 
         float restore = fGrabDistance;
         fGrabDistance *= K.GrabServerDistanceFactor;
-        bool ok = CanGrabPawn(Target) && Target.bCanBeGrabbed && !spy.bStickyShocking && !Target.bStickyShocking &&
-            merc.TimeShockForGrab < Level.TimeSeconds - fGrabInvulneralbilityTimeAfterStickyShock &&
-            GrabGeometry(spy, Target, myLoc, h) == GrabProbe.Clear;
+        bool allowed = Target.bCanBeGrabbed && !spy.bStickyShocking && !Target.bStickyShocking &&
+            merc.TimeShockForGrab < Level.TimeSeconds - fGrabInvulneralbilityTimeAfterStickyShock;
+        bool ok = allowed && CanGrabPawn(Target) && GrabGeometry(spy, Target, myLoc, h) == GrabProbe.Clear;
+        // The spy's own test ran on the merc where his client showed him, a moment behind the server: a merc who has
+        // turned or stepped since then would fail the angle test here and the grab would do nothing. With lag
+        // compensation the merc as the spy saw him passes too.
+        if (allowed && !ok && XLevel.GetService<IPawnPoseHistory>() is IPawnPoseHistory past &&
+            past.TryGetPose(Target, out FVector seenAt, out FRotator seenFacing))
+        {
+            ok = CanGrabPawn(Target, seenAt, seenFacing) && GrabGeometry(spy, Target, seenAt, myLoc, h) == GrabProbe.Clear;
+        }
+
         fGrabDistance = restore;
         if (!ok)
         {

@@ -370,6 +370,12 @@ public static class K
     [Provenance(ProvenanceKind.Decoded, "AskServerToElbowAttack reach 350")]
     public const float ElbowServerReach = 350f;
 
+    [Provenance(ProvenanceKind.Estimated, "Server check added for remote owners (the original trusts the claim): the drop's victim is within this of the spy")]
+    public const float DropAttackServerReach = 500f;
+
+    [Provenance(ProvenanceKind.Estimated, "Server check added for remote owners (the original trusts the claim): the pistol's placement is within this of the spy")]
+    public const float ShockerMaxPlacementDistance = 250f;
+
     [Provenance(ProvenanceKind.Decoded, "FindPawnToElbowShotAndGoForIt merc cone dot > 0.5")]
     public const float ElbowMercCone = 0.5f;
 

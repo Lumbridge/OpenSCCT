@@ -168,6 +168,16 @@ public partial class SPlayerController
             return;
         }
 
+        if (IsRemotePlayer)
+        {
+            // The owner only names the target: the hit itself is the one the owner's search sends, never his own numbers.
+            Damage = 0;
+            instigatedBy = me;
+            HitLocation = FVector.Zero;
+            Momentum = Target.Location - me.Location;
+            DamageType = SDamageType.SDamage_ElbowShock;
+        }
+
         Target.m_AttackedBy = me;
         victim.PawnTakeDamage(Damage, instigatedBy, HitLocation, Momentum, DamageType, 0, K.MeleeRefillable);
         (Level.Game as SGameInfo)?.AddPoint(0, this, K.AP_D_KnockOut);

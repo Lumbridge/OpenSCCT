@@ -472,12 +472,12 @@ public sealed class NetCombatBridge : ICombatNet
     {
         ArgumentNullException.ThrowIfNull(r);
         ArgumentNullException.ThrowIfNull(map);
-        var function = new Name(r.ReadString());
+        var function = ReadName(r);
         Actor? target = map.ReadObject(r) as Actor;
         int i1 = ReadInt(r);
         int i2 = ReadInt(r);
         int i3 = ReadInt(r);
-        float f1 = r.ReadBit() ? r.ReadFloat() : 0f;
+        float f1 = r.ReadBit() ? Finite(r.ReadFloat()) : 0f;
         bool b1 = r.ReadBit();
         FVector v1 = ReadVector(r);
         FVector v2 = ReadVector(r);
@@ -485,7 +485,7 @@ public sealed class NetCombatBridge : ICombatNet
         Actor? a1 = ReadActor(r, map);
         Actor? a2 = ReadActor(r, map);
         var damage = (SDamageType)r.ReadByte();
-        Name name1 = r.ReadBit() ? new Name(r.ReadString()) : Name.None;
+        Name name1 = r.ReadBit() ? ReadName(r) : Name.None;
         return new CombatCall(function)
         {
             Target = target, Int1 = i1, Int2 = i2, Int3 = i3, Float1 = f1, Bool1 = b1, Vector1 = v1, Vector2 = v2, Rotation = rot,
@@ -519,7 +519,15 @@ public sealed class NetCombatBridge : ICombatNet
         }
     }
 
-    private static FVector ReadVector(FBitReader r) => r.ReadBit() ? new FVector(r.ReadFloat(), r.ReadFloat(), r.ReadFloat()) : default;
+    private static FVector ReadVector(FBitReader r) =>
+        r.ReadBit() ? new FVector(Finite(r.ReadFloat()), Finite(r.ReadFloat()), Finite(r.ReadFloat())) : default;
+
+    /// <summary>A number from the other side: NaN and infinity never reach the game's physics.</summary>
+    private static float Finite(float value) => float.IsFinite(value) ? value : 0f;
+
+    /// <summary>A name from the other side; names stay interned, so one longer than any real name is None.</summary>
+    private static Name ReadName(FBitReader r) =>
+        r.ReadString() is { Length: <= NetWire.MaxNameLength } text ? new Name(text) : Name.None;
 
     private static void WriteActor(FBitWriter w, Actor? actor, NetConnection map)
     {

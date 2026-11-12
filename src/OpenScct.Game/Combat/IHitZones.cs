@@ -65,6 +65,17 @@ public interface IPillHistory
     bool TryGetPills(SBasePawn Pawn, List<PillShape> Shapes, out FVector Origin);
 }
 
+/// <summary>
+/// Where a pawn stood and faced at the moment the client whose call is running saw it (the same moment as
+/// <see cref="IPillHistory"/>). A melee test that depends on the other player's facing, such as the grab from behind,
+/// is checked against it: the server's live pose is a moment ahead of what the client decided on.
+/// </summary>
+public interface IPawnPoseHistory
+{
+    /// <summary>False when the live pose applies (no call running, no lag compensation, nothing recorded then).</summary>
+    bool TryGetPose(SBasePawn Pawn, out FVector Location, out FRotator Rotation);
+}
+
 /// <summary>One collision pill of a pawn's current pose in world space: a capsule from A to B, or a sphere at A.</summary>
 public readonly record struct PillShape(int Pill, FVector A, FVector B, float Radius, int Priority, bool IsSphere);
 

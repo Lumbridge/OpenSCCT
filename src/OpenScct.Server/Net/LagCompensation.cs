@@ -21,7 +21,7 @@ namespace OpenScct.Server;
 /// <c>lagcomp</c> and the chat command <c>!lagcomp</c>.</para>
 /// </summary>
 [Provenance(ProvenanceKind.Estimated, "Our design of Reloaded's server-side lag compensation; only its switch, its ceiling and its messages are observed")]
-public sealed class LagCompensation : IPillHistory
+public sealed class LagCompensation : IPillHistory, IPawnPoseHistory
 {
     /// <summary>The ceiling a fresh server (and <c>!lagcomp reset</c>) uses.</summary>
     [Provenance(ProvenanceKind.Estimated, "OpenSCCT tuning: cap the total displayed-view rewind at 200 ms")]
@@ -53,6 +53,7 @@ public sealed class LagCompensation : IPillHistory
         var lag = new LagCompensation(level);
         level.SetService(lag);
         level.SetService<IPillHistory>(lag);
+        level.SetService<IPawnPoseHistory>(lag);
         return lag;
     }
 
@@ -202,6 +203,14 @@ public sealed class LagCompensation : IPillHistory
         return _targetFixed >= 0 && _tracks.TryGetValue(Pawn, out Track? track) && track.Sample(_targetFixed, Shapes, out Origin);
     }
 
+    /// <summary>Where the pawn stood and faced at the call's time (the recorded tick at or just before it).</summary>
+    public bool TryGetPose(SBasePawn Pawn, out FVector Location, out FRotator Rotation)
+    {
+        Location = default;
+        Rotation = default;
+        return _targetFixed >= 0 && _tracks.TryGetValue(Pawn, out Track? track) && track.SamplePose(_targetFixed, out Location, out Rotation);
+    }
+
     /// <summary>One pawn's recorded ticks, a ring indexed by tick.</summary>
     private sealed class Track
     {
@@ -210,6 +219,7 @@ public sealed class LagCompensation : IPillHistory
 
         private readonly long[] _ticks = new long[Frames];
         private readonly FVector[] _origins = new FVector[Frames];
+        private readonly FRotator[] _rotations = new FRotator[Frames];
         private readonly List<PillShape>[] _pills = new List<PillShape>[Frames];
 
         public Track()
@@ -239,6 +249,7 @@ public sealed class LagCompensation : IPillHistory
             int i = Slot(tick);
             _ticks[i] = tick;
             _origins[i] = pawn.Location;
+            _rotations[i] = pawn.Rotation;
             _pills[i].Clear();
             pose.GetPills(pawn, _pills[i]);
             NewestTick = tick;
@@ -246,6 +257,21 @@ public sealed class LagCompensation : IPillHistory
             {
                 _firstTick = tick;
             }
+        }
+
+        public bool SamplePose(long targetFixed, out FVector location, out FRotator rotation)
+        {
+            location = default;
+            rotation = default;
+            long tick = targetFixed / NetTimeline.Fraction;
+            if (NewestTick < 0 || tick >= NewestTick || tick < OldestTick || _ticks[Slot(tick)] != tick)
+            {
+                return false;
+            }
+
+            location = _origins[Slot(tick)];
+            rotation = _rotations[Slot(tick)];
+            return true;
         }
 
         public bool Sample(long targetFixed, List<PillShape> shapes, out FVector origin)

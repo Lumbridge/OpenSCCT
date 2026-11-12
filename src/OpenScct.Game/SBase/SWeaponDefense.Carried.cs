@@ -32,7 +32,7 @@ public partial class SWeaponDefense
         if (Role == ENetRole.ROLE_Authority)
         {
             if (_carriedReloadUntil > 0 && !CanUseOwnedWeapon(pawn)) CancelCarriedReload();
-            if (_carriedReloadUntil > 0 && Level.TimeSeconds >= _carriedReloadUntil)
+            if (_carriedReloadUntil > 0 && XLevel.WorldTimeSeconds >= _carriedReloadUntil)
             {
                 ClipAmmo = System.Math.Min(ClipMaxAmmo, Ammo);
                 _carriedReloadUntil = 0;
@@ -65,7 +65,9 @@ public partial class SWeaponDefense
             CombatServices.Net(this).ServerCall(pc, new CombatCall(new Name("ReloadCarriedPrimary")) { Target = this });
         else if (CanUseOwnedWeapon(pawn) && _carriedReloadUntil <= 0 && ClipAmmo < ClipMaxAmmo && Ammo > ClipAmmo)
         {
-            _carriedReloadUntil = Level.TimeSeconds + AuthoritativeReloadSeconds();
+            // The world's clock, as the test in TickCarriedAmmo: inside a movement command Level.TimeSeconds is the
+            // owner's own clock, which would end the reload early or late by the difference.
+            _carriedReloadUntil = XLevel.WorldTimeSeconds + AuthoritativeReloadSeconds();
         }
     }
     private bool AcceptCarriedShot()

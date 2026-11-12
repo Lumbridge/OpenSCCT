@@ -66,7 +66,9 @@ public partial class SPlayerController
             return;
         }
 
-        if (SBPawn is not { } me)
+        // A remote owner's drop lands on someone he is on top of: not on a player across the map, and not when dead.
+        if (SBPawn is not { } me || (IsRemotePlayer && (me.Health <= 0 || PawnToAttack is not { bDeleteMe: false } ||
+            !(FVector.Dist(PawnToAttack.Location, me.Location) < K.DropAttackServerReach))))
         {
             return;
         }
