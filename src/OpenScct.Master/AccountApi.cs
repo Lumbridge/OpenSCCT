@@ -61,7 +61,7 @@ internal sealed partial class AccountApi
 
     public void Map(WebApplication app)
     {
-        app.MapPost(MasterApi.LinkPath, StartLink);
+        app.MapPost(MasterApi.LinkPath, (HttpContext context) => StartLink(context));
         app.MapPost(MasterApi.LinkPath + "/{code}", (string code, LinkPollRequest request) => PollLink(code, request));
         app.MapGet(MasterApi.LinkPagePrefix + "{code}", (HttpContext context, string code) => LinkPage(context, code));
         app.MapGet(MasterApi.DiscordCallbackPath, (Delegate)((HttpContext context) => CallbackAsync(context)));
@@ -128,9 +128,9 @@ internal sealed partial class AccountApi
 
     // ---- Sign-in ---------------------------------------------------------------------------------------------
 
-    private IResult StartLink()
+    private IResult StartLink(HttpContext context)
     {
-        if (Links.Start() is not { } link)
+        if (Links.Start(ServerRegistry.AddressKey(_clientIp(context))) is not { } link)
         {
             return Error(StatusCodes.Status503ServiceUnavailable, "Too many sign-ins in progress; try again in a minute.");
         }

@@ -27,6 +27,9 @@ internal sealed class PendingLink
     public long AccountId { get; set; }
 
     public string? Error { get; set; }
+
+    /// <summary>Who started it (the address the per-address limit counts by), or null.</summary>
+    public System.Net.IPAddress? From { get; init; }
 }
 
 /// <summary>Sign-ins in progress, in memory, ten minutes each.</summary>
@@ -40,6 +43,9 @@ internal sealed class PendingLinks(TimeProvider time)
 
     private const int MaxLinks = 5000;
 
+    /// <summary>Sign-ins one address may have open; a new one beyond that replaces its oldest.</summary>
+    private const int MaxLinksPerAddress = 8;
+
     /// <summary>No 0/O, 1/I/L: the code may be read off the screen and typed.</summary>
     private const string Alphabet = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
 
@@ -49,10 +55,34 @@ internal sealed class PendingLinks(TimeProvider time)
     private long Now => _time.GetUtcNow().ToUnixTimeSeconds();
 
     /// <summary>A new sign-in, or null when too many are open.</summary>
-    public PendingLink? Start()
+    public PendingLink? Start(System.Net.IPAddress? from = null)
     {
         lock (_links)
         {
+            if (from is not null)
+            {
+                int open = 0;
+                string? oldestKey = null;
+                long oldestExpires = long.MaxValue;
+                foreach (KeyValuePair<string, PendingLink> entry in _links)
+                {
+                    if (entry.Value.From is { } other && other.Equals(from) && entry.Value.Status == LinkStatus.Pending && !entry.Value.Busy)
+                    {
+                        open++;
+                        if (entry.Value.Expires < oldestExpires)
+                        {
+                            oldestExpires = entry.Value.Expires;
+                            oldestKey = entry.Key;
+                        }
+                    }
+                }
+
+                if (open >= MaxLinksPerAddress && oldestKey is not null)
+                {
+                    _links.Remove(oldestKey);
+                }
+            }
+
             if (_links.Count >= MaxLinks)
             {
                 return null;
@@ -71,6 +101,7 @@ internal sealed class PendingLinks(TimeProvider time)
                 Code = key[..4] + "-" + key[4..],
                 PollSecret = Convert.ToBase64String(secret).TrimEnd('=').Replace('+', '-').Replace('/', '_'),
                 Expires = Now + LifetimeSeconds,
+                From = from,
             };
             _links[key] = link;
             return link;

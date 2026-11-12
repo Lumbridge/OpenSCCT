@@ -591,6 +591,7 @@ public sealed class MasterHost : IAsyncDisposable
             }
 
             long window = Environment.TickCount64 / 60_000;
+            ip = ServerRegistry.AddressKey(ip);
             lock (_counts)
             {
                 (long w, int count) = _counts.GetValueOrDefault(ip);

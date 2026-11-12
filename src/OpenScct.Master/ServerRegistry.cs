@@ -206,7 +206,7 @@ internal sealed class ServerRegistry
             int fromSame = 0;
             foreach (ServerRecord r in _servers.Values)
             {
-                if (r.PublicIp.Equals(from))
+                if (AddressKey(r.PublicIp).Equals(AddressKey(from)))
                 {
                     fromSame++;
                 }
@@ -350,7 +350,14 @@ internal sealed class ServerRegistry
     {
         lock (_gate)
         {
-            if (_relayByToken.Count >= Options.MaxRelaySessions || !_servers.TryGetValue(serverId, out ServerRecord? record))
+            if (!_servers.TryGetValue(serverId, out ServerRecord? record))
+            {
+                return null;
+            }
+
+            // A full relay makes room by dropping the oldest session nobody has used yet: asking to join costs
+            // nothing, so sessions that were only asked for must not keep the players who do connect out.
+            if (_relayByToken.Count >= Options.MaxRelaySessions && !DropOldestUnusedRelay(null))
             {
                 return null;
             }
@@ -364,7 +371,7 @@ internal sealed class ServerRegistry
                 }
             }
 
-            if (forServer >= Math.Max(4, record.Last.MaxPlayers + 4))
+            if (forServer >= Math.Max(4, record.Last.MaxPlayers + 4) && !DropOldestUnusedRelay(serverId))
             {
                 return null;
             }
@@ -381,6 +388,49 @@ internal sealed class ServerRegistry
             _relayBySession[session] = relay;
             return relay;
         }
+    }
+
+    /// <summary>Closes the oldest relay session no client has sent through (of one server, or of any); false when there is none.</summary>
+    private bool DropOldestUnusedRelay(string? serverId)
+    {
+        RelaySession? oldest = null;
+        foreach (RelaySession s in _relayByToken.Values)
+        {
+            if (s.Client is null && (serverId is null || s.ServerId == serverId) && (oldest is null || s.LastActivity < oldest.LastActivity))
+            {
+                oldest = s;
+            }
+        }
+
+        if (oldest is null)
+        {
+            return false;
+        }
+
+        CloseSessionLocked(oldest);
+        return true;
+    }
+
+    /// <summary>
+    /// What the per-address limits count by: the address itself, or for IPv6 its /64, since one subscriber holds
+    /// all of it and would otherwise pass every limit by changing the low bits.
+    /// </summary>
+    public static IPAddress AddressKey(IPAddress address)
+    {
+        ArgumentNullException.ThrowIfNull(address);
+        if (address.IsIPv4MappedToIPv6)
+        {
+            return address.MapToIPv4();
+        }
+
+        if (address.AddressFamily != System.Net.Sockets.AddressFamily.InterNetworkV6)
+        {
+            return address;
+        }
+
+        byte[] bytes = address.GetAddressBytes();
+        Array.Clear(bytes, 8, 8);
+        return new IPAddress(bytes);
     }
 
     public RelaySession? RelayByToken(ulong token) => _relayByToken.GetValueOrDefault(token);
