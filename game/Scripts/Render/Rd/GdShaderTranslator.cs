@@ -477,7 +477,10 @@ internal static partial class GdShaderTranslator
         // another order); the sky zone keeps the position its vertex() wrote.
         vertex.Append("    svm_v_uv = UV;\n    svm_v_uv2 = UV2;\n    svm_v_color = COLOR;\n");
         vertex.Append(skipTransform ? "    gl_Position = POSITION;\n}\n"
-            : actor != 0 ? "    gl_Position = svm_f.clip * (svm_model * vec4(VERTEX, 1.0));\n}\n" : "    gl_Position = svm_f.clip * vec4(svm_a_vertex, 1.0);\n}\n");
+            // The local player's arms and gun keep the nearest hundredth of the depth range (svm_glow_hue.w, as the
+            // template's own POSITION does under SVM_COSMETIC): over the world and over the beam starting inside the gun.
+            : actor != 0 ? "    gl_Position = svm_f.clip * (svm_model * vec4(VERTEX, 1.0));\n"
+                + "    if (svm_objects[svm_draw.object].glow_hue.w > 0.5) gl_Position.z = mix(0.99 * gl_Position.w, gl_Position.w, gl_Position.z / gl_Position.w);\n}\n" :"    gl_Position = svm_f.clip * vec4(svm_a_vertex, 1.0);\n}\n");
 
         var fragment = new StringBuilder("#version 450\n");
         fragment.Append(shared);

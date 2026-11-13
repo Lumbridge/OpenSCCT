@@ -664,7 +664,11 @@ internal sealed class RdObjects
     private void GatherEffect(Mesh mesh, int s, EffectMaterial effect, Transform3D model, Aabb box, Basis view, Vector3 eye, List<Draw> draws, List<byte> objects, List<Upload> uploads)
     {
         int blend = EffectBlend(effect);
-        Color colour = effect.AlbedoColor;
+        // svm_effect.gdshaderinc declares its colour and its texture as sRGB (source_color), so Godot's renderer
+        // decodes both before it adds or blends them into the frame: the same values here, the colour decoded now and
+        // the texture read through its sRGB view. A texture of display values (EffectMaterial.DisplayTexture) is read
+        // as stored by both.
+        Color colour = effect.AlbedoColor.SrgbToLinear();
         if (blend < 0 || (blend != 0 && colour.A <= 0f)) return;
         SurfaceInfo surface = SurfaceReady(mesh, s, uploads);
         if (surface.Id < 0) return;
@@ -678,7 +682,10 @@ internal sealed class RdObjects
         Texture2D? source = effect.AlbedoTexture;
         if (!_effectTextures.TryGetValue(effect, out (Texture2D? Source, Rid Texture) texture) || !ReferenceEquals(texture.Source, source))
         {
-            texture = (source, source is null ? default : RenderingServer.TextureGetRdTexture(source.GetRid(), false));
+            Rid rid = source is null ? default : RenderingServer.TextureGetRdTexture(source.GetRid(), !effect.DisplayTexture);
+            // A format without an sRGB form has no such view: it is read as stored.
+            if (source is not null && !rid.IsValid) rid = RenderingServer.TextureGetRdTexture(source.GetRid(), false);
+            texture = (source, rid);
             _effectTextures[effect] = texture;
         }
 
@@ -1284,6 +1291,12 @@ internal sealed class RdObjects
             bool sky = (draw.kind & 128) != 0;
             v_rel = sky ? vec3(0.0) : wp.xyz - frame.eye.xyz;
             gl_Position = (sky ? frame.sky : frame.world) * wp;
+            // The local player's arms and gun (SkeletalModel.SetFirstPersonDepth) keep the nearest hundredth of the
+            // depth range, as svm_world.gdshaderinc gives them: drawn over the world, and over the laser beam that
+            // starts inside the gun.
+            if (!sky && objects[draw.object].glow_hue.w > 0.5) {
+                gl_Position.z = mix(0.99 * gl_Position.w, gl_Position.w, gl_Position.z / gl_Position.w);
+            }
         }
 
         """;

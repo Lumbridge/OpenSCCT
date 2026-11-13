@@ -4,7 +4,12 @@
 global uniform int svm_vision;
 #endif
 uniform vec4 effect_color : source_color = vec4(1.0);
+#ifdef EFFECT_DISPLAY_TEXTURE
+// The frame holds display values (svm_world.gdshaderinc): this texture is added as stored, not decoded.
+uniform sampler2D effect_texture : filter_linear_mipmap, repeat_enable;
+#else
 uniform sampler2D effect_texture : source_color, filter_linear_mipmap, repeat_enable;
+#endif
 uniform bool effect_has_texture = false;
 uniform vec3 effect_uv_scale = vec3(1.0);
 uniform vec3 effect_uv_offset = vec3(0.0);

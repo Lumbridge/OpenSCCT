@@ -103,9 +103,9 @@ public sealed class LaserAlignmentSmoke : SmokeTest
                         float pullBack = weapon is MercSidearm ? 0f : OpenScct.Game.Equipment.K.LaserFireStartPullBack;
                         if (FVector.Dist(beam.Start + direction * pullBack, UeSpace.ToUe(barrel.Origin)) > .01f)
                             return SmokeResult.Fail(asset + " idle laser detached from muzzle");
-                        // The neutral sight keeps its full-range zero even with a wall behind the muzzle.
+                        // The neutral sight points at what the centre of the view is on, no nearer than its least zero.
                         if (frame != .5f) continue;
-                        FVector expectedDirection = (ray.End - UeSpace.ToUe(idleReference.Origin)).SafeNormal();
+                        FVector expectedDirection = (MercLaserView.SightZero(weapon, ray) - UeSpace.ToUe(idleReference.Origin)).SafeNormal();
                         float error = FVector.Dist(expectedDirection, direction);
                         worst = MathF.Max(worst, error);
                         if (error > .001f) return SmokeResult.Fail($"{asset} sight bent at wall distance {distance}, pitch {pitch}: {error:F6}");

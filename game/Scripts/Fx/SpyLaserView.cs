@@ -295,8 +295,8 @@ public sealed partial class SpyLaserView : Node3D
             if (!_beamLookTried)
             {
                 _beamLookTried = true;
-                _beamLook = AdditiveBeamMaterial(Map);
-                _finLook = AdditiveBeamMaterial(Map, FinTexture);
+                _beamLook = WeaponBeamMaterial(Map);
+                _finLook = WeaponBeamMaterial(Map, FinTexture);
             }
 
             ApplyBeamLook(beam, _beamLook, _finLook, showFin: true);
@@ -375,10 +375,46 @@ public sealed partial class SpyLaserView : Node3D
         if (!assets.MeshTried)
         {
             assets.MeshTried = true;
-            assets.Mesh = GameplayObjects.MeshFor(map, BeamMesh, unlit: true);
+            assets.Mesh = GameplayObjects.MeshFor(map, BeamMesh, unlit: true) is { } mesh ? WithBeamColours(mesh) : null;
         }
 
         return assets.Mesh;
+    }
+
+    /// <summary>The beam mesh's vertex colour along its axis (115 of 255); its outer edges are black.</summary>
+    [Provenance(ProvenanceKind.Decoded, "SGameplayObjects.LaserBeam (UseVertexColor): colour 115,115,115,115 on the four axis vertices of section 0, 3,3,0,0 on its eight edge vertices, 255 on the fin quad of section 1")]
+    internal const float BeamAxisColour = 115f / 255f;
+
+    /// <summary>
+    /// The packed mesh with the original's vertex colours, which the render pack's file does not carry: each crossed
+    /// quad fades from its axis to nothing at its edges, so the beam reads as one soft line instead of two red planes.
+    /// </summary>
+    [Provenance(ProvenanceKind.Decoded, "SGameplayObjects.LaserBeam vertex colours; the edge colour's 3 of 255 in two channels is drawn as 0")]
+    private static ArrayMesh WithBeamColours(ArrayMesh source)
+    {
+        var mesh = new ArrayMesh { ResourceName = source.ResourceName };
+        for (int s = 0; s < source.GetSurfaceCount(); s++)
+        {
+            Godot.Collections.Array arrays = source.SurfaceGetArrays(s);
+            Vector3[] vertices = arrays[(int)Mesh.ArrayType.Vertex].AsVector3Array();
+            Material? material = source.SurfaceGetMaterial(s);
+            string name = material?.ResourceName ?? string.Empty;
+            bool fin = name.Length > 0 ? name.Contains("fin", StringComparison.OrdinalIgnoreCase) : s == 1;
+            var colours = new Color[vertices.Length];
+            for (int i = 0; i < vertices.Length; i++)
+            {
+                FVector at = UeSpace.ToUe(vertices[i]);
+                float v = fin ? 1f : MathF.Abs(at.Y) + MathF.Abs(at.Z) < 0.01f ? BeamAxisColour : 0f;
+                colours[i] = new Color(v, v, v, v);
+            }
+
+            arrays[(int)Mesh.ArrayType.Color] = colours;
+            mesh.AddSurfaceFromArrays(source.SurfaceGetPrimitiveType(s), arrays);
+            mesh.SurfaceSetMaterial(s, material);
+            mesh.SurfaceSetName(s, source.SurfaceGetName(s));
+        }
+
+        return mesh;
     }
 
     // The PNG at path as a texture (as it is stored: no mipmaps), read once per map; null when missing or empty.
@@ -423,6 +459,21 @@ public sealed partial class SpyLaserView : Node3D
             AlbedoTexture = tex,
             NextPass = ThermalBeamPass(tex),
         };
+    }
+
+    /// <summary>
+    /// <see cref="AdditiveBeamMaterial"/> for the SLaserBeam class mesh (<see cref="PackedBeamMesh"/>): the texture's
+    /// display values times the mesh's vertex colours, the same sum on both renderers.
+    /// </summary>
+    [Provenance(ProvenanceKind.Decoded, "SGameplayObjectsTex.LaserBeamShader and lasebeam2fin: Diffuse only, OutputBlending 5 (OB_Brighten), LaserBeamShader TwoSided; the mesh has UseVertexColor")]
+    [Provenance(ProvenanceKind.Estimated, "OB_Brighten drawn as the source's colour times its alpha, added: with the vertex colour in both, the axis adds 123 x 0.45 x 0.45 = 25 levels, the level of the original's capture (local/lasers/orig/merc-00-stand_level.png, about 20); colour alone gave 55")]
+    internal static EffectMaterial? WeaponBeamMaterial(RenderMap? map, string texture = BeamTexture)
+    {
+        if (AdditiveBeamMaterial(map, texture) is not { } material) return null;
+        material.DisplayTexture = true;
+        material.VertexColorUseAsAlbedo = true;
+        if (material.NextPass is ShaderMaterial vision) vision.SetShaderParameter("vertex_fade", true);
+        return material;
     }
 
     /// <summary>The original pan_laserbeam moves the beam's diffuse along U; the muzzle fin is stationary.</summary>

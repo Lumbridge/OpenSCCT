@@ -198,7 +198,27 @@ public sealed partial class MercLaserView : Node3D
         return (start, end, start);
     }
 
-    /// <summary>Zero the neutral sight at full range, then trace along the animated barrel to the first obstruction.</summary>
+    /// <summary>
+    /// The nearest the sight's zero comes to the eye (uu). The point under the centre of the view is the zero; against
+    /// a wall that point lies beside or behind the drawn muzzle (the FX bone is 65 uu ahead of the eye), and a zero
+    /// there would swing the beam sideways or backwards.
+    /// </summary>
+    [Provenance(ProvenanceKind.Estimated, "OpenSCCT: about twice the FX bone's distance ahead of the eye")]
+    internal const float SightZeroMin = 150f;
+
+    /// <summary>The sight's zero: the point under the centre of the view, no nearer the eye than <see cref="SightZeroMin"/>.</summary>
+    internal static FVector SightZero(SWeaponDefense weapon, (FVector Start, FVector End) ray)
+    {
+        FVector along = (ray.End - ray.Start).SafeNormal();
+        BoneTraceResult seen = CombatServices.HitZones(weapon).TraceBone(weapon, ray.End, ray.Start, false);
+        float reach = seen.bHit ? MathF.Max((seen.HitLocation - ray.Start) | along, SightZeroMin) : FVector.Dist(ray.End, ray.Start);
+        return ray.Start + along * reach;
+    }
+
+    /// <summary>
+    /// Zero the neutral sight on the point under the centre of the view, turn it with the animated barrel, then trace
+    /// along it to the first obstruction.
+    /// </summary>
     internal static (FVector Start, FVector End) TraceMountedBeam(SWeaponDefense weapon, Transform3D barrel,
         Transform3D? reference, FRotator aim, (FVector Location, FRotator Rotation)? view = null)
     {
@@ -208,24 +228,22 @@ public sealed partial class MercLaserView : Node3D
         var ray = view is { } drawn
             ? (Start: drawn.Location, End: drawn.Location + drawn.Rotation.Vector() * K.TraceLength)
             : weapon.AimRay(aim);
-        // A nearby camera hit can lie behind the drawn muzzle. Converging on it swings the sight up/left
-        // (or even backwards). The sight is mounted to the gun: walls shorten its beam, never change its zero.
-        FVector at = ray.End;
+        // The beam ends where the centre of the screen points (Ryan 2026-11-13). A zero at full range left the beam
+        // parallel to the view, the muzzle's 11 uu to the side and 13 uu under the eye away from the centre at every range.
+        FVector at = SightZero(weapon, ray);
         FVector muzzle = UeSpace.ToUe(barrel.Origin);
         FVector direction = (at - muzzle).SafeNormal();
-        float sightDistance = FVector.Dist(at, muzzle);
         if (reference is { } zero)
         {
-            FVector zeroOffset = at - UeSpace.ToUe(zero.Origin);
-            // Trace to the weapon's full range along the animated direction, even if the camera ray hit nearby.
-            sightDistance = FVector.Dist(ray.End, UeSpace.ToUe(zero.Origin));
-            Vector3 zeroDirection = UeSpace.DirectionToGodot(zeroOffset.SafeNormal());
+            // The sight is mounted to the gun: zeroed from the neutral pose, it turns with the animated barrel
+            // (idle breathing, reload, recoil) and does not re-aim each frame.
+            Vector3 zeroDirection = UeSpace.DirectionToGodot((at - UeSpace.ToUe(zero.Origin)).SafeNormal());
             Basis rotation = barrel.Basis.Orthonormalized() * zero.Basis.Orthonormalized().Inverse();
             direction = UeSpace.DirectionToUe(rotation * zeroDirection).SafeNormal();
         }
         float pullBack = weapon is MercSidearm ? 0f : K.LaserFireStartPullBack;
         FVector start = muzzle - direction * pullBack;
-        FVector far = reference is null ? at : muzzle + direction * sightDistance;
+        FVector far = muzzle + direction * K.TraceLength;
         BoneTraceResult hit = zones.TraceBone(weapon, far, start, false);
         return (start, hit.bHit ? hit.HitLocation : far);
     }
@@ -303,8 +321,8 @@ public sealed partial class MercLaserView : Node3D
             if (!_beamLookTried)
             {
                 _beamLookTried = true;
-                _beamLook = OpenScctGame.Fx.SpyLaserView.AdditiveBeamMaterial(Map);
-                _finLook = OpenScctGame.Fx.SpyLaserView.AdditiveBeamMaterial(Map, OpenScctGame.Fx.SpyLaserView.FinTexture);
+                _beamLook = OpenScctGame.Fx.SpyLaserView.WeaponBeamMaterial(Map);
+                _finLook = OpenScctGame.Fx.SpyLaserView.WeaponBeamMaterial(Map, OpenScctGame.Fx.SpyLaserView.FinTexture);
                 ConfigureBeamMaterial(_beamLook);
                 ConfigureBeamMaterial(_finLook);
             }

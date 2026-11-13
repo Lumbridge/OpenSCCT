@@ -12,7 +12,7 @@ public partial class EffectMaterial : ShaderMaterial
     private BaseMaterial3D.TransparencyEnum _transparency;
     private BaseMaterial3D.CullModeEnum _cull;
     private BaseMaterial3D.BillboardModeEnum _billboard;
-    private bool _fixedSize, _noDepth, _vertexColor, _hiddenInVision;
+    private bool _fixedSize, _noDepth, _vertexColor, _hiddenInVision, _displayTexture;
     private BaseMaterial3D.StencilModeEnum _stencil;
     private BaseMaterial3D.StencilCompareEnum _compare;
     private int _stencilFlags, _reference;
@@ -44,6 +44,11 @@ public partial class EffectMaterial : ShaderMaterial
     /// read the frame's colours as heat and field strength, so a mark's own colours would show as a glow.
     /// </summary>
     public bool HiddenInVision { get => _hiddenInVision; set { _hiddenInVision = value; Rebuild(); } }
+    /// <summary>
+    /// The texture holds display values and is added as they are, as the world template samples its textures and
+    /// as the Fast renderer draws every effect; off, Godot's renderer decodes it as sRGB first, which darkens it.
+    /// </summary>
+    public bool DisplayTexture { get => _displayTexture; set { _displayTexture = value; Rebuild(); } }
     public BaseMaterial3D.StencilModeEnum StencilMode { get => _stencil; set { _stencil = value; Rebuild(); } }
     public int StencilFlags { get => _stencilFlags; set { _stencilFlags = value; Rebuild(); } }
     public BaseMaterial3D.StencilCompareEnum StencilCompare { get => _compare; set { _compare = value; Rebuild(); } }
@@ -65,7 +70,7 @@ public partial class EffectMaterial : ShaderMaterial
             throw new InvalidOperationException("EffectMaterial supports opaque and alpha gameplay effects.");
         if (_billboard is not (BaseMaterial3D.BillboardModeEnum.Disabled or BaseMaterial3D.BillboardModeEnum.Enabled))
             throw new InvalidOperationException("EffectMaterial supports ordinary and camera-facing gameplay effects.");
-        string key = $"{_blend}|{_transparency}|{_cull}|{_billboard}|{_fixedSize}|{_noDepth}|{_vertexColor}|{_hiddenInVision}|{_stencil}|{_stencilFlags}|{_compare}|{_reference}";
+        string key = $"{_blend}|{_transparency}|{_cull}|{_billboard}|{_fixedSize}|{_noDepth}|{_vertexColor}|{_hiddenInVision}|{_displayTexture}|{_stencil}|{_stencilFlags}|{_compare}|{_reference}";
         if (!Shaders.TryGetValue(key, out Shader? shader))
         {
             string blend = _blend switch
@@ -99,6 +104,7 @@ public partial class EffectMaterial : ShaderMaterial
             if (_fixedSize) code += "#define EFFECT_FIXED_SIZE\n";
             if (_vertexColor) code += "#define EFFECT_VERTEX_COLOR\n";
             if (_hiddenInVision) code += "#define EFFECT_HIDDEN_IN_VISION\n";
+            if (_displayTexture) code += "#define EFFECT_DISPLAY_TEXTURE\n";
             shader = ResponsiveSmokeShaders.Shared(code + "#include \"res://Shaders/svm_effect.gdshaderinc\"\n", "svm_effect " + key);
             Shaders[key] = shader;
         }
