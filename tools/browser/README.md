@@ -164,6 +164,8 @@ renderer diagnostics. The repeat-warmup test passes on TestRange and SteeE with
 zero new draw pipelines; the separate first-use probe still finds seven additional
 Forward+ thermal pipelines on SteeE. Chrome Mobile needs its own live check.
 Browser probes include the frame maximum, vision mode and pipeline counters.
+On loopback, `?profile` records every probe (five per second) for first-use checks;
+ordinary local visits log once every two seconds. Hosted visits never upload logs.
 Published bundles include `build.json` identifying their source and AOT settings.
 
 Known limits:

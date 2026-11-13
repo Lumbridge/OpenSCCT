@@ -21,6 +21,7 @@ globalThis.openscctRuntimeReady = async () => {
     document.getElementById('multiplayer-button').disabled = false;
 };
 const localDiagnostics = /^127\.(?:\d{1,3}\.){2}\d{1,3}$/.test(location.hostname) || ['localhost', '[::1]'].includes(location.hostname);
+const diagnosticInterval = new URLSearchParams(location.search).has('profile') ? 0 : 2000;
 let lastDiagnostic = 0;
 globalThis.openscctReportState = json => {
     const state = JSON.parse(json);
@@ -66,7 +67,7 @@ globalThis.openscctReportState = json => {
             coach.querySelector('[data-action="debug"]').setAttribute('aria-pressed', String(lesson.debug));
         }
     }
-    if (localDiagnostics && performance.now() - lastDiagnostic > 2000) {
+    if (localDiagnostics && performance.now() - lastDiagnostic > diagnosticInterval) {
         lastDiagnostic = performance.now();
         console.log('OPENSCCT_BROWSER_PROBE ' + json);
     }
