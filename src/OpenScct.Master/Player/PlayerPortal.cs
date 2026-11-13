@@ -15,7 +15,8 @@ namespace OpenScct.Master.Player;
 
 /// <summary>The public player site and its independent, account-scoped browser session.</summary>
 internal sealed partial class PlayerPortal(MasterOptions options, AccountStore store, ServerRegistry registry, Func<HttpContext, IPAddress> clientIp,
-    ReleaseChangelog releases, GitHubBugReports? bugReports = null, string? browserGameRoot = null, TicketSigner? browserTickets = null)
+    ReleaseChangelog releases, GitHubBugReports? bugReports = null, string? browserGameRoot = null, TicketSigner? browserTickets = null,
+    string? browserContentRoot = null)
 {
     internal const string SessionCookie = "svm_player";
     private const string StateCookie = "svm_player_state";

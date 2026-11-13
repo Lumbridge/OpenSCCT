@@ -61,6 +61,24 @@ account tickets are server-scoped. Origin, CSRF, private-master invite keys,
 account bans, queue limits and connection limits are checked. Server passwords
 remain normal game login options. No client-selected UDP address is accepted.
 
+The browser content mirror lives outside versioned game bundles. Run
+`python tools/browser/sync_content.py --output /opt/svm/browser-content` on the host
+to fetch the official index, verify published archive sizes and SHA-256 hashes,
+and publish a same-origin map index only after every archive is ready. `--maps
+Entry AquaE` selects a small local fixture. The host serves only `index.json` and
+hash-addressed ZIPs at `/play/content/`, with range requests and immutable archive
+caching. `SVM_BROWSER_CONTENT_ROOT` overrides the directory. Shared runtime data
+stays in the initial browser bundle; the desktop character archive is over 1 GB.
+
+The existing ContentStore performs the browser install and manifest checks. Maps
+install into the current session's content tree. Browser cache may avoid another
+network transfer, but installed map files currently do not survive a reload.
+The native Visit a Map route uses an inline host in the browser, while desktop
+continues to use its own listen-server thread. Browser map installs also fetch
+matching published bot navigation. Empty browser practice visits defer the bot
+world until a bot is requested, retaining unlimited gear without a long startup
+navigation build. Tutorial progress is kept in the account's browser-local files.
+
 ## Lessons
 
 The wiki's `/wiki/vision-cancelling` and `/wiki/spy-grab` pages load the game on
@@ -131,12 +149,12 @@ Known limits:
 - Browser world materials use their general lighting/vision shader, avoiding the
   desktop's extra shortcut variants and bundled shader prewarm lists.
 - The content subset contains TestRange, SteeE, Entry, Lobby, shared gameplay/UI/audio and default
-  character assets. Cosmetic variants and other maps are excluded. The native
+  character assets. Cosmetic variants are excluded; other maps download separately. The native
   EAX extension is not included. Browser audio uses built-in room reverb and
   source shelf filters, retaining separate direct/room sends, distance gains,
   authored zone strength and tail lifetime. Its room response approximates EAX.
   TestRange has no map reverb table.
-- The preview is hosted at `https://master.lumbridge.co.uk/play/` (master 1.1.27).
+- The preview is hosted at `https://master.lumbridge.co.uk/play/`.
   Desktop tutorial changes are tested and committed on this prototype branch, not released.
   Official-server play needs its exact map version. The preview uses published
   SteeE 1.0.4, content hash `82760242e4ae1618`, from OpenSCCT-Content; the checkout's

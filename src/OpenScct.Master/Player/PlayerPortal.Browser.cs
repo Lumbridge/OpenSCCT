@@ -22,6 +22,20 @@ internal sealed partial class PlayerPortal
     private void MapBrowserGame(WebApplication app)
     {
         MapBrowserMultiplayer(app);
+        string contentRoot = browserContentRoot ?? Environment.GetEnvironmentVariable("SVM_BROWSER_CONTENT_ROOT") ??
+            Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "browser-content"));
+        contentRoot = Path.GetFullPath(contentRoot);
+        app.MapMethods("/play/content/{file}", ["GET", "HEAD"], (HttpContext context, string file) =>
+        {
+            BrowserHeaders(context);
+            bool index = file == "index.json";
+            if (!index && !(file.Length == 68 && file.EndsWith(".zip", StringComparison.Ordinal) && file[..64].All(Uri.IsHexDigit)))
+                return Results.NotFound();
+            string path = Path.Combine(contentRoot, file);
+            if (!File.Exists(path)) return Results.NotFound();
+            if (!index) context.Response.Headers.CacheControl = "public,max-age=31536000,immutable";
+            return Results.File(path, index ? "application/json" : "application/zip", enableRangeProcessing: !index);
+        });
         string root = browserGameRoot ?? Environment.GetEnvironmentVariable("SVM_BROWSER_GAME_ROOT") ?? Path.Combine(AppContext.BaseDirectory, "browser");
         if (File.Exists(Path.Combine(root, "index.html")))
         {

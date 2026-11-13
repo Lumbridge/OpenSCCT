@@ -13,6 +13,23 @@ namespace OpenScct.Integration.Tests;
 
 public sealed class BrowserLessonTests
 {
+    [Fact]
+    public void EmptyPracticeBotControlCanWaitForTheFirstRequestedBotBeforeBuildingItsWorld()
+    {
+        using var rig = new Rig("vision-cancelling");
+        using var bots = new OpenScct.Bots.ServerBots(rig.Session.Host, new OpenScct.Bots.ServerBotSettings
+        {
+            Bots = [], Maps = rig.Session.Catalog, PrepareWhenEmpty = false,
+        });
+        rig.Tick(60);
+        Assert.Null(bots.World);
+        var added = bots.Add(new OpenScct.Bots.ServerBotSpec("RequestedMerc", 1,
+            OpenScct.Game.AI.AiDifficulty.For(OpenScct.Game.AI.AiSkill.Normal)));
+        Assert.NotNull(bots.World);
+        Assert.NotNull(added?.Pawn);
+        Assert.Single(bots.Bots);
+    }
+
     private sealed class Rig : IDisposable
     {
         public readonly StepClock Clock = new();

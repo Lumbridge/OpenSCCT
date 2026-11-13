@@ -92,7 +92,7 @@ public partial class App : Node
             BrowserPlatform.RestoreSettings?.Invoke();
             GetViewport().UseHdr2D = true;
             OpenScctGame.Options.SettingsApplier.ApplyAtStart(GetViewport());
-            OpenScct.Server.ContentPaths.Configure("/content", null);
+            OpenScct.Server.ContentPaths.Configure("/content", null, packs: "/content");
             AddChild(new OpenScctGame.Controls.BindingInput { Name = "BindingInput" });
             AddChild(new OpenScctGame.Options.PadMenus());
             AddChild(new OpenScctGame.Audio.MenuFeedback { Name = "MenuFeedback" });

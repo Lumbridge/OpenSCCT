@@ -91,7 +91,7 @@ public sealed class PlaySession : IDisposable
         // The bots' navigation is built (or loaded from its cache) before the host starts ticking. The loader's map is
         // what the catalog loads for map.Id, so its manifest finds the stored graphs without a scratch world.
         AiNavCache? nav = null;
-        if (settings.Bots > 0 || settings.Route is not null || settings.UnlimitedGear)
+        if (settings.Bots > 0 || settings.Route is not null || settings.UnlimitedGear && !OperatingSystem.IsBrowser())
         {
             nav = new AiNavCache();
             nav.Prepare(Catalog, map.Id, loadProgress, content: map);
@@ -585,6 +585,7 @@ public sealed class PlaySession : IDisposable
             Nav = nav,
             Maps = Catalog,
             TerminalsBlockPlayers = Settings.TerminalsBlockPlayers ?? true,
+            PrepareWhenEmpty = !OperatingSystem.IsBrowser(),
         });
     }
 

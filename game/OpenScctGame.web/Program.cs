@@ -21,6 +21,10 @@ internal static class Program
             ZipFile.ExtractToDirectory(content, "/content", overwriteFiles: true);
         }
         Console.WriteLine("OPENSCCT_BROWSER_CONTENT_READY");
+        OpenScctGame.Online.ContentPacks.ConfigureStore(new OpenScct.Maps.ContentStore("/content", new HttpClient
+        {
+            Timeout = TimeSpan.FromMinutes(30),
+        }) { Source = new Uri(new Uri(contentUrl), "content/index.json").AbsoluteUri, AllowRelativeDownloads = true });
         await OpenScctGame.Web.BrowserAccount.Fetch(contentUrl);
         OpenScctGame.BrowserPlatform.RestoreSettings = () =>
         {

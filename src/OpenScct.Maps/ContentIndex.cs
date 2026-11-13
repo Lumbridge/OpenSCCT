@@ -186,7 +186,7 @@ public sealed record ContentIndex
     /// Reads an index. Throws <see cref="InvalidDataException"/> for one this game cannot read (another format, a
     /// newer major version); a map or pack with a bad field is left out, not the whole index.
     /// </summary>
-    public static ContentIndex Parse(string json)
+    public static ContentIndex Parse(string json, Uri? downloadOrigin = null)
     {
         ArgumentNullException.ThrowIfNull(json);
         JsonDocument doc;
@@ -223,7 +223,7 @@ public sealed record ContentIndex
             var shared = new List<ContentSharedPack>();
             foreach (JsonElement p in Array(root, "shared"))
             {
-                if (Str(p, "id") is { Length: > 0 } id && Download(p, "download") is { } dl)
+                if (Str(p, "id") is { Length: > 0 } id && Download(p, "download", downloadOrigin) is { } dl)
                 {
                     shared.Add(new ContentSharedPack
                     {
@@ -238,7 +238,7 @@ public sealed record ContentIndex
             {
                 foreach (JsonElement m in Array(root, "maps"))
                 {
-                    if (Str(m, "code") is not { Length: > 0 } code || !IsSafeCode(code) || Download(m, "full") is not { } full)
+                    if (Str(m, "code") is not { Length: > 0 } code || !IsSafeCode(code) || Download(m, "full", downloadOrigin) is not { } full)
                     {
                         continue;
                     }
@@ -266,8 +266,8 @@ public sealed record ContentIndex
                         ManifestSha256 = Str(m, "manifestSha256").ToLowerInvariant(),
                         Requires = requires,
                         Full = full,
-                        Sim = Download(m, "sim") ?? full,
-                        BotNavigation = ReadBotNavigation(m, contentHash),
+                        Sim = Download(m, "sim", downloadOrigin) ?? full,
+                        BotNavigation = ReadBotNavigation(m, contentHash, downloadOrigin),
                     });
                 }
             }
@@ -304,7 +304,7 @@ public sealed record ContentIndex
 
     internal static bool IsSha256(string value) => value.Length == 64 && value.AsSpan().IndexOfAnyExcept("0123456789abcdef") < 0;
 
-    private static ContentBotNavigation? ReadBotNavigation(JsonElement map, string contentHash)
+    private static ContentBotNavigation? ReadBotNavigation(JsonElement map, string contentHash, Uri? downloadOrigin)
     {
         if (!map.TryGetProperty("botNavigation", out JsonElement nav) || nav.ValueKind != JsonValueKind.Object)
         {
@@ -315,7 +315,7 @@ public sealed record ContentIndex
         return IsSha256(hash) && contentHash == hash[..16] &&
             nav.TryGetProperty("formatVersion", out JsonElement v) && v.ValueKind == JsonValueKind.Number && v.TryGetInt32(out int version) && version > 0 &&
             nav.TryGetProperty("activationMask", out JsonElement a) && a.ValueKind == JsonValueKind.Number && a.TryGetByte(out byte mask) &&
-            Download(nav, "download") is { } download
+            Download(nav, "download", downloadOrigin) is { } download
             ? new ContentBotNavigation(hash, version, mask, download) : null;
     }
 
@@ -325,7 +325,7 @@ public sealed record ContentIndex
         return int.TryParse(dot < 0 ? version : version[..dot], NumberStyles.Integer, CultureInfo.InvariantCulture, out int m) ? m : null;
     }
 
-    private static ContentDownload? Download(JsonElement e, string name)
+    private static ContentDownload? Download(JsonElement e, string name, Uri? downloadOrigin)
     {
         if (!e.TryGetProperty(name, out JsonElement d) || d.ValueKind != JsonValueKind.Object)
         {
@@ -333,10 +333,19 @@ public sealed record ContentIndex
         }
 
         string url = Str(d, "url");
+        // Browser mirrors use paths on their own HTTPS origin. Desktop indexes remain HTTPS-only as before.
+        // The only plaintext exception is an explicitly supplied loopback origin for the local browser lab.
+        bool local = false;
+        if (downloadOrigin is not null && url.StartsWith("/", StringComparison.Ordinal) && !url.StartsWith("//", StringComparison.Ordinal) &&
+            Uri.TryCreate(downloadOrigin, url, out Uri? resolved) && resolved.GetLeftPart(UriPartial.Authority) == downloadOrigin.GetLeftPart(UriPartial.Authority))
+        {
+            url = resolved.AbsoluteUri;
+            local = resolved.Scheme == Uri.UriSchemeHttp && resolved.IsLoopback;
+        }
         string sha = Str(d, "sha256").ToLowerInvariant();
         long size = d.TryGetProperty("size", out JsonElement s) && s.ValueKind == JsonValueKind.Number && s.TryGetInt64(out long n) ? n : -1;
         bool https = Uri.TryCreate(url, UriKind.Absolute, out Uri? uri) && uri.Scheme == Uri.UriSchemeHttps;
-        return https && size > 0 && IsSha256(sha) ? new ContentDownload(url, size, sha) : null;
+        return (https || local) && size > 0 && IsSha256(sha) ? new ContentDownload(url, size, sha) : null;
     }
 
     private static IEnumerable<JsonElement> Array(JsonElement e, string name) =>

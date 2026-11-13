@@ -31,7 +31,8 @@ builder.WebHost.UseUrls(options.HttpUrl);
 builder.Logging.ClearProviders();
 await using var app = builder.Build();
 var players = new PlayerPortal(options, store, registry, _ => IPAddress.Loopback,
-    new ReleaseChangelog(), browserGameRoot: bundle, browserTickets: signer);
+    new ReleaseChangelog(), browserGameRoot: bundle, browserTickets: signer,
+    browserContentRoot: Path.GetFullPath(Path.Combine(bundle, "../../../local/browser-content")));
 players.Map(app);
 new AccountApi(options, store, signer, registry, _ => IPAddress.Loopback, TimeProvider.System)
 {
