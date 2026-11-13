@@ -1627,6 +1627,10 @@ public static class MapBuilder
         /// </summary>
         private LightReach.Twins TwinsOf((string Name, LightSource Light, VisionPass Pass) key)
         {
+            // WebGPU's cold shader compilation is much slower than the native backend. Keep the general shader,
+            // which already handles every light and vision mode, rather than compiling five shortcut variants
+            // per material before a browser can enter a round. This changes work performed, not lighting terms.
+            if (OperatingSystem.IsBrowser()) return default;
             MaterialCompiler compiler = _map.Compiler;
             bool plain = key.Pass == VisionPass.Plain;
             bool seeThrough = key.Pass == VisionPass.SeeThrough;

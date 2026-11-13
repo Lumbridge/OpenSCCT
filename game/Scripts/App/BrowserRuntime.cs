@@ -99,6 +99,8 @@ public partial class BrowserRuntime : Node
             loaded = _play?.IsLoaded ?? false,
             error = _play?.LoadError,
             ticks = _play?.Session?.TicksRun ?? 0,
+            scoreboardSequence = _play?.Session?.Client.Scoreboard?.Sequence,
+            scoreboardRows = _play?.Session?.Client.Scoreboard?.Rows.Count,
             pawn = pawn is not null,
             x = pawn?.Location.X, y = pawn?.Location.Y, z = pawn?.Location.Z,
             heat = pawn?.HeatIntensity, heatOpacity = pawn?.HeatOpacity,
