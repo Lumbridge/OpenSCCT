@@ -215,7 +215,11 @@ public partial class SPlayerController
     /// <summary>Accepts one owner-reported charge contact without granting access to another player's actors.</summary>
     private void ReceiveOwnerChargeHit(in CombatCall call)
     {
-        if (_receivedOwnerChargeHit || ChargeShockFrozen || !IsInState(WNAME_s_PlayerCharging) ||
+        // A bumped team mate is reported after the owner's change to s_PlayerCharging_HitFriend (rule 19 changes state
+        // first for a merc, and the state call arrives before the damage call); a spy's hit is reported while charging.
+        bool charging = IsInState(WNAME_s_PlayerCharging) ||
+            (IsInState(MNAME_s_PlayerCharging_HitFriend) && call.Target is SPAWNDEFENSE);
+        if (_receivedOwnerChargeHit || ChargeShockFrozen || !charging ||
             SBPawn is not SPAWNDEFENSE { Health: > 0, bDeleteMe: false } attacker ||
             !ReferenceEquals(call.Actor1, attacker) || call.Target is not SBasePawn { Health: > 0, bDeleteMe: false } victim ||
             !ReferenceEquals(victim.XLevel, XLevel) || victim.Controller is not SPlayerController ||

@@ -166,6 +166,31 @@ public sealed class ChargeKnockbackNetworkTests
         Assert.InRange(FVector.Dist(remote.Location, stoppedAt), 0f, 2f);
     }
 
+    [Theory]
+    [InlineData(NetProfile.Enhanced)]
+    [InlineData(NetProfile.Stock)]
+    public void ChargedMercTeammateIsKnockedDownAndTheChargerKeepsHisHealth(NetProfile profile)
+    {
+        const int Friend = 3;
+        using var rig = new MatchRig(profile);
+        rig.Place(Merc, 300f);
+        rig.Place(Friend, 420f);
+        rig.Tick(120);
+        SPlayerController owner = rig.Owner(Merc), authority = rig.Authority(Merc), friend = rig.Authority(Friend);
+        SBasePawn charger = PawnOf(authority), victim = PawnOf(friend);
+        int chargerHealth = charger.Health, victimHealth = victim.Health;
+        owner.eventChangeState("s_PlayerCharging");
+        rig.WaitUntil(() => authority.bIsCharging || owner.IsInState("s_PlayerCharging_HitFriend"), Sim.Hz / 2);
+        // The owner reports the bump: he changes to the hit state first, then sends the team mate's damage.
+        if (!owner.IsInState("s_PlayerCharging_HitFriend")) owner.eventNotifyBump(rig.Proxy(Merc, Friend));
+        Assert.True(owner.IsInState("s_PlayerCharging_HitFriend"), owner.GetStateName().ToString());
+
+        rig.WaitUntil(() => victim.bLyingOnGround, 5 * Sim.Hz);
+        Assert.True(victim.bLyingOnGround, $"The team mate is in {friend.GetStateName()} with {victim.Health} health.");
+        Assert.Equal(victimHealth - 35, victim.Health);
+        Assert.Equal(chargerHealth, charger.Health);
+    }
+
     private static SBasePawn PawnOf(SPlayerController controller) => Assert.IsAssignableFrom<SBasePawn>(controller.Pawn);
 
     private sealed class MatchRig : IDisposable

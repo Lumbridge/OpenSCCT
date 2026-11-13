@@ -447,7 +447,8 @@ public partial class SPlayerController
                 {
                     self.eventChangeState(MNAME_s_PlayerCharging_HitFriend);
                     self.ChargeDamage(other, me, SDamageType.SDamage_Charged);
-                    self.ChargeDamage(me, other, SDamageType.SDamage_Charged);
+                    // The original also gives the charger 35 SDamage_Charged from the team mate here. OpenSCCT leaves
+                    // it out (Ryan 2026-11-13): the charger bounces off (SA_BUMP_WALL) and keeps his health.
                 }
 
                 return false;

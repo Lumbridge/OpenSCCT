@@ -170,7 +170,8 @@ revive is possible.
       and takes 35 unscaled damage); else `DamagePawn_C2S(spy, 35, me, spy location, spy - me, SDamage_Charged, 0, 100)`
       and `ChangeState('s_PlayerCharging_HitEnemy')`;
     - merc in front: turn toward him; if he is shocking, the same self-shock; else `ChangeState('s_PlayerCharging_HitFriend')`,
-      35 SDamage_Charged to him and 35 SDamage_Charged to self (both from the other);
+      35 SDamage_Charged to him and 35 SDamage_Charged to self (both from the other). OpenSCCT leaves out the
+      damage to self (2026-11-13): the charger keeps his health, the team mate is hit and knocked back;
     - anything else: if it is an SBasicGamePlayObject in front, `DestroyGPO(gpo, 35, SDamage_Charged)`;
       `ChangeState('s_PlayerCharging_HitWall')`.
     `NotifyHitWall` (owner): GPO walls get `DestroyGPO`; rumble; HUD perturbation 2.0 s; `s_PlayerCharging_HitWall`.
