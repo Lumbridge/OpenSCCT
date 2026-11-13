@@ -661,6 +661,9 @@ public sealed partial class PawnAnimation
 
     private readonly PawnAnimChannel[] _channels = new PawnAnimChannel[ChannelCount];
     private bool[] _fired = new bool[8];
+
+    /// <summary>A notify fired in this channel update, so the frame may be standing on a notify time.</summary>
+    private bool _firedAny;
     private bool _poseCached;
 
     public PawnAnimation()
@@ -1471,7 +1474,13 @@ public sealed partial class PawnAnimation
         }
     }
 
-    /// <summary>The earliest notify in this pass's window fires: the frame stops at its time, the rest of the time carries.</summary>
+    /// <summary>
+    /// The earliest notify in this pass's window fires: the frame stops at its time, the rest of the time carries.
+    /// Notifies that share one time all fire, in package order: after the first the frame stands on that time, and
+    /// the window (old, frame] alone would leave the others out for good. The merc's in-place fall XxxxStAlDn0 has a
+    /// StopSound and NotifyDrawUndrawWeapon at the same time, and the rifle's view model was never lowered.
+    /// </summary>
+    [Provenance(ProvenanceKind.Estimated, "Notifies with equal times: the window is taken as closed at old once a notify stopped the frame there (the fired flags keep each to one firing)")]
     private bool FireNotify(int ch, PawnAnimChannel c, float old, ref float dt)
     {
         if (!c.bAnimNotify || c.bNotifyIgnore || c.Clip is not { Notifies.Count: > 0 } clip || Owner is null)
@@ -1489,13 +1498,13 @@ public sealed partial class PawnAnimation
             float distance;
             if (!c.bBackward)
             {
-                inside = old < t && t <= c.Frame;
+                inside = (old < t || (_firedAny && old == t)) && t <= c.Frame;
                 distance = t - old;
             }
             else
             {
                 float m = c.AnimLast - t;
-                inside = old + BackwardNotifyMargin < m && m <= c.Frame;
+                inside = (old + BackwardNotifyMargin < m || (_firedAny && old == m)) && m <= c.Frame;
                 distance = m - old;
             }
 
@@ -1513,9 +1522,14 @@ public sealed partial class PawnAnimation
 
         float at = c.bBackward ? c.AnimLast - notifies[best].Time : notifies[best].Time;
         float into = c.bBackward ? (c.Frame - c.AnimLast) + notifies[best].Time : c.Frame - notifies[best].Time;
-        dt = into * dt / (c.Frame - old);
+        if (c.Frame > old)
+        {
+            dt = into * dt / (c.Frame - old);
+        }
+
         c.Frame = at;
         _fired[best] = true;
+        _firedAny = true;
         NotifyChannel = ch;
         PawnAnimNotifies.Fire(Owner, ch, notifies[best].Notify);
         return true;
@@ -1572,6 +1586,7 @@ public sealed partial class PawnAnimation
         }
 
         Array.Clear(_fired);
+        _firedAny = false;
     }
 
     private float OwnerSpeed() => Owner?.Velocity.Size() ?? 0f;
