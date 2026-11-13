@@ -170,8 +170,10 @@ Browser probes include the frame maximum, vision mode and pipeline counters.
 On loopback, `?profile` records every probe (five per second) for first-use checks;
 ordinary local visits log once every two seconds. Hosted visits never upload logs.
 Published bundles include `build.json` identifying their source and AOT settings.
-Browser readiness also waits for the client map to bind and its first scene frames
-to draw, keeping initial simulation catch-up behind the loading cover.
+Browser readiness also waits for the client map and player camera to bind, then
+draws each vision twice on the actual gameplay view before restoring the controller's
+mode. Initial simulation catch-up and the first full-view vision draws stay behind
+the loading cover; no gameplay goggle state changes during this pass.
 
 Known limits:
 

@@ -138,6 +138,8 @@ public partial class PlayRoot : Node3D
     private bool _browserPreparingPlayer, _browserRestoreControls;
     private ulong _browserPlayerWaitAt;
     private int _browserPlayerFrames;
+    private static readonly int[] BrowserPlayerVisions =
+        [RenderK.RendMapNormal, RenderK.RendMapNight, RenderK.RendMapThermal, RenderK.RendMapMotion, RenderK.RendMapEmf];
     private int _lastRendMap = -1;
     private bool _lastBinoculars;
     private int _lastRemanenceCaptures;
@@ -977,7 +979,7 @@ public partial class PlayRoot : Node3D
         Stats.Add(simMs, viewMs, delta * 1000.0);
         if (_browserPreparingPlayer && session.Client.Map?.Loaded is not null &&
             (session.LocalController is not null || Time.GetTicksMsec() - _browserPlayerWaitAt >= 2000) &&
-            ++_browserPlayerFrames >= 3)
+            ++_browserPlayerFrames >= (BrowserPlayerVisions.Length + 1) * 2)
             CompleteLoading();
         if (!_loadTimed && session.LocalPawn is not null && (Controls?.Enabled == true || Config.Pilot is not null))
         {
@@ -1012,6 +1014,11 @@ public partial class PlayRoot : Node3D
             // 60 Hz ticks before, so they held still in most frames above 60 fps).
             Map?.SetTime(_time.At(alpha));
             int rendMap = pc is null || pc.RendMap == 0 ? RenderK.RendMapNormal : pc.RendMap;
+            // The loading samples cannot reproduce the bound player's camera, visible pawn and post targets.
+            // Present each vision twice on that real view under the cover, then restore the controller's mode
+            // for two frames before enabling input. Only the renderer changes; gameplay goggles stay untouched.
+            if (_browserPreparingPlayer && _browserPlayerFrames / 2 < BrowserPlayerVisions.Length)
+                rendMap = BrowserPlayerVisions[_browserPlayerFrames / 2];
             View.SquintingFactor = pc?.SquintingFactor ?? 0f;
             if (rendMap != _lastRendMap)
             {
