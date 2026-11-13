@@ -34,6 +34,7 @@ public sealed class GameplayFxWarmupSmoke : SmokeTest
         if (_result is { } result) return ++_teardown < 5 ? SmokeResult.Running : result;
         if (_root is null)
         {
+            Diagnostics.LoadTimer.Begin("gameplay warmup smoke");
             context.Tree.Root.Msaa3D = Viewport.Msaa.Msaa4X;
             if (context.App.Options.PlayMap is not null)
             {
@@ -88,7 +89,10 @@ public sealed class GameplayFxWarmupSmoke : SmokeTest
             _root.FirstPerson?.Warmup(_repeat.Samples);
             _root.SpyFirstPerson?.Warmup(_repeat.Samples);
             if (_root.Map is { } characterMap)
+            {
                 Render.Characters.PawnOutfits.Warmup(characterMap.Outfits, characterMap.Folder, characterMap.SharedRoot, _repeat.Samples);
+                DeviceViews.PreloadSkeletalProps(characterMap, _repeat.Samples);
+            }
             int effectSamples = _repeat.Samples.GetChildCount();
             if (_root.Map is { } map) DeviceViews.PreloadSecuritySkins(map, _repeat.Samples);
             _securitySamples = _repeat.Samples.GetChildCount() - effectSamples;

@@ -41,6 +41,24 @@ public sealed class DeviceViews
     private float _relightClock;
     private double _skinClock;
 
+    /// <summary>Read and draw map-owned skeletal props before the client world binds their actors.</summary>
+    internal static void PreloadSkeletalProps(RenderMap map, Node3D samples)
+    {
+        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (GameplayActor actor in map.Actors.Actors)
+        {
+            if (actor.Asset("Mesh") is not { } asset ||
+                SkeletalModel.FindMapGlb(asset, map.Folder, map.SharedRoot) is not { } glb || !seen.Add(glb)) continue;
+            SkeletalModel model = SkeletalModel.Load(glb);
+            foreach (MeshInstance3D mesh in model.Meshes)
+            {
+                mesh.ExtraCullMargin = 100000;
+                mesh.IgnoreOcclusionCulling = true;
+            }
+            samples.AddChild(model.Root);
+        }
+    }
+
     /// <summary>Draw the alternate LED skins during loading using the same surfaces as the live devices.</summary>
     internal static void PreloadSecuritySkins(RenderMap map, Node3D samples)
     {

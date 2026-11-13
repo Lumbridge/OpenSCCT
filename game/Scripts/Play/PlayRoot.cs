@@ -282,6 +282,7 @@ public partial class PlayRoot : Node3D
                         sidearms: FirstPerson?.Needs.Sidearms ?? true);
                     LoadTimer.Mark("ready.outfits");
                     DeviceViews.PreloadSecuritySkins(map, warmup.Samples);
+                    DeviceViews.PreloadSkeletalProps(map, warmup.Samples);
                     LoadTimer.Mark("ready.security-skins");
                 }
                 warmup.PreloadScene(this);
@@ -390,6 +391,7 @@ public partial class PlayRoot : Node3D
             Render.Characters.PawnOutfits.Warmup(map.Outfits, map.Folder, map.SharedRoot, samples,
                 sidearms: FirstPerson?.Needs.Sidearms ?? true);
             DeviceViews.PreloadSecuritySkins(map, samples);
+            DeviceViews.PreloadSkeletalProps(map, samples);
         }
     }
 
