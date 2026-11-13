@@ -27,6 +27,7 @@
     <ItemGroup>
         <PackageReference Include="2dog.engine"/>
         <PackageReference Include="2dog.browser-wasm"/>
+        <PackageReference Include="BrotliSharpLib"/>
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="../OpenScctGame.csproj"/>

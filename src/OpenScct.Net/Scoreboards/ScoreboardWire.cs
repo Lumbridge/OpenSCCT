@@ -18,6 +18,9 @@ public static class ScoreboardWire
     private const int ChunkBytes = 300;
     private static readonly JsonSerializerOptions Json = CreateJsonOptions();
 
+    /// <summary>A host decoder for platforms without native Brotli. The wire format and output limit stay identical.</summary>
+    public static Func<Stream, Stream>? OpenDecompressionStream { get; set; }
+
     private static JsonSerializerOptions CreateJsonOptions()
     {
         var resolver = new DefaultJsonTypeInfoResolver();
@@ -80,6 +83,10 @@ public static class ScoreboardWire
 
     public sealed class Receiver
     {
+        private readonly Func<Stream, Stream> _openDecompressionStream;
+        public Receiver(Func<Stream, Stream>? openDecompressionStream = null) =>
+            _openDecompressionStream = openDecompressionStream ?? OpenDecompressionStream ??
+                (input => new BrotliStream(input, CompressionMode.Decompress));
         private string? _id;
         private byte[]? _bytes;
         private int _used;
@@ -111,7 +118,7 @@ public static class ScoreboardWire
                 else if (fields.Length == 3 && fields[1] == "boardend" && fields[2] == _id && _bytes is not null && _used == _bytes.Length)
                 {
                     using var input = new MemoryStream(_bytes);
-                    using var decompression = new BrotliStream(input, CompressionMode.Decompress);
+                    using var decompression = _openDecompressionStream(input);
                     using var output = new MemoryStream();
                     byte[] buffer = new byte[4096];
                     int n;

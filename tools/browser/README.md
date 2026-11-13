@@ -116,7 +116,12 @@ Known limits:
 - The content subset contains TestRange, SteeE, Entry, Lobby, shared gameplay/UI/audio and default
   character assets. Cosmetic variants and other maps are excluded. The native
   EAX extension is not included; TestRange has no map reverb table.
-- This is a local prototype branch. It has not been deployed or released.
+- The preview is hosted at `https://master.lumbridge.co.uk/play/` (master 1.1.27).
+  Desktop tutorial changes are tested and committed on this prototype branch, not released.
+  Official-server play needs its exact map version. The preview uses published
+  SteeE 1.0.4, content hash `82760242e4ae1618`, from OpenSCCT-Content; the checkout's
+  newer conversion differs. Pass its extracted folder with `-SteeEFolder` to
+  Build-Prototype or `--map-source SteeE=FOLDER` to prepare_content.py.
 
 Original converted content, engine packages, browser state, generated bundles,
 logs and screenshots stay untracked. Console capture is restricted to loopback

@@ -7,6 +7,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--content-root", type=Path, required=True)
 parser.add_argument("--output", type=Path, required=True)
 parser.add_argument("--map-folder", type=Path)
+parser.add_argument("--map-source", action="append", default=[], metavar="NAME=FOLDER", help="Use an exact published map version instead of the local conversion.")
 parser.add_argument("--map", action="append", default=["SteeE", "Entry", "Lobby"], help="Additional map to include (defaults: SteeE and the native menu maps).")
 args = parser.parse_args()
 root = args.content_root.resolve(strict=True)
@@ -23,6 +24,12 @@ with zipfile.ZipFile(args.output, "w", zipfile.ZIP_DEFLATED, compresslevel=3) as
         if not name.isalnum() or not (folder / "manifest.json").is_file():
             parser.error(f"Unknown map: {name}")
         maps[name] = folder
+    for override in args.map_source:
+        name, separator, folder = override.partition("=")
+        source = Path(folder)
+        if not separator or name not in maps or not (source / "manifest.json").is_file():
+            parser.error(f"Invalid map source: {override}")
+        maps[name] = source
     for name, map_folder in maps.items():
         for path in sorted(map_folder.rglob("*")):
             if path.is_file():
