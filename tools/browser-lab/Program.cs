@@ -20,7 +20,8 @@ long other = store.GetOrCreate("local-browser-other").Id;
 store.ClaimName(other, "BrowserOther", false, out _);
 store.PutProfile(other, new ProfileData { Updated = DateTimeOffset.UtcNow,
     Data = "{\"version\":1,\"settings\":{\"player_name\":\"Other Fixture\",\"invert_y\":false}}" });
-var options = new MasterOptions { PublicHost = "127.0.0.1", HttpUrl = "http://127.0.0.1:8878", PublicUrl = "http://127.0.0.1:8878" };
+var options = new MasterOptions { PublicHost = "127.0.0.1", HttpUrl = "http://127.0.0.1:8878",
+    PublicUrl = Environment.GetEnvironmentVariable("SVM_BROWSER_LAB_ORIGIN") ?? "http://127.0.0.1:8878" };
 var registry = new ServerRegistry(options);
 string labRoot = Path.GetFullPath(Path.Combine(bundle, "../../../local/browser-lab-content"));
 Directory.CreateDirectory(labRoot);
