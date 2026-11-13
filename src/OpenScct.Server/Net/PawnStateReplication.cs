@@ -348,8 +348,32 @@ public sealed partial class PawnStateReplication : INetworkPawnPose, IPawnAnimat
             }
             float seconds = Math.Clamp((time - a.Tick * NetTimeline.Fraction) * (Sim.DeltaTime / NetTimeline.Fraction), 0f, 0.1f);
             PawnClip? clip = state.Sequence.IsNone ? null : PawnActions.Clip(pawn, state.Sequence);
-            state = state.Extrapolate(seconds, speed, clip is { Frames: > 1 } ? 1f - 1f / clip.Frames : 0f);
+            float lastFrame = clip is { Frames: > 1 } ? 1f - 1f / clip.Frames : 0f;
+            state = state.Extrapolate(seconds, speed, lastFrame);
+            // The walk blender sets its channels' frames itself each tick and leaves their rate 0, so the rate says
+            // nothing about them: past the newest sample the legs stood still while the body moved on by its
+            // velocity, then skipped to the next sample. They carry on at the pace of the last two samples.
+            if (a.Rate == 0f && state.Frame >= 0f && seconds > 0f && ObservedRate(before, state.Loop) is var observed and not 0f)
+            {
+                state.Frame += seconds * observed;
+                state.Frame = state.Loop ? state.Frame - MathF.Floor(state.Frame) : Math.Clamp(state.Frame, 0f, lastFrame);
+            }
             return true;
+        }
+
+        /// <summary>
+        /// Frames per second the play of the phase at <paramref name="index"/> moved since the sample before it (the
+        /// shorter way round a loop); 0 when that sample is of another play, tweening, or too old to tell.
+        /// </summary>
+        private float ObservedRate(int index, bool loop)
+        {
+            if (index < 1) return 0f;
+            Phase to = _phases[index], from = _phases[index - 1];
+            long ticks = to.Tick - from.Tick;
+            if (from.Revision != to.Revision || from.Frame < 0f || to.Frame < 0f || ticks is < 1 or > PhaseRecoveryTicks) return 0f;
+            float moved = to.Frame - from.Frame;
+            if (loop) moved -= MathF.Round(moved);
+            return moved / (ticks * Sim.DeltaTime);
         }
     }
 
