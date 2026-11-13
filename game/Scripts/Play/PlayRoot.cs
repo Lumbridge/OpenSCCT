@@ -928,7 +928,10 @@ public partial class PlayRoot : Node3D
         }
         else
         {
-            session.Update();
+            // Chrome can delay a visible/background frame while activating the window. Running five
+            // local server+client ticks afterward can prolong that stall. Drop the older backlog and
+            // recover with at most two ticks; remote matches retain their existing prediction cadence.
+            session.Update(OperatingSystem.IsBrowser() && !session.IsRemote ? 2 : PlaySession.MaxCatchUpTicks);
             alpha = session.Alpha;
         }
 

@@ -174,6 +174,9 @@ Browser readiness also waits for the client map and player camera to bind, then
 draws each vision twice on the actual gameplay view before restoring the controller's
 mode. Initial simulation catch-up and the first full-view vision draws stay behind
 the loading cover; no gameplay goggle state changes during this pass.
+Offline browser visits recover from a delayed frame with at most two simulation
+ticks instead of five, dropping stale backlog so window activation does not lead
+to a series of expensive catch-up frames. Remote matches keep their prediction cadence.
 
 Known limits:
 

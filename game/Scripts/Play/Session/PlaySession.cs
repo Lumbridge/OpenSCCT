@@ -376,9 +376,10 @@ public sealed class PlaySession : IDisposable
     }
 
     /// <summary>Runs the ticks due by the clock (server and client inline, the client only with a server thread).</summary>
-    public int Update()
+    public int Update(int maxCatchUpTicks = MaxCatchUpTicks)
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
+        ArgumentOutOfRangeException.ThrowIfLessThan(maxCatchUpTicks, 1);
         if (IsStopped)
         {
             return 0;
@@ -386,9 +387,9 @@ public sealed class PlaySession : IDisposable
 
         long now = Clock.NowMicroseconds;
         long due = (now - _start) * Sim.Hz / 1_000_000;
-        if (due - _ticks > MaxCatchUpTicks)
+        if (due - _ticks > maxCatchUpTicks)
         {
-            _ticks = due - MaxCatchUpTicks;
+            _ticks = due - maxCatchUpTicks;
         }
 
         int run = 0;

@@ -14,6 +14,28 @@ namespace OpenScct.Integration.Tests;
 public sealed class BrowserLessonTests
 {
     [Fact]
+    public void BrowserCatchUpLimitDropsStaleWorkAndResumesOrdinaryTicks()
+    {
+        using var rig = new Rig("vision-cancelling");
+        float before = rig.Session.Host.World.Level.Info.TimeSeconds;
+        rig.Clock.NowMicroseconds += 2_000_000;
+        Assert.Equal(2, rig.Session.Update(maxCatchUpTicks: 2));
+        Assert.InRange(rig.Session.Host.World.Level.Info.TimeSeconds - before, Sim.DeltaTime * 1.9f, Sim.DeltaTime * 2.1f);
+        Assert.Equal(0, rig.Session.Update(maxCatchUpTicks: 2));
+
+        rig.Clock.NowMicroseconds += 16_667;
+        Assert.Equal(1, rig.Session.Update(maxCatchUpTicks: 2));
+        Assert.NotNull(rig.Session.LocalPawn);
+        Assert.Null(rig.Session.LoginError);
+
+        before = rig.Session.Host.World.Level.Info.TimeSeconds;
+        rig.Clock.NowMicroseconds += 2_000_000;
+        Assert.Equal(PlaySession.MaxCatchUpTicks, rig.Session.Update());
+        Assert.InRange(rig.Session.Host.World.Level.Info.TimeSeconds - before,
+            Sim.DeltaTime * (PlaySession.MaxCatchUpTicks - .1f), Sim.DeltaTime * (PlaySession.MaxCatchUpTicks + .1f));
+    }
+
+    [Fact]
     public void EmptyPracticeBotControlCanWaitForTheFirstRequestedBotBeforeBuildingItsWorld()
     {
         using var rig = new Rig("vision-cancelling");
