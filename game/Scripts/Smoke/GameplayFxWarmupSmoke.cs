@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Godot;
 using OpenScct.Game.SBase;
+using OpenScct.Server.Online;
 using OpenScctGame.Audio;
 using OpenScctGame.Play;
 using OpenScctGame.Play.Session;
@@ -28,6 +29,9 @@ public sealed class GameplayFxWarmupSmoke : SmokeTest
     private GameplayFxWarmup? _sceneWarmup;
     private bool _sceneComplete;
     private int _sceneVision, _controllerVision, _sceneLayouts;
+    private long _shotAt;
+    private int _shotsBefore;
+    private double _shotPipelines;
 
     public override SmokeResult Step(SmokeContext context)
     {
@@ -62,6 +66,10 @@ public sealed class GameplayFxWarmupSmoke : SmokeTest
                 _sceneWarmup = GameplayFxWarmup.For(_root.GetViewport());
                 context.Tree.Root.AddChild(_sceneWarmup);
                 _sceneWarmup.PreloadView(_root.View);
+                // The browser uses general world shaders. The native proxy also has LightReach shortcut
+                // materials: warm those at the now-bound player camera before measuring browser FX reuse.
+                _root.Map?.LightReach.Warm();
+                _sceneWarmup.PreloadMap(_root.Map);
                 _sceneLayouts = _sceneWarmup.PreloadScene(_root, force: true);
                 if (_sceneLayouts == 0) return Finish(SmokeResult.Fail("browser scene warmup had no real map/weapon layouts"));
                 _sceneWarmup.Begin(() => _sceneComplete = true);
@@ -105,8 +113,26 @@ public sealed class GameplayFxWarmupSmoke : SmokeTest
         }
         if (!_complete) return SmokeResult.Running;
         double late = Performance.GetMonitor(Performance.Monitor.PipelineCompilationsDraw) - _drawCompiles;
-        if (late != 0) return Finish(SmokeResult.Fail($"first-use sample draw compiled {late} new pipelines after loading"));
-        return Finish(SmokeResult.Pass($"effects and {_sceneLayouts} real scene/weapon layouts warmed across vision modes; no gameplay effects spawned; vision restored; cleanup complete; security skin samples={_securitySamples}; explosion sound leaves cached={_explosionSounds}; repeat draw pipeline compilations={late}"));
+        if (_shotAt == 0)
+        {
+            if (late != 0) return Finish(SmokeResult.Fail($"first-use sample draw compiled {late} new pipelines after loading"));
+            if (_root.Session.LocalPawn.MyWeapon is not SWeaponDefense { bDrawWeapon: true } gun || _root.FirstPerson?.Shown != true)
+                return SmokeResult.Running;
+            _shotAt = _root.Session.TicksRun;
+            _shotsBefore = gun.ShotCounter;
+            _shotPipelines = Performance.GetMonitor(Performance.Monitor.PipelineCompilationsDraw);
+            if (_root.Controls is { } controls) controls.Enabled = false;
+            _root.Session.Input.Set("bFire", true);
+            _root.Session.Input.Commands.Add(new InputCommand("Fire"));
+            return SmokeResult.Running;
+        }
+        if (_root.Session.TicksRun - _shotAt >= 12) _root.Session.Input.Set("bFire", false);
+        if (_root.Session.TicksRun - _shotAt < 45) return SmokeResult.Running;
+        if (_root.Session.LocalPawn.MyWeapon is not SWeaponDefense fired || fired.ShotCounter == _shotsBefore)
+            return Finish(SmokeResult.Fail("first-shot input did not fire the real rifle"));
+        double shotLate = Performance.GetMonitor(Performance.Monitor.PipelineCompilationsDraw) - _shotPipelines;
+        if (shotLate != 0) return Finish(SmokeResult.Fail($"the real first rifle shot compiled {shotLate} new draw pipelines"));
+        return Finish(SmokeResult.Pass($"effects and {_sceneLayouts} real scene/weapon layouts warmed across vision modes; warmup left gameplay counters untouched; vision restored; cleanup complete; security skin samples={_securitySamples}; explosion sound leaves cached={_explosionSounds}; repeat and real first-shot draw pipeline compilations=0"));
     }
 
     private string? CheckExplosionSounds()

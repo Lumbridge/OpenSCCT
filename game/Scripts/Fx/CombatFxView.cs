@@ -685,15 +685,24 @@ public partial class CombatFxView : Node3D
             : s.Contains("Metal", StringComparison.Ordinal) ? new Color(1f, 0.8f, 0.4f)
             : new Color(0.75f, 0.7f, 0.6f);
         rotation.GetAxes(out FVector x, out _, out _);
+        var particles = BurstParticles(UeSpace.DirectionToGodot(x), colour, demoPlayback ? 0f : 1f);
+        AddChild(particles);
+        particles.GlobalPosition = UeSpace.ToGodot(location);
+        _bursts.Add(new Burst(particles, 1f) { Age = age });
+        Sparks++;
+    }
+
+    private static CpuParticles3D BurstParticles(Vector3 direction, Color colour, float speedScale)
+    {
         var particles = new CpuParticles3D
         {
             Name = "Sparks",
             Amount = 14,
             Lifetime = 0.35,
-            SpeedScale = demoPlayback ? 0f : 1f,
+            SpeedScale = speedScale,
             OneShot = true,
             Explosiveness = 1f,
-            Direction = UeSpace.DirectionToGodot(x),
+            Direction = direction,
             Spread = 40f,
             InitialVelocityMin = 1.5f,
             InitialVelocityMax = 4f,
@@ -711,10 +720,7 @@ public partial class CombatFxView : Node3D
             BlendMode = BaseMaterial3D.BlendModeEnum.Add,
             VertexColorUseAsAlbedo = true,
         };
-        AddChild(particles);
-        particles.GlobalPosition = UeSpace.ToGodot(location);
-        _bursts.Add(new Burst(particles, 1f) { Age = age });
-        Sparks++;
+        return particles;
     }
 
     // ---- materials -------------------------------------------------------------------------------------------
@@ -760,16 +766,33 @@ public partial class CombatFxView : Node3D
         var cameraFault = new CamnetDisabledView();
         samples.AddChild(cameraFault);
         cameraFault.Preload();
+        samples.AddChild(new OmniLight3D { LightEnergy = 4f, OmniRange = 6.4f, ShadowEnabled = false });
+        // GetRid prepares shader resources, but the WebGPU pipeline also needs the real primitive layout to draw.
+        Warm(new BoxMesh { Size = new(.03f, .03f, 2.4f) }, _tracerMaterial);
+        Warm(new QuadMesh { Size = Vector2.One }, FlashMaterial(FromHue(40, 190)));
+        Warm(new QuadMesh { Size = Vector2.One }, _bulletMark);
+        Warm(new QuadMesh { Size = Vector2.One }, _shockMark);
+        foreach (EffectMaterial? decal in _decals.Values)
+            if (decal is not null) Warm(new QuadMesh { Size = Vector2.One }, decal);
+        var sparks = BurstParticles(Vector3.Back, Colors.White, 1f);
+        sparks.OneShot = false;
+        samples.AddChild(sparks);
         if (_library is { Available: true } library)
         {
             library.WarmViews(samples);
-            // WarmViews draws particle emitters. The Shocker flash is a static mesh, so loading its asset
-            // alone leaves the real mesh/material vertex-layout pipeline cold until the first shot.
-            if (library.Find("SBase.SMuzzleSticky") is { } flash && flash.Assets.TryGetValue("StaticMesh",out string? path)
-                && library.Mesh(path) is { } mesh)
-                samples.AddChild(new MeshInstance3D { Name = "WarmShockerMuzzle", Mesh = mesh,
-                    Position = new(0,0,1), Scale = Vector3.One*2,
-                    CastShadow = GeometryInstance3D.ShadowCastingSetting.Off });
+            // These are static muzzle meshes, separate from the particle emitters WarmViews draws.
+            foreach (string type in new[] { "SBase.SMuzzleSticky", "SBase.SMuzzleGenerique", "SBase.sMuzzleCanon" })
+                if (library.Find(type) is { } flash && flash.Assets.TryGetValue("StaticMesh", out string? path)
+                    && library.Mesh(path) is { } mesh) Warm(mesh, null);
+        }
+
+        void Warm(Mesh mesh, Material? material)
+        {
+            Aabb box = mesh.GetAabb();
+            float scale = 1f / Math.Max(box.Size.Length(), .01f);
+            samples.AddChild(new MeshInstance3D { Name = "WarmCombatSurface", Mesh = mesh, MaterialOverride = material,
+                Scale = Vector3.One * scale, Position = -box.GetCenter() * scale,
+                CastShadow = GeometryInstance3D.ShadowCastingSetting.Off });
         }
     }
 
