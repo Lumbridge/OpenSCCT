@@ -149,6 +149,9 @@ internal static partial class BrowserAccount
         {
             using var request = new HttpRequestMessage(HttpMethod.Post, new Uri(s_url, "join"));
             if (s_account?.Csrf is { } csrf) request.Headers.Add("X-CSRF-Token", csrf);
+            // Match the desktop build's default-master access. Custom masters still use the explicitly entered key.
+            if (string.IsNullOrWhiteSpace(inviteKey) && s_url.GetLeftPart(UriPartial.Authority) == OnlineSettings.DefaultMasterUrl)
+                inviteKey = OnlineSettings.DefaultInviteKey;
             if (!string.IsNullOrEmpty(inviteKey)) request.Headers.Add(MasterApi.KeyHeader, inviteKey);
             request.Content = new StringContent(JsonSerializer.Serialize(new { serverId }, Json), System.Text.Encoding.UTF8, "application/json");
             using var response = await Http.SendAsync(request);

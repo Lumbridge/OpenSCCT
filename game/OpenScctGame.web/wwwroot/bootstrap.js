@@ -73,8 +73,9 @@ async function refreshServers() {
             option.textContent = `${server.name} · ${server.map} · ${server.players} players${server.password ? ' · password' : ''}`;
             return option;
         }));
-        document.getElementById('online-invite').hidden = !result.inviteOnly;
-        document.getElementById('invite-label').hidden = !result.inviteOnly;
+        const needsInvite = result.inviteOnly && location.origin !== 'https://master.lumbridge.co.uk';
+        document.getElementById('online-invite').hidden = !needsInvite;
+        document.getElementById('invite-label').hidden = !needsInvite;
         document.getElementById('online-join').disabled = !result.servers.length;
         status.textContent = result.servers.length ? 'Sign in to use your verified account in matches.' : 'No browser-enabled game servers are currently listed.';
     } catch (error) { status.textContent = error.message; }
@@ -85,6 +86,10 @@ globalThis.openscctOpenMultiplayer = () => {
     refreshServers();
 };
 globalThis.openscctOnlineStatus = message => {
+    if (message === 'This master needs its invite key.') {
+        document.getElementById('online-invite').hidden = false;
+        document.getElementById('invite-label').hidden = false;
+    }
     document.getElementById('online-status').textContent = message;
     document.getElementById('online-join').disabled = false;
     if (!message) { onlineDialog.close(); gameCanvas.focus(); }
