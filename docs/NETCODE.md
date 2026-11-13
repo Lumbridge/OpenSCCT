@@ -807,6 +807,44 @@ server's car stops pushing the jumper one tick apart from the client's, and the 
 a world position again; the server takes the client's when they are within 100 uu (rule 13), which holds to about
 80 ms of ping on that car, and corrects by the difference above it (140 uu at 120 ms).
 
+**A GE on a mover** (spec/svmap/1.2/README.md, "Authored moving traversal"). A player hanging from a ledge of the
+monorail car is based on the car, so the rules above apply to the hang as they do to standing: positions are offsets
+from the car and the server asks for no correction while the two agree there. Two things are told in world
+coordinates and need the server's help:
+
+- The GE points a client sends (`ServerGetZipP`, `ServerGetNewZipP`, `ServerGetZipPAndNormal`) are the GE on the
+  client's copy of the mover. `GEPointCheck.ExactPair` replaces them with the same GE's points on the server's copy
+  (`PhysicsDriver.ClientGEPoints`): the attached GE of the same length and direction, on the mover the client's move
+  is told in when there is one (`IMoveCommandPawn.SetCommandFrame`, set before the move's reliable calls), nearest to
+  the server's pawn. A pair that is a static GE is checked point by point as before.
+- The server's pawn enters the hold through a mirrored action and never runs the arms test. It is tied to the mover
+  the client's moves are told in (`PhysicsDriver.BindMovingTraversal`), which gives it the same base as the client's;
+  without that the bases differ and every acknowledgement is a correction.
+
+- The big move of a grab carries the points again (`ServerMoves.SetZipPoints`, through the pawn's ZipP setters). They
+  go the same way when the second point completes the pair, and the reposition target of that move is shifted by as
+  much. The server ties the pawn in the tick it enters the hold (`setPhysics`) and again after each move's reliable
+  calls (`BindHeldGE`): one acknowledgement telling of a hold without its base corrected the client off the ledge.
+
+**A pawn that leaves a mover keeps its speed** (`PawnPhysicsState.AirCarry`, ours). The original gives a jump only the
+base's vertical speed, so a spy who stepped or jumped off the monorail car was left behind at 12.7 uu a tick and
+could not reach the car's ledge from its roof. `setPhysics` now notes the horizontal velocity of the mover a pawn
+stood on or hung from when it starts to fall, and `physFalling` moves the pawn by it before each step of its own,
+until the fall ends or that move is blocked. It is not added to `Velocity`: the air speed cap (417 uu/s) and the grab
+tests read that as the pawn's own. The value is part of a prediction frame, so a replay falls the same way. A mover
+that only turns (the carousel) has no velocity and gives none.
+
+Measured once on MoonD (host and client, scratch runs):
+- Spy put on GE49 with the car held still in open air, then released: no correction in 560 ticks of travel through
+  the car's quarter turn, a shimmy and the climb onto the roof, on loopback and on SimLink A and B (client car 12.7
+  to 25 uu from the server's).
+- Spy on the roof of the travelling car, walking backwards off its side at the slow speed (stick 0.4): he turns,
+  catches GE49 and hangs, on loopback, SimLink B and the 150 ms profile, with one correction as the fall starts and
+  none in the 200 ticks after. At full stick he falls, as the original's rule has it (jump-fall-land.md, MyFalling).
+- Three jumps on the roof of the travelling car land where they left, with one correction each (0.02 uu apart).
+
+Not measured: pipes, ladders, bars and zip lines on a mover, and how other clients see the hanging player.
+
 Still open: a player the server places on the deck
 (`ClientReinitPawnBecauseOfDivergences` sends an offset from the mover's location, not turned by its rotation)
 stands 7 to 10 uu from the server's spot until the first move is corrected.

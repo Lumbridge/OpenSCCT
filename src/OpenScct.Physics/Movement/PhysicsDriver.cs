@@ -275,6 +275,19 @@ public sealed partial class PhysicsDriver : IActorPhysics
             SetZMaxFalling(pawn, pawn.Location.Z);
         }
 
+        // OpenSCCT: a pawn that leaves a mover for a fall keeps the mover's horizontal speed (PawnPhysicsState.AirCarry).
+        // It is kept apart from Velocity, which the air speed cap (417 uu/s) and the grab tests read as the pawn's own.
+        if (pawn is not null)
+        {
+            FVector carry = default;
+            if (NewPhysics == EPhysics.PHYS_Falling && Actor.Base is { bIsAMover: true, bDeleteMe: false } left)
+            {
+                carry = new FVector(left.Velocity.X, left.Velocity.Y, 0f);
+            }
+
+            GetState(pawn).AirCarry = carry;
+        }
+
         // AActor::setPhysics.
         if (old == EPhysics.PHYS_RootMotion && sb?.RootMotionMesh is { } mesh)
         {
@@ -302,13 +315,18 @@ public sealed partial class PhysicsDriver : IActorPhysics
             Actor.SetBase(null);
         }
 
-        // An authored moving GE carries its grab/reposition/climb transitions. Static
-        // traversal and ordinary movement retain the native base rules above.
-        if (pawn is not null && GetState(pawn) is { TraversalBase: { bDeleteMe: false } carrier } state)
+        // OpenSCCT: a pawn holding a GE that is attached to a mover stays based on the mover through the modes of
+        // the hold (the grab, the hang, the climb), and leaves it with the first other mode. A GE that does not move
+        // and ordinary movement keep the native base rules above.
+        if (pawn is not null && GetState(pawn) is { TraversalBase: not null } state)
         {
-            if (NewPhysics is EPhysics.PHYS_Ledge or EPhysics.PHYS_RootMotion or EPhysics.PHYS_Repositionnal)
-                pawn.SetBase(carrier);
+            if (state.TraversalBase is { bDeleteMe: false } carrier && HoldsGE(NewPhysics)) pawn.SetBase(carrier);
             else state.TraversalBase = null;
+        }
+        else if (pawn is not null)
+        {
+            // Entering a hold: tie the pawn to its GE's mover now, so no tick shows the hold without its base.
+            BindMovingTraversal(pawn);
         }
 
         if (NewPhysics is EPhysics.PHYS_None or EPhysics.PHYS_Rotating)

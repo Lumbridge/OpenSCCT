@@ -80,6 +80,22 @@ public sealed partial class PhysicsDriver
             Iterations++;
             float tick = remaining <= K.MaxSubStep ? remaining : SvmMath.Min(K.MaxSubStep, remaining * 0.5f);
             remaining -= tick;
+            // OpenSCCT: the speed of the mover the pawn left, before its own step so the Velocity below stays its own.
+            PawnPhysicsState air = GetState(p);
+            if (!air.AirCarry.IsZero())
+            {
+                MoveActor(p, air.AirCarry * tick, p.Rotation, out FCheckResult carried);
+                if (p.bDeleteMe || p.Physics != EPhysics.PHYS_Falling)
+                {
+                    return;
+                }
+
+                if (carried.bHit)
+                {
+                    air.AirCarry = default;
+                }
+            }
+
             FVector oldLocation = p.Location;
             p.bJustTeleported = false;
             float vz0 = p.Velocity.Z;

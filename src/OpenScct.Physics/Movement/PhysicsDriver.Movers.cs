@@ -320,10 +320,9 @@ public sealed partial class PhysicsDriver
             }
 
             MoveActorCore(rider, move, rotation, out _, bTest: false, bIgnorePawns: false, bIgnoreBases: true, bNoFail: false, baseActor);
-            // Authored moving ledges keep the native traversal's world-space anchors on
-            // their carrier. No changes to movement constants or legacy static GEs.
+            // OpenSCCT: a pawn holding a GE of this mover keeps the hold's world-space points and directions on it.
             if (rider is Pawn pawn && rider is ISBasePawnPhysics sb && ReferenceEquals(GetState(pawn).TraversalBase, baseActor) &&
-                pawn.Physics is EPhysics.PHYS_Ledge or EPhysics.PHYS_RootMotion or EPhysics.PHYS_Repositionnal)
+                HoldsGE(pawn.Physics))
             {
                 FVector Carry(FVector p)
                 {

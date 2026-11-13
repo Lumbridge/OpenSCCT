@@ -136,6 +136,7 @@ public sealed partial class SBasePawnMoves
         private float _pawn_OldZ, _pawn_AvgPhysicsTime;
         private FVector _pawn_OldAcceleration, _pawn_Floor;
         private bool _pawn_bSimulateGravity, _pawn_bBelowKillZ;
+        private FVector _pawn_AirCarry;
 
         public void Capture(SBasePawn pawn, SPlayerController pc)
         {
@@ -243,6 +244,7 @@ public sealed partial class SBasePawnMoves
             _pawn_OldAcceleration = pawn.OldAcceleration; _pawn_Floor = pawn.Floor;
             _pawn_bSimulateGravity = pawn.bSimulateGravity;
             _pawn_bBelowKillZ = MovementNatives.Driver(pawn)?.GetState(pawn).bBelowKillZ ?? false;
+            _pawn_AirCarry = MovementNatives.Driver(pawn)?.GetState(pawn).AirCarry ?? default;
         }
 
         public void Controls(SPlayerController pc)
@@ -354,7 +356,11 @@ public sealed partial class SBasePawnMoves
             pawn.OldAcceleration = _pawn_OldAcceleration; pawn.Floor = _pawn_Floor;
             pawn.bSimulateGravity = _pawn_bSimulateGravity;
             if (pawn.Controller is SPlayerController pc) pc.MoveTimer = _pc_MoveTimer;
-            if (MovementNatives.Driver(pawn) is { } driver) driver.GetState(pawn).bBelowKillZ = _pawn_bBelowKillZ;
+            if (MovementNatives.Driver(pawn) is { } driver)
+            {
+                driver.GetState(pawn).bBelowKillZ = _pawn_bBelowKillZ;
+                driver.GetState(pawn).AirCarry = _pawn_AirCarry;
+            }
         }
 
         public void MovementOrientation(SBasePawn pawn)

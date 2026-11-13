@@ -47,24 +47,25 @@ public static class MovementServerFunctions
         {
             if (Pawn(self) is { } p)
             {
-                p.ZipP1 = p.NewZipP1 = GEPointCheck.Exact(p, Arg(f, a, "vZipP1").V);
-                p.ZipP2 = p.NewZipP2 = GEPointCheck.Exact(p, Arg(f, a, "vZipP2").V);
+                (p.ZipP1, p.ZipP2) = GEPointCheck.ExactPair(p, Arg(f, a, "vZipP1").V, Arg(f, a, "vZipP2").V);
+                p.NewZipP1 = p.ZipP1;
+                p.NewZipP2 = p.ZipP2;
             }
         });
         driver.Functions.Register(Controller, "ServerGetNewZipP", (self, f, a, _) =>
         {
             if (Pawn(self) is { } p)
             {
-                p.NewZipP1 = GEPointCheck.Exact(p, Arg(f, a, "vZipP1").V);
-                p.NewZipP2 = GEPointCheck.Exact(p, Arg(f, a, "vZipP2").V);
+                (p.NewZipP1, p.NewZipP2) = GEPointCheck.ExactPair(p, Arg(f, a, "vZipP1").V, Arg(f, a, "vZipP2").V);
             }
         });
         driver.Functions.Register(Controller, "ServerGetZipPAndNormal", (self, f, a, _) =>
         {
             if (Pawn(self) is { } p)
             {
-                p.ZipP1 = p.NewZipP1 = GEPointCheck.Exact(p, Arg(f, a, "vZipP1").V);
-                p.ZipP2 = p.NewZipP2 = GEPointCheck.Exact(p, Arg(f, a, "vZipP2").V);
+                (p.ZipP1, p.ZipP2) = GEPointCheck.ExactPair(p, Arg(f, a, "vZipP1").V, Arg(f, a, "vZipP2").V);
+                p.NewZipP1 = p.ZipP1;
+                p.NewZipP2 = p.ZipP2;
                 p.m_geoNormal = Arg(f, a, "Normal").V * 0.001f;
             }
         });

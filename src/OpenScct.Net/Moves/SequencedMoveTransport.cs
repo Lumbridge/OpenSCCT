@@ -412,6 +412,8 @@ public sealed class SequencedMoveTransport : IMoveTransport
             if (c.InputTick > tick - _inputTickOffset) break;
             IMoveCommandPawn? commandPawn = transport._pawn as IMoveCommandPawn;
             commandPawn?.BeginMoveCommand();
+            // Before the move's reliable calls: GE points among them are read on the mover this move is told in.
+            commandPawn?.SetCommandFrame(c.Frame is { bDeleteMe: false } ? c.Frame : null);
             try
             {
                 ApplyingCommand = new AppliedCommandContext(epoch, c.Sequence, c.InputTick, c.Move.TimeStamp, (byte)c.Move.iDiversInfos);

@@ -47,8 +47,14 @@ public sealed partial class SBasePawnMoves : IMovePawn, IMovePrediction, IMoveCo
     }
     public void EndMoveCommand()
     {
+        if (P is { } held) MovementNatives.Driver(held)?.BindHeldGE(held);
         if (_commandActions is not null) _commandActions.InputOwner = _previousInputOwner;
         _commandActions = null; _previousInputOwner = null;
+    }
+    public void SetCommandFrame(Actor? frame)
+    {
+        _carrierShift = default;
+        if (P is { } pawn) MovementNatives.Driver(pawn)?.SetClientFrame(pawn, frame);
     }
     private readonly SPlayerController _pc;
 
@@ -199,16 +205,36 @@ public sealed partial class SBasePawnMoves : IMovePawn, IMovePrediction, IMoveCo
     }
 
     // The big move resend's traversal points (the only writer of these setters) arrive rounded: the server takes the
-    // GE point each was rounded from (GEPointCheck).
+    // GE point each was rounded from (GEPointCheck). They are written first point, then second: with the second the
+    // pair is whole, and a pair that is a GE on a mover, as the client's copy of the mover had it, becomes that GE on
+    // the server's copy (GEPointCheck.ExactPair). The reposition target of the same move was worked out from the
+    // client's points and goes the same way.
     public FVector ZipP1 { get => P?.ZipP1 ?? default; set => Set(p => p.ZipP1 = GEPointCheck.Exact(p, value)); }
 
-    public FVector ZipP2 { get => P?.ZipP2 ?? default; set => Set(p => p.ZipP2 = GEPointCheck.Exact(p, value)); }
+    public FVector ZipP2
+    {
+        get => P?.ZipP2 ?? default;
+        set => Set(p =>
+        {
+            FVector told = (p.ZipP1 + value) * 0.5f;
+            (p.ZipP1, p.ZipP2) = GEPointCheck.ExactPair(p, p.ZipP1, value);
+            _carrierShift = (p.ZipP1 + p.ZipP2) * 0.5f - told;
+            if (_carrierShift.SizeSquared() < 1f) _carrierShift = default;
+        });
+    }
 
     public FVector NewZipP1 { get => P?.NewZipP1 ?? default; set => Set(p => p.NewZipP1 = GEPointCheck.Exact(p, value)); }
 
-    public FVector NewZipP2 { get => P?.NewZipP2 ?? default; set => Set(p => p.NewZipP2 = GEPointCheck.Exact(p, value)); }
+    public FVector NewZipP2
+    {
+        get => P?.NewZipP2 ?? default;
+        set => Set(p => (p.NewZipP1, p.NewZipP2) = GEPointCheck.ExactPair(p, p.NewZipP1, value));
+    }
 
-    public FVector vVandammePos { get => P?.vVandammePos ?? default; set => Set(p => p.vVandammePos = value); }
+    public FVector vVandammePos { get => P?.vVandammePos ?? default; set => Set(p => p.vVandammePos = value + _carrierShift); }
+
+    /// <summary>How far the last ZipP pair of the command being applied was moved onto the server's copy of its mover (zero for a GE that does not move).</summary>
+    private FVector _carrierShift;
 
     public FVector vWallJumpDir { get => P?.vWallJumpDir ?? default; set => Set(p => p.vWallJumpDir = value); }
 
