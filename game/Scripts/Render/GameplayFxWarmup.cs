@@ -15,7 +15,12 @@ public partial class GameplayFxWarmup : SubViewport
     private int _frames;
     private bool _subscribed;
     private Action? _completed;
-    private readonly Camera3D _camera = new() { Position = new Vector3(0f, 0f, 3f), Current = true, Far = 1000f };
+    private readonly Camera3D _camera = new()
+    {
+        Position = new Vector3(0f, 0f, 3f), Current = true, Far = 1000f,
+        // The default mask includes our shadow-pass marker and fog-slot bits, which would select the wrong path.
+        CullMask = RenderLayers.MainView | RenderLayers.SkyAll,
+    };
     private Level? _smokeLevel;
     private RenderMap? _smokeMap;
     private Task? _smokeNoise;
@@ -56,6 +61,7 @@ public partial class GameplayFxWarmup : SubViewport
     {
         _view = view;
         _camera.Environment = view?.Camera.Environment;
+        _camera.Attributes = view?.Camera.Attributes;
         view?.Effect.Preload();
         view?.Remanence.Preload();
         view?.DoubleVision.Preload();
