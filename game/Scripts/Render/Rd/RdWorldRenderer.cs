@@ -146,9 +146,15 @@ public partial class RdWorldRenderer : Node
             _ownRect.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
             if (RdWorldGpu.CanvasFinal)
             {
-                _ownFinal = new ShaderMaterial { Shader = new Shader { Code = FinalShader } };
-                _ownFinal.SetShaderParameter("luma", RenderK.GlowGateLuma);
-                _ownFinal.SetShaderParameter("gate", Vector4.Zero);
+                _ownFinal = new ShaderMaterial { Shader = new Shader { Code = FinalShader.Replace(FinalDefines, "") } };
+                _ownDizzy = new ShaderMaterial { Shader = new Shader { Code = FinalShader.Replace(FinalDefines, "#define SVM_DOUBLE_VISION") } };
+                foreach (ShaderMaterial material in new[] { _ownFinal, _ownDizzy })
+                {
+                    material.SetShaderParameter("luma", RenderK.GlowGateLuma);
+                    material.SetShaderParameter("gate", Vector4.Zero);
+                }
+
+                _ownDizzy.SetShaderParameter("dizzy", 0f);
                 _ownRect.Material = _ownFinal;
             }
 
@@ -198,6 +204,7 @@ public partial class RdWorldRenderer : Node
             _ownRect.Material = null;
             // The material lets go of the glow target before the render thread frees it.
             _ownFinal?.SetShaderParameter("glow", default(Variant));
+            _ownDizzy?.SetShaderParameter("glow", default(Variant));
             _ownGlow.TextureRdRid = default;
             _ownShown.TextureRdRid = default;
             GetViewport().Disable3D = false;
@@ -331,27 +338,48 @@ public partial class RdWorldRenderer : Node
     private readonly Texture2Drd _ownShown = new();
     private readonly Texture2Drd _ownGlow = new();
     private ShaderMaterial? _ownFinal;
+    // The same item with the cross-eye double vision (PlayerController.CrossEyedFactor), shown only while the factor
+    // draws: the plain item's shader stays as small as it was.
+    private ShaderMaterial? _ownDizzy;
+    private float _ownDizzyFactor;
     private Rid _ownGlowRid;
     private Vector4 _ownGate = new(-1f, 0f, 0f, 0f);
 
+    private const string FinalDefines = "//DEFINES";
+
     // The end of the frame as the item that shows it (RdFramePost's final pass, svm_display_normal.glsl): the scene
-    // gated by its own brightness, plus the glow.
+    // gated by its own brightness, plus the glow. SVM_DOUBLE_VISION shows the picture twice, half each, the copies
+    // apart by the factor, as svm_remanence.glsl's mode 3 does on Godot's renderer (the same spread, on display values).
     private const string FinalShader = """
         shader_type canvas_item;
         render_mode blend_disabled, unshaded;
+        //DEFINES
         uniform sampler2D glow : filter_linear, repeat_disable, hint_default_black;
         // x gate on, y gain, z offset, w glow on
         uniform vec4 gate;
         uniform vec3 luma;
+        #ifdef SVM_DOUBLE_VISION
+        uniform float dizzy;
+        #endif
 
-        void fragment() {
-            vec3 c = texture(TEXTURE, UV).rgb;
+        vec3 shown(sampler2D scene, vec2 uv) {
+            vec3 c = texture(scene, uv).rgb;
             if (gate.x > 0.5) {
                 c *= clamp(gate.y * (dot(c, luma) - gate.z), 0.0, 1.0);
                 if (gate.w > 0.5) {
-                    c = clamp(c + texture(glow, UV).rgb, vec3(0.0), vec3(1.0));
+                    c = clamp(c + texture(glow, uv).rgb, vec3(0.0), vec3(1.0));
                 }
             }
+            return c;
+        }
+
+        void fragment() {
+        #ifdef SVM_DOUBLE_VISION
+            vec2 spread = vec2(0.025 * dizzy, 0.0);
+            vec3 c = 0.5 * (shown(TEXTURE, clamp(UV + spread, vec2(0.0), vec2(1.0))) + shown(TEXTURE, clamp(UV - spread, vec2(0.0), vec2(1.0))));
+        #else
+            vec3 c = shown(TEXTURE, UV);
+        #endif
             COLOR = vec4(c, 1.0);
         }
         """;
@@ -670,6 +698,7 @@ public partial class RdWorldRenderer : Node
                 _ownGlowRid = glowRid;
                 _ownGlow.TextureRdRid = glowRid;
                 _ownFinal.SetShaderParameter("glow", _ownGlow);
+                _ownDizzy?.SetShaderParameter("glow", _ownGlow);
             }
 
             // A vision mode's own pass has ended the frame: the item shows its target as it is.
@@ -678,6 +707,20 @@ public partial class RdWorldRenderer : Node
             {
                 _ownGate = gate;
                 _ownFinal.SetShaderParameter("gate", gate);
+                _ownDizzy?.SetShaderParameter("gate", gate);
+            }
+
+            // The double vision item while the factor draws; while the play scene loads it takes every other frame
+            // with nothing to show, so its pipeline is made behind the cover and not at the first spin or knock.
+            float dizzy = Math.Clamp(_view.DoubleVision.Factor, 0f, 1f);
+            bool shown = dizzy > Post.RemanenceEffect.DrawThreshold;
+            if (_ownDizzy is not null && _ownRect is not null)
+            {
+                if (shown && dizzy != _ownDizzyFactor) _ownDizzy.SetShaderParameter("dizzy", dizzy);
+                else if (!shown && _ownDizzyFactor != 0f) _ownDizzy.SetShaderParameter("dizzy", 0f);
+                _ownDizzyFactor = shown ? dizzy : 0f;
+                ShaderMaterial item = shown || (Loading && (Engine.GetFramesDrawn() & 1) == 1) ? _ownDizzy : _ownFinal;
+                if (!ReferenceEquals(_ownRect.Material, item)) _ownRect.Material = item;
             }
         }
 
