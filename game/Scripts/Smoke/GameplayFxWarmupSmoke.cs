@@ -25,6 +25,9 @@ public sealed class GameplayFxWarmupSmoke : SmokeTest
     private int _explosionSounds;
     private int _teardown;
     private SmokeResult? _result;
+    private GameplayFxWarmup? _sceneWarmup;
+    private bool _sceneComplete;
+    private int _sceneVision, _controllerVision, _sceneLayouts;
 
     public override SmokeResult Step(SmokeContext context)
     {
@@ -49,6 +52,24 @@ public sealed class GameplayFxWarmupSmoke : SmokeTest
         if (Render.Characters.SkeletalModel.FilesRead != _modelFilesAtLoad)
             return Finish(SmokeResult.Fail($"first pawn appearance read {Render.Characters.SkeletalModel.FilesRead - _modelFilesAtLoad} model files after scene loading"));
         if (_root.GetNodeOrNull("GameplayFxWarmup") is not null) return Finish(SmokeResult.Fail("loading viewport leaked into gameplay"));
+        if (!_sceneComplete)
+        {
+            if (_sceneWarmup is null)
+            {
+                _sceneVision = _root.View!.RendMap;
+                _controllerVision = _root.Session.LocalController!.RendMap;
+                _sceneWarmup = GameplayFxWarmup.For(_root.GetViewport());
+                context.Tree.Root.AddChild(_sceneWarmup);
+                _sceneWarmup.PreloadView(_root.View);
+                _sceneLayouts = _sceneWarmup.PreloadScene(_root, force: true);
+                if (_sceneLayouts == 0) return Finish(SmokeResult.Fail("browser scene warmup had no real map/weapon layouts"));
+                _sceneWarmup.Begin(() => _sceneComplete = true);
+            }
+            return SmokeResult.Running;
+        }
+        if ((_repeat is null || _complete) &&
+            (_root.View!.RendMap != _sceneVision || _root.Session.LocalController!.RendMap != _controllerVision))
+            return Finish(SmokeResult.Fail("scene warmup changed the player's vision state"));
         if (_root.Fx?.Effects is not { } effects || _root.MercLasers is not { } lasers)
             return Finish(SmokeResult.Fail("missing effects views"));
         if (_repeat is null)
@@ -64,12 +85,15 @@ public sealed class GameplayFxWarmupSmoke : SmokeTest
             _root.Fx.Preload(_repeat.Samples);
             lasers.Preload(_repeat.Samples);
             _root.SpyLasers?.Preload(_repeat.Samples);
+            _root.FirstPerson?.Warmup(_repeat.Samples);
             _root.SpyFirstPerson?.Warmup(_repeat.Samples);
             if (_root.Map is { } characterMap)
                 Render.Characters.PawnOutfits.Warmup(characterMap.Outfits, characterMap.Folder, characterMap.SharedRoot, _repeat.Samples);
             int effectSamples = _repeat.Samples.GetChildCount();
             if (_root.Map is { } map) DeviceViews.PreloadSecuritySkins(map, _repeat.Samples);
             _securitySamples = _repeat.Samples.GetChildCount() - effectSamples;
+            _repeat.PreloadView(_root.View);
+            _repeat.PreloadScene(_root, force: true);
             if (effects.Started.Count != started || _root.Fx.DisabledCameraCount != cameras || lasers.BeamsDrawn != beams)
                 return Finish(SmokeResult.Fail("warmup changed live effect counters"));
             _repeat.Begin(() => _complete = true);
@@ -78,7 +102,7 @@ public sealed class GameplayFxWarmupSmoke : SmokeTest
         if (!_complete) return SmokeResult.Running;
         double late = Performance.GetMonitor(Performance.Monitor.PipelineCompilationsDraw) - _drawCompiles;
         if (late != 0) return Finish(SmokeResult.Fail($"first-use sample draw compiled {late} new pipelines after loading"));
-        return Finish(SmokeResult.Pass($"effects warmed during loading; no gameplay effects spawned; cleanup complete; security skin samples={_securitySamples}; explosion sound leaves cached={_explosionSounds}; repeat draw pipeline compilations={late}"));
+        return Finish(SmokeResult.Pass($"effects and {_sceneLayouts} real scene/weapon layouts warmed across vision modes; no gameplay effects spawned; vision restored; cleanup complete; security skin samples={_securitySamples}; explosion sound leaves cached={_explosionSounds}; repeat draw pipeline compilations={late}"));
     }
 
     private string? CheckExplosionSounds()
@@ -112,6 +136,7 @@ public sealed class GameplayFxWarmupSmoke : SmokeTest
     private SmokeResult Finish(SmokeResult result)
     {
         if (GodotObject.IsInstanceValid(_repeat)) _repeat!.QueueFree();
+        if (GodotObject.IsInstanceValid(_sceneWarmup)) _sceneWarmup!.QueueFree();
         _root?.QueueFree();
         _result = result;
         return SmokeResult.Running;

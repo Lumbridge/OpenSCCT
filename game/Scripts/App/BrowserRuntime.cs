@@ -16,6 +16,7 @@ public partial class BrowserRuntime : Node
     private bool _grabOverlayReady;
     private double _simMs, _viewMs;
     private int _sampleFrames;
+    private double _frameMaxMs;
 
     public override void _Ready()
     {
@@ -84,6 +85,7 @@ public partial class BrowserRuntime : Node
         _simMs += _play?.Stats.LastSimMs ?? 0;
         _viewMs += _play?.Stats.LastViewMs ?? 0;
         _sampleFrames++;
+        _frameMaxMs = Math.Max(_frameMaxMs, delta * 1000);
         if (_flushAt >= 2)
         {
             _flushAt = 0;
@@ -109,6 +111,7 @@ public partial class BrowserRuntime : Node
             accountConflict = GetTree().Root.GetNodeOrNull<Online.AccountService>(Online.AccountService.NodeName)?.AppearanceConflict == true,
             error = _play?.LoadError,
             ticks = _play?.Session?.TicksRun ?? 0,
+            map = _play?.Session?.Settings.Map,
             scoreboardSequence = _play?.Session?.Client.Scoreboard?.Sequence,
             scoreboardRows = _play?.Session?.Client.Scoreboard?.Rows.Count,
             pawn = pawn is not null,
@@ -134,6 +137,7 @@ public partial class BrowserRuntime : Node
             playerName = Options.SettingsStore.Current.PlayerName,
             invertY = Options.SettingsStore.Current.InvertY,
             fps = Engine.GetFramesPerSecond(),
+            frameMaxMs = _frameMaxMs,
             simMs = _simMs / _sampleFrames,
             viewMs = _viewMs / _sampleFrames,
             processMs = Performance.GetMonitor(Performance.Monitor.TimeProcess) * 1000,
@@ -156,6 +160,7 @@ public partial class BrowserRuntime : Node
         BrowserPlatform.ReportState?.Invoke(state);
         _simMs = _viewMs = 0;
         _sampleFrames = 0;
+        _frameMaxMs = 0;
     }
 
 }

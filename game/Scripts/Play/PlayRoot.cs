@@ -250,7 +250,7 @@ public partial class PlayRoot : Node3D
             Load();
             if (Config.Render && Fx is not null && MercLasers is not null)
             {
-                _status.Text = "Preparing effects...";
+                _status.Text = OperatingSystem.IsBrowser() ? "Preparing map, weapons and vision..." : "Preparing effects...";
                 // The warm frames draw the map's cell meshes in every material variant, wrong light included
                 // (LightReach.Warm): black under the status until loading finishes.
                 ShowLoadingCover(true);
@@ -273,6 +273,7 @@ public partial class PlayRoot : Node3D
                 LoadTimer.Mark("ready.merc-lasers");
                 SpyLasers?.Preload(warmup.Samples);
                 LoadTimer.Mark("ready.spy-lasers");
+                FirstPerson?.Warmup(warmup.Samples);
                 SpyFirstPerson?.Warmup(warmup.Samples);
                 LoadTimer.Mark("ready.spy-first-person");
                 if (Map is { } map)
@@ -283,6 +284,7 @@ public partial class PlayRoot : Node3D
                     DeviceViews.PreloadSecuritySkins(map, warmup.Samples);
                     LoadTimer.Mark("ready.security-skins");
                 }
+                warmup.PreloadScene(this);
                 warmup.Begin(FinishLoading);
                 LoadTimer.Mark("ready.warmup-begin");
             }
@@ -364,7 +366,12 @@ public partial class PlayRoot : Node3D
             warmup.PreloadResponsiveSmoke(session.Client.World.Level,Map,GetViewport());
             // The match's shaders were built without smoke and switch now: draw the first-use samples of _Ready again
             // under the cover, so the first effect, laser or outfit does not compile in play.
-            if (switching && DisplayServer.GetName() != "headless") PreloadGameplaySamples(warmup.Samples);
+            if (switching && DisplayServer.GetName() != "headless")
+            {
+                PreloadGameplaySamples(warmup.Samples);
+                warmup.PreloadView(View);
+                warmup.PreloadScene(this);
+            }
             warmup.Begin(() => SetSmokeLoading(false));
         }
         return true;
@@ -376,6 +383,7 @@ public partial class PlayRoot : Node3D
         Fx?.Preload(samples);
         MercLasers?.Preload(samples);
         SpyLasers?.Preload(samples);
+        FirstPerson?.Warmup(samples);
         SpyFirstPerson?.Warmup(samples);
         if (Map is { } map)
         {
