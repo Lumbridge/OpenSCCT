@@ -11,7 +11,8 @@ layout(rgba16f, set = 0, binding = 0) uniform image2D color_image;
 layout(rgba16f, set = 0, binding = 1) uniform image2D capture_image;
 
 layout(push_constant, std430) uniform Params {
-	vec4 p; // x mode (1 capture, 2 blend), y factor, zw size
+	vec4 p; // x mode (1 capture, 2 blend, 3 double vision), y factor, zw size
+	vec4 q; // xy the double vision's two U offsets (RemanenceEffect.DoubleVisionSpread)
 } u;
 
 vec3 encode(vec3 c) {
@@ -46,12 +47,14 @@ void main() {
 	}
 
 	if (u.p.x > 2.5) {
-		// Cross-eyed double vision (PlayerController.CrossEyedFactor): the picture seen twice, half each, the two
-		// copies apart by the factor and closing as it fades. Read from a separate, fresh capture: neighbouring reads
-		// of the image being written would race between workgroups. The spread is estimated (the original's draw of
-		// the factor is not decoded).
-		float spread = u.p.z * 0.025 * clamp(u.p.y, 0.0, 1.0);
-		vec3 shown = 0.5 * (ghost(vec2(xy) + vec2(spread, 0.0)) + ghost(vec2(xy) - vec2(spread, 0.0)));
+		// Cross-eyed double vision (PlayerController.CrossEyedFactor), as the original's final draw of the frame does it
+		// (game 0x10966010 with the pixel shader at 0x10c4ebd4: tex t0, tex t1, add_d2 r0, t0, t1): the picture twice,
+		// half each. One copy shows U 0 to 1 - q.x across the screen, the other U q.y to 1, so each is stretched from
+		// its own side. Read from a separate, fresh capture: neighbouring reads of the image being written would race
+		// between workgroups.
+		float x = (float(xy.x) + 0.5) / u.p.z;
+		vec3 shown = 0.5 * (ghost(vec2(x * (1.0 - u.q.x) * u.p.z - 0.5, float(xy.y)))
+			+ ghost(vec2((u.q.y + x * (1.0 - u.q.y)) * u.p.z - 0.5, float(xy.y))));
 		imageStore(color_image, xy, vec4(decode(shown), frame.a));
 		return;
 	}

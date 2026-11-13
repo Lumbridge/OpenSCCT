@@ -30,6 +30,7 @@ public partial class RemanenceEffect : CompositorEffect
     private volatile int _captureRequests;
     private int _capturesDone;
     private volatile float _factor;
+    private volatile float _spreadA, _spreadB;
     private bool _released;
     private UniformSlots? _slots;
     private byte[]? _push;
@@ -50,6 +51,29 @@ public partial class RemanenceEffect : CompositorEffect
     {
         get => _factor;
         set => _factor = value;
+    }
+
+    /// <summary>The double vision's two U offsets this frame (<see cref="DoubleVisionSpread"/>).</summary>
+    public Vector2 Spread
+    {
+        get => new(_spreadA, _spreadB);
+        set => (_spreadA, _spreadB) = (value.X, value.Y);
+    }
+
+    /// <summary>
+    /// The U offsets of the two copies of the picture the original draws for PlayerController.CrossEyedFactor
+    /// <paramref name="factor"/> at viewport time <paramref name="seconds"/>: the first copy shows U 0 to 1 - X across
+    /// the screen, the second U Y to 1, and the two are averaged. Each offset swings between 25/640 and 75/640 of the
+    /// picture's width at factor 1.
+    /// </summary>
+    [Provenance(ProvenanceKind.Decoded, "game 0x10966010: (20 cos(1.8849557 t) + 5 cos(4.826743 t) + 50) x CrossEyedFactor x 0.0015625 and (20 cos(2.8274334 t) + 5 cos(4.826743 (t + 0.13)) + 50) x CrossEyedFactor x 0.0015625, t the viewport's time (double at +0x130); quad U 0..1-a on stage 0 and b..1 on stage 1; pixel shader 0x10c4ebd4 tex t0, tex t1, add_d2 r0, t0, t1")]
+    [Provenance(ProvenanceKind.Estimated, "The viewport's time is taken as wall-clock seconds")]
+    public static Vector2 DoubleVisionSpread(float factor, double seconds)
+    {
+        float f = Math.Clamp(factor, 0f, 1f);
+        double a = (20.0 * Math.Cos(1.8849557195089517 * seconds) + 5.0 * Math.Cos(4.826742963254986 * seconds) + 50.0) * f * 0.0015625;
+        double b = (20.0 * Math.Cos(2.8274335792634275 * seconds) + 5.0 * Math.Cos(4.826742963254986 * (seconds + 0.12999999523162842)) + 50.0) * f * 0.0015625;
+        return new Vector2((float)a, (float)b);
     }
 
     /// <summary>Frames captured so far (render thread writes).</summary>
@@ -192,7 +216,7 @@ public partial class RemanenceEffect : CompositorEffect
         slots.Set(0, color);
         slots.Set(1, _capture);
         Rid set = UniformSetCacheRD.GetCache(_shader, 0, slots.Array);
-        Span<float> push = [mode, factor, size.X, size.Y];
+        Span<float> push = [mode, factor, size.X, size.Y, _spreadA, _spreadB, 0f, 0f];
         Span<byte> raw = MemoryMarshal.AsBytes(push);
         _push ??= new byte[raw.Length];
         raw.CopyTo(_push);

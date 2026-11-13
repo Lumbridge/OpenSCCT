@@ -986,6 +986,7 @@ public partial class PlayRoot : Node3D
                 : [];
 
             View.DoubleVision.Factor = Hud?.Effects.Sfx.CrossEyedFactor ?? 0f;
+            View.DoubleVision.Spread = OpenScctGame.Render.Post.RemanenceEffect.DoubleVisionSpread(View.DoubleVision.Factor, Time.GetTicksMsec() / 1000.0);
 
             // The flash-bang after-image: a capture on each bCaptureRemanence, drawn by RemanenceBlendFactor.
             if (Hud is { } flashHud)

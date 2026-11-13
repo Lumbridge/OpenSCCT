@@ -176,3 +176,17 @@ Everything here runs on the player's own machine from replicated or client-run c
 1. Resolved (REA 2026-10-26): the number under "Sleeping" is the lying-on-ground seconds left, truncated (rule 8).
 2. The SETMASK dissolve of the perturbed areas cuts per pixel in the original; the page player cuts convex quads.
 3. Whether Reloaded's ProcessSFX differs in any type (compare one capture of each).
+
+### Cross-eyed double vision (the draw of `CrossEyedFactor`)
+
+Decoded from the final draw of the frame (game 0x10966010) and its pixel shader (bytecode at 0x10c4ebd4: `tex t0`,
+`tex t1`, `add_d2 r0, t0, t1`). While `CrossEyedFactor` is not 0 the frame is drawn as one screen quad with the
+frame bound on two stages and the two samples averaged. Stage 0 shows U 0 to `1 - a` across the screen and stage 1
+shows U `b` to 1, V unchanged, linear filtering, with t the viewport's time in seconds:
+
+- `a = (20 cos(1.8849557 t) + 5 cos(4.826743 t) + 50) x CrossEyedFactor x 0.0015625`
+- `b = (20 cos(2.8274334 t) + 5 cos(4.826743 (t + 0.13)) + 50) x CrossEyedFactor x 0.0015625`
+
+So each copy is stretched from its own side by 25/640 to 75/640 of the width at factor 1, the two amounts swinging
+at different rates. Port: `RemanenceEffect.DoubleVisionSpread`, drawn by `svm_remanence.glsl` (mode 3) on Godot's
+renderer and by the final item of the Fast renderer. The viewport's time is taken as wall-clock seconds (estimated).
