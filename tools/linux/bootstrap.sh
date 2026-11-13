@@ -7,7 +7,9 @@ mkdir -p local/toolchain
 cd local/toolchain
 fetch() {
     if [[ ! -f "$2" ]]; then
-        curl --fail --location --retry 3 "$1" -o "$2.partial"
+        # A download that stalls or is cut off part way is tried again as well (plain --retry only covers
+        # timeouts and some HTTP statuses, not a connection closed mid-transfer).
+        curl --fail --location --retry 5 --retry-all-errors --retry-delay 5 --connect-timeout 20             --speed-limit 1024 --speed-time 30 "$1" -o "$2.partial"
         mv -- "$2.partial" "$2"
     fi
 }
@@ -32,7 +34,9 @@ with zipfile.ZipFile(sys.argv[1]) as z:
         if name.startswith('linux_'): p.chmod(0o755)
 PY
 if [[ ! -x "$repo_root/local/toolchain/dotnet/dotnet" ]]; then
-    fetch https://dot.net/v1/dotnet-install.sh dotnet-install.sh
+    # Where https://dot.net/v1/dotnet-install.sh redirects to: that redirect host timed out in four of five CI runs
+    # on 2026-11-13 while this one answered.
+    fetch https://builds.dotnet.microsoft.com/dotnet/scripts/v1/dotnet-install.sh dotnet-install.sh
     bash dotnet-install.sh --version 10.0.302 --install-dir "$repo_root/local/toolchain/dotnet"
 fi
 printf '\nBuild with:\n  export PATH="%s/local/toolchain/dotnet:$PATH"\n  GODOT="%s/local/toolchain/Godot_v4.7.2-stable_mono_linux_x86_64/Godot_v4.7.2-stable_mono_linux.x86_64" tools/linux/build.sh\n' "$repo_root" "$repo_root"
