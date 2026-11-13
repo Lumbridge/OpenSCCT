@@ -34,6 +34,8 @@ public partial class GameplayFxWarmup : SubViewport
     private static readonly string[] WarmupFrames = ["warmup.frame1", "warmup.frame2", "warmup.frame3"];
     // LightReach needs six drawn frames; far more means its map is not drawing (LightReach.Warming).
     private const int MapWarmFrameCap = 120;
+    internal static bool BrowserPreparation => OperatingSystem.IsBrowser() ||
+        System.Environment.GetEnvironmentVariable("SVM_BROWSER_SCENE_WARMUP") == "1";
     public Node3D Samples { get; } = new() { Name = "Samples" };
 
     public GameplayFxWarmup()
@@ -78,8 +80,7 @@ public partial class GameplayFxWarmup : SubViewport
 
     internal int PreloadScene(Node scene, bool force = false)
     {
-        if (!OperatingSystem.IsBrowser() && !force &&
-            System.Environment.GetEnvironmentVariable("SVM_BROWSER_SCENE_WARMUP") != "1") return 0;
+        if (!BrowserPreparation && !force) return 0;
         _browserScene = new BrowserSceneWarmup(scene, Samples, _view);
         GD.Print($"OPENSCCT_BROWSER_WARMUP layouts={_browserScene.SourceCount}");
         return _browserScene.SourceCount;

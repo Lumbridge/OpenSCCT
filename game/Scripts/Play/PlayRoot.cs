@@ -135,6 +135,9 @@ public partial class PlayRoot : Node3D
     private ColorRect? _loadingCover;
     private bool _smokePreparing, _smokeRestoreControls;
     private bool _smokeRestoreLoaded;
+    private bool _browserPreparingPlayer, _browserRestoreControls;
+    private ulong _browserPlayerWaitAt;
+    private int _browserPlayerFrames;
     private int _lastRendMap = -1;
     private bool _lastBinoculars;
     private int _lastRemanenceCaptures;
@@ -305,9 +308,31 @@ public partial class PlayRoot : Node3D
     private void FinishLoading()
     {
         SetSmokeLoading(false);
+        Session?.Client.MarkReadyToPlay();
+        if (GameplayFxWarmup.BrowserPreparation && Config.Render)
+        {
+            // The client world and first pawn bind only after the ready message. Keep their initial
+            // simulation catch-up and first real scene draws under the same cover as the shader warmup.
+            _browserPreparingPlayer = true;
+            _browserPlayerWaitAt = Time.GetTicksMsec();
+            if (Controls is { } controls)
+            {
+                _browserRestoreControls = controls.Enabled;
+                controls.Enabled = false;
+            }
+            if (_status is not null) _status.Text = "Preparing player...";
+            ShowLoadingCover(true);
+            return;
+        }
+        CompleteLoading();
+    }
+
+    private void CompleteLoading()
+    {
+        if (_browserPreparingPlayer && Controls is { } controls) controls.Enabled = _browserRestoreControls;
+        _browserPreparingPlayer = false;
         IsLoaded = true;
         ShowLoadingCover(false);
-        Session?.Client.MarkReadyToPlay();
         if (_status is not null) _status.Text = "";
         LoadTimer.Mark("ready.finish");
     }
@@ -870,7 +895,7 @@ public partial class PlayRoot : Node3D
 
     public override void _Process(double delta)
     {
-        if (!IsLoaded && !_smokePreparing) return;
+        if (!IsLoaded && !_smokePreparing && !_browserPreparingPlayer) return;
         if (Session is not { } session || session.IsStopped)
         {
             return;
@@ -950,6 +975,10 @@ public partial class PlayRoot : Node3D
         DrawViews(session, alpha, viewDt);
         double viewMs = _watch.Elapsed.TotalMilliseconds;
         Stats.Add(simMs, viewMs, delta * 1000.0);
+        if (_browserPreparingPlayer && session.Client.Map?.Loaded is not null &&
+            (session.LocalController is not null || Time.GetTicksMsec() - _browserPlayerWaitAt >= 2000) &&
+            ++_browserPlayerFrames >= 3)
+            CompleteLoading();
         if (!_loadTimed && session.LocalPawn is not null && (Controls?.Enabled == true || Config.Pilot is not null))
         {
             // The first frame the player (or the test pilot) drives his pawn ends the load.
