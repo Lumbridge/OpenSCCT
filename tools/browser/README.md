@@ -110,12 +110,19 @@ Known limits:
   white world. Mobile is the working default. `?forward-plus` is diagnostic only.
 - WebSocket uses TCP: packet loss can stall later frames, unlike native UDP.
   Microphone voice chat is currently disabled in browser visits.
+- Scoreboards keep the native Brotli wire format, decoded with a managed
+  browser-only BrotliSharpLib stream. The normal transfer/output limits remain.
 - WebGPU instance uniforms did not reach actor shaders reliably in the pinned
   engine. Browser actor-local material uniforms carry lighting, heat, EMF, tint
   and foreground depth. Desktop keeps its normal instance path.
+- Browser world materials use their general lighting/vision shader, avoiding the
+  desktop's extra shortcut variants and bundled shader prewarm lists.
 - The content subset contains TestRange, SteeE, Entry, Lobby, shared gameplay/UI/audio and default
   character assets. Cosmetic variants and other maps are excluded. The native
-  EAX extension is not included; TestRange has no map reverb table.
+  EAX extension is not included. Browser audio uses built-in room reverb and
+  source shelf filters, retaining separate direct/room sends, distance gains,
+  authored zone strength and tail lifetime. Its room response approximates EAX.
+  TestRange has no map reverb table.
 - The preview is hosted at `https://master.lumbridge.co.uk/play/` (master 1.1.27).
   Desktop tutorial changes are tested and committed on this prototype branch, not released.
   Official-server play needs its exact map version. The preview uses published

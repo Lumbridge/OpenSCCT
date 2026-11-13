@@ -30,13 +30,16 @@ public sealed class ReverbBuses : IDisposable
     private readonly List<string> _owned = [];
     private readonly List<AudioEffect> _effects = [];
     private readonly AudioEffect? _effect;
+    private readonly AudioEffectAmplify? _browserGain;
+    private readonly bool _browser;
     private EaxEnvironment? _applied;
     private EaxEnvironment? _selected;
     private bool _decided;
     private bool _disposed;
 
-    public ReverbBuses(MapAudioDoc? map)
+    public ReverbBuses(MapAudioDoc? map, bool browserBackend = false)
     {
+        _browser = browserBackend || OperatingSystem.IsBrowser();
         Ensure(WorldBus);
         Ensure(FlatBus);
         Ensure(MusicBus);
@@ -45,17 +48,23 @@ public sealed class ReverbBuses : IDisposable
         Ensure(MenuSoundBus);
         NativeAvailable = ClassDB.ClassExists(EffectClass) && ClassDB.ClassExists(FilterClass);
         if (map is null) return;
-        if (!NativeAvailable)
+        if (!NativeAvailable && !_browser)
             throw new InvalidOperationException("SCCT EAX audio extension is missing. Run tools/audio/Build-NativeAudio.ps1 before loading map audio.");
         foreach (MapSoundZone zone in map.Zones.Values)
             if (zone.Effect.Count > 0) _environments[zone.Id] = EaxEnvironment.FromParameters(zone.Effect);
         EnvironmentBus = NewBus("SvmReverb" + _id.ToString(CultureInfo.InvariantCulture), "Master");
         AudioServer.SetBusVolumeDb(AudioServer.GetBusIndex(EnvironmentBus),
             AudioServer.GetBusVolumeDb(AudioServer.GetBusIndex(WorldBus)));
-        _effect = Create(EffectClass);
+        _effect = _browser ? new AudioEffectReverb { Dry = 0, Wet = 1 } : Create(EffectClass);
         _effects.Add(_effect);
         AudioServer.AddBusEffect(AudioServer.GetBusIndex(EnvironmentBus), _effect);
-        if (!_effect.Call("configure_eax", EaxEnvironment.DriverDefault.ToEaxArray()).AsBool())
+        if (_browser)
+        {
+            _browserGain = new AudioEffectAmplify();
+            _effects.Add(_browserGain);
+            AudioServer.AddBusEffect(AudioServer.GetBusIndex(EnvironmentBus), _browserGain);
+        }
+        if (!Configure(EaxEnvironment.DriverDefault))
             throw new InvalidOperationException("Could not initialize EAX driver defaults.");
         _applied = EaxEnvironment.DriverDefault;
     }
@@ -65,7 +74,7 @@ public sealed class ReverbBuses : IDisposable
     public EaxEnvironment? CurrentEnvironment => _applied;
     public int ReverbBusCount => _effect is null ? 0 : 1;
     public int ZoneCount => _environments.Count;
-    public string BackendVersion => _effect is null ? "dry" : _effect.Call("backend_version").AsString();
+    public string BackendVersion => _effect is null ? "dry" : _browser ? "Browser Godot reverb (EAX approximation)" : _effect.Call("backend_version").AsString();
     public string BusForZone(string? zoneId) => EnvironmentBus ?? WorldBus;
 
     public void SetEnvironment(string? zoneId)
@@ -84,23 +93,42 @@ public sealed class ReverbBuses : IDisposable
         // The original records the selected object before calling EAX, ignores a failed SetAll, and leaves
         // the previous environment/tail in place. Fourteen original blocks are rejected by the vendor.
         if (!environment.IsOriginalValid) return;
-        if (!_effect.Call("configure_eax", environment.ToEaxArray()).AsBool())
+        if (!Configure(environment))
             return; // Preserve the previous room for any additional rejection by the original property validator.
         _applied = environment;
     }
 
     public EaxSourceRoute? CreateSourceRoute(int voice)
     {
-        if (!NativeAvailable || EnvironmentBus is null) return null;
+        if ((!NativeAvailable && !_browser) || EnvironmentBus is null) return null;
         string suffix = _id.ToString(CultureInfo.InvariantCulture) + "_" + voice.ToString(CultureInfo.InvariantCulture);
         string dry = NewBus("SvmEaxDry" + suffix, WorldBus);
         string wet = NewBus("SvmEaxSend" + suffix, EnvironmentBus);
-        AudioEffect direct = Create(FilterClass), room = Create(FilterClass);
+        AudioEffect direct = _browser ? new AudioEffectHighShelfFilter { Resonance = 0.5f } : Create(FilterClass);
+        AudioEffect room = _browser ? new AudioEffectHighShelfFilter { Resonance = 0.5f } : Create(FilterClass);
         _effects.Add(direct);
         _effects.Add(room);
         AudioServer.AddBusEffect(AudioServer.GetBusIndex(dry), direct);
         AudioServer.AddBusEffect(AudioServer.GetBusIndex(wet), room);
         return new EaxSourceRoute(dry, wet, direct, room);
+    }
+
+    private bool Configure(EaxEnvironment environment)
+    {
+        if (_effect is not AudioEffectReverb reverb)
+            return _effect?.Call("configure_eax", environment.ToEaxArray()).AsBool() == true;
+        // Browser builds cannot load the native Creative-compatible DSP extension. Preserve the routing,
+        // authored room strength, distance sends, HF filtering and tail lifetime with built-in effects.
+        // Freeverb's decay/early-reflection model is an approximation of the EAX environment.
+        float[] values = environment.ToArray();
+        float feedback = MathF.Exp(-6.907755f * 0.03f / Math.Max(0.1f, environment.DecayTime));
+        reverb.RoomSize = Math.Clamp((feedback - 0.7f) / 0.28f, 0, 1);
+        reverb.Damping = Math.Clamp(1 - values[6] * MathF.Sqrt(values[3]), 0, 1);
+        reverb.Spread = Math.Clamp(values[1], 0, 1);
+        reverb.PredelayMsec = Math.Clamp(values[9] * 1000, 20, 500);
+        reverb.PredelayFeedback = Math.Clamp(values[19], 0, 0.8f);
+        if (_browserGain is not null) _browserGain.VolumeDb = Mathf.LinearToDb(Math.Max(0.0001f, values[2] * values[13]));
+        return true;
     }
 
     private static AudioEffect Create(string name) => ClassDB.Instantiate(name).AsGodotObject() as AudioEffect ??
@@ -153,16 +181,26 @@ public sealed class EaxSourceRoute(string dryBus, string roomBus, AudioEffect di
     {
         if (_direct != dry || _reference != reference)
         {
-            if (!direct.Call("configure", new float[] { dry.Gain, dry.GainHF, reference }).AsBool())
+            if (!Configure(direct, DryBus, dry, reference))
                 throw new InvalidOperationException("Invalid EAX direct-source filter.");
             _direct = dry;
         }
         if (_room != wet || _reference != reference)
         {
-            if (!room.Call("configure", new float[] { wet.Gain, wet.GainHF, reference }).AsBool())
+            if (!Configure(room, RoomBus, wet, reference))
                 throw new InvalidOperationException("Invalid EAX room-source filter.");
             _room = wet;
         }
         _reference = reference;
+    }
+
+    private static bool Configure(AudioEffect effect, string bus, EaxSourceLevels levels, float reference)
+    {
+        if (effect is not AudioEffectHighShelfFilter filter)
+            return effect.Call("configure", new float[] { levels.Gain, levels.GainHF, reference }).AsBool();
+        filter.CutoffHz = Math.Clamp(reference, 1, 20500);
+        filter.Gain = Math.Clamp(levels.GainHF, 0.0001f, 4);
+        AudioServer.SetBusVolumeDb(AudioServer.GetBusIndex(bus), levels.Gain <= 0 ? -80 : Mathf.LinearToDb(levels.Gain));
+        return true;
     }
 }
