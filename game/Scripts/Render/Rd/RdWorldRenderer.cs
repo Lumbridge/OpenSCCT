@@ -154,7 +154,7 @@ public partial class RdWorldRenderer : Node
                     material.SetShaderParameter("gate", Vector4.Zero);
                 }
 
-                _ownDizzy.SetShaderParameter("dizzy", 0f);
+                _ownDizzy.SetShaderParameter("dizzy", Vector2.Zero);
                 _ownRect.Material = _ownFinal;
             }
 
@@ -348,8 +348,8 @@ public partial class RdWorldRenderer : Node
     private const string FinalDefines = "//DEFINES";
 
     // The end of the frame as the item that shows it (RdFramePost's final pass, svm_display_normal.glsl): the scene
-    // gated by its own brightness, plus the glow. SVM_DOUBLE_VISION shows the picture twice, half each, the copies
-    // apart by the factor, as svm_remanence.glsl's mode 3 does on Godot's renderer (the same spread, on display values).
+    // gated by its own brightness, plus the glow. SVM_DOUBLE_VISION shows the picture twice, half each, each copy
+    // stretched from its own side, as the original does and as svm_remanence.glsl's mode 3 does on Godot's renderer.
     private const string FinalShader = """
         shader_type canvas_item;
         render_mode blend_disabled, unshaded;
@@ -359,7 +359,8 @@ public partial class RdWorldRenderer : Node
         uniform vec4 gate;
         uniform vec3 luma;
         #ifdef SVM_DOUBLE_VISION
-        uniform float dizzy;
+        // The two copies' U offsets (RemanenceEffect.DoubleVisionSpread).
+        uniform vec2 dizzy;
         #endif
 
         vec3 shown(sampler2D scene, vec2 uv) {
@@ -375,8 +376,7 @@ public partial class RdWorldRenderer : Node
 
         void fragment() {
         #ifdef SVM_DOUBLE_VISION
-            vec2 spread = vec2(0.025 * dizzy, 0.0);
-            vec3 c = 0.5 * (shown(TEXTURE, clamp(UV + spread, vec2(0.0), vec2(1.0))) + shown(TEXTURE, clamp(UV - spread, vec2(0.0), vec2(1.0))));
+            vec3 c = 0.5 * (shown(TEXTURE, vec2(UV.x * (1.0 - dizzy.x), UV.y)) + shown(TEXTURE, vec2(dizzy.y + UV.x * (1.0 - dizzy.y), UV.y)));
         #else
             vec3 c = shown(TEXTURE, UV);
         #endif
@@ -716,8 +716,8 @@ public partial class RdWorldRenderer : Node
             bool shown = dizzy > Post.RemanenceEffect.DrawThreshold;
             if (_ownDizzy is not null && _ownRect is not null)
             {
-                if (shown && dizzy != _ownDizzyFactor) _ownDizzy.SetShaderParameter("dizzy", dizzy);
-                else if (!shown && _ownDizzyFactor != 0f) _ownDizzy.SetShaderParameter("dizzy", 0f);
+                if (shown) _ownDizzy.SetShaderParameter("dizzy", _view.DoubleVision.Spread);
+                else if (_ownDizzyFactor != 0f) _ownDizzy.SetShaderParameter("dizzy", Vector2.Zero);
                 _ownDizzyFactor = shown ? dizzy : 0f;
                 ShaderMaterial item = shown || (Loading && (Engine.GetFramesDrawn() & 1) == 1) ? _ownDizzy : _ownFinal;
                 if (!ReferenceEquals(_ownRect.Material, item)) _ownRect.Material = item;
