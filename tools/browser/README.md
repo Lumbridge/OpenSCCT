@@ -104,6 +104,19 @@ appearance revisions, compressed WASM serving, wiki embeds, non-attacking bot
 movement, real grab initiation and shorter recovery after a vision switch while
 continuing to move. These checks do not establish full desktop parity.
 
+The native dashboard, Account, Stats, Achievements, Armoury and match history pages
+are shared with desktop. In a browser their account calls use the existing HttpOnly
+player session plus CSRF and expected-account headers; no desktop bearer token is
+issued or stored in JavaScript. Settings use compare-and-save revisions, while
+appearance uses the desktop appearance revision API. Browser sign-out ends the
+website session and reloads into the guest's separate local settings.
+
+An actual Chrome visit signed in through Discord, entered the official EU server
+as the verified Ryan account, and loaded a SteeE round in 26.15 seconds. The user
+confirmed 60 FPS with Chrome in the foreground and continuous captured mouse look
+with Escape to release it. Occluded Chrome windows were heavily throttled during
+automation, so their low frame rates are not representative of foreground play.
+
 Known limits:
 
 - Forward+ has an upstream WebGPU texture-binding validation failure and draws a

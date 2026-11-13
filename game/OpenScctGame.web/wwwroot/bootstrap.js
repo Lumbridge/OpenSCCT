@@ -77,7 +77,9 @@ async function refreshServers() {
         document.getElementById('online-invite').hidden = !needsInvite;
         document.getElementById('invite-label').hidden = !needsInvite;
         document.getElementById('online-join').disabled = !result.servers.length;
-        status.textContent = result.servers.length ? 'Sign in to use your verified account in matches.' : 'No browser-enabled game servers are currently listed.';
+        status.textContent = result.servers.length ?
+            (document.getElementById('account-link').getAttribute('href') === '/account' ? 'Your verified account will be used in matches.' : 'Sign in to use your verified account in matches.') :
+            'No browser-enabled game servers are currently listed.';
     } catch (error) { status.textContent = error.message; }
 }
 globalThis.openscctOpenMultiplayer = () => {

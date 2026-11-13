@@ -1,4 +1,5 @@
 using System.Net.Http.Json;
+using System.Globalization;
 using System.Runtime.InteropServices.JavaScript;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -18,6 +19,7 @@ internal static partial class BrowserAccount
     private static readonly HttpClient Http = new();
     private static Uri? s_url;
     private static Snapshot? s_account;
+    private static CookieAccountHandler? s_handler;
     private static bool s_dirty, s_saving, s_stopped;
     private static DateTimeOffset s_retryAt;
     private static int s_retrySeconds = 5;
@@ -33,7 +35,7 @@ internal static partial class BrowserAccount
 
     internal static async Task Fetch(string contentUrl)
     {
-        s_url = new Uri(new Uri(contentUrl), "profile");
+        s_url = new Uri(new Uri(contentUrl), "profile?settingsOnly=true");
         try
         {
             using var response = await Http.GetAsync(s_url);
@@ -44,13 +46,24 @@ internal static partial class BrowserAccount
             Console.Error.WriteLine("Account settings unavailable: " + error.Message);
         }
         BrowserStorage.Scope = s_account?.SignedIn == true ? "account." + s_account.AccountId : "guest";
+        BrowserPlatform.MakeAccountClient = MakeClient;
+        BrowserPlatform.AccountSignedOut = SignedOut;
         Status(s_account?.SignedIn == true ? s_account.Name ?? "Your account" : "", "");
     }
 
     internal static void Apply()
     {
+        if (s_url is not null)
+        {
+            OnlineSettings.Current.MasterUrl = s_url.GetLeftPart(UriPartial.Authority);
+            OnlineSettings.Current.InviteKey = OnlineSettings.Current.MasterUrl == OnlineSettings.DefaultMasterUrl ? OnlineSettings.DefaultInviteKey : "";
+        }
         if (s_account?.SignedIn != true) return;
+        BrowserPlatform.AccountId = s_account.AccountId;
         BrowserPlatform.AccountName = s_account.Name;
+        AccountSettings.Current.Token = "";
+        AccountSettings.Current.AccountId = s_account.AccountId;
+        AccountSettings.Current.Name = s_account.Name ?? "";
         bool readable = s_account.Profile is null || CanRead(s_account.Profile.Data);
         if (!readable)
         {
@@ -70,7 +83,7 @@ internal static partial class BrowserAccount
         }
         if (pending is not null)
         {
-            if (!ProfileSync.Apply(pending.Data)) s_stopped = true;
+            if (!ProfileSync.Apply(pending.Data, separateAppearance: true)) s_stopped = true;
             s_dirty = true;
             if (pending.ExpectedUpdated != s_account.Profile?.Updated)
             {
@@ -78,7 +91,7 @@ internal static partial class BrowserAccount
                 Status(s_account.Name ?? "Your account", "Your browser has unsynced changes, and your account changed elsewhere. Your browser settings are kept.", true);
             }
         }
-        else if (readable && s_account.Profile is { } profile && !ProfileSync.Apply(profile.Data))
+        else if (readable && s_account.Profile is { } profile && !ProfileSync.Apply(profile.Data, separateAppearance: true))
         {
             s_stopped = true;
             Status(s_account.Name ?? "Your account", "This profile needs a newer game build. Browser settings will stay local.");
@@ -90,7 +103,14 @@ internal static partial class BrowserAccount
 
     private static bool SameProfile(string first, string second)
     {
-        try { return JsonNode.DeepEquals(JsonNode.Parse(first), JsonNode.Parse(second)); }
+        static JsonNode? Settings(string data)
+        {
+            JsonNode? profile = JsonNode.Parse(data);
+            if (profile?["settings"] is JsonObject settings)
+                foreach (string key in new[] { "cosmetics_spy", "cosmetics_merc", "title" }) settings.Remove(key);
+            return profile;
+        }
+        try { return JsonNode.DeepEquals(Settings(first), Settings(second)); }
         catch (JsonException) { return false; }
     }
 
@@ -107,6 +127,7 @@ internal static partial class BrowserAccount
 
     private static void MarkDirty()
     {
+        if (s_account?.Profile is { } profile && SameProfile(ProfileSync.Build(true), profile.Data)) return;
         s_dirty = true;
         BrowserStorage.Flush();
         KeepPending();
@@ -115,7 +136,7 @@ internal static partial class BrowserAccount
     private static void KeepPending()
     {
         if (s_account?.SignedIn == true)
-            StorePending(JsonSerializer.Serialize(new Pending(s_account.Profile?.Updated, ProfileSync.Build()), Json));
+            StorePending(JsonSerializer.Serialize(new Pending(s_account.Profile?.Updated, ProfileSync.Build(true)), Json));
     }
 
     internal static void UseAccountSettings()
@@ -138,7 +159,40 @@ internal static partial class BrowserAccount
         if (!s_dirty || s_saving || s_stopped || s_account?.SignedIn != true || s_url is null || DateTimeOffset.UtcNow < s_retryAt) return;
         s_dirty = false;
         s_saving = true;
-        _ = SaveAsync(ProfileSync.Build());
+        _ = SaveAsync(ProfileSync.Build(true));
+    }
+
+    private static MasterClient? MakeClient()
+    {
+        if (s_url is null) return null;
+        string authority = s_url.GetLeftPart(UriPartial.Authority);
+        return new MasterClient(authority, authority == OnlineSettings.DefaultMasterUrl ? OnlineSettings.DefaultInviteKey : null,
+            s_handler ??= new CookieAccountHandler(authority));
+    }
+
+    // HttpClient on WebAssembly uses same-origin fetch credentials. Tokens stay in the HttpOnly cookie;
+    // custom headers bind every native account request to the session that booted this game.
+    private sealed class CookieAccountHandler(string authority) : DelegatingHandler(new HttpClientHandler())
+    {
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        {
+            if (request.RequestUri?.GetLeftPart(UriPartial.Authority) != authority)
+                throw new HttpRequestException("Account requests must stay on this game's master.");
+            if (s_account?.SignedIn == true)
+            {
+                request.Headers.Add("X-CSRF-Token", s_account.Csrf);
+                request.Headers.Add("X-OpenSCCT-Account", s_account.AccountId.ToString(CultureInfo.InvariantCulture));
+            }
+            return base.SendAsync(request, cancellationToken);
+        }
+    }
+
+    private static void SignedOut()
+    {
+        s_stopped = true;
+        s_account = null;
+        BrowserPlatform.AccountName = null;
+        if (OperatingSystem.IsBrowser()) BrowserExports.ReloadAfterSignOut();
     }
 
     internal static async Task Join(string serverId, string password, string inviteKey)

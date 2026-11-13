@@ -30,8 +30,14 @@ var builder = WebApplication.CreateSlimBuilder();
 builder.WebHost.UseUrls(options.HttpUrl);
 builder.Logging.ClearProviders();
 await using var app = builder.Build();
-new PlayerPortal(options, store, registry, _ => IPAddress.Loopback,
-    new ReleaseChangelog(), browserGameRoot: bundle, browserTickets: signer).Map(app);
+var players = new PlayerPortal(options, store, registry, _ => IPAddress.Loopback,
+    new ReleaseChangelog(), browserGameRoot: bundle, browserTickets: signer);
+players.Map(app);
+new AccountApi(options, store, signer, registry, _ => IPAddress.Loopback, TimeProvider.System)
+{
+    BrowserAuthenticate = players.AuthenticateGameApi,
+    BrowserSignOut = players.SignOutGameApi,
+}.Map(app);
 app.MapPost(MasterApi.HeartbeatPath, async (HttpContext context) =>
 {
     var request = (await context.Request.ReadFromJsonAsync<HeartbeatRequest>(MasterApi.Json, context.RequestAborted))!;

@@ -15,6 +15,9 @@ internal static partial class BrowserExports
     [JSImport("globalThis.openscctOpenAccount")]
     internal static partial void OpenAccount();
 
+    [JSImport("globalThis.openscctSignedOut")]
+    internal static partial void ReloadAfterSignOut();
+
     [JSImport("globalThis.openscctOpenMultiplayer")]
     internal static partial void OpenMultiplayer();
 

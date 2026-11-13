@@ -29,6 +29,27 @@ public sealed class BrowserGameProfileTests
     }
 
     [Fact]
+    public void SeparateAppearanceDoesNotInvalidateSettingsRevisionOrReplaceAppearance()
+    {
+        var clock = new Clock();
+        using var store = AccountStore.Open(":memory:", clock);
+        long account = store.GetOrCreate("browser-separated-settings").Id;
+        var profile = new ProfileData { Data = "{\"version\":1,\"settings\":{\"invert_y\":true}}", Updated = clock.Now };
+        Assert.True(store.TryPutBrowserProfile(account, profile, null, out var saved, separateAppearance: true));
+        var before = store.Appearance(account);
+        clock.Now = clock.Now.AddMinutes(1);
+        var changed = store.UpdateAppearance(account, new AppearanceUpdateRequest { ExpectedRevision = before.Revision, Spy = [], Merc = [] });
+        Assert.True(changed.Success);
+        Assert.Equal(saved!.Updated, store.BrowserProfile(account, separateAppearance: true)!.Updated);
+        Assert.True(store.Profile(account)!.Updated > saved.Updated);
+        Assert.True(store.TryPutBrowserProfile(account, profile with { Data = "{\"version\":1,\"settings\":{\"invert_y\":false}}" },
+            saved.Updated, out var next, separateAppearance: true));
+        Assert.True(next!.Updated > saved.Updated);
+        Assert.Equal(changed.Appearance.Revision, store.Appearance(account).Revision);
+        Assert.False(store.TryPutBrowserProfile(account, profile, saved.Updated, out _, separateAppearance: true));
+    }
+
+    [Fact]
     public void AppearanceRevisionReturnedToBrowserIsAcceptedForTheNextSettingsSave()
     {
         var clock = new Clock();

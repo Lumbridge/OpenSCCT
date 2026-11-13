@@ -65,6 +65,8 @@ public sealed class MasterHost : IAsyncDisposable
             _accounts.AdminCallback = _portal.CallbackAsync;
             _players = new Player.PlayerPortal(options, store, registry, ClientIp, releases, browserTickets: signer);
             _accounts.PlayerCallback = _players.CallbackAsync;
+            _accounts.BrowserAuthenticate = _players.AuthenticateGameApi;
+            _accounts.BrowserSignOut = _players.SignOutGameApi;
         }
         _limiter = new RateLimiter(options.RequestsPerMinute);
         _webLimiter = new RateLimiter(options.RequestsPerMinute);

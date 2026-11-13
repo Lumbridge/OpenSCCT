@@ -14,6 +14,7 @@ globalThis.openscctOpenAccount = () => {
     const link = document.getElementById('account-link');
     if (link) window.top.location.href = link.href;
 };
+globalThis.openscctSignedOut = () => location.reload();
 globalThis.openscctRuntimeReady = async () => {
     const exports = await globalThis.getDotnetRuntime(0).getAssemblyExports('OpenScctGame.web.dll');
     globalThis.openscctExports = exports.OpenScctGame.Web.BrowserExports;

@@ -57,6 +57,10 @@ internal sealed partial class AccountApi
     /// <summary>The player website's Discord sign-in, separated from game links and admin sessions.</summary>
     public Func<HttpContext, Task<IResult>>? PlayerCallback { get; set; }
 
+    /// <summary>The browser game's cookie session, validated by the player portal (including CSRF).</summary>
+    public Func<HttpContext, AccountRow?>? BrowserAuthenticate { get; set; }
+    public Func<HttpContext, IResult>? BrowserSignOut { get; set; }
+
     public string TicketKey => _signer.PublicKey;
 
     public void Map(WebApplication app)
@@ -284,8 +288,9 @@ internal sealed partial class AccountApi
         return token.Length is > 0 and <= 128 ? token : string.Empty;
     }
 
-    private AccountRow? Authenticate(HttpContext context) =>
-        BearerToken(context) is { Length: > 0 } token ? _store.Authenticate(token) : null;
+    private AccountRow? Authenticate(HttpContext context) => BearerToken(context) is { } token
+        ? token.Length > 0 ? _store.Authenticate(token) : null
+        : BrowserAuthenticate?.Invoke(context);
 
     private IResult WithAccount(HttpContext context, Func<AccountRow, IResult> body) =>
         Authenticate(context) is { } account ? body(account) : Error(StatusCodes.Status401Unauthorized, SignInAgain);
@@ -297,6 +302,7 @@ internal sealed partial class AccountApi
 
     private IResult SignOut(HttpContext context)
     {
+        if (BearerToken(context) is null && BrowserSignOut is { } browser) return browser(context);
         if (BearerToken(context) is not { Length: > 0 } token || !_store.DeleteSession(token))
         {
             return Error(StatusCodes.Status401Unauthorized, SignInAgain);

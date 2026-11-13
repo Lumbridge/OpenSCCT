@@ -6,7 +6,8 @@ namespace OpenScctGame.Web;
 
 internal static partial class BrowserStorage
 {
-    private static readonly string[] Files = ["settings.json", "settings.cfg", "ui.cfg", "svm_keys_spy.ini", "svm_keys_merc.ini"];
+    // Browser account.cfg contains identity and appearance revision bookkeeping, never a bearer token.
+    private static readonly string[] Files = ["settings.json", "settings.cfg", "ui.cfg", "account.cfg", "svm_keys_spy.ini", "svm_keys_merc.ini"];
     private static string? s_last;
     internal static string Scope { get; set; } = "guest";
 

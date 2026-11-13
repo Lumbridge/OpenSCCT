@@ -46,11 +46,6 @@ public partial class MainMenu : MenuPage
 
     public override void _Ready()
     {
-        if (OperatingSystem.IsBrowser())
-        {
-            BuildBrowserMenu();
-            return;
-        }
         BuildFrame(SplashTrivia.Pick(), 1000f, responsive: true);
         UseSplashTitle();
         Body.AddThemeConstantOverride("separation", 8);
@@ -80,7 +75,7 @@ public partial class MainMenu : MenuPage
         _status.Visible = false;
         OptionsButton = PageButton("Options", () => FrontEnd.ShowOptions(GetTree()), "Options");
         HelpButton = HelpUtility(() => HelpFeedbackScreen.Open(this, HelpButton, actions: HelpActions));
-        QuitButton = PageButton("Quit", AskQuit, "Quit");
+        if (!OperatingSystem.IsBrowser()) QuitButton = PageButton("Quit", AskQuit, "Quit");
         PageCanvas.AddChild(new BuildCornerLabel
         {
             Name = "BuildInfo", ForceCompact = true, Modulate = UiStyle.Dim,
@@ -92,11 +87,14 @@ public partial class MainMenu : MenuPage
         _watch = _data.Watch();
         ShowInformation();
         if (OnlineService.Get(GetTree()).LastError is { } error) ShowStatus(error);
-        _rejoin = RejoinService.Get(GetTree());
-        _rejoin.Changed += ShowRejoin;
+        if (!OperatingSystem.IsBrowser())
+        {
+            _rejoin = RejoinService.Get(GetTree());
+            _rejoin.Changed += ShowRejoin;
+            _rejoin.Check();
+        }
         ShowRejoin();
-        _rejoin.Check();
-        if (_rejoin.Offer is null)
+        if (_rejoin?.Offer is null)
         {
             Button? restore = InitialFocus is { } focus ? FindChild(focus, true, false) as Button : null;
             (restore is { Disabled: false } && restore.IsVisibleInTree() ? restore : FindButton)?.GrabFocus();
@@ -129,12 +127,24 @@ public partial class MainMenu : MenuPage
         RejoinButton = AddButton(_rejoinPanel, "Rejoin", () => _rejoin?.Rejoin(), "Rejoin");
         AddButton(_rejoinPanel, "Not now", () => _rejoin?.Decline(), "RejoinDecline");
         var play = Card(parent, "Online", "Play");
-        FindButton = AddButton(play, "Find a Session", () => FrontEnd.ShowServerBrowser(GetTree()), "FindGame");
+        FindButton = AddButton(play, "Find a Session", () =>
+        {
+            if (OperatingSystem.IsBrowser()) BrowserPlatform.OpenMultiplayer?.Invoke();
+            else FrontEnd.ShowServerBrowser(GetTree());
+        }, "FindGame");
         FindButton.CustomMinimumSize = new Vector2(0f, 44f);
         FindButton.Modulate = UiStyle.MenuFocus;
-        HostButton = AddButton(play, "Create a Session", () => FrontEnd.ShowHost(GetTree()), "Host");
-        HostButton.CustomMinimumSize = new Vector2(0f, 44f);
-        AddButton(play, OpenScctGame.Hub.HubScreen.MenuButton(this)).CustomMinimumSize = new Vector2(0f, 44f);
+        if (OperatingSystem.IsBrowser())
+        {
+            AddButton(play, "Practice as a spy", () => BrowserPlatform.StartRound?.Invoke("spy"), "BrowserSpy");
+            AddButton(play, "Practice as a mercenary", () => BrowserPlatform.StartRound?.Invoke("merc"), "BrowserMerc");
+        }
+        else
+        {
+            HostButton = AddButton(play, "Create a Session", () => FrontEnd.ShowHost(GetTree()), "Host");
+            HostButton.CustomMinimumSize = new Vector2(0f, 44f);
+            AddButton(play, OpenScctGame.Hub.HubScreen.MenuButton(this)).CustomMinimumSize = new Vector2(0f, 44f);
+        }
         _playersOnline = TextLine(play, "PlayersOnline", "Players Online: —", dim: true, small: true);
         _playersOnline.HorizontalAlignment = HorizontalAlignment.Center;
         var collection = Card(parent, "PlayerLinks", "Your collection");

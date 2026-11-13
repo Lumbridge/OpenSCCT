@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Globalization;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
@@ -72,11 +73,35 @@ internal sealed partial class PlayerPortal
             WebHtml.Secure(context);
             return Current(context) is { } viewer
                 ? Results.Json(new { signedIn = true, accountId = viewer.Account.Id, name = viewer.Account.Name, csrf = viewer.Session.Csrf,
-                    profile = _store.Profile(viewer.Account.Id) }, MasterApi.Json)
+                    profile = _store.BrowserProfile(viewer.Account.Id, SettingsOnly(context)) }, MasterApi.Json)
                 : Results.Json(new { signedIn = false }, MasterApi.Json);
         });
         app.MapPost("/play/profile", (Func<HttpContext, Task<IResult>>)SaveBrowserProfile);
     }
+
+    // Cookie authentication never gives JavaScript a desktop bearer token. Even reads require the CSRF secret
+    // and the expected account, so an old tab cannot act as an account signed in later in another tab.
+    internal AccountRow? AuthenticateGameApi(HttpContext context)
+    {
+        WebHtml.Secure(context);
+        if (context.Request.Path == MasterApi.ProfilePath && !HttpMethods.IsGet(context.Request.Method)) return null;
+        if (context.Request.Headers.Origin is { Count: > 0 } origin && origin != _options.PublicBaseUrl) return null;
+        if (Current(context) is not { } viewer ||
+            context.Request.Headers["X-OpenSCCT-Account"] != viewer.Account.Id.ToString(CultureInfo.InvariantCulture)) return null;
+        string sent = context.Request.Headers["X-CSRF-Token"].ToString();
+        return sent.Length == viewer.Session.Csrf.Length && CryptographicOperations.FixedTimeEquals(
+            Encoding.UTF8.GetBytes(sent), Encoding.UTF8.GetBytes(viewer.Session.Csrf)) ? viewer.Account : null;
+    }
+
+    internal IResult SignOutGameApi(HttpContext context)
+    {
+        if (AuthenticateGameApi(context) is null) return Results.Unauthorized();
+        if (context.Request.Cookies[SessionCookie] is { } token) _store.EndPlayerWebSession(token);
+        context.Response.Cookies.Delete(SessionCookie, Cookie(context, "/", SameSiteMode.Strict, null));
+        return Results.Ok();
+    }
+
+    private static bool SettingsOnly(HttpContext context) => context.Request.Query["settingsOnly"] == "true";
 
     private static void BrowserHeaders(HttpContext context)
     {
@@ -106,7 +131,7 @@ internal sealed partial class PlayerPortal
         if (update?.Profile?.Data is not { } data || Encoding.UTF8.GetByteCount(data) > MasterApi.MaxProfileBytes)
             return Results.BadRequest();
         if (update.AccountId != viewer.Account.Id) return Results.Conflict(new { error = "The signed-in account changed. Reload before syncing." });
-        return _store.TryPutBrowserProfile(viewer.Account.Id, update.Profile, update.ExpectedUpdated, out ProfileData? saved)
+        return _store.TryPutBrowserProfile(viewer.Account.Id, update.Profile, update.ExpectedUpdated, out ProfileData? saved, SettingsOnly(context))
             ? Results.Json(saved, MasterApi.Json)
             : Results.Conflict(new { error = "Your account settings changed elsewhere. Reload before syncing again." });
     }
