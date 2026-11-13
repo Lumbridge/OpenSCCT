@@ -134,7 +134,7 @@ jobs:
         run: |
           [xml]$props = Get-Content Directory.Build.props
           $version = @($props.Project.PropertyGroup.VersionPrefix | Where-Object { $_ })[0]
-          ./tools/release/New-Release.ps1 -Version $version -Platform linux-x64 -BuildDir local/linux -LauncherExe local/dist/OpenSCCT.Launcher-linux-x64 -OutDir local/release/linux-x64 -StoreTag game-files-3
+          ./tools/release/New-Release.ps1 -Version $version -Platform linux-x64 -BuildDir local/linux -LauncherExe local/dist/OpenSCCT.Launcher-linux-x64 -OutDir local/release/linux-x64 -StoreTag game-files-4
       - uses: actions/upload-artifact@v7
         with:
           name: openscct-linux-release
