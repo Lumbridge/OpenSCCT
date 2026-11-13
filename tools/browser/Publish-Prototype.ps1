@@ -1,6 +1,8 @@
 [CmdletBinding()]
-param([switch]$AheadOfTime, [switch]$FastLink)
+param([switch]$AheadOfTime, [switch]$Interpreter, [switch]$FastLink = $true)
 $ErrorActionPreference = 'Stop'
+if ($AheadOfTime -and $Interpreter) { throw 'Choose AOT or the interpreter, not both.' }
+$AheadOfTime = !$Interpreter
 $repo = (Resolve-Path (Join-Path $PSScriptRoot '../..')).Path
 $buildId = [DateTime]::UtcNow.ToString('yyyyMMdd-HHmmss-fff')
 if ($AheadOfTime) { $buildId += '-aot' }

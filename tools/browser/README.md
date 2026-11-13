@@ -29,12 +29,13 @@ successful bundle. Restart the lab to serve it. A running session keeps its own
 bundle; the build never deletes a folder being served. For a guest-only static
 host, use `serve.py --directory <bundle>` (port 8877).
 
-`Publish-Prototype.ps1 -AheadOfTime` compiles managed game code to WebAssembly
+`Publish-Prototype.ps1` compiles managed game code to WebAssembly by default
 instead of relying on the IL interpreter. It retains reflection-discovered game
-classes through explicit trimmer roots. This is an opt-in performance experiment
-until live map checks pass. `-FastLink` uses the smaller final whole-module
-`-O1` pass for development; the individual AOT assemblies still use LLVM `-O2`.
-Normal publishing retains the optimized link. The lab accepts an optional
+classes through explicit trimmer roots, with IL retained for runtime fallback.
+`-Interpreter` builds the slower comparison runtime. The default `-FastLink` uses
+the smaller final whole-module `-O1` pass; the individual AOT assemblies still use
+LLVM `-O2`. `-FastLink:$false` enables the much more expensive full `-O2` link for
+experiments. `-AheadOfTime` remains accepted by earlier commands. The lab accepts an optional
 `SVM_BROWSER_LAB_LISTEN` loopback HTTP address and `SVM_BROWSER_LAB_ORIGIN` for the
 browser-facing origin. Both synthetic accounts start with normal vertical look.
 
@@ -161,7 +162,9 @@ normal, night, thermal, motion and EMF modes, including hidden devices and both
 first-person weapon rigs. Map-owned animated props are prepared before the client
 binds them. `SVM_BROWSER_SCENE_WARMUP=1` enables the browser scene pass for native
 renderer diagnostics. The repeat-warmup test passes on TestRange and SteeE with
-zero new draw pipelines; the separate first-use probe still finds seven additional
+zero new draw pipelines, including a real first rifle shot. Wet, shocked and cloaked
+character materials and all shot/decal/tracer primitive layouts draw during loading.
+The separate native first-use probe still finds seven additional
 Forward+ thermal pipelines on SteeE. Chrome Mobile needs its own live check.
 Browser probes include the frame maximum, vision mode and pipeline counters.
 On loopback, `?profile` records every probe (five per second) for first-use checks;
