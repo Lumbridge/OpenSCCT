@@ -81,17 +81,17 @@ if (localDiagnostics) for (const level of ['log', 'warn', 'error']) {
             body: JSON.stringify({level, message, time: performance.now()})}).catch(() => {});
     };
 }
-function reportBootFailure() {
-    if (!window.__openscctProbe?.loaded)
+function reportRuntimeFailure(error) {
+    if (error instanceof WebAssembly.RuntimeError)
         globalThis.openscctGameFailed?.('The game could not start. Reload the page to try again.');
 }
 addEventListener('error', event => {
     console.error('PAGE_ERROR', event.message);
-    if (event.message) reportBootFailure();
+    reportRuntimeFailure(event.error);
 });
 addEventListener('unhandledrejection', event => {
     console.error('PAGE_REJECTION', event.reason);
-    reportBootFailure();
+    reportRuntimeFailure(event.reason);
 });
 if (localDiagnostics) console.log('OPENSCCT_BROWSER_ENV', navigator.userAgent, 'secure=' + isSecureContext,
     'webgpu=' + Boolean(navigator.gpu));
