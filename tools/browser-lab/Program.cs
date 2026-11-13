@@ -15,13 +15,16 @@ using var store = AccountStore.Open(":memory:");
 long account = store.GetOrCreate("local-browser-fixture").Id;
 store.ClaimName(account, "BrowserFixture", false, out _);
 store.PutProfile(account, new ProfileData { Updated = DateTimeOffset.UtcNow,
-    Data = "{\"version\":1,\"settings\":{\"player_name\":\"Browser Fixture\",\"invert_y\":true}}" });
+    Data = "{\"version\":1,\"settings\":{\"player_name\":\"Browser Fixture\",\"invert_y\":false}}" });
 long other = store.GetOrCreate("local-browser-other").Id;
 store.ClaimName(other, "BrowserOther", false, out _);
 store.PutProfile(other, new ProfileData { Updated = DateTimeOffset.UtcNow,
     Data = "{\"version\":1,\"settings\":{\"player_name\":\"Other Fixture\",\"invert_y\":false}}" });
-var options = new MasterOptions { PublicHost = "127.0.0.1", HttpUrl = "http://127.0.0.1:8878",
-    PublicUrl = Environment.GetEnvironmentVariable("SVM_BROWSER_LAB_ORIGIN") ?? "http://127.0.0.1:8878" };
+string listen = Environment.GetEnvironmentVariable("SVM_BROWSER_LAB_LISTEN") ?? "http://127.0.0.1:8878";
+if (!Uri.TryCreate(listen, UriKind.Absolute, out var listenUri) || listenUri.Scheme != "http" || !listenUri.IsLoopback)
+    throw new ArgumentException("The disposable browser lab must listen on loopback HTTP.");
+var options = new MasterOptions { PublicHost = "127.0.0.1", HttpUrl = listen,
+    PublicUrl = Environment.GetEnvironmentVariable("SVM_BROWSER_LAB_ORIGIN") ?? listen };
 var registry = new ServerRegistry(options);
 string labRoot = Path.GetFullPath(Path.Combine(bundle, "../../../local/browser-lab-content"));
 Directory.CreateDirectory(labRoot);
@@ -83,7 +86,7 @@ app.MapPost("/__log", async (HttpContext context) =>
     lock (logGate) File.AppendAllText(Path.Combine(evidence, "console.ndjson"), record.RootElement.GetRawText() + "\n");
     return Results.NoContent();
 });
-Console.WriteLine("Browser lab: http://127.0.0.1:8878/fixture (synthetic local account only)");
+Console.WriteLine($"Browser lab: {options.PublicUrl}/fixture (synthetic local account only)");
 await using var match = new BrowserLabMatch(labRoot, options.HttpUrl, app.Lifetime.ApplicationStopping);
 app.MapGet("/fixture/match", () => Results.Json(new { native = match.Native.State.ToString(), nativeError = match.Native.Error,
     nativeSession = match.Native.Session is { } s ? new { state = s.State.ToString(), s.ReportedWaiting, tick = s.LocalTick,

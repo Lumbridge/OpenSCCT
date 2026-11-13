@@ -98,7 +98,12 @@ public partial class GameplayFxWarmup : SubViewport
         _smokeLevel = level;
         _smokeMap = map;
         // Pure immutable lattice generation is safe off-thread, including a late online rules arrival.
-        _smokeNoise = Task.Run(ResponsiveSmokeNoise.Warmup);
+        if (OperatingSystem.IsBrowser())
+        {
+            ResponsiveSmokeNoise.Warmup();
+            _smokeNoise = Task.CompletedTask;
+        }
+        else _smokeNoise = Task.Run(ResponsiveSmokeNoise.Warmup);
         Vector2I pixels = (Vector2I)target.GetVisibleRect().Size;
         Size = new(Math.Max(1,pixels.X),Math.Max(1,pixels.Y));
     }

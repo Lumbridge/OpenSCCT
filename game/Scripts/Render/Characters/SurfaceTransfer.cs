@@ -150,8 +150,7 @@ internal sealed class SurfaceTransfer
 
         BuildGrid();
 
-        // The searches only read the source, so they run in parallel, each worker with its own visited marks.
-        Parallel.For(0, texels.Count, () => new Probe(_source.TriangleCount), (i, _, probe) =>
+        void Transfer(int i, Probe probe)
         {
             (int texel, Vector3 position, Vector3 normal) = texels[i];
             if (Nearest(position, normal, probe) is { } hit)
@@ -159,9 +158,19 @@ internal sealed class SurfaceTransfer
                 map.Material[texel] = _source.TriangleMaterials[hit.Triangle];
                 map.Uv[texel] = hit.Uv;
             }
-
-            return probe;
-        }, _ => { });
+        }
+        // A single-threaded browser performs the same searches without waiting for worker work.
+        if (OperatingSystem.IsBrowser())
+        {
+            var probe = new Probe(_source.TriangleCount);
+            for (int i = 0; i < texels.Count; i++) Transfer(i, probe);
+        }
+        else
+            Parallel.For(0, texels.Count, () => new Probe(_source.TriangleCount), (i, _, probe) =>
+            {
+                Transfer(i, probe);
+                return probe;
+            }, _ => { });
         map.Spread(Bleed);
         return map;
     }

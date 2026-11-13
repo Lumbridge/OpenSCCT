@@ -7,6 +7,17 @@ internal static class Program
 {
     private static async Task<int> Main(string[] args)
     {
+        try { return await Run(args); }
+        catch (Exception error)
+        {
+            Console.Error.WriteLine("OPENSCCT_BROWSER_BOOT_FAILED " + error);
+            if (OperatingSystem.IsBrowser()) OpenScctGame.Web.BrowserExports.BootFailed(error.Message);
+            return 1;
+        }
+    }
+
+    private static async Task<int> Run(string[] args)
+    {
         Console.WriteLine("OpenScctGame (web) starting...");
         string prefix = "--svm-browser-content-url=";
         string contentUrl = args.Single(a => a.StartsWith(prefix, StringComparison.Ordinal))[prefix.Length..];
@@ -15,9 +26,11 @@ internal static class Program
         string? lessonArg = args.FirstOrDefault(a => a.StartsWith(lessonPrefix, StringComparison.Ordinal));
         if (lessonArg is not null) OpenScctGame.BrowserPlatform.Lesson = lessonArg[lessonPrefix.Length..];
         args = args.Where(a => !a.StartsWith(lessonPrefix, StringComparison.Ordinal)).ToArray();
+        Console.WriteLine("OPENSCCT_BROWSER_CONTENT_DOWNLOADING");
         using (var http = new HttpClient())
         using (var content = new MemoryStream(await http.GetByteArrayAsync(contentUrl)))
         {
+            Console.WriteLine("OPENSCCT_BROWSER_CONTENT_EXTRACTING " + content.Length);
             ZipFile.ExtractToDirectory(content, "/content", overwriteFiles: true);
         }
         Console.WriteLine("OPENSCCT_BROWSER_CONTENT_READY");

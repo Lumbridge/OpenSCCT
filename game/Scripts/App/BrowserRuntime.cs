@@ -14,6 +14,8 @@ public partial class BrowserRuntime : Node
     private PlayRoot? _play;
     private BrowserLesson? _lesson;
     private bool _grabOverlayReady;
+    private double _simMs, _viewMs;
+    private int _sampleFrames;
 
     public override void _Ready()
     {
@@ -79,6 +81,9 @@ public partial class BrowserRuntime : Node
         if (_play?.Menu?.IsOpen == true) BrowserPlatform.InputActivated = false;
         _flushAt += delta;
         _reportAt += delta;
+        _simMs += _play?.Stats.LastSimMs ?? 0;
+        _viewMs += _play?.Stats.LastViewMs ?? 0;
+        _sampleFrames++;
         if (_flushAt >= 2)
         {
             _flushAt = 0;
@@ -129,6 +134,15 @@ public partial class BrowserRuntime : Node
             playerName = Options.SettingsStore.Current.PlayerName,
             invertY = Options.SettingsStore.Current.InvertY,
             fps = Engine.GetFramesPerSecond(),
+            simMs = _simMs / _sampleFrames,
+            viewMs = _viewMs / _sampleFrames,
+            processMs = Performance.GetMonitor(Performance.Monitor.TimeProcess) * 1000,
+            physicsMs = Performance.GetMonitor(Performance.Monitor.TimePhysicsProcess) * 1000,
+            renderSetupMs = RenderingServer.GetFrameSetupTimeCpu(),
+            drawCalls = Performance.GetMonitor(Performance.Monitor.RenderTotalDrawCallsInFrame),
+            renderObjects = Performance.GetMonitor(Performance.Monitor.RenderTotalObjectsInFrame),
+            primitives = Performance.GetMonitor(Performance.Monitor.RenderTotalPrimitivesInFrame),
+            managedMb = GC.GetTotalMemory(false) / 1048576,
             lesson = _lesson is null ? null : new
             {
                 kind = _lesson.Kind, ready = _lesson.Ready, feedback = _lesson.Feedback,
@@ -140,6 +154,8 @@ public partial class BrowserRuntime : Node
             },
         });
         BrowserPlatform.ReportState?.Invoke(state);
+        _simMs = _viewMs = 0;
+        _sampleFrames = 0;
     }
 
 }

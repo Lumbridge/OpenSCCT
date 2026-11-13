@@ -9,6 +9,9 @@ internal static partial class BrowserExports
     [JSImport("globalThis.openscctRuntimeReady")]
     internal static partial void Ready();
 
+    [JSImport("globalThis.openscctGameFailed")]
+    internal static partial void BootFailed(string message);
+
     [JSImport("globalThis.openscctReportState")]
     internal static partial void ReportState(string state);
 

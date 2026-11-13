@@ -20,7 +20,7 @@ globalThis.openscctRuntimeReady = async () => {
     globalThis.openscctExports = exports.OpenScctGame.Web.BrowserExports;
     document.getElementById('multiplayer-button').disabled = false;
 };
-const localDiagnostics = ['127.0.0.1', 'localhost', '[::1]'].includes(location.hostname);
+const localDiagnostics = /^127\.(?:\d{1,3}\.){2}\d{1,3}$/.test(location.hostname) || ['localhost', '[::1]'].includes(location.hostname);
 let lastDiagnostic = 0;
 globalThis.openscctReportState = json => {
     const state = JSON.parse(json);
@@ -81,8 +81,18 @@ if (localDiagnostics) for (const level of ['log', 'warn', 'error']) {
             body: JSON.stringify({level, message, time: performance.now()})}).catch(() => {});
     };
 }
-addEventListener('error', event => console.error('PAGE_ERROR', event.message));
-addEventListener('unhandledrejection', event => console.error('PAGE_REJECTION', event.reason));
+function reportBootFailure() {
+    if (!window.__openscctProbe?.loaded)
+        globalThis.openscctGameFailed?.('The game could not start. Reload the page to try again.');
+}
+addEventListener('error', event => {
+    console.error('PAGE_ERROR', event.message);
+    if (event.message) reportBootFailure();
+});
+addEventListener('unhandledrejection', event => {
+    console.error('PAGE_REJECTION', event.reason);
+    reportBootFailure();
+});
 if (localDiagnostics) console.log('OPENSCCT_BROWSER_ENV', navigator.userAgent, 'secure=' + isSecureContext,
     'webgpu=' + Boolean(navigator.gpu));
 if (localDiagnostics) navigator.gpu?.requestAdapter().then(adapter => console.log('OPENSCCT_BROWSER_ADAPTER',

@@ -537,7 +537,8 @@ public sealed class SkeletalModel : OpenScctGame.Views.IFirstPersonRigModel
     private static readonly Dictionary<string, System.Threading.Tasks.Task<Prefetched>> s_prefetched = new(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>SVM_MODEL_THREADS=0 reads every model on the main thread, one after another (measurement).</summary>
-    private static readonly bool s_prefetchThreads = System.Environment.GetEnvironmentVariable("SVM_MODEL_THREADS") != "0";
+    private static readonly bool s_prefetchThreads = !OperatingSystem.IsBrowser() &&
+        System.Environment.GetEnvironmentVariable("SVM_MODEL_THREADS") != "0";
 
     /// <summary>
     /// Starts reading the model files of <paramref name="glbPaths"/> on worker threads: the file, its JSON and the scene
