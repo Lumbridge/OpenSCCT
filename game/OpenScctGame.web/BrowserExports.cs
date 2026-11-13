@@ -15,6 +15,15 @@ internal static partial class BrowserExports
     [JSImport("globalThis.openscctOpenAccount")]
     internal static partial void OpenAccount();
 
+    [JSImport("globalThis.openscctOpenMultiplayer")]
+    internal static partial void OpenMultiplayer();
+
+    [JSImport("globalThis.openscctOnlineStatus")]
+    internal static partial void OnlineStatus(string message);
+
+    [JSExport]
+    public static Task JoinServer(string serverId, string password, string inviteKey) => BrowserAccount.Join(serverId, password, inviteKey);
+
     [JSExport]
     public static void LessonAction(string action)
     {

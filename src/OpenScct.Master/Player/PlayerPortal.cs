@@ -15,7 +15,7 @@ namespace OpenScct.Master.Player;
 
 /// <summary>The public player site and its independent, account-scoped browser session.</summary>
 internal sealed partial class PlayerPortal(MasterOptions options, AccountStore store, ServerRegistry registry, Func<HttpContext, IPAddress> clientIp,
-    ReleaseChangelog releases, GitHubBugReports? bugReports = null, string? browserGameRoot = null)
+    ReleaseChangelog releases, GitHubBugReports? bugReports = null, string? browserGameRoot = null, TicketSigner? browserTickets = null)
 {
     internal const string SessionCookie = "svm_player";
     private const string StateCookie = "svm_player_state";
@@ -163,7 +163,7 @@ internal sealed partial class PlayerPortal(MasterOptions options, AccountStore s
         return Results.Content("<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">" +
             $"<meta http-equiv=\"refresh\" content=\"0;url={H(destination)}\"><title>Signed in · OpenSCCT</title><link rel=\"stylesheet\" href=\"{H(AssetUrl("/web/assets/site.css"))}\"></head>" +
             "<body><main class=\"site-main\"><h1>Signed in.</h1>" +
-            Link(destination, destination != "/account" ? "Continue to bug report" : "Continue to your account", "button") +
+            Link(destination, destination.StartsWith("/play/", StringComparison.Ordinal) ? "Continue to browser game" : destination != "/account" ? "Continue to bug report" : "Continue to your account", "button") +
             "</main></body></html>", "text/html; charset=utf-8");
     }
 

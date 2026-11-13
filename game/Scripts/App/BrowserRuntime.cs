@@ -18,9 +18,11 @@ public partial class BrowserRuntime : Node
     public override void _Ready()
     {
         BrowserPlatform.StartRound = StartRound;
+        BrowserPlatform.JoinOnline = (name, address, password, ticket, playerName) =>
+            Online.OnlineService.Get(GetTree()).JoinBrowser(name, address, password, ticket, playerName);
         BrowserPlatform.LessonAction = action =>
         {
-            if (action == "reset") StartRound(BrowserPlatform.Lesson);
+            if (action == "reset" && _lesson?.Kind != "vision-cancelling") StartRound(BrowserPlatform.Lesson);
             else if (action == "debug" && _play is not null) _play.ShowGrabArea(!_play.GrabAreaShown);
             else _lesson?.Action(action);
         };
@@ -55,6 +57,7 @@ public partial class BrowserRuntime : Node
         _lesson?.Dispose();
         BrowserPlatform.CurrentPlay = null;
         BrowserPlatform.StartRound = null;
+        BrowserPlatform.JoinOnline = null;
         BrowserPlatform.LessonAction = null;
     }
 
@@ -84,6 +87,9 @@ public partial class BrowserRuntime : Node
             if (!_grabOverlayReady) _grabOverlayReady = _play.ShowGrabArea(true);
             _lesson.Debug = _play.GrabAreaShown;
         }
+        if (_lesson is { Kind: "vision-cancelling", Ready: true } && _play is not null &&
+            _play.GetNodeOrNull<Node3D>("ReturnPortal") is null)
+            _play.AddChild(new OpenScctGame.Play.BrowserReturnPortal());
         var pawn = _play?.Session?.LocalPawn;
         var weapon = pawn?.MyWeapon as OpenScct.Game.SBase.SWeaponDefense;
         string state = JsonSerializer.Serialize(new
@@ -95,6 +101,7 @@ public partial class BrowserRuntime : Node
             ticks = _play?.Session?.TicksRun ?? 0,
             pawn = pawn is not null,
             x = pawn?.Location.X, y = pawn?.Location.Y, z = pawn?.Location.Z,
+            heat = pawn?.HeatIntensity, heatOpacity = pawn?.HeatOpacity,
             postError = _play?.View?.Effect.Error,
             compositor = _play?.View?.Camera.Compositor is not null,
             controls = _play?.Controls?.Enabled,
@@ -121,6 +128,8 @@ public partial class BrowserRuntime : Node
                 state = _lesson.State, vision = _lesson.Vision, distance = _lesson.Distance,
                 moving = _lesson.Moving, debug = _lesson.Debug, attempts = _lesson.Attempts,
                 grabs = _lesson.Grabs, recoveryMs = _lesson.RecoveryMs,
+                baselineMs = _lesson.BaselineMs, bestMs = _lesson.BestMs, history = _lesson.History,
+                returns = _lesson.Returns,
             },
         });
         BrowserPlatform.ReportState?.Invoke(state);

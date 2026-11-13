@@ -133,4 +133,41 @@ public sealed class BrowserLessonTests
         double baseline = Drop(false), cancelled = Drop(true);
         Assert.True(cancelled < baseline, $"Baseline {baseline:0} ms; switched {cancelled:0} ms.");
     }
+
+    [Fact]
+    public void ReturnPortalMovesBothCopiesToTheLedgeAndKeepsMeasuredResults()
+    {
+        using var rig = new Rig("vision-cancelling");
+        rig.Tick(120);
+        rig.Lesson.Action("drop");
+        for (int i = 0; i < 600 && rig.Lesson.RecoveryMs is null; i++) rig.Tick();
+        Assert.NotNull(rig.Lesson.BaselineMs);
+        Assert.Equal("Baseline", Assert.Single(rig.Lesson.History).Result);
+        var portal = BrowserLesson.ReturnPortal;
+        Assert.True(rig.Session.ServerController!.Pawn!.SetLocation(portal));
+        Assert.True(rig.Session.LocalPawn!.SetLocation(portal));
+        rig.Tick();
+        Assert.Equal(1, rig.Lesson.Returns);
+        Assert.InRange(rig.Session.LocalPawn.Location.Z, 640, 700);
+        Assert.InRange(rig.Session.ServerController.Pawn.Location.Z, 640, 700);
+        Assert.Null(rig.Lesson.RecoveryMs);
+        Assert.Single(rig.Lesson.History);
+        rig.Lesson.Action("drop");
+        bool pressed = false;
+        for (int i = 0; i < 600 && rig.Lesson.RecoveryMs is null; i++)
+        {
+            if (!pressed && rig.Session.LocalPawn.Location.Z < 150 && rig.Session.LocalController!.IsInState("PlayerLanding"))
+            { rig.Lesson.Action("night"); pressed = true; }
+            rig.Tick();
+        }
+        Assert.True(pressed);
+        Assert.Equal(2, rig.Lesson.Attempts);
+        Assert.Equal("Cancelled", rig.Lesson.History[^1].Result);
+        Assert.True(rig.Lesson.History[^1].SavedMs > 0);
+        Assert.NotNull(rig.Lesson.History[^1].SwitchMs);
+        rig.Lesson.Action("reset");
+        rig.Tick();
+        Assert.Equal(2, rig.Lesson.Returns);
+        Assert.Equal(2, rig.Lesson.History.Count);
+    }
 }

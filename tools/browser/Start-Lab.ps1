@@ -8,5 +8,8 @@ Push-Location $repo
 try {
     & dotnet restore tools/browser-lab --configfile (Join-Path $repo 'local/nuget-browser.config')
     if ($LASTEXITCODE) { throw 'Browser lab restore failed.' }
-    & dotnet run --project tools/browser-lab -c Release --no-restore -- $bundle
+    $hostOutput = Join-Path $repo ("local/browser-host/" + [DateTime]::UtcNow.ToString('yyyyMMdd-HHmmss-fff'))
+    & dotnet publish tools/browser-lab -c Release --no-restore --output $hostOutput
+    if ($LASTEXITCODE) { throw 'Browser lab publish failed.' }
+    & dotnet (Join-Path $hostOutput 'OpenScct.BrowserLab.dll') $bundle
 } finally { Pop-Location }

@@ -25,14 +25,33 @@
         <span id="account-status" role="status"></span>
         <button type="button" id="sync-account-button" hidden>Use account settings instead</button>
         <a id="account-link" href="/auth/player/login?returnTo=/play/" target="_top">Sign in</a>
+        <button type="button" id="multiplayer-button" disabled>Multiplayer</button>
         <button type="button" id="menu-button" disabled>Menu</button>
         <button type="button" id="fullscreen-button">Full screen</button>
     </nav>
     <button type="button" id="play-button" hidden>Click to play</button>
+    <p id="pointer-status" role="status" hidden></p>
+    <dialog id="multiplayer-dialog" aria-labelledby="multiplayer-title">
+        <h2 id="multiplayer-title">Multiplayer</h2>
+        <p>Join a browser-enabled OpenSCCT server. Choose your side in the game lobby.</p>
+        <label for="online-server">Server</label>
+        <select id="online-server"></select>
+        <label for="online-password">Server password (if required)</label>
+        <input id="online-password" type="password" autocomplete="off">
+        <label id="invite-label" for="online-invite" hidden>Master invite key</label>
+        <input id="online-invite" type="password" autocomplete="off" hidden>
+        <p id="online-status" role="status"></p>
+        <div class="lesson-actions">
+            <button type="button" id="online-join">Join server</button>
+            <button type="button" id="online-refresh">Refresh</button>
+            <button type="button" id="online-close">Close</button>
+        </div>
+    </dialog>
     <aside id="lesson-coach" aria-label="Training coach" hidden>
         <h2 id="lesson-title">Practice</h2>
         <p id="lesson-feedback" role="status">Preparing the range…</p>
         <p id="lesson-detail"></p>
+        <div id="lesson-results" aria-label="Recent attempts" hidden></div>
         <div class="lesson-actions">
             <button type="button" data-action="drop" data-lesson="vision-cancelling">Walk off the ledge</button>
             <button type="button" data-action="night" data-lesson="vision-cancelling">Night vision</button>

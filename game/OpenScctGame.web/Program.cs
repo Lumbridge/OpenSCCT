@@ -36,6 +36,7 @@ internal static class Program
         {
             OpenScctGame.BrowserPlatform.ReportState = OpenScctGame.Web.BrowserExports.ReportState;
             OpenScctGame.BrowserPlatform.OpenAccount = OpenScctGame.Web.BrowserExports.OpenAccount;
+            OpenScctGame.BrowserPlatform.OpenMultiplayer = OpenScctGame.Web.BrowserExports.OpenMultiplayer;
         }
 
         // The Godot project's assembly owns the source-generated plugins

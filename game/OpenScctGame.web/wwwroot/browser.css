@@ -144,3 +144,12 @@ body.playing .lesson-actions, body.playing .lesson-hint { display: none; }
     z-index: 1;
     display: none;
 }
+#pointer-status { font-family: system-ui, sans-serif; position: fixed; top: 64px; left: 50%; transform: translateX(-50%); max-width: 42rem; padding: 12px 18px; background: #102318ed; border: 1px solid #69dd8b; border-radius: 8px; z-index: 30; }
+#pointer-status[hidden], #lesson-results[hidden] { display: none; }
+#lesson-results { font-size: .8rem; border-top: 1px solid #46634f; margin-top: 8px; }
+#lesson-results ol { padding-left: 1.4rem; margin: 6px 0; }
+#multiplayer-dialog { font-family: system-ui, sans-serif; background: #101c14; color: #e1ede4; border: 1px solid #60ce7f; border-radius: 12px; width: min(32rem, 90vw); padding: 24px; }
+#multiplayer-dialog::backdrop { background: #000b; }
+#multiplayer-dialog label { display: block; margin: 14px 0 6px; }
+#multiplayer-dialog input, #multiplayer-dialog select { width: 100%; padding: 9px; box-sizing: border-box; background: #172b1e; color: #f1fff4; border: 1px solid #467552; border-radius: 5px; }
+#multiplayer-dialog [hidden] { display: none; }

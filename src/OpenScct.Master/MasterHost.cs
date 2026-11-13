@@ -63,7 +63,7 @@ public sealed class MasterHost : IAsyncDisposable
         {
             _portal = new Admin.AdminPortal(options, store, registry, ClientIp, () => (RelayForwarded, Introductions), _demos);
             _accounts.AdminCallback = _portal.CallbackAsync;
-            _players = new Player.PlayerPortal(options, store, registry, ClientIp, releases);
+            _players = new Player.PlayerPortal(options, store, registry, ClientIp, releases, browserTickets: signer);
             _accounts.PlayerCallback = _players.CallbackAsync;
         }
         _limiter = new RateLimiter(options.RequestsPerMinute);
@@ -231,6 +231,9 @@ public sealed class MasterHost : IAsyncDisposable
             }
             else if (!context.Request.Path.StartsWithSegments("/web/assets", StringComparison.OrdinalIgnoreCase) &&
                 !context.Request.Path.StartsWithSegments("/admin/assets", StringComparison.OrdinalIgnoreCase) &&
+                !((HttpMethods.IsGet(context.Request.Method) || HttpMethods.IsHead(context.Request.Method)) &&
+                    context.Request.Path.StartsWithSegments("/play", StringComparison.OrdinalIgnoreCase) &&
+                    System.IO.Path.HasExtension(context.Request.Path.Value)) &&
                 !context.Request.Path.Equals(MasterApi.StatusPath, StringComparison.OrdinalIgnoreCase))
             {
                 // Browsers never receive the game invite key. Their independent budget cannot starve game heartbeats.
@@ -578,7 +581,7 @@ public sealed class MasterHost : IAsyncDisposable
     }
 
     /// <summary>A fixed one-minute window of requests per address.</summary>
-    private sealed class RateLimiter(int perMinute)
+    internal sealed class RateLimiter(int perMinute)
     {
         private readonly Dictionary<IPAddress, (long Window, int Count)> _counts = new();
         private readonly int _perMinute = perMinute;

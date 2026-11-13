@@ -29,6 +29,7 @@ public partial class InGameMenu : Control
 
     private InGameMenuPage _shown = (InGameMenuPage)(-1);
     private Vector2 _shownSize;
+    private float _shownInset;
     private object? _shownEntries;
     private OptionsMenu? _options;
     private HelpFeedbackScreen? _help;
@@ -51,6 +52,9 @@ public partial class InGameMenu : Control
 
     /// <summary>The strategic map page for the map being played (spec/hud/strategic-map.md), made when the page opens.</summary>
     public Func<StrategicMapScreen>? StrategicMapSource { get; set; }
+
+    /// <summary>Space reserved for an interactive lesson's coach beside the main action panel.</summary>
+    public Func<float>? MainPageLeftInset { get; set; }
 
     /// <summary>Apply on the gear picker: save the choice and ask the server to put it on.</summary>
     public event Action<GearMenuModel>? GearApplied;
@@ -76,15 +80,17 @@ public partial class InGameMenu : Control
     public void Sync()
     {
         Vector2 size = GetViewportRect().Size;
+        float inset = Math.Clamp(MainPageLeftInset?.Invoke() ?? 0, 0, size.X * 0.45f);
         InGameMenuPage page = Model.Page;
         Visible = page != InGameMenuPage.Closed;
-        if (page == _shown && size == _shownSize && ReferenceEquals(_shownEntries, Model.Entries))
+        if (page == _shown && size == _shownSize && inset == _shownInset && ReferenceEquals(_shownEntries, Model.Entries))
         {
             return;
         }
 
         _shown = page;
         _shownSize = size;
+        _shownInset = inset;
         _shownEntries = Model.Entries;
         Build(page, size);
     }
@@ -171,8 +177,8 @@ public partial class InGameMenu : Control
     {
         Label title = UiStyle.Title(InGameMenuK.Title, HudK.SpyColour, 36);
         title.Name = "Title";
-        title.Position = new Vector2(0f, size.Y * 0.12f);
-        title.Size = new Vector2(size.X, 48f);
+        title.Position = new Vector2(_shownInset, size.Y * 0.12f);
+        title.Size = new Vector2(size.X - _shownInset, 48f);
         AddChild(title);
 
         // OpenSCCT's layout: the buttons stacked close together on a panel, centred where the original's spread-out
@@ -183,7 +189,8 @@ public partial class InGameMenu : Control
             return;
         }
 
-        float width = size.X * InGameMenuK.ButtonWidth;
+        float width = Math.Min(size.X * InGameMenuK.ButtonWidth, size.X - _shownInset - 2 * PanelPadding - 24);
+        float left = _shownInset + (size.X - _shownInset - width) * 0.5f;
         float middle = size.Y * (entries[0].Top + entries[entries.Count - 1].Top) * 0.5f;
         float minTop = title.Position.Y + title.Size.Y + PanelPadding * 2f;
         float gap = Math.Min(ButtonGap, Math.Max(4f, (size.Y - minTop) * 0.02f));
@@ -194,7 +201,7 @@ public partial class InGameMenu : Control
         var panel = new Panel
         {
             Name = "ButtonPanel",
-            Position = new Vector2((size.X - width) * 0.5f - PanelPadding, top - PanelPadding),
+            Position = new Vector2(left - PanelPadding, top - PanelPadding),
             Size = new Vector2(width + 2f * PanelPadding, stack + 2f * PanelPadding),
             MouseFilter = MouseFilterEnum.Ignore,
         };
@@ -206,7 +213,7 @@ public partial class InGameMenu : Control
         {
             InGameMenuButton which = entries[i].Button;
             Button b = UiStyle.MenuButton(entries[i].Caption, () => Click(which), which.ToString());
-            b.Position = new Vector2((size.X - width) * 0.5f, top + i * (height + gap));
+            b.Position = new Vector2(left, top + i * (height + gap));
             b.CustomMinimumSize = new Vector2(0f, height);
             b.Size = new Vector2(width, height);
             AddChild(b);

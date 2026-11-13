@@ -17,6 +17,7 @@ globalThis.openscctOpenAccount = () => {
 globalThis.openscctRuntimeReady = async () => {
     const exports = await globalThis.getDotnetRuntime(0).getAssemblyExports('OpenScctGame.web.dll');
     globalThis.openscctExports = exports.OpenScctGame.Web.BrowserExports;
+    document.getElementById('multiplayer-button').disabled = false;
 };
 const localDiagnostics = ['127.0.0.1', 'localhost', '[::1]'].includes(location.hostname);
 let lastDiagnostic = 0;
@@ -40,6 +41,20 @@ globalThis.openscctReportState = json => {
             const action = lesson.state.includes('Landing') ? 'Landing recovery' : lesson.state.includes('Falling') ? 'Falling' : lesson.state === 's_GrabbingPlayer' ? 'Holding mercenary' : lesson.state.includes('Grabbing') ? 'Starting grab' : 'Ready';
             document.getElementById('lesson-detail').textContent = (lesson.distance == null ? vision : Math.round(lesson.distance) + ' / 160 units') + ' · ' + action;
             document.getElementById('lesson-detail').hidden = lesson.kind === 'spy-grab' && !lesson.debug;
+            const results = document.getElementById('lesson-results');
+            results.hidden = lesson.kind !== 'vision-cancelling' || !lesson.history?.length;
+            if (!results.hidden) {
+                const summary = document.createElement('p');
+                summary.textContent = `Attempts: ${lesson.attempts} · Baseline: ${lesson.baselineMs == null ? 'try without vision' : Math.round(lesson.baselineMs) + ' ms'} · Best: ${lesson.bestMs == null ? '—' : Math.round(lesson.bestMs) + ' ms'}`;
+                const list = document.createElement('ol');
+                for (const attempt of lesson.history.slice(-3).reverse()) {
+                    const row = document.createElement('li');
+                    row.textContent = `#${attempt.Number} ${attempt.Result} · ${Math.round(attempt.RecoveryMs)} ms` +
+                        (attempt.SwitchMs == null ? '' : ` · switch ${attempt.SwitchMs < 0 ? Math.round(-attempt.SwitchMs) + ' ms early' : Math.round(attempt.SwitchMs) + ' ms after touchdown'}`);
+                    list.append(row);
+                }
+                results.replaceChildren(summary, list);
+            }
             for (const control of coach.querySelectorAll('button')) {
                 control.disabled = !lesson.ready || control.dataset.action === 'drop' && lesson.recoveryMs != null;
                 control.hidden = control.dataset.lesson && control.dataset.lesson !== lesson.kind;

@@ -20,6 +20,7 @@ internal sealed partial class PlayerPortal
 
     private void MapBrowserGame(WebApplication app)
     {
+        MapBrowserMultiplayer(app);
         string root = browserGameRoot ?? Environment.GetEnvironmentVariable("SVM_BROWSER_GAME_ROOT") ?? Path.Combine(AppContext.BaseDirectory, "browser");
         if (File.Exists(Path.Combine(root, "index.html")))
         {

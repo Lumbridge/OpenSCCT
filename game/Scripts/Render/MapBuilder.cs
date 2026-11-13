@@ -440,16 +440,17 @@ public static class MapBuilder
         }
 
         all.AddRange(OpenScct.Server.ContentPaths.MapRoots);
-        string projectDir = ProjectSettings.GlobalizePath("res://");
-        string repo = Path.GetFullPath(Path.Combine(projectDir, ".."));
-        all.Add(Path.Combine(repo, ".content", "svmap"));
-        all.Add(Path.Combine(Path.GetDirectoryName(OS.GetExecutablePath()) ?? ".", "maps"));
-
-        // An export inside a checkout (local\testbuild): res:// is the exe's folder there, so the checkout is found
-        // the way the play path's MapCatalog finds it.
-        if (OpenScct.Server.MapCatalog.FindRepoRoot(Path.GetDirectoryName(OS.GetExecutablePath()) ?? ".") is { } checkout)
+        if (!OperatingSystem.IsBrowser())
         {
-            all.Add(Path.Combine(checkout, ".content", "svmap"));
+            string projectDir = ProjectSettings.GlobalizePath("res://");
+            string repo = Path.GetFullPath(Path.Combine(projectDir, ".."));
+            all.Add(Path.Combine(repo, ".content", "svmap"));
+            string executableDir = Path.GetDirectoryName(OS.GetExecutablePath()) ?? ".";
+            all.Add(Path.Combine(executableDir, "maps"));
+
+            // An export inside a checkout (local\testbuild) can find the checkout like the play catalog.
+            if (OpenScct.Server.MapCatalog.FindRepoRoot(executableDir) is { } checkout)
+                all.Add(Path.Combine(checkout, ".content", "svmap"));
         }
         foreach (string root in all)
         {

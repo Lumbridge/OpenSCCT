@@ -141,6 +141,35 @@ internal static partial class BrowserAccount
         _ = SaveAsync(ProfileSync.Build());
     }
 
+    internal static async Task Join(string serverId, string password, string inviteKey)
+    {
+        if (!OperatingSystem.IsBrowser()) return;
+        if (s_url is null) return;
+        try
+        {
+            using var request = new HttpRequestMessage(HttpMethod.Post, new Uri(s_url, "join"));
+            if (s_account?.Csrf is { } csrf) request.Headers.Add("X-CSRF-Token", csrf);
+            if (!string.IsNullOrEmpty(inviteKey)) request.Headers.Add(MasterApi.KeyHeader, inviteKey);
+            request.Content = new StringContent(JsonSerializer.Serialize(new { serverId }, Json), System.Text.Encoding.UTF8, "application/json");
+            using var response = await Http.SendAsync(request);
+            using var record = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+            if (!response.IsSuccessStatusCode)
+            {
+                BrowserExports.OnlineStatus(record.RootElement.TryGetProperty("error", out var error) ? error.GetString() ?? "Join refused." : "Join refused.");
+                return;
+            }
+            var data = record.RootElement;
+            var socket = new UriBuilder(new Uri(s_url, data.GetProperty("socket").GetString()))
+                { Scheme = s_url.Scheme == "https" ? "wss" : "ws" };
+            BrowserPlatform.JoinOnline?.Invoke(data.GetProperty("name").GetString()!, socket.Uri.AbsoluteUri,
+                password, data.TryGetProperty("ticket", out var ticket) ? ticket.GetString() : null,
+                data.TryGetProperty("playerName", out var playerName) ? playerName.GetString() : null);
+            BrowserExports.OnlineStatus("");
+        }
+        catch (Exception error) when (error is HttpRequestException or JsonException or TaskCanceledException or InvalidOperationException or KeyNotFoundException)
+        { BrowserExports.OnlineStatus("Could not connect: " + error.Message); }
+    }
+
     private static async Task SaveAsync(string data)
     {
         try

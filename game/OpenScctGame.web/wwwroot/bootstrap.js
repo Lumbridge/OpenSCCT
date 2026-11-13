@@ -1,10 +1,41 @@
 const gameCanvas = document.getElementById('canvas');
+// Request directly in the trusted DOM gesture. Godot also asks for capture; coalesce that request
+// and retain raw movement instead of issuing another request with different options.
+const nativePointerLock = gameCanvas.requestPointerLock?.bind(gameCanvas);
+let pendingPointerLock = null;
+const pointerStatus = document.getElementById('pointer-status');
+function requestGamePointerLock() {
+    if (document.pointerLockElement === gameCanvas) return Promise.resolve();
+    if (pendingPointerLock) return pendingPointerLock;
+    if (!nativePointerLock) return Promise.resolve();
+    let requested;
+    try { requested = nativePointerLock({unadjustedMovement: true}); }
+    catch (error) { requested = Promise.reject(error); }
+    pendingPointerLock = Promise.resolve(requested).catch(error => {
+        if (error.name === 'NotSupportedError') return nativePointerLock();
+        throw error;
+    }).catch(error => {
+        pointerStatus.textContent = error.name === 'WrongDocumentError'
+            ? 'Bring the Chrome game window to the foreground, then retry mouse capture. '
+            : 'Mouse capture was refused. An embedded browser may not support it. Keyboard and lesson buttons are available. ';
+        const retry = document.createElement('button');
+        retry.type = 'button';
+        retry.textContent = 'Retry mouse capture';
+        retry.addEventListener('click', () => { gameCanvas.focus(); requestGamePointerLock(); globalThis.openscctExports?.ActivateControls(); });
+        pointerStatus.append(retry);
+        pointerStatus.hidden = false;
+        console.warn('Mouse capture:', error.name, error.message);
+    }).finally(() => { pendingPointerLock = null; });
+    return pendingPointerLock;
+}
+if (nativePointerLock) gameCanvas.requestPointerLock = requestGamePointerLock;
 document.getElementById('sync-account-button').addEventListener('click', () => {
     globalThis.openscctExports?.UseAccountSettings();
     location.reload();
 });
 document.getElementById('play-button').addEventListener('click', () => {
     gameCanvas.focus();
+    requestGamePointerLock();
     globalThis.openscctExports?.ActivateControls();
     document.getElementById('play-button').hidden = true;
 });
@@ -20,8 +51,53 @@ let wasCaptured = false;
 document.addEventListener('pointerlockchange', () => {
     const captured = document.pointerLockElement === gameCanvas;
     document.body.classList.toggle('playing', captured);
-    if (wasCaptured && !captured) globalThis.openscctExports?.DeactivateControls();
+    if (captured) pointerStatus.hidden = true;
+    if (wasCaptured && !captured) {
+        if (document.hasFocus() && !document.hidden) globalThis.openscctExports?.OpenMenu();
+        else globalThis.openscctExports?.DeactivateControls();
+    }
     wasCaptured = captured;
+});
+const onlineDialog = document.getElementById('multiplayer-dialog');
+async function refreshServers() {
+    const status = document.getElementById('online-status');
+    status.textContent = 'Loading servers…';
+    try {
+        const response = await fetch('servers', {cache:'no-store'});
+        if (!response.ok) throw new Error('The browser multiplayer gateway is unavailable on this host.');
+        const result = await response.json();
+        const select = document.getElementById('online-server');
+        select.replaceChildren(...result.servers.map(server => {
+            const option = document.createElement('option');
+            option.value = server.id;
+            option.textContent = `${server.name} · ${server.map} · ${server.players} players${server.password ? ' · password' : ''}`;
+            return option;
+        }));
+        document.getElementById('online-invite').hidden = !result.inviteOnly;
+        document.getElementById('invite-label').hidden = !result.inviteOnly;
+        document.getElementById('online-join').disabled = !result.servers.length;
+        status.textContent = result.servers.length ? 'Sign in to use your verified account in matches.' : 'No browser-enabled game servers are currently listed.';
+    } catch (error) { status.textContent = error.message; }
+}
+globalThis.openscctOpenMultiplayer = () => {
+    globalThis.openscctExports?.DeactivateControls();
+    onlineDialog.showModal();
+    refreshServers();
+};
+globalThis.openscctOnlineStatus = message => {
+    document.getElementById('online-status').textContent = message;
+    document.getElementById('online-join').disabled = false;
+    if (!message) { onlineDialog.close(); gameCanvas.focus(); }
+};
+document.getElementById('multiplayer-button').addEventListener('click', globalThis.openscctOpenMultiplayer);
+document.getElementById('online-refresh').addEventListener('click', refreshServers);
+document.getElementById('online-close').addEventListener('click', () => onlineDialog.close());
+document.getElementById('online-join').addEventListener('click', () => {
+    if (!globalThis.openscctExports) { document.getElementById('online-status').textContent = 'The game is still loading.'; return; }
+    document.getElementById('online-status').textContent = 'Connecting…';
+    document.getElementById('online-join').disabled = true;
+    globalThis.openscctExports?.JoinServer(document.getElementById('online-server').value,
+        document.getElementById('online-password').value, document.getElementById('online-invite').value);
 });
 addEventListener('blur', () => globalThis.openscctExports?.DeactivateControls());
 document.addEventListener('visibilitychange', () => {

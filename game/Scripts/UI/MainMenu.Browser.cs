@@ -15,6 +15,7 @@ public partial class MainMenu
             AutowrapMode = TextServer.AutowrapMode.WordSmart,
         };
         Body.AddChild(note);
+        Body.AddChild(UiStyle.MenuButton("Multiplayer", () => BrowserPlatform.OpenMultiplayer?.Invoke(), "BrowserMultiplayer"));
         foreach (var (caption, kind) in new[]
         {
             ("Play as a spy", "spy"), ("Play as a mercenary", "merc"),
@@ -22,6 +23,7 @@ public partial class MainMenu
         })
             Body.AddChild(UiStyle.MenuButton(caption, () => BrowserPlatform.StartRound?.Invoke(kind), "Browser_" + kind));
         Body.AddChild(UiStyle.MenuButton(BrowserPlatform.AccountName is { } name ? name + " · Account" : "Sign in", () => BrowserPlatform.OpenAccount?.Invoke(), "BrowserAccount"));
+        Body.AddChild(TutorialsScreen.MenuButton(this));
         OptionsButton = PageButton("Options", () => FrontEnd.ShowOptions(GetTree()), "Options");
     }
 }

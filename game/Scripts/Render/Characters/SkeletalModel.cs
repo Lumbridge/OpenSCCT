@@ -1331,6 +1331,7 @@ public sealed class SkeletalModel : OpenScctGame.Views.IFirstPersonRigModel
     {
         material ??= mesh.Mesh?.SurfaceGetMaterial(surface);
         mesh.SetSurfaceOverrideMaterial(surface, _glass > 0f && material is not null ? _cloakMaterials.Get(material) : material);
+        OpenScctGame.Render.InstanceParams.MaterialChanged(mesh);
     }
 
     /// <summary>
