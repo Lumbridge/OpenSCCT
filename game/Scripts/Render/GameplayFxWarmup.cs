@@ -78,7 +78,8 @@ public partial class GameplayFxWarmup : SubViewport
 
     internal int PreloadScene(Node scene, bool force = false)
     {
-        if (!OperatingSystem.IsBrowser() && !force) return 0;
+        if (!OperatingSystem.IsBrowser() && !force &&
+            System.Environment.GetEnvironmentVariable("SVM_BROWSER_SCENE_WARMUP") != "1") return 0;
         _browserScene = new BrowserSceneWarmup(scene, Samples, _view);
         GD.Print($"OPENSCCT_BROWSER_WARMUP layouts={_browserScene.SourceCount}");
         return _browserScene.SourceCount;

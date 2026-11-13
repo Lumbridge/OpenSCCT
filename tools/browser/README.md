@@ -149,6 +149,23 @@ include simulation/view costs, engine processing time, draw counts and managed
 memory. Browser model prefetch and texture preparation must not synchronously
 wait for worker tasks; the single-threaded build prepares those on its main thread.
 
+A controlled Aquarius comparison used one game tab, the same spy spawn and an
+1808 x 999 viewport: 20 samples had median 13 FPS with interpreted managed code
+and 52 FPS with AOT (ranges 12–15 and 42–60). Simulation time fell from median
+61.0 ms to 8.1 ms. This does not measure first-use movement or vision stalls.
+Keep one game tab open during comparisons and stop native rendering tests and
+compilers before recording performance.
+
+Browser loading now draws batches of real scene materials and mesh layouts across
+normal, night, thermal, motion and EMF modes, including hidden devices and both
+first-person weapon rigs. Map-owned animated props are prepared before the client
+binds them. `SVM_BROWSER_SCENE_WARMUP=1` enables the browser scene pass for native
+renderer diagnostics. The repeat-warmup test passes on TestRange and SteeE with
+zero new draw pipelines; the separate first-use probe still finds seven additional
+Forward+ thermal pipelines on SteeE. Chrome Mobile needs its own live check.
+Browser probes include the frame maximum, vision mode and pipeline counters.
+Published bundles include `build.json` identifying their source and AOT settings.
+
 Known limits:
 
 - Forward+ has an upstream WebGPU texture-binding validation failure and draws a
