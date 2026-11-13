@@ -21,6 +21,9 @@ public static class ScoreboardWire
     /// <summary>A host decoder for platforms without native Brotli. The wire format and output limit stay identical.</summary>
     public static Func<Stream, Stream>? OpenDecompressionStream { get; set; }
 
+    /// <summary>A host encoder for platforms without native Brotli, including browser listen servers.</summary>
+    public static Func<Stream, Stream>? OpenCompressionStream { get; set; }
+
     private static JsonSerializerOptions CreateJsonOptions()
     {
         var resolver = new DefaultJsonTypeInfoResolver();
@@ -57,7 +60,8 @@ public static class ScoreboardWire
         };
     }
 
-    public static IReadOnlyList<string> Encode(RoundScoreboard board, int localParticipantId, bool historical = false)
+    public static IReadOnlyList<string> Encode(RoundScoreboard board, int localParticipantId, bool historical = false,
+        Func<Stream, Stream>? openCompressionStream = null)
     {
         // Version 1 defines missing counters as zero. Keep the full server snapshot, but
         // avoid repeatedly transmitting dozens of zero counters for every participant.
@@ -70,7 +74,8 @@ public static class ScoreboardWire
         byte[] json = JsonSerializer.SerializeToUtf8Bytes(wireBoard, Json);
         if (json.Length > MaxJsonBytes) throw new InvalidDataException("Scoreboard exceeds the transfer limit.");
         using var packed = new MemoryStream();
-        using (var compression = new BrotliStream(packed, CompressionLevel.Optimal, leaveOpen: true)) compression.Write(json);
+        using (var compression = (openCompressionStream ?? OpenCompressionStream)?.Invoke(packed) ??
+            new BrotliStream(packed, CompressionLevel.Optimal, leaveOpen: true)) compression.Write(json);
         byte[] bytes = packed.ToArray();
         if (bytes.Length > MaxCompressedBytes) throw new InvalidDataException("Scoreboard exceeds the transfer limit.");
         string id = Guid.NewGuid().ToString("N");

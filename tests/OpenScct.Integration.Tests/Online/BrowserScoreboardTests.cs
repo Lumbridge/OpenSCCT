@@ -9,6 +9,31 @@ namespace OpenScct.Integration.Tests.Online;
 
 public sealed class BrowserScoreboardTests
 {
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void BrowserListenServerTransferIsReadByNativeAndBrowserClients(bool browserClient)
+    {
+        var expected = new RoundScoreboard
+        {
+            RoundId = Guid.NewGuid().ToString(), Map = "AquaE", Server = "Browser practice", Sequence = 9,
+            ElapsedSeconds = 45, Rows = [new ScoreboardPlayer { ParticipantId = 1, Name = "Browser", Team = 1, Kills = 3 }],
+        };
+        var receiver = browserClient ? new ScoreboardWire.Receiver(OpenScctGame.Web.BrowserScoreboardCodec.Decompress)
+            : new ScoreboardWire.Receiver();
+        RoundScoreboard? received = null;
+        foreach (string line in ScoreboardWire.Encode(expected, 1,
+            openCompressionStream: OpenScctGame.Web.BrowserScoreboardCodec.Compress))
+        {
+            Assert.True(receiver.Receive(line, out var board, out _, out _));
+            if (board is not null) received = board;
+        }
+        Assert.NotNull(received);
+        Assert.Equal(expected.RoundId, received.RoundId);
+        Assert.Equal(9, received.Sequence);
+        Assert.Equal(3, Assert.Single(received.Rows).Kills);
+    }
+
     [Fact]
     public void ManagedBrowserDecoderReadsTheUnchangedNativeServerTransfer()
     {

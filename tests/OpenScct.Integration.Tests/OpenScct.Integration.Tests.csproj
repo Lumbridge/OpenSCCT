@@ -13,5 +13,6 @@
   <ItemGroup>
     <Compile Include="..\..\game\Scripts\Play\Session\*.cs" Link="Linked\PlaySession\%(Filename)%(Extension)" />
     <Compile Include="..\..\game\Scripts\Play\PlayAudioRouter.cs" Link="Linked\PlayAudioRouter.cs" />
+    <Compile Include="..\..\game\OpenScctGame.web\BrowserScoreboardCodec.cs" Link="Linked\BrowserScoreboardCodec.cs" />
   </ItemGroup>
 </Project>

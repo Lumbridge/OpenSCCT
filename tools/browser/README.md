@@ -174,8 +174,9 @@ Known limits:
   white world. Mobile is the working default. `?forward-plus` is diagnostic only.
 - WebSocket uses TCP: packet loss can stall later frames, unlike native UDP.
   Microphone voice chat is currently disabled in browser visits.
-- Scoreboards keep the native Brotli wire format, decoded with a managed
-  browser-only BrotliSharpLib stream. The normal transfer/output limits remain.
+- Scoreboards keep the native Brotli wire format. Browser clients decode native
+  server transfers and browser listen servers encode them through managed
+  BrotliSharpLib streams, initialized during loading. Transfer/output limits remain.
 - WebGPU instance uniforms did not reach actor shaders reliably in the pinned
   engine. Browser actor-local material uniforms carry lighting, heat, EMF, tint
   and foreground depth. Desktop keeps its normal instance path.

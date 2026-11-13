@@ -51,8 +51,7 @@ internal static class Program
         };
         if (OperatingSystem.IsBrowser())
         {
-            OpenScct.Net.Scoreboards.ScoreboardWire.OpenDecompressionStream = input =>
-                new BrotliSharpLib.BrotliStream(input, CompressionMode.Decompress);
+            OpenScctGame.Web.BrowserScoreboardCodec.Prepare();
             OpenScctGame.BrowserPlatform.ReportState = OpenScctGame.Web.BrowserExports.ReportState;
             OpenScctGame.BrowserPlatform.OpenAccount = OpenScctGame.Web.BrowserExports.OpenAccount;
             OpenScctGame.BrowserPlatform.OpenMultiplayer = OpenScctGame.Web.BrowserExports.OpenMultiplayer;
