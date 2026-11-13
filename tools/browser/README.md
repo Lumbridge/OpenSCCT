@@ -29,6 +29,15 @@ successful bundle. Restart the lab to serve it. A running session keeps its own
 bundle; the build never deletes a folder being served. For a guest-only static
 host, use `serve.py --directory <bundle>` (port 8877).
 
+`Publish-Prototype.ps1 -AheadOfTime` compiles managed game code to WebAssembly
+instead of relying on the IL interpreter. It retains reflection-discovered game
+classes through explicit trimmer roots. This is an opt-in performance experiment
+until live map checks pass. `-FastLink` uses the smaller final whole-module
+`-O1` pass for development; the individual AOT assemblies still use LLVM `-O2`.
+Normal publishing retains the optimized link. The lab accepts an optional
+`SVM_BROWSER_LAB_LISTEN` loopback HTTP address and `SVM_BROWSER_LAB_ORIGIN` for the
+browser-facing origin. Both synthetic accounts start with normal vertical look.
+
 The input button requests Godot's normal pointer capture from a user gesture.
 Escape opens the native menu and releases the pointer. Embedded browsers which
 reject capture can still use keyboard input, mouse buttons and mouse movement
@@ -134,6 +143,11 @@ as the verified Ryan account, and loaded a SteeE round in 26.15 seconds. The use
 confirmed 60 FPS with Chrome in the foreground and continuous captured mouse look
 with Escape to release it. Occluded Chrome windows were heavily throttled during
 automation, so their low frame rates are not representative of foreground play.
+That SteeE result does not establish performance on every map: full Aquarius
+offline visits are much slower and are being profiled separately. Local probes
+include simulation/view costs, engine processing time, draw counts and managed
+memory. Browser model prefetch and texture preparation must not synchronously
+wait for worker tasks; the single-threaded build prepares those on its main thread.
 
 Known limits:
 

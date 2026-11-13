@@ -10,7 +10,10 @@
         <Nullable>enable</Nullable>
         <IsPackable>false</IsPackable>
         <TwoDogWebPrecompress>true</TwoDogWebPrecompress>
-        <PublishTrimmed>false</PublishTrimmed>
+        <PublishTrimmed Condition="'$(RunAOTCompilation)' != 'true'">false</PublishTrimmed>
+        <PublishTrimmed Condition="'$(RunAOTCompilation)' == 'true'">true</PublishTrimmed>
+        <!-- Keep the interpreter fallback for reflection/generic and managed/JS callback paths. -->
+        <WasmStripILAfterAOT Condition="'$(RunAOTCompilation)' == 'true'">false</WasmStripILAfterAOT>
         <JsonSerializerIsReflectionEnabledByDefault>true</JsonSerializerIsReflectionEnabledByDefault>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <!-- Keep host namespaces uniform with the desktop host (whose
@@ -38,6 +41,10 @@
     <ItemGroup>
         <TrimmerRootAssembly Include="OpenScctGame"/>
         <TrimmerRootAssembly Include="$(TargetName)"/>
+        <!-- Map/script classes and state handlers are discovered by reflection. AOT requires the
+             trimming pipeline, but these assemblies must retain the same script surface as desktop. -->
+        <TrimmerRootAssembly Include="OpenScct.Core;OpenScct.Game;OpenScct.Content;OpenScct.Net;OpenScct.Server;OpenScct.Bots;OpenScct.Maps"
+                             Condition="'$(RunAOTCompilation)' == 'true'"/>
     </ItemGroup>
 
     <Target Name="DeepClean" AfterTargets="Clean">
