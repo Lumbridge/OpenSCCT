@@ -134,7 +134,9 @@ public partial class AccountService : Node
 
     /// <summary>True when a finished task failed because the master no longer knows the sign-in.</summary>
     public static bool IsSignedOutError(Task task) =>
-        task is { IsFaulted: true } && task.Exception?.InnerException is MasterException { StatusCode: 401 } &&
+        task is { IsFaulted: true } && task.Exception?.InnerException is MasterException { StatusCode: 401 } error &&
+        // Private-master access failures also use 401. They must not repeatedly reload a valid browser session.
+        (!OperatingSystem.IsBrowser() || error.Message == "Sign in again.") &&
         AccountSettings.Current.SignedIn;
 
     public override void _Ready()

@@ -17,7 +17,11 @@ public partial class BrowserRuntime : Node
 
     public override void _Ready()
     {
-        BrowserPlatform.StartRound = StartRound;
+        BrowserPlatform.StartRound = kind =>
+        {
+            if (GetTree().CurrentScene is PlayRoot) StartRound(kind);
+            else Online.AccountService.Get(GetTree()).PrepareAppearance(() => StartRound(kind));
+        };
         BrowserPlatform.JoinOnline = (name, address, password, ticket, playerName) =>
             Online.OnlineService.Get(GetTree()).JoinBrowser(name, address, password, ticket, playerName);
         BrowserPlatform.LessonAction = action =>
@@ -97,6 +101,7 @@ public partial class BrowserRuntime : Node
             driver = RenderingServer.GetCurrentRenderingDriverName(),
             renderer = RenderingServer.GetCurrentRenderingMethod(),
             loaded = _play?.IsLoaded ?? false,
+            accountConflict = GetTree().Root.GetNodeOrNull<Online.AccountService>(Online.AccountService.NodeName)?.AppearanceConflict == true,
             error = _play?.LoadError,
             ticks = _play?.Session?.TicksRun ?? 0,
             scoreboardSequence = _play?.Session?.Client.Scoreboard?.Sequence,

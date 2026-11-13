@@ -30,7 +30,7 @@ globalThis.openscctReportState = json => {
     const menu = document.getElementById('menu-button');
     if (menu) menu.disabled = !state.loaded;
     if (state.error) globalThis.openscctGameFailed?.(state.error);
-    else if (state.loaded) globalThis.openscctGameReady?.();
+    else if (state.loaded || state.accountConflict) globalThis.openscctGameReady?.();
     const coach = document.getElementById('lesson-coach');
     if (coach) {
         coach.hidden = !state.lesson || state.menu;

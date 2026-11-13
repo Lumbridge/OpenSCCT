@@ -20,6 +20,7 @@ internal static partial class BrowserAccount
     private static Uri? s_url;
     private static Snapshot? s_account;
     private static CookieAccountHandler? s_handler;
+    private static string s_inviteKey = "";
     private static bool s_dirty, s_saving, s_stopped;
     private static DateTimeOffset s_retryAt;
     private static int s_retrySeconds = 5;
@@ -166,7 +167,7 @@ internal static partial class BrowserAccount
     {
         if (s_url is null) return null;
         string authority = s_url.GetLeftPart(UriPartial.Authority);
-        return new MasterClient(authority, authority == OnlineSettings.DefaultMasterUrl ? OnlineSettings.DefaultInviteKey : null,
+        return new MasterClient(authority, authority == OnlineSettings.DefaultMasterUrl ? OnlineSettings.DefaultInviteKey : s_inviteKey,
             s_handler ??= new CookieAccountHandler(authority));
     }
 
@@ -206,6 +207,8 @@ internal static partial class BrowserAccount
             // Match the desktop build's default-master access. Custom masters still use the explicitly entered key.
             if (string.IsNullOrWhiteSpace(inviteKey) && s_url.GetLeftPart(UriPartial.Authority) == OnlineSettings.DefaultMasterUrl)
                 inviteKey = OnlineSettings.DefaultInviteKey;
+            s_inviteKey = inviteKey;
+            OnlineSettings.Current.InviteKey = inviteKey;
             if (!string.IsNullOrEmpty(inviteKey)) request.Headers.Add(MasterApi.KeyHeader, inviteKey);
             request.Content = new StringContent(JsonSerializer.Serialize(new { serverId }, Json), System.Text.Encoding.UTF8, "application/json");
             using var response = await Http.SendAsync(request);
