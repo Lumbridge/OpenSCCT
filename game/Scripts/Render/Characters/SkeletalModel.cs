@@ -412,8 +412,8 @@ public sealed class SkeletalModel : OpenScctGame.Views.IFirstPersonRigModel
 
             foreach (int s in surfaces)
             {
-                made.AddSurfaceFromArrays(source.SurfaceGetPrimitiveType(s), source.SurfaceGetArrays(s),
-                    source.SurfaceGetBlendShapeArrays(s), null, source.SurfaceGetFormat(s) & KeptFlags);
+                MeshCpuArrays.Add(made, source.SurfaceGetPrimitiveType(s), MeshCpuArrays.Get(source, s),
+                    MeshCpuArrays.BlendShapes(source, s), null, source.SurfaceGetFormat(s) & KeptFlags);
                 int i = made.GetSurfaceCount() - 1;
                 made.SurfaceSetMaterial(i, source.SurfaceGetMaterial(s));
                 made.SurfaceSetName(i, source.SurfaceGetName(s));
@@ -754,6 +754,9 @@ public sealed class SkeletalModel : OpenScctGame.Views.IFirstPersonRigModel
         }
 
         Node? generated = document.GenerateScene(state);
+        if (OperatingSystem.IsBrowser())
+            foreach (GltfMesh mesh in state.GetMeshes())
+                if (mesh.Mesh is { } imported) MeshCpuArrays.Remember(imported);
         if (generated is Node3D scene)
         {
             return scene;

@@ -367,7 +367,7 @@ public sealed class AiNavCache
         string mapKey = MapKey(name, simHash, mask);
         NavGraph? spy = null;
         NavGraph? merc = null;
-        if (Environment.ProcessorCount > 1)
+        if (!OperatingSystem.IsBrowser() && Environment.ProcessorCount > 1)
         {
             try
             {
@@ -456,7 +456,7 @@ public sealed class AiNavCache
 
         (NavGraph Graph, bool Built) spy = default;
         (NavGraph Graph, bool Built) merc = default;
-        if (Environment.ProcessorCount > 1)
+        if (!OperatingSystem.IsBrowser() && Environment.ProcessorCount > 1)
         {
             // The second collision world is only needed for a cold build. Cache hits reuse the first map's key.
             try

@@ -420,6 +420,10 @@ public sealed class RenderMap
 [PortOf("eng:Render.MapBuilder", Spec = "docs/RENDERING.md#map-builder")]
 public static class MapBuilder
 {
+    // A single-threaded browser cannot block waiting for scheduled worker work.
+    private static Task<T> ReadData<T>(Func<T> read) =>
+        OperatingSystem.IsBrowser() ? Task.FromResult(read()) : Task.Run(read);
+
     public const string WorldFile = "render/world.glb";
     public const string MaterialsFile = "render/materials.json";
     public const string LightingFile = "render/lighting.json";
@@ -480,12 +484,12 @@ public static class MapBuilder
 
         // These files are plain data (no Godot objects): they are read on worker threads at once, and each is taken
         // where it was read before, so a bad file fails the same way.
-        Task<MaterialsDoc> materialsRead = Task.Run(() => MaterialsDoc.Load(Path.Combine(mapFolder, MaterialsFile)));
-        Task<LightingDoc> lightingRead = Task.Run(() => LightingDoc.Load(Path.Combine(mapFolder, LightingFile)));
-        Task<GlbDocument> glbRead = Task.Run(() => GlbDocument.Load(glbPath));
-        Task<GameplayActors> actorsRead = Task.Run(() => GameplayActors.Load(mapFolder));
+        Task<MaterialsDoc> materialsRead = ReadData(() => MaterialsDoc.Load(Path.Combine(mapFolder, MaterialsFile)));
+        Task<LightingDoc> lightingRead = ReadData(() => LightingDoc.Load(Path.Combine(mapFolder, LightingFile)));
+        Task<GlbDocument> glbRead = ReadData(() => GlbDocument.Load(glbPath));
+        Task<GameplayActors> actorsRead = ReadData(() => GameplayActors.Load(mapFolder));
         Task<List<OpenScctGame.Render.Projectors.ProjectorEntry>?> projectorsRead =
-            Task.Run(() => OpenScctGame.Render.Projectors.ProjectorsDoc.Load(mapFolder));
+            ReadData(() => OpenScctGame.Render.Projectors.ProjectorsDoc.Load(mapFolder));
         var textures = new TextureCache(renderDir) { MipDrop = options.MipDrop };
         RenderPack? pack = RenderPack.Load(RenderMap.SharedRootOf(mapFolder));
         MaterialsDoc materials = materialsRead.GetAwaiter().GetResult();
@@ -641,7 +645,7 @@ public static class MapBuilder
             // The meshes this build reads are decoded on worker threads while the textures are prefetched.
             List<(int Mesh, PrimitiveSource[] Sources)> wanted = MeshesToRead(bspMeshes);
             var decoded = new MeshPrimitive[]?[wanted.Count];
-            Task decoding = Task.Run(() => ParallelFor(wanted.Count, i => decoded[i] = TryDecode(wanted[i].Sources)));
+            Task decoding = ReadData(() => { ParallelFor(wanted.Count, i => decoded[i] = TryDecode(wanted[i].Sources)); return true; });
             Prefetch();
             decoding.GetAwaiter().GetResult();
             for (int i = 0; i < wanted.Count; i++)
@@ -988,6 +992,11 @@ public static class MapBuilder
         /// <summary>Runs <paramref name="body"/> for 0 to <paramref name="count"/> - 1 on worker threads; a failure is rethrown as itself.</summary>
         private static void ParallelFor(int count, Action<int> body)
         {
+            if (OperatingSystem.IsBrowser())
+            {
+                for (int i = 0; i < count; i++) body(i);
+                return;
+            }
             try
             {
                 Parallel.For(0, count, body);

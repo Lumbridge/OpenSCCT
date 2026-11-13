@@ -64,7 +64,7 @@ internal static class FoggedSkyZone
             var mesh = (ArrayMesh)node.Mesh;
             for (int s = 0; s < mesh.GetSurfaceCount(); s++)
             {
-                using Godot.Collections.Array arrays = mesh.SurfaceGetArrays(s);
+                using Godot.Collections.Array arrays = MeshCpuArrays.Get(mesh, s);
                 Vector3[] vertices = arrays[(int)Mesh.ArrayType.Vertex].AsVector3Array();
                 int[] indices = arrays[(int)Mesh.ArrayType.Index].AsInt32Array();
                 int count = indices.Length > 0 ? indices.Length : vertices.Length;

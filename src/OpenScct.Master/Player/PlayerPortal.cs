@@ -15,7 +15,7 @@ namespace OpenScct.Master.Player;
 
 /// <summary>The public player site and its independent, account-scoped browser session.</summary>
 internal sealed partial class PlayerPortal(MasterOptions options, AccountStore store, ServerRegistry registry, Func<HttpContext, IPAddress> clientIp,
-    ReleaseChangelog releases, GitHubBugReports? bugReports = null)
+    ReleaseChangelog releases, GitHubBugReports? bugReports = null, string? browserGameRoot = null)
 {
     internal const string SessionCookie = "svm_player";
     private const string StateCookie = "svm_player_state";
@@ -39,6 +39,7 @@ internal sealed partial class PlayerPortal(MasterOptions options, AccountStore s
         Get(app, "/help", Help);
         MapWiki(app);
         MapBugReports(app);
+        MapBrowserGame(app);
         Get(app, "/improvements", Improvements);
         Get(app, "/progress", _ => Results.Redirect("/improvements"));
         app.MapGet("/changelog", (Func<HttpContext, Task<IResult>>)Changelog);
@@ -117,7 +118,7 @@ internal sealed partial class PlayerPortal(MasterOptions options, AccountStore s
     private IResult SignIn(HttpContext c, string? problem = null, int status = 200, string? returnTo = null) =>
         Show(c, "Sign in", "account", $"<section class=\"panel signed-out\"><img src=\"{H(AssetUrl("/web/assets/mark.svg"))}\" alt=\"\" width=\"58\" height=\"58\">" +
             "<p class=\"eyebrow\">YOUR OPENSCCT ACCOUNT</p><h1>Sign in</h1><p class=\"lead\">" +
-            (LoginDestination(returnTo) != "/account" ? "Sign in to report a bug. " : "View your stats and manage your account. ") +
+            (LoginDestination(returnTo).StartsWith("/play/", StringComparison.Ordinal) ? "Sign in to use your settings and bindings in the browser. " : LoginDestination(returnTo) != "/account" ? "Sign in to report a bug. " : "View your stats and manage your account. ") +
             "Use the same Discord account you use in OpenSCCT.</p>" + Link(LoginLink(returnTo), "Sign in with Discord →", "button wide") +
             "<small>Discord confirms which account is yours. OpenSCCT does not receive your Discord password, email address or friends list.</small>" +
             "<p class=\"account-side-note\">You can browse this website, play offline and join servers that allow guests without signing in.</p></section>", problem, problem is not null, status);
@@ -178,7 +179,12 @@ internal sealed partial class PlayerPortal(MasterOptions options, AccountStore s
         catch (FormatException) { return "/account"; }
     }
 
-    private static string LoginDestination(string? requested) => BugReportReturnPath(requested) ?? "/account";
+    private static string LoginDestination(string? requested) => requested switch
+    {
+        "/play" or "/play/" => "/play/",
+        "/play/?lesson=spy-grab" or "/play/?lesson=vision-cancelling" or "/play/?lesson=merc" => requested,
+        _ => BugReportReturnPath(requested) ?? "/account",
+    };
 
     private static string LoginLink(string? returnTo) => LoginDestination(returnTo) is { } destination && destination != "/account"
         ? "/auth/player/login?returnTo=" + U(destination) : "/auth/player/login";

@@ -41,7 +41,14 @@ public sealed class StorageColor
     private Rid _checked;
     private bool _checkedStorage;
     private bool _checkedCopyBack;
+    private bool _checkedRasterBack;
     private RenderingDevice.DataFormat _checkedFormat;
+    private Rid _presentShader, _presentPipeline;
+    private long _presentFormat = -1;
+    private UniformSlots? _presentSlots;
+    private readonly Godot.Collections.Array<Rid> _presentTarget = [default(Rid)];
+    private readonly Godot.Collections.Array<RDFramebufferPass> _presentPasses = [new RDFramebufferPass { ColorAttachments = [0] }];
+    private static readonly Color[] NoClear = [];
 
     // The buffer of this frame's Begin, when the passes run on the copy.
     private Rid _pending;
@@ -67,11 +74,14 @@ public sealed class StorageColor
             _checkedCopyBack = (format.UsageBits & RenderingDevice.TextureUsageBits.CanCopyToBit) != 0
                 && (format.UsageBits & RenderingDevice.TextureUsageBits.SamplingBit) != 0
                 && format.Samples == RenderingDevice.TextureSamples.Samples1;
+            _checkedRasterBack = (format.UsageBits & RenderingDevice.TextureUsageBits.ColorAttachmentBit) != 0
+                && (format.UsageBits & RenderingDevice.TextureUsageBits.SamplingBit) != 0
+                && format.Samples == RenderingDevice.TextureSamples.Samples1;
             _checkedFormat = format.Format;
             if (!_checkedStorage)
             {
                 GD.Print($"SVM_RENDER {_owner}: the colour buffer is not a compatible storage image; "
-                    + (_checkedCopyBack ? "the post passes run on a copy" : "it cannot be copied back either, the post passes are skipped")
+                    + (_checkedCopyBack || _checkedRasterBack ? "the post passes run on a copy" : "it cannot be copied back either, the post passes are skipped")
                     + $"; usage={format.UsageBits}, samples={format.Samples}, type={format.TextureType}");
             }
         }
@@ -81,7 +91,7 @@ public sealed class StorageColor
             return color;
         }
 
-        if (!_checkedCopyBack || _checkedFormat != RenderingDevice.DataFormat.R16G16B16A16Sfloat || !EnsureCopy(rd, size))
+        if ((!_checkedCopyBack && !_checkedRasterBack) || _checkedFormat != RenderingDevice.DataFormat.R16G16B16A16Sfloat || !EnsureCopy(rd, size))
         {
             if (!_warned)
             {
@@ -113,7 +123,10 @@ public sealed class StorageColor
             return;
         }
 
-        _rd.TextureCopy(_work, _pending, Vector3.Zero, Vector3.Zero, new Vector3(_workSize.X, _workSize.Y, 1f), 0, 0, 0, 0);
+        if (_checkedCopyBack)
+            _rd.TextureCopy(_work, _pending, Vector3.Zero, Vector3.Zero, new Vector3(_workSize.X, _workSize.Y, 1f), 0, 0, 0, 0);
+        else
+            Present(_rd, _pending);
         _pending = default;
     }
 
@@ -125,7 +138,7 @@ public sealed class StorageColor
             return;
         }
 
-        foreach (Rid rid in (Rid[])[_work, _nearest])
+        foreach (Rid rid in (Rid[])[_work, _nearest, _presentPipeline, _presentShader])
         {
             if (rid.IsValid)
             {
@@ -137,8 +150,49 @@ public sealed class StorageColor
         ComputeShaderSource.ReleaseShared(_rd, _copyShader);
 
         _work = _copyPipeline = _copyShader = _nearest = default;
+        _presentPipeline = _presentShader = default;
+        _presentFormat = -1;
         _rd = null;
         _checked = default;
+    }
+
+    // Mobile/WebGPU scene buffers are render attachments without storage or copy-destination usage.
+    // Draw the processed HDR copy back into that attachment before Godot's tone mapping.
+    private void Present(RenderingDevice rd, Rid color)
+    {
+        _presentTarget[0] = color;
+        Rid framebuffer = FramebufferCacheRD.GetCacheMultipass(_presentTarget, _presentPasses, 1);
+        long format = rd.FramebufferGetFormat(framebuffer);
+        if (!_presentShader.IsValid)
+        {
+            using var source = new RDShaderSource
+            {
+                Language = RenderingDevice.ShaderLanguage.Glsl,
+                SourceVertex = "#version 450\nvoid main() { vec2 p = vec2(float((gl_VertexIndex << 1) & 2), float(gl_VertexIndex & 2)); gl_Position = vec4(p * 2.0 - 1.0, 0.0, 1.0); }",
+                SourceFragment = "#version 450\nlayout(set=0,binding=0) uniform sampler2D source_tex; layout(location=0) out vec4 color; void main() { color = texelFetch(source_tex, ivec2(gl_FragCoord.xy), 0); }",
+            };
+            using RDShaderSpirV spirv = rd.ShaderCompileSpirVFromSource(source);
+            _presentShader = rd.ShaderCreateFromSpirV(spirv);
+        }
+        if (!_presentPipeline.IsValid || _presentFormat != format)
+        {
+            if (_presentPipeline.IsValid) rd.FreeRid(_presentPipeline);
+            using var raster = new RDPipelineRasterizationState { CullMode = RenderingDevice.PolygonCullMode.Disabled };
+            using var samples = new RDPipelineMultisampleState();
+            using var depth = new RDPipelineDepthStencilState();
+            using var blend = new RDPipelineColorBlendState { Attachments = [new RDPipelineColorBlendStateAttachment()] };
+            _presentPipeline = rd.RenderPipelineCreate(_presentShader, format, -1, RenderingDevice.RenderPrimitive.Triangles,
+                raster, samples, depth, blend);
+            _presentFormat = format;
+        }
+        UniformSlots slots = _presentSlots ??= new UniformSlots(RenderingDevice.UniformType.SamplerWithTexture);
+        slots.Set(0, _nearest, _work);
+        Rid set = UniformSetCacheRD.GetCache(_presentShader, 0, slots.Array);
+        long list = rd.DrawListBegin(framebuffer, RenderingDevice.DrawFlags.IgnoreAll, NoClear);
+        rd.DrawListBindRenderPipeline(list, _presentPipeline);
+        rd.DrawListBindUniformSet(list, set, 0);
+        rd.DrawListDraw(list, false, 1, 3);
+        rd.DrawListEnd();
     }
 
     private bool EnsureCopy(RenderingDevice rd, Vector2I size)

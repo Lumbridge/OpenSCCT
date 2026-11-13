@@ -400,7 +400,7 @@ public partial class PlayMenu : Node
                 break;
             case InGameMenuAction.QuitGame:
                 Leave();
-                GetTree().Quit();
+                if (!OperatingSystem.IsBrowser()) GetTree().Quit();
                 break;
         }
     }

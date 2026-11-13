@@ -13,6 +13,7 @@ config_version=5
 config/name="OpenSCCT"
 config/description="OpenSCCT client"
 run/main_scene="res://Scenes/Boot.tscn"
+run/main_scene.web="res://Scenes/BrowserPrototype.tscn"
 config/features=PackedStringArray("4.7", "C#", "Forward Plus")
 config/icon="res://branding/icon.svg"
 config/windows_native_icon="res://branding/icon.ico"
@@ -43,5 +44,7 @@ project/assembly_name="OpenScctGame"
 [rendering]
 
 renderer/rendering_method="forward_plus"
+renderer/rendering_method.web="mobile"
+rendering_device/driver.web="webgpu"
 ; Vulkan only: Direct3D 12 was an option until 0.8.125 (slower, and some laptops failed to start with it).
 rendering_device/driver.windows="vulkan"

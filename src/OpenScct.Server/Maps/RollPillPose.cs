@@ -63,6 +63,12 @@ public sealed class RollPillPose : IPillPose
     public static IPillPose FromContent(string? characters)
     {
         if (characters is null) return EstimatedPillPose.Instance;
+        if (OperatingSystem.IsBrowser())
+        {
+            var spyContent = RollPoseContent.LoadShared(Path.Combine(characters, "SPerso", "ATT_01.glb"), allClips: true);
+            var mercContent = RollPoseContent.LoadShared(Path.Combine(characters, "SPerso", "DEF_01.glb"), allClips: true);
+            return spyContent is null && mercContent is null ? EstimatedPillPose.Instance : new RollPillPose(spyContent, mercContent);
+        }
         // The two skeletons are separate files read into separate objects: the spy's (the larger) is read on a worker
         // meanwhile. A failure of the spy's file is still the one reported when both fail.
         Task<RollPoseContent?> spyRead = Task.Run(() => RollPoseContent.LoadShared(Path.Combine(characters, "SPerso", "ATT_01.glb"), allClips: true));

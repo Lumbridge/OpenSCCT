@@ -33,6 +33,9 @@ public interface IConsoleHost
     /// <summary>The local player's current reproduction details, or null when there is no player in a map.</summary>
     string? LocationReport { get; }
 
+    /// <summary>Practice grab-area drawing; null toggles it.</summary>
+    string GrabArea(bool? on) => "grabarea: not in a game";
+
     /// <summary>Copies text only when the player explicitly requests it.</summary>
     void CopyText(string text);
 
@@ -54,7 +57,7 @@ public sealed class ConsoleCommands(IConsoleHost host)
         "Settings: set <key> <value> | get <key> | current | <key> [value]\n" +
         "Server: login <password> | cmd <server command> | say <text>\n" +
         "Match: resign | pings | map <name> [mode] | rmap_next | rmap_prev\n" +
-        "Practice: practice [on|off] | heal | regen | tank | kill | ammo\n" +
+        "Practice: practice [on|off] | heal | regen | tank | kill | ammo | grabarea [on|off]\n" +
         "Bots (practice / Visit Map): addbot | kickbot | placebot | botstop | botresume\n" +
         "Bot settings: bothealth | botweapon (mercs only) | botteam. Type help bots for usage.\n" +
         "Location: whereami [copy] | Exit: quit";
@@ -104,6 +107,12 @@ public sealed class ConsoleCommands(IConsoleHost host)
                     }
                 }
 
+                break;
+            case "grabarea":
+                if (arg.Length == 0) output.Add(_host.GrabArea(null));
+                else if (arg.Equals("on", StringComparison.OrdinalIgnoreCase)) output.Add(_host.GrabArea(true));
+                else if (arg.Equals("off", StringComparison.OrdinalIgnoreCase)) output.Add(_host.GrabArea(false));
+                else output.Add("usage: grabarea [on|off]");
                 break;
             case "get":
                 output.Add(SettingsConsole.Get(_host.Settings, arg) is { } value ? arg + " = " + value : $"no setting '{arg}' (try: current)");
@@ -190,6 +199,7 @@ public sealed class ConsoleCommands(IConsoleHost host)
             "tank" => "tank - Toggle immunity to damage in practice (suicide still works).",
             "kill" => "kill - Kill your current pawn in practice.",
             "ammo" => "ammo - Refill your ammunition in practice.",
+            "grabarea" => "grabarea [on|off] - Practice only: draw each mercenary's grab window and the local player's grab eligibility.",
             "whereami" => "whereami [copy] - Show map, position and view details; copy also copies them to the clipboard.",
             "quit" or "exit" => "quit - Close the game.",
             _ => null,

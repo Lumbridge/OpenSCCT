@@ -76,7 +76,7 @@ public static class SettingsApplier
 
         Render.SpotShadowLight.MapSize = Render.SpotShadowLight.MapSizeFor(s.ShadowQuality);
         Render.SpotShadowLight.SoftRadius = s.ShadowEdgeSmoothing ? Render.RenderK.SpotShadowSoftRadius : 0f;
-        Render.Rd.RdWorldRenderer.OwnFrameSetting = s.Renderer == "Fast";
+        Render.Rd.RdWorldRenderer.OwnFrameSetting = !OperatingSystem.IsBrowser() && s.Renderer == "Fast";
     }
 
     /// <summary>
@@ -220,6 +220,15 @@ public static class SettingsApplier
     public static void ApplyDisplay(GameSettings s, Viewport? viewport = null)
     {
         ArgumentNullException.ThrowIfNull(s);
+        if (OperatingSystem.IsBrowser())
+        {
+            // The browser owns the canvas size and fullscreen gesture.
+            if (viewport is not null)
+                viewport.Scaling3DScale = s.AutoScaleFps > 0 ? Math.Min(viewport.Scaling3DScale, s.RenderScale) : s.RenderScale;
+            ApplyRendering(s, viewport);
+            ApplyPacing(s);
+            return;
+        }
         if (DisplayServer.GetName() == "headless")
         {
             return;

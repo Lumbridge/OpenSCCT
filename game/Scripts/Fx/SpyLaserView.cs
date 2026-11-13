@@ -395,7 +395,7 @@ public sealed partial class SpyLaserView : Node3D
         var mesh = new ArrayMesh { ResourceName = source.ResourceName };
         for (int s = 0; s < source.GetSurfaceCount(); s++)
         {
-            Godot.Collections.Array arrays = source.SurfaceGetArrays(s);
+            Godot.Collections.Array arrays = MeshCpuArrays.Get(source, s);
             Vector3[] vertices = arrays[(int)Mesh.ArrayType.Vertex].AsVector3Array();
             Material? material = source.SurfaceGetMaterial(s);
             string name = material?.ResourceName ?? string.Empty;
@@ -409,7 +409,7 @@ public sealed partial class SpyLaserView : Node3D
             }
 
             arrays[(int)Mesh.ArrayType.Color] = colours;
-            mesh.AddSurfaceFromArrays(source.SurfaceGetPrimitiveType(s), arrays);
+            MeshCpuArrays.Add(mesh, source.SurfaceGetPrimitiveType(s), arrays);
             mesh.SurfaceSetMaterial(s, material);
             mesh.SurfaceSetName(s, source.SurfaceGetName(s));
         }

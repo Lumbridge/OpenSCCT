@@ -511,7 +511,7 @@ public partial class PlayRoot : Node3D
             Bindings = InputBindings.Load(settings.Side, Config.GameRoot, seedInputMap: !headless),
             Target = Session.Input,
             Enabled = Config.Pilot is null && !headless,
-            CapturePointer = !headless,
+            CapturePointer = !headless && !OperatingSystem.IsBrowser(),
         };
         AddChild(Controls);
         if (Config.Demo is { } demo)

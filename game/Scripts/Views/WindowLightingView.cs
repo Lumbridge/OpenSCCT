@@ -136,7 +136,7 @@ public sealed class WindowLightingView
             var replacement = new ArrayMesh();
             for (int surface = 0; surface < original.GetSurfaceCount(); surface++)
             {
-                var arrays = original.SurfaceGetArrays(surface);
+                var arrays = MeshCpuArrays.Get(original, surface);
                 string name = original.SurfaceGetName(surface);
                 int section = name.StartsWith("section", StringComparison.Ordinal) && int.TryParse(name.AsSpan(7), out int parsed) ? parsed : surface;
                 if (changes.TryGetValue(("mesh", actor, section), out var edits))
@@ -165,7 +165,7 @@ public sealed class WindowLightingView
                     }
                     arrays[(int)Mesh.ArrayType.Color] = colors;
                 }
-                replacement.AddSurfaceFromArrays(original.SurfaceGetPrimitiveType(surface), arrays);
+                MeshCpuArrays.Add(replacement, original.SurfaceGetPrimitiveType(surface), arrays);
                 replacement.SurfaceSetMaterial(surface, original.SurfaceGetMaterial(surface)); replacement.SurfaceSetName(surface, name);
             }
             node.Node.Mesh = replacement;

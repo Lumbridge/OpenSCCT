@@ -46,6 +46,11 @@ public partial class MainMenu : MenuPage
 
     public override void _Ready()
     {
+        if (OperatingSystem.IsBrowser())
+        {
+            BuildBrowserMenu();
+            return;
+        }
         BuildFrame(SplashTrivia.Pick(), 1000f, responsive: true);
         UseSplashTitle();
         Body.AddThemeConstantOverride("separation", 8);

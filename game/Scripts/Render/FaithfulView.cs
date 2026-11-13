@@ -66,6 +66,11 @@ public partial class FaithfulView : Node3D
         DoubleVision = new RemanenceEffect { DoubleVision = true };
         CoronaSamples = new CoronaSampleEffect(Camera);
         Camera.Compositor = new Compositor { CompositorEffects = new Godot.Collections.Array<CompositorEffect> { CoronaSamples, AmbientOcclusion, Effect, DoubleVision, Remanence } };
+        if (OperatingSystem.IsBrowser() && Array.IndexOf(OS.GetCmdlineUserArgs(), "--svm-browser-no-post") >= 0)
+        {
+            CoronaSamples.Enabled = AmbientOcclusion.Enabled = Effect.Enabled = DoubleVision.Enabled = Remanence.Enabled = false;
+            Camera.Compositor = null;
+        }
         AddChild(Camera);
         _surfaceFog = new SurfaceFogRegistry(Camera, main: true);
     }
