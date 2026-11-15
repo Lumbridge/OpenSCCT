@@ -54,7 +54,7 @@ public partial class Mover
                     return;
                 }
 
-                if (DelayTime > 0f)
+                if (DelayTime > 0f && !(CurrentKey < PreviousKey && HasActivePresence()))
                 {
                     bDelaying = true;
                     f.Pc = 2;
@@ -83,6 +83,11 @@ public partial class Mover
                 }
 
                 f.Pc = 4;
+                if (HasActivePresence() && !bTriggerOnceOnly)
+                {
+                    goto case 5;
+                }
+
                 Sleep(StayOpenTime);
                 return;
             case 4:
@@ -92,7 +97,24 @@ public partial class Mover
                     return;
                 }
 
+                if (HasActivePresence())
+                {
+                    goto case 5;
+                }
+
                 goto case OpenTimedMover_Close;
+            case 5:
+                // Occupancy is a level, not repeated Trigger events (which would replay relays and sounds).
+                f.Pc = 5;
+                if (HasActivePresence())
+                {
+                    Sleep(0f);
+                    return;
+                }
+
+                f.Pc = 4;
+                Sleep(StayOpenTime);
+                return;
             case OpenTimedMover_Close:
                 Segment(ref f, OpenTimedMover_Close);
                 if (DelayTimeLastKey > 0f)

@@ -744,6 +744,12 @@ probe kept the copy stuck while the client walked on (10 uu corrections every 0.
 
 ## Movers on clients
 
+Presence-controlled automatic doors make their occupancy decisions only on authority. Map detectors keep their
+authored class/grab filters and event polarity; timed/control movers hold while a triggering detector remains
+occupied and can reverse a closing leg. Relays retain that detector as the event source. The resulting legs and
+resting positions use the existing mover replication, so clients and late joiners follow the server without
+running a separate door timer (`Mover.Presence.cs`, `SPresenceTrigger.cs`).
+
 Every machine runs its own copy of a mover. The original keeps them together only loosely, and four things of ours
 tighten that (`Mover.ClientSync.cs`, `Mover.Legs.cs`, `PawnProxies.PostMover`):
 

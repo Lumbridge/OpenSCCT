@@ -237,7 +237,8 @@ public partial class Mover
     {
         bOpening = true;
         bDelaying = false;
-        InterpolateTo(1, MoveTime);
+        // A presence entry during closing reverses this leg, including doors with more than two keys.
+        InterpolateTo(CurrentKey < PreviousKey && HasActivePresence() ? PreviousKey : 1, MoveTime);
         MakeNoise(1f);
         PlayMoverSound(OpeningSound);
         AmbientSound = MoveAmbientSound;
@@ -509,6 +510,7 @@ public partial class Mover
             EventInstigator = Other.Instigator;
         }
 
+        RememberPresenceTrigger(Other);
         eventSubTrigger(Other, EventInstigator);
     }
 
@@ -561,6 +563,11 @@ public partial class Mover
         }
 
         if (Other is not null && Other.ForceTriggerableEvenIfMoving())
+        {
+            return true;
+        }
+
+        if (PresenceCanReverse(Other))
         {
             return true;
         }

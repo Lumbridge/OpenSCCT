@@ -31,6 +31,7 @@ public partial class Mover
         [PortOf("uc:Engine.Mover:TriggerControl.Trigger", Spec = "spec/devices/mover.md#triggering")]
         public override void Trigger(Mover self, Actor? Other, Pawn? EventInstigator)
         {
+            self.RememberPresenceTrigger(Other);
             if (self.IsTriggerable(Other))
             {
                 self.Trigger(Other, EventInstigator);
@@ -87,7 +88,7 @@ public partial class Mover
             case TriggerControl_Open:
                 Segment(ref f, TriggerControl_Open);
                 bClosed = false;
-                if (DelayTime > 0f)
+                if (DelayTime > 0f && !(CurrentKey < PreviousKey && HasActivePresence()))
                 {
                     bDelaying = true;
                     f.Pc = 2;
@@ -127,10 +128,20 @@ public partial class Mover
                     return;
                 }
 
+                if (numTriggerEvents == 0 && _presenceTriggers is { Count: > 0 })
+                {
+                    // Preserve a release deferred by occupancy while reversing/opening.
+                    f.Pc = TriggerControl_Close;
+                    Sleep(0f);
+                    return;
+                }
+
                 f.Pc = LatentFrame.NoCode;
                 return;
             case TriggerControl_Close:
                 Segment(ref f, TriggerControl_Close);
+                if (WaitForPresenceBeforeControlClose()) return;
+
                 if (DelayTimeLastKey > 0f)
                 {
                     bDelaying = true;
@@ -142,6 +153,8 @@ public partial class Mover
                 goto case 90;
             case 90:
                 mark = Segment(ref f, 90);
+                if (WaitForPresenceBeforeControlClose()) return;
+
                 DoClose();
                 if (Jumped(mark))
                 {

@@ -7,7 +7,8 @@ public partial class Mover
 {
     /// <summary>
     /// Opens when triggered at rest, holds StayOpenTime, closes (the SteeE shutters and merc doors). A trigger
-    /// while moving is dropped; a trigger while holding open restarts the Open label.
+    /// while moving is dropped, except an occupied presence source can reverse closing. Presence holds the door
+    /// open until the last qualifying pawn leaves; other triggers while holding open restart the Open label.
     /// </summary>
     [Uc("Engine.Mover.TriggerOpenTimed")]
     public class TriggerOpenTimed : OpenTimedMover
@@ -23,6 +24,7 @@ public partial class Mover
         [PortOf("uc:Engine.Mover:TriggerOpenTimed.Trigger", Spec = "spec/devices/mover.md#triggering")]
         public override void Trigger(Mover self, Actor? Other, Pawn? EventInstigator)
         {
+            self.RememberPresenceTrigger(Other);
             if (self.IsTriggerable(Other))
             {
                 self.Trigger(Other, EventInstigator);

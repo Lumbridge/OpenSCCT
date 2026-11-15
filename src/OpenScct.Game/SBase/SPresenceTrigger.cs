@@ -6,12 +6,33 @@ using OpenScct.Provenance;
 namespace OpenScct.Game.SBase;
 
 /// <summary>
-/// SBase.SPresenceTrigger: fires its Event once per entry of a pawn of DetectedClass (the SteeE merc doors), or of
-/// a spy carrying a grabbed DetectedClass pawn (spec/devices/triggers.md).
+/// SBase.SPresenceTrigger: fires its Event on entry of a pawn of DetectedClass (the SteeE merc doors), or of
+/// a spy carrying a grabbed DetectedClass pawn. Its occupancy also holds automatic doors open.
 /// </summary>
-public partial class SPresenceTrigger
+public partial class SPresenceTrigger : IPresenceTrigger
 {
     private static readonly Name NAME_s_GrabbingPlayer = new("s_GrabbingPlayer");
+
+    public bool IsPresenceActive
+    {
+        get
+        {
+            if (Role != ENetRole.ROLE_Authority || bDeleteMe || !bCollideActors) return false;
+            foreach (Actor other in Touching)
+            {
+                if (Detects(other)) return true;
+            }
+
+            return false;
+        }
+    }
+
+    private bool Detects(Actor other) => !other.bDeleteMe && other is Pawn { Health: > 0 } &&
+        (ClassIsChildOf(other.GetUcClass(), DetectedClass) || DetectsGrab(other));
+
+    private bool DetectsGrab(Actor other) => bDetectGrab && other is SPawnAttaque spy &&
+        spy.Controller is { } controller && controller.GetStateName() == NAME_s_GrabbingPlayer &&
+        ClassIsChildOf(spy.m_AttackTarget?.GetUcClass(), DetectedClass);
 
     /// <summary>
     /// A DetectedClass toucher fires (UnTrigger when bUntrigger); otherwise, with bDetectGrab, a spy whose controller
@@ -21,6 +42,7 @@ public partial class SPresenceTrigger
     [PortOf("uc:SBase.SPresenceTrigger:Touch", Spec = "spec/devices/triggers.md#spresencetrigger")]
     protected override void Touch(Actor Other)
     {
+        if (Role != ENetRole.ROLE_Authority) return;
         if (ClassIsChildOf(Other.GetUcClass(), DetectedClass))
         {
             if (bUntrigger)
@@ -32,9 +54,7 @@ public partial class SPresenceTrigger
                 TriggerEvent(Event, this, Other as Pawn);
             }
         }
-        else if (bDetectGrab && Other is SPawnAttaque spy && spy.Controller is { } controller &&
-                 controller.GetStateName() == NAME_s_GrabbingPlayer &&
-                 ClassIsChildOf(spy.m_AttackTarget?.GetUcClass(), DetectedClass))
+        else if (DetectsGrab(Other) && Other is Pawn spy)
         {
             TriggerEvent(Event, this, spy);
         }

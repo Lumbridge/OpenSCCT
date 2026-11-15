@@ -14,6 +14,49 @@ namespace OpenScct.Integration.Tests;
 /// <summary>Aquarius Tech Room doors: presence triggers, delayed releases and replicated movement.</summary>
 public sealed class MoverNetworkTests
 {
+    [Theory]
+    [InlineData("SteeE", "PorteMerc", "C")]
+    [InlineData("AquaE", "Porte04", "A")]
+    [InlineData("AquaE", "Porte08", "300")]
+    public void AuthoredPresenceDoorStaysOpenForAStationaryMercAndReopensDuringClosing(
+        string map, string tag, string profile)
+    {
+        Assert.SkipWhen(WalkerRig.Maps.FindFolder(map) is null, "Map is not converted.");
+        using var run = new PlacedPlayer(map, PlaySide.Merc, SimLinkProfile.Get(profile));
+        var door = run.Session.Host.Map.MapActors.OfType<Mover>().Single(m => m.Tag == tag);
+        var copy = run.Session.Client.Map!.MapActors.OfType<Mover>().Single(m => m.Tag == tag);
+        var detector = run.Session.Host.Map.MapActors.OfType<SPresenceTrigger>()
+            .First(t => t.Event == (map == "SteeE" ? tag : "SM" + tag));
+        FVector closed = door.Location;
+        float moveTime = door.MoveTime;
+        float stayOpenTime = door.StayOpenTime;
+        door.bAlwaysRelevant = true;
+        // Aquarius's merc detectors are centered in the closed brush. Stand beside it, at floor height,
+        // within the authored cylinder, so placement does not depenetrate the pawn onto/away from the door.
+        FVector occupied = detector.Location;
+        if (map == "AquaE") occupied += tag == "Porte04" ? new FVector(100, 0, 54) : new FVector(0, -100, 54);
+        // Place in the actual authored detector: collision creates and maintains the physical touch.
+        run.Place(occupied, 0);
+        run.Ticks(600);
+        Assert.True(detector.Touching.Contains(run.Server), $"pawn={run.Server.Location}, detector={detector.Location}");
+        Assert.True((door.Location - closed).Size() > 100);
+        Assert.False(door.bInterpolating);
+        Assert.InRange((copy.Location - door.Location).Size(), 0, 3);
+
+        // Exiting via the normal placement path ends the overlap; wait until partway through the close.
+        run.Place(closed + new FVector(600, 600, 0), 0);
+        for (int i = 0; i < 900 && (!door.bInterpolating || door.bOpening); i++) run.Tick();
+        Assert.True(door.bInterpolating && !door.bOpening);
+        run.Ticks(20);
+        run.Place(occupied, 0);
+        run.Ticks(600);
+        Assert.True((door.Location - closed).Size() > 100);
+        Assert.False(door.bInterpolating);
+        Assert.InRange((copy.Location - door.Location).Size(), 0, 3);
+        Assert.Equal(moveTime, door.MoveTime);
+        Assert.Equal(stayOpenTime, door.StayOpenTime);
+    }
+
     [Fact]
     public void AquariusPumpDoorDoesNotRunAnIndependentClientCycleWhilePlayerPushesIt()
     {
