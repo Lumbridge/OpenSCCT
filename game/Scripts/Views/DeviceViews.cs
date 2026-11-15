@@ -182,7 +182,8 @@ public sealed class DeviceViews
     /// </summary>
     private static bool IsSkeletal(Actor actor) =>
         !actor.Mesh.IsNone &&
-        (actor is SAnimatedMesh || (actor is SFish or SFish_Follow && actor.DrawType == EDrawType.DT_Mesh));
+        (actor is SAnimatedMesh ||
+         (actor is SFish or SFish_Follow or SComputerObjectiveTrigger { bPS2Objective: true } && actor.DrawType == EDrawType.DT_Mesh));
 
     /// <summary>The followed gameplay mesh nodes.</summary>
     public IReadOnlyList<MeshFollower> Meshes => _meshes;
@@ -295,6 +296,7 @@ public sealed class DeviceViews
                 break;
             }
         }
+        orphans |= _animated.Any(v => v.Actor is SComputerObjectiveTrigger { bPS2Objective: true, bDeleteMe: true });
 
         if (!orphans || (level.ActorCount == _rebindActorCount && level.TickCount % RebindRescanTicks != 0))
         {
@@ -310,6 +312,8 @@ public sealed class DeviceViews
                 _bound.Add(m.Actor);
             }
         }
+        foreach (AnimatedMeshView view in _animated)
+            if (!view.Actor.bDeleteMe) _bound.Add(view.Actor);
 
         foreach (Actor a in level.DynamicActors<Actor>())
         {
@@ -320,13 +324,25 @@ public sealed class DeviceViews
 
             foreach (MeshFollower m in _meshes)
             {
-                if (m.Actor.bDeleteMe && m.Replaceable && m.Actor.GetType() == a.GetType() && m.IsAtPlacement(a.Location))
+                bool atPlacement = m.IsAtPlacement(a.Location) ||
+                    a is SFlag { bPS2Objective: true, Ps2Computer: { } home } &&
+                    m.IsAtPlacement(home.Location + new FVector(0, 0, 25));
+                if (m.Actor.bDeleteMe && m.Replaceable && m.Actor.GetType() == a.GetType() && atPlacement)
                 {
                     m.Rebind(a);
                     _bound.Add(a);
                     break;
                 }
             }
+            if (a is SComputerObjectiveTrigger { bPS2Objective: true } && !_bound.Contains(a))
+                foreach (AnimatedMeshView view in _animated)
+                    if (view.Actor is SComputerObjectiveTrigger { bPS2Objective: true, bDeleteMe: true } &&
+                        FVector.Dist(view.Actor.Location, a.Location) < 1f && view.Actor.Mesh == a.Mesh)
+                    {
+                        view.Rebind(a);
+                        _bound.Add(a);
+                        break;
+                    }
         }
     }
 
@@ -690,7 +706,7 @@ public sealed class MeshFollower
 /// </summary>
 public sealed class AnimatedMeshView
 {
-    private readonly Actor _actor;
+    private Actor _actor;
     private readonly SAnimatedMesh? _mesh;
     private readonly RenderMap _map;
     private MeshAnimSequence? _sequence;
@@ -702,6 +718,8 @@ public sealed class AnimatedMeshView
     private float _posedFrame = -1f;
     private Name _looped;
     private int _loopStarts;
+    private int _ps2Serial = -1;
+    private int _ps2Finished = -1;
     private FVector _prevLocation;
     private FVector _location;
     private FRotator _prevRotation;
@@ -728,6 +746,16 @@ public sealed class AnimatedMeshView
 
     public Actor Actor => _actor;
 
+    internal void Rebind(Actor actor)
+    {
+        _actor = actor;
+        _prevLocation = _location = actor.Location;
+        _prevRotation = _rotation = actor.Rotation;
+        _ps2Serial = _ps2Finished = -1;
+        _lit = false;
+        OnTick();
+    }
+
     /// <summary>Sequences the drawn channel started (an SAnimatedMesh's channel starts, a fish's loop changes).</summary>
     public int Starts => _mesh?.AnimStarts ?? _loopStarts;
 
@@ -745,6 +773,18 @@ public sealed class AnimatedMeshView
         _prevRotation = _rotation;
         _location = _actor.Location;
         _rotation = _actor.Rotation;
+        if (_actor is SComputerObjectiveTrigger { bPS2Objective: true } computer)
+        {
+            if (computer.Ps2AnimationSerial != _ps2Serial)
+            {
+                _ps2Serial = computer.Ps2AnimationSerial;
+                string sequence = computer.Ps2AnimationSequence.ToString();
+                float frame = computer.Ps2AnimationStartFrame;
+                Model.Sampler.Play(sequence, computer.Ps2AnimationRate * (computer.Ps2AnimationBackward ? -1f : 1f),
+                    loop: false, frame: frame);
+            }
+            return;
+        }
         if (_mesh is not null)
         {
             _sequence = _mesh.AnimSequence;
@@ -802,6 +842,18 @@ public sealed class AnimatedMeshView
         if (_mesh is null)
         {
             Model.Sampler.Advance(dt);
+            if (_actor is SComputerObjectiveTrigger { bPS2Objective: true } computer)
+            {
+                if (_ps2Finished != _ps2Serial && Model.Sampler.Current is not null &&
+                    (Model.Sampler.Rate > 0f && Model.Sampler.Frame >= 1f ||
+                     Model.Sampler.Rate < 0f && Model.Sampler.Frame <= 0f))
+                {
+                    _ps2Finished = _ps2Serial;
+                    computer.Ps2AnimationFinished(_ps2Serial);
+                }
+                for (int slot = 0; slot < computer.Skins.Count; slot++)
+                    Model.SetSlotSkin(slot, computer.Skins[slot].Path);
+            }
             Model.Pose();
         }
         else

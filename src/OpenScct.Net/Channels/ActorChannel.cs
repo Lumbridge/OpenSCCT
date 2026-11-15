@@ -572,6 +572,13 @@ public sealed partial class ActorChannel : Channel
         World world = driver.World ?? throw new InvalidOperationException("The client driver has no World to spawn into.");
         Actor actor = info.Factory();
 
+        // This header denotes a dynamic authority instance. Authored maps may
+        // override a PC class's bStatic/bNoDelete defaults (the PS2 objectives
+        // do); those defaults must not reject the replacement's remote spawn.
+        // Persistent actors use the map-index branch above instead.
+        actor.bStatic = false;
+        actor.bNoDelete = false;
+
         // ULevel::SpawnActor with bRemoteOwned: the client copy starts with the class roles exchanged.
         (actor.Role, actor.RemoteRole) = (actor.RemoteRole, actor.Role);
         Actor? live = world.Level.SpawnActor(actor, location, rotation, bRemoteOwned: true);

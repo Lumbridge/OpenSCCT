@@ -22,6 +22,7 @@ public partial class SBombTargetObjectiveTrigger
     protected override void PostBeginPlay()
     {
         base.PostBeginPlay();
+        if (bPS2Objective) return;
         if (InteractionObj is not null)
         {
             InteractionObj.bUsable = false;
@@ -41,6 +42,7 @@ public partial class SBombTargetObjectiveTrigger
     public override void Reset()
     {
         base.Reset();
+        if (bPS2Objective) { Ps2ResetTarget(); return; }
         ShowUnarmed();
         if (InteractionObj is not null)
         {
@@ -114,6 +116,7 @@ public partial class SBombTargetObjectiveTrigger
     [PortOf("uc:SBase.SBombTargetObjectiveTrigger:Triggering", Spec = "spec/objectives/bomb-target.md#rules")]
     protected internal override void Triggering(bool Status)
     {
+        if (bPS2Objective) { Ps2TriggerTarget(Status); return; }
         if (Status == bTriggering || (Status && !bActive) || (Status && !CheckOtherTriggers()))
         {
             return;
@@ -180,6 +183,7 @@ public partial class SBombTargetObjectiveTrigger
     [PortOf("uc:SBase.SBombTargetObjectiveTrigger:Timer", Spec = "spec/objectives/bomb-target.md#rules")]
     protected override void Timer()
     {
+        if (bPS2Objective) return;
         if (InteractionObj is not null)
         {
             InteractionObj.bUsable = false;
@@ -200,6 +204,7 @@ public partial class SBombTargetObjectiveTrigger
     protected override void TakeDamage(int Damage, Pawn? EventInstigator, FVector HitLocation, FVector Momentum,
         SDamageType DamageType, int PillTag = 0)
     {
+        if (bPS2Objective) return;
         if (bTriggering)
         {
             ObjectiveMessages.Broadcast(this, MK.MsgBombSecured, this);
@@ -218,6 +223,14 @@ public partial class SBombTargetObjectiveTrigger
     [PortOf("uc:SBase.SBombTargetObjectiveTrigger:Lock", Spec = "spec/objectives/bomb-target.md#rules")]
     protected internal override void Lock()
     {
+        if (bPS2Objective)
+        {
+            Ps2Computer?.Ps2SetVisualState(7, 4f);
+            if ((Level.Game as SGameInfo)?.MatchInfo?.GameMode == EGameMode.GM_Sabotage && !bTriggering)
+                ObjectiveMessages.Broadcast(this, MK.MsgBombSecured, this);
+            GotoState(K.s_TemporaryInactive);
+            return;
+        }
         if (bHidden)
         {
             return;
@@ -242,6 +255,12 @@ public partial class SBombTargetObjectiveTrigger
     [PortOf("uc:SBase.SBombTargetObjectiveTrigger:TakeObjective", Spec = "spec/objectives/bomb-target.md#rules")]
     protected internal override void TakeObjective()
     {
+        if (bPS2Objective)
+        {
+            ObjectiveMessages.Broadcast(this, MK.MsgBombBombed, this);
+            base.TakeObjective();
+            return;
+        }
         DeviceClasses.Spawn(this, MK.BombEmitterClass, this, Name.None, Location, Rotation);
         PlaySound(MK.BombExplosionSound, ESoundSlot.SLOT_Misc, 1f, false, MK.BombExplosionSoundRadius);
         ObjectiveMessages.Broadcast(this, MK.MsgBombBombed, this);
@@ -258,6 +277,7 @@ public partial class SBombTargetObjectiveTrigger
     protected override void NativeTick(float DeltaSeconds)
     {
         base.NativeTick(DeltaSeconds);
+        if (bPS2Objective) return;
         if (bDeleteMe || bSkinState == bLocalSkinState)
         {
             return;

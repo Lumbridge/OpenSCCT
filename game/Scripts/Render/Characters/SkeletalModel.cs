@@ -255,6 +255,23 @@ public sealed class SkeletalModel : OpenScctGame.Views.IFirstPersonRigModel
                 return made;
             }
 
+            // Map-authored skeletal skins can carry their own complete shader,
+            // including the PS2 terminal's moving liquid and emissive mask.
+            Materials.TryGetValue(skin, out MaterialEntry? authoredSkin);
+            if (authoredSkin is null)
+                foreach (MaterialEntry candidate in Materials.Values)
+                    if (string.Equals(candidate.Source, skin, StringComparison.OrdinalIgnoreCase))
+                    {
+                        authoredSkin = candidate;
+                        break;
+                    }
+            if (authoredSkin is not null)
+            {
+                made = Compiler.Build(authoredSkin, LightSource.Actor);
+                Swaps[(own, skin)] = made;
+                return made;
+            }
+
             string uri = "textures/" + skin.Replace('.', '_') + ".png";
             made = Materials.TryGetValue(own, out MaterialEntry? entry) && File.Exists(Path.Combine(Folder, uri))
                 ? Compiler.Build(new MaterialEntry
@@ -1447,6 +1464,12 @@ public sealed class SkeletalModel : OpenScctGame.Views.IFirstPersonRigModel
                 normalTexture = ii >= 0 && ii < images.Count ? images[ii] : null;
             }
             bool hasEx = ex.ValueKind == JsonValueKind.Object;
+            if (hasEx && ex.TryGetProperty("scct_material_flags", out JsonElement nativeFlags))
+            {
+                MaterialEntry authored = MaterialsDoc.FromFlags(name, nativeFlags, MaterialsDoc.Str(ex, "scct_vision_source"));
+                result[name] = authored;
+                continue;
+            }
             result[name] = new MaterialEntry
             {
                 Name = name,

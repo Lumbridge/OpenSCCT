@@ -124,7 +124,7 @@ public partial class SPlayerController
             hooks.FullReload(gadget);
             if (gadget.GetUcClass().Create() is SGadget defaults)
             {
-                gadget.Charge = defaults.Charge;
+                gadget.Charge = PawnInventory.IsPs2Modem(gadget) ? 1 : defaults.Charge;
             }
         }
 

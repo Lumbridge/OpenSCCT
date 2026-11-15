@@ -74,17 +74,25 @@ public static class GameplayObjects
         foreach (GameplayActor actor in actors.Actors)
         {
             if (map.Gameplay.ContainsKey(actor.Id) || actor.Int("DrawType") != DT_StaticMesh
-                || actor.Asset("StaticMesh") is not { } meshPath || pack.GameplayMeshNode(meshPath) is not { } nodeName
-                || !nodes.TryGetValue(nodeName, out int meshIndex))
+                || actor.Asset("StaticMesh") is not { } meshPath)
             {
                 continue;
             }
 
             bool unlit = actor.Bool("bUnlit");
-            if (!meshes.TryGetValue((nodeName, unlit), out ArrayMesh? arrayMesh))
+            ArrayMesh? arrayMesh;
+            if (!unlit && map.SwapMeshes.TryGetValue(meshPath, out ArrayMesh? localMesh))
             {
-                arrayMesh = BuildMesh(glb, meshIndex, materialNames, compiler, unlit ? LightSource.None : LightSource.Actor);
-                meshes[(nodeName, unlit)] = arrayMesh;
+                arrayMesh = localMesh;
+            }
+            else
+            {
+                if (pack.GameplayMeshNode(meshPath) is not { } nodeName || !nodes.TryGetValue(nodeName, out int meshIndex)) continue;
+                if (!meshes.TryGetValue((nodeName, unlit), out arrayMesh))
+                {
+                    arrayMesh = BuildMesh(glb, meshIndex, materialNames, compiler, unlit ? LightSource.None : LightSource.Actor);
+                    meshes[(nodeName, unlit)] = arrayMesh;
+                }
             }
 
             if (arrayMesh is null)
@@ -156,7 +164,9 @@ public static class GameplayObjects
                     shown += diskHunt ? 1 : 0;
                     break;
                 case "SFlag" when story:
-                    if (g.Node.Mesh is ArrayMesh rack && MeshFor(map, "SGameplayObjects.Extraction_SM.HardDisk_T", unlit: false) is { } disk)
+                    // PS2 objectives retain their authored vial mesh and computer proxy.
+                    if (!actor.Bool("bPS2Objective") && g.Node.Mesh is ArrayMesh rack &&
+                        MeshFor(map, "SGameplayObjects.Extraction_SM.HardDisk_T", unlit: false) is { } disk)
                     {
                         spawned.Add((g.ActorId + "_Server", rack, actor.Vector("Location"), actor.Rotator("Rotation"), g));
                         g.Node.Mesh = disk;
@@ -210,6 +220,7 @@ public static class GameplayObjects
     {
         ArgumentNullException.ThrowIfNull(map);
         ArgumentNullException.ThrowIfNull(meshPath);
+        if (!unlit && map.SwapMeshes.TryGetValue(meshPath, out ArrayMesh? localMesh)) return localMesh;
         if (map.Pack is not { } pack || pack.GameplayGlb is not { } glbPath || pack.GameplayMeshNode(meshPath) is not { } nodeName)
         {
             return null;

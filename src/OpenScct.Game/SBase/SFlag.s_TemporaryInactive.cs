@@ -24,7 +24,7 @@ public partial class SFlag
         public override void BeginState(Actor self)
         {
             var flag = (SFlag)self;
-            flag.bLocked = true;
+            if (!flag.bPS2Objective) flag.bLocked = true;
             flag.SetTimer(0f, false);
         }
 
@@ -48,6 +48,7 @@ public partial class SFlag
             var flag = (SFlag)self;
             if (flag.Objective is not { ObjectiveTaken: true })
             {
+                if (flag.bPS2Objective) flag.Ps2Computer?.Ps2SetVisualState(5, 4f);
                 flag.SetTimer(K.UnlockReenableDelay, false);
             }
             else
@@ -73,6 +74,14 @@ public partial class SFlag
 
             flag.bLocked = false;
             flag.GotoState(K.s_Initial);
+        }
+
+        public override void Tick(Actor self, float deltaSeconds)
+        {
+            var flag = (SFlag)self;
+            if (!flag.bPS2Objective) { base.Tick(self, deltaSeconds); return; }
+            if (flag.Ps2Computer is { bDeleteMe: false } console && flag.Location.Z > console.Location.Z)
+                flag.Ps2MoveVertically(-15f * deltaSeconds);
         }
     }
 }

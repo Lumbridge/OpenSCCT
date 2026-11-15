@@ -34,6 +34,12 @@ public partial class SBombTargetObjectiveTrigger
         {
             if (self.Objective is not { ObjectiveTaken: true })
             {
+                if (self.bPS2Objective)
+                {
+                    self.Ps2Computer?.Ps2SetVisualState(8, 4f);
+                    self.GotoState(K.s_Initial);
+                    return;
+                }
                 if (self.InteractionObj is not null)
                 {
                     self.InteractionObj.bUsable = true;

@@ -27,6 +27,14 @@ public partial class SFlagDropZone
     [PortOf("uc:SBase.SFlagDropZone:PostBeginPlay", Spec = "spec/objectives/disk-flag.md#rules")]
     protected override void PostBeginPlay()
     {
+        if (bPS2Objective)
+        {
+            // The source class only implements Touch; its collision volume is
+            // authored in the map and it has no PC suitcase or Use entry.
+            InteractionClass = ClassRef.None;
+            base.PostBeginPlay();
+            return;
+        }
         base.PostBeginPlay();
         if (Role < ENetRole.ROLE_Authority)
         {
@@ -108,5 +116,16 @@ public partial class SFlagDropZone
         }
 
         return false;
+    }
+
+    protected override void Touch(Actor other)
+    {
+        if (bPS2Objective && Role == ENetRole.ROLE_Authority && other is SBasePawn { CarriedFlag: { } flag } pawn &&
+            flag.bPS2Objective && flag.CheckDropZone(this))
+        {
+            flag.eventThrow(pawn.Controller, pawn.Velocity);
+            pawn.CarriedFlag = null;
+        }
+        base.Touch(other);
     }
 }
