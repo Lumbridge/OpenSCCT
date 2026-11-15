@@ -77,6 +77,7 @@ public partial class AccountService : Node
     /// </summary>
     public static MasterClient? MakeClient(bool withToken = true)
     {
+        if (OperatingSystem.IsBrowser()) return BrowserPlatform.MakeAccountClient?.Invoke();
         OnlineSettings s = OnlineSettings.Current;
         if (s.MasterUrl.Length == 0)
         {
@@ -114,13 +115,14 @@ public partial class AccountService : Node
             return Task.FromException<T>(new MasterException("Set a master server first (Find a Session)."));
         }
 
-        return Task.Run(async () =>
+        async Task<T> Run()
         {
             using (client)
             {
                 return await call(client).ConfigureAwait(false);
             }
-        });
+        }
+        return OperatingSystem.IsBrowser() ? Run() : Task.Run(Run);
     }
 
     /// <summary>The message of a finished task's failure, for the player.</summary>
@@ -132,7 +134,9 @@ public partial class AccountService : Node
 
     /// <summary>True when a finished task failed because the master no longer knows the sign-in.</summary>
     public static bool IsSignedOutError(Task task) =>
-        task is { IsFaulted: true } && task.Exception?.InnerException is MasterException { StatusCode: 401 } &&
+        task is { IsFaulted: true } && task.Exception?.InnerException is MasterException { StatusCode: 401 } error &&
+        // Private-master access failures also use 401. They must not repeatedly reload a valid browser session.
+        (!OperatingSystem.IsBrowser() || error.Message == "Sign in again.") &&
         AccountSettings.Current.SignedIn;
 
     public override void _Ready()
@@ -336,7 +340,7 @@ public partial class AccountService : Node
     /// <summary>The settings or a key layout changed on this PC: note when, and send them a little later.</summary>
     private void OnLocalChange()
     {
-        if (_applying || AccountSettings.Isolated)
+        if (OperatingSystem.IsBrowser() || _applying || AccountSettings.Isolated)
         {
             return;
         }
@@ -353,7 +357,7 @@ public partial class AccountService : Node
     /// <summary>Asks for the account's settings (after a sign-in, and once at start-up).</summary>
     private void Pull()
     {
-        if (CanSync && _pull is null)
+        if (!OperatingSystem.IsBrowser() && CanSync && _pull is null)
         {
             _pull = Call(c => c.GetProfileAsync());
         }

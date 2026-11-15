@@ -252,6 +252,11 @@ public partial class AccountScreen : MenuPage
 
     private void SignIn()
     {
+        if (OperatingSystem.IsBrowser())
+        {
+            BrowserPlatform.OpenAccount?.Invoke();
+            return;
+        }
         if (Preview is not null || _start is not null)
         {
             return;

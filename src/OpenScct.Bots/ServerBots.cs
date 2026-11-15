@@ -36,6 +36,9 @@ public sealed record ServerBotSettings
     /// </summary>
     public bool TerminalsBlockPlayers { get; init; } = true;
 
+    /// <summary>Prepare navigation on the first tick even with no initial bots. False defers it until Add.</summary>
+    public bool PrepareWhenEmpty { get; init; } = true;
+
     /// <summary>
     /// <paramref name="count"/> bots filling a 2v2 (or larger) match next to one human on <paramref name="humanTeam"/>:
     /// the human's side gets one bot fewer.
@@ -287,7 +290,7 @@ public sealed class ServerBots : IDisposable, IPracticeBotControl
 
     private void OnBeforeWorldTick(ServerHost host)
     {
-        if (!_loggedIn)
+        if (!_loggedIn && (Settings.PrepareWhenEmpty || Settings.Bots.Count > 0))
         {
             LoginAll();
         }

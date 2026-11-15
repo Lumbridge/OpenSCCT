@@ -87,6 +87,9 @@ public static class OutdoorGroundcover
         var error = importer.AppendFromFile(path, state);
         if (error != Error.Ok || importer.GenerateScene(state) is not Node3D source)
             throw new InvalidDataException("Fern import failed: " + error);
+        if (OperatingSystem.IsBrowser())
+            foreach (GltfMesh mesh in state.GetMeshes())
+                if (mesh.Mesh is { } imported) MeshCpuArrays.Remember(imported);
         var variants = new List<ArrayMesh>();
         var materials = new Dictionary<BaseMaterial3D, ShaderMaterial>();
         try
@@ -104,12 +107,12 @@ public static class OutdoorGroundcover
                     var mesh = new ArrayMesh();
                     for (int surface = 0; surface < sourceMesh.GetSurfaceCount(); surface++)
                     {
-                        var arrays = sourceMesh.SurfaceGetArrays(surface);
+                        var arrays = MeshCpuArrays.Get(sourceMesh, surface);
                         var positions = arrays[(int)Mesh.ArrayType.Vertex].AsVector3Array();
                         for (int i = 0; i < positions.Length; i++) positions[i] = (positions[i] - pivot) * scale;
                         arrays[(int)Mesh.ArrayType.Vertex] = positions;
                         // The soft-foliage shader uses ambient light, without tangent-space shading.
-                        mesh.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, arrays);
+                        MeshCpuArrays.Add(mesh, Mesh.PrimitiveType.Triangles, arrays);
                         if (instance.GetActiveMaterial(surface) is not BaseMaterial3D pbr || pbr.AlbedoTexture is null)
                             throw new InvalidDataException("Fern is missing its base-colour texture");
                         if (!materials.TryGetValue(pbr, out var material))

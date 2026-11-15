@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../src/OpenScct.Master/OpenScct.Master.csproj" />
+    <ProjectReference Include="../../src/OpenScct.Server/OpenScct.Server.csproj" />
+    <ProjectReference Include="../../src/OpenScct.Bots/OpenScct.Bots.csproj" />
+    <Compile Include="../../game/Scripts/Play/Session/*.cs" Link="Session/%(Filename)%(Extension)" />
+    <Compile Include="../../game/Scripts/Play/PlayAudioRouter.cs" Link="PlayAudioRouter.cs" />
+  </ItemGroup>
+</Project>

@@ -207,6 +207,8 @@ public sealed partial class MapCatalog
     /// <summary>The checkout root (the folder holding OpenSCCT.slnx) above <paramref name="start"/>, or null.</summary>
     public static string? FindRepoRoot(string start)
     {
+        // WebAssembly has no executable directory; an absent host path is not a checkout.
+        if (string.IsNullOrWhiteSpace(start)) return null;
         for (DirectoryInfo? d = new(start); d is not null; d = d.Parent)
         {
             if (File.Exists(Path.Combine(d.FullName, "OpenSCCT.slnx")))

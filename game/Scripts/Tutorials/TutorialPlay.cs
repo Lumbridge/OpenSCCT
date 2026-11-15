@@ -72,6 +72,8 @@ public static class TutorialPlay
                 OfflineRules = true,
                 UnlimitedGear = help,
                 Bots = 0,
+                HostMode = OperatingSystem.IsBrowser() ? PlayHostMode.Inline : config.Settings.HostMode,
+                MapRoots = OperatingSystem.IsBrowser() ? [.. ContentPaths.MapRoots] : config.Settings.MapRoots,
                 PlayerName = string.IsNullOrWhiteSpace(name) ? "Player" : name,
             },
         };

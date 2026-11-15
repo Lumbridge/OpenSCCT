@@ -89,6 +89,23 @@ public partial class FirstPersonView : Node3D
         Name = "FirstPerson";
     }
 
+    /// <summary>Draw the loaded arms/guns with their real skinning, mask and foreground-depth materials.</summary>
+    public void Warmup(Node3D samples)
+    {
+        if (DisplayServer.GetName() == "headless") return;
+        foreach (var (model, _, _) in _loaded.Values)
+        {
+            var copy = (Node3D)model.Root.Duplicate();
+            copy.Visible = true;
+            foreach (MeshInstance3D mesh in copy.FindChildren("*", nameof(MeshInstance3D), true, false))
+            {
+                mesh.ExtraCullMargin = 100000;
+                mesh.IgnoreOcclusionCulling = true;
+            }
+            samples.AddChild(copy);
+        }
+    }
+
     public RenderMap? Map { get; set; }
 
     public string? SharedRoot { get; set; }

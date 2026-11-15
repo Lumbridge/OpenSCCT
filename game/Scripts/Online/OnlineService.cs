@@ -76,12 +76,13 @@ public partial class OnlineService : Node
 
     public IClock Clock => _clock;
 
-    public bool RecordDemos => OnlineSettings.Current.RecordDemos;
+    public bool RecordDemos => !OperatingSystem.IsBrowser() && OnlineSettings.Current.RecordDemos;
     public string DemoRecordingStatus => Client?.DemoRecordingStatus ??
         (RecordDemos ? "Your upcoming matches will be saved to Demos on this computer." : "Match recording is off for you.");
 
     public void SetRecordDemos(bool enabled)
     {
+        if (OperatingSystem.IsBrowser()) return;
         OnlineSettings.Current.RecordDemos = enabled;
         OnlineSettings.Current.Save();
         Client?.SetRecordDemos(enabled);
@@ -152,6 +153,25 @@ public partial class OnlineService : Node
         _visitMasterId = masterId ?? target.MasterId;
         _visitPassword = password;
         StartVisit(new OnlineClient(target, ClientSettings(password, ticket: ticket), _clock.NowMicroseconds));
+    }
+
+    /// <summary>The same lobby and travel flow through the site's granted WebSocket gateway.</summary>
+    public void JoinBrowser(string name, string address, string? password, string? ticket, string? playerName)
+    {
+        if (!OperatingSystem.IsBrowser()) return;
+        EndVisit();
+        LastError = null;
+        var target = JoinTarget.Custom(name, () => new WebSocketTransport(), address);
+        StartVisit(new OnlineClient(target, new OnlineClientSettings
+        {
+            PlayerName = playerName ?? SettingsStore.Current.PlayerName,
+            Password = password, Ticket = ticket, Key = PlayerKey.Create(),
+            Maps = Catalog.Maps, Classes = Classes, InstallGameplayServices = false,
+            AutoReportReady = false, FirePrediction = SettingsStore.Current.FirePrediction,
+            SpyLook = SettingsStore.Current.SharedLook(CosmeticSide.Spy).ToHex(),
+            MercLook = SettingsStore.Current.SharedLook(CosmeticSide.Merc).ToHex(),
+            Title = SettingsStore.Current.Title, Voice = false,
+        }, _clock.NowMicroseconds));
     }
 
     /// <summary>True while the visit is a hub pad's match (its end goes back to the hub, not to the main menu).</summary>
@@ -265,13 +285,13 @@ public partial class OnlineService : Node
     private void StartVisit(OnlineClient client)
     {
         Client = client;
-        if (VoiceChat is null)
+        if (client.Settings.Voice && VoiceChat is null)
         {
             VoiceChat = new OnlineVoiceChat { Name = OnlineVoiceChat.NodeName };
             AddChild(VoiceChat);
         }
 
-        VoiceChat.Attach(client, _clock);
+        VoiceChat?.Attach(client, _clock);
         _start = _clock.NowMicroseconds;
         _ticks = 0;
         _shownState = (OnlineClientState)(-1);
@@ -515,7 +535,7 @@ public partial class OnlineService : Node
             Side = local?.Team == 1 ? PlaySide.Merc : PlaySide.Spy,
             Mode = MapCatalog.ModeKey(client.Lobby.Setup.Mode),
             PlayerName = SettingsStore.Current.PlayerName,
-            MapRoots = [.. App.From(this).Options.MapRoots],
+            MapRoots = [.. Catalog.Maps.Roots],
         };
         PlayMapLoader loader = Catalog.Loader(map);
         string folder = Catalog.Maps.FindFolder(map)!;

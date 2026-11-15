@@ -28,6 +28,19 @@ public static class ContentPacks
     private static DateTime _indexAt;
     private static int _generation;
 
+    /// <summary>Install a host-specific store before any content requests (the browser's same-origin mirror).</summary>
+    public static void ConfigureStore(ContentStore store)
+    {
+        ArgumentNullException.ThrowIfNull(store);
+        lock (Gate)
+        {
+            if (_index is not null || Jobs.Count > 0) throw new InvalidOperationException("Content downloads have already started.");
+            _store = store;
+        }
+    }
+
+    private static Task Run(Func<Task> action) => OperatingSystem.IsBrowser() ? action() : Task.Run(action);
+
     /// <summary>One map's (or shared pack's) download as a screen shows it.</summary>
     public sealed class DownloadJob
     {
@@ -148,7 +161,7 @@ public static class ContentPacks
 
             _indexAt = DateTime.UtcNow;
             ContentStore store = _store ??= new ContentStore(ContentPaths.PacksFolder, Http);
-            _index = Task.Run(() => FetchIndexLoggedAsync(store));
+            _index = OperatingSystem.IsBrowser() ? FetchIndexLoggedAsync(store) : Task.Run(() => FetchIndexLoggedAsync(store));
         }
     }
 
@@ -201,7 +214,7 @@ public static class ContentPacks
             Jobs[SharedKey(pack.Id)] = job;
         }
 
-        _ = Task.Run(() => RunSharedAsync(job, pack));
+        _ = Run(() => RunSharedAsync(job, pack));
         return job;
     }
 
@@ -252,14 +265,14 @@ public static class ContentPacks
             Jobs[map.Code] = job;
         }
 
-        _ = Task.Run(() => RunAsync(job, index));
+        _ = Run(() => RunAsync(job, index));
         return job;
     }
 
     public static DownloadJob DownloadBotNavigation(string map, ContentBotNavigation navigation)
     {
         var job = new DownloadJob("Bot navigation");
-        _ = Task.Run(async () =>
+        _ = Run(async () =>
         {
             try
             {
@@ -303,6 +316,13 @@ public static class ContentPacks
 
             job.Step = $"Downloading {job.Title}";
             await store.InstallMapAsync(job.Map!, ContentKind.Full, Progress(job), job.Stop.Token).ConfigureAwait(false);
+            if (OperatingSystem.IsBrowser() && job.Map?.BotNavigation is { } nav && nav.FormatVersion == OpenScct.Game.AI.NavGraph.FormatVersion)
+            {
+                job.Step = "Downloading bot navigation";
+                await store.InstallBotNavigationAsync(nav,
+                    path => OpenScct.Bots.AiNavCache.PackMatches(path, job.Map.Code, nav.SimHash, nav.ActivationMask),
+                    Progress(job), job.Stop.Token).ConfigureAwait(false);
+            }
             job.Done = true;
             Interlocked.Increment(ref _generation);
         }

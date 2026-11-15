@@ -27,7 +27,7 @@ public sealed class GlassPaneGeometry
         Vector3 normal = default, origin = default; float largest = 0;
         for (int s = 0; s < array.GetSurfaceCount(); s++)
         {
-            var a = array.SurfaceGetArrays(s);
+            var a = MeshCpuArrays.Get(array, s);
             Vector3[] p = a[(int)Mesh.ArrayType.Vertex].AsVector3Array();
             Vector2[] uv = a[(int)Mesh.ArrayType.TexUV].AsVector2Array();
             int[] indices = a[(int)Mesh.ArrayType.Index].AsInt32Array();

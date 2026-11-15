@@ -85,7 +85,9 @@ public static class ResponsiveSmokeShaders
     /// </summary>
     public static void Prewarm(string map)
     {
-        if (!PrewarmEnabled) return;
+        // These lists contain the native renderer's shortcut variants. Browser loads compile only the general
+        // variants actually used, on their one runtime thread; queueing the native list defeats that reduction.
+        if (!PrewarmEnabled || OperatingSystem.IsBrowser()) return;
         ShaderList? list = null;
         string path = System.IO.Path.Combine(OS.GetUserDataDir(), "load_shaders", map + ".json");
         try

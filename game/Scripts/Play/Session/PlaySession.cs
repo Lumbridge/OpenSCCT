@@ -91,7 +91,7 @@ public sealed class PlaySession : IDisposable
         // The bots' navigation is built (or loaded from its cache) before the host starts ticking. The loader's map is
         // what the catalog loads for map.Id, so its manifest finds the stored graphs without a scratch world.
         AiNavCache? nav = null;
-        if (settings.Bots > 0 || settings.Route is not null || settings.UnlimitedGear)
+        if (settings.Bots > 0 || settings.Route is not null || settings.UnlimitedGear && !OperatingSystem.IsBrowser())
         {
             nav = new AiNavCache();
             nav.Prepare(Catalog, map.Id, loadProgress, content: map);
@@ -376,9 +376,10 @@ public sealed class PlaySession : IDisposable
     }
 
     /// <summary>Runs the ticks due by the clock (server and client inline, the client only with a server thread).</summary>
-    public int Update()
+    public int Update(int maxCatchUpTicks = MaxCatchUpTicks)
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
+        ArgumentOutOfRangeException.ThrowIfLessThan(maxCatchUpTicks, 1);
         if (IsStopped)
         {
             return 0;
@@ -386,9 +387,9 @@ public sealed class PlaySession : IDisposable
 
         long now = Clock.NowMicroseconds;
         long due = (now - _start) * Sim.Hz / 1_000_000;
-        if (due - _ticks > MaxCatchUpTicks)
+        if (due - _ticks > maxCatchUpTicks)
         {
-            _ticks = due - MaxCatchUpTicks;
+            _ticks = due - maxCatchUpTicks;
         }
 
         int run = 0;
@@ -585,6 +586,7 @@ public sealed class PlaySession : IDisposable
             Nav = nav,
             Maps = Catalog,
             TerminalsBlockPlayers = Settings.TerminalsBlockPlayers ?? true,
+            PrepareWhenEmpty = !OperatingSystem.IsBrowser(),
         });
     }
 

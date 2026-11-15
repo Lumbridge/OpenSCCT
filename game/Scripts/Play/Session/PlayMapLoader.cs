@@ -52,12 +52,13 @@ public sealed class PlayMapLoader
 
         // The pill skeletons are the slowest read here and share nothing with the animation tables: they are read on
         // worker threads meanwhile (no names are interned there, so the name table fills in the same order).
-        System.Threading.Tasks.Task<IPillPose> pillPose = System.Threading.Tasks.Task.Run(() => RollPillPose.FromContent(charsDir));
+        System.Threading.Tasks.Task<IPillPose>? pillPose = OperatingSystem.IsBrowser()
+            ? null : System.Threading.Tasks.Task.Run(() => RollPillPose.FromContent(charsDir));
         _pawnAnimations = charsDir is not null && Directory.Exists(charsDir)
             ? PawnAnimationSource.FromContent(charsDir)
             : PawnAnimationSource.Default;
         _meshAnimations = new ContentMeshAnimations(map.Gameplay);
-        _pillPose = pillPose.GetAwaiter().GetResult();
+        _pillPose = pillPose is null ? RollPillPose.FromContent(charsDir) : pillPose.GetAwaiter().GetResult();
     }
 
     public SvMap Map => _map;

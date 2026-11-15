@@ -59,7 +59,8 @@ public partial class ContentScreen : MenuPage
         PageCanvas.GetNode<ScrollContainer>("BodyScroll").AddChild(new CareerScroll());
 
         VBoxContainer where = CareerPanels.Card(Body, "Where", "Your library");
-        CareerPanels.Text(where, "Help", "Download maps and keep your shared game content up to date.", dim: true, size: 14);
+        CareerPanels.Text(where, "Help", OperatingSystem.IsBrowser() ? "Download maps to explore or join a session." :
+            "Download maps and keep your shared game content up to date.", dim: true, size: 14);
         _where = new Label { Name = "WhereText", AutowrapMode = TextServer.AutowrapMode.WordSmart, Modulate = UiStyle.Dim };
         _where.AddThemeFontSizeOverride("font_size", 13);
         where.AddChild(_where);
@@ -76,7 +77,7 @@ public partial class ContentScreen : MenuPage
         _category.AddItem(AllCategories);
         _category.ItemSelected += _ => Fill();
         filters.AddChild(_category);
-        _downloadedOnly = new CheckBox { Name = "DownloadedOnly", Text = "On this computer" };
+        _downloadedOnly = new CheckBox { Name = "DownloadedOnly", Text = OperatingSystem.IsBrowser() ? "Installed this session" : "On this computer" };
         _downloadedOnly.Toggled += _ => Fill();
         filters.AddChild(_downloadedOnly);
 
@@ -88,18 +89,19 @@ public partial class ContentScreen : MenuPage
         mapScroll.AddChild(_maps);
 
         VBoxContainer shared = CareerPanels.Card(Body, "Shared", "Shared content");
-        CareerPanels.Text(shared, "Help", "Characters, sounds and common files used across maps. Required packs download with each map.", dim: true, size: 14);
+        CareerPanels.Text(shared, "Help", OperatingSystem.IsBrowser() ? "Shared gameplay data arrives with browser game updates." :
+            "Characters, sounds and common files used across maps. Required packs download with each map.", dim: true, size: 14);
         shared.GetNode<Label>("Caption").AutowrapMode = TextServer.AutowrapMode.WordSmart;
         _shared = new VBoxContainer { Name = "SharedRows", SizeFlagsHorizontal = SizeFlags.ExpandFill };
         _shared.AddThemeConstantOverride("separation", 8);
         shared.AddChild(_shared);
-        AnimationPacks();
+        if (!OperatingSystem.IsBrowser()) AnimationPacks();
 
         _status = new Label { Name = "Status", Modulate = UiStyle.MenuFocus, AutowrapMode = TextServer.AutowrapMode.WordSmart };
         Body.AddChild(_status);
 
         PageButton("Back", () => FrontEnd.ShowMainMenu(GetTree()), "Back");
-        PageButton("Open Folder", OpenFolder, "OpenFolder");
+        if (!OperatingSystem.IsBrowser()) PageButton("Open Folder", OpenFolder, "OpenFolder");
         PageButton("Refresh", () =>
         {
             ContentPacks.RefreshIndex(force: true);
@@ -202,7 +204,8 @@ public partial class ContentScreen : MenuPage
                 ? "Could not read the content list (" + e + "). Maps already on this computer are listed; press Refresh to try again."
                 : "Loading the content list...");
         }
-        else if (_status?.Text.StartsWith("Loading", StringComparison.Ordinal) == true || _status?.Text.Length == 0)
+        else if (_status?.Text.StartsWith("Loading", StringComparison.Ordinal) == true || _status?.Text.Length == 0 ||
+            _status?.Text.StartsWith("Downloading", StringComparison.Ordinal) == true && _views.All(v => JobOf(v)?.Running != true))
         {
             int count = _shownIndex.PlayableMaps().Count();
             int have = installed.Count(c => !c.IsShared);
@@ -223,6 +226,12 @@ public partial class ContentScreen : MenuPage
     {
         if (_where is null)
         {
+            return;
+        }
+
+        if (OperatingSystem.IsBrowser())
+        {
+            _where.Text = "Maps are installed for this browser session. Chrome may reuse cached archives on later visits; reload the page to restore bundled maps. Shared gameplay data is included with the game.";
             return;
         }
 
@@ -392,9 +401,11 @@ public partial class ContentScreen : MenuPage
         }
         else
         {
-            if (map is not null && state is MapState.Available or MapState.UpdateAvailable)
+            if (map is not null && (state is MapState.Available or MapState.UpdateAvailable ||
+                OperatingSystem.IsBrowser() && (state == MapState.InGame || job?.Error is not null)))
             {
-                buttons.AddChild(SmallButton(state == MapState.UpdateAvailable ? "Update" : "Download", () =>
+                buttons.AddChild(SmallButton(job?.Error is not null ? "Retry" : state == MapState.UpdateAvailable ? "Update" :
+                    state == MapState.InGame ? "Reinstall" : "Download", () =>
                 {
                     ContentPacks.Download(map);
                     ShowStatus($"Downloading {title}...");
@@ -431,7 +442,8 @@ public partial class ContentScreen : MenuPage
             int have = installed.Count(c => c.IsShared);
             _shared!.AddChild(new Label
             {
-                Text = (have > 0 ? $"{have} shared packs downloaded." : "No shared packs downloaded.") +
+                Text = OperatingSystem.IsBrowser() ? "Shared gameplay data is included with this browser build." :
+                    (have > 0 ? $"{have} shared packs downloaded." : "No shared packs downloaded.") +
                     (own ? " Your converted game files supply the shared content." : string.Empty),
                 Modulate = UiStyle.Dim, AutowrapMode = TextServer.AutowrapMode.WordSmart,
             });

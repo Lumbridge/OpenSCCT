@@ -15,9 +15,24 @@ public static class MapImages
 {
     private static readonly Dictionary<string, Texture2D?> Textures = new(StringComparer.OrdinalIgnoreCase);
     private static MapCatalog? _default;
+    private static int _generation = -1;
 
     /// <summary>The catalog pages use when they have none of their own (the default roots of this install).</summary>
-    public static MapCatalog Default => _default ??= MapCatalog.CreateDefault();
+    public static MapCatalog Default
+    {
+        get
+        {
+            int generation = Online.ContentPacks.Generation;
+            if (_default is null || generation != _generation)
+            {
+                if (_default is null) _default = MapCatalog.CreateDefault();
+                else _default.Refresh();
+                Textures.Clear();
+                _generation = generation;
+            }
+            return _default;
+        }
+    }
 
     /// <summary>The map's host list picture, or null.</summary>
     public static Texture2D? Preview(MapCatalog? maps, string? map) => First(maps, map, e => Load(e.PreviewImage));

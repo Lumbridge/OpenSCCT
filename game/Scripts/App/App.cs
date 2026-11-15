@@ -86,6 +86,21 @@ public partial class App : Node
 
     public override void _Ready()
     {
+        if (System.OperatingSystem.IsBrowser())
+        {
+            Options = LaunchOptions.Parse(OS.GetCmdlineUserArgs());
+            BrowserPlatform.RestoreSettings?.Invoke();
+            GetViewport().UseHdr2D = true;
+            OpenScctGame.Options.SettingsApplier.ApplyAtStart(GetViewport());
+            OpenScct.Server.ContentPaths.Configure("/content", null, packs: "/content");
+            AddChild(new OpenScctGame.Controls.BindingInput { Name = "BindingInput" });
+            AddChild(new OpenScctGame.Options.PadMenus());
+            AddChild(new OpenScctGame.Audio.MenuFeedback { Name = "MenuFeedback" });
+            AddChild(new BrowserRuntime { Name = "BrowserRuntime" });
+            OpenScctGame.Play.Session.PlayMapLoader.AddLevelServices = OpenScctGame.Play.GearServices.Install;
+            GetTree().Root.CallDeferred(Node.MethodName.AddChild, new OpenScctGame.UI.DevConsole());
+            return;
+        }
         if (RestartedOnVulkan()) return;
         if (System.Array.IndexOf(OS.GetCmdlineUserArgs(), "--svm-animation-probe") >= 0)
         { GD.Print("OPENSCCT_ANIMATION_RUNTIME=1"); GetTree().Quit(); return; }

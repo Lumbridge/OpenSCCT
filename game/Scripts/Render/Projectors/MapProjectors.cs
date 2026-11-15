@@ -116,7 +116,7 @@ public sealed class MapProjectors
 
         // The box twice: surface 0 for a camera inside it, surface 1 for one outside (svm_projector.gdshaderinc, PROJ_SIDES).
         ArrayMesh box = BoxMesh(corners, out Vector4[] planes);
-        box.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, box.SurfaceGetArrays(0));
+        MeshCpuArrays.Add(box, Mesh.PrimitiveType.Triangles, MeshCpuArrays.Get(box, 0));
         material.SetShaderParameter("proj_planes", planes);
         Vector3 centre = Vector3.Zero;
         foreach (Vector3 corner in corners) centre += corner / 8f;
@@ -178,7 +178,9 @@ public sealed class MapProjectors
             }
         }
 
-        return st.Commit();
+        var mesh = new ArrayMesh();
+        MeshCpuArrays.Add(mesh, Mesh.PrimitiveType.Triangles, st.CommitToArrays());
+        return mesh;
     }
 
     /// <param name="frameBufferBlending">EProjectorBlending of the frame buffer.</param>

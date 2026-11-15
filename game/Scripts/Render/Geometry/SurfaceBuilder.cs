@@ -412,7 +412,7 @@ internal sealed class SurfaceBuilder
         using var lods = material?.HasMeta("authored_displacement") == true && material.GetMeta("authored_displacement").AsBool()
             ? Materials.AuthoredMeshLods.Create(arrays, (ulong)flags) : new Godot.Collections.Dictionary();
         var blendShapes = new Godot.Collections.Array<Godot.Collections.Array>();
-        mesh.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, arrays, blendShapes, lods, flags);
+        MeshCpuArrays.Add(mesh, Mesh.PrimitiveType.Triangles, arrays, blendShapes, lods, flags);
         GC.KeepAlive(blendShapes);
         if (material is not null)
         {

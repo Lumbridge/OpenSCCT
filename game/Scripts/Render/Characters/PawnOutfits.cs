@@ -96,7 +96,31 @@ public static class PawnOutfits
         foreach (bool spy in new[] { true, false })
         {
             if (SkeletalModel.FindGlb(StockAsset(spy), sharedRoot) is { } stock)
-                Add(Load(stock, outfits.For(spy), mapFolder, sharedRoot).Model);
+            {
+                Dressed dressed = Load(stock, outfits.For(spy), mapFolder, sharedRoot);
+                Add(dressed.Model);
+                if (GameplayFxWarmup.BrowserPreparation)
+                {
+                    // The client rain service is not bound yet at initial loading. Prepare both wet appearances
+                    // now, including stock rigs, so the first goggle switch cannot load a skin during play.
+                    foreach (bool localSpy in new[] { true, false })
+                        if (WetSkins.For(dressed.Glb, localSpy, dressed.DryBody, dressed.DryHead, dressed.Stock) is { Count: > 0 } wet)
+                        {
+                            SkeletalModel wetModel = Load(stock, outfits.For(spy), mapFolder, sharedRoot).Model;
+                            wetModel.SetSkins(wet.Over);
+                            Add(wetModel);
+                        }
+                    if (StickySkins.For(sharedRoot) is { } sticky)
+                    {
+                        SkeletalModel shockModel = Load(stock, outfits.For(spy), mapFolder, sharedRoot).Model;
+                        shockModel.SetSkins(sticky.Over);
+                        Add(shockModel);
+                    }
+                    SkeletalModel cloak = Load(stock, outfits.For(spy), mapFolder, sharedRoot).Model;
+                    cloak.SetGlass(.5f);
+                    Add(cloak);
+                }
+            }
 
             // Use the live glow view's material setup (alpha blended spy, added merc), not the raw glTF skin.
             var glow = new GoggleGlowView(samples, sharedRoot, _ => (true, Transform3D.Identity));

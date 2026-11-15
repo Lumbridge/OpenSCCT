@@ -46,6 +46,15 @@ public partial class TutorialsScreen : MenuPage
         Add(column, "Tuto_Maps_Spy", "Spy Tutorial Maps", "SpyMaps", () => TutorialMapsScreen.Show(GetTree(), 0));
         Add(column, "Tuto_Maps_Merc", "Mercenary Tutorial Maps", "MercMaps", () => TutorialMapsScreen.Show(GetTree(), 1));
         Add(column, "Tuto_VisitMap", "Visit a Map", "VisitMap", () => VisitMapScreen.Show(GetTree()));
+        bool canPractise = TutorialPlay.CanPlay(GetTree(), "TestRange");
+        foreach (var (caption, kind) in new[] { ("Vision Cancelling", "vision-cancelling"), ("Mercenary Grabbing", "spy-grab") })
+        {
+            Button lesson = UiStyle.MenuButton(caption, () => InteractiveLessonPlay.Start(GetTree(), kind), "Lesson_" + kind);
+            lesson.CustomMinimumSize = new Vector2(0, 44);
+            lesson.Disabled = !canPractise;
+            lesson.TooltipText = canPractise ? "Interactive TestRange lesson using your normal controls." : "Install TestRange from Content to play this lesson.";
+            column.AddChild(lesson);
+        }
 
         VBoxContainer progress = Panel(Body, "TutorialProgress", "Your progress");
         progress.AddChild(new Label

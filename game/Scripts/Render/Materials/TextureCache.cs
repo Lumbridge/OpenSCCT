@@ -92,7 +92,10 @@ public sealed class TextureCache
             }
         }
 
-        Parallel.ForEach(work, item => _decoded[Key(item.Uri, item.Mipmaps)] = Decode(item.Uri, item.Mipmaps));
+        if (OperatingSystem.IsBrowser())
+            foreach (var item in work) _decoded[Key(item.Uri, item.Mipmaps)] = Decode(item.Uri, item.Mipmaps);
+        else
+            Parallel.ForEach(work, item => _decoded[Key(item.Uri, item.Mipmaps)] = Decode(item.Uri, item.Mipmaps));
     }
 
     /// <summary>Disposes the images <see cref="Prefetch"/> decoded that no <see cref="Get"/> or <see cref="GetImage"/> took.</summary>

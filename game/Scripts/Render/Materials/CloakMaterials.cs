@@ -17,10 +17,16 @@ public sealed class CloakMaterials
     public void SetAmount(float amount)
     {
         _amount = amount;
-        foreach (ShaderMaterial material in _cloaked.Values) material.SetShaderParameter(GlassParameter, amount);
+        foreach (ShaderMaterial material in _cloaked.Values)
+            if (OperatingSystem.IsBrowser()) BrowserInstanceUniforms.SetMaterialParameter(material, GlassParameter, amount);
+            else material.SetShaderParameter(GlassParameter, amount);
     }
 
-    public Material Original(Material material) => _original.GetValueOrDefault(material, material);
+    public Material Original(Material material)
+    {
+        if (OperatingSystem.IsBrowser()) material = BrowserInstanceUniforms.Source(material);
+        return _original.GetValueOrDefault(material, material);
+    }
 
     public Material Get(Material material)
     {

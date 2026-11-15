@@ -89,6 +89,11 @@ public sealed class ContentStore
     /// <summary>The index URL (tests and servers may point elsewhere).</summary>
     public string Source { get; init; } = IndexUrl;
 
+    /// <summary>Browser mirror paths may resolve against Source; normal desktop indexes require absolute HTTPS URLs.</summary>
+    public bool AllowRelativeDownloads { get; init; }
+
+    private ContentIndex ReadIndex(string json) => ContentIndex.Parse(json, AllowRelativeDownloads ? new Uri(Source) : null);
+
     /// <summary>The installed packs.</summary>
     public IReadOnlyList<InstalledContent> Installed()
     {
@@ -148,7 +153,7 @@ public sealed class ContentStore
             using HttpResponseMessage response = await _http.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, timeout.Token).ConfigureAwait(false);
             if (response.StatusCode == HttpStatusCode.NotModified && File.Exists(cacheFile))
             {
-                return ContentIndex.Parse(await File.ReadAllTextAsync(cacheFile, cancel).ConfigureAwait(false));
+                return ReadIndex(await File.ReadAllTextAsync(cacheFile, cancel).ConfigureAwait(false));
             }
 
             response.EnsureSuccessStatusCode();
@@ -158,7 +163,7 @@ public sealed class ContentStore
             }
 
             string text = await response.Content.ReadAsStringAsync(timeout.Token).ConfigureAwait(false);
-            ContentIndex index = ContentIndex.Parse(text);
+            ContentIndex index = ReadIndex(text);
             Directory.CreateDirectory(cacheDir);
             await File.WriteAllTextAsync(cacheFile, text, cancel).ConfigureAwait(false);
             if (response.Headers.ETag is { } tag)
@@ -172,7 +177,7 @@ public sealed class ContentStore
         {
             if (File.Exists(cacheFile))
             {
-                return ContentIndex.Parse(await File.ReadAllTextAsync(cacheFile, cancel).ConfigureAwait(false));
+                return ReadIndex(await File.ReadAllTextAsync(cacheFile, cancel).ConfigureAwait(false));
             }
 
             throw e is OperationCanceledException

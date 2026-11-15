@@ -390,7 +390,7 @@ public sealed class ConveyorViews
             float? echelon = null;
             for (int s = 0; s < baked.GetSurfaceCount(); s++)
             {
-                Godot.Collections.Array arrays = baked.SurfaceGetArrays(s);
+                Godot.Collections.Array arrays = MeshCpuArrays.Get(baked, s);
                 Vector3[] points = arrays[(int)Mesh.ArrayType.Vertex].AsVector3Array();
                 Vector3[] normals = arrays[(int)Mesh.ArrayType.Normal].AsVector3Array();
                 Color[] colours = arrays[(int)Mesh.ArrayType.Color].AsColorArray();

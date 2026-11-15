@@ -412,8 +412,8 @@ public sealed class SkeletalModel : OpenScctGame.Views.IFirstPersonRigModel
 
             foreach (int s in surfaces)
             {
-                made.AddSurfaceFromArrays(source.SurfaceGetPrimitiveType(s), source.SurfaceGetArrays(s),
-                    source.SurfaceGetBlendShapeArrays(s), null, source.SurfaceGetFormat(s) & KeptFlags);
+                MeshCpuArrays.Add(made, source.SurfaceGetPrimitiveType(s), MeshCpuArrays.Get(source, s),
+                    MeshCpuArrays.BlendShapes(source, s), null, source.SurfaceGetFormat(s) & KeptFlags);
                 int i = made.GetSurfaceCount() - 1;
                 made.SurfaceSetMaterial(i, source.SurfaceGetMaterial(s));
                 made.SurfaceSetName(i, source.SurfaceGetName(s));
@@ -537,7 +537,8 @@ public sealed class SkeletalModel : OpenScctGame.Views.IFirstPersonRigModel
     private static readonly Dictionary<string, System.Threading.Tasks.Task<Prefetched>> s_prefetched = new(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>SVM_MODEL_THREADS=0 reads every model on the main thread, one after another (measurement).</summary>
-    private static readonly bool s_prefetchThreads = System.Environment.GetEnvironmentVariable("SVM_MODEL_THREADS") != "0";
+    private static readonly bool s_prefetchThreads = !OperatingSystem.IsBrowser() &&
+        System.Environment.GetEnvironmentVariable("SVM_MODEL_THREADS") != "0";
 
     /// <summary>
     /// Starts reading the model files of <paramref name="glbPaths"/> on worker threads: the file, its JSON and the scene
@@ -754,6 +755,9 @@ public sealed class SkeletalModel : OpenScctGame.Views.IFirstPersonRigModel
         }
 
         Node? generated = document.GenerateScene(state);
+        if (OperatingSystem.IsBrowser())
+            foreach (GltfMesh mesh in state.GetMeshes())
+                if (mesh.Mesh is { } imported) MeshCpuArrays.Remember(imported);
         if (generated is Node3D scene)
         {
             return scene;
@@ -1328,6 +1332,7 @@ public sealed class SkeletalModel : OpenScctGame.Views.IFirstPersonRigModel
     {
         material ??= mesh.Mesh?.SurfaceGetMaterial(surface);
         mesh.SetSurfaceOverrideMaterial(surface, _glass > 0f && material is not null ? _cloakMaterials.Get(material) : material);
+        OpenScctGame.Render.InstanceParams.MaterialChanged(mesh);
     }
 
     /// <summary>

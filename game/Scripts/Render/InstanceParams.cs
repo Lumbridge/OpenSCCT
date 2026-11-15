@@ -18,11 +18,19 @@ public static class InstanceParams
     /// <summary>Sets an instance shader parameter on the node and records it.</summary>
     public static void Set(GeometryInstance3D node, StringName name, Variant value)
     {
-        s_values.GetValue(node, static _ => [])[name] = value;
-        node.SetInstanceShaderParameter(name, value);
+        var values = s_values.GetValue(node, static _ => []);
+        values[name] = value;
+        if (System.OperatingSystem.IsBrowser()) BrowserInstanceUniforms.Apply(node, values, name);
+        else node.SetInstanceShaderParameter(name, value);
     }
 
     /// <summary>The value last given to the node through <see cref="Set"/>, or nil (as the engine answers for one never set).</summary>
     public static Variant Get(GeometryInstance3D node, StringName name) =>
         s_values.TryGetValue(node, out Dictionary<StringName, Variant>? values) && values.TryGetValue(name, out Variant value) ? value : default;
+
+    internal static void MaterialChanged(GeometryInstance3D node)
+    {
+        if (System.OperatingSystem.IsBrowser() && s_values.TryGetValue(node, out var values))
+            BrowserInstanceUniforms.Apply(node, values);
+    }
 }

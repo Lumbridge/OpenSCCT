@@ -329,5 +329,22 @@ public partial class DevConsole : CanvasLayer, IConsoleHost
 
     void IConsoleHost.CopyText(string text) => DisplayServer.ClipboardSet(text);
 
-    void IConsoleHost.Quit() => GetTree().Quit();
+    string IConsoleHost.GrabArea(bool? on)
+    {
+        if (GetTree().CurrentScene is not PlayRoot { Session: not null } play) return "grabarea: not in a game";
+        bool show = on ?? !play.GrabAreaShown;
+        if (!play.ShowGrabArea(show)) return "grabarea works in practice / Visit Map games only.";
+        return show ? "Grab area on." : "Grab area off.";
+    }
+
+    void IConsoleHost.Quit()
+    {
+        if (System.OperatingSystem.IsBrowser())
+        {
+            Close();
+            BrowserPlatform.CurrentPlay?.Session?.Stop();
+            FrontEnd.ShowMainMenu(GetTree());
+        }
+        else GetTree().Quit();
+    }
 }

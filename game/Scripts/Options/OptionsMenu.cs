@@ -119,7 +119,7 @@ public partial class OptionsMenu : Control
         VBoxContainer column = Frame();
         column.AddChild(UiStyle.Title("OPTIONS", HudK.SpyColour));
         GridContainer player = Grid("Player");
-        if (OpenScctGame.Online.AccountSettings.Current.AccountName is { } accountName)
+        if ((OpenScctGame.Online.AccountSettings.Current.AccountName ?? BrowserPlatform.AccountName) is { } accountName)
         {
             // A signed-in player's name is the account's; it changes on the Account page.
             Row(player, "Player name", "player_name", new LineEdit
@@ -169,6 +169,7 @@ public partial class OptionsMenu : Control
                      UiStyle.MenuButton("Back", Back, "Back"),
                  })
         {
+            if (OperatingSystem.IsBrowser() && b.Name == "ImportEnhanced") { b.Free(); continue; }
             b.CustomMinimumSize = new Vector2(160f, 44f);
             buttons.AddChild(b);
         }
@@ -458,6 +459,10 @@ public partial class OptionsMenu : Control
     private Control DisplayPage()
     {
         GridContainer g = Grid("Display");
+        if (OperatingSystem.IsBrowser())
+            Section(g, "Browser window", "Resize your browser to change the game size. Use Full screen above the game to fill your display.");
+        else
+        {
         Section(g, "Screen", "Choose the display, window mode and resolution.");
         Choice(g, "Display mode", "display_mode", GameSettings.DisplayModes, _edit.DisplayMode, v => _edit.DisplayMode = v, DisplayModeLabel);
         int screens = Math.Max(1, DisplayServer.GetScreenCount());
@@ -478,6 +483,7 @@ public partial class OptionsMenu : Control
             v => _edit.Resolution = v == DesktopLabel ? "" : v);
         Choice(g, "Window position (windowed)", "window_position", GameSettings.WindowPositions, _edit.WindowPosition, v => _edit.WindowPosition = v,
             w => w switch { "Default" => "Top left", "Stretched" => "Fill the screen", _ => w });
+        }
         Section(g, "Widescreen layout", "Widen the view and adjust how the HUD fits a widescreen display.");
         Check(g, "Wider field of view on widescreen", "widescreen", _edit.Widescreen, v => _edit.Widescreen = v);
         Check(g, "Fit HUD to widescreen", "widescreen_hud", _edit.WidescreenHud, v => _edit.WidescreenHud = v);
@@ -515,9 +521,14 @@ public partial class OptionsMenu : Control
     private Control PerformancePage()
     {
         GridContainer g = Grid("Performance");
-        Section(g, "Frame pacing", "Choose the frame-rate limit and vertical sync. Match refresh rate follows your display; Unlimited removes the cap.");
-        Check(g, "Vertical sync", "vsync", _edit.VSync, v => _edit.VSync = v);
+        Section(g, "Frame pacing", OperatingSystem.IsBrowser() ? "Choose a frame-rate limit. Your browser controls screen refresh." : "Choose the frame-rate limit and vertical sync. Match refresh rate follows your display; Unlimited removes the cap.");
+        if (!OperatingSystem.IsBrowser()) Check(g, "Vertical sync", "vsync", _edit.VSync, v => _edit.VSync = v);
         AddFrameRateSlider(g);
+        if (OperatingSystem.IsBrowser())
+        {
+            Section(g, "WebGPU", "The browser preview uses WebGPU. Graphics options are on the Display page.");
+            return CreateSettingsEditor("Performance", g);
+        }
         Section(g, "Renderer", "Fast is a new renderer made for integrated graphics. It is in beta: switch back to Standard if a map looks wrong.");
         Choice(g, "Renderer", "renderer", GameSettings.Renderers, _edit.Renderer, v => _edit.Renderer = v, v => v == "Fast" ? "Fast (beta)" : v);
         _controls["renderer"].TooltipText = "Standard draws maps with the engine's renderer. Fast (beta) draws them the way the original game did and runs much quicker on integrated graphics. Vision modes and responsive smoke still use Standard. A change takes effect on the next map, not the one you are playing.";

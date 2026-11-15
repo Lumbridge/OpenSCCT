@@ -15,7 +15,12 @@ public partial class GameplayFxWarmup : SubViewport
     private int _frames;
     private bool _subscribed;
     private Action? _completed;
-    private readonly Camera3D _camera = new() { Position = new Vector3(0f, 0f, 3f), Current = true, Far = 1000f };
+    private readonly Camera3D _camera = new()
+    {
+        Position = new Vector3(0f, 0f, 3f), Current = true, Far = 1000f,
+        // The default mask includes our shadow-pass marker and fog-slot bits, which would select the wrong path.
+        CullMask = RenderLayers.MainView | RenderLayers.SkyAll,
+    };
     private Level? _smokeLevel;
     private RenderMap? _smokeMap;
     private Task? _smokeNoise;
@@ -24,10 +29,13 @@ public partial class GameplayFxWarmup : SubViewport
     private int _smokeFrames;
     private FaithfulView? _view;
     private LightReach? _reach;
+    private BrowserSceneWarmup? _browserScene;
     private ulong _started;
     private static readonly string[] WarmupFrames = ["warmup.frame1", "warmup.frame2", "warmup.frame3"];
     // LightReach needs six drawn frames; far more means its map is not drawing (LightReach.Warming).
     private const int MapWarmFrameCap = 120;
+    internal static bool BrowserPreparation => OperatingSystem.IsBrowser() ||
+        System.Environment.GetEnvironmentVariable("SVM_BROWSER_SCENE_WARMUP") == "1";
     public Node3D Samples { get; } = new() { Name = "Samples" };
 
     public GameplayFxWarmup()
@@ -47,12 +55,15 @@ public partial class GameplayFxWarmup : SubViewport
         UseTaa = target.UseTaa,
         ScreenSpaceAA = target.ScreenSpaceAA,
         UseDebanding = target.UseDebanding,
+        UseHdr2D = target.UseHdr2D,
     };
 
     /// <summary>Warm persistent post resources on the gameplay view itself, including its real MSAA/resolution.</summary>
     public void PreloadView(FaithfulView? view)
     {
         _view = view;
+        _camera.Environment = view?.Camera.Environment;
+        _camera.Attributes = view?.Camera.Attributes;
         view?.Effect.Preload();
         view?.Remanence.Preload();
         view?.DoubleVision.Preload();
@@ -65,6 +76,14 @@ public partial class GameplayFxWarmup : SubViewport
     public void PreloadMap(RenderMap? map)
     {
         if (map is not null) _reach = map.LightReach;
+    }
+
+    internal int PreloadScene(Node scene, bool force = false)
+    {
+        if (!BrowserPreparation && !force) return 0;
+        _browserScene = new BrowserSceneWarmup(scene, Samples, _view);
+        GD.Print($"OPENSCCT_BROWSER_WARMUP layouts={_browserScene.SourceCount}");
+        return _browserScene.SourceCount;
     }
 
     public void Begin(Action completed)
@@ -98,7 +117,12 @@ public partial class GameplayFxWarmup : SubViewport
         _smokeLevel = level;
         _smokeMap = map;
         // Pure immutable lattice generation is safe off-thread, including a late online rules arrival.
-        _smokeNoise = Task.Run(ResponsiveSmokeNoise.Warmup);
+        if (OperatingSystem.IsBrowser())
+        {
+            ResponsiveSmokeNoise.Warmup();
+            _smokeNoise = Task.CompletedTask;
+        }
+        else _smokeNoise = Task.Run(ResponsiveSmokeNoise.Warmup);
         Vector2I pixels = (Vector2I)target.GetVisibleRect().Size;
         Size = new(Math.Max(1,pixels.X),Math.Max(1,pixels.Y));
     }
@@ -157,6 +181,8 @@ public partial class GameplayFxWarmup : SubViewport
     {
         // Let CPU particles emit and render their instanced geometry as well as the static samples.
         bool smokeReady = PrepareSmokeFrame();
+        _browserScene?.AfterDraw();
+        bool sceneReady = _browserScene is null || _browserScene.Complete;
         bool viewReady = _view is null || (_view.Effect.WarmupComplete &&
             _view.Remanence.WarmupComplete && _view.DoubleVision.WarmupComplete);
         // A hidden/disabled target may never deliver a compositor callback. It can warm on its first real draw;
@@ -169,7 +195,7 @@ public partial class GameplayFxWarmup : SubViewport
         bool mapReady = !mapWarming || _frames >= MapWarmFrameCap;
         // The first warm frames draw (and compile) the samples: time each of them.
         if (_frames < 3) OpenScctGame.Diagnostics.LoadTimer.Mark(WarmupFrames[_frames]);
-        if (++_frames >= 3 && smokeReady && mapReady && (viewReady || viewTimedOut))
+        if (++_frames >= 3 && smokeReady && mapReady && sceneReady && (viewReady || viewTimedOut))
         {
             if (!viewReady) GD.PushWarning("Gameplay post warmup did not draw before loading timeout.");
             if (mapWarming) GD.PushWarning("Map material warmup did not finish within its frame cap.");
@@ -181,6 +207,8 @@ public partial class GameplayFxWarmup : SubViewport
     {
         OpenScctGame.Diagnostics.LoadTimer.Mark("warmup.finish");
         Unsubscribe();
+        _browserScene?.Dispose();
+        _browserScene = null;
         RenderTargetUpdateMode = UpdateMode.Disabled;
         _smokeView?.Dispose(); _smokeView = null;
         if (_smokeLevel is not null) ResponsiveSmokeRenderer.Preparing = false;
@@ -200,6 +228,8 @@ public partial class GameplayFxWarmup : SubViewport
     public override void _ExitTree()
     {
         Unsubscribe();
+        _browserScene?.Dispose();
+        _browserScene = null;
         _smokeView?.Dispose(); _smokeView = null;
         if (_smokeLevel is not null) ResponsiveSmokeRenderer.Preparing = false;
         _completed = null;

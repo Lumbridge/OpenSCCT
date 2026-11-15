@@ -47,7 +47,7 @@ public sealed class AccountSettings
     public static bool Isolated => OpenScctGame.Options.SettingsStore.Isolated;
 
     /// <summary>True while the player is signed in (never in smoke runs).</summary>
-    public bool SignedIn => !Isolated && Token.Length > 0;
+    public bool SignedIn => !Isolated && (OperatingSystem.IsBrowser() ? BrowserPlatform.AccountId > 0 : Token.Length > 0);
 
     /// <summary>The claimed name when signed in and claimed, else null.</summary>
     public string? AccountName => SignedIn && Name.Length > 0 ? Name : null;
@@ -115,11 +115,13 @@ public sealed class AccountSettings
     /// <summary>Forgets the sign-in on this PC (the profile bookkeeping stays).</summary>
     public void SignOutLocally()
     {
+        if (OperatingSystem.IsBrowser()) BrowserPlatform.AccountId = 0;
         Token = string.Empty;
         AccountId = 0;
         Name = string.Empty;
         Admin = false;
         Pronouns = OpenScct.Core.Engine.PlayerPronouns.Default;
         Save();
+        if (OperatingSystem.IsBrowser()) BrowserPlatform.AccountSignedOut?.Invoke();
     }
 }

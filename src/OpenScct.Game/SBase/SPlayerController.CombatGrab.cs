@@ -220,6 +220,26 @@ public partial class SPlayerController
     [PortOf("uc:SBase.SPlayerController:CanGrabPawn", Spec = "spec/combat/spy-grab.md#starting-a-grab-spy-owner")]
     public bool CanGrabPawn(SBasePawn Target) => CanGrabPawn(Target, Target.Location, Target.Rotation);
 
+    /// <summary>Read-only practice feedback from the same stance, reach and collision probes used by a grab.</summary>
+    public string DescribeGrab(SBasePawn target)
+    {
+        if (SBPawn is not SPawnAttaque spy) return "Choose the spy side.";
+        if (spy.m_AttackTarget == target) return "Mercenary grabbed.";
+        if (GameReplicationInfo is { bAvlb_SPY_Grab: false }) return "Grabbing is disabled in this session.";
+        if (!target.bCanBeGrabbed || target.Health <= 0) return "The mercenary cannot be grabbed in this state.";
+        if (spy.bStickyShocking || target.bStickyShocking) return "Wait for the shock to finish.";
+        if (!(Level.TimeSeconds - target.iLastWakeTime > fWakeInvulnerabilityTime)) return "The mercenary has just woken up.";
+        if (!GrabStance(spy, out FVector at, out float height)) return "There is not enough headroom to stand.";
+        if (FVector.Dist(target.Location, spy.Location) >= fGrabDistance) return "Move closer to the mercenary.";
+        if (!CanGrabPawn(target)) return "Face the mercenary from behind him.";
+        return GrabGeometry(spy, target, at, height) switch
+        {
+            GrabProbe.Clear => "Grab available.",
+            GrabProbe.Stop => "Find level ground behind the mercenary.",
+            _ => "The path to the grab position is blocked.",
+        };
+    }
+
     /// <summary><see cref="CanGrabPawn(SBasePawn)"/> with the merc standing at <paramref name="location"/>, facing <paramref name="rotation"/>.</summary>
     private bool CanGrabPawn(SBasePawn Target, FVector location, FRotator rotation)
     {

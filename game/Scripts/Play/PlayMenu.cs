@@ -400,7 +400,7 @@ public partial class PlayMenu : Node
                 break;
             case InGameMenuAction.QuitGame:
                 Leave();
-                GetTree().Quit();
+                if (!OperatingSystem.IsBrowser()) GetTree().Quit();
                 break;
         }
     }
@@ -433,7 +433,9 @@ public partial class PlayMenu : Node
 
         Node? scene = GetParent();
         Session?.Stop();
-        FrontEnd.ShowMainMenu(tree);
+        if (scene?.GetNodeOrNull<OpenScctGame.Tutorials.InteractiveLessonCoach>(OpenScctGame.Tutorials.InteractiveLessonCoach.NodeName) is not null)
+            TutorialsScreen.Show(tree);
+        else FrontEnd.ShowMainMenu(tree);
         if (scene is not null && GodotObject.IsInstanceValid(scene) && !scene.IsQueuedForDeletion())
         {
             scene.QueueFree();

@@ -12,7 +12,7 @@
     OpenScctGame.slnx carries the same mapping for solution builds.
   -->
   <PropertyGroup>
-    <SvmLibraryConfiguration Condition="'$(Configuration)' == 'ExportRelease'">Release</SvmLibraryConfiguration>
+    <SvmLibraryConfiguration Condition="'$(Configuration)' == 'ExportRelease' or '$(Configuration)' == 'Release'">Release</SvmLibraryConfiguration>
     <SvmLibraryConfiguration Condition="'$(SvmLibraryConfiguration)' == ''">Debug</SvmLibraryConfiguration>
   </PropertyGroup>
   <ItemDefinitionGroup>
@@ -40,4 +40,15 @@
     <EmbeddedResource Include="Shaders/svm_authored.gdshaderinc" LogicalName="AuthoredMaterialShader" />
     <EmbeddedResource Include="branding/icons/event-feed/*.svg" LogicalName="EventFeed/%(Filename)%(Extension)" />
   </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="2dog.godotsharp" />
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="2dog.godotsharp.editor" Condition="'$(Configuration)' == 'Debug' Or '$(Configuration)' == 'Editor'" />
+    </ItemGroup>
+    <!-- added by the 2dog tool: properties 2dog hosts need that were not already set -->
+    <PropertyGroup>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <DefaultItemExcludes>$(DefaultItemExcludes);OpenScctGame.web/**</DefaultItemExcludes>
+    </PropertyGroup>
 </Project>

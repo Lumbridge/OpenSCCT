@@ -41,6 +41,14 @@ public partial class PlayInput : Node
 
     public override void _Input(InputEvent @event)
     {
+        if (OperatingSystem.IsBrowser() && Enabled && !RequireCapture && !IsCaptured &&
+            Bindings is not null && ModalInputActive?.Invoke() != true && @event is InputEventMouseButton or InputEventMouseMotion)
+        {
+            // With a visible pointer, the full-screen HUD can consume mouse buttons before _UnhandledInput.
+            // The host releases activation on DOM blur; native window focus can differ in embedded browsers.
+            Read(@event);
+            GetViewport().SetInputAsHandled();
+        }
         if (!_traceInput) return;
         if (@event is InputEventKey) _receivedKeys++;
         if (@event is InputEventMouseMotion) _receivedMotion++;

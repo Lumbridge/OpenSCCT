@@ -4,6 +4,7 @@
     <RootNamespace>OpenScct.Integration.Tests</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="BrotliSharpLib" />
     <ProjectReference Include="..\..\src\OpenScct.Server\OpenScct.Server.csproj" />
     <ProjectReference Include="..\..\src\OpenScct.Bots\OpenScct.Bots.csproj" />
     <ProjectReference Include="..\..\src\OpenScct.Master\OpenScct.Master.csproj" />
@@ -12,5 +13,6 @@
   <ItemGroup>
     <Compile Include="..\..\game\Scripts\Play\Session\*.cs" Link="Linked\PlaySession\%(Filename)%(Extension)" />
     <Compile Include="..\..\game\Scripts\Play\PlayAudioRouter.cs" Link="Linked\PlayAudioRouter.cs" />
+    <Compile Include="..\..\game\OpenScctGame.web\BrowserScoreboardCodec.cs" Link="Linked\BrowserScoreboardCodec.cs" />
   </ItemGroup>
 </Project>

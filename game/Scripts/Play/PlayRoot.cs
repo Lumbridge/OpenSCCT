@@ -135,6 +135,11 @@ public partial class PlayRoot : Node3D
     private ColorRect? _loadingCover;
     private bool _smokePreparing, _smokeRestoreControls;
     private bool _smokeRestoreLoaded;
+    private bool _browserPreparingPlayer, _browserRestoreControls;
+    private ulong _browserPlayerWaitAt;
+    private int _browserPlayerFrames;
+    private static readonly int[] BrowserPlayerVisions =
+        [RenderK.RendMapNormal, RenderK.RendMapNight, RenderK.RendMapThermal, RenderK.RendMapMotion, RenderK.RendMapEmf];
     private int _lastRendMap = -1;
     private bool _lastBinoculars;
     private int _lastRemanenceCaptures;
@@ -250,7 +255,7 @@ public partial class PlayRoot : Node3D
             Load();
             if (Config.Render && Fx is not null && MercLasers is not null)
             {
-                _status.Text = "Preparing effects...";
+                _status.Text = OperatingSystem.IsBrowser() ? "Preparing map, weapons and vision..." : "Preparing effects...";
                 // The warm frames draw the map's cell meshes in every material variant, wrong light included
                 // (LightReach.Warm): black under the status until loading finishes.
                 ShowLoadingCover(true);
@@ -273,6 +278,7 @@ public partial class PlayRoot : Node3D
                 LoadTimer.Mark("ready.merc-lasers");
                 SpyLasers?.Preload(warmup.Samples);
                 LoadTimer.Mark("ready.spy-lasers");
+                FirstPerson?.Warmup(warmup.Samples);
                 SpyFirstPerson?.Warmup(warmup.Samples);
                 LoadTimer.Mark("ready.spy-first-person");
                 if (Map is { } map)
@@ -281,8 +287,10 @@ public partial class PlayRoot : Node3D
                         sidearms: FirstPerson?.Needs.Sidearms ?? true);
                     LoadTimer.Mark("ready.outfits");
                     DeviceViews.PreloadSecuritySkins(map, warmup.Samples);
+                    DeviceViews.PreloadSkeletalProps(map, warmup.Samples);
                     LoadTimer.Mark("ready.security-skins");
                 }
+                warmup.PreloadScene(this);
                 warmup.Begin(FinishLoading);
                 LoadTimer.Mark("ready.warmup-begin");
             }
@@ -302,9 +310,31 @@ public partial class PlayRoot : Node3D
     private void FinishLoading()
     {
         SetSmokeLoading(false);
+        Session?.Client.MarkReadyToPlay();
+        if (GameplayFxWarmup.BrowserPreparation && Config.Render)
+        {
+            // The client world and first pawn bind only after the ready message. Keep their initial
+            // simulation catch-up and first real scene draws under the same cover as the shader warmup.
+            _browserPreparingPlayer = true;
+            _browserPlayerWaitAt = Time.GetTicksMsec();
+            if (Controls is { } controls)
+            {
+                _browserRestoreControls = controls.Enabled;
+                controls.Enabled = false;
+            }
+            if (_status is not null) _status.Text = "Preparing player...";
+            ShowLoadingCover(true);
+            return;
+        }
+        CompleteLoading();
+    }
+
+    private void CompleteLoading()
+    {
+        if (_browserPreparingPlayer && Controls is { } controls) controls.Enabled = _browserRestoreControls;
+        _browserPreparingPlayer = false;
         IsLoaded = true;
         ShowLoadingCover(false);
-        Session?.Client.MarkReadyToPlay();
         if (_status is not null) _status.Text = "";
         LoadTimer.Mark("ready.finish");
     }
@@ -364,7 +394,12 @@ public partial class PlayRoot : Node3D
             warmup.PreloadResponsiveSmoke(session.Client.World.Level,Map,GetViewport());
             // The match's shaders were built without smoke and switch now: draw the first-use samples of _Ready again
             // under the cover, so the first effect, laser or outfit does not compile in play.
-            if (switching && DisplayServer.GetName() != "headless") PreloadGameplaySamples(warmup.Samples);
+            if (switching && DisplayServer.GetName() != "headless")
+            {
+                PreloadGameplaySamples(warmup.Samples);
+                warmup.PreloadView(View);
+                warmup.PreloadScene(this);
+            }
             warmup.Begin(() => SetSmokeLoading(false));
         }
         return true;
@@ -376,12 +411,14 @@ public partial class PlayRoot : Node3D
         Fx?.Preload(samples);
         MercLasers?.Preload(samples);
         SpyLasers?.Preload(samples);
+        FirstPerson?.Warmup(samples);
         SpyFirstPerson?.Warmup(samples);
         if (Map is { } map)
         {
             Render.Characters.PawnOutfits.Warmup(map.Outfits, map.Folder, map.SharedRoot, samples,
                 sidearms: FirstPerson?.Needs.Sidearms ?? true);
             DeviceViews.PreloadSecuritySkins(map, samples);
+            DeviceViews.PreloadSkeletalProps(map, samples);
         }
     }
 
@@ -511,7 +548,7 @@ public partial class PlayRoot : Node3D
             Bindings = InputBindings.Load(settings.Side, Config.GameRoot, seedInputMap: !headless),
             Target = Session.Input,
             Enabled = Config.Pilot is null && !headless,
-            CapturePointer = !headless,
+            CapturePointer = !headless && !OperatingSystem.IsBrowser(),
         };
         AddChild(Controls);
         if (Config.Demo is { } demo)
@@ -860,7 +897,7 @@ public partial class PlayRoot : Node3D
 
     public override void _Process(double delta)
     {
-        if (!IsLoaded && !_smokePreparing) return;
+        if (!IsLoaded && !_smokePreparing && !_browserPreparingPlayer) return;
         if (Session is not { } session || session.IsStopped)
         {
             return;
@@ -891,7 +928,10 @@ public partial class PlayRoot : Node3D
         }
         else
         {
-            session.Update();
+            // Chrome can delay a visible/background frame while activating the window. Running five
+            // local server+client ticks afterward can prolong that stall. Drop the older backlog and
+            // recover with at most two ticks; remote matches retain their existing prediction cadence.
+            session.Update(OperatingSystem.IsBrowser() && !session.IsRemote ? 2 : PlaySession.MaxCatchUpTicks);
             alpha = session.Alpha;
         }
 
@@ -940,6 +980,10 @@ public partial class PlayRoot : Node3D
         DrawViews(session, alpha, viewDt);
         double viewMs = _watch.Elapsed.TotalMilliseconds;
         Stats.Add(simMs, viewMs, delta * 1000.0);
+        if (_browserPreparingPlayer && session.Client.Map?.Loaded is not null &&
+            (session.LocalController is not null || Time.GetTicksMsec() - _browserPlayerWaitAt >= 2000) &&
+            ++_browserPlayerFrames >= (BrowserPlayerVisions.Length + 1) * 2)
+            CompleteLoading();
         if (!_loadTimed && session.LocalPawn is not null && (Controls?.Enabled == true || Config.Pilot is not null))
         {
             // The first frame the player (or the test pilot) drives his pawn ends the load.
@@ -973,6 +1017,11 @@ public partial class PlayRoot : Node3D
             // 60 Hz ticks before, so they held still in most frames above 60 fps).
             Map?.SetTime(_time.At(alpha));
             int rendMap = pc is null || pc.RendMap == 0 ? RenderK.RendMapNormal : pc.RendMap;
+            // The loading samples cannot reproduce the bound player's camera, visible pawn and post targets.
+            // Present each vision twice on that real view under the cover, then restore the controller's mode
+            // for two frames before enabling input. Only the renderer changes; gameplay goggles stay untouched.
+            if (_browserPreparingPlayer && _browserPlayerFrames / 2 < BrowserPlayerVisions.Length)
+                rendMap = BrowserPlayerVisions[_browserPlayerFrames / 2];
             View.SquintingFactor = pc?.SquintingFactor ?? 0f;
             if (rendMap != _lastRendMap)
             {

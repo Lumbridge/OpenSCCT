@@ -104,6 +104,13 @@ public sealed partial class SpyFirstPersonView : Node3D
         if (!Available || DisplayServer.GetName() == "headless") return;
         var arms = (Node3D)ArmsModel!.Root.Duplicate();
         var weapon = (Node3D)WeaponModel!.Root.Duplicate();
+        arms.Visible = weapon.Visible = true;
+        foreach (Node3D root in new[] { arms, weapon })
+            foreach (MeshInstance3D mesh in root.FindChildren("*", nameof(MeshInstance3D), true, false))
+            {
+                mesh.ExtraCullMargin = 100000;
+                mesh.IgnoreOcclusionCulling = true;
+            }
         arms.Position = new Vector3(-.7f, 0f, 0f);
         weapon.Position = new Vector3(.55f, 0f, 0f);
         samples.AddChild(arms);

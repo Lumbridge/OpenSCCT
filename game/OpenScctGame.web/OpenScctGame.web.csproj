@@ -1,0 +1,53 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <!-- Browser (wasm) host; requires `dotnet workload install wasm-tools`. Publish from the project root:
+         dotnet publish OpenScctGame.web -> AppBundle/ (engine linked in, content exported as godot.pck) -->
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <OutputType>Exe</OutputType>
+        <RuntimeIdentifier>browser-wasm</RuntimeIdentifier>
+        <WasmEnableThreads Condition="'$(WasmEnableThreads)' == ''">$(TwoDogWebThreads)</WasmEnableThreads>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <IsPackable>false</IsPackable>
+        <TwoDogWebPrecompress>true</TwoDogWebPrecompress>
+        <PublishTrimmed Condition="'$(RunAOTCompilation)' != 'true'">false</PublishTrimmed>
+        <PublishTrimmed Condition="'$(RunAOTCompilation)' == 'true'">true</PublishTrimmed>
+        <!-- Keep the interpreter fallback for reflection/generic and managed/JS callback paths. -->
+        <WasmStripILAfterAOT Condition="'$(RunAOTCompilation)' == 'true'">false</WasmStripILAfterAOT>
+        <JsonSerializerIsReflectionEnabledByDefault>true</JsonSerializerIsReflectionEnabledByDefault>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <!-- Keep host namespaces uniform with the desktop host (whose
+             '.2dog' assembly name is not a valid namespace). -->
+        <RootNamespace>OpenScctGame.Web</RootNamespace>
+    </PropertyGroup>
+    <!-- Godot project location: the parent directory (hosts are nested inside
+         the Godot project, hidden from the Godot editor by their .gdignore) -->
+    <PropertyGroup>
+        <GodotProjectDir>..</GodotProjectDir>
+        <TwoDogRemoveDuplicateGodotAnalyzers>true</TwoDogRemoveDuplicateGodotAnalyzers>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="2dog.engine"/>
+        <PackageReference Include="2dog.browser-wasm"/>
+        <PackageReference Include="BrotliSharpLib"/>
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="../OpenScctGame.csproj"/>
+    </ItemGroup>
+
+    <!-- Scripts are resolved by reflection: root the game assembly, and any NuGet package your game reaches
+         via reflection (e.g. an ECS or serializer library) -->
+    <ItemGroup>
+        <TrimmerRootAssembly Include="OpenScctGame"/>
+        <TrimmerRootAssembly Include="$(TargetName)"/>
+        <!-- Map/script classes and state handlers are discovered by reflection. AOT requires the
+             trimming pipeline, but these assemblies must retain the same script surface as desktop. -->
+        <TrimmerRootAssembly Include="OpenScct.Core;OpenScct.Game;OpenScct.Content;OpenScct.Net;OpenScct.Server;OpenScct.Bots;OpenScct.Maps"
+                             Condition="'$(RunAOTCompilation)' == 'true'"/>
+    </ItemGroup>
+
+    <Target Name="DeepClean" AfterTargets="Clean">
+        <RemoveDir Directories="AppBundle"/>
+    </Target>
+</Project>

@@ -18,6 +18,12 @@ public static class ScoreboardWire
     private const int ChunkBytes = 300;
     private static readonly JsonSerializerOptions Json = CreateJsonOptions();
 
+    /// <summary>A host decoder for platforms without native Brotli. The wire format and output limit stay identical.</summary>
+    public static Func<Stream, Stream>? OpenDecompressionStream { get; set; }
+
+    /// <summary>A host encoder for platforms without native Brotli, including browser listen servers.</summary>
+    public static Func<Stream, Stream>? OpenCompressionStream { get; set; }
+
     private static JsonSerializerOptions CreateJsonOptions()
     {
         var resolver = new DefaultJsonTypeInfoResolver();
@@ -54,7 +60,8 @@ public static class ScoreboardWire
         };
     }
 
-    public static IReadOnlyList<string> Encode(RoundScoreboard board, int localParticipantId, bool historical = false)
+    public static IReadOnlyList<string> Encode(RoundScoreboard board, int localParticipantId, bool historical = false,
+        Func<Stream, Stream>? openCompressionStream = null)
     {
         // Version 1 defines missing counters as zero. Keep the full server snapshot, but
         // avoid repeatedly transmitting dozens of zero counters for every participant.
@@ -67,7 +74,8 @@ public static class ScoreboardWire
         byte[] json = JsonSerializer.SerializeToUtf8Bytes(wireBoard, Json);
         if (json.Length > MaxJsonBytes) throw new InvalidDataException("Scoreboard exceeds the transfer limit.");
         using var packed = new MemoryStream();
-        using (var compression = new BrotliStream(packed, CompressionLevel.Optimal, leaveOpen: true)) compression.Write(json);
+        using (var compression = (openCompressionStream ?? OpenCompressionStream)?.Invoke(packed) ??
+            new BrotliStream(packed, CompressionLevel.Optimal, leaveOpen: true)) compression.Write(json);
         byte[] bytes = packed.ToArray();
         if (bytes.Length > MaxCompressedBytes) throw new InvalidDataException("Scoreboard exceeds the transfer limit.");
         string id = Guid.NewGuid().ToString("N");
@@ -80,6 +88,10 @@ public static class ScoreboardWire
 
     public sealed class Receiver
     {
+        private readonly Func<Stream, Stream> _openDecompressionStream;
+        public Receiver(Func<Stream, Stream>? openDecompressionStream = null) =>
+            _openDecompressionStream = openDecompressionStream ?? OpenDecompressionStream ??
+                (input => new BrotliStream(input, CompressionMode.Decompress));
         private string? _id;
         private byte[]? _bytes;
         private int _used;
@@ -111,7 +123,7 @@ public static class ScoreboardWire
                 else if (fields.Length == 3 && fields[1] == "boardend" && fields[2] == _id && _bytes is not null && _used == _bytes.Length)
                 {
                     using var input = new MemoryStream(_bytes);
-                    using var decompression = new BrotliStream(input, CompressionMode.Decompress);
+                    using var decompression = _openDecompressionStream(input);
                     using var output = new MemoryStream();
                     byte[] buffer = new byte[4096];
                     int n;

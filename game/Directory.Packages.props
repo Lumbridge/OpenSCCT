@@ -1,0 +1,9 @@
+<Project>
+  <Import Project="../Directory.Packages.props" />
+  <ItemGroup>
+    <PackageVersion Include="2dog.godotsharp" Version="4.7.2.186" />
+    <PackageVersion Include="2dog.godotsharp.editor" Version="4.7.2.186" />
+    <PackageVersion Include="2dog.engine" Version="4.7.2.186" />
+    <PackageVersion Include="2dog.browser-wasm" Version="[4.7.2.175]" />
+  </ItemGroup>
+</Project>

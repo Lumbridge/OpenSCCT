@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenSCCT · Play in your browser</title>
+    <meta name="theme-color" content="#101612">
+    <link rel="icon" type="image/svg+xml" href="mark.svg">
+    <!-- Start the big downloads before godot.js even runs; the dotnet.* files
+         are otherwise only discovered mid-boot. -->
+    <script src="preload.js"></script>
+    <link rel="modulepreload" href="_framework/dotnet.js">
+    <link rel="modulepreload" href="_framework/dotnet.boot.js">
+    <link rel="modulepreload" href="_framework/dotnet.runtime.js">
+    <link rel="modulepreload" href="_framework/dotnet.native.js">
+    <link rel="stylesheet" href="browser.css">
+</head>
+
+<body>
+    <canvas id="canvas">
+        Your browser does not support the canvas tag.
+    </canvas>
+    <nav id="browser-toolbar" aria-label="Browser game controls">
+        <span id="account-status" role="status"></span>
+        <button type="button" id="sync-account-button" hidden>Use account settings instead</button>
+        <a id="account-link" href="/auth/player/login?returnTo=/play/" target="_top">Sign in</a>
+        <button type="button" id="multiplayer-button" disabled>Multiplayer</button>
+        <button type="button" id="menu-button" disabled>Menu</button>
+        <button type="button" id="fullscreen-button">Full screen</button>
+    </nav>
+    <button type="button" id="play-button" hidden>Click to play</button>
+    <p id="pointer-status" role="status" hidden></p>
+    <dialog id="multiplayer-dialog" aria-labelledby="multiplayer-title">
+        <h2 id="multiplayer-title">Multiplayer</h2>
+        <p>Join a browser-enabled OpenSCCT server. Choose your side in the game lobby.</p>
+        <label for="online-server">Server</label>
+        <select id="online-server"></select>
+        <label for="online-password">Server password (if required)</label>
+        <input id="online-password" type="password" autocomplete="off">
+        <label id="invite-label" for="online-invite" hidden>Master invite key</label>
+        <input id="online-invite" type="password" autocomplete="off" hidden>
+        <p id="online-status" role="status"></p>
+        <div class="lesson-actions">
+            <button type="button" id="online-join">Join server</button>
+            <button type="button" id="online-refresh">Refresh</button>
+            <button type="button" id="online-close">Close</button>
+        </div>
+    </dialog>
+    <aside id="lesson-coach" aria-label="Training coach" hidden>
+        <h2 id="lesson-title">Practice</h2>
+        <p id="lesson-feedback" role="status">Preparing the range…</p>
+        <p id="lesson-detail"></p>
+        <div id="lesson-results" aria-label="Recent attempts" hidden></div>
+        <div class="lesson-actions">
+            <button type="button" data-action="drop" data-lesson="vision-cancelling">Walk off the ledge</button>
+            <button type="button" data-action="night" data-lesson="vision-cancelling">Night vision</button>
+            <button type="button" data-action="thermal" data-lesson="vision-cancelling">Thermal</button>
+            <button type="button" data-action="grab" data-lesson="spy-grab">Grab only</button>
+            <button type="button" data-action="moving" data-lesson="spy-grab" id="lesson-moving" aria-pressed="false">Moving mercenary</button>
+            <button type="button" data-action="debug" data-lesson="spy-grab">Grab window</button>
+            <button type="button" data-action="reset">Retry</button>
+        </div>
+        <p class="lesson-hint">Use your game bindings to move, look and act. Escape opens the menu.</p>
+    </aside>
+
+    <noscript>
+        Your browser does not support JavaScript.
+    </noscript>
+
+    <div id="status">
+        <img id="status-splash" src="mark.svg" alt="OpenSCCT logo">
+        <h1 class="wordmark">Open<span>SCCT</span></h1>
+        <p class="loading-copy">SPIES VS MERCENARIES</p>
+        <div id="status-bar"><progress id="status-progress" aria-label="Loading progress"></progress></div>
+        <p class="loading-copy" id="loading-copy" role="status">Preparing your session</p>
+        <div id="status-notice" role="alert"></div>
+    </div>
+
+    <script src="godot.js"></script>
+    <script src="bootstrap.js"></script>
+</body>
+
+</html>
