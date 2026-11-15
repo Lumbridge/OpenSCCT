@@ -10,10 +10,10 @@
 
 uniform sampler2D corona_tex : filter_linear_mipmap, repeat_disable, hint_default_black;
 #ifdef SVM_CORONA_COPIES
-uniform sampler2D depth_tex : filter_nearest;
+uniform sampler2D depth_tex : filter_nearest, repeat_disable;
 uniform sampler2D scene_tex : filter_nearest, repeat_disable;
 #else
-uniform sampler2D depth_tex : hint_depth_texture, filter_nearest;
+uniform sampler2D depth_tex : hint_depth_texture, filter_nearest, repeat_disable;
 uniform sampler2D scene_tex : hint_screen_texture, filter_nearest, repeat_disable;
 #endif
 varying vec3 v_center;
@@ -35,14 +35,16 @@ void vertex() {
 void fragment() {
 	vec4 clip = PROJECTION_MATRIX * vec4(v_center, 1.0);
 	vec2 uv = clip.xy / clip.w * 0.5 + 0.5;
-	if (uv.x >= 0.0 && uv.x <= 1.0 && uv.y >= 0.0 && uv.y <= 1.0) {
-		float d = texture(depth_tex, uv).r;
-		vec4 v = INV_PROJECTION_MATRIX * vec4(uv * 2.0 - 1.0, d, 1.0);
-		float scene = -v.z / v.w;
-		float light = -v_center.z;
-		if (scene < light - max(0.16, 0.08 * light)) {
-			discard;
-		}
+	// A quad's rim still draws when its centre is offscreen. Keep testing the nearest edge texel instead of
+	// switching occlusion off there (or wrapping an exact-edge sample to the opposite side of the frame).
+	vec2 half_texel = 0.5 / vec2(textureSize(depth_tex, 0));
+	vec2 depth_uv = clamp(uv, half_texel, vec2(1.0) - half_texel);
+	float d = texture(depth_tex, depth_uv).r;
+	vec4 v = INV_PROJECTION_MATRIX * vec4(depth_uv * 2.0 - 1.0, d, 1.0);
+	float scene_depth = -v.z / v.w;
+	float light = -v_center.z;
+	if (scene_depth < light - max(0.16, 0.08 * light)) {
+		discard;
 	}
 	vec4 fog = surface_fog(CAMERA_VISIBLE_LAYERS, v_center, uv * VIEWPORT_SIZE, VIEWPORT_SIZE);
 	// Native DrawCoronas selects FB_Translucent (ONE, INVSRCCOLOR) at 0x10a1418b.

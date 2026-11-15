@@ -42,8 +42,12 @@ Without the pack the client still draws, with a seeded stand-in grain, no therma
   instance transform mirrors. The handedness check compares the Godot winding of every BSP triangle with its stored
   normal (SteeE: 3693 of 3706 agree; the rest are degenerate or two-sided slivers). The smoke test fails below 99 %.
 - Static geometry (BSP and every non-gameplay static mesh with baked colours) is merged per material and per square
-  cell of 4096 uu (`RenderOptions.CellSize`): one `MeshInstance3D` per cell, one surface per material and light
-  source. SteeE: 9 cells, 318 surfaces, 112,598 triangles. Merged surfaces carry each instance's vision values per
+  cell of 4096 uu (`RenderOptions.CellSize`): one surface per material and light source, with each world bucket on
+  its own `MeshInstance3D` and its own bounds. Transparent buckets sort by those bounds, with a small offset to
+  resolve equal distances in surface order. Giving every transparent surface the whole cell's bounds made their
+  order depend on other objects entering or leaving the view; AquaE's tank changed brightness at the screen edge.
+  `camera-edge-map` checks a matching camera sweep, changes the culled draw list and repeats with 4x MSAA.
+  SteeE: 9 cells, 318 surfaces, 112,598 triangles. Merged surfaces carry each instance's vision values per
   vertex (`CUSTOM0`, see [Vision modes](#vision-modes)).
 - Gameplay meshes (movers, SGamePlayObject, switches, help paths) and meshes without baked colours keep a node of
   their own, named by actor id, so views can move, hide and relight them (`RenderMap.Gameplay`). Hidden ones are
@@ -733,6 +737,11 @@ FDynamicLight colour.
   `max(16 uu, 8 % of the distance)` so the lamp head around a light does not hide it (yard-north's crane lamp sits
   100 uu behind its housing at 2398 uu; lounge's coronas behind floors stay hidden at 8 % and 15 %). A full collision
   trace hides coronas the original shows (blocking volumes, cables); BSP alone lets a corona shine through mesh floors.
+- When the centre leaves the screen while the quad's rim remains visible, the depth sample clamps to the nearest
+  edge texel. This boundary approximation keeps the occlusion test active across the edge; previously the test
+  stopped entirely offscreen, revealing hidden glows. Depth samplers also clamp at exact edges rather than wrapping
+  to the opposite side. Standard's screen/copy shaders and Fast use the same rule; `camera-edge` checks all four
+  edges with clear and occluded centres, with and without 4x MSAA.
 - Fade moves at 6 x ScaleGlow per second; a camera cut settles it at once. Thermal and EMF draw no coronas.
 - Blended sky zone materials have the lowest render priority, so a corona or a particle over the sky is never
   overdrawn by them (the crane lamp's corona was). Solid sky sits behind everything by depth.

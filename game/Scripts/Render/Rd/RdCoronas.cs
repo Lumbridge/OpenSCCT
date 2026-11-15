@@ -126,13 +126,13 @@ internal sealed class RdCoronas
             bool hidden = clip.w <= 0.0;
             if (!hidden) {
                 vec2 uv = clip.xy / clip.w * 0.5 + 0.5;
-                if (uv.x >= 0.0 && uv.x <= 1.0 && uv.y >= 0.0 && uv.y <= 1.0) {
-                    // The frame's depth at the light's centre must not lie in front of the light by more than
-                    // max(16 uu, 8% of the distance).
-                    float scene = view_depth(textureLod(scene_depth, uv, 0.0).r);
-                    float light = view_depth(clip.z / clip.w);
-                    hidden = scene < light - max(0.16, 0.08 * light);
-                }
+                // The rim can still be visible with its centre offscreen. The nearest edge texel keeps
+                // occlusion continuous as the centre leaves the frame, as in svm_corona.gdshaderinc.
+                vec2 half_texel = 0.5 / vec2(textureSize(scene_depth, 0));
+                uv = clamp(uv, half_texel, vec2(1.0) - half_texel);
+                float scene = view_depth(textureLod(scene_depth, uv, 0.0).r);
+                float light = view_depth(clip.z / clip.w);
+                hidden = scene < light - max(0.16, 0.08 * light);
             }
             if (hidden) {
                 gl_Position = vec4(2.0, 2.0, 2.0, 1.0);

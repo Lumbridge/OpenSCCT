@@ -43,7 +43,7 @@ public sealed partial class CoronaSampleEffect : CompositorEffect
         layout(rgba16f, set = 0, binding = 2) uniform writeonly image2D colour_copy;
         layout(r32f, set = 0, binding = 3) uniform writeonly image2D depth_copy;
         layout(push_constant, std430) uniform Params {
-            ivec4 rect; // xy first pixel (up to the margin past the frame's edges), zw size
+            ivec4 rect; // xy first pixel, zw size, clipped to the frame
             ivec4 size; // xy the frame's size
         } p;
         void main() {
@@ -51,11 +51,7 @@ public sealed partial class CoronaSampleEffect : CompositorEffect
             if (g.x >= p.rect.z || g.y >= p.rect.w) {
                 return;
             }
-            // A pixel past an edge stands for the one across the frame: the depth read at the light's centre uses a
-            // repeating sampler, so a centre on the right or bottom edge can read column or row 0.
             ivec2 xy = p.rect.xy + g;
-            xy = ivec2(xy.x < 0 ? xy.x + p.size.x : (xy.x >= p.size.x ? xy.x - p.size.x : xy.x),
-                xy.y < 0 ? xy.y + p.size.y : (xy.y >= p.size.y ? xy.y - p.size.y : xy.y));
             imageStore(colour_copy, xy, texelFetch(colour_tex, xy, 0));
             imageStore(depth_copy, xy, vec4(texelFetch(depth_tex, xy, 0).r, 0.0, 0.0, 0.0));
         }
@@ -516,14 +512,12 @@ public sealed partial class CoronaSampleEffect : CompositorEffect
             x1 = y1 = double.PositiveInfinity;
         }
 
-        // Only pixels in the frame draw; past its edges the margin stays for the depth read's wrap (the shader's wrap
-        // needs it no wider than the frame).
-        int mx = Math.Min(Margin, size.X);
-        int my = Math.Min(Margin, size.Y);
-        x0 = Math.Max(x0, -mx);
-        y0 = Math.Max(y0, -my);
-        x1 = Math.Min(x1, size.X - 1 + mx);
-        y1 = Math.Min(y1, size.Y - 1 + my);
+        // Both samplers clamp to the frame. When the centre is offscreen but its rim draws, the rectangle includes
+        // the nearest edge texel used for occlusion; no opposite-edge copies are needed.
+        x0 = Math.Max(x0, 0);
+        y0 = Math.Max(y0, 0);
+        x1 = Math.Min(x1, size.X - 1);
+        y1 = Math.Min(y1, size.Y - 1);
         if (x0 > x1 || y0 > y1)
         {
             return false;
