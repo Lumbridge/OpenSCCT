@@ -458,16 +458,27 @@ public abstract class HudPage
         var tl = new Vector2(l + inset, t + inset);
         var br = new Vector2(r - inset, b - inset);
         float thickness = Mathf.Max(2f, (r - l) * 0.1f);
-        Bar("Extras/GadgetCrossA", tl, br, thickness, white, opacity);
-        Bar("Extras/GadgetCrossB", new Vector2(br.X, tl.Y), new Vector2(tl.X, br.Y), thickness, white, opacity);
+        Bar("Extras/GadgetCrossA", tl, br, thickness, white, GadgetCrossColour with { A = GadgetCrossColour.A * opacity });
+        Bar("Extras/GadgetCrossB", new Vector2(br.X, tl.Y), new Vector2(tl.X, br.Y), thickness, white,
+            GadgetCrossColour with { A = GadgetCrossColour.A * opacity });
+    }
+
+    protected void ProgressBar(string path, Vector2 start, float width, float progress, MagmaAnchor anchor, Color color)
+    {
+        _white ??= WhiteRegion.Find(Assets);
+        if (_white is not { } white) return;
+
+        Vector2 from = Renderer.ToScreen(start, anchor);
+        Vector2 end = Renderer.ToScreen(start + new Vector2(width, 0f), anchor);
+        Bar(path + "/Track", from, end, 5f * Renderer.S, white, new Color(0f, 0f, 0f, 0.8f));
+        Bar(path + "/Fill", from, from.Lerp(end, progress), 3f * Renderer.S, white, color);
     }
 
     /// <summary>A solid bar from <paramref name="from"/> to <paramref name="to"/>, <paramref name="thickness"/> pixels wide.</summary>
-    private void Bar(string path, Vector2 from, Vector2 to, float thickness, WhiteRegion white, float opacity)
+    private void Bar(string path, Vector2 from, Vector2 to, float thickness, WhiteRegion white, Color c)
     {
         Vector2 dir = (to - from).Normalized();
         Vector2 side = new Vector2(-dir.Y, dir.X) * (thickness / 2f);
-        Color c = GadgetCrossColour with { A = GadgetCrossColour.A * opacity };
         MagmaDrawItem item = DrawList.Add(MagmaWidgetKind.Image);
         item.Path = path;
         item.Package = white.Package;

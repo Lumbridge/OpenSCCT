@@ -1,0 +1,52 @@
+{
+  "license": "CC-BY-4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+  "models": [
+    {
+      "title": "M4 - FPS Weapon Animations Pack V.1",
+      "downloadFile": "m4_-_fps_weapon_animations_pack_v.1.glb",
+      "source": "https://sketchfab.com/3d-models/m4-fps-weapon-animations-pack-v1-662fc74dda2646cfb48fc610705768ef",
+      "author": "BarcodeGames",
+      "authorUrl": "https://sketchfab.com/barcodegames",
+      "downloadBytes": 11522080,
+      "sha256": "d65f4eaef8e09f63b1d33f9578bcb9597342ef33f20d9db8289f4d841ceaa739"
+    },
+    {
+      "title": "AK47",
+      "downloadFile": "ak47.glb",
+      "source": "https://sketchfab.com/3d-models/ak47-831519a097d84e079fd8bc4b15e5b57d",
+      "author": "wburton",
+      "authorUrl": "https://sketchfab.com/wburton95",
+      "downloadBytes": 9718932,
+      "sha256": "7813a22f93f53e0ade74675fe58901252210d3e4938f566f16aa6493a5efc128"
+    },
+    {
+      "title": "IMI Galil weapon",
+      "downloadFile": "imi_galil_weapon.glb",
+      "source": "https://sketchfab.com/3d-models/imi-galil-weapon-c04464da23af47458533a8a8c74f4b4b",
+      "author": "MilotoR1",
+      "authorUrl": "https://sketchfab.com/m1lotor",
+      "downloadBytes": 259728360,
+      "sha256": "ed27a57aeccfdcaf3e4ac6c0726ab13af29bcd951c83a2c9fc15e2015c8a757c"
+    },
+    {
+      "title": "FAMAS",
+      "downloadFile": "famas.glb",
+      "source": "https://sketchfab.com/3d-models/famas-7d35e14ad8874d148ce9cc46e5765a6b",
+      "author": "Frostoise",
+      "authorUrl": "https://sketchfab.com/Frostoise",
+      "downloadBytes": 6359788,
+      "sha256": "11b5cab078b2169b60582680943948a4f7e60f9e9069d5d6a8c881df38eebc59"
+    }
+  ],
+  "audio": {
+    "source": "https://github.com/buddingmonkey/FreeFirearmsSFXLibrary",
+    "revision": "beb2f4041f3d6740fa0aeaf0e71159bd65a78c1b",
+    "license": "CC0-1.0",
+    "files": [
+      "Prepared SFX/AK-47/C_28P.wav",
+      "Prepared SFX/AR-15/D_24P.wav",
+      "Prepared SFX/AR-15/D_32P.wav"
+    ]
+  }
+}

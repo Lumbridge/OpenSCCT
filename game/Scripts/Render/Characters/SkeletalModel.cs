@@ -1475,7 +1475,8 @@ public sealed class SkeletalModel : OpenScctGame.Views.IFirstPersonRigModel
     private static VisionMasks? s_sidearmVision;
 
     private static VisionMasks? SidearmVision(string material) =>
-        material.StartsWith(SidearmMaterials, StringComparison.OrdinalIgnoreCase)
+        (material.StartsWith(SidearmMaterials, StringComparison.OrdinalIgnoreCase) ||
+         material.StartsWith("OpenScctRifles.", StringComparison.OrdinalIgnoreCase))
             ? s_sidearmVision ??= new VisionMasks(Flat(0.25f), Flat(0f))
             : null;
 

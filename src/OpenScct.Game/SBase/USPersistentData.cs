@@ -8,6 +8,8 @@ namespace OpenScct.Game.SBase;
 /// </summary>
 public partial class USPersistentData
 {
+    public byte AdditionalSpyGadgets;
+
     /// <summary>The engine's creation event: the lobby voice and friend flags, then the gameplay defaults.</summary>
     [Uc("Engine.PersistentData.Init", Sha1 = "6abb4052b6945f6af930b957bbb3e9ed305dae89")]
     [PortOf("uc:Engine.PersistentData:Init", Spec = "spec/equipment/loadouts.md#rules")]
@@ -42,6 +44,7 @@ public partial class USPersistentData
         bAvlb_MERC_Berserk = true;
         bAvlb_MERC_Charge = true;
         b_SPY_GadgetRestriction = Equipment.K.AllGadgetsAllowed;
+        AdditionalSpyGadgets = STeamAttaquant.AllAdditionalGadgets;
         b_MERC_GadgetRestriction = Equipment.K.AllGadgetsAllowed;
         b_SPY_NBGadget = (byte)Equipment.K.GadgetSlots;
         b_MERC_NBGadget = (byte)Equipment.K.GadgetSlots;

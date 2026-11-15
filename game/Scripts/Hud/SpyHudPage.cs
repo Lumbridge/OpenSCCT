@@ -117,6 +117,16 @@ public sealed class SpyHudPage : HudPage
         }
     }
 
+    protected override void DrawCanvas(Vector2 screen, HudSnapshot s)
+    {
+        if (s.Gadget is not { MineHackPercent: > 0 } gadget) return;
+
+        const MagmaAnchor anchor = MagmaAnchor.Center;
+        ExtraText("MineHack/Label", "Hacking mine", new Rect4(260f, 271f, 380f, 286f), anchor,
+            MagmaAlign.Center, HudK.SpyColour);
+        ProgressBar("MineHack", new Vector2(276f, 289f), 88f, gadget.MineHackPercent / 100f, anchor, HudK.SpyColour);
+    }
+
     protected override void DrawExtras(HudSnapshot s)
     {
         // Above the gadget box (462, 369), right anchored like it.

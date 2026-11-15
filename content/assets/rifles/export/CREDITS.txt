@@ -1,0 +1,66 @@
+OpenSCCT realistic merc rifles
+=============================
+
+All model downloads were free and displayed CC-BY-4.0, permitting commercial
+reuse with attribution. https://creativecommons.org/licenses/by/4.0/
+
+M4A1-S model and draw/fire/reload/holster animation reference:
+This work is based on "M4 - FPS Weapon Animations Pack V.1"
+(https://sketchfab.com/3d-models/m4-fps-weapon-animations-pack-v1-662fc74dda2646cfb48fc610705768ef)
+by BarcodeGames (https://sketchfab.com/barcodegames), licensed under CC-BY-4.0.
+Changes: hip-fire camera framing; clip trimming; optimized external textures;
+an original OpenSCCT steel suppressor; adaptation of its handling to all four rifles.
+
+Shared first-person cloth sleeves and gloves:
+This work is based on "animated pistol"
+(https://sketchfab.com/3d-models/animated-pistol-bd896167e7ca44f19597d3afe6a8d83f)
+by DJMaesen (https://sketchfab.com/bumstrum), licensed under CC-BY-4.0.
+Changes: the same mesh and atlas used by OpenSCCT sidearms; rifle contact fitting;
+fixed-length arm solves and distributed forearm twist; authored contextual actions.
+
+AK-47:
+This work is based on "AK47"
+(https://sketchfab.com/3d-models/ak47-831519a097d84e079fd8bc4b15e5b57d)
+by wburton (https://sketchfab.com/wburton95), licensed under CC-BY-4.0.
+Changes: normalized axes/scale; original animated magazine/bolt separated;
+unused ammunition/spare parts removed; fitted to the shared cloth arms.
+
+GALIL:
+This work is based on "IMI Galil weapon"
+(https://sketchfab.com/3d-models/imi-galil-weapon-c04464da23af47458533a8a8c74f4b4b)
+by MilotoR1 (https://sketchfab.com/m1lotor), licensed under CC-BY-4.0.
+Changes: normalized axes/scale; seven 4K material sets resized to 1K; magazine attached
+to the credited animation rig; support-hand contact and material response adapted.
+
+FAMAS:
+This work is based on "FAMAS"
+(https://sketchfab.com/3d-models/famas-7d35e14ad8874d148ce9cc46e5765a6b)
+by Frostoise (https://sketchfab.com/Frostoise), licensed under CC-BY-4.0.
+Changes: normalized axes/scale; magazine attached to the credited animation
+rig with a bullpup well offset; support-hand contact and matte polymer response adapted.
+
+Every rifle includes an original OpenSCCT weapon attachment rig, muzzle and
+case-ejection joints, texture optimization and menu renders. Contextual SCCT
+actions use the user's converted clip names and durations during installation;
+no retail model or animation is included in these distributable exports.
+
+Audio
+-----
+Free Firearm Sound Library by Ben Jaszczak, Brian Nelson, Kevin Heras and
+Matthew Nanney. CC0-1.0, https://creativecommons.org/publicdomain/zero/1.0/
+Mirror: https://github.com/buddingmonkey/FreeFirearmsSFXLibrary
+AK-47 and AR-15 field recordings, isolated to individual reports and adapted
+with mono conversion, equalization, pitch/gain changes and faded tails.
+
+Gun reload sounds (rifle handling) by SpringySpringo, CC0-1.0.
+https://opengameart.org/content/gun-reload-sounds
+PistolReloadSound.wav by MaximBomba, CC0-1.0.
+https://freesound.org/people/MaximBomba/sounds/432139/
+silenced pistol shot (.45 reference) by Clutvh, CC0-1.0.
+https://freesound.org/people/Clutvh/sounds/627087/
+Handling and suppressed report layers use the existing credited source
+recordings in content/assets/weapons and content/assets/sidearms.
+Reports are game sound designs; Galil/FAMAS/M4 suppressor layers are adapted
+references rather than exact recordings of each displayed configuration.
+
+No Valve/Counter-Strike assets, paid content or AI-generated gun assets used.

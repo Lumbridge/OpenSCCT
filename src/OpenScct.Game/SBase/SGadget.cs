@@ -54,7 +54,7 @@ public partial class SGadget
             pawn.SelectedGadget = this;
         }
 
-        if (Level.NetMode == ENetMode.NM_Standalone && Charge > 0 && Charge < K.OfflineCharge)
+        if (this is not Svm.SpyDeployableGadget && Level.NetMode == ENetMode.NM_Standalone && Charge > 0 && Charge < K.OfflineCharge)
         {
             Charge = K.OfflineCharge;
         }
@@ -134,7 +134,7 @@ public partial class SGadget
     public void DecCharge(int NbCharge = 1)
     {
         // An OpenSCCT addition: a practice round's gadgets never run out (no charge used here or on the server).
-        if (Modes.PracticeRules.IsOn(this))
+        if (Modes.PracticeRules.ResourcesInfinite(this))
         {
             return;
         }
@@ -152,7 +152,7 @@ public partial class SGadget
     [PortOf("nat:SBase.SGadget.ServerDecCharge", Spec = "spec/equipment/gadget-natives.md#rules")]
     public void ServerDecCharge(int NbCharge = 1)
     {
-        if (!Modes.PracticeRules.IsOn(this))
+        if (this is not Svm.SpyDeployableGadget && !Modes.PracticeRules.ResourcesInfinite(this))
         {
             Charge -= NbCharge;
         }
@@ -175,7 +175,10 @@ public partial class SGadget
     [UcNative("ASGadget::execServerAddCharge", Exe = 0x10a9fb70)]
     [Uc("SBase.SGadget.ServerAddCharge", Sha1 = "acb59280cd80c7b0557700395f79ddd276a69e2d")]
     [PortOf("nat:SBase.SGadget.ServerAddCharge", Spec = "spec/equipment/gadget-natives.md#rules")]
-    public void ServerAddCharge(int Amount = 1) => Charge += Amount;
+    public void ServerAddCharge(int Amount = 1)
+    {
+        if (this is not Svm.SpyDeployableGadget) Charge += Amount;
+    }
 
     /// <summary>The server mirrors a refill on the owning client.</summary>
     [Uc("SBase.SGadget.AddChargeOnClientFromServer", Sha1 = "4b7be7f297f16d99fc3552577d64bc8f62a246a8")]
@@ -211,6 +214,23 @@ public partial class SGadget
         "SBase.SGadTazerLauncher" => aSGadTazerLauncher,
         _ => aNoGadget,
     };
+
+    // Stable IDs stored by the per-gadget bindings. The other bindable gadgets use their existing inventory IDs.
+    public const int BindHeartbeatSensor = 20;
+    public const int BindClone = 21;
+    public const int BindMineHack = 22;
+
+    public static int BindingId(SGadget? gadget) => gadget switch
+    {
+        SGadHeartBeatSensor => BindHeartbeatSensor,
+        Svm.CloneGadget => BindClone,
+        Svm.MineHackGadget => BindMineHack,
+        null => aNoGadget,
+        _ => GetUniqueIDByClass(new ClassRef(gadget.GetUcClass().Path)),
+    };
+
+    /// <summary>Named bindings hold alt-fire only for the gadget currently using it.</summary>
+    public bool BindingHoldsAltFire => this is SGadGrenLauncher or SGadMultiMinesLauncher or SGadStickyCam or Svm.MineHackGadget;
 
     /// <summary>A HUD auxiliary message for the owner.</summary>
     [Uc("SBase.SGadget.LocalMessage", Sha1 = "d3a2c18198594d95e534aa24f32ae3611df19b6b")]

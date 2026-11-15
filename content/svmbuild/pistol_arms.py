@@ -121,65 +121,8 @@ def append_parts(doc,data,path,placement,skin_nodes,rest_world,idle_world,mesh_w
 
 
 def retarget_context(doc,data,reference,reference_data,source_idle,source_parent):
-    by_name={node.get('name'):i for i,node in enumerate(reference['nodes'])}
-    ref_idle_clip=next(a for a in reference['animations'] if a['name']=='FirstWaitStFd2')
-    ref_idle=pose(reference,tracks(reference,reference_data,ref_idle_clip),0)
-    # Both converted glTF rigs are Y-up. Turn the rifle's -X forward into
-    # the pistol's +X forward without swapping vertical bob into lateral sway.
-    yaw=.15;c=math.cos(yaw);s=math.sin(yaw)
-    align=np.array([[c,0,s],[0,1,0],[-s,0,c]])@np.diag([-1.,1.,-1.])
-    mapping={}
-    for i,node in enumerate(doc['nodes']):
-        name=node.get('name','')
-        for side in ['L','R']:
-            for prefix,reference_name in [('arm','UpperArm'),('elbow','Forearm'),('wrist','Hand')]:
-                if name.startswith(side+'_'+prefix+'_'):mapping[i]=by_name.get('Bip01 '+side+' '+reference_name)
-            for finger,index in [('thumb',0),('point',1),('middle',2),('ring',3),('pink',4)]:
-                for segment in range(1,5):
-                    if name.startswith(f'{side}_{finger}{segment}_'):
-                        suffix='' if segment==1 else str(segment-1) if segment<4 else '2'
-                        mapping[i]=by_name.get(f'Bip01 {side} Finger{index}{suffix}')
-    mapping={node:ref for node,ref in mapping.items() if ref is not None}
-    wrist=next(i for i,n in enumerate(doc['nodes']) if n.get('name','').startswith('R_wrist_'))
-    idle_local=[np.linalg.inv(source_idle[source_parent[i]])@m if i in source_parent else m for i,m in enumerate(source_idle)]
-    for clip in reference['animations']:
-        if clip['name'] in {a['name'] for a in doc['animations']}:continue
-        source=tracks(reference,reference_data,clip)
-        duration=max(float(t[-1]) for _,_,t,_ in source)
-        times=np.linspace(0,duration,max(2,math.ceil(duration*30)+1))
-        animated=set(mapping)|set(doc['skins'][0]['joints'])|{57}
-        rigid_motion=clip['name'] in {'FirstWaitStFd2','FirstWalkStFd2','FirstJumpStFd2',
-                                     'FirstFallStFd2','FirstLandStFd2','FirstLandStHi2'}
-        frames={node:[] for node in animated}
-        for time in times:
-            ref_pose=pose(reference,source,time);desired={}
-            # Rifle and pistol arm proportions differ. Preserve the authored
-            # pistol's elbow/wrist shapes and move the complete rig by the
-            # primary hand's displacement instead of transplanting each joint.
-            motion=align@(ref_pose[by_name['Bip01 R Hand']][:3,3]-ref_idle[by_name['Bip01 R Hand']][:3,3])
-            def world(node):
-                if node in desired:return desired[node]
-                if rigid_motion:
-                    value=source_idle[node].copy()
-                    if node in animated:value[:3,3]+=motion
-                    desired[node]=value;return value
-                parent=source_parent.get(node)
-                value=(world(parent)@idle_local[node]) if parent is not None else idle_local[node].copy()
-                if node in mapping:
-                    old=mapping[node];value=source_idle[node].copy()
-                    delta=align@rotation(ref_pose[old])@rotation(ref_idle[old]).T@align.T
-                    value[:3,:3]=delta@source_idle[node][:3,:3]
-                    value[:3,3]+=align@(ref_pose[old][:3,3]-ref_idle[old][:3,3])
-                if node==57:value=world(wrist)@np.linalg.inv(source_idle[wrist])@source_idle[node]
-                desired[node]=value;return value
-            for node in animated:
-                m=world(node);parent=source_parent.get(node)
-                frames[node].append(decompose(np.linalg.inv(world(parent))@m if parent is not None else m))
-        animation={'name':clip['name'],'samplers':[],'channels':[]}
-        for node,poses in frames.items():
-            for index,path in enumerate(['translation','rotation','scale']):
-                curve(doc,data,animation,node,path,times,[p[index] for p in poses])
-        doc['animations'].append(animation)
+    from .viewmodel_actions import author
+    author(doc,data,reference,reference_data,held=source_idle)
 
 
 def turn(from_,to):
@@ -334,32 +277,6 @@ def revolver_cartridges(doc,data,idle,placement,mesh_world):
             animation['samplers'][-1]['interpolation']='STEP'
 
 
-def pistol_melee(doc,data):
-    """A compact pistol-whip with both wrists and the gun moving together, rather than a stretched rifle-butt pose."""
-    idle_clip=next(a for a in doc['animations'] if a['name']=='FirstWaitStFd2')
-    held=tracks(doc,data,idle_clip);neutral=pose(doc,held,.5);_,parents=world_matrices(doc)
-    fractions=np.array([0,.16,.30,.39,.56,.78,1.])
-    moves=np.array([[0,0,0],[.055,-.025,.035],[-.115,.035,-.13],[-.13,.025,-.10],[-.055,-.02,.025],[.008,-.01,.01],[0,0,0]])
-    angles=[0,-.18,.90,.65,.15,-.025,0]
-    for animation in doc['animations']:
-        if animation['name'] not in ['FirstAtakCrFd2','FirstButtStFd2','FirstAtakChit2']:continue
-        duration=max(float(t[-1]) for _,_,t,_ in tracks(doc,data,animation))
-        animation['channels']=[];animation['samplers']=[]
-        for node,path,times,frames in held:
-            curve(doc,data,animation,node,path,[0,duration],[sample(times,frames,.5,path=='rotation')]*2)
-        roots=[6,57]
-        animation['channels']=[c for c in animation['channels'] if c['target']['node'] not in roots]
-        for node in roots:
-            poses=[]
-            for move,angle in zip(moves,angles):
-                c=math.cos(angle);s=math.sin(angle);delta=np.eye(4)
-                delta[:3,:3]=[[c,0,s],[0,1,0],[-s,0,c]]
-                pivot=neutral[57][:3,3]
-                delta[:3,3]=move+pivot-delta[:3,:3]@pivot
-                poses.append(decompose(np.linalg.inv(neutral[parents[node]])@delta@neutral[node]))
-            for i,path in enumerate(['translation','rotation','scale']):curve(doc,data,animation,node,path,fractions*duration,[p[i] for p in poses])
-
-
 def fit_grip(doc,data,pistol,parents):
     """Fit gripping fingers to each handle, preserving the authored trigger finger and thumb."""
     skin=doc['skins'][0]
@@ -490,7 +407,6 @@ def assemble(chars_dir,pistol):
     if pistol=='magnum44':
         revolver_reload(doc,data,idle_world,parents,placement)
     fit_grip(doc,data,pistol,parents)
-    pistol_melee(doc,data)
     doc['extras']={'svmap':{'mesh':'OpenScctSidearms.'+pistol+'_first'},'license':'CC-BY-4.0; see CREDITS.txt'}
     from .reload_motion import author
     author(doc,data,pistol)

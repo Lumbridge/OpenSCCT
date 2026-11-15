@@ -344,6 +344,7 @@ public partial class CombatFxView : Node3D
     {
         bool sticky = p.Kind == CombatFx.MuzzleSticky;
         if (p.Kind == SpawnSFX && viewer is { bBinocularVision: true }) return;
+        bool quietRifle = p.Source is OpenScct.Game.Svm.M4A1S or OpenScct.Game.Svm.M4A1SDummy;
         bool firstPerson = p.Kind == SpawnSFX && FirstPerson is { Shown: true };
         Vector3 at;
         Vector3 forward;
@@ -401,7 +402,7 @@ public partial class CombatFxView : Node3D
         var light = new OmniLight3D
         {
             LightColor = colour,
-            LightEnergy = sticky ? 2.5f : 4f,
+            LightEnergy = quietRifle ? .15f : sticky ? 2.5f : 4f,
             OmniRange = UeSpace.LengthToGodot(sticky ? 220f : 320f),
             ShadowEnabled = false,
         };
@@ -411,13 +412,13 @@ public partial class CombatFxView : Node3D
             Mesh = new QuadMesh { Size = Vector2.One * UeSpace.LengthToGodot(sticky ? 14f : 22f) },
             MaterialOverride = FlashMaterial(colour),
             CastShadow = GeometryInstance3D.ShadowCastingSetting.Off,
-            Visible = !meshes,
+            Visible = !meshes && !quietRifle,
         };
         node.AddChild(quad);
         _flashes.Add(new Flash(node, light, quad, light.LightEnergy, 0.1f)
         {
             FirstPerson = firstPerson,
-            WorldLights = MuzzleLights(p.Kind, UeSpace.ToUe(at)),
+            WorldLights = quietRifle ? [] : MuzzleLights(p.Kind, UeSpace.ToUe(at)),
         });
         MuzzleFlashes++;
         LastFlashAt = at;
@@ -472,11 +473,12 @@ public partial class CombatFxView : Node3D
         }
 
         bool pistol = source is MercSidearm or MercSidearmDummy;
-        bool suppressed = source is MercSidearm { Kind: 0 } or MercSidearmDummy { Kind: 0 };
+        bool suppressed = source is MercSidearm { Kind: 0 } or MercSidearmDummy { Kind: 0 } or
+            OpenScct.Game.Svm.M4A1S or OpenScct.Game.Svm.M4A1SDummy;
         bool revolver = source is MercSidearm { Kind: 2 } or MercSidearmDummy { Kind: 2 };
         if (!suppressed) Add("SBase.SMuzzleGenerique", pistol ? 0.6f : 1.5f + (rng.Next() * 2f), firstPerson ? new FVector(3.5f + (rng.Next() * 2f), 1f, 1f) : new FVector(1f, 1f, 1f));
         // The first-person Uzi and shotgun have no barrel flash; both shotguns add their spray (merc-guns.md).
-        if (!pistol && !(firstPerson && source is SWeaponDefense_Uzi or SWeaponDefense_Shotgun))
+        if (!pistol && !suppressed && !(firstPerson && source is SWeaponDefense_Uzi or SWeaponDefense_Shotgun))
         {
             Add("SBase.sMuzzleCanon", 1f, new FVector(1f, 1f, 1f));
         }
@@ -784,6 +786,7 @@ public partial class CombatFxView : Node3D
             foreach (string type in new[] { "SBase.SMuzzleSticky", "SBase.SMuzzleGenerique", "SBase.sMuzzleCanon" })
                 if (library.Find(type) is { } flash && flash.Assets.TryGetValue("StaticMesh", out string? path)
                     && library.Mesh(path) is { } mesh) Warm(mesh, null);
+            _effects?.PreloadMineLights(samples);
         }
 
         void Warm(Mesh mesh, Material? material)

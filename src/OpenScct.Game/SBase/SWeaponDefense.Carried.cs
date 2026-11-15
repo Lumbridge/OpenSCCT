@@ -44,7 +44,7 @@ public partial class SWeaponDefense
         else if (CarriedAmmoRevision > 0 && CarriedAmmoRevision != _seenAmmoRevision)
         {
             _seenAmmoRevision = CarriedAmmoRevision;
-            int pending = Modes.PracticeRules.IsOn(this) ? 0 : System.Math.Max(0, ShotCounter - CarriedShot);
+            int pending = Modes.PracticeRules.ResourcesInfinite(this) ? 0 : System.Math.Max(0, ShotCounter - CarriedShot);
             ClipAmmo = System.Math.Max(0, CarriedClip - pending);
             Ammo = System.Math.Max(0, CarriedAmmo - pending);
         }
@@ -77,7 +77,7 @@ public partial class SWeaponDefense
             _carriedReloadUntil <= 0 && (this is not MercSidearm pistol || pistol.ReloadUntil <= 0) && AcceptShotClock();
         if (accept)
         {
-            if (OwnerPC is { IsRemotePlayer: true } && !Modes.PracticeRules.IsOn(this)) { ClipAmmo--; Ammo--; }
+            if (OwnerPC is { IsRemotePlayer: true } && !Modes.PracticeRules.ResourcesInfinite(this)) { ClipAmmo--; Ammo--; }
         }
         if (OwnerPC is { IsRemotePlayer: true } pc)
         {

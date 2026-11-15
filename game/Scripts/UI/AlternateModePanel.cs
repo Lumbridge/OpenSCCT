@@ -11,7 +11,7 @@ namespace OpenScctGame.UI;
 
 /// <summary>
 /// Enhanced 4.0's Alternate Mode page (GUI.AlternateModeSettings; spec/game/lobby-and-match-creation.md "Alternate
-/// Mode"; docs/MENUS.md): the spies' abilities, their eight gadgets and "Number of gadgets" on the left, the mercs'
+/// Mode"; docs/MENUS.md): the spies' abilities, their gadget options and "Number of gadgets" on the left, the mercs'
 /// on the right, and the cinematic camera. The host edits it (from Create Session, or the lobby's "Alternate" button)
 /// and OK hands the values back; for everyone else it is read only. "Number of gadgets" is 0 to 4, and no more than
 /// the gadgets left allowed when four or fewer are.
@@ -21,7 +21,7 @@ public partial class AlternateModePanel : Control
     private readonly bool _editable;
     private readonly Action<AlternateRules>? _ok;
     private readonly Dictionary<AlternateAbility, CheckBox> _abilities = new();
-    private readonly CheckBox[,] _gadgets = new CheckBox[2, AlternateRules.GadgetOptions];
+    private readonly CheckBox[,] _gadgets = new CheckBox[2, STeamAttaquant.GadgetOptions];
     private readonly SpinBox[] _slots = new SpinBox[2];
     private AlternateRules _rules;
     private readonly AlternateRules _original;
@@ -133,7 +133,7 @@ public partial class AlternateModePanel : Control
 
         for (int team = 0; team < 2; team++)
         {
-            for (int g = 0; g < AlternateRules.GadgetOptions; g++)
+            for (int g = 0; g < STeamAttaquant.GadgetOptions; g++)
             {
                 _gadgets[team, g]?.SetPressedNoSignal(rules.GadgetAllowed(team, g));
             }
@@ -161,11 +161,11 @@ public partial class AlternateModePanel : Control
         }
 
         side.AddChild(new Label { Text = "Gadgets", Modulate = UiStyle.MenuFocus });
-        for (int g = 0; g < AlternateRules.GadgetOptions; g++)
+        for (int g = 0; g < gadgets.Count; g++)
         {
-            if (g < gadgets.Count && OpenScct.Game.Equipment.SpyCloak.IsLegacyGadget(gadgets[g].Path)) continue;
+            if (OpenScct.Game.Equipment.SpyCloak.IsLegacyGadget(gadgets[g].Path)) continue;
             int option = g;
-            string name = g < gadgets.Count ? GearMenuModel.NameOf(gadgets[g].Path ?? string.Empty) : "Gadget " + (g + 1);
+            string name = GearMenuModel.NameOf(gadgets[g].Path ?? string.Empty);
             CheckBox box = Check(name, (team == 0 ? "SpyGadget" : "MercGadget") + (g + 1));
             box.Toggled += on => Change(_rules.WithGadget(team, option, on).Clamped());
             _gadgets[team, g] = box;

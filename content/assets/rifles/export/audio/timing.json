@@ -1,0 +1,34 @@
+{
+  "m4a1s": {
+    "seconds": 2.4,
+    "events": {
+      "release": 0.264,
+      "seat": 1.44,
+      "bolt": 1.92
+    }
+  },
+  "ak47": {
+    "seconds": 2.8,
+    "events": {
+      "release": 0.308,
+      "seat": 1.68,
+      "bolt": 2.24
+    }
+  },
+  "galil": {
+    "seconds": 3.0,
+    "events": {
+      "release": 0.33,
+      "seat": 1.8,
+      "bolt": 2.4
+    }
+  },
+  "famas": {
+    "seconds": 2.65,
+    "events": {
+      "release": 0.2915,
+      "seat": 1.59,
+      "bolt": 2.12
+    }
+  }
+}

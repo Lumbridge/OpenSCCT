@@ -863,6 +863,11 @@ public sealed partial class OnlineServer
         switch (verb)
         {
             case "help" or "?":
+                if (arg.Equals("infinite", StringComparison.OrdinalIgnoreCase) || arg.Equals("resources", StringComparison.OrdinalIgnoreCase))
+                {
+                    SendMessage(p, PracticeResourceCommands.Help);
+                    return true;
+                }
                 if (arg.Length > 0)
                 {
                     foreach (string line in PracticeBotCommands.GetHelp(arg, chat: true) ?? ["Use !help for chat commands, !help bots, or !help <bot command>."])
@@ -948,7 +953,7 @@ public sealed partial class OnlineServer
                 StepMap(verb == "next" ? 1 : -1);
                 return true;
             default:
-                return OnPracticeBotCommand(p, verb, arg) || OnPracticeCommand(p, verb) || (arg.Length == 0 && OnLobbyMapSelection(p, verb));
+                return OnPracticeBotCommand(p, verb, arg) || OnPracticeCommand(p, verb, arg) || (arg.Length == 0 && OnLobbyMapSelection(p, verb));
         }
     }
 

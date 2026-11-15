@@ -1811,6 +1811,15 @@ public partial class SPlayerController
         }
     }
 
+    internal void ApplyCloneFlash()
+    {
+        if (Equipment.GadgetNet.ToOwner(this, new CombatCall(new Name("CloneFlash")))) return;
+
+        PlaySound(Snd_FlashBangSiffle, ESoundSlot.SLOT_None, Equipment.K.FlashWhistleVolume, false, Equipment.K.FlashWhistleRadius, 1f);
+        CombatFx.Notify(this, CombatFx.ClientDamageHudEffect, 1f, Slot: (int)SDamageType.SDTFlash);
+        ClientStopBinoculars();
+    }
+
     private static readonly Name CNAME_ClientDamage = new("ClientDamage");
 
     /// <summary>The global ClientDamage.</summary>

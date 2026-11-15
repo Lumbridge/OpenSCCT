@@ -261,6 +261,7 @@ public partial class SGameInfo
             if (g.Teams[0] is STeamInfo spies)
             {
                 spies.bDisallowedInv = pd.b_SPY_GadgetRestriction;
+                if (spies is STeamAttaquant attackers) attackers.AdditionalGadgets = pd.AdditionalSpyGadgets;
                 spies.iNBGadgets = pd.b_SPY_NBGadget;
             }
 

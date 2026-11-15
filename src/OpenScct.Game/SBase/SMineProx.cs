@@ -134,7 +134,7 @@ public partial class SMineProx
         float speed2 = (float)(VitesseMin * VitesseMin);
         foreach (SBasePawn p in GadgetWorld.Pawns(XLevel))
         {
-            if (p is not SPawnAttaque || p.bDeleteMe || !(FVector.DistSquared(p.Location, refloc) < range2))
+            if (!TriggersOn(p) || !(FVector.DistSquared(p.Location, refloc) < range2))
             {
                 continue;
             }
@@ -147,7 +147,7 @@ public partial class SMineProx
             }
 
             fTRef = Level.TimeSeconds;
-            PlaySound(BipBeforeExplode, ESoundSlot.SLOT_None, K.ProxBipVolume, false, K.ProxBipRadius);
+            PlaySound(BipBeforeExplode, ESoundSlot.SLOT_None, K.ProxBipVolume, false, K.ProxBipRadius, MineSoundPitch);
             Explode = true;
         }
     }

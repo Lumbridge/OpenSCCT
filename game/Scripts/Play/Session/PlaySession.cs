@@ -51,6 +51,10 @@ public sealed class PlaySession : IDisposable
     private bool _disposed;
     private NetCombatBridge? _clientCombat;
     private static int s_offlineSessions;
+    private int _requestedPracticeTeam = -1;
+    private bool _practiceTeamRespawn;
+    private Pawn? _previousTeamPawn;
+    private float _practiceTeamSince;
 
     /// <summary>An offline session (one with its own host, not a round on a remote server) runs on this machine.</summary>
     public static bool OfflineSessionRunning => System.Threading.Volatile.Read(ref s_offlineSessions) > 0;
@@ -128,6 +132,7 @@ public sealed class PlaySession : IDisposable
         }
 
         Host.ChatFilter = OnPracticeBotChat;
+        Host.BeforeWorldTick += TickPracticeTeamSwap;
         Client.World.Level.Info.m_dT = Sim.DeltaTime;
         Client.BeforeWorldTick += ApplyClientInput;
         InstallCombatNet();
@@ -357,6 +362,48 @@ public sealed class PlaySession : IDisposable
 
     /// <summary>The server-side controller of the local player (server thread data).</summary>
     public SPlayerController? ServerController { get; private set; }
+
+    /// <summary>Queue a local practice side change; only the host thread changes or respawns the pawn.</summary>
+    public void RequestPracticeTeamSwap()
+    {
+        if (_remote || IsStopped || !Settings.UnlimitedGear || LocalController is not { } pc ||
+            !OpenScct.Game.Modes.PracticeRules.IsOn(pc) || pc.IsMercDeathMatch) return;
+        int team = SGameInfo.TeamIndexOf(pc);
+        if (team is 0 or 1) System.Threading.Interlocked.Exchange(ref _requestedPracticeTeam, 1 - team);
+    }
+
+    private void TickPracticeTeamSwap(ServerHost host)
+    {
+        if (host.Game is not { bGameEnded: false } game || ServerController is not { } pc ||
+            !OpenScct.Game.Modes.PracticeRules.IsOn(pc)) return;
+        int team = System.Threading.Interlocked.Exchange(ref _requestedPracticeTeam, -1);
+        if (!_practiceTeamRespawn && team is 0 or 1 && game.eventChangeTeam(pc, team, true))
+        {
+            _previousTeamPawn = pc.Pawn;
+            pc.UnPossess();
+            pc.bCrouchWithRoll = false;
+            pc.SPawnType = team == 0 ? PawnType.SPAWNOFFENSE : PawnType.SPAWNDEFENSE;
+            pc.DefaultFOV = pc.DesiredFOV = team == 0 ? pc.SpyFOV : pc.DefenderFOV;
+            if (pc.PlayerReplicationInfo is { Team: STeamInfo side } pri)
+            {
+                int mesh = pri.MyMeshNum;
+                pc.SetPawnClass(mesh >= 0 && mesh < side.PawnList.Count ? side.PawnList[mesh] : Name.None);
+                pri.NumLives = team == 0 ? game.MatchInfo?.NumLivesATT ?? 1 : game.MatchInfo?.NumLivesDEF ?? 1;
+            }
+            _practiceTeamSince = pc.Level.TimeSeconds;
+            _practiceTeamRespawn = true;
+        }
+        if (!_practiceTeamRespawn) return;
+        // As the online practice switch: wait for the old pawn channel to close
+        // before ClientRestart acquires a replacement, with the same three-second cap.
+        if (_previousTeamPawn is { } old && pc.Level.TimeSeconds - _practiceTeamSince < 3f)
+            foreach (var player in host.Players)
+                if (player.Connection.FindActorChannel(old) is not null) return;
+        _practiceTeamRespawn = false;
+        _previousTeamPawn = null;
+        game.eventRestartPlayer(pc);
+        game.UpdateTeamNumLives();
+    }
 
     public bool IsStopped { get; private set; }
 
@@ -597,6 +644,11 @@ public sealed class PlaySession : IDisposable
         if (parts.Length == 0) return false;
         string verb = parts[0].ToLowerInvariant();
         void Reply(string line) => player.Connection.ControlChannel?.Send(ControlMessage.Chat(new ChatLine(EChatScope.Say, 0, "Server", 255, line)));
+        if (verb is "infinite" or "resources")
+        {
+            Reply(PracticeResourceCommands.Run(Host.World.Level, parts.Length > 1 ? parts[1] : ""));
+            return true;
+        }
         if (verb == "lagcomp")
         {
             // ChatFilter executes on the host's simulation thread, including a threaded listen host.
@@ -608,6 +660,11 @@ public sealed class PlaySession : IDisposable
         if (verb is "help" or "?")
         {
             string topic = parts.Length > 1 ? parts[1].Trim() : "bots";
+            if (topic.Equals("infinite", StringComparison.OrdinalIgnoreCase) || topic.Equals("resources", StringComparison.OrdinalIgnoreCase))
+            {
+                Reply(PracticeResourceCommands.Help);
+                return true;
+            }
             if (topic.Equals("lagcomp", StringComparison.OrdinalIgnoreCase))
             {
                 Reply("!lagcomp [on|off|reset|<ceiling>] - Show or change the local server's rewind ceiling in milliseconds (0 to 500).");

@@ -18,9 +18,9 @@ STYLE = {  # roll, pitch, yaw, draw towards camera, magazine travel
     'shotgun': (-54, 8, 16, -.12, .17),
     # Keep pistols upright: lift the muzzle slightly to expose the magazine
     # well instead of laying the whole weapon and firing wrist on their side.
-    'suppressed': (-8, -20, 8, -.04, .22),
-    'unsuppressed': (-10, -20, 9, -.045, .23), 'automatic': (-12, -22, 10, -.05, .21),
-    'desert_eagle': (-8, -19, 8, -.065, .24), 'magnum44': (-16, -18, 12, -.05, .18),
+    'suppressed': (-8, 12, 8, .02, .22),
+    'unsuppressed': (-10, 12, 9, .02, .23), 'automatic': (-12, 14, 10, .02, .21),
+    'desert_eagle': (-8, 12, 8, .02, .24), 'magnum44': (-16, 12, 12, .02, .18),
 }
 
 
@@ -221,6 +221,7 @@ def author(doc, data, profile):
         load_ref = pose(doc, original, SHELL_TIMES[0])
         load_grip = np.linalg.inv(load_ref[gun]) @ load_ref[left]
     edited = set(n for chain in chains for n in chain) | {gun}
+    if pistol: edited.update(chain[1]+1 for chain in chains)
     if mag is not None: edited.add(mag)
     if slide is not None: edited.add(slide)
     if 'chargeur01' in names: edited.add(names['chargeur01'])
@@ -260,12 +261,13 @@ def author(doc, data, profile):
         right_pose = idle[right].copy()
         right_pose[:3,:3] = r @ right_pose[:3,:3]
         impulse = smooth([0,.53,.56,.60,1], np.array([0,0,-.012,0,0]), f) if not shell else 0
-        right_pose[:3,3] += (-across*.055 + up*(.12 if pistol else .18) - forward*pull)*env + up*impulse
+        right_pose[:3,3] += (-across*.055 + up*(.06 if pistol else .18) - forward*pull)*env + up*impulse
         if revolver:
             right_pose[:3,3] -= (forward*.08+up*.035)*(eject_tip/45)
         desired = solve_arm(idle, chains[1], right_pose[:3,3], right_pose[:3,:3],
                             (across*.30-up*.1)*env if not pistol else
-                            (across*.14-up*.04)*env if revolver else None)
+                            (across*.14-up*.04)*env if revolver else None,
+                            twist_node=chains[1][1]+1 if pistol else None)
         desired[gun] = desired[right] @ gun_from_hand
         gun_pose = desired[gun]
         delta = gun_pose @ gun_inverse
@@ -344,7 +346,8 @@ def author(doc, data, profile):
                          shift(rack_hand,-rotated_across*.08),held_left,idle[left]],f)
         desired.update(solve_arm(idle,chains[0],hand[:3,3],hand[:3,:3],
                                 (-across*.25-up*.1)*env if not pistol else
-                                (-across*.20-up*.06)*env if revolver else None))
+                                (-across*.20-up*.06)*env if revolver else None,
+                                twist_node=chains[0][1]+1 if pistol else None))
         reach_errors.append(float(np.linalg.norm(desired[left][:3,3]-hand[:3,3])))
         # Copy the reference finger grip as local curves, with relaxed fingers
         # during the reach and recovery. Skin weights/mesh topology are retained.

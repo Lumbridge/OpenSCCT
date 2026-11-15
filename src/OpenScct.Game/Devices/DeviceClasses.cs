@@ -14,7 +14,7 @@ namespace OpenScct.Game.Devices;
 public static class DeviceClasses
 {
     /// <summary>Index of every generated class.</summary>
-    public static readonly UcClassIndex Index = new(CorePackage.Info, EnginePackage.Info, SBasePackage.Info);
+    public static readonly UcClassIndex Index = new(CorePackage.Info, EnginePackage.Info, SBasePackage.Info, Svm.SvmPackage.Gadgets);
 
     /// <summary>
     /// UnrealScript <c>Spawn(Class, SpawnOwner, SpawnTag, SpawnLocation, SpawnRotation)</c> from

@@ -159,10 +159,16 @@ public static class Loadouts
     public static STeamInfo? Team(SBasePawn Pawn) =>
         Pawn.PlayerReplicationInfo?.Team as STeamInfo ?? Pawn.Controller?.PlayerReplicationInfo?.Team as STeamInfo;
 
+    public static int GadgetMask(STeamInfo team) =>
+        team.bDisallowedInv | ((team as STeamAttaquant)?.AdditionalGadgets ?? 0) << K.TeamOptions;
+
+    public static int GadgetOptionCount(STeamInfo team) =>
+        SvmMath.Min(team.ClassInventory.Count, team is STeamAttaquant ? STeamAttaquant.GadgetOptions : K.TeamOptions);
+
     /// <summary>A team option allowed by the host (a set bit of bDisallowedInv allows it, despite the name).</summary>
     public static bool IsAllowed(STeamInfo Team, int Option) =>
-        Option >= 0 && Option < Team.ClassInventory.Count && !SpyCloak.IsLegacyGadget(Team.ClassInventory[Option].Path) &&
-        ((Team.bDisallowedInv >> Option) & 1) != 0;
+        Option >= 0 && Option < GadgetOptionCount(Team) && !SpyCloak.IsLegacyGadget(Team.ClassInventory[Option].Path) &&
+        ((GadgetMask(Team) >> Option) & 1) != 0;
 
     /// <summary>
     /// The restriction replacement (rule 2.3): a slot holding a disallowed option takes the first allowed option not
@@ -171,7 +177,7 @@ public static class Loadouts
     [PortOf("uc:SBase.SBasePawn:UpdateInventory", Spec = "spec/equipment/loadouts.md#rules")]
     public static void ApplyRestrictions(ClassRef[] Equipment, STeamInfo Team)
     {
-        int options = SvmMath.Min(Team.ClassInventory.Count, K.TeamOptions);
+        int options = GadgetOptionCount(Team);
         for (int o = 0; o < options; o++)
         {
             if (IsAllowed(Team, o))
@@ -369,7 +375,7 @@ public static class Loadouts
         if (!tutorial && team is not null)
         {
             int option = IndexOfClass(team.ClassInventory, Class);
-            if (option < 0 || option >= K.TeamOptions || !IsAllowed(team, option))
+            if (!IsAllowed(team, option))
             {
                 return false;
             }

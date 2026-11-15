@@ -825,10 +825,855 @@
     "fixtures/hub/sim/collision.bin": {
       "bytes": 24314672,
       "sha256": "239218f9bba7cfd94d35167194e49bf7ed780ed3018af0210a4bc2d6b818901a"
+    },
+    "content/assets/sidearm_audio/export/automatic_fire_1.wav": {
+      "bytes": 37088,
+      "sha256": "940cac3f58ebf62588b62359d536cda8388ec0d4cb51785c6c318ddbca22dfce"
+    },
+    "content/assets/sidearm_audio/export/automatic_fire_2.wav": {
+      "bytes": 37088,
+      "sha256": "6490d5891b8b8a5142701bddbe694749cdf787c5d90053d0922e562e3552fef6"
+    },
+    "content/assets/sidearm_audio/export/automatic_fire_3.wav": {
+      "bytes": 37088,
+      "sha256": "bf36333272271944a054c50f90ac6d40cab9b21629c3fa8671bdebffcafd0082"
+    },
+    "content/assets/sidearm_audio/export/automatic_reload.wav": {
+      "bytes": 202904,
+      "sha256": "8abf864e3d0995475a6c07e7591cb1254877bb9a3eedd480c44c0482dbf10d72"
+    },
+    "content/assets/sidearm_audio/export/desert_eagle_fire_1.wav": {
+      "bytes": 75896,
+      "sha256": "fd598546dd2c0cfc690eb42817b3043f874c30ded6b6ef34a73ef2654babee6f"
+    },
+    "content/assets/sidearm_audio/export/desert_eagle_fire_2.wav": {
+      "bytes": 75896,
+      "sha256": "e3ab6e317f6338ac7b62ed2cfb47d36095eb13a29bd542af1e6be7f28d631a9d"
+    },
+    "content/assets/sidearm_audio/export/desert_eagle_fire_3.wav": {
+      "bytes": 75896,
+      "sha256": "626bdec84679a57c08e7093f5cd9d03db719b68f4ab2942397efee459c345aa8"
+    },
+    "content/assets/sidearm_audio/export/desert_eagle_reload.wav": {
+      "bytes": 229364,
+      "sha256": "eee3458abb3109f7bd217dc201773bcc4ba98bbd7e2b6515d62b309ebb295fe1"
+    },
+    "content/assets/sidearm_audio/export/magnum44_fire_1.wav": {
+      "bytes": 70604,
+      "sha256": "9361fa05b2a864facec018762b94bd455715c2957e5f36f31efe6ccbd17ccffe"
+    },
+    "content/assets/sidearm_audio/export/magnum44_fire_2.wav": {
+      "bytes": 70604,
+      "sha256": "735ddf39e27d49058d5599942b4ca82b5fefcc647efeb3ad44ac2d745b0358a1"
+    },
+    "content/assets/sidearm_audio/export/magnum44_fire_3.wav": {
+      "bytes": 70604,
+      "sha256": "0010f197b96e1a3d8d94b531af6182ff33bd632d78fa7d6dea58690f080a4e42"
+    },
+    "content/assets/sidearm_audio/export/magnum44_reload.wav": {
+      "bytes": 247004,
+      "sha256": "07aa754b2de0b585324afe41c430873034443a0704ac49c66db14918448dd397"
+    },
+    "content/assets/sidearm_audio/export/suppressed_fire_1.wav": {
+      "bytes": 37088,
+      "sha256": "b23003bc330c38f32cd2484630150d483bfb2c22bdaf28817a4b5d055743e900"
+    },
+    "content/assets/sidearm_audio/export/suppressed_fire_2.wav": {
+      "bytes": 37088,
+      "sha256": "d40cfe2c2d978097f8873b961e2f80f4632e7dce327d44dd974ea888527be391"
+    },
+    "content/assets/sidearm_audio/export/suppressed_fire_3.wav": {
+      "bytes": 37088,
+      "sha256": "3d45b3d283d6f66897d56262aae947521e202fbf4dfa1d92933fce1345df0d0c"
+    },
+    "content/assets/sidearm_audio/export/suppressed_reload.wav": {
+      "bytes": 176444,
+      "sha256": "a7029ed7848f36a02c7df7462e4b21b7927b4e569809ea193e47141ca996eced"
+    },
+    "content/assets/sidearm_audio/export/unsuppressed_fire_1.wav": {
+      "bytes": 56492,
+      "sha256": "d541a504db3c0c8ea628c77eb7a96055dd6a220ea5e8ed5ca8c87c1c2b64cfa7"
+    },
+    "content/assets/sidearm_audio/export/unsuppressed_fire_2.wav": {
+      "bytes": 56492,
+      "sha256": "8a2ac446a57d0c2d1a5656d8074619b63b78ab8ee3ff7a3eaddc7a00641a4acb"
+    },
+    "content/assets/sidearm_audio/export/unsuppressed_fire_3.wav": {
+      "bytes": 56492,
+      "sha256": "d2c187504ba466044a480c917d0f0e225ef46249d4678c0cac4883f7a8d0a50f"
+    },
+    "content/assets/sidearm_audio/export/unsuppressed_reload.wav": {
+      "bytes": 176444,
+      "sha256": "a7029ed7848f36a02c7df7462e4b21b7927b4e569809ea193e47141ca996eced"
+    },
+    "content/assets/sidearm_audio/sources/A_4.wav": {
+      "bytes": 4829646,
+      "sha256": "ca37fc9d4d3287f04c54d78494e91b6152a7f699905a8ad258c6041f6d86e805"
+    },
+    "content/assets/sidearm_audio/sources/A_42P.wav": {
+      "bytes": 5489450,
+      "sha256": "8e84438e771c157155a6a1ff47a6a7a7d81b6f39b185d41e426c57337a82254a"
+    },
+    "content/assets/sidearm_audio/sources/A_5.wav": {
+      "bytes": 1127250,
+      "sha256": "fedb6a77f9a8498e3fe2700520d19e63c6d370a4a413469d93584937d140586e"
+    },
+    "content/assets/sidearm_audio/sources/A_9.wav": {
+      "bytes": 1723498,
+      "sha256": "a858093234c8b105ec6504d1ed3c286a14a91fcf0ab285ac1967a504ff22ad14"
+    },
+    "content/assets/sidearm_audio/sources/J_1.wav": {
+      "bytes": 25501830,
+      "sha256": "a7502054368650b1ce72e66eb79a95935e54c55586e0bc045a325abe4a3d4cd5"
+    },
+    "content/assets/sidearm_audio/sources/V_0.wav": {
+      "bytes": 4320734,
+      "sha256": "7ad848ee77bf435c86117685852bd9abd5d09ed2bf3cf785c7aeb49f9b54ee4c"
+    },
+    "content/assets/sidearm_audio/sources/V_1.wav": {
+      "bytes": 4247362,
+      "sha256": "3c167e0d8e4e948db85726f35e28296bc916f84d792e59e356a6798476a444d2"
+    },
+    "content/assets/sidearm_audio/sources/V_2.wav": {
+      "bytes": 17489350,
+      "sha256": "a2fa4e7d8822bb4b159f03efa026c63d30e4205b739d8f9a41cbabfa1edcb557"
+    },
+    "content/assets/sidearm_audio/sources/V_3.wav": {
+      "bytes": 4016662,
+      "sha256": "932abf13f3169b17bd5f4ba79f8b178bb0a2f7d06dda3f3aafc21ad269da5b34"
+    },
+    "content/assets/sidearm_audio/sources/X_3.wav": {
+      "bytes": 2854926,
+      "sha256": "2717b865144964fce84b165f33c91784e872d768932d64215d1908e32dd5faed"
+    },
+    "content/assets/sidearm_audio/sources/X_39P.wav": {
+      "bytes": 9069762,
+      "sha256": "d679a3cd87eae2898d984159f83544392932e6b77526045b672e3aaa9c2dda9f"
+    },
+    "content/assets/sidearm_audio/sources/X_4.wav": {
+      "bytes": 5705766,
+      "sha256": "dff1bc49877c11c4168498221aeb280366c963d56704aac43a5565e8022ab4c2"
+    },
+    "content/assets/sidearm_audio/sources/X_9.wav": {
+      "bytes": 5410846,
+      "sha256": "9cd0acb2a93bb0630687d2fd4c93af7f2a435c68928af09208c094f9581ddfae"
+    },
+    "content/assets/user_gun_audio/export/ak47_fire_1.wav": {
+      "bytes": 57374,
+      "sha256": "7f9a66162023e80f27c4eceda90df5e3226a99ab12b4447a8e0cc2d489d93554",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/export/ak47_fire_2.wav": {
+      "bytes": 57374,
+      "sha256": "592375fa2a82fe14f9ecacaae64147c90b3ff4382234098a2f354b7c51709201",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/export/ak47_fire_3.wav": {
+      "bytes": 57374,
+      "sha256": "2ab04c9ea187a3147944ddefd9599e708457bb9372b6537702aceefa7c14dfb4",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/export/ak47_reload.wav": {
+      "bytes": 247004,
+      "sha256": "d729aae10cdbc486031b2ef9e678f269afd3e42e1798f42710d230e06400fcea",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/export/automatic_fire_1.wav": {
+      "bytes": 37088,
+      "sha256": "43bdd20d9afc835de56aa7107b527cdae2b4f651f1c76f81cb1ad8cab189e769",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/export/automatic_fire_2.wav": {
+      "bytes": 37088,
+      "sha256": "99f44771a6a1bbdf658b49c6368f90bb55f13c780eefd29686ca976a74243f0b",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/export/automatic_fire_3.wav": {
+      "bytes": 37088,
+      "sha256": "9824cc346870c72d75114d6bd221c905da886b36afbdc71659ad18334a29fd23",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/export/automatic_reload.wav": {
+      "bytes": 202904,
+      "sha256": "674ad8af8cb85e3459f3207d1970118437aa9168755b46de25cb13b4b9f19f9d",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/export/desert_eagle_fire_1.wav": {
+      "bytes": 75896,
+      "sha256": "bfec10f5bbe7ddd4dfbf973a8943cb0a958b8f4ec3a3d66a0580f54f1487e832",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/export/desert_eagle_fire_2.wav": {
+      "bytes": 51150,
+      "sha256": "88fbe5046ac51a54be96b4a19fb28b3d5c21a30929c0d53d2e41bfd76cd20cbf",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/export/desert_eagle_fire_3.wav": {
+      "bytes": 75896,
+      "sha256": "6256002abbb9d84afca51d345833b20b0862d13dc91f87d1994c85c5b725849a",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/export/desert_eagle_reload.wav": {
+      "bytes": 229364,
+      "sha256": "4a70fec40f3a1bd59e38a319fdb32fa064a57153912b91584e98ece354f58b37",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/export/famas_fire_1.wav": {
+      "bytes": 44144,
+      "sha256": "6426f026fdbe1e5b0041ec555e5865949f9445fc4e8d64454832c1aaba8e912f",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/export/famas_fire_2.wav": {
+      "bytes": 44144,
+      "sha256": "f6befb1eb2a977b58feea4ca001f887d3b5d02f8061e8e1c337662ccc634b0c6",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/export/famas_fire_3.wav": {
+      "bytes": 44144,
+      "sha256": "d890657a4c88b7df35ad56fbfe37fcafb0025cef4244196eb2fca554fa4b5f32",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/export/famas_reload.wav": {
+      "bytes": 233774,
+      "sha256": "5a1514fdcb126a5d7e3512fe516478e2b8efc9e8134611dc5ec14d122b6238d1",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/export/galil_fire_1.wav": {
+      "bytes": 51200,
+      "sha256": "4eb7698a222020a4d36ace56f1480cbf92ebc1b54a9b6a896e0a4bb017c91c37",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/export/galil_fire_2.wav": {
+      "bytes": 51200,
+      "sha256": "76e5eb50d64d83d5be9adb1ccf193239ab2adecf801662faf2630beb08af5cda",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/export/galil_fire_3.wav": {
+      "bytes": 51200,
+      "sha256": "9cb44ef5526427cd0c009bae5dc43c62abe567bce2679f1de4024744f1b59b01",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/export/galil_reload.wav": {
+      "bytes": 264644,
+      "sha256": "3f0f670062649afc04e8575fec51169acfc57406962d9a01c62a1df5aa69c9c7",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/export/m4a1s_fire_1.wav": {
+      "bytes": 42380,
+      "sha256": "e05eeaf394eff12a00d186a11d10046303dd15395b9b2569729e52d6dddf2bfb",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/export/m4a1s_fire_2.wav": {
+      "bytes": 42380,
+      "sha256": "d07233973b01b7a51b9a3ed634f4b19a2afbb52ad47c8bc2ac496f65f2c88e8c",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/export/m4a1s_reload.wav": {
+      "bytes": 211724,
+      "sha256": "0bbab00eb6e09fd933c7c3dba1590dde756948bac13a07eac927010e403541a5",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/export/magnum44_fire_1.wav": {
+      "bytes": 70604,
+      "sha256": "3710585a08ed4cfe8470a0d2a70e862b6d78139b0fb5366096f6926ce9201b6c",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/export/magnum44_fire_2.wav": {
+      "bytes": 70604,
+      "sha256": "1ea3160abdeba582d47f3519dd017e5e62c9a8c9f9e991d1901638829a8de659",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/export/magnum44_fire_3.wav": {
+      "bytes": 70604,
+      "sha256": "b559f2cccee923b41433482d19d30e572864cf0437d6965a00ed9785ee79401b",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/export/magnum44_reload.wav": {
+      "bytes": 247004,
+      "sha256": "45d00f4429ef752a8451cdf5c4969a16cfa2944b7fa4dc081c592856562c697e",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/export/rifle_fire_1.wav": {
+      "bytes": 57374,
+      "sha256": "098fdffceb7da8c74b69bef4a1284560aabc286bd30b93ea10d927b067da8fe6",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/export/rifle_fire_2.wav": {
+      "bytes": 57374,
+      "sha256": "83f90853f6ce2db2e39c1a53339eb175bca3826579f396b2ead699f1fae3d3bf",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/export/rifle_fire_3.wav": {
+      "bytes": 57374,
+      "sha256": "13b64c4b0a1b840cd24dc1f26cc3a61d90e0b1c3930fe0923d20ee6309989978",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/export/rifle_reload.wav": {
+      "bytes": 176444,
+      "sha256": "a2e2b00eb6f0b9f57c3e616b913111f5e2bd50bc49b7d2846e06e0cf2df0d142",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/export/shotgun_fire_1.wav": {
+      "bytes": 75014,
+      "sha256": "5d086648e1773ab61682cc177e22c0418b8426c7b1adb875e237fae8ee67e496",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/export/shotgun_fire_2.wav": {
+      "bytes": 75014,
+      "sha256": "378f2ae4976ab205c282c3345220c18297ea35b6331aa02169513c9626d37b15",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/export/shotgun_fire_3.wav": {
+      "bytes": 75014,
+      "sha256": "f7e246b04a192ab28017376c21a381a84dca43e8b0997bc0b955c69d8c7968f3",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/export/shotgun_pump.wav": {
+      "bytes": 35324,
+      "sha256": "aa381cceac63d09f713530125df810215cc2d40b5ac1734fa249cb4e5eef3f89",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/export/shotgun_shell.wav": {
+      "bytes": 35324,
+      "sha256": "cd16a7a8b9dc46f5b73455b11d802e82c30b0d5616e74fd16a3013a197aa0e7c",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/export/suppressed_fire_1.wav": {
+      "bytes": 37088,
+      "sha256": "11079c1a6d34c39f8618c1bc0cc6a4460c7a7f73bea176e0e0254c947d008ba9",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/export/suppressed_fire_2.wav": {
+      "bytes": 37088,
+      "sha256": "ac681e035fe4d4af52dcb9d16d87b357ca12a434b68916b4727586971e4e0587",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/export/suppressed_reload.wav": {
+      "bytes": 176444,
+      "sha256": "3eb29e8fd5ad52dbee95ac2ad4fb26c80c1c6f3d077f15ec65057c587ae227ba",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/export/unsuppressed_fire_1.wav": {
+      "bytes": 56492,
+      "sha256": "d3c52591bcb467c63f7444ef1fca157b8334114e5e5830a2a9ceb2029821369f",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/export/unsuppressed_fire_2.wav": {
+      "bytes": 56492,
+      "sha256": "f8882b77358b77c8d1955d281186541b495b4156b486c986ec2e386089ca9821",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/export/unsuppressed_fire_3.wav": {
+      "bytes": 56492,
+      "sha256": "dade315bb1276b2b3668c0e7c42daa07a1a668064b07db3e4201e67adc57d6d2",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/export/unsuppressed_reload.wav": {
+      "bytes": 176444,
+      "sha256": "3eb29e8fd5ad52dbee95ac2ad4fb26c80c1c6f3d077f15ec65057c587ae227ba",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/export/uzi_fire_1.wav": {
+      "bytes": 37088,
+      "sha256": "a20e617f173a1a54bf85cc707592a06080bf7a69c343a2d173a95bda87c60a2e",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/export/uzi_fire_2.wav": {
+      "bytes": 37088,
+      "sha256": "366b9b9474b89d3626c76ca75cb6ca2a04e9eeb769c6934af845998933b1870d",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/export/uzi_fire_3.wav": {
+      "bytes": 37088,
+      "sha256": "f99ea7059701fa4210a1a911d20b3637f1c18e1377bacad139c57df8debb073b",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/export/uzi_reload.wav": {
+      "bytes": 176444,
+      "sha256": "6d0161b42eb5ba522303a6b5ca41b7080e1a59a15b3e76c7159167753d11a3cf",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/sources/552 Commando/552_Commando_Fire_Single_Silenced_Mono_01.wav": {
+      "bytes": 67714,
+      "sha256": "9e3c5125156e5cbf7089f3be35facb5d6b6a245b78b9224f9d07c34beb6bb724",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/sources/552 Commando/552_Commando_Fire_Single_Silenced_Mono_02.wav": {
+      "bytes": 46416,
+      "sha256": "568ac6d41c043eb505c3bbff778e68c9c2fea4fc5fa40f703b6cd0ea0f422fb5",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/sources/552 Commando/552_Commando_Fire_Single_Unsilenced_Mono_01.wav": {
+      "bytes": 151914,
+      "sha256": "a8e02309de031f79396633fe916162d0840fede13017cf7f38fb83e7bdcfb7d2",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/sources/552 Commando/552_Commando_Fire_Single_Unsilenced_Mono_02.wav": {
+      "bytes": 151914,
+      "sha256": "bc8086a8e362f3f061658ea2f79cde95baed238207fdf8512784549b1263aebd",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/sources/552 Commando/552_Commando_Fire_Single_Unsilenced_Mono_03.wav": {
+      "bytes": 52074,
+      "sha256": "604122e98212103bda1850016b7a43fdafc05ea12d557d620c4a07adb947d53a",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/sources/552 Commando/552_Commando_Reload_Empty.wav": {
+      "bytes": 227304,
+      "sha256": "b95a93c0a76edad2edecd920376b70ae2390eff80965607c09b83edfe2861ed4",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/sources/AK47/AK47_Fire_Single_Unsilenced_Mono_01.wav": {
+      "bytes": 113770,
+      "sha256": "cfcd57cdf1ccf917237a71b956ae52801156349e6984046740f116c46982b544",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/sources/AK47/AK47_Fire_Single_Unsilenced_Mono_02.wav": {
+      "bytes": 113770,
+      "sha256": "e3113c4ac15efbeb0f9b4579f1ca1dd84c421f83e818ced839eac163e5ac7663",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/sources/AK47/AK47_Fire_Single_Unsilenced_Mono_03.wav": {
+      "bytes": 71454,
+      "sha256": "516526fede660656fb0ed29e761f00358ee31c947b53c8670dce945b2f1730bf",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/sources/AK47/AK47_Reload_Empty.wav": {
+      "bytes": 219648,
+      "sha256": "945ba4229d8c77d27d2187d6e8606aa722dfa795f4fa29258267e48188cec40f",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/sources/AUG A3/AUG_A3_Fire_Single_Unsilenced_Mono_01.wav": {
+      "bytes": 92240,
+      "sha256": "bf45120592640b042a743389da6fd84c42ddaa72e6cd9af8bea03c7997d7c5c5",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/sources/AUG A3/AUG_A3_Fire_Single_Unsilenced_Mono_02.wav": {
+      "bytes": 92240,
+      "sha256": "b0210e5306dc8b476993c4365dd2b584a7ae067659c26df923736168de186915",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/sources/AUG A3/AUG_A3_Fire_Single_Unsilenced_Mono_03.wav": {
+      "bytes": 64338,
+      "sha256": "6edf584bd1ab040a19af7edfe104a47a409089feddfaa34566c128cdb0aa0cd4",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/sources/AUG A3/AUG_A3_Reload_Empty.wav": {
+      "bytes": 223700,
+      "sha256": "3120678d7eeccb2753b5e67a121efd08b05e4711799463f301488e695478d199",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/sources/Benelli M3/Benelli_M3_Fire_Single_Mono_01.wav": {
+      "bytes": 244532,
+      "sha256": "6ad09da7d38de741f7127a50fbd7a3c8568a7d579c7f25ed639efd9f02684d52",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/sources/Benelli M3/Benelli_M3_Fire_Single_Mono_02.wav": {
+      "bytes": 93330,
+      "sha256": "3705a507642d1f0a0ad85f1e597739d31b115830e92e273bd801fa40ed6c937a",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/sources/Benelli M3/Benelli_M3_Fire_Single_Mono_03.wav": {
+      "bytes": 77026,
+      "sha256": "11fdd5cce41343220ffabb7c9c5f7f1ce7f10cfd4bdeb8b5797f3f40d9356274",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/sources/Benelli M3/Benelli_M3_Reload.wav": {
+      "bytes": 59838,
+      "sha256": "8d7b9a6fb718dbec0e62bd10455deccd556aa05c0b8d5c73837974a3e190f3e6",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/sources/Benelli M3/Benelli_M3_Reload_Cycle.wav": {
+      "bytes": 59514,
+      "sha256": "3985457a04942bb58a474e4aeb83746431574a9e7609376e57bed86f36265fd5",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/sources/Desert Eagle/Desert_Eagle_Fire_Mono_01.wav": {
+      "bytes": 129324,
+      "sha256": "1e1ec12da6745d0113851690eda57ac4c658345d9c6c84a65fe98852321488ec",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/sources/Desert Eagle/Desert_Eagle_Fire_Mono_02.wav": {
+      "bytes": 37292,
+      "sha256": "053a507cd26d0dda1d270ab5167f8628eae10690b3bf9a7946b8a5fa0e46599c",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/sources/Desert Eagle/Desert_Eagle_Fire_Mono_03.wav": {
+      "bytes": 150360,
+      "sha256": "d59ab13e2308270542c944dce20a70700dc7eab5b2db0b6f97d2adddeff608f1",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/sources/Desert Eagle/Desert_Eagle_Reload_Empty.wav": {
+      "bytes": 199984,
+      "sha256": "9a735c8df3f43aeb8004f404cb76db7e09b7f44b6e15cab0235bb51ea237728d",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/sources/FAMAS/FAMAS_Fire_Single_Unsilenced_Mono_01.wav": {
+      "bytes": 104132,
+      "sha256": "fce609a3e4c421dd0382087a0e2d979a508de32f39b2db17dd2f112192a4dc07",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/sources/FAMAS/FAMAS_Fire_Single_Unsilenced_Mono_02.wav": {
+      "bytes": 104132,
+      "sha256": "fdb70506e149b79f53247ba7e3fd3390eac66c452ea7c90cf28cc1baae9cdad3",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/sources/FAMAS/FAMAS_Fire_Single_Unsilenced_Mono_03.wav": {
+      "bytes": 65798,
+      "sha256": "42c8f169b31ecbcb2e7589ac19757211e060e82f7573898cba22ecb903b419b0",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/sources/FAMAS/FAMAS_Reload_Empty.wav": {
+      "bytes": 201120,
+      "sha256": "5336496ad64ebbd764073bf623090fc1b26345bbd424b81d815c6089a17899e0",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/sources/Glock 18/Glock18_Fire_Single_Mono_01.wav": {
+      "bytes": 248020,
+      "sha256": "419d230e1aa40d366ac8e566eb11a74cf86a100d1415b71baf689fc23d9272b3",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/sources/Glock 18/Glock18_Fire_Single_Mono_02.wav": {
+      "bytes": 80094,
+      "sha256": "5580b6d7062c82bb86cd3e804b6c08fb8ff338463baf061431b5e361d8a08fc7",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/sources/Glock 18/Glock18_Fire_Single_Mono_03.wav": {
+      "bytes": 58182,
+      "sha256": "f2f3f8ccc2dd4535a60b5e5408efd9d7020e13048e5c2335dab2985596daba4f",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/sources/Glock 18/Glock18_Reload_Empty.wav": {
+      "bytes": 198770,
+      "sha256": "fcb1d30da82e82d812d4003b76475d9638d9337b15914122cd0c35b2c25361b7",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/sources/Revolver/Revolver_Fire_Mono_01.wav": {
+      "bytes": 250098,
+      "sha256": "faabf9d624d3cbe9c4ea660a190fda302d5e10aa0de1e6e305de1b1748453464",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/sources/Revolver/Revolver_Fire_Mono_02.wav": {
+      "bytes": 93726,
+      "sha256": "714bc2f604caa793a459eadda107394f587eb0730f84df04ea5ef410228719df",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/sources/Revolver/Revolver_Fire_Mono_03.wav": {
+      "bytes": 68568,
+      "sha256": "353610eb3d97e79b8d72ae11068133617c841973293af954f580f693c37c3c84",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/sources/Revolver/Revolver_Reload_Empty.wav": {
+      "bytes": 249058,
+      "sha256": "b28feb990c31f8948121efba4f6d38dda561ea7378a55fc24b8052c191f6fbce",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/sources/USP40/USP40_Fire_Single_Silenced_Mono_01.wav": {
+      "bytes": 94590,
+      "sha256": "ed8e74d8939c5499ecb25e1a50119d9d0a71aee73384157a2dfb5797590fbf1a",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/sources/USP40/USP40_Fire_Single_Silenced_Mono_02.wav": {
+      "bytes": 49502,
+      "sha256": "489739295ded7529851cc23a612c3647f518fb37fea07741fb8a66d77d8de7df",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/sources/USP40/USP40_Fire_Single_Unsilenced_Mono_01.wav": {
+      "bytes": 255918,
+      "sha256": "ebb9de43d4276d85fbcbf2dc8c53630a5bd6b46c71aca1f9b77c010e006a4f7e",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/sources/USP40/USP40_Fire_Single_Unsilenced_Mono_02.wav": {
+      "bytes": 64880,
+      "sha256": "12995d6677900122ac77a877f11665feab0c38455b4ada7c26f2b6236367db76",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/sources/USP40/USP40_Fire_Single_Unsilenced_Mono_03.wav": {
+      "bytes": 82496,
+      "sha256": "54c3e8beed5b3acfe45ae92735cfb2072d823d610bad70d842c8d891e0b0ef3a",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/user_gun_audio/sources/USP40/USP40_Reload_Empty.wav": {
+      "bytes": 215782,
+      "sha256": "6ef48eed29b5e7f4b234c9637d84a15575e546f8f3c71b90777afbef65b1409a",
+      "license": "User-supplied Gun SFX; licence not stated in supplied folder"
+    },
+    "content/assets/rifles/export/ak47.glb": {
+      "bytes": 194624,
+      "sha256": "4b033337bd41db498ca8f0f6bcd3f981abe1ba40ffb447c1a1b60a9a8f3787ce"
+    },
+    "content/assets/rifles/export/ak47_first.glb": {
+      "bytes": 1920344,
+      "sha256": "7067ee326d9022a221fb105122b75c7f04dc1c2d3b441c25711263c4cb741a45"
+    },
+    "content/assets/rifles/export/audio/ak47_fire.wav": {
+      "bytes": 57374,
+      "sha256": "d7696a857ac973767af77e4901eb0d6e27cac6ba352622efc3ca8fd0fc2152cf"
+    },
+    "content/assets/rifles/export/audio/ak47_reload.wav": {
+      "bytes": 247004,
+      "sha256": "722d539bcc0b1cf0eeb185e0d97231f7035b39185b47122502163908e25bb06d"
+    },
+    "content/assets/rifles/export/audio/famas_fire.wav": {
+      "bytes": 44144,
+      "sha256": "fc7e64922bb1f0bbbd4c9565c045db08f000eac9de8f4e5d3468b018bf0d4433"
+    },
+    "content/assets/rifles/export/audio/famas_reload.wav": {
+      "bytes": 233774,
+      "sha256": "53083f8f76170441b9af261035d631826330794c3345a371147c40aa11973174"
+    },
+    "content/assets/rifles/export/audio/galil_fire.wav": {
+      "bytes": 51200,
+      "sha256": "39caf5ff97293b36456426b50ed5fe688710d8f61ebb110b86d7f2ac35af3018"
+    },
+    "content/assets/rifles/export/audio/galil_reload.wav": {
+      "bytes": 264644,
+      "sha256": "107c0017d45bacd6f86e5281df1f2e0e77d2c2c570bb619d13ecffa483a5e2de"
+    },
+    "content/assets/rifles/export/audio/m4a1s_fire.wav": {
+      "bytes": 40616,
+      "sha256": "84c802ce2899f62edc0c0b5e90717dac9abcf387db572d8f6870c9ce898084e3"
+    },
+    "content/assets/rifles/export/audio/m4a1s_reload.wav": {
+      "bytes": 211724,
+      "sha256": "29076e836c327ee4cecbbc8fd22faf34c9a134896471bbc9707cc6edff4fd9f4"
+    },
+    "content/assets/rifles/export/famas.glb": {
+      "bytes": 2118340,
+      "sha256": "4a4bc492ec00eea5ab7be62e4229381d448aa6dccdc336225568c09b795f4663"
+    },
+    "content/assets/rifles/export/famas_first.glb": {
+      "bytes": 3939936,
+      "sha256": "e899b21f5d71701922dd8dd30ab63e1cd591d0891900fc511d5e6d2628282614"
+    },
+    "content/assets/rifles/export/galil.glb": {
+      "bytes": 2225132,
+      "sha256": "384c90b3d6a0f2d74b06e07b07a21ea55c4aa58e49fc8be7663ccd92f1523730"
+    },
+    "content/assets/rifles/export/galil_first.glb": {
+      "bytes": 4064688,
+      "sha256": "91da16413e300582150770b1ac54219f881e0db3392e6e4f9a9637e243dd8fc3"
+    },
+    "content/assets/rifles/export/m4a1s.glb": {
+      "bytes": 712380,
+      "sha256": "b7382e282c8c70994e032210e9bf5df4a19bf5566d10e12f79fa568c2ddbb83b"
+    },
+    "content/assets/rifles/export/m4a1s_first.glb": {
+      "bytes": 2490820,
+      "sha256": "b56c78af323a1033b467ff262b03009983b5154321f044e43b1d7c8be369bcaa"
+    },
+    "content/assets/rifles/export/textures/ak47_0.png": {
+      "bytes": 4055531,
+      "sha256": "5f7dffff01fb0fbaafc3caa25fb859c130d7a22f5f7a0f9561c739c5323a7d42"
+    },
+    "content/assets/rifles/export/textures/ak47_0_spec.png": {
+      "bytes": 2765214,
+      "sha256": "58cf87d1d54b6baa28892151245467445f4ec3b2b13bb412749fc94b70a7fe87"
+    },
+    "content/assets/rifles/export/textures/ak47_1.png": {
+      "bytes": 4536300,
+      "sha256": "7bc79dc03de0489d9bc98050764bb00416f248cbad05e9d0847a42378be4bbb6"
+    },
+    "content/assets/rifles/export/textures/ak47_2.png": {
+      "bytes": 1259373,
+      "sha256": "b26f9753e14dc574e8b0ca51dc3f76b62e67f5c60db230265e583f7ba49b0e4b"
+    },
+    "content/assets/rifles/export/textures/ak47_icon.png": {
+      "bytes": 172828,
+      "sha256": "e0c8144d7a8b155a18b9d2255d81e19ccc04df54fbee725d9562a27abb3e90d2"
+    },
+    "content/assets/rifles/export/textures/famas_0.png": {
+      "bytes": 1237304,
+      "sha256": "f9772830263486baeb2ba110e73d3a48696ef931020d29a8941786a7feecd37c"
+    },
+    "content/assets/rifles/export/textures/famas_0_spec.png": {
+      "bytes": 810779,
+      "sha256": "d8bd27b5f31b63ba3715a36b13cc3fb771557f22537ac2b64eff7c0570fd5da8"
+    },
+    "content/assets/rifles/export/textures/famas_1.png": {
+      "bytes": 1495786,
+      "sha256": "5bac5a6fc00c39261a4c2c56845cbdf15b5e5ddd3d60a91f22a8cb9443037eba"
+    },
+    "content/assets/rifles/export/textures/famas_1_spec.png": {
+      "bytes": 426889,
+      "sha256": "75dbf1c092e11be0feef936daa00fd0d4de66624dbd9249a96f727214817de4f"
+    },
+    "content/assets/rifles/export/textures/famas_2.png": {
+      "bytes": 707532,
+      "sha256": "9a1fa5963eca630d82925d3b41ddec28ee18334068be4b7a9639da8a9267fab9"
+    },
+    "content/assets/rifles/export/textures/famas_2_spec.png": {
+      "bytes": 298976,
+      "sha256": "3d318ee6af22e4787bc5cbf4629ae29c9b93d9b0f731fedaee740807810ae48e"
+    },
+    "content/assets/rifles/export/textures/famas_3.png": {
+      "bytes": 839028,
+      "sha256": "130caf389c19a19d1257f1749556652cce65ed09fa5dbb44e986ff8ef1280a6e"
+    },
+    "content/assets/rifles/export/textures/famas_4.png": {
+      "bytes": 368525,
+      "sha256": "ce1dfc118a85af60b90c7c0680bd1021474ff9e415e3e51c805abca3cae01e1d"
+    },
+    "content/assets/rifles/export/textures/famas_5.png": {
+      "bytes": 360147,
+      "sha256": "37ecf9a154028da2cda40dac163ddd0cdfe9775ca4bfe6e83908ef6e4a960e01"
+    },
+    "content/assets/rifles/export/textures/famas_icon.png": {
+      "bytes": 199618,
+      "sha256": "59eb3014d8410b54c7c899e17154d5472f0a1ed335a7e066ccaa19ae4846b631"
+    },
+    "content/assets/rifles/export/textures/galil_0.png": {
+      "bytes": 897242,
+      "sha256": "2ee256a8fb48e1d6c04ee6eb8832a15192358d1d519971cf9ec16f2b855aa965"
+    },
+    "content/assets/rifles/export/textures/galil_0_spec.png": {
+      "bytes": 478061,
+      "sha256": "26e821b684dc68225b6311a9770eb19b2b017fb93c551d1ebeabacf736b56295"
+    },
+    "content/assets/rifles/export/textures/galil_1.png": {
+      "bytes": 1294829,
+      "sha256": "31a663867f010fa8edbc262d18634a0c0c7e9ee0f62f4785d110fb44f417c3c2"
+    },
+    "content/assets/rifles/export/textures/galil_10.png": {
+      "bytes": 728392,
+      "sha256": "b7ec9b11a6813d8b3c1b143b70868d402a36b6f9d8a47371161d0f8baa2161d3"
+    },
+    "content/assets/rifles/export/textures/galil_11.png": {
+      "bytes": 770271,
+      "sha256": "3e795b79f03a83b50aa4d4b3fcfe1f73484ad7280535e2b527ad6ccbab51b668"
+    },
+    "content/assets/rifles/export/textures/galil_12.png": {
+      "bytes": 950242,
+      "sha256": "0e714da7e3c0749a7abb4acb8a0fc3ec3b70f98ee3a40a4b86d313e78bae7b7a"
+    },
+    "content/assets/rifles/export/textures/galil_13.png": {
+      "bytes": 991864,
+      "sha256": "56daa47a96b361171922267ddf006ff5a84fadf0fd41846b50dc860729648443"
+    },
+    "content/assets/rifles/export/textures/galil_14.png": {
+      "bytes": 1294064,
+      "sha256": "34360b4f283b2b9e2b11ae08a349548d1f5db4d7cc474f04fc82c47b60b67aa9"
+    },
+    "content/assets/rifles/export/textures/galil_15.png": {
+      "bytes": 564242,
+      "sha256": "78a464125808a5f7f60fd743ef2cd7df6660e1fe43c78510751c7ca2b37fec71"
+    },
+    "content/assets/rifles/export/textures/galil_16.png": {
+      "bytes": 943981,
+      "sha256": "0f41d8f9ab56c9da07754a334984934da35d22193d6f5b950fde258b0c12b8bf"
+    },
+    "content/assets/rifles/export/textures/galil_17.png": {
+      "bytes": 308408,
+      "sha256": "361f0ca083afea1fe4d8c71e6b7dfa83a784a78dbac2c4385913dd6e13c22a8c"
+    },
+    "content/assets/rifles/export/textures/galil_18.png": {
+      "bytes": 941433,
+      "sha256": "2d828061ab29ab168cf5f02e8a0acd848cc79d4df7fbaa884fba275d7ba70861"
+    },
+    "content/assets/rifles/export/textures/galil_19.png": {
+      "bytes": 771443,
+      "sha256": "df65fb48af4ab35ecb4e4cfdc99231f687b84b4477a2469b951f447f5b4fbd2a"
+    },
+    "content/assets/rifles/export/textures/galil_1_spec.png": {
+      "bytes": 396965,
+      "sha256": "da4b5518a12a6f1b977c7ce63ce10f9c3bbbd1c103c94c0c8eafb6e03ed2e567"
+    },
+    "content/assets/rifles/export/textures/galil_2.png": {
+      "bytes": 746932,
+      "sha256": "a62be8ef0802b4a61ad74d3ec7172900b74fb881b142e6bbf107c7ca2a07c11c"
+    },
+    "content/assets/rifles/export/textures/galil_20.png": {
+      "bytes": 1346783,
+      "sha256": "adf741156d9b3f72c9a5e9f417cd8063d20f5ebed3e97faa7fffdc962015bee3"
+    },
+    "content/assets/rifles/export/textures/galil_2_spec.png": {
+      "bytes": 58012,
+      "sha256": "5e64335e9dee45a689abbe56565575bede79aea858117f30a5294bf76206e884"
+    },
+    "content/assets/rifles/export/textures/galil_3.png": {
+      "bytes": 622588,
+      "sha256": "75771289509c58b9ff0653f3c6d58e6f4205efff56be12ed7cc459b2e067f66c"
+    },
+    "content/assets/rifles/export/textures/galil_3_spec.png": {
+      "bytes": 324699,
+      "sha256": "ad46a87d328233b99abdf6c1493948f4a2abc607a46cbd928991c0590832f3bf"
+    },
+    "content/assets/rifles/export/textures/galil_4.png": {
+      "bytes": 1180473,
+      "sha256": "98c6f64cc34046b47daf8b9c1809417160e82eec7adc345fe2963451ac090c4d"
+    },
+    "content/assets/rifles/export/textures/galil_4_spec.png": {
+      "bytes": 351523,
+      "sha256": "498caa25a83b6980bfd6011147cba1c0558900fb0dd9a47ca65f714679ae2510"
+    },
+    "content/assets/rifles/export/textures/galil_5.png": {
+      "bytes": 960032,
+      "sha256": "0bb857db4f9149c54a6497ecbc99a741d06f512b6bdbed1cdb1ca572b236de4e"
+    },
+    "content/assets/rifles/export/textures/galil_5_spec.png": {
+      "bytes": 354305,
+      "sha256": "eb3b3caf2468f570c2d95251a8bee401df806088400ffc74f21d638ac248dcf6"
+    },
+    "content/assets/rifles/export/textures/galil_6.png": {
+      "bytes": 888601,
+      "sha256": "0a620b1399dbe81219363bd7da584233247fe4376f27188639a0b22d053dc29d"
+    },
+    "content/assets/rifles/export/textures/galil_6_spec.png": {
+      "bytes": 582286,
+      "sha256": "08d423ff92557e2b7d74cc342ae36626bbdbab9edda8eeb72a70af171e511849"
+    },
+    "content/assets/rifles/export/textures/galil_7.png": {
+      "bytes": 321182,
+      "sha256": "b21d1f46d5aa341b0b1bfd8e68fc72ddc021ff9b96512cbd76c9a35bd8b1c018"
+    },
+    "content/assets/rifles/export/textures/galil_8.png": {
+      "bytes": 2091292,
+      "sha256": "67f3d02a66488e860797acaa58dc07d88a3f343c32a8e7adfd703463d1f55fef"
+    },
+    "content/assets/rifles/export/textures/galil_9.png": {
+      "bytes": 1089893,
+      "sha256": "00d0bf5646bb96e3e69ab6b6bddcc777a2a82b0fe1eb53322f31ec044594800e"
+    },
+    "content/assets/rifles/export/textures/galil_icon.png": {
+      "bytes": 159297,
+      "sha256": "9c8d3c4e8777de4ad22b8c3bc901e89c1ec94ae44343c813deb0ea7eb52d375d"
+    },
+    "content/assets/rifles/export/textures/m4a1s_6.png": {
+      "bytes": 4581085,
+      "sha256": "3be21b7ee605139d7c8119b5960e4a4127d4b0f0d47c53549ce6b0ceb8f78c36"
+    },
+    "content/assets/rifles/export/textures/m4a1s_7.png": {
+      "bytes": 1887306,
+      "sha256": "992904f4ee4c546e6984186b67e97149059b61243366bf65c1d81533e474ee7d"
+    },
+    "content/assets/rifles/export/textures/m4a1s_icon.png": {
+      "bytes": 151364,
+      "sha256": "dca3aabbf633e9feaf5e6bf2e51a6f06f1c8089213637a78ead1857501978c01"
+    },
+    "content/assets/rifles/export/textures/shared_OpenScctSidearms_arms_arms_baseColor.png": {
+      "bytes": 4194179,
+      "sha256": "91d7e763b6e37d4c26f7921757b3dd554338f710dd321cf33f4ba1b662e5e56a"
+    },
+    "content/assets/rifles/export/textures/shared_OpenScctSidearms_arms_arms_metallicRoughness.png": {
+      "bytes": 2261591,
+      "sha256": "0061ce86faecd3da280bc41933f1e4d746e50d1a25d7ba803d5a2d73c0991173"
+    },
+    "content/assets/rifles/export/textures/shared_OpenScctSidearms_arms_arms_normal.png": {
+      "bytes": 6634108,
+      "sha256": "c95f33cd6ec062f7df8543b810a38470768b894cfb5c57ac35c8290d9a3a3fcd"
+    },
+    "content/assets/rifles/export/textures/suppressor.png": {
+      "bytes": 10865,
+      "sha256": "b59e6ff1bee36f0003fea68a5b3ad457a41dd707f5aae5f8d8481b710a83702d"
     }
   },
   "additional_credits": [
     "content/assets/weapons/CREDITS.txt",
     "content/assets/cosmetics/CREDITS.txt"
+  ],
+  "additionalCredits": [
+    "content/assets/rifles/CREDITS.txt",
+    "content/assets/sidearm_audio/CREDITS.txt",
+    "content/assets/user_gun_audio/CREDITS.txt"
   ]
 }

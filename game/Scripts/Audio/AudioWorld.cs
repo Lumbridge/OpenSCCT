@@ -183,8 +183,9 @@ public sealed class LevelAudioWorld(Level level, ICollisionWorld? collision, Fun
                 continue;
             }
 
+            byte pitch = a is SMines mine ? (byte)MathF.Round(a.SoundPitch * mine.MineSoundPitch) : a.SoundPitch;
             into.Add(new AmbientSource(a.ActorId, mapIdOf?.Invoke(a) ?? SpawnedId(a), a.Location,
-                a.AmbientSound.Path!, a.SoundVolume, a.SoundRadius, a.SoundPitch, a is ZoneInfo, (int)a.LightType,
+                a.AmbientSound.Path!, a.SoundVolume, a.SoundRadius, pitch, a is ZoneInfo, (int)a.LightType,
                 a.LightBrightness, (byte)a.SoundOcclusion));
         }
     }

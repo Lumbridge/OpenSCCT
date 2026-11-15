@@ -165,7 +165,7 @@ public partial class SSpyBulletLauncher
     /// <summary>One bullet used; a practice round's launcher never runs out (an OpenSCCT addition).</summary>
     private void UseCharge()
     {
-        if (!Modes.PracticeRules.IsOn(this))
+        if (!Modes.PracticeRules.ResourcesInfinite(this))
         {
             Charge--;
         }

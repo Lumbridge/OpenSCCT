@@ -328,7 +328,8 @@ public partial class InGameMenu : Control
 
     private void GearPage()
     {
-        var gear = new GearMenu(GearSource?.Invoke());
+        var gear = new GearMenu(GearSource?.Invoke()) { CanSwitchTeam = Model.Context.CanSwitchTeam };
+        gear.TeamSwapRequested += () => Act(Model.GearSwitchTeam());
         gear.Applied += m =>
         {
             GearApplied?.Invoke(m);

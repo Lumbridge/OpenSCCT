@@ -197,7 +197,7 @@ public partial class SMineLaser
     {
         foreach (SBasePawn p in GadgetWorld.Pawns(XLevel))
         {
-            if (p.bDeleteMe || (bMineDefenseur ? p is not SPawnAttaque : p is not SPAWNDEFENSE))
+            if (!TriggersOn(p, bMineDefenseur))
             {
                 continue;
             }
@@ -259,7 +259,7 @@ public partial class SMineLaser
         public override void BeginState(Actor self)
         {
             var mine = (SMineLaser)self;
-            mine.PlaySound(mine.SND_Active, ESoundSlot.SLOT_None, 1f, false, mine.LaserSoundRadius);
+            mine.PlaySound(mine.SND_Active, ESoundSlot.SLOT_None, 1f, false, mine.LaserSoundRadius, mine.MineSoundPitch);
             if (mine.Role == ENetRole.ROLE_Authority)
             {
                 mine.SpawnLaser();
@@ -297,7 +297,7 @@ public partial class SMineLaser
         public override void BeginState(Actor self)
         {
             var mine = (SMineLaser)self;
-            mine.PlaySound(mine.SND_BipExplo_Def, ESoundSlot.SLOT_None, 1f, false, mine.LaserSoundRadius);
+            mine.PlaySound(mine.SND_BipExplo_Def, ESoundSlot.SLOT_None, 1f, false, mine.LaserSoundRadius, mine.MineSoundPitch);
             mine.SetTimer(mine.TempsAvantExplosion, false);
         }
 
@@ -322,7 +322,7 @@ public partial class SMineLaser
         public override void BeginState(Actor self)
         {
             var mine = (SMineLaser)self;
-            mine.PlaySound(mine.SND_Desactive, ESoundSlot.SLOT_None, 1f, false, mine.LaserSoundRadius);
+            mine.PlaySound(mine.SND_Desactive, ESoundSlot.SLOT_None, 1f, false, mine.LaserSoundRadius, mine.MineSoundPitch);
             mine.DetruitFaisceau();
             mine.pLaser = null;
             mine.AmbientSound = AssetRef.None;

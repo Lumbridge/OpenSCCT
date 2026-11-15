@@ -167,7 +167,7 @@ public partial class SGadGasMask
         if (OwnerPawn is { bGasMask: true } pawn)
         {
             // An OpenSCCT addition: a practice round's mask never runs out of air.
-            if (!Modes.PracticeRules.IsOn(this))
+            if (!Modes.PracticeRules.ResourcesInfinite(this))
             {
                 MaskDuration -= DeltaTime;
             }

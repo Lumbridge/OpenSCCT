@@ -107,17 +107,20 @@ internal sealed record AlternateConfig
         Set(MercBerserk, AlternateAbility.MercBerserk);
         Set(MercCharge, AlternateAbility.MercCharge);
         Set(CinematicCamera, AlternateAbility.CinematicCamera);
+        int spyMask = Mask(SpyGadgets, r.SpyGadgets | (r.AdditionalSpyGadgets << AlternateRules.GadgetOptions),
+            OpenScct.Game.SBase.STeamAttaquant.GadgetOptions);
         r = r with
         {
-            SpyGadgets = Mask(SpyGadgets, r.SpyGadgets),
-            MercGadgets = Mask(MercGadgets, r.MercGadgets),
+            SpyGadgets = (byte)spyMask,
+            AdditionalSpyGadgets = (byte)(spyMask >> AlternateRules.GadgetOptions),
+            MercGadgets = (byte)Mask(MercGadgets, r.MercGadgets, AlternateRules.GadgetOptions),
             SpyGadgetCount = (byte)Math.Clamp(SpySlots ?? r.SpyGadgetCount, 0, AlternateRules.MaxGadgetCount),
             MercGadgetCount = (byte)Math.Clamp(MercSlots ?? r.MercGadgetCount, 0, AlternateRules.MaxGadgetCount),
         };
         return r.Clamped();
     }
 
-    private static byte Mask(List<int>? gadgets, byte fallback)
+    private static int Mask(List<int>? gadgets, int fallback, int options)
     {
         if (gadgets is null)
         {
@@ -127,13 +130,13 @@ internal sealed record AlternateConfig
         int mask = 0;
         foreach (int g in gadgets)
         {
-            if (g is >= 1 and <= AlternateRules.GadgetOptions)
+            if (g >= 1 && g <= options)
             {
                 mask |= 1 << (g - 1);
             }
         }
 
-        return (byte)mask;
+        return mask;
     }
 }
 

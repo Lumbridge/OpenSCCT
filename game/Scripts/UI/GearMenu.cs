@@ -1,604 +1,309 @@
 using System;
-using OpenScct.Game.Equipment;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using Godot;
-using OpenScct.Core;
 using OpenScct.Core.Engine;
-using OpenScct.Core.Uc;
+using OpenScct.Game.Devices;
+using OpenScct.Game.Equipment;
 using OpenScct.Game.SBase;
-using OpenScct.Provenance;
+using OpenScctGame.Render.Characters;
 
 namespace OpenScctGame.UI;
 
-/// <summary>
-/// The gear picker (spec/additions/gear-change.md), drawn as the original's two PC pages:
-/// <list type="bullet">
-/// <item><c>GUI.Edit_Profile</c> ("Equipment"): the side's portrait twice, dimmed; the four gadget slots as diamond
-/// buttons in a cross with the pad-button hints between them; "Quick Use 1/2" by the spy's first two slots; the focused
-/// gadget's long name and description; the weapon in a diamond with its name (a merc's cycles through the team's
-/// weapons). Page buttons Cancel, Reset and OK.</item>
-/// <item><c>GUI.Edit_Gadgets</c> ("Gadgets", opened from a slot): the team's eight options as square buttons in two
-/// rows, "Equipped" under the ones a slot holds, banned ones greyed out, and the focused one's name, description
-/// and "Quick use". Picking one sets the slot (a slot that held it swaps) and goes back.</item>
-/// </list>
-/// Positions are the pages' WinLeft/WinTop/WinWidth/WinHeight over a 4:3 area centred on the screen; icons are the
-/// HUD atlases' 64 x 64 tiles at each class's IconU/IconV. The Original look draws the converted frames (GUIContent
-/// MN_losange, MN_cadre06, MN_cadre01, fond02, the portraits; Menu_PC bouton01-04); the Modern look draws the same
-/// shapes in its own colours. The line stating when new gear goes on is our addition.
-/// </summary>
+/// <summary>A draft loadout with persistent slots, a directly selectable catalogue and item details.</summary>
 public partial class GearMenu : MenuPage
 {
-    [Provenance(ProvenanceKind.Decoded, "GUI pages are laid out on a 640 x 480 page")]
-    private const float PageWidth = 640f, PageHeight = 480f;
-
-    [Provenance(ProvenanceKind.Decoded, "GUI.Edit_Profile.RefreshGadget/LoadProfile: TexWidth = TexHeight = 64")]
-    private const float ProfileTile = 64f;
-
-    [Provenance(ProvenanceKind.Decoded, "GUI.Edit_Gadgets.HandleParameters: TexLeft = IconU + 1, TexTop = IconV + 1, 62 x 62")]
-    private const float GridTile = 62f;
-
-    [Provenance(ProvenanceKind.Decoded, "GUI.Edit_Profile defaults Gadget1..4 WinLeft/WinTop (0.25 x 0.25 each)")]
-    private static readonly Vector2[] SlotAt = [new(0.275f, 0.1f), new(0.12f, 0.245f), new(0.43f, 0.245f), new(0.275f, 0.39f)];
-
-    [Provenance(ProvenanceKind.Decoded, "GUI.Edit_Gadgets defaults Gadget1..8 WinLeft/WinTop (0.14 x 0.14 each)")]
-    private static readonly Vector2[] OptionAt =
-    [
-        new(0.14f, 0.19f), new(0.3333f, 0.19f), new(0.5266f, 0.19f), new(0.72f, 0.19f),
-        new(0.14f, 0.4f), new(0.3333f, 0.4f), new(0.5266f, 0.4f), new(0.72f, 0.4f),
-    ];
-
-    [Provenance(ProvenanceKind.Decoded, "GUI.Edit_Profile defaults ImgButtonA/Y/X/B (Menu_PC bouton04/02/01/03), 0.05 x 0.05")]
-    private static readonly (string Texture, Vector2 At)[] PadHints =
-    [
-        ("bouton04", new(0.375f, 0.39f)), ("bouton02", new(0.325f, 0.345f)), ("bouton01", new(0.375f, 0.3f)), ("bouton03", new(0.425f, 0.345f)),
-    ];
-
-    [Provenance(ProvenanceKind.Decoded, "GUI.Edit_Profile defaults Mesh, Mesh2 ImageColor (128, 128, 128, 120)")]
-    private static readonly Color PortraitTint = new(128 / 255f, 128 / 255f, 128 / 255f, 120 / 255f);
-
-    private static readonly UcClassIndex Classes = new(CorePackage.Info, EnginePackage.Info, SBasePackage.Info);
-    private static readonly Dictionary<string, Inventory?> Items = new(StringComparer.OrdinalIgnoreCase);
-
+    private enum Category { Primary, Sidearm, Gadget }
+    private static readonly Color Ink = new("10171d"), Surface = new("18232b"), Edge = new("30424b"),
+        Accent = new("a5edba"), TextColour = new("edf3f3"), Muted = new("9aaeb6");
     private readonly GearMenuModel? _model;
-    private Control? _layer;
-    private Button? _reset;
-    private Button? _ok;
-    private bool _grid;
-    private bool _sidearms;
+    private Category _category;
     private int _slot;
-    private Label? _name;
-    private Label? _description;
-    private Label? _quickUse;
+    private string _inspected = "", _focusAfterBuild = "";
+    private VBoxContainer? _details;
+    private static readonly Dictionary<string, Inventory?> Items = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, Texture2D?> _icons = new(StringComparer.OrdinalIgnoreCase);
 
     public GearMenu(GearMenuModel? model)
     {
         Name = "GearMenu";
         _model = model;
+        _category = model?.Spy == false ? Category.Primary : Category.Gadget;
     }
 
-    /// <summary>OK: the model holds the choice to save.</summary>
     public event Action<GearMenuModel>? Applied;
-
-    /// <summary>Cancel on the Equipment page.</summary>
     public event Action? Closed;
+    public event Action? TeamSwapRequested;
+    public bool CanSwitchTeam { get; init; }
+    public bool OwnKeys { get; init; }
 
     public override void _Ready()
     {
-        BuildFrame(GearMenuModel.Title);
-        if (UiStyle.MenuTexture("GUIContent", "fond02") is { } fond)
-        {
-            // Edit_Profile.Background: fond02 in place of the pages' usual fond.
-            var background = new TextureRect
-            {
-                Name = "Fond02", Texture = fond, AnchorRight = 1f, AnchorBottom = 1f, ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
-                StretchMode = TextureRect.StretchModeEnum.KeepAspectCovered, MouseFilter = MouseFilterEnum.Ignore,
-            };
-            AddChild(background);
-            MoveChild(background, 1);
-        }
-
-        PageButton(GearMenuModel.Cancel, OnCancel, "Cancel");
-        _reset = PageButton(GearMenuModel.ResetCaption, OnReset, "Reset");
-        _ok = PageButton(GearMenuModel.Ok, () =>
-        {
-            if (_model is not null)
-            {
-                Applied?.Invoke(_model);
-            }
-        }, "OK");
-
-        _layer = new Control { Name = "Page", MouseFilter = MouseFilterEnum.Ignore };
-        _layer.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
-        AddChild(_layer);
+        BuildFrame("Equipment", 1380f, responsive: true);
+        PageButton("Cancel", () => Closed?.Invoke(), "Cancel");
+        var swap = PageButton(_model?.Spy == true ? "Switch to Merc" : "Switch to Spy",
+            () => { if (CanSwitchTeam) TeamSwapRequested?.Invoke(); }, "SwitchTeam");
+        swap.Disabled = !CanSwitchTeam;
+        swap.TooltipText = CanSwitchTeam ? "Change sides and use that team's loadout." : "Teams can be changed in the lobby or practice.";
+        PageButton("Reset loadout", () => { _model?.Reset(); Rebuild(); }, "Reset");
+        PageButton("Apply loadout", () => { if (_model is { } m) Applied?.Invoke(m); }, "OK");
         Resized += Rebuild;
         Rebuild();
     }
 
-    /// <summary>
-    /// The page handles Escape on Equipment itself (Cancel), as over the Lobby Room; in a match the In-Game Menu does.
-    /// </summary>
-    public bool OwnKeys { get; init; }
-
-    /// <summary>Escape on the Gadgets page goes back to Equipment (on Equipment: Cancel when <see cref="OwnKeys"/>).</summary>
-    public override void _Input(InputEvent @event)
+    public override void _Input(InputEvent e)
     {
-        if (@event is not InputEventKey { Pressed: true, Echo: false, Keycode: Key.Escape })
-        {
-            return;
-        }
-
-        if (_grid)
-        {
-            ShowEquipment();
-            GetViewport().SetInputAsHandled();
-        }
-        else if (OwnKeys)
+        if (OwnKeys && IsVisibleInTree() && e is InputEventKey { Pressed: true, Echo: false, Keycode: Key.Escape })
         {
             GetViewport().SetInputAsHandled();
             Closed?.Invoke();
         }
     }
 
-    private void OnCancel()
-    {
-        if (_grid)
-        {
-            ShowEquipment();
-            return;
-        }
-
-        Closed?.Invoke();
-    }
-
-    private void OnReset()
-    {
-        _model?.Reset();
-        Rebuild();
-    }
-
-    private void ShowEquipment()
-    {
-        _grid = false;
-        TitleText = GearMenuModel.Title;
-        Rebuild();
-    }
-
-    private void ShowGadgets(int slot)
-    {
-        _sidearms = false;
-        _grid = true;
-        _slot = slot;
-        TitleText = GearMenuModel.GadgetsTitle;
-        Rebuild();
-    }
-
-    private void ShowSidearms()
-    {
-        _grid = _sidearms = true;
-        TitleText = "Sidearm";
-        Rebuild();
-    }
-
     private void Rebuild()
     {
-        if (_layer is null)
+        if (Body is null) return;
+        foreach (Node child in Body.GetChildren()) { Body.RemoveChild(child); child.QueueFree(); }
+        _details = null;
+        if (_model is not { } m)
         {
+            Body.AddChild(Text("Join a side to choose your equipment.", 19));
             return;
         }
 
-        foreach (Node child in _layer.GetChildren())
-        {
-            _layer.RemoveChild(child);
-            child.QueueFree();
-        }
+        float width = Math.Min(1380f, AvailableBodyWidth);
+        var heading = new HBoxContainer();
+        Body.AddChild(heading);
+        var title = Text(m.Spy ? "SPY  /  INFILTRATION KIT" : "MERCENARY  /  DEFENCE KIT", 15, Accent);
+        title.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+        heading.AddChild(title);
+        var count = Text($"{m.Slots} GADGET SLOTS", 13, Muted);
+        count.AutowrapMode = TextServer.AutowrapMode.Off;
+        heading.AddChild(count);
+        Body.AddChild(Text("Choose a slot, compare equipment, then apply your loadout.", 14, Muted));
+        Body.AddChild(new HSeparator());
 
-        _name = _description = _quickUse = null;
-        if (_reset is not null)
-        {
-            _reset.Visible = !_grid && _model is not null;
-        }
-
-        if (_ok is not null)
-        {
-            _ok.Visible = !_grid && _model is not null;
-        }
-
-        if (_model is null)
-        {
-            Text("Join a side to choose your gear.", Page(0.02f, 0.45f, 0.96f, 32f / PageHeight), 15f, HorizontalAlignment.Center, UiStyle.MenuText);
-            return;
-        }
-
-        if (_grid)
-        {
-            BuildGadgets(_model);
-        }
-        else
-        {
-            BuildEquipment(_model);
-        }
-    }
-
-    // ---- Edit_Profile ------------------------------------------------------------------------------------------
-
-    private void BuildEquipment(GearMenuModel m)
-    {
-        if (!m.Spy)
-        {
-            BuildMercEquipment(m);
-            return;
-        }
-        if (Texture(m.Portrait) is { } portrait)
-        {
-            foreach (float left in new[] { 0.05f, 0.57f })
-            {
-                // Edit_Profile Mesh and Mesh2: the side's MaterialOfMesh[0], ISTY_Scaled, dimmed.
-                Rect2 r = Page(left, 0.1f, 0.4f, 0.53f);
-                _layer!.AddChild(new TextureRect
-                {
-                    Texture = portrait, Position = r.Position, Size = r.Size, Modulate = PortraitTint,
-                    ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize, StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered,
-                    MouseFilter = MouseFilterEnum.Ignore,
-                });
-            }
-        }
-
-        if (UiStyle.IsOriginal)
-        {
-            foreach ((string texture, Vector2 at) in PadHints)
-            {
-                if (UiStyle.MenuTexture("Menu_PC", texture) is { } hint)
-                {
-                    Rect2 r = Page(at.X, at.Y, 0.05f, 0.05f);
-                    _layer!.AddChild(new TextureRect
-                    {
-                        Texture = hint, Position = r.Position, Size = r.Size, ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
-                        StretchMode = TextureRect.StretchModeEnum.Scale, MouseFilter = MouseFilterEnum.Ignore,
-                    });
-                }
-            }
-        }
-
-        // Edit_Profile.refreshQuickUse: a spy's first two slots say when their gadget can be thrown quickly.
-        if (m.Spy)
-        {
-            if (Item(m.Gadgets[0]) is { CanQuickLaunch: true })
-            {
-                Text(GearMenuModel.QuickUse1, Page(0.125f, 0.15f, 0.2f, 32f / PageHeight), 11f, HorizontalAlignment.Right, UiStyle.MenuFocus);
-            }
-
-            if (Item(m.Gadgets[1]) is { CanQuickLaunch: true })
-            {
-                Text(GearMenuModel.QuickUse2, Page(0.025f, 0.25f, 0.2f, 32f / PageHeight), 11f, HorizontalAlignment.Right, UiStyle.MenuFocus);
-            }
-        }
-
-        GearTile? first = null;
-        for (int i = 0; i < SlotAt.Length; i++)
-        {
-            int slot = i;
-            string path = m.Gadgets[i];
-            GearTile tile = Tile(true, Page(SlotAt[i].X, SlotAt[i].Y, 0.25f, 0.25f), GadgetAtlas(), Item(path), 0f, ProfileTile);
-            tile.Name = $"Slot{i + 1}";
-            tile.Disabled = slot >= m.Slots;
-            tile.Pressed += () => ShowGadgets(slot);
-            tile.FocusEntered += () => ShowItem(path, false);
-            if (slot == _slot && !tile.Disabled)
-            {
-                first = tile;
-            }
-
-            first ??= tile.Disabled ? null : tile;
-        }
-
-        // The focused gadget's name and description (Edit_Profile NameGadget, DescGadget).
-        _name = Text("", Page(0.02f, 0.63f, 0.96f, 32f / PageHeight), 15f, HorizontalAlignment.Left, UiStyle.MenuFocus);
-        _description = Text("", Page(0.02f, 0.69f, 0.7f, 96f / PageHeight), 11f, HorizontalAlignment.Left, UiStyle.MenuText);
-        _description.AutowrapMode = TextServer.AutowrapMode.WordSmart;
-        _description.VerticalAlignment = VerticalAlignment.Top;
-
-        // The weapon (Edit_Profile Weapon, WeaponImage): a spy's is fixed; a merc's cycles through the team's.
-        string weapon = m.Spy ? OpenScct.Game.Equipment.Loadouts.SpyWeapon.Path ?? "" : m.ChosenWeapon;
-        Text(Item(weapon)?.ItemName is { Length: > 0 } wn ? wn : GearMenuModel.NameOf(weapon), Page(0.625f, 0.55f, 0.4f, 32f / PageHeight), 13f,
-            HorizontalAlignment.Center, UiStyle.MenuFocus);
-        GearTile weaponTile = Tile(true, Page(0.7f, 0.38f, 0.25f, 0.2f), WeaponAtlas(), Item(weapon), 0f, ProfileTile);
-        weaponTile.Name = "Weapon";
-        weaponTile.Disabled = m.Spy || m.Weapons.Count < 2;
-        weaponTile.Pressed += () =>
-        {
-            m.CycleWeapon(1);
-            Rebuild();
-            _layer?.GetNodeOrNull<Control>("Weapon")?.CallDeferred(Control.MethodName.GrabFocus);
-        };
-
-        // Our addition: when new gear goes on.
-        Label rule = Text(m.Rule, Page(0.02f, 0.84f, 0.96f, 40f / PageHeight), 10f, HorizontalAlignment.Center, UiStyle.Dim);
-        rule.AutowrapMode = TextServer.AutowrapMode.WordSmart;
-
-        ShowItem(m.Gadgets[Math.Clamp(_slot, 0, 3)], false);
-        first?.CallDeferred(Control.MethodName.GrabFocus);
-    }
-
-    private void BuildMercEquipment(GearMenuModel m)
-    {
-        Text("Primary Weapon", Page(.12f, .09f, .34f, .055f), 14f, HorizontalAlignment.Center, UiStyle.MenuText);
-        Text("Sidearm", Page(.54f, .09f, .34f, .055f), 14f, HorizontalAlignment.Center, UiStyle.MenuText);
-        GearTile primary = Tile(false, Page(.12f, .16f, .34f, .19f), WeaponAtlas(), Item(m.ChosenWeapon), 0, ProfileTile);
-        primary.Name = "Weapon";
-        primary.Disabled = m.Weapons.Count < 2;
-        primary.Pressed += () => { m.CycleWeapon(1); Rebuild(); _layer?.GetNodeOrNull<Control>("Weapon")?.CallDeferred(Control.MethodName.GrabFocus); };
-        primary.FocusEntered += () => ShowItem(m.ChosenWeapon, false);
-        primary.MouseEntered += () => ShowItem(m.ChosenWeapon, false);
-        Text(GearMenuModel.NameOf(m.ChosenWeapon), Page(.10f, .35f, .38f, .05f), 11f, HorizontalAlignment.Center, UiStyle.MenuFocus);
-        GearTile sidearm = Tile(false, Page(.54f, .16f, .34f, .19f), GadgetAtlas(), Item(m.ChosenSidearm), 0, ProfileTile);
-        sidearm.Name = "Sidearm";
-        sidearm.Disabled = !m.SidearmsEnabled;
-        sidearm.TooltipText = m.SidearmsEnabled ? "Sidearm" : "Sidearms are disabled for this session";
-        sidearm.Pressed += ShowSidearms;
-        sidearm.FocusEntered += () => ShowItem(m.ChosenSidearm, false);
-        sidearm.MouseEntered += () => ShowItem(m.ChosenSidearm, false);
-        Text(m.SidearmsEnabled ? GearMenuModel.NameOf(m.ChosenSidearm) : "Disabled for this session", Page(.52f, .35f, .38f, .05f), 11f, HorizontalAlignment.Center, UiStyle.MenuFocus);
-        Text("Gadgets", Page(.08f, .42f, .84f, .05f), 14f, HorizontalAlignment.Left, UiStyle.MenuText);
+        var main = new HBoxContainer { Name = "LoadoutWorkbench" };
+        main.AddThemeConstantOverride("separation", 18);
+        Body.AddChild(main);
+        var kit = Column(214);
+        main.AddChild(kit);
+        kit.AddChild(Text("YOUR LOADOUT", 13, Muted));
+        string primary = m.Spy ? Loadouts.SpyWeapon.Path ?? "" : m.ChosenWeapon;
+        Slot(kit, "Weapon", "PRIMARY WEAPON", primary, Category.Primary, 0, m.Spy);
+        if (!m.Spy) Slot(kit, "Sidearm", "SIDEARM", m.ChosenSidearm, Category.Sidearm, 0, !m.SidearmsEnabled);
+        else kit.AddChild(Text("Cloak is standard equipment.\nIt uses no gadget slot.", 13, Muted));
+        kit.AddChild(new HSeparator());
         for (int i = 0; i < 4; i++)
-        {
-            int slot = i;
-            string path = m.Gadgets[i];
-            GearTile tile = Tile(false, Page(.08f + i * .22f, .49f, .18f, .16f), GadgetAtlas(), Item(path), 0, ProfileTile);
-            tile.Name = $"Slot{i + 1}";
-            tile.Disabled = i >= m.Slots;
-            tile.Pressed += () => ShowGadgets(slot);
-            tile.FocusEntered += () => ShowItem(path, false);
-            tile.MouseEntered += () => ShowItem(path, false);
-            Text(tile.Disabled ? "Unavailable" : GearMenuModel.NameOf(path), Page(.06f + i * .22f, .65f, .22f, .05f), 9f, HorizontalAlignment.Center,
-                tile.Disabled ? UiStyle.Dim : UiStyle.MenuText);
-        }
-        _name = Text("", Page(.08f, .73f, .84f, .05f), 13f, HorizontalAlignment.Left, UiStyle.MenuFocus);
-        _description = Text("", Page(.08f, .79f, .84f, .10f), 10f, HorizontalAlignment.Left, UiStyle.MenuText);
-        _description.AutowrapMode = TextServer.AutowrapMode.WordSmart;
-        _description.VerticalAlignment = VerticalAlignment.Top;
-        Label rule = Text(m.Rule, Page(.04f, .85f, .92f, .04f), 9f, HorizontalAlignment.Center, UiStyle.Dim);
-        rule.AutowrapMode = TextServer.AutowrapMode.WordSmart;
-        ShowItem(m.ChosenSidearm, false);
-        sidearm.CallDeferred(Control.MethodName.GrabFocus);
+            Slot(kit, "Slot" + (i + 1), "GADGET " + (i + 1) +
+                (m.Spy && i < 2 && Item(m.Gadgets[i]) is { CanQuickLaunch: true } ? "  /  QUICK USE " + (i + 1) : ""),
+                m.Gadgets[i], Category.Gadget, i, i >= m.Slots);
+
+        var centre = Column(0);
+        centre.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+        main.AddChild(centre);
+        string caption = _category switch { Category.Primary => "PRIMARY WEAPONS", Category.Sidearm => "SIDEARMS", _ => "GADGETS  /  SLOT " + (_slot + 1) };
+        centre.AddChild(Text(caption, 15, Accent));
+        centre.AddChild(Text(_category == Category.Primary ? "Select a weapon directly. New rifles use hip fire only." :
+            _category == Category.Sidearm ? "Your sidearm has its own slot." : "Equipped gadgets swap slots when selected again.", 13, Muted));
+
+        bool wide = width >= 1170;
+        float catalogueWidth = width - 232 - (wide ? 292 : 0);
+        var grid = new GridContainer { Name = "EquipmentCatalogue", Columns = catalogueWidth >= 650 ? 3 : catalogueWidth >= 390 ? 2 : 1,
+            SizeFlagsHorizontal = SizeFlags.ExpandFill };
+        grid.AddThemeConstantOverride("h_separation", 10);
+        grid.AddThemeConstantOverride("v_separation", 10);
+        centre.AddChild(grid);
+        IReadOnlyList<string> options = _category switch { Category.Primary => m.Weapons, Category.Sidearm => m.SidearmOptions, _ => m.Options };
+        for (int i = 0; i < options.Count; i++) AddOption(grid, options[i], i);
+        if (options.Count == 0) centre.AddChild(Text("No equipment is available for this slot.", 15, Muted));
+
+        _details = Column(wide ? 274 : 0);
+        var detailsPanel = Panel(_details);
+        detailsPanel.Name = "EquipmentDetails";
+        if (wide) main.AddChild(detailsPanel);
+        else { centre.AddChild(new HSeparator()); centre.AddChild(detailsPanel); }
+        string selected = CurrentSelection();
+        if (_inspected.Length == 0 || !options.Contains(_inspected)) _inspected = selected;
+        ShowDetails(_inspected);
+        Body.AddChild(new HSeparator());
+        Body.AddChild(Text(m.Rule, 13, Muted));
+        string focus = _focusAfterBuild;
+        _focusAfterBuild = "";
+        var target = Body.FindChild(focus.Length > 0 ? focus : "Option1", true, false) as Control;
+        if (target is Button { Disabled: false }) target.CallDeferred(Control.MethodName.GrabFocus);
     }
 
-    // ---- Edit_Gadgets ------------------------------------------------------------------------------------------
-
-    private void BuildGadgets(GearMenuModel m)
+    private void Slot(VBoxContainer parent, string nodeName, string caption, string path, Category category, int slot, bool disabled)
     {
-        GearTile? first = null;
-        var options = _sidearms ? m.SidearmOptions : m.Options;
-        string selected = _sidearms ? m.ChosenSidearm : m.Gadgets[_slot];
-        for (int i = 0; i < options.Count; i++)
-        {
-            string option = options[i];
-            Vector2 at = _sidearms ? new(0.07f + i * 0.18f, 0.25f) : OptionAt[i];
-            GearTile tile = Tile(false, Page(at.X, at.Y, 0.14f, 0.14f), GadgetAtlas(), Item(option), 1f, GridTile);
-            tile.Name = $"Option{i + 1}";
-            tile.TooltipText = Sidearms.Find(option)?.Description ?? GearMenuModel.NameOf(option);
-            tile.MouseEntered += () => ShowItem(option, true);
-            tile.Disabled = !m.IsAllowed(option);
-            tile.FocusMode = tile.Disabled ? FocusModeEnum.None : FocusModeEnum.All;
-            tile.Pressed += () =>
-            {
-                if (_sidearms) m.ChooseSidearm(option);
-                else m.Choose(_slot, option);
-                ShowEquipment();
-            };
-            tile.FocusEntered += () => ShowItem(option, true);
-            if (m.IsEquipped(option))
-            {
-                Text(GearMenuModel.Equipped, Page(at.X, at.Y + 0.14f, 0.15f, 0.05f), 11f, HorizontalAlignment.Center, UiStyle.MenuFocus);
-            }
-            else if (Sidearms.Find(option) is { } pistol)
-            {
-                Text("Level " + pistol.Level, Page(at.X, at.Y + 0.14f, 0.15f, 0.05f), 11f,
-                    HorizontalAlignment.Center, tile.Disabled ? UiStyle.Dim : UiStyle.MenuText);
-            }
-
-            if (!tile.Disabled && (first is null || string.Equals(option, selected, StringComparison.OrdinalIgnoreCase)))
-            {
-                first = tile;
-            }
-        }
-
-        // Edit_Gadgets GadName, QuickUse, GadDesc.
-        _name = Text("", Page(0.02f, 0.62f, 0.96f, 32f / PageHeight), 15f, HorizontalAlignment.Center, UiStyle.MenuFocus);
-        _quickUse = Text(GearMenuModel.QuickUse, Page(0.3f, 0.65f, 0.4f, 32f / PageHeight), 11f, HorizontalAlignment.Center, UiStyle.MenuText);
-        _description = Text("", Page(0.02f, 0.7f, 0.96f, 96f / PageHeight), 11f, HorizontalAlignment.Center, UiStyle.MenuText);
-        _description.AutowrapMode = TextServer.AutowrapMode.WordSmart;
-        _description.VerticalAlignment = VerticalAlignment.Top;
-        ShowItem(selected, true);
-        first?.CallDeferred(Control.MethodName.GrabFocus);
+        bool active = _category == category && (category != Category.Gadget || _slot == slot);
+        var button = new Button { Name = nodeName, Alignment = HorizontalAlignment.Left, CustomMinimumSize = new Vector2(0, 67),
+            SizeFlagsHorizontal = SizeFlags.ExpandFill, Disabled = disabled,
+            TooltipText = disabled ? category == Category.Sidearm ? "Sidearms are disabled for this session." : "This slot is unavailable." : GearMenuModel.NameOf(path) };
+        Style(button, active);
+        var box = Column(0);
+        Fill(button, box, 13);
+        box.AddChild(Text(caption, 11, active ? Accent : Muted));
+        box.AddChild(Text(GearMenuModel.NameOf(path), 16, disabled ? Muted : TextColour));
+        button.Pressed += () => { _category = category; _slot = slot; _inspected = path; _focusAfterBuild = nodeName; Rebuild(); };
+        parent.AddChild(button);
     }
 
-    // ---- shared --------------------------------------------------------------------------------------------------
-
-    /// <summary>Edit_Profile.RefreshGadgetName / Edit_Gadgets.ButtonActivate: the item's long name and description.</summary>
-    private void ShowItem(string path, bool quickUse)
+    private void AddOption(GridContainer grid, string path, int index)
     {
-        Inventory? item = Item(path);
-        if (_name is not null)
+        var m = _model!;
+        bool allowed = _category == Category.Primary || m.IsAllowed(path);
+        bool selected = string.Equals(path, CurrentSelection(), StringComparison.OrdinalIgnoreCase);
+        bool equipped = _category == Category.Primary ? selected : m.IsEquipped(path);
+        var card = new GearTile { Name = "Option" + (index + 1), Disabled = !allowed,
+            CustomMinimumSize = new Vector2(180, _category == Category.Primary ? 167 : 147), SizeFlagsHorizontal = SizeFlags.ExpandFill,
+            TooltipText = allowed ? GearMenuModel.NameOf(path) : Restriction(path) };
+        card.Atlas = Icon(path);
+        card.HasIcon = card.Atlas is not null;
+        card.Region = card.Atlas is null ? new Rect2() : new Rect2(Vector2.Zero, card.Atlas.GetSize());
+        Style(card, selected);
+        var stack = Column(0);
+        Fill(card, stack, 12);
+        stack.AddChild(Text(selected ? "SELECTED" : equipped ? "EQUIPPED" : !allowed ? "LOCKED" :
+            MercRifles.Find(path)?.Suppressed == true ? "SUPPRESSED" : _category == Category.Primary ? "PRIMARY" : "AVAILABLE", 10, selected ? Accent : Muted));
+        stack.AddChild(Picture(path, _category == Category.Primary ? 76 : 56));
+        stack.AddChild(Text(GearMenuModel.NameOf(path), 17, allowed ? TextColour : Muted));
+        string sub = MercRifles.Find(path) is { } rifle ? $"{rifle.Magazine} RDS  /  {rifle.Rpm} RPM" :
+            Sidearms.Find(path) is { } sidearm ? "LEVEL " + sidearm.Level : Item(path) is { CanQuickLaunch: true } ? "QUICK USE" : "FIELD EQUIPMENT";
+        stack.AddChild(Text(sub, 10, Muted));
+        card.MouseEntered += () => ShowDetails(path);
+        card.FocusEntered += () => ShowDetails(path);
+        card.Pressed += () =>
         {
-            _name.Text = item?.ItemLongName is { Length: > 0 } longName ? longName : GearMenuModel.NameOf(path);
-            if (item is SGadGasMask && _name.Text == "gas Mask") _name.Text = "Gas Mask";
-        }
-
-        if (_description is not null)
-        {
-            _description.Text = Sidearms.Find(path) is { } pistol
-                ? pistol.Description + (_model?.IsAllowed(path) == false ? " Locked: reach the required level to equip." : "")
-                : item?.ItemDescription ?? "";
-        }
-
-        if (_quickUse is not null)
-        {
-            _quickUse.Visible = quickUse && item is { CanQuickLaunch: true };
-        }
-    }
-
-    /// <summary>A rectangle of the 640 x 480 page (fractions), on a 4:3 area centred on the screen.</summary>
-    private Rect2 Page(float left, float top, float width, float height)
-    {
-        Vector2 screen = Size;
-        float h = screen.Y;
-        float w = Math.Min(screen.X, h * PageWidth / PageHeight);
-        float x0 = (screen.X - w) * 0.5f;
-        return new Rect2(x0 + left * w, top * h, width * w, height * h);
-    }
-
-    /// <summary>Page pixels to screen pixels (the page's 480 rows fill the screen height).</summary>
-    private float PageScale => Size.Y / PageHeight;
-
-    private GearTile Tile(bool diamond, Rect2 rect, Texture2D? atlas, Inventory? item, float inset, float tile)
-    {
-        var t = new GearTile
-        {
-            Diamond = diamond, Position = rect.Position, Size = rect.Size, Atlas = atlas, IconScale = PageScale,
-            Region = item is null ? new Rect2() : new Rect2(item.IconU + inset, item.IconV + inset, tile, tile),
-            HasIcon = item is not null,
+            if (_category == Category.Primary) m.ChooseWeapon(path);
+            else if (_category == Category.Sidearm) m.ChooseSidearm(path);
+            else m.Choose(_slot, path);
+            _inspected = path;
+            _focusAfterBuild = card.Name;
+            Rebuild();
         };
-        if (item is SidearmCarry carry)
+        grid.AddChild(card);
+    }
+
+    private string CurrentSelection() => _model is not { } m ? "" : _category switch
+    { Category.Primary => m.ChosenWeapon, Category.Sidearm => m.ChosenSidearm, _ => m.Gadgets[_slot] };
+
+    private void ShowDetails(string path)
+    {
+        if (_details is null) return;
+        _inspected = path;
+        foreach (Node child in _details.GetChildren()) { _details.RemoveChild(child); child.QueueFree(); }
+        _details.AddChild(Text("EQUIPMENT INTEL", 11, Muted));
+        _details.AddChild(Picture(path, 125));
+        _details.AddChild(Text(GearMenuModel.NameOf(path), 25));
+        var rifle = MercRifles.Find(path);
+        if (rifle is not null) _details.AddChild(Text(rifle.Role, 11, Accent));
+        _details.AddChild(new HSeparator());
+        _details.AddChild(Text(rifle?.Description ?? Sidearms.Find(path)?.Description ?? Item(path)?.ItemDescription ?? "Select equipment to see its details.", 14));
+        bool allowed = _category == Category.Primary || _model!.IsAllowed(path);
+        if (!allowed) _details.AddChild(Text(Restriction(path), 13, new Color("efb27d")));
+        if (rifle is not null)
         {
-            // Sidearms have their own pictures, not a tile in the retail gadget atlas.
-            t.HasIcon = false;
-            string icon = System.IO.Path.Combine(OpenScctGame.Render.Characters.SkeletalModel.DefaultSharedRoot(), "chars", "OpenScctSidearms", "textures",
-                Sidearms.Get((SidearmKind)carry.Kind).Id + "_icon.png");
-            if (System.IO.File.Exists(icon))
-            {
-                Image image = Image.LoadFromFile(icon);
-                t.Atlas = ImageTexture.CreateFromImage(image);
-                t.Region = new Rect2(Vector2.Zero, image.GetSize());
-                t.IconScale = Math.Min(PageScale, Math.Min(rect.Size.X, rect.Size.Y) * .75f / Math.Max(image.GetWidth(), image.GetHeight()));
-                t.HasIcon = true;
-            }
+            _details.AddChild(new HSeparator());
+            Stat("CLOSE DAMAGE", rifle.CloseDamage + " / hit");
+            Stat("MAGAZINE / RESERVE", $"{rifle.Magazine} / {rifle.Reserve}");
+            Stat("RATE OF FIRE", rifle.Rpm + " RPM");
+            Stat("RELOAD", rifle.ReloadSeconds.ToString("0.00") + " s");
+            Stat("OPTICS", "Hip fire");
+            _details.AddChild(Text("Damage shown before SCCT hit zones and distance falloff.", 11, Muted));
         }
-        _layer!.AddChild(t);
-        return t;
-    }
-
-    private Label Text(string text, Rect2 rect, float pageSize, HorizontalAlignment align, Color colour)
-    {
-        var label = new Label
+        else if (Sidearms.Find(path) is { } pistol)
         {
-            Text = text, Position = rect.Position, Size = rect.Size, HorizontalAlignment = align, VerticalAlignment = VerticalAlignment.Center,
-            MouseFilter = MouseFilterEnum.Ignore, ClipText = false,
-            LabelSettings = new LabelSettings { FontSize = Math.Max(10, (int)MathF.Round(pageSize * PageScale)), FontColor = colour },
-        };
-        _layer!.AddChild(label);
-        return label;
+            _details.AddChild(new HSeparator());
+            Stat("MAGAZINE / RESERVE", $"{pistol.Magazine} / {pistol.Spare}");
+            Stat("UNLOCK", "Level " + pistol.Level);
+        }
+        else if (Item(path) is SGadget gadget)
+        {
+            _details.AddChild(new HSeparator());
+            Stat("USES", path == OpenScct.Game.Svm.MineHackGadget.ClassPath ? "2 per life" : gadget.Charge > 0 ? gadget.Charge.ToString() : "Reusable");
+            if (path == OpenScct.Game.Svm.MineHackGadget.ClassPath) Stat("HACK TIME", "Hold for 3 s");
+        }
     }
 
-    /// <summary>SHud Tex_All_Gadgets (the HUD's atlas: shown in both looks).</summary>
-    private static Texture2D? GadgetAtlas() => UiStyle.Assets?.Texture("SHudTextures", "Icones_Gadgets");
-
-    /// <summary>SHud Tex_All_Weapons.</summary>
-    private static Texture2D? WeaponAtlas() => UiStyle.Assets?.Texture("SHudTextures", "Icones_Weapons");
-
-    /// <summary>
-    /// A material path such as GUIContent.New_Menu.MN_ATTperso as a converted texture (package, last name). Character
-    /// art, like the icons, so both looks show it.
-    /// </summary>
-    private static Texture2D? Texture(string path)
+    private void Stat(string caption, string value)
     {
-        string[] parts = path.Split('.');
-        return parts.Length >= 2 ? UiStyle.Assets?.Texture(parts[0], parts[^1]) : null;
+        var row = new HBoxContainer();
+        var key = Text(caption, 10, Muted); key.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+        key.AutowrapMode = TextServer.AutowrapMode.Off;
+        var detail = Text(value, 13); detail.AutowrapMode = TextServer.AutowrapMode.Off;
+        row.AddChild(key); row.AddChild(detail); _details!.AddChild(row);
     }
 
-    /// <summary>The class defaults of an inventory class (icon, names, description, quick launch), or null.</summary>
+    private string Restriction(string path) => Sidearms.Find(path) is { } sidearm ? "Reach level " + sidearm.Level + " to equip this sidearm." : "Disabled by the host's equipment rules.";
+
+    private Control Picture(string path, int height) => new TextureRect { Texture = Icon(path), CustomMinimumSize = new Vector2(0, height),
+        SizeFlagsHorizontal = SizeFlags.ExpandFill, MouseFilter = MouseFilterEnum.Ignore,
+        ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize, StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered };
+
+    private Texture2D? Icon(string path)
+    {
+        if (_icons.TryGetValue(path, out var known)) return known;
+        string? file = MercRifles.Find(path) is { } rifle ? Path.Combine(SkeletalModel.DefaultSharedRoot(), "chars", "OpenScctRifles", "textures", rifle.Id.ToLowerInvariant() + "_icon.png") :
+            Sidearms.Find(path) is { } sidearm ? Path.Combine(SkeletalModel.DefaultSharedRoot(), "chars", "OpenScctSidearms", "textures", sidearm.Id + "_icon.png") : null;
+        Texture2D? icon = null;
+        if (file is not null && File.Exists(file)) icon = ImageTexture.CreateFromImage(Image.LoadFromFile(file));
+        else if (Item(path) is { } item)
+        {
+            var atlas = UiStyle.Assets?.Texture("SHudTextures", item is SWeapon ? "Icones_Weapons" : "Icones_Gadgets");
+            if (atlas is not null) icon = new AtlasTexture { Atlas = atlas, Region = new Rect2(item.IconU, item.IconV, 64, 64) };
+        }
+        _icons[path] = icon;
+        return icon;
+    }
+
     private static Inventory? Item(string path)
     {
-        if (string.IsNullOrEmpty(path))
+        if (!Items.TryGetValue(path, out var item))
         {
-            return null;
-        }
-
-        if (!Items.TryGetValue(path, out Inventory? item))
-        {
-            item = Sidearms.Find(path) is { } pistol
-                ? new SidearmCarry { Kind = (int)pistol.Kind, ItemName = pistol.Name, ItemLongName = pistol.Name, ItemDescription = pistol.Description }
-                : Classes.Find(path)?.Create() as Inventory;
+            item = Sidearms.Find(path) is { } pistol ? new SidearmCarry { Kind = (int)pistol.Kind } : DeviceClasses.Index.Find(path)?.Create() as Inventory;
             Items[path] = item;
         }
-
         return item;
+    }
+
+    private static VBoxContainer Column(float minimum) => new() { CustomMinimumSize = new Vector2(minimum, 0) };
+    private static Label Text(string text, int size, Color? colour = null) => new()
+    {
+        Text = text, MouseFilter = MouseFilterEnum.Ignore, AutowrapMode = TextServer.AutowrapMode.WordSmart,
+        LabelSettings = new LabelSettings { Font = UiArt.BodyFont, FontSize = size, FontColor = colour ?? TextColour },
+    };
+    private static PanelContainer Panel(Control child)
+    {
+        var panel = new PanelContainer(); panel.AddThemeStyleboxOverride("panel", Box(Surface, Edge, 16)); panel.AddChild(child); return panel;
+    }
+    private static StyleBoxFlat Box(Color fill, Color border, int margin = 0) => new()
+    {
+        BgColor = fill, BorderColor = border, BorderWidthLeft = 1, BorderWidthRight = 1, BorderWidthTop = 1, BorderWidthBottom = 1,
+        CornerRadiusTopLeft = 5, CornerRadiusTopRight = 5, CornerRadiusBottomLeft = 5, CornerRadiusBottomRight = 5,
+        ContentMarginLeft = margin, ContentMarginRight = margin, ContentMarginTop = margin, ContentMarginBottom = margin,
+    };
+    private static void Style(Button b, bool selected)
+    {
+        b.AddThemeStyleboxOverride("normal", Box(selected ? new Color("213b37") : Ink, selected ? Accent : Edge));
+        b.AddThemeStyleboxOverride("hover", Box(new Color("243940"), Accent));
+        b.AddThemeStyleboxOverride("focus", Box(new Color(0, 0, 0, 0), Accent));
+        b.AddThemeStyleboxOverride("pressed", Box(new Color("294b42"), Accent));
+        b.AddThemeStyleboxOverride("disabled", Box(new Color("131a20"), new Color("26323a")));
+    }
+    private static void Fill(Control parent, Control child, int margin)
+    {
+        parent.AddChild(child); child.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
+        child.OffsetLeft = child.OffsetTop = margin; child.OffsetRight = child.OffsetBottom = -margin;
+        child.MouseFilter = MouseFilterEnum.Ignore;
     }
 }
 
-/// <summary>
-/// A GUIGFXButton of the gear pages: the style's frame (DiamondButton: MN_losange; SquareButton: MN_cadre06, MN_cadre01
-/// when focused) tinted by the menu state, with the item's icon tile centred at its page size.
-/// </summary>
+/// <summary>A focusable equipment card whose content and selection frame are provided by GearMenu.</summary>
 public partial class GearTile : Button
 {
-    [Provenance(ProvenanceKind.Decoded, "GUI.GUIStyles defaults ImgColors(0, 1) (69, 85, 69); ImgColors(2) white")]
-    private static readonly Color OriginalNormal = new(69 / 255f, 85 / 255f, 69 / 255f);
-
-    [Provenance(ProvenanceKind.Decoded, "GUI.STY_DiamondButton, STY_SquareButton defaults ImgColors(4) (80, 80, 80, 64)")]
-    private static readonly Color DisabledTint = new(80 / 255f, 80 / 255f, 80 / 255f, 64 / 255f);
-
-    public GearTile()
-    {
-        Flat = true;
-        FocusMode = FocusModeEnum.All;
-        foreach (string box in new[] { "normal", "hover", "pressed", "disabled", "focus", "hover_pressed" })
-        {
-            AddThemeStyleboxOverride(box, new StyleBoxEmpty());
-        }
-
-        // GUI controls take the focus when the pointer is over them (Edit_Profile and Edit_Gadgets act on focus).
-        MouseEntered += () =>
-        {
-            if (!Disabled)
-            {
-                GrabFocus();
-            }
-        };
-        FocusEntered += QueueRedraw;
-        FocusExited += QueueRedraw;
-    }
-
-    /// <summary>DiamondButton (Edit_Profile) or SquareButton (Edit_Gadgets).</summary>
-    public bool Diamond { get; set; }
-
     public Texture2D? Atlas { get; set; }
-
-    public Rect2 Region { get; set; }
-
     public bool HasIcon { get; set; }
-
-    /// <summary>Screen pixels per page pixel.</summary>
-    public float IconScale { get; set; } = 1f;
-
-    public override void _Draw()
-    {
-        bool focus = HasFocus() && !Disabled;
-        Color tint = Disabled ? DisabledTint : focus ? (UiStyle.IsOriginal ? Colors.White : UiStyle.MenuFocus) :
-            UiStyle.IsOriginal ? OriginalNormal : UiStyle.MenuText;
-        var rect = new Rect2(Vector2.Zero, Size);
-        string frameName = Diamond ? "MN_losange" : focus ? "MN_cadre01" : "MN_cadre06";
-        if (UiStyle.MenuTexture("GUIContent", frameName) is { } frame)
-        {
-            DrawTextureRect(frame, rect, false, tint);
-        }
-        else if (Diamond)
-        {
-            var c = Size * 0.5f;
-            Vector2[] points = [new(c.X, 0f), new(Size.X, c.Y), new(c.X, Size.Y), new(0f, c.Y), new(c.X, 0f)];
-            DrawColoredPolygon(points[..4], tint with { A = tint.A * 0.18f });
-            DrawPolyline(points, tint, 2f, true);
-        }
-        else
-        {
-            DrawRect(rect, tint with { A = tint.A * 0.18f });
-            DrawRect(rect, tint, false, 2f);
-        }
-
-        if (HasIcon && Atlas is not null)
-        {
-            Vector2 size = Region.Size * IconScale;
-            Color icon = Disabled ? DisabledTint : Colors.White;
-            DrawTextureRectRegion(Atlas, new Rect2((Size - size) * 0.5f, size), Region, icon);
-        }
-    }
+    public Rect2 Region { get; set; }
 }

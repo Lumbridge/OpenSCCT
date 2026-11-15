@@ -144,7 +144,7 @@ public partial class SLaserTrigger
         fCheckFrequency = SensorK.LaserIdlePeriod;
         foreach (SBasePawn p in GadgetWorld.Pawns(XLevel))
         {
-            if (p.bDeleteMe || p.SPawnType != PawnType.SPAWNOFFENSE)
+            if (p is Svm.SpyClone || p.bDeleteMe || p.SPawnType != PawnType.SPAWNOFFENSE)
             {
                 continue;
             }

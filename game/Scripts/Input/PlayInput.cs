@@ -540,10 +540,15 @@ public partial class PlayInput : Node
         if (_actionState.ScopeHeld) input.Commands.Add(new InputCommand("SetScope", 1));
         if (_actionState.SpyFirstPersonRequested && Bindings.Side == PlaySide.Spy)
             input.Commands.Add(new InputCommand("SetSpyFirstPerson", 1));
+        input.HeldGadgetBindings = 0;
         foreach (string ik in _down)
         {
             foreach (KeyAction a in ActionsOf(ik))
             {
+                if (a.Kind == KeyActionKind.Command &&
+                    a.Name.Equals("UseGadget", StringComparison.OrdinalIgnoreCase))
+                    input.HeldGadgetBindings |= LocalInput.GadgetBindingBit(a.Arg);
+
                 if (a.Kind == KeyActionKind.Axis && string.Equals(a.Name, "aUp", StringComparison.OrdinalIgnoreCase))
                 {
                     up += a.Speed;

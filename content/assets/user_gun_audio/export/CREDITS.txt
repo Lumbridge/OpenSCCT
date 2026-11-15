@@ -1,0 +1,25 @@
+OpenSCCT user-supplied Gun SFX bank
+=================================
+
+Source: Gun SFX folder supplied by the user for this project.
+Original creator and licence: not stated in the supplied folder.
+No Creative Commons licence is attributed to these files.
+Original relative filenames and SHA-256 hashes: sources/manifest.json.
+
+USP40 -> suppressed and standard sidearms.
+Glock18 -> automatic sidearm and stock SMG reference.
+Revolver -> .44 Magnum sidearm reference.
+Desert Eagle -> Desert Eagle sidearm.
+552 Commando suppressed -> M4A1-S reference.
+552 Commando unsuppressed -> Galil reference.
+AK47 and FAMAS -> their matching rifle profiles.
+AUG A3 -> stock assault rifle reference.
+Benelli M3 -> stock shotgun, shell and pump references.
+
+Changes: mono 44.1 kHz PCM conversion, direct attack isolation, linear peak gain,
+short tail fades, and reload contacts cut from the supplied composites and
+placed at the existing authored cue times. Individual shots are played by the
+game's firing cadence; no recorded bursts or automatic loops are layered over it.
+
+Rebuild from the retained sources: python content/assets/user_gun_audio/author.py
+Initial import: append --source followed by the Gun SFX folder path.

@@ -108,6 +108,12 @@ public sealed class AudioLibrary
         if (File.Exists(sidearms)) lib.ReadShared(sidearms);
         string weapons = System.IO.Path.Combine(sharedDir, "weapons.json");
         if (File.Exists(weapons)) lib.ReadShared(weapons);
+        string sidearmAudio = System.IO.Path.Combine(sharedDir, "sidearm-audio.json");
+        if (File.Exists(sidearmAudio)) lib.ReadShared(sidearmAudio);
+        string rifles = System.IO.Path.Combine(sharedDir, "rifles.json");
+        if (File.Exists(rifles)) lib.ReadShared(rifles);
+        string userGuns = System.IO.Path.Combine(sharedDir, "user-gun-audio.json");
+        if (File.Exists(userGuns)) lib.ReadShared(userGuns);
         if (mapDir is not null && System.IO.File.Exists(System.IO.Path.Combine(mapDir, "audio.json")))
         {
             lib.Map = MapAudioDoc.Load(System.IO.Path.Combine(mapDir, "audio.json"));

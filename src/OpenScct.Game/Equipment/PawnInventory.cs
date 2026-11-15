@@ -315,6 +315,17 @@ public static class PawnInventory
         SelectSlot(Pawn, num);
     }
 
+    /// <summary>The actual gadget in a slot, without wrapping empty slots to a different item.</summary>
+    internal static SGadget? GadgetInSlot(SBasePawn pawn, int slot)
+    {
+        if (slot < 0 || slot >= TeamSlots(pawn)) return null;
+        for (SGadget? gadget = pawn.MyGadget; gadget is not null; gadget = gadget.MyGadget)
+        {
+            if (IsSelectable(gadget) && slot-- == 0) return gadget;
+        }
+        return null;
+    }
+
     /// <summary>The selection steps shared by SelectGagdet and SPlayerController.SelectGadget.</summary>
     internal static void SelectSlot(SBasePawn Pawn, int num)
     {

@@ -37,6 +37,10 @@ public sealed class ObservedWeaponViewModel
             _dummy = dummy;
             _weapon = dummy switch
             {
+                OpenScct.Game.Svm.M4A1SDummy => new OpenScct.Game.Svm.M4A1S(),
+                OpenScct.Game.Svm.AK47Dummy => new OpenScct.Game.Svm.AK47(),
+                OpenScct.Game.Svm.GalilDummy => new OpenScct.Game.Svm.Galil(),
+                OpenScct.Game.Svm.FamasDummy => new OpenScct.Game.Svm.Famas(),
                 MercSidearmDummy side => new MercSidearm { Kind = side.Kind },
                 SWeaponDefenseDummy_Uzi => new SWeaponDefense_Uzi(),
                 SWeaponDefenseDummy_Shotgun => new SWeaponDefense_Shotgun(),

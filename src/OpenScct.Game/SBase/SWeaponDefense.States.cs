@@ -45,7 +45,9 @@ public partial class SWeaponDefense
     {
         ServerSound(ReloadSound, ESoundSlot.SLOT_None, (int)K.WeaponSoundRadius);
         ViewAnim.SetAlpha(ACTIONCHANNEL, 1f);
-        ViewAnim.Play(ACTIONCHANNEL, AFirstReloSt, ViewModelClips.DataOf(AFirstReloSt));
+        var clip = ViewModelClips.DataOf(AFirstReloSt);
+        float rate = this is Svm.MercRifle rifle ? clip.Seconds(1f) / rifle.Definition.ReloadSeconds : 1f;
+        ViewAnim.Play(ACTIONCHANNEL, AFirstReloSt, clip, rate);
         if (Action >= 0 && Instigator is SBasePawn pawn)
         {
             CombatServices.Ports(this).ChangeEnumAction(pawn, Action, false);

@@ -28,7 +28,7 @@ public sealed class HudTeammateNames
         int index = 0;
         foreach (SBasePawn pawn in pc.XLevel.AllActors<SBasePawn>())
         {
-            if (ReferenceEquals(pawn, own) || pawn.bDeleteMe || pawn.Health <= 0 ||
+            if (pawn is OpenScct.Game.Svm.SpyClone || ReferenceEquals(pawn, own) || pawn.bDeleteMe || pawn.Health <= 0 ||
                 pawn.SPawnType != own.SPawnType || pawn.PlayerReplicationInfo is not { bOnlySpectator: false } pri ||
                 string.IsNullOrWhiteSpace(pri.PlayerName)) continue;
             FVector head = pawn.Location + new FVector(0, 0, pawn.CollisionHeight + 18f);

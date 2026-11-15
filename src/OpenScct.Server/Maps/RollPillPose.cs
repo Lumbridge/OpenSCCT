@@ -108,7 +108,7 @@ public sealed class RollPillPose : IPillPose
 
     private void GetPills(SBasePawn Pawn, List<PillShape> Shapes, PawnPoseHistory history)
     {
-        RollPoseContent? content = Pawn is SPawnAttaque ? _spyContent : Pawn is SPAWNDEFENSE ? _mercContent : null;
+        RollPoseContent? content = Pawn is SPawnAttaque or OpenScct.Game.Svm.SpyClone ? _spyContent : Pawn is SPAWNDEFENSE ? _mercContent : null;
         if (content is null)
         {
             EstimatedPillPose.Instance.GetPills(Pawn, Shapes);

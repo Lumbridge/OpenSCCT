@@ -7,7 +7,7 @@ namespace OpenScct.Game.SBase;
 
 /// <summary>
 /// SBase.SGadHeartBeatSensor: the spy's heartbeat sensor (spec/equipment/heartbeat-sensor.md). While it is the
-/// selected gadget and the Shocker is drawn, every pawn within 2200 uu in a 60 degree cone of the view is marked
+/// selected gadget and the Shocker is drawn, real pawns within 2200 uu in a 60 degree cone of the view is marked
 /// (bDetectedByHBS) for the radar.
 /// </summary>
 public partial class SGadHeartBeatSensor
@@ -49,7 +49,7 @@ public partial class SGadHeartBeatSensor
         float range2 = fDetectionDistance * fDetectionDistance;
         foreach (SBasePawn p in GadgetWorld.Pawns(XLevel))
         {
-            if (ReferenceEquals(p, owner))
+            if (ReferenceEquals(p, owner) || p is Svm.SpyClone)
             {
                 continue;
             }

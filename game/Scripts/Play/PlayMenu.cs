@@ -321,7 +321,11 @@ public partial class PlayMenu : Node
                 client.Lobby.Setup.Practice, client.Lobby.Setup.Mode == OpenScct.Core.EGameMode.GM_MercDeathMatch);
         }
 
-        return new InGameMenuContext(IAmServer: true, InGameMenuNet.None, tutorial);
+        return new InGameMenuContext(IAmServer: true, InGameMenuNet.None, tutorial,
+            pc?.GameReplicationInfo?.bMatchHasBegun ?? false, pc?.bGameEnded ?? true,
+            pc?.PlayerReplicationInfo?.bOnlySpectator ?? true, pc?.PlayerReplicationInfo?.NumLives ?? 0,
+            pc is not null && OpenScct.Game.Modes.PracticeRules.IsOn(pc),
+            pc?.IsMercDeathMatch ?? false);
     }
 
     /// <summary>Opens the menu (<c>ShowMenu</c>): the controls stop (<c>StopAllControls</c>) and the pointer is freed.</summary>
@@ -383,6 +387,7 @@ public partial class PlayMenu : Node
             case InGameMenuAction.SwitchTeam:
                 if (Context().CanSwitchTeam && GetTree().Root.GetNodeOrNull<OnlineService>(OnlineService.NodeName)?.Client is { } client)
                     client.SetTeam(client.Lobby.Local?.Team == 0 ? 1 : 0);
+                else if (Context().CanSwitchTeam) Session?.RequestPracticeTeamSwap();
                 Resume();
                 break;
             case InGameMenuAction.Resign:

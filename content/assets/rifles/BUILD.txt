@@ -1,0 +1,32 @@
+Realistic merc rifle assets
+==========================
+
+All four downloads are identified, attributed and SHA-256 fingerprinted in
+sources.json. Obtain the max-resolution GLB download from each model's
+Sketchfab page, retaining its listed downloadFile name in one source folder.
+The Galil download is large; it intentionally stays outside the repository.
+
+Rebuild distributable art with Python/numpy/Pillow:
+  python content/assets/rifles/author.py --sources <download-folder>
+
+Rebuild the transparent equipment icons with Blender 5.x:
+  blender --background --disable-autoexec --python content/assets/rifles/render.py
+
+Rebuild the eight audio files with Python/numpy/ffmpeg:
+  python content/assets/rifles/author_audio.py
+
+The checked-in exports contain only external licensed art and OpenSCCT's own
+rig/geometry work. The normal chars content step copies these exports and
+retargets contextual SCCT motions from the player's locally converted rifle.
+The audio content step installs rifles.json and its credited recording bank.
+Do not copy locally assembled *_first.glb files back into export/.
+
+Balance lives in src/OpenScct.Game/Equipment/MercRifles.cs. All four use the
+stock trace, hit-zone, movement-spread, recoil and distance-falloff systems.
+Initial close damage / interval / magazine / reserve / reload:
+  M4A1-S  22 / .175 / 20 / 80  / 2.40 s; .4 noise radius, reduced flash
+  AK-47   29 / .220 / 30 / 90  / 2.80 s; strongest recoil
+  GALIL   21 / .185 / 35 / 105 / 3.00 s; wider spread
+  FAMAS   22 / .175 / 25 / 100 / 2.65 s; burst by default
+Damage is before hit-zone scaling. These are initial sidegrade estimates;
+manual spy-versus-merc and connected-client play are required for tuning.

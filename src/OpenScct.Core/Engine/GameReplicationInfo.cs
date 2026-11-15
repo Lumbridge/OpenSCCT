@@ -14,6 +14,9 @@ public partial class GameReplicationInfo : ReplicationInfo
     /// <summary>The shared responsive-smoke rule for this round; false preserves original smoke.</summary>
     public bool ResponsiveSmokeEnabled;
 
+    /// <summary>Practice can spend resources normally while keeping its other rules. Replicated to owners too.</summary>
+    public bool PracticeFiniteResources;
+
     /// <summary>
     /// The player count this round's match-size rules use (spec/additions/match-size-rules.md), 0 when the map has
     /// none. Replicated: a client hides its own copies of the gated actors from it.
