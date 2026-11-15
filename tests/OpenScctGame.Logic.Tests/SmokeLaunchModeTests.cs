@@ -4,6 +4,15 @@ namespace OpenScctGame.Logic.Tests;
 
 public sealed class SmokeLaunchModeTests
 {
+    [Fact]
+    public void PracticeIsAnExplicitLocalLaunchOption()
+    {
+        Assert.False(LaunchOptions.Parse([]).Practice);
+        var options = LaunchOptions.Parse(["--svm-play=AquaE", "--svm-practice"]);
+        Assert.True(options.Practice);
+        Assert.Empty(options.Unknown);
+    }
+
     [Theory]
     [InlineData("original", false)]
     [InlineData("fast", true)]

@@ -456,11 +456,7 @@ public partial class PlayInput : Node
             }
 
             var actions = ActionsOf(ik);
-            bool targetedGadget = false;
-            foreach (KeyAction action in actions)
-                if (action.Kind == KeyActionKind.Command && (action.Name.Equals("GadgetQuickChoice", StringComparison.OrdinalIgnoreCase) ||
-                    action.Name.Equals("LaunchGadget", StringComparison.OrdinalIgnoreCase) || action.Name.Equals("UseGadget", StringComparison.OrdinalIgnoreCase)))
-                    targetedGadget = true;
+            bool targetedGadget = SuppressAlternateFire(actions);
             foreach (KeyAction a in actions)
             {
                 // A quick-slot binding may share the legacy mouse alias for alternate fire.
@@ -597,11 +593,30 @@ public partial class PlayInput : Node
         input.Commands.Add(new InputCommand("SetSpyFirstPerson", 0));
     }
 
+    private bool SuppressAlternateFire(IReadOnlyList<KeyAction> actions)
+    {
+        var pc = Controller?.Invoke();
+        foreach (KeyAction action in actions)
+        {
+            if (action.Kind != KeyActionKind.Command) continue;
+            if (action.Name.Equals("LaunchGadget", StringComparison.OrdinalIgnoreCase) ||
+                action.Name.Equals("UseGadget", StringComparison.OrdinalIgnoreCase)) return true;
+            // Retail mouse aliases also contain GadgetQuickChoice, but that command only
+            // handles an unarmed spy. Merc gadgets, armed spy gadgets and camera exits need AltFire.
+            if (action.Name.Equals("GadgetQuickChoice", StringComparison.OrdinalIgnoreCase) &&
+                pc?.SBPawn is OpenScct.Game.SBase.SPawnAttaque { WeaponLoaded: 0 } &&
+                pc.StateNode is OpenScct.Game.SBase.SPlayerController.s_PlayerWalkingMario) return true;
+        }
+        return false;
+    }
+
     private bool IsButtonHeld(string button)
     {
         foreach (string ik in _down)
         {
-            foreach (KeyAction a in ActionsOf(ik))
+            var actions = ActionsOf(ik);
+            if (button.Equals("bAltFire", StringComparison.OrdinalIgnoreCase) && SuppressAlternateFire(actions)) continue;
+            foreach (KeyAction a in actions)
             {
                 if (a.Kind == KeyActionKind.Button && string.Equals(a.Name, button, StringComparison.OrdinalIgnoreCase))
                 {

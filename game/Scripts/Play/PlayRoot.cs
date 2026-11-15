@@ -78,6 +78,8 @@ public sealed record PlayConfig
             MatchPlayers = options.PlayPlayers,
             ResponsiveSmoke = options.ResponsiveSmoke,
             Sidearms = options.Sidearms,
+            UnlimitedGear = options.Practice,
+            OfflineRules = options.Practice,
             StartAt = options.PlayStartAt,
         };
         if (options.PlayNetRate > 0)

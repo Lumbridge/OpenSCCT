@@ -33,6 +33,12 @@ public sealed class RifleHandlingVisualSmoke : SmokeTest
     {
         if (_root is null)
         {
+            if (System.Environment.GetEnvironmentVariable("SVM_RIFLE_SIZE") is { } dimensions)
+            {
+                string[] parts = dimensions.Split('x');
+                context.Tree.Root.Size = new Vector2I(int.Parse(parts[0]), int.Parse(parts[1]));
+            }
+            RenderK.HighQualityVision = Options.SettingsStore.Current.HighQualityVision;
             var launcher = PlayConfig.FromOptions(context.App.Options);
             _root = PlayRoot.Create(launcher with
             {
@@ -84,6 +90,8 @@ public sealed class RifleHandlingVisualSmoke : SmokeTest
                 break;
             case 10:
                 if (elapsed < 8) break;
+                if (System.Environment.GetEnvironmentVariable("SVM_RIFLE_COSMETIC") is { } cosmetic)
+                    _root.FirstPerson!.Model!.SetCosmetic(cosmetic);
                 Shot(id + "-hip");
                 _root.FirstPerson!.Map = null;
                 _root.FirstPerson.Model!.Light(StudioLight());
@@ -153,7 +161,7 @@ public sealed class RifleHandlingVisualSmoke : SmokeTest
                     _reloadFrame++;
                 }
                 if (elapsed < 210) break;
-                if (++_gun < MercRifles.All.Count) { _phase = 0; break; }
+                if (System.Environment.GetEnvironmentVariable("SVM_RIFLE_ONCE") != "1" && ++_gun < MercRifles.All.Count) { _phase = 0; break; }
                 string folder = Folder();
                 Directory.CreateDirectory(folder);
                 File.WriteAllText(Path.Combine(folder, "poses.json"), JsonSerializer.Serialize(_evidence, new JsonSerializerOptions { WriteIndented = true }));

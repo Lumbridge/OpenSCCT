@@ -1,4 +1,4 @@
-# Gadget HUD views (sticky cam, camera network, menus, gas mask, heart sensor)
+# Gadget HUD views (sticky cam, camera network, menus, backpack, gas mask, heart sensor)
 
 Units:
 - uc:SBase.SHud:IsInSticky, uc:SBase.SHud:IsInCamNetwork
@@ -134,6 +134,10 @@ visible + frame 0 + play) are in `docs/HUD.md`.
 | Unselected line colour | (200,200,200,255) | RGBA | decoded | 0x10b2d1c0 |
 
 ## Network
+- The merc backpack reads its owner's `SGadBackPack.aNbChargesGad_Self`, and the replicated
+  `SBasePawn.aNbChargesGad_Mate_A0..3` / `B0..3` with matching `aIDGad_Mate_A0..3` / `B0..3`.
+  The owner panel matches the refillable gadget chain order. Teammate icons resolve the replicated IDs through
+  the team's class inventory; another player's owner-only gadget chain is not available on this client.
 - Client only. Everything drawn comes from replicated or owner-side state: the HUD state, the controller state, the
   selected gadget and its menu fields (owner side), `bGasMask` (replicated), `MaskDuration` (owner tick),
   `StateOfDetect` (owner tick), the used object's name fields and `aUsedByPawn` (replicated).
@@ -144,6 +148,18 @@ visible + frame 0 + play) are in `docs/HUD.md`.
 - A merc who selects the gas mask sees the frame at once even with the air flow off.
 
 ## Evidence
+- Backpack native driver `0x10b28bc0` in `System/SCCT Versus`, source SHA-256
+  `a98873aaec1de21fdcccc0afb9985e3ddcf38a9ddce1207214872d6428ec9950`, decompiled 2026-11-15.
+  It shows Self for the selected backpack or a usable focused teammate refill interaction, Friend/Friend1 for
+  teammate shares, and at most the team's gadget-slot count. Counts clamp to zero for display; positive stock
+  is white, empty stock red, disabled stock grey at half opacity. A refill interaction reads the share held by
+  the focused mate for the local pawn. Local evidence: `local/integration/reference/backpack-decompiled-evidence.json`
+  (`ev_38364733da33064498aafc4f828db90c16696beb9b68b24f26659def74be20c8`).
+  The analysis copy changed only its PE entry-point header to seed this vtable-only method in Ghidra; the
+  native code bytes were verified identical and the copy was never executed. The source identity and exact
+  derivation are retained in `backpack-analysis-origin.json` alongside that evidence.
+  OpenSCCT fills the own gadget icons and refreshes all panel icons as loadouts change, as requested by Ryan;
+  the original driver only assigns teammate icons on opening and does not write the own icon fields.
 - local/re-out/uc/SBase/SHud.uc (IsInSticky, IsInCamNetwork, the two states).
 - Native HUD page code of `System/SCCT Versus` read in the Bridge research (SCCT_Versus_UE5_Bridge
   docs/overlays/stickycam.md, camnetwork.md, gasmask.md, radar.md, reticle.md): page switch 0x10b2ccec (spy) and

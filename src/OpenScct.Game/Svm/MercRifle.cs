@@ -10,6 +10,7 @@ namespace OpenScct.Game.Svm;
 /// <summary>The existing SCCT trace, recoil, reload, melee and ownership states with an authored rifle profile.</summary>
 public abstract class MercRifle : SWeaponDefense
 {
+    public const float AimSpeedScale = .25f;
     public abstract MercRifleDefinition Definition { get; }
     public bool AimRequested;
     public override float ShotInterval => Definition.BurstDefault && ROFMode == SRateOfFireMode.ROF_Burst ? .075f : RateOfFire;
@@ -63,6 +64,9 @@ public abstract class MercRifle : SWeaponDefense
     }
 
     protected override float AuthoritativeReloadSeconds() => Definition.ReloadSeconds;
+
+    protected override AssetRef ReloadAudio() => this is M4A1S && ClipAmmo > 0
+        ? new AssetRef("OpenScctRifles.m4a1s_reload_tactical") : base.ReloadAudio();
 
     internal static UcClassInfo RifleClass<T>(string path) where T : MercRifle, new() =>
         new(path, typeof(T), SWeaponDefense.UcMeta.Class, (UcClassFlags)0x36u, null, 0, static () => new T(), [], [], [], null);

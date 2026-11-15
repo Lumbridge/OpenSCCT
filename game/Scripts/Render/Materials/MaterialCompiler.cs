@@ -679,15 +679,16 @@ public sealed partial class MaterialCompiler
     /// <summary>The heat and EMF textures of <paramref name="entry"/>'s vision modifiers, or its own masks.</summary>
     private void ApplyVision(ShaderMaterial material, MaterialEntry entry)
     {
+        string? baseName = entry.Name is { } full && full.IndexOf('+') is var split and > 0 ? full[..split] : entry.Name;
         VisionTextures? vision = VisionLookup switch
         {
             // A cosmetic camo is named "<skin>+<pattern>": it keeps the heat and EMF textures of the skin it repaints.
             VisionLookup.SkinBase => Pack?.VisionOfModifierName(entry.Source)
-                ?? Pack?.VisionOfSkin(entry.Name is { } skin && skin.IndexOf('+') is var plus and > 0 ? skin[..plus] : entry.Name),
+                ?? Pack?.VisionOfSkin(baseName),
             VisionLookup.ModifierName => Pack?.VisionOfModifierName(entry.Name),
             _ => Pack?.VisionOf(entry.Source),
         };
-        if (vision is null && entry.Name is { } name && OwnVision?.Invoke(name) is { } masks)
+        if (vision is null && baseName is { } name && OwnVision?.Invoke(name) is { } masks)
         {
             ApplyVision(material, masks);
         }
@@ -695,7 +696,7 @@ public sealed partial class MaterialCompiler
         {
             ApplyVision(material, vision);
         }
-        if (entry.Name is { } own && EmfOverride?.Invoke(own) is { } emf)
+        if (baseName is { } own && EmfOverride?.Invoke(own) is { } emf)
         {
             material.SetShaderParameter("tex_emf", emf);
             material.SetShaderParameter("emf_mode", 1);

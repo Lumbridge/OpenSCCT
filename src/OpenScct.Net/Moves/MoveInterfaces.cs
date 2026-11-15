@@ -80,6 +80,9 @@ public interface IMovePawn
     /// <summary>The server's per-move speed cap goes here (rule 11.6).</summary>
     float GroundSpeed { get; set; }
 
+    /// <summary>Gameplay speed modifier applied after the protocol speed cap.</summary>
+    float GroundSpeedMultiplier => 1f;
+
     bool bIsRolling { get; }
 
     bool bIsCharging { get; }

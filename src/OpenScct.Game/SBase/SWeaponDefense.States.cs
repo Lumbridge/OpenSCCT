@@ -43,7 +43,7 @@ public partial class SWeaponDefense
     /// </summary>
     private protected void ReloadBegin(float MessageTime, int Action = SBasePawn.SA_RELOAD, bool ClearFlash = true)
     {
-        ServerSound(ReloadSound, ESoundSlot.SLOT_None, (int)K.WeaponSoundRadius);
+        ServerSound(ReloadAudio(), ESoundSlot.SLOT_None, (int)K.WeaponSoundRadius);
         ViewAnim.SetAlpha(ACTIONCHANNEL, 1f);
         var clip = ViewModelClips.DataOf(AFirstReloSt);
         float rate = this is Svm.MercRifle rifle ? clip.Seconds(1f) / rifle.Definition.ReloadSeconds : 1f;
@@ -65,6 +65,9 @@ public partial class SWeaponDefense
 
         LocalMessage(TextReloading, MessageTime, K.ReloadMessagePriority);
     }
+
+    /// <summary>Choose from this reload's magazine state without changing the weapon's default sound.</summary>
+    protected virtual AssetRef ReloadAudio() => ReloadSound;
 
     /// <summary>
     /// The end of a reload clip on the action channel: s_Firing or s_Selected. Every channel then goes to the global

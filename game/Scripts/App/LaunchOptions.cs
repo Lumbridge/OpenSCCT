@@ -31,6 +31,7 @@ public sealed class LaunchOptions
     public const string PlayPlayersPrefix = "--players=";
     public const string RecordFlag = "--svm-record";
     public const string ResponsiveSmokeFlag = "--svm-responsive-smoke";
+    public const string PracticeFlag = "--svm-practice";
     public const string SidearmsFlag = "--svm-sidearms";
     public const string SmokeModePrefix = "--svm-smoke-mode=";
     public const string DemoPrefix = "--svm-demo=";
@@ -125,6 +126,9 @@ public sealed class LaunchOptions
     /// <summary>Give the mercenaries of a locally hosted match their pistols (<c>--svm-sidearms</c>).</summary>
     public bool Sidearms { get; private init; }
 
+    /// <summary>Enable Practice rules in a local test launch.</summary>
+    public bool Practice { get; private init; }
+
     /// <summary>Per-launch smoke selection: original, fast, or full; null keeps the normal rendering preference.</summary>
     public string? SmokeMode { get; private init; }
 
@@ -205,6 +209,7 @@ public sealed class LaunchOptions
         bool record = false;
         bool responsiveSmoke = false;
         bool sidearms = false;
+        bool practice = false;
         string? smokeMode = null;
         string? demo = null;
         string? priority = null;
@@ -306,6 +311,10 @@ public sealed class LaunchOptions
             {
                 responsiveSmoke = true;
             }
+            else if (arg == PracticeFlag)
+            {
+                practice = true;
+            }
             else if (arg == SidearmsFlag)
             {
                 sidearms = true;
@@ -393,6 +402,7 @@ public sealed class LaunchOptions
             PlayRecord = record,
             ResponsiveSmoke = smokeMode is null ? responsiveSmoke : smokeMode != "original",
             Sidearms = sidearms,
+            Practice = practice,
             SmokeMode = smokeMode,
             DemoFile = demo,
             Priority = priority,

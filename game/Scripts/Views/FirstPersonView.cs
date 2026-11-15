@@ -394,7 +394,7 @@ public partial class FirstPersonView : Node3D
     }
 
     private void Pose(ViewModelAnim anim, float dt, float alpha, bool exclusiveAction, bool blendLandingRecovery) =>
-        _applier!.Apply(_pose.Update(anim, _model!.Sampler, dt, alpha, exclusiveAction, blendLandingRecovery));
+        _applier!.Apply(_pose.Update(anim, _model!.Sampler, dt, alpha, exclusiveAction, blendLandingRecovery, blendLocomotion: AimBlend > .001f));
 }
 
 /// <summary>

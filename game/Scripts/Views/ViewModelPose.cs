@@ -36,6 +36,9 @@ public sealed class ViewModelPose
     private float _landingBlendLeft;
     private const float LandingBlendSeconds = 0.1f;
 
+    private static bool IsLocomotion(Name sequence) =>
+        sequence == ViewModelClips.FirstWalkStFd2 || sequence == ViewModelClips.FirstWaitStFd2;
+
     private static bool IsLanding(Name sequence) =>
         sequence == ViewModelClips.FirstLandStFd2 || sequence == ViewModelClips.FirstLandStHi2;
 
@@ -89,7 +92,7 @@ public sealed class ViewModelPose
     /// <paramref name="tickAlpha"/> is how far the clock is into the next tick (1 draws the last tick's state).
     /// </summary>
     public ReadOnlySpan<ChannelPose> Update(ViewModelAnim anim, AnimSampler sampler, float dt, float tickAlpha = 1f,
-        bool exclusiveAction = false, bool blendLandingRecovery = true)
+        bool exclusiveAction = false, bool blendLandingRecovery = true, bool blendLocomotion = false)
     {
         ArgumentNullException.ThrowIfNull(anim);
         ArgumentNullException.ThrowIfNull(sampler);
@@ -106,7 +109,8 @@ public sealed class ViewModelPose
                 // local joints on recovery moves the support hand off its grip. Custom sidearms
                 // can still request recovery easing for their own animation sets.
                 if (c == 0 && !_sequence[c].IsNone && !exclusiveAction &&
-                    ((IsLanding(sequence) && anim.TweenTime(c) <= 0f) || (blendLandingRecovery && IsLanding(_sequence[c]))))
+                    ((IsLanding(sequence) && anim.TweenTime(c) <= 0f) || (blendLandingRecovery && IsLanding(_sequence[c])) ||
+                     (blendLocomotion && IsLocomotion(sequence) && IsLocomotion(_sequence[c]))))
                     _landingBlendLeft = LandingBlendSeconds;
                 else if (c == 0)
                     _landingBlendLeft = 0f;

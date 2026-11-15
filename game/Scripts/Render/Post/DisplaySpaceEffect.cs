@@ -311,8 +311,9 @@ public partial class DisplaySpaceEffect : CompositorEffect
         _brightSize = RenderK.GlowBrightTarget * detail;
         for (int i = 0; i < _levels.Length; i++)
         {
-            // The fused glow stages no longer write the vertical intermediates beyond the vision pyramid.
-            _levels[i] = i < RenderK.BlurTargets.Length || (i & 1) != 0 ? Target(_levelSizes[i]) : default;
+            // High-resolution EMF needs the third vertical intermediate for its 4:1 shrink.
+            _levels[i] = i < RenderK.BlurTargets.Length || (i & 1) != 0 || pyramidScale > 1 && i == 4
+                ? Target(_levelSizes[i]) : default;
         }
 
         _bright = Target(_brightSize);
@@ -778,7 +779,16 @@ public partial class DisplaySpaceEffect : CompositorEffect
         // Levels 1 (256), 3 (128), 5 (64) and 7 (32) are the pyramid.
         for (int i = 1; i < _levels.Length; i += 2)
         {
-            Blur(source, sourceSize, _levels[i], Vector2.Zero, fromFrame: false, fused: true);
+            // The fused tile addresses two source columns for each output column.
+            // High-resolution vision changes the first and third pairs to 1:1 and 4:1.
+            // Those need the two general passes, otherwise the halo contains a scaled copy of the scene.
+            if (sourceSize.X == _levelSizes[i].X * 2)
+                Blur(source, sourceSize, _levels[i], Vector2.Zero, fromFrame: false, fused: true);
+            else
+            {
+                Blur(source, sourceSize, _levels[i - 1], new Vector2(0f, 1f), fromFrame: false);
+                Blur(_levels[i - 1], _levelSizes[i - 1], _levels[i], new Vector2(1f, 0f), fromFrame: false);
+            }
             source = _levels[i];
             sourceSize = _levelSizes[i];
         }

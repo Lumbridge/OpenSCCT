@@ -51,5 +51,8 @@ def install_audio(audio_dir):
             sounds['OpenScctRifles.'+key] = {'kind':'wave','flags':0,'file':'wav/OpenScctRifles/'+key+'.wav',
                 'loop':False,'positional':True,'radius':0,'volume':2.5118864 if action=='fire' else 1,
                 'duration':frames/rate,'frames':frames,'rate':rate,'bits':16,'channels':1}
+    from .user_gun_audio import tactical_reload
+    sounds['OpenScctRifles.m4a1s_reload_tactical'] = tactical_reload(
+        target/'m4a1s_reload.wav', target/'m4a1s_reload_tactical.wav', sounds['OpenScctRifles.m4a1s_reload'])
     (audio_dir/'rifles.json').write_text(json.dumps({'format':'svm.audio/1','sounds':sounds},sort_keys=True),encoding='utf-8')
     return {'sounds':len(sounds)}

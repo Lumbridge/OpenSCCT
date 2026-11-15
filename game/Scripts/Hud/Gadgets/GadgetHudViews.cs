@@ -26,6 +26,8 @@ public sealed class GadgetHudViews
 
     public GasMaskDriver GasMask { get; } = new();
 
+    public BackpackDriver Backpack { get; } = new();
+
     public HeartSensorDriver Heart { get; } = new();
 
     /// <summary>Adds the views to <paramref name="hud"/> (pages the UI content lacks are left out).</summary>
@@ -52,6 +54,7 @@ public sealed class GadgetHudViews
         hud.AddDriver(views.StickyCamMenu);
         hud.AddDriver(views.MineMenu);
         hud.AddDriver(views.GasMask);
+        hud.AddDriver(views.Backpack);
         hud.AddDriver(views.Heart);
         return views;
     }

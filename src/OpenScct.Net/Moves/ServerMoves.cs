@@ -481,7 +481,7 @@ public sealed class ServerMoves
             float cap = Pawn.IsMerc
                 ? (speedFlag ? MoveK.MercChargeCap : MoveK.MercCap)
                 : (Pawn.bIsRolling ? MoveK.SpyRollCap : MoveK.SpyWalkCap) * (speedFlag ? Pawn.AdrenalineFactor : 1f);
-            Pawn.GroundSpeed = Math.Min(size / MoveK.WalkSpeedDivisor * Pawn.RunningSpeed, cap);
+            Pawn.GroundSpeed = Math.Min(size / MoveK.WalkSpeedDivisor * Pawn.RunningSpeed, cap) * Pawn.GroundSpeedMultiplier;
         }
         else if (physics == EPhysics.PHYS_Linear)
         {
