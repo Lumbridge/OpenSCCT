@@ -69,7 +69,8 @@ internal sealed partial class PlayerPortal
             body.Append("<section class=\"wiki-start\" aria-labelledby=\"wiki-start-title\"><div><p class=\"eyebrow\">GETTING STARTED</p><h2 id=\"wiki-start-title\">Setup guides</h2>")
                 .Append("<p>").Append(editor ? "Set up your first project, build a test map and check it in the game." : "Install OpenSCCT, learn your role's controls and join your first session.")
                 .Append("</p></div><div class=\"button-row\">")
-                .Append(Link(editor ? "/wiki/editor-getting-started" : "/wiki/getting-started", editor ? "Editor quick start →" : "Player quick start →", "button secondary")).Append("</div></section>")
+                .Append(Link(editor ? "/wiki/editor-getting-started" : "/wiki/getting-started", editor ? "Editor quick start →" : "Player quick start →", "button secondary"))
+                .Append(editor ? "" : Link("/wiki/vision-cancelling#play", "Play a browser tutorial →", "text-link")).Append("</div></section>")
                 .Append("<nav class=\"wiki-topic-nav\" aria-label=\"Wiki topics\">");
             foreach (WikiContent.Category item in categories)
                 body.Append(Link("#wiki-" + item.Id, item.Title));
@@ -115,7 +116,8 @@ internal sealed partial class PlayerPortal
             .Append(Link(areaUrl, editor ? "Editor wiki" : "Game wiki")).Append("<span aria-hidden=\"true\">/</span>")
             .Append(Link(areaUrl + "?category=" + U(category.Id), category.Title)).Append("</nav>")
             .Append(PageHeader(category.Title.ToUpperInvariant(), article.Title, article.Summary))
-            .Append("<div class=\"wiki-reading-layout\"><aside class=\"wiki-contents\" aria-label=\"On this page\"><p class=\"eyebrow\">ON THIS PAGE</p><nav><ol>");
+            .Append("<div class=\"wiki-reading-layout").Append(article.Category == "training" ? " wiki-playable-layout" : "")
+            .Append("\"><aside class=\"wiki-contents\" aria-label=\"On this page\"><p class=\"eyebrow\">ON THIS PAGE</p><nav><ol>");
         foreach (WikiContent.Section section in article.Sections)
             body.Append("<li>").Append(Link("#" + section.Id, section.Title)).Append("</li>");
         body.Append("</ol></nav>").Append(Link(areaUrl, editor ? "← All editor guides" : "← All game guides", "text-link")).Append("</aside><article class=\"wiki-article\" aria-label=\"").Append(H(article.Title)).Append("\">");
