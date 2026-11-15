@@ -34,6 +34,8 @@ public sealed class Ps2PickupSmoke : SmokeTest
     private bool _stationHackStarted;
     private int _stationCompleteFrames;
     private int _stationCaptureTime;
+    private double _carrySettledSince = -1;
+    private int _carrySettledFrames;
 
     public override SmokeResult Step(SmokeContext context)
     {
@@ -171,20 +173,38 @@ public sealed class Ps2PickupSmoke : SmokeTest
                 _keys.ReleaseAll(); _root.QueueFree(); _teardown = 1;
             }
             else if (!_computerUse && ReferenceEquals(serverPawn.CarriedFlag, _flag) && pawn.CarriedFlag is { bPS2Objective: true } vial &&
-                ReferenceEquals(vial.Base, pawn) && !vial.AttachmentBone.IsNone && pc.GetStateName().ToString().StartsWith("s_PlayerWalking", StringComparison.Ordinal))
+                ReferenceEquals(vial.Base, pawn) && !vial.AttachmentBone.IsNone &&
+                pc.GetStateName().ToString().StartsWith("s_PlayerWalking", StringComparison.Ordinal) &&
+                authority.GetStateName().ToString().StartsWith("s_PlayerWalking", StringComparison.Ordinal))
             {
-                if (vial.AttachmentBone != SFlag.Ps2CarryBone || vial.StaticMesh != vial.Ps2SourceStaticMesh ||
-                    vial.InitialStaticMesh != vial.Ps2SourceStaticMesh)
-                    return SmokeResult.Fail("actual Use left a PC mesh or wrong carry bone");
+                // The owning client can finish its clip before authority. The
+                // source hand -> thigh transition runs in authority EndState,
+                // then its attachment still has to cross the network.
+                if (_carrySettledSince < 0) _carrySettledSince = context.ElapsedSeconds;
+                if (_flag!.AttachmentBone != SFlag.Ps2CarryBone || vial.AttachmentBone != SFlag.Ps2CarryBone ||
+                    vial.StaticMesh != vial.Ps2SourceStaticMesh || vial.InitialStaticMesh != vial.Ps2SourceStaticMesh ||
+                    _flag.StaticMesh != _flag.Ps2SourceStaticMesh || _flag.InitialStaticMesh != _flag.Ps2SourceStaticMesh)
+                {
+                    _carrySettledFrames = 0;
+                    if (context.ElapsedSeconds - _carrySettledSince < 2) return SmokeResult.Running;
+                    return SmokeResult.Fail("actual Use left a PC mesh or wrong carry bone; client " + VialDetail(vial) +
+                        "; authority " + VialDetail(serverPawn.CarriedFlag) + "; " + Detail(pc, authority));
+                }
+                if (++_carrySettledFrames < 3) return SmokeResult.Running;
                 if (!_states.Contains("s_Pickup_GoTo") || !_states.Contains("s_Pickup"))
                     return SmokeResult.Fail("pickup skipped source state path " + Detail(pc, authority));
-                GD.Print("PS2_PICKUP PASS " + Detail(pc, authority));
+                GD.Print("PS2_PICKUP PASS client " + VialDetail(vial) + "; authority " + VialDetail(_flag) + "; " + Detail(pc, authority));
                 _keys.ReleaseAll(); _root.QueueFree(); _teardown = 1;
             }
             else if (context.ElapsedSeconds - _since > 12) return SmokeResult.Fail("actual reposition/pickup did not complete " + Detail(pc, authority));
         }
         return SmokeResult.Running;
     }
+
+    private static string VialDetail(SFlag? vial) => vial is null ? "none" :
+        $"id={vial.ActorId} ps2={vial.bPS2Objective} mesh={vial.StaticMesh.Path} initial={vial.InitialStaticMesh.Path} " +
+        $"source={vial.Ps2SourceStaticMesh.Path} bone={vial.AttachmentBone} base={vial.Base?.ActorId} " +
+        $"relative={vial.RelativeLocation}/{vial.RelativeRotation}";
 
     private string Detail(SPlayerController pc, SPlayerController authority) =>
         $"client={pc.GetStateName()} at={pc.SBPawn?.Location} target={pc.SBPawn?.vVandammePos} phys={pc.SBPawn?.Physics} " +
