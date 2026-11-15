@@ -262,4 +262,39 @@ public sealed class TriggerTests
         Assert.True(trigger);
         Assert.Same(spy, by);
     }
+
+    [Fact]
+    public void PresenceOccupancyUsesTheAuthoredClassAndGrabFilters()
+    {
+        (DeviceScene s, SPresenceTrigger t, _) = Presence();
+        TestSpy spy = s.Player<TestSpy>(default);
+        TestMerc merc = s.Player<TestMerc>(default);
+        GrabController grabber = s.Spawn(new GrabController());
+        grabber.Pawn = spy;
+        spy.Controller = grabber;
+        spy.m_AttackTarget = merc;
+        t.BeginTouch(spy);
+        Assert.False(t.IsPresenceActive);
+        grabber.GotoState("s_GrabbingPlayer");
+        Assert.True(t.IsPresenceActive);
+        t.bDetectGrab = false;
+        Assert.False(t.IsPresenceActive);
+        t.DetectedClass = new ClassRef("SBase.SBasePawn");
+        Assert.True(t.IsPresenceActive);
+        spy.Health = 0;
+        Assert.False(t.IsPresenceActive);
+    }
+
+    [Theory]
+    [InlineData(ENetRole.ROLE_DumbProxy)]
+    [InlineData(ENetRole.ROLE_SimulatedProxy)]
+    [InlineData(ENetRole.ROLE_AutonomousProxy)]
+    public void ClientPresenceDetectorsCannotFireMapEventsOrHoldDoors(ENetRole role)
+    {
+        (DeviceScene s, SPresenceTrigger t, EventProbe probe) = Presence();
+        t.Role = role;
+        t.BeginTouch(s.Player<TestMerc>(default));
+        Assert.Empty(probe.Calls);
+        Assert.False(t.IsPresenceActive);
+    }
 }

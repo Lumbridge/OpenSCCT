@@ -131,10 +131,33 @@ the siren).
 Server only. Touch, TriggerEvent and UnTouch are non-simulated. Neither class replicates anything gameplay-relevant
 (`ROLE_DumbProxy`, hidden).
 
+## OpenSCCT presence-held doors
+
+The original entry events above are retained, including `DetectedClass`, `bDetectGrab`, `bUntrigger` and relay
+groups/delays. In addition, `SPresenceTrigger` exposes its current qualifying, living occupants through
+`IPresenceTrigger`. Disabled/deleted detectors and dead/deleted occupants do not hold doors open. A spy's grab
+qualification is checked with the same controller state and target class as the entry event.
+
+Automatic movers remember every presence source that triggers them, including entries while already opening.
+`TriggerOpenTimed` waits while any of those detectors is occupied, then runs its authored `StayOpenTime` and
+closing delay. `TriggerControl` defers its requested close while occupied; a delayed relay release still runs
+once, with its authored timing. Relay events keep the original sender, so they do not need to be repeated or
+rewritten. Per-sender `SpecialBehaviors` continue selecting the state, times and encroachment response.
+
+An occupied presence source may reverse a closing automatic mover. Reversal starts immediately from its current
+leg position, uses the authored move time and easing, and continues through the remaining opening keys. The
+initial opening delay applies to opening a resting door; it is not repeated while reversing a closing leg.
+Once-only and non-presence trigger behavior are retained.
+
+Only authority evaluates occupancy and changes the door state. Clients receive the normal mover interpolation
+and resting-position replication, including reversals and late joins; there is no client occupancy cycle or new
+client-to-server door command.
+
 ## Edge cases
 
 - A spy touching SPresenceTrigger8696 opens Mover1079 even though 1742 on the same door is merc-only.
-- A pawn standing still inside a presence trigger while its door closes does not reopen it; it must leave and enter.
+- The original entry-only presence behavior let a door close on a stationary occupant. OpenSCCT holds automatic
+  doors open as described above.
 - `UnTouch` on Engine.Trigger sends UnTrigger to the SoundTriggers, which ignore it.
 - `bTriggerOnceOnly` turns collision off; `Reset` restores it (not called in Story).
 
