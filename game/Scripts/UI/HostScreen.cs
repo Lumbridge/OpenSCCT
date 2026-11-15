@@ -94,6 +94,7 @@ public partial class HostScreen : MenuPage
         var list = new List<(string Id, string Title)>();
         foreach (MapListEntry m in maps.ListMaps())
         {
+            if (maps.GetCatalogEntry(m.Id)?.Kind is MapKind.Menu or MapKind.Training) continue;
             list.Add((m.Id, MapTitles.Of(maps, m.Id)));
         }
 

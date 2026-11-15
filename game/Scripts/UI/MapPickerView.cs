@@ -9,7 +9,7 @@ namespace OpenScctGame.UI;
 
 /// <summary>
 /// Create Session's and the lobby's map list (ours: the original picks the map with the Choose Map arrows only): every
-/// hostable map (<see cref="MapCatalog.GetHostMaps"/>) that is installed and plays the selected mode, as a scrolling
+/// hostable map (<see cref="MapCatalog.GetHostMaps"/>) that is installed, as a scrolling
 /// grid of pictures with the map's name under each; a click selects it through the same <see cref="CreateSessionModel"/>
 /// as the arrows. Above the grid, a map group (All installed maps, Enhanced, Stock, Community or 3v3 optimised;
 /// the arrows then step through that group) and a search box (map name or code).
@@ -326,17 +326,18 @@ public partial class MapPickerView : VBoxContainer
         }
     }
 
-    /// <summary>Shows the maps of the selected mode and marks the selected map.</summary>
+    /// <summary>Shows the installed maps and marks the selected map. Selection chooses a compatible mode.</summary>
     public void Refresh()
     {
-        EGameMode mode = Model.Setup.Mode;
         string map = Model.Setup.Map;
         bool selectedWasVisible = _tiles.TryGetValue(map, out var previous) && previous.Tile.Visible;
         int visible = 0;
         foreach ((string id, (Button tile, MapCatalogEntry? entry)) in _tiles)
         {
             bool on = string.Equals(id, map, StringComparison.OrdinalIgnoreCase);
-            tile.Visible = entry?.Mode(mode) is not { Playable: false } && InFilter(id) && MatchesSearch(id, entry, tile);
+            // A map may offer modes the current map cannot select. Hiding it
+            // for the current mode makes those maps impossible to discover.
+            tile.Visible = InFilter(id) && MatchesSearch(id, entry, tile);
             tile.SetPressedNoSignal(on);
             if (tile.Visible) visible++;
         }

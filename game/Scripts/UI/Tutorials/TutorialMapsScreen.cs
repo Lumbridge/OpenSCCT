@@ -1,8 +1,10 @@
 using System.Collections.Generic;
 using System;
+using System.Linq;
 using Godot;
 using OpenScct.Game.GameFlow;
 using OpenScct.Provenance;
+using OpenScct.Server;
 using OpenScctGame.Tutorials;
 
 namespace OpenScctGame.UI;
@@ -64,6 +66,19 @@ public partial class TutorialMapsScreen : MenuPage
                 b.TooltipText = map + " is not installed (convert the maps first).";
             }
 
+            first ??= b.Disabled ? null : b;
+        }
+
+        // Downloaded training layouts have their own names and side, without
+        // taking one of the original profile's numbered tutorial progress slots.
+        string prefix = Team == 0 ? "TSP" : "TME";
+        foreach (MapCatalogEntry entry in MapImages.Default.GetCatalog().Where(e => e.Kind == MapKind.Training &&
+            e.Id.StartsWith(prefix, StringComparison.OrdinalIgnoreCase) && !maps.Contains(e.Id, StringComparer.OrdinalIgnoreCase)))
+        {
+            string map = entry.Id;
+            Button b = grid.AddMap(MapImages.Default, map, MapTitles.Of(MapImages.Default, map));
+            b.Pressed += () => TutorialPlay.PlayTutorial(GetTree(), map, Team);
+            b.Disabled = !TutorialPlay.CanPlay(GetTree(), map);
             first ??= b.Disabled ? null : b;
         }
 

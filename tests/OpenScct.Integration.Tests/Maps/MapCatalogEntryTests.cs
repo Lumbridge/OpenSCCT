@@ -15,6 +15,20 @@ namespace OpenScct.Integration.Tests.Maps;
 /// </summary>
 public sealed class MapCatalogEntryTests : IDisposable
 {
+    [Fact]
+    public void PS2_training_suffix_keeps_both_side_layouts_out_of_versus_choices()
+    {
+        string root = Path.Combine(_root, "ps2-training");
+        foreach (string code in new[] { "TSP11P", "TME12P", "GAR09P" })
+            WriteMap(root, code, code, code, converted: true);
+        var catalog = new MapCatalog(root);
+        Assert.Equal(MapKind.Training, catalog.GetCatalogEntry("TSP11P")!.Kind);
+        Assert.Equal(MapKind.Training, catalog.GetCatalogEntry("TME12P")!.Kind);
+        Assert.Equal(["GAR09P"], catalog.GetHostMaps().Select(m => m.Id));
+        Assert.All(new[] { "TSP11P", "TME12P" }, code =>
+            Assert.Equal([EGameMode.GM_Multi], catalog.GetCatalogEntry(code)!.PlayableModes));
+    }
+
     private static readonly Encoding NoBom = new UTF8Encoding(false);
 
     private static readonly string Zeros = new('0', 64);
@@ -222,7 +236,7 @@ public sealed class MapCatalogEntryTests : IDisposable
         Assert.Contains("NewMap", catalog.GetMapFilters().Single(p => p.Name == MapCatalog.CommunityMapsFilter).Maps);
     }
 
-    /// <summary>The converted maps: every one is in the catalog, every host map has a picture and plays Story or Deathmatch.</summary>
+    /// <summary>The converted maps: every one is in the catalog, every host map has a picture and at least one playable mode.</summary>
     [Fact]
     public void Every_converted_map_is_in_the_catalog()
     {
@@ -239,7 +253,7 @@ public sealed class MapCatalogEntryTests : IDisposable
         foreach (MapCatalogEntry e in catalog.GetHostMaps())
         {
             Assert.True(e.PreviewImage is not null, e.Id + " has no picture");
-            Assert.True(e.Mode(EGameMode.GM_Multi)!.Playable || e.Mode(EGameMode.GM_DeathMatch)!.Playable, e.Id + " plays no mode");
+            Assert.NotEmpty(e.PlayableModes);
             Assert.NotEqual(e.Id, e.DisplayName);
         }
 
