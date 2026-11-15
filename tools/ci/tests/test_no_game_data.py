@@ -284,6 +284,24 @@ def test_large_file_still_gets_magic_check(tmp_path: Path) -> None:
     assert rules_for(tmp_path, "data/huge.bin", data) == ["size", "ue-package"]
 
 
+@pytest.mark.parametrize('folder,credits', [('rifles','export/CREDITS.txt'),
+    ('sidearm_audio','CREDITS.txt'), ('user_gun_audio','export/CREDITS.txt')])
+def test_custom_weapon_art_requires_credits_and_exact_hash(tmp_path: Path, folder: str, credits: str) -> None:
+    path = f'content/assets/{folder}/export/report.wav'
+    data = b'RIFF\x24\0\0\0WAVEfmt '+b'synthetic audio'*8
+    manifest = {'license':'CC0-1.0 audio and CC-BY-4.0 models',
+        'credits':'content/assets/sidearms/CREDITS.txt',
+        'assets':{path:{'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest()}}}
+    with pytest.raises(ngd.GuardError, match='require their own credits'):
+        ngd.load_art_manifest(json.dumps(manifest).encode())
+    manifest['additional_credits'] = [f'content/assets/{folder}/{credits}']
+    approved = ngd.load_art_manifest(json.dumps(manifest).encode())
+    write(tmp_path,path,data)
+    assert ngd.scan(ngd.iter_tree_entries(tmp_path),approved)[1] == []
+    write(tmp_path,path,data[:-1]+b'x')
+    assert [finding.rule for finding in ngd.scan(ngd.iter_tree_entries(tmp_path),approved)[1]] == ['media']
+
+
 def test_pe_binary(tmp_path: Path) -> None:
     assert rules_for(tmp_path, "System/SCCT Versus", pe_header()) == ["pe-binary"]
 

@@ -119,6 +119,13 @@ jobs:
           path: local/dist
       - name: Install pinned toolchain and templates
         run: tools/linux/bootstrap.sh
+      - name: Restore pinned Godot assemblies
+        shell: pwsh
+        run: |
+          $config = ./tools/browser/Get-TwoDog.ps1 -ManagedOnly
+          $env:DOTNET_ROOT = Join-Path $PWD 'local/toolchain/dotnet'
+          $env:PATH = "$env:DOTNET_ROOT" + [IO.Path]::PathSeparator + $env:PATH
+          dotnet restore game/OpenScctGame.slnx --configfile $config
       - name: Export and package
         run: |
           export DOTNET_ROOT="$PWD/local/toolchain/dotnet"

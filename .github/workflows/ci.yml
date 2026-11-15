@@ -188,6 +188,11 @@ jobs:
           key: nuget-${{ runner.os }}-${{ hashFiles('Directory.Packages.props', '**/*.csproj', 'global.json') }}
           restore-keys: nuget-${{ runner.os }}-
 
+      - name: Restore pinned Godot assemblies
+        run: |
+          $config = ./tools/browser/Get-TwoDog.ps1 -ManagedOnly
+          dotnet restore game/OpenScctGame.slnx --configfile $config
+
       # The editor zip is not cached, only the verified install (Get-Godot.ps1 skips the download then).
       - uses: actions/cache@v6
         with:

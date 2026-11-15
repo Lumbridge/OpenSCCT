@@ -45,7 +45,8 @@ from typing import IO, Callable, Iterable, Iterator, Sequence
 
 MAX_BYTES = 5 * 1024 * 1024
 MAX_ART_BYTES = 64 * 1024 * 1024
-ART_PREFIX = ("content/assets/sidearms/", "content/assets/weapons/", "content/assets/cosmetics/", "fixtures/hub/")
+ART_PREFIX = ("content/assets/sidearms/", "content/assets/weapons/", "content/assets/cosmetics/",
+              "content/assets/rifles/", "content/assets/sidearm_audio/", "content/assets/user_gun_audio/", "fixtures/hub/")
 ART_MANIFEST = "tools/ci/asset-provenance.json"
 HEAD_BYTES = 8192
 
@@ -465,6 +466,10 @@ def load_art_manifest(data: bytes) -> dict[str, dict]:
             raise ValueError("weapon assets require their own credits")
         if any(path.startswith("content/assets/cosmetics/") for path in assets) and "content/assets/cosmetics/CREDITS.txt" not in manifest.get("additional_credits", []):
             raise ValueError("cosmetic assets require their own credits")
+        for folder, credits in (("rifles", "export/CREDITS.txt"), ("sidearm_audio", "CREDITS.txt"), ("user_gun_audio", "export/CREDITS.txt")):
+            prefix = f"content/assets/{folder}/"
+            if any(path.startswith(prefix) for path in assets) and prefix+credits not in manifest.get("additional_credits", []):
+                raise ValueError(f"{folder} assets require their own credits")
         for path, item in assets.items():
             if (not path.startswith(ART_PREFIX) or ".." in PurePosixPath(path).parts or
                     not re.fullmatch(r"[0-9a-f]{64}", item["sha256"]) or

@@ -1689,11 +1689,26 @@
     "content/assets/rifles/export/textures/OpticRubber.png": {
       "bytes": 261,
       "sha256": "1035905552b9559d6cf7e33eea1b7f48b0dab6db6bb3bc1ed42de547f4a0b62d"
+    },
+    "content/assets/rifles/sources/audio/C_28P.wav": {
+      "bytes": 7188780,
+      "sha256": "e0934c1d79192d2216db62fdf6ab57bf9d5d585267af367a1cfb21f0972a537d"
+    },
+    "content/assets/rifles/sources/audio/D_24P.wav": {
+      "bytes": 3739958,
+      "sha256": "4c6a54ca0583150bbb32b7f658bc64da9ad9ba42fd3aca769c6120b44af8d3f0"
+    },
+    "content/assets/rifles/sources/audio/D_32P.wav": {
+      "bytes": 5889684,
+      "sha256": "acee9d2106b68fe5956225a19d7aedf943d97793817f9bda9d486a2b74b0a812"
     }
   },
   "additional_credits": [
     "content/assets/weapons/CREDITS.txt",
-    "content/assets/cosmetics/CREDITS.txt"
+    "content/assets/cosmetics/CREDITS.txt",
+    "content/assets/rifles/export/CREDITS.txt",
+    "content/assets/sidearm_audio/CREDITS.txt",
+    "content/assets/user_gun_audio/export/CREDITS.txt"
   ],
   "additionalCredits": [
     "content/assets/rifles/CREDITS.txt",

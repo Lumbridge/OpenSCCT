@@ -1,5 +1,5 @@
 [CmdletBinding()]
-param()
+param([switch]$ManagedOnly)
 $ErrorActionPreference = 'Stop'
 $repo = (Resolve-Path (Join-Path $PSScriptRoot '../..')).Path
 $feed = Join-Path $repo 'local/2dog-packages'
@@ -10,11 +10,13 @@ $base = "https://github.com/outfox/2dog/releases/download/v$release"
 $manifest = Invoke-RestMethod "$base/release-manifest.json"
 $names = @("2dog.engine.$release.nupkg", "2dog.godotsharp.$release.nupkg",
     "2dog.godotsharp.editor.$release.nupkg", "2dog.tools.$native.nupkg")
-foreach ($platform in @('win-x64', 'linux-x64', 'osx-arm64')) {
-    $names += "2dog.$platform.$native.nupkg"
-    foreach ($variant in @('debug', 'release', 'editor')) { $names += "2dog.$platform.$variant.$native.nupkg" }
+if (!$ManagedOnly) {
+    foreach ($platform in @('win-x64', 'linux-x64', 'osx-arm64')) {
+        $names += "2dog.$platform.$native.nupkg"
+        foreach ($variant in @('debug', 'release', 'editor')) { $names += "2dog.$platform.$variant.$native.nupkg" }
+    }
+    $names += "2dog.browser-wasm.$native.nupkg", "2dog.browser-wasm.debug.$native.nupkg", "2dog.browser-wasm.release.$native.nupkg"
 }
-$names += "2dog.browser-wasm.$native.nupkg", "2dog.browser-wasm.debug.$native.nupkg", "2dog.browser-wasm.release.$native.nupkg"
 foreach ($name in $names) {
     $expected = $manifest.files.$name
     if ($expected -notmatch '^[a-f0-9]{64}$') { throw "No release digest for $name" }
