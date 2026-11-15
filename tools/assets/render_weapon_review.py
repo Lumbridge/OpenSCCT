@@ -101,7 +101,9 @@ def render(request):
     scene.world = bpy.data.worlds.new('Studio'); scene.world.use_nodes = True
     scene.world.node_tree.nodes['Background'].inputs[0].default_value = (.05, .065, .08, 1)
     scene.world.node_tree.nodes['Background'].inputs[1].default_value = .4
-    scene.render.engine = 'CYCLES'; scene.cycles.samples = 16
+    scene.render.engine = 'CYCLES'; scene.cycles.samples = 32
+    # Denoising erases a subpixel aiming dot as an isolated firefly.
+    scene.cycles.use_denoising = False
     scene.view_settings.view_transform = 'Standard'
     scene.render.resolution_x = 800; scene.render.resolution_y = 320 if request.get('icon') else 450
     scene.render.resolution_percentage = 100
