@@ -25,10 +25,11 @@ public sealed partial class SoundSystem
         foreach (Voice voice in _voices)
         {
             if (!voice.Active) continue;
-            if (seeking) voice.Suspend();
+            if (seeking) { voice.Suspend(); voice.ReflectedInput=0; voice.ReflectionRoom=null; }
             else if (voice.DemoStream is { } stream)
                 StartStream(voice, stream, voice.OffsetIn(stream));
         }
+        if (seeking) Buses?.ResetSourceRooms();
     }
 
     /// <summary>Advance one replay tick, then dispatch sounds raised on that tick.</summary>
@@ -50,11 +51,11 @@ public sealed partial class SoundSystem
         {
             double step = seconds;
             if (transitions < 256)
-                foreach (Voice voice in _voices)
+                foreach (Voice voice in AllVoices())
                     if (voice.Active) step = Math.Min(step, voice.TimeUntilSequenceStep(_now));
             _now += step;
             seconds -= step;
-            foreach (Voice voice in _voices)
+            foreach (Voice voice in AllVoices())
             {
                 if (!voice.Active) continue;
                 voice.Advance(step);
@@ -97,7 +98,7 @@ public sealed partial class SoundSystem
             RoomPlayer.StreamPaused = paused;
         }
 
-        public void Advance(double seconds) => DemoPosition += seconds * Pitch;
+        public void Advance(double seconds, float? effectivePitch = null) => DemoPosition += seconds * (effectivePitch ?? Pitch);
 
         public double TimeUntilSequenceStep(double now)
         {

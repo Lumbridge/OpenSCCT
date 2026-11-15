@@ -382,3 +382,158 @@ it neither launches a process nor changes volume. Its observations establish nat
 and sample identity, not original device-output loudness. Independent vendor impulse captures and the native
 reverb comparison are covered by the reverb parity evidence linked above; they remain separate from this routing
 regression.
+
+## Modern client rendering
+
+Audio options now include **Speakers** (the existing-config default),
+**Headphones (binaural)** and a named output device with system-default fallback.
+The saved keys are `audio_output_mode` (`Speakers`/`Headphones`) and
+`audio_output_device` (empty follows the system). An unavailable named device
+falls back to the default and is retried every two seconds. These settings do
+not change network sound delivery, sound arrows, authored noise or bot hearing.
+
+Headphones sends individual positional sources through Steam Audio before the
+world mix. Music, UI, listener-owned cues and authored stereo beds retain their
+routes. The native EAX room renderer and environment packets are unchanged.
+Material transmission uses existing collision/material categories, including
+thickness, with separate dry/room spectral levels and a 60 ms transition. It
+refreshes at approximately 10 Hz, sooner for movement/topology changes, with an
+eight-query per-update budget and rotating voice traversal to prevent starvation.
+The presets are presentation estimates. `SoundSystem.MaterialTransmission=false`
+supports source-filter reference captures.
+
+Maps with converted portal polygons now also use a listener-centric room graph.
+It reuses `render/lighting.json`'s zone numbers and opening polygons; no map
+format change or rebuild is required. Sources obscured by a wall can arrive
+from the first opening along a bounded path, with path-length attenuation,
+transmission and the source room's original EAX reflected/diffuse response.
+Four aperture probes per update (capped at 60 probe batches per second) check
+live door/mover/glass collision, and routes refresh at approximately 10 Hz.
+Paths are bounded to four openings and 6000 units. This is portal-based room
+coupling with parametric reflections, not a wave solver or a baked ray tracer.
+The reverb parameters now also adapt to live collision geometry. Each active
+listener/source room uses 26 directional probes plus up to six opening targets,
+weighted by projected aperture area. These estimate visible volume, surface area,
+enclosure and broad surface absorption. A diffuse-field decay estimate drives
+decay/HF/LF times, early/late reflection delays, room size, diffusion and wet level;
+the original EAX renderer and part of the authored tonal balance remain in use.
+The mean-free-path/decay relationship follows statistical room acoustics;
+see [Rindel, Acta Acustica 102 (2016)](https://odeon.dk/pdf/A26-ActaAcustica_102_2016_Rindel.pdf).
+The sampled volume and absorption coefficients are estimates, not surveyed room
+dimensions or measured material spectra. Discrete reflections are not ray-traced.
+
+Probes query the live collision world, including movers. Periodic full sweeps
+detect doors opening/closing even without a geometry-revision signal. They use
+a nearest-hit trace that compares movers with farther BSP geometry; the
+legacy occlusion early-out cannot hide a nearer door from these measurements.
+An opening to outside lets energy escape; one into a larger enclosed space can increase the
+measured volume. Listener and emitting-room profiles update independently. Input
+anchors stay fixed within a sweep to avoid mixing positions; invalid solid-space
+measurements retain the last safe response. Missing probe support retains authored
+reverb. `SoundSystem.AdaptiveReverb=false` selects an authored reference before
+playback begins.
+
+There are at most five probe states (listener plus four source-room networks),
+twelve ray queries per batch and sixty batches per second. A cooperative 0.75 ms
+batch budget yields after the current query; a single cold/expensive query can
+exceed that target. Geometry and allocation run on the scene thread. Native EAX
+packets update at most ten times per second, with a 0.5 s smoothing constant and
+integer millibel quantization. Native coefficient/tap transitions keep existing
+tails while doors move; geometry changes do not reset room networks. Diagnostics
+report probe count, worst batch time, rejected packets and measured/applied profiles.
+When an obstructing wall and both endpoints lie in one zone, a local corner
+search checks candidate paths around the hit surfaces. Every segment must pass
+collision testing before its route is used. The search is cached per voice,
+bounded to ten candidates (offsets up to 1024 units), and staggered across voices
+with at most twelve segment queries per batch and sixty batches per second.
+Unresolved or enclosed geometry retains wall transmission; a zone match alone
+does not invent a clear path. Complex multi-bend geometry can still exceed this
+bounded approximation.
+
+Zone ambience is a continuous field rather than an on/off zone membership
+test. Outdoor weather can reach an interior through connected openings, lose
+high frequencies, and feed its room reverb. Shared weather recordings across
+zones/area actors retain one loop and select the strongest contribution instead
+of duplicating/restarting the recording at every zone boundary. Targets and
+source-level changes ease over 350 ms and reverse smoothly when crossing back.
+Point-ambient ranges taper over their outer 20%; 2D area cutoffs also feather.
+Point ambience no longer shrinks its range by the legacy zone-hop table: a
+camera crossing a BSP boundary cannot remove an otherwise in-range emitter.
+Up to four preallocated EAX networks retain the emitting rooms' reflected
+audio, including remote footsteps, gunshots, impacts, gadgets and positional
+ambience. Their wet output spills through the portal graph with smoothed gain
+and HF transmission, while the direct source retains its distance model. For
+example, Aquarius's bubbling retains the tunnel's Sewerpipe response when the
+spy camera moves outside its mouth, instead of replacing it with the corridor's
+room response. Existing wet players feed these networks; no extra decoders or
+physical voices are created. One network is reserved for gameplay cues so
+ambience cannot occupy all four. Saturation uses the existing listener-room route.
+Room fields reset on map/seek teardown and preserve their tails during ordinary
+camera transitions and after a short source stops. One-shot input and a new
+room's coupling are initialized immediately so short attacks excite the room
+from their first block. Local owner sounds retain their listener binding; music,
+UI and deliberately flat sounds retain their authored routes. These presentation
+paths operate on events the client receives and do not enlarge server hearing
+admission or bot/noise-cue rules. Maps without portal data retain the fades and
+local corner checks while omitting inter-zone room coupling.
+
+The physical pool remains 32 voices. Ambient rendering is capped at 24 to leave
+room for immediate cues; short cues can reclaim ambient channels. Displaced
+ordinary loops retain logical state, resolved leaf, pitch-adjusted playback
+cursor and attachment. They resume with a short fade, allocation hysteresis and
+priority ahead of equally loud new ambience. Inaudible ambient emitters can also
+retain phase. Logical loops are bounded at 512; sequences keep their existing
+entry/expiry semantics. Stops, map teardown and demo seeking include virtual
+emitters. Diagnostics distinguish resumed playback from fresh starts.
+
+Session loading preloads every possible movement/weapon/gadget/interface leaf,
+map ambience and the map song, including timed sequence loop variants, without
+consuming random or surface-switch choices. The 128 MiB cache budget counts file
+payloads, not total decoder/native memory. Session dependencies are pinned;
+inactive unpinned entries use LRU eviction and active player resources survive
+eviction. Oversize/over-budget resources can play without entering the cache;
+diagnostics expose any subsequent playback file read. A real-map check exposed
+a small sum above full scale, so game/menu categories reserve 3 dB of fixed
+summing headroom. Voice gain and its echo-reference path are unchanged; there
+is no new master compressor or limiter.
+
+`SVM_AUDIO_LOG=1` adds virtual/steal/promotion counts, transmission queries,
+scene-update/queue maxima, preload/cache/late-load information and native HRTF
+timing. Output latency in that log is an estimate from Godot's driver plus the
+adapter, not a physical end-to-end measurement. `AudioMixCapture` exposes
+discarded capture frames; that is distinct from an output-driver underrun.
+
+`--svm-smoke=audio-modernization` uses generated audio and the real Godot mixer
+to test speaker/headphone routing, material transmission, cue protection, virtual
+loop phase, demo lifecycle, cache eviction and missing-device fallback.
+`audio-propagation` additionally checks carried weather, actual interior wet PCM,
+door closure and opening-directed point sound; `audio-aquarius` uses Aquarius's
+original weather stream, actual collision and 72 converted portals, checking
+continued indoor rain, room response, loop phase and repeated boundary reversals.
+`audio-aquarius-tunnel` reconstructs the reported stationary spy at
+`(3042.6035,2304.6663,-38.995003)` with both supplied view rotations, actual
+following-camera solves and live map collision/actors. It captures the bubbling
+dry output and persistent tunnel reflections separately in speaker/headphone
+modes, verifies no source/room restart across the mouth, and checks teardown.
+`audio-gameplay-propagation` sends actual original footstep and rifle sequence
+events as server-delivered positional cues through an opening, a closed door,
+and around a collision-tested wall within one zone. In both output modes it
+checks apparent arrival, immediate source-room excitation, actual output PCM,
+post-source reflection tails and absence of runtime file reads.
+`audio-adaptive-reverb` captures native impulse responses for small/large rooms,
+open air, and repeated door closure/opening/reopening in both output modes. All
+stages retain the same zone/room identity and authored settings; collision
+geometry alone changes, using a live moving door collider, and the revision
+counter deliberately stays zero. A separate regression puts that door in front
+of a farther BSP wall and verifies nearest-hit selection after movement. It
+checks derived/applied decay, longer measured PCM tails in the large room,
+outside damping, native parameter acceptance and uninterrupted emitter ownership.
+`SVM_AUDIO_CAPTURE_DIR` selects the WAV/JSON evidence directory. A dummy audio
+driver fails the PCM checks. On Windows a headless run with
+`--audio-driver WASAPI` exercises the physical output mixer with Master muted.
+Keep the existing `reverb`, `audio-listener`, `audio` and `play-audio-*` checks.
+Actual headphone listening, low-end reference hardware, output-device hotplug
+and Linux device output remain release gates beyond automated DSP/PCM tests.
+`tools/audio/Test-AudioModernization.ps1 -WithContent` builds and runs the focused
+regressions and real mixer checks, writing logs and PCM/JSON evidence under
+`local/audio-modernization/validation` by default. It fails on dummy/silent output.

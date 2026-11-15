@@ -602,6 +602,17 @@ public partial class OptionsMenu : Control
     private Control AudioPage()
     {
         GridContainer g = Grid("Audio");
+        Section(g, "Playback", "Headphones uses binaural positioning for directional sounds. Select Speakers when using external surround processing.");
+        Choice(g, "Output mode", "audio_output_mode", GameSettings.AudioOutputModes, _edit.AudioOutputMode,
+            v => _edit.AudioOutputMode = v, v => v == "Headphones" ? "Headphones (binaural)" : v);
+        var outputDevices = new System.Collections.Generic.List<string> { SystemDevice };
+        foreach (string device in AudioServer.GetOutputDeviceList())
+            if (device != "Default") outputDevices.Add(device);
+        if (_edit.AudioOutputDevice.Length > 0 && !outputDevices.Contains(_edit.AudioOutputDevice))
+            outputDevices.Add(_edit.AudioOutputDevice);
+        Choice(g, "Output device", "audio_output_device", outputDevices.ToArray(),
+            _edit.AudioOutputDevice.Length == 0 ? SystemDevice : _edit.AudioOutputDevice,
+            v => _edit.AudioOutputDevice = v == SystemDevice ? "" : v);
         Section(g, "Volume", "Adjust the overall volume or individual sound categories. Voice volume is on the Voice tab.");
         Slider(g, "Overall volume", "master_volume", 0f, 100f, 1f, _edit.MasterVolume * 100f, v => _edit.MasterVolume = v / 100f, "0");
         Section(g, "In game", "");

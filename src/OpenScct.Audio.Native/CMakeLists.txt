@@ -8,7 +8,7 @@ find_package(Python3 REQUIRED COMPONENTS Interpreter)
 # Set before the dependencies are added so their targets inherit it.
 get_filename_component(SCCT_REPO_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../.." ABSOLUTE)
 set(SCCT_TRIM_PREFIXES "${SCCT_REPO_ROOT}" "${CMAKE_BINARY_DIR}")
-foreach(dependency GODOTCPP OPENAL REAL)
+foreach(dependency GODOTCPP OPENAL REAL STEAMAUDIO)
     if(FETCHCONTENT_SOURCE_DIR_${dependency})
         get_filename_component(dependency_dir "${FETCHCONTENT_SOURCE_DIR_${dependency}}" ABSOLUTE)
         list(APPEND SCCT_TRIM_PREFIXES "${dependency_dir}")
@@ -66,7 +66,7 @@ else()
 message(FATAL_ERROR "Unknown native reverb backend: ${SCCT_AUDIO_REVERB_BACKEND}")
 endif()
 
-add_library(scct_audio SHARED scct_audio.cpp ${SCCT_DSP_SOURCE})
+add_library(scct_audio SHARED scct_audio.cpp scct_binaural_dsp.cpp ${SCCT_DSP_SOURCE})
 target_compile_features(scct_audio PRIVATE cxx_std_20)
 target_link_libraries(scct_audio PRIVATE godot::cpp ${SCCT_BACKEND_LIBRARIES})
 if(SCCT_AUDIO_REVERB_BACKEND STREQUAL "HRVB")
@@ -87,6 +87,8 @@ elseif(UNIX AND NOT APPLE AND CMAKE_SYSTEM_PROCESSOR MATCHES "^(x86_64|AMD64|amd
 else()
     message(FATAL_ERROR "Native audio currently supports Windows x86_64 and Linux x86_64")
 endif()
+include(steamaudio.cmake)
+target_link_libraries(scct_audio PRIVATE scct_steamaudio)
 install(TARGETS scct_audio RUNTIME DESTINATION "bin/${SCCT_AUDIO_PLATFORM}"
     LIBRARY DESTINATION "bin/${SCCT_AUDIO_PLATFORM}")
 install(FILES "${godotcpp_SOURCE_DIR}/LICENSE.md" DESTINATION licenses RENAME godot-cpp-LICENSE.md)
@@ -102,5 +104,5 @@ install(FILES "${real_SOURCE_DIR}/LICENSE" DESTINATION licenses RENAME reAL-LICE
 install(FILES "${real_SOURCE_DIR}/LICENSE-HRTF" DESTINATION licenses RENAME reAL-HRTF-LICENSE.txt)
 endif()
 file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/native-audio-sources.txt"
-    "godot-cpp https://github.com/godotengine/godot-cpp e103d348c4b2d8df7b819126d855e19381cb9a87\n${SCCT_BACKEND_DESCRIPTION}\n")
+    "godot-cpp https://github.com/godotengine/godot-cpp e103d348c4b2d8df7b819126d855e19381cb9a87\n${SCCT_BACKEND_DESCRIPTION}\nSteam Audio 4.8.1 https://github.com/ValveSoftware/steam-audio/releases/tag/v4.8.1 SDK SHA256 4a0aa5ec1176f38f0b0993a37c2259d9e86f27e22d5e24f83ec4c3cb9a1d5449; standalone CPU binaural DSP, dynamically linked.\n")
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/native-audio-sources.txt" DESTINATION licenses)

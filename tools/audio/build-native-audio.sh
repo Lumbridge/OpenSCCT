@@ -15,6 +15,9 @@ if [[ -n "${SCCT_AUDIO_DEPS_DIR:-}" ]]; then
         -DFETCHCONTENT_SOURCE_DIR_OPENAL="$SCCT_AUDIO_DEPS_DIR/openal-soft"
         -DFETCHCONTENT_SOURCE_DIR_REAL="$SCCT_AUDIO_DEPS_DIR/real")
 fi
+if [[ -n "${SCCT_STEAMAUDIO_SDK:-}" ]]; then
+    dependencies+=(-DFETCHCONTENT_SOURCE_DIR_STEAMAUDIO="$SCCT_STEAMAUDIO_SDK")
+fi
 cmake -S "$repo/src/OpenScct.Audio.Native" -B "$build" -G Ninja -DCMAKE_BUILD_TYPE=Release \
     -DGODOTCPP_CUSTOM_API_FILE="$build/extension_api.json" \
     -DSCCT_AUDIO_REVERB_BACKEND="${SCCT_AUDIO_REVERB_BACKEND:-HRVB}" "${dependencies[@]}"

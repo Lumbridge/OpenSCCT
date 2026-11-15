@@ -246,6 +246,13 @@ public sealed class OptionsCategoriesSmoke : SmokeTest
         Expect(options.Editing.AmbientOcclusion == !ao, "ambient occlusion edits the draft");
         var latency = (OptionButton)options.Controls["low_latency_mode"];
         Expect(latency.ItemCount == 2, "latency offers only distinct supported modes");
+        var output = (OptionButton)options.Controls["audio_output_mode"];
+        int originalOutput = output.Selected;
+        int otherOutput = originalOutput == 0 ? 1 : 0;
+        output.Select(otherOutput);
+        output.EmitSignal(OptionButton.SignalName.ItemSelected, (long)otherOutput);
+        Expect(options.Editing.AudioOutputMode == GameSettings.AudioOutputModes[otherOutput], "output mode edits the draft");
+        Expect(((OptionButton)options.Controls["audio_output_device"]).ItemCount > 0, "output device offers system default");
         double sound = ((HSlider)options.Controls["sound_volume"]).Value;
         ((HSlider)options.Controls["sound_volume"]).Value = 37;
         ((CheckBox)options.Controls["voice_muted"]).ButtonPressed = !voice;
@@ -260,6 +267,8 @@ public sealed class OptionsCategoriesSmoke : SmokeTest
         ((CheckBox)options.Controls["controller.rumble"]).ButtonPressed = rumble;
         ((CheckBox)options.Controls["crosshair.custom"]).ButtonPressed = crosshair;
         ((CheckBox)options.Controls["ambient_occlusion"]).ButtonPressed = ao;
+        output.Select(originalOutput);
+        output.EmitSignal(OptionButton.SignalName.ItemSelected, (long)originalOutput);
         Expect(!options.HasUnsavedChanges && SettingsStore.Current.ToJson() == original, "restoring controls leaves a clean draft without writing settings");
     }
 
