@@ -85,6 +85,8 @@ def _append_optic(doc, data, folder, joint, placement, asset="micro_red_dot.glb"
     image_offset, texture_offset, material_offset = len(doc['images']), len(doc['textures']), len(doc['materials'])
     doc['images'].extend(deepcopy(source['images']))
     for texture in deepcopy(source['textures']):
+        # The receiving rig has its own sampler table; runtime materials choose filtering themselves.
+        texture.pop('sampler', None)
         texture['source'] += image_offset; doc['textures'].append(texture)
     def remap(value):
         if not isinstance(value, dict): return
