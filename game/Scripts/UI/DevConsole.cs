@@ -327,6 +327,22 @@ public partial class DevConsole : CanvasLayer, IConsoleHost
             ? PlayerLocationReport.Format(session.Settings.Map, pawn, controller)
             : null;
 
+    string IConsoleHost.GrabArea(bool? on)
+    {
+        if (GetTree().CurrentScene is not PlayRoot { Session: not null } play)
+        {
+            return "grabarea: not in a game";
+        }
+
+        bool show = on ?? !play.GrabAreaShown;
+        if (!play.ShowGrabArea(show))
+        {
+            return "grabarea works in practice / Visit Map games only.";
+        }
+
+        return show ? "Grab area on: green = Use grabs now, yellow = not in position, red = cannot be grabbed." : "Grab area off.";
+    }
+
     void IConsoleHost.CopyText(string text) => DisplayServer.ClipboardSet(text);
 
     void IConsoleHost.Quit() => GetTree().Quit();

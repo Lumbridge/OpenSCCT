@@ -1092,6 +1092,36 @@ public partial class PlayRoot : Node3D
     }
 
     private ScoreboardCapture? _scoreboardCapture;
+    private CanvasLayer? _grabArea;
+
+    /// <summary>Whether the practice command <c>grabarea</c> is drawing (see <see cref="GrabAreaOverlay"/>).</summary>
+    public bool GrabAreaShown => _grabArea is not null;
+
+    /// <summary>Turns the grab area drawing on or off. False when it was asked on outside a practice round.</summary>
+    public bool ShowGrabArea(bool on)
+    {
+        if (!on)
+        {
+            _grabArea?.QueueFree();
+            _grabArea = null;
+            return true;
+        }
+
+        if (!GrabAreaOverlay.Allowed(Session))
+        {
+            return false;
+        }
+
+        if (_grabArea is null)
+        {
+            // Under the HUD's layers.
+            _grabArea = new CanvasLayer { Name = "GrabArea", Layer = -1 };
+            _grabArea.AddChild(new GrabAreaOverlay(() => Session, () => View?.Camera));
+            AddChild(_grabArea);
+        }
+
+        return true;
+    }
 
     public override void _ExitTree()
     {
