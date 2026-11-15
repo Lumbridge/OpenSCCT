@@ -12,7 +12,8 @@ parser.add_argument("--map", action="append", default=["SteeE", "Entry", "Lobby"
 args = parser.parse_args()
 root = args.content_root.resolve(strict=True)
 groups = ["shared/render", "shared/ui", "shared/fx", "shared/audio",
-          "shared/chars/SPerso", "shared/chars/SWeaponFirst", "shared/chars/SGoggle"]
+          "shared/chars/SPerso", "shared/chars/SWeaponFirst", "shared/chars/SGoggle",
+          "shared/chars/OpenScctRifles", "shared/chars/OpenScctSidearms"]
 if not (root / "svmap/TestRange/manifest.json").is_file():
     parser.error("content root must contain svmap/TestRange/manifest.json")
 args.output.parent.mkdir(parents=True, exist_ok=True)
