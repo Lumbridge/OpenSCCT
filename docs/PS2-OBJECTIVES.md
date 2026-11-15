@@ -6,7 +6,11 @@ The map's own class defaults and actor properties bind the recovered assets. The
 
 ## Vials and consoles
 
-`SFlag` retains its original green vial mesh. Its authored computer reference selects the animated console; the vial sits 25 units above it and the pickup interaction sits at the source forward offset. Carrying uses the source thigh attachment offset and rotation. Alarm locking lowers the vial, and unlocking raises it at the source speed. Extraction delivery uses the PS2 drop volume's touch behavior.
+`SFlag` retains its original green vial mesh. Its authored computer reference selects the animated console; the vial sits 25 units above it and the pickup interaction sits at the source forward offset. Carrying uses the source **right thigh**, `B R Thigh`, with relative location `(-10,0,10)` and rotation `(16000,0,0)`. The original PS2 bone pose uniquely matches that named bone in the retained meshes and the runtime body. Alarm locking lowers the vial, and unlocking raises it at the source speed. Extraction delivery uses the PS2 drop volume's touch behavior.
+
+The source mesh is also an explicit `Ps2SourceStaticMesh` property. It travels in the initial PS2 network profile and binds both the live and reset meshes, because a replacement actor starts from the PC factory before its authored properties arrive. A return, reset or late spawn must not restore the PC ARGUS rack. Tube messages use the original PS2 English wording for this profile.
+
+The original modes have different objectives. Neutralization hacks the case in place and completes without carrying a tube. Extraction takes, carries and delivers the tube. The Station source missions and English mode descriptions distinguish these flows; the extraction pickup actions are the ordinary low/forward pickup clips, not an additional timed case hack.
 
 The actual Use flow follows the [original PS2 pickup states](../spec/objectives/ps2-pickup.md), including the 80-unit stand position, crouched height adjustment and original repositioning choice. The fixed pickup cylinder and authored objective labels survive remote actor creation.
 
@@ -31,6 +35,8 @@ The hidden placement target remains relevant to clients and replicates its sourc
 ## Verification
 
 Objective tests cover the opt-in rules and existing PC behavior. Integration tests use the actual host/client actor factory, replication, and destruction paths. The `ps2-objectives` game smoke loads `DTK02P`, checks the recovered console clips and liquid shader, changes the server's alarm state, and renders the replicated modem and destruction effect. It saves screenshots when `SVM_PLAY_SHOTS` is set.
+
+The carry inspection moves only the test pawns to an existing mercenary start and uses actor fill lighting to make body intersections readable; source geometry and attachment transforms stay unchanged. `SVM_PS2_STATION_NEUTRALIZATION=1` selects a fresh `GAR09P` normal-map-rules check through actual Use, the complete capture timer, and completion with no carried tube on either peer.
 
 Network tests run profiles 100 and 300. They prepare a client map by deleting its replaceable objectives, respawn the server's instances through their PC class factories, and verify source meshes, console associations and materials. A dynamic spawn header overrides the factory's persistent-actor defaults: the authored PS2 instances can have `bNoDelete=false` while the PC class has `bNoDelete=true`. Remote objective startup waits for the initial profile instead of replacing the source vial with the PC disk. Other tests cycle to the fifth gadget, invoke the owning controller's actual alternate-fire input, and check placement, charge replication, destruction and the three original effect components.
 

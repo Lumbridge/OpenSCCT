@@ -64,6 +64,9 @@ public static class HudMessages
         string objective = (obj as SObjectiveTrigger)?.Objective?.ObjectiveName ?? "";
         string name1 = pri1?.PlayerName ?? "";
         string name2 = pri2?.PlayerName ?? "";
+        // Original PS2 SBase.eng uses tube messages for this profile; the PC
+        // disk messages continue to come from the player's shared localization.
+        bool ps2Flag = obj is SFlag { bPS2Objective: true };
         return Switch switch
         {
             1 or 40 => AlarmText(obj as SAlarm, longIntruder: Switch == 1),
@@ -75,9 +78,9 @@ public static class HudMessages
                 ? Texts.Score + Texts.Spies + li.NbPointsAttack.ToString(CultureInfo.InvariantCulture) + Texts.Sentries +
                     li.NbPointsDefense.ToString(CultureInfo.InvariantCulture)
                 : "",
-            K.MsgDataStolen => Join(trigger, Texts.FlagTaken),
-            K.MsgDataDropped => Join(trigger, Texts.FlagDropped),
-            K.MsgDataSecured => Join(trigger, Texts.FlagRetaken),
+            K.MsgDataStolen => Join(trigger, ps2Flag ? ": Tube stolen" : Texts.FlagTaken),
+            K.MsgDataDropped => Join(trigger, ps2Flag ? ": Tube dropped" : Texts.FlagDropped),
+            K.MsgDataSecured => Join(trigger, ps2Flag ? ": Tube secured" : Texts.FlagRetaken),
             13 => Texts.EnemyLocked,
             14 => Texts.SpyOff,
             K.MsgMissionMerc => (obj as SObjective)?.DescriptionDEF ?? "",
@@ -87,7 +90,7 @@ public static class HudMessages
             K.MsgWarnHacking => (obj as SInterrupteur)?.sWarnHackingText ?? "",
             20 => Join(name2, Texts.GrabbedAssom),
             21 => Texts.GPOChaffed,
-            K.MsgDataCaptured => Join(trigger, Texts.FlagCaptured),
+            K.MsgDataCaptured => Join(trigger, ps2Flag ? ": Tube captured" : Texts.FlagCaptured),
             // Terminal hacking shares a legacy entry whose content says "Decontamination".
             K.MsgInterrupted => "Hacking interrupted",
             24 => obj is SAlarm alarm ? alarm.AlarmDescriptionSpy : Texts.AlarmActive,

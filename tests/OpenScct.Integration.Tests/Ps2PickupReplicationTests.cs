@@ -74,6 +74,10 @@ public sealed class Ps2PickupReplicationTests
         owner.GotoState("s_PlayerWalkingSt0H");
         Step(90);
         Assert.Same(localPawn, vial.Base);
+        Assert.Equal(new Name("B R Thigh"), flag.AttachmentBone);
+        Assert.Equal(new Name("B R Thigh"), vial.AttachmentBone);
+        Assert.Equal(flag.Ps2SourceStaticMesh, vial.StaticMesh);
+        Assert.Equal(flag.Ps2SourceStaticMesh, vial.InitialStaticMesh);
         Assert.Equal(SFlag.Ps2CarryOffset, vial.RelativeLocation);
         Assert.Equal(SFlag.Ps2CarryRotation, flag.RelativeRotation);
         // The existing actor attachment wire stores each rotator axis as a byte.

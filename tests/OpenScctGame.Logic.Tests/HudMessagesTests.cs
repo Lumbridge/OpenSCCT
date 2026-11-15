@@ -11,6 +11,19 @@ namespace OpenScctGame.Logic.Tests;
 /// <summary>The HUD's message routing (spec/hud/messages.md): stacks, the game queue, death messages.</summary>
 public sealed class HudMessagesTests
 {
+    [Theory]
+    [InlineData(10, "Tube stolen")]
+    [InlineData(11, "Tube dropped")]
+    [InlineData(12, "Tube secured")]
+    [InlineData(22, "Tube captured")]
+    public void OriginalPs2VialUsesItsSourceEnglishTubeMessages(int message, string text)
+    {
+        var vial = new SFlag { bPS2Objective = true, TriggerName = "Objective A" };
+        Assert.Equal("Objective A : " + text, HudMessages.GetString(message, vial));
+        Assert.NotEqual(HudMessages.GetString(message, vial),
+            HudMessages.GetString(message, new SFlag { TriggerName = "Objective A" }));
+    }
+
     private sealed class Rig
     {
         public Rig()
