@@ -78,7 +78,10 @@ public:
     void initialize(const Ref<ScctEaxReverbEffect> &owner);
     ~ScctEaxReverbInstance() override { scct_reverb_destroy(backend); }
     void _process(const void *source, AudioFrame *destination, int32_t count) override;
-    bool _process_silence() const override { return tail_remaining > 0; }
+    // Godot queries this before processing AND before swapping its scratch buffer.
+    // A tail flag that becomes false in _process skips that swap on an inactive bus,
+    // leaving stale input to be fed through this chain on subsequent mixer blocks.
+    bool _process_silence() const override { return true; }
 };
 
 class ScctEaxReverbEffect : public AudioEffect {
@@ -234,7 +237,7 @@ public:
     void initialize(const Ref<ScctEaxSourceFilter> &owner);
     ~ScctEaxSourceFilterInstance() override { scct_source_filter_destroy(backend); }
     void _process(const void *source, AudioFrame *destination, int32_t count) override;
-    bool _process_silence() const override { return tail_remaining > 0; }
+    bool _process_silence() const override { return true; }
 };
 
 class ScctEaxSourceFilter : public AudioEffect {
@@ -323,7 +326,7 @@ public:
     void initialize(const Ref<ScctBinauralEffect> &owner);
     ~ScctBinauralInstance() override { scct_binaural_destroy(backend); }
     void _process(const void *source, AudioFrame *destination, int32_t count) override;
-    bool _process_silence() const override { return enabled && scct_binaural_pending(backend); }
+    bool _process_silence() const override { return true; }
 };
 
 class ScctBinauralEffect : public AudioEffect {

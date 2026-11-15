@@ -101,6 +101,15 @@ public sealed partial class ReverbBuses
         return result.ToArray();
     }
 
+    public IReadOnlyDictionary<string, float[]> CaptureEnvironmentPackets()
+    {
+        var packets = new Dictionary<string, float[]>();
+        if (EnvironmentBus is { } listener && _applied is { } environment) packets[listener] = environment.ToEaxArray();
+        foreach (SourceRoomField field in _sourceRooms)
+            if (field.ZoneId is not null) packets[field.Bus] = field.Environment.ToEaxArray();
+        return packets;
+    }
+
     /// <summary>Reference impulse captures only; normal geometry updates retain all existing tails.</summary>
     public void ClearReverbTails()
     {
