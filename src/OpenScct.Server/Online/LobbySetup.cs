@@ -151,6 +151,9 @@ public sealed record LobbySetup
     /// <summary>Allow mercenary sidearms in this session. Opt-in, independent of alternate rules.</summary>
     public bool Sidearms { get; init; }
 
+    /// <summary>Allow the additional mercenary rifles. Disabled by default.</summary>
+    public bool Rifles { get; init; }
+
     /// <summary>Experimental geometry-filling spy smoke. Shared by the match, opt-in and fixed for each round.</summary>
     public bool ResponsiveSmoke { get; init; }
 
@@ -245,7 +248,7 @@ public sealed record LobbySetup
     /// the number of players the server waits for.
     /// </summary>
     public string ToGameOptions(int players) =>
-        RoundMatchInfo().GetOptionsString() + "?SvmSidearms=" + (Sidearms ? "1" : "0") + "?SvmResponsiveSmoke=" + (ResponsiveSmoke ? "1" : "0") + "?NBPlayers=" + Math.Max(1, players).ToString(CultureInfo.InvariantCulture);
+        RoundMatchInfo().GetOptionsString() + "?SvmSidearms=" + (Sidearms ? "1" : "0") + "?SvmRifles=" + (Rifles ? "1" : "0") + "?SvmResponsiveSmoke=" + (ResponsiveSmoke ? "1" : "0") + "?NBPlayers=" + Math.Max(1, players).ToString(CultureInfo.InvariantCulture);
 
     /// <summary>The round's match settings: a practice round has no time limit, unlimited lives on both sides and the shortest respawn.</summary>
     private USMatchInfo RoundMatchInfo()
@@ -325,7 +328,7 @@ public sealed record LobbySetup
             $"?SvmDisks={Disks}?SvmDisksToWin={DisksToWin}?SvmDisksMax={DisksMax}?SvmVoice={VoiceMenuIndex(VoiceMode)}?SvmVoiceLobby={(VoiceInLobby ? 1 : 0)}?SvmRandomMap={(RandomMap ? 1 : 0)}") +
         string.Create(CultureInfo.InvariantCulture, $"?SvmBots={(int)Bots}?SvmBotsPerSide={BotsPerSide}?SvmBotSkill={(int)BotSkill}?SvmBal={(AutoBalance ? 1 : 0)}?SvmPr={(Practice ? 1 : 0)}") +
         string.Create(CultureInfo.InvariantCulture, $"?SvmSpyBots={SpyBots}?SvmMercBots={MercBots}") +
-        "?SvmSidearms=" + (Sidearms ? "1" : "0") + "?SvmResponsiveSmoke=" + (ResponsiveSmoke ? "1" : "0") + Alternate.ToOptions();
+        "?SvmSidearms=" + (Sidearms ? "1" : "0") + "?SvmRifles=" + (Rifles ? "1" : "0") + "?SvmResponsiveSmoke=" + (ResponsiveSmoke ? "1" : "0") + Alternate.ToOptions();
 
     /// <summary>Reads a setup from options (as <see cref="ToOptions"/> writes them); missing values keep <paramref name="fallback"/>'s.</summary>
     public static LobbySetup FromOptions(string options, LobbySetup? fallback = null)
@@ -364,6 +367,7 @@ public sealed record LobbySetup
             Alternate = AlternateRules.FromOptions(options, f.Alternate),
             Practice = UcOptions.GetIntOption(options, "SvmPr", f.Practice ? 1 : 0) != 0,
             Sidearms = UcOptions.GetIntOption(options, "SvmSidearms", f.Sidearms ? 1 : 0) != 0,
+            Rifles = UcOptions.GetIntOption(options, "SvmRifles", f.Rifles ? 1 : 0) != 0,
             ResponsiveSmoke = UcOptions.GetIntOption(options, "SvmResponsiveSmoke", f.ResponsiveSmoke ? 1 : 0) != 0,
         }.Clamped();
     }

@@ -20,6 +20,22 @@ public sealed class MenuCreateSessionBotsTests
     }
 
     [Fact]
+    public void RiflesDefaultOffAndPersistAcrossMapAndModeChanges()
+    {
+        var page = Page();
+        Assert.Contains(SessionRow.Rifles, CreateSessionModel.Rows);
+        Assert.True(CreateSessionModel.IsCheck(SessionRow.Rifles));
+        Assert.False(page.Checked(SessionRow.Rifles));
+        var before = page.Setup;
+        page.SetChecked(SessionRow.Rifles, true);
+        Assert.Contains(SessionRow.Rifles, LobbyRoomModel.Differences(before, page.Setup));
+        page.SelectMap("Other");
+        Assert.True(page.Setup.Rifles);
+        page.SetChecked(SessionRow.Rifles, false);
+        Assert.False(page.Setup.Rifles);
+    }
+
+    [Fact]
     public void SidearmsDefaultOffAndPersistAcrossMapChanges()
     {
         var page = Page();

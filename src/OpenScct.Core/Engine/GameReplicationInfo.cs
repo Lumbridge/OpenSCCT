@@ -10,6 +10,7 @@ public partial class GameReplicationInfo : ReplicationInfo
     public string ServerName = string.Empty;
     public bool bTeamGame;
     public bool SidearmsEnabled;
+    public bool RiflesEnabled;
 
     /// <summary>The shared responsive-smoke rule for this round; false preserves original smoke.</summary>
     public bool ResponsiveSmokeEnabled;

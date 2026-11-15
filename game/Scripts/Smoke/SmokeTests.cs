@@ -26,7 +26,7 @@ public static class SmokeTests
             PlayTraversalSmoke.TestName, PlayAimSmoke.TestName, PlayAimCamSmoke.TestName, PlayFxSmoke.TestName,
             PlayExitSmoke.TestName, AspectSmoke.TestName, PlayTeamSmoke.TestName, TeamPingSmoke.TestName,
             RangeTraversalSmoke.TestName, RangeMotionSmoke.TestName, RangeBotsSmoke.TestName, RangeSimSmoke.TestName,
-            PlayShockerSmoke.TestName, PlayMotionSmoke.TestName, PlayMercSmoke.TestName, PlaySidearmSmoke.TestName, SidearmMenuSmoke.TestName, SmoothSmoke.TestName,
+            PlayShockerSmoke.TestName, PlayMotionSmoke.TestName, PlayMercSmoke.TestName, PlaySidearmSmoke.TestName, SidearmMenuSmoke.TestName, EquipmentUnlockMenuSmoke.TestName, SmoothSmoke.TestName,
             MapShotsSmoke.TestName, PlayReticleSmoke.TestName, PlayTorchSmoke.TestName, MercJumpPoseSmoke.TestName, AnimBonesSmoke.TestName, TraversalMirrorSmoke.TestName, MantleHeadSmoke.TestName, CharacterAnimationAuditSmoke.TestName, NetworkOverlaySmoke.TestName, TelemetrySmoke.TestName, PlayHitchSmoke.TestName, PlayLasersSmoke.TestName,
             FrameRateSmoke.TestName, GoggleGlowSmoke.TestName, LobbyLayoutSmoke.TestName, OptionsSmoke.TestName, OptionsNavigationSmoke.TestName, MouseAimSmoke.TestName, OptionsCategoriesSmoke.TestName, FrontEndLayoutSmoke.TestName, MenuLayoutSmoke.TestName, MenuArtSmoke.TestName, GameplayFxWarmupSmoke.TestName, PlayHurtSmoke.TestName, Hub.HubSmoke.TestName, MercImmunityHudSmoke.TestName, MercStatusVisualSmoke.TestName, SpyBackLightSmoke.TestName];
 
@@ -144,6 +144,7 @@ public static class SmokeTests
         LinuxSetupSmoke.TestName => new LinuxSetupSmoke(),
         BootSmoke.TestName => new BootSmoke(),
         SidearmMenuSmoke.TestName => new SidearmMenuSmoke(),
+        EquipmentUnlockMenuSmoke.TestName => new EquipmentUnlockMenuSmoke(),
         LobbyLayoutSmoke.TestName => new LobbyLayoutSmoke(),
         OptionsSmoke.TestName => new OptionsSmoke(),
         OptionsNavigationSmoke.TestName => new OptionsNavigationSmoke(),

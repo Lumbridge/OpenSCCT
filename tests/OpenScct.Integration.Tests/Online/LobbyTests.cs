@@ -284,8 +284,10 @@ public sealed class LobbyTests
 
             // A guest may not change the setup; the host may.
             guest.SetSetup(guest.Lobby.Setup with { TimeLimit = 7 });
-            host.SetSetup(host.Lobby.Setup with { TimeLimit = 3, SpyLives = 2 });
-            Assert.True(rig.RunUntil(() => guest.Lobby.Setup.TimeLimit == 3 && guest.Lobby.Setup.SpyLives == 2, 5), Describe(rig));
+            host.SetSetup(host.Lobby.Setup with { TimeLimit = 3, SpyLives = 2, Rifles = true });
+            Assert.True(rig.RunUntil(() => guest.Lobby.Setup.TimeLimit == 3 && guest.Lobby.Setup.SpyLives == 2 && guest.Lobby.Setup.Rifles, 5), Describe(rig));
+            host.Command("set rifles off");
+            Assert.True(rig.RunUntil(() => !guest.Lobby.Setup.Rifles, 5), Describe(rig));
         }
     }
 

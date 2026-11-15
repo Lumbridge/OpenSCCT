@@ -742,6 +742,7 @@ public sealed partial class OnlineServer
             "spybots" when isInt => s with { SpyBots = n },
             "mercbots" when isInt => s with { MercBots = n },
             "sidearms" when isBool => s with { Sidearms = on },
+            "rifles" when isBool => s with { Rifles = on },
             "responsivesmoke" when isBool => s with { ResponsiveSmoke = on },
             "practice" when isBool => s with { Practice = on },
             "botskill" => Enum.TryParse(value, ignoreCase: true, out OpenScct.Game.AI.AiSkill skill) ? s with { BotSkill = skill } : null,
@@ -1007,7 +1008,7 @@ public sealed partial class OnlineServer
         LobbySetup fresh = LobbySetup.ForMap(map.Id, mode, Maps.GetMapSettings(map.Id), Setup.MaxPlayers) with
         {
             VoiceMode = Setup.VoiceMode, VoiceInLobby = Setup.VoiceInLobby, RandomMap = Setup.RandomMap, Revenge = Setup.Revenge,
-            AutoBalance = Setup.AutoBalance, Alternate = Setup.Alternate, Practice = Setup.Practice, Sidearms = Setup.Sidearms,
+            AutoBalance = Setup.AutoBalance, Alternate = Setup.Alternate, Practice = Setup.Practice, Sidearms = Setup.Sidearms, Rifles = Setup.Rifles,
             ResponsiveSmoke = Setup.ResponsiveSmoke,
             Bots = Setup.Bots, BotsPerSide = Setup.BotsPerSide, SpyBots = Setup.SpyBots, MercBots = Setup.MercBots, BotSkill = Setup.BotSkill,
             GamesInARow = Setup.Revenge ? LobbySetup.RevengeGames : Setup.GamesInARow,

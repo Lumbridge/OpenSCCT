@@ -45,6 +45,7 @@ public static class NetClasses
             {
                 var rules = new RepExtension();
                 rules.Properties.Add(new RepExtensionProperty("SidearmsEnabled", "SidearmsEnabled", RepLeafKind.Bool));
+                rules.Properties.Add(new RepExtensionProperty("RiflesEnabled", "RiflesEnabled", RepLeafKind.Bool));
                 rules.Properties.Add(new RepExtensionProperty("ResponsiveSmokeEnabled", "ResponsiveSmokeEnabled", RepLeafKind.Bool));
                 rules.Properties.Add(new RepExtensionProperty("PracticeFiniteResources", "PracticeFiniteResources", RepLeafKind.Bool));
                 rules.Properties.Add(new RepExtensionProperty("MatchPlayers", "MatchPlayers", RepLeafKind.Int));

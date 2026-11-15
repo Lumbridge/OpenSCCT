@@ -46,7 +46,7 @@ public sealed class GearMenuModel
     private readonly int _allowed;
 
     public GearMenuModel(bool spy, int slots, IReadOnlyList<string> options, int allowedMask, IReadOnlyList<string> weapons,
-        LoadoutSettings saved, bool hub, int currentLevel = 1, bool unrestricted = false)
+        LoadoutSettings saved, bool hub, int currentLevel = 1, bool unrestricted = false, bool riflesEnabled = false)
     {
         ArgumentNullException.ThrowIfNull(options);
         ArgumentNullException.ThrowIfNull(weapons);
@@ -57,7 +57,10 @@ public sealed class GearMenuModel
         CurrentLevel = currentLevel;
         Unrestricted = unrestricted;
         _allowed = allowedMask;
-        Weapons = weapons;
+        RiflesEnabled = riflesEnabled;
+        Weapons = weapons.Where(w => MercRifles.Find(w) is null).Concat(riflesEnabled
+            ? weapons.Where(w => MercRifles.Find(w) is not null).OrderBy(w => MercRifles.Find(w)!.Level)
+            : Enumerable.Empty<string>()).ToArray();
         Hub = hub;
         Gadgets = (string[])saved.GadgetsOf(spy).Clone();
         ChosenWeapon = spy ? "" : saved.MercWeapon;
@@ -90,6 +93,7 @@ public sealed class GearMenuModel
 
     public string ChosenWeapon { get; private set; }
     public bool SidearmsEnabled { get; init; } = true;
+    public bool RiflesEnabled { get; }
     public string ChosenSidearm { get; private set; }
     public IReadOnlyList<string> SidearmOptions => Spy || !SidearmsEnabled ? [] : Sidearms.All.OrderBy(p => p.Level).Select(p => p.CarryId).ToArray();
 
@@ -134,7 +138,7 @@ public sealed class GearMenuModel
 
         return new GearMenuModel(spy, team.iNBGadgets, options, Loadouts.GadgetMask(team), weapons, saved, hub, (pc.PlayerReplicationInfo.SvmRank & 255),
             pc.Level.NetMode == ENetMode.NM_Standalone || pc.PlayerReplicationInfo.SvmSidearmsUnrestricted ||
-            OpenScct.Game.Modes.PracticeRules.IsOn(pc))
+            OpenScct.Game.Modes.PracticeRules.IsOn(pc), riflesEnabled: pc.GameReplicationInfo?.RiflesEnabled == true)
         {
             SidearmsEnabled = hub || pc.GameReplicationInfo?.SidearmsEnabled == true,
             Portrait = team.MaterialOfMesh.Count > 0 ? team.MaterialOfMesh[0].Path ?? "" : "",
@@ -177,7 +181,8 @@ public sealed class GearMenuModel
             }
         }
 
-        return new GearMenuModel(team == 0, info.iNBGadgets, options, Loadouts.GadgetMask(info), weapons, saved, hub: false, currentLevel, unrestricted)
+        return new GearMenuModel(team == 0, info.iNBGadgets, options, Loadouts.GadgetMask(info), weapons, saved, hub: false, currentLevel,
+            unrestricted || setup.Practice, riflesEnabled: setup.Rifles)
         {
             Portrait = info.MaterialOfMesh.Count > 0 ? info.MaterialOfMesh[0].Path ?? "" : "",
             RuleText = LobbyRule,
@@ -217,9 +222,18 @@ public sealed class GearMenuModel
     {
         if (SpyCloak.IsLegacyGadget(path)) return false;
         if (Sidearms.Find(path) is { } pistol) return !Spy && SidearmsEnabled && Sidearms.Available(pistol.Kind, CurrentLevel, Unrestricted);
+        if (MercRifles.Find(path) is not null) return !Spy && RiflesEnabled && ContainsWeapon(path) &&
+            EquipmentUnlocks.LevelAllows(path, CurrentLevel, Unrestricted);
+        if (ContainsWeapon(path)) return !Spy;
         int option = IndexOf(path);
-        return option >= 0 && ((_allowed >> option) & 1) != 0;
+        return option >= 0 && ((_allowed >> option) & 1) != 0 && EquipmentUnlocks.LevelAllows(path, CurrentLevel, Unrestricted);
     }
+
+    public int RequiredLevel(string path) => Sidearms.Find(path)?.Level ?? EquipmentUnlocks.RequiredLevel(path);
+
+    public string Restriction(string path) => !Unrestricted && Math.Max(1, CurrentLevel) < RequiredLevel(path)
+        ? "Requires level " + RequiredLevel(path) + "."
+        : "Disabled by the host's equipment rules.";
 
     /// <summary>The team's options in order (the gadget grid).</summary>
     public IReadOnlyList<string> Options => _options.Where(path => !SpyCloak.IsLegacyGadget(path)).ToArray();
@@ -277,27 +291,28 @@ public sealed class GearMenuModel
 
     public void ChooseWeapon(string option)
     {
-        if (!Spy && ContainsWeapon(option)) ChosenWeapon = option;
+        if (!Spy && ContainsWeapon(option) && IsAllowed(option)) ChosenWeapon = option;
     }
 
     /// <summary>Moves the merc's weapon to the next (or previous) of the team's weapons.</summary>
     public void CycleWeapon(int step)
     {
-        if (Weapons.Count == 0)
+        var available = Weapons.Where(IsAllowed).ToArray();
+        if (available.Length == 0)
         {
             return;
         }
 
         int at = 0;
-        for (int i = 0; i < Weapons.Count; i++)
+        for (int i = 0; i < available.Length; i++)
         {
-            if (Same(Weapons[i], ChosenWeapon))
+            if (Same(available[i], ChosenWeapon))
             {
                 at = i;
             }
         }
 
-        ChosenWeapon = Weapons[(((at + Math.Sign(step)) % Weapons.Count) + Weapons.Count) % Weapons.Count];
+        ChosenWeapon = available[(((at + Math.Sign(step)) % available.Length) + available.Length) % available.Length];
     }
 
     /// <summary>Writes the choice into <paramref name="target"/> (slots past the host's count keep what they held).</summary>
@@ -359,9 +374,9 @@ public sealed class GearMenuModel
             }
         }
 
-        if (!Spy && Weapons.Count > 0 && !ContainsWeapon(ChosenWeapon))
+        if (!Spy && Weapons.Count > 0 && (!ContainsWeapon(ChosenWeapon) || !IsAllowed(ChosenWeapon)))
         {
-            ChosenWeapon = Weapons[0];
+            ChosenWeapon = Weapons.FirstOrDefault(IsAllowed) ?? "";
         }
     }
 

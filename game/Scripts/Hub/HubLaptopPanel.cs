@@ -31,7 +31,7 @@ public partial class HubLaptopPanel : Control
         SessionRow.Map, SessionRow.Mode, SessionRow.VoiceChat, SessionRow.MaxPlayers, SessionRow.AutoBalance, SessionRow.Alternate,
         SessionRow.TimeLimit, SessionRow.SpyLives, SessionRow.MercLives, SessionRow.Respawn, SessionRow.ActiveDisks,
         SessionRow.DisksToTake, SessionRow.Bots, SessionRow.BotsPerSide, SessionRow.SpyBots, SessionRow.MercBots,
-        SessionRow.BotSkill, SessionRow.Practice, SessionRow.Sidearms,
+        SessionRow.BotSkill, SessionRow.Practice, SessionRow.Sidearms, SessionRow.Rifles,
     ];
 
     private readonly HubClient _client;

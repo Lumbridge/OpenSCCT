@@ -80,6 +80,9 @@ public sealed record PlaySettings
 
     public bool Sidearms { get; init; }
 
+    /// <summary>Allow the additional mercenary rifles. Disabled by default.</summary>
+    public bool Rifles { get; init; }
+
     /// <summary>Opt in to responsive spy smoke for this local match.</summary>
     public bool ResponsiveSmoke { get; init; }
 
@@ -180,12 +183,12 @@ public sealed record PlaySettings
         if (UnlimitedGear) players += "?MaxPlayers=24";
         if (Rules == PlayRules.PlayLevel)
         {
-            return $"?GameMode={mode}?Team={Team}?Editeur=true?SvmSidearms={(Sidearms ? 1 : 0)}?SvmResponsiveSmoke={(ResponsiveSmoke ? 1 : 0)}{players}";
+            return $"?GameMode={mode}?Team={Team}?Editeur=true?SvmSidearms={(Sidearms ? 1 : 0)}?SvmRifles={(Rifles ? 1 : 0)}?SvmResponsiveSmoke={(ResponsiveSmoke ? 1 : 0)}{players}";
         }
 
         // The untouched match creation page for the mode (spec/game/game-modes.md rules 1 to 5), launched from the
         // lobby (match-options.md rule 27).
-        return Setup(gameplay).GameOptions(1) + "?SvmSidearms=" + (Sidearms ? "1" : "0") + "?SvmResponsiveSmoke=" + (ResponsiveSmoke ? "1" : "0") + players;
+        return Setup(gameplay).GameOptions(1) + "?SvmSidearms=" + (Sidearms ? "1" : "0") + "?SvmRifles=" + (Rifles ? "1" : "0") + "?SvmResponsiveSmoke=" + (ResponsiveSmoke ? "1" : "0") + players;
     }
 
     /// <summary>

@@ -742,13 +742,15 @@ public partial class SPlayerController
             return;
         }
 
-        int i = MercWeaponIndex(RespawnWeapon) + 1;
-        if (i >= team.ClassWeapon.Count)
+        int start = MercWeaponIndex(RespawnWeapon);
+        for (int step = 1; step <= team.ClassWeapon.Count; step++)
         {
-            i = 0;
+            int i = (start + step) % team.ClassWeapon.Count;
+            if (!OpenScct.Game.Equipment.EquipmentUnlocks.Available(this, team.ClassWeapon[i].Path)) continue;
+            RespawnWeapon = team.ClassWeapon[i];
+            break;
         }
 
-        RespawnWeapon = team.ClassWeapon[i];
         ClientSetRespawnWeapon(RespawnWeapon);
     }
 
@@ -768,6 +770,11 @@ public partial class SPlayerController
             ClientSetRespawnWeapon(RespawnWeapon);
         }
 
+        if (!OpenScct.Game.Equipment.EquipmentUnlocks.Available(this, RespawnWeapon.Path))
+        {
+            RespawnWeapon = OpenScct.Game.Equipment.Loadouts.MercWeapon;
+            ClientSetRespawnWeapon(RespawnWeapon);
+        }
         return RespawnWeapon;
     }
 

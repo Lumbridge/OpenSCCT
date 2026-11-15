@@ -443,10 +443,12 @@ public class DeathLivesRespawnTests
 
     // ---- the Merc Deathmatch respawn weapon (rules 17 to 21) ----------------------------------------------------
 
-    [Fact]
-    public void The_respawn_weapon_cycles_through_the_team_list_while_dead()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void The_respawn_weapon_cycles_through_the_allowed_team_list_while_dead(bool rifles)
     {
-        (GameWorld w, SPlayerController[] p) = Match("?GameMode=7?LivesDEF=5", "?Name=A", "?Name=B");
+        (GameWorld w, SPlayerController[] p) = Match("?GameMode=7?LivesDEF=5?SvmRifles=" + (rifles ? "1" : "0"), "?Name=A", "?Name=B");
         SPlayerController a = p[0];
         Assert.False(a.CanPickRespawnWeapon());
         a.GotoState("s_Dead");
@@ -458,14 +460,14 @@ public class DeathLivesRespawnTests
         a.ServerCycleRespawnWeapon();
         a.ServerCycleRespawnWeapon();
         Assert.Equal(new ClassRef("SBase.SWeaponDefense_Shotgun"), a.RespawnWeapon);
-        foreach (string rifle in new[] { "M4A1S", "AK47", "Galil", "Famas" })
+        foreach (string rifle in rifles ? new[] { "M4A1S", "AK47", "Galil", "Famas" } : System.Array.Empty<string>())
         {
             a.ServerCycleRespawnWeapon();
             Assert.Equal(new ClassRef("Svm." + rifle), a.RespawnWeapon);
         }
         a.ServerCycleRespawnWeapon();
         Assert.Equal(new ClassRef("SBase.SWeaponDefense"), a.RespawnWeapon);
-        Assert.Equal(8, w.Host.To(a, "ClientSetRespawnWeapon").Count);
+        Assert.Equal(rifles ? 8 : 4, w.Host.To(a, "ClientSetRespawnWeapon").Count);
     }
 
     [Fact]

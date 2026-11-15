@@ -61,6 +61,15 @@ public partial class GearMenu : MenuPage
         }
     }
 
+    public override void _Process(double delta)
+    {
+        base._Process(delta);
+        float gap = LayoutSize.X < 1000 ? 12 : 24;
+        float width = Math.Min(220f, (Math.Min(1100f, LayoutSize.X - 48f) - gap * 3f) / 4f);
+        foreach (Button button in PageButtons)
+            button.CustomMinimumSize = new Vector2(width, 44f);
+    }
+
     private void Rebuild()
     {
         if (Body is null) return;
@@ -153,13 +162,14 @@ public partial class GearMenu : MenuPage
     private void AddOption(GridContainer grid, string path, int index)
     {
         var m = _model!;
-        bool allowed = _category == Category.Primary || m.IsAllowed(path);
+        bool allowed = m.IsAllowed(path);
         bool selected = string.Equals(path, CurrentSelection(), StringComparison.OrdinalIgnoreCase);
         bool equipped = _category == Category.Primary ? selected : m.IsEquipped(path);
         var card = new GearTile { Name = "Option" + (index + 1), Disabled = !allowed,
             CustomMinimumSize = new Vector2(180, _category == Category.Primary ? 167 : 147), SizeFlagsHorizontal = SizeFlags.ExpandFill,
             TooltipText = allowed ? GearMenuModel.NameOf(path) : Restriction(path) };
         card.Atlas = Icon(path);
+        card.Modulate = allowed ? Colors.White : new Color(.55f, .55f, .55f);
         card.HasIcon = card.Atlas is not null;
         card.Region = card.Atlas is null ? new Rect2() : new Rect2(Vector2.Zero, card.Atlas.GetSize());
         Style(card, selected);
@@ -169,7 +179,8 @@ public partial class GearMenu : MenuPage
             MercRifles.Find(path)?.Suppressed == true ? "SUPPRESSED" : _category == Category.Primary ? "PRIMARY" : "AVAILABLE", 10, selected ? Accent : Muted));
         stack.AddChild(Picture(path, _category == Category.Primary ? 76 : 56));
         stack.AddChild(Text(GearMenuModel.NameOf(path), 17, allowed ? TextColour : Muted));
-        string sub = MercRifles.Find(path) is { } rifle ? $"{rifle.Magazine} RDS  /  {rifle.Rpm} RPM" :
+        string sub = !allowed && m.RequiredLevel(path) > 0 ? "REQUIRES LEVEL " + m.RequiredLevel(path) :
+            MercRifles.Find(path) is { } rifle ? $"{rifle.Magazine} RDS  /  {rifle.Rpm} RPM" :
             Sidearms.Find(path) is { } sidearm ? "LEVEL " + sidearm.Level : Item(path) is { CanQuickLaunch: true } ? "QUICK USE" : "FIELD EQUIPMENT";
         stack.AddChild(Text(sub, 10, Muted));
         card.MouseEntered += () => ShowDetails(path);
@@ -201,7 +212,7 @@ public partial class GearMenu : MenuPage
         if (rifle is not null) _details.AddChild(Text(rifle.Role, 11, Accent));
         _details.AddChild(new HSeparator());
         _details.AddChild(Text(rifle?.Description ?? StockDescription(path) ?? Sidearms.Find(path)?.Description ?? Item(path)?.ItemDescription ?? "Select equipment to see its details.", 14));
-        bool allowed = _category == Category.Primary || _model!.IsAllowed(path);
+        bool allowed = _model!.IsAllowed(path);
         if (!allowed) _details.AddChild(Text(Restriction(path), 13, new Color("efb27d")));
         if (WeaponInfo(path) is { } weapon)
         {
@@ -227,13 +238,14 @@ public partial class GearMenu : MenuPage
                 ViewModelClips.DataOf(weapon.AFirstReloSt).Seconds(1f);
             Stat("RELOAD", reload.ToString("0.00") + " s");
             Stat("SIGHTS", rifle is null ? weapon.bCanSnipe ? "Scope" : "Hip fire" : rifle.Id == "M4A1S" ? "Red dot" : "Iron sights");
-            if (Sidearms.Find(path) is { } pistol) Stat("UNLOCK", "Level " + pistol.Level);
+            if (_model!.RequiredLevel(path) > 0) Stat("UNLOCK", "Level " + _model.RequiredLevel(path));
         }
         else if (Item(path) is SGadget gadget)
         {
             _details.AddChild(new HSeparator());
             Stat("USES", path == OpenScct.Game.Svm.CloneGadget.ClassPath ? "Recharges every 60 s" : path == OpenScct.Game.Svm.MineHackGadget.ClassPath ? "2 per life" : gadget.Charge > 0 ? gadget.Charge.ToString() : "Reusable");
             if (path == OpenScct.Game.Svm.MineHackGadget.ClassPath) Stat("HACK TIME", "Hold for 3 s");
+            if (_model!.RequiredLevel(path) > 0) Stat("UNLOCK", "Level " + _model.RequiredLevel(path));
         }
     }
 
@@ -246,7 +258,7 @@ public partial class GearMenu : MenuPage
         row.AddChild(key); row.AddChild(detail); _details!.AddChild(row);
     }
 
-    private string Restriction(string path) => Sidearms.Find(path) is { } sidearm ? "Reach level " + sidearm.Level + " to equip this sidearm." : "Disabled by the host's equipment rules.";
+    private string Restriction(string path) => _model!.Restriction(path);
 
     private Control Picture(string path, int height) => new TextureRect { Texture = Icon(path), CustomMinimumSize = new Vector2(0, height),
         SizeFlagsHorizontal = SizeFlags.ExpandFill, MouseFilter = MouseFilterEnum.Ignore,

@@ -131,6 +131,9 @@ public static class Loadouts
             }
         }
 
+        if (!EquipmentUnlocks.Available(Pawn.Controller as PlayerController, weapon.Path))
+            weapon = spy ? SpyWeapon : MercWeapon;
+
         for (int i = 0; i < slots && i < equipment.Length; i++)
         {
             if (!equipment[i].IsNone)
@@ -256,6 +259,7 @@ public static class Loadouts
         }
 
         ClassRef cls = Pawn.Controller is SPlayerController owner ? SpawnWeaponFor(owner, Class) : Class;
+        if (!EquipmentUnlocks.Available(Pawn.Controller as PlayerController, cls.Path)) cls = MercWeapon;
         if (DeviceClasses.Spawn(Pawn, cls, Pawn, default, Pawn.Location, Pawn.Rotation) is SWeapon weapon)
         {
             weapon.GiveTo(Pawn);
@@ -322,7 +326,8 @@ public static class Loadouts
     /// </summary>
     private static bool TakeGrant(SBasePawn Pawn, ClassRef Class, bool Weapon)
     {
-        if (Class.IsNone || SpyCloak.IsLegacyGadget(Class.Path))
+        if (Class.IsNone || SpyCloak.IsLegacyGadget(Class.Path) ||
+            !EquipmentUnlocks.Available(Pawn.Controller as PlayerController, Class.Path))
         {
             return false;
         }
