@@ -11,6 +11,36 @@ namespace OpenScctGame.Logic.Tests;
 
 public sealed class VisitMapGearTests
 {
+    [Fact]
+    public void PracticeCanSwitchTeamsAndRespawnInBothDirections()
+    {
+        Assert.SkipWhen(OpenScct.Server.MapCatalog.CreateDefault().FindFolder("TestRange") is null, "TestRange content required.");
+        var clock = new VirtualClock();
+        using var session = new PlaySession(new PlaySettings
+        {
+            Map = "TestRange", Side = PlaySide.Merc, UnlimitedGear = true,
+            HostMode = PlayHostMode.Inline,
+        }, clock);
+        void StepUntil(System.Func<bool> ready)
+        {
+            for (int i = 0; i < 15 * Sim.Hz && !ready(); i++)
+            {
+                clock.Advance(1_000_000 / Sim.Hz);
+                session.Step(clock.NowMicroseconds);
+            }
+            Assert.True(ready());
+        }
+        StepUntil(() => session.LocalPawn is { Health: > 0 });
+        foreach (int team in new[] { 0, 1 })
+        {
+            var previous = session.LocalPawn;
+            session.RequestPracticeTeamSwap();
+            StepUntil(() => session.LocalController is { } pc && SGameInfo.TeamIndexOf(pc) == team &&
+                session.LocalPawn is { Health: > 0 } pawn && !ReferenceEquals(previous, pawn) &&
+                (team == 0 ? pawn is SPawnAttaque : pawn is SPAWNDEFENSE));
+        }
+    }
+
     [Theory]
     [InlineData(PlaySide.Spy, true)]
     [InlineData(PlaySide.Merc, true)]

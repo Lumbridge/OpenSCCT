@@ -12,6 +12,16 @@ public sealed class InGameMenuModelTests
     private static readonly InGameMenuContext LanClient = new(IAmServer: false, InGameMenuNet.Lan);
 
     [Fact]
+    public void SwitchingTeamFromEquipmentKeepsThePickerOpen()
+    {
+        var menu = new InGameMenuModel();
+        menu.OpenGear(LanClient with { Practice = true, MatchBegun = true }, 0);
+        Assert.Equal(InGameMenuAction.SwitchTeam, menu.GearSwitchTeam());
+        Assert.Equal(InGameMenuPage.Gear, menu.Page);
+        Assert.True(menu.IsOpen);
+    }
+
+    [Fact]
     public void PracticeParticipantsCanSwitchTeamDirectlyFromTheMenu()
     {
         var context = LanClient with { Practice = true, MatchBegun = true };

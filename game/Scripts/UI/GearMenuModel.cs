@@ -236,7 +236,7 @@ public sealed class GearMenuModel
         : "Disabled by the host's equipment rules.";
 
     /// <summary>The team's options in order (the gadget grid).</summary>
-    public IReadOnlyList<string> Options => _options.Where(path => !SpyCloak.IsLegacyGadget(path)).ToArray();
+    public IReadOnlyList<string> Options => _options.Where(path => !SpyCloak.IsLegacyGadget(path)).OrderBy(RequiredLevel).ToArray();
 
     /// <summary>Whether a slot holds <paramref name="option"/> (the grid's "Equipped").</summary>
     public bool IsEquipped(string option)

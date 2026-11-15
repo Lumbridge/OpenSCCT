@@ -17,7 +17,11 @@ public partial class GearMenu : MenuPage
     private enum Category { Primary, Sidearm, Gadget }
     private static readonly Color Ink = new("10171d"), Surface = new("18232b"), Edge = new("30424b"),
         Accent = new("a5edba"), TextColour = new("edf3f3"), Muted = new("9aaeb6");
-    private readonly GearMenuModel? _model;
+    private GearMenuModel? _model;
+    private bool _waitingForTeam;
+    private Button? _switchTeam;
+    private readonly List<Action> _refreshSelections = new();
+    public Func<GearMenuModel?>? TeamModelSource { get; init; }
     private Category _category;
     private int _slot;
     private string _inspected = "", _focusAfterBuild = "";
@@ -43,7 +47,8 @@ public partial class GearMenu : MenuPage
         BuildFrame("Equipment", 1380f, responsive: true);
         PageButton("Cancel", () => Closed?.Invoke(), "Cancel");
         var swap = PageButton(_model?.Spy == true ? "Switch to Merc" : "Switch to Spy",
-            () => { if (CanSwitchTeam) TeamSwapRequested?.Invoke(); }, "SwitchTeam");
+            () => { if (CanSwitchTeam) { _waitingForTeam = true; TeamSwapRequested?.Invoke(); } }, "SwitchTeam");
+        _switchTeam = swap;
         swap.Disabled = !CanSwitchTeam;
         swap.TooltipText = CanSwitchTeam ? "Change sides and use that team's loadout." : "Teams can be changed in the lobby or practice.";
         PageButton("Reset loadout", () => { _model?.Reset(); Rebuild(); }, "Reset");
@@ -64,6 +69,16 @@ public partial class GearMenu : MenuPage
     public override void _Process(double delta)
     {
         base._Process(delta);
+        if (_waitingForTeam && TeamModelSource?.Invoke() is { } next && next.Spy != _model?.Spy)
+        {
+            _waitingForTeam = false;
+            _model = next;
+            _category = next.Spy ? Category.Gadget : Category.Primary;
+            _slot = 0;
+            _inspected = _focusAfterBuild = "";
+            if (_switchTeam is not null) _switchTeam.Text = next.Spy ? "Switch to Merc" : "Switch to Spy";
+            Rebuild();
+        }
         float gap = LayoutSize.X < 1000 ? 12 : 24;
         float width = Math.Min(220f, (Math.Min(1100f, LayoutSize.X - 48f) - gap * 3f) / 4f);
         foreach (Button button in PageButtons)
@@ -75,6 +90,7 @@ public partial class GearMenu : MenuPage
         if (Body is null) return;
         foreach (Node child in Body.GetChildren()) { Body.RemoveChild(child); child.QueueFree(); }
         _details = null;
+        _refreshSelections.Clear();
         if (_model is not { } m)
         {
             Body.AddChild(Text("Join a side to choose your equipment.", 19));
@@ -118,7 +134,7 @@ public partial class GearMenu : MenuPage
             _category == Category.Sidearm ? "Your sidearm has its own slot." : "Equipped gadgets swap slots when selected again.", 13, Muted));
 
         bool wide = width >= 1170;
-        float catalogueWidth = width - 232 - (wide ? 292 : 0);
+        float catalogueWidth = width - 232 - (wide ? 324 : 0);
         var grid = new GridContainer { Name = "EquipmentCatalogue", Columns = catalogueWidth >= 650 ? 3 : catalogueWidth >= 390 ? 2 : 1,
             SizeFlagsHorizontal = SizeFlags.ExpandFill };
         grid.AddThemeConstantOverride("h_separation", 10);
@@ -128,8 +144,19 @@ public partial class GearMenu : MenuPage
         for (int i = 0; i < options.Count; i++) AddOption(grid, options[i], i);
         if (options.Count == 0) centre.AddChild(Text("No equipment is available for this slot.", 15, Muted));
 
-        _details = Column(wide ? 274 : 0);
-        var detailsPanel = Panel(_details);
+        _details = Column(0);
+        _details.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+        // Keep changing descriptions and statistics out of the catalogue's minimum size.
+        var detailsScroll = new ScrollContainer
+        {
+            CustomMinimumSize = new Vector2(wide ? 274 : 0, 540),
+            HorizontalScrollMode = ScrollContainer.ScrollMode.ShowNever,
+            VerticalScrollMode = ScrollContainer.ScrollMode.ShowAlways,
+            SizeFlagsVertical = SizeFlags.ShrinkBegin,
+        };
+        detailsScroll.AddChild(_details);
+        var detailsPanel = Panel(detailsScroll);
+        detailsPanel.SizeFlagsVertical = SizeFlags.ShrinkBegin;
         detailsPanel.Name = "EquipmentDetails";
         if (wide) main.AddChild(detailsPanel);
         else { centre.AddChild(new HSeparator()); centre.AddChild(detailsPanel); }
@@ -154,8 +181,16 @@ public partial class GearMenu : MenuPage
         var box = Column(0);
         Fill(button, box, 13);
         box.AddChild(Text(caption, 11, active ? Accent : Muted));
-        box.AddChild(Text(GearMenuModel.NameOf(path), 16, disabled ? Muted : TextColour));
-        button.Pressed += () => { _category = category; _slot = slot; _inspected = path; _focusAfterBuild = nodeName; Rebuild(); };
+        var slotName = Text(GearMenuModel.NameOf(path), 16, disabled ? Muted : TextColour);
+        box.AddChild(slotName);
+        _refreshSelections.Add(() =>
+        {
+            string current = category == Category.Primary ? (_model!.Spy ? Loadouts.SpyWeapon.Path ?? "" : _model!.ChosenWeapon) :
+                category == Category.Sidearm ? _model!.ChosenSidearm : _model!.Gadgets[slot];
+            slotName.Text = GearMenuModel.NameOf(current);
+            button.TooltipText = disabled ? button.TooltipText : slotName.Text;
+        });
+        button.Pressed += () => { _category = category; _slot = slot; _inspected = CurrentSelection(); _focusAfterBuild = nodeName; Rebuild(); };
         parent.AddChild(button);
     }
 
@@ -164,7 +199,6 @@ public partial class GearMenu : MenuPage
         var m = _model!;
         bool allowed = m.IsAllowed(path);
         bool selected = string.Equals(path, CurrentSelection(), StringComparison.OrdinalIgnoreCase);
-        bool equipped = _category == Category.Primary ? selected : m.IsEquipped(path);
         var card = new GearTile { Name = "Option" + (index + 1), Disabled = !allowed,
             CustomMinimumSize = new Vector2(180, _category == Category.Primary ? 167 : 147), SizeFlagsHorizontal = SizeFlags.ExpandFill,
             TooltipText = allowed ? GearMenuModel.NameOf(path) : Restriction(path) };
@@ -175,8 +209,19 @@ public partial class GearMenu : MenuPage
         Style(card, selected);
         var stack = Column(0);
         Fill(card, stack, 12);
-        stack.AddChild(Text(selected ? "SELECTED" : equipped ? "EQUIPPED" : !allowed ? "LOCKED" :
-            MercRifles.Find(path)?.Suppressed == true ? "SUPPRESSED" : _category == Category.Primary ? "PRIMARY" : "AVAILABLE", 10, selected ? Accent : Muted));
+        var status = Text("", 10);
+        stack.AddChild(status);
+        void RefreshSelection()
+        {
+            bool chosen = string.Equals(path, CurrentSelection(), StringComparison.OrdinalIgnoreCase);
+            bool held = _category == Category.Primary ? chosen : m.IsEquipped(path);
+            Style(card, chosen);
+            status.Text = chosen ? "SELECTED" : held ? "EQUIPPED" : !allowed ? "LOCKED" :
+                MercRifles.Find(path)?.Suppressed == true ? "SUPPRESSED" : _category == Category.Primary ? "PRIMARY" : "AVAILABLE";
+            status.LabelSettings.FontColor = chosen ? Accent : Muted;
+        }
+        _refreshSelections.Add(RefreshSelection);
+        RefreshSelection();
         stack.AddChild(Picture(path, _category == Category.Primary ? 76 : 56));
         stack.AddChild(Text(GearMenuModel.NameOf(path), 17, allowed ? TextColour : Muted));
         string sub = !allowed && m.RequiredLevel(path) > 0 ? "REQUIRES LEVEL " + m.RequiredLevel(path) :
@@ -191,8 +236,8 @@ public partial class GearMenu : MenuPage
             else if (_category == Category.Sidearm) m.ChooseSidearm(path);
             else m.Choose(_slot, path);
             _inspected = path;
-            _focusAfterBuild = card.Name;
-            Rebuild();
+            foreach (var refresh in _refreshSelections) refresh();
+            ShowDetails(path);
         };
         grid.AddChild(card);
     }

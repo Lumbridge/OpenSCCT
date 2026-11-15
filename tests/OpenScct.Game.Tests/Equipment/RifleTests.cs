@@ -15,11 +15,11 @@ public sealed class RifleTests
     private static readonly Name Reloading = new("s_Reloading");
     private static readonly Name FullReloading = new("s_FullReloading");
 
-    private static (CombatScene Scene, SPlayerController PC, SWeaponDefense Rifle) Merc()
+    private static (CombatScene Scene, SPlayerController PC, SWeaponDefense Rifle) Merc(SWeaponDefense? weapon = null)
     {
         var scene = new CombatScene();
         (SPlayerController pc, SBasePawn merc) = scene.Player(false, new FVector(0f, 0f, 100f));
-        SWeaponDefense rifle = scene.Give(new SWeaponDefense(), merc);
+        SWeaponDefense rifle = scene.Give(weapon ?? new SWeaponDefense(), merc);
         rifle.GiveTo(merc);
         merc.WeaponLoaded = 2;
         scene.Run(0.1f);
@@ -63,6 +63,43 @@ public sealed class RifleTests
         Assert.Equal(25, rifle.ClipAmmo);
         Assert.Equal(125, rifle.Ammo);
         Assert.Equal(SRateOfFireMode.ROF_Auto, rifle.ROFMode);
+    }
+
+    private sealed class CountingRifle : SWeaponDefense
+    {
+        public int Fired;
+        public override void FireWeapon() { base.FireWeapon(); Fired++; }
+    }
+
+    [Theory]
+    [InlineData(SRateOfFireMode.ROF_Auto)]
+    [InlineData(SRateOfFireMode.ROF_Burst)]
+    [InlineData(SRateOfFireMode.ROF_Single)]
+    public void InfiniteAmmoKeepsAutoFiringButPreservesBurstAndSingle(SRateOfFireMode mode)
+    {
+        var counter = new CountingRifle();
+        (CombatScene scene, SPlayerController pc, SWeaponDefense rifle) = Merc(counter);
+        rifle.XLevel.SetService(new OpenScct.Game.Modes.PracticeRules { On = true });
+        rifle.ROFMode = mode;
+        int clip = rifle.ClipAmmo, ammo = rifle.Ammo, shots = counter.Fired;
+        pc.bFire = 1;
+        rifle.eventFire(1f);
+        scene.Run(rifle.RateOfFire * (clip * 2 + 2));
+        Assert.Equal(clip, rifle.ClipAmmo);
+        Assert.Equal(ammo, rifle.Ammo);
+        if (mode == SRateOfFireMode.ROF_Auto)
+        {
+            Assert.True(counter.Fired - shots > clip * 2);
+            Assert.Equal(Firing, rifle.GetStateName());
+            pc.bFire = 0;
+            scene.Run(rifle.RateOfFire + .1f);
+            Assert.Equal(Selected, rifle.GetStateName());
+        }
+        else
+        {
+            Assert.Equal(mode == SRateOfFireMode.ROF_Burst ? 3 : 1, counter.Fired - shots);
+            Assert.Equal(Selected, rifle.GetStateName());
+        }
     }
 
     [Fact]

@@ -309,7 +309,6 @@ public sealed class InGameMenuModel
     public InGameMenuAction GearSwitchTeam()
     {
         if (Page != InGameMenuPage.Gear || !Context.CanSwitchTeam) return InGameMenuAction.None;
-        CloseAll();
         return InGameMenuAction.SwitchTeam;
     }
 

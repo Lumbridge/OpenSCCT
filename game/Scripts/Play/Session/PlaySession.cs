@@ -374,7 +374,8 @@ public sealed class PlaySession : IDisposable
 
     private void TickPracticeTeamSwap(ServerHost host)
     {
-        if (host.Game is not { bGameEnded: false } game || ServerController is not { } pc ||
+        // Offline sessions create their rules in PlayMapLoader, so host.Game is unset.
+        if (Loader.Game is not { bGameEnded: false } game || ServerController is not { } pc ||
             !OpenScct.Game.Modes.PracticeRules.IsOn(pc)) return;
         int team = System.Threading.Interlocked.Exchange(ref _requestedPracticeTeam, -1);
         if (!_practiceTeamRespawn && team is 0 or 1 && game.eventChangeTeam(pc, team, true))

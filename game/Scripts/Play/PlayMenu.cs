@@ -388,7 +388,7 @@ public partial class PlayMenu : Node
                 if (Context().CanSwitchTeam && GetTree().Root.GetNodeOrNull<OnlineService>(OnlineService.NodeName)?.Client is { } client)
                     client.SetTeam(client.Lobby.Local?.Team == 0 ? 1 : 0);
                 else if (Context().CanSwitchTeam) Session?.RequestPracticeTeamSwap();
-                Resume();
+                if (Model.Page != InGameMenuPage.Gear) Resume();
                 break;
             case InGameMenuAction.Resign:
                 if (Context().CanResign)

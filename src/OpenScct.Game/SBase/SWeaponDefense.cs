@@ -212,7 +212,11 @@ public partial class SWeaponDefense
     [PortOf("uc:SBase.SWeaponDefense:FireWeapon", Spec = "spec/equipment/merc-rifle.md#rules")]
     public virtual void FireWeapon()
     {
-        BulletsToFire -= 1;
+        // Automatic fire's pull budget normally mirrors the magazine. Practice keeps
+        // that magazine full, so its pull must also remain live until fire is released.
+        // Burst and single-shot modes still finish their normal number of shots.
+        if (ROFMode != SRateOfFireMode.ROF_Auto || !Modes.PracticeRules.ResourcesInfinite(this))
+            BulletsToFire -= 1;
         FRotator aim = OwnerPC?.MyDesiredRotation ?? Instigator?.Rotation ?? Rotation;
         ServerSetAccurateRotation(aim.Yaw, aim.Pitch, aim.Roll);
         ServerFireWeapon(BulletInARow);

@@ -80,14 +80,18 @@ public static class ContentPaths
         Language = Root is null ? "en" : OpenScct.Maps.ContentBuildFile.LanguageTag(OpenScct.Maps.ContentBuildFile.Language(Root));
 
         // The game's localized text comes from the player's own content (never from the repository).
-        // (or from downloaded packs when the player has not converted an install).
-        if (Root is not null)
+        // Map-only content roots still use the downloaded shared text, like Shared above.
+        if (Root is not null && File.Exists(Path.Combine(Root, OpenScct.Core.Uc.UcText.RelativePath)))
         {
             OpenScct.Core.Uc.UcText.Use(Path.Combine(Root, OpenScct.Core.Uc.UcText.RelativePath));
         }
         else if (Packs is { } downloaded && File.Exists(Path.Combine(downloaded, OpenScct.Core.Uc.UcText.RelativePath)))
         {
             OpenScct.Core.Uc.UcText.Use(Path.Combine(downloaded, OpenScct.Core.Uc.UcText.RelativePath));
+        }
+        else
+        {
+            OpenScct.Core.Uc.UcText.Use(null);
         }
     }
 

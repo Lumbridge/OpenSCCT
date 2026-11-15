@@ -220,11 +220,16 @@ public partial class LobbyRoomScreen : MenuPage
         };
         GearMenuModel? model = GearMenuModel.ForLobby(team, s.Setup, SettingsStore.Current.Loadout,
             OpenScctGame.Online.AccountService.Get(GetTree()).Account?.Progress?.Level ?? 1, s.SidearmsUnrestricted);
-        var gear = new GearMenu(model) { OwnKeys = true, CanSwitchTeam = SwitchTeamButton is { Disabled: false } };
+        var gear = new GearMenu(model)
+        {
+            OwnKeys = true, CanSwitchTeam = SwitchTeamButton is { Disabled: false },
+            TeamModelSource = () => GearMenuModel.ForLobby(Local()?.Side == HudSide.Spy ? 0 : Local()?.Side == HudSide.Merc ? 1 : -1,
+                s.Setup, SettingsStore.Current.Loadout,
+                OpenScctGame.Online.AccountService.Get(GetTree()).Account?.Progress?.Level ?? 1, s.SidearmsUnrestricted),
+        };
         gear.TeamSwapRequested += () =>
         {
             if (SwitchTeamButton is not { Disabled: false }) return;
-            gear.QueueFree();
             SwitchTeam();
         };
         gear.Applied += m =>
