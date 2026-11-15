@@ -346,7 +346,8 @@ public partial class FirstPersonView : Node3D
             Transform3D neutral = _model.Root.GlobalTransform.AffineInverse() * _model.Skeleton.GlobalTransform *
                 _model.Sampler.SampleBone(held, sight, 0f);
             var rotation = new Basis(new Quaternion(neutral.Basis.X.Normalized(), Vector3.Right));
-            _rifleSightOffsets[_model] = new Transform3D(rotation, Vector3.Right * (asset.Contains("m4a1s", StringComparison.OrdinalIgnoreCase) ? .36f : .22f) - rotation * neutral.Origin);
+            float eyeRelief = MercRifles.All.First(r => string.Equals(r.Asset + "_first", asset, StringComparison.OrdinalIgnoreCase)).EyeRelief;
+            _rifleSightOffsets[_model] = new Transform3D(rotation, Vector3.Right * eyeRelief - rotation * neutral.Origin);
         }
 
         _applier = new ChannelPoseApplier(_model.Skeleton);

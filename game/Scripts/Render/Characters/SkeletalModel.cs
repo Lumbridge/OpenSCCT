@@ -649,6 +649,12 @@ public sealed class SkeletalModel : OpenScctGame.Views.IFirstPersonRigModel
             // An outfit's own materials have no heat or EMF skins: masks made from the stock mesh it stands in for.
             // Any other model's are in the pack, except the pistols' (SidearmVision).
             OwnVision = clipsFrom is null ? SidearmVision : name => OutfitSkins.For(glbPath, clipsFrom.Glb)?.Vision(name),
+            // Stock first-person sleeves share an all-black EMF modifier with the weapon.
+            // Cloth must not become another white weapon silhouette. Keep its thermal mask.
+            EmfOverride = glbPath.Replace('\\', '/').Contains("/SWeaponFirst/", StringComparison.OrdinalIgnoreCase)
+                ? name => name.StartsWith("SWeaponTex.1DEF_", StringComparison.OrdinalIgnoreCase)
+                    ? (s_fabricVision ??= new VisionMasks(Flat(.25f), Flat(1f))).Emf : null
+                : null,
         };
 
         // The PNGs of the materials built below, decoded on worker threads first (textures are made here).
@@ -1473,11 +1479,14 @@ public sealed class SkeletalModel : OpenScctGame.Views.IFirstPersonRigModel
     // take a black EMF texture, and a heat texture that leaves the actor's flat heat as it is (HEATTEX_Cool, 4 x 0.25).
     private const string SidearmMaterials = "OpenScctSidearms.";
     private static VisionMasks? s_sidearmVision;
+    private static VisionMasks? s_fabricVision;
 
     private static VisionMasks? SidearmVision(string material) =>
         (material.StartsWith(SidearmMaterials, StringComparison.OrdinalIgnoreCase) ||
          material.StartsWith("OpenScctRifles.", StringComparison.OrdinalIgnoreCase))
-            ? s_sidearmVision ??= new VisionMasks(Flat(0.25f), Flat(0f))
+            ? material.EndsWith(".Arms", StringComparison.OrdinalIgnoreCase) || material.EndsWith(".Gloves", StringComparison.OrdinalIgnoreCase)
+                ? s_fabricVision ??= new VisionMasks(Flat(0.25f), Flat(1f))
+                : s_sidearmVision ??= new VisionMasks(Flat(0.25f), Flat(0f))
             : null;
 
     private static ImageTexture Flat(float value)

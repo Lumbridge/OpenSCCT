@@ -458,9 +458,14 @@ public class DeathLivesRespawnTests
         a.ServerCycleRespawnWeapon();
         a.ServerCycleRespawnWeapon();
         Assert.Equal(new ClassRef("SBase.SWeaponDefense_Shotgun"), a.RespawnWeapon);
+        foreach (string rifle in new[] { "M4A1S", "AK47", "Galil", "Famas" })
+        {
+            a.ServerCycleRespawnWeapon();
+            Assert.Equal(new ClassRef("Svm." + rifle), a.RespawnWeapon);
+        }
         a.ServerCycleRespawnWeapon();
         Assert.Equal(new ClassRef("SBase.SWeaponDefense"), a.RespawnWeapon);
-        Assert.Equal(4, w.Host.To(a, "ClientSetRespawnWeapon").Count);
+        Assert.Equal(8, w.Host.To(a, "ClientSetRespawnWeapon").Count);
     }
 
     [Fact]

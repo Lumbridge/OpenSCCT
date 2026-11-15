@@ -467,20 +467,24 @@ public abstract class HudPage
 
     private void DrawGadgetRecharge(HudSnapshot s)
     {
-        if (s.Gadget is not { RechargeRemaining: > 0f } gadget ||
-            DrawList.Find("Gadget/Gadget") is not { Points.Length: >= 4 } icon) return;
+        if (s.Gadget is not { RechargeRemaining: > 0f } gadget) return;
         _white ??= WhiteRegion.Find(Assets);
         if (_white is not { } white) return;
         float l = float.MaxValue, t = float.MaxValue, r = float.MinValue, b = float.MinValue;
-        foreach (Vector2 p in icon.Points)
-        {
-            l = Math.Min(l, p.X); t = Math.Min(t, p.Y);
-            r = Math.Max(r, p.X); b = Math.Max(b, p.Y);
-        }
+        // A masked Magma rectangle can produce several clipped pieces with the same path.
+        // Bound the complete box, so the fill grows from its bottom rather than a partial icon/piece.
+        foreach (var piece in DrawList.Items)
+            if (piece.Path == "Gadget/fond01")
+                foreach (Vector2 p in piece.Points)
+                {
+                    l = Math.Min(l, p.X); t = Math.Min(t, p.Y);
+                    r = Math.Max(r, p.X); b = Math.Max(b, p.Y);
+                }
+        if (l == float.MaxValue) return;
         float progress = Math.Clamp(1f - gadget.RechargeRemaining / OpenScct.Game.Svm.CloneGadget.RechargeSeconds, 0f, 1f);
         float height = (b - t) * progress;
-        if (height > 0f) Bar("Extras/GadgetRecharge", new Vector2(l, b - height * .5f),
-            new Vector2(r, b - height * .5f), height, white, HudK.SpyColour with { A = .35f });
+        if (height > 0f) Bar("Gadget/RechargeFill", new Vector2(l, b - height * .5f),
+            new Vector2(r, b - height * .5f), height, white, HudK.SpyColour with { A = .18f });
     }
 
     protected void ProgressBar(string path, Vector2 start, float width, float progress, MagmaAnchor anchor, Color color)

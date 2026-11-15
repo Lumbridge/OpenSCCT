@@ -35,7 +35,7 @@ def render(request):
             sight = next(i for i, n in enumerate(doc['nodes']) if n.get('name') == 'ADS')
             p = world[sight][:3, 3]; direction = world[sight][:3, 0]; direction /= (direction @ direction)**.5
             camera_forward = Vector((float(direction[0]), float(-direction[2]), float(direction[1])))
-            camera_position = Vector((float(p[0]), float(-p[2]), float(p[1]))) - camera_forward*(.36 if source.stem.startswith('m4a1s') else .22)
+            camera_position = Vector((float(p[0]), float(-p[2]), float(p[1]))) - camera_forward*request.get('eye_relief', {'m4a1s': .18, 'ak47': .11, 'galil': .12, 'famas': .13}[source.stem.split('_')[0]])
         for node, channel, times, value in compiled:
             target = doc['nodes'][node]
             if 'matrix' in target:

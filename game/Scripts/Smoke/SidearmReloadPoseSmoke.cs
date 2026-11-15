@@ -57,16 +57,22 @@ public sealed class SidearmReloadPoseSmoke : SmokeTest
                     animation.Loop(0, motion);
                     var pose = new ViewModelPose();
                     float low = float.PositiveInfinity, high = float.NegativeInfinity;
+                    float sourceLow = float.PositiveInfinity, sourceHigh = float.NegativeInfinity;
                     for (int frame = 0; frame < 120; frame++)
                     {
-                        applier.Apply(pose.Update(animation, model.Sampler, 1f / 60));
+                        var channels = pose.Update(animation, model.Sampler, 1f / 60);
+                        applier.Apply(channels);
                         model.Skeleton.ForceUpdateAllBoneTransforms();
                         float y = (model.Skeleton.GlobalTransform * model.Skeleton.GetBoneGlobalPose(gun)).Origin.Y;
                         low = MathF.Min(low, y); high = MathF.Max(high, y);
+                        float source = (model.Skeleton.GlobalTransform * model.Sampler.SampleBone(
+                            channels[0].Clip!, gun, channels[0].ClipFrame)).Origin.Y;
+                        sourceLow = MathF.Min(sourceLow, source); sourceHigh = MathF.Max(sourceHigh, source);
                     }
-                    float required = motion == ViewModelClips.FirstWaitStFd2 ? .003f : .01f;
-                    if (high - low < required)
-                        return SmokeResult.Fail($"{sidearm.Id}: {motion} runtime vertical bob is missing ({high-low})");
+                    // Preserve the authored motion, including a still idle. An arbitrary minimum amplitude
+                    // rejected the static retail idle and a valid 8 mm walk despite correct runtime poses.
+                    if (MathF.Abs((high-low)-(sourceHigh-sourceLow)) > .0005f)
+                        return SmokeResult.Fail($"{sidearm.Id}: {motion} runtime range {high-low} differs from source {sourceHigh-sourceLow}");
                     animation.Loop(0, ViewModelClips.FirstJumpStFd2);
                     animation.SetAlpha(4, .25f);
                     animation.Play(4, ViewModelClips.FirstReloStFd2, ViewModelClips.DataOf(ViewModelClips.FirstReloStFd2));

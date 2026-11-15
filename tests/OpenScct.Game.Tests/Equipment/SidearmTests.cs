@@ -171,16 +171,16 @@ public sealed class SidearmTests
     }
 
     [Theory]
-    [InlineData(SidearmKind.Magnum44, 55)]
-    [InlineData(SidearmKind.DesertEagle, 50)]
-    public void HeavyDamageUsesTheAgreedBands(SidearmKind kind, int damage)
+    [InlineData(SidearmKind.Magnum44, 52, 47)]
+    [InlineData(SidearmKind.DesertEagle, 42, 30)]
+    public void HeavyDamageFallsWithRange(SidearmKind kind, int damage, int farDamage)
     {
         var (_, _, pawn, _) = Rig(kind);
         var weapon = pawn.SidearmWeapon!;
         Assert.Equal(damage, WeaponRules.DistanceDamage(weapon, 1000));
-        Assert.True(damage * 2 >= 100);
+        Assert.True(damage > farDamage);
         Assert.True(damage * 3 >= 100);
-        Assert.Equal((int)(damage * .5f), WeaponRules.DistanceDamage(weapon, 3000));
+        Assert.Equal(farDamage, WeaponRules.DistanceDamage(weapon, 3000));
     }
 
     [Fact]

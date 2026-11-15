@@ -15,8 +15,8 @@ public sealed class ShotgunPelletTests
     [Theory]
     [InlineData(0, 0)]
     [InlineData(1, 23)]
-    [InlineData(3, 71)]
-    [InlineData(9, 214)]
+    [InlineData(3, 69)]
+    [InlineData(9, 207)]
     public void PartialHitsAccumulateOnlyThePelletsThatHit(int pellets, int damage)
     {
         var (scene, gun, target) = Rig();
@@ -34,9 +34,10 @@ public sealed class ShotgunPelletTests
         var rays = new Rays(scene.Level.Info, i => i < 3 ? target : null) { Pills = [1, 2, 5] };
         scene.Level.SetService<IHitZones>(rays);
         gun.TraceFire(0, 0, 0);
-        // Base 119: head 357 + torso 119 + limb 23; trunc(499 * .2) = 99.
-        Assert.Equal(901, target.Health);
-        Assert.Equal(99, ((SPlayerController)target.Controller!).LastDamages[0].Damage);
+        // At 1 m, trunc(119 * .7^(100/1270)) = 115: head 345 + torso 115 + limb 23.
+        // Apply the final multiplier once: trunc(483 * .2) = 96.
+        Assert.Equal(904, target.Health);
+        Assert.Equal(96, ((SPlayerController)target.Controller!).LastDamages[0].Damage);
     }
 
     [Fact]
@@ -49,11 +50,11 @@ public sealed class ShotgunPelletTests
         scene.Level.SetService<IHitZones>(rays);
         gun.TraceFire(0, 0, 0);
         Assert.Equal(977, first.Health);
-        Assert.Equal(810, second.Health);
+        Assert.Equal(816, second.Health);
         rays.Traces.Clear();
         gun.TraceFire(0, 0, 0);
         Assert.Equal(954, first.Health);
-        Assert.Equal(620, second.Health);
+        Assert.Equal(632, second.Health);
     }
 
     [Fact]
@@ -117,7 +118,7 @@ public sealed class ShotgunPelletTests
             Assert.Equal(ownerRays.Traces[i].Start, serverRays.Traces[i].Start);
             Assert.Equal(ownerRays.Traces[i].End, serverRays.Traces[i].End);
         }
-        Assert.Equal(786, serverVictim.Health);
+        Assert.Equal(793, serverVictim.Health);
     }
 
     private static (CombatScene Scene, SWeaponDefense_Shotgun Gun, SBasePawn Target) Rig(

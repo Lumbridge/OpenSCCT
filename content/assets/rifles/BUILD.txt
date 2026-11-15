@@ -12,11 +12,14 @@ Rebuild distributable art with Python/numpy/Pillow:
 Rebuild the transparent equipment icons with Blender 5.x:
   blender --background --disable-autoexec --python content/assets/rifles/render.py
 
-Rebuild the original OpenSCCT tube optic and guarded FAMAS aperture/blade:
+Rebuild the original OpenSCCT tube optic:
   blender --background --disable-autoexec --python content/assets/rifles/author_sight.py
 
-The chars step fits the supporting palm, thumb and curled fingers to each fore-end,
-solves the elbow for a neutral wrist, and authors visible magazine contacts.
+The chars step retains the M4/FAMAS authored reloads exactly. AK and Galil each
+use separate fore-end contacts and reload treatment in rifle_contacts.py.
+The imported FAMAS omits its sight plates/blade: the chars step completes these
+inside its native carry-handle channel, using MAT 1057 figures 5/6 as a visual reference.
+https://www.kalasnyikov.hu/dokumentumok/famas.pdf
 It also mounts sights on the first- and third-person rigs and generates matching
 stock/M4/FAMAS side renders with Python/numpy/Pillow; Blender is not a content-build dependency.
 

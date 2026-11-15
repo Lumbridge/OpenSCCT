@@ -109,6 +109,9 @@ public sealed partial class MaterialCompiler
     /// <summary>Masks for materials (by name) that have no vision modifiers in <see cref="Pack"/>; null for none.</summary>
     public Func<string, VisionMasks?>? OwnVision { get; set; }
 
+    /// <summary>Correct an EMF skin while retaining the material's authored thermal mask.</summary>
+    public Func<string, Texture2D?>? EmfOverride { get; set; }
+
     /// <summary>
     /// Whether the materials compile OpenSCCT's cosmetics (SVM_COSMETIC: svm_tint, svm_glow_hue, the camo finish and
     /// sheen). Only character models set them (SkeletalModel, and the skins put over its surfaces); without it the
@@ -691,6 +694,11 @@ public sealed partial class MaterialCompiler
         else
         {
             ApplyVision(material, vision);
+        }
+        if (entry.Name is { } own && EmfOverride?.Invoke(own) is { } emf)
+        {
+            material.SetShaderParameter("tex_emf", emf);
+            material.SetShaderParameter("emf_mode", 1);
         }
     }
 

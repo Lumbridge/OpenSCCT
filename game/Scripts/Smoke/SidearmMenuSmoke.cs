@@ -63,11 +63,17 @@ public sealed class SidearmMenuSmoke : SmokeTest
                 break;
             case 4:
                 var slot = (CosmeticSlot)(6 + _pistol);
+                ((Button)_page!.FindChild("SlotTab" + slot, true, false)).EmitSignal(BaseButton.SignalName.Pressed);
+                _phase = 7;
+                break;
+            case 7:
+                slot = (CosmeticSlot)(6 + _pistol);
+                int expected = CosmeticCatalog.For(CosmeticSide.Merc, slot).Count() + 1;
                 if (_page!.FindChild("Slot" + slot, true, false) is not PanelContainer panel ||
-                    panel.FindChild("Items", true, false) is not GridContainer { } grid || grid.GetChildCount() != 9)
-                    return SmokeResult.Fail("Armoury section " + slot + " must show default plus eight finishes");
+                    panel.FindChild("Items", true, false) is not GridContainer { } grid || grid.GetChildCount() != expected)
+                    return SmokeResult.Fail("Armoury section " + slot + " must show retail plus every catalog finish");
                 ((Button)_page.FindChild("View" + slot, true, false)).EmitSignal(BaseButton.SignalName.Pressed);
-                _phase++;
+                _phase=5;
                 break;
             case 5:
                 foreach (var child in _page!.FindChild("Preview", true, false).FindChildren("*", nameof(Camera3D), true, false))

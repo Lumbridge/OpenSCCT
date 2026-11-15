@@ -167,6 +167,9 @@ public partial class SPlayerController
             pawn.GroundSpeed = 0f;
         }
 
+        // Apply ADS after the analog-input dead zone: a slow walking request must remain usable.
+        if (pawn.MyWeapon is Svm.MercRifle { AimRequested: true }) pawn.GroundSpeed *= .25f;
+
         if (pawn.GroundSpeed == 0f)
         {
             newAccel = default;

@@ -12,28 +12,24 @@ public sealed class WeaponRulesTests
 
     [Theory]
     [InlineData(0f, 25)]
-    [InlineData(150f, 25)]
-    [InlineData(299.9f, 25)]
-    [InlineData(300f, 25)]
-    [InlineData(1200f, 14)]
-    [InlineData(1500f, 12)]
-    [InlineData(1800f, 9)]
-    [InlineData(5000f, 9)]
-    public void DistanceDamageFollowsTheThreeBands(float distance, int expected)
+    [InlineData(-100f, 25)]
+    [InlineData(1270f, 24)]
+    [InlineData(2540f, 24)]
+    [InlineData(5000f, 23)]
+    [InlineData(12700f, 20)]
+    public void DistanceDamageUsesContinuousExponentialRetention(float distance, int expected)
     {
         Assert.Equal(expected, WeaponRules.DistanceDamage(Rifle(), distance));
     }
 
     [Fact]
-    public void DistanceDamageFallsLinearlyBetweenBands()
+    public void DamageKeepsFallingBeyondTheFormerFarBand()
     {
-        int previous = int.MaxValue;
-        for (float d = 300f; d <= 1800f; d += 50f)
-        {
-            int dmg = WeaponRules.DistanceDamage(Rifle(), d);
-            Assert.True(dmg <= previous);
-            previous = dmg;
-        }
+        float at1270 = WeaponRules.DistanceDamageFloat(Rifle(), 1270);
+        float at2540 = WeaponRules.DistanceDamageFloat(Rifle(), 2540);
+        Assert.InRange(at1270, 24.49f, 24.51f);
+        Assert.InRange(at2540, 24f, 24.02f);
+        Assert.True(WeaponRules.DistanceDamageFloat(Rifle(), 10000) < at2540);
     }
 
     [Theory]

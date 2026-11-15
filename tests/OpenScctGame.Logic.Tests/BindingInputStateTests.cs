@@ -8,6 +8,23 @@ namespace OpenScctGame.Logic.Tests;
 
 public sealed class BindingInputStateTests
 {
+    [Fact]
+    public void DoubleTapThreeRaisesTheThirdGadgetLaunchOnceAlongsideSelection()
+    {
+        var layout = KeyLayout.Parse("[Engine.Input]\nIK_3=SelectGadget 2\nIK_Double+3=LaunchGadget 2");
+        var state = new BindingInputState();
+        var first = state.Update(layout, "3", true, nowMsec: 1000);
+        Assert.DoesNotContain(first.SelectMany(e => layout.Resolve(e.Key)), a => a.Name == "LaunchGadget");
+        state.Update(layout, "3", false, nowMsec: 1050);
+        var second = state.Update(layout, "3", true, nowMsec: 1200);
+        var launch = Assert.Single(second.SelectMany(e => layout.Resolve(e.Key)), a => a.Name == "LaunchGadget");
+        Assert.Equal(2, launch.Arg);
+        Assert.Empty(state.Update(layout, "3", true, nowMsec: 1201));
+        state.Update(layout, "3", false, nowMsec: 1250);
+        Assert.DoesNotContain(state.Update(layout, "3", true, nowMsec: 1300)
+            .SelectMany(e => layout.Resolve(e.Key)), a => a.Name == "LaunchGadget");
+    }
+
     private static KeyLayout Layout() => KeyLayout.Parse("""
         [Engine.Input]
         IK_K=Plain

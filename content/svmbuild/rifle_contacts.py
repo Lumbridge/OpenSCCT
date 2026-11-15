@@ -1,0 +1,184 @@
+"""Individual AK and Galil contacts. M4 and FAMAS authored handling is left intact."""
+import math
+import numpy as np
+from .pistol_arms import tracks, pose, turn, curve, decompose
+from .sidearm_models import world_matrices
+from .reload_motion import solve_arm, smooth
+from .reload_choreography import mix
+
+FINGERS = ((11, 12, 13, 14), (15, 16, 17, 18), (19, 20, 21, 22), (24, 25, 26, 27), (28, 29, 30, 31))
+
+
+def _close(hand, chain, target):
+    # Small joint rotations retain segment lengths and avoid snapping the glove into a fist.
+    for _ in range(24):
+        if np.linalg.norm(hand[chain[-1]][:3, 3]-target) < .0008: break
+        for offset in (2, 1, 0):
+            joint = chain[offset]; origin = hand[joint][:3, 3]
+            start = hand[chain[-1]][:3, 3]-origin; end = target-origin
+            cosine = np.clip(start @ end / max(1e-12, np.linalg.norm(start)*np.linalg.norm(end)), -1, 1)
+            angle = min(.10, math.acos(cosine))
+            axis = np.cross(start, end)
+            if np.linalg.norm(axis) < 1e-9: continue
+            axis /= np.linalg.norm(axis)
+            x, y, z = axis; k = np.array([[0, -z, y], [z, 0, -x], [-y, x, 0]])
+            rotation = np.eye(3)+math.sin(angle)*k+(1-math.cos(angle))*(k @ k)
+            for node in chain[offset:]:
+                hand[node][:3, :3] = rotation @ hand[node][:3, :3]
+                hand[node][:3, 3] = origin+rotation @ (hand[node][:3, 3]-origin)
+
+
+def _hand_frame(held):
+    middle = np.mean([held[n][:3, 3] for n in (15, 19, 24, 28)], axis=0)
+    row = held[15][:3, 3]-held[28][:3, 3]; row /= np.linalg.norm(row)
+    across = middle-held[10][:3, 3]; across -= row*(across @ row); across /= np.linalg.norm(across)
+    return middle, np.column_stack([row, across, np.cross(row, across)])
+
+
+def _support(held, profile):
+    hand = [m.copy() for m in held]
+    # AK: palm under the wooden fore-end; Galil: a more rearward grip below the deeper handguard.
+    angle, shift, cy, cz, ry, rz = {
+        'ak47': (-.30, [.065, 0, -.025], -.145, .138, .037, .030),
+        'galil': (-.18, [-.020, -.012, -.018], -.157, .145, .043, .034),
+    }[profile]
+    c, s = math.cos(angle), math.sin(angle)
+    rotation = np.array([[1, 0, 0], [0, c, -s], [0, s, c]])
+    wrist = held[10][:3, 3]
+    delta = np.eye(4); delta[:3, :3] = rotation
+    delta[:3, 3] = wrist+shift-rotation @ wrist
+    for n in range(10, 32): hand[n] = delta @ held[n]
+    for chain in FINGERS[1:]:
+        tip = hand[chain[-1]][:3, 3].copy()
+        tip[1] = np.clip(tip[1], cy-ry*.75, cy+ry*.65)
+        tip[2] = cz+rz*math.sqrt(max(0, 1-((tip[1]-cy)/ry)**2))
+        _close(hand, chain, tip)
+    thumb = hand[14][:3, 3].copy()
+    thumb[1] = -.135 if profile == 'ak47' else -.143
+    thumb[2] = .109 if profile == 'ak47' else .113
+    _close(hand, FINGERS[0], thumb)
+    return hand
+
+
+def _mag_grasp(held, centre, half_width, profile):
+    middle, basis = _hand_frame(held)
+    target_basis = np.column_stack([[0., 1, 0], [1., 0, 0], [0., 0, -1]])
+    rotation = target_basis @ basis.T
+    grasp = np.eye(4); grasp[:3, :3] = rotation
+    offset = [.010, -.027, -.029] if profile == 'ak47' else [.006, -.019, -.027]
+    grasp[:3, 3] = centre+offset-rotation @ middle
+    hand = [m.copy() for m in held]
+    for n in range(10, 32): hand[n] = grasp @ held[n]
+    for chain in FINGERS[1:]:
+        tip = hand[chain[-1]][:3, 3].copy()
+        tip[0] = centre[0]+half_width-.004
+        tip[2] = centre[2]+.016
+        _close(hand, chain, tip)
+    thumb = hand[14][:3, 3].copy()
+    thumb[0] = centre[0]-.010; thumb[2] = centre[2]-.018
+    _close(hand, FINGERS[0], thumb)
+    return hand
+
+
+def _blend_hand(a, b, amount, parents):
+    result = {10: mix(a[10], b[10], amount)}
+    for n in range(11, 32):
+        parent = parents[n]
+        result[n] = result[parent] @ mix(np.linalg.inv(a[parent]) @ a[n], np.linalg.inv(b[parent]) @ b[n], amount)
+    return result
+
+
+def _bolt_grasp(held, contact):
+    middle, basis = _hand_frame(held)
+    # AK left hand reaches over the receiver, palm down, and hooks the right-side handle.
+    target_basis = np.column_stack([[0., 0, -1], [1., 0, 0], [0., -1, 0]])
+    grasp = np.eye(4); grasp[:3,:3] = target_basis @ basis.T
+    grasp[:3,3] = contact+[-.040,.024,.008]-grasp[:3,:3] @ middle
+    hand = [m.copy() for m in held]
+    for n in range(10,32): hand[n] = grasp @ held[n]
+    for chain, across in zip(FINGERS[1:], [-.010,-.003,.004,.011]):
+        _close(hand, chain, contact+np.array([0,.002,across]))
+    _close(hand, FINGERS[0], contact+np.array([-.009,-.008,.006]))
+    return hand
+
+
+def _place_hand(reference, hand, pole):
+    wrist = hand[10]
+    result = solve_arm(reference, (7, 8, 10), wrist[:3, 3], wrist[:3, :3],
+                       pole_offset=np.array([0, pole, 0]), twist_node=9)
+    correction = result[10] @ np.linalg.inv(wrist)
+    result.update({n: correction @ hand[n] for n in range(11, 32)})
+    return result
+
+
+def author(doc, data, profile, part_points):
+    if profile not in ('ak47', 'galil'): return
+    _, parents = world_matrices(doc)
+    held = pose(doc, tracks(doc, data, next(a for a in doc['animations'] if a['name'] == 'FirstWaitStFd2')), 0)
+    support = _support(held, profile)
+    points = part_points(doc, data, held, 87)
+    centre = (points.min(0)+points.max(0))*.5
+    grasp = _mag_grasp(held, centre, (points.max(0)[0]-points.min(0)[0])*.5, profile)
+    bolt_grasp = None
+    if profile == 'ak47':
+        handle = part_points(doc, data, held, 89)
+        contact = handle[handle[:,2] > handle[:,2].max()-.004].mean(0)
+        bolt_grasp = _bolt_grasp(held, contact)
+    for animation in doc['animations']:
+        original = tracks(doc, data, animation); duration = max(float(t[-1]) for _, _, t, _ in original)
+        reload = animation['name'] == 'FirstReloStFd2'
+        nodes = set(range(7, 32))
+        if reload and profile == 'ak47': nodes.update(range(32, 57)); nodes.update(doc['skins'][0]['joints'][doc['skins'][0]['joints'].index(86):])
+        frames = {n: [] for n in nodes}
+        times = np.linspace(0, duration, max(2, math.ceil(duration*30)+1))
+        for time in times:
+            f = time/duration; old = pose(doc, original, time)
+            gun_follow = old[86] @ np.linalg.inv(held[86])
+            desired = {}
+            if reload and profile == 'ak47':
+                # A rock-out/rock-in reload, presented from the left. The charging handle moves after seating.
+                envelope = smooth([0, .10, .24, .73, .94, 1], np.array([0, .4, 1, 1, 0, 0]), f)
+                angle = -.30*envelope; c, s = math.cos(angle), math.sin(angle)
+                gun_follow = np.eye(4); gun_follow[:3, :3] = [[1, 0, 0], [0, c, -s], [0, s, c]]
+                pivot = held[86][:3, 3]
+                gun_follow[:3, 3] = pivot-gun_follow[:3, :3] @ pivot+np.array([.11, .115, -.025])*envelope
+                desired.update({n: gun_follow @ held[n] for n in doc['skins'][0]['joints'] if n >= 86 and n != 88})
+                rock = smooth([0, .17, .28, .42, .48, .63, .74, 1], np.array([0, 0, .40, .40, .40, .35, 0, 0]), f)
+                down = smooth([0, .19, .29, .42, .49, .63, .74, 1], np.array([0, 0, .045, .24, .24, .055, 0, 0]), f)
+                c, s = math.cos(rock), math.sin(rock)
+                tilt = np.eye(4); tilt[:3, :3] = [[c, -s, 0], [s, c, 0], [0, 0, 1]]
+                lug = np.array([.405, -.163, centre[2]])
+                tilt[:3, 3] = lug-tilt[:3, :3] @ lug+np.array([-.02*envelope, -down, 0])
+                desired[87] = gun_follow @ tilt @ held[87]
+                rack = smooth([0, .77, .81, .86, .90, 1], np.array([0, 0, .042, .042, 0, 0]), f)
+                desired[89] = gun_follow @ held[89]; desired[89][:3, 3] -= gun_follow[:3, 0]*rack
+                desired.update(solve_arm(held, (32, 33, 35), (gun_follow @ held[35])[:3, 3],
+                                         (gun_follow @ held[35])[:3, :3], twist_node=34))
+                for n in range(36, 57): desired[n] = gun_follow @ held[n]
+            base_hand = [gun_follow @ m for m in support]
+            if reload:
+                magazine = desired.get(87, old[87])
+                follow = magazine @ np.linalg.inv(held[87])
+                contact_hand = [follow @ m for m in grasp]
+                if profile == 'ak47':
+                    blend = smooth([0, .08, .20, .73, .91, 1], np.array([0, 0, 1, 1, 0, 0]), f)
+                else:
+                    # Keep the Galil's authored weapon and magazine motion; correct only the supporting contacts.
+                    blend = smooth([0, .09, .22, .69, .87, 1], np.array([0, 0, 1, 1, 0, 0]), f)
+                hand = _blend_hand(base_hand, contact_hand, blend, parents)
+                if bolt_grasp is not None:
+                    follow_bolt = desired[89] @ np.linalg.inv(held[89])
+                    hook = [follow_bolt @ m for m in bolt_grasp]
+                    amount = smooth([0,.72,.79,.89,.98,1], np.array([0,0,1,1,0,0]), f)
+                    hand = _blend_hand(hand, hook, amount, parents)
+            else: hand = {n: base_hand[n] for n in range(10, 32)}
+            desired.update(_place_hand(held if reload and profile == 'ak47' else old, hand, -.055 if profile == 'ak47' else -.025))
+            for n in nodes:
+                parent = parents.get(n)
+                transform = desired.get(n, old[n])
+                parent_transform = desired.get(parent, old[parent]) if parent is not None else np.eye(4)
+                frames[n].append(np.linalg.inv(parent_transform) @ transform)
+        animation['channels'] = [c for c in animation['channels'] if c['target']['node'] not in nodes]
+        for n, poses in frames.items():
+            for i, channel in enumerate(('translation', 'rotation', 'scale')):
+                curve(doc, data, animation, n, channel, times, [decompose(m)[i] for m in poses])

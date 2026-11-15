@@ -21,7 +21,9 @@ public sealed class CloakSettingsTests
         var model = GearMenuModel.ForLobby(0, new LobbySetup(), settings.Loadout)!;
         Assert.DoesNotContain(model.Options, SpyCloak.IsLegacyGadget);
         Assert.False(model.IsAllowed(SpyCloak.LegacyGadgetClass));
-        Assert.Equal(7, model.Options.Count);
+        Assert.Equal(9, model.Options.Count);
+        Assert.Contains("Svm.CloneGadget", model.Options);
+        Assert.Contains("Svm.MineHackGadget", model.Options);
     }
 
     [Fact]

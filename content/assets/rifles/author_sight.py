@@ -22,7 +22,7 @@ def material(name, rgba, metal=0., rough=.6):
     return mat
 
 
-black = material('OpticAnodized', (.035, .041, .045, 1), .6, .72)
+black = material('OpticAnodized', (.11, .13, .12, 1), .6, .72)
 rubber = material('OpticRubber', (.014, .016, .017, 1), 0, .85)
 steel = material('OpticFasteners', (.11, .12, .13, 1), .8, .4)
 glass = material('OpticLens', (.11, .28, .30, .09), .1, .15)
@@ -71,13 +71,13 @@ body = bpy.data.objects.new('Tube optic housing', mesh); bpy.context.scene.colle
 for x in [-.033, .030]: ring(x, .017, .001, rubber)
 for x in [-.027, .023]: ring(x, .0191, .0007, black)
 box('Integral saddle', (0, 0, -.020), (.050, .026, .010))
-box('Tall enclosed riser', (0, 0, -.048), (.051, .026, .035), bevel=.0015)
-box('Low rail mount', (0, 0, -.030), (.059, .031, .014), bevel=.0018)
-box('Rail clamp jaw', (0, -.019, -.032), (.043, .007, .010), steel, .0008)
-box('Recoil lug', (.012, 0, -.040), (.006, .021, .006), steel, .0005)
+box('Receiver riser', (0, 0, -.0315), (.045, .025, .017), bevel=.0015)
+box('Low rail mount', (0, 0, -.0445), (.059, .031, .009), bevel=.0018)
+box('Rail clamp jaw', (0, -.019, -.0445), (.043, .007, .010), steel, .0008)
+box('Recoil lug', (.012, 0, -.051), (.006, .021, .006), steel, .0005)
 for x in [-.016, .016]:
-    cylinder('Mount clamp screw', (x, -.024, -.031), .004, .005, (0, 1, 0), steel)
-    box('Screw driver slot', (x, -.027, -.031), (.004, .0005, .0008), rubber, .0001)
+    cylinder('Mount clamp screw', (x, -.024, -.0445), .004, .005, (0, 1, 0), steel)
+    box('Screw driver slot', (x, -.027, -.0445), (.004, .0005, .0008), rubber, .0001)
 cylinder('Battery housing', (.004, -.022, 0), .0105, .013, (0, 1, 0))
 cylinder('Battery cap', (.004, -.030, 0), .011, .0045, (0, 1, 0), rubber)
 for i in range(24):
@@ -117,26 +117,3 @@ def export(name):
     write(ROOT / name, doc, blob)
 
 export('micro_red_dot.glb')
-# The imported FAMAS has the carry handle but no open rear aperture. Model a proper
-# guarded peep and front blade on top, at the same height as the sight axis.
-bpy.ops.wm.read_factory_settings(use_empty=True)
-black = material('IronParkerized', (.028, .032, .034, 1), .55, .75)
-steel = material('IronFasteners', (.08, .085, .09, 1), .8, .5)
-ring(0, .0048, .0012, black)
-box('Rear aperture pedestal', (0, 0, -.013), (.012, .011, .018), black, .0008)
-box('Rear base', (0, 0, -.023), (.025, .024, .005), black, .0008)
-for side in [-1, 1]:
-    wing = box('Rear aperture protective wing', (0, side*.010, -.008), (.014, .0025, .028), black, .001)
-    wing.rotation_euler[0] = side*.10
-cylinder('Rear windage screw', (0, -.014, -.012), .003, .004, (0, 1, 0), steel)
-box('Front sight base', (.297, 0, -.027), (.021, .024, .006), black, .0008)
-box('Front blade', (.297, 0, -.0145), (.0026, .0024, .027), black, .0003)
-for side in [-1, 1]:
-    wing = box('Front protective wing', (.297, side*.010, -.013), (.009, .0025, .033), black, .001)
-    wing.rotation_euler[0] = side*.12
-for obj in list(bpy.context.scene.objects):
-    if obj.type == 'MESH':
-        bpy.context.view_layer.objects.active = obj; obj.select_set(True)
-        for mod in list(obj.modifiers): bpy.ops.object.modifier_apply(modifier=mod.name)
-        obj.select_set(False)
-export('famas_irons.glb')
