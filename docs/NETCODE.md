@@ -298,7 +298,11 @@ alongside the host.
 
 Owner acknowledgements contain the processed sequence, buffered-receipt bits, source stamp, server tick and reset epoch.
 The client rotates redundant inputs through missing entries; a reliable control backlog does not make it resend
-inputs the server already holds or advance recovery by a fixed prefix per round trip. Divergence
+inputs the server already holds or advance recovery by a fixed prefix per round trip. When more inputs await
+acknowledgement than one batch of six holds (a round trip above about 30 ms), a batch carries the newest inputs and,
+beside them, only inputs the server is known to miss or that have waited longer than a round trip: inputs merely in
+flight are not repeated, so a batch still fits the client budget on every tick. With nothing to recover it carries
+every input since the batch three sends back, so each input rides in three batches. Divergence
 adds transform, velocity, physics, zone and base, including a dynamic base's authoritative transform; unchanged acknowledgements stay compact. Movement reset epochs
 change on possession and explicit placement, independently of the original mirrored-state acknowledgement time.
 A 256-tick history reserves up to four movement splits per tick (1,024 command slots). It retains inputs, body heading,
@@ -367,7 +371,8 @@ so actions emitted in those callbacks are not cleared before their relay sees th
 `PresentationClock` varies delay with observed lateness and changes playback speed rather than rewinding displayed
 time. The supported range is two to six simulation ticks (33–100 ms); current 30 Hz pawn snapshots use a four-tick
 minimum, and Stock's 20 Hz preset uses six. Movement and channel phase sample the same displayed server time.
-Extrapolation stops after 100 ms, including animation phase; then the proxy holds safely. No proxy root physics,
+Extrapolation stops after 100 ms, including animation phase; then the proxy holds safely. A channel whose frame the
+walk blender sets each tick (rate 0) extrapolates at the pace of its last two samples, as the body does by its velocity. No proxy root physics,
 gameplay notifies, damage or interactions run during presentation. Rewind uses the actual displayed time and is
 cleared by pawn lifetime resets and teleports; the default ceiling is now 200 ms. The rendered client reports its
 frame interpolation fraction, so a shot uses the last displayed frame's time even if simulation catches up through

@@ -43,6 +43,10 @@ public sealed class SequencedMoveTransport : IMoveTransport
     private uint _pawnGuid;
     private bool _resetPending;
     private uint _resendCursor;
+    // Client: the newest command of each of the last three batches sent, newest first.
+    private readonly uint[] _batchNewest = new uint[3];
+    // Client: the newest command the server has reported holding (its receipt bits).
+    private uint _reportedReceived;
     private Command _lastRejected;
     private uint _lastSentFirst, _lastIgnoredEpoch, _lastIgnoredPawn;
     private long _ignoredBatches, _readErrors;
@@ -114,6 +118,7 @@ public sealed class SequencedMoveTransport : IMoveTransport
         _lastPumpTick = -1; _simulationCredit = 12f;
         _lastTransmitTick = -1; _lastAckSent = 0;
         _resendCursor = 1;
+        Array.Clear(_batchNewest); _reportedReceived = 0;
         _ackTick = -1;
         _commandTick = -1; _commandsThisTick = 0;
         _hasInputClock = false; _inputTickOffset = 0;
@@ -233,21 +238,37 @@ public sealed class SequencedMoveTransport : IMoveTransport
         Span<uint> selected = stackalloc uint[Batch];
         uint first = _acknowledged + 1;
         while (first < _sent && _ring[Slot(first)].Received) first++;
-        int count = 1;
-        selected[0] = first;
+        // With a long round trip more commands wait for their acknowledgement than one batch holds, and nearly all
+        // of them are only in flight. Filling every batch with those spent the send budget: batches went out on about
+        // six ticks in ten, so commands reached the server late and in pairs, and one that rode in a single batch
+        // was gone with that packet until an acknowledgement showed the gap. The pawn stood still on the server
+        // meanwhile and then jumped. So when not everything fits, the slots beside the newest commands go only to
+        // what needs them: a command the server is known to miss, or one waiting longer than a round trip.
+        int pending = 0;
+        for (uint seq = first; seq <= _sent && pending <= Batch; seq++) if (!_ring[Slot(seq)].Received) pending++;
+        bool all = pending <= Batch;
+        // The oldest pending command is known missing or overdue whenever any other is, so when it needs no slot
+        // nothing is being recovered.
+        bool recovery = all || NeedsSlot(first, all, tick, normalAckTicks);
+        int count = 0;
+        if (recovery) selected[count++] = first;
         uint end = _sent > Batch / 2 ? _sent - Batch / 2 : _sent;
         if (end < first) end = _sent;
         // Recover the region blocking simulation before cycling through an entire post-outage window. The
         // newest commands have their own slots below; distant receipt gaps cannot delay an old stop or action.
         end = Math.Min(end, first + Batch * 2u - 1);
         uint cursor = Math.Clamp(_resendCursor, first, end);
-        for (uint scanned = 0; scanned <= end - first && count < Batch / 2; scanned++)
+        for (uint scanned = 0; recovery && scanned <= end - first && count < Batch / 2; scanned++)
         {
             uint seq = cursor;
             cursor = cursor == end ? first : cursor + 1;
-            if (seq != first && !_ring[Slot(seq)].Received) selected[count++] = seq;
+            if (seq != first && NeedsSlot(seq, all, tick, normalAckTicks)) selected[count++] = seq;
         }
-        uint recent = Math.Max(_acknowledged + 1, _sent > Batch / 2 ? _sent - Batch / 2 + 1 : 1);
+        // The newest three. With nothing to recover the whole batch is theirs: every command since the batch three
+        // sends back, so each still rides in three batches when the budget skipped ticks between them.
+        uint newest = _sent > Batch / 2 ? _sent - Batch / 2 + 1 : 1;
+        if (active && !recovery) newest = Math.Max(Math.Min(newest, _batchNewest[2] + 1), _sent + 1 - Batch);
+        uint recent = Math.Max(_acknowledged + 1, newest);
         for (uint seq = recent; seq <= _sent; seq++)
         {
             bool seen = false;
@@ -256,12 +277,13 @@ public sealed class SequencedMoveTransport : IMoveTransport
         }
         // Acknowledged receipt is independent of simulation progress: a reliable action may temporarily
         // hold execution while all of its inputs are already buffered. Use any remaining space for gaps.
-        for (uint seq = first + 1; seq <= _sent && count < Batch; seq++)
+        for (uint seq = first + 1; recovery && seq <= _sent && count < Batch; seq++)
         {
             bool seen = false;
             for (int i = 0; i < count; i++) seen |= selected[i] == seq;
-            if (!seen && !_ring[Slot(seq)].Received) selected[count++] = seq;
+            if (!seen && NeedsSlot(seq, all, tick, normalAckTicks)) selected[count++] = seq;
         }
+        if (count == 0) selected[count++] = first;
         FOutBunch b = channel.BeginFunction(channel.Layout!.FindFunction(Commands)!, false);
         b.Writer.WriteIntPacked(_epoch); b.Writer.WriteIntPacked(_pawnGuid); b.Writer.WriteByte((byte)count);
         Command previous = default;
@@ -276,7 +298,19 @@ public sealed class SequencedMoveTransport : IMoveTransport
             _lastTransmitTick = tick; _lastTransmitView = latest.Move.View; _lastTransmitReliable = latest.CompletedReliable;
             _resendCursor = cursor;
             _lastSentFirst = selected[0];
+            if (_sent != _batchNewest[0]) (_batchNewest[2], _batchNewest[1], _batchNewest[0]) = (_batchNewest[1], _batchNewest[0], _sent);
         }
+    }
+
+    /// <summary>
+    /// Whether a command older than the newest ones gets a slot of a batch: any the server has not reported received
+    /// while they <paramref name="all"/> fit in one batch; otherwise only one the server is known to miss (it already
+    /// holds a newer one) or one that has waited longer than an acknowledgement takes to come back.
+    /// </summary>
+    private bool NeedsSlot(uint sequence, bool all, long tick, long normalAckTicks)
+    {
+        ref Command command = ref _ring[Slot(sequence)];
+        return !command.Received && (all || sequence < _reportedReceived || tick - command.InputTick > normalAckTicks);
     }
 
     public void RequestResynchronization()
@@ -512,7 +546,10 @@ public sealed class SequencedMoveTransport : IMoveTransport
         {
             uint seq = sequence + 1u + (uint)i;
             if (seq <= transport._sent && receipt[i] && transport._ring[Slot(seq)].Sequence == seq)
+            {
                 transport._ring[Slot(seq)].Received = true;
+                transport._reportedReceived = Math.Max(transport._reportedReceived, seq);
+            }
         }
         if (sequence == 0) return;
         if (epoch != transport.CommandEpoch) return;
