@@ -152,10 +152,20 @@ def _famas_sights(doc, data, folder, joint, placement):
 
 def author_rifle(path, profile):
     doc, data = read(path)
-    if doc.get('extras', {}).get('rifle_handling') == 2: return
+    if doc.get('extras', {}).get('rifle_handling') == 2:
+        if profile == 'ak47':
+            from .ak_reload import author as author_ak_reload
+            author_ak_reload(doc, data, _part_points)
+        from .mine_handling import author as author_mines
+        author_mines(doc, data, profile)
+        write(path, doc, data)
+        return
     from .rifle_contacts import author
     # Retain the M4 and FAMAS handling; only the reported AK/Galil contacts are edited.
     author(doc, data, profile, _part_points)
+    if profile == 'ak47':
+        from .ak_reload import author as author_ak_reload
+        author_ak_reload(doc, data, _part_points)
     names = {n.get('name'): i for i, n in enumerate(doc['nodes'])}
     gun = names['Main_j_049']
     held = pose(doc, tracks(doc, data, next(a for a in doc['animations'] if a['name'] == 'FirstWaitStFd2')), 0)
@@ -179,6 +189,8 @@ def author_rifle(path, profile):
         joint = doc['skins'][0]['joints'].index(gun)
         bind = values(doc, data, doc['skins'][0]['inverseBindMatrices'])[joint].reshape(4, 4).T
         _famas_sights(doc, data, path.parent, joint, np.linalg.inv(held[gun] @ bind))
+    from .mine_handling import author as author_mines
+    author_mines(doc, data, profile)
     doc.setdefault('extras', {})['rifle_handling'] = 2
     write(path, doc, data)
 
@@ -193,36 +205,4 @@ def world_sights(path, first_path, profile):
     sight = world[muzzle] @ np.linalg.inv(held[names['FX']]) @ held[names['ADS']]
     if profile == 'm4a1s': _append_optic(doc, data, path.parent, 0, sight)
     else: _famas_sights(doc, data, path.parent, 0, world[muzzle] @ np.linalg.inv(held[names['FX']]))
-    write(path, doc, data)
-
-
-def revolver_yoke(path):
-    """Keep a visible steel crane between the frame and the cylinder throughout its swing."""
-    doc, data = read(path)
-    if doc.get('extras', {}).get('revolver_yoke') == 1: return
-    names = {n.get('name'): i for i, n in enumerate(doc['nodes'])}
-    frame, cylinder = names['base'], names['slide']
-    idle = pose(doc, tracks(doc, data, next(a for a in doc['animations'] if a['name'] == 'FirstWaitStFd2')), 0)
-    points = _part_points(doc, data, idle, cylinder)
-    low, high = points.min(0), points.max(0)
-    bearing = np.array([high[0]-.009, low[1]+.009, (low[2]+high[2])*.5])
-    pivot = bearing + np.array([.006, -.017, .006])
-    frame_point = np.linalg.inv(idle[frame]) @ np.r_[pivot, 1]
-    cylinder_point = np.linalg.inv(idle[cylinder]) @ np.r_[bearing, 1]
-    rest, _ = world_matrices(doc)
-    node, joint = _joint(doc, data, 'CylinderCrane', frame, np.eye(4))
-    material = _material(doc, path.parent, 'CylinderCrane', (86, 89, 92, 255))
-    _mesh(doc, 'CylinderCraneMesh', [_box(doc, data, [0, -.0025, -.0025], [1, .0025, .0025], np.eye(4), joint, material)])
-    for animation in doc['animations']:
-        source = tracks(doc, data, animation); duration = max(float(t[-1]) for _, _, t, _ in source)
-        times = np.linspace(0, duration, max(2, math.ceil(duration*30)+1)); frames = []
-        for time in times:
-            world = pose(doc, source, time)
-            start, end = (world[frame] @ frame_point)[:3], (world[cylinder] @ cylinder_point)[:3]
-            direction = end-start; length = max(.001, np.linalg.norm(direction))
-            basis = turn(np.array([1., 0, 0]), direction/length); basis[:, 0] *= length
-            crane = np.eye(4); crane[:3, :3] = basis; crane[:3, 3] = start
-            frames.append(np.linalg.inv(world[frame]) @ crane)
-        _curve_pose(doc, data, animation, node, times, frames)
-    doc.setdefault('extras', {})['revolver_yoke'] = 1
     write(path, doc, data)

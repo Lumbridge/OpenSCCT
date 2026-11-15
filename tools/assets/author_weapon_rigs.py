@@ -19,6 +19,7 @@ from validate_glb import read_glb
 
 
 MODELS = {
+    'ak47': ('OpenScctRifles/ak47_first.glb', 'FirstReloStFd2'),
     'rifle': ('SWeaponFirst/1DEF_01.glb', 'FirstReloStFd2'),
     'uzi': ('SWeaponFirst/1DEF_Uzi.glb', 'FirstReloStFd2U'),
     'shotgun': ('SWeaponFirst/1DEF_shotgun.glb', 'FirstReloStFd2S'),
@@ -27,14 +28,14 @@ MODELS = {
 }
 
 
-def build(repo, name, replace):
+def build(repo, name, replace, content_root=None):
     relative, clip = MODELS[name]
     folder = repo/'local/weapons'/name
     blend = folder/(name+'-authoring.blend')
     if blend.exists() and not replace:
         print('Keeping edited workspace: '+str(blend), flush=True)
         return
-    source = repo/'.content/shared/chars'/relative
+    source = (content_root or repo/'.content')/'shared/chars'/relative
     doc, _ = read_glb(source)
     folder.mkdir(parents=True, exist_ok=True)
     snapshot = folder/'reference.glb'
@@ -127,6 +128,8 @@ def build(repo, name, replace):
     scene['openscct_reload_clip'] = clip
     start, end = action.frame_range
     markers = {'Ready': 0, 'Return to aim': 1}
+    if name == 'ak47':
+        markers.update(doc.get('extras', {}).get('ak_reload_events', {}))
     if name == 'shotgun':
         markers.update({f'Shell {i+1}': t/3 for i, t in enumerate((.788, 1.110, 1.441, 1.919, 2.279))})
         markers['Early-exit target'] = 2.6/3
@@ -168,6 +171,7 @@ if __name__ == '__main__':
     parser.add_argument('--repo', type=Path, required=True)
     parser.add_argument('--weapon', choices=list(MODELS))
     parser.add_argument('--replace', action='store_true')
+    parser.add_argument('--content-root', type=Path, help='Use a staged content directory instead of .content')
     args = parser.parse_args(sys.argv[sys.argv.index('--')+1:])
     for name in ([args.weapon] if args.weapon else MODELS):
-        build(args.repo.resolve(), name, args.replace)
+        build(args.repo.resolve(), name, args.replace, args.content_root)

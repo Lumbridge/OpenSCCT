@@ -24,6 +24,14 @@ def author(doc, data, reference, reference_data, held=None):
     names = {n.get('name'):i for i,n in enumerate(doc['nodes'])}
     gun = next((i for n,i in names.items() if n and n.startswith('Main_j_')), names.get('pistol', 57))
     animated = set(doc['skins'][0]['joints']) | {gun}
+    hand_nodes = []
+    for node in animated:
+        parent = parents.get(node)
+        while parent is not None:
+            if parent == 10:
+                hand_nodes.append(node)
+                break
+            parent = parents.get(parent)
     original = {a['name']:a for a in doc['animations']}
     doc['animations'] = [a for a in doc['animations'] if a['name'] not in OVERRIDE]
     for clip in reference['animations']:
@@ -73,6 +81,11 @@ def author(doc, data, reference, reference_data, held=None):
                 base = [delta@m for m in held]
                 hand = base[10].copy(); hand[:3,3] += np.array([-.025,-.10,-.035])*handling
                 desired.update(solve_arm(base,(7,8,10),hand[:3,3],hand[:3,:3],twist_node=9))
+                # Moving the wrist while retaining the old world-space finger
+                # targets lengthens the palm/first finger links by the entire
+                # handling offset. Carry every hand descendant with the wrist.
+                follow = desired[10] @ np.linalg.inv(base[10])
+                desired.update({node: follow @ base[node] for node in hand_nodes})
             def current(node):
                 if node in desired:return desired[node]
                 parent = parents.get(node)

@@ -151,7 +151,7 @@ def revolver_reload(doc,data,idle,parents,placement):
         for f in fractions:
             opened=min(np.clip((f-.10)/.08,0,1),np.clip((.88-f)/.10,0,1)) if reload else 0
             spin=-opened*.32;c=math.cos(spin);q=math.sin(spin)
-            moved=local.copy();moved[:3,3]+=axis@np.array([0,0,-.048*opened])
+            moved=local.copy();moved[:3,3]+=axis@np.array([0,0,-.028*opened])
             moved[:3,:3]=axis@np.array([[1,0,0],[0,c,-q],[0,q,c]])@np.linalg.inv(axis)@local[:3,:3]
             cylinders.append(decompose(moved))
             offset=np.eye(4);offset[0,3]=np.interp(f,[0,.42,.48,.58,.60,.72,1],[-.11,-.11,-.06,0,0,-.12,-.12])
@@ -191,12 +191,13 @@ def revolver_reload(doc,data,idle,parents,placement):
             for i,path in enumerate(['translation','rotation','scale']):curve(doc,data,animation,node,path,times,[p[i] for p in poses])
 
 
-def revolver_cartridges(doc,data,idle,placement,mesh_world):
-    """Animate the source model's textured cartridges, with hollow spent cases cut from the same mesh."""
-    from .reload_motion import smooth
-    rest,parents=world_matrices(doc);skin=doc['skins'][0]
+def revolver_cartridges(doc,data,idle,placement,mesh_world,folder):
+    """Animate source live rounds and complete three-dimensional hollow brass cases."""
+    rest,_=world_matrices(doc);skin=doc['skins'][0]
     binds=values(doc,data,skin['inverseBindMatrices']).tolist()
     fresh=[next(i for i,n in enumerate(doc['nodes']) if n.get('name')==f'FreshRound{k}') for k in range(6)]
+    from .revolver_details import materials, case_mesh
+    material_ids=materials(doc,folder)
     spent=[];centres=[]
     gun=next(n for n in doc['nodes'] if n.get('name')=='magnum44_parts')
     to_neutral=np.linalg.inv(placement)@idle[80]@np.linalg.inv(rest[80])@mesh_world
@@ -206,25 +207,13 @@ def revolver_cartridges(doc,data,idle,placement,mesh_world):
         doc['nodes'][80].setdefault('children',[]).append(case);spent.append(case)
         case_joint=len(skin['joints']);skin['joints'].append(case)
         binds.append((np.linalg.inv(rest[80])@mesh_world).T.reshape(-1).tolist())
-        primitives=[];points=[]
+        points=[]
         for part in doc['meshes'][gun['mesh']]['primitives']:
             joints=values(doc,data,part['attributes']['JOINTS_0'])[:,0]
-            if not np.any(joints==joint):continue
-            xyz=values(doc,data,part['attributes']['POSITION'])
-            neutral=(to_neutral[:3,:3]@xyz.T).T+to_neutral[:3,3]
-            points.extend(neutral[joints==joint])
-            triangles=values(doc,data,part['indices']).reshape(-1,3)
-            # The source case mouth is at X=.1191. Discard the projectile and keep
-            # the rim, stamped case head, primer, UVs and brass body. The mouth is open.
-            keep=np.all((joints[triangles]==joint)&(neutral[triangles,0]<=.11912),axis=1)
-            triangles=triangles[keep]
-            used,inverse=np.unique(triangles,return_inverse=True);attrs={}
-            for key,index in part['attributes'].items():
-                accessor=doc['accessors'][index];array=values(doc,data,index)[used]
-                if key=='JOINTS_0':array[:]=[case_joint,0,0,0]
-                attrs[key]=append(doc,data,array,accessor['type'],accessor['componentType'],34962)
-            primitives.append({'attributes':attrs,'indices':append(doc,data,inverse.reshape(-1,1),'SCALAR',5125,34963),'material':part['material']})
+            xyz=values(doc,data,part['attributes']['POSITION'])[joints==joint]
+            points.extend((to_neutral[:3,:3]@xyz.T).T+to_neutral[:3,3])
         points=np.asarray(points);centres.append((points.min(0)+points.max(0))/2)
+        primitives=case_mesh(doc,data,points,np.linalg.inv(to_neutral),case_joint,material_ids)
         doc['meshes'].append({'name':f'SpentCase{i}','primitives':primitives})
         doc['nodes'].append({'name':f'SpentCase{i}_mesh','mesh':len(doc['meshes'])-1,'skin':0})
         doc['nodes'][5].setdefault('children',[]).append(len(doc['nodes'])-1)
@@ -232,8 +221,9 @@ def revolver_cartridges(doc,data,idle,placement,mesh_world):
     for animation in doc['animations']:
         compiled=tracks(doc,data,animation)
         duration=max(float(t[-1]) for _,_,t,_ in compiled);reload=animation['name']=='FirstReloStFd2'
-        fractions=np.unique(np.r_[np.linspace(0,1,121),.28,.42,.44,.48,.58,.60,.72,.76]) if reload else np.array([0.,1.])
-        emitted=pose(doc,compiled,.28*duration)[80]@np.linalg.inv(idle[80])@placement
+        release=.26
+        fractions=np.unique(np.r_[np.linspace(0,1,121),release,.42,.44,.48,.58,.60,.72,.76]) if reload else np.array([0.,1.])
+        emitted=pose(doc,compiled,release*duration)[80]@np.linalg.inv(idle[80])@placement
         seated=pose(doc,compiled,.58*duration) if reload else None
         loader_to_cylinder=np.linalg.inv(seated[66])@seated[80] if reload else None
         frames={node:[] for node in fresh+spent}
@@ -245,25 +235,24 @@ def revolver_cartridges(doc,data,idle,placement,mesh_world):
                 # an independent axial curve drifts through the hand on approach.
                 desired=current[66]@loader_to_cylinder if reload and .38<=f<.58 else current[80]
                 frames[live].append(decompose(np.linalg.inv(current[80])@desired))
-                flight=max(0,(f-.28)*duration) if reload else 0
+                flight=max(0,(f-release)*duration-i*.004) if reload else 0
                 offset=np.eye(4)
-                if flight>0:
-                    # Clear the chamber before tumbling. Ejection follows the
-                    # tilted bore, but gravity stays down in model/world space.
-                    angle=max(0,flight-.07)*(3+i*.35);c=math.cos(angle);q=math.sin(angle)
+                rear=-emitted[:3,0]/np.linalg.norm(emitted[:3,0])
+                # Start at rest. While a case is still in its chamber, only
+                # gravity's component down the bore accelerates it. Once clear,
+                # it falls freely and tumbles; there is no extractor impulse.
+                acceleration=max(.1,-9.81*rear[1])
+                clear_time=math.sqrt(2*.044/acceleration)
+                free=max(0,flight-clear_time)
+                if free>0:
+                    angle=free*(3+i*.35);c=math.cos(angle);q=math.sin(angle)
                     offset[:3,:3]=[[c,-q,0],[q,c,0],[0,0,1]]
                     offset[:3,3]=centres[i]-offset[:3,:3]@centres[i]
                 desired=(emitted if flight>0 else cylinder)@offset@np.linalg.inv(placement)@idle[80]
-                if reload:
-                    mechanism = emitted if flight>0 else cylinder
-                    rear = -mechanism[:3,0]/np.linalg.norm(mechanism[:3,0])
-                    # The hand first pushes the extractor and lifts the cases
-                    # out of their chambers; free fall begins at release.
-                    desired[:3,3] += rear*smooth([0,.24,.28,1],np.array([0,0,.018,.018]),f)
                 if flight>0:
-                    rear=-emitted[:3,0]/np.linalg.norm(emitted[:3,0])
-                    lateral=emitted[:3,2]/np.linalg.norm(emitted[:3,2])
-                    desired[:3,3]+=rear*.20*flight + lateral*(i-2.5)*.012*flight + np.array([0,-4.905*flight*flight,0])
+                    slide_time=min(flight,clear_time)
+                    desired[:3,3]+=rear*(.5*acceleration*slide_time*slide_time+acceleration*clear_time*free)
+                    desired[:3,3]+=np.array([0,-4.905*free*free,0])
                 frames[case].append(decompose(np.linalg.inv(current[80])@desired))
         # The full reload bake already contains constant cartridge channels.
         # Replace them with the extraction/loading tracks, never duplicate a
@@ -411,9 +400,8 @@ def assemble(chars_dir,pistol):
     from .reload_motion import author
     author(doc,data,pistol)
     if pistol=='magnum44':
-        revolver_cartridges(doc,data,idle_world,placement,mesh_world)
+        revolver_cartridges(doc,data,idle_world,placement,mesh_world,folder)
     mount_to_firing_hand(doc,data)
+    from .mine_handling import author as author_mines
+    author_mines(doc, data, pistol)
     write(folder/(pistol+'_first.glb'),doc,data)
-    if pistol == 'magnum44':
-        from .rifle_handling import revolver_yoke
-        revolver_yoke(folder/(pistol+'_first.glb'))

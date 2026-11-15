@@ -28,6 +28,11 @@ public sealed class RifleHandlingVisualSmoke : SmokeTest
     private readonly List<object> _evidence = [];
     private bool _laserReload;
     private string _expectedClass = "";
+    private readonly int _captureStride = int.TryParse(System.Environment.GetEnvironmentVariable("SVM_RIFLE_RELOAD_STRIDE"), out int stride) ? Math.Max(1, stride) : 12;
+    private readonly bool _grenades = System.Environment.GetEnvironmentVariable("SVM_RIFLE_GRENADE") == "1";
+    private bool _releasedGrenade, _sawGrenadeHandling;
+    private float _handStretch;
+    private int _grenadeCharge;
 
     public override SmokeResult Step(SmokeContext context)
     {
@@ -44,7 +49,7 @@ public sealed class RifleHandlingVisualSmoke : SmokeTest
             {
                 Settings = launcher.Settings with { Map = "AquaE", Side = PlaySide.Merc,
                     Rules = PlayRules.PlayLevel, HostMode = PlayHostMode.Inline, Bots = 0, Sidearms = true },
-                Render = true, Hud = true, Audio = false, TicksPerFrame = 1, Pilot = null,
+                Render = true, Hud = true, Audio = false, TicksPerFrame = _grenades ? 3 : 1, Pilot = null,
             });
             context.Tree.Root.AddChild(_root);
             return SmokeResult.Running;
@@ -58,8 +63,11 @@ public sealed class RifleHandlingVisualSmoke : SmokeTest
             controls.RequireCapture = false; controls.Enabled = true;
         }
         if (session.TicksRun < 100) return SmokeResult.Running;
-        string id = MercRifles.All[_gun].Id.ToLowerInvariant();
-        string classPath = System.Environment.GetEnvironmentVariable("SVM_RIFLE_CLASS") ?? MercRifles.All[_gun].ClassPath;
+        string classPath = System.Environment.GetEnvironmentVariable("SVM_RIFLE_CLASS") ??
+            (_gun < MercRifles.All.Count ? MercRifles.All[_gun].ClassPath : "sidearm:"+(_gun-MercRifles.All.Count));
+        string id = classPath.StartsWith("sidearm:", StringComparison.Ordinal)
+            ? Sidearms.Get((SidearmKind)int.Parse(classPath[8..])).Id
+            : MercRifles.All[_gun].Id.ToLowerInvariant();
         long elapsed = session.TicksRun - _at;
         switch (_phase)
         {
@@ -75,6 +83,14 @@ public sealed class RifleHandlingVisualSmoke : SmokeTest
                 if (weapon is MercSidearm) serverPawn.ActiveWeaponSlot = 1;
                 _expectedClass = weapon.GetUcClass().Path;
                 serverPawn.WeaponLoaded = 2; serverPawn.bWeaponTransit = false;
+                if (_grenades)
+                {
+                    // Keep repeated frag launches from killing the fixture pawn.
+                    serverPawn.Health = pawn.Health = 10000;
+                    while (serverPawn.MyGadget is { } old) { serverPawn.MyGadget = old.MyGadget; old.Destroy(); }
+                    var frag = serverPawn.XLevel.SpawnActor(new SGadFragGrenade(), serverPawn.Location, default)!;
+                    frag.GiveTo(serverPawn); serverPawn.SelectedGadget = frag;
+                }
                 session.ServerController!.GotoState("s_PlayerWalkingSt2H");
                 _root.FirstPerson!.Map = _root.Map;
                 _at = session.TicksRun; _phase = 1;
@@ -100,6 +116,25 @@ public sealed class RifleHandlingVisualSmoke : SmokeTest
             case 11:
                 if (elapsed < 8) break;
                 Shot(id + "-hip-studio");
+                if (_grenades)
+                {
+                    SGadFragGrenade? frag = null;
+                    for (var g = pawn.MyGadget; g is not null; g = g.MyGadget) if (g is SGadFragGrenade found) frag = found;
+                    if (frag is null) break;
+                    pawn.SelectedGadget = frag;
+                    _grenadeCharge = serverPawn.SelectedGadget!.Charge;
+                    session.Input.Set("bAltFire", true); session.Input.Commands.Add(new InputCommand("AltFire"));
+                    _releasedGrenade = _sawGrenadeHandling = false; _handStretch = 0;
+                    _at = session.TicksRun; _phase = 70; _reloadFrame = 0;
+                    break;
+                }
+                if (System.Environment.GetEnvironmentVariable("SVM_RIFLE_MINE") == "1")
+                {
+                    pawn.MyWeapon!.GotoState("s_DropMine_Grab");
+                    serverPawn.MyWeapon!.GotoState("s_DropMine_Grab");
+                    _at = session.TicksRun; _phase = 60; _reloadFrame = 0;
+                    break;
+                }
                 if (pawn.MyWeapon is not MercRifle) { _at = session.TicksRun; _phase = 3; break; }
                 PlayerCommands.Execute(pc, new InputCommand("SetScope", 1));
                 _at = session.TicksRun; _phase = 2;
@@ -155,23 +190,89 @@ public sealed class RifleHandlingVisualSmoke : SmokeTest
                     var hud = new HudSnapshot(); HudSimReader.Read(pc, hud);
                     if (hud.ShowReticle) return SmokeResult.Fail(id + ": crosshair reappeared during a laser reload");
                 }
-                if (elapsed >= 3 && elapsed >= _reloadFrame * 12)
+                if (elapsed >= 3 && elapsed >= _reloadFrame * _captureStride)
                 {
                     Shot(id + "-reload-" + _reloadFrame.ToString("D2"));
                     _reloadFrame++;
                 }
                 if (elapsed < 210) break;
-                if (System.Environment.GetEnvironmentVariable("SVM_RIFLE_ONCE") != "1" && ++_gun < MercRifles.All.Count) { _phase = 0; break; }
+                if (System.Environment.GetEnvironmentVariable("SVM_RIFLE_FOLLOWUP_MINE") == "1")
+                {
+                    pawn.MyWeapon!.GotoState("s_DropMine_Grab"); serverPawn.MyWeapon!.GotoState("s_DropMine_Grab");
+                    _at = session.TicksRun; _phase = 60; _reloadFrame = 0;
+                    break;
+                }
+                goto case 99;
+            case 60:
+                if (elapsed >= _reloadFrame*6+3) { Shot(id+"-mine-grab-"+_reloadFrame.ToString("D2")); _reloadFrame++; }
+                if (elapsed < 66) break;
+                if (!pawn.MyWeapon!.IsInState("s_DropMine_Loop"))
+                    return SmokeResult.Fail(id+": mine retrieval did not reach the held loop");
+                pawn.MyWeapon.GotoState("s_DropMine"); serverPawn.MyWeapon!.GotoState("s_DropMine");
+                _at = session.TicksRun; _phase = 61; _reloadFrame = 0;
+                break;
+            case 61:
+                if (elapsed >= _reloadFrame*3+3) { Shot(id+"-mine-place-"+_reloadFrame.ToString("D2")); _reloadFrame++; }
+                if (elapsed < 70) break;
+                if (!pawn.MyWeapon!.IsInState("s_Selected")) return SmokeResult.Fail(id+": placement did not restore idle");
+                pawn.MyWeapon.GotoState("s_DropMine_Grab"); serverPawn.MyWeapon!.GotoState("s_DropMine_Grab");
+                _at = session.TicksRun; _phase = 62;
+                break;
+            case 62:
+                if (elapsed < 42) break;
+                pawn.MyWeapon!.GotoState("s_DropMine_UnGrab"); serverPawn.MyWeapon!.GotoState("s_DropMine_UnGrab");
+                _at = session.TicksRun; _phase = 63; _reloadFrame = 0;
+                break;
+            case 63:
+                if (elapsed >= _reloadFrame*6+3) { Shot(id+"-mine-cancel-"+_reloadFrame.ToString("D2")); _reloadFrame++; }
+                if (elapsed < 36) break;
+                if (!pawn.MyWeapon!.IsInState("s_Selected")) return SmokeResult.Fail(id+": cancelling placement did not restore idle");
+                goto case 99;
+            case 70:
+                if (elapsed >= 12 && !_releasedGrenade)
+                {
+                    session.Input.Set("bAltFire", false); _releasedGrenade = true;
+                }
+                _sawGrenadeHandling |= pawn.MyWeapon!.IsInState("s_FireGrenade");
+                _handStretch = MathF.Max(_handStretch, HandStretch());
+                if (_handStretch > .002f) return SmokeResult.Fail($"{id}: grenade handling stretched the left hand by {_handStretch*1000:F1} mm");
+                if (elapsed >= _reloadFrame*_captureStride+3) { Shot(id+"-grenade-"+_reloadFrame.ToString("D2")); _reloadFrame++; }
+                if (elapsed < 162) break;
+                if (!_sawGrenadeHandling || serverPawn.SelectedGadget!.Charge >= _grenadeCharge)
+                    return SmokeResult.Fail(id+": owner input did not launch a frag on the host and run its handling clip");
+                if (!pawn.MyWeapon.IsInState("s_Selected")) return SmokeResult.Fail(id+": grenade handling did not return to idle");
+                _evidence.Add(new { weapon = id, maxHandStretchMeters = _handStretch, grenadeUsed = true, returnedToIdle = true });
+                goto case 99;
+            case 99:
+                int count = MercRifles.All.Count+(_grenades ? Sidearms.All.Count : 0);
+                if (System.Environment.GetEnvironmentVariable("SVM_RIFLE_ONCE") != "1" && ++_gun < count) { _phase = 0; break; }
                 string folder = Folder();
                 Directory.CreateDirectory(folder);
                 File.WriteAllText(Path.Combine(folder, "poses.json"), JsonSerializer.Serialize(_evidence, new JsonSerializerOptions { WriteIndented = true }));
                 _root.QueueFree();
-                return SmokeResult.Pass("Captured requested weapon cases in map/studio lighting, ADS, EMF, and full reloads; " + folder);
+                return SmokeResult.Pass("Captured requested weapon handling and checked its state transitions; " + folder);
         }
         return SmokeResult.Running;
     }
 
     private static string Folder() => System.Environment.GetEnvironmentVariable("SVM_PLAY_SHOTS") ?? Path.GetFullPath("../local/rifle-handling");
+
+    private float HandStretch()
+    {
+        var model = _root!.FirstPerson!.Model!;
+        var idle = model.Sampler.Find("FirstWaitStFd2")!;
+        float largest = 0;
+        for (int b = 0; b < model.Skeleton.GetBoneCount(); b++)
+        {
+            string name = model.Skeleton.GetBoneName(b);
+            if (!new[] { "L_thumb", "L_point", "L_middle", "L_ring", "L_pink", "L_palm" }.Any(name.StartsWith)) continue;
+            int parent = model.Skeleton.GetBoneParent(b);
+            float expected = model.Sampler.SampleBone(idle,b,0).Origin.DistanceTo(model.Sampler.SampleBone(idle,parent,0).Origin);
+            float actual = model.CurrentBonePose(b).Origin.DistanceTo(model.CurrentBonePose(parent).Origin);
+            largest = MathF.Max(largest, MathF.Abs(actual-expected));
+        }
+        return largest;
+    }
 
     private static ActorLightSet StudioLight()
     {

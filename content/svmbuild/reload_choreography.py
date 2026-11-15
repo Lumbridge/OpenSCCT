@@ -198,25 +198,6 @@ def author(doc, data, profile):
                 for prefix in ('L_thumb3_', 'L_point3_')]
         pinch = np.linalg.inv(grasp[left]) @ np.r_[np.mean([grasp[i][:3,3] for i in tips],axis=0),1.]
         loader_grip[:3,3] = centre[:3] - loader_grip[:3,:3] @ pinch[:3]
-        # The extractor rod is the forwardmost tip of the cylinder assembly.
-        # Locate it from the rigid mesh so the pressing fingertip has a real
-        # contact target, independent of the weapon's presentation rotation.
-        cylinder_joint = skin['joints'].index(slide)
-        cylinder_bind = values(doc,data,skin['inverseBindMatrices'])[cylinder_joint].reshape(4,4).T
-        cylinder_vertices = []
-        for mesh in doc['meshes']:
-            for part in mesh['primitives']:
-                attrs = part['attributes']
-                if 'JOINTS_0' not in attrs: continue
-                own = values(doc,data,attrs['JOINTS_0'])[:,0] == cylinder_joint
-                cylinder_vertices.extend(values(doc,data,attrs['POSITION'])[own])
-        cylinder_vertices = np.asarray(cylinder_vertices)
-        cylinder_world = idle[slide] @ cylinder_bind
-        points = (cylinder_world[:3,:3] @ cylinder_vertices.T).T + cylinder_world[:3,3]
-        along = points @ forward
-        ejector_tip = cylinder_bind @ np.r_[np.mean(cylinder_vertices[along > along.max()-.002],axis=0),1.]
-        press_node = next(i for name,i in names.items() if name and name.startswith('L_pink3_'))
-        press_finger = np.linalg.inv(grasp[left]) @ grasp[press_node][:,3]
     if shell:
         load_ref = pose(doc, original, SHELL_TIMES[0])
         load_grip = np.linalg.inv(load_ref[gun]) @ load_ref[left]
@@ -308,14 +289,10 @@ def author(doc, data, profile):
             # cylinder. Raising the support grip straight up sweeps its palm
             # and fingers through the firing wrist during the first quarter.
             release_hand = shift(held_left, -rotated_across*.10-rotated_up*.04)
-            hand_clearance = smooth([0,.14,.20,1],np.array([.12,.12,.095,.095]),f)
-            eject_hand = shift(held_left, -rotated_across*hand_clearance+rotated_up*.025+rotated_forward*.04)
-            press_hand = held_left.copy()
-            press = smooth([0,.24,.28,1],np.array([0,0,.018,.018]),f)
-            press_hand[:3,3] = (desired[slide] @ ejector_tip)[:3] - rotated_forward*press - press_hand[:3,:3] @ press_finger[:3]
+            eject_hand = shift(held_left, -rotated_across*.145-up*.10-forward*.04)
             close_hand = shift(desired[slide] @ (np.linalg.inv(idle[slide]) @ idle[left]), -rotated_across*.025)
             hand = path([0,.07,.16,.22,.24,.28,.38,.58,.73,.78,.82,.92,1],
-                        [idle[left],release_hand,eject_hand,press_hand,press_hand,press_hand,
+                        [idle[left],release_hand,eject_hand,eject_hand,eject_hand,eject_hand,
                          loader_hand,loader_hand,loader_hand,close_hand,close_hand,held_left,idle[left]],f)
         else:
             seated_mag = gun_pose @ mag_local
@@ -374,7 +351,7 @@ def author(doc, data, profile):
             local = np.linalg.inv(current(parent)) @ current(node) if parent is not None else current(node)
             frames[node].append(decompose(local))
     if max(reach_errors)>.002:
-        raise ValueError(f'{profile}: hand target exceeds arm reach by {max(reach_errors):.4f} m')
+        raise ValueError(f'{profile}: hand target exceeds arm reach by {max(reach_errors):.4f} m at {times[int(np.argmax(reach_errors))]/duration:.3f}')
     animation['channels'] = [c for c in animation['channels'] if c['target']['node'] not in edited | set(fingers)]
     for node, poses in {**frames, **finger_frames}.items():
         for i,p in enumerate(('translation','rotation','scale')):

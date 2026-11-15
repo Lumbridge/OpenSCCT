@@ -17,7 +17,7 @@ from ..sources import env
 
 class CharsStep(Step):
     name = "chars"
-    version = 23  # Fitted rifle grips/sights and generated stock-weapon catalogue renders.
+    version = 25  # Keep the complete support hand attached during grenade handling.
     deps = ()
     per_map = False
     background = True   # no other step reads shared/chars; runs beside the maps
@@ -30,7 +30,8 @@ class CharsStep(Step):
                   "content/svmbuild/authored_characters.py", "content/svmbuild/reload_motion.py",
                   "content/svmbuild/reload_choreography.py", "content/svmbuild/spy_viewmodel.py", "content/svmbuild/rifles.py",
                   "content/svmbuild/rifle_arms.py", "content/svmbuild/rifle_handling.py", "content/svmbuild/rifle_contacts.py", "content/svmbuild/weapon_icons.py",
-                  "content/svmbuild/viewmodel_actions.py")
+                  "content/svmbuild/viewmodel_actions.py", "content/svmbuild/ak_reload.py",
+                  "content/svmbuild/mine_handling.py", "content/svmbuild/revolver_details.py")
 
     def extra_code(self) -> list[Path]:
         return env.code_files()

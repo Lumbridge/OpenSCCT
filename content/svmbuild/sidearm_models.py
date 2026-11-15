@@ -15,6 +15,14 @@ def read(path):
 
 
 def write(path,doc,binary):
+    # Animation inputs require bounds in glTF. Some inherited clips and the
+    # authored curve helper omit them; preserve their actual binary key range.
+    for animation in doc.get('animations', []):
+        for sampler in animation['samplers']:
+            accessor=doc['accessors'][sampler['input']]
+            if 'min' not in accessor or 'max' not in accessor:
+                times=values(doc,binary,sampler['input'])[:,0]
+                if len(times):accessor.update(min=[float(times.min())],max=[float(times.max())])
     doc['buffers']=[{'byteLength':len(binary)}]
     js=json.dumps(doc,sort_keys=True,separators=(',',':')).encode();js+=b' '*(-len(js)%4)
     binary+=b'\0'*(-len(binary)%4)
