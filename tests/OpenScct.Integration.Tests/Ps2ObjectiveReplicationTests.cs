@@ -12,7 +12,7 @@ namespace OpenScct.Integration.Tests;
 
 public sealed class Ps2ObjectiveReplicationTests
 {
-    private static MapCatalog SourceMap()
+    internal static MapCatalog SourceMap()
     {
         const string map = "PS2ObjectiveNetwork";
         var maps = new MapCatalog();
@@ -22,15 +22,25 @@ public sealed class Ps2ObjectiveReplicationTests
             level.BeginLoad();
             var terminal = level.SpawnActor(new SComputerObjectiveTrigger
             {
-                bNoDelete = false, bPS2Objective = true, StaticMesh = AssetRef.None,
-                bAlwaysRelevant = true, CaptureTime = 40, DominationCaptureTime = 40,
-                Ps2SkinActive = new AssetRef("PS2.Active"), Ps2SkinInactive = new AssetRef("PS2.Inactive"),
+                bNoDelete = false,
+                bPS2Objective = true,
+                StaticMesh = AssetRef.None,
+                bAlwaysRelevant = true,
+                CaptureTime = 40,
+                DominationCaptureTime = 40,
+                TriggerName = "Original console A",
+                Ps2SkinActive = new AssetRef("PS2.Active"),
+                Ps2SkinInactive = new AssetRef("PS2.Inactive"),
                 Ps2SkinKeyboard = new AssetRef("PS2.Keyboard"),
             }, new FVector(40, 0, 0), default)!;
             var vial = level.SpawnActor(new SFlag
             {
-                bNoDelete = false, bPS2Objective = true, bAlwaysRelevant = true,
-                StaticMesh = new AssetRef("PS2.OriginalVial"), Ps2Computer = terminal,
+                bNoDelete = false,
+                bPS2Objective = true,
+                bAlwaysRelevant = true,
+                StaticMesh = new AssetRef("PS2.OriginalVial"),
+                Ps2Computer = terminal,
+                TriggerName = "Objective A - 1",
             }, new FVector(40, 0, 25), default)!;
             Actor?[] actors = [terminal, vial];
             if (client) NetMapBinding.PrepareClientMap(level, actors);
@@ -89,6 +99,8 @@ public sealed class Ps2ObjectiveReplicationTests
         Assert.Null(vial.Server);
         Assert.Equal(new AssetRef("PS2.OriginalVial"), vial.StaticMesh);
         Assert.Same(terminal, vial.Ps2Computer);
+        Assert.Equal("Objective A - 1", vial.TriggerName);
+        Assert.Equal("Original console A", terminal.TriggerName);
         Assert.True(terminal.bPS2Objective);
         Assert.Equal(new AssetRef("PS2.Active"), terminal.Ps2SkinActive);
         Assert.Equal((byte)5, terminal.Ps2VisualState);
@@ -108,8 +120,12 @@ public sealed class Ps2ObjectiveReplicationTests
         level.Info.Game = new SGameInfo { MatchInfo = new USMatchInfo { GameMode = EGameMode.GM_Neutralization } };
         var terminal = level.SpawnActor(new SComputerObjectiveTrigger
         {
-            bNoDelete = false, bPS2Objective = true, bAlwaysRelevant = true,
-            CaptureTime = 40, DominationCaptureTime = 40, StaticMesh = AssetRef.None,
+            bNoDelete = false,
+            bPS2Objective = true,
+            bAlwaysRelevant = true,
+            CaptureTime = 40,
+            DominationCaptureTime = 40,
+            StaticMesh = AssetRef.None,
         }, new FVector(10, 0, 0), default)!;
         terminal.Reset();
         Step(rig, 150);

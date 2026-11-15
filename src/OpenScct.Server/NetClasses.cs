@@ -40,6 +40,11 @@ public static class NetClasses
                 var ps2Objective = new RepExtension();
                 ps2Objective.Properties.Add(new(nameof(SObjectiveTrigger.bPS2Objective), nameof(SObjectiveTrigger.bPS2Objective), RepLeafKind.Bool));
                 ps2Objective.Properties.Add(new(nameof(SObjectiveTrigger.Ps2Computer), nameof(SObjectiveTrigger.Ps2Computer), RepLeafKind.Object));
+                // A PS2 map instance can be replaced by a dynamic channel. Its
+                // localized label must follow the authored instance, not the PC factory.
+                var ps2Initial = RepCondition.Bind(RepConditionParser.Parse("bNetInitial && bPS2Objective"),
+                    SObjectiveTrigger.UcMeta.Class, registry.Readers);
+                ps2Objective.Properties.Add(new("Ps2TriggerName", nameof(SObjectiveTrigger.TriggerName), RepLeafKind.String, ps2Initial));
                 registry.Extend(type, ps2Objective);
             }
             if (typeof(SProjGrenade).IsAssignableFrom(type))

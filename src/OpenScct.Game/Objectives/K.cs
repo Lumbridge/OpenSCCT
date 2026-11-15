@@ -9,6 +9,15 @@ namespace OpenScct.Game.Objectives;
 /// </summary>
 public static class K
 {
+    [Provenance(ProvenanceKind.Decoded, "PS2 COM0xECF13 pickup BeginState: owner's forward axis times80")]
+    public const float Ps2PickupStandDistance = 80f;
+
+    [Provenance(ProvenanceKind.Decoded, "PS2 COM0xECF13 pickup BeginState: add27.5 to current pawnZ when crouched")]
+    public const float Ps2PickupCrouchLift = 27.5f;
+
+    [Provenance(ProvenanceKind.Decoded, "PS2 COM0xD641B SPickupInteraction.PostBeginPlay: fixed50 radius and height")]
+    public const float Ps2PickupCylinder = 50f;
+
     // ---- interaction cylinders and the Use menu (interaction-system.md) ------------------------------------
 
     [Provenance(ProvenanceKind.Decoded, "SInteractObject.PostBeginPlay: owner collision + 150")]

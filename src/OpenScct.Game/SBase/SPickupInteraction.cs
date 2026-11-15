@@ -13,9 +13,33 @@ public partial class SPickupInteraction
     protected override void PostBeginPlay()
     {
         base.PostBeginPlay();
+        if (Owner is SFlag { bPS2Objective: true })
+        {
+            // PS2 COM0xD641B: fixed cylinder after the base sizing.
+            ObjectiveNatives.SetCollisionSize(this, K.Ps2PickupCylinder, K.Ps2PickupCylinder);
+            bCanPickup = true;
+            return;
+        }
         ItRadius = (Owner?.CollisionRadius ?? 0f) + K.PickupRadiusPadding;
         ItHeight = (Owner?.CollisionHeight ?? 0f) + K.PickupHeightPadding;
         ObjectiveNatives.SetCollisionSize(this, ItRadius, ItHeight);
+    }
+
+    protected override void PostNetBeginPlay()
+    {
+        base.PostNetBeginPlay();
+        // The PC base has an additional PostNetBeginPlay sizing pass. PS2
+        // SInteractObject declares none; preserve the source pickup cylinder.
+        if (Owner is SFlag { bPS2Objective: true }) ObjectiveNatives.SetCollisionSize(this, K.Ps2PickupCylinder, K.Ps2PickupCylinder);
+    }
+
+    protected override void NativeTick(float deltaSeconds)
+    {
+        base.NativeTick(deltaSeconds);
+        // A dynamic flag's channel can be acknowledged after this entry's
+        // initial bunch. Apply the source cylinder when its Owner resolves.
+        if (Owner is SFlag { bPS2Objective: true } && (CollisionRadius != K.Ps2PickupCylinder || CollisionHeight != K.Ps2PickupCylinder))
+            ObjectiveNatives.SetCollisionSize(this, K.Ps2PickupCylinder, K.Ps2PickupCylinder);
     }
 
     /// <summary>A living player walks to the object: the disk's own walk for an SFlag, the generic one otherwise.</summary>
@@ -25,7 +49,7 @@ public partial class SPickupInteraction
     {
         if (ObjectiveNatives.IsAlive(Instigator))
         {
-            ObjectiveNatives.MirrorState(Instigator, Owner is SFlag ? K.s_FlagAndDropZone_GoTo : K.s_Pickup_GoTo);
+            ObjectiveNatives.MirrorState(Instigator, Owner is SFlag { bPS2Objective: false } ? K.s_FlagAndDropZone_GoTo : K.s_Pickup_GoTo);
         }
     }
 

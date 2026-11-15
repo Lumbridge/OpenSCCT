@@ -28,8 +28,11 @@ public sealed class Ps2ObjectiveTests
             console = w.Place(new SComputerObjectiveTrigger { bPS2Objective = true, bHidden = false }, ConsoleAt, ConsoleRotation);
             zone = w.Place(new SFlagDropZone
             {
-                bPS2Objective = true, StaticMesh = AssetRef.None, bHidden = true,
-                CollisionRadius = 100f, CollisionHeight = 100f,
+                bPS2Objective = true,
+                StaticMesh = AssetRef.None,
+                bHidden = true,
+                CollisionRadius = 100f,
+                CollisionHeight = 100f,
             }, new FVector(1000f, 1000f, 300f));
             flag = new SFlag { bPS2Objective = true, Ps2Computer = console, StaticMesh = Vial, ResetTime = 15 };
             flag.DropZone[0] = zone;
@@ -142,6 +145,40 @@ public sealed class Ps2ObjectiveTests
         physics.MoveActor(spy.Pawn!, new FVector(300f, 0f, 0f));
         Assert.True(objective.ObjectiveTaken);
         Assert.Null(((SBasePawn)spy.Pawn!).CarriedFlag);
+        Assert.Equal(Vial, flag.StaticMesh);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Actual_Use_menu_enters_source_pickup_states_and_standspot_before_carrying(bool crouched)
+    {
+        var (world, flag, _, _, _) = Make();
+        var pc = world.Level.Spawn<SPlayerController>()!;
+        pc.RemoteRole = ENetRole.ROLE_None;
+        var pawn = world.Level.Spawn<SPawnAttaque>(ConsoleAt + new FVector(0f, 100f, 40f), new FRotator(0, -16384, 0))!;
+        pawn.Health = 100; pawn.Controller = pc; pc.Pawn = pawn; pc.SBPawn = pawn;
+        pc.SPawnType = pawn.SPawnType;
+        pc.PlayerReplicationInfo = new PlayerReplicationInfo { Team = world.Gri.Teams[0], Stats = new USPlayerStats() };
+        world.Level.Info.LocalPlayerController = pc;
+        InteractionMenuRules.EnsureManager(pc);
+        pc.GotoState(K.s_PlayerWalkingSt0H);
+        pawn.bIsCrouched = crouched;
+        var entry = flag.PickupInteraction!;
+        Assert.Equal((50f, 50f), (entry.CollisionRadius, entry.CollisionHeight));
+        ObjWorld.Touch(pc, entry);
+        Assert.Equal(EMenuRelease.InteractionInitSent, ObjWorld.UseEntry(pc, entry));
+        Assert.True(pc.IsInState(K.s_Pickup_GoTo));
+        Assert.False(pawn.bUseAdditionnalPhysicsForRepos);
+        Assert.Equal(ConsoleAt + new FVector(0f, 80f, 40f + (crouched ? 27.5f : 0f)), pawn.vVandammePos);
+        pc.eventTopSynchro();
+        Assert.True(pc.IsInState(K.s_Pickup));
+        Assert.Equal(crouched ? SBasePawn.SA_PICKUP_CR_UP : SBasePawn.SA_PICKUP_ST_UP, pawn.sAction);
+        Assert.Same(flag, pawn.CarriedFlag);
+        pc.GotoState(K.s_PlayerWalkingSt0H);
+        Assert.Same(pawn, flag.Base);
+        Assert.Equal(SFlag.Ps2CarryOffset, flag.RelativeLocation);
+        Assert.Equal(SFlag.Ps2CarryRotation, flag.RelativeRotation);
         Assert.Equal(Vial, flag.StaticMesh);
     }
 }
