@@ -76,7 +76,12 @@ public sealed class MercSidearm : SWeaponDefense
         if (SBPawn is { } pawn && ReferenceEquals(pawn.SidearmWeapon, this))
         {
             pawn.SidearmWeapon = null;
-            if (ReferenceEquals(pawn.MyWeapon, this)) { pawn.MyWeapon = pawn.PrimaryWeapon; pawn.ActiveWeaponSlot = 0; }
+            if (ReferenceEquals(pawn.MyWeapon, this))
+            {
+                SidearmEquipment.CarryEmf(pawn, this, pawn.PrimaryWeapon);
+                pawn.MyWeapon = pawn.PrimaryWeapon;
+                pawn.ActiveWeaponSlot = 0;
+            }
         }
         base.Destroyed();
     }

@@ -79,6 +79,7 @@ public static class SidearmEquipment
                 if (c != SWeaponDefense.MVTCHANNEL) old.ViewAnim.SetAlpha(c, 0f);
             }
         }
+        CarryEmf(pawn, pawn.MyWeapon, weapon);
         pawn.ActiveWeaponSlot = slot;
         pawn.MyWeapon = weapon;
         pawn.WeaponSwitchUntil = pawn.Level.TimeSeconds + Sidearms.SwitchSeconds;
@@ -93,6 +94,19 @@ public static class SidearmEquipment
             if (pawn is SPAWNDEFENSE merc) merc.WeaponDummy = drawn.Dummy;
         }
         return true;
+    }
+
+    /// <summary>
+    /// The pawn's EMF state on the gun now in hand, as SetEMF and UnSetEMF put it on MyWeapon, which was the other gun
+    /// when they ran; the gun put away goes back to an undrawn weapon's 0.3. Without it a drawn pistol stayed at 0.3
+    /// and EMF vision drew its view model as a sparse screen door.
+    /// </summary>
+    public static void CarryEmf(SBasePawn pawn, SWeapon? holstered, SWeapon? drawn)
+    {
+        if (drawn is null || ReferenceEquals(holstered, drawn)) return;
+        holstered?.UnSetEMFWeapon();
+        if (pawn.bEMFIsOn) drawn.SetEMFWeapon();
+        else drawn.UnSetEMFWeapon();
     }
 
     public static bool Ready(SWeapon weapon)
@@ -114,6 +128,7 @@ public static class SidearmEquipment
         // animation/state owns visibility afterwards (scope, ladder, holster).
         if (!ReferenceEquals(pawn.MyWeapon, active) && active is SWeaponDefense selected)
             selected.bDrawWeapon = true;
+        CarryEmf(pawn, pawn.MyWeapon, active);
         pawn.MyWeapon = active;
         if (weapon is SWeaponDefense gun && !ReferenceEquals(active, weapon)) gun.bDrawWeapon = false;
         if (pawn is SPAWNDEFENSE merc && active is SWeaponDefense drawn) merc.WeaponDummy = drawn.Dummy;

@@ -645,8 +645,9 @@ public sealed class SkeletalModel : OpenScctGame.Views.IFirstPersonRigModel
             VisionLookup = VisionLookup.SkinBase,
             // Character models carry OpenSCCT's cosmetics (tints, light hues, camos).
             Cosmetics = true,
-            // Its own materials have no heat or EMF skins: masks made from the stock mesh it stands in for.
-            OwnVision = clipsFrom is null ? null : name => OutfitSkins.For(glbPath, clipsFrom.Glb)?.Vision(name),
+            // An outfit's own materials have no heat or EMF skins: masks made from the stock mesh it stands in for.
+            // Any other model's are in the pack, except the pistols' (SidearmVision).
+            OwnVision = clipsFrom is null ? SidearmVision : name => OutfitSkins.For(glbPath, clipsFrom.Glb)?.Vision(name),
         };
 
         // The PNGs of the materials built below, decoded on worker threads first (textures are made here).
@@ -1459,6 +1460,25 @@ public sealed class SkeletalModel : OpenScctGame.Views.IFirstPersonRigModel
         }
 
         return result;
+    }
+
+    // OpenSCCT's pistols are not in the game's packages, so no heat or EMF modifier names their materials. A material
+    // without one draws in EMF vision as a wall does (the bare environment), so the pistol could not be told from the
+    // room behind it, while the merc's rifle is white there: its EMF texture is black where its faces lie. The pistols
+    // take a black EMF texture, and a heat texture that leaves the actor's flat heat as it is (HEATTEX_Cool, 4 x 0.25).
+    private const string SidearmMaterials = "OpenScctSidearms.";
+    private static VisionMasks? s_sidearmVision;
+
+    private static VisionMasks? SidearmVision(string material) =>
+        material.StartsWith(SidearmMaterials, StringComparison.OrdinalIgnoreCase)
+            ? s_sidearmVision ??= new VisionMasks(Flat(0.25f), Flat(0f))
+            : null;
+
+    private static ImageTexture Flat(float value)
+    {
+        using Image image = Image.CreateEmpty(1, 1, false, Image.Format.Rgba8);
+        image.Fill(new Color(value, value, value));
+        return ImageTexture.CreateFromImage(image);
     }
 
     private static bool IsFireModeScreen(string name) => name is

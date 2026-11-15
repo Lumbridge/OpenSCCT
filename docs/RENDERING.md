@@ -1038,6 +1038,12 @@ hot spots stopped at yellow, his head read cold, a wide halo ringed him). The co
   original modifier in `scct_vision_source`: the rifle's diffuse alias `SWeaponTex.M160` otherwise loses
   `SWeaponTex.Armes.heat_m160` and its EMF mask. Cosmetic materials preserve that source. The material's diffuse
   alias still supplies stored mip counts, so adding the vision source does not soften its normal-view texture.
+- OpenSCCT's pistols (materials `OpenScctSidearms.*`, in no texture package) have no vision modifier, so
+  `SkeletalModel.SidearmVision` gives them a flat black EMF texture and a heat texture that keeps the actor's flat
+  heat: in EMF a pistol is white like the rifle, whose EMF texture is black under its faces, instead of the bare
+  environment a wall draws. Their arms are named `SWeaponTex.1DEF_01` and take the stock arms' textures. The pawn's
+  EMF state follows the gun in hand (`SidearmEquipment.CarryEmf`): SetEMF reaches only MyWeapon, so a pistol drawn
+  later stayed at an undrawn weapon's EMFOpacity 0.3 and its view model was a sparse screen door.
 - The EMF reflection matrix is decoded from game `0x1097766d..0x109776e5`, replacing the earlier uniform-scale
   estimate. Its row-major rows are `(.25,0,0,0),(.25,.5,0,0),(0,0,1,0),(.5,.5,0,1)`.
 - Laser beams (`Lasers`: SLaserBeam's LasDetectBeam stretched from start to end; the tripwires' and the mines'
