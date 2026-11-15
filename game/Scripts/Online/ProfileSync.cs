@@ -27,6 +27,7 @@ public static class ProfileSync
     public static readonly string[] LocalKeys =
     [
         "display_mode", "display_monitor", "resolution", "resolution_scale", "auto_scale_fps", "graphics_driver", "responsive_smoke_quality", "vsync", "max_fps", "fps_spy", "fps_merc", "voice_input_device",
+        "audio_output_mode", "audio_output_device",
     ];
 
     /// <summary>This PC's record, from the current settings and the key files.</summary>

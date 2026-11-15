@@ -14,6 +14,7 @@ public sealed class AudioMixCapture : IDisposable
     private readonly List<Vector2> _frames = [];
     private readonly int _limit = (int)(AudioServer.GetMixRate() * 15);
     public int Frames => _frames.Count;
+    public long DiscardedFrames => _effect.GetDiscardedFrames();
     public ReadOnlySpan<Vector2> Samples => CollectionsMarshal.AsSpan(_frames);
     public AudioMixCapture(string bus, int effectIndex = -1)
     {

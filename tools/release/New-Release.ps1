@@ -203,6 +203,17 @@ if (!(Test-Path -LiteralPath $nativeBuiltLibrary) -or !(Test-Path -LiteralPath $
     throw 'Exported native audio does not match its staged dependency manifest. Rebuild native audio and export the matching Godot preset.'
 }
 $nativeLicenseNames = @('godot-cpp-LICENSE.md', 'native-audio-sources.txt')
+if ($nativeSources.Contains('Steam Audio')) {
+    $nativeLicenseNames += @('LICENSE-SteamAudio.txt', 'SteamAudio-THIRDPARTY.md')
+    $spatialDependency = if ($linux) { 'libphonon.so' } else { 'phonon.dll' }
+    $spatialSource = Join-Path $nativePlatformDir $spatialDependency
+    $spatialExport = Join-Path $BuildDir $spatialDependency
+    if (!(Test-Path -LiteralPath $spatialSource) -or !(Test-Path -LiteralPath $spatialExport) -or
+        (Get-FileHash -LiteralPath $spatialSource).Hash -ne (Get-FileHash -LiteralPath $spatialExport).Hash) {
+        throw 'Exported Steam Audio dependency does not match the staged SDK. Re-export the matching Godot preset.'
+    }
+    Copy-Item -LiteralPath $spatialSource -Destination (Join-Path $staging $spatialDependency) -Force
+}
 if ($nativeSources.Contains('reAL HRvb')) {
     $nativeLicenseNames += @('reAL-LICENSE.txt', 'reAL-HRTF-LICENSE.txt')
 } elseif ($nativeSources.Contains('OpenAL Soft')) {

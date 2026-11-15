@@ -15,10 +15,54 @@ public sealed class EaxEnvironment
     public bool IsOriginalValid => InvalidProperty is null;
     public float RoomRolloff => _values[25];
     public float DecayTime => _values[5];
+    public float TailSeconds => _eax.Length==28 ?
+        2*Math.Max(_eax[6],Math.Max(_eax[6]*_eax[7],_eax[6]*_eax[8]))+_eax[10]+_eax[15]+_eax[19]+_eax[21] : 2*DecayTime+1;
     public float HighFrequencyReference => _values[23];
     public float AirAbsorptionMillibels => _eax[23];
     public float[] ToArray() => (float[])_values.Clone();
     public float[] ToEaxArray() => (float[])_eax.Clone();
+
+    public EaxEnvironment WithGeometry(ReverbGeometry room)
+    {
+        if (!room.Valid) return this;
+        if (!IsOriginalValid) return NullZoneEffect.WithGeometry(room);
+        float[] eax=ToEaxArray(),efx=ToArray();
+        eax[1]=room.Size; efx[0]=Math.Min(room.Size*room.Size*room.Size/16,1);
+        eax[2]=efx[1]=Math.Clamp(room.Diffusion*0.65f+eax[2]*0.35f,0,1);
+        eax[3]=MathF.Round(Math.Clamp(-600*0.65f+eax[3]*0.35f+2000*MathF.Log10(Math.Max(room.WetGain,0.00001f)),-10000,0));
+        efx[2]=MathF.Pow(10,eax[3]/2000);
+        eax[6]=efx[5]=room.Decay; eax[7]=efx[6]=room.HFDecayRatio; eax[8]=efx[7]=room.LFDecayRatio;
+        eax[9]=MathF.Round(Math.Clamp(-600*0.75f+eax[9]*0.25f-200*MathF.Log10(1+room.EarlyDelay*343/6),-10000,1000));
+        efx[8]=MathF.Pow(10,eax[9]/2000); eax[10]=efx[9]=room.EarlyDelay;
+        eax[14]=MathF.Round(Math.Clamp(eax[14]*0.25f,-10000,2000)); efx[13]=MathF.Pow(10,eax[14]/2000);
+        eax[15]=efx[14]=room.LateDelay;
+        eax[19]=efx[18]=Math.Clamp(room.LateDelay*2,0.075f,0.25f);
+        eax[20]=efx[19]=Math.Clamp(eax[20]*0.25f+0.2f*Math.Min(room.Size/20,1)*(1-room.Openness),0,0.3f);
+        // Geometry supplies absolute dimensions/times; retain only the HF-limit flag.
+        eax[27]=(int)eax[27]&32;
+        return new EaxEnvironment(efx,eax:eax);
+    }
+
+    public EaxEnvironment Approach(EaxEnvironment target,float seconds)
+    {
+        if (!(seconds>0)) return this;
+        float t=1-MathF.Exp(-Math.Max(0,seconds)/0.5f);
+        float[] efx=ToArray(),eax=ToEaxArray();
+        for (int i=0;i<efx.Length;i++) efx[i]+=(target._values[i]-efx[i])*t;
+        for (int i=1;i<27;i++) eax[i]+=(target._eax[i]-eax[i])*t;
+        eax[0]=target._eax[0]; eax[27]=target._eax[27];
+        foreach (int index in new[] {3,4,5,9,14}) eax[index]=MathF.Round(eax[index]);
+        efx[2]=MathF.Pow(10,eax[3]/2000); efx[3]=MathF.Pow(10,eax[4]/2000); efx[4]=MathF.Pow(10,eax[5]/2000);
+        efx[8]=MathF.Pow(10,eax[9]/2000); efx[13]=MathF.Pow(10,eax[14]/2000); efx[26]=target._values[26];
+        return new EaxEnvironment(efx,eax:eax);
+    }
+
+    public bool Near(EaxEnvironment other)
+    {
+        for (int i=0;i<_eax.Length;i++)
+            if (Math.Abs(_eax[i]-other._eax[i])>0.001f) return false;
+        return true;
+    }
 
     /// <summary>
     /// Default EAX3 source levels, preserving ALchemy's millibel quantization. Adapted from reAL eax.c

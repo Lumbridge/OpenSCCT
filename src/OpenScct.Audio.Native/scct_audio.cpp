@@ -1,16 +1,20 @@
 #include "scct_reverb_dsp.h"
+#include "scct_binaural_dsp.h"
 #include <godot_cpp/godot.hpp>
 #include <godot_cpp/classes/audio_effect.hpp>
 #include <godot_cpp/classes/audio_effect_instance.hpp>
 #include <godot_cpp/classes/audio_server.hpp>
 #include <godot_cpp/core/class_db.hpp>
 #include <godot_cpp/variant/packed_float32_array.hpp>
+#include <godot_cpp/variant/packed_float64_array.hpp>
 #include <array>
 #include <atomic>
 #include <cmath>
 #include <cstring>
 #include <algorithm>
 #include <limits>
+#include <chrono>
+#include <utility>
 
 using namespace godot;
 
@@ -63,7 +67,7 @@ class ScctEaxReverbInstance : public AudioEffectInstance {
     Ref<ScctEaxReverbEffect> effect;
     void *backend = nullptr;
     uint64_t revision = 0;
-    uint64_t raw_revision = 0;
+    uint64_t raw_revision = 0, reset_seen = 0;
     bool raw_mode = false;
     int sample_rate = 48000;
     int64_t tail_remaining = 0;
@@ -85,6 +89,7 @@ class ScctEaxReverbEffect : public AudioEffect {
     std::atomic<bool> raw_mode{false};
     std::atomic<int> errors{0};
     std::atomic<int> latency{0};
+    std::atomic<uint64_t> reset_generation{0};
 protected:
     static void _bind_methods() {
         ClassDB::bind_method(D_METHOD("configure", "environment"), &ScctEaxReverbEffect::configure);
@@ -93,6 +98,7 @@ protected:
         ClassDB::bind_method(D_METHOD("backend_version"), &ScctEaxReverbEffect::backend_version);
         ClassDB::bind_method(D_METHOD("get_error"), &ScctEaxReverbEffect::get_error);
         ClassDB::bind_method(D_METHOD("get_latency_samples"), &ScctEaxReverbEffect::get_latency_samples);
+        ClassDB::bind_method(D_METHOD("reset"), &ScctEaxReverbEffect::reset);
     }
 public:
     ScctEaxReverbEffect() {
@@ -147,6 +153,7 @@ public:
     }
     String get_error() const { return errors.load() == 0 ? String() : String("Native EAX reverb initialization, configuration or processing failed"); }
     int get_latency_samples() const { return latency.load(); }
+    void reset() { reset_generation.fetch_add(1, std::memory_order_release); }
     Ref<AudioEffectInstance> _instantiate() override {
         Ref<ScctEaxReverbInstance> instance;
         instance.instantiate();
@@ -166,6 +173,10 @@ void ScctEaxReverbInstance::initialize(const Ref<ScctEaxReverbEffect> &owner) {
 void ScctEaxReverbInstance::_process(const void *source, AudioFrame *destination, int32_t count) {
     auto output = reinterpret_cast<float *>(destination);
     if (!backend) { std::memset(output, 0, count * 2 * sizeof(float)); return; }
+    auto generation=effect->reset_generation.load(std::memory_order_acquire);
+    if (generation!=reset_seen) {
+        reset_seen=generation; scct_reverb_reset(backend); tail_remaining=0;
+    }
     std::array<float, 27> snapshot;
     bool wants_raw = effect->raw_mode.load(std::memory_order_acquire);
     if (wants_raw != raw_mode) { raw_mode = wants_raw; revision = 0; raw_revision = 0; }
@@ -211,6 +222,12 @@ class ScctEaxSourceFilterInstance : public AudioEffectInstance {
     uint64_t revision = 0;
     int tail_duration = 0;
     int tail_remaining = 0;
+    std::array<AudioFrame, 128> delay{};
+    int delay_cursor = 0, delay_samples = 0;
+    uint64_t reset_seen = 0;
+    AudioFrame last_output{}, ramp_origin{};
+    int ramp_position = 64;
+    bool had_input = false;
 protected:
     static void _bind_methods() {}
 public:
@@ -224,9 +241,17 @@ class ScctEaxSourceFilter : public AudioEffect {
     GDCLASS(ScctEaxSourceFilter, AudioEffect)
     friend class ScctEaxSourceFilterInstance;
     Parameters<3> parameters;
+    std::atomic<int> delay_samples{0};
+    std::atomic<uint64_t> reset_generation{0};
 protected:
-    static void _bind_methods() { ClassDB::bind_method(D_METHOD("configure", "gains"), &ScctEaxSourceFilter::configure); }
+    static void _bind_methods() {
+        ClassDB::bind_method(D_METHOD("configure", "gains"), &ScctEaxSourceFilter::configure);
+        ClassDB::bind_method(D_METHOD("set_delay_samples", "samples"), &ScctEaxSourceFilter::set_delay_samples);
+        ClassDB::bind_method(D_METHOD("reset"), &ScctEaxSourceFilter::reset);
+    }
 public:
+    void set_delay_samples(int samples) { delay_samples.store(std::clamp(samples, 0, 128)); }
+    void reset() { reset_generation.fetch_add(1, std::memory_order_release); }
     ScctEaxSourceFilter() { const float unity[3] = {1,1,5000}; parameters.store(unity); }
     bool configure(const PackedFloat32Array &gains) {
         if (gains.size() != 3) return false;
@@ -252,16 +277,129 @@ void ScctEaxSourceFilterInstance::initialize(const Ref<ScctEaxSourceFilter> &own
     tail_duration = sample_rate / 50;
 }
 void ScctEaxSourceFilterInstance::_process(const void *source, AudioFrame *destination, int32_t count) {
+    auto generation = effect->reset_generation.load(std::memory_order_acquire);
+    int requested_delay = effect->delay_samples.load();
+    if (generation != reset_seen || requested_delay != delay_samples) {
+        ramp_origin = last_output; ramp_position = 0;
+        reset_seen = generation; delay_samples = requested_delay; delay_cursor = 0;
+        delay.fill(AudioFrame{});
+        if (backend) scct_source_filter_reset(backend);
+    }
     std::array<float, 3> snapshot;
     if (backend && effect->parameters.load(snapshot, revision))
         scct_source_filter_configure(backend, snapshot[0], snapshot[1], snapshot[2]);
     const float *input = static_cast<const float *>(source);
     bool active = false;
     if (input) for (int i = 0; i < count * 2; ++i) if (std::abs(input[i]) > 1e-10f) { active = true; break; }
+    if (!active && had_input) { ramp_origin = last_output; ramp_position = 0; }
+    had_input = active;
     tail_remaining = active ? tail_duration : std::max(0, tail_remaining - count);
     if (!backend || !scct_source_filter_process(backend, static_cast<const float *>(source), reinterpret_cast<float *>(destination), count))
         std::memset(destination, 0, count * 2 * sizeof(float));
+    if (delay_samples > 0) for (int i = 0; i < count; ++i) {
+        auto sample = destination[i]; destination[i] = delay[delay_cursor]; delay[delay_cursor] = sample;
+        if (++delay_cursor == delay_samples) delay_cursor = 0;
+    }
+    for (int i = 0; i < count && ramp_position < 64; ++i) {
+        const float amount = static_cast<float>(++ramp_position) / 64;
+        destination[i].left = destination[i].left * amount + ramp_origin.left * (1 - amount);
+        destination[i].right = destination[i].right * amount + ramp_origin.right * (1 - amount);
+    }
+    if (count > 0) last_output = destination[count - 1];
     if (backend && tail_remaining == 0) scct_source_filter_reset(backend);
+}
+
+class ScctBinauralEffect;
+class ScctBinauralInstance : public AudioEffectInstance {
+    GDCLASS(ScctBinauralInstance, AudioEffectInstance)
+    Ref<ScctBinauralEffect> effect;
+    void *backend = nullptr;
+    uint64_t revision = 0, reset_seen = 0;
+    bool enabled = false;
+    int sample_rate = 48000;
+protected:
+    static void _bind_methods() {}
+public:
+    void initialize(const Ref<ScctBinauralEffect> &owner);
+    ~ScctBinauralInstance() override { scct_binaural_destroy(backend); }
+    void _process(const void *source, AudioFrame *destination, int32_t count) override;
+    bool _process_silence() const override { return enabled && scct_binaural_pending(backend); }
+};
+
+class ScctBinauralEffect : public AudioEffect {
+    GDCLASS(ScctBinauralEffect, AudioEffect)
+    friend class ScctBinauralInstance;
+    Parameters<4> parameters;
+    std::atomic<uint64_t> reset_generation{0};
+    std::atomic<uint64_t> calls{0}, frames{0}, elapsed_ns{0}, max_ns{0}, deadline_misses{0};
+    std::atomic<int> errors{0};
+    void *prepared = nullptr;
+protected:
+    static void _bind_methods() {
+        ClassDB::bind_method(D_METHOD("configure", "direction"), &ScctBinauralEffect::configure);
+        ClassDB::bind_method(D_METHOD("reset"), &ScctBinauralEffect::reset);
+        ClassDB::bind_method(D_METHOD("get_latency_samples"), &ScctBinauralEffect::get_latency_samples);
+        ClassDB::bind_method(D_METHOD("get_metrics"), &ScctBinauralEffect::get_metrics);
+        ClassDB::bind_method(D_METHOD("get_error"), &ScctBinauralEffect::get_error);
+    }
+public:
+    ScctBinauralEffect() {
+        const float defaults[4] = {0,0,-1,0}; parameters.store(defaults);
+        // ClassDB creates resources on the scene thread, before they are added to
+        // a bus. The expensive shared HRTF and source buffers are ready to mix.
+        prepared = scct_binaural_create(static_cast<int>(AudioServer::get_singleton()->get_mix_rate()));
+        if (!prepared) errors.fetch_add(1);
+    }
+    ~ScctBinauralEffect() override { scct_binaural_destroy(prepared); }
+    bool configure(const PackedFloat32Array &values) {
+        if (values.size() != 4 || (values[3] != 0 && values[3] != 1)) return false;
+        for (int i = 0; i < 4; ++i) if (!std::isfinite(values[i])) return false;
+        parameters.store(values.ptr()); return true;
+    }
+    void reset() { reset_generation.fetch_add(1, std::memory_order_release); }
+    int get_latency_samples() const { return scct_binaural_latency_frames(); }
+    String get_error() const { return errors.load() == 0 ? String() : String("Steam Audio binaural initialization or processing failed"); }
+    PackedFloat64Array get_metrics() const {
+        PackedFloat64Array result; result.resize(5);
+        result[0] = static_cast<double>(calls.load()); result[1] = static_cast<double>(frames.load());
+        result[2] = static_cast<double>(elapsed_ns.load()); result[3] = static_cast<double>(max_ns.load());
+        result[4] = static_cast<double>(deadline_misses.load()); return result;
+    }
+    Ref<AudioEffectInstance> _instantiate() override {
+        Ref<ScctBinauralInstance> instance; instance.instantiate();
+        instance->initialize(Ref<ScctBinauralEffect>(this)); return instance;
+    }
+};
+void ScctBinauralInstance::initialize(const Ref<ScctBinauralEffect> &owner) {
+    effect = owner; sample_rate = static_cast<int>(AudioServer::get_singleton()->get_mix_rate());
+    backend = std::exchange(effect->prepared, nullptr);
+    if (!backend) { backend = scct_binaural_create(sample_rate); if (!backend) effect->errors.fetch_add(1); }
+}
+void ScctBinauralInstance::_process(const void *source, AudioFrame *destination, int32_t count) {
+    std::array<float, 4> values;
+    if (effect->parameters.load(values, revision)) {
+        bool requested = values[3] != 0;
+        if (requested != enabled) { scct_binaural_reset(backend); enabled = requested; }
+        if (backend) scct_binaural_direction(backend, values[0], values[1], values[2]);
+    }
+    auto generation = effect->reset_generation.load(std::memory_order_acquire);
+    if (generation != reset_seen) { reset_seen = generation; scct_binaural_reset(backend); }
+    if (!enabled) {
+        if (source) std::memmove(destination, source, count * sizeof(AudioFrame));
+        else std::memset(destination, 0, count * sizeof(AudioFrame));
+        return;
+    }
+    auto start = std::chrono::steady_clock::now();
+    if (!scct_binaural_process(backend, static_cast<const float *>(source), reinterpret_cast<float *>(destination), count)) {
+        std::memset(destination, 0, count * sizeof(AudioFrame)); effect->errors.fetch_add(1);
+    }
+    auto duration = static_cast<uint64_t>(std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now() - start).count());
+    effect->calls.fetch_add(1, std::memory_order_relaxed); effect->frames.fetch_add(count, std::memory_order_relaxed);
+    effect->elapsed_ns.fetch_add(duration, std::memory_order_relaxed);
+    auto maximum = effect->max_ns.load(std::memory_order_relaxed);
+    while (duration > maximum && !effect->max_ns.compare_exchange_weak(maximum, duration, std::memory_order_relaxed)) {}
+    if (duration * sample_rate > static_cast<uint64_t>(count) * 1000000000ULL)
+        effect->deadline_misses.fetch_add(1, std::memory_order_relaxed);
 }
 
 static void initialize_audio(ModuleInitializationLevel level) {
@@ -270,6 +408,8 @@ static void initialize_audio(ModuleInitializationLevel level) {
     GDREGISTER_CLASS(ScctEaxReverbEffect);
     GDREGISTER_INTERNAL_CLASS(ScctEaxSourceFilterInstance);
     GDREGISTER_CLASS(ScctEaxSourceFilter);
+    GDREGISTER_INTERNAL_CLASS(ScctBinauralInstance);
+    GDREGISTER_CLASS(ScctBinauralEffect);
 }
 static void uninitialize_audio(ModuleInitializationLevel) {}
 extern "C" GDExtensionBool GDE_EXPORT scct_audio_library_init(GDExtensionInterfaceGetProcAddress get_proc,

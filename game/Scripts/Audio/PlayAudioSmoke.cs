@@ -343,7 +343,7 @@ public class PlayAudioSmoke : SmokeTest
         var startCounts = new Dictionary<(int, string), int>();
         foreach (SoundStart s in sound.Starts)
         {
-            if (s.Ambient)
+            if (s.Ambient && !s.Resumed)
             {
                 startCounts[(s.ActorId, s.Call)] = startCounts.TryGetValue((s.ActorId, s.Call), out int n) ? n + 1 : 1;
             }

@@ -748,6 +748,15 @@ public sealed class GameSettings
 
     // ---- audio ---------------------------------------------------------------------------------------------
 
+    public static readonly string[] AudioOutputModes = ["Speakers", "Headphones"];
+
+    [JsonPropertyName("audio_output_mode")]
+    public string AudioOutputMode { get; set; } = "Speakers";
+
+    /// <summary>Empty follows the operating system default; an unavailable saved device falls back to it.</summary>
+    [JsonPropertyName("audio_output_device")]
+    public string AudioOutputDevice { get; set; } = "";
+
     [JsonPropertyName("master_volume")]
     public float MasterVolume { get; set; } = 1f;
 
@@ -1113,6 +1122,8 @@ public sealed class GameSettings
         RenderScale = LookSettings.Range(RenderScale, 0.5f, 1f);
         if (Array.IndexOf(AutoScaleTargets, AutoScaleFps) < 0) AutoScaleFps = 0;
         MasterVolume = LookSettings.Range(MasterVolume, 0f, 1f);
+        AudioOutputMode = OneOf(AudioOutputModes, AudioOutputMode, "Speakers");
+        AudioOutputDevice = (AudioOutputDevice ?? "").Trim();
         SoundVolume = LookSettings.Range(SoundVolume, 0f, 1f);
         MusicVolume = LookSettings.Range(MusicVolume, 0f, 1f);
         MenuMusicVolume = LookSettings.Range(MenuMusicVolume, 0f, 1f);

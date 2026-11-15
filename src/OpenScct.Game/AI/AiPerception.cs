@@ -340,8 +340,8 @@ public readonly record struct AiNoise(FVector Location, float Radius, float Volu
 /// </summary>
 public sealed class AiNoiseBoard : INoiseHearing
 {
-    private static readonly Name NAME_SW_FootCrouch = new("SW_FootCrouch");
-    private static readonly Name NAME_SW_FootWalk = new("SW_FootWalk");
+    private static readonly Name NAME_SW_FootCrouch = new("Sound_Persos.FootSteps.SW_FootCrouch");
+    private static readonly Name NAME_SW_FootWalk = new("Sound_Persos.FootSteps.SW_FootWalk");
 
     private readonly List<AiNoise> _noises = new();
     private readonly List<AiNoise> _pending = new();

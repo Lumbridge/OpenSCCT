@@ -6,8 +6,8 @@ using Godot;
 
 namespace OpenScctGame.Audio;
 
-/// <summary>One native EAX environment per viewport listener; zone changes retain its existing reverb tail.</summary>
-public sealed class ReverbBuses : IDisposable
+/// <summary>Native listener EAX plus bounded source-room fields; ordinary zone changes retain reverb tails.</summary>
+public sealed partial class ReverbBuses : IDisposable
 {
     public const string WorldBus = "SvmWorld";
     public const string FlatBus = "SvmFlat";
@@ -24,6 +24,8 @@ public sealed class ReverbBuses : IDisposable
     public const string MenuSoundBus = "SvmMenuSound";
     private const string EffectClass = "ScctEaxReverbEffect";
     private const string FilterClass = "ScctEaxSourceFilter";
+    private const string BinauralClass = "ScctBinauralEffect";
+    private readonly List<EaxSourceRoute> _routes = [];
     private static int _nextId;
     private readonly int _id = Interlocked.Increment(ref _nextId);
     private readonly Dictionary<string, EaxEnvironment> _environments = new(StringComparer.OrdinalIgnoreCase);
@@ -35,7 +37,7 @@ public sealed class ReverbBuses : IDisposable
     private bool _decided;
     private bool _disposed;
 
-    public ReverbBuses(MapAudioDoc? map)
+    public ReverbBuses(MapAudioDoc? map, bool sourceRooms = false)
     {
         Ensure(WorldBus);
         Ensure(FlatBus);
@@ -58,6 +60,7 @@ public sealed class ReverbBuses : IDisposable
         if (!_effect.Call("configure_eax", EaxEnvironment.DriverDefault.ToEaxArray()).AsBool())
             throw new InvalidOperationException("Could not initialize EAX driver defaults.");
         _applied = EaxEnvironment.DriverDefault;
+        if (sourceRooms) CreateSourceRooms();
     }
 
     public bool NativeAvailable { get; }
@@ -84,6 +87,7 @@ public sealed class ReverbBuses : IDisposable
         // The original records the selected object before calling EAX, ignores a failed SetAll, and leaves
         // the previous environment/tail in place. Fourteen original blocks are rejected by the vendor.
         if (!environment.IsOriginalValid) return;
+        if (_geometryEnabled && _listenerGeometryStarted) return;
         if (!_effect.Call("configure_eax", environment.ToEaxArray()).AsBool())
             return; // Preserve the previous room for any additional rejection by the original property validator.
         _applied = environment;
@@ -91,16 +95,36 @@ public sealed class ReverbBuses : IDisposable
 
     public EaxSourceRoute? CreateSourceRoute(int voice)
     {
-        if (!NativeAvailable || EnvironmentBus is null) return null;
+        if (!NativeAvailable) return null;
+        if (!ClassDB.ClassExists(BinauralClass))
+            throw new InvalidOperationException("SCCT headphone audio extension is outdated. Rebuild native audio.");
         string suffix = _id.ToString(CultureInfo.InvariantCulture) + "_" + voice.ToString(CultureInfo.InvariantCulture);
         string dry = NewBus("SvmEaxDry" + suffix, WorldBus);
-        string wet = NewBus("SvmEaxSend" + suffix, EnvironmentBus);
+        string wet = NewBus("SvmEaxSend" + suffix, EnvironmentBus ?? WorldBus);
         AudioEffect direct = Create(FilterClass), room = Create(FilterClass);
+        AudioEffect binaural = Create(BinauralClass);
         _effects.Add(direct);
         _effects.Add(room);
+        _effects.Add(binaural);
         AudioServer.AddBusEffect(AudioServer.GetBusIndex(dry), direct);
+        AudioServer.AddBusEffect(AudioServer.GetBusIndex(dry), binaural);
         AudioServer.AddBusEffect(AudioServer.GetBusIndex(wet), room);
-        return new EaxSourceRoute(dry, wet, direct, room);
+        var route = new EaxSourceRoute(dry, wet, direct, room, binaural);
+        _routes.Add(route);
+        return route;
+    }
+
+    /// <summary>Calls, frames, total/max DSP nanoseconds and per-source deadline overruns; queried only for reports.</summary>
+    public double[] CaptureSpatializerMetrics()
+    {
+        var result = new double[5];
+        foreach (EaxSourceRoute route in _routes)
+        {
+            double[] values = route.Metrics();
+            for (int i = 0; i < result.Length; i++)
+                result[i] = i == 3 ? Math.Max(result[i], values[i]) : result[i] + values[i];
+        }
+        return result;
     }
 
     private static AudioEffect Create(string name) => ClassDB.Instantiate(name).AsGodotObject() as AudioEffect ??
@@ -128,6 +152,8 @@ public sealed class ReverbBuses : IDisposable
         _owned.Clear();
         foreach (AudioEffect effect in _effects) effect.Dispose();
         _effects.Clear();
+        _routes.Clear();
+        _sourceRooms.Clear();
     }
 
     private static int Ensure(string name)
@@ -143,23 +169,60 @@ public sealed class ReverbBuses : IDisposable
 }
 
 /// <summary>Independent per-source direct/room spectral filters before the signals mix.</summary>
-public sealed class EaxSourceRoute(string dryBus, string roomBus, AudioEffect direct, AudioEffect room)
+public sealed class EaxSourceRoute(string dryBus, string roomBus, AudioEffect direct, AudioEffect room, AudioEffect binaural)
 {
+    public bool BinauralAvailable { get; } = binaural.Call("get_error").AsString().Length == 0;
     public string DryBus { get; } = dryBus;
     public string RoomBus { get; } = roomBus;
+    private string? _roomDestination;
+    public void SetRoomDestination(string destination)
+    {
+        if (_roomDestination == destination) return;
+        AudioServer.SetBusSend(AudioServer.GetBusIndex(RoomBus), destination);
+        _roomDestination = destination;
+    }
     private EaxSourceLevels _direct = new(float.NaN, float.NaN), _room = new(float.NaN, float.NaN);
     private float _reference = float.NaN;
+    private readonly float[] _dryValues = new float[3], _roomValues = new float[3], _spatialValues = new float[4];
+    private bool _headphones;
+    private bool _spatialConfigured;
+    public int SpatializerLatency => binaural.Call("get_latency_samples").AsInt32();
+    public double[] Metrics() => binaural.Call("get_metrics").AsFloat64Array();
+
+    public void Reset()
+    {
+        direct.Call("reset"); room.Call("reset"); binaural.Call("reset");
+    }
+
+    public void SetSpatializer(bool headphones, Vector3 direction)
+    {
+        if (!headphones && !_headphones && _spatialConfigured) return;
+        _spatialConfigured = true;
+        if (_headphones != headphones)
+        {
+            _headphones = headphones;
+            room.Call("set_delay_samples", headphones ? SpatializerLatency : 0);
+        }
+        if (_spatialValues[0] == direction.X && _spatialValues[1] == direction.Y &&
+            _spatialValues[2] == direction.Z && _spatialValues[3] == (headphones ? 1 : 0)) return;
+        _spatialValues[0] = direction.X; _spatialValues[1] = direction.Y; _spatialValues[2] = direction.Z;
+        _spatialValues[3] = headphones ? 1 : 0;
+        if (!binaural.Call("configure", _spatialValues).AsBool())
+            throw new InvalidOperationException("Invalid binaural source direction.");
+    }
     public void Set(EaxSourceLevels dry, EaxSourceLevels wet, float reference)
     {
         if (_direct != dry || _reference != reference)
         {
-            if (!direct.Call("configure", new float[] { dry.Gain, dry.GainHF, reference }).AsBool())
+            _dryValues[0] = dry.Gain; _dryValues[1] = dry.GainHF; _dryValues[2] = reference;
+            if (!direct.Call("configure", _dryValues).AsBool())
                 throw new InvalidOperationException("Invalid EAX direct-source filter.");
             _direct = dry;
         }
         if (_room != wet || _reference != reference)
         {
-            if (!room.Call("configure", new float[] { wet.Gain, wet.GainHF, reference }).AsBool())
+            _roomValues[0] = wet.Gain; _roomValues[1] = wet.GainHF; _roomValues[2] = reference;
+            if (!room.Call("configure", _roomValues).AsBool())
                 throw new InvalidOperationException("Invalid EAX room-source filter.");
             _room = wet;
         }

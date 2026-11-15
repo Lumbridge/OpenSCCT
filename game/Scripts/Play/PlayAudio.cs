@@ -77,6 +77,7 @@ public sealed partial class PlayAudio : Node
 
         var audio = new PlayAudio { _session = session, _view = view, _demo = demo };
         audio.Library = AudioLibrary.Load(shared, session.MapFolder);
+        audio.Library.PrepareSession();
         audio.Library.Preload("Armes_impacts.Armes.RA_GunDef_1shot");
         // The blast sound is a nested random list. Decode every leaf while loading rather than reading
         // and decoding a different WAV on the frame of each of the first few explosions.
@@ -85,7 +86,8 @@ public sealed partial class PlayAudio : Node
             foreach (string action in new[] { "fire", "reload" })
                 if (audio.Library.Find("OpenScctSidearms." + pistol.Id + "_" + action) is { } sound)
                     audio.Library.Stream(sound, false);
-        audio.Sound = new SoundSystem { Name = "SoundSystem" };
+        audio.Sound = new SoundSystem { Name = "SoundSystem", Headphones = AudioOutput.Headphones,
+            Acoustics = parent is PlayRoot { Map: { } rendered } ? MapAcoustics.FromLighting(rendered.Lighting) : null };
         audio.AddChild(audio.Sound);
         parent.AddChild(audio);
         if (demo is not null) audio.Sound.SetDemoSeek(true, demo.Clock.Paused);
@@ -238,6 +240,7 @@ public sealed partial class PlayAudio : Node
             if (demo.IsSeeking) return;
             if (demo.Clock.Paused) delta = 0;
         }
+        sound.Headphones = AudioOutput.Headphones;
         sound.Update(delta);
 
         if (_quiet)
@@ -260,8 +263,17 @@ public sealed partial class PlayAudio : Node
         PlayAudioRouter? r = Router;
         string top = s is null ? "" : string.Join(",", s.Calls.GroupBy(c => c.Sound[(c.Sound.LastIndexOf('.') + 1)..])
             .OrderByDescending(g => g.Count()).Take(8).Select(g => g.Key + "=" + g.Count()));
+        double[] dsp = s?.Buses?.CaptureSpatializerMetrics() ?? new double[5];
+        string lateLoads = Library is null ? "" : string.Join(",", Library.LoadAttempts.Where(l => !l.Preload).Select(l => l.Sound).TakeLast(3));
         return string.Create(CultureInfo.InvariantCulture,
-            $"SVM_AUDIO voices={s?.ActiveVoices} started={s?.StartCount} silent={s?.Silent} unknown={s?.Unknown.Count} zone={s?.ListenerZone} own={r?.OwnPlayed} heard={r?.HeardPlayed} duplicates={r?.Duplicates} calls: {top} peaks: {Peaks.Summary()}");
+            $"SVM_AUDIO voices={s?.ActiveVoices} virtual={s?.VirtualVoices} stolen={s?.StolenVoices} rejected={s?.RejectedVoices} promoted={s?.VirtualPromotions} " +
+            $"started={s?.StartCount} silent={s?.Silent} unknown={s?.Unknown.Count} zone={s?.ListenerZone} own={r?.OwnPlayed} heard={r?.HeardPlayed} duplicates={r?.Duplicates} " +
+            $"updateMaxMs={s?.MaxUpdateMilliseconds:F3} queueMaxMs={s?.MaxQueueMilliseconds:F3} traces={s?.OcclusionQueries} " +
+            $"reverbRays={s?.Buses?.GeometryQueries} reverbProbeMaxMs={s?.Buses?.MaxGeometryBatchMilliseconds:F3} reverbRejected={s?.Buses?.GeometryRejectedPackets} " +
+            $"reads={Library?.FilesRead} runtimeReads={Library?.RuntimeFilesRead} loadMaxMs={Library?.MaxLoadMilliseconds:F3} cacheBytes={Library?.CachedBytes} evictions={Library?.CacheEvictions} " +
+            $"hrtfCalls={dsp[0]} hrtfMaxMs={dsp[3] / 1000000:F3} sourceDeadlineMisses={dsp[4]} " +
+            $"outputLatencyEstimateMs={AudioServer.GetOutputLatency() * 1000 + (s?.Headphones == true ? 128000 / AudioServer.GetMixRate() : 0):F2} runtimeLoads={lateLoads} " +
+            $"calls: {top} peaks: {Peaks.Summary()}");
     }
 
     public override void _ExitTree()

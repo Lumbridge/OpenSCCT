@@ -3,6 +3,7 @@ param(
     [string]$Godot,
     [string]$BuildDir,
     [string]$DependencySourceRoot,
+    [string]$SteamAudioSdk,
     [ValidateSet('OPENAL', 'HRVB')][string]$Backend = 'HRVB',
     [switch]$SkipStage,
     [int]$Jobs = 4
@@ -47,6 +48,7 @@ if ($DependencySourceRoot) {
         "-DFETCHCONTENT_SOURCE_DIR_OPENAL=$([IO.Path]::GetFullPath((Join-Path $DependencySourceRoot 'openal-soft')))",
         "-DFETCHCONTENT_SOURCE_DIR_REAL=$([IO.Path]::GetFullPath((Join-Path $DependencySourceRoot 'real')))")
 }
+if ($SteamAudioSdk) { $dependencyArgs += "-DFETCHCONTENT_SOURCE_DIR_STEAMAUDIO=$([IO.Path]::GetFullPath($SteamAudioSdk))" }
 & $cmake -S (Join-Path $repo 'src/OpenScct.Audio.Native') -B $BuildDir -G Ninja `
     "-DCMAKE_MAKE_PROGRAM=$ninja" -DCMAKE_BUILD_TYPE=Release `
     "-DGODOTCPP_CUSTOM_API_FILE=$(Join-Path $BuildDir 'extension_api.json')" "-DSCCT_AUDIO_REVERB_BACKEND=$Backend" @dependencyArgs

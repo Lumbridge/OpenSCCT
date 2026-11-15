@@ -90,6 +90,10 @@
     <Compile Include="..\..\game\Scripts\Audio\AudioK.cs" Link="Linked\AudioK.cs" />
     <Compile Include="..\..\game\Scripts\Audio\SoundRules.cs" Link="Linked\SoundRules.cs" />
     <Compile Include="..\..\game\Scripts\Audio\EaxEnvironment.cs" Link="Linked\EaxEnvironment.cs" />
+    <Compile Include="..\..\game\Scripts\Audio\AcousticTransmission.cs" Link="Linked\AcousticTransmission.cs" />
+    <Compile Include="..\..\game\Scripts\Audio\AcousticScene.cs" Link="Linked\AcousticScene.cs" />
+    <Compile Include="..\..\game\Scripts\Audio\CornerPathSearch.cs" Link="Linked\CornerPathSearch.cs" />
+    <Compile Include="..\..\game\Scripts\Audio\ReverbGeometryProbe.cs" Link="Linked\ReverbGeometryProbe.cs" />
     <Compile Include="..\..\game\Scripts\Voice\VoiceMicrophoneState.cs" Link="Linked\VoiceMicrophoneState.cs" />
     <Compile Include="..\..\game\Scripts\Render\Post\ZoneFogRules.cs" Link="Render\ZoneFogRules.cs" />
     <Compile Include="..\..\game\Scripts\Render\Post\FogVolumeRules.cs" Link="Render\FogVolumeRules.cs" />

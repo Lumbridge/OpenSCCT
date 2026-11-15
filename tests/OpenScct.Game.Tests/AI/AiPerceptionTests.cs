@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
+using OpenScct.Core.Uc;
 using OpenScct.Game.AI;
 using OpenScct.Game.Movement;
 using OpenScct.Game.SBase;
@@ -218,6 +219,21 @@ public sealed class AiPerceptionTests
     }
 
     // ---- hearing -------------------------------------------------------------------------------------------------
+
+    [Theory]
+    [InlineData("Sound_Persos.FootSteps.SW_FootCrouch", false)]
+    [InlineData("Sound_Persos.FootSteps.SW_FootWalk", false)]
+    [InlineData("Sound_Persos.FootSteps.SW_FootRun", true)]
+    public void AuthoredFootstepSilenceUsesTheEmittedQualifiedName(string path, bool audible)
+    {
+        var world = new World(1);
+        var pawn = world.Level.Spawn<SPawnAttaque>()!;
+        var board = new AiNoiseBoard();
+        pawn.PlaySound(new AssetRef(path));
+        board.Gather(world.Level);
+        Assert.Equal(audible, System.Linq.Enumerable.Any(board.Noises,
+            n => ReferenceEquals(n.Source, pawn)));
+    }
 
     [Fact]
     public void MakeNoiseReachesTheBotsDampenedAsDecoded()

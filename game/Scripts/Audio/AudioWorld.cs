@@ -32,11 +32,15 @@ public readonly record struct AmbientSource(
 /// material's OcclusionType and the zone number at that point.
 /// </summary>
 public readonly record struct OcclusionHits(FVector NearListener, FVector NearSource, int TypeNearListener, int TypeNearSource,
-    int ZoneNearListener, int ZoneNearSource);
+    int ZoneNearListener, int ZoneNearSource, FVector NormalNearListener = default, FVector NormalNearSource = default);
 
 /// <summary>What the sound system reads from the client's simulation. It never writes to it.</summary>
 public interface IAudioWorld
 {
+    bool SupportsReverbGeometry=>false;
+    AcousticRayHit TraceReverb(FVector origin,FVector direction,float range)=>default;
+    /// <summary>Static topology changes, including broken glass. Moving blockers are also refreshed at 10 Hz.</summary>
+    uint AcousticRevision => 0;
     /// <summary>The current location of an actor the simulation knows, for sources that follow their actor.</summary>
     bool TryGetActorLocation(int actorId, out FVector location);
 
@@ -79,6 +83,21 @@ public interface IAudioWorld
 public sealed class LevelAudioWorld(Level level, ICollisionWorld? collision, Func<Actor, string?>? mapIdOf = null,
     IReadOnlyList<MapSoundActor>? placed = null) : IAudioWorld
 {
+    public bool SupportsReverbGeometry=>collision is not null;
+    public AcousticRayHit TraceReverb(FVector origin,FVector direction,float range)=>
+        collision is null?default:TraceReverbGeometry(collision,origin,direction,range);
+
+    public static AcousticRayHit TraceReverbGeometry(ICollisionWorld collision,FVector origin,FVector direction,float range)
+    {
+        // A nearest-hit query must compare live movers with the BSP behind
+        // them. The legacy occlusion early-out returns BSP before nearer doors.
+        if (!collision.LineCheck(out FCheckResult hit,null,origin+direction*range,origin,default,
+                OcclusionTrace&~ETraceFlags.TRACE_StopAtFirstHit) ||
+            !hit.bHit || (hit.PolyFlags&0x80u)!=0) return new(false,range,default);
+        return new(true,FVector.Dist(origin,hit.Location),hit.Normal,hit.SurfaceType,
+            (collision as CollisionWorld)?.OcclusionTypeOf(hit.Material)??0);
+    }
+    public uint AcousticRevision => (collision as CollisionWorld)?.GeometryRevision ?? 0;
     public Level Level { get; } = level ?? throw new ArgumentNullException(nameof(level));
 
     // The map's SAmbientSoundTriggers by where they stand (whole units, as an actor's location is sent).
@@ -213,7 +232,13 @@ public sealed class LevelAudioWorld(Level level, ICollisionWorld? collision, Fun
     public bool OcclusionBetween(FVector listener, FVector source, out OcclusionHits hits)
     {
         hits = default;
-        if (collision is null ||
+        return collision is not null && TraceOcclusion(collision, listener, source, out hits);
+    }
+
+    public static bool TraceOcclusion(ICollisionWorld collision, FVector listener, FVector source, out OcclusionHits hits)
+    {
+        hits = default;
+        if (
             !collision.LineCheck(out FCheckResult near, null, source, listener, default, OcclusionTrace) || !near.bHit)
         {
             return false;
@@ -228,7 +253,7 @@ public sealed class LevelAudioWorld(Level level, ICollisionWorld? collision, Fun
         // there; a point on the surface itself can fall in solid space, zone 0).
         hits = new OcclusionHits(near.Location, far.Location, world?.OcclusionTypeOf(near.Material) ?? 0,
             far.bHit ? world?.OcclusionTypeOf(far.Material) ?? 0 : 0, collision.GetZoneIndex(near.Location + near.Normal),
-            collision.GetZoneIndex(far.bHit ? far.Location + far.Normal : far.Location));
+            collision.GetZoneIndex(far.bHit ? far.Location + far.Normal : far.Location),near.Normal,far.Normal);
         return true;
     }
 }

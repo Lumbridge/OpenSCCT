@@ -16,6 +16,8 @@ public static class SettingsApplier
 {
     public const string MasterBus = "Master";
     public const string VoiceBus = "SvmVoice";
+    /// <summary>3 dB summing headroom for game/menu categories. Voice gain and its echo reference stay unchanged.</summary>
+    public const float NonVoiceHeadroom = 0.70794576f;
 
     /// <summary>The refresh rate of the screen the window is on, as last read (60 until then).</summary>
     public static double MonitorHz { get; private set; } = DisplayFrameCap.FallbackHz;
@@ -296,6 +298,7 @@ public static class SettingsApplier
     public static void ApplyAudio(GameSettings s)
     {
         ArgumentNullException.ThrowIfNull(s);
+        Audio.AudioOutput.Configure(s.AudioOutputMode, s.AudioOutputDevice);
         EnsureBus(VoiceBus);
         for (int i = 0; i < AudioServer.BusCount; i++)
         {
@@ -314,6 +317,7 @@ public static class SettingsApplier
             };
             if (volume is { } v)
             {
+                if (name is not (MasterBus or VoiceBus)) v *= NonVoiceHeadroom;
                 AudioServer.SetBusVolumeDb(i, v <= 0f ? -80f : Mathf.LinearToDb(v));
             }
         }

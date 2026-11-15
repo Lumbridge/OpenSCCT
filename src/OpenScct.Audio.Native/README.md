@@ -34,7 +34,7 @@ GODOT=/path/to/pinned/godot bash tools/audio/build-native-audio.sh
 Both scripts dump the actual editor's extension API, build a minimal godot-cpp
 binding set, and stage the native libraries under `game/addons/scct_audio/bin`.
 Exact dependency commits are pinned in `CMakeLists.txt` and `hrvb.cmake`. Godot's
-`.gdextension` manifest exports one self-contained platform library.
+`.gdextension` manifest exports the platform extension and its CPU spatializer companion.
 The Windows smoke/export and Linux build pipelines invoke these scripts before
 import/export. Release packaging includes the selected backend's dependency licenses.
 Generated libraries, dependencies and game-derived
@@ -82,3 +82,42 @@ and applied on the mixer thread; a resource update preserves its effect instance
 Silence processing starts only after input and ends after a bounded decay tail.
 Godot retains each resource until its mixer instance is retired; the instance owns
 and releases its native DSP context.
+
+## Headphone spatializer
+
+`ScctBinauralEffect` wraps the standalone CPU binaural effect from Valve's Steam
+Audio 4.8.1 SDK. `steamaudio.cmake` pins the official archive by SHA-256. Both
+platforms ship `phonon` beside the extension and include the Apache-2.0 and SDK
+third-party notices; the GDExtension manifest exports the companion library.
+Godot still owns output, decoding and device changes. No Steam client, GPU
+runtime, Steam Audio simulation scene or acoustic bake is required.
+
+- `configure([right, up, backward, enabled])` accepts listener-relative source
+  direction and an explicit 0/1 bypass. Zero direction resolves to forward.
+- `reset()` publishes a new source generation; the mixer clears its convolution
+  history and adapter queues before processing the next source.
+- `get_latency_samples()` reports the **128-sample adapter** (2.667 ms at 48 kHz),
+  excluding the HRTF's physical impulse delay and Godot/device output buffering.
+- `get_metrics()` returns calls, frames, total DSP nanoseconds, maximum call
+  nanoseconds and individual-source deadline overruns. These are not whole-mixer
+  underrun counters. `get_error()` reports initialization/processing failures.
+
+The built-in RMS-normalized HRTF is shared per mix rate and constructed before
+the bus effect is installed. Effects, convolution buffers and block queues are
+preallocated. Mixer callbacks perform no I/O, managed calls, allocation or
+geometry queries. Blocks are adapted independently of Godot callback size;
+normal completion drains convolution tails. Private dry buses receive unpanned
+Godot mono (equal-power stereo); the adapter reconstructs mono before HRTF
+rendering. The room source filter delays its send by the same 128 samples in
+headphone mode. Speaker mode bypasses both binaural processing and that delay.
+
+SDK tests cover 24, 44.1 and 48 kHz. The built-in HRTF cannot initialize at every
+possible Godot mix rate (96 kHz is rejected by this SDK); an unavailable
+spatializer retains speaker panning and emits an explicit warning. Godot's
+default 48 kHz mix is independent of the output device's hardware rate.
+
+For an existing extracted SDK use Windows `-SteamAudioSdk <steamaudio-folder>`
+or Linux `SCCT_STEAMAUDIO_SDK=<steamaudio-folder>`. Otherwise CMake downloads and
+verifies the pinned archive. `tools/audio/test-binaural-dsp.py` exercises the
+actual C ABI for block partitioning, in-place buffers, axes/elevation, reset,
+tail drain and a 32-source CPU measurement. Its timing is host-specific evidence.
