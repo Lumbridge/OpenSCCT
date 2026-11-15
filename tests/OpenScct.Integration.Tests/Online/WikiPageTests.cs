@@ -111,6 +111,23 @@ public sealed class WikiPageTests
             using HttpResponseMessage style = await http.GetAsync("/web/assets/wiki.css", ct);
             Assert.Equal(HttpStatusCode.OK, style.StatusCode);
             Assert.Equal("text/css", style.Content.Headers.ContentType?.MediaType);
+
+            string training = await http.GetStringAsync("/wiki/vision-cancelling", ct);
+            Assert.Contains("wiki-playable-layout", training, StringComparison.Ordinal);
+            Assert.Contains("id=\"vision-training\"", training, StringComparison.Ordinal);
+            Assert.Contains("/web/assets/vision-cancelling.js?v=", training, StringComparison.Ordinal);
+            Assert.Contains("/web/assets/vision-cancelling.css?v=", training, StringComparison.Ordinal);
+            Assert.DoesNotContain("wiki-invite-canary", training, StringComparison.Ordinal);
+            Assert.DoesNotContain("fixture-secret", training, StringComparison.Ordinal);
+            string catalog = await http.GetStringAsync("/wiki/game?category=training", ct);
+            Assert.Contains("href=\"/wiki/vision-cancelling\"", catalog, StringComparison.Ordinal);
+            Assert.Contains(WikiContent.Search("vision cancelling", "", "game"), a => a.Slug == "vision-cancelling");
+            foreach (string file in new[] { "vision-cancelling.js", "vision-training.js", "vision-cancelling.css", "training-spy.glb" })
+            {
+                using HttpResponseMessage asset = await http.GetAsync("/web/assets/" + file, ct);
+                Assert.Equal(HttpStatusCode.OK, asset.StatusCode);
+                Assert.True(asset.Content.Headers.ContentLength > 0);
+            }
         }
         finally
         {
