@@ -140,6 +140,7 @@ public partial class DisplaySpaceEffect : CompositorEffect
     private uint _grain = 0x2545F491u;
     // The colour buffer as a storage image (a copy of it with MSAA, rl:gfx.aa).
     private readonly StorageColor _storage = new("display post");
+    private readonly BloomPrefilter _bloomPrefilter = new();
 
     public DisplaySpaceEffect()
     {
@@ -211,6 +212,7 @@ public partial class DisplaySpaceEffect : CompositorEffect
             // On the render thread, between frames: the pass stops drawing before its resources go.
             _rd = null;
             _storage.Free();
+            _bloomPrefilter.Free(rd);
             foreach (Rid rid in rids)
             {
                 if (rid.IsValid)
@@ -275,8 +277,13 @@ public partial class DisplaySpaceEffect : CompositorEffect
         MakeTargets(Vector2I.One);
     }
 
+    private int _pyramidScale = 1;
+    private Rid _sampledBlurFrame;
+    private bool _blurFrameCanSample;
+    private static readonly bool s_manualVisionFilter = System.Environment.GetEnvironmentVariable("SVM_VISION_FRAME_FILTER") == "manual";
+
     /// <summary>The pyramid levels and the bright target at <paramref name="detail"/> (x and y factors), freeing the old ones.</summary>
-    private void MakeTargets(Vector2I detail)
+    private void MakeTargets(Vector2I detail, int pyramidScale = 1)
     {
         RenderingDevice rd = _rd!;
         foreach (Rid set in (Rid[])[.. _levelSets, .. _glowPairSets])
@@ -298,7 +305,9 @@ public partial class DisplaySpaceEffect : CompositorEffect
         Array.Fill(_levelSets, default);
         Array.Fill(_glowPairSets, default);
         _detail = detail;
+        _pyramidScale = pyramidScale;
         _levelSizes = Array.ConvertAll(BaseLevelSizes, v => v * detail);
+        for (int i = 0; i < RenderK.BlurTargets.Length; i++) _levelSizes[i] *= pyramidScale;
         _brightSize = RenderK.GlowBrightTarget * detail;
         for (int i = 0; i < _levels.Length; i++)
         {
@@ -453,12 +462,14 @@ public partial class DisplaySpaceEffect : CompositorEffect
             return;
         }
 
-        if (RenderK.PostDetailScale(size.X) is var detail && detail != _detail)
+        DisplayPostSettings s = _settings;
+        int pyramidScale = UsesPyramid(s.RendMap) ? RenderK.VisionPyramidScale : 1;
+        if (RenderK.PostDetailScale(size.X) is var detail && (detail != _detail || pyramidScale != _pyramidScale))
         {
-            MakeTargets(detail);
+            MakeTargets(detail, pyramidScale);
+            GD.Print($"SVM_VISION_PYRAMID scale={pyramidScale} levels={_levelSizes[1]}/{_levelSizes[3]} detail={detail}");
         }
 
-        DisplayPostSettings s = _settings;
         if (!s.SurfaceFogApplied && s.PortalFog is { } portal && !ReferenceEquals(portal, _uploadedPortalFog))
         {
             byte[] data = MemoryMarshal.AsBytes(portal.Data.AsSpan()).ToArray();
@@ -693,9 +704,21 @@ public partial class DisplaySpaceEffect : CompositorEffect
         UniformSlots slots = _blurSlots ??= new UniformSlots(RenderingDevice.UniformType.SamplerWithTexture,
             RenderingDevice.UniformType.Image, RenderingDevice.UniformType.Image);
         Rid set;
+        bool sampledFrame = false;
         if (fromFrame)
         {
-            slots.Set(0, _linearClamp, _lut);
+            if (_pyramidScale > 1 && !s_manualVisionFilter)
+            {
+                if (source != _sampledBlurFrame)
+                {
+                    _sampledBlurFrame = source;
+                    using RDTextureFormat format = _rd!.TextureGetFormat(source);
+                    _blurFrameCanSample = (format.UsageBits & RenderingDevice.TextureUsageBits.SamplingBit) != 0;
+                    GD.Print($"SVM_VISION_FRAME_FILTER sampler={_blurFrameCanSample}");
+                }
+                sampledFrame = _blurFrameCanSample;
+            }
+            slots.Set(0, _linearClamp, sampledFrame ? source : _lut);
             slots.Set(1, target);
             slots.Set(2, source);
             set = UniformSetCacheRD.GetCache(_blurShader, 0, slots.Array);
@@ -717,7 +740,7 @@ public partial class DisplaySpaceEffect : CompositorEffect
         [
             axis.X, axis.Y, sourceSize.X, sourceSize.Y,
             size.X, size.Y, RenderK.BlurNearWeight, RenderK.BlurFarWeight,
-            fromFrame ? 1f : 0f, fused ? 1f : 0f, 0f, 0f,
+            fromFrame && !sampledFrame ? 1f : 0f, fused ? 1f : 0f, 0f, 0f,
         ];
         Span<byte> raw = MemoryMarshal.AsBytes(push);
         if (_blurBytes?.Length != raw.Length)
@@ -747,7 +770,7 @@ public partial class DisplaySpaceEffect : CompositorEffect
     [Provenance(ProvenanceKind.Estimated, "the bright pass samples the frame bilinear; the original asks for texture filter 5 (gaussian cubic), which drivers do not offer")]
     private void Glow(Rid color, Vector2I size, float cut, bool emf = false)
     {
-        if (LeanNormal && !emf) Bright(color, cut);
+        if ((LeanNormal || BloomPrefilter.Enabled) && !emf) Bright(color, cut);
         else GlowPass(color, size, emf ? 2f : 0f, cut);
         _rd!.CaptureTimestamp("Display Glow Blur");
         Rid source = _bright;
@@ -771,6 +794,7 @@ public partial class DisplaySpaceEffect : CompositorEffect
     private void Bright(Rid color, float cut)
     {
         RenderingDevice rd = _rd!;
+        color = _bloomPrefilter.Filter(rd, color, _brightSize);
         UniformSlots slots = _brightSlots ??= new UniformSlots(RenderingDevice.UniformType.SamplerWithTexture, RenderingDevice.UniformType.Image);
         slots.Set(0, _linearClamp, color);
         slots.Set(1, _bright);

@@ -98,7 +98,7 @@ function Get-Competitors([int[]]$OwnRoots) {
         $sandboxed = $null -ne $p.Path -and $p.Path.StartsWith($sandboxRoot, [StringComparison]::OrdinalIgnoreCase)
         if (-not ($named -or $sandboxed)) { continue }
         $ignored = $false
-        foreach ($pattern in $IgnoreCompetitors) { if ($p.Name -like $pattern) { $ignored = $true; break } }
+        foreach ($pattern in $IgnoreCompetitors) { if ($pattern -eq "pid:$($p.Id)" -or $p.Name -like $pattern) { $ignored = $true; break } }
         if ($ignored) { continue }
         # This script, the game it started and their children are not competitors.
         if ($null -eq $parents) {

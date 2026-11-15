@@ -150,6 +150,8 @@ internal sealed class RdProjectors
         Variant anim = material.GetShaderParameter("uv_anim_type");
         block[40] = anim.VariantType == Variant.Type.Nil ? 0f : anim.AsInt32();
         block[41] = laser ? 3 : kind;
+        Variant luminance = material.GetShaderParameter("proj_luminance");
+        block[42] = luminance.VariantType == Variant.Type.Bool && luminance.AsBool() ? 1 : 0;
         Rid texture = material.GetShaderParameter("proj_tex").AsGodotObject() is Texture2D t ? RenderingServer.TextureGetRdTexture(t.GetRid(), false) : default;
         return new Info
         {
@@ -258,6 +260,7 @@ internal sealed class RdProjectors
                 uv = (cell + clamp(fract(uv), 0.001, 0.999)) / p.flip.xy;
             }
             vec4 c = texture(proj_tex, uv);
+            if (p.kind.z > 0.5) c = vec4(c.rrr, 1.0);
             float cover = 0.0;
             if (frame.fog_color.a > 0.5) {
                 cover = clamp((max(length(world - frame.eye.xyz) * frame.fog.x, frame.fog.y) - frame.fog.y) * frame.fog.z, 0.0, 1.0);

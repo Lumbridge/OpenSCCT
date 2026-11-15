@@ -160,7 +160,7 @@ internal sealed class RdObjects
             (code.Contains(TemplateInclude, StringComparison.Ordinal) || code.Contains(LaserInclude, StringComparison.Ordinal))
             ? RdWorldGeometry.ActorMaterial(material, skinned ? 2 : 1, vision: true) : null;
         _visionTemplates[(material, skinned)] = template;
-        if (template is not null) _refresh.Add((material, template, template.Cloak || material.GetShaderParameter(s_scroll).VariantType != Variant.Type.Nil));
+        if (template is not null) _refresh.Add((material, template, template.Cloak || material.HasMeta(Projectors.MovingProjectorReceivers.LiveParameterMeta) || material.GetShaderParameter(s_scroll).VariantType != Variant.Type.Nil));
         return template;
     }
 
@@ -171,7 +171,7 @@ internal sealed class RdObjects
         _templates[(material, skinned)] = template;
         // A conveyor slides its textures every frame; other values change now and then (cosmetics, switched screens).
         // A cloak fades in and out by its glass value.
-        if (template is not null) _refresh.Add((material, template, template.Cloak || material.GetShaderParameter(s_scroll).VariantType != Variant.Type.Nil));
+        if (template is not null) _refresh.Add((material, template, template.Cloak || material.HasMeta(Projectors.MovingProjectorReceivers.LiveParameterMeta) || material.GetShaderParameter(s_scroll).VariantType != Variant.Type.Nil));
         return template;
     }
 
@@ -608,7 +608,7 @@ internal sealed class RdObjects
                 draws.Add(new Draw
                 {
                     Surface = surface.Id, Object = objectIndex, Kind = m.Kind | (sky ? 128 : 0), Palette = paletteBase, Mirrored = skin is null && model.Basis.Determinant() < 0f, Distance = eye.DistanceSquaredTo(box.GetCenter()), Masked = m.Masked, TwoSided = m.TwoSided, Texture = m.Texture,
-                    Blend = template is null ? m.Blend : template.Cloak ? 3 : template.Blended ? 1 : 0, SpotBits = vision || sky || (m.Kind == 0 && template is null) ? 0 : spotBits, Material = template,
+                    Blend = material.Shader is { } drawingShader && ResponsiveSmokeShaders.BaseCode(drawingShader).Contains("#define " + Projectors.SurfaceProjector.Define, StringComparison.Ordinal) ? 4 : template is null ? m.Blend : template.Cloak ? 3 : template.Blended ? 1 : 0, SpotBits = vision || sky || (m.Kind == 0 && template is null) ? 0 : spotBits, Material = template,
                     Flares = vision || sky || m.Kind == 0 || template is not null ? 0 : flares,
                 });
                 // The blended pass of a partly see-through surface, over what lies behind it.
@@ -770,7 +770,7 @@ internal sealed class RdObjects
         // A sprite with nothing else is turned to the camera by its model matrix and drawn by the small programs.
         string layers = LayersOf(code);
         // A lightmapped map surface left to this pass needs the template's second UV and light term.
-        return (layers.Length > 0 && layers != "BILLBOARD") || code.Contains("#define SVM_CLOAK", StringComparison.Ordinal) || code.Contains("#define LIGHT_LIGHTMAP", StringComparison.Ordinal) ||
+        return code.Contains("#define " + Projectors.MovingProjectorReceivers.Define, StringComparison.Ordinal) || (layers.Length > 0 && layers != "BILLBOARD") || code.Contains("#define SVM_CLOAK", StringComparison.Ordinal) || code.Contains("#define LIGHT_LIGHTMAP", StringComparison.Ordinal) ||
             // Every blended surface: the template's own alpha, gain and fog rules for each blend.
             code.Contains("#define BLEND_TRANSLUCENT", StringComparison.Ordinal) || code.Contains("#define BLEND_ADDITIVE", StringComparison.Ordinal) || code.Contains("#define BLEND_MODULATE", StringComparison.Ordinal) || code.Contains("#define BLEND_DARKEN", StringComparison.Ordinal);
     }
@@ -1011,10 +1011,20 @@ internal sealed class RdObjects
 
         float spot_shadow(vec4 tile, vec2 suv, float zref, float soft)
         {
-            if (soft <= 0.0) {
+            if (soft == 0.0) {
                 return spot_lookup(tile, suv, zref);
             }
-            vec2 step_uv = soft / vec2(textureSize(svm_spot_depth, 0)) / tile.zw;
+            vec2 step_uv = abs(soft) / vec2(textureSize(svm_spot_depth, 0)) / tile.zw;
+            if (soft < 0.0) {
+                float sum = 0.0;
+                for (int y = -1; y <= 1; y++) {
+                    for (int x = -1; x <= 1; x++) {
+                        float w = float((2 - abs(x)) * (2 - abs(y)));
+                        sum += w * spot_lookup(tile, suv + vec2(float(x), float(y)) * step_uv, zref);
+                    }
+                }
+                return sum * 0.0625;
+            }
             float sum = 0.0;
             for (int k = 0; k < 8; k++) {
                 float a = float(k) * 0.78539816 + 0.39269908;

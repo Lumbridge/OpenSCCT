@@ -32,7 +32,12 @@ public sealed record ProjectorEntry(
     UvAnim? UvAnim,
     ProjectorFlipbook? Flipbook,
     UvAffine? UvMatrix = null,
-    bool ProjectStaticMesh = true);
+    bool ProjectStaticMesh = true,
+    int TextureFormat = -1,
+    bool ProjectBsp = true,
+    bool ProjectActor = true,
+    bool Static = true,
+    string? LuminanceTexture = null);
 
 /// <summary>render/projectors.json (optional: older content has none and keeps its PROJ_ decal meshes).</summary>
 public static class ProjectorsDoc
@@ -80,7 +85,12 @@ public static class ProjectorsDoc
                 p.TryGetProperty("uvAnim", out JsonElement uv) ? UvAnim.From(uv) : null,
                 flipbook,
                 p.TryGetProperty("uvMatrix", out JsonElement m) ? UvAffine.From(m) : null,
-                !p.TryGetProperty("projectStaticMesh", out JsonElement psm) || psm.ValueKind != JsonValueKind.False));
+                !p.TryGetProperty("projectStaticMesh", out JsonElement psm) || psm.ValueKind != JsonValueKind.False,
+                p.TryGetProperty("textureFormat", out JsonElement fmt) ? fmt.GetInt32() : -1,
+                !p.TryGetProperty("projectBsp", out JsonElement bsp) || bsp.ValueKind != JsonValueKind.False,
+                !p.TryGetProperty("projectActor", out JsonElement actor) || actor.ValueKind != JsonValueKind.False,
+                !p.TryGetProperty("class", out JsonElement cls) || cls.GetString() == "Projector",
+                p.TryGetProperty("luminanceTexture", out JsonElement raw) ? raw.GetString() : null));
         }
 
         return list;

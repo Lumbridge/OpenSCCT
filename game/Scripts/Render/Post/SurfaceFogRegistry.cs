@@ -37,6 +37,13 @@ public sealed class SurfaceFogRegistry : IDisposable
     private FogState _state;
     private bool _disposed;
 
+    /// <summary>Whether the camera currently has distance or portal fog (used by exact projector coverage selection).</summary>
+    internal static bool HasFog(Camera3D camera)
+    {
+        int slot = (int)((camera.CullMask & RenderLayers.FogViewMask) >> RenderLayers.FogViewShift);
+        return slot > 0 && slot < Views.Length && Views[slot] is { _disposed: false } view && view._state.Mode != 0;
+    }
+
     public static int LastUploadBytes { get; private set; }
     public static long LastUploadAllocatedBytes { get; private set; }
     public static double LastUploadMilliseconds { get; private set; }

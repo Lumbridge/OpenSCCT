@@ -49,6 +49,7 @@ public sealed class SpyShadowLighting
 
     /// <summary>The shadow opacity computed by the last logical render update (zero means no projected shadow).</summary>
     public byte Darkness => _lighting.Darkness;
+    public FVector Direction => _lighting.Direction;
 
     /// <summary>Warms the native light cache every tick and returns whether this tick has a shadow view update.</summary>
     public bool Update(SPlayerController controller)

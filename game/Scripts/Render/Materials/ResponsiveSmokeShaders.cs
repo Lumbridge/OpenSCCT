@@ -85,6 +85,7 @@ public static class ResponsiveSmokeShaders
     /// </summary>
     public static void Prewarm(string map)
     {
+        Projectors.SurfaceProjector.EnsureReceiverGlobals();
         // These lists contain the native renderer's shortcut variants. Browser loads compile only the general
         // variants actually used, on their one runtime thread; queueing the native list defeats that reduction.
         if (!PrewarmEnabled || OperatingSystem.IsBrowser()) return;

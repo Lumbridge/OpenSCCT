@@ -116,6 +116,10 @@ public sealed partial class SpotShadowLight : IDisposable
 
     /// <summary>The disc radius in texels that softens shadow edges (Reloaded's shadow_edge_smoothing); 0 for one lookup.</summary>
     public static float SoftRadius { get; set; } = RenderK.SpotShadowSoftRadius;
+    /// <summary>Measurement switch for a centre-weighted tent instead of the original eight-tap ring.</summary>
+    private static readonly string? s_filterOverride = System.Environment.GetEnvironmentVariable("SVM_SHADOW_FILTER");
+    public static bool HighQualityFilter { get; set; }
+    public static bool TentFilter => s_filterOverride is null ? HighQualityFilter : s_filterOverride == "tent";
 
     /// <summary>
     /// The map height for a shadow_quality: 256 texels x the quality (2, the documented default, is the stock 512),
@@ -204,7 +208,7 @@ public sealed partial class SpotShadowLight : IDisposable
     // The last look at the light's casters found one that moves (the tile is then written every frame, or every other).
     private bool _lastMoving;
     private List<Rect2I>? _rdWritten;
-    private (bool Live, FVector Location, FRotator Rotation, float Scale, float Visibility, int Zone, float Soft)? _lastPush;
+    private (bool Live, FVector Location, FRotator Rotation, float Scale, float Visibility, int Zone, float Soft, bool Tent)? _lastPush;
 
     // The live pass is drawn only when its tile could change (RefreshShadowPass): what the tile holds, the pass asked
     // for this frame, static passes scheduled so far, and the search planes for the camera's frustum.
@@ -762,7 +766,7 @@ public sealed partial class SpotShadowLight : IDisposable
         }
 
         bool live = _on && !_disposed && _camera.IsInsideTree() && _capture.Ready;
-        var state = (live, Placement.Location, Placement.Rotation, Scale, VisibilityGain, Zone, SoftRadius);
+        var state = (live, Placement.Location, Placement.Rotation, Scale, VisibilityGain, Zone, SoftRadius, TentFilter);
         if (_lastPush == state)
         {
             return;
@@ -806,7 +810,8 @@ public sealed partial class SpotShadowLight : IDisposable
         Vector2I origin = TileOrigin(_slot);
         SetRow(_slot, 6, new Vector4(origin.X / (float)AtlasWidth, origin.Y / (float)AtlasHeight, _size.X / (float)AtlasWidth,
             _size.Y / (float)AtlasHeight));
-        SetRow(_slot, 7, new Vector4(Zone, UeSpace.LengthToGodot(2f), 0.01f, SoftRadius));
+        // The sign selects the filter without another global or descriptor; the magnitude is still texels.
+        SetRow(_slot, 7, new Vector4(Zone, UeSpace.LengthToGodot(2f), 0.01f, TentFilter ? -SoftRadius : SoftRadius));
         SetRow(_slot, 8, LitSphere(_camera.GlobalTransform, UeSpace.LengthToGodot(_apex), range, frustum));
         Flush();
     }

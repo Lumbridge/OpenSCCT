@@ -22,6 +22,7 @@ uniform sampler2D proj_tex : source_color, filter_linear_mipmap, repeat_disable,
 #else
 uniform sampler2D proj_tex : filter_linear_mipmap, repeat_enable, hint_default_black;
 #endif
+uniform bool proj_luminance = false;
 uniform sampler2D depth_tex : hint_depth_texture, filter_nearest;
 // Projector frame in Godot space: origin (w = MaxTraceDistance, m), axes X (forward), Y (texture u), Z (texture v).
 uniform vec4 proj_origin = vec4(0.0);
@@ -130,6 +131,7 @@ void fragment() {
 		uv = (cell + clamp(fract(uv), 0.001, 0.999)) / proj_flip.xy;
 	}
 	vec4 c = texture(proj_tex, uv);
+	if (proj_luminance) { c = vec4(c.rrr, 1.0); }
 	// A projector shades the reconstructed receiver, not its enclosing volume mesh.
 	vec4 fog = surface_fog(CAMERA_VISIBLE_LAYERS, view.xyz, FRAGCOORD.xy, VIEWPORT_SIZE);
 #if defined(PROJ_LASER)

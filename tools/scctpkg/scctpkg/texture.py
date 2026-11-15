@@ -1,4 +1,4 @@
-"""UTexture reader: decodes mip 0 of DXT1/3/5, RGBA8 and P8 textures to RGBA.
+"""UTexture reader: decodes mip 0 of DXT1/3/5, RGBA8, P8 and G16 textures to RGBA.
 
 Serialized after the tagged properties (USize, VSize, Format, Palette ...):
 
@@ -43,6 +43,7 @@ class Texture:
     image: Optional[Image.Image]   # RGBA PIL image of mip 0, None if undecodable
     props: dict
     has_alpha: bool = False
+    luminance16: Optional[bytes] = None   # original little-endian G16, for lossless projector sampling
 
 
 def _dds_bytes(fmt: int, w: int, h: int, data: bytes) -> bytes:
@@ -131,9 +132,15 @@ def read_texture(pkg: Package, e: Export, mip: int = 0) -> Texture:
         elif fmt == TEXF_L8:
             l = np.frombuffer(data[:w * h], dtype=np.uint8).reshape(h, w)
             image = Image.fromarray(np.stack([l, l, l, np.full_like(l, 255)], axis=-1), "RGBA")
+        elif fmt == TEXF_G16:
+            # G16 is little-endian luminance, with no alpha channel. The PNG
+            # pipeline uses the high byte, as a UNORM16 -> UNORM8 conversion.
+            l = (np.frombuffer(data[:w * h * 2], dtype="<u2").reshape(h, w) >> 8).astype(np.uint8)
+            image = Image.fromarray(np.stack([l, l, l, np.full_like(l, 255)], axis=-1), "RGBA")
         elif fmt == TEXF_RGB8:
             arr = np.frombuffer(data[:w * h * 3], dtype=np.uint8).reshape(h, w, 3)[:, :, ::-1]
             image = Image.fromarray(np.ascontiguousarray(arr), "RGB").convert("RGBA")
     except Exception as ex:  # decoding failure is not fatal for the pipeline
         image = None
-    return Texture(e.name, w, h, fmt, image, props, has_alpha)
+    return Texture(e.name, w, h, fmt, image, props, has_alpha,
+                   data[:w * h * 2] if fmt == TEXF_G16 and image is not None else None)

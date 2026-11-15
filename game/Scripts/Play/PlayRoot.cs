@@ -150,6 +150,7 @@ public partial class PlayRoot : Node3D
     private readonly DrawnTime _time = new();
     private float _alpha = 1f;
     private SpyShadowLighting? _spyShadowLighting;
+    private Render.Projectors.SpyShadowProjector? _spyShadowProjector;
     private int _loadId;
     private bool _loadTimed;
 
@@ -473,6 +474,8 @@ public partial class PlayRoot : Node3D
             _spyShadowLighting = new SpyShadowLighting(Map, Session.Client, () => Pawns);
             Session.StickyCamShadowUpdate = _spyShadowLighting.Update;
             AddChild(Map.Root);
+            _spyShadowProjector = new Render.Projectors.SpyShadowProjector(Map.Root);
+            AddChild(_spyShadowProjector);
             View = new FaithfulView();
             AddChild(View);
             View.Attach(Map);
@@ -1081,6 +1084,9 @@ public partial class PlayRoot : Node3D
         }
 
         Pawns?.Draw(alpha, dt, firstPerson, aimer, drawnView);
+        _spyShadowProjector?.Draw(session.LocalPawn is SPawnAttaque ownSpy && !ownSpy.bHidden && ownSpy.Health > 0
+            ? Pawns?.ViewOf(ownSpy)?.Model : null, _spyShadowLighting?.Darkness ?? 0,
+            _spyShadowLighting is { } lighting ? UeSpace.DirectionToGodot(lighting.Direction) : Vector3.Up, View?.RendMap ?? 5, View?.Camera);
         if (Config.Demo is { XRay: true } && session.View.Valid && View is { } view && Pawns is { } pawns)
         {
             if (_demoXRay is null)
@@ -1155,6 +1161,7 @@ public partial class PlayRoot : Node3D
         Session?.Dispose();
         Session = null;
         _spyShadowLighting = null;
+        _spyShadowProjector = null;
         Config.Demo?.Dispose();
         _demoXRay = null;
         Devices = null;

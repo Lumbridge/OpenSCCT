@@ -25,6 +25,10 @@ public partial class FpsBenchmark : Node
     private readonly List<Frame> _frames = new(65536);
     private readonly Stopwatch _clock = Stopwatch.StartNew();
     private PlayRoot? _play;
+    private ProjectorReceiverBenchmark? _projectorReceivers;
+    private readonly string? _receiverScenario = Environment.GetEnvironmentVariable("SVM_BENCHMARK_PROJECTOR_RECEIVERS");
+    private readonly bool _repackCompare = Environment.GetEnvironmentVariable("SVM_BENCHMARK_REPACK_COMPARE") == "1";
+    private int? _repackRendMap;
     private static readonly int? s_rendMap = int.TryParse(Environment.GetEnvironmentVariable("SVM_BENCHMARK_RENDMAP"), out int forced) ? forced : null;
     private int _index = -1;
     private double _start;
@@ -38,6 +42,9 @@ public partial class FpsBenchmark : Node
     private bool _done;
     private readonly bool _gameplay = Environment.GetEnvironmentVariable("SVM_BENCHMARK_GAMEPLAY") == "1";
     private readonly bool _profiling = Environment.GetEnvironmentVariable("SVM_BENCHMARK_PROFILING") == "1";
+    private readonly double _sweepDegrees = double.TryParse(Environment.GetEnvironmentVariable("SVM_BENCHMARK_SWEEP_DEGREES"),
+        NumberStyles.Float, CultureInfo.InvariantCulture, out double sweep) && double.IsFinite(sweep) ? Math.Clamp(sweep, 0, 45) : 0;
+    private ViewSample _requestedView;
     private readonly record struct Frame(double Ms, double SimMs, double ViewMs, double RenderCpuMs, double GpuMs);
 
     // Auxiliary viewport timings (profiling only): per recorded frame, gpu ms, cpu ms and count for each kind.
@@ -139,7 +146,7 @@ public partial class FpsBenchmark : Node
         if (session.ServerFailure is { } failure) { Fail(failure.Message); return; }
         if (_play.Controls is { } controls) controls.Enabled = false;
         // SVM_BENCHMARK_RENDMAP=34 (36, 37, 38): the views in that vision mode.
-        if (s_rendMap is { } rendMap && _play.View is { } view && view.RendMap != rendMap) view.RendMap = rendMap;
+        if ((_repackRendMap ?? s_rendMap) is { } rendMap && _play.View is { } view && view.RendMap != rendMap) view.RendMap = rendMap;
         // Environment/render comparison: neither run draws the HUD or the local character.
         if (!_gameplay)
         {
@@ -149,24 +156,41 @@ public partial class FpsBenchmark : Node
 
         long now = Stopwatch.GetTimestamp();
         double elapsed = _clock.Elapsed.TotalSeconds;
+        if (!string.IsNullOrEmpty(_receiverScenario))
+        {
+            _projectorReceivers ??= new ProjectorReceiverBenchmark(_play, _receiverScenario);
+            double receiverPhase = elapsed - _start - _warmup;
+            // Settle the final screenshot at the same pose; the measured window otherwise traverses a full loop.
+            _projectorReceivers.Update(_index >= 0 && receiverPhase >= _seconds - .15 ? 0 : receiverPhase);
+        }
         if (_index < 0) { Next(elapsed); _last = now; return; }
         double ms = Stopwatch.GetElapsedTime(_last, now).TotalMilliseconds;
         _last = now;
         // Sampled in warm-up too, so viewports have measurement on and a baseline before the window starts.
         if (_profiling) SampleAux();
         if (elapsed - _start < _warmup) return;
+
         // A valid camera request must reach the renderer. Otherwise a frozen spawn view can produce convincing
         // frame times and identical screenshots for every requested pose, especially for first-person records.
         GoldenShot shot = _shots[_index];
         if (_play.Camera is not { } camera ||
             OpenScct.Core.FVector.Dist(camera.Current.Location, shot.CameraLocation) > 0.05f ||
-            AngleError(camera.Current.Rotation.Pitch, shot.CameraRotation.Pitch) > 1 ||
-            AngleError(camera.Current.Rotation.Yaw, shot.CameraRotation.Yaw) > 1 ||
-            AngleError(camera.Current.Rotation.Roll, shot.CameraRotation.Roll) > 1 ||
+            AngleError(camera.Current.Rotation.Pitch, _requestedView.Rotation.Pitch) > 1 ||
+            AngleError(camera.Current.Rotation.Yaw, _requestedView.Rotation.Yaw) > 1 ||
+            AngleError(camera.Current.Rotation.Roll, _requestedView.Rotation.Roll) > 1 ||
             Math.Abs(camera.Current.Fov - shot.Fov) > 0.01f)
         {
             Fail($"Rendered camera does not match benchmark view '{shot.Id}'");
             return;
+        }
+        // Publish the next request only after checking the frame which consumed the previous one.
+        // A clock-reading override can be called several times per frame and cannot be validated exactly.
+        if (_sweepDegrees > 0)
+        {
+            int yaw = (int)Math.Round(Math.Sin((elapsed - _start) * Math.PI / 2) * _sweepDegrees * 65536 / 360);
+            _requestedView = new ViewSample(0, shot.CameraLocation,
+                shot.CameraRotation with { Yaw = shot.CameraRotation.Yaw + yaw }, shot.Fov, Valid: true);
+            _play.Session!.SetViewNow(_requestedView);
         }
         if (_frames.Count == 0)
         {
@@ -205,6 +229,14 @@ public partial class FpsBenchmark : Node
                 map = _play!.Config.Settings.Map, side = _play.Config.Settings.Side.ToString().ToLowerInvariant(),
                 bots = _play.Config.Settings.Bots, renderingDriver = RenderingServer.GetCurrentRenderingDriverName(),
                 secondsPerView = _seconds, warmupSeconds = _warmup, cases = _results,
+                sweepDegrees = _sweepDegrees,
+                bloomFilter = Environment.GetEnvironmentVariable("SVM_BLOOM_FILTER") ?? (SettingsStore.Current.StableBloom ? "13tap" : "0"),
+                shadowFilter = Environment.GetEnvironmentVariable("SVM_SHADOW_FILTER") ?? (SettingsStore.Current.HighQualityShadows ? "tent" : "disc"),
+                projectorReceiverScenario = _receiverScenario,
+                projectorGeometry = Render.Projectors.SurfaceProjector.Enabled,
+                projectorFallback = Render.Projectors.SurfaceProjector.RuntimeFallback,
+                projectorSparse = Render.Projectors.SurfaceProjector.Sparse,
+                projectorSparseReason = Render.Projectors.SurfaceProjector.SparseReason,
                 gameplay = _gameplay,
                 profiling = _profiling,
                 depthPrepass = ProjectSettings.GetSetting("rendering/driver/depth_prepass/enable").AsBool(),
@@ -227,9 +259,27 @@ public partial class FpsBenchmark : Node
         }
 
         GoldenShot shot = _shots[_index];
-        ViewSample view = new(0, shot.CameraLocation, shot.CameraRotation, shot.Fov, Valid: true);
-        _play!.Session!.ViewOverride = _ => view;
-        _play.Session.SetViewNow(view);
+        if (_repackCompare)
+        {
+            string[] parts = shot.Id.Split('-');
+            int mode = parts[0] switch { "normal" => 5, "night" => 34, "thermal" => 36, "motion" => 37, "emf" => 38, _ => -1 };
+            if (parts.Length < 2 || mode < 0 || parts[1] is not ("off" or "on"))
+            { Fail("Repack comparison IDs must start normal-/night-/thermal-/motion-/emf- then off-/on-"); return; }
+            Render.Projectors.SpyShadowProjector.BenchmarkDisabled = mode == 5 && parts[1] == "off";
+            Render.RenderK.HighQualityVision = parts[1] == "on";
+            _repackRendMap = mode;
+            if (_play!.View is { } comparedView) comparedView.RendMap = mode;
+        }
+        if (Environment.GetEnvironmentVariable("SVM_BENCHMARK_PROJECTOR_COMPARE") == "1")
+        {
+            string mode = shot.Id.Split('-')[0];
+            if (mode is not ("missing" or "volume" or "geometry") || !Render.Projectors.SurfaceProjector.Enabled)
+            { Fail("Projector comparison requires an eligible G16 projector and missing-/volume-/geometry- camera IDs"); return; }
+            Render.Projectors.SurfaceProjector.BenchmarkMode = mode;
+        }
+        _requestedView = new ViewSample(0, shot.CameraLocation, shot.CameraRotation, shot.Fov, Valid: true);
+        _play!.Session!.ViewOverride = _ => _requestedView;
+        _play.Session.SetViewNow(_requestedView);
         _frames.Clear();
         _aux.Clear();
         _start = _clock.Elapsed.TotalSeconds;
@@ -255,6 +305,13 @@ public partial class FpsBenchmark : Node
         OpenScct.Server.TickSummary server = _play.Session.ServerTicks?.Recent((int)(total / 1000 * OpenScct.Core.Sim.Hz)) ?? default;
         var result = new
         {
+            projectorMode = Render.Projectors.SurfaceProjector.BenchmarkMode,
+            projectorMovingReceivers = Render.Projectors.SurfaceProjector.MovingReceivers,
+            projectorFallback = Render.Projectors.SurfaceProjector.RuntimeFallback,
+            projectorSparse = Render.Projectors.SurfaceProjector.Sparse,
+            pawnShadowEnabled = !Render.Projectors.SpyShadowProjector.BenchmarkDisabled,
+            visionPyramidScale = Render.RenderK.VisionPyramidScale,
+            rendMap = _play.View?.RendMap,
             id = _shots[_index].Id, width = _shots[_index].Width, height = _shots[_index].Height,
             frames = times.Length, seconds = total / 1000, fps = 1000 * times.Length / total, meanMs = total / times.Length,
             low1Percent = 1000 / times.TakeLast(tail).Average(), p50Ms = times[times.Length / 2],

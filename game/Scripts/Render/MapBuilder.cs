@@ -498,6 +498,7 @@ public static class MapBuilder
         // Shaders compile portal fog only for a map that can draw it; decided before any of its materials is built.
         ResponsiveSmokeShaders.UsePortalFog(Post.PortalFogFrame.MapUses(lighting));
         List<OpenScctGame.Render.Projectors.ProjectorEntry>? projectors = projectorsRead.GetAwaiter().GetResult();
+        OpenScctGame.Render.Projectors.SurfaceProjector.Configure(projectors, textures);
         // Only projectors with bProjectStaticMesh off read the solid surfaces' stencil marks.
         bool stencilMarks = projectors?.Exists(p => !p.ProjectStaticMesh) == true;
         var compiler = new MaterialCompiler(materials, textures)
@@ -1593,6 +1594,8 @@ public static class MapBuilder
                         !(entry.Sequences.TryGetValue("diffuse", out var sequence) && sequence.SwitchMaterial);
                     // Sky cells split the other way: each transparent surface gets a node of its own (FlushCellPart).
                     bool split = cell.sky == 0 ? key.Item3 != VisionPass.SeeThrough && material.NextPass is null && solid : !solid;
+                    if (cell.sky == 0 && key.Item3 != VisionPass.SeeThrough)
+                        OpenScctGame.Render.Projectors.SurfaceProjector.Collect(b, entry, material, AnimatesShadow(material));
                     _map.Stats.Vertices += b.VertexCount;
                     // The own frame draws cut-outs that animate too (its colour pass does not care how their shadow is cached).
                     if (_map.RdWorld is { } rdWorld && (Rd.RdWorldRenderer.OwnFrame || !AnimatesShadow(material)) && rdWorld.TryAdd(cell, key.Item1, key.Item2, entry, b, key.Item3 == VisionPass.SeeThrough, _map.MeshSpheres))
@@ -1741,6 +1744,7 @@ public static class MapBuilder
                 Mesh = mesh,
                 Layers = layer,
             };
+            node.SetMeta("svm_fixed_cell", true);
             _static.AddChild(node);
             _map.LightReach.Add(node, twins, spheres);
             _map.Stats.StaticNodes++;

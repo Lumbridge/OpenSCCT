@@ -1699,7 +1699,7 @@ internal sealed class RdWorldGpu
         for (int at = Math.Max(0, only); at < (only >= 0 ? only + 1 : frame.Objects.Count); at++)
         {
             RdObjects.Draw draw = frame.Objects[at];
-            if ((draw.Blend == 3 ? 3 : draw.Blend != 0 ? 1 : 0) != group) continue;
+            if ((draw.Blend is 3 or 4 ? draw.Blend : draw.Blend != 0 ? 1 : 0) != group) continue;
             if (!_objectSurfaces.TryGetValue(draw.Surface, out (Rid Vertices, Rid VertexArray, Rid Indices, Rid IndexArray, bool Skinned) surface)) continue;
             // A surface packed for one kind of vertex is only drawn by that kind's program.
             if (surface.Skinned != (draw.Palette >= 0)) continue;
@@ -1914,7 +1914,11 @@ internal sealed class RdWorldGpu
             {
             if (pass == 1)
             {
-                if (objects) RecordObjects(rd, dl, frame, 0);
+                if (objects)
+                {
+                    RecordObjects(rd, dl, frame, 0);
+                    RecordObjects(rd, dl, frame, 4);
+                }
                 if (projectors) RecordProjectors(rd, dl, frame);
                 rd.DrawListBindVertexArray(dl, worldArray);
                 pipeline = default;

@@ -703,6 +703,18 @@ public sealed class GameSettings
     [Provenance(ProvenanceKind.Decoded, "spec/reloaded/FEATURES.md rl:gfx.shadows shadow_edge_smoothing = true")]
     public bool ShadowEdgeSmoothing { get; set; } = true;
 
+    /// <summary>Centre-weighted filtering for smoother spot-shadow edges, at an additional GPU cost.</summary>
+    [JsonPropertyName("high_quality_shadows")]
+    public bool HighQualityShadows { get; set; }
+
+    /// <summary>Progressive prefiltering of normal-view bloom to reduce subpixel sparkle.</summary>
+    [JsonPropertyName("stable_bloom")]
+    public bool StableBloom { get; set; }
+
+    /// <summary>Double the coarse thermal, motion and EMF blur targets; keeps the vision colours and gains.</summary>
+    [JsonPropertyName("high_quality_vision")]
+    public bool HighQualityVision { get; set; }
+
     /// <summary>
     /// The original Video Options' "Post-Render Quality" (SPlayerProfile.GraphPostQual: 0 Normal, 1 High, default 1).
     /// What the native GRAPHICPOSTQUALITY command changes is not decoded; the rewrite's Normal leaves the glow out of

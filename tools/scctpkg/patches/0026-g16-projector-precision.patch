@@ -1,0 +1,17 @@
+--- a/texture.py
++++ b/texture.py
+@@ -43,6 +43,7 @@
+     image: Optional[Image.Image]   # RGBA PIL image of mip 0, None if undecodable
+     props: dict
+     has_alpha: bool = False
++    luminance16: Optional[bytes] = None   # original little-endian G16, for lossless projector sampling
+ 
+ 
+ def _dds_bytes(fmt: int, w: int, h: int, data: bytes) -> bytes:
+@@ -141,4 +142,5 @@
+             image = Image.fromarray(np.ascontiguousarray(arr), "RGB").convert("RGBA")
+     except Exception as ex:  # decoding failure is not fatal for the pipeline
+         image = None
+-    return Texture(e.name, w, h, fmt, image, props, has_alpha)
++    return Texture(e.name, w, h, fmt, image, props, has_alpha,
++                   data[:w * h * 2] if fmt == TEXF_G16 and image is not None else None)

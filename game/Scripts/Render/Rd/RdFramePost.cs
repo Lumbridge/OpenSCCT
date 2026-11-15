@@ -250,9 +250,13 @@ internal sealed class RdFramePost
     private readonly Rid[] _blurSets = new Rid[8];
     private Rid _compositeSet, _brightSet, _finalSet, _finalFb;
     private Rid _scene, _shown;
+    private int _pyramidScale;
     private readonly byte[] _push = new byte[32];
     private readonly Color[] _clear = [new Color(0f, 0f, 0f, 1f)];
     private bool _made;
+    private readonly Post.BloomPrefilter _bloomPrefilter = new();
+    private Rid _filteredBrightSet;
+    private Rid _filteredBrightSource;
 
     /// <summary>Makes the shaders and the glow targets once, and the bindings of this scene and shown target.</summary>
     /// <param name="noise">The grain, the thermal table and the sonar backdrop of the render pack (any may be invalid).</param>
@@ -322,7 +326,7 @@ internal sealed class RdFramePost
         }
 
         if (!_finalPipeline.IsValid || !_visionPipeline.IsValid || !_maskPipeline.IsValid || !_haloPipeline.IsValid || !_applyPipeline.IsValid) return false;
-        if (scene != _scene || shown != _shown || !rd.FramebufferIsValid(_finalFb) || noise != _noise || lut != _lut || sonar != _sonar)
+        if (scene != _scene || shown != _shown || !rd.FramebufferIsValid(_finalFb) || noise != _noise || lut != _lut || sonar != _sonar || _pyramidScale != RenderK.VisionPyramidScale)
         {
             foreach (Rid set in new[] { _brightSet, _finalSet, _visionSet, _maskSet, _haloSet, _applySet })
             {
@@ -332,10 +336,11 @@ internal sealed class RdFramePost
             // The vision blur levels at the frame's detail scale (RenderK.PostDetailScale), as DisplaySpaceEffect sizes them.
             using RDTextureFormat sceneFormat = rd.TextureGetFormat(scene);
             Vector2I detail = RenderK.PostDetailScale((int)sceneFormat.Width);
+            _pyramidScale = RenderK.VisionPyramidScale;
             FreeVisionLevels(rd);
             for (int i = 0; i < 4; i++)
             {
-                _visionSizes[i] = RenderK.BlurTargets[i] * detail;
+                _visionSizes[i] = RenderK.BlurTargets[i] * detail * _pyramidScale;
                 _visionLevels[i] = rd.TextureCreate(RdWorldGpu.Shown(new RDTextureFormat
                 {
                     Format = RD.DataFormat.R16G16B16A16Sfloat, Width = (uint)_visionSizes[i].X, Height = (uint)_visionSizes[i].Y,
@@ -354,7 +359,7 @@ internal sealed class RdFramePost
             _haloGlowFb = rd.FramebufferCreate([_haloGlow], -1, 1);
             for (int i = 0; i < 8; i++)
             {
-                _haloSizes[i] = s_levelSizes[i] * detail;
+                _haloSizes[i] = s_levelSizes[i] * detail * (i < 4 ? _pyramidScale : 1);
                 _haloLevels[i] = Target(rd, _haloSizes[i]);
                 _haloLevelFbs[i] = rd.FramebufferCreate([_haloLevels[i]], -1, 1);
                 _haloBlurSets[i] = rd.UniformSetCreate([Sampled(0, _linear, i == 0 ? _haloBright : _haloLevels[i - 1])], _blurShader, 0);
@@ -382,6 +387,7 @@ internal sealed class RdFramePost
                 [Sampled(0, _linear, _haloLevels[1]), Sampled(1, _linear, _haloLevels[3]), Sampled(2, _linear, _haloLevels[5]), Sampled(3, _linear, _haloLevels[7]), Sampled(4, _nearest, scene)], _haloShader, 0);
             _applySet = rd.UniformSetCreate([Sampled(0, _linear, _haloGlow)], _applyShader, 0);
             if (!_visionSet.IsValid || !_visionBlurSets[0].IsValid || !_maskSet.IsValid || !_haloSet.IsValid || !_applySet.IsValid) return false;
+            GD.Print($"SVM_RD_VISION_PYRAMID scale={_pyramidScale} levels={_visionSizes[1]}/{_visionSizes[3]}");
         }
 
         return true;
@@ -467,7 +473,19 @@ internal sealed class RdFramePost
         if (glow)
         {
             rd.CaptureTimestamp("RD Own Glow");
-            Pass(rd, _brightFb, _brightPipeline, _brightSet, [glowCut, RenderK.GlowBrightGain, 0f, 0f, RenderK.GlowBrightLuma.X, RenderK.GlowBrightLuma.Y, RenderK.GlowBrightLuma.Z, 0f]);
+            Rid brightSet = _brightSet;
+            if (Post.BloomPrefilter.Enabled)
+            {
+                Rid filtered = _bloomPrefilter.Filter(rd, _scene, RenderK.GlowBrightTarget);
+                if (filtered != _filteredBrightSource || !rd.UniformSetIsValid(_filteredBrightSet))
+                {
+                    if (rd.UniformSetIsValid(_filteredBrightSet)) rd.FreeRid(_filteredBrightSet);
+                    _filteredBrightSet = rd.UniformSetCreate([Sampled(0, _linear, filtered)], _brightShader, 0);
+                    _filteredBrightSource = filtered;
+                }
+                brightSet = _filteredBrightSet;
+            }
+            Pass(rd, _brightFb, _brightPipeline, brightSet, [glowCut, RenderK.GlowBrightGain, 0f, 0f, RenderK.GlowBrightLuma.X, RenderK.GlowBrightLuma.Y, RenderK.GlowBrightLuma.Z, 0f]);
             BlurLevels(rd, RenderK.GlowBrightTarget, _levelFbs, _blurSets, _blurPipeline, s_levelSizes);
             Vector4 w = RenderK.GlowLevelWeights;
             Pass(rd, _glowFb, _compositePipeline, _compositeSet, [w.X, w.Y, w.Z, w.W, 0f, 0f, 0f, 0f]);
@@ -516,6 +534,9 @@ internal sealed class RdFramePost
 
     public void Free(RenderingDevice rd)
     {
+        if (rd.UniformSetIsValid(_filteredBrightSet)) rd.FreeRid(_filteredBrightSet);
+        _filteredBrightSet = _filteredBrightSource = default;
+        _bloomPrefilter.Free(rd);
         foreach (Rid set in new[] { _brightSet, _finalSet, _compositeSet, _visionSet, _maskSet, _haloSet, _applySet })
         {
             if (rd.UniformSetIsValid(set)) rd.FreeRid(set);
