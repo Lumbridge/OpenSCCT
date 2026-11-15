@@ -371,6 +371,21 @@ Unresolved or deleted carriers provide no grab. Static GEs, including all legacy
 Packages using attachments require the matching client/server implementation; `platform` still means the original
 console platform selector and is never a mover reference.
 
+A GE without `attachedTo` that lies on a mover is attached when the map loads (`PhysicsWorld.AttachGEsToMovers`, ours:
+the original keeps every GE in the level's static partition and none moves). A map in the original's format has only
+world-space GEs and nothing that names an actor, so the tie is read from where the actors stand at load: both ends and
+the middle of the GE are within a box of half size 2, 4, 8 or 16 uu of the mover's collision, and nothing else (BSP, a
+static mesh, another mover) is within the same box of any of the three points. A ledge on a wall beside a door or a
+floor edge level with a lift stays static. Every machine runs the same rule on the same data, so the server and its
+clients attach the same GEs. On the converted maps it attaches: MoonD GE49 and GE50 (the monorail car's side),
+AquaD/E/T four ledges on Mover4711, FactD/E/P/T two on Mover2954, KrauE/U two on Mover15438, MissD/E/P eight on
+Mover4073, 4078, 4082 and 4083; nothing on the other maps.
+
+A pawn holds an attached GE in the modes of `PhysicsDriver.HoldsGE` (ledge, pipe, ladder, hand over hand, zip line,
+and the root-motion and repositioning moves between them): it is based on the mover, its ZipP points, reposition
+target and wall normal travel and turn with it, and it leaves the mover with the first other mode (a drop, a jump, the
+walk after a climb). Fences are found by geometry, not by a GE, and are not carried.
+
 SemVer on `formatVersion`. Patch: clarifications only. Minor: new optional fields, new optional files, new
 collision chunks (readers skip unknown chunks); schemas move to a new `1.<minor>` folder. Major: anything a 1.x
 reader would misread.

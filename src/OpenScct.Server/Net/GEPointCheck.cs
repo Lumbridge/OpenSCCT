@@ -23,6 +23,17 @@ public static class GEPointCheck
     /// <summary>Half a unit on one axis, with room for the float error of the GE's coordinates.</summary>
     public const float AxisReach = 0.501f;
 
+    /// <summary>
+    /// The two points of a GE a client proposed. A GE attached to a mover arrives as the client's copy of the mover had
+    /// it, some ticks of travel from this machine's: it becomes that GE's points on the server's copy
+    /// (<see cref="PhysicsDriver.ClientGEPoints"/>). Any other pair is checked point by point (<see cref="Exact"/>).
+    /// </summary>
+    public static (FVector P1, FVector P2) ExactPair(Pawn? pawn, FVector p1, FVector p2)
+    {
+        if (pawn?.XLevel?.PhysicsDriver is PhysicsDriver driver && driver.ClientGEPoints(pawn, ref p1, ref p2)) return (p1, p2);
+        return (Exact(pawn, p1), Exact(pawn, p2));
+    }
+
     /// <summary>The GE point <paramref name="proposed"/> was rounded from, or <paramref name="proposed"/> itself.</summary>
     public static FVector Exact(Actor? pawn, FVector proposed)
     {

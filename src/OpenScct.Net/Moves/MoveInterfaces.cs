@@ -33,6 +33,8 @@ public interface IMoveCommandPawn
 {
     void BeginMoveCommand() { }
     void EndMoveCommand() { }
+    /// <summary>Server: the mover the command about to be applied tells its positions in (MoverFrame), or null for world positions.</summary>
+    void SetCommandFrame(Actor? frame) { }
     bool CommandSimulationEnabled { get; }
     void ConsumeMoveRootMotion();
     void SetCommandTime(float stamp);

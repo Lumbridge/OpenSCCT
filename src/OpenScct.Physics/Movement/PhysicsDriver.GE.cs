@@ -305,25 +305,127 @@ public sealed partial class PhysicsDriver
         _ = second;
     }
 
+    /// <summary>
+    /// The physics modes in which a pawn holds a GE (or plays the move onto or off one): a pawn in one of these keeps
+    /// the mover its GE is attached to as its base and travels with it.
+    /// </summary>
+    internal static bool HoldsGE(EPhysics physics) => physics is EPhysics.PHYS_Ledge or EPhysics.PHYS_RootMotion or
+        EPhysics.PHYS_Repositionnal or EPhysics.PHYS_OnPipe or EPhysics.PHYS_OnLadder or EPhysics.PHYS_OnPipeH or EPhysics.PHYS_Linear;
+
+    /// <summary>How far a grabbed GE's points may stand from where its mover has carried the GE since (uu, each point).</summary>
+    private const float CarrierSlack = 128f;
+
+    /// <summary>How far a pawn may be from the GE it holds (the ledge hang is 123 uu from its ledge).</summary>
+    private const float CarrierHoldReach = 256f;
+
+    /// <summary>How far a client's copy of a mover may stand from this machine's when it names one of its GEs (uu): the monorail car of MoonD covers this in 0.8 s.</summary>
+    private const float ClientCarrierReach = 600f;
+
+    /// <summary>The arms test put the pawn on <paramref name="ge"/>: when the GE is attached to a mover, the pawn rides it.</summary>
     private void AttachMovingGE(Pawn pawn, GERecord ge, EPhysics previous)
     {
-        if (GEs.OwnerOf(ge) is not { } owner || pawn.Physics == previous ||
-            pawn.Physics is not (EPhysics.PHYS_Ledge or EPhysics.PHYS_RootMotion or EPhysics.PHYS_Repositionnal)) return;
+        if (GEs.OwnerOf(ge) is not { } owner || pawn.Physics == previous || !HoldsGE(pawn.Physics)) return;
         GetState(pawn).TraversalBase = owner;
         pawn.SetBase(owner);
     }
 
+    /// <summary>
+    /// OpenSCCT: finds the mover that carries the GE a pawn holds, for every way of getting on one that does not pass
+    /// through the arms test above (the feet tests, a ledge change, the server's copy of a client's pawn, which enters
+    /// the hold through a mirrored action). The pawn's ZipP1 and ZipP2 name the GE. On the machine that chose it they
+    /// are the GE's points of a tick or so ago; on the server they come from the client's copy of the mover, so there
+    /// the mover the client's moves are told in (<see cref="PawnPhysicsState.ClientFrame"/>) and the pawn's place on
+    /// it pick the GE. The points are then put on the GE where it stands here.
+    /// </summary>
+    [Provenance(ProvenanceKind.Estimated, "Ours: no GE of the original moves")]
     private void BindMovingTraversal(Pawn pawn)
     {
-        // The authoritative copy enters traversal through a mirrored movement action,
-        // so it does not run the local player's GE selection callback. Resolve its
-        // transmitted segment against the live authored movers before simulating it.
-        if (!GEs.HasMovingLedges || pawn is not ISBasePawnPhysics sb ||
-            pawn.Physics is not (EPhysics.PHYS_Ledge or EPhysics.PHYS_Repositionnal or EPhysics.PHYS_RootMotion) ||
-            GetState(pawn).TraversalBase is not null) return;
-        if (GEs.MovingLedgeNear(sb.ZipP1, sb.ZipP2, 128) is not { } ge || GEs.OwnerOf(ge) is not { } owner) return;
-        GetState(pawn).TraversalBase = owner;
+        if (!GEs.HasMoving || !HoldsGE(pawn.Physics) || pawn is not ISBasePawnPhysics sb) return;
+        PawnPhysicsState state = GetState(pawn);
+        if (state.TraversalBase is not null) return;
+        GERecord? ge;
+        if (state.ClientFrameTold)
+        {
+            if (state.ClientFrame is not { bDeleteMe: false } frame) return;
+            ge = GEs.MovingMatch(sb.ZipP1, sb.ZipP2, frame, pawn.Location, ClientCarrierReach);
+        }
+        else
+        {
+            ge = GEs.MovingNear(sb.ZipP1, sb.ZipP2, CarrierSlack);
+        }
+
+        if (ge is null || GEs.OwnerOf(ge) is not { } owner ||
+            (GEIndex.ClosestPointOnSegment(ge.P0, ge.P1, pawn.Location, out _) - pawn.Location).SizeSquared() > CarrierHoldReach * CarrierHoldReach) return;
+        FVector shift = (ge.P0 + ge.P1) * 0.5f - (sb.ZipP1 + sb.ZipP2) * 0.5f;
+        PutOnGE(sb, ge);
+        // What was worked out from the old points goes with them. A client's pawn is already told where it is on the mover.
+        if (!shift.IsZero())
+        {
+            if (!sb.vVandammePos.IsZero()) sb.vVandammePos += shift;
+            if (!state.ClientFrameTold)
+            {
+                pawn.vLocationBeforeRM += shift;
+                MoveActor(pawn, shift, pawn.Rotation, out _, Ignore: owner);
+            }
+        }
+
+        state.TraversalBase = owner;
         pawn.SetBase(owner);
+    }
+
+    /// <summary>
+    /// Server: ties a client's pawn to the mover of the GE it holds once a move and its reliable calls are applied, so
+    /// the acknowledgement that follows never tells of a hold without its base (the client would be corrected off it).
+    /// </summary>
+    public void BindHeldGE(Pawn Pawn)
+    {
+        NotNull(Pawn);
+        BindMovingTraversal(Pawn);
+    }
+
+    /// <summary>ZipP1 and ZipP2 (and the pending pair when it named the same GE) become <paramref name="ge"/>'s points, kept the way round they were.</summary>
+    private static void PutOnGE(ISBasePawnPhysics sb, GERecord ge)
+    {
+        bool pending = sb.NewZipP1 == sb.ZipP1 && sb.NewZipP2 == sb.ZipP2;
+        bool reversed = ((sb.ZipP2 - sb.ZipP1) | (ge.P1 - ge.P0)) < 0f;
+        sb.ZipP1 = reversed ? ge.P1 : ge.P0;
+        sb.ZipP2 = reversed ? ge.P0 : ge.P1;
+        if (pending)
+        {
+            sb.NewZipP1 = sb.ZipP1;
+            sb.NewZipP2 = sb.ZipP2;
+        }
+    }
+
+    /// <summary>
+    /// Server: the mover a client's move was told in (null for world positions), from the move transport before it
+    /// applies the move. A pawn that is told this way is tied to a moving GE only through that mover.
+    /// </summary>
+    public void SetClientFrame(Pawn Pawn, Actor? Frame)
+    {
+        NotNull(Pawn);
+        PawnPhysicsState state = GetState(Pawn);
+        state.ClientFrameTold = true;
+        state.ClientFrame = Frame;
+    }
+
+    /// <summary>
+    /// Server: two GE points a client sent (ZipP or NewZipP). When they are a GE attached to a mover, as the client's
+    /// copy of the mover had it, they become that GE's points on this machine's copy and the result is true; points of
+    /// a GE that does not move, or of no GE, are left as they are.
+    /// </summary>
+    [Provenance(ProvenanceKind.Estimated, "Ours: the original sends world points and has no moving GE")]
+    public bool ClientGEPoints(Pawn Pawn, ref FVector P1, ref FVector P2)
+    {
+        NotNull(Pawn);
+        if (!GEs.HasMoving || GEs.IsStaticGE(P1, P2, 1f)) return false;
+        PawnPhysicsState state = GetState(Pawn);
+        Actor? frame = state.TraversalBase ?? state.ClientFrame;
+        if (GEs.MovingMatch(P1, P2, frame is { bDeleteMe: false } ? frame : null, Pawn.Location, ClientCarrierReach) is not { } ge) return false;
+        bool reversed = ((P2 - P1) | (ge.P1 - ge.P0)) < 0f;
+        P1 = reversed ? ge.P1 : ge.P0;
+        P2 = reversed ? ge.P0 : ge.P1;
+        return true;
     }
 
     /// <summary>The wall normal of a ledge as the ledge test uses it: (Dir.Y, -Dir.X, 0), turned to point from the wall to the pawn.</summary>
