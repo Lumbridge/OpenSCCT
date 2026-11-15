@@ -239,7 +239,7 @@ public partial class SimPawnView : Node3D
             return;
         }
 
-        bool hidden = pawn is SPawnAttaque && pawn.GlassEffect == byte.MaxValue &&
+        bool hidden = pawn is (SPawnAttaque or OpenScct.Game.Svm.SpyClone) && pawn.GlassEffect == byte.MaxValue &&
             Render.Materials.MaterialCompiler.Vision == RenderK.RendMapMotion;
         _model.Root.Visible = !hidden;
     }

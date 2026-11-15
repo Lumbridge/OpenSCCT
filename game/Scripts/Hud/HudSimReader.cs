@@ -7,6 +7,7 @@ using OpenScct.Core.Engine;
 using SpyCloak = OpenScct.Game.Equipment.SpyCloak;
 using OpenScct.Game.Objectives;
 using OpenScct.Game.SBase;
+using OpenScct.Game.Svm;
 using OpenScct.Provenance;
 
 namespace OpenScctGame.Hud;
@@ -232,7 +233,8 @@ public sealed class HudSimReader : IHudSource
         if (pawn.SelectedGadget is { bDeleteMe: false } gadget)
         {
             s.Gadget = new HudGadget(gadget.ItemName, gadget.Charge, gadget.MagmaIconName, gadget.IconU, gadget.IconV,
-                Unavailable: gadget is SGadCamNetwork { HasNetwork: false });
+                Unavailable: gadget is SGadCamNetwork { HasNetwork: false },
+                MineHackPercent: (gadget as MineHackGadget)?.HeldHackPercent ?? 0);
         }
     }
 

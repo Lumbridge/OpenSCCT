@@ -21,7 +21,7 @@ def smooth(keys, values, t):
     return values[i] + (values[i+1]-values[i]) * u*u*(3-2*u)
 
 
-def solve_arm(old, chain, target, orientation, pole_offset=None):
+def solve_arm(old, chain, target, orientation, pole_offset=None, twist_node=None):
     """Two-bone solve with the source elbow as pole; no arm stretch."""
     upper, lower, hand = chain
     shoulder, elbow, wrist = [old[n][:3, 3] for n in chain]
@@ -41,10 +41,28 @@ def solve_arm(old, chain, target, orientation, pole_offset=None):
     bent = shoulder + direction*along + pole*math.sqrt(max(0, a*a-along*along))
     result = {n: old[n].copy() for n in chain}
     result[upper][:3, :3] = turn(elbow-shoulder, bent-shoulder) @ old[upper][:3, :3]
-    result[lower][:3, :3] = turn(wrist-elbow, target-bent) @ old[lower][:3, :3]
+    swing = turn(wrist-elbow, target-bent)
+    result[lower][:3, :3] = swing @ old[lower][:3, :3]
     result[lower][:3, 3] = bent
     result[hand][:3, :3] = orientation
     result[hand][:3, 3] = target
+    if twist_node is not None:
+        # A wrist target also contains pronation. Leaving the weighted twist
+        # joint at its idle roll collapses the sleeve into a spiral. Distribute
+        # the shortest axial rotation along the forearm instead.
+        from .pistol_arms import quaternion, rotation
+        axis = target-bent; axis /= max(1e-9, np.linalg.norm(axis))
+        hand_rotation = orientation / np.maximum(1e-12, np.linalg.norm(orientation, axis=0))
+        residual = hand_rotation @ (swing @ rotation(old[hand])).T
+        q = quaternion(residual)
+        if q[3] < 0: q = -q
+        angle = 2*math.atan2(float(q[:3]@axis), float(q[3]))
+        def roll(amount):
+            x,y,z = axis; k = np.array([[0,-z,y],[z,0,-x],[-y,x,0]])
+            return np.eye(3)+math.sin(amount)*k+(1-math.cos(amount))*(k@k)
+        result[lower][:3,:3] = roll(angle*.6) @ result[lower][:3,:3]
+        result[twist_node] = result[lower] @ np.linalg.inv(old[lower]) @ old[twist_node]
+        result[twist_node][:3,:3] = roll(angle*.25) @ result[twist_node][:3,:3]
     return result
 
 

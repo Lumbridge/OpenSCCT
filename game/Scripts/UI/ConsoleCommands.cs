@@ -54,7 +54,7 @@ public sealed class ConsoleCommands(IConsoleHost host)
         "Settings: set <key> <value> | get <key> | current | <key> [value]\n" +
         "Server: login <password> | cmd <server command> | say <text>\n" +
         "Match: resign | pings | map <name> [mode] | rmap_next | rmap_prev\n" +
-        "Practice: practice [on|off] | heal | regen | tank | kill | ammo\n" +
+        "Practice: practice [on|off] | heal | regen | tank | kill | ammo | infinite [on|off|toggle]\n" +
         "Bots (practice / Visit Map): addbot | kickbot | placebot | botstop | botresume\n" +
         "Bot settings: bothealth | botweapon (mercs only) | botteam. Type help bots for usage.\n" +
         "Location: whereami [copy] | Exit: quit";
@@ -140,6 +140,14 @@ public sealed class ConsoleCommands(IConsoleHost host)
                     output.Add("sent to the server");
                 }
                 break;
+            case "infinite" or "resources":
+                if (!_host.CanSendBotCommands) output.Add("not in a game");
+                else
+                {
+                    _host.BotCommand(verb + (arg.Length > 0 ? " " + arg : ""));
+                    output.Add("sent to the server");
+                }
+                break;
             case "resign" or "pings" or "practice" or "heal" or "regen" or "tank" or "kill" or "ammo":
                 output.Add(Server(() => _host.Chat("!" + verb), true, string.Empty));
                 break;
@@ -190,6 +198,7 @@ public sealed class ConsoleCommands(IConsoleHost host)
             "tank" => "tank - Toggle immunity to damage in practice (suicide still works).",
             "kill" => "kill - Kill your current pawn in practice.",
             "ammo" => "ammo - Refill your ammunition in practice.",
+            "infinite" or "resources" => "infinite [on|off|toggle] - Show or change infinite ammo, gadget charges and mask air for the practice round.",
             "whereami" => "whereami [copy] - Show map, position and view details; copy also copies them to the clipboard.",
             "quit" or "exit" => "quit - Close the game.",
             _ => null,

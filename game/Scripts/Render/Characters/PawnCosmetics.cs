@@ -66,7 +66,7 @@ public static class PawnCosmetics
             return null;
         }
 
-        if (pawn is SPawnAttaque)
+        if (pawn is SPawnAttaque or OpenScct.Game.Svm.SpyClone)
         {
             return look[CosmeticSlot.Pistol];
         }

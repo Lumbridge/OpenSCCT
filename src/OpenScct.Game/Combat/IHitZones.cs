@@ -423,7 +423,8 @@ public sealed class TraceHitZones : IHitZones
         IPillHistory? past = level.GetService<IPillHistory>();
         foreach (Pawn p in level.DynamicActors<Pawn>())
         {
-            if (p is not SBasePawn pawn || ReferenceEquals(pawn, source) || IsBaseOf(pawn, source))
+            if (p is not SBasePawn pawn || ReferenceEquals(pawn, source) || IsBaseOf(pawn, source) ||
+                (pawn is Svm.SpyClone && source is not SPAWNDEFENSE))
             {
                 continue;
             }

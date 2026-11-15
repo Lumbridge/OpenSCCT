@@ -43,7 +43,10 @@ public readonly record struct AlternateRules(bool On, AlternateAbility Abilities
     /// <summary>The page's untouched values: InitPersistentData's (every ability but the lethal drops, every gadget, four slots).</summary>
     [Provenance(ProvenanceKind.Decoded, "Engine.PersistentData.InitPersistentData; SPersistentData.InitPersistentData (no cinematic camera)")]
     public static AlternateRules Default { get; } = new(false, DefaultAbilities, EquipmentK.AllGadgetsAllowed, (byte)EquipmentK.GadgetSlots,
-        EquipmentK.AllGadgetsAllowed, (byte)EquipmentK.GadgetSlots);
+        EquipmentK.AllGadgetsAllowed, (byte)EquipmentK.GadgetSlots)
+    { AdditionalSpyGadgets = STeamAttaquant.AllAdditionalGadgets };
+
+    public byte AdditionalSpyGadgets { get; init; }
 
     /// <summary>The abilities InitPersistentData gives: all but Lethal Drop Tech on both sides and the cinematic camera.</summary>
     public const AlternateAbility DefaultAbilities = AlternateAbility.SpyThermalVision | AlternateAbility.SpyNightVision |
@@ -99,14 +102,26 @@ public readonly record struct AlternateRules(bool On, AlternateAbility Abilities
     /// <summary>Whether a side's gadget option is allowed (SPersistentData.GetGadgetRestriction).</summary>
     public bool GadgetAllowed(int team, int option) =>
         !(team == 0 && option == OpenScct.Game.Equipment.SpyCloak.LegacyGadgetOption) &&
-        (((team == 0 ? SpyGadgets : MercGadgets) >> option) & 1) != 0;
+        option >= 0 && option < (team == 0 ? STeamAttaquant.GadgetOptions : GadgetOptions) &&
+        (((team == 0 ? SpyGadgets | (AdditionalSpyGadgets << GadgetOptions) : MercGadgets) >> option) & 1) != 0;
 
     [System.Text.Json.Serialization.JsonIgnore]
-    public int AvailableSpyGadgets => BitOperations.PopCount((uint)(SpyGadgets & ~(1 << OpenScct.Game.Equipment.SpyCloak.LegacyGadgetOption)));
+    public int AvailableSpyGadgets => BitOperations.PopCount((uint)(SpyGadgets & ~(1 << OpenScct.Game.Equipment.SpyCloak.LegacyGadgetOption))) +
+        BitOperations.PopCount((uint)(AdditionalSpyGadgets & STeamAttaquant.AllAdditionalGadgets));
 
     /// <summary>A side's gadget option allowed or not (SetGadgetRestriction sets the page's checked boxes).</summary>
     public AlternateRules WithGadget(int team, int option, bool allowed)
     {
+        if (option < 0 || option >= (team == 0 ? STeamAttaquant.GadgetOptions : GadgetOptions)) return this;
+        if (option >= GadgetOptions)
+        {
+            int additionalBit = 1 << (option - GadgetOptions);
+            return this with
+            {
+                AdditionalSpyGadgets = (byte)(allowed ? AdditionalSpyGadgets | additionalBit : AdditionalSpyGadgets & ~additionalBit),
+            };
+        }
+
         byte bit = (byte)(1 << option);
         byte mask = team == 0 ? SpyGadgets : MercGadgets;
         mask = allowed ? (byte)(mask | bit) : (byte)(mask & ~bit);
@@ -120,6 +135,7 @@ public readonly record struct AlternateRules(bool On, AlternateAbility Abilities
     public AlternateRules Clamped() => this with
     {
         Abilities = Abilities & AllAbilities,
+        AdditionalSpyGadgets = (byte)(AdditionalSpyGadgets & STeamAttaquant.AllAdditionalGadgets),
         SpyGadgetCount = (byte)Math.Clamp((int)SpyGadgetCount, 0, Math.Min(MaxGadgetCount, AvailableSpyGadgets)),
         MercGadgetCount = (byte)Math.Clamp((int)MercGadgetCount, 0, Math.Min(MaxGadgetCount, BitOperations.PopCount(MercGadgets))),
     };
@@ -146,6 +162,7 @@ public readonly record struct AlternateRules(bool On, AlternateAbility Abilities
                 pd.bAvlb_MERC_Laser = false;
                 pd.bAvlb_MERC_Berserk = false;
                 pd.b_SPY_GadgetRestriction = DeathMatchSpyGadgets;
+                pd.AdditionalSpyGadgets = 0;
                 pd.b_SPY_NBGadget = 1;
                 pd.b_MERC_GadgetRestriction = DeathMatchMercGadgets;
                 pd.b_MERC_NBGadget = 1;
@@ -170,6 +187,7 @@ public readonly record struct AlternateRules(bool On, AlternateAbility Abilities
         pd.bAvlb_MERC_Charge = r.Has(AlternateAbility.MercCharge);
         pd.bAvlb_CinematicCamera = r.Has(AlternateAbility.CinematicCamera);
         pd.b_SPY_GadgetRestriction = r.SpyGadgets;
+        pd.AdditionalSpyGadgets = r.AdditionalSpyGadgets;
         pd.b_SPY_NBGadget = r.SpyGadgetCount;
         pd.b_MERC_GadgetRestriction = r.MercGadgets;
         pd.b_MERC_NBGadget = r.MercGadgetCount;
@@ -201,6 +219,7 @@ public readonly record struct AlternateRules(bool On, AlternateAbility Abilities
         if (gri.Teams.Length > 0 && gri.Teams[0] is STeamInfo spies)
         {
             spies.bDisallowedInv = pd.b_SPY_GadgetRestriction;
+            if (spies is STeamAttaquant attackers) attackers.AdditionalGadgets = pd.AdditionalSpyGadgets;
             spies.iNBGadgets = pd.b_SPY_NBGadget;
         }
 
@@ -213,28 +232,30 @@ public readonly record struct AlternateRules(bool On, AlternateAbility Abilities
 
     /// <summary>
     /// The rules as one session option (part of <see cref="LobbySetup.ToOptions"/>), kept short because the setup
-    /// line must stay under the control message's 512 bytes: <c>?SvmAlt=</c> then eleven hex digits, the switch (1),
+    /// line must stay under the control message's 512 bytes: <c>?SvmAlt=</c> then the original eleven hex digits and a trailing Spy gadget mask. The original fields are the switch (1),
     /// the abilities (4), the spy gadgets (2) and slots (1), the merc gadgets (2) and slots (1).
     /// </summary>
     public string ToOptions() => string.Create(CultureInfo.InvariantCulture,
-        $"?SvmAlt={(On ? 1 : 0):X1}{(int)Abilities:X4}{SpyGadgets:X2}{SpyGadgetCount:X1}{MercGadgets:X2}{MercGadgetCount:X1}");
+        $"?SvmAlt={(On ? 1 : 0):X1}{(int)Abilities:X4}{SpyGadgets:X2}{SpyGadgetCount:X1}{MercGadgets:X2}{MercGadgetCount:X1}{AdditionalSpyGadgets:X1}");
 
     /// <summary>Reads the rules from options (as <see cref="ToOptions"/> writes them); a missing or bad value keeps <paramref name="fallback"/>.</summary>
     public static AlternateRules FromOptions(string options, AlternateRules fallback)
     {
         string text = UcOptions.ParseOption(options ?? string.Empty, "SvmAlt");
-        if (text.Length != 11 || !ulong.TryParse(text, NumberStyles.AllowHexSpecifier, CultureInfo.InvariantCulture, out ulong v))
+        if (text.Length is not (11 or 12) || !ulong.TryParse(text, NumberStyles.AllowHexSpecifier, CultureInfo.InvariantCulture, out ulong v))
         {
             return fallback;
         }
 
+        byte additional = text.Length == 12 ? (byte)(v & 0xF) : (byte)0;
+        if (text.Length == 12) v >>= 4;
         return new AlternateRules(
             (v >> 40 & 0xF) != 0,
             (AlternateAbility)((int)(v >> 24 & 0xFFFF) & (int)AllAbilities),
             (byte)(v >> 16 & 0xFF),
             (byte)(v >> 12 & 0xF),
             (byte)(v >> 4 & 0xFF),
-            (byte)(v & 0xF)).Clamped();
+            (byte)(v & 0xF)) { AdditionalSpyGadgets = additional }.Clamped();
     }
 
     /// <summary>A short line for the setup's description: what differs from the stock values.</summary>
@@ -263,7 +284,7 @@ public readonly record struct AlternateRules(bool On, AlternateAbility Abilities
         }
 
         string gadgets = string.Create(CultureInfo.InvariantCulture,
-            $"spy gadgets {AvailableSpyGadgets}/7 ({SpyGadgetCount} slots), merc gadgets {BitOperations.PopCount(MercGadgets)}/8 ({MercGadgetCount} slots)");
+            $"spy gadgets {AvailableSpyGadgets}/{STeamAttaquant.GadgetOptions - 1} ({SpyGadgetCount} slots), merc gadgets {BitOperations.PopCount(MercGadgets)}/8 ({MercGadgetCount} slots)");
         return ", alternate (" + (off.Count > 0 ? string.Join(", ", off) + ", " : string.Empty) + gadgets + ")";
     }
 }

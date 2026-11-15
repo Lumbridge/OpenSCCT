@@ -3,6 +3,7 @@ using OpenScct.Core.Engine;
 using OpenScct.Core.Uc;
 using OpenScct.Game.Combat;
 using OpenScct.Game.SBase;
+using OpenScct.Game.Svm;
 using OpenScct.Provenance;
 
 namespace OpenScct.Game.Equipment;
@@ -21,6 +22,15 @@ public static class GadgetNetReceive
         Actor? target = c.Target;
         switch (c.Function.ToString())
         {
+            case "DeployClone" when target is CloneGadget clone:
+                clone.Deploy(PC, c.Rotation.Yaw);
+                return true;
+            case "StartMineHack" when target is MineHackGadget hack && c.Actor1 is SMines mine:
+                hack.BeginHack(PC, mine);
+                return true;
+            case "CancelMineHack" when target is MineHackGadget hack:
+                hack.CancelHack();
+                return true;
             case "SpawnGaz" when target is SStickyCam cam:
                 cam.SpawnGaz();
                 return true;
@@ -84,6 +94,12 @@ public static class GadgetNetReceive
         Actor? target = c.Target;
         switch (c.Function.ToString())
         {
+            case "CloneFlash":
+                PC.ApplyCloneFlash();
+                return true;
+            case "SpyGadgetMessage":
+                GadgetHud.AddMessageToAuxiliaryStack(PC, c.Name1.ToString(), 2f);
+                return true;
             case "TellClientToDecCharge" when target is SGadStickyCam gad:
                 gad.TellClientToDecCharge();
                 return true;

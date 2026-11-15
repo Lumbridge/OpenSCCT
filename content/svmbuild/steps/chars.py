@@ -17,7 +17,7 @@ from ..sources import env
 
 class CharsStep(Step):
     name = "chars"
-    version = 19  # Include the Spy's arms and Shocker for the drawn stance.
+    version = 21  # Shared cloth arms, material conversion and contact-safe custom weapon actions.
     deps = ()
     per_map = False
     background = True   # no other step reads shared/chars; runs beside the maps
@@ -28,7 +28,8 @@ class CharsStep(Step):
                   "content/svmbuild/writers/glb.py", "content/svmbuild/canonical.py", "content/svmbuild/cosmetics.py",
                   "content/svmbuild/skeleton.py", "content/svmbuild/gunskin.py", "content/svmbuild/fitted.py", "content/svmbuild/cosmetic_art.py", "content/svmbuild/sidearms.py", "content/svmbuild/sidearm_models.py", "content/svmbuild/pistol_arms.py",
                   "content/svmbuild/authored_characters.py", "content/svmbuild/reload_motion.py",
-                  "content/svmbuild/reload_choreography.py", "content/svmbuild/spy_viewmodel.py")
+                  "content/svmbuild/reload_choreography.py", "content/svmbuild/spy_viewmodel.py", "content/svmbuild/rifles.py",
+                  "content/svmbuild/rifle_arms.py", "content/svmbuild/viewmodel_actions.py")
 
     def extra_code(self) -> list[Path]:
         return env.code_files()
@@ -58,6 +59,8 @@ class CharsStep(Step):
                 out[ctx.game_path(tex)] = ctx.hasher.sha256(tex)
         from ..sidearms import source_files, SOURCE
         for f in source_files(): out["sidearms/" + f.relative_to(SOURCE).as_posix()] = ctx.hasher.sha256(f)
+        from .. import rifles
+        for f in rifles.source_files(): out["rifles/" + f.relative_to(rifles.SOURCE).as_posix()] = ctx.hasher.sha256(f)
         from .. import cosmetic_art
         for f in cosmetic_art.source_files():
             out['cosmetics/' + f.relative_to(cosmetic_art.SOURCE).as_posix()] = ctx.hasher.sha256(f)
@@ -88,9 +91,11 @@ class CharsStep(Step):
         # Keep original primary reload tracks aligned with their gameplay notifies.
         cosmetics = build_all(out_dir)
         sidearms = install_models(out_dir)
+        from ..rifles import install_models as install_rifles
+        rifles = install_rifles(out_dir)
         summary = {"meshes": sum(len(v["meshes"]) for k, v in stats.items() if not k.startswith("_")),
                    "animations": sum(len(v["animations"]) for k, v in stats.items() if not k.startswith("_")),
                    "cosmetics": cosmetics, "sidearms": sidearms, "authored_characters": characters,
-                   "spy_viewmodel": spy_viewmodel,
+                   "spy_viewmodel": spy_viewmodel, "rifles": rifles,
                    "detail": stats}
         return StepOutput(stats=summary)

@@ -46,6 +46,7 @@ public static class NetClasses
                 var rules = new RepExtension();
                 rules.Properties.Add(new RepExtensionProperty("SidearmsEnabled", "SidearmsEnabled", RepLeafKind.Bool));
                 rules.Properties.Add(new RepExtensionProperty("ResponsiveSmokeEnabled", "ResponsiveSmokeEnabled", RepLeafKind.Bool));
+                rules.Properties.Add(new RepExtensionProperty("PracticeFiniteResources", "PracticeFiniteResources", RepLeafKind.Bool));
                 rules.Properties.Add(new RepExtensionProperty("MatchPlayers", "MatchPlayers", RepLeafKind.Int));
                 registry.Extend(type, rules);
             }
@@ -85,6 +86,17 @@ public static class NetClasses
                 registry.Extend(type, interaction);
             }
         }
+        var spyTeam = new RepExtension();
+        spyTeam.Properties.Add(new(nameof(STeamAttaquant.AdditionalGadgets), nameof(STeamAttaquant.AdditionalGadgets), RepLeafKind.Byte));
+        registry.Extend<STeamAttaquant>(spyTeam);
+        var hack = new RepExtension();
+        hack.Properties.Add(new(nameof(MineHackGadget.HackPercent), nameof(MineHackGadget.HackPercent), RepLeafKind.Byte));
+        registry.Extend<MineHackGadget>(hack);
+        var mineState = new RepExtension();
+        mineState.Properties.Add(new(nameof(SMines.IsHacked), nameof(SMines.IsHacked), RepLeafKind.Bool));
+        registry.Extend<SMineProx>(mineState);
+        registry.Extend<SMineLaser>(mineState);
+        registry.Extend<SMinePoison>(mineState);
         SidearmNet.Register(registry);
         registry.Extend<SSmokeEmitter>(ResponsiveSmokeReplication.CreateExtension());
         registry.Extend<OpenScct.Core.Engine.LevelInfo>(NetDeviceEvents.CreateExtension());
@@ -92,6 +104,15 @@ public static class NetClasses
         var cameras = new RepExtension();
         cameras.Properties.Add(new RepExtensionProperty(nameof(SCamNetwork.DisabledSeconds), nameof(SCamNetwork.DisabledSeconds), RepLeafKind.Int));
         registry.Extend<SCamNetwork>(cameras);
+        var clone = new RepExtension { InterpolateMovement = true };
+        clone.Properties.Add(new("CloneLocation", nameof(SpyClone.Location), RepLeafKind.VectorFine));
+        clone.Properties.Add(new("CloneVelocity", nameof(SpyClone.Velocity), RepLeafKind.VectorFine));
+        clone.Properties.Add(new(nameof(SpyClone.Stopped), nameof(SpyClone.Stopped), RepLeafKind.Bool));
+        clone.Properties.Add(new(nameof(SpyClone.GlowMode), nameof(SpyClone.GlowMode), RepLeafKind.Int));
+        clone.Properties.Add(new(nameof(SpyClone.WetLook), nameof(SpyClone.WetLook), RepLeafKind.Bool));
+        clone.Properties.Add(new(nameof(SpyClone.CloakLook), nameof(SpyClone.CloakLook), RepLeafKind.Byte));
+        clone.Properties.Add(new(nameof(SpyClone.PistolDrawn), nameof(SpyClone.PistolDrawn), RepLeafKind.Bool));
+        registry.Register<SpyClone>(clone);
         registry.Register<CubeWalker>(CubeWalkerNet.CreateExtension());
         registry.Register<AnimationController>(AnimationController.Replication());
         registry.Register<Conveyor>(ConveyorExtension());

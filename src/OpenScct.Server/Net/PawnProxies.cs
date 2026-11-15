@@ -121,7 +121,9 @@ public sealed class PawnProxySender
         INetInterest? interest = _driver.Settings.Interest;
         IReadOnlyList<NetConnection> viewers = _driver.ClientConnections;
         _pawns.Clear();
-        foreach (SBasePawn pawn in level.DynamicActors<SBasePawn>()) _pawns.Add(pawn);
+        // Clones use ordinary interpolated actor movement and advance their pose locally.
+        foreach (SBasePawn pawn in level.DynamicActors<SBasePawn>())
+            if (pawn is not OpenScct.Game.Svm.SpyClone) _pawns.Add(pawn);
         for (int v = 0; v < viewers.Count; v++)
         {
             NetConnection viewer = viewers[v];
@@ -515,7 +517,7 @@ public static class PawnProxyReceiver
             _mesh = actor.StaticMesh;
             _skin = actor.RepSkin;
             _drawType = actor.DrawType;
-            _pawn = actor as SBasePawn;
+            _pawn = actor is OpenScct.Game.Svm.SpyClone ? null : actor as SBasePawn;
             if (_pawn is not null)
             {
                 _rotation = _pawn.Rotation;

@@ -165,7 +165,7 @@ public partial class SMotionTrackingVision
     [Provenance(ProvenanceKind.Decoded, "Reloaded GetActors: vtable 0x10bf9ec8 (SPawnAttaque) and byte +0xab5 == 0xff, then IsA Projectile, IsA Pawn and not the viewer")]
     public static bool IsCandidate(Actor A, Pawn Viewer)
     {
-        if (A is SPawnAttaque { DesiredGlassEffect: SMotionTrackingVisionK.CloakedGlass })
+        if (A is (SPawnAttaque or Svm.SpyClone) and SBasePawn { DesiredGlassEffect: SMotionTrackingVisionK.CloakedGlass })
         {
             return false;
         }

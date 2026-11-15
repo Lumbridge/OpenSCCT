@@ -32,6 +32,11 @@ public static class PawnVision
             ? state.ActiveMode switch { K.BeamModeMotion => (byte)1, K.BeamModeEmf => (byte)2, _ => (byte)0 }
             : (byte)0;
 
+    internal static int SpyGlowMode(SPawnAttaque pawn) =>
+        GoggleVisuals.TryGetValue(pawn, out GoggleVisualState? state)
+            ? state.ActiveMode
+            : pawn.GoggleBeam?.CurrentMode ?? K.BeamModeNone;
+
     /// <summary>Applies a sampled observer colour without replaying goggle actions or local vision changes.</summary>
     public static void RestoreMercGlow(SBasePawn pawn, byte mode)
     {

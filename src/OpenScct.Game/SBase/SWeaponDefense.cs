@@ -216,7 +216,7 @@ public partial class SWeaponDefense
         ServerSetAccurateRotation(aim.Yaw, aim.Pitch, aim.Roll);
         ServerFireWeapon(BulletInARow);
         // An OpenSCCT addition: a practice round's rifle never runs out (the clip stays full).
-        if (ClipAmmo > 0 && !Modes.PracticeRules.IsOn(this))
+        if (ClipAmmo > 0 && !Modes.PracticeRules.ResourcesInfinite(this))
         {
             ClipAmmo -= 1;
             Ammo -= 1;
@@ -311,7 +311,7 @@ public partial class SWeaponDefense
 
             // The owner hears the shot with its predicted recoil and flash, including on the first rifle shot.
             Instigator?.PlayOwnedSound(FireSingleShotSound, ESoundSlot.SLOT_None, null, false,
-                this is MercSidearm { Kind: 0 } ? K.ShotSoundRadius * 0.25f : K.ShotSoundRadius);
+                K.ShotSoundRadius * MercRifles.NoiseScale(this));
 
             CombatServices.Net(this).ServerCall(client, new CombatCall(CNAME_ServerFireWeapon)
             {
@@ -334,16 +334,16 @@ public partial class SWeaponDefense
         DispersionActuelle = InScope ? 0f : GetAccuracy();
         TraceFire(DispersionActuelle, 0f, 0f);
         Instigator?.PlayOwnedSound(FireSingleShotSound, ESoundSlot.SLOT_None, null, false,
-            this is MercSidearm { Kind: 0 } ? K.ShotSoundRadius * 0.25f : K.ShotSoundRadius);
+            K.ShotSoundRadius * MercRifles.NoiseScale(this));
         if (Dummy is { } dummy)
         {
             dummy.AddMuzzleCount();
-            dummy.NotifyNoise(this is MercSidearm { Kind: 0 } ? 0.25f : 1f);
+            dummy.NotifyNoise(MercRifles.NoiseScale(this));
         }
     }
 
     /// <summary>True when the server's copy of the owner's controller is in the scope (exactly s_Binoculars_Def).</summary>
-    public bool InScope => OwnerPC?.GetStateName() == CNAME_s_Binoculars_Def;
+    public bool InScope => bCanSnipe && OwnerPC?.GetStateName() == CNAME_s_Binoculars_Def;
 
     /// <summary>GetAccuracy (native 1286): the spread of the shot (rule 13).</summary>
     [UcNative("ASWeaponDefense::execGetAccuracy", Exe = 0x10abcfc0)]
@@ -430,6 +430,12 @@ public partial class SWeaponDefense
     /// <summary>A bullet on a pawn (rule 10.10): the hit statistic, the snipe or the distance damage, the blood trail.</summary>
     private void HitPawn(Pawn shooter, SBasePawn victim, in BoneTraceResult hit, FVector startTrace, FVector wStart)
     {
+        if (victim is Svm.SpyClone clone)
+        {
+            clone.ShotBy(shooter);
+            return;
+        }
+
         if (OwnerPC is { } pc && (SGameInfo.TeamIndexOf(pc) != SGameInfo.TeamIndexOf(victim.Controller) || pc.IsMercDeathMatch))
         {
             SPlayerController.IncStat(pc, static s => s.ShotsHit++);

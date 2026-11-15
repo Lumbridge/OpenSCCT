@@ -94,7 +94,7 @@ public enum InGameMenuAction
 public readonly record struct InGameMenuContext(bool IAmServer, InGameMenuNet Net, bool Tutorial = false,
     bool MatchBegun = false, bool GameEnded = false, bool Spectator = false, int Lives = 0, bool Practice = false, bool MercDeathmatch = false)
 {
-    public bool CanSwitchTeam => Practice && Net == InGameMenuNet.Lan && !Tutorial && MatchBegun && !GameEnded && !Spectator && !MercDeathmatch;
+    public bool CanSwitchTeam => Practice && !Tutorial && MatchBegun && !GameEnded && !Spectator && !MercDeathmatch;
 
     public bool CanResign => Net == InGameMenuNet.Lan && !Tutorial && MatchBegun && !GameEnded && !Spectator && Lives > 0;
 }
@@ -305,6 +305,13 @@ public sealed class InGameMenuModel
 
     /// <summary>The gear picker's Apply: the choice is saved and sent, and the menu closes.</summary>
     public InGameMenuAction GearApplied() => Page == InGameMenuPage.Gear ? CloseAll() : InGameMenuAction.None;
+
+    public InGameMenuAction GearSwitchTeam()
+    {
+        if (Page != InGameMenuPage.Gear || !Context.CanSwitchTeam) return InGameMenuAction.None;
+        CloseAll();
+        return InGameMenuAction.SwitchTeam;
+    }
 
     /// <summary><c>SSMenu_LANMainPage.InitComponent</c>: the shown buttons and their tops.</summary>
     [Uc("GUI.SSMenu_LANMainPage.InitComponent", Sha1 = "6abef97c2a8f3ea2ba4636884e5c8b5b23d75722")]

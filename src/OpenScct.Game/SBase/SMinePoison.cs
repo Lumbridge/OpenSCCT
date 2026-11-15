@@ -27,16 +27,16 @@ public partial class SMinePoison
     {
         Rotation.GetAxes(out FVector x, out _, out _);
         float length = TrapBeamLength;
-        foreach (SBasePawn p in GadgetWorld.Pawns(XLevel))
+        foreach (SBasePawn target in GadgetWorld.Pawns(XLevel))
         {
-            if (p is not SPawnAttaque spy || spy.bDeleteMe)
+            if (!TriggersOn(target))
             {
                 continue;
             }
 
-            FVector d = spy.Location - Location;
+            FVector d = target.Location - Location;
             float dist = d.Size();
-            if (!(dist < length + spy.CollisionRadius) || dist <= 0f)
+            if (!(dist < length + target.CollisionRadius) || dist <= 0f)
             {
                 continue;
             }
@@ -47,31 +47,31 @@ public partial class SMinePoison
                 continue;
             }
 
-            if (!GadgetWorld.SegmentCylinderHit(Location, LaserEndLocation, spy.Location, spy.CollisionRadius, spy.CollisionHeight,
+            if (!GadgetWorld.SegmentCylinderHit(Location, LaserEndLocation, target.Location, target.CollisionRadius, target.CollisionHeight,
                 out FVector hit))
             {
                 continue;
             }
 
-            Poison(spy, hit);
+            Poison(target, hit);
             return;
         }
     }
 
-    /// <summary>The poisoning of <paramref name="Spy"/> hit at <paramref name="Hit"/> (CheckPresence's end).</summary>
-    private void Poison(SPawnAttaque Spy, FVector Hit)
+    /// <summary>The poisoning of <paramref name="target"/> hit at <paramref name="Hit"/> (CheckPresence's end).</summary>
+    private void Poison(SBasePawn target, FVector Hit)
     {
-        PlaySound(GasSnd, ESoundSlot.SLOT_None, 1f, false, K.PoisonSoundRadius);
-        PlaySound(ProjectileSnd, ESoundSlot.SLOT_None, 1f, false, K.PoisonSoundRadius);
+        PlaySound(GasSnd, ESoundSlot.SLOT_None, 1f, false, K.PoisonSoundRadius, MineSoundPitch);
+        PlaySound(ProjectileSnd, ESoundSlot.SLOT_None, 1f, false, K.PoisonSoundRadius, MineSoundPitch);
         if (PcOwner is null && (Owner as Pawn)?.Controller is SPlayerController owner)
         {
             PcOwner = owner;
         }
 
-        Pawn? by = PcOwner?.Pawn;
+        Pawn? by = IsHacked ? HackInstigator : PcOwner?.Pawn;
         using var activity = CombatDeathContext.Push(ActivityDeathSource);
-        (Spy.Controller as SPlayerController)?.PawnTakeDamage(0, by, Hit, (Hit - Location) * K.PoisonMomentumScale, MyDamageType, 0, 0);
-        Spy.PoisonnedBy = by as SBasePawn;
+        (target.Controller as SPlayerController)?.PawnTakeDamage(0, by, Hit, (Hit - Location) * K.PoisonMomentumScale, MyDamageType, 0, 0);
+        target.PoisonnedBy = by as SBasePawn;
         XLevel.SpawnActor(new SPoisonEmitter(), Location, Rotation, null, Instigator);
         Destroy();
     }

@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Globalization;
+using OpenScct.Game.SBase;
 using OpenScctGame.Controls;
 
 namespace OpenScctGame.UI;
@@ -16,6 +18,7 @@ public sealed record ControlAction(string Id, string Category, string Label, str
 public static class ControlActions
 {
     public const string PingId = "ping";
+    public const string MineHackId = "gadget_minehack";
     public const string PingCommand = "TeamPing";
     public const string AutoHackId = "autohack";
     public const string AutoHackCommand = DefaultKeyLayout.AutoHackCommand;
@@ -59,6 +62,23 @@ public static class ControlActions
         A("slot2", "Gadgets", "Select gadget slot 2", "Select the gadget in slot 2.", "SelectGadget 1", "SelectGadget 1"),
         A("slot3", "Gadgets", "Select gadget slot 3", "Select the gadget in slot 3.", "SelectGadget 2", "SelectGadget 2"),
         A("slot4", "Gadgets", "Select gadget slot 4", "Select the gadget in slot 4.", "SelectGadget 3", "SelectGadget 3"),
+        G("smoke", "Smoke Grenade", SGadget.aSGadSmokeGrenade),
+        G("chaff", "Chaff Grenade", SGadget.aSGadChaffeGrenade),
+        G("flashbang", "Flashbang", SGadget.aSGadFlashBang),
+        G("stickycam", "Sticky Camera", SGadget.aSGadStickyCam, description: "Fire an equipped sticky camera with the Shocker drawn."),
+        G("spybullet", "Spy Bullet", SGadget.aSGadSpyBulletLauncher),
+        G("alarmsnare", "Alarm Snare", SGadget.aSGadNoiseEmitter),
+        G("heartbeat", "Heartbeat Sensor", SGadget.BindHeartbeatSensor, description: "Select the equipped sensor. It scans with the Shocker drawn."),
+        G("clone", "Clone", SGadget.BindClone, description: "Send your equipped Clone running forward while grounded."),
+        G("minehack", "Mine Hack", SGadget.BindMineHack, description: "Aim at a nearby mine and hold to hack it with Mine Hack equipped."),
+        G("frag", "Frag Grenade", SGadget.aSGadFragGrenade, merc: true),
+        G("flare", "Flare", SGadget.aSGadFlareLauncher, merc: true),
+        G("mines", "Mines", SGadget.aSGadMultiMinesLauncher, merc: true),
+        G("presencedetector", "Presence Detector", SGadget.aSGadMultiPresDetectorLauncher, merc: true),
+        G("taser", "Taser", SGadget.aSGadTazerLauncher, merc: true),
+        G("cameranetwork", "Camera Network", SGadget.aSGadCamNetwork, merc: true),
+        G("gasmask", "Gas Mask", SGadget.aSGadGasMask, merc: true),
+        G("backpack", "Backpack", SGadget.aSGadBackPack, merc: true),
         A("next", "Gadgets", "Next gadget", "Select the next gadget.", "NextGadget", "NextGadget", "BT_NextItem"),
         A("previous", "Gadgets", "Previous gadget", "Select the previous gadget.", "PreviousGadget", "PreviousGadget", "BT_PrevItem"),
         A("laser", "Gadgets", "Toggle laser gadget", "Switch to the laser sight and toggle it. The laser sight and flashlight cannot be active together.", "GadLaserSwitch", "GadLaserSwitch") with { Spy = false },
@@ -81,7 +101,7 @@ public static class ControlActions
         A(AutoHackId, "Communication", "Toggle auto-hack", "Switch auto-hack on or off. While it is on, enemy communications are hacked whenever they can be, without holding the hack key. Double tap the hack key by default.", AutoHackCommand, AutoHackCommand),
         A("chat", "Communication", "Chat", "Open public text chat.", "Talk", "Talk"),
         A("teamchat", "Communication", "Team chat", "Open team text chat.", "TeamTalk", "TeamTalk"),
-        A("quickchat", "Communication", "Quick chat", "Open team quick chat, choose a category, then a phrase with 1–4 or the D-pad. Escape / B goes back. Starts unbound.", "QuickChat", "QuickChat"),
+        A("quickchat", "Communication", "Quick chat", "Open team quick chat, choose a category, then a phrase with 1-4 or the D-pad. Escape / B goes back. Starts unbound.", "QuickChat", "QuickChat"),
         A(PingId, "Communication", "Team ping", "Tap to mark the point you are looking at for your team. Hold to open the wheel, select with the mouse or right stick, and release to send.", PingCommand, PingCommand),
         A("voice", "Communication", "Push to talk", "Hold to transmit on the all channel; also forces transmission in voice activation mode.", "PushToTalk", "PushToTalk"),
         A("teamvoice", "Communication", "Team push to talk", "Hold to transmit to your team only.", "TeamPushToTalk", "TeamPushToTalk"),
@@ -117,6 +137,13 @@ public static class ControlActions
     private static ControlAction A(string id, string category, string label, string description, string command, params string[] tokens) =>
         new(id, category, label, description, command, tokens);
 
+    private static ControlAction G(string id, string label, int gadget, bool merc = false, string? description = null)
+    {
+        string command = "UseGadget " + gadget.ToString(CultureInfo.InvariantCulture);
+        return new ControlAction("gadget_" + id, "Gadgets", label,
+            description ?? ("Select and use the equipped " + label + "."), command, [command], Spy: !merc, Merc: merc);
+    }
+
     public static IEnumerable<ControlAction> ForRole(bool merc, string wheelMode = "Gadget") => All.Where(a => a.Available && (merc ? a.Merc : a.Spy)).Select(a => a.Id switch
     {
         "wheelup" => a with { Label = wheelMode == "Gadget" ? "Next gadget (wheel up)" : "Run (wheel up)", Description = (wheelMode == "Gadget" ? "Select the next gadget." : "Set movement speed to run.") + " In zoom views, the current view can use this input to zoom in instead." },
@@ -138,7 +165,7 @@ public static class ControlActions
         if (start >= words.Length) return raw;
         string name = words[start];
         return name.Equals("SelectGadget", StringComparison.OrdinalIgnoreCase) || name.Equals("GadgetQuickChoice", StringComparison.OrdinalIgnoreCase) || name.Equals("LaunchGadget", StringComparison.OrdinalIgnoreCase) ||
-            name.Equals("SwitchHeadset", StringComparison.OrdinalIgnoreCase) || name.Equals("SetSpyFirstPerson", StringComparison.OrdinalIgnoreCase) ? name + " " + (words.Length > start + 1 ? words[start + 1] : "0") : name;
+            name.Equals("UseGadget", StringComparison.OrdinalIgnoreCase) || name.Equals("SwitchHeadset", StringComparison.OrdinalIgnoreCase) || name.Equals("SetSpyFirstPerson", StringComparison.OrdinalIgnoreCase) ? name + " " + (words.Length > start + 1 ? words[start + 1] : "0") : name;
     }
 }
 

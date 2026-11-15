@@ -1,0 +1,112 @@
+{
+  "library": "Free Firearm Sound Library",
+  "source": "https://github.com/buddingmonkey/FreeFirearmsSFXLibrary",
+  "revision": "beb2f4041f3d6740fa0aeaf0e71159bd65a78c1b",
+  "license": "CC0-1.0",
+  "files": [
+    {
+      "file": "A_42P.wav",
+      "repositoryPath": "Prepared SFX/1911/A_42P.wav",
+      "url": "https://raw.githubusercontent.com/buddingmonkey/FreeFirearmsSFXLibrary/beb2f4041f3d6740fa0aeaf0e71159bd65a78c1b/Prepared%20SFX/1911/A_42P.wav",
+      "bytes": 5489450,
+      "sha256": "8e84438e771c157155a6a1ff47a6a7a7d81b6f39b185d41e426c57337a82254a",
+      "description": "1911, handgun, pistol, semi automatic, .45, gunshot, near distance, front of shooter, left, right, stereo"
+    },
+    {
+      "file": "X_39P.wav",
+      "repositoryPath": "Prepared SFX/Walther PPQ/X_39P.wav",
+      "url": "https://raw.githubusercontent.com/buddingmonkey/FreeFirearmsSFXLibrary/beb2f4041f3d6740fa0aeaf0e71159bd65a78c1b/Prepared%20SFX/Walther%20PPQ/X_39P.wav",
+      "bytes": 9069762,
+      "sha256": "d679a3cd87eae2898d984159f83544392932e6b77526045b672e3aaa9c2dda9f",
+      "description": "Walther PPQ, handgun, pistol, semi automatic, striker, 9mm, gunshot, near distance, front of shooter, left, right, stereo"
+    },
+    {
+      "file": "J_1.wav",
+      "repositoryPath": "Master Tracks/Marvel Suppressed .22 Handgun/J_1.wav",
+      "url": "https://raw.githubusercontent.com/buddingmonkey/FreeFirearmsSFXLibrary/beb2f4041f3d6740fa0aeaf0e71159bd65a78c1b/Master%20Tracks/Marvel%20Suppressed%20.22%20Handgun/J_1.wav",
+      "bytes": 25501830,
+      "sha256": "a7502054368650b1ce72e66eb79a95935e54c55586e0bc045a325abe4a3d4cd5",
+      "description": "supressed, silenced, handgun, pistol, semi automatic, .22, gunshot, behind shooter, stereo"
+    },
+    {
+      "file": "A_4.wav",
+      "repositoryPath": "Master Tracks/1911/A_4.wav",
+      "url": "https://raw.githubusercontent.com/buddingmonkey/FreeFirearmsSFXLibrary/beb2f4041f3d6740fa0aeaf0e71159bd65a78c1b/Master%20Tracks/1911/A_4.wav",
+      "bytes": 4829646,
+      "sha256": "ca37fc9d4d3287f04c54d78494e91b6152a7f699905a8ad258c6041f6d86e805",
+      "description": "1911, handgun, pistol, semi automatic, .45, insert loaded mag"
+    },
+    {
+      "file": "A_5.wav",
+      "repositoryPath": "Master Tracks/1911/A_5.wav",
+      "url": "https://raw.githubusercontent.com/buddingmonkey/FreeFirearmsSFXLibrary/beb2f4041f3d6740fa0aeaf0e71159bd65a78c1b/Master%20Tracks/1911/A_5.wav",
+      "bytes": 1127250,
+      "sha256": "fedb6a77f9a8498e3fe2700520d19e63c6d370a4a413469d93584937d140586e",
+      "description": "1911, handgun, pistol, semi automatic, .45, detach loaded mag"
+    },
+    {
+      "file": "A_9.wav",
+      "repositoryPath": "Master Tracks/1911/A_9.wav",
+      "url": "https://raw.githubusercontent.com/buddingmonkey/FreeFirearmsSFXLibrary/beb2f4041f3d6740fa0aeaf0e71159bd65a78c1b/Master%20Tracks/1911/A_9.wav",
+      "bytes": 1723498,
+      "sha256": "a858093234c8b105ec6504d1ed3c286a14a91fcf0ab285ac1967a504ff22ad14",
+      "description": "1911, handgun, pistol, semi automatic, .45, release slide"
+    },
+    {
+      "file": "X_3.wav",
+      "repositoryPath": "Master Tracks/Walther PPQ/X_3.wav",
+      "url": "https://raw.githubusercontent.com/buddingmonkey/FreeFirearmsSFXLibrary/beb2f4041f3d6740fa0aeaf0e71159bd65a78c1b/Master%20Tracks/Walther%20PPQ/X_3.wav",
+      "bytes": 2854926,
+      "sha256": "2717b865144964fce84b165f33c91784e872d768932d64215d1908e32dd5faed",
+      "description": "Walther PPQ, handgun, pistol, semi automatic, striker, 9mm,  Detach mag"
+    },
+    {
+      "file": "X_4.wav",
+      "repositoryPath": "Master Tracks/Walther PPQ/X_4.wav",
+      "url": "https://raw.githubusercontent.com/buddingmonkey/FreeFirearmsSFXLibrary/beb2f4041f3d6740fa0aeaf0e71159bd65a78c1b/Master%20Tracks/Walther%20PPQ/X_4.wav",
+      "bytes": 5705766,
+      "sha256": "dff1bc49877c11c4168498221aeb280366c963d56704aac43a5565e8022ab4c2",
+      "description": "Walther PPQ, handgun, pistol, semi automatic, striker, 9mm,  Insert loaded mag"
+    },
+    {
+      "file": "X_9.wav",
+      "repositoryPath": "Master Tracks/Walther PPQ/X_9.wav",
+      "url": "https://raw.githubusercontent.com/buddingmonkey/FreeFirearmsSFXLibrary/beb2f4041f3d6740fa0aeaf0e71159bd65a78c1b/Master%20Tracks/Walther%20PPQ/X_9.wav",
+      "bytes": 5410846,
+      "sha256": "9cd0acb2a93bb0630687d2fd4c93af7f2a435c68928af09208c094f9581ddfae",
+      "description": "Walther PPQ, handgun, pistol, semi automatic, striker, 9mm,  Release slide"
+    },
+    {
+      "file": "V_0.wav",
+      "repositoryPath": "Master Tracks/Smith & Wesson 642/V_0.wav",
+      "url": "https://raw.githubusercontent.com/buddingmonkey/FreeFirearmsSFXLibrary/beb2f4041f3d6740fa0aeaf0e71159bd65a78c1b/Master%20Tracks/Smith%20%26%20Wesson%20642/V_0.wav",
+      "bytes": 4320734,
+      "sha256": "7ad848ee77bf435c86117685852bd9abd5d09ed2bf3cf785c7aeb49f9b54ee4c",
+      "description": "Smith & Wesson 642, handgun, pistol, revolver, double action, .38 Special,  Open cylinder"
+    },
+    {
+      "file": "V_1.wav",
+      "repositoryPath": "Master Tracks/Smith & Wesson 642/V_1.wav",
+      "url": "https://raw.githubusercontent.com/buddingmonkey/FreeFirearmsSFXLibrary/beb2f4041f3d6740fa0aeaf0e71159bd65a78c1b/Master%20Tracks/Smith%20%26%20Wesson%20642/V_1.wav",
+      "bytes": 4247362,
+      "sha256": "3c167e0d8e4e948db85726f35e28296bc916f84d792e59e356a6798476a444d2",
+      "description": "Smith & Wesson 642, handgun, pistol, revolver, double action, .38 Special,  close cylinder"
+    },
+    {
+      "file": "V_2.wav",
+      "repositoryPath": "Master Tracks/Smith & Wesson 642/V_2.wav",
+      "url": "https://raw.githubusercontent.com/buddingmonkey/FreeFirearmsSFXLibrary/beb2f4041f3d6740fa0aeaf0e71159bd65a78c1b/Master%20Tracks/Smith%20%26%20Wesson%20642/V_2.wav",
+      "bytes": 17489350,
+      "sha256": "a2fa4e7d8822bb4b159f03efa026c63d30e4205b739d8f9a41cbabfa1edcb557",
+      "description": "Smith & Wesson 642, handgun, pistol, revolver, double action, .38 Special,  insert shells"
+    },
+    {
+      "file": "V_3.wav",
+      "repositoryPath": "Master Tracks/Smith & Wesson 642/V_3.wav",
+      "url": "https://raw.githubusercontent.com/buddingmonkey/FreeFirearmsSFXLibrary/beb2f4041f3d6740fa0aeaf0e71159bd65a78c1b/Master%20Tracks/Smith%20%26%20Wesson%20642/V_3.wav",
+      "bytes": 4016662,
+      "sha256": "932abf13f3169b17bd5f4ba79f8b178bb0a2f7d06dda3f3aafc21ad269da5b34",
+      "description": "Smith & Wesson 642, handgun, pistol, revolver, double action, .38 Special,  extract shells"
+    }
+  ]
+}

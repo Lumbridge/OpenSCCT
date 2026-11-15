@@ -1,0 +1,18 @@
+{
+  "m4a1s": {
+    "triangles": 10250,
+    "muzzle": 0.732
+  },
+  "ak47": {
+    "triangles": 2480,
+    "muzzle": 0.6179901334762573
+  },
+  "galil": {
+    "triangles": 43146,
+    "muzzle": 0.6573217985337568
+  },
+  "famas": {
+    "triangles": 24010,
+    "muzzle": 0.3655923870086669
+  }
+}

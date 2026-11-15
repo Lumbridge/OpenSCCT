@@ -108,7 +108,7 @@ public partial class SBasePawn
             NotifyFootstepNoise(1f);
             PlayOwnedSound(FootRunSound, ESoundSlot.SLOT_Interact, FootStepsVolume * speed / RunningSpeed, false, stepRadius,
                 null, true, bone);
-            bool spy = this is SPawnAttaque;
+            bool spy = this is SPawnAttaque or Svm.SpyClone;
             PlayOwnedSound(spy ? SpyGearRunSound : MercGearRunSound, ESoundSlot.SLOT_Misc, FootStepsVolume * 1f, false,
                 FootGearRadius, null, true, GearBone);
             if (iLastWalkTime + FootBreathDelay <= now)
@@ -121,7 +121,7 @@ public partial class SBasePawn
 
     private void NotifyFootstepNoise(float loudness)
     {
-        if (this is not SPawnAttaque || XLevel.World.IsReplaying) return;
+        if (this is not (SPawnAttaque or Svm.SpyClone) || XLevel.World.IsReplaying) return;
         if (Level.NetMode != ENetMode.NM_Client)
         {
             // Proxies do not run sound notifies. The authoritative step therefore supplies the

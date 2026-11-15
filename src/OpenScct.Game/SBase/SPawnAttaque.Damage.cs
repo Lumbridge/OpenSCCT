@@ -10,6 +10,8 @@ namespace OpenScct.Game.SBase;
 // The energy rules themselves are in Equipment/SpyEnergy.cs.
 public partial class SPawnAttaque
 {
+    internal int MineHacksUsed;
+
     /// <summary>
     /// A spy starts with an empty refill pool and a full energy bar (SBasePawn.PostBeginPlay, health rule 1, energy
     /// rule 1). The goggle glow is spawned first (goggle-glow.md rule 1).

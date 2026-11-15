@@ -149,7 +149,7 @@ public sealed class HudEffects
         switch (what)
         {
             case "ClientDamageHudEffect":
-                ClientDamageHudEffect(pc, e.Slot, now);
+                ClientDamageHudEffect(pc, e.Slot, now, e.Location.X != 0f);
                 break;
             case "SetBallisticValue":
                 Ballistic = e.Location.X;
@@ -225,7 +225,7 @@ public sealed class HudEffects
     /// <summary>The HUD part of SPlayerController.ClientDamageHudEffect (spec/hud/screen-effects.md rule 7).</summary>
     [UcNative("ASPlayerController::execClientDamageHudEffect", Exe = 0x10ab0ae0)]
     [PortOf("nat:SBase.SPlayerController.ClientDamageHudEffect", Spec = "spec/hud/screen-effects.md#rules")]
-    public void ClientDamageHudEffect(SPlayerController pc, int damageType, float now)
+    public void ClientDamageHudEffect(SPlayerController pc, int damageType, float now, bool cloneFlash = false)
     {
         ArgumentNullException.ThrowIfNull(pc);
         bool merc = pc.SPawnType == PawnType.SPAWNDEFENSE;
@@ -233,7 +233,7 @@ public sealed class HudEffects
         {
             case DamageFlash:
                 // 0x10ab0990: the goggle's CurrentMode, not RendMap (they differ while the goggle clip plays).
-                if ((pc.Goggle?.CurrentMode ?? pc.RendMap) is 36 or 37 or 38)
+                if (!cloneFlash && (pc.Goggle?.CurrentMode ?? pc.RendMap) is 36 or 37 or 38)
                 {
                     return;
                 }

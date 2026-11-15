@@ -1,0 +1,43 @@
+OpenSCCT sidearm audio refresh
+=============================
+
+Free Firearm Sound Library by Ben Jaszczak, Brian Nelson, Kevin Heras and
+Matthew Nanney, CC0-1.0.
+https://github.com/buddingmonkey/FreeFirearmsSFXLibrary
+https://creativecommons.org/publicdomain/zero/1.0/
+Pinned revision: beb2f4041f3d6740fa0aeaf0e71159bd65a78c1b
+
+Standard pistol: near 1911 .45 ACP reports (A_42P).
+Automatic pistol: near Walther PPQ 9 mm reports (X_39P).
+Suppressed pistol: Marvel suppressed .22 reports from behind the shooter (J_1),
+with a restrained low-frequency .45 reference layer. This is an adapted USP
+sound design, not a recording of a suppressed USP.
+Magazine/slide handling: 1911 (A_4, A_5, A_9) and Walther PPQ (X_3, X_4, X_9).
+Revolver handling: Smith & Wesson 642 (V_0, V_1, V_2, V_3), adapted to the
+existing six-round loader animation. These mechanisms are reference layers.
+Original file URLs, byte counts and SHA-256 hashes: sources/sources.json.
+
+.44 Magnum report: 44 Magnum.wav by dcsimon, with the existing
+IDontLikeFruit / LUDATOR Interactive field-recording edit.
+https://freesound.org/people/dcsimon/sounds/139979/
+https://idontlikefruit.com/audio/v1/shot-pome-53bd87e23d0c.wav
+https://idontlikefruit.com/audio/CREDITS.html
+CC-BY-3.0, https://creativecommons.org/licenses/by/3.0/
+Source retained in content/assets/sidearms/sources/audio/magnum44_field.wav.
+
+Desert Eagle report: Desert Eagle .50 by AugustSandberg.
+https://freesound.org/people/AugustSandberg/sounds/231243/
+CC0-1.0, https://creativecommons.org/publicdomain/zero/1.0/
+Source retained in content/assets/sidearms/sources/audio/desert_eagle.mp3.
+
+OpenSCCT edits: choose a clean microphone channel, isolate direct attacks,
+remove DC/subsonic rumble, adjust spectral balance, shorten environmental tails,
+add quiet recorded action layers, normalize linear peak gain, and author three
+variations per sidearm. Variations use independent recorded shots where present;
+single-take heavy reports also use pitch changes below one percent.
+No rifle-shot layer, synthetic explosion, compressor or limiter is used.
+Reload cues retain the existing animation and gameplay durations.
+
+Rebuild: python content/assets/sidearm_audio/author.py (numpy, ffmpeg/ffprobe).
+The audio content step installs this bank after the older weapon overlay,
+so OpenScctSidearms.* resolves to the refreshed reports and reloads.

@@ -665,8 +665,14 @@ public partial class SPlayerController
     [PortOf("uc:SBase.SPlayerController:s_PlayerWalkingMario.GadgetQuickChoice", Spec = "spec/equipment/grenade-throw.md#rules")]
     public void MarioGadgetQuickChoice(int i)
     {
-        if (SBPawn is not SPawnAttaque spy || i >= PawnInventory.TeamSlots(spy))
+        if (SBPawn is not SPawnAttaque spy || i < 0 || i >= PawnInventory.TeamSlots(spy))
         {
+            return;
+        }
+
+        if (PawnInventory.GadgetInSlot(spy, i) is Svm.CloneGadget clone)
+        {
+            UseGadgetFromSlot(spy, clone, i);
             return;
         }
 
@@ -709,6 +715,43 @@ public partial class SPlayerController
             PawnVision.SetDesiredGlassValue(spy, 0, K.DrawUncloakTime);
             grenade.QuickUse();
         }
+    }
+
+    /// <summary>Use a named gadget from the current kit, independent of its position in the loadout.</summary>
+    public void UseGadgetBinding(int id)
+    {
+        if (id <= SGadget.aNoGadget || SBPawn is not { Health: > 0 } pawn) return;
+
+        int slots = PawnInventory.TeamSlots(pawn);
+        int slot = 0;
+        for (SGadget? gadget = pawn.MyGadget; gadget is not null && slot < slots; gadget = gadget.MyGadget)
+        {
+            if (!PawnInventory.IsSelectable(gadget)) continue;
+            if (SGadget.BindingId(gadget) == id)
+            {
+                UseGadgetFromSlot(pawn, gadget, slot);
+                return;
+            }
+            slot++;
+        }
+    }
+
+    private void UseGadgetFromSlot(SBasePawn pawn, SGadget gadget, int slot)
+    {
+        if (pawn.Health <= 0 || pawn.bDeleteMe || pawn.UsedObject is not null || bIsInInventoryMode ||
+            iDontUpdatePadInput != 0 || PawnInventory.SelectionRefused(pawn, true) ||
+            (bUsingNow && !ReferenceEquals(pawn.SelectedGadget, gadget))) return;
+
+        if (pawn is SPawnAttaque { WeaponLoaded: 0 } && gadget is SGadGrenLauncher { CanQuickLaunch: true })
+        {
+            eventGadgetQuickChoice(slot);
+            return;
+        }
+
+        if (!ReferenceEquals(pawn.SelectedGadget, gadget)) SelectGadget(slot);
+        if (!ReferenceEquals(pawn.SelectedGadget, gadget)) return;
+        if (gadget.BindingHoldsAltFire) bAltFire = 1;
+        eventAltFire(0f);
     }
 
     /// <summary>

@@ -285,6 +285,11 @@ public sealed partial class EffectViews : Node3D
                 case "decal" when a is SFlaque && !_placedPuddles.Contains(a) && a.DrawType == (EDrawType)DT_StaticMesh:
                     // A sprinkler's puddle (the map's own placed puddles are drawn with the map).
                     t.Mesh = MeshFor(a, lib);
+                    if (a is SMinePoison && t.Mesh is { } casing && _poisonMineLed is { } led)
+                    {
+                        t.PoisonMineLed = MountPoisonMineLed(casing, led);
+                        t.PoisonMineLed.Hide();
+                    }
                     t.Trail = TrailFor(a, seed);
                     break;
                 case "light":
@@ -588,6 +593,11 @@ public sealed partial class EffectViews : Node3D
                 }
 
                 ApplySkins(t, a, mesh);
+                if (t.PoisonMineLed is { } led)
+                {
+                    led.Visible = a is SMinePoison { IsHacked: true };
+                    if (led.Visible && mesh.Visible) SkinMaterial(_proximityMineLightPath, a.Level.TimeSeconds);
+                }
             }
 
             if (t.Light is { } light)
@@ -829,24 +839,138 @@ public sealed partial class EffectViews : Node3D
     [Provenance(ProvenanceKind.Estimated, "Additive and translucent run-time skins are drawn unlit; drawn as their diffuse texture, including exported animation frames")]
     private void ApplySkins(Tracked t, Actor a, MeshInstance3D mesh)
     {
-        int slots = Math.Min(a.Skins.Count, mesh.GetSurfaceOverrideMaterialCount());
+        int slots = mesh.GetSurfaceOverrideMaterialCount();
+        if (a is not SMines) slots = Math.Min(a.Skins.Count, slots);
         if (t.Skins.Length != slots)
         {
-            t.Skins = new string?[slots];
+            t.Skins = new Material?[slots];
         }
 
+        int amberSlot = a is SMines { IsHacked: true } ? MineLightSlot(a) : -1;
         for (int i = 0; i < slots; i++)
         {
-            string? path = a.Skins[i].IsNone ? null : a.Skins[i].Path;
-            Material? material = SkinMaterial(path, a.Level.TimeSeconds);
-            if (string.Equals(path, t.Skins[i], StringComparison.OrdinalIgnoreCase))
+            AssetRef skin = i < a.Skins.Count ? a.Skins[i] : default;
+            Material? material = SkinMaterial(skin.Path, a.Level.TimeSeconds);
+            if (i == amberSlot && (a is not SMineProx prox || skin == prox.LightOn) &&
+                (material ?? mesh.Mesh.SurfaceGetMaterial(i)) is ShaderMaterial light &&
+                _amberMineLights.TryGetValue(light, out ShaderMaterial? amber))
+            {
+                material = amber;
+            }
+
+            if (material == t.Skins[i])
             {
                 continue;
             }
 
-            t.Skins[i] = path;
+            t.Skins[i] = material;
             mesh.SetSurfaceOverrideMaterial(i, material);
         }
+    }
+
+    private static int MineLightSlot(Actor mine) => mine switch
+    {
+        SMineProx or SMineLaser => 1,
+        SMinePoison => 0,
+        _ => -1,
+    };
+
+    private readonly Dictionary<ShaderMaterial, ShaderMaterial> _amberMineLights = [];
+    private string? _proximityMineLightPath;
+    private QuadMesh? _poisonMineLed;
+
+    /// <summary>Build the hacked LED variants and draw them in the loading viewport before any mine can be hacked.</summary>
+    internal void PreloadMineLights(Node3D samples)
+    {
+        if (DisplayServer.GetName() == "headless" || Library is not { Available: true } lib) return;
+
+        float x = -0.45f;
+        foreach (SMines mine in new SMines[] { new SMineProx(), new SMineLaser(), new SMinePoison() })
+        {
+            int slot = MineLightSlot(mine);
+            if (lib.Mesh(mine.StaticMesh.Path, lit: !mine.bUnlit) is not { } mesh || slot >= mesh.GetSurfaceCount())
+                continue;
+            bool poison = mine is SMinePoison;
+            if (poison && _poisonMineLed is null) continue;
+
+            Material? material = mine is SMineProx prox ? SkinMaterial(prox.LightOn.Path, 0f) : mesh.SurfaceGetMaterial(slot);
+            if (material is not ShaderMaterial stock) continue;
+
+            if (!_amberMineLights.TryGetValue(stock, out ShaderMaterial? amber))
+            {
+                amber = MakeAmberMineLight(stock, poison);
+                if (amber is null) continue;
+                _amberMineLights.Add(stock, amber);
+            }
+
+            if (mine is SMineProx proxy)
+            {
+                _proximityMineLightPath = proxy.LightOn.Path;
+                _poisonMineLed ??= new QuadMesh { Size = Vector2.One * 0.046f, Material = amber };
+            }
+
+            var sample = new MeshInstance3D
+            {
+                Mesh = mesh,
+                Position = new Vector3(x, 0f, 0f),
+                Rotation = new Vector3(0f, -MathF.PI / 2f, 0f),
+                Scale = Vector3.One * 2f,
+                CastShadow = GeometryInstance3D.ShadowCastingSetting.Off,
+            };
+            sample.SetSurfaceOverrideMaterial(slot, amber);
+            samples.AddChild(sample);
+            if (poison && _poisonMineLed is { } led) MountPoisonMineLed(sample, led);
+            x += 0.45f;
+        }
+    }
+
+    private static MeshInstance3D MountPoisonMineLed(MeshInstance3D casing, QuadMesh mesh)
+    {
+        // Just above the poison mine's original right-hand LED, facing out from the casing.
+        var led = new MeshInstance3D
+        {
+            Mesh = mesh,
+            Position = UeSpace.ToGodot(new FVector(2.8f, -2.41f, 2.65f)),
+            Rotation = new Vector3(0f, MathF.PI / 2f, 0f),
+            CastShadow = GeometryInstance3D.ShadowCastingSetting.Off,
+        };
+        casing.AddChild(led);
+        return led;
+    }
+
+    private static ShaderMaterial? MakeAmberMineLight(ShaderMaterial stock, bool poison)
+    {
+        string textureParam = stock is EffectMaterial ? "effect_texture" : "tex_diffuse";
+        if (stock.GetShaderParameter(textureParam).AsGodotObject() is not Texture2D texture) return null;
+
+        using Image image = texture.GetImage();
+        if (image is null || image.IsEmpty()) return null;
+        int width = image.GetWidth();
+        int height = image.GetHeight();
+        // On poison mines the old LED is painted into the casing. Darken that spot so the new light has a clean off frame.
+        int left = poison ? width * 75 / 128 : 0;
+        int right = poison ? width * 81 / 128 : width;
+        int top = poison ? height * 43 / 128 : 0;
+        int bottom = poison ? height * 49 / 128 : height;
+        for (int y = top; y < bottom; y++)
+        {
+            for (int x = left; x < right; x++)
+            {
+                Color texel = image.GetPixel(x, y);
+                float red = texel.R - texel.G;
+                if (red <= 0.05f) continue;
+                Color replacement = poison
+                    ? new Color(texel.G, texel.G, texel.G, texel.A)
+                    : new Color(texel.R - 0.03f * red, texel.G + 0.63f * red,
+                        MathF.Max(0f, texel.B - 0.45f * red), texel.A);
+                image.SetPixel(x, y, replacement);
+            }
+        }
+
+        if (image.HasMipmaps()) image.GenerateMipmaps();
+        var amber = (ShaderMaterial)stock.Duplicate();
+        amber.SetShaderParameter(textureParam, ImageTexture.CreateFromImage(image));
+        return amber;
     }
 
     private readonly Dictionary<string, Material?> _skinMaterials = new(StringComparer.OrdinalIgnoreCase);
@@ -878,8 +1002,14 @@ public sealed partial class EffectViews : Node3D
         {
             int frame = (int)(MathF.Max(time, 0f) * animation.Fps) % animation.Frames;
             animated.Uv1Scale = new Vector3(1f / animation.Columns, 1f / animation.Rows, 1f);
-            animated.Uv1Offset = new Vector3((float)(frame % animation.Columns) / animation.Columns,
+            Vector3 offset = new((float)(frame % animation.Columns) / animation.Columns,
                 (float)(frame / animation.Columns) / animation.Rows, 0f);
+            if (offset != animated.Uv1Offset)
+            {
+                animated.Uv1Offset = offset;
+                if (_amberMineLights.TryGetValue(animated, out ShaderMaterial? amber))
+                    amber.SetShaderParameter("effect_uv_offset", offset);
+            }
         }
         return material;
     }
@@ -1062,12 +1192,14 @@ public sealed partial class EffectViews : Node3D
 
         public MeshInstance3D? Mesh { get; set; }
 
+        public MeshInstance3D? PoisonMineLed { get; set; }
+
         public OmniLight3D? Light { get; set; }
 
         public Loose? Trail { get; set; }
 
-        /// <summary>The skin path last put on each surface of <see cref="Mesh"/> (null: the mesh's own material).</summary>
-        public string?[] Skins { get; set; } = [];
+        /// <summary>The override last put on each surface of <see cref="Mesh"/> (null: the mesh's own material).</summary>
+        public Material?[] Skins { get; set; } = [];
 
         /// <summary>The vision values last written to <see cref="Mesh"/> (NaN: none yet).</summary>
         public Vector4 Vision { get; set; } = new(float.NaN, 0f, 0f, 0f);

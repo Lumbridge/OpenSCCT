@@ -1,0 +1,186 @@
+{
+  "format": "openscct.sidearm-audio/1",
+  "channels": {
+    "A_4": 0,
+    "A_42P": 0,
+    "A_5": 0,
+    "A_9": 0,
+    "J_1": 1,
+    "V_0": 0,
+    "V_1": 0,
+    "V_2": 0,
+    "V_3": 0,
+    "X_3": 0,
+    "X_39P": 0,
+    "X_4": 0,
+    "X_9": 0,
+    "magnum44_field": 0,
+    "desert_eagle": 1
+  },
+  "profiles": {
+    "suppressed": {
+      "shots": [
+        "suppressed_fire_1.wav",
+        "suppressed_fire_2.wav",
+        "suppressed_fire_3.wav"
+      ],
+      "source": "J_1",
+      "source_attack_seconds": [
+        0.510454,
+        2.972608,
+        5.396508
+      ],
+      "peak": 0.5,
+      "reload": {
+        "file": "suppressed_reload.wav",
+        "seconds": 2.0,
+        "events": [
+          {
+            "seconds": 0.28,
+            "action": "release45"
+          },
+          {
+            "seconds": 1.12,
+            "action": "seat45"
+          },
+          {
+            "seconds": 1.32,
+            "action": "slide45"
+          }
+        ]
+      }
+    },
+    "unsuppressed": {
+      "shots": [
+        "unsuppressed_fire_1.wav",
+        "unsuppressed_fire_2.wav",
+        "unsuppressed_fire_3.wav"
+      ],
+      "source": "A_42P",
+      "source_attack_seconds": [
+        0.939456,
+        4.999546,
+        0.939456
+      ],
+      "peak": 0.86,
+      "reload": {
+        "file": "unsuppressed_reload.wav",
+        "seconds": 2.0,
+        "events": [
+          {
+            "seconds": 0.28,
+            "action": "release45"
+          },
+          {
+            "seconds": 1.12,
+            "action": "seat45"
+          },
+          {
+            "seconds": 1.32,
+            "action": "slide45"
+          }
+        ]
+      }
+    },
+    "automatic": {
+      "shots": [
+        "automatic_fire_1.wav",
+        "automatic_fire_2.wav",
+        "automatic_fire_3.wav"
+      ],
+      "source": "X_39P",
+      "source_attack_seconds": [
+        1.405918,
+        6.443424,
+        10.659229
+      ],
+      "peak": 0.82,
+      "reload": {
+        "file": "automatic_reload.wav",
+        "seconds": 2.3,
+        "events": [
+          {
+            "seconds": 0.322,
+            "action": "release9"
+          },
+          {
+            "seconds": 1.288,
+            "action": "seat9"
+          },
+          {
+            "seconds": 1.518,
+            "action": "slide9"
+          }
+        ]
+      }
+    },
+    "magnum44": {
+      "shots": [
+        "magnum44_fire_1.wav",
+        "magnum44_fire_2.wav",
+        "magnum44_fire_3.wav"
+      ],
+      "source": "magnum44_field",
+      "source_attack_seconds": [
+        0.009887,
+        0.009887,
+        0.009887
+      ],
+      "peak": 0.92,
+      "reload": {
+        "file": "magnum44_reload.wav",
+        "seconds": 2.8,
+        "events": [
+          {
+            "seconds": 0.336,
+            "action": "open"
+          },
+          {
+            "seconds": 0.784,
+            "action": "eject"
+          },
+          {
+            "seconds": 1.624,
+            "action": "load"
+          },
+          {
+            "seconds": 2.296,
+            "action": "close"
+          }
+        ]
+      }
+    },
+    "desert_eagle": {
+      "shots": [
+        "desert_eagle_fire_1.wav",
+        "desert_eagle_fire_2.wav",
+        "desert_eagle_fire_3.wav"
+      ],
+      "source": "desert_eagle",
+      "source_attack_seconds": [
+        1.062562,
+        1.062562,
+        1.062562
+      ],
+      "peak": 0.9,
+      "reload": {
+        "file": "desert_eagle_reload.wav",
+        "seconds": 2.6,
+        "events": [
+          {
+            "seconds": 0.364,
+            "action": "release45"
+          },
+          {
+            "seconds": 1.456,
+            "action": "seat45"
+          },
+          {
+            "seconds": 1.716,
+            "action": "slide45"
+          }
+        ]
+      }
+    }
+  }
+}

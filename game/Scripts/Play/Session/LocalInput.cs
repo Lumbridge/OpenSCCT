@@ -30,6 +30,11 @@ public sealed class LocalInput
 
     private readonly byte[] _buttons = new byte[ButtonNames.Count];
 
+    /// <summary>Named gadget keys still held this tick, using their stable binding IDs.</summary>
+    public uint HeldGadgetBindings { get; set; }
+
+    public static uint GadgetBindingBit(int id) => id is > 0 and < 32 ? 1u << id : 0u;
+
     /// <summary>Mouse counts this tick, right positive.</summary>
     public float MouseX { get; set; }
 
@@ -122,6 +127,7 @@ public sealed class LocalInput
     public void Clear()
     {
         Array.Clear(_buttons);
+        HeldGadgetBindings = 0;
         Up = 0f;
         Fast = false;
         Slow = false;
@@ -142,6 +148,11 @@ public sealed class LocalInput
         pc.BT_NextItem = _buttons[5];
         pc.bFire = _buttons[6];
         pc.bAltFire = _buttons[7];
+        if (pc.SBPawn?.SelectedGadget is { BindingHoldsAltFire: true } gadget &&
+            (HeldGadgetBindings & GadgetBindingBit(SGadget.BindingId(gadget))) != 0)
+        {
+            pc.bAltFire = 1;
+        }
         pc.bCrouch = _buttons[8];
         pc.bRoll = _buttons[9];
         pc.bUsing = _buttons[10];
@@ -175,7 +186,7 @@ public static class PlayerCommands
     /// <summary>The commands <see cref="Execute"/> knows.</summary>
     public static readonly IReadOnlyList<string> Known =
     [
-        "Fire", "AltFire", "Jump", "GadgetQuickChoice", "LaunchGadget", "LongRoll", "SelectGadget", "SwitchHeadset", "SwitchBinocularVision",
+        "Fire", "AltFire", "Jump", "GadgetQuickChoice", "LaunchGadget", "UseGadget", "LongRoll", "SelectGadget", "SwitchHeadset", "SwitchBinocularVision",
         "SetWalk", "SetScope", "SwitchSpyPerspective", "SetSpyFirstPerson", "Walk", "Run", "NextGadget", "PreviousGadget", "ChangeSpeed", "GadLaserSwitch", "GadTorcheSwitch", "SwitchLaser", "WheelUp", "WheelDown", "ZoomIn", "ZoomOut",
         "SwapWeapon", "SwitchROF", "PrevStickyCam", "PerformCoopMvt", "GrabOnly", "FreeCam", "HideHud",
         "PadCloakQuick", "ToggleCloak", "PadCameraGas", "PadCameraExit",
@@ -240,6 +251,9 @@ public static class PlayerCommands
                 return true;
             case "LAUNCHGADGET":
                 LaunchGadget(pc, command.Arg);
+                return true;
+            case "USEGADGET":
+                pc.UseGadgetBinding(command.Arg);
                 return true;
             case "LONGROLL":
                 // Reloaded 0x100b9df0: pulse crouch for one tick before the held roll, to leave crouch.

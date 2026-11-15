@@ -19,6 +19,28 @@ public partial class SMines
 
     public override StateTable GetStateTable() => ClassStates;
 
+    public bool IsHacked;
+    public float MineSoundPitch => IsHacked ? 0.8f : 1f;
+    private SPlayerController? _hacker;
+
+    public bool CanBeHacked => !bDeleteMe && !bStatic && !bNoDelete && !IsHacked && !bExploding &&
+        (this is SMineProx { Explode: false, Exploded: false } or SMinePoison ||
+         this is SMineLaser { bMineDefenseur: true } && !IsInState(GadgetStates.s_wait4boom));
+
+    internal bool TryHack(SPlayerController hacker)
+    {
+        if (Role != ENetRole.ROLE_Authority || !CanBeHacked) return false;
+
+        _hacker = hacker;
+        IsHacked = true;
+        return true;
+    }
+
+    protected bool TriggersOn(SBasePawn pawn, bool targetsSpies = true) =>
+        !pawn.bDeleteMe && (targetsSpies && !IsHacked ? pawn is SPawnAttaque : pawn is SPAWNDEFENSE);
+
+    protected Pawn? HackInstigator => _hacker is { bDeleteMe: false } ? _hacker.Pawn : null;
+
     /// <summary>No auto state: the script is only marked initialised (the mine arms by its timer).</summary>
     [Uc("SBase.SMines.SetInitialState", Sha1 = "d418c51545c3def908ca506e80d1caa470c69164")]
     [PortOf("uc:SBase.SMines:SetInitialState", Spec = "spec/equipment/mine-launcher.md#mines")]
@@ -137,11 +159,11 @@ public partial class SMines
         }
 
         NotifyNoise(K.ChaffNoise);
-        PlaySound(Sound, ESoundSlot.SLOT_None, 1f, false, K.MineExplosionSoundRadius);
+        PlaySound(Sound, ESoundSlot.SLOT_None, 1f, false, K.MineExplosionSoundRadius, MineSoundPitch);
         SPlayerController? owner = PcOwner ?? (Owner as Pawn)?.Controller as SPlayerController;
         bExploding = true;
         GadgetBlast.Run(new GadgetBlast.Blast(this, RefLoc, Location, Range, bIntRange, Damage, MyDamageRange, DistForBlast,
-            MyDamageType, SDamageType.SDTBase, MyDamageType, PercentRefill, Shake, owner?.Pawn, true, DetonatedBy));
+            MyDamageType, SDamageType.SDTBase, MyDamageType, PercentRefill, Shake, IsHacked ? HackInstigator : owner?.Pawn, true, DetonatedBy ?? HackInstigator));
         Destroy();
     }
 
@@ -167,6 +189,7 @@ public partial class SMines
     {
         base.CleanupDestroyedReferences();
         PcOwner = Live(PcOwner);
+        _hacker = Live(_hacker);
         MoverWhereIAm = Live(MoverWhereIAm);
     }
 

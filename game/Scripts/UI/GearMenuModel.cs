@@ -43,9 +43,9 @@ public sealed class GearMenuModel
     public const string PracticeRule = "Practice: new gear goes on now.";
 
     private readonly IReadOnlyList<string> _options;
-    private readonly byte _allowed;
+    private readonly int _allowed;
 
-    public GearMenuModel(bool spy, int slots, IReadOnlyList<string> options, byte allowedMask, IReadOnlyList<string> weapons,
+    public GearMenuModel(bool spy, int slots, IReadOnlyList<string> options, int allowedMask, IReadOnlyList<string> weapons,
         LoadoutSettings saved, bool hub, int currentLevel = 1, bool unrestricted = false)
     {
         ArgumentNullException.ThrowIfNull(options);
@@ -118,7 +118,7 @@ public sealed class GearMenuModel
 
         bool spy = team is STeamAttaquant;
         var options = new List<string>();
-        for (int i = 0; i < team.ClassInventory.Count && i < 8; i++)
+        for (int i = 0; i < Loadouts.GadgetOptionCount(team); i++)
         {
             options.Add(team.ClassInventory[i].Path ?? "");
         }
@@ -132,7 +132,7 @@ public sealed class GearMenuModel
             }
         }
 
-        return new GearMenuModel(spy, team.iNBGadgets, options, team.bDisallowedInv, weapons, saved, hub, (pc.PlayerReplicationInfo.SvmRank & 255),
+        return new GearMenuModel(spy, team.iNBGadgets, options, Loadouts.GadgetMask(team), weapons, saved, hub, (pc.PlayerReplicationInfo.SvmRank & 255),
             pc.Level.NetMode == ENetMode.NM_Standalone || pc.PlayerReplicationInfo.SvmSidearmsUnrestricted ||
             OpenScct.Game.Modes.PracticeRules.IsOn(pc))
         {
@@ -161,8 +161,9 @@ public sealed class GearMenuModel
         STeamInfo info = team == 0 ? new STeamAttaquant() : new STeamDefenseur();
         info.iNBGadgets = team == 0 ? pd.b_SPY_NBGadget : pd.b_MERC_NBGadget;
         info.bDisallowedInv = team == 0 ? pd.b_SPY_GadgetRestriction : pd.b_MERC_GadgetRestriction;
+        if (info is STeamAttaquant spies) spies.AdditionalGadgets = pd.AdditionalSpyGadgets;
         var options = new List<string>();
-        for (int i = 0; i < info.ClassInventory.Count && i < 8; i++)
+        for (int i = 0; i < Loadouts.GadgetOptionCount(info); i++)
         {
             options.Add(info.ClassInventory[i].Path ?? "");
         }
@@ -176,7 +177,7 @@ public sealed class GearMenuModel
             }
         }
 
-        return new GearMenuModel(team == 0, info.iNBGadgets, options, info.bDisallowedInv, weapons, saved, hub: false, currentLevel, unrestricted)
+        return new GearMenuModel(team == 0, info.iNBGadgets, options, Loadouts.GadgetMask(info), weapons, saved, hub: false, currentLevel, unrestricted)
         {
             Portrait = info.MaterialOfMesh.Count > 0 ? info.MaterialOfMesh[0].Path ?? "" : "",
             RuleText = LobbyRule,
@@ -187,11 +188,16 @@ public sealed class GearMenuModel
     /// <summary>The name a class path shows (its localized ItemName), or "Empty".</summary>
     public static string NameOf(string path)
     {
+        if (MercRifles.Find(path) is { } rifle) return rifle.Name;
         if (Sidearms.Find(path) is { } pistol) return pistol.Name;
         if (string.IsNullOrEmpty(path))
         {
             return Empty;
         }
+
+        if (path.StartsWith("Svm.", StringComparison.OrdinalIgnoreCase) &&
+            OpenScct.Game.Devices.DeviceClasses.Index.Find(path)?.Create() is Inventory gadget)
+            return gadget.ItemName;
 
         int dot = path.LastIndexOf('.');
         string fallback = dot >= 0 ? path[(dot + 1)..] : path;
@@ -215,7 +221,7 @@ public sealed class GearMenuModel
         return option >= 0 && ((_allowed >> option) & 1) != 0;
     }
 
-    /// <summary>The team's options in order (the gadget grid's eight buttons).</summary>
+    /// <summary>The team's options in order (the gadget grid).</summary>
     public IReadOnlyList<string> Options => _options.Where(path => !SpyCloak.IsLegacyGadget(path)).ToArray();
 
     /// <summary>Whether a slot holds <paramref name="option"/> (the grid's "Equipped").</summary>
@@ -267,6 +273,11 @@ public sealed class GearMenuModel
         }
 
         Normalize();
+    }
+
+    public void ChooseWeapon(string option)
+    {
+        if (!Spy && ContainsWeapon(option)) ChosenWeapon = option;
     }
 
     /// <summary>Moves the merc's weapon to the next (or previous) of the team's weapons.</summary>

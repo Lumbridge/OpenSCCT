@@ -238,9 +238,10 @@ public partial class OptionsMenu
             }
             input = (captured with { Modifiers = captured.Modifiers | BindingModifiers.Double }).Canonical;
         }
-        if (!capture.Editor.Pad && capture.Entry.Action?.Id == ControlActions.PingId && GodotKeys.IsPulse(input))
+        if (!capture.Editor.Pad && GodotKeys.IsPulse(input) &&
+            capture.Entry.Action is { Id: ControlActions.PingId or ControlActions.MineHackId } held)
         {
-            capture.Status.Text = "Team ping needs a key or mouse button you can hold.";
+            capture.Status.Text = held.Label + " needs a key or mouse button you can hold.";
             return;
         }
         if (capture.Editor.Pad)
@@ -299,7 +300,8 @@ public partial class OptionsMenu
 
     private static bool CanSwapKeyboardInput(ActionBindingDraft draft, string from, string to) => !GodotKeys.IsPulse(to) ||
         !draft.Layout.Resolve(from).Any(action => action.Kind == KeyActionKind.Command &&
-            action.Name.Equals(ControlActions.PingCommand, StringComparison.OrdinalIgnoreCase));
+            (action.Name.Equals(ControlActions.PingCommand, StringComparison.OrdinalIgnoreCase) ||
+             action.Name.Equals("UseGadget", StringComparison.OrdinalIgnoreCase) && action.Arg == OpenScct.Game.SBase.SGadget.BindMineHack));
 
     private void AssignPadBinding(BindingEditor editor, BindingEntry entry, string? oldControl, string control)
     {

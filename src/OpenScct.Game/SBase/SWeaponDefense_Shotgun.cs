@@ -130,12 +130,19 @@ public partial class SWeaponDefense_Shotgun
             FVector hit = _pelletHit[i];
             _pelletActor[i] = null;
             if (victim.bDeleteMe) continue;
+            if (victim is Svm.SpyClone clone)
+            {
+                clone.ShotBy(shooter);
+                continue;
+            }
+
             if (!countedHit && victim is SBasePawn target && OwnerPC is { } pc &&
                 (pc.IsMercDeathMatch || SGameInfo.TeamIndexOf(pc) != SGameInfo.TeamIndexOf(target.Controller)))
             {
                 SPlayerController.IncStat(pc, static s => s.ShotsHit++);
                 countedHit = true;
             }
+
             if (damage <= 0) continue;
             FVector momentum = (hit - aim) * K.BulletMomentumScale;
             if (victim is SBasePawn pawn)

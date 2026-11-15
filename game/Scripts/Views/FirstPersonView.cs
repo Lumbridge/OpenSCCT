@@ -52,6 +52,11 @@ public partial class FirstPersonView : Node3D
         {
             foreach (string primary in new[] { "SWeaponFirst.1DEF_01", "SWeaponFirst.1DEF_Uzi", "SWeaponFirst.1DEF_shotgun" })
                 ahead.Add(SkeletalModel.FindGlb(primary, shared));
+            foreach (var rifle in MercRifles.All)
+            {
+                ahead.Add(SkeletalModel.FindGlb(rifle.Asset + "_first", shared));
+                ahead.Add(SkeletalModel.FindGlb(rifle.Asset, shared));
+            }
         }
 
         if (needs.Sidearms)
@@ -68,6 +73,11 @@ public partial class FirstPersonView : Node3D
         {
             foreach (string primary in new[] { "SWeaponFirst.1DEF_01", "SWeaponFirst.1DEF_Uzi", "SWeaponFirst.1DEF_shotgun" })
                 Load(primary);
+            foreach (var rifle in MercRifles.All)
+            {
+                Load(rifle.Asset + "_first");
+                if (SkeletalModel.FindGlb(rifle.Asset, shared) is { } world) SkeletalModel.Load(world).Root.Free();
+            }
         }
         if (needs.Sidearms)
         {
@@ -157,7 +167,10 @@ public partial class FirstPersonView : Node3D
         _lastShot = shotCount;
         DrawCosmetic(pawn, weapon);
         DrawSkins(weapon!);
-        Pose(weapon!.ViewAnim, dt, alpha, exclusiveAction: weapon is MercSidearm { ReloadUntil: > 0 },
+        bool customHandling = weapon is MercSidearm or OpenScct.Game.Svm.MercRifle &&
+            (weapon is MercSidearm { ReloadUntil: > 0 } || weapon.ViewAnim.Sequence(SWeaponDefense.ACTIONCHANNEL) == weapon.AFirstReloGrenSt ||
+             weapon.ViewAnim.Sequence(SWeaponDefense.ACTIONCHANNEL) == weapon.AFirstReloSt);
+        Pose(weapon!.ViewAnim, dt, alpha, exclusiveAction: customHandling,
             blendLandingRecovery: weapon is MercSidearm);
         if (weapon is MercSidearm && _sidearmSightOffsets.TryGetValue(_model, out Transform3D sightOffset))
             _model.Root.Transform *= sightOffset;
@@ -277,7 +290,9 @@ public partial class FirstPersonView : Node3D
         }
 
         _model = SkeletalModel.Load(glb);
-        _arms = _model.SplitPart(ArmsMaterial);
+        _arms = asset.StartsWith("OpenScctRifles.", StringComparison.OrdinalIgnoreCase)
+            ? [.. _model.SplitPart("OpenScctRifles.Arms"), .. _model.SplitPart("OpenScctRifles.Gloves")]
+            : _model.SplitPart(ArmsMaterial);
         DressArms(glb);
         s_mask ??= new ShaderMaterial { Shader = GD.Load<Shader>(MaskShaderPath), RenderPriority = (int)Material.RenderPriorityMin };
         foreach (MeshInstance3D mesh in _model.Meshes)
@@ -311,7 +326,7 @@ public partial class FirstPersonView : Node3D
     private void DressArms(string viewModelGlb)
     {
         string? root = SharedRoot ?? Map?.SharedRoot;
-        if (_arms.Count == 0 || Map is null || SkeletalModel.FindGlb(PawnOutfits.StockAsset(spy: false), root) is not { } stock)
+        if (_asset?.StartsWith("OpenScctRifles.", StringComparison.OrdinalIgnoreCase) == true || _arms.Count == 0 || Map is null || SkeletalModel.FindGlb(PawnOutfits.StockAsset(spy: false), root) is not { } stock)
         {
             return;
         }

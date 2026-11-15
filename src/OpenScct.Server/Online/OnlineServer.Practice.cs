@@ -47,6 +47,8 @@ public sealed partial class OnlineServer
     private void PracticeChanged()
     {
         _practice.On = Setup.Practice;
+        _practice.InfiniteResources = true;
+        if (Host.World.Level.Info.GRI is { } gri) gri.PracticeFiniteResources = false;
         if (Setup.Practice)
         {
             _practiceRound |= Phase is SessionPhase.Loading or SessionPhase.Match;
@@ -59,12 +61,12 @@ public sealed partial class OnlineServer
         if (_bots is { } bots) bots.Stopped = false;
     }
 
-    private const string PracticeHelp = "!heal, !regen, !tank, !kill, !ammo. Use !help bots for bot commands";
+    private const string PracticeHelp = "!heal, !regen, !tank, !kill, !ammo, !infinite [on|off|toggle]. Use !help bots for bot commands";
 
     /// <summary>The practice chat commands; false when <paramref name="verb"/> is not one.</summary>
-    private bool OnPracticeCommand(SessionPlayer p, string verb)
+    private bool OnPracticeCommand(SessionPlayer p, string verb, string argument)
     {
-        if (verb is not ("heal" or "regen" or "tank" or "kill" or "ammo" or "practice"))
+        if (verb is not ("heal" or "regen" or "tank" or "kill" or "ammo" or "practice" or "infinite" or "resources"))
         {
             return false;
         }
@@ -77,7 +79,15 @@ public sealed partial class OnlineServer
 
         if (verb == "practice")
         {
-            SendMessage(p, "Practice server: no time limit, unlimited lives, ammo, gadgets and gas mask air, instant gear changes, quick respawns. Commands: " + PracticeHelp + ".");
+            SendMessage(p, "Practice server: no time limit, unlimited lives, instant gear changes and quick respawns. Infinite resources " +
+                (_practice.InfiniteResources ? "on" : "off") + ". Commands: " + PracticeHelp + ".");
+            return true;
+        }
+
+        if (verb is "infinite" or "resources")
+        {
+            SendMessage(p, Phase == SessionPhase.Match ? PracticeResourceCommands.Run(Host.World.Level, argument)
+                : "Change infinite resources during a practice round.");
             return true;
         }
 

@@ -6,6 +6,7 @@ using OpenScct.Core.Engine;
 using OpenScct.Game.Animation;
 using OpenScct.Game.Equipment;
 using OpenScct.Game.SBase;
+using OpenScct.Game.Svm;
 using OpenScct.Provenance;
 using OpenScctGame.Render;
 using OpenScctGame.Render.Characters;
@@ -31,6 +32,7 @@ public sealed class PawnAttachments
     [Provenance(ProvenanceKind.Decoded, "SWeaponDefenseDummy.Tick: AttachToBone 'HOLSTER' while WeaponLoaded is 0 (unless lying on the ground)")]
     public static readonly Name BoneHolster = new("HOLSTER");
 
+    private static readonly SStickyShocker ClonePistol = new();
     private readonly SimPawnView _view;
     private readonly string? _sharedRoot;
     private readonly Dictionary<string, Attached> _models = new(StringComparer.OrdinalIgnoreCase);
@@ -152,6 +154,13 @@ public sealed class PawnAttachments
             }
 
             DrawVision(pistol.Mesh.Path!, pistol);
+        }
+
+        else if (pawn is SpyClone clone)
+        {
+            string asset = ClonePistol.Mesh.Path!;
+            Place(asset, clone.PistolDrawn ? BoneRightHand : BoneHolster, null, dt, null, PawnCosmetics.GunItem(clone));
+            DrawVision(asset, ClonePistol);
         }
 
         foreach (Attached a in _models.Values)
