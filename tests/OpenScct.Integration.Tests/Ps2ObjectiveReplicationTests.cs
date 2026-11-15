@@ -98,6 +98,12 @@ public sealed class Ps2ObjectiveReplicationTests
         Assert.False(vial.bNoDelete);
         Assert.Null(vial.Server);
         Assert.Equal(new AssetRef("PS2.OriginalVial"), vial.StaticMesh);
+        Assert.Equal(new AssetRef("PS2.OriginalVial"), vial.InitialStaticMesh);
+        Assert.Equal(new AssetRef("PS2.OriginalVial"), vial.Ps2SourceStaticMesh);
+        // A return/reset must not restore the PC factory's ARGUS rack.
+        vial.Reset();
+        Assert.Equal(new AssetRef("PS2.OriginalVial"), vial.StaticMesh);
+        Assert.Equal(new AssetRef("PS2.OriginalVial"), vial.InitialStaticMesh);
         Assert.Same(terminal, vial.Ps2Computer);
         Assert.Equal("Objective A - 1", vial.TriggerName);
         Assert.Equal("Original console A", terminal.TriggerName);

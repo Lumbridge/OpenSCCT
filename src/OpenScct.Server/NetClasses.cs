@@ -45,6 +45,8 @@ public static class NetClasses
                 var ps2Initial = RepCondition.Bind(RepConditionParser.Parse("bNetInitial && bPS2Objective"),
                     SObjectiveTrigger.UcMeta.Class, registry.Readers);
                 ps2Objective.Properties.Add(new("Ps2TriggerName", nameof(SObjectiveTrigger.TriggerName), RepLeafKind.String, ps2Initial));
+                if (typeof(SFlag).IsAssignableFrom(type))
+                    ps2Objective.Properties.Add(new(nameof(SFlag.Ps2SourceStaticMesh), nameof(SFlag.Ps2SourceStaticMesh), RepLeafKind.Asset, ps2Initial));
                 registry.Extend(type, ps2Objective);
             }
             if (typeof(SProjGrenade).IsAssignableFrom(type))

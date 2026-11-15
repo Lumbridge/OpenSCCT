@@ -10,6 +10,7 @@ using OpenScct.Game.Objectives;
 using OpenScctGame.Play;
 using OpenScctGame.Play.Session;
 using OpenScctGame.Views;
+using OpenScctGame.Render;
 
 namespace OpenScctGame.Smoke;
 
@@ -25,6 +26,8 @@ public sealed class Ps2ObjectivesSmoke : SmokeTest
     private SComputerObjectiveTrigger? _serverComputer;
     private AnimatedMeshView? _terminal;
     private Ps2Modem? _modem;
+    private FVector _carryInspectAt;
+    private KeyPilot? _keys;
     private int _frames;
     private int _teardown;
     public override SmokeResult Step(SmokeContext context)
@@ -46,10 +49,13 @@ public sealed class Ps2ObjectivesSmoke : SmokeTest
         if (_root.LoadError is { } error) return SmokeResult.Fail(error);
         if (_root.Session?.ServerFailure is { } failure) return SmokeResult.Fail(failure.Message);
         if (!_root.IsLoaded || _root.Session?.LocalPawn is null || _root.Devices is null) return SmokeResult.Running;
+        _keys ??= KeyPilot.Attach(_root);
+        _keys.Update();
         ++_frames;
         if (_frames == 1)
         {
             var level = _root.Session.Host.World.Level;
+            _carryInspectAt = level.Actors.OfType<PlayerStart>().First(s => s.TeamNumber == 1).Location;
             var source = level.Actors.OfType<SFlag>().Where(f => f.bPS2Objective && !f.bHidden && f.Ps2Computer is not null)
                 .OrderBy(f => FVector.Dist(f.Ps2Computer!.Location,new FVector(-2812,-2811,604))).First();
             _serverFlag = source;
@@ -67,7 +73,9 @@ public sealed class Ps2ObjectivesSmoke : SmokeTest
             if (_flag is null) return SmokeResult.Fail("no active PS2 vial/proxy; client=" +
                 string.Join(";",_root.Session.Client.World.Level.Actors.OfType<SFlag>().Select(f => $"{f.ActorId}:ps2={f.bPS2Objective},hidden={f.bHidden},proxy={f.Ps2Computer?.ActorId}")) +
                 " server=" + string.Join(";",_root.Session.Host.World.Level.Actors.OfType<SFlag>().Select(f => $"{f.ActorId}:ps2={f.bPS2Objective},hidden={f.bHidden},proxy={f.Ps2Computer?.ActorId},remote={f.RemoteRole},role={f.Role},hz={f.NetUpdateFrequency},static={f.bStatic},always={f.bAlwaysRelevant},temp={f.bNetTemporary},class={_root.Session.Host.Driver.Classes.Find(f.GetType()) is not null}")));
-            if (_flag.Server is not null || _flag.StaticMesh == SFlag.DiskMesh) return SmokeResult.Fail("PC disk/rack replaced source vial");
+            if (_flag.Server is not null || _flag.Ps2SourceStaticMesh.IsNone ||
+                _flag.StaticMesh != _flag.Ps2SourceStaticMesh || _flag.InitialStaticMesh != _flag.Ps2SourceStaticMesh)
+                return SmokeResult.Fail($"PC disk/rack replaced source vial: source={_flag.Ps2SourceStaticMesh},mesh={_flag.StaticMesh},initial={_flag.InitialStaticMesh}");
             if (!_root.Devices.Meshes.Any(m => ReferenceEquals(m.Actor,_flag) && m.Entry.Node.Mesh is not null))
                 return SmokeResult.Fail("separate source vial mesh was not bound to its replicated actor");
             _computer = _flag.Ps2Computer!;
@@ -79,6 +87,20 @@ public sealed class Ps2ObjectivesSmoke : SmokeTest
         }
         FVector target = _flag.Location;
         FVector camera = target + new FVector(110, 150, 65);
+        if (_frames >= 175 && _flag.Base is SBasePawn carrier &&
+            _root.Pawns?.TryGetBone(carrier, SFlag.Ps2CarryBone, out Transform3D carriedBone) == true)
+        {
+            // Inspection fill changes only this test's actor lighting, so the
+            // source mesh/body intersection can be judged in the dark spawn.
+            var inspectionLight = new ActorLightSet { Ambient = new Vector3(.7f, .7f, .7f) };
+            _root.Pawns.ViewOf(carrier)?.Model?.Light(inspectionLight);
+            foreach (var mesh in _root.Devices.Meshes.Where(m => ReferenceEquals(m.Actor, _flag)))
+                ActorLighting.Apply(mesh.Entry.Node, inspectionLight);
+            target = UeSpace.ToUe(carriedBone.Origin);
+            carrier.Rotation.GetAxes(out FVector forward, out FVector right, out _);
+            camera = target + (_frames < 210 ? right * 150f - forward * 80f :
+                _frames < 240 ? forward * 160f + right * 40f : -forward * 160f + right * 40f) + new FVector(0, 0, 40);
+        }
         _root.View!.SetUeCamera(camera, (target-camera).Rotation(), 60, cut:true);
         if (_frames == 80)
         {
@@ -122,13 +144,26 @@ public sealed class Ps2ObjectivesSmoke : SmokeTest
             Save(context, "ps2-modem-destruction.png");
             // Exercise the normal gameplay carry rule, then observe its replicated bone attachment.
             DiskCarryRules.PickupFlag(_root.Session.ServerController!, _serverFlag!);
+            Place(_root.Session.ServerController!, _carryInspectAt);
+            Place(_root.Session.LocalController!, _carryInspectAt);
+            _root.Session.Host.Movement.EndpointOf(_root.Session.ServerController!)?.Server?.ReinitPawn();
         }
+        if (_frames == 175 && _root.Session.LocalPawn.bIsCrouched) _keys.Tap("bCrouch");
         if (_frames == 200)
         {
             var vial = _root.Devices.Meshes.First(m => ReferenceEquals(m.Actor, _flag));
-            if (_flag.Base is not SBasePawn || _flag.AttachmentBone.IsNone || !vial.Entry.Node.Visible || !vial.Moved)
+            if (_flag.Base is not SBasePawn || _flag.AttachmentBone != SFlag.Ps2CarryBone || !vial.Entry.Node.Visible || !vial.Moved ||
+                _flag.StaticMesh != _flag.Ps2SourceStaticMesh || _flag.InitialStaticMesh != _flag.Ps2SourceStaticMesh)
                 return SmokeResult.Fail("replicated original vial was not drawn on the carrier bone");
-            Save(context, "ps2-vial-carried.png");
+            if (_root.Session.LocalPawn.bIsCrouched || _root.Session.ServerController!.SBPawn!.bIsCrouched)
+                return SmokeResult.Fail($"carry inspection did not stand at {_carryInspectAt}: client={_root.Session.LocalController!.GetStateName()},cr={_root.Session.LocalPawn.bIsCrouched};server={_root.Session.ServerController!.GetStateName()},cr={_root.Session.ServerController.SBPawn!.bIsCrouched}");
+            Save(context, "ps2-vial-carried-right.png");
+            GD.Print($"PS2_CARRY source={_flag.Ps2SourceStaticMesh} mesh={_flag.StaticMesh} initial={_flag.InitialStaticMesh} bone={_flag.AttachmentBone} relative={_flag.RelativeLocation} rotation={_flag.RelativeRotation}");
+        }
+        if (_frames == 230) Save(context, "ps2-vial-carried-front.png");
+        if (_frames == 260)
+        {
+            Save(context, "ps2-vial-carried-back.png");
             _root.QueueFree(); _teardown=1;
         }
         return SmokeResult.Running;

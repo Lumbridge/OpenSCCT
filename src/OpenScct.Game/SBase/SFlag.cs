@@ -72,6 +72,8 @@ public partial class SFlag
         }
         if (bPS2Objective)
         {
+            if (Ps2SourceStaticMesh.IsNone) Ps2SourceStaticMesh = StaticMesh;
+            Ps2BindSourceMesh();
             Ps2PlaceAtConsole();
             InitialLocation = Location;
             InitialRotation = Rotation;
@@ -234,7 +236,7 @@ public partial class SFlag
         ObjectiveMessages.BroadcastTeam(this, K.TeamMercs, K.MsgRetrieveHardDrive);
         if (!spy && Instigator.Pawn is { } carrier)
         {
-            ObjectiveNatives.AttachToBone(carrier, this, K.BoneThigh);
+            ObjectiveNatives.AttachToBone(carrier, this, bPS2Objective ? Ps2CarryBone : K.BoneThigh);
             RelativeLocation = bPS2Objective ? Ps2CarryOffset : K.ThighOffset;
             RelativeRotation = bPS2Objective ? Ps2CarryRotation : K.ThighRotationTouch;
         }

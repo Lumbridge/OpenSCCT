@@ -8,7 +8,7 @@ This opt-in behavior applies to `bPS2Objective` extraction vials. It uses the or
 2. A living player's Use request enters the generic pickup goto state, source name ID546928. It does not enter the PC flag/drop-zone goto state.
 3. On the input machine, the stand target is the interaction owner's location plus its forward axis times 80. Set targetZ to current pawnZ; add 27.5 when crouched. Facing is the owner's rotation with yaw increased by 32768.
 4. The source reposition action 151 runs at 180 units/second. It reads the controller's boolean at native offset 0xC28, mask 1, into `bUseAdditionnalPhysicsForRepos`. That controller boolean is source global name 855937. Controller startup clears it; the pickup goto state leaves it false. The resulting native reposition moves in XYZ with world collision disabled for that move. Its existing arrival distance is less than 1, and its vertical dead band is 5.
-5. Arrival enters the pickup state, source name ID546929. It chooses the crouched low/forward action at a 20-unit height threshold, or the standing action at 30. The local owning controller requests the selected hand item. Existing source vial attachment rules then move it to the thigh.
+5. Arrival enters the pickup state, source name ID546929. It chooses the crouched low/forward action at a 20-unit height threshold, or the standing action at 30. The local owning controller requests the selected hand item. Pickup EndState attaches it to `B R Thigh`, relative location `(-10,0,10)` and rotation `(16000,0,0)`. Direct pickup of a dropped tube uses the same source attachment.
 6. A wall hit cancels to standing walking. A bump ignores `SComputerObjectiveTrigger` and `SFlag`; other actors cancel. The pickup state's animation end returns to the walking action for the current stance.
 
 The source computer goto state deliberately sets the same controller boolean true around action 151 and then clears it. It therefore keeps walking collision. This port scopes the different reposition behavior to the verified vial pickup flow.
@@ -20,6 +20,8 @@ The source computer goto state deliberately sets the same controller boolean tru
 - PS2 native reposition 0x297340: the same pawn bit selects walking or XYZ movement; arrival check 0x297920 remains less than 1.
 - The complete 310-property controller layout starts after superclass size 0x650. Its 65 consecutive final booleans occupy words 0xC20,0xC24,0xC28; the final property 1668/name 855937 is 0xC28 mask 1. End 0xC2C aligns to registered size 0xC30. Native BoolProperty.Link 0x164120 proves packed masks and word overflow. Native struct alignment includes Vector and BigServerMoveStruct; Rotator and DamageInfos use4-byte alignment.
 - Controller PostBeginPlay explicitly clears property 1668. Computer goto BeginState temporarily sets it, executes 151, then clears it. Pickup goto makes no such assignment.
+- Source carry name 853638 uniquely matches `B R Thigh`: source quaternion, position and parent match retained `SPerso.ATT_01_PS2` bone 36 and `DEF_01_PS2` bone 21 exactly. The current runtime ATT_01/DEF_01 right-thigh frame has the same position and parent; quaternion components differ by at most 2 ULP.
+- Source pickup actions 229..232 at 0x2A3D7C, 0x2A3DC0, 0x2A3E04, 0x2A3E48 each make one animation call on channel 0, rate 1, tween 0.1, then exit. Their native names 45685, 45687, 45689, 45691 match the `SPerso.PRO` name pairs `PickCrAlFd0`, `PickCrAlUp0`, `PickStAlFd0`, `PickStAlUp0`. No extra timed case-hack stage appears in those actions.
 
 ## Verification
 

@@ -98,12 +98,63 @@ public sealed class Ps2ObjectiveTests
         Assert.Same(flag, ((SBasePawn)spy.Pawn!).CarriedFlag);
         Assert.Equal(Vial, flag.StaticMesh);
         Assert.Equal(SFlag.Ps2CarryOffset, flag.RelativeLocation);
+        Assert.Equal(new Name("B R Thigh"), flag.AttachmentBone);
         Assert.Equal(SFlag.Ps2CarryRotation, flag.RelativeRotation);
         zone.eventTouch(spy.Pawn!);
         Assert.True(objective.ObjectiveTaken);
         Assert.Null(((SBasePawn)spy.Pawn!).CarriedFlag);
         Assert.Null(flag.FlagCarrier);
         Assert.Null(zone.Cover);
+        Assert.Equal(Vial, flag.StaticMesh);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Dropped_source_vial_returns_by_timeout_or_merc_touch_without_restoring_PC_mesh(bool mercReturns)
+    {
+        var (world, flag, console, _, _) = Make();
+        TestPC spy = world.AddPlayer(true, flag.Location);
+        DiskCarryRules.PickupFlag(spy, flag);
+        DiskCarryRules.DiscardFlag(spy);
+        FVector dropped = ConsoleAt + new FVector(300f, 100f, 0f);
+        flag.SetLocation(dropped);
+        flag.eventStoppedMoving();
+        Assert.Null(((SBasePawn)spy.Pawn!).CarriedFlag);
+        Assert.Null(flag.FlagCarrier);
+        Assert.True(flag.AttachmentBone.IsNone);
+        Assert.False(flag.bPickable);
+        if (mercReturns)
+        {
+            TestPC merc = world.AddPlayer(false, dropped);
+            ObjWorld.Touch(merc, flag);
+            Assert.Null(((SBasePawn)merc.Pawn!).CarriedFlag);
+        }
+        else world.Run(flag.ResetTime + .1f);
+        Assert.Equal(ConsoleAt + new FVector(0f, 0f, 25f), flag.Location);
+        Assert.Equal(Vial, flag.StaticMesh);
+        Assert.Equal(Vial, flag.InitialStaticMesh);
+        Assert.Equal(Vial, flag.Ps2SourceStaticMesh);
+        Assert.True(flag.PickupInteraction!.bCanPickup);
+        Assert.Equal((byte)5, console.Ps2VisualState);
+    }
+
+    [Fact]
+    public void Another_spy_touches_dropped_source_vial_and_uses_original_right_thigh()
+    {
+        var (world, flag, _, _, _) = Make();
+        TestPC first = world.AddPlayer(true, flag.Location);
+        DiskCarryRules.PickupFlag(first, flag);
+        DiskCarryRules.DiscardFlag(first);
+        FVector dropped = ConsoleAt + new FVector(300f, 100f, 0f);
+        flag.SetLocation(dropped);
+        flag.eventStoppedMoving();
+        TestPC second = world.AddPlayer(true, dropped);
+        ObjWorld.Touch(second, flag);
+        Assert.Same(flag, ((SBasePawn)second.Pawn!).CarriedFlag);
+        Assert.Equal(new Name("B R Thigh"), flag.AttachmentBone);
+        Assert.Equal(SFlag.Ps2CarryOffset, flag.RelativeLocation);
+        Assert.Equal(SFlag.Ps2CarryRotation, flag.RelativeRotation);
         Assert.Equal(Vial, flag.StaticMesh);
     }
 

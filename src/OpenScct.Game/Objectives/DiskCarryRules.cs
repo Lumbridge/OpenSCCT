@@ -66,7 +66,7 @@ public static class DiskCarryRules
         pawn.CarriedFlag = flag;
         flag.eventNotifyPickup(pc);
         ObjectiveNatives.DetachFromBone(flag);
-        ObjectiveNatives.AttachToBone(pawn, flag, K.BoneThigh);
+        ObjectiveNatives.AttachToBone(pawn, flag, flag.bPS2Objective ? SFlag.Ps2CarryBone : K.BoneThigh);
         flag.RelativeLocation = flag.bPS2Objective ? SFlag.Ps2CarryOffset : K.ThighOffset;
         flag.RelativeRotation = flag.bPS2Objective ? SFlag.Ps2CarryRotation : K.ThighRotationTouch;
     }
@@ -200,7 +200,7 @@ public static class DiskCarryRules
 
         if (pawn.CarriedFlag is { } flag)
         {
-            ObjectiveNatives.AttachToBone(pawn, flag, K.BoneThigh);
+            ObjectiveNatives.AttachToBone(pawn, flag, flag.bPS2Objective ? SFlag.Ps2CarryBone : K.BoneThigh);
             flag.RelativeLocation = flag.bPS2Objective ? SFlag.Ps2CarryOffset : K.ThighOffset;
             flag.RelativeRotation = flag.bPS2Objective ? SFlag.Ps2CarryRotation : K.ThighRotationMenu;
         }
@@ -258,9 +258,9 @@ public static class DiskCarryRules
     {
         if (pc.Pawn is SBasePawn { CarriedFlag: { } flag } pawn)
         {
-            ObjectiveNatives.AttachToBone(pawn, flag, K.BoneThigh);
-            flag.RelativeLocation = K.ThighOffset;
-            flag.RelativeRotation = K.ThighRotationTouch;
+            ObjectiveNatives.AttachToBone(pawn, flag, flag.bPS2Objective ? SFlag.Ps2CarryBone : K.BoneThigh);
+            flag.RelativeLocation = flag.bPS2Objective ? SFlag.Ps2CarryOffset : K.ThighOffset;
+            flag.RelativeRotation = flag.bPS2Objective ? SFlag.Ps2CarryRotation : K.ThighRotationTouch;
         }
 
         if (ObjectiveNatives.IsAlive(pc))

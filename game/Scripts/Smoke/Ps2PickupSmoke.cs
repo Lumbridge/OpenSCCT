@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
 using Godot;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
@@ -17,7 +18,9 @@ public sealed class Ps2PickupSmoke : SmokeTest
     public const string TestName = "ps2-pickup";
     public override string Name => TestName;
     private readonly bool _crouched = System.Environment.GetEnvironmentVariable("SVM_PS2_PICKUP_CROUCHED") == "1";
-    private readonly bool _computerUse = System.Environment.GetEnvironmentVariable("SVM_PS2_USE_COMPUTER") == "1";
+    private readonly bool _stationNeutralization = System.Environment.GetEnvironmentVariable("SVM_PS2_STATION_NEUTRALIZATION") == "1";
+    private readonly bool _computerUse = System.Environment.GetEnvironmentVariable("SVM_PS2_USE_COMPUTER") == "1" ||
+        System.Environment.GetEnvironmentVariable("SVM_PS2_STATION_NEUTRALIZATION") == "1";
     private readonly HashSet<string> _states = [];
     private PlayRoot? _root;
     private KeyPilot? _keys;
@@ -28,6 +31,9 @@ public sealed class Ps2PickupSmoke : SmokeTest
     private int _teardown;
     private double _since;
     private string _target = "unseen";
+    private bool _stationHackStarted;
+    private int _stationCompleteFrames;
+    private int _stationCaptureTime;
 
     public override SmokeResult Step(SmokeContext context)
     {
@@ -39,10 +45,10 @@ public sealed class Ps2PickupSmoke : SmokeTest
             {
                 Settings = config.Settings with
                 {
-                    Map = _computerUse ? "MHO05P" : "DTK02P",
+                    Map = _stationNeutralization ? "GAR09P" : _computerUse ? "MHO05P" : "DTK02P",
                     Mode = _computerUse ? "Neutralization" : "Extraction",
                     Side = PlaySide.Spy,
-                    Rules = PlayRules.PlayLevel,
+                    Rules = _stationNeutralization ? PlayRules.MapSettings : PlayRules.PlayLevel,
                     HostMode = PlayHostMode.Inline,
                     Bots = 0
                 },
@@ -61,17 +67,28 @@ public sealed class Ps2PickupSmoke : SmokeTest
         _keys ??= KeyPilot.Attach(_root);
         _keys.Update();
         _states.Add(pc.GetStateName().ToString());
+        if (_stationNeutralization && _computer is { } terminal)
+        {
+            FVector at = terminal.Location + new FVector(0, 0, 20);
+            FVector camera = at + terminal.Rotation.Vector() * 200f + new FVector(70, 70, 70);
+            _root.View!.SetUeCamera(camera, (at - camera).Rotation(), 60f, cut: true);
+        }
         if (_frames % 30 == 0) GD.Print($"PS2_PICKUP phase={_phase} " + Detail(pc, authority));
         if (!_keys.Ready) return SmokeResult.Running;
         if (_phase == 0)
         {
             if (_computerUse)
             {
-                _computer = _root.Session.Host.World.Level.Actors.OfType<SComputerObjectiveTrigger>().Where(c => c.bPS2Objective)
+                _computer = _stationNeutralization
+                    ? _root.Session.Host.World.Level.Actors.OfType<SComputerObjectiveTrigger>()
+                        .First(c => c.bPS2Objective && c.bActive && !c.bLocked && c.Objective is { ObjectiveTaken: false })
+                    : _root.Session.Host.World.Level.Actors.OfType<SComputerObjectiveTrigger>().Where(c => c.bPS2Objective)
                     .OrderBy(c => FVector.Dist(c.Location, new FVector(2187.1211f, -178.8036f, 250.48088f))).First();
-                if (FVector.Dist(_computer.Location, new FVector(2187.1211f, -178.8036f, 250.48088f)) > 2f)
+                if (!_stationNeutralization && FVector.Dist(_computer.Location, new FVector(2187.1211f, -178.8036f, 250.48088f)) > 2f)
                     return SmokeResult.Fail("MHO Room212 console not found");
-                FVector start = _computer.Location + _computer.Rotation.Vector() * 130f; start.Z = 249.005f;
+                _stationCaptureTime = _computer.CaptureTime;
+                FVector start = _computer.Location + _computer.Rotation.Vector() * 130f;
+                if (!_stationNeutralization) start.Z = 249.005f;
                 Place(authority, start); Place(pc, start);
                 pc.Rotation = authority.Rotation = new FRotator(0, _computer.Rotation.Yaw + 32768, 0);
                 pawn.Rotation = serverPawn.Rotation = pc.Rotation;
@@ -97,6 +114,7 @@ public sealed class Ps2PickupSmoke : SmokeTest
         {
             if (pawn.bIsCrouched != _crouched || serverPawn.bIsCrouched != _crouched)
                 return SmokeResult.Fail("stance input failed " + Detail(pc, authority));
+            if (_stationNeutralization) Save(context, "station-neutralization-fresh.png");
             _keys.Press("bUsing");
             _phase = 3; _since = context.ElapsedSeconds;
         }
@@ -123,7 +141,30 @@ public sealed class Ps2PickupSmoke : SmokeTest
         else if (_phase == 4)
         {
             if (pc.IsInState(_computerUse ? "s_Computer_GoTo" : "s_Pickup_GoTo")) _target = pawn.vVandammePos.ToString();
-            if (_computerUse && pc.IsInState("s_Computer_Use") && _computer is { bTriggering: true, DeltaCaptureTime: > 0.2f })
+            if (_stationNeutralization)
+            {
+                if (pawn.CarriedFlag is not null || serverPawn.CarriedFlag is not null)
+                    return SmokeResult.Fail("Neutralization created an Extraction carrier");
+                if (!_stationHackStarted && pc.IsInState("s_Computer_Use") && _computer is { bTriggering: true, DeltaCaptureTime: > 0.2f })
+                {
+                    _stationHackStarted = true;
+                    Save(context, "station-neutralization-hacking.png");
+                }
+                if (_computer?.Objective is { ObjectiveTaken: true })
+                {
+                    if (!_stationHackStarted || !_states.Contains("s_Computer_GoTo") || !_states.Contains("s_Computer_Enter"))
+                        return SmokeResult.Fail("Station objective skipped source computer path");
+                    if (++_stationCompleteFrames >= 60)
+                    {
+                        Save(context, "station-neutralization-complete.png");
+                        GD.Print($"PS2_STATION_NEUTRALIZATION PASS normal map rules, fresh case -> actual Use -> {_stationCaptureTime}s capture -> taken, no carried vial; " + Detail(pc, authority));
+                        _keys.ReleaseAll(); _root.QueueFree(); _teardown = 1;
+                    }
+                }
+                else if (context.ElapsedSeconds - _since > _stationCaptureTime + 25)
+                    return SmokeResult.Fail("Station normal Neutralization did not complete " + Detail(pc, authority));
+            }
+            else if (_computerUse && pc.IsInState("s_Computer_Use") && _computer is { bTriggering: true, DeltaCaptureTime: > 0.2f })
             {
                 if (!_states.Contains("s_Computer_GoTo") || !_states.Contains("s_Computer_Enter")) return SmokeResult.Fail("computer skipped use state path " + Detail(pc, authority));
                 GD.Print("PS2_COMPUTER_USE PASS " + Detail(pc, authority));
@@ -132,6 +173,9 @@ public sealed class Ps2PickupSmoke : SmokeTest
             else if (!_computerUse && ReferenceEquals(serverPawn.CarriedFlag, _flag) && pawn.CarriedFlag is { bPS2Objective: true } vial &&
                 ReferenceEquals(vial.Base, pawn) && !vial.AttachmentBone.IsNone && pc.GetStateName().ToString().StartsWith("s_PlayerWalking", StringComparison.Ordinal))
             {
+                if (vial.AttachmentBone != SFlag.Ps2CarryBone || vial.StaticMesh != vial.Ps2SourceStaticMesh ||
+                    vial.InitialStaticMesh != vial.Ps2SourceStaticMesh)
+                    return SmokeResult.Fail("actual Use left a PC mesh or wrong carry bone");
                 if (!_states.Contains("s_Pickup_GoTo") || !_states.Contains("s_Pickup"))
                     return SmokeResult.Fail("pickup skipped source state path " + Detail(pc, authority));
                 GD.Print("PS2_PICKUP PASS " + Detail(pc, authority));
@@ -158,5 +202,14 @@ public sealed class Ps2PickupSmoke : SmokeTest
         else pawn.SetLocation(at);
         pawn.SetBase(null); pawn.bJustTeleported = true;
         pawn.Rotation = new FRotator(0, 49152, 0); controller.Rotation = pawn.Rotation; controller.Location = pawn.Location;
+    }
+
+    private static void Save(SmokeContext context, string name)
+    {
+        string? folder = System.Environment.GetEnvironmentVariable("SVM_PLAY_SHOTS");
+        if (string.IsNullOrEmpty(folder)) return;
+        Directory.CreateDirectory(folder);
+        using Image image = context.Tree.Root.GetTexture().GetImage();
+        image.SavePng(Path.Combine(folder, name));
     }
 }
