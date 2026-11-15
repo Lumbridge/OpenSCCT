@@ -908,25 +908,24 @@ The player's Discord status (what they are playing, with Join for friends) is in
 
 ## Updating the VPS
 
-The official London deployment uses three Lightsail instances.
+The official London deployment uses two Lightsail instances. The dedicated hub was retired on 2026-11-15.
 
 | Service | Instance | Deploy target | UDP game port |
 |---|---|---|---:|
 | Master and relay | `svm-master` | `master.lumbridge.co.uk` | |
 | EU Official Server #1 | `svm-server-eu` | `35.176.22.150` | 28888 |
-| OpenSCCT Hub (EU) | `svm-hub-eu` | `16.61.131.28` | 28889 |
 
-`tools/deploy/Deploy-Vps.ps1` updates all three by default. Use `-Services master`, `-Services server`,
-`-Services hub` or `-Services hubmaps` to deploy selectively. For a custom deployment, `-VpsHost` sets the
-shared target, and `-ServerVpsHost` and `-HubVpsHost` set individual targets.
+`tools/deploy/Deploy-Vps.ps1` updates both by default. Use `-Services master` or `-Services server`
+to deploy selectively. For a custom deployment, `-VpsHost` sets the shared target, and `-ServerVpsHost`
+sets the game server target. Hub deployment options are no longer supported.
 
 Use `-PackageOnly local/deploy-package` from a clean checkout to build and hash the self-contained packages without SSH.
 Pass the completed artifact to `-FromPackage local/deploy-package` from the same commit to reuse those bytes. The
 script checks the commit and archive hashes before connecting. It uploads to the selected hosts in parallel, checks
-the master first when included, then installs server and hub in parallel if they are on separate hosts.
+the master first when included, then installs the game server.
 
 For each service the script does the following.
-1. stages the program and any hub maps before stopping the service;
+1. stages the program before stopping the service;
 2. stops the service and backs up its folder to `/opt/svm/backups` (program, config, `accounts.db`, `ticket-key.pem`;
    not the converted maps and characters). It keeps the last ten backups of each service;
 3. unpacks the new program over the old one, starts it, and checks it is up (the master's `/api/v1/status`);
