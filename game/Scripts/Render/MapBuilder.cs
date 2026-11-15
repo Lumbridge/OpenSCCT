@@ -1587,7 +1587,7 @@ public static class MapBuilder
                         surfaces.Clear();
                     }
 
-                    // Transparent and vision see-through passes keep the original cell sort bounds.
+                    // Mark blended and vision see-through buckets for a stable per-bucket sort in FlushCellPart.
                     // A MaterialSequence can change its blend mode by replacing the shader at runtime.
                     MaterialEntry? entry = _map.Materials.Find(key.Item1);
                     bool solid = entry is { Blend: MaterialBlend.Opaque or MaterialBlend.Masked } &&
@@ -1663,7 +1663,7 @@ public static class MapBuilder
             bool animatedShadow = worldLayer;
             var grouped = new ArrayMesh { ResourceName = name };
             var groupedTwins = new List<LightReach.Twins>();
-            var bounded = new List<(ArrayMesh Mesh, LightReach.Twins Twins, Aabb? Spheres)>();
+            var bounded = new List<(ArrayMesh Mesh, LightReach.Twins Twins, Aabb? Spheres, bool Ordered)>();
             // The box around the light spheres of the grouped surfaces: dynamic lights reach the mesh through it too.
             Aabb? groupedSpheres = null;
             foreach ((SurfaceBuilder surface, Material material, LightReach.Twins twins, bool split) in surfaces)
@@ -1672,11 +1672,14 @@ public static class MapBuilder
 
                 // Each material was already a draw call. A tight instance AABB lets Godot cull
                 // it without splitting the material's merged triangles into additional calls.
-                if (split && surfaces.Count > 1)
+                // A world cell's blended buckets also need separate instances. Surfaces of one instance have the
+                // same alpha sort distance; Godot's unstable tie order can then change whenever another instance
+                // enters or leaves the frustum (AquaE's tank glass flashed brighter at the screen edge).
+                if ((split || !sky) && surfaces.Count > 1)
                 {
                     var mesh = new ArrayMesh { ResourceName = string.Create(CultureInfo.InvariantCulture, $"{name}_Surface{bounded.Count}") };
                     surface.AddTo(mesh, material);
-                    bounded.Add((mesh, twins, surface.SphereBounds));
+                    bounded.Add((mesh, twins, surface.SphereBounds, !split));
                 }
                 else
                 {
@@ -1693,11 +1696,11 @@ public static class MapBuilder
             if (sky && bounded.Count != 0)
             {
                 // The sky camera sorted a cell's transparent surfaces by the cell's box and, at that one distance, in
-                // surface order (Godot's sort keeps the order of up to 16 transparent surfaces). Drawn by the main view
+                // surface order. Drawn by the main view
                 // among many more, they keep both: the cell's box on each split mesh, the surface order as a node meta
                 // (FaithfulView.UpdateSkySort).
                 Aabb cellBounds = grouped.GetSurfaceCount() != 0 ? grouped.GetAabb() : bounded[0].Mesh.GetAabb();
-                foreach ((ArrayMesh mesh, _, _) in bounded)
+                foreach ((ArrayMesh mesh, _, _, _) in bounded)
                 {
                     cellBounds = cellBounds.Merge(mesh.GetAabb());
                 }
@@ -1710,15 +1713,6 @@ public static class MapBuilder
 
             if (grouped.GetSurfaceCount() != 0)
             {
-                if (bounded.Count != 0 && !sky)
-                {
-                    Aabb originalBounds = grouped.GetAabb();
-                    foreach ((ArrayMesh mesh, _, _) in bounded)
-                    {
-                        originalBounds = originalBounds.Merge(mesh.GetAabb());
-                    }
-                    grouped.CustomAabb = originalBounds;
-                }
                 AddCellMesh(grouped, layer, groupedTwins, groupedSpheres);
             }
             else
@@ -1729,6 +1723,12 @@ public static class MapBuilder
             for (int i = 0; i < bounded.Count; i++)
             {
                 MeshInstance3D node = AddCellMesh(bounded[i].Mesh, layer, [bounded[i].Twins], bounded[i].Spheres);
+                if (!sky && bounded[i].Ordered)
+                {
+                    // Sort by this bucket's own bounds, rather than the whole cell. Break any remaining exact
+                    // distance ties in surface order (at most 2.6 uu across all 256 surfaces of a cell part).
+                    node.SortingOffset = i * 0.0001f;
+                }
                 if (sky)
                 {
                     node.SetMeta(FaithfulView.SkySortOrderMeta, i);
