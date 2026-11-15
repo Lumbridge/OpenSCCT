@@ -83,6 +83,17 @@ public partial class SPlayerController
     [Provenance(ProvenanceKind.Decoded, "SPlayerController.s_Pickup_GoTo.BeginState stand spot")]
     public static void GetPickupSpot(SInteractObject entry, Pawn pawn, out FVector Spot, out FVector Facing)
     {
+        if (entry.Owner is SFlag { bPS2Objective: true } flag)
+        {
+            // PS2 controller stateG546928.BeginState, COM0xECF13:
+            // owner+forward80, current pawnZ, plus27.5 when crouched.
+            Spot = flag.Location + flag.Rotation.Vector() * K.Ps2PickupStandDistance;
+            Spot.Z = pawn.Location.Z + (pawn.bIsCrouched ? K.Ps2PickupCrouchLift : 0f);
+            FRotator rotation = flag.Rotation;
+            rotation.Yaw += 32768;
+            Facing = rotation.Vector();
+            return;
+        }
         FVector off = entry.vRelativePositionForInteraction;
         Facing = entry.Location - pawn.Location;
         Facing.Z = 0f;
@@ -92,6 +103,11 @@ public partial class SPlayerController
         float back = entry.Location.Z < pawn.Location.Z - MK.PickupLowEntry ? pawn.CollisionRadius : pawn.CollisionRadius * 2f;
         Spot -= x * back;
     }
+
+    private bool Ps2PickupSelected => IManager?.GetCurrentInteraction()?.Owner is SFlag { bPS2Objective: true };
+
+    [Provenance(ProvenanceKind.Decoded, "spec/objectives/ps2-pickup.md: source action151 reads controllerC28mask1; source pickup leaves the opt-in false")]
+    internal bool Ps2PickupReposition => IsInState(K.s_Pickup_GoTo) && Ps2PickupSelected;
 
     /// <summary>Walking to a pickable object (interaction-system.md rule 22).</summary>
     [Uc("SBase.SPlayerController.s_Pickup_GoTo")]
@@ -137,6 +153,13 @@ public partial class SPlayerController
         [PortOf("uc:SBase.SPlayerController:s_Pickup_GoTo.NotifyBump", Spec = "spec/objectives/interaction-system.md#rules")]
         public bool NotifyBump(SPlayerController self, Actor Other)
         {
+            if (self.Ps2PickupSelected)
+            {
+                // Source ignores its console/vial, but other actor bumps cancel.
+                if (self.IAmOnClient() && Other is not (SComputerObjectiveTrigger or SFlag))
+                    self.eventChangeState(K.s_PlayerWalkingSt0H);
+                return false;
+            }
             StopWalk(self);
             return false;
         }
@@ -145,6 +168,11 @@ public partial class SPlayerController
         [PortOf("uc:SBase.SPlayerController:s_Pickup_GoTo.NotifyHitWall", Spec = "spec/objectives/interaction-system.md#rules")]
         public bool NotifyHitWall(SPlayerController self, FVector HitNormal, Actor? Wall)
         {
+            if (self.Ps2PickupSelected)
+            {
+                if (self.IAmOnClient()) self.eventChangeState(K.s_PlayerWalkingSt0H);
+                return true;
+            }
             StopWalk(self);
             return true;
         }
@@ -163,6 +191,14 @@ public partial class SPlayerController
         {
             if (!self.IAmOnClient() || self.SBPawn is not { } pawn)
             {
+                return;
+            }
+
+            if (self.Ps2PickupSelected)
+            {
+                // SourceTopSynchro only hands off; the pickup BeginState
+                // chooses its stance/height action before taking the object.
+                self.eventChangeState(K.s_Pickup);
                 return;
             }
 
@@ -219,6 +255,13 @@ public partial class SPlayerController
         public override void BeginState(Actor self)
         {
             var pc = (SPlayerController)self;
+            if (pc.Ps2PickupSelected && pc.IAmOnClient() && pc.SBPawn is { } pawn && pc.IManager?.GetCurrentInteraction() is { } entry)
+            {
+                // Semantic PC animation names, not PS2's different action ordinals.
+                pawn.ChangeEnumAction(pawn.bIsCrouched
+                    ? entry.Location.Z < pawn.Location.Z - 20f ? SBasePawn.SA_PICKUP_CR_UP : SBasePawn.SA_PICKUP_CR_FD
+                    : entry.Location.Z < pawn.Location.Z - 30f ? SBasePawn.SA_PICKUP_ST_UP : SBasePawn.SA_PICKUP_ST_FD);
+            }
             if (pc.IsLocalInputMachine())
             {
                 pc.SetHandItemFromInteraction(pc.IManager?.GetCurrentInteraction());

@@ -409,7 +409,10 @@ public static class TraversalActions
     {
         pawn.fPhysReposLinearSpeed = speed;
         pawn.bServerControlsRepos = false;
-        pawn.bUseAdditionnalPhysicsForRepos = true;
+        // PS2 action151 (0x2A1DD0) uses a controller opt-in, cleared by
+        // its PostBeginPlay and untouched by the source vial pickup state.
+        // That path moves in XYZ, including its explicit crouched27.5 lift.
+        pawn.bUseAdditionnalPhysicsForRepos = pawn.Controller is not SPlayerController { Ps2PickupReposition: true };
         PawnActions.SetPhysics(pawn, EPhysics.PHYS_Repositionnal);
     }
 
