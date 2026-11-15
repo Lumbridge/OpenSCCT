@@ -688,6 +688,7 @@ public partial class SPlayerController
         }
 
         SelectGadget(i);
+        if (!ReferenceEquals(spy.SelectedGadget, PawnInventory.GadgetInSlot(spy, i))) return;
         switch (spy.SelectedGadget)
         {
             case SGadGrenLauncher grenade when grenade.CanQuickLaunch && (grenade.Charge > 0 || grenade.Charge == K.UnlimitedCharge) &&

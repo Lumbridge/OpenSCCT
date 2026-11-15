@@ -12,6 +12,14 @@ Rebuild distributable art with Python/numpy/Pillow:
 Rebuild the transparent equipment icons with Blender 5.x:
   blender --background --disable-autoexec --python content/assets/rifles/render.py
 
+Rebuild the original OpenSCCT tube optic and guarded FAMAS aperture/blade:
+  blender --background --disable-autoexec --python content/assets/rifles/author_sight.py
+
+The chars step fits the supporting palm, thumb and curled fingers to each fore-end,
+solves the elbow for a neutral wrist, and authors visible magazine contacts.
+It also mounts sights on the first- and third-person rigs and generates matching
+stock/M4/FAMAS side renders with Python/numpy/Pillow; Blender is not a content-build dependency.
+
 Rebuild the eight audio files with Python/numpy/ffmpeg:
   python content/assets/rifles/author_audio.py
 
@@ -24,9 +32,13 @@ Do not copy locally assembled *_first.glb files back into export/.
 Balance lives in src/OpenScct.Game/Equipment/MercRifles.cs. All four use the
 stock trace, hit-zone, movement-spread, recoil and distance-falloff systems.
 Initial close damage / interval / magazine / reserve / reload:
-  M4A1-S  22 / .175 / 20 / 80  / 2.40 s; .4 noise radius, reduced flash
-  AK-47   29 / .220 / 30 / 90  / 2.80 s; strongest recoil
-  GALIL   21 / .185 / 35 / 105 / 3.00 s; wider spread
-  FAMAS   22 / .175 / 25 / 100 / 2.65 s; burst by default
+  M4A1-S  22 / .100 / 20 / 80  / 2.40 s; .4 noise radius, red dot
+  AK-47   29 / .100 / 30 / 90  / 2.80 s; strongest recoil, iron sights
+  GALIL   21 / .090 / 35 / 105 / 3.00 s; wider spread, iron sights
+  FAMAS   22 / .090 / 25 / 100 / 2.65 s; burst by default (.075 within burst), iron sights
 Damage is before hit-zone scaling. These are initial sidegrade estimates;
 manual spy-versus-merc and connected-client play are required for tuning.
+Rates and exponential damage retention use CS2's weapons.vdata as a reference:
+https://raw.githubusercontent.com/SteamTracking/GameTracking-CS2/master/game/csgo/pak01_dir/scripts/weapons.vdata
+Damage retention per 12.7 metres: M4A1-S .94, AK/Galil .98, FAMAS .96.
+Use the existing Scope binding for rifle ADS; hold and toggle scope bindings both work.

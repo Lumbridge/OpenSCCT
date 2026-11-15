@@ -27,10 +27,8 @@ def install(audio_dir):
         sounds[profile['asset']]={'kind':'random','flags':256,'entries':entries,'volume':2.5118864,'radius':0,'loop':False,'positional':True}
         if 'reload' in profile:recording(profile['reload']['asset'],profile['reload']['file'])
     for asset,file in bank['extra'].items():recording(asset,file)
-    aliases={'Armes_impacts.Armes.RA_GunDef_1shot':'OpenScctWeapons.rifle_fire',
-        'Armes_impacts.Armes.SE_Uzi':'OpenScctWeapons.uzi_fire','Armes_impacts.Armes.SE_ShotGun':'OpenScctWeapons.shotgun_fire',
-        'Armes_impacts.Armes.RA_Reload_Def':'OpenScctWeapons.rifle_reload'}
-    for alias,asset in aliases.items():sounds[alias]=sounds[asset]
+    # Retail weapon names retain their original recordings. This bank owns only
+    # the custom rifles and sidearms, even when it is installed as the final overlay.
     for file in ('CREDITS.txt','manifest.json'):shutil.copy2(SOURCE/file,target/file)
     (audio_dir/'user-gun-audio.json').write_text(json.dumps({'format':'svm.audio/1','sounds':sounds},sort_keys=True),encoding='utf-8')
     return {'profiles':len(bank['profiles']),'entries':len(sounds)}

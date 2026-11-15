@@ -277,6 +277,11 @@ public static class PlayerCommands
                 pc.eventSwitchHeadset(command.Arg);
                 return true;
             case "SWITCHBINOCULARVISION":
+                if (pc.SBPawn?.MyWeapon is OpenScct.Game.Svm.MercRifle rifle)
+                {
+                    rifle.SetAiming(pc, !rifle.AimRequested);
+                    return true;
+                }
                 pc.eventSwitchBinocularVision();
                 return true;
             case "SETWALK":
@@ -290,6 +295,11 @@ public static class PlayerCommands
                 else pc.bFastSpeed = true;
                 return true;
             case "SETSCOPE":
+                if (pc.SBPawn?.MyWeapon is OpenScct.Game.Svm.MercRifle aimedRifle)
+                {
+                    aimedRifle.SetAiming(pc, command.Arg != 0);
+                    return true;
+                }
                 if (pc.SBPawn is SPAWNDEFENSE && pc.bBinocularVision != (command.Arg != 0))
                 {
                     if (command.Arg != 0) pc.eventSwitchBinocularVision();
@@ -359,8 +369,17 @@ public static class PlayerCommands
     /// <summary>Reloaded 0x100b0750: select and fire a slot with the Shocker drawn, including its sticky-cam path.</summary>
     private static void LaunchGadget(SPlayerController pc, int slot)
     {
-        if (slot is < 0 or > 3 || pc.SBPawn is not SPawnAttaque { WeaponLoaded: 2 } spy || InCamera(pc)) return;
+        if (slot is < 0 or > 3 || pc.SBPawn is not SPawnAttaque spy || InCamera(pc)) return;
+        if (spy.WeaponLoaded == 0)
+        {
+            pc.eventGadgetQuickChoice(slot);
+            return;
+        }
+        if (spy.WeaponLoaded != 2) return;
+        SGadget? target = OpenScct.Game.Equipment.PawnInventory.GadgetInSlot(spy, slot);
+        if (target is null) return;
         pc.SelectGadget(slot);
+        if (!ReferenceEquals(spy.SelectedGadget, target)) return;
         if (spy.SelectedGadget is SGadStickyCam sticky)
         {
             if (sticky.Charge == 0)

@@ -91,7 +91,7 @@ public partial class SWeaponDefense
     private bool AcceptShotClock()
     {
         float now = XLevel.WorldTimeSeconds;
-        float rate = System.Math.Max(Sim.DeltaTime, RateOfFire);
+        float rate = System.Math.Max(Sim.DeltaTime, ShotInterval);
         if (ActiveClientShotTime is not { } stamp)
         {
             if (now + Sim.DeltaTime * 2 < _nextCarriedShot) return false;

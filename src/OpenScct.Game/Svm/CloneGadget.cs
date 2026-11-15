@@ -13,6 +13,12 @@ public sealed class CloneGadget : SpyDeployableGadget
     public static readonly UcClassInfo ClassInfo = GadgetClass<CloneGadget>(ClassPath);
 
     private long _lastDeploymentTick = -1;
+    public const float RechargeSeconds = 60f;
+    private float _rechargeUntil;
+    // Remaining time is replicated, so owner HUDs do not subtract clocks from different worlds.
+    public float RechargeLeft;
+    public float RechargeRemaining => RechargeLeft;
+    private bool Ready => Charge > 0 && RechargeRemaining <= 0f;
 
     public override UcClassInfo GetUcClass() => ClassInfo;
 
@@ -20,7 +26,7 @@ public sealed class CloneGadget : SpyDeployableGadget
     {
         base.SetDefaults();
         ItemName = ItemLongName = "Clone";
-        ItemDescription = "Send a copy of yourself running forward. A Merc shot makes it flash Mercs who are looking at it.";
+        ItemDescription = "Send a copy of yourself running forward. A Merc shot makes it flash Mercs who are looking at it. Recharges in 60 seconds.";
         MagmaIconName = "A_capeInvisible";
         IconU = 128;
         IconV = 64;
@@ -30,7 +36,7 @@ public sealed class CloneGadget : SpyDeployableGadget
 
     public override void Use(float value)
     {
-        if (!HasCharge || OwnerPawn?.Controller is not SPlayerController pc) return;
+        if (!Ready || OwnerPawn?.Controller is not SPlayerController pc) return;
 
         if (!GadgetNet.ToServer(this, pc, new CombatCall(new Name("DeployClone")) { Target = this, Rotation = pc.Rotation }))
             Deploy(pc, pc.Rotation.Yaw);
@@ -38,7 +44,7 @@ public sealed class CloneGadget : SpyDeployableGadget
 
     internal void Deploy(SPlayerController pc, int yaw)
     {
-        if (!HasCharge || _lastDeploymentTick == XLevel.TickCount || !CanDeploy(pc) || OwnerPawn is not SPawnAttaque spy ||
+        if (!Ready || _lastDeploymentTick == XLevel.TickCount || !CanDeploy(pc) || OwnerPawn is not SPawnAttaque spy ||
             spy.Physics != EPhysics.PHYS_Walking) return;
 
         var heading = new FRotator(0, yaw & 65535, 0);
@@ -49,7 +55,21 @@ public sealed class CloneGadget : SpyDeployableGadget
 
         // A mouse button can run both alternate fire and the legacy quick-slot command on the same tick.
         _lastDeploymentTick = XLevel.TickCount;
-        DecCharge();
+        Charge = 0;
+        _rechargeUntil = Level.TimeSeconds + RechargeSeconds;
+        RechargeLeft = RechargeSeconds;
         LastUsed = Level.TimeSeconds;
+    }
+
+    protected override void Tick(float deltaTime)
+    {
+        base.Tick(deltaTime);
+        if (Role != ENetRole.ROLE_Authority || _rechargeUntil <= 0f) return;
+        RechargeLeft = System.MathF.Ceiling(System.Math.Max(0f, _rechargeUntil - Level.TimeSeconds) * 10f) / 10f;
+        if (RechargeLeft <= 0f)
+        {
+            Charge = 1;
+            _rechargeUntil = 0f;
+        }
     }
 }

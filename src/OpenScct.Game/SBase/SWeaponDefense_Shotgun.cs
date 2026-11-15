@@ -239,22 +239,7 @@ public partial class SWeaponDefense_Shotgun
     /// <summary>BaseDamage times the band factor at distance <paramref name="d"/>: flat CMax before DistCac (rule 7.6).</summary>
     private float PelletDamage(float d)
     {
-        if (d < DistCac)
-        {
-            return BaseDamage * CMax;
-        }
-
-        if (d < DistMed)
-        {
-            return ((CoefMed - CoefCaC) / (DistMed - DistCac) * (d - DistCac) + CoefCaC) * BaseDamage;
-        }
-
-        if (d < DistLoin)
-        {
-            return ((CoefMin - CoefMed) / (DistLoin - DistMed) * (d - DistMed) + CoefMed) * BaseDamage;
-        }
-
-        return BaseDamage * CoefMin;
+        return WeaponRules.DistanceDamageFloat(this, d);
     }
 
     // ---- the reload ---------------------------------------------------------------------------------------------

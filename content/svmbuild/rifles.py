@@ -27,7 +27,14 @@ def install_models(chars_dir):
     for image in (chars_dir/'OpenScctSidearms/textures').glob('cosmetic_*OpenScctSidearms_arms_arms_baseColor.png'):
         prefix,base=image.name.split('OpenScctSidearms_',1)
         shutil.copy2(image,target/'textures'/(prefix+'shared_OpenScctSidearms_'+base))
-    for name in IDS:contextual_clips(target/(name+'_first.glb'),chars_dir/'SWeaponFirst/1DEF_01.glb')
+    from .rifle_handling import author_rifle, world_sights
+    from .weapon_icons import render
+    for name in IDS:
+        contextual_clips(target/(name+'_first.glb'),chars_dir/'SWeaponFirst/1DEF_01.glb')
+        author_rifle(target/(name+'_first.glb'), name)
+        if name in ('m4a1s', 'famas'):
+            world_sights(target/(name+'.glb'), target/(name+'_first.glb'), name)
+            render(target/(name+'.glb'), target/'textures'/(name+'_icon.png'))
     return {'models':8,'icons':4}
 
 

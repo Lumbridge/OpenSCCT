@@ -1,4 +1,5 @@
 using OpenScct.Core;
+using OpenScct.Core.Engine;
 using OpenScct.Game.SBase;
 using OpenScct.Provenance;
 
@@ -42,10 +43,25 @@ public static class WeaponRules
     /// <summary><c>int(BaseDamage * factor)</c> for a hit at distance <paramref name="d"/>.</summary>
     public static int DistanceDamage(SWeaponDefense Weapon, float d)
     {
-        float factor = DistanceFactor(d, Weapon.CMax, Weapon.CoefCaC, Weapon.CoefMed, Weapon.CoefMin, Weapon.DistCac,
-            Weapon.DistMed, Weapon.DistLoin);
-        return SvmMath.Trunc(Weapon.BaseDamage * factor);
+        return SvmMath.Trunc(DistanceDamageFloat(Weapon, d));
     }
+
+    /// <summary>CS2-style exponential falloff per 500 Source inches (12.7 m / 1270 SCCT units).</summary>
+    // Rifle range modifiers and cycle times: GameTracking-CS2/game/csgo/pak01_dir/scripts/weapons.vdata.
+    public static float DistanceDamageFloat(SWeaponDefense weapon, float distance) =>
+        weapon.BaseDamage * weapon.CMax * SvmMath.Pow(RangeModifier(weapon), System.Math.Max(0f, distance) / 1270f);
+
+    public static float RangeModifier(SWeaponDefense weapon) => weapon switch
+    {
+        Svm.MercRifle rifle => rifle.Definition.RangeModifier,
+        SWeaponDefense_Shotgun => .7f,
+        SWeaponDefense_Uzi => .87f,
+        MercSidearm { Kind: (int)SidearmKind.Automatic } => .85f,
+        MercSidearm { Kind: (int)SidearmKind.Magnum44 } => .94f,
+        MercSidearm { Kind: (int)SidearmKind.DesertEagle } => .81f,
+        MercSidearm => .91f,
+        _ => .98f,
+    };
 
     /// <summary>
     /// GetAccuracy (native 1286): <c>min(|V| / 600 + MinDispersion + 0.1 * BulletInARow, MaxDispersion)</c>.

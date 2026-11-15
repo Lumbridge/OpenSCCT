@@ -159,6 +159,7 @@ public abstract class HudPage
         if (Root.Visible)
         {
             DrawGadgetCross(s);
+            DrawGadgetRecharge(s);
             DrawCanvas(screen, s);
         }
 
@@ -396,7 +397,8 @@ public abstract class HudPage
             return;
         }
 
-        SetText(box, "NbGadget", g.Charge < 0 ? HudK.NoCharge : g.Charge.ToString(CultureInfo.InvariantCulture));
+        SetText(box, "NbGadget", g.RechargeRemaining > 0f ? MathF.Ceiling(g.RechargeRemaining).ToString(CultureInfo.InvariantCulture) + "s" :
+            g.Charge < 0 ? HudK.NoCharge : g.Charge.ToString(CultureInfo.InvariantCulture));
         SetText(box, "NomGadget", g.Name);
         // The icon is a HUDConfig region named by the gadget's MagmaIconName in Options.mgm (C_Default_2 when missing).
         MagmaPackage? options = Assets.Package("Options");
@@ -412,7 +414,7 @@ public abstract class HudPage
             image.Region = options!.Materials[icon].Region;
         }
 
-        image.Tint = g.Unavailable ? UnavailableIconColour : null;
+        image.Tint = g.Unavailable ? UnavailableIconColour : g.RechargeRemaining > 0f ? new Color(.45f, .45f, .45f, .7f) : null;
     }
 
     /// <summary>An unavailable gadget's icon: greyed and half transparent, like an unavailable gadget menu line.</summary>
@@ -461,6 +463,24 @@ public abstract class HudPage
         Bar("Extras/GadgetCrossA", tl, br, thickness, white, GadgetCrossColour with { A = GadgetCrossColour.A * opacity });
         Bar("Extras/GadgetCrossB", new Vector2(br.X, tl.Y), new Vector2(tl.X, br.Y), thickness, white,
             GadgetCrossColour with { A = GadgetCrossColour.A * opacity });
+    }
+
+    private void DrawGadgetRecharge(HudSnapshot s)
+    {
+        if (s.Gadget is not { RechargeRemaining: > 0f } gadget ||
+            DrawList.Find("Gadget/Gadget") is not { Points.Length: >= 4 } icon) return;
+        _white ??= WhiteRegion.Find(Assets);
+        if (_white is not { } white) return;
+        float l = float.MaxValue, t = float.MaxValue, r = float.MinValue, b = float.MinValue;
+        foreach (Vector2 p in icon.Points)
+        {
+            l = Math.Min(l, p.X); t = Math.Min(t, p.Y);
+            r = Math.Max(r, p.X); b = Math.Max(b, p.Y);
+        }
+        float progress = Math.Clamp(1f - gadget.RechargeRemaining / OpenScct.Game.Svm.CloneGadget.RechargeSeconds, 0f, 1f);
+        float height = (b - t) * progress;
+        if (height > 0f) Bar("Extras/GadgetRecharge", new Vector2(l, b - height * .5f),
+            new Vector2(r, b - height * .5f), height, white, HudK.SpyColour with { A = .35f });
     }
 
     protected void ProgressBar(string path, Vector2 start, float width, float progress, MagmaAnchor anchor, Color color)

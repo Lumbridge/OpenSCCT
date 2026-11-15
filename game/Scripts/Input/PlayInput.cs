@@ -455,8 +455,17 @@ public partial class PlayInput : Node
                 input.Wheel--;
             }
 
-            foreach (KeyAction a in ActionsOf(ik))
+            var actions = ActionsOf(ik);
+            bool targetedGadget = false;
+            foreach (KeyAction action in actions)
+                if (action.Kind == KeyActionKind.Command && (action.Name.Equals("GadgetQuickChoice", StringComparison.OrdinalIgnoreCase) ||
+                    action.Name.Equals("LaunchGadget", StringComparison.OrdinalIgnoreCase) || action.Name.Equals("UseGadget", StringComparison.OrdinalIgnoreCase)))
+                    targetedGadget = true;
+            foreach (KeyAction a in actions)
             {
+                // A quick-slot binding may share the legacy mouse alias for alternate fire.
+                // Only its explicit target should run; the currently displayed gadget must stay idle.
+                if (targetedGadget && (a.Name.Equals("bAltFire", StringComparison.OrdinalIgnoreCase) || a.Name.Equals("AltFire", StringComparison.OrdinalIgnoreCase))) continue;
                 if (IsTeamPing(a)) continue;
                 if (a.Kind == KeyActionKind.Command && a.Name.Equals(UI.ControlActions.AutoHackCommand, StringComparison.OrdinalIgnoreCase))
                 {

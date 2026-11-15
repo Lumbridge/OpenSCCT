@@ -33,6 +33,8 @@ public partial class FirstPersonView : Node3D
     private SWeaponDefense? _lastWeapon;
     private float _revolverKick;
     private readonly Dictionary<SkeletalModel, Transform3D> _sidearmSightOffsets = new();
+    private readonly Dictionary<SkeletalModel, Transform3D> _rifleSightOffsets = new();
+    public float AimBlend { get; set; }
     private readonly ObservedWeaponViewModel _observed = new();
 
     /// <summary>What <see cref="Preload"/> read for this match.</summary>
@@ -172,7 +174,11 @@ public partial class FirstPersonView : Node3D
 
         _model!.ApplyAnimations(weapon!.XLevel.GetService<OpenScct.Server.AnimationWorld>()?.Project, weapon.Mesh.Path);
         _model.Place(cameraLocation, cameraRotation, default);
-        _model.SetVision(GameplayObjects.VisionOf(weapon!));
+        Vector4 ownVision = GameplayObjects.VisionOf(weapon!);
+        // The foreground weapon is a solid overlay. Dithering it by the world actor's EMF opacity
+        // reveals its back faces and the laser under it, which looks like a second gun.
+        ownVision.W = 1f;
+        _model.SetVision(ownVision);
         if (!ReferenceEquals(_lastWeapon, weapon))
         {
             _lastWeapon = weapon;
@@ -191,6 +197,8 @@ public partial class FirstPersonView : Node3D
             blendLandingRecovery: weapon is MercSidearm);
         if (weapon is MercSidearm && _sidearmSightOffsets.TryGetValue(_model, out Transform3D sightOffset))
             _model.Root.Transform *= sightOffset;
+        if (weapon is OpenScct.Game.Svm.MercRifle && _rifleSightOffsets.TryGetValue(_model, out Transform3D rifleOffset))
+            _model.Root.Transform *= Transform3D.Identity.InterpolateWith(rifleOffset, AimBlend);
         if (_revolverKick > 0f)
         {
             // Actor-local +X is forward and +Z is screen-right (UE mapping),
@@ -331,6 +339,15 @@ public partial class FirstPersonView : Node3D
             mesh.Layers = RenderLayers.FirstPerson;
         }
         _model.SetFirstPersonDepth();
+
+        if (asset.StartsWith("OpenScctRifles.", StringComparison.OrdinalIgnoreCase) &&
+            _model.Skeleton.FindBone("ADS") is int sight and >= 0 && _model.Sampler.Find("FirstWaitStFd2") is { } held)
+        {
+            Transform3D neutral = _model.Root.GlobalTransform.AffineInverse() * _model.Skeleton.GlobalTransform *
+                _model.Sampler.SampleBone(held, sight, 0f);
+            var rotation = new Basis(new Quaternion(neutral.Basis.X.Normalized(), Vector3.Right));
+            _rifleSightOffsets[_model] = new Transform3D(rotation, Vector3.Right * (asset.Contains("m4a1s", StringComparison.OrdinalIgnoreCase) ? .36f : .22f) - rotation * neutral.Origin);
+        }
 
         _applier = new ChannelPoseApplier(_model.Skeleton);
         _loaded[asset] = (_model, _applier, _arms);

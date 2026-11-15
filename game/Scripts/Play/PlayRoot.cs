@@ -1004,6 +1004,12 @@ public partial class PlayRoot : Node3D
     private void DrawViews(PlaySession session, float alpha, float dt)
     {
         SPlayerController? pc = session.LocalController;
+        if (FirstPerson is { } firstPersonView && Camera is { } aimCamera)
+        {
+            float target = session.LocalPawn?.MyWeapon is OpenScct.Game.Svm.MercRifle { AimRequested: true } ? 1f : 0f;
+            firstPersonView.AimBlend = Mathf.Lerp(firstPersonView.AimBlend, target, 1f - MathF.Exp(-18f * dt));
+            aimCamera.RifleAimBlend = firstPersonView.AimBlend;
+        }
         _alpha = alpha;
 
         // The mouse turn not yet simulated is drawn now (no frame of delay, as the original's per-frame controller).

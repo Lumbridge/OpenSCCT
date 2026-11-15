@@ -1665,6 +1665,42 @@
     "content/assets/rifles/export/textures/suppressor.png": {
       "bytes": 10865,
       "sha256": "b59e6ff1bee36f0003fea68a5b3ad457a41dd707f5aae5f8d8481b710a83702d"
+    },
+    "content/assets/rifles/export/micro_red_dot.glb": {
+      "bytes": 472868,
+      "sha256": "c75e12679e6b59e3eaa162333f15bfb8b9ee8fa0ac502368d28f0d00ee9d10c2"
+    },
+    "content/assets/rifles/export/famas_irons.glb": {
+      "bytes": 101896,
+      "sha256": "6d9f0b9281ef1589d7dd77daff1b2b6a21eefe24af3a2a04f281423a4a9bc572"
+    },
+    "content/assets/rifles/export/textures/OpticAnodized.png": {
+      "bytes": 261,
+      "sha256": "f1d0eddf9e9ea79abd3a449965f931e174d71092d3fa68fee597d33f434bab13"
+    },
+    "content/assets/rifles/export/textures/OpticFasteners.png": {
+      "bytes": 261,
+      "sha256": "2769b8c627814c436cf3c382bb190fcb2614f7ea9ef4f9bb5b1bd384e63b51f3"
+    },
+    "content/assets/rifles/export/textures/OpticLens.png": {
+      "bytes": 261,
+      "sha256": "232dca9b53d86766e5512546a6e931d7770b1c953f96a14d19ccf5e5163c61e3"
+    },
+    "content/assets/rifles/export/textures/OpticReticle.png": {
+      "bytes": 261,
+      "sha256": "23f135b7c9775c716286e302bf59fafde0f36300c7d6f57042e79c1f166cdf7f"
+    },
+    "content/assets/rifles/export/textures/OpticRubber.png": {
+      "bytes": 261,
+      "sha256": "1035905552b9559d6cf7e33eea1b7f48b0dab6db6bb3bc1ed42de547f4a0b62d"
+    },
+    "content/assets/rifles/export/textures/IronFasteners.png": {
+      "bytes": 261,
+      "sha256": "f6f747475926ab6cd70ed6998a1e95bcecbe0fcfcc88ef636344839b2e6428a0"
+    },
+    "content/assets/rifles/export/textures/IronParkerized.png": {
+      "bytes": 261,
+      "sha256": "30447846b42e412e3d866726b0b3acba16e9c6699a73be5e055c27e720cf3356"
     }
   },
   "additional_credits": [

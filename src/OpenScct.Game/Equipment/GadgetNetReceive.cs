@@ -22,6 +22,9 @@ public static class GadgetNetReceive
         Actor? target = c.Target;
         switch (c.Function.ToString())
         {
+            case "SetRifleAim" when target is MercRifle rifle:
+                rifle.SetAiming(PC, c.Bool1);
+                return true;
             case "DeployClone" when target is CloneGadget clone:
                 clone.Deploy(PC, c.Rotation.Yaw);
                 return true;
@@ -94,6 +97,9 @@ public static class GadgetNetReceive
         Actor? target = c.Target;
         switch (c.Function.ToString())
         {
+            case "RifleAimState" when target is MercRifle rifle:
+                rifle.AimRequested = c.Bool1;
+                return true;
             case "CloneFlash":
                 PC.ApplyCloneFlash();
                 return true;

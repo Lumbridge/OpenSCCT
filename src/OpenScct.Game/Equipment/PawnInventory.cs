@@ -316,7 +316,7 @@ public static class PawnInventory
     }
 
     /// <summary>The actual gadget in a slot, without wrapping empty slots to a different item.</summary>
-    internal static SGadget? GadgetInSlot(SBasePawn pawn, int slot)
+    public static SGadget? GadgetInSlot(SBasePawn pawn, int slot)
     {
         if (slot < 0 || slot >= TeamSlots(pawn)) return null;
         for (SGadget? gadget = pawn.MyGadget; gadget is not null; gadget = gadget.MyGadget)

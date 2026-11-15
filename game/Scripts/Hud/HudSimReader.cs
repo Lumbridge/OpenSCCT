@@ -224,7 +224,8 @@ public sealed class HudSimReader : IHudSource
                 SWeaponDefense_Shotgun => HudWeaponKind.Shotgun,
                 _ => HudWeaponKind.Rifle,
             };
-            s.ShowReticle = pawn.WeaponLoaded != 0 && !pc.bNoReticule && !s.LaserOn;
+            s.ShowReticle = pawn.WeaponLoaded != 0 && !pc.bNoReticule && !s.LaserOn && !pc.bLaserEtaitAllume &&
+                weapon is not OpenScct.Game.Svm.MercRifle { AimRequested: true };
             float range = weapon.MaxDispersion - weapon.MinDispersion;
             s.ReticleFrame = range > 0f ? (int)(10f * weapon.GetAccuracy() / range) : 0;
             s.ReticleHit = pc.fDateLastShootedPawn > 0f && pc.fDateLastShootedPawn + HudK.ReticleHitTime > pc.Level.TimeSeconds;
@@ -234,7 +235,8 @@ public sealed class HudSimReader : IHudSource
         {
             s.Gadget = new HudGadget(gadget.ItemName, gadget.Charge, gadget.MagmaIconName, gadget.IconU, gadget.IconV,
                 Unavailable: gadget is SGadCamNetwork { HasNetwork: false },
-                MineHackPercent: (gadget as MineHackGadget)?.HeldHackPercent ?? 0);
+                MineHackPercent: (gadget as MineHackGadget)?.HeldHackPercent ?? 0,
+                RechargeRemaining: (gadget as CloneGadget)?.RechargeRemaining ?? 0f);
         }
     }
 

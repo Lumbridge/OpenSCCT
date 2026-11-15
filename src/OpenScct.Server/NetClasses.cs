@@ -67,6 +67,12 @@ public static class NetClasses
                 pawn.Functions.AddRange(equipment.Functions);
                 registry.Extend(type, pawn);
             }
+            if (typeof(MercRifle).IsAssignableFrom(type))
+            {
+                var aim = new RepExtension();
+                aim.Properties.Add(new(nameof(MercRifle.AimRequested), nameof(MercRifle.AimRequested), RepLeafKind.Bool));
+                registry.Extend(type, aim);
+            }
             if (typeof(SVitre).IsAssignableFrom(type))
             {
                 var glass = new RepExtension();
@@ -92,6 +98,9 @@ public static class NetClasses
         var hack = new RepExtension();
         hack.Properties.Add(new(nameof(MineHackGadget.HackPercent), nameof(MineHackGadget.HackPercent), RepLeafKind.Byte));
         registry.Extend<MineHackGadget>(hack);
+        var cloneRecharge = new RepExtension();
+        cloneRecharge.Properties.Add(new(nameof(CloneGadget.RechargeLeft), nameof(CloneGadget.RechargeLeft), RepLeafKind.Float));
+        registry.Extend<CloneGadget>(cloneRecharge);
         var mineState = new RepExtension();
         mineState.Properties.Add(new(nameof(SMines.IsHacked), nameof(SMines.IsHacked), RepLeafKind.Bool));
         registry.Extend<SMineProx>(mineState);

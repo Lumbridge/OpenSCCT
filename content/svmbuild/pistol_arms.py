@@ -414,3 +414,6 @@ def assemble(chars_dir,pistol):
         revolver_cartridges(doc,data,idle_world,placement,mesh_world)
     mount_to_firing_hand(doc,data)
     write(folder/(pistol+'_first.glb'),doc,data)
+    if pistol == 'magnum44':
+        from .rifle_handling import revolver_yoke
+        revolver_yoke(folder/(pistol+'_first.glb'))

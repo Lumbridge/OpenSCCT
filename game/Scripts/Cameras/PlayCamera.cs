@@ -23,6 +23,7 @@ public sealed class PlayCamera
     private readonly FaithfulView _view;
     private bool _placed;
     private bool _wasCinematic;
+    public float RifleAimBlend { get; set; }
 
     public PlayCamera(FaithfulView view)
     {
@@ -83,6 +84,7 @@ public sealed class PlayCamera
             Occluded = !SpyPerspectiveCamera.TryConstrain(pawn, camera.Location, out camera.Location,
                 _view.CameraClearance(camera.Fov), withinBody: current.SpyFirstPerson);
         }
+        if (!cinematic) camera.Fov *= 1f - .2f * RifleAimBlend;
         _view.SetUeCamera(camera.Location, camera.Rotation, camera.Fov, cut);
         _wasCinematic = cinematic;
         Current = camera;

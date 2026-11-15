@@ -89,8 +89,8 @@ public partial class SWeaponDefense
         ViewAnim.Stop(ACTIONCHANNEL);
         if (OwnerPC is { } pc)
         {
-            pc.RallumeLaserEteint();
             pc.bNoReticule = false;
+            pc.RallumeLaserEteint();
         }
     }
 
@@ -213,7 +213,7 @@ public partial class SWeaponDefense
                 w.OwnerPC?.Vibration_Tir();
             }
 
-            w.SetTimer(w.RateOfFire, true);
+            w.SetTimer(w.ShotInterval, true);
             w.CreateSmoke1();
         }
 

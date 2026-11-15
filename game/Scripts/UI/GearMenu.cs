@@ -105,7 +105,7 @@ public partial class GearMenu : MenuPage
         main.AddChild(centre);
         string caption = _category switch { Category.Primary => "PRIMARY WEAPONS", Category.Sidearm => "SIDEARMS", _ => "GADGETS  /  SLOT " + (_slot + 1) };
         centre.AddChild(Text(caption, 15, Accent));
-        centre.AddChild(Text(_category == Category.Primary ? "Select a weapon directly. New rifles use hip fire only." :
+        centre.AddChild(Text(_category == Category.Primary ? "Select a weapon. Use your Scope binding to aim down its sights." :
             _category == Category.Sidearm ? "Your sidearm has its own slot." : "Equipped gadgets swap slots when selected again.", 13, Muted));
 
         bool wide = width >= 1170;
@@ -200,29 +200,39 @@ public partial class GearMenu : MenuPage
         var rifle = MercRifles.Find(path);
         if (rifle is not null) _details.AddChild(Text(rifle.Role, 11, Accent));
         _details.AddChild(new HSeparator());
-        _details.AddChild(Text(rifle?.Description ?? Sidearms.Find(path)?.Description ?? Item(path)?.ItemDescription ?? "Select equipment to see its details.", 14));
+        _details.AddChild(Text(rifle?.Description ?? StockDescription(path) ?? Sidearms.Find(path)?.Description ?? Item(path)?.ItemDescription ?? "Select equipment to see its details.", 14));
         bool allowed = _category == Category.Primary || _model!.IsAllowed(path);
         if (!allowed) _details.AddChild(Text(Restriction(path), 13, new Color("efb27d")));
-        if (rifle is not null)
+        if (WeaponInfo(path) is { } weapon)
         {
             _details.AddChild(new HSeparator());
-            Stat("CLOSE DAMAGE", rifle.CloseDamage + " / hit");
-            Stat("MAGAZINE / RESERVE", $"{rifle.Magazine} / {rifle.Reserve}");
-            Stat("RATE OF FIRE", rifle.Rpm + " RPM");
-            Stat("RELOAD", rifle.ReloadSeconds.ToString("0.00") + " s");
-            Stat("OPTICS", "Hip fire");
-            _details.AddChild(Text("Damage shown before SCCT hit zones and distance falloff.", 11, Muted));
-        }
-        else if (Sidearms.Find(path) is { } pistol)
-        {
-            _details.AddChild(new HSeparator());
-            Stat("MAGAZINE / RESERVE", $"{pistol.Magazine} / {pistol.Spare}");
-            Stat("UNLOCK", "Level " + pistol.Level);
+            Stat("DAMAGE", "Head / body");
+            foreach (int metres in new[] { 0, 10, 25, 50 })
+            {
+                int body = WeaponRules.DistanceDamage(weapon, metres * 100f);
+                int head = body * 3;
+                if (weapon is SWeaponDefense_Shotgun shotgun)
+                {
+                    body = (int)(body * 9 * shotgun.TotalShotgunDamageMultipler);
+                    head = (int)(head * 9 * shotgun.TotalShotgunDamageMultipler);
+                }
+                Stat(metres + " m", metres * 100f > weapon.ShootingRange ? "Out of range" : $"{head} / {body}");
+            }
+            _details.AddChild(Text(weapon is SWeaponDefense_Shotgun
+                ? "Maximum if all 9 pellets hit the same zone. Spread usually reduces damage."
+                : "Against a standing Spy. Limbs deal less damage. Damage falls continuously with distance.", 11, Muted));
+            Stat("MAGAZINE / RESERVE", $"{weapon.ClipMaxAmmo} / {weapon.MaxAmmo - weapon.ClipMaxAmmo}");
+            Stat("RATE OF FIRE", rifle?.BurstDefault == true ? "667 auto / 800 burst RPM" : MathF.Round(60f / weapon.RateOfFire) + " RPM");
+            float reload = rifle?.ReloadSeconds ?? Sidearms.Find(path)?.ReloadSeconds ??
+                ViewModelClips.DataOf(weapon.AFirstReloSt).Seconds(1f);
+            Stat("RELOAD", reload.ToString("0.00") + " s");
+            Stat("SIGHTS", rifle is null ? weapon.bCanSnipe ? "Scope" : "Hip fire" : rifle.Id == "M4A1S" ? "Red dot" : "Iron sights");
+            if (Sidearms.Find(path) is { } pistol) Stat("UNLOCK", "Level " + pistol.Level);
         }
         else if (Item(path) is SGadget gadget)
         {
             _details.AddChild(new HSeparator());
-            Stat("USES", path == OpenScct.Game.Svm.MineHackGadget.ClassPath ? "2 per life" : gadget.Charge > 0 ? gadget.Charge.ToString() : "Reusable");
+            Stat("USES", path == OpenScct.Game.Svm.CloneGadget.ClassPath ? "Recharges every 60 s" : path == OpenScct.Game.Svm.MineHackGadget.ClassPath ? "2 per life" : gadget.Charge > 0 ? gadget.Charge.ToString() : "Reusable");
             if (path == OpenScct.Game.Svm.MineHackGadget.ClassPath) Stat("HACK TIME", "Hold for 3 s");
         }
     }
@@ -247,6 +257,8 @@ public partial class GearMenu : MenuPage
         if (_icons.TryGetValue(path, out var known)) return known;
         string? file = MercRifles.Find(path) is { } rifle ? Path.Combine(SkeletalModel.DefaultSharedRoot(), "chars", "OpenScctRifles", "textures", rifle.Id.ToLowerInvariant() + "_icon.png") :
             Sidearms.Find(path) is { } sidearm ? Path.Combine(SkeletalModel.DefaultSharedRoot(), "chars", "OpenScctSidearms", "textures", sidearm.Id + "_icon.png") : null;
+        if (StockAsset(path) is { } stock)
+            file = Path.Combine(SkeletalModel.DefaultSharedRoot(), "chars", "SWeaponFirst", "textures", stock + "_icon.png");
         Texture2D? icon = null;
         if (file is not null && File.Exists(file)) icon = ImageTexture.CreateFromImage(Image.LoadFromFile(file));
         else if (Item(path) is { } item)
@@ -256,6 +268,33 @@ public partial class GearMenu : MenuPage
         }
         _icons[path] = icon;
         return icon;
+    }
+
+    private static string? StockAsset(string path) => path switch
+    {
+        "SBase.SWeaponDefense" => "M160",
+        "SBase.SWeaponDefense_Uzi" => "Hk81",
+        "SBase.SWeaponDefense_Shotgun" => "BM401",
+        _ => null,
+    };
+
+    private static string? StockDescription(string path) => path switch
+    {
+        "SBase.SWeaponDefense" => "The FN2000 is the standard Merc assault rifle. Switch between automatic and three-round burst fire, or use its telescopic scope for precise single shots.",
+        "SBase.SWeaponDefense_Uzi" => "A compact submachine gun with a large magazine and fast automatic fire. Strong at close range, with faster damage loss over distance and no scope.",
+        "SBase.SWeaponDefense_Shotgun" => "A pump-action shotgun firing nine pellets in a circular spread. Devastating nearby when the pellets connect; spread and damage loss limit its reach.",
+        _ => null,
+    };
+
+    private static SWeaponDefense? WeaponInfo(string path)
+    {
+        if (Sidearms.Find(path) is { } sidearm)
+        {
+            var pistol = new MercSidearm { Kind = (int)sidearm.Kind };
+            pistol.Configure(true);
+            return pistol;
+        }
+        return Item(path) as SWeaponDefense;
     }
 
     private static Inventory? Item(string path)

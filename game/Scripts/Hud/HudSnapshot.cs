@@ -15,7 +15,7 @@ public enum HudSide
 /// out: the gadget cannot work on this level (the camera network on a map without cameras).
 /// </summary>
 public sealed record HudGadget(string Name, int Charge, string MagmaIconName, int IconU, int IconV, bool Unavailable = false,
-    byte MineHackPercent = 0);
+    byte MineHackPercent = 0, float RechargeRemaining = 0f);
 
 /// <summary>A countdown box (Hacking or Objective): whole seconds shown as 0:ss.</summary>
 public readonly record struct HudCountdown(int Seconds);

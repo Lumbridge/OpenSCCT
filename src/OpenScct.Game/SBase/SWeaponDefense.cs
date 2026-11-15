@@ -16,6 +16,7 @@ namespace OpenScct.Game.SBase;
 /// </summary>
 public partial class SWeaponDefense
 {
+    public virtual float ShotInterval => RateOfFire;
     /// <summary>The muzzle bone of the first-person and third-person guns.</summary>
     public static readonly Name FxBone = new("FX");
 
@@ -350,7 +351,8 @@ public partial class SWeaponDefense
     [Uc("SBase.SWeaponDefense.GetAccuracy", Sha1 = "067d5096f219c64b53bb1c7d5e3754285b565a47")]
     [PortOf("nat:SBase.SWeaponDefense.GetAccuracy", Spec = "spec/equipment/merc-rifle.md#rules")]
     public float GetAccuracy() =>
-        WeaponRules.Accuracy(Instigator?.Velocity.Size() ?? 0f, MinDispersion, MaxDispersion, BulletInARow);
+        WeaponRules.Accuracy(Instigator?.Velocity.Size() ?? 0f, MinDispersion, MaxDispersion, BulletInARow) *
+        (this is Svm.MercRifle { AimRequested: true } ? .45f : 1f);
 
     /// <summary>
     /// The server trace of one bullet (rule 10): spread in a square around the aim, the ray from the gun or the eye,
@@ -445,7 +447,9 @@ public partial class SWeaponDefense
         FVector momentum = (hit.HitLocation - startTrace) * K.BulletMomentumScale;
         if (InScope)
         {
-            victim.Controller?.PawnTakeDamage(BaseDamage, shooter, hit.HitLocation, momentum, SDamageType.SDTSnipeShot, hit.PillTag,
+            int scopedDamage = SvmMath.Trunc(BaseDamage * SvmMath.Pow(WeaponRules.RangeModifier(this),
+                FVector.Dist(hit.HitLocation, wStart) / 1270f));
+            victim.Controller?.PawnTakeDamage(scopedDamage, shooter, hit.HitLocation, momentum, SDamageType.SDTSnipeShot, hit.PillTag,
                 PercentDamageRefillable);
         }
         else
