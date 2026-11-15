@@ -388,6 +388,12 @@ public partial class SPlayerController
                 }
 
                 break;
+            case SGadBomb modem when PawnInventory.IsPs2Modem(modem):
+                // This source gadget deliberately traces a nearby wall to
+                // place a device. The PC weapon-muzzle clearance gate would
+                // reject the valid placement surface before its native check.
+                if (modem.CanUseGadget()) modem.Use(1f);
+                break;
             case { } gadget:
                 if (CheckIfCanFire())
                 {

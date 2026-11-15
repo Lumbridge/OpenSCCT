@@ -49,7 +49,18 @@ public static class PawnInventory
     }
 
     /// <summary>The selectable test: activatable, not a pad-up gadget, not a bomb (inventory rule 3).</summary>
-    public static bool IsSelectable(SGadget g) => g is not SGadCloak && g.bActivatable && !g.IsAPadUpGadget && !IsA(g, GadBombClass);
+    public static bool IsSelectable(SGadget g) => g is not SGadCloak && g.bActivatable && !g.IsAPadUpGadget &&
+        (!IsA(g, GadBombClass) || IsPs2Modem(g));
+
+    /// <summary>Expose the PS2 modem through gadget selection on maps using its original placement rules.</summary>
+    public static bool IsPs2Modem(SGadget gadget)
+    {
+        if (gadget is not SGadBomb bomb || gadget.XLevel is null) return false;
+        if (bomb.Ps2ModemProfile) return true;
+        foreach (SBombTargetObjectiveTrigger target in gadget.XLevel.AllActors<SBombTargetObjectiveTrigger>())
+            if (target.bPS2Objective) return true;
+        return false;
+    }
 
     /// <summary>Appends a gadget to the pawn's list (refusing None and duplicates), owned by the pawn.</summary>
     [Uc("SBase.SBasePawn.AddGadget", Sha1 = "fe705c3f543561b459b1593f0b59d20dc9219da0")]

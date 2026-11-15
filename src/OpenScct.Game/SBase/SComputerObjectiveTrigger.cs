@@ -28,6 +28,27 @@ public partial class SComputerObjectiveTrigger
     [PortOf("uc:SBase.SComputerObjectiveTrigger:PostBeginPlay", Spec = "spec/objectives/terminal-hack.md#rules")]
     protected override void PostBeginPlay()
     {
+        // Initial network properties supply the authored PS2 profile after
+        // this remote spawn. Console interaction creation is authority-only.
+        if (Role != ENetRole.ROLE_Authority && !bNoDelete)
+        {
+            base.PostBeginPlay();
+            return;
+        }
+        if (bPS2Objective)
+        {
+            _ps2InitialCaptureTime = CaptureTime;
+            SkinState = 254;
+            LocalSkinState = 255;
+            SetCollision(false, false, false);
+            Rotation.GetAxes(out FVector forward, out _, out _);
+            if (Role == ENetRole.ROLE_Authority)
+                InteractionObj = ObjectiveNatives.Spawn<SComputerInteraction>(this, this, Location + forward * 80f, Rotation);
+            DeltaCaptureTime = 0f;
+            base.PostBeginPlay();
+            ObjectiveNatives.SetCollisionSize(this, 22f, 22f);
+            return;
+        }
         SetCollision(false, false, false);
         Rotation.GetAxes(out FVector x, out FVector y, out FVector z);
         FVector at = Location + x * InteractionDistanceToCenter + y * UseRelativeLocation.Y + z * UseRelativeLocation.Z;
@@ -57,6 +78,16 @@ public partial class SComputerObjectiveTrigger
     public override void Reset()
     {
         base.Reset();
+        if (bPS2Objective)
+        {
+            CaptureTime = Ps2Neutralization ? Ps2TotalCaptureTime : _ps2InitialCaptureTime;
+            _ps2RestoreStage = 0;
+            bHidden = false;
+            if (bTriggering) eventTriggering(false);
+            SetCollision(true, true, true);
+            Ps2SetVisualState(2, 5f);
+            return;
+        }
         CaptureTime = DominationCaptureTime;
         bHidden = false;
         if (bTriggering)
@@ -72,6 +103,7 @@ public partial class SComputerObjectiveTrigger
     [PortOf("uc:SBase.SComputerObjectiveTrigger:Prepare", Spec = "spec/objectives/terminal-hack.md#rules")]
     public override void Prepare()
     {
+        if (bPS2Objective) return;
         bHidden = false;
         SetCollision(true, true, BlocksPlayers);
         SkinState = SKIN_Idle;
@@ -97,6 +129,7 @@ public partial class SComputerObjectiveTrigger
     [PortOf("uc:SBase.SComputerObjectiveTrigger:Triggering", Spec = "spec/objectives/terminal-hack.md#rules")]
     protected internal override void Triggering(bool Status)
     {
+        if (bPS2Objective) { Ps2Triggering(Status); return; }
         using var clock = WorldEventTime();
         if (bTriggering && !Status)
         {
@@ -142,7 +175,10 @@ public partial class SComputerObjectiveTrigger
     /// <summary>The screen goes back to idle 10 s after a hack stopped.</summary>
     [Uc("SBase.SComputerObjectiveTrigger.Timer", Sha1 = "bc263c8c523282a30c4d2ce49f5d4ff6275b5bfe")]
     [PortOf("uc:SBase.SComputerObjectiveTrigger:Timer", Spec = "spec/objectives/terminal-hack.md#rules")]
-    protected override void Timer() => SkinState = SKIN_Idle;
+    protected override void Timer()
+    {
+        if (!bPS2Objective) SkinState = SKIN_Idle;
+    }
 
     [Uc("SBase.SComputerObjectiveTrigger.TakeObjective", Sha1 = "201fbd041594b27c496a232ecba8c20737574832")]
     [PortOf("uc:SBase.SComputerObjectiveTrigger:TakeObjective", Spec = "spec/objectives/terminal-hack.md#rules")]
@@ -150,6 +186,7 @@ public partial class SComputerObjectiveTrigger
     {
         base.TakeObjective();
         ObjectiveMessages.Broadcast(this, K.MsgNeutralized, this);
+        if (bPS2Objective) { Ps2SetVisualState(1, 1f); return; }
         SkinState = SKIN_Hacked;
         SetTimer(0f, false);
     }
@@ -202,6 +239,7 @@ public partial class SComputerObjectiveTrigger
 
         KickTaker();
         SetTimer(0f, false);
+        if (bPS2Objective) { Ps2LockConsole(); return; }
         GotoState(K.s_TemporaryInactive);
         if (bTriggering)
         {
@@ -247,7 +285,8 @@ public partial class SComputerObjectiveTrigger
             return;
         }
 
-        if (SkinState != LocalSkinState)
+        if (bPS2Objective) { Ps2ReceiveVisualState(); Ps2TickAnimation(DeltaSeconds); }
+        if (!bPS2Objective && SkinState != LocalSkinState)
         {
             // The screen (Skins[1]): the mesh's own standby material when idle, else the state's skin.
             LocalSkinState = SkinState;

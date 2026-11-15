@@ -59,6 +59,7 @@ public partial class SComputerObjectiveTrigger
             var t = (SComputerObjectiveTrigger)self;
             if (t.Objective is not { ObjectiveTaken: true })
             {
+                if (t.bPS2Objective) { t.Ps2BeginUnlock(); return; }
                 t.SkinState = SKIN_Idle;
                 t.bActive = true;
                 t.bLocked = false;

@@ -247,6 +247,16 @@ public sealed partial class EffectViews : Node3D
             }
 
             string cls = a.GetUcClass().Path;
+            if (a is Ps2Modem modem)
+            {
+                _tracked[a] = new Tracked(a, nameof(Ps2Modem)) { Mesh = MeshFor(modem, lib) };
+                continue;
+            }
+            if (a is Ps2ModemEffect modemEffect)
+            {
+                _tracked[a] = new Tracked(a, nameof(Ps2ModemEffect)) { View = StartPs2ModemEffect(modemEffect) };
+                continue;
+            }
             if (lib.Find(cls) is not { } fx)
             {
                 continue;
@@ -805,7 +815,10 @@ public sealed partial class EffectViews : Node3D
     {
         // The taser's beam (bIgnoreEchelonLighting, additive glow) is drawn unlit.
         bool lit = !a.bUnlit && a is not STazerEmitter;
-        if (a.StaticMesh.IsNone || lib.Mesh(a.StaticMesh.Path, lit) is not { } mesh)
+        Mesh? mesh = a is Ps2Modem && Map is { } sourceMap && !a.StaticMesh.IsNone
+            ? GameplayObjects.MeshFor(sourceMap, a.StaticMesh.Path!, unlit: !lit)
+            : a.StaticMesh.IsNone ? null : lib.Mesh(a.StaticMesh.Path, lit);
+        if (mesh is null)
         {
             Missing.Add(a.StaticMesh.Path ?? a.GetUcClass().Path);
             return null;
@@ -826,7 +839,7 @@ public sealed partial class EffectViews : Node3D
             ActorLighting.Apply(node, map.LightActor(a.Location, MathF.Max(radius, 8f), a.AmbientGlow));
         }
 
-        string name = a.GetUcClass().Name;
+        string name = a is Ps2Modem ? nameof(Ps2Modem) : a.GetUcClass().Name;
         MeshesShown[name] = MeshesShown.GetValueOrDefault(name) + 1;
         return node;
     }

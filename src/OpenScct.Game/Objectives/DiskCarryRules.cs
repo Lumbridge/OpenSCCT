@@ -67,8 +67,8 @@ public static class DiskCarryRules
         flag.eventNotifyPickup(pc);
         ObjectiveNatives.DetachFromBone(flag);
         ObjectiveNatives.AttachToBone(pawn, flag, K.BoneThigh);
-        flag.RelativeLocation = K.ThighOffset;
-        flag.RelativeRotation = K.ThighRotationTouch;
+        flag.RelativeLocation = flag.bPS2Objective ? SFlag.Ps2CarryOffset : K.ThighOffset;
+        flag.RelativeRotation = flag.bPS2Objective ? SFlag.Ps2CarryRotation : K.ThighRotationTouch;
     }
 
     /// <summary>
@@ -201,8 +201,8 @@ public static class DiskCarryRules
         if (pawn.CarriedFlag is { } flag)
         {
             ObjectiveNatives.AttachToBone(pawn, flag, K.BoneThigh);
-            flag.RelativeLocation = K.ThighOffset;
-            flag.RelativeRotation = K.ThighRotationMenu;
+            flag.RelativeLocation = flag.bPS2Objective ? SFlag.Ps2CarryOffset : K.ThighOffset;
+            flag.RelativeRotation = flag.bPS2Objective ? SFlag.Ps2CarryRotation : K.ThighRotationMenu;
         }
         else if (pawn.Disks.Count > 0 && pawn.Disks[0] is { } disk)
         {

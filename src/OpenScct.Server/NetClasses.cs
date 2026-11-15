@@ -35,6 +35,13 @@ public static class NetClasses
         for (int i = 0; i < registry.Count; i++)
         {
             System.Type type = registry.Classes[i].Type;
+            if (typeof(SObjectiveTrigger).IsAssignableFrom(type))
+            {
+                var ps2Objective = new RepExtension();
+                ps2Objective.Properties.Add(new(nameof(SObjectiveTrigger.bPS2Objective), nameof(SObjectiveTrigger.bPS2Objective), RepLeafKind.Bool));
+                ps2Objective.Properties.Add(new(nameof(SObjectiveTrigger.Ps2Computer), nameof(SObjectiveTrigger.Ps2Computer), RepLeafKind.Object));
+                registry.Extend(type, ps2Objective);
+            }
             if (typeof(SProjGrenade).IsAssignableFrom(type))
             {
                 // Their authored Projectile default is a disposable one-shot. Losing that datagram makes a
@@ -114,6 +121,14 @@ public static class NetClasses
         var cameras = new RepExtension();
         cameras.Properties.Add(new RepExtensionProperty(nameof(SCamNetwork.DisabledSeconds), nameof(SCamNetwork.DisabledSeconds), RepLeafKind.Int));
         registry.Extend<SCamNetwork>(cameras);
+        registry.Extend<SComputerObjectiveTrigger>(Ps2ComputerExtension(registry));
+        var ps2Target = new RepExtension();
+        ps2Target.Properties.Add(new(nameof(SBombTargetObjectiveTrigger.Ps2TargetRadius), nameof(SBombTargetObjectiveTrigger.Ps2TargetRadius), RepLeafKind.Float));
+        ps2Target.Properties.Add(new(nameof(SBombTargetObjectiveTrigger.Ps2TargetHeight), nameof(SBombTargetObjectiveTrigger.Ps2TargetHeight), RepLeafKind.Float));
+        registry.Extend<SBombTargetObjectiveTrigger>(ps2Target);
+        var ps2Gadget = new RepExtension();
+        ps2Gadget.Properties.Add(new(nameof(SGadBomb.Ps2ModemProfile), nameof(SGadBomb.Ps2ModemProfile), RepLeafKind.Bool));
+        registry.Extend<SGadBomb>(ps2Gadget);
         var clone = new RepExtension { InterpolateMovement = true };
         clone.Properties.Add(new("CloneLocation", nameof(SpyClone.Location), RepLeafKind.VectorFine));
         clone.Properties.Add(new("CloneVelocity", nameof(SpyClone.Velocity), RepLeafKind.VectorFine));
@@ -126,7 +141,39 @@ public static class NetClasses
         registry.Register<CubeWalker>(CubeWalkerNet.CreateExtension());
         registry.Register<AnimationController>(AnimationController.Replication());
         registry.Register<Conveyor>(ConveyorExtension());
+        registry.Register<Ps2Modem>();
+        var ps2Effect = new RepExtension();
+        ps2Effect.Properties.Add(new(nameof(Ps2ModemEffect.SmokeTexture), nameof(Ps2ModemEffect.SmokeTexture), RepLeafKind.Asset));
+        ps2Effect.Properties.Add(new(nameof(Ps2ModemEffect.FireTexture), nameof(Ps2ModemEffect.FireTexture), RepLeafKind.Asset));
+        registry.Register<Ps2ModemEffect>(ps2Effect);
         return registry;
+    }
+
+    private static RepExtension Ps2ComputerExtension(NetClassRegistry registry)
+    {
+        var ps2 = new RepExtension();
+        void Add(string field, RepLeafKind kind) => ps2.Properties.Add(new(field, field, kind));
+        Add(nameof(SComputerObjectiveTrigger.Ps2SkinActive), RepLeafKind.Asset);
+        Add(nameof(SComputerObjectiveTrigger.Ps2SkinInactive), RepLeafKind.Asset);
+        Add(nameof(SComputerObjectiveTrigger.Ps2SkinHacked), RepLeafKind.Asset);
+        Add(nameof(SComputerObjectiveTrigger.Ps2SkinKeyboard), RepLeafKind.Asset);
+        Add(nameof(SComputerObjectiveTrigger.Ps2SkinKeyboardHacked), RepLeafKind.Asset);
+        Add(nameof(SComputerObjectiveTrigger.Ps2HackAnimation), RepLeafKind.Name);
+        Add(nameof(SComputerObjectiveTrigger.Ps2HackedAnimation), RepLeafKind.Name);
+        Add(nameof(SComputerObjectiveTrigger.Ps2AlarmAnimation), RepLeafKind.Name);
+        Add(nameof(SComputerObjectiveTrigger.Ps2CtfAnimation), RepLeafKind.Name);
+        Add(nameof(SComputerObjectiveTrigger.Ps2NetVisualState), RepLeafKind.Byte);
+        Add(nameof(SComputerObjectiveTrigger.Ps2NetSequence), RepLeafKind.Name);
+        Add(nameof(SComputerObjectiveTrigger.Ps2NetRate), RepLeafKind.Float);
+        Add(nameof(SComputerObjectiveTrigger.Ps2NetFrame), RepLeafKind.Float);
+        var initial = RepCondition.Bind(RepConditionParser.Parse("bNetInitial"), SComputerObjectiveTrigger.UcMeta.Class, registry.Readers);
+        ps2.Properties.Add(new(nameof(SComputerObjectiveTrigger.Ps2NetInitialFrame), nameof(SComputerObjectiveTrigger.Ps2NetInitialFrame), RepLeafKind.Float, initial));
+        Add(nameof(SComputerObjectiveTrigger.Ps2NetBackward), RepLeafKind.Bool);
+        Add(nameof(SComputerObjectiveTrigger.Ps2NetContinue), RepLeafKind.Bool);
+        Add(nameof(SComputerObjectiveTrigger.Ps2NetProxy), RepLeafKind.Bool);
+        Add(nameof(SComputerObjectiveTrigger.Ps2NetAnimationSerial), RepLeafKind.Int);
+        Add(nameof(SComputerObjectiveTrigger.Ps2NetCommandSerial), RepLeafKind.Int);
+        return ps2;
     }
 
     /// <summary>

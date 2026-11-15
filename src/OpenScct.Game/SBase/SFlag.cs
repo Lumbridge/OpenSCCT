@@ -49,6 +49,7 @@ public partial class SFlag
         Server = Live(Server);
         DefDropZone = Live(DefDropZone);
         CarrierKiller = Live(CarrierKiller);
+        Ps2Computer = Live(Ps2Computer);
         for (int k = 0; k < DropZone.Length; k++)
         {
             DropZone[k] = Live(DropZone[k]);
@@ -61,6 +62,36 @@ public partial class SFlag
     [PortOf("uc:SBase.SFlag:PostBeginPlay", Spec = "spec/objectives/disk-flag.md#rules")]
     protected override void PostBeginPlay()
     {
+        // A remote dynamic replacement has not received its authored mesh or
+        // PS2 opt-in yet. Its authority already created the pickup/home actors;
+        // do not run the PC rack/disk substitution on factory defaults here.
+        if (Role != ENetRole.ROLE_Authority && !bNoDelete)
+        {
+            base.PostBeginPlay();
+            return;
+        }
+        if (bPS2Objective)
+        {
+            Ps2PlaceAtConsole();
+            InitialLocation = Location;
+            InitialRotation = Rotation;
+            // The PS2 GamePlayObject base has no PC-only bNoDelete default.
+            // Its Spawn creates an invisible home return volume.
+            var home = new SFlagDropZone
+            {
+                bPS2Objective = true, bStatic = false, bNoDelete = false,
+                bHidden = true, StaticMesh = AssetRef.None, InteractionClass = ClassRef.None,
+                PrePivot = FVector.Zero, CollisionRadius = 100f, CollisionHeight = 100f,
+                bBlockActors = false, bBlockPlayers = false, bBlockZeroExtentTraces = false,
+            };
+            DefDropZone = XLevel.SpawnActor(home, Location, Rotation, null, Instigator);
+            bShouldLock = false;
+            base.PostBeginPlay();
+            ObjectiveNatives.SetCollisionSize(this, 5f, 16f);
+            SetCollision(false, false, false);
+            return;
+        }
+
         Server = ObjectiveNatives.Spawn<SBasicGamePlayObject>(this, this, Location, Rotation);
         if (Server is not null)
         {
@@ -112,6 +143,11 @@ public partial class SFlag
     public override void Reset()
     {
         base.Reset();
+        if (bPS2Objective)
+        {
+            Ps2ResetFlag();
+            return;
+        }
         CarrierKiller = null;
         bPickable = true;
         if (PickupInteraction is not null)
@@ -178,9 +214,10 @@ public partial class SFlag
                 ObjectiveMessages.Send(pc, K.MsgGoToDropZone);
             }
 
-            bTriggering = true;
+            if (!bPS2Objective) bTriggering = true;
             foreach (Actor? a in DropZone)
             {
+                if (bPS2Objective) break;
                 if (a is SFlagDropZone zone)
                 {
                     zone.bTriggering = true;
@@ -198,8 +235,8 @@ public partial class SFlag
         if (!spy && Instigator.Pawn is { } carrier)
         {
             ObjectiveNatives.AttachToBone(carrier, this, K.BoneThigh);
-            RelativeLocation = K.ThighOffset;
-            RelativeRotation = K.ThighRotationTouch;
+            RelativeLocation = bPS2Objective ? Ps2CarryOffset : K.ThighOffset;
+            RelativeRotation = bPS2Objective ? Ps2CarryRotation : K.ThighRotationTouch;
         }
 
         return false;
@@ -218,6 +255,7 @@ public partial class SFlag
         FlagCarrier = null;
         FlagTaken = false;
         SetFlagCarrier(false);
+        if (bPS2Objective) return;
         bTriggering = false;
         bResetZeroValues = true;
         foreach (Actor? a in DropZone)
@@ -304,6 +342,12 @@ public partial class SFlag
                 if (ReferenceEquals(zone, A))
                 {
                     ControllerWhoTakesIt = FlagCarrier?.Controller as PlayerController;
+                    if (bPS2Objective)
+                    {
+                        ObjectiveMessages.Broadcast(this, K.MsgDataCaptured, this);
+                        base.TakeObjective();
+                        SetTimer(0f, false);
+                    }
                     return true;
                 }
             }
@@ -343,6 +387,7 @@ public partial class SFlag
     {
         if (PickupInteraction is { bCanPickup: true } pickup)
         {
+            if (bPS2Objective) Ps2Computer?.Ps2SetVisualState(6, 4f);
             bPickable = false;
             pickup.bCanPickup = false;
             GotoState(K.s_TemporaryInactive);

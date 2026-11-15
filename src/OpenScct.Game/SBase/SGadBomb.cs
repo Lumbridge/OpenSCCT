@@ -2,6 +2,8 @@ using OpenScct.Core;
 using OpenScct.Core.Engine;
 using OpenScct.Game.Combat;
 using OpenScct.Game.GameFlow;
+using OpenScct.Game.Equipment;
+using OpenScct.Game.Objectives;
 using OpenScct.Provenance;
 using MK = OpenScct.Game.Modes.K;
 
@@ -10,6 +12,9 @@ namespace OpenScct.Game.SBase;
 // The spy's "Modem" that arms bomb spots. Written from spec/objectives/bomb-target.md (rules 7 and 8).
 public partial class SGadBomb
 {
+    // The owner inventory can arrive before replaceable map target channels.
+    // Carry the authority's map profile with the gadget's initial properties.
+    public bool Ps2ModemProfile;
     private static readonly Name CNAME_ActivateBombTarget = new("ActivateBombTarget");
 
     /// <summary>On the spy's machine at the end of the plant animation: one charge used, then the server arms the spot.</summary>
@@ -17,6 +22,7 @@ public partial class SGadBomb
     [PortOf("uc:SBase.SGadBomb:Use", Spec = "spec/objectives/bomb-target.md#rules")]
     public override void Use(float Value)
     {
+        if (PawnInventory.IsPs2Modem(this)) { ActivateBombTarget(); return; }
         LastUsed = Level.TimeSeconds;
         Charge--;
         ActivateBombTarget();
@@ -33,6 +39,8 @@ public partial class SGadBomb
             CombatServices.Net(this).ServerCall(owner, new CombatCall(CNAME_ActivateBombTarget) { Target = this });
             return;
         }
+
+        if (PawnInventory.IsPs2Modem(this)) { Ps2ModemRules.TryPlace(this); return; }
 
         if (BombTrigger is not { } spot)
         {
@@ -52,6 +60,7 @@ public partial class SGadBomb
     [Provenance(ProvenanceKind.Decoded, "ASGadBomb::execCanUse: PHYS_Walking and sAction outside 130..132, then RefireRate since LastUsed and Charge or a tutorial level")]
     public override bool CanUseGadget()
     {
+        if (PawnInventory.IsPs2Modem(this)) return Ps2ModemRules.Probe(this, out _);
         if (Owner is { } owner &&
             (owner.Physics != EPhysics.PHYS_Walking ||
              (owner is SBasePawn pawn && pawn.sAction >= SBasePawn.SA_ROLLING && pawn.sAction <= SBasePawn.SA_ROLL_LAND)))
@@ -72,4 +81,21 @@ public partial class SGadBomb
     /// <summary>SPersistentData.CurLevelIsTutorial for the current map (<see cref="TutorialMaps"/>).</summary>
     private bool IsTutorialLevel() =>
         TutorialMaps.CurLevelIsTutorial(GameFlowServices.Host(this).GetURLMap());
+
+    protected override void PostNetBeginPlay()
+    {
+        base.PostNetBeginPlay();
+        if (PawnInventory.IsPs2Modem(this))
+        {
+            if (Role == ENetRole.ROLE_Authority) { Ps2ModemProfile = true; Charge = 1; }
+            ItemName = "Modem";
+            ItemDescription = "Place a modem on a nearby surface to sabotage an ND133.";
+        }
+    }
+
+    public override void FullReload()
+    {
+        base.FullReload();
+        if (Role == ENetRole.ROLE_Authority && PawnInventory.IsPs2Modem(this)) Charge = 1;
+    }
 }

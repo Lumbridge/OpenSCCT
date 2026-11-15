@@ -74,6 +74,7 @@ public sealed partial class MaterialCompiler
     // The RenderingServer's global parameters live as long as the process; this only remembers the one add.
     private static bool s_globalsAdded;
 
+    private ImageTexture? _absentDiffuse;
     private readonly MaterialsDoc _doc;
     private readonly TextureCache _textures;
     private readonly Dictionary<string, Shader> _shaders = new(StringComparer.Ordinal);
@@ -485,7 +486,7 @@ public sealed partial class MaterialCompiler
     private Material? Build(string name, LightSource light)
     {
         MaterialEntry? entry = _doc.Find(name);
-        if (entry is null || entry.Skip || entry.Texture is null)
+        if (entry is null || entry.Skip || (entry.Texture is null && entry.EnvTexture is null))
         {
             Unknown.Add(name);
             return null;
@@ -569,6 +570,19 @@ public sealed partial class MaterialCompiler
         Texture2D? diffuse = combine is not null ? _textures.Get(combine.First.Texture, mipmaps: true)
             : flipbook is not null ? _textures.Get(flipbook.Texture, mipmaps: true)
             : _textures.Get(entry.Texture, Mipmapped(entry, "Diffuse"));
+        // A source Shader may contain only Specular/TexEnvMap plus Opacity
+        // (the PS2 merc tutorial glass). Its absent diffuse contributes black;
+        // keep the authored reflection and opacity instead of dropping the surface.
+        if (diffuse is null && entry.Texture is null && entry.EnvTexture is not null)
+        {
+            if (_absentDiffuse is null)
+            {
+                using Image black = Image.CreateEmpty(1, 1, false, Image.Format.Rgba8);
+                black.Fill(new Color(0, 0, 0, 1));
+                _absentDiffuse = ImageTexture.CreateFromImage(black);
+            }
+            diffuse = _absentDiffuse;
+        }
         SetTexture(material, "tex_diffuse", diffuse);
         if (blend == MaterialBlend.Additive &&
             string.Equals(entry.Source, "MHOsfx_xbox.FX.rayonlum", StringComparison.OrdinalIgnoreCase))

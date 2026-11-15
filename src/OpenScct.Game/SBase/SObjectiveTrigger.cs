@@ -176,8 +176,11 @@ public partial class SObjectiveTrigger
     [PortOf("uc:SBase.SObjectiveTrigger:Triggering", Spec = "spec/objectives/objective-trigger.md#rules")]
     protected internal virtual void Triggering(bool Status)
     {
+        if (bPS2Objective && bTriggering && !Status &&
+            (Level.Game as SGameInfo)?.MatchInfo?.GameMode == EGameMode.GM_Neutralization)
+            CaptureTime = SvmMath.Trunc(CaptureTime - ((Level.GRI?.ElapsedTime ?? 0) - TriggerTime));
         bTriggering = Status;
-        bool radar = this is not SBombTargetObjectiveTrigger;
+        bool radar = bPS2Objective || this is not SBombTargetObjectiveTrigger;
         if (Status)
         {
             if (Objective is { bShowStatusOnHud: true })
@@ -185,7 +188,7 @@ public partial class SObjectiveTrigger
                 Objective.AddRemoveObjectiveOnClientHud(true);
             }
 
-            TriggerTime = ObjectiveNatives.PreciseElapsedTime(Level);
+            TriggerTime = bPS2Objective ? Level.GRI?.ElapsedTime ?? 0 : ObjectiveNatives.PreciseElapsedTime(Level);
             if (radar)
             {
                 AddRemoveObjectiveForRadar(true);
