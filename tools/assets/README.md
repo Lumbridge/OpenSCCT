@@ -7,6 +7,7 @@ experiments. Keep game-derived outputs under ignored `local/` or `.content/`; se
 - [Character authoring](#editable-spy-and-merc-bases)
 - [Blender setup](#local-integration)
 - [Static assets](#static-assets-and-native-rig-animation-exports)
+- [SCCT-Repack meshes](#scct-repack-mesh-overrides)
 - [Mixamo retargeting](#mixamo-retarget-pilot)
 - [Validation](#verification)
 - [Spy first-person](#spy-first-person-authoring), [weapon reloads](#weapon-reload-authoring) and [audio](#weapon-audio)
@@ -89,6 +90,50 @@ the version installed by the [developer setup](../../docs/DEVELOPMENT.md).
 Blender and Mixamo integrations are optional ways to prepare source assets. Configure them
 locally and keep login state and API keys outside the repository. Asset licenses are separate
 from the integration's code license; record the source, author, license and any edits.
+
+## SCCT-Repack mesh overrides
+
+`import_scct_remaster.py` stages compatible static meshes from the optional
+[SCCT-Repack](https://github.com/dwojtasik/SCCT-Repack) remaster pack. It needs
+that project's Python reader, the downloaded `dynamic-pc.umd`, its accompanying
+`Remastered_CC.txt`, and a local Versus install. The source audit used repack
+commit `b1bc8488e3626e6d5b52ee7b963355e1bff6912f`. Keep the pack and derived
+geometry under ignored `local/`; do not add them to git.
+
+```powershell
+python tools/assets/import_scct_remaster.py --repack ../SCCT-Repack-review-20261113 --archive local/reference/dynamic-pc.umd --credits local/reference/Remastered_CC.txt --game $env:SVM_GAME_ROOT --out local/mesh-overrides
+
+$env:PYTHONPATH = "$PWD/content"
+$env:SVM_MESH_OVERRIDES = "$PWD/local/mesh-overrides/enabled.json"
+python -m svmbuild maps --maps PrisD,MoonD --game $env:SVM_GAME_ROOT --out .content
+```
+
+Pass `--addons <mapping-install>` when a map such as MoonD lives in a separate
+install. The override applies during map conversion, not at game startup. To
+restore original meshes, remove `SVM_MESH_OVERRIDES` and rebuild the affected
+maps. The map cache hashes the manifest, mesh arrays and credits; converter
+code changes also invalidate it.
+
+Matching names alone are insufficient. The importer requires at least 98% of
+the original position/UV signature in the remaster's retained template, matching
+material section counts and a compatible bounding envelope. It rotates the
+matching props into Versus coordinates and rejects unchanged topology. This
+found 30 compatible replacements in the tested pack; 29 distinct assets are
+used by Prison and three shared assets by MoonD. Other maps can benefit if they
+reference those same native asset names.
+
+The converter replaces render geometry while retaining the original material
+slots and affine UV transforms. It transfers baked vertex light from the
+closest original triangle using barycentric interpolation. Meshes with a second
+UV set are skipped because their lightmaps require a rebake. Collision and
+simulation exports keep the original geometry. The generated manifest contains
+SHA-256 hashes and rejects changed mesh bytes. Each affected map receives a
+`render/mesh-credits.txt` with the pack's per-model authors, sources and licences,
+plus a description of our changes. Those asset licences are separate from the
+repack reader's MIT licence.
+
+See [the measured results](../benchmark/RESULTS-2026-11-14-REPACK.md) for visual
+checks, performance and the current limits of this import.
 
 ## Static assets and native-rig animation exports
 

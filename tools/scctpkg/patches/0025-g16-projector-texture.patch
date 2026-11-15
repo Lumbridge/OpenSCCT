@@ -1,0 +1,20 @@
+--- a/texture.py
++++ b/texture.py
+@@ -1,4 +1,4 @@
+-"""UTexture reader: decodes mip 0 of DXT1/3/5, RGBA8 and P8 textures to RGBA.
++"""UTexture reader: decodes mip 0 of DXT1/3/5, RGBA8, P8 and G16 textures to RGBA.
+ 
+ Serialized after the tagged properties (USize, VSize, Format, Palette ...):
+ 
+@@ -131,6 +131,11 @@
+         elif fmt == TEXF_L8:
+             l = np.frombuffer(data[:w * h], dtype=np.uint8).reshape(h, w)
+             image = Image.fromarray(np.stack([l, l, l, np.full_like(l, 255)], axis=-1), "RGBA")
++        elif fmt == TEXF_G16:
++            # G16 is little-endian luminance, with no alpha channel. The PNG
++            # pipeline uses the high byte, as a UNORM16 -> UNORM8 conversion.
++            l = (np.frombuffer(data[:w * h * 2], dtype="<u2").reshape(h, w) >> 8).astype(np.uint8)
++            image = Image.fromarray(np.stack([l, l, l, np.full_like(l, 255)], axis=-1), "RGBA")
+         elif fmt == TEXF_RGB8:
+             arr = np.frombuffer(data[:w * h * 3], dtype=np.uint8).reshape(h, w, 3)[:, :, ::-1]
+             image = Image.fromarray(np.ascontiguousarray(arr), "RGB").convert("RGBA")

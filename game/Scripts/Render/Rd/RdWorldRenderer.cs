@@ -852,6 +852,7 @@ public partial class RdWorldRenderer : Node
             return;
         }
 
+        Projectors.SurfaceProjector.RefreshFallback();
         Camera3D camera = _view.Camera;
         if (OwnFrame)
         {

@@ -776,6 +776,57 @@ the box, or within 1 m of it, the faces turned away draw with no depth test; for
 towards it draw with the depth test on (the box 2% larger, so a surface lying in a face stays behind it), and a box
 hidden behind a wall costs nothing. The vertex shader picks the surface from the box's six planes, for each camera.
 
+A map with one static G16 modulating projector can draw a small mesh clipped to its opaque world receivers
+(`Projectors/SurfaceProjector`, `svm_projector_decal.gdshaderinc`). Clipping uses the current world geometry, including
+mesh replacements, without changing its positions, UVs, lightmaps or simulation. Both renderers draw the result
+before other transparency. This removes Standard's scene-depth read/copy and Fast's redraw of whole receiver
+batches. Ordinary world shaders keep their original code.
+
+The converter records `textureFormat` and an optional `luminanceTexture` in `projectors.json`. The latter is a `.g16`
+file: bytes `G16\0`, little-endian uint32 width and height, then width x height little-endian uint16 luminance samples.
+`TextureCache` uploads normalized float samples with a float mip chain; the existing PNG remains for older content
+and other material uses. This preserves the native near-neutral 32767/65535 background instead of reducing it to
+127/255. Both the volume and clipped paths use the same precise texture when available.
+
+For close views, disjoint texture rectangles omit only samples whose doubled luminance differs from one by at most
+0.000016. Each rectangle retains a two-texel filtering halo. The full clipped mesh is selected when any live camera
+requires minification, distance/portal fog, or active responsive smoke; those paths retain the fog's 127/255 modulation
+baseline. Thermal and EMF draw no map projection. Perspective UVs, geometric sidedness and receiver fog depth are
+preserved. The small depth bias moves along the eye ray, keeping screen XY fixed.
+
+Moving opaque and masked receivers use `MovingProjectorReceivers`: only affected Faithful materials acquire
+`SVM_G16_RECEIVER`, evaluated in their existing draw from the actual deformed/skinned world positions. The original
+material object retains its uniforms and animation clock. A material also used by fixed cells gets a receiver-local
+copy, with cached uniform names and only changed values copied; fixed geometry therefore is not modulated twice.
+Materials are restored on leaving the frustum, changing maps, or disabling projection. Fast uses the corresponding
+translated actor variant and now projects onto actors too (its legacy pass only projected onto world batches).
+
+Cloaks retain their screen-copy/refraction material, rather than receiving another multiplication over its sampled
+background. Thermal, EMF and shadow passes do not receive the marking. Moving a native player/object no longer
+activates the expensive full projector. Unknown opaque shaders still use the original path for compatibility;
+masked/animated/displaced fixed receivers, UV modifiers, multiple projectors and other blends retain their existing
+eligibility guards. Fixed merged cells have their own marker because some use the dynamic shadow layer when
+another material animates coverage. `SVM_PROJECTOR_GEOMETRY=0` selects the volume implementation for comparisons;
+`SVM_PROJECTOR_FALLBACK=1` forces that diagnostic path. Content without format metadata keeps the original path.
+See the [measured results](../tools/benchmark/RESULTS-2026-11-14-REPACK.md).
+
+### Own-spy projected shadow
+
+`SpyShadowLighting` supplies the native twelve-light cache's darkness and weighted light direction to
+`Projectors/SpyShadowProjector`. The original `SBasePawn.SetupOldSchoolShadow` uses a 128x128 posed silhouette,
+skeletal bone zero, a light distance and trace range of 300 uu, and a cull distance of 600 uu. Darkness zero at
+initialization is temporary: native actor lighting writes it again. The render path is separate from spot-light
+shadow filtering and ambient occlusion. The existing previous-sample sticky-camera timing stays in its logical
+update; rendering the silhouette does not invoke another camera solve.
+
+A private viewport draws copies of the spy's actual meshes, skin bindings and current bone poses into alpha.
+Only local opaque world receivers are copied, clipped to a padded projection volume and cached until its bounds
+or nearby rigid transforms change. Standard and Fast draw this small receiver mesh after opaque geometry and
+before transparency. No scene-depth copy, whole-map redraw or G16 fallback is needed. Cloak, zero darkness,
+hidden/dead pawns, thermal/EMF and distance culling disable capture. The current bitmap softening is a nine-sample
+tent; exact legacy bitmap-filter parity is not established. Masked/blended/displaced receiver coverage remains
+outside this opaque receiver path.
+
 ## Light beams
 
 Lights with `UsesLightBeam` and a `LightBeamMesh` (200 placed, `TestMapStaticM.Accessories.LightBeam` and its copy
@@ -1009,6 +1060,15 @@ the glow's runs and its bright target) above 640 pixels of frame width and the h
 hot spots stopped at yellow, his head read cold, a wide halo ringed him). The composite (fixed function: texture factor
 0x80 blends the levels, vertex alpha 0xC8 blends them over the frame): `h = lerp(frame, lerp(blur1, blur2, 128/255),
 200/255)`.
+
+**High resolution vision effects** (`high_quality_vision`, off by default) adapts SCCT-Repack's `[Pyramid] Size=512`:
+the two coarse vision levels double in each dimension, retaining the taps, level mixture, colours, grain and
+gain. At 1920x1080 this changes 512/256-square levels to 1024/512. Thermal, motion and EMF use these levels;
+EMF's corresponding coarse halo levels grow too, with the fine levels unchanged. Normal-view bloom and the
+existing night-vision path are unchanged by this option. Targets rebuild when the option changes in either
+renderer. `SVM_VISION_PYRAMID=1|2` overrides the option for diagnostics. Standard samples the high-resolution
+frame blur through the GPU's bilinear sampler when the colour buffer permits it, retaining the manual image
+filter as compatibility fallback (`SVM_VISION_FRAME_FILTER=manual` forces that reference).
 
 | Mode | Scene | Post |
 |---|---|---|

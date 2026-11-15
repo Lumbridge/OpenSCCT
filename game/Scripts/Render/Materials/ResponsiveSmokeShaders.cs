@@ -85,6 +85,7 @@ public static class ResponsiveSmokeShaders
     /// </summary>
     public static void Prewarm(string map)
     {
+        Projectors.SurfaceProjector.EnsureReceiverGlobals();
         if (!PrewarmEnabled) return;
         ShaderList? list = null;
         string path = System.IO.Path.Combine(OS.GetUserDataDir(), "load_shaders", map + ".json");

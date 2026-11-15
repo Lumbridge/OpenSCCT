@@ -9,6 +9,8 @@ Keep game data, derived images, camera records and raw frame CSVs in ignored `lo
 The [31 October results](RESULTS-2026-10-31.md) include the original comparison and remaining gaps.
 The [5 November hot-path results](RESULTS-2026-11-05.md) cover packet serialization, bot navigation allocations
 and actor-light uploads, with exact output checks and impaired-network validation.
+The [14 November repack experiments](RESULTS-2026-11-14-REPACK.md) cover the G16 projector fix,
+optional bloom and shadow filters, and compatible remaster mesh imports.
 
 The original needs the existing RE+ automation tools and a complete, idle Play Level sandbox. The verified Reloaded
 Core build is checked by SHA-256, its loaded path and relocated cap-selector instructions before `--uncap` writes
@@ -72,6 +74,8 @@ names starting `OpenSCCT`, `Godot`, `ClassicGame`, `SCCT`, `SplinterCell` or `Un
 `F:\SCCT-Automation`. If one is still there it does not start. While the game runs it checks once a second; a
 newcomer marks the run `"contaminated": true` in `runner.json`, lists it under `competitors` and prints a warning.
 Discard contaminated runs. `-IgnoreCompetitors 'OpenSCCT.Launcher*'` skips names you know are idle.
+Use `-IgnoreCompetitors 'pid:1234'` to exclude one verified process instead of every process with that name;
+record its role and GPU separately. A PID exclusion does not prove the process is harmless.
 
 Direct exported-game controls are `SVM_BENCHMARK=<cameras.json>`, `SVM_BENCHMARK_OUT=<folder>`,
 `SVM_BENCHMARK_SECONDS`, `SVM_BENCHMARK_WARMUP`, `SVM_BENCHMARK_PROFILING=1`, and `SVM_BENCHMARK_GAMEPLAY=1`;
@@ -105,3 +109,30 @@ the hanging spy's camera can obscure the corpse in screenshots. The opt-in Godot
 at least 120 alive `GrbdStLgRail` frames with translation lock and 120 dead `LandStXxFd2` frames without it,
 with at least 99% of each group matching all bones within 1.5 uu. This checks the actual pose builder; live
 network tests remain necessary to verify state delivery and the complete rendered transition.
+
+
+For a G16 projector comparison without restarting the game, set
+`SVM_BENCHMARK_PROJECTOR_COMPARE=1` and use camera IDs beginning `missing-`,
+`volume-` or `geometry-`. The map must contain an eligible static G16 projector.
+Only projector mode changes; the client, camera, geometry, precise texture
+and settings stay loaded. Each case records `projectorMode`, `projectorFallback`
+and `projectorSparse`. Use baseline/full/optimized/optimized/full/baseline order
+for each camera, with warm-up after every switch. Clear the override afterwards.
+
+
+`SVM_BENCHMARK_PROJECTOR_RECEIVERS=player|objects|cloak|mixed` adds a real skinned
+spy and/or three rigid meshes near the map projector, independent of the hidden
+local pawn. Motion repeats on a six-second cycle and resets per case. Use six
+seconds of measurement to traverse a full loop; the last 0.15 seconds settle at
+the same pose for image comparisons. `projectorMovingReceivers` counts affected
+material variants, and `projectorReceiverScenario` records the scenario. Pair
+these with the same-process projector comparison above. This rendering fixture
+does not simulate combat, player networking or object collision.
+
+`SVM_BENCHMARK_REPACK_COMPARE=1` accepts IDs such as `normal-off-0`,
+`normal-on-1`, `thermal-off-0`, `thermal-on-1`, `motion-on-1` and `emf-on-1`.
+Normal toggles the own-spy projected shadow; the vision cases toggle the
+high-resolution pyramid. Use `-Gameplay` to keep the actual local pawn visible,
+and off/on/on/off order for each mode. Cases record `pawnShadowEnabled`,
+`visionPyramidScale` and `rendMap`. The renderer's target-size logs confirm the
+actual allocated levels. Clear this override before interactive play.

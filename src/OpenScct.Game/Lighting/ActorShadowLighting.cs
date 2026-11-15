@@ -47,6 +47,8 @@ public sealed class ActorShadowLighting
 
     /// <summary>The byte last written by native lighting; initially zero until the first lighting update.</summary>
     public byte Darkness { get; private set; }
+    /// <summary>Direction from the shadow origin to the weighted contributing light position (native +0x480).</summary>
+    public FVector Direction { get; private set; } = new(0, 0, 1);
 
     public void Reset()
     {
@@ -56,6 +58,7 @@ public sealed class ActorShadowLighting
         _initialized = false;
         _lastTime = 0f;
         Darkness = 0;
+        Direction = new FVector(0, 0, 1);
     }
 
     /// <summary>
@@ -153,6 +156,7 @@ public sealed class ActorShadowLighting
         }
 
         float sum = 0f, squared = 0f;
+        FVector weightedPosition = default;
         foreach (Entry entry in _cache)
         {
             ActorShadowLight light = entry.Light;
@@ -172,8 +176,15 @@ public sealed class ActorShadowLighting
             if (weight <= 0f || !float.IsFinite(weight)) continue;
             sum += weight;
             squared += weight * weight;
+            weightedPosition += (light.Effect == ActorLightRules.LE_Sunlight ? shadowOrigin - light.Rotation.Vector() : light.Location) * weight;
         }
 
+        if (sum > 0f)
+        {
+            FVector delta = weightedPosition * (1f / sum) - shadowOrigin;
+            float length = delta.Size();
+            Direction = length > 1e-6f ? delta * (1f / length) : default;
+        }
         float strength = sum > 0f ? darknessScale * squared / sum : 0f;
         Darkness = float.IsFinite(strength) ? (byte)Math.Clamp(strength, 0f, 255f) : (byte)0;
         return Darkness;

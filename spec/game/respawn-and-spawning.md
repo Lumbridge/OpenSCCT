@@ -128,8 +128,10 @@ Possession (`SPlayerController.Possess(aPawn)`, server):
     and projector are active. The original can therefore reactivate this own-spy shadow. Its dynamic texture
     update also makes an extra player-camera solve, affecting sticky-camera fly-in speed; see
     [camera rules 1.4 and 4.5](../native/camera.md). OpenSCCT models the native light cache and shadow eligibility
-    for sticky-camera timing without drawing this legacy shadow texture. The earlier claim that no native writes
-    ShadowDarkness was incorrect.
+    for sticky-camera timing, and draws a native-sized posed silhouette onto nearby opaque world receivers.
+    Its direction is the normalized weighted light position minus bone zero (sunlight contributes the negative
+    light direction), from game 0x10a36aeb..0x10a36d73. Rendering adds no further camera solve. The earlier claim
+    that no native writes ShadowDarkness was incorrect.
 26. `WaitingForPawn`: BeginState sets a 0.2 s looping timer and calls `AskForPawn()`; Timer calls
     AskForPawn; PlayerTick runs the global tick, then if the pawn has arrived sets `Pawn.Controller = self`,
     `bUpdateEyeheight = true` and calls ClientRestart, else re-arms the 0.2 s timer if it stopped or is

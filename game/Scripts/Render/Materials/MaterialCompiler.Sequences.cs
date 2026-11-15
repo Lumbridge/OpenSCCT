@@ -34,6 +34,7 @@ public sealed partial class MaterialCompiler
                 clock = new(sequence.Items.Select(i => i.Timing).ToArray(), sequence.Loop, sequence.Paused);
                 _sequenceClocks[sequence.Source] = clock;
             }
+            material.SetMeta(Projectors.MovingProjectorReceivers.LiveParameterMeta, true);
             var binding = new SequenceBinding(material, "seq_" + prefix, sequence, clock);
             _sequences.Add(binding);
             UpdateSequence(binding, _sequenceTime);
@@ -75,6 +76,7 @@ public sealed partial class MaterialCompiler
                 : Compose(frame, light, seeThroughPass, billboard, sky: sky);
         }).ToArray();
         var material = new ShaderMaterial { ResourceName = owner.Name };
+        material.SetMeta(Projectors.MovingProjectorReceivers.LiveParameterMeta, true);
         if (sky)
         {
             // The frames' shaders are swapped in below; the priority stays this material's own (GetSky).

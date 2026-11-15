@@ -76,6 +76,9 @@ public static class SettingsApplier
 
         Render.SpotShadowLight.MapSize = Render.SpotShadowLight.MapSizeFor(s.ShadowQuality);
         Render.SpotShadowLight.SoftRadius = s.ShadowEdgeSmoothing ? Render.RenderK.SpotShadowSoftRadius : 0f;
+        Render.SpotShadowLight.HighQualityFilter = s.HighQualityShadows;
+        Render.Post.BloomPrefilter.Filtering = s.StableBloom;
+        Render.RenderK.HighQualityVision = s.HighQualityVision;
         Render.Rd.RdWorldRenderer.OwnFrameSetting = s.Renderer == "Fast";
     }
 

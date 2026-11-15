@@ -1,4 +1,6 @@
 using System;
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
@@ -196,12 +198,21 @@ public sealed class TextureCache
 
         byte[] bytes = File.ReadAllBytes(path);
         var image = new Image();
-        if (image.LoadPngFromBuffer(bytes) != Error.Ok)
+        if (uri.EndsWith(".g16", StringComparison.OrdinalIgnoreCase))
+        {
+            if (bytes.Length < 12 || bytes[0] != (byte)'G' || bytes[1] != (byte)'1' || bytes[2] != (byte)'6' || bytes[3] != 0) return null;
+            int w = BinaryPrimitives.ReadInt32LittleEndian(bytes.AsSpan(4)), h = BinaryPrimitives.ReadInt32LittleEndian(bytes.AsSpan(8));
+            if (w <= 0 || h <= 0 || (long)w * h * 2 != bytes.Length - 12) return null;
+            var values = new float[w * h];
+            for (int i = 0; i < values.Length; i++) values[i] = BinaryPrimitives.ReadUInt16LittleEndian(bytes.AsSpan(12 + i * 2)) / 65535f;
+            image.SetData(w, h, false, Image.Format.Rf, MemoryMarshal.AsBytes(values.AsSpan()).ToArray());
+        }
+        else if (image.LoadPngFromBuffer(bytes) != Error.Ok)
         {
             return null;
         }
 
-        if (image.GetFormat() != Image.Format.Rgba8)
+        if (image.GetFormat() != Image.Format.Rgba8 && image.GetFormat() != Image.Format.Rf)
         {
             image.Convert(Image.Format.Rgba8);
         }

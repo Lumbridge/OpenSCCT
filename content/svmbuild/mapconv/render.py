@@ -27,6 +27,7 @@ from __future__ import annotations
 
 import json
 import shutil
+import struct
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -354,6 +355,10 @@ class RenderBuilder:
         gltf["extras"] = {"svmap": {"map": self.src.name, "instances": instances}}
         self.stats["instances"] = len(instances)
         self.stats["libraryMeshes"] = len(library_children)
+        from .. import remastered_meshes  # noqa: PLC0415
+        binary, overrides = remastered_meshes.apply(gltf, binary)
+        if overrides["meshes"]:
+            self.stats["meshOverrides"] = overrides
         self.stats["meshes"] = len(gltf.get("meshes", []))
         self.stats["materials"] = len(gltf.get("materials", []))
         tris = 0
@@ -622,12 +627,18 @@ class RenderBuilder:
             tex = res.texture
             entry = {"name": a["name"], "class": a["class"], "location": a["location"], "rotation": a["rotation"],
                      "scale": a["scale"], "texture": uri,
+                     "textureFormat": int(tex.format),
                      "size": [float(tex.props.get("USize") or tex.width or 256), float(tex.props.get("VSize") or tex.height or 256)],
                      "fov": a.get("fov", 0.0), "maxTrace": a.get("max_trace", 1000.0), "fbBlend": a.get("fb_blend", 1),
                      "matBlend": a.get("mat_blend", 0), "projectBsp": a.get("project_bsp", True),
                      "projectStaticMesh": a.get("project_static_mesh", True), "backfaces": a.get("backfaces", False),
                      "gradient": a.get("gradient", False),
                      "projectActor": bool(self.src.value(info, "bProjectActor", True))}
+            if tex.format == 10 and tex.luminance16 is not None:
+                # Keep native UNORM16 precision. The PNG remains available to older clients and ordinary materials.
+                raw_uri = str(Path(uri).with_suffix(".g16")).replace("\\", "/")
+                (tex_dir / Path(raw_uri).name).write_bytes(struct.pack("<4sII", b"G16\0", tex.width, tex.height) + tex.luminance16)
+                entry["luminanceTexture"] = raw_uri
             if res.uv_anim:
                 entry["uvAnim"] = res.uv_anim
             if res.uv_matrix:
@@ -710,6 +721,9 @@ class RenderBuilder:
             self.stats["renamedTextures"] = len(renamed)
         glb, rename = self.build_glb(gltf, binary, scene)
         files = {"world.glb": glb}
+        if self.stats.get("meshOverrides", {}).get("meshes"):
+            from ..remastered_meshes import credits  # noqa: PLC0415
+            files["mesh-credits.txt"] = credits()
         files.update(textures)
         lightmaps = sorted(k for k in textures if "_lightmap" in k)
         files["materials.json"] = _json_bytes(self.build_materials(gltf, scene, rename))

@@ -22,7 +22,7 @@ def _own_code() -> list[Path]:
     files = []
     for sub in ("mapconv", "sources", "writers"):
         files += sorted((CONTENT / sub).glob("*.py"))
-    files += [CONTENT / "svmap.py", CONTENT / "canonical.py", CONTENT / "charconv.py"]
+    files += [CONTENT / "svmap.py", CONTENT / "canonical.py", CONTENT / "charconv.py", CONTENT / "remastered_meshes.py"]
     return files
 
 
@@ -40,13 +40,18 @@ class MapsStep(Step):
         return env.code_files() + _own_code()
 
     def options(self, ctx: Context, unit: str | None) -> dict:
-        return {"map": unit, "render": not ctx.options.get("sim_only", False), "language": env.language()}
+        from ..remastered_meshes import manifest_path
+        return {"map": unit, "render": not ctx.options.get("sim_only", False), "language": env.language(),
+                "meshOverrides": str(manifest_path()) if manifest_path() else None}
 
     def _map_file(self, ctx: Context, unit: str | None) -> Path:
         return gamefiles.game_file(ctx.game, f"Packages/Maps/{unit}.sdc")
 
     def inputs(self, ctx: Context, unit: str | None) -> dict[str, str | None]:
         out = {ctx.game_path(self._map_file(ctx, unit)): ctx.hasher.sha256(self._map_file(ctx, unit))}
+        from ..remastered_meshes import inputs as mesh_inputs
+        for path in mesh_inputs():
+            out["repo:" + path.relative_to(REPO_ROOT).as_posix()] = ctx.hasher.sha256(path)
         for f in env.script_package_files(ctx.game):
             out[ctx.game_path(f)] = ctx.hasher.sha256(f)
         # A downloaded map's own text (names, zone tips) is in the addons' System/_PC_.

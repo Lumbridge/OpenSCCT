@@ -40,13 +40,21 @@ public sealed class MapProjectors
         int count = 0;
         foreach (ProjectorEntry p in projectors)
         {
-            string uri = p.Flipbook?.Texture ?? p.Texture;
-            if (map.Textures.Get(uri) is not { } texture || p.MaxTrace <= 0f)
+            string uri = p.Flipbook?.Texture ?? p.LuminanceTexture ?? p.Texture;
+            Texture2D? texture = map.Textures.Get(uri) ?? map.Textures.Get(p.Texture);
+            if (texture is null || p.MaxTrace <= 0f)
             {
                 continue;
             }
 
-            root.AddChild(CreateNode(p, texture));
+            MeshInstance3D volume = CreateNode(p, texture);
+            root.AddChild(volume);
+            if (ReferenceEquals(SurfaceProjector.Source, p) && SurfaceProjector.CreateNode(texture) is { } decal)
+            {
+                root.AddChild(decal); volume.Visible = false;
+                if (root.IsInsideTree()) SurfaceProjector.Bind(root, volume, decal);
+                else root.Ready += () => SurfaceProjector.Bind(root, volume, decal);
+            }
             count++;
         }
 
@@ -68,13 +76,14 @@ public sealed class MapProjectors
         return (halfW, halfH, apex);
     }
 
-    private static MeshInstance3D CreateNode(ProjectorEntry p, Texture2D texture)
+    internal static MeshInstance3D CreateNode(ProjectorEntry p, Texture2D texture)
     {
         p.Rotation.GetAxes(out FVector x, out FVector y, out FVector z);
         (float halfW, float halfH, float apex) = Shape(p);
         float farScale = apex > 0f ? (p.MaxTrace + apex) / apex : 1f;
         var material = new ShaderMaterial { Shader = ShaderFor(p.FrameBufferBlending, p.ProjectStaticMesh, front: false) };
         material.SetShaderParameter("proj_tex", texture);
+        material.SetShaderParameter("proj_luminance", p.LuminanceTexture is not null);
         material.SetShaderParameter("proj_origin", new Vector4(0f, 0f, 0f, UeSpace.LengthToGodot(p.MaxTrace)) + Pos4(p.Location));
         material.SetShaderParameter("proj_x", UeSpace.DirectionToGodot(x));
         // u runs along Y with DrawScale3D.Y's sign. v runs down the projector's Z (texture row 0 at +Z) whatever the sign

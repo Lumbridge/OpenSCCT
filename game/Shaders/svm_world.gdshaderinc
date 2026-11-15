@@ -1,3 +1,10 @@
+#ifdef SVM_PROJECTOR_DECAL
+#ifdef SVM_PAWN_SHADOW_DECAL
+#include "res://Shaders/svm_pawn_shadow_decal.gdshaderinc"
+#else
+#include "res://Shaders/svm_projector_decal.gdshaderinc"
+#endif
+#else
 // Faithful material template (docs/RENDERING.md#materials). Every value written here is a display value, the
 // number the original's framebuffer would hold; the display-space post pass turns the frame into linear light at
 // the end. The includer sets render_mode and one define of each group:
@@ -550,12 +557,22 @@ float svm_spot_lookup(vec4 tile, vec2 suv, float zref) {
 	return mix(mix(lit.w, lit.z, f.x), mix(lit.x, lit.y, f.x), f.y);
 }
 
-// The shadow term: one filtered lookup, or eight on a disc softening the edge (the sandbox's shadow_edge_smoothing).
+// One filtered lookup, the default eight-sample ring, or a centre-weighted nine-sample tent (negative soft radius).
 float svm_spot_shadow(vec4 tile, vec2 suv, float zref, float soft) {
-	if (soft <= 0.0) {
+	if (soft == 0.0) {
 		return svm_spot_lookup(tile, suv, zref);
 	}
-	vec2 step_uv = soft / vec2(textureSize(svm_spot_depth, 0)) / tile.zw;
+	vec2 step_uv = abs(soft) / vec2(textureSize(svm_spot_depth, 0)) / tile.zw;
+	if (soft < 0.0) {
+		float sum = 0.0;
+		for (int y = -1; y <= 1; y++) {
+			for (int x = -1; x <= 1; x++) {
+				float w = float((2 - abs(x)) * (2 - abs(y)));
+				sum += w * svm_spot_lookup(tile, suv + vec2(float(x), float(y)) * step_uv, zref);
+			}
+		}
+		return sum * 0.0625;
+	}
 	float sum = 0.0;
 	for (int k = 0; k < 8; k++) {
 		float a = float(k) * 0.78539816 + 0.39269908;
@@ -956,6 +973,10 @@ vec3 svm_zone_amb(float zone) {
 }
 #endif
 
+#if defined(SVM_G16_RECEIVER) && !defined(SVM_CLOAK)
+#include "res://Shaders/svm_projector_receiver.gdshaderinc"
+#endif
+
 void vertex() {
 #ifdef AUTHORED_MATERIAL
     v_authored_direction = CUSTOM2;
@@ -1025,7 +1046,14 @@ void vertex() {
 	}
 #endif
 #endif
+#if defined(SVM_G16_RECEIVER) && !defined(SVM_CLOAK)
+    v_g16_world = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
+#endif
 }
+
+#if defined(SVM_G16_RECEIVER) && !defined(SVM_CLOAK)
+#include "res://Shaders/svm_projector_receiver_fragment.gdshaderinc"
+#endif
 
 // One animated texture modifier (the UV_ANIM layout) at the scene time (Level.TimeSeconds).
 vec2 svm_anim(vec2 uv, int type, vec4 a, vec4 b, vec4 c, vec2 size) {
@@ -1558,7 +1586,13 @@ void fragment() {
 #endif
 #endif
 #endif
+#if defined(SVM_G16_RECEIVER) && !defined(SVM_CLOAK)
+    if ((SVM_LAYERS & SVM_SHADOW_PASS) == 0u && svm_vision != 36 && svm_vision != 38)
+        ALBEDO *= svm_g16_factor(surfaceFog.a, INV_VIEW_MATRIX[3].xyz);
+#endif
 #ifdef SVM_DEPTH_SOLID
 	}
 #endif
 }
+
+#endif // SVM_PROJECTOR_DECAL

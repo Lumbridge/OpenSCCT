@@ -501,10 +501,16 @@ public partial class OptionsMenu : Control
             GameSettings.SmokeQualities[(int)_edit.SmokeQuality], v => _edit.SmokeQuality = (ResponsiveSmokeQuality)Array.IndexOf(GameSettings.SmokeQualities, v));
         _controls["responsive_smoke_quality"].TooltipText = "Adjusts visual detail and performance when the host enables responsive smoke. Smoke coverage, visibility gaps and gas effects use the same shared volume at every quality.";
         Check(g, "Smooth shadow edges", "shadow_edge_smoothing", _edit.ShadowEdgeSmoothing, v => _edit.ShadowEdgeSmoothing = v);
+        Check(g, "High quality shadow filtering", "high_quality_shadows", _edit.HighQualityShadows, v => _edit.HighQualityShadows = v);
+        _controls["high_quality_shadows"].TooltipText = "Uses a smoother filter when Smooth shadow edges is on. Uses more GPU time.";
 
         // Video_Settings' Post-Render Quality (Normal, High) and its Brightness Configuration button (GUI.Mire).
         Choice(g, "Post-processing quality", "post_quality", GameSettings.PostQualities, GameSettings.PostQualities[Math.Clamp(_edit.PostQuality, 0, 1)],
             v => _edit.PostQuality = Array.IndexOf(GameSettings.PostQualities, v));
+        Check(g, "Stable bloom", "stable_bloom", _edit.StableBloom, v => _edit.StableBloom = v);
+        _controls["stable_bloom"].TooltipText = "Reduces sparkle around small bright lights as the camera moves. Uses more GPU time; applies with High post-processing quality.";
+        Check(g, "High resolution vision effects", "high_quality_vision", _edit.HighQualityVision, v => _edit.HighQualityVision = v);
+        _controls["high_quality_vision"].TooltipText = "Uses higher resolution blur levels for thermal, motion and electromagnetic vision. Uses more GPU time.";
         g.AddChild(new Label { Text = "Brightness", CustomMinimumSize = new Vector2(320f, 0f) });
         g.AddChild(UiStyle.MenuButton("Brightness configuration", OpenBrightnessTest, "BrightnessConfiguration"));
         g.AddChild(new Control());

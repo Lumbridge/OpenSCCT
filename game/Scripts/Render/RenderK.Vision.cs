@@ -69,6 +69,11 @@ public static partial class RenderK
     [Provenance(ProvenanceKind.Decoded, "render target sizes 0x1090ab98 (defaults) and 0x1095c330 (detail switch); targets 0x30e6c..0x30e78")]
     public static readonly Vector2I[] BlurTargets = [new(512, 256), new(256, 256), new(256, 128), new(128, 128)];
 
+    /// <summary>Double the two coarse vision levels, as SCCT-Repack's [Pyramid] Size=512 does to stock 256/128.</summary>
+    public static bool HighQualityVision { get; set; }
+    private static readonly string? s_pyramidOverride = System.Environment.GetEnvironmentVariable("SVM_VISION_PYRAMID");
+    public static int VisionPyramidScale => s_pyramidOverride is "1" or "2" ? int.Parse(s_pyramidOverride) : HighQualityVision ? 2 : 1;
+
     /// <summary>
     /// The detail switch of the post targets (blur pyramid and glow bright target) for a frame <paramref name="width"/>
     /// pixels wide: with the switch on, the widths double above 640 and the heights above 800 (the x sizes come from
