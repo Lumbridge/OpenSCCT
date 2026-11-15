@@ -10,6 +10,22 @@ namespace OpenScctGame.Logic.Tests;
 /// <summary>The Create Session page's rules (spec/game/lobby-and-match-creation.md rules 1 to 9).</summary>
 public sealed class MenuCreateSessionTests
 {
+    [Fact]
+    public void SelectingOrOpeningACustomModeMapChoosesItsOwnRulesInsteadOfInvalidStory()
+    {
+        var custom = new USMapSettings();
+        custom.Modes.Add(new FGameModeInfo { GameModeId = EGameMode.GM_Extraction, TimeLimit = 7, SpiesLives = 5, SentriesLives = 4, RespawnTime = 8 });
+        USMapSettings? Settings(string map) => map == "CustomP" ? custom : SteeELike();
+        var maps = new List<(string, string)> { ("SteeE", "Steel Squat"), ("CustomP", "Custom P") };
+        var model = new CreateSessionModel(maps, Settings, new LobbySetup { Map = "SteeE", Mode = EGameMode.GM_Multi });
+        model.SelectMap("CustomP");
+        Assert.Equal(("CustomP", EGameMode.GM_Extraction, 7), (model.Setup.Map, model.Setup.Mode, model.Setup.TimeLimit));
+        model.SelectMap("SteeE");
+        Assert.Equal(EGameMode.GM_Multi, model.Setup.Mode);
+        var reopened = new CreateSessionModel(maps, Settings, new LobbySetup { Map = "CustomP", Mode = EGameMode.GM_Multi });
+        Assert.Equal((EGameMode.GM_Extraction, 7), (reopened.Setup.Mode, reopened.Setup.TimeLimit));
+    }
+
     /// <summary>A map like SteeE: Story 10 min 4/3 lives 10 s, Disk Hunt 20 of 30 disks (10 to take), Deathmatch 8/4 lives 5 s.</summary>
     private static USMapSettings SteeELike()
     {

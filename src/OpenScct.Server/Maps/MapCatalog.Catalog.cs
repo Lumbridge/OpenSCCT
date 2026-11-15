@@ -593,9 +593,10 @@ public sealed partial class MapCatalog
         return manifest?.Source.Kind is "converted" or "authored" ? MapKind.Versus : MapKind.Test;
     }
 
-    /// <summary>The original list builder's tutorial patterns (TME**, TSP**: same length, any character for '*').</summary>
+    /// <summary>The tutorial patterns TME** and TSP**, including the recovered PS2 layouts' P suffix.</summary>
     public static bool IsTrainingMap(string mapName) =>
-        mapName.Length == 5 && (mapName.StartsWith("TME", StringComparison.OrdinalIgnoreCase) || mapName.StartsWith("TSP", StringComparison.OrdinalIgnoreCase));
+        (mapName.Length == 5 || mapName.Length == 6 && mapName.EndsWith("P", StringComparison.OrdinalIgnoreCase)) &&
+        (mapName.StartsWith("TME", StringComparison.OrdinalIgnoreCase) || mapName.StartsWith("TSP", StringComparison.OrdinalIgnoreCase));
 
     private static IReadOnlyList<MapModeInfo> ModesOf(MapKind kind, MapFacts facts)
     {

@@ -65,7 +65,7 @@ filter. Community contains everything outside Stock and the Enhanced family, inc
 enhanced 3v3 maps remain in All and 3v3 optimised. The 3v3 group uses Reloaded's `3v3` playlist, an explicit `3v3`
 label in the map's name or code, or a map's own identity (a `3v3` tag, or exactly six recommended players). These
 groups work without the shared catalog data and keep the host map order. Search (map name, code, authors and tags)
-and the selected mode further narrow the visible results.
+narrow the visible results. Selecting a map chooses a supported mode when the current one is unavailable.
 
 ### Modes
 

@@ -89,6 +89,10 @@ public sealed class CreateSessionModel
             MaxPlayers = start.MaxPlayers is >= LobbySetup.MinMaxPlayers and <= LobbySetup.MaxMaxPlayers ? start.MaxPlayers : LobbySetup.DefaultMaxPlayers,
         };
         _gamesBeforeRevenge = Setup.Revenge ? 1 : Setup.GamesInARow;
+        if (_settings(Setup.Map) is not null && IndexOf(Modes, Setup.Mode) < 0)
+        {
+            Reload(Setup.Map, Modes[0]);
+        }
     }
 
     /// <summary>The player slots a map gets while the host has not picked them: the count it states (within the page's

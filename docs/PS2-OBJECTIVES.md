@@ -10,6 +10,8 @@ The map's own class defaults and actor properties bind the recovered assets. The
 
 The actual Use flow follows the [original PS2 pickup states](../spec/objectives/ps2-pickup.md), including the 80-unit stand position, crouched height adjustment and original repositioning choice. The fixed pickup cylinder and authored objective labels survive remote actor creation.
 
+The twelve versus layouts appear in the regular Create Session picker even while Story is selected; choosing a map selects a supported mode. Spy Training P and Mercenary Training P appear in their side's training browser and launch with that side. They are single-team layouts, so they are not offered as versus matches. The training launch and movement do not establish parity with all original tutorial scripting or progress tracking.
+
 `SComputerObjectiveTrigger` uses the original four ND133 animation clips, five state materials, and nine-way animation dispatcher. The original material graph includes the liquid texture panner and its separate emissive mask. Replicated state drives the client view; gameplay timers run on the server independently of rendering.
 
 The runtime network layout carries an explicit animation command and serial. It handles a paused neutralization capture, a reversal or replay with the same visual state, and a joining client's current source frame. Neutralization restores its saved progress only after the original reverse-alarm and accelerated hack timeline; a renderer callback cannot complete that gameplay delay.
