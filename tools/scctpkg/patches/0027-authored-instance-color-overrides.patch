@@ -1,0 +1,157 @@
+diff --git a/export_gltf.py b/export_gltf.py
+index 893ec671..f8abda57 100644
+--- a/export_gltf.py
++++ b/export_gltf.py
+@@ -20,7 +20,7 @@ import struct
+ from collections import defaultdict
+ from dataclasses import dataclass, field
+ from pathlib import Path
+-from typing import Collection, Dict, List, Optional, Tuple
++from typing import Collection, Dict, List, Mapping, Optional, Tuple
+ 
+ import numpy as np
+ 
+@@ -39,6 +39,45 @@ def _safe(name: str) -> str:
+     return "".join(c if c.isalnum() or c in "_-" else "_" for c in name)
+ 
+ 
++@dataclass(frozen=True)
++class AuthoredColorOverride:
++    """An explicitly attributed actor color stream, already in RGBA vertex order.
++
++    The source-specific caller proves the stream's provenance. Mesh identity and
++    ordered vertex attributes guard against applying it to another asset/layout.
++    This chooses authored modulation, without the PC baked-light/ambient fold.
++    """
++    mesh_key: str
++    vertex_sha256: str
++    rgba: bytes
++
++
++def authored_color_vertex_identity(mesh: StaticMesh) -> str:
++    """Fingerprint the reader's ordered UE positions, normals and every UV stream."""
++    digest = hashlib.sha256()
++    streams = [mesh.positions, mesh.normals, *mesh.uvs]
++    digest.update(struct.pack('<I', len(streams)))
++    for stream in streams:
++        data = np.ascontiguousarray(stream, dtype='<f4')
++        if data.ndim != 2 or not np.isfinite(data).all():
++            raise ValueError('Authored color vertex identity needs finite two-dimensional attributes')
++        digest.update(struct.pack('<II', *data.shape))
++        digest.update(data.tobytes())
++    return digest.hexdigest()
++
++
++def _override_colors(actor: ActorRecord, mesh: StaticMesh, value: AuthoredColorOverride) -> np.ndarray:
++    if not isinstance(value, AuthoredColorOverride):
++        raise ValueError(f'{actor.name}: expected an AuthoredColorOverride')
++    if value.mesh_key != actor.mesh_key:
++        raise ValueError(f'{actor.name}: authored color override mesh identity differs')
++    if value.vertex_sha256 != authored_color_vertex_identity(mesh):
++        raise ValueError(f'{actor.name}: authored color override vertex identity differs')
++    if type(value.rgba) is not bytes or len(value.rgba) != len(mesh.positions) * 4 or not len(mesh.positions):
++        raise ValueError(f'{actor.name}: authored color override needs exactly four RGBA bytes per vertex')
++    return np.frombuffer(value.rgba, dtype=np.uint8).reshape(-1, 4).copy()
++
++
+ # UE5 Interchange maps glTF (x, y, z) to UE (x, z, y) and multiplies by 100
+ # (glTF units are metres); it reverses triangle winding itself for that
+ # reflection. So we write UE (x, y, z) as glTF (x/100, z/100, y/100) and keep
+@@ -1139,11 +1178,15 @@ def _perspective_projector_prims(rec: ActorRecord, polys: List[BspPolygon], pkg:
+ 
+ def export_map(map_path: Path, pset: PackageSet, out_root: Path, include_bsp: bool = True,
+                max_meshes: Optional[int] = None, extra_mesh_refs: Optional[List[int]] = None,
+-               extra_material_refs: Optional[List[int]] = None, skip_refs: Collection[int] = ()) -> dict:
++               extra_material_refs: Optional[List[int]] = None, skip_refs: Collection[int] = (),
++               authored_color_overrides: Optional[Mapping[str, AuthoredColorOverride]] = None) -> dict:
+     """extra_mesh_refs: static mesh references (relative to the map package) that no actor places but the game can
+     swap to (SGamePlayObject TriggeredMesh, DamagedMeshes[].StaticMesh); each becomes a library node too.
+     extra_material_refs: damage/trigger skins that need exported textures and shader flags even without a placed surface.
+-    skip_refs: actors (export index + 1) to leave out, see level.extract_level."""
++    skip_refs: actors (export index + 1) to leave out, see level.extract_level.
++    authored_color_overrides: explicit per-actor source streams for additive authored overlays.
++    Keys are unique actor names in this package. Every supplied actor must exist and be drawable;
++    absent overrides preserve the ordinary PC selection of base authored colors before baked light."""
+     pkg = Package.load(map_path)
+     map_name = map_path.stem
+     out_dir = out_root / map_name
+@@ -1167,6 +1210,12 @@ def export_map(map_path: Path, pset: PackageSet, out_root: Path, include_bsp: bo
+     authored_vc: list = []   # vertex-colour variants from StaticMesh.UseVertexColor (authored colours, not baked light)
+     emitters = _export_emitters(pkg, pset, tex_dir, tex_uri)
+     records = extract_level(pkg, pset, skip_refs)
++    color_overrides = dict(authored_color_overrides or {})
++    for name in color_overrides:
++        matches = [record for record in records if record.name == name]
++        if len(matches) != 1 or matches[0].hidden or matches[0].kind not in ('staticmesh', 'mover'):
++            raise ValueError(f'{name}: authored color override needs one visible mesh actor')
++    used_color_overrides = set()
+     # UE2 sky zone: the zone holding the SkyZoneInfo is rendered behind everything from a camera at the SkyZoneInfo's
+     # location with the player's rotation (seen through fake-backdrop surfaces). Its BSP and actors are exported
+     # separately so the client can draw them as a camera-following backdrop.
+@@ -1304,28 +1353,45 @@ def export_map(map_path: Path, pset: PackageSet, out_root: Path, include_bsp: bo
+             # Only meshes with an additive section for now (opaque UseVertexColor meshes keep the baked / unlit path
+             # until the opaque rule is checked against the game).
+             authored = None
+-            if loaded is not None and loaded[1].props.get("UseVertexColor") and loaded[1].colors is not None                     and len(loaded[1].colors) == len(loaded[1].positions) and not rec.hidden                     and any(sec.material_ref and resolver.resolve(loaded[0], sec.material_ref).additive
++            if rec.name in color_overrides:
++                if loaded is None:
++                    raise ValueError(f'{rec.name}: authored color override mesh is unavailable')
++                owner, sm = loaded
++                if not any(sec.material_ref and resolver.resolve(owner, sec.material_ref).additive for sec in sm.sections):
++                    raise ValueError(f'{rec.name}: authored color override needs an additive section')
++                authored = _override_colors(rec, sm, color_overrides[rec.name])
++            elif loaded is not None and loaded[1].props.get("UseVertexColor") and loaded[1].colors is not None                     and len(loaded[1].colors) == len(loaded[1].positions) and not rec.hidden                     and any(sec.material_ref and resolver.resolve(loaded[0], sec.material_ref).additive
+                             for sec in loaded[1].sections):
+                 owner, sm = loaded
+                 authored = sm.colors
++            if authored is not None:
+                 h = hashlib.md5(authored.tobytes()).hexdigest()[:8]
+-                vkey = f"{key}|avc|{skin_sig}"
++                vkey = f"{key}|avc|{h}|{skin_sig}"
+                 if vkey not in color_variants:
+                     vname = _safe(key) + f"__vc{h}" + (f"_sk{skin_id}" if skin_sig else "")
+-                    prims = _static_mesh_prims(sm, owner, resolver, writer, tex_dir, tex_uri,
+-                                               skin_refs if skin_sig else None, pkg)
+-                    prims = [tuple(pr[:5]) + (None, authored) + tuple(pr[7:]) for pr in prims]
+-                    color_variants[vkey] = None
+-                    if prims:
+-                        mi = writer.mesh(vname, prims)
+-                        writer.node(vname, mi, extras={"scct_kind": "library"})
+-                        color_variants[vkey] = vname
+-                        vertex_lit.append({"name": vname, "base": _safe(key)})
+-                        authored_vc.append(vname)
++                    try:
++                        prims = _static_mesh_prims(sm, owner, resolver, writer, tex_dir, tex_uri,
++                                                   skin_refs if skin_sig else None, pkg)
++                        prims = [tuple(pr[:5]) + (None, authored) + tuple(pr[7:]) for pr in prims]
++                        color_variants[vkey] = None
++                        if not prims and rec.name in color_overrides:
++                            raise ValueError('no drawable primitive')
++                        if prims:
++                            mi = writer.mesh(vname, prims)
++                            writer.node(vname, mi, extras={"scct_kind": "library"})
++                            color_variants[vkey] = vname
++                            vertex_lit.append({"name": vname, "base": _safe(key)})
++                            authored_vc.append(vname)
++                    except Exception as ex:
++                        if rec.name in color_overrides:
++                            raise ValueError(f'{rec.name}: authored color override mesh emission failed: {ex}') from ex
++                        raise
+                 if color_variants.get(vkey):
+                     entry["mesh"] = color_variants[vkey]
+                     entry["vertex_lit"] = True
+                     entry["authored_vc"] = True
++                    if rec.name in color_overrides:
++                        used_color_overrides.add(rec.name)
+             # Actor.bUnlit: a fullbright variant; its baked vertex colours are not used by the game.
+             if rec.extra.get("unlit") and loaded is not None and authored is None:
+                 owner, sm = loaded
+@@ -1472,6 +1538,8 @@ def export_map(map_path: Path, pset: PackageSet, out_root: Path, include_bsp: bo
+         except Exception as ex:
+             stats["missing_meshes"].append(f"{key}: {ex}")
+ 
++    if used_color_overrides != color_overrides.keys():
++        raise ValueError('Unused authored color overrides: ' + ', '.join(sorted(color_overrides.keys() - used_color_overrides)))
+     gltf_path = out_dir / f"{map_name}.gltf"
+     writer.write(gltf_path)
+     scene = {"map": map_name, "gltf": gltf_path.name, "source": str(map_path), "actors": scene_actors,
