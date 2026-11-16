@@ -61,6 +61,49 @@ are outside this release policy and retain their previous serialized bytes,
 including the old neutral fallback. Decoder capability does not mean those
 additional visual changes have been approved or tested for release.
 
+## Per-instance beam lighting
+
+The mesh's base packet is a fallback, not the final colour stream for every
+actor. Hospital's seven beam actors have seven distinct, nonempty
+`StaticMeshInstance` colour arrays, each with 176 entries. Their brightest RGB
+channels range from 41 to 67; the base packet's nonblack vertices are 128.
+Using the base packet for these actors made source-black interior layers
+bright and caused the remaining saturated patch.
+
+The shipped PS2 path establishes the precedence:
+
+- Actor PostLoad `0x174FEC..0x174FFC` passes its mesh and lighting instance to
+  the packet builder. Actor byte `+0x312`, bit 7 is `bUnlit`; the source Actor
+  and StaticMeshActor defaults and all seven beam actors leave it false.
+- The normal engine draw at `0x1EBB68..0x1EBBB4` passes Actor `+0x258`, the
+  lighting instance, for every nonempty section. The wrapper at
+  `0x331C40..0x331CBC` passes that instance to `0x32FE30`.
+- `0x325228..0x325278` selects the nonempty instance colour array before
+  considering the mesh's `UseVertexColor` fallback. CPU vertex indices from
+  position W select the corresponding instance colours at
+  `0x3258DC..0x325944`. Packet emission `0x325B34..0x325B6C` preserves RGB
+  and converts alpha to `(A + 1) >> 1`.
+- Section submission `0x330380..0x3303C4` uses the instance packet when the
+  instance exists. It does not multiply that packet by the base packet.
+
+The source actors/instances are 330/756, 329/755, 331/378, 332/251, 333/250,
+334/249 and 347/222. Serialized FColor bytes are RGBA. Each stream is mapped
+by the original CPU vertex index and verified against the cooked packet's
+positions. All base-black rim vertices remain RGB zero. Distinct instances
+must retain separate colour variants even when they share a mesh.
+
+The converter's explicit authored-colour override accepts an actor name,
+exact mesh key, ordered vertex-data fingerprint and RGBA bytes. It validates
+the binding and count before choosing the override ahead of the PC base-colour
+path. The variant cache includes the colour hash. It retains the authored
+overlay path, so PC AmbientGlow folding and dynamic lighting do not alter the
+recovered stream. With no override, PC conversion is unchanged.
+
+This correction changes the seven beam instances' render colours. It does not
+change their geometry, material gain, glow settings, collision or objectives.
+The native evidence is a static decode of the shipped ELF and source data,
+not a captured original GS frame or a claim of pixel-exact PS2 postprocessing.
+
 ## PS2 fixed additive state
 
 The material is `P2_862546.UnknownGlobalPS2_862552`: a two-sided Shader with
