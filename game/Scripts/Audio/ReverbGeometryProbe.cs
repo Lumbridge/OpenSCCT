@@ -95,7 +95,8 @@ public sealed class ReverbGeometryProbe
     }
 
     // Broad content categories provide estimates, not measured absorption spectra.
-    private static (float Mid,float HF,float LF) Absorption(int surface,int occlusion)=>
+    /// <summary>Shared material energy absorption for room estimation and acoustic inspection tools.</summary>
+    public static (float Mid,float HF,float LF) Absorption(int surface,int occlusion)=>
         occlusion==10 || surface is 1 or 13 ? (0.45f,0.7f,0.18f) :
         surface is 4 or 20 or 21 ? (0.35f,0.6f,0.18f) :
         occlusion==7 || surface is 7 or 8 ? (0.18f,0.28f,0.12f) :
