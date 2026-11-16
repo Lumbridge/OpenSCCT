@@ -9,7 +9,7 @@ is a separate solution. Playing converted maps needs content; synthetic tests do
 
 - Git.
 - The .NET SDK selected by [global.json](../global.json).
-- Python 3.10 or later for content tools and documentation checks. CI uses Python 3.10.
+- Python 3.11 or later for content tools and documentation checks. CI uses Python 3.11.
 - PowerShell for the Windows helper scripts.
 - The Godot **.NET** editor selected by [godot-version.txt](../godot-version.txt), if working on the client.
 
