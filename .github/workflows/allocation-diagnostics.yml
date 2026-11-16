@@ -1,4 +1,4 @@
-name: allocation-diagnostics
+name: allocation-fullsuite-diagnostics
 on:
   push:
     branches: [fix/allocation-ci-diagnostics]
@@ -40,45 +40,21 @@ jobs:
           uname -a > diagnostic/os.txt
           env | sort | grep -E '^(DOTNET_|ImageOS=|ImageVersion=|RUNNER_OS=|RUNNER_ARCH=)' > diagnostic/environment.txt
           sha256sum build/AllocationProbe.cs tests/OpenScctGame.Logic.Tests/PlayFrameStatsTests.cs tests/OpenScct.Game.Tests/AI/NavCostTests.cs tests/OpenScct.Integration.Tests/PredictionCollisionTests.cs > diagnostic/source-contract-sha256.txt
-      - name: Build unchanged contract projects
-        run: |
-          dotnet build tests/OpenScctGame.Logic.Tests -c Release
-          dotnet build tests/OpenScct.Game.Tests -c Release
-          dotnet build tests/OpenScct.Integration.Tests -c Release
-      - name: Repeat three exact allocation contracts in fresh processes
+      - name: Build exact full solution as Linux CI
+        run: dotnet build OpenSCCT.slnx -c Release
+      - name: Run exact Linux MTP suite with two-module concurrency
         shell: bash
         env:
           DOTNET_TieredCompilation: ${{ matrix.tiered }}
         run: |
           set +e
-          printf 'iteration\tcontract\texit\n' > diagnostic/results.tsv
           echo "DOTNET_TieredCompilation=$DOTNET_TieredCompilation" >> diagnostic/environment.txt
-          for i in $(seq 1 12); do
-            dotnet tests/OpenScctGame.Logic.Tests/bin/Release/net10.0/OpenScctGame.Logic.Tests.dll -noLogo -method OpenScctGame.Logic.Tests.PlayFrameStatsTests.NormalPlayRetainsNoSamplesOrPerFrameAllocationsDuringALongSession -xml diagnostic/stats-$i.xml > diagnostic/stats-$i.log 2>&1 & stats=$!
-            dotnet tests/OpenScct.Game.Tests/bin/Release/net10.0/OpenScct.Game.Tests.dll -noLogo -method OpenScct.Game.Tests.AI.NavCostTests.WarmReachabilityAcross6400NodesDoesNotAllocate -xml diagnostic/nav-$i.xml > diagnostic/nav-$i.log 2>&1 & nav=$!
-            dotnet tests/OpenScct.Integration.Tests/bin/Release/net10.0/OpenScct.Integration.Tests.dll -noLogo -method OpenScct.Integration.Tests.PredictionCollisionTests.ReplayUsesTheObservedPawnCylindersAndRestoresTheirLivePoseWithoutBumpEffects -xml diagnostic/replay-$i.xml > diagnostic/replay-$i.log 2>&1 & replay=$!
-            wait "$stats"; printf '%s\tstats\t%s\n' "$i" "$?" >> diagnostic/results.tsv
-            wait "$nav"; printf '%s\tnav\t%s\n' "$i" "$?" >> diagnostic/results.tsv
-            wait "$replay"; printf '%s\treplay\t%s\n' "$i" "$?" >> diagnostic/results.tsv
-          done
-          python3 - <<'PY'
-          import csv,json,xml.etree.ElementTree as ET
-          from pathlib import Path
-          rows=list(csv.DictReader(open('diagnostic/results.tsv'),delimiter='\t'))
-          assert len(rows)==36
-          for row in rows:
-              path=Path('diagnostic')/(row['contract']+'-'+row['iteration']+'.xml')
-              assemblies=ET.parse(path).getroot().findall('assembly')
-              assert len(assemblies)==1 and assemblies[0].get('total')=='1',(str(path),[a.attrib for a in assemblies])
-              row['total']=int(assemblies[0].get('total'))
-              row['failed']=int(assemblies[0].get('failed'))
-              row['failureText']='\n'.join(t.text or '' for t in assemblies[0].iter('message'))
-          Path('diagnostic/results.json').write_text(json.dumps(rows,indent=2)+'\n')
-          print(json.dumps({'processes':len(rows),'failed':sum(r['failed'] for r in rows),'failures':[r for r in rows if r['failed']]}))
-          raise SystemExit(1 if any(r['failed'] for r in rows) else 0)
-          PY
+          dotnet test --solution OpenSCCT.slnx -c Release --no-build --ignore-exit-code 8 --max-parallel-test-modules 2 -- --filter-not-namespace 'OpenScct.Integration.Tests*' 2>&1 | tee diagnostic/full-suite.log
+          result=${PIPESTATUS[0]}
+          printf '{"exitCode":%s}\n' "$result" > diagnostic/result.json
+          exit "$result"
       - uses: actions/upload-artifact@v7
         if: always()
         with:
-          name: allocations-${{ matrix.source }}-tiered-${{ matrix.tiered }}
+          name: fullsuite-${{ matrix.source }}-tiered-${{ matrix.tiered }}
           path: diagnostic
