@@ -181,6 +181,50 @@ The fix changes OpenSCCT's protocol signature; both peers need the same build.
 - Use flow: the menu and selection run on the input machine; `InteractionInit`, `Interaction`, `InteractionPost` are reliable client-to-server; the server answers with `MirrorState` (reliable `PCChangeClientState`). Client state changes (`ChangeState`) reach the server through `PCChangeServerState`, which the server applies only when the acknowledgement stamp the client echoes matches its own within 0.01 s (the server renews the stamp in `MirrorState` only when it is more than 1 s old); otherwise the client is out of date and the server's next mirror wins. On the client, `PCChangeClientState` is applied only if its send time is not older than the last one applied.
 - `SLeaveInteraction` and `SShareObjectInteraction` have native `IsNetRelevantFor` (editor 0x111BE0C0, 0x111C9F00); the mate entries have their own replication lists.
 
+### Interaction messages and movement commands
+
+OpenSCCT's sequenced movement transport must apply `InteractionInit`, `Interaction`
+and `InteractionPost` in the same reliable order as the controller state and action
+messages they accompany. Receiving an interaction message must not let it run ahead
+of an earlier `PCChangeServerState` waiting for its movement command. Queueing keeps
+the existing server checks for the selected actor, pawn, reach, usability, workflow
+state and completion time.
+
+This is an OpenSCCT transport requirement, rather than an additional PS2 gameplay
+rule. The original script use flow already uses reliable messages. A rendered DTK02P
+check on 2026-11-16 exposed the ordering mismatch: the owning spy played the entire
+panel hack while the authority never started the interaction, so the authored lift
+manager kept its Merc-only permissions. Applying all three interaction messages
+through the movement control queue allowed the same normal input to start and
+complete the authoritative hack and enable the lift calls. The
+`ps2-lift-exit` gameplay smoke covers this actual map workflow; synthetic
+`SwitchHackCommandOrderTests` also check ordinary and batched menu uses with and
+without link delay.
+
+## Original PS2 console facing origin
+
+The recovered PS2 ND133 console creates its interaction cylinder 80 uu in front of the case.
+That offset controls touch membership, while the original PS2 facing test uses the owning object's
+horizontal position. Crossing the cylinder's center while still facing the front of the console
+must therefore keep the Use entry available. Applying the PC interaction-position facing test
+to this PS2 placement hid Use as the player approached the case, then restored it when backing up.
+
+For PS2-profile `SComputerInteraction` entries, both halves of the horizontal facing test use the
+live console's position through the replicated `ObjectiveTrigger` reference. The entry's rotation,
+touch geometry, existing dot threshold, reach/visibility checks, team restrictions, cooldown,
+active/locked state and PC-facing behavior remain unchanged. This is an origin correction, not
+a port of the entire PS2 native facing formula.
+
+Evidence: PS2 `SC3_ON.ELF` SHA256
+`86ca75c3f3f07a345fa97970a5cc3a158ed2cfc8f68ca0e0eaa5e3efb3592113`,
+native `SInteractObject.CanUse` 0x43C690: the position reads at 0x43C760–0x43C788
+follow the owning-object pointer at +0x134. The PC editor implementation reads the interaction's
+own position at 0x111BC453 instead. Static MIPS instruction analysis establishes this difference;
+it does not establish exact PS2 runtime parity for all native conditions. The PS2 native also has
+a distance-dependent facing term, which is outside this bounded correction. Focused tests cover
+crossing the offset at four rotations, a missing native owner with a live replicated backlink,
+behind/away/locked/inactive rejection, and preservation of the PC origin.
+
 ## Edge cases
 
 - Original behavior: if the server refuses a use but the controller is not in `s_MenuInteraction` on the server (its client state change was rejected), no mirror is sent and the client can stay in the menu with `bCanCheckUsingButton` false until something else changes its state. The rewrite's authority validation answers rejected uses from a living, interactable controller even before its queued menu state arrives: mirror the current state, or `PreviousState` if already in the menu. This correction advances the owner acknowledgement beyond the 0.01 s tolerance immediately, including inside the usual one-second refresh window, so a queued menu transition cannot undo it. Range, visibility, usability and action validation still apply to the next attempt. `InteractionAuthorizationTests` covers both arrival orders, acknowledgement ages 0/0.5/2 s, and a subsequent valid use; `StuckPawnMatrixTests` seed 2016 exercises the stalled network flow.

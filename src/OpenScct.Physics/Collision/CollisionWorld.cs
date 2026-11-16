@@ -136,8 +136,9 @@ public sealed partial class CollisionWorld : ICollisionWorld
 
     internal CollisionModel Model => _model;
 
-    private CollisionWorld(CollisionModel model)
+    private CollisionWorld(CollisionModel model, bool ps2WorldGeometryTrace = false)
     {
+        Ps2WorldGeometryTrace = ps2WorldGeometryTrace;
         _model = model;
         int nc = model.Colliders.Length;
 
@@ -190,11 +191,17 @@ public sealed partial class CollisionWorld : ICollisionWorld
     /// Builds the collision world of a map. Worlds built from the same <paramref name="data"/> share its static
     /// geometry (built once); each has its own colliders, bindings and query buffers.
     /// </summary>
-    public static CollisionWorld Build(CollisionData data)
+    public static CollisionWorld Build(CollisionData data) => Build(data, ps2WorldGeometryTrace: false);
+
+    /// <summary>Builds with the explicitly selected source world-geometry trace rule; geometry and authored flags stay shared.</summary>
+    public static CollisionWorld Build(CollisionData data, bool ps2WorldGeometryTrace)
     {
         ArgumentNullException.ThrowIfNull(data);
-        return new CollisionWorld(CollisionModel.Of(data));
+        return new CollisionWorld(CollisionModel.Of(data), ps2WorldGeometryTrace);
     }
+
+    /// <summary>PS2 AActor::ShouldTrace accepts world geometry without the PC pawn/bBlockPlayers gate.</summary>
+    public bool Ps2WorldGeometryTrace { get; }
 
     /// <summary>
     /// Builds the collision world of a loaded SVMap. It shares its static geometry with every other world of the same
@@ -203,7 +210,8 @@ public sealed partial class CollisionWorld : ICollisionWorld
     public static CollisionWorld Build(SvMap map)
     {
         ArgumentNullException.ThrowIfNull(map);
-        return new CollisionWorld(CollisionModel.Of(map.Collision, CollisionModel.ContentKeyOf(map)));
+        return new CollisionWorld(CollisionModel.Of(map.Collision, CollisionModel.ContentKeyOf(map)),
+            map.Gameplay.LevelInfo.Props.GetBool("bPS2WorldGeometryTrace"));
     }
 
     /// <summary>

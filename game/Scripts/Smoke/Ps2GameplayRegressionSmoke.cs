@@ -30,6 +30,8 @@ public sealed class Ps2GameplayRegressionSmoke : SmokeTest
     private int _phase, _frames, _teardown, _settled;
     private double _since, _cycleAt;
     private bool _hackingSeen;
+    private double _completionAt = -1;
+    private int _completionWaitFrames;
     private readonly HashSet<string> _states = [];
 
     public override SmokeResult Step(SmokeContext context)
@@ -134,10 +136,24 @@ public sealed class Ps2GameplayRegressionSmoke : SmokeTest
             if (_computer!.Objective is { ObjectiveTaken: true })
             {
                 var replica = ReplicaComputer();
-                if (replica?.Objective is not { ObjectiveTaken: true } || elapsed < _computer.CaptureTime + 2) return SmokeResult.Running;
+                if (_completionAt < 0) _completionAt = context.ElapsedSeconds;
+                if (replica?.Objective is not { ObjectiveTaken: true })
+                {
+                    Require(context.ElapsedSeconds - _completionAt < 10, "Completed source terminal state did not replicate");
+                    return SmokeResult.Running;
+                }
                 Require(_hackingSeen && _states.Contains("s_Computer_Use"), "Capture bypassed normal computer use");
                 var completed = _root.Hud.Snapshot.Objectives.Where(o => FVector.Dist(o.Location, _computer.Location) < 1).ToArray();
-                Require(completed.All(o => o.Taken), "Completed source terminal retained an untaken marker");
+                // The smoke runs before this frame's HUD snapshot refresh. Start its deadline at observed
+                // completion; CaptureTime is simulation time and may take longer than that in wall time.
+                if (completed.Any(o => !o.Taken))
+                {
+                    ++_completionWaitFrames;
+                    if (context.ElapsedSeconds - _completionAt >= 10) DumpCompletionGraph("hud-still-untaken");
+                    Require(context.ElapsedSeconds - _completionAt < 10, "Completed source terminal retained an untaken marker");
+                    return SmokeResult.Running;
+                }
+                GD.Print($"PS2_REGRESSION_COMPLETED authorityObjective={_computer.Objective.ActorId} clientObjective={replica.Objective.ActorId} snapshotWaitFrames={_completionWaitFrames} observedCompletionWaitSeconds={context.ElapsedSeconds - _completionAt:F3} matchingHudMarkers={completed.Length} untakenHudMarkers={completed.Count(o => !o.Taken)}");
                 Save(context, "completed-markers.png"); Finish("normal Neutralization capture and marker update");
             }
             else if (elapsed > _computer.CaptureTime + 30) return SmokeResult.Fail("Normal hack timed out");
@@ -239,6 +255,27 @@ public sealed class Ps2GameplayRegressionSmoke : SmokeTest
             $"{phase}: objective markers missing client={_root.Hud!.Snapshot.Objectives.Count},authority={host.Objectives.Count}");
         Require(!requireDraw || DrawnMarkers() > 0, phase + ": client produced no visible ER icon draw item");
         GD.Print($"PS2_REGRESSION_HUD phase={phase} client={string.Join(';',_root.Hud.Snapshot.Objectives.Select(o => $"{o.Role}/{o.Kind}/{o.Name}:taken={o.Taken},active={o.Triggering},percent={o.Percent}"))} authorityCount={host.Objectives.Count} drawn={DrawnMarkers()}");
+    }
+
+    private void DumpCompletionGraph(string phase)
+    {
+        var session = _root!.Session!;
+        var fresh = new HudSnapshot(); HudSimReader.Read(session.LocalController!, fresh);
+        GD.Print($"PS2_COMPLETION phase={phase} selected={_computer!.ActorId} at={_computer.Location} hostTime={session.Host.World.Level.Info.TimeSeconds} clientTime={session.Client.World.Level.Info.TimeSeconds} replica={ReplicaComputer()?.ActorId} cached={string.Join(';', _root.Hud!.Snapshot.Objectives.Select(o => $"{o.Role}/{o.Kind}/{o.Name}@{o.Location}:taken={o.Taken},trig={o.Triggering},pct={o.Percent}"))} fresh={string.Join(';', fresh.Objectives.Select(o => $"{o.Role}/{o.Kind}/{o.Name}@{o.Location}:taken={o.Taken},trig={o.Triggering},pct={o.Percent}"))}");
+        foreach (var side in new[] { (Name: "authority", World: session.Host.World), (Name: "client", World: session.Client.World) })
+        {
+            foreach (var objective in side.World.Level.Actors.OfType<SObjective>())
+            {
+                var presentation = ObjectiveHud.PresentationTriggers(objective).OfType<SObjectiveTrigger>().ToArray();
+                bool relevant = presentation.Any(t => FVector.Dist(t.Location, _computer.Location) < 1) ||
+                    objective.Triggers.Any(t => t is not null && FVector.Dist(t.Location, _computer.Location) < 1) ||
+                    ReferenceEquals(objective, _computer.Objective) || ReferenceEquals(objective, ReplicaComputer()?.Objective);
+                if (!relevant) continue;
+                GD.Print($"PS2_COMPLETION_OBJECTIVE side={side.Name} id={objective.ActorId} type={objective.GetType().Name} name={objective.ObjectiveName} at={objective.Location} taken={objective.ObjectiveTaken} deleted={objective.bDeleteMe} activated={objective.activated} parent={objective.ParentObjective?.ActorId} parentMode={(objective.ParentObjective as SMission)?.GameMode} ownMode={(objective as SMission)?.GameMode} authored={string.Join(';', objective.Triggers.Select(t => t is null ? "null" : $"{t.ActorId}/{t.GetType().Name}:deleted={t.bDeleteMe},ps2={t.bPS2Objective},obj={t.Objective?.ActorId},taken={t.Objective?.ObjectiveTaken},at={t.Location}"))} presentation={string.Join(';', presentation.Select(t => $"{t.ActorId}/{t.GetType().Name}:deleted={t.bDeleteMe},ps2={t.bPS2Objective},obj={t.Objective?.ActorId},taken={t.Objective?.ObjectiveTaken},active={t.bActive},triggering={t.bTriggering},at={t.Location}"))}");
+            }
+            foreach (var trigger in side.World.Level.Actors.OfType<SObjectiveTrigger>().Where(t => FVector.Dist(t.Location, _computer.Location) < 1))
+                GD.Print($"PS2_COMPLETION_TRIGGER side={side.Name} id={trigger.ActorId} type={trigger.GetType().Name} deleted={trigger.bDeleteMe} active={trigger.bActive} ps2={trigger.bPS2Objective} obj={trigger.Objective?.ActorId} objDeleted={trigger.Objective?.bDeleteMe} objTaken={trigger.Objective?.ObjectiveTaken} parent={trigger.Objective?.ParentObjective?.ActorId} parentMode={(trigger.Objective?.ParentObjective as SMission)?.GameMode} trig={trigger.bTriggering} delta={(trigger as SComputerObjectiveTrigger)?.DeltaCaptureTime}");
+        }
     }
 
     private int DrawnMarkers() => _root!.Hud!.Markers.DrawList.Items.Count(i => i.Path.EndsWith("/icon", StringComparison.Ordinal) && i.Colors.Any(c => c.A > .01f));

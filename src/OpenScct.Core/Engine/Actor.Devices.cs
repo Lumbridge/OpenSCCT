@@ -356,11 +356,17 @@ public abstract partial class Actor
         Natives?.SetStaticMesh(this, NewStaticMesh);
     }
 
+    /// <summary>Whether SetCollision has explicitly replaced the converted map's initial collision flags.</summary>
+    public bool CollisionFlagsOverridden { get; private set; }
+
     /// <summary>Changes the collision flags. An omitted flag keeps its current value.</summary>
     [UcNative("AActor::execSetCollision", Exe = 0x10a24bf0)]
     [PortOf("nat:Engine.Actor.SetCollision", Spec = "spec/devices/triggers.md#enginetrigger")]
     public void SetCollision(bool? NewColActors = null, bool? NewBlockActors = null, bool? NewBlockPlayers = null)
     {
+        // Begin-play can run before the collision world is bound. Retain the explicit override so binding
+        // does not mistake those live values for untouched defaults and restore authored CYLS/CSRC flags.
+        CollisionFlagsOverridden = true;
         bool collide = NewColActors ?? bCollideActors;
         bool blockActors = NewBlockActors ?? bBlockActors;
         bool blockPlayers = NewBlockPlayers ?? bBlockPlayers;

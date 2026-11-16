@@ -28,9 +28,13 @@ public sealed partial class NetMovementBridge
 
     private bool DeferMovementCall(Actor actor, RepFunction f, NetCallArgs args, NetConnection connection, NetFunctionHandler handler)
     {
+        // Interaction phases validate the controller's current movement state. Keep them behind earlier
+        // state/action calls at the same command fence; immediate dispatch can reject a legitimate hack
+        // start while its preceding PCChangeServerState is still queued (interaction-system.md#network).
         if (actor is not SPlayerController { Pawn: SBasePawn { Health: > 0 }, bWaitingForReinit: false } pc || pc.StateNode is SPlayerController.s_Inactive || f.Name is not
             ("PCChangeServerState" or "ReplicateActionToServer" or "ReplicateActionToServerWithVelocity" or
-             "ServerGetZipP" or "ServerGetNewZipP" or "ServerGetZipPAndNormal" or "ServerSetWallJumpDir" or "ServerSetInfoForVandamme" or NetCombatBridge.FunctionName) ||
+             "ServerGetZipP" or "ServerGetNewZipP" or "ServerGetZipPAndNormal" or "ServerSetWallJumpDir" or "ServerSetInfoForVandamme" or
+             "InteractionInit" or "Interaction" or "InteractionPost" or NetCombatBridge.FunctionName) ||
             EndpointOf(pc)?.Sequenced is null) return false;
         if (!_controls.TryGetValue(pc, out ControlQueue? queue)) _controls.Add(pc, queue = new ControlQueue());
         if (queue.Count == queue.Calls.Length)
