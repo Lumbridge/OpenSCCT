@@ -889,7 +889,7 @@ public sealed partial class CollisionWorld
                 // AActor::ShouldTrace (SC3_ON.ELF 0x179040..0x179058) returns
                 // TRACE_LevelGeometry here without that extra gate. Preserve the
                 // source flags and select the rule from explicit map metadata.
-                if (!Ps2WorldGeometryTrace && src is not null && src.bIsAPawn)
+                if (src is not null && src.bIsAPawn && !Ps2WorldGeometryTrace)
                 {
                     return blockPlayers;
                 }
