@@ -28,14 +28,18 @@ public sealed partial class CollisionWorld
         if ((uint)id < (uint)_slots.Length)
         {
             ref ActorSlot s = ref _slots[id];
+            bool flagsUnchanged = a.bCollideActors == s.BaseCollideActors &&
+                a.bBlockActors == s.BaseBlockActors && a.bBlockPlayers == s.BaseBlockPlayers;
             if (s.HasCylinder && a.CollisionRadius == s.BaseRadius && a.CollisionHeight == s.BaseHeight &&
-                a.bCollideActors == s.BaseCollideActors && a.bBlockActors == s.BaseBlockActors && a.bBlockPlayers == s.BaseBlockPlayers)
+                (a.CollisionFlagsOverridden || flagsUnchanged))
             {
                 radius = s.Radius;
                 height = s.Height;
-                collideActors = (s.CylinderFlags & ColliderFlags.CollideActors) != 0;
-                blockActors = (s.CylinderFlags & ColliderFlags.BlockActors) != 0;
-                blockPlayers = (s.CylinderFlags & ColliderFlags.BlockPlayers) != 0;
+                // SetCollision changes flags only. Keep authored dimensions for an undecoded class,
+                // while retaining explicit live flags even when the call preceded BindLevel.
+                collideActors = a.CollisionFlagsOverridden ? a.bCollideActors : (s.CylinderFlags & ColliderFlags.CollideActors) != 0;
+                blockActors = a.CollisionFlagsOverridden ? a.bBlockActors : (s.CylinderFlags & ColliderFlags.BlockActors) != 0;
+                blockPlayers = a.CollisionFlagsOverridden ? a.bBlockPlayers : (s.CylinderFlags & ColliderFlags.BlockPlayers) != 0;
                 return;
             }
         }
@@ -57,7 +61,7 @@ public sealed partial class CollisionWorld
         if ((uint)id < (uint)_slots.Length)
         {
             ref ActorSlot s = ref _slots[id];
-            if (s.HasCylinder && a.CollisionRadius == s.BaseRadius && a.CollisionHeight == s.BaseHeight &&
+            if (s.HasCylinder && !a.CollisionFlagsOverridden && a.CollisionRadius == s.BaseRadius && a.CollisionHeight == s.BaseHeight &&
                 a.bCollideActors == s.BaseCollideActors && a.bBlockActors == s.BaseBlockActors && a.bBlockPlayers == s.BaseBlockPlayers)
             {
                 return s.CylinderFlags;

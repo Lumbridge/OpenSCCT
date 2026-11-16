@@ -137,7 +137,13 @@ public sealed class Ps2GameplayRegressionSmoke : SmokeTest
                 if (replica?.Objective is not { ObjectiveTaken: true } || elapsed < _computer.CaptureTime + 2) return SmokeResult.Running;
                 Require(_hackingSeen && _states.Contains("s_Computer_Use"), "Capture bypassed normal computer use");
                 var completed = _root.Hud.Snapshot.Objectives.Where(o => FVector.Dist(o.Location, _computer.Location) < 1).ToArray();
-                Require(completed.All(o => o.Taken), "Completed source terminal retained an untaken marker");
+                // The smoke runs before this frame's HUD snapshot refresh. A freshly applied
+                // replica update may therefore precede its rendered marker by one frame.
+                if (completed.Any(o => !o.Taken))
+                {
+                    Require(elapsed < _computer.CaptureTime + 10, "Completed source terminal retained an untaken marker");
+                    return SmokeResult.Running;
+                }
                 Save(context, "completed-markers.png"); Finish("normal Neutralization capture and marker update");
             }
             else if (elapsed > _computer.CaptureTime + 30) return SmokeResult.Fail("Normal hack timed out");

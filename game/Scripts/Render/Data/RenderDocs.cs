@@ -214,6 +214,9 @@ public sealed class MaterialEntry
 
     public string? Texture { get; init; }
 
+    /// <summary>The original PS2 GS fixed additive coefficient (FIX / 128), when decoded for this material.</summary>
+    public byte? Ps2GsAlphaFix { get; init; }
+
     /// <summary>Tangent-space normal map for authored glTF assets.</summary>
     public string? NormalTexture { get; init; }
 
@@ -417,6 +420,7 @@ public sealed class MaterialsDoc
             AuthoredDirection = has ? Str(f, "authored_direction") : null,
             Source = source,
             Texture = texture,
+            Ps2GsAlphaFix = Ps2AlphaFix(f),
             Masked = has && Bool(f, "masked") && !opaqueCombiner,
             Translucent = has && Bool(f, "translucent") && !opaqueCombiner,
             TwoSided = has && Bool(f, "two_sided"),
@@ -450,6 +454,14 @@ public sealed class MaterialsDoc
                 "modulate" => MaterialBlend.Modulate, "darken" => MaterialBlend.Darken,
                 _ => additiveLed ? MaterialBlend.Additive : null } : null,
         };
+    }
+
+    private static byte? Ps2AlphaFix(JsonElement flags)
+    {
+        if (flags.ValueKind != JsonValueKind.Object || !flags.TryGetProperty("ps2_gs_alpha_fix", out JsonElement value)) return null;
+        if (value.ValueKind != JsonValueKind.Number || !value.TryGetInt32(out int fix) || fix is < 0 or > 255)
+            throw new InvalidDataException("ps2_gs_alpha_fix must be a GS FIX byte (0..255)");
+        return (byte)fix;
     }
 
     private bool IsBareCombiner(string? path)

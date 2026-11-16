@@ -196,6 +196,9 @@ public partial class SInteractObject
         return !bInteractInFront || IsInFrontOf(TheController.Pawn!);
     }
 
+    /// <summary>The origin used by the facing rule; normally the interaction cylinder itself.</summary>
+    protected virtual FVector FacingOrigin => Location;
+
     /// <summary>
     /// The in-front rule: the pawn stands on the object's front side (its X axis) and faces the object, both in the
     /// horizontal plane with a dot product above <see cref="K.InFrontMinDot"/>.
@@ -203,7 +206,7 @@ public partial class SInteractObject
     [Provenance(ProvenanceKind.Estimated, "Facing rule of native Calc/CanUse; threshold and eye or pawn direction are open questions")]
     public bool IsInFrontOf(Pawn pawn)
     {
-        FVector toPawn = pawn.Location - Location;
+        FVector toPawn = pawn.Location - FacingOrigin;
         toPawn.Z = 0f;
         FVector facing = pawn.Rotation.Vector();
         facing.Z = 0f;
@@ -213,7 +216,7 @@ public partial class SInteractObject
     /// <summary>The first half of the in-front rule: <paramref name="location"/> is on the object's front side.</summary>
     public bool IsOnFrontSide(FVector location)
     {
-        FVector toPawn = location - Location;
+        FVector toPawn = location - FacingOrigin;
         toPawn.Z = 0f;
         FVector front = Rotation.Vector();
         front.Z = 0f;

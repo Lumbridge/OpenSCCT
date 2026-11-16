@@ -9,6 +9,13 @@ namespace OpenScct.Game.SBase;
 // The "Use" entry of a terminal, written from spec/objectives/terminal-hack.md.
 public partial class SComputerInteraction
 {
+    // The PS2 entry sits 80 uu in front of the case. Its touch cylinder is not the facing target.
+    // ObjectiveTrigger is the replicated backlink, including on clients without a native Owner reference.
+    [PortOf("nat:SBase.SInteractObject.CanUse", Spec = "spec/objectives/interaction-system.md#original-ps2-console-facing-origin")]
+    [Provenance(ProvenanceKind.Decoded, "PS2 SC3_ON.ELF SHA256 86ca75c3f3f07a345fa97970a5cc3a158ed2cfc8f68ca0e0eaa5e3efb3592113: SInteractObject.CanUse 0x43C760..0x43C788 reads the owning object's XY via +0x134; PC editor 0x111BC453 reads the interaction's own position")]
+    protected override FVector FacingOrigin =>
+        ObjectiveTrigger is SComputerObjectiveTrigger { bPS2Objective: true } computer ? computer.Location : base.FacingOrigin;
+
     protected override void CleanupDestroyedReferences()
     {
         base.CleanupDestroyedReferences();

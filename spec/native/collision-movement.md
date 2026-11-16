@@ -116,6 +116,23 @@ Movers run on every machine; encroachment events that damage are filtered by the
   0x110a77d0, FindSpot 0x110bea20.
 - Game: MoveActor 0x10a1b780, CheckEncroachment 0x10a1c8d0.
 
+## OpenSCCT converted-map binding
+
+Converted CYLS and CSRC flags remain the initial fallback for actors whose collision flags have not been
+changed by script. An explicit `Actor.SetCollision` call overrides that fallback, including a call made during
+begin-play before `CollisionWorld.BindLevel`. Binding must not restore the authored flags merely because the
+actor still has the disabled values that binding first observed. Later calls can enable the actor again;
+untouched converted actors retain their authored collision data.
+An explicit flag change does not change the cylinder's size: when radius and height are still untouched,
+an undecoded class retains its authored CYLS dimensions while the explicit live flags take precedence.
+Changing the radius or height still switches the query to the actor's live dimensions.
+
+This matters on the original PS2 maps: `SBombTargetObjectiveTrigger.PreBeginPlay` saves the authored placement
+radius and height, then calls `SetCollision(false)` (PS2 COM function ref 8986, disk 0x18B0B5–0x18B0EC). These large
+cylinders define modem-placement areas, not obstacles. Restoring their converted collision flags after
+begin-play blocks nearby doors and reverses grouped lifts. The physics regression tests cover both cylinder
+and mesh overrides before binding, re-enabling, and the unchanged fallback.
+
 ## Open questions
 
 1. FindSpot (editor 0x110bea20) and ActorEncroachmentCheck internals are taken as UE2-standard.

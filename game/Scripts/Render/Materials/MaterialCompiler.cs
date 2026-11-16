@@ -584,7 +584,13 @@ public sealed partial class MaterialCompiler
             diffuse = _absentDiffuse;
         }
         SetTexture(material, "tex_diffuse", diffuse);
-        if (blend == MaterialBlend.Additive &&
+        if (blend == MaterialBlend.Additive && entry.Ps2GsAlphaFix is byte fix)
+        {
+            // PS2 SC3_ON.ELF builds the GS ALPHA state with a fixed coefficient,
+            // independent of texture alpha (e.g. 0x0000005000000068 is 80/128).
+            material.SetShaderParameter("additive_gain", fix / 128f);
+        }
+        else if (blend == MaterialBlend.Additive &&
             string.Equals(entry.Source, "MHOsfx_xbox.FX.rayonlum", StringComparison.OrdinalIgnoreCase))
         {
             // The stacked beam04 surfaces in the hospital shafts and ClarD overexpose the wall.

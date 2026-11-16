@@ -885,8 +885,11 @@ public sealed partial class CollisionWorld
             case ColliderKind.WorldBsp:
                 return true;
             case ColliderKind.MeshPoly or ColliderKind.MeshHull:
-                // bWorldGeometry static meshes: a pawn source sees them only when they block players.
-                if (src is not null && src.bIsAPawn)
+                // PC world static meshes gate pawn traces on bBlockPlayers. PS2's
+                // AActor::ShouldTrace (SC3_ON.ELF 0x179040..0x179058) returns
+                // TRACE_LevelGeometry here without that extra gate. Preserve the
+                // source flags and select the rule from explicit map metadata.
+                if (!Ps2WorldGeometryTrace && src is not null && src.bIsAPawn)
                 {
                     return blockPlayers;
                 }
@@ -975,7 +978,7 @@ public sealed partial class CollisionWorld
     internal static void GetColliderFlags(ColliderState c, out bool collide, out bool blockActors, out bool blockPlayers)
     {
         Actor? a = c.Actor;
-        if (a is not null && (a.bCollideActors != c.BaseCollideActors || a.bBlockActors != c.BaseBlockActors ||
+        if (a is not null && (a.CollisionFlagsOverridden || a.bCollideActors != c.BaseCollideActors || a.bBlockActors != c.BaseBlockActors ||
                               a.bBlockPlayers != c.BaseBlockPlayers))
         {
             collide = a.bCollideActors;
