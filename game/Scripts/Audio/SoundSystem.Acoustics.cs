@@ -39,7 +39,7 @@ public sealed partial class SoundSystem
         _zoneBeds.Clear();
         foreach (AmbientSource source in _ambient)
         {
-            if (!source.IsZone || Library!.Find(source.Sound) is not { Positional: false } def) continue;
+            if (!source.Loop || source.RepeatInterval > 0 || !source.IsZone || Library!.Find(source.Sound) is not { Positional: false } def) continue;
             float score = SoundRules.SourceVolume(AmbientVolume(source), def.Volume, false) * ZoneBed(source.Id).Gain;
             if (!_zoneBeds.TryGetValue(source.Sound, out var previous) || score > previous.Score)
                 _zoneBeds[source.Sound] = (source.ActorId, score);
@@ -50,7 +50,7 @@ public sealed partial class SoundSystem
         // Ordinary independent speakers without a zone bed keep their semantics.
         foreach (AmbientSource source in _ambient)
         {
-            if (source.IsZone || !_zoneBeds.TryGetValue(source.Sound, out var previous) ||
+            if (!source.Loop || source.RepeatInterval > 0 || source.IsZone || !_zoneBeds.TryGetValue(source.Sound, out var previous) ||
                 Library!.Find(source.Sound) is not { Positional: false } def) continue;
             float level = SoundRules.SourceVolume(SoundRules.Ambient2DPlayingVolume(AmbientVolume(source),
                 FVector.Dist(source.Location, ListenerLocation), def.Radius > 0 ? def.Radius : source.SoundRadius), def.Volume, false);

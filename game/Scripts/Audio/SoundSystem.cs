@@ -518,6 +518,7 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
         }
 
         _ambientVoices.Clear();
+        _ambientOneShots.Clear();
         _music = null;
         _pendingSwitch = -1;
         Buses?.ResetSourceRooms();
@@ -605,7 +606,7 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
                 return false;
             }
         }
-        else if (!PlayLeaf(v, leaf, (flags & AudioK.FlagLoop) != 0 || leaf.Loop))
+        else if (!PlayLeaf(v, leaf, call.ambient ? call.loop : (flags & AudioK.FlagLoop) != 0 || leaf.Loop))
         {
             v.Stop();
             return false;
@@ -1068,8 +1069,15 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
         }
 
         AddStaticAmbient();
+        if (Library!.Map is { } map)
+            for (int i = 0; i < _ambient.Count; i++)
+            {
+                var source = _ambient[i];
+                _ambient[i] = source with { Loop = source.Loop && map.Loops(source.Id), RepeatInterval = Math.Max(source.RepeatInterval, map.RepeatInterval(source.Id)) };
+            }
         SelectZoneBeds();
         _ambientSeen.Clear();
+        _oneShotSeen.Clear();
         _ambientPass++;
         foreach (AmbientSource a in _ambient)
         {
@@ -1078,6 +1086,9 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
             {
                 continue;
             }
+
+            if (!a.Loop || a.RepeatInterval > 0) { UpdateAmbientOneShot(a, def); continue; }
+            RemoveAmbientOneShot(a.ActorId);
 
             float volume = AmbientVolume(a);
             float radius = def.Radius > 0f ? def.Radius : a.SoundRadius;
@@ -1159,6 +1170,7 @@ public sealed partial class SoundSystem : Node3D, ISimEventSink
             }
         }
 
+        PruneAmbientOneShots();
         // Loops whose actor no longer has its sound, or left the range.
         List<int>? gone = null;
         foreach (KeyValuePair<int, Voice> kv in _ambientVoices)

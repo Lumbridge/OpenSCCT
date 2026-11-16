@@ -188,9 +188,9 @@ public sealed class AudioLibrary
         if (Map is { } map)
         {
             foreach (MapSoundActor actor in map.Actors)
-                if (actor.AmbientSound is { } ambient) { PreloadManifest.Add(ambient); Preload(ambient, true, true); }
+                if (actor.AmbientSound is { } ambient) { PreloadManifest.Add(ambient); Preload(ambient, actor.Loop && actor.RepeatInterval <= 0, true); }
             foreach (MapSoundZone zone in map.Zones.Values)
-                if (zone.AmbientSound is { } ambient) { PreloadManifest.Add(ambient); Preload(ambient, true, true); }
+                if (zone.AmbientSound is { } ambient) { PreloadManifest.Add(ambient); Preload(ambient, zone.Loop && zone.RepeatInterval <= 0, true); }
             if (map.LevelSong is { } song) { PreloadManifest.Add(song); Preload(song, pin: true); }
         }
         SessionPrepared = true;
@@ -398,15 +398,21 @@ public sealed record MapSoundActor(
     byte SoundPitch,
     int LightType,
     float LightBrightness,
-    byte SoundOcclusion = 0);
+    byte SoundOcclusion = 0,
+    bool Loop = true,
+    float RepeatInterval = 0);
 
 /// <summary>A zone of the map's audio.json: its ambience and its I3DL2 reverb parameters.</summary>
 public sealed record MapSoundZone(string Id, string? AmbientSound, byte SoundVolume, byte SoundPitch, string? EffectClass,
-    IReadOnlyDictionary<string, float> Effect);
+    IReadOnlyDictionary<string, float> Effect, bool Loop = true, float RepeatInterval = 0);
 
 /// <summary>svmap/&lt;Map&gt;/audio/audio.json (svm.mapaudio/1): actors and zones.</summary>
 public sealed class MapAudioDoc
 {
+    private readonly HashSet<string> _oneShots = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, float> _intervals = new(StringComparer.OrdinalIgnoreCase);
+    public bool Loops(string id) => !_oneShots.Contains(id);
+    public float RepeatInterval(string id) => _intervals.TryGetValue(id, out float seconds) ? seconds : 0;
     public List<MapSoundActor> Actors { get; } = [];
 
     public Dictionary<string, MapSoundZone> Zones { get; } = new(StringComparer.OrdinalIgnoreCase);
@@ -453,7 +459,10 @@ public sealed class MapAudioDoc
                 (byte)Num(a, "soundPitch", 64),
                 (int)Num(a, "lightType", 0),
                 Num(a, "lightBrightness", 64f),
-                (byte)Num(a, "soundOcclusion", 0)));
+                (byte)Num(a, "soundOcclusion", 0), !a.TryGetProperty("loop", out JsonElement loop) || loop.ValueKind != JsonValueKind.False,
+                Interval(a)));
+            if (!m.Actors[^1].Loop) m._oneShots.Add(m.Actors[^1].Id);
+            if (m.Actors[^1].RepeatInterval > 0) m._intervals[m.Actors[^1].Id] = m.Actors[^1].RepeatInterval;
         }
 
         // The portal distance between zones (rows and columns by zone number), absent in older content.
@@ -511,7 +520,10 @@ public sealed class MapAudioDoc
 
             string id = z.GetProperty("id").GetString()!;
             m.Zones[id] = new MapSoundZone(id, z.TryGetProperty("ambientSound", out JsonElement s) ? s.GetString() : null,
-                (byte)Num(z, "soundVolume", 128), (byte)Num(z, "soundPitch", 64), cls, effect);
+                (byte)Num(z, "soundVolume", 128), (byte)Num(z, "soundPitch", 64), cls, effect,
+                !z.TryGetProperty("loop", out JsonElement loop) || loop.ValueKind != JsonValueKind.False, Interval(z));
+            if (!m.Zones[id].Loop) m._oneShots.Add(id);
+            if (m.Zones[id].RepeatInterval > 0) m._intervals[id] = m.Zones[id].RepeatInterval;
         }
 
         return m;
@@ -519,4 +531,9 @@ public sealed class MapAudioDoc
 
     private static float Num(JsonElement e, string name, float fallback) =>
         e.TryGetProperty(name, out JsonElement v) && v.ValueKind == JsonValueKind.Number ? v.GetSingle() : fallback;
+    private static float Interval(JsonElement element)
+    {
+        float seconds = Num(element, "repeatInterval", 0);
+        return float.IsFinite(seconds) ? Math.Clamp(seconds, 0, 86400) : 0;
+    }
 }

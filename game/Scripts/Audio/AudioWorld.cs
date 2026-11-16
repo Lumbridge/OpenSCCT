@@ -25,7 +25,9 @@ public readonly record struct AmbientSource(
     int LightType,
     float LightBrightness,
     byte SoundOcclusion = 0,
-    bool Follow = true);
+    bool Follow = true,
+    bool Loop = true,
+    float RepeatInterval = 0);
 
 /// <summary>
 /// What lies between the listener and a source (rule 18): the first surface seen from each end, its location, its
@@ -177,9 +179,9 @@ public sealed class LevelAudioWorld(Level level, ICollisionWorld? collision, Fun
 
             if (PlacedTrigger(a) is { } row)
             {
-                into.Add(new AmbientSource(a.ActorId, mapIdOf?.Invoke(a) ?? SpawnedId(a), a.Location,
+                into.Add(new AmbientSource(a.ActorId, row.Id, a.Location,
                     a.AmbientSound.Path!, row.SoundVolume, row.SoundRadius, row.SoundPitch, false, (int)a.LightType,
-                    a.LightBrightness, row.SoundOcclusion));
+                    a.LightBrightness, row.SoundOcclusion, Loop: row.Loop, RepeatInterval: row.RepeatInterval));
                 continue;
             }
 
