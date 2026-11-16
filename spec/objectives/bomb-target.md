@@ -184,6 +184,10 @@ the spot becomes inactive. These updates apply to players already connected and 
 
 ## Evidence
 
+### PS2 modem and PC input integration
+
+PS2 surface placement uses the modem's selected-gadget path (native checks 1315/1316, executable offsets 0x43FAA0/0x43FE90), rather than the PC target's Use menu. The PC secondary mouse alias also dispatches `GadgetQuickChoice 1` while unarmed. When the selected gadget is a PS2 modem, this alias must preserve that selection and dispatch the existing alternate-fire placement check. Other selected gadgets retain their normal quick-slot behavior. This is an OpenSCCT control integration rule; it does not change the source placement cylinder, trace, line-of-sight or capture rules.
+
 - Decompiled: `local/re-out/uc/SBase/SBombTargetObjectiveTrigger.uc`, `SBombTargetInteraction.uc`, `SGadBomb.uc`,
   `SPlayerController.uc` (ServerPlaceBomb, s_PlaceBomb, s_PlaceBomb_End), `SGameMessages.uc` switches 27 to 29.
 - Natives (game / editor): Desactivate thunk 0x10AE9C60 calling vtable slot 0x138, which for

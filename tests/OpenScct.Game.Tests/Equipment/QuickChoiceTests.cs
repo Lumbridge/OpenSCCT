@@ -18,6 +18,27 @@ public sealed class QuickChoiceTests
 {
     private static readonly PlayerInputFrame Still = new();
 
+    private sealed class InputModem : SGadBomb
+    {
+        public int Uses;
+        public override bool CanUseGadget() => true;
+        public override void Use(float value) => Uses++;
+    }
+
+    [Fact]
+    public void Secondary_quick_mouse_input_keeps_the_selected_ps2_modem_instead_of_selecting_a_grenade()
+    {
+        PawnRig rig = Kit(PawnTeam.Spy);
+        InputModem modem = rig.Level.SpawnActor(new InputModem { Ps2ModemProfile = true }, default, default)!;
+        modem.GiveTo(rig.Pawn);
+        rig.Pawn.SelectedGadget = modem;
+        rig.Controller.eventGadgetQuickChoice(1);
+        Assert.Same(modem, rig.Pawn.SelectedGadget);
+        Assert.False(rig.Controller.bQuickGadgetQuery);
+        Assert.Equal(1, modem.Uses);
+        Assert.Equal(0, Count<SProjChaffe>(rig));
+    }
+
     private static PawnRig Kit(PawnTeam team, bool crouched = false, PawnRigOptions? options = null)
     {
         PawnRig rig = MovementTestKit.Rig(team, crouched: crouched, options: options);

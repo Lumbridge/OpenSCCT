@@ -22,7 +22,7 @@ public partial class SObjective
             }
         }
 
-        foreach (SObjectiveTrigger? trigger in Triggers)
+        foreach (SObjectiveTrigger? trigger in OpenScct.Game.Objectives.ObjectiveHud.PresentationTriggers(this))
         {
             if (trigger is not null && trigger.Region.ZoneNumber == Viewer.ZoneNumber)
             {

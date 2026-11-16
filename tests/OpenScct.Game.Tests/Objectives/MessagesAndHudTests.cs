@@ -10,6 +10,50 @@ namespace OpenScct.Game.Tests.Objectives;
 // spec/objectives/messages.md
 public sealed class MessagesAndHudTests
 {
+    [Fact]
+    public void Ps2_hud_uses_live_replicated_backlinks_after_map_trigger_replacement()
+    {
+        var world = new ObjWorld();
+        var old = new SComputerObjectiveTrigger { bPS2Objective = true, bNoDelete = false };
+        var live = new SComputerObjectiveTrigger { bPS2Objective = true, bNoDelete = false };
+        var unrelated = new SComputerObjectiveTrigger { bPS2Objective = true, bNoDelete = false };
+        var pc = new SComputerObjectiveTrigger();
+        var objective = new SObjective();
+        objective.Triggers.Add(old);
+        world.Load(w => { w.Place(old, default); w.Place(objective, default); w.Place(live, new FVector(200, 0, 0)); w.Place(unrelated, new FVector(400, 0, 0)); });
+        old.Destroy();
+        live.Objective = objective;
+        Assert.Same(live, Assert.Single(ObjectiveHud.PresentationTriggers(objective)));
+        Assert.DoesNotContain(unrelated, ObjectiveHud.PresentationTriggers(objective));
+        objective.Triggers.Add(pc);
+        Assert.Contains(pc, ObjectiveHud.PresentationTriggers(objective));
+        live.bActive = true;
+        Assert.Equal((byte)255, objective.ERTriggerTargetVisibility(live, live.Region));
+        old.bPS2Objective = false;
+        Assert.Equal(new SObjectiveTrigger?[] { old, pc }, ObjectiveHud.PresentationTriggers(objective));
+    }
+
+    [Fact]
+    public void Ps2_delivery_guidance_uses_the_carried_vials_destinations_without_triggering_the_volume()
+    {
+        var zone = new SFlagDropZone();
+        var other = new SFlagDropZone();
+        var goal = new SObjective { ObjectiveTaken = false };
+        var vial = new SFlag { bPS2Objective = true, Objective = goal };
+        vial.DropZone[0] = zone;
+        var spy = new SPawnAttaque { CarriedFlag = vial };
+        Assert.True(ObjectiveHud.IsPs2DeliveryDestination(zone, spy));
+        Assert.False(zone.bTriggering);
+        Assert.False(ObjectiveHud.IsPs2DeliveryDestination(other, spy));
+        Assert.False(ObjectiveHud.IsPs2DeliveryDestination(zone, null));
+        Assert.False(ObjectiveHud.IsPs2DeliveryDestination(zone, new SPAWNDEFENSE { CarriedFlag = vial }));
+        goal.ObjectiveTaken = true;
+        Assert.False(ObjectiveHud.IsPs2DeliveryDestination(zone, spy));
+        goal.ObjectiveTaken = false;
+        vial.bPS2Objective = false;
+        Assert.False(ObjectiveHud.IsPs2DeliveryDestination(zone, spy));
+    }
+
     private sealed class RecordingGameHost : IGameHost
     {
         public readonly List<(PlayerController Target, GameCall Call)> Calls = new();

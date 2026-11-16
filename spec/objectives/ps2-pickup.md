@@ -25,4 +25,8 @@ The source computer goto state deliberately sets the same controller boolean tru
 
 ## Verification
 
+### Delivery guidance
+
+While a spy carries a PS2 vial, the HUD shows its live authored `DropZone` destinations until the objective is taken. This uses the same destination list and completion condition as `SFlag.CheckDropZone`, without calling that mutating function from presentation. PS2 delivery volumes implement `Touch` and do not run the PC suitcase interaction that maintains `bTriggering`; that field alone cannot determine their marker visibility. An unrelated destination, an unladen viewer or a merc does not receive this extra marker.
+
 Synthetic tests exercise actual Use-menu initialization and source state handoff. Network tests run profiles 100 and 300, resolve the replicated interaction owner, verify the effective 50 by 50 cylinder and authority/client reposition choice, and retain the original mesh and carry attachment. The `ps2-pickup` Godot smoke presses and releases the actual Use key on `DTK02P`'s tight cabinet objective, waits for native reposition and animation completion, and requires authoritative pickup and replicated thigh attachment. `SVM_PS2_PICKUP_CROUCHED=1` selects its crouched case. No direct pickup or synthetic arrival call is used in that map smoke.

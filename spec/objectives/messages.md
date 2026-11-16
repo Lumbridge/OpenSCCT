@@ -14,6 +14,12 @@ What the objective and interaction code tells players, how it reaches them, and 
 
 ## Data
 
+### PS2 dynamic trigger presentation
+
+Original PS2 map triggers can be replaced by dynamic replicated actors on a joining client. Their retained objective's authored trigger array then points to the deleted map instances. HUD presentation resolves PS2 triggers from the live actors' replicated `Objective` backlink, including the zone visibility check. PC objectives retain the original authored-array path. This is presentation-only: mission activation, hacking, capture and completion still use the existing authoritative simulation.
+
+Measured on DTK02P Neutralization: the joining client retained 16 deleted authored trigger references while six live active case actors had their replicated objective links. The authority's trigger array remained valid. This produced zero HUD entries on the joining client and three on the authority before the correction.
+
 Message texts (English, `classdefaults_localized.json`; `@` joins with one space):
 
 | Switch | Text | Built from |
