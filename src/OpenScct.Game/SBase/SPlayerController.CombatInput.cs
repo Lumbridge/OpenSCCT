@@ -671,6 +671,15 @@ public partial class SPlayerController
     [PortOf("uc:SBase.SPlayerController:s_PlayerWalkingMario.GadgetQuickChoice", Spec = "spec/equipment/grenade-throw.md#rules")]
     public void MarioGadgetQuickChoice(int i)
     {
+        // Retail's secondary mouse alias is a slot-two quick throw while unarmed.
+        // The PS2 modem is selected separately, so preserve it and run the same
+        // placement input used with the weapon drawn instead of selecting a grenade.
+        if (i == 1 && SBPawn?.SelectedGadget is SGadBomb modem && PawnInventory.IsPs2Modem(modem))
+        {
+            eventAltFire(0f);
+            return;
+        }
+
         if (SBPawn is not SPawnAttaque spy || i < 0 || i >= PawnInventory.TeamSlots(spy))
         {
             return;

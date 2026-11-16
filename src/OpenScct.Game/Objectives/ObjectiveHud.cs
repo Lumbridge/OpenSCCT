@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using OpenScct.Core.Engine;
 using OpenScct.Game.SBase;
 using OpenScct.Provenance;
@@ -10,6 +11,29 @@ namespace OpenScct.Game.Objectives;
 /// </summary>
 public static class ObjectiveHud
 {
+    /// <summary>Use the replicated backlink when PS2 map triggers have been replaced by dynamic channels.</summary>
+    public static IEnumerable<SObjectiveTrigger?> PresentationTriggers(SObjective objective)
+    {
+        bool ps2 = false;
+        foreach (SObjectiveTrigger? trigger in objective.Triggers)
+            if (trigger is { bPS2Objective: true }) { ps2 = true; break; }
+        if (ps2 && objective.XLevel is { } level)
+        {
+            foreach (SObjectiveTrigger? trigger in objective.Triggers)
+                if (trigger is not { bPS2Objective: true }) yield return trigger;
+            foreach (SObjectiveTrigger trigger in level.AllActors<SObjectiveTrigger>())
+                if (trigger.bPS2Objective && !trigger.bDeleteMe && ReferenceEquals(trigger.Objective, objective))
+                    yield return trigger;
+        }
+        else
+            foreach (SObjectiveTrigger? trigger in objective.Triggers) yield return trigger;
+    }
+
+    /// <summary>PS2 delivery volumes implement Touch rather than the PC suitcase's triggering state.</summary>
+    public static bool IsPs2DeliveryDestination(SFlagDropZone zone, SBasePawn? carrier) =>
+        !zone.bDeleteMe && carrier is { SPawnType: PawnType.SPAWNOFFENSE, CarriedFlag: { bPS2Objective: true } flag } &&
+        flag.Objective is not { ObjectiveTaken: true } && System.Array.IndexOf(flag.DropZone, zone) >= 0;
+
     /// <summary>
     /// <c>SHud.AddRemoveActorOnHud(A, bAdd)</c>: an add puts the actor at the front once; a remove takes out every
     /// copy.

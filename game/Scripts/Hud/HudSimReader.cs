@@ -407,7 +407,7 @@ public sealed class HudSimReader : IHudSource
             else if (a is SFlagDropZone zone)
             {
                 // game 0x10afa230..: shown while triggering; red for a merc or a spy carrying a disk, else orange.
-                if (zone.bTriggering)
+                if (zone.bTriggering || ObjectiveHud.IsPs2DeliveryDestination(zone, pawn))
                 {
                     bool alert = merc || pawn?.CarriedFlag is not null;
                     s.Objectives.Add(new HudObjective(zone.TriggerName, HudObjectiveKind.DropZone, zone.Location, true,
@@ -424,7 +424,7 @@ public sealed class HudSimReader : IHudSource
         bool anyTriggering = false, anyLocked = false;
         int best = -1;
         HudObjectiveKind icon = HudObjectiveKind.Other;
-        foreach (SObjectiveTrigger? t in objective.Triggers)
+        foreach (SObjectiveTrigger? t in ObjectiveHud.PresentationTriggers(objective))
         {
             if (t is not { bDeleteMe: false })
             {
@@ -450,7 +450,7 @@ public sealed class HudSimReader : IHudSource
             return;
         }
 
-        foreach (SObjectiveTrigger? t in objective.Triggers)
+        foreach (SObjectiveTrigger? t in ObjectiveHud.PresentationTriggers(objective))
         {
             if (t is not { bDeleteMe: false } || ObjectiveKind(t) is HudObjectiveKind.Other or HudObjectiveKind.HuntDisk ||
                 objective.ERTriggerTargetVisibility(t, region) == 0)
