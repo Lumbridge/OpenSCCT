@@ -10,7 +10,7 @@ For the output formats, see [SVMap 1.1](../spec/svmap/1.1/README.md) and
 
 ## Running
 
-Install Python 3.10 and the dependencies, then run from the `content/` directory:
+Install Python 3.11 or later and the dependencies, then run from the `content/` directory:
 
 ```powershell
 python -m pip install -r content/requirements.txt
