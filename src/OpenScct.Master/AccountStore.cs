@@ -171,7 +171,6 @@ internal sealed partial class AccountStore : IDisposable
             MigratePlayerPortal();
             MigrateAppearance();
             MigrateAdminFeatures();
-            Exec("CREATE TABLE IF NOT EXISTS account_pronouns (account_id INTEGER PRIMARY KEY REFERENCES accounts(id), pronouns TEXT NOT NULL);");
             Exec("DELETE FROM schema_version; INSERT INTO schema_version (version) VALUES ($v);", ("$v", SchemaVersion));
             return 0;
         });

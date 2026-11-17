@@ -39,7 +39,6 @@ public sealed record PlayerTicket
     public long AccountId { get; init; }
 
     public string Name { get; init; } = string.Empty;
-    public string Pronouns { get; init; } = OpenScct.Core.Engine.PlayerPronouns.Default;
 
     /// <summary>The master's id of the server the ticket is for.</summary>
     public string ServerId { get; init; } = string.Empty;
@@ -164,13 +163,12 @@ public sealed record PlayerTicket
     {
         byte[] server = Encoding.ASCII.GetBytes(ServerId);
         byte[] name = Encoding.UTF8.GetBytes(Name);
-        byte[] pronouns = Encoding.ASCII.GetBytes(OpenScct.Core.Engine.PlayerPronouns.Normalize(Pronouns));
         if (server.Length > MaxServerIdBytes || name.Length > MaxNameBytes || Unlocks.Length > MaxUnlockBytes || Titles.Length > MaxTitleBytes)
         {
             throw new InvalidOperationException("Ticket server id, name or unlocks too long.");
         }
 
-        byte[] data = new byte[1 + 1 + 8 + 8 + 8 + 1 + server.Length + 1 + name.Length + 1 + Unlocks.Length + 4 + 1 + Titles.Length + 1 + pronouns.Length];
+        byte[] data = new byte[1 + 1 + 8 + 8 + 8 + 1 + server.Length + 1 + name.Length + 1 + Unlocks.Length + 4 + 1 + Titles.Length];
         int at = 0;
         data[at++] = FormatVersion;
         data[at++] = (byte)Flags;
@@ -194,8 +192,6 @@ public sealed record PlayerTicket
         data[at++] = (byte)Titles.Length;
         Titles.CopyTo(data, at);
         at += Titles.Length;
-        data[at++] = (byte)pronouns.Length;
-        pronouns.CopyTo(data, at);
         return data;
     }
 
@@ -236,7 +232,6 @@ public sealed record PlayerTicket
         byte[] unlocks = [];
         int rank = 0;
         byte[] titles = [];
-        string pronouns = OpenScct.Core.Engine.PlayerPronouns.Default;
         if (hasUnlocks)
         {
             // Bytes after the unlocks are fields a newer master added; this reader skips them, so the master can add
@@ -260,12 +255,6 @@ public sealed record PlayerTicket
                 {
                     titles = data.AsSpan(at, titleLength).ToArray();
                     at += titleLength;
-                    if (at < data.Length)
-                    {
-                        int length = data[at++];
-                        if (at + length > data.Length || !OpenScct.Core.Engine.PlayerPronouns.TryNormalize(
-                            Encoding.ASCII.GetString(data, at, length), out pronouns)) return false;
-                    }
                 }
             }
         }
@@ -273,7 +262,7 @@ public sealed record PlayerTicket
         ticket = new PlayerTicket
         {
             AccountId = account, Name = name, ServerId = server, Expires = DateTimeOffset.FromUnixTimeSeconds(expires), TicketId = id,
-            Flags = flags, Unlocks = unlocks, Rank = rank, Titles = titles, Pronouns = pronouns,
+            Flags = flags, Unlocks = unlocks, Rank = rank, Titles = titles,
         };
         return true;
     }
