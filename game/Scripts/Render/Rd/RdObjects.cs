@@ -37,6 +37,7 @@ internal sealed class RdObjects
     public struct Draw
     {
         public int Surface, Object, Kind;
+        public Aabb Bounds;
         /// <summary>The first bone matrix of the draw's skeleton in the frame's palette, or -1 for a rigid mesh.</summary>
         public int Palette;
         public bool Masked, TwoSided;
@@ -607,6 +608,7 @@ internal sealed class RdObjects
 
                 draws.Add(new Draw
                 {
+                    Bounds = box,
                     Surface = surface.Id, Object = objectIndex, Kind = m.Kind | (sky ? 128 : 0), Palette = paletteBase, Mirrored = skin is null && model.Basis.Determinant() < 0f, Distance = eye.DistanceSquaredTo(box.GetCenter()), Masked = m.Masked, TwoSided = m.TwoSided, Texture = m.Texture,
                     Blend = material.Shader is { } drawingShader && ResponsiveSmokeShaders.BaseCode(drawingShader).Contains("#define " + Projectors.SurfaceProjector.Define, StringComparison.Ordinal) ? 4 : template is null ? m.Blend : template.Cloak ? 3 : template.Blended ? 1 : 0, SpotBits = vision || sky || (m.Kind == 0 && template is null) ? 0 : spotBits, Material = template,
                     Flares = vision || sky || m.Kind == 0 || template is not null ? 0 : flares,

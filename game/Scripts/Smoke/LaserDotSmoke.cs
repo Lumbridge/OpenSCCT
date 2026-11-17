@@ -3,6 +3,10 @@ using System.IO;
 using Godot;
 using OpenScctGame.Fx;
 using OpenScctGame.Render.Materials;
+using OpenScctGame.Render.Data;
+using OpenScctGame.Render;
+using OpenScctGame.Render.Golden;
+using OpenScctGame.Render.Rd;
 
 namespace OpenScctGame.Smoke;
 
@@ -12,15 +16,17 @@ public sealed class LaserDotSmoke : SmokeTest
     public const string TestName = "laser-dot";
     public override string Name => TestName;
 
-    private enum Surface { Flat, Angled, Step, Occluder, Empty }
+    private enum Surface { Flat, Angled, Step, Occluder, Empty, StaticMesh, Mover, LayeredMesh }
     private readonly record struct Case(string Name, Surface Surface, float Scale = .25f,
-        float CameraDistance = 2f, int Vision = 0, bool Legacy = false);
+        float CameraDistance = 2f, int Vision = 0, bool Legacy = false, bool Fast = false, bool Move = false);
 
     private static readonly Case[] Cases =
     [
         new("front", Surface.Flat),
         new("oblique-60-degrees", Surface.Angled),
         new("stepped-surface", Surface.Step),
+        new("compiled-static-mesh", Surface.StaticMesh),
+        new("compiled-mover", Surface.Mover),
         new("intervening-wall", Surface.Occluder),
         new("no-surface", Surface.Empty),
         new("minimum-scale", Surface.Flat, .05f),
@@ -30,6 +36,12 @@ public sealed class LaserDotSmoke : SmokeTest
         new("thermal-material", Surface.Flat, Vision: 36),
         new("emf-material", Surface.Flat, Vision: 38),
         new("legacy-quad-control", Surface.Angled, Legacy: true),
+        new("fast-static-mesh", Surface.StaticMesh, Fast: true),
+        new("fast-mover", Surface.Mover, Fast: true),
+        new("fast-moving-mover", Surface.Mover, Fast: true, Move: true),
+        new("fast-layered-mesh", Surface.LayeredMesh, Fast: true),
+        new("fast-occluded-mover", Surface.Occluder, Fast: true),
+        new("fast-empty", Surface.Empty, Fast: true),
     ];
 
     private SubViewport? _viewport;
@@ -38,6 +50,9 @@ public sealed class LaserDotSmoke : SmokeTest
     private string? _output;
     private int _case, _frames, _referencePixels, _teardown;
     private SmokeResult? _result;
+    private OffscreenView? _fast;
+    private string? _mapFolder;
+    private MeshInstance3D? _movingReceiver;
 
     public override SmokeResult Step(SmokeContext context)
     {
@@ -48,6 +63,7 @@ public sealed class LaserDotSmoke : SmokeTest
             {
                 if (DisplayServer.GetName() == "headless") return SmokeResult.Fail("requires a renderer");
                 MaterialCompiler.EnsureGlobals();
+                _mapFolder = MapBuilder.FindMapFolder("TestRange", context.App.Options.MapRoots);
                 _viewport = new SubViewport { Size = new Vector2I(256, 256), OwnWorld3D = true,
                     RenderTargetUpdateMode = SubViewport.UpdateMode.Always, UseDebanding = false };
                 context.Tree.Root.AddChild(_viewport);
@@ -59,7 +75,14 @@ public sealed class LaserDotSmoke : SmokeTest
                 }
                 Configure();
             }
-            if (++_frames < 12) return SmokeResult.Running;
+            ++_frames;
+            if (Cases[_case].Move && _frames == 6 && _movingReceiver is { } mover)
+            {
+                mover.Position = new Vector3(.01f, 0f, .025f);
+                mover.Rotation = new Vector3(0f, .3f, .2f);
+                mover.Scale = new Vector3(1.2f, .8f, 1f);
+            }
+            if (_frames < 12) return SmokeResult.Running;
             using Image image = _viewport!.GetTexture().GetImage();
             Case test = Cases[_case];
             if (_output is not null && image.SavePng(Path.Combine(_output, test.Name + ".png")) != Error.Ok)
@@ -81,14 +104,14 @@ public sealed class LaserDotSmoke : SmokeTest
             {
                 if (pixels < 500 || balance < .88f || aspect < .9f || aspect > 1.1f)
                     return Finish(SmokeResult.Fail($"{test.Name}: dot clipped or missing ({pixels} pixels, balance={balance:F3}, aspect={aspect:F3})"));
-                if (_case == 0) _referencePixels = pixels;
+                if (_case == 0 || (test.Fast && !Cases[_case - 1].Fast)) _referencePixels = pixels;
                 // The 60-degree wall and both sides of the step fit within the original 20 uu projection
                 // depth. Viewed along the beam, they must retain the front wall's full circular footprint.
                 if (test.Scale == .25f && (pixels < _referencePixels * .85f || pixels > _referencePixels * 1.15f))
                     return Finish(SmokeResult.Fail($"{test.Name}: coverage changed from {_referencePixels} to {pixels} pixels"));
             }
             if (++_case == Cases.Length)
-                return Finish(SmokeResult.Pass("full dot on frontal/60-degree/stepped surfaces; occluder and empty space reject it; min/large scales, near/far camera, thermal/EMF; legacy quad fails coverage" +
+                return Finish(SmokeResult.Pass("full dot on frontal/60-degree/stepped surfaces and compiled mesh/mover materials; Fast static/moving mesh receivers and occlusion; min/large scales, near/far camera, thermal/EMF; legacy quad fails coverage" +
                     (_output is null ? "" : "; images=" + _output)));
             _frames = 0;
             Configure();
@@ -100,9 +123,19 @@ public sealed class LaserDotSmoke : SmokeTest
     private void Configure()
     {
         _scene?.Free();
+        _movingReceiver = null;
         _scene = new Node3D();
-        _viewport!.AddChild(_scene);
         Case test = Cases[_case];
+        if (test.Fast && _fast is null)
+        {
+            if (_mapFolder is null) throw new InvalidOperationException("TestRange content missing for Fast renderer check");
+            RdWorldRenderer.OwnFrameSetting = true;
+            _viewport!.QueueFree();
+            _fast = new OffscreenView(_viewport.GetParent(), MapBuilder.Build(_mapFolder), new Vector2I(256, 256));
+            _viewport = _fast.Viewport;
+        }
+        if (test.Fast) _fast!.Map.Root.AddChild(_scene);
+        else _viewport!.AddChild(_scene);
         OpenScctGame.Render.ShaderGlobals.Set("svm_vision", test.Vision);
         float width = UeSpace.LengthToGodot(SpyLaserView.DotTexels * test.Scale);
         float size = width * 3f;
@@ -111,10 +144,28 @@ public sealed class LaserDotSmoke : SmokeTest
             BackgroundMode = Godot.Environment.BGMode.Color, BackgroundColor = Colors.Black,
             AmbientLightSource = Godot.Environment.AmbientSource.Disabled,
         } });
-        _scene.AddChild(new Camera3D { Projection = Camera3D.ProjectionType.Orthogonal, Size = size,
-            Position = new Vector3(0, 0, test.CameraDistance), Near = .01f, Far = 100f, Current = true });
+        Camera3D camera = test.Fast ? _fast!.View.Camera : new Camera3D();
+        camera.Projection = Camera3D.ProjectionType.Orthogonal;
+        camera.Size = size;
+        camera.Position = new Vector3(0, 0, test.CameraDistance);
+        camera.Near = .01f;
+        camera.Far = 100f;
+        camera.Current = true;
+        if (!test.Fast) { camera.CullMask = 1; _scene.AddChild(camera); }
         var wall = new StandardMaterial3D { ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded,
             AlbedoColor = Colors.Black, CullMode = BaseMaterial3D.CullModeEnum.Disabled };
+        Material receiverMaterial = wall;
+        if (test.Fast || test.Surface is Surface.StaticMesh or Surface.Mover)
+        {
+            var textures = new TextureCache("");
+            using Image black = Image.CreateEmpty(2, 2, false, Image.Format.Rgba8);
+            black.Fill(Colors.Black);
+            textures.Add("black", ImageTexture.CreateFromImage(black));
+            var compiler = new MaterialCompiler(new MaterialsDoc(), textures);
+            receiverMaterial = compiler.Build(new MaterialEntry { Name = "laser-receiver", Texture = "black", TwoSided = true,
+                SelfIllum = test.Surface == Surface.LayeredMesh ? "black" : null },
+                test.Surface == Surface.StaticMesh ? LightSource.Vertex : LightSource.Actor);
+        }
         if (test.Surface == Surface.Step)
         {
             AddWall(new Vector2(size, size * 2f), new Vector3(-size / 2f, 0, -.035f), wall);
@@ -122,10 +173,11 @@ public sealed class LaserDotSmoke : SmokeTest
         }
         else if (test.Surface != Surface.Empty)
         {
-            MeshInstance3D receiver = AddWall(new Vector2(size * 3f, size * 3f), Vector3.Zero, wall);
+            MeshInstance3D receiver = AddWall(new Vector2(size * 3f, size * 3f), Vector3.Zero, receiverMaterial);
+            if (test.Move) _movingReceiver = receiver;
             if (test.Surface == Surface.Angled) receiver.Rotation = new Vector3(0, Mathf.DegToRad(60f), 0);
             if (test.Surface == Surface.Occluder)
-                AddWall(new Vector2(size * 2f, size * 2f), new Vector3(0, 0, .25f), wall);
+                AddWall(new Vector2(size * 2f, size * 2f), new Vector3(0, 0, .25f), receiverMaterial);
         }
         MeshInstance3D dot;
         if (test.Legacy)
@@ -148,6 +200,19 @@ public sealed class LaserDotSmoke : SmokeTest
             SpyLaserView.PlaceDot(dot, default, UeSpace.DirectionToUe(Vector3.Forward), test.Scale, 20f);
         }
         dot.Visible = true;
+        if (test.Fast)
+        {
+            dot.AddToGroup(SpyLaserView.GroupDot);
+            // Isolate the synthetic receivers from the real map, while using its production Fast frame path.
+            _scene.Position = new Vector3(1000, 1000, 1000);
+            camera.Position += _scene.Position;
+            float vertical = Mathf.RadToDeg(2f * MathF.Atan(size / (2f * test.CameraDistance)));
+            _fast!.View.VerticalFovPolicy = (_, _) => vertical;
+            Vector3 eye = camera.Position;
+            _fast.View.SetUeCamera(UeSpace.ToUe(eye), UeSpace.DirectionToUe(Vector3.Forward).Rotation(), 75f, cut: true);
+            camera.Basis = Basis.Identity;
+            SpyLaserView.PlaceDot(dot, UeSpace.ToUe(_scene.Position), UeSpace.DirectionToUe(Vector3.Forward), test.Scale, 20f);
+        }
     }
 
     private MeshInstance3D AddWall(Vector2 size, Vector3 position, Material material)
@@ -196,6 +261,7 @@ public sealed class LaserDotSmoke : SmokeTest
         _viewport?.QueueFree();
         _viewport = null;
         _scene = null;
+        RdWorldRenderer.OwnFrameSetting = false;
         _result = result;
         return SmokeResult.Running;
     }

@@ -2409,6 +2409,8 @@ internal sealed class RdWorldGpu
     }
 
     private Rid _projectorShader, _projectorBuffer, _projectorFrameSet;
+    private Rid _objectProjectorShader, _objectProjectorPipeline, _objectProjectorSet;
+    private int _objectProjectorVersion = -1;
     private readonly Rid[] _projectorPipelines = new Rid[3];
     private readonly Dictionary<Rid, Rid> _projectorSets = [];
     private int _projectorCapacity;
@@ -2440,7 +2442,33 @@ internal sealed class RdWorldGpu
             }
         }
 
+        // Warm the rigid receiver program with the other projector pipelines, before a laser first reaches a mover.
+        if (!_objectProjectorShader.IsValid)
+        {
+            _objectProjectorShader = Compile(rd, RdProjectors.ObjectVertex, RdProjectors.Fragment, "svm_rd_object_projector", null);
+            if (!_objectProjectorShader.IsValid) return false;
+            var attachment = new RDPipelineColorBlendStateAttachment { EnableBlend = true, WriteA = false,
+                ColorBlendOp = RD.BlendOperation.Add, SrcColorBlendFactor = RD.BlendFactor.One, DstColorBlendFactor = RD.BlendFactor.One,
+                SrcAlphaBlendFactor = RD.BlendFactor.Zero, DstAlphaBlendFactor = RD.BlendFactor.One };
+            _objectProjectorPipeline = rd.RenderPipelineCreate(_objectProjectorShader, _ownFormat, _objectFormats[0], RD.RenderPrimitive.Triangles,
+                new RDPipelineRasterizationState { CullMode = RD.PolygonCullMode.Disabled }, new RDPipelineMultisampleState(),
+                new RDPipelineDepthStencilState { EnableDepthTest = true, EnableDepthWrite = false, DepthCompareOperator = RD.CompareOperator.Equal },
+                new RDPipelineColorBlendState { Attachments = [attachment] }, 0, 0, []);
+            if (!_objectProjectorPipeline.IsValid) return false;
+        }
         if (frame.ProjectorDraws.Count == 0 || Test.Contains("noprojectors")) return false;
+        if (frame.ProjectorDraws.Exists(static draw => draw.WorldDraw < 0))
+        {
+            if (_objectProjectorVersion != _objectBufferVersion || !_objectProjectorSet.IsValid || !rd.UniformSetIsValid(_objectProjectorSet))
+            {
+                if (rd.UniformSetIsValid(_objectProjectorSet)) rd.FreeRid(_objectProjectorSet);
+                var objects = new RDUniform { UniformType = RD.UniformType.StorageBuffer, Binding = 0 };
+                objects.AddId(_objectBuffer);
+                _objectProjectorSet = rd.UniformSetCreate([objects], _objectProjectorShader, 2);
+                _objectProjectorVersion = _objectBufferVersion;
+                if (!_objectProjectorSet.IsValid) return false;
+            }
+        }
         int bytes = frame.ProjectorBlocks.Count * 4;
         if (bytes > _projectorCapacity)
         {
@@ -2478,18 +2506,19 @@ internal sealed class RdWorldGpu
         rd.DrawListBindVertexArray(dl, _vertexArray);
         Span<int> push = MemoryMarshal.Cast<byte, int>(_drawBlock.AsSpan());
         int bound = -1;
+        bool objectBound = false;
         bool scissored = false;
         foreach (RdProjectors.Draw draw in frame.ProjectorDraws)
         {
-            if (draw.Projector != bound)
+            bool onObject = draw.WorldDraw < 0;
+            if (draw.Projector != bound || onObject != objectBound)
             {
                 bound = draw.Projector;
-                rd.DrawListBindRenderPipeline(dl, _projectorPipelines[Math.Clamp(frame.ProjectorKinds[bound], 0, 2)]);
+                objectBound = onObject;
+                rd.DrawListBindRenderPipeline(dl, onObject ? _objectProjectorPipeline : _projectorPipelines[Math.Clamp(frame.ProjectorKinds[bound], 0, 2)]);
                 rd.DrawListBindUniformSet(dl, _projectorFrameSet, 0);
                 rd.DrawListBindUniformSet(dl, _projectorSets[frame.ProjectorTextures[bound]], 1);
-                push[0] = bound;
-                push[1] = 0;
-                rd.DrawListSetPushConstant(dl, _drawBlock, (uint)_drawBlock.Length);
+                if (onObject) rd.DrawListBindUniformSet(dl, _objectProjectorSet, 2);
                 // A receiving batch is an 8 m block; the projection falls on the part of it inside the projector's box.
                 Rect2 rect = bound < frame.ProjectorRects.Count && !s_testNoScissor ? frame.ProjectorRects[bound] : default;
                 if (rect.Size.X > 0f && rect.Size.Y > 0f)
@@ -2504,7 +2533,20 @@ internal sealed class RdWorldGpu
                 }
             }
 
-            rd.DrawListBindIndexArray(dl, _indexArrays[frame.Draws[draw.WorldDraw]]);
+            push[0] = bound;
+            push[1] = onObject ? frame.Objects[draw.ObjectDraw].Object : 0;
+            rd.DrawListSetPushConstant(dl, _drawBlock, (uint)_drawBlock.Length);
+            if (onObject)
+            {
+                if (!_objectSurfaces.TryGetValue(frame.Objects[draw.ObjectDraw].Surface, out var surface)) continue;
+                rd.DrawListBindVertexArray(dl, surface.VertexArray);
+                rd.DrawListBindIndexArray(dl, surface.IndexArray);
+            }
+            else
+            {
+                rd.DrawListBindVertexArray(dl, _vertexArray);
+                rd.DrawListBindIndexArray(dl, _indexArrays[frame.Draws[draw.WorldDraw]]);
+            }
             rd.DrawListDraw(dl, true, 1, 0);
         }
 
@@ -2813,13 +2855,17 @@ internal sealed class RdWorldGpu
 
         _projectorSets.Clear();
         if (rd.UniformSetIsValid(_projectorFrameSet)) rd.FreeRid(_projectorFrameSet);
-        foreach (Rid rid in new[] { _projectorPipelines[0], _projectorPipelines[1], _projectorPipelines[2], _projectorShader, _projectorBuffer })
+        if (rd.UniformSetIsValid(_objectProjectorSet)) rd.FreeRid(_objectProjectorSet);
+        foreach (Rid rid in new[] { _projectorPipelines[0], _projectorPipelines[1], _projectorPipelines[2], _projectorShader, _projectorBuffer,
+            _objectProjectorPipeline, _objectProjectorShader })
         {
             if (rid.IsValid) rd.FreeRid(rid);
         }
 
         Array.Clear(_projectorPipelines);
         _projectorShader = _projectorBuffer = _projectorFrameSet = default;
+        _objectProjectorPipeline = _objectProjectorShader = _objectProjectorSet = default;
+        _objectProjectorVersion = -1;
         _projectorCapacity = 0;
         foreach ((int frame, Rid color, Rid depth) in _ownRetired)
         {

@@ -10,7 +10,7 @@ namespace OpenScctGame.Render.Rd;
 /// "The states it draws with"): the world surfaces a projector's box reaches are drawn a second time, at the depth
 /// they already have, with the projector's texture blended into the frame. The projection itself is that of
 /// svm_projector.gdshaderinc, with the surface's own position in place of one rebuilt from the depth buffer.
-/// Objects and characters do not receive projections yet.
+/// The spy laser also projects onto separate rigid meshes, including movers, at their current transforms.
 /// </summary>
 internal sealed class RdProjectors
 {
@@ -21,6 +21,8 @@ internal sealed class RdProjectors
     {
         /// <summary>The projector's index among the frame's blocks, and the world draw (index into the frame's draws).</summary>
         public int Projector, WorldDraw;
+        /// <summary>Index into the frame's objects when WorldDraw is -1.</summary>
+        public int ObjectDraw;
     }
 
     private sealed class Info
@@ -48,7 +50,7 @@ internal sealed class RdProjectors
     /// reaches (main thread).
     /// </summary>
     public void Gather(Node? root, SceneTree? tree, Plane[] planes, Func<Plane[], Aabb, bool> inside, List<RdWorldGeometry.Batch> batches, int[] worldDraws, int worldDrawCount,
-        List<Draw> draws, List<float> blocks, List<Rid> textures, List<int> kinds)
+        List<Draw> draws, List<float> blocks, List<Rid> textures, List<int> kinds, List<RdObjects.Draw> objects)
     {
         draws.Clear();
         blocks.Clear();
@@ -60,7 +62,7 @@ internal sealed class RdProjectors
         {
             foreach (Node dot in tree.GetNodesInGroup(s_laserDots))
             {
-                if (dot is MeshInstance3D { Mesh: { } mesh } node && node.IsVisibleInTree() && Describe(node, mesh) is { } info) Reach(info, planes, inside, batches, worldDraws, worldDrawCount, draws, blocks, textures, kinds);
+                if (dot is MeshInstance3D { Mesh: { } mesh } node && node.IsVisibleInTree() && Describe(node, mesh) is { } info) Reach(info, planes, inside, batches, worldDraws, worldDrawCount, draws, blocks, textures, kinds, objects);
             }
         }
 
@@ -86,7 +88,7 @@ internal sealed class RdProjectors
 
     /// <summary>Adds the frame's world draws the projector's box reaches.</summary>
     private static void Reach(Info p, Plane[] planes, Func<Plane[], Aabb, bool> inside, List<RdWorldGeometry.Batch> batches, int[] worldDraws, int worldDrawCount,
-        List<Draw> draws, List<float> blocks, List<Rid> textures, List<int> kinds)
+        List<Draw> draws, List<float> blocks, List<Rid> textures, List<int> kinds, List<RdObjects.Draw>? objects = null)
     {
         if (!inside(planes, p.Box)) return;
         int index = -1;
@@ -106,6 +108,24 @@ internal sealed class RdProjectors
             }
 
             draws.Add(new Draw { Projector = index, WorldDraw = k });
+        }
+
+        // Only laser dots gain object receivers. Map projectors retain their authored receiver rules.
+        if (objects is null) return;
+        for (int k = 0; k < objects.Count; k++)
+        {
+            RdObjects.Draw receiver = objects[k];
+            if (receiver.Blend != 0 || receiver.Palette >= 0 || (receiver.Kind & 128) != 0 ||
+                !receiver.Bounds.Intersects(p.Box)) continue;
+            if (index < 0)
+            {
+                index = kinds.Count;
+                Boxes.Add(p.Box);
+                blocks.AddRange(p.Block);
+                textures.Add(p.Texture);
+                kinds.Add(p.Kind);
+            }
+            draws.Add(new Draw { Projector = index, WorldDraw = -1, ObjectDraw = k });
         }
     }
 
@@ -215,6 +235,23 @@ internal sealed class RdProjectors
             gl_Position = frame.world * vec4(a_pos, 1.0);
         }
 
+        """;
+
+    // Rigid objects use the same model matrix and clip-space multiplication as their solid pass. The depth-equal
+    // test then keeps both foreground occlusion and masked holes without sampling the receiver's material again.
+    public static readonly string ObjectVertex = Common + """
+        layout(set = 2, binding = 0, std430) readonly buffer Objects { vec4 rows[]; };
+        layout(location = 0) in vec3 a_pos;
+        layout(location = 0) out vec3 v_world;
+        invariant gl_Position;
+        void main()
+        {
+        """ + $"\n int first = draw.pad0 * {RdObjects.ObjectBytes / 16};\n" + """
+            mat4 model = mat4(rows[first], rows[first + 1], rows[first + 2], rows[first + 3]);
+            vec4 wp = model * vec4(a_pos, 1.0);
+            v_world = wp.xyz;
+            gl_Position = frame.world * wp;
+        }
         """;
 
     public const string Fragment = Common + """

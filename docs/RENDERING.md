@@ -1132,7 +1132,9 @@ filter as compatibility fallback (`SVM_VISION_FRAME_FILTER=manual` forces that r
   sight's muzzle glow, impact marks, tracers and flashes; texture times colour, unlit, alpha or additive blend, with
   the material's UV offset read each frame). Multiplied, subtracted and no-depth-test effects are left out. The spy
   pistol's dot is a projector pass over the world surfaces its box reaches (`RdProjectors`, group
-  `svm_spy_laser_dot`); it does not land on objects or characters there. The merc beam's first-person weapon
+  `svm_spy_laser_dot`). It also redraws solid or masked rigid mesh receivers, including movers, with their current
+  model matrices at equal depth, so the dot follows their surfaces and stays hidden behind foreground geometry.
+  Blended surfaces and skinned characters do not receive the Fast projector pass. The merc beam's first-person weapon
   stencil is not applied: the depth test alone hides the stretch inside the rifle.
 - Marks left on surfaces (bullet holes, burns, abandoned projections, footprints) are not drawn in thermal or EMF
   (`EffectMaterial.HiddenInVision`, and the tinted projection shader): those modes read the frame's colours as heat

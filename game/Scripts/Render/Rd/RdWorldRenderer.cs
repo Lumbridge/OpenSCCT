@@ -686,7 +686,7 @@ public partial class RdWorldRenderer : Node
         GatherSheets(frame, sceneVision);
         _gatherMs = System.Diagnostics.Stopwatch.GetElapsedTime(gathering).TotalMilliseconds;
         _projectors.Gather(_map.Projectors?.Root, GetTree(), _worldPlanes, static (planes, box) => Inside(planes, box), _geometry.Batches, frame.Draws, frame.DrawCount,
-            frame.ProjectorDraws, frame.ProjectorBlocks, frame.ProjectorTextures, frame.ProjectorKinds);
+            frame.ProjectorDraws, frame.ProjectorBlocks, frame.ProjectorTextures, frame.ProjectorKinds, frame.Objects);
         frame.ProjectorRects.Clear();
         foreach (Aabb box in RdProjectors.Boxes) frame.ProjectorRects.Add(TargetRect(box, worldClip, frame.Size));
 
