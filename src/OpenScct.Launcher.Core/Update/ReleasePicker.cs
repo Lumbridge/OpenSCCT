@@ -22,9 +22,25 @@ public sealed record VersionedRelease(SemVersion Version, ReleaseInfo Release)
 /// checksums may live in the shared <see cref="StoreTag"/> release. Older versioned launcher names and
 /// full game ZIPs remain supported. Omitted platform arguments use the current operating system.
 /// </summary>
+/// <summary>
+/// How one product names its release assets: the prefix of its build zip and file list, and the tag of the release
+/// that holds its shared files. The Godot game keeps its legacy ZIP fallback; the Unreal build has none.
+/// </summary>
+internal sealed record ReleaseNames(string Prefix, string StoreTag, bool LegacyZip)
+{
+    /// <summary>The Godot game: OpenSCCT-&lt;v&gt;-&lt;rid&gt;.zip, files in <see cref="ReleasePicker.StoreTag"/>.</summary>
+    public static ReleaseNames Game { get; } = new(ReleasePicker.GamePrefix, ReleasePicker.StoreTag, true);
+
+    /// <summary>The Unreal Engine build: OpenSCCT-Unreal-&lt;v&gt;-win-x64.zip, files in unreal-files-1.</summary>
+    public static ReleaseNames Unreal { get; } = new(ReleasePicker.UnrealPrefix, OpenScct.Launcher.Unreal.UnrealService.StoreTag, false);
+}
+
 public static class ReleasePicker
 {
     public const string GamePrefix = "OpenSCCT-";
+
+    /// <summary>Asset prefix of the Unreal Engine build. It also starts with <see cref="GamePrefix"/>, so the game never takes it.</summary>
+    public const string UnrealPrefix = "OpenSCCT-Unreal-";
     public const string LauncherPrefix = "OpenSCCT.Launcher-";
 
     /// <summary>The launcher's file name, in releases and on disk.</summary>
@@ -43,7 +59,9 @@ public static class ReleasePicker
         release.Release.Assets.FirstOrDefault(a => string.Equals(a.Name, name, StringComparison.OrdinalIgnoreCase))
         ?? release.Store?.Assets.FirstOrDefault(a => string.Equals(a.Name, name, StringComparison.OrdinalIgnoreCase));
 
-    public static string GameAssetName(SemVersion version, LauncherPlatform? platform = null) => $"{GamePrefix}{version}-{(platform ?? LauncherPlatform.Current).RuntimeIdentifier}.zip";
+    public static string GameAssetName(SemVersion version, LauncherPlatform? platform = null) => GameAssetName(version, platform, ReleaseNames.Game);
+
+    internal static string GameAssetName(SemVersion version, LauncherPlatform? platform, ReleaseNames names) => $"{names.Prefix}{version}-{(platform ?? LauncherPlatform.Current).RuntimeIdentifier}.zip";
 
     /// <summary>The launcher's old versioned name, still used for its checksum file in the game files release.</summary>
     public static string LauncherAssetName(SemVersion version, LauncherPlatform? platform = null) => $"{LauncherPrefix}{version}-{(platform ?? LauncherPlatform.Current).RuntimeIdentifier}{(platform ?? LauncherPlatform.Current).ExecutableSuffix}";
@@ -51,13 +69,18 @@ public static class ReleasePicker
     public static string LauncherChecksumName(SemVersion version, LauncherPlatform? platform = null) => LauncherAssetName(version, platform) + ".sha256";
 
     /// <summary>The build's file list (<see cref="BuildFiles"/>), for updates that download only changed files.</summary>
-    public static string FilesAssetName(SemVersion version, LauncherPlatform? platform = null) => $"{GamePrefix}{version}-{(platform ?? LauncherPlatform.Current).RuntimeIdentifier}-files.json";
+    public static string FilesAssetName(SemVersion version, LauncherPlatform? platform = null) => FilesAssetName(version, platform, ReleaseNames.Game);
+
+    internal static string FilesAssetName(SemVersion version, LauncherPlatform? platform, ReleaseNames names) => $"{names.Prefix}{version}-{(platform ?? LauncherPlatform.Current).RuntimeIdentifier}-files.json";
 
     /// <summary>The file list of the release (its own or in the game files release), or null when there is none.</summary>
-    public static ReleaseAsset? FilesAsset(VersionedRelease release, LauncherPlatform? platform = null)
+    public static ReleaseAsset? FilesAsset(VersionedRelease release, LauncherPlatform? platform = null) => FilesAsset(release, platform, ReleaseNames.Game);
+
+    internal static ReleaseAsset? FilesAsset(VersionedRelease release, LauncherPlatform? platform, ReleaseNames names)
     {
         ArgumentNullException.ThrowIfNull(release);
-        return Find(release, FilesAssetName(release.Version, platform));
+        ArgumentNullException.ThrowIfNull(names);
+        return Find(release, FilesAssetName(release.Version, platform, names));
     }
 
     /// <summary>
@@ -96,15 +119,23 @@ public static class ReleasePicker
         return best;
     }
 
-    /// <summary>The game ZIP: the exact name first, then a legacy ZIP for the selected platform.</summary>
-    public static ReleaseAsset? GameAsset(VersionedRelease release, LauncherPlatform? platform = null)
+    /// <summary>
+    /// The game ZIP: the exact name first, then a legacy ZIP for the selected platform (never the Unreal build's,
+    /// whose name also starts with <see cref="GamePrefix"/>).
+    /// </summary>
+    public static ReleaseAsset? GameAsset(VersionedRelease release, LauncherPlatform? platform = null) => GameAsset(release, platform, ReleaseNames.Game);
+
+    /// <summary>The build ZIP named by <paramref name="names"/>; only the Godot game has a legacy fallback.</summary>
+    internal static ReleaseAsset? GameAsset(VersionedRelease release, LauncherPlatform? platform, ReleaseNames names)
     {
         ArgumentNullException.ThrowIfNull(release);
+        ArgumentNullException.ThrowIfNull(names);
         List<ReleaseAsset> assets = release.Release.Assets;
-        return Find(release, GameAssetName(release.Version, platform))
-            ?? assets.FirstOrDefault(a =>
+        return Find(release, GameAssetName(release.Version, platform, names))
+            ?? (!names.LegacyZip ? null : assets.FirstOrDefault(a =>
                 a.Name.StartsWith(GamePrefix, StringComparison.OrdinalIgnoreCase)
-                && a.Name.EndsWith($"-{(platform ?? LauncherPlatform.Current).RuntimeIdentifier}.zip", StringComparison.OrdinalIgnoreCase));
+                && !a.Name.StartsWith(UnrealPrefix, StringComparison.OrdinalIgnoreCase)
+                && a.Name.EndsWith($"-{(platform ?? LauncherPlatform.Current).RuntimeIdentifier}.zip", StringComparison.OrdinalIgnoreCase)));
     }
 
     /// <summary>

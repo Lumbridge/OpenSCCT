@@ -15,6 +15,7 @@ using OpenScct.Launcher.Editor;
 using OpenScct.Launcher.Install;
 using OpenScct.Launcher.Launch;
 using OpenScct.Launcher.Settings;
+using OpenScct.Launcher.Unreal;
 using OpenScct.Launcher.Update;
 using OpenScct.Launcher.Versioning;
 using OpenScct.Maps;
@@ -30,6 +31,9 @@ internal static class Program
     private static readonly SemVersion LatestVersion = SemVersion.Parse("0.8.81");
     private static readonly SemVersion EditorGameVersion = SemVersion.Parse("0.8.93");
     private static readonly SemVersion EditorVersion = SemVersion.Parse("0.1.0");
+    private static readonly SemVersion UnrealVersion = SemVersion.Parse("0.1.0");
+    private static readonly SemVersion UnrealLatestVersion = SemVersion.Parse("0.2.0");
+    private const string SmokeUnrealRepository = "smoke-owner/smoke-unreal";
     // Published v0.1.1 highlights, captured from its release on 2026-11-05. These are deliberately
     // longer than the old generic game fixture: this is the real Editor-tab scrollbar regression.
     private const string PublicEditorNotes = """
@@ -124,6 +128,13 @@ internal static class Program
             new("editor-offline", true, true, "Open Editor"),
             new("editor-error", true, true, "Open Editor"),
             new("editor-launcher-restart", true, true, "Open Editor"),
+            new("unreal-absent", true, true, "Install Unreal"),
+            new("unreal-prerequisite", false, false, "Go to Game"),
+            new("unreal-update", true, true, "Update Unreal"),
+            new("unreal-ready", true, true, "Play Unreal"),
+            new("unreal-pending", true, true, "Waiting for game to close"),
+            new("unreal-busy", true, true, "Cancel"),
+            new("unreal-unreleased", true, true, "Check again"),
         };
 
         foreach (Scenario scenario in scenarios)
@@ -214,6 +225,25 @@ internal static class Program
                 scenario.Name.StartsWith("editor-absent", StringComparison.Ordinal) ? null : new EditorInstallation(EditorVersion, EditorGameVersion, 1), scenario.Name == "editor-update"));
             Call(form, "SelectProduct", true);
         }
+        if (scenario.Unreal)
+        {
+            // The fixture service rejects HTTP and never sees a running Unreal game.
+            var unreal = new UnrealService(fixture.Layout, fixture.Http);
+            typeof(UnrealService).GetProperty("RunningOverride", Hidden)!.SetValue(unreal, (Func<bool>)(() => scenario.Name == "unreal-pending"));
+            Set(form, "_unreal", unreal);
+            bool unreleased = scenario.Name == "unreal-unreleased";
+            SemVersion unrealLatest = scenario.Name is "unreal-update" or "unreal-pending" or "unreal-busy" ? UnrealLatestVersion : UnrealVersion;
+            var unrealRelease = new ReleaseInfo
+            {
+                TagName = "v" + unrealLatest, Name = "OpenSCCT Unreal " + unrealLatest,
+                PublishedAt = release.PublishedAt, Body = release.Body,
+                HtmlUrl = unreal.ReleasesPage + "/tag/v" + unrealLatest,
+            };
+            VersionedRelease? latest = unreleased ? null : new VersionedRelease(unrealLatest, unrealRelease);
+            Set(form, "_unrealCheck", new UnrealCheck(new ReleaseFeed(unreleased ? [] : [unrealRelease], ReleaseFeedSource.Network, null, null),
+                latest, unreal.Installed(), scenario.Name == "unreal-update"));
+            Call(form, "SelectProduct", Product("Unreal"));
+        }
         if (scenario.Name == "content-update")
         {
             Set(form, "_packIndex", new ContentIndex
@@ -221,12 +251,12 @@ internal static class Program
                 Shared = [new ContentSharedPack { Id = "core", Title = "Core game files", Download = new("https://example.invalid/core.zip", 1024, "new-content") }],
             });
         }
-        if (scenario.Name is "downloading" or "game-downloading" or "editor-busy" or "editor-busy-game" or "editor-applying")
+        if (scenario.Name is "downloading" or "game-downloading" or "editor-busy" or "editor-busy-game" or "editor-applying" or "unreal-busy")
         {
             fixture.Work = new CancellationTokenSource();
             Set(form, "_work", fixture.Work);
             Set(form, "_downloadingContent", scenario.Name == "downloading");
-            Set(form, "_operationEditor", scenario.Editor);
+            Set(form, "_operationProduct", Product(scenario.Unreal ? "Unreal" : scenario.Editor ? "Editor" : "Game"));
             Set(form, "_operationCanCancel", scenario.Name != "editor-applying");
         }
         Call(form, "RefreshLocal");
@@ -255,6 +285,14 @@ internal static class Program
                 Field<Label>(form, "_progressText").Text = "128.0 MB of 304.0 MB";
                 Field<Label>(form, "_progressText").Visible = true;
                 if (scenario.Name == "editor-busy-game") Call(form, "SelectProduct", false);
+                break;
+            case "unreal-busy":
+                Call(form, "SetOperation", "Installing OpenSCCT Unreal");
+                SetStatus(form, "Downloading OpenSCCT Unreal 0.2.0...", Color.FromArgb(156, 168, 178));
+                Field<Control>(form, "_progress").Visible = true;
+                Field<Control>(form, "_progress").GetType().GetProperty("Fraction")!.SetValue(Field<Control>(form, "_progress"), 0.42);
+                Field<Label>(form, "_progressText").Text = "512.0 MB of 1210.0 MB  24.0 MB/s";
+                Field<Label>(form, "_progressText").Visible = true;
                 break;
             case "editor-applying":
                 Call(form, "SetOperation", "Finishing editor update");
@@ -300,8 +338,11 @@ internal static class Program
         Button main = Field<Button>(form, "_main");
         Button help = Field<Button>(form, "_help");
         Check(main.Text == scenario.Button, label + " action is " + scenario.Button);
-        Check(scenario.Name == "editor-applying" ? !main.Enabled : main.Enabled && main.CanSelect,
-            label + (scenario.Name == "editor-applying" ? " apply cannot be cancelled" : " primary action is keyboard selectable"));
+        // While an installed Unreal update waits for the running game, there is nothing to start.
+        bool disabledAction = scenario.Name is "editor-applying" or "unreal-pending";
+        Check(disabledAction ? !main.Enabled : main.Enabled && main.CanSelect,
+            label + (scenario.Name == "editor-applying" ? " apply cannot be cancelled"
+                : scenario.Name == "unreal-pending" ? " waiting Unreal update offers no start" : " primary action is keyboard selectable"));
         Check(help.Enabled && help.CanSelect, label + " Help stays keyboard selectable");
         Button forceClose = Field<Button>(form, "_forceClose");
         if (scenario.Name == "remove-blocked")
@@ -311,7 +352,10 @@ internal static class Program
         }
         else Check(!forceClose.Visible, label + " force close is hidden outside blocked removal");
         Check(Field<Label>(form, "_heading").Text.Length > 0, label + " status heading is populated");
-        if (scenario.Game && scenario.Name != "editor-recovery")
+        if (scenario.Unreal)
+            Check(Field<Label>(form, "_installedInfo").Text.Contains(scenario.UnrealInstalled ? "OpenSCCT Unreal " + UnrealVersion : "not installed", StringComparison.Ordinal),
+                label + " Unreal installed version is shown");
+        else if (scenario.Game && scenario.Name != "editor-recovery")
             Check(Field<Label>(form, "_installedInfo").Text.Contains(scenario.Editor && scenario.Name != "editor-busy-game"
                 ? EditorVersion.ToString() : GameVersionFor(scenario).ToString(), StringComparison.Ordinal), label + " installed version remains visible");
         if (scenario.Editor)
@@ -323,6 +367,32 @@ internal static class Program
                 : Color.FromArgb(84, 148, 245)), label + " primary action uses selected product palette");
             Check(LauncherSettings.Load(fixture.Layout.Settings).SelectedProduct == (editorSelected ? "Editor" : "Game"), label + " selected tab is persisted");
             Check(Field<Button>(form, "_gameTab").CanSelect && Field<Button>(form, "_editorTab").CanSelect, label + " both product tabs remain keyboard selectable");
+        }
+        if (scenario.Unreal)
+        {
+            Check(host.BackColor == Color.FromArgb(18, 21, 24), label + " whole window uses the Unreal palette");
+            // Busy work and the disabled "Waiting for game to close" are not emphasized.
+            bool plain = fixture.Work is not null || scenario.Name == "unreal-pending";
+            Check(main.BackColor == (plain ? Color.FromArgb(25, 30, 35) : Color.FromArgb(122, 200, 226)), label + " primary action uses the Unreal palette");
+            Check(LauncherSettings.Load(fixture.Layout.Settings).SelectedProduct == "Unreal", label + " Unreal tab is persisted");
+            Check(Field<Button>(form, "_gameTab").CanSelect && Field<Button>(form, "_editorTab").CanSelect && Field<Button>(form, "_unrealTab").CanSelect,
+                label + " all three product tabs remain keyboard selectable");
+            Check(Field<Button>(form, "_website").Text == "Unreal releases", label + " website action opens Unreal releases");
+            string expected = scenario.Name switch
+            {
+                "unreal-absent" => "Set up OpenSCCT Unreal",
+                "unreal-prerequisite" => "Set up the game first",
+                "unreal-update" => "Unreal update available",
+                "unreal-ready" => "Ready to play",
+                "unreal-pending" => "Update ready",
+                "unreal-busy" => "Installing OpenSCCT Unreal",
+                _ => "Not released yet",
+            };
+            Check(Field<Label>(form, "_heading").Text == expected, label + " Unreal heading is " + expected);
+            if (scenario.Name == "unreal-busy")
+                Check(Field<Control>(form, "_progress").Visible && Field<Label>(form, "_progressText").Visible, label + " Unreal transfer progress is visible");
+            else
+                Check(Field<Label>(form, "_launchDetail").Visible && Field<Label>(form, "_launchDetail").Text.Length > 0, label + " Unreal detail explains the state");
         }
         if (scenario.Name is "downloading" or "game-downloading")
         {
@@ -343,7 +413,7 @@ internal static class Program
                 + TextRenderer.MeasureText(graphics, "SCCT", wordmark.Font, Size.Empty, flags).Width;
             Check(wordmark.Width + 2 >= width, label + " complete wordmark fits its painted text");
         }
-        if (scenario.Name == "fresh-no-feed")
+        if (scenario.Name is "fresh-no-feed" or "unreal-unreleased")
             Check(Field<Label[]>(form, "_previewItems").Count(c => c.Visible && c.Text.Length > 0) == 1, label + " notes placeholder shown before first check");
         else
         {
@@ -353,7 +423,7 @@ internal static class Program
         Check(IsInClient(host, main), label + " primary action is visible inside client area");
         Check(IsInClient(host, help), label + " Help is visible inside client area");
         Check(host.SelectNextControl(null, true, true, true, false), label + " keyboard traversal enters launcher controls");
-        if (scenario.Name is "game-update" or "content-update" or "editor-update")
+        if (scenario.Name is "game-update" or "content-update" or "editor-update" or "unreal-update")
         {
             Button defer = Field<Button>(form, "_playCurrent");
             Check(defer.Visible && defer.Enabled && IsInClient(host, defer), label + " update deferral remains available");
@@ -387,11 +457,14 @@ internal static class Program
         }
         if (fixture.Work is { } work)
         {
-            if (scenario.Editor)
+            if (scenario.Editor || scenario.Unreal)
             {
+                string owner = scenario.Unreal ? "Unreal" : "Editor";
                 Call(form, "QueueWebJoin", "smoke-session");
-                Check(!Field<bool>(form, "_editorSelected") && Field<bool>(form, "_operationEditor"), label + " Join selects Game without changing editor operation owner");
-                Check(Field<string>(form, "_pendingWebJoin") == "smoke-session" && !work.IsCancellationRequested, label + " Join queues without cancelling editor operation");
+                Check(Selected(form) == "Game" && OperationProduct(form) == owner, label + " Join selects Game without changing " + owner + " operation owner");
+                Check(Field<string>(form, "_pendingWebJoin") == "smoke-session" && !work.IsCancellationRequested, label + " Join queues without cancelling " + owner + " operation");
+                if (scenario.Unreal)
+                    Check(Field<Label>(form, "_heading").Text == "Unreal · Installing OpenSCCT Unreal", label + " Unreal operation owner survives tab changes");
             }
             if (scenario.Name != "editor-applying")
             {
@@ -407,7 +480,9 @@ internal static class Program
     }
 
     private static SemVersion GameVersionFor(Scenario scenario) => scenario.Editor ? EditorGameVersion : InstalledVersion;
-    private static string VersionFor(Scenario scenario) => scenario.Editor && scenario.Name != "editor-busy-game"
+    private static string VersionFor(Scenario scenario) => scenario.Unreal
+        ? (scenario.Name is "unreal-update" or "unreal-pending" or "unreal-busy" ? UnrealLatestVersion : UnrealVersion).ToString()
+        : scenario.Editor && scenario.Name != "editor-busy-game"
         ? scenario.Name == "editor-update" ? "0.1.1" : EditorVersion.ToString()
         : scenario.Name is "fresh" or "game-update" or "game-downloading" ? LatestVersion.ToString() : InstalledVersion.ToString();
     private static void CaptureDialogs(Fixture fixture, float scale, string output, bool settingsOnly = false)
@@ -422,15 +497,19 @@ internal static class Program
         contextType.GetProperty("InstalledGameVersion")!.SetValue(context, InstalledVersion.ToString());
         Type paletteType = assembly.GetType("OpenScct.Launcher.App.ThemePalette", true)!;
         object editorPalette = paletteType.GetProperty("Editor")!.GetValue(null)!;
+        object unrealPalette = paletteType.GetProperty("Unreal")!.GetValue(null)!;
         using var editorFixture = new Fixture(new Scenario("editor-ready", true, true, "Open Editor"));
-        var dialogs = new (string Type, object?[] Args, Size Minimum, bool Editor)[]
+        using var unrealFixture = new Fixture(new Scenario("unreal-ready", true, true, "Play Unreal"));
+        var unrealSettings = new LauncherSettings { SelectedProduct = "Unreal", UnrealRepository = SmokeUnrealRepository };
+        var dialogs = new (string Type, object?[] Args, Size Minimum, bool Editor, bool Unreal)[]
         {
-            ("SettingsForm", [new LauncherSettings(), fixture.Layout, null, "Vulkan", false], new Size(460, 360), false),
-            ("MapsForm", [http, fixture.Layout.Packs, null, null], new Size(620, 460), false),
-            ("HelpForm", [context, null, null, null, null], new Size(480, 420), false),
-            ("SettingsForm", [new LauncherSettings { SelectedProduct = "Editor" }, editorFixture.Layout, editorPalette, "Vulkan", false], new Size(460, 360), true),
-            ("MapsForm", [http, fixture.Layout.Packs, editorPalette, (Func<bool>)(() => true)], new Size(620, 460), true),
-            ("HelpForm", [context, (Func<string, bool>)(_ => false), (Action<string>)(_ => { }), editorPalette, EditorVersion.ToString()], new Size(480, 420), true),
+            ("SettingsForm", [new LauncherSettings(), fixture.Layout, null, "Vulkan", false, 1, null], new Size(460, 360), false, false),
+            ("MapsForm", [http, fixture.Layout.Packs, null, null], new Size(620, 460), false, false),
+            ("HelpForm", [context, null, null, null, null], new Size(480, 420), false, false),
+            ("SettingsForm", [new LauncherSettings { SelectedProduct = "Editor" }, editorFixture.Layout, editorPalette, "Vulkan", false, 1, null], new Size(460, 360), true, false),
+            ("MapsForm", [http, fixture.Layout.Packs, editorPalette, (Func<bool>)(() => true)], new Size(620, 460), true, false),
+            ("HelpForm", [context, (Func<string, bool>)(_ => false), (Action<string>)(_ => { }), editorPalette, EditorVersion.ToString()], new Size(480, 420), true, false),
+            ("SettingsForm", [unrealSettings, unrealFixture.Layout, unrealPalette, "Vulkan", false, 1, null], new Size(460, 360), false, true),
         };
         foreach (var dialog in dialogs.Where(d => !settingsOnly || d.Type == "SettingsForm"))
         {
@@ -442,7 +521,7 @@ internal static class Program
                 if (scale != 1f) ScaleForPreview(form, fixture, scale);
                 form.MinimumSize = Size.Empty;
                 if (minimum) form.ClientSize = new Size((int)(dialog.Minimum.Width * scale), (int)(dialog.Minimum.Height * scale));
-                string label = $"{(dialog.Editor ? "editor-" : "")}{dialog.Type}-{(minimum ? "minimum" : "default")}-{scale * 100:0}";
+                string label = $"{(dialog.Editor ? "editor-" : dialog.Unreal ? "unreal-" : "")}{dialog.Type}-{(minimum ? "minimum" : "default")}-{scale * 100:0}";
                 Control[] controls = form.Controls.Cast<Control>().ToArray();
                 using var host = new PreviewForm
                 {
@@ -466,6 +545,7 @@ internal static class Program
                 Inspect(() =>
                 {
                     if (dialog.Editor) Check(host.BackColor == Color.FromArgb(19, 21, 27), label + " dialog uses editor palette");
+                    if (dialog.Unreal) Check(host.BackColor == Color.FromArgb(18, 21, 24), label + " dialog uses Unreal palette");
                     Check(host.SelectNextControl(null, true, true, true, false), label + " keyboard traversal enters controls");
                     foreach (Button button in Walk(host).OfType<Button>().Where(c => c.Visible))
                     {
@@ -488,16 +568,36 @@ internal static class Program
                         Check(Walk(host).OfType<TextBox>().Single(c => c.Name == "SelectedLink").Text.StartsWith("https://github.com/Lumbridge/OpenSCCT-Editor/issues/new", StringComparison.Ordinal), label + " editor reports route to editor repository");
                         Check(Walk(host).OfType<TextBox>().Single(c => c.Name == "ReportDetails").Text.Contains("Editor version: " + EditorVersion, StringComparison.Ordinal), label + " report details include editor version");
                     }
-                    if (dialog.Type == "SettingsForm") InspectSettings(host, dialog.Editor ? editorFixture.Layout : fixture.Layout, dialog.Editor, label);
+                    if (dialog.Type == "SettingsForm" && dialog.Unreal) InspectUnrealSettings(host, unrealFixture.Layout, label);
+                    else if (dialog.Type == "SettingsForm") InspectSettings(host, dialog.Editor ? editorFixture.Layout : fixture.Layout, dialog.Editor, label);
                 });
                 foreach (Control control in controls) form.Controls.Add(control);
                 host.Hide();
-                if (dialog.Type == "SettingsForm")
+                if (dialog.Type == "SettingsForm" && dialog.Unreal)
+                {
+                    Walk(form).OfType<CheckBox>().Single(c => c.Name == "IncludeUnrealPreviewReleases").Checked = true;
+                    CheckBox startup = Walk(form).OfType<CheckBox>().Single(c => c.Name == "CheckForUnrealUpdatesOnStart");
+                    startup.Checked = !startup.Checked;
+                    type.GetMethod("Save", Hidden)!.Invoke(form, null);
+                    var saved = (LauncherSettings)type.GetProperty("Result")!.GetValue(form)!;
+                    Inspect(() =>
+                    {
+                        Check(saved.SelectedProduct == "Unreal", label + " saving preserves the Unreal tab");
+                        Check(saved.UnrealIncludePrereleases && !saved.IncludePrereleases && !saved.EditorIncludePrereleases,
+                            label + " saving changes the Unreal preview preference and preserves the other products");
+                        Check(!saved.UnrealCheckOnStart && saved.CheckOnStart && saved.EditorCheckOnStart,
+                            label + " saving changes the Unreal startup preference and preserves the other products");
+                        Check(saved.UnrealRepository == SmokeUnrealRepository, label + " saving keeps the Unreal release repository");
+                        Check(!(bool)type.GetProperty("UninstallUnrealRequested")!.GetValue(form)! && !(bool)type.GetProperty("UninstallEditorRequested")!.GetValue(form)!
+                            && !(bool)type.GetProperty("RemoveGameFilesRequested")!.GetValue(form)!, label + " saving settings requests no removal");
+                        Check(!(bool)type.GetProperty("CanChangeRenderer")!.GetValue(form)! && !(bool)type.GetProperty("MonitorChanged")!.GetValue(form)!,
+                            label + " Unreal settings never change the Godot game's renderer or monitor");
+                    });
+                }
+                else if (dialog.Type == "SettingsForm")
                 {
                     CheckBox preview = Walk(form).OfType<CheckBox>().Single(c => c.Name == (dialog.Editor ? "IncludeEditorPreviewReleases" : "IncludePreviewReleases"));
                     CheckBox startup = Walk(form).OfType<CheckBox>().Single(c => c.Name == (dialog.Editor ? "CheckForEditorUpdatesOnStart" : "CheckForUpdatesOnStart"));
-                    if (!dialog.Editor)
-                        Walk(form).OfType<ComboBox>().Single(c => c.Name == "GameRenderer").SelectedItem = "Direct3D 12";
                     preview.Checked = true;
                     startup.Checked = !startup.Checked;
                     type.GetMethod("Save", Hidden)!.Invoke(form, null);
@@ -508,12 +608,14 @@ internal static class Program
                         Check(saved.IncludePrereleases == !dialog.Editor && saved.EditorIncludePrereleases == dialog.Editor, label + " saving changes active preview preference and preserves other product");
                         Check(saved.CheckOnStart == dialog.Editor && saved.EditorCheckOnStart == !dialog.Editor,
                             label + " saving changes active startup preference and preserves other product");
+                        Check(saved.UnrealCheckOnStart && !saved.UnrealIncludePrereleases, label + " saving preserves the Unreal preferences");
                         Check(!(bool)type.GetProperty("UninstallEditorRequested")!.GetValue(form)! && !(bool)type.GetProperty("RemoveGameFilesRequested")!.GetValue(form)!,
                             label + " saving settings requests no removal");
                         Check((bool)type.GetProperty("CanChangeRenderer")!.GetValue(form)! == !dialog.Editor,
                             label + " renderer changes are limited to game settings");
-                        Check((string)type.GetProperty("GraphicsDriver")!.GetValue(form)! == (dialog.Editor ? "Vulkan" : "Direct3D 12"),
-                            label + " saving retains the renderer selection");
+                        // The game offers Vulkan only, and the renderer has no control in Settings.
+                        Check((string)type.GetProperty("GraphicsDriver")!.GetValue(form)! == "Vulkan", label + " saving retains the Vulkan renderer");
+                        Check(!(bool)type.GetProperty("MonitorChanged")!.GetValue(form)!, label + " saving other settings leaves the monitor unchanged");
                     });
                 }
             }
@@ -535,18 +637,10 @@ internal static class Program
         }
         Check(controls.OfType<Button>().Any(c => c.Name == (editor ? "UninstallEditor" : "RemoveGameFiles")), label + " correct removal action appears");
         Check(!controls.OfType<Button>().Any(c => c.Name == (editor ? "RemoveGameFiles" : "UninstallEditor")), label + " other product removal action is absent");
-        ComboBox? renderer = controls.OfType<ComboBox>().SingleOrDefault(c => c.Name == "GameRenderer");
-        if (editor)
-        {
-            Check(renderer is null, label + " editor settings omit the game renderer");
-        }
-        else
-        {
-            Check(renderer is not null && renderer.Enabled, label + " game renderer can be changed before launch");
-            Check(renderer!.Items.Cast<string>().SequenceEqual(new[] { "Vulkan", "Direct3D 12" }),
-                label + " renderer choices name Vulkan and Direct3D 12 without Default");
-            Check((string?)renderer.SelectedItem == "Vulkan", label + " Vulkan is selected initially");
-        }
+        Check(!controls.Any(c => c.Name == "GameRenderer"), label + " settings show no renderer choice (Vulkan only)");
+        ComboBox? monitor = controls.OfType<ComboBox>().SingleOrDefault(c => c.Name == "GameMonitor");
+        if (editor) Check(monitor is null, label + " editor settings omit the game monitor");
+        else Check(monitor is not null && monitor.Enabled && monitor.SelectedIndex >= 0, label + " game monitor can be chosen before launch");
         if (editor)
         {
             Button uninstall = controls.OfType<Button>().Single(c => c.Name == "UninstallEditor");
@@ -585,8 +679,51 @@ internal static class Program
         Check(IsInClient(host, remove), label + " removal action is reachable by scrolling when needed");
     }
 
+    private static void InspectUnrealSettings(Form host, LauncherLayout layout, string label)
+    {
+        Control[] controls = Walk(host).ToArray();
+        Check(host.Text == "Unreal settings", label + " title names the Unreal tab");
+        CheckBox[] checks = controls.OfType<CheckBox>().ToArray();
+        Check(checks.Length == 2 && checks.Any(c => c.Name == "IncludeUnrealPreviewReleases") && checks.Any(c => c.Name == "CheckForUnrealUpdatesOnStart"),
+            label + " only the Unreal update settings appear");
+        Check(checks.All(c => c.Text.Contains("Unreal", StringComparison.Ordinal)), label + " update options name Unreal");
+        foreach (CheckBox check in checks)
+            Check(check.Width + 2 >= check.GetPreferredSize(Size.Empty).Width, label + " checkbox text fits: " + check.Text);
+        Check(!controls.Any(c => c.Name is "GameRenderer" or "GameMonitor" or "ChooseEnhancedFolder"), label + " Godot game options are absent");
+        Check(!controls.OfType<Button>().Any(c => c.Name is "RemoveGameFiles" or "UninstallEditor"), label + " other products' removal actions are absent");
+        LinkLabel[] links = controls.OfType<LinkLabel>().ToArray();
+        Check(links.SingleOrDefault(c => c.Name == "OpenUnrealFolder")?.AccessibleDescription == layout.Unreal, label + " Unreal folder targets the fixture install");
+        Check(links.SingleOrDefault(c => c.Name == "OpenUnrealMapPacks")?.AccessibleDescription == layout.UnrealPacks, label + " Unreal map packs folder targets the fixture");
+        Button uninstall = controls.OfType<Button>().Single(c => c.Name == "UninstallUnreal");
+        Check(uninstall.Enabled && uninstall.Text.StartsWith("Uninstall Unreal", StringComparison.Ordinal), label + " installed Unreal build can be uninstalled");
+        if (!IsInClient(host, uninstall))
+        {
+            for (int step = 0; step < controls.Length && host.ActiveControl != uninstall; step++)
+                host.SelectNextControl(host.ActiveControl, true, true, true, true);
+            for (Control? parent = uninstall.Parent; parent is not null; parent = parent.Parent)
+            {
+                if (parent is not ScrollableControl { AutoScroll: true } scroll) continue;
+                scroll.ScrollControlIntoView(uninstall);
+                Settle(host);
+                break;
+            }
+        }
+        Check(IsInClient(host, uninstall), label + " Unreal uninstall is reachable by scrolling when needed");
+    }
+
     private static void SettingsScopeChecks()
     {
+        Inspect(() =>
+        {
+            // Without an install the Unreal uninstall is offered but disabled.
+            using var fixture = new Fixture(new Scenario("unreal-absent", true, true, "Install Unreal"));
+            Type settingsType = MainType.Assembly.GetType("OpenScct.Launcher.App.SettingsForm", true)!;
+            using Form form = (Form)Activator.CreateInstance(settingsType, BindingFlags.Public | Hidden, null,
+                new object?[] { new LauncherSettings { SelectedProduct = "Unreal" }, fixture.Layout, null, "Vulkan", false, 1, null }, null)!;
+            Check(form.Text == "Unreal settings", "Saved Unreal tab opens Unreal settings without a palette");
+            Check(!Walk(form).OfType<Button>().Single(c => c.Name == "UninstallUnreal").Enabled, "Absent Unreal build cannot be uninstalled");
+            Check(!(bool)settingsType.GetProperty("UninstallUnrealRequested")!.GetValue(form)!, "Unreal settings never request uninstall on construction");
+        });
         Type type = MainType.Assembly.GetType("OpenScct.Launcher.App.SettingsForm", true)!;
         foreach (string state in new[] { "absent", "unmanaged", "recovery" })
         {
@@ -595,7 +732,7 @@ internal static class Program
                 using var fixture = new Fixture(new Scenario(state == "absent" ? "editor-absent" : state == "recovery" ? "editor-recovery" : "editor-ready", true, true, "Open Editor"));
                 if (state == "unmanaged") File.Delete(Path.Combine(fixture.Layout.Editor, ".launcher-managed"));
                 using Form form = (Form)Activator.CreateInstance(type, BindingFlags.Public | Hidden, null,
-                    new object?[] { new LauncherSettings { SelectedProduct = "Editor" }, fixture.Layout, null, "Vulkan", false }, null)!;
+                    new object?[] { new LauncherSettings { SelectedProduct = "Editor" }, fixture.Layout, null, "Vulkan", false, 1, null }, null)!;
                 Button uninstall = Walk(form).OfType<Button>().Single(c => c.Name == "UninstallEditor");
                 Check(uninstall.Enabled == (state == "recovery"), state + " editor uninstall availability follows launcher management");
                 Check(!(bool)type.GetProperty("UninstallEditorRequested")!.GetValue(form)!, state + " settings never requests uninstall on construction");
@@ -604,22 +741,18 @@ internal static class Program
                 Check(File.Exists(fixture.LauncherPath), state + " settings inspection preserves fixture launcher");
             });
         }
-        foreach (string driver in new[] { "Vulkan", "Direct3D 12" })
+        Inspect(() =>
         {
-            Inspect(() =>
-            {
-                using var fixture = new Fixture(new Scenario("ready", true, true, "PLAY"));
-                using Form form = (Form)Activator.CreateInstance(type, BindingFlags.Public | Hidden, null,
-                    new object?[] { new LauncherSettings(), fixture.Layout, null, driver, true }, null)!;
-                ComboBox renderer = Walk(form).OfType<ComboBox>().Single(c => c.Name == "GameRenderer");
-                Check(!renderer.Enabled, driver + " renderer selection is disabled while the game runs");
-                Check(!(bool)type.GetProperty("CanChangeRenderer")!.GetValue(form)!, driver + " running game prevents renderer changes");
-                Check((string?)renderer.SelectedItem == driver, driver + " running game retains the loaded renderer choice");
-                type.GetMethod("Save", Hidden)!.Invoke(form, null);
-                Check((string)type.GetProperty("GraphicsDriver")!.GetValue(form)! == driver,
-                    driver + " saving other settings preserves the running game's renderer");
-            });
-        }
+            using var fixture = new Fixture(new Scenario("ready", true, true, "PLAY"));
+            using Form form = (Form)Activator.CreateInstance(type, BindingFlags.Public | Hidden, null,
+                new object?[] { new LauncherSettings(), fixture.Layout, null, "Vulkan", true, 1, null }, null)!;
+            ComboBox monitor = Walk(form).OfType<ComboBox>().Single(c => c.Name == "GameMonitor");
+            Check(!monitor.Enabled, "Monitor selection is disabled while the game runs");
+            Check(!(bool)type.GetProperty("CanChangeRenderer")!.GetValue(form)!, "Running game prevents renderer changes");
+            type.GetMethod("Save", Hidden)!.Invoke(form, null);
+            Check((string)type.GetProperty("GraphicsDriver")!.GetValue(form)! == "Vulkan" && !(bool)type.GetProperty("MonitorChanged")!.GetValue(form)!,
+                "Saving other settings while the game runs keeps its renderer and monitor");
+        });
     }
     private static void ScaleForPreview(Form form, Fixture fixture, float scale)
     {
@@ -741,11 +874,46 @@ internal static class Program
                 new object?[] { fixture.Layout, null, null, fixture.LauncherPath }, null)!;
             _ = form.Handle;
             Call(form, "OnShown", EventArgs.Empty);
-            Check(Field<bool>(form, "_editorSelected") && Field<bool>(form, "_webJoinReady"), "Actual startup restores Editor and enables Join handling");
+            Check(Selected(form) == "Editor" && Field<bool>(form, "_webJoinReady"), "Actual startup restores Editor and enables Join handling");
             Check(Field<object?>(form, "_work") is null && Field<EditorCheck?>(form, "_editorCheck") is null, "CheckOnStart=false leaves startup offline");
             Call(form, "SelectProduct", false);
             Call(form, "SelectProduct", true);
             Check(Field<object?>(form, "_work") is null && Field<EditorCheck?>(form, "_editorCheck") is null, "Changing tabs respects disabled automatic checks");
+        });
+
+        Inspect(() =>
+        {
+            using var fixture = new Fixture(new Scenario("unreal-ready", true, true, "Play Unreal"));
+            new LauncherSettings { SelectedProduct = "Unreal", CheckOnStart = true, EditorCheckOnStart = true, UnrealCheckOnStart = false }.Save(fixture.Layout.Settings);
+            using Form form = (Form)Activator.CreateInstance(MainType, Hidden, null,
+                new object?[] { fixture.Layout, null, null, fixture.LauncherPath }, null)!;
+            Set(form, "_editor", new EditorService(fixture.Layout, fixture.Http));
+            Set(form, "_service", new UpdateService(fixture.Layout, new VersionStore(fixture.Layout),
+                new GitHubReleaseClient(fixture.Http, ReleaseSource.Official, fixture.Layout.Cache), fixture.Http, Field<IGameProcessProbe>(form, "_games")));
+            Set(form, "_packs", new ContentStore(fixture.Layout.Packs, fixture.Http));
+            var unreal = new UnrealService(fixture.Layout, fixture.Http);
+            typeof(UnrealService).GetProperty("RunningOverride", Hidden)!.SetValue(unreal, (Func<bool>)(() => false));
+            Set(form, "_unreal", unreal);
+            int attempts = _networkAttempts;
+            _ = form.Handle;
+            Call(form, "OnShown", EventArgs.Empty);
+            Check(Selected(form) == "Unreal" && Field<bool>(form, "_webJoinReady"), "Actual startup restores the Unreal tab and enables Join handling");
+            Check(_networkAttempts == attempts && Field<object?>(form, "_work") is null && Field<UnrealCheck?>(form, "_unrealCheck") is null
+                && Field<UpdateCheck?>(form, "_lastCheck") is null, "Unreal startup ignores the other products' enabled check preferences");
+            Check(Field<Label>(form, "_heading").Text == "Ready to play" && Field<Button>(form, "_main").Text == "Play Unreal",
+                "Installed Unreal build is ready to play before any check");
+            Check(Field<Label>(form, "_installedInfo").Text == "OpenSCCT Unreal " + UnrealVersion + " · OpenSCCT " + InstalledVersion,
+                "Unreal version line names the OpenSCCT version it was built from");
+            Call(form, "SelectProduct", Product("Unreal"));
+            Check(_networkAttempts == attempts, "Reselecting the Unreal tab with checks off stays offline");
+        });
+        Inspect(() =>
+        {
+            using var fixture = new Fixture(new Scenario("unreal-ready", true, true, "Play Unreal"));
+            new LauncherSettings { SelectedProduct = "Unreal", CheckOnStart = false, UnrealCheckOnStart = false }.Save(fixture.Layout.Settings);
+            using Form form = (Form)Activator.CreateInstance(MainType, Hidden, null,
+                new object?[] { fixture.Layout, "smoke-session", null, fixture.LauncherPath }, null)!;
+            Check(Selected(form) == "Game", "A website Join opens the Game tab even when Unreal was last selected");
         });
 
         foreach (bool editor in new[] { false, true })
@@ -988,7 +1156,17 @@ internal static class Program
     }
     private static T Field<T>(Form form, string name) => (T)MainType.GetField(name, Hidden)!.GetValue(form)!;
     private static void Set(Form form, string name, object? value) => MainType.GetField(name, Hidden)!.SetValue(form, value);
-    private static void Call(Form form, string name, params object?[] args) => MainType.GetMethod(name, Hidden | BindingFlags.Public)!.Invoke(form, args);
+    // Overloads (SelectProduct takes a bool or a Product) are chosen by the arguments' runtime types.
+    private static void Call(Form form, string name, params object?[] args) => MainType.GetMethods(Hidden | BindingFlags.Public)
+        .Single(m => m.Name == name && Accepts(m.GetParameters(), args)).Invoke(form, args);
+    private static bool Accepts(ParameterInfo[] parameters, object?[] args) =>
+        parameters.Length == args.Length && parameters.Zip(args).All(p => p.Second is null
+            ? !p.First.ParameterType.IsValueType || Nullable.GetUnderlyingType(p.First.ParameterType) is not null
+            : p.First.ParameterType.IsInstanceOfType(p.Second));
+    /// <summary>MainForm's private Product enum value with this name (Game, Editor or Unreal).</summary>
+    private static object Product(string name) => Enum.Parse(MainType.GetNestedType("Product", BindingFlags.NonPublic)!, name);
+    private static string Selected(Form form) => MainType.GetField("_selected", Hidden)!.GetValue(form)!.ToString()!;
+    private static string OperationProduct(Form form) => MainType.GetField("_operationProduct", Hidden)!.GetValue(form)!.ToString()!;
     private static void SetStatus(Form form, string text, Color color) => Call(form, "SetStatus", text, color, null, false);
     private static IEnumerable<Control> Walk(Control root)
     {
@@ -1025,6 +1203,9 @@ internal static class Program
     private sealed record Scenario(string Name, bool Game, bool Content, string Button)
     {
         public bool Editor => Name.StartsWith("editor-", StringComparison.Ordinal);
+        public bool Unreal => Name.StartsWith("unreal-", StringComparison.Ordinal);
+        /// <summary>An Unreal build is installed in the fixture (absent and unreleased have none).</summary>
+        public bool UnrealInstalled => Unreal && Name is not ("unreal-absent" or "unreal-unreleased");
     }
     private sealed class Fixture : IDisposable
     {
@@ -1033,6 +1214,8 @@ internal static class Program
         public string LauncherPath { get; }
         public CancellationTokenSource? Work { get; set; }
         public List<Font> Fonts { get; } = [];
+        /// <summary>Rejects every request, so fixture services cannot reach the network.</summary>
+        public HttpClient Http { get; } = new(new NoNetworkHandler());
 
         public Fixture(Scenario scenario)
         {
@@ -1064,13 +1247,37 @@ internal static class Program
                 foreach (string map in new[] { "AquaE", "ClubE", "BankE" })
                     packs.Add(new InstalledContent { Id = "stock/" + map, Code = map, Version = "1", Sha256 = "installed-" + map });
                 File.WriteAllText(Path.Combine(Layout.Packs, "installed.json"), JsonSerializer.Serialize(packs, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
-                if (scenario.Editor)
+                if (scenario.Editor || scenario.Unreal)
                 {
                     Directory.CreateDirectory(Path.Combine(Layout.Packs, "shared"));
                     File.WriteAllText(Path.Combine(Layout.Packs, "shared", "classes.json"), "{}");
                     Directory.CreateDirectory(Path.Combine(Layout.Packs, "svmap", "AquaE"));
                     File.WriteAllText(Path.Combine(Layout.Packs, "svmap", "AquaE", "manifest.json"), "{}");
                 }
+            }
+            if (scenario.UnrealInstalled)
+            {
+                // The Unreal build is laid out like the root: unreal\install.json and unreal\versions\<v>\.
+                var unreal = new LauncherLayout(Layout.Unreal);
+                void Version(SemVersion version)
+                {
+                    string folder = unreal.VersionDir(version.ToString());
+                    Directory.CreateDirectory(folder);
+                    File.WriteAllText(Path.Combine(folder, UnrealService.StarterExe), "fixture; never executed");
+                    File.WriteAllText(Path.Combine(folder, "version.json"), JsonSerializer.Serialize(new
+                    {
+                        product = UnrealService.Product, version = version.ToString(),
+                        openscctVersion = InstalledVersion.ToString(), openscctCommit = "0123456789abcdef",
+                    }));
+                }
+                Version(UnrealVersion);
+                var manifest = new InstallManifest { Current = UnrealVersion.ToString() };
+                if (scenario.Name == "unreal-pending")
+                {
+                    Version(UnrealLatestVersion);
+                    manifest.Pending = UnrealLatestVersion.ToString();
+                }
+                manifest.Save(unreal.Manifest);
             }
             if (scenario.Editor && !scenario.Name.StartsWith("editor-absent", StringComparison.Ordinal))
             {
@@ -1097,6 +1304,7 @@ internal static class Program
         public void Dispose()
         {
             Work?.Dispose();
+            Http.Dispose();
             foreach (Font font in Fonts) font.Dispose();
             // The only recursive deletion target is the exact absolute temp root created by this fixture.
             string target = Path.GetFullPath(_root);

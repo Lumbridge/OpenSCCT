@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 using OpenScct.Launcher.Editor;
 using OpenScct.Launcher.Install;
@@ -13,9 +14,11 @@ internal sealed class SettingsForm : Form
 {
     private readonly LauncherLayout _layout;
     private readonly bool _editorMode;
+    private readonly bool _unrealMode;
     private readonly ToolTip _folderTips = new();
     private readonly CheckBox _prereleases = new() { Text = "Include game preview releases", AutoSize = true, ForeColor = Theme.Text };
     private readonly CheckBox _editorPrereleases = new() { Text = "Include editor preview releases", AutoSize = true, ForeColor = Theme.Text };
+    private readonly CheckBox _unrealPrereleases = new() { Text = "Include Unreal preview versions", AutoSize = true, ForeColor = Theme.Text };
     private readonly CheckBox _checkOnStart = new() { Text = "Check for updates on startup", AutoSize = true, ForeColor = Theme.Text };
     private readonly ComboBox _renderer = new()
     {
@@ -41,13 +44,14 @@ internal sealed class SettingsForm : Form
         ArgumentNullException.ThrowIfNull(layout);
         _layout = layout;
         _editorMode = palette == ThemePalette.Editor || (palette is null && settings.SelectedProduct == "Editor");
+        _unrealMode = palette == ThemePalette.Unreal || (palette is null && settings.SelectedProduct == "Unreal");
         Result = settings;
 
-        Text = _editorMode ? "Editor settings" : "Game settings";
+        Text = _editorMode ? "Editor settings" : _unrealMode ? "Unreal settings" : "Game settings";
         Icon = _editorMode ? Theme.LoadEditorIcon(32) : Theme.LoadIcon(32);
         AutoScaleMode = AutoScaleMode.Dpi;
         AutoScaleDimensions = new SizeF(96f, 96f);
-        ClientSize = new Size(560, _editorMode ? 440 : 680);
+        ClientSize = new Size(560, _editorMode || _unrealMode ? 440 : 680);
         MinimumSize = new Size(460, 360);
         FormBorderStyle = FormBorderStyle.Sizable;
         MaximizeBox = false;
@@ -61,10 +65,14 @@ internal sealed class SettingsForm : Form
         _prereleases.Checked = settings.IncludePrereleases;
         _editorPrereleases.Checked = settings.EditorIncludePrereleases;
         _editorPrereleases.Name = "IncludeEditorPreviewReleases";
-        _checkOnStart.Checked = _editorMode ? settings.EditorCheckOnStart : settings.CheckOnStart;
-        _checkOnStart.Text = _editorMode ? "Check for editor updates on startup" : "Check for game updates on startup";
+        _unrealPrereleases.Checked = settings.UnrealIncludePrereleases;
+        _unrealPrereleases.Name = "IncludeUnrealPreviewReleases";
+        _checkOnStart.Checked = _editorMode ? settings.EditorCheckOnStart : _unrealMode ? settings.UnrealCheckOnStart : settings.CheckOnStart;
+        _checkOnStart.Text = _editorMode ? "Check for editor updates on startup"
+            : _unrealMode ? "Check for Unreal updates on startup" : "Check for game updates on startup";
         _prereleases.Name = "IncludePreviewReleases";
-        _checkOnStart.Name = _editorMode ? "CheckForEditorUpdatesOnStart" : "CheckForUpdatesOnStart";
+        _checkOnStart.Name = _editorMode ? "CheckForEditorUpdatesOnStart"
+            : _unrealMode ? "CheckForUnrealUpdatesOnStart" : "CheckForUpdatesOnStart";
         _renderer.Items.AddRange(GameRendererSettings.Choices);
         _renderer.SelectedItem = graphicsDriver;
         if (_renderer.SelectedIndex < 0) _renderer.SelectedItem = GameRendererSettings.Vulkan;
@@ -115,8 +123,8 @@ internal sealed class SettingsForm : Form
 
         Row(Theme.Label("Updates", Theme.Heading, Theme.Accent));
         Row(_checkOnStart, 6);
-        Row(_editorMode ? _editorPrereleases : _prereleases, 4);
-        if (!_editorMode)
+        Row(_editorMode ? _editorPrereleases : _unrealMode ? _unrealPrereleases : _prereleases, 4);
+        if (!_editorMode && !_unrealMode)
         {
             Row(Theme.Label("Monitor", Theme.Heading, Theme.Accent), 18);
             Row(_monitor, 6);
@@ -157,6 +165,20 @@ internal sealed class SettingsForm : Form
             if (!uninstall.Enabled)
                 Row(Theme.Wrapping(Theme.Label("No editor installed by this launcher.", Theme.Small, Theme.Muted)), 4);
         }
+        else if (_unrealMode)
+        {
+            Row(Link("Open Unreal installation folder", layout.Unreal, "OpenUnrealFolder"), 6);
+            Row(Link("Open Unreal map packs folder", layout.UnrealPacks, "OpenUnrealMapPacks"), 4);
+            Button uninstall = Theme.Button("Uninstall Unreal...");
+            uninstall.Name = "UninstallUnreal";
+            uninstall.Enabled = HasEntries(layout.Unreal);
+            uninstall.Click += (_, _) => { UninstallUnrealRequested = true; Save(); };
+            Row(Theme.Label("Unreal installation", Theme.Heading, Theme.Accent), 18);
+            Row(Theme.Wrapping(Theme.Label("Remove OpenSCCT Unreal. Keeps the OpenSCCT game, its maps, the editor and your game settings. You choose whether to keep its map packs.", Theme.Small, Theme.Muted)), 6);
+            Row(uninstall);
+            if (!uninstall.Enabled)
+                Row(Theme.Wrapping(Theme.Label("OpenSCCT Unreal is not installed.", Theme.Small, Theme.Muted)), 4);
+        }
         else
         {
             Row(Link("Open game installation folder", layout.Versions, "OpenGameFolder"), 6);
@@ -171,20 +193,26 @@ internal sealed class SettingsForm : Form
         scroll.Controls.Add(root);
         Controls.Add(scroll);
         Controls.Add(buttons);
-        Theme.Apply(this, palette ?? (_editorMode ? ThemePalette.Editor : ThemePalette.Game));
+        Theme.Apply(this, palette ?? (_editorMode ? ThemePalette.Editor : _unrealMode ? ThemePalette.Unreal : ThemePalette.Game));
+    }
+
+    private static bool HasEntries(string folder)
+    {
+        try { return Directory.Exists(folder) && Directory.EnumerateFileSystemEntries(folder).Any(); }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { return false; }
     }
 
     public LauncherSettings Result { get; private set; }
 
     public string GraphicsDriver => _renderer.SelectedItem as string ?? GameRendererSettings.Vulkan;
 
-    public bool CanChangeRenderer => !_editorMode && _renderer.Enabled;
+    public bool CanChangeRenderer => !_editorMode && !_unrealMode && _renderer.Enabled;
 
     /// <summary>The chosen monitor, numbered from 1 as the game numbers them.</summary>
     public int Monitor => _monitor.SelectedIndex + 1;
 
     /// <summary>True when the player picked another monitor than the saved one (an untouched choice writes nothing).</summary>
-    public bool MonitorChanged => !_editorMode && _monitor.Enabled && _monitor.SelectedIndex >= 0 && Monitor != _savedMonitor;
+    public bool MonitorChanged => !_editorMode && !_unrealMode && _monitor.Enabled && _monitor.SelectedIndex >= 0 && Monitor != _savedMonitor;
 
     /// <summary>
     /// The Enhanced import to carry out at the game's next start: the install folder, empty for the profile and key
@@ -231,11 +259,14 @@ internal sealed class SettingsForm : Form
 
     public bool UninstallEditorRequested { get; private set; }
 
+    /// <summary>The player asked to uninstall OpenSCCT Unreal; the launcher confirms what to remove.</summary>
+    public bool UninstallUnrealRequested { get; private set; }
+
     private void ConfirmRemoveGameFiles()
     {
         DialogResult answer = MessageBox.Show(
             this,
-            "Remove all downloaded game versions, shared game files and maps?\n\nThe editor will need its shared files installed again. The editor application, projects, settings, saves and launcher preferences are kept.",
+            "Remove all downloaded game versions, shared game files and maps?\n\nThe editor and OpenSCCT Unreal will need the shared files installed again. The editor application, OpenSCCT Unreal, projects, settings, saves and launcher preferences are kept.",
             "Remove game and shared files",
             MessageBoxButtons.OKCancel,
             MessageBoxIcon.Warning,
@@ -290,13 +321,18 @@ internal sealed class SettingsForm : Form
 
     private void Save()
     {
+        // Every field is copied: one this dialog does not show keeps its saved value.
+        bool game = !_editorMode && !_unrealMode;
         Result = new LauncherSettings
         {
             IncludePrereleases = _prereleases.Checked,
             EditorIncludePrereleases = _editorPrereleases.Checked,
+            UnrealIncludePrereleases = _unrealPrereleases.Checked,
             SelectedProduct = Result.SelectedProduct,
-            CheckOnStart = _editorMode ? Result.CheckOnStart : _checkOnStart.Checked,
+            CheckOnStart = game ? _checkOnStart.Checked : Result.CheckOnStart,
             EditorCheckOnStart = _editorMode ? _checkOnStart.Checked : Result.EditorCheckOnStart,
+            UnrealCheckOnStart = _unrealMode ? _checkOnStart.Checked : Result.UnrealCheckOnStart,
+            UnrealRepository = Result.UnrealRepository,
         };
         Directory.CreateDirectory(_layout.Root);
         DialogResult = DialogResult.OK;

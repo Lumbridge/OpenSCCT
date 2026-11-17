@@ -13,6 +13,10 @@ namespace OpenScct.Launcher.Install;
 /// cache\                the release list and its ETag
 /// content\              game content built from the player's own install (later)
 /// maps\                 maps downloaded from the SCCT-Maps repository, read by the content build
+/// packs\                converted maps and shared packs from OpenSCCT-Content
+/// editor\               the optional editor
+/// unreal\               the Unreal Engine build, laid out like the root (install.json, versions\, downloads\, cache\)
+/// unreal-packs\         map packs the Unreal build downloads by itself
 /// </code>
 /// The game's user:// data (settings, key bindings, saves) is in %APPDATA%\Godot\app_userdata\OpenSCCT and is
 /// kept on uninstall; the launcher can update its renderer override.
@@ -75,6 +79,15 @@ public sealed class LauncherLayout
     public string EditorCache => Path.Combine(Root, "editor-cache");
 
     public string EditorDownloads => Path.Combine(Root, "editor-downloads");
+
+    /// <summary>
+    /// The Unreal Engine build (OpenSCCT Unreal): its own install.json, versions\, downloads\ and cache\, apart from
+    /// the Godot game's (<see cref="Unreal.UnrealService"/>).
+    /// </summary>
+    public string Unreal => Path.Combine(Root, "unreal");
+
+    /// <summary>Map packs the Unreal build downloads and mounts by itself; the launcher only deletes them on request.</summary>
+    public string UnrealPacks => Path.Combine(Root, "unreal-packs");
 
     public string VersionDir(string version) => Path.Combine(Versions, version);
 }

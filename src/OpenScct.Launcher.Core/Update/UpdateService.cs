@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Net.Http;
 using System.Threading;
@@ -38,6 +39,22 @@ public enum InstallOutcome
 /// <summary>Raised for an update that must not be installed: no checksum, a wrong checksum, no game build.</summary>
 public sealed class UpdateRejectedException(string message) : Exception(message);
 
+/// <summary>The steps of an install, for a caller that names them to the player (the Unreal build's progress).</summary>
+internal enum UpdatePhase
+{
+    /// <summary>Reading the file list and hashing the installed files it could reuse.</summary>
+    CheckingFiles,
+
+    /// <summary>Downloading changed files or the whole ZIP.</summary>
+    Downloading,
+
+    /// <summary>Unpacking the downloaded ZIP, or building the version folder when no file needs downloading.</summary>
+    Installing,
+
+    /// <summary>Making the new version current (or pending); too short and too final to cancel.</summary>
+    Activating,
+}
+
 /// <summary>Check, download, verify, install and switch, with no UI.</summary>
 public sealed class UpdateService
 {
@@ -49,9 +66,18 @@ public sealed class UpdateService
     private readonly HttpClient _http;
     private readonly ResumableDownloader _downloader;
     private readonly IGameProcessProbe _games;
+    private readonly ReleaseNames _names;
 
     public UpdateService(LauncherLayout layout, VersionStore store, GitHubReleaseClient github, HttpClient http, IGameProcessProbe games)
+        : this(layout, store, github, http, games, ReleaseNames.Game)
     {
+    }
+
+    /// <summary>An update service for the product whose assets <paramref name="names"/> describes. Only the game updates the launcher.</summary>
+    internal UpdateService(LauncherLayout layout, VersionStore store, GitHubReleaseClient github, HttpClient http, IGameProcessProbe games, ReleaseNames names)
+    {
+        ArgumentNullException.ThrowIfNull(names);
+        _names = names;
         ArgumentNullException.ThrowIfNull(layout);
         ArgumentNullException.ThrowIfNull(store);
         ArgumentNullException.ThrowIfNull(github);
@@ -65,6 +91,11 @@ public sealed class UpdateService
         _games = games;
     }
 
+    /// <summary>Told when an install moves to its next step; null for the game, whose window shows bytes only.</summary>
+    internal Action<UpdatePhase>? PhaseChanged { get; set; }
+
+    private bool IsGame => ReferenceEquals(_names, ReleaseNames.Game);
+
     public async Task<UpdateCheck> CheckAsync(bool includePrereleases, SemVersion? launcherVersion, CancellationToken cancel)
     {
         ReleaseFeed feed = await _github.GetReleasesAsync(cancel).ConfigureAwait(false);
@@ -72,9 +103,9 @@ public sealed class UpdateService
         if (latest is not null)
         {
             // The game files release: in the list, or asked for by tag once it is older than the list's first page.
-            ReleaseInfo? files = feed.Releases.FirstOrDefault(r => string.Equals(r.TagName, ReleasePicker.StoreTag, StringComparison.Ordinal) && !r.Draft)
-                ?? (ReleasePicker.FilesAsset(latest, _layout.Platform) is null && ReleasePicker.GameAsset(latest, _layout.Platform) is null
-                    ? await _github.GetReleaseByTagAsync(ReleasePicker.StoreTag, cancel).ConfigureAwait(false)
+            ReleaseInfo? files = feed.Releases.FirstOrDefault(r => string.Equals(r.TagName, _names.StoreTag, StringComparison.Ordinal) && !r.Draft)
+                ?? (ReleasePicker.FilesAsset(latest, _layout.Platform, _names) is null && ReleasePicker.GameAsset(latest, _layout.Platform, _names) is null
+                    ? await _github.GetReleaseByTagAsync(_names.StoreTag, cancel).ConfigureAwait(false)
                     : null);
             latest = latest with { Store = files };
             // Linux bundles need not accompany every Windows release. Select the newest release that
@@ -86,10 +117,11 @@ public sealed class UpdateService
         }
 
         SemVersion? installed = _store.Current();
-        bool game = latest is not null && (ReleasePicker.FilesAsset(latest, _layout.Platform) is not null || ReleasePicker.GameAsset(latest, _layout.Platform) is not null)
+        bool game = latest is not null && (ReleasePicker.FilesAsset(latest, _layout.Platform, _names) is not null || ReleasePicker.GameAsset(latest, _layout.Platform, _names) is not null)
             && (installed is null || latest.Version > installed);
         // The launcher updates itself only to a newer launcher: a game release usually carries the same one again.
-        SemVersion? latestLauncher = latest is null ? null : ReleasePicker.LauncherVersion(latest, _layout.Platform);
+        // Only game releases carry it.
+        SemVersion? latestLauncher = latest is null || !IsGame ? null : ReleasePicker.LauncherVersion(latest, _layout.Platform);
         bool launcher = latestLauncher is not null && launcherVersion is not null && latestLauncher > launcherVersion;
         return new UpdateCheck(feed, latest, installed, game, launcher) { LatestLauncher = latestLauncher };
     }
@@ -122,6 +154,7 @@ public sealed class UpdateService
     {
         ArgumentNullException.ThrowIfNull(release);
         cancel.ThrowIfCancellationRequested();
+        LastZip = null;
         if (_store.Current() is { } current && current == release.Version)
         {
             return InstallOutcome.AlreadyCurrent;
@@ -131,20 +164,52 @@ public sealed class UpdateService
         {
             if (!await TryInstallChangedFilesAsync(release, progress, cancel).ConfigureAwait(false))
             {
-                ReleaseAsset asset = ReleasePicker.GameAsset(release, _layout.Platform)
-                    ?? throw new UpdateRejectedException($"Release {release.Version} has no game build ({ReleasePicker.GameAssetName(release.Version, _layout.Platform)}).");
+                ReleaseAsset asset = ReleasePicker.GameAsset(release, _layout.Platform, _names)
+                    ?? throw new UpdateRejectedException($"Release {release.Version} has no game build ({ReleasePicker.GameAssetName(release.Version, _layout.Platform, _names)}).");
+                // Room for the ZIP and the folder it unpacks to, before anything is downloaded: the file list's size
+                // when there is one, else at least the ZIP's own size again.
+                DiskSpace.Ensure(_layout.Root, asset.Size + (_listedBuildSize ?? asset.Size), FreeSpaceProbe);
+                PhaseChanged?.Invoke(UpdatePhase.Downloading);
                 string zip = await DownloadVerifiedAsync(release, asset, progress, cancel).ConfigureAwait(false);
+                PhaseChanged?.Invoke(UpdatePhase.Installing);
+                // The ZIP is on disk now: its unpacked size is known exactly.
+                DiskSpace.Ensure(_layout.Root, UnpackedSize(zip), FreeSpaceProbe);
                 _store.InstallFromZip(zip, release.Version);
                 TryDeleteFile(zip);
+                LastZip = asset.Size;
             }
         }
 
         cancel.ThrowIfCancellationRequested();
+        PhaseChanged?.Invoke(UpdatePhase.Activating);
         return FinishSwitch(release.Version);
     }
 
     /// <summary>Bytes the last install downloaded through the file list, and the build's full size (for the status line).</summary>
     public (long Downloaded, long BuildSize)? LastDelta { get; private set; }
+
+    /// <summary>Bytes of the ZIP the last install downloaded, or null when it used the file list or downloaded nothing.</summary>
+    internal long? LastZip { get; private set; }
+
+    /// <summary>Test hook: the free bytes of a path's drive (null when unknown), in place of the drive's.</summary>
+    internal Func<string, long?>? FreeSpaceProbe { get; set; }
+
+    /// <summary>The build's size from the file list of the install in progress, when it has one (for the ZIP fallback's space check).</summary>
+    private long? _listedBuildSize;
+
+    /// <summary>The total size of the files in a downloaded ZIP; 0 when it cannot be read (the unpack then reports why).</summary>
+    private static long UnpackedSize(string zip)
+    {
+        try
+        {
+            using ZipArchive archive = ZipFile.OpenRead(zip);
+            return archive.Entries.Sum(e => e.Length);
+        }
+        catch (Exception ex) when (ex is IOException or InvalidDataException or UnauthorizedAccessException)
+        {
+            return 0;
+        }
+    }
 
     /// <summary>
     /// The update through the file list. False when the release has none, or a file's asset is gone and the zip
@@ -153,11 +218,13 @@ public sealed class UpdateService
     private async Task<bool> TryInstallChangedFilesAsync(VersionedRelease release, IProgress<DownloadProgress>? progress, CancellationToken cancel)
     {
         LastDelta = null;
-        if (ReleasePicker.FilesAsset(release, _layout.Platform) is not { } listAsset)
+        _listedBuildSize = null;
+        if (ReleasePicker.FilesAsset(release, _layout.Platform, _names) is not { } listAsset)
         {
             return false;
         }
 
+        PhaseChanged?.Invoke(UpdatePhase.CheckingFiles);
         string listFile = await DownloadVerifiedAsync(release, listAsset, null, cancel).ConfigureAwait(false);
         BuildFiles files;
         try
@@ -169,6 +236,7 @@ public sealed class UpdateService
             TryDeleteFile(listFile);
         }
 
+        _listedBuildSize = files.Files.Sum(f => f.Size);
         var delta = new DeltaInstaller(_layout, _store, _github, _downloader);
         ReleaseFeed feed = await _github.GetReleasesAsync(cancel).ConfigureAwait(false);
         DeltaInstaller.Plan plan;
@@ -176,11 +244,12 @@ public sealed class UpdateService
         {
             plan = await delta.PlanAsync(files, feed.Releases, cancel).ConfigureAwait(false);
         }
-        catch (BlobUnavailableException) when (ReleasePicker.GameAsset(release, _layout.Platform) is not null)
+        catch (BlobUnavailableException) when (ReleasePicker.GameAsset(release, _layout.Platform, _names) is not null)
         {
             return false;
         }
 
+        PhaseChanged?.Invoke(plan.DownloadBytes > 0 ? UpdatePhase.Downloading : UpdatePhase.Installing);
         await delta.InstallAsync(release.Version, files, plan, progress, cancel).ConfigureAwait(false);
         LastDelta = (plan.DownloadBytes, files.Files.Sum(f => f.Size));
         return true;
@@ -198,6 +267,11 @@ public sealed class UpdateService
     {
         ArgumentNullException.ThrowIfNull(release);
         ArgumentNullException.ThrowIfNull(swap);
+        if (!IsGame)
+        {
+            throw new InvalidOperationException("The launcher updates itself only from game releases.");
+        }
+
         ReleaseAsset asset = ReleasePicker.LauncherAsset(release, _layout.Platform)
             ?? throw new UpdateRejectedException($"Release {release.Version} has no launcher ({_layout.Platform.LauncherFileName}).");
         string file = await DownloadVerifiedAsync(release, asset, progress, cancel).ConfigureAwait(false);

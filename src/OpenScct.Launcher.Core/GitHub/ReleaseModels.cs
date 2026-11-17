@@ -63,7 +63,11 @@ public sealed class ReleaseAsset
 }
 
 /// <summary>What a release check returned and where it came from.</summary>
-public sealed record ReleaseFeed(IReadOnlyList<ReleaseInfo> Releases, ReleaseFeedSource Source, DateTimeOffset? RateLimitReset, string? Problem);
+public sealed record ReleaseFeed(IReadOnlyList<ReleaseInfo> Releases, ReleaseFeedSource Source, DateTimeOffset? RateLimitReset, string? Problem)
+{
+    /// <summary>GitHub answered 404 for the repository: it does not exist (yet) or is not public.</summary>
+    public bool RepositoryNotFound { get; init; }
+}
 
 public enum ReleaseFeedSource
 {

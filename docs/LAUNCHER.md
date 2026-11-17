@@ -23,18 +23,18 @@ No original Chaos Theory install or folder selection is needed.
 
 Below the launch panel, the latest release preview shows up to three short changes from the release notes.
 It uses the same fetched or cached release data as update checks. **Full changelog** opens the website
-changelog, scrolling to and focusing the latest update for the selected Game or Editor tab, with built-in
+changelog, scrolling to and focusing the latest update for the selected tab, with built-in
 full release notes if the website or browser is unavailable.
 Maps, Check for updates, Website, Settings and Help are secondary controls along the bottom;
 they wrap on narrow windows. The window fits its initial height once the changelog is populated. After that, your
 chosen window size is preserved when switching tabs, refreshing release notes or showing status
-messages. Content scrolls when it does not fit. Update checks load both release lists without
-downloading the optional editor.
+messages. Content scrolls when it does not fit. A Game update check also loads the editor's release list,
+without downloading the editor.
 
 ## Optional Windows editor
 
-The Windows launcher has **Game** and **Editor** tabs. Game keeps the green theme; Editor uses the
-editor's blue logo and palette. The selected tab is remembered. Editor files are downloaded only when
+The Windows launcher has **Game**, **Editor** and **Unreal** tabs (see [Unreal tab](#unreal-tab)). Game keeps
+the green theme; Editor uses the editor's blue logo and palette. The selected tab is remembered. Editor files are downloaded only when
 you choose **Set up Editor**; installing the game alone does not install the editor.
 
 **Set up Editor** installs missing game and shared-content prerequisites, then the editor, without
@@ -50,11 +50,11 @@ during staging; once replacement starts, the helper finishes or recovers before 
 
 You can change tabs during a download: progress and cancellation continue to refer to the operation
 that started it. Website Join links select Game and wait for an active operation. Launcher self-updates
-remain available on either tab. Editor Help and release links go to the editor project.
+remain available on every tab. Editor Help and release links go to the editor project.
 
-**Settings** belongs to the selected tab. Game and Editor have separate startup update checks, preview
-preferences, folder shortcuts and installation actions. Existing installations initially inherit the old
-startup-check choice for both products; changing it in one tab then leaves the other unchanged.
+**Settings** belongs to the selected tab. Each tab has its own startup update check, preview
+preference, folder shortcuts and installation actions. Existing installations initially inherit the old
+startup-check choice for every product; changing it in one tab then leaves the others unchanged.
 
 In **Game settings**, **Import from Enhanced SCCT Versus** queues an import of the player's Enhanced settings
 for the game's next start. **Choose Enhanced folder…** takes any folder of the install (everything: sensitivities,
@@ -72,14 +72,83 @@ Independently downloaded editor installations are not adopted or removed.
 
 In **Game settings**, **Remove game and shared files…** removes all installed game versions and downloaded
 assets/maps, keeping settings and saves. It keeps the editor application and projects, but the editor's shared
-game prerequisites must be downloaded again. This action is not shown in Editor settings.
-**Maps** manages shared downloaded content in either tab. Close the editor before changing that content.
+game prerequisites must be downloaded again. It also keeps the Unreal build, which needs the game files
+downloaded again before it can start. OpenSCCT Unreal reads those files while it runs, so the removal is refused
+while it runs, and **Force close all…** closes it too. This action is not shown in Editor or Unreal settings.
+**Maps** manages shared downloaded content in either tab. Close the editor and OpenSCCT Unreal before changing
+that content.
 Linux launcher behavior is unchanged.
 
 Integration requires an editor package advertising launcher protocol 1 with its
 `OpenSCCT-Editor-<version>-win-x64.launcher.json` release asset and `version.json` metadata. Until a compatible
 editor release is published, the launcher reports that no compatible download is available. Distribute
 the compatible editor release before launcher 0.8.45; neither is published by building this change.
+
+## Unreal tab
+
+The Windows launcher's **Unreal** tab installs, updates and starts OpenSCCT Unreal, the Unreal Engine build of the
+game. It uses the same launch panel as the other tabs, with its own text and colours. It has its own versions,
+preview preference and startup update check. OpenSCCT Unreal runs on Windows only.
+
+**Where it installs.** The build goes in `%LOCALAPPDATA%\OpenSCCT\unreal\`, which is laid out like the launcher
+folder: `install.json`, `versions\<version>\`, `downloads\` and `cache\`. The Godot game's files are not touched.
+
+**Where releases come from.** By default the releases come from the GitHub repository
+`Lumbridge/OpenSCCT-Unreal`, which must be public. `UnrealRepository` in `launcher.json` (`"owner/name"`)
+replaces it; an invalid value is ignored. No GitHub account or token is used.
+If the repository cannot be read (while it is still private, GitHub answers as if it did not exist) or has no
+compatible release, the tab says
+"No OpenSCCT Unreal release is available yet." This is not an error.
+
+OpenSCCT-Unreal's `Tools/Package-Release.ps1` makes the releases (see its `docs/RELEASING.md`). Each version
+release, tagged `v<version>`, carries:
+
+| Asset | Purpose |
+| --- | --- |
+| `OpenSCCT-Unreal-<version>-win-x64.zip` | The whole build, in one `OpenSCCT Unreal` folder |
+| `OpenSCCT-Unreal-<version>-win-x64.zip.sha256`, `SHA256SUMS` | Checksums of the ZIP |
+| `OpenSCCT-Unreal-<version>-win-x64.launcher.json` | `{"launcherProtocol":1,"product":"OpenSCCT Unreal",...}` |
+| `OpenSCCT-Unreal-<version>-win-x64-files.json` and its `.sha256` | The file list, in the game's format 1 |
+
+The file contents (`<sha256>.gz`), packs of small files (`OpenSCCT-Unreal-<version>-win-x64-pack-<hash>.zip`)
+and binary patches (`<from>-<to>.osdiff`) are kept in the shared `unreal-files-1` prerelease.
+
+The tab offers a release only if it has a `launcher.json` and either the ZIP or the file list. It offers
+prereleases (marked on GitHub or by a prerelease version) only when the tab's preview setting is on. Before
+installing, the launcher reads the release's `launcher.json`. It requires `launcherProtocol` 1 and `product`
+`OpenSCCT Unreal`; for any other release it says "This OpenSCCT Unreal version needs a newer launcher."
+
+**How it updates.** Updates use the same updater as the game (see
+[Release assets and delta updates](#release-assets-and-delta-updates)). It reuses unchanged files from the
+current and previous versions and applies binary patches where they are smaller. It downloads the other files,
+checks every file against its SHA-256 and builds the new version in a staging folder. A first install also uses
+the file list: with nothing to reuse, it downloads every file. The ZIP is used only for a release without a file
+list, or when a file's asset can no longer be found. Before it writes anything, the launcher checks that the disk
+has room for the downloads and the new version folder, and says how much space is needed if not. If the current
+version's folder is damaged (its `version.json` is missing or unreadable), installing the same version again
+moves that folder aside and rebuilds it. If the game is running, the new version becomes current when the game closes. The running game is a process
+named `OpenSCCTUnreal` or `OpenSCCTUnreal-Win64-Shipping` started from `unreal\`. Cleanup keeps the current and
+previous versions. The launcher never updates itself from these releases.
+
+**What it passes to the game.** The launcher starts `versions\<version>\OpenSCCTUnreal.exe` from its own folder,
+with one argument: `-ScctContent="<launcher folder>\packs"`. This is the OpenSCCT content folder that the Game tab
+downloads. The value is quoted after the `=`, because Unreal reads an unquoted value only up to the first
+space. A content path that contains a double quote is refused. The `SVM_CONTENT` and `SVM_GAME_ROOT` environment
+variables are removed. There is no Godot `--` separator and no renderer option. The game needs that content
+folder, so set up the game on the Game tab first. The build needs the Visual C++ x64 runtime, at least the version
+of the installer it carries. When the runtime is missing or older (an old 2015-2019 runtime counts as older), the
+launcher can run that installer (`Prerequisites\vc_redist.x64.exe /install /passive /norestart`). While an
+update waits for the running game to close, the tab shows **Waiting for game to close** instead of **Play Unreal**.
+
+**What it does not do.** The launcher does not download Unreal map packs: the game downloads them into
+`%LOCALAPPDATA%\OpenSCCT\unreal-packs\` itself. The launcher does not sign in or handle account tokens: the game
+signs in by itself. Website Join links still go to the Game tab, and **Maps** manages the OpenSCCT content
+packs only.
+
+**Uninstall.** In **Unreal settings**, uninstalling deletes `unreal\` and, if you choose, `unreal-packs\`. It is
+refused while the game runs. It keeps the Godot game, the content packs, the editor, `launcher.json` and the
+game's own saved settings, which are outside the launcher folder. Force close ends only Unreal game processes
+started from `unreal\`.
 
 ## Updates and troubleshooting
 
@@ -146,10 +215,12 @@ The launcher stores its files under `%LOCALAPPDATA%\OpenSCCT` on Windows and
 | Path | Contents |
 | --- | --- |
 | `install.json` | Current, previous and pending game versions |
-| `launcher.json` | Startup update and preview-release preferences |
+| `launcher.json` | Startup update and preview-release preferences, and the Unreal release repository |
 | `versions/<version>/` | One exported game build per version |
 | `editor/` | Optional managed Windows editor, including its CLI and update recovery state |
 | `editor-cache/`, `editor-downloads/` | Independent editor release cache, bootstrap downloads and external helpers |
+| `unreal/` | The Unreal build: its own `install.json`, `versions/`, `downloads/` and `cache/` (Windows) |
+| `unreal-packs/` | Map packs the Unreal build downloads by itself |
 | `downloads/` | Completed and partial release downloads |
 | `cache/` | Cached release list and rate-limit state |
 | `content/` | Legacy converted content and logs, no longer used by the launcher |

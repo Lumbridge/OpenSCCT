@@ -7,7 +7,7 @@ using System.Windows.Forms;
 
 namespace OpenScct.Launcher.App;
 
-/// <summary>Product colours; amber and red retain the same meaning in both products.</summary>
+/// <summary>Product colours; amber and red retain the same meaning in every product.</summary>
 internal sealed record ThemePalette(Color Background, Color Panel, Color Border, Color Accent, Color AccentDim,
     Color Text, Color Muted, Color Hover, Color Pressed)
 {
@@ -23,6 +23,12 @@ internal sealed record ThemePalette(Color Background, Color Panel, Color Border,
         Color.FromArgb(19, 21, 27), Color.FromArgb(26, 31, 42), Color.FromArgb(48, 64, 88),
         Color.FromArgb(84, 148, 245), Color.FromArgb(52, 92, 156), Color.FromArgb(220, 228, 241),
         Color.FromArgb(151, 166, 190), Color.FromArgb(119, 173, 255), Color.FromArgb(65, 124, 218));
+
+    /// <summary>Cool steel for the Unreal Engine build, distinct from the Editor's blue.</summary>
+    public static ThemePalette Unreal { get; } = new(
+        Color.FromArgb(18, 21, 24), Color.FromArgb(25, 30, 35), Color.FromArgb(52, 62, 72),
+        Color.FromArgb(122, 200, 226), Color.FromArgb(60, 110, 130), Color.FromArgb(222, 230, 236),
+        Color.FromArgb(156, 168, 178), Color.FromArgb(152, 218, 240), Color.FromArgb(92, 172, 200));
 }
 
 /// <summary>The night-vision look of game/branding: near-black green panels, bright green accents.</summary>
@@ -69,6 +75,47 @@ internal static class Theme
         return new Icon(stream, size, size);
     }
 
+    /// <summary>
+    /// The game's logo with its coloured pixels turned to the hue of <paramref name="accent"/>; white, grey and
+    /// transparent pixels are kept, so the mark keeps its shape and shading.
+    /// </summary>
+    public static Bitmap LoadTintedLogo(int size, Color accent)
+    {
+        using Icon icon = LoadIcon(size);
+        Bitmap bitmap = icon.ToBitmap();
+        float hue = accent.GetHue();
+        for (int y = 0; y < bitmap.Height; y++)
+        for (int x = 0; x < bitmap.Width; x++)
+        {
+            Color pixel = bitmap.GetPixel(x, y);
+            if (pixel.A == 0) continue;
+            float saturation = pixel.GetSaturation();
+            if (saturation < 0.15f) continue;
+            float value = Math.Max(pixel.R, Math.Max(pixel.G, pixel.B)) / 255f;
+            bitmap.SetPixel(x, y, FromHsv(pixel.A, hue, Math.Min(1f, saturation), value));
+        }
+        return bitmap;
+    }
+
+    private static Color FromHsv(int alpha, float hue, float saturation, float value)
+    {
+        float c = value * saturation;
+        float h = hue / 60f;
+        float x = c * (1 - Math.Abs(h % 2 - 1));
+        (float r, float g, float b) = (int)h switch
+        {
+            0 => (c, x, 0f),
+            1 => (x, c, 0f),
+            2 => (0f, c, x),
+            3 => (0f, x, c),
+            4 => (x, 0f, c),
+            _ => (c, 0f, x),
+        };
+        float m = value - c;
+        return Color.FromArgb(alpha, (int)Math.Round((r + m) * 255), (int)Math.Round((g + m) * 255),
+            (int)Math.Round((b + m) * 255));
+    }
+
     /// <summary>Applies a product palette without changing layout or semantic warning/error colours.</summary>
     public static void Apply(Control root, ThemePalette palette)
     {
@@ -98,7 +145,7 @@ internal static class Theme
 
     public static Color Map(Color color, ThemePalette palette)
     {
-        foreach (ThemePalette source in new[] { ThemePalette.Game, ThemePalette.Editor })
+        foreach (ThemePalette source in new[] { ThemePalette.Game, ThemePalette.Editor, ThemePalette.Unreal })
         {
             if (color == source.Background) return palette.Background;
             if (color == source.Panel) return palette.Panel;

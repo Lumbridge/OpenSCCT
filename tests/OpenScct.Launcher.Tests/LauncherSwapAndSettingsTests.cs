@@ -96,7 +96,9 @@ public sealed class LauncherSwapAndSettingsTests
         Assert.True(saved.RootElement.GetProperty("IncludePrereleases").GetBoolean());
         Assert.False(saved.RootElement.GetProperty("CheckOnStart").GetBoolean());
         Assert.False(saved.RootElement.GetProperty("EditorCheckOnStart").GetBoolean());
-        Assert.Equal(5, saved.RootElement.EnumerateObject().Count());
+        Assert.False(saved.RootElement.GetProperty("UnrealCheckOnStart").GetBoolean());
+        // The game's five preferences, and the Unreal tab's prerelease, startup check and repository settings.
+        Assert.Equal(8, saved.RootElement.EnumerateObject().Count());
     }
 
     [Fact]

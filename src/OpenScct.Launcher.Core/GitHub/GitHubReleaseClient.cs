@@ -111,7 +111,7 @@ public sealed class GitHubReleaseClient
                 string why = _source.Authenticated
                     ? $"Repository {_source.Owner}/{_source.Repo} not found, or the token cannot read it."
                     : $"Repository {_source.Owner}/{_source.Repo} not found or not publicly accessible.";
-                return FromCache(cached, null, why);
+                return FromCache(cached, null, why) with { RepositoryNotFound = true };
             }
 
             if (response.StatusCode == HttpStatusCode.Unauthorized)

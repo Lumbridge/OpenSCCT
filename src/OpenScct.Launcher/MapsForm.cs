@@ -484,7 +484,7 @@ internal sealed class MapsForm : Form
         _status.ForeColor = Theme.Map(color, _palette);
     }
 
-    private const string ContentBusyMessage = "Close OpenSCCT Editor and its command line tools before changing shared content.";
+    private const string ContentBusyMessage = "Close OpenSCCT Editor, its command line tools and OpenSCCT Unreal before changing shared content.";
 
     private bool CanChangeContent()
     {

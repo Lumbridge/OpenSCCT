@@ -324,31 +324,8 @@ public sealed class DeltaInstaller
     /// Stops before anything is written when the disk cannot hold the new version folder and the downloads (both live
     /// in the launcher's folder). Skipped when the free space cannot be read.
     /// </summary>
-    private static void EnsureFreeSpace(string staging, BuildFiles files, Plan plan)
-    {
-        long free;
-        try
-        {
-            string? root = Path.GetPathRoot(Path.GetFullPath(staging));
-            if (string.IsNullOrEmpty(root))
-            {
-                return;
-            }
-
-            free = new DriveInfo(root).AvailableFreeSpace;
-        }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException)
-        {
-            return;
-        }
-
-        long needed = files.Files.Sum(f => f.Size) + plan.DownloadBytes;
-        if (free < needed)
-        {
-            throw new UpdateRejectedException(
-                $"Not enough free disk space for this update: it needs {needed / (1024 * 1024)} MB and {free / (1024 * 1024)} MB is free.");
-        }
-    }
+    private static void EnsureFreeSpace(string staging, BuildFiles files, Plan plan) =>
+        DiskSpace.Ensure(staging, files.Files.Sum(f => f.Size) + plan.DownloadBytes);
 
     /// <summary>Gunzips <paramref name="gz"/> to <paramref name="dest"/>; false (and no file) when the result has another SHA-256.</summary>
     private static async Task<bool> UnpackAsync(string gz, string dest, string sha256, CancellationToken cancel)

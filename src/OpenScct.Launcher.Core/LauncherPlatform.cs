@@ -18,6 +18,12 @@ public sealed record LauncherPlatform
     public static LauncherPlatform LinuxX64 { get; } = new("linux-x64", "OpenSCCT.Launcher-linux-x64", "OpenSCCT.x86_64", true);
     public static LauncherPlatform Current => OperatingSystem.IsLinux() ? LinuxX64 : WindowsX64;
 
+    /// <summary>
+    /// Windows x64 for the Unreal Engine build's own install root (<see cref="Unreal.UnrealService"/>): the same
+    /// runtime and launcher names, with the build's starter exe in place of the Godot game's.
+    /// </summary>
+    internal static LauncherPlatform UnrealWindowsX64 { get; } = new("win-x64", "OpenSCCT.Launcher.exe", "OpenSCCTUnreal.exe", false);
+
     public string RuntimeIdentifier { get; }
     public string LauncherFileName { get; }
     public string GameFileName { get; }

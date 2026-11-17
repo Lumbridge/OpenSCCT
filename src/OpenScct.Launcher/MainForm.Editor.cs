@@ -18,12 +18,19 @@ internal sealed partial class MainForm
     private const string EditorPage = "https://github.com/Lumbridge/OpenSCCT-Editor";
     private EditorService _editor = null!;
     private EditorCheck? _editorCheck;
-    private bool _editorSelected;
-    private bool _operationEditor;
+    /// <summary>The product tabs; each has its own panel copy, palette, status and release check.</summary>
+    private enum Product { Game, Editor, Unreal }
+    private Product _selected;
+    private Product _operationProduct;          // which product owns the running _work
     private bool _operationCanCancel = true;
     private bool _closeAfterWork;
     private bool _editorSetupFailed;
-    private bool SelectedCheckOnStart => _editorSelected ? _settings.EditorCheckOnStart : _settings.CheckOnStart;
+    private bool SelectedCheckOnStart => _selected switch
+    {
+        Product.Editor => _settings.EditorCheckOnStart,
+        Product.Unreal => _settings.UnrealCheckOnStart,
+        _ => _settings.CheckOnStart,
+    };
     private readonly Button _gameTab = Theme.Button("Game");
     private readonly Button _editorTab = Theme.Button("Editor");
     private PictureBox _brandLogo = null!;
@@ -33,27 +40,66 @@ internal sealed partial class MainForm
     private ProductStatus _gameStatus = new(string.Empty, StatusKind.Normal);
     private ProductStatus _editorStatus = new(string.Empty, StatusKind.Normal);
     private ProductStatus _operationStatus = new(string.Empty, StatusKind.Normal);
-    private ThemePalette Palette => _editorSelected ? ThemePalette.Editor : ThemePalette.Game;
-    private ReleaseInfo? SelectedRelease => _editorSelected ? _editorCheck?.Latest?.Release.Release : _lastCheck?.Latest?.Release;
+    private ThemePalette Palette => _selected switch
+    {
+        Product.Editor => ThemePalette.Editor,
+        Product.Unreal => ThemePalette.Unreal,
+        _ => ThemePalette.Game,
+    };
+    private ReleaseInfo? SelectedRelease => _selected switch
+    {
+        Product.Editor => _editorCheck?.Latest?.Release.Release,
+        Product.Unreal => _unrealCheck?.Latest?.Release,
+        _ => _lastCheck?.Latest?.Release,
+    };
+
+    /// <summary>Whether the product's release feed was read in this session, so its notes can be shown.</summary>
+    private bool HasChecked(Product product) => product switch
+    {
+        Product.Editor => _editorCheck is not null,
+        Product.Unreal => _unrealCheck is not null,
+        _ => _lastCheck is not null,
+    };
+
+    /// <summary>The saved tab; an unknown value opens the Game tab.</summary>
+    private static Product ParseProduct(string? name) => name switch
+    {
+        "Editor" => Product.Editor,
+        "Unreal" => Product.Unreal,
+        _ => Product.Game,
+    };
 
     private Control BuildProductTabs()
     {
         _gameTab.Name = "GameTab";
         _editorTab.Name = "EditorTab";
+        _unrealTab.Name = "UnrealTab";
         _gameTab.AccessibleName = "Game tab";
         _editorTab.AccessibleName = "Editor tab";
-        _gameTab.Click += (_, _) => SelectProduct(false);
-        _editorTab.Click += (_, _) => SelectProduct(true);
-        var tabs = Theme.Flow(false, _gameTab, _editorTab);
+        _unrealTab.AccessibleName = "Unreal tab";
+        _gameTab.Click += (_, _) => SelectProduct(Product.Game);
+        _editorTab.Click += (_, _) => SelectProduct(Product.Editor);
+        _unrealTab.Click += (_, _) => SelectProduct(Product.Unreal);
+        // Compact tabs leave the brand subtitle room for one line at the launcher's minimum width.
+        foreach (Button tab in new[] { _gameTab, _editorTab, _unrealTab })
+        {
+            tab.Padding = new Padding(6, 5, 6, 5);
+            tab.Margin = new Padding(0, 0, 4, 0);
+        }
+        _unrealTab.Margin = new Padding(0);
+        var tabs = Theme.Flow(false, _gameTab, _editorTab, _unrealTab);
         tabs.Name = "ProductTabs";
         tabs.Margin = new Padding(0);
         return tabs;
     }
 
-    private void SelectProduct(bool editor)
+    // Kept for Web Join and the smoke harness, which choose between the Game and Editor tabs.
+    private void SelectProduct(bool editor) => SelectProduct(editor ? Product.Editor : Product.Game);
+
+    private void SelectProduct(Product product)
     {
-        _editorSelected = editor;
-        _settings.SelectedProduct = editor ? "Editor" : "Game";
+        _selected = product;
+        _settings.SelectedProduct = product.ToString();
         try { _settings.Save(_layout.Settings); }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
@@ -62,32 +108,57 @@ internal sealed partial class MainForm
         ApplyProductTheme();
         RefreshReleasePreview();
         RefreshLocal();
-        if (_webJoinReady && SelectedCheckOnStart && (editor ? _editorCheck is null : _lastCheck is null) && _work is null)
+        if (_webJoinReady && SelectedCheckOnStart && !HasChecked(product) && _work is null)
             _ = RunAsync(CheckSelectedAsync);
     }
 
     private void ApplyProductTheme()
     {
         Theme.Apply(this, Palette);
-        Theme.SetButtonEmphasis(_gameTab, !_editorSelected, Palette);
-        Theme.SetButtonEmphasis(_editorTab, _editorSelected, Palette);
+        Theme.SetButtonEmphasis(_gameTab, _selected == Product.Game, Palette);
+        Theme.SetButtonEmphasis(_editorTab, _selected == Product.Editor, Palette);
+        Theme.SetButtonEmphasis(_unrealTab, _selected == Product.Unreal, Palette);
         if (_brandLogo is null) return;
+        // The Unreal build has no icon of its own yet: its logo is the game's in the Unreal accent, and the
+        // window keeps the game's icon.
+        bool editor = _selected == Product.Editor;
         Image? old = _brandLogo.Image;
-        using Icon icon = _editorSelected ? Theme.LoadEditorIcon(64) : Theme.LoadIcon(64);
-        _brandLogo.Image = icon.ToBitmap();
+        if (_selected == Product.Unreal)
+        {
+            _brandLogo.Image = Theme.LoadTintedLogo(64, ThemePalette.Unreal.Accent);
+        }
+        else
+        {
+            using Icon icon = editor ? Theme.LoadEditorIcon(64) : Theme.LoadIcon(64);
+            _brandLogo.Image = icon.ToBitmap();
+        }
         old?.Dispose();
         Icon?.Dispose();
-        Icon = _editorSelected ? Theme.LoadEditorIcon(32) : Theme.LoadIcon(32);
-        SetProductCopy(_editorSelected);
-        _tips.SetToolTip(_website, _editorSelected ? "Visit the OpenSCCT Editor project." : "Visit the OpenSCCT website.");
-        _settingsButton.AccessibleName = _editorSelected ? "Editor settings" : "Game settings";
+        Icon = editor ? Theme.LoadEditorIcon(32) : Theme.LoadIcon(32);
+        SetProductCopy(_selected);
+        _tips.SetToolTip(_website, _selected switch
+        {
+            Product.Editor => "Visit the OpenSCCT Editor project.",
+            Product.Unreal => "See the OpenSCCT Unreal releases.",
+            _ => "Visit the OpenSCCT website.",
+        });
+        _settingsButton.AccessibleName = _selected switch
+        {
+            Product.Editor => "Editor settings",
+            Product.Unreal => "Unreal settings",
+            _ => "Game settings",
+        };
         _tips.SetToolTip(_settingsButton, _settingsButton.AccessibleName);
     }
 
-    private void SetProductCopy(bool editor)
+    private void SetProductCopy(Product product)
     {
-        _brandSubtitle.Text = editor ? "OpenSCCT Editor · Create and test your maps" : "Splinter Cell Chaos Theory Versus, rebuilt";
-        _website.Text = editor ? "Editor website" : "Website";
+        (_brandSubtitle.Text, _website.Text) = product switch
+        {
+            Product.Editor => ("OpenSCCT Editor · Create and test your maps", "Editor website"),
+            Product.Unreal => ("OpenSCCT Unreal · Unreal Engine build", "Unreal releases"),
+            _ => ("Splinter Cell Chaos Theory Versus, rebuilt", "Website"),
+        };
     }
 
     private void RefreshEditorPanel(bool busy)
@@ -115,16 +186,21 @@ internal sealed partial class MainForm
         _check.Visible = true;
     }
 
-    private string VisibleOperationTitle => _work is not null && _operationEditor != _editorSelected
-        ? (_operationEditor ? "Editor · " : "Game · ") + _operationTitle : _operationTitle;
-    private ProductStatus VisibleStatus => _work is not null ? _operationStatus : _editorSelected ? _editorStatus : _gameStatus;
+    private string VisibleOperationTitle => _work is not null && _operationProduct != _selected
+        ? _operationProduct + " · " + _operationTitle : _operationTitle;
+    private ProductStatus VisibleStatus => _work is not null ? _operationStatus : _selected switch
+    {
+        Product.Editor => _editorStatus,
+        Product.Unreal => _unrealStatus,
+        _ => _gameStatus,
+    };
 
     private void RenderProductStatus()
     {
         ProductStatus state = VisibleStatus;
         _status.Text = state.Text;
         _status.Visible = state.Text.Length > 0;
-        _forceClose.Text = _editorSelected ? "Force close and retry…" : "Force close all…";
+        _forceClose.Text = _selected == Product.Game ? "Force close all…" : "Force close and retry…";
         _forceClose.Visible = _work is null && state.CanForceClose;
         _status.ForeColor = state.Kind switch
         {
@@ -140,7 +216,7 @@ internal sealed partial class MainForm
 
     private async Task CheckSelectedAsync(CancellationToken cancel)
     {
-        if (!_operationEditor)
+        if (_operationProduct == Product.Game)
         {
             await CheckAsync(cancel);
             // Load the other changelog too so the shared window already fits when the user switches.
@@ -154,7 +230,14 @@ internal sealed partial class MainForm
             RefreshReleasePreview();
             return;
         }
-        // The launcher's own updates always come from the game repository, even for editor-only users.
+        await CheckLauncherAsync(cancel);
+        if (_operationProduct == Product.Unreal) await CheckUnrealAsync(cancel);
+        else await CheckEditorAsync(cancel);
+    }
+
+    /// <summary>The launcher's own updates always come from the game repository, even for editor-only or Unreal-only users.</summary>
+    private async Task CheckLauncherAsync(CancellationToken cancel)
+    {
         SetOperation("Checking launcher updates");
         var game = await _service.CheckAsync(_settings.IncludePrereleases, _launcherVersion, cancel);
         ShowReleaseCheck(game);
@@ -164,7 +247,6 @@ internal sealed partial class MainForm
             catch (Exception ex) when (ex is IOException or System.Net.Http.HttpRequestException or UnauthorizedAccessException)
             { SetStatus("Launcher update could not be downloaded: " + ex.Message, Theme.Warning); }
         }
-        await CheckEditorAsync(cancel);
     }
 
     private async Task CheckEditorAsync(CancellationToken cancel)
@@ -352,6 +434,8 @@ internal sealed partial class MainForm
     protected override void OnActivated(EventArgs e)
     {
         base.OnActivated(e);
-        if (_editor is not null && _mainLayout is not null && !IsDisposed) RefreshLocal();
+        if (_editor is null || _unreal is null || _mainLayout is null || IsDisposed) return;
+        if (_work is null) FinishUnrealSwitch();
+        RefreshLocal();
     }
 }

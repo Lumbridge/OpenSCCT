@@ -18,6 +18,7 @@ using OpenScct.Launcher.Install;
 using OpenScct.Launcher.Launch;
 using OpenScct.Maps;
 using OpenScct.Launcher.Settings;
+using OpenScct.Launcher.Unreal;
 using OpenScct.Launcher.Update;
 using OpenScct.Launcher.Versioning;
 using OpenScct.Project;
@@ -118,7 +119,9 @@ internal sealed partial class MainForm : Form
         _settings = LauncherSettings.Load(_layout.Settings);
         _service = CreateService();
         _editor = new OpenScct.Launcher.Editor.EditorService(_layout, Http);
-        _editorSelected = joinServerId is null && _settings.SelectedProduct == "Editor";
+        _unreal = new UnrealService(_layout, Http, _settings.UnrealRepository);
+        // A website Join always opens the Game tab.
+        _selected = joinServerId is null ? ParseProduct(_settings.SelectedProduct) : Product.Game;
         if (launcherPath is { } exe)
         {
             _swap = new LauncherSwap(exe);
@@ -225,8 +228,12 @@ internal sealed partial class MainForm : Form
         _forceClose.Visible = false;
         _forceClose.Click += async (_, _) =>
         {
-            if (_editorSelected) await ForceCloseAndUpdateEditorAsync();
-            else await ForceCloseAndRemoveAsync();
+            switch (_selected)
+            {
+                case Product.Editor: await ForceCloseAndUpdateEditorAsync(); break;
+                case Product.Unreal: await ForceCloseAndUpdateUnrealAsync(); break;
+                default: await ForceCloseAndRemoveAsync(); break;
+            }
         };
         _progress.Name = "DownloadProgress";
         _progress.Visible = false;
@@ -323,10 +330,23 @@ internal sealed partial class MainForm : Form
         _tips.SetToolTip(_mapsButton, "Download new maps made by the community.");
 
         _main.Click += async (_, _) => await DoNextAsync();
-        _playCurrent.Click += async (_, _) => { if (_editorSelected) OpenEditor(); else await PlayOrJoinAsync(); };
+        _playCurrent.Click += async (_, _) =>
+        {
+            switch (_selected)
+            {
+                case Product.Editor: OpenEditor(); break;
+                case Product.Unreal: await OpenUnrealAsync(); break;
+                default: await PlayOrJoinAsync(); break;
+            }
+        };
         _whatsNew.Click += async (_, _) => await OpenChangelogAsync();
         _check.Click += async (_, _) => await RunAsync(CheckSelectedAsync);
-        _website.Click += (_, _) => OpenLink(_editorSelected ? EditorPage : "https://master.lumbridge.co.uk/");
+        _website.Click += (_, _) => OpenLink(_selected switch
+        {
+            Product.Editor => EditorPage,
+            Product.Unreal => _unreal.ReleasesPage,
+            _ => "https://master.lumbridge.co.uk/",
+        });
         _help.Click += (_, _) => OpenHelp();
         _settingsButton.Click += (_, _) => OpenSettings();
         _mapsButton.Click += (_, _) => OpenMaps();
@@ -346,7 +366,7 @@ internal sealed partial class MainForm : Form
             item.Visible = i < highlights.Count || (i == 0 && highlights.Count == 0);
             item.ForeColor = highlights.Count == 0 ? Palette.Muted : Palette.Text;
             item.Text = i < highlights.Count ? "•  " + highlights[i]
-                : (_editorSelected ? _editorCheck is null : _lastCheck is null) ? "Check for updates to load release notes."
+                : !HasChecked(_selected) ? "Check for updates to load release notes."
                 : release is null ? "No release information available." : "No release notes available.";
         }
         QueueInitialFit();
@@ -388,13 +408,13 @@ internal sealed partial class MainForm : Form
             || WindowState != FormWindowState.Normal
             || _mainLayout is null || _releasePreview is null || _releaseNotes is null || _tools is null) return;
         _initialSizeSet = true;
-        bool selectedEditor = _editorSelected;
+        Product selected = _selected;
         Control? focused = ActiveControl;
         Point previewScroll = _releasePreview.AutoScrollPosition;
         SuspendLayout();
         try
         {
-            int height = Math.Max(MeasureProductHeight(false), MeasureProductHeight(true));
+            int height = Enum.GetValues<Product>().Max(MeasureProductHeight);
             Rectangle work = Screen.FromControl(this).WorkingArea;
             int maximum = Math.Max(1, work.Height - (Height - ClientSize.Height));
             int minimum = Math.Max(1, MinimumSize.Height - (Height - ClientSize.Height));
@@ -405,8 +425,8 @@ internal sealed partial class MainForm : Form
         }
         finally
         {
-            _editorSelected = selectedEditor;
-            SetProductCopy(selectedEditor);
+            _selected = selected;
+            SetProductCopy(selected);
             RefreshLocal();
             RefreshReleasePreview();
             ResumeLayout(true);
@@ -415,12 +435,12 @@ internal sealed partial class MainForm : Form
         }
     }
 
-    private int MeasureProductHeight(bool editor)
+    private int MeasureProductHeight(Product product)
     {
-        // Render both products synchronously while painting/layout of the form is suspended. This does
+        // Render each product synchronously while painting/layout of the form is suspended. This does
         // not select a tab, save settings, start a request, or change operation ownership.
-        _editorSelected = editor;
-        SetProductCopy(editor);
+        _selected = product;
+        SetProductCopy(product);
         RefreshLocal();
         RefreshReleasePreview();
         _mainLayout!.PerformLayout();
@@ -442,9 +462,12 @@ internal sealed partial class MainForm : Form
     {
         base.OnShown(e);
         _service.TryFinishPending();
+        FinishUnrealSwitch();
         RefreshLocal();
         _pendingTimer.Start();
-        if (SelectedCheckOnStart)
+        Product started = _selected;
+        bool checkedOnStart = SelectedCheckOnStart;
+        if (checkedOnStart)
         {
             await RunAsync(CheckSelectedAsync);
         }
@@ -456,6 +479,8 @@ internal sealed partial class MainForm : Form
         _webJoinReady = true;
         if (_pendingWebJoin is not null) await TryWebJoinAsync();
         else if (_protocolProblem is not null) SetStatus(_protocolProblem, Theme.Warning);
+        // A tab chosen while the startup check ran was not checked (SelectProduct waits for _webJoinReady).
+        if (checkedOnStart) await CheckSwitchedTabAsync(started);
     }
 
     protected override void OnFormClosing(FormClosingEventArgs e)
@@ -479,8 +504,12 @@ internal sealed partial class MainForm : Form
         bool busy = _work is not null;
 
         RenderProductStatus();
-        if (_editorSelected) RefreshEditorPanel(busy);
-        else RefreshLaunchPanel(current, busy);
+        switch (_selected)
+        {
+            case Product.Editor: RefreshEditorPanel(busy); break;
+            case Product.Unreal: RefreshUnrealPanel(busy); break;
+            default: RefreshLaunchPanel(current, busy); break;
+        }
 
         _check.Enabled = !busy;
         _settingsButton.Enabled = !busy;
@@ -494,7 +523,7 @@ internal sealed partial class MainForm : Form
             _launcherBanner.Visible = true;
         }
 
-        if (!_editorSelected) RefreshMainButton(current, busy);
+        if (_selected == Product.Game) RefreshMainButton(current, busy);
         QueueInitialFit();
     }
 
@@ -607,7 +636,8 @@ internal sealed partial class MainForm : Form
 
     private async Task DoNextAsync()
     {
-        if (_editorSelected) { await DoEditorActionAsync(); return; }
+        if (_selected == Product.Editor) { await DoEditorActionAsync(); return; }
+        if (_selected == Product.Unreal) { await DoUnrealActionAsync(); return; }
         switch (_next)
         {
             case NextAction.Cancel:
@@ -643,7 +673,13 @@ internal sealed partial class MainForm : Form
 
     private async Task OpenChangelogAsync()
     {
-        string url = "https://master.lumbridge.co.uk/changelog#" + (_editorSelected ? "editor-latest" : "game-latest");
+        // The website changelog covers the game and editor; the Unreal build's notes live on its releases page.
+        string url = _selected switch
+        {
+            Product.Editor => "https://master.lumbridge.co.uk/changelog#editor-latest",
+            Product.Unreal => _unreal.ReleasesPage,
+            _ => "https://master.lumbridge.co.uk/changelog#game-latest",
+        };
         _whatsNew.Enabled = false;
         try
         {
@@ -673,7 +709,12 @@ internal sealed partial class MainForm : Form
     {
         using var dialog = new Form
         {
-            Text = _editorSelected ? "OpenSCCT Editor — What’s new" : _notesTitle,
+            Text = _selected switch
+            {
+                Product.Editor => "OpenSCCT Editor — What’s new",
+                Product.Unreal => "OpenSCCT Unreal — What’s new",
+                _ => _notesTitle,
+            },
             Icon = Icon,
             StartPosition = FormStartPosition.CenterParent,
             ClientSize = new Size(560, 420),
@@ -702,7 +743,13 @@ internal sealed partial class MainForm : Form
             WordWrap = true,
             TabStop = false,
         };
-        notes.Rtf = ReleaseNotesRtf.Convert(_editorSelected ? SelectedRelease?.Body ?? "No editor release notes cached." : _notesText, Rgb(Palette.Text), Rgb(Palette.Accent), Rgb(Palette.Muted), Theme.Body.SizeInPoints);
+        string body = _selected switch
+        {
+            Product.Editor => SelectedRelease?.Body ?? "No editor release notes cached.",
+            Product.Unreal => SelectedRelease?.Body ?? "No OpenSCCT Unreal release notes cached.",
+            _ => _notesText,
+        };
+        notes.Rtf = ReleaseNotesRtf.Convert(body, Rgb(Palette.Text), Rgb(Palette.Accent), Rgb(Palette.Muted), Theme.Body.SizeInPoints);
         notes.LinkClicked += (_, e) => OpenLink(e.LinkText);
         frame.Controls.Add(notes);
         dialog.Controls.Add(frame);
@@ -737,7 +784,7 @@ internal sealed partial class MainForm : Form
             Commit = _launcherVersion?.Build,
             Platform = System.Runtime.InteropServices.RuntimeInformation.OSDescription,
         };
-        using var dialog = new HelpForm(context, palette: Palette, editorVersion: _editorSelected ? _editor.Installed()?.Version.ToString() ?? "not installed" : null);
+        using var dialog = new HelpForm(context, palette: Palette, editorVersion: _selected == Product.Editor ? _editor.Installed()?.Version.ToString() ?? "not installed" : null);
         dialog.ShowDialog(this);
     }
 
@@ -767,7 +814,7 @@ internal sealed partial class MainForm : Form
             return;
         }
 
-        using var dialog = new MapsForm(Http, _layout.Packs, Palette, EditorUsesSharedContent);
+        using var dialog = new MapsForm(Http, _layout.Packs, Palette, () => EditorUsesSharedContent() || _unreal.IsRunning);
         dialog.ShowDialog(this);
         RefreshLocal();
     }
@@ -800,6 +847,9 @@ internal sealed partial class MainForm : Form
             int total = shared.Count + maps.Count;
             if (total > 0 && EditorUsesSharedContent())
                 throw new InvalidOperationException("Save your work and close the editor and its command-line tools before changing shared content.");
+            // OpenSCCT Unreal reads these files (-ScctContent) while it runs.
+            if (total > 0 && _unreal.IsRunning)
+                throw new InvalidOperationException("Close OpenSCCT Unreal, which uses the game files, before changing shared content.");
             int n = 0;
             // Keep the first download incomplete until its stock maps are installed, so a restart continues
             // fetching missing maps instead of treating an interrupted setup as a later shared-pack update.
@@ -816,7 +866,7 @@ internal sealed partial class MainForm : Form
                 await _packs.InstallSharedAsync(pack, PackReporter($"{name} ({n} of {total})"), cancel);
             }
 
-            SetStatus(_operationEditor ? "Shared content is ready." : "All set. Press PLAY.", Theme.Accent);
+            SetStatus(_operationProduct == Product.Game ? "All set. Press PLAY." : "Shared content is ready.", Theme.Accent);
         }
         finally
         {
@@ -1080,9 +1130,9 @@ internal sealed partial class MainForm : Form
         string? enhancedImport = null;
         try
         {
-            if (!_editorSelected)
+            if (_selected == Product.Game)
             {
-                renderer = GameRendererSettings.Load(LauncherLayout.GameUserData);
+                renderer =GameRendererSettings.Load(LauncherLayout.GameUserData);
                 monitor = GameMonitorSettings.Load(LauncherLayout.GameUserData);
                 enhancedImport = EnhancedImportRequest.Pending(LauncherLayout.GameUserData);
             }
@@ -1093,6 +1143,7 @@ internal sealed partial class MainForm : Form
             return;
         }
 
+        string? unrealRepository = _settings.UnrealRepository;
         using var dialog = new SettingsForm(_settings, _layout, Palette, renderer, _games.Running().Count > 0, monitor, enhancedImport);
         if (dialog.ShowDialog(this) != DialogResult.OK)
         {
@@ -1125,7 +1176,7 @@ internal sealed partial class MainForm : Form
             }
 
             // The game reads the request when it starts, so a running game takes it at its next start.
-            if (!_editorSelected && dialog.EnhancedImport != enhancedImport)
+            if (_selected == Product.Game && dialog.EnhancedImport != enhancedImport)
                 EnhancedImportRequest.Save(LauncherLayout.GameUserData, dialog.EnhancedImport);
             dialog.Result.Save(_layout.Settings);
             _settings = dialog.Result;
@@ -1135,18 +1186,34 @@ internal sealed partial class MainForm : Form
             SetStatus("Could not save settings: " + ex.Message, Theme.Error);
             return;
         }
-        if (_editorSelected)
+        switch (_selected)
         {
-            _editorCheck = null;
+            case Product.Editor:
+                _editorCheck = null;
+                break;
+            case Product.Unreal:
+                _unrealCheck = null;
+                break;
+            default:
+                _service = CreateService();
+                _lastCheck = null;
+                break;
         }
-        else
+        // The Unreal release repository has no control in the dialog, but a changed value needs a new service.
+        if (!string.Equals(unrealRepository, _settings.UnrealRepository, StringComparison.Ordinal))
         {
-            _service = CreateService();
-            _lastCheck = null;
+            _unreal = new UnrealService(_layout, Http, _settings.UnrealRepository);
+            _unrealCheck = null;
         }
         if (dialog.UninstallEditorRequested)
         {
             _ = RunAsync(UninstallEditorAsync);
+            return;
+        }
+        if (dialog.UninstallUnrealRequested)
+        {
+            RefreshLocal();
+            _ = UninstallUnrealAsync();
             return;
         }
         if (dialog.RemoveGameFilesRequested)
@@ -1165,11 +1232,11 @@ internal sealed partial class MainForm : Form
     {
         if (_work is not null || !VisibleStatus.CanForceClose) return;
         if (MessageBox.Show(this,
-            "Force close all running OpenSCCT games, the installed editor and its command-line tools, then retry removing the game and shared files?\n\nUnsaved work will be lost.",
+            "Force close all running OpenSCCT games (OpenSCCT Unreal included), the installed editor and its command-line tools, then retry removing the game and shared files?\n\nUnsaved work will be lost.",
             "Force close OpenSCCT", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) != DialogResult.OK)
             return;
 
-        await RunAsync(async _ =>
+        await RunAsync(async cancel =>
         {
             _operationCanCancel = false;
             SetOperation("Closing OpenSCCT processes");
@@ -1177,6 +1244,8 @@ internal sealed partial class MainForm : Form
             try
             {
                 await InstallReset.ForceCloseProcessesAsync(_layout);
+                // OpenSCCT Unreal reads the shared packs (-ScctContent), so it is closed too.
+                await _unreal.ForceCloseAsync(cancel);
                 RemoveGameFiles(forceCloseAttempted: true);
             }
             catch (Win32Exception ex)
@@ -1186,16 +1255,20 @@ internal sealed partial class MainForm : Form
         });
     }
 
-    /// <summary>Deletes what the launcher installed once the game and editor release their files.</summary>
+    /// <summary>
+    /// Deletes what the launcher installed once the game and editor release their files. The OpenSCCT Unreal
+    /// install and its map packs are kept (they have their own uninstall on the Unreal tab).
+    /// </summary>
     private void RemoveGameFiles(bool forceCloseAttempted = false)
     {
-        if (_editor.IsRunning || _games.Running().Count > 0)
+        // OpenSCCT Unreal runs from the shared packs (-ScctContent), like the game and the editor.
+        if (_editor.IsRunning || _games.Running().Count > 0 || _unreal.IsRunning)
         {
             string warning = _editor.UpdateInProgress
                 ? "Wait for the editor update to finish before removing game and shared files."
                 : forceCloseAttempted
                     ? "Some OpenSCCT processes are still running. Close them before removing game and shared files."
-                    : "Close OpenSCCT, the editor and its command-line tools before removing game and shared files.";
+                    : "Close OpenSCCT, OpenSCCT Unreal, the editor and its command-line tools before removing game and shared files.";
             SetStatus(warning, Theme.Warning, canForceClose: true);
             return;
         }
@@ -1228,6 +1301,7 @@ internal sealed partial class MainForm : Form
         {
             _gameStatus = new("Could not switch versions yet: " + ex.Message, StatusKind.Warning);
         }
+        FinishUnrealSwitch();
         RefreshLocal();
     }
 
@@ -1274,7 +1348,8 @@ internal sealed partial class MainForm : Form
         }
 
         _operationTitle = "Getting ready";
-        _operationEditor = _editorSelected;
+        _operationProduct = _selected;
+        Product started = _selected;
         _operationCanCancel = true;
         _operationStatus = new(string.Empty, StatusKind.Normal);
         _work = new CancellationTokenSource();
@@ -1311,6 +1386,17 @@ internal sealed partial class MainForm : Form
         }
         if (_closeAfterWork && !IsDisposed) { Close(); return; }
         if (completed && !IsDisposed && _webJoinReady && _pendingWebJoin is not null) await TryWebJoinAsync();
+        if (_webJoinReady) await CheckSwitchedTabAsync(started);
+    }
+
+    /// <summary>
+    /// SelectProduct skips its check while other work runs: once that work ends, checks the tab the player switched to
+    /// during it, when that tab checks on start and has not been checked yet.
+    /// </summary>
+    private async Task CheckSwitchedTabAsync(Product started)
+    {
+        if (IsDisposed || Disposing || _closeAfterWork || _work is not null || _selected == started) return;
+        if (SelectedCheckOnStart && !HasChecked(_selected)) await RunAsync(CheckSelectedAsync);
     }
 
     private void SetStatus(string text, Color color, string? path = null, bool canForceClose = false)
@@ -1318,8 +1404,12 @@ internal sealed partial class MainForm : Form
         StatusKind kind = color == Theme.Warning ? StatusKind.Warning : color == Theme.Error ? StatusKind.Error
             : color == Theme.Accent || color == Palette.Accent ? StatusKind.Success : StatusKind.Normal;
         var state = new ProductStatus(text, kind, path, canForceClose);
-        bool editor = _work is not null ? _operationEditor : _editorSelected;
-        if (editor) _editorStatus = state; else _gameStatus = state;
+        switch (_work is not null ? _operationProduct : _selected)
+        {
+            case Product.Editor: _editorStatus = state; break;
+            case Product.Unreal: _unrealStatus = state; break;
+            default: _gameStatus = state; break;
+        }
         if (_work is not null) _operationStatus = state;
         RenderProductStatus();
         _launchDetail.Visible = _work is null && kind is not (StatusKind.Warning or StatusKind.Error);

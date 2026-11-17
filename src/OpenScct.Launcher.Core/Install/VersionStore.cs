@@ -149,13 +149,23 @@ public sealed class VersionStore
     {
         _layout.Platform.MakeExecutable(Path.Combine(payload, ExecutableName));
         string target = _layout.VersionDir(version.ToString());
+        // An incomplete folder from an older launcher or a manual copy: set it aside, it is pruned later.
+        SetAside(version);
+        Directory.Move(payload, target);
+    }
+
+    /// <summary>
+    /// Renames <paramref name="version"/>'s folder to a leftover that the next <see cref="Prune"/> deletes, so the
+    /// version counts as not installed and can be installed again. Nothing happens when the folder is not there.
+    /// </summary>
+    public void SetAside(SemVersion version)
+    {
+        ArgumentNullException.ThrowIfNull(version);
+        string target = _layout.VersionDir(version.ToString());
         if (Directory.Exists(target))
         {
-            // An incomplete folder from an older launcher or a manual copy: set it aside, it is pruned later.
             Directory.Move(target, Path.Combine(_layout.Versions, TrashPrefix + version + "-" + Guid.NewGuid().ToString("N")[..8]));
         }
-
-        Directory.Move(payload, target);
     }
 
     /// <summary>Makes <paramref name="version"/> current and keeps the one it replaces for rollback.</summary>
