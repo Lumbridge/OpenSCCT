@@ -6,4 +6,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\OpenScct.Launcher.Core\OpenScct.Launcher.Core.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Fixtures\**" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
 </Project>

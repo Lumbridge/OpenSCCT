@@ -16,6 +16,9 @@ namespace OpenScct.Launcher.Update;
 ///   "files": [ { "path": "OpenSCCT.pck", "size": 21733120, "sha256": "9c5a...",
 ///                "blob": { "tag": "v0.6.0", "name": "9c5a....gz", "size": 8012233 } } ] }
 /// </code>
+/// A big file that changed may also list binary patches (<see cref="BuildPatch"/>) from older versions of it, so a
+/// launcher that has one of those versions downloads the small patch instead of the whole file. Older launchers ignore
+/// the field, so the format stays 1.
 /// </summary>
 public sealed class BuildFiles
 {
@@ -61,6 +64,15 @@ public sealed class BuildFiles
             {
                 throw new UpdateRejectedException($"The build's file list has a bad entry ({f.Path}).");
             }
+
+            foreach (BuildPatch p in f.Patches ?? [])
+            {
+                if (p is null || !Checksums.IsSha256Hex(p.From) || p.FromSize < 0 || p.Size < 0
+                    || string.IsNullOrWhiteSpace(p.Tag) || string.IsNullOrWhiteSpace(p.Name))
+                {
+                    throw new UpdateRejectedException($"The build's file list has a bad patch entry ({f.Path}).");
+                }
+            }
         }
 
         return files;
@@ -102,6 +114,39 @@ public sealed class BuildFile
 
     [JsonPropertyName("blob")]
     public BlobRef? Blob { get; set; }
+
+    /// <summary>Binary patches that turn an older version of this file into this one; null or empty for most files.</summary>
+    [JsonPropertyName("patches")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public List<BuildPatch>? Patches { get; set; }
+}
+
+/// <summary>
+/// A binary patch (OSCTDIF1, see <see cref="BinaryPatch"/>) from the file with SHA-256 <see cref="From"/> to the file
+/// that lists it: a release asset, usually named <c>&lt;from&gt;-&lt;to&gt;.osdiff</c>.
+/// <code>
+/// "patches": [ { "from": "a613...", "fromSize": 167849984, "tag": "unreal-files-1", "name": "a613...-5aa4....osdiff", "size": 7746667 } ]
+/// </code>
+/// </summary>
+public sealed class BuildPatch
+{
+    /// <summary>SHA-256 of the old file the patch applies to.</summary>
+    [JsonPropertyName("from")]
+    public string From { get; set; } = string.Empty;
+
+    /// <summary>Size of the old file, so the launcher only hashes installed files of that size.</summary>
+    [JsonPropertyName("fromSize")]
+    public long FromSize { get; set; }
+
+    [JsonPropertyName("tag")]
+    public string Tag { get; set; } = string.Empty;
+
+    [JsonPropertyName("name")]
+    public string Name { get; set; } = string.Empty;
+
+    /// <summary>Size of the patch asset.</summary>
+    [JsonPropertyName("size")]
+    public long Size { get; set; }
 }
 
 /// <summary>Where a file's bytes are: a gzipped release asset of some release (often an older one).</summary>

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Net.Http;
 using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
@@ -18,7 +19,9 @@ public sealed class BlobUnavailableException(string message) : Exception(message
 /// <summary>
 /// Installs a build from its file list (<see cref="BuildFiles"/>): every file the player already has in an installed
 /// version (same SHA-256) is copied from there, only the others are downloaded, each as its gzipped release asset,
-/// and every file is checked against its SHA-256 before the new version folder is renamed into place.
+/// and every file is checked against its SHA-256 before the new version folder is renamed into place. A changed file
+/// whose entry lists a binary patch from a version the player has is made from that file and the (much smaller) patch
+/// instead; when the patch is missing or does not apply, the file's blob is downloaded after all.
 /// </summary>
 public sealed class DeltaInstaller
 {
@@ -39,16 +42,26 @@ public sealed class DeltaInstaller
         _downloader = downloader;
     }
 
+    /// <summary>
+    /// A file made by patching a local file: the patch, its asset, and the file's own blob (null when that is gone),
+    /// which is downloaded instead if the patch does not apply.
+    /// </summary>
+    public sealed record PatchStep(BuildFile File, BuildPatch Patch, ReleaseAsset Asset, ReleaseAsset? Fallback);
+
     /// <summary>What an install will download, worked out before anything is fetched.</summary>
-    public sealed record Plan(IReadOnlyDictionary<string, string> Local, IReadOnlyList<(BuildFile File, ReleaseAsset Asset)> Downloads)
+    public sealed record Plan(
+        IReadOnlyDictionary<string, string> Local,
+        IReadOnlyList<(BuildFile File, ReleaseAsset Asset)> Downloads,
+        IReadOnlyList<PatchStep> Patches)
     {
-        /// <summary>Bytes to download: each asset once (a pack holds many files).</summary>
-        public long DownloadBytes => Downloads.DistinctBy(d => d.Asset.Id).Sum(d => d.Asset.Size);
+        /// <summary>Bytes to download: each asset once (a pack holds many files), plus every patch.</summary>
+        public long DownloadBytes => Downloads.DistinctBy(d => d.Asset.Id).Sum(d => d.Asset.Size) + Patches.Sum(p => p.Asset.Size);
     }
 
     /// <summary>
     /// Finds the files the player already has (by hashing the installed versions' files of the right sizes) and the
-    /// release asset of each file still missing. Throws <see cref="BlobUnavailableException"/> when an asset is gone.
+    /// release asset of each file still missing: the smallest usable patch from a local file when there is one, else
+    /// the file's blob. Throws <see cref="BlobUnavailableException"/> when a file has neither.
     /// </summary>
     public async Task<Plan> PlanAsync(BuildFiles files, IReadOnlyList<ReleaseInfo> feed, CancellationToken cancel)
     {
@@ -63,6 +76,7 @@ public sealed class DeltaInstaller
         }
 
         var downloads = new List<(BuildFile, ReleaseAsset)>();
+        var patches = new List<PatchStep>();
         var queued = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         foreach (BuildFile f in files.Files)
         {
@@ -72,22 +86,39 @@ public sealed class DeltaInstaller
             }
 
             BlobRef blob = f.Blob!;
-            if (!releases.TryGetValue(blob.Tag, out ReleaseInfo? release))
+            ReleaseAsset? blobAsset = await FindAssetAsync(releases, blob.Tag, blob.Name, cancel).ConfigureAwait(false);
+
+            // The smallest patch from a file the player has, when it is smaller than the blob (or the blob is gone).
+            PatchStep? step = null;
+            foreach (BuildPatch patch in (f.Patches ?? []).Where(p => local.ContainsKey(p.From)).OrderBy(p => p.Size))
             {
-                // Older than the first page of the release list.
-                release = await _github.GetReleaseByTagAsync(blob.Tag, cancel).ConfigureAwait(false);
-                releases[blob.Tag] = release;
+                if (blobAsset is not null && patch.Size >= blobAsset.Size)
+                {
+                    break;
+                }
+
+                // A patch missing from its release is skipped: the next patch or the blob stands in.
+                if (await FindAssetAsync(releases, patch.Tag, patch.Name, cancel).ConfigureAwait(false) is { } patchAsset)
+                {
+                    step = new PatchStep(f, patch, patchAsset, blobAsset);
+                    break;
+                }
             }
 
-            ReleaseAsset asset = release?.Assets.FirstOrDefault(a => string.Equals(a.Name, blob.Name, StringComparison.OrdinalIgnoreCase))
-                ?? throw new BlobUnavailableException($"{f.Path} is not available: release {blob.Tag} has no {blob.Name}.");
-            downloads.Add((f, asset));
+            if (step is not null)
+            {
+                patches.Add(step);
+            }
+            else
+            {
+                downloads.Add((f, blobAsset ?? throw new BlobUnavailableException($"{f.Path} is not available: release {blob.Tag} has no {blob.Name}.")));
+            }
         }
 
-        return new Plan(local, downloads);
+        return new Plan(local, downloads, patches);
     }
 
-    /// <summary>Builds the version folder from the plan: copies what is local, downloads and unpacks the rest.</summary>
+    /// <summary>Builds the version folder from the plan: copies what is local, downloads, patches and unpacks the rest.</summary>
     public async Task<string> InstallAsync(SemVersion version, BuildFiles files, Plan plan, IProgress<DownloadProgress>? progress, CancellationToken cancel)
     {
         ArgumentNullException.ThrowIfNull(version);
@@ -99,35 +130,66 @@ public sealed class DeltaInstaller
         string staging = _store.NewStagingDir(version);
         try
         {
-            // Downloads first, each asset once (a pack holds many small files), every file unpacked straight into its
-            // place and checked.
+            EnsureFreeSpace(staging, files, plan);
             long total = plan.DownloadBytes;
             long done = 0;
-            foreach (IGrouping<long, (BuildFile File, ReleaseAsset Asset)> group in plan.Downloads.GroupBy(d => d.Asset.Id))
+
+            async Task<string> DownloadAsync(ReleaseAsset asset)
             {
-                ReleaseAsset asset = group.First().Asset;
-                string blob = Path.Combine(blobs, Path.GetFileName(asset.Name));
+                string path = Path.Combine(blobs, Path.GetFileName(asset.Name));
                 long before = done;
                 var inner = progress is null ? null : new SyncProgress<DownloadProgress>(p =>
-                    progress.Report(new DownloadProgress(before + p.Received, total, p.BytesPerSecond)));
-                await _downloader.DownloadAsync(() => _github.CreateAssetRequest(asset), blob,
+                    progress.Report(new DownloadProgress(before + p.Received, Math.Max(total, before + p.Received), p.BytesPerSecond)));
+                await _downloader.DownloadAsync(() => _github.CreateAssetRequest(asset), path,
                     new DownloadIdentity(asset.Id, asset.Size, asset.UpdatedAt), inner, cancel).ConfigureAwait(false);
                 done += asset.Size;
+                return path;
+            }
 
+            // Downloads first, each asset once (a pack holds many small files), every file unpacked straight into its
+            // place and checked.
+            foreach (IGrouping<long, (BuildFile File, ReleaseAsset Asset)> group in plan.Downloads.GroupBy(d => d.Asset.Id))
+            {
+                string blob = await DownloadAsync(group.First().Asset).ConfigureAwait(false);
                 foreach ((BuildFile file, _) in group)
                 {
-                    string dest = Target(staging, file.Path);
-                    bool ok = file.Blob!.Member is { } member
-                        ? await UnpackMemberAsync(blob, member, dest, file.Sha256, cancel).ConfigureAwait(false)
-                        : await UnpackAsync(blob, dest, file.Sha256, cancel).ConfigureAwait(false);
-                    if (!ok)
+                    local[file.Sha256] = await UnpackOrRejectAsync(blob, file, staging, cancel).ConfigureAwait(false);
+                }
+            }
+
+            // Then the patched files, each from the local file its patch was made from. A patch that cannot be
+            // downloaded or does not apply (damaged, or the local file is not the one it was made from) gives way to
+            // the file's blob.
+            foreach (PatchStep step in plan.Patches)
+            {
+                cancel.ThrowIfCancellationRequested();
+                BuildFile file = step.File;
+                string dest = Target(staging, file.Path);
+                string? patchFile = null;
+                try
+                {
+                    patchFile = await DownloadAsync(step.Asset).ConfigureAwait(false);
+                    await ApplyPatchAsync(local[step.Patch.From], patchFile, dest, file, cancel).ConfigureAwait(false);
+                    local[file.Sha256] = dest;
+                    continue;
+                }
+                catch (Exception ex) when (!cancel.IsCancellationRequested
+                    && ex is InvalidDataException or IOException or UnauthorizedAccessException or HttpRequestException or KeyNotFoundException)
+                {
+                    if (patchFile is not null)
                     {
-                        File.Delete(blob);
-                        throw new UpdateRejectedException($"{file.Path} does not match its published SHA-256. The download was deleted; try again.");
+                        TryDeleteFile(patchFile);
                     }
 
-                    local[file.Sha256] = dest;
+                    if (step.Fallback is null)
+                    {
+                        throw new UpdateRejectedException($"{file.Path} could not be patched ({ex.Message}) and its full download is not available.");
+                    }
                 }
+
+                total += step.Fallback.Size;
+                string fallback = await DownloadAsync(step.Fallback).ConfigureAwait(false);
+                local[file.Sha256] = await UnpackOrRejectAsync(fallback, file, staging, cancel).ConfigureAwait(false);
             }
 
             // Then every file of the build, from wherever it now is.
@@ -158,11 +220,28 @@ public sealed class DeltaInstaller
         }
     }
 
-    /// <summary>SHA-256 to path of every file in the installed versions whose size one of the build's files has.</summary>
+    /// <summary>The asset <paramref name="name"/> of release <paramref name="tag"/>, or null when either is gone.</summary>
+    private async Task<ReleaseAsset?> FindAssetAsync(Dictionary<string, ReleaseInfo?> releases, string tag, string name, CancellationToken cancel)
+    {
+        if (!releases.TryGetValue(tag, out ReleaseInfo? release))
+        {
+            // Older than the first page of the release list.
+            release = await _github.GetReleaseByTagAsync(tag, cancel).ConfigureAwait(false);
+            releases[tag] = release;
+        }
+
+        return release?.Assets.FirstOrDefault(a => string.Equals(a.Name, name, StringComparison.OrdinalIgnoreCase));
+    }
+
+    /// <summary>
+    /// SHA-256 to path of every file in the installed versions whose size one of the build's files has, or one of the
+    /// old files its patches apply to.
+    /// </summary>
     private async Task<Dictionary<string, string>> IndexInstalledAsync(BuildFiles files, CancellationToken cancel)
     {
-        var sizes = new HashSet<long>(files.Files.Select(f => f.Size));
-        var wanted = new HashSet<string>(files.Files.Select(f => f.Sha256), StringComparer.OrdinalIgnoreCase);
+        List<BuildPatch> patches = files.Files.SelectMany(f => f.Patches ?? []).ToList();
+        var sizes = new HashSet<long>(files.Files.Select(f => f.Size).Concat(patches.Select(p => p.FromSize)));
+        var wanted = new HashSet<string>(files.Files.Select(f => f.Sha256).Concat(patches.Select(p => p.From)), StringComparer.OrdinalIgnoreCase);
         var found = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         var versions = new List<SemVersion>();
         if (_store.Current() is { } current)
@@ -204,6 +283,71 @@ public sealed class DeltaInstaller
         }
 
         return found;
+    }
+
+    /// <summary>
+    /// Unpacks <paramref name="file"/> from its downloaded blob into the staging folder and returns where; deletes the
+    /// download and throws when it does not match.
+    /// </summary>
+    private static async Task<string> UnpackOrRejectAsync(string blob, BuildFile file, string staging, CancellationToken cancel)
+    {
+        string dest = Target(staging, file.Path);
+        bool ok = file.Blob!.Member is { } member
+            ? await UnpackMemberAsync(blob, member, dest, file.Sha256, cancel).ConfigureAwait(false)
+            : await UnpackAsync(blob, dest, file.Sha256, cancel).ConfigureAwait(false);
+        if (!ok)
+        {
+            File.Delete(blob);
+            throw new UpdateRejectedException($"{file.Path} does not match its published SHA-256. The download was deleted; try again.");
+        }
+
+        return dest;
+    }
+
+    /// <summary>
+    /// Makes <paramref name="dest"/> from <paramref name="old"/> and the patch, off the calling thread (a big file takes
+    /// a while). Throws <see cref="InvalidDataException"/> when the patch is not for this file or does not apply.
+    /// </summary>
+    private static Task ApplyPatchAsync(string old, string patch, string dest, BuildFile file, CancellationToken cancel) => Task.Run(() =>
+    {
+        BinaryPatch.Header header = BinaryPatch.ReadHeader(patch);
+        if (header.NewSize != file.Size || !string.Equals(header.NewSha256, file.Sha256, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new InvalidDataException("the patch makes a different file");
+        }
+
+        Directory.CreateDirectory(Path.GetDirectoryName(dest)!);
+        BinaryPatch.Apply(old, patch, dest, cancel);
+    }, cancel);
+
+    /// <summary>
+    /// Stops before anything is written when the disk cannot hold the new version folder and the downloads (both live
+    /// in the launcher's folder). Skipped when the free space cannot be read.
+    /// </summary>
+    private static void EnsureFreeSpace(string staging, BuildFiles files, Plan plan)
+    {
+        long free;
+        try
+        {
+            string? root = Path.GetPathRoot(Path.GetFullPath(staging));
+            if (string.IsNullOrEmpty(root))
+            {
+                return;
+            }
+
+            free = new DriveInfo(root).AvailableFreeSpace;
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException)
+        {
+            return;
+        }
+
+        long needed = files.Files.Sum(f => f.Size) + plan.DownloadBytes;
+        if (free < needed)
+        {
+            throw new UpdateRejectedException(
+                $"Not enough free disk space for this update: it needs {needed / (1024 * 1024)} MB and {free / (1024 * 1024)} MB is free.");
+        }
     }
 
     /// <summary>Gunzips <paramref name="gz"/> to <paramref name="dest"/>; false (and no file) when the result has another SHA-256.</summary>
@@ -263,6 +407,18 @@ public sealed class DeltaInstaller
         return full.StartsWith(root, OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal)
             ? full
             : throw new UpdateRejectedException($"The build's file list names a path outside the build ({relative}).");
+    }
+
+    private static void TryDeleteFile(string path)
+    {
+        try
+        {
+            File.Delete(path);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            // A leftover download only costs disk space.
+        }
     }
 
     private static void TryDeleteDir(string dir)

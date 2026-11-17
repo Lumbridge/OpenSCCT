@@ -8,3 +8,4 @@
 *.gltf binary
 *.blend binary
 *.bin binary
+*.osdiff binary

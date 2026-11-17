@@ -253,6 +253,7 @@ The shared `game-files` prerelease stores the files downloaded by the launcher:
 | --- | --- |
 | `OpenSCCT-<version>-win-x64-files.json` | File paths, sizes, SHA-256 hashes and download locations |
 | `<sha256>.gz` | New file contents of 256 KB or more |
+| `<from>-<to>.osdiff` | Optional binary patch from an older version of a big file |
 | `OpenSCCT-<version>-win-x64-pack.zip` | Smaller new files, with entries named by hash |
 | `<asset>.sha256` | Checksums for the file list and launcher |
 
@@ -261,7 +262,7 @@ verifies missing files. Downloads resume where supported. It installs into a sta
 switches `install.json` atomically. A running game keeps its version; the switch waits until it exits.
 Cleanup retains the current and previous builds and avoids paths used by running games.
 
-**Keep the `game-files` release and every asset referenced by a published file list.** Older game
+**Keep the `game-files` release and every asset referenced by a published file list, patches included.** Older game
 versions can depend on those files. The publishing script stops before the release reaches 990 assets.
 `-BaseTag` selects a different delta base; `-NoDelta` creates a complete set of new blobs.
 
@@ -270,6 +271,29 @@ New blobs go to the new storage prerelease; reused blobs keep their original rel
 The version release also carries the file list, its checksum and the launcher's checksum, which existing
 launchers discover before looking in `game-files`. Delta lookup falls back to `game-files` for older bases.
 Keep every earlier storage release and its referenced assets.
+
+#### Binary patches
+
+A file entry in the file list may also carry `patches`, binary patches to this file from older versions of it:
+
+```json
+"patches": [ { "from": "<sha256 of the old file>", "fromSize": 167849984, "tag": "<release>",
+               "name": "<from>-<to>.osdiff", "size": 7746667 } ]
+```
+
+The list stays `format` 1, and older launchers ignore the field. The launcher also hashes installed files whose
+size matches a patch's `fromSize`. When a file is missing but a patch's `from` file is installed, the plan
+downloads the smallest such patch, provided it is smaller than the blob. Otherwise it downloads the full blob.
+Patch bytes count in the download total. The launcher skips a patch that is missing from its release and uses
+another patch or the blob, so this does not cause a full-zip install. If a patch does not apply (it is damaged,
+or the base file is not the one it was made from), the launcher downloads that file's blob instead. It stops
+only if the blob is also gone. Before writing anything, the install checks that the disk can hold the new
+version folder and the downloads.
+
+Patches are OSCTDIF1, bsdiff-style. They are written by OpenSCCT-Unreal's `Tools/ReleaseDelta`
+(`diff <old> <new> <patch>`), the reference for the format. `BinaryPatch.cs` documents the layout and applies a
+patch in-process. It checks the old file's size and SHA-256 first and the new file's SHA-256 at the end, and
+deletes partial output on failure. Each patch applies to one older file; the launcher does not chain patches.
 
 Older releases with a full game ZIP and `checksums.txt` remain supported. Drafts are ignored, and
 prereleases require the corresponding launcher setting. Assets without published checksums are rejected.
