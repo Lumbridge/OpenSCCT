@@ -56,7 +56,7 @@ public sealed class BrowserAccountApiTests
             web.DefaultRequestHeaders.Remove("X-OpenSCCT-Account");
             web.DefaultRequestHeaders.Add("X-OpenSCCT-Account", id.ToString(System.Globalization.CultureInfo.InvariantCulture));
             web.DefaultRequestHeaders.Add("Origin", "https://other.example");
-            using (var foreign = await web.PutAsJsonAsync(MasterApi.AccountPronounsPath, new PronounsRequest { Pronouns = "they/them" }, ct))
+            using (var foreign = await web.PutAsJsonAsync(MasterApi.AppearancePath, new AppearanceUpdateRequest { ExpectedRevision = store.Appearance(id).Revision }, ct))
                 Assert.Equal(HttpStatusCode.Unauthorized, foreign.StatusCode);
             web.DefaultRequestHeaders.Remove("Origin");
             web.DefaultRequestHeaders.Add("Origin", options.PublicUrl);
@@ -70,9 +70,10 @@ public sealed class BrowserAccountApiTests
                 Assert.NotNull(info.Achievements);
                 Assert.DoesNotContain("sessionToken", await account.Content.ReadAsStringAsync(ct), StringComparison.OrdinalIgnoreCase);
             }
-            using (var update = await web.PutAsJsonAsync(MasterApi.AccountPronounsPath, new PronounsRequest { Pronouns = "they/them" }, ct))
+            long appearanceRevision = store.Appearance(id).Revision;
+            using (var update = await web.PutAsJsonAsync(MasterApi.AppearancePath, new AppearanceUpdateRequest { ExpectedRevision = store.Appearance(id).Revision }, ct))
                 update.EnsureSuccessStatusCode();
-            Assert.Equal("they/them", store.Pronouns(id));
+            Assert.Equal(appearanceRevision + 1, store.Appearance(id).Revision);
             using (var history = await web.GetAsync(MasterApi.MatchHistoryPath, ct)) history.EnsureSuccessStatusCode();
             using (var unsafeProfile = await web.PutAsJsonAsync(MasterApi.ProfilePath,
                 new ProfileData { Data = "{}", Updated = DateTimeOffset.UtcNow }, ct))

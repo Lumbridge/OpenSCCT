@@ -81,7 +81,6 @@ internal sealed partial class PlayerPortal
                 Flags = _options.IsAdmin(viewer.Account.DiscordId) ? PlayerTicketFlags.Admin : PlayerTicketFlags.None,
                 Unlocks = CosmeticUnlocks.Of(_store.Unlocked(viewer.Account.Id)).ToBytes(),
                 Rank = _store.ProgressionOf(viewer.Account.Id).Rank.Pack(), Titles = TitleCatalog.ToBytes(_store.Titles(viewer.Account.Id)),
-                Pronouns = _store.Pronouns(viewer.Account.Id),
             });
         }
         DateTimeOffset now = DateTimeOffset.UtcNow;
