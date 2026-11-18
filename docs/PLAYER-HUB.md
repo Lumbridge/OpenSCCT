@@ -19,7 +19,7 @@ This is the website. The in-game social space is covered in the [social hub guid
 | Improvements | Browse OpenSCCT features with screenshots and links to their details. |
 | Updates | Read published release notes. |
 | Wiki | Search on-site gameplay, setup, hosting and map-editor guides without signing in. |
-| Help & feedback | Find guides, report bugs, suggest improvements and contribute changes. |
+| Help & feedback | Find guides, suggest improvements and contribute changes. |
 | My account | Manage your name, privacy, sign-ins, prestige, unlocked cosmetics and title. |
 
 **Join** opens `openscct://join/<server-id>`. On Windows, run the launcher once to register the handler;
@@ -56,8 +56,7 @@ The map editor is still in early development;
 the guides describe its current workflow without promising a public editor download.
 
 The **Help & feedback** page includes task-based guide links and expandable answers for joining, accounts,
-missing stats, downloads and reporting problems. Its existing bug-report flow still uses Discord sign-in and
-lets the player review the public report before submitting it.
+missing stats and downloads.
 
 **Updates** combines stable public GitHub releases for the game and Editor on one page, newest first.
 Game entries use green branding; Editor entries use blue branding and an Editor changelog title.
@@ -71,29 +70,8 @@ to return game releases.
 ### Help and contributions
 
 The public `/help` page links to setup guides, GitHub issues and contribution instructions.
-You do not need an account to read it. **Report a bug** opens a website form at `/help/report-bug`.
-Sign in with the same Discord account you use in OpenSCCT, describe the problem, then review the
-report before pressing **Send bug report**. You do not need a GitHub account. The website creates
-the public GitHub issue and gives you a link to follow it.
-
-Choose whether the problem concerns the game, launcher or website. Reports opened from the game
-or launcher can prefill the version, operating system and available match details. Check or edit
-these details, then describe how to reproduce the problem; reproduction steps are never
-filled in automatically. Reports opened directly on the website start blank. Website reports
-include the website's version, build and commit. Only the
-report text you review is published. Your player name, Discord ID, account details, network
-address and sign-in credentials are not added. Anything you type into the form will be public,
-so leave out passwords and personal information. The form accepts text and links, not file uploads.
-
-Each account can send up to three reports in 24 hours, at least one minute apart. Repeated sends
-of the same report return its existing result. If GitHub does not confirm the outcome, the website
-does not send it again automatically; check the issue list before trying again. A private receipt
-records the account, a hash of the report, submission time, result and issue number for 30 days to
-prevent duplicates and apply these limits. The full report text is not stored in that receipt.
-
-Feature suggestions and pull requests still open directly on GitHub and require a GitHub account.
-Your Discord sign-in does not sign you into GitHub. Server operators can enable the website form
-with the [bug-report setup instructions](ONLINE.md#website-bug-reports).
+Anyone can read these resources. Submitting a feature suggestion or opening a pull request requires
+signing in to GitHub.
 
 ### Profile privacy
 
@@ -187,6 +165,8 @@ self-contained and use related article links rather than sending readers to sour
 Database upgrades run transactionally and preserve existing accounts and history. The website's account,
 privacy, appearance and administration features require the matching master schema.
 Back up the stopped service's program, configuration, database and signing key together before deploying.
+Keep the existing `report-screenshots/` directory beside the master configuration in deployments and
+backups. Public links to previously published images use those files.
 
 Deploy the master with `tools/deploy/Deploy-Vps.ps1 -Services master`, then publish the compatible client through
 the existing release workflow. The launcher version changes only when its own code changes. Verify the public
@@ -212,8 +192,3 @@ Automated checks do not replace these browser and account-flow checks:
 - Confirm that updating a data panel leaves an edited form, selected filter and focused control intact.
 
 See [Online services](ONLINE.md), [Launcher](LAUNCHER.md) and [Privacy](legal/PRIVACY.md).
-
-Bug reports can include an optional PNG screenshot captured from the game's Help & feedback menu. When inclusion is checked, Report a bug attaches the capture automatically, including across Discord sign-in.
-Review or remove it in the browser before confirming publication. Private handoffs expire after 15 minutes. Screenshots are public with the issue;
-they are stored in `report-screenshots/` beside the master configuration and must be retained across deployments
-and included in backups. The existing report account limits also apply to screenshot submissions.

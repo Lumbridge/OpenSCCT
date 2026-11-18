@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using Godot;
 using OpenScct.Project;
 using OpenScctGame.Options;
@@ -28,13 +26,6 @@ public partial class HelpFeedbackScreen : MenuPage
     internal string? ScreenshotFolder { get; set; }
     internal string? ScreenshotFile { get; private set; }
     private Button? _showScreenshot;
-    private CheckBox? _includeScreenshot;
-    private byte[]? _screenshotPng;
-    private string? _screenshotDraft;
-    private DateTime _screenshotDraftExpires;
-    private readonly CancellationTokenSource _uploadCancellation = new();
-    private bool _openingReport;
-    internal Func<byte[], CancellationToken, Task<string>> UploadScreenshot { get; set; } = ReportScreenshotUpload.Send;
 
     internal ReportContext Context { get; init; } = new() { Source = ReportSource.Game };
     internal ProjectLinkActions? Actions { get; init; }
@@ -64,18 +55,16 @@ public partial class HelpFeedbackScreen : MenuPage
         _actions = Actions ?? new ProjectLinkActions(url => OS.ShellOpen(url) == Error.Ok, DisplayServer.ClipboardSet);
         DisableBackgroundFocus(GetParent());
         Body.AddThemeConstantOverride("separation", 12);
-        Text("Introduction", "Links open your browser. Bug reports use the OpenSCCT website and Discord sign-in. Feature requests and pull requests use GitHub sign-in.");
+        Text("Introduction", "Feature requests and pull requests open in your browser and use GitHub sign-in.");
         if (MatchContinues) Text("MatchContinues", "The match continues while this menu is open.", warning: true);
 
-        var report = Panel(Body, "Feedback", "Tell us about it");
-        Button first = AddLink(report, "Report a bug", ProjectDestination.BugReport, "ReportBug");
-        _firstAction = first;
-        AddLink(report, "Suggest a feature", ProjectDestination.FeatureRequest, "SuggestFeature");
-        AddLink(report, "Browse existing issues", ProjectDestination.Issues, "ExistingIssues");
+        var feedback = Panel(Body, "Feedback", "Tell us about it");
+        _firstAction = AddLink(feedback, "Suggest a feature", ProjectDestination.FeatureRequest, "SuggestFeature");
+        AddLink(feedback, "Browse existing issues", ProjectDestination.Issues, "ExistingIssues");
 
         if (GetTree().CurrentScene is PlayRoot && DisplayServer.GetName() != "headless")
         {
-            var capture = UiStyle.MenuButton("Capture game screenshot (optional)", CaptureScreenshot, "CaptureScreenshot");
+            var capture = UiStyle.MenuButton("Save game screenshot", CaptureScreenshot, "CaptureScreenshot");
             capture.CustomMinimumSize = new Vector2(0f, 42f);
             Body.AddChild(capture);
             _screenshotPreview = new TextureRect { Name = "ScreenshotPreview", Visible = false,
@@ -88,15 +77,13 @@ public partial class HelpFeedbackScreen : MenuPage
             }, "ShowScreenshot");
             _showScreenshot.Visible = false;
             Body.AddChild(_showScreenshot);
-            _includeScreenshot = new CheckBox { Name = "IncludeScreenshot", Text = "Include captured screenshot with bug report", Visible = false };
-            Body.AddChild(_includeScreenshot);
-            _screenshotStatus = Text("ScreenshotStatus", "Capture the game view and check the preview. Report a bug will attach it automatically when Include captured screenshot is checked.");
+            _screenshotStatus = Text("ScreenshotStatus", string.Empty);
         }
 
-        Text("DetailsHint", "The details below are prefilled in the report form for you to review, including your position and movement state when reporting from a map. No logs, account details or server addresses are attached.");
+        Text("DetailsHint", "Game and session details");
         var details = new TextEdit
         {
-            Name = "ReportDetails", Text = ProjectLinks.EnvironmentDetails(Context), Editable = false,
+            Name = "SessionDetails", Text = ProjectLinks.EnvironmentDetails(Context), Editable = false,
             CustomMinimumSize = new Vector2(0f, 140f), SizeFlagsHorizontal = SizeFlags.ExpandFill,
             WrapMode = TextEdit.LineWrappingMode.Boundary,
         };
@@ -122,20 +109,20 @@ public partial class HelpFeedbackScreen : MenuPage
         _viewport = GetViewport();
         _tree.NodeAdded += OnBackgroundNodeAdded;
         _viewport.GuiFocusChanged += KeepFocusInside;
-        first.CallDeferred(Control.MethodName.GrabFocus);
+        _firstAction.CallDeferred(Control.MethodName.GrabFocus);
     }
 
     public override void _Process(double delta)
     {
         base._Process(delta);
-        // TextEdit and nested containers settle over several frames; keep the first report action visible on entry.
+        // TextEdit and nested containers settle over several frames; keep the first action visible on entry.
         if (_initialLayoutFrames > 0 && --_initialLayoutFrames == 0 &&
             PageCanvas.GetNodeOrNull<ScrollContainer>("BodyScroll") is { } scroll) scroll.ScrollVertical = 0;
     }
 
     private async void CaptureScreenshot()
     {
-        if (_capturingScreenshot || _openingReport || _closed) return;
+        if (_capturingScreenshot || _closed) return;
         _capturingScreenshot = true;
         // Hide the whole menu ancestor, including its dimming panel, for one rendered frame.
         CanvasItem hidden = GetParent() as InGameMenu ?? (CanvasItem)this;
@@ -146,40 +133,23 @@ public partial class HelpFeedbackScreen : MenuPage
             await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
             if (_closed || !IsInsideTree()) return;
             using Image image = GetViewport().GetTexture().GetImage();
-            // Bound attachment size while retaining enough detail for gameplay reports.
-            if (image.GetWidth() > 1280 || image.GetHeight() > 1280)
-            {
-                float scale = 1280f / Math.Max(image.GetWidth(), image.GetHeight());
-                image.Resize(Math.Max(1, (int)(image.GetWidth() * scale)), Math.Max(1, (int)(image.GetHeight() * scale)));
-            }
             string folder = ScreenshotFolder ?? ProjectSettings.GlobalizePath("user://screenshots");
             Error directory = DirAccess.MakeDirRecursiveAbsolute(folder);
-            string file = System.IO.Path.Combine(folder, "report-" + DateTime.UtcNow.ToString("yyyyMMdd-HHmmss-fff") + ".png");
-            byte[] png = image.SavePngToBuffer();
-            while (png.Length > 2 * 1024 * 1024 && image.GetWidth() > 320 && image.GetHeight() > 240)
+            string file = System.IO.Path.Combine(folder, "screenshot-" + DateTime.UtcNow.ToString("yyyyMMdd-HHmmss-fff") + ".png");
+            if (directory != Error.Ok || image.SavePng(file) != Error.Ok)
             {
-                image.Resize(image.GetWidth() * 3 / 4, image.GetHeight() * 3 / 4);
-                png = image.SavePngToBuffer();
-            }
-            if (directory != Error.Ok || png.Length == 0 || png.Length > 2 * 1024 * 1024)
-            {
-                _screenshotStatus!.Text = "Could not save the screenshot. You can still report the bug without it.";
+                _screenshotStatus!.Text = "Could not save the screenshot.";
                 return;
             }
-            System.IO.File.WriteAllBytes(file, png);
             _screenshotPreview!.Texture = ImageTexture.CreateFromImage(image);
             _screenshotPreview.Show();
-            _screenshotStatus!.Text = "Screenshot ready. Report a bug will attach it automatically. You can remove it in the report form before publishing.";
-            _screenshotPng = png;
-            _screenshotDraft = null;
-            _includeScreenshot!.ButtonPressed = true;
-            _includeScreenshot.Show();
+            _screenshotStatus!.Text = "Screenshot saved.";
             ScreenshotFile = file;
             _showScreenshot!.Show();
         }
         catch (Exception error) when (error is System.IO.IOException or UnauthorizedAccessException)
         {
-            if (!_closed) _screenshotStatus!.Text = "Could not save the screenshot. You can still report the bug without it.";
+            if (!_closed) _screenshotStatus!.Text = "Could not save the screenshot.";
         }
         finally
         {
@@ -205,40 +175,11 @@ public partial class HelpFeedbackScreen : MenuPage
         return button;
     }
 
-    private async void OpenLink(ProjectDestination destination)
+    private void OpenLink(ProjectDestination destination)
     {
-        if (_openingReport || _capturingScreenshot || _closed) return;
-        if (destination != ProjectDestination.BugReport || _includeScreenshot?.ButtonPressed != true || _screenshotPng is null)
-        {
-            _actions!.Open(destination, Context);
-            RefreshMessage();
-            return;
-        }
-        _openingReport = true;
-        _firstAction!.Disabled = true;
-        try
-        {
-            _screenshotStatus!.Text = "Attaching screenshot…";
-            if (_screenshotDraft is null || DateTime.UtcNow >= _screenshotDraftExpires)
-            {
-                _screenshotDraft = await UploadScreenshot(_screenshotPng, _uploadCancellation.Token);
-                _screenshotDraftExpires = DateTime.UtcNow.AddMinutes(10);
-            }
-            if (_closed || !IsInsideTree()) return;
-            _screenshotStatus.Text = "Screenshot attached. Review it in the browser before publishing.";
-            _actions!.Open(destination, Context, _screenshotDraft);
-            RefreshMessage();
-        }
-        catch (Exception error) when (error is System.Net.Http.HttpRequestException or OperationCanceledException or System.Text.Json.JsonException)
-        {
-            if (!_closed && IsInsideTree())
-                _screenshotStatus!.Text = "Could not attach the screenshot. Try Report a bug again, or uncheck Include captured screenshot to continue without it.";
-        }
-        finally
-        {
-            _openingReport = false;
-            if (IsInstanceValid(_firstAction)) _firstAction.Disabled = false;
-        }
+        if (_closed) return;
+        _actions!.Open(destination, Context);
+        RefreshMessage();
     }
 
     private void RefreshMessage()
@@ -316,7 +257,6 @@ public partial class HelpFeedbackScreen : MenuPage
     {
         if (_closed) return;
         _closed = true;
-        _uploadCancellation.Cancel();
         RestoreFocus();
         QueueFree();
         Closed?.Invoke();
@@ -326,7 +266,6 @@ public partial class HelpFeedbackScreen : MenuPage
 
     public override void _ExitTree()
     {
-        _uploadCancellation.Cancel();
         if (IsInstanceValid(_tree)) _tree!.NodeAdded -= OnBackgroundNodeAdded;
         if (IsInstanceValid(_viewport)) _viewport!.GuiFocusChanged -= KeepFocusInside;
         RestoreFocus();

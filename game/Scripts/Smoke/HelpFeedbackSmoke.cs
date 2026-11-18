@@ -11,7 +11,7 @@ using OpenScctGame.UI;
 
 namespace OpenScctGame.Smoke;
 
-/// <summary>Real menu entry points and input, with fake browser/clipboard adapters and no report submission.</summary>
+/// <summary>Real menu entry points and input, with fake browser/clipboard adapters.</summary>
 public sealed class HelpFeedbackSmoke : SmokeTest
 {
     public const string TestName = "help-feedback";
@@ -21,7 +21,7 @@ public sealed class HelpFeedbackSmoke : SmokeTest
         ReportSession.OnlineClient, ReportSession.HubHost, ReportSession.HubClient, ReportSession.Replay];
     private static readonly (string Name, ProjectDestination Destination)[] Links =
     [
-        ("ReportBug", ProjectDestination.BugReport), ("SuggestFeature", ProjectDestination.FeatureRequest),
+        ("SuggestFeature", ProjectDestination.FeatureRequest),
         ("ExistingIssues", ProjectDestination.Issues), ("Documentation", ProjectDestination.Documentation),
         ("Contribute", ProjectDestination.Contributing), ("Development", ProjectDestination.Development),
         ("PullRequests", ProjectDestination.PullRequests), ("NewPullRequest", ProjectDestination.NewPullRequest),
@@ -41,7 +41,6 @@ public sealed class HelpFeedbackSmoke : SmokeTest
     private int _playPhase, _playFrames;
     private long _clientTick, _serverTick;
     private double _openedAt;
-    private string? _capturedScreenshot;
 
     public override SmokeResult Step(SmokeContext context)
     {
@@ -82,13 +81,15 @@ public sealed class HelpFeedbackSmoke : SmokeTest
                 if (_help is null) return SmokeResult.Fail(label + "help replaced the parent instead of opening over it");
                 error = LayoutProblem();
                 if (error is not null) break;
-                if (_viewport!.GuiGetFocusOwner() != Find<Button>("ReportBug"))
-                    return SmokeResult.Fail(label + "help did not focus its primary report action");
-                if (!Find<ScrollContainer>("BodyScroll").GetGlobalRect().Encloses(Find<Button>("ReportBug").GetGlobalRect()))
-                    return SmokeResult.Fail(label + "initial report action is scrolled out of view");
+                if (_help.FindChild("ReportBug", true, false) is not null)
+                    return SmokeResult.Fail(label + "help still offers bug reporting");
+                if (_viewport!.GuiGetFocusOwner() != Find<Button>("SuggestFeature"))
+                    return SmokeResult.Fail(label + "help did not focus its first feedback action");
+                if (!Find<ScrollContainer>("BodyScroll").GetGlobalRect().Encloses(Find<Button>("SuggestFeature").GetGlobalRect()))
+                    return SmokeResult.Fail(label + "first feedback action is scrolled out of view");
                 if (_case == 0) Shot("links");
                 _lobby?.AddRemotePlayer();
-                Press("ReportBug");
+                Press("SuggestFeature");
                 break;
             case 2:
                 if (_lobby is not null && _page!.FindChildren("*", nameof(Control), true, false).OfType<Control>()
@@ -97,9 +98,7 @@ public sealed class HelpFeedbackSmoke : SmokeTest
                 if (Find<Label>("ActionStatus").Text != _actions!.Message || !_actions.Message.Contains("Could not open", StringComparison.Ordinal))
                     return SmokeResult.Fail(label + "browser failure has no readable fallback");
                 if (Find<LineEdit>("TargetUrl").Text != _opened)
-                    return SmokeResult.Fail(label + "fallback address differs from requested report");
-                if (BugReportProblem(_opened, _help!.Context) is { } bugProblem)
-                    return SmokeResult.Fail(label + bugProblem);
+                    return SmokeResult.Fail(label + "fallback address differs from the requested link");
                 error = LayoutProblem();
                 if (error is not null) break;
                 if (_case == 0) Shot("browser-fallback");
@@ -123,7 +122,7 @@ public sealed class HelpFeedbackSmoke : SmokeTest
                     return SmokeResult.Fail(label + "lobby role was lost");
                 _copyFails = true;
                 Press("CopyDetails");
-                if (!Find<Label>("ActionStatus").Text.Contains("copy it manually", StringComparison.Ordinal) || Find<TextEdit>("ReportDetails").Editable)
+                if (!Find<Label>("ActionStatus").Text.Contains("copy it manually", StringComparison.Ordinal) || Find<TextEdit>("SessionDetails").Editable)
                     return SmokeResult.Fail(label + "clipboard failure removed selectable details");
                 _copyFails = false;
                 KeyInput(Key.Tab);
@@ -212,7 +211,7 @@ public sealed class HelpFeedbackSmoke : SmokeTest
         {
             var menu = new HubScreen { HelpActions = _actions };
             _viewport.AddChild(menu); _page = menu; _entry = menu.HelpButton;
-            ((LineEdit)menu.FindChild("Address", true, false)).Text = "private-address-not-in-report.invalid";
+            ((LineEdit)menu.FindChild("Address", true, false)).Text = "private-hub.invalid";
         }
         else
         {
@@ -244,7 +243,7 @@ public sealed class HelpFeedbackSmoke : SmokeTest
             !_lobby.Members.First(p => p.IsLocal).Ready || lobby.Parameters!.Setup.TimeLimit != (_lobby.CanControl ? 7 : 10) || _lobby.Setup.TimeLimit != 10 ||
             ((LineEdit)lobby.FindChild("ChatLine", true, false)).Text != "Unsent chat survives help"))
             return "help changed lobby membership, ready state, draft settings or unsent chat";
-        if (_page is HubScreen hub && ((LineEdit)hub.FindChild("Address", true, false)).Text != "private-address-not-in-report.invalid")
+        if (_page is HubScreen hub && ((LineEdit)hub.FindChild("Address", true, false)).Text != "private-hub.invalid")
             return "help changed the hub form";
         return null;
     }
@@ -252,7 +251,7 @@ public sealed class HelpFeedbackSmoke : SmokeTest
     private SmokeResult PlayStep(SmokeContext context)
     {
         if (_playPhase == 4)
-            return ++_playFrames < 6 ? SmokeResult.Running : SmokeResult.Pass("800x600, 720p, 4K: all links and copy failures; keyboard/controller/Back; dynamic lobby focus and drafts; six report contexts; actual TestBox session keeps ticking with movement blocked and Escape returns to its open menu");
+            return ++_playFrames < 6 ? SmokeResult.Running : SmokeResult.Pass("800x600, 720p, 4K: all links and copy failures; keyboard/controller/Back; dynamic lobby focus and drafts; six session roles; actual TestBox session keeps ticking with movement blocked and Escape returns to its open menu");
         if (_play is null)
         {
             context.Tree.Root.Size = new Vector2I(1280, 720);
@@ -284,9 +283,6 @@ public sealed class HelpFeedbackSmoke : SmokeTest
                     help.Context.Session != ReportSession.Offline || help.Context.Map != "TestBox" ||
                     help.FindChild("MatchContinues", true, false) is null || _play.Controls!.Enabled)
                     return SmokeResult.Fail("live match help has wrong context, no continuing-match notice, or active player controls");
-                ((Button)help.FindChild("ReportBug", true, false)).EmitSignal(Button.SignalName.Pressed);
-                if (BugReportProblem(_opened, help.Context) is { } liveBugProblem)
-                    return SmokeResult.Fail("live match bug report: " + liveBugProblem);
                 if (DisplayServer.GetName() != "headless")
                 {
                     help.ScreenshotFolder = Path.Combine(RenderSmokeArgs.RepoRoot, "local", "help-feedback-smoke", "captures");
@@ -300,40 +296,14 @@ public sealed class HelpFeedbackSmoke : SmokeTest
                 if (DisplayServer.GetName() != "headless")
                 {
                     var captureHelp = menu.Menu.GetNode<HelpFeedbackScreen>("HelpFeedback");
-                    _capturedScreenshot = captureHelp.ScreenshotFile;
-                    if (_capturedScreenshot is null || !File.Exists(_capturedScreenshot) ||
+                    string? screenshot = captureHelp.ScreenshotFile;
+                    if (screenshot is null || !File.Exists(screenshot) ||
                         captureHelp.FindChild("ScreenshotPreview", true, false) is not TextureRect { Visible: true, Texture: not null } ||
                         menu.Menu.Modulate.A != 1f)
                         return SmokeResult.Fail("game screenshot was not saved, previewed, or menu visibility was not restored");
-                    int uploads = 0;
-                    string previousUrl = _opened;
-                    captureHelp.UploadScreenshot = (_, _) =>
-                    {
-                        uploads++;
-                        return System.Threading.Tasks.Task.FromException<string>(new System.Net.Http.HttpRequestException("deliberate smoke failure"));
-                    };
-                    ((Button)captureHelp.FindChild("ReportBug", true, false)).EmitSignal(Button.SignalName.Pressed);
-                    if (_opened != previousUrl || !((Label)captureHelp.FindChild("ScreenshotStatus", true, false)).Text.Contains("Could not attach", StringComparison.Ordinal))
-                        return SmokeResult.Fail("failed screenshot upload opened an incomplete report or lost the retry message");
-                    captureHelp.UploadScreenshot = (png, _) =>
-                    {
-                        uploads++;
-                        return System.Threading.Tasks.Task.FromResult(new string('a', 64));
-                    };
-                    ((Button)captureHelp.FindChild("ReportBug", true, false)).EmitSignal(Button.SignalName.Pressed);
-                    if (!_opened.Contains("&capture=" + new string('a', 64), StringComparison.Ordinal) || uploads != 2)
-                        return SmokeResult.Fail("captured screenshot was not automatically attached to the report URL");
-                    ((Button)captureHelp.FindChild("ReportBug", true, false)).EmitSignal(Button.SignalName.Pressed);
-                    if (uploads != 2) return SmokeResult.Fail("reopening the browser reuploaded the same capture");
-                    ((CheckBox)captureHelp.FindChild("IncludeScreenshot", true, false)).ButtonPressed = false;
-                    ((Button)captureHelp.FindChild("ReportBug", true, false)).EmitSignal(Button.SignalName.Pressed);
-                    if (_opened.Contains("capture=", StringComparison.Ordinal) || uploads != 2)
-                        return SmokeResult.Fail("unchecking the screenshot still attached or uploaded it");
-                    using Image preview = context.Tree.Root.GetTexture().GetImage();
-                    preview.SavePng(Path.Combine(RenderSmokeArgs.RepoRoot, "local", "help-feedback-smoke", "capture-preview.png"));
-                    using Image captured = Image.LoadFromFile(_capturedScreenshot);
-                    if (captured.IsEmpty() || captured.GetWidth() > 1280 || captured.GetHeight() > 1280 || new FileInfo(_capturedScreenshot).Length > 2 * 1024 * 1024)
-                        return SmokeResult.Fail("game screenshot is empty or exceeds attachment limits");
+                    using Image saved = Image.LoadFromFile(screenshot);
+                    if (saved.IsEmpty() || captureHelp.FindChild("IncludeScreenshot", true, false) is not null)
+                        return SmokeResult.Fail("game screenshot is empty or offered as an attachment");
                 }
                 if (!ReferenceEquals(_play.Session, _playSession) || context.Tree.CurrentScene != _play || _playSession!.IsStopped ||
                     _playSession.ServerFailure is not null || _playSession.Client.LocalTick <= _clientTick ||
@@ -356,37 +326,6 @@ public sealed class HelpFeedbackSmoke : SmokeTest
                 break;
         }
         return SmokeResult.Running;
-    }
-
-    private static string? BugReportProblem(string url, ReportContext expected)
-    {
-        if (!Uri.TryCreate(url, UriKind.Absolute, out Uri? uri) || uri.Scheme != Uri.UriSchemeHttps ||
-            uri.Host != "master.lumbridge.co.uk" || uri.AbsolutePath != "/help/report-bug")
-            return "bug report does not open the website Discord reporting flow";
-        var query = uri.Query.TrimStart('?').Split('&', StringSplitOptions.RemoveEmptyEntries)
-            .Select(part => part.Split('=', 2)).ToDictionary(part => Uri.UnescapeDataString(part[0]),
-                part => part.Length == 2 ? Uri.UnescapeDataString(part[1].Replace("+", " ", StringComparison.Ordinal)) : string.Empty);
-        if (!query.TryGetValue("area", out string? area) || area != "game" ||
-            !query.TryGetValue("version", out string? version) || version != "OpenSCCT game " + expected.Version ||
-            !query.TryGetValue("platform", out string? platform) || platform != expected.Platform)
-            return "website report lost its game area, version or platform prefill";
-        if (!query.TryGetValue("environment", out string? environment) || environment != ProjectLinks.EnvironmentDetails(expected))
-            return "website report lost the displayed environment details";
-        foreach (var (label, value) in new[] { ("Game version", expected.Version), ("Build", expected.Build),
-            ("Commit", expected.Commit), ("Platform", expected.Platform), ("Map", expected.Map), ("Mode", expected.Mode), ("Side", expected.Side) })
-            if (!string.IsNullOrEmpty(value) && !environment.Split('\n').Contains(label + ": " + value))
-                return "website report lost its " + label + " context";
-        string? session = expected.Session switch
-        {
-            ReportSession.Menu => "Menus", ReportSession.Offline => "Offline",
-            ReportSession.OnlineHost => "Online host", ReportSession.OnlineClient => "Online client",
-            ReportSession.HubHost => "Hub host", ReportSession.HubClient => "Hub client", ReportSession.Replay => "Replay", _ => null,
-        };
-        if (session is not null && !environment.Split('\n').Contains("Session: " + session))
-            return "website report lost its session role";
-        if (environment.Contains("private-address-not-in-report.invalid", StringComparison.Ordinal))
-            return "website report included the private hub address";
-        return null;
     }
 
     private string? LayoutProblem()

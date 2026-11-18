@@ -397,7 +397,7 @@ public static class UiStyle
     {
         Button button = MenuButton("Help & feedback", pressed, "HelpFeedbackButton");
         button.Flat = true;
-        button.TooltipText = "Guides, bug reports and suggestions";
+        button.TooltipText = "Guides and feature suggestions";
         button.CustomMinimumSize = new Vector2(0f, 36f);
         button.AddThemeFontSizeOverride("font_size", 18);
         button.AnchorLeft = button.AnchorRight = 1f;

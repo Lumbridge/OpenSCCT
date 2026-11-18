@@ -326,7 +326,7 @@ internal sealed partial class MainForm : Form
         _mainLayout = root;
 
         _tips.SetToolTip(_website, "Visit the OpenSCCT website in your browser.");
-        _tips.SetToolTip(_help, "Get help, report a problem or contribute to OpenSCCT.");
+        _tips.SetToolTip(_help, "Get help, suggest a feature or contribute to OpenSCCT.");
         _tips.SetToolTip(_mapsButton, "Download new maps made by the community.");
 
         _main.Click += async (_, _) => await DoNextAsync();

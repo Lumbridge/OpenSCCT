@@ -105,5 +105,5 @@ internal sealed partial class PlayerPortal
         Section("Getting started", "<div class=\"grid-three\">" +
             Feature("01", "Playing without an account", "You can play offline and join servers marked Guests welcome from inside the game without an account. Sign in with Discord to reserve a name and save your stats.", "/account", "Set up your account →") +
             Feature("02", "Games and hubs", "The server list shows available games and social hubs. Some servers require an account or password.", "/servers", "View games and hubs →") +
-            Feature("03", "Installation help", "Setup guides, bug reports and suggestions.", "/help", "View help →") + "</div>"));
+            Feature("03", "Installation help", "Setup guides, troubleshooting and suggestions.", "/help", "View help →") + "</div>"));
 }

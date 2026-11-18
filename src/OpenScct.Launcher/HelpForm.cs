@@ -8,7 +8,7 @@ using OpenScct.Project;
 
 namespace OpenScct.Launcher.App;
 
-/// <summary>Project links and report details, independent of the launcher's active operation.</summary>
+/// <summary>Project links and version details, independent of the launcher's active operation.</summary>
 internal sealed class HelpForm : Form
 {
     private readonly ReportContext _context;
@@ -20,7 +20,7 @@ internal sealed class HelpForm : Form
     private readonly TextBox _details = Theme.TextBox();
     private readonly TextBox _address = Theme.TextBox();
     private readonly Label _message = Theme.Label(string.Empty, Theme.Small, Theme.Muted);
-    private readonly Button _reportBug;
+    private readonly Button _firstAction;
     private readonly Panel _scroll;
 
     internal HelpForm(ReportContext context, Func<string, bool>? open = null, Action<string>? copy = null,
@@ -78,14 +78,17 @@ internal sealed class HelpForm : Form
         Row(Theme.Label(IsEditor ? "Editor help && feedback" : "Help && feedback", Theme.Heading, Theme.Accent), 0);
         Row(Theme.Wrapping(Theme.Label(IsEditor
             ? "Editor documentation and reports open on GitHub. For installation or launcher problems, use Launcher help."
-            : "Links open in your browser. Bug reports use the website with Discord sign-in; feature suggestions and pull requests require GitHub sign-in.", Theme.Body, Theme.Muted)));
+            : "Links open in your browser. Sign in to GitHub to suggest a feature or open a pull request.", Theme.Body, Theme.Muted)));
 
-        _reportBug = LinkButton("Report a &bug", ProjectDestination.BugReport);
-        Row(Links(_reportBug,
-            LinkButton("Suggest a &feature", ProjectDestination.FeatureRequest),
-            LinkButton("Browse existing &issues", ProjectDestination.Issues)));
+        Button suggest = LinkButton("Suggest a &feature", ProjectDestination.FeatureRequest);
+        Button issues = LinkButton("Browse existing &issues", ProjectDestination.Issues);
         if (IsEditor)
         {
+            Button report = Theme.Button("Report a &bug");
+            report.Name = "EditorBugReport";
+            report.Click += (_, _) => OpenEditorLink(EditorRepository + "/issues/new?body=" + Uri.EscapeDataString(_details.Text));
+            Row(Links(report, suggest, issues));
+            _firstAction = report;
             Button launcherHelp = Theme.Button("Launcher help");
             launcherHelp.Name = "LauncherHelp";
             launcherHelp.Click += (_, _) =>
@@ -97,12 +100,17 @@ internal sealed class HelpForm : Form
             };
             Row(launcherHelp);
         }
+        else
+        {
+            Row(Links(suggest, issues));
+            _firstAction = suggest;
+        }
 
         var copyDetails = Theme.Button("Copy d&etails");
         copyDetails.Name = "CopyDetails";
         copyDetails.Click += (_, _) => CopyDetails();
         TableLayoutPanel detailsHeader = Theme.Grid(Theme.Fill, Theme.Auto);
-        Theme.AddRow(detailsHeader, Theme.Wrapping(Theme.Label("Version details for your report", Theme.Heading)), copyDetails);
+        Theme.AddRow(detailsHeader, Theme.Wrapping(Theme.Label("Version details", Theme.Heading)), copyDetails);
         Row(detailsHeader, 16);
         Row(Theme.Wrapping(Theme.Label("The launcher includes these version details only. It does not attach logs, account details or local paths.", Theme.Body, Theme.Muted)));
         _details.Name = "ReportDetails";
@@ -112,7 +120,7 @@ internal sealed class HelpForm : Form
         _details.Height = 116;
         _details.Text = ProjectLinks.EnvironmentDetails(context).Replace("\n", Environment.NewLine, StringComparison.Ordinal);
         if (IsEditor) _details.Text = "Editor version: " + (editorVersion ?? "Not installed") + Environment.NewLine + _details.Text;
-        _details.AccessibleName = "Version details for your report";
+        _details.AccessibleName = "Version details";
         Row(_details);
 
         Row(Theme.Label("Contribute", Theme.Heading, Theme.Accent), 16);
@@ -141,7 +149,7 @@ internal sealed class HelpForm : Form
     protected override void OnShown(EventArgs e)
     {
         base.OnShown(e);
-        _reportBug.Focus();
+        _firstAction.Focus();
     }
 
     private Button LinkButton(string label, ProjectDestination destination)
@@ -152,13 +160,7 @@ internal sealed class HelpForm : Form
         {
             if (IsEditor)
             {
-                string url = EditorUrl(destination);
-                bool editorOpened = false;
-                try { editorOpened = _open(url); }
-                catch (Exception ex) when (ex is ExternalException or InvalidOperationException or NotSupportedException or UnauthorizedAccessException) { }
-                _address.Text = url;
-                _address.Visible = !editorOpened;
-                ShowMessage(editorOpened, editorOpened ? string.Empty : "Could not open your browser. Copy the link and open it in your browser.");
+                OpenEditorLink(EditorUrl(destination));
                 return;
             }
             bool opened = _actions.Open(destination, _context);
@@ -203,20 +205,30 @@ internal sealed class HelpForm : Form
         }
     }
 
-    private string EditorUrl(ProjectDestination destination)
+    private void OpenEditorLink(string url)
     {
-        const string repo = "https://github.com/Lumbridge/OpenSCCT-Editor";
+        bool opened = false;
+        try { opened = _open(url); }
+        catch (Exception ex) when (ex is ExternalException or InvalidOperationException or NotSupportedException or UnauthorizedAccessException) { }
+        _address.Text = url;
+        _address.Visible = !opened;
+        ShowMessage(opened, opened ? string.Empty : "Could not open your browser. Copy the link and open it in your browser.");
+    }
+
+    private const string EditorRepository = "https://github.com/Lumbridge/OpenSCCT-Editor";
+
+    private static string EditorUrl(ProjectDestination destination)
+    {
         return destination switch
         {
-            ProjectDestination.BugReport => repo + "/issues/new?body=" + Uri.EscapeDataString(_details.Text),
-            ProjectDestination.FeatureRequest => repo + "/issues/new",
-            ProjectDestination.Issues => repo + "/issues",
-            ProjectDestination.Documentation => repo + "/blob/main/README.md",
-            ProjectDestination.Contributing => repo + "/blob/main/CONTRIBUTING.md",
-            ProjectDestination.Development => repo + "/blob/main/README.md#build-from-source",
-            ProjectDestination.PullRequests => repo + "/pulls",
-            ProjectDestination.NewPullRequest => repo + "/compare?expand=1",
-            _ => repo,
+            ProjectDestination.FeatureRequest => EditorRepository + "/issues/new",
+            ProjectDestination.Issues => EditorRepository + "/issues",
+            ProjectDestination.Documentation => EditorRepository + "/blob/main/README.md",
+            ProjectDestination.Contributing => EditorRepository + "/blob/main/CONTRIBUTING.md",
+            ProjectDestination.Development => EditorRepository + "/blob/main/README.md#build-from-source",
+            ProjectDestination.PullRequests => EditorRepository + "/pulls",
+            ProjectDestination.NewPullRequest => EditorRepository + "/compare?expand=1",
+            _ => EditorRepository,
         };
     }
 

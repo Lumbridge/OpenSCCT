@@ -57,7 +57,7 @@ internal static class WebHtml
                 "home" => "OpenSCCT is an open-source rewrite of Splinter Cell: Chaos Theory's Spies vs. Mercenaries mode for Windows and Linux.",
                 "wiki" when editorTheme => "OpenSCCT Editor documentation for map projects, geometry, events, lighting and playtesting.",
                 "wiki" => "OpenSCCT documentation for gameplay, gadgets, hosting, controls and map editing.",
-                "help" => "OpenSCCT installation, troubleshooting, bug reporting and contribution guides.",
+                "help" => "OpenSCCT installation, troubleshooting and contribution guides.",
                 _ => "OpenSCCT equipment, practice, replays, player statistics and configuration options.",
             })).Append("\">");
         if (active == "account") html.Append("<meta name=\"robots\" content=\"noindex, nofollow\">");

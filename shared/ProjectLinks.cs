@@ -7,7 +7,7 @@ namespace OpenScct.Project;
 
 internal enum ProjectDestination
 {
-    BugReport, FeatureRequest, Issues, Documentation, Contributing, Development, PullRequests, NewPullRequest, Help,
+    FeatureRequest, Issues, Documentation, Contributing, Development, PullRequests, NewPullRequest, Help,
 }
 
 internal enum ReportSource { Game, Launcher, Website }
@@ -39,18 +39,10 @@ internal static class ProjectLinks
     private const int MaximumEnvironmentLength = 2000;
     private const int MaximumUrlLength = 4096;
 
-    public static string Url(ProjectDestination destination, ReportContext? context = null, string? capture = null)
+    public static string Url(ProjectDestination destination, ReportContext? context = null)
     {
-        if (capture is not null)
-        {
-            if (capture.Length != 64) throw new ArgumentException("Invalid screenshot capture.", nameof(capture));
-            foreach (char c in capture)
-                if (c is not (>= '0' and <= '9') and not (>= 'a' and <= 'f'))
-                    throw new ArgumentException("Invalid screenshot capture.", nameof(capture));
-        }
         string url = destination switch
         {
-            ProjectDestination.BugReport => Website + "/help/report-bug",
             ProjectDestination.FeatureRequest => Repository + "/issues/new?template=feature_request.yml",
             ProjectDestination.Issues => Repository + "/issues",
             ProjectDestination.Documentation => Repository + "/blob/main/docs/README.md",
@@ -61,28 +53,13 @@ internal static class ProjectLinks
             ProjectDestination.Help => Website + "/help",
             _ => throw new ArgumentOutOfRangeException(nameof(destination)),
         };
-        if (context is null || destination is not (ProjectDestination.BugReport or ProjectDestination.FeatureRequest)) return url;
-        if (destination == ProjectDestination.BugReport)
-        {
-            string area = context.Source switch { ReportSource.Launcher => "launcher", ReportSource.Website => "website", _ => "game" };
-            // Match the website form limits. Bound each detail instead of dropping match context when a URL is long.
-            for (int limit = MaximumValueLength; ; limit /= 2)
-            {
-                string report = url + "?area=" + area + "&version=" + Uri.EscapeDataString(VersionSummary(context, limit)) +
-                    "&platform=" + Uri.EscapeDataString(Clean(context.Platform, Math.Min(80, limit))) +
-                    "&environment=" + Uri.EscapeDataString(EnvironmentDetails(context, limit)) +
-                    (capture is null ? "" : "&capture=" + Uri.EscapeDataString(capture));
-                if (report.Length <= MaximumUrlLength) return report;
-            }
-        }
+        if (context is null || destination != ProjectDestination.FeatureRequest) return url;
         string withEnvironment = url + "&environment=" + Uri.EscapeDataString(EnvironmentDetails(context with { PlayerLocation = null }));
         // Unusually long encoded map names must not prevent opening the form. Details remain available to copy.
         return withEnvironment.Length <= MaximumUrlLength ? withEnvironment : url;
     }
 
-    public static string EnvironmentDetails(ReportContext context) => EnvironmentDetails(context, MaximumValueLength);
-
-    private static string EnvironmentDetails(ReportContext context, int valueLength)
+    public static string EnvironmentDetails(ReportContext context)
     {
         ArgumentNullException.ThrowIfNull(context);
         var lines = new List<string> { "Source: " + SourceName(context.Source) };
@@ -119,24 +96,16 @@ internal static class ProjectLinks
         {
             const string label = "\nPlayer state:\n";
             int available = Math.Max(0, MaximumEnvironmentLength - details.Length - label.Length);
-            // Shrink the multiline diagnostics with the other fields when URL encoding exceeds the browser limit.
-            int diagnosticLength = Math.Min(available, MaximumEnvironmentLength * valueLength / MaximumValueLength);
-            string diagnostic = Clean(context.PlayerLocation, diagnosticLength, preserveNewlines: true);
+            string diagnostic = Clean(context.PlayerLocation, available, preserveNewlines: true);
             if (diagnostic.Length > 0) details += label + diagnostic;
         }
         return details;
 
         void Add(string label, string? value)
         {
-            string cleaned = Clean(value, valueLength);
+            string cleaned = Clean(value);
             if (cleaned.Length > 0) lines.Add(label + ": " + cleaned);
         }
-    }
-
-    private static string VersionSummary(ReportContext context, int valueLength)
-    {
-        string version = Clean(context.Source == ReportSource.Launcher ? context.LauncherVersion ?? context.Version : context.Version, valueLength);
-        return Clean(SourceName(context.Source) + (version.Length > 0 ? " " + version : " (version unavailable)"), 120);
     }
 
     private static string SourceName(ReportSource source) => source switch
@@ -167,9 +136,9 @@ internal sealed class ProjectLinkActions(Func<string, bool> open, Action<string>
     public string TargetUrl { get; private set; } = string.Empty;
     public string Message { get; private set; } = string.Empty;
 
-    public bool Open(ProjectDestination destination, ReportContext? context = null, string? capture = null)
+    public bool Open(ProjectDestination destination, ReportContext? context = null)
     {
-        TargetUrl = ProjectLinks.Url(destination, context, capture);
+        TargetUrl = ProjectLinks.Url(destination, context);
         try
         {
             if (open(TargetUrl)) { Message = string.Empty; return true; }

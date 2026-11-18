@@ -1,5 +1,7 @@
 using System;
 using System.Globalization;
+using System.IO;
+using System.Linq;
 using System.Net;
 using System.Security.Cryptography;
 using System.Text;
@@ -15,13 +17,12 @@ namespace OpenScct.Master.Player;
 
 /// <summary>The public player site and its independent, account-scoped browser session.</summary>
 internal sealed partial class PlayerPortal(MasterOptions options, AccountStore store, ServerRegistry registry, Func<HttpContext, IPAddress> clientIp,
-    ReleaseChangelog releases, GitHubBugReports? bugReports = null, string? browserGameRoot = null, TicketSigner? browserTickets = null,
+    ReleaseChangelog releases, string? browserGameRoot = null, TicketSigner? browserTickets = null,
     string? browserContentRoot = null)
 {
     internal const string SessionCookie = "svm_player";
     private const string StateCookie = "svm_player_state";
     private const string ReturnCookie = "svm_player_return";
-    private const string ReportReturnPath = "/help/report-bug";
     // Leave room for cookie serialization overhead below browsers' per-cookie limit.
     private static readonly ChunkingCookieManager ReturnCookies = new() { ChunkSize = 4000 };
     private const int PageSize = 24;
@@ -38,8 +39,15 @@ internal sealed partial class PlayerPortal(MasterOptions options, AccountStore s
         Get(app, "/", Home);
         Get(app, "/download", Download);
         Get(app, "/help", Help);
+        // Installed clients can still open the old form with private session details in its query.
+        Get(app, "/help/report-bug", c =>
+        {
+            c.Response.Headers["Referrer-Policy"] = "no-referrer";
+            c.Response.Headers.CacheControl = "no-store";
+            return Results.Redirect("/help");
+        });
         MapWiki(app);
-        MapBugReports(app);
+        Get(app, "/help/report-screenshots/{id}.png", PublishedScreenshot);
         MapBrowserGame(app);
         Get(app, "/improvements", Improvements);
         Get(app, "/progress", _ => Results.Redirect("/improvements"));
@@ -61,6 +69,19 @@ internal sealed partial class PlayerPortal(MasterOptions options, AccountStore s
         Post(app, "/account/appearance", (c, v, f) => ChangeAppearance(c, v, f));
         Post(app, "/account/security", (c, v, f) => RevokeSession(c, v, f));
         Post(app, "/account/logout", (c, v, f) => Logout(c, v));
+    }
+
+    // Existing GitHub issues embed these published attachments by content hash.
+    private IResult PublishedScreenshot(HttpContext c)
+    {
+        string? id = c.Request.RouteValues["id"]?.ToString();
+        if (id is not { Length: 64 } || !id.All(ch => ch is >= '0' and <= '9' or >= 'a' and <= 'f'))
+            return Results.NotFound();
+        string file = Path.Combine(_options.ResolvePath("report-screenshots"), id + ".png");
+        if (!File.Exists(file)) return Results.NotFound();
+        c.Response.Headers["X-Content-Type-Options"] = "nosniff";
+        c.Response.Headers["Content-Security-Policy"] = "default-src 'none'";
+        return Results.File(file, "image/png");
     }
 
     private static void Get(WebApplication app, string pattern, Func<HttpContext, IResult> handler) =>
@@ -118,7 +139,7 @@ internal sealed partial class PlayerPortal(MasterOptions options, AccountStore s
     private IResult SignIn(HttpContext c, string? problem = null, int status = 200, string? returnTo = null) =>
         Show(c, "Sign in", "account", $"<section class=\"panel signed-out\"><img src=\"{H(AssetUrl("/web/assets/mark.svg"))}\" alt=\"\" width=\"58\" height=\"58\">" +
             "<p class=\"eyebrow\">YOUR OPENSCCT ACCOUNT</p><h1>Sign in</h1><p class=\"lead\">" +
-            (LoginDestination(returnTo).StartsWith("/play/", StringComparison.Ordinal) ? "Sign in to use your settings and bindings in the browser. " : LoginDestination(returnTo) != "/account" ? "Sign in to report a bug. " : "View your stats and manage your account. ") +
+            (LoginDestination(returnTo).StartsWith("/play/", StringComparison.Ordinal) ? "Sign in to use your settings and bindings in the browser. " : "View your stats and manage your account. ") +
             "Use the same Discord account you use in OpenSCCT.</p>" + Link(LoginLink(returnTo), "Sign in with Discord →", "button wide") +
             "<small>Discord confirms which account is yours. OpenSCCT does not receive your Discord password, email address or friends list.</small>" +
             "<p class=\"account-side-note\">You can browse this website, play offline and join servers that allow guests without signing in.</p></section>", problem, problem is not null, status);
@@ -163,7 +184,7 @@ internal sealed partial class PlayerPortal(MasterOptions options, AccountStore s
         return Results.Content("<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">" +
             $"<meta http-equiv=\"refresh\" content=\"0;url={H(destination)}\"><title>Signed in · OpenSCCT</title><link rel=\"stylesheet\" href=\"{H(AssetUrl("/web/assets/site.css"))}\"></head>" +
             "<body><main class=\"site-main\"><h1>Signed in.</h1>" +
-            Link(destination, destination.StartsWith("/play/", StringComparison.Ordinal) ? "Continue to browser game" : destination != "/account" ? "Continue to bug report" : "Continue to your account", "button") +
+            Link(destination, destination.StartsWith("/play/", StringComparison.Ordinal) ? "Continue to browser game" : "Continue to your account", "button") +
             "</main></body></html>", "text/html; charset=utf-8");
     }
 
@@ -173,8 +194,6 @@ internal sealed partial class PlayerPortal(MasterOptions options, AccountStore s
         if (expected.Length != 64 || value is not { Length: > 65 and <= 5700 } ||
             !value.StartsWith(expected + "|", StringComparison.Ordinal)) return "/account";
         string encoded = value[65..];
-        // Keep in-progress sign-ins from the previous website version working during deployment.
-        if (encoded == ReportReturnPath) return ReportReturnPath;
         try { return LoginDestination(Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(encoded))); }
         catch (FormatException) { return "/account"; }
     }
@@ -183,7 +202,7 @@ internal sealed partial class PlayerPortal(MasterOptions options, AccountStore s
     {
         "/play" or "/play/" => "/play/",
         "/play/?lesson=spy-grab" or "/play/?lesson=vision-cancelling" or "/play/?lesson=merc" => requested,
-        _ => BugReportReturnPath(requested) ?? "/account",
+        _ => "/account",
     };
 
     private static string LoginLink(string? returnTo) => LoginDestination(returnTo) is { } destination && destination != "/account"

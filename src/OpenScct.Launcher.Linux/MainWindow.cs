@@ -276,7 +276,7 @@ internal sealed class MainWindow : Window
         var items = Ui.Stack(Ui.Text("Help and contributions", 22));
         foreach (var pair in new[]
         {
-            ("Report a bug", ProjectDestination.BugReport), ("Suggest a feature", ProjectDestination.FeatureRequest),
+            ("Suggest a feature", ProjectDestination.FeatureRequest),
             ("Documentation", ProjectDestination.Documentation), ("Existing issues", ProjectDestination.Issues),
             ("Contributing", ProjectDestination.Contributing), ("Pull requests", ProjectDestination.PullRequests),
         })

@@ -359,7 +359,7 @@ Commands (`UI/ConsoleCommands`, Godot-free; settings through `Options/SettingsCo
 | Command | What |
 |---|---|
 | `help` | the list |
-| `whereami`, `whereami copy` | reports the local player's map, exact pawn-centre coordinates in UE units, pawn and view rotations, view direction, movement state, physics and crouch state; `copy` also copies the report for a bug report |
+| `whereami`, `whereami copy` | reports the local player's map, exact pawn-centre coordinates in UE units, pawn and view rotations, view direction, movement state, physics and crouch state; `copy` copies these details to the clipboard |
 | `grabarea`, `grabarea on`, `grabarea off` | practice and Visit Map only: draws on the floor around every living mercenary where a spy can stand to grab him, as this machine's grab test sees him. Bright sector: a spy facing straight at him; faint sector: with the body turned. Green: Use grabs now; yellow: not in position; red: he cannot be grabbed (just got up, shocked, or in a state that refuses it). Shows through walls; the colour also checks ground, headroom and the path used by the local grab |
 | `current` | every settings.json key and value |
 | `get <key>`, `set <key> <value>` | a settings.json key; a group member with a dot (`controls_spy_kbm.look`); switches take on/off; the settings' limits apply; saved and applied at once |

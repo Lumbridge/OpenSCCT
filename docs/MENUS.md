@@ -13,7 +13,7 @@ For joining and hosting, start with [Online play](ONLINE.md); for microphone set
 | Review progress | [Player stats and match history](#player-stats-and-match-history) |
 | Change bindings | [Role configuration and shared controls](#role-configuration-and-shared-controls) |
 | Change video settings | [Display page](#display-page-the-originals-video-options) |
-| Report a problem or contribute | [Help & feedback](#help--feedback) |
+| Find help or contribute | [Help & feedback](#help--feedback) |
 | Develop or test menu behavior | [Screen sizes](#screen-sizes-and-resizing), [Tests](#tests) |
 
 Menu behavior follows the [lobby and match creation specification](../spec/game/lobby-and-match-creation.md).
@@ -162,27 +162,15 @@ the current screen and returns to the same screen when closed. A match keeps run
 lobby readiness, chat and settings stay in place. Escape or the controller's Back button closes help and
 restores focus to the control that opened it.
 
-**Report a bug** opens the [website's bug report form](https://master.lumbridge.co.uk/help/report-bug), which uses
-Discord sign-in. The form starts with the game version, platform and available match details shown in help;
-reports opened in a map also include the `whereami` position, facing, movement state, physics and animation
-details captured when help opened. Review those details and describe the problem before submitting. **Suggest a feature** opens the GitHub form
-and requires GitHub sign-in. **Copy details** lets you copy the summary yourself. Automatic details exclude
-account information, server addresses, paths and logs. If a browser cannot open, the link stays selectable
-and can be copied.
+**Suggest a feature** opens the GitHub form. **Copy details** copies the game version, platform and
+available match details. In a map, the copied details include the player's position, facing and movement
+state when help opened. If a browser link fails to open, you can select and copy its address.
 
-During a game, **Capture game screenshot (optional)** hides the menus for one rendered frame and shows a
-preview. **Include captured screenshot with bug report** is checked after capturing; uncheck it to leave the
-image out. **Report a bug** transfers the capture to a private temporary draft and opens the browser with it
-already attached. This also works when Discord sign-in is needed. You can remove or replace the image in the
-browser before confirming publication. If the transfer fails, retry or uncheck the image to continue without it.
-Captures are resized to at most 1280 pixels per side and 2 MB. A local PNG is also kept under `user://screenshots`;
-**Show saved screenshot** locates it. Unpublished handoffs expire after 15 minutes. Published reports include a
-public image link.
+During a game, you can capture a screenshot, preview it and open its location under `user://screenshots`.
+The capture stays on your computer.
 
-The contribution section links to the guides and pull requests. Code contributions need a branch or fork
-and GitHub sign-in. The help menu opens without the master service; submitting a bug report requires the
-website. The `help-feedback` smoke covers report prefills, navigation, controller focus, copy/browser failures
-and layouts at 800×600, 1280×720 and 3840×2160 using fake external actions.
+The contribution section links to guides and pull requests. Submitting a suggestion or opening a pull
+request requires GitHub sign-in. The help menu also works offline.
 
 ## Player stats and match history
 

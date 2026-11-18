@@ -564,9 +564,14 @@ internal static class Program
                         type.GetMethod("RemoveSelected", Hidden)!.Invoke(form, null);
                         Check(Walk(host).OfType<Label>().Any(c => c.Text.Contains("Close OpenSCCT Editor", StringComparison.Ordinal)), label + " shared-content changes are guarded");
                     }
+                    if (!dialog.Editor && dialog.Type == "HelpForm")
+                    {
+                        Check(!Walk(host).OfType<Button>().Any(c => c.Text.Contains("bug", StringComparison.OrdinalIgnoreCase)), label + " game help omits bug reporting");
+                        Check(Walk(host).OfType<Button>().Any(c => c.Name == "FeatureRequest"), label + " offers feature suggestions");
+                    }
                     if (dialog.Editor && dialog.Type == "HelpForm")
                     {
-                        Button report = Walk(host).OfType<Button>().Single(c => c.Name == "BugReport");
+                        Button report = Walk(host).OfType<Button>().Single(c => c.Name == "EditorBugReport");
                         typeof(Button).GetMethod("OnClick", Hidden)!.Invoke(report, [EventArgs.Empty]);
                         Check(Walk(host).OfType<TextBox>().Single(c => c.Name == "SelectedLink").Text.StartsWith("https://github.com/Lumbridge/OpenSCCT-Editor/issues/new", StringComparison.Ordinal), label + " editor reports route to editor repository");
                         Check(Walk(host).OfType<TextBox>().Single(c => c.Name == "ReportDetails").Text.Contains("Editor version: " + EditorVersion, StringComparison.Ordinal), label + " report details include editor version");

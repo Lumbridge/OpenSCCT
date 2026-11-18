@@ -195,7 +195,7 @@ public sealed class MasterHost : IAsyncDisposable
         if (_store is not null && Registry.Now >= _nextHistorySweep)
         {
             _nextHistorySweep = Registry.Now + 60;
-            try { _store.PruneMatchHistory(Options.MatchHistoryDays); _store.PruneBugReports(); }
+            try { _store.PruneMatchHistory(Options.MatchHistoryDays); _store.PruneLegacyReportReceipts(); }
             catch (Exception error) { _app.Logger.LogError(error, "Match history cleanup failed; retrying next minute"); }
         }
     }

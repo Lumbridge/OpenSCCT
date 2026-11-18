@@ -95,7 +95,7 @@ internal sealed partial class PlayerPortal
             foreach (WikiContent.Article article in group) AppendWikiCard(body, article);
             body.Append("</div></section>");
         }
-        body.Append("<section class=\"wiki-help panel\"><h2>Further help</h2><p>Troubleshooting, bug reports and documentation corrections.</p><div class=\"button-row\">")
+        body.Append("<section class=\"wiki-help panel\"><h2>Further help</h2><p>Troubleshooting and documentation corrections.</p><div class=\"button-row\">")
             .Append(Link(editor ? "/wiki/editor-testing#check" : "/wiki/troubleshooting", editor ? "Map checks →" : "Troubleshooting →", "text-link"))
             .Append(Link("/help", "Help & feedback →", "text-link")).Append("</div></section></div>");
         return Show(c, title, "wiki", body.ToString(), editorTheme: editor);
@@ -125,7 +125,7 @@ internal sealed partial class PlayerPortal
             body.Append("<section id=\"").Append(H(section.Id)).Append("\" aria-labelledby=\"heading-").Append(H(section.Id)).Append("\"><h2 id=\"heading-")
                 .Append(H(section.Id)).Append("\">").Append(H(section.Title)).Append("</h2>").Append(section.Html).Append("</section>");
         body.Append("<div class=\"wiki-article-feedback\"><p>For missing or outdated information: ")
-            .Append(Link("/help", "Report a documentation issue →", "text-link")).Append("</p></div></article></div>");
+            .Append(Link("/wiki/contributing", "Documentation contribution guide →", "text-link")).Append("</p></div></article></div>");
         if (article.Related.Length > 0)
         {
             body.Append("<section class=\"wiki-topic wiki-related\" aria-labelledby=\"wiki-related-title\"><h2 id=\"wiki-related-title\">Related guides</h2><div class=\"wiki-guide-grid\">");

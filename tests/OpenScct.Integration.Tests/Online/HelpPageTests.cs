@@ -10,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.Data.Sqlite;
 using OpenScct.Master;
 using OpenScct.Master.Web;
 using Xunit;
@@ -30,7 +31,7 @@ public sealed class HelpPageTests
     }
 
     [Fact]
-    public async Task HelpIsPublicAndLinksToDiscordBugReporting()
+    public async Task HelpIsPublicAndLinksToFeatureSuggestions()
     {
         CancellationToken ct = TestContext.Current.CancellationToken;
         string directory = Path.Combine(Path.GetTempPath(), "openscct-help-" + Guid.NewGuid());
@@ -42,12 +43,13 @@ public sealed class HelpPageTests
             var releases = new ReleaseChangelog(upstream);
             MasterOptions options = MasterTests.LocalOptions("private-invite-canary");
             options.Introducer = options.Relay = options.Probe = false;
+            options.DataDirectory = directory;
             options.Database = Path.Combine(directory, "accounts.db");
             options.TicketKeyFile = Path.Combine(directory, "tickets.pem");
             options.Discord.ClientId = "fixture-client";
             options.Discord.ClientSecret = "private-secret-canary";
             await using MasterHost master = await MasterHost.StartAsync(options, releases, ct);
-            using var http = new HttpClient { BaseAddress = new Uri(master.HttpAddress) };
+            using var http = new HttpClient(new HttpClientHandler { AllowAutoRedirect = false }) { BaseAddress = new Uri(master.HttpAddress) };
             http.DefaultRequestHeaders.Add("User-Agent", "private-browser-canary");
             using HttpResponseMessage response = await http.GetAsync("/help?token=private-token-canary&version=%3Cscript%3Ealert(1)%3C%2Fscript%3E&platform=private-platform-canary", ct);
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -58,15 +60,13 @@ public sealed class HelpPageTests
             Assert.Contains("href=\"/help\" aria-current=\"page\"", html, StringComparison.Ordinal);
             Assert.Contains(MasterBuildInfo.Version, html, StringComparison.Ordinal);
             Assert.Contains("Suggest a feature", html, StringComparison.Ordinal);
-            Assert.Contains("you do not need a GitHub account", html, StringComparison.Ordinal);
+            Assert.DoesNotContain("/help/report-bug", html, StringComparison.Ordinal);
             Assert.DoesNotContain("private-", html, StringComparison.Ordinal);
             Assert.DoesNotContain("alert(1)", html, StringComparison.Ordinal);
             Assert.DoesNotContain(directory, html, StringComparison.Ordinal);
             Assert.Equal(0, handler.Requests);
 
-            string bug = FindLink(html, "/help/report-bug");
             string suggestion = FindLink(html, "template=feature_request.yml");
-            Assert.Equal("/help/report-bug", bug);
             Assert.DoesNotContain("template=bug_report.yml", html, StringComparison.Ordinal);
             Assert.Equal("github.com", new Uri(suggestion).Host);
             Assert.Contains("href=\"/wiki/contributing\"", html, StringComparison.Ordinal);
@@ -79,6 +79,7 @@ public sealed class HelpPageTests
                 Assert.Contains("href=\"/help\"", page, StringComparison.Ordinal);
                 Assert.Contains("Help &amp; feedback", page, StringComparison.Ordinal);
             }
+            await CheckRetiredReportRoutes(http, directory, ct);
             await CheckShowcaseImages(http, ct);
             var futurePage = Assert.IsType<ContentHttpResult>(WebHtml.Page(new DefaultHttpContext(), "Features", "improvements", "<h1>Features</h1>"));
             Assert.Contains("Help improve OpenSCCT", futurePage.ResponseContent!, StringComparison.Ordinal);
@@ -93,6 +94,60 @@ public sealed class HelpPageTests
         {
             Directory.Delete(directory, recursive: true);
         }
+    }
+
+    [Fact]
+    public void ReceiptCleanupOnlyExpiresOldRowsInExistingDatabases()
+    {
+        string path = Path.Combine(Path.GetTempPath(), Guid.NewGuid() + ".db");
+        try
+        {
+            using var store = AccountStore.Open(path);
+            using var db = new SqliteConnection($"Data Source={path};Pooling=False");
+            db.Open();
+            using var sql = db.CreateCommand();
+
+            store.PruneLegacyReportReceipts();
+            sql.CommandText = "SELECT name FROM sqlite_schema WHERE name = 'website_bug_reports';";
+            Assert.Null(sql.ExecuteScalar());
+
+            sql.CommandText = """
+                CREATE TABLE website_bug_reports (id TEXT PRIMARY KEY, created INTEGER NOT NULL);
+                INSERT INTO website_bug_reports VALUES ('old', $now - 31 * 86400), ('recent', $now - 29 * 86400);
+                """;
+            sql.Parameters.AddWithValue("$now", store.Now);
+            sql.ExecuteNonQuery();
+            store.PruneLegacyReportReceipts();
+            sql.CommandText = "SELECT group_concat(id) FROM website_bug_reports;";
+            Assert.Equal("recent", sql.ExecuteScalar());
+        }
+        finally { File.Delete(path); }
+    }
+
+    private static async Task CheckRetiredReportRoutes(HttpClient http, string directory, CancellationToken ct)
+    {
+        using HttpResponseMessage oldClient = await http.GetAsync("/help/report-bug?area=game&environment=private-canary&capture=old-id", ct);
+        Assert.Equal(HttpStatusCode.Found, oldClient.StatusCode);
+        Assert.Equal("/help", oldClient.Headers.Location?.OriginalString);
+        Assert.Equal("no-referrer", Assert.Single(oldClient.Headers.GetValues("Referrer-Policy")));
+        Assert.False(oldClient.Headers.Contains("Set-Cookie"));
+        using HttpResponseMessage receipt = await http.GetAsync("/help/report-bug/sent/old-id", ct);
+        Assert.Equal(HttpStatusCode.NotFound, receipt.StatusCode);
+        foreach (string route in new[] { "capture", "review", "edit", "submit" })
+        {
+            using HttpResponseMessage result = await http.PostAsync("/help/report-bug/" + route, null, ct);
+            Assert.Equal(HttpStatusCode.NotFound, result.StatusCode);
+        }
+
+        // Public GitHub issues still embed screenshots published before the submission form was retired.
+        byte[] png = Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAIAAAABCAIAAAB7QOjdAAAAD0lEQVR4nGP4z8DA8J8BAAf/Af8Bf4mnAAAAAElFTkSuQmCC");
+        string id = Convert.ToHexStringLower(SHA256.HashData(png));
+        Directory.CreateDirectory(Path.Combine(directory, "report-screenshots"));
+        await File.WriteAllBytesAsync(Path.Combine(directory, "report-screenshots", id + ".png"), png, ct);
+        using HttpResponseMessage image = await http.GetAsync("/help/report-screenshots/" + id + ".png", ct);
+        Assert.Equal(HttpStatusCode.OK, image.StatusCode);
+        Assert.Equal("image/png", image.Content.Headers.ContentType?.MediaType);
+        Assert.Equal(png, await image.Content.ReadAsByteArrayAsync(ct));
     }
 
     private static async Task CheckShowcaseImages(HttpClient http, CancellationToken ct, [CallerFilePath] string sourceFile = "")

@@ -7,10 +7,13 @@ import re
 ROOT = Path(__file__).resolve().parents[3]
 
 
-def test_report_prefill_fields_match_the_templates():
+def test_feature_request_prefill_matches_the_template():
     source = (ROOT / "shared/ProjectLinks.cs").read_text(encoding="utf-8")
     assert '"&environment="' in source
     assert 'template=feature_request.yml' in source
+
+
+def test_direct_issue_templates_preserve_optional_context():
     for filename, preserved in (
         ("bug_report.yml", {"version", "steps", "result", "evidence"}),
         ("feature_request.yml", {"problem", "proposal", "context"}),

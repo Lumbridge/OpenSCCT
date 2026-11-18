@@ -63,7 +63,7 @@ internal sealed partial class PlayerPortal
         body.Append("</div></div><div class=\"section button-row\">")
             .Append(Link(ReleaseChangelog.ReleasesUrl, "All game versions on GitHub ↗", "button secondary"))
             .Append(Link(ReleaseChangelog.EditorReleasesUrl, "All Editor versions on GitHub ↗", "button secondary editor-theme")).Append("</div>");
-        body.Append("<p class=\"help-context\">Problem after an update? ").Append(Link("/help", "Get help or report a bug →", "text-link")).Append("</p>");
+        body.Append("<p class=\"help-context\">Problem after an update? ").Append(Link("/help", "Get help →", "text-link")).Append("</p>");
         return Show(c, "Updates", "changelog", body.ToString());
     }
 }
