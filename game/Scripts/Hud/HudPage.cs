@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using Godot;
+using OpenScctGame.Controls;
 using OpenScctGame.Hud.Magma;
+using OpenScctGame.Play.Session;
 
 namespace OpenScctGame.Hud;
 
@@ -39,11 +41,8 @@ public sealed class HudOptions
     /// <summary>The name of the key a command is bound to in the player's layout (for the key tokens of page texts), or null.</summary>
     public Func<string, string?>? KeyName { get; set; }
 
-    /// <summary>
-    /// The localized name of the first key whose whole binding is the given string, or null (the key tokens of drawn
-    /// texts, <see cref="OpenScctGame.Controls.KeyTokens"/>).
-    /// </summary>
-    public Func<string, string?>? KeyBoundTo { get; set; }
+    /// <summary>The active input layout, including changes made during the round.</summary>
+    public Func<InputBindings?>? CurrentBindings { get; set; }
 }
 
 /// <summary>
@@ -100,7 +99,9 @@ public abstract class HudPage
         {
             TextureSize = assets.TextureSize,
             MeasureText = (font, text, height, tracking) => assets.Font(font)?.Measure(text, height, 1f, tracking) ?? 0f,
-            ExpandText = text => OpenScctGame.Controls.KeyTokens.Expand(text, Options.KeyBoundTo),
+            ExpandText = text => Options.CurrentBindings?.Invoke() is { } bindings
+                ? KeyTokens.ExpandHint(text, bindings.Layout, bindings.Side == PlaySide.Merc, assets.KeyDisplayName)
+                : text,
         };
         // The first update stops every top-level area at frame 0 (the native shared init) and the page inits hide
         // the areas their drivers own: everything starts hidden here and each driver shows what it draws.

@@ -10,6 +10,8 @@ using SpyCloak = OpenScct.Game.Equipment.SpyCloak;
 using OpenScct.Game.Objectives;
 using OpenScct.Game.SBase;
 using OpenScctGame.Chat;
+using OpenScctGame.Controls;
+using OpenScctGame.Play.Session;
 using OpenScctGame.Hud.Magma;
 using OpenScctGame.Options;
 using OpenScctGame.Smoke;
@@ -1246,6 +1248,14 @@ public sealed class HudSmoke(bool spectatorOnly = false, bool teammateNamesOnly 
         s.SpyPc.GotoState(new Name("s_MultiSpectating_WhenKilled"));
         Expect(HudK.IsSpectating(s.SpyPc), "killed player recognized as spectating without a forced snapshot");
 
+        var bindings = InputBindings.FromLayout(KeyLayout.Parse("""
+            [Engine.Input]
+            IK_Q=SelectGadget 0 | TeamPing
+            IK_E=SelectGadget 1
+            IK_Z=Button bAltFire
+            IK_X=Button bFire
+            """), PlaySide.Spy);
+        layer.Options.CurrentBindings = () => bindings;
         s.SpyPc.SpecTarget = (SBasePawn)s.MatePawn;
         s.SpyPc.fRespawnDate = Now + 6.5f;
         Run(5);
@@ -1256,7 +1266,7 @@ public sealed class HudSmoke(bool spectatorOnly = false, bool teammateNamesOnly 
         ExpectText(list, "Spectator/textNbDeaths", "4");
         ExpectText(list, "Spectator/textPlayerWatched", "Ghost");
         ExpectText(list, "Spectator/textRespawnTime", "7");
-        ExpectContains(list, "Spectator/textTip", "spy tip");
+        ExpectText(list, "Spectator/textTip", "Q E Z X");
         Expect(list.Find("Spectator/textNoRespawnLeft") is null, "respawn left");
         Expect(!layer.Spy!.Root.Visible && !layer.Merc!.Root.Visible, "player pages hidden while spectating");
         CheckSpectatorBoardLayout();
@@ -1584,7 +1594,7 @@ public sealed class HudSmoke(bool spectatorOnly = false, bool teammateNamesOnly 
             Level level = World.Level;
             var gri = Spawn(level, new GameReplicationInfo { TimeLimit = 10, ElapsedTime = 75, NumObjectives = 4, GameMode = EGameMode.GM_Multi }, default);
             var spies = new STeamInfo { TeamIndex = 0, iNBGadgets = 4 };
-            spies.aTipStrings.Add("A spy tip.");
+            spies.aTipStrings.Add(@"\\GADGET1 \\GADGET2 \\SECONDARYFIRE \\PRIMARYFIRE");
             gri.Teams[0] = spies;
             gri.Teams[1] = new STeamInfo { TeamIndex = 1, iNBGadgets = 4 };
             level.Info.GRI = gri;

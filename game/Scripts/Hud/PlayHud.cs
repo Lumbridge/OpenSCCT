@@ -56,7 +56,7 @@ public static class PlayHud
         }
 
         hud.Options.KeyName = command => HudCommands.KeyOf(input?.Bindings, command) is { } key ? hud.Assets?.KeyDisplayName(key) ?? key : null;
-        hud.Options.KeyBoundTo = binding => KeyTokens.KeyBoundTo(input?.Bindings?.Layout, binding) is { } key ? hud.Assets?.KeyDisplayName(key) ?? key : null;
+        hud.Options.CurrentBindings = () => input?.Bindings;
 
         var status = new GameStatusPage { Source = hud.Snapshot, PlayInput = input };
         statusLayer.AddChild(status);
