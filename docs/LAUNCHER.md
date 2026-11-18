@@ -87,7 +87,7 @@ the compatible editor release before launcher 0.8.45; neither is published by bu
 ## Unreal tab
 
 The Windows launcher's **Unreal** tab installs, updates and starts OpenSCCT Unreal, the Unreal Engine build of the
-game. It uses the same launch panel as the other tabs, with its own text and colours. It has its own versions,
+game. It uses the same launch panel as the other tabs, with an orange colour scheme. It has its own versions,
 preview preference and startup update check. OpenSCCT Unreal runs on Windows only.
 
 **Where it installs.** The build goes in `%LOCALAPPDATA%\OpenSCCT\unreal\`, which is laid out like the launcher
@@ -138,7 +138,7 @@ variables are removed. There is no Godot `--` separator and no renderer option. 
 folder, so set up the game on the Game tab first. The build needs the Visual C++ x64 runtime, at least the version
 of the installer it carries. When the runtime is missing or older (an old 2015-2019 runtime counts as older), the
 launcher can run that installer (`Prerequisites\vc_redist.x64.exe /install /passive /norestart`). While an
-update waits for the running game to close, the tab shows **Waiting for game to close** instead of **Play Unreal**.
+update waits for the running game to close, the tab shows **Waiting for game to close** instead of **Play**.
 
 **What it does not do.** The launcher does not download Unreal map packs: the game downloads them into
 `%LOCALAPPDATA%\OpenSCCT\unreal-packs\` itself. The launcher does not sign in or handle account tokens: the game

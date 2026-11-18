@@ -131,7 +131,7 @@ internal static class Program
             new("unreal-absent", true, true, "Install Unreal"),
             new("unreal-prerequisite", false, false, "Go to Game"),
             new("unreal-update", true, true, "Update Unreal"),
-            new("unreal-ready", true, true, "Play Unreal"),
+            new("unreal-ready", true, true, "Play"),
             new("unreal-pending", true, true, "Waiting for game to close"),
             new("unreal-busy", true, true, "Cancel"),
             new("unreal-unreleased", true, true, "Check again"),
@@ -288,7 +288,7 @@ internal static class Program
                 break;
             case "unreal-busy":
                 Call(form, "SetOperation", "Installing OpenSCCT Unreal");
-                SetStatus(form, "Downloading OpenSCCT Unreal 0.2.0...", Color.FromArgb(156, 168, 178));
+                SetStatus(form, "Downloading OpenSCCT Unreal 0.2.0...", Color.FromArgb(184, 161, 143));
                 Field<Control>(form, "_progress").Visible = true;
                 Field<Control>(form, "_progress").GetType().GetProperty("Fraction")!.SetValue(Field<Control>(form, "_progress"), 0.42);
                 Field<Label>(form, "_progressText").Text = "512.0 MB of 1210.0 MB  24.0 MB/s";
@@ -338,6 +338,8 @@ internal static class Program
         Button main = Field<Button>(form, "_main");
         Button help = Field<Button>(form, "_help");
         Check(main.Text == scenario.Button, label + " action is " + scenario.Button);
+        if (scenario.Name == "ready")
+            Check(main.BackColor == Color.FromArgb(120, 255, 140), label + " Game play button uses the green accent");
         // While an installed Unreal update waits for the running game, there is nothing to start.
         bool disabledAction = scenario.Name is "editor-applying" or "unreal-pending";
         Check(disabledAction ? !main.Enabled : main.Enabled && main.CanSelect,
@@ -370,10 +372,11 @@ internal static class Program
         }
         if (scenario.Unreal)
         {
-            Check(host.BackColor == Color.FromArgb(18, 21, 24), label + " whole window uses the Unreal palette");
+            Check(host.BackColor == Color.FromArgb(26, 20, 16), label + " whole window uses the Unreal palette");
+            Check(Field<Button>(form, "_unrealTab").BackColor == Color.FromArgb(255, 150, 70), label + " selected Unreal tab uses the orange accent");
             // Busy work and the disabled "Waiting for game to close" are not emphasized.
             bool plain = fixture.Work is not null || scenario.Name == "unreal-pending";
-            Check(main.BackColor == (plain ? Color.FromArgb(25, 30, 35) : Color.FromArgb(122, 200, 226)), label + " primary action uses the Unreal palette");
+            Check(main.BackColor == (plain ? Color.FromArgb(36, 27, 21) : Color.FromArgb(255, 150, 70)), label + " primary action uses the Unreal palette");
             Check(LauncherSettings.Load(fixture.Layout.Settings).SelectedProduct == "Unreal", label + " Unreal tab is persisted");
             Check(Field<Button>(form, "_gameTab").CanSelect && Field<Button>(form, "_editorTab").CanSelect && Field<Button>(form, "_unrealTab").CanSelect,
                 label + " all three product tabs remain keyboard selectable");
@@ -499,7 +502,7 @@ internal static class Program
         object editorPalette = paletteType.GetProperty("Editor")!.GetValue(null)!;
         object unrealPalette = paletteType.GetProperty("Unreal")!.GetValue(null)!;
         using var editorFixture = new Fixture(new Scenario("editor-ready", true, true, "Open Editor"));
-        using var unrealFixture = new Fixture(new Scenario("unreal-ready", true, true, "Play Unreal"));
+        using var unrealFixture = new Fixture(new Scenario("unreal-ready", true, true, "Play"));
         var unrealSettings = new LauncherSettings { SelectedProduct = "Unreal", UnrealRepository = SmokeUnrealRepository };
         var dialogs = new (string Type, object?[] Args, Size Minimum, bool Editor, bool Unreal)[]
         {
@@ -545,7 +548,7 @@ internal static class Program
                 Inspect(() =>
                 {
                     if (dialog.Editor) Check(host.BackColor == Color.FromArgb(19, 21, 27), label + " dialog uses editor palette");
-                    if (dialog.Unreal) Check(host.BackColor == Color.FromArgb(18, 21, 24), label + " dialog uses Unreal palette");
+                    if (dialog.Unreal) Check(host.BackColor == Color.FromArgb(26, 20, 16), label + " dialog uses Unreal palette");
                     Check(host.SelectNextControl(null, true, true, true, false), label + " keyboard traversal enters controls");
                     foreach (Button button in Walk(host).OfType<Button>().Where(c => c.Visible))
                     {
@@ -883,7 +886,7 @@ internal static class Program
 
         Inspect(() =>
         {
-            using var fixture = new Fixture(new Scenario("unreal-ready", true, true, "Play Unreal"));
+            using var fixture = new Fixture(new Scenario("unreal-ready", true, true, "Play"));
             new LauncherSettings { SelectedProduct = "Unreal", CheckOnStart = true, EditorCheckOnStart = true, UnrealCheckOnStart = false }.Save(fixture.Layout.Settings);
             using Form form = (Form)Activator.CreateInstance(MainType, Hidden, null,
                 new object?[] { fixture.Layout, null, null, fixture.LauncherPath }, null)!;
@@ -900,7 +903,7 @@ internal static class Program
             Check(Selected(form) == "Unreal" && Field<bool>(form, "_webJoinReady"), "Actual startup restores the Unreal tab and enables Join handling");
             Check(_networkAttempts == attempts && Field<object?>(form, "_work") is null && Field<UnrealCheck?>(form, "_unrealCheck") is null
                 && Field<UpdateCheck?>(form, "_lastCheck") is null, "Unreal startup ignores the other products' enabled check preferences");
-            Check(Field<Label>(form, "_heading").Text == "Ready to play" && Field<Button>(form, "_main").Text == "Play Unreal",
+            Check(Field<Label>(form, "_heading").Text == "Ready to play" && Field<Button>(form, "_main").Text == "Play",
                 "Installed Unreal build is ready to play before any check");
             Check(Field<Label>(form, "_installedInfo").Text == "OpenSCCT Unreal " + UnrealVersion + " · OpenSCCT " + InstalledVersion,
                 "Unreal version line names the OpenSCCT version it was built from");
@@ -909,7 +912,7 @@ internal static class Program
         });
         Inspect(() =>
         {
-            using var fixture = new Fixture(new Scenario("unreal-ready", true, true, "Play Unreal"));
+            using var fixture = new Fixture(new Scenario("unreal-ready", true, true, "Play"));
             new LauncherSettings { SelectedProduct = "Unreal", CheckOnStart = false, UnrealCheckOnStart = false }.Save(fixture.Layout.Settings);
             using Form form = (Form)Activator.CreateInstance(MainType, Hidden, null,
                 new object?[] { fixture.Layout, "smoke-session", null, fixture.LauncherPath }, null)!;

@@ -24,11 +24,11 @@ internal sealed record ThemePalette(Color Background, Color Panel, Color Border,
         Color.FromArgb(84, 148, 245), Color.FromArgb(52, 92, 156), Color.FromArgb(220, 228, 241),
         Color.FromArgb(151, 166, 190), Color.FromArgb(119, 173, 255), Color.FromArgb(65, 124, 218));
 
-    /// <summary>Cool steel for the Unreal Engine build, distinct from the Editor's blue.</summary>
+    /// <summary>Orange accents on warm dark panels for the Unreal Engine build.</summary>
     public static ThemePalette Unreal { get; } = new(
-        Color.FromArgb(18, 21, 24), Color.FromArgb(25, 30, 35), Color.FromArgb(52, 62, 72),
-        Color.FromArgb(122, 200, 226), Color.FromArgb(60, 110, 130), Color.FromArgb(222, 230, 236),
-        Color.FromArgb(156, 168, 178), Color.FromArgb(152, 218, 240), Color.FromArgb(92, 172, 200));
+        Color.FromArgb(26, 20, 16), Color.FromArgb(36, 27, 21), Color.FromArgb(76, 55, 41),
+        Color.FromArgb(255, 150, 70), Color.FromArgb(164, 86, 37), Color.FromArgb(242, 230, 220),
+        Color.FromArgb(184, 161, 143), Color.FromArgb(255, 174, 111), Color.FromArgb(232, 121, 45));
 }
 
 /// <summary>The night-vision look of game/branding: near-black green panels, bright green accents.</summary>

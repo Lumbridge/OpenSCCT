@@ -81,7 +81,7 @@ internal sealed partial class MainForm
             : update ? "Update Unreal"
             : prerequisite is not null ? "Go to Game"
             : waiting ? "Waiting for game to close"
-            : "Play Unreal";
+            : "Play";
         bool waitingAction = !busy && !unreleased && installed is not null && !_unrealSetupFailed && !update && prerequisite is null && waiting;
         _main.Enabled = busy ? _operationCanCancel : !waitingAction;
         Theme.SetButtonEmphasis(_main, !busy && !waitingAction, Palette);
