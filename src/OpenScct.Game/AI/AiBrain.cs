@@ -89,7 +89,8 @@ public abstract class AiBrain
     public void Think(float now, ref AiPlan plan)
     {
         // Finish a traversal before a tactical decision can clear its path halfway up a spawn fence.
-        if (Follower.ActiveLink >= 0 || NavFollower.OnFence(Pawn))
+        if (Follower.ActiveLink >= 0 || NavFollower.OnFence(Pawn) ||
+            Pawn.Physics is EPhysics.PHYS_OnPipe or EPhysics.PHYS_OnLadder)
         {
             NavCommand command = Follower.Steer(Pawn, now, Pc.Rotation.Yaw & 0xFFFF, sneak: false);
             plan.Keys = command.Keys;

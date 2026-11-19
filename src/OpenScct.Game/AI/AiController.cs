@@ -267,13 +267,14 @@ public sealed class AiController
         var plan = new AiPlan { Tolerance = 9000 };
         // Team play first (TeamAi.cs): while it helps a mate the side's brain waits, and plans afresh after. A route
         // walker only walks.
-        if (Route is null && TeamPlay.Think(now, ref plan))
+        bool climbing = pawn.Physics is EPhysics.PHYS_OnPipe or EPhysics.PHYS_OnLadder;
+        if (Route is null && !climbing && TeamPlay.Think(now, ref plan))
         {
             _teamHeld = true;
         }
         else
         {
-            if (_teamHeld)
+            if (_teamHeld && !climbing)
             {
                 _teamHeld = false;
                 Brain!.Reset();
@@ -282,7 +283,7 @@ public sealed class AiController
             Brain!.Think(now, ref plan);
         }
 
-        if (Route is null && pawn is SPawnAttaque && Brain is not SpyAi { Security.Handling: true })
+        if (Route is null && !climbing && pawn is SPawnAttaque && Brain is not SpyAi { Security.Handling: true })
         {
             if (TeamPlay.OrderRequester is null || Gadgets.Active != SpyGadgetAct.None)
                 Gadgets.Apply(ref plan, now);
