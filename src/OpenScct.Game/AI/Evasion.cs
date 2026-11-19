@@ -84,7 +84,8 @@ public sealed class SpyEvasion
         bool threat = false;
         foreach (AiContact c in _bot.Memory.Contacts)
         {
-            if (c.Pawn is not SPAWNDEFENSE || c.Confidence < sure && !c.Visible)
+            if (c.Pawn is not SPAWNDEFENSE || c.Confidence < sure && !c.Visible ||
+                _bot.Brain is SpyAi spyBrain && spyBrain.ConfirmedShockTimeLeft(c.Pawn, _bot.World.Now) > 0f)
             {
                 continue;
             }
@@ -127,7 +128,7 @@ public sealed class SpyEvasion
 
         bool threat = Threatened(spy, out bool looking);
         HoldDraw(ref plan, spy, threat, now);
-        if (!threat || !plan.Keys.Moving || plan.Keys.Command1 == AiCommand.Jump || plan.Keys.Command2 == AiCommand.Jump ||
+        if (!threat || !plan.Keys.Moving || plan.Keys.bRoll != 0 || plan.Keys.Command1 == AiCommand.Jump || plan.Keys.Command2 == AiCommand.Jump ||
             plan.Crouched == false || spy.Physics != EPhysics.PHYS_Walking)
         {
             return;
@@ -138,6 +139,9 @@ public sealed class SpyEvasion
         {
             return;
         }
+
+        // If the merc can already see the spy in the light, keep moving.
+        if (Lit(spy)) return;
 
         // A freeze lasts 6 s at most: a merc who goes on looking down the corridor is not waited out for ever.
         float at = _bot.World.Now;
@@ -164,12 +168,6 @@ public sealed class SpyEvasion
             plan.Keys.BT_Right = 0;
             Last = SpyEvasionAct.Freeze;
             FreezeTicks++;
-            return;
-        }
-
-        // In the light the merc sees the spy whatever the speed: getting through fast is the safer play.
-        if (Lit(spy))
-        {
             return;
         }
 

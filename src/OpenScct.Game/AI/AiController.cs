@@ -291,8 +291,13 @@ public sealed class AiController
             if (Brain is SpyAi spyBrain && plan.Keys.Moving && now - HurtAt > 2f && spyBrain.Security.MustCreep(this, plan))
             {
                 plan.Keys.FastSpeed = false;
+                plan.Keys.bRoll = 0;
                 plan.Crouched = true;
             }
+
+            // Let a run stand up after a vent or a sneak, once the tactical layers have had their say.
+            if (Brain is SpyAi && plan.Keys.Moving && plan.Keys.FastSpeed && plan.Crouched is null)
+                plan.Crouched = false;
         }
 
         if (Route is null && pawn is SPAWNDEFENSE)

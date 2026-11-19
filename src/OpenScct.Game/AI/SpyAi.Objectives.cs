@@ -196,8 +196,7 @@ public sealed partial class SpyAi
         {
             // Sneaking as on the way to a terminal; a disk carrier who has just been seen or hit runs for the drop.
             bool hunted = Pawn.CarriedFlag is not null && (now - _exposedAt < 8f || now - Bot.HurtAt < 8f);
-            bool sneak = !hunted && (MercsAbout(now) ||
-                Difficulty.Stealth >= 0.5f && (_objectiveFloor - Feet).SizeSquared() < SpyAiK.SneakApproach * SpyAiK.SneakApproach);
+            bool sneak = !hunted && ShouldSneak(now, _objectiveFloor);
             if (!MoveTo(_objectiveFloor, now, ref plan, sneak, Difficulty.Stealth, DangerPenalty(Difficulty.Stealth)))
             {
                 if (Follower.Failed) FailOtherObjective(now);

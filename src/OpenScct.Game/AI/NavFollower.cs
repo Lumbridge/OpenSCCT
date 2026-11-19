@@ -62,6 +62,7 @@ public sealed partial class NavFollower
     private int _calmHealth = int.MaxValue;
     private readonly Dictionary<int, int> _interrupted = new();
     private readonly List<int> _avoidScratch = new();
+    private readonly Dictionary<int, float> _deferredLinks = new();
     private float _bestRemaining;
     private int _replans;
 
@@ -120,6 +121,9 @@ public sealed partial class NavFollower
 
     /// <summary>Told what the follower ran into (a failed link, a stuck walk), for the bot's event log.</summary>
     public Action<string>? Trace { get; set; }
+
+    /// <summary>Whether a traversal is unsafe to start now. It is briefly avoided by this follower only.</summary>
+    internal Func<NavLink, float, bool>? DeferLink { get; set; }
 
     public int ActiveLink => _phase != TPhase.None && _next < _path.Count ? _path[_next].Link : -1;
 
@@ -326,7 +330,7 @@ public sealed partial class NavFollower
             penalty = n => (_avoid.Contains(n) ? 5000f : 0f) + (inner?.Invoke(n) ?? 0f);
         }
 
-        if (!g.BeginPath(search, from, to, _stealth, penalty, _world.BadLinks(_spy), float.MaxValue, _world.BadEdges(_spy), allowPartial: true,
+        if (!g.BeginPath(search, from, to, _stealth, penalty, BlockedLinks(), float.MaxValue, _world.BadEdges(_spy), allowPartial: true,
                 BeltCost(g)))
         {
             Failed = true;
@@ -337,6 +341,21 @@ public sealed partial class NavFollower
         _pendingFrom = from;
         _pendingTo = to;
         return true;
+    }
+
+    private IReadOnlySet<int> BlockedLinks()
+    {
+        IReadOnlySet<int> world = _world.BadLinks(_spy);
+        if (_deferredLinks.Count == 0) return world;
+
+        float now = _world.Now;
+        var blocked = new HashSet<int>(world);
+        foreach ((int link, float until) in _deferredLinks)
+        {
+            if (now < until) blocked.Add(link);
+            else _deferredLinks.Remove(link);
+        }
+        return blocked;
     }
 
     private bool PlanEnd(Pawn pawn, NavGraph.PathSearch search)
@@ -1069,6 +1088,15 @@ public sealed partial class NavFollower
     private NavCommand Traverse(SBasePawn pawn, float now, int viewYaw, NavStep step)
     {
         NavLink link = Graph.Links[step.Link];
+        // Recheck on approach: the enemy could have arrived since the route was planned.
+        if (_phase is TPhase.None or TPhase.Approach or TPhase.Face && pawn.Physics == EPhysics.PHYS_Walking &&
+            Horizontal(pawn.Location - link.Start) < 240f && DeferLink?.Invoke(link, now) == true)
+        {
+            _deferredLinks[step.Link] = now + 3f;
+            Trace?.Invoke($"deferred exposed {link.Kind} {step.Link}");
+            PlanAgain(pawn);
+            return new NavCommand { Tolerance = 9000 };
+        }
         if (link.Kind == NavEdgeKind.Jump) return TraverseJump(pawn, now, viewYaw, step, link);
         var cmd = new NavCommand { Busy = true, Crouched = false, Tolerance = 9000 };
         FVector at = pawn.Location;

@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
+using OpenScct.Game.Combat;
 using OpenScct.Game.Equipment;
 using OpenScct.Game.SBase;
-using OpenScct.Physics.Collision;
 using OpenScct.Provenance;
 using EK = OpenScct.Game.Equipment.K;
 
@@ -45,6 +45,8 @@ public enum SpyGadgetAct : byte
 /// </summary>
 public sealed class SpyGadgets
 {
+    private static readonly SStickyCam s_camDefaults = new();
+
     private enum Step : byte
     {
         Idle,
@@ -89,6 +91,7 @@ public sealed class SpyGadgets
     private float _nextCam;
     private float _nextGuard;
     private float _gassedAt = -1f;
+    private int _camDoses;
     private bool _usingHeld;
     private SComputerObjectiveTrigger? _coveredTerminal;
 
@@ -405,7 +408,7 @@ public sealed class SpyGadgets
 
         _sleepLookAt = now + 1f;
         bool seen = best.Visible && best.Confirmed;
-        if (!FindCamSpot(spy, best.Position, out FRotator aim, seen ? SpyGadgetK.CamFit : SpyGadgetK.CamFitBelieved))
+        if (!FindCamSpot(spy, cam!, CamTarget(best), out FRotator aim, seen ? SpyGadgetK.CamFit : SpyGadgetK.CamFitBelieved))
         {
             return false;
         }
@@ -462,7 +465,7 @@ public sealed class SpyGadgets
 
         // A cam whose gas point lands on the guard's spot.
         if (!moving && now >= _nextCam && Roll(use * 0.6f) && Slot(spy, out SGadStickyCam? cam) is >= 0 and var camSlot &&
-            HasCharge(cam!) && Ready(cam!, now) && FindCamSpot(spy, at, out FRotator camAim))
+            HasCharge(cam!) && Ready(cam!, now) && FindCamSpot(spy, cam!, CamTarget(guard), out FRotator camAim))
         {
             StartCam(camSlot, cam!, guard.Pawn, camAim, now);
             return true;
@@ -615,6 +618,7 @@ public sealed class SpyGadgets
         _straight = true;
         _gassedAt = -1f;
         _gasInReachAt = -1f;
+        _camDoses = -1;
     }
 
     /// <summary>How unpractised the bot is with the cam: 1 with no gadget skill, 0 at full skill.</summary>
@@ -867,6 +871,18 @@ public sealed class SpyGadgets
             return;
         }
 
+        if (_straight && !_pressed)
+        {
+            // Drawing and stopping took time. Replan from the current stance and the target's latest contact.
+            _pressed = true;
+            if (_gadget is not SGadStickyCam cam || _target is null || _bot.Memory.Find(_target) is not { } contact ||
+                !FindCamSpot(spy, cam, CamTarget(contact), out _aimRot, contact.BodyVisible ? SpyGadgetK.CamFit : SpyGadgetK.CamFitBelieved))
+            {
+                Enter(Step.Holster, now);
+                return;
+            }
+        }
+
         FRotator aim = _straight ? _aimRot : ThrowAim(spy);
         plan.Yaw = aim.Yaw & 0xFFFF;
         plan.Pitch = aim.Pitch;
@@ -878,6 +894,22 @@ public sealed class SpyGadgets
         // Lining a cam up takes a beginner most of a second; a practised player shoots as the sight arrives.
         if (_straight && now - _stepAt < SpyGadgetK.CamAimSeconds * CamClumsiness)
         {
+            return;
+        }
+
+        // A quick cam only takes the shot once the launcher is on aim.
+        if (_straight && (yawErr > tolerance || pitchErr > tolerance))
+        {
+            if (now - _stepAt > 1.5f) Enter(Step.Holster, now);
+            return;
+        }
+
+        if (_straight && _gadget is SGadStickyCam launcher &&
+            (_target is null || _bot.Memory.Find(_target) is not { } target ||
+             spy.MyWeapon is not { } weapon || !TryCamFit(spy, launcher, CombatServices.Ports(launcher).BoneCoords(weapon, SWeaponDefense.FxBone),
+                 CamTarget(target), out float fit) || target.BodyVisible && fit >= EK.StickyGasRadiusSquared))
+        {
+            Enter(Step.Holster, now);
             return;
         }
 
@@ -1031,6 +1063,13 @@ public sealed class SpyGadgets
             return;
         }
 
+        if (_camDoses >= 0 && cam.Smoke_NbDoses < _camDoses)
+        {
+            _gassedAt = now;
+            Gassings++;
+        }
+        _camDoses = cam.Smoke_NbDoses;
+
         FVector gas = cam.Location + cam.Rotation.Vector() * EK.StickyGasAhead;
         // Nobody near the gas point: the view is left after a few seconds (sooner with skill) instead of sat in.
         bool mercNearGas = false;
@@ -1048,6 +1087,8 @@ public sealed class SpyGadgets
         bool leave = now - _stepAt > watch ||
             _gassedAt >= 0f && now - _gassedAt > 0.4f + 1.1f * CamClumsiness || now - _bot.HurtAt < 0.5f;
         bool inReach = false;
+        float bestFit = EK.StickyGasRadiusSquared;
+        FRotator? gasAim = null;
         foreach (AiContact c in _bot.Memory.Contacts)
         {
             if (c.Pawn is not SPAWNDEFENSE m)
@@ -1056,19 +1097,24 @@ public sealed class SpyGadgets
             }
 
             // A merc coming for the spy's body: out of the view.
-            if (c.Confidence > 0.5f && (c.Position - spy.Location).Size() < SpyGadgetK.CamLeaveRange)
+            FVector toSpy = spy.Location - c.Position;
+            if (c.Confidence > 0.5f && toSpy.SizeSquared() < SpyGadgetK.CamLeaveRange * SpyGadgetK.CamLeaveRange &&
+                (!ReferenceEquals(c.Pawn, _target) || c.Pose is { } pose && (pose.Rotation.Vector() | toSpy.SafeNormal()) > SpyGadgetK.FacingCos))
             {
                 leave = true;
             }
 
-            bool fresh = c.Visible || c.Confidence > 0.6f && now - c.Time < 0.5f;
-            if (!fresh || cam.Smoke_NbDoses <= 0 || now < cam.NextUseTime || c.BodyVisible && m.bGasMask)
+            bool fresh = c.Visible && c.Confirmed || c.Confidence > 0.6f && now - c.Time < 0.5f;
+            bool remembered = ReferenceEquals(c.Pawn, _target) && c.Confidence > 0.4f && now - c.Time < SpyGadgetK.SleepFreshSeconds;
+            if (!(fresh || remembered) || cam.Smoke_NbDoses <= 0 || now < cam.NextUseTime || c.Pose is { OnFeet: false } || c.BodyVisible && m.bGasMask)
             {
                 continue;
             }
 
-            FVector at = c.Position + (c.BodyVisible ? c.Velocity * SpyGadgetK.GasLead : default);
-            if ((at - gas).Size() < SpyGadgetK.GasReach && _bot.World.LineOpen(cam.Location, at) && !_usingHeld)
+            FVector at = CamTarget(c);
+            if (!_bot.World.LineOpen(cam.Location, at)) continue;
+
+            if (fresh && (at - gas).SizeSquared() < EK.StickyGasRadiusSquared && !_usingHeld)
             {
                 // The thumb is on the gas after the bot's reaction time, a little longer for the unpractised.
                 inReach = true;
@@ -1083,15 +1129,28 @@ public sealed class SpyGadgets
                 }
 
                 plan.Keys.bUsing = 1;
-                _gassedAt = now;
-                Gassings++;
                 break;
+            }
+
+            FRotator aim = CamTurnTo(cam.Location, at, cam.PitchConstraint, cam.YawConstraint);
+            FVector aimedGas = cam.Location + aim.Vector() * EK.StickyGasAhead;
+            float fit = (at - aimedGas).SizeSquared();
+            if (fit < bestFit)
+            {
+                bestFit = fit;
+                gasAim = aim;
             }
         }
 
         if (!inReach)
         {
             _gasInReachAt = -1f;
+        }
+
+        if (!leave && !inReach && gasAim is { } turn)
+        {
+            plan.Yaw = turn.Yaw;
+            plan.Pitch = turn.Pitch;
         }
 
         _usingHeld = plan.Keys.bUsing != 0;
@@ -1223,48 +1282,58 @@ public sealed class SpyGadgets
         return new FRotator(pitch + (int)(_bot.Random.RandRange(-spread, spread) * 0.5f), yaw + (int)_bot.Random.RandRange(-spread, spread), 0);
     }
 
-    /// <summary>
-    /// A wall the cam can stick on (the stick line's flags and surface test, sticky-cam.md rule 2) from where the
-    /// gas point lands within reach of <paramref name="spot"/>: the cam turns to face the pawn at the entry (within
-    /// its limits round the wall's normal), and the gas goes 192 uu along its view. A few lines round the direction
-    /// to the spot are tried; the best fit wins.
-    /// </summary>
-    [Provenance(ProvenanceKind.Decoded, "sticky-cam.md rules 2, 10 and 22: 2.5 uu pull-back, the cam faces the pawn, gas 192 uu ahead, limits pitch 13000 / yaw 14000")]
-    private bool FindCamSpot(SBasePawn spy, FVector spot, out FRotator aim, float fitWithin = SpyGadgetK.CamFit)
+    private static FVector CamTarget(AiContact contact) =>
+        contact.Position + (contact.BodyVisible ? contact.Velocity * SpyGadgetK.GasLead : FVector.Zero);
+
+    private static FRotator CamTurnTo(FVector mount, FVector target, FVector pitch, FVector yaw)
+    {
+        FRotator view = (target - mount).Rotation();
+        return new FRotator(SPlayerController.ClampRotation((int)pitch.X, view.Pitch, (int)pitch.Y, (int)pitch.Z),
+            SPlayerController.ClampRotation((int)yaw.X, view.Yaw, (int)yaw.Y, (int)yaw.Z), 0);
+    }
+
+    private bool TryCamFit(SBasePawn spy, SGadStickyCam launcher, FCoords muzzle, FVector target, out float fit)
+    {
+        fit = float.MaxValue;
+        if (!launcher.TryFindPlacement(spy, muzzle, out FVector mount, out FRotator facing, out _) ||
+            (mount - spy.Location).SizeSquared() < SpyGadgetK.SleepMin * SpyGadgetK.SleepMin || !_bot.World.LineOpen(mount, target))
+        {
+            return false;
+        }
+
+        FVector pitchLimits = s_camDefaults.PitchConstraint;
+        pitchLimits.X = facing.Pitch;
+        FVector yawLimits = s_camDefaults.YawConstraint;
+        yawLimits.X = facing.Yaw;
+        FRotator gasAim = CamTurnTo(mount, target, pitchLimits, yawLimits);
+        FVector gas = mount + gasAim.Vector() * EK.StickyGasAhead;
+        fit = (gas - target).SizeSquared();
+        return true;
+    }
+
+    /// <summary>Searches launch angles using the same muzzle and replicated mount as a real shot.</summary>
+    private bool FindCamSpot(SBasePawn spy, SGadStickyCam launcher, FVector spot, out FRotator aim, float fitWithin = SpyGadgetK.CamFit)
     {
         aim = default;
         FVector eye = AiSight.Eye(spy);
         FVector to = spot - eye;
-        float dist = to.Size();
-        if (dist < 1f)
+        if (to.SizeSquared() < 1f)
         {
             return false;
         }
 
         FRotator baseRot = to.Rotation();
-        float best = fitWithin;
+        float pitchOffset = spy.bIsCrouched ? CombatNatives.SpyPistolCrouchedPitchOffset : CombatNatives.SpyPistolStandingPitchOffset;
+        float best = fitWithin * fitWithin;
         bool found = false;
         for (int p = -1; p <= 1; p++)
         {
             for (int y = -5; y <= 5; y++)
             {
-                var r = new FRotator(baseRot.Pitch + p * SpyGadgetK.CamProbeStep, baseRot.Yaw + y * SpyGadgetK.CamProbeStep, 0);
-                FVector d = r.Vector();
-                FVector end = eye + d * (dist + SpyGadgetK.CamProbeBeyond);
-                if (!_bot.World.Collision.LineCheck(out FCheckResult hit, spy, end, eye, default, SGadStickyCam.StickTraceFlags) ||
-                    !SGadStickyCam.CanStickOn(hit) || (hit.Location - eye).Size() < 200f)
-                {
-                    continue;
-                }
-
-                FVector cam = hit.Location - d * 2.5f;
-                FRotator wall = SGadStickyCam.FacingBack(hit.Normal, d).Rotation();
-                FRotator face = (spy.Location - cam).Rotation();
-                int relYaw = Math.Clamp(Wrap(face.Yaw - wall.Yaw), -14000, 14000);
-                int relPitch = Math.Clamp(Wrap(face.Pitch - wall.Pitch), -13000, 13000);
-                FVector gas = cam + new FRotator(wall.Pitch + relPitch, wall.Yaw + relYaw, 0).Vector() * EK.StickyGasAhead;
-                float fit = (gas - spot).Size();
-                if (fit < best && _bot.World.LineOpen(cam, spot))
+                int pitch = SvmMath.Round((Wrap(baseRot.Pitch) + p * SpyGadgetK.CamProbeStep - pitchOffset) / CombatNatives.SpyPistolPitchShare);
+                var r = new FRotator(pitch, baseRot.Yaw + y * SpyGadgetK.CamProbeStep, 0);
+                FCoords muzzle = CombatNatives.SpyPistolCoords(spy, r);
+                if (TryCamFit(spy, launcher, muzzle, spot, out float fit) && fit < best)
                 {
                     best = fit;
                     aim = r;
@@ -1377,9 +1446,6 @@ public static class SpyGadgetK
     [Provenance(ProvenanceKind.Estimated, "Bot play choice: about 6 degrees between the lines tried for a cam")]
     public const int CamProbeStep = 1100;
 
-    [Provenance(ProvenanceKind.Estimated, "Bot play choice: walls up to this far behind the spot are tried")]
-    public const float CamProbeBeyond = 700f;
-
     [Provenance(ProvenanceKind.Estimated, "Bot play choice: seconds to select, draw, aim and enter the cam")]
     public const float CamSetupSeconds = 6f;
 
@@ -1419,10 +1485,6 @@ public static class SpyGadgetK
 
     [Provenance(ProvenanceKind.Estimated, "Bot play choice: a merc believed within this of the gas point is waited for (uu)")]
     public const float CamStayRange = 500f;
-
-    /// <summary>Gas reach from the gas point: the 128 uu radius plus a margin (the cloud catches for 6 s).</summary>
-    [Provenance(ProvenanceKind.Decoded, "sticky-cam.md rule 23: 128 uu round the gas point; the 40 uu margin is a play choice")]
-    public const float GasReach = 168f;
 
     [Provenance(ProvenanceKind.Estimated, "Bot play choice: seconds of a seen merc's speed taken into account")]
     public const float GasLead = 0.3f;

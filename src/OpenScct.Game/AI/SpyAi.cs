@@ -145,6 +145,7 @@ public sealed partial class SpyAi : AiBrain
     public SpyAi(AiController bot)
         : base(bot)
     {
+        Follower.DeferLink = ExposedClimb;
     }
 
     public SpySecurity Security { get; } = new();
@@ -223,6 +224,7 @@ public sealed partial class SpyAi : AiBrain
         _grabTarget = null;
         _dropTarget = null;
         _rollTicks = 0;
+        _attentionUntil = _nextAttention = -1f;
         _otherObjective = null;
         _objectiveUseAt = -1f;
     }
@@ -305,15 +307,15 @@ public sealed partial class SpyAi : AiBrain
             _meleeRollOk = Bot.Random.FRand() < Difficulty.MeleeUse * Bot.Personality.Aggression;
         }
 
-        if (_meleeRollOk && !hurt && Bot.Gadgets.Active == SpyGadgetAct.None)
+        if ((_meleeRollOk || Difficulty.MeleeUse >= SpyAiK.OpportunisticGrabSkill) && !hurt && Bot.Gadgets.Active == SpyGadgetAct.None)
         {
-            float grab = GrabChoice(now, myLight);
+            float grab = GrabChoice(now, myLight, _meleeRollOk);
             if (grab > 0f)
             {
                 options[n++] = new AiOption(GGrab, grab);
             }
 
-            float drop = DropChoice(now);
+            float drop = _meleeRollOk ? DropChoice(now) : 0f;
             if (drop > 0f)
             {
                 options[n++] = new AiOption(GDrop, drop);
@@ -472,7 +474,7 @@ public sealed partial class SpyAi : AiBrain
     /// feet, alone (no other merc known within 1200 uu of him), not shocked in the last 5.5 s (the server refuses a
     /// grab within 5 s of a shock), and worth it: the spy in the dark, the merc guarding the target or in the way.
     /// </summary>
-    private float GrabChoice(float now, float myLight)
+    private float GrabChoice(float now, float myLight, bool approach)
     {
         _grabCandidate = null;
         if (now < _grabCooldownUntil || Pawn.Physics != EPhysics.PHYS_Walking || Pawn.HandItem is not null ||
@@ -499,6 +501,13 @@ public sealed partial class SpyAi : AiBrain
                 continue;
             }
 
+            // An already-reachable target is a chance to grab now. Save the random choice for longer approaches.
+            bool inReach = c.BodyVisible && to.SizeSquared() < Pc.fGrabDistance * Pc.fGrabDistance;
+            if (!approach && !inReach)
+            {
+                continue;
+            }
+
             // Turned away: the spy in the rear half of his view, well behind him when close.
             if (d > 1f && (to | pose.Rotation.Vector()) / d > (d < 500f ? -0.3f : 0f) || !Alone(m, pose.Position))
             {
@@ -514,6 +523,7 @@ public sealed partial class SpyAi : AiBrain
             }
 
             float score = 0.7f + Difficulty.MeleeUse * 0.5f + (guarding ? 0.3f : 0f) + (inTheWay ? 0.2f : 0f) - d / 4000f;
+            if (inReach) score += 0.4f;
             if (score > bestScore)
             {
                 bestScore = score;
@@ -650,19 +660,12 @@ public sealed partial class SpyAi : AiBrain
             bool faces = cos > 0.75f;
             float light = World.LightOn(Pawn, AiSight.Eye(c.Pawn));
             float e = (faces ? 1f : 0.25f) * (light > 0.15f ? 1f : 0.35f) * SvmMath.Max(0f, 1f - d / 2500f);
-            if (e > best || (threat is null))
+            if (e > best || (e == best && d < distance))
             {
-                if (e >= best)
-                {
-                    best = e;
-                }
-
-                if (d < distance)
-                {
-                    threat = c.Pawn;
-                    distance = d;
-                    facing = faces;
-                }
+                best = e;
+                threat = c.Pawn;
+                distance = d;
+                facing = faces;
             }
         }
 
@@ -766,6 +769,7 @@ public sealed partial class SpyAi : AiBrain
 
         Roll(now, ref plan);
         Holster(now, ref plan);
+        AttendToContacts(now, ref plan);
     }
 
     /// <summary>
@@ -849,24 +853,64 @@ public sealed partial class SpyAi : AiBrain
             Follower.Clear();
         }
 
-        if (!MoveTo(_wander, now, ref plan, sneak: true) && now - _lastFailAt > 1.2f)
+        if (!MoveTo(_wander, now, ref plan, sneak: ShouldSneak(now)) && now - _lastFailAt > 1.2f)
         {
             _lastFailAt = now;
             Follower.StartWiggle(now);
         }
     }
 
+    private bool ShouldSneak(float now, FVector? objective = null) =>
+        _exposure <= 0.25f && now - Bot.HurtAt >= 2f && World.LightAround(Feet) < EvasionK.LitLevel &&
+        (MercsAbout(now) || Difficulty.Stealth >= 0.5f && objective is { } goal &&
+            (goal - Feet).SizeSquared() < SpyAiK.SneakApproach * SpyAiK.SneakApproach);
+
     private bool MercsAbout(float now)
     {
+        FVector eye = AiSight.Eye(Pawn);
         foreach (AiContact c in Bot.Memory.Contacts)
         {
-            if (c.Confidence > 0.25f && (c.Position - Pawn.Location).Size() < 2200f)
+            if (c.Confidence > 0.25f && ConfirmedShockTimeLeft(c.Pawn, now) <= 0f &&
+                (c.Position - Pawn.Location).SizeSquared() < 1400f * 1400f && World.LineOpen(c.BelievedEye, eye))
             {
                 return true;
             }
         }
 
         return false;
+    }
+
+    // A Merc's normal freeze is 3.5 seconds. The input timer truncates the absolute end to a whole second.
+    internal float ConfirmedShockTimeLeft(Pawn enemy, float now) => ReferenceEquals(enemy, _shockedPawn)
+        ? MathF.Max(0f, 2.5f - (now - _shockedAt)) : 0f;
+
+    internal void NoteShock(SBasePawn enemy, float now)
+    {
+        _shockedPawn = enemy;
+        _shockedAt = now;
+    }
+
+    private bool ExposedClimb(NavLink link, float now)
+    {
+        if (link.Kind is not (NavEdgeKind.LadderUp or NavEdgeKind.LadderDown)) return false;
+
+        float clearIn = NavFollower.Horizontal(Pawn.Location - link.Start) / AiK.RunSpeed + link.Height / AiK.LadderSpeed + 1.5f;
+        var body = new FVector(0f, 0f, AiK.StandingHeight);
+        FVector entrance = link.Start + body;
+        FVector exit = link.End + body;
+        FVector middle = (entrance + exit) * 0.5f;
+        foreach (AiContact contact in Bot.Memory.Contacts)
+        {
+            if (contact.Confidence < 0.4f || ConfirmedShockTimeLeft(contact.Pawn, now) > clearIn) continue;
+
+            FVector eye = contact.BelievedEye;
+            if (Threatens(eye, entrance) || Threatens(eye, middle) || Threatens(eye, exit))
+                return true;
+        }
+
+        return false;
+
+        bool Threatens(FVector eye, FVector at) => (eye - at).SizeSquared() < 1800f * 1800f && World.LineOpen(eye, at);
     }
 
     /// <summary><see cref="NextTerminal"/> gave no new terminal only because the sweep its choice reads is still under way.</summary>
@@ -1022,9 +1066,7 @@ public sealed partial class SpyAi : AiBrain
                     return;
                 }
 
-                // Crouched with a merc believed about, or on the last stretch to the terminal (the stealthier bots);
-                // across empty ground the spy runs, as a player does.
-                bool sneak = MercsAbout(now) || Difficulty.Stealth >= 0.5f && (floor - Feet).SizeSquared() < SpyAiK.SneakApproach * SpyAiK.SneakApproach;
+                bool sneak = ShouldSneak(now, floor);
                 if (!MoveTo(floor, now, ref plan, sneak, Difficulty.Stealth, DangerPenalty(Difficulty.Stealth)))
                 {
                     // No way from here: wiggle free a couple of times before the terminal is given up.
@@ -1201,14 +1243,12 @@ public sealed partial class SpyAi : AiBrain
             _hideSpotAt = now;
         }
 
+        // Run unless the follower requires a crouch to fit through its escape route.
+        plan.Crouched = false;
         if (!MoveTo(_hideSpot, now, ref plan, sneak: false, stealth: Difficulty.Stealth * 0.5f, DangerPenalty(1f)))
         {
             // Nowhere to go: at least get low.
             plan.Crouched = true;
-        }
-        else
-        {
-            plan.Crouched = false;
         }
     }
 
@@ -1388,8 +1428,7 @@ public sealed partial class SpyAi : AiBrain
                 if (contact.BodyVisible && target.bStickyShocking)
                 {
                     ShockHits++;
-                    _shockedPawn = target;
-                    _shockedAt = now;
+                    NoteShock(target, now);
                     EndShock(now, SpyAiK.ShockCooldown);
                     return;
                 }
@@ -1461,7 +1500,6 @@ public sealed partial class SpyAi : AiBrain
             if (now - _grabAt > SpyAiK.GrabAnswerSeconds)
             {
                 _grab = GrabPhase.Approach;
-                _grabAt = now;
             }
 
             return;
@@ -1487,12 +1525,16 @@ public sealed partial class SpyAi : AiBrain
         // The last steps: straight at him, standing at the walk (silent: walking steps play no sound), so the pawn
         // turns to face him. Standing, as the grab from a crouch first has to stand the spy up.
         plan.Crouched = false;
-        plan.Yaw = NavFollower.YawTo(Pawn.Location, pose.Position);
+        int yaw = NavFollower.YawTo(Pawn.Location, pose.Position);
+        plan.Yaw = yaw;
         plan.Tolerance = 3000;
         plan.Keys = default;
-        plan.Keys.BT_Up = (byte)(d > SpyAiK.GrabStopDistance ? 1 : 0);
+        // The holstered spy's body follows movement, not his free-look camera. Turn even if already close enough.
+        bool bodyTurning = NavFollower.YawError(Pawn.Rotation.Yaw & 0xffff, yaw) > plan.Tolerance;
+        plan.Keys.BT_Up = (byte)(d > SpyAiK.GrabStopDistance || bodyTurning ? 1 : 0);
         plan.Keys.FastSpeed = false;
-        if (!Pawn.bIsCrouched && contact.BodyVisible && Pc.CanGrabPawn(m) && now - _grabAt > SpyAiK.GrabAnswerSeconds)
+        if (!Pawn.bIsCrouched && contact.BodyVisible && Pc.CanGrabPawn(m) &&
+            (_grabPresses == 0 || now - _grabAt > SpyAiK.GrabAnswerSeconds))
         {
             _grab = GrabPhase.Press;
             _grabAt = now;
@@ -1703,29 +1745,17 @@ public sealed partial class SpyAi : AiBrain
             return;
         }
 
-        bool urgent;
-        if (Goal == GEvade)
-        {
-            urgent = true;
-        }
-        else if (Goal == GHack && _hack == HackPhase.Walk)
-        {
-            urgent = _exposure > 0.35f || now - Bot.HurtAt < 3f;
-            if (!urgent && (plan.Crouched == true || MercsAbout(now)))
-            {
-                return;
-            }
-        }
-        else
-        {
+        if (AtTerminal || Goal is not (GEvade or GHack or GObjective or GIdle) || plan.Crouched == true || !plan.Keys.FastSpeed)
             return;
-        }
+
+        bool urgent = Goal == GEvade || _exposure > 0.35f || now - Bot.HurtAt < 3f;
+        if (!urgent && MercsAbout(now)) return;
 
         if (now - _rollAt < (urgent ? SpyAiK.RollDodgeCooldown : SpyAiK.RollRunCooldown) || now - _rollLookAt < 0.5f ||
             Pawn.Physics != EPhysics.PHYS_Walking || Pawn.WeaponLoaded != 0 || (Pawn.bIsCrouched && !urgent) ||
             Bot.Gadgets.Active != SpyGadgetAct.None ||
             plan.Keys.BT_Up == 0 || (plan.Keys.BT_Down | plan.Keys.BT_Left | plan.Keys.BT_Right) != 0 || plan.MoveYaw is not null ||
-            plan.Yaw is not int yaw || NavFollower.Horizontal(Pawn.Velocity) < 200f ||
+            plan.Yaw is not int yaw || NavFollower.Horizontal(Pawn.Velocity) < (urgent ? 85f : 160f) ||
             NavFollower.YawError(Pc.Rotation.Yaw & 0xFFFF, yaw) > 1200 || NavFollower.YawError(Pawn.Rotation.Yaw & 0xFFFF, yaw) > 1800)
         {
             return;
@@ -1733,7 +1763,7 @@ public sealed partial class SpyAi : AiBrain
 
         _rollLookAt = now;
         if (StraightAhead() < (urgent ? SpyAiK.RollDodgeClear : SpyAiK.RollRunClear) ||
-            Bot.Random.FRand() > (urgent ? 0.3f + 0.6f * Difficulty.Stealth : 0.15f + 0.5f * Difficulty.Stealth))
+            Bot.Random.FRand() > (urgent ? 0.65f + 0.35f * Difficulty.Stealth : 0.4f + 0.35f * Difficulty.Stealth))
         {
             return;
         }
@@ -1833,7 +1863,7 @@ public static class SpyAiK
     public const float EvadeMemorySeconds = 4f;
 
     /// <summary>With no merc about, the stealthier spies crouch only within this of their objective (uu).</summary>
-    public const float SneakApproach = 1500f;
+    public const float SneakApproach = 650f;
 
     /// <summary>Shot at from farther than this, a spy breaks away instead of standing to draw the shocker (uu).</summary>
     public const float ShockUnderFireRange = 550f;
@@ -1900,6 +1930,9 @@ public static class SpyAiK
 
     [Provenance(ProvenanceKind.Estimated, "Bot play choice")]
     public const float GrabNoticeRange = 1400f;
+
+    [Provenance(ProvenanceKind.Estimated, "Bot play choice: Normal and better take an obvious grab in reach without waiting for a melee roll")]
+    public const float OpportunisticGrabSkill = 0.3f;
 
     [Provenance(ProvenanceKind.Estimated, "Bot play choice: a merc seen for sure this long ago still counts for a grab")]
     public const float GrabMemorySeconds = 1.5f;
