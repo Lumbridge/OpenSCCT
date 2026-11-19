@@ -643,7 +643,7 @@ public sealed class SpyGadgets
             return;
         }
 
-        if (now - _actAt > Timeout())
+        if (now - _actAt > Timeout() && _step != Step.CamLeave)
         {
             if (inCam)
             {
@@ -1071,21 +1071,27 @@ public sealed class SpyGadgets
         _camDoses = cam.Smoke_NbDoses;
 
         FVector gas = cam.Location + cam.Rotation.Vector() * EK.StickyGasAhead;
-        // Nobody near the gas point: the view is left after a few seconds (sooner with skill) instead of sat in.
-        bool mercNearGas = false;
+        bool recentTarget = false;
+        bool exposed = now - _bot.HurtAt < 0.75f;
         foreach (AiContact c in _bot.Memory.Contacts)
         {
-            if (c.Pawn is SPAWNDEFENSE && c.Confidence > 0.4f && (c.Position - gas).SizeSquared() < SpyGadgetK.CamStayRange * SpyGadgetK.CamStayRange)
-            {
-                mercNearGas = true;
-                break;
-            }
+            if (c.Pawn is not SPAWNDEFENSE || c.Confidence <= 0.4f || now - c.Time > 1f ||
+                c.Pose is { OnFeet: false }) continue;
+            recentTarget |= (c.Position - gas).SizeSquared() < SpyGadgetK.CamStayRange * SpyGadgetK.CamStayRange;
+            FVector toSpy = AiSight.Eye(spy) - c.Position;
+            bool facingBody = c.Pose is { } pose && (pose.Rotation.Vector() | toSpy.SafeNormal()) > SpyGadgetK.FacingCos;
+            if ((facingBody || !ReferenceEquals(c.Pawn, _target) && toSpy.SizeSquared() < SpyGadgetK.CamLeaveRange * SpyGadgetK.CamLeaveRange)
+                && _bot.World.LineOpen(c.Position, AiSight.Eye(spy)))
+                exposed = true;
         }
 
-        float watch = mercNearGas ? SpyGadgetK.CamWatchSeconds * (0.5f + 0.5f * _bot.Difficulty.GadgetUse)
-            : SpyGadgetK.CamIdleSeconds * (0.5f + 0.5f * CamClumsiness);
-        bool leave = now - _stepAt > watch ||
-            _gassedAt >= 0f && now - _gassedAt > 0.4f + 1.1f * CamClumsiness || now - _bot.HurtAt < 0.5f;
+        float watch = recentTarget ? SpyGadgetK.CamWatchSeconds : SpyGadgetK.CamIdleSeconds;
+        if (exposed || _gassedAt >= 0f || cam.Smoke_NbDoses <= 0 || now - _stepAt >= watch)
+        {
+            Enter(Step.CamLeave, now);
+            plan.Keys.Press(AiCommand.AltFire);
+            return;
+        }
         bool inReach = false;
         float bestFit = EK.StickyGasRadiusSquared;
         FRotator? gasAim = null;
@@ -1094,14 +1100,6 @@ public sealed class SpyGadgets
             if (c.Pawn is not SPAWNDEFENSE m)
             {
                 continue;
-            }
-
-            // A merc coming for the spy's body: out of the view.
-            FVector toSpy = spy.Location - c.Position;
-            if (c.Confidence > 0.5f && toSpy.SizeSquared() < SpyGadgetK.CamLeaveRange * SpyGadgetK.CamLeaveRange &&
-                (!ReferenceEquals(c.Pawn, _target) || c.Pose is { } pose && (pose.Rotation.Vector() | toSpy.SafeNormal()) > SpyGadgetK.FacingCos))
-            {
-                leave = true;
             }
 
             bool fresh = c.Visible && c.Confirmed || c.Confidence > 0.6f && now - c.Time < 0.5f;
@@ -1147,18 +1145,14 @@ public sealed class SpyGadgets
             _gasInReachAt = -1f;
         }
 
-        if (!leave && !inReach && gasAim is { } turn)
+        if (!inReach && gasAim is { } turn)
         {
             plan.Yaw = turn.Yaw;
             plan.Pitch = turn.Pitch;
         }
 
         _usingHeld = plan.Keys.bUsing != 0;
-        if (leave && plan.Keys.bUsing == 0)
-        {
-            Enter(Step.CamLeave, now);
-            plan.Keys.Press(AiCommand.AltFire);
-        }
+
     }
 
     /// <summary>Alt-fire leaves the view; the leave state then holsters the pistol itself.</summary>
@@ -1449,8 +1443,8 @@ public static class SpyGadgetK
     [Provenance(ProvenanceKind.Estimated, "Bot play choice: seconds to select, draw, aim and enter the cam")]
     public const float CamSetupSeconds = 6f;
 
-    [Provenance(ProvenanceKind.Estimated, "Bot play choice: longest watch through a cam (half of it at GadgetUse 0)")]
-    public const float CamWatchSeconds = 15f;
+    [Provenance(ProvenanceKind.Estimated, "Bot play choice: maximum time to line up a recently observed gas target")]
+    public const float CamWatchSeconds = 1.6f;
 
     [Provenance(ProvenanceKind.Estimated, "Bot play choice: a merc believed this close to the spy's body ends the watch")]
     public const float CamLeaveRange = 600f;
@@ -1480,8 +1474,8 @@ public static class SpyGadgetK
     [Provenance(ProvenanceKind.Estimated, "Bot play choice: seconds an unskilled bot takes to line a cam up (none at full skill)")]
     public const float CamAimSeconds = 0.9f;
 
-    [Provenance(ProvenanceKind.Estimated, "Bot play choice: seconds in the cam view with no merc near the gas point (half of it at full skill)")]
-    public const float CamIdleSeconds = 5f;
+    [Provenance(ProvenanceKind.Estimated, "Bot play choice: seconds to abandon an empty cam view")]
+    public const float CamIdleSeconds = 0.55f;
 
     [Provenance(ProvenanceKind.Estimated, "Bot play choice: a merc believed within this of the gas point is waited for (uu)")]
     public const float CamStayRange = 500f;
