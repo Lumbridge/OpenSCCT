@@ -140,6 +140,56 @@
     }
   },
   {
+    "id": "same-winding-indexed-29b6f0",
+    "size": 75,
+    "offset": 2733808,
+    "inputs": [
+      "src/mesh_triangle_winding.c"
+    ],
+    "rebuilt_symbol": "_same_winding@12",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/mesh_triangle_winding.obj src/mesh_triangle_winding.c",
+    "identification": "Complete indexed same winding function at RVA 0x29b6f0.",
+    "coff_alignment": 16,
+    "match": {
+      "bytes_sha256": "0c17d6d34a623fc99a0d0e3aee4e3d75d4e4b918fd8fb34356a4f6147a8d0856",
+      "inputs_sha256": "2f40125729a35c88601cca2524e4b5c51fffb9fa028fd978d10ca5fcd3d8e0c8"
+    }
+  },
+  {
+    "id": "repeated-face-index-indexed-29bee0",
+    "size": 32,
+    "offset": 2735840,
+    "inputs": [
+      "src/mesh_triangle_winding.c"
+    ],
+    "rebuilt_symbol": "_repeated_face_index",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/mesh_triangle_winding.obj src/mesh_triangle_winding.c",
+    "identification": "Complete indexed repeated face index function at RVA 0x29bee0.",
+    "match": {
+      "bytes_sha256": "400168faa5a2f35fb499a1721132f3b54f3920d3ba30f15f2fa9c6dd48dbd917",
+      "inputs_sha256": "0e53d2ba1c63bbcae44e0ca8e43adc4e0f360930c3a46f2c803c6992bbba2e50"
+    }
+  },
+  {
+    "id": "repeated-index-indexed-29bf00",
+    "size": 44,
+    "offset": 2735872,
+    "inputs": [
+      "src/mesh_triangle_winding.c"
+    ],
+    "rebuilt_symbol": "_repeated_index@12",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/mesh_triangle_winding.obj src/mesh_triangle_winding.c",
+    "identification": "Complete indexed repeated index function at RVA 0x29bf00.",
+    "coff_alignment": 16,
+    "match": {
+      "bytes_sha256": "704e875798c1db236c0939ef111d12b32a4f0ccfc5c96dbb612d0eda3c4a3bf7",
+      "inputs_sha256": "6ce830995de11a7cb5cb0d6c21498e32ef16f59645bf3e88e30790c42c40f367"
+    }
+  },
+  {
     "id": "mesh-cache-face",
     "size": 174,
     "offset": 2738560,
