@@ -917,6 +917,28 @@
     }
   },
   {
+    "id": "animation-add-unique-bank",
+    "size": 69,
+    "offset": 882560,
+    "inputs": [
+      "src/campaign_animation_bank_list.c"
+    ],
+    "rebuilt_symbol": "@add_unique_bank@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_animation_bank_list.obj src/campaign_animation_bank_list.c",
+    "link_bindings": {
+      "@grow_banks@8": {
+        "va": 281850816,
+        "basis": "Stock operand for @grow banks@8."
+      }
+    },
+    "identification": "Indexed whole function on the mesh animation bank registration path. Returns the existing index or grows the bank array and stores a new pointer.",
+    "match": {
+      "bytes_sha256": "a8dadce7c7dedacb2adf96c463bf4fd685178173af7b5823f34b0a525e533482",
+      "inputs_sha256": "65592e3d973aaee94884a7b61a6f95fe4556c266ca0956154265a5df00634262"
+    }
+  },
+  {
     "id": "append-fsarray-0d7830",
     "size": 55,
     "offset": 882736,
@@ -4093,6 +4115,32 @@
     "match": {
       "bytes_sha256": "1d646d35ab34becc52da073e1ff20b2df39fe4168ae7a52d489281fb2d5422b5",
       "inputs_sha256": "b2d60b03d995c6d1a53fbbc4d7f9a3708d6b25f316c44c82f2fb0306a746799f"
+    }
+  },
+  {
+    "id": "animation-register-bank",
+    "size": 57,
+    "offset": 896048,
+    "inputs": [
+      "src/campaign_animation_bank_list.c"
+    ],
+    "rebuilt_symbol": "@register_bank@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_animation_bank_list.obj src/campaign_animation_bank_list.c",
+    "link_bindings": {
+      "@add_unique_bank@8": {
+        "va": 278755200,
+        "basis": "Stock operand for @add unique bank@8."
+      },
+      "@add_zeroed@8": {
+        "va": 278703200,
+        "basis": "Stock operand for @add zeroed@8."
+      }
+    },
+    "identification": "Indexed whole function on the mesh animation bank registration path. Registers a nonnull bank once, extending the parallel zeroed record array when needed.",
+    "match": {
+      "bytes_sha256": "9da6957426f2f97da846cf978401a7a2531d301b1f290348a6afa46d6c967556",
+      "inputs_sha256": "607a492d99e86f340af8666012969ec7fa5c61403eb7106cd74a14bf7bd32419"
     }
   },
   {
