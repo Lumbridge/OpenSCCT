@@ -417,6 +417,56 @@
     }
   },
   {
+    "id": "registry-container-cleanup-4822b0",
+    "size": 111,
+    "offset": 4727472,
+    "inputs": [
+      "src/campaign_registry_container_cleanup.c"
+    ],
+    "rebuilt_symbol": "@cleanup@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_registry_container_cleanup.obj src/campaign_registry_container_cleanup.c",
+    "link_bindings": {
+      "_registry": {
+        "va": 288469384,
+        "basis": "Registry passed as receiver."
+      },
+      "_object_methods": {
+        "va": 286508784,
+        "basis": "Receiver method table installed before cleanup."
+      },
+      "@unregister_object@8": {
+        "va": 282776704,
+        "basis": "Unregisters the object."
+      },
+      "@cleanup_contents@4": {
+        "va": 282597920,
+        "basis": "Cleans up the receiver before destroying its two containers."
+      },
+      "@clear_container@4": {
+        "va": 279693888,
+        "basis": "Clears each container."
+      },
+      "_prepare_release": {
+        "va": 282637408,
+        "basis": "Prepares the buffer for release with allocation category seven."
+      },
+      "_release_prepared": {
+        "va": 282637648,
+        "basis": "Releases the prepared buffer."
+      },
+      "@cleanup_parent@4": {
+        "va": 282776432,
+        "basis": "Parent cleanup reached by a tail jump."
+      }
+    },
+    "identification": "Indexed registry member destructor clears containers at offsets 28 and 12, frees both buffers and tail-calls the parent.",
+    "match": {
+      "bytes_sha256": "8357b7633b40178d0fb2b2500b5caaf365d707a68bc55b037629377781afc42b",
+      "inputs_sha256": "b5cdd3f68e049afaeca0eafe6a157d86c31639ffa2fe8be1281543872bbc2a55"
+    }
+  },
+  {
     "id": "delete-record-482340",
     "offset": 4727616,
     "size": 30,
