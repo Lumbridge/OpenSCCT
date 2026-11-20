@@ -2822,6 +2822,28 @@
     }
   },
   {
+    "id": "reflection-class-constructor",
+    "size": 73,
+    "offset": 5240400,
+    "inputs": [
+      "src/campaign_reflection_constructor.c"
+    ],
+    "rebuilt_symbol": "@construct@36",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_constructor.obj src/campaign_reflection_constructor.c",
+    "link_bindings": {
+      "_descriptor_methods": {
+        "va": 286562960,
+        "basis": "Read-only descriptor method table installed by the constructor."
+      }
+    },
+    "identification": "Indexed destination of the independently rebuilt Havok class initializers. Installs its method table, sets the reference count to one and copies all eight descriptor fields.",
+    "match": {
+      "bytes_sha256": "8565c75e63ee61d4aab4b522a5ddb2dd7a6f64dab32b34bd024548de14d720e8",
+      "inputs_sha256": "f0e9ae61cb111d09b809c4634d565d8f325f8fd678e4fcc9f00d40a41520e0dd"
+    }
+  },
+  {
     "id": "owned-array-storage-4ff870",
     "size": 37,
     "offset": 5240944,
