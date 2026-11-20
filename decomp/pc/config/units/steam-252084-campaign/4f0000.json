@@ -1483,6 +1483,28 @@
     }
   },
   {
+    "id": "physics-heap-forward-4fbe50",
+    "size": 17,
+    "offset": 5226064,
+    "inputs": [
+      "src/campaign_physics_heap_forward.c"
+    ],
+    "rebuilt_symbol": "_entry_4fbe50",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_physics_heap_forward.obj src/campaign_physics_heap_forward.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Shared physics allocation manager."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs, following a preceding return. Passes the block to the manager for release.",
+    "match": {
+      "bytes_sha256": "80b631302a2cf06cbab4de0b72a4f1df0f44807997b7303f68811810d8b5eb06",
+      "inputs_sha256": "6cda772c4a69cb46033a77da484ceb6ad42437be3e16c54cd8aec7a50e9959b6"
+    }
+  },
+  {
     "id": "physics-sized-release-4fbf30",
     "size": 41,
     "offset": 5226288,
@@ -2160,6 +2182,28 @@
     }
   },
   {
+    "id": "physics-heap-forward-4fee40",
+    "size": 21,
+    "offset": 5238336,
+    "inputs": [
+      "src/campaign_physics_heap_forward.c"
+    ],
+    "rebuilt_symbol": "_entry_4fee40",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_physics_heap_forward.obj src/campaign_physics_heap_forward.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Shared physics allocation manager."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs, following a preceding return. Releases a fixed number of bytes in the specified category.",
+    "match": {
+      "bytes_sha256": "8f23d7c44af3edb387611b3529c58cd345642ec198d9b2a78aa65cc2b76ea758",
+      "inputs_sha256": "dc527221775932e0199bd2e5b184b717410e518a2bf8ca9397a0c1765bebb913"
+    }
+  },
+  {
     "id": "read-word-4ff0e0",
     "offset": 5239008,
     "size": 4,
@@ -2217,6 +2261,28 @@
     "match": {
       "bytes_sha256": "c2e6e11b171f0c03e97fd3901487ef50ed8b83a17f7f7db312057f7f7d1973dd",
       "inputs_sha256": "cb2ef1297cd5b5df568a2f5cf7ddeec5ab09b4bdb61c0210503d909184090e1c"
+    }
+  },
+  {
+    "id": "physics-heap-forward-4ff2f0",
+    "size": 21,
+    "offset": 5239536,
+    "inputs": [
+      "src/campaign_physics_heap_forward.c"
+    ],
+    "rebuilt_symbol": "_entry_4ff2f0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_physics_heap_forward.obj src/campaign_physics_heap_forward.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Shared physics allocation manager."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs, following a preceding return. Releases a fixed number of bytes in the specified category.",
+    "match": {
+      "bytes_sha256": "230e4775574eb21f86b40011498529f0b5643114043fccb07492ca8a505a73f5",
+      "inputs_sha256": "634395dabf28c2f389a693748b27f1be3a5f90d056271008921dd3c7749174d7"
     }
   },
   {

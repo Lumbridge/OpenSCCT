@@ -581,6 +581,28 @@
     }
   },
   {
+    "id": "physics-heap-forward-1b7640",
+    "size": 19,
+    "offset": 1799744,
+    "inputs": [
+      "src/campaign_physics_heap_forward.c"
+    ],
+    "rebuilt_symbol": "_entry_1b7640",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_physics_heap_forward.obj src/campaign_physics_heap_forward.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Shared physics allocation manager."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs, following a preceding return. Allocates the requested size in the fixed category.",
+    "match": {
+      "bytes_sha256": "ed0e75b062ed6703415d6bb19c94a1c8730d09460993439d99a1872afe5fcfe9",
+      "inputs_sha256": "89ba4c60e73d37f13ea8d2d753613f7f705ae4c53810bbf6960b37cc3f600013"
+    }
+  },
+  {
     "id": "physics-object-allocation-1b7710",
     "size": 25,
     "offset": 1799952,
@@ -622,6 +644,28 @@
     "match": {
       "bytes_sha256": "8c0c06879e5e00b7a8d95f482f4b8df499d04bc307d19ffd65133598651d7255",
       "inputs_sha256": "ae39134b8f06d1d1196c644887cb13e6e73eea93ab86f430215b7d0165cefa7c"
+    }
+  },
+  {
+    "id": "physics-heap-forward-1b7750",
+    "size": 19,
+    "offset": 1800016,
+    "inputs": [
+      "src/campaign_physics_heap_forward.c"
+    ],
+    "rebuilt_symbol": "_entry_1b7750",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_physics_heap_forward.obj src/campaign_physics_heap_forward.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Shared physics allocation manager."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs, following a preceding return. Allocates the requested size in the fixed category.",
+    "match": {
+      "bytes_sha256": "9c38b9789b48d085c03b9c3968854480507af98b9acf0902a4d0d227a59bafa2",
+      "inputs_sha256": "afcceef88d5200859990247ecc103e97968a52114419bdbe1bdaf084ea2ca09e"
     }
   },
   {

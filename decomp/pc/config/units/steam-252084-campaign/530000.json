@@ -1792,6 +1792,28 @@
     }
   },
   {
+    "id": "physics-heap-forward-53e4f0",
+    "size": 17,
+    "offset": 5498096,
+    "inputs": [
+      "src/campaign_physics_heap_forward.c"
+    ],
+    "rebuilt_symbol": "_entry_53e4f0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_physics_heap_forward.obj src/campaign_physics_heap_forward.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Shared physics allocation manager."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs, following a preceding return. Passes the block to the manager for release.",
+    "match": {
+      "bytes_sha256": "80b631302a2cf06cbab4de0b72a4f1df0f44807997b7303f68811810d8b5eb06",
+      "inputs_sha256": "7da5f4c84981b32a48cb71c557c920ff748fed5ed0880a53b5a5ff8534274715"
+    }
+  },
+  {
     "id": "physics-sized-release-53e540",
     "size": 41,
     "offset": 5498176,
@@ -1815,6 +1837,28 @@
     "match": {
       "bytes_sha256": "71f22e37a69b5c1adb6be188b32fee359778ba3ea84497146f3ce5e93f54ef15",
       "inputs_sha256": "b1dfa00119b22abaa48b7d640ee20f8384d0679ff721ae23fd505f6ea9568c20"
+    }
+  },
+  {
+    "id": "physics-heap-forward-53f260",
+    "size": 17,
+    "offset": 5501536,
+    "inputs": [
+      "src/campaign_physics_heap_forward.c"
+    ],
+    "rebuilt_symbol": "_entry_53f260",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_physics_heap_forward.obj src/campaign_physics_heap_forward.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Shared physics allocation manager."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs, following a preceding return. Passes the block to the manager for release.",
+    "match": {
+      "bytes_sha256": "80b631302a2cf06cbab4de0b72a4f1df0f44807997b7303f68811810d8b5eb06",
+      "inputs_sha256": "866d2232b3a1775eba8a55b5dc0c20bcea1a1df287b0abf6faa1c5edf9100758"
     }
   },
   {

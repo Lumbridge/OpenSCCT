@@ -404,6 +404,94 @@
     }
   },
   {
+    "id": "physics-heap-forward-5507d0",
+    "size": 19,
+    "offset": 5572560,
+    "inputs": [
+      "src/campaign_physics_heap_forward.c"
+    ],
+    "rebuilt_symbol": "_entry_5507d0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_physics_heap_forward.obj src/campaign_physics_heap_forward.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Shared physics allocation manager."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs, following a preceding return. Allocates the requested size in the fixed category.",
+    "match": {
+      "bytes_sha256": "2915bc95ae3704ae3979f81a6fb3f84b28db6d43c72d47573a1611cb000ad1c9",
+      "inputs_sha256": "f8b1a7b17ed483cf9f43fba816b19be9d3d9f5e107102af83f5c6bf12f417433"
+    }
+  },
+  {
+    "id": "physics-heap-forward-5507f0",
+    "size": 21,
+    "offset": 5572592,
+    "inputs": [
+      "src/campaign_physics_heap_forward.c"
+    ],
+    "rebuilt_symbol": "_entry_5507f0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_physics_heap_forward.obj src/campaign_physics_heap_forward.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Shared physics allocation manager."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs, following a preceding return. Releases a fixed number of bytes in the specified category.",
+    "match": {
+      "bytes_sha256": "654a9d186ed4ef823576beedac8e9e98033a21dc615f40e4ea292db77863e14b",
+      "inputs_sha256": "6aff7904e62202533550b9e242f3bb8002564f46376a57ab15f2af05bf72818a"
+    }
+  },
+  {
+    "id": "physics-heap-forward-550810",
+    "size": 19,
+    "offset": 5572624,
+    "inputs": [
+      "src/campaign_physics_heap_forward.c"
+    ],
+    "rebuilt_symbol": "_entry_550810",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_physics_heap_forward.obj src/campaign_physics_heap_forward.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Shared physics allocation manager."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs, following a preceding return. Allocates the requested size in the fixed category.",
+    "match": {
+      "bytes_sha256": "2915bc95ae3704ae3979f81a6fb3f84b28db6d43c72d47573a1611cb000ad1c9",
+      "inputs_sha256": "1e3627488c89539022f8617a9277c4e240c20a30b25848544cd23ef56a6df295"
+    }
+  },
+  {
+    "id": "physics-heap-forward-550830",
+    "size": 21,
+    "offset": 5572656,
+    "inputs": [
+      "src/campaign_physics_heap_forward.c"
+    ],
+    "rebuilt_symbol": "_entry_550830",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_physics_heap_forward.obj src/campaign_physics_heap_forward.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Shared physics allocation manager."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs, following a preceding return. Releases a fixed number of bytes in the specified category.",
+    "match": {
+      "bytes_sha256": "c913b506c415555b1094ab12ef5cf11e9f1bab0e193e6c5e52fc3cf81298a9fe",
+      "inputs_sha256": "e611895bf1eb1f87fa747419883db1060df13256c61a9819b772120e051be544"
+    }
+  },
+  {
     "id": "physics-object-allocation-5508a0",
     "size": 25,
     "offset": 5572768,
@@ -471,6 +559,28 @@
     "match": {
       "bytes_sha256": "848ccaebe05c5b17688dfe7ea3bed4de06f419057c97a9e97957f84c1e06cf5e",
       "inputs_sha256": "b519cc4538768b43c0e1b610487d3e5e936cdaa70af19b7e00336a357159f0c7"
+    }
+  },
+  {
+    "id": "physics-heap-forward-5509c0",
+    "size": 19,
+    "offset": 5573056,
+    "inputs": [
+      "src/campaign_physics_heap_forward.c"
+    ],
+    "rebuilt_symbol": "_entry_5509c0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_physics_heap_forward.obj src/campaign_physics_heap_forward.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Shared physics allocation manager."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs, following a preceding return. Allocates the requested size in the fixed category.",
+    "match": {
+      "bytes_sha256": "f8b0afdca2507a69d14248b51a039c34929b97d67aaffead381214b615e3edac",
+      "inputs_sha256": "bb2bbd18d748ee9347402da83fe56601a12b2cffd4ea183e9174c2cc96c64cb1"
     }
   },
   {
@@ -563,6 +673,50 @@
     "match": {
       "bytes_sha256": "570204a754273d1dbf04788fe471ca0912506d68bf0db87875e2cf7771415f6a",
       "inputs_sha256": "d393cbb4f323936e7341c818d22e3aa76aad652ab21440e4e6a679d358dff049"
+    }
+  },
+  {
+    "id": "physics-heap-forward-550b60",
+    "size": 19,
+    "offset": 5573472,
+    "inputs": [
+      "src/campaign_physics_heap_forward.c"
+    ],
+    "rebuilt_symbol": "_entry_550b60",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_physics_heap_forward.obj src/campaign_physics_heap_forward.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Shared physics allocation manager."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs, following a preceding return. Allocates the requested size in the fixed category.",
+    "match": {
+      "bytes_sha256": "ed0e75b062ed6703415d6bb19c94a1c8730d09460993439d99a1872afe5fcfe9",
+      "inputs_sha256": "13c6d45f685531014cd625e395918e6f05c7a76a77cd0f0f59436cfa78e78447"
+    }
+  },
+  {
+    "id": "physics-heap-forward-550b80",
+    "size": 24,
+    "offset": 5573504,
+    "inputs": [
+      "src/campaign_physics_heap_forward.c"
+    ],
+    "rebuilt_symbol": "_entry_550b80",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_physics_heap_forward.obj src/campaign_physics_heap_forward.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Shared physics allocation manager."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs, following a preceding return. Releases a fixed number of bytes in the specified category.",
+    "match": {
+      "bytes_sha256": "80997ad471c7d849c5f53b5a7b752af8f439d919baa4ce51527bdc72ae6641d7",
+      "inputs_sha256": "aa0190141363bc1c0585c506b4b79bd01ab3aca4beb7352d3621d2bb74c57f7a"
     }
   },
   {
