@@ -49,16 +49,28 @@ def contains(ranges, bounds):
 
 def inputs_digest(folder, unit, image_hash):
     inputs = unit["inputs"]
-    if not isinstance(inputs, list) or not any(Path(p).suffix.lower() in {".c", ".cc", ".cpp", ".cxx"} for p in inputs):
-        raise ValueError("a matching unit requires its independently written C or C++ source")
+    if not isinstance(inputs, list) or not any(Path(p).suffix.lower() == ".c" for p in inputs):
+        raise ValueError("a matching unit requires its independently written C source")
     if not unit["toolchain"].strip() or not unit["build_command"].strip():
         raise ValueError("record the compiler version and reproducible build command")
+    evidence = unit.get("recipe_evidence")
+    if evidence is not None:
+        if (evidence["compiler"] != unit["toolchain"] or not isinstance(evidence["flags"], list)
+                or not all(isinstance(flag, str) and flag for flag in evidence["flags"])):
+            raise ValueError("record the original compiler and flags for this unit")
+        basis = evidence["basis"]
+        if Path(basis).suffix.lower() != ".md":
+            raise ValueError("original compiler and flag evidence requires a reviewed Markdown note")
+        inputs = [*inputs, basis]
     fingerprints = {}
     for relative in sorted(inputs):
         path = (folder / relative).resolve()
         if not path.is_relative_to(folder.resolve()) or Path(relative).is_absolute():
             raise ValueError("build inputs must be project-relative")
-        fingerprints[relative] = hashlib.sha256(path.read_bytes().replace(b"\r\n", b"\n")).hexdigest()
+        data = path.read_bytes().replace(b"\r\n", b"\n")
+        if evidence and relative == evidence["basis"] and not data.strip():
+            raise ValueError("original compiler and flag evidence is empty")
+        fingerprints[relative] = hashlib.sha256(data).hexdigest()
     recipe = {k: v for k, v in unit.items() if k != "match"}
     payload = json.dumps([image_hash, recipe, fingerprints], sort_keys=True).encode()
     return hashlib.sha256(payload).hexdigest()
@@ -91,7 +103,7 @@ def summary(folder, target):
         raise ValueError("unit outside the target's measured code or executable sections")
     if len({identity(u["id"]) for u in units}) != len(units):
         raise ValueError("duplicate unit id")
-    matched_bytes = matched_units = 0
+    matched_bytes = matched_units = candidate_bytes = candidate_units = 0
     for unit in units:
         if "rebuilt_symbol" in unit:
             if "rebuilt_offset" in unit or not unit["rebuilt_symbol"]:
@@ -103,11 +115,16 @@ def summary(folder, target):
             if unit["match"]["inputs_sha256"] != signature:
                 raise ValueError(f"{unit['id']}: changed build inputs; reverify this unit")
             digest(unit["match"]["bytes_sha256"])
-            matched_bytes += unit["size"]
-            matched_units += 1
+            if unit.get("recipe_evidence") is not None:
+                matched_bytes += unit["size"]
+                matched_units += 1
+            else:
+                candidate_bytes += unit["size"]
+                candidate_units += 1
     return dict(id=identity(target["id"]), label=target["label"], scope=target["scope"],
                 sha256=image_hash, matched_bytes=matched_bytes, total_bytes=total,
-                matched_units=matched_units, percent=round(100 * matched_bytes / total, 6) if total else None,
+                matched_units=matched_units, candidate_bytes=candidate_bytes, candidate_units=candidate_units,
+                percent=round(100 * matched_bytes / total, 6) if total else None,
                 evidence=f"decomp/{folder.name}/config/{target['id']}.json")
 
 

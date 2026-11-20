@@ -1,0 +1,14 @@
+{
+  "$schema": "https://raw.githubusercontent.com/encounter/objdiff/v3.8.3/config.schema.json",
+  "min_version": "3.8.3",
+  "build_target": false,
+  "build_base": false,
+  "units": [
+    {
+      "name": "Campaign / Sound texture count",
+      "target_path": "local/steam-252084-campaign/sound-texture-count/retail.obj",
+      "base_path": "local/sound_texture_count.obj",
+      "metadata": { "source_path": "src/sound_texture_count.c" }
+    }
+  ]
+}

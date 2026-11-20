@@ -1,0 +1,5 @@
+splat64[mips]==0.50.1
+spimdisasm==1.42.4
+rabbitizer==1.16.2
+pyelftools==0.32
+m2c @ git+https://github.com/matt-kempster/m2c.git@c632946b8cfbe8fce442b522dba92dfa72f1f317

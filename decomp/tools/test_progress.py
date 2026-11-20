@@ -63,7 +63,20 @@ class ProgressTests(unittest.TestCase):
             item["units"] = [unit]
             self.assertEqual(summary(folder, item)["percent"], 0)
             match(folder, item, "sample", original, rebuilt)
+            provisional = summary(folder, item)
+            self.assertEqual((provisional["percent"], provisional["candidate_bytes"]), (0, 4))
+            note = folder / "compiler.md"
+            note.write_text("Synthetic compiler and flag evidence for fixture.", encoding="utf-8")
+            unit["recipe_evidence"] = dict(compiler="synthetic", flags=[], basis=note.name)
+            with self.assertRaisesRegex(ValueError, "changed build inputs"):
+                summary(folder, item)
+            match(folder, item, "sample", original, rebuilt)
             self.assertEqual(summary(folder, item)["percent"], 4)
+            self.assertEqual(summary(folder, item)["candidate_units"], 0)
+            note.write_text("Changed evidence", encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "changed build inputs"):
+                summary(folder, item)
+            note.write_text("Synthetic compiler and flag evidence for fixture.", encoding="utf-8")
             verify(item, original)
             with self.assertRaisesRegex(ValueError, "rebuilt artifact"):
                 match(folder, item, "sample", original, original)

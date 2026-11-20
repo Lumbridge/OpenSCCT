@@ -70,7 +70,7 @@ internal sealed partial class PlayerPortal
             """)
             .Append(Resource(UnrealSource + "/releases", "Unreal releases", "Builds and release notes for the Windows remake."))
             .Append(Resource("/changelog", "Launcher, game and editor", "Search the release history for the reference game and editor."))
-            .Append(Resource(HubSource + "/blob/main/decomp/reports/2026-11-20.md", "20 November 2026 · Baseline report", "The first PS2 and Steam executable inventories and a verified campaign code match."))
+            .Append(Resource(HubSource + "/blob/main/decomp/reports/2026-11-20.md", "20 November 2026 · Baseline report", "Retail fingerprints, byte comparisons and original compiler research."))
             .Append("</div></section></div>");
         return Show(c, "Chaos Theory projects", "home", body.ToString());
     }
@@ -181,7 +181,8 @@ internal sealed partial class PlayerPortal
             {
                 foreach (JsonElement target in targets.EnumerateArray())
                     body.Append("<div class=\"home-measure\"><p>").Append(H(target.GetProperty("label").GetString())).Append("</p>")
-                        .Append("<span>").Append(H(Measure(target).Bytes)).Append("</span></div>");
+                        .Append("<span>").Append(H(Measure(target).Bytes)).Append(" matched</span><p>")
+                        .Append(N(target.GetProperty("candidate_bytes").GetInt64())).Append(" byte-identical candidate bytes</p></div>");
             }
             body.Append("</article>");
         }
@@ -206,6 +207,7 @@ internal sealed partial class PlayerPortal
     {
         var body = new StringBuilder("<div class=\"project-site\">");
         body.Append(ProjectHeading("Development", "Progress reports", "Each original executable has its own matching report. Unreal development is tracked through releases and playtesting."))
+            .Append("<p>Byte-identical candidates reproduce complete retail functions. Matched code also requires evidence for the original compiler and flags.</p>")
             .Append("<div class=\"hub-link-row report-links\">").Append(Link(DecompGuide, "Reproduction guide"))
             .Append(Link(HubSource + "/blob/main/decomp/reports/progress.json", "Report source")).Append("</div>");
         foreach (JsonElement edition in ProgressReport.Value.RootElement.GetProperty("editions").EnumerateArray())
@@ -220,9 +222,10 @@ internal sealed partial class PlayerPortal
             {
                 var measure = Measure(target);
                 string evidence = HubSource + "/blob/main/" + target.GetProperty("evidence").GetString();
-                rows.Add([Link(evidence, target.GetProperty("label").GetString()!), H(target.GetProperty("scope").GetString()), H(measure.Bytes), H(measure.Percent)]);
+                rows.Add([Link(evidence, target.GetProperty("label").GetString()!), H(target.GetProperty("scope").GetString()),
+                    N(target.GetProperty("candidate_bytes").GetInt64()) + " bytes", H(measure.Bytes), H(measure.Percent)]);
             }
-            if (rows.Count > 0) body.Append(Table(["Executable", "Scope", "Matched code", "Progress"], rows));
+            if (rows.Count > 0) body.Append(Table(["Executable", "Scope", "Byte-identical candidates", "Matched code", "Progress"], rows));
             body.Append("</section>");
         }
         body.Append("<div class=\"hub-list\">")
