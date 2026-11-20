@@ -325,6 +325,28 @@
     }
   },
   {
+    "id": "select-eligible-entry-2a6d60",
+    "size": 68,
+    "offset": 2780512,
+    "inputs": [
+      "src/versus_entry_selection.c"
+    ],
+    "rebuilt_symbol": "@select_eligible@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_entry_selection.obj src/versus_entry_selection.c",
+    "link_bindings": {
+      "_eligible": {
+        "va": 280651824,
+        "basis": "Indexed type predicate for eligible entries."
+      }
+    },
+    "identification": "Complete indexed entry-selection routine at RVA 0x2a6d60. Stores the first eligible entry with flag 8 set.",
+    "match": {
+      "bytes_sha256": "e1e8ea80200d54eeab53eac71b867eec50c0ddc52b27ce8bfe17a71b37628dda",
+      "inputs_sha256": "20480a247d0cd5448f118f929173e9e28a4565c799d23cf5b109951cd6e774da"
+    }
+  },
+  {
     "id": "owner-dispatch-2a6f20",
     "size": 42,
     "offset": 2780960,
