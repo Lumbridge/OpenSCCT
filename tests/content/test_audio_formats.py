@@ -135,6 +135,22 @@ def _bank(junk: bytes = b"", corrupt: bool = False) -> tuple[bytes, dict]:
     return bytes(data), sections
 
 
+def test_addon_fallback_selects_an_exact_local_bank_stream_and_refuses_conflicts(tmp_path):
+    data, _ = _bank()
+    original = _stream(serial=11)
+    first, second = tmp_path / "A.uas", tmp_path / "B.uas"
+    first.write_bytes(data)
+    second.write_bytes(data.replace(original, _stream(serial=47)))
+    key = "pkga.loop_a"
+    rows = build._stock_streams([first, second], {key}, tmp_path / "out")
+    assert rows[key]["sourceBank"] == "Packages/Sounds/A.uas"
+    assert (tmp_path / "out" / rows[key]["file"]).read_bytes() == original
+    changed = _stream(serial=11, samples=12345)
+    assert len(changed) == len(original)
+    second.write_bytes(data.replace(original, changed))
+    assert not build._stock_streams([first, second], {key}, tmp_path / "conflict")
+
+
 def test_bank_index_streams_and_unused_bytes():
     data, sections = _bank(junk=b"\x08\x00\x00\x00stale index" + b"\x00" * 9)
     b = uas.read_bank(data)

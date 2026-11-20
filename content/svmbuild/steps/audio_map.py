@@ -38,7 +38,7 @@ class AudioMapStep(Step):
         return ctx.out / "svmap" / str(unit)
 
     def inputs(self, ctx: Context, unit: str | None) -> dict[str, str | None]:
-        from ..audio.build import bank_file  # noqa: PLC0415
+        from ..audio.build import addon_steam_banks, bank_file  # noqa: PLC0415
 
         out: dict[str, str | None] = {}
         from ..gamefiles import game_file  # noqa: PLC0415
@@ -48,13 +48,21 @@ class AudioMapStep(Step):
         bank = bank_file(ctx.game, str(unit))
         out[ctx.game_path(bank) if bank.is_file() else f"game:Packages/Sounds/{unit}.uas"] = (
             ctx.hasher.sha256(bank) if bank.is_file() else None)
+        for f in addon_steam_banks(ctx.game, str(unit)):
+            out[ctx.game_path(f)] = ctx.hasher.sha256(f)
         for f in env.script_package_files(ctx.game):
             out[ctx.game_path(f)] = ctx.hasher.sha256(f)
         return out
 
-    def output_files(self, ctx: Context, unit: str | None) -> list[str] | None:
-        from ..audio.build import bank_layout  # noqa: PLC0415
+    def output_dir(self, ctx: Context, unit: str | None) -> Path:
+        return self._map_dir(ctx, unit) / "audio"
 
+    def output_files(self, ctx: Context, unit: str | None) -> list[str] | None:
+        from ..audio.build import addon_steam_banks, bank_layout  # noqa: PLC0415
+
+        if addon_steam_banks(ctx.game, str(unit)):
+            # The map decides which additional stock recordings enter this folder.
+            return None
         base = f"svmap/{unit}/audio/"
         return [base + rel for rel in bank_layout(ctx.game, str(unit))]
 

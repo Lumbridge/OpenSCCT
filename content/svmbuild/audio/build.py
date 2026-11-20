@@ -22,7 +22,7 @@ import re
 from pathlib import Path
 
 from .. import canonical
-from . import mux, refs, sound, uas
+from . import mux, ogg, refs, sound, uas
 
 LIBRARY_FORMAT = "svm.audio/1"
 MAP_FORMAT = "svm.mapaudio/1"
@@ -290,6 +290,73 @@ def _map_sound_entry(path: str, info: dict, bank: uas.Bank | None, streams: dict
     return out
 
 
+def addon_steam_banks(game: Path, map_name: str) -> list[Path]:
+    """Only local addons may borrow sound from the unmodified Steam Versus map banks."""
+    from ..gamefiles import addons_root
+    from ..paths import REPO_ROOT
+
+    addons = addons_root()
+    if addons is None or not (addons / "Packages" / "Maps" / (map_name + ".sdc")).is_file():
+        return []
+    if (game / "Packages" / "Maps" / (map_name + ".sdc")).exists():
+        return []
+    codes = (REPO_ROOT / "shared" / "SteamVersusMaps.txt").read_text(encoding="ascii").splitlines()
+    stock = {code.casefold() for code in codes}
+    return sorted((p for p in (game / "Packages" / "Sounds").glob("*.uas")
+                   if p.stem.casefold() in stock), key=lambda p: p.name.casefold())
+
+
+def _stream_row(audio_dir, entry, payload, stream):
+    rel = stream_rel(entry.package, entry.name)
+    target = audio_dir / rel
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_bytes(payload)
+    row = {"package": entry.package, "name": entry.name, "file": rel, "offset": entry.start, "length": entry.length,
+           "duration": _r(stream.duration), "channels": stream.channels, "rate": stream.rate, "samples": stream.samples,
+           "pages": len(stream.pages), "badCrc": stream.bad_crc, "serial": stream.serials[0] if stream.serials else 0}
+    if stream.errors:
+        row["errors"] = stream.errors
+    return row
+
+
+def _stock_streams(banks, requested, audio_dir):
+    """A matching package and stream must identify one recording across every candidate stock bank."""
+    import hashlib
+
+    matches = {}
+    ambiguous = set()
+    for bank_path in banks:
+        data = bank_path.read_bytes()
+        for entry in uas.read_bank(data, check_streams=False).entries:
+            key = (entry.package + "." + entry.name).lower()
+            if key not in requested or key in ambiguous:
+                continue
+            payload = data[entry.start:entry.end]
+            stream = ogg.walk(payload)
+            if stream.errors or stream.bad_crc or len(stream.serials) != 1:
+                ambiguous.add(key)
+                continue
+            # Ogg allows distinct serial numbers for the same bitstream. Preserve every audio packet,
+            # sequence and granule position in this comparison. The serial is covered by the page CRC.
+            fingerprint = bytearray(payload)
+            for page in stream.pages:
+                fingerprint[page.offset + 14:page.offset + 18] = bytes(4)
+                fingerprint[page.offset + 22:page.offset + 26] = bytes(4)
+            digest = hashlib.sha256(fingerprint).digest()
+            if key in matches:
+                if matches[key][0] != digest:
+                    ambiguous.add(key)
+            else:
+                matches[key] = (digest, bank_path, entry, payload, stream)
+    rows = {}
+    for key, (_, source, entry, payload, stream) in matches.items():
+        if key not in ambiguous:
+            row = _stream_row(audio_dir, entry, payload, stream)
+            row["sourceBank"] = "Packages/Sounds/" + source.name
+            rows[key] = row
+    return rows
+
+
 def build_map_audio(game: Path, map_name: str, audio_dir: Path, library: dict, src=None) -> dict:
     """Write svmap/<Map>/audio (audio_dir). src: an opened mapconv MapSource (actor references), or None."""
     audio_dir.mkdir(parents=True, exist_ok=True)
@@ -301,16 +368,7 @@ def build_map_audio(game: Path, map_name: str, audio_dir: Path, library: dict, s
     stream_rows = []
     if bank is not None:
         for e in bank.entries:
-            rel = stream_rel(e.package, e.name)
-            target = audio_dir / rel
-            target.parent.mkdir(parents=True, exist_ok=True)
-            target.write_bytes(data[e.start:e.end])
-            st = e.stream
-            row = {"package": e.package, "name": e.name, "file": rel, "offset": e.start, "length": e.length,
-                   "duration": _r(st.duration), "channels": st.channels, "rate": st.rate, "samples": st.samples,
-                   "pages": len(st.pages), "badCrc": st.bad_crc, "serial": st.serials[0] if st.serials else 0}
-            if st.errors:
-                row["errors"] = st.errors
+            row = _stream_row(audio_dir, e, data[e.start:e.end], e.stream)
             stream_rows.append(row)
             streams[f"{e.package}.{e.name}".lower()] = row
     # Sounds stored in the map package itself (a community map's own music and effects): written under audio/wav/
@@ -366,6 +424,15 @@ def build_map_audio(game: Path, map_name: str, audio_dir: Path, library: dict, s
             if e.get("sound") and e["sound"] not in seen:
                 queue.append(e["sound"])
     missing_streams = sorted(p for p, v in seen.items() if v.get("missing"))
+    if missing_streams:
+        requested = {(p.split(".", 1)[0] + "." + sounds_all[p]["stream"]).lower() for p in missing_streams}
+        fallback = _stock_streams(addon_steam_banks(game, map_name), requested, audio_dir)
+        if fallback:
+            streams.update(fallback)
+            stream_rows.extend(fallback.values())
+            for path in missing_streams:
+                seen[path] = _map_sound_entry(path, sounds_all[path], bank, streams)
+            missing_streams = [p for p in missing_streams if seen[p].get("missing")]
     doc = {
         "format": MAP_FORMAT,
         "map": map_name,
