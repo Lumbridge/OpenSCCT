@@ -343,6 +343,97 @@
     }
   },
   {
+    "id": "ui-name-helper-2a68b0",
+    "size": 21,
+    "offset": 2779312,
+    "inputs": [
+      "src/versus_ui_name_lookup.c"
+    ],
+    "rebuilt_symbol": "_ui_name",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_ui_name_lookup.obj src/versus_ui_name_lookup.c",
+    "link_bindings": {
+      "_ui_names": {
+        "va": 281280520,
+        "basis": "Retail table of UI name strings in rows of thirty."
+      }
+    },
+    "identification": "Complete indexed Versus function at RVA 0x2a68b0. Returns a UI name from a thirty-slot row.",
+    "match": {
+      "bytes_sha256": "ae755d828abdd1c5c5ebefb55be653253bd69e5975b2471b5e9cce14d297babb",
+      "inputs_sha256": "70ef62e4c49e93d236eb6e1cd30a0ce1805eb5b70878d1633890eac758fdf899"
+    }
+  },
+  {
+    "id": "ui-name-helper-2a68d0",
+    "size": 83,
+    "offset": 2779344,
+    "inputs": [
+      "src/versus_ui_name_lookup.c"
+    ],
+    "rebuilt_symbol": "_find_ui_name",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_ui_name_lookup.obj src/versus_ui_name_lookup.c",
+    "link_bindings": {
+      "_ui_name_counts": {
+        "va": 280956752,
+        "basis": "Per-category name counts."
+      },
+      "_ui_names": {
+        "va": 281280520,
+        "basis": "Retail table of UI name strings in rows of thirty."
+      },
+      "__imp___stricmp": {
+        "va": 280884204,
+        "basis": "PE import for the case-insensitive name comparison."
+      }
+    },
+    "identification": "Complete indexed Versus function at RVA 0x2a68d0. Performs case-insensitive lookup within a UI name category and returns -1 on a miss.",
+    "match": {
+      "bytes_sha256": "57383b2ecd51b20ce76d635873918b4768c9ae6a7d5baae60cb7713949a99cc9",
+      "inputs_sha256": "96734f17c12a3ecb60b4f00a5c1cf206125ea39cceab41e22c09758fb679a5b8"
+    }
+  },
+  {
+    "id": "ui-name-helper-2a6930",
+    "size": 55,
+    "offset": 2779440,
+    "inputs": [
+      "src/versus_ui_name_lookup.c"
+    ],
+    "rebuilt_symbol": "_is_ui_type",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_ui_name_lookup.obj src/versus_ui_name_lookup.c",
+    "link_bindings": {},
+    "identification": "Complete indexed Versus function at RVA 0x2a6930. Tests the type ID against cases 4, 6 and 9 using two local branch tables.",
+    "match": {
+      "bytes_sha256": "02e457792304fe9517f118a47acbb03e025081c50a1b638fbdebb39a3a6aa834",
+      "inputs_sha256": "b9f2a63fc902f9b0754d484f48cc077653b602413699a293004c2d7d17abfe03"
+    }
+  },
+  {
+    "id": "find-ui-entry-2a6970",
+    "size": 91,
+    "offset": 2779504,
+    "inputs": [
+      "src/versus_named_entries.c"
+    ],
+    "rebuilt_symbol": "_find_named_entry",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_named_entries.obj src/versus_named_entries.c",
+    "link_bindings": {
+      "__imp___stricmp": {
+        "va": 280884204,
+        "basis": "Retail _stricmp import."
+      }
+    },
+    "identification": "Complete indexed Versus routine at RVA 0x2a6970. Searches a sentinel list by case-insensitive entry name, handling inline and heap string storage.",
+    "match": {
+      "bytes_sha256": "c61104801f0b7c940c1592b896dc786f9378687ba7bd3f5d4029b7ec9e0ac807",
+      "inputs_sha256": "4f1b0ec22f5a2d987522a1966605672ef7bbecea89d179eeb22093ace18902df"
+    }
+  },
+  {
     "id": "listener-event-2a6c80",
     "size": 47,
     "offset": 2780288,
