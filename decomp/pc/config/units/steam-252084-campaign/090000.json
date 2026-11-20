@@ -8212,6 +8212,38 @@
     }
   },
   {
+    "id": "remove-items-09b8b0",
+    "size": 170,
+    "offset": 637104,
+    "inputs": [
+      "src/campaign_remove_items_4.c",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@remove_items_09b8b0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_remove_items_4.obj src/campaign_remove_items_4.c",
+    "link_bindings": {
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared array memory-move routine used for overlapping element ranges."
+      },
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Engine heap used by the matched array resize routines."
+      },
+      "_allocation_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Stock UTF-16 FArray allocation tag."
+      }
+    },
+    "identification": "Default Ghidra analysis at RVA 0x9b8b0 identifies the complete function. It removes every matching 4-byte item, shifts the remaining elements and returns the change in count. The code references the original FArray tag and shared engine heap.",
+    "match": {
+      "bytes_sha256": "6919c7f30342a26536b3d047f20cd13a38ee6e466b64287d2564bf1a48b14d26",
+      "inputs_sha256": "8e62e26fd2e7b319ade3c95460797654ce5e505a40cb15872dbcd13d0687b86c"
+    }
+  },
+  {
     "id": "array-append-09b960",
     "size": 82,
     "offset": 637280,
