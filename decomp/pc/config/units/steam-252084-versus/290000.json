@@ -197,6 +197,23 @@
     }
   },
   {
+    "id": "mesh-average-strip-faces",
+    "size": 98,
+    "offset": 2739168,
+    "rebuilt_symbol": "_average_faces@4",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_strip_average.obj src/versus_strip_average.c",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "inputs": [
+      "src/versus_strip_average.c"
+    ],
+    "coff_alignment": 16,
+    "identification": "Complete indexed strip scoring function called at RVA 0x29d2be. Computes the mean face count after subtracting the excluded count per strip.",
+    "match": {
+      "bytes_sha256": "227078158c5c6207f63923df3077c035c8b1220f68f2b5e0168c7aa69237a174",
+      "inputs_sha256": "756f43c9a42c277cae54510c4c1f4b3308b36c6236b77465780fab65d7c96f9a"
+    }
+  },
+  {
     "id": "create-vector-indexed-29d570",
     "size": 24,
     "offset": 2741616,
