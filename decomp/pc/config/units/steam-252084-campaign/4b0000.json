@@ -2751,6 +2751,32 @@
     }
   },
   {
+    "id": "watermark-remove-member",
+    "size": 88,
+    "offset": 4973152,
+    "inputs": [
+      "src/campaign_watermark.c"
+    ],
+    "rebuilt_symbol": "@remove_member@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_watermark.obj src/campaign_watermark.c",
+    "link_bindings": {
+      "_get_context": {
+        "va": 282637408,
+        "basis": "Retail operand for get context."
+      },
+      "_release_block": {
+        "va": 282637648,
+        "basis": "Retail operand for release block."
+      }
+    },
+    "identification": "Indexed whole function. Watermark remove member.",
+    "match": {
+      "bytes_sha256": "e73b754cdbbb16e4a809998fa43d2385e0895d82c7b1ae8e2590d52e635e4ff4",
+      "inputs_sha256": "dd0c1f1934317ba57a8680a93c7b9975fd7c302ad53635a7829f644abfb3019b"
+    }
+  },
+  {
     "id": "clear-record-4be2d0",
     "offset": 4973264,
     "size": 37,
@@ -2822,6 +2848,54 @@
     "match": {
       "bytes_sha256": "193d7733e6cf4e0f2eddf47f2f853d4f3da2d25d99e20e1b5806db866d42d59d",
       "inputs_sha256": "dd5f33dca32c7ea5a9c2d0547bc13c897c89342522ea950e7dd8271b41cacafc"
+    }
+  },
+  {
+    "id": "watermark-destroy-member",
+    "size": 8,
+    "offset": 4973680,
+    "inputs": [
+      "src/campaign_watermark.c"
+    ],
+    "rebuilt_symbol": "@destroy_member@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_watermark.obj src/campaign_watermark.c",
+    "link_bindings": {
+      "_unregister_member": {
+        "va": 282846080,
+        "basis": "Retail operand for unregister member."
+      }
+    },
+    "identification": "Indexed whole function. Watermark destroy member.",
+    "match": {
+      "bytes_sha256": "a6e19509fc87f2fcf72074697e22749ecf98c9c51480fbe59708ae65dd5b6c0b",
+      "inputs_sha256": "24dc2b951039d590d0132cda9f5c2747a3eca36e1d6b8ee11603886814e23b8c"
+    }
+  },
+  {
+    "id": "watermark-initialize-member",
+    "size": 41,
+    "offset": 4973936,
+    "inputs": [
+      "src/campaign_watermark.c"
+    ],
+    "rebuilt_symbol": "@initialize_member@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_watermark.obj src/campaign_watermark.c",
+    "link_bindings": {
+      "@reset_member@8": {
+        "va": 282844368,
+        "basis": "Retail operand for @reset member@8."
+      },
+      "_register_member": {
+        "va": 282846464,
+        "basis": "Retail operand for register member."
+      }
+    },
+    "identification": "Indexed whole function. Watermark initialize member.",
+    "match": {
+      "bytes_sha256": "f816f9b1a210da232c2ddf371cd0992e697e42482bda67d0ebb8ea7acf311e03",
+      "inputs_sha256": "ec5b56c12852cd4b17dcdbdcf0a7e0296e42471ed78d36c7bd290565ed2c8720"
     }
   },
   {
