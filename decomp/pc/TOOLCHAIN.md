@@ -5,7 +5,7 @@
 | Campaign and co-op | The PE32 optional header records linker version 7.10. A scan of the DOS stub up to the PE signature found no Rich marker. REA found 150 exports. | The compiler build and options for the game translation units. The linker version identifies only one part of the build. |
 | Versus | The PE32 optional header records linker version 7.00. Its Rich records include linker product `0x003d`, build 9466, count 1, along with C, C++, assembler and library producer records with multiple build numbers. REA found zero exports. | Which compiler produced each source unit, the compiler flags and the linker command line. |
 
-Ghidra's product table associates `0x003d` with the Visual Studio .NET 2002 linker, `0x001c` and `0x001d` with its C and C++ tools, and `0x0060` with Visual Studio .NET 2003 C++. The Versus file includes all four IDs. Mixed producer records can come from several libraries and translation units. The output of `workflow.py … inspect` lists the raw product IDs, builds and counts for this exact binary. [Microsoft PE format](https://learn.microsoft.com/en-us/windows/win32/debug/pe-format) · [Ghidra 12.1.4 product table](https://github.com/NationalSecurityAgency/ghidra/blob/Ghidra_12.1.4_build/Ghidra/Features/Base/data/ms_pe_rich_products.xml)
+Ghidra's product table associates `0x003d` with the Visual Studio .NET 2002 linker, `0x001c` and `0x001d` with its C and C++ tools, and `0x0060` with Visual Studio .NET 2003 C++. The Versus file includes all four IDs. Mixed producer records can come from several libraries and translation units. The output of `workflow.py â€¦ inspect` lists the raw product IDs, builds and counts for this exact binary. [Microsoft PE format](https://learn.microsoft.com/en-us/windows/win32/debug/pe-format) Â· [Ghidra 12.1.4 product table](https://github.com/NationalSecurityAgency/ghidra/blob/Ghidra_12.1.4_build/Ghidra/Features/Base/data/ms_pe_rich_products.xml)
 
 ## Campaign sound catalogue
 
@@ -65,3 +65,21 @@ both the Steam executable and the locked Enhanced reference. Rebuilding with
 ordinary cdecl or with `-O0` produced zero complete matches in this group.
 The compiler executable used to reproduce these candidates has SHA-256
 `0d08cdd309906d6287d4791fabd3f00ad8d6bbaa550d6615bdefd5d352de0dab`.
+
+## Linked tree removal in the Steam executables
+
+The C function in `src/tree_unlink_node.c` reproduces the 959-byte function
+at campaign RVA `0x5ed4a0` and Versus RVA `0x235f90`. Each function returns
+immediately before a single NOP. The compiler's 960-byte COFF contribution
+matches the body and that NOP in both executables. The tracker counts 959
+bytes for each function.
+
+The tested build uses the x86 VC6 driver and C frontend from Visual Studio 6
+Service Pack 6 and the optimizing backend from the Visual C++ Processor Pack
+for Service Pack 5, with `/O2 /Gy`.
+
+| Compiler component | SHA-256 |
+| --- | --- |
+| `cl.exe` | `1bf99f206271ecdbd13da2829192ea2c02e2a44c740b8d72935d5d9cb753b156` |
+| `c1.dll` | `fc6771ed73524417877f1263604bf8b9b9cd403c8cfb72b2e25737bdc81d592e` |
+| `c2.dll` | `6c8e3988a5ccd69a9f9829b5c7512848d71c018b8d24be3928d7b00b5f79f231` |
