@@ -674,6 +674,32 @@
     }
   },
   {
+    "id": "physics-subobject-release-57f290",
+    "size": 58,
+    "offset": 5763728,
+    "inputs": [
+      "src/campaign_physics_subobject_release.c"
+    ],
+    "rebuilt_symbol": "@release_57f290@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_physics_subobject_release.obj src/campaign_physics_subobject_release.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Shared physics allocator interface."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Read-only virtual table restored during destruction."
+      }
+    },
+    "identification": "Read-only method pointer at RVA 0x84ef30. Completes receiver cleanup before conditional sized release through allocator slot five.",
+    "match": {
+      "bytes_sha256": "5232d8384a40c3602182de91ab9c29792cccc72e8b4a2b234d580e13b09d185f",
+      "inputs_sha256": "be671754c653c441f20c764a53049ccf64d51eafb18cbc0d722b9c1269efc327"
+    }
+  },
+  {
     "id": "delete-pool-57f390",
     "size": 40,
     "offset": 5763984,
