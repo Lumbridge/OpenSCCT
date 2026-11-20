@@ -49,10 +49,10 @@
           "label": "Steam 252084 · Campaign and co-op",
           "scope": "Main PC game executable, including campaign and cooperative play",
           "sha256": "54df25b238356024248085ca7fa6af9005b0be4ec40beef3c32faa8c06b6d4e5",
-          "matched_bytes": 3,
+          "matched_bytes": 41,
           "total_bytes": 8082506,
-          "matched_units": 1,
-          "percent": 3.7e-05,
+          "matched_units": 5,
+          "percent": 0.000507,
           "evidence": "decomp/pc/config/steam-252084-campaign.json"
         },
         {

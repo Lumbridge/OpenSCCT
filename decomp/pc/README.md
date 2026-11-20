@@ -40,3 +40,21 @@ The match selects the named COFF symbol and checks its whole section. It
 rejects pending relocations, unexpected length and mismatched retail hashes.
 This unit establishes a working compiler comparison. The original toolchain
 and flags for the complete game are still under study.
+
+## Campaign audio
+
+The retail export table identifies each entry point below. Each measured range
+ends immediately after the function's return and excludes the following alignment.
+RVA and file offset coincide in the campaign's measured code section.
+
+| Export (without x86 decoration) | Retail RVA | Bytes | Recovered behavior |
+| --- | ---: | ---: | --- |
+| `SND_fn_lGetSoundTextureCount` | `0x748e10` | 3 | Returns zero. |
+| `SND_fn_lGetSoundTextureIdArray` | `0x748e20` | 5 | Returns zero and leaves the output untouched. |
+| `SND_fn_lGetSoundTextureId` | `0x748e30` | 8 | Returns −2 for every input. |
+| `SND_fn_lGetSoundTextureName` | `0x748e40` | 5 | Returns zero and leaves the output untouched. |
+| `SND_fn_rMulRealRealQuickSnd` | `0x74b1d0` | 20 | Multiplies two signed 16.16 values after discarding eight low bits from each. |
+
+The texture stubs establish the stack argument widths. Their unused C argument
+types are inferred. Each manifest entry records the compiler and flags used
+to reproduce that function.
