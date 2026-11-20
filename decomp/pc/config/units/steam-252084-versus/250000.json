@@ -1,5 +1,74 @@
 [
   {
+    "id": "dispatch-decoded-250010",
+    "size": 59,
+    "offset": 2424848,
+    "inputs": [
+      "src/versus_decoded_callbacks.c"
+    ],
+    "rebuilt_symbol": "@dispatch_250010@4",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_decoded_callbacks.obj src/versus_decoded_callbacks.c",
+    "link_bindings": {
+      "@read_250630@12": {
+        "va": 280299056,
+        "basis": "Direct call supplying stack addresses for the output values."
+      }
+    },
+    "identification": "Default Ghidra extent. Calls the output reader at RVA 0x250630 and forwards 2 values to handler slot 3 on success.",
+    "coff_alignment": 16,
+    "match": {
+      "bytes_sha256": "05f125f86b4a8798c31d219df93595ac8bf0da679daa0755a5f8ba9f2a5b1194",
+      "inputs_sha256": "6e52e9c8a26a03961faf1a1db58bd619dc534899281feba3f9b62571ef270d73"
+    }
+  },
+  {
+    "id": "dispatch-decoded-2500a0",
+    "size": 59,
+    "offset": 2424992,
+    "inputs": [
+      "src/versus_decoded_callbacks.c"
+    ],
+    "rebuilt_symbol": "@dispatch_2500a0@4",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_decoded_callbacks.obj src/versus_decoded_callbacks.c",
+    "link_bindings": {
+      "@read_2506e0@12": {
+        "va": 280299232,
+        "basis": "Direct call supplying stack addresses for the output values."
+      }
+    },
+    "identification": "Default Ghidra extent. Calls the output reader at RVA 0x2506e0 and forwards 2 values to handler slot 6 on success.",
+    "coff_alignment": 16,
+    "match": {
+      "bytes_sha256": "3b7c7877621e09290e44c718a4c794a09895816581d90afb406d12313674bc11",
+      "inputs_sha256": "8d372815130344d52d4d3f431e27c8b3dad53ea17c1e7188614fcf512d19ec9f"
+    }
+  },
+  {
+    "id": "dispatch-decoded-2500e0",
+    "size": 59,
+    "offset": 2425056,
+    "inputs": [
+      "src/versus_decoded_callbacks.c"
+    ],
+    "rebuilt_symbol": "@dispatch_2500e0@4",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_decoded_callbacks.obj src/versus_decoded_callbacks.c",
+    "link_bindings": {
+      "@read_250710@12": {
+        "va": 280299280,
+        "basis": "Direct call supplying stack addresses for the output values."
+      }
+    },
+    "identification": "Default Ghidra extent. Calls the output reader at RVA 0x250710 and forwards 2 values to handler slot 7 on success.",
+    "coff_alignment": 16,
+    "match": {
+      "bytes_sha256": "87e069b43ea3c57310d707151485654f98747d2cc67e071fd225865daa3c8f55",
+      "inputs_sha256": "c2e1f9a425c3b14aa89fc3dd309a417ddff14668547fd989ffe9cff550a66357"
+    }
+  },
+  {
     "id": "erase-branch-252dc0",
     "offset": 2436544,
     "size": 45,
