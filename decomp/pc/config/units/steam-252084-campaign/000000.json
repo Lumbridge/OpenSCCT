@@ -1,5 +1,49 @@
 [
   {
+    "id": "release-route-0014a0",
+    "offset": 5280,
+    "size": 17,
+    "inputs": [
+      "src/campaign_release_routes.c"
+    ],
+    "rebuilt_symbol": "_release_route_0014a0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_release_routes.obj src/campaign_release_routes.c",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine heap release slot two."
+      }
+    },
+    "identification": "Direct call at RVA 0x1ca501 in the independently delineated function at RVA 0x1ca4e0. Forwards the allocation pointer to the campaign engine heap.",
+    "match": {
+      "bytes_sha256": "dcb4e22a2dd20651e53d33ad49315eba28c049dc7c8a00f4658191a134b4377a",
+      "inputs_sha256": "5fa19fe345e5786b31a0b022da8d9371b2b9c1a1f975c1d7ada4b5d3817f6023"
+    }
+  },
+  {
+    "id": "release-route-0014e0",
+    "offset": 5344,
+    "size": 17,
+    "inputs": [
+      "src/campaign_release_routes.c"
+    ],
+    "rebuilt_symbol": "_release_route_0014e0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_release_routes.obj src/campaign_release_routes.c",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine heap release slot two."
+      }
+    },
+    "identification": "Direct call at RVA 0x1ca467 in the independently delineated function at RVA 0x1ca460. Forwards the allocation pointer to the campaign engine heap.",
+    "match": {
+      "bytes_sha256": "dcb4e22a2dd20651e53d33ad49315eba28c049dc7c8a00f4658191a134b4377a",
+      "inputs_sha256": "2668a09fdcc1c916c94e366a29474ac338c2e5b86aea368841e7744ff6c30102"
+    }
+  },
+  {
     "id": "class-singleton-unnetz",
     "offset": 5904,
     "size": 38,

@@ -1999,6 +1999,28 @@
     }
   },
   {
+    "id": "release-route-469670",
+    "offset": 4626032,
+    "size": 11,
+    "inputs": [
+      "src/campaign_release_routes.c"
+    ],
+    "rebuilt_symbol": "_release_route_469670",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_release_routes.obj src/campaign_release_routes.c",
+    "link_bindings": {
+      "_release_73c870@4": {
+        "va": 285460592,
+        "basis": "Separately linked release wrapper."
+      }
+    },
+    "identification": "Direct call at RVA 0x467a90 in the independently delineated function at RVA 0x467a80. Forwards the allocation pointer to the campaign engine heap.",
+    "match": {
+      "bytes_sha256": "5a1bf13fafc4a878ffc6d73a9b86d66061b55b43ecb6f461041b533ea348b137",
+      "inputs_sha256": "aea9a822b1bfd863932a93b9a71aeb0242f14089e6905bcb8fd9b08a31d359f1"
+    }
+  },
+  {
     "id": "sound-list-pop-first-pointer-46a8c0",
     "size": 53,
     "offset": 4630720,

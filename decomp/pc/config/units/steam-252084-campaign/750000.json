@@ -1139,6 +1139,28 @@
     }
   },
   {
+    "id": "release-route-75ae00",
+    "offset": 7712256,
+    "size": 11,
+    "inputs": [
+      "src/campaign_release_routes.c"
+    ],
+    "rebuilt_symbol": "_release_route_75ae00",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_release_routes.obj src/campaign_release_routes.c",
+    "link_bindings": {
+      "_release_73c870@4": {
+        "va": 285460592,
+        "basis": "Separately linked release wrapper."
+      }
+    },
+    "identification": "Direct call at RVA 0x74d700 in the independently delineated function at RVA 0x74d6f0. Forwards the allocation pointer to the campaign engine heap.",
+    "match": {
+      "bytes_sha256": "fbddb8c7d635914bd6d85180e83f957e9c5e35861c8f728f51368303e24a2794",
+      "inputs_sha256": "50d0d82bfbb44453656edc63ebb4de629e86a87b5686fe9f7022d4679b637231"
+    }
+  },
+  {
     "id": "sound-current-bank",
     "offset": 7712272,
     "size": 4,
@@ -1152,6 +1174,28 @@
     "match": {
       "bytes_sha256": "2e339cdc5de837ec151dbde90057caeabba18ac3ea32e7c2cffc8f95df41a6ff",
       "inputs_sha256": "8d99928aa91ad0469cc486bb76aa3dabbc31da254458848847c898b65f35a712"
+    }
+  },
+  {
+    "id": "release-route-75c0f0",
+    "offset": 7717104,
+    "size": 11,
+    "inputs": [
+      "src/campaign_release_routes.c"
+    ],
+    "rebuilt_symbol": "_release_route_75c0f0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_release_routes.obj src/campaign_release_routes.c",
+    "link_bindings": {
+      "_release_73c870@4": {
+        "va": 285460592,
+        "basis": "Separately linked release wrapper."
+      }
+    },
+    "identification": "Direct call at RVA 0x74d720 in the independently delineated function at RVA 0x74d710. Forwards the allocation pointer to the campaign engine heap.",
+    "match": {
+      "bytes_sha256": "8321842d5c5458868ad05e5e13cadddde59c86426805bb7c577cf9ba4f6b45b6",
+      "inputs_sha256": "d4f88cb641d4eff6601e238c2a6df36ebb90d1f82fb46349f7fd6bcf2009f7ef"
     }
   },
   {
@@ -1500,6 +1544,28 @@
     "match": {
       "bytes_sha256": "39ece02a0432380959d77a7073a2345234416b403e8a25ee7912c1e144e5d5e8",
       "inputs_sha256": "070237896dc86cb4f17c15a1df546301787fa7a7849ca149dd4cb4aa381ca79b"
+    }
+  },
+  {
+    "id": "release-route-75cbc0",
+    "offset": 7719872,
+    "size": 11,
+    "inputs": [
+      "src/campaign_release_routes.c"
+    ],
+    "rebuilt_symbol": "_release_route_75cbc0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_release_routes.obj src/campaign_release_routes.c",
+    "link_bindings": {
+      "_release_73c870@4": {
+        "va": 285460592,
+        "basis": "Separately linked release wrapper."
+      }
+    },
+    "identification": "Direct call at RVA 0x750300 in the independently delineated function at RVA 0x7502f0. Forwards the allocation pointer to the campaign engine heap.",
+    "match": {
+      "bytes_sha256": "c563bb5d797368117c2bd4185ffd8a27426c706283eb4240a211c0582f83b12a",
+      "inputs_sha256": "1ca4f75feee8cf48b34efdbdc1356b0f6a9f5311cd3a9ffbbe4ce3c8f6ea6176"
     }
   },
   {
@@ -2274,6 +2340,28 @@
     }
   },
   {
+    "id": "release-route-75d300",
+    "offset": 7721728,
+    "size": 11,
+    "inputs": [
+      "src/campaign_release_routes.c"
+    ],
+    "rebuilt_symbol": "_release_route_75d300",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_release_routes.obj src/campaign_release_routes.c",
+    "link_bindings": {
+      "_release_73c870@4": {
+        "va": 285460592,
+        "basis": "Separately linked release wrapper."
+      }
+    },
+    "identification": "Direct call at RVA 0x750470 in the independently delineated function at RVA 0x750460. Forwards the allocation pointer to the campaign engine heap.",
+    "match": {
+      "bytes_sha256": "e698a634cdcaf92f7672c08deb4deec4387a4abbbc4bc5f32634579c86e61466",
+      "inputs_sha256": "b7fc5773619f60eba24eeafd2d9cad31cbaa9c4396434d2868b616c55c92bb1d"
+    }
+  },
+  {
     "id": "initialize-sound-buffer",
     "offset": 7725056,
     "size": 66,
@@ -2495,6 +2583,50 @@
     "match": {
       "bytes_sha256": "e06754ce1c053509ec694db8bb79854f44f15adc3da186eaf3ee4b4d37d625e8",
       "inputs_sha256": "3dc6a00f8066b15bfcc69b9375b711a7a7ac81f4fb4a47c81abd0b1af3df670b"
+    }
+  },
+  {
+    "id": "release-route-75eac0",
+    "offset": 7727808,
+    "size": 11,
+    "inputs": [
+      "src/campaign_release_routes.c"
+    ],
+    "rebuilt_symbol": "_release_route_75eac0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_release_routes.obj src/campaign_release_routes.c",
+    "link_bindings": {
+      "_release_73c870@4": {
+        "va": 285460592,
+        "basis": "Separately linked release wrapper."
+      }
+    },
+    "identification": "Direct call at RVA 0x754310 in the independently delineated function at RVA 0x754300. Forwards the allocation pointer to the campaign engine heap.",
+    "match": {
+      "bytes_sha256": "93fe18f76e957d591c95d13b65c98adca95885d42b4cba5a1529bc886ef54e96",
+      "inputs_sha256": "2cd43a9fbb23dc01ccdd70ffdfd27e6fc25372d3ab557d18f6a6919e35eb350f"
+    }
+  },
+  {
+    "id": "release-route-75ee20",
+    "offset": 7728672,
+    "size": 11,
+    "inputs": [
+      "src/campaign_release_routes.c"
+    ],
+    "rebuilt_symbol": "_release_route_75ee20",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_release_routes.obj src/campaign_release_routes.c",
+    "link_bindings": {
+      "_release_73c870@4": {
+        "va": 285460592,
+        "basis": "Separately linked release wrapper."
+      }
+    },
+    "identification": "Direct call at RVA 0x7621c6 in the independently delineated function at RVA 0x7621b0. Forwards the allocation pointer to the campaign engine heap.",
+    "match": {
+      "bytes_sha256": "2049052a59926a6a0cbb1c3b34bf0c7931eb7c8661cf473b9164beb1ba97a29a",
+      "inputs_sha256": "283cf02bb081d44733782f9152a3d84333d7705dda277ed37eec07ad9ff51b76"
     }
   },
   {

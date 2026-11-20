@@ -1,0 +1,24 @@
+[
+  {
+    "id": "release-route-77c720",
+    "offset": 7849760,
+    "size": 11,
+    "inputs": [
+      "src/campaign_release_routes.c"
+    ],
+    "rebuilt_symbol": "_release_route_77c720",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_release_routes.obj src/campaign_release_routes.c",
+    "link_bindings": {
+      "_release_73c870@4": {
+        "va": 285460592,
+        "basis": "Separately linked release wrapper."
+      }
+    },
+    "identification": "Direct call at RVA 0x778197 in the independently delineated function at RVA 0x778180. Forwards the allocation pointer to the campaign engine heap.",
+    "match": {
+      "bytes_sha256": "86d27569a828e563b3cb8a32a7d32a52699d39d390d6d9ebf92eee454051a516",
+      "inputs_sha256": "f1f126e8d86b5ec08dafa99a22204b1f793b7142e875c492e1af9036a01820f1"
+    }
+  }
+]

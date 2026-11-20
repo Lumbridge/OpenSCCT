@@ -16,6 +16,28 @@
     }
   },
   {
+    "id": "release-route-760fe0",
+    "offset": 7737312,
+    "size": 11,
+    "inputs": [
+      "src/campaign_release_routes.c"
+    ],
+    "rebuilt_symbol": "_release_route_760fe0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_release_routes.obj src/campaign_release_routes.c",
+    "link_bindings": {
+      "_release_73c870@4": {
+        "va": 285460592,
+        "basis": "Separately linked release wrapper."
+      }
+    },
+    "identification": "Direct call at RVA 0x755150 in the independently delineated function at RVA 0x755140. Forwards the allocation pointer to the campaign engine heap.",
+    "match": {
+      "bytes_sha256": "e8b7a50b968a8df2a8d8f93e737d008e36a48b2c5dca560ba74779c3836ab73c",
+      "inputs_sha256": "08828690f4b943058879ab3c96b015d05f5d3d1ac4bd7cb3bffa58475837a703"
+    }
+  },
+  {
     "id": "sound-list-pop-first-pointer-761120",
     "size": 53,
     "offset": 7737632,
@@ -119,6 +141,50 @@
     "match": {
       "bytes_sha256": "23883a3833b82500787a3765d8d072ab82c8a7d4f94de283be64e3af8e3a5ef9",
       "inputs_sha256": "6aac10eca22177b489607789aa1d1b6640ad8ce3744d078ea633a7b508b7f488"
+    }
+  },
+  {
+    "id": "release-route-7653d0",
+    "offset": 7754704,
+    "size": 11,
+    "inputs": [
+      "src/campaign_release_routes.c"
+    ],
+    "rebuilt_symbol": "_release_route_7653d0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_release_routes.obj src/campaign_release_routes.c",
+    "link_bindings": {
+      "_release_73c870@4": {
+        "va": 285460592,
+        "basis": "Separately linked release wrapper."
+      }
+    },
+    "identification": "Direct call at RVA 0x75e270 in the independently delineated function at RVA 0x75e260. Forwards the allocation pointer to the campaign engine heap.",
+    "match": {
+      "bytes_sha256": "f344abb7defb118fccbd790447df5ce517d4a07832adf1ee338021eda57377ba",
+      "inputs_sha256": "6561c69eb9cd2f8c9e64eb82e6915ee6995d1728e8cd7bfe5b5b51291c18f3c4"
+    }
+  },
+  {
+    "id": "release-route-765e50",
+    "offset": 7757392,
+    "size": 11,
+    "inputs": [
+      "src/campaign_release_routes.c"
+    ],
+    "rebuilt_symbol": "_release_route_765e50",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_release_routes.obj src/campaign_release_routes.c",
+    "link_bindings": {
+      "_release_73c870@4": {
+        "va": 285460592,
+        "basis": "Separately linked release wrapper."
+      }
+    },
+    "identification": "Direct call at RVA 0x761060 in the independently delineated function at RVA 0x761050. Forwards the allocation pointer to the campaign engine heap.",
+    "match": {
+      "bytes_sha256": "e7e59d174ec0550dadf26124ceccb93bdc6e119e48cfdf18671d6a8396a9f47d",
+      "inputs_sha256": "98e17ae72d209184dd88a1bc8c9e279bd9c0f417179183e9e84b5ed84c8c53eb"
     }
   },
   {
@@ -310,6 +376,28 @@
     }
   },
   {
+    "id": "release-route-767150",
+    "offset": 7762256,
+    "size": 11,
+    "inputs": [
+      "src/campaign_release_routes.c"
+    ],
+    "rebuilt_symbol": "_release_route_767150",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_release_routes.obj src/campaign_release_routes.c",
+    "link_bindings": {
+      "_release_73c870@4": {
+        "va": 285460592,
+        "basis": "Separately linked release wrapper."
+      }
+    },
+    "identification": "Direct call at RVA 0x7661a0 in the independently delineated function at RVA 0x766190. Forwards the allocation pointer to the campaign engine heap.",
+    "match": {
+      "bytes_sha256": "5ae4b7b16fdb84a312c5cde1b0623913c0735ba4ff595bfbde4dd74f5bbd499a",
+      "inputs_sha256": "1f6697375273f831bdaeedc66896b939fcb83c4998f748ba53f271d91e34aed2"
+    }
+  },
+  {
     "id": "read-word-767180",
     "offset": 7762304,
     "size": 4,
@@ -490,6 +578,28 @@
     }
   },
   {
+    "id": "release-route-767a10",
+    "offset": 7764496,
+    "size": 11,
+    "inputs": [
+      "src/campaign_release_routes.c"
+    ],
+    "rebuilt_symbol": "_release_route_767a10",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_release_routes.obj src/campaign_release_routes.c",
+    "link_bindings": {
+      "_release_73c870@4": {
+        "va": 285460592,
+        "basis": "Separately linked release wrapper."
+      }
+    },
+    "identification": "Direct call at RVA 0x761c3c in the independently delineated function at RVA 0x761bf0. Forwards the allocation pointer to the campaign engine heap.",
+    "match": {
+      "bytes_sha256": "559f0c355414bf0de8698804ac1c52e9f5a0779349f22ec2b04c2fd703534a2a",
+      "inputs_sha256": "69c4c48da8947b5e6e02927ab9887fedaf203f332fc7d56a377e68efbe852b16"
+    }
+  },
+  {
     "id": "read-word-767e90",
     "offset": 7765648,
     "size": 4,
@@ -620,6 +730,28 @@
     "match": {
       "bytes_sha256": "c0cc9d620f9eb7a12ecdf331eaf8ff12adae7a7d07dc84bb97973b391bbccf15",
       "inputs_sha256": "d576eea46053bd806961d35d92325994cae7d9bd2ed09c7ecab41d4e48448039"
+    }
+  },
+  {
+    "id": "release-route-76f7b0",
+    "offset": 7796656,
+    "size": 11,
+    "inputs": [
+      "src/campaign_release_routes.c"
+    ],
+    "rebuilt_symbol": "_release_route_76f7b0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_release_routes.obj src/campaign_release_routes.c",
+    "link_bindings": {
+      "_release_73c870@4": {
+        "va": 285460592,
+        "basis": "Separately linked release wrapper."
+      }
+    },
+    "identification": "Direct call at RVA 0x767170 in the independently delineated function at RVA 0x767160. Forwards the allocation pointer to the campaign engine heap.",
+    "match": {
+      "bytes_sha256": "4ec0068be3abf7ac2132e07c54499337be802fe3df29a4ea15e0ff2d1a1df5e7",
+      "inputs_sha256": "cbac77b6bca9a6ca13ace37ee9a56452a28c55511bfb6d8e72a95651027c70b6"
     }
   },
   {
