@@ -78,6 +78,34 @@
     }
   },
   {
+    "id": "resize-array-storage-004600",
+    "size": 37,
+    "offset": 17920,
+    "inputs": [
+      "src/versus_resize_array_storage.c",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@resize_array_r004600@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_resize_array_storage.obj src/versus_resize_array_storage.c",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 281492464,
+        "basis": "Versus engine heap."
+      },
+      "_array_tag": {
+        "va": 281086324,
+        "basis": "FArray allocation tag."
+      }
+    },
+    "identification": "Direct call at RVA 0x85f99 in the independently delineated function at RVA 0x85f30. Dispatches through the engine heap at its identified slot.",
+    "match": {
+      "bytes_sha256": "0afa5de0b49ee27fb487daa5f12d20b7c5269ee311564935d1bb05641f2f4188",
+      "inputs_sha256": "f72b6f299b789fe0cedc8b21509c50019cf85ac43553aecfac0c57dc36b60824"
+    }
+  },
+  {
     "id": "versus-array-init",
     "size": 13,
     "offset": 17968,

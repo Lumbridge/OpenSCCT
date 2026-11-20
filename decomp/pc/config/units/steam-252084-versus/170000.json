@@ -16,6 +16,80 @@
     }
   },
   {
+    "id": "gameservice-allocate",
+    "size": 23,
+    "offset": 1512656,
+    "inputs": [
+      "src/versus_gameservice_allocation.c"
+    ],
+    "rebuilt_symbol": "_gameservice_allocate@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_gameservice_allocation.obj src/versus_gameservice_allocation.c",
+    "link_bindings": {
+      "_engine_heap": {
+        "va": 281492464,
+        "basis": "Engine heap used by previously rebuilt allocation and release functions."
+      },
+      "_gameservice_allocate_tag": {
+        "va": 281017496,
+        "basis": "Retail UTF-16 label [GAMESERVICE] -> ExtAlloc_Malloc()."
+      }
+    },
+    "identification": "Direct call at RVA 0x235866 in the independently delineated function at RVA 0x235840. Dispatches through the engine heap at its identified slot.",
+    "match": {
+      "bytes_sha256": "c0f1212791de4997592ef10ba70a2c29403dd00790183e7891a6b831549df379",
+      "inputs_sha256": "f36ef1a4c808dd8455a5447e0e753ef79073ee039c0ffd1b54762f2d731df6d8"
+    }
+  },
+  {
+    "id": "gameservice-resize",
+    "size": 29,
+    "offset": 1512688,
+    "inputs": [
+      "src/versus_gameservice_allocation.c"
+    ],
+    "rebuilt_symbol": "_gameservice_resize@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_gameservice_allocation.obj src/versus_gameservice_allocation.c",
+    "link_bindings": {
+      "_engine_heap": {
+        "va": 281492464,
+        "basis": "Engine heap used by previously rebuilt allocation and release functions."
+      },
+      "_gameservice_resize_tag": {
+        "va": 281017424,
+        "basis": "Retail UTF-16 label [GAMESERVICE] -> ExtAlloc_Realloc()."
+      }
+    },
+    "identification": "Direct call at RVA 0x2747d0 in the independently delineated function at RVA 0x274780. Dispatches through the engine heap at its identified slot.",
+    "match": {
+      "bytes_sha256": "6166297a6d20cc53addbb4c9183e6babde4cd9e23c3b5c1d1be59bacc8551e92",
+      "inputs_sha256": "52f1927ceecf6dc33263e6d41b48b55d468e234b1b90c5045b676895d504e198"
+    }
+  },
+  {
+    "id": "heap-release-dispatch-171510",
+    "size": 11,
+    "offset": 1512720,
+    "inputs": [
+      "src/versus_heap_release_dispatch.c"
+    ],
+    "rebuilt_symbol": "_release_171510@4",
+    "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+    "build_command": "cl /nologo /O1 /Gy /c /Folocal/versus_heap_release_dispatch.obj src/versus_heap_release_dispatch.c",
+    "link_bindings": {
+      "_engine_heap": {
+        "va": 281492464,
+        "basis": "Engine heap used by previously rebuilt allocation and release functions."
+      }
+    },
+    "identification": "Direct call at RVA 0x235bc0 in the independently delineated function at RVA 0x235bb0. Dispatches through the engine heap at its identified slot.",
+    "match": {
+      "bytes_sha256": "524cf3a5759048a5e53eefef0742d57ad2e4495cddef071b6e6c5fe92e5d2822",
+      "inputs_sha256": "51b353cdcb1eb2e4bd4a8ce85dc860e72c3ca2bbbc92f9faec073a2f52b6e1f0"
+    }
+  },
+  {
     "id": "delete-record-171c30",
     "offset": 1514544,
     "size": 33,
