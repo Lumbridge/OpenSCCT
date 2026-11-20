@@ -644,6 +644,28 @@
     }
   },
   {
+    "id": "owned-buffer-release-578b30",
+    "size": 40,
+    "offset": 5737264,
+    "inputs": [
+      "src/campaign_owned_buffer_release.c"
+    ],
+    "rebuilt_symbol": "@release_578b30@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_owned_buffer_release.obj src/campaign_owned_buffer_release.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Physics allocation manager used to release owned storage."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs, following a preceding return. Frees owned storage for 80-byte elements via allocator slot five.",
+    "match": {
+      "bytes_sha256": "fd99ebe8d4ef032b9904a673e77328677a968e86681abecb1272e03acc3eb459",
+      "inputs_sha256": "0175dbe6aca402e3c26dc1ca885fec98dabc40c5dab680a7b08aa7faee33451c"
+    }
+  },
+  {
     "id": "owned-array-storage-578b60",
     "size": 37,
     "offset": 5737312,
@@ -685,6 +707,28 @@
     "match": {
       "bytes_sha256": "d47cb30c172d601f64754ebab20ad1587ff1b99aac997e5f21183d6b1d24d0a2",
       "inputs_sha256": "e8fe5adbec3a73f4f96e95306ed67ae81d33b808b1f207eaa13916260cfc0068"
+    }
+  },
+  {
+    "id": "owned-buffer-release-578bc0",
+    "size": 40,
+    "offset": 5737408,
+    "inputs": [
+      "src/campaign_owned_buffer_release.c"
+    ],
+    "rebuilt_symbol": "@release_578bc0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_owned_buffer_release.obj src/campaign_owned_buffer_release.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Physics allocation manager used to release owned storage."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs, following a preceding return. Frees owned storage for 80-byte elements via allocator slot five.",
+    "match": {
+      "bytes_sha256": "fd99ebe8d4ef032b9904a673e77328677a968e86681abecb1272e03acc3eb459",
+      "inputs_sha256": "3f0809c090b851e3f0f88cd0b04040ca471ebed22f94435ea0dd2b8bafe9d011"
     }
   },
   {
@@ -1009,6 +1053,50 @@
     "match": {
       "bytes_sha256": "69eb7d4122ab08df8b4912e746a125fca50fbe895bbca6d648d78271003c7733",
       "inputs_sha256": "ba64324e200bb7d8a0a566fbae9d7de2d08dc61afcee42dc014bf73a6c151d18"
+    }
+  },
+  {
+    "id": "owned-buffer-release-579b80",
+    "size": 40,
+    "offset": 5741440,
+    "inputs": [
+      "src/campaign_owned_buffer_release.c"
+    ],
+    "rebuilt_symbol": "@release_579b80@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_owned_buffer_release.obj src/campaign_owned_buffer_release.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Physics allocation manager used to release owned storage."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs, following a preceding return. Frees owned storage for 12-byte elements via allocator slot five.",
+    "match": {
+      "bytes_sha256": "425c5ad411ba32cda8e4422b9f69b00cd670658efade0028b872229b2ef0e7ac",
+      "inputs_sha256": "1b9afa35191f3a7f1564875e7edfc40571c99c92e198858dbcd7a86b1891de80"
+    }
+  },
+  {
+    "id": "owned-buffer-release-579c50",
+    "size": 40,
+    "offset": 5741648,
+    "inputs": [
+      "src/campaign_owned_buffer_release.c"
+    ],
+    "rebuilt_symbol": "@release_579c50@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_owned_buffer_release.obj src/campaign_owned_buffer_release.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Physics allocation manager used to release owned storage."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs, following a preceding return. Frees owned storage for 12-byte elements via allocator slot five.",
+    "match": {
+      "bytes_sha256": "425c5ad411ba32cda8e4422b9f69b00cd670658efade0028b872229b2ef0e7ac",
+      "inputs_sha256": "317f90e47235ffb2686b3b29d75b546b3075d4a3e2c68ffc93d3ad1718fe936a"
     }
   },
   {

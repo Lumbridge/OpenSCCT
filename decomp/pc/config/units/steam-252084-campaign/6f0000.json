@@ -1050,6 +1050,50 @@
     }
   },
   {
+    "id": "owned-buffer-release-6fed30",
+    "size": 40,
+    "offset": 7335216,
+    "inputs": [
+      "src/campaign_owned_buffer_release.c"
+    ],
+    "rebuilt_symbol": "@release_6fed30@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_owned_buffer_release.obj src/campaign_owned_buffer_release.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Physics allocation manager used to release owned storage."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs, following a preceding return. Frees owned storage for 48-byte elements via allocator slot five.",
+    "match": {
+      "bytes_sha256": "39f09b66daa5f0bbe3a6aa30bfadc5208f68b58f73e0430739e7ba82410f8a65",
+      "inputs_sha256": "565742ba58adb58aff08e57916ddf4cddd16d091bba8fac7fe5e2c0f2814aeb8"
+    }
+  },
+  {
+    "id": "owned-buffer-release-6ff1b0",
+    "size": 40,
+    "offset": 7336368,
+    "inputs": [
+      "src/campaign_owned_buffer_release.c"
+    ],
+    "rebuilt_symbol": "@release_6ff1b0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_owned_buffer_release.obj src/campaign_owned_buffer_release.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Physics allocation manager used to release owned storage."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs, following a preceding return. Frees owned storage for 48-byte elements via allocator slot five.",
+    "match": {
+      "bytes_sha256": "39f09b66daa5f0bbe3a6aa30bfadc5208f68b58f73e0430739e7ba82410f8a65",
+      "inputs_sha256": "d04994d15b26a0434e1e0734fa1e19eb606f26c759c8baa5e9fd94072f74351e"
+    }
+  },
+  {
     "id": "delete-pool-6ff560",
     "size": 40,
     "offset": 7337312,

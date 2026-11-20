@@ -1944,6 +1944,28 @@
     }
   },
   {
+    "id": "owned-buffer-release-553830",
+    "size": 40,
+    "offset": 5584944,
+    "inputs": [
+      "src/campaign_owned_buffer_release.c"
+    ],
+    "rebuilt_symbol": "@release_553830@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_owned_buffer_release.obj src/campaign_owned_buffer_release.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Physics allocation manager used to release owned storage."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs, following a preceding return. Frees owned storage for 12-byte elements via allocator slot five.",
+    "match": {
+      "bytes_sha256": "425c5ad411ba32cda8e4422b9f69b00cd670658efade0028b872229b2ef0e7ac",
+      "inputs_sha256": "8ee63c4d1817c92c7b0906e35ad7dfe51baffe7db9b2909483e75c55b0b69309"
+    }
+  },
+  {
     "id": "owned-array-storage-553860",
     "size": 37,
     "offset": 5584992,
@@ -2385,6 +2407,28 @@
     "match": {
       "bytes_sha256": "d47cb30c172d601f64754ebab20ad1587ff1b99aac997e5f21183d6b1d24d0a2",
       "inputs_sha256": "5c72ecb9244e82625c1683863908171f58b53d297956d5e1cf59020d1a46cf34"
+    }
+  },
+  {
+    "id": "owned-buffer-release-554830",
+    "size": 40,
+    "offset": 5589040,
+    "inputs": [
+      "src/campaign_owned_buffer_release.c"
+    ],
+    "rebuilt_symbol": "@release_554830@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_owned_buffer_release.obj src/campaign_owned_buffer_release.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Physics allocation manager used to release owned storage."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs, following a preceding return. Frees owned storage for 12-byte elements via allocator slot five.",
+    "match": {
+      "bytes_sha256": "425c5ad411ba32cda8e4422b9f69b00cd670658efade0028b872229b2ef0e7ac",
+      "inputs_sha256": "9c5446ea78f5e57c907b8195353ec0b52046af53610c687fd3d2f155f3a44e0b"
     }
   },
   {

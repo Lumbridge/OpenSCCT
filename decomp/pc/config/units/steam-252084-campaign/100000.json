@@ -1593,6 +1593,28 @@
     }
   },
   {
+    "id": "owned-buffer-release-1072d0",
+    "size": 40,
+    "offset": 1077968,
+    "inputs": [
+      "src/campaign_owned_buffer_release.c"
+    ],
+    "rebuilt_symbol": "@release_1072d0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_owned_buffer_release.obj src/campaign_owned_buffer_release.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Physics allocation manager used to release owned storage."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs, following a preceding return. Frees owned storage for 12-byte elements via allocator slot five.",
+    "match": {
+      "bytes_sha256": "425c5ad411ba32cda8e4422b9f69b00cd670658efade0028b872229b2ef0e7ac",
+      "inputs_sha256": "13eca5cf80a6771723a8ca139039519b6e66e8d0ebd6c6b41a6e5c15b0ef1a8b"
+    }
+  },
+  {
     "id": "class-registration-uehkrigidbody",
     "offset": 1078016,
     "size": 264,
@@ -1683,6 +1705,28 @@
     "match": {
       "bytes_sha256": "8e7c978c211b562172d90429c54801dc6807cb9025a5d4c53482ef525899b8f9",
       "inputs_sha256": "2d18742e42c7166cee515adf04a9d76071e6dcd67e8825c9d407283e13f79088"
+    }
+  },
+  {
+    "id": "owned-buffer-release-107440",
+    "size": 40,
+    "offset": 1078336,
+    "inputs": [
+      "src/campaign_owned_buffer_release.c"
+    ],
+    "rebuilt_symbol": "@release_107440@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_owned_buffer_release.obj src/campaign_owned_buffer_release.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Physics allocation manager used to release owned storage."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs, following a preceding return. Frees owned storage for 12-byte elements via allocator slot five.",
+    "match": {
+      "bytes_sha256": "425c5ad411ba32cda8e4422b9f69b00cd670658efade0028b872229b2ef0e7ac",
+      "inputs_sha256": "faa1ba766e3fc860006ea4781afd7eb045b42e489866e22fbe35b2ebcb441b35"
     }
   },
   {

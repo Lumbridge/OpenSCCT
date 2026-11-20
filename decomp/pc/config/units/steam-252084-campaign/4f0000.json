@@ -1842,6 +1842,28 @@
     }
   },
   {
+    "id": "owned-buffer-release-4fd4b0",
+    "size": 40,
+    "offset": 5231792,
+    "inputs": [
+      "src/campaign_owned_buffer_release.c"
+    ],
+    "rebuilt_symbol": "@release_4fd4b0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_owned_buffer_release.obj src/campaign_owned_buffer_release.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Physics allocation manager used to release owned storage."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs, following a preceding return. Frees owned storage for 12-byte elements via allocator slot five.",
+    "match": {
+      "bytes_sha256": "425c5ad411ba32cda8e4422b9f69b00cd670658efade0028b872229b2ef0e7ac",
+      "inputs_sha256": "7a38cffd7f6b043ed823b89aa2b949432107edcd053413cb6e8650670314b5ec"
+    }
+  },
+  {
     "id": "owned-array-storage-4fd4e0",
     "size": 37,
     "offset": 5231840,
@@ -1964,6 +1986,28 @@
     }
   },
   {
+    "id": "owned-buffer-release-4fd610",
+    "size": 40,
+    "offset": 5232144,
+    "inputs": [
+      "src/campaign_owned_buffer_release.c"
+    ],
+    "rebuilt_symbol": "@release_4fd610@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_owned_buffer_release.obj src/campaign_owned_buffer_release.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Physics allocation manager used to release owned storage."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs, following a preceding return. Frees owned storage for 12-byte elements via allocator slot five.",
+    "match": {
+      "bytes_sha256": "425c5ad411ba32cda8e4422b9f69b00cd670658efade0028b872229b2ef0e7ac",
+      "inputs_sha256": "6e4a9e37d6cce1dd35a835fe6c36b94b584cac1f896dcf56a1c51cdafb91ab08"
+    }
+  },
+  {
     "id": "owned-array-storage-4fd640",
     "size": 37,
     "offset": 5232192,
@@ -2005,6 +2049,28 @@
     "match": {
       "bytes_sha256": "d47cb30c172d601f64754ebab20ad1587ff1b99aac997e5f21183d6b1d24d0a2",
       "inputs_sha256": "40361e419c7f175d5a29ffa8bdbadefc27dc5e06eaabd619d91fb40745b865d4"
+    }
+  },
+  {
+    "id": "owned-buffer-release-4fd770",
+    "size": 40,
+    "offset": 5232496,
+    "inputs": [
+      "src/campaign_owned_buffer_release.c"
+    ],
+    "rebuilt_symbol": "@release_4fd770@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_owned_buffer_release.obj src/campaign_owned_buffer_release.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Physics allocation manager used to release owned storage."
+      }
+    },
+    "identification": "Indexed caller RVA 0x4fe500, direct call RVA 0x4fe50e. Frees owned storage for 12-byte elements via allocator slot five.",
+    "match": {
+      "bytes_sha256": "425c5ad411ba32cda8e4422b9f69b00cd670658efade0028b872229b2ef0e7ac",
+      "inputs_sha256": "fe7861884a1af8e33216779856631e8ab342ce3421996399710c612cd40eb92e"
     }
   },
   {
