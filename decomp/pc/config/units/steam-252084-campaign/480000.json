@@ -3908,6 +3908,28 @@
     }
   },
   {
+    "id": "member-dispatch-48f900",
+    "size": 22,
+    "offset": 4782336,
+    "inputs": [
+      "src/campaign_member_dispatch.c"
+    ],
+    "rebuilt_symbol": "_dispatch_member@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_member_dispatch.obj src/campaign_member_dispatch.c",
+    "link_bindings": {
+      "@invoke_member@12": {
+        "va": 282654080,
+        "basis": "Indexed member entry with two stack arguments and an eight-byte callee stack cleanup."
+      }
+    },
+    "identification": "Complete dispatch adapter at RVA 0x48f900. Places the receiver in ECX and forwards the two remaining arguments to member RVA 0x48f580.",
+    "match": {
+      "bytes_sha256": "7fd070d3d1562dd01da1ac0de330bd870f164aa382f6d9f27e0a7b91e9b8a048",
+      "inputs_sha256": "3fc400c5b8ed5b4d3c235b80813d99e5cef20d5413e232bf1a55a5cd824fdb7b"
+    }
+  },
+  {
     "id": "delete-record-48f940",
     "offset": 4782400,
     "size": 36,

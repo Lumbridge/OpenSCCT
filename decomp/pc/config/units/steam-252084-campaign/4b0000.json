@@ -763,6 +763,28 @@
     }
   },
   {
+    "id": "member-dispatch-4b3080",
+    "size": 22,
+    "offset": 4927616,
+    "inputs": [
+      "src/campaign_member_dispatch.c"
+    ],
+    "rebuilt_symbol": "_dispatch_member@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_member_dispatch.obj src/campaign_member_dispatch.c",
+    "link_bindings": {
+      "@invoke_member@12": {
+        "va": 282799024,
+        "basis": "Indexed member entry with two stack arguments and an eight-byte callee stack cleanup."
+      }
+    },
+    "identification": "Complete dispatch adapter at RVA 0x4b3080. Places the receiver in ECX and forwards the two remaining arguments to member RVA 0x4b2bb0.",
+    "match": {
+      "bytes_sha256": "322f68959bf2afeb4576a93b44b309521c8552c3439697039920e6fa09c2234f",
+      "inputs_sha256": "0efcde34e557ae19ae055d4843051e3039fdda3f5e2cbd78a74a465dc8975073"
+    }
+  },
+  {
     "id": "delete-record-4b30c0",
     "offset": 4927680,
     "size": 36,
@@ -929,6 +951,50 @@
     }
   },
   {
+    "id": "member-dispatch-4b3950",
+    "size": 22,
+    "offset": 4929872,
+    "inputs": [
+      "src/campaign_member_dispatch.c"
+    ],
+    "rebuilt_symbol": "_dispatch_member@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_member_dispatch.obj src/campaign_member_dispatch.c",
+    "link_bindings": {
+      "@invoke_member@12": {
+        "va": 282801600,
+        "basis": "Indexed member entry with two stack arguments and an eight-byte callee stack cleanup."
+      }
+    },
+    "identification": "Complete dispatch adapter at RVA 0x4b3950. Places the receiver in ECX and forwards the two remaining arguments to member RVA 0x4b35c0.",
+    "match": {
+      "bytes_sha256": "fa2bf741f1767aabab332f10d27a0188ab49c08735b3af7837fe07dae3160f19",
+      "inputs_sha256": "fc31efcae8dc4a2a370e7272dc054ef9bcb937db0c8f8b3295ca29b3c656e6c4"
+    }
+  },
+  {
+    "id": "member-dispatch-4b39b0",
+    "size": 22,
+    "offset": 4929968,
+    "inputs": [
+      "src/campaign_member_dispatch.c"
+    ],
+    "rebuilt_symbol": "_dispatch_member@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_member_dispatch.obj src/campaign_member_dispatch.c",
+    "link_bindings": {
+      "@invoke_member@12": {
+        "va": 282801984,
+        "basis": "Indexed member entry with two stack arguments and an eight-byte callee stack cleanup."
+      }
+    },
+    "identification": "Complete dispatch adapter at RVA 0x4b39b0. Places the receiver in ECX and forwards the two remaining arguments to member RVA 0x4b3740.",
+    "match": {
+      "bytes_sha256": "28751db87885d40172ddd9680f99ee74b684fc21706623d2d59fce8a8dbc5eff",
+      "inputs_sha256": "56714952cddccef8359c4bc2d0bbcea0ed8d4791c92a0d7c1d7527a8b5eade77"
+    }
+  },
+  {
     "id": "delete-record-4b3b70",
     "offset": 4930416,
     "size": 30,
@@ -953,6 +1019,28 @@
     "match": {
       "bytes_sha256": "7832b29c43cacc0dd82d4f1879a95e16b380222ec4ecc9d40220780c1bffa1fc",
       "inputs_sha256": "23dfb9bae189cbdda15047bb98f0aa8f4f82e6c19c08e596803b5b610b9d591c"
+    }
+  },
+  {
+    "id": "member-dispatch-4b44a0",
+    "size": 22,
+    "offset": 4932768,
+    "inputs": [
+      "src/campaign_member_dispatch.c"
+    ],
+    "rebuilt_symbol": "_dispatch_member@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_member_dispatch.obj src/campaign_member_dispatch.c",
+    "link_bindings": {
+      "@invoke_member@12": {
+        "va": 282724720,
+        "basis": "Indexed member entry with two stack arguments and an eight-byte callee stack cleanup."
+      }
+    },
+    "identification": "Complete dispatch adapter at RVA 0x4b44a0. Places the receiver in ECX and forwards the two remaining arguments to member RVA 0x4a0970.",
+    "match": {
+      "bytes_sha256": "d60ec0769d9c8ddec1a3ea6ba27e68d2e2bd93d922109eefd2bea0b58fdffc8e",
+      "inputs_sha256": "c212d39e4e18cf8ec8e7aaa473b02e71c7dbc589ed03ebbace03cb35ee217a84"
     }
   },
   {

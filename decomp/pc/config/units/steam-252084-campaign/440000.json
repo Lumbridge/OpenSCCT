@@ -6524,6 +6524,36 @@
     }
   },
   {
+    "id": "cursor-allocation-449cf0",
+    "size": 51,
+    "offset": 4496624,
+    "inputs": [
+      "src/campaign_cursor_allocation.c"
+    ],
+    "rebuilt_symbol": "_allocate_16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_allocation.obj src/campaign_cursor_allocation.c",
+    "link_bindings": {
+      "_cursor_enabled": {
+        "va": 288466192,
+        "basis": "Writable cursor enable flag."
+      },
+      "_after_state": {
+        "va": 288466184,
+        "basis": "Writable pointer immediately following the cursor header in the enabled path."
+      },
+      "_allocate_fallback": {
+        "va": 279826608,
+        "basis": "Shared fallback allocation routine receiving size and zero flags."
+      }
+    },
+    "identification": "Complete allocation method at RVA 0x449cf0. Uses a 16-byte cursor increment when enabled and falls back to the shared allocation helper otherwise.",
+    "match": {
+      "bytes_sha256": "a6e76da74218ebe4a7214bac1f80ad781ea620c77b8f82455c2ee08d78bbf269",
+      "inputs_sha256": "e7a31458c4d63e1960273bfa91f0bb0575cfaae44a1de9a6ebae90d52dc664c1"
+    }
+  },
+  {
     "id": "vector-capacity-449fa0",
     "size": 134,
     "offset": 4497312,

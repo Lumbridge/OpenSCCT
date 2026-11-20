@@ -541,6 +541,50 @@
     }
   },
   {
+    "id": "member-dispatch-4d3230",
+    "size": 22,
+    "offset": 5059120,
+    "inputs": [
+      "src/campaign_member_dispatch.c"
+    ],
+    "rebuilt_symbol": "_dispatch_member@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_member_dispatch.obj src/campaign_member_dispatch.c",
+    "link_bindings": {
+      "@invoke_member@12": {
+        "va": 282931520,
+        "basis": "Indexed member entry with two stack arguments and an eight-byte callee stack cleanup."
+      }
+    },
+    "identification": "Complete dispatch adapter at RVA 0x4d3230. Places the receiver in ECX and forwards the two remaining arguments to member RVA 0x4d3140.",
+    "match": {
+      "bytes_sha256": "a0136c7054809f80128c274cb52af05daaee9041b33d5f84f9b6a09fd7c7f1db",
+      "inputs_sha256": "cbc4b14920f37b1c5ae7516508be882a088902078c12e81ee0dc11d6a3d716d7"
+    }
+  },
+  {
+    "id": "member-dispatch-4d3290",
+    "size": 22,
+    "offset": 5059216,
+    "inputs": [
+      "src/campaign_member_dispatch.c"
+    ],
+    "rebuilt_symbol": "_dispatch_member@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_member_dispatch.obj src/campaign_member_dispatch.c",
+    "link_bindings": {
+      "@invoke_member@12": {
+        "va": 282931648,
+        "basis": "Indexed member entry with two stack arguments and an eight-byte callee stack cleanup."
+      }
+    },
+    "identification": "Complete dispatch adapter at RVA 0x4d3290. Places the receiver in ECX and forwards the two remaining arguments to member RVA 0x4d31c0.",
+    "match": {
+      "bytes_sha256": "77b4b009e6a83d07910fe27a6f350e1ae5a9b3cfa018b55cfd133afb7faa5c3f",
+      "inputs_sha256": "ff9d26e17843a305d4717c5142f06cc68df7cd4e999b31c39380523c9a3469af"
+    }
+  },
+  {
     "id": "delete-members-4d3480",
     "size": 76,
     "offset": 5059712,

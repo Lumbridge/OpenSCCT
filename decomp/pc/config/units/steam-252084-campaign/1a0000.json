@@ -57,6 +57,50 @@
     }
   },
   {
+    "id": "member-dispatch-1a02e0",
+    "size": 22,
+    "offset": 1704672,
+    "inputs": [
+      "src/campaign_member_dispatch.c"
+    ],
+    "rebuilt_symbol": "_dispatch_member@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_member_dispatch.obj src/campaign_member_dispatch.c",
+    "link_bindings": {
+      "@invoke_member@12": {
+        "va": 279577072,
+        "basis": "Indexed member entry with two stack arguments and an eight-byte callee stack cleanup."
+      }
+    },
+    "identification": "Complete dispatch adapter at RVA 0x1a02e0. Places the receiver in ECX and forwards the two remaining arguments to member RVA 0x1a01f0.",
+    "match": {
+      "bytes_sha256": "a0136c7054809f80128c274cb52af05daaee9041b33d5f84f9b6a09fd7c7f1db",
+      "inputs_sha256": "b3db0da69e36ad59b07affa126ecd9d450be6c67e28d7a9f2f2e4f26345f3c85"
+    }
+  },
+  {
+    "id": "member-dispatch-1a0340",
+    "size": 22,
+    "offset": 1704768,
+    "inputs": [
+      "src/campaign_member_dispatch.c"
+    ],
+    "rebuilt_symbol": "_dispatch_member@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_member_dispatch.obj src/campaign_member_dispatch.c",
+    "link_bindings": {
+      "@invoke_member@12": {
+        "va": 279577200,
+        "basis": "Indexed member entry with two stack arguments and an eight-byte callee stack cleanup."
+      }
+    },
+    "identification": "Complete dispatch adapter at RVA 0x1a0340. Places the receiver in ECX and forwards the two remaining arguments to member RVA 0x1a0270.",
+    "match": {
+      "bytes_sha256": "77b4b009e6a83d07910fe27a6f350e1ae5a9b3cfa018b55cfd133afb7faa5c3f",
+      "inputs_sha256": "e0558017f3f7af5962db025b4d092307ad134020d5f5bbaae7ea4c09688ab9b6"
+    }
+  },
+  {
     "id": "delete-members-1a05e0",
     "size": 46,
     "offset": 1705440,
@@ -177,6 +221,50 @@
     "match": {
       "bytes_sha256": "9a7aaa87773cb4e1e16f69829b0dbdc3540e569b224e929d4be0be5199042935",
       "inputs_sha256": "333d33ca215de9d2a2b10bb5f940ca12d3c4cc6107b9a2e6abc0f4a41e08f8da"
+    }
+  },
+  {
+    "id": "member-dispatch-1a0ab0",
+    "size": 22,
+    "offset": 1706672,
+    "inputs": [
+      "src/campaign_member_dispatch.c"
+    ],
+    "rebuilt_symbol": "_dispatch_member@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_member_dispatch.obj src/campaign_member_dispatch.c",
+    "link_bindings": {
+      "@invoke_member@12": {
+        "va": 279579072,
+        "basis": "Indexed member entry with two stack arguments and an eight-byte callee stack cleanup."
+      }
+    },
+    "identification": "Complete dispatch adapter at RVA 0x1a0ab0. Places the receiver in ECX and forwards the two remaining arguments to member RVA 0x1a09c0.",
+    "match": {
+      "bytes_sha256": "a0136c7054809f80128c274cb52af05daaee9041b33d5f84f9b6a09fd7c7f1db",
+      "inputs_sha256": "9eba610d7acab1d3ed297fff246466c464b5108dbddf28d80fdfb49139fee517"
+    }
+  },
+  {
+    "id": "member-dispatch-1a0b10",
+    "size": 22,
+    "offset": 1706768,
+    "inputs": [
+      "src/campaign_member_dispatch.c"
+    ],
+    "rebuilt_symbol": "_dispatch_member@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_member_dispatch.obj src/campaign_member_dispatch.c",
+    "link_bindings": {
+      "@invoke_member@12": {
+        "va": 279579200,
+        "basis": "Indexed member entry with two stack arguments and an eight-byte callee stack cleanup."
+      }
+    },
+    "identification": "Complete dispatch adapter at RVA 0x1a0b10. Places the receiver in ECX and forwards the two remaining arguments to member RVA 0x1a0a40.",
+    "match": {
+      "bytes_sha256": "77b4b009e6a83d07910fe27a6f350e1ae5a9b3cfa018b55cfd133afb7faa5c3f",
+      "inputs_sha256": "a397197e33ac3031b9c3697b43bfe80d3f580c586de705188ad75a40b0098712"
     }
   },
   {
