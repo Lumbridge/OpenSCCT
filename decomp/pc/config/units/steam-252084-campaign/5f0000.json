@@ -1,5 +1,28 @@
 [
   {
+    "id": "set-methods-5f2cb0",
+    "offset": 6237360,
+    "size": 7,
+    "inputs": [
+      "src/campaign_method_table_setters.c",
+      "src/set_object_methods.h"
+    ],
+    "rebuilt_symbol": "@set_methods_5f2cb0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_method_table_setters.obj src/campaign_method_table_setters.c",
+    "link_bindings": {
+      "_methods_854604": {
+        "va": 286606852,
+        "basis": "Read-only methods table with an independently indexed executable first entry."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10ef2c93. The complete function installs the methods table at offset zero in the receiver.",
+    "match": {
+      "bytes_sha256": "f7463aff015b6b5fcfdf4f57c4b11978f9ae6cfda29b2bfe5a5fbda0dba66f8b",
+      "inputs_sha256": "a57bfbe7d0563f838c188a7c96168c5a51bbc444e9d25b754f60ee788438bedc"
+    }
+  },
+  {
     "id": "campaign-named-exception-message",
     "offset": 6258208,
     "size": 4,

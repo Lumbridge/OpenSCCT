@@ -24,5 +24,51 @@
       "bytes_sha256": "a2f6417b99adb767f9e0bf5999671795447a2614ce3fb4b1d929364e7c981b16",
       "inputs_sha256": "4aa0a4a1b542067fb32c475e0d39e100c8ad966e66c0e27e761bc8c8dd9562df"
     }
+  },
+  {
+    "id": "set-methods-72fdd0",
+    "offset": 7536080,
+    "size": 7,
+    "inputs": [
+      "src/campaign_method_table_setters.c",
+      "src/set_object_methods.h"
+    ],
+    "rebuilt_symbol": "@set_methods_72fdd0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_method_table_setters.obj src/campaign_method_table_setters.c",
+    "link_bindings": {
+      "_methods_854b14": {
+        "va": 286608148,
+        "basis": "Read-only methods table with an independently indexed executable first entry."
+      }
+    },
+    "identification": "Direct call at retail VA 0x1102fdb3. The complete function installs the methods table at offset zero in the receiver.",
+    "match": {
+      "bytes_sha256": "5a70c7d6a16c7f818e21421a70c343bcf06a202bc9171d00dfb0661c23aa5d57",
+      "inputs_sha256": "1ddc0437f92d001a462daee5178c1be32ce5a4881c9a9787dfac1b2aaae05dbf"
+    }
+  },
+  {
+    "id": "set-methods-72ff00",
+    "offset": 7536384,
+    "size": 7,
+    "inputs": [
+      "src/campaign_method_table_setters.c",
+      "src/set_object_methods.h"
+    ],
+    "rebuilt_symbol": "@set_methods_72ff00@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_method_table_setters.obj src/campaign_method_table_setters.c",
+    "link_bindings": {
+      "_methods_854b14": {
+        "va": 286608148,
+        "basis": "Read-only methods table with an independently indexed executable first entry."
+      }
+    },
+    "identification": "Direct call at retail VA 0x1102fee3. The complete function installs the methods table at offset zero in the receiver.",
+    "match": {
+      "bytes_sha256": "5a70c7d6a16c7f818e21421a70c343bcf06a202bc9171d00dfb0661c23aa5d57",
+      "inputs_sha256": "9fe5e0c068fcf2ecec13bc474871d5bf23c9935634816e5941d4d57d5c1534e1"
+    }
   }
 ]

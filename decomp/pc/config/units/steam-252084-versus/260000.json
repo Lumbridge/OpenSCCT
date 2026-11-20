@@ -1,0 +1,25 @@
+[
+  {
+    "id": "set-methods-268640",
+    "offset": 2524736,
+    "size": 7,
+    "inputs": [
+      "src/versus_method_table_setters.c",
+      "src/set_object_methods.h"
+    ],
+    "rebuilt_symbol": "@set_methods_268640@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_method_table_setters.obj src/versus_method_table_setters.c",
+    "link_bindings": {
+      "_methods_2e124c": {
+        "va": 280891980,
+        "basis": "Read-only methods table with an independently indexed executable first entry."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10b68623. The complete function installs the methods table at offset zero in the receiver.",
+    "match": {
+      "bytes_sha256": "15e26dd6cda12305d6472bdc8b3a266d8ad56ea1b547b95a002789c129e60a09",
+      "inputs_sha256": "2c8654a53629d90bfd5d27e90bc8633de384c020af86d6c9666aaadb5f55630c"
+    }
+  }
+]

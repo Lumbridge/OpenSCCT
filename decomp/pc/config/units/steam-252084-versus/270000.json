@@ -1,5 +1,28 @@
 [
   {
+    "id": "set-methods-272720",
+    "offset": 2565920,
+    "size": 7,
+    "inputs": [
+      "src/versus_method_table_setters.c",
+      "src/set_object_methods.h"
+    ],
+    "rebuilt_symbol": "@set_methods_272720@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_method_table_setters.obj src/versus_method_table_setters.c",
+    "link_bindings": {
+      "_methods_2e12b4": {
+        "va": 280892084,
+        "basis": "Read-only methods table with an independently indexed executable first entry."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10b72863. The complete function installs the methods table at offset zero in the receiver.",
+    "match": {
+      "bytes_sha256": "ac10195a3dbe965e778dec4d6d31332b92892754401f9ba853af54d3ae334c6e",
+      "inputs_sha256": "f435fe7e5bf6cb4e2cee2a10f2c8bafdbb5f3e6a2be61a6f09b4b681d7fff751"
+    }
+  },
+  {
     "id": "versus-ref-format-indented",
     "offset": 2566160,
     "size": 8,
@@ -77,6 +100,29 @@
     "match": {
       "bytes_sha256": "2489889fca96580805e19d932c314c14265ad031950f0dd3d83e382ff598a6ae",
       "inputs_sha256": "6f76e5666cc6d65a69901e92e694336ee0d75c41a58453c24ab3411ad0e5d046"
+    }
+  },
+  {
+    "id": "set-methods-2730f0",
+    "offset": 2568432,
+    "size": 7,
+    "inputs": [
+      "src/versus_method_table_setters.c",
+      "src/set_object_methods.h"
+    ],
+    "rebuilt_symbol": "@set_methods_2730f0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_method_table_setters.obj src/versus_method_table_setters.c",
+    "link_bindings": {
+      "_methods_2e1f64": {
+        "va": 280895332,
+        "basis": "Read-only methods table with an independently indexed executable first entry."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10b5f4a9. The complete function installs the methods table at offset zero in the receiver.",
+    "match": {
+      "bytes_sha256": "1899c654d54c1964e0aeb5c52fa17765da09694e434f5f933e74883feb098098",
+      "inputs_sha256": "3616ef6709c2c75e410ba26059231c06f75e3a04892437c35e25a5f39dcb788f"
     }
   },
   {

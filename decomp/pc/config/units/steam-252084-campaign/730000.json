@@ -1,5 +1,51 @@
 [
   {
+    "id": "set-methods-7300b0",
+    "offset": 7536816,
+    "size": 7,
+    "inputs": [
+      "src/campaign_method_table_setters.c",
+      "src/set_object_methods.h"
+    ],
+    "rebuilt_symbol": "@set_methods_7300b0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_method_table_setters.obj src/campaign_method_table_setters.c",
+    "link_bindings": {
+      "_methods_854b14": {
+        "va": 286608148,
+        "basis": "Read-only methods table with an independently indexed executable first entry."
+      }
+    },
+    "identification": "Direct call at retail VA 0x11030093. The complete function installs the methods table at offset zero in the receiver.",
+    "match": {
+      "bytes_sha256": "5a70c7d6a16c7f818e21421a70c343bcf06a202bc9171d00dfb0661c23aa5d57",
+      "inputs_sha256": "bcaf96c0e4f5f632fbb65460d932452c00ffc9c8eb0b188523c048d3f9d1660c"
+    }
+  },
+  {
+    "id": "set-methods-730db0",
+    "offset": 7540144,
+    "size": 7,
+    "inputs": [
+      "src/campaign_method_table_setters.c",
+      "src/set_object_methods.h"
+    ],
+    "rebuilt_symbol": "@set_methods_730db0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_method_table_setters.obj src/campaign_method_table_setters.c",
+    "link_bindings": {
+      "_methods_87100c": {
+        "va": 286724108,
+        "basis": "Read-only methods table with an independently indexed executable first entry."
+      }
+    },
+    "identification": "Direct call at retail VA 0x11029349. The complete function installs the methods table at offset zero in the receiver.",
+    "match": {
+      "bytes_sha256": "e34b46dac335fb2ee6126b92c17d0faca3a131719d0bd296e23cd58414a09db0",
+      "inputs_sha256": "755b299cafe95027bdc9d3114cda8e6de53405078eb829858812c5933cc8efd9"
+    }
+  },
+  {
     "id": "sound-free-aligned",
     "offset": 7587024,
     "size": 16,

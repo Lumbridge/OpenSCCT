@@ -2448,5 +2448,28 @@
       "bytes_sha256": "e06754ce1c053509ec694db8bb79854f44f15adc3da186eaf3ee4b4d37d625e8",
       "inputs_sha256": "3dc6a00f8066b15bfcc69b9375b711a7a7ac81f4fb4a47c81abd0b1af3df670b"
     }
+  },
+  {
+    "id": "set-methods-75eee0",
+    "offset": 7728864,
+    "size": 7,
+    "inputs": [
+      "src/campaign_method_table_setters.c",
+      "src/set_object_methods.h"
+    ],
+    "rebuilt_symbol": "@set_methods_75eee0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_method_table_setters.obj src/campaign_method_table_setters.c",
+    "link_bindings": {
+      "_methods_875ae8": {
+        "va": 286743272,
+        "basis": "Read-only methods table with an independently indexed executable first entry."
+      }
+    },
+    "identification": "Direct call at retail VA 0x110621b9. The complete function installs the methods table at offset zero in the receiver.",
+    "match": {
+      "bytes_sha256": "9e2f1a8350cd02cb6eaf90553f9949afa4cd27e037e01493c1bff54d87a8d023",
+      "inputs_sha256": "8814b9ed201a5f3779952e1bebf973c0b317eb0f9dc5d26d91ba8fec2229df91"
+    }
   }
 ]
