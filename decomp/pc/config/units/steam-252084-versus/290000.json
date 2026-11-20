@@ -15,5 +15,22 @@
       "bytes_sha256": "81ef6e45cd03000a57958845a5a859ba708a2c6300f4c9c6ae7dbffd63cc56ef",
       "inputs_sha256": "df73f8496285a03e2be0c21bb020c5710a6ea90f4daab580118fab7b00c89447"
     }
+  },
+  {
+    "id": "assign-range-29f640",
+    "size": 36,
+    "offset": 2750016,
+    "inputs": [
+      "src/versus_shared_record_copy.c",
+      "src/record_copy.h"
+    ],
+    "rebuilt_symbol": "_assign_range_r29f640",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_shared_record_copy.obj src/versus_shared_record_copy.c",
+    "identification": "Default Versus Ghidra extent. The complete position-independent implementation also matches campaign function assign-range-423640 at RVA 0x423640.",
+    "match": {
+      "bytes_sha256": "50d69d54b8aa663e515794293cb968e215715a6e7552f516cca75c987dc96a37",
+      "inputs_sha256": "9c3ff67abaf0e47afe3959a024889711bdd0d376f5acdb2c4bb0ca24df6832f4"
+    }
   }
 ]

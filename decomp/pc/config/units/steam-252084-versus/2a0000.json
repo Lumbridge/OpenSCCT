@@ -68,6 +68,23 @@
     }
   },
   {
+    "id": "tree-next-2a0400",
+    "size": 87,
+    "offset": 2753536,
+    "inputs": [
+      "src/versus_shared_tree_iteration.c",
+      "src/tree_iteration.h"
+    ],
+    "rebuilt_symbol": "@tree_next_2a0400@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_shared_tree_iteration.obj src/versus_shared_tree_iteration.c",
+    "identification": "Default Versus Ghidra extent. The complete position-independent implementation also matches campaign function tree-next-421560 at RVA 0x421560.",
+    "match": {
+      "bytes_sha256": "3cb69dc42498ee7b92264bab8d7ab97c68c3ee219fc6b349effdfa11237dc199",
+      "inputs_sha256": "17b3e2b8459b19d084b667a476c92dacbdd144b77bbb30ef953913fefa67fdeb"
+    }
+  },
+  {
     "id": "tree-next-2a0460",
     "size": 87,
     "offset": 2753632,
@@ -171,6 +188,57 @@
     }
   },
   {
+    "id": "tree-rightmost-2a5130",
+    "size": 29,
+    "offset": 2773296,
+    "inputs": [
+      "src/versus_shared_tree_extreme.c",
+      "src/tree_extreme.h"
+    ],
+    "rebuilt_symbol": "_tree_rightmost_2a5130",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_shared_tree_extreme.obj src/versus_shared_tree_extreme.c",
+    "identification": "Default Versus Ghidra extent. The complete position-independent implementation also matches campaign function tree-rightmost-421020 at RVA 0x421020.",
+    "match": {
+      "bytes_sha256": "7dedfcb3e0f159a246c5f75760c9f2fb411bab5f2ba7c22edd02de9ccddc64a3",
+      "inputs_sha256": "6f4b5ce944bcf87bac33dffbdeb4f71908900d107c2fcd3ea79046970ae94e86"
+    }
+  },
+  {
+    "id": "tree-leftmost-2a5150",
+    "size": 28,
+    "offset": 2773328,
+    "inputs": [
+      "src/versus_shared_tree_extreme.c",
+      "src/tree_extreme.h"
+    ],
+    "rebuilt_symbol": "_tree_leftmost_2a5150",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_shared_tree_extreme.obj src/versus_shared_tree_extreme.c",
+    "identification": "Default Versus Ghidra extent. The complete position-independent implementation also matches campaign function tree-leftmost-421040 at RVA 0x421040.",
+    "match": {
+      "bytes_sha256": "6655218551a77fce2c2423177422b889249f1d81d3c645cc6f9bb92ef72d952c",
+      "inputs_sha256": "bbb6cdf3d7a79e7796d8e2219887dd6c7794189a0af57b70b61742aa2ba5b1c4"
+    }
+  },
+  {
+    "id": "tree-prev-2a51f0",
+    "size": 93,
+    "offset": 2773488,
+    "inputs": [
+      "src/versus_shared_tree_iteration.c",
+      "src/tree_iteration.h"
+    ],
+    "rebuilt_symbol": "@tree_prev_2a51f0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_shared_tree_iteration.obj src/versus_shared_tree_iteration.c",
+    "identification": "Default Versus Ghidra extent. The complete position-independent implementation also matches campaign function tree-prev-421500 at RVA 0x421500.",
+    "match": {
+      "bytes_sha256": "6d7ccb4abf0c9fc532330c8cdb0a182d5c7a4d38c7f9899e31952fc75f8c4519",
+      "inputs_sha256": "b1cb4518af4a2a74292274470dacbc9b4f8062a9c8f15223b0c5bc104a2ab5ce"
+    }
+  },
+  {
     "id": "construct-range-2a9140",
     "size": 43,
     "offset": 2789696,
@@ -219,6 +287,23 @@
     "match": {
       "bytes_sha256": "def4c21a1d6130d21df9ffc08f48358a9d4a85de3467fffa26457649a37bdc65",
       "inputs_sha256": "45af51c44292e5998bbb789a8d8311ab1a862f9fbb901c990e43a0d51b2f44e3"
+    }
+  },
+  {
+    "id": "assign-range-2afdc0",
+    "size": 30,
+    "offset": 2817472,
+    "inputs": [
+      "src/versus_shared_record_copy.c",
+      "src/record_copy.h"
+    ],
+    "rebuilt_symbol": "_assign_range_r2afdc0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_shared_record_copy.obj src/versus_shared_record_copy.c",
+    "identification": "Default Versus Ghidra extent. The complete position-independent implementation also matches campaign function assign-range-10df00 at RVA 0x10df00.",
+    "match": {
+      "bytes_sha256": "fe5e96b5969e5ae6c7b3311b02a5760fbe387efaa07f367300af69fce91960e0",
+      "inputs_sha256": "364f6894f66542e485209da29640a4794893de9663f05f31e56b405a4c372054"
     }
   }
 ]

@@ -1,5 +1,107 @@
 [
   {
+    "id": "rotate-left-2b0d30",
+    "size": 85,
+    "offset": 2821424,
+    "inputs": [
+      "src/versus_shared_tree_rotation.c",
+      "src/tree_rotation.h"
+    ],
+    "rebuilt_symbol": "@rotate_left_2b0d30@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_shared_tree_rotation.obj src/versus_shared_tree_rotation.c",
+    "identification": "Default Versus Ghidra extent. The complete position-independent implementation also matches campaign function rotate-left-44feb0 at RVA 0x44feb0.",
+    "match": {
+      "bytes_sha256": "6cdd37fada30fcc4f4bd86d0923a74194946e7c4b6a14a6b88d91902c21e5037",
+      "inputs_sha256": "73fc1c7742b2813b54a2798d63b487e60a965d0b4da4d9f2e3ff71ff39ab17d3"
+    }
+  },
+  {
+    "id": "tree-rightmost-2b0d90",
+    "size": 29,
+    "offset": 2821520,
+    "inputs": [
+      "src/versus_shared_tree_extreme.c",
+      "src/tree_extreme.h"
+    ],
+    "rebuilt_symbol": "_tree_rightmost_2b0d90",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_shared_tree_extreme.obj src/versus_shared_tree_extreme.c",
+    "identification": "Default Versus Ghidra extent. The complete position-independent implementation also matches campaign function tree-rightmost-44ff10 at RVA 0x44ff10.",
+    "match": {
+      "bytes_sha256": "3b1c43c0d41f6f3dd2b6511bc7004f1685570fc35aa70f893e36cc4b0a2e7fb3",
+      "inputs_sha256": "d0d69696eb2d7f7fb82c160887deff69f1c5c883f715db581ee75edaccf0480a"
+    }
+  },
+  {
+    "id": "tree-leftmost-2b0db0",
+    "size": 28,
+    "offset": 2821552,
+    "inputs": [
+      "src/versus_shared_tree_extreme.c",
+      "src/tree_extreme.h"
+    ],
+    "rebuilt_symbol": "_tree_leftmost_2b0db0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_shared_tree_extreme.obj src/versus_shared_tree_extreme.c",
+    "identification": "Default Versus Ghidra extent. The complete position-independent implementation also matches campaign function tree-leftmost-44ff30 at RVA 0x44ff30.",
+    "match": {
+      "bytes_sha256": "3b913b677762e90e706dfd94403b7e87b33561e3a71900bba4f7c12aaff03efc",
+      "inputs_sha256": "2f3296198d720a33666ef96aec8ae43a9cd8b2761426490947a262458bf1820b"
+    }
+  },
+  {
+    "id": "rotate-right-2b0dd0",
+    "size": 89,
+    "offset": 2821584,
+    "inputs": [
+      "src/versus_shared_tree_rotation.c",
+      "src/tree_rotation.h"
+    ],
+    "rebuilt_symbol": "@rotate_right_2b0dd0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_shared_tree_rotation.obj src/versus_shared_tree_rotation.c",
+    "identification": "Default Versus Ghidra extent. The complete position-independent implementation also matches campaign function rotate-right-44ff50 at RVA 0x44ff50.",
+    "match": {
+      "bytes_sha256": "5c06ba2f54306b5d7dc02d983cc7eb4213d19d35572357424d64f08b444f817f",
+      "inputs_sha256": "2a50596c4c34db09cdea914bc3b2c3d57d95c1efcce6da35071603209997eb50"
+    }
+  },
+  {
+    "id": "tree-next-2b0e30",
+    "size": 87,
+    "offset": 2821680,
+    "inputs": [
+      "src/versus_shared_tree_iteration.c",
+      "src/tree_iteration.h"
+    ],
+    "rebuilt_symbol": "@tree_next_2b0e30@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_shared_tree_iteration.obj src/versus_shared_tree_iteration.c",
+    "identification": "Default Versus Ghidra extent. The complete position-independent implementation also matches campaign function tree-next-450020 at RVA 0x450020.",
+    "match": {
+      "bytes_sha256": "9f5c36a85b720b1cce4e09f3c468d1443b0516a5e44db67c3b36e8f765f91278",
+      "inputs_sha256": "4c90c2125a932b7186275f41b102717885b778ffc635903567c73d6a16dd7fb5"
+    }
+  },
+  {
+    "id": "assign-range-2b7f70",
+    "size": 41,
+    "offset": 2850672,
+    "inputs": [
+      "src/versus_shared_record_copy.c",
+      "src/record_copy.h"
+    ],
+    "rebuilt_symbol": "_assign_range_r2b7f70",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_shared_record_copy.obj src/versus_shared_record_copy.c",
+    "identification": "Default Versus Ghidra extent. The complete position-independent implementation also matches campaign function assign-range-455060 at RVA 0x455060.",
+    "match": {
+      "bytes_sha256": "b287121a3bc6dd6e70e577b5279a7a1974c1da2abf0e923568ceedee28a0de0e",
+      "inputs_sha256": "96a3eb3132fa1f10f63452f06967fb3f20b9b2c4a693a232e2acb0c50e5ea5ef"
+    }
+  },
+  {
     "id": "construct-copies-2b7fe0",
     "size": 46,
     "offset": 2850784,
