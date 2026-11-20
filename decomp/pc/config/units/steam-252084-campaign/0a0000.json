@@ -1,5 +1,27 @@
 [
   {
+    "id": "physics-object-allocation-0a0040",
+    "size": 25,
+    "offset": 655424,
+    "inputs": [
+      "src/campaign_physics_object_allocate.c"
+    ],
+    "rebuilt_symbol": "_allocate_0a0040",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_physics_object_allocate.obj src/campaign_physics_object_allocate.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Physics allocation manager used to allocate object storage."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs, following a preceding return. Allocates with category 39 and records the requested size as a 16-bit field in the returned object.",
+    "match": {
+      "bytes_sha256": "d1273b52da00f10f99d04e08ceb28a1ed78c2982bbec5f00b839c9afc67aae03",
+      "inputs_sha256": "165ad661bc4968714f87c693b0f4f1d0d5d63964acae3cd170303f3fc5960e83"
+    }
+  },
+  {
     "id": "class-registration-aehkconstraint",
     "offset": 655728,
     "size": 264,
@@ -436,6 +458,28 @@
     "match": {
       "bytes_sha256": "872a3271e8cad1abab56410cb6359af1370d33fbfb4014949b6ad57a3fc50b1c",
       "inputs_sha256": "23df96322bf9c8b31c976cabb612031fb88a9d5876f04db21690e86b0791180c"
+    }
+  },
+  {
+    "id": "physics-object-allocation-0a1e30",
+    "size": 25,
+    "offset": 663088,
+    "inputs": [
+      "src/campaign_physics_object_allocate.c"
+    ],
+    "rebuilt_symbol": "_allocate_0a1e30",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_physics_object_allocate.obj src/campaign_physics_object_allocate.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Physics allocation manager used to allocate object storage."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs, following a preceding return. Allocates with category 39 and records the requested size as a 16-bit field in the returned object.",
+    "match": {
+      "bytes_sha256": "d1273b52da00f10f99d04e08ceb28a1ed78c2982bbec5f00b839c9afc67aae03",
+      "inputs_sha256": "5f5c623f574b24475295166edfdae45bf7ea54dc95ae6cd7d2fe1ca12e7cb95e"
     }
   },
   {
@@ -1068,6 +1112,28 @@
     "match": {
       "bytes_sha256": "ad0351581a2224e02e2d4ad5bdfcdeb2f0fb565c369359b4a6f2f4c30eb3939b",
       "inputs_sha256": "96ade1c121c2071355dc04b130c58d95b683ab0e09d11774452de71d0c28e40d"
+    }
+  },
+  {
+    "id": "physics-object-allocation-0a3ab0",
+    "size": 25,
+    "offset": 670384,
+    "inputs": [
+      "src/campaign_physics_object_allocate.c"
+    ],
+    "rebuilt_symbol": "_allocate_0a3ab0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_physics_object_allocate.obj src/campaign_physics_object_allocate.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Physics allocation manager used to allocate object storage."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs, following a preceding return. Allocates with category 36 and records the requested size as a 16-bit field in the returned object.",
+    "match": {
+      "bytes_sha256": "2a0054011efa7477947bbde375ebdfa7bb866170decd3786299ad85483b40a6a",
+      "inputs_sha256": "9dd8202a0378cc1c86cdebbf643cc8ee72b1c5c29f5c918dfa9ecf3e67a96f4c"
     }
   },
   {

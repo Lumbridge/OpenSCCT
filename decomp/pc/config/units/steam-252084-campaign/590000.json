@@ -484,6 +484,72 @@
     }
   },
   {
+    "id": "physics-object-allocation-599590",
+    "size": 25,
+    "offset": 5870992,
+    "inputs": [
+      "src/campaign_physics_object_allocate.c"
+    ],
+    "rebuilt_symbol": "_allocate_599590",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_physics_object_allocate.obj src/campaign_physics_object_allocate.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Physics allocation manager used to allocate object storage."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs, following a preceding return. Allocates with category 10 and records the requested size as a 16-bit field in the returned object.",
+    "match": {
+      "bytes_sha256": "289b5cb25b743d253c719e909680f58826664d8c9bfc45c3bcbbaac9bc63cb07",
+      "inputs_sha256": "451dea45180c2d6fb91a046bbe7e55cccca2da887253103062c24e7f73be200d"
+    }
+  },
+  {
+    "id": "physics-object-allocation-5996e0",
+    "size": 25,
+    "offset": 5871328,
+    "inputs": [
+      "src/campaign_physics_object_allocate.c"
+    ],
+    "rebuilt_symbol": "_allocate_5996e0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_physics_object_allocate.obj src/campaign_physics_object_allocate.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Physics allocation manager used to allocate object storage."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs, following a preceding return. Allocates with category 10 and records the requested size as a 16-bit field in the returned object.",
+    "match": {
+      "bytes_sha256": "289b5cb25b743d253c719e909680f58826664d8c9bfc45c3bcbbaac9bc63cb07",
+      "inputs_sha256": "ec09c7875af1a693bfc2a7b2d58ceda63e2e71c5db5b2975f0bd2aea7b90ae59"
+    }
+  },
+  {
+    "id": "physics-object-allocation-5997e0",
+    "size": 25,
+    "offset": 5871584,
+    "inputs": [
+      "src/campaign_physics_object_allocate.c"
+    ],
+    "rebuilt_symbol": "_allocate_5997e0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_physics_object_allocate.obj src/campaign_physics_object_allocate.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Physics allocation manager used to allocate object storage."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs, following a preceding return. Allocates with category 10 and records the requested size as a 16-bit field in the returned object.",
+    "match": {
+      "bytes_sha256": "289b5cb25b743d253c719e909680f58826664d8c9bfc45c3bcbbaac9bc63cb07",
+      "inputs_sha256": "f01ed12887bc917afc978b2138c6425cd41ba6c3e242b1426bd6d3b34b8073b7"
+    }
+  },
+  {
     "id": "owned-array-storage-599830",
     "size": 37,
     "offset": 5871664,
@@ -602,6 +668,50 @@
     }
   },
   {
+    "id": "physics-object-allocation-59a3e0",
+    "size": 25,
+    "offset": 5874656,
+    "inputs": [
+      "src/campaign_physics_object_allocate.c"
+    ],
+    "rebuilt_symbol": "_allocate_59a3e0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_physics_object_allocate.obj src/campaign_physics_object_allocate.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Physics allocation manager used to allocate object storage."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs, following a preceding return. Allocates with category 10 and records the requested size as a 16-bit field in the returned object.",
+    "match": {
+      "bytes_sha256": "289b5cb25b743d253c719e909680f58826664d8c9bfc45c3bcbbaac9bc63cb07",
+      "inputs_sha256": "84c6c4d9107e6bb6ad66e689d22a4369bb0d6da894ac9119b1d078677f59b234"
+    }
+  },
+  {
+    "id": "physics-object-allocation-59a600",
+    "size": 25,
+    "offset": 5875200,
+    "inputs": [
+      "src/campaign_physics_object_allocate.c"
+    ],
+    "rebuilt_symbol": "_allocate_59a600",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_physics_object_allocate.obj src/campaign_physics_object_allocate.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Physics allocation manager used to allocate object storage."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs, following a preceding return. Allocates with category 10 and records the requested size as a 16-bit field in the returned object.",
+    "match": {
+      "bytes_sha256": "289b5cb25b743d253c719e909680f58826664d8c9bfc45c3bcbbaac9bc63cb07",
+      "inputs_sha256": "fd2002a79992b748916659fade075daa1dccd448ce697cf77d10a6a73d15de64"
+    }
+  },
+  {
     "id": "physics-sized-release-59aa30",
     "size": 41,
     "offset": 5876272,
@@ -703,6 +813,28 @@
     "match": {
       "bytes_sha256": "70fc2b15df0cb5a8e658f34b69d629d4b02559f396d9b32f9d7f69f9fc5c7912",
       "inputs_sha256": "be91606582df0dae67c02f3ae4cffecafd31b78f34bb9ddf9ad7614582ce9688"
+    }
+  },
+  {
+    "id": "physics-object-allocation-59c610",
+    "size": 25,
+    "offset": 5883408,
+    "inputs": [
+      "src/campaign_physics_object_allocate.c"
+    ],
+    "rebuilt_symbol": "_allocate_59c610",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_physics_object_allocate.obj src/campaign_physics_object_allocate.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Physics allocation manager used to allocate object storage."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs, following a preceding return. Allocates with category 44 and records the requested size as a 16-bit field in the returned object.",
+    "match": {
+      "bytes_sha256": "7919cc0d49ef1777fbc96b11dda8a2343d1318ccc48f400bb9e049680fb60f2a",
+      "inputs_sha256": "5d491ee8cf42540b8bf18ee839de5ae606d4860875dde1c029f09d3b6ba5802d"
     }
   },
   {

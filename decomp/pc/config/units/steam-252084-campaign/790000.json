@@ -1,5 +1,27 @@
 [
   {
+    "id": "physics-object-allocation-791560",
+    "size": 25,
+    "offset": 7935328,
+    "inputs": [
+      "src/campaign_physics_object_allocate.c"
+    ],
+    "rebuilt_symbol": "_allocate_791560",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_physics_object_allocate.obj src/campaign_physics_object_allocate.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Physics allocation manager used to allocate object storage."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs, following a preceding return. Allocates with category 1 and records the requested size as a 16-bit field in the returned object.",
+    "match": {
+      "bytes_sha256": "3c9dbe287aa2b464aaecb8f2afff660a9e1edf839c76efdd296ea26f87bcb92b",
+      "inputs_sha256": "fa673f2976b6ff7013c4c4ee175091b44542f99c9f6a00673982c60c787ff41c"
+    }
+  },
+  {
     "id": "physics-sized-release-791ac0",
     "size": 41,
     "offset": 7936704,

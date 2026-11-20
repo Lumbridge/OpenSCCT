@@ -26,6 +26,28 @@
     }
   },
   {
+    "id": "physics-object-allocation-5129a0",
+    "size": 25,
+    "offset": 5319072,
+    "inputs": [
+      "src/campaign_physics_object_allocate.c"
+    ],
+    "rebuilt_symbol": "_allocate_5129a0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_physics_object_allocate.obj src/campaign_physics_object_allocate.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Physics allocation manager used to allocate object storage."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs, following a preceding return. Allocates with category 26 and records the requested size as a 16-bit field in the returned object.",
+    "match": {
+      "bytes_sha256": "1992f361eee7f6db8a31fecb770b6fafd3ae9acc835b1f20897eb5094cbe3de0",
+      "inputs_sha256": "ab47ab9135a76de6957bd5c5f451f871f619a882377502037d67e27fa15d19c5"
+    }
+  },
+  {
     "id": "physics-object-release-512e60",
     "size": 38,
     "offset": 5320288,
@@ -709,6 +731,28 @@
     "match": {
       "bytes_sha256": "40532e88fae15ba585504110416d0b530f415aa9f09b43f4576e44755dcb092f",
       "inputs_sha256": "e948c8a07a043251c51d7801cb8804e97aa48b73f9453f42a10f4071f79269c8"
+    }
+  },
+  {
+    "id": "physics-object-allocation-517510",
+    "size": 25,
+    "offset": 5338384,
+    "inputs": [
+      "src/campaign_physics_object_allocate.c"
+    ],
+    "rebuilt_symbol": "_allocate_517510",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_physics_object_allocate.obj src/campaign_physics_object_allocate.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Physics allocation manager used to allocate object storage."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs, following a preceding return. Allocates with category 26 and records the requested size as a 16-bit field in the returned object.",
+    "match": {
+      "bytes_sha256": "1992f361eee7f6db8a31fecb770b6fafd3ae9acc835b1f20897eb5094cbe3de0",
+      "inputs_sha256": "0bf6e728eb8cec468617014f2f5d5dde59244f1ff12edb640a9e1ef1f1a4db34"
     }
   },
   {
