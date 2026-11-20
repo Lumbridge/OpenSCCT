@@ -1107,6 +1107,7 @@
     "size": 113,
     "inputs": [
       "src/campaign_array_add_zeroed.c",
+      "src/campaign_array_growth.h",
       "src/campaign_array_storage.h"
     ],
     "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
@@ -1125,7 +1126,7 @@
     "identification": "Complete FArray zeroed insertion at default-analysis RVA 0x313220. Saves the original index, grows the allocation as required, clears exactly count times element-size bytes, and returns the saved index. The stock UTF-16 allocator tag corroborates the array operation.",
     "match": {
       "bytes_sha256": "d851d2bbd617956f00bc5808b7e80e2f760af0a01b747d4c7ca6ba5a593f73d5",
-      "inputs_sha256": "0e4e9423b2b3729aee48edf3e742643edf142ccfdc00a2d586c3e1bd45835b49"
+      "inputs_sha256": "2cc8c73ab4649c146f7ceb2218f63dda92746bfb9b3bf3ff6ee60645917dfd85"
     }
   },
   {
@@ -1907,6 +1908,7 @@
     "size": 113,
     "inputs": [
       "src/campaign_array_add_zeroed.c",
+      "src/campaign_array_growth.h",
       "src/campaign_array_storage.h"
     ],
     "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
@@ -1925,7 +1927,7 @@
     "identification": "Complete FArray zeroed insertion at default-analysis RVA 0x317ef0. Saves the original index, grows the allocation as required, clears exactly count times element-size bytes, and returns the saved index. The stock UTF-16 allocator tag corroborates the array operation.",
     "match": {
       "bytes_sha256": "d851d2bbd617956f00bc5808b7e80e2f760af0a01b747d4c7ca6ba5a593f73d5",
-      "inputs_sha256": "2e794199e559057207fd6dc1b1cd7f9773630f97c8360f95666a8209a73275c3"
+      "inputs_sha256": "0cabf56aaaae478ed3f35f5c97f5723a0ffcc2d634b11ec4cd948ecf870b2933"
     }
   },
   {
@@ -2841,6 +2843,38 @@
     }
   },
   {
+    "id": "array-insert-range-31ec30",
+    "offset": 3271728,
+    "size": 117,
+    "inputs": [
+      "src/campaign_array_insert_range.c",
+      "src/campaign_array_growth.h",
+      "src/campaign_array_storage.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_array_insert_range.obj src/campaign_array_insert_range.c",
+    "rebuilt_symbol": "@insert_range_r31ec30@16",
+    "link_bindings": {
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe campaign mover also used by the matched FArray::Remove. Moves the suffix up by the inserted element count."
+      },
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator; its slot 1 resizes the array when the new count exceeds capacity."
+      },
+      "_array_add_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Read-only UTF-16 allocation name 'FArray' in the Steam campaign."
+      }
+    },
+    "identification": "Complete FArray range insertion at default-analysis RVA 0x31ec30. Grows the element count and capacity as required, then moves the existing suffix to make space at the requested index. The stock UTF-16 allocator tag corroborates the array operation.",
+    "match": {
+      "bytes_sha256": "951484d3e87e205845dc6334009a3ac1478e0a66c0aa5a0ccee6cebeb50b2f2e",
+      "inputs_sha256": "1dced6f3f5182e6cba21979e62c568d7de6174bb0a16fb4df5de313c776e3e7e"
+    }
+  },
+  {
     "id": "array-remove-31ed90",
     "size": 138,
     "offset": 3272080,
@@ -2908,6 +2942,7 @@
     "size": 113,
     "inputs": [
       "src/campaign_array_add_zeroed.c",
+      "src/campaign_array_growth.h",
       "src/campaign_array_storage.h"
     ],
     "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
@@ -2926,7 +2961,7 @@
     "identification": "Complete FArray zeroed insertion at default-analysis RVA 0x31eef0. Saves the original index, grows the allocation as required, clears exactly count times element-size bytes, and returns the saved index. The stock UTF-16 allocator tag corroborates the array operation.",
     "match": {
       "bytes_sha256": "d851d2bbd617956f00bc5808b7e80e2f760af0a01b747d4c7ca6ba5a593f73d5",
-      "inputs_sha256": "4f713eb6d5ad61bc001512c038b581eb54ec62a716c73e64e59689f126e39ffe"
+      "inputs_sha256": "b94de95321d8fef1991904f242bea7b3dc3165d154fb4f87bbb84978ecd341ba"
     }
   },
   {

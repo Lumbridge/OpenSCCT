@@ -68,6 +68,38 @@
     }
   },
   {
+    "id": "array-insert-range-411e80",
+    "offset": 4267648,
+    "size": 117,
+    "inputs": [
+      "src/campaign_array_insert_range.c",
+      "src/campaign_array_growth.h",
+      "src/campaign_array_storage.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_array_insert_range.obj src/campaign_array_insert_range.c",
+    "rebuilt_symbol": "@insert_range_r411e80@16",
+    "link_bindings": {
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe campaign mover also used by the matched FArray::Remove. Moves the suffix up by the inserted element count."
+      },
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator; its slot 1 resizes the array when the new count exceeds capacity."
+      },
+      "_array_add_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Read-only UTF-16 allocation name 'FArray' in the Steam campaign."
+      }
+    },
+    "identification": "Complete FArray range insertion at default-analysis RVA 0x411e80. Grows the element count and capacity as required, then moves the existing suffix to make space at the requested index. The stock UTF-16 allocator tag corroborates the array operation.",
+    "match": {
+      "bytes_sha256": "6cb4f1acc32699085760a5f1c4fd03cd551614a9897cf1c4f5d4f9e352091bfd",
+      "inputs_sha256": "8bf91c68bc896b9c918c271419da55ade956ca66f38d2da95d60007cdf9f46e9"
+    }
+  },
+  {
     "id": "array-remove-412310",
     "size": 138,
     "offset": 4268816,
@@ -866,6 +898,38 @@
     "match": {
       "bytes_sha256": "5fe36305475105eced052f44c840e50db4f984ef9a3f2bf629302a8722c373fc",
       "inputs_sha256": "9bd3ae7554fbd6227a0bc7340d470fc1a26b67108e78d8893490bff8b53c9328"
+    }
+  },
+  {
+    "id": "array-insert-range-41a4c0",
+    "offset": 4302016,
+    "size": 117,
+    "inputs": [
+      "src/campaign_array_insert_range.c",
+      "src/campaign_array_growth.h",
+      "src/campaign_array_storage.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_array_insert_range.obj src/campaign_array_insert_range.c",
+    "rebuilt_symbol": "@insert_range_r41a4c0@16",
+    "link_bindings": {
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe campaign mover also used by the matched FArray::Remove. Moves the suffix up by the inserted element count."
+      },
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator; its slot 1 resizes the array when the new count exceeds capacity."
+      },
+      "_array_add_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Read-only UTF-16 allocation name 'FArray' in the Steam campaign."
+      }
+    },
+    "identification": "Complete FArray range insertion at default-analysis RVA 0x41a4c0. Grows the element count and capacity as required, then moves the existing suffix to make space at the requested index. The stock UTF-16 allocator tag corroborates the array operation.",
+    "match": {
+      "bytes_sha256": "3b1998edef53a82b3d79820d453568ee18b2994686c8decc84cbb419e17d5f51",
+      "inputs_sha256": "3c73fb3c8d4860d4d9a483ef67e1a1a8ebf6ee411e2038ec95b1201feef7c3ec"
     }
   },
   {

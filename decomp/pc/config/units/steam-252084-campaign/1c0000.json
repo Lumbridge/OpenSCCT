@@ -185,6 +185,7 @@
     "size": 113,
     "inputs": [
       "src/campaign_array_add_zeroed.c",
+      "src/campaign_array_growth.h",
       "src/campaign_array_storage.h"
     ],
     "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
@@ -203,7 +204,7 @@
     "identification": "Complete FArray zeroed insertion at default-analysis RVA 0x1ccc30. Saves the original index, grows the allocation as required, clears exactly count times element-size bytes, and returns the saved index. The stock UTF-16 allocator tag corroborates the array operation.",
     "match": {
       "bytes_sha256": "d851d2bbd617956f00bc5808b7e80e2f760af0a01b747d4c7ca6ba5a593f73d5",
-      "inputs_sha256": "4a419ddeb7505655865b19b5bf06d8b12f582884848f1beab93023a57163f141"
+      "inputs_sha256": "b193836d98919976a39713131fc7396fc4774168a517ba2aae0bd6de95cc5ce1"
     }
   },
   {
@@ -293,6 +294,38 @@
     "match": {
       "bytes_sha256": "271d9fe389083a45d7a3359044eda33e9ed7a05ed5479dfdb00ed25aae6ee31b",
       "inputs_sha256": "e3e288a96d358e2081646854242e03933fa6065b9eb37c0aa5fc5c5a2ab3ab12"
+    }
+  },
+  {
+    "id": "array-insert-range-1ced90",
+    "offset": 1895824,
+    "size": 117,
+    "inputs": [
+      "src/campaign_array_insert_range.c",
+      "src/campaign_array_growth.h",
+      "src/campaign_array_storage.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_array_insert_range.obj src/campaign_array_insert_range.c",
+    "rebuilt_symbol": "@insert_range_r1ced90@16",
+    "link_bindings": {
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe campaign mover also used by the matched FArray::Remove. Moves the suffix up by the inserted element count."
+      },
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator; its slot 1 resizes the array when the new count exceeds capacity."
+      },
+      "_array_add_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Read-only UTF-16 allocation name 'FArray' in the Steam campaign."
+      }
+    },
+    "identification": "Complete FArray range insertion at default-analysis RVA 0x1ced90. Grows the element count and capacity as required, then moves the existing suffix to make space at the requested index. The stock UTF-16 allocator tag corroborates the array operation.",
+    "match": {
+      "bytes_sha256": "16606e87e5f4b13af1787b9080334d280330181d34dac1ecfd2c9f63017d9d0d",
+      "inputs_sha256": "366b138ddfcb00dcd07dd53a2b12c34ed5c68a87c67280bda616c4d4bca4aa50"
     }
   },
   {

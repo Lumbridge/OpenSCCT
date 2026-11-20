@@ -1,20 +1,11 @@
-#include "campaign_array_storage.h"
+#include "campaign_array_growth.h"
 extern void *__cdecl memset(void *destination, int value, unsigned int size);
 #pragma intrinsic(memset)
 
 static __forceinline int add_zeroed(struct Array *array, struct ArraySize element, struct ArraySize amount,
                                     const unsigned short *allocation_tag)
 {
-    int first = array->count;
-    array->count += amount.value;
-    if (array->count > array->capacity) {
-        struct ArraySize bytes;
-        struct ArrayTag tag;
-        array->capacity = array->count + (3 * array->count) / 8 + 2;
-        bytes.value = array->capacity * element.value;
-        tag.text = allocation_tag;
-        array->buffer.bytes = array_allocator->methods->resize(array_allocator, array->buffer, bytes, tag);
-    }
+    int first = extend_array(array, amount.value, element.value, allocation_tag);
     memset(array->buffer.bytes + first * element.value, 0, amount.value * element.value);
     return first;
 }

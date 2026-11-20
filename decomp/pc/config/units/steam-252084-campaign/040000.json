@@ -326,6 +326,70 @@
     }
   },
   {
+    "id": "array-insert-range-048f60",
+    "offset": 298848,
+    "size": 117,
+    "inputs": [
+      "src/campaign_array_insert_range.c",
+      "src/campaign_array_growth.h",
+      "src/campaign_array_storage.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_array_insert_range.obj src/campaign_array_insert_range.c",
+    "rebuilt_symbol": "@insert_range_r048f60@16",
+    "link_bindings": {
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe campaign mover also used by the matched FArray::Remove. Moves the suffix up by the inserted element count."
+      },
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator; its slot 1 resizes the array when the new count exceeds capacity."
+      },
+      "_array_add_tag_7bc158": {
+        "va": 285983064,
+        "basis": "Read-only UTF-16 allocation name 'FArray::INT' in the Steam campaign."
+      }
+    },
+    "identification": "Complete FArray range insertion at default-analysis RVA 0x48f60. Grows the element count and capacity as required, then moves the existing suffix to make space at the requested index. The stock UTF-16 allocator tag corroborates the array operation.",
+    "match": {
+      "bytes_sha256": "42a2cbd5d3c6d41ac125d2c167ca3c57891785580da7f17b04f5fe500c7dee7a",
+      "inputs_sha256": "c99dc7aef010ed171c96d9a1b805577b01049fa42e23477404182e7b05e3c7b7"
+    }
+  },
+  {
+    "id": "array-insert-range-048fe0",
+    "offset": 298976,
+    "size": 117,
+    "inputs": [
+      "src/campaign_array_insert_range.c",
+      "src/campaign_array_growth.h",
+      "src/campaign_array_storage.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_array_insert_range.obj src/campaign_array_insert_range.c",
+    "rebuilt_symbol": "@insert_range_r048fe0@16",
+    "link_bindings": {
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe campaign mover also used by the matched FArray::Remove. Moves the suffix up by the inserted element count."
+      },
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator; its slot 1 resizes the array when the new count exceeds capacity."
+      },
+      "_array_add_tag_7bc180": {
+        "va": 285983104,
+        "basis": "Read-only UTF-16 allocation name 'FArray::FVector' in the Steam campaign."
+      }
+    },
+    "identification": "Complete FArray range insertion at default-analysis RVA 0x48fe0. Grows the element count and capacity as required, then moves the existing suffix to make space at the requested index. The stock UTF-16 allocator tag corroborates the array operation.",
+    "match": {
+      "bytes_sha256": "08eef1f73c6ac04327f2ecee569fe7e348313f3f0ecc39985d1c4bb2881fc830",
+      "inputs_sha256": "f2b239fdd90c81db1d38ae0358ead94a89f7e4a85020e76d209b61edd9ad8d37"
+    }
+  },
+  {
     "id": "script-result-getfirestart",
     "offset": 299120,
     "size": 120,
@@ -350,6 +414,70 @@
     "match": {
       "bytes_sha256": "8c0b29113452d7db81e06e83096fb147f1a28efd048146db5ed4769f03d460e2",
       "inputs_sha256": "72afc80458897a6146e1a58a37ac88e0509c0ff8bc92dfdaac0814e3e39a6151"
+    }
+  },
+  {
+    "id": "array-insert-range-04bb30",
+    "offset": 310064,
+    "size": 117,
+    "inputs": [
+      "src/campaign_array_insert_range.c",
+      "src/campaign_array_growth.h",
+      "src/campaign_array_storage.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_array_insert_range.obj src/campaign_array_insert_range.c",
+    "rebuilt_symbol": "@insert_range_r04bb30@16",
+    "link_bindings": {
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe campaign mover also used by the matched FArray::Remove. Moves the suffix up by the inserted element count."
+      },
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator; its slot 1 resizes the array when the new count exceeds capacity."
+      },
+      "_array_add_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Read-only UTF-16 allocation name 'FArray' in the Steam campaign."
+      }
+    },
+    "identification": "Complete FArray range insertion at default-analysis RVA 0x4bb30. Grows the element count and capacity as required, then moves the existing suffix to make space at the requested index. The stock UTF-16 allocator tag corroborates the array operation.",
+    "match": {
+      "bytes_sha256": "77d4390164097bf35010912f2b3d2886b92ca02aa441b3967bfcb27597c4a8cf",
+      "inputs_sha256": "9f6c98ee87fbd07649c0a9c66c3616541b7922145742b78d19cb49a204198a15"
+    }
+  },
+  {
+    "id": "array-insert-range-04bc00",
+    "offset": 310272,
+    "size": 117,
+    "inputs": [
+      "src/campaign_array_insert_range.c",
+      "src/campaign_array_growth.h",
+      "src/campaign_array_storage.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_array_insert_range.obj src/campaign_array_insert_range.c",
+    "rebuilt_symbol": "@insert_range_r04bc00@16",
+    "link_bindings": {
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe campaign mover also used by the matched FArray::Remove. Moves the suffix up by the inserted element count."
+      },
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator; its slot 1 resizes the array when the new count exceeds capacity."
+      },
+      "_array_add_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Read-only UTF-16 allocation name 'FArray' in the Steam campaign."
+      }
+    },
+    "identification": "Complete FArray range insertion at default-analysis RVA 0x4bc00. Grows the element count and capacity as required, then moves the existing suffix to make space at the requested index. The stock UTF-16 allocator tag corroborates the array operation.",
+    "match": {
+      "bytes_sha256": "49835831e392cacebff864dc8047ee5e285d4e79b3f0e3875d4631a46b30d8a2",
+      "inputs_sha256": "483207679dc0130307e709612ac2e6044b473b37e8b347c34554e739d9ada92e"
     }
   },
   {

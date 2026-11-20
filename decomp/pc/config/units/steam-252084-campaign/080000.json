@@ -31,6 +31,38 @@
     }
   },
   {
+    "id": "array-insert-range-0807c0",
+    "offset": 526272,
+    "size": 117,
+    "inputs": [
+      "src/campaign_array_insert_range.c",
+      "src/campaign_array_growth.h",
+      "src/campaign_array_storage.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_array_insert_range.obj src/campaign_array_insert_range.c",
+    "rebuilt_symbol": "@insert_range_r0807c0@16",
+    "link_bindings": {
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe campaign mover also used by the matched FArray::Remove. Moves the suffix up by the inserted element count."
+      },
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator; its slot 1 resizes the array when the new count exceeds capacity."
+      },
+      "_array_add_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Read-only UTF-16 allocation name 'FArray' in the Steam campaign."
+      }
+    },
+    "identification": "Complete FArray range insertion at default-analysis RVA 0x807c0. Grows the element count and capacity as required, then moves the existing suffix to make space at the requested index. The stock UTF-16 allocator tag corroborates the array operation.",
+    "match": {
+      "bytes_sha256": "d1ab9b483fa27f7b2896218868deb219b20d4069feb7b889968f64889ba572a1",
+      "inputs_sha256": "fae99f9c09c4ad2fc54a97b3efe5aa0e1f29f4f940d619c69ee84910a8a9bd1c"
+    }
+  },
+  {
     "id": "array-remove-081450",
     "size": 138,
     "offset": 529488,
@@ -346,6 +378,7 @@
     "size": 113,
     "inputs": [
       "src/campaign_array_add_zeroed.c",
+      "src/campaign_array_growth.h",
       "src/campaign_array_storage.h"
     ],
     "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
@@ -364,7 +397,7 @@
     "identification": "Complete FArray zeroed insertion at default-analysis RVA 0x81fb0. Saves the original index, grows the allocation as required, clears exactly count times element-size bytes, and returns the saved index. The stock UTF-16 allocator tag corroborates the array operation.",
     "match": {
       "bytes_sha256": "d851d2bbd617956f00bc5808b7e80e2f760af0a01b747d4c7ca6ba5a593f73d5",
-      "inputs_sha256": "6a7149eac5e00591dc2e3c2c9c52234cc726ded58a9c88cd4b624aff8491ac3d"
+      "inputs_sha256": "3db004663786153e4c19bc9ab82d61fabbf8af506c336cece0baf1313feb800a"
     }
   },
   {

@@ -741,6 +741,7 @@
     "size": 113,
     "inputs": [
       "src/campaign_array_add_zeroed.c",
+      "src/campaign_array_growth.h",
       "src/campaign_array_storage.h"
     ],
     "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
@@ -759,7 +760,7 @@
     "identification": "Complete FArray zeroed insertion at default-analysis RVA 0x77460. Saves the original index, grows the allocation as required, clears exactly count times element-size bytes, and returns the saved index. The stock UTF-16 allocator tag corroborates the array operation.",
     "match": {
       "bytes_sha256": "9740dd4d2286a59f61384a678822497162dfa82b6f0a43dd36689a6de091b6c2",
-      "inputs_sha256": "de4c2cdd27bef1c018eaba617a846320f771adc0cdaea4672360a4a120f58b32"
+      "inputs_sha256": "5cdf8002ad63bebe5a56d8d68a63accf3c1dacedff4c71648de84f826785e2ec"
     }
   },
   {

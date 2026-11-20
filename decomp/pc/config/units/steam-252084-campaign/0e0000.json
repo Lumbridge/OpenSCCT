@@ -852,6 +852,7 @@
     "size": 113,
     "inputs": [
       "src/campaign_array_add_zeroed.c",
+      "src/campaign_array_growth.h",
       "src/campaign_array_storage.h"
     ],
     "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
@@ -870,7 +871,7 @@
     "identification": "Complete FArray zeroed insertion at default-analysis RVA 0xe34c0. Saves the original index, grows the allocation as required, clears exactly count times element-size bytes, and returns the saved index. The stock UTF-16 allocator tag corroborates the array operation.",
     "match": {
       "bytes_sha256": "d851d2bbd617956f00bc5808b7e80e2f760af0a01b747d4c7ca6ba5a593f73d5",
-      "inputs_sha256": "e3245e7c451576722490721b7102f77ffc353b48c5db2c921f3370f10b0045c6"
+      "inputs_sha256": "cbf1897f21707d6503153de617bc5f431a689560b725876b3d643dda13517700"
     }
   },
   {
@@ -879,6 +880,7 @@
     "size": 113,
     "inputs": [
       "src/campaign_array_add_zeroed.c",
+      "src/campaign_array_growth.h",
       "src/campaign_array_storage.h"
     ],
     "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
@@ -897,7 +899,7 @@
     "identification": "Complete FArray zeroed insertion at default-analysis RVA 0xe38b0. Saves the original index, grows the allocation as required, clears exactly count times element-size bytes, and returns the saved index. The stock UTF-16 allocator tag corroborates the array operation.",
     "match": {
       "bytes_sha256": "d851d2bbd617956f00bc5808b7e80e2f760af0a01b747d4c7ca6ba5a593f73d5",
-      "inputs_sha256": "db80adf8a543207d6bc0a123e434560de94fae811ff102e461660a66820d233f"
+      "inputs_sha256": "9aecc9b91fa27389d336eaf85e291b4dd90496032847450066bf552ce6c1c67d"
     }
   },
   {
@@ -906,6 +908,7 @@
     "size": 113,
     "inputs": [
       "src/campaign_array_add_zeroed.c",
+      "src/campaign_array_growth.h",
       "src/campaign_array_storage.h"
     ],
     "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
@@ -924,7 +927,7 @@
     "identification": "Complete FArray zeroed insertion at default-analysis RVA 0xe3a80. Saves the original index, grows the allocation as required, clears exactly count times element-size bytes, and returns the saved index. The stock UTF-16 allocator tag corroborates the array operation.",
     "match": {
       "bytes_sha256": "d851d2bbd617956f00bc5808b7e80e2f760af0a01b747d4c7ca6ba5a593f73d5",
-      "inputs_sha256": "d09a616689c748dd08b2925d93f24343ee852679aa6efdb2cf6d2a17fdcc35e4"
+      "inputs_sha256": "7f2627c15faf6f8f9349b51b55a01524e900996046488a28b8586d71edc28fc4"
     }
   },
   {
@@ -933,6 +936,7 @@
     "size": 113,
     "inputs": [
       "src/campaign_array_add_zeroed.c",
+      "src/campaign_array_growth.h",
       "src/campaign_array_storage.h"
     ],
     "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
@@ -951,7 +955,7 @@
     "identification": "Complete FArray zeroed insertion at default-analysis RVA 0xe3ef0. Saves the original index, grows the allocation as required, clears exactly count times element-size bytes, and returns the saved index. The stock UTF-16 allocator tag corroborates the array operation.",
     "match": {
       "bytes_sha256": "d851d2bbd617956f00bc5808b7e80e2f760af0a01b747d4c7ca6ba5a593f73d5",
-      "inputs_sha256": "14e166add269459078df2c54a5b010b7907c60a86b96d1598e142d02b2e688b5"
+      "inputs_sha256": "dfa7c57705496e6ecd82cda07c13d939dd154d8dabc16c28d8a30b3b454d1df4"
     }
   },
   {
@@ -960,6 +964,7 @@
     "size": 113,
     "inputs": [
       "src/campaign_array_add_zeroed.c",
+      "src/campaign_array_growth.h",
       "src/campaign_array_storage.h"
     ],
     "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
@@ -978,7 +983,7 @@
     "identification": "Complete FArray zeroed insertion at default-analysis RVA 0xe3f70. Saves the original index, grows the allocation as required, clears exactly count times element-size bytes, and returns the saved index. The stock UTF-16 allocator tag corroborates the array operation.",
     "match": {
       "bytes_sha256": "d851d2bbd617956f00bc5808b7e80e2f760af0a01b747d4c7ca6ba5a593f73d5",
-      "inputs_sha256": "608031a0817bab56ecd93bed5c8639adab182f149b2c373299b144a04d483914"
+      "inputs_sha256": "b0cafdb40a434bfb399110cde0a96942612cee6758edf755ef93275579f7d46a"
     }
   },
   {
@@ -987,6 +992,7 @@
     "size": 113,
     "inputs": [
       "src/campaign_array_add_zeroed.c",
+      "src/campaign_array_growth.h",
       "src/campaign_array_storage.h"
     ],
     "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
@@ -1005,7 +1011,7 @@
     "identification": "Complete FArray zeroed insertion at default-analysis RVA 0xe4070. Saves the original index, grows the allocation as required, clears exactly count times element-size bytes, and returns the saved index. The stock UTF-16 allocator tag corroborates the array operation.",
     "match": {
       "bytes_sha256": "d851d2bbd617956f00bc5808b7e80e2f760af0a01b747d4c7ca6ba5a593f73d5",
-      "inputs_sha256": "6693fa288bdaaea1d725dbd2728f793cd4647fef56da40ce6f0b3e13d1731446"
+      "inputs_sha256": "a40b6a0f78b017ec5e09654c423f3532a4b8601c98a5448859735b1ac9e3937e"
     }
   },
   {
