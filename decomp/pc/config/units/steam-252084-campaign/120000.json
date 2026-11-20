@@ -3018,6 +3018,22 @@
     }
   },
   {
+    "id": "read-word-12b550",
+    "offset": 1226064,
+    "size": 4,
+    "inputs": [
+      "src/campaign_field_access.c"
+    ],
+    "rebuilt_symbol": "@read_word_12b550@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_field_access.obj src/campaign_field_access.c",
+    "identification": "Direct call at RVA 0x24236a in the independently delineated function at RVA 0x242340. The receiver field is at byte offset 56.",
+    "match": {
+      "bytes_sha256": "7e6bda0a031f94dbe8477fe3ce3ba2b7e3d761a050d55625bc7d92212670e60c",
+      "inputs_sha256": "e22fbc090baef3e9268d1ea0858fffb7bb4bb4e17a3d13509638331c7e3c3e8d"
+    }
+  },
+  {
     "id": "array-insert-range-12b750",
     "offset": 1226576,
     "size": 117,

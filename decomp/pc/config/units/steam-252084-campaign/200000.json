@@ -1,5 +1,101 @@
 [
   {
+    "id": "write-word-2001f0",
+    "offset": 2097648,
+    "size": 9,
+    "inputs": [
+      "src/campaign_field_access.c"
+    ],
+    "rebuilt_symbol": "@write_word_2001f0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_field_access.obj src/campaign_field_access.c",
+    "identification": "Direct call at RVA 0x19d70b in the independently delineated function at RVA 0x19d6e0. The receiver field is at byte offset 0.",
+    "match": {
+      "bytes_sha256": "aa1d0523d277f6a14d7950c488982e29fa08fe5d88274b15a712c4427302720a",
+      "inputs_sha256": "27f5bb36840635dfb4cf62c0948f59ca0c5448f1f9b9b544f01e7fac2896e2bb"
+    }
+  },
+  {
+    "id": "read-word-200200",
+    "offset": 2097664,
+    "size": 3,
+    "inputs": [
+      "src/campaign_field_access.c"
+    ],
+    "rebuilt_symbol": "@read_word_200200@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_field_access.obj src/campaign_field_access.c",
+    "identification": "Direct call at RVA 0x1a3b43 in the independently delineated function at RVA 0x1a3b40. The receiver field is at byte offset 0.",
+    "match": {
+      "bytes_sha256": "19d200194d49b34530548575f37a1bb4203ee60f18d42f0084e86b7a8c899faa",
+      "inputs_sha256": "0358bc4a0e2ed0b43c4c778321031e068e2a59367712fc40715f77d8f53aa946"
+    }
+  },
+  {
+    "id": "write-word-201090",
+    "offset": 2101392,
+    "size": 9,
+    "inputs": [
+      "src/campaign_field_access.c"
+    ],
+    "rebuilt_symbol": "@write_word_201090@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_field_access.obj src/campaign_field_access.c",
+    "identification": "Direct call at RVA 0x19d6ff in the independently delineated function at RVA 0x19d6e0. The receiver field is at byte offset 0.",
+    "match": {
+      "bytes_sha256": "aa1d0523d277f6a14d7950c488982e29fa08fe5d88274b15a712c4427302720a",
+      "inputs_sha256": "ad0bbf7ef9e16a6b7ce16a9dcc93a315e66372699b1ea81b37010fb437f579d2"
+    }
+  },
+  {
+    "id": "read-word-2010a0",
+    "offset": 2101408,
+    "size": 3,
+    "inputs": [
+      "src/campaign_field_access.c"
+    ],
+    "rebuilt_symbol": "@read_word_2010a0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_field_access.obj src/campaign_field_access.c",
+    "identification": "Direct call at RVA 0x1a3ae3 in the independently delineated function at RVA 0x1a3ae0. The receiver field is at byte offset 0.",
+    "match": {
+      "bytes_sha256": "19d200194d49b34530548575f37a1bb4203ee60f18d42f0084e86b7a8c899faa",
+      "inputs_sha256": "91e8e2145407d4ee13082e88ce55264062e85a27ed472ef037db5920e4941d1b"
+    }
+  },
+  {
+    "id": "write-word-202ca0",
+    "offset": 2108576,
+    "size": 9,
+    "inputs": [
+      "src/campaign_field_access.c"
+    ],
+    "rebuilt_symbol": "@write_word_202ca0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_field_access.obj src/campaign_field_access.c",
+    "identification": "Direct call at RVA 0x19d6f3 in the independently delineated function at RVA 0x19d6e0. The receiver field is at byte offset 0.",
+    "match": {
+      "bytes_sha256": "aa1d0523d277f6a14d7950c488982e29fa08fe5d88274b15a712c4427302720a",
+      "inputs_sha256": "baaca156bce24a6a3b1885983b2957c17c1dde3d8e077f26811a949a4137397b"
+    }
+  },
+  {
+    "id": "read-word-202cb0",
+    "offset": 2108592,
+    "size": 3,
+    "inputs": [
+      "src/campaign_field_access.c"
+    ],
+    "rebuilt_symbol": "@read_word_202cb0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_field_access.obj src/campaign_field_access.c",
+    "identification": "Direct call at RVA 0x1a28d3 in the independently delineated function at RVA 0x1a28d0. The receiver field is at byte offset 0.",
+    "match": {
+      "bytes_sha256": "19d200194d49b34530548575f37a1bb4203ee60f18d42f0084e86b7a8c899faa",
+      "inputs_sha256": "48ba7ebe5ec47fe63971557cbed6384d7d02cf6e3c0f19ef3aea8f27d9779b3e"
+    }
+  },
+  {
     "id": "clear-record-204480",
     "offset": 2114688,
     "size": 37,

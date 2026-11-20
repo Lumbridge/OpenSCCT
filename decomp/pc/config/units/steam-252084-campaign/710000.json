@@ -70,6 +70,22 @@
     }
   },
   {
+    "id": "field-address-71a6e0",
+    "offset": 7448288,
+    "size": 4,
+    "inputs": [
+      "src/campaign_field_access.c"
+    ],
+    "rebuilt_symbol": "@field_address_71a6e0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_field_access.obj src/campaign_field_access.c",
+    "identification": "Direct call at RVA 0x718f6a in the independently delineated function at RVA 0x718f60. The receiver field is at byte offset 32.",
+    "match": {
+      "bytes_sha256": "dadecdeeff0b9454fd9dc08c558a9148187b2b1bec017fe8b92430570b86012a",
+      "inputs_sha256": "95727b987ce6d263e61f8f910fda5f8ee6ec6e14a96c01f0dda18be33a92bb47"
+    }
+  },
+  {
     "id": "delete-pool-71c0c0",
     "size": 40,
     "offset": 7454912,

@@ -1366,6 +1366,22 @@
     }
   },
   {
+    "id": "read-word-0a51c0",
+    "offset": 676288,
+    "size": 4,
+    "inputs": [
+      "src/versus_field_access.c"
+    ],
+    "rebuilt_symbol": "@read_word_0a51c0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_field_access.obj src/versus_field_access.c",
+    "identification": "Direct call at RVA 0x2b03e3 in the independently delineated function at RVA 0x2b03a0. The receiver field is at byte offset 20.",
+    "match": {
+      "bytes_sha256": "01d3abacb68aac3537badfe563d0e21d0244fb61db1d805bcef8f455407fad96",
+      "inputs_sha256": "0e178309654bf2f44baa36ce7838628666c1c6c742630b1a03444df81f9cdf7d"
+    }
+  },
+  {
     "id": "delete-uskeletalmesh",
     "offset": 677552,
     "size": 33,

@@ -68,6 +68,22 @@
     }
   },
   {
+    "id": "read-word-004c50",
+    "offset": 19536,
+    "size": 7,
+    "inputs": [
+      "src/versus_field_access.c"
+    ],
+    "rebuilt_symbol": "@read_word_004c50@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_field_access.obj src/versus_field_access.c",
+    "identification": "Direct call at RVA 0x20992a in the independently delineated function at RVA 0x2098a0. The receiver field is at byte offset 420.",
+    "match": {
+      "bytes_sha256": "ed946cfe4f10815e1923043243ef03aac26b01cbe5230c53ef0f1bc571de9d66",
+      "inputs_sha256": "7f3e644e202fbb25d5998fec77c8688726982392eeca029b968d95433e94c3fb"
+    }
+  },
+  {
     "id": "delete-record-004ca0",
     "offset": 19616,
     "size": 33,

@@ -269,6 +269,38 @@
     }
   },
   {
+    "id": "read-word-4a2350",
+    "offset": 4858704,
+    "size": 4,
+    "inputs": [
+      "src/campaign_field_access.c"
+    ],
+    "rebuilt_symbol": "@read_word_4a2350@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_field_access.obj src/campaign_field_access.c",
+    "identification": "Direct call at RVA 0x19f3e2 in the independently delineated function at RVA 0x19f3d0. The receiver field is at byte offset 16.",
+    "match": {
+      "bytes_sha256": "74032ad0e931f3c4730df99da43479f9f5315cc898c7c8614278631cb2c16a62",
+      "inputs_sha256": "ab5d133f543a5e14afefd4d3fa4289db27a0c9a73b326c2304617335175cd856"
+    }
+  },
+  {
+    "id": "read-word-4a2360",
+    "offset": 4858720,
+    "size": 4,
+    "inputs": [
+      "src/campaign_field_access.c"
+    ],
+    "rebuilt_symbol": "@read_word_4a2360@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_field_access.obj src/campaign_field_access.c",
+    "identification": "Direct call at RVA 0x19f3eb in the independently delineated function at RVA 0x19f3d0. The receiver field is at byte offset 52.",
+    "match": {
+      "bytes_sha256": "3b2eded1bf6b0f7390191ad1371a956a736f9d18c2a7de0db7e90886555b69e1",
+      "inputs_sha256": "f48f8439d8d1eea2b2b2ff1bc3b5902af1cd629a9568ea7c614578677a7772cb"
+    }
+  },
+  {
     "id": "delete-record-4a2470",
     "offset": 4858992,
     "size": 36,
@@ -328,6 +360,22 @@
     "match": {
       "bytes_sha256": "f8787bdc32bb4d4b2f3434b5bf968df3142a40ac87e7ef693d41825479faf3f4",
       "inputs_sha256": "93e98a3323b5cf23841aa6ec17dc23087eb7ca164fcbaf2cb2528af404e8b33f"
+    }
+  },
+  {
+    "id": "read-word-4a2950",
+    "offset": 4860240,
+    "size": 7,
+    "inputs": [
+      "src/campaign_field_access.c"
+    ],
+    "rebuilt_symbol": "@read_word_4a2950@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_field_access.obj src/campaign_field_access.c",
+    "identification": "Direct call at RVA 0x19f5aa in the independently delineated function at RVA 0x19f550. The receiver field is at byte offset 156.",
+    "match": {
+      "bytes_sha256": "5971358e279d6f61bf08d9c953c05059ffbb0d0ecc822600818bc1136f65e308",
+      "inputs_sha256": "17a5a397ba6aed8ef05c8865f273951013cae982701843b8d5b78a28f667ca07"
     }
   },
   {
@@ -522,6 +570,22 @@
     "match": {
       "bytes_sha256": "95906331bc2d096336e8edf6b2e249088a53f86c3af1a88ff2b7423227d585cf",
       "inputs_sha256": "124d40b01c768dd4a81e53f634f45f2cc24a7df4c55f3ba680d2e0063818a5e1"
+    }
+  },
+  {
+    "id": "write-word-4a4800",
+    "offset": 4868096,
+    "size": 10,
+    "inputs": [
+      "src/campaign_field_access.c"
+    ],
+    "rebuilt_symbol": "@write_word_4a4800@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_field_access.obj src/campaign_field_access.c",
+    "identification": "Direct call at RVA 0x47d82c in the independently delineated function at RVA 0x47d810. The receiver field is at byte offset 8.",
+    "match": {
+      "bytes_sha256": "b35caac991eb0d06657c3fbba49c85de5f83e8cf4de0b07b70fa4b90cb5770fd",
+      "inputs_sha256": "a57469705ddcc417c63353318dc6cc7973c0e0a7985ce2d2bec23b57ce1717bd"
     }
   },
   {
@@ -1163,6 +1227,22 @@
     "match": {
       "bytes_sha256": "c4b3f5664b59f08536081536913eb8ba3521241c378e5c68e4d20212bfae0f7f",
       "inputs_sha256": "f2c59df7b4567456b70c1b298f45b7319bd04450b1397f5a715b75ba8a908f90"
+    }
+  },
+  {
+    "id": "write-word-4ad070",
+    "offset": 4903024,
+    "size": 10,
+    "inputs": [
+      "src/campaign_field_access.c"
+    ],
+    "rebuilt_symbol": "@write_word_4ad070@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_field_access.obj src/campaign_field_access.c",
+    "identification": "Direct call at RVA 0x4cc403 in the independently delineated function at RVA 0x4cc2f0. The receiver field is at byte offset 4.",
+    "match": {
+      "bytes_sha256": "01caaa228fe4f4c7fe4269994a79702b290762107c5e6b67c17e8d8525fc7585",
+      "inputs_sha256": "7555e55b778a3a778279afc73cf214c933768de18b189b41901c8c5ebfc48075"
     }
   },
   {

@@ -217,6 +217,70 @@
     }
   },
   {
+    "id": "write-word-239990",
+    "offset": 2333072,
+    "size": 13,
+    "inputs": [
+      "src/versus_field_access.c"
+    ],
+    "rebuilt_symbol": "@write_word_239990@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_field_access.obj src/versus_field_access.c",
+    "identification": "Direct call at RVA 0x235b3d in the independently delineated function at RVA 0x235b30. The receiver field is at byte offset 200.",
+    "match": {
+      "bytes_sha256": "e59ab34f523df9d6fc594b216399b80128902bd162caacdf26beba7f7c0d9e60",
+      "inputs_sha256": "52693eb9db6aa430b7fd382c3d20e647af69782a1c4d1b723755916a7b93dcaf"
+    }
+  },
+  {
+    "id": "write-word-2399a0",
+    "offset": 2333088,
+    "size": 13,
+    "inputs": [
+      "src/versus_field_access.c"
+    ],
+    "rebuilt_symbol": "@write_word_2399a0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_field_access.obj src/versus_field_access.c",
+    "identification": "Direct call at RVA 0x235b5d in the independently delineated function at RVA 0x235b50. The receiver field is at byte offset 204.",
+    "match": {
+      "bytes_sha256": "3279b9b1c79e71928378070a2e21f541be61bc6feee4828a771b94e943827091",
+      "inputs_sha256": "127c2de8ed9174622c09c206ee35e6db9ac0f1006b8c42a814bd7437b6534dd8"
+    }
+  },
+  {
+    "id": "write-word-2399b0",
+    "offset": 2333104,
+    "size": 13,
+    "inputs": [
+      "src/versus_field_access.c"
+    ],
+    "rebuilt_symbol": "@write_word_2399b0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_field_access.obj src/versus_field_access.c",
+    "identification": "Direct call at RVA 0x235b7d in the independently delineated function at RVA 0x235b70. The receiver field is at byte offset 208.",
+    "match": {
+      "bytes_sha256": "dfec6f1f86088934f8c25bcb49246274113b99a8119d7e44d9dcff2b1fd4c1be",
+      "inputs_sha256": "eb33dd8dbfa8689bd22b3ca354af5e2bafd6527f01b0179e738d689a5f5add9b"
+    }
+  },
+  {
+    "id": "write-word-2399c0",
+    "offset": 2333120,
+    "size": 13,
+    "inputs": [
+      "src/versus_field_access.c"
+    ],
+    "rebuilt_symbol": "@write_word_2399c0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_field_access.obj src/versus_field_access.c",
+    "identification": "Direct call at RVA 0x235b9d in the independently delineated function at RVA 0x235b90. The receiver field is at byte offset 212.",
+    "match": {
+      "bytes_sha256": "fbbb3f432970bf064811f3006c2e47883d3e60a9ea7bc1953e4e22ce941f9b3a",
+      "inputs_sha256": "ea1e0b3f19008e40a234bae45a25644893ec2765a627d728825dab7927b2768d"
+    }
+  },
+  {
     "id": "delete-record-239da0",
     "offset": 2334112,
     "size": 27,
