@@ -492,6 +492,34 @@
     }
   },
   {
+    "id": "aligned-array-growth-0b4f80",
+    "size": 75,
+    "offset": 741248,
+    "inputs": [
+      "src/campaign_aligned_array_growth.c",
+      "src/campaign_array_growth.h",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@grow_0b4f80@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_aligned_array_growth.obj src/campaign_aligned_array_growth.c",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocation manager referenced by the resize call."
+      },
+      "_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Read-only UTF-16 allocation label FArray."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs following a previous return. Grows the array with caller-supplied element size and the retail allocation label FArray.",
+    "match": {
+      "bytes_sha256": "98ee88503043dca8091fc80c0452408b76162318d7f3ea2193f195bbb6f42591",
+      "inputs_sha256": "467a6d26fe3f368d915c5be15a81620dffdc4cae5c0c77f63c1653a493b2a4b8"
+    }
+  },
+  {
     "id": "array-append-0b50d0",
     "size": 82,
     "offset": 741584,
@@ -1915,6 +1943,34 @@
     }
   },
   {
+    "id": "aligned-array-growth-0b8590",
+    "size": 75,
+    "offset": 755088,
+    "inputs": [
+      "src/campaign_aligned_array_growth.c",
+      "src/campaign_array_growth.h",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@grow_0b8590@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_aligned_array_growth.obj src/campaign_aligned_array_growth.c",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocation manager referenced by the resize call."
+      },
+      "_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Read-only UTF-16 allocation label FArray."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs following a previous return. Grows the array with caller-supplied element size and the retail allocation label FArray.",
+    "match": {
+      "bytes_sha256": "98ee88503043dca8091fc80c0452408b76162318d7f3ea2193f195bbb6f42591",
+      "inputs_sha256": "21eb3e7951e1a7889a3ef8aff52532beef7ba073e4cddcfe417c9c0c9fd2caac"
+    }
+  },
+  {
     "id": "array-remove-0b85e0",
     "size": 138,
     "offset": 755168,
@@ -2059,6 +2115,62 @@
     }
   },
   {
+    "id": "aligned-array-growth-0bea80",
+    "size": 75,
+    "offset": 780928,
+    "inputs": [
+      "src/campaign_aligned_array_growth.c",
+      "src/campaign_array_growth.h",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@grow_0bea80@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_aligned_array_growth.obj src/campaign_aligned_array_growth.c",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocation manager referenced by the resize call."
+      },
+      "_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Read-only UTF-16 allocation label FArray."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs following a previous return. Grows the array with caller-supplied element size and the retail allocation label FArray.",
+    "match": {
+      "bytes_sha256": "98ee88503043dca8091fc80c0452408b76162318d7f3ea2193f195bbb6f42591",
+      "inputs_sha256": "0a30ced56636227a7ae97e5e83cb5bd373ac83f508ea676c5659d3cc1e7c6a68"
+    }
+  },
+  {
+    "id": "aligned-array-growth-0bead0",
+    "size": 75,
+    "offset": 781008,
+    "inputs": [
+      "src/campaign_aligned_array_growth.c",
+      "src/campaign_array_growth.h",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@grow_0bead0@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_aligned_array_growth.obj src/campaign_aligned_array_growth.c",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocation manager referenced by the resize call."
+      },
+      "_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Read-only UTF-16 allocation label FArray."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs following a previous return. Grows the array with caller-supplied element size and the retail allocation label FArray.",
+    "match": {
+      "bytes_sha256": "98ee88503043dca8091fc80c0452408b76162318d7f3ea2193f195bbb6f42591",
+      "inputs_sha256": "7f57d020e2ecd73ced51285af6c701ee45dc1b69cdeaaf67d454de30691f7c7f"
+    }
+  },
+  {
     "id": "array-remove-0beb60",
     "size": 138,
     "offset": 781152,
@@ -2118,6 +2230,34 @@
     "match": {
       "bytes_sha256": "9742fc0a90322958f69487a714883ad399b7665917c88392afb34b207178131d",
       "inputs_sha256": "2313624fe71e625d0fa90beddac95e38dbca17a7160da197e9edac863831096b"
+    }
+  },
+  {
+    "id": "aligned-array-growth-0bec80",
+    "size": 75,
+    "offset": 781440,
+    "inputs": [
+      "src/campaign_aligned_array_growth.c",
+      "src/campaign_array_growth.h",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@grow_0bec80@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_aligned_array_growth.obj src/campaign_aligned_array_growth.c",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocation manager referenced by the resize call."
+      },
+      "_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Read-only UTF-16 allocation label FArray."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs following a previous return. Grows the array with caller-supplied element size and the retail allocation label FArray.",
+    "match": {
+      "bytes_sha256": "98ee88503043dca8091fc80c0452408b76162318d7f3ea2193f195bbb6f42591",
+      "inputs_sha256": "8adf67164b99ccbeb51f41703ae62993a88dca6331bbe38115d4f643dec80cde"
     }
   },
   {
@@ -2476,6 +2616,34 @@
     }
   },
   {
+    "id": "aligned-array-growth-0bf2c0",
+    "size": 75,
+    "offset": 783040,
+    "inputs": [
+      "src/campaign_aligned_array_growth.c",
+      "src/campaign_array_growth.h",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@grow_0bf2c0@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_aligned_array_growth.obj src/campaign_aligned_array_growth.c",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocation manager referenced by the resize call."
+      },
+      "_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Read-only UTF-16 allocation label FArray."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs following a previous return. Grows the array with caller-supplied element size and the retail allocation label FArray.",
+    "match": {
+      "bytes_sha256": "98ee88503043dca8091fc80c0452408b76162318d7f3ea2193f195bbb6f42591",
+      "inputs_sha256": "5490344ce202203c9edc1743f1939da63c932a17babe2d044be73144fc4d5075"
+    }
+  },
+  {
     "id": "array-remove-0bf310",
     "size": 138,
     "offset": 783120,
@@ -2535,6 +2703,34 @@
     "match": {
       "bytes_sha256": "b7eda4357fae9c2d759af154d3b723d13760d7247e92feee864f0dd0b8fd6d43",
       "inputs_sha256": "2d0cd8f2660c4856fb1c3c357d738f59e0055be475454928a9cdb480971cb5ed"
+    }
+  },
+  {
+    "id": "aligned-array-growth-0bf430",
+    "size": 76,
+    "offset": 783408,
+    "inputs": [
+      "src/campaign_aligned_array_growth.c",
+      "src/campaign_array_growth.h",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@grow_0bf430@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_aligned_array_growth.obj src/campaign_aligned_array_growth.c",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocation manager referenced by the resize call."
+      },
+      "_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Read-only UTF-16 allocation label FArray."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs following a previous return. Grows the array with 132-byte elements and the retail allocation label FArray.",
+    "match": {
+      "bytes_sha256": "943e994d829f3a81bfc1ddd3d91ad6430d3feef0656d44c4191534789e4a3f5d",
+      "inputs_sha256": "7d34f7648b4c8134cf96eee9240c77dcd9dc56ad8295805f851f3c59ea26b6ac"
     }
   },
   {
@@ -2683,6 +2879,34 @@
     "match": {
       "bytes_sha256": "3da26ca5d1fa2bb2a6b9f7de99cc4ae4e2282b23ce6b0286678218d9a698916c",
       "inputs_sha256": "cba295ae34b042a84923c944284037efbfeb9f4061d060bb70cf8785e9d0f339"
+    }
+  },
+  {
+    "id": "aligned-array-growth-0bf9e0",
+    "size": 73,
+    "offset": 784864,
+    "inputs": [
+      "src/campaign_aligned_array_growth.c",
+      "src/campaign_array_growth.h",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@grow_0bf9e0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_aligned_array_growth.obj src/campaign_aligned_array_growth.c",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocation manager referenced by the resize call."
+      },
+      "_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Read-only UTF-16 allocation label FArray."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs following a previous return. Grows the array with 28-byte elements and the retail allocation label FArray.",
+    "match": {
+      "bytes_sha256": "7608bbf49510f6d728c899ef059b77a9b20d7a0c54e0f111ca1d604e8a2bac09",
+      "inputs_sha256": "822948638528b7ff6db3567d3e8ba5fcf18131efe31fd074d1213e34c4b27e61"
     }
   },
   {
