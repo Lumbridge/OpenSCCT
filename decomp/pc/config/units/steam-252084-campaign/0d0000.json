@@ -277,6 +277,31 @@
     }
   },
   {
+    "id": "append-fsarray-0d7830",
+    "size": 55,
+    "offset": 882736,
+    "inputs": [
+      "src/campaign_fsarray_records.c",
+      "src/campaign_fsarray.h",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@append_fsarray_0d7830@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_fsarray_records.obj src/campaign_fsarray_records.c",
+    "link_bindings": {
+      "@call_resize_fsarray@8": {
+        "va": 281850816,
+        "basis": "The stock FSArray resize helper uses the original element count and FSArray allocation tag."
+      }
+    },
+    "identification": "Stock caller of the independently reconstructed FSArray resizer at call RVA 0xd7843. This complete entry uses 156-byte records.",
+    "match": {
+      "bytes_sha256": "21abbd3f7726ef32310c3573684d42f08178379ac11c5d3955b10ea7d89e3470",
+      "inputs_sha256": "263c7b7798bddd77c43469a4966e18d7486776bd20fcde46317b6c6b98acf7e5"
+    }
+  },
+  {
     "id": "array-add-zeroed-0d7aa0",
     "offset": 883360,
     "size": 113,

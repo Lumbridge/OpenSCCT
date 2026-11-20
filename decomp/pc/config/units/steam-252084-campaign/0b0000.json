@@ -890,6 +890,31 @@
     }
   },
   {
+    "id": "add-zeroed-fsarray-0b5f80",
+    "size": 63,
+    "offset": 745344,
+    "inputs": [
+      "src/campaign_fsarray_records.c",
+      "src/campaign_fsarray.h",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@add_zeroed_fsarray_0b5f80@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_fsarray_records.obj src/campaign_fsarray_records.c",
+    "link_bindings": {
+      "@call_resize_fsarray@8": {
+        "va": 281850816,
+        "basis": "The stock FSArray resize helper uses the original element count and FSArray allocation tag."
+      }
+    },
+    "identification": "Stock caller of the independently reconstructed FSArray resizer at call RVA 0xb5f94. This complete entry uses 36-byte records.",
+    "match": {
+      "bytes_sha256": "bc748378a9c96c0dba99ac95ab03e6b510e566b6f4eca6ad8511b867cf902cab",
+      "inputs_sha256": "98913a63538fc1c3db9b9078f43d649811ba4ba6602a6e607c0bfd82094ab6f5"
+    }
+  },
+  {
     "id": "array-resize-0b6fa0",
     "size": 37,
     "offset": 749472,
@@ -1112,6 +1137,31 @@
     "match": {
       "bytes_sha256": "1ac1c82609b3215ba3403f1dcde31b90efdfc64f85458eec5502a8726a8251a1",
       "inputs_sha256": "5fac4b5fe9c79db6ddf9eabbe3f667c17ce06b5b74ee170bb2110ad642860b57"
+    }
+  },
+  {
+    "id": "append-fsarray-0b7ab0",
+    "size": 55,
+    "offset": 752304,
+    "inputs": [
+      "src/campaign_fsarray_records.c",
+      "src/campaign_fsarray.h",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@append_fsarray_0b7ab0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_fsarray_records.obj src/campaign_fsarray_records.c",
+    "link_bindings": {
+      "@call_resize_fsarray@8": {
+        "va": 281850816,
+        "basis": "The stock FSArray resize helper uses the original element count and FSArray allocation tag."
+      }
+    },
+    "identification": "Stock caller of the independently reconstructed FSArray resizer at call RVA 0xb7abf. This complete entry uses 12-byte records.",
+    "match": {
+      "bytes_sha256": "baef3f776b01cd536a645d3759ad937eb3de201b82c405fb4716f70e49372f00",
+      "inputs_sha256": "ac66bd994a13c2680ca68e011fa9f52ce47c79bce4118934c4a047a3c2580375"
     }
   },
   {
