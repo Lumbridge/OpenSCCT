@@ -194,3 +194,9 @@
   .tool-grid { grid-template-columns:1fr; }
 }
 @media (prefers-reduced-motion: reduce) { .library-image img { transition:none; } }
+
+.home-search { position: relative; }
+.home-suggestions { position: absolute; z-index: 12; top: calc(100% + .45rem); left: 0; min-width: 100%; width: max-content; max-width: min(72vw, 22rem); margin: 0; padding: .25rem; list-style: none; background: #212522; border: 1px solid #555c55; border-radius: 8px; box-shadow: 0 .4rem 1.4rem #0008; }
+.home-suggestions[hidden] { display: none; }
+.home-suggestions a { display: block; padding: .55rem .7rem; border-radius: 5px; color: #f3f6ef; text-decoration: none; line-height: 1.2; }
+.home-suggestions a:focus, .home-suggestions a:hover { background: #343c33; }

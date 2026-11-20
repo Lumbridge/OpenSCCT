@@ -353,3 +353,68 @@
     if (activeLink) activeLink.focus({ preventScroll: true });
   });
 })();
+
+(() => {
+  const input = document.getElementById("home-query");
+  const results = document.getElementById("home-suggestions");
+  if (!input || !results) return;
+  const form = input.form;
+  let timer;
+  let request;
+  function hide() {
+    clearTimeout(timer);
+    request?.abort();
+    results.hidden = true;
+    results.replaceChildren();
+  }
+  input.addEventListener("input", () => {
+    hide();
+    const query = input.value.trim();
+    if (query.length < 2) return;
+    timer = setTimeout(async () => {
+      request = new AbortController();
+      const signal = request.signal;
+      try {
+        const response = await fetch("/search/suggestions?q=" + encodeURIComponent(query), { signal });
+        if (!response.ok) return;
+        const items = await response.json();
+        if (signal.aborted || !form.contains(document.activeElement)) return;
+        for (const item of items) {
+          const row = document.createElement("li");
+          const link = document.createElement("a");
+          link.href = item.url;
+          link.textContent = item.name;
+          row.append(link);
+          results.append(row);
+        }
+        results.hidden = items.length === 0;
+      } catch {
+        // The regular search form works when suggestions are unavailable.
+      }
+    }, 140);
+  });
+  form.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      input.focus();
+      hide();
+      return;
+    }
+    if (results.hidden || !["ArrowDown", "ArrowUp"].includes(event.key)) return;
+    const links = Array.from(results.querySelectorAll("a"));
+    const index = links.indexOf(document.activeElement);
+    const next = index + (event.key === "ArrowDown" ? 1 : -1);
+    event.preventDefault();
+    (links[next] || input).focus();
+  });
+  form.addEventListener("focusout", () => {
+    requestAnimationFrame(() => {
+      if (!form.contains(document.activeElement)) hide();
+    });
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key !== "/" || event.ctrlKey || event.altKey || event.metaKey ||
+        event.target.closest?.("input, textarea, select, [contenteditable]")) return;
+    event.preventDefault();
+    input.focus();
+  });
+})();

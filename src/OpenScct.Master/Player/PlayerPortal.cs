@@ -38,6 +38,7 @@ internal sealed partial class PlayerPortal(MasterOptions options, AccountStore s
     {
         app.MapGet("/", (Func<HttpContext, Task<IResult>>)ProjectHome);
         Get(app, "/search", ProjectSearch);
+        Get(app, "/search/suggestions", ProjectSuggestions);
         Get(app, "/community", Community);
         Get(app, "/projects/{edition}", Edition);
         Get(app, "/projects/{edition}/decomp", ReconstructionGuide);

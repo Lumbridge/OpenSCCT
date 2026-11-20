@@ -20,23 +20,7 @@ internal sealed partial class PlayerPortal
             .Append(H(query)).Append("\"><button class=\"button\" type=\"submit\">Search</button></form>");
         if (query.Length > 0)
         {
-            string[] words = query.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-            var catalog = new List<(string Url, string Name, string Detail)>
-            {
-                ("/download", "Download the launcher", "Windows, Linux and Steam Deck installation"),
-                ("/mods", "Mods", "Optional community maps and Enhanced SCCT Versus, including Reloaded"),
-                ("/progress", "Progress reports", "Exact matches, verified retail code and release notes"),
-                ("/tools#decomp-tools", "Decompilation tools", "ByteMatch, decomp.me, objdiff, splat, spimdisasm, m2c, Ghidra and PCSX2"),
-                ("/tools#maps", "Map editors and tools", "OpenSCCT Editor and SCCT Map Manager"),
-                ("/projects/ps2/decomp", "PlayStation 2 matching guide", "PS2 disc, disassembly and MIPS executables"),
-                ("/projects/pc/decomp", "PC / Steam matching guide", "Original Windows x86 campaign, co-op and Versus decompilation"),
-                ("/community", "Player hub", "Online servers, profiles and matches"),
-                ("/changelog", "Release notes", "Godot, launcher and Editor updates"),
-                ("/legal", "Legal", "Project notice and ownership"),
-            };
-            catalog.AddRange(Editions.Select(e => ("/projects/" + e.Id, e.Name, e.Group + " · " + e.Platform + " · " + e.Summary)));
-            var results = catalog.Where(p => words.All(word => (p.Name + " " + p.Detail).Contains(word, StringComparison.OrdinalIgnoreCase)))
-                .Concat(WikiContent.Search(query, "").Select(a => (Url: "/wiki/" + a.Slug, Name: a.Title, Detail: a.Summary))).ToList();
+            var results = FindProjects(query);
             if (results.Count == 0)
                 body.Append("<p class=\"search-count\">No results for “").Append(H(query)).Append("”. Try a shorter search.</p>");
             else
@@ -47,5 +31,36 @@ internal sealed partial class PlayerPortal
             }
         }
         return Show(c, "Search", "search", body.Append("</div>").ToString());
+    }
+
+    private IResult ProjectSuggestions(HttpContext c)
+    {
+        Secure(c);
+        string query = c.Request.Query["q"].ToString().Trim();
+        if (query.Length > 96) query = query[..96].TrimEnd();
+        if (query.Length < 2) return Results.Json(Array.Empty<object>());
+        return Results.Json(FindProjects(query).Take(6).Select(result => new { url = result.Url, name = result.Name, detail = result.Detail }));
+    }
+
+    private List<(string Url, string Name, string Detail)> FindProjects(string query)
+    {
+        string[] words = query.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        var catalog = new List<(string Url, string Name, string Detail)>
+        {
+            ("/download", "Download the launcher", "Windows, Linux and Steam Deck installation"),
+            ("/mods", "Mods", "Optional community maps and Enhanced SCCT Versus, including Reloaded"),
+            ("/progress", "Progress reports", "Exact matches, verified retail code and release notes"),
+            ("/tools#decomp-tools", "Decompilation tools", "ByteMatch, decomp.me, objdiff, splat, spimdisasm, m2c, Ghidra and PCSX2"),
+            ("/tools#maps", "Map editors and tools", "OpenSCCT Editor and SCCT Map Manager"),
+            ("/projects/ps2/decomp", "PlayStation 2 matching guide", "PS2 disc, disassembly and MIPS executables"),
+            ("/projects/pc/decomp", "PC / Steam matching guide", "Original Windows x86 campaign, co-op and Versus decompilation"),
+            ("/community", "Player hub", "Online servers, profiles and matches"),
+            ("/changelog", "Release notes", "Godot, launcher and Editor updates"),
+            ("/legal", "Legal", "Project notice and ownership"),
+        };
+        catalog.AddRange(Editions.Select(e => ("/projects/" + e.Id, e.Name, e.Group + " · " + e.Platform + " · " + e.Summary)));
+        catalog.AddRange(ModSearchEntries());
+        return catalog.Where(p => words.All(word => (p.Name + " " + p.Detail).Contains(word, StringComparison.OrdinalIgnoreCase)))
+            .Concat(WikiContent.Search(query, "").Select(a => (Url: "/wiki/" + a.Slug, Name: a.Title, Detail: a.Summary))).ToList();
     }
 }
