@@ -321,6 +321,94 @@
     }
   },
   {
+    "id": "clear-owned-storage-1daf10",
+    "size": 42,
+    "offset": 1945360,
+    "rebuilt_symbol": "@clear_storage_r1daf10@4",
+    "inputs": [
+      "src/campaign_clear_storage.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_clear_storage.obj src/campaign_clear_storage.c",
+    "link_bindings": {
+      "_release_engine_buffer": {
+        "va": 279826640,
+        "basis": "Standalone allocator release at RVA 0x1dd0d0, rebuilt from C and compared through its only RET. It forwards the incoming pointer to engine allocator slot 2."
+      }
+    },
+    "identification": "Unique 42-byte function in the stock code section at RVA 0x1daf10, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
+    "match": {
+      "bytes_sha256": "b1db6c2f42c1a6b3dfbd07a3d4f4318e037ffee0179a1043a099edf439379eb8",
+      "inputs_sha256": "eae4d8aabfb22f20d70623a93857a16df106e4063090c72f806cdfd84fe31351"
+    }
+  },
+  {
+    "id": "clear-owned-storage-1daf40",
+    "size": 42,
+    "offset": 1945408,
+    "rebuilt_symbol": "@clear_storage_r1daf40@4",
+    "inputs": [
+      "src/campaign_clear_storage.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_clear_storage.obj src/campaign_clear_storage.c",
+    "link_bindings": {
+      "_release_engine_buffer": {
+        "va": 279826640,
+        "basis": "Standalone allocator release at RVA 0x1dd0d0, rebuilt from C and compared through its only RET. It forwards the incoming pointer to engine allocator slot 2."
+      }
+    },
+    "identification": "Unique 42-byte function in the stock code section at RVA 0x1daf40, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
+    "match": {
+      "bytes_sha256": "5adba09e63af4ae6f29c54979df1732b9703fa6612783cd4ebf52809be5d7b49",
+      "inputs_sha256": "841fa4758c7083da1aafaee79139544c1b4b62d533e4f5f02b20d7923b46945e"
+    }
+  },
+  {
+    "id": "clear-owned-storage-1daf70",
+    "size": 42,
+    "offset": 1945456,
+    "rebuilt_symbol": "@clear_storage_r1daf70@4",
+    "inputs": [
+      "src/campaign_clear_storage.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_clear_storage.obj src/campaign_clear_storage.c",
+    "link_bindings": {
+      "_release_engine_buffer": {
+        "va": 279826640,
+        "basis": "Standalone allocator release at RVA 0x1dd0d0, rebuilt from C and compared through its only RET. It forwards the incoming pointer to engine allocator slot 2."
+      }
+    },
+    "identification": "Unique 42-byte function in the stock code section at RVA 0x1daf70, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
+    "match": {
+      "bytes_sha256": "14cccc7be92ea4ff41403a134c90e1fe767f9beca566c4c780c1dc2acde35d4d",
+      "inputs_sha256": "59e0e58eb698641b0639e93db44a045b1b1fef9711684f846944cf8e40569477"
+    }
+  },
+  {
+    "id": "clear-owned-storage-1db0e0",
+    "size": 42,
+    "offset": 1945824,
+    "rebuilt_symbol": "@clear_storage_r1db0e0@4",
+    "inputs": [
+      "src/campaign_clear_storage.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_clear_storage.obj src/campaign_clear_storage.c",
+    "link_bindings": {
+      "_release_engine_buffer": {
+        "va": 279826640,
+        "basis": "Standalone allocator release at RVA 0x1dd0d0, rebuilt from C and compared through its only RET. It forwards the incoming pointer to engine allocator slot 2."
+      }
+    },
+    "identification": "Unique 42-byte function in the stock code section at RVA 0x1db0e0, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
+    "match": {
+      "bytes_sha256": "4f1c4cb8ed19cf5c6a738cc5c3d3e0fdff2b370a8798f92aab175715f0bd69e4",
+      "inputs_sha256": "3d72090d2ae4f1d7999be930507658bf86227129694b21b81e4ceb8fa6db932a"
+    }
+  },
+  {
     "id": "array-remove-1dbf40",
     "size": 138,
     "offset": 1949504,
@@ -434,6 +522,138 @@
     "match": {
       "bytes_sha256": "5a202f70696439392717b257b108a4371b6cc1c7b310a2873ce718fce1c598cd",
       "inputs_sha256": "6fe749a4e31ec954173b7570ff48d78f9a84461ba87b531a099801c33a9e7a2c"
+    }
+  },
+  {
+    "id": "clear-owned-storage-1dce30",
+    "size": 42,
+    "offset": 1953328,
+    "rebuilt_symbol": "@clear_storage_r1dce30@4",
+    "inputs": [
+      "src/campaign_clear_storage.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_clear_storage.obj src/campaign_clear_storage.c",
+    "link_bindings": {
+      "_release_engine_buffer": {
+        "va": 279826640,
+        "basis": "Standalone allocator release at RVA 0x1dd0d0, rebuilt from C and compared through its only RET. It forwards the incoming pointer to engine allocator slot 2."
+      }
+    },
+    "identification": "Unique 42-byte function in the stock code section at RVA 0x1dce30, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
+    "match": {
+      "bytes_sha256": "d5121db842846f4003defc002ea3f8cd2ee942d34669a6fea362d18d2386b899",
+      "inputs_sha256": "ded8c5e2352d0860ddb9e4727a49a1031d24aa2e994aa75b64d67909fe163ff7"
+    }
+  },
+  {
+    "id": "engine-release-buffer",
+    "size": 17,
+    "offset": 1954000,
+    "rebuilt_symbol": "_release_engine_buffer",
+    "inputs": [
+      "src/campaign_release_buffer.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_release_buffer.obj src/campaign_release_buffer.c",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator used by the campaign array operations. The indirect call passes the pointer to virtual slot 2."
+      }
+    },
+    "identification": "Engine allocation release at RVA 0x1dd0d0. The routine receives one pointer and dispatches to allocator slot 2. Direct calls from the recovered cleanup functions, including RVA 0x1daf1b, corroborate its entry.",
+    "match": {
+      "bytes_sha256": "dcb4e22a2dd20651e53d33ad49315eba28c049dc7c8a00f4658191a134b4377a",
+      "inputs_sha256": "1144635aaa8ec78763161efc0ee08b22e2190ba81780f99be6fc89dffdfd8c43"
+    }
+  },
+  {
+    "id": "clear-owned-storage-1dd430",
+    "size": 42,
+    "offset": 1954864,
+    "rebuilt_symbol": "@clear_storage_r1dd430@4",
+    "inputs": [
+      "src/campaign_clear_storage.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_clear_storage.obj src/campaign_clear_storage.c",
+    "link_bindings": {
+      "_release_engine_buffer": {
+        "va": 279826640,
+        "basis": "Standalone allocator release at RVA 0x1dd0d0, rebuilt from C and compared through its only RET. It forwards the incoming pointer to engine allocator slot 2."
+      }
+    },
+    "identification": "Unique 42-byte function in the stock code section at RVA 0x1dd430, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
+    "match": {
+      "bytes_sha256": "b03fef25b73129d91d62d270d761303c40de7945694767030d1ccea420c42057",
+      "inputs_sha256": "50043365381586afaaa1d657ef4dcff9cdb9f279c5bac9074befe473f9e028c1"
+    }
+  },
+  {
+    "id": "clear-owned-storage-1dd830",
+    "size": 42,
+    "offset": 1955888,
+    "rebuilt_symbol": "@clear_storage_r1dd830@4",
+    "inputs": [
+      "src/campaign_clear_storage.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_clear_storage.obj src/campaign_clear_storage.c",
+    "link_bindings": {
+      "_release_engine_buffer": {
+        "va": 279826640,
+        "basis": "Standalone allocator release at RVA 0x1dd0d0, rebuilt from C and compared through its only RET. It forwards the incoming pointer to engine allocator slot 2."
+      }
+    },
+    "identification": "Unique 42-byte function in the stock code section at RVA 0x1dd830, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
+    "match": {
+      "bytes_sha256": "f017f1a9ec42df1b39c5d2c43b2d11dccbc59a28195a64b09c3064464cbe9e48",
+      "inputs_sha256": "726e3327e61c316ac0a0375fa9831b2209a06e9e9274c39d2efd9aa386391ae3"
+    }
+  },
+  {
+    "id": "clear-owned-storage-1dd860",
+    "size": 42,
+    "offset": 1955936,
+    "rebuilt_symbol": "@clear_storage_r1dd860@4",
+    "inputs": [
+      "src/campaign_clear_storage.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_clear_storage.obj src/campaign_clear_storage.c",
+    "link_bindings": {
+      "_release_engine_buffer": {
+        "va": 279826640,
+        "basis": "Standalone allocator release at RVA 0x1dd0d0, rebuilt from C and compared through its only RET. It forwards the incoming pointer to engine allocator slot 2."
+      }
+    },
+    "identification": "Unique 42-byte function in the stock code section at RVA 0x1dd860, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
+    "match": {
+      "bytes_sha256": "595cf5619330de914cbd716d9452a4efdd457dcec99d362c588d7a817ea3b47e",
+      "inputs_sha256": "cd191b98fe4a41b399654e06411a1e0f3d1964e3847f8af2afd282003eabd2b8"
+    }
+  },
+  {
+    "id": "clear-owned-storage-1dd980",
+    "size": 42,
+    "offset": 1956224,
+    "rebuilt_symbol": "@clear_storage_r1dd980@4",
+    "inputs": [
+      "src/campaign_clear_storage.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_clear_storage.obj src/campaign_clear_storage.c",
+    "link_bindings": {
+      "_release_engine_buffer": {
+        "va": 279826640,
+        "basis": "Standalone allocator release at RVA 0x1dd0d0, rebuilt from C and compared through its only RET. It forwards the incoming pointer to engine allocator slot 2."
+      }
+    },
+    "identification": "Unique 42-byte function in the stock code section at RVA 0x1dd980, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
+    "match": {
+      "bytes_sha256": "8d1cad589cec39006ef98670ce7c61169aefea9a99316c7ed6d708cdba3c6a8f",
+      "inputs_sha256": "a9a7120a772e285fb501991c4ac3dce226af637fcc547ffede05fa27d526deef"
     }
   },
   {
