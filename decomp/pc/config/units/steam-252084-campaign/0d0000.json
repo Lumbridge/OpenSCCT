@@ -284,6 +284,28 @@
     }
   },
   {
+    "id": "animation-reached-position",
+    "size": 111,
+    "offset": 854944,
+    "inputs": [
+      "src/campaign_channel_threshold.c"
+    ],
+    "rebuilt_symbol": "@reached_position@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_channel_threshold.obj src/campaign_channel_threshold.c",
+    "link_bindings": {
+      "_zero_position": {
+        "va": 285966880,
+        "basis": "Stock operand for zero position."
+      }
+    },
+    "identification": "Indexed playback threshold routine and its caller at method pointer RVA 0x7cfcfc. Uses the channel end when the threshold is negative or exceeds the end, then compares playback position.",
+    "match": {
+      "bytes_sha256": "20ef534e8f2cd2e21365aa45c1074f59fefb9289de57e9be8a53ea316e25f85c",
+      "inputs_sha256": "32c373c189ba9b52c17dc12bb90255fe2becc15f59fdaca41a1d14da5a80a6f7"
+    }
+  },
+  {
     "id": "animation-clear-channel-flags",
     "size": 58,
     "offset": 855056,
@@ -3691,6 +3713,28 @@
     "match": {
       "bytes_sha256": "aa03288325ac5b9699031f6620510d9287173511ffe8e3e677a69941c0ed637c",
       "inputs_sha256": "235db17dba19c5cf9507c3f40c385ba159322e0301f9debd2d9464771de548cb"
+    }
+  },
+  {
+    "id": "animation-reached-end",
+    "size": 18,
+    "offset": 895568,
+    "inputs": [
+      "src/campaign_channel_threshold.c"
+    ],
+    "rebuilt_symbol": "@reached_end@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_channel_threshold.obj src/campaign_channel_threshold.c",
+    "link_bindings": {
+      "@reached_position@12": {
+        "va": 278727584,
+        "basis": "Stock operand for @reached position@12."
+      }
+    },
+    "identification": "Indexed playback threshold routine and its caller at method pointer RVA 0x7cfcfc. Queries the channel end using the minus-one threshold.",
+    "match": {
+      "bytes_sha256": "1d646d35ab34becc52da073e1ff20b2df39fe4168ae7a52d489281fb2d5422b5",
+      "inputs_sha256": "b2d60b03d995c6d1a53fbbc4d7f9a3708d6b25f316c44c82f2fb0306a746799f"
     }
   },
   {
