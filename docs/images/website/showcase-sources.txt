@@ -1,8 +1,8 @@
 OpenSCCT website screenshot sources
 Captured: 2026-11-03
 
-These are unchanged 1920 x 1080 PNG frames from normal OpenSCCT game scenes.
-No image was generated, retouched, cropped, resized or recompressed.
+The November 3 capture sources listed below are unchanged 1920 x 1080 PNG frames from normal OpenSCCT game scenes.
+The original November 3 PNG captures were not generated or retouched.
 No test UI fixtures, sample account statistics or artificial chat messages were used.
 Default cosmetic selections were used, including the Desert Eagle.
 The capture session used isolated settings and a separate user directory.
@@ -105,3 +105,13 @@ Asset: showcase-graphics-driver.webp
 Source: local/captures/graphics-driver-d3d12.png
 OpenSCCT 0.8.99, Options → Performance with the graphics driver list open.
 Captured with the Direct3D 12 driver at 1920 x 1080 and compressed to WebP.
+
+Project directory and native launcher artwork · 2026-11-20
+Original ImageGen illustrations for OpenSCCT, exported to WebP for the website and JPEG for the launchers. They are edition artwork, not gameplay screenshots.
+showcase-hero.webp: widescreen rainy night infiltration with a three-lens observer at right.
+showcase-edition-ps2.webp: silver disc and early console hardware.
+showcase-edition-pc.webp: period PC and CRT monitor.
+showcase-edition-godot.webp: angular aquarium infiltration scene.
+showcase-edition-unreal.webp: wet rail station and volumetric lighting.
+showcase-edition-editor.webp: technical workspace with editable wireframe geometry.
+showcase-unreal-aquarius.webp: actual Unreal client Aquarius gameplay capture using Steam-built stock content, from Saved/LocalSteamReleaseCheck/steam-aquarius-preflight/AQU03-Story-0.png.

@@ -30,7 +30,7 @@
   <ItemGroup>
     <None Update="svm-master.example.json" CopyToOutputDirectory="PreserveNewest" />
     <EmbeddedResource Include="Admin/assets/*" LogicalName="admin/%(Filename)%(Extension)" />
-    <EmbeddedResource Include="Web/assets/*.css;Web/assets/site.js;Web/assets/mark*.svg" LogicalName="web/%(Filename)%(Extension)" />
+    <EmbeddedResource Include="Web/assets/*.css;Web/assets/*.woff2;Web/assets/site.js;Web/assets/mark*.svg" LogicalName="web/%(Filename)%(Extension)" />
     <EmbeddedResource Include="../../decomp/reports/progress.json" LogicalName="project-progress.json" />
     <EmbeddedResource Include="Web/community-maps.json" LogicalName="community-maps.json" />
     <!-- Screenshots stay in the approved documentation media folder; public asset names remain unchanged. -->

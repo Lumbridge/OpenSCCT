@@ -50,7 +50,7 @@ internal static class WebHtml
             .Append($"<script src=\"{H(AssetUrl("/web/assets/site.js"))}\" defer></script>");
         if (active is "community" or "leaderboards" or "help" or "improvements")
             html.Append($"<link rel=\"stylesheet\" href=\"{H(AssetUrl("/web/assets/community.css"))}\">");
-        if (active is "home" or "projects" or "mods" or "progress" or "tools" or "legal" or "search")
+        if (active is "home" or "projects" or "mods" or "progress" or "tools" or "legal" or "search" or "download")
             html.Append($"<link rel=\"stylesheet\" href=\"{H(AssetUrl("/web/assets/projects.css"))}\">");
         if (active == "mods") html.Append($"<link rel=\"stylesheet\" href=\"{H(AssetUrl("/web/assets/mods.css"))}\">");
         if (active == "wiki") html.Append($"<link rel=\"stylesheet\" href=\"{H(AssetUrl("/web/assets/wiki.css"))}\">");
@@ -64,15 +64,15 @@ internal static class WebHtml
                 _ => "OpenSCCT equipment, practice, replays, player statistics and configuration options.",
             })).Append("\">");
         if (active == "account") html.Append("<meta name=\"robots\" content=\"noindex, nofollow\">");
-        html.Append("</head><body class=\"player-site").Append(editorTheme ? " editor-theme" : active == "home" ? " project-home" : "").Append("\"><a class=\"skip-link\" href=\"#main\">Skip to content</a>")
+        html.Append("</head><body class=\"player-site").Append(editorTheme ? " editor-theme" : active == "home" ? " project-home" : active == "download" ? " project-download" : "").Append("\"><a class=\"skip-link\" href=\"#main\">Skip to content</a>")
             .Append($"<header class=\"site-header\"><div class=\"header-inner\"><a class=\"site-brand\" href=\"{(editorTheme ? "/wiki/editor" : "/")}\"><img src=\"{H(mark)}\" alt=\"\" width=\"36\" height=\"36\"><span class=\"brand-copy\">{Wordmark}<small>{(editorTheme ? "MAP EDITOR" : "CHAOS THEORY PROJECTS")}</small></span></a>")
-            .Append(active == "home" ? "<form class=\"home-search\" method=\"get\" action=\"/search\" role=\"search\"><label class=\"sr-only\" for=\"home-query\">Search OpenSCCT</label><input id=\"home-query\" name=\"q\" type=\"search\" maxlength=\"96\" placeholder=\"Search projects, tools or guides\"><button type=\"submit\">Search</button></form>" : "")
+            .Append(active == "home" ? "<form class=\"home-search\" method=\"get\" action=\"/search\" role=\"search\"><label class=\"sr-only\" for=\"home-query\">Search OpenSCCT</label><input id=\"home-query\" name=\"q\" type=\"search\" maxlength=\"96\" placeholder=\"Search OpenSCCT\"><button type=\"submit\" aria-label=\"Search OpenSCCT\"><svg viewBox=\"0 0 24 24\" width=\"20\" height=\"20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" aria-hidden=\"true\"><circle cx=\"10\" cy=\"10\" r=\"6\"/><path d=\"m15 15 5 5\"/></svg></button></form>" : "")
             .Append("<button class=\"menu-toggle button secondary\" type=\"button\" aria-expanded=\"false\" aria-controls=\"primary-navigation\">Menu</button><nav id=\"primary-navigation\" class=\"primary-nav\" aria-label=\"Main navigation\">");
         foreach ((string url, string label, string key) in new[] { ("/", "Projects", "home"), ("/progress", "Progress", "progress"),
             ("/mods", "Mods", "mods"), ("/tools", "Tools", "tools"), ("/community", "Player hub", "community"),
             ("/wiki", "Wiki", "wiki"), ("/changelog", "Updates", "changelog"), ("/help", "Help", "help") })
             html.Append("<a href=\"").Append(url).Append('"').Append(active == key ? " aria-current=\"page\"" : "").Append('>').Append(label).Append("</a>");
-        html.Append("</nav><div class=\"header-actions\">").Append(active == "home" ? Link("/mods", "Mods", "button secondary compact home-mods") : "").Append(Link("/download", "Download", "button compact header-download"));
+        html.Append("</nav><div class=\"header-actions\">").Append(active == "home" ? "<a class=\"hub-nav-projects\" href=\"/#editions\">Projects</a><a class=\"hub-nav-progress\" href=\"/progress\">Progress</a><a class=\"home-mods\" href=\"/mods\">Mods</a>" : "").Append(Link("/download", "Download", "button compact header-download"));
         html.Append(name is not null ? "<a href=\"/account\" class=\"account-link\" aria-label=\"" + H("My account: " + name) + "\">" + H(name) + "</a>" : Link("/account", "Sign in", "account-link"));
         if (isAdmin && name is not null) html.Append(Link("/admin", "Admin", "button secondary compact header-admin"));
         if (name is not null && !string.IsNullOrEmpty(csrf))
@@ -151,7 +151,7 @@ internal static class WebHtml
             using var copy = new MemoryStream();
             stream.CopyTo(copy);
             string file = name[4..];
-            string type = Path.GetExtension(file) switch { ".css" => "text/css; charset=utf-8", ".js" => "text/javascript; charset=utf-8", ".svg" => "image/svg+xml", ".png" => "image/png", ".jpg" or ".jpeg" => "image/jpeg", ".webp" => "image/webp", _ => "application/octet-stream" };
+            string type = Path.GetExtension(file) switch { ".css" => "text/css; charset=utf-8", ".js" => "text/javascript; charset=utf-8", ".svg" => "image/svg+xml", ".png" => "image/png", ".jpg" or ".jpeg" => "image/jpeg", ".webp" => "image/webp", ".woff2" => "font/woff2", _ => "application/octet-stream" };
             assets[file] = (copy.ToArray(), type);
         }
         return assets;
