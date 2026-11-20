@@ -236,6 +236,60 @@
     }
   },
   {
+    "id": "component-child-update-2a4980",
+    "size": 43,
+    "offset": 2771328,
+    "inputs": [
+      "src/versus_component_timing.c"
+    ],
+    "rebuilt_symbol": "@set_enabled@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_component_timing.obj src/versus_component_timing.c",
+    "identification": "Complete indexed Versus method at RVA 0x2a4980. Sets the component enabled byte and optionally propagates it to each child.",
+    "match": {
+      "bytes_sha256": "1ee5447ff6747700b7f0c172ae487764ffc826aee825e4a6d3b85f03c7ab9419",
+      "inputs_sha256": "f6a69b7687260c9ef38fa3389bfa178c2d84c75c4ec60fc368f2c78df45d3d94"
+    }
+  },
+  {
+    "id": "component-child-update-2a49b0",
+    "size": 41,
+    "offset": 2771376,
+    "inputs": [
+      "src/versus_component_timing.c"
+    ],
+    "rebuilt_symbol": "@run_children@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_component_timing.obj src/versus_component_timing.c",
+    "identification": "Complete indexed Versus method at RVA 0x2a49b0. Calls the child update method for every child when the component is enabled.",
+    "link_bindings": {
+      "@run_child@4": {
+        "va": 280692176,
+        "basis": "Indexed update called for each child when the component is enabled."
+      }
+    },
+    "match": {
+      "bytes_sha256": "b52150c24c572b740db854007400f4cf35c0f267dac927501bd06c5c64979754",
+      "inputs_sha256": "8189edd2b12323e66d298708d43b6135d940aca1b32c5e9b5f867e41e2652f5a"
+    }
+  },
+  {
+    "id": "component-child-update-2a49e0",
+    "size": 59,
+    "offset": 2771424,
+    "inputs": [
+      "src/versus_component_timing.c"
+    ],
+    "rebuilt_symbol": "@set_flag@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_component_timing.obj src/versus_component_timing.c",
+    "identification": "Complete indexed Versus method at RVA 0x2a49e0. Notifies child handler slot 5 when the component flag changes.",
+    "match": {
+      "bytes_sha256": "780a2ee40c76ff663d570e22f98c8edd787f6581ff336db1a9f47fb562bb8c57",
+      "inputs_sha256": "e49284aca88becf6bbf971223304d00f78c5a216b039cbcca4d618d5546efc62"
+    }
+  },
+  {
     "id": "tree-rightmost-2a5130",
     "size": 29,
     "offset": 2773296,
