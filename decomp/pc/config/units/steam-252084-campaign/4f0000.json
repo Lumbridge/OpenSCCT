@@ -124,6 +124,48 @@
     }
   },
   {
+    "id": "registry-member-cleanup-4f0a00",
+    "size": 59,
+    "offset": 5179904,
+    "inputs": [
+      "src/campaign_registry_member_cleanup.c"
+    ],
+    "rebuilt_symbol": "@cleanup_4f0a00@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_registry_member_cleanup.obj src/campaign_registry_member_cleanup.c",
+    "link_bindings": {
+      "_registry_a1b188": {
+        "va": 288469384,
+        "basis": "Registry passed as receiver."
+      },
+      "_object_methods_848c20": {
+        "va": 286559264,
+        "basis": "Method table installed before unregistering."
+      },
+      "@unregister_object_4ad480@8": {
+        "va": 282776704,
+        "basis": "Removes receiver from registry."
+      },
+      "_prepare_release_48b460": {
+        "va": 282637408,
+        "basis": "Prepares the allocation for release."
+      },
+      "_release_prepared_48b550": {
+        "va": 282637648,
+        "basis": "Releases the prepared allocation."
+      },
+      "@cleanup_parent_4ad370@4": {
+        "va": 282776432,
+        "basis": "Parent destructor."
+      }
+    },
+    "identification": "Indexed function unregisters itself, releases its allocation, tail-calls parent cleanup.",
+    "match": {
+      "bytes_sha256": "4544f277aeb006b991171d1afdc253dffacd2a4cfe322a96c19272325ddc0724",
+      "inputs_sha256": "6ac50a4f6a9d9b6b315f1f8a849de5ba777158fd25026d6c5fefb27d222f6a02"
+    }
+  },
+  {
     "id": "registry-cleanup-4f0a90",
     "size": 80,
     "offset": 5180048,
@@ -809,6 +851,48 @@
     "match": {
       "bytes_sha256": "22dc35edc37807ce5a3134393eb9a6587154d2a2cc9c803c0049cbc1671445f5",
       "inputs_sha256": "5c1033c3fad56b6f3392f5fa6f681feae80c26f9db28825297928e3bd23830a8"
+    }
+  },
+  {
+    "id": "registry-member-cleanup-4f76e0",
+    "size": 59,
+    "offset": 5207776,
+    "inputs": [
+      "src/campaign_registry_member_cleanup.c"
+    ],
+    "rebuilt_symbol": "@cleanup_4f76e0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_registry_member_cleanup.obj src/campaign_registry_member_cleanup.c",
+    "link_bindings": {
+      "_registry_a1b188": {
+        "va": 288469384,
+        "basis": "Registry passed as receiver."
+      },
+      "_object_methods_8494d0": {
+        "va": 286561488,
+        "basis": "Method table installed before unregistering."
+      },
+      "@unregister_object_4ad480@8": {
+        "va": 282776704,
+        "basis": "Removes receiver from registry."
+      },
+      "_prepare_release_48b460": {
+        "va": 282637408,
+        "basis": "Prepares the allocation for release."
+      },
+      "_release_prepared_48b550": {
+        "va": 282637648,
+        "basis": "Releases the prepared allocation."
+      },
+      "@cleanup_parent_4ad370@4": {
+        "va": 282776432,
+        "basis": "Parent destructor."
+      }
+    },
+    "identification": "Indexed function unregisters itself, releases its allocation, tail-calls parent cleanup.",
+    "match": {
+      "bytes_sha256": "97c50f6e5f8483bb4d6a3da071945940f350d7fb922ff2c3afe249bd70805a9a",
+      "inputs_sha256": "2dd155982d2ef4b0c88962bcb13261552cdfa4e302e472296c521eba86c659bd"
     }
   },
   {
