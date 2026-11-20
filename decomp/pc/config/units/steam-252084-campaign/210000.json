@@ -733,6 +733,86 @@
     }
   },
   {
+    "id": "placement-copy-21d080",
+    "size": 37,
+    "offset": 2216064,
+    "inputs": [
+      "src/campaign_nullable_record_copies.c"
+    ],
+    "rebuilt_symbol": "_copy_21d080@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_nullable_record_copies.obj src/campaign_nullable_record_copies.c",
+    "identification": "Direct call at RVA 0x21d1a9 in the independently delineated function at RVA 0x21d170. Copies a 16-byte record into a non-null destination.",
+    "match": {
+      "bytes_sha256": "87a36aa7f113bd8b810a76ff56e4c70e1db75189a979ea35d2ada371e4c8c98c",
+      "inputs_sha256": "eb879e12df1abd7d4d755e4f506775e825104f45c04bbc1242bc920bd3a0e0d9"
+    }
+  },
+  {
+    "id": "placement-copy-21d0b0",
+    "size": 37,
+    "offset": 2216112,
+    "inputs": [
+      "src/campaign_nullable_record_copies.c"
+    ],
+    "rebuilt_symbol": "_copy_21d0b0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_nullable_record_copies.obj src/campaign_nullable_record_copies.c",
+    "identification": "Direct call at RVA 0x21d219 in the independently delineated function at RVA 0x21d1e0. Copies a 16-byte record into a non-null destination.",
+    "match": {
+      "bytes_sha256": "87a36aa7f113bd8b810a76ff56e4c70e1db75189a979ea35d2ada371e4c8c98c",
+      "inputs_sha256": "2f645b750297fddf706de9707f06a2ccc275f6430a56cd38a91e380963705ecb"
+    }
+  },
+  {
+    "id": "placement-copy-21d0e0",
+    "size": 37,
+    "offset": 2216160,
+    "inputs": [
+      "src/campaign_nullable_record_copies.c"
+    ],
+    "rebuilt_symbol": "_copy_21d0e0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_nullable_record_copies.obj src/campaign_nullable_record_copies.c",
+    "identification": "Direct call at RVA 0x21d289 in the independently delineated function at RVA 0x21d250. Copies a 16-byte record into a non-null destination.",
+    "match": {
+      "bytes_sha256": "87a36aa7f113bd8b810a76ff56e4c70e1db75189a979ea35d2ada371e4c8c98c",
+      "inputs_sha256": "a90f88b167eefeeb8d5fded61067a00e7817ad12109437f9c91afd2a53051915"
+    }
+  },
+  {
+    "id": "placement-copy-21d110",
+    "size": 37,
+    "offset": 2216208,
+    "inputs": [
+      "src/campaign_nullable_record_copies.c"
+    ],
+    "rebuilt_symbol": "_copy_21d110@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_nullable_record_copies.obj src/campaign_nullable_record_copies.c",
+    "identification": "Direct call at RVA 0x21d2f9 in the independently delineated function at RVA 0x21d2c0. Copies a 16-byte record into a non-null destination.",
+    "match": {
+      "bytes_sha256": "87a36aa7f113bd8b810a76ff56e4c70e1db75189a979ea35d2ada371e4c8c98c",
+      "inputs_sha256": "cf76467e9ecde1bbcc94ceaf2c0a1fc7ca4e7b5855ef74e5c8bf7f62dde45531"
+    }
+  },
+  {
+    "id": "placement-copy-21d140",
+    "size": 37,
+    "offset": 2216256,
+    "inputs": [
+      "src/campaign_nullable_record_copies.c"
+    ],
+    "rebuilt_symbol": "_copy_21d140@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_nullable_record_copies.obj src/campaign_nullable_record_copies.c",
+    "identification": "Direct call at RVA 0x21d369 in the independently delineated function at RVA 0x21d330. Copies a 16-byte record into a non-null destination.",
+    "match": {
+      "bytes_sha256": "87a36aa7f113bd8b810a76ff56e4c70e1db75189a979ea35d2ada371e4c8c98c",
+      "inputs_sha256": "b4ec9dfe2165652ffff91fec86ff892d5b7d3ce6baa9df0e2e13c3e09f5065d8"
+    }
+  },
+  {
     "id": "construct-n-21d8d0",
     "offset": 2218192,
     "size": 43,

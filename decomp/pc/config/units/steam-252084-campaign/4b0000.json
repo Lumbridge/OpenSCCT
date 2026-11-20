@@ -1707,6 +1707,22 @@
     }
   },
   {
+    "id": "placement-copy-4be860",
+    "size": 19,
+    "offset": 4974688,
+    "inputs": [
+      "src/campaign_nullable_record_copies.c"
+    ],
+    "rebuilt_symbol": "_copy_4be860@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_nullable_record_copies.obj src/campaign_nullable_record_copies.c",
+    "identification": "Direct call at RVA 0x4be8c9 in the independently delineated function at RVA 0x4be890. Copies a 4-byte record into a non-null destination.",
+    "match": {
+      "bytes_sha256": "8de44ff1239c5800f279e2142606ecdbaea9d748bc08545bdc7362b505481d8c",
+      "inputs_sha256": "c083051775c95a1477719f7e1d796c882abbda7c7fce0a74797854126a659b72"
+    }
+  },
+  {
     "id": "delete-record-4bf420",
     "offset": 4977696,
     "size": 30,

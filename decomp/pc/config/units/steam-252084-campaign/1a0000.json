@@ -163,6 +163,70 @@
     }
   },
   {
+    "id": "placement-copy-1a1020",
+    "size": 19,
+    "offset": 1708064,
+    "inputs": [
+      "src/campaign_nullable_record_copies.c"
+    ],
+    "rebuilt_symbol": "_copy_1a1020@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_nullable_record_copies.obj src/campaign_nullable_record_copies.c",
+    "identification": "Direct call at RVA 0x1a10e9 in the independently delineated function at RVA 0x1a10b0. Copies a 4-byte record into a non-null destination.",
+    "match": {
+      "bytes_sha256": "8de44ff1239c5800f279e2142606ecdbaea9d748bc08545bdc7362b505481d8c",
+      "inputs_sha256": "820318519799247a351ed0d10e0f2528b79620b12326bca4435ce1e6b07f50d1"
+    }
+  },
+  {
+    "id": "placement-copy-1a20c0",
+    "size": 19,
+    "offset": 1712320,
+    "inputs": [
+      "src/campaign_nullable_record_copies.c"
+    ],
+    "rebuilt_symbol": "_copy_1a20c0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_nullable_record_copies.obj src/campaign_nullable_record_copies.c",
+    "identification": "Direct call at RVA 0x1a2369 in the independently delineated function at RVA 0x1a2330. Copies a 4-byte record into a non-null destination.",
+    "match": {
+      "bytes_sha256": "8de44ff1239c5800f279e2142606ecdbaea9d748bc08545bdc7362b505481d8c",
+      "inputs_sha256": "c1ba645c52e3c5911eb3ea4891b8c9560fab090ad5c138c026160e5cf3346c82"
+    }
+  },
+  {
+    "id": "placement-copy-1a20e0",
+    "size": 19,
+    "offset": 1712352,
+    "inputs": [
+      "src/campaign_nullable_record_copies.c"
+    ],
+    "rebuilt_symbol": "_copy_1a20e0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_nullable_record_copies.obj src/campaign_nullable_record_copies.c",
+    "identification": "Direct call at RVA 0x1a2449 in the independently delineated function at RVA 0x1a2410. Copies a 4-byte record into a non-null destination.",
+    "match": {
+      "bytes_sha256": "8de44ff1239c5800f279e2142606ecdbaea9d748bc08545bdc7362b505481d8c",
+      "inputs_sha256": "72ce81ace36777475275657ba3adc0f0acf6811f4842bd416705cd9f66d52c7e"
+    }
+  },
+  {
+    "id": "placement-copy-1a2100",
+    "size": 19,
+    "offset": 1712384,
+    "inputs": [
+      "src/campaign_nullable_record_copies.c"
+    ],
+    "rebuilt_symbol": "_copy_1a2100@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_nullable_record_copies.obj src/campaign_nullable_record_copies.c",
+    "identification": "Direct call at RVA 0x1a2529 in the independently delineated function at RVA 0x1a24f0. Copies a 4-byte record into a non-null destination.",
+    "match": {
+      "bytes_sha256": "8de44ff1239c5800f279e2142606ecdbaea9d748bc08545bdc7362b505481d8c",
+      "inputs_sha256": "a429c1186641eba5428b4d003bcd2b37a0cd89ac5275f7b87048bafc47cb583d"
+    }
+  },
+  {
     "id": "delete-record-1a31f0",
     "offset": 1716720,
     "size": 36,

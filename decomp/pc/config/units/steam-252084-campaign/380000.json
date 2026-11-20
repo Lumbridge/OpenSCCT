@@ -462,6 +462,22 @@
     }
   },
   {
+    "id": "placement-copy-385960",
+    "size": 31,
+    "offset": 3692896,
+    "inputs": [
+      "src/campaign_nullable_record_copies.c"
+    ],
+    "rebuilt_symbol": "_copy_385960@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_nullable_record_copies.obj src/campaign_nullable_record_copies.c",
+    "identification": "Direct call at RVA 0x3859b9 in the independently delineated function at RVA 0x385980. Copies a 12-byte record into a non-null destination.",
+    "match": {
+      "bytes_sha256": "d5d76aece72de2817406f0df90d1605f840601831fdaa4028554082578767e33",
+      "inputs_sha256": "ef84114690877dd55bab559ea7921c0546958b0589451843527fc89d07fa9c31"
+    }
+  },
+  {
     "id": "array-remove-3859f0",
     "size": 138,
     "offset": 3693040,
