@@ -23,6 +23,29 @@
     }
   },
   {
+    "id": "dispatch-outputs-250050",
+    "size": 68,
+    "offset": 2424912,
+    "inputs": [
+      "src/versus_callback_buffers.c"
+    ],
+    "rebuilt_symbol": "@dispatch_250050@4",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_callback_buffers.obj src/versus_callback_buffers.c",
+    "link_bindings": {
+      "@read_250660@12": {
+        "va": 280299104,
+        "basis": "Retail direct call receiving addresses of the decoded outputs."
+      }
+    },
+    "identification": "Default Ghidra extent. Reader at RVA 0x250660 writes into local output storage before dispatch to handler slot 4.",
+    "coff_alignment": 16,
+    "match": {
+      "bytes_sha256": "9224f963de47f19aac3fcb4f2c64a584eb3e51cde9926809d2fb6cb2ceb34a95",
+      "inputs_sha256": "28217006b7763809ee9299a92f92bd9c80acc91da23d2459b7c3da93969845a5"
+    }
+  },
+  {
     "id": "dispatch-decoded-2500a0",
     "size": 59,
     "offset": 2424992,
@@ -66,6 +89,29 @@
     "match": {
       "bytes_sha256": "87e069b43ea3c57310d707151485654f98747d2cc67e071fd225865daa3c8f55",
       "inputs_sha256": "c2e1f9a425c3b14aa89fc3dd309a417ddff14668547fd989ffe9cff550a66357"
+    }
+  },
+  {
+    "id": "dispatch-outputs-250120",
+    "size": 94,
+    "offset": 2425120,
+    "inputs": [
+      "src/versus_callback_buffers.c"
+    ],
+    "rebuilt_symbol": "@dispatch_250120@4",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_callback_buffers.obj src/versus_callback_buffers.c",
+    "link_bindings": {
+      "@read_250740@20": {
+        "va": 280299328,
+        "basis": "Retail direct call receiving addresses of the decoded outputs."
+      }
+    },
+    "identification": "Default Ghidra extent. Reader at RVA 0x250740 writes into local output storage before dispatch to handler slot 8.",
+    "coff_alignment": 16,
+    "match": {
+      "bytes_sha256": "d6e0bb0c4a67289570ebcc5992b48286f4b7125160a04d79588c903f1acfc0d0",
+      "inputs_sha256": "a80f2ac215a3966ddd15b145e709b1bdad416f34a976161df749bdc593716256"
     }
   },
   {

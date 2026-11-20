@@ -194,6 +194,29 @@
     }
   },
   {
+    "id": "dispatch-outputs-249620",
+    "size": 89,
+    "offset": 2397728,
+    "inputs": [
+      "src/versus_callback_buffers.c"
+    ],
+    "rebuilt_symbol": "@dispatch_249620@4",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_callback_buffers.obj src/versus_callback_buffers.c",
+    "link_bindings": {
+      "@read_245bb0@24": {
+        "va": 280255408,
+        "basis": "Retail direct call receiving addresses of the decoded outputs."
+      }
+    },
+    "identification": "Default Ghidra extent. Reader at RVA 0x245bb0 writes into local output storage before dispatch to handler slot 3.",
+    "coff_alignment": 16,
+    "match": {
+      "bytes_sha256": "b149a5c22f4a9cebd10501475b5d691856cb3f1b8c03bbbebf9b067f092bc5b9",
+      "inputs_sha256": "a51f393185a413cf5a6e68ecec1d156ffa5621d59bbf59f5480c52b9f87c091d"
+    }
+  },
+  {
     "id": "dispatch-decoded-249c10",
     "size": 59,
     "offset": 2399248,
@@ -237,6 +260,52 @@
     "match": {
       "bytes_sha256": "894d349865a1b353366964e26d02a07408b7624ecc923ac02be700006ec3a55d",
       "inputs_sha256": "646ded279a69d57cb241420bb54e739e82dc41861252c3c22096a4f37977410e"
+    }
+  },
+  {
+    "id": "dispatch-outputs-249ca0",
+    "size": 89,
+    "offset": 2399392,
+    "inputs": [
+      "src/versus_callback_buffers.c"
+    ],
+    "rebuilt_symbol": "@dispatch_249ca0@4",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_callback_buffers.obj src/versus_callback_buffers.c",
+    "link_bindings": {
+      "@read_246170@24": {
+        "va": 280256880,
+        "basis": "Retail direct call receiving addresses of the decoded outputs."
+      }
+    },
+    "identification": "Default Ghidra extent. Reader at RVA 0x246170 writes into local output storage before dispatch to handler slot 15.",
+    "coff_alignment": 16,
+    "match": {
+      "bytes_sha256": "116413256d18abb8b00a01b1ec4e3899668b9a21a86c966fef6befa0b9cb6026",
+      "inputs_sha256": "a0207f71d1f54bbe884fa049f1e87cec3f5c5392d493c36f273d9dc86c649846"
+    }
+  },
+  {
+    "id": "dispatch-outputs-249f00",
+    "size": 89,
+    "offset": 2400000,
+    "inputs": [
+      "src/versus_callback_buffers.c"
+    ],
+    "rebuilt_symbol": "@dispatch_249f00@4",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_callback_buffers.obj src/versus_callback_buffers.c",
+    "link_bindings": {
+      "@read_246370@24": {
+        "va": 280257392,
+        "basis": "Retail direct call receiving addresses of the decoded outputs."
+      }
+    },
+    "identification": "Default Ghidra extent. Reader at RVA 0x246370 writes into local output storage before dispatch to handler slot 19.",
+    "coff_alignment": 16,
+    "match": {
+      "bytes_sha256": "a594ea09e7064d7c3cc360e24ad5e2e9cf961a57beea300e5a6c0776e7a83cdb",
+      "inputs_sha256": "12772d3b200dc30b0690ce39270baf8915e959fc8fde6eea796874ea74e3851c"
     }
   },
   {
@@ -378,6 +447,52 @@
     }
   },
   {
+    "id": "dispatch-outputs-24a770",
+    "size": 92,
+    "offset": 2402160,
+    "inputs": [
+      "src/versus_callback_buffers.c"
+    ],
+    "rebuilt_symbol": "@dispatch_24a770@4",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_callback_buffers.obj src/versus_callback_buffers.c",
+    "link_bindings": {
+      "@read_247d90@24": {
+        "va": 280264080,
+        "basis": "Retail direct call receiving addresses of the decoded outputs."
+      }
+    },
+    "identification": "Default Ghidra extent. Reader at RVA 0x247d90 writes into local output storage before dispatch to handler slot 33.",
+    "coff_alignment": 16,
+    "match": {
+      "bytes_sha256": "c83f1470ea7d0f686bca330aec15b1ea7f928238a5160c72313a3037f160f63d",
+      "inputs_sha256": "53504aee409d005f5bf3137bf1c4dfa3e69151ccd334bcd29614dab9a964c4a6"
+    }
+  },
+  {
+    "id": "dispatch-outputs-24a7d0",
+    "size": 92,
+    "offset": 2402256,
+    "inputs": [
+      "src/versus_callback_buffers.c"
+    ],
+    "rebuilt_symbol": "@dispatch_24a7d0@4",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_callback_buffers.obj src/versus_callback_buffers.c",
+    "link_bindings": {
+      "@read_247f90@24": {
+        "va": 280264592,
+        "basis": "Retail direct call receiving addresses of the decoded outputs."
+      }
+    },
+    "identification": "Default Ghidra extent. Reader at RVA 0x247f90 writes into local output storage before dispatch to handler slot 34.",
+    "coff_alignment": 16,
+    "match": {
+      "bytes_sha256": "81caf85f948d2cfee58a37b30af095b81ac1f029e5b439747beedbd3c2ca601f",
+      "inputs_sha256": "34c82a64f833fa1e3efef4bef290f63dfbf2f5a2097b04f66809ab9777d1dcdf"
+    }
+  },
+  {
     "id": "dispatch-decoded-24aaa0",
     "size": 62,
     "offset": 2402976,
@@ -398,6 +513,29 @@
     "match": {
       "bytes_sha256": "849d89c7b6bba94a84eec6d96a1768580e91c75bf06f910b998a9d082964068a",
       "inputs_sha256": "b0f5c8f3c01ad98f2d924feab6fb5b9f2c5c94f6cc1c29d8453948885670201e"
+    }
+  },
+  {
+    "id": "dispatch-outputs-24aae0",
+    "size": 52,
+    "offset": 2403040,
+    "inputs": [
+      "src/versus_callback_buffers.c"
+    ],
+    "rebuilt_symbol": "@dispatch_24aae0@4",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_callback_buffers.obj src/versus_callback_buffers.c",
+    "link_bindings": {
+      "@read_248570@8": {
+        "va": 280266096,
+        "basis": "Retail direct call receiving addresses of the decoded outputs."
+      }
+    },
+    "identification": "Default Ghidra extent. Reader at RVA 0x248570 writes into local output storage before dispatch to handler slot 38.",
+    "coff_alignment": 16,
+    "match": {
+      "bytes_sha256": "981fe075c7d8a204fde2bac6615ebb6fba4f13464723c2b20e4268142ce405c7",
+      "inputs_sha256": "a52768041ce91b559f539793a00c6b593fd0612847bd642cf24011a76de0f793"
     }
   },
   {
@@ -632,6 +770,98 @@
     }
   },
   {
+    "id": "dispatch-outputs-24e8d0",
+    "size": 98,
+    "offset": 2418896,
+    "inputs": [
+      "src/versus_callback_buffers.c"
+    ],
+    "rebuilt_symbol": "@dispatch_24e8d0@4",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_callback_buffers.obj src/versus_callback_buffers.c",
+    "link_bindings": {
+      "@read_24e160@24": {
+        "va": 280289632,
+        "basis": "Retail direct call receiving addresses of the decoded outputs."
+      }
+    },
+    "identification": "Default Ghidra extent. Reader at RVA 0x24e160 writes into local output storage before dispatch to handler slot 14.",
+    "coff_alignment": 16,
+    "match": {
+      "bytes_sha256": "bbdf86d35a205d4aeb53cadc66b365c77db7e20ade8a9fee8c12df56080f9d82",
+      "inputs_sha256": "544f0c98d0d36e229d8c536b362879af235164bafdb41a7bf74d66969f939727"
+    }
+  },
+  {
+    "id": "dispatch-outputs-24e940",
+    "size": 98,
+    "offset": 2419008,
+    "inputs": [
+      "src/versus_callback_buffers.c"
+    ],
+    "rebuilt_symbol": "@dispatch_24e940@4",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_callback_buffers.obj src/versus_callback_buffers.c",
+    "link_bindings": {
+      "@read_24e380@24": {
+        "va": 280290176,
+        "basis": "Retail direct call receiving addresses of the decoded outputs."
+      }
+    },
+    "identification": "Default Ghidra extent. Reader at RVA 0x24e380 writes into local output storage before dispatch to handler slot 15.",
+    "coff_alignment": 16,
+    "match": {
+      "bytes_sha256": "d3695e4594ddcca0607c3abab013e86248a0d03f88b7afb4633fe6202fb51045",
+      "inputs_sha256": "a90ef325866c1821cc809c6250094da7e0cc84735600bd627e997d62cdcbe296"
+    }
+  },
+  {
+    "id": "dispatch-outputs-24f2c0",
+    "size": 59,
+    "offset": 2421440,
+    "inputs": [
+      "src/versus_callback_buffers.c"
+    ],
+    "rebuilt_symbol": "@dispatch_24f2c0@4",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_callback_buffers.obj src/versus_callback_buffers.c",
+    "link_bindings": {
+      "@read_24edc0@12": {
+        "va": 280292800,
+        "basis": "Retail direct call receiving addresses of the decoded outputs."
+      }
+    },
+    "identification": "Default Ghidra extent. Reader at RVA 0x24edc0 writes into local output storage before dispatch to handler slot 3.",
+    "coff_alignment": 16,
+    "match": {
+      "bytes_sha256": "b45cae285d4d2f96419ab40a83fe6a3d7b0334f5f58535cd3a232555eeacdbf4",
+      "inputs_sha256": "41199e4b7032cf326f592194a45dcf1f13b53ac0e34b77fdc4a019236fa7293f"
+    }
+  },
+  {
+    "id": "dispatch-outputs-24f300",
+    "size": 59,
+    "offset": 2421504,
+    "inputs": [
+      "src/versus_callback_buffers.c"
+    ],
+    "rebuilt_symbol": "@dispatch_24f300@4",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_callback_buffers.obj src/versus_callback_buffers.c",
+    "link_bindings": {
+      "@read_24eff0@12": {
+        "va": 280293360,
+        "basis": "Retail direct call receiving addresses of the decoded outputs."
+      }
+    },
+    "identification": "Default Ghidra extent. Reader at RVA 0x24eff0 writes into local output storage before dispatch to handler slot 4.",
+    "coff_alignment": 16,
+    "match": {
+      "bytes_sha256": "c0ee68196a9e2878365204f9764ebba854fb7183072aade562d8d12cb1a5c2b6",
+      "inputs_sha256": "440b728ba58b1fcef7519d4eb251f86478fa59d1d81e749d4fd4326e49b7ddbd"
+    }
+  },
+  {
     "id": "dispatch-decoded-24f340",
     "size": 41,
     "offset": 2421568,
@@ -652,6 +882,52 @@
     "match": {
       "bytes_sha256": "fce9af749f526b719e967b8254bf26c5d5d1741d605acc555d6073e6088469f3",
       "inputs_sha256": "4eb754dfc2eb4bca6c1f970336b82de9df7e5feacbabce33e117ecf49a4a75d8"
+    }
+  },
+  {
+    "id": "dispatch-outputs-24f370",
+    "size": 47,
+    "offset": 2421616,
+    "inputs": [
+      "src/versus_callback_buffers.c"
+    ],
+    "rebuilt_symbol": "@dispatch_24f370@4",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_callback_buffers.obj src/versus_callback_buffers.c",
+    "link_bindings": {
+      "@read_24f280@8": {
+        "va": 280294016,
+        "basis": "Retail direct call receiving addresses of the decoded outputs."
+      }
+    },
+    "identification": "Default Ghidra extent. Reader at RVA 0x24f280 writes into local output storage before dispatch to handler slot 6.",
+    "coff_alignment": 16,
+    "match": {
+      "bytes_sha256": "959c4127a2d5d39e478acc58ef2720985f27fbf9614570f2122fb67aa59ff6dc",
+      "inputs_sha256": "21d3dc230d09c2f191f5d85495915a0e0baf4cf5c7958b779ef3a59920803dfc"
+    }
+  },
+  {
+    "id": "dispatch-outputs-24ff70",
+    "size": 88,
+    "offset": 2424688,
+    "inputs": [
+      "src/versus_callback_buffers.c"
+    ],
+    "rebuilt_symbol": "@dispatch_24ff70@4",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_callback_buffers.obj src/versus_callback_buffers.c",
+    "link_bindings": {
+      "@read_2503e0@20": {
+        "va": 280298464,
+        "basis": "Retail direct call receiving addresses of the decoded outputs."
+      }
+    },
+    "identification": "Default Ghidra extent. Reader at RVA 0x2503e0 writes into local output storage before dispatch to handler slot 1.",
+    "coff_alignment": 16,
+    "match": {
+      "bytes_sha256": "b9312ecf7235b3079b27c3e0e4cc02df478b10985e5fdc88f7335303fc07fa45",
+      "inputs_sha256": "b9be5185b3274dda592fbe12fed0a3bc38288d9bfd611088eb14089fc95efa24"
     }
   },
   {
