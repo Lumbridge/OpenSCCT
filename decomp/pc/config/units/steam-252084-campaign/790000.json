@@ -78,6 +78,28 @@
     }
   },
   {
+    "id": "scratch-array-destruction-7921d0",
+    "size": 92,
+    "offset": 7938512,
+    "inputs": [
+      "src/campaign_scratch_array_destroy.c"
+    ],
+    "rebuilt_symbol": "@destroy_7921d0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_scratch_array_destroy.obj src/campaign_scratch_array_destroy.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Physics allocation manager used for both releases."
+      }
+    },
+    "identification": "Indexed scratch array destructor for 1-byte elements. Releases the original aligned stack allocation and conditionally frees separately owned storage.",
+    "match": {
+      "bytes_sha256": "f1327eaa3933f6b9cfae7c606e0315fc42ead9a7bb0ed61c91aad3b5f78a87ea",
+      "inputs_sha256": "03c879817949bf0cb9a5aca7f9996a9637355e6261888efd09b68d215d7ffada"
+    }
+  },
+  {
     "id": "delete-pool-792db0",
     "size": 40,
     "offset": 7941552,

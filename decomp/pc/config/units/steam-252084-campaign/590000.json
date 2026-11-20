@@ -1,5 +1,27 @@
 [
   {
+    "id": "scratch-array-destruction-5910a0",
+    "size": 98,
+    "offset": 5836960,
+    "inputs": [
+      "src/campaign_scratch_array_destroy.c"
+    ],
+    "rebuilt_symbol": "@destroy_5910a0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_scratch_array_destroy.obj src/campaign_scratch_array_destroy.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Physics allocation manager used for both releases."
+      }
+    },
+    "identification": "Indexed scratch array destructor for 16-byte elements. Releases the original aligned stack allocation and conditionally frees separately owned storage.",
+    "match": {
+      "bytes_sha256": "79d30968d26199d13790d7ad11ebe308535002f0fccd85ff9a11fa023236779b",
+      "inputs_sha256": "062c5e0e5308b7b5b8d10dfdaa9e8bc68cfa145e204ab1dba725211b61653c82"
+    }
+  },
+  {
     "id": "append-word-593b90",
     "offset": 5847952,
     "size": 50,
@@ -41,6 +63,28 @@
     "match": {
       "bytes_sha256": "fd63403a75c0113b42257b63d269e06193b190bd68ef78a5412f28227f42e47d",
       "inputs_sha256": "db70cef3be4e4364484902a054eb42037e7bf5bba69adf5d57ef49d1e2ced282"
+    }
+  },
+  {
+    "id": "scratch-array-destruction-595c10",
+    "size": 95,
+    "offset": 5856272,
+    "inputs": [
+      "src/campaign_scratch_array_destroy.c"
+    ],
+    "rebuilt_symbol": "@destroy_595c10@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_scratch_array_destroy.obj src/campaign_scratch_array_destroy.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Physics allocation manager used for both releases."
+      }
+    },
+    "identification": "Indexed scratch array destructor for 2-byte elements. Releases the original aligned stack allocation and conditionally frees separately owned storage.",
+    "match": {
+      "bytes_sha256": "becbc856467e653fd2f4222639932a0489ad17d091df28996703356b7928ceef",
+      "inputs_sha256": "0462e098885a753f6088c1b138b88161ee332d0689b6ef690a2cf16ef2b76904"
     }
   },
   {

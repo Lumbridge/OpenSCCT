@@ -74,6 +74,160 @@
     }
   },
   {
+    "id": "scratch-array-destruction-6f84a0",
+    "size": 99,
+    "offset": 7308448,
+    "inputs": [
+      "src/campaign_scratch_array_destroy.c"
+    ],
+    "rebuilt_symbol": "@destroy_6f84a0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_scratch_array_destroy.obj src/campaign_scratch_array_destroy.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Physics allocation manager used for both releases."
+      }
+    },
+    "identification": "Indexed scratch array destructor for 4-byte elements. Releases the original aligned stack allocation and conditionally frees separately owned storage.",
+    "match": {
+      "bytes_sha256": "aa16ba4a555f6ae9a8e2c14e02d922f445721786771da844b72d451fa1dee3fb",
+      "inputs_sha256": "63d3831809a1799dd290f961574437c83106a71486e9ebaf94b0baf8a0d4238d"
+    }
+  },
+  {
+    "id": "scratch-array-destruction-6f8580",
+    "size": 99,
+    "offset": 7308672,
+    "inputs": [
+      "src/campaign_scratch_array_destroy.c"
+    ],
+    "rebuilt_symbol": "@destroy_6f8580@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_scratch_array_destroy.obj src/campaign_scratch_array_destroy.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Physics allocation manager used for both releases."
+      }
+    },
+    "identification": "Indexed scratch array destructor for 4-byte elements. Releases the original aligned stack allocation and conditionally frees separately owned storage.",
+    "match": {
+      "bytes_sha256": "aa16ba4a555f6ae9a8e2c14e02d922f445721786771da844b72d451fa1dee3fb",
+      "inputs_sha256": "909eb9884751c522cb68c98b80472279cfdd96033a03a7d3819365a13a0b2ac7"
+    }
+  },
+  {
+    "id": "scratch-array-destruction-6f8660",
+    "size": 99,
+    "offset": 7308896,
+    "inputs": [
+      "src/campaign_scratch_array_destroy.c"
+    ],
+    "rebuilt_symbol": "@destroy_6f8660@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_scratch_array_destroy.obj src/campaign_scratch_array_destroy.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Physics allocation manager used for both releases."
+      }
+    },
+    "identification": "Indexed scratch array destructor for 4-byte elements. Releases the original aligned stack allocation and conditionally frees separately owned storage.",
+    "match": {
+      "bytes_sha256": "aa16ba4a555f6ae9a8e2c14e02d922f445721786771da844b72d451fa1dee3fb",
+      "inputs_sha256": "561cfeeab2c9309a0bac0cb53c9274c22c821f3585338971a481d1969bb07c43"
+    }
+  },
+  {
+    "id": "scratch-array-destruction-6f8740",
+    "size": 98,
+    "offset": 7309120,
+    "inputs": [
+      "src/campaign_scratch_array_destroy.c"
+    ],
+    "rebuilt_symbol": "@destroy_6f8740@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_scratch_array_destroy.obj src/campaign_scratch_array_destroy.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Physics allocation manager used for both releases."
+      }
+    },
+    "identification": "Indexed scratch array destructor for 16-byte elements. Releases the original aligned stack allocation and conditionally frees separately owned storage.",
+    "match": {
+      "bytes_sha256": "79d30968d26199d13790d7ad11ebe308535002f0fccd85ff9a11fa023236779b",
+      "inputs_sha256": "cec5c33cca6d110fd1bfd4c810fa8bdde43da5cca3896066ef1dc789bea2f07b"
+    }
+  },
+  {
+    "id": "scratch-array-destruction-6f8820",
+    "size": 99,
+    "offset": 7309344,
+    "inputs": [
+      "src/campaign_scratch_array_destroy.c"
+    ],
+    "rebuilt_symbol": "@destroy_6f8820@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_scratch_array_destroy.obj src/campaign_scratch_array_destroy.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Physics allocation manager used for both releases."
+      }
+    },
+    "identification": "Indexed scratch array destructor for 4-byte elements. Releases the original aligned stack allocation and conditionally frees separately owned storage.",
+    "match": {
+      "bytes_sha256": "aa16ba4a555f6ae9a8e2c14e02d922f445721786771da844b72d451fa1dee3fb",
+      "inputs_sha256": "97cbe61364ac3d18e57eb0667a6e0f43f901616c0289f65b2f4173668a854a15"
+    }
+  },
+  {
+    "id": "scratch-array-destruction-6f8900",
+    "size": 92,
+    "offset": 7309568,
+    "inputs": [
+      "src/campaign_scratch_array_destroy.c"
+    ],
+    "rebuilt_symbol": "@destroy_6f8900@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_scratch_array_destroy.obj src/campaign_scratch_array_destroy.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Physics allocation manager used for both releases."
+      }
+    },
+    "identification": "Indexed scratch array destructor for 1-byte elements. Releases the original aligned stack allocation and conditionally frees separately owned storage.",
+    "match": {
+      "bytes_sha256": "f1327eaa3933f6b9cfae7c606e0315fc42ead9a7bb0ed61c91aad3b5f78a87ea",
+      "inputs_sha256": "11bc7b99670477decd60ff4d4c1e264b57cab617ed11475b0e62b60e4300f81f"
+    }
+  },
+  {
+    "id": "scratch-array-destruction-6f89d0",
+    "size": 99,
+    "offset": 7309776,
+    "inputs": [
+      "src/campaign_scratch_array_destroy.c"
+    ],
+    "rebuilt_symbol": "@destroy_6f89d0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_scratch_array_destroy.obj src/campaign_scratch_array_destroy.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Physics allocation manager used for both releases."
+      }
+    },
+    "identification": "Indexed scratch array destructor for 4-byte elements. Releases the original aligned stack allocation and conditionally frees separately owned storage.",
+    "match": {
+      "bytes_sha256": "aa16ba4a555f6ae9a8e2c14e02d922f445721786771da844b72d451fa1dee3fb",
+      "inputs_sha256": "2b347e7ac88197061c4445e3bab28bdda1b11b7c7bbd617a5d36c43ae74e021f"
+    }
+  },
+  {
     "id": "delete-pool-6fd6c0",
     "size": 40,
     "offset": 7329472,
