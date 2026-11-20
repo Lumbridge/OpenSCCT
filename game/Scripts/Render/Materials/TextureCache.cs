@@ -210,9 +210,12 @@ public sealed class TextureCache
             for (int i = 0; i < values.Length; i++) values[i] = BinaryPrimitives.ReadUInt16LittleEndian(bytes.AsSpan(12 + i * 2)) / 65535f;
             image.SetData(w, h, false, Image.Format.Rf, MemoryMarshal.AsBytes(values.AsSpan()).ToArray());
         }
-        else if (image.LoadPngFromBuffer(bytes) != Error.Ok)
+        else
         {
-            return null;
+            // glTF colour textures can be JPEG or PNG; the JPEG signature also covers .jpeg and mixed-case names.
+            bool jpeg = bytes.Length >= 3 && bytes[0] == 0xff && bytes[1] == 0xd8 && bytes[2] == 0xff;
+            Error decoded = jpeg ? image.LoadJpgFromBuffer(bytes) : image.LoadPngFromBuffer(bytes);
+            if (decoded != Error.Ok) return null;
         }
 
         if (image.GetFormat() != Image.Format.Rgba8 && image.GetFormat() != Image.Format.Rf)
