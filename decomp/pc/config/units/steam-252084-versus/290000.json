@@ -1,5 +1,38 @@
 [
   {
+    "id": "word-count-indexed-299900",
+    "size": 18,
+    "offset": 2726144,
+    "inputs": [
+      "src/mesh_strip_vertices.c"
+    ],
+    "rebuilt_symbol": "@word_count@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/mesh_strip_vertices.obj src/mesh_strip_vertices.c",
+    "identification": "Complete indexed word count function at RVA 0x299900.",
+    "match": {
+      "bytes_sha256": "234fbd720bc45562e2fa07d10ed2a776a72b5421f0cb73178b1cdf4299afa037",
+      "inputs_sha256": "889ef77b2169263f07053dacd20d66dbf3768eb8921ad1c422b143364686880b"
+    }
+  },
+  {
+    "id": "erase-words-indexed-299b30",
+    "size": 45,
+    "offset": 2726704,
+    "inputs": [
+      "src/mesh_strip_vertices.c"
+    ],
+    "rebuilt_symbol": "@erase_words@12",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/mesh_strip_vertices.obj src/mesh_strip_vertices.c",
+    "identification": "Complete indexed erase words function at RVA 0x299b30.",
+    "coff_alignment": 16,
+    "match": {
+      "bytes_sha256": "e5d3c2c9877150f00b1de806d8f9bb09acdc08047c4eca538ef6695d01a709e0",
+      "inputs_sha256": "50c2c351f24845c34c37a2166184c368ba8677961066c0f772f209b90b1f7ade"
+    }
+  },
+  {
     "id": "mesh-find-edge",
     "size": 55,
     "offset": 2726816,
@@ -54,6 +87,56 @@
     "match": {
       "bytes_sha256": "30ba360326ea277e97bccc79cbdd006f61762b791d82cda4d3b7ccf118c402b5",
       "inputs_sha256": "76277333c692fff0a3dc4885d60f863e9a8088b5e076940fca0164054f34fab3"
+    }
+  },
+  {
+    "id": "distinct-vertex-indexed-29a4d0",
+    "size": 66,
+    "offset": 2729168,
+    "inputs": [
+      "src/mesh_strip_vertices.c"
+    ],
+    "rebuilt_symbol": "_distinct_vertex",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/mesh_strip_vertices.obj src/mesh_strip_vertices.c",
+    "identification": "Complete indexed distinct vertex function at RVA 0x29a4d0.",
+    "coff_alignment": 16,
+    "match": {
+      "bytes_sha256": "522aea23cc199dea9cd9640e05593490275ec6e7742c2a367ab4f6eb13a650a9",
+      "inputs_sha256": "e47f8c971432959da5aba9d598093d01d6df3a7633c3f002792533fd1756cef7"
+    }
+  },
+  {
+    "id": "shared-vertices-indexed-29a520",
+    "size": 116,
+    "offset": 2729248,
+    "inputs": [
+      "src/mesh_strip_vertices.c"
+    ],
+    "rebuilt_symbol": "_shared_vertices",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/mesh_strip_vertices.obj src/mesh_strip_vertices.c",
+    "identification": "Complete indexed shared vertices function at RVA 0x29a520.",
+    "coff_alignment": 16,
+    "match": {
+      "bytes_sha256": "af3d8d5213ba5b291aefa6244bc2d4e6146469ee067aac42ffda944c88b0591f",
+      "inputs_sha256": "a0c70aa5f8e4fa67f24bdc9acc4d794990e3133a4a766192a712901710959da1"
+    }
+  },
+  {
+    "id": "mark-face-indexed-29aed0",
+    "size": 43,
+    "offset": 2731728,
+    "inputs": [
+      "src/mesh_strip_vertices.c"
+    ],
+    "rebuilt_symbol": "@mark_face@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/mesh_strip_vertices.obj src/mesh_strip_vertices.c",
+    "identification": "Complete indexed mark face function at RVA 0x29aed0.",
+    "match": {
+      "bytes_sha256": "cd3c6e250dc19d498adcd6aea284d8e0ad93c67a9d4e6f0d8f3ac5201d0effa8",
+      "inputs_sha256": "9d22f0e1b7d703b2900131424924d2bb18bd511a48fbfcf8d3d4ccb6ddac4302"
     }
   },
   {
