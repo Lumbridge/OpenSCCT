@@ -352,6 +352,62 @@
     }
   },
   {
+    "id": "reset-array-capacity-0155b0",
+    "size": 46,
+    "offset": 87472,
+    "inputs": [
+      "src/campaign_typed_capacity_reset.c",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@reset_0155b0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_typed_capacity_reset.obj src/campaign_typed_capacity_reset.c",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "The engine heap dispatches resizing through slot one."
+      },
+      "_tag_7b9b70": {
+        "va": 285973360,
+        "basis": "Retail UTF-16 allocation tag FArray::QWORD."
+      }
+    },
+    "identification": "Default Ghidra extent. Sets capacity, zeros the count and resizes the buffer in units of 8 bytes. Heap slot one receives the UTF-16 tag FArray::QWORD at RVA 0x7b9b70.",
+    "match": {
+      "bytes_sha256": "7c117f935ea6c1d4f0d8814e3dec9891edae1d550b93403de5fd3a48715370a7",
+      "inputs_sha256": "0a7e3e9677651a673526bf3118281a68633ed5d63bdcbaeb52be902c64c2d325"
+    }
+  },
+  {
+    "id": "reset-array-capacity-015620",
+    "size": 46,
+    "offset": 87584,
+    "inputs": [
+      "src/campaign_typed_capacity_reset.c",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@reset_015620@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_typed_capacity_reset.obj src/campaign_typed_capacity_reset.c",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "The engine heap dispatches resizing through slot one."
+      },
+      "_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Retail UTF-16 allocation tag FArray."
+      }
+    },
+    "identification": "Default Ghidra extent. Sets capacity, zeros the count and resizes the buffer in units of 4 bytes. Heap slot one receives the UTF-16 tag FArray at RVA 0x7b7b08.",
+    "match": {
+      "bytes_sha256": "17414bca608bc286f70f28bbc104c6629f3724178cea9a1ee1e15d9b6e8bd8a2",
+      "inputs_sha256": "2acc3e4adbe325caab8b2c1c43fe4905572e24503442ebecb008b08075d192d5"
+    }
+  },
+  {
     "id": "array-release-0157d0",
     "size": 43,
     "offset": 88016,
@@ -580,6 +636,34 @@
     }
   },
   {
+    "id": "reset-array-capacity-017720",
+    "size": 46,
+    "offset": 96032,
+    "inputs": [
+      "src/campaign_typed_capacity_reset.c",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@reset_017720@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_typed_capacity_reset.obj src/campaign_typed_capacity_reset.c",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "The engine heap dispatches resizing through slot one."
+      },
+      "_tag_7ba17c": {
+        "va": 285974908,
+        "basis": "Retail UTF-16 allocation tag FArray::UObject*."
+      }
+    },
+    "identification": "Default Ghidra extent. Sets capacity, zeros the count and resizes the buffer in units of 4 bytes. Heap slot one receives the UTF-16 tag FArray::UObject* at RVA 0x7ba17c.",
+    "match": {
+      "bytes_sha256": "dcc387150e1cc03f1106d97d27a993aab4e0fbc314eb34587c9c1d7c58daf61e",
+      "inputs_sha256": "d6ac66a738def4827a8ed14039bc3e6ae003ce7f4a5fd14c3e9724faf08e726f"
+    }
+  },
+  {
     "id": "cast-uclassproperty",
     "offset": 101408,
     "size": 85,
@@ -611,6 +695,34 @@
     "match": {
       "bytes_sha256": "920ca7a5043e822132a3f6d2fb2dd53a8d288fca057c016b041b005097cde9bd",
       "inputs_sha256": "1d6734acb4fcd666b52157bc50c913abc6105d04c8632418a6fd39c6b14c1f59"
+    }
+  },
+  {
+    "id": "reset-array-capacity-018cd0",
+    "size": 46,
+    "offset": 101584,
+    "inputs": [
+      "src/campaign_typed_capacity_reset.c",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@reset_018cd0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_typed_capacity_reset.obj src/campaign_typed_capacity_reset.c",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "The engine heap dispatches resizing through slot one."
+      },
+      "_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Retail UTF-16 allocation tag FArray."
+      }
+    },
+    "identification": "Default Ghidra extent. Sets capacity, zeros the count and resizes the buffer in units of 4 bytes. Heap slot one receives the UTF-16 tag FArray at RVA 0x7b7b08.",
+    "match": {
+      "bytes_sha256": "17414bca608bc286f70f28bbc104c6629f3724178cea9a1ee1e15d9b6e8bd8a2",
+      "inputs_sha256": "5cb64b385f22ff9a15f683352f8158ef6780fede897ec84bb63d6834730e5df3"
     }
   },
   {
@@ -1620,6 +1732,34 @@
     "match": {
       "bytes_sha256": "98ee88503043dca8091fc80c0452408b76162318d7f3ea2193f195bbb6f42591",
       "inputs_sha256": "a2cd2cb7784520b32a188f4c6e3ea3e5973ae348c227946a462e4df95383fe04"
+    }
+  },
+  {
+    "id": "reset-array-capacity-01f7a0",
+    "size": 46,
+    "offset": 128928,
+    "inputs": [
+      "src/campaign_typed_capacity_reset.c",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@reset_01f7a0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_typed_capacity_reset.obj src/campaign_typed_capacity_reset.c",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "The engine heap dispatches resizing through slot one."
+      },
+      "_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Retail UTF-16 allocation tag FArray."
+      }
+    },
+    "identification": "Default Ghidra extent. Sets capacity, zeros the count and resizes the buffer in units of 4 bytes. Heap slot one receives the UTF-16 tag FArray at RVA 0x7b7b08.",
+    "match": {
+      "bytes_sha256": "17414bca608bc286f70f28bbc104c6629f3724178cea9a1ee1e15d9b6e8bd8a2",
+      "inputs_sha256": "0d4df5bb05812a05dd4c2a1949b37c2fa214de4838f079e75b59a2280f651af0"
     }
   },
   {

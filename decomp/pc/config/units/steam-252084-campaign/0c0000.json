@@ -27,6 +27,34 @@
     }
   },
   {
+    "id": "reset-array-capacity-0c00e0",
+    "size": 49,
+    "offset": 786656,
+    "inputs": [
+      "src/campaign_typed_capacity_reset.c",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@reset_0c00e0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_typed_capacity_reset.obj src/campaign_typed_capacity_reset.c",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "The engine heap dispatches resizing through slot one."
+      },
+      "_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Retail UTF-16 allocation tag FArray."
+      }
+    },
+    "identification": "Default Ghidra extent. Sets capacity, zeros the count and resizes the buffer in units of 132 bytes. Heap slot one receives the UTF-16 tag FArray at RVA 0x7b7b08.",
+    "match": {
+      "bytes_sha256": "e4a719e6347aec42ed9ff3082186636804158b42c4364cb3102b0332133081c1",
+      "inputs_sha256": "897266d0b360aecc1983c6a0dc9725be0bd6a91bba521e8254b87daaa9cd9c1f"
+    }
+  },
+  {
     "id": "array-append-0c0740",
     "size": 82,
     "offset": 788288,
