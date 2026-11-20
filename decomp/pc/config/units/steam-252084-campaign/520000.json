@@ -1,0 +1,210 @@
+[
+  {
+    "id": "collector-query-524b10",
+    "size": 57,
+    "offset": 5393168,
+    "inputs": [
+      "src/campaign_collector_queries.c"
+    ],
+    "rebuilt_symbol": "@collect_524b10_1@20",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_collector_queries.obj src/campaign_collector_queries.c",
+    "link_bindings": {
+      "@query_520290@20": {
+        "va": 283247248,
+        "basis": "Original query called with the temporary collector."
+      },
+      "_methods_84aa78": {
+        "va": 286567032,
+        "basis": "Read-only virtual method table installed in the local collector."
+      }
+    },
+    "identification": "Default Ghidra range. Builds a local collector containing a maximum finite float and the provided output pointer before calling the query at RVA 0x520290.",
+    "match": {
+      "bytes_sha256": "c9cb3eb7513925cc644b95a71b326fafa20f37764e4c4aaca37871adeed0e44a",
+      "inputs_sha256": "c1430eda3cdfd13402ff73fc410abed83b23453d6ebeeb220abc50a6dfcf422f"
+    }
+  },
+  {
+    "id": "collector-query-524b50",
+    "size": 55,
+    "offset": 5393232,
+    "inputs": [
+      "src/campaign_collector_queries.c"
+    ],
+    "rebuilt_symbol": "_collect_524b50_1",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_collector_queries.obj src/campaign_collector_queries.c",
+    "link_bindings": {
+      "_query_521520": {
+        "va": 283252000,
+        "basis": "Original query called with the temporary collector."
+      },
+      "_methods_84aa78": {
+        "va": 286567032,
+        "basis": "Read-only virtual method table installed in the local collector."
+      }
+    },
+    "identification": "Default Ghidra range. Builds a local collector containing a maximum finite float and the provided output pointer before calling the query at RVA 0x521520.",
+    "match": {
+      "bytes_sha256": "56d642191283eeafbb0709aee78ecf363ab505974c304ae1b63db596f6f2a15d",
+      "inputs_sha256": "b27bf45b4d83f4d72fd54dd95669c6f643618a06f3348e750667266b529be6e4"
+    }
+  },
+  {
+    "id": "collector-query-529e00",
+    "size": 57,
+    "offset": 5414400,
+    "inputs": [
+      "src/campaign_collector_queries.c"
+    ],
+    "rebuilt_symbol": "@collect_529e00_1@20",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_collector_queries.obj src/campaign_collector_queries.c",
+    "link_bindings": {
+      "@query_529310@20": {
+        "va": 283284240,
+        "basis": "Original query called with the temporary collector."
+      },
+      "_methods_84aa78": {
+        "va": 286567032,
+        "basis": "Read-only virtual method table installed in the local collector."
+      }
+    },
+    "identification": "Default Ghidra range. Builds a local collector containing a maximum finite float and the provided output pointer before calling the query at RVA 0x529310.",
+    "match": {
+      "bytes_sha256": "92932e1c61d375dab4570ba98376c716401f58e57eeba1b4c5550b5079eea4f3",
+      "inputs_sha256": "cbbae9701d89559bcf9253b9dd84e145a34f6972ab9165e7b33d48a35789fbaa"
+    }
+  },
+  {
+    "id": "collector-query-529e40",
+    "size": 55,
+    "offset": 5414464,
+    "inputs": [
+      "src/campaign_collector_queries.c"
+    ],
+    "rebuilt_symbol": "_collect_529e40_1",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_collector_queries.obj src/campaign_collector_queries.c",
+    "link_bindings": {
+      "_query_529740": {
+        "va": 283285312,
+        "basis": "Original query called with the temporary collector."
+      },
+      "_methods_84aa78": {
+        "va": 286567032,
+        "basis": "Read-only virtual method table installed in the local collector."
+      }
+    },
+    "identification": "Default Ghidra range. Builds a local collector containing a maximum finite float and the provided output pointer before calling the query at RVA 0x529740.",
+    "match": {
+      "bytes_sha256": "425755fa88800a224ea26469d434898cd53b4315b131225056f70f9121ad2b8c",
+      "inputs_sha256": "c15d76aea080c305691c1731534d9bfd8ffab7e69951bbfa49deadea4b1c6cdd"
+    }
+  },
+  {
+    "id": "collector-query-52b0b0",
+    "size": 57,
+    "offset": 5419184,
+    "inputs": [
+      "src/campaign_collector_queries.c"
+    ],
+    "rebuilt_symbol": "@collect_52b0b0_1@20",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_collector_queries.obj src/campaign_collector_queries.c",
+    "link_bindings": {
+      "@query_52a900@20": {
+        "va": 283289856,
+        "basis": "Original query called with the temporary collector."
+      },
+      "_methods_84aa78": {
+        "va": 286567032,
+        "basis": "Read-only virtual method table installed in the local collector."
+      }
+    },
+    "identification": "Default Ghidra range. Builds a local collector containing a maximum finite float and the provided output pointer before calling the query at RVA 0x52a900.",
+    "match": {
+      "bytes_sha256": "fd9d1d77fd0419e53785b0089a9ab1f4388a263afaa632d8feb2dbf0295dad5d",
+      "inputs_sha256": "e41fca9c55f57d21706704a9ff67b0b620f4bf97a687e33350ae040c9110b3c4"
+    }
+  },
+  {
+    "id": "collector-query-52b0f0",
+    "size": 55,
+    "offset": 5419248,
+    "inputs": [
+      "src/campaign_collector_queries.c"
+    ],
+    "rebuilt_symbol": "_collect_52b0f0_1",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_collector_queries.obj src/campaign_collector_queries.c",
+    "link_bindings": {
+      "_query_52ab60": {
+        "va": 283290464,
+        "basis": "Original query called with the temporary collector."
+      },
+      "_methods_84aa78": {
+        "va": 286567032,
+        "basis": "Read-only virtual method table installed in the local collector."
+      }
+    },
+    "identification": "Default Ghidra range. Builds a local collector containing a maximum finite float and the provided output pointer before calling the query at RVA 0x52ab60.",
+    "match": {
+      "bytes_sha256": "11c6b9bf72b66b104dddcf86f07a4c1ef250eb73276dc4be90bd00293af6183d",
+      "inputs_sha256": "feef93680623a76a6348591a511c75050b851c5465072a3be45087fc6b68c8ed"
+    }
+  },
+  {
+    "id": "collector-query-52c7f0",
+    "size": 57,
+    "offset": 5425136,
+    "inputs": [
+      "src/campaign_collector_queries.c"
+    ],
+    "rebuilt_symbol": "@collect_52c7f0_1@20",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_collector_queries.obj src/campaign_collector_queries.c",
+    "link_bindings": {
+      "@query_52beb0@20": {
+        "va": 283295408,
+        "basis": "Original query called with the temporary collector."
+      },
+      "_methods_84aa78": {
+        "va": 286567032,
+        "basis": "Read-only virtual method table installed in the local collector."
+      }
+    },
+    "identification": "Default Ghidra range. Builds a local collector containing a maximum finite float and the provided output pointer before calling the query at RVA 0x52beb0.",
+    "match": {
+      "bytes_sha256": "b8c474af7e8e6dfc13074526068d7976119f5935f78003dac3272e7b40f5611b",
+      "inputs_sha256": "08f05a05e04c226be52f3c5425bcdbb27054bd2dfcc67bbc28387ec31ca39aea"
+    }
+  },
+  {
+    "id": "collector-query-52c830",
+    "size": 55,
+    "offset": 5425200,
+    "inputs": [
+      "src/campaign_collector_queries.c"
+    ],
+    "rebuilt_symbol": "_collect_52c830_1",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_collector_queries.obj src/campaign_collector_queries.c",
+    "link_bindings": {
+      "_query_52c230": {
+        "va": 283296304,
+        "basis": "Original query called with the temporary collector."
+      },
+      "_methods_84aa78": {
+        "va": 286567032,
+        "basis": "Read-only virtual method table installed in the local collector."
+      }
+    },
+    "identification": "Default Ghidra range. Builds a local collector containing a maximum finite float and the provided output pointer before calling the query at RVA 0x52c230.",
+    "match": {
+      "bytes_sha256": "a3190d57e7b0d0e0efdce9ef6d5a1137bf69a74bf3716df33f1ad89e10073a7b",
+      "inputs_sha256": "5d43c7c385de9205f62c2c56fd02667b12a5975087f8a8813b034e50a86edebb"
+    }
+  }
+]
