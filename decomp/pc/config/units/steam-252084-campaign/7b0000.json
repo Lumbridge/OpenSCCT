@@ -9396,6 +9396,98 @@
     }
   },
   {
+    "id": "finalize-registry-record-7b4470",
+    "inputs": [
+      "src/campaign_registry_exit.c"
+    ],
+    "offset": 8078448,
+    "size": 71,
+    "rebuilt_symbol": "_finalize_registry_record_7b4470",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_registry_exit.obj src/campaign_registry_exit.c",
+    "link_bindings": {
+      "_record_a1a5e0": {
+        "va": 288466400,
+        "basis": "Registered writable static record."
+      },
+      "_methods_83c530": {
+        "va": 286508336,
+        "basis": "Methods table installed before unregistering."
+      },
+      "_records": {
+        "va": 288469384,
+        "basis": "Registry receiving the static record."
+      },
+      "@unregister_record@8": {
+        "va": 282776704,
+        "basis": "Removes the supplied record from the registry."
+      },
+      "_get_release_context": {
+        "va": 282637408,
+        "basis": "Returns the shared release context, initializing it on first use."
+      },
+      "_release_record_storage": {
+        "va": 282637648,
+        "basis": "Releases storage using the context and the allocation metadata."
+      },
+      "@finish_record@4": {
+        "va": 282776432,
+        "basis": "Restores the final methods table in the supplied object."
+      }
+    },
+    "identification": "Exit registration at RVA 0x7ae357 pushes this callback before calling atexit. The complete function unregisters the static record, releases its storage if present and tail-calls the common finalizer.",
+    "match": {
+      "bytes_sha256": "789ad93b30757e376a1b94f9537d15c9a9e21a19bd57fb5cf0a9e79841c7f5df",
+      "inputs_sha256": "f6ad19445a45ba4503e188af6367a952927cfe70ab60b7074e898cad7eca1074"
+    }
+  },
+  {
+    "id": "finalize-registry-record-7b44c0",
+    "inputs": [
+      "src/campaign_registry_exit.c"
+    ],
+    "offset": 8078528,
+    "size": 71,
+    "rebuilt_symbol": "_finalize_registry_record_7b44c0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_registry_exit.obj src/campaign_registry_exit.c",
+    "link_bindings": {
+      "_record_a1a604": {
+        "va": 288466436,
+        "basis": "Registered writable static record."
+      },
+      "_methods_83c548": {
+        "va": 286508360,
+        "basis": "Methods table installed before unregistering."
+      },
+      "_records": {
+        "va": 288469384,
+        "basis": "Registry receiving the static record."
+      },
+      "@unregister_record@8": {
+        "va": 282776704,
+        "basis": "Removes the supplied record from the registry."
+      },
+      "_get_release_context": {
+        "va": 282637408,
+        "basis": "Returns the shared release context, initializing it on first use."
+      },
+      "_release_record_storage": {
+        "va": 282637648,
+        "basis": "Releases storage using the context and the allocation metadata."
+      },
+      "@finish_record@4": {
+        "va": 282776432,
+        "basis": "Restores the final methods table in the supplied object."
+      }
+    },
+    "identification": "Exit registration at RVA 0x7ae3b3 pushes this callback before calling atexit. The complete function unregisters the static record, releases its storage if present and tail-calls the common finalizer.",
+    "match": {
+      "bytes_sha256": "082787cd9f9dcfa8727879df9732299917623bd57c536612a85d5cfa9c845916",
+      "inputs_sha256": "52af398fae51b9bf6faafcdb8d4d58568c2b55cc9118787ce1b2c804bcf697c4"
+    }
+  },
+  {
     "id": "empty-exit-r7b4510",
     "size": 1,
     "offset": 8078608,
@@ -9409,6 +9501,52 @@
     "match": {
       "bytes_sha256": "ae3f4619b0413d70d3004b9131c3752153074e45725be13b9a148978895e359e",
       "inputs_sha256": "71f0cd594ca93c0024eae445102daeffdf70b8726b57b013fccefa3cda61fe80"
+    }
+  },
+  {
+    "id": "finalize-registry-record-7b4520",
+    "inputs": [
+      "src/campaign_registry_exit.c"
+    ],
+    "offset": 8078624,
+    "size": 71,
+    "rebuilt_symbol": "_finalize_registry_record_7b4520",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_registry_exit.obj src/campaign_registry_exit.c",
+    "link_bindings": {
+      "_record_a1a630": {
+        "va": 288466480,
+        "basis": "Registered writable static record."
+      },
+      "_methods_83c698": {
+        "va": 286508696,
+        "basis": "Methods table installed before unregistering."
+      },
+      "_records": {
+        "va": 288469384,
+        "basis": "Registry receiving the static record."
+      },
+      "@unregister_record@8": {
+        "va": 282776704,
+        "basis": "Removes the supplied record from the registry."
+      },
+      "_get_release_context": {
+        "va": 282637408,
+        "basis": "Returns the shared release context, initializing it on first use."
+      },
+      "_release_record_storage": {
+        "va": 282637648,
+        "basis": "Releases storage using the context and the allocation metadata."
+      },
+      "@finish_record@4": {
+        "va": 282776432,
+        "basis": "Restores the final methods table in the supplied object."
+      }
+    },
+    "identification": "Exit registration at RVA 0x7ae467 pushes this callback before calling atexit. The complete function unregisters the static record, releases its storage if present and tail-calls the common finalizer.",
+    "match": {
+      "bytes_sha256": "850920f6e0295728c10edc795011bb1b0dcc80efd4e061a9834eebcc68720215",
+      "inputs_sha256": "295a0fd1930e203ce8d09b206bff246e0b1e78b8030fd248ccfd5de28c5bb94e"
     }
   },
   {
@@ -9594,6 +9732,52 @@
     }
   },
   {
+    "id": "finalize-registry-record-7b4620",
+    "inputs": [
+      "src/campaign_registry_exit.c"
+    ],
+    "offset": 8078880,
+    "size": 71,
+    "rebuilt_symbol": "_finalize_registry_record_7b4620",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_registry_exit.obj src/campaign_registry_exit.c",
+    "link_bindings": {
+      "_record_a1b0fc": {
+        "va": 288469244,
+        "basis": "Registered writable static record."
+      },
+      "_methods_83df68": {
+        "va": 286515048,
+        "basis": "Methods table installed before unregistering."
+      },
+      "_records": {
+        "va": 288469384,
+        "basis": "Registry receiving the static record."
+      },
+      "@unregister_record@8": {
+        "va": 282776704,
+        "basis": "Removes the supplied record from the registry."
+      },
+      "_get_release_context": {
+        "va": 282637408,
+        "basis": "Returns the shared release context, initializing it on first use."
+      },
+      "_release_record_storage": {
+        "va": 282637648,
+        "basis": "Releases storage using the context and the allocation metadata."
+      },
+      "@finish_record@4": {
+        "va": 282776432,
+        "basis": "Restores the final methods table in the supplied object."
+      }
+    },
+    "identification": "Exit registration at RVA 0x7ae607 pushes this callback before calling atexit. The complete function unregisters the static record, releases its storage if present and tail-calls the common finalizer.",
+    "match": {
+      "bytes_sha256": "92daa868e5f2c00fb88bd16fa61e2f8981107bf9fe7693b9126877c34a42dd68",
+      "inputs_sha256": "a428c4c77b4ccfc32b55f6e9a8b99fe379fedc27b68b96653b9ae34fca928d4b"
+    }
+  },
+  {
     "id": "finalize-record-r7b4670",
     "size": 10,
     "offset": 8078960,
@@ -9617,6 +9801,52 @@
     "match": {
       "bytes_sha256": "6d6160ddde324fed65b92a226889945f6577ef3071cf4eccc80bf815735a3c8a",
       "inputs_sha256": "e2b523dd9d748ef9edc455aa21f4c38797831df8567e4056de4d387aa217d8c0"
+    }
+  },
+  {
+    "id": "finalize-registry-record-7b4680",
+    "inputs": [
+      "src/campaign_registry_exit.c"
+    ],
+    "offset": 8078976,
+    "size": 71,
+    "rebuilt_symbol": "_finalize_registry_record_7b4680",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_registry_exit.obj src/campaign_registry_exit.c",
+    "link_bindings": {
+      "_record_a1b13c": {
+        "va": 288469308,
+        "basis": "Registered writable static record."
+      },
+      "_methods_83e074": {
+        "va": 286515316,
+        "basis": "Methods table installed before unregistering."
+      },
+      "_records": {
+        "va": 288469384,
+        "basis": "Registry receiving the static record."
+      },
+      "@unregister_record@8": {
+        "va": 282776704,
+        "basis": "Removes the supplied record from the registry."
+      },
+      "_get_release_context": {
+        "va": 282637408,
+        "basis": "Returns the shared release context, initializing it on first use."
+      },
+      "_release_record_storage": {
+        "va": 282637648,
+        "basis": "Releases storage using the context and the allocation metadata."
+      },
+      "@finish_record@4": {
+        "va": 282776432,
+        "basis": "Restores the final methods table in the supplied object."
+      }
+    },
+    "identification": "Exit registration at RVA 0x7ae691 pushes this callback before calling atexit. The complete function unregisters the static record, releases its storage if present and tail-calls the common finalizer.",
+    "match": {
+      "bytes_sha256": "4ea42857ab834049e90b995a5aa0c016bb12942f9ba8ce8efa12b0bee8bd9fca",
+      "inputs_sha256": "534c04450590309e965612d636ed173aa6843b0c94c47e0a4875423a3bb0bca2"
     }
   },
   {
@@ -9740,6 +9970,98 @@
     }
   },
   {
+    "id": "finalize-registry-record-7b4780",
+    "inputs": [
+      "src/campaign_registry_exit.c"
+    ],
+    "offset": 8079232,
+    "size": 71,
+    "rebuilt_symbol": "_finalize_registry_record_7b4780",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_registry_exit.obj src/campaign_registry_exit.c",
+    "link_bindings": {
+      "_record_a1b1cc": {
+        "va": 288469452,
+        "basis": "Registered writable static record."
+      },
+      "_methods_83fe3c": {
+        "va": 286522940,
+        "basis": "Methods table installed before unregistering."
+      },
+      "_records": {
+        "va": 288469384,
+        "basis": "Registry receiving the static record."
+      },
+      "@unregister_record@8": {
+        "va": 282776704,
+        "basis": "Removes the supplied record from the registry."
+      },
+      "_get_release_context": {
+        "va": 282637408,
+        "basis": "Returns the shared release context, initializing it on first use."
+      },
+      "_release_record_storage": {
+        "va": 282637648,
+        "basis": "Releases storage using the context and the allocation metadata."
+      },
+      "@finish_record@4": {
+        "va": 282776432,
+        "basis": "Restores the final methods table in the supplied object."
+      }
+    },
+    "identification": "Exit registration at RVA 0x7ae807 pushes this callback before calling atexit. The complete function unregisters the static record, releases its storage if present and tail-calls the common finalizer.",
+    "match": {
+      "bytes_sha256": "d28105bc90e378ecdc49d22571dc673889e5a6d53ae31f1618dbcb8ff9b9f2c0",
+      "inputs_sha256": "3ac1d8f91e0f94565a33bd13db5051be2bba66750944c8bf911178c0df67a12b"
+    }
+  },
+  {
+    "id": "finalize-registry-record-7b47d0",
+    "inputs": [
+      "src/campaign_registry_exit.c"
+    ],
+    "offset": 8079312,
+    "size": 71,
+    "rebuilt_symbol": "_finalize_registry_record_7b47d0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_registry_exit.obj src/campaign_registry_exit.c",
+    "link_bindings": {
+      "_record_a1b1e0": {
+        "va": 288469472,
+        "basis": "Registered writable static record."
+      },
+      "_methods_83fe68": {
+        "va": 286522984,
+        "basis": "Methods table installed before unregistering."
+      },
+      "_records": {
+        "va": 288469384,
+        "basis": "Registry receiving the static record."
+      },
+      "@unregister_record@8": {
+        "va": 282776704,
+        "basis": "Removes the supplied record from the registry."
+      },
+      "_get_release_context": {
+        "va": 282637408,
+        "basis": "Returns the shared release context, initializing it on first use."
+      },
+      "_release_record_storage": {
+        "va": 282637648,
+        "basis": "Releases storage using the context and the allocation metadata."
+      },
+      "@finish_record@4": {
+        "va": 282776432,
+        "basis": "Restores the final methods table in the supplied object."
+      }
+    },
+    "identification": "Exit registration at RVA 0x7ae867 pushes this callback before calling atexit. The complete function unregisters the static record, releases its storage if present and tail-calls the common finalizer.",
+    "match": {
+      "bytes_sha256": "39590ff84dd25104691728ee3561c05e73d3a655ba4123f05c2608c27222512f",
+      "inputs_sha256": "2b77141725f43aac8ccb30b6bc81430a5e04df1486aaefa9def8b7fa821ebc27"
+    }
+  },
+  {
     "id": "finalize-record-r7b4830",
     "size": 10,
     "offset": 8079408,
@@ -9763,6 +10085,52 @@
     "match": {
       "bytes_sha256": "1d0ef3e33e41e98ac8a125bf3393fac4aac6123682bec222b68857825d9838c0",
       "inputs_sha256": "69a88c6d89cc917e10fcaf2c2a9224510735830aa4f32939029b3544cd97b323"
+    }
+  },
+  {
+    "id": "finalize-registry-record-7b4880",
+    "inputs": [
+      "src/campaign_registry_exit.c"
+    ],
+    "offset": 8079488,
+    "size": 71,
+    "rebuilt_symbol": "_finalize_registry_record_7b4880",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_registry_exit.obj src/campaign_registry_exit.c",
+    "link_bindings": {
+      "_record_a1b2b0": {
+        "va": 288469680,
+        "basis": "Registered writable static record."
+      },
+      "_methods_845238": {
+        "va": 286544440,
+        "basis": "Methods table installed before unregistering."
+      },
+      "_records": {
+        "va": 288469384,
+        "basis": "Registry receiving the static record."
+      },
+      "@unregister_record@8": {
+        "va": 282776704,
+        "basis": "Removes the supplied record from the registry."
+      },
+      "_get_release_context": {
+        "va": 282637408,
+        "basis": "Returns the shared release context, initializing it on first use."
+      },
+      "_release_record_storage": {
+        "va": 282637648,
+        "basis": "Releases storage using the context and the allocation metadata."
+      },
+      "@finish_record@4": {
+        "va": 282776432,
+        "basis": "Restores the final methods table in the supplied object."
+      }
+    },
+    "identification": "Exit registration at RVA 0x7ae907 pushes this callback before calling atexit. The complete function unregisters the static record, releases its storage if present and tail-calls the common finalizer.",
+    "match": {
+      "bytes_sha256": "c100f91ea5ba742b9fe3dd9eb4689d42b24f7ee1d76d8a10c7df17a723919bc8",
+      "inputs_sha256": "b0b4383f38efc8d08e43b0bc2ff375b8504a98ac21538a2003b0fcd27f3969ed"
     }
   },
   {
@@ -9860,6 +10228,52 @@
     }
   },
   {
+    "id": "finalize-registry-record-7b49a0",
+    "inputs": [
+      "src/campaign_registry_exit.c"
+    ],
+    "offset": 8079776,
+    "size": 71,
+    "rebuilt_symbol": "_finalize_registry_record_7b49a0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_registry_exit.obj src/campaign_registry_exit.c",
+    "link_bindings": {
+      "_record_a1b370": {
+        "va": 288469872,
+        "basis": "Registered writable static record."
+      },
+      "_methods_848c20": {
+        "va": 286559264,
+        "basis": "Methods table installed before unregistering."
+      },
+      "_records": {
+        "va": 288469384,
+        "basis": "Registry receiving the static record."
+      },
+      "@unregister_record@8": {
+        "va": 282776704,
+        "basis": "Removes the supplied record from the registry."
+      },
+      "_get_release_context": {
+        "va": 282637408,
+        "basis": "Returns the shared release context, initializing it on first use."
+      },
+      "_release_record_storage": {
+        "va": 282637648,
+        "basis": "Releases storage using the context and the allocation metadata."
+      },
+      "@finish_record@4": {
+        "va": 282776432,
+        "basis": "Restores the final methods table in the supplied object."
+      }
+    },
+    "identification": "Exit registration at RVA 0x7aea87 pushes this callback before calling atexit. The complete function unregisters the static record, releases its storage if present and tail-calls the common finalizer.",
+    "match": {
+      "bytes_sha256": "568f03c23d4c3a5ce8b612dbdc0edcae0bc44d1315115072d79239773840620f",
+      "inputs_sha256": "56b5564f97e270f486470bc5dccbb20ee2809678beff4a93839f242b31e4ace9"
+    }
+  },
+  {
     "id": "finalize-record-r7b49f0",
     "size": 10,
     "offset": 8079856,
@@ -9883,6 +10297,52 @@
     "match": {
       "bytes_sha256": "993de0d2d4279072c93a7c655bebb45612d219f500e6c5677e705c7d94610065",
       "inputs_sha256": "78977d814d32844f4ed712faeb316fec15651fc531661116bb6fddfa6f41319a"
+    }
+  },
+  {
+    "id": "finalize-registry-record-7b4a10",
+    "inputs": [
+      "src/campaign_registry_exit.c"
+    ],
+    "offset": 8079888,
+    "size": 71,
+    "rebuilt_symbol": "_finalize_registry_record_7b4a10",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_registry_exit.obj src/campaign_registry_exit.c",
+    "link_bindings": {
+      "_record_a1b3b0": {
+        "va": 288469936,
+        "basis": "Registered writable static record."
+      },
+      "_methods_8494d0": {
+        "va": 286561488,
+        "basis": "Methods table installed before unregistering."
+      },
+      "_records": {
+        "va": 288469384,
+        "basis": "Registry receiving the static record."
+      },
+      "@unregister_record@8": {
+        "va": 282776704,
+        "basis": "Removes the supplied record from the registry."
+      },
+      "_get_release_context": {
+        "va": 282637408,
+        "basis": "Returns the shared release context, initializing it on first use."
+      },
+      "_release_record_storage": {
+        "va": 282637648,
+        "basis": "Releases storage using the context and the allocation metadata."
+      },
+      "@finish_record@4": {
+        "va": 282776432,
+        "basis": "Restores the final methods table in the supplied object."
+      }
+    },
+    "identification": "Exit registration at RVA 0x7aeb37 pushes this callback before calling atexit. The complete function unregisters the static record, releases its storage if present and tail-calls the common finalizer.",
+    "match": {
+      "bytes_sha256": "83e739740a9541210e0a11482b228b5e7b80e3f66a0618d8c463e58d7c7a09b8",
+      "inputs_sha256": "7e7ebbfe72bfa1d731a37beb3d82e979503580ae37565d93decc9e4918f0ef72"
     }
   },
   {
