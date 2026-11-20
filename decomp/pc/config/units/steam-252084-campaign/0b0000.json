@@ -2657,6 +2657,35 @@
     }
   },
   {
+    "id": "nested-fsarray-cleanup-0bf7f0",
+    "size": 117,
+    "offset": 784368,
+    "inputs": [
+      "src/campaign_nested_fsarray_cleanup.c",
+      "src/campaign_fsarray.h",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@clear_records_0bf7f0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_nested_fsarray_cleanup.obj src/campaign_nested_fsarray_cleanup.c",
+    "identification": "Default Ghidra extent. Calls the independently rebuilt FSArray removal at instruction RVA 0xbf810 for the member at offset 0 of each 36-byte record.",
+    "link_bindings": {
+      "@remove_fsarray_range@16": {
+        "va": 281850864,
+        "basis": "Previously matched FSArray removal called during record cleanup."
+      },
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator."
+      }
+    },
+    "match": {
+      "bytes_sha256": "3da26ca5d1fa2bb2a6b9f7de99cc4ae4e2282b23ce6b0286678218d9a698916c",
+      "inputs_sha256": "cba295ae34b042a84923c944284037efbfeb9f4061d060bb70cf8785e9d0f339"
+    }
+  },
+  {
     "id": "array-add-zeroed-0bfa80",
     "offset": 785024,
     "size": 113,
