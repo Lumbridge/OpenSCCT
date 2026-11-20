@@ -209,6 +209,58 @@
     }
   },
   {
+    "id": "vector-init-4-460a60",
+    "size": 76,
+    "offset": 4590176,
+    "inputs": [
+      "src/campaign_vector_initialize.c"
+    ],
+    "rebuilt_symbol": "@initialize_4@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vector_initialize.obj src/campaign_vector_initialize.c",
+    "link_bindings": {
+      "_allocation_kind": {
+        "va": 288465152,
+        "basis": "Allocation label pointer passed to the shared allocator."
+      },
+      "_allocate_buffer": {
+        "va": 279826608,
+        "basis": "Direct call to the shared Campaign buffer allocator."
+      }
+    },
+    "identification": "Aligned vector initialization entry at RVA 0x460a60. Initializes three storage pointers and checks the 4-byte element limit before allocation. Both return paths pop the count argument.",
+    "match": {
+      "bytes_sha256": "6090d3f2f7b8573cd8dc8a6fae97454c7cbf8b576f39f54f091fce4961e47be1",
+      "inputs_sha256": "ee6221f7b44a05de02cce79938d8bb8c982822553ac4763d71b172bce44ff1aa"
+    }
+  },
+  {
+    "id": "vector-init-16-460ac0",
+    "size": 74,
+    "offset": 4590272,
+    "inputs": [
+      "src/campaign_vector_initialize.c"
+    ],
+    "rebuilt_symbol": "@initialize_16@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vector_initialize.obj src/campaign_vector_initialize.c",
+    "link_bindings": {
+      "_allocation_kind": {
+        "va": 288465152,
+        "basis": "Allocation label pointer passed to the shared allocator."
+      },
+      "_allocate_buffer": {
+        "va": 279826608,
+        "basis": "Direct call to the shared Campaign buffer allocator."
+      }
+    },
+    "identification": "Aligned vector initialization entry at RVA 0x460ac0. Initializes three storage pointers and checks the 16-byte element limit before allocation. Both return paths pop the count argument.",
+    "match": {
+      "bytes_sha256": "b194dc6d121004d33eeecad3301c3763c98e2faa2d2e8bcef89b2a342fc1ba69",
+      "inputs_sha256": "9452b4f1f3afffae88b99a47c08f5e254292b4ec0baee3e24498106791a64a0c"
+    }
+  },
+  {
     "id": "clear-owned-storage-460bc0",
     "size": 42,
     "offset": 4590528,
@@ -477,6 +529,32 @@
     }
   },
   {
+    "id": "vector-init-16-461390",
+    "size": 74,
+    "offset": 4592528,
+    "inputs": [
+      "src/campaign_vector_initialize.c"
+    ],
+    "rebuilt_symbol": "@initialize_16@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vector_initialize.obj src/campaign_vector_initialize.c",
+    "link_bindings": {
+      "_allocation_kind": {
+        "va": 288465212,
+        "basis": "Allocation label pointer passed to the shared allocator."
+      },
+      "_allocate_buffer": {
+        "va": 279826608,
+        "basis": "Direct call to the shared Campaign buffer allocator."
+      }
+    },
+    "identification": "Aligned vector initialization entry at RVA 0x461390. Initializes three storage pointers and checks the 16-byte element limit before allocation. Both return paths pop the count argument.",
+    "match": {
+      "bytes_sha256": "2840df409aa46042a6387da7a5cb79fe3d2725c40fe49b70dda09f1223c62470",
+      "inputs_sha256": "1793b59e4ff747401e10accc72c53cf343dc7667b272835c952b33f3dea30112"
+    }
+  },
+  {
     "id": "clear-owned-storage-4613f0",
     "size": 42,
     "offset": 4592624,
@@ -562,6 +640,32 @@
     "match": {
       "bytes_sha256": "f8f96f5d0b82ab856cd730bd90d93daa835a241e27c74e17de620b0d48e684e8",
       "inputs_sha256": "f60f594f71564f588af3c004d36517cb839fd703976cf999a919fd0c11bd6b34"
+    }
+  },
+  {
+    "id": "vector-init-16-4616b0",
+    "size": 74,
+    "offset": 4593328,
+    "inputs": [
+      "src/campaign_vector_initialize.c"
+    ],
+    "rebuilt_symbol": "@initialize_16@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vector_initialize.obj src/campaign_vector_initialize.c",
+    "link_bindings": {
+      "_allocation_kind": {
+        "va": 288465276,
+        "basis": "Allocation label pointer passed to the shared allocator."
+      },
+      "_allocate_buffer": {
+        "va": 279826608,
+        "basis": "Direct call to the shared Campaign buffer allocator."
+      }
+    },
+    "identification": "Aligned vector initialization entry at RVA 0x4616b0. Initializes three storage pointers and checks the 16-byte element limit before allocation. Both return paths pop the count argument.",
+    "match": {
+      "bytes_sha256": "0b0706c15b6c18d936097718a8625c9126434771a082118136a97b15906e651b",
+      "inputs_sha256": "894d6a593ed41b8c5242fde97a6bc6580506db07bbcc8ee70f2065a331ee81a3"
     }
   },
   {
@@ -653,6 +757,32 @@
     }
   },
   {
+    "id": "vector-init-16-461970",
+    "size": 74,
+    "offset": 4594032,
+    "inputs": [
+      "src/campaign_vector_initialize.c"
+    ],
+    "rebuilt_symbol": "@initialize_16@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vector_initialize.obj src/campaign_vector_initialize.c",
+    "link_bindings": {
+      "_allocation_kind": {
+        "va": 288465336,
+        "basis": "Allocation label pointer passed to the shared allocator."
+      },
+      "_allocate_buffer": {
+        "va": 279826608,
+        "basis": "Direct call to the shared Campaign buffer allocator."
+      }
+    },
+    "identification": "Aligned vector initialization entry at RVA 0x461970. Initializes three storage pointers and checks the 16-byte element limit before allocation. Both return paths pop the count argument.",
+    "match": {
+      "bytes_sha256": "0c98dd28390627aa563bb81e6a0d12c189c72939adccd47fd88b7e7e07703f21",
+      "inputs_sha256": "80a24a3af709e1e17e156595454042f1954f256252e811c4bd6ece7c5cec615a"
+    }
+  },
+  {
     "id": "clear-owned-storage-4619d0",
     "size": 42,
     "offset": 4594128,
@@ -738,6 +868,32 @@
     "match": {
       "bytes_sha256": "3750c44cbbbc7900f0d8f08a8bc3106dc31231f9aca9bb9dc07db36d49bf3b33",
       "inputs_sha256": "808964b67b0a4cf0e63c1f94c8afda698957319557e38f874ddcccabe9429e91"
+    }
+  },
+  {
+    "id": "vector-init-16-461ff0",
+    "size": 74,
+    "offset": 4595696,
+    "inputs": [
+      "src/campaign_vector_initialize.c"
+    ],
+    "rebuilt_symbol": "@initialize_16@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vector_initialize.obj src/campaign_vector_initialize.c",
+    "link_bindings": {
+      "_allocation_kind": {
+        "va": 288465396,
+        "basis": "Allocation label pointer passed to the shared allocator."
+      },
+      "_allocate_buffer": {
+        "va": 279826608,
+        "basis": "Direct call to the shared Campaign buffer allocator."
+      }
+    },
+    "identification": "Aligned vector initialization entry at RVA 0x461ff0. Initializes three storage pointers and checks the 16-byte element limit before allocation. Both return paths pop the count argument.",
+    "match": {
+      "bytes_sha256": "b8ccfdd7df8c8573c2e01469c6d34f4f51022dc60b7967d7d4ad5a9a11ee0948",
+      "inputs_sha256": "f593f704e0e1ac9cea8d83f0694c89bd89ff2bc2c4de5cc9b0685e7e0bf1fb30"
     }
   },
   {
@@ -921,6 +1077,32 @@
     }
   },
   {
+    "id": "vector-init-16-462330",
+    "size": 74,
+    "offset": 4596528,
+    "inputs": [
+      "src/campaign_vector_initialize.c"
+    ],
+    "rebuilt_symbol": "@initialize_16@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vector_initialize.obj src/campaign_vector_initialize.c",
+    "link_bindings": {
+      "_allocation_kind": {
+        "va": 288465456,
+        "basis": "Allocation label pointer passed to the shared allocator."
+      },
+      "_allocate_buffer": {
+        "va": 279826608,
+        "basis": "Direct call to the shared Campaign buffer allocator."
+      }
+    },
+    "identification": "Aligned vector initialization entry at RVA 0x462330. Initializes three storage pointers and checks the 16-byte element limit before allocation. Both return paths pop the count argument.",
+    "match": {
+      "bytes_sha256": "76502a101455dd0d22695685944ed2950eb2d0e1eeb826298a2990d210b1e2b0",
+      "inputs_sha256": "d541e818e906e04b950578d7f613c6d01e4c39d5cbca85b714eac1d6292171e7"
+    }
+  },
+  {
     "id": "clear-owned-storage-462390",
     "size": 42,
     "offset": 4596624,
@@ -1101,6 +1283,32 @@
     }
   },
   {
+    "id": "vector-init-16-4625b0",
+    "size": 74,
+    "offset": 4597168,
+    "inputs": [
+      "src/campaign_vector_initialize.c"
+    ],
+    "rebuilt_symbol": "@initialize_16@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vector_initialize.obj src/campaign_vector_initialize.c",
+    "link_bindings": {
+      "_allocation_kind": {
+        "va": 288465516,
+        "basis": "Allocation label pointer passed to the shared allocator."
+      },
+      "_allocate_buffer": {
+        "va": 279826608,
+        "basis": "Direct call to the shared Campaign buffer allocator."
+      }
+    },
+    "identification": "Aligned vector initialization entry at RVA 0x4625b0. Initializes three storage pointers and checks the 16-byte element limit before allocation. Both return paths pop the count argument.",
+    "match": {
+      "bytes_sha256": "7076b890ea423f028137532a53c37368fc197c372de0a438c91c23564b429f2d",
+      "inputs_sha256": "a2f7eab0caf3fd008b34339558f94d3e4a533ac2c137427238bb76b66b794fb0"
+    }
+  },
+  {
     "id": "clear-owned-storage-462610",
     "size": 42,
     "offset": 4597264,
@@ -1186,6 +1394,32 @@
     "match": {
       "bytes_sha256": "ea67eabf895810a1431b0c87361134f5a7413d452313dbe9ebae6e0770ff39ee",
       "inputs_sha256": "84d573a076a5293e12c8977ebb3f4a003ac080e9a7eafb0045687d6b36912f4d"
+    }
+  },
+  {
+    "id": "vector-init-16-462740",
+    "size": 74,
+    "offset": 4597568,
+    "inputs": [
+      "src/campaign_vector_initialize.c"
+    ],
+    "rebuilt_symbol": "@initialize_16@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vector_initialize.obj src/campaign_vector_initialize.c",
+    "link_bindings": {
+      "_allocation_kind": {
+        "va": 288465576,
+        "basis": "Allocation label pointer passed to the shared allocator."
+      },
+      "_allocate_buffer": {
+        "va": 279826608,
+        "basis": "Direct call to the shared Campaign buffer allocator."
+      }
+    },
+    "identification": "Aligned vector initialization entry at RVA 0x462740. Initializes three storage pointers and checks the 16-byte element limit before allocation. Both return paths pop the count argument.",
+    "match": {
+      "bytes_sha256": "6bb228653629e47c9e5ac19be43234d1e4616c55ae5380d3ecd6b7069ad46c94",
+      "inputs_sha256": "68235e04011639a13c9e609460258d8af2b65044bb8216ff4c1ad466bf3cf05f"
     }
   },
   {
@@ -1311,6 +1545,32 @@
     }
   },
   {
+    "id": "vector-init-4-462be0",
+    "size": 76,
+    "offset": 4598752,
+    "inputs": [
+      "src/campaign_vector_initialize.c"
+    ],
+    "rebuilt_symbol": "@initialize_4@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vector_initialize.obj src/campaign_vector_initialize.c",
+    "link_bindings": {
+      "_allocation_kind": {
+        "va": 288465636,
+        "basis": "Allocation label pointer passed to the shared allocator."
+      },
+      "_allocate_buffer": {
+        "va": 279826608,
+        "basis": "Direct call to the shared Campaign buffer allocator."
+      }
+    },
+    "identification": "Aligned vector initialization entry at RVA 0x462be0. Initializes three storage pointers and checks the 4-byte element limit before allocation. Both return paths pop the count argument.",
+    "match": {
+      "bytes_sha256": "509fa6b79937774b6c61ba46987ec7abc57bcd7f276e49d41d6b8b013f525340",
+      "inputs_sha256": "e337c6038e0e174ffa465b12cbf741f963b6fbb1cc663d0ebc7172e4726c1a48"
+    }
+  },
+  {
     "id": "construct-range-462d60",
     "size": 37,
     "offset": 4599136,
@@ -1364,6 +1624,32 @@
     "match": {
       "bytes_sha256": "d9cd223684409627c805a41be4a4541d5f450b1eb4b2552ffff00ed87946b8c2",
       "inputs_sha256": "3764c1ebbcc5dc6ba4b3165248d2966ce44cf8acca74c5e0caaaf18b037c8a2f"
+    }
+  },
+  {
+    "id": "vector-init-16-462e50",
+    "size": 74,
+    "offset": 4599376,
+    "inputs": [
+      "src/campaign_vector_initialize.c"
+    ],
+    "rebuilt_symbol": "@initialize_16@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vector_initialize.obj src/campaign_vector_initialize.c",
+    "link_bindings": {
+      "_allocation_kind": {
+        "va": 288465636,
+        "basis": "Allocation label pointer passed to the shared allocator."
+      },
+      "_allocate_buffer": {
+        "va": 279826608,
+        "basis": "Direct call to the shared Campaign buffer allocator."
+      }
+    },
+    "identification": "Aligned vector initialization entry at RVA 0x462e50. Initializes three storage pointers and checks the 16-byte element limit before allocation. Both return paths pop the count argument.",
+    "match": {
+      "bytes_sha256": "360bf739f529a508d514ba1cb016c13bbc4478f855d3d81879961ce8f9d9eb37",
+      "inputs_sha256": "89ae24ab66d7fbf0f16bfa667cb15e07357b6efd17c0c1c7b7e96c128f6e6ce1"
     }
   },
   {
@@ -1647,6 +1933,32 @@
     }
   },
   {
+    "id": "vector-init-16-463d20",
+    "size": 74,
+    "offset": 4603168,
+    "inputs": [
+      "src/campaign_vector_initialize.c"
+    ],
+    "rebuilt_symbol": "@initialize_16@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vector_initialize.obj src/campaign_vector_initialize.c",
+    "link_bindings": {
+      "_allocation_kind": {
+        "va": 288465696,
+        "basis": "Allocation label pointer passed to the shared allocator."
+      },
+      "_allocate_buffer": {
+        "va": 279826608,
+        "basis": "Direct call to the shared Campaign buffer allocator."
+      }
+    },
+    "identification": "Aligned vector initialization entry at RVA 0x463d20. Initializes three storage pointers and checks the 16-byte element limit before allocation. Both return paths pop the count argument.",
+    "match": {
+      "bytes_sha256": "139ca1cc6048c6dc8de7e1f3293bc3bcbdb39072a9ec1b547c49da9bb44c852c",
+      "inputs_sha256": "f3a7344db37f8722739e2c7fe51c017f44b69fc9f2d7ad9317c0e0d986d39871"
+    }
+  },
+  {
     "id": "clear-owned-storage-463d80",
     "size": 42,
     "offset": 4603264,
@@ -1827,6 +2139,32 @@
     }
   },
   {
+    "id": "vector-init-16-463fa0",
+    "size": 74,
+    "offset": 4603808,
+    "inputs": [
+      "src/campaign_vector_initialize.c"
+    ],
+    "rebuilt_symbol": "@initialize_16@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vector_initialize.obj src/campaign_vector_initialize.c",
+    "link_bindings": {
+      "_allocation_kind": {
+        "va": 288465756,
+        "basis": "Allocation label pointer passed to the shared allocator."
+      },
+      "_allocate_buffer": {
+        "va": 279826608,
+        "basis": "Direct call to the shared Campaign buffer allocator."
+      }
+    },
+    "identification": "Aligned vector initialization entry at RVA 0x463fa0. Initializes three storage pointers and checks the 16-byte element limit before allocation. Both return paths pop the count argument.",
+    "match": {
+      "bytes_sha256": "b1bbda3ba428bb0c8267f56dc44b01f739f944a805fc453766f1293dc6d2db4c",
+      "inputs_sha256": "3a93107d7af1c189bd9e4003bc886aee56e5adc0ecc7ff3540ce994b7547abb9"
+    }
+  },
+  {
     "id": "clear-owned-storage-464000",
     "size": 42,
     "offset": 4603904,
@@ -2004,6 +2342,32 @@
     "match": {
       "bytes_sha256": "7de6d23eceae7841f4b21a27b9ab8f16fdbe8e7297128d2a7be59a19f42d9f9b",
       "inputs_sha256": "acf2574bd0331d45abe40c4ab5e81f8d7e38d84309f653f06be04b708f951cc4"
+    }
+  },
+  {
+    "id": "vector-init-16-464490",
+    "size": 74,
+    "offset": 4605072,
+    "inputs": [
+      "src/campaign_vector_initialize.c"
+    ],
+    "rebuilt_symbol": "@initialize_16@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vector_initialize.obj src/campaign_vector_initialize.c",
+    "link_bindings": {
+      "_allocation_kind": {
+        "va": 288465816,
+        "basis": "Allocation label pointer passed to the shared allocator."
+      },
+      "_allocate_buffer": {
+        "va": 279826608,
+        "basis": "Direct call to the shared Campaign buffer allocator."
+      }
+    },
+    "identification": "Aligned vector initialization entry at RVA 0x464490. Initializes three storage pointers and checks the 16-byte element limit before allocation. Both return paths pop the count argument.",
+    "match": {
+      "bytes_sha256": "831ce9fc235f374e16efdf648f316337fecde523886b18de70019d461f7f7db7",
+      "inputs_sha256": "17b817e7e195d3188951d79b7df5030d9f58f2083b6c54b57a116f4d103e2387"
     }
   },
   {
@@ -2261,6 +2625,58 @@
     "match": {
       "bytes_sha256": "7b03083fc5a70e857d53690b899f60dbd945430880af3eaef2791598b0c12536",
       "inputs_sha256": "cf6516ab96ac5ce63cb7264d68502235f6b85183680b6240af0f14040bf83f9e"
+    }
+  },
+  {
+    "id": "vector-init-4-464ab0",
+    "size": 76,
+    "offset": 4606640,
+    "inputs": [
+      "src/campaign_vector_initialize.c"
+    ],
+    "rebuilt_symbol": "@initialize_4@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vector_initialize.obj src/campaign_vector_initialize.c",
+    "link_bindings": {
+      "_allocation_kind": {
+        "va": 288465876,
+        "basis": "Allocation label pointer passed to the shared allocator."
+      },
+      "_allocate_buffer": {
+        "va": 279826608,
+        "basis": "Direct call to the shared Campaign buffer allocator."
+      }
+    },
+    "identification": "Aligned vector initialization entry at RVA 0x464ab0. Initializes three storage pointers and checks the 4-byte element limit before allocation. Both return paths pop the count argument.",
+    "match": {
+      "bytes_sha256": "70ca97244de78b468c0f375e4e17eb41658587c68961a7ffb44cce784bdd46d9",
+      "inputs_sha256": "cfda65a609c62c901c6529416bfe387099f0c2371e9a799f555d849335083b2d"
+    }
+  },
+  {
+    "id": "vector-init-16-464b40",
+    "size": 74,
+    "offset": 4606784,
+    "inputs": [
+      "src/campaign_vector_initialize.c"
+    ],
+    "rebuilt_symbol": "@initialize_16@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vector_initialize.obj src/campaign_vector_initialize.c",
+    "link_bindings": {
+      "_allocation_kind": {
+        "va": 288465876,
+        "basis": "Allocation label pointer passed to the shared allocator."
+      },
+      "_allocate_buffer": {
+        "va": 279826608,
+        "basis": "Direct call to the shared Campaign buffer allocator."
+      }
+    },
+    "identification": "Aligned vector initialization entry at RVA 0x464b40. Initializes three storage pointers and checks the 16-byte element limit before allocation. Both return paths pop the count argument.",
+    "match": {
+      "bytes_sha256": "249c8dd81217a4ced5a1f5a6325e278d31dfafc48aa3abb5a31915e222f54809",
+      "inputs_sha256": "a56d71b8e49fa5767932ed2185a2edc836d57a8b58fb695ac68e560f7f0a15d5"
     }
   },
   {
@@ -2758,6 +3174,32 @@
     }
   },
   {
+    "id": "vector-init-16-465d00",
+    "size": 74,
+    "offset": 4611328,
+    "inputs": [
+      "src/campaign_vector_initialize.c"
+    ],
+    "rebuilt_symbol": "@initialize_16@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vector_initialize.obj src/campaign_vector_initialize.c",
+    "link_bindings": {
+      "_allocation_kind": {
+        "va": 288466016,
+        "basis": "Allocation label pointer passed to the shared allocator."
+      },
+      "_allocate_buffer": {
+        "va": 279826608,
+        "basis": "Direct call to the shared Campaign buffer allocator."
+      }
+    },
+    "identification": "Aligned vector initialization entry at RVA 0x465d00. Initializes three storage pointers and checks the 16-byte element limit before allocation. Both return paths pop the count argument.",
+    "match": {
+      "bytes_sha256": "d942c9767f381dd31ae1d9f18aeb51de4d583e52b45d2e4862d5ebfefda88398",
+      "inputs_sha256": "4e86a22f86fbe369fd1a10dea7113c2959e2cca9f128e607702e05bfb9ecdfdc"
+    }
+  },
+  {
     "id": "clear-owned-storage-465d60",
     "size": 42,
     "offset": 4611424,
@@ -2938,6 +3380,32 @@
     }
   },
   {
+    "id": "vector-init-16-465fe0",
+    "size": 74,
+    "offset": 4612064,
+    "inputs": [
+      "src/campaign_vector_initialize.c"
+    ],
+    "rebuilt_symbol": "@initialize_16@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vector_initialize.obj src/campaign_vector_initialize.c",
+    "link_bindings": {
+      "_allocation_kind": {
+        "va": 288466076,
+        "basis": "Allocation label pointer passed to the shared allocator."
+      },
+      "_allocate_buffer": {
+        "va": 279826608,
+        "basis": "Direct call to the shared Campaign buffer allocator."
+      }
+    },
+    "identification": "Aligned vector initialization entry at RVA 0x465fe0. Initializes three storage pointers and checks the 16-byte element limit before allocation. Both return paths pop the count argument.",
+    "match": {
+      "bytes_sha256": "7e8300a693f23b0325e1db9301ec2e7dddc4501788ff587336f2b461a9581183",
+      "inputs_sha256": "4fd02393b54ad7490b684f428d49ee9f3300e308e88241ee00c3fbc1ddd57cb8"
+    }
+  },
+  {
     "id": "clear-owned-storage-466040",
     "size": 42,
     "offset": 4612160,
@@ -3115,6 +3583,32 @@
     "match": {
       "bytes_sha256": "93f18de40baef9b19a0f3a1d4413931babe801ab5e96e0aaed6e5d808b996653",
       "inputs_sha256": "81383394822e26a6d96880568bf8bcd10400193ed9b448e5c056f6b1c6f5f1b0"
+    }
+  },
+  {
+    "id": "vector-init-16-4662b0",
+    "size": 74,
+    "offset": 4612784,
+    "inputs": [
+      "src/campaign_vector_initialize.c"
+    ],
+    "rebuilt_symbol": "@initialize_16@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vector_initialize.obj src/campaign_vector_initialize.c",
+    "link_bindings": {
+      "_allocation_kind": {
+        "va": 288466136,
+        "basis": "Allocation label pointer passed to the shared allocator."
+      },
+      "_allocate_buffer": {
+        "va": 279826608,
+        "basis": "Direct call to the shared Campaign buffer allocator."
+      }
+    },
+    "identification": "Aligned vector initialization entry at RVA 0x4662b0. Initializes three storage pointers and checks the 16-byte element limit before allocation. Both return paths pop the count argument.",
+    "match": {
+      "bytes_sha256": "66f9e751bae5b4c774f1a4f0f0e346df09f99c7aff23bb7c3b987009dfc0f494",
+      "inputs_sha256": "31cd82191a530df6a82cd7d10e63e0420505abbf4adc8cd4eba3a29536241d97"
     }
   },
   {
