@@ -4029,6 +4029,22 @@
     }
   },
   {
+    "id": "archive-array-size-08a180",
+    "size": 36,
+    "offset": 565632,
+    "inputs": [
+      "src/campaign_archive_array_size.c"
+    ],
+    "rebuilt_symbol": "@count_storage@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_archive_array_size.obj src/campaign_archive_array_size.c",
+    "identification": "Aligned entry bounded by a previous return and compiler padding. Passes used and allocated bytes, each scaled by element size, to archive method slot five.",
+    "match": {
+      "bytes_sha256": "724334169d6b6419c69aa9f38f4fb4b23cfa80c29b8af3bb7dd57056ece38fee",
+      "inputs_sha256": "8aacbfd55763ae0e64b98befff380f5ff0a38daaff278fdea2aa86e8dce0bdbf"
+    }
+  },
+  {
     "id": "physics-sized-release-08a340",
     "size": 41,
     "offset": 566080,
@@ -4186,6 +4202,22 @@
     "match": {
       "bytes_sha256": "e426323bd2fb6b92b62c0922900feb143223116c5a9d61098841fb2e7c922a4e",
       "inputs_sha256": "f530ae94c9e36006153dbca6ee9ad5197370b71fb23906a6a60c1af4bd7d211f"
+    }
+  },
+  {
+    "id": "archive-array-size-08ab30",
+    "size": 36,
+    "offset": 568112,
+    "inputs": [
+      "src/campaign_archive_array_size.c"
+    ],
+    "rebuilt_symbol": "@count_storage@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_archive_array_size.obj src/campaign_archive_array_size.c",
+    "identification": "Aligned entry bounded by a previous return and compiler padding. Passes used and allocated bytes, each scaled by element size, to archive method slot five.",
+    "match": {
+      "bytes_sha256": "724334169d6b6419c69aa9f38f4fb4b23cfa80c29b8af3bb7dd57056ece38fee",
+      "inputs_sha256": "e955dbcaba7730a677de26cd43459e70a5b7b5f89c06912a43ec2c6d2f2c8a0e"
     }
   },
   {

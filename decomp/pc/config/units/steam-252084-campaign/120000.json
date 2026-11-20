@@ -5886,5 +5886,21 @@
       "bytes_sha256": "91d9938a07b6c0845fb31cfbd854a55110970e261789893221ebc2b1a469d1ea",
       "inputs_sha256": "23ad670b03f50c89616aa54a50f229560b063b528217c83304f2e29aab8e144e"
     }
+  },
+  {
+    "id": "archive-array-size-12fed0",
+    "size": 36,
+    "offset": 1244880,
+    "inputs": [
+      "src/campaign_archive_array_size.c"
+    ],
+    "rebuilt_symbol": "@count_storage@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_archive_array_size.obj src/campaign_archive_array_size.c",
+    "identification": "Aligned entry bounded by a previous return and compiler padding. Passes used and allocated bytes, each scaled by element size, to archive method slot five.",
+    "match": {
+      "bytes_sha256": "724334169d6b6419c69aa9f38f4fb4b23cfa80c29b8af3bb7dd57056ece38fee",
+      "inputs_sha256": "b423dc9da7ffc9d972e1519df02986d87d2854fa687da90700b102a74dae94bc"
+    }
   }
 ]

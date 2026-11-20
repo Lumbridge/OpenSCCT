@@ -1210,6 +1210,22 @@
     }
   },
   {
+    "id": "archive-array-size-172140",
+    "size": 36,
+    "offset": 1515840,
+    "inputs": [
+      "src/campaign_archive_array_size.c"
+    ],
+    "rebuilt_symbol": "@count_storage@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_archive_array_size.obj src/campaign_archive_array_size.c",
+    "identification": "Aligned entry bounded by a previous return and compiler padding. Passes used and allocated bytes, each scaled by element size, to archive method slot five.",
+    "match": {
+      "bytes_sha256": "724334169d6b6419c69aa9f38f4fb4b23cfa80c29b8af3bb7dd57056ece38fee",
+      "inputs_sha256": "094d3a0ed6f96dcc02355d2a193814a5d2e79ce9dd513e8bd71604603840dc0d"
+    }
+  },
+  {
     "id": "class-registration-aerainvolume",
     "offset": 1515952,
     "size": 264,
