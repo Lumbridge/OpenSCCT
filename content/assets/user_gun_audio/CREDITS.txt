@@ -2,6 +2,8 @@ OpenSCCT user-supplied Gun SFX bank
 =================================
 
 Source: Gun SFX folder supplied by the user for this project.
+On 20 November 2026, the OpenSCCT project owner confirmed that this supplied
+pack may be redistributed with OpenSCCT Godot, Unreal and Editor.
 Original creator and licence: not stated in the supplied folder.
 No Creative Commons licence is attributed to these files.
 Original relative filenames and SHA-256 hashes: sources/manifest.json.
