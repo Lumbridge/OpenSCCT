@@ -163,6 +163,52 @@
     }
   },
   {
+    "id": "tree-next-421560-prefix-421a00",
+    "offset": 4332032,
+    "size": 12,
+    "inputs": [
+      "src/campaign_tree_prefix.c",
+      "src/tree_iteration.h"
+    ],
+    "rebuilt_symbol": "@tree_next_421560_prefix_421a00@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_prefix.obj src/campaign_tree_prefix.c",
+    "link_bindings": {
+      "@tree_next_421560@4": {
+        "va": 282203488,
+        "basis": "Direct call to the independently matched tree iterator step."
+      }
+    },
+    "identification": "Complete prefix iterator step returning its receiver after the traversal call at retail VA 0x10d21a03.",
+    "match": {
+      "bytes_sha256": "da68d264c9421bc6085aec75d55adb24167c5bbdcc8437ce55432cb36e4e0929",
+      "inputs_sha256": "729e1a4ff81c50c02427c9d4105471740b3995cb61f9969a5f7c1ba1924f3f77"
+    }
+  },
+  {
+    "id": "tree-prev-421500-prefix-421a10",
+    "offset": 4332048,
+    "size": 12,
+    "inputs": [
+      "src/campaign_tree_prefix.c",
+      "src/tree_iteration.h"
+    ],
+    "rebuilt_symbol": "@tree_prev_421500_prefix_421a10@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_prefix.obj src/campaign_tree_prefix.c",
+    "link_bindings": {
+      "@tree_prev_421500@4": {
+        "va": 282203392,
+        "basis": "Direct call to the independently matched tree iterator step."
+      }
+    },
+    "identification": "Complete prefix iterator step returning its receiver after the traversal call at retail VA 0x10d21a13.",
+    "match": {
+      "bytes_sha256": "c1645979e0952c02cb8edf8e9fe805fee54bfbee9b0311337c5568d6869c578a",
+      "inputs_sha256": "cb8d4200d416f6117984a5341133bf6485e5ff50238ce805b28384ed991e1206"
+    }
+  },
+  {
     "id": "clear-owned-storage-421b80",
     "size": 42,
     "offset": 4332416,
@@ -248,6 +294,52 @@
     "match": {
       "bytes_sha256": "52733dcfddc7c931bbdce689a53408640515af2a24127bd42b6d4d28bb331102",
       "inputs_sha256": "c9ff9a33f1e5319407d242261c90308a6506718a343b0719e5a91d8f2a2f6079"
+    }
+  },
+  {
+    "id": "tree-next-421560-prefix-421cd0",
+    "offset": 4332752,
+    "size": 12,
+    "inputs": [
+      "src/campaign_tree_prefix.c",
+      "src/tree_iteration.h"
+    ],
+    "rebuilt_symbol": "@tree_next_421560_prefix_421cd0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_prefix.obj src/campaign_tree_prefix.c",
+    "link_bindings": {
+      "@tree_next_421560@4": {
+        "va": 282203488,
+        "basis": "Direct call to the independently matched tree iterator step."
+      }
+    },
+    "identification": "Complete prefix iterator step returning its receiver after the traversal call at retail VA 0x10d21cd3.",
+    "match": {
+      "bytes_sha256": "fc031f682714c2345a5fb85e0ee6b74df4769d30d47b5a4efdb02331d6ae80da",
+      "inputs_sha256": "32b2dfece6b70ed53e5290ca8ff21c106f0b71817fa39328f80c30a2a811a398"
+    }
+  },
+  {
+    "id": "tree-prev-421500-prefix-421ce0",
+    "offset": 4332768,
+    "size": 12,
+    "inputs": [
+      "src/campaign_tree_prefix.c",
+      "src/tree_iteration.h"
+    ],
+    "rebuilt_symbol": "@tree_prev_421500_prefix_421ce0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_prefix.obj src/campaign_tree_prefix.c",
+    "link_bindings": {
+      "@tree_prev_421500@4": {
+        "va": 282203392,
+        "basis": "Direct call to the independently matched tree iterator step."
+      }
+    },
+    "identification": "Complete prefix iterator step returning its receiver after the traversal call at retail VA 0x10d21ce3.",
+    "match": {
+      "bytes_sha256": "312df45837f0735f024f0dd7dc383a9f553630bb3b0f2eb8770360d001feec2c",
+      "inputs_sha256": "908ac5e4d3a810b6c70c3bb4031b34e2c49bc8832da1f7d13e5f16b98174c531"
     }
   },
   {

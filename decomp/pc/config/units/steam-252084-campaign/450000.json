@@ -17,6 +17,52 @@
     }
   },
   {
+    "id": "tree-next-450020-prefix-450140",
+    "offset": 4522304,
+    "size": 12,
+    "inputs": [
+      "src/campaign_tree_prefix.c",
+      "src/tree_iteration.h"
+    ],
+    "rebuilt_symbol": "@tree_next_450020_prefix_450140@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_prefix.obj src/campaign_tree_prefix.c",
+    "link_bindings": {
+      "@tree_next_450020@4": {
+        "va": 282394656,
+        "basis": "Direct call to the independently matched tree iterator step."
+      }
+    },
+    "identification": "Complete prefix iterator step returning its receiver after the traversal call at retail VA 0x10d50143.",
+    "match": {
+      "bytes_sha256": "1212a5e5a78c9175e875d348db77f508999f0f7858308c4c28dedb3d0fbf13c8",
+      "inputs_sha256": "25b22f9f11bd6c289a77b85a81bb23d07cf66256b34d67f7046feec17d36e572"
+    }
+  },
+  {
+    "id": "tree-next-450020-prefix-450240",
+    "offset": 4522560,
+    "size": 12,
+    "inputs": [
+      "src/campaign_tree_prefix.c",
+      "src/tree_iteration.h"
+    ],
+    "rebuilt_symbol": "@tree_next_450020_prefix_450240@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_prefix.obj src/campaign_tree_prefix.c",
+    "link_bindings": {
+      "@tree_next_450020@4": {
+        "va": 282394656,
+        "basis": "Direct call to the independently matched tree iterator step."
+      }
+    },
+    "identification": "Complete prefix iterator step returning its receiver after the traversal call at retail VA 0x10d50243.",
+    "match": {
+      "bytes_sha256": "86ac08031542a216d154471fd97cfdc6405062ec0402a2fa0f36fd84ba2d9651",
+      "inputs_sha256": "e84319ac2a461b70ed0d1ddf2094aec46848596b890afca60d875697c5946e1e"
+    }
+  },
+  {
     "id": "clear-owned-storage-452650",
     "size": 42,
     "offset": 4531792,
@@ -117,6 +163,29 @@
     }
   },
   {
+    "id": "tree-prev-454ff0-prefix-455330",
+    "offset": 4543280,
+    "size": 12,
+    "inputs": [
+      "src/campaign_tree_prefix.c",
+      "src/tree_iteration.h"
+    ],
+    "rebuilt_symbol": "@tree_prev_454ff0_prefix_455330@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_prefix.obj src/campaign_tree_prefix.c",
+    "link_bindings": {
+      "@tree_prev_454ff0@4": {
+        "va": 282415088,
+        "basis": "Direct call to the independently matched tree iterator step."
+      }
+    },
+    "identification": "Complete prefix iterator step returning its receiver after the traversal call at retail VA 0x10d55333.",
+    "match": {
+      "bytes_sha256": "be686c399b47f28f36c4c90c5e105f3540af70f9adfd61b3df1d440215a5217f",
+      "inputs_sha256": "afb16dfcde1761359c1a6c9f9dcaa268577dcab7f36dc56c26a8ad2fee69dd82"
+    }
+  },
+  {
     "id": "copy-backward-455390",
     "size": 44,
     "offset": 4543376,
@@ -131,6 +200,29 @@
     "match": {
       "bytes_sha256": "ac231d3161fb40e6a226b8622783e5e6a25f45afbf360d199026d99647123a3d",
       "inputs_sha256": "11893e7d788521d9b59863990771f80622421ab3342953f56bfe52d1a8ceaadd"
+    }
+  },
+  {
+    "id": "tree-prev-454ff0-prefix-455520",
+    "offset": 4543776,
+    "size": 12,
+    "inputs": [
+      "src/campaign_tree_prefix.c",
+      "src/tree_iteration.h"
+    ],
+    "rebuilt_symbol": "@tree_prev_454ff0_prefix_455520@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_prefix.obj src/campaign_tree_prefix.c",
+    "link_bindings": {
+      "@tree_prev_454ff0@4": {
+        "va": 282415088,
+        "basis": "Direct call to the independently matched tree iterator step."
+      }
+    },
+    "identification": "Complete prefix iterator step returning its receiver after the traversal call at retail VA 0x10d55523.",
+    "match": {
+      "bytes_sha256": "27be1197145f4bb120ca8aa27010750f1ec31492b2327b6efd9b4019dd659ee0",
+      "inputs_sha256": "272e3e1c936879ac0437495ffea1a833558f6d3b02782cd5a157d21f2cfdda90"
     }
   },
   {
