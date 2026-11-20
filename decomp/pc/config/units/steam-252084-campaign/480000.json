@@ -841,6 +841,32 @@
     }
   },
   {
+    "id": "memory-manager-allocate-context",
+    "size": 32,
+    "offset": 4750128,
+    "inputs": [
+      "src/campaign_manager_sync.c"
+    ],
+    "rebuilt_symbol": "_allocate_context",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_manager_sync.obj src/campaign_manager_sync.c",
+    "link_bindings": {
+      "_get_context": {
+        "va": 282637408,
+        "basis": "Retail operand for get context."
+      },
+      "_allocate_block": {
+        "va": 282637536,
+        "basis": "Retail operand for allocate block."
+      }
+    },
+    "identification": "Indexed whole function. Memory manager allocate context.",
+    "match": {
+      "bytes_sha256": "1ee4e97e983b5bc9a3eae617ff9834273005d623155d1bc90140b822a3c04233",
+      "inputs_sha256": "8ba237fd8fe979119e4fc82e79737745bcfaf78595f8d7418b0a972e244a2fb7"
+    }
+  },
+  {
     "id": "managed-release-487b90",
     "size": 22,
     "offset": 4750224,
@@ -1674,6 +1700,226 @@
     "match": {
       "bytes_sha256": "f586bbbfc5c4b1e68d285ab06953bff9f6fe3602dadbf86e9a2dc96d2c1c9617",
       "inputs_sha256": "41ca14ff01ca38abbd0868cc5b512da97ca71dccf733fc2c3bc005b21119e2e4"
+    }
+  },
+  {
+    "id": "memory-manager-lock-mutex",
+    "size": 10,
+    "offset": 4764144,
+    "inputs": [
+      "src/campaign_manager_sync.c"
+    ],
+    "rebuilt_symbol": "@lock_mutex@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_manager_sync.obj src/campaign_manager_sync.c",
+    "link_bindings": {
+      "__imp__EnterCriticalSection@4": {
+        "va": 285963180,
+        "basis": "Retail operand for imp  EnterCriticalSection@4."
+      }
+    },
+    "identification": "Indexed whole function. Memory manager lock mutex.",
+    "match": {
+      "bytes_sha256": "e955ca6a66e495b36d42b62c48cc2b8035c86c440a90ffaf4aa6c3d6fcd77463",
+      "inputs_sha256": "6c3b60256bbfd4577f7bb516db20ec9f3733bcffcaa8be6ebfa4d9b12b200a08"
+    }
+  },
+  {
+    "id": "memory-manager-unlock-mutex",
+    "size": 10,
+    "offset": 4764160,
+    "inputs": [
+      "src/campaign_manager_sync.c"
+    ],
+    "rebuilt_symbol": "@unlock_mutex@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_manager_sync.obj src/campaign_manager_sync.c",
+    "link_bindings": {
+      "__imp__LeaveCriticalSection@4": {
+        "va": 285963164,
+        "basis": "Retail operand for imp  LeaveCriticalSection@4."
+      }
+    },
+    "identification": "Indexed whole function. Memory manager unlock mutex.",
+    "match": {
+      "bytes_sha256": "37cf1663a6391426954c26e7252b819ab4777e34107f0367e1771b7ab94b56f1",
+      "inputs_sha256": "02dff90f17f9532bb59e48fc34f31ca1141d4e487b59732e9f0f066415b7815e"
+    }
+  },
+  {
+    "id": "memory-manager-create-mutex",
+    "size": 41,
+    "offset": 4764240,
+    "inputs": [
+      "src/campaign_manager_sync.c"
+    ],
+    "rebuilt_symbol": "@create_mutex@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_manager_sync.obj src/campaign_manager_sync.c",
+    "link_bindings": {
+      "_mutex_file": {
+        "va": 286510260,
+        "basis": "Retail operand for mutex file."
+      },
+      "_get_context": {
+        "va": 282637408,
+        "basis": "Retail operand for get context."
+      },
+      "_allocate_block": {
+        "va": 282637536,
+        "basis": "Retail operand for allocate block."
+      },
+      "__imp__InitializeCriticalSection@4": {
+        "va": 285963156,
+        "basis": "Retail operand for imp  InitializeCriticalSection@4."
+      }
+    },
+    "identification": "Indexed whole function. Memory manager create mutex.",
+    "match": {
+      "bytes_sha256": "463d796e7d3ee1935bdae2ed070445d6f6a5bbc938ab6aba7b07a621cccb8c21",
+      "inputs_sha256": "36389b3e89be75d4a7b96162beca17a015978868c8e7d1b906272154c68f4c81"
+    }
+  },
+  {
+    "id": "memory-manager-destroy-mutex",
+    "size": 33,
+    "offset": 4764288,
+    "inputs": [
+      "src/campaign_manager_sync.c"
+    ],
+    "rebuilt_symbol": "@destroy_mutex@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_manager_sync.obj src/campaign_manager_sync.c",
+    "link_bindings": {
+      "__imp__DeleteCriticalSection@4": {
+        "va": 285963140,
+        "basis": "Retail operand for imp  DeleteCriticalSection@4."
+      },
+      "_get_context": {
+        "va": 282637408,
+        "basis": "Retail operand for get context."
+      },
+      "_release_block": {
+        "va": 282637648,
+        "basis": "Retail operand for release block."
+      }
+    },
+    "identification": "Indexed whole function. Memory manager destroy mutex.",
+    "match": {
+      "bytes_sha256": "8f8ac57e74bfc011165ee8929fb7175669ae536d43c95ca51672e823a73da8b3",
+      "inputs_sha256": "e85b6085b29290f1e9880779006e820a67086a9a07da94aad58a2b4a7ce1da20"
+    }
+  },
+  {
+    "id": "memory-manager-construct-context",
+    "size": 57,
+    "offset": 4764496,
+    "inputs": [
+      "src/campaign_manager_sync.c"
+    ],
+    "rebuilt_symbol": "@construct_context@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_manager_sync.obj src/campaign_manager_sync.c",
+    "link_bindings": {
+      "_manager_methods": {
+        "va": 286510384,
+        "basis": "Retail operand for manager methods."
+      },
+      "@initialize_member@12": {
+        "va": 282846576,
+        "basis": "Retail operand for @initialize member@12."
+      },
+      "@create_mutex@4": {
+        "va": 282636880,
+        "basis": "Retail operand for @create mutex@4."
+      }
+    },
+    "identification": "Indexed whole function. Memory manager construct context.",
+    "match": {
+      "bytes_sha256": "5e70a804b1416be99c27e536f83446dd0eb2480ed7d0914a2d3c8c7e7a6200da",
+      "inputs_sha256": "25592c7eb4ca1ad6aea40fad10f2446512c46c9a56ce51c84fcccfdf912497fa"
+    }
+  },
+  {
+    "id": "memory-manager-enter-context",
+    "size": 18,
+    "offset": 4764560,
+    "inputs": [
+      "src/campaign_manager_sync.c"
+    ],
+    "rebuilt_symbol": "@enter_context@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_manager_sync.obj src/campaign_manager_sync.c",
+    "link_bindings": {
+      "_bypass_lock": {
+        "va": 288466556,
+        "basis": "Retail operand for bypass lock."
+      },
+      "@lock_mutex@4": {
+        "va": 282636784,
+        "basis": "Retail operand for @lock mutex@4."
+      }
+    },
+    "identification": "Entry in the read-only default manager method table. Memory manager enter context.",
+    "match": {
+      "bytes_sha256": "eee562696e79f4bdc7a7bff652f185f10ed585f94f8873cdebf58b7aa78e7c77",
+      "inputs_sha256": "fd7f8e22a6f6535a2c8ca034e4bbddde89dc8ac4fdf7bd6ebb58f15ed22308da"
+    }
+  },
+  {
+    "id": "memory-manager-leave-context",
+    "size": 18,
+    "offset": 4764592,
+    "inputs": [
+      "src/campaign_manager_sync.c"
+    ],
+    "rebuilt_symbol": "@leave_context@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_manager_sync.obj src/campaign_manager_sync.c",
+    "link_bindings": {
+      "_bypass_lock": {
+        "va": 288466556,
+        "basis": "Retail operand for bypass lock."
+      },
+      "@unlock_mutex@4": {
+        "va": 282636800,
+        "basis": "Retail operand for @unlock mutex@4."
+      }
+    },
+    "identification": "Entry in the read-only default manager method table. Memory manager leave context.",
+    "match": {
+      "bytes_sha256": "9ef04835cea93b4c41e3eb9eb51ed83dfc0f48bfac69fbe754677da1680deee1",
+      "inputs_sha256": "9476e959c57cbb83e6048ee410a1c44b0726208df736be8f1ad3bdcba497fd17"
+    }
+  },
+  {
+    "id": "memory-manager-destroy-context",
+    "size": 26,
+    "offset": 4764624,
+    "inputs": [
+      "src/campaign_manager_sync.c"
+    ],
+    "rebuilt_symbol": "@destroy_context@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_manager_sync.obj src/campaign_manager_sync.c",
+    "link_bindings": {
+      "_manager_methods": {
+        "va": 286510384,
+        "basis": "Retail operand for manager methods."
+      },
+      "@destroy_mutex@4": {
+        "va": 282636928,
+        "basis": "Retail operand for @destroy mutex@4."
+      },
+      "@destroy_member@4": {
+        "va": 282846320,
+        "basis": "Retail operand for @destroy member@4."
+      }
+    },
+    "identification": "Indexed whole function. Memory manager destroy context.",
+    "match": {
+      "bytes_sha256": "a97cd9aecf893a12ac3e59d54e18656800a5fdd27af723003ddba65bb5eb325d",
+      "inputs_sha256": "a11ad92c6ed04e0eeb7139505a835dc8b4314f8321adf34feb1ddd46f6fecfe1"
     }
   },
   {
