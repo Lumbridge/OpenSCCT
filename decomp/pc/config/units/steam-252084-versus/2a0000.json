@@ -880,6 +880,106 @@
     }
   },
   {
+    "id": "widget-action-2a7e30",
+    "size": 69,
+    "offset": 2784816,
+    "inputs": [
+      "src/versus_widget_actions.c"
+    ],
+    "rebuilt_symbol": "@begin_event@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_widget_actions.obj src/versus_widget_actions.c",
+    "link_bindings": {
+      "_event_service": {
+        "va": 281501336,
+        "basis": "Shared widget event service."
+      },
+      "@visit_2@4": {
+        "va": 280656592,
+        "basis": "Matched reverse-order widget listener dispatch."
+      }
+    },
+    "identification": "Complete indexed Versus widget action at RVA 0x2a7e30. Updates widget or service state before invoking the corresponding listener dispatch.",
+    "match": {
+      "bytes_sha256": "7aa6ce8719981c81c273c073db5ae8de2a7e9099ebf368f8c55381459ff4298e",
+      "inputs_sha256": "778382c5d46ea7df31932cacdae27132d189ab61025c19e17e8c17884e217d6c"
+    }
+  },
+  {
+    "id": "widget-action-2a7e80",
+    "size": 36,
+    "offset": 2784896,
+    "inputs": [
+      "src/versus_widget_actions.c"
+    ],
+    "rebuilt_symbol": "@end_event@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_widget_actions.obj src/versus_widget_actions.c",
+    "link_bindings": {
+      "@visit_3@4": {
+        "va": 280656656,
+        "basis": "Matched reverse-order widget listener dispatch."
+      }
+    },
+    "identification": "Complete indexed Versus widget action at RVA 0x2a7e80. Updates widget or service state before invoking the corresponding listener dispatch.",
+    "match": {
+      "bytes_sha256": "df94ba0576d7a2a86e2acf3f40bfbdaac33fa7bbcfb372c284a5bff6a03185ec",
+      "inputs_sha256": "a3bf0e2559a92709ab168ea9745b44324837c4117446f0b2eccf352b0e5ff009"
+    }
+  },
+  {
+    "id": "widget-action-2a7eb0",
+    "size": 41,
+    "offset": 2784944,
+    "inputs": [
+      "src/versus_widget_actions.c"
+    ],
+    "rebuilt_symbol": "@first_mode_event@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_widget_actions.obj src/versus_widget_actions.c",
+    "link_bindings": {
+      "_event_service": {
+        "va": 281501336,
+        "basis": "Shared widget event service."
+      },
+      "@visit_4@4": {
+        "va": 280656720,
+        "basis": "Matched reverse-order widget listener dispatch."
+      }
+    },
+    "identification": "Complete indexed Versus widget action at RVA 0x2a7eb0. Updates widget or service state before invoking the corresponding listener dispatch.",
+    "match": {
+      "bytes_sha256": "191a232329317fb766d878e87d2e1078b4c70317f86eba370a94d83dec4b0237",
+      "inputs_sha256": "8fbc55dd363dee5de745217a6f064c118b1444aa681d28e90fead5a1ed70e6ad"
+    }
+  },
+  {
+    "id": "widget-action-2a7ee0",
+    "size": 41,
+    "offset": 2784992,
+    "inputs": [
+      "src/versus_widget_actions.c"
+    ],
+    "rebuilt_symbol": "@second_mode_event@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_widget_actions.obj src/versus_widget_actions.c",
+    "link_bindings": {
+      "_event_service": {
+        "va": 281501336,
+        "basis": "Shared widget event service."
+      },
+      "@visit_5@4": {
+        "va": 280656784,
+        "basis": "Matched reverse-order widget listener dispatch."
+      }
+    },
+    "identification": "Complete indexed Versus widget action at RVA 0x2a7ee0. Updates widget or service state before invoking the corresponding listener dispatch.",
+    "match": {
+      "bytes_sha256": "06af59a543803f5f1ab4b9fd58f27081bd1cde2269bf6f4823ae7e812f91b4b8",
+      "inputs_sha256": "a936c5b378494e53343cf8a1d214ee4df760b53214763077478888cdc220b85e"
+    }
+  },
+  {
     "id": "construct-range-2a9140",
     "size": 43,
     "offset": 2789696,
@@ -894,6 +994,36 @@
     "match": {
       "bytes_sha256": "84a2cae803d15cb5aeb9bc50413e86944f8c026781f6e534471bd4cd3336cd06",
       "inputs_sha256": "56a80c70dda32c958e02f65ad5eb3e568644dccd378c2f56b7674fcc74afbd85"
+    }
+  },
+  {
+    "id": "controller-refresh-index",
+    "size": 45,
+    "offset": 2791120,
+    "inputs": [
+      "src/versus_refresh_index.c"
+    ],
+    "rebuilt_symbol": "@refresh_index@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_refresh_index.obj src/versus_refresh_index.c",
+    "link_bindings": {
+      "@refresh_item@12": {
+        "va": 280662528,
+        "basis": "Indexed controller helper selected by the signed index."
+      },
+      "@refresh_minus_two@4": {
+        "va": 280661824,
+        "basis": "Indexed controller helper selected by the signed index."
+      },
+      "@refresh_minus_three@4": {
+        "va": 280661984,
+        "basis": "Indexed controller helper selected by the signed index."
+      }
+    },
+    "identification": "Complete Versus controller index refresh at RVA 0x2a96d0. Routes nonnegative indices and special values -2 and -3 to their corresponding helpers.",
+    "match": {
+      "bytes_sha256": "7b771be9e7d3ac3ff4846b1831530b3191c2b3591b21d7e07e69556736d9c8fd",
+      "inputs_sha256": "b8941ed2a80c80813c6a70b0a66ac811ed6b84d2270293fd14de64335da70ea2"
     }
   },
   {
