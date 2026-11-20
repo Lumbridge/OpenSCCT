@@ -624,6 +624,70 @@
     }
   },
   {
+    "id": "widget-flag-2a7880",
+    "size": 60,
+    "offset": 2783360,
+    "inputs": [
+      "src/versus_widget_flags.c"
+    ],
+    "rebuilt_symbol": "@set_bit2@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_widget_flags.obj src/versus_widget_flags.c",
+    "identification": "Indexed Versus widget flag setter at RVA 0x2a7880. Updates bit 2 on an enabled widget and notifies handler slot 16 after a change.",
+    "match": {
+      "bytes_sha256": "8bc5d811f6c046152375978b0fda5299b0ad377ebef3c75ff71064e2564594ad",
+      "inputs_sha256": "108b23d89e4fc80d0f2835ea9efec10920353357ea5e6619d85efe421c054a95"
+    }
+  },
+  {
+    "id": "widget-flag-2a78c0",
+    "size": 60,
+    "offset": 2783424,
+    "inputs": [
+      "src/versus_widget_flags.c"
+    ],
+    "rebuilt_symbol": "@set_bit4@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_widget_flags.obj src/versus_widget_flags.c",
+    "identification": "Indexed Versus widget flag setter at RVA 0x2a78c0. Updates bit 4 on an enabled widget and notifies handler slot 16 after a change.",
+    "match": {
+      "bytes_sha256": "e912b40ff02f09eece36e3e85f5c0c7ca58617029a16f1416c99843d5dff68b4",
+      "inputs_sha256": "527f2567d8dafbec140f8727bc3ea904857ae82eb0a45f12b6ff70c9279302f3"
+    }
+  },
+  {
+    "id": "reference-assignment-2a7a10",
+    "size": 97,
+    "offset": 2783760,
+    "inputs": [
+      "src/versus_reference_assignment.c"
+    ],
+    "rebuilt_symbol": "_copy_backward",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_reference_assignment.obj src/versus_reference_assignment.c",
+    "identification": "Indexed complete Versus reference assignment loop at RVA 0x2a7a10. Copies shared references backward and returns the beginning of the destination range.",
+    "match": {
+      "bytes_sha256": "bc6f30bb7bd6ba8b3a2fe368ce3213a190266a24e0fe42550ced01ce198fda3f",
+      "inputs_sha256": "32f264edabedc63a86ccea3e2527faead2a1e2fb8e12cec6c602a882417d6c7b"
+    }
+  },
+  {
+    "id": "reference-assignment-2a7a80",
+    "size": 71,
+    "offset": 2783872,
+    "inputs": [
+      "src/versus_reference_assignment.c"
+    ],
+    "rebuilt_symbol": "_assign_range",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_reference_assignment.obj src/versus_reference_assignment.c",
+    "identification": "Indexed complete Versus reference assignment loop at RVA 0x2a7a80. Assigns one shared reference to every slot in the range.",
+    "match": {
+      "bytes_sha256": "2a7c023f45817c8e21d9ecfaa0bbc9bdecd89c159d5b21c797c13113b25f2885",
+      "inputs_sha256": "5a3bac2a920a4b3180e5fb45b4a691ab3537c762301e5af774fa19d1b5058deb"
+    }
+  },
+  {
     "id": "widget-event-2a7ad0",
     "size": 61,
     "offset": 2783952,
@@ -830,6 +894,50 @@
     "match": {
       "bytes_sha256": "84a2cae803d15cb5aeb9bc50413e86944f8c026781f6e534471bd4cd3336cd06",
       "inputs_sha256": "56a80c70dda32c958e02f65ad5eb3e568644dccd378c2f56b7674fcc74afbd85"
+    }
+  },
+  {
+    "id": "controller-index-2a9a80",
+    "size": 40,
+    "offset": 2792064,
+    "inputs": [
+      "src/versus_controller_indices.c"
+    ],
+    "rebuilt_symbol": "@set_second_index@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_controller_indices.obj src/versus_controller_indices.c",
+    "link_bindings": {
+      "@refresh_index@8": {
+        "va": 280663760,
+        "basis": "Shared indexed helper called for both previous and new indices."
+      }
+    },
+    "identification": "Complete controller index update at RVA 0x2a9a80. Refreshes the old and new indices when the second index changes.",
+    "match": {
+      "bytes_sha256": "842b7dc13d720f3e892420e90ba3213248bc34b26105b1b035a97d9224bce11a",
+      "inputs_sha256": "ae8ffa8e3ec4449017d5f3156807adfef84986d4d4040d2612f48ea2d5ad5842"
+    }
+  },
+  {
+    "id": "controller-index-2a9ab0",
+    "size": 40,
+    "offset": 2792112,
+    "inputs": [
+      "src/versus_controller_indices.c"
+    ],
+    "rebuilt_symbol": "@set_first_index@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_controller_indices.obj src/versus_controller_indices.c",
+    "link_bindings": {
+      "@refresh_index@8": {
+        "va": 280663760,
+        "basis": "Shared indexed helper called for both previous and new indices."
+      }
+    },
+    "identification": "Complete controller index update at RVA 0x2a9ab0. Refreshes the old and new indices when the first index changes.",
+    "match": {
+      "bytes_sha256": "356c6a52800833d5d632cbcd80878f8674afe16e85f8f4082e345f1618dfeac5",
+      "inputs_sha256": "a2e86fba4773acc53ae8115403dd53832e2083500d2fb6e2dc29d863941905a8"
     }
   },
   {
