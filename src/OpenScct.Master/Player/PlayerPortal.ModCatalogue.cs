@@ -96,8 +96,6 @@ internal sealed partial class PlayerPortal
                 body.Append("</div></section>");
             }
         }
-        if (edition is "" or "pc")
-            shown += AppendArchiveMaps(body, Matches, query.Length > 0);
         if (shown == 0 && query.Length > 0)
             body.Append("<p class=\"mod-empty\">No mods match your search. Try another name or edition.</p>");
         else if (edition == "ps2")
