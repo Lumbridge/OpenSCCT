@@ -1042,6 +1042,40 @@
     }
   },
   {
+    "id": "physics-reference-release-55c760",
+    "size": 82,
+    "offset": 5621600,
+    "inputs": [
+      "src/campaign_physics_parent_reference_release.c"
+    ],
+    "rebuilt_symbol": "@release_55c760@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_physics_parent_reference_release.obj src/campaign_physics_parent_reference_release.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Shared physics allocation manager."
+      },
+      "_methods_84ce74": {
+        "va": 286576244,
+        "basis": "Receiver method table installed during destruction."
+      },
+      "@parent_56d070@4": {
+        "va": 283562096,
+        "basis": "Parent cleanup following reference release."
+      },
+      "_methods_84ce64": {
+        "va": 286576228,
+        "basis": "Secondary receiver method table."
+      }
+    },
+    "identification": "Read-only method pointer at RVA 0x84ce74. Releases the reference at offset 232, then calls parent cleanup before conditional receiver deletion.",
+    "match": {
+      "bytes_sha256": "b99a2adc2ca2c1e01fbac28a58a9b0ff66768151c022150e64f5aa333d59e43b",
+      "inputs_sha256": "6d09a9e53072d8ea45278ce7d373ed0e31b3fb840b17b53918e2afeae3bfcfb5"
+    }
+  },
+  {
     "id": "delete-pool-55d650",
     "size": 40,
     "offset": 5625424,
