@@ -85,6 +85,28 @@
     }
   },
   {
+    "id": "table-field-init-2b7750",
+    "size": 13,
+    "offset": 2848592,
+    "inputs": [
+      "src/versus_table_field_init.c"
+    ],
+    "rebuilt_symbol": "@init_2b7750@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_table_field_init.obj src/versus_table_field_init.c",
+    "link_bindings": {
+      "_methods_2f1c94": {
+        "va": 280960148,
+        "basis": "Read-only receiver method table with executable first slot."
+      }
+    },
+    "identification": "Indexed whole function. Installs the method table, initializes the receiver fields and returns its address.",
+    "match": {
+      "bytes_sha256": "194739b8e759a384306369cd2da5dfcb5716da1fc29cfd82c13609d546f62cf0",
+      "inputs_sha256": "4c1c13e544a7532c493ce9d248756f081529a1370fbf2d393e9570ff70bcc17e"
+    }
+  },
+  {
     "id": "assign-range-2b7f70",
     "size": 41,
     "offset": 2850672,

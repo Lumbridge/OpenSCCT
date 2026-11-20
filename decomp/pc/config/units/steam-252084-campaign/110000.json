@@ -9540,6 +9540,28 @@
     }
   },
   {
+    "id": "table-field-init-11f790",
+    "size": 23,
+    "offset": 1177488,
+    "inputs": [
+      "src/campaign_table_field_init.c"
+    ],
+    "rebuilt_symbol": "@init_11f790@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_table_field_init.obj src/campaign_table_field_init.c",
+    "link_bindings": {
+      "_methods_7d3240": {
+        "va": 286077504,
+        "basis": "Read-only receiver method table with executable first slot."
+      }
+    },
+    "identification": "Aligned entry bounded by a previous return and compiler padding. Installs the method table, initializes the receiver fields and returns its address.",
+    "match": {
+      "bytes_sha256": "ee13194bdbc6f3c5d5a81fd4823be343f62f500d9d95e9cb160c24c519314fbb",
+      "inputs_sha256": "90c2055b2fa84e7b74e19ae88c43214917dcdbe9886e0c62c2462a90a63969b6"
+    }
+  },
+  {
     "id": "array-release-11f7c0",
     "size": 43,
     "offset": 1177536,

@@ -1,5 +1,27 @@
 [
   {
+    "id": "table-field-init-080000",
+    "size": 23,
+    "offset": 524288,
+    "inputs": [
+      "src/campaign_table_field_init.c"
+    ],
+    "rebuilt_symbol": "@init_080000@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_table_field_init.obj src/campaign_table_field_init.c",
+    "link_bindings": {
+      "_methods_7c1720": {
+        "va": 286005024,
+        "basis": "Read-only receiver method table with executable first slot."
+      }
+    },
+    "identification": "Aligned entry bounded by a previous return and compiler padding. Installs the method table, initializes the receiver fields and returns its address.",
+    "match": {
+      "bytes_sha256": "3040f5b0b5678c7f44d1970b9f006dd3e4df4c8c5acb3a064cdf6dfa5b2f5d20",
+      "inputs_sha256": "be2b107e9c6b706d1a7be56350cd3694b531c37c91b657ab918c526e60ac769a"
+    }
+  },
+  {
     "id": "fsarray-cleanup-080020",
     "size": 49,
     "offset": 524320,
@@ -4373,6 +4395,28 @@
     "match": {
       "bytes_sha256": "8591106efeacd23f84f74842782a9cc18ad322a64c4deb4a43eb04f7d49ec29c",
       "inputs_sha256": "d319c6fdb3475143172a4c3d667d3aa3c9692cc61566b70f855d03d6a682ca71"
+    }
+  },
+  {
+    "id": "table-field-init-08b090",
+    "size": 15,
+    "offset": 569488,
+    "inputs": [
+      "src/campaign_table_field_init.c"
+    ],
+    "rebuilt_symbol": "@init_08b090@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_table_field_init.obj src/campaign_table_field_init.c",
+    "link_bindings": {
+      "_methods_7c1dd4": {
+        "va": 286006740,
+        "basis": "Read-only receiver method table with executable first slot."
+      }
+    },
+    "identification": "Aligned entry bounded by a previous return and compiler padding. Installs the method table, initializes the receiver fields and returns its address.",
+    "match": {
+      "bytes_sha256": "0c5fa128062039143fe496c476af8202d73fca1c2560de65b4133dc2fd1f8633",
+      "inputs_sha256": "85e4fa31d28e1e6f88241fb0ac1920354c0f2cd4a36d0cb056ea5b0a3e6e6138"
     }
   },
   {

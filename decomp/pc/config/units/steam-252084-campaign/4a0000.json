@@ -1194,6 +1194,28 @@
     }
   },
   {
+    "id": "table-field-init-4a4680",
+    "size": 15,
+    "offset": 4867712,
+    "inputs": [
+      "src/campaign_table_field_init.c"
+    ],
+    "rebuilt_symbol": "@init_4a4680@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_table_field_init.obj src/campaign_table_field_init.c",
+    "link_bindings": {
+      "_methods_83e6f0": {
+        "va": 286516976,
+        "basis": "Read-only receiver method table with executable first slot."
+      }
+    },
+    "identification": "Indexed whole function. Installs the method table, initializes the receiver fields and returns its address.",
+    "match": {
+      "bytes_sha256": "13e97f1aa192dbcd8430e4d45624620d99193baa101998affd9feecc9791d610",
+      "inputs_sha256": "1300e232bbf99ffb5fe5a0eda2c90d58db9bead0136432646888e253a2c1f388"
+    }
+  },
+  {
     "id": "write-word-4a4800",
     "offset": 4868096,
     "size": 10,
@@ -2611,6 +2633,28 @@
     "match": {
       "bytes_sha256": "01caaa228fe4f4c7fe4269994a79702b290762107c5e6b67c17e8d8525fc7585",
       "inputs_sha256": "7555e55b778a3a778279afc73cf214c933768de18b189b41901c8c5ebfc48075"
+    }
+  },
+  {
+    "id": "table-field-init-4ad360",
+    "size": 16,
+    "offset": 4903776,
+    "inputs": [
+      "src/campaign_table_field_init.c"
+    ],
+    "rebuilt_symbol": "@init_4ad360@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_table_field_init.obj src/campaign_table_field_init.c",
+    "link_bindings": {
+      "_methods_83f3c0": {
+        "va": 286520256,
+        "basis": "Read-only receiver method table with executable first slot."
+      }
+    },
+    "identification": "Indexed whole function. Installs the method table, initializes the receiver fields and returns its address.",
+    "match": {
+      "bytes_sha256": "1ebb2a0af51d8068679c6bca49602aa32a74c7418200b3700e941b6985b9df68",
+      "inputs_sha256": "c2e6810544e20f77569d0466d7bc300205265e4c75ecf0e088484fc67cb907bd"
     }
   },
   {

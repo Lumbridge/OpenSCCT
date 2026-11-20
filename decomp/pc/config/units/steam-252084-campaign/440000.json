@@ -4875,6 +4875,28 @@
     }
   },
   {
+    "id": "table-field-init-44e400",
+    "size": 13,
+    "offset": 4514816,
+    "inputs": [
+      "src/campaign_table_field_init.c"
+    ],
+    "rebuilt_symbol": "@init_44e400@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_table_field_init.obj src/campaign_table_field_init.c",
+    "link_bindings": {
+      "_methods_83acf4": {
+        "va": 286502132,
+        "basis": "Read-only receiver method table with executable first slot."
+      }
+    },
+    "identification": "Indexed whole function. Installs the method table, initializes the receiver fields and returns its address.",
+    "match": {
+      "bytes_sha256": "f7b5426be6e9f9acd78609d48ef5629244eb25e20021976870fee8587cf7446d",
+      "inputs_sha256": "f274c021b74c5d428c745546073d08323ed367b71b85b95a850523e2871fb5a3"
+    }
+  },
+  {
     "id": "clear-owned-storage-44e720",
     "size": 42,
     "offset": 4515616,
