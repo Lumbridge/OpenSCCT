@@ -108,6 +108,52 @@
     }
   },
   {
+    "id": "online-is-user-passcode-needed",
+    "offset": 1680640,
+    "size": 80,
+    "rebuilt_symbol": "@execIsUserPasscodeNeeded@16",
+    "link_bindings": {
+      "_game_engine": {
+        "va": 281617344,
+        "basis": "The stock handler reads the engine singleton and takes its online interface at offset 0x40."
+      }
+    },
+    "inputs": [
+      "src/versus_online_arguments.c",
+      "src/versus_vm_argument.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_online_arguments.obj src/versus_online_arguments.c",
+    "identification": "SBase.SXBoxLiveRef.IsUserPasscodeNeeded is registered at native slot 1466 by the store at VA 0x10a89e13. The complete handler reads one script argument, advances past the terminator and calls slot 38 of the online interface.",
+    "match": {
+      "bytes_sha256": "fb8473b961de325d2ad258a6a4119b20d56a8a6e9486e19675a6066e64ff760f",
+      "inputs_sha256": "918cc386b91760a3b5d69f029c90012fa18b5c803013f1a49dbf5dcda65c189a"
+    }
+  },
+  {
+    "id": "online-remove-account",
+    "offset": 1681216,
+    "size": 74,
+    "rebuilt_symbol": "@execRemoveAccount@16",
+    "link_bindings": {
+      "_game_engine": {
+        "va": 281617344,
+        "basis": "The stock handler reads the engine singleton and takes its online interface at offset 0x40."
+      }
+    },
+    "inputs": [
+      "src/versus_online_arguments.c",
+      "src/versus_vm_argument.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_online_arguments.obj src/versus_online_arguments.c",
+    "identification": "SBase.SXBoxLiveRef.RemoveAccount is registered at native slot 1486 by the store at VA 0x10a898eb. The complete handler reads one script argument, advances past the terminator and calls slot 44 of the online interface.",
+    "match": {
+      "bytes_sha256": "9436038d93570cc6e8faba5f79f9a2d5738c99bd96e050700b6879d4175d9948",
+      "inputs_sha256": "aee4e7a5ab57aa42ef9881b4f6dae8c52af2f7f12023af2866973cf5d4945c15"
+    }
+  },
+  {
     "id": "lobby-get-lobby-count",
     "offset": 1681408,
     "size": 32,
@@ -128,6 +174,52 @@
     "match": {
       "bytes_sha256": "1478787cf2095cd33820e2f8f198a067ee5d99949ad206ec9c3947a17ff799ed",
       "inputs_sha256": "89ec1e631761c1c822a66959b80cf6fb708cd71e20981eedcc6c261698ab55f2"
+    }
+  },
+  {
+    "id": "online-get-lobby-user-count",
+    "offset": 1681600,
+    "size": 80,
+    "rebuilt_symbol": "@execGetLobbyUserCount@16",
+    "link_bindings": {
+      "_game_engine": {
+        "va": 281617344,
+        "basis": "The stock handler reads the engine singleton and takes its online interface at offset 0x40."
+      }
+    },
+    "inputs": [
+      "src/versus_online_arguments.c",
+      "src/versus_vm_argument.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_online_arguments.obj src/versus_online_arguments.c",
+    "identification": "SBase.SXBoxLiveRef.GetLobbyUserCount is registered at native slot 1491 by the store at VA 0x10a8976a. The complete handler reads one script argument, advances past the terminator and calls slot 48 of the online interface.",
+    "match": {
+      "bytes_sha256": "9ce673ae175da3fe8fe1cc428173d2dcb71d887da91f000860ba415cc10993c8",
+      "inputs_sha256": "2b1618b67b5c9338c6346890a87d7f7b10a45f339039c72d437b246e70b3f875"
+    }
+  },
+  {
+    "id": "online-join-lobby",
+    "offset": 1681680,
+    "size": 74,
+    "rebuilt_symbol": "@execJoinLobby@16",
+    "link_bindings": {
+      "_game_engine": {
+        "va": 281617344,
+        "basis": "The stock handler reads the engine singleton and takes its online interface at offset 0x40."
+      }
+    },
+    "inputs": [
+      "src/versus_online_arguments.c",
+      "src/versus_vm_argument.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_online_arguments.obj src/versus_online_arguments.c",
+    "identification": "SBase.SXBoxLiveRef.JoinLobby is registered at native slot 1492 by the store at VA 0x10a89733. The complete handler reads one script argument, advances past the terminator and calls slot 49 of the online interface.",
+    "match": {
+      "bytes_sha256": "44705547e43662abf38e4f3d3146f7c1e8c09a298fe4a933143e87a4223b4d8d",
+      "inputs_sha256": "4cdea46412913e9f6942bd774e772384af00259132f7b06da5264b41f7548dc2"
     }
   },
   {
@@ -154,6 +246,98 @@
     }
   },
   {
+    "id": "online-refresh-server-list-on-lobby",
+    "offset": 1681792,
+    "size": 74,
+    "rebuilt_symbol": "@execRefreshServerListOnLobby@16",
+    "link_bindings": {
+      "_game_engine": {
+        "va": 281617344,
+        "basis": "The stock handler reads the engine singleton and takes its online interface at offset 0x40."
+      }
+    },
+    "inputs": [
+      "src/versus_online_arguments.c",
+      "src/versus_vm_argument.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_online_arguments.obj src/versus_online_arguments.c",
+    "identification": "SBase.SXBoxLiveRef.RefreshServerListOnLobby is registered at native slot 1682 by the store at VA 0x10a896c5. The complete handler reads one script argument, advances past the terminator and calls slot 51 of the online interface.",
+    "match": {
+      "bytes_sha256": "43f40fbdb510457b061a107485413c78f38e84cd9a2fed4516cc8463c6b50383",
+      "inputs_sha256": "757ee4451cea4a2a76ca68c6a3e32f6fa2bd69dcc8cdd0a9a08598dbc1edbe47"
+    }
+  },
+  {
+    "id": "online-match-query-get-num-match",
+    "offset": 1682736,
+    "size": 80,
+    "rebuilt_symbol": "@execMatchQueryGetNumMatch@16",
+    "link_bindings": {
+      "_game_engine": {
+        "va": 281617344,
+        "basis": "The stock handler reads the engine singleton and takes its online interface at offset 0x40."
+      }
+    },
+    "inputs": [
+      "src/versus_online_arguments.c",
+      "src/versus_vm_argument.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_online_arguments.obj src/versus_online_arguments.c",
+    "identification": "SBase.SXBoxLiveRef.MatchQueryGetNumMatch is registered at native slot 1495 by the store at VA 0x10a89657. The complete handler reads one script argument, advances past the terminator and calls slot 53 of the online interface.",
+    "match": {
+      "bytes_sha256": "3e0bc4e9e1058c51d6a832a2144f21dd5b6e2fb6333ce52c3f0f2badb66a4a46",
+      "inputs_sha256": "313583ed0fa0651fc793a110e02d1fef6007c7473b4cca72cf87bb6f65bd843f"
+    }
+  },
+  {
+    "id": "online-match-query-get-finished-games-ratio",
+    "offset": 1683904,
+    "size": 80,
+    "rebuilt_symbol": "@execMatchQueryGetFinishedGamesRatio@16",
+    "link_bindings": {
+      "_game_engine": {
+        "va": 281617344,
+        "basis": "The stock handler reads the engine singleton and takes its online interface at offset 0x40."
+      }
+    },
+    "inputs": [
+      "src/versus_online_arguments.c",
+      "src/versus_vm_argument.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_online_arguments.obj src/versus_online_arguments.c",
+    "identification": "SBase.SXBoxLiveRef.MatchQueryGetFinishedGamesRatio is registered at native slot 1763 by the store at VA 0x10a8949f. The complete handler reads one script argument, advances past the terminator and calls slot 61 of the online interface.",
+    "match": {
+      "bytes_sha256": "c7624c70ee9689028ac44502115a446d094de814bf32bf1cd0313720811f0308",
+      "inputs_sha256": "66df1c77df0dc83ed584575f48b0c1b1ee630805cd85902242ea3e739eac3c74"
+    }
+  },
+  {
+    "id": "online-match-query-get-ping",
+    "offset": 1685904,
+    "size": 80,
+    "rebuilt_symbol": "@execMatchQueryGetPing@16",
+    "link_bindings": {
+      "_game_engine": {
+        "va": 281617344,
+        "basis": "The stock handler reads the engine singleton and takes its online interface at offset 0x40."
+      }
+    },
+    "inputs": [
+      "src/versus_online_arguments.c",
+      "src/versus_vm_argument.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_online_arguments.obj src/versus_online_arguments.c",
+    "identification": "SBase.SXBoxLiveRef.MatchQueryGetPing is registered at native slot 1507 by the store at VA 0x10a88f77. The complete handler reads one script argument, advances past the terminator and calls slot 82 of the online interface.",
+    "match": {
+      "bytes_sha256": "110de048932aa71c39ca0861d3a1650d813efaa1acf1bc4e6465fd16d72a96db",
+      "inputs_sha256": "1e715fd331b325fb3a3a1d5317854beaa0dbb03cb1084d5fe1cfa872c03c7877"
+    }
+  },
+  {
     "id": "lobby-match-query-leave-match",
     "offset": 1687088,
     "size": 26,
@@ -177,6 +361,29 @@
     }
   },
   {
+    "id": "online-match-query-is-reachable",
+    "offset": 1687824,
+    "size": 80,
+    "rebuilt_symbol": "@execMatchQueryIsReachable@16",
+    "link_bindings": {
+      "_game_engine": {
+        "va": 281617344,
+        "basis": "The stock handler reads the engine singleton and takes its online interface at offset 0x40."
+      }
+    },
+    "inputs": [
+      "src/versus_online_arguments.c",
+      "src/versus_vm_argument.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_online_arguments.obj src/versus_online_arguments.c",
+    "identification": "SBase.SXBoxLiveRef.MatchQueryIsReachable is registered at native slot 1725 by the store at VA 0x10a89053. The complete handler reads one script argument, advances past the terminator and calls slot 83 of the online interface.",
+    "match": {
+      "bytes_sha256": "f3dc17ae1dd4b5da4103e5d54b4691a0178b1c1f1bc38f70532198398521b5c5",
+      "inputs_sha256": "15fb9802537644d14d67bbfd301deb6209726cb0f53bec094245d442f84124e4"
+    }
+  },
+  {
     "id": "lobby-match-connected",
     "offset": 1688224,
     "size": 26,
@@ -197,6 +404,75 @@
     "match": {
       "bytes_sha256": "acddaa07bb9a63d36f53ff18dbee633fc79890a0eb5208207bb571a653734fb3",
       "inputs_sha256": "084d315f39ad1ed266e0440b86c8924dca4f5b70853bdbdbdab61ec58b52e7eb"
+    }
+  },
+  {
+    "id": "online-start-match",
+    "offset": 1688256,
+    "size": 74,
+    "rebuilt_symbol": "@execStartMatch@16",
+    "link_bindings": {
+      "_game_engine": {
+        "va": 281617344,
+        "basis": "The stock handler reads the engine singleton and takes its online interface at offset 0x40."
+      }
+    },
+    "inputs": [
+      "src/versus_online_arguments.c",
+      "src/versus_vm_argument.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_online_arguments.obj src/versus_online_arguments.c",
+    "identification": "SBase.SXBoxLiveRef.StartMatch is registered at native slot 1527 by the store at VA 0x10a884f0. The complete handler reads one script argument, advances past the terminator and calls slot 87 of the online interface.",
+    "match": {
+      "bytes_sha256": "f4f713881492b0a6212e9a5dddebffd674038d386c630e8cc0812f2d0aeec831",
+      "inputs_sha256": "7fd4127a9286b7806125b428f5f878d64dc741c007a602409f59de03cc91f1e9"
+    }
+  },
+  {
+    "id": "online-match-finished",
+    "offset": 1688336,
+    "size": 74,
+    "rebuilt_symbol": "@execMatchFinished@16",
+    "link_bindings": {
+      "_game_engine": {
+        "va": 281617344,
+        "basis": "The stock handler reads the engine singleton and takes its online interface at offset 0x40."
+      }
+    },
+    "inputs": [
+      "src/versus_online_arguments.c",
+      "src/versus_vm_argument.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_online_arguments.obj src/versus_online_arguments.c",
+    "identification": "SBase.SXBoxLiveRef.MatchFinished is registered at native slot 1764 by the store at VA 0x10a884b9. The complete handler reads one script argument, advances past the terminator and calls slot 88 of the online interface.",
+    "match": {
+      "bytes_sha256": "3841f2ed2c2d35c4c9d96e64c4fc6d6406f8ded2dd679ce16ba2e84212e74b1d",
+      "inputs_sha256": "6518c95c08968bd6615eb9e04e8fcd8b81840a471c8f6c635ea9982568ccba07"
+    }
+  },
+  {
+    "id": "online-notify-player-disconnection",
+    "offset": 1688416,
+    "size": 74,
+    "rebuilt_symbol": "@execNotifyPlayerDisconnection@16",
+    "link_bindings": {
+      "_game_engine": {
+        "va": 281617344,
+        "basis": "The stock handler reads the engine singleton and takes its online interface at offset 0x40."
+      }
+    },
+    "inputs": [
+      "src/versus_online_arguments.c",
+      "src/versus_vm_argument.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_online_arguments.obj src/versus_online_arguments.c",
+    "identification": "SBase.SXBoxLiveRef.NotifyPlayerDisconnection is registered at native slot 1765 by the store at VA 0x10a88482. The complete handler reads one script argument, advances past the terminator and calls slot 89 of the online interface.",
+    "match": {
+      "bytes_sha256": "3fae5e89b8bd362ebf8b2fe53ed453bb811d66fc3bcf41958481c73b2173a215",
+      "inputs_sha256": "1dd99496bb6add354ae57bea4c7d1c1b2f71e41db3c61ca5674897a04063a69f"
     }
   },
   {
@@ -266,6 +542,259 @@
     "match": {
       "bytes_sha256": "ea790e63b36ae2c8218533c86dd954de82b1503072c42e7e3b69cd487bf29754",
       "inputs_sha256": "b32d49a30c0a3f8b48ae26c6e6a729272e0586a656b37ebd08a1e2fa38251284"
+    }
+  },
+  {
+    "id": "online-match-set-server-max-players",
+    "offset": 1689472,
+    "size": 74,
+    "rebuilt_symbol": "@execMatchSetServerMaxPlayers@16",
+    "link_bindings": {
+      "_game_engine": {
+        "va": 281617344,
+        "basis": "The stock handler reads the engine singleton and takes its online interface at offset 0x40."
+      }
+    },
+    "inputs": [
+      "src/versus_online_arguments.c",
+      "src/versus_vm_argument.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_online_arguments.obj src/versus_online_arguments.c",
+    "identification": "SBase.SXBoxLiveRef.MatchSetServerMaxPlayers is registered at native slot 1688 by the store at VA 0x10a88a86. The complete handler reads one script argument, advances past the terminator and calls slot 97 of the online interface.",
+    "match": {
+      "bytes_sha256": "578b5f1cbf67891564e3b57ac14af4c735d31fbdad2e169c27d760f1715a0cf3",
+      "inputs_sha256": "a635ab199f35021a114bf9849179e0fff8adcaa24b0e1e854370c75927b9635e"
+    }
+  },
+  {
+    "id": "online-match-set-map-amateur",
+    "offset": 1689872,
+    "size": 74,
+    "rebuilt_symbol": "@execMatchSetMapAmateur@16",
+    "link_bindings": {
+      "_game_engine": {
+        "va": 281617344,
+        "basis": "The stock handler reads the engine singleton and takes its online interface at offset 0x40."
+      }
+    },
+    "inputs": [
+      "src/versus_online_arguments.c",
+      "src/versus_vm_argument.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_online_arguments.obj src/versus_online_arguments.c",
+    "identification": "SBase.SXBoxLiveRef.MatchSetMapAmateur is registered at native slot 1863 by the store at VA 0x10a889e1. The complete handler reads one script argument, advances past the terminator and calls slot 100 of the online interface.",
+    "match": {
+      "bytes_sha256": "5af9a14d375a4e0d868553640fa11eaf7f0bc15c4e60e64d1a9d1243a2bf472d",
+      "inputs_sha256": "b44822ba27ee8c8b462788f30e1f0e6340afbe12d5e71edb5b11c371bab9fdb2"
+    }
+  },
+  {
+    "id": "online-match-set-game-mode",
+    "offset": 1689952,
+    "size": 74,
+    "rebuilt_symbol": "@execMatchSetGameMode@16",
+    "link_bindings": {
+      "_game_engine": {
+        "va": 281617344,
+        "basis": "The stock handler reads the engine singleton and takes its online interface at offset 0x40."
+      }
+    },
+    "inputs": [
+      "src/versus_online_arguments.c",
+      "src/versus_vm_argument.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_online_arguments.obj src/versus_online_arguments.c",
+    "identification": "SBase.SXBoxLiveRef.MatchSetGameMode is registered at native slot 1515 by the store at VA 0x10a889aa. The complete handler reads one script argument, advances past the terminator and calls slot 101 of the online interface.",
+    "match": {
+      "bytes_sha256": "97a7a064d8ef74244474e4dc5eff5612036e30c4eb2a457e2283eeecc0265179",
+      "inputs_sha256": "0c702d15433c745ea98cc56c98de20d19a7035339b80eeff1ed38afdeae08d6e"
+    }
+  },
+  {
+    "id": "online-match-setb-games-in-arow-playing",
+    "offset": 1690128,
+    "size": 74,
+    "rebuilt_symbol": "@execMatchSetbGamesInARowPlaying@16",
+    "link_bindings": {
+      "_game_engine": {
+        "va": 281617344,
+        "basis": "The stock handler reads the engine singleton and takes its online interface at offset 0x40."
+      }
+    },
+    "inputs": [
+      "src/versus_online_arguments.c",
+      "src/versus_vm_argument.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_online_arguments.obj src/versus_online_arguments.c",
+    "identification": "SBase.SXBoxLiveRef.MatchSetbGamesInARowPlaying is registered at native slot 1871 by the store at VA 0x10a8893c. The complete handler reads one script argument, advances past the terminator and calls slot 103 of the online interface.",
+    "match": {
+      "bytes_sha256": "44fbc0931312ce11dfe60ae96c2c26902bdd3ecd3d28e6dd87383f55d7d82c07",
+      "inputs_sha256": "e41ec49eb7f7f0797220b262a117db8dc1f1e576ed3dc44ec954bb0c7542baff"
+    }
+  },
+  {
+    "id": "online-match-set-game-level",
+    "offset": 1690208,
+    "size": 74,
+    "rebuilt_symbol": "@execMatchSetGameLevel@16",
+    "link_bindings": {
+      "_game_engine": {
+        "va": 281617344,
+        "basis": "The stock handler reads the engine singleton and takes its online interface at offset 0x40."
+      }
+    },
+    "inputs": [
+      "src/versus_online_arguments.c",
+      "src/versus_vm_argument.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_online_arguments.obj src/versus_online_arguments.c",
+    "identification": "SBase.SXBoxLiveRef.MatchSetGameLevel is registered at native slot 1517 by the store at VA 0x10a88905. The complete handler reads one script argument, advances past the terminator and calls slot 104 of the online interface.",
+    "match": {
+      "bytes_sha256": "29ff0ee8d5d533b727f47bbe38ad028d394de25b16322736c5552bb9e4615914",
+      "inputs_sha256": "f737763bde05623fb1685e8db35c6ae9c66baac697f65b306049d930a862ff0e"
+    }
+  },
+  {
+    "id": "online-match-set-game-level-gap",
+    "offset": 1690288,
+    "size": 74,
+    "rebuilt_symbol": "@execMatchSetGameLevelGap@16",
+    "link_bindings": {
+      "_game_engine": {
+        "va": 281617344,
+        "basis": "The stock handler reads the engine singleton and takes its online interface at offset 0x40."
+      }
+    },
+    "inputs": [
+      "src/versus_online_arguments.c",
+      "src/versus_vm_argument.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_online_arguments.obj src/versus_online_arguments.c",
+    "identification": "SBase.SXBoxLiveRef.MatchSetGameLevelGap is registered at native slot 1518 by the store at VA 0x10a888ce. The complete handler reads one script argument, advances past the terminator and calls slot 105 of the online interface.",
+    "match": {
+      "bytes_sha256": "186b8f09da1f8464618da99066ff1d6c74eeecc771965963f7b866c50685d645",
+      "inputs_sha256": "d4c7c9a600b00dd4117bab573b34b59545c800dc1c18d2b3593ffb60f5618ad9"
+    }
+  },
+  {
+    "id": "online-match-set-game-state",
+    "offset": 1690368,
+    "size": 74,
+    "rebuilt_symbol": "@execMatchSetGameState@16",
+    "link_bindings": {
+      "_game_engine": {
+        "va": 281617344,
+        "basis": "The stock handler reads the engine singleton and takes its online interface at offset 0x40."
+      }
+    },
+    "inputs": [
+      "src/versus_online_arguments.c",
+      "src/versus_vm_argument.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_online_arguments.obj src/versus_online_arguments.c",
+    "identification": "SBase.SXBoxLiveRef.MatchSetGameState is registered at native slot 1519 by the store at VA 0x10a88897. The complete handler reads one script argument, advances past the terminator and calls slot 106 of the online interface.",
+    "match": {
+      "bytes_sha256": "05e956eb84e6d74fbb4ffbf03785d147c5ce654d18c96f80fa3bf622ec8e2003",
+      "inputs_sha256": "ef9ed3542f54cdc9d79f092ce8f2922e6a196adff8ee72689f94314a2626653c"
+    }
+  },
+  {
+    "id": "online-match-set-nb-public-slots",
+    "offset": 1690448,
+    "size": 74,
+    "rebuilt_symbol": "@execMatchSetNbPublicSlots@16",
+    "link_bindings": {
+      "_game_engine": {
+        "va": 281617344,
+        "basis": "The stock handler reads the engine singleton and takes its online interface at offset 0x40."
+      }
+    },
+    "inputs": [
+      "src/versus_online_arguments.c",
+      "src/versus_vm_argument.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_online_arguments.obj src/versus_online_arguments.c",
+    "identification": "SBase.SXBoxLiveRef.MatchSetNbPublicSlots is registered at native slot 1520 by the store at VA 0x10a88860. The complete handler reads one script argument, advances past the terminator and calls slot 111 of the online interface.",
+    "match": {
+      "bytes_sha256": "845a78503daf0e06f0421cf7f620f23c2d9f634a44883109611e06e78d98bbfa",
+      "inputs_sha256": "6f83f87f93009ca83d7a4f6f6b3aa2ef15f5b7a0e583a9ef69ba89ff4f891a8d"
+    }
+  },
+  {
+    "id": "online-match-set-nb-private-slots",
+    "offset": 1690528,
+    "size": 74,
+    "rebuilt_symbol": "@execMatchSetNbPrivateSlots@16",
+    "link_bindings": {
+      "_game_engine": {
+        "va": 281617344,
+        "basis": "The stock handler reads the engine singleton and takes its online interface at offset 0x40."
+      }
+    },
+    "inputs": [
+      "src/versus_online_arguments.c",
+      "src/versus_vm_argument.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_online_arguments.obj src/versus_online_arguments.c",
+    "identification": "SBase.SXBoxLiveRef.MatchSetNbPrivateSlots is registered at native slot 1521 by the store at VA 0x10a88829. The complete handler reads one script argument, advances past the terminator and calls slot 112 of the online interface.",
+    "match": {
+      "bytes_sha256": "abc2ba0880c9d4276dc6d61ba9effdda62d48a6c6b109445e72cdaaad14a2be9",
+      "inputs_sha256": "dd44eac0f357468f07355aaa8d609795246464dfbb495a40ae3e5a7fd015997f"
+    }
+  },
+  {
+    "id": "online-match-fill-public-slots",
+    "offset": 1690608,
+    "size": 74,
+    "rebuilt_symbol": "@execMatchFillPublicSlots@16",
+    "link_bindings": {
+      "_game_engine": {
+        "va": 281617344,
+        "basis": "The stock handler reads the engine singleton and takes its online interface at offset 0x40."
+      }
+    },
+    "inputs": [
+      "src/versus_online_arguments.c",
+      "src/versus_vm_argument.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_online_arguments.obj src/versus_online_arguments.c",
+    "identification": "SBase.SXBoxLiveRef.MatchFillPublicSlots is registered at native slot 1522 by the store at VA 0x10a887f2. The complete handler reads one script argument, advances past the terminator and calls slot 113 of the online interface.",
+    "match": {
+      "bytes_sha256": "6b08055301d7a1d4d241a199e0c0e1ebe32146bae5bfc9567aa37a9ae658ec63",
+      "inputs_sha256": "b16bad6d61a06a2e317f26b4433fe1875a7b2e6dc3a1996e33d55ea316c4ff6a"
+    }
+  },
+  {
+    "id": "online-match-fill-private-slots",
+    "offset": 1690688,
+    "size": 74,
+    "rebuilt_symbol": "@execMatchFillPrivateSlots@16",
+    "link_bindings": {
+      "_game_engine": {
+        "va": 281617344,
+        "basis": "The stock handler reads the engine singleton and takes its online interface at offset 0x40."
+      }
+    },
+    "inputs": [
+      "src/versus_online_arguments.c",
+      "src/versus_vm_argument.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_online_arguments.obj src/versus_online_arguments.c",
+    "identification": "SBase.SXBoxLiveRef.MatchFillPrivateSlots is registered at native slot 1523 by the store at VA 0x10a887bb. The complete handler reads one script argument, advances past the terminator and calls slot 114 of the online interface.",
+    "match": {
+      "bytes_sha256": "6e36d0abcf719eb7248afcaf947b3b7ddb481a90254a4bc2061d94d02d959a65",
+      "inputs_sha256": "08437ed64c92dc5cb84b477e0127a6f7d95273847f05837f7c800ab56846f83e"
     }
   },
   {
@@ -361,6 +890,121 @@
     }
   },
   {
+    "id": "online-get-friend-status",
+    "offset": 1691376,
+    "size": 80,
+    "rebuilt_symbol": "@execGetFriendStatus@16",
+    "link_bindings": {
+      "_game_engine": {
+        "va": 281617344,
+        "basis": "The stock handler reads the engine singleton and takes its online interface at offset 0x40."
+      }
+    },
+    "inputs": [
+      "src/versus_online_arguments.c",
+      "src/versus_vm_argument.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_online_arguments.obj src/versus_online_arguments.c",
+    "identification": "SBase.SXBoxLiveRef.GetFriendStatus is registered at native slot 1731 by the store at VA 0x10a880a4. The complete handler reads one script argument, advances past the terminator and calls slot 130 of the online interface.",
+    "match": {
+      "bytes_sha256": "68d0d6669ae2c9ad53807ffab42edf13bc8fd6eab4549f0a154edf144004679f",
+      "inputs_sha256": "2cdaf79e5a3f6d505aa48317f297326fe588549a50b307a2f6d4937c0e3f547d"
+    }
+  },
+  {
+    "id": "online-get-player-status",
+    "offset": 1691456,
+    "size": 80,
+    "rebuilt_symbol": "@execGetPlayerStatus@16",
+    "link_bindings": {
+      "_game_engine": {
+        "va": 281617344,
+        "basis": "The stock handler reads the engine singleton and takes its online interface at offset 0x40."
+      }
+    },
+    "inputs": [
+      "src/versus_online_arguments.c",
+      "src/versus_vm_argument.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_online_arguments.obj src/versus_online_arguments.c",
+    "identification": "SBase.SXBoxLiveRef.GetPlayerStatus is registered at native slot 1737 by the store at VA 0x10a8806d. The complete handler reads one script argument, advances past the terminator and calls slot 139 of the online interface.",
+    "match": {
+      "bytes_sha256": "9f2571db4e0b28902b1fd9bdd2aa004ea85a232ecd59ba0e1a9e661b45eb1c52",
+      "inputs_sha256": "bbcaa170f0315362b0c008c6281214d2894cbdf631c8846abe36526c2e291392"
+    }
+  },
+  {
+    "id": "online-get-friend-idroom",
+    "offset": 1691536,
+    "size": 80,
+    "rebuilt_symbol": "@execGetFriendIDRoom@16",
+    "link_bindings": {
+      "_game_engine": {
+        "va": 281617344,
+        "basis": "The stock handler reads the engine singleton and takes its online interface at offset 0x40."
+      }
+    },
+    "inputs": [
+      "src/versus_online_arguments.c",
+      "src/versus_vm_argument.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_online_arguments.obj src/versus_online_arguments.c",
+    "identification": "SBase.SXBoxLiveRef.GetFriendIDRoom is registered at native slot 1732 by the store at VA 0x10a88036. The complete handler reads one script argument, advances past the terminator and calls slot 131 of the online interface.",
+    "match": {
+      "bytes_sha256": "13ed0a4462ff143c60a74a2fcbb7ff04a041978e99ca87c1523ae0f608fc5655",
+      "inputs_sha256": "d5bb77600ac25402360d01ad45590dc494a5c938d53e627cb37a3b5a9dfea3c0"
+    }
+  },
+  {
+    "id": "online-get-friend-idlobby",
+    "offset": 1691616,
+    "size": 80,
+    "rebuilt_symbol": "@execGetFriendIDLobby@16",
+    "link_bindings": {
+      "_game_engine": {
+        "va": 281617344,
+        "basis": "The stock handler reads the engine singleton and takes its online interface at offset 0x40."
+      }
+    },
+    "inputs": [
+      "src/versus_online_arguments.c",
+      "src/versus_vm_argument.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_online_arguments.obj src/versus_online_arguments.c",
+    "identification": "SBase.SXBoxLiveRef.GetFriendIDLobby is registered at native slot 1733 by the store at VA 0x10a87fff. The complete handler reads one script argument, advances past the terminator and calls slot 132 of the online interface.",
+    "match": {
+      "bytes_sha256": "f4905dce74167625239692777f36051abf217527f9c7de362b2069eb5d87235c",
+      "inputs_sha256": "15e69038dd27aa901849a6f163e8fca61db610f73909962c34e69663964ea2a6"
+    }
+  },
+  {
+    "id": "online-get-group-info",
+    "offset": 1691984,
+    "size": 74,
+    "rebuilt_symbol": "@execGetGroupInfo@16",
+    "link_bindings": {
+      "_game_engine": {
+        "va": 281617344,
+        "basis": "The stock handler reads the engine singleton and takes its online interface at offset 0x40."
+      }
+    },
+    "inputs": [
+      "src/versus_online_arguments.c",
+      "src/versus_vm_argument.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_online_arguments.obj src/versus_online_arguments.c",
+    "identification": "SBase.SXBoxLiveRef.GetGroupInfo is registered at native slot 1735 by the store at VA 0x10a88225. The complete handler reads one script argument, advances past the terminator and calls slot 135 of the online interface.",
+    "match": {
+      "bytes_sha256": "9c29ff5a62aacd7b86995a966868e134bcf9eec14c07078073302c06b30bdf61",
+      "inputs_sha256": "8872004b7c40ee4c03c198011ddfcc4bbc7380361825d9e601cb88e8d8ff2684"
+    }
+  },
+  {
     "id": "lobby-game-is-finished",
     "offset": 1692064,
     "size": 26,
@@ -430,6 +1074,52 @@
     }
   },
   {
+    "id": "online-get-invitation-lobby-index",
+    "offset": 1692160,
+    "size": 80,
+    "rebuilt_symbol": "@execGetInvitationLobbyIndex@16",
+    "link_bindings": {
+      "_game_engine": {
+        "va": 281617344,
+        "basis": "The stock handler reads the engine singleton and takes its online interface at offset 0x40."
+      }
+    },
+    "inputs": [
+      "src/versus_online_arguments.c",
+      "src/versus_vm_argument.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_online_arguments.obj src/versus_online_arguments.c",
+    "identification": "SBase.SXBoxLiveRef.GetInvitationLobbyIndex is registered at native slot 1736 by the store at VA 0x10a88112. The complete handler reads one script argument, advances past the terminator and calls slot 142 of the online interface.",
+    "match": {
+      "bytes_sha256": "19f5aab9ceb51154e4da275e8fa3d703370c25a506c0c769745ffa448f31a77d",
+      "inputs_sha256": "c56f2842aacc1c4665363a3ad8d1501d8b2282c3b80937b631a0d433c720f0e2"
+    }
+  },
+  {
+    "id": "online-set-join-from-friend",
+    "offset": 1692240,
+    "size": 74,
+    "rebuilt_symbol": "@execSetJoinFromFriend@16",
+    "link_bindings": {
+      "_game_engine": {
+        "va": 281617344,
+        "basis": "The stock handler reads the engine singleton and takes its online interface at offset 0x40."
+      }
+    },
+    "inputs": [
+      "src/versus_online_arguments.c",
+      "src/versus_vm_argument.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_online_arguments.obj src/versus_online_arguments.c",
+    "identification": "SBase.SXBoxLiveRef.SetJoinFromFriend is registered at native slot 1729 by the store at VA 0x10a88180. The complete handler reads one script argument, advances past the terminator and calls slot 137 of the online interface.",
+    "match": {
+      "bytes_sha256": "624a3ab4498356209f48de15c71a8163b613d2b8cb417b6e8c07f3c3a05ecde6",
+      "inputs_sha256": "6e47c326b6e2ff2de111fa651bd978cceb7278be82ee4dbe61809dd5c26753db"
+    }
+  },
+  {
     "id": "lobby-get-last-index-friend-updated",
     "offset": 1692320,
     "size": 32,
@@ -476,6 +1166,29 @@
     }
   },
   {
+    "id": "online-is-friend-already-in-room",
+    "offset": 1692384,
+    "size": 80,
+    "rebuilt_symbol": "@execIsFriendAlreadyInRoom@16",
+    "link_bindings": {
+      "_game_engine": {
+        "va": 281617344,
+        "basis": "The stock handler reads the engine singleton and takes its online interface at offset 0x40."
+      }
+    },
+    "inputs": [
+      "src/versus_online_arguments.c",
+      "src/versus_vm_argument.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_online_arguments.obj src/versus_online_arguments.c",
+    "identification": "SBase.SXBoxLiveRef.IsFriendAlreadyInRoom is registered at native slot 1738 by the store at VA 0x10a87fc8. The complete handler reads one script argument, advances past the terminator and calls slot 140 of the online interface.",
+    "match": {
+      "bytes_sha256": "55deafc30830fcae4b5c1d4bdf1d1388ad48c8d7a74d535406f629fd5faecfd8",
+      "inputs_sha256": "d9836304014bd7fc0db90c69dd585d499cc0f6fc31b49eb635954c95f9988d2a"
+    }
+  },
+  {
     "id": "lobby-get-invitation-searched-index",
     "offset": 1692576,
     "size": 32,
@@ -496,6 +1209,29 @@
     "match": {
       "bytes_sha256": "781759ef97097dc628daf7aaf0b28d0f406a40e796713c451a5202bb7971e4b5",
       "inputs_sha256": "0faee4cf1e0dc2c0e376002c003990f793aacdf7c2129c903b30211f7d14f1df"
+    }
+  },
+  {
+    "id": "online-send-invitation-to-afriend",
+    "offset": 1692608,
+    "size": 74,
+    "rebuilt_symbol": "@execSendInvitationToAFriend@16",
+    "link_bindings": {
+      "_game_engine": {
+        "va": 281617344,
+        "basis": "The stock handler reads the engine singleton and takes its online interface at offset 0x40."
+      }
+    },
+    "inputs": [
+      "src/versus_online_arguments.c",
+      "src/versus_vm_argument.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_online_arguments.obj src/versus_online_arguments.c",
+    "identification": "SBase.SXBoxLiveRef.SendInvitationToAFriend is registered at native slot 1739 by the store at VA 0x10a87f23. The complete handler reads one script argument, advances past the terminator and calls slot 141 of the online interface.",
+    "match": {
+      "bytes_sha256": "17dc15e9de987f507646fd51f97acf74f28ca8feb04840fcb476c0822b37f286",
+      "inputs_sha256": "9b6bc33927a27f4f1c5b5c290cb303dc13ff8a79581ac0c63ecc5d1d00038227"
     }
   },
   {
@@ -545,6 +1281,52 @@
     }
   },
   {
+    "id": "online-open-game-invite-list",
+    "offset": 1692752,
+    "size": 74,
+    "rebuilt_symbol": "@execOpenGameInviteList@16",
+    "link_bindings": {
+      "_game_engine": {
+        "va": 281617344,
+        "basis": "The stock handler reads the engine singleton and takes its online interface at offset 0x40."
+      }
+    },
+    "inputs": [
+      "src/versus_online_arguments.c",
+      "src/versus_vm_argument.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_online_arguments.obj src/versus_online_arguments.c",
+    "identification": "SBase.SXBoxLiveRef.OpenGameInviteList is registered at native slot 1535 by the store at VA 0x10a87e47. The complete handler reads one script argument, advances past the terminator and calls slot 149 of the online interface.",
+    "match": {
+      "bytes_sha256": "44a473cd2e787313379143834a9b23a4c3fe1860ce6a4365db94a8308477c777",
+      "inputs_sha256": "ce9dca5e9a6b4292832b5fc85976fb2e709437ae687cd45e225472be43e3ce98"
+    }
+  },
+  {
+    "id": "online-add-to-game-invite-list",
+    "offset": 1692832,
+    "size": 74,
+    "rebuilt_symbol": "@execAddToGameInviteList@16",
+    "link_bindings": {
+      "_game_engine": {
+        "va": 281617344,
+        "basis": "The stock handler reads the engine singleton and takes its online interface at offset 0x40."
+      }
+    },
+    "inputs": [
+      "src/versus_online_arguments.c",
+      "src/versus_vm_argument.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_online_arguments.obj src/versus_online_arguments.c",
+    "identification": "SBase.SXBoxLiveRef.AddToGameInviteList is registered at native slot 1536 by the store at VA 0x10a87e10. The complete handler reads one script argument, advances past the terminator and calls slot 150 of the online interface.",
+    "match": {
+      "bytes_sha256": "8c9dd526c742ef3bfab92c286239b9f6655b66cad2a24aaaa6d2e7c89ea3d77f",
+      "inputs_sha256": "d1b14477a47ee367cd12a4131de187be63f29cf38d1783e009dcac9de1b8bb4d"
+    }
+  },
+  {
     "id": "lobby-send-game-invite-list",
     "offset": 1692912,
     "size": 26,
@@ -565,6 +1347,259 @@
     "match": {
       "bytes_sha256": "8206642a2a2cd3cb0b103aae1ea634773ec6ba4a317da862f3c0dfed1d50fc5e",
       "inputs_sha256": "1f8307fc7d4f769c7902137de0aa914ef96d1b15103659579442f21dab89806b"
+    }
+  },
+  {
+    "id": "online-friend-cancel-game-invite",
+    "offset": 1693216,
+    "size": 74,
+    "rebuilt_symbol": "@execFriendCancelGameInvite@16",
+    "link_bindings": {
+      "_game_engine": {
+        "va": 281617344,
+        "basis": "The stock handler reads the engine singleton and takes its online interface at offset 0x40."
+      }
+    },
+    "inputs": [
+      "src/versus_online_arguments.c",
+      "src/versus_vm_argument.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_online_arguments.obj src/versus_online_arguments.c",
+    "identification": "SBase.SXBoxLiveRef.FriendCancelGameInvite is registered at native slot 1539 by the store at VA 0x10a87d34. The complete handler reads one script argument, advances past the terminator and calls slot 153 of the online interface.",
+    "match": {
+      "bytes_sha256": "78120ff8f0eeb70a5a94afaf0c34b0a7f1df3d9a00921096d4926820151c8394",
+      "inputs_sha256": "4a6b9b26a81268dc05b3243c4e653aa68a5804ecef1473e50a0d05688cc5a268"
+    }
+  },
+  {
+    "id": "online-remove-friend",
+    "offset": 1693584,
+    "size": 74,
+    "rebuilt_symbol": "@execRemoveFriend@16",
+    "link_bindings": {
+      "_game_engine": {
+        "va": 281617344,
+        "basis": "The stock handler reads the engine singleton and takes its online interface at offset 0x40."
+      }
+    },
+    "inputs": [
+      "src/versus_online_arguments.c",
+      "src/versus_vm_argument.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_online_arguments.obj src/versus_online_arguments.c",
+    "identification": "SBase.SXBoxLiveRef.RemoveFriend is registered at native slot 1541 by the store at VA 0x10a87cc6. The complete handler reads one script argument, advances past the terminator and calls slot 158 of the online interface.",
+    "match": {
+      "bytes_sha256": "2f1e3662b0cb8c20a15dbedd57615a982c21f444c0fb9267dd890e911542451a",
+      "inputs_sha256": "fd42874ae43ac0b630169a45e066f76ecf7a3ee8532e593549f279bd004e555c"
+    }
+  },
+  {
+    "id": "online-remove-redundant-invitation",
+    "offset": 1693984,
+    "size": 74,
+    "rebuilt_symbol": "@execRemoveRedundantInvitation@16",
+    "link_bindings": {
+      "_game_engine": {
+        "va": 281617344,
+        "basis": "The stock handler reads the engine singleton and takes its online interface at offset 0x40."
+      }
+    },
+    "inputs": [
+      "src/versus_online_arguments.c",
+      "src/versus_vm_argument.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_online_arguments.obj src/versus_online_arguments.c",
+    "identification": "SBase.SXBoxLiveRef.RemoveRedundantInvitation is registered at native slot 1746 by the store at VA 0x10a87c21. The complete handler reads one script argument, advances past the terminator and calls slot 154 of the online interface.",
+    "match": {
+      "bytes_sha256": "22efaa5d6ee697a95cdd2a966fa8f0020dd379fb7c30930428dc892f4a6eb1e3",
+      "inputs_sha256": "00ae9cca90bf28fd54a320ad75df53184ff563fccb89e4e4e26fedfc3fbcb049"
+    }
+  },
+  {
+    "id": "online-friend-is-online",
+    "offset": 1694064,
+    "size": 80,
+    "rebuilt_symbol": "@execFriendIsOnline@16",
+    "link_bindings": {
+      "_game_engine": {
+        "va": 281617344,
+        "basis": "The stock handler reads the engine singleton and takes its online interface at offset 0x40."
+      }
+    },
+    "inputs": [
+      "src/versus_online_arguments.c",
+      "src/versus_vm_argument.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_online_arguments.obj src/versus_online_arguments.c",
+    "identification": "SBase.SXBoxLiveRef.FriendIsOnline is registered at native slot 1543 by the store at VA 0x10a87bea. The complete handler reads one script argument, advances past the terminator and calls slot 160 of the online interface.",
+    "match": {
+      "bytes_sha256": "83b74138585a0a25fbf7dfe91e23cd4c54b020697a3d17fd3b2ac2859ed20ed1",
+      "inputs_sha256": "a1d1872a16c27a62e9f18e78e71f95cb09b513a1ab7a0a5e175129f7cda96b89"
+    }
+  },
+  {
+    "id": "online-friend-is-playing",
+    "offset": 1694144,
+    "size": 80,
+    "rebuilt_symbol": "@execFriendIsPlaying@16",
+    "link_bindings": {
+      "_game_engine": {
+        "va": 281617344,
+        "basis": "The stock handler reads the engine singleton and takes its online interface at offset 0x40."
+      }
+    },
+    "inputs": [
+      "src/versus_online_arguments.c",
+      "src/versus_vm_argument.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_online_arguments.obj src/versus_online_arguments.c",
+    "identification": "SBase.SXBoxLiveRef.FriendIsPlaying is registered at native slot 1544 by the store at VA 0x10a87bb3. The complete handler reads one script argument, advances past the terminator and calls slot 161 of the online interface.",
+    "match": {
+      "bytes_sha256": "472382e254b085a7cb36f86a4b7e75c69f444fec2b1a2b976b93f41c98500463",
+      "inputs_sha256": "0bef8a5aafa13ad571ece9a83e0576e8b91f25c07124e8cd27d3564958227ac7"
+    }
+  },
+  {
+    "id": "online-friend-is-joinable",
+    "offset": 1694224,
+    "size": 80,
+    "rebuilt_symbol": "@execFriendIsJoinable@16",
+    "link_bindings": {
+      "_game_engine": {
+        "va": 281617344,
+        "basis": "The stock handler reads the engine singleton and takes its online interface at offset 0x40."
+      }
+    },
+    "inputs": [
+      "src/versus_online_arguments.c",
+      "src/versus_vm_argument.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_online_arguments.obj src/versus_online_arguments.c",
+    "identification": "SBase.SXBoxLiveRef.FriendIsJoinable is registered at native slot 1545 by the store at VA 0x10a87b7c. The complete handler reads one script argument, advances past the terminator and calls slot 162 of the online interface.",
+    "match": {
+      "bytes_sha256": "1e45794f4f327a4b8e12ad386cc3b37478a642c6ce00fba7424d04e11a6f2698",
+      "inputs_sha256": "cb96c1abc65e1b90d980915b1b12033dd9ce1a089588b2a6de44fae586a5bd33"
+    }
+  },
+  {
+    "id": "online-friend-has-voice",
+    "offset": 1694304,
+    "size": 80,
+    "rebuilt_symbol": "@execFriendHasVoice@16",
+    "link_bindings": {
+      "_game_engine": {
+        "va": 281617344,
+        "basis": "The stock handler reads the engine singleton and takes its online interface at offset 0x40."
+      }
+    },
+    "inputs": [
+      "src/versus_online_arguments.c",
+      "src/versus_vm_argument.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_online_arguments.obj src/versus_online_arguments.c",
+    "identification": "SBase.SXBoxLiveRef.FriendHasVoice is registered at native slot 1546 by the store at VA 0x10a87b45. The complete handler reads one script argument, advances past the terminator and calls slot 163 of the online interface.",
+    "match": {
+      "bytes_sha256": "550c724de625ec59661f0fc2bb9898bbccae742487bcb036329ab6e234313844",
+      "inputs_sha256": "33674954246d61ef649ca260ae30bc2247d177c9b2b54a7e42388e1def5d4568"
+    }
+  },
+  {
+    "id": "online-has-received-invite-from",
+    "offset": 1694384,
+    "size": 80,
+    "rebuilt_symbol": "@execHasReceivedInviteFrom@16",
+    "link_bindings": {
+      "_game_engine": {
+        "va": 281617344,
+        "basis": "The stock handler reads the engine singleton and takes its online interface at offset 0x40."
+      }
+    },
+    "inputs": [
+      "src/versus_online_arguments.c",
+      "src/versus_vm_argument.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_online_arguments.obj src/versus_online_arguments.c",
+    "identification": "SBase.SXBoxLiveRef.HasReceivedInviteFrom is registered at native slot 1547 by the store at VA 0x10a87b0e. The complete handler reads one script argument, advances past the terminator and calls slot 164 of the online interface.",
+    "match": {
+      "bytes_sha256": "76cb3e66bda2e9e6e2f74c802fdd6f744e118d9abe62361fc9dfb4179dfaf99d",
+      "inputs_sha256": "5dd32974a6017a2baa51db3fbaf9ae9003ab5c434dd8efc7d7e7127d32b345da"
+    }
+  },
+  {
+    "id": "online-has-sent-invite-to",
+    "offset": 1694464,
+    "size": 80,
+    "rebuilt_symbol": "@execHasSentInviteTo@16",
+    "link_bindings": {
+      "_game_engine": {
+        "va": 281617344,
+        "basis": "The stock handler reads the engine singleton and takes its online interface at offset 0x40."
+      }
+    },
+    "inputs": [
+      "src/versus_online_arguments.c",
+      "src/versus_vm_argument.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_online_arguments.obj src/versus_online_arguments.c",
+    "identification": "SBase.SXBoxLiveRef.HasSentInviteTo is registered at native slot 1548 by the store at VA 0x10a87ad7. The complete handler reads one script argument, advances past the terminator and calls slot 165 of the online interface.",
+    "match": {
+      "bytes_sha256": "3be4a5b8d24d8c7ac3638df39bcee5c2f55b131482a6df805143f6685799155e",
+      "inputs_sha256": "68a94ca246e218e5fa4f2e70d438f9df60426380f4935442612d5fd4a77ba09c"
+    }
+  },
+  {
+    "id": "online-has-received-request-from",
+    "offset": 1694544,
+    "size": 80,
+    "rebuilt_symbol": "@execHasReceivedRequestFrom@16",
+    "link_bindings": {
+      "_game_engine": {
+        "va": 281617344,
+        "basis": "The stock handler reads the engine singleton and takes its online interface at offset 0x40."
+      }
+    },
+    "inputs": [
+      "src/versus_online_arguments.c",
+      "src/versus_vm_argument.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_online_arguments.obj src/versus_online_arguments.c",
+    "identification": "SBase.SXBoxLiveRef.HasReceivedRequestFrom is registered at native slot 1549 by the store at VA 0x10a87aa0. The complete handler reads one script argument, advances past the terminator and calls slot 166 of the online interface.",
+    "match": {
+      "bytes_sha256": "0f071c006dadb210c17d11c851e5c07de7374a9f1ead55948313acf7b082c3e9",
+      "inputs_sha256": "f972fe1b2bdb745856ee889e3f9659908792ab62d7d7599198f568c2eeb38fbb"
+    }
+  },
+  {
+    "id": "online-has-sent-request-to",
+    "offset": 1694624,
+    "size": 80,
+    "rebuilt_symbol": "@execHasSentRequestTo@16",
+    "link_bindings": {
+      "_game_engine": {
+        "va": 281617344,
+        "basis": "The stock handler reads the engine singleton and takes its online interface at offset 0x40."
+      }
+    },
+    "inputs": [
+      "src/versus_online_arguments.c",
+      "src/versus_vm_argument.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_online_arguments.obj src/versus_online_arguments.c",
+    "identification": "SBase.SXBoxLiveRef.HasSentRequestTo is registered at native slot 1550 by the store at VA 0x10a87a69. The complete handler reads one script argument, advances past the terminator and calls slot 167 of the online interface.",
+    "match": {
+      "bytes_sha256": "ae558be51a829b2587a2904c74f98d914be081546e1bb68178b3ebfa08616028",
+      "inputs_sha256": "79b68e5972b7fca366dbeef159d265dd4ca522f09bc62947bd7d689b33b01778"
     }
   },
   {
@@ -614,6 +1649,29 @@
     }
   },
   {
+    "id": "online-ladder-dyn-get-players-count",
+    "offset": 1696880,
+    "size": 80,
+    "rebuilt_symbol": "@execLadderDyn_GetPlayersCount@16",
+    "link_bindings": {
+      "_game_engine": {
+        "va": 281617344,
+        "basis": "The stock handler reads the engine singleton and takes its online interface at offset 0x40."
+      }
+    },
+    "inputs": [
+      "src/versus_online_arguments.c",
+      "src/versus_vm_argument.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_online_arguments.obj src/versus_online_arguments.c",
+    "identification": "SBase.SXBoxLiveRef.LadderDyn_GetPlayersCount is registered at native slot 1771 by the store at VA 0x10a86dbc. The complete handler reads one script argument, advances past the terminator and calls slot 182 of the online interface.",
+    "match": {
+      "bytes_sha256": "b4c5ac863d3970b7f1a8cb3a5a30ecb11d724fa2d50e9d127e51fb9c88cbb5fe",
+      "inputs_sha256": "ed6a332190a78d4e6fec68b7610a2c839c156cf149c54b0cdddc257da549e9f8"
+    }
+  },
+  {
     "id": "lobby-ladder-dyn-get-player-finished-games-ratio",
     "offset": 1696960,
     "size": 32,
@@ -634,6 +1692,29 @@
     "match": {
       "bytes_sha256": "f842a963408ccc5cb97743b8246be1316741dce2ff3f7f178a9259e69c9e73ff",
       "inputs_sha256": "2db72e644511cd591c093e75f0e694fb37a41c3a3c973996f931c87b84c37ca2"
+    }
+  },
+  {
+    "id": "online-ladder-sta-get-players-count",
+    "offset": 1697760,
+    "size": 80,
+    "rebuilt_symbol": "@execLadderSta_GetPlayersCount@16",
+    "link_bindings": {
+      "_game_engine": {
+        "va": 281617344,
+        "basis": "The stock handler reads the engine singleton and takes its online interface at offset 0x40."
+      }
+    },
+    "inputs": [
+      "src/versus_online_arguments.c",
+      "src/versus_vm_argument.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_online_arguments.obj src/versus_online_arguments.c",
+    "identification": "SBase.SXBoxLiveRef.LadderSta_GetPlayersCount is registered at native slot 1777 by the store at VA 0x10a86c72. The complete handler reads one script argument, advances past the terminator and calls slot 188 of the online interface.",
+    "match": {
+      "bytes_sha256": "3fb9b779b02224bedb635a6df94dfc08789d87532fdd8db3b76071b5d0ff7846",
+      "inputs_sha256": "83ae19a8e9b5f8ae82975bf98a51ab75c69a81d5c0ed1eb73bf9104c4eec89f6"
     }
   },
   {
@@ -703,6 +1784,75 @@
     "match": {
       "bytes_sha256": "66c25e2cf5c9f80f5bb837c58f1c7fc590c52928b1aff3c39b248a82395660c8",
       "inputs_sha256": "105e1d77ff8491b12bf8034e3281ec3bf6fecbe2df802d01180c52a25f2fc347"
+    }
+  },
+  {
+    "id": "online-match-set-tutorat-mode",
+    "offset": 1698624,
+    "size": 74,
+    "rebuilt_symbol": "@execMatchSetTutoratMode@16",
+    "link_bindings": {
+      "_game_engine": {
+        "va": 281617344,
+        "basis": "The stock handler reads the engine singleton and takes its online interface at offset 0x40."
+      }
+    },
+    "inputs": [
+      "src/versus_online_arguments.c",
+      "src/versus_vm_argument.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_online_arguments.obj src/versus_online_arguments.c",
+    "identification": "SBase.SXBoxLiveRef.MatchSetTutoratMode is registered at native slot 1841 by the store at VA 0x10a88716. The complete handler reads one script argument, advances past the terminator and calls slot 117 of the online interface.",
+    "match": {
+      "bytes_sha256": "60cfaf01b921f33d86159c0aa81c68637784575c0b3bc0fdddfc9496300b950d",
+      "inputs_sha256": "fd8ef1ba007244cb8ca0e924931db1b10bce32c54f6593401d17efb0730c525c"
+    }
+  },
+  {
+    "id": "online-match-set-alternate-mode",
+    "offset": 1698832,
+    "size": 74,
+    "rebuilt_symbol": "@execMatchSetAlternateMode@16",
+    "link_bindings": {
+      "_game_engine": {
+        "va": 281617344,
+        "basis": "The stock handler reads the engine singleton and takes its online interface at offset 0x40."
+      }
+    },
+    "inputs": [
+      "src/versus_online_arguments.c",
+      "src/versus_vm_argument.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_online_arguments.obj src/versus_online_arguments.c",
+    "identification": "SBase.SXBoxLiveRef.MatchSetAlternateMode is registered at native slot 1842 by the store at VA 0x10a886df. The complete handler reads one script argument, advances past the terminator and calls slot 119 of the online interface.",
+    "match": {
+      "bytes_sha256": "01fff342cec38780455c3ee4661d4715368c738e66f6333defe666bb52f85879",
+      "inputs_sha256": "1082d488ad5e4a725b3a9420a9ef0810cc7e5e5e6402519e323542cb3ae39573"
+    }
+  },
+  {
+    "id": "online-match-set-player-time",
+    "offset": 1699168,
+    "size": 74,
+    "rebuilt_symbol": "@execMatchSetPlayerTime@16",
+    "link_bindings": {
+      "_game_engine": {
+        "va": 281617344,
+        "basis": "The stock handler reads the engine singleton and takes its online interface at offset 0x40."
+      }
+    },
+    "inputs": [
+      "src/versus_online_arguments.c",
+      "src/versus_vm_argument.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_online_arguments.obj src/versus_online_arguments.c",
+    "identification": "SBase.SXBoxLiveRef.MatchSetPlayerTime is registered at native slot 1846 by the store at VA 0x10a886a8. The complete handler reads one script argument, advances past the terminator and calls slot 123 of the online interface.",
+    "match": {
+      "bytes_sha256": "f863dc45d37d2ff25d5764ecb571a0f3a2c9916aa17886ed14bd35164e126784",
+      "inputs_sha256": "80e2556da48ccd7e80bb087f273d1eaf806ccc59477fb404abfb083f4ee683ef"
     }
   },
   {
