@@ -106,12 +106,11 @@ Source: local/captures/graphics-driver-d3d12.png
 OpenSCCT 0.8.99, Options → Performance with the graphics driver list open.
 Captured with the Direct3D 12 driver at 1920 x 1080 and compressed to WebP.
 
-Project directory and native launcher artwork · 2026-11-20
-Original ImageGen illustrations for OpenSCCT, exported to WebP for the website and JPEG for the launchers. They are edition artwork, not gameplay screenshots.
-showcase-hero.webp: widescreen rainy night infiltration with a three-lens observer at right.
-showcase-edition-ps2.webp: silver disc and early console hardware.
-showcase-edition-pc.webp: period PC and CRT monitor.
-showcase-edition-godot.webp: angular aquarium infiltration scene.
-showcase-edition-unreal.webp: wet rail station and volumetric lighting.
-showcase-edition-editor.webp: technical workspace with editable wireframe geometry.
-showcase-unreal-aquarius.webp: actual Unreal client Aquarius gameplay capture using Steam-built stock content, from Saved/LocalSteamReleaseCheck/steam-aquarius-preflight/AQU03-Story-0.png.
+Project directory and launcher images, 20 November 2026
+hero: ../OSU-mount-hospital-original-textures/Saved/RetailLightingComparison/retail/AquaE/sea-tunnel.png | source SHA-256 395c2bc7f849c35dd6f02034b4b4c9831a743de2faad38c4e35f4a7e238b2113
+pc: ../OSU-mount-hospital-original-textures/Saved/RetailLightingComparison/retail/AquaE/greek-temple.png | source SHA-256 a79b2d1e2298b1c818426f168a27a48ed32f41b9a7889804f6db4af82fcc6a69
+ps2: https://raw.githubusercontent.com/xlenore/ps2-covers/main/covers/default/SLES-53287.jpg (European retail cover) | source SHA-256 06b60d25bb2c66dc8e87e152727eaf889f62b1952a3463cef6c2e7a2f81c74dd
+godot: docs/images/website/showcase-bots.webp | source SHA-256 f4736bda7aac2f42f35b9381a62b458fcfa3ac0ed06a2e072f4ceeea827347eb
+unreal: docs/images/website/showcase-unreal-aquarius.webp | source SHA-256 919c431fd5c56490072cb846a0614420c6d830372f5c32fbddc44b2ccfa86202
+editor: docs/images/website/showcase-editor.webp | source SHA-256 715f9427b745e31e8b5243e8c7a38a838b37bf3526c6bafcc441d055f7f0c768
+showcase-unreal-aquarius.webp: Unreal client capture from Saved/LocalSteamReleaseCheck/steam-aquarius-preflight/AQU03-Story-0.png.
