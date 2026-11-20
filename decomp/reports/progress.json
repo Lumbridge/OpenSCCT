@@ -71,8 +71,8 @@
           "matched_bytes": 0,
           "total_bytes": 2991392,
           "matched_units": 0,
-          "candidate_bytes": 154106,
-          "candidate_units": 2988,
+          "candidate_bytes": 154206,
+          "candidate_units": 2989,
           "percent": 0.0,
           "evidence": "decomp/pc/config/steam-252084-versus.json"
         }

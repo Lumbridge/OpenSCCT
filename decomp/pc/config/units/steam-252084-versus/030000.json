@@ -90,6 +90,32 @@
     }
   },
   {
+    "id": "class-binding-bind-class",
+    "size": 100,
+    "offset": 249712,
+    "inputs": [
+      "src/versus_class_binding.c"
+    ],
+    "rebuilt_symbol": "@bind_class@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_class_binding.obj src/versus_class_binding.c",
+    "link_bindings": {
+      "_binding_format": {
+        "va": 281358356,
+        "basis": "Stock operand for binding format."
+      },
+      "_format_name": {
+        "va": 277935344,
+        "basis": "Stock operand for format name."
+      }
+    },
+    "identification": "Indexed whole function and UClass method table slot 24. Formats the native symbol name when flagged and inherits the superclass binding if unresolved.",
+    "match": {
+      "bytes_sha256": "3bcb045a5127f11eecbd6c3982ba2c035eb890e03d1c7aab1a00b6dad8db05e5",
+      "inputs_sha256": "00d97af24cc2dcf314a15df6c550b4247ee1cfa208cc8ab26cc011d64692199c"
+    }
+  },
+  {
     "id": "place-uobject",
     "offset": 254832,
     "size": 15,
