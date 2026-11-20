@@ -402,5 +402,21 @@
       "bytes_sha256": "c306204267d127f293256f790f577300355f3fd61f8597b191ae90441c50f7c6",
       "inputs_sha256": "132ed6ddc252ff9ffa2d230037de6810bf56f6a35f8c7f4efab9643e3ec96bde"
     }
+  },
+  {
+    "id": "copy-word-76f7c0",
+    "offset": 7796672,
+    "size": 13,
+    "inputs": [
+      "src/campaign_word_copy.c"
+    ],
+    "rebuilt_symbol": "@copy_76f7c0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_word_copy.obj src/campaign_word_copy.c",
+    "identification": "Direct call at RVA 0x767679 in the independently delineated retail function at RVA 0x7675e0. The complete 13-byte function copies one word and returns the output pointer.",
+    "match": {
+      "bytes_sha256": "9c375493fe6e8516cd7ebdc429fa91c81045e81d62b4225dc8b83f1e3b160f39",
+      "inputs_sha256": "32343bce2fa2deadef0e008a55498731921e79aa1f4743dd83a98f1a101d8405"
+    }
   }
 ]
