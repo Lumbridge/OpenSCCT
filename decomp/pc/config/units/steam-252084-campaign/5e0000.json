@@ -88,6 +88,70 @@
     }
   },
   {
+    "id": "next-node-5ed860",
+    "offset": 6215776,
+    "size": 54,
+    "inputs": [
+      "src/campaign_linked_tree.c"
+    ],
+    "rebuilt_symbol": "_next_node_5ed860",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_linked_tree.obj src/campaign_linked_tree.c",
+    "identification": "Retail call at VA 0x10eec56a. In-order successor through right child or parent links.",
+    "match": {
+      "bytes_sha256": "1564d9b72eaac9586cd5305e426045277dcd17b7430946e0f78b3fd8b990b67f",
+      "inputs_sha256": "d3d7e39cbe848be8cef24242d4ec1faab9f3dea044360d41665b813c80ab969d"
+    }
+  },
+  {
+    "id": "prev-node-5edfe0",
+    "offset": 6217696,
+    "size": 64,
+    "inputs": [
+      "src/campaign_linked_tree.c"
+    ],
+    "rebuilt_symbol": "_prev_node_5edfe0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_linked_tree.obj src/campaign_linked_tree.c",
+    "identification": "Retail call at VA 0x10eeb8fb. In-order predecessor with a head-node case.",
+    "match": {
+      "bytes_sha256": "6693ff6edf1bd104020b2f6c5e0664111038266454e033bcfa086519d9aff564",
+      "inputs_sha256": "9285dace8e81915aa5d5c9f00db947a1d97530b57f158b83a159f0dcb22b6b79"
+    }
+  },
+  {
+    "id": "rotate-left-5ee020",
+    "offset": 6217760,
+    "size": 74,
+    "inputs": [
+      "src/campaign_linked_tree.c"
+    ],
+    "rebuilt_symbol": "_rotate_left_5ee020",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_linked_tree.obj src/campaign_linked_tree.c",
+    "identification": "Retail call at VA 0x10eeda39. Left tree rotation with an explicit root pointer.",
+    "match": {
+      "bytes_sha256": "3847d0a852af51871e9ce645ece5c4ad42611cf5acb39fa13417392d3c38cef9",
+      "inputs_sha256": "625aaf62d5078d9512eb79c9f1243fec0635d874ef955ce3a24aa685200f9d98"
+    }
+  },
+  {
+    "id": "rotate-right-5ee070",
+    "offset": 6217840,
+    "size": 74,
+    "inputs": [
+      "src/campaign_linked_tree.c"
+    ],
+    "rebuilt_symbol": "_rotate_right_5ee070",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_linked_tree.obj src/campaign_linked_tree.c",
+    "identification": "Retail call at VA 0x10eeda1a. Right tree rotation with an explicit root pointer.",
+    "match": {
+      "bytes_sha256": "8c1918232fb93425bd207c422b0c11d2baf542ef802d4edfbdbd9f7d7eb99658",
+      "inputs_sha256": "1048cfddb19f1532c020993863dffdfcc0d0bfe688ad66cae1d1bc787217c9e9"
+    }
+  },
+  {
     "id": "campaign-sha1-digest-width",
     "offset": 6219296,
     "size": 6,

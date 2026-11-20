@@ -49,6 +49,70 @@
     }
   },
   {
+    "id": "next-node-236350",
+    "offset": 2319184,
+    "size": 54,
+    "inputs": [
+      "src/versus_linked_tree.c"
+    ],
+    "rebuilt_symbol": "_next_node_236350",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_linked_tree.obj src/versus_linked_tree.c",
+    "identification": "Retail call at VA 0x10b35dfa. In-order successor through right child or parent links.",
+    "match": {
+      "bytes_sha256": "1564d9b72eaac9586cd5305e426045277dcd17b7430946e0f78b3fd8b990b67f",
+      "inputs_sha256": "c9c069f775d851c537bd401b325160a0bf5e6841552b176af0212fdc4f2c842f"
+    }
+  },
+  {
+    "id": "prev-node-236390",
+    "offset": 2319248,
+    "size": 64,
+    "inputs": [
+      "src/versus_linked_tree.c"
+    ],
+    "rebuilt_symbol": "_prev_node_236390",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_linked_tree.obj src/versus_linked_tree.c",
+    "identification": "Retail call at VA 0x10b35957. In-order predecessor with a head-node case.",
+    "match": {
+      "bytes_sha256": "6693ff6edf1bd104020b2f6c5e0664111038266454e033bcfa086519d9aff564",
+      "inputs_sha256": "29a0bd6712ffccc998b7910fa0e5be505e703e1cda5757c9c2ecf7b84711b4fc"
+    }
+  },
+  {
+    "id": "rotate-left-2363d0",
+    "offset": 2319312,
+    "size": 74,
+    "inputs": [
+      "src/versus_linked_tree.c"
+    ],
+    "rebuilt_symbol": "_rotate_left_2363d0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_linked_tree.obj src/versus_linked_tree.c",
+    "identification": "Retail call at VA 0x10b3b4a9. Left tree rotation with an explicit root pointer.",
+    "match": {
+      "bytes_sha256": "3847d0a852af51871e9ce645ece5c4ad42611cf5acb39fa13417392d3c38cef9",
+      "inputs_sha256": "e510f8857a7f053ddd839d10054740f248b99baf31d0dcd0d3f6f3923dd55623"
+    }
+  },
+  {
+    "id": "rotate-right-236420",
+    "offset": 2319392,
+    "size": 74,
+    "inputs": [
+      "src/versus_linked_tree.c"
+    ],
+    "rebuilt_symbol": "_rotate_right_236420",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_linked_tree.obj src/versus_linked_tree.c",
+    "identification": "Retail call at VA 0x10b3b48a. Right tree rotation with an explicit root pointer.",
+    "match": {
+      "bytes_sha256": "8c1918232fb93425bd207c422b0c11d2baf542ef802d4edfbdbd9f7d7eb99658",
+      "inputs_sha256": "688355367165c36330a435fb7947ce6f3e69d3a47f18a5eb50bf73724636a861"
+    }
+  },
+  {
     "id": "delete-record-236660",
     "offset": 2319968,
     "size": 27,
