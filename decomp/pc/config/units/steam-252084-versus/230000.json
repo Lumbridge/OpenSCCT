@@ -463,7 +463,24 @@
     "identification": "Direct call at retail VA 0x10b39382. Inserts an unsigned 32-bit key using placement hints, updates root and extreme links, then recolors and rotates the tree.",
     "match": {
       "bytes_sha256": "a60913ee2b4e6e9564ff796b0cfdbe62daaf0bde3e23e0d2538c8566d48fafba",
-      "inputs_sha256": "e7100c685de086dbb53ed31b371b1ca60d38e9f911b115d3eecdb29090263ba7"
+      "inputs_sha256": "2da169561fa0f2e733e15b28158ee41549cca96866388d3b31906298976b1d35"
+    }
+  },
+  {
+    "id": "compare-byte-ranges-23b930",
+    "offset": 2341168,
+    "size": 82,
+    "coff_alignment": 16,
+    "inputs": [
+      "src/linked_tree_range_compare.c"
+    ],
+    "rebuilt_symbol": "_compare_ranges",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/linked_tree_range_compare.obj src/linked_tree_range_compare.c",
+    "identification": "Direct call at retail VA 0x10b3a807. Compares the common prefix and orders equal prefixes by range length.",
+    "match": {
+      "bytes_sha256": "e89d44738da9090295946f1ee5cd4d599a3869cb670f99ea1da812d341c5ac86",
+      "inputs_sha256": "8da3297001ea966bbedf035333b26517d452634db981f6d6b8f980ad69181fcf"
     }
   },
   {

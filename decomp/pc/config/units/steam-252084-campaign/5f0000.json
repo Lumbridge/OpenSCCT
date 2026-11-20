@@ -253,5 +253,94 @@
       "bytes_sha256": "be212130278115b9a6f98eb72e093775d7fee7a672770bf304cb7337aba19ba8",
       "inputs_sha256": "0b4613f9e63a1af00aaaa4a60c4179b721d78b5105eaed5a07e48dbebd4d0fb0"
     }
+  },
+  {
+    "id": "compare-byte-ranges-5f9ac0",
+    "offset": 6265536,
+    "size": 82,
+    "coff_alignment": 16,
+    "inputs": [
+      "src/linked_tree_range_compare.c"
+    ],
+    "rebuilt_symbol": "_compare_ranges",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/linked_tree_range_compare.obj src/linked_tree_range_compare.c",
+    "identification": "Direct call at retail VA 0x10ef7272. Compares the common prefix and orders equal prefixes by range length.",
+    "match": {
+      "bytes_sha256": "e89d44738da9090295946f1ee5cd4d599a3869cb670f99ea1da812d341c5ac86",
+      "inputs_sha256": "df689bc8d753e48775c130edc71ca9f8fc05fb65aaf4e70dbeb283ce1892ed70"
+    }
+  },
+  {
+    "id": "insert-node-5fa0d0",
+    "offset": 6267088,
+    "size": 425,
+    "coff_alignment": 16,
+    "inputs": [
+      "src/campaign_tree_insert_rebalance.c",
+      "src/linked_tree_insert.h"
+    ],
+    "rebuilt_symbol": "@insert_node_5fa0d0@24",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_insert_rebalance.obj src/campaign_tree_insert_rebalance.c",
+    "link_bindings": {
+      "_compare_ranges": {
+        "va": 284138176,
+        "basis": "Independently matched lexicographic byte range comparator."
+      },
+      "@make_node_5fa9b0@8": {
+        "va": 284142000,
+        "basis": "Called in both branches to construct the node."
+      },
+      "_rotate_right_call": {
+        "va": 284090480,
+        "basis": "Independently matched linked tree rotation."
+      },
+      "_rotate_left_call": {
+        "va": 284090400,
+        "basis": "Independently matched linked tree rotation."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10ef8849. Inserts a node using a lexicographic byte-range comparison and restores tree balance.",
+    "match": {
+      "bytes_sha256": "14acce13396ed20ba666b7b9dae173bf1c3ab7bd469039583c2270b01b465310",
+      "inputs_sha256": "6e010e84c82db70b3eb99a84a401d0de62fc5299ec3c6f03133d8ee14df4ea2d"
+    }
+  },
+  {
+    "id": "insert-node-5fa440",
+    "offset": 6267968,
+    "size": 425,
+    "coff_alignment": 16,
+    "inputs": [
+      "src/campaign_tree_insert_rebalance.c",
+      "src/linked_tree_insert.h"
+    ],
+    "rebuilt_symbol": "@insert_node_5fa440@24",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_insert_rebalance.obj src/campaign_tree_insert_rebalance.c",
+    "link_bindings": {
+      "_compare_ranges": {
+        "va": 284138176,
+        "basis": "Independently matched lexicographic byte range comparator."
+      },
+      "@make_node_5faa70@8": {
+        "va": 284142192,
+        "basis": "Called in both branches to construct the node."
+      },
+      "_rotate_right_call": {
+        "va": 284090480,
+        "basis": "Independently matched linked tree rotation."
+      },
+      "_rotate_left_call": {
+        "va": 284090400,
+        "basis": "Independently matched linked tree rotation."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10ef8e89. Inserts a node using a lexicographic byte-range comparison and restores tree balance.",
+    "match": {
+      "bytes_sha256": "2d4e0e3396c5858fb8e26524939b69a70897619e27e286c0323b1d66c384e106",
+      "inputs_sha256": "792ad34e2944e11a81089bcefd1bbb959eb94b0393cc0160f41c3b9f38ebe80f"
+    }
   }
 ]

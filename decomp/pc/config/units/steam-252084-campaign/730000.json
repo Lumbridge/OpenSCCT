@@ -74,7 +74,7 @@
     "identification": "Direct call at retail VA 0x1103484c. Inserts an unsigned 16-bit key using placement hints, updates root and extreme links, then recolors and rotates the tree.",
     "match": {
       "bytes_sha256": "cd8485ef0e15bd76360f7402fd58dc720cecb3e3e1c5525d9eef175b5119114f",
-      "inputs_sha256": "425ffc099595e5b5c2353e7d4827b7ddd7cd92ed6abe9f84989e67cfe35a1692"
+      "inputs_sha256": "0514b02a5aa6e889a8cf0e4fcadb502b045b12dec1630e5bdafd4cef5ef203ce"
     }
   },
   {

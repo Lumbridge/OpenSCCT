@@ -350,6 +350,42 @@
     }
   },
   {
+    "id": "insert-node-275f70",
+    "offset": 2580336,
+    "size": 425,
+    "coff_alignment": 16,
+    "inputs": [
+      "src/versus_tree_insert_rebalance.c",
+      "src/linked_tree_insert.h"
+    ],
+    "rebuilt_symbol": "@insert_node_275f70@24",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_tree_insert_rebalance.obj src/versus_tree_insert_rebalance.c",
+    "link_bindings": {
+      "_compare_ranges": {
+        "va": 280213808,
+        "basis": "Independently matched lexicographic byte range comparator."
+      },
+      "@make_node_2763d0@8": {
+        "va": 280454096,
+        "basis": "Called in both branches to construct the node."
+      },
+      "_rotate_right_call": {
+        "va": 280192032,
+        "basis": "Independently matched linked tree rotation."
+      },
+      "_rotate_left_call": {
+        "va": 280191952,
+        "basis": "Independently matched linked tree rotation."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10b759a9. Inserts a node using a lexicographic byte-range comparison and restores tree balance.",
+    "match": {
+      "bytes_sha256": "e8b00938aa0303b1d13ea3b263be6cc40cbc58370873d0868d49b40b99c09bc8",
+      "inputs_sha256": "9e6c0edd8fd2c04d1c58fdcbfae7d69a7c636c76f3b7e494b168b8c18d2ae5ab"
+    }
+  },
+  {
     "id": "crt-byteswap-ulong",
     "offset": 2585328,
     "size": 35,

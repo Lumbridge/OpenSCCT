@@ -1,4 +1,4 @@
-union Key { unsigned u32; int s32; unsigned short u16; unsigned char u8; };
+union Key { unsigned u32; int s32; unsigned short u16; unsigned char u8; struct { const unsigned char *first, *end; } range; };
 struct Node { unsigned char color; struct Node *parent, *left, *right; union Key key; };
 #define ROTATE(Name, Near, Far) \
     static __forceinline void Name(struct Node *node, struct Node **root) \
@@ -43,14 +43,14 @@ extern void rotate_right_call(struct Node *,struct Node **);
             Second(current->parent->parent, root); \
         }
 
-#define INSERT_NODE(Entry, Make, Field) \
+#define INSERT_WITH(Entry, Make, Less, SecondRotation) \
     struct Position *__fastcall Entry(struct Tree *tree, struct Args args) \
     { \
         struct Value value; \
         struct Node *node, *parent = args.parent, *current; \
         struct Node **root; \
         value.data = args.value; \
-        if (parent == tree->head || (!args.right_hint && (args.left_hint || value.data->Field < parent->key.Field))) { \
+        if (parent == tree->head || (!args.right_hint && (args.left_hint || Less))) { \
             node = Make(tree, value); \
             parent->left = node; \
             if (parent == tree->head) { \
@@ -70,7 +70,7 @@ extern void rotate_right_call(struct Node *,struct Node **);
         current->color = 0; \
         while (current != *root && current->parent->color == 0) { \
             if (current->parent == current->parent->parent->left) { \
-                FIX_INSERT(left, right, rotate_left, rotate_right) \
+                FIX_INSERT(left, right, rotate_left, SecondRotation) \
             } else { \
                 FIX_INSERT(right, left, rotate_right_call, rotate_left_call) \
             } \
@@ -80,3 +80,6 @@ extern void rotate_right_call(struct Node *,struct Node **);
         args.out->node = node; \
         return args.out; \
     }
+
+#define INSERT_NODE(Entry, Make, Field) \
+    INSERT_WITH(Entry, Make, value.data->Field < parent->key.Field, rotate_right)

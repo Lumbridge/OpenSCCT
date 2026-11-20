@@ -29,3 +29,12 @@ INSERT_NODE(insert_node_62cff0, make_node_62d630, u32)
 INSERT_NODE(insert_node_62f080, make_node_62f3d0, u8)
 INSERT_NODE(insert_node_727d10, make_node_727f10, s32)
 INSERT_NODE(insert_node_735c40, make_node_735eb0, u16)
+
+extern int __cdecl compare_ranges(const unsigned char *, const unsigned char *,
+                                  const unsigned char *, const unsigned char *);
+#define RANGE_LESS (compare_ranges(value.data->range.first, value.data->range.end, \
+                                   parent->key.range.first, parent->key.range.end) < 0)
+extern struct Node *__fastcall make_node_5fa9b0(struct Tree *, struct Value);
+INSERT_WITH(insert_node_5fa0d0, make_node_5fa9b0, RANGE_LESS, rotate_right_call)
+extern struct Node *__fastcall make_node_5faa70(struct Tree *, struct Value);
+INSERT_WITH(insert_node_5fa440, make_node_5faa70, RANGE_LESS, rotate_right_call)

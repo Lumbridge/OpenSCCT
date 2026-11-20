@@ -321,7 +321,7 @@
     "identification": "Direct call at retail VA 0x10eeb91e. Inserts an unsigned 32-bit key using placement hints, updates root and extreme links, then recolors and rotates the tree.",
     "match": {
       "bytes_sha256": "d0161cd32156fd373430bb72d48c253bf511ec79e4337244b2c57c71da33d72d",
-      "inputs_sha256": "853488b2bf68d6f6b9d14506d6306e3b51a80caeeca55ef35760f8c14c969f9b"
+      "inputs_sha256": "dbe102030ca4c5d9f69ca659ef9852e5f14ed2b75d30711d5a2476a78dfc36c5"
     }
   },
   {
@@ -353,7 +353,7 @@
     "identification": "Direct call at retail VA 0x10eebbb2. Inserts an unsigned 32-bit key using placement hints, updates root and extreme links, then recolors and rotates the tree.",
     "match": {
       "bytes_sha256": "cee50a00ccce144ec9165cff0c0e0e5dd05507748878f7f09abf56c0e60d2a51",
-      "inputs_sha256": "bc186ae7b91de80b6648688f4aa7a8f41959583212392f7e81f2766be8b8503a"
+      "inputs_sha256": "5e53e2e1e67d4699893738de3764c2c70a35ac395ecb953e8121c8b872ef0404"
     }
   },
   {
@@ -385,7 +385,7 @@
     "identification": "Direct call at retail VA 0x10eebe4b. Inserts an unsigned 32-bit key using placement hints, updates root and extreme links, then recolors and rotates the tree.",
     "match": {
       "bytes_sha256": "11b8c7ceec688d752aea07055dd137349269d0443c42e71bc79d9ca891cc5c15",
-      "inputs_sha256": "a4896cad0680cf61e671bd7660265a858f00d1e05d095343dc883be3609dfee7"
+      "inputs_sha256": "e18bb58943bacec21f68c60466aa1a2d808c0b0b5d4034b3deb27703bf77d79f"
     }
   },
   {
@@ -417,7 +417,7 @@
     "identification": "Direct call at retail VA 0x10eec092. Inserts an unsigned 32-bit key using placement hints, updates root and extreme links, then recolors and rotates the tree.",
     "match": {
       "bytes_sha256": "cb468b6038d9f6d29be7360024ecfd86861d259d5e36c7db19b94539ad682762",
-      "inputs_sha256": "f4a1fdfbe241aaeac93995b7909ec62573c7c22da0a1163cb965c297be30a018"
+      "inputs_sha256": "cac43883cef336c929e9e362e432e8d941921414470fb322f42ee49988c5572a"
     }
   },
   {
