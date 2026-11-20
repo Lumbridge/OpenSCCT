@@ -2675,6 +2675,33 @@
     }
   },
   {
+    "id": "member-range-cleanup-314d20",
+    "size": 59,
+    "offset": 3231008,
+    "inputs": [
+      "src/campaign_member_range_cleanup.c",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@cleanup_314d20@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_member_range_cleanup.obj src/campaign_member_range_cleanup.c",
+    "link_bindings": {
+      "@remove_2db4e0@16": {
+        "va": 280868064,
+        "basis": "Previously matched array range-removal routine."
+      },
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine heap singleton used to release the array storage."
+      }
+    },
+    "identification": "Aligned entry bounded by a preceding return and compiler padding. Removes all 4-byte elements from the array at receiver offset 12, frees remaining storage, and clears its fields.",
+    "match": {
+      "bytes_sha256": "757e32bd78d8744d03336e9846db35da84a38e60bd299f02483c6199e72b03c0",
+      "inputs_sha256": "7f76bc6fdeb2ad975a95d705e89f53346035a31029f7b285e63dc3358575f58d"
+    }
+  },
+  {
     "id": "delete-array-member-315d40",
     "size": 86,
     "offset": 3235136,
@@ -4528,6 +4555,33 @@
     "match": {
       "bytes_sha256": "c71d406c96640c19ca81f1ebeaed63c437fdb506165c2081a32a67193a656c86",
       "inputs_sha256": "92fee0648cde3e4b55129b08d1800836dd1a0974083e66b65d06bb10a9fa6081"
+    }
+  },
+  {
+    "id": "member-range-cleanup-31f380",
+    "size": 59,
+    "offset": 3273600,
+    "inputs": [
+      "src/campaign_member_range_cleanup.c",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@cleanup_31f380@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_member_range_cleanup.obj src/campaign_member_range_cleanup.c",
+    "link_bindings": {
+      "@remove_091ae0@16": {
+        "va": 278469344,
+        "basis": "Previously matched array range-removal routine."
+      },
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine heap singleton used to release the array storage."
+      }
+    },
+    "identification": "Aligned entry bounded by a preceding return and compiler padding. Removes all 4-byte elements from the array at receiver offset 4, frees remaining storage, and clears its fields.",
+    "match": {
+      "bytes_sha256": "4cb42984ead61e5e0c7f8b13b36b5b75058e6faa56e7bad6af9600890bb14275",
+      "inputs_sha256": "778ae27edb9d538c7e5f076d8fe7395140812242d735ed6835122df717360821"
     }
   },
   {

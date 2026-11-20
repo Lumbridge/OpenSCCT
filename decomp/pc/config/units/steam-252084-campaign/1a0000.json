@@ -2902,6 +2902,60 @@
     }
   },
   {
+    "id": "member-range-cleanup-1aa590",
+    "size": 59,
+    "offset": 1746320,
+    "inputs": [
+      "src/campaign_member_range_cleanup.c",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@cleanup_1aa590@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_member_range_cleanup.obj src/campaign_member_range_cleanup.c",
+    "link_bindings": {
+      "@remove_1a9440@16": {
+        "va": 279614528,
+        "basis": "Previously matched array range-removal routine."
+      },
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine heap singleton used to release the array storage."
+      }
+    },
+    "identification": "Aligned entry bounded by a preceding return and compiler padding. Removes all 4-byte elements from the array at receiver offset 4, frees remaining storage, and clears its fields.",
+    "match": {
+      "bytes_sha256": "9214bdbd9fd299a12ce8af9985393ea00fad947c272a04f5d07d4526b269e7b9",
+      "inputs_sha256": "90f478af22a3ef14f6a71f6414d13c010ad2a06a0c3ea2739552eeea527bedab"
+    }
+  },
+  {
+    "id": "member-range-cleanup-1aa5d0",
+    "size": 59,
+    "offset": 1746384,
+    "inputs": [
+      "src/campaign_member_range_cleanup.c",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@cleanup_1aa5d0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_member_range_cleanup.obj src/campaign_member_range_cleanup.c",
+    "link_bindings": {
+      "@remove_1a94d0@16": {
+        "va": 279614672,
+        "basis": "Previously matched array range-removal routine."
+      },
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine heap singleton used to release the array storage."
+      }
+    },
+    "identification": "Aligned entry bounded by a preceding return and compiler padding. Removes all 4-byte elements from the array at receiver offset 8, frees remaining storage, and clears its fields.",
+    "match": {
+      "bytes_sha256": "82b5f9c644af269196c8767b61555acb75b1dad4f4f5f48bda1d017cd98f42f9",
+      "inputs_sha256": "c5bf79e888ea017c2bada9cbb6208e1d663a2191dbd379c7098e51095603ee21"
+    }
+  },
+  {
     "id": "delete-array-member-1aa610",
     "size": 86,
     "offset": 1746448,

@@ -1999,6 +1999,33 @@
     }
   },
   {
+    "id": "member-range-cleanup-325c90",
+    "size": 59,
+    "offset": 3300496,
+    "inputs": [
+      "src/campaign_member_range_cleanup.c",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@cleanup_325c90@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_member_range_cleanup.obj src/campaign_member_range_cleanup.c",
+    "link_bindings": {
+      "@remove_029170@16": {
+        "va": 278040944,
+        "basis": "Previously matched array range-removal routine."
+      },
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine heap singleton used to release the array storage."
+      }
+    },
+    "identification": "Aligned entry bounded by a preceding return and compiler padding. Removes all 4-byte elements from the array at receiver offset 4, frees remaining storage, and clears its fields.",
+    "match": {
+      "bytes_sha256": "aae655de98d0ac0dd523b3f27af092c62c2597fbb04a6206eedda2938378308d",
+      "inputs_sha256": "bec802c620917af5c8636b0eebf3b2edacfdd8fa60974d1bda45fab7d2d477fb"
+    }
+  },
+  {
     "id": "array-destroy-325db0",
     "size": 56,
     "offset": 3300784,

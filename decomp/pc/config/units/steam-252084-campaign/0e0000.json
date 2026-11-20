@@ -3766,6 +3766,33 @@
     }
   },
   {
+    "id": "member-range-cleanup-0e4da0",
+    "size": 59,
+    "offset": 937376,
+    "inputs": [
+      "src/campaign_member_range_cleanup.c",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@cleanup_0e4da0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_member_range_cleanup.obj src/campaign_member_range_cleanup.c",
+    "link_bindings": {
+      "@remove_007710@16": {
+        "va": 277903120,
+        "basis": "Previously matched array range-removal routine."
+      },
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine heap singleton used to release the array storage."
+      }
+    },
+    "identification": "Aligned entry bounded by a preceding return and compiler padding. Removes all 2-byte elements from the array at receiver offset 24, frees remaining storage, and clears its fields.",
+    "match": {
+      "bytes_sha256": "403837cd99c3c24efd00e5425aa2aa805b63a0e5f3d050022c637609e1468820",
+      "inputs_sha256": "d6833aea8560409aca68bbb2d292dac1028977dd8fcedb9703cc5ba8d8ffd1c2"
+    }
+  },
+  {
     "id": "array-destroy-0e4de0",
     "size": 56,
     "offset": 937440,
@@ -3790,6 +3817,33 @@
     "match": {
       "bytes_sha256": "c03e3742e9f89bb2ca60bb85c7cd91a888cb08049ddc3c63d04bc826df3cdff5",
       "inputs_sha256": "0d6db914e8d4b24c9345fcf16b9ff7db7fcb1ee333ba0825f7a18724a36e170d"
+    }
+  },
+  {
+    "id": "member-range-cleanup-0e4ee0",
+    "size": 59,
+    "offset": 937696,
+    "inputs": [
+      "src/campaign_member_range_cleanup.c",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@cleanup_0e4ee0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_member_range_cleanup.obj src/campaign_member_range_cleanup.c",
+    "link_bindings": {
+      "@remove_0da200@16": {
+        "va": 278766080,
+        "basis": "Previously matched array range-removal routine."
+      },
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine heap singleton used to release the array storage."
+      }
+    },
+    "identification": "Aligned entry bounded by a preceding return and compiler padding. Removes all 16-byte elements from the array at receiver offset 12, frees remaining storage, and clears its fields.",
+    "match": {
+      "bytes_sha256": "6f18c8004f2ebedf3744999063eedd45208013fd427803ba7da00c573aaa784f",
+      "inputs_sha256": "0953f27a0ec3dce040ef469b9a77e698cb8000f85fdcce8fb3190bb569018174"
     }
   },
   {
@@ -5334,6 +5388,33 @@
     "match": {
       "bytes_sha256": "65ce8baa3eae961de613613034b2f70233b86167bb59a5f993ffe8bc70dcebb1",
       "inputs_sha256": "fe5469a7eea3ced5feb1a82ef00f5e1504d344243962ef0225b2e4bd1937d578"
+    }
+  },
+  {
+    "id": "member-range-cleanup-0ebae0",
+    "size": 59,
+    "offset": 965344,
+    "inputs": [
+      "src/campaign_member_range_cleanup.c",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@cleanup_0ebae0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_member_range_cleanup.obj src/campaign_member_range_cleanup.c",
+    "link_bindings": {
+      "@remove_0da320@16": {
+        "va": 278766368,
+        "basis": "Previously matched array range-removal routine."
+      },
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine heap singleton used to release the array storage."
+      }
+    },
+    "identification": "Aligned entry bounded by a preceding return and compiler padding. Removes all 8-byte elements from the array at receiver offset 12, frees remaining storage, and clears its fields.",
+    "match": {
+      "bytes_sha256": "d3a671e18a7775a0253bb3e4c1239181bb1438fd1feaaeb79ad1359d7fab701d",
+      "inputs_sha256": "928b715a0efbc639cf3e5b205a9412e19f048ada37ca3c5675c03f2e3757d23d"
     }
   }
 ]

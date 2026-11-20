@@ -6665,6 +6665,33 @@
     }
   },
   {
+    "id": "member-range-cleanup-34d8b0",
+    "size": 59,
+    "offset": 3463344,
+    "inputs": [
+      "src/campaign_member_range_cleanup.c",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@cleanup_34d8b0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_member_range_cleanup.obj src/campaign_member_range_cleanup.c",
+    "link_bindings": {
+      "@remove_2e5ed0@16": {
+        "va": 280911568,
+        "basis": "Previously matched array range-removal routine."
+      },
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine heap singleton used to release the array storage."
+      }
+    },
+    "identification": "Indexed whole function. Removes all 4-byte elements from the array at receiver offset 20, frees remaining storage, and clears its fields.",
+    "match": {
+      "bytes_sha256": "956cc9bde8d5ff2012089dd86cd1cf3ad4cd01cd56c609466d545fa27ea953a6",
+      "inputs_sha256": "3d6d76f699b77ff340be339652a1570b235cbd0e2957f381bad5686d4d827f2e"
+    }
+  },
+  {
     "id": "game-echeloningredient-eelevatorpanel-glowselected",
     "offset": 3463632,
     "size": 46,
