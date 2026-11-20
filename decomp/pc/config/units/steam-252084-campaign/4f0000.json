@@ -276,6 +276,36 @@
     }
   },
   {
+    "id": "conditional-member-forward-4f2f90",
+    "size": 49,
+    "offset": 5189520,
+    "inputs": [
+      "src/campaign_member_forward.c"
+    ],
+    "rebuilt_symbol": "@forward_4f2f90@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_member_forward.obj src/campaign_member_forward.c",
+    "link_bindings": {
+      "@owner_4f8a30@4": {
+        "va": 283085360,
+        "basis": "Receiver lookup."
+      },
+      "@active_4844e0@4": {
+        "va": 282608864,
+        "basis": "Predicate on the retrieved receiver."
+      },
+      "@dispatch_4f2e70@16": {
+        "va": 283061872,
+        "basis": "Forwarded call on the embedded member."
+      }
+    },
+    "identification": "Indexed function calls the receiver lookup and predicate before passing the key address to the member at offset 522.",
+    "match": {
+      "bytes_sha256": "7bd98d976da61c2a26845b7440ac2647606f7950c1d3b86494f5158c459d78af",
+      "inputs_sha256": "f38757f4c852b608fefe62c0262a20efd68e9f8d4e1b37b10429d8df236c7341"
+    }
+  },
+  {
     "id": "delete-members-4f4770",
     "size": 46,
     "offset": 5195632,
@@ -822,6 +852,66 @@
     }
   },
   {
+    "id": "conditional-member-forward-4f7ee0",
+    "size": 46,
+    "offset": 5209824,
+    "inputs": [
+      "src/campaign_member_forward.c"
+    ],
+    "rebuilt_symbol": "@forward_4f7ee0@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_member_forward.obj src/campaign_member_forward.c",
+    "link_bindings": {
+      "@owner_4f9c20@4": {
+        "va": 283089952,
+        "basis": "Receiver lookup."
+      },
+      "@active_4844e0@4": {
+        "va": 282608864,
+        "basis": "Predicate on the retrieved receiver."
+      },
+      "@dispatch_4f7d80@16": {
+        "va": 283082112,
+        "basis": "Forwarded call on the embedded member."
+      }
+    },
+    "identification": "Indexed function calls the receiver lookup and predicate before passing the key address to the member at offset 16.",
+    "match": {
+      "bytes_sha256": "25c633d5ccebd55ab0b3e410940b78531d6bbf964a9d84381c5a2f69f027b7a5",
+      "inputs_sha256": "5bc589451f6c52418cce67d65bbc4836c72f241a8f8d9f57cf108695988e8650"
+    }
+  },
+  {
+    "id": "conditional-member-forward-4f7f10",
+    "size": 46,
+    "offset": 5209872,
+    "inputs": [
+      "src/campaign_member_forward.c"
+    ],
+    "rebuilt_symbol": "@forward_4f7f10@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_member_forward.obj src/campaign_member_forward.c",
+    "link_bindings": {
+      "@owner_4f8a30@4": {
+        "va": 283085360,
+        "basis": "Receiver lookup."
+      },
+      "@active_4844e0@4": {
+        "va": 282608864,
+        "basis": "Predicate on the retrieved receiver."
+      },
+      "@dispatch_4f2e70@16": {
+        "va": 283061872,
+        "basis": "Forwarded call on the embedded member."
+      }
+    },
+    "identification": "Indexed function calls the receiver lookup and predicate before passing the key address to the member at offset 10.",
+    "match": {
+      "bytes_sha256": "faa77a07645d46963f17dcbd37342ce4fac905dab8e0e22e0f951e06cdec5862",
+      "inputs_sha256": "574fe94db5c6f6965318f6e187c3df7559de25016ac8f0450cfc313670b57d0f"
+    }
+  },
+  {
     "id": "clear-record-4f7f40",
     "offset": 5209920,
     "size": 37,
@@ -983,6 +1073,156 @@
     "match": {
       "bytes_sha256": "61aaffe16f798877c153d0a24309aff328b14a112974292e9bf79a7213a2b81b",
       "inputs_sha256": "3ab0a90da4b4f88092981bc1d34dd89df6c540189ad8915d5c2238f6aec60a9e"
+    }
+  },
+  {
+    "id": "conditional-member-forward-4f9880",
+    "size": 49,
+    "offset": 5216384,
+    "inputs": [
+      "src/campaign_member_forward.c"
+    ],
+    "rebuilt_symbol": "@forward_4f9880@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_member_forward.obj src/campaign_member_forward.c",
+    "link_bindings": {
+      "@owner_4f9c20@4": {
+        "va": 283089952,
+        "basis": "Receiver lookup."
+      },
+      "@active_4844e0@4": {
+        "va": 282608864,
+        "basis": "Predicate on the retrieved receiver."
+      },
+      "@dispatch_4f7d80@16": {
+        "va": 283082112,
+        "basis": "Forwarded call on the embedded member."
+      }
+    },
+    "identification": "Indexed function calls the receiver lookup and predicate before passing the key address to the member at offset 356.",
+    "match": {
+      "bytes_sha256": "246a3c8baceefb9683427616b4f4167c627bec427789d23235d85171c12c2ff4",
+      "inputs_sha256": "f6ad4ebf498d33fecb9fcd3abd596f7ddb25aaa4721990ae273e0d4c0810e9d1"
+    }
+  },
+  {
+    "id": "conditional-member-forward-4f98c0",
+    "size": 49,
+    "offset": 5216448,
+    "inputs": [
+      "src/campaign_member_forward.c"
+    ],
+    "rebuilt_symbol": "@forward_4f98c0@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_member_forward.obj src/campaign_member_forward.c",
+    "link_bindings": {
+      "@owner_4f9c20@4": {
+        "va": 283089952,
+        "basis": "Receiver lookup."
+      },
+      "@active_4844e0@4": {
+        "va": 282608864,
+        "basis": "Predicate on the retrieved receiver."
+      },
+      "@dispatch_4f7d80@16": {
+        "va": 283082112,
+        "basis": "Forwarded call on the embedded member."
+      }
+    },
+    "identification": "Indexed function calls the receiver lookup and predicate before passing the key address to the member at offset 696.",
+    "match": {
+      "bytes_sha256": "6aed20842378b932d8b82c1a430d81ab3788eb414632cb1c3d0c2acc4bb60db7",
+      "inputs_sha256": "71d768fcd125c907e22f75c4625c8d829c74f3b324537e22b843601e4cc091c9"
+    }
+  },
+  {
+    "id": "conditional-member-forward-4f9900",
+    "size": 49,
+    "offset": 5216512,
+    "inputs": [
+      "src/campaign_member_forward.c"
+    ],
+    "rebuilt_symbol": "@forward_4f9900@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_member_forward.obj src/campaign_member_forward.c",
+    "link_bindings": {
+      "@owner_4f9c20@4": {
+        "va": 283089952,
+        "basis": "Receiver lookup."
+      },
+      "@active_4844e0@4": {
+        "va": 282608864,
+        "basis": "Predicate on the retrieved receiver."
+      },
+      "@dispatch_4f7d80@16": {
+        "va": 283082112,
+        "basis": "Forwarded call on the embedded member."
+      }
+    },
+    "identification": "Indexed function calls the receiver lookup and predicate before passing the key address to the member at offset 1036.",
+    "match": {
+      "bytes_sha256": "cbb5f488aa3481c8ed880b4798e17d7d8fa2b092b81fa3916aa74dcb3a6a1a8a",
+      "inputs_sha256": "4e8caa29da633e503a05fd2a2e4e324888db226af2377f21655cf509bb094b11"
+    }
+  },
+  {
+    "id": "conditional-member-forward-4f9940",
+    "size": 49,
+    "offset": 5216576,
+    "inputs": [
+      "src/campaign_member_forward.c"
+    ],
+    "rebuilt_symbol": "@forward_4f9940@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_member_forward.obj src/campaign_member_forward.c",
+    "link_bindings": {
+      "@owner_4f9c20@4": {
+        "va": 283089952,
+        "basis": "Receiver lookup."
+      },
+      "@active_4844e0@4": {
+        "va": 282608864,
+        "basis": "Predicate on the retrieved receiver."
+      },
+      "@dispatch_4f7d80@16": {
+        "va": 283082112,
+        "basis": "Forwarded call on the embedded member."
+      }
+    },
+    "identification": "Indexed function calls the receiver lookup and predicate before passing the key address to the member at offset 1376.",
+    "match": {
+      "bytes_sha256": "41e15c33cf72bc3fb83eee3d0ccf3a151b4abe539ebd91f5e7adb856de70c818",
+      "inputs_sha256": "c44a48f8d6f1896a6830ebafb2f69ea72eef88defe964a2e86ee7840a050b7a5"
+    }
+  },
+  {
+    "id": "conditional-member-forward-4f9980",
+    "size": 49,
+    "offset": 5216640,
+    "inputs": [
+      "src/campaign_member_forward.c"
+    ],
+    "rebuilt_symbol": "@forward_4f9980@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_member_forward.obj src/campaign_member_forward.c",
+    "link_bindings": {
+      "@owner_4f9c20@4": {
+        "va": 283089952,
+        "basis": "Receiver lookup."
+      },
+      "@active_4844e0@4": {
+        "va": 282608864,
+        "basis": "Predicate on the retrieved receiver."
+      },
+      "@dispatch_4f7d80@16": {
+        "va": 283082112,
+        "basis": "Forwarded call on the embedded member."
+      }
+    },
+    "identification": "Indexed function calls the receiver lookup and predicate before passing the key address to the member at offset 1716.",
+    "match": {
+      "bytes_sha256": "87f7e373fe7c17b30d1734858ea92215260867ba2d9894ec931e03c4c0bcbcd9",
+      "inputs_sha256": "783c79ff34c1c95d6cd69f9d44b9b455dde78e20c4becd44a004d763940915db"
     }
   },
   {

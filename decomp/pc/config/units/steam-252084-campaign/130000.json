@@ -1811,6 +1811,66 @@
     }
   },
   {
+    "id": "conditional-member-forward-137be0",
+    "size": 46,
+    "offset": 1276896,
+    "inputs": [
+      "src/campaign_member_forward.c"
+    ],
+    "rebuilt_symbol": "@forward_137be0@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_member_forward.obj src/campaign_member_forward.c",
+    "link_bindings": {
+      "@owner_1e6510@4": {
+        "va": 279864592,
+        "basis": "Receiver lookup."
+      },
+      "@active_4844e0@4": {
+        "va": 282608864,
+        "basis": "Predicate on the retrieved receiver."
+      },
+      "@dispatch_137b10@16": {
+        "va": 279149328,
+        "basis": "Forwarded call on the embedded member."
+      }
+    },
+    "identification": "Indexed function calls the receiver lookup and predicate before passing the key address to the member at offset 16.",
+    "match": {
+      "bytes_sha256": "2fd584acee66d308acad340b502b7ac8385a585687ddfd53dbccdc338ab92a1a",
+      "inputs_sha256": "8cc5120ea1c7de2824017685399df20e97ddbd8dc80276c78adfa5761abf8466"
+    }
+  },
+  {
+    "id": "conditional-member-forward-137c10",
+    "size": 49,
+    "offset": 1276944,
+    "inputs": [
+      "src/campaign_member_forward.c"
+    ],
+    "rebuilt_symbol": "@forward_137c10@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_member_forward.obj src/campaign_member_forward.c",
+    "link_bindings": {
+      "@owner_1e6510@4": {
+        "va": 279864592,
+        "basis": "Receiver lookup."
+      },
+      "@active_4844e0@4": {
+        "va": 282608864,
+        "basis": "Predicate on the retrieved receiver."
+      },
+      "@dispatch_137b10@16": {
+        "va": 279149328,
+        "basis": "Forwarded call on the embedded member."
+      }
+    },
+    "identification": "Indexed function calls the receiver lookup and predicate before passing the key address to the member at offset 356.",
+    "match": {
+      "bytes_sha256": "ff244b0f129afa1769028aa649452adf76cc6ec4c6bfc5c041d9d502d8f16a12",
+      "inputs_sha256": "f15026c8ae70a82f94cd3a05de51d23a6548f744df179f8cb9970b02f565f221"
+    }
+  },
+  {
     "id": "array-append-1385b0",
     "size": 82,
     "offset": 1279408,
