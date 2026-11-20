@@ -427,6 +427,58 @@
     }
   },
   {
+    "id": "init-methods-4886e0",
+    "size": 18,
+    "offset": 4753120,
+    "inputs": [
+      "src/campaign_table_initializers.c"
+    ],
+    "rebuilt_symbol": "@init_4886e0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_table_initializers.obj src/campaign_table_initializers.c",
+    "link_bindings": {
+      "@initialize_4bd740@4": {
+        "va": 282842944,
+        "basis": "Direct call before the methods table is installed."
+      },
+      "_methods_83cbe0": {
+        "va": 286510048,
+        "basis": "Read-only table stored in the receiver. Its first slot points to executable code."
+      }
+    },
+    "identification": "Independent Ghidra extent. Calls RVA 0x4bd740 before installing the methods table at RVA 0x83cbe0. Its first slot points to function RVA 0x488960. Returns the original receiver.",
+    "match": {
+      "bytes_sha256": "195199e14f690955a0a0d0f6b5a5381dddb5b2ab6d774d77c6e65248a0df9e0a",
+      "inputs_sha256": "e40a3b3fae16c163ab31d4ffeccf9b8e44d8218adaf9e5b5a9f99e72c4deee16"
+    }
+  },
+  {
+    "id": "init-methods-488730",
+    "size": 18,
+    "offset": 4753200,
+    "inputs": [
+      "src/campaign_table_initializers.c"
+    ],
+    "rebuilt_symbol": "@init_488730@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_table_initializers.obj src/campaign_table_initializers.c",
+    "link_bindings": {
+      "@initialize_4bd740@4": {
+        "va": 282842944,
+        "basis": "Direct call before the methods table is installed."
+      },
+      "_methods_83cbfc": {
+        "va": 286510076,
+        "basis": "Read-only table stored in the receiver. Its first slot points to executable code."
+      }
+    },
+    "identification": "Independent Ghidra extent. Calls RVA 0x4bd740 before installing the methods table at RVA 0x83cbfc. Its first slot points to function RVA 0x488990. Returns the original receiver.",
+    "match": {
+      "bytes_sha256": "c9712d49e399e2a911e5b49feaad337788691b6d60e669dd0537f43086be47cb",
+      "inputs_sha256": "9829de3921f77b2fb97d8186bf216f5ebaf428c22437e7d34e8a1f25f9d2e278"
+    }
+  },
+  {
     "id": "delete-record-488960",
     "offset": 4753760,
     "size": 36,

@@ -142,6 +142,32 @@
     }
   },
   {
+    "id": "init-methods-331fa0",
+    "size": 18,
+    "offset": 3350432,
+    "inputs": [
+      "src/campaign_table_initializers.c"
+    ],
+    "rebuilt_symbol": "@init_331fa0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_table_initializers.obj src/campaign_table_initializers.c",
+    "link_bindings": {
+      "@initialize_3d7930@4": {
+        "va": 281901360,
+        "basis": "Direct call before the methods table is installed."
+      },
+      "_methods_7f9b18": {
+        "va": 286235416,
+        "basis": "Read-only table stored in the receiver. Its first slot points to executable code."
+      }
+    },
+    "identification": "Independent Ghidra extent. Calls RVA 0x3d7930 before installing the methods table at RVA 0x7f9b18. Its first slot points to function RVA 0x3d6af0. Returns the original receiver.",
+    "match": {
+      "bytes_sha256": "6a55bc6c0fb16396ee925ece96a03fb2f0d77f03ca59de543a6f6749f02b651d",
+      "inputs_sha256": "6b027c2975dee80f45ecd99f04f052fa546df67844ad57f6eccdbce156fcd12e"
+    }
+  },
+  {
     "id": "delete-uetransitioncontroller",
     "offset": 3350464,
     "size": 54,
@@ -295,6 +321,32 @@
     "match": {
       "bytes_sha256": "2aad66a834ebb5deb39352e1970a51d0d5a1a38784991bd6d3ab41398115e63d",
       "inputs_sha256": "0ab51b0802f91a0922dc48b77d8b683d6ba2ed5062a1a668a24c5a88dd6315d6"
+    }
+  },
+  {
+    "id": "init-methods-332310",
+    "size": 18,
+    "offset": 3351312,
+    "inputs": [
+      "src/campaign_table_initializers.c"
+    ],
+    "rebuilt_symbol": "@init_332310@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_table_initializers.obj src/campaign_table_initializers.c",
+    "link_bindings": {
+      "@initialize_3d7930@4": {
+        "va": 281901360,
+        "basis": "Direct call before the methods table is installed."
+      },
+      "_methods_7f9f78": {
+        "va": 286236536,
+        "basis": "Read-only table stored in the receiver. Its first slot points to executable code."
+      }
+    },
+    "identification": "Independent Ghidra extent. Calls RVA 0x3d7930 before installing the methods table at RVA 0x7f9f78. Its first slot points to function RVA 0x3d6af0. Returns the original receiver.",
+    "match": {
+      "bytes_sha256": "1b596c78d400e3188bb7cd33e2afa616682e170b140ad1b4e7022e680f52e837",
+      "inputs_sha256": "413c902e529ca64ab949fe9748928d6517673a6076cb32f6967e45fbe2ee18b1"
     }
   },
   {

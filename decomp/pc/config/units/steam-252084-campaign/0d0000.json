@@ -896,6 +896,58 @@
     }
   },
   {
+    "id": "init-methods-0d8af0",
+    "size": 18,
+    "offset": 887536,
+    "inputs": [
+      "src/campaign_table_initializers.c"
+    ],
+    "rebuilt_symbol": "@init_0d8af0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_table_initializers.obj src/campaign_table_initializers.c",
+    "link_bindings": {
+      "@initialize_0732b0@4": {
+        "va": 278344368,
+        "basis": "Direct call before the methods table is installed."
+      },
+      "_methods_7cf588": {
+        "va": 286061960,
+        "basis": "Read-only table stored in the receiver. Its first slot points to executable code."
+      }
+    },
+    "identification": "Independent Ghidra extent. Calls RVA 0x732b0 before installing the methods table at RVA 0x7cf588. Its first slot points to function RVA 0x3d6af0. Returns the original receiver.",
+    "match": {
+      "bytes_sha256": "f1ea6566c46841071b285688c1b6bf3c4cfe1a5d0d8af51ba50a970cafde3331",
+      "inputs_sha256": "829b37ae1a045bec7f9baf0c821f160cedf0ab81c56c45d3753c0c08f5d32a40"
+    }
+  },
+  {
+    "id": "init-methods-0d8b10",
+    "size": 18,
+    "offset": 887568,
+    "inputs": [
+      "src/campaign_table_initializers.c"
+    ],
+    "rebuilt_symbol": "@init_0d8b10@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_table_initializers.obj src/campaign_table_initializers.c",
+    "link_bindings": {
+      "@initialize_0732b0@4": {
+        "va": 278344368,
+        "basis": "Direct call before the methods table is installed."
+      },
+      "_methods_7cf6c8": {
+        "va": 286062280,
+        "basis": "Read-only table stored in the receiver. Its first slot points to executable code."
+      }
+    },
+    "identification": "Independent Ghidra extent. Calls RVA 0x732b0 before installing the methods table at RVA 0x7cf6c8. Its first slot points to function RVA 0x3d6af0. Returns the original receiver.",
+    "match": {
+      "bytes_sha256": "054338171ed3012ba46dffc857c0c2f180f43c9d34b84d3ab861db6a331ea359",
+      "inputs_sha256": "8321b6e01a2eb265b06a2ec2305b618715505a75ec121048ba9499b7668421d3"
+    }
+  },
+  {
     "id": "placement-uanimation",
     "offset": 887840,
     "size": 24,

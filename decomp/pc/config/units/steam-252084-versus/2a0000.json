@@ -119,6 +119,58 @@
     }
   },
   {
+    "id": "init-methods-2a13a0",
+    "size": 18,
+    "offset": 2757536,
+    "inputs": [
+      "src/versus_table_initializers.c"
+    ],
+    "rebuilt_symbol": "@init_2a13a0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_table_initializers.obj src/versus_table_initializers.c",
+    "link_bindings": {
+      "@initialize_2ac8b0@4": {
+        "va": 280676528,
+        "basis": "Direct call before the methods table is installed."
+      },
+      "_methods_2f0d08": {
+        "va": 280956168,
+        "basis": "Read-only table stored in the receiver. Its first slot points to executable code."
+      }
+    },
+    "identification": "Independent Ghidra extent. Calls RVA 0x2ac8b0 before installing the methods table at RVA 0x2f0d08. Its first slot points to function RVA 0x2ac8e0. Returns the original receiver.",
+    "match": {
+      "bytes_sha256": "29251693c2856642ab4ddf172c2e74697e11a6ccc84663302796c2787df95293",
+      "inputs_sha256": "3b8b6ef68ebcb0ea42e573ceab3ed8d5c490254c66225eb0f03910c641a36ab0"
+    }
+  },
+  {
+    "id": "init-methods-2a13c0",
+    "size": 18,
+    "offset": 2757568,
+    "inputs": [
+      "src/versus_table_initializers.c"
+    ],
+    "rebuilt_symbol": "@init_2a13c0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_table_initializers.obj src/versus_table_initializers.c",
+    "link_bindings": {
+      "@initialize_2ac8b0@4": {
+        "va": 280676528,
+        "basis": "Direct call before the methods table is installed."
+      },
+      "_methods_2f0d58": {
+        "va": 280956248,
+        "basis": "Read-only table stored in the receiver. Its first slot points to executable code."
+      }
+    },
+    "identification": "Independent Ghidra extent. Calls RVA 0x2ac8b0 before installing the methods table at RVA 0x2f0d58. Its first slot points to function RVA 0x2ac8e0. Returns the original receiver.",
+    "match": {
+      "bytes_sha256": "1ac205e2374290cc49f8a3f2cc80536d9e258d9e2617b45917616607ae64e006",
+      "inputs_sha256": "9f5353564ff2e3ddc51dc6bf2a4d501427b3a66210d934f3b59204efb4859909"
+    }
+  },
+  {
     "id": "construct-range-2a9140",
     "size": 43,
     "offset": 2789696,

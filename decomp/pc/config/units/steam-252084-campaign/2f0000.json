@@ -172,6 +172,32 @@
     }
   },
   {
+    "id": "init-methods-2f14d0",
+    "size": 18,
+    "offset": 3085520,
+    "inputs": [
+      "src/campaign_table_initializers.c"
+    ],
+    "rebuilt_symbol": "@init_2f14d0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_table_initializers.obj src/campaign_table_initializers.c",
+    "link_bindings": {
+      "@initialize_0b02a0@4": {
+        "va": 278594208,
+        "basis": "Direct call before the methods table is installed."
+      },
+      "_methods_7eeac0": {
+        "va": 286190272,
+        "basis": "Read-only table stored in the receiver. Its first slot points to executable code."
+      }
+    },
+    "identification": "Independent Ghidra extent. Calls RVA 0xb02a0 before installing the methods table at RVA 0x7eeac0. Its first slot points to function RVA 0x3d6af0. Returns the original receiver.",
+    "match": {
+      "bytes_sha256": "285288c601d6b5d4a31bfe32685a8c76d600fbccc002fb2a45003b7c5375b2a0",
+      "inputs_sha256": "52ff43eff5e1144edd7ef70f62d4ee7310c86ab997cd13f9ab63e26e90be537c"
+    }
+  },
+  {
     "id": "delete-aetrapmover",
     "offset": 3085552,
     "size": 46,

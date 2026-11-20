@@ -984,6 +984,32 @@
     }
   },
   {
+    "id": "init-methods-49a4e0",
+    "size": 18,
+    "offset": 4826336,
+    "inputs": [
+      "src/campaign_table_initializers.c"
+    ],
+    "rebuilt_symbol": "@init_49a4e0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_table_initializers.obj src/campaign_table_initializers.c",
+    "link_bindings": {
+      "@initialize_4c7f90@4": {
+        "va": 282886032,
+        "basis": "Direct call before the methods table is installed."
+      },
+      "_methods_83dff8": {
+        "va": 286515192,
+        "basis": "Read-only table stored in the receiver. Its first slot points to executable code."
+      }
+    },
+    "identification": "Independent Ghidra extent. Calls RVA 0x4c7f90 before installing the methods table at RVA 0x83dff8. Its first slot points to function RVA 0x49a500. Returns the original receiver.",
+    "match": {
+      "bytes_sha256": "b1e3bf90696380b9687788dddc0a45dbac7755c0388af16b45cdd305abadd97c",
+      "inputs_sha256": "10b03de6d6f1b75fdfe8805ca7116ed7630cad5c56f20bb2221e52c56deefc9f"
+    }
+  },
+  {
     "id": "delete-record-49a500",
     "offset": 4826368,
     "size": 36,

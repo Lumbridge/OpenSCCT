@@ -542,6 +542,32 @@
     }
   },
   {
+    "id": "init-methods-2af4c0",
+    "size": 18,
+    "offset": 2815168,
+    "inputs": [
+      "src/campaign_table_initializers.c"
+    ],
+    "rebuilt_symbol": "@init_2af4c0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_table_initializers.obj src/campaign_table_initializers.c",
+    "link_bindings": {
+      "@initialize_3d7930@4": {
+        "va": 281901360,
+        "basis": "Direct call before the methods table is installed."
+      },
+      "_methods_7e9d98": {
+        "va": 286170520,
+        "basis": "Read-only table stored in the receiver. Its first slot points to executable code."
+      }
+    },
+    "identification": "Independent Ghidra extent. Calls RVA 0x3d7930 before installing the methods table at RVA 0x7e9d98. Its first slot points to function RVA 0x3d6af0. Returns the original receiver.",
+    "match": {
+      "bytes_sha256": "dc29f829106a47631a9ffadd39a53bb77f3a0388f0e7e74509ed487fad307b66",
+      "inputs_sha256": "5af57f079849f85d3015b5acdca1fffb6094a5db1540ae64acabf8ffae0f0841"
+    }
+  },
+  {
     "id": "delete-uetrainingdata",
     "offset": 2815200,
     "size": 33,

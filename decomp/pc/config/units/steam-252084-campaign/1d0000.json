@@ -815,6 +815,58 @@
     }
   },
   {
+    "id": "init-methods-1db3c0",
+    "size": 18,
+    "offset": 1946560,
+    "inputs": [
+      "src/campaign_table_initializers.c"
+    ],
+    "rebuilt_symbol": "@init_1db3c0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_table_initializers.obj src/campaign_table_initializers.c",
+    "link_bindings": {
+      "@initialize_4395c0@4": {
+        "va": 282301888,
+        "basis": "Direct call before the methods table is installed."
+      },
+      "_methods_7db358": {
+        "va": 286110552,
+        "basis": "Read-only table stored in the receiver. Its first slot points to executable code."
+      }
+    },
+    "identification": "Independent Ghidra extent. Calls RVA 0x4395c0 before installing the methods table at RVA 0x7db358. Its first slot points to function RVA 0x1db8e0. Returns the original receiver.",
+    "match": {
+      "bytes_sha256": "c0fa312a386012b85a9c9f2dfd2a8523318feb6a0298f5f69dfbc01718a330cd",
+      "inputs_sha256": "81bffd6cff613568ca793078c3e6c396eac36f20404664a39806c2dedf592842"
+    }
+  },
+  {
+    "id": "init-methods-1db3e0",
+    "size": 18,
+    "offset": 1946592,
+    "inputs": [
+      "src/campaign_table_initializers.c"
+    ],
+    "rebuilt_symbol": "@init_1db3e0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_table_initializers.obj src/campaign_table_initializers.c",
+    "link_bindings": {
+      "@initialize_439660@4": {
+        "va": 282302048,
+        "basis": "Direct call before the methods table is installed."
+      },
+      "_methods_7db370": {
+        "va": 286110576,
+        "basis": "Read-only table stored in the receiver. Its first slot points to executable code."
+      }
+    },
+    "identification": "Independent Ghidra extent. Calls RVA 0x439660 before installing the methods table at RVA 0x7db370. Its first slot points to function RVA 0x1db900. Returns the original receiver.",
+    "match": {
+      "bytes_sha256": "c2d605944b18fb617c0457085febabc33d67533f26253f2de2b1d5bd9cdd0a36",
+      "inputs_sha256": "1bf6c8599cb31cd9277cc9842d2aec71e23fada3dffe3854253792a5f2f02540"
+    }
+  },
+  {
     "id": "array-release-1db6b0",
     "size": 43,
     "offset": 1947312,

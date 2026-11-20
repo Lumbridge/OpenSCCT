@@ -2908,6 +2908,32 @@
     }
   },
   {
+    "id": "init-methods-02ca10",
+    "size": 18,
+    "offset": 182800,
+    "inputs": [
+      "src/campaign_table_initializers.c"
+    ],
+    "rebuilt_symbol": "@init_02ca10@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_table_initializers.obj src/campaign_table_initializers.c",
+    "link_bindings": {
+      "@initialize_299150@4": {
+        "va": 280596816,
+        "basis": "Direct call before the methods table is installed."
+      },
+      "_methods_7bc720": {
+        "va": 285984544,
+        "basis": "Read-only table stored in the receiver. Its first slot points to executable code."
+      }
+    },
+    "identification": "Independent Ghidra extent. Calls RVA 0x299150 before installing the methods table at RVA 0x7bc720. Its first slot points to function RVA 0x3d6af0. Returns the original receiver.",
+    "match": {
+      "bytes_sha256": "2552d0ef7eb18809f18ec0117ce9f5409f1e7d7b4dd3ebe9e50bf2ce07a31f9a",
+      "inputs_sha256": "985cd1a1ce998a6d68bf41807c085ece071057f1f26bb7b83a127a197644c32c"
+    }
+  },
+  {
     "id": "virtual-abaseuav-29-02ca30",
     "size": 3,
     "offset": 182832,

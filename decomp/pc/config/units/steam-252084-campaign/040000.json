@@ -83,6 +83,32 @@
     }
   },
   {
+    "id": "init-methods-042d70",
+    "size": 18,
+    "offset": 273776,
+    "inputs": [
+      "src/campaign_table_initializers.c"
+    ],
+    "rebuilt_symbol": "@init_042d70@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_table_initializers.obj src/campaign_table_initializers.c",
+    "link_bindings": {
+      "@initialize_299150@4": {
+        "va": 280596816,
+        "basis": "Direct call before the methods table is installed."
+      },
+      "_methods_7bcca8": {
+        "va": 285985960,
+        "basis": "Read-only table stored in the receiver. Its first slot points to executable code."
+      }
+    },
+    "identification": "Independent Ghidra extent. Calls RVA 0x299150 before installing the methods table at RVA 0x7bcca8. Its first slot points to function RVA 0x3d6af0. Returns the original receiver.",
+    "match": {
+      "bytes_sha256": "164a8186c0b7a8c98dfbd37829b7820967da8aa47180786a62a506e6d87ba063",
+      "inputs_sha256": "8711024456372d88ac416cc767429b901d92adad4e8467e825f0411192a015d4"
+    }
+  },
+  {
     "id": "delete-abasecivilian",
     "offset": 273808,
     "size": 33,
