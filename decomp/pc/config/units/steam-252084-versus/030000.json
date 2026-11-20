@@ -90,6 +90,58 @@
     }
   },
   {
+    "id": "state-metadata-initialize-state-name",
+    "size": 28,
+    "offset": 245600,
+    "inputs": [
+      "src/versus_state_metadata.c"
+    ],
+    "rebuilt_symbol": "@initialize_state_name@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O1 /Gy /c /Folocal/versus_state_metadata.obj src/versus_state_metadata.c",
+    "link_bindings": {
+      "@initialize_base@4": {
+        "va": 277969568,
+        "basis": "Stock operand for @initialize base@4."
+      },
+      "@prepare_super@4": {
+        "va": 277962400,
+        "basis": "Stock operand for @prepare super@4."
+      }
+    },
+    "identification": "Indexed whole function and UState method table slot 19. Calls base initialization, handles the optional super, and copies the name index.",
+    "match": {
+      "bytes_sha256": "f29f07bb48e6d8e2700c3dc21314bdbc2f388bb7332c6bac03f5716153091d62",
+      "inputs_sha256": "d193542f099e55d622022ccfebb09bd4c57741b3bce56cb5c8719c3c1833c5e4"
+    }
+  },
+  {
+    "id": "state-metadata-cleanup-state",
+    "size": 77,
+    "offset": 248768,
+    "inputs": [
+      "src/versus_state_metadata.c"
+    ],
+    "rebuilt_symbol": "@cleanup_state@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_state_metadata.obj src/versus_state_metadata.c",
+    "link_bindings": {
+      "_engine_heap": {
+        "va": 281492464,
+        "basis": "Stock operand for engine heap."
+      },
+      "@clean_base@4": {
+        "va": 277961952,
+        "basis": "Stock operand for @clean base@4."
+      }
+    },
+    "identification": "Indexed whole function and UState method table slot 9. Clears the script size and releases two owned buffers around base cleanup.",
+    "match": {
+      "bytes_sha256": "07609c0af8817db710f10324f4ee01bff08f3473368dd2feb50b7cb0ffd04005",
+      "inputs_sha256": "3afbf7b626a00653d2018ba90c9e3288b8c419a38c303d2696397a0c78ccb90e"
+    }
+  },
+  {
     "id": "class-binding-bind-class",
     "size": 100,
     "offset": 249712,

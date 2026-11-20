@@ -1145,6 +1145,40 @@
     }
   },
   {
+    "id": "state-metadata-get-struct-name",
+    "size": 40,
+    "offset": 52656,
+    "inputs": [
+      "src/versus_state_metadata.c"
+    ],
+    "rebuilt_symbol": "@get_struct_name@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_state_metadata.obj src/versus_state_metadata.c",
+    "link_bindings": {
+      "_struct_format": {
+        "va": 281496356,
+        "basis": "Stock operand for struct format."
+      },
+      "_format_name": {
+        "va": 277935344,
+        "basis": "Stock operand for format name."
+      },
+      "_names": {
+        "va": 281845340,
+        "basis": "Stock operand for names."
+      },
+      "_name_buffer": {
+        "va": 281530584,
+        "basis": "Stock operand for name buffer."
+      }
+    },
+    "identification": "Indexed whole function and UState method table slot 33. Formats the indexed name using the UTF-16 F%s format.",
+    "match": {
+      "bytes_sha256": "4f68810e1dd5067c6ecaceeafca32d21a9dfe5c983cf117039b8f9a63c6f2ef9",
+      "inputs_sha256": "5f93267dbcca0d10898eae81878462f82b947315683cd5e8f62b6e097882c39a"
+    }
+  },
+  {
     "id": "delete-ustruct",
     "offset": 52704,
     "size": 33,
