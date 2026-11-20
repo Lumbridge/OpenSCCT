@@ -777,6 +777,66 @@
     }
   },
   {
+    "id": "vector-checked-16-214030",
+    "size": 81,
+    "offset": 2179120,
+    "inputs": [
+      "src/campaign_vector_noreturn.c"
+    ],
+    "rebuilt_symbol": "@initialize_16@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vector_noreturn.obj src/campaign_vector_noreturn.c",
+    "link_bindings": {
+      "@vector_length_error@4": {
+        "va": 280051136,
+        "basis": "Direct call to the vector length exception constructor and throw routine."
+      },
+      "_allocation_kind": {
+        "va": 287455708,
+        "basis": "Allocation label pointer passed to the shared allocator."
+      },
+      "_allocate_buffer": {
+        "va": 279826608,
+        "basis": "Direct call to the shared Campaign buffer allocator."
+      }
+    },
+    "identification": "Aligned vector initialization entry at RVA 0x214030. Initializes three storage pointers and checks the 16-byte element limit before allocation. Both return paths pop the count argument.",
+    "match": {
+      "bytes_sha256": "1c27709ceca70bf6c18f6fa4642fa88586bc98c62b64905ec7f3f6d385698c74",
+      "inputs_sha256": "5cbf09132ca4bef35db7f3e7431ec5d7c1867c49f9168bdb470852db1413f503"
+    }
+  },
+  {
+    "id": "vector-checked-16-214090",
+    "size": 81,
+    "offset": 2179216,
+    "inputs": [
+      "src/campaign_vector_noreturn.c"
+    ],
+    "rebuilt_symbol": "@initialize_16@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vector_noreturn.obj src/campaign_vector_noreturn.c",
+    "link_bindings": {
+      "@vector_length_error@4": {
+        "va": 280051248,
+        "basis": "Direct call to the vector length exception constructor and throw routine."
+      },
+      "_allocation_kind": {
+        "va": 287455708,
+        "basis": "Allocation label pointer passed to the shared allocator."
+      },
+      "_allocate_buffer": {
+        "va": 279826608,
+        "basis": "Direct call to the shared Campaign buffer allocator."
+      }
+    },
+    "identification": "Aligned vector initialization entry at RVA 0x214090. Initializes three storage pointers and checks the 16-byte element limit before allocation. Both return paths pop the count argument.",
+    "match": {
+      "bytes_sha256": "9a8e894513b754309519ee3b1c6160fb64cc934d70f998d9749c6194a4b9f42b",
+      "inputs_sha256": "56cf3c2c91bb9622f128d45966de39cdd3acd52087e88783a9a4e6290c8bfcad"
+    }
+  },
+  {
     "id": "delete-members-214480",
     "size": 30,
     "offset": 2180224,
@@ -1889,6 +1949,36 @@
     "match": {
       "bytes_sha256": "3f6be5561876515de5786ebfe4f1d685ad985d25dc01db5ddd91a1f54a5e8e9a",
       "inputs_sha256": "8e6712824aee68dd3ef317f8c42637ed34f893198348f09f170ffa329f0025ca"
+    }
+  },
+  {
+    "id": "vector-checked-16-21fcb0",
+    "size": 81,
+    "offset": 2227376,
+    "inputs": [
+      "src/campaign_vector_noreturn.c"
+    ],
+    "rebuilt_symbol": "@initialize_16@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vector_noreturn.obj src/campaign_vector_noreturn.c",
+    "link_bindings": {
+      "@vector_length_error@4": {
+        "va": 280091072,
+        "basis": "Direct call to the vector length exception constructor and throw routine."
+      },
+      "_allocation_kind": {
+        "va": 287495100,
+        "basis": "Allocation label pointer passed to the shared allocator."
+      },
+      "_allocate_buffer": {
+        "va": 279826608,
+        "basis": "Direct call to the shared Campaign buffer allocator."
+      }
+    },
+    "identification": "Aligned vector initialization entry at RVA 0x21fcb0. Initializes three storage pointers and checks the 16-byte element limit before allocation. Both return paths pop the count argument.",
+    "match": {
+      "bytes_sha256": "57c1249ed5fbc39b29e954849a16e7e653f981ea4ad9dca14c0e22d037f75a92",
+      "inputs_sha256": "45541e4355a501b392d39ce5ee95f98d99370d8628a392515ea5bd5a9a26b2ee"
     }
   },
   {
