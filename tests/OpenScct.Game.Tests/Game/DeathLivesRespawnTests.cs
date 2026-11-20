@@ -484,13 +484,13 @@ public class DeathLivesRespawnTests
         var smg = new ClassRef("Svm.CompactSMG");
         Assert.Equal(smg, dm[0].SpawnWeaponFor(uzi));
         Assert.Equal(smg, dm[0].SpawnWeaponFor(new ClassRef("Svm.PumpShotgun")));
-        Assert.Equal(smg, Match("?GameMode=7", "?Name=B").Players[0].SpawnWeaponFor(new ClassRef("SBase.Nothing")));
+        Assert.Equal(new ClassRef("Svm.M4A1S"), Match("?GameMode=7", "?Name=B").Players[0].SpawnWeaponFor(new ClassRef("SBase.Nothing")));
     }
 
     [Fact]
     public void The_use_key_edge_cycles_the_respawn_weapon()
     {
-        (GameWorld _, SPlayerController[] p) = Match("?GameMode=7?LivesDEF=5", "?Name=A");
+        (GameWorld _, SPlayerController[] p) = Match("?GameMode=7?LivesDEF=5?SvmRifles=0", "?Name=A");
         SPlayerController a = p[0];
         a.GotoState("s_Dead");
         a.bUsing = 1;

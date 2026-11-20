@@ -37,6 +37,10 @@ public static class PackedContent
         return index.Shared.Where(p => !store.HasShared(p)).ToList();
     }
 
+    /// <summary>Offer the shared content update when its archive digest has changed and the catalogue is reachable.</summary>
+    public static bool HasOnlineSharedUpdate(ContentIndex? index, ContentStore store) =>
+        index is { FromOfflineCache: false } && SharedToFetch(index, store).Count > 0;
+
     /// <summary>
     /// The maps to fetch: with <paramref name="firstDownload"/> every playable stock map not installed as the index
     /// has it, without the retail copies (AQU03, BNK11, ...) of maps the Enhanced SCCT Versus set has under the same

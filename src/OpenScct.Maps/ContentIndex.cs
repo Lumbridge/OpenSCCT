@@ -89,6 +89,9 @@ public sealed record ContentIndex
 
     public DateTimeOffset Updated { get; init; }
 
+    /// <summary>The store could not reach the catalogue and returned a previously downloaded copy.</summary>
+    public bool FromOfflineCache { get; init; }
+
     public string SvMapFormat { get; init; } = string.Empty;
 
     public IReadOnlyList<ContentSharedPack> Shared { get; init; } = [];

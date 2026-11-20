@@ -16,13 +16,6 @@ internal sealed partial class AdminPortal
         return value.Length > max ? value[..max] : value;
     }
 
-    private static bool ValidVersion(string value)
-    {
-        string[] parts = value.Split('.');
-        return parts.Length is >= 1 and <= 3 && parts.All(part =>
-            int.TryParse(part, NumberStyles.None, CultureInfo.InvariantCulture, out _));
-    }
-
     private IResult Search(HttpContext context, AdminSessionRow admin)
     {
         string query = Query(context, "q");

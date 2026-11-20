@@ -3,9 +3,12 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Reflection;
+using System.Security.Cryptography;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -832,6 +835,7 @@ internal static class Program
 
     private static void LifecycleChecks()
     {
+        Inspect(UnrealSharedUpdate);
         Inspect(() =>
         {
             var scenario = new Scenario("editor-ready", true, true, "Open Editor");
@@ -1177,6 +1181,67 @@ internal static class Program
         Check(!preview.VerticalScroll.Visible, label + " has no vertical changelog scrollbar when the working area has room");
         Check(IsInClient(form, Field<Button>(form, "_whatsNew")), label + " changelog action fits");
         Check(IsInClient(form, Field<Label[]>(form, "_previewItems").Last(c => c.Visible)), label + " last release highlight fits");
+    }
+
+    private static void UnrealSharedUpdate()
+    {
+        var scenario = new Scenario("unreal-ready", true, true, "Play");
+        using var fixture = new Fixture(scenario);
+        using Form form = Create(fixture, scenario);
+        using var payload = new MemoryStream();
+        using (var archive = new ZipArchive(payload, ZipArchiveMode.Create, leaveOpen: true))
+        using (var writer = new StreamWriter(archive.CreateEntry("chars/models.json").Open()))
+            writer.Write("new equipment");
+        byte[] bytes = payload.ToArray();
+        string digest = Convert.ToHexStringLower(SHA256.HashData(bytes));
+        string catalogue = JsonSerializer.Serialize(new
+        {
+            format = ContentIndex.Format, formatVersion = 1,
+            shared = new[] { new { id = "chars", version = "1", contents = new[] { "chars" },
+                download = new { url = "https://fixture.invalid/chars.zip", size = bytes.Length, sha256 = digest } } },
+        });
+        int downloads = 0;
+        bool offline = false;
+        using var http = new HttpClient(new FixtureHandler(request =>
+        {
+            if (offline) throw new HttpRequestException("Offline during test");
+            if (request.RequestUri!.AbsoluteUri == ContentStore.IndexUrl)
+                return new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(catalogue) };
+            if (request.RequestUri.AbsoluteUri != "https://fixture.invalid/chars.zip")
+                throw new InvalidOperationException("Unexpected URL: " + request.RequestUri);
+            downloads++;
+            return new HttpResponseMessage(HttpStatusCode.OK) { Content = new ByteArrayContent(bytes) };
+        }));
+        Set(form, "_packs", new ContentStore(fixture.Layout.Packs, http));
+        string receipt = Path.Combine(fixture.Layout.Packs, "installed.json");
+        string oldReceipt = File.ReadAllText(receipt);
+        void CheckTab()
+        {
+            PumpUntil((Task)MainType.GetMethod("CheckUnrealAsync", Hidden)!.Invoke(form, [CancellationToken.None])!);
+            Call(form, "RefreshLocal");
+        }
+        CheckTab();
+        Check(Field<Button>(form, "_main").Text == "Update shared files", "Unreal tab detects older character files on an installed game");
+        PumpUntil((Task)MainType.GetMethod("DoUnrealActionAsync", Hidden)!.Invoke(form, null)!);
+        string models = Path.Combine(fixture.Layout.Packs, "shared", "chars", "models.json");
+        Check(downloads == 1 && File.ReadAllText(models) == "new equipment" && Field<Button>(form, "_main").Text == "Play",
+            "Unreal primary action installs the verified archive and returns to Play");
+        CheckTab();
+        Check(downloads == 1 && Field<Button>(form, "_main").Text == "Play", "Current Unreal character files skip the archive on recheck");
+        File.WriteAllText(receipt, oldReceipt);
+        offline = true;
+        CheckTab();
+        Check(Field<Button>(form, "_main").Text == "Play", "An offline installation can play even with an older character receipt");
+        offline = false;
+        PumpUntil((Task)MainType.GetMethod("SetupOrUpdateUnrealAsync", Hidden)!.Invoke(form, [CancellationToken.None])!);
+        Check(downloads == 2 && File.ReadAllText(receipt).Contains(digest, StringComparison.Ordinal),
+            "Unreal setup/update also finishes pending character files within the same action");
+    }
+
+    private sealed class FixtureHandler(Func<HttpRequestMessage, HttpResponseMessage> respond) : HttpMessageHandler
+    {
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancel) =>
+            Task.FromResult(respond(request));
     }
 
     private static void PumpUntil(Task task)

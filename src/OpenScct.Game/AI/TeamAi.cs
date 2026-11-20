@@ -200,6 +200,12 @@ public sealed partial class TeamAi
 
         if (_follower is null || !ReferenceEquals(_follower.Graph, _bot.World.NavFor(pawn is SPawnAttaque)))
             _follower = new NavFollower(_bot.World, pawn is SPawnAttaque);
+        if (pawn.Physics is EPhysics.PHYS_OnPipe or EPhysics.PHYS_OnLadder)
+        {
+            // Finish the climb with the follower that planned it. A new team goal can wait for the landing.
+            return Goal != TeamGoal.None && _follower.HasGoal && !_follower.Failed &&
+                Route(pawn, _follower.Goal, now, ref plan);
+        }
         if (OrderRequester is not null && !Committed(pawn) && !OrderStillValid(pawn, now))
             CancelOrder(now);
         if (OrderRequester is null && now >= _nextDecision && !Committed(pawn))
@@ -618,14 +624,6 @@ public sealed partial class TeamAi
             // alone here, the bot hung until the goal timed out; steered at the mate himself, it planned anew from the
             // hang, whose first point was the floor below, and let go of a ledge of its route each time it caught it.
             MoveTo(pawn, _follower is { HasGoal: true, Failed: false } onRoute ? onRoute.Goal : Floor(mate.Location, mate), now, ref plan);
-            return true;
-        }
-
-        if (pawn.Physics == EPhysics.PHYS_OnPipe && _follower is { HasGoal: true } route)
-        {
-            // On a pipe of the route (up out of a pit below the mate, say): the route's keys climb it. With none the bot
-            // held the pipe for the rest of the goal (the play-team smoke on SteeE, pipe GE218).
-            MoveTo(pawn, route.Goal, now, ref plan);
             return true;
         }
 

@@ -84,12 +84,15 @@ public sealed class SpySecurityTests
         Assert.True(security.Steer(bot, world.Now, ref plan));
         Assert.False(plan.Keys.Moving);
         Assert.Equal(1, plan.Keys.bFireMode);
-        Assert.True(security.Penalty(bot, V(0, 0, 0)) > 0);
+        float activePenalty = security.Penalty(bot, V(0, 0, 0));
+        Assert.True(activePenalty > 0);
         // A failed shot sequence must give navigation another turn instead of freezing forever.
         plan = new AiPlan { Yaw = 16384, Keys = new AiInput { BT_Up = 1 } };
         Assert.True(security.Steer(bot, world.Now + 7f, ref plan));
         Assert.False(security.Steer(bot, world.Now + 7.1f, ref plan));
-        Assert.True(float.IsPositiveInfinity(security.Penalty(bot, V(0, 0, 0))));
+        // Prefer a detour after the disable fails, but an alarm beam can still be crossed if it guards the only route.
+        float fallbackPenalty = security.Penalty(bot, V(0, 0, 0));
+        Assert.True(float.IsFinite(fallbackPenalty) && fallbackPenalty > activePenalty);
         laser.GotoState(new Name("s_Inactive"));
         Assert.False(security.Steer(bot, world.Now, ref plan));
         Assert.Equal(0, security.Penalty(bot, V(0, 0, 0)));

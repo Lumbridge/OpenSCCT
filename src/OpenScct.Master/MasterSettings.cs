@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
 using System.Runtime.CompilerServices;
 
 namespace OpenScct.Master;
@@ -13,6 +15,13 @@ internal static class MasterSettings
     private sealed record ConfigValues(string? Motd, string? LatestVersion, string? MinVersion);
 
     private static readonly ConditionalWeakTable<MasterOptions, ConfigValues> s_config = new();
+
+    internal static bool ValidVersion(string value)
+    {
+        string[] parts = value.Split('.');
+        return parts.Length is >= 1 and <= 3 && parts.All(part =>
+            int.TryParse(part, NumberStyles.None, CultureInfo.InvariantCulture, out _));
+    }
 
     public static void Apply(AccountStore store, MasterOptions options)
     {

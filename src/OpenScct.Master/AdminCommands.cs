@@ -26,6 +26,7 @@ internal static class AdminCommands
           unlock <name|discord id> <all|spy|merc|item id...>         give an account cosmetics without the achievements
           lock <name|discord id> <all|spy|merc|item id...>           take back cosmetics given with unlock
           cosmetics                                                 list every cosmetic item id
+          recommend-version <version>                               change the update notice; keeps minimum version and MOTD
           rank <name|discord id> <prestige> <level>                 set an account's prestige (0-10) and level (1-55)
           audit [N]                                                 the last N audit entries (default 20)
         """;
@@ -69,6 +70,7 @@ internal static class AdminCommands
                 "unlock" when rest.Length >= 3 => admin.Grant(rest[1], rest[2..], unlock: true),
                 "lock" when rest.Length >= 3 => admin.Grant(rest[1], rest[2..], unlock: false),
                 "cosmetics" when rest.Length == 1 => admin.Cosmetics(),
+                "recommend-version" when rest.Length == 2 => admin.RecommendVersion(rest[1]),
                 "rank" when rest.Length == 4 => admin.Rank(rest[1], rest[2], rest[3]),
                 "audit" when rest.Length <= 2 => admin.Audit(rest.Length == 2 ? rest[1] : null),
                 _ => admin.UsageError(),
@@ -79,6 +81,8 @@ internal static class AdminCommands
     private sealed class Session(AccountStore store, MasterOptions options, TextWriter output, TextWriter errors)
     {
         private readonly AdminActions _actions = new(store);
+
+        public int RecommendVersion(string version) => Report(store.RecommendVersion(version, options.MinVersion));
 
         private int Report(AdminResult result)
         {

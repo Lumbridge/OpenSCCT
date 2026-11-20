@@ -177,7 +177,7 @@ public sealed class ContentStore
         {
             if (File.Exists(cacheFile))
             {
-                return ReadIndex(await File.ReadAllTextAsync(cacheFile, cancel).ConfigureAwait(false));
+                return ReadIndex(await File.ReadAllTextAsync(cacheFile, cancel).ConfigureAwait(false)) with { FromOfflineCache = true };
             }
 
             throw e is OperationCanceledException

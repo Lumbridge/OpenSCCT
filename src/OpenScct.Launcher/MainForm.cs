@@ -796,7 +796,9 @@ internal sealed partial class MainForm : Form
     /// maps the first time (later only newer copies of maps already downloaded). The store resumes a stopped download
     /// and checks every archive and file.
     /// </summary>
-    private async Task DownloadContentAsync(CancellationToken cancel)
+    private Task DownloadContentAsync(CancellationToken cancel) => DownloadContentAsync(cancel, null, sharedOnly: false);
+
+    private async Task DownloadContentAsync(CancellationToken cancel, ContentIndex? checkedIndex, bool sharedOnly)
     {
         _downloadingContent = true;
         SetOperation("Downloading game files");
@@ -804,7 +806,7 @@ internal sealed partial class MainForm : Form
         try
         {
             SetStatus("Loading the list of game files...", Theme.Muted);
-            ContentIndex index = await _packs.FetchIndexAsync(cancel);
+            ContentIndex index = checkedIndex ?? await _packs.FetchIndexAsync(cancel);
             if (index.Problem is { } problem && index.Shared.Count == 0)
             {
                 throw new IOException(problem);
@@ -813,7 +815,7 @@ internal sealed partial class MainForm : Form
             _packIndex = index;
             bool first = !PackedContent.Installed(_packs);
             IReadOnlyList<ContentSharedPack> shared = PackedContent.SharedToFetch(index, _packs);
-            IReadOnlyList<ContentMap> maps = PackedContent.MapsToFetch(index, _packs, first);
+            IReadOnlyList<ContentMap> maps = sharedOnly ? [] : PackedContent.MapsToFetch(index, _packs, first);
             int total = shared.Count + maps.Count;
             if (total > 0 && EditorUsesSharedContent())
                 throw new InvalidOperationException("Save your work and close the editor and its command-line tools before changing shared content.");
@@ -854,6 +856,7 @@ internal sealed partial class MainForm : Form
         catch (Exception ex) when (ex is IOException or HttpRequestException)
         {
             // Offline with no cached index: readiness only checks the packs are there.
+            _packIndex = null;
         }
     }
 

@@ -18,7 +18,7 @@ public sealed class WeaponLifetimeNetworkTests
     }
 
     [Fact]
-    public void DefaultMercSmgOwnerAndAuthorityAgreeAfterFireAndReload()
+    public void DefaultMercRifleOwnerAndAuthorityAgreeAfterFireAndReload()
     {
         var clock = new VirtualClock();
         var network = new SimLinkNetwork(clock, 615, SimLinkProfile.Get("200"));
@@ -40,8 +40,8 @@ public sealed class WeaponLifetimeNetworkTests
         var bot = match.Bots[2];
         var owner = Assert.IsAssignableFrom<SBasePawn>(bot.Controller!.Pawn);
         var source = Assert.IsAssignableFrom<SBasePawn>(match.ServerController(bot)!.Pawn);
-        var gun = Assert.IsType<CompactSMG>(owner.MyWeapon);
-        var authority = Assert.IsType<CompactSMG>(source.MyWeapon);
+        var gun = Assert.IsType<M4A1S>(owner.MyWeapon);
+        var authority = Assert.IsType<M4A1S>(source.MyWeapon);
         int ammo = gun.Ammo, clip = gun.ClipAmmo;
         gun.FireWeapon();
         Tick(120);

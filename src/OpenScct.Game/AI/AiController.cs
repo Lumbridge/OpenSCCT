@@ -273,7 +273,7 @@ public sealed class AiController
         // Team play first (TeamAi.cs): while it helps a mate the side's brain waits, and plans afresh after. A route
         // walker only walks.
         bool climbing = pawn.Physics is EPhysics.PHYS_OnPipe or EPhysics.PHYS_OnLadder;
-        if (Route is null && !climbing && TeamPlay.Think(now, ref plan))
+        if (Route is null && TeamPlay.Think(now, ref plan))
         {
             _teamHeld = true;
         }

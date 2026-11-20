@@ -486,7 +486,7 @@ internal sealed partial class AdminPortal
                 foreach (string key in new[] { "motd", "latestVersion", "minVersion" })
                 {
                     string value = Field(form, key, 300);
-                    if (key != "motd" && value.Length > 0 && !ValidVersion(value))
+                    if (key != "motd" && value.Length > 0 && !MasterSettings.ValidVersion(value))
                     {
                         return Settings(c, admin, $"'{value}' is not a version (like 0.8.52). Nothing was saved.", true);
                     }

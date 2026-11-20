@@ -12,10 +12,11 @@ public sealed class CombatActivityTests
 {
     private sealed class Rig
     {
-        public Rig(bool localVictim = false)
+        public Rig(bool localVictim = false, bool legacySmoke = false)
         {
+            string options = MatchLifecycleTests.SteeEStory + (legacySmoke ? "?SvmResponsiveSmoke=0" : string.Empty);
             World = new GameWorld(localVictim ? ENetMode.NM_ListenServer : ENetMode.NM_DedicatedServer)
-                .Load(MatchLifecycleTests.SteeEStory, w =>
+                .Load(options, w =>
                 {
                     MatchLifecycleTests.TwoSides(w);
                     w.Level.SpawnActor(new SObjective(), default, default);
@@ -55,6 +56,19 @@ public sealed class CombatActivityTests
             return smoke;
         }
 
+        public void WaitForExposure(bool sticky = false)
+        {
+            // The responsive cloud must reach breathing height before the faint timer starts.
+            float start = World.Level.WorldTimeSeconds;
+            for (int frame = 0; frame < Sim.Hz; frame++)
+            {
+                World.World.Step();
+                if ((sticky ? Merc.StickyCamInstigatorTime : Merc.SmokeInstigatorTime) > start)
+                    return;
+            }
+            Assert.Fail("The server recorded no gas exposure within one second.");
+        }
+
         public void RemoteFall() => Merc.PCChangeServerState(Merc.MirrorStateAcknowledgementTime,
             new Name("s_FallDown"), new Name("DIE_InPlace"));
 
@@ -63,12 +77,16 @@ public sealed class CombatActivityTests
     }
 
     [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
-    public void RemoteGasFallPublishesOneAttributedSleepPerRecipient(bool sticky)
+    [InlineData(false, false)]
+    [InlineData(false, true)]
+    [InlineData(true, false)]
+    public void RemoteGasFallPublishesOneAttributedSleepPerRecipient(bool sticky, bool legacySmoke)
     {
-        var rig = new Rig();
+        var rig = new Rig(legacySmoke: legacySmoke);
+        USPlayerStats attacker = rig.Spy.PlayerReplicationInfo!.Stats = new USPlayerStats();
+        USPlayerStats victim = rig.Merc.PlayerReplicationInfo!.Stats = new USPlayerStats();
         rig.Gas(sticky);
+        rig.WaitForExposure(sticky);
         rig.World.Run(0.3f);
         rig.RemoteFall();
         rig.RemoteFall();
@@ -80,6 +98,10 @@ public sealed class CombatActivityTests
             Assert.Same(rig.Spy.PlayerReplicationInfo, call.Pri1);
             Assert.Same(rig.Merc.PlayerReplicationInfo, call.Pri2);
         });
+        Assert.Equal(sticky ? 0 : 1, attacker.Spy_SmokeKOs);
+        Assert.Equal(sticky ? 1 : 0, attacker.Spy_StickyCamKOs);
+        Assert.Equal(sticky ? 0 : 1, victim.Merc_KnockedFromSmoke);
+        Assert.Equal(sticky ? 1 : 0, victim.Merc_KnockedFromStickyCam);
     }
 
     [Theory]
@@ -111,6 +133,7 @@ public sealed class CombatActivityTests
     {
         var rig = new Rig();
         Actor smoke = rig.Gas(sticky: false);
+        rig.WaitForExposure();
         rig.World.Run(interruption == "early" ? 0.1f : 0.3f);
         switch (interruption)
         {
@@ -144,11 +167,13 @@ public sealed class CombatActivityTests
     {
         var rig = new Rig();
         rig.Gas(sticky: false);
+        rig.WaitForExposure();
         rig.World.Run(0.3f);
         rig.RemoteFall();
         Assert.Equal(2, rig.SleepCalls.Length);
         rig.Pawn.bSleeping = rig.Pawn.bLyingOnGround = false;
         rig.Merc.GotoState(new Name("s_PlayerWalkingSt2H"));
+        rig.WaitForExposure();
         rig.World.Run(0.3f);
         rig.RemoteFall();
         Assert.Equal(4, rig.SleepCalls.Length);
@@ -159,6 +184,7 @@ public sealed class CombatActivityTests
     {
         var rig = new Rig();
         rig.Gas(sticky: false);
+        rig.WaitForExposure();
         rig.World.Run(0.3f);
         using (rig.World.Level.CommandTime(60, 1f, Sim.DeltaTime)) rig.RemoteFall();
         Assert.Equal(2, rig.SleepCalls.Length);
@@ -169,6 +195,7 @@ public sealed class CombatActivityTests
     {
         var rig = new Rig();
         rig.Gas(sticky: false);
+        rig.WaitForExposure();
         rig.World.Run(0.3f);
         rig.Pawn.bGasMask = true;
         rig.World.Run(0.1f);

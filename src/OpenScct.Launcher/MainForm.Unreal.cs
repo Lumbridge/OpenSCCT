@@ -5,6 +5,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using OpenScct.Launcher.Content;
 using OpenScct.Launcher.Unreal;
 using OpenScct.Launcher.Update;
 using OpenScct.Launcher.Versioning;
@@ -34,6 +35,7 @@ internal sealed partial class MainForm
         bool unreleased = installed is null && _unrealCheck is { Latest: null, Feed.Problem: null };
         // An installed update waits for the running game to close; starting another copy cannot work until then.
         bool waiting = pending is not null && _unreal.IsRunning;
+        bool sharedUpdate = !busy && installed is not null && prerequisite is null && PackedContent.HasOnlineSharedUpdate(_packIndex, _packs);
 
         _installedInfo.Text = installed is null ? "Unreal Engine build · not installed"
             : "OpenSCCT Unreal " + installed.Version + (installed.OpenscctVersion is { Length: > 0 } core ? " · OpenSCCT " + core : string.Empty);
@@ -67,6 +69,11 @@ internal sealed partial class MainForm
             _heading.Text = "Update ready";
             _launchDetail.Text = "Close OpenSCCT Unreal to finish the update.";
         }
+        else if (sharedUpdate)
+        {
+            _heading.Text = "Shared game files update available";
+            _launchDetail.Text = "Download the updated files for OpenSCCT Unreal.";
+        }
         else
         {
             _heading.Text = "Ready to play";
@@ -81,13 +88,14 @@ internal sealed partial class MainForm
             : update ? "Update Unreal"
             : prerequisite is not null ? "Get shared files"
             : waiting ? "Waiting for game to close"
+            : sharedUpdate ? "Update shared files"
             : "Play";
         bool waitingAction = !busy && !unreleased && installed is not null && !_unrealSetupFailed && !update && prerequisite is null && waiting;
         _main.Enabled = busy ? _operationCanCancel : !waitingAction;
         Theme.SetButtonEmphasis(_main, !busy && !waitingAction, Palette);
         _tips.SetToolTip(_main, null);
         _playCurrent.Text = "Use current version";
-        _playCurrent.Visible = !busy && installed is not null && (update || _unrealSetupFailed) && prerequisite is null;
+        _playCurrent.Visible = !busy && installed is not null && (update || sharedUpdate || _unrealSetupFailed) && prerequisite is null && !waiting;
         _playCurrent.Enabled = !busy;
         _check.Visible = true;
     }
@@ -95,10 +103,13 @@ internal sealed partial class MainForm
     private async Task CheckUnrealAsync(CancellationToken cancel)
     {
         SetOperation("Checking OpenSCCT Unreal updates");
-        _unrealCheck = await _unreal.CheckAsync(_settings.UnrealIncludePrereleases, cancel);
+        Task<UnrealCheck> release = _unreal.CheckAsync(_settings.UnrealIncludePrereleases, cancel);
+        await Task.WhenAll(release, RefreshPackIndexAsync(cancel));
+        _unrealCheck = await release;
         RefreshReleasePreview();
         SetStatus(_unrealCheck.Feed.Problem ?? (_unrealCheck.Latest is null ? UnrealService.NoReleaseMessage
             : _unrealCheck.UpdateAvailable ? "An OpenSCCT Unreal update is available." : _unrealCheck.Installed is null ? string.Empty
+            : PackedContent.HasOnlineSharedUpdate(_packIndex, _packs) ? "Updated shared game files are available."
             : "OpenSCCT Unreal is up to date."),
             _unrealCheck.Feed.Problem is null ? Theme.Muted : Theme.Warning);
     }
@@ -129,6 +140,11 @@ internal sealed partial class MainForm
             SetStatus("Close OpenSCCT Unreal to finish the update.", Theme.Muted);
             return;
         }
+        if (PackedContent.HasOnlineSharedUpdate(_packIndex, _packs))
+        {
+            await RunAsync(cancel => DownloadContentAsync(cancel, _packIndex, sharedOnly: true));
+            return;
+        }
         await OpenUnrealAsync();
     }
 
@@ -137,6 +153,12 @@ internal sealed partial class MainForm
         try
         {
             await SetupOrUpdateUnrealCoreAsync(cancel);
+            if (!_closeAfterWork && _unreal.Installed() is not null && !_unreal.IsRunning)
+            {
+                bool missing = _unreal.PrerequisiteProblem() is not null;
+                if (missing || PackedContent.HasOnlineSharedUpdate(_packIndex, _packs))
+                    await DownloadContentAsync(cancel, _packIndex, sharedOnly: !missing);
+            }
             _unrealSetupFailed = false;
         }
         catch (Exception ex) when ((ex is InvalidOperationException or IOException) && _unreal.IsRunning)

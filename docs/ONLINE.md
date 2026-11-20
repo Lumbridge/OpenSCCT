@@ -888,6 +888,11 @@ Configs, the accounts database, the ticket key and the content folders are never
 a few seconds: the game retries master calls, and servers re-register on their next heartbeat. The master upgrades
 its database itself on start.
 
+After the released clients can join the official server, run
+`./svm-master admin recommend-version <version> --config svm-master.json` in the master installation folder.
+The command records the new recommendation in the audit log. The running master applies it within a minute.
+Check `latestVersion` in `/api/v1/status`.
+
 Keeping updates seamless:
 - **Master API:** add fields to the JSON answers, never rename or remove them; older games ignore what they do not
   know.

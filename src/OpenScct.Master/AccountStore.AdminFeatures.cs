@@ -103,6 +103,25 @@ internal sealed partial class AccountStore
         }
     }
 
+    public AdminResult RecommendVersion(string version, string? configuredMinimum)
+    {
+        if (!MasterSettings.ValidVersion(version))
+            return AdminResult.Refused("Expected a version like 0.8.52.");
+        lock (_gate)
+        {
+            return InTransaction(() =>
+            {
+                var settings = Settings();
+                string? minimum = settings.TryGetValue("minVersion", out var storedMinimum) ? storedMinimum : configuredMinimum;
+                if (!string.IsNullOrEmpty(minimum) && OpenScct.Net.Discovery.BuildInfo.CompareVersions(minimum, version) > 0)
+                    return AdminResult.Refused($"The recommended version cannot be below the minimum {minimum}.");
+                if (settings.GetValueOrDefault("latestVersion") != version)
+                    SetSettingsAtomic(new Dictionary<string, string?> { ["latestVersion"] = version });
+                return AdminResult.Done($"Recommended version {version}.");
+            });
+        }
+    }
+
     public List<MatchRow> SearchAdminMatches(string query, string counted, int page, int pageSize, bool lookAhead = false)
     {
         lock (_gate)

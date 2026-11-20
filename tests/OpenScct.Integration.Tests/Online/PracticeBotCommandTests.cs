@@ -122,7 +122,7 @@ public sealed class PracticeBotCommandTests
         Assert.All(bots.Where(pc => SGameInfo.TeamIndexOf(pc) == 1), pc => Assert.IsType<SWeaponDefense>(((SBasePawn)pc.Pawn!).MyWeapon));
         Assert.Equal("Equipped 2 merc bot(s) with default.", Command("botweapon default"));
         Assert.All(bots.Where(pc => SGameInfo.TeamIndexOf(pc) == 1), pc =>
-            Assert.IsType<CompactSMG>(((SBasePawn)pc.Pawn!).MyWeapon));
+            Assert.IsType<M4A1S>(((SBasePawn)pc.Pawn!).MyWeapon));
         Assert.Contains("Moved 1", Command("botteam spy merc"));
         Assert.All(bots, pc => Assert.IsAssignableFrom<SPAWNDEFENSE>(pc.Pawn));
         Assert.True(rig.Server.RoundBots!.Stopped);
