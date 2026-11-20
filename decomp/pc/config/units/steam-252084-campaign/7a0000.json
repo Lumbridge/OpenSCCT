@@ -38699,5 +38699,4061 @@
       "bytes_sha256": "46320d10a71f50873b839f17b7da1a7d7ba5417218171cf21b64e60259a837f4",
       "inputs_sha256": "1dd852ded874007978ea8467baabc4465db3329ced13f0b69859b880027c76eb"
     }
+  },
+  {
+    "id": "reflection-descriptor-7aec30",
+    "size": 44,
+    "offset": 8055856,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7aec30",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1b47c": {
+        "va": 288470140,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b4af0": {
+        "va": 285952752,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_0001@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_849e60": {
+        "va": 286563936,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_849c90": {
+        "va": 286563472,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fbd4. Constructs reflection descriptor CinfoFunctions and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "815e3ac918a72dbfda6701c1c1dee605096e7d899d623929d83b5dc43552e49d",
+      "inputs_sha256": "33c7c1049fe80a999b17bb291afd5a763ad133269260b1ea76716ac1d32a59aa"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7aec60",
+    "size": 50,
+    "offset": 8055904,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7aec60",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1b4a4": {
+        "va": 288470180,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b4ab0": {
+        "va": 285952688,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1101@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_849e70": {
+        "va": 286563952,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a1b3f4": {
+        "va": 288470004,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_849d70": {
+        "va": 286563696,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_849cf0": {
+        "va": 286563568,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fbd8. Constructs reflection descriptor hkClass and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "1e10b67998643ffb7e31d9d3b1bd93fa5b755356103ddc5f4daba604058997d7",
+      "inputs_sha256": "6c34adcc34feb894debeb9dad1740e72e679f4f9a4bda971c7faf4ad896f901d"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7aeca0",
+    "size": 44,
+    "offset": 8055968,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7aeca0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1b4cc": {
+        "va": 288470220,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b4b30": {
+        "va": 285952816,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1000@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_84a204": {
+        "va": 286564868,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a1b3f4": {
+        "va": 288470004,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fbdc. Constructs reflection descriptor hkCollisionFilter and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "d48b1df98bfd410d1a40e4651fdd18f513d68aa004e0eab3a28cad7d511b329d",
+      "inputs_sha256": "5a905349fc2b00c9bd45fd200774b4018c845d9ecd7b9b779e97f0c91bfc99a9"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7aecd0",
+    "size": 50,
+    "offset": 8056016,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7aecd0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1b4f4": {
+        "va": 288470260,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b4b70": {
+        "va": 285952880,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1101@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_84a254": {
+        "va": 286564948,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a1b4cc": {
+        "va": 288470220,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84a228": {
+        "va": 286564904,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84a218": {
+        "va": 286564888,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fbe0. Constructs reflection descriptor hkCollisionFilterList and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "b039dd3a8ebd83be562d15d8ad9a4e53079db970ad6494f872b635f876109e85",
+      "inputs_sha256": "fd7f31171497780e9fb9d96f6627ae40ac8c0fdef741435837ddf7fb507bfad7"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7aed10",
+    "size": 53,
+    "offset": 8056080,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7aed10",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1b51c": {
+        "va": 288470300,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b4bb0": {
+        "va": 285952944,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1101@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_84a724": {
+        "va": 286566180,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a1b4cc": {
+        "va": 288470220,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84a6e0": {
+        "va": 286566112,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84a6c0": {
+        "va": 286566080,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fbe4. Constructs reflection descriptor hkGroupFilter and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "a3761e312b0d01e0f8e7abc5cebad48347e09f299cfcaa407d7a951b88538b04",
+      "inputs_sha256": "b7621b4fb876103adea672d0da13aa89081c2dc7f9e86c76623a9ca1332a3298"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7aed50",
+    "size": 47,
+    "offset": 8056144,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7aed50",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1b544": {
+        "va": 288470340,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b4bf0": {
+        "va": 285953008,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1001@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_84a7d8": {
+        "va": 286566360,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a1b594": {
+        "va": 288470420,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84a7b8": {
+        "va": 286566328,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fbe8. Constructs reflection descriptor hkBvTreeShape and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "ecaae1e3bb40eb61730c196e94925c168f969c76fc14ab8e497b6c7a30d69087",
+      "inputs_sha256": "7bda7c7eed272ca3897e156041e0dfe6900a7f852af578d7aa28dedad6647eba"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7aed80",
+    "size": 50,
+    "offset": 8056192,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7aed80",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1b56c": {
+        "va": 288470380,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b4c30": {
+        "va": 285953072,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1101@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_84a818": {
+        "va": 286566424,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a1b544": {
+        "va": 288470340,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84a7f8": {
+        "va": 286566392,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84a7e8": {
+        "va": 286566376,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fbec. Constructs reflection descriptor hkMoppBvTreeShape and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "ddf747eace4a95315d52794ef29035bf21db6bb5b2fd40b4598c8b0643882a9d",
+      "inputs_sha256": "f6eda6bb5efbb29715d0494e15b8b940372f9f766f36bbb53c66ab94e2b9cff7"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7aedc0",
+    "size": 47,
+    "offset": 8056256,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7aedc0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1b594": {
+        "va": 288470420,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b4c70": {
+        "va": 285953136,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1001@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_84a848": {
+        "va": 286566472,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a1b3f4": {
+        "va": 288470004,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84a82c": {
+        "va": 286566444,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fbf0. Constructs reflection descriptor hkShape and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "68c6d0c6c6f89e7f05ef3c86b350b1652696d06f3f8389831ae03142930e0051",
+      "inputs_sha256": "5d4d0ae6b2a13e5aee2b2f5bc22e4026c5f6f1e1513f7b480aa84a19431dff1c"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7aedf0",
+    "size": 44,
+    "offset": 8056304,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7aedf0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1b5bc": {
+        "va": 288470460,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b4cb0": {
+        "va": 285953200,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1000@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_84a8fc": {
+        "va": 286566652,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a1b594": {
+        "va": 288470420,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fbf4. Constructs reflection descriptor hkShapeCollection and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "0f4718292c094a3e3318c32ac4c0e9444a964297861b37f7632995ded71ebe0c",
+      "inputs_sha256": "e4ba73827c1a5d16a8ff3109188ccf81e3429c03dfe8b993350eed4750629380"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7aee20",
+    "size": 44,
+    "offset": 8056352,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7aee20",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1b5e4": {
+        "va": 288470500,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b4cf0": {
+        "va": 285953264,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1000@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_84a910": {
+        "va": 286566672,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a1b594": {
+        "va": 288470420,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fbf8. Constructs reflection descriptor hkSphereRepShape and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "eb166c664d85ca1c609f07b6066d1199df6bc979f1fdca760e650bebf7bac1a9",
+      "inputs_sha256": "1d273fceb737dbc2f38e847668ad339ef09ca110c5a1e163a27a2fe0211e7a5c"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7aee50",
+    "size": 47,
+    "offset": 8056400,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7aee50",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1b60c": {
+        "va": 288470540,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b4d30": {
+        "va": 285953328,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1001@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_84a93c": {
+        "va": 286566716,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a1b5e4": {
+        "va": 288470500,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84a924": {
+        "va": 286566692,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fbfc. Constructs reflection descriptor hkConvexShape and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "7d593df6947d0254ff327ce0f436f6b7e84d7f441e4c4b701756182f61e661c7",
+      "inputs_sha256": "999bd2d46540ebbfc50bc8e7612eb99b14323ad8d8c276d9b38c9e1bf1f560e5"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7aee80",
+    "size": 50,
+    "offset": 8056448,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7aee80",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1b634": {
+        "va": 288470580,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b4d70": {
+        "va": 285953392,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1101@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_84a9b0": {
+        "va": 286566832,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a1b60c": {
+        "va": 288470540,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84a980": {
+        "va": 286566784,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84a950": {
+        "va": 286566736,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fc00. Constructs reflection descriptor hkTriangleShape and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "2f46d1c8b4376df37131945578b5283e6afb9b2070692c68d1c976932736d6df",
+      "inputs_sha256": "03f386ea404670aed494725ef024d9e42f7bc93949e5e9c26ca507a7308a2541"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7aeec0",
+    "size": 50,
+    "offset": 8056512,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7aeec0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1b65c": {
+        "va": 288470620,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b4db0": {
+        "va": 285953456,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1101@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_84aa50": {
+        "va": 286566992,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a1b5bc": {
+        "va": 288470460,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84aa00": {
+        "va": 286566912,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84a9c0": {
+        "va": 286566848,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fc04. Constructs reflection descriptor hkStorageMeshShape and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "389431c6c815b866f207bca3dec588fe7b4f6e5799153f7146306ea8620e110e",
+      "inputs_sha256": "b4bcaa489a0c3608a68e756b3f0f7eb1e80a7cf155800bbe2fd2c4080977318c"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7aef00",
+    "size": 50,
+    "offset": 8056576,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7aef00",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1b688": {
+        "va": 288470664,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b4df0": {
+        "va": 285953520,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1101@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_84b7b8": {
+        "va": 286570424,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a1b60c": {
+        "va": 288470540,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84b794": {
+        "va": 286570388,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84b784": {
+        "va": 286570372,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fc08. Constructs reflection descriptor hkBoxShape and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "66c7400f0723e80fa7774cfab2d433e5a54b7cd9fea9904ab67374c578513cb9",
+      "inputs_sha256": "df7efb4a3175f2acba55542b2e61a6e5c7b08666f87b68c000459943a51ed3bf"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7aef40",
+    "size": 50,
+    "offset": 8056640,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7aef40",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1b6b0": {
+        "va": 288470704,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b4e30": {
+        "va": 285953584,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1101@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_84b818": {
+        "va": 286570520,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a1b60c": {
+        "va": 288470540,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84b7e4": {
+        "va": 286570468,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84b7c4": {
+        "va": 286570436,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fc0c. Constructs reflection descriptor hkConvexVerticesShape and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "5aeb1041603ac13eba2e8e5b75ca043f4dd56592d7c773941ef6c29060bff757",
+      "inputs_sha256": "e6050a3dc7837d41339af9a9cad475eef92d25fb1683df731c8e0c333971ede6"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7aef80",
+    "size": 50,
+    "offset": 8056704,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7aef80",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1b6d8": {
+        "va": 288470744,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b4e70": {
+        "va": 285953648,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1101@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_84b868": {
+        "va": 286570600,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a1b60c": {
+        "va": 288470540,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84b850": {
+        "va": 286570576,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84b830": {
+        "va": 286570544,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fc10. Constructs reflection descriptor hkCapsuleShape and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "ccc8b0e42114113a43bbcd5b3a30e7df44232bb96858f876bec61d0646e6b9c5",
+      "inputs_sha256": "896e22ca4ab36ea6873c9c4764d265ed647d01078867c356d662845c5ed501eb"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7aefc0",
+    "size": 47,
+    "offset": 8056768,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7aefc0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1b700": {
+        "va": 288470784,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b4eb0": {
+        "va": 285953712,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1100@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_84b890": {
+        "va": 286570640,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a1b60c": {
+        "va": 288470540,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84b878": {
+        "va": 286570616,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fc14. Constructs reflection descriptor hkSphereShape and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "9a1cda117d0edde10277708eb916681844a8c45b4cabf820961a348630d2dd35",
+      "inputs_sha256": "28698b4d150d15726efd1353de9833fd7f01b348799bb51b088f6ef97b068337"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7aeff0",
+    "size": 50,
+    "offset": 8056816,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7aeff0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1b728": {
+        "va": 288470824,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b4ef0": {
+        "va": 285953776,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1101@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_84b8f0": {
+        "va": 286570736,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a1b594": {
+        "va": 288470420,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84b8c0": {
+        "va": 286570688,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84b8a0": {
+        "va": 286570656,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fc18. Constructs reflection descriptor hkTransformShape and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "053c2b2503b9fb374f71f3ec6a9c981bc20240cee2d2170e1996b1d49e8c4784",
+      "inputs_sha256": "cdc2c69eb958e4f31c26cd687cf0ae0a3b539b4f94d3cf302bb823fe93a243fb"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7af030",
+    "size": 50,
+    "offset": 8056880,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7af030",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1b750": {
+        "va": 288470864,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b4f30": {
+        "va": 285953840,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1101@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_84b960": {
+        "va": 286570848,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a1b5bc": {
+        "va": 288470460,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84b924": {
+        "va": 286570788,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84b904": {
+        "va": 286570756,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fc1c. Constructs reflection descriptor hkListShape and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "db8388a8dfebe02bd1a65ab4c1ace6a8ba904750679eed4cc8f5fde1e4acdb1e",
+      "inputs_sha256": "079b6d835f5e1685bd40deeaed1ee13462c620bd51ef157bc93947260e3dee4d"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7af0a0",
+    "size": 56,
+    "offset": 8056992,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7af0a0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1b928": {
+        "va": 288471336,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b4f80": {
+        "va": 285953920,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1111@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_84c3a8": {
+        "va": 286573480,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a1bc48": {
+        "va": 288472136,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84c1a0": {
+        "va": 286572960,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_8cf430": {
+        "va": 287110192,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84c0d0": {
+        "va": 286572752,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fc2c. Constructs reflection descriptor hkRigidBody and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "c2d772646b60372a7181d39e7c141b667fd4e852f877be4e29d57b70362eb8cc",
+      "inputs_sha256": "75147a8bc6da8ed2c28417660733629b2c1f54ee9a6254643558245e5a4ec8eb"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7af0e0",
+    "size": 56,
+    "offset": 8057056,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7af0e0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1b950": {
+        "va": 288471376,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b4fc0": {
+        "va": 285953984,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1111@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_84c96c": {
+        "va": 286574956,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a1b3f4": {
+        "va": 288470004,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84c5c0": {
+        "va": 286574016,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_8cf438": {
+        "va": 287110200,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84c420": {
+        "va": 286573600,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fc30. Constructs reflection descriptor hkWorld and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "f104b50a737a13aae516eddf3d1f326d9c5d774d39a48143c45deb23ce71ae0a",
+      "inputs_sha256": "f95e37cdb15531d2565db6853da0ccd49b898dba0d33cd1e1c5c71c60e9e00f5"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7af120",
+    "size": 50,
+    "offset": 8057120,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7af120",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1b978": {
+        "va": 288471416,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b5000": {
+        "va": 285954048,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1101@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_84ca24": {
+        "va": 286575140,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a1bc98": {
+        "va": 288472216,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84c9c8": {
+        "va": 286575048,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84c978": {
+        "va": 286574968,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fc34. Constructs reflection descriptor hkBreakableConstraint and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "184667c8bd77a3524d94b30fdd94bd0f738de3402a2fa45c02068f0f1a02049f",
+      "inputs_sha256": "0f3c46e4c5e2d77fec1a6c44bf50ed4a4bb64d5964366ad993bb2c4ce4bc859d"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7af160",
+    "size": 50,
+    "offset": 8057184,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7af160",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1b9a0": {
+        "va": 288471456,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b5040": {
+        "va": 285954112,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1101@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_84ca90": {
+        "va": 286575248,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a1bc98": {
+        "va": 288472216,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84ca6c": {
+        "va": 286575212,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84ca3c": {
+        "va": 286575164,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fc38. Constructs reflection descriptor hkMalleableConstraint and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "e7555cbe1fe4f03a04d2d9b63ff3b0973c542599e90da0b1056df52bc1b024b3",
+      "inputs_sha256": "4af21fc01c8d6d692629633d1dc47fbf3ce74d1c8559c92f702769cd8ef4df53"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7af1a0",
+    "size": 50,
+    "offset": 8057248,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7af1a0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1b9c8": {
+        "va": 288471496,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b5080": {
+        "va": 285954176,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1101@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_84cc24": {
+        "va": 286575652,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a1bce8": {
+        "va": 288472296,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84cbf4": {
+        "va": 286575604,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84cbd4": {
+        "va": 286575572,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fc3c. Constructs reflection descriptor hkBallAndSocketConstraint and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "e645433702be175f1289899deed20a8d205013f858cc0163290cf7c6c5150326",
+      "inputs_sha256": "5220c5b3b2516bd7b907564a989f0d6d5fa2382c19bc849f7fdd4fe7a122cc51"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7af1e0",
+    "size": 50,
+    "offset": 8057312,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7af1e0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1b9f0": {
+        "va": 288471536,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b50c0": {
+        "va": 285954240,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1101@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_84cc94": {
+        "va": 286575764,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a1bd10": {
+        "va": 288472336,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84cc60": {
+        "va": 286575712,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84cc40": {
+        "va": 286575680,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fc40. Constructs reflection descriptor hkVelocityMotor and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "bff11f57c33208aa28f76fea518207a70f693c8bb386a962ef1880584eeb04e6",
+      "inputs_sha256": "07f164b59f563d1f4c702c82cbdd7e60a3079e4e5b299449accb6aabcbff104a"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7af220",
+    "size": 50,
+    "offset": 8057376,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7af220",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1ba18": {
+        "va": 288471576,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b5100": {
+        "va": 285954304,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1101@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_84ccec": {
+        "va": 286575852,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a1bd10": {
+        "va": 288472336,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84ccc4": {
+        "va": 286575812,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84cca4": {
+        "va": 286575780,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fc44. Constructs reflection descriptor hkStrongestMotor and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "6b7abe33fd2bbfc4d1cba850c22b8dd2a95cb150e996a958dd4775fa87184383",
+      "inputs_sha256": "fe6dceabad4849588a127e07a234f5ad62bf9a8e17ea8356850e2e82c8e82dcf"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7af260",
+    "size": 50,
+    "offset": 8057440,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7af260",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1ba40": {
+        "va": 288471616,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b5140": {
+        "va": 285954368,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1101@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_84cd6c": {
+        "va": 286575980,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a1bd10": {
+        "va": 288472336,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84cd40": {
+        "va": 286575936,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84cd00": {
+        "va": 286575872,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fc48. Constructs reflection descriptor hkSpringDamperMotor and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "0d459e0708667ece72c3c4cf28efcfba607142129bcab1ce61a0d3aa824426f8",
+      "inputs_sha256": "bc559226a0eb45736f581ed46cd800a86e846685ec0c4b7eeb5ece845c22e8c6"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7af2a0",
+    "size": 50,
+    "offset": 8057504,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7af2a0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1ba68": {
+        "va": 288471656,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b5180": {
+        "va": 285954432,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1101@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_84ce20": {
+        "va": 286576160,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a1bd10": {
+        "va": 288472336,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84ce08": {
+        "va": 286576136,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84cdc8": {
+        "va": 286576072,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fc4c. Constructs reflection descriptor hkBlendingMotor and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "8719c1c8b9fe5df88bd1ddbc446bc0b76deec9420801b9e427b8f2e710b332d5",
+      "inputs_sha256": "eb6fdeae2850bee3b80703a3925690b02c2660a39a41a053eed2e29df6d0d258"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7af2e0",
+    "size": 53,
+    "offset": 8057568,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7af2e0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1ba90": {
+        "va": 288471696,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b51c0": {
+        "va": 285954496,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1101@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_84cf14": {
+        "va": 286576404,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a1bba8": {
+        "va": 288471976,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84ced4": {
+        "va": 286576340,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84cea4": {
+        "va": 286576292,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fc50. Constructs reflection descriptor hkPoweredHingeConstraint and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "d857e3e80a96d5a1c9b369356a6c5d051653d5722d4a1cd1843797082009b080",
+      "inputs_sha256": "6ed6daece6ecfe45d2209c31c03e6ea68731c726869d1b3a37762a7dc8bc8394"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7af320",
+    "size": 53,
+    "offset": 8057632,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7af320",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1bab8": {
+        "va": 288471736,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b5200": {
+        "va": 285954560,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1101@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_84d084": {
+        "va": 286576772,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a1bce8": {
+        "va": 288472296,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84d000": {
+        "va": 286576640,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84cf70": {
+        "va": 286576496,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fc54. Constructs reflection descriptor hkPrismaticConstraint and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "349295ecc28cbb5c8868127e26ffd8073204829893d712eeca2f929be0d72a64",
+      "inputs_sha256": "e04452ef0718c9edd46e654af46c55df5eaeabb84a94ac6341745f5a1262dc97"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7af360",
+    "size": 50,
+    "offset": 8057696,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7af360",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1bae0": {
+        "va": 288471776,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b5240": {
+        "va": 285954624,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1101@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_84d130": {
+        "va": 286576944,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a1bce8": {
+        "va": 288472296,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84d108": {
+        "va": 286576904,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84d0d8": {
+        "va": 286576856,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fc58. Constructs reflection descriptor hkStiffSpringConstraint and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "6a4b752e64b66140096b6f7f78afa840e09baac8a5dd0873231a3b7a7794e411",
+      "inputs_sha256": "538a8867b4100fd7472a279a69b8b1e6dbbec60a3e20798cab699c6e18a3a292"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7af3a0",
+    "size": 53,
+    "offset": 8057760,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7af3a0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1bb08": {
+        "va": 288471816,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b5280": {
+        "va": 285954688,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1101@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_84d298": {
+        "va": 286577304,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a1bb58": {
+        "va": 288471896,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84d230": {
+        "va": 286577200,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84d1e0": {
+        "va": 286577120,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fc5c. Constructs reflection descriptor hkPoweredRagdollConstraint and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "77373cbd28b776430478d3a6b4e238d25d39d7792a7abe0e4b03274d061ba596",
+      "inputs_sha256": "392b1b650d6fbb5a25febe5f25aaf8c3f33f044af0db947cd14c00d561780190"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7af3e0",
+    "size": 53,
+    "offset": 8057824,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7af3e0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1bb30": {
+        "va": 288471856,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b52c0": {
+        "va": 285954752,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1101@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_84d488": {
+        "va": 286577800,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a1bce8": {
+        "va": 288472296,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84d3b0": {
+        "va": 286577584,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84d2f0": {
+        "va": 286577392,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fc60. Constructs reflection descriptor hkWheelConstraint and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "bcbcdb83a2b20bf54818797cb3f2a8717cb30c91b709b70fe27544370ac802c3",
+      "inputs_sha256": "5bd0c55dafd07be453153e00b9553280455e144a668dd2c369cbfac8e32c024e"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7af420",
+    "size": 53,
+    "offset": 8057888,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7af420",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1bb58": {
+        "va": 288471896,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b5300": {
+        "va": 285954816,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1101@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_84d660": {
+        "va": 286578272,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a1bce8": {
+        "va": 288472296,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84d5a0": {
+        "va": 286578080,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84d4e0": {
+        "va": 286577888,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fc64. Constructs reflection descriptor hkRagdollConstraint and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "2053496325c786e51a723bd2f2dbabf78ec34f4d96d74c0f110c5079afa8591f",
+      "inputs_sha256": "45828be64949024943b0bc13254eae015bd598c67c027d129ea427a6db8e34ac"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7af460",
+    "size": 56,
+    "offset": 8057952,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7af460",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1bb80": {
+        "va": 288471936,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b5340": {
+        "va": 285954880,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1111@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_84d82c": {
+        "va": 286578732,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a1bce8": {
+        "va": 288472296,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84d728": {
+        "va": 286578472,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_8cf43c": {
+        "va": 287110204,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84d6e8": {
+        "va": 286578408,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fc68. Constructs reflection descriptor hkPointToPathConstraint and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "126d2fad4d71ecc2b1202abd6b45ad12f2ffda0fdd0cc52e4ee177836f18379f",
+      "inputs_sha256": "359286200d8f9fc01a6d865b71ca82476d935d86295daa6466fd85d2500c605a"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7af4a0",
+    "size": 53,
+    "offset": 8058016,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7af4a0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1bba8": {
+        "va": 288471976,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b5380": {
+        "va": 285954944,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1101@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_84d998": {
+        "va": 286579096,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a1bce8": {
+        "va": 288472296,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84d928": {
+        "va": 286578984,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84d888": {
+        "va": 286578824,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fc6c. Constructs reflection descriptor hkLimitedHingeConstraint and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "1296f6a57eec2d32462d0100dd024ba14d259208f94457484727f6365942dd56",
+      "inputs_sha256": "bc632026043d3d4bc632d9d2608870a14695d2e9ca9aea1c4cd88fa174b2f699"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7af4e0",
+    "size": 50,
+    "offset": 8058080,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7af4e0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1bbd0": {
+        "va": 288472016,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b53c0": {
+        "va": 285955008,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1101@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_84da58": {
+        "va": 286579288,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a1bce8": {
+        "va": 288472296,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84da40": {
+        "va": 286579264,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84d9f0": {
+        "va": 286579184,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fc70. Constructs reflection descriptor hkHingeConstraint and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "69904319f907a393cd1c6357ecdbcbe808e65f8b56fb29570c069e1781b85363",
+      "inputs_sha256": "199774f0a8f3255399dde787d774e3d61bd39a1910ffb0d4a2dde9584861b2a4"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7af520",
+    "size": 44,
+    "offset": 8058144,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7af520",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1bbf8": {
+        "va": 288472056,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b5440": {
+        "va": 285955136,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_0001@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_84dba4": {
+        "va": 286579620,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84da9c": {
+        "va": 286579356,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fc74. Constructs reflection descriptor Property and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "6cfd715b053021c7ad0ef54678f4b930b538866d46ce8bbe9ce57eafad4819d0",
+      "inputs_sha256": "71637ff361136a5cef830fa36fbb8298f33e50c4cd3f76996168e0454e48efdb"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7af550",
+    "size": 50,
+    "offset": 8058192,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7af550",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1bc20": {
+        "va": 288472096,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b5400": {
+        "va": 285955072,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1011@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_84dbb0": {
+        "va": 286579632,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a1b3f4": {
+        "va": 288470004,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_8cf440": {
+        "va": 287110208,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84dac0": {
+        "va": 286579392,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fc78. Constructs reflection descriptor hkWorldObject and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "0cd777b0d93235fcffd23ec057f48edd6c6d8b27d3fd0fc9852e23b39ac39279",
+      "inputs_sha256": "9bb9560ab086386ebc915a12db04b462a4ee3f8ad8fc4b9758f2202e17b1209d"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7af590",
+    "size": 50,
+    "offset": 8058256,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7af590",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1bc48": {
+        "va": 288472136,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b5480": {
+        "va": 285955200,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1011@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_84dcb4": {
+        "va": 286579892,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a1bc20": {
+        "va": 288472096,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_8cf444": {
+        "va": 287110212,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84dbf4": {
+        "va": 286579700,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fc7c. Constructs reflection descriptor hkEntity and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "d26eccbe1658046fc2ed5a698719d5796074cce3cc113f3e7df68aeb74aa303a",
+      "inputs_sha256": "78707d9a87898a982c83673e8b9e1e7ac40c853fb794caf36d95e37e7b3b2051"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7af5d0",
+    "size": 47,
+    "offset": 8058320,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7af5d0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1bc70": {
+        "va": 288472176,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b54c0": {
+        "va": 285955264,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1001@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_84ddec": {
+        "va": 286580204,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a1b3f4": {
+        "va": 288470004,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84dddc": {
+        "va": 286580188,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fc80. Constructs reflection descriptor hkAction and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "a9d75be5038a8c6e43b23ac538aae06ababfa3f81e5a08788e98fe1a7324c2fa",
+      "inputs_sha256": "d8e3497fd45592ead9de7d2639ad089cedfdf7b5015c41379b0cad92cf6333d2"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7af600",
+    "size": 47,
+    "offset": 8058368,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7af600",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1bc98": {
+        "va": 288472216,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b5500": {
+        "va": 285955328,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1001@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_84de38": {
+        "va": 286580280,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a1b3f4": {
+        "va": 288470004,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84ddf8": {
+        "va": 286580216,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fc84. Constructs reflection descriptor hkConstraint and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "0e0dcdbf7d505cb1d90cb34823462a9e20e27fea22ca0f3c9b1f893f5e5046e2",
+      "inputs_sha256": "591140487107d4d878bf9f16ee4108cf4e691020ce07b59629ed789da90d3214"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7af630",
+    "size": 44,
+    "offset": 8058416,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7af630",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1bcc0": {
+        "va": 288472256,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b5540": {
+        "va": 285955392,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1000@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_84de48": {
+        "va": 286580296,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a1bc20": {
+        "va": 288472096,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fc88. Constructs reflection descriptor hkPhantom and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "9fed613aabefec24b546d0c715d434a5978d29a1946295caf9a33dffbd68c2b6",
+      "inputs_sha256": "9b9676605df3bebcb6f7a51e3513b34fea3daf665edb29236dcc9232031be1e7"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7af670",
+    "size": 44,
+    "offset": 8058480,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7af670",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1bce8": {
+        "va": 288472296,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b55c0": {
+        "va": 285955520,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1000@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_84e0d0": {
+        "va": 286580944,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a1bc98": {
+        "va": 288472216,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fc90. Constructs reflection descriptor hkRigidConstraint and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "94bafb08168779403be7f91cae2995428f63021364088ecea517b228b289ad93",
+      "inputs_sha256": "0d4e281784e7fdd3282cafe1a49b1d522abe96468c258fd26937cd994fdbe076"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7af6a0",
+    "size": 44,
+    "offset": 8058528,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7af6a0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1bd10": {
+        "va": 288472336,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b5600": {
+        "va": 285955584,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1000@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_84e0e4": {
+        "va": 286580964,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a1b3f4": {
+        "va": 288470004,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fc94. Constructs reflection descriptor hkMotorController and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "72d0a2e23687a2547d0657f602136e79b523c2f8be89c1cc827cdd2efe65dcd3",
+      "inputs_sha256": "d298dc82c21b7dd23af340218daa3d613a74f210334dca416c13c634c4ba018b"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7af6d0",
+    "size": 47,
+    "offset": 8058576,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7af6d0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1bd38": {
+        "va": 288472376,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b5640": {
+        "va": 285955648,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1001@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_84e110": {
+        "va": 286581008,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a1bc70": {
+        "va": 288472176,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84e0f8": {
+        "va": 286580984,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fc98. Constructs reflection descriptor hkUnaryAction and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "edb00a1866a18f79367ce4d092a5f83a12fda28a9e956710dc05b48511633803",
+      "inputs_sha256": "447c056b4e4fb119038b8ec2d49a5bc887dc814cb3388c221daa720987ee3efe"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7af700",
+    "size": 44,
+    "offset": 8058624,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7af700",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1bd60": {
+        "va": 288472416,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b5680": {
+        "va": 285955712,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1000@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_84e120": {
+        "va": 286581024,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a1b3f4": {
+        "va": 288470004,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fc9c. Constructs reflection descriptor hkParametricCurve and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "75ab5895dcfa8579f30565f6a69caff6dd4a659390f80bbd3a7cb1c24773575f",
+      "inputs_sha256": "c23f6c2702ec0880cf01ea929799aaf174a478895077d205acdbb0cf1d29a2ff"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7af730",
+    "size": 44,
+    "offset": 8058672,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7af730",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1bd88": {
+        "va": 288472456,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b56c0": {
+        "va": 285955776,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1000@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_84e180": {
+        "va": 286581120,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a1b3f4": {
+        "va": 288470004,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fca0. Constructs reflection descriptor hkEntityDeactivator and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "f23e88c8ba50a3295027e8909f03aad4d91e074a918e4a142a407e66a7cfa4ac",
+      "inputs_sha256": "6573faa993a6db24c8aae1d555717fa91c27ee7e8072a92c036aa0444896ae78"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7af760",
+    "size": 44,
+    "offset": 8058720,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7af760",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1bdb0": {
+        "va": 288472496,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b5700": {
+        "va": 285955840,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1000@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_84e194": {
+        "va": 286581140,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a1bd88": {
+        "va": 288472456,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fca4. Constructs reflection descriptor hkRigidBodyDeactivator and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "f2624fc1920145c0d6e35bcffe88d21e84d63d10a8f0a75462765312f58c69d4",
+      "inputs_sha256": "801f7830140b3d5a10b774eb6d7663395f1c5e134506dfda429df9eb20bd7c28"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7af790",
+    "size": 47,
+    "offset": 8058768,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7af790",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1bdd8": {
+        "va": 288472536,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b5740": {
+        "va": 285955904,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1100@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_84e1c4": {
+        "va": 286581188,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a1bdb0": {
+        "va": 288472496,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84e1ac": {
+        "va": 286581164,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fca8. Constructs reflection descriptor hkFakeRigidBodyDeactivator and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "2fb727813723d5be706f38adba246a54b8b6ee8237ba83b2972618616b4aee8b",
+      "inputs_sha256": "20fbb9f00948bc221c71a5516c920bf9c62f35b4776bbd9158d5faed2d5adc0b"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7af7c0",
+    "size": 50,
+    "offset": 8058816,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7af7c0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1be00": {
+        "va": 288472576,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b5780": {
+        "va": 285955968,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1101@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_84e2c0": {
+        "va": 286581440,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a1bdb0": {
+        "va": 288472496,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84e230": {
+        "va": 286581296,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84e1e0": {
+        "va": 286581216,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fcac. Constructs reflection descriptor hkSpatialRigidBodyDeactivator and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "d9af3d4c9039f7d0675dca225be6cc6753585b226ff6941a4375f35d90097ebf",
+      "inputs_sha256": "7108bc69f6a79b8780a4536943869d1718a49d26c6ac3f40dcc3cfb73363b35f"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7af800",
+    "size": 50,
+    "offset": 8058880,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7af800",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1be40": {
+        "va": 288472640,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b57c0": {
+        "va": 285956032,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1101@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_84e46c": {
+        "va": 286581868,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a1bd38": {
+        "va": 288472376,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84e430": {
+        "va": 286581808,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84e3f0": {
+        "va": 286581744,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fcb0. Constructs reflection descriptor hkMotorAction and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "4f96883c0440ce32e83887d5dd187384b40be48ad6bc0f116692d303b03d9363",
+      "inputs_sha256": "83a8df795624f6cf798fbca2f5983aec38c9d67a5cf9f56d4929f020e902dbcb"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7af860",
+    "size": 50,
+    "offset": 8058976,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7af860",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1befc": {
+        "va": 288472828,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b5800": {
+        "va": 285956096,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1101@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_84e618": {
+        "va": 286582296,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a1b60c": {
+        "va": 288470540,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84e5d4": {
+        "va": 286582228,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84e5a4": {
+        "va": 286582180,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fcb8. Constructs reflection descriptor hkConvexSweepShape and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "8f6a82852fbf61cd1340733c445928b272d313f591043320b3fb0dc524eb9bd4",
+      "inputs_sha256": "8f7d7ee6a7e21ad8058aa27d585e01d8ddf8f0ce4a585ac727e7167e989afc18"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7af8a0",
+    "size": 50,
+    "offset": 8059040,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7af8a0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1bf24": {
+        "va": 288472868,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b5840": {
+        "va": 285956160,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1101@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_84e704": {
+        "va": 286582532,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a2b6c8": {
+        "va": 288536264,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84e6a8": {
+        "va": 286582440,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84e638": {
+        "va": 286582328,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fcbc. Constructs reflection descriptor hkSpringAction and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "c95efa4ecc9e31156fd9d1f48ec557dfef70aba63c541b00958f5d56a3397975",
+      "inputs_sha256": "6e6b76c6c857a07cde534eb1e2a11b698e6ce4396f7b0f97041703ea917199c1"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7af8e0",
+    "size": 50,
+    "offset": 8059104,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7af8e0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1bf4c": {
+        "va": 288472908,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b5880": {
+        "va": 285956224,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1101@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_84e778": {
+        "va": 286582648,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a2b6c8": {
+        "va": 288536264,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84e760": {
+        "va": 286582624,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84e720": {
+        "va": 286582560,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fcc0. Constructs reflection descriptor hkDashpotAction and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "b2bb27673ef1b468ba24eea80a69daf1a9427353f2fd5307b79957d9b47fad43",
+      "inputs_sha256": "7cc872e6557e3502e04cfffa466ab02b41e3d493615210e01eb17b378ff7d09f"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7af920",
+    "size": 50,
+    "offset": 8059168,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7af920",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1bf74": {
+        "va": 288472948,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b58c0": {
+        "va": 285956288,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1101@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_84e7d4": {
+        "va": 286582740,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a2b6c8": {
+        "va": 288536264,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84e7bc": {
+        "va": 286582716,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84e78c": {
+        "va": 286582668,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fcc4. Constructs reflection descriptor hkAngularDashpotAction and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "df4ee061b928b00d88596351908b8fe504e90152272409dd67d20bcc8ffb2238",
+      "inputs_sha256": "dc21ee280c84b304ca63e70f7fd8f5b33222be07e1f476d1c097f3c4180f3ef3"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7af960",
+    "size": 50,
+    "offset": 8059232,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7af960",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1bf9c": {
+        "va": 288472988,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b5900": {
+        "va": 285956352,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1101@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_84e858": {
+        "va": 286582872,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a1b3f4": {
+        "va": 288470004,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84e810": {
+        "va": 286582800,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84e7f0": {
+        "va": 286582768,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fcc8. Constructs reflection descriptor hkSerializedDisplayRbTransforms and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "bf6dd908b70600917002d9d416076c98a8a8741f8ea6d1f3206d24ff2988902e",
+      "inputs_sha256": "5879b0fa345cda6d9dd4e3c955cee3a9177287166725242e7c0c124825fa73bd"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7af9a0",
+    "size": 50,
+    "offset": 8059296,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7af9a0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1bfc4": {
+        "va": 288473028,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b5940": {
+        "va": 285956416,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1101@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_84e8c0": {
+        "va": 286582976,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a1b3f4": {
+        "va": 288470004,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84e88c": {
+        "va": 286582924,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84e87c": {
+        "va": 286582908,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fccc. Constructs reflection descriptor hkSerializedDisplayMarkerList and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "a17f4c0c70404d81eb3780b884f3190a1280d3775ac9e0422c7c57db94abcd58",
+      "inputs_sha256": "20cb579532fb6cee8783aa15200e74b502197f2636eb25ae64b56bf88f9bd8e9"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7af9e0",
+    "size": 50,
+    "offset": 8059360,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7af9e0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1bfec": {
+        "va": 288473068,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b5980": {
+        "va": 285956480,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1101@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_84e920": {
+        "va": 286583072,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a1b3f4": {
+        "va": 288470004,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84e8f4": {
+        "va": 286583028,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84e8e4": {
+        "va": 286583012,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fcd0. Constructs reflection descriptor hkSerializedDisplayMarker and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "4ad12ffe78248f64e5f4c5fd3e85ef1b7c7eaa62a746d41504497a0018280248",
+      "inputs_sha256": "de868391caffcf7c07ed695a695eff9e9bb8b6ed0eb57dec287a4753fb773467"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7afa20",
+    "size": 50,
+    "offset": 8059424,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7afa20",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1c014": {
+        "va": 288473108,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b59c0": {
+        "va": 285956544,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1101@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_84e998": {
+        "va": 286583192,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a1b4cc": {
+        "va": 288470220,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84e960": {
+        "va": 286583136,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84e940": {
+        "va": 286583104,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fcd4. Constructs reflection descriptor hkPairwiseCollisionFilter and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "486f3b33910ad1a2e4800559b17af260ca1f861e9a5e445b3fba8e44a3bacf3b",
+      "inputs_sha256": "4d95b28cbcfc3c61ab2d00b1bd3d9037ce676923c5adbd6ad7274fde77a93fa9"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7afa60",
+    "size": 53,
+    "offset": 8059488,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7afa60",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1c03c": {
+        "va": 288473148,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b5a00": {
+        "va": 285956608,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1101@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_84eaa0": {
+        "va": 286583456,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a1b4cc": {
+        "va": 288470220,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84ea60": {
+        "va": 286583392,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84ea40": {
+        "va": 286583360,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fcd8. Constructs reflection descriptor hkGroupCollisionFilter and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "5f980a351c1056daeff2e147d0a9303602c57c856aa57e34125d5c573215c2fd",
+      "inputs_sha256": "67b03099a1a0e3f4e906b124de81fd8af38a7d4b72675d552cc092914a575cd4"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7afaa0",
+    "size": 50,
+    "offset": 8059552,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7afaa0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1c064": {
+        "va": 288473188,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b5a40": {
+        "va": 285956672,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1101@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_84eaf8": {
+        "va": 286583544,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a1b4cc": {
+        "va": 288470220,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84eacc": {
+        "va": 286583500,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_84eabc": {
+        "va": 286583484,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fcdc. Constructs reflection descriptor hkDisableEntityCollisionFilter and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "997538a535fa84a77f4ce12f82f6110b107bc9acdbe510917d35b00d769b94ea",
+      "inputs_sha256": "a08913164c68395b82098a2733a1f23c3331ac1fcb3710604bda909a7a929801"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7afb20",
+    "size": 50,
+    "offset": 8059680,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7afb20",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1c0f4": {
+        "va": 288473332,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b5a80": {
+        "va": 285956736,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1101@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_850ae4": {
+        "va": 286591716,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a1b3f4": {
+        "va": 288470004,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_850a80": {
+        "va": 286591616,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_850a30": {
+        "va": 286591536,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fce8. Constructs reflection descriptor hkVehicleFramework and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "d1fbc804bc77fe9ca6da61dead78329aca8f07d4c49b7123806702fdca40ec14",
+      "inputs_sha256": "3699917493d79e7014d6cd5caa0c79ed14f0922e10e9502025acc578c291dcb8"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7afb60",
+    "size": 50,
+    "offset": 8059744,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7afb60",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1c11c": {
+        "va": 288473372,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b5ac0": {
+        "va": 285956800,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1101@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_850b8c": {
+        "va": 286591884,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a1c2fc": {
+        "va": 288473852,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_850b38": {
+        "va": 286591800,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_850af8": {
+        "va": 286591736,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fcec. Constructs reflection descriptor hkDefaultAnalogDriverInput and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "c45f1cbba24c128d618cbb45a68bf9e39cb227f0d7421c7cad0e66e30c9dee7c",
+      "inputs_sha256": "bd382afd6ec7dead5e5f59e4689e9581d8fd505a4825cc2798efd2984f82a20f"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7afba0",
+    "size": 50,
+    "offset": 8059808,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7afba0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1c144": {
+        "va": 288473412,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b5b00": {
+        "va": 285956864,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1101@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_850d6c": {
+        "va": 286592364,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a1c2d4": {
+        "va": 288473812,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_850c58": {
+        "va": 286592088,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_850ba8": {
+        "va": 286591912,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fcf0. Constructs reflection descriptor hkRaycastVehicle and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "1428ec4f9b703abad9e4fea03dd7235773ba840992b2708560bbf56716c1b650",
+      "inputs_sha256": "8851465dd3ef9f77fcded86b0971e23c28ad91196ab78488ee8c1346c2cbc782"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7afbe0",
+    "size": 50,
+    "offset": 8059872,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7afbe0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1c16c": {
+        "va": 288473452,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b5b40": {
+        "va": 285956928,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1101@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_850e0c": {
+        "va": 286592524,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a1c34c": {
+        "va": 288473932,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_850db0": {
+        "va": 286592432,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_850d80": {
+        "va": 286592384,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fcf4. Constructs reflection descriptor hkDefaultSuspension and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "d1e538f90c9a474a8b42c36c5adcbd5228daeef3fc752344a5415603d9f62189",
+      "inputs_sha256": "72646aa28e5fe321980316923477e8095c8f6115ef690649451ce768664ea19b"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7afc20",
+    "size": 50,
+    "offset": 8059936,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7afc20",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1c194": {
+        "va": 288473492,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b5b80": {
+        "va": 285956992,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1101@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_850ed0": {
+        "va": 286592720,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a1c374": {
+        "va": 288473972,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_850e70": {
+        "va": 286592624,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_850e20": {
+        "va": 286592544,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fcf8. Constructs reflection descriptor hkDefaultAerodynamics and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "79905277f6fa62c632661e28fa0c76dd2b2edef5c2ea1d1debec6f54099543b6",
+      "inputs_sha256": "defa0dcff232d3e912debe50d96be79a13a54a4f4ef536232f99950dac6b867a"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7afc60",
+    "size": 50,
+    "offset": 8060000,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7afc60",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1c1bc": {
+        "va": 288473532,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b5bc0": {
+        "va": 285957056,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1101@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_850fac": {
+        "va": 286592940,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a1c39c": {
+        "va": 288474012,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_850f28": {
+        "va": 286592808,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_850ee8": {
+        "va": 286592744,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fcfc. Constructs reflection descriptor hkDefaultBrake and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "447611488ed5ea4e682f7ea0349ee93e0c17c153316d92416e3a577800ef428b",
+      "inputs_sha256": "f0ac2e12e057c29c263e11efdfc1fe59ffc83a571efc7fd7fc7822239080c2ad"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7afca0",
+    "size": 50,
+    "offset": 8060064,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7afca0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1c1e4": {
+        "va": 288473572,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b5c00": {
+        "va": 285957120,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1101@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_8510c4": {
+        "va": 286593220,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a1c3c4": {
+        "va": 288474052,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_851030": {
+        "va": 286593072,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_850fc0": {
+        "va": 286592960,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fd00. Constructs reflection descriptor hkDefaultTransmission and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "b470db43da8629173005aa8706efeec56bc6c5f8aee3a1b58b4965ca51c47001",
+      "inputs_sha256": "fbb655225f1f504dcd9a81b7b6744959b8594dd3631dae74a24e4c687b72afc5"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7afce0",
+    "size": 50,
+    "offset": 8060128,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7afce0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1c20c": {
+        "va": 288473612,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b5c40": {
+        "va": 285957184,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1101@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_85124c": {
+        "va": 286593612,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a1c3ec": {
+        "va": 288474092,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_851180": {
+        "va": 286593408,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_8510e0": {
+        "va": 286593248,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fd04. Constructs reflection descriptor hkDefaultEngine and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "1fb19fa9028cce3694579c8196dccb447ccbae14b484512407596add36fe789c",
+      "inputs_sha256": "6df5553ad8b8e124a5ccdf8738b52c2eed8667157f384285bb18a9d7b6982942"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7afd20",
+    "size": 50,
+    "offset": 8060192,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7afd20",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1c234": {
+        "va": 288473652,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b5c80": {
+        "va": 285957248,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1101@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_8512e4": {
+        "va": 286593764,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a1c414": {
+        "va": 288474132,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_85128c": {
+        "va": 286593676,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_85125c": {
+        "va": 286593628,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fd08. Constructs reflection descriptor hkDefaultSteering and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "30c48ce5b0275c59728e466c2791ba8ccd371b93b7bd32386b40342d370f28d1",
+      "inputs_sha256": "a165cb548ee08c360249cedfb41ae5e06d31ffee314f7d24ed76c56a62bd6f3f"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7afd60",
+    "size": 47,
+    "offset": 8060256,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7afd60",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1c25c": {
+        "va": 288473692,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b5cc0": {
+        "va": 285957312,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1100@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_851328": {
+        "va": 286593832,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a1b3f4": {
+        "va": 288470004,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_8512f8": {
+        "va": 286593784,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fd0c. Constructs reflection descriptor hkVehicleComponent and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "7acbb987fa379205dfbc50ab0fd8373b31de7fa3025883e3ced86fb120ce17ad",
+      "inputs_sha256": "67830f674f0f86f8f49fab4554c1454e914f44b5889491e0baf8906fd3d90dbc"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7afd90",
+    "size": 47,
+    "offset": 8060304,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7afd90",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1c284": {
+        "va": 288473732,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b5d00": {
+        "va": 285957376,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1100@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_851354": {
+        "va": 286593876,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a1c43c": {
+        "va": 288474172,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_85133c": {
+        "va": 286593852,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fd10. Constructs reflection descriptor hkDefaultWheels and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "ca90312aaa507472c8ebe66a69c3fec5715fddc93c8517f6fb096c3b4472588d",
+      "inputs_sha256": "04566e3b1832b63802ab7584defeb4a2fc86f966c92af178d3ea1e1082c73eb8"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7afdc0",
+    "size": 47,
+    "offset": 8060352,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7afdc0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1c2ac": {
+        "va": 288473772,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b5d40": {
+        "va": 285957440,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1100@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_85137c": {
+        "va": 286593916,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a1c464": {
+        "va": 288474212,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_851364": {
+        "va": 286593892,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fd14. Constructs reflection descriptor hkDefaultChassis and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "c28ddd55b70fa61723d0647a274a93735cfb267e7f3362ab73255a5afb665837",
+      "inputs_sha256": "64a29f2f0406a1fc6b06450a084938e27bf13dcd3bc0fdd8b9cf29d4da9c3a0b"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7afdf0",
+    "size": 47,
+    "offset": 8060400,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7afdf0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1c2d4": {
+        "va": 288473812,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b5d80": {
+        "va": 285957504,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1001@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_8514a8": {
+        "va": 286594216,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a1b3f4": {
+        "va": 288470004,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_851390": {
+        "va": 286593936,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fd18. Constructs reflection descriptor hkHavokVehicle and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "8a4fd7ad3593f5c07d59fbe6bb78423fb51dc45fcfbe240c70d3999f4d33aa1b",
+      "inputs_sha256": "ab2e3aef4f8a913a056be5e0c1012918507189d1f1e261fe9cf0709e50a801d4"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7afe20",
+    "size": 47,
+    "offset": 8060448,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7afe20",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1c2fc": {
+        "va": 288473852,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b5dc0": {
+        "va": 285957568,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1100@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_851504": {
+        "va": 286594308,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a1c25c": {
+        "va": 288473692,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_8514d4": {
+        "va": 286594260,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fd1c. Constructs reflection descriptor hkDriverInputComponent and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "d5a0d11e02044aeae3830454f7a9eadf6278084281b233a65cb34b9076a206ea",
+      "inputs_sha256": "10edc763dc1bff49cb26f872a7b6204375d6ff96a44ba43cd0379866005eeec6"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7afe50",
+    "size": 44,
+    "offset": 8060496,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7afe50",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1c324": {
+        "va": 288473892,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b5e00": {
+        "va": 285957632,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1000@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_85153c": {
+        "va": 286594364,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a1b3f4": {
+        "va": 288470004,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fd20. Constructs reflection descriptor hkExternalVehicleController and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "ea97ded2310feb4595b576b5e7f2770a3f45312f319a75bec2269d896db47066",
+      "inputs_sha256": "fae54e4adb18605f6c84158044f683076eb3d08eee30b5e0565bf8838a7812b2"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7afe80",
+    "size": 50,
+    "offset": 8060544,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7afe80",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1c34c": {
+        "va": 288473932,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b5e40": {
+        "va": 285957696,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1101@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_851628": {
+        "va": 286594600,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a1c25c": {
+        "va": 288473692,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_8515d8": {
+        "va": 286594520,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_8515a8": {
+        "va": 286594472,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fd24. Constructs reflection descriptor hkSuspensionComponent and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "81f97cc61d1388ed199d031f0ccbde1481543a80608d21493aa780ae68d36228",
+      "inputs_sha256": "4dc48bb7c186743213febae541512c2c463d5b1319134a0a7d495c3662573544"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7afec0",
+    "size": 47,
+    "offset": 8060608,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7afec0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1c374": {
+        "va": 288473972,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b5e80": {
+        "va": 285957760,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1100@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_851670": {
+        "va": 286594672,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a1c25c": {
+        "va": 288473692,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_851658": {
+        "va": 286594648,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fd28. Constructs reflection descriptor hkAerodynamicsComponent and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "2036d2042c9d0bae6d87f0b80445fac3d01a76173486ed99dc4d05b5871f1893",
+      "inputs_sha256": "c3beb33f3696711df6efff4bbd6140578d50c98c1d737e6f3d1e7edf118407a8"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7afef0",
+    "size": 50,
+    "offset": 8060656,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7afef0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1c39c": {
+        "va": 288474012,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b5ec0": {
+        "va": 285957824,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1101@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_8516d4": {
+        "va": 286594772,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a1c25c": {
+        "va": 288473692,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_8516b0": {
+        "va": 286594736,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_8516a0": {
+        "va": 286594720,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fd2c. Constructs reflection descriptor hkBrakeComponent and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "1a4cc96fd6a6950dacd6a00ccadd52c20879479a40c3ea1719544b1ffeadbbd3",
+      "inputs_sha256": "5989167ba66d54fd4a984424349424f8d32680bed8722d97e10e41231ea10732"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7aff30",
+    "size": 50,
+    "offset": 8060720,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7aff30",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1c3c4": {
+        "va": 288474052,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b5f00": {
+        "va": 285957888,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1101@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_851730": {
+        "va": 286594864,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a1c25c": {
+        "va": 288473692,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_851718": {
+        "va": 286594840,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_851708": {
+        "va": 286594824,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fd30. Constructs reflection descriptor hkTransmissionComponent and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "f18f182e9cd1ecb066bdf030bcde858ad80f340fbcfff8dedc2b2ee4e263ccf5",
+      "inputs_sha256": "a014654362bcfa71ac28dbf86e5201c5496be75186e37e70cb81faa60b2a891d"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7aff70",
+    "size": 47,
+    "offset": 8060784,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7aff70",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1c3ec": {
+        "va": 288474092,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b5f40": {
+        "va": 285957952,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1100@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_851778": {
+        "va": 286594936,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a1c25c": {
+        "va": 288473692,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_851748": {
+        "va": 286594888,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fd34. Constructs reflection descriptor hkEngineComponent and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "1697af6357d50786a99cf32fa59ca357c8b4edd5c10e7262d50f0483ec99d7aa",
+      "inputs_sha256": "2f2e86095920b3ac72a6befa37f34a20d5133c7538d608dacddbc0cb68e7a7d3"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7affa0",
+    "size": 50,
+    "offset": 8060832,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7affa0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1c414": {
+        "va": 288474132,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b5f80": {
+        "va": 285958016,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1101@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_8517e4": {
+        "va": 286595044,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a1c25c": {
+        "va": 288473692,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_8517cc": {
+        "va": 286595020,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_8517bc": {
+        "va": 286595004,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fd38. Constructs reflection descriptor hkSteeringComponent and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "b42844adddc4f50be9859bf02d70fb51069fc7c270252e777fe193e4c275c6c2",
+      "inputs_sha256": "6700877867cf43f10cab5605ccb6175bb5ce5ed650e233de045fcf585bf0ad6e"
+    }
+  },
+  {
+    "id": "reflection-descriptor-7affe0",
+    "size": 50,
+    "offset": 8060896,
+    "inputs": [
+      "src/campaign_reflection_descriptors.c"
+    ],
+    "rebuilt_symbol": "_init_7affe0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reflection_descriptors.obj src/campaign_reflection_descriptors.c",
+    "link_bindings": {
+      "_object_a1c43c": {
+        "va": 288474172,
+        "basis": "Writable reflection descriptor also referenced in cleanup."
+      },
+      "_cleanup_7b5fc0": {
+        "va": 285958080,
+        "basis": "Registered cleanup for this descriptor."
+      },
+      "@construct_1101@36": {
+        "va": 283113040,
+        "basis": "Initializes the eight fields of the class descriptor."
+      },
+      "_register_exit": {
+        "va": 284366761,
+        "basis": "Registers the finalizer with the runtime."
+      },
+      "_symbol_851964": {
+        "va": 286595428,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_a1c25c": {
+        "va": 288473692,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_8518a0": {
+        "va": 286595232,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      },
+      "_symbol_851810": {
+        "va": 286595088,
+        "basis": "Class name, parent or metadata table supplied to the descriptor constructor."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x88fd3c. Constructs reflection descriptor hkWheelsComponent and registers its paired cleanup.",
+    "match": {
+      "bytes_sha256": "bb69df97b7e6f65ec3a2365dee85ff2b046fcf8b03afc84885194ebb634ca030",
+      "inputs_sha256": "30a9893d9d42073b1a98f439ab73b5a185048e317052714ddc64094e73064703"
+    }
   }
 ]
