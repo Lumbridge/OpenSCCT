@@ -1,5 +1,31 @@
 [
   {
+    "id": "physics-sized-release-510e70",
+    "size": 41,
+    "offset": 5312112,
+    "inputs": [
+      "src/campaign_physics_sized_release.c"
+    ],
+    "rebuilt_symbol": "@release_510e70@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_physics_sized_release.obj src/campaign_physics_sized_release.c",
+    "link_bindings": {
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Read-only base method table installed before release."
+      },
+      "_manager": {
+        "va": 288469976,
+        "basis": "Shared manager holding the allocator interface."
+      }
+    },
+    "identification": "Read-only method pointer at RVA 0x84a854. Restores the base table, conditionally releases the receiver with the stored allocation size and category 16, then returns the receiver.",
+    "match": {
+      "bytes_sha256": "941f7696208f4a5dc928ff411a16642d3f4d6f1ce84ae71c534b0ba6fbce43e8",
+      "inputs_sha256": "60657248728b4c602e92bb3c90fda695c56d25c065a2bee78ef0d01de8e99d61"
+    }
+  },
+  {
     "id": "physics-object-release-512e60",
     "size": 38,
     "offset": 5320288,
@@ -208,6 +234,58 @@
     }
   },
   {
+    "id": "physics-sized-release-5174e0",
+    "size": 41,
+    "offset": 5338336,
+    "inputs": [
+      "src/campaign_physics_sized_release.c"
+    ],
+    "rebuilt_symbol": "@release_5174e0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_physics_sized_release.obj src/campaign_physics_sized_release.c",
+    "link_bindings": {
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Read-only base method table installed before release."
+      },
+      "_manager": {
+        "va": 288469976,
+        "basis": "Shared manager holding the allocator interface."
+      }
+    },
+    "identification": "Read-only method pointer at RVA 0x84abec. Restores the base table, conditionally releases the receiver with the stored allocation size and category 26, then returns the receiver.",
+    "match": {
+      "bytes_sha256": "40532e88fae15ba585504110416d0b530f415aa9f09b43f4576e44755dcb092f",
+      "inputs_sha256": "e948c8a07a043251c51d7801cb8804e97aa48b73f9453f42a10f4071f79269c8"
+    }
+  },
+  {
+    "id": "physics-sized-release-517670",
+    "size": 41,
+    "offset": 5338736,
+    "inputs": [
+      "src/campaign_physics_sized_release.c"
+    ],
+    "rebuilt_symbol": "@release_517670@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_physics_sized_release.obj src/campaign_physics_sized_release.c",
+    "link_bindings": {
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Read-only base method table installed before release."
+      },
+      "_manager": {
+        "va": 288469976,
+        "basis": "Shared manager holding the allocator interface."
+      }
+    },
+    "identification": "Read-only method pointer at RVA 0x84ac0c. Restores the base table, conditionally releases the receiver with the stored allocation size and category 26, then returns the receiver.",
+    "match": {
+      "bytes_sha256": "40532e88fae15ba585504110416d0b530f415aa9f09b43f4576e44755dcb092f",
+      "inputs_sha256": "98519a910b8c4b668b4fba11949ced090b76c9467fb0f063a1a3b996da78f4c5"
+    }
+  },
+  {
     "id": "collector-query-517de0",
     "size": 55,
     "offset": 5340640,
@@ -286,6 +364,32 @@
     }
   },
   {
+    "id": "physics-sized-release-518930",
+    "size": 41,
+    "offset": 5343536,
+    "inputs": [
+      "src/campaign_physics_sized_release.c"
+    ],
+    "rebuilt_symbol": "@release_518930@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_physics_sized_release.obj src/campaign_physics_sized_release.c",
+    "link_bindings": {
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Read-only base method table installed before release."
+      },
+      "_manager": {
+        "va": 288469976,
+        "basis": "Shared manager holding the allocator interface."
+      }
+    },
+    "identification": "Read-only method pointer at RVA 0x84aca0. Restores the base table, conditionally releases the receiver with the stored allocation size and category 26, then returns the receiver.",
+    "match": {
+      "bytes_sha256": "40532e88fae15ba585504110416d0b530f415aa9f09b43f4576e44755dcb092f",
+      "inputs_sha256": "a07d6d667b847db31e88e55f3ac7fac0bd5bd73a41cfcafaa2b3805a2e30b616"
+    }
+  },
+  {
     "id": "collector-query-51a180",
     "size": 57,
     "offset": 5349760,
@@ -335,6 +439,58 @@
     "match": {
       "bytes_sha256": "fd625bbe73e0a53f7d4261232b03e3a6c95eb204476be5f7cb2888211f981262",
       "inputs_sha256": "c26c7fadbdd3fad7f6befb5fdb1f4eb4d97f89b073f5033943ab7087d598fbba"
+    }
+  },
+  {
+    "id": "physics-sized-release-51a270",
+    "size": 41,
+    "offset": 5350000,
+    "inputs": [
+      "src/campaign_physics_sized_release.c"
+    ],
+    "rebuilt_symbol": "@release_51a270@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_physics_sized_release.obj src/campaign_physics_sized_release.c",
+    "link_bindings": {
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Read-only base method table installed before release."
+      },
+      "_manager": {
+        "va": 288469976,
+        "basis": "Shared manager holding the allocator interface."
+      }
+    },
+    "identification": "Read-only method pointer at RVA 0x84acc0. Restores the base table, conditionally releases the receiver with the stored allocation size and category 26, then returns the receiver.",
+    "match": {
+      "bytes_sha256": "40532e88fae15ba585504110416d0b530f415aa9f09b43f4576e44755dcb092f",
+      "inputs_sha256": "7a3d346c2ad2f1f73acdfa17d6ff9e68923770aa593c48bf9ecf4fd0f982f74d"
+    }
+  },
+  {
+    "id": "physics-sized-release-51a8c0",
+    "size": 41,
+    "offset": 5351616,
+    "inputs": [
+      "src/campaign_physics_sized_release.c"
+    ],
+    "rebuilt_symbol": "@release_51a8c0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_physics_sized_release.obj src/campaign_physics_sized_release.c",
+    "link_bindings": {
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Read-only base method table installed before release."
+      },
+      "_manager": {
+        "va": 288469976,
+        "basis": "Shared manager holding the allocator interface."
+      }
+    },
+    "identification": "Read-only method pointer at RVA 0x84ad14. Restores the base table, conditionally releases the receiver with the stored allocation size and category 26, then returns the receiver.",
+    "match": {
+      "bytes_sha256": "40532e88fae15ba585504110416d0b530f415aa9f09b43f4576e44755dcb092f",
+      "inputs_sha256": "ceafbfe2cc1d6200584f329e8096f243c4f894121f1c3f6b66d6f4872ac62522"
     }
   }
 ]

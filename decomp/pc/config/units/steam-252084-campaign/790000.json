@@ -1,5 +1,31 @@
 [
   {
+    "id": "physics-sized-release-791ac0",
+    "size": 41,
+    "offset": 7936704,
+    "inputs": [
+      "src/campaign_physics_sized_release.c"
+    ],
+    "rebuilt_symbol": "@release_791ac0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_physics_sized_release.obj src/campaign_physics_sized_release.c",
+    "link_bindings": {
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Read-only base method table installed before release."
+      },
+      "_manager": {
+        "va": 288469976,
+        "basis": "Shared manager holding the allocator interface."
+      }
+    },
+    "identification": "Read-only method pointer at RVA 0x877bdc. Restores the base table, conditionally releases the receiver with the stored allocation size and category 1, then returns the receiver.",
+    "match": {
+      "bytes_sha256": "7beefa2cf715be97ba560524b965211eecbd332837c153fae7e5024cc79424a9",
+      "inputs_sha256": "9d51b9a61d585f095ee58f4b04c0bf886ecc8daa47121057198ee1bf47b6d46e"
+    }
+  },
+  {
     "id": "delete-pool-791d30",
     "size": 40,
     "offset": 7937328,
