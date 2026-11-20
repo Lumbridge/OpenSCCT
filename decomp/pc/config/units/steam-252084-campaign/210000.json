@@ -1121,6 +1121,230 @@
     }
   },
   {
+    "id": "pool-reserve-21ea20",
+    "size": 78,
+    "offset": 2222624,
+    "inputs": [
+      "src/campaign_pool_reserve.c"
+    ],
+    "rebuilt_symbol": "@reserve_21ea20@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_pool_reserve.obj src/campaign_pool_reserve.c",
+    "link_bindings": {
+      "_allocate_block": {
+        "va": 279826608,
+        "basis": "Shared campaign pool storage allocator."
+      },
+      "@append_21e7f0@8": {
+        "va": 280094704,
+        "basis": "Direct call appending the four-word descriptor."
+      }
+    },
+    "identification": "Default Ghidra extent. Allocates 28 bytes per entry, appends the new descriptor through RVA 0x21e7f0, then sets the pool activation flag.",
+    "match": {
+      "bytes_sha256": "ee1e21436dc921c758aa3dd1aee56fce473f54ee81376bed3a5870e5c44c2713",
+      "inputs_sha256": "e2b931870fc031796195307e2512e3170d800654548fbe14ab3ba9e4ccb73d6a"
+    }
+  },
+  {
+    "id": "pool-reserve-21ea70",
+    "size": 78,
+    "offset": 2222704,
+    "inputs": [
+      "src/campaign_pool_reserve.c"
+    ],
+    "rebuilt_symbol": "@reserve_21ea70@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_pool_reserve.obj src/campaign_pool_reserve.c",
+    "link_bindings": {
+      "_allocate_block": {
+        "va": 279826608,
+        "basis": "Shared campaign pool storage allocator."
+      },
+      "@append_21e860@8": {
+        "va": 280094816,
+        "basis": "Direct call appending the four-word descriptor."
+      }
+    },
+    "identification": "Default Ghidra extent. Allocates 28 bytes per entry, appends the new descriptor through RVA 0x21e860, then sets the pool activation flag.",
+    "match": {
+      "bytes_sha256": "ee9fd2d19b86ebb74e6d170b62896bcd0639e1455f660cd921403209b48d419d",
+      "inputs_sha256": "4b1bce86218c06a088eaedb77fc0af9f3aab469fa7f5811d1b2ff61117b3831b"
+    }
+  },
+  {
+    "id": "pool-reserve-21eac0",
+    "size": 80,
+    "offset": 2222784,
+    "inputs": [
+      "src/campaign_pool_reserve.c"
+    ],
+    "rebuilt_symbol": "@reserve_21eac0@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_pool_reserve.obj src/campaign_pool_reserve.c",
+    "link_bindings": {
+      "_allocate_block": {
+        "va": 279826608,
+        "basis": "Shared campaign pool storage allocator."
+      },
+      "@append_21e8d0@8": {
+        "va": 280094928,
+        "basis": "Direct call appending the four-word descriptor."
+      }
+    },
+    "identification": "Default Ghidra extent. Allocates 8 bytes per entry, appends the new descriptor through RVA 0x21e8d0, then sets the pool activation flag.",
+    "match": {
+      "bytes_sha256": "5333864a2241b6b493ce5c3fe2451bb6e6e298189a72aa895b840e3c35a41272",
+      "inputs_sha256": "35c539f596fb386db53ffa35f5e56c394b84c310a22182ec34ba52c60289d9ef"
+    }
+  },
+  {
+    "id": "pool-reserve-21eb10",
+    "size": 78,
+    "offset": 2222864,
+    "inputs": [
+      "src/campaign_pool_reserve.c"
+    ],
+    "rebuilt_symbol": "@reserve_21eb10@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_pool_reserve.obj src/campaign_pool_reserve.c",
+    "link_bindings": {
+      "_allocate_block": {
+        "va": 279826608,
+        "basis": "Shared campaign pool storage allocator."
+      },
+      "@append_21e940@8": {
+        "va": 280095040,
+        "basis": "Direct call appending the four-word descriptor."
+      }
+    },
+    "identification": "Default Ghidra extent. Allocates 52 bytes per entry, appends the new descriptor through RVA 0x21e940, then sets the pool activation flag.",
+    "match": {
+      "bytes_sha256": "2b2bfdaef0508c2c90b8b52657ab1c3e43bb1aa712b5dfc6de1b69e87c5634cb",
+      "inputs_sha256": "9fc17a93cd30308980c709824a65c2520efa6a236bc93ec4fec5c1dfa6a6006a"
+    }
+  },
+  {
+    "id": "pool-reserve-21ec00",
+    "size": 77,
+    "offset": 2223104,
+    "inputs": [
+      "src/campaign_pool_reserve.c"
+    ],
+    "rebuilt_symbol": "_reserve_21ec00@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_pool_reserve.obj src/campaign_pool_reserve.c",
+    "link_bindings": {
+      "_allocate_block": {
+        "va": 279826608,
+        "basis": "Shared campaign pool storage allocator."
+      },
+      "@append_21e940@8": {
+        "va": 280095040,
+        "basis": "Direct call appending the four-word descriptor."
+      },
+      "_pool_90b6c4": {
+        "va": 287356612,
+        "basis": "Static pool receiver with activation flag at offset sixteen."
+      }
+    },
+    "identification": "Default Ghidra extent. Allocates 52 bytes per entry, appends the new descriptor through RVA 0x21e940, then sets the pool activation flag.",
+    "match": {
+      "bytes_sha256": "08da5ba5dfb5b96348a83ed8933e8ca5cae81679f4d3311e5b98aa8f5e9b42e5",
+      "inputs_sha256": "55d67ddc0b2962973a79f01317599d83694cc85b845c622b618bfde2700f999d"
+    }
+  },
+  {
+    "id": "pool-reserve-21ec50",
+    "size": 78,
+    "offset": 2223184,
+    "inputs": [
+      "src/campaign_pool_reserve.c"
+    ],
+    "rebuilt_symbol": "_reserve_21ec50@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_pool_reserve.obj src/campaign_pool_reserve.c",
+    "link_bindings": {
+      "_allocate_block": {
+        "va": 279826608,
+        "basis": "Shared campaign pool storage allocator."
+      },
+      "@append_21e9b0@8": {
+        "va": 280095152,
+        "basis": "Direct call appending the four-word descriptor."
+      },
+      "_pool_92d3e4": {
+        "va": 287495140,
+        "basis": "Static pool receiver with activation flag at offset sixteen."
+      }
+    },
+    "identification": "Default Ghidra extent. Allocates 40 bytes per entry, appends the new descriptor through RVA 0x21e9b0, then sets the pool activation flag.",
+    "match": {
+      "bytes_sha256": "61ae639aeec4ef292c9b6a5c7be637945cc09f2a0b1e04a2d3acebe072670d66",
+      "inputs_sha256": "ddf5241e5f5e9191786637c46da3b4c9420f00f1c4add0d74b854e24aa65e62d"
+    }
+  },
+  {
+    "id": "pool-reserve-21eca0",
+    "size": 77,
+    "offset": 2223264,
+    "inputs": [
+      "src/campaign_pool_reserve.c"
+    ],
+    "rebuilt_symbol": "_reserve_21eca0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_pool_reserve.obj src/campaign_pool_reserve.c",
+    "link_bindings": {
+      "_allocate_block": {
+        "va": 279826608,
+        "basis": "Shared campaign pool storage allocator."
+      },
+      "@append_21e860@8": {
+        "va": 280094816,
+        "basis": "Direct call appending the four-word descriptor."
+      },
+      "_pool_923a04": {
+        "va": 287455748,
+        "basis": "Static pool receiver with activation flag at offset sixteen."
+      }
+    },
+    "identification": "Default Ghidra extent. Allocates 28 bytes per entry, appends the new descriptor through RVA 0x21e860, then sets the pool activation flag.",
+    "match": {
+      "bytes_sha256": "340821886efa8bff547e203d78837e4de674572e6ccb9a67b6cc6bb5e8dd2115",
+      "inputs_sha256": "33d81060db703d740355f9dec7881e0a7123c08db90c7a1341a0bde9275fcc03"
+    }
+  },
+  {
+    "id": "pool-reserve-21ecf0",
+    "size": 79,
+    "offset": 2223344,
+    "inputs": [
+      "src/campaign_pool_reserve.c"
+    ],
+    "rebuilt_symbol": "_reserve_21ecf0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_pool_reserve.obj src/campaign_pool_reserve.c",
+    "link_bindings": {
+      "_allocate_block": {
+        "va": 279826608,
+        "basis": "Shared campaign pool storage allocator."
+      },
+      "@append_21e8d0@8": {
+        "va": 280094928,
+        "basis": "Direct call appending the four-word descriptor."
+      },
+      "_pool_923a18": {
+        "va": 287455768,
+        "basis": "Static pool receiver with activation flag at offset sixteen."
+      }
+    },
+    "identification": "Default Ghidra extent. Allocates 8 bytes per entry, appends the new descriptor through RVA 0x21e8d0, then sets the pool activation flag.",
+    "match": {
+      "bytes_sha256": "9dd95c725231633aba2ce97cebc04e3879911acf623d9c5f9e809205c894e69c",
+      "inputs_sha256": "be1fc35ddf65b9fd6f0795cd1a8a4fca76bcca19c26c8b9cef7968e9c64fcb6d"
+    }
+  },
+  {
     "id": "clear-owned-storage-21f490",
     "size": 42,
     "offset": 2225296,
