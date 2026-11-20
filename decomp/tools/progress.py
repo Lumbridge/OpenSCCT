@@ -144,7 +144,8 @@ def report(root):
             targets.append(summary(folder, target))
         stage = "Awaiting a reference executable"
         if targets:
-            stage = "Matching in progress" if any(t["matched_units"] for t in targets) else "Reference builds identified"
+            started = any(t["matched_units"] or t["candidate_units"] for t in targets)
+            stage = "Matching in progress" if started else "Reference builds identified"
         editions.append(dict(id=edition, stage=stage, targets=targets))
     return dict(schema_version=1, editions=editions)
 

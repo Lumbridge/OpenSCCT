@@ -2161,6 +2161,246 @@
       }
     },
     {
+      "id": "versus-material-check-fallback",
+      "offset": 619776,
+      "size": 24,
+      "rebuilt_symbol": "@versus_material_check_fallback@4",
+      "inputs": [
+        "src/versus_material_composition.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_material_composition.obj src/versus_material_composition.c",
+      "identification": "Steam UColorModifier vtable RVA 0x307a30, slot 33, contains VA 0x10997500. The stock Ghidra function has one contiguous 24-byte body. CheckFallback follows the fallback material when the UseFallback flag is set.",
+      "match": {
+        "bytes_sha256": "813c6dcd42d1f27aba3515df003ed020ff46c07b13808482bda7b50cc4722147",
+        "inputs_sha256": "0d1b1261afab9e94cd381e180c2e731194c7c5a4d07c7df57995de1c6d5dd1af"
+      }
+    },
+    {
+      "id": "versus-shader-uv-streams",
+      "offset": 620128,
+      "size": 112,
+      "rebuilt_symbol": "@versus_shader_uv_streams@4",
+      "inputs": [
+        "src/versus_material_composition.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_material_composition.obj src/versus_material_composition.c",
+      "identification": "Steam UShader vtable RVA 0x307b50, slot 30, contains VA 0x10997660. The stock Ghidra function has one contiguous 112-byte body. RequiredUVStreams combines the UV channel mask used by the material.",
+      "match": {
+        "bytes_sha256": "4e0a812a035c70605e46d7adae2150721b13fa09d2f631594cecabe8fd5ba171",
+        "inputs_sha256": "5b5c802eca51db8ae76ecb312b471c1eb5dc926565a619d69673fb09a0933c73"
+      }
+    },
+    {
+      "id": "versus-shader-any-slot31",
+      "offset": 620288,
+      "size": 126,
+      "rebuilt_symbol": "@versus_shader_any_slot31@4",
+      "inputs": [
+        "src/versus_material_composition.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_material_composition.obj src/versus_material_composition.c",
+      "identification": "Steam UShader vtable RVA 0x307b50, slot 31, contains VA 0x10997700. The stock Ghidra function has one contiguous 126-byte body. The source names the query by its observed behavior and slot.",
+      "match": {
+        "bytes_sha256": "5ef04d3322e08661d7facf0056756329ce5c3f89fe422f8424ce4af9157b9285",
+        "inputs_sha256": "a0b423d1b44856917f4c01b30965a50b7ece4b690a654bf72be69e1d0aa347c5"
+      }
+    },
+    {
+      "id": "versus-shader-pre-set",
+      "offset": 620528,
+      "size": 174,
+      "rebuilt_symbol": "@versus_shader_pre_set@8",
+      "inputs": [
+        "src/versus_material_composition.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_material_composition.obj src/versus_material_composition.c",
+      "identification": "Steam UShader vtable RVA 0x307b50, slot 25, contains VA 0x109977f0. The stock Ghidra function has one contiguous 174-byte body. PreSetMaterial forwards time through child materials after fallback resolution.",
+      "match": {
+        "bytes_sha256": "2a6118f8f0c43d2afda5e5c3039cc56fb9acfdff1c5f16695bc57548b969011f",
+        "inputs_sha256": "c597dd3bb3b87a3447ac39685e45140de25e56b25c8287671e02a8e1520ec3d0"
+      }
+    },
+    {
+      "id": "versus-modifier-query28",
+      "offset": 621072,
+      "size": 15,
+      "rebuilt_symbol": "@versus_modifier_query28@4",
+      "inputs": [
+        "src/versus_material_composition.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_material_composition.obj src/versus_material_composition.c",
+      "identification": "Steam UColorModifier vtable RVA 0x307a30, slot 28, contains VA 0x10997a10. The stock Ghidra function has one contiguous 15-byte body. The source names the query by its observed behavior and slot.",
+      "match": {
+        "bytes_sha256": "6944c42b4a32797845b8ae26f6b580e72cc0dedbf382adfa4413944080aeea2c",
+        "inputs_sha256": "537f47761dadda2f54de2a9f63e2a5d5a0d772630856c5a68858a3d6bf2f092c"
+      }
+    },
+    {
+      "id": "versus-modifier-u-size",
+      "offset": 621152,
+      "size": 15,
+      "rebuilt_symbol": "@versus_modifier_u_size@4",
+      "inputs": [
+        "src/versus_material_composition.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_material_composition.obj src/versus_material_composition.c",
+      "identification": "Steam UColorModifier vtable RVA 0x307a30, slot 26, contains VA 0x10997a60. The stock Ghidra function has one contiguous 15-byte body. MaterialUSize obtains the child horizontal size.",
+      "match": {
+        "bytes_sha256": "ca90d2aee2876c4fb17e6557110cd32b09ea15b1a5458d6f394dbed7c1d35c93",
+        "inputs_sha256": "7a2878da63812c22d4a59120728d78922e76cabd3bdb9744f504401bf6904a7d"
+      }
+    },
+    {
+      "id": "versus-modifier-v-size",
+      "offset": 621168,
+      "size": 15,
+      "rebuilt_symbol": "@versus_modifier_v_size@4",
+      "inputs": [
+        "src/versus_material_composition.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_material_composition.obj src/versus_material_composition.c",
+      "identification": "Steam UColorModifier vtable RVA 0x307a30, slot 27, contains VA 0x10997a70. The stock Ghidra function has one contiguous 15-byte body. MaterialVSize obtains the child vertical size.",
+      "match": {
+        "bytes_sha256": "ec104d64a3841c6740f9db285f98c0cad830594ce33c0545edf176d3f7a0680a",
+        "inputs_sha256": "a24b4b002c2f457d62cb629a1d2e816a32ad7627ed3c90a9ee18d569cdb82d3b"
+      }
+    },
+    {
+      "id": "versus-lit-specular-pre-set",
+      "offset": 621232,
+      "size": 82,
+      "rebuilt_symbol": "@versus_lit_specular_pre_set@8",
+      "inputs": [
+        "src/versus_material_composition.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_material_composition.obj src/versus_material_composition.c",
+      "identification": "Steam ULitSpecularMaterial vtable RVA 0x307be0, slot 25, contains VA 0x10997ab0. The stock Ghidra function has one contiguous 82-byte body. PreSetMaterial forwards time through child materials after fallback resolution.",
+      "match": {
+        "bytes_sha256": "71413f667ac0725c160966a5f172830c087ed17da09e61d25a29c8d47e6fe7cc",
+        "inputs_sha256": "b31aa0b6c913436e71090fede24542133719dbdf2edfd3a55eba762b206485e3"
+      }
+    },
+    {
+      "id": "versus-combiner-pre-set",
+      "offset": 621456,
+      "size": 92,
+      "rebuilt_symbol": "@versus_combiner_pre_set@8",
+      "inputs": [
+        "src/versus_material_composition.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_material_composition.obj src/versus_material_composition.c",
+      "identification": "Steam UCombiner vtable RVA 0x307c70, slot 25, contains VA 0x10997b90. The stock Ghidra function has one contiguous 92-byte body. PreSetMaterial forwards time through child materials after fallback resolution.",
+      "match": {
+        "bytes_sha256": "439d3c9e417115fad71432c947b3b22769a757ce4b3ac6a8c7730195d6009bd6",
+        "inputs_sha256": "2a857b01eb061cd2f5b56d38fe17cb85ec9f5f3c2957aff77f46b6586574ef90"
+      }
+    },
+    {
+      "id": "versus-tex-modifier-uv-streams",
+      "offset": 621984,
+      "size": 75,
+      "rebuilt_symbol": "@versus_tex_modifier_uv_streams@4",
+      "inputs": [
+        "src/versus_material_composition.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_material_composition.obj src/versus_material_composition.c",
+      "identification": "Steam UTexEnvMap vtable RVA 0x3082a0, slot 30, contains VA 0x10997da0. The stock Ghidra function has one contiguous 75-byte body. RequiredUVStreams combines the UV channel mask used by the material.",
+      "match": {
+        "bytes_sha256": "c7f64cc460a5b3a8a1bad9772b4115e29d0417a949e67f9bee423a8b0f838657",
+        "inputs_sha256": "f7e9ee9311af465d1b78032c4c5190d9302f91eaaf0dd594aec098b81648fa11"
+      }
+    },
+    {
+      "id": "versus-modifier-get-validated",
+      "offset": 622064,
+      "size": 18,
+      "rebuilt_symbol": "@versus_modifier_get_validated@4",
+      "inputs": [
+        "src/versus_material_composition.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_material_composition.obj src/versus_material_composition.c",
+      "identification": "Steam UFinalBlend vtable RVA 0x308570, slot 23, contains VA 0x10997df0. The stock Ghidra function has one contiguous 18-byte body. GetValidated reports the validation state of the wrapped material.",
+      "match": {
+        "bytes_sha256": "5e792f0a497ee4499a3ea4bf878fff0b14541df1eaf1ae29d0438023ceb659f6",
+        "inputs_sha256": "a7be513f38a7436bbee8f91b95d400edbc932e6835c06ddd54638dd734637924"
+      }
+    },
+    {
+      "id": "versus-modifier-set-validated",
+      "offset": 622096,
+      "size": 15,
+      "rebuilt_symbol": "@versus_modifier_set_validated@8",
+      "inputs": [
+        "src/versus_material_composition.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_material_composition.obj src/versus_material_composition.c",
+      "identification": "Steam UFinalBlend vtable RVA 0x308570, slot 24, contains VA 0x10997e10. The stock Ghidra function has one contiguous 15-byte body. SetValidated forwards the validation state to the wrapped material.",
+      "match": {
+        "bytes_sha256": "457d01234fe2d0bd06f71d5be7e1cb14919b75b0379367ee0c7f49ad0fb461bf",
+        "inputs_sha256": "e39be8b281da2ea850dc9714e6dc337bc0964ac7c5938aae41eb8ae143064688"
+      }
+    },
+    {
+      "id": "versus-final-blend-mode-query",
+      "offset": 625680,
+      "size": 36,
+      "rebuilt_symbol": "@versus_final_blend_mode_query@4",
+      "inputs": [
+        "src/versus_material_composition.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_material_composition.obj src/versus_material_composition.c",
+      "identification": "Steam UFinalBlend vtable RVA 0x308570, slot 28, contains VA 0x10998c10. The stock Ghidra function has one contiguous 36-byte body. The source names the query by its observed behavior and slot.",
+      "match": {
+        "bytes_sha256": "2b6fabcdb06da72f57879416710be17d24c9938216310dbe55f8a158b1c7f268",
+        "inputs_sha256": "675bfe49db84a375a48339bd0a034d5ab6fac9a75853705b5c1b897dc67ab650"
+      }
+    },
+    {
+      "id": "versus-emf-pre-set",
+      "offset": 627280,
+      "size": 58,
+      "rebuilt_symbol": "@versus_emf_pre_set@8",
+      "inputs": [
+        "src/versus_material_composition.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_material_composition.obj src/versus_material_composition.c",
+      "identification": "Steam UEMFChannelTextures vtable RVA 0x3088d0, slot 25, contains VA 0x10999250. The stock Ghidra function has one contiguous 58-byte body. PreSetMaterial forwards time through child materials after fallback resolution.",
+      "match": {
+        "bytes_sha256": "f9ad42b49004fbe7bff237a7edd38de79e6870f1f9ca10f4dc88bd82e4442417",
+        "inputs_sha256": "fc4c27882536255e29a08f5c9e2634e20cd69d5a8fe605187e6cea84c07818a2"
+      }
+    },
+    {
+      "id": "versus-modifier-pre-set",
+      "offset": 627440,
+      "size": 25,
+      "rebuilt_symbol": "@versus_modifier_pre_set@8",
+      "inputs": [
+        "src/versus_material_composition.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_material_composition.obj src/versus_material_composition.c",
+      "identification": "Steam UColorModifier vtable RVA 0x307a30, slot 25, contains VA 0x109992f0. The stock Ghidra function has one contiguous 25-byte body. PreSetMaterial forwards time through child materials after fallback resolution.",
+      "match": {
+        "bytes_sha256": "03de9bbd3c322d2805424b147e35f07e36c5481b28654ad05ab46cce112717ae",
+        "inputs_sha256": "564bebf50336ee14a7fd5e8cc7ad7bade2501ba84ee1ee1cc4f4947fa2704e73"
+      }
+    },
+    {
       "id": "versus-material-get-validated",
       "offset": 627904,
       "size": 9,
@@ -2917,6 +3157,38 @@
       }
     },
     {
+      "id": "versus-modifier-query29",
+      "offset": 692928,
+      "size": 15,
+      "rebuilt_symbol": "@versus_modifier_query29@4",
+      "inputs": [
+        "src/versus_material_composition.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_material_composition.obj src/versus_material_composition.c",
+      "identification": "Steam UColorModifier vtable RVA 0x307a30, slot 29, contains VA 0x109a92c0. The stock Ghidra function has one contiguous 15-byte body. The source names the query by its observed behavior and slot.",
+      "match": {
+        "bytes_sha256": "97d97c8f948f47233e139e85d7201f32662cb99de0e397659c1daf6957aa5c50",
+        "inputs_sha256": "dc7e6f1a035b449e81cc38a34682d2062343806de7251397649fc2429753c7fa"
+      }
+    },
+    {
+      "id": "versus-modifier-uv-streams",
+      "offset": 692944,
+      "size": 22,
+      "rebuilt_symbol": "@versus_modifier_uv_streams@4",
+      "inputs": [
+        "src/versus_material_composition.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_material_composition.obj src/versus_material_composition.c",
+      "identification": "Steam UColorModifier vtable RVA 0x307a30, slot 30, contains VA 0x109a92d0. The stock Ghidra function has one contiguous 22-byte body. RequiredUVStreams combines the UV channel mask used by the material.",
+      "match": {
+        "bytes_sha256": "709333de8cbaf073a77d09d08537e0a897a42502e49d1f839a80b98718746f3a",
+        "inputs_sha256": "df7bf081d91572e2022544d01f04b8c679ef6cd1740f4e6609af31385f5e7e70"
+      }
+    },
+    {
       "id": "delete-uspecialvisiontexturemodifier",
       "offset": 693552,
       "size": 33,
@@ -3268,6 +3540,54 @@
       "match": {
         "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
         "inputs_sha256": "c34c9089264e2519a742f3a195c57021f2cd78607eb887a555f06c1767b9f089"
+      }
+    },
+    {
+      "id": "versus-combiner-u-size",
+      "offset": 698288,
+      "size": 47,
+      "rebuilt_symbol": "@versus_combiner_u_size@4",
+      "inputs": [
+        "src/versus_material_composition.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_material_composition.obj src/versus_material_composition.c",
+      "identification": "Steam UCombiner vtable RVA 0x307c70, slot 26, contains VA 0x109aa7b0. The stock Ghidra function has one contiguous 47-byte body. MaterialUSize obtains the child horizontal size.",
+      "match": {
+        "bytes_sha256": "cbdccae1f4c0da67d0278116d9bf2d37c2753835e557a6b985a9bf04aecfb1ec",
+        "inputs_sha256": "3a7677e62fea02741085a521b999db222825ae3e9de7ee2fe37f3db3b448b473"
+      }
+    },
+    {
+      "id": "versus-combiner-v-size",
+      "offset": 698336,
+      "size": 47,
+      "rebuilt_symbol": "@versus_combiner_v_size@4",
+      "inputs": [
+        "src/versus_material_composition.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_material_composition.obj src/versus_material_composition.c",
+      "identification": "Steam UCombiner vtable RVA 0x307c70, slot 27, contains VA 0x109aa7e0. The stock Ghidra function has one contiguous 47-byte body. MaterialVSize obtains the child vertical size.",
+      "match": {
+        "bytes_sha256": "2d6f2c1d4d081bfed4731886d73452868b48b1dca74f302c02c114fa29abc7a8",
+        "inputs_sha256": "8ac796ab04a846fcbd10127c95cf3181bc6d523c4dd829198c0c18c09e8ac0c8"
+      }
+    },
+    {
+      "id": "versus-combiner-uv-streams",
+      "offset": 698384,
+      "size": 56,
+      "rebuilt_symbol": "@versus_combiner_uv_streams@4",
+      "inputs": [
+        "src/versus_material_composition.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_material_composition.obj src/versus_material_composition.c",
+      "identification": "Steam UCombiner vtable RVA 0x307c70, slot 30, contains VA 0x109aa810. The stock Ghidra function has one contiguous 56-byte body. RequiredUVStreams combines the UV channel mask used by the material.",
+      "match": {
+        "bytes_sha256": "bd8fe30edbf41398f17732807633c2fd5fff26faa8b7a66c6d619a3cae89c34f",
+        "inputs_sha256": "b549aab61c9d1ee8b4b3c234a4ae96841878254614d62c05197062dc26d72111"
       }
     },
     {
@@ -4201,6 +4521,134 @@
       }
     },
     {
+      "id": "versus-sequence-name",
+      "offset": 749696,
+      "size": 32,
+      "rebuilt_symbol": "@sequence_name@16",
+      "inputs": [
+        "src/versus_animation_sequences.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_animation_sequences.obj src/versus_animation_sequences.c",
+      "identification": "The project reflection annotations identify USkeletalMeshInstance vftable RVA 0x30a048. Its constructor store, table through zero-based slot 42, and the complete body at RVA 0x0b7080 agree between the locked Enhanced and Steam images. This animation-sequence query returns the name or zero for a null clip. The nonempty sequence, group and notify fields are corroborated by the adjacent virtual slots.",
+      "match": {
+        "bytes_sha256": "f5f71d2d1831928e1d58782d88646ab6e9857ea2080926d59ef2cc059fa009db",
+        "inputs_sha256": "4876f0adf42c0cd4cae32dd617f8901d8c0f3a31e1023c744523aa7cd6119086"
+      }
+    },
+    {
+      "id": "versus-sequence-first-group",
+      "offset": 749728,
+      "size": 38,
+      "rebuilt_symbol": "@sequence_first_group@16",
+      "inputs": [
+        "src/versus_animation_sequences.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_animation_sequences.obj src/versus_animation_sequences.c",
+      "identification": "The project reflection annotations identify USkeletalMeshInstance vftable RVA 0x30a048. Its constructor store, table through zero-based slot 43, and the complete body at RVA 0x0b70a0 agree between the locked Enhanced and Steam images. This animation-sequence query returns group zero when present, or a zero name for an empty group array. The nonempty sequence, group and notify fields are corroborated by the adjacent virtual slots.",
+      "match": {
+        "bytes_sha256": "9f281990092b89e69091d28f76c12f727cbe6634d29b5744d8a7b85d1a57b2d5",
+        "inputs_sha256": "1b98a2c00da5d215708e7033d93dafbe825cc22076a24c8072965fa1aef21c35"
+      }
+    },
+    {
+      "id": "versus-sequence-frame-count",
+      "offset": 749840,
+      "size": 23,
+      "rebuilt_symbol": "@sequence_frame_count@12",
+      "inputs": [
+        "src/versus_animation_sequences.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_animation_sequences.obj src/versus_animation_sequences.c",
+      "identification": "The project reflection annotations identify USkeletalMeshInstance vftable RVA 0x30a048. Its constructor store, table through zero-based slot 45, and the complete body at RVA 0x0b7110 agree between the locked Enhanced and Steam images. This animation-sequence query converts the integer frame count at +0x14 to float. The nonempty sequence, group and notify fields are corroborated by the adjacent virtual slots.",
+      "match": {
+        "bytes_sha256": "e89515bb85f1af72fcb319609c6eb2289284b674d8b6784b081e095a7dd22cf9",
+        "inputs_sha256": "e6a22a5b2d06fbc2188115591c85deb77a3756b82f8bd9eb6c0e0c0a769a6d9d"
+      }
+    },
+    {
+      "id": "versus-sequence-rate",
+      "offset": 749872,
+      "size": 23,
+      "rebuilt_symbol": "@sequence_rate@12",
+      "inputs": [
+        "src/versus_animation_sequences.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_animation_sequences.obj src/versus_animation_sequences.c",
+      "identification": "The project reflection annotations identify USkeletalMeshInstance vftable RVA 0x30a048. Its constructor store, table through zero-based slot 46, and the complete body at RVA 0x0b7130 agree between the locked Enhanced and Steam images. This animation-sequence query reads the float at +0x18. The nonempty sequence, group and notify fields are corroborated by the adjacent virtual slots.",
+      "match": {
+        "bytes_sha256": "bcc5022de84bed0dd07374a78982c993aa928ffc1855ec68b82231999d84481a",
+        "inputs_sha256": "6aa89095520d2bf5cdbabc6559f8d84fc3359bd2e222f2cad990efdd4eb670b3"
+      }
+    },
+    {
+      "id": "versus-sequence-notify-count",
+      "offset": 749904,
+      "size": 19,
+      "rebuilt_symbol": "@sequence_notify_count@12",
+      "inputs": [
+        "src/versus_animation_sequences.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_animation_sequences.obj src/versus_animation_sequences.c",
+      "identification": "The project reflection annotations identify USkeletalMeshInstance vftable RVA 0x30a048. Its constructor store, table through zero-based slot 47, and the complete body at RVA 0x0b7150 agree between the locked Enhanced and Steam images. This animation-sequence query reads the event array count at +0x20. The nonempty sequence, group and notify fields are corroborated by the adjacent virtual slots.",
+      "match": {
+        "bytes_sha256": "14e68269fa9c5dee16a26dcf4d7e176956d737507a403ac117de13cf390d5a00",
+        "inputs_sha256": "02740ee44c5a5c59289b65f11deef3a221bde78c04dd4a686f33eae0e6590be4"
+      }
+    },
+    {
+      "id": "versus-sequence-notify-time",
+      "offset": 749936,
+      "size": 33,
+      "rebuilt_symbol": "@sequence_notify_time@16",
+      "inputs": [
+        "src/versus_animation_sequences.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_animation_sequences.obj src/versus_animation_sequences.c",
+      "identification": "The project reflection annotations identify USkeletalMeshInstance vftable RVA 0x30a048. Its constructor store, table through zero-based slot 48, and the complete body at RVA 0x0b7170 agree between the locked Enhanced and Steam images. This animation-sequence query reads the time from a 12-byte event. The nonempty sequence, group and notify fields are corroborated by the adjacent virtual slots.",
+      "match": {
+        "bytes_sha256": "d1924acbbb7d9bfd9c5e93402ae0dcfb39b880c804e5367342909bf42f3a9ac5",
+        "inputs_sha256": "49120d4c62d0ac0d1c39a059d23c30f8c138643d7083d0a79f92317cffc0a20b"
+      }
+    },
+    {
+      "id": "versus-sequence-notify-name-value",
+      "offset": 749984,
+      "size": 41,
+      "rebuilt_symbol": "@sequence_notify_name_value@16",
+      "inputs": [
+        "src/versus_animation_sequences.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_animation_sequences.obj src/versus_animation_sequences.c",
+      "identification": "The project reflection annotations identify USkeletalMeshInstance vftable RVA 0x30a048. Its constructor store, table through zero-based slot 49, and the complete body at RVA 0x0b71a0 agree between the locked Enhanced and Steam images. This animation-sequence query looks up the event name index and returns the address at +0xc in the name-table entry; the representation of that value is unspecified. The nonempty sequence, group and notify fields are corroborated by the adjacent virtual slots.",
+      "match": {
+        "bytes_sha256": "0e2cbfa00bab2f8a8688f25108155fb65cb8f1880636b2c11fbecbb56d0b9110",
+        "inputs_sha256": "b81355a4ad87edbaec9f974dba3387a476661a2ffd12854e183750e971f5dd7e"
+      }
+    },
+    {
+      "id": "versus-sequence-notify-object",
+      "offset": 750032,
+      "size": 30,
+      "rebuilt_symbol": "@sequence_notify_object@16",
+      "inputs": [
+        "src/versus_animation_sequences.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_animation_sequences.obj src/versus_animation_sequences.c",
+      "identification": "The project reflection annotations identify USkeletalMeshInstance vftable RVA 0x30a048. Its constructor store, table through zero-based slot 50, and the complete body at RVA 0x0b71d0 agree between the locked Enhanced and Steam images. This animation-sequence query returns the object reference at +8 in the event. The nonempty sequence, group and notify fields are corroborated by the adjacent virtual slots.",
+      "match": {
+        "bytes_sha256": "551057985e6a7a211d4d4728de705603e1348c352081eee87236a310f4293b36",
+        "inputs_sha256": "1d15d3864a759f562a3dd5622f1bf433dad04f398207a831484a9a28d83bf504"
+      }
+    },
+    {
       "id": "delete-umeshanimation",
       "offset": 802832,
       "size": 33,
@@ -4357,6 +4805,38 @@
       "match": {
         "bytes_sha256": "fe886d50103a68d75e8bfc6d427a3db2ae29a654e0b666685118e7362765240a",
         "inputs_sha256": "02800b1782025b7f939d06251e6c3fcef45c816213cf9a0c4c5962fe0f1bd943"
+      }
+    },
+    {
+      "id": "versus-player-uses-viewport",
+      "offset": 981648,
+      "size": 40,
+      "rebuilt_symbol": "@player_uses_viewport@4",
+      "inputs": [
+        "src/versus_player_camera.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_player_camera.obj src/versus_player_camera.c",
+      "identification": "The project reflection annotations identify ASPlayerController vftable RVA 0x2fa678. Its constructor store, table through zero-based slot 80, and the complete body at RVA 0x0efa90 agree between the locked Enhanced and Steam images. The corresponding reflected fields are Player at +0x4a4. The class walk compares the UViewport::PrivateStaticClass address from the locked annotations.",
+      "match": {
+        "bytes_sha256": "a9d047a7902c61611b435136947f413efed2112701dbee74e15443785f4924a3",
+        "inputs_sha256": "fa8b53b93f9ef66332b9c346024a560998f99565fd7aea7afe1e359db0284f34"
+      }
+    },
+    {
+      "id": "versus-player-walking-or-crouched",
+      "offset": 981856,
+      "size": 28,
+      "rebuilt_symbol": "@player_walking_or_crouched@4",
+      "inputs": [
+        "src/versus_player_camera.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_player_camera.obj src/versus_player_camera.c",
+      "identification": "The project reflection annotations identify ASPlayerController vftable RVA 0x2fa678. Its constructor store, table through zero-based slot 81, and the complete body at RVA 0x0efb60 agree between the locked Enhanced and Steam images. The corresponding reflected fields are Pawn at +0x2fc, bIsCrouched at +0x4a8, bIsWalking at +0x4a8. Both pawn bits match the runtime reflection masks (0x20 and 0x04).",
+      "match": {
+        "bytes_sha256": "abd99db6acc5c184fa13b8c865cd26f3a06e03c03342f6e3ea14752cd00b32c1",
+        "inputs_sha256": "cac10dff4954034dfdc8c08f7fa58ff38877b491644940679f2176212e0bfd72"
       }
     },
     {
@@ -7064,6 +7544,22 @@
       "match": {
         "bytes_sha256": "d5749b9139ce96c54b1703e1ea0149ce9ee555ec8bc5bcc6a2fdb0408098d801",
         "inputs_sha256": "9e847c00cc41b833e59e5c0abe0d700009717876ad0258abad32157f019b2043"
+      }
+    },
+    {
+      "id": "versus-player-camera-transform",
+      "offset": 1768432,
+      "size": 133,
+      "rebuilt_symbol": "@player_camera_transform@16",
+      "inputs": [
+        "src/versus_player_camera.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_player_camera.obj src/versus_player_camera.c",
+      "identification": "The project reflection annotations identify ASPlayerController vftable RVA 0x2fa678. Its constructor store, table through zero-based slot 22, and the complete body at RVA 0x1afbf0 agree between the locked Enhanced and Steam images. The corresponding reflected fields are m_camera at +0x798, DebugCamMode at +0x18c8, vDebugCamPos at +0x18d8, rDebugCamRot at +0x18e4, vCamLocation at +0x62c, rCamRotation at +0x638. The two paths select debug or normal camera transforms.",
+      "match": {
+        "bytes_sha256": "cbb77c8c63ba964a5c271492cd012a160fb99dd16c42d7b6f2d53280a7dea757",
+        "inputs_sha256": "770b02c6570b6a8669e61f953dfb9ca87cab2470bf7c915d239eddbd365e6a39"
       }
     },
     {

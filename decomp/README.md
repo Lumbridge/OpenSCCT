@@ -7,7 +7,7 @@ source, then compare its complete machine code with that release. The Godot and 
 | Start here | What you will find |
 | --- | --- |
 | [PlayStation 2](ps2/README.md) | Identify the disc revision, boot program and secondary executables |
-| [PC and Steam](pc/README.md) | Verify the campaign/co-op and Versus binaries and reproduce the candidate C function |
+| [PC and Steam](pc/README.md) | Verify the campaign/co-op and Versus binaries and reproduce the C function matches |
 | [Progress feed](reports/progress.json) | Verified matches, byte-identical candidates and code denominator per executable |
 | [20 November 2026 report](reports/2026-11-20.md) | Baseline evidence, first result and remaining work |
 
