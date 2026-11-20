@@ -9966,6 +9966,36 @@
     }
   },
   {
+    "id": "float-defaults-2d85c0",
+    "size": 59,
+    "offset": 2983360,
+    "inputs": [
+      "src/versus_float_defaults.c"
+    ],
+    "rebuilt_symbol": "_initialize_2d85c0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_float_defaults.obj src/versus_float_defaults.c",
+    "link_bindings": {
+      "_factor_2ff1d4": {
+        "va": 281014740,
+        "basis": "Read-only float operand of the initialization product."
+      },
+      "_factor_310a10": {
+        "va": 281086480,
+        "basis": "Read-only float operand of the initialization product."
+      },
+      "_defaults_374698": {
+        "va": 281495192,
+        "basis": "Five adjacent writable float fields."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x3347e0. Sets five adjacent floats using a product of read-only values and four immediate defaults.",
+    "match": {
+      "bytes_sha256": "394b1a380f3f8c88ed642827e9b10fadc6eeddcfa9fcf053c445afdacf06678d",
+      "inputs_sha256": "3ebb7173e1f38b3d4c1b70daaab9e28ce9a11785cc05b04f1e47c42a0f4b5bcb"
+    }
+  },
+  {
     "id": "registered-object-init-2d86a0",
     "size": 24,
     "offset": 2983584,
@@ -15406,6 +15436,36 @@
     }
   },
   {
+    "id": "float-defaults-2d9c50",
+    "size": 59,
+    "offset": 2989136,
+    "inputs": [
+      "src/versus_float_defaults.c"
+    ],
+    "rebuilt_symbol": "_initialize_2d9c50",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_float_defaults.obj src/versus_float_defaults.c",
+    "link_bindings": {
+      "_factor_2ff1b0": {
+        "va": 281014704,
+        "basis": "Read-only float operand of the initialization product."
+      },
+      "_factor_310a10": {
+        "va": 281086480,
+        "basis": "Read-only float operand of the initialization product."
+      },
+      "_defaults_374674": {
+        "va": 281495156,
+        "basis": "Five adjacent writable float fields."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x334518. Sets five adjacent floats using a product of read-only values and four immediate defaults.",
+    "match": {
+      "bytes_sha256": "f2b38835d1ae1693ca4d37c837bba289991fa2623a5f236d6a9879516120b1a6",
+      "inputs_sha256": "f67806680fa6e8980cc5594377c3bb3cc5e24ca1be70335f0abcce99935b7f5f"
+    }
+  },
+  {
     "id": "registered-object-init-2d9c90",
     "size": 24,
     "offset": 2989200,
@@ -19656,6 +19716,36 @@
     }
   },
   {
+    "id": "float-defaults-2dae70",
+    "size": 59,
+    "offset": 2993776,
+    "inputs": [
+      "src/versus_float_defaults.c"
+    ],
+    "rebuilt_symbol": "_initialize_2dae70",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_float_defaults.obj src/versus_float_defaults.c",
+    "link_bindings": {
+      "_factor_2ff198": {
+        "va": 281014680,
+        "basis": "Read-only float operand of the initialization product."
+      },
+      "_factor_310a10": {
+        "va": 281086480,
+        "basis": "Read-only float operand of the initialization product."
+      },
+      "_defaults_374650": {
+        "va": 281495120,
+        "basis": "Five adjacent writable float fields."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x3342dc. Sets five adjacent floats using a product of read-only values and four immediate defaults.",
+    "match": {
+      "bytes_sha256": "6fb5137cf12d5bc433a0ddf96379e500e78ae4b7b7df063479112b67df6a0c42",
+      "inputs_sha256": "4acd87edf3c5d9b45a0d9336e4e3111cb426c5d6add157a8e9b28cfec48ef745"
+    }
+  },
+  {
     "id": "registered-object-init-2daeb0",
     "size": 24,
     "offset": 2993840,
@@ -19687,6 +19777,186 @@
     "match": {
       "bytes_sha256": "ef1931b644034ebcfaebf698c64818a5483ffa8965b716fbb7b04ded22f575a8",
       "inputs_sha256": "fe8b97e15168c6af592083c64cc9160ed85d489656d13fa8e30c5a3cd50abf54"
+    }
+  },
+  {
+    "id": "float-defaults-2daed0",
+    "size": 59,
+    "offset": 2993872,
+    "inputs": [
+      "src/versus_float_defaults.c"
+    ],
+    "rebuilt_symbol": "_initialize_2daed0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_float_defaults.obj src/versus_float_defaults.c",
+    "link_bindings": {
+      "_factor_2ff18c": {
+        "va": 281014668,
+        "basis": "Read-only float operand of the initialization product."
+      },
+      "_factor_310a10": {
+        "va": 281086480,
+        "basis": "Read-only float operand of the initialization product."
+      },
+      "_defaults_37462c": {
+        "va": 281495084,
+        "basis": "Five adjacent writable float fields."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x3342d8. Sets five adjacent floats using a product of read-only values and four immediate defaults.",
+    "match": {
+      "bytes_sha256": "d8790147d624d04468509ecda06822ce63dd700b03d1c01d7ee614ede617d05f",
+      "inputs_sha256": "90f64fbb592dd8574d13dcc692aed371cbc4f363799d74064c70ffc4922ae27f"
+    }
+  },
+  {
+    "id": "float-defaults-2daf10",
+    "size": 59,
+    "offset": 2993936,
+    "inputs": [
+      "src/versus_float_defaults.c"
+    ],
+    "rebuilt_symbol": "_initialize_2daf10",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_float_defaults.obj src/versus_float_defaults.c",
+    "link_bindings": {
+      "_factor_2ff188": {
+        "va": 281014664,
+        "basis": "Read-only float operand of the initialization product."
+      },
+      "_factor_310a10": {
+        "va": 281086480,
+        "basis": "Read-only float operand of the initialization product."
+      },
+      "_defaults_374608": {
+        "va": 281495048,
+        "basis": "Five adjacent writable float fields."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x3342d4. Sets five adjacent floats using a product of read-only values and four immediate defaults.",
+    "match": {
+      "bytes_sha256": "14aea51b36f07f742016ffc23abc28c9bcde72219d245875a9884d2492db34ee",
+      "inputs_sha256": "60752bf3a4dd8d490dbe5f7f843134d43b87a3339200acd15a2eea41fca3767e"
+    }
+  },
+  {
+    "id": "float-defaults-2daf50",
+    "size": 59,
+    "offset": 2994000,
+    "inputs": [
+      "src/versus_float_defaults.c"
+    ],
+    "rebuilt_symbol": "_initialize_2daf50",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_float_defaults.obj src/versus_float_defaults.c",
+    "link_bindings": {
+      "_factor_2ff170": {
+        "va": 281014640,
+        "basis": "Read-only float operand of the initialization product."
+      },
+      "_factor_310a10": {
+        "va": 281086480,
+        "basis": "Read-only float operand of the initialization product."
+      },
+      "_defaults_3745e4": {
+        "va": 281495012,
+        "basis": "Five adjacent writable float fields."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x3342d0. Sets five adjacent floats using a product of read-only values and four immediate defaults.",
+    "match": {
+      "bytes_sha256": "d37636e7d61980a08f6cdccf20cb12b0be89ada6e6c8f747caff42a06c2b979c",
+      "inputs_sha256": "fdd74e15a9c5b333cf745718c2a1cfc39826ff2eb1ac1905a8da855967c6a7c8"
+    }
+  },
+  {
+    "id": "float-defaults-2daf90",
+    "size": 59,
+    "offset": 2994064,
+    "inputs": [
+      "src/versus_float_defaults.c"
+    ],
+    "rebuilt_symbol": "_initialize_2daf90",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_float_defaults.obj src/versus_float_defaults.c",
+    "link_bindings": {
+      "_factor_2ff168": {
+        "va": 281014632,
+        "basis": "Read-only float operand of the initialization product."
+      },
+      "_factor_310a10": {
+        "va": 281086480,
+        "basis": "Read-only float operand of the initialization product."
+      },
+      "_defaults_3745c0": {
+        "va": 281494976,
+        "basis": "Five adjacent writable float fields."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x3342cc. Sets five adjacent floats using a product of read-only values and four immediate defaults.",
+    "match": {
+      "bytes_sha256": "d6079405233dff99bb475d27f7c23550e69ad3356bde18710bc986486c8a2077",
+      "inputs_sha256": "ab4c03b24431382f558aa19726382754b9e6f14440b8da357f72881fd7af7214"
+    }
+  },
+  {
+    "id": "float-defaults-2dafd0",
+    "size": 59,
+    "offset": 2994128,
+    "inputs": [
+      "src/versus_float_defaults.c"
+    ],
+    "rebuilt_symbol": "_initialize_2dafd0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_float_defaults.obj src/versus_float_defaults.c",
+    "link_bindings": {
+      "_factor_2ff144": {
+        "va": 281014596,
+        "basis": "Read-only float operand of the initialization product."
+      },
+      "_factor_310a10": {
+        "va": 281086480,
+        "basis": "Read-only float operand of the initialization product."
+      },
+      "_defaults_37459c": {
+        "va": 281494940,
+        "basis": "Five adjacent writable float fields."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x3342c8. Sets five adjacent floats using a product of read-only values and four immediate defaults.",
+    "match": {
+      "bytes_sha256": "49a229978cd0ce631d64b0cdca196649aac57bcd140b49dc77297e589e273138",
+      "inputs_sha256": "c81da24f83ccaf87eb7dbd6103e6f9863032a00ff99e5cda5924839c82367321"
+    }
+  },
+  {
+    "id": "float-defaults-2db010",
+    "size": 59,
+    "offset": 2994192,
+    "inputs": [
+      "src/versus_float_defaults.c"
+    ],
+    "rebuilt_symbol": "_initialize_2db010",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_float_defaults.obj src/versus_float_defaults.c",
+    "link_bindings": {
+      "_factor_2ff140": {
+        "va": 281014592,
+        "basis": "Read-only float operand of the initialization product."
+      },
+      "_factor_310a10": {
+        "va": 281086480,
+        "basis": "Read-only float operand of the initialization product."
+      },
+      "_defaults_374578": {
+        "va": 281494904,
+        "basis": "Five adjacent writable float fields."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x3342c4. Sets five adjacent floats using a product of read-only values and four immediate defaults.",
+    "match": {
+      "bytes_sha256": "0d46fa0ebfbdf755683a9e714cf9e7808cd0db690ceffdf0d7296e9e2de8d07a",
+      "inputs_sha256": "4dafc3c7049aa022c57f3c1bdfee954b5f92a016b22a5870f74919762007ff0d"
     }
   },
   {
@@ -19755,6 +20025,36 @@
     "match": {
       "bytes_sha256": "adcc58272cf47cf2adaebd505362f203b717b962bb31ade143948db98c63ab9b",
       "inputs_sha256": "549d50a3bdab6f7ff6ecc812f1f9d478bba1cb093de6f556cec2fd0cd3d63a39"
+    }
+  },
+  {
+    "id": "float-defaults-2db090",
+    "size": 59,
+    "offset": 2994320,
+    "inputs": [
+      "src/versus_float_defaults.c"
+    ],
+    "rebuilt_symbol": "_initialize_2db090",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_float_defaults.obj src/versus_float_defaults.c",
+    "link_bindings": {
+      "_factor_2ff13c": {
+        "va": 281014588,
+        "basis": "Read-only float operand of the initialization product."
+      },
+      "_factor_310a10": {
+        "va": 281086480,
+        "basis": "Read-only float operand of the initialization product."
+      },
+      "_defaults_374554": {
+        "va": 281494868,
+        "basis": "Five adjacent writable float fields."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x3342b8. Sets five adjacent floats using a product of read-only values and four immediate defaults.",
+    "match": {
+      "bytes_sha256": "9ad8c72f97faaaad38011d84b3fa4536adc7b733fe05e996f86db297544a87c5",
+      "inputs_sha256": "2abe77db8691598a3e2179270fdac8f64fabfbb99c3abc0b1edf7174ae5562a5"
     }
   },
   {
@@ -19857,6 +20157,36 @@
     "match": {
       "bytes_sha256": "f64e046a50df385190cd47ad74f9268cedcd2aebad58ec2fe2ed58ebd65801de",
       "inputs_sha256": "d40039214a8bfcb34ddf5d245c97ef4328463b13f7c3f98bf2f3081925781ee0"
+    }
+  },
+  {
+    "id": "float-defaults-2db130",
+    "size": 59,
+    "offset": 2994480,
+    "inputs": [
+      "src/versus_float_defaults.c"
+    ],
+    "rebuilt_symbol": "_initialize_2db130",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_float_defaults.obj src/versus_float_defaults.c",
+    "link_bindings": {
+      "_factor_2ff138": {
+        "va": 281014584,
+        "basis": "Read-only float operand of the initialization product."
+      },
+      "_factor_310a10": {
+        "va": 281086480,
+        "basis": "Read-only float operand of the initialization product."
+      },
+      "_defaults_374530": {
+        "va": 281494832,
+        "basis": "Five adjacent writable float fields."
+      }
+    },
+    "identification": "Initializer pointer at RVA 0x3342a8. Sets five adjacent floats using a product of read-only values and four immediate defaults.",
+    "match": {
+      "bytes_sha256": "0bbf7bddadce143386598b193631cc87de3bc9e1da48d0cef6f03c37af5bd4f1",
+      "inputs_sha256": "004f1709e42dd0a14f880196e5af30630a5d2e1d6fd2002db0c9e36b57ac6416"
     }
   },
   {
