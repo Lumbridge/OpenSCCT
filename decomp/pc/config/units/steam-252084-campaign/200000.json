@@ -628,6 +628,82 @@
     }
   },
   {
+    "id": "list-growth-2836-208880",
+    "size": 140,
+    "offset": 2132096,
+    "inputs": [
+      "src/campaign_list_growth.c"
+    ],
+    "rebuilt_symbol": "@grow_2836@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_list_growth.obj src/campaign_list_growth.c",
+    "link_bindings": {
+      "_list_message": {
+        "va": 285993056,
+        "basis": "NUL-terminated list length diagnostic."
+      },
+      "@assign_text@12": {
+        "va": 278273472,
+        "basis": "Campaign small-string assignment."
+      },
+      "@construct_error@4": {
+        "va": 284368643,
+        "basis": "Exception base construction."
+      },
+      "_error_table": {
+        "va": 286609628,
+        "basis": "Base exception virtual table."
+      },
+      "@copy_range@16": {
+        "va": 278273232,
+        "basis": "Whole-string range copy."
+      },
+      "_length_error_type": {
+        "va": 286773256,
+        "basis": "Retail exception type record."
+      },
+      "_length_error_table": {
+        "va": 286609640,
+        "basis": "Length-error virtual table."
+      },
+      "_throw_error@8": {
+        "va": 284365561,
+        "basis": "Non-returning C++ exception service."
+      }
+    },
+    "identification": "List growth for a 2836-byte element at RVA 0x208880; checks remaining capacity, throws list<T> too long on overflow and otherwise adds the count. Full compiled section includes the register restore after the throw.",
+    "match": {
+      "bytes_sha256": "7c506c06a5e343f083d8afbceebd2cc8741bf5b9e9ebd85cedf15ef28699d070",
+      "inputs_sha256": "39265890e918346e030b8fa66dce46c83efd9c42ad79c361a432f739d1611176"
+    }
+  },
+  {
+    "id": "list-insert-before-208970",
+    "size": 51,
+    "offset": 2132336,
+    "inputs": [
+      "src/campaign_list_insert.c"
+    ],
+    "rebuilt_symbol": "@insert_before@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_list_insert.obj src/campaign_list_insert.c",
+    "link_bindings": {
+      "@construct_node@20": {
+        "va": 280001952,
+        "basis": "Indexed list node constructor."
+      },
+      "@grow_list@8": {
+        "va": 280004736,
+        "basis": "Byte-identical capacity check and size increment for this list type."
+      }
+    },
+    "identification": "List insertion before the supplied node at RVA 0x208970; creates a node, increments the list size and updates both adjacent links.",
+    "match": {
+      "bytes_sha256": "46044070efac66d3a7ea75da528b31212584987897a0d5c944ccbba8b6e72ca6",
+      "inputs_sha256": "c7229524aa5492cce46642ca3518f590fb496fc0eb8d158d2d21d2a5de8cf554"
+    }
+  },
+  {
     "id": "delete-record-2090a0",
     "offset": 2134176,
     "size": 33,
@@ -652,6 +728,82 @@
     "match": {
       "bytes_sha256": "517d8012768f69abd2f6c09019662659b026d888f0cd2175d7035fb71abc31db",
       "inputs_sha256": "f9d910a7b0d3088f37ca02f7b2dd1d51186c07a7672f964ab1b0c1fef802cf33"
+    }
+  },
+  {
+    "id": "list-growth-28-20b880",
+    "size": 140,
+    "offset": 2144384,
+    "inputs": [
+      "src/campaign_list_growth.c"
+    ],
+    "rebuilt_symbol": "@grow_28@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_list_growth.obj src/campaign_list_growth.c",
+    "link_bindings": {
+      "_list_message": {
+        "va": 285993056,
+        "basis": "NUL-terminated list length diagnostic."
+      },
+      "@assign_text@12": {
+        "va": 278273472,
+        "basis": "Campaign small-string assignment."
+      },
+      "@construct_error@4": {
+        "va": 284368643,
+        "basis": "Exception base construction."
+      },
+      "_error_table": {
+        "va": 286609628,
+        "basis": "Base exception virtual table."
+      },
+      "@copy_range@16": {
+        "va": 278273232,
+        "basis": "Whole-string range copy."
+      },
+      "_length_error_type": {
+        "va": 286773256,
+        "basis": "Retail exception type record."
+      },
+      "_length_error_table": {
+        "va": 286609640,
+        "basis": "Length-error virtual table."
+      },
+      "_throw_error@8": {
+        "va": 284365561,
+        "basis": "Non-returning C++ exception service."
+      }
+    },
+    "identification": "List growth for a 28-byte element at RVA 0x20b880; checks remaining capacity, throws list<T> too long on overflow and otherwise adds the count. Full compiled section includes the register restore after the throw.",
+    "match": {
+      "bytes_sha256": "c98c8a2d10f2d3f81bd5160840d433be1adb2cefe30c528979e1b7dfd80ba503",
+      "inputs_sha256": "7513b7f7ec8ea99ad206509c675293a26e63e6f609a6343adab3d632dd727aca"
+    }
+  },
+  {
+    "id": "list-insert-before-20b910",
+    "size": 51,
+    "offset": 2144528,
+    "inputs": [
+      "src/campaign_list_insert.c"
+    ],
+    "rebuilt_symbol": "@insert_before@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_list_insert.obj src/campaign_list_insert.c",
+    "link_bindings": {
+      "@construct_node@20": {
+        "va": 280012960,
+        "basis": "Indexed list node constructor."
+      },
+      "@grow_list@8": {
+        "va": 280017024,
+        "basis": "Byte-identical capacity check and size increment for this list type."
+      }
+    },
+    "identification": "List insertion before the supplied node at RVA 0x20b910; creates a node, increments the list size and updates both adjacent links.",
+    "match": {
+      "bytes_sha256": "eef2857a9c76014a87ac540d671fea88c86c097af6b9cb0633120518609bd875",
+      "inputs_sha256": "cd5b933f41c218805cad171281d119a3f61b5ccf8f5b51bed8738f960556bf87"
     }
   },
   {
