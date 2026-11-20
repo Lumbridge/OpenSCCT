@@ -54,7 +54,14 @@ RVA and file offset coincide in the campaign's measured code section.
 | `SND_fn_lGetSoundTextureId` | `0x748e30` | 8 | Returns −2 for every input. |
 | `SND_fn_lGetSoundTextureName` | `0x748e40` | 5 | Returns zero and leaves the output untouched. |
 | `SND_fn_rMulRealRealQuickSnd` | `0x74b1d0` | 20 | Multiplies two signed 16.16 values after discarding eight low bits from each. |
+| `SND_fn_fGetDolbyLtCoef` | `0x74b350` | 33 | Looks up the left coefficient and negates it for the second half of the angle range. |
+| `SND_fn_fGetDolbyRtCoef` | `0x74b380` | 33 | Performs the same lookup for the right channel. |
 
 The texture stubs establish the stack argument widths. Their unused C argument
 types are inferred. Each manifest entry records the compiler and flags used
 to reproduce that function.
+
+The Dolby queries reference the retail float tables at image addresses
+`0x111e7838` and `0x111e7dd8`. Their C definitions use these fixed addresses
+for this build. Both return paths are included in each 33-byte comparison.
+The table data is outside the measured ranges.

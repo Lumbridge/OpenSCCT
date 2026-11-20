@@ -105,6 +105,36 @@
         "bytes_sha256": "e0af574e7c343bf333549010aa3c9cff6499510be060d4718f0960cac7f93f0a",
         "inputs_sha256": "6444e25dfc509580c0570d12b7072ab47793f5ca7378a63afc6288c030b63512"
       }
+    },
+    {
+      "id": "dolby-left-coefficient",
+      "offset": 7648080,
+      "size": 33,
+      "rebuilt_symbol": "_SND_fn_fGetDolbyLtCoef@4",
+      "inputs": [
+        "src/dolby_coefficients.c"
+      ],
+      "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+      "build_command": "cl /nologo /O2 /arch:IA32 /Gy /c /Folocal/dolby_coefficients.obj src/dolby_coefficients.c",
+      "match": {
+        "bytes_sha256": "fb501da0c02e7cf247e0304fe38204b0864a0eebe6a509d2b6101a9ac7a96ad8",
+        "inputs_sha256": "63685066b0b3efb5ee6d332b68c914eae1b33f63648e146cf2335b086a9fb979"
+      }
+    },
+    {
+      "id": "dolby-right-coefficient",
+      "offset": 7648128,
+      "size": 33,
+      "rebuilt_symbol": "_SND_fn_fGetDolbyRtCoef@4",
+      "inputs": [
+        "src/dolby_coefficients.c"
+      ],
+      "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+      "build_command": "cl /nologo /O2 /arch:IA32 /Gy /c /Folocal/dolby_coefficients.obj src/dolby_coefficients.c",
+      "match": {
+        "bytes_sha256": "a8f91c024f230432349be0c814e62dbb4609aff72bd5a3a9b3e4af14d20a9dd6",
+        "inputs_sha256": "704e07c2a1158ab8781e02a3eb43608e1e8f3516c75cc1f5676d359c0c60feac"
+      }
     }
   ]
 }
