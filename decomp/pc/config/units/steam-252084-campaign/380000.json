@@ -791,6 +791,28 @@
     }
   },
   {
+    "id": "init-sentinel-tree-3887c0",
+    "size": 45,
+    "offset": 3704768,
+    "inputs": [
+      "src/campaign_sentinel_tree_init.c"
+    ],
+    "rebuilt_symbol": "@init_tree_3887c0@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_sentinel_tree_init.obj src/campaign_sentinel_tree_init.c",
+    "link_bindings": {
+      "@make_node_387b00@4": {
+        "va": 281574144,
+        "basis": "Direct call returning the node installed as this empty tree head."
+      }
+    },
+    "identification": "Default Ghidra range. Installs the node returned by RVA 0x387b00, sets the sentinel byte at offset 17, points all three links to itself, and clears the count.",
+    "match": {
+      "bytes_sha256": "a6c72998fb24b1526d9619bc36c144f2d38602d479412257848332db6fcb716c",
+      "inputs_sha256": "66a7dab56ac25e6a734c6901a008b0946029547e3056041e73671fa67965bd71"
+    }
+  },
+  {
     "id": "delete-record-389710",
     "offset": 3708688,
     "size": 33,
@@ -937,6 +959,28 @@
     "match": {
       "bytes_sha256": "02df6e269ab907fa6c1ce35d9acd246a7fd54e3510f6bd369851da9175482aa0",
       "inputs_sha256": "2f6e9844ea930834c952133d61f10f1a26e4c0787be0193b3da04ab769b13fab"
+    }
+  },
+  {
+    "id": "init-sentinel-tree-38adb0",
+    "size": 43,
+    "offset": 3714480,
+    "inputs": [
+      "src/campaign_sentinel_tree_init.c"
+    ],
+    "rebuilt_symbol": "@init_tree_38adb0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_sentinel_tree_init.obj src/campaign_sentinel_tree_init.c",
+    "link_bindings": {
+      "@make_node_387b00@4": {
+        "va": 281574144,
+        "basis": "Direct call returning the node installed as this empty tree head."
+      }
+    },
+    "identification": "Default Ghidra range. Installs the node returned by RVA 0x387b00, sets the sentinel byte at offset 17, points all three links to itself, and clears the count.",
+    "match": {
+      "bytes_sha256": "a63c96c732fbb83935ae1ec5a58c7f2428522808ad51340fa9204cc9f109c2e7",
+      "inputs_sha256": "d4b780919fdcfd52639b170cbd206ea1c09416c73980ce3d75283530cfc4f5b5"
     }
   },
   {
