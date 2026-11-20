@@ -309,6 +309,22 @@
     }
   },
   {
+    "id": "listener-event-2a6c80",
+    "size": 47,
+    "offset": 2780288,
+    "inputs": [
+      "src/versus_listener_events.c"
+    ],
+    "rebuilt_symbol": "@contains_point@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_listener_events.obj src/versus_listener_events.c",
+    "identification": "Indexed complete Versus routine at RVA 0x2a6c80. Checks a point against four inclusive signed 16-bit bounds.",
+    "match": {
+      "bytes_sha256": "d460654286b5fb65728773d06083f0d05b3f785a7a9117724aa4f3778faaba3a",
+      "inputs_sha256": "4df5ff0f7b24d71d27e18ce8afaeac412f52969497455786adbbb65b0b094f4a"
+    }
+  },
+  {
     "id": "owner-dispatch-2a6f20",
     "size": 42,
     "offset": 2780960,
@@ -350,6 +366,54 @@
     "match": {
       "bytes_sha256": "cf2616b25e82b82722c9abd3fd6debd9b73a124871fa550626acdfaa0b8fb4c0",
       "inputs_sha256": "5b34b442feae2390669fcc09b374e07b12497e2e65177b74bd5e8e28e06ecf06"
+    }
+  },
+  {
+    "id": "listener-event-2a6ff0",
+    "size": 49,
+    "offset": 2781168,
+    "inputs": [
+      "src/versus_listener_events.c"
+    ],
+    "rebuilt_symbol": "@visit_1@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_listener_events.obj src/versus_listener_events.c",
+    "identification": "Indexed complete Versus routine at RVA 0x2a6ff0. Visits enabled listeners in reverse order and stops when the callback handles the event.",
+    "match": {
+      "bytes_sha256": "3a1cd0b5108c3a1d4a213fecc4f2a2da93674e5b730fb48259faf2fa5f6a3059",
+      "inputs_sha256": "7d774c00afb4d6e352dbea0fde15b5b099cf457c8e7db656b8c9550498f443fd"
+    }
+  },
+  {
+    "id": "listener-event-2a7090",
+    "size": 54,
+    "offset": 2781328,
+    "inputs": [
+      "src/versus_listener_events.c"
+    ],
+    "rebuilt_symbol": "@visit_3@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_listener_events.obj src/versus_listener_events.c",
+    "identification": "Indexed complete Versus routine at RVA 0x2a7090. Visits enabled listeners in reverse order and stops when the callback handles the event.",
+    "match": {
+      "bytes_sha256": "49b2bf923f133e7700cbaea5db6054b821889b28f4b19a889b404f80bc499151",
+      "inputs_sha256": "0ab7bf90a557c2e219bfeac85fa0a9a296fa90455dd0c14613d0cce70d72fc0e"
+    }
+  },
+  {
+    "id": "listener-event-2a70d0",
+    "size": 54,
+    "offset": 2781392,
+    "inputs": [
+      "src/versus_listener_events.c"
+    ],
+    "rebuilt_symbol": "@visit_4@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_listener_events.obj src/versus_listener_events.c",
+    "identification": "Indexed complete Versus routine at RVA 0x2a70d0. Visits enabled listeners in reverse order and stops when the callback handles the event.",
+    "match": {
+      "bytes_sha256": "648782e2c6ffb5678fc13cd3ed1007752256cd7543dfeef2882586e94bb306b6",
+      "inputs_sha256": "13f12c5f8ff40a93fc4998b77d1766f15709d5fcc5fca6683ef3e9e37c1c8208"
     }
   },
   {
