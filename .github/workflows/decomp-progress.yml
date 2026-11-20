@@ -25,6 +25,10 @@ jobs:
           python-version: '3.11'
       - name: Test executable inventory and exact-match accounting
         run: python -m unittest discover -s decomp/tools
+      - name: Check PS2 code ranges and function objects with synthetic inputs
+        run: |
+          python -m pip install pyelftools==0.32
+          python -m unittest discover -s decomp/tests
       - name: Verify source receipts and regenerate the public feed in memory
         run: python -I decomp/tools/progress.py report --check
 

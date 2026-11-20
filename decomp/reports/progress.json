@@ -39,8 +39,8 @@
           "matched_bytes": 0,
           "total_bytes": null,
           "matched_units": 0,
-          "candidate_bytes": 0,
-          "candidate_units": 0,
+          "candidate_bytes": 8,
+          "candidate_units": 1,
           "percent": null,
           "evidence": "decomp/ps2/config/sles-53287-online.json"
         }
