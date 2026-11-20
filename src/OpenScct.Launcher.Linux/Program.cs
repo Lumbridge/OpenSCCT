@@ -23,6 +23,7 @@ internal static class Program
 {
     public const string AfterUpdateArg = "--after-update";
     internal static bool SmokeUi { get; private set; }
+    internal static string? Map { get; private set; }
     internal static string? Join { get; private set; }
     internal static string? Executable { get; private set; }
     internal static string? SmokeRoot { get; private set; }
@@ -41,8 +42,9 @@ internal static class Program
         {
             if (arg == "--smoke-ui" && args.Length == 1) SmokeUi = true;
             else if (arg == AfterUpdateArg && !afterUpdate) afterUpdate = true;
-            else if (Join is null && WebJoinRequest.TryParse(arg, out string? id)) Join = id;
-            else { Console.Error.WriteLine("Usage: OpenSCCT.Launcher-linux-x64 [openscct://join/<server-id>] [--version|--smoke|--smoke-ui]"); return 2; }
+            else if (Map is null && Join is null && WebJoinRequest.TryParse(arg, out string? id)) Join = id;
+            else if (args.Length == 1 && WebMapRequest.TryParse(arg, out string? code)) Map = code;
+            else { Console.Error.WriteLine("Usage: OpenSCCT.Launcher-linux-x64 [openscct://join/<server-id>|openscct://maps/<code>|--version|--smoke|--smoke-ui]"); return 2; }
         }
         if (!SmokeUi && !OperatingSystem.IsLinux())
         {
@@ -68,6 +70,11 @@ internal static class Program
             if (Join is not null && !WebJoinPipe.SendAsync(WebJoinPipe.LauncherName, Join).GetAwaiter().GetResult())
             {
                 Console.Error.WriteLine("The running launcher could not receive the Join request. Close it and try again.");
+                return 1;
+            }
+            if (Map is not null && !WebJoinPipe.SendAsync(WebJoinPipe.MapsName, Map).GetAwaiter().GetResult())
+            {
+                Console.Error.WriteLine("The running launcher could not receive the map link.");
                 return 1;
             }
             return 0;
@@ -121,8 +128,12 @@ internal sealed class LauncherApp : Application
             var window = new MainWindow(_controller, Program.SmokeUi);
             desktop.MainWindow = window;
             if (Program.Join is { } join) _controller.QueueJoin(join);
+            if (Program.Map is { } code) window.QueueMapReview(code);
             if (!Program.SmokeUi)
+            {
                 _ = WebJoinPipe.ListenAsync(id => Dispatcher.UIThread.Post(() => window.QueueJoin(id)), _lifetime.Token);
+                _ = WebJoinPipe.ListenAsync(id => Dispatcher.UIThread.Post(() => window.QueueMapReview(id)), _lifetime.Token, WebJoinPipe.MapsName);
+            }
             desktop.Exit += (_, _) =>
             {
                 _lifetime.Cancel();

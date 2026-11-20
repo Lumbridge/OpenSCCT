@@ -29,7 +29,7 @@ internal sealed partial class MainWindow
     private readonly StackPanel _godotPage;
     private readonly ContentControl _page = new() { HorizontalContentAlignment = HorizontalAlignment.Stretch };
     private readonly TextBlock _feedback = Ui.Text(string.Empty, 14);
-    private readonly StackPanel _sidebar = new() { Spacing = 8, Width = 185 };
+    private readonly StackPanel _sidebar = new() { Spacing = 4, Width = 208 };
     private readonly ComboBox _compactEditions = new() { HorizontalAlignment = HorizontalAlignment.Stretch };
     private readonly Dictionary<string, Button> _editionButtons = new();
     private readonly Button _games = Ui.Button("Games");
@@ -50,13 +50,33 @@ internal sealed partial class MainWindow
             _edition = Editions.Any(e => e.Id == saved) ? saved : "Game";
         }
         _model.Settings.SelectedProduct = _edition;
-        var title = Ui.Text("OPENSCCT", 24, Ui.Accent);
+        var title = Ui.Text("OpenSCCT", 25);
         title.FontWeight = FontWeight.Bold;
-        var brand = Ui.Stack(title, Ui.Text("Launcher " + (_model.LauncherVersion?.ToString() ?? "dev") + "  ·  Linux", 13, Ui.Muted));
-        brand.Spacing = 0;
-        var help = Ui.Button("Help");
-        help.Click += async (_, _) => await ShowHelpAsync();
-        var header = Ui.Columns(brand, ButtonRow(_games, _mods, _settings));
+        title.VerticalAlignment = VerticalAlignment.Center;
+        var mark = new Image { Width = 28, Height = 28, VerticalAlignment = VerticalAlignment.Center };
+        using (Stream? stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("OpenScct.Launcher.icon.png"))
+        {
+            if (stream is not null)
+            {
+                var logo = new Bitmap(stream);
+                mark.Source = logo;
+                Closed += (_, _) => logo.Dispose();
+            }
+        }
+        var brand = Ui.Row(8, mark, title, new Border
+        {
+            Child = Ui.Text(_model.LauncherVersion?.ToString() ?? "dev", 11, Ui.Accent),
+            Background = Ui.Surface, Padding = new Thickness(6, 3), CornerRadius = new CornerRadius(4),
+            VerticalAlignment = VerticalAlignment.Center,
+        });
+        var nav = Ui.Row(6, Nav(_games, "Games", "games"), Nav(_mods, "Mods", "mods"), Nav(_settings, "Settings", "settings"));
+        var web = IconButton(Link("Website", ProjectLinks.Website), "web", "OpenSCCT website");
+        var help = IconButton(ActionButton("Help", ShowHelpAsync), "help", "Help and contributions");
+        var utilities = Ui.Row(5, web, help);
+        var header = new Grid { ColumnDefinitions = new ColumnDefinitions("Auto,*,Auto"), ColumnSpacing = 22, Margin = new Thickness(20, 9) };
+        header.Children.Add(brand);
+        Grid.SetColumn(nav, 1); header.Children.Add(nav);
+        Grid.SetColumn(utilities, 2); header.Children.Add(utilities);
         _games.Click += (_, _) => ShowPage("Games", _edition);
         _mods.Click += (_, _) => ShowPage("Mods", _edition);
         _settings.Click += (_, _) => ShowPage("Settings", _edition);
@@ -66,18 +86,15 @@ internal sealed partial class MainWindow
         {
             if (group != previousGroup)
             {
-                _sidebar.Children.Add(Ui.Text(group, 14, Ui.Muted));
+                var heading = Caption(group);
+                heading.Margin = new Thickness(9, previousGroup is null ? 2 : 17, 0, 5);
+                _sidebar.Children.Add(heading);
                 previousGroup = group;
             }
-            var button = Ui.Button(label);
-            button.Content = Ui.Stack(Ui.Text(label, 15), Ui.Text(string.Empty, 13));
-            button.HorizontalAlignment = HorizontalAlignment.Stretch;
-            button.HorizontalContentAlignment = HorizontalAlignment.Left;
-            button.Click += (_, _) => SelectEdition(id);
+            var button = EditionRow(id, label);
             _editionButtons.Add(id, button);
             _sidebar.Children.Add(button);
         }
-        _sidebar.Children.Add(ButtonRow(Link("Website", ProjectLinks.Website), help));
         _compactEditions.ItemsSource = Editions.Select(e => e.Group + " · " + e.Title).ToArray();
         _compactEditions.SelectionChanged += (_, _) =>
         {
@@ -85,30 +102,32 @@ internal sealed partial class MainWindow
             if (index >= 0 && Editions[index].Id != _edition) SelectEdition(Editions[index].Id);
         };
 
-        var body = new Grid { ColumnDefinitions = new ColumnDefinitions("Auto,*") };
+        var body = new Grid { ColumnDefinitions = new ColumnDefinitions("Auto,*"), Margin = new Thickness(13, 19, 18, 0) };
         body.Children.Add(_sidebar);
         var pageStack = Ui.Stack(_compactEditions, _launcherBanner, _feedback, _page);
-        pageStack.Spacing = 12;
-        var scroll = new ScrollViewer
-        {
-            Content = pageStack,
-            HorizontalScrollBarVisibility = Avalonia.Controls.Primitives.ScrollBarVisibility.Disabled,
-        };
-        Grid.SetColumn(scroll, 1);
-        body.Children.Add(scroll);
+        pageStack.Spacing = 13;
+        pageStack.Margin = new Thickness(0, 0, 0, 20);
+        _libraryScroll.Content = pageStack;
+        _libraryScroll.HorizontalScrollBarVisibility = Avalonia.Controls.Primitives.ScrollBarVisibility.Disabled;
+        Grid.SetColumn(_libraryScroll, 1);
+        body.Children.Add(_libraryScroll);
         void ResizeLibrary(double width)
         {
-            bool compact = width < 760;
+            bool compact = width < 780;
             _sidebar.IsVisible = !compact;
-            _compactEditions.IsVisible = compact;
-            body.ColumnSpacing = compact ? 0 : 20;
+            _compactEditions.IsVisible = compact && _section != "Settings";
+            body.ColumnSpacing = compact ? 0 : 18;
+            header.ColumnSpacing = width < 650 ? 8 : 22;
+            utilities.IsVisible = width >= 650;
+            mark.IsVisible = width >= 650;
+            header.Margin = new Thickness(width < 650 ? 12 : 20, 9);
         }
         SizeChanged += (_, e) => ResizeLibrary(e.NewSize.Width);
         ResizeLibrary(Width);
-        var shell = new Grid { RowDefinitions = new RowDefinitions("Auto,*"), Margin = new Thickness(20), RowSpacing = 18 };
-        shell.Children.Add(header);
-        Grid.SetRow(body, 1);
-        shell.Children.Add(body);
+        var shell = new Grid { RowDefinitions = new RowDefinitions("Auto,*") };
+        shell.Children.Add(new Border { Child = header, BorderBrush = Ui.Edge, BorderThickness = new Thickness(0, 0, 0, 1),
+            Background = Shade("#20291F", "#161C17") });
+        Grid.SetRow(body, 1); shell.Children.Add(body);
         Content = shell;
         ShowPage("Games", _edition);
     }
@@ -117,38 +136,79 @@ internal sealed partial class MainWindow
     {
         bool hasDisc = File.Exists(_ps2.DiscPath);
         bool hasEmulator = File.Exists(_ps2.EmulatorPath);
-        var disc = ActionButton(hasDisc ? "Change disc image" : "Choose disc image", async () =>
+        async Task SelectDisc()
         {
             string? path = await PickFile("Select your Chaos Theory PS2 ISO", "*.iso");
             if (path is not null) SavePs2(_ps2.WithDisc(path));
-        }, !hasDisc);
-        var emulator = ActionButton(hasEmulator ? "Change PCSX2" : "Choose PCSX2", async () =>
+        }
+        async Task SelectEmulator()
         {
             string? path = await PickFile("Select the PCSX2 executable or AppImage");
             if (path is not null) SavePs2(_ps2.WithEmulator(path));
-        }, hasDisc && !hasEmulator);
+        }
+        async Task SelectPatch()
+        {
+            string? path = await PickFile("Choose a patched copy of your Chaos Theory disc", "*.iso");
+            if (path is not null) SavePs2(_ps2.WithMod(path));
+        }
         if (mods)
         {
-            var choose = ActionButton("Use patched ISO", async () =>
-            {
-                string? path = await PickFile("Choose a patched copy of the same disc", "*.iso");
-                if (path is not null) SavePs2(_ps2.WithMod(path));
-            }, true);
-            choose.IsEnabled = hasDisc;
+            var choose = ActionButton(hasDisc ? "Choose patched ISO" : "Set up original ISO",
+                hasDisc ? SelectPatch : () => { ShowPage("Games", "Ps2"); return Task.CompletedTask; }, true);
             var original = ActionButton("Use original disc", () => SavePs2(_ps2.WithoutMod()));
-            original.IsEnabled = _ps2.ModPath is not null;
-            return Ui.Stack(Hero("PlayStation 2", "Disc mods"),
-                Card("Patched disc image", "Choose your original ISO in Games, then select a locally patched copy of the same release.",
-                    Ui.Text(_ps2.ModPath ?? "Original disc selected", 14, Ui.Accent), ButtonRow(choose, original)));
+            original.IsVisible = _ps2.ModPath is not null;
+            return Ui.Stack(GameHero("Ps2", "PlayStation 2 · Mods", "Disc mods", "Use a patched copy alongside your original disc.", choose,
+                    Steps(("Original ISO", hasDisc), ("Patched ISO", File.Exists(_ps2.ModPath)))),
+                Card("Active disc", _ps2.ModPath ?? _ps2.DiscPath ?? "Choose your original ISO before adding a patched copy.", original));
         }
 
-        var play = ActionButton("Play with PCSX2", () => Start(_ps2.CreateStartInfo()), true);
-        play.IsEnabled = _ps2.NextAction == Ps2Action.Play;
-        return Ui.Stack(Hero("PlayStation 2", "Splinter Cell Chaos Theory"),
-            Card("Disc setup", "Choose your PlayStation 2 disc image and the PCSX2 executable installed on this computer.",
-                Ui.Text(_ps2.Status, 15, Ui.Accent), ButtonRow(disc, emulator, play)),
-            Card("Library", "Active disc", Ui.Text(_ps2.ModPath ?? _ps2.DiscPath ?? "Choose your ISO to get started.", 14, Ui.Muted),
-                Link("PCSX2 setup guide", "https://pcsx2.net/docs/setup/")));
+        var primary = _ps2.NextAction switch
+        {
+            Ps2Action.ChooseDisc => ActionButton("Choose disc image", SelectDisc, true),
+            Ps2Action.ChooseEmulator => ActionButton("Choose PCSX2", SelectEmulator, true),
+            Ps2Action.ChooseMod => ActionButton("Locate patched ISO", SelectPatch, true),
+            _ => ActionButton("Play in PCSX2", () => Start(_ps2.CreateStartInfo()), true),
+        };
+        var page = Ui.Stack();
+        if (!hasDisc) page.Children.Add(SourceStrip("Where is your PlayStation 2 disc image?",
+            "Find Chaos Theory in a folder of your own ISO files.", ActionButton("Choose folder", FindPs2DiscAsync)));
+        page.Children.Add(GameHero("Ps2", "PlayStation 2 · 2005", "Splinter Cell Chaos Theory",
+            "Campaign, co-op and Versus on the original console edition.", primary,
+            Steps(("Disc image", hasDisc), ("PCSX2", hasEmulator), ("Ready to play", _ps2.NextAction == Ps2Action.Play))));
+        var settings = ButtonRow(ActionButton(hasEmulator ? "Change PCSX2" : "Choose PCSX2", SelectEmulator),
+            Link("PCSX2 setup guide", "https://pcsx2.net/docs/setup/"));
+        if (hasDisc) settings.Children.Add(ActionButton("Change original disc", SelectDisc));
+        page.Children.Add(Card("Emulator", _ps2.EmulatorPath ?? "Select your PCSX2 executable or AppImage. PCSX2 manages its BIOS, memory cards and controller settings.", settings));
+        page.Children.Add(Card("Disc mods", _ps2.ModPath ?? "Switch between the original disc and a locally patched copy.",
+            ActionButton("Manage disc mods", () => ShowPage("Mods", "Ps2"))));
+        return page;
+    }
+
+    private async Task FindPs2DiscAsync()
+    {
+        string? folder = await PickFolder("Find Chaos Theory ISO files in this folder");
+        if (folder is null) return;
+        Ps2Edition[] matches = await Task.Run(() =>
+        {
+            var found = new List<Ps2Edition>();
+            foreach (string file in Directory.EnumerateFiles(folder).Where(file => Path.GetExtension(file).Equals(".iso", StringComparison.OrdinalIgnoreCase)))
+            {
+                try { found.Add(_ps2.WithDisc(file)); }
+                catch (Exception ex) when (ex is IOException or InvalidDataException or UnauthorizedAccessException) { }
+            }
+            return found.OrderBy(edition => edition.DiscPath, StringComparer.OrdinalIgnoreCase).ToArray();
+        });
+        if (matches.Length == 0) { SetFeedback("No supported Chaos Theory ISO was found in " + folder + ".", true); return; }
+        if (matches.Length == 1) { SavePs2(matches[0]); return; }
+        var list = new ListBox { ItemsSource = matches.Select(m => Path.GetFileName(m.DiscPath)).ToArray(), SelectedIndex = 0 };
+        var picker = Ui.Dialog("Choose a Chaos Theory disc", list, 510, 360);
+        var choose = Ui.Button("Use selected ISO", true);
+        var cancel = Ui.Button("Cancel");
+        choose.Click += (_, _) => picker.Close(list.SelectedIndex);
+        cancel.Click += (_, _) => picker.Close(-1);
+        Ui.SetButtons(picker, choose, cancel);
+        int? picked = await picker.ShowDialog<int?>(this);
+        if (picked is >= 0) SavePs2(matches[picked.Value]);
     }
 
     private void SavePs2(Ps2Edition result)
@@ -168,42 +228,43 @@ internal sealed partial class MainWindow
             var choose = ActionButton("Choose modded installation", async () =>
             {
                 string? folder = await PickFolder("Select the modded Chaos Theory installation");
-                if (folder is null) return;
-                SaveRetail(updated => RetailGame.SetMod(updated, folder, _steam));
+                if (folder is not null) SaveRetail(updated => RetailGame.SetMod(updated, folder, _steam));
             }, true);
-            var toggle = ActionButton(profiles.UseMod ? "Use stock installation" : "Use modded installation", () =>
-            {
-                SaveRetail(updated => updated.UseMod = !updated.UseMod);
-            });
+            var toggle = ActionButton(profiles.UseMod ? "Use stock installation" : "Use modded installation",
+                () => SaveRetail(updated => updated.UseMod = !updated.UseMod));
             toggle.IsEnabled = profiles.UseMod || RetailGame.Inspect(profiles.ModFolder) is not null;
-            return Ui.Stack(Hero("PC / Steam", "Mod profiles"),
-                Card("Modded installation", "Choose a separate PC installation with your mods already applied. Enhanced and Reloaded modify Versus. A campaign mod can use its own campaign and co-op executable.",
-                    Ui.Text(profiles.UseMod ? "Selected modded profile" : "Selected stock profile", 15, Ui.Accent),
-                    Ui.Text(profiles.ModFolder ?? "No modded folder selected.", 14, Ui.Muted), ButtonRow(choose, toggle)),
-                ButtonRow(Link("Enhanced SCCT Versus", RetailGame.EnhancedWebsite), Link("Reloaded features", RetailGame.ReloadedWebsite + "features/")));
+            return Ui.Stack(GameHero("Retail", "PC / Steam · Mods", "Mod profiles", "Keep a separate installation for Enhanced or Reloaded Versus.", choose,
+                    Steps(("Original installation", RetailGame.Base(profiles, _steam) is not null), ("Modded installation", RetailGame.Inspect(profiles.ModFolder) is not null))),
+                Card("Active profile", profiles.UseMod ? profiles.ModFolder ?? "Modded installation" : "Original PC installation", toggle),
+                Card("Enhanced and Reloaded", "Both mods extend Versus. Campaign and co-op use the selected campaign installation.",
+                    ButtonRow(Link("Enhanced SCCT Versus", RetailGame.EnhancedWebsite), Link("Reloaded features", RetailGame.ReloadedWebsite + "features/"))));
         }
 
-        var locate = ActionButton("Choose stock installation", async () =>
+        async Task Locate()
         {
             string? folder = await PickFolder("Select the original Chaos Theory installation");
-            if (folder is null) return;
-            SaveRetail(updated => RetailGame.SetBase(updated, folder));
-        });
+            if (folder is not null) SaveRetail(updated => RetailGame.SetBase(updated, folder));
+        }
         bool steamStock = RetailGame.IsSame(campaignInstall, _steam);
         var campaign = ActionButton(steamStock ? "Play in Steam" : "Play with Wine", () =>
         {
             if (steamStock) Start(RetailGame.CreateCampaignStart(campaignInstall!, _steam));
             else StartWine(campaignInstall!.CampaignExecutable!);
         }, true);
-        campaign.IsEnabled = campaignInstall?.CampaignExecutable is not null;
-        var play = ActionButton("Play Versus with Wine", () => StartWine(versus!.Executable), true);
-        play.IsEnabled = versus?.HasVersus == true;
-        return Ui.Stack(Hero("PC / Steam", "Splinter Cell Chaos Theory"),
-            Card("Campaign & co-op", campaignInstall?.CampaignExecutable ?? "Locate your original PC installation or install the game through Steam.",
-                ButtonRow(campaign, locate, Link("Steam store", "https://store.steampowered.com/app/13570/"))),
-            Card("Versus", profiles.UseMod && RetailGame.IsSame(versus, RetailGame.Inspect(profiles.ModFolder)) ? "Modded profile" : "Stock profile",
-                Ui.Text(versus?.HasVersus == true ? versus.Executable : "Locate an installation with Versus to play.", 14, Ui.Muted),
-                ButtonRow(play, ActionButton("Manage mods", () => ShowPage("Mods", "Retail")))));
+        bool hasCampaign = campaignInstall?.CampaignExecutable is not null;
+        bool hasVersus = versus?.HasVersus == true;
+        var page = Ui.Stack();
+        if (!hasCampaign) page.Children.Add(SourceStrip("Where is Chaos Theory installed?", "Select the game folder or install the original PC edition through Steam.",
+            Link("Steam store", "https://store.steampowered.com/app/13570/")));
+        page.Children.Add(GameHero("Retail", "PC / Steam · 2005", "Splinter Cell Chaos Theory",
+            "Launch the original campaign and co-op using your PC installation.", hasCampaign ? campaign : ActionButton("Choose game folder", Locate, true),
+            Steps(("Installation", RetailGame.Base(profiles, _steam) is not null), ("Campaign & co-op", hasCampaign), ("Versus", hasVersus))));
+        var versusPlay = ActionButton("Play Versus with Wine", () => StartWine(versus!.Executable));
+        versusPlay.IsVisible = hasVersus;
+        page.Children.Add(Card("Versus", profiles.UseMod ? "Modded profile selected." : "Original multiplayer profile. Enhanced and Reloaded are optional.",
+            ButtonRow(versusPlay, ActionButton("Manage mods", () => ShowPage("Mods", "Retail")))));
+        if (hasCampaign) page.Children.Add(Card("Game files", campaignInstall!.Folder, ActionButton("Change game folder", Locate)));
+        return page;
     }
 
     private void SaveRetail(Action<RetailProfiles> edit)
@@ -227,10 +288,13 @@ internal sealed partial class MainWindow
         if (process is null && !start.UseShellExecute) throw new IOException("The application could not be started.");
     }
 
-    private Control UnrealPage(bool mods) => Ui.Stack(Hero("OpenSCCT Unreal", mods ? "Unreal mods" : "Modern Unreal edition"),
-        Card(mods ? "Community maps" : "Windows x64 release",
-            mods ? "Use the Windows launcher to manage maps for the Unreal edition." : "The published Unreal build uses Windows x64. OpenSCCT Godot is available natively on Linux.",
-            Link("Unreal releases", "https://github.com/OpenSCCT/OpenSCCT-Unreal/releases")));
+    private Control UnrealPage(bool mods) => Ui.Stack(
+        GameHero("Unreal", "Modernisations · Unreal Engine", mods ? "Unreal community maps" : "OpenSCCT Unreal",
+            mods ? "Manage maps using the Windows launcher." : "The Unreal modernisation is available for Windows x64.",
+            Link("Unreal releases", "https://github.com/OpenSCCT/OpenSCCT-Unreal/releases"),
+            Ui.Text("Windows x64", 13, Ui.Muted)),
+        Card("Native Linux edition", "OpenSCCT Godot runs on Linux and builds the original Versus content from your Steam installation.",
+            ActionButton("Open Godot edition", () => SelectEdition("Game"))));
 
     private async Task<string?> PickFile(string title, string? pattern = null)
     {
@@ -266,18 +330,6 @@ internal sealed partial class MainWindow
 
     private Button Link(string label, string url) => ActionButton(label, () => OpenLink(url));
 
-    private Control Hero(string label, string title)
-    {
-        var text = Ui.Stack(Ui.Text(label, 16, Ui.Accent), Ui.Text(title, 28));
-        text.Margin = new Thickness(20);
-        text.VerticalAlignment = VerticalAlignment.Bottom;
-        var scene = new Grid { Height = 148, ClipToBounds = true, Background = Ui.Surface };
-        if (_artwork is not null) scene.Children.Add(new Image { Source = _artwork, Stretch = Stretch.UniformToFill });
-        scene.Children.Add(new Border { Background = Brush.Parse("#B0101510") });
-        scene.Children.Add(text);
-        return scene;
-    }
-
     private static Control Card(string title, string description, params Control[] actions)
     {
         var stack = Ui.Stack(Ui.Text(title, 20), Ui.Text(description, 15, Ui.Muted));
@@ -292,11 +344,12 @@ internal sealed partial class MainWindow
         return row;
     }
 
-    private static void Highlight(Button button, bool selected)
+    private void Highlight(Button button, bool selected)
     {
         button.Background = selected ? Ui.Accent : Ui.Surface;
-        button.Foreground = selected ? Ui.Background : Brushes.WhiteSmoke;
-        button.FontWeight = selected ? FontWeight.SemiBold : FontWeight.Normal;
+        button.BorderBrush = selected ? Ui.Accent : Ui.Edge;
+        _navLabels[button].Foreground = selected ? Ui.Background : Ui.Primary;
+        _navIcons[button].Stroke = selected ? Ui.Background : Ui.Accent;
     }
 
     private void SetFeedback(string text, bool error = false)
@@ -336,12 +389,18 @@ internal sealed partial class MainWindow
         foreach ((string id, Button button) in _editionButtons)
         {
             bool selected = id == edition && section != "Settings";
-            Highlight(button, selected);
-            var text = (StackPanel)button.Content!;
-            text.Spacing = 2;
-            ((TextBlock)text.Children[0]).Foreground = selected ? Ui.Background : Brushes.WhiteSmoke;
-            var state = (TextBlock)text.Children[1];
-            state.Foreground = selected ? Ui.Background : Ui.Muted;
+            button.Background = selected ? SelectedRow : Brushes.Transparent;
+            button.BorderBrush = selected ? SelectedEdge : Brushes.Transparent;
+            _editionLabels[id].Foreground = selected ? Ui.Accent : Ui.Primary;
+            var state = _editionStates[id];
+            state.Foreground = Ui.Muted;
+            _editionLights[id].Background = id switch
+            {
+                "Ps2" => _ps2.NextAction == Ps2Action.Play ? Ui.Accent : Pending,
+                "Retail" => RetailGame.Base(_model.Settings.Retail, _steam) is null ? Pending : Ui.Accent,
+                "Game" => _model.Playable ? Ui.Accent : Pending,
+                _ => Ui.Muted,
+            };
             state.Text = id switch
             {
                 "Ps2" => _ps2.Status,
@@ -354,14 +413,18 @@ internal sealed partial class MainWindow
         Highlight(_mods, section == "Mods");
         Highlight(_settings, section == "Settings");
         SetFeedback(string.Empty);
+        _compactEditions.IsVisible = !_sidebar.IsVisible && section != "Settings";
+        _libraryScroll.Offset = default;
         _page.Content = section == "Settings" ? SettingsPage() : edition switch
         {
             "Ps2" => Ps2Page(section == "Mods"),
             "Retail" => RetailPage(section == "Mods"),
             "Unreal" => UnrealPage(section == "Mods"),
-            _ => section == "Games" ? _godotPage : Ui.Stack(Ui.Text("OpenSCCT Godot mods", 26),
-                Card("Additional maps", "Build original maps from Steam. Download community-created maps here.",
-                    ActionButton("Manage maps", ShowMapsAsync, true))),
+            _ => section == "Games" ? _godotPage : Ui.Stack(
+                GameHero("Game", "OpenSCCT Godot · Mods", "Community maps", "Browse and install additional Versus maps.",
+                    ActionButton("Manage maps", ShowMapsAsync, true), Ui.Text("Native Linux", 13, Ui.Muted)),
+                Card("Original maps", "The original Versus maps are built from the installed Steam edition.",
+                    ActionButton("Open Godot setup", () => ShowPage("Games", "Game")))),
         };
     }
 }

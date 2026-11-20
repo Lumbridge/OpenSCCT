@@ -14,6 +14,7 @@ using Avalonia.Media.Imaging;
 using Avalonia.Threading;
 using OpenScct.Launcher.GitHub;
 using OpenScct.Launcher.Install;
+using OpenScct.Launcher.Launch;
 using OpenScct.Launcher.Update;
 using OpenScct.Maps;
 using OpenScct.Project;
@@ -42,20 +43,28 @@ internal sealed partial class MainWindow : Window
     private readonly Button _settings = Ui.Button("Settings");
     private readonly Button _launcher = Ui.Button("Update launcher");
     private readonly Border _launcherBanner;
+    private readonly WrapPanel _godotSteps = new();
+    private readonly Control _godotSourceNotice;
+    private readonly Border _installActivity;
+    private (bool Source, bool Client, bool Content)? _lastSteps;
     private readonly DispatcherTimer _timer = new() { Interval = TimeSpan.FromSeconds(3) };
     private bool _closing;
     private bool _closed;
+    private string? _pendingMap;
+    private Action<string>? _selectMapInDialog;
+    private bool _opened;
 
     public MainWindow(LauncherController model, bool smoke)
     {
         _model = model;
         _smoke = smoke;
         Title = "OpenSCCT Launcher";
-        Width = 1000;
-        Height = 650;
+        Width = 1120;
+        Height = 735;
         MinWidth = 540;
         MinHeight = 420;
         Background = Ui.Background;
+        FontFamily = new FontFamily("Inter, DejaVu Sans");
         WindowStartupLocation = WindowStartupLocation.CenterScreen;
         using (Stream? icon = Assembly.GetExecutingAssembly().GetManifestResourceStream("OpenScct.Launcher.icon.ico"))
             if (icon is not null) Icon = new WindowIcon(icon);
@@ -63,6 +72,7 @@ internal sealed partial class MainWindow : Window
         using (Stream? stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("OpenScct.Launcher.operation.jpg"))
             if (stream is not null) _artwork = new Bitmap(stream);
         Closed += (_, _) => _artwork?.Dispose();
+        LoadIllustrations();
 
         _main.MinWidth = 150;
         _main.MinHeight = 46;
@@ -70,21 +80,23 @@ internal sealed partial class MainWindow : Window
         _main.HorizontalContentAlignment = HorizontalAlignment.Center;
         _playCurrent.FontSize = 12;
         _playCurrent.HorizontalAlignment = HorizontalAlignment.Right;
-        var summary = Ui.Stack(_heading, _installed, _detail);
-        var action = Ui.Stack(_main, _playCurrent);
-        action.HorizontalAlignment = HorizontalAlignment.Right;
-        var launch = Ui.Panel(Ui.Stack(Ui.Columns(summary, action), _status, _progress));
+        _installActivity = Ui.Panel(Ui.Stack(_heading, _detail, _status, _progress, _playCurrent));
         _launcherBanner = Ui.Panel(Ui.Columns(_launcherText, _launcher));
         _launcherBanner.IsVisible = false;
-        var changelog = Ui.Button("Full changelog");
+        var changelog = Ui.Button("Release notes");
         changelog.Click += async (_, _) => await ShowNotesAsync();
         var release = Ui.Panel(Ui.Stack(Ui.Columns(_notesTitle, changelog), _notes));
         _chooseSteam.Click += async (_, _) => await ChooseSteamAsync();
         _rebuildSteam.Click += async (_, _) => await model.RunAsync("Rebuilding Steam content", model.InstallContentAsync);
-        var source = Card("Steam installation", "Godot builds its game assets and original Versus maps from your installed copy of Chaos Theory.",
-            _sourcePath, ButtonRow(_chooseSteam, _rebuildSteam));
-        _godotPage = Ui.Stack(Hero("Modernisations", "OpenSCCT Godot"), launch, source, release, ButtonRow(_maps, _check));
-        _godotPage.Spacing = 14;
+        _godotSourceNotice = SourceStrip("Where is your Steam installation?", "Godot builds its original Versus maps and assets from your installed copy.",
+            Link("Steam store", "https://store.steampowered.com/app/13570/"));
+        _godotPage = Ui.Stack(_godotSourceNotice,
+            GameHero("Game", "Modernisations · Godot Engine", "OpenSCCT Godot", "Native Linux client for Spies vs. Mercs.", _main, _godotSteps),
+            _installActivity,
+            Card("Game files", "Your Steam source and installed client", _sourcePath, _installed,
+                ButtonRow(_chooseSteam, _rebuildSteam, _check)),
+            Card("Community maps", "Download additional maps. Build source maps with your local Steam assets.", _maps), release);
+        _godotPage.Spacing = 13;
         InitializeLibrary();
 
         _main.Click += async (_, _) => await DoNextAsync();
@@ -105,7 +117,9 @@ internal sealed partial class MainWindow : Window
         {
             try
             {
-                await model.InitializeAsync(!smoke);
+                await model.InitializeAsync(!smoke && _pendingMap is null);
+                _opened = true;
+                PresentMapReview();
                 if (smoke) await RunUiSmokeAsync();
                 else _timer.Start();
             }
@@ -132,6 +146,39 @@ internal sealed partial class MainWindow : Window
         Activate();
     }
 
+    public void QueueMapReview(string code)
+    {
+        if (!WebMapRequest.IsValidCode(code) || _closed) return;
+        _pendingMap = code;
+        if (WindowState == WindowState.Minimized) WindowState = WindowState.Normal;
+        if (_opened) Activate();
+        PresentMapReview();
+    }
+
+    private void PresentMapReview()
+    {
+        if (!_opened || _closed || _pendingMap is not { } code) return;
+        if (_selectMapInDialog is { } select)
+        {
+            _pendingMap = null;
+            select(code);
+            return;
+        }
+        if (_model.Busy) return;
+        if (OwnedWindows.LastOrDefault() is { } other)
+        {
+            other.Closed -= ResumeAfterDialog;
+            other.Closed += ResumeAfterDialog;
+            return;
+        }
+        _pendingMap = null;
+        ShowPage("Mods", "Game");
+        _ = ShowMapsAsync(code);
+    }
+
+    private void ResumeAfterDialog(object? sender, EventArgs e) =>
+        Dispatcher.UIThread.Post(PresentMapReview);
+
     private void Refresh()
     {
         if (_closed) return;
@@ -142,6 +189,7 @@ internal sealed partial class MainWindow : Window
             ShowPage("Games", "Game");
         }
         else if (_model.PendingJoin is null) _lastJoin = null;
+        if (_pendingMap is not null && !_model.Busy) Dispatcher.UIThread.Post(PresentMapReview);
         LauncherAction next = _model.Next;
         string? current = _model.Store.Current()?.ToString();
         _heading.Text = _model.Busy ? _model.Operation : next switch
@@ -181,8 +229,20 @@ internal sealed partial class MainWindow : Window
         _chooseSteam.IsVisible = next != LauncherAction.ChooseSteam;
         _rebuildSteam.IsVisible = _model.Playable && _model.SteamSource is not null;
         _rebuildSteam.IsEnabled = !_model.Busy && !_model.GameRunning;
-        if (_editionButtons.TryGetValue("Game", out Button? godotButton))
-            ((TextBlock)((StackPanel)godotButton.Content!).Children[1]).Text = GodotStatus();
+        if (_editionStates.TryGetValue("Game", out TextBlock? state))
+        {
+            state.Text = GodotStatus();
+            _editionLights["Game"].Background = _model.Playable ? Ui.Accent : Pending;
+        }
+        var steps = (_model.SteamSource is not null, current is not null && !_model.ClientUpdateRequired, _model.ContentReady);
+        if (_lastSteps != steps)
+        {
+            Milestones(_godotSteps, ("Steam installation", steps.Item1), ("Client installed", steps.Item2), ("Maps built", steps.Item3));
+            _lastSteps = steps;
+        }
+        _godotSourceNotice.IsVisible = !steps.Item1 && !steps.Item3;
+        _installActivity.IsVisible = _model.Busy || _model.IsError || next is LauncherAction.Update or LauncherAction.Waiting
+            || !string.IsNullOrWhiteSpace(_model.Status);
         _status.Text = _model.Status;
         _status.Foreground = _model.IsError ? Ui.Error : Ui.Muted;
         _status.IsVisible = !string.IsNullOrWhiteSpace(_model.Status);
@@ -254,10 +314,6 @@ internal sealed partial class MainWindow : Window
         rollback.IsEnabled = _model.Store.Previous() is not null && !_model.GameRunning;
         var reset = Ui.Button("Reset installation…");
         reset.IsEnabled = !_model.GameRunning;
-        var content = Ui.Stack(Ui.Text("Godot updates", 20), startup, previews, Ui.Text("Godot files", 20),
-            Ui.Text(_model.Layout.Root, 12, Ui.Muted), data, saves, rollback, reset,
-            Ui.Text("Reset removes installed builds, built content and downloaded maps. Game settings, bindings and saves are kept.", 13, Ui.Muted));
-
         rollback.Click += async (_, _) =>
         {
             if (await Ui.ChooseAsync(this, "Use previous build", "Switch back to the previous installed game version?", "Switch version", "Cancel") != 0) return;
@@ -282,8 +338,14 @@ internal sealed partial class MainWindow : Window
             }
             catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { SetFeedback(ex.Message, true); }
         };
-        return Ui.Stack(Ui.Text("Launcher settings", 26), Ui.Panel(content), ButtonRow(save,
-            Link("Website", ProjectLinks.Website), ActionButton("Help", ShowHelpAsync)));
+        var title = Ui.Text("Launcher settings", 28);
+        title.FontWeight = FontWeight.Bold;
+        return Ui.Stack(title,
+            Card("Godot updates", "Choose which game releases this launcher checks.", startup, previews, save),
+            Card("Files and saves", _model.Layout.Root, ButtonRow(data, saves)),
+            Card("Installation recovery", "Switch to a previous game build, or remove the installed builds and content. Reset keeps player settings, bindings and saves.",
+                ButtonRow(rollback, reset)),
+            ButtonRow(Link("Website", ProjectLinks.Website), ActionButton("Help", ShowHelpAsync)));
     }
 
     private async Task ShowHelpAsync()
@@ -346,13 +408,17 @@ internal sealed partial class MainWindow : Window
         await dialog.ShowDialog(this);
     }
 
-    private async Task ShowMapsAsync()
+    private Task ShowMapsAsync() => ShowMapsAsync(null);
+
+    private async Task ShowMapsAsync(string? requestedCode)
     {
+        var review = Ui.Text("", 14, Ui.Accent);
+        review.IsVisible = false;
         var search = new TextBox { PlaceholderText = "Search maps by name or category" };
         var rows = new StackPanel { Spacing = 6 };
         var description = Ui.Text("Loading maps…", 13, Ui.Muted);
-        var content = Ui.Stack(search, description, rows);
-        var dialog = Ui.Dialog("Downloaded maps", content, 700, 570);
+        var content = Ui.Stack(review, search, description, rows);
+        var dialog = Ui.Dialog("Community maps", content, 700, 570);
         var download = Ui.Button("Download / update", true);
         var remove = Ui.Button("Remove");
         var stop = Ui.Button("Stop");
@@ -362,6 +428,17 @@ internal sealed partial class MainWindow : Window
         var selected = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         ContentIndex? index = null;
         bool closed = false;
+        void SelectMap(string code)
+        {
+            requestedCode = code;
+            search.Text = code;
+            review.IsVisible = true;
+            review.Text = "Looking up " + code + " in the community catalogue…";
+            selected.Clear();
+            Fill();
+            dialog.Activate();
+        }
+        _selectMapInDialog = SelectMap;
         void RefreshState()
         {
             if (closed) return;
@@ -382,6 +459,15 @@ internal sealed partial class MainWindow : Window
             string query = search.Text?.Trim() ?? string.Empty;
             var installed = _model.Packs.Installed().Where(p => !p.IsShared && !SteamVersusMaps.Contains(p.Code)).ToDictionary(p => p.Code, StringComparer.OrdinalIgnoreCase);
             var maps = index?.PlayableMaps().Where(m => !SteamVersusMaps.Contains(m.Code)).ToList() ?? [];
+            if (index is not null && requestedCode is { } request)
+            {
+                ContentMap? match = maps.FirstOrDefault(m => m.Code.Equals(request, StringComparison.OrdinalIgnoreCase));
+                if (match is not null) selected.Add(match.Code);
+                review.Text = match is null ? request + " is unavailable in the community catalogue."
+                    : "Review " + match.DisplayTitle + " before downloading.";
+                review.IsVisible = true;
+                requestedCode = null;
+            }
             foreach (ContentMap map in maps)
             {
                 installed.Remove(map.Code);
@@ -409,6 +495,7 @@ internal sealed partial class MainWindow : Window
         _model.Changed += RefreshState;
         dialog.Opened += async (_, _) =>
         {
+            if (requestedCode is { } initial) SelectMap(initial);
             if (_smoke)
             {
                 index = new ContentIndex { Maps = [SmokeMap("AQU03", "Aquarius", "stock"),
@@ -434,7 +521,7 @@ internal sealed partial class MainWindow : Window
         refresh.Click += async (_, _) => await Load();
         stop.Click += (_, _) => _model.Cancel();
         close.Click += (_, _) => dialog.Close();
-        dialog.Closed += (_, _) => { closed = true; _model.Changed -= RefreshState; };
+        dialog.Closed += (_, _) => { closed = true; _selectMapInDialog = null; _model.Changed -= RefreshState; };
         await dialog.ShowDialog(this);
     }
 
@@ -457,7 +544,11 @@ internal sealed partial class MainWindow : Window
         {
             await Task.Delay(200);
             RequirePage("Games", "Ps2");
-            if (!_sidebar.Children.OfType<TextBlock>().Select(label => label.Text).SequenceEqual(["Originals", "Modernisations"]))
+            SaveSmokeImage("launcher-desktop");
+            Width = 1000;
+            Height = 650;
+            await Task.Delay(160);
+            if (!_sidebar.Children.OfType<TextBlock>().Select(label => label.Text).SequenceEqual(["ORIGINALS", "MODERNISATIONS"]))
                 throw new InvalidOperationException("The edition library did not show both groups in order.");
             SaveSmokeImage("launcher-ps2");
             _mods.RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(Button.ClickEvent));
@@ -466,11 +557,17 @@ internal sealed partial class MainWindow : Window
             _games.RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(Button.ClickEvent));
             _editionButtons["Retail"].RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(Button.ClickEvent));
             RequirePage("Games", "Retail");
+            await Task.Delay(100);
+            SaveSmokeImage("launcher-retail");
             _mods.RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(Button.ClickEvent));
             RequirePage("Mods", "Retail");
+            await Task.Delay(100);
+            SaveSmokeImage("launcher-retail-mods");
             _editionButtons["Unreal"].RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(Button.ClickEvent));
             _games.RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(Button.ClickEvent));
             RequirePage("Games", "Unreal");
+            await Task.Delay(100);
+            SaveSmokeImage("launcher-unreal");
             _editionButtons["Game"].RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(Button.ClickEvent));
             RequirePage("Games", "Game");
             await Task.Delay(100);
@@ -490,12 +587,22 @@ internal sealed partial class MainWindow : Window
             await Task.Delay(150);
             SaveSmokeImage("launcher-settings");
             ShowPage("Games", "Game");
-            Task maps = ShowMapsAsync();
+            QueueMapReview("Community");
             await Task.Delay(150);
-            Window mapsWindow = OwnedWindows.Last();
+            RequirePage("Mods", "Game");
+            Window mapsWindow = OwnedWindows.Single();
+            var mapRows = Avalonia.VisualTree.VisualExtensions.GetVisualDescendants(mapsWindow).OfType<CheckBox>().ToArray();
+            if (!mapRows.Any(row => row.IsChecked == true) || _model.Packs.InstalledMap("Community") is not null)
+                throw new InvalidOperationException("The website map was not selected for review.");
+            QueueMapReview("MissingCode");
+            await Task.Delay(80);
+            if (OwnedWindows.Count != 1 || Avalonia.VisualTree.VisualExtensions.GetVisualDescendants(mapsWindow).OfType<CheckBox>().Any(row => row.IsChecked == true))
+                throw new InvalidOperationException("An unavailable website map was selected.");
+            QueueMapReview("Community");
+            await Task.Delay(80);
             SaveSmokeImage("launcher-maps", mapsWindow);
             mapsWindow.Close();
-            await maps;
+            ShowPage("Games", "Game");
             Task busy = _model.RunAsync("Downloading OpenSCCT", cancel => Task.Delay(System.Threading.Timeout.Infinite, cancel));
             await Task.Delay(100);
             if (_main.Content?.ToString() != "Stop" || _settings.IsEnabled || _maps.IsEnabled)
@@ -535,26 +642,38 @@ internal sealed partial class MainWindow : Window
 
 internal static class Ui
 {
-    public static readonly IBrush Background = Brush.Parse("#101510");
-    public static readonly IBrush Surface = Brush.Parse("#1B231B");
-    public static readonly IBrush Accent = Brush.Parse("#B5D866");
-    public static readonly IBrush Muted = Brush.Parse("#ABB5A8");
+    public static readonly IBrush Background = Brush.Parse("#101410");
+    public static readonly IBrush Primary = Brush.Parse("#EDF0E8");
+    public static readonly IBrush Edge = Brush.Parse("#333C31");
+    public static readonly IBrush Surface = Brush.Parse("#1D231E");
+    public static readonly IBrush Accent = Brush.Parse("#B9DE79");
+    public static readonly IBrush Muted = Brush.Parse("#B1BBAE");
     public static readonly IBrush Error = Brush.Parse("#FFB29F");
     public static TextBlock Text(string text, double size = 14, IBrush? color = null) => new()
-    { Text = text, FontSize = size, Foreground = color ?? Brushes.WhiteSmoke, TextWrapping = TextWrapping.Wrap };
+    { Text = text, FontSize = size, Foreground = color ?? Primary, TextWrapping = TextWrapping.Wrap };
     public static Button Button(string text, bool primary = false)
     {
-        var button = new Button { Content = text, Padding = new Thickness(13, 8), MinHeight = 34 };
+        var button = new Button { Content = text, Padding = new Thickness(12, 8), MinHeight = 34, CornerRadius = new CornerRadius(6),
+            Background = Brush.Parse("#2A322A"), BorderBrush = Edge, BorderThickness = new Thickness(1), Foreground = Primary };
         if (primary) { button.Background = Accent; button.Foreground = Background; button.FontWeight = FontWeight.SemiBold; }
         return button;
     }
+    public static StackPanel Row(double spacing, params Control[] controls)
+    {
+        var row = Stack(controls);
+        row.Orientation = Orientation.Horizontal;
+        row.Spacing = spacing;
+        row.VerticalAlignment = VerticalAlignment.Center;
+        return row;
+    }
+
     public static StackPanel Stack(params Control[] controls)
     {
         var stack = new StackPanel { Spacing = 9 };
         foreach (Control control in controls) stack.Children.Add(control);
         return stack;
     }
-    public static Border Panel(Control child) => new() { Child = child, Padding = new Thickness(18), Background = Surface, CornerRadius = new CornerRadius(9) };
+    public static Border Panel(Control child) => new() { Child = child, Padding = new Thickness(18, 15), Background = Surface, BorderBrush = Edge, BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(10) };
     public static Grid Columns(Control left, Control right)
     {
         var grid = new Grid { ColumnDefinitions = new ColumnDefinitions("*,Auto"), ColumnSpacing = 16 };

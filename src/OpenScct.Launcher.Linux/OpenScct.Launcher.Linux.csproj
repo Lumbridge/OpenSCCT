@@ -22,8 +22,10 @@
     <PackageReference Include="Avalonia.Themes.Fluent" />
     <ProjectReference Include="../OpenScct.Launcher.Core/OpenScct.Launcher.Core.csproj" />
     <Compile Include="../../shared/ProjectLinks.cs" Link="Shared/ProjectLinks.cs" />
+    <EmbeddedResource Include="../../game/branding/icon.png" LogicalName="OpenScct.Launcher.icon.png" />
     <EmbeddedResource Include="../../game/branding/icon.ico" LogicalName="OpenScct.Launcher.icon.ico" />
     <EmbeddedResource Include="../OpenScct.Launcher/branding/operation.jpg" LogicalName="OpenScct.Launcher.operation.jpg" />
+    <EmbeddedResource Include="../OpenScct.Launcher/branding/library-*.jpg" Exclude="../OpenScct.Launcher/branding/library-editor.jpg" LogicalName="OpenScct.Launcher.%(Filename)%(Extension)" />
     <EmbeddedResource Include="licenses/**/*" LogicalName="OpenScct.Launcher.Licenses.%(Filename)%(Extension)" />
     <None Update="licenses/**/*" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
