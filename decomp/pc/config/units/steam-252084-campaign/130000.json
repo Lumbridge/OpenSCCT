@@ -1848,6 +1848,33 @@
     }
   },
   {
+    "id": "array-destroy-13b440",
+    "size": 56,
+    "offset": 1291328,
+    "rebuilt_symbol": "@array_destroy_r13b440@4",
+    "inputs": [
+      "src/campaign_array_destroy.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_destroy.obj src/campaign_array_destroy.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator used by the recovered FArray removal and release functions."
+      },
+      "@destroy_remove_r13ada0@16": {
+        "va": 279162272,
+        "basis": "Direct call to the independently compiled FArray range-removal function array-remove-13ada0. The call passes index zero, the current count and element size 4."
+      }
+    },
+    "identification": "Complete stock array destructor at RVA 0x13b440, called from decoded game code at RVA 0x13b5a1. Removes every element with stride 4 and releases remaining storage.",
+    "match": {
+      "bytes_sha256": "0e39fb424c413e843e66d1451dd786df61243f0b60e8fc2216220776af363a26",
+      "inputs_sha256": "ef2dc83f18a57e3a659685677da457374ec59d6a9814adf5d21adf349d3193b6"
+    }
+  },
+  {
     "id": "placement-uservercommandlet",
     "offset": 1291392,
     "size": 24,

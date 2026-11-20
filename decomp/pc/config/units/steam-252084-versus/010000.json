@@ -1,5 +1,65 @@
 [
   {
+    "id": "versus-array-remove",
+    "size": 167,
+    "offset": 72128,
+    "inputs": [
+      "src/versus_arrays.c"
+    ],
+    "rebuilt_symbol": "@remove_array@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_arrays.obj src/versus_arrays.c",
+    "identification": "Stock function at RVA 0x119c0 with a decoded incoming transfer at RVA 0x81a3. Moves trailing elements and conditionally releases or shrinks FArray storage.",
+    "link_bindings": {
+      "__imp__memmove": {
+        "va": 280884164,
+        "basis": "The PE import directory names the CRT memmove import at this address."
+      },
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Engine allocator object used in all three array methods. Slots 0, 1 and 2 allocate, resize and release storage."
+      },
+      "_array_tag": {
+        "va": 281086324,
+        "basis": "UTF-16 allocator tag 'FArray' passed to the Steam Versus heap."
+      }
+    },
+    "match": {
+      "bytes_sha256": "c3a0ead1a8bfc0dc3fff069ff8102df71dbd5433c2e07c5cc4919dd174e3252f",
+      "inputs_sha256": "95f9faac5417e0ba79a9130e3bdbad969e46d06c0ed7e262d6d2c9fadae45215"
+    }
+  },
+  {
+    "id": "versus-array-remove-simple",
+    "size": 119,
+    "offset": 72352,
+    "inputs": [
+      "src/versus_arrays.c"
+    ],
+    "rebuilt_symbol": "@remove_simple_array@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_arrays.obj src/versus_arrays.c",
+    "identification": "Stock function at RVA 0x11aa0 with a decoded incoming transfer at RVA 0xf2ed. Moves trailing elements and resizes simple-array storage to the exact remaining count.",
+    "link_bindings": {
+      "__imp__memmove": {
+        "va": 280884164,
+        "basis": "The PE import directory names the CRT memmove import at this address."
+      },
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Engine allocator object used in all three array methods. Slots 0, 1 and 2 allocate, resize and release storage."
+      },
+      "_simple_tag": {
+        "va": 281481352,
+        "basis": "UTF-16 allocator tag 'FSArray' passed to the Steam Versus heap."
+      }
+    },
+    "match": {
+      "bytes_sha256": "a216e1d2ab5cb6eef054c1162e77984d8bcc6e7fb68c53f494ab0c3b3cf1daa2",
+      "inputs_sha256": "6917e07f628394595542784829dcfa5321948b3ee8f5ec777353c10d82abebe7"
+    }
+  },
+  {
     "id": "delete-upackage",
     "offset": 87584,
     "size": 33,

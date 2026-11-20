@@ -769,6 +769,33 @@
     }
   },
   {
+    "id": "array-destroy-2f3360",
+    "size": 56,
+    "offset": 3093344,
+    "rebuilt_symbol": "@array_destroy_r2f3360@4",
+    "inputs": [
+      "src/campaign_array_destroy.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_destroy.obj src/campaign_array_destroy.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator used by the recovered FArray removal and release functions."
+      },
+      "@destroy_remove_r2f3270@16": {
+        "va": 280965744,
+        "basis": "Direct call to the independently compiled FArray range-removal function array-remove-2f3270. The call passes index zero, the current count and element size 12."
+      }
+    },
+    "identification": "Complete stock array destructor at RVA 0x2f3360, called from decoded game code at RVA 0x2f3524. Removes every element with stride 12 and releases remaining storage.",
+    "match": {
+      "bytes_sha256": "0202b7395be0d5bc149f539ed6d70fff568994d674473c9765640076259b645c",
+      "inputs_sha256": "9d8d484e426bc18d578c130deb966fcfea1b2c42c498039bc38efd589e545f03"
+    }
+  },
+  {
     "id": "delete-aegameplayobjectlight",
     "offset": 3093776,
     "size": 57,
@@ -1762,6 +1789,33 @@
     "match": {
       "bytes_sha256": "c4a71a66575cfa717669f13aea57e82891c85bfb28e4da905f162607298c3649",
       "inputs_sha256": "c596b0a85ae99fea17642e058a8052542666ac248eb004c89a853f08ed30e1f0"
+    }
+  },
+  {
+    "id": "array-destroy-2f7b80",
+    "size": 56,
+    "offset": 3111808,
+    "rebuilt_symbol": "@array_destroy_r2f7b80@4",
+    "inputs": [
+      "src/campaign_array_destroy.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_destroy.obj src/campaign_array_destroy.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator used by the recovered FArray removal and release functions."
+      },
+      "@destroy_remove_r2f77a0@16": {
+        "va": 280983456,
+        "basis": "Direct call to the independently compiled FArray range-removal function array-remove-2f77a0. The call passes index zero, the current count and element size 8."
+      }
+    },
+    "identification": "Complete stock array destructor at RVA 0x2f7b80, called from decoded game code at RVA 0x2f7e14. Removes every element with stride 8 and releases remaining storage.",
+    "match": {
+      "bytes_sha256": "bf9d53983fe710f21c236b7b6c4b6a5134eb94b64aa193981ed01a3e41b51d10",
+      "inputs_sha256": "02f5082af968863f1f0a5c60e4376a87661437a324f6b4920314b95e50704dad"
     }
   },
   {

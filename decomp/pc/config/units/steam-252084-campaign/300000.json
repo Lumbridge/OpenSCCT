@@ -1,5 +1,32 @@
 [
   {
+    "id": "array-destroy-3001b0",
+    "size": 56,
+    "offset": 3146160,
+    "rebuilt_symbol": "@array_destroy_r3001b0@4",
+    "inputs": [
+      "src/campaign_array_destroy.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_destroy.obj src/campaign_array_destroy.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator used by the recovered FArray removal and release functions."
+      },
+      "@destroy_remove_r2ffee0@16": {
+        "va": 281018080,
+        "basis": "Direct call to the independently compiled FArray range-removal function array-remove-2ffee0. The call passes index zero, the current count and element size 8."
+      }
+    },
+    "identification": "Complete stock array destructor at RVA 0x3001b0, called from decoded game code at RVA 0x300334, 0x300524. Removes every element with stride 8 and releases remaining storage.",
+    "match": {
+      "bytes_sha256": "38f0a8f3901e7c0a3bae472e7d7b40a138f199e7bb77f55a37202485301f6d5e",
+      "inputs_sha256": "4de222713ea14073777fe90cc7e532836b1c611e5e69517580b043d8ae2f7836"
+    }
+  },
+  {
     "id": "delete-aecoopaltcommsync",
     "offset": 3146336,
     "size": 46,

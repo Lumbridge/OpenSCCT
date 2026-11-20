@@ -1,5 +1,73 @@
 [
   {
+    "id": "versus-array-add",
+    "size": 100,
+    "offset": 17632,
+    "inputs": [
+      "src/versus_arrays.c"
+    ],
+    "rebuilt_symbol": "@add_array@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_arrays.obj src/versus_arrays.c",
+    "identification": "Stock function at RVA 0x44e0 with a decoded incoming transfer at RVA 0x4955. Returns the old index, increases the count and grows storage using the FArray slack formula.",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Engine allocator object used in all three array methods. Slots 0, 1 and 2 allocate, resize and release storage."
+      },
+      "_add_tag": {
+        "va": 281086368,
+        "basis": "UTF-16 allocator tag 'FArray::Add' passed to the Steam Versus heap."
+      },
+      "_array_tag": {
+        "va": 281086324,
+        "basis": "UTF-16 allocator tag 'FArray' passed to the Steam Versus heap."
+      }
+    },
+    "match": {
+      "bytes_sha256": "258157ba0fa642b4e75877e7101ae42f8a29336414fffa72746f964e04d08131",
+      "inputs_sha256": "688ce6bd8a52724d6808a57634ba98f66dc1b3c68fd91dcee3f5ee662c9cac54"
+    }
+  },
+  {
+    "id": "versus-array-release",
+    "size": 35,
+    "offset": 17872,
+    "inputs": [
+      "src/versus_arrays.c"
+    ],
+    "rebuilt_symbol": "@release_array@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_arrays.obj src/versus_arrays.c",
+    "identification": "Stock function at RVA 0x45d0 with a decoded incoming transfer at RVA 0x1cc4c. Releases storage through allocator slot 2 and clears the FArray.",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Engine allocator object used in all three array methods. Slots 0, 1 and 2 allocate, resize and release storage."
+      }
+    },
+    "match": {
+      "bytes_sha256": "388b1679db563d2113e454a6618f6c5d39617a6c9ba77686fc43ad993ee4fce9",
+      "inputs_sha256": "3f1c7b15a94b7ff376d2f978adc5723ce2d0eb72fa27ee0887d10dae5ad4ac6b"
+    }
+  },
+  {
+    "id": "versus-array-init",
+    "size": 13,
+    "offset": 17968,
+    "inputs": [
+      "src/versus_arrays.c"
+    ],
+    "rebuilt_symbol": "@init_array@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_arrays.obj src/versus_arrays.c",
+    "identification": "Stock function at RVA 0x4630 with a decoded incoming transfer at RVA 0xb345. Initializes the FArray data pointer, element count and capacity.",
+    "match": {
+      "bytes_sha256": "1e09d34a9de7a48bd061703ef73f341df8596595468b282c5f19c36b6bf0b98d",
+      "inputs_sha256": "af056a367ec0dec62dbc04a51b0c123c30eb0fd4ca43282a7f2e18bb538022f6"
+    }
+  },
+  {
     "id": "delete-uobject",
     "offset": 51840,
     "size": 33,

@@ -1683,6 +1683,33 @@
     }
   },
   {
+    "id": "array-destroy-0a5fb0",
+    "size": 56,
+    "offset": 679856,
+    "rebuilt_symbol": "@array_destroy_r0a5fb0@4",
+    "inputs": [
+      "src/campaign_array_destroy.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_destroy.obj src/campaign_array_destroy.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator used by the recovered FArray removal and release functions."
+      },
+      "@destroy_remove_r0a5e50@16": {
+        "va": 278552144,
+        "basis": "Direct call to the independently compiled FArray range-removal function array-remove-0a5e50. The call passes index zero, the current count and element size 4."
+      }
+    },
+    "identification": "Complete stock array destructor at RVA 0xa5fb0, called from decoded game code at RVA 0xa6074. Removes every element with stride 4 and releases remaining storage.",
+    "match": {
+      "bytes_sha256": "c5acb3518cc507ec5a07b91ec23b601d3132e9f860fc6262349ddf1ff8c3a37a",
+      "inputs_sha256": "0c607a588b73c42ee49298b34a0cccac3ece260ce293b6c477bf4a0f0158654a"
+    }
+  },
+  {
     "id": "delete-aemitter",
     "offset": 680032,
     "size": 57,
@@ -3569,6 +3596,33 @@
     }
   },
   {
+    "id": "array-destroy-0ae280",
+    "size": 56,
+    "offset": 713344,
+    "rebuilt_symbol": "@array_destroy_r0ae280@4",
+    "inputs": [
+      "src/campaign_array_destroy.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_destroy.obj src/campaign_array_destroy.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator used by the recovered FArray removal and release functions."
+      },
+      "@destroy_remove_r0ac340@16": {
+        "va": 278577984,
+        "basis": "Direct call to the independently compiled FArray range-removal function array-remove-0ac340. The call passes index zero, the current count and element size 4."
+      }
+    },
+    "identification": "Complete stock array destructor at RVA 0xae280, called from decoded game code at RVA 0xaee24, 0xaef24. Removes every element with stride 4 and releases remaining storage.",
+    "match": {
+      "bytes_sha256": "839d88be103f0f3874a97f19707dcbb85c5d99cc32fc5e8bad5e7b42eefe0b63",
+      "inputs_sha256": "2ec393da6c0142eecf61d46594ff78eff65f1abc032039b53a25fe145368d879"
+    }
+  },
+  {
     "id": "class-singleton-patchtemplate",
     "offset": 713408,
     "size": 38,
@@ -3894,6 +3948,33 @@
     "match": {
       "bytes_sha256": "7f9dff6803a671a0095c40a27bb88e87bd2d9288c02f2a2891c1565100f4d17c",
       "inputs_sha256": "48ccb599167f66d49992031b3d38865c729b81eb976fdfbbc4842023d3535eb3"
+    }
+  },
+  {
+    "id": "array-destroy-0af670",
+    "size": 56,
+    "offset": 718448,
+    "rebuilt_symbol": "@array_destroy_r0af670@4",
+    "inputs": [
+      "src/campaign_array_destroy.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_destroy.obj src/campaign_array_destroy.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator used by the recovered FArray removal and release functions."
+      },
+      "@destroy_remove_r0af390@16": {
+        "va": 278590352,
+        "basis": "Direct call to the independently compiled FArray range-removal function array-remove-0af390. The call passes index zero, the current count and element size 8."
+      }
+    },
+    "identification": "Complete stock array destructor at RVA 0xaf670, called from decoded game code at RVA 0xaf704. Removes every element with stride 8 and releases remaining storage.",
+    "match": {
+      "bytes_sha256": "a5d881fd0574d139bf9780cf314ad965c43ca8e2df38fb40b26950b4aaa0fdff",
+      "inputs_sha256": "ed337c59c380dc95556197cd778460883d8383e98f096c16872966ad8e96eca2"
     }
   },
   {

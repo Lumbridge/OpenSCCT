@@ -493,6 +493,33 @@
     }
   },
   {
+    "id": "array-destroy-124640",
+    "size": 56,
+    "offset": 1197632,
+    "rebuilt_symbol": "@array_destroy_r124640@4",
+    "inputs": [
+      "src/campaign_array_destroy.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_destroy.obj src/campaign_array_destroy.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator used by the recovered FArray removal and release functions."
+      },
+      "@destroy_remove_r124360@16": {
+        "va": 279069536,
+        "basis": "Direct call to the independently compiled FArray range-removal function array-remove-124360. The call passes index zero, the current count and element size 32."
+      }
+    },
+    "identification": "Complete stock array destructor at RVA 0x124640, called from decoded game code at RVA 0x125054. Removes every element with stride 32 and releases remaining storage.",
+    "match": {
+      "bytes_sha256": "9ca13e82b849da153cd65bca8469101b40ba6065ae1c96c2771f998a0990ceb6",
+      "inputs_sha256": "94eb922de808ea7a01d87a274964d92fafd6a57a049c58a8fd6db9bdf9a6fbf0"
+    }
+  },
+  {
     "id": "delete-usparkemitter",
     "offset": 1200192,
     "size": 57,
@@ -1257,6 +1284,60 @@
     "match": {
       "bytes_sha256": "a5211823c20aaee10d503acdfe58014cb23050ee25f48ed40e0c0c547cb19903",
       "inputs_sha256": "c7586138ac45650f1224db1bb2b4362c7f2c91557d2b9ecd2b2090ac08b48689"
+    }
+  },
+  {
+    "id": "array-destroy-129a50",
+    "size": 56,
+    "offset": 1219152,
+    "rebuilt_symbol": "@array_destroy_r129a50@4",
+    "inputs": [
+      "src/campaign_array_destroy.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_destroy.obj src/campaign_array_destroy.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator used by the recovered FArray removal and release functions."
+      },
+      "@destroy_remove_r1293e0@16": {
+        "va": 279090144,
+        "basis": "Direct call to the independently compiled FArray range-removal function array-remove-1293e0. The call passes index zero, the current count and element size 16."
+      }
+    },
+    "identification": "Complete stock array destructor at RVA 0x129a50, called from decoded game code at RVA 0x12a51e. Removes every element with stride 16 and releases remaining storage.",
+    "match": {
+      "bytes_sha256": "ba63eb975f8a45ac80e25dd69d6c8ac6120a0ab51581d009e40f771b81b30631",
+      "inputs_sha256": "55cc83a73ff05402fefd609b6f50139185182f86db144328fe1eae22bea6ce77"
+    }
+  },
+  {
+    "id": "array-destroy-12a5d0",
+    "size": 56,
+    "offset": 1222096,
+    "rebuilt_symbol": "@array_destroy_r12a5d0@4",
+    "inputs": [
+      "src/campaign_array_destroy.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_destroy.obj src/campaign_array_destroy.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator used by the recovered FArray removal and release functions."
+      },
+      "@destroy_remove_r129590@16": {
+        "va": 279090576,
+        "basis": "Direct call to the independently compiled FArray range-removal function array-remove-129590. The call passes index zero, the current count and element size 20."
+      }
+    },
+    "identification": "Complete stock array destructor at RVA 0x12a5d0, called from decoded game code at RVA 0x12a741. Removes every element with stride 20 and releases remaining storage.",
+    "match": {
+      "bytes_sha256": "e1bf0716c11c1c07ad8be4ef1f180021aa95ec60d610fcf75c15aac806a3bfef",
+      "inputs_sha256": "87732702b68b52093cf9cc744bfa8bf3efb34c75f273a9aebb6c8842ac0d0990"
     }
   },
   {

@@ -488,6 +488,33 @@
     }
   },
   {
+    "id": "array-destroy-1a9be0",
+    "size": 59,
+    "offset": 1743840,
+    "rebuilt_symbol": "@array_destroy_r1a9be0@4",
+    "inputs": [
+      "src/campaign_array_destroy.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_destroy.obj src/campaign_array_destroy.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator used by the recovered FArray removal and release functions."
+      },
+      "@destroy_remove_r1a8e50@16": {
+        "va": 279613008,
+        "basis": "Direct call to the independently compiled FArray range-removal function array-remove-1a8e50. The call passes index zero, the current count and element size 176."
+      }
+    },
+    "identification": "Complete stock array destructor at RVA 0x1a9be0, called from decoded game code at RVA 0x224d22. Removes every element with stride 176 and releases remaining storage.",
+    "match": {
+      "bytes_sha256": "1c7469d92421b03b6bbe9faa515dee077d429c026a78b0e6998009fb8fea860a",
+      "inputs_sha256": "e4b2eff5a32841169da30cf8d15c93af62e7b96ae82ee22fc05bee51c9074f58"
+    }
+  },
+  {
     "id": "game-engine-levelinfo-headsetpresent",
     "offset": 1746256,
     "size": 52,
