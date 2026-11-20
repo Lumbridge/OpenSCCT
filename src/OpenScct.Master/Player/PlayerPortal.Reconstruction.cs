@@ -75,7 +75,7 @@ internal sealed partial class PlayerPortal
 
     private IResult Legal(HttpContext c) => Show(c, "Legal", "legal", "<div class=\"project-site\">"
         + ProjectHeading("OpenSCCT", "Legal", "Game ownership, project downloads and attribution.") + LegalCards + Trademark
-        + "<section class=\"hub-section\"><h2>Modernisations and community content</h2><p>Godot builds the original Versus maps locally. Extra maps are available as downloads. The Unreal client and map editor also use locally built Steam content. Some community packs and earlier releases include converted assets.</p><div class=\"hub-link-row\">"
+        + "<section class=\"hub-section\"><h2>Modernisations and community content</h2><p>Steam-based setup requires launcher 0.9.2 and game tools 0.8.166 or later. OpenSCCT Unreal 0.1.10 and Editor 0.2.54 use the same local build. Additional community maps are available separately. Earlier releases and the historical content catalogue include converted assets.</p><div class=\"hub-link-row\">"
         + Link("/projects/godot", "Godot setup") + Link("/projects/unreal", "Unreal setup") + Link(DecompGuide, "Matching project source")
         + Link("https://www.ubisoft.com/en-US/games/9058ea04-847b-4c8d-af09-438b8d804640", "Ubisoft game page") + "</div></section></div>");
 }

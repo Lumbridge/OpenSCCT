@@ -36,6 +36,9 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Keep retail files and game-derived data out of source
+        run: python tools/ci/no_game_data.py
+
       - name: Documentation links and coverage summary
         run: python tools/ci/docs.py
 

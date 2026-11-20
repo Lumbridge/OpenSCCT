@@ -27,8 +27,8 @@ jobs:
         run: python -m unittest discover -s decomp/tools
       - name: Check PS2 code ranges and function objects with synthetic inputs
         run: |
-          python -m pip install pyelftools==0.32
-          python -m unittest discover -s decomp/tests
+          docker build -t openscct-ps2 decomp/ps2/toolchain
+          docker run --rm --network none -v "$PWD:/work:ro" openscct-ps2 python -m unittest discover -s decomp/tests
       - name: Verify source receipts and regenerate the public feed in memory
         run: python -I decomp/tools/progress.py report --check
 
