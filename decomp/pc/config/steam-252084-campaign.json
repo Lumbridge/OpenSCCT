@@ -45,6 +45,96 @@
         "bytes_sha256": "4bc724f3b1d0caf4fe369c18cba3102e6c4ea057f63fe1587e3973134a7f755e",
         "inputs_sha256": "2cd3ae16fc04097dbd66a10c1d3ce2ca285ca4aae1e8abe7c3437226a8ae414c"
       }
+    },
+    {
+      "id": "sound-texture-id-array",
+      "offset": 7638560,
+      "size": 5,
+      "rebuilt_symbol": "_SND_fn_lGetSoundTextureIdArray@8",
+      "inputs": [
+        "src/sound_texture_queries.c"
+      ],
+      "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_texture_queries.obj src/sound_texture_queries.c",
+      "match": {
+        "bytes_sha256": "3df6af1ec778d46a61b8d7160523ba89fe1af814222acb1175be5a7b1748e06b",
+        "inputs_sha256": "dbc837a5ebfa554eb7f2fcb3a168df4a49398a0fa3105ce88a510ae4516765ce"
+      }
+    },
+    {
+      "id": "sound-texture-id",
+      "offset": 7638576,
+      "size": 8,
+      "rebuilt_symbol": "_SND_fn_lGetSoundTextureId@4",
+      "inputs": [
+        "src/sound_texture_queries.c"
+      ],
+      "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_texture_queries.obj src/sound_texture_queries.c",
+      "match": {
+        "bytes_sha256": "602605b73a80c9a511b00b336e09a942b1b24ace9955833dd1d8bc798f5e7231",
+        "inputs_sha256": "20beeab61d0ba0d0e5cf3950b958dae1affbf866f2d620879791b98405a943ae"
+      }
+    },
+    {
+      "id": "sound-texture-name",
+      "offset": 7638592,
+      "size": 5,
+      "rebuilt_symbol": "_SND_fn_lGetSoundTextureName@12",
+      "inputs": [
+        "src/sound_texture_queries.c"
+      ],
+      "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_texture_queries.obj src/sound_texture_queries.c",
+      "match": {
+        "bytes_sha256": "531db4852a682340f10d91199822e1a1aed030bae016ff1e2c9f32d13b9cc9a1",
+        "inputs_sha256": "c66d51d14d2930abf431afa684dc8e6e8b3447b1b48de54006cc0a34826c799d"
+      }
+    },
+    {
+      "id": "sound-fast-fixed-multiply",
+      "offset": 7647696,
+      "size": 20,
+      "rebuilt_symbol": "_SND_fn_rMulRealRealQuickSnd@8",
+      "inputs": [
+        "src/sound_fixed_point.c"
+      ],
+      "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_fixed_point.obj src/sound_fixed_point.c",
+      "match": {
+        "bytes_sha256": "e0af574e7c343bf333549010aa3c9cff6499510be060d4718f0960cac7f93f0a",
+        "inputs_sha256": "6444e25dfc509580c0570d12b7072ab47793f5ca7378a63afc6288c030b63512"
+      }
+    },
+    {
+      "id": "dolby-left-coefficient",
+      "offset": 7648080,
+      "size": 33,
+      "rebuilt_symbol": "_SND_fn_fGetDolbyLtCoef@4",
+      "inputs": [
+        "src/dolby_coefficients.c"
+      ],
+      "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+      "build_command": "cl /nologo /O2 /arch:IA32 /Gy /c /Folocal/dolby_coefficients.obj src/dolby_coefficients.c",
+      "match": {
+        "bytes_sha256": "fb501da0c02e7cf247e0304fe38204b0864a0eebe6a509d2b6101a9ac7a96ad8",
+        "inputs_sha256": "63685066b0b3efb5ee6d332b68c914eae1b33f63648e146cf2335b086a9fb979"
+      }
+    },
+    {
+      "id": "dolby-right-coefficient",
+      "offset": 7648128,
+      "size": 33,
+      "rebuilt_symbol": "_SND_fn_fGetDolbyRtCoef@4",
+      "inputs": [
+        "src/dolby_coefficients.c"
+      ],
+      "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+      "build_command": "cl /nologo /O2 /arch:IA32 /Gy /c /Folocal/dolby_coefficients.obj src/dolby_coefficients.c",
+      "match": {
+        "bytes_sha256": "a8f91c024f230432349be0c814e62dbb4609aff72bd5a3a9b3e4af14d20a9dd6",
+        "inputs_sha256": "704e07c2a1158ab8781e02a3eb43608e1e8f3516c75cc1f5676d359c0c60feac"
+      }
     }
   ]
 }
