@@ -1,0 +1,1778 @@
+[
+  {
+    "Title": "1 on 1 Club House",
+    "Code": "c1v1esl",
+    "Category": "Community maps",
+    "Path": "community/1 on 1 Club House",
+    "Image": "showcase-archive-community-1-on-1-club-house.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "1 on 1 Deftech Belew",
+    "Code": "D1vs1esl",
+    "Category": "Community maps",
+    "Path": "community/1 on 1 Deftech Belew",
+    "Image": "showcase-archive-community-1-on-1-deftech-belew.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "1 on 1 Museum",
+    "Code": "m1v1esl2",
+    "Category": "Community maps",
+    "Path": "community/1 on 1 Museum",
+    "Image": "showcase-archive-community-1-on-1-museum.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "1 on 1 Station",
+    "Code": "G1v1esl",
+    "Category": "Community maps",
+    "Path": "community/1 on 1 Station",
+    "Image": "showcase-archive-community-1-on-1-station.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Abandoned Bunker",
+    "Code": "ABK27",
+    "Category": "Community maps",
+    "Path": "community/Abandoned Bunker",
+    "Image": "showcase-archive-community-abandoned-bunker.webp",
+    "Kind": "Level layout"
+  },
+  {
+    "Title": "Argus HQ",
+    "Code": "AHQ06",
+    "Category": "Community maps",
+    "Path": "community/Argus HQ",
+    "Image": "showcase-archive-community-argus-hq.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Artillery Warehouse",
+    "Code": "NNY02",
+    "Category": "Community maps",
+    "Path": "community/Artillery Warehouse",
+    "Image": "showcase-archive-community-artillery-warehouse.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Athlon",
+    "Code": "ATH05",
+    "Category": "Community maps",
+    "Path": "community/Athlon",
+    "Image": "showcase-archive-community-athlon.webp",
+    "Kind": "Level layout"
+  },
+  {
+    "Title": "Bank Mixed",
+    "Code": "BNK11b",
+    "Category": "Community maps",
+    "Path": "community/Bank Mixed",
+    "Image": "showcase-archive-community-bank-mixed.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Base Argus",
+    "Code": "ARG01",
+    "Category": "Community maps",
+    "Path": "community/Base Argus",
+    "Image": "showcase-archive-community-base-argus.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Base Secrete",
+    "Code": "RED1",
+    "Category": "Community maps",
+    "Path": "community/Base Secrete",
+    "Image": "showcase-archive-community-base-secrete.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Buddhist Temple 0.5",
+    "Code": "BuddhistTemple",
+    "Category": "Community maps",
+    "Path": "community/Buddhist Temple 0.5",
+    "Image": "showcase-archive-community-buddhist-temple-0-5.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Cargoship Beta",
+    "Code": "CSP11",
+    "Category": "Community maps",
+    "Path": "community/Cargoship Beta",
+    "Image": "showcase-archive-community-cargoship-beta.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Chemical Industries 1.2",
+    "Code": "CI",
+    "Category": "Community maps",
+    "Path": "community/Chemical Industries 1.2",
+    "Image": "showcase-archive-community-chemical-industries-1-2.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Clarity Soft Inc",
+    "Code": "CSI01",
+    "Category": "Community maps",
+    "Path": "community/Clarity Soft Inc",
+    "Image": "showcase-archive-community-clarity-soft-inc.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Club House vs Museum",
+    "Code": "museumvsclubhouse",
+    "Category": "Community maps",
+    "Path": "community/Club House vs Museum",
+    "Image": "showcase-archive-community-club-house-vs-museum.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "DM Contain Beta",
+    "Code": "dm_contain",
+    "Category": "Community maps",
+    "Path": "community/DM Contain Beta",
+    "Image": "showcase-archive-community-dm-contain-beta.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "DimmyKron Estate",
+    "Code": "DIM01",
+    "Category": "Community maps",
+    "Path": "community/DimmyKron Estate",
+    "Image": "showcase-archive-community-dimmykron-estate.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Dock",
+    "Code": "DOC14",
+    "Category": "Community maps",
+    "Path": "community/Dock",
+    "Image": "showcase-archive-community-dock.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Eden",
+    "Code": "EDE64",
+    "Category": "Community maps",
+    "Path": "community/Eden",
+    "Image": "showcase-archive-community-eden.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Executive Suites Beta",
+    "Code": "apar01",
+    "Category": "Community maps",
+    "Path": "community/Executive Suites Beta",
+    "Image": "showcase-archive-community-executive-suites-beta.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Heliport 1.1",
+    "Code": "HELI02",
+    "Category": "Community maps",
+    "Path": "community/Heliport 1.1",
+    "Image": "showcase-archive-community-heliport-1-1.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Horizon Corporation",
+    "Code": "Horizon",
+    "Category": "Community maps",
+    "Path": "community/Horizon Corporation",
+    "Image": "showcase-archive-community-horizon-corporation.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Hotel 57",
+    "Code": "Hotel2",
+    "Category": "Community maps",
+    "Path": "community/Hotel 57",
+    "Image": "showcase-archive-community-hotel-57.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Island",
+    "Code": "new-island",
+    "Category": "Community maps",
+    "Path": "community/Island",
+    "Image": "showcase-archive-community-island.webp",
+    "Kind": "Level layout"
+  },
+  {
+    "Title": "Lagerhaus",
+    "Code": "Lagerhaus",
+    "Category": "Community maps",
+    "Path": "community/Lagerhaus",
+    "Image": "showcase-archive-community-lagerhaus.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Mount Hospital MOD",
+    "Code": "MHO05_MOD",
+    "Category": "Community maps",
+    "Path": "community/Mount Hospital MOD",
+    "Image": "showcase-archive-community-mount-hospital-mod.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Museum Aftermath",
+    "Code": "DDMUS",
+    "Category": "Community maps",
+    "Path": "community/Museum Aftermath",
+    "Image": "showcase-archive-community-museum-aftermath.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Museum Classic (N)",
+    "Code": "MUS08b",
+    "Category": "Community maps",
+    "Path": "community/Museum Classic (N)",
+    "Image": "showcase-archive-community-museum-classic-n.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Offshore Oilrig",
+    "Code": "OIL33",
+    "Category": "Community maps",
+    "Path": "community/Offshore Oilrig",
+    "Image": "showcase-archive-community-offshore-oilrig.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Outpost",
+    "Code": "OUT55",
+    "Category": "Community maps",
+    "Path": "community/Outpost",
+    "Image": "showcase-archive-community-outpost.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Panama Bank 2.0",
+    "Code": "panama02",
+    "Category": "Community maps",
+    "Path": "community/Panama Bank 2.0",
+    "Image": "showcase-archive-community-panama-bank-2-0.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Polar Base",
+    "Code": "Map17",
+    "Category": "Community maps",
+    "Path": "community/Polar Base",
+    "Image": "showcase-archive-community-polar-base.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Pyrocryptic",
+    "Code": "CRY01",
+    "Category": "Community maps",
+    "Path": "community/Pyrocryptic",
+    "Image": "showcase-archive-community-pyrocryptic.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Red Tower Corps",
+    "Code": "tower1",
+    "Category": "Community maps",
+    "Path": "community/Red Tower Corps",
+    "Image": "showcase-archive-community-red-tower-corps.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Rocamadour",
+    "Code": "rocamadour",
+    "Category": "Community maps",
+    "Path": "community/Rocamadour",
+    "Image": "showcase-archive-community-rocamadour.webp",
+    "Kind": "Level layout"
+  },
+  {
+    "Title": "Sanctuary",
+    "Code": "CHU01",
+    "Category": "Community maps",
+    "Path": "community/Sanctuary",
+    "Image": "showcase-archive-community-sanctuary.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "School",
+    "Code": "SCL03_ED",
+    "Category": "Community maps",
+    "Path": "community/School",
+    "Image": "showcase-archive-community-school.webp",
+    "Kind": "Level layout"
+  },
+  {
+    "Title": "Shadow Moses",
+    "Code": "SDM06",
+    "Category": "Community maps",
+    "Path": "community/Shadow Moses",
+    "Image": "showcase-archive-community-shadow-moses.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "SpyScraper",
+    "Code": "spyscraper",
+    "Category": "Community maps",
+    "Path": "community/SpyScraper",
+    "Image": "showcase-archive-community-spyscraper.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "State Union",
+    "Code": "State02",
+    "Category": "Community maps",
+    "Path": "community/State Union",
+    "Image": "showcase-archive-community-state-union.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Station Orbitale",
+    "Code": "stationorb",
+    "Category": "Community maps",
+    "Path": "community/Station Orbitale",
+    "Image": "showcase-archive-community-station-orbitale.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Steel Squat (English)",
+    "Code": "SQU13",
+    "Category": "Community maps",
+    "Path": "community/Steel Squat (English)",
+    "Image": "showcase-archive-community-steel-squat-english.webp",
+    "Kind": "Level layout"
+  },
+  {
+    "Title": "Stockhouse",
+    "Code": "STH02",
+    "Category": "Community maps",
+    "Path": "community/Stockhouse",
+    "Image": "showcase-archive-community-stockhouse.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "SubLabs",
+    "Code": "sub18",
+    "Category": "Community maps",
+    "Path": "community/SubLabs",
+    "Image": "showcase-archive-community-sublabs.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Suspect Dojo v.7",
+    "Code": "USDOJO",
+    "Category": "Community maps",
+    "Path": "community/Suspect Dojo v.7",
+    "Image": "showcase-archive-community-suspect-dojo-v-7.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Tank Factory",
+    "Code": "TAF06",
+    "Category": "Community maps",
+    "Path": "community/Tank Factory",
+    "Image": "showcase-archive-community-tank-factory.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "UMP Cinema",
+    "Code": "UMPCINC",
+    "Category": "Community maps",
+    "Path": "community/UMP Cinema",
+    "Image": "showcase-archive-community-ump-cinema.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "UMP Hospital",
+    "Code": "UMPMHCLASSIC",
+    "Category": "Community maps",
+    "Path": "community/UMP Hospital",
+    "Image": "showcase-archive-community-ump-hospital.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "UMP Krauser Lab",
+    "Code": "UMPKRA07",
+    "Category": "Community maps",
+    "Path": "community/UMP Krauser Lab",
+    "Image": "showcase-archive-community-ump-krauser-lab.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "UMP Polar Base",
+    "Code": "ZPB17",
+    "Category": "Community maps",
+    "Path": "community/UMP Polar Base",
+    "Image": "showcase-archive-community-ump-polar-base.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "UMP Schermerhorn 1.1",
+    "Code": "SCH04",
+    "Category": "Community maps",
+    "Path": "community/UMP Schermerhorn 1.1",
+    "Image": "showcase-archive-community-ump-schermerhorn-1-1.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "UMP Vertigo Classic",
+    "Code": "SKYMZ1",
+    "Category": "Community maps",
+    "Path": "community/UMP Vertigo Classic",
+    "Image": "showcase-archive-community-ump-vertigo-classic.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "UMP Vertigo Plaza",
+    "Code": "SKY08",
+    "Category": "Community maps",
+    "Path": "community/UMP Vertigo Plaza",
+    "Image": "showcase-archive-community-ump-vertigo-plaza.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Warehouse (SMBP)",
+    "Code": "WAREXT",
+    "Category": "Community maps",
+    "Path": "community/Warehouse (SMBP)",
+    "Image": "showcase-archive-community-warehouse-smbp.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Zioplex",
+    "Code": "ZCT03",
+    "Category": "Community maps",
+    "Path": "community/Zioplex",
+    "Image": "showcase-archive-community-zioplex.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Offshore Oilrig",
+    "Code": "OffsE",
+    "Category": "Enhanced variants",
+    "Path": "enhanced/Offshore Oilrig",
+    "Image": "showcase-archive-enhanced-offshore-oilrig.webp",
+    "Kind": "Level layout"
+  },
+  {
+    "Title": "Ambush",
+    "Code": "COD4_convoy_BSP",
+    "Category": "Ports · Call of Duty 4",
+    "Path": "ports/call-of-duty-4/ambush",
+    "Image": "showcase-archive-ports-call-of-duty-4-ambush.webp",
+    "Kind": "Level layout"
+  },
+  {
+    "Title": "Backlot",
+    "Code": "COD4_backlot_BSP",
+    "Category": "Ports · Call of Duty 4",
+    "Path": "ports/call-of-duty-4/backlot",
+    "Image": "showcase-archive-ports-call-of-duty-4-backlot.webp",
+    "Kind": "Level layout"
+  },
+  {
+    "Title": "Bloc",
+    "Code": "COD4_bloc_BSP",
+    "Category": "Ports · Call of Duty 4",
+    "Path": "ports/call-of-duty-4/bloc",
+    "Image": "showcase-archive-ports-call-of-duty-4-bloc.webp",
+    "Kind": "Level layout"
+  },
+  {
+    "Title": "Bog",
+    "Code": "COD4_bog_BSP",
+    "Category": "Ports · Call of Duty 4",
+    "Path": "ports/call-of-duty-4/bog",
+    "Image": "showcase-archive-ports-call-of-duty-4-bog.webp",
+    "Kind": "Level layout"
+  },
+  {
+    "Title": "Broadcast",
+    "Code": "COD4_broadcast_BSP",
+    "Category": "Ports · Call of Duty 4",
+    "Path": "ports/call-of-duty-4/broadcast",
+    "Image": "showcase-archive-ports-call-of-duty-4-broadcast.webp",
+    "Kind": "Level layout"
+  },
+  {
+    "Title": "Chinatown",
+    "Code": "COD4_carentan_BSP",
+    "Category": "Ports · Call of Duty 4",
+    "Path": "ports/call-of-duty-4/chinatown",
+    "Image": "showcase-archive-ports-call-of-duty-4-chinatown.webp",
+    "Kind": "Level layout"
+  },
+  {
+    "Title": "Countdown",
+    "Code": "COD4_countdown_BSP",
+    "Category": "Ports · Call of Duty 4",
+    "Path": "ports/call-of-duty-4/countdown",
+    "Image": "showcase-archive-ports-call-of-duty-4-countdown.webp",
+    "Kind": "Level layout"
+  },
+  {
+    "Title": "Crash",
+    "Code": "COD4_crash_BSP",
+    "Category": "Ports · Call of Duty 4",
+    "Path": "ports/call-of-duty-4/crash",
+    "Image": "showcase-archive-ports-call-of-duty-4-crash.webp",
+    "Kind": "Level layout"
+  },
+  {
+    "Title": "Creek",
+    "Code": "COD4_creek_BSP",
+    "Category": "Ports · Call of Duty 4",
+    "Path": "ports/call-of-duty-4/creek",
+    "Image": "showcase-archive-ports-call-of-duty-4-creek.webp",
+    "Kind": "Level layout"
+  },
+  {
+    "Title": "Crossfire",
+    "Code": "COD4_crossfire_BSP",
+    "Category": "Ports · Call of Duty 4",
+    "Path": "ports/call-of-duty-4/crossfire",
+    "Image": "showcase-archive-ports-call-of-duty-4-crossfire.webp",
+    "Kind": "Level layout"
+  },
+  {
+    "Title": "District",
+    "Code": "COD4_citystreets_BSP",
+    "Category": "Ports · Call of Duty 4",
+    "Path": "ports/call-of-duty-4/district",
+    "Image": "showcase-archive-ports-call-of-duty-4-district.webp",
+    "Kind": "Level layout"
+  },
+  {
+    "Title": "Downpour",
+    "Code": "COD4_farm_BSP",
+    "Category": "Ports · Call of Duty 4",
+    "Path": "ports/call-of-duty-4/downpour",
+    "Image": "showcase-archive-ports-call-of-duty-4-downpour.webp",
+    "Kind": "Level layout"
+  },
+  {
+    "Title": "Killhouse",
+    "Code": "COD4_killhouse_BSP",
+    "Category": "Ports · Call of Duty 4",
+    "Path": "ports/call-of-duty-4/killhouse",
+    "Image": "showcase-archive-ports-call-of-duty-4-killhouse.webp",
+    "Kind": "Level layout"
+  },
+  {
+    "Title": "Overgrown",
+    "Code": "COD4_overgrown_BSP",
+    "Category": "Ports · Call of Duty 4",
+    "Path": "ports/call-of-duty-4/overgrown",
+    "Image": "showcase-archive-ports-call-of-duty-4-overgrown.webp",
+    "Kind": "Level layout"
+  },
+  {
+    "Title": "Pipeline",
+    "Code": "COD4_pipeline_BSP",
+    "Category": "Ports · Call of Duty 4",
+    "Path": "ports/call-of-duty-4/pipeline",
+    "Image": "showcase-archive-ports-call-of-duty-4-pipeline.webp",
+    "Kind": "Level layout"
+  },
+  {
+    "Title": "Shipment",
+    "Code": "COD4_shipment_BSP",
+    "Category": "Ports · Call of Duty 4",
+    "Path": "ports/call-of-duty-4/shipment",
+    "Image": "showcase-archive-ports-call-of-duty-4-shipment.webp",
+    "Kind": "Level layout"
+  },
+  {
+    "Title": "Showdown",
+    "Code": "COD4_showdown_BSP",
+    "Category": "Ports · Call of Duty 4",
+    "Path": "ports/call-of-duty-4/showdown",
+    "Image": "showcase-archive-ports-call-of-duty-4-showdown.webp",
+    "Kind": "Level layout"
+  },
+  {
+    "Title": "Strike",
+    "Code": "COD4_strike_BSP",
+    "Category": "Ports · Call of Duty 4",
+    "Path": "ports/call-of-duty-4/strike",
+    "Image": "showcase-archive-ports-call-of-duty-4-strike.webp",
+    "Kind": "Level layout"
+  },
+  {
+    "Title": "Vacant",
+    "Code": "COD4_vacant_BSP",
+    "Category": "Ports · Call of Duty 4",
+    "Path": "ports/call-of-duty-4/vacant",
+    "Image": "showcase-archive-ports-call-of-duty-4-vacant.webp",
+    "Kind": "Level layout"
+  },
+  {
+    "Title": "Wet Work",
+    "Code": "COD4_cargoship_BSP",
+    "Category": "Ports · Call of Duty 4",
+    "Path": "ports/call-of-duty-4/wet-work",
+    "Image": "showcase-archive-ports-call-of-duty-4-wet-work.webp",
+    "Kind": "Level layout"
+  },
+  {
+    "Title": "Winter Crash",
+    "Code": "COD4_crash_snow_BSP",
+    "Category": "Ports · Call of Duty 4",
+    "Path": "ports/call-of-duty-4/winter-crash",
+    "Image": "showcase-archive-ports-call-of-duty-4-winter-crash.webp",
+    "Kind": "Level layout"
+  },
+  {
+    "Title": "PS2 Cinema (Neutralization)",
+    "Code": "INI01P",
+    "Category": "Ports · Chaos Theory PS2",
+    "Path": "ports/chaos-theory-ps2/cinema",
+    "Image": "showcase-archive-ports-chaos-theory-ps2-cinema.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "PS2 Deftech Belew (Neutralization)",
+    "Code": "DTK02P",
+    "Category": "Ports · Chaos Theory PS2",
+    "Path": "ports/chaos-theory-ps2/deftech-belew",
+    "Image": "showcase-archive-ports-chaos-theory-ps2-deftech-belew.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "PS2 Deftech Belew (Extraction)",
+    "Code": "DTK02EP",
+    "Category": "Ports · Chaos Theory PS2",
+    "Path": "ports/chaos-theory-ps2/deftech-belew-extraction",
+    "Image": "showcase-archive-ports-chaos-theory-ps2-deftech-belew-extraction.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "PS2 Deftech Belew (Sabotage)",
+    "Code": "DTK02SP",
+    "Category": "Ports · Chaos Theory PS2",
+    "Path": "ports/chaos-theory-ps2/deftech-belew-sabotage",
+    "Image": "showcase-archive-ports-chaos-theory-ps2-deftech-belew-sabotage.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "PS2 Factory (Neutralization)",
+    "Code": "FAC13P",
+    "Category": "Ports · Chaos Theory PS2",
+    "Path": "ports/chaos-theory-ps2/factory",
+    "Image": "showcase-archive-ports-chaos-theory-ps2-factory.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "PS2 Factory (Extraction)",
+    "Code": "FAC13EP",
+    "Category": "Ports · Chaos Theory PS2",
+    "Path": "ports/chaos-theory-ps2/factory-extraction",
+    "Image": "showcase-archive-ports-chaos-theory-ps2-factory-extraction.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "PS2 Factory (Sabotage)",
+    "Code": "FAC13SP",
+    "Category": "Ports · Chaos Theory PS2",
+    "Path": "ports/chaos-theory-ps2/factory-sabotage",
+    "Image": "showcase-archive-ports-chaos-theory-ps2-factory-sabotage.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "PS2 Krauser Lab (Neutralization)",
+    "Code": "KRA07P",
+    "Category": "Ports · Chaos Theory PS2",
+    "Path": "ports/chaos-theory-ps2/krauser-lab",
+    "Image": "showcase-archive-ports-chaos-theory-ps2-krauser-lab.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "PS2 Krauser Lab (Extraction)",
+    "Code": "KRA07EP",
+    "Category": "Ports · Chaos Theory PS2",
+    "Path": "ports/chaos-theory-ps2/krauser-lab-extraction",
+    "Image": "showcase-archive-ports-chaos-theory-ps2-krauser-lab-extraction.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "PS2 Krauser Lab (Sabotage)",
+    "Code": "KRA07SP",
+    "Category": "Ports · Chaos Theory PS2",
+    "Path": "ports/chaos-theory-ps2/krauser-lab-sabotage",
+    "Image": "showcase-archive-ports-chaos-theory-ps2-krauser-lab-sabotage.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Mercenary Training P (TME12P)",
+    "Code": "TME12P",
+    "Category": "Ports · Chaos Theory PS2",
+    "Path": "ports/chaos-theory-ps2/mercenary-training",
+    "Image": "showcase-archive-ports-chaos-theory-ps2-mercenary-training.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "PS2 Missile Strike (Neutralization)",
+    "Code": "MIS10P",
+    "Category": "Ports · Chaos Theory PS2",
+    "Path": "ports/chaos-theory-ps2/missile-strike",
+    "Image": "showcase-archive-ports-chaos-theory-ps2-missile-strike.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "PS2 Missile Strike (Extraction)",
+    "Code": "MIS10EP",
+    "Category": "Ports · Chaos Theory PS2",
+    "Path": "ports/chaos-theory-ps2/missile-strike-extraction",
+    "Image": "showcase-archive-ports-chaos-theory-ps2-missile-strike-extraction.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "PS2 Missile Strike (Sabotage)",
+    "Code": "MIS10SP",
+    "Category": "Ports · Chaos Theory PS2",
+    "Path": "ports/chaos-theory-ps2/missile-strike-sabotage",
+    "Image": "showcase-archive-ports-chaos-theory-ps2-missile-strike-sabotage.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "PS2 Mount Hospital (Neutralization)",
+    "Code": "MHO05P",
+    "Category": "Ports · Chaos Theory PS2",
+    "Path": "ports/chaos-theory-ps2/mount-hospital",
+    "Image": "showcase-archive-ports-chaos-theory-ps2-mount-hospital.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "PS2 Mount Hospital (Extraction)",
+    "Code": "MHO05EP",
+    "Category": "Ports · Chaos Theory PS2",
+    "Path": "ports/chaos-theory-ps2/mount-hospital-extraction",
+    "Image": "showcase-archive-ports-chaos-theory-ps2-mount-hospital-extraction.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "PS2 Mount Hospital (Sabotage)",
+    "Code": "MHO05SP",
+    "Category": "Ports · Chaos Theory PS2",
+    "Path": "ports/chaos-theory-ps2/mount-hospital-sabotage",
+    "Image": "showcase-archive-ports-chaos-theory-ps2-mount-hospital-sabotage.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "PS2 Museum (Neutralization)",
+    "Code": "MUS04P",
+    "Category": "Ports · Chaos Theory PS2",
+    "Path": "ports/chaos-theory-ps2/museum",
+    "Image": "showcase-archive-ports-chaos-theory-ps2-museum.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "PS2 Museum (Sabotage)",
+    "Code": "MUS04SP",
+    "Category": "Ports · Chaos Theory PS2",
+    "Path": "ports/chaos-theory-ps2/museum-sabotage",
+    "Image": "showcase-archive-ports-chaos-theory-ps2-museum-sabotage.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "PS2 Orphanage (Neutralization)",
+    "Code": "ORP14P",
+    "Category": "Ports · Chaos Theory PS2",
+    "Path": "ports/chaos-theory-ps2/orphanage",
+    "Image": "showcase-archive-ports-chaos-theory-ps2-orphanage.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "PS2 Orphanage (Extraction)",
+    "Code": "ORP14EP",
+    "Category": "Ports · Chaos Theory PS2",
+    "Path": "ports/chaos-theory-ps2/orphanage-extraction",
+    "Image": "showcase-archive-ports-chaos-theory-ps2-orphanage-extraction.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "PS2 Orphanage (Sabotage)",
+    "Code": "ORP14SP",
+    "Category": "Ports · Chaos Theory PS2",
+    "Path": "ports/chaos-theory-ps2/orphanage-sabotage",
+    "Image": "showcase-archive-ports-chaos-theory-ps2-orphanage-sabotage.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "PS2 Schermerhorn (Neutralization)",
+    "Code": "SCH03P",
+    "Category": "Ports · Chaos Theory PS2",
+    "Path": "ports/chaos-theory-ps2/schermerhorn",
+    "Image": "showcase-archive-ports-chaos-theory-ps2-schermerhorn.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "PS2 Schermerhorn (Extraction)",
+    "Code": "SCH03EP",
+    "Category": "Ports · Chaos Theory PS2",
+    "Path": "ports/chaos-theory-ps2/schermerhorn-extraction",
+    "Image": "showcase-archive-ports-chaos-theory-ps2-schermerhorn-extraction.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "PS2 Schermerhorn (Sabotage)",
+    "Code": "SCH03SP",
+    "Category": "Ports · Chaos Theory PS2",
+    "Path": "ports/chaos-theory-ps2/schermerhorn-sabotage",
+    "Image": "showcase-archive-ports-chaos-theory-ps2-schermerhorn-sabotage.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Spy Training P (TSP11P)",
+    "Code": "TSP11P",
+    "Category": "Ports · Chaos Theory PS2",
+    "Path": "ports/chaos-theory-ps2/spy-training",
+    "Image": "showcase-archive-ports-chaos-theory-ps2-spy-training.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "PS2 Station (Neutralization)",
+    "Code": "GAR09P",
+    "Category": "Ports · Chaos Theory PS2",
+    "Path": "ports/chaos-theory-ps2/station",
+    "Image": "showcase-archive-ports-chaos-theory-ps2-station.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "PS2 Station (Extraction)",
+    "Code": "GAR09EP",
+    "Category": "Ports · Chaos Theory PS2",
+    "Path": "ports/chaos-theory-ps2/station-extraction",
+    "Image": "showcase-archive-ports-chaos-theory-ps2-station-extraction.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "PS2 Station (Sabotage)",
+    "Code": "GAR09SP",
+    "Category": "Ports · Chaos Theory PS2",
+    "Path": "ports/chaos-theory-ps2/station-sabotage",
+    "Image": "showcase-archive-ports-chaos-theory-ps2-station-sabotage.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "PS2 Vertigo Plaza (Neutralization)",
+    "Code": "SKY08P",
+    "Category": "Ports · Chaos Theory PS2",
+    "Path": "ports/chaos-theory-ps2/vertigo-plaza",
+    "Image": "showcase-archive-ports-chaos-theory-ps2-vertigo-plaza.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "PS2 Vertigo Plaza (Extraction)",
+    "Code": "SKY08EP",
+    "Category": "Ports · Chaos Theory PS2",
+    "Path": "ports/chaos-theory-ps2/vertigo-plaza-extraction",
+    "Image": "showcase-archive-ports-chaos-theory-ps2-vertigo-plaza-extraction.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "PS2 Warehouse (Neutralization)",
+    "Code": "WAR06P",
+    "Category": "Ports · Chaos Theory PS2",
+    "Path": "ports/chaos-theory-ps2/warehouse",
+    "Image": "showcase-archive-ports-chaos-theory-ps2-warehouse.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "PS2 Warehouse (Extraction)",
+    "Code": "WAR06EP",
+    "Category": "Ports · Chaos Theory PS2",
+    "Path": "ports/chaos-theory-ps2/warehouse-extraction",
+    "Image": "showcase-archive-ports-chaos-theory-ps2-warehouse-extraction.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Archives",
+    "Code": "GE007_Archives",
+    "Category": "Ports · GoldenEye 007: Reloaded",
+    "Path": "ports/goldeneye-007-reloaded/archives",
+    "Image": "showcase-archive-ports-goldeneye-007-reloaded-archives.webp",
+    "Kind": "Level layout"
+  },
+  {
+    "Title": "Carrier",
+    "Code": "GE007_Carrier",
+    "Category": "Ports · GoldenEye 007: Reloaded",
+    "Path": "ports/goldeneye-007-reloaded/carrier",
+    "Image": "showcase-archive-ports-goldeneye-007-reloaded-carrier.webp",
+    "Kind": "Level layout"
+  },
+  {
+    "Title": "Docks",
+    "Code": "GE007_Docks",
+    "Category": "Ports · GoldenEye 007: Reloaded",
+    "Path": "ports/goldeneye-007-reloaded/docks",
+    "Image": "showcase-archive-ports-goldeneye-007-reloaded-docks.webp",
+    "Kind": "Level layout"
+  },
+  {
+    "Title": "Facility",
+    "Code": "GE007_Facility",
+    "Category": "Ports · GoldenEye 007: Reloaded",
+    "Path": "ports/goldeneye-007-reloaded/facility",
+    "Image": "showcase-archive-ports-goldeneye-007-reloaded-facility.webp",
+    "Kind": "Level layout"
+  },
+  {
+    "Title": "Industrial",
+    "Code": "GE007_Industrial",
+    "Category": "Ports · GoldenEye 007: Reloaded",
+    "Path": "ports/goldeneye-007-reloaded/industrial",
+    "Image": "showcase-archive-ports-goldeneye-007-reloaded-industrial.webp",
+    "Kind": "Level layout"
+  },
+  {
+    "Title": "Jungle",
+    "Code": "GE007_Jungle",
+    "Category": "Ports · GoldenEye 007: Reloaded",
+    "Path": "ports/goldeneye-007-reloaded/jungle",
+    "Image": "showcase-archive-ports-goldeneye-007-reloaded-jungle.webp",
+    "Kind": "Level layout"
+  },
+  {
+    "Title": "Memorial",
+    "Code": "GE007_Memorial",
+    "Category": "Ports · GoldenEye 007: Reloaded",
+    "Path": "ports/goldeneye-007-reloaded/memorial",
+    "Image": "showcase-archive-ports-goldeneye-007-reloaded-memorial.webp",
+    "Kind": "Level layout"
+  },
+  {
+    "Title": "Nightclub",
+    "Code": "GE007_Nightclub",
+    "Category": "Ports · GoldenEye 007: Reloaded",
+    "Path": "ports/goldeneye-007-reloaded/nightclub",
+    "Image": "showcase-archive-ports-goldeneye-007-reloaded-nightclub.webp",
+    "Kind": "Level layout"
+  },
+  {
+    "Title": "Outpost",
+    "Code": "GE007_Outpost",
+    "Category": "Ports · GoldenEye 007: Reloaded",
+    "Path": "ports/goldeneye-007-reloaded/outpost",
+    "Image": "showcase-archive-ports-goldeneye-007-reloaded-outpost.webp",
+    "Kind": "Level layout"
+  },
+  {
+    "Title": "Peak",
+    "Code": "GE007_Peak",
+    "Category": "Ports · GoldenEye 007: Reloaded",
+    "Path": "ports/goldeneye-007-reloaded/peak",
+    "Image": "showcase-archive-ports-goldeneye-007-reloaded-peak.webp",
+    "Kind": "Level layout"
+  },
+  {
+    "Title": "Plant",
+    "Code": "GE007_Plant",
+    "Category": "Ports · GoldenEye 007: Reloaded",
+    "Path": "ports/goldeneye-007-reloaded/plant",
+    "Image": "showcase-archive-ports-goldeneye-007-reloaded-plant.webp",
+    "Kind": "Level layout"
+  },
+  {
+    "Title": "Sewer",
+    "Code": "GE007_Sewer",
+    "Category": "Ports · GoldenEye 007: Reloaded",
+    "Path": "ports/goldeneye-007-reloaded/sewer",
+    "Image": "showcase-archive-ports-goldeneye-007-reloaded-sewer.webp",
+    "Kind": "Level layout"
+  },
+  {
+    "Title": "Solar",
+    "Code": "GE007_Solar",
+    "Category": "Ports · GoldenEye 007: Reloaded",
+    "Path": "ports/goldeneye-007-reloaded/solar",
+    "Image": "showcase-archive-ports-goldeneye-007-reloaded-solar.webp",
+    "Kind": "Level layout"
+  },
+  {
+    "Title": "Station",
+    "Code": "GE007_Station",
+    "Category": "Ports · GoldenEye 007: Reloaded",
+    "Path": "ports/goldeneye-007-reloaded/station",
+    "Image": "showcase-archive-ports-goldeneye-007-reloaded-station.webp",
+    "Kind": "Level layout"
+  },
+  {
+    "Title": "Calypso Casino",
+    "Code": "CalyD",
+    "Category": "Ports · Rainbow Six Vegas",
+    "Path": "ports/rainbow-six-vegas/calypso-casino",
+    "Image": "showcase-archive-ports-rainbow-six-vegas-calypso-casino.webp",
+    "Kind": "Map materials"
+  },
+  {
+    "Title": "Blackwing",
+    "Code": "SCDA_BLKG1",
+    "Category": "Ports · Splinter Cell: Double Agent",
+    "Path": "ports/splinter-cell-double-agent/blackwing",
+    "Image": "showcase-archive-ports-splinter-cell-double-agent-blackwing.webp",
+    "Kind": "Level layout"
+  },
+  {
+    "Title": "Boss House",
+    "Code": "SCDA_BOSG2",
+    "Category": "Ports · Splinter Cell: Double Agent",
+    "Path": "ports/splinter-cell-double-agent/boss-house",
+    "Image": "showcase-archive-ports-splinter-cell-double-agent-boss-house.webp",
+    "Kind": "Level layout"
+  },
+  {
+    "Title": "Dawn Waves",
+    "Code": "SCDA_DWG",
+    "Category": "Ports · Splinter Cell: Double Agent",
+    "Path": "ports/splinter-cell-double-agent/dawn-waves",
+    "Image": "showcase-archive-ports-splinter-cell-double-agent-dawn-waves.webp",
+    "Kind": "Level layout"
+  },
+  {
+    "Title": "Motorway 90",
+    "Code": "SCDA_MOTG4",
+    "Category": "Ports · Splinter Cell: Double Agent",
+    "Path": "ports/splinter-cell-double-agent/motorway-90",
+    "Image": "showcase-archive-ports-splinter-cell-double-agent-motorway-90.webp",
+    "Kind": "Level layout"
+  },
+  {
+    "Title": "Red Diamond",
+    "Code": "SCDA_REDG6",
+    "Category": "Ports · Splinter Cell: Double Agent",
+    "Path": "ports/splinter-cell-double-agent/red-diamond",
+    "Image": "showcase-archive-ports-splinter-cell-double-agent-red-diamond.webp",
+    "Kind": "Level layout"
+  },
+  {
+    "Title": "Slaughterhouse",
+    "Code": "SCDA_SLHG7",
+    "Category": "Ports · Splinter Cell: Double Agent",
+    "Path": "ports/splinter-cell-double-agent/slaughterhouse",
+    "Image": "showcase-archive-ports-splinter-cell-double-agent-slaughterhouse.webp",
+    "Kind": "Level layout"
+  },
+  {
+    "Title": "Terminus",
+    "Code": "SCDA_TERG5",
+    "Category": "Ports · Splinter Cell: Double Agent",
+    "Path": "ports/splinter-cell-double-agent/terminus",
+    "Image": "showcase-archive-ports-splinter-cell-double-agent-terminus.webp",
+    "Kind": "Level layout"
+  },
+  {
+    "Title": "USS Wisdom",
+    "Code": "SCDA_USSG8",
+    "Category": "Ports · Splinter Cell: Double Agent",
+    "Path": "ports/splinter-cell-double-agent/uss-wisdom",
+    "Image": "showcase-archive-ports-splinter-cell-double-agent-uss-wisdom.webp",
+    "Kind": "Level layout"
+  },
+  {
+    "Title": "Clarity Soft",
+    "Code": "ClarD",
+    "Category": "Recovered editor maps",
+    "Path": "recovered/Clarity Soft",
+    "Image": "showcase-archive-recovered-clarity-soft.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Eden",
+    "Code": "EDE64",
+    "Category": "Recovered editor maps",
+    "Path": "recovered/Eden",
+    "Image": "showcase-archive-recovered-eden.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Heliport 1.1",
+    "Code": "HELI02",
+    "Category": "Recovered editor maps",
+    "Path": "recovered/Heliport 1.1",
+    "Image": "showcase-archive-recovered-heliport-1-1.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Offshore Oilrig",
+    "Code": "OffsD",
+    "Category": "Recovered editor maps",
+    "Path": "recovered/Offshore Oilrig",
+    "Image": "showcase-archive-recovered-offshore-oilrig.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Sublabs",
+    "Code": "sub18",
+    "Category": "Recovered editor maps",
+    "Path": "recovered/Sublabs",
+    "Image": "showcase-archive-recovered-sublabs.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Moonlight Park",
+    "Code": "MoonD",
+    "Category": "Original releases",
+    "Path": "release/MoonD",
+    "Image": "showcase-archive-release-moond.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Shipment",
+    "Code": "ShipD",
+    "Category": "Original releases",
+    "Path": "release/ShipD",
+    "Image": "showcase-archive-release-shipd.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Aquarius",
+    "Code": "AquaD",
+    "Category": "Stock collection",
+    "Path": "stock/Packages/Maps/AquaD.sdc",
+    "Image": "showcase-archive-stock-packages-maps-aquad-sdc.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Enhanced Aquarius",
+    "Code": "AquaE",
+    "Category": "Stock collection",
+    "Path": "stock/Packages/Maps/AquaE.sdc",
+    "Image": "showcase-archive-stock-packages-maps-aquae-sdc.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Enhanced Aquarius 3V3",
+    "Code": "AquaT",
+    "Category": "Stock collection",
+    "Path": "stock/Packages/Maps/AquaT.sdc",
+    "Image": "showcase-archive-stock-packages-maps-aquat-sdc.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Bank",
+    "Code": "BankD",
+    "Category": "Stock collection",
+    "Path": "stock/Packages/Maps/BankD.sdc",
+    "Image": "showcase-archive-stock-packages-maps-bankd-sdc.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Phoenix'S Bank",
+    "Code": "BankP",
+    "Category": "Stock collection",
+    "Path": "stock/Packages/Maps/BankP.sdc",
+    "Image": "showcase-archive-stock-packages-maps-bankp-sdc.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Enhanced Cinema",
+    "Code": "CineE",
+    "Category": "Stock collection",
+    "Path": "stock/Packages/Maps/CineE.sdc",
+    "Image": "showcase-archive-stock-packages-maps-cinee-sdc.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Enhanced Cinema Sabotage",
+    "Code": "CineS",
+    "Category": "Stock collection",
+    "Path": "stock/Packages/Maps/CineS.sdc",
+    "Image": "showcase-archive-stock-packages-maps-cines-sdc.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Ump Cinema",
+    "Code": "CineU",
+    "Category": "Stock collection",
+    "Path": "stock/Packages/Maps/CineU.sdc",
+    "Image": "showcase-archive-stock-packages-maps-cineu-sdc.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Club House",
+    "Code": "ClubD",
+    "Category": "Stock collection",
+    "Path": "stock/Packages/Maps/ClubD.sdc",
+    "Image": "showcase-archive-stock-packages-maps-clubd-sdc.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Enhanced Club House",
+    "Code": "ClubE",
+    "Category": "Stock collection",
+    "Path": "stock/Packages/Maps/ClubE.sdc",
+    "Image": "showcase-archive-stock-packages-maps-clube-sdc.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Shadow House",
+    "Code": "ClubS",
+    "Category": "Stock collection",
+    "Path": "stock/Packages/Maps/ClubS.sdc",
+    "Image": "showcase-archive-stock-packages-maps-clubs-sdc.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Enhanced Club House 3V3",
+    "Code": "ClubT",
+    "Category": "Stock collection",
+    "Path": "stock/Packages/Maps/ClubT.sdc",
+    "Image": "showcase-archive-stock-packages-maps-clubt-sdc.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Snake Cpusa",
+    "Code": "CpusS",
+    "Category": "Stock collection",
+    "Path": "stock/Packages/Maps/CpusS.sdc",
+    "Image": "showcase-archive-stock-packages-maps-cpuss-sdc.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Deftech Belew",
+    "Code": "DeftD",
+    "Category": "Stock collection",
+    "Path": "stock/Packages/Maps/DeftD.sdc",
+    "Image": "showcase-archive-stock-packages-maps-deftd-sdc.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Snake Deftech Belew",
+    "Code": "DeftS",
+    "Category": "Stock collection",
+    "Path": "stock/Packages/Maps/DeftS.sdc",
+    "Image": "showcase-archive-stock-packages-maps-defts-sdc.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Entry",
+    "Code": "Entry",
+    "Category": "Stock · Front end",
+    "Path": "stock/Packages/Maps/Entry.sdc",
+    "Image": "showcase-archive-stock-packages-maps-entry-sdc.webp",
+    "Kind": "Level layout"
+  },
+  {
+    "Title": "Factory",
+    "Code": "FactD",
+    "Category": "Stock collection",
+    "Path": "stock/Packages/Maps/FactD.sdc",
+    "Image": "showcase-archive-stock-packages-maps-factd-sdc.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Enhanced Factory",
+    "Code": "FactE",
+    "Category": "Stock collection",
+    "Path": "stock/Packages/Maps/FactE.sdc",
+    "Image": "showcase-archive-stock-packages-maps-facte-sdc.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Phoenix'S Factory",
+    "Code": "FactP",
+    "Category": "Stock collection",
+    "Path": "stock/Packages/Maps/FactP.sdc",
+    "Image": "showcase-archive-stock-packages-maps-factp-sdc.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Enhanced Factory 3V3",
+    "Code": "FactT",
+    "Category": "Stock collection",
+    "Path": "stock/Packages/Maps/FactT.sdc",
+    "Image": "showcase-archive-stock-packages-maps-factt-sdc.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Snake Ghost Town",
+    "Code": "GhosS",
+    "Category": "Stock collection",
+    "Path": "stock/Packages/Maps/GhosS.sdc",
+    "Image": "showcase-archive-stock-packages-maps-ghoss-sdc.webp",
+    "Kind": "Level layout"
+  },
+  {
+    "Title": "Enhanced Krauser Lab",
+    "Code": "KrauE",
+    "Category": "Stock collection",
+    "Path": "stock/Packages/Maps/KrauE.sdc",
+    "Image": "showcase-archive-stock-packages-maps-kraue-sdc.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Ump Krauser Lab",
+    "Code": "KrauU",
+    "Category": "Stock collection",
+    "Path": "stock/Packages/Maps/KrauU.sdc",
+    "Image": "showcase-archive-stock-packages-maps-krauu-sdc.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Lobby",
+    "Code": "Lobby",
+    "Category": "Stock · Front end",
+    "Path": "stock/Packages/Maps/Lobby.sdc",
+    "Image": "showcase-archive-stock-packages-maps-lobby-sdc.webp",
+    "Kind": "Level layout"
+  },
+  {
+    "Title": "Missile Strike",
+    "Code": "MissD",
+    "Category": "Stock collection",
+    "Path": "stock/Packages/Maps/MissD.sdc",
+    "Image": "showcase-archive-stock-packages-maps-missd-sdc.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Enhanced Missile Strike",
+    "Code": "MissE",
+    "Category": "Stock collection",
+    "Path": "stock/Packages/Maps/MissE.sdc",
+    "Image": "showcase-archive-stock-packages-maps-misse-sdc.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Phoenix'S Missile Strike",
+    "Code": "MissP",
+    "Category": "Stock collection",
+    "Path": "stock/Packages/Maps/MissP.sdc",
+    "Image": "showcase-archive-stock-packages-maps-missp-sdc.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Enhanced Mount Hospital",
+    "Code": "MounE",
+    "Category": "Stock collection",
+    "Path": "stock/Packages/Maps/MounE.sdc",
+    "Image": "showcase-archive-stock-packages-maps-moune-sdc.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Enh Mount Hospital Sabo",
+    "Code": "MounS",
+    "Category": "Stock collection",
+    "Path": "stock/Packages/Maps/MounS.sdc",
+    "Image": "showcase-archive-stock-packages-maps-mouns-sdc.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Ump Mount Hospital",
+    "Code": "MounU",
+    "Category": "Stock collection",
+    "Path": "stock/Packages/Maps/MounU.sdc",
+    "Image": "showcase-archive-stock-packages-maps-mounu-sdc.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Museum",
+    "Code": "MuseD",
+    "Category": "Stock collection",
+    "Path": "stock/Packages/Maps/MuseD.sdc",
+    "Image": "showcase-archive-stock-packages-maps-mused-sdc.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Enhanced Museum",
+    "Code": "MuseE",
+    "Category": "Stock collection",
+    "Path": "stock/Packages/Maps/MuseE.sdc",
+    "Image": "showcase-archive-stock-packages-maps-musee-sdc.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Museum 3V3",
+    "Code": "MuseT",
+    "Category": "Stock collection",
+    "Path": "stock/Packages/Maps/MuseT.sdc",
+    "Image": "showcase-archive-stock-packages-maps-muset-sdc.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Orphanage",
+    "Code": "OrphD",
+    "Category": "Stock collection",
+    "Path": "stock/Packages/Maps/OrphD.sdc",
+    "Image": "showcase-archive-stock-packages-maps-orphd-sdc.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Enhanced Orphanage",
+    "Code": "OrphE",
+    "Category": "Stock collection",
+    "Path": "stock/Packages/Maps/OrphE.sdc",
+    "Image": "showcase-archive-stock-packages-maps-orphe-sdc.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Ps2 Orphanage",
+    "Code": "OrphS",
+    "Category": "Stock collection",
+    "Path": "stock/Packages/Maps/OrphS.sdc",
+    "Image": "showcase-archive-stock-packages-maps-orphs-sdc.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Enhanced Orphanage 3V3",
+    "Code": "OrphT",
+    "Category": "Stock collection",
+    "Path": "stock/Packages/Maps/OrphT.sdc",
+    "Image": "showcase-archive-stock-packages-maps-orpht-sdc.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Panama Bank",
+    "Code": "PanaD",
+    "Category": "Stock collection",
+    "Path": "stock/Packages/Maps/PanaD.sdc",
+    "Image": "showcase-archive-stock-packages-maps-panad-sdc.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Snake Panama Bank",
+    "Code": "PanaS",
+    "Category": "Stock collection",
+    "Path": "stock/Packages/Maps/PanaS.sdc",
+    "Image": "showcase-archive-stock-packages-maps-panas-sdc.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Polar Base",
+    "Code": "PolaD",
+    "Category": "Stock collection",
+    "Path": "stock/Packages/Maps/PolaD.sdc",
+    "Image": "showcase-archive-stock-packages-maps-polad-sdc.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Enhanced Polar Base",
+    "Code": "PolaE",
+    "Category": "Stock collection",
+    "Path": "stock/Packages/Maps/PolaE.sdc",
+    "Image": "showcase-archive-stock-packages-maps-polae-sdc.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Phoenix'S Polar Base",
+    "Code": "PolaP",
+    "Category": "Stock collection",
+    "Path": "stock/Packages/Maps/PolaP.sdc",
+    "Image": "showcase-archive-stock-packages-maps-polap-sdc.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Enhanced Polar Base 3V3",
+    "Code": "PolaT",
+    "Category": "Stock collection",
+    "Path": "stock/Packages/Maps/PolaT.sdc",
+    "Image": "showcase-archive-stock-packages-maps-polat-sdc.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Prison",
+    "Code": "PrisD",
+    "Category": "Stock collection",
+    "Path": "stock/Packages/Maps/PrisD.sdc",
+    "Image": "showcase-archive-stock-packages-maps-prisd-sdc.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Pyrocryptic",
+    "Code": "PyroD",
+    "Category": "Stock collection",
+    "Path": "stock/Packages/Maps/PyroD.sdc",
+    "Image": "showcase-archive-stock-packages-maps-pyrod-sdc.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "River Mall",
+    "Code": "RiveD",
+    "Category": "Stock collection",
+    "Path": "stock/Packages/Maps/RiveD.sdc",
+    "Image": "showcase-archive-stock-packages-maps-rived-sdc.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Enhanced River Mall",
+    "Code": "RiveE",
+    "Category": "Stock collection",
+    "Path": "stock/Packages/Maps/RiveE.sdc",
+    "Image": "showcase-archive-stock-packages-maps-rivee-sdc.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Phoenix'S River Mall",
+    "Code": "RiveP",
+    "Category": "Stock collection",
+    "Path": "stock/Packages/Maps/RiveP.sdc",
+    "Image": "showcase-archive-stock-packages-maps-rivep-sdc.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Sanctuary",
+    "Code": "SancD",
+    "Category": "Stock collection",
+    "Path": "stock/Packages/Maps/SancD.sdc",
+    "Image": "showcase-archive-stock-packages-maps-sancd-sdc.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Enhanced Sanctuary",
+    "Code": "SancE",
+    "Category": "Stock collection",
+    "Path": "stock/Packages/Maps/SancE.sdc",
+    "Image": "showcase-archive-stock-packages-maps-sance-sdc.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Enhanced Schermerhorn",
+    "Code": "ScheE",
+    "Category": "Stock collection",
+    "Path": "stock/Packages/Maps/ScheE.sdc",
+    "Image": "showcase-archive-stock-packages-maps-schee-sdc.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Ump Schermerhorn",
+    "Code": "ScheU",
+    "Category": "Stock collection",
+    "Path": "stock/Packages/Maps/ScheU.sdc",
+    "Image": "showcase-archive-stock-packages-maps-scheu-sdc.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Shadow Moses",
+    "Code": "ShadD",
+    "Category": "Stock collection",
+    "Path": "stock/Packages/Maps/ShadD.sdc",
+    "Image": "showcase-archive-stock-packages-maps-shadd-sdc.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Phoenix'S Shadow Moses",
+    "Code": "ShadP",
+    "Category": "Stock collection",
+    "Path": "stock/Packages/Maps/ShadP.sdc",
+    "Image": "showcase-archive-stock-packages-maps-shadp-sdc.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Skyscraper",
+    "Code": "SkysD",
+    "Category": "Stock collection",
+    "Path": "stock/Packages/Maps/SkysD.sdc",
+    "Image": "showcase-archive-stock-packages-maps-skysd-sdc.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Phoenix'S Skyscraper",
+    "Code": "SkysP",
+    "Category": "Stock collection",
+    "Path": "stock/Packages/Maps/SkysP.sdc",
+    "Image": "showcase-archive-stock-packages-maps-skysp-sdc.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Snake Slaughterhouse",
+    "Code": "SlauS",
+    "Category": "Stock collection",
+    "Path": "stock/Packages/Maps/SlauS.sdc",
+    "Image": "showcase-archive-stock-packages-maps-slaus-sdc.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Station",
+    "Code": "StatD",
+    "Category": "Stock collection",
+    "Path": "stock/Packages/Maps/StatD.sdc",
+    "Image": "showcase-archive-stock-packages-maps-statd-sdc.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Enhanced Station",
+    "Code": "StatE",
+    "Category": "Stock collection",
+    "Path": "stock/Packages/Maps/StatE.sdc",
+    "Image": "showcase-archive-stock-packages-maps-state-sdc.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Ps2 Station",
+    "Code": "StatS",
+    "Category": "Stock collection",
+    "Path": "stock/Packages/Maps/StatS.sdc",
+    "Image": "showcase-archive-stock-packages-maps-stats-sdc.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Steel Squat",
+    "Code": "SteeD",
+    "Category": "Stock collection",
+    "Path": "stock/Packages/Maps/SteeD.sdc",
+    "Image": "showcase-archive-stock-packages-maps-steed-sdc.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Enhanced Steel Squat",
+    "Code": "SteeE",
+    "Category": "Stock collection",
+    "Path": "stock/Packages/Maps/SteeE.sdc",
+    "Image": "showcase-archive-stock-packages-maps-steee-sdc.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Phoenix'S Steel Squat",
+    "Code": "SteeP",
+    "Category": "Stock collection",
+    "Path": "stock/Packages/Maps/SteeP.sdc",
+    "Image": "showcase-archive-stock-packages-maps-steep-sdc.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Enhanced Steel Squat 3V3",
+    "Code": "SteeT",
+    "Category": "Stock collection",
+    "Path": "stock/Packages/Maps/SteeT.sdc",
+    "Image": "showcase-archive-stock-packages-maps-steet-sdc.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Stronghold",
+    "Code": "StroD",
+    "Category": "Stock collection",
+    "Path": "stock/Packages/Maps/StroD.sdc",
+    "Image": "showcase-archive-stock-packages-maps-strod-sdc.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Mercenary training · TME30",
+    "Code": "TME30",
+    "Category": "Stock · Training",
+    "Path": "stock/Packages/Maps/TME30.sdc",
+    "Image": "showcase-archive-stock-packages-maps-tme30-sdc.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Mercenary training · TME32",
+    "Code": "TME32",
+    "Category": "Stock · Training",
+    "Path": "stock/Packages/Maps/TME32.sdc",
+    "Image": "showcase-archive-stock-packages-maps-tme32-sdc.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Mercenary training · TME33",
+    "Code": "TME33",
+    "Category": "Stock · Training",
+    "Path": "stock/Packages/Maps/TME33.sdc",
+    "Image": "showcase-archive-stock-packages-maps-tme33-sdc.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Spy training · TSP20",
+    "Code": "TSP20",
+    "Category": "Stock · Training",
+    "Path": "stock/Packages/Maps/TSP20.sdc",
+    "Image": "showcase-archive-stock-packages-maps-tsp20-sdc.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Spy training · TSP21",
+    "Code": "TSP21",
+    "Category": "Stock · Training",
+    "Path": "stock/Packages/Maps/TSP21.sdc",
+    "Image": "showcase-archive-stock-packages-maps-tsp21-sdc.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Spy training · TSP22",
+    "Code": "TSP22",
+    "Category": "Stock · Training",
+    "Path": "stock/Packages/Maps/TSP22.sdc",
+    "Image": "showcase-archive-stock-packages-maps-tsp22-sdc.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Spy training · TSP23",
+    "Code": "TSP23",
+    "Category": "Stock · Training",
+    "Path": "stock/Packages/Maps/TSP23.sdc",
+    "Image": "showcase-archive-stock-packages-maps-tsp23-sdc.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Spy training · TSP29",
+    "Code": "TSP29",
+    "Category": "Stock · Training",
+    "Path": "stock/Packages/Maps/TSP29.sdc",
+    "Image": "showcase-archive-stock-packages-maps-tsp29-sdc.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Terminus",
+    "Code": "TermD",
+    "Category": "Stock collection",
+    "Path": "stock/Packages/Maps/TermD.sdc",
+    "Image": "showcase-archive-stock-packages-maps-termd-sdc.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Enhanced Vertigo Plaza",
+    "Code": "VertE",
+    "Category": "Stock collection",
+    "Path": "stock/Packages/Maps/VertE.sdc",
+    "Image": "showcase-archive-stock-packages-maps-verte-sdc.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Ump Vertigo Plaza",
+    "Code": "VertU",
+    "Category": "Stock collection",
+    "Path": "stock/Packages/Maps/VertU.sdc",
+    "Image": "showcase-archive-stock-packages-maps-vertu-sdc.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Enh Vertigo Plaza Extraction",
+    "Code": "VertX",
+    "Category": "Stock collection",
+    "Path": "stock/Packages/Maps/VertX.sdc",
+    "Image": "showcase-archive-stock-packages-maps-vertx-sdc.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Warehouse",
+    "Code": "WareD",
+    "Category": "Stock collection",
+    "Path": "stock/Packages/Maps/WareD.sdc",
+    "Image": "showcase-archive-stock-packages-maps-wared-sdc.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Phoenix'S Warehouse",
+    "Code": "WareP",
+    "Category": "Stock collection",
+    "Path": "stock/Packages/Maps/WareP.sdc",
+    "Image": "showcase-archive-stock-packages-maps-warep-sdc.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Zioplex",
+    "Code": "ZiopD",
+    "Category": "Stock collection",
+    "Path": "stock/Packages/Maps/ZiopD.sdc",
+    "Image": "showcase-archive-stock-packages-maps-ziopd-sdc.webp",
+    "Kind": "Map preview"
+  },
+  {
+    "Title": "Zioplex Sabotage",
+    "Code": "ZiopS",
+    "Category": "Stock collection",
+    "Path": "stock/Packages/Maps/ZiopS.sdc",
+    "Image": "showcase-archive-stock-packages-maps-ziops-sdc.webp",
+    "Kind": "Map preview"
+  }
+]

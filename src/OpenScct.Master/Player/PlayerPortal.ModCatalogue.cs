@@ -21,6 +21,7 @@ internal sealed partial class PlayerPortal
 
     private IEnumerable<(string Url, string Name, string Detail)> ModSearchEntries() =>
         _communityMaps.Current().Select(map => (MapPage(map), map.Title, "Community map · Godot and Unreal · " + string.Join(", ", map.Modes)))
+            .Concat(ArchiveMaps.Select(map => (map.Url, map.Title, map.SearchText)))
             .Concat(PcMods.Select(mod => (mod.Url, mod.Name, mod.Description)));
 
     private static string MapPage(CommunityMap map) => "/mods/maps/" + U(map.Code);
@@ -64,13 +65,15 @@ internal sealed partial class PlayerPortal
             </form></div>
             """);
         int shown = 0;
+        if (edition is "" or "pc")
+            shown += AppendArchiveMaps(body, Matches, query.Length > 0);
         if (edition is "" or "godot" or "unreal")
         {
             var maps = _communityMaps.Current().Where(map => Matches(map.Title + " " + map.Code + " " + string.Join(" ", map.Modes) + " Godot Unreal")).ToArray();
             if (maps.Length > 0)
             {
                 shown += maps.Length;
-                body.Append("<section class=\"mod-section\" aria-labelledby=\"community-map-heading\"><h2 id=\"community-map-heading\">Community maps</h2><p>Build and play these maps with your Steam copy in Godot or Unreal.</p><div class=\"mod-grid\">");
+                body.Append("<section class=\"mod-section\" aria-labelledby=\"community-map-heading\"><h2 id=\"community-map-heading\">Modernisation maps</h2><p>Build and play these maps with your Steam copy in Godot or Unreal.</p><div class=\"mod-grid\">");
                 foreach (CommunityMap map in maps)
                     body.Append($"""
                         <article class="mod-card">{MapImage(map, lazy: true)}<div class="mod-card-copy">
@@ -93,6 +96,8 @@ internal sealed partial class PlayerPortal
                 body.Append("</div></section>");
             }
         }
+        if (edition is "" or "pc")
+            shown += AppendArchiveMaps(body, Matches, query.Length > 0);
         if (shown == 0 && query.Length > 0)
             body.Append("<p class=\"mod-empty\">No mods match your search. Try another name or edition.</p>");
         else if (edition == "ps2")

@@ -21,3 +21,10 @@
 .mod-detail .mod-shot { border-radius: 12px; }
 .mod-install:only-child { grid-column: 1 / -1; }
 @media (max-width: 48rem) { .mod-detail { grid-template-columns: 1fr; } }
+.map-archive details { margin-block: .6rem; border: 1px solid #384239; border-radius: 9px; }
+.map-archive summary { cursor: pointer; padding: .85rem 1rem; font-weight: 650; }
+.map-archive summary small { margin-left: .65rem; color: #b9c4ba; }
+.map-archive .mod-grid { padding: 0 .8rem .8rem; grid-template-columns: repeat(auto-fill, minmax(min(13rem,100%),1fr)); }
+.map-archive .mod-shot { object-fit: contain; background: #131813; }
+.map-archive h4 { margin: 0 0 .4rem; font-size: 1.07rem; }
+.map-archive h4 a { color: #b7efa8; }

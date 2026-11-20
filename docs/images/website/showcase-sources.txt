@@ -114,3 +114,5 @@ godot: docs/images/website/showcase-bots.webp | source SHA-256 f4736bda7aac2f42f
 unreal: docs/images/website/showcase-unreal-aquarius.webp | source SHA-256 919c431fd5c56490072cb846a0614420c6d830372f5c32fbddc44b2ccfa86202
 editor: docs/images/website/showcase-editor.webp | source SHA-256 715f9427b745e31e8b5243e8c7a38a838b37bf3526c6bafcc441d055f7f0c768
 showcase-unreal-aquarius.webp: Unreal client capture from Saved/LocalSteamReleaseCheck/steam-aquarius-preflight/AQU03-Story-0.png.
+
+Original PC library, 20 November 2026. The archive-maps.json snapshot indexes SCCT-Maps commit c787c38e607c43761f9b0553fe7f7895bae44b2e. Each showcase-archive thumbnail corresponds to its catalogue path and package code. Map previews use the original menu/loading texture or a matching OpenSCCT game capture. Level layouts use the map geometry or actor positions in the level package. Calypso Casino shows its port texture library. Stock includes the Enhanced 4.0 distribution, with training and front-end packages grouped separately.
