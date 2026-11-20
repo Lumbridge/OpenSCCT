@@ -13,7 +13,22 @@ the extension `.ex`. Enhanced and Reloaded have their own reference files and
 hashes. The existing [PC research environment](../../re/README.md) identifies
 which builds its annotations apply to.
 
-## Reproduce the first unit
+## Verify the complete Steam pass
+
+From the repository root, pass the installed game directory to the verifier.
+Run in an x86 Visual Studio Developer PowerShell with MSVC 19.44.35229.0,
+or use `--cl` to select that compiler explicitly.
+
+```powershell
+python decomp/pc/verify_build.py 'D:\Games\Steam Games\steamapps\common\Splintercell Chaos Theory'
+```
+
+The verifier checks each complete retail SHA-256 and each source receipt,
+compiles in a fresh directory, and compares every byte in each named COFF
+function section. Its output includes the retail file offset and length of
+each successful comparison.
+
+## Reproduce one unit
 
 The campaign executable exports `_SND_fn_lGetSoundTextureCount@0` at RVA
 `0x748e10`. This build returns a sound texture count of zero. The complete
