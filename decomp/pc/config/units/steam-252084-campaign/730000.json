@@ -237,6 +237,28 @@
     }
   },
   {
+    "id": "sentinel-list-cleanup-736100",
+    "size": 48,
+    "offset": 7561472,
+    "inputs": [
+      "src/campaign_sentinel_list_cleanup.c"
+    ],
+    "rebuilt_symbol": "@destroy_list_736100@4",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /G5 /Gy /c /Folocal/campaign_sentinel_list_cleanup.obj src/campaign_sentinel_list_cleanup.c",
+    "link_bindings": {
+      "_release_739a40@4": {
+        "va": 285448768,
+        "basis": "Same heap release routine called for every node and the sentinel."
+      }
+    },
+    "identification": "Indexed circular list destructor releases each node followed by its sentinel. The full compiler contribution includes two trailing alignment NOPs after the return.",
+    "match": {
+      "bytes_sha256": "cc850a84095eb0b22224ee2973b82b0f41e276c825c9427ba1743094752bcdf7",
+      "inputs_sha256": "3fe03203da79ebbb75192ccf75d007a5bcfc0fa4136fc0fc852cc7552bbff654"
+    }
+  },
+  {
     "id": "release-block-736410",
     "size": 13,
     "offset": 7562256,

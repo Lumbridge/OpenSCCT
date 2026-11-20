@@ -54,6 +54,28 @@
     }
   },
   {
+    "id": "sentinel-list-cleanup-601960",
+    "size": 48,
+    "offset": 6297952,
+    "inputs": [
+      "src/campaign_sentinel_list_cleanup.c"
+    ],
+    "rebuilt_symbol": "@destroy_list_601960@4",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /G5 /Gy /c /Folocal/campaign_sentinel_list_cleanup.obj src/campaign_sentinel_list_cleanup.c",
+    "link_bindings": {
+      "_release_739a40@4": {
+        "va": 285448768,
+        "basis": "Same heap release routine called for every node and the sentinel."
+      }
+    },
+    "identification": "Indexed circular list destructor releases each node followed by its sentinel. The full compiler contribution includes two trailing alignment NOPs after the return.",
+    "match": {
+      "bytes_sha256": "0225f12b01cd70ee099ebb4bb2407933ff1909dc14cb58a0dc67bdd174d919c1",
+      "inputs_sha256": "c2eb30fe499b6ccb91bb7797a344819cea39f4065cea68855419923687c3cc58"
+    }
+  },
+  {
     "id": "delete-through-heap-601b70",
     "size": 27,
     "offset": 6298480,
@@ -725,6 +747,28 @@
     "match": {
       "bytes_sha256": "fb7c57edd4cb1940b43cb2adb778a2335abad0860e65c143a1eb306d196dca4a",
       "inputs_sha256": "cef9531151d7f691a34d162edfa31386d8df743635419b6141c811d05b9c2c63"
+    }
+  },
+  {
+    "id": "sentinel-list-cleanup-60f5f0",
+    "size": 48,
+    "offset": 6354416,
+    "inputs": [
+      "src/campaign_sentinel_list_cleanup.c"
+    ],
+    "rebuilt_symbol": "@destroy_list_60f5f0@4",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /G5 /Gy /c /Folocal/campaign_sentinel_list_cleanup.obj src/campaign_sentinel_list_cleanup.c",
+    "link_bindings": {
+      "_release_739a40@4": {
+        "va": 285448768,
+        "basis": "Same heap release routine called for every node and the sentinel."
+      }
+    },
+    "identification": "Indexed circular list destructor releases each node followed by its sentinel. The full compiler contribution includes two trailing alignment NOPs after the return.",
+    "match": {
+      "bytes_sha256": "757edaaa4537e743fa5adc455b0aa64e8aadd32dbb886b7c60bfbc89caff0834",
+      "inputs_sha256": "240d7c131d2e9575ae612b7ad2d4001760f0acce223ad523c61d1005f007107d"
     }
   },
   {
