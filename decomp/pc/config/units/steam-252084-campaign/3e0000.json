@@ -673,6 +673,35 @@
     }
   },
   {
+    "id": "fsarray-cleanup-3e5430",
+    "size": 49,
+    "offset": 4084784,
+    "inputs": [
+      "src/campaign_fsarray_cleanup.c",
+      "src/campaign_fsarray.h",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@cleanup_3e5430@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_fsarray_cleanup.obj src/campaign_fsarray_cleanup.c",
+    "identification": "Default Ghidra range. Calls FSArray range removal at instruction RVA 0x3e543b with element size 12, then releases the buffer and clears both fields.",
+    "link_bindings": {
+      "@remove_fsarray_range@16": {
+        "va": 281850864,
+        "basis": "Direct call to the independently rebuilt FSArray removal function."
+      },
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator release method used with the original buffer."
+      }
+    },
+    "match": {
+      "bytes_sha256": "bbbf3d61152ba463f3a9cc84b7bbb578ccd81fbcb58457b7dcacca5b23d35e45",
+      "inputs_sha256": "6a65d0fa7bb5776506a34460db3d0c6b49b055d8f084bfd20c8e9b5239e5b607"
+    }
+  },
+  {
     "id": "virtual-ustate-22-3e54d0",
     "size": 4,
     "offset": 4084944,
