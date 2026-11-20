@@ -347,6 +347,35 @@
     }
   },
   {
+    "id": "find-or-append-2b3500",
+    "offset": 2831616,
+    "size": 111,
+    "inputs": [
+      "src/campaign_find_or_append_4.c",
+      "src/campaign_array_storage.h",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_fixed_record_growth.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_find_or_append_4.obj src/campaign_find_or_append_4.c",
+    "rebuilt_symbol": "@find_or_append_r2b3500@8",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Engine allocator used for record growth."
+      },
+      "_allocation_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Stock UTF-16 FArray allocation tag."
+      }
+    },
+    "identification": "The default code analysis identifies the complete entry at RVA 0x2b3500. The allocator and its FArray allocation tag independently agree with the matched array append implementation. Stock UTF-16 FArray allocation tag.",
+    "match": {
+      "bytes_sha256": "c1586c7b32bf242d5d4a30440378f90415c06949968f41e227bcd6a799e0c2c6",
+      "inputs_sha256": "88dc98dce775c95254e42a1fab52b1f1a6eaf186abb0a969b7fd81a5a4d43139"
+    }
+  },
+  {
     "id": "array-destroy-2b3570",
     "size": 56,
     "offset": 2831728,

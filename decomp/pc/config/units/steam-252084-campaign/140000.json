@@ -1,5 +1,34 @@
 [
   {
+    "id": "find-or-append-140c50",
+    "offset": 1313872,
+    "size": 111,
+    "inputs": [
+      "src/campaign_find_or_append_4.c",
+      "src/campaign_array_storage.h",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_fixed_record_growth.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_find_or_append_4.obj src/campaign_find_or_append_4.c",
+    "rebuilt_symbol": "@find_or_append_r140c50@8",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Engine allocator used for record growth."
+      },
+      "_allocation_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Stock UTF-16 FArray allocation tag."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10a44db7 to this complete independently indexed 4-byte element routine. Stock UTF-16 FArray allocation tag.",
+    "match": {
+      "bytes_sha256": "c1586c7b32bf242d5d4a30440378f90415c06949968f41e227bcd6a799e0c2c6",
+      "inputs_sha256": "8545e4c727d2870096479349b852ad71d39870c2539b22d08ea83df93195adf3"
+    }
+  },
+  {
     "id": "placement-ugameengine",
     "offset": 1326816,
     "size": 14,

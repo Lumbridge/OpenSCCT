@@ -1704,6 +1704,35 @@
     }
   },
   {
+    "id": "find-or-append-093620",
+    "offset": 603680,
+    "size": 111,
+    "inputs": [
+      "src/campaign_find_or_append_4.c",
+      "src/campaign_array_storage.h",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_fixed_record_growth.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_find_or_append_4.obj src/campaign_find_or_append_4.c",
+    "rebuilt_symbol": "@find_or_append_r093620@8",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Engine allocator used for record growth."
+      },
+      "_allocation_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Stock UTF-16 FArray allocation tag."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10995cff to this complete independently indexed 4-byte element routine. Stock UTF-16 FArray allocation tag.",
+    "match": {
+      "bytes_sha256": "c1586c7b32bf242d5d4a30440378f90415c06949968f41e227bcd6a799e0c2c6",
+      "inputs_sha256": "56d7483f3443134a9f00d6f3d9860cffe52c298eb16fda380d9d3216a38fdc4a"
+    }
+  },
+  {
     "id": "construct-actor-aantiportalactor",
     "offset": 605136,
     "size": 48,
@@ -8212,6 +8241,35 @@
     }
   },
   {
+    "id": "find-or-append-09b9c0",
+    "offset": 637376,
+    "size": 111,
+    "inputs": [
+      "src/campaign_find_or_append_4.c",
+      "src/campaign_array_storage.h",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_fixed_record_growth.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_find_or_append_4.obj src/campaign_find_or_append_4.c",
+    "rebuilt_symbol": "@find_or_append_r09b9c0@8",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Engine allocator used for record growth."
+      },
+      "_allocation_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Stock UTF-16 FArray allocation tag."
+      }
+    },
+    "identification": "The default code analysis identifies the complete entry at RVA 0x9b9c0. The allocator and its FArray allocation tag independently agree with the matched array append implementation. Stock UTF-16 FArray allocation tag.",
+    "match": {
+      "bytes_sha256": "c1586c7b32bf242d5d4a30440378f90415c06949968f41e227bcd6a799e0c2c6",
+      "inputs_sha256": "f7a615a22a505262db1e690e217574a84f6a6e3f7aaaa02190d3391c4e78d2d2"
+    }
+  },
+  {
     "id": "array-destroy-09ba30",
     "size": 56,
     "offset": 637488,
@@ -8317,6 +8375,35 @@
     "match": {
       "bytes_sha256": "ec39f447b1032042b26e8b7f8b92dd87fcaca305f27e14f593df5d5592257704",
       "inputs_sha256": "8c1e7754eb8ab1a636abc2db534735f4706121050c2ecc1662a27960831f33cc"
+    }
+  },
+  {
+    "id": "find-or-append-09c2c0",
+    "offset": 639680,
+    "size": 111,
+    "inputs": [
+      "src/campaign_find_or_append_4.c",
+      "src/campaign_array_storage.h",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_fixed_record_growth.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_find_or_append_4.obj src/campaign_find_or_append_4.c",
+    "rebuilt_symbol": "@find_or_append_r09c2c0@8",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Engine allocator used for record growth."
+      },
+      "_allocation_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Stock UTF-16 FArray allocation tag."
+      }
+    },
+    "identification": "Direct call at retail VA 0x1099c48a to this complete independently indexed 4-byte element routine. Stock UTF-16 FArray allocation tag.",
+    "match": {
+      "bytes_sha256": "c1586c7b32bf242d5d4a30440378f90415c06949968f41e227bcd6a799e0c2c6",
+      "inputs_sha256": "f75bf99fb5d4712f0c1664dc5191fb095af3869122e92a6537598bf46bb72224"
     }
   },
   {

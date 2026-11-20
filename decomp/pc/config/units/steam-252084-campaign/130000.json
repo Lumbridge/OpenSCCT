@@ -898,6 +898,64 @@
     }
   },
   {
+    "id": "find-or-append-132860",
+    "offset": 1255520,
+    "size": 111,
+    "inputs": [
+      "src/campaign_find_or_append_4.c",
+      "src/campaign_array_storage.h",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_fixed_record_growth.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_find_or_append_4.obj src/campaign_find_or_append_4.c",
+    "rebuilt_symbol": "@find_or_append_r132860@8",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Engine allocator used for record growth."
+      },
+      "_allocation_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Stock UTF-16 FArray allocation tag."
+      }
+    },
+    "identification": "The default code analysis identifies the complete entry at RVA 0x132860. The allocator and its FArray allocation tag independently agree with the matched array append implementation. Stock UTF-16 FArray allocation tag.",
+    "match": {
+      "bytes_sha256": "c1586c7b32bf242d5d4a30440378f90415c06949968f41e227bcd6a799e0c2c6",
+      "inputs_sha256": "d2b460a0a91709f28ab5490a1b2ada883bbcdfd41394e030d556b69c66c7dfb1"
+    }
+  },
+  {
+    "id": "find-or-append-1328d0",
+    "offset": 1255632,
+    "size": 111,
+    "inputs": [
+      "src/campaign_find_or_append_4.c",
+      "src/campaign_array_storage.h",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_fixed_record_growth.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_find_or_append_4.obj src/campaign_find_or_append_4.c",
+    "rebuilt_symbol": "@find_or_append_r1328d0@8",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Engine allocator used for record growth."
+      },
+      "_allocation_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Stock UTF-16 FArray allocation tag."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10a33787 to this complete independently indexed 4-byte element routine. Stock UTF-16 FArray allocation tag.",
+    "match": {
+      "bytes_sha256": "c1586c7b32bf242d5d4a30440378f90415c06949968f41e227bcd6a799e0c2c6",
+      "inputs_sha256": "8d447884179e6d1f023867d9ec9b900825997e26e2f27c9f43ebe310b3ddafba"
+    }
+  },
+  {
     "id": "array-destroy-132960",
     "size": 56,
     "offset": 1255776,

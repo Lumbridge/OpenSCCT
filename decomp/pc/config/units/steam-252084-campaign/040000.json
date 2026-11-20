@@ -501,6 +501,35 @@
     }
   },
   {
+    "id": "find-or-append-04baa0",
+    "offset": 309920,
+    "size": 111,
+    "inputs": [
+      "src/campaign_find_or_append_4.c",
+      "src/campaign_array_storage.h",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_fixed_record_growth.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_find_or_append_4.obj src/campaign_find_or_append_4.c",
+    "rebuilt_symbol": "@find_or_append_r04baa0@8",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Engine allocator used for record growth."
+      },
+      "_allocation_tag_7bc158": {
+        "va": 285983064,
+        "basis": "Stock UTF-16 FArray allocation tag."
+      }
+    },
+    "identification": "Direct call at retail VA 0x1094c34c to this complete independently indexed 4-byte element routine. Stock UTF-16 FArray allocation tag.",
+    "match": {
+      "bytes_sha256": "1b90bd2652ce3558aff3a572e01581af01502bbc8dfb485f0f3a3e3c211a1062",
+      "inputs_sha256": "97c09a31803471286cc450d37a68968f75fc1fde0dd192c93036f51da95b6c5b"
+    }
+  },
+  {
     "id": "array-insert-range-04bb30",
     "offset": 310064,
     "size": 117,

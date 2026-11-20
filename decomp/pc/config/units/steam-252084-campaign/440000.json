@@ -1224,6 +1224,798 @@
     }
   },
   {
+    "id": "construct-n-443e20",
+    "offset": 4472352,
+    "size": 43,
+    "inputs": [
+      "src/campaign_construct_n_16.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_construct_n_16.obj src/campaign_construct_n_16.c",
+    "rebuilt_symbol": "@construct_n_r443e20@16",
+    "link_bindings": {
+      "_construct_copies_441b10": {
+        "va": 282336016,
+        "basis": "Independently reproduced counted construction loop with the same element width."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10d4481f to this complete independently indexed 16-byte element routine. Independently reproduced counted construction loop with the same element width.",
+    "match": {
+      "bytes_sha256": "32c64eea63dfea970dc96a9de2cff8bcba87ccf0b929f3605b48ee051edf1c46",
+      "inputs_sha256": "cc33d0b1f1b34a14f0eab9eab4afaf9afc3c82828e5f4b13e6a9dad2c0eec161"
+    }
+  },
+  {
+    "id": "construct-n-443e60",
+    "offset": 4472416,
+    "size": 43,
+    "inputs": [
+      "src/campaign_construct_n_16.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_construct_n_16.obj src/campaign_construct_n_16.c",
+    "rebuilt_symbol": "@construct_n_r443e60@16",
+    "link_bindings": {
+      "_construct_copies_441b60": {
+        "va": 282336096,
+        "basis": "Independently reproduced counted construction loop with the same element width."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10d44a2f to this complete independently indexed 16-byte element routine. Independently reproduced counted construction loop with the same element width.",
+    "match": {
+      "bytes_sha256": "274b5b1fca6dc51ad5a008eea13e0faee02a92b044bc6349527fa5d6a1de257c",
+      "inputs_sha256": "da8e531cbb8b6ad3a27c27ff7efc349e6a3a218071f65399f7166fb1d2e66702"
+    }
+  },
+  {
+    "id": "construct-n-443ea0",
+    "offset": 4472480,
+    "size": 43,
+    "inputs": [
+      "src/campaign_construct_n_16.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_construct_n_16.obj src/campaign_construct_n_16.c",
+    "rebuilt_symbol": "@construct_n_r443ea0@16",
+    "link_bindings": {
+      "_construct_copies_441bb0": {
+        "va": 282336176,
+        "basis": "Independently reproduced counted construction loop with the same element width."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10d44c3f to this complete independently indexed 16-byte element routine. Independently reproduced counted construction loop with the same element width.",
+    "match": {
+      "bytes_sha256": "cefbabcd84c61cb378a55e921f8b6e6ae7a49f21ef5d8bf4efbba31e2986a298",
+      "inputs_sha256": "093005932227ce498098d421844f3ac37c5043d5c3b97d7dbd172032f8ea9138"
+    }
+  },
+  {
+    "id": "construct-n-443ee0",
+    "offset": 4472544,
+    "size": 43,
+    "inputs": [
+      "src/campaign_construct_n_16.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_construct_n_16.obj src/campaign_construct_n_16.c",
+    "rebuilt_symbol": "@construct_n_r443ee0@16",
+    "link_bindings": {
+      "_construct_copies_441c00": {
+        "va": 282336256,
+        "basis": "Independently reproduced counted construction loop with the same element width."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10d44e4f to this complete independently indexed 16-byte element routine. Independently reproduced counted construction loop with the same element width.",
+    "match": {
+      "bytes_sha256": "e93e29cac418bac2248c1dc3c86b70f4fb0e4ab41031ccfc69a1d3d8a8b37112",
+      "inputs_sha256": "fb076002f81843e085a743116b2c857742cad77f5f03fdd52f8ee8394d1a98fd"
+    }
+  },
+  {
+    "id": "construct-n-443f20",
+    "offset": 4472608,
+    "size": 43,
+    "inputs": [
+      "src/campaign_construct_n_16.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_construct_n_16.obj src/campaign_construct_n_16.c",
+    "rebuilt_symbol": "@construct_n_r443f20@16",
+    "link_bindings": {
+      "_construct_copies_441c50": {
+        "va": 282336336,
+        "basis": "Independently reproduced counted construction loop with the same element width."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10d4505f to this complete independently indexed 16-byte element routine. Independently reproduced counted construction loop with the same element width.",
+    "match": {
+      "bytes_sha256": "d50520a4cc9d0a61e7900742c7e14b36c5c1244506e95f723ef5d5059075826b",
+      "inputs_sha256": "724d24e5d32ccbf57aeba12eafe636d55c15d2612e0611311879e6974d5e141d"
+    }
+  },
+  {
+    "id": "construct-n-443f60",
+    "offset": 4472672,
+    "size": 43,
+    "inputs": [
+      "src/campaign_construct_n_16.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_construct_n_16.obj src/campaign_construct_n_16.c",
+    "rebuilt_symbol": "@construct_n_r443f60@16",
+    "link_bindings": {
+      "_construct_copies_441ca0": {
+        "va": 282336416,
+        "basis": "Independently reproduced counted construction loop with the same element width."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10d4526f to this complete independently indexed 16-byte element routine. Independently reproduced counted construction loop with the same element width.",
+    "match": {
+      "bytes_sha256": "09fccfddc4af53109a3a4a50ec9462d87284282167a4b10d0fc994a4aa84c020",
+      "inputs_sha256": "114c377fd974a55da606cda15252cca5492282b41ddc6d64d91e3d874594a690"
+    }
+  },
+  {
+    "id": "construct-n-443fa0",
+    "offset": 4472736,
+    "size": 43,
+    "inputs": [
+      "src/campaign_construct_n_16.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_construct_n_16.obj src/campaign_construct_n_16.c",
+    "rebuilt_symbol": "@construct_n_r443fa0@16",
+    "link_bindings": {
+      "_construct_copies_441cf0": {
+        "va": 282336496,
+        "basis": "Independently reproduced counted construction loop with the same element width."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10d4547f to this complete independently indexed 16-byte element routine. Independently reproduced counted construction loop with the same element width.",
+    "match": {
+      "bytes_sha256": "00ac2205fc962eeae54fbbb3ae3f726a1b8ced136b237acb4bf6f62e011169ca",
+      "inputs_sha256": "02ca189010fdf57938676e5ea14effe6d419c30c224d46173979cbac0c76f125"
+    }
+  },
+  {
+    "id": "construct-n-443fe0",
+    "offset": 4472800,
+    "size": 43,
+    "inputs": [
+      "src/campaign_construct_n_16.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_construct_n_16.obj src/campaign_construct_n_16.c",
+    "rebuilt_symbol": "@construct_n_r443fe0@16",
+    "link_bindings": {
+      "_construct_copies_441d40": {
+        "va": 282336576,
+        "basis": "Independently reproduced counted construction loop with the same element width."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10d4568f to this complete independently indexed 16-byte element routine. Independently reproduced counted construction loop with the same element width.",
+    "match": {
+      "bytes_sha256": "b4f18fc6b11e6aefdbcbb19106c0f7039a95fa4971ab97d48a4c13a7b64c72dc",
+      "inputs_sha256": "9de2f941e6ba8bb572287315ef7e58596eee61e8544bb160e170ad2ac9703824"
+    }
+  },
+  {
+    "id": "construct-n-444020",
+    "offset": 4472864,
+    "size": 43,
+    "inputs": [
+      "src/campaign_construct_n_16.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_construct_n_16.obj src/campaign_construct_n_16.c",
+    "rebuilt_symbol": "@construct_n_r444020@16",
+    "link_bindings": {
+      "_construct_copies_441d90": {
+        "va": 282336656,
+        "basis": "Independently reproduced counted construction loop with the same element width."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10d4589f to this complete independently indexed 16-byte element routine. Independently reproduced counted construction loop with the same element width.",
+    "match": {
+      "bytes_sha256": "78ed21f65ce1d55fa7327284fea3941f8af94296497d01481f7b9c9440b70147",
+      "inputs_sha256": "7208ef7438d90c8ee6ae7dbf876d288ecadd78e4b30ba16fbd97daceb0d6434e"
+    }
+  },
+  {
+    "id": "construct-n-444060",
+    "offset": 4472928,
+    "size": 43,
+    "inputs": [
+      "src/campaign_construct_n_16.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_construct_n_16.obj src/campaign_construct_n_16.c",
+    "rebuilt_symbol": "@construct_n_r444060@16",
+    "link_bindings": {
+      "_construct_copies_441de0": {
+        "va": 282336736,
+        "basis": "Independently reproduced counted construction loop with the same element width."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10d45aaf to this complete independently indexed 16-byte element routine. Independently reproduced counted construction loop with the same element width.",
+    "match": {
+      "bytes_sha256": "806da07401ebe670083deac8dced7a75d95c48a21f5ddf22e1922e2f73bbec88",
+      "inputs_sha256": "33ba08c0f4a40affbfc63778b5307871bd67e5520cb309f5aadc435aeb36dd24"
+    }
+  },
+  {
+    "id": "construct-n-4440a0",
+    "offset": 4472992,
+    "size": 43,
+    "inputs": [
+      "src/campaign_construct_n_16.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_construct_n_16.obj src/campaign_construct_n_16.c",
+    "rebuilt_symbol": "@construct_n_r4440a0@16",
+    "link_bindings": {
+      "_construct_copies_441e30": {
+        "va": 282336816,
+        "basis": "Independently reproduced counted construction loop with the same element width."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10d45cbf to this complete independently indexed 16-byte element routine. Independently reproduced counted construction loop with the same element width.",
+    "match": {
+      "bytes_sha256": "aa0b7dea0b6ac3969aa4591a2571f62070a33a5372509b1999471a6f14f1c51a",
+      "inputs_sha256": "6785f103d9b10a9bdd3bb2f0a66e75be6151425a5622d4a9a81656d2b6e0d0b3"
+    }
+  },
+  {
+    "id": "construct-n-4440e0",
+    "offset": 4473056,
+    "size": 43,
+    "inputs": [
+      "src/campaign_construct_n_16.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_construct_n_16.obj src/campaign_construct_n_16.c",
+    "rebuilt_symbol": "@construct_n_r4440e0@16",
+    "link_bindings": {
+      "_construct_copies_441e80": {
+        "va": 282336896,
+        "basis": "Independently reproduced counted construction loop with the same element width."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10d45ecf to this complete independently indexed 16-byte element routine. Independently reproduced counted construction loop with the same element width.",
+    "match": {
+      "bytes_sha256": "6e9ecc611ed98fbf7c66e7e107f70786a1f015d5597c3923da40c600f71a6e3a",
+      "inputs_sha256": "19c54fb36f76fe3a33bac3a56f64080235a164f996d37773130813d8a4850203"
+    }
+  },
+  {
+    "id": "construct-n-444120",
+    "offset": 4473120,
+    "size": 43,
+    "inputs": [
+      "src/campaign_construct_n_16.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_construct_n_16.obj src/campaign_construct_n_16.c",
+    "rebuilt_symbol": "@construct_n_r444120@16",
+    "link_bindings": {
+      "_construct_copies_441ed0": {
+        "va": 282336976,
+        "basis": "Independently reproduced counted construction loop with the same element width."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10d460df to this complete independently indexed 16-byte element routine. Independently reproduced counted construction loop with the same element width.",
+    "match": {
+      "bytes_sha256": "455a1a3130e456d11b085c5c351174c56827b6a589a68ec59aaf1446e90a645c",
+      "inputs_sha256": "9cc56a0965e082d3e965435a89168898d3cfb6da11bc3bb75611261a1ab1bcef"
+    }
+  },
+  {
+    "id": "construct-n-444150",
+    "offset": 4473168,
+    "size": 43,
+    "inputs": [
+      "src/campaign_construct_n_16.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_construct_n_16.obj src/campaign_construct_n_16.c",
+    "rebuilt_symbol": "@construct_n_r444150@16",
+    "link_bindings": {
+      "_construct_copies_441f10": {
+        "va": 282337040,
+        "basis": "Independently reproduced counted construction loop with the same element width."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10d49a3f to this complete independently indexed 16-byte element routine. Independently reproduced counted construction loop with the same element width.",
+    "match": {
+      "bytes_sha256": "ff86bcf0c2abba9d4b91e7d85f3e7bb2c8ced9b8dcc2d77480ccbcabd919ef81",
+      "inputs_sha256": "ffc8af55ee4909bfe970ffb1faf29dee1b164e216adab43817f14e16a8710639"
+    }
+  },
+  {
+    "id": "construct-n-444180",
+    "offset": 4473216,
+    "size": 43,
+    "inputs": [
+      "src/campaign_construct_n_16.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_construct_n_16.obj src/campaign_construct_n_16.c",
+    "rebuilt_symbol": "@construct_n_r444180@16",
+    "link_bindings": {
+      "_construct_copies_441f50": {
+        "va": 282337104,
+        "basis": "Independently reproduced counted construction loop with the same element width."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10d462ef to this complete independently indexed 16-byte element routine. Independently reproduced counted construction loop with the same element width.",
+    "match": {
+      "bytes_sha256": "b4673aa42902fc1177b3aaf3f8f4c02b3cada5bee4a6693ea49906598d78c70c",
+      "inputs_sha256": "a42715d08ddbf5921aebbccbd5564e2dbc8b7a63fa4a37656ec35d657f013370"
+    }
+  },
+  {
+    "id": "construct-n-4441b0",
+    "offset": 4473264,
+    "size": 43,
+    "inputs": [
+      "src/campaign_construct_n_16.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_construct_n_16.obj src/campaign_construct_n_16.c",
+    "rebuilt_symbol": "@construct_n_r4441b0@16",
+    "link_bindings": {
+      "_construct_copies_441f90": {
+        "va": 282337168,
+        "basis": "Independently reproduced counted construction loop with the same element width."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10d49c4f to this complete independently indexed 16-byte element routine. Independently reproduced counted construction loop with the same element width.",
+    "match": {
+      "bytes_sha256": "4c8134e60efbf1baac6f37b4c3901602da1317a4a41df37895c120f6dddb6f40",
+      "inputs_sha256": "99df3bfcfc0c13a7a4750125468c3cc693bd59cb14026ea440e40648429f81f8"
+    }
+  },
+  {
+    "id": "construct-n-4441e0",
+    "offset": 4473312,
+    "size": 43,
+    "inputs": [
+      "src/campaign_construct_n_16.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_construct_n_16.obj src/campaign_construct_n_16.c",
+    "rebuilt_symbol": "@construct_n_r4441e0@16",
+    "link_bindings": {
+      "_construct_copies_441fd0": {
+        "va": 282337232,
+        "basis": "Independently reproduced counted construction loop with the same element width."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10d464ff to this complete independently indexed 16-byte element routine. Independently reproduced counted construction loop with the same element width.",
+    "match": {
+      "bytes_sha256": "abb3c478c3356022692465734966cbfb709588e2e69960f7a350dce2a32c4d5e",
+      "inputs_sha256": "2724ea3707fde9d4c56523bafae8f068a587ecb22d61fdf803a5e03128c2a98d"
+    }
+  },
+  {
+    "id": "construct-n-444220",
+    "offset": 4473376,
+    "size": 43,
+    "inputs": [
+      "src/campaign_construct_n_16.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_construct_n_16.obj src/campaign_construct_n_16.c",
+    "rebuilt_symbol": "@construct_n_r444220@16",
+    "link_bindings": {
+      "_construct_copies_442020": {
+        "va": 282337312,
+        "basis": "Independently reproduced counted construction loop with the same element width."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10d4670f to this complete independently indexed 16-byte element routine. Independently reproduced counted construction loop with the same element width.",
+    "match": {
+      "bytes_sha256": "7a66c84bbf716e2017000ea447964a4a7f9de3c5eece04b6562eaf6ef589873b",
+      "inputs_sha256": "161e5d76f47a21f1d5ea027c3d8c083ea623831a19b8f87e92fc9d7f36c36ffb"
+    }
+  },
+  {
+    "id": "construct-n-444260",
+    "offset": 4473440,
+    "size": 43,
+    "inputs": [
+      "src/campaign_construct_n_16.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_construct_n_16.obj src/campaign_construct_n_16.c",
+    "rebuilt_symbol": "@construct_n_r444260@16",
+    "link_bindings": {
+      "_construct_copies_442070": {
+        "va": 282337392,
+        "basis": "Independently reproduced counted construction loop with the same element width."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10d4691f to this complete independently indexed 16-byte element routine. Independently reproduced counted construction loop with the same element width.",
+    "match": {
+      "bytes_sha256": "063a2565ed4f7c5a8da0d68e89b17ce2d1963fe1f2a6457c1db0fb6ac25a1856",
+      "inputs_sha256": "d7568447a1522695309647540f1045d807223e0c07daba6f028e5d352f37d897"
+    }
+  },
+  {
+    "id": "construct-n-4442a0",
+    "offset": 4473504,
+    "size": 43,
+    "inputs": [
+      "src/campaign_construct_n_16.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_construct_n_16.obj src/campaign_construct_n_16.c",
+    "rebuilt_symbol": "@construct_n_r4442a0@16",
+    "link_bindings": {
+      "_construct_copies_4420c0": {
+        "va": 282337472,
+        "basis": "Independently reproduced counted construction loop with the same element width."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10d46b2f to this complete independently indexed 16-byte element routine. Independently reproduced counted construction loop with the same element width.",
+    "match": {
+      "bytes_sha256": "b214bba49915f9566c7edfea6d779a719f89596ad70c7bb3496dd5a76fcde68d",
+      "inputs_sha256": "2119e75b4967607abd0cc40b166f922b78c71145dff9eb4c8669f189d1f264a3"
+    }
+  },
+  {
+    "id": "construct-n-4442e0",
+    "offset": 4473568,
+    "size": 43,
+    "inputs": [
+      "src/campaign_construct_n_16.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_construct_n_16.obj src/campaign_construct_n_16.c",
+    "rebuilt_symbol": "@construct_n_r4442e0@16",
+    "link_bindings": {
+      "_construct_copies_442110": {
+        "va": 282337552,
+        "basis": "Independently reproduced counted construction loop with the same element width."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10d46d3f to this complete independently indexed 16-byte element routine. Independently reproduced counted construction loop with the same element width.",
+    "match": {
+      "bytes_sha256": "5fd38df01f73e95a0dbea33554e9d1507dca9b52213f7b83fec9ace92d54f3b5",
+      "inputs_sha256": "a610cb4ec2664327219e7eb150161129ad4103b0c2a81f607757333167f6e88c"
+    }
+  },
+  {
+    "id": "construct-n-444320",
+    "offset": 4473632,
+    "size": 43,
+    "inputs": [
+      "src/campaign_construct_n_16.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_construct_n_16.obj src/campaign_construct_n_16.c",
+    "rebuilt_symbol": "@construct_n_r444320@16",
+    "link_bindings": {
+      "_construct_copies_442160": {
+        "va": 282337632,
+        "basis": "Independently reproduced counted construction loop with the same element width."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10d46f4f to this complete independently indexed 16-byte element routine. Independently reproduced counted construction loop with the same element width.",
+    "match": {
+      "bytes_sha256": "7111480018263e86a429ac5210a100dabe1aebb3b90672307fcbd06af8f60dee",
+      "inputs_sha256": "ba39b082bbd9e276be3070c1e18d407c7d6efe895002b2a1f7e75b9d8d413949"
+    }
+  },
+  {
+    "id": "construct-n-444360",
+    "offset": 4473696,
+    "size": 43,
+    "inputs": [
+      "src/campaign_construct_n_16.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_construct_n_16.obj src/campaign_construct_n_16.c",
+    "rebuilt_symbol": "@construct_n_r444360@16",
+    "link_bindings": {
+      "_construct_copies_4421b0": {
+        "va": 282337712,
+        "basis": "Independently reproduced counted construction loop with the same element width."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10d4715f to this complete independently indexed 16-byte element routine. Independently reproduced counted construction loop with the same element width.",
+    "match": {
+      "bytes_sha256": "ef13d6c3186ab98d25db9e228c8d90474e90f17b1038ac6855c863ec81a0ffab",
+      "inputs_sha256": "9ff7252e637e43a3bec5f0ef2eb0a95388aec6277fdefaebb8fd6845e07dcb65"
+    }
+  },
+  {
+    "id": "construct-n-4443a0",
+    "offset": 4473760,
+    "size": 43,
+    "inputs": [
+      "src/campaign_construct_n_16.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_construct_n_16.obj src/campaign_construct_n_16.c",
+    "rebuilt_symbol": "@construct_n_r4443a0@16",
+    "link_bindings": {
+      "_construct_copies_442200": {
+        "va": 282337792,
+        "basis": "Independently reproduced counted construction loop with the same element width."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10d4736f to this complete independently indexed 16-byte element routine. Independently reproduced counted construction loop with the same element width.",
+    "match": {
+      "bytes_sha256": "05c0f829c8d3eba090903728f513a68dbc9b514eb1b6b164c62a54132e1c6efa",
+      "inputs_sha256": "ce0e497e166fed046a1c2f96f62b6b74be8e83f8504b345865c03aa409dfadad"
+    }
+  },
+  {
+    "id": "construct-n-4443e0",
+    "offset": 4473824,
+    "size": 43,
+    "inputs": [
+      "src/campaign_construct_n_16.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_construct_n_16.obj src/campaign_construct_n_16.c",
+    "rebuilt_symbol": "@construct_n_r4443e0@16",
+    "link_bindings": {
+      "_construct_copies_442250": {
+        "va": 282337872,
+        "basis": "Independently reproduced counted construction loop with the same element width."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10d4757f to this complete independently indexed 16-byte element routine. Independently reproduced counted construction loop with the same element width.",
+    "match": {
+      "bytes_sha256": "618261aec1f41dd06f4a72201635c0439d0e6b6d9ab114834acfe14226bf3c7d",
+      "inputs_sha256": "21540704dfc6df994758e583535e618c45781a747d2eb8f946c9dd6b771f8c5f"
+    }
+  },
+  {
+    "id": "construct-n-444410",
+    "offset": 4473872,
+    "size": 43,
+    "inputs": [
+      "src/campaign_construct_n_16.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_construct_n_16.obj src/campaign_construct_n_16.c",
+    "rebuilt_symbol": "@construct_n_r444410@16",
+    "link_bindings": {
+      "_construct_copies_442290": {
+        "va": 282337936,
+        "basis": "Independently reproduced counted construction loop with the same element width."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10d4778f to this complete independently indexed 16-byte element routine. Independently reproduced counted construction loop with the same element width.",
+    "match": {
+      "bytes_sha256": "c445f808c03e56fb3470ee3c04f1395c1636e5ecbae7370cf9f601421ab943f7",
+      "inputs_sha256": "7b82dd1c8eabe42ad07fe250961e218c4838294b146c256c0fb11c3bbe195c94"
+    }
+  },
+  {
+    "id": "construct-n-444440",
+    "offset": 4473920,
+    "size": 43,
+    "inputs": [
+      "src/campaign_construct_n_16.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_construct_n_16.obj src/campaign_construct_n_16.c",
+    "rebuilt_symbol": "@construct_n_r444440@16",
+    "link_bindings": {
+      "_construct_copies_4422d0": {
+        "va": 282338000,
+        "basis": "Independently reproduced counted construction loop with the same element width."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10d4799f to this complete independently indexed 16-byte element routine. Independently reproduced counted construction loop with the same element width.",
+    "match": {
+      "bytes_sha256": "a6aa3540a5eecb3750f401b3c0f674fece0677193138fbce749ef96d45328246",
+      "inputs_sha256": "a38638bcac6693ca6b6050613205b7238acc13a726a3a7e274181edcab56fb51"
+    }
+  },
+  {
+    "id": "construct-n-444480",
+    "offset": 4473984,
+    "size": 43,
+    "inputs": [
+      "src/campaign_construct_n_16.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_construct_n_16.obj src/campaign_construct_n_16.c",
+    "rebuilt_symbol": "@construct_n_r444480@16",
+    "link_bindings": {
+      "_construct_copies_442320": {
+        "va": 282338080,
+        "basis": "Independently reproduced counted construction loop with the same element width."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10d47baf to this complete independently indexed 16-byte element routine. Independently reproduced counted construction loop with the same element width.",
+    "match": {
+      "bytes_sha256": "9c636b7e4e1dd88f3a8c821fe8c5a82dcf399085b57a2bc7136d565ec8a7669b",
+      "inputs_sha256": "12f99458a85fe5946c41f4ead39e87e8e2a78230926e5cf9b4573c024a19dedc"
+    }
+  },
+  {
+    "id": "construct-n-4444b0",
+    "offset": 4474032,
+    "size": 43,
+    "inputs": [
+      "src/campaign_construct_n_16.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_construct_n_16.obj src/campaign_construct_n_16.c",
+    "rebuilt_symbol": "@construct_n_r4444b0@16",
+    "link_bindings": {
+      "_construct_copies_442360": {
+        "va": 282338144,
+        "basis": "Independently reproduced counted construction loop with the same element width."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10d47dbf to this complete independently indexed 16-byte element routine. Independently reproduced counted construction loop with the same element width.",
+    "match": {
+      "bytes_sha256": "07094d439afca02cd59ef7c5b2f58497c3d9a588373fa20126b75d6ed5100069",
+      "inputs_sha256": "9c57a886a20e09b6beba6afa101f86ec579e3d9000a6e188d08ba6a55d965c71"
+    }
+  },
+  {
+    "id": "construct-n-4444e0",
+    "offset": 4474080,
+    "size": 43,
+    "inputs": [
+      "src/campaign_construct_n_16.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_construct_n_16.obj src/campaign_construct_n_16.c",
+    "rebuilt_symbol": "@construct_n_r4444e0@16",
+    "link_bindings": {
+      "_construct_copies_4423a0": {
+        "va": 282338208,
+        "basis": "Independently reproduced counted construction loop with the same element width."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10d47fcf to this complete independently indexed 16-byte element routine. Independently reproduced counted construction loop with the same element width.",
+    "match": {
+      "bytes_sha256": "820cf0fb4331e4b1e8764182c4106022d3d67d8ff84c18a30d8cd2893926ca5d",
+      "inputs_sha256": "03573bb89221b525641b7ab5569f7cb05a33d4841362dbb4d1b509905daef566"
+    }
+  },
+  {
+    "id": "construct-n-444520",
+    "offset": 4474144,
+    "size": 43,
+    "inputs": [
+      "src/campaign_construct_n_16.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_construct_n_16.obj src/campaign_construct_n_16.c",
+    "rebuilt_symbol": "@construct_n_r444520@16",
+    "link_bindings": {
+      "_construct_copies_4423f0": {
+        "va": 282338288,
+        "basis": "Independently reproduced counted construction loop with the same element width."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10d481df to this complete independently indexed 16-byte element routine. Independently reproduced counted construction loop with the same element width.",
+    "match": {
+      "bytes_sha256": "f8c8720311e3ada70e9944d1b1ac7de6e3ae7927d220e9b07057e3f4f8bd1c6d",
+      "inputs_sha256": "b4b771524880b200f828f9a9302720c43643b4ffafcdb5e1e0d68924e346ed6b"
+    }
+  },
+  {
+    "id": "construct-n-444560",
+    "offset": 4474208,
+    "size": 43,
+    "inputs": [
+      "src/campaign_construct_n_16.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_construct_n_16.obj src/campaign_construct_n_16.c",
+    "rebuilt_symbol": "@construct_n_r444560@16",
+    "link_bindings": {
+      "_construct_copies_442440": {
+        "va": 282338368,
+        "basis": "Independently reproduced counted construction loop with the same element width."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10d483ef to this complete independently indexed 16-byte element routine. Independently reproduced counted construction loop with the same element width.",
+    "match": {
+      "bytes_sha256": "1d6933579600e0f4c46831e04b3bfadf2c86f0028e696026bbf0554ebaa0fad0",
+      "inputs_sha256": "e163a9f9fa17fc5ec6b5c545840df22cde4abeabca278f8b3f42664f8d7a6aff"
+    }
+  },
+  {
+    "id": "construct-n-4445a0",
+    "offset": 4474272,
+    "size": 43,
+    "inputs": [
+      "src/campaign_construct_n_16.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_construct_n_16.obj src/campaign_construct_n_16.c",
+    "rebuilt_symbol": "@construct_n_r4445a0@16",
+    "link_bindings": {
+      "_construct_copies_442490": {
+        "va": 282338448,
+        "basis": "Independently reproduced counted construction loop with the same element width."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10d485ff to this complete independently indexed 16-byte element routine. Independently reproduced counted construction loop with the same element width.",
+    "match": {
+      "bytes_sha256": "6d3cce3e9d3d9abab6ee7043593a6d52a84f41a110b4d0940ff2e5181eeba4c6",
+      "inputs_sha256": "7ff0bdd4c8c4e0b9ae0ec0f029e86072e3befa4d2257c04e9b0cfc51e96744d3"
+    }
+  },
+  {
+    "id": "construct-n-4445e0",
+    "offset": 4474336,
+    "size": 43,
+    "inputs": [
+      "src/campaign_construct_n_16.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_construct_n_16.obj src/campaign_construct_n_16.c",
+    "rebuilt_symbol": "@construct_n_r4445e0@16",
+    "link_bindings": {
+      "_construct_copies_4424e0": {
+        "va": 282338528,
+        "basis": "Independently reproduced counted construction loop with the same element width."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10d4880f to this complete independently indexed 16-byte element routine. Independently reproduced counted construction loop with the same element width.",
+    "match": {
+      "bytes_sha256": "3d461ce890fd3af0f3f18ad917f7934bf46dbe69e9313f6e8fae9b59529dc096",
+      "inputs_sha256": "cf9427bb8c35a70f72ed78638e1bcd3fd3a71b6e8ad729d907f469b646d45215"
+    }
+  },
+  {
+    "id": "construct-n-444620",
+    "offset": 4474400,
+    "size": 43,
+    "inputs": [
+      "src/campaign_construct_n_16.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_construct_n_16.obj src/campaign_construct_n_16.c",
+    "rebuilt_symbol": "@construct_n_r444620@16",
+    "link_bindings": {
+      "_construct_copies_442530": {
+        "va": 282338608,
+        "basis": "Independently reproduced counted construction loop with the same element width."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10d48a1f to this complete independently indexed 16-byte element routine. Independently reproduced counted construction loop with the same element width.",
+    "match": {
+      "bytes_sha256": "5ea766c97e1488dfd291043941e5ae5a9675a345d003ec7946477c3138aa86e4",
+      "inputs_sha256": "f3baf99aac08ea6db9923af4cfeda767868e22f8f78e154856e6301e70566636"
+    }
+  },
+  {
+    "id": "construct-n-444650",
+    "offset": 4474448,
+    "size": 43,
+    "inputs": [
+      "src/campaign_construct_n_16.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_construct_n_16.obj src/campaign_construct_n_16.c",
+    "rebuilt_symbol": "@construct_n_r444650@16",
+    "link_bindings": {
+      "_construct_copies_442570": {
+        "va": 282338672,
+        "basis": "Independently reproduced counted construction loop with the same element width."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10d48c2f to this complete independently indexed 16-byte element routine. Independently reproduced counted construction loop with the same element width.",
+    "match": {
+      "bytes_sha256": "a4fadf348386cc9d91ff0112d7ed9263f597bae6763d563e3a9a7f17add55375",
+      "inputs_sha256": "a2a03a9e3a40117ae698aa00a599ac7de284021944cb065283883bf36e6dafb5"
+    }
+  },
+  {
     "id": "clear-owned-storage-448d10",
     "size": 42,
     "offset": 4492560,
@@ -1268,6 +2060,754 @@
     }
   },
   {
+    "id": "append-44a0e0",
+    "offset": 4497632,
+    "size": 103,
+    "inputs": [
+      "src/campaign_append_16.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_append_16.obj src/campaign_append_16.c",
+    "rebuilt_symbol": "@append_r44a0e0@8",
+    "link_bindings": {
+      "@insert_copies_444680@16": {
+        "va": 282347136,
+        "basis": "Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10d4b12e to this complete independently indexed 16-byte element routine. Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width.",
+    "match": {
+      "bytes_sha256": "38583c2f7be5dca9bd490c98b676030476b36548a68d66dd4c537164055e619b",
+      "inputs_sha256": "1a28b2a3b074642e3139e8cdf803e4458c08731ce1683ece910e3ca926f6ef48"
+    }
+  },
+  {
+    "id": "append-44a150",
+    "offset": 4497744,
+    "size": 103,
+    "inputs": [
+      "src/campaign_append_16.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_append_16.obj src/campaign_append_16.c",
+    "rebuilt_symbol": "@append_r44a150@8",
+    "link_bindings": {
+      "@insert_copies_444890@16": {
+        "va": 282347664,
+        "basis": "Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10d4cfaa to this complete independently indexed 16-byte element routine. Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width.",
+    "match": {
+      "bytes_sha256": "82d5cdcb4df3d2d1a3b8acb47af2459facf8233733bf093944b1dff844d2df23",
+      "inputs_sha256": "6510baf192f30de47c85b0e7ac444da2229aad6f0fb2068f0ce0ca66499799df"
+    }
+  },
+  {
+    "id": "append-44a1c0",
+    "offset": 4497856,
+    "size": 103,
+    "inputs": [
+      "src/campaign_append_16.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_append_16.obj src/campaign_append_16.c",
+    "rebuilt_symbol": "@append_r44a1c0@8",
+    "link_bindings": {
+      "@insert_copies_444aa0@16": {
+        "va": 282348192,
+        "basis": "Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10d4b1ce to this complete independently indexed 16-byte element routine. Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width.",
+    "match": {
+      "bytes_sha256": "76d906774d9c0106b96448b42aff78ffd10c156cf0f0d793b322c138ff2b22cc",
+      "inputs_sha256": "e6e87b4a61dd04d49ba5846332e96cc5c2c7de31b2e0e05fb0c5fdc53ed19b88"
+    }
+  },
+  {
+    "id": "append-44a230",
+    "offset": 4497968,
+    "size": 103,
+    "inputs": [
+      "src/campaign_append_16.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_append_16.obj src/campaign_append_16.c",
+    "rebuilt_symbol": "@append_r44a230@8",
+    "link_bindings": {
+      "@insert_copies_444cb0@16": {
+        "va": 282348720,
+        "basis": "Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10d4d04b to this complete independently indexed 16-byte element routine. Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width.",
+    "match": {
+      "bytes_sha256": "ac27dbdea7510764307049864d9da5d9749d3349d776435ef776708aa61d617d",
+      "inputs_sha256": "7a0a3111442408015eb32d90192fec86ed17e48238f3b7075184c719f2f9b2f7"
+    }
+  },
+  {
+    "id": "append-44a2a0",
+    "offset": 4498080,
+    "size": 103,
+    "inputs": [
+      "src/campaign_append_16.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_append_16.obj src/campaign_append_16.c",
+    "rebuilt_symbol": "@append_r44a2a0@8",
+    "link_bindings": {
+      "@insert_copies_444ec0@16": {
+        "va": 282349248,
+        "basis": "Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10d4d09a to this complete independently indexed 16-byte element routine. Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width.",
+    "match": {
+      "bytes_sha256": "4ac11063e20f21c92cbb51a744a0b6734eb19fde9e1c263ce486a72d2d2c0a7d",
+      "inputs_sha256": "48f7d1d1409da5eca72637719be1f2988125b4f45615e0caff99a0bb3d37ba2d"
+    }
+  },
+  {
+    "id": "append-44a310",
+    "offset": 4498192,
+    "size": 103,
+    "inputs": [
+      "src/campaign_append_16.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_append_16.obj src/campaign_append_16.c",
+    "rebuilt_symbol": "@append_r44a310@8",
+    "link_bindings": {
+      "@insert_copies_4450d0@16": {
+        "va": 282349776,
+        "basis": "Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10d4b2bf to this complete independently indexed 16-byte element routine. Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width.",
+    "match": {
+      "bytes_sha256": "548b6515ff159ebd4c27a617763d1f97b8bd9dc352abc25f1401c3bd45fd22e1",
+      "inputs_sha256": "5c44334e377d86b40889815da578dbea922ef2e06d120ce58430410759ae4e8b"
+    }
+  },
+  {
+    "id": "append-44a380",
+    "offset": 4498304,
+    "size": 103,
+    "inputs": [
+      "src/campaign_append_16.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_append_16.obj src/campaign_append_16.c",
+    "rebuilt_symbol": "@append_r44a380@8",
+    "link_bindings": {
+      "@insert_copies_4452e0@16": {
+        "va": 282350304,
+        "basis": "Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10d4b30d to this complete independently indexed 16-byte element routine. Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width.",
+    "match": {
+      "bytes_sha256": "51f1e868ffc170502ad39966a2f082a801ec567d7391aa834869d9e25bacf99d",
+      "inputs_sha256": "5a3dc8e56757d2d38091bf9778e67641fa6dd90beac9c67ed2384443815d2960"
+    }
+  },
+  {
+    "id": "append-44a3f0",
+    "offset": 4498416,
+    "size": 103,
+    "inputs": [
+      "src/campaign_append_16.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_append_16.obj src/campaign_append_16.c",
+    "rebuilt_symbol": "@append_r44a3f0@8",
+    "link_bindings": {
+      "@insert_copies_4454f0@16": {
+        "va": 282350832,
+        "basis": "Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10d4b35e to this complete independently indexed 16-byte element routine. Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width.",
+    "match": {
+      "bytes_sha256": "a256f90b3012f65686dea4d2d7575b4e7e3f457baee0164205a790fe014e4f77",
+      "inputs_sha256": "b9ca5d8033411de57cd5e2ef1511f09914fbbff23b83afa4b27c8469efcd3e32"
+    }
+  },
+  {
+    "id": "append-44a460",
+    "offset": 4498528,
+    "size": 103,
+    "inputs": [
+      "src/campaign_append_16.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_append_16.obj src/campaign_append_16.c",
+    "rebuilt_symbol": "@append_r44a460@8",
+    "link_bindings": {
+      "@insert_copies_445700@16": {
+        "va": 282351360,
+        "basis": "Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10d4ce1b to this complete independently indexed 16-byte element routine. Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width.",
+    "match": {
+      "bytes_sha256": "e23ead14da41d00287365a03076703b255a9c1da122ed8e4ac39ad84972f982e",
+      "inputs_sha256": "445b00b649e21893234b76f20bb2d554e94bffde0b264e4907ba7d750ede1779"
+    }
+  },
+  {
+    "id": "append-44a4d0",
+    "offset": 4498640,
+    "size": 103,
+    "inputs": [
+      "src/campaign_append_16.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_append_16.obj src/campaign_append_16.c",
+    "rebuilt_symbol": "@append_r44a4d0@8",
+    "link_bindings": {
+      "@insert_copies_445910@16": {
+        "va": 282351888,
+        "basis": "Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10d4c82a to this complete independently indexed 16-byte element routine. Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width.",
+    "match": {
+      "bytes_sha256": "b4bf1256cac2ac37656dfd35083047e1b4cba18f7eca5274e118cb2defb7a886",
+      "inputs_sha256": "91ec358c1db9745dd6c31dc2fbaece7b143ba778afe6076c8ed3b77f3249ff12"
+    }
+  },
+  {
+    "id": "append-44a540",
+    "offset": 4498752,
+    "size": 103,
+    "inputs": [
+      "src/campaign_append_16.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_append_16.obj src/campaign_append_16.c",
+    "rebuilt_symbol": "@append_r44a540@8",
+    "link_bindings": {
+      "@insert_copies_445b20@16": {
+        "va": 282352416,
+        "basis": "Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10d4b44d to this complete independently indexed 16-byte element routine. Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width.",
+    "match": {
+      "bytes_sha256": "d7685174c2610ff06a40bad657a19986e9afa5503773d3dc00692b625aacee44",
+      "inputs_sha256": "6dcc8a8c429106f6534f8bed82e2d420e0ccdd371bd2f171de98ec5e5a32cd69"
+    }
+  },
+  {
+    "id": "append-44a5b0",
+    "offset": 4498864,
+    "size": 103,
+    "inputs": [
+      "src/campaign_append_16.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_append_16.obj src/campaign_append_16.c",
+    "rebuilt_symbol": "@append_r44a5b0@8",
+    "link_bindings": {
+      "@insert_copies_445d30@16": {
+        "va": 282352944,
+        "basis": "Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10d4b49d to this complete independently indexed 16-byte element routine. Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width.",
+    "match": {
+      "bytes_sha256": "ca63729a89f7d7128516487abc827260f181930692e3e578c0513c2547e107a4",
+      "inputs_sha256": "2303d88cbf8b1a9413eae911665494c8762fccd2622a9793dfe37b13a97cd0f8"
+    }
+  },
+  {
+    "id": "append-44a620",
+    "offset": 4498976,
+    "size": 103,
+    "inputs": [
+      "src/campaign_append_16.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_append_16.obj src/campaign_append_16.c",
+    "rebuilt_symbol": "@append_r44a620@8",
+    "link_bindings": {
+      "@insert_copies_445f40@16": {
+        "va": 282353472,
+        "basis": "Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10d4b4ed to this complete independently indexed 16-byte element routine. Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width.",
+    "match": {
+      "bytes_sha256": "e91bddeee8a851b98383523fd06b82906d8b672845a30c23061aba6558f37d75",
+      "inputs_sha256": "e64f1bc8fbd69237b4bc7dc264017b364fb2ac9a638cda183751656a83c5b802"
+    }
+  },
+  {
+    "id": "append-44a690",
+    "offset": 4499088,
+    "size": 103,
+    "inputs": [
+      "src/campaign_append_16.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_append_16.obj src/campaign_append_16.c",
+    "rebuilt_symbol": "@append_r44a690@8",
+    "link_bindings": {
+      "@insert_copies_446150@16": {
+        "va": 282354000,
+        "basis": "Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10d4b53d to this complete independently indexed 16-byte element routine. Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width.",
+    "match": {
+      "bytes_sha256": "9a2869c642b38e9b2817ad9ae052f3dd1fe667264f11456e2d35ef11966dabad",
+      "inputs_sha256": "098d1d986b6e0470112ef8831c546cab220e5a7d3913fa0bbf0ad806518b987b"
+    }
+  },
+  {
+    "id": "append-44a700",
+    "offset": 4499200,
+    "size": 103,
+    "inputs": [
+      "src/campaign_append_16.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_append_16.obj src/campaign_append_16.c",
+    "rebuilt_symbol": "@append_r44a700@8",
+    "link_bindings": {
+      "@insert_copies_446360@16": {
+        "va": 282354528,
+        "basis": "Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10d4b58e to this complete independently indexed 16-byte element routine. Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width.",
+    "match": {
+      "bytes_sha256": "e2492786fd91fc5bc0a764b7e84cd7d6500aa40728bb629de3558447ac372185",
+      "inputs_sha256": "434d7ba807edb9b8dbf08df6ebfa933a3c3ac6cefaabe29bcde694dd486e574b"
+    }
+  },
+  {
+    "id": "append-44a770",
+    "offset": 4499312,
+    "size": 103,
+    "inputs": [
+      "src/campaign_append_16.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_append_16.obj src/campaign_append_16.c",
+    "rebuilt_symbol": "@append_r44a770@8",
+    "link_bindings": {
+      "@insert_copies_446570@16": {
+        "va": 282355056,
+        "basis": "Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10d4c9ba to this complete independently indexed 16-byte element routine. Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width.",
+    "match": {
+      "bytes_sha256": "f5bd3e5b6d383af75b3070f02ceca11fdcb6eda8c213797421b9d51162eec9eb",
+      "inputs_sha256": "c21dbbdbb80540abf7d345069eca22b8d74a87e55debd5ce3f453d197dec40ba"
+    }
+  },
+  {
+    "id": "append-44a7e0",
+    "offset": 4499424,
+    "size": 103,
+    "inputs": [
+      "src/campaign_append_16.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_append_16.obj src/campaign_append_16.c",
+    "rebuilt_symbol": "@append_r44a7e0@8",
+    "link_bindings": {
+      "@insert_copies_446780@16": {
+        "va": 282355584,
+        "basis": "Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10d4b62d to this complete independently indexed 16-byte element routine. Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width.",
+    "match": {
+      "bytes_sha256": "712e171de825fbb9c9a951e8a3cf747d524d9f1c130c5b167757a16cd5fca110",
+      "inputs_sha256": "ac244a760393b28852527a67dd1a59b91cc85cc56609e14d9c4bd85095dcb2ca"
+    }
+  },
+  {
+    "id": "append-44a850",
+    "offset": 4499536,
+    "size": 103,
+    "inputs": [
+      "src/campaign_append_16.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_append_16.obj src/campaign_append_16.c",
+    "rebuilt_symbol": "@append_r44a850@8",
+    "link_bindings": {
+      "@insert_copies_446990@16": {
+        "va": 282356112,
+        "basis": "Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10d4b67d to this complete independently indexed 16-byte element routine. Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width.",
+    "match": {
+      "bytes_sha256": "f9c9e7aa0da34032cb35b332b43eb600f6ac59496fc3c631d0544c23921773eb",
+      "inputs_sha256": "96f05cbecfee940fbad1123a5eb63a459a1c5daab7a2612b9d24a4668b21b389"
+    }
+  },
+  {
+    "id": "append-44a8c0",
+    "offset": 4499648,
+    "size": 103,
+    "inputs": [
+      "src/campaign_append_16.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_append_16.obj src/campaign_append_16.c",
+    "rebuilt_symbol": "@append_r44a8c0@8",
+    "link_bindings": {
+      "@insert_copies_446ba0@16": {
+        "va": 282356640,
+        "basis": "Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10d4b6ce to this complete independently indexed 16-byte element routine. Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width.",
+    "match": {
+      "bytes_sha256": "47c8a376a4717360a32f6d262c22c316607f22e2977e15c1b7541bb247397dea",
+      "inputs_sha256": "7ac78099fc2ebe8e2c1ebb3338abc9c45a5c24e113bc011c4b73ad5158f6959c"
+    }
+  },
+  {
+    "id": "append-44a930",
+    "offset": 4499760,
+    "size": 103,
+    "inputs": [
+      "src/campaign_append_16.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_append_16.obj src/campaign_append_16.c",
+    "rebuilt_symbol": "@append_r44a930@8",
+    "link_bindings": {
+      "@insert_copies_446db0@16": {
+        "va": 282357168,
+        "basis": "Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10d4cd7d to this complete independently indexed 16-byte element routine. Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width.",
+    "match": {
+      "bytes_sha256": "d156a7d209ce54dabc8cddc24413131531e2ab5493ff3875e912bebedf8293b4",
+      "inputs_sha256": "5f917683a124dc67cfc3de90d7ab52ab7d2b633aef1f8f4d795e942a2444551f"
+    }
+  },
+  {
+    "id": "append-44a9a0",
+    "offset": 4499872,
+    "size": 103,
+    "inputs": [
+      "src/campaign_append_16.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_append_16.obj src/campaign_append_16.c",
+    "rebuilt_symbol": "@append_r44a9a0@8",
+    "link_bindings": {
+      "@insert_copies_446fc0@16": {
+        "va": 282357696,
+        "basis": "Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10d4b77d to this complete independently indexed 16-byte element routine. Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width.",
+    "match": {
+      "bytes_sha256": "e76fdc45b6ae12246004cbbbc8c73f71401cbd6feeb25c4f2a82038cb514721d",
+      "inputs_sha256": "66a53b45f1061a72cc1b4ee31dbb77be92808bfa61b2577e5718acf216a833de"
+    }
+  },
+  {
+    "id": "append-44aa10",
+    "offset": 4499984,
+    "size": 103,
+    "inputs": [
+      "src/campaign_append_16.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_append_16.obj src/campaign_append_16.c",
+    "rebuilt_symbol": "@append_r44aa10@8",
+    "link_bindings": {
+      "@insert_copies_4471d0@16": {
+        "va": 282358224,
+        "basis": "Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10d4b7cd to this complete independently indexed 16-byte element routine. Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width.",
+    "match": {
+      "bytes_sha256": "30dec9966d96855fc1816a8ad92d42908fbcf0b3997c8760482d0c1235fed2ff",
+      "inputs_sha256": "c244fdf17173120842256e94a652332d91eb795418ab2f8107d60a794de6b38b"
+    }
+  },
+  {
+    "id": "append-44aa80",
+    "offset": 4500096,
+    "size": 103,
+    "inputs": [
+      "src/campaign_append_16.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_append_16.obj src/campaign_append_16.c",
+    "rebuilt_symbol": "@append_r44aa80@8",
+    "link_bindings": {
+      "@insert_copies_4473e0@16": {
+        "va": 282358752,
+        "basis": "Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10d4b81d to this complete independently indexed 16-byte element routine. Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width.",
+    "match": {
+      "bytes_sha256": "10820fb264b6eee02e242293eff3f3c1554b1faee8337c83fb4cb9364896993c",
+      "inputs_sha256": "272196aafaba49aa3f9d2b5ec64daeb2e460b2957b37d87d13a12eee9b99cc2d"
+    }
+  },
+  {
+    "id": "append-44aaf0",
+    "offset": 4500208,
+    "size": 103,
+    "inputs": [
+      "src/campaign_append_16.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_append_16.obj src/campaign_append_16.c",
+    "rebuilt_symbol": "@append_r44aaf0@8",
+    "link_bindings": {
+      "@insert_copies_4475f0@16": {
+        "va": 282359280,
+        "basis": "Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10d4b870 to this complete independently indexed 16-byte element routine. Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width.",
+    "match": {
+      "bytes_sha256": "19fa9c137bf423d136c1f99af0f62f2dfc75c91f5d0dfcd1ee3f918d857ac799",
+      "inputs_sha256": "85ce01e151cac615cd34807e40e7ae80b96f0d7a871859992e07f0d5b7922619"
+    }
+  },
+  {
+    "id": "append-44ab60",
+    "offset": 4500320,
+    "size": 103,
+    "inputs": [
+      "src/campaign_append_16.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_append_16.obj src/campaign_append_16.c",
+    "rebuilt_symbol": "@append_r44ab60@8",
+    "link_bindings": {
+      "@insert_copies_447800@16": {
+        "va": 282359808,
+        "basis": "Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10d4b8ce to this complete independently indexed 16-byte element routine. Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width.",
+    "match": {
+      "bytes_sha256": "a9bedb5703f97a56d0a05692291b970ebd36c5213ab9522a4024d0684a37f9c9",
+      "inputs_sha256": "ed8dfe85af799950f3dac3b749b682d49487bd6d4ad90341e51360abfbe218c9"
+    }
+  },
+  {
+    "id": "append-44abd0",
+    "offset": 4500432,
+    "size": 103,
+    "inputs": [
+      "src/campaign_append_16.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_append_16.obj src/campaign_append_16.c",
+    "rebuilt_symbol": "@append_r44abd0@8",
+    "link_bindings": {
+      "@insert_copies_447a10@16": {
+        "va": 282360336,
+        "basis": "Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10d4cbea to this complete independently indexed 16-byte element routine. Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width.",
+    "match": {
+      "bytes_sha256": "145496dcb2a8e10da5856bc9155dc942156771c3425ac231e65cf26687e575cb",
+      "inputs_sha256": "f95134fa3dc1d474b259a6c3d35cc84ef4d4cfd0d150a9ca4d1dbc9eeb72a9b3"
+    }
+  },
+  {
+    "id": "append-44ac40",
+    "offset": 4500544,
+    "size": 103,
+    "inputs": [
+      "src/campaign_append_16.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_append_16.obj src/campaign_append_16.c",
+    "rebuilt_symbol": "@append_r44ac40@8",
+    "link_bindings": {
+      "@insert_copies_447c20@16": {
+        "va": 282360864,
+        "basis": "Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10d4b96e to this complete independently indexed 16-byte element routine. Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width.",
+    "match": {
+      "bytes_sha256": "2f55133a846505ef1c99a698cb76a0fc9c0e94b69ff3ff2f340c5ead7d67be28",
+      "inputs_sha256": "439cb715046cdee9aa220eecc6781933f0a4734587cedd78cc721452327b59e5"
+    }
+  },
+  {
+    "id": "append-44acb0",
+    "offset": 4500656,
+    "size": 103,
+    "inputs": [
+      "src/campaign_append_16.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_append_16.obj src/campaign_append_16.c",
+    "rebuilt_symbol": "@append_r44acb0@8",
+    "link_bindings": {
+      "@insert_copies_447e30@16": {
+        "va": 282361392,
+        "basis": "Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10d4c73b to this complete independently indexed 16-byte element routine. Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width.",
+    "match": {
+      "bytes_sha256": "5972fb03bad24a5f93af904a14293e8666fdd87a291c0cf31096b307c5e3e4d0",
+      "inputs_sha256": "c488c2b15518db54b5e113540716b4bb8ab7a690e52aaff12ddd2dc8584277fd"
+    }
+  },
+  {
+    "id": "append-44ad20",
+    "offset": 4500768,
+    "size": 103,
+    "inputs": [
+      "src/campaign_append_16.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_append_16.obj src/campaign_append_16.c",
+    "rebuilt_symbol": "@append_r44ad20@8",
+    "link_bindings": {
+      "@insert_copies_448040@16": {
+        "va": 282361920,
+        "basis": "Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10d4cdcb to this complete independently indexed 16-byte element routine. Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width.",
+    "match": {
+      "bytes_sha256": "dfe5a7c927de042954a01f125962ef7b3774270329276e93b71e56175c8eff6c",
+      "inputs_sha256": "ba26a1b899de26f887c5d1a31ea9d43d8691338816b9ac06e049032e832fe447"
+    }
+  },
+  {
+    "id": "append-44ad90",
+    "offset": 4500880,
+    "size": 103,
+    "inputs": [
+      "src/campaign_append_16.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_append_16.obj src/campaign_append_16.c",
+    "rebuilt_symbol": "@append_r44ad90@8",
+    "link_bindings": {
+      "@insert_copies_448250@16": {
+        "va": 282362448,
+        "basis": "Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10d4ca0a to this complete independently indexed 16-byte element routine. Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width.",
+    "match": {
+      "bytes_sha256": "c3013422ff4ad8751009f06046e9dc36a6ca40237961ab3d16bf12906bafafff",
+      "inputs_sha256": "4bdfadd496246872c5359f537715c6cebabfe30e2b14a4b4271f9fe6b08b8a9f"
+    }
+  },
+  {
+    "id": "append-44ae00",
+    "offset": 4500992,
+    "size": 103,
+    "inputs": [
+      "src/campaign_append_16.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_append_16.obj src/campaign_append_16.c",
+    "rebuilt_symbol": "@append_r44ae00@8",
+    "link_bindings": {
+      "@insert_copies_448460@16": {
+        "va": 282362976,
+        "basis": "Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10d4baad to this complete independently indexed 16-byte element routine. Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width.",
+    "match": {
+      "bytes_sha256": "8ff8a1fee535f74d9407466e04262d417ca8fb02b3a8ea50638ec018015ac569",
+      "inputs_sha256": "e57e104aa71d5df1961dccb0ecee84138e3fd5106f7af11968949db2544110d8"
+    }
+  },
+  {
+    "id": "append-44ae70",
+    "offset": 4501104,
+    "size": 103,
+    "inputs": [
+      "src/campaign_append_16.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_append_16.obj src/campaign_append_16.c",
+    "rebuilt_symbol": "@append_r44ae70@8",
+    "link_bindings": {
+      "@insert_copies_448670@16": {
+        "va": 282363504,
+        "basis": "Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10d4bafd to this complete independently indexed 16-byte element routine. Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width.",
+    "match": {
+      "bytes_sha256": "5b7851bbe7c36cd171083f00861c3283b3bdc8d18008b15eb6d48aa2da489fa6",
+      "inputs_sha256": "2c2eeb566d49d447d27aae1b23974e9e1ed4656bf097ea09d6e211a9a6767aca"
+    }
+  },
+  {
+    "id": "append-44aee0",
+    "offset": 4501216,
+    "size": 103,
+    "inputs": [
+      "src/campaign_append_16.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_append_16.obj src/campaign_append_16.c",
+    "rebuilt_symbol": "@append_r44aee0@8",
+    "link_bindings": {
+      "@insert_copies_448880@16": {
+        "va": 282364032,
+        "basis": "Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10d4bb4e to this complete independently indexed 16-byte element routine. Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width.",
+    "match": {
+      "bytes_sha256": "e2df163f26a99727fcce86e4b314b9cbe31a08d01e4e365509a30b39b2759e18",
+      "inputs_sha256": "60d806a8338405811fd85c58e96a71bff78130ad85aa7157c2d24d31a77c8a4a"
+    }
+  },
+  {
+    "id": "append-44af50",
+    "offset": 4501328,
+    "size": 103,
+    "inputs": [
+      "src/campaign_append_16.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_append_16.obj src/campaign_append_16.c",
+    "rebuilt_symbol": "@append_r44af50@8",
+    "link_bindings": {
+      "@insert_copies_448a90@16": {
+        "va": 282364560,
+        "basis": "Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10d4c7da to this complete independently indexed 16-byte element routine. Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width.",
+    "match": {
+      "bytes_sha256": "14b3d970e25eb6fae596b36e8546fbf0c51d97839f5a9b921ec229dd56a69961",
+      "inputs_sha256": "09ea2a2e82b26052d989f4525d2863adee85a7170c879ab62e52fe2260ce2f6e"
+    }
+  },
+  {
     "id": "clear-owned-storage-44b070",
     "size": 42,
     "offset": 4501616,
@@ -1287,6 +2827,50 @@
     "match": {
       "bytes_sha256": "3773be32a4d9e9983c5bf77cda7ae6fc4c4a67996889843063d8572ef11ec39e",
       "inputs_sha256": "828d0bf650fd49cbf872d5fb7a7583b32dd5aadce8e71d6866c3ba433fbda57a"
+    }
+  },
+  {
+    "id": "append-44bbb0",
+    "offset": 4504496,
+    "size": 103,
+    "inputs": [
+      "src/campaign_append_16.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_append_16.obj src/campaign_append_16.c",
+    "rebuilt_symbol": "@append_r44bbb0@8",
+    "link_bindings": {
+      "@insert_copies_4498a0@16": {
+        "va": 282368160,
+        "basis": "Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10d4d1dd to this complete independently indexed 16-byte element routine. Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width.",
+    "match": {
+      "bytes_sha256": "61f2f1866908a7c617c9909aa4eed21bb754678349582d3d669564e9bf6e80a8",
+      "inputs_sha256": "e0f30cd55131e8a0b5e9613fbd1e1a07def4f647386927d8785e0f237f50014d"
+    }
+  },
+  {
+    "id": "append-44bc20",
+    "offset": 4504608,
+    "size": 103,
+    "inputs": [
+      "src/campaign_append_16.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_append_16.obj src/campaign_append_16.c",
+    "rebuilt_symbol": "@append_r44bc20@8",
+    "link_bindings": {
+      "@insert_copies_449ab0@16": {
+        "va": 282368688,
+        "basis": "Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10d4d22d to this complete independently indexed 16-byte element routine. Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width.",
+    "match": {
+      "bytes_sha256": "94360679c119cfaaa0bf17f4ed8c61c5f242f519be0ee4f6e2896e6c57b45bb1",
+      "inputs_sha256": "268bec03a70724f22a060356646708e9538c78117aec13cdf60e014dc1af0316"
     }
   },
   {

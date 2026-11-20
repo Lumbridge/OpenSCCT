@@ -2813,6 +2813,35 @@
     }
   },
   {
+    "id": "find-or-append-2dc700",
+    "offset": 3000064,
+    "size": 111,
+    "inputs": [
+      "src/campaign_find_or_append_4.c",
+      "src/campaign_array_storage.h",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_fixed_record_growth.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_find_or_append_4.obj src/campaign_find_or_append_4.c",
+    "rebuilt_symbol": "@find_or_append_r2dc700@8",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Engine allocator used for record growth."
+      },
+      "_allocation_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Stock UTF-16 FArray allocation tag."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10be329c to this complete independently indexed 4-byte element routine. Stock UTF-16 FArray allocation tag.",
+    "match": {
+      "bytes_sha256": "c1586c7b32bf242d5d4a30440378f90415c06949968f41e227bcd6a799e0c2c6",
+      "inputs_sha256": "d5211604f02f88885fe34b597ee25caf33c5fd28a2d3a83ed2e7144ae0549651"
+    }
+  },
+  {
     "id": "append-record-2dc820",
     "offset": 3000352,
     "size": 114,
@@ -3171,6 +3200,35 @@
     "match": {
       "bytes_sha256": "fabdeedccc706c4aefc837ef2bd4b57e84d5ce45dc5c118d88d6ebc109b931ef",
       "inputs_sha256": "eafeae4cccfb6dbab11d7dd3db22e58ff481a88cac72298e7dde97028bd4ae14"
+    }
+  },
+  {
+    "id": "find-or-append-2df250",
+    "offset": 3011152,
+    "size": 111,
+    "inputs": [
+      "src/campaign_find_or_append_4.c",
+      "src/campaign_array_storage.h",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_fixed_record_growth.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_find_or_append_4.obj src/campaign_find_or_append_4.c",
+    "rebuilt_symbol": "@find_or_append_r2df250@8",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Engine allocator used for record growth."
+      },
+      "_allocation_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Stock UTF-16 FArray allocation tag."
+      }
+    },
+    "identification": "The default code analysis identifies the complete entry at RVA 0x2df250. The allocator and its FArray allocation tag independently agree with the matched array append implementation. Stock UTF-16 FArray allocation tag.",
+    "match": {
+      "bytes_sha256": "c1586c7b32bf242d5d4a30440378f90415c06949968f41e227bcd6a799e0c2c6",
+      "inputs_sha256": "b2a866724837adbfb15cf5643982b248a6893ee2811c0f3d6418ceee4c4d4c8f"
     }
   },
   {
