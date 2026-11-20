@@ -2,6 +2,7 @@ import struct
 import unittest
 
 from progress import built_unit_bytes
+from test_link_x86 import object_file
 
 
 class CoffAlignmentTests(unittest.TestCase):
@@ -26,3 +27,16 @@ class CoffAlignmentTests(unittest.TestCase):
     def test_shortening_the_body_cannot_hide_the_return(self):
         with self.assertRaises(ValueError):
             built_unit_bytes(self.target, dict(self.unit, size=14), self.obj, self.image)
+
+    def test_aligned_contribution_resolves_fixups_before_comparison(self):
+        obj = bytearray(object_file())
+        obj[68:68] = b"\x90" * 8
+        struct.pack_into("<I", obj, 8, 96)
+        struct.pack_into("<I", obj, 36, 16)
+        struct.pack_into("<I", obj, 44, 76)
+        bindings = {"_data": {"va": 0x400000, "basis": "fixture data"},
+                    "_callee": {"va": 0x300000, "basis": "fixture function"}}
+        unit = dict(self.unit, size=8, link_bindings=bindings)
+        linked = struct.pack("<II", 0x400008, 0x300000 - 0x1004)
+        image = linked + b"\x90" * 8
+        self.assertEqual(built_unit_bytes(self.target, unit, obj, image), linked)

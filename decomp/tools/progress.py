@@ -176,8 +176,8 @@ def built_unit_bytes(target, unit, output, original=None):
     if "coff_alignment" in unit:
         alignment = unit["coff_alignment"]
         if (type(alignment) is not int or alignment != 16 or original is None
-                or "link_bindings" in unit or "rebuilt_symbol" not in unit):
-            raise ValueError("expected a relocation-free, 16-byte aligned COFF contribution and retail image")
+                or "rebuilt_symbol" not in unit):
+            raise ValueError("expected a 16-byte aligned COFF contribution and retail image")
         start, end = span(unit["offset"], unit["size"], len(original))
         for section in target["image"]["executable_sections"]:
             if section["code"] and section["offset"] <= start < end <= section["offset"] + section["size"]:
@@ -185,11 +185,17 @@ def built_unit_bytes(target, unit, output, original=None):
                 tail = -(address + unit["size"]) % alignment
                 if not tail or address % alignment or end + tail > section["offset"] + section["size"]:
                     raise ValueError("COFF alignment extends beyond the code section or has invalid bounds")
-                offset = coff_symbol_offset(output, unit["rebuilt_symbol"], unit["size"] + tail)
-                following = output[offset + unit["size"]:offset + unit["size"] + tail]
+                length = unit["size"] + tail
+                if "link_bindings" in unit:
+                    contribution = link_function(output, unit["rebuilt_symbol"], length, address, unit["link_bindings"],
+                                                 read_constant=lambda va, size: readonly_pe_data(original, va, size))
+                else:
+                    offset = coff_symbol_offset(output, unit["rebuilt_symbol"], length)
+                    contribution = output[offset:offset + length]
+                following = contribution[unit["size"]:]
                 if following != b"\x90" * tail or original[end:end + tail] != following:
                     raise ValueError("COFF alignment differs from retail padding")
-                return output[offset:offset + unit["size"]]
+                return contribution[:unit["size"]]
         raise ValueError("aligned function outside a measured code section")
     if "link_bindings" in unit:
         a, b = span(unit["offset"], unit["size"], target["image"]["size"])

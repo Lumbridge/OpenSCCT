@@ -288,6 +288,68 @@
     }
   },
   {
+    "id": "erase-branch-2758e0",
+    "offset": 2578656,
+    "size": 53,
+    "coff_alignment": 16,
+    "inputs": [
+      "src/versus_tree_recursive_cleanup.c"
+    ],
+    "rebuilt_symbol": "@erase_branch_2758e0@8",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_tree_recursive_cleanup.obj src/versus_tree_recursive_cleanup.c",
+    "link_bindings": {
+      "@erase_branch_2758e0@8": {
+        "va": 280451296,
+        "basis": "Recursive traversal of the right child."
+      },
+      "_release_node@4": {
+        "va": 279385360,
+        "basis": "Node release wrapper used by the retail tree."
+      },
+      "@destroy_value_2be020@4": {
+        "va": 280748064,
+        "basis": "Cleans the node payload before release."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10b74e8d. Frees the right subtree recursively and walks the left branch until null.",
+    "match": {
+      "bytes_sha256": "61d1979342bf071fe5cd9df750e1c56a1fe0f813b800d4447707736be8333a7c",
+      "inputs_sha256": "c8587b1cb2ff5ebfa80fae399ac495bfb42ef38f4fafdcdfbb3d2bc567b5d9f1"
+    }
+  },
+  {
+    "id": "erase-branch-275f10",
+    "offset": 2580240,
+    "size": 53,
+    "coff_alignment": 16,
+    "inputs": [
+      "src/versus_tree_recursive_cleanup.c"
+    ],
+    "rebuilt_symbol": "@erase_branch_275f10@8",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_tree_recursive_cleanup.obj src/versus_tree_recursive_cleanup.c",
+    "link_bindings": {
+      "@erase_branch_275f10@8": {
+        "va": 280452880,
+        "basis": "Recursive traversal of the right child."
+      },
+      "_release_node@4": {
+        "va": 279385360,
+        "basis": "Node release wrapper used by the retail tree."
+      },
+      "@destroy_value_2be020@4": {
+        "va": 280748064,
+        "basis": "Cleans the node payload before release."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10b74fad. Frees the right subtree recursively and walks the left branch until null.",
+    "match": {
+      "bytes_sha256": "06bcc709fde203eef733b6c2acc7a8526b39af3c39d1a605fbf83e5e84a2ab3f",
+      "inputs_sha256": "3ab257a891e7c3815688af8b1e7b30caa29412f31ba6728a5fa1f1593ea4a765"
+    }
+  },
+  {
     "id": "crt-byteswap-ulong",
     "offset": 2585328,
     "size": 35,

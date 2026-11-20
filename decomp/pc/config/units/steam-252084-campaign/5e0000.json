@@ -152,6 +152,114 @@
     }
   },
   {
+    "id": "erase-branch-5ed3e0",
+    "offset": 6214624,
+    "size": 45,
+    "coff_alignment": 16,
+    "inputs": [
+      "src/campaign_tree_recursive_cleanup.c"
+    ],
+    "rebuilt_symbol": "@erase_branch_5ed3e0@8",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_recursive_cleanup.obj src/campaign_tree_recursive_cleanup.c",
+    "link_bindings": {
+      "@erase_branch_5ed3e0@8": {
+        "va": 284087264,
+        "basis": "Recursive traversal of the right child."
+      },
+      "_release_node@4": {
+        "va": 285448768,
+        "basis": "Node release wrapper used by the retail tree."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10eec38c. Frees the right subtree recursively and walks the left branch until null.",
+    "match": {
+      "bytes_sha256": "ac758948bbf468addae195433e67cca9d47b54143d00dfab2dd0f245c6cb0b46",
+      "inputs_sha256": "1b2ec932f7a7607a43f3b923fa377c61f73c753b27a66d0d05bd7c43c6f4f227"
+    }
+  },
+  {
+    "id": "erase-branch-5ed410",
+    "offset": 6214672,
+    "size": 45,
+    "coff_alignment": 16,
+    "inputs": [
+      "src/campaign_tree_recursive_cleanup.c"
+    ],
+    "rebuilt_symbol": "@erase_branch_5ed410@8",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_recursive_cleanup.obj src/campaign_tree_recursive_cleanup.c",
+    "link_bindings": {
+      "@erase_branch_5ed410@8": {
+        "va": 284087312,
+        "basis": "Recursive traversal of the right child."
+      },
+      "_release_node@4": {
+        "va": 285448768,
+        "basis": "Node release wrapper used by the retail tree."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10eec72c. Frees the right subtree recursively and walks the left branch until null.",
+    "match": {
+      "bytes_sha256": "ce09d9ffbf9850f6bac38fef91131c134dc43a8cc8eef561d0f3c76d69a9c4fb",
+      "inputs_sha256": "26e7623db577757490644a74a002b9e5722e85294840791c017ecfa8e66b3c46"
+    }
+  },
+  {
+    "id": "erase-branch-5ed440",
+    "offset": 6214720,
+    "size": 45,
+    "coff_alignment": 16,
+    "inputs": [
+      "src/campaign_tree_recursive_cleanup.c"
+    ],
+    "rebuilt_symbol": "@erase_branch_5ed440@8",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_recursive_cleanup.obj src/campaign_tree_recursive_cleanup.c",
+    "link_bindings": {
+      "@erase_branch_5ed440@8": {
+        "va": 284087360,
+        "basis": "Recursive traversal of the right child."
+      },
+      "_release_node@4": {
+        "va": 285448768,
+        "basis": "Node release wrapper used by the retail tree."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10eecacc. Frees the right subtree recursively and walks the left branch until null.",
+    "match": {
+      "bytes_sha256": "572c241fbffe245ccdcff4e33524b7a8726536c13055e9e69a2779c8b67090bb",
+      "inputs_sha256": "1fcbb4063816a476bd8a32f4285bf6acc228006194868ac55db98fac1e15800c"
+    }
+  },
+  {
+    "id": "erase-branch-5ed470",
+    "offset": 6214768,
+    "size": 45,
+    "coff_alignment": 16,
+    "inputs": [
+      "src/campaign_tree_recursive_cleanup.c"
+    ],
+    "rebuilt_symbol": "@erase_branch_5ed470@8",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_recursive_cleanup.obj src/campaign_tree_recursive_cleanup.c",
+    "link_bindings": {
+      "@erase_branch_5ed470@8": {
+        "va": 284087408,
+        "basis": "Recursive traversal of the right child."
+      },
+      "_release_node@4": {
+        "va": 285448768,
+        "basis": "Node release wrapper used by the retail tree."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10eece6c. Frees the right subtree recursively and walks the left branch until null.",
+    "match": {
+      "bytes_sha256": "e2aeb4b2d3932395054d55018b49f97f9379c45b8c31963c126703723ea38daf",
+      "inputs_sha256": "d06f3bdeb8b7b3fdbd0a93f7c0d5ad5823278d4a68cc6cabadd669772e15e33a"
+    }
+  },
+  {
     "id": "linked-tree-unlink-node",
     "offset": 6214816,
     "size": 959,

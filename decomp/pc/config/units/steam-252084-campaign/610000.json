@@ -1,5 +1,63 @@
 [
   {
+    "id": "erase-branch-618a20",
+    "offset": 6392352,
+    "size": 45,
+    "coff_alignment": 16,
+    "inputs": [
+      "src/campaign_tree_recursive_cleanup.c"
+    ],
+    "rebuilt_symbol": "@erase_branch_618a20@8",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_recursive_cleanup.obj src/campaign_tree_recursive_cleanup.c",
+    "link_bindings": {
+      "@erase_branch_618a20@8": {
+        "va": 284264992,
+        "basis": "Recursive traversal of the right child."
+      },
+      "_release_node@4": {
+        "va": 285448768,
+        "basis": "Node release wrapper used by the retail tree."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10f166a1. Frees the right subtree recursively and walks the left branch until null.",
+    "match": {
+      "bytes_sha256": "c8c0de19c3939b4879bd293e5f69bd9666d9d28d7bb1d1cced29fdc6ef1badfc",
+      "inputs_sha256": "6a1e84ee17f148389e1bb460aeda6e16c60c2565595fe1850a056d8b7f822fd8"
+    }
+  },
+  {
+    "id": "erase-branch-618a80",
+    "offset": 6392448,
+    "size": 53,
+    "coff_alignment": 16,
+    "inputs": [
+      "src/campaign_tree_recursive_cleanup.c"
+    ],
+    "rebuilt_symbol": "@erase_branch_618a80@8",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_recursive_cleanup.obj src/campaign_tree_recursive_cleanup.c",
+    "link_bindings": {
+      "@erase_branch_618a80@8": {
+        "va": 284265088,
+        "basis": "Recursive traversal of the right child."
+      },
+      "_release_node@4": {
+        "va": 285448768,
+        "basis": "Node release wrapper used by the retail tree."
+      },
+      "@destroy_value_616880@4": {
+        "va": 284256384,
+        "basis": "Cleans the node payload before release."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10f15fa8. Frees the right subtree recursively and walks the left branch until null.",
+    "match": {
+      "bytes_sha256": "1b805cda0b4403df7cdf2536625d35f18a663edcb53bd3edf0cb5f437a35cdda",
+      "inputs_sha256": "0d0a9bd75eff483d9b72f17982acc2c8494a5718d4e0614569532deaa6bc947b"
+    }
+  },
+  {
     "id": "tree-begin-618fb0",
     "offset": 6393776,
     "size": 14,

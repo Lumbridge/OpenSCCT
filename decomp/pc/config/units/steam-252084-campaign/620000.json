@@ -1,5 +1,36 @@
 [
   {
+    "id": "erase-branch-620a40",
+    "offset": 6425152,
+    "size": 53,
+    "coff_alignment": 16,
+    "inputs": [
+      "src/campaign_tree_recursive_cleanup.c"
+    ],
+    "rebuilt_symbol": "@erase_branch_620a40@8",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_recursive_cleanup.obj src/campaign_tree_recursive_cleanup.c",
+    "link_bindings": {
+      "@erase_branch_620a40@8": {
+        "va": 284297792,
+        "basis": "Recursive traversal of the right child."
+      },
+      "_release_node@4": {
+        "va": 285448768,
+        "basis": "Node release wrapper used by the retail tree."
+      },
+      "@destroy_value_6205a0@4": {
+        "va": 284296608,
+        "basis": "Cleans the node payload before release."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10f1e80d. Frees the right subtree recursively and walks the left branch until null.",
+    "match": {
+      "bytes_sha256": "8aac847ad0a93f0d41e884f2bd5f83569f8e8da0c0572898642b9a6b1a08fe2f",
+      "inputs_sha256": "5e414f031bf855b635d7b185e16674b0bb25cd49aa422234a2b9862a7f6dfca4"
+    }
+  },
+  {
     "id": "tree-begin-620f70",
     "offset": 6426480,
     "size": 14,
@@ -13,6 +44,37 @@
     "match": {
       "bytes_sha256": "0fb5d965086e7a3a39603d8a0510fc815c9e34148c6de33224b72a8c3b57dcdb",
       "inputs_sha256": "61212c8f47b13caf6f9aaa71e79de31caed139975a31d236c2be91027f837e1e"
+    }
+  },
+  {
+    "id": "erase-branch-623800",
+    "offset": 6436864,
+    "size": 53,
+    "coff_alignment": 16,
+    "inputs": [
+      "src/campaign_tree_recursive_cleanup.c"
+    ],
+    "rebuilt_symbol": "@erase_branch_623800@8",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_recursive_cleanup.obj src/campaign_tree_recursive_cleanup.c",
+    "link_bindings": {
+      "@erase_branch_623800@8": {
+        "va": 284309504,
+        "basis": "Recursive traversal of the right child."
+      },
+      "_release_node@4": {
+        "va": 285448768,
+        "basis": "Node release wrapper used by the retail tree."
+      },
+      "@destroy_value_621c90@4": {
+        "va": 284302480,
+        "basis": "Cleans the node payload before release."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10f21f5d. Frees the right subtree recursively and walks the left branch until null.",
+    "match": {
+      "bytes_sha256": "583ee0c409343b406596b9822251bc6993a835832ce8c53e145525f030a5f7b0",
+      "inputs_sha256": "5c31a8eaff32c96156e02bfa49a3475bc386fef2efd401f8f99020da8eaafe73"
     }
   },
   {
@@ -67,6 +129,33 @@
     "match": {
       "bytes_sha256": "7d46da9fe787b5460a032813ebea7b3f81154122a1eeaf6190abe70d381335b4",
       "inputs_sha256": "9f95506318ae15065f95145cd935cd8469a2f5e994ac506ce00bd34f73a145de"
+    }
+  },
+  {
+    "id": "erase-branch-628790",
+    "offset": 6457232,
+    "size": 45,
+    "coff_alignment": 16,
+    "inputs": [
+      "src/campaign_tree_recursive_cleanup.c"
+    ],
+    "rebuilt_symbol": "@erase_branch_628790@8",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_recursive_cleanup.obj src/campaign_tree_recursive_cleanup.c",
+    "link_bindings": {
+      "@erase_branch_628790@8": {
+        "va": 284329872,
+        "basis": "Recursive traversal of the right child."
+      },
+      "_release_node@4": {
+        "va": 285448768,
+        "basis": "Node release wrapper used by the retail tree."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10f283cc. Frees the right subtree recursively and walks the left branch until null.",
+    "match": {
+      "bytes_sha256": "0960485e49a84cc544a925ba519e0d75ed6e7283deac6fcc4c724a45e33b4662",
+      "inputs_sha256": "cf41269d1af51f38e97f26d4d5f3643674ccd294df0a79eadb3823de89f93de8"
     }
   },
   {
@@ -158,6 +247,149 @@
     }
   },
   {
+    "id": "erase-branch-62c4c0",
+    "offset": 6472896,
+    "size": 53,
+    "coff_alignment": 16,
+    "inputs": [
+      "src/campaign_tree_recursive_cleanup.c"
+    ],
+    "rebuilt_symbol": "@erase_branch_62c4c0@8",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_recursive_cleanup.obj src/campaign_tree_recursive_cleanup.c",
+    "link_bindings": {
+      "@erase_branch_62c4c0@8": {
+        "va": 284345536,
+        "basis": "Recursive traversal of the right child."
+      },
+      "_release_node@4": {
+        "va": 285448768,
+        "basis": "Node release wrapper used by the retail tree."
+      },
+      "@destroy_value_62b080@4": {
+        "va": 284340352,
+        "basis": "Cleans the node payload before release."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10f28c5d. Frees the right subtree recursively and walks the left branch until null.",
+    "match": {
+      "bytes_sha256": "fdbd480e78aef36aa5d51c08d3ee93d3bc2f1cc352bc26f6333b047384e109f7",
+      "inputs_sha256": "7b042da200e5af9dc2b76e4b9cfda2046185675a3579d4f5f735968d220124d3"
+    }
+  },
+  {
+    "id": "erase-branch-62c680",
+    "offset": 6473344,
+    "size": 45,
+    "coff_alignment": 16,
+    "inputs": [
+      "src/campaign_tree_recursive_cleanup.c"
+    ],
+    "rebuilt_symbol": "@erase_branch_62c680@8",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_recursive_cleanup.obj src/campaign_tree_recursive_cleanup.c",
+    "link_bindings": {
+      "@erase_branch_62c680@8": {
+        "va": 284345984,
+        "basis": "Recursive traversal of the right child."
+      },
+      "_release_node@4": {
+        "va": 285448768,
+        "basis": "Node release wrapper used by the retail tree."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10f28ced. Frees the right subtree recursively and walks the left branch until null.",
+    "match": {
+      "bytes_sha256": "2155d6bf37fb11d77736c99d4f13b7926e71191d5d35d2f3edccbd8bfa4edc46",
+      "inputs_sha256": "ac159611acc9ea915a37fa13a559cc9ddd0862536c379c4a72f08c4319ba1732"
+    }
+  },
+  {
+    "id": "erase-branch-62c6b0",
+    "offset": 6473392,
+    "size": 45,
+    "coff_alignment": 16,
+    "inputs": [
+      "src/campaign_tree_recursive_cleanup.c"
+    ],
+    "rebuilt_symbol": "@erase_branch_62c6b0@8",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_recursive_cleanup.obj src/campaign_tree_recursive_cleanup.c",
+    "link_bindings": {
+      "@erase_branch_62c6b0@8": {
+        "va": 284346032,
+        "basis": "Recursive traversal of the right child."
+      },
+      "_release_node@4": {
+        "va": 285448768,
+        "basis": "Node release wrapper used by the retail tree."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10f28d7d. Frees the right subtree recursively and walks the left branch until null.",
+    "match": {
+      "bytes_sha256": "ec97261dd134d8e5c74d716921a122385c80dbf6fb24d877eddf7d9246fd6572",
+      "inputs_sha256": "448dec9db4a92d4f3a050b545b3493079c9a30d676f2871650b13ada6edf0a4f"
+    }
+  },
+  {
+    "id": "erase-branch-62c6e0",
+    "offset": 6473440,
+    "size": 45,
+    "coff_alignment": 16,
+    "inputs": [
+      "src/campaign_tree_recursive_cleanup.c"
+    ],
+    "rebuilt_symbol": "@erase_branch_62c6e0@8",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_recursive_cleanup.obj src/campaign_tree_recursive_cleanup.c",
+    "link_bindings": {
+      "@erase_branch_62c6e0@8": {
+        "va": 284346080,
+        "basis": "Recursive traversal of the right child."
+      },
+      "_release_node@4": {
+        "va": 285448768,
+        "basis": "Node release wrapper used by the retail tree."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10f28e0d. Frees the right subtree recursively and walks the left branch until null.",
+    "match": {
+      "bytes_sha256": "54ea6d39d2520d66ae42d5d8efdbb447f7d5a156c54f533cb27a190abcd2d781",
+      "inputs_sha256": "b4093aa928ecbe027ceeff76653ee3d24a36d9f2d4bef5aa47465f287e075072"
+    }
+  },
+  {
+    "id": "erase-branch-62c710",
+    "offset": 6473488,
+    "size": 53,
+    "coff_alignment": 16,
+    "inputs": [
+      "src/campaign_tree_recursive_cleanup.c"
+    ],
+    "rebuilt_symbol": "@erase_branch_62c710@8",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_recursive_cleanup.obj src/campaign_tree_recursive_cleanup.c",
+    "link_bindings": {
+      "@erase_branch_62c710@8": {
+        "va": 284346128,
+        "basis": "Recursive traversal of the right child."
+      },
+      "_release_node@4": {
+        "va": 285448768,
+        "basis": "Node release wrapper used by the retail tree."
+      },
+      "@destroy_value_62a7a0@4": {
+        "va": 284338080,
+        "basis": "Cleans the node payload before release."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10f28b25. Frees the right subtree recursively and walks the left branch until null.",
+    "match": {
+      "bytes_sha256": "952da64823eaf43ac95ffd0f2c675be243d53a852e1442a23b511c1582e0089e",
+      "inputs_sha256": "331275d703556bd2aeaedbeea8fe2fd82d7661f4515f613d838413feac350cdd"
+    }
+  },
+  {
     "id": "tree-begin-62eae0",
     "offset": 6482656,
     "size": 14,
@@ -171,6 +403,33 @@
     "match": {
       "bytes_sha256": "0fb5d965086e7a3a39603d8a0510fc815c9e34148c6de33224b72a8c3b57dcdb",
       "inputs_sha256": "224a49afffd58ccc19e8e47fe2d17ae6f8f6721cabbc03fbbb686e65f3257434"
+    }
+  },
+  {
+    "id": "erase-branch-62eb50",
+    "offset": 6482768,
+    "size": 45,
+    "coff_alignment": 16,
+    "inputs": [
+      "src/campaign_tree_recursive_cleanup.c"
+    ],
+    "rebuilt_symbol": "@erase_branch_62eb50@8",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_recursive_cleanup.obj src/campaign_tree_recursive_cleanup.c",
+    "link_bindings": {
+      "@erase_branch_62eb50@8": {
+        "va": 284355408,
+        "basis": "Recursive traversal of the right child."
+      },
+      "_release_node@4": {
+        "va": 285448768,
+        "basis": "Node release wrapper used by the retail tree."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10f2e79c. Frees the right subtree recursively and walks the left branch until null.",
+    "match": {
+      "bytes_sha256": "80472025cc5ffc1185c05f5d99c50ee0f01db32179524720cb1b302f0c633c66",
+      "inputs_sha256": "28263ddf36cc4702514bb24312017ad951f163a1db025d9d2f5098bb40f3c278"
     }
   },
   {
