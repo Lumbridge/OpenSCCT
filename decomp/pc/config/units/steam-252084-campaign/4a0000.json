@@ -1136,6 +1136,36 @@
     }
   },
   {
+    "id": "tree-erase-nodes-4a5910",
+    "size": 63,
+    "offset": 4872464,
+    "inputs": [
+      "src/campaign_tree_erase_nodes.c"
+    ],
+    "rebuilt_symbol": "@erase_4a5910@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_erase_nodes.obj src/campaign_tree_erase_nodes.c",
+    "link_bindings": {
+      "@erase_4a5910@8": {
+        "va": 282745104,
+        "basis": "Recursive erasure of the right subtree."
+      },
+      "_prepare_48b460": {
+        "va": 282637408,
+        "basis": "Prepares the removed node with its allocation category."
+      },
+      "_release_48b550": {
+        "va": 282637648,
+        "basis": "Releases the prepared allocation."
+      }
+    },
+    "identification": "Indexed recursive tree erasure with sentinel byte at offset 21, right subtree recursion, left subtree iteration and allocation category 7.",
+    "match": {
+      "bytes_sha256": "14694f2a913989bc1f9054ece8624dd06f130f2f391d10fcd2ffbfab3b4a37c2",
+      "inputs_sha256": "d863b68e6bdee6ac1c5770de42a30fa474e2f48b03e3555a95d3057afc5e929a"
+    }
+  },
+  {
     "id": "tree-prev-4a59b0",
     "size": 93,
     "offset": 4872624,
@@ -1720,6 +1750,36 @@
     "match": {
       "bytes_sha256": "8b839078e9ee3f923c456a0284acd9ecb2410a748c26a29c9b7825364d832d91",
       "inputs_sha256": "e0b164c0422c63c33a253d36b50cf4eeab71e9798692a6a49c82aeb819da6d9f"
+    }
+  },
+  {
+    "id": "tree-erase-nodes-4abaf0",
+    "size": 63,
+    "offset": 4897520,
+    "inputs": [
+      "src/campaign_tree_erase_nodes.c"
+    ],
+    "rebuilt_symbol": "@erase_4abaf0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_erase_nodes.obj src/campaign_tree_erase_nodes.c",
+    "link_bindings": {
+      "@erase_4abaf0@8": {
+        "va": 282770160,
+        "basis": "Recursive erasure of the right subtree."
+      },
+      "_prepare_48b460": {
+        "va": 282637408,
+        "basis": "Prepares the removed node with its allocation category."
+      },
+      "_release_48b550": {
+        "va": 282637648,
+        "basis": "Releases the prepared allocation."
+      }
+    },
+    "identification": "Indexed recursive tree erasure with sentinel byte at offset 33, right subtree recursion, left subtree iteration and allocation category 7.",
+    "match": {
+      "bytes_sha256": "6d935e347bb628f8fd9787bf76400b2b2f1292a996468ebc610bb41a0dda4660",
+      "inputs_sha256": "66e62f37dab2cd00e30b8b0b59aad6545488d2bab63f532996735a4772eb50ce"
     }
   },
   {
@@ -2459,6 +2519,36 @@
     "match": {
       "bytes_sha256": "940ec704fca814d5cb652b7c6789da7e63c93f277dae2334beeb666ec6bdf866",
       "inputs_sha256": "3c20ea462dafb0b9793490a4ac0231ce4762fd93a7e44fa7d3593a97f5621b59"
+    }
+  },
+  {
+    "id": "tree-erase-nodes-4af480",
+    "size": 63,
+    "offset": 4912256,
+    "inputs": [
+      "src/campaign_tree_erase_nodes.c"
+    ],
+    "rebuilt_symbol": "@erase_4af480@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_erase_nodes.obj src/campaign_tree_erase_nodes.c",
+    "link_bindings": {
+      "@erase_4af480@8": {
+        "va": 282784896,
+        "basis": "Recursive erasure of the right subtree."
+      },
+      "_prepare_48b460": {
+        "va": 282637408,
+        "basis": "Prepares the removed node with its allocation category."
+      },
+      "_release_48b550": {
+        "va": 282637648,
+        "basis": "Releases the prepared allocation."
+      }
+    },
+    "identification": "Indexed recursive tree erasure with sentinel byte at offset 21, right subtree recursion, left subtree iteration and allocation category 7.",
+    "match": {
+      "bytes_sha256": "2481a9f3a6c9735947e160c9db26e2fa6b0d521058e152233af8d1e300521263",
+      "inputs_sha256": "72f609ce1d0cfc8adfca435beb6410befa6a10c643049aed3eb7d0c6ea573848"
     }
   },
   {

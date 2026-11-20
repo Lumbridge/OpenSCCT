@@ -1851,6 +1851,36 @@
     }
   },
   {
+    "id": "tree-erase-nodes-4ec5c0",
+    "size": 63,
+    "offset": 5162432,
+    "inputs": [
+      "src/campaign_tree_erase_nodes.c"
+    ],
+    "rebuilt_symbol": "@erase_4ec5c0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_erase_nodes.obj src/campaign_tree_erase_nodes.c",
+    "link_bindings": {
+      "@erase_4ec5c0@8": {
+        "va": 283035072,
+        "basis": "Recursive erasure of the right subtree."
+      },
+      "_prepare_48b460": {
+        "va": 282637408,
+        "basis": "Prepares the removed node with its allocation category."
+      },
+      "_release_48b550": {
+        "va": 282637648,
+        "basis": "Releases the prepared allocation."
+      }
+    },
+    "identification": "Indexed recursive tree erasure with sentinel byte at offset 21, right subtree recursion, left subtree iteration and allocation category 7.",
+    "match": {
+      "bytes_sha256": "392524f22b3b53ffe66242a277260915baca46384dc7b199e2078983662d6f30",
+      "inputs_sha256": "0b5883c6d6ffb5c2a326ffb31c5666f1e31ee75e5ef6806c885cdf9b0df537eb"
+    }
+  },
+  {
     "id": "tree-clear-managed-4ec780",
     "size": 43,
     "offset": 5162880,
@@ -2072,6 +2102,36 @@
     "match": {
       "bytes_sha256": "c33fbc870e834b0975aacee667b76000ebd92b7803cf476f827730aad6c48bf0",
       "inputs_sha256": "85f2b55224061c3f1eb1d7527379246f5f43902a4156366293a1c2e9a70f9b8c"
+    }
+  },
+  {
+    "id": "tree-erase-nodes-4edc90",
+    "size": 63,
+    "offset": 5168272,
+    "inputs": [
+      "src/campaign_tree_erase_nodes.c"
+    ],
+    "rebuilt_symbol": "@erase_4edc90@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_erase_nodes.obj src/campaign_tree_erase_nodes.c",
+    "link_bindings": {
+      "@erase_4edc90@8": {
+        "va": 283040912,
+        "basis": "Recursive erasure of the right subtree."
+      },
+      "_prepare_48b460": {
+        "va": 282637408,
+        "basis": "Prepares the removed node with its allocation category."
+      },
+      "_release_48b550": {
+        "va": 282637648,
+        "basis": "Releases the prepared allocation."
+      }
+    },
+    "identification": "Indexed recursive tree erasure with sentinel byte at offset 21, right subtree recursion, left subtree iteration and allocation category 7.",
+    "match": {
+      "bytes_sha256": "5c302e4eb92a0f0bceb253650de290c0cc6ff528f856eadb07dc4cca1c0992d4",
+      "inputs_sha256": "cd9a28bdbdd19fde04235296e1c821d5caa024a34efbe74fb0fbaa87c718876a"
     }
   },
   {

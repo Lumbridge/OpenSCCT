@@ -58,8 +58,8 @@
           "matched_bytes": 0,
           "total_bytes": 8082506,
           "matched_units": 0,
-          "candidate_bytes": 671717,
-          "candidate_units": 11478,
+          "candidate_bytes": 672662,
+          "candidate_units": 11493,
           "percent": 0.0,
           "evidence": "decomp/pc/config/steam-252084-campaign.json"
         },
