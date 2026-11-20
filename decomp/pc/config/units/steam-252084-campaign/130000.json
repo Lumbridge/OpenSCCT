@@ -3460,6 +3460,36 @@
     }
   },
   {
+    "id": "object-construct-default-13a030",
+    "size": 50,
+    "offset": 1286192,
+    "inputs": [
+      "src/campaign_object_construction.c"
+    ],
+    "rebuilt_symbol": "_construct_default",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Ob1 /Gy /c /Folocal/campaign_object_construction.obj src/campaign_object_construction.c",
+    "link_bindings": {
+      "_default_outer": {
+        "va": 281898928,
+        "basis": "Shared accessor for the default outer object."
+      },
+      "_allocation_context": {
+        "va": 287082644,
+        "basis": "Writable allocation context supplied to the construction helper."
+      },
+      "_construct_object": {
+        "va": 281937664,
+        "basis": "Object construction helper at RVA 0x3e0700 that invokes the class constructor."
+      }
+    },
+    "identification": "Complete object construction routine at RVA 0x13a030. Resolves the default outer and forwards class, name and flags to the shared constructor.",
+    "match": {
+      "bytes_sha256": "64d876a8ae766f9797b1e755dbea8e1294cbe4e53fde22ae87225d386d79c8f0",
+      "inputs_sha256": "fbd45b5bdfbe4cc58dd5a86fb9fdd92c50a87c18bfcf21df548a50ff92e2c02b"
+    }
+  },
+  {
     "id": "class-load-uclass-13a070",
     "size": 73,
     "offset": 1286256,
@@ -4272,6 +4302,36 @@
     "match": {
       "bytes_sha256": "e426323bd2fb6b92b62c0922900feb143223116c5a9d61098841fb2e7c922a4e",
       "inputs_sha256": "bc04960731d5c62f63583d21e2d22a122a688d4ea5f2edeb87f173a695b74efc"
+    }
+  },
+  {
+    "id": "object-construct-default-13cbb0",
+    "size": 50,
+    "offset": 1297328,
+    "inputs": [
+      "src/campaign_object_construction.c"
+    ],
+    "rebuilt_symbol": "_construct_default",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Ob1 /Gy /c /Folocal/campaign_object_construction.obj src/campaign_object_construction.c",
+    "link_bindings": {
+      "_default_outer": {
+        "va": 281898928,
+        "basis": "Shared accessor for the default outer object."
+      },
+      "_allocation_context": {
+        "va": 287082644,
+        "basis": "Writable allocation context supplied to the construction helper."
+      },
+      "_construct_object": {
+        "va": 281937664,
+        "basis": "Object construction helper at RVA 0x3e0700 that invokes the class constructor."
+      }
+    },
+    "identification": "Complete object construction routine at RVA 0x13cbb0. Resolves the default outer and forwards class, name and flags to the shared constructor.",
+    "match": {
+      "bytes_sha256": "c8b1d9d744baa5934489338bd4a8823e909142f3def017502e02e3ada7dee481",
+      "inputs_sha256": "ce762f9a1bafa41449462097aa8b4ba912cab7db76a1de37733e33ad9546ceb4"
     }
   },
   {

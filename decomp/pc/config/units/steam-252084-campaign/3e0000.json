@@ -1,5 +1,27 @@
 [
   {
+    "id": "object-construct-object-3e0700",
+    "size": 68,
+    "offset": 4065024,
+    "inputs": [
+      "src/campaign_object_construction.c"
+    ],
+    "rebuilt_symbol": "_construct_object",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Ob1 /Gy /c /Folocal/campaign_object_construction.obj src/campaign_object_construction.c",
+    "link_bindings": {
+      "_allocate_object": {
+        "va": 281936800,
+        "basis": "Shared Campaign object allocation at RVA 0x3e03a0."
+      }
+    },
+    "identification": "Complete object construction routine at RVA 0x3e0700. Invokes the class constructor on the allocated object and returns the allocation result.",
+    "match": {
+      "bytes_sha256": "d73c821e90be3076b9ef614e027e5c77630319217e54c1aeca60cd6ee363b17d",
+      "inputs_sha256": "5ebde0e970435483e04c04b25c5adc6c0dc51d645b4f336042dfb244dbb42a36"
+    }
+  },
+  {
     "id": "class-factory-ulinker",
     "offset": 4065104,
     "size": 106,
@@ -1830,6 +1852,36 @@
     "match": {
       "bytes_sha256": "e426323bd2fb6b92b62c0922900feb143223116c5a9d61098841fb2e7c922a4e",
       "inputs_sha256": "fd2a8162ab83be00131c33a07569e1a873762dfb4d709029eef00d488652039a"
+    }
+  },
+  {
+    "id": "object-construct-default-3e78c0",
+    "size": 50,
+    "offset": 4094144,
+    "inputs": [
+      "src/campaign_object_construction.c"
+    ],
+    "rebuilt_symbol": "_construct_default",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Ob1 /Gy /c /Folocal/campaign_object_construction.obj src/campaign_object_construction.c",
+    "link_bindings": {
+      "_default_outer": {
+        "va": 281898928,
+        "basis": "Shared accessor for the default outer object."
+      },
+      "_allocation_context": {
+        "va": 287082644,
+        "basis": "Writable allocation context supplied to the construction helper."
+      },
+      "_construct_object": {
+        "va": 281937664,
+        "basis": "Object construction helper at RVA 0x3e0700 that invokes the class constructor."
+      }
+    },
+    "identification": "Complete object construction routine at RVA 0x3e78c0. Resolves the default outer and forwards class, name and flags to the shared constructor.",
+    "match": {
+      "bytes_sha256": "e40bdce1113d5d454804082208815c4a97ffc98dfd3b9fd7a4723aa49cd6c02a",
+      "inputs_sha256": "6a33d85e5272ad97c0ea8db4ce249b6536ca42da8f14e209ad4ed4109cf8e363"
     }
   },
   {

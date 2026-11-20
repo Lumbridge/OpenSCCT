@@ -3348,6 +3348,36 @@
     }
   },
   {
+    "id": "object-construct-default-cc9f0",
+    "size": 50,
+    "offset": 838128,
+    "inputs": [
+      "src/campaign_object_construction.c"
+    ],
+    "rebuilt_symbol": "_construct_default",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Ob1 /Gy /c /Folocal/campaign_object_construction.obj src/campaign_object_construction.c",
+    "link_bindings": {
+      "_default_outer": {
+        "va": 281898928,
+        "basis": "Shared accessor for the default outer object."
+      },
+      "_allocation_context": {
+        "va": 287082644,
+        "basis": "Writable allocation context supplied to the construction helper."
+      },
+      "_construct_object": {
+        "va": 281937664,
+        "basis": "Object construction helper at RVA 0x3e0700 that invokes the class constructor."
+      }
+    },
+    "identification": "Complete object construction routine at RVA 0xcc9f0. Resolves the default outer and forwards class, name and flags to the shared constructor.",
+    "match": {
+      "bytes_sha256": "ad4125b75456239331ddaddae445617419a810c5c5e30f429c2a7fa2aa9a2394",
+      "inputs_sha256": "7eeffeea03d526fb23d76be684d05eaeb1f5fb966b45efabbd726dc2333d7290"
+    }
+  },
+  {
     "id": "script-parameters-stepdampingfadeout",
     "offset": 838640,
     "size": 52,

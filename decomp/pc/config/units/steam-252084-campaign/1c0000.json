@@ -223,6 +223,36 @@
     }
   },
   {
+    "id": "object-construct-default-1c4170",
+    "size": 50,
+    "offset": 1851760,
+    "inputs": [
+      "src/campaign_object_construction.c"
+    ],
+    "rebuilt_symbol": "_construct_default",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Ob1 /Gy /c /Folocal/campaign_object_construction.obj src/campaign_object_construction.c",
+    "link_bindings": {
+      "_default_outer": {
+        "va": 281898928,
+        "basis": "Shared accessor for the default outer object."
+      },
+      "_allocation_context": {
+        "va": 287082644,
+        "basis": "Writable allocation context supplied to the construction helper."
+      },
+      "_construct_object": {
+        "va": 281937664,
+        "basis": "Object construction helper at RVA 0x3e0700 that invokes the class constructor."
+      }
+    },
+    "identification": "Complete object construction routine at RVA 0x1c4170. Resolves the default outer and forwards class, name and flags to the shared constructor.",
+    "match": {
+      "bytes_sha256": "4c3d45d5e5fb36e916c8c4fe710dbcef4af2aa68dc276bccd18d24bd6fb08b64",
+      "inputs_sha256": "7594bdab0a2e96a7f1fd0991becca076e783cf4ab67a89a2c2aca78725646095"
+    }
+  },
+  {
     "id": "script-parameters-specialcost",
     "offset": 1854192,
     "size": 66,
