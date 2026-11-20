@@ -659,6 +659,60 @@
     }
   },
   {
+    "id": "delete-members-23ad10",
+    "size": 43,
+    "offset": 2338064,
+    "inputs": [
+      "src/campaign_member_cleanup.c",
+      "src/record_deletion.h"
+    ],
+    "rebuilt_symbol": "@delete_members_23ad10@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_member_cleanup.obj src/campaign_member_cleanup.c",
+    "link_bindings": {
+      "_engine_heap": {
+        "va": 287082656,
+        "basis": "Engine heap used in the flag-controlled final release."
+      },
+      "@cleanup_00ba70@4": {
+        "va": 277920368,
+        "basis": "Unconditional cleanup call with receiver offset 0."
+      }
+    },
+    "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through heap slot two.",
+    "match": {
+      "bytes_sha256": "cbdae45a14da7de715cc376314da55075f1854f8bfabe0c15e2c8f762cd73704",
+      "inputs_sha256": "10b811be3ca773eac193d0f9485ba52548337e66ac337df9e0ac62d33186bb92"
+    }
+  },
+  {
+    "id": "delete-members-23ad40",
+    "size": 43,
+    "offset": 2338112,
+    "inputs": [
+      "src/campaign_member_cleanup.c",
+      "src/record_deletion.h"
+    ],
+    "rebuilt_symbol": "@delete_members_23ad40@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_member_cleanup.obj src/campaign_member_cleanup.c",
+    "link_bindings": {
+      "_engine_heap": {
+        "va": 287082656,
+        "basis": "Engine heap used in the flag-controlled final release."
+      },
+      "@cleanup_00ba70@4": {
+        "va": 277920368,
+        "basis": "Unconditional cleanup call with receiver offset 0."
+      }
+    },
+    "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through heap slot two.",
+    "match": {
+      "bytes_sha256": "82b37a82f4a2e90d56d7e69daeb409a000baf2ed9d0cebbbbc6d79832bde18c4",
+      "inputs_sha256": "7a2428bba9c148a1f3baa0e61cf3069b23091d214b4d95a15d2cf06f94b18538"
+    }
+  },
+  {
     "id": "array-destroy-23afd0",
     "size": 56,
     "offset": 2338768,

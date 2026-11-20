@@ -122,6 +122,33 @@
     }
   },
   {
+    "id": "delete-members-204430",
+    "size": 36,
+    "offset": 2114608,
+    "inputs": [
+      "src/campaign_member_cleanup.c",
+      "src/record_deletion.h"
+    ],
+    "rebuilt_symbol": "@delete_members_204430@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_member_cleanup.obj src/campaign_member_cleanup.c",
+    "link_bindings": {
+      "_engine_heap": {
+        "va": 287082656,
+        "basis": "Engine heap used in the flag-controlled final release."
+      },
+      "@cleanup_47cf40@4": {
+        "va": 282578752,
+        "basis": "Unconditional cleanup call with receiver offset 16."
+      }
+    },
+    "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through heap slot two.",
+    "match": {
+      "bytes_sha256": "863c4f2f4b759fd66c66030dbb1b52ed79a5a3a052ed815b62a2428c95791583",
+      "inputs_sha256": "4e9e39625380c1684577d67ac472ccb6da340fc6ad3c1b6da64c6b4121f4de98"
+    }
+  },
+  {
     "id": "clear-record-204480",
     "offset": 2114688,
     "size": 37,
@@ -725,6 +752,409 @@
     "match": {
       "bytes_sha256": "b9bafac163a36dcb99ccf425f440f6f70351cbc61cdd0b6f14d1031b190ef622",
       "inputs_sha256": "b79308bbf6df3b04d62b93e01f23746047d9513dc5787af327268be0ad4f91d6"
+    }
+  },
+  {
+    "id": "delete-members-20f130",
+    "size": 50,
+    "offset": 2158896,
+    "inputs": [
+      "src/campaign_member_cleanup.c",
+      "src/record_deletion.h"
+    ],
+    "rebuilt_symbol": "@delete_members_20f130@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_member_cleanup.obj src/campaign_member_cleanup.c",
+    "link_bindings": {
+      "_engine_heap": {
+        "va": 287082656,
+        "basis": "Engine heap used in the flag-controlled final release."
+      },
+      "_methods_7ddec0": {
+        "va": 286121664,
+        "basis": "Read-only receiver table with an executable first slot."
+      },
+      "@cleanup_00ba70@4": {
+        "va": 277920368,
+        "basis": "Unconditional cleanup call with receiver offset 4."
+      }
+    },
+    "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through heap slot two.",
+    "match": {
+      "bytes_sha256": "609f6aac13d5112405ea07523e79fa172cb73e86f127c3ea898a0e624faaf7e1",
+      "inputs_sha256": "a74595cba381e9f7375cbfffda6dff7cdbbca0102e070da541bd0a05086dc7ba"
+    }
+  },
+  {
+    "id": "delete-members-20f170",
+    "size": 50,
+    "offset": 2158960,
+    "inputs": [
+      "src/campaign_member_cleanup.c",
+      "src/record_deletion.h"
+    ],
+    "rebuilt_symbol": "@delete_members_20f170@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_member_cleanup.obj src/campaign_member_cleanup.c",
+    "link_bindings": {
+      "_engine_heap": {
+        "va": 287082656,
+        "basis": "Engine heap used in the flag-controlled final release."
+      },
+      "_methods_7ddec0": {
+        "va": 286121664,
+        "basis": "Read-only receiver table with an executable first slot."
+      },
+      "@cleanup_00ba70@4": {
+        "va": 277920368,
+        "basis": "Unconditional cleanup call with receiver offset 4."
+      }
+    },
+    "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through heap slot two.",
+    "match": {
+      "bytes_sha256": "1c61623a26b700da66f44b666ee1f3e92f6cf5993b00f35de281ea1339100394",
+      "inputs_sha256": "0a39c889caac5af6c17c224114b94c8742ff5fa6ed16c84e7e386bcd057b41db"
+    }
+  },
+  {
+    "id": "delete-members-20f1b0",
+    "size": 50,
+    "offset": 2159024,
+    "inputs": [
+      "src/campaign_member_cleanup.c",
+      "src/record_deletion.h"
+    ],
+    "rebuilt_symbol": "@delete_members_20f1b0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_member_cleanup.obj src/campaign_member_cleanup.c",
+    "link_bindings": {
+      "_engine_heap": {
+        "va": 287082656,
+        "basis": "Engine heap used in the flag-controlled final release."
+      },
+      "_methods_7ddec0": {
+        "va": 286121664,
+        "basis": "Read-only receiver table with an executable first slot."
+      },
+      "@cleanup_00ba70@4": {
+        "va": 277920368,
+        "basis": "Unconditional cleanup call with receiver offset 4."
+      }
+    },
+    "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through heap slot two.",
+    "match": {
+      "bytes_sha256": "a8dc7cdd10a360dde03ad1cfa247f739ddf852ec44b83ffe3bcc69c3788a89fa",
+      "inputs_sha256": "97efefbb4a2374f1ba15dec8832ffd0c217d4870bd3905ead5c9248c2b74d12a"
+    }
+  },
+  {
+    "id": "delete-members-20f1f0",
+    "size": 50,
+    "offset": 2159088,
+    "inputs": [
+      "src/campaign_member_cleanup.c",
+      "src/record_deletion.h"
+    ],
+    "rebuilt_symbol": "@delete_members_20f1f0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_member_cleanup.obj src/campaign_member_cleanup.c",
+    "link_bindings": {
+      "_engine_heap": {
+        "va": 287082656,
+        "basis": "Engine heap used in the flag-controlled final release."
+      },
+      "_methods_7ddec0": {
+        "va": 286121664,
+        "basis": "Read-only receiver table with an executable first slot."
+      },
+      "@cleanup_00ba70@4": {
+        "va": 277920368,
+        "basis": "Unconditional cleanup call with receiver offset 4."
+      }
+    },
+    "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through heap slot two.",
+    "match": {
+      "bytes_sha256": "d8b927cbc709e2af4ce15f05f21df057c3c619b08f8fca61bad958e6bcf08800",
+      "inputs_sha256": "ce1fb4c61ad4d6fe4649cfd970f60da9396ef51d48e4f0bc196030f97b3d97fb"
+    }
+  },
+  {
+    "id": "delete-members-20f230",
+    "size": 50,
+    "offset": 2159152,
+    "inputs": [
+      "src/campaign_member_cleanup.c",
+      "src/record_deletion.h"
+    ],
+    "rebuilt_symbol": "@delete_members_20f230@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_member_cleanup.obj src/campaign_member_cleanup.c",
+    "link_bindings": {
+      "_engine_heap": {
+        "va": 287082656,
+        "basis": "Engine heap used in the flag-controlled final release."
+      },
+      "_methods_7ddec0": {
+        "va": 286121664,
+        "basis": "Read-only receiver table with an executable first slot."
+      },
+      "@cleanup_00ba70@4": {
+        "va": 277920368,
+        "basis": "Unconditional cleanup call with receiver offset 4."
+      }
+    },
+    "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through heap slot two.",
+    "match": {
+      "bytes_sha256": "fcfdcc2c4d35042f0133a6f65065d32f8f5feab51273b4bc619988a030824284",
+      "inputs_sha256": "2193b8c614d0bba637bafb04b7eb0b599b49cd891dbb7d110a14181321f69de9"
+    }
+  },
+  {
+    "id": "delete-members-20f270",
+    "size": 50,
+    "offset": 2159216,
+    "inputs": [
+      "src/campaign_member_cleanup.c",
+      "src/record_deletion.h"
+    ],
+    "rebuilt_symbol": "@delete_members_20f270@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_member_cleanup.obj src/campaign_member_cleanup.c",
+    "link_bindings": {
+      "_engine_heap": {
+        "va": 287082656,
+        "basis": "Engine heap used in the flag-controlled final release."
+      },
+      "_methods_7ddec0": {
+        "va": 286121664,
+        "basis": "Read-only receiver table with an executable first slot."
+      },
+      "@cleanup_00ba70@4": {
+        "va": 277920368,
+        "basis": "Unconditional cleanup call with receiver offset 4."
+      }
+    },
+    "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through heap slot two.",
+    "match": {
+      "bytes_sha256": "172f799052dd7fdba0ed540a1dda7f0514e70f633de6ab0f2c46237fe2e16d83",
+      "inputs_sha256": "c5f1068ffdfb0a4b0dd1817405c5b203609dbfe335f65184d929429a73d09977"
+    }
+  },
+  {
+    "id": "delete-members-20f2b0",
+    "size": 50,
+    "offset": 2159280,
+    "inputs": [
+      "src/campaign_member_cleanup.c",
+      "src/record_deletion.h"
+    ],
+    "rebuilt_symbol": "@delete_members_20f2b0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_member_cleanup.obj src/campaign_member_cleanup.c",
+    "link_bindings": {
+      "_engine_heap": {
+        "va": 287082656,
+        "basis": "Engine heap used in the flag-controlled final release."
+      },
+      "_methods_7ddec0": {
+        "va": 286121664,
+        "basis": "Read-only receiver table with an executable first slot."
+      },
+      "@cleanup_00ba70@4": {
+        "va": 277920368,
+        "basis": "Unconditional cleanup call with receiver offset 4."
+      }
+    },
+    "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through heap slot two.",
+    "match": {
+      "bytes_sha256": "f3a785d7e181ea96acff286eb72525272f7b5af25bddaa81007961820431097d",
+      "inputs_sha256": "54b301f78d8250dab05800d5d1e25bb2fa1873247e4ced02ec5a0f9062c83b65"
+    }
+  },
+  {
+    "id": "delete-members-20f2f0",
+    "size": 50,
+    "offset": 2159344,
+    "inputs": [
+      "src/campaign_member_cleanup.c",
+      "src/record_deletion.h"
+    ],
+    "rebuilt_symbol": "@delete_members_20f2f0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_member_cleanup.obj src/campaign_member_cleanup.c",
+    "link_bindings": {
+      "_engine_heap": {
+        "va": 287082656,
+        "basis": "Engine heap used in the flag-controlled final release."
+      },
+      "_methods_7ddec0": {
+        "va": 286121664,
+        "basis": "Read-only receiver table with an executable first slot."
+      },
+      "@cleanup_00ba70@4": {
+        "va": 277920368,
+        "basis": "Unconditional cleanup call with receiver offset 4."
+      }
+    },
+    "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through heap slot two.",
+    "match": {
+      "bytes_sha256": "1e9730990ff6ddf82713f980c9ec988f58516798468ef0dcb989093530439464",
+      "inputs_sha256": "3c5085c422260d990fa5543f67be3959e0d8fc971aa6c111c0f525c3173f7c5c"
+    }
+  },
+  {
+    "id": "delete-members-20f330",
+    "size": 50,
+    "offset": 2159408,
+    "inputs": [
+      "src/campaign_member_cleanup.c",
+      "src/record_deletion.h"
+    ],
+    "rebuilt_symbol": "@delete_members_20f330@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_member_cleanup.obj src/campaign_member_cleanup.c",
+    "link_bindings": {
+      "_engine_heap": {
+        "va": 287082656,
+        "basis": "Engine heap used in the flag-controlled final release."
+      },
+      "_methods_7ddec0": {
+        "va": 286121664,
+        "basis": "Read-only receiver table with an executable first slot."
+      },
+      "@cleanup_00ba70@4": {
+        "va": 277920368,
+        "basis": "Unconditional cleanup call with receiver offset 4."
+      }
+    },
+    "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through heap slot two.",
+    "match": {
+      "bytes_sha256": "aa5d861bc0f0fc4aedf59bf05c8c89698c80b2dc7197fa6c7dde284e5ab2de6e",
+      "inputs_sha256": "1481cd0f1a1cc8a33a2b92646d215315c440cd0b70ba5876e3d286d6c384ce66"
+    }
+  },
+  {
+    "id": "delete-members-20f370",
+    "size": 50,
+    "offset": 2159472,
+    "inputs": [
+      "src/campaign_member_cleanup.c",
+      "src/record_deletion.h"
+    ],
+    "rebuilt_symbol": "@delete_members_20f370@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_member_cleanup.obj src/campaign_member_cleanup.c",
+    "link_bindings": {
+      "_engine_heap": {
+        "va": 287082656,
+        "basis": "Engine heap used in the flag-controlled final release."
+      },
+      "_methods_7ddec0": {
+        "va": 286121664,
+        "basis": "Read-only receiver table with an executable first slot."
+      },
+      "@cleanup_00ba70@4": {
+        "va": 277920368,
+        "basis": "Unconditional cleanup call with receiver offset 4."
+      }
+    },
+    "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through heap slot two.",
+    "match": {
+      "bytes_sha256": "dece5b4f921af94d81341bced0cc937c465e7cdd11f0e577a901a70744d2b725",
+      "inputs_sha256": "cede8a284a962fa52fc77650a3ff2633a1c44fb777fee22484382246432b2dfb"
+    }
+  },
+  {
+    "id": "delete-members-20f3b0",
+    "size": 50,
+    "offset": 2159536,
+    "inputs": [
+      "src/campaign_member_cleanup.c",
+      "src/record_deletion.h"
+    ],
+    "rebuilt_symbol": "@delete_members_20f3b0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_member_cleanup.obj src/campaign_member_cleanup.c",
+    "link_bindings": {
+      "_engine_heap": {
+        "va": 287082656,
+        "basis": "Engine heap used in the flag-controlled final release."
+      },
+      "_methods_7ddec0": {
+        "va": 286121664,
+        "basis": "Read-only receiver table with an executable first slot."
+      },
+      "@cleanup_00ba70@4": {
+        "va": 277920368,
+        "basis": "Unconditional cleanup call with receiver offset 4."
+      }
+    },
+    "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through heap slot two.",
+    "match": {
+      "bytes_sha256": "5ad1e7f866c6a5b16b67c2f6d2c9782f3627cdb1b411884efb40b6671a15e8be",
+      "inputs_sha256": "0df74afcc43266aa7cdf90b772d98452c63d53f8599639bde8f4fe7c30ad3533"
+    }
+  },
+  {
+    "id": "delete-members-20f3f0",
+    "size": 50,
+    "offset": 2159600,
+    "inputs": [
+      "src/campaign_member_cleanup.c",
+      "src/record_deletion.h"
+    ],
+    "rebuilt_symbol": "@delete_members_20f3f0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_member_cleanup.obj src/campaign_member_cleanup.c",
+    "link_bindings": {
+      "_engine_heap": {
+        "va": 287082656,
+        "basis": "Engine heap used in the flag-controlled final release."
+      },
+      "_methods_7ddec0": {
+        "va": 286121664,
+        "basis": "Read-only receiver table with an executable first slot."
+      },
+      "@cleanup_00ba70@4": {
+        "va": 277920368,
+        "basis": "Unconditional cleanup call with receiver offset 4."
+      }
+    },
+    "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through heap slot two.",
+    "match": {
+      "bytes_sha256": "467711af7da05869b6093af50bbb25a6ab41bbbf383accd165747694803722a5",
+      "inputs_sha256": "cdfd93c99cd83c840812f9eeae0ca8888f25829473c37d340572adfac082ed1e"
+    }
+  },
+  {
+    "id": "delete-members-20f430",
+    "size": 50,
+    "offset": 2159664,
+    "inputs": [
+      "src/campaign_member_cleanup.c",
+      "src/record_deletion.h"
+    ],
+    "rebuilt_symbol": "@delete_members_20f430@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_member_cleanup.obj src/campaign_member_cleanup.c",
+    "link_bindings": {
+      "_engine_heap": {
+        "va": 287082656,
+        "basis": "Engine heap used in the flag-controlled final release."
+      },
+      "_methods_7ddec0": {
+        "va": 286121664,
+        "basis": "Read-only receiver table with an executable first slot."
+      },
+      "@cleanup_00ba70@4": {
+        "va": 277920368,
+        "basis": "Unconditional cleanup call with receiver offset 4."
+      }
+    },
+    "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through heap slot two.",
+    "match": {
+      "bytes_sha256": "0197673c8dcc9b85fdccc0e533077f32ea6ead7297480c2315ff3eac47a9078d",
+      "inputs_sha256": "affa5a1d4d8c327f1ce8d1e28b5ebba53c93cb38f7d4c4d16cefdb0ddbbf09a9"
     }
   }
 ]
