@@ -1,5 +1,27 @@
 [
   {
+    "id": "scratch-array-construction-591030",
+    "size": 106,
+    "offset": 5836848,
+    "inputs": [
+      "src/campaign_scratch_array_construct.c"
+    ],
+    "rebuilt_symbol": "@construct_591030@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_scratch_array_construct.obj src/campaign_scratch_array_construct.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Physics allocation manager consulted for space in its current block."
+      }
+    },
+    "identification": "Indexed scratch array constructor for 16-byte elements. Rounds the allocation to 16 bytes, advances the allocator cursor or calls its allocation method, and stores the original pointer and element count.",
+    "match": {
+      "bytes_sha256": "fb1a49110ad41652adb025c2bf4c125e0e27794d4f2c9f213c2a98c6d794c6b8",
+      "inputs_sha256": "fcc6b9654e6e36e9125654edea8c965d7a22664df85f888947e7eac67668cf74"
+    }
+  },
+  {
     "id": "scratch-array-destruction-5910a0",
     "size": 98,
     "offset": 5836960,
@@ -63,6 +85,28 @@
     "match": {
       "bytes_sha256": "fd63403a75c0113b42257b63d269e06193b190bd68ef78a5412f28227f42e47d",
       "inputs_sha256": "db70cef3be4e4364484902a054eb42037e7bf5bba69adf5d57ef49d1e2ced282"
+    }
+  },
+  {
+    "id": "scratch-array-construction-595ba0",
+    "size": 102,
+    "offset": 5856160,
+    "inputs": [
+      "src/campaign_scratch_array_construct.c"
+    ],
+    "rebuilt_symbol": "@construct_595ba0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_scratch_array_construct.obj src/campaign_scratch_array_construct.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Physics allocation manager consulted for space in its current block."
+      }
+    },
+    "identification": "Indexed scratch array constructor for 2-byte elements. Rounds the allocation to 16 bytes, advances the allocator cursor or calls its allocation method, and stores the original pointer and element count.",
+    "match": {
+      "bytes_sha256": "25eba6ca5e429859476a31b774c2c9fa2dd82a37b6a6387124bf4ede2bfa50db",
+      "inputs_sha256": "809c46f51ad68de7afe6d0317ed6e74d1a4bd6a69053c9719d8708056701a42a"
     }
   },
   {

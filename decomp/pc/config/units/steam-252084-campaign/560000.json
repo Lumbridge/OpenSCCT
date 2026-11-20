@@ -164,6 +164,28 @@
     }
   },
   {
+    "id": "scratch-array-construction-565170",
+    "size": 107,
+    "offset": 5656944,
+    "inputs": [
+      "src/campaign_scratch_array_construct.c"
+    ],
+    "rebuilt_symbol": "@construct_565170@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_scratch_array_construct.obj src/campaign_scratch_array_construct.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Physics allocation manager consulted for space in its current block."
+      }
+    },
+    "identification": "Indexed scratch array constructor for 48-byte elements. Rounds the allocation to 16 bytes, advances the allocator cursor or calls its allocation method, and stores the original pointer and element count.",
+    "match": {
+      "bytes_sha256": "3965178ba52655080e4efe5b04fc85bb2aa05652d6564c1d4a9ef8fadbee0f01",
+      "inputs_sha256": "b7e2ad06d167e2e3d9e3030a937c4d86560ac3106364c7a09382dfb9334bcb65"
+    }
+  },
+  {
     "id": "scratch-array-destruction-5651e0",
     "size": 104,
     "offset": 5657056,
