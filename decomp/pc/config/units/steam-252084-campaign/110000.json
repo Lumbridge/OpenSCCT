@@ -9089,6 +9089,72 @@
     }
   },
   {
+    "id": "typed-array-remove-11f180",
+    "size": 20,
+    "offset": 1175936,
+    "inputs": [
+      "src/campaign_typed_array_ranges.c"
+    ],
+    "rebuilt_symbol": "@remove_typed_11f180@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_typed_array_ranges.obj src/campaign_typed_array_ranges.c",
+    "link_bindings": {
+      "@remove_11ef40@16": {
+        "va": 279048000,
+        "basis": "Independently rebuilt array remove function at RVA 0x11ef40."
+      }
+    },
+    "identification": "Aligned entry bounded by a previous return and INT3 padding. Passes the index, count and fixed 8-byte element size to the rebuilt array remove operation.",
+    "match": {
+      "bytes_sha256": "46a9f82665752b40c4c222ec485f4f39dcc863dd99431ec70c2f4dcee6365166",
+      "inputs_sha256": "e4c2422b3c8d1450ef24cfb70e183ec0e943bb31d872e09677c5867b8449d895"
+    }
+  },
+  {
+    "id": "typed-array-remove-11f1a0",
+    "size": 20,
+    "offset": 1175968,
+    "inputs": [
+      "src/campaign_typed_array_ranges.c"
+    ],
+    "rebuilt_symbol": "@remove_typed_11f1a0@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_typed_array_ranges.obj src/campaign_typed_array_ranges.c",
+    "link_bindings": {
+      "@remove_11efd0@16": {
+        "va": 279048144,
+        "basis": "Independently rebuilt array remove function at RVA 0x11efd0."
+      }
+    },
+    "identification": "Aligned entry bounded by a previous return and INT3 padding. Passes the index, count and fixed 8-byte element size to the rebuilt array remove operation.",
+    "match": {
+      "bytes_sha256": "35e7f89b7c603afc0a7913627fbe7f621a5e1ae9d5ee3726d7820d987818bab9",
+      "inputs_sha256": "e2e5a541a81ec777e04575c48476e5ae024249ab4c9e35d1d41e97c5d2200a0c"
+    }
+  },
+  {
+    "id": "typed-array-remove-11f1c0",
+    "size": 23,
+    "offset": 1176000,
+    "inputs": [
+      "src/campaign_typed_array_ranges.c"
+    ],
+    "rebuilt_symbol": "@remove_typed_11f1c0@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_typed_array_ranges.obj src/campaign_typed_array_ranges.c",
+    "link_bindings": {
+      "@remove_11f060@16": {
+        "va": 279048288,
+        "basis": "Independently rebuilt array remove function at RVA 0x11f060."
+      }
+    },
+    "identification": "Aligned entry bounded by a previous return and INT3 padding. Passes the index, count and fixed 148-byte element size to the rebuilt array remove operation.",
+    "match": {
+      "bytes_sha256": "0377c290d517dc18acd8fcaa9ad13dbfc5c244fc25413ff14de602c4fc8190f9",
+      "inputs_sha256": "0cb36efacbccb76a48c35753ec0e48ab5991d785b3e753de593fd5f1c4d235ee"
+    }
+  },
+  {
     "id": "array-destroy-11f310",
     "size": 56,
     "offset": 1176336,

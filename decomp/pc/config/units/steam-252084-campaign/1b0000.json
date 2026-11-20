@@ -597,6 +597,28 @@
     }
   },
   {
+    "id": "typed-array-remove-1b6be0",
+    "size": 20,
+    "offset": 1797088,
+    "inputs": [
+      "src/campaign_typed_array_ranges.c"
+    ],
+    "rebuilt_symbol": "@remove_typed_1b6be0@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_typed_array_ranges.obj src/campaign_typed_array_ranges.c",
+    "link_bindings": {
+      "@remove_1b6ad0@16": {
+        "va": 279669456,
+        "basis": "Independently rebuilt array remove function at RVA 0x1b6ad0."
+      }
+    },
+    "identification": "Aligned entry bounded by a previous return and INT3 padding. Passes the index, count and fixed 4-byte element size to the rebuilt array remove operation.",
+    "match": {
+      "bytes_sha256": "74c0d7a8ce1afe2a425269913c2bb1d36271f0a8291d5c9d08577cd5bc8e1506",
+      "inputs_sha256": "0e28ab900755d33599a70a3eaf72db4c41930f1c648210e526cdd9530686f05a"
+    }
+  },
+  {
     "id": "array-destroy-1b6c60",
     "size": 56,
     "offset": 1797216,
@@ -1200,6 +1222,72 @@
     "match": {
       "bytes_sha256": "8e7c978c211b562172d90429c54801dc6807cb9025a5d4c53482ef525899b8f9",
       "inputs_sha256": "d9bd48a61e50828968540f78da01bed32b9ff5d5608d5a899f18394288779e6b"
+    }
+  },
+  {
+    "id": "typed-array-remove-1b93a0",
+    "size": 20,
+    "offset": 1807264,
+    "inputs": [
+      "src/campaign_typed_array_ranges.c"
+    ],
+    "rebuilt_symbol": "@remove_typed_1b93a0@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_typed_array_ranges.obj src/campaign_typed_array_ranges.c",
+    "link_bindings": {
+      "@remove_1b8e90@16": {
+        "va": 279678608,
+        "basis": "Independently rebuilt array remove function at RVA 0x1b8e90."
+      }
+    },
+    "identification": "Aligned entry bounded by a previous return and INT3 padding. Passes the index, count and fixed 8-byte element size to the rebuilt array remove operation.",
+    "match": {
+      "bytes_sha256": "0cab1cd97a0091e2440672a3be4177b87858f68cec73892ccff10ac10686a621",
+      "inputs_sha256": "d9b295eb237b65628a927c373b43700bc7c16e009257022edebbb28333349abf"
+    }
+  },
+  {
+    "id": "typed-array-remove-1b93c0",
+    "size": 20,
+    "offset": 1807296,
+    "inputs": [
+      "src/campaign_typed_array_ranges.c"
+    ],
+    "rebuilt_symbol": "@remove_typed_1b93c0@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_typed_array_ranges.obj src/campaign_typed_array_ranges.c",
+    "link_bindings": {
+      "@remove_1b8f20@16": {
+        "va": 279678752,
+        "basis": "Independently rebuilt array remove function at RVA 0x1b8f20."
+      }
+    },
+    "identification": "Aligned entry bounded by a previous return and INT3 padding. Passes the index, count and fixed 8-byte element size to the rebuilt array remove operation.",
+    "match": {
+      "bytes_sha256": "69cd1b783246d3296d8d651933f8f15113ae94751e45554314371f9dd685cc83",
+      "inputs_sha256": "ce6cfd595fdab6ae866c3f6d662ef8fd157d11bbfa83f30caf9f31e9aff9201c"
+    }
+  },
+  {
+    "id": "typed-array-remove-1b93e0",
+    "size": 20,
+    "offset": 1807328,
+    "inputs": [
+      "src/campaign_typed_array_ranges.c"
+    ],
+    "rebuilt_symbol": "@remove_typed_1b93e0@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_typed_array_ranges.obj src/campaign_typed_array_ranges.c",
+    "link_bindings": {
+      "@remove_1b8fb0@16": {
+        "va": 279678896,
+        "basis": "Independently rebuilt array remove function at RVA 0x1b8fb0."
+      }
+    },
+    "identification": "Aligned entry bounded by a previous return and INT3 padding. Passes the index, count and fixed 8-byte element size to the rebuilt array remove operation.",
+    "match": {
+      "bytes_sha256": "870f38a7c5f1f8db3eb95ed5b8b3279deb0d1267004c029d462777c16f5c243c",
+      "inputs_sha256": "eafe01cfd880ae28b57f0021767f73b192f063cf9c9ca4f11ecec7bb5e2cadb4"
     }
   },
   {

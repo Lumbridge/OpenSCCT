@@ -1543,6 +1543,28 @@
     }
   },
   {
+    "id": "typed-array-remove-0c6dc0",
+    "size": 20,
+    "offset": 814528,
+    "inputs": [
+      "src/campaign_typed_array_ranges.c"
+    ],
+    "rebuilt_symbol": "@remove_typed_0c6dc0@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_typed_array_ranges.obj src/campaign_typed_array_ranges.c",
+    "link_bindings": {
+      "@remove_0c6b20@16": {
+        "va": 278686496,
+        "basis": "Independently rebuilt array remove function at RVA 0xc6b20."
+      }
+    },
+    "identification": "Aligned entry bounded by a previous return and INT3 padding. Passes the index, count and fixed 52-byte element size to the rebuilt array remove operation.",
+    "match": {
+      "bytes_sha256": "ed7735f2e39b87a0ac3ca000728691cd585d5340f0fb4771fc6364a14d57b5e9",
+      "inputs_sha256": "c770d4870f03e347d6aaa37519cf17ccbcdf9958a2f91dbc9fd890f6b1b18e40"
+    }
+  },
+  {
     "id": "array-destroy-0c6df0",
     "size": 56,
     "offset": 814576,
@@ -1906,6 +1928,28 @@
     "match": {
       "bytes_sha256": "1e5e40dab4b2f57e92bf0d4b6a762737620c9b967dc94ec6dffa338ff1570bf3",
       "inputs_sha256": "9638427945a8caa71dcb1bacd2123aa95ef6438f5d0d2b655315ad558e19ef64"
+    }
+  },
+  {
+    "id": "typed-array-remove-0c7f90",
+    "size": 20,
+    "offset": 819088,
+    "inputs": [
+      "src/campaign_typed_array_ranges.c"
+    ],
+    "rebuilt_symbol": "@remove_typed_0c7f90@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_typed_array_ranges.obj src/campaign_typed_array_ranges.c",
+    "link_bindings": {
+      "@remove_0c7b30@16": {
+        "va": 278690608,
+        "basis": "Independently rebuilt array remove function at RVA 0xc7b30."
+      }
+    },
+    "identification": "Aligned entry bounded by a previous return and INT3 padding. Passes the index, count and fixed 32-byte element size to the rebuilt array remove operation.",
+    "match": {
+      "bytes_sha256": "af374b507dc45228ada2d82f8840e4a1193ae6b823fa6186f678fa6f237ca7d6",
+      "inputs_sha256": "aff8a89c40f6fbf265876489342bf30446c75d8ecdb4a943ddacfba99b7ef476"
     }
   },
   {

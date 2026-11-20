@@ -596,6 +596,28 @@
     }
   },
   {
+    "id": "typed-array-insert-04ba80",
+    "size": 20,
+    "offset": 309888,
+    "inputs": [
+      "src/campaign_typed_array_ranges.c"
+    ],
+    "rebuilt_symbol": "@insert_typed_04ba80@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_typed_array_ranges.obj src/campaign_typed_array_ranges.c",
+    "link_bindings": {
+      "@insert_048f60@16": {
+        "va": 278171488,
+        "basis": "Independently rebuilt array insert function at RVA 0x48f60."
+      }
+    },
+    "identification": "Aligned entry bounded by a previous return and INT3 padding. Passes the index, count and fixed 4-byte element size to the rebuilt array insert operation.",
+    "match": {
+      "bytes_sha256": "7a8417d3fa6894b079c9bc91e5079a2ef0345f6365b4545e0413d13ebdcecc22",
+      "inputs_sha256": "774646a86e9237e688564638320a95ed3faf7f639e60bd7ec660bd9c61a2f2d2"
+    }
+  },
+  {
     "id": "find-or-append-04baa0",
     "offset": 309920,
     "size": 111,
@@ -622,6 +644,28 @@
     "match": {
       "bytes_sha256": "1b90bd2652ce3558aff3a572e01581af01502bbc8dfb485f0f3a3e3c211a1062",
       "inputs_sha256": "97c09a31803471286cc450d37a68968f75fc1fde0dd192c93036f51da95b6c5b"
+    }
+  },
+  {
+    "id": "typed-array-insert-04bb10",
+    "size": 20,
+    "offset": 310032,
+    "inputs": [
+      "src/campaign_typed_array_ranges.c"
+    ],
+    "rebuilt_symbol": "@insert_typed_04bb10@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_typed_array_ranges.obj src/campaign_typed_array_ranges.c",
+    "link_bindings": {
+      "@insert_048fe0@16": {
+        "va": 278171616,
+        "basis": "Independently rebuilt array insert function at RVA 0x48fe0."
+      }
+    },
+    "identification": "Aligned entry bounded by a previous return and INT3 padding. Passes the index, count and fixed 12-byte element size to the rebuilt array insert operation.",
+    "match": {
+      "bytes_sha256": "e9df91620b6b3ceb408a1a060ddec68b2c60ee9a5820de11c36444a045ff397d",
+      "inputs_sha256": "9b268845fd2173fd14f127d80141f123689686098034bd69b6766a1570472e58"
     }
   },
   {

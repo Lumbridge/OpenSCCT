@@ -1044,6 +1044,28 @@
     }
   },
   {
+    "id": "typed-array-remove-26e910",
+    "size": 20,
+    "offset": 2550032,
+    "inputs": [
+      "src/campaign_typed_array_ranges.c"
+    ],
+    "rebuilt_symbol": "@remove_typed_26e910@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_typed_array_ranges.obj src/campaign_typed_array_ranges.c",
+    "link_bindings": {
+      "@remove_26e590@16": {
+        "va": 280421776,
+        "basis": "Independently rebuilt array remove function at RVA 0x26e590."
+      }
+    },
+    "identification": "Aligned entry bounded by a previous return and INT3 padding. Passes the index, count and fixed 4-byte element size to the rebuilt array remove operation.",
+    "match": {
+      "bytes_sha256": "5afea20aa4a779528d239582285f0386632be6f6250b311b1654fce8a394bcca",
+      "inputs_sha256": "8cb4cd5be9a72a87a6290fd70d061fcb44ff8a18a8f8161c286e7689a742e7f9"
+    }
+  },
+  {
     "id": "delete-record-26e930",
     "offset": 2550064,
     "size": 33,
@@ -1400,6 +1422,28 @@
     "match": {
       "bytes_sha256": "28fee31e18dd0e250ddea8f4807cd55f5d645af2d53cc12f7d6bde72f835e857",
       "inputs_sha256": "9f797ec7432643ab76b6520aea5791a9b5fc94714d841a604389c5d311a89af5"
+    }
+  },
+  {
+    "id": "typed-array-remove-26f570",
+    "size": 20,
+    "offset": 2553200,
+    "inputs": [
+      "src/campaign_typed_array_ranges.c"
+    ],
+    "rebuilt_symbol": "@remove_typed_26f570@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_typed_array_ranges.obj src/campaign_typed_array_ranges.c",
+    "link_bindings": {
+      "@remove_26f460@16": {
+        "va": 280425568,
+        "basis": "Independently rebuilt array remove function at RVA 0x26f460."
+      }
+    },
+    "identification": "Aligned entry bounded by a previous return and INT3 padding. Passes the index, count and fixed 4-byte element size to the rebuilt array remove operation.",
+    "match": {
+      "bytes_sha256": "74c0d7a8ce1afe2a425269913c2bb1d36271f0a8291d5c9d08577cd5bc8e1506",
+      "inputs_sha256": "fdcbc9c241273b1735d153efd99701e191093c32aca74bef55b4a2cf50cb83eb"
     }
   },
   {

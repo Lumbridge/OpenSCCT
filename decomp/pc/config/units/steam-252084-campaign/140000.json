@@ -548,6 +548,28 @@
     }
   },
   {
+    "id": "typed-array-remove-146670",
+    "size": 20,
+    "offset": 1336944,
+    "inputs": [
+      "src/campaign_typed_array_ranges.c"
+    ],
+    "rebuilt_symbol": "@remove_typed_146670@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_typed_array_ranges.obj src/campaign_typed_array_ranges.c",
+    "link_bindings": {
+      "@remove_1462a0@16": {
+        "va": 279208608,
+        "basis": "Independently rebuilt array remove function at RVA 0x1462a0."
+      }
+    },
+    "identification": "Aligned entry bounded by a previous return and INT3 padding. Passes the index, count and fixed 4-byte element size to the rebuilt array remove operation.",
+    "match": {
+      "bytes_sha256": "560b3a4182dba50e9ca12d8f6c7ed1a39284ea0e941747ee6ecea6b54f406884",
+      "inputs_sha256": "545796cd4525017b825359a3aa54e4f5a27061a40707273f5de8750e2c613f7c"
+    }
+  },
+  {
     "id": "aligned-record-growth-146690",
     "size": 73,
     "offset": 1336976,

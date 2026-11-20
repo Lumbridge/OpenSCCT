@@ -1024,6 +1024,28 @@
     }
   },
   {
+    "id": "typed-array-remove-0199e0",
+    "size": 20,
+    "offset": 104928,
+    "inputs": [
+      "src/campaign_typed_array_ranges.c"
+    ],
+    "rebuilt_symbol": "@remove_typed_0199e0@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_typed_array_ranges.obj src/campaign_typed_array_ranges.c",
+    "link_bindings": {
+      "@remove_019a00@16": {
+        "va": 277977600,
+        "basis": "Independently rebuilt array remove function at RVA 0x19a00."
+      }
+    },
+    "identification": "Indexed whole function. Passes the index, count and fixed 4-byte element size to the rebuilt array remove operation.",
+    "match": {
+      "bytes_sha256": "3f77f4344fa0acff24b9d0e963f4836c9a0da1b64830491b901305b8c439fa66",
+      "inputs_sha256": "5acb5396b6e711340b7df8d11f43490ca966bb0f9fa39179f8c50f67c54b4eb3"
+    }
+  },
+  {
     "id": "array-remove-019a00",
     "size": 138,
     "offset": 104960,
