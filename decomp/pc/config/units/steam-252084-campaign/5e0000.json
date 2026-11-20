@@ -152,6 +152,23 @@
     }
   },
   {
+    "id": "linked-tree-unlink-node",
+    "offset": 6214816,
+    "size": 959,
+    "coff_alignment": 16,
+    "inputs": [
+      "src/tree_unlink_node.c"
+    ],
+    "rebuilt_symbol": "_unlink_node",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/tree_unlink_node.obj src/tree_unlink_node.c",
+    "identification": "Direct call at retail VA 0x10eec641. Relinks the replacement node, updates the root and extremes, and restores red-black tree colors and balance. The one NOP following the final return aligns the next independently identified function and is excluded from coverage.",
+    "match": {
+      "bytes_sha256": "b125733f49e456337190e0d98b19966457b83d6e6d999f5c69243221677db604",
+      "inputs_sha256": "65442f3a9e4fbdb112406b1cacf7eef8711a67dc53378ff9b666dff02ec52b49"
+    }
+  },
+  {
     "id": "next-node-5ed860",
     "offset": 6215776,
     "size": 54,
