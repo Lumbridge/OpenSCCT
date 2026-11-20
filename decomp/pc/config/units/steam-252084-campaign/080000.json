@@ -1433,6 +1433,33 @@
     }
   },
   {
+    "id": "delete-record-0856e0",
+    "offset": 546528,
+    "size": 33,
+    "inputs": [
+      "src/campaign_record_deletion.c",
+      "src/record_deletion.h"
+    ],
+    "rebuilt_symbol": "@delete_record_0856e0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_record_deletion.obj src/campaign_record_deletion.c",
+    "link_bindings": {
+      "@destroy_085710@4": {
+        "va": 278419216,
+        "basis": "Unconditional cleanup of the receiver before testing the deletion flag."
+      },
+      "_engine_heap": {
+        "va": 287082656,
+        "basis": "Engine heap used by the independently reconstructed release routine."
+      }
+    },
+    "identification": "The read-only pointer at RVA 0x7c1784 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
+    "match": {
+      "bytes_sha256": "02df6e269ab907fa6c1ce35d9acd246a7fd54e3510f6bd369851da9175482aa0",
+      "inputs_sha256": "7521cde2fa65eef61ae58f7ce704663e765c87ec68992287537952b802c2f744"
+    }
+  },
+  {
     "id": "placement-umodel",
     "offset": 547232,
     "size": 14,
@@ -2609,6 +2636,33 @@
     "match": {
       "bytes_sha256": "a9d4b333133339a9b609ed6cf9a8d82c2efed95a06b2cb3c5711611bafabe466",
       "inputs_sha256": "0b8ec0fae185198650daea49e904d67795b9cd30d3aceb1b8ecaadd7242f4cd5"
+    }
+  },
+  {
+    "id": "delete-record-08d820",
+    "offset": 579616,
+    "size": 33,
+    "inputs": [
+      "src/campaign_record_deletion.c",
+      "src/record_deletion.h"
+    ],
+    "rebuilt_symbol": "@delete_record_08d820@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_record_deletion.obj src/campaign_record_deletion.c",
+    "link_bindings": {
+      "@destroy_08d850@4": {
+        "va": 278452304,
+        "basis": "Unconditional cleanup of the receiver before testing the deletion flag."
+      },
+      "_engine_heap": {
+        "va": 287082656,
+        "basis": "Engine heap used by the independently reconstructed release routine."
+      }
+    },
+    "identification": "The read-only pointer at RVA 0x7c2004 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
+    "match": {
+      "bytes_sha256": "02df6e269ab907fa6c1ce35d9acd246a7fd54e3510f6bd369851da9175482aa0",
+      "inputs_sha256": "870e82954f439139d1a95113908392405856260fe29b0432babc1534abd17e0f"
     }
   },
   {

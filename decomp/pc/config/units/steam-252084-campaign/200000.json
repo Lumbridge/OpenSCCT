@@ -180,6 +180,60 @@
     }
   },
   {
+    "id": "delete-record-204970",
+    "offset": 2115952,
+    "size": 30,
+    "inputs": [
+      "src/campaign_record_deletion.c",
+      "src/record_deletion.h"
+    ],
+    "rebuilt_symbol": "@delete_record_204970@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_record_deletion.obj src/campaign_record_deletion.c",
+    "link_bindings": {
+      "@destroy_204740@4": {
+        "va": 279988032,
+        "basis": "Unconditional cleanup of the receiver before testing the deletion flag."
+      },
+      "_release_record": {
+        "va": 282622864,
+        "basis": "Stock deallocation wrapper dispatching to the heap release operation."
+      }
+    },
+    "identification": "The read-only pointer at RVA 0x7dc6d4 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
+    "match": {
+      "bytes_sha256": "1811843e864763537c298584a6ed40cc8cd7e2d7c4de6250dec96e07ce45c2f6",
+      "inputs_sha256": "1f58f5ed2dc28da0e5819c041d1d54845402ea6e4d86223d41dc0249d49b05f7"
+    }
+  },
+  {
+    "id": "delete-record-2090a0",
+    "offset": 2134176,
+    "size": 33,
+    "inputs": [
+      "src/campaign_record_deletion.c",
+      "src/record_deletion.h"
+    ],
+    "rebuilt_symbol": "@delete_record_2090a0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_record_deletion.obj src/campaign_record_deletion.c",
+    "link_bindings": {
+      "@destroy_208e80@4": {
+        "va": 280006272,
+        "basis": "Unconditional cleanup of the receiver before testing the deletion flag."
+      },
+      "_engine_heap": {
+        "va": 287082656,
+        "basis": "Engine heap used by the independently reconstructed release routine."
+      }
+    },
+    "identification": "The read-only pointer at RVA 0x7dcaa4 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
+    "match": {
+      "bytes_sha256": "517d8012768f69abd2f6c09019662659b026d888f0cd2175d7035fb71abc31db",
+      "inputs_sha256": "f9d910a7b0d3088f37ca02f7b2dd1d51186c07a7672f964ab1b0c1fef802cf33"
+    }
+  },
+  {
     "id": "array-append-20d210",
     "size": 82,
     "offset": 2150928,

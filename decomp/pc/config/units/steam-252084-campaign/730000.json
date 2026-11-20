@@ -46,6 +46,95 @@
     }
   },
   {
+    "id": "delete-record-7398e0",
+    "offset": 7575776,
+    "size": 30,
+    "inputs": [
+      "src/campaign_record_deletion.c",
+      "src/record_deletion.h"
+    ],
+    "rebuilt_symbol": "@delete_record_7398e0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_record_deletion.obj src/campaign_record_deletion.c",
+    "link_bindings": {
+      "@destroy_4c4900@4": {
+        "va": 282872064,
+        "basis": "Unconditional cleanup of the receiver before testing the deletion flag."
+      },
+      "_release_record": {
+        "va": 282622864,
+        "basis": "Stock deallocation wrapper dispatching to the heap release operation."
+      }
+    },
+    "identification": "The read-only pointer at RVA 0x871158 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
+    "match": {
+      "bytes_sha256": "1599f0581db29c249ab9640bc786ee110896cb66c4891293dee5f3c4674e4180",
+      "inputs_sha256": "aadc280056f96b66f776579a2faef437da7e2c376a9b61edc93a6335a2479fde"
+    }
+  },
+  {
+    "id": "delete-record-73a2e0",
+    "offset": 7578336,
+    "size": 36,
+    "inputs": [
+      "src/campaign_record_deletion.c",
+      "src/record_deletion.h"
+    ],
+    "rebuilt_symbol": "@delete_record_73a2e0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_record_deletion.obj src/campaign_record_deletion.c",
+    "link_bindings": {
+      "@destroy_4a05d0@4": {
+        "va": 282723792,
+        "basis": "Unconditional cleanup of the receiver before testing the deletion flag."
+      },
+      "_release_record": {
+        "va": 282622864,
+        "basis": "Stock deallocation wrapper dispatching to the heap release operation."
+      },
+      "_methods_7d8cf8": {
+        "va": 286100728,
+        "basis": "Read-only methods table installed before member cleanup."
+      }
+    },
+    "identification": "The read-only pointer at RVA 0x8713e8 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
+    "match": {
+      "bytes_sha256": "68340071cb8f4ed189e38790e6be17c9a72dcc8d99600fe0869e5d411abb7796",
+      "inputs_sha256": "ba946064b9ba3939b4a44123c6b6fa8ecd92f74a4e0818cd87fcf8fad24768fd"
+    }
+  },
+  {
+    "id": "delete-record-73a3a0",
+    "offset": 7578528,
+    "size": 36,
+    "inputs": [
+      "src/campaign_record_deletion.c",
+      "src/record_deletion.h"
+    ],
+    "rebuilt_symbol": "@delete_record_73a3a0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_record_deletion.obj src/campaign_record_deletion.c",
+    "link_bindings": {
+      "@destroy_4a05d0@4": {
+        "va": 282723792,
+        "basis": "Unconditional cleanup of the receiver before testing the deletion flag."
+      },
+      "_release_record": {
+        "va": 282622864,
+        "basis": "Stock deallocation wrapper dispatching to the heap release operation."
+      },
+      "_methods_7d8cf8": {
+        "va": 286100728,
+        "basis": "Read-only methods table installed before member cleanup."
+      }
+    },
+    "identification": "The read-only pointer at RVA 0x871460 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
+    "match": {
+      "bytes_sha256": "aaa442539e1cddfb7874cb0d6490316b6e1de7d78ac849327610006de02c4af9",
+      "inputs_sha256": "465018f78054b5874be5e8a65575931c54016db35ad9352208a502765dfd3000"
+    }
+  },
+  {
     "id": "clear-record-73aca0",
     "offset": 7580832,
     "size": 37,
@@ -133,6 +222,33 @@
     "match": {
       "bytes_sha256": "15d11e75e6d434829433be0a92db6dc7f8665325cb1e2e2c23f224536d23604d",
       "inputs_sha256": "9378bbeab52386b137cf9b333891fc73285622d269f5679ac8507e049371982a"
+    }
+  },
+  {
+    "id": "delete-record-73b040",
+    "offset": 7581760,
+    "size": 30,
+    "inputs": [
+      "src/campaign_record_deletion.c",
+      "src/record_deletion.h"
+    ],
+    "rebuilt_symbol": "@delete_record_73b040@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_record_deletion.obj src/campaign_record_deletion.c",
+    "link_bindings": {
+      "@destroy_73ae20@4": {
+        "va": 285453856,
+        "basis": "Unconditional cleanup of the receiver before testing the deletion flag."
+      },
+      "_release_record": {
+        "va": 282622864,
+        "basis": "Stock deallocation wrapper dispatching to the heap release operation."
+      }
+    },
+    "identification": "The read-only pointer at RVA 0x871544 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
+    "match": {
+      "bytes_sha256": "155ef0a0ca89fdba14b91c76d7ad527b336902ff117a851146bce997db777571",
+      "inputs_sha256": "d33607565fb684e3e10a591664f5c86ba6ff58c5f91c1c9cd75c36fd67b24f02"
     }
   },
   {

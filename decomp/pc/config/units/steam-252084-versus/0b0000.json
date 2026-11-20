@@ -16,6 +16,33 @@
     }
   },
   {
+    "id": "delete-record-0b4790",
+    "offset": 739216,
+    "size": 34,
+    "inputs": [
+      "src/versus_record_deletion.c",
+      "src/record_deletion.h"
+    ],
+    "rebuilt_symbol": "@delete_record_0b4790@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_record_deletion.obj src/versus_record_deletion.c",
+    "link_bindings": {
+      "_destroy_0b47c0@4": {
+        "va": 278611904,
+        "basis": "Unconditional cleanup of the receiver before testing the deletion flag."
+      },
+      "_engine_heap": {
+        "va": 281492464,
+        "basis": "Engine heap used by the independently reconstructed release routine."
+      }
+    },
+    "identification": "The read-only pointer at RVA 0x3049e4 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
+    "match": {
+      "bytes_sha256": "38eba6a6d40ed7833d238fa52f24448c0ff337eb159f94ac36fbc7c91fcfee5f",
+      "inputs_sha256": "07fb744fb098f0902d8c8855fdd0dc3281bb61b28a599f725138c70d8cb866b1"
+    }
+  },
+  {
     "id": "versus-mesh-channel-looping",
     "offset": 744416,
     "size": 40,

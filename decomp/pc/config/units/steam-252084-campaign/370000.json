@@ -691,6 +691,33 @@
     }
   },
   {
+    "id": "delete-record-374330",
+    "offset": 3621680,
+    "size": 33,
+    "inputs": [
+      "src/campaign_record_deletion.c",
+      "src/record_deletion.h"
+    ],
+    "rebuilt_symbol": "@delete_record_374330@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_record_deletion.obj src/campaign_record_deletion.c",
+    "link_bindings": {
+      "@destroy_374360@4": {
+        "va": 281494368,
+        "basis": "Unconditional cleanup of the receiver before testing the deletion flag."
+      },
+      "_engine_heap": {
+        "va": 287082656,
+        "basis": "Engine heap used by the independently reconstructed release routine."
+      }
+    },
+    "identification": "The read-only pointer at RVA 0x80f99c resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
+    "match": {
+      "bytes_sha256": "02df6e269ab907fa6c1ce35d9acd246a7fd54e3510f6bd369851da9175482aa0",
+      "inputs_sha256": "5c9b408adc023d306248d61b60c66d9c0a57e7c165867d134ea98cbf394ce1f7"
+    }
+  },
+  {
     "id": "placement-uesbcustom",
     "offset": 3622368,
     "size": 14,
@@ -823,6 +850,33 @@
     "match": {
       "bytes_sha256": "aa02f5b8e57273229e45e5268b9ac68770e077ee714da33a0e3866723bae7a0a",
       "inputs_sha256": "574f0f80f4b4b1110b96f9ad20e047c5f5fd842b84e450b9865e73fa05df0b98"
+    }
+  },
+  {
+    "id": "delete-record-378710",
+    "offset": 3639056,
+    "size": 33,
+    "inputs": [
+      "src/campaign_record_deletion.c",
+      "src/record_deletion.h"
+    ],
+    "rebuilt_symbol": "@delete_record_378710@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_record_deletion.obj src/campaign_record_deletion.c",
+    "link_bindings": {
+      "@destroy_378740@4": {
+        "va": 281511744,
+        "basis": "Unconditional cleanup of the receiver before testing the deletion flag."
+      },
+      "_engine_heap": {
+        "va": 287082656,
+        "basis": "Engine heap used by the independently reconstructed release routine."
+      }
+    },
+    "identification": "The read-only pointer at RVA 0x80fac4 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
+    "match": {
+      "bytes_sha256": "02df6e269ab907fa6c1ce35d9acd246a7fd54e3510f6bd369851da9175482aa0",
+      "inputs_sha256": "f13b223fbacea682309269052f2c5da8d7b353eb1aebe838dcf20ef2cfa73f8a"
     }
   },
   {
@@ -1163,6 +1217,33 @@
     "match": {
       "bytes_sha256": "45bb4b275cc4737e7995db8014194c1d081ea424c01670e865dd5fa60f59f52f",
       "inputs_sha256": "dfda77ed5185227009f2a900aabb6a4cb09358c33cccf20dc10b083668ca2704"
+    }
+  },
+  {
+    "id": "delete-record-37d280",
+    "offset": 3658368,
+    "size": 33,
+    "inputs": [
+      "src/campaign_record_deletion.c",
+      "src/record_deletion.h"
+    ],
+    "rebuilt_symbol": "@delete_record_37d280@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_record_deletion.obj src/campaign_record_deletion.c",
+    "link_bindings": {
+      "@destroy_37d2b0@4": {
+        "va": 281531056,
+        "basis": "Unconditional cleanup of the receiver before testing the deletion flag."
+      },
+      "_engine_heap": {
+        "va": 287082656,
+        "basis": "Engine heap used by the independently reconstructed release routine."
+      }
+    },
+    "identification": "The read-only pointer at RVA 0x80fd0c resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
+    "match": {
+      "bytes_sha256": "02df6e269ab907fa6c1ce35d9acd246a7fd54e3510f6bd369851da9175482aa0",
+      "inputs_sha256": "1785188e7a21e11ef368f401074ccff311e5b07812961823222a301b0ac0b306"
     }
   },
   {

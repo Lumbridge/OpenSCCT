@@ -243,6 +243,33 @@
     }
   },
   {
+    "id": "delete-record-170720",
+    "offset": 1509152,
+    "size": 33,
+    "inputs": [
+      "src/campaign_record_deletion.c",
+      "src/record_deletion.h"
+    ],
+    "rebuilt_symbol": "@delete_record_170720@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_record_deletion.obj src/campaign_record_deletion.c",
+    "link_bindings": {
+      "@destroy_170750@4": {
+        "va": 279381840,
+        "basis": "Unconditional cleanup of the receiver before testing the deletion flag."
+      },
+      "_engine_heap": {
+        "va": 287082656,
+        "basis": "Engine heap used by the independently reconstructed release routine."
+      }
+    },
+    "identification": "The read-only pointer at RVA 0x7d7bd4 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
+    "match": {
+      "bytes_sha256": "02df6e269ab907fa6c1ce35d9acd246a7fd54e3510f6bd369851da9175482aa0",
+      "inputs_sha256": "91a018ff66297555e8efd02fb5123a269f4502fd5ce95b56bcc5b45e1cd886c1"
+    }
+  },
+  {
     "id": "placement-uterrainsector",
     "offset": 1509584,
     "size": 14,
@@ -353,6 +380,33 @@
     "match": {
       "bytes_sha256": "70136a6076485d48563a1826bb1c745c0c94cc16b22b4aaa2c55476535dfee5f",
       "inputs_sha256": "a5b9b0af8d32b5683a0760a3f65a016b61a9de7afc8fd172a9c5bc920b9041ed"
+    }
+  },
+  {
+    "id": "delete-record-170ba0",
+    "offset": 1510304,
+    "size": 33,
+    "inputs": [
+      "src/campaign_record_deletion.c",
+      "src/record_deletion.h"
+    ],
+    "rebuilt_symbol": "@delete_record_170ba0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_record_deletion.obj src/campaign_record_deletion.c",
+    "link_bindings": {
+      "@destroy_170bd0@4": {
+        "va": 279382992,
+        "basis": "Unconditional cleanup of the receiver before testing the deletion flag."
+      },
+      "_engine_heap": {
+        "va": 287082656,
+        "basis": "Engine heap used by the independently reconstructed release routine."
+      }
+    },
+    "identification": "The read-only pointer at RVA 0x7d7c54 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
+    "match": {
+      "bytes_sha256": "02df6e269ab907fa6c1ce35d9acd246a7fd54e3510f6bd369851da9175482aa0",
+      "inputs_sha256": "86503304ce4ef89c0c46afe7c1ac1953b89206904be4f2ff78357dbc3923d1bf"
     }
   },
   {
@@ -652,6 +706,33 @@
     "match": {
       "bytes_sha256": "303ee44898b4149f1d239f586cc65eaad46401455e211d1e75b1104edc859131",
       "inputs_sha256": "a2eb498fcb405b146c5441604a13d96407ebbc53dabdb68f7fe192cecd8e04bb"
+    }
+  },
+  {
+    "id": "delete-record-171a10",
+    "offset": 1514000,
+    "size": 33,
+    "inputs": [
+      "src/campaign_record_deletion.c",
+      "src/record_deletion.h"
+    ],
+    "rebuilt_symbol": "@delete_record_171a10@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_record_deletion.obj src/campaign_record_deletion.c",
+    "link_bindings": {
+      "@destroy_171a40@4": {
+        "va": 279386688,
+        "basis": "Unconditional cleanup of the receiver before testing the deletion flag."
+      },
+      "_engine_heap": {
+        "va": 287082656,
+        "basis": "Engine heap used by the independently reconstructed release routine."
+      }
+    },
+    "identification": "The read-only pointer at RVA 0x7d7f2c resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
+    "match": {
+      "bytes_sha256": "02df6e269ab907fa6c1ce35d9acd246a7fd54e3510f6bd369851da9175482aa0",
+      "inputs_sha256": "9a04d1e9058868b9812a4225313c6b290d883d667c6042569d35c696a7b68e4f"
     }
   },
   {

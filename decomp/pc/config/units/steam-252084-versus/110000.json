@@ -56,5 +56,32 @@
       "bytes_sha256": "e36623525b7c35b277173e56616b2d865cf6515aa2be1d12d6814ef725cecffb",
       "inputs_sha256": "d14bcbe860ff1069d83a0bacbf294c8f28aadd76c6242f6389b21644b11cbacd"
     }
+  },
+  {
+    "id": "delete-record-115500",
+    "offset": 1135872,
+    "size": 33,
+    "inputs": [
+      "src/versus_record_deletion.c",
+      "src/record_deletion.h"
+    ],
+    "rebuilt_symbol": "@delete_record_115500@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_record_deletion.obj src/versus_record_deletion.c",
+    "link_bindings": {
+      "@destroy_117080@4": {
+        "va": 279015552,
+        "basis": "Unconditional cleanup of the receiver before testing the deletion flag."
+      },
+      "_engine_heap": {
+        "va": 281492464,
+        "basis": "Engine heap used by the independently reconstructed release routine."
+      }
+    },
+    "identification": "The read-only pointer at RVA 0x303594 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
+    "match": {
+      "bytes_sha256": "0fd9587c78cd88eac534aad7b9b063264880da018b81660e0e5dc172c3252020",
+      "inputs_sha256": "272099fcf8e2016a4253b6ae4b1d47d298e2057b9b044d8c73d16f606a7591c8"
+    }
   }
 ]

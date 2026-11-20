@@ -1,0 +1,56 @@
+[
+  {
+    "id": "delete-record-2c0d10",
+    "offset": 2886928,
+    "size": 27,
+    "inputs": [
+      "src/versus_record_deletion.c",
+      "src/record_deletion.h"
+    ],
+    "rebuilt_symbol": "@delete_record_2c0d10@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_record_deletion.obj src/versus_record_deletion.c",
+    "link_bindings": {
+      "@destroy_2c0d30@4": {
+        "va": 280759600,
+        "basis": "Unconditional cleanup of the receiver before testing the deletion flag."
+      },
+      "_release_record@4": {
+        "va": 279385360,
+        "basis": "Stock deallocation wrapper dispatching to the heap release operation."
+      }
+    },
+    "identification": "The read-only pointer at RVA 0x2f1fd8 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
+    "match": {
+      "bytes_sha256": "6af2ec6616d178dc60831bfac1053068ee84f3f03910c33b4ef27aff2c58da6a",
+      "inputs_sha256": "2ea870097b8074ff76f1014e7fb21c37fe6e01167600bfe657cf6846a9f56d4e"
+    }
+  },
+  {
+    "id": "delete-record-2c1510",
+    "offset": 2888976,
+    "size": 27,
+    "inputs": [
+      "src/versus_record_deletion.c",
+      "src/record_deletion.h"
+    ],
+    "rebuilt_symbol": "@delete_record_2c1510@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_record_deletion.obj src/versus_record_deletion.c",
+    "link_bindings": {
+      "@destroy_2c18c0@4": {
+        "va": 280762560,
+        "basis": "Unconditional cleanup of the receiver before testing the deletion flag."
+      },
+      "_release_record@4": {
+        "va": 279385360,
+        "basis": "Stock deallocation wrapper dispatching to the heap release operation."
+      }
+    },
+    "identification": "The read-only pointer at RVA 0x2f1ffc resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
+    "match": {
+      "bytes_sha256": "b9a445e29418539961f7df45febe0e8e448904ad8fea8890ec4f347fd7224f8c",
+      "inputs_sha256": "82f0cc5dacfe19a5a37b0fd494c564dab0f1857c9fcbd1f8714381b549e02d6d"
+    }
+  }
+]
