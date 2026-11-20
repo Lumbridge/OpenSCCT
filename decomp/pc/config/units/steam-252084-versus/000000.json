@@ -80,7 +80,7 @@
     "identification": "Virtual entry at RVA 0xc8f0. The registered placement callback RVA 0x3ebc0 from class registration RVA 0x40025 identifies the UState table stored at RVA 0x3ebd0. Slot 38 in that table (RVA 0x30d8c0) contains the entry address. Returns a 32-bit word with every bit set.",
     "match": {
       "bytes_sha256": "fada229dc03562bcc87bff26df0bb42bc2803bc3d898e632de331ed39d686426",
-      "inputs_sha256": "f6dc858b5aeeb0ce18f9760aa02a3dc89c37e86257a3e68d86efb58e42c40a7b"
+      "inputs_sha256": "e684823a4fc62d65a5aef1904f0b4b4c35547ec3a55d2e117dbdf9ad2ec9eb68"
     }
   },
   {
@@ -96,7 +96,7 @@
     "identification": "Virtual entry at RVA 0xc900. The registered placement callback RVA 0x3ebc0 from class registration RVA 0x40025 identifies the UState table stored at RVA 0x3ebd0. Slot 40 in that table (RVA 0x30d8c0) contains the entry address. Returns the constant 1 in EAX.",
     "match": {
       "bytes_sha256": "36d59dda86de5e01509034391530dd17dd8f5e0848a560ef4f4389b4057bec43",
-      "inputs_sha256": "ccd9392ed3d7b3763b364c3ea172091742ddb5619b6e3d270df7e24bd5e51077"
+      "inputs_sha256": "9753c8f2972f6f051ec5398ccc7172e081ef88863f078b5d394b96e64d6b6917"
     }
   },
   {
@@ -112,7 +112,7 @@
     "identification": "Virtual entry at RVA 0xc910. The registered placement callback RVA 0x3ebc0 from class registration RVA 0x40025 identifies the UState table stored at RVA 0x3ebd0. Slot 41 in that table (RVA 0x30d8c0) contains the entry address. Returns zero in EAX.",
     "match": {
       "bytes_sha256": "e123f60e9fc6e974d1381f2f15fb19e7960628cc8925d65e344c2f2bdc64f424",
-      "inputs_sha256": "043ea33d58134ddf0346047066db002bfbf15ffbd522f53df6d61dd148adfc71"
+      "inputs_sha256": "e64905fc161aaea3b1159780f57d7e3891fd55dabd726336c32667aeee30dcbe"
     }
   },
   {
@@ -180,7 +180,7 @@
     "identification": "Virtual entry at RVA 0xcda0. The registered placement callback RVA 0x3ebc0 from class registration RVA 0x40025 identifies the UState table stored at RVA 0x3ebd0. Slot 26 in that table (RVA 0x30d8c0) contains the entry address. Reads the 4-byte field at receiver offset 0x34.",
     "match": {
       "bytes_sha256": "3b2eded1bf6b0f7390191ad1371a956a736f9d18c2a7de0db7e90886555b69e1",
-      "inputs_sha256": "827b3b7a258122c084866d8951c85faaccc78e5911fa1411c1a437cacfe086bb"
+      "inputs_sha256": "9f5d93cd905e0ee89f128e8962f1fbdf4e70df3fdff66d74fe7bb7e951afcd7b"
     }
   },
   {

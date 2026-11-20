@@ -1328,7 +1328,7 @@
     "identification": "Virtual entry at RVA 0xa6660. The registered placement callback RVA 0xaac60 from class registration RVA 0xa059d identifies the UProxyBitmapMaterial table stored at RVA 0xaac7a. Slot 36 in that table (RVA 0x307908) contains the entry address. Returns the receiver.",
     "match": {
       "bytes_sha256": "648e5e97d162c7d5b13e75ba5abe1040e8307d103427e7a164511417af8b4fbc",
-      "inputs_sha256": "4a8406c390a9c38f2c94da39b9e27f881b1d35a31051faf94db364ebf07393a5"
+      "inputs_sha256": "583fd88c14d25de24d6dd0a4fce252fb529c0c602b0a924de1acc93c1069231d"
     }
   },
   {
@@ -2107,6 +2107,22 @@
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
       "inputs_sha256": "1e96f43a42b765360cc412e4ecdf2cea2c9bc6b9b58a8cd8c97650882541ddf1"
+    }
+  },
+  {
+    "id": "virtual-unetpendinglevel-23-0a80a0",
+    "size": 7,
+    "offset": 688288,
+    "inputs": [
+      "src/versus_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UNetPendingLevel_slot_23_r0a80a0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_virtual_methods.obj src/versus_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0xa80a0. The registered placement callback RVA 0xa7ba0 from class registration RVA 0xa14d8 identifies the UNetPendingLevel table stored at RVA 0xa7be2. Slot 23 in that table (RVA 0x3091c0) contains the entry address. Reads the 4-byte field at receiver offset 0xec.",
+    "match": {
+      "bytes_sha256": "c9c43eadf5bd7f55b293118acaeb3a2e1326844934204240186ebe584f77f430",
+      "inputs_sha256": "07a15ac8e17eb348c29ee98e5d8d4f21a6f5a7404d6588a145e2daf40370ed45"
     }
   },
   {
@@ -3131,6 +3147,22 @@
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
       "inputs_sha256": "4e8de350d65db51fe0250dee63df8bf760f6953efa091a0332a07c9633977ccf"
+    }
+  },
+  {
+    "id": "virtual-utexmatrix-35-0a9d10",
+    "size": 6,
+    "offset": 695568,
+    "inputs": [
+      "src/versus_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UTexMatrix_slot_35_r0a9d10@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_virtual_methods.obj src/versus_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0xa9d10. The registered placement callback RVA 0xa9c40 from class registration RVA 0xa0caf identifies the UTexMatrix table stored at RVA 0xa9c5a. Slot 35 in that table (RVA 0x308330) contains the entry address. Returns the address at receiver offset 0x58.",
+    "match": {
+      "bytes_sha256": "ca8734cbdff6f12439b57643fd6bc3677c4110dda59c0b2f195f79037865243e",
+      "inputs_sha256": "f1fe186d2c6d5640f0d03da7924b4bd1e2c4cf6beccc1d0a76d3450fda85dcf4"
     }
   },
   {

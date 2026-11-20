@@ -12,7 +12,7 @@
     "identification": "Virtual entry at RVA 0x543a0. The registered placement callback RVA 0x3ebc0 from class registration RVA 0x40025 identifies the UState table stored at RVA 0x3ebd0. Slot 44 in that table (RVA 0x30d8c0) contains the entry address. Returns zero in EAX.",
     "match": {
       "bytes_sha256": "3df6af1ec778d46a61b8d7160523ba89fe1af814222acb1175be5a7b1748e06b",
-      "inputs_sha256": "a80bba02bf9adb5a33c36a1b8b90658fc42fd8d913b7a93ca3bcefeef1e5711b"
+      "inputs_sha256": "318b3500ff53d5a0c5db3d7a67ff18a1cce5655470d7d6d48a4a564f54557e51"
     }
   },
   {
@@ -28,7 +28,71 @@
     "identification": "Virtual entry at RVA 0x55aa0. The registered placement callback RVA 0x3f130 from class registration RVA 0x3fe13 identifies the UArrayProperty table stored at RVA 0x3f146. Slot 31 in that table (RVA 0x30d380) contains the entry address. Returns the constant 1 in EAX.",
     "match": {
       "bytes_sha256": "a6bd7b63e4c12708d7f7a7e7d4ba72c1eb5381f5e270fdd13f4a86ae356bac84",
-      "inputs_sha256": "1ce1b44168848383f1d5cf7c51503be3e1d3ec1ef1eb1564ae1054816407c31f"
+      "inputs_sha256": "ae11eedae4393e7e4b0f838c85c83777d5a26655227707c041e8ef2866c8e249"
+    }
+  },
+  {
+    "id": "virtual-uarrayproperty-22-0562c0",
+    "size": 10,
+    "offset": 352960,
+    "inputs": [
+      "src/versus_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UArrayProperty_slot_22_r0562c0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_virtual_methods.obj src/versus_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x562c0. The registered placement callback RVA 0x3f130 from class registration RVA 0x3fe13 identifies the UArrayProperty table stored at RVA 0x3f146. Slot 22 in that table (RVA 0x30d380) contains the entry address. Stores the first argument at receiver offset 0x58.",
+    "match": {
+      "bytes_sha256": "f87302fd3333696d3a1a0f1e643f5bcb1b736f0882df0334509eb54f32c13c3d",
+      "inputs_sha256": "4c3680e3442acf13cdaa39d02bfe40519c9aeaf81515430cfaf09fdca21f9ca4"
+    }
+  },
+  {
+    "id": "virtual-umapproperty-29-056580",
+    "size": 8,
+    "offset": 353664,
+    "inputs": [
+      "src/versus_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UMapProperty_slot_29_r056580@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_virtual_methods.obj src/versus_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x56580. The registered placement callback RVA 0x3f1c0 from class registration RVA 0x3fe6c identifies the UMapProperty table stored at RVA 0x3f1d6. Slot 29 in that table (RVA 0x30cb48) contains the entry address. Returns the constant 1 in EAX.",
+    "match": {
+      "bytes_sha256": "a37f20f22731fa44d5fe0925ce76fbfb5bf2c8a56f260e67aa2f887a08d7f326",
+      "inputs_sha256": "f048415118b9605d5864763103a7af07260ef1fe36d490d8e7c22a002291cfe5"
+    }
+  },
+  {
+    "id": "virtual-umapproperty-30-056590",
+    "size": 3,
+    "offset": 353680,
+    "inputs": [
+      "src/versus_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UMapProperty_slot_30_r056590@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_virtual_methods.obj src/versus_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x56590. The registered placement callback RVA 0x3f1c0 from class registration RVA 0x3fe6c identifies the UMapProperty table stored at RVA 0x3f1d6. Slot 30 in that table (RVA 0x30cb48) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "dbd1a662565b07272069f88faadf4327acaf51b7d14f236c84c0a9679d07cef3",
+      "inputs_sha256": "8283be644aec5d59cab7b05f5c9329de60ebc3a638578c483424c72f498960cd"
+    }
+  },
+  {
+    "id": "virtual-acamera-83-0565d0",
+    "size": 3,
+    "offset": 353744,
+    "inputs": [
+      "src/versus_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@ACamera_slot_83_r0565d0@20",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_virtual_methods.obj src/versus_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x565d0. The registered placement callback RVA 0xadc20 from class registration RVA 0x9ef31 identifies the ACamera table stored at RVA 0xadc51. Slot 83 in that table (RVA 0x3052a8) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "3ad36c6eeda528589a7a06f48684d3318576059d93d51f445ab60d280620edc7",
+      "inputs_sha256": "83c15c532a81ad590b4d6e1cc99d44e0aaa365305743108bc9294bc23b9d09cc"
     }
   }
 ]

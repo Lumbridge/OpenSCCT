@@ -12,7 +12,7 @@
     "identification": "Virtual entry at RVA 0x71b80. The registered placement callback RVA 0x3ebf0 from class registration RVA 0x3f731 identifies the UEnum table stored at RVA 0x3ebfa. Slot 23 in that table (RVA 0x30ce60) contains the entry address. Returns the constant 1 in EAX.",
     "match": {
       "bytes_sha256": "2db31f4e09597946e56e859813bfdad7046d457c32332c3a882654d1e3ffdf67",
-      "inputs_sha256": "dd4b21e96c4a09dbf9c9daf0f3aaedfbc12857128d9400a585ceedcb660dde83"
+      "inputs_sha256": "d506aee6da10ca7d50cab85a7e4093c8cee6cdcb5b04d6c1f829a1d9421d73d5"
     }
   },
   {
@@ -28,7 +28,7 @@
     "identification": "Virtual entry at RVA 0x71bb0. The registered placement callback RVA 0x3e370 from class registration RVA 0x3f687 identifies the UObject table stored at RVA 0x3e378. Slot 1 in that table (RVA 0x30d710) contains the entry address. Returns zero in EAX.",
     "match": {
       "bytes_sha256": "5fed5afb29946811bf02359627a94bc01d08d31b779528feaadde3866af9c855",
-      "inputs_sha256": "30c48acebe0fffa9958d6b275deebfc8ad3e4756339c92c8f5cb6c4d3c674e35"
+      "inputs_sha256": "d46a314eb4644f4cbf086e76a58b1809a04c12c1b7dbd3f403f902dea41b6c2e"
     }
   }
 ]

@@ -2133,7 +2133,55 @@
     "identification": "Virtual entry at RVA 0x9e980. The registered placement callback RVA 0xa7b50 from class registration RVA 0xa1583 identifies the UPrimitive table stored at RVA 0xa7b5a. Slot 27 in that table (RVA 0x30bae8) contains the entry address. Returns the constant 1 in EAX.",
     "match": {
       "bytes_sha256": "0313bfd0cef5226e9622da4eb89d7f2953dbe8898785549f15943417f539bac8",
-      "inputs_sha256": "af142cec9f123defd35b733cdfea98059490853647ea19cbf0a20e0017b6b93d"
+      "inputs_sha256": "56904e398b3d3c89b0ce28e02d80f6b0c01658b35d85ee58185de0e1cb25be46"
+    }
+  },
+  {
+    "id": "virtual-uguihorzlist-44-09e990",
+    "size": 3,
+    "offset": 649616,
+    "inputs": [
+      "src/versus_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UGUIHorzList_slot_44_r09e990@28",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_virtual_methods.obj src/versus_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x9e990. The registered placement callback RVA 0x1679b0 from class registration RVA 0x165932 identifies the UGUIHorzList table stored at RVA 0x1679b8. Slot 44 in that table (RVA 0x301ce0) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "b5dd4b847a3a12ae2a47c84da9c67f38af8f9dc65851c43265c69b327a498e8e",
+      "inputs_sha256": "f3cfc5596250ac3d4144b35bc3e7e80953c98a02a19132d55e1e5e0b06d97b2d"
+    }
+  },
+  {
+    "id": "virtual-upersistentdata-42-09e9a0",
+    "size": 3,
+    "offset": 649632,
+    "inputs": [
+      "src/versus_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UPersistentData_slot_42_r09e9a0@32",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_virtual_methods.obj src/versus_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x9e9a0. The registered placement callback RVA 0xa2790 from class registration RVA 0xa272f identifies the UPersistentData table stored at RVA 0xa2798. Slot 42 in that table (RVA 0x30b6c0) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "b6fc3a9ea0896e5943662c03c0846f778e629404ddd60b3a1fd544e439b4c626",
+      "inputs_sha256": "b478e082f3649cc0117a662547d4e11fb0da66b1c6b29bb2f69a0e519c09afdb"
+    }
+  },
+  {
+    "id": "virtual-upersistentdata-47-09e9b0",
+    "size": 3,
+    "offset": 649648,
+    "inputs": [
+      "src/versus_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UPersistentData_slot_47_r09e9b0@24",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_virtual_methods.obj src/versus_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x9e9b0. The registered placement callback RVA 0xa2790 from class registration RVA 0xa272f identifies the UPersistentData table stored at RVA 0xa2798. Slot 47 in that table (RVA 0x30b6c0) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "596494f50350462943d59d32bfc675a2c3e2e9a6aa0d0606422e3cbbffd86c6b",
+      "inputs_sha256": "1cd0e085bdf06dd45b9954bac744423766ab2323e2afb348fea834513b5d8a9f"
     }
   }
 ]

@@ -99,3 +99,72 @@ unsigned int __fastcall ASDisk_slot_79_r10bd10(void *self)
 {
     return ~0u;
 }
+
+unsigned int __fastcall UMapProperty_slot_29_r056580(void *self, struct stack_word arg1, struct stack_word arg2)
+{
+    return 1;
+}
+
+void __fastcall UMapProperty_slot_30_r056590(void *self, struct stack_word arg1, struct stack_word arg2, struct stack_word arg3)
+{
+}
+
+void __fastcall ACamera_slot_83_r0565d0(void *self, struct stack_word arg1, struct stack_word arg2, struct stack_word arg3, struct stack_word arg4)
+{
+}
+
+void __fastcall UGUIHorzList_slot_44_r09e990(void *self, struct stack_word arg1, struct stack_word arg2, struct stack_word arg3, struct stack_word arg4, struct stack_word arg5, struct stack_word arg6)
+{
+}
+
+unsigned int __fastcall UVertexBuffer_slot_22_r10a650(void *self)
+{
+    return *(const unsigned int *)((const unsigned char *)self + 0x38);
+}
+
+void __fastcall UArrayProperty_slot_22_r0562c0(void *self, struct stack_word arg1)
+{
+    *(unsigned int *)((unsigned char *)self + 0x58) = arg1.value;
+}
+
+unsigned int __fastcall UTextBufferFactory_slot_23_r015b00(void *self, struct stack_word arg1, struct stack_word arg2, struct stack_word arg3, struct stack_word arg4, struct stack_word arg5, struct stack_word arg6, struct stack_word arg7, struct stack_word arg8, struct stack_word arg9)
+{
+    return 0;
+}
+
+unsigned int __fastcall UTextBufferFactory_slot_24_r015b10(void *self, struct stack_word arg1, struct stack_word arg2, struct stack_word arg3, struct stack_word arg4, struct stack_word arg5, struct stack_word arg6)
+{
+    return 0;
+}
+
+void * __fastcall UTexMatrix_slot_35_r0a9d10(void *self, struct stack_word arg1)
+{
+    return (unsigned char *)self + 0x58;
+}
+
+unsigned int __fastcall UNetPendingLevel_slot_23_r0a80a0(void *self)
+{
+    return *(const unsigned int *)((const unsigned char *)self + 0xec);
+}
+
+void __fastcall UPersistentData_slot_42_r09e9a0(void *self, struct stack_word arg1, struct stack_word arg2, struct stack_word arg3, struct stack_word arg4, struct stack_word arg5, struct stack_word arg6, struct stack_word arg7)
+{
+}
+
+void __fastcall UPersistentData_slot_47_r09e9b0(void *self, struct stack_word arg1, struct stack_word arg2, struct stack_word arg3, struct stack_word arg4, struct stack_word arg5)
+{
+}
+
+void __fastcall UPersistentData_slot_49_r068f10(void *self, struct stack_word arg1)
+{
+    *(unsigned int *)((unsigned char *)self + 0x10) = arg1.value;
+}
+
+unsigned char __fastcall UPersistentData_slot_68_r068da0(void *self)
+{
+    return 0;
+}
+
+void __fastcall UPersistentData_slot_71_r068d40(void *self, struct stack_word arg1, struct stack_word arg2, struct stack_word arg3, struct stack_word arg4, struct stack_word arg5, struct stack_word arg6, struct stack_word arg7, struct stack_word arg8, struct stack_word arg9)
+{
+}

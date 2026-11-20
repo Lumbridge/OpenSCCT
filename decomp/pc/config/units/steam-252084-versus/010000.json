@@ -112,6 +112,38 @@
     }
   },
   {
+    "id": "virtual-utextbufferfactory-23-015b00",
+    "size": 5,
+    "offset": 88832,
+    "inputs": [
+      "src/versus_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UTextBufferFactory_slot_23_r015b00@40",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_virtual_methods.obj src/versus_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x15b00. The registered placement callback RVA 0x3f500 from class registration RVA 0x3f995 identifies the UTextBufferFactory table stored at RVA 0x3f525. Slot 23 in that table (RVA 0x30d128) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "da7ebd12e9ab7d16927dce56ffa7104307477925d4350ce4d29d5f0b23399cb9",
+      "inputs_sha256": "ba3cd88ea7c2871bc02f2d5f9989f3054ac7dde6715490c0f2367f53c653d20d"
+    }
+  },
+  {
+    "id": "virtual-utextbufferfactory-24-015b10",
+    "size": 5,
+    "offset": 88848,
+    "inputs": [
+      "src/versus_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UTextBufferFactory_slot_24_r015b10@28",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_virtual_methods.obj src/versus_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x15b10. The registered placement callback RVA 0x3f500 from class registration RVA 0x3f995 identifies the UTextBufferFactory table stored at RVA 0x3f525. Slot 24 in that table (RVA 0x30d128) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "6fe8ecb84220ebaa231802dfcd815b40c70f020bf4a33ae758816b6b6b7156dd",
+      "inputs_sha256": "52e212a919f798df7470cd7f8c0d71b572b37944351bb69042c657e158f76b58"
+    }
+  },
+  {
     "id": "delete-utextbufferfactory",
     "size": 33,
     "offset": 89200,

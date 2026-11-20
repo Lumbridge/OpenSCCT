@@ -1434,7 +1434,7 @@
     "identification": "Virtual entry at RVA 0x4a010. The registered placement callback RVA 0xad350 from class registration RVA 0x9f3ba identifies the AInfo table stored at RVA 0xad35d. Slot 77 in that table (RVA 0x309c30) contains the entry address. Returns directly without changing the receiver or writing a result.",
     "match": {
       "bytes_sha256": "1d10894625976bca9d8906f3ecf1e766b94e9219ec3bf1c30e02feea5e18e45a",
-      "inputs_sha256": "c1a050599aeba913281500fddf5020970709873bf1e34e77ab0359a1482bfb92"
+      "inputs_sha256": "782672a3b14ea3a1eeccc853361a143b5910916adf1d47de9e1d130acb08616a"
     }
   },
   {
@@ -1450,7 +1450,7 @@
     "identification": "Virtual entry at RVA 0x4a550. The registered placement callback RVA 0x3e370 from class registration RVA 0x3f687 identifies the UObject table stored at RVA 0x3e378. Slot 6 in that table (RVA 0x30d710) contains the entry address. Returns directly without changing the receiver or writing a result.",
     "match": {
       "bytes_sha256": "e598d0c3ba86d917b177d7adde0556aa99bc355543c57aee0a3e50b684dd7e99",
-      "inputs_sha256": "74ad49b6b665719af9fa17a7fa589ef5a6dc26a138f3d3ff75da5cae1045227c"
+      "inputs_sha256": "ea3474cc4948de39cba725defe1d1e921dcb6ad3ca861ceddfefdd50f07fb503"
     }
   },
   {
@@ -1466,7 +1466,7 @@
     "identification": "Virtual entry at RVA 0x4a560. The registered placement callback RVA 0x3e370 from class registration RVA 0x3f687 identifies the UObject table stored at RVA 0x3e378. Slot 0 in that table (RVA 0x30d710) contains the entry address. Returns zero in EAX.",
     "match": {
       "bytes_sha256": "531db4852a682340f10d91199822e1a1aed030bae016ff1e2c9f32d13b9cc9a1",
-      "inputs_sha256": "89b72658203e19b3945e8cd4ae7d1441e6b2c084369bd9f546ead8c9f45d43d4"
+      "inputs_sha256": "1ff612cb764822eea2a0e8ea7cdb4f13e2cbdfa280719e4d687eae98185161ef"
     }
   },
   {

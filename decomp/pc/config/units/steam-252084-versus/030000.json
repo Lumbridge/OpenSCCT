@@ -366,7 +366,7 @@
     "identification": "Virtual entry at RVA 0x3ef50. The registered placement callback RVA 0x3ef30 from class registration RVA 0x3fcaf identifies the UClassProperty table stored at RVA 0x3ef46. Slot 39 in that table (RVA 0x30c768) contains the entry address. Returns the constant 5 in AL.",
     "match": {
       "bytes_sha256": "e30d8aed71180a520ca2ad30a7ecc3f7f91cd43c1eb22d9d905450ae8d88a78f",
-      "inputs_sha256": "732632596b7113c9f793fa49e6067772bf3b90fdc59bb17ff46a51ae43904bef"
+      "inputs_sha256": "ddd8bba31ca947be646b3634b124f697617d53d7eda85f33c8ea320af1a329c0"
     }
   },
   {
@@ -692,7 +692,7 @@
     "identification": "Virtual entry at RVA 0x3f410. The registered placement callback RVA 0x3ebc0 from class registration RVA 0x40025 identifies the UState table stored at RVA 0x3ebd0. Slot 36 in that table (RVA 0x30d8c0) contains the entry address. Returns zero in EAX.",
     "match": {
       "bytes_sha256": "743e1bd88d09aaee11fa6bad94803b7e31241e4196b32ff1abc9aba5bdd924c5",
-      "inputs_sha256": "1d384d6f8eb86df30f9d8ff0d6487f7cde28f8f9f47fabdaee5b21b0c3b98970"
+      "inputs_sha256": "6e01c8364a20cabcb99ebe5a1031c4f2e9cd8a0341158e65ca070e9ddfbd3501"
     }
   },
   {
