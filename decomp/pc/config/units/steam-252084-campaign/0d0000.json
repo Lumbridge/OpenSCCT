@@ -252,6 +252,54 @@
     }
   },
   {
+    "id": "animation-channel-flag-one",
+    "size": 42,
+    "offset": 854848,
+    "inputs": [
+      "src/campaign_channel_flags.c"
+    ],
+    "rebuilt_symbol": "@channel_flag_one@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_channel_flags.obj src/campaign_channel_flags.c",
+    "identification": "Campaign animation method pointer at RVA 0x7cfcf4. Reads bit one from a validated channel.",
+    "match": {
+      "bytes_sha256": "882a0349ec7b3ec229cde3a8de65de173392fe9ef9d39da7028c043786c3177d",
+      "inputs_sha256": "3ea6cd28eb4054981c72fb961ca07549a5858b9242af9dbd454f5b31482e65ec"
+    }
+  },
+  {
+    "id": "animation-channel-flag-four",
+    "size": 43,
+    "offset": 854896,
+    "inputs": [
+      "src/campaign_channel_flags.c"
+    ],
+    "rebuilt_symbol": "@channel_flag_four@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_channel_flags.obj src/campaign_channel_flags.c",
+    "identification": "Campaign animation method pointer at RVA 0x7cfcf8. Reads bit four from a validated channel.",
+    "match": {
+      "bytes_sha256": "e63372db2f635253a8ee70de7d9a794419c301d54ae737792c74ddcf966635c9",
+      "inputs_sha256": "cb666633ee26a508903f234d91d595ef9143c1d2db13772903b5aabd58c9cf44"
+    }
+  },
+  {
+    "id": "animation-clear-channel-flags",
+    "size": 58,
+    "offset": 855056,
+    "inputs": [
+      "src/campaign_channel_flags.c"
+    ],
+    "rebuilt_symbol": "@clear_channel_flags@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_channel_flags.obj src/campaign_channel_flags.c",
+    "identification": "Campaign animation method pointer at RVA 0x7cfd00. Clears bits one and zero on a validated channel.",
+    "match": {
+      "bytes_sha256": "cd0400e2cab059a6c358d5da2656568711ab06024ef1df8a1d7062ba4f5ee933",
+      "inputs_sha256": "a442685c819ddc7ee0217d0df816e5b06dfd440353e5310f9538fc41caaaa176"
+    }
+  },
+  {
     "id": "animation-channel-clip",
     "size": 36,
     "offset": 859232,
@@ -413,6 +461,22 @@
     "match": {
       "bytes_sha256": "5361fd27d517dda6538744ee1a170c739126362f079cdb59ff8896491cf97784",
       "inputs_sha256": "5285eb983e4bc9923bd25bb60327cd6da3f4b5b375e2f58d615af19c12a2fc4a"
+    }
+  },
+  {
+    "id": "animation-channel-sequence-name",
+    "size": 50,
+    "offset": 874240,
+    "inputs": [
+      "src/campaign_channel_flags.c"
+    ],
+    "rebuilt_symbol": "@channel_sequence_name@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_channel_flags.obj src/campaign_channel_flags.c",
+    "identification": "Campaign animation method pointer at RVA 0x7cfd0c. Returns the channel sequence name or the zero name.",
+    "match": {
+      "bytes_sha256": "3a6bbea60100a3dd5d4887f37ef54632e1cf6ab7f12f79404a0a228cdefd461d",
+      "inputs_sha256": "863723d0124da58e2a2c4a4dd6218e04552b9c07e3be27b6f370b43290af25c3"
     }
   },
   {
