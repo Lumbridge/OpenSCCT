@@ -78,6 +78,188 @@
     }
   },
   {
+    "id": "cleanup-array-7b05c0",
+    "inputs": [
+      "src/campaign_static_array.c",
+      "src/campaign_array_storage.h"
+    ],
+    "offset": 8062400,
+    "size": 72,
+    "rebuilt_symbol": "_cleanup_array_7b05c0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_array.obj src/campaign_static_array.c",
+    "link_bindings": {
+      "@remove_range_05f7b0@16": {
+        "va": 278263728,
+        "basis": "Direct removal call takes the static array in ECX and its original count on the stack."
+      },
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Stock allocator object pointer referenced before the release through slot 2."
+      },
+      "_static_array_8f5608": {
+        "va": 287266312,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7a37e0 passes callback RVA 0x7b05c0 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "94d9b78a3bdec18422cfba40fe0de70dc8dc5a38cd5e49fd6153dacf0c556ce3",
+      "inputs_sha256": "dc89a9d01a799f7cd89594fd42dd563ef6e44d86a8e346fb10d1c5fb4845a3b3"
+    }
+  },
+  {
+    "id": "cleanup-array-7b0610",
+    "inputs": [
+      "src/campaign_static_array.c",
+      "src/campaign_array_storage.h"
+    ],
+    "offset": 8062480,
+    "size": 72,
+    "rebuilt_symbol": "_cleanup_array_7b0610",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_array.obj src/campaign_static_array.c",
+    "link_bindings": {
+      "@remove_range_05f890@16": {
+        "va": 278263952,
+        "basis": "Direct removal call takes the static array in ECX and its original count on the stack."
+      },
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Stock allocator object pointer referenced before the release through slot 2."
+      },
+      "_static_array_8f5614": {
+        "va": 287266324,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7a37f0 passes callback RVA 0x7b0610 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "00af79af364efea58bcb195af1dafb7d2fb44c598feca499591513454cb77195",
+      "inputs_sha256": "78f8062821054d2f06bfb61d3b01082c92016bdfa02be70e9650ab77f299e075"
+    }
+  },
+  {
+    "id": "cleanup-array-7b0660",
+    "inputs": [
+      "src/campaign_static_array.c",
+      "src/campaign_array_storage.h"
+    ],
+    "offset": 8062560,
+    "size": 72,
+    "rebuilt_symbol": "_cleanup_array_7b0660",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_array.obj src/campaign_static_array.c",
+    "link_bindings": {
+      "@remove_range_05f5c0@16": {
+        "va": 278263232,
+        "basis": "Direct removal call takes the static array in ECX and its original count on the stack."
+      },
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Stock allocator object pointer referenced before the release through slot 2."
+      },
+      "_static_array_8f5efc": {
+        "va": 287268604,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7a3840 passes callback RVA 0x7b0660 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "58173e45087ae7308f818fff1e4991a13c3a0bfa072203532af3a2f69b9bf13c",
+      "inputs_sha256": "650df7ca4df493b00d392436303d7cef6dc00fa04f84f0be6a0c6460216cfee0"
+    }
+  },
+  {
+    "id": "cleanup-array-7b06b0",
+    "inputs": [
+      "src/campaign_static_array.c",
+      "src/campaign_array_storage.h"
+    ],
+    "offset": 8062640,
+    "size": 72,
+    "rebuilt_symbol": "_cleanup_array_7b06b0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_array.obj src/campaign_static_array.c",
+    "link_bindings": {
+      "@remove_range_05f6a0@16": {
+        "va": 278263456,
+        "basis": "Direct removal call takes the static array in ECX and its original count on the stack."
+      },
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Stock allocator object pointer referenced before the release through slot 2."
+      },
+      "_static_array_8f5f08": {
+        "va": 287268616,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7a3850 passes callback RVA 0x7b06b0 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "b0f2d920a0c1ca7b8ed0b982676ba05815def52e97414b52e68c29951790735a",
+      "inputs_sha256": "76f2ab109151d6c7d60d044298f6c073c11b171b4bceb29d4c94c9335048654a"
+    }
+  },
+  {
+    "id": "cleanup-install-7b0730",
+    "inputs": [
+      "src/campaign_static_install.c",
+      "src/static_methods_reset.h"
+    ],
+    "offset": 8062768,
+    "size": 11,
+    "rebuilt_symbol": "_cleanup_install_7b0730",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_install.obj src/campaign_static_install.c",
+    "link_bindings": {
+      "_methods_7bf388": {
+        "va": 285995912,
+        "basis": "Read-only methods table with an executable first slot."
+      },
+      "_static_install_8f5fac": {
+        "va": 287268780,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7a38aa passes callback RVA 0x7b0730 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "b3e962c3978ac2630ece1d187b6249e9c79deec859d3eb9f79554a49d27f4a6d",
+      "inputs_sha256": "0aa495d4fd76b89656f8d521983ce329d1814bf8b0b7e12ec6515b7871308103"
+    }
+  },
+  {
+    "id": "cleanup-array-7b0790",
+    "inputs": [
+      "src/campaign_static_array.c",
+      "src/campaign_array_storage.h"
+    ],
+    "offset": 8062864,
+    "size": 72,
+    "rebuilt_symbol": "_cleanup_array_7b0790",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_array.obj src/campaign_static_array.c",
+    "link_bindings": {
+      "@remove_range_077690@16": {
+        "va": 278361744,
+        "basis": "Direct removal call takes the static array in ECX and its original count on the stack."
+      },
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Stock allocator object pointer referenced before the release through slot 2."
+      },
+      "_static_array_8f5ff0": {
+        "va": 287268848,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7a38c0 passes callback RVA 0x7b0790 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "8052a526acd34cc824999ee6bc61ce482bb8db76aea526b5e3b9b194e96c4055",
+      "inputs_sha256": "1937ce71a0a22c7add78351baa7eca8dee73b5ed687ce4e2903c9565aaf5b36b"
+    }
+  },
+  {
     "id": "finalize-record-r7b0d30",
     "size": 10,
     "offset": 8064304,
@@ -101,6 +283,68 @@
     "match": {
       "bytes_sha256": "70e6ef1e3bf23d43c893a8fd28cc878c8071aed2f0207f6e9ba2811af6447b18",
       "inputs_sha256": "1c8c6dc8f7494e121671146321329cd1c9d8354654536d82282290d3a89ae92a"
+    }
+  },
+  {
+    "id": "cleanup-array-7b0d40",
+    "inputs": [
+      "src/campaign_static_array.c",
+      "src/campaign_array_storage.h"
+    ],
+    "offset": 8064320,
+    "size": 72,
+    "rebuilt_symbol": "_cleanup_array_7b0d40",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_array.obj src/campaign_static_array.c",
+    "link_bindings": {
+      "@remove_range_029170@16": {
+        "va": 278040944,
+        "basis": "Direct removal call takes the static array in ECX and its original count on the stack."
+      },
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Stock allocator object pointer referenced before the release through slot 2."
+      },
+      "_static_array_8fa4cc": {
+        "va": 287286476,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7a5e20 passes callback RVA 0x7b0d40 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "e4783ecf503d9fd3a7e09a051cbe3bdc3ad18c1aeeea5d685acf86e26e7979b3",
+      "inputs_sha256": "2473d55ff1e3cebd5a2abe571ed213fb6c996386eb4121ea37db4236bccd8162"
+    }
+  },
+  {
+    "id": "cleanup-array-7b0d90",
+    "inputs": [
+      "src/campaign_static_array.c",
+      "src/campaign_array_storage.h"
+    ],
+    "offset": 8064400,
+    "size": 72,
+    "rebuilt_symbol": "_cleanup_array_7b0d90",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_array.obj src/campaign_static_array.c",
+    "link_bindings": {
+      "@remove_range_1b6ad0@16": {
+        "va": 279669456,
+        "basis": "Direct removal call takes the static array in ECX and its original count on the stack."
+      },
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Stock allocator object pointer referenced before the release through slot 2."
+      },
+      "_static_array_8fa7f8": {
+        "va": 287287288,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7a5ef0 passes callback RVA 0x7b0d90 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "f1394f3c2bdaccb94a563d60b894fea57b8d063ad5190f7f67572a0e0290d418",
+      "inputs_sha256": "177b9ba2965d51d228ef2ddb6d2210e13ff3b73de8d70c449b2dbbe9ebd46d9d"
     }
   },
   {
@@ -229,6 +473,136 @@
     "match": {
       "bytes_sha256": "ae3f4619b0413d70d3004b9131c3752153074e45725be13b9a148978895e359e",
       "inputs_sha256": "fcf8798d4514dda9dd470eb7da76a219a8bc841d032f186033fb4852198d6511"
+    }
+  },
+  {
+    "id": "cleanup-range-7b12c0",
+    "inputs": [
+      "src/campaign_static_range.c"
+    ],
+    "offset": 8065728,
+    "size": 49,
+    "rebuilt_symbol": "_cleanup_range_7b12c0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_range.obj src/campaign_static_range.c",
+    "link_bindings": {
+      "_release_engine_buffer": {
+        "va": 279826640,
+        "basis": "Engine heap release helper. Its body passes the pointer to allocator slot 2."
+      },
+      "_static_range_90b6c8": {
+        "va": 287356616,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7a6060 passes callback RVA 0x7b12c0 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "b08f8e7e495d7197ab0bd9c14499585c7ca51f0de450031f9bce8182b0675740",
+      "inputs_sha256": "4f8d1fd9a9f40b358f5110622f07ceb3cd4c00d1684e18b361766fd1a72c03e0"
+    }
+  },
+  {
+    "id": "cleanup-range-7b1300",
+    "inputs": [
+      "src/campaign_static_range.c"
+    ],
+    "offset": 8065792,
+    "size": 49,
+    "rebuilt_symbol": "_cleanup_range_7b1300",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_range.obj src/campaign_static_range.c",
+    "link_bindings": {
+      "_release_engine_buffer": {
+        "va": 279826640,
+        "basis": "Engine heap release helper. Its body passes the pointer to allocator slot 2."
+      },
+      "_static_range_90b734": {
+        "va": 287356724,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7a6070 passes callback RVA 0x7b1300 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "dcbebd09e39cc5e9bacc3a9459e18789a17dd878c4f73abf2d5b5f7a308086b9",
+      "inputs_sha256": "70ab710753d604560d8421d90b28f83cd3d28fb677b26cc7b27fc32dd06e0504"
+    }
+  },
+  {
+    "id": "cleanup-range-7b1510",
+    "inputs": [
+      "src/campaign_static_range.c"
+    ],
+    "offset": 8066320,
+    "size": 49,
+    "rebuilt_symbol": "_cleanup_range_7b1510",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_range.obj src/campaign_static_range.c",
+    "link_bindings": {
+      "_release_engine_buffer": {
+        "va": 279826640,
+        "basis": "Engine heap release helper. Its body passes the pointer to allocator slot 2."
+      },
+      "_static_range_923a08": {
+        "va": 287455752,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7a6100 passes callback RVA 0x7b1510 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "0cbec09e0839507289ea3c901b6c600638d5655dde4b778d2f3e62d3dd3706cc",
+      "inputs_sha256": "14362d1c232cdf309ddc681581cf182fb3dd5248dca91ed3c2c6166025041578"
+    }
+  },
+  {
+    "id": "cleanup-range-7b1550",
+    "inputs": [
+      "src/campaign_static_range.c"
+    ],
+    "offset": 8066384,
+    "size": 49,
+    "rebuilt_symbol": "_cleanup_range_7b1550",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_range.obj src/campaign_static_range.c",
+    "link_bindings": {
+      "_release_engine_buffer": {
+        "va": 279826640,
+        "basis": "Engine heap release helper. Its body passes the pointer to allocator slot 2."
+      },
+      "_static_range_923a1c": {
+        "va": 287455772,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7a6110 passes callback RVA 0x7b1550 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "b58f8af61a89b87a3a1948a09fd3d76d2a1b022ecb3613335593ecb28be433a1",
+      "inputs_sha256": "ba7196075173e99cb2f4fc8dbf4d3d25542116e1d29655894426830f3d5989d1"
+    }
+  },
+  {
+    "id": "cleanup-range-7b1590",
+    "inputs": [
+      "src/campaign_static_range.c"
+    ],
+    "offset": 8066448,
+    "size": 49,
+    "rebuilt_symbol": "_cleanup_range_7b1590",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_range.obj src/campaign_static_range.c",
+    "link_bindings": {
+      "_release_engine_buffer": {
+        "va": 279826640,
+        "basis": "Engine heap release helper. Its body passes the pointer to allocator slot 2."
+      },
+      "_static_range_92d3e8": {
+        "va": 287495144,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7a6160 passes callback RVA 0x7b1590 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "82441afda023a9f2d58a1e61863889c03a62283b1308559a956aa080131b7e23",
+      "inputs_sha256": "6c63c6cddcfc78648bf2978ada1be4993c858bdf661339da5f516e6293bddbb3"
     }
   },
   {
@@ -6408,6 +6782,405 @@
     }
   },
   {
+    "id": "cleanup-array-7b33a0",
+    "inputs": [
+      "src/campaign_static_array.c",
+      "src/campaign_array_storage.h"
+    ],
+    "offset": 8074144,
+    "size": 72,
+    "rebuilt_symbol": "_cleanup_array_7b33a0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_array.obj src/campaign_static_array.c",
+    "link_bindings": {
+      "@remove_range_066210@16": {
+        "va": 278290960,
+        "basis": "Direct removal call takes the static array in ECX and its original count on the stack."
+      },
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Stock allocator object pointer referenced before the release through slot 2."
+      },
+      "_static_array_92ed0c": {
+        "va": 287501580,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7a7b20 passes callback RVA 0x7b33a0 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "63c5a39aa3ec31912e486fab3527dcc41a2c8e520bad12213e1642f6a5a6a09c",
+      "inputs_sha256": "9f06da68e1c3d25efc82bd187757a7b6ddbaef2858847e246753547c8e37247d"
+    }
+  },
+  {
+    "id": "cleanup-install-7b3590",
+    "inputs": [
+      "src/campaign_static_install.c",
+      "src/static_methods_reset.h"
+    ],
+    "offset": 8074640,
+    "size": 11,
+    "rebuilt_symbol": "_cleanup_install_7b3590",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_install.obj src/campaign_static_install.c",
+    "link_bindings": {
+      "_methods_7b7e68": {
+        "va": 285965928,
+        "basis": "Read-only methods table with an executable first slot."
+      },
+      "_static_install_8c8c10": {
+        "va": 287083536,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7ab1e0 passes callback RVA 0x7b3590 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "b976076ef2292e69bfe9e737bd408b6189248dc4acde1667d2975dcbf3c88ad8",
+      "inputs_sha256": "cd5f7b859aa7349d756ac1d1f0638a622f5ddf7f70b32a0994c57946b4338073"
+    }
+  },
+  {
+    "id": "cleanup-element-range-7b35a0",
+    "inputs": [
+      "src/campaign_static_element_range.c",
+      "src/campaign_array_storage.h"
+    ],
+    "offset": 8074656,
+    "size": 70,
+    "rebuilt_symbol": "_cleanup_element_range_7b35a0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_element_range.obj src/campaign_static_element_range.c",
+    "link_bindings": {
+      "@remove_range_3ca9d0@12": {
+        "va": 281848272,
+        "basis": "Direct removal call takes the static array in ECX and its original count on the stack."
+      },
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Stock allocator object pointer referenced before the release through slot 2."
+      },
+      "_static_element_range_93282c": {
+        "va": 287516716,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7ab200 passes callback RVA 0x7b35a0 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "7ea7adee9c118e6544c51d3c49e9e53c4fd34bf0aaf15385734e11c8ce6edc59",
+      "inputs_sha256": "7238b7dbf3d4167999236ef843b17fc4a16207f354aa9fefc1f278bd1277b00b"
+    }
+  },
+  {
+    "id": "cleanup-array-7b3600",
+    "inputs": [
+      "src/campaign_static_array.c",
+      "src/campaign_array_storage.h"
+    ],
+    "offset": 8074752,
+    "size": 72,
+    "rebuilt_symbol": "_cleanup_array_7b3600",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_array.obj src/campaign_static_array.c",
+    "link_bindings": {
+      "@remove_range_029170@16": {
+        "va": 278040944,
+        "basis": "Direct removal call takes the static array in ECX and its original count on the stack."
+      },
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Stock allocator object pointer referenced before the release through slot 2."
+      },
+      "_static_array_a0dfcc": {
+        "va": 288415692,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7ab230 passes callback RVA 0x7b3600 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "c23e2157cccddb8ef5613b9fbf6620fe767a7786048972f394fb9ce2bb0247f9",
+      "inputs_sha256": "00d4cfa4c766e09f78f76ed5bec39910a86e4735f8453e06330ad885f79125dc"
+    }
+  },
+  {
+    "id": "cleanup-array-7b3650",
+    "inputs": [
+      "src/campaign_static_array.c",
+      "src/campaign_array_storage.h"
+    ],
+    "offset": 8074832,
+    "size": 72,
+    "rebuilt_symbol": "_cleanup_array_7b3650",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_array.obj src/campaign_static_array.c",
+    "link_bindings": {
+      "@remove_range_3d4490@16": {
+        "va": 281887888,
+        "basis": "Direct removal call takes the static array in ECX and its original count on the stack."
+      },
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Stock allocator object pointer referenced before the release through slot 2."
+      },
+      "_static_array_a0dfc0": {
+        "va": 288415680,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7ab220 passes callback RVA 0x7b3650 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "34d928d5286f680e98d7d2b9ce07762de33a1b439d288c7f86197e9b84396790",
+      "inputs_sha256": "13455254150fedcd4d706ca9117e65f872950e205ed8eb0aaf8e9b5152c563c8"
+    }
+  },
+  {
+    "id": "cleanup-array-7b36a0",
+    "inputs": [
+      "src/campaign_static_array.c",
+      "src/campaign_array_storage.h"
+    ],
+    "offset": 8074912,
+    "size": 72,
+    "rebuilt_symbol": "_cleanup_array_7b36a0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_array.obj src/campaign_static_array.c",
+    "link_bindings": {
+      "@remove_range_01b2c0@16": {
+        "va": 277983936,
+        "basis": "Direct removal call takes the static array in ECX and its original count on the stack."
+      },
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Stock allocator object pointer referenced before the release through slot 2."
+      },
+      "_static_array_a12078": {
+        "va": 288432248,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7ab240 passes callback RVA 0x7b36a0 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "eb611a9127d70ed55737f5e3d6df6cf271551321ea4fe4381c4319086c82b5d5",
+      "inputs_sha256": "4a10c8cfac79901ea97b8dcad4ab972a1d799f8d025c542041e2d03bd1ea846b"
+    }
+  },
+  {
+    "id": "cleanup-array-7b36f0",
+    "inputs": [
+      "src/campaign_static_array.c",
+      "src/campaign_array_storage.h"
+    ],
+    "offset": 8074992,
+    "size": 72,
+    "rebuilt_symbol": "_cleanup_array_7b36f0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_array.obj src/campaign_static_array.c",
+    "link_bindings": {
+      "@remove_range_01b2c0@16": {
+        "va": 277983936,
+        "basis": "Direct removal call takes the static array in ECX and its original count on the stack."
+      },
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Stock allocator object pointer referenced before the release through slot 2."
+      },
+      "_static_array_a12084": {
+        "va": 288432260,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7ab250 passes callback RVA 0x7b36f0 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "751133f82097959ce3691fdabdfa281205e708c2f6f3f255b64c50bef0a73d53",
+      "inputs_sha256": "2b38a3f286411d42db425558e55e09914eac754b288857489c4499908a4a017c"
+    }
+  },
+  {
+    "id": "cleanup-array-7b3740",
+    "inputs": [
+      "src/campaign_static_array.c",
+      "src/campaign_array_storage.h"
+    ],
+    "offset": 8075072,
+    "size": 72,
+    "rebuilt_symbol": "_cleanup_array_7b3740",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_array.obj src/campaign_static_array.c",
+    "link_bindings": {
+      "@remove_range_01b2c0@16": {
+        "va": 277983936,
+        "basis": "Direct removal call takes the static array in ECX and its original count on the stack."
+      },
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Stock allocator object pointer referenced before the release through slot 2."
+      },
+      "_static_array_a1209c": {
+        "va": 288432284,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7ab270 passes callback RVA 0x7b3740 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "cc0a48c330370d3241f1d3e9080560bfa8a723e3401a5f86202074ed20ae9983",
+      "inputs_sha256": "543ad8fc419db8d55ff007cc94da3f194da08d415a0796f2ca397b81b037f696"
+    }
+  },
+  {
+    "id": "cleanup-array-7b3790",
+    "inputs": [
+      "src/campaign_static_array.c",
+      "src/campaign_array_storage.h"
+    ],
+    "offset": 8075152,
+    "size": 72,
+    "rebuilt_symbol": "_cleanup_array_7b3790",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_array.obj src/campaign_static_array.c",
+    "link_bindings": {
+      "@remove_range_01b2c0@16": {
+        "va": 277983936,
+        "basis": "Direct removal call takes the static array in ECX and its original count on the stack."
+      },
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Stock allocator object pointer referenced before the release through slot 2."
+      },
+      "_static_array_a120a8": {
+        "va": 288432296,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7ab280 passes callback RVA 0x7b3790 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "2e7ba29d236ecd57f103f67c663e33700b91d896393cb4e7ff4c4bc880db3994",
+      "inputs_sha256": "c980c0f7042899900d703968d9bc76993e924a151ed907c68f1e905d12a0134f"
+    }
+  },
+  {
+    "id": "cleanup-array-7b37e0",
+    "inputs": [
+      "src/campaign_static_array.c",
+      "src/campaign_array_storage.h"
+    ],
+    "offset": 8075232,
+    "size": 72,
+    "rebuilt_symbol": "_cleanup_array_7b37e0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_array.obj src/campaign_static_array.c",
+    "link_bindings": {
+      "@remove_range_01b2c0@16": {
+        "va": 277983936,
+        "basis": "Direct removal call takes the static array in ECX and its original count on the stack."
+      },
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Stock allocator object pointer referenced before the release through slot 2."
+      },
+      "_static_array_a120b4": {
+        "va": 288432308,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7ab290 passes callback RVA 0x7b37e0 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "df1ace447d3bb50e48685c0b117f00bae0ceaf3137f0d3dcebf6732c7c950e25",
+      "inputs_sha256": "c70f7bec45e6674725539c129a312812e8410e0847c9a2fc544edcf1f7d435e6"
+    }
+  },
+  {
+    "id": "cleanup-array-7b3830",
+    "inputs": [
+      "src/campaign_static_array.c",
+      "src/campaign_array_storage.h"
+    ],
+    "offset": 8075312,
+    "size": 72,
+    "rebuilt_symbol": "_cleanup_array_7b3830",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_array.obj src/campaign_static_array.c",
+    "link_bindings": {
+      "@remove_range_029170@16": {
+        "va": 278040944,
+        "basis": "Direct removal call takes the static array in ECX and its original count on the stack."
+      },
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Stock allocator object pointer referenced before the release through slot 2."
+      },
+      "_static_array_a12090": {
+        "va": 288432272,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7ab260 passes callback RVA 0x7b3830 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "08c48364dd0c2519973401a622851b7bc3d46825573dff6015a9f041042de94a",
+      "inputs_sha256": "aa69a43078fbfa3e9a83d6372f2c074f7a8f08d3c42c37d6092197fe062c4d8d"
+    }
+  },
+  {
+    "id": "cleanup-element-range-7b3880",
+    "inputs": [
+      "src/campaign_static_element_range.c",
+      "src/campaign_array_storage.h"
+    ],
+    "offset": 8075392,
+    "size": 70,
+    "rebuilt_symbol": "_cleanup_element_range_7b3880",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_element_range.obj src/campaign_static_element_range.c",
+    "link_bindings": {
+      "@remove_range_01d320@12": {
+        "va": 277992224,
+        "basis": "Direct removal call takes the static array in ECX and its original count on the stack."
+      },
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Stock allocator object pointer referenced before the release through slot 2."
+      },
+      "_static_element_range_a120c0": {
+        "va": 288432320,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7ab2a0 passes callback RVA 0x7b3880 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "1e9fee6e3477f104283c2b15650ad4767ff62bc8258214a554a7712a295271ff",
+      "inputs_sha256": "f539fc17f65d22a29e72b9da62eb54b120eb637aae78b26b2602e908e11f7ef7"
+    }
+  },
+  {
+    "id": "cleanup-element-range-7b38d0",
+    "inputs": [
+      "src/campaign_static_element_range.c",
+      "src/campaign_array_storage.h"
+    ],
+    "offset": 8075472,
+    "size": 70,
+    "rebuilt_symbol": "_cleanup_element_range_7b38d0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_element_range.obj src/campaign_static_element_range.c",
+    "link_bindings": {
+      "@remove_range_013560@12": {
+        "va": 277951840,
+        "basis": "Direct removal call takes the static array in ECX and its original count on the stack."
+      },
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Stock allocator object pointer referenced before the release through slot 2."
+      },
+      "_static_element_range_a120cc": {
+        "va": 288432332,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7ab2b0 passes callback RVA 0x7b38d0 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "4c0e42046bdc437de4e8f20bb32102cdd5267733308cfbca93ad8da31605722b",
+      "inputs_sha256": "ae94f9fbb0d86173935c3e7d9019896e2c6a0a5e06b193c764628f502b87b17d"
+    }
+  },
+  {
     "id": "empty-exit-r7b3920",
     "size": 1,
     "offset": 8075552,
@@ -6421,6 +7194,1167 @@
     "match": {
       "bytes_sha256": "ae3f4619b0413d70d3004b9131c3752153074e45725be13b9a148978895e359e",
       "inputs_sha256": "4eedb24a592c34315569dd096fe54535cd6211f19f491bc8fab8cb795d7fc287"
+    }
+  },
+  {
+    "id": "cleanup-array-7b3930",
+    "inputs": [
+      "src/campaign_static_array.c",
+      "src/campaign_array_storage.h"
+    ],
+    "offset": 8075568,
+    "size": 72,
+    "rebuilt_symbol": "_cleanup_array_7b3930",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_array.obj src/campaign_static_array.c",
+    "link_bindings": {
+      "@remove_range_00b820@16": {
+        "va": 277919776,
+        "basis": "Direct removal call takes the static array in ECX and its original count on the stack."
+      },
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Stock allocator object pointer referenced before the release through slot 2."
+      },
+      "_static_array_a17090": {
+        "va": 288452752,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7ae030 passes callback RVA 0x7b3930 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "1e8da9d60cb29351031e2d867e873e18c5c80d167e8786206721f90051fc0871",
+      "inputs_sha256": "0111bef1265a1aafe9f696f186bdf48c8155ede80eb796527632ea3384c52219"
+    }
+  },
+  {
+    "id": "cleanup-array-7b3980",
+    "inputs": [
+      "src/campaign_static_array.c",
+      "src/campaign_array_storage.h"
+    ],
+    "offset": 8075648,
+    "size": 72,
+    "rebuilt_symbol": "_cleanup_array_7b3980",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_array.obj src/campaign_static_array.c",
+    "link_bindings": {
+      "@remove_range_00b820@16": {
+        "va": 277919776,
+        "basis": "Direct removal call takes the static array in ECX and its original count on the stack."
+      },
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Stock allocator object pointer referenced before the release through slot 2."
+      },
+      "_static_array_a17078": {
+        "va": 288452728,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7ae040 passes callback RVA 0x7b3980 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "b95c652fc7dd2025a2a2c12203f9a3dc7350e2a0f6db2dcc5acb94f23eb0958a",
+      "inputs_sha256": "419c2e8ed250805550b7aee99321e459f0741f592d27745e27ff187e9f313186"
+    }
+  },
+  {
+    "id": "cleanup-array-7b39d0",
+    "inputs": [
+      "src/campaign_static_array.c",
+      "src/campaign_array_storage.h"
+    ],
+    "offset": 8075728,
+    "size": 72,
+    "rebuilt_symbol": "_cleanup_array_7b39d0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_array.obj src/campaign_static_array.c",
+    "link_bindings": {
+      "@remove_range_015cf0@16": {
+        "va": 277961968,
+        "basis": "Direct removal call takes the static array in ECX and its original count on the stack."
+      },
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Stock allocator object pointer referenced before the release through slot 2."
+      },
+      "_static_array_a17084": {
+        "va": 288452740,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7ae050 passes callback RVA 0x7b39d0 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "c191e7682b47dcf1bda67145ff33846a805134287d941697310ea4c43a2435ba",
+      "inputs_sha256": "09fe80db9167157f6e68c60be8951d775fc1b0c5fd81b2114bff949533d3bca7"
+    }
+  },
+  {
+    "id": "cleanup-range-7b3a20",
+    "inputs": [
+      "src/campaign_static_range.c"
+    ],
+    "offset": 8075808,
+    "size": 49,
+    "rebuilt_symbol": "_cleanup_range_7b3a20",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_range.obj src/campaign_static_range.c",
+    "link_bindings": {
+      "_release_engine_buffer": {
+        "va": 279826640,
+        "basis": "Engine heap release helper. Its body passes the pointer to allocator slot 2."
+      },
+      "_static_range_a17b0c": {
+        "va": 288455436,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7ae060 passes callback RVA 0x7b3a20 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "d71df1aee32ffb4dc261767357f6d5ad230bc36beb9720e556cdf1a8c7dd8d17",
+      "inputs_sha256": "22dccb880f13ae89e313fea8127d5b7cb1720f6b122dba50528ac815f8577b3c"
+    }
+  },
+  {
+    "id": "cleanup-range-7b3a60",
+    "inputs": [
+      "src/campaign_static_range.c"
+    ],
+    "offset": 8075872,
+    "size": 49,
+    "rebuilt_symbol": "_cleanup_range_7b3a60",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_range.obj src/campaign_static_range.c",
+    "link_bindings": {
+      "_release_engine_buffer": {
+        "va": 279826640,
+        "basis": "Engine heap release helper. Its body passes the pointer to allocator slot 2."
+      },
+      "_static_range_a17b48": {
+        "va": 288455496,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7ae070 passes callback RVA 0x7b3a60 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "8a06fbdaa08eb991c5fe1c4b7243b1dd880bc84498bdd330cbd24d9cc7d4041f",
+      "inputs_sha256": "5ba6bc0f94768cdb69243a7084652d3075d92f03cc226f99c53557b5a33635f5"
+    }
+  },
+  {
+    "id": "cleanup-range-7b3aa0",
+    "inputs": [
+      "src/campaign_static_range.c"
+    ],
+    "offset": 8075936,
+    "size": 49,
+    "rebuilt_symbol": "_cleanup_range_7b3aa0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_range.obj src/campaign_static_range.c",
+    "link_bindings": {
+      "_release_engine_buffer": {
+        "va": 279826640,
+        "basis": "Engine heap release helper. Its body passes the pointer to allocator slot 2."
+      },
+      "_static_range_a17b84": {
+        "va": 288455556,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7ae080 passes callback RVA 0x7b3aa0 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "fdf47b5856453d5a0e86fcbb0fd0fde5d712132f366c0913a039f09f683b4f41",
+      "inputs_sha256": "5fad4fcfee59af22f9f0df9e84c2e732d06c9162a37b42f7e8575b27bbaca283"
+    }
+  },
+  {
+    "id": "cleanup-range-7b3ae0",
+    "inputs": [
+      "src/campaign_static_range.c"
+    ],
+    "offset": 8076000,
+    "size": 49,
+    "rebuilt_symbol": "_cleanup_range_7b3ae0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_range.obj src/campaign_static_range.c",
+    "link_bindings": {
+      "_release_engine_buffer": {
+        "va": 279826640,
+        "basis": "Engine heap release helper. Its body passes the pointer to allocator slot 2."
+      },
+      "_static_range_a17bc0": {
+        "va": 288455616,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7ae090 passes callback RVA 0x7b3ae0 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "ca366e26d2248ad723e0235cd8f75781e0dc2febd1b3a94ad0efd13886f327b6",
+      "inputs_sha256": "3cb6e27163b3c3ba4720231f1f580a653436fd7173bf154fdd672f7742def027"
+    }
+  },
+  {
+    "id": "cleanup-range-7b3b20",
+    "inputs": [
+      "src/campaign_static_range.c"
+    ],
+    "offset": 8076064,
+    "size": 49,
+    "rebuilt_symbol": "_cleanup_range_7b3b20",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_range.obj src/campaign_static_range.c",
+    "link_bindings": {
+      "_release_engine_buffer": {
+        "va": 279826640,
+        "basis": "Engine heap release helper. Its body passes the pointer to allocator slot 2."
+      },
+      "_static_range_a17c28": {
+        "va": 288455720,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7ae0a0 passes callback RVA 0x7b3b20 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "72a706dd327c4438b1a023060129d753e1d7dcd5513a36ca82be643ca078ae3e",
+      "inputs_sha256": "1f99f35205023bbf5159f06d587f67f21cca3bdb7a50abb84c1e649b98f53da5"
+    }
+  },
+  {
+    "id": "cleanup-range-7b3b60",
+    "inputs": [
+      "src/campaign_static_range.c"
+    ],
+    "offset": 8076128,
+    "size": 49,
+    "rebuilt_symbol": "_cleanup_range_7b3b60",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_range.obj src/campaign_static_range.c",
+    "link_bindings": {
+      "_release_engine_buffer": {
+        "va": 279826640,
+        "basis": "Engine heap release helper. Its body passes the pointer to allocator slot 2."
+      },
+      "_static_range_a17c64": {
+        "va": 288455780,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7ae0b0 passes callback RVA 0x7b3b60 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "61f874ca74a0bc6a9208a5387ba9565b89e8b1e666b5b9e716bc87578af3a50c",
+      "inputs_sha256": "d84c17629a1e8cad00113217c407ec70b06d57332935b4d9f7baf59f66bf3aac"
+    }
+  },
+  {
+    "id": "cleanup-range-7b3ba0",
+    "inputs": [
+      "src/campaign_static_range.c"
+    ],
+    "offset": 8076192,
+    "size": 49,
+    "rebuilt_symbol": "_cleanup_range_7b3ba0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_range.obj src/campaign_static_range.c",
+    "link_bindings": {
+      "_release_engine_buffer": {
+        "va": 279826640,
+        "basis": "Engine heap release helper. Its body passes the pointer to allocator slot 2."
+      },
+      "_static_range_a17c78": {
+        "va": 288455800,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7ae0c0 passes callback RVA 0x7b3ba0 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "7bd164db4afb67279539b5c8fec1022e523d6a5dea5d36d6f25bbed29f933b1a",
+      "inputs_sha256": "990615806a6839dca3d7b5665c39fe0fee0c2a47a6c3c297eddab5fc890078ee"
+    }
+  },
+  {
+    "id": "cleanup-range-7b3be0",
+    "inputs": [
+      "src/campaign_static_range.c"
+    ],
+    "offset": 8076256,
+    "size": 49,
+    "rebuilt_symbol": "_cleanup_range_7b3be0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_range.obj src/campaign_static_range.c",
+    "link_bindings": {
+      "_release_engine_buffer": {
+        "va": 279826640,
+        "basis": "Engine heap release helper. Its body passes the pointer to allocator slot 2."
+      },
+      "_static_range_a17cb8": {
+        "va": 288455864,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7ae0d0 passes callback RVA 0x7b3be0 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "731348caa591bbdbfed5da579111c0b7a439c503fc5b5e33a295ffddf8c46c23",
+      "inputs_sha256": "284bc8991ede3d40a9a2303a1b82a83b6a6a9f0e70aa47391d5ec9f98430ac16"
+    }
+  },
+  {
+    "id": "cleanup-range-7b3c20",
+    "inputs": [
+      "src/campaign_static_range.c"
+    ],
+    "offset": 8076320,
+    "size": 49,
+    "rebuilt_symbol": "_cleanup_range_7b3c20",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_range.obj src/campaign_static_range.c",
+    "link_bindings": {
+      "_release_engine_buffer": {
+        "va": 279826640,
+        "basis": "Engine heap release helper. Its body passes the pointer to allocator slot 2."
+      },
+      "_static_range_a17cf4": {
+        "va": 288455924,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7ae0e0 passes callback RVA 0x7b3c20 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "8929c4b61082895b91695d84a64a1d120bf114937dc3eebc5a5200f38f4b38b7",
+      "inputs_sha256": "ebc106cf6af9c4050b7841132513ab1880b7988de391836f85b509530ecbadc8"
+    }
+  },
+  {
+    "id": "cleanup-range-7b3c60",
+    "inputs": [
+      "src/campaign_static_range.c"
+    ],
+    "offset": 8076384,
+    "size": 49,
+    "rebuilt_symbol": "_cleanup_range_7b3c60",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_range.obj src/campaign_static_range.c",
+    "link_bindings": {
+      "_release_engine_buffer": {
+        "va": 279826640,
+        "basis": "Engine heap release helper. Its body passes the pointer to allocator slot 2."
+      },
+      "_static_range_a17c78": {
+        "va": 288455800,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7ae100 passes callback RVA 0x7b3c60 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "b0339356e8d21e317cb7d8c300ec592250468d02a3d523e6c6d083a9bfe959bb",
+      "inputs_sha256": "8a85d88fe9b8690b12fb6fcd1a346135850548e68cf6aeda3b61436ff3808960"
+    }
+  },
+  {
+    "id": "cleanup-range-7b3ca0",
+    "inputs": [
+      "src/campaign_static_range.c"
+    ],
+    "offset": 8076448,
+    "size": 49,
+    "rebuilt_symbol": "_cleanup_range_7b3ca0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_range.obj src/campaign_static_range.c",
+    "link_bindings": {
+      "_release_engine_buffer": {
+        "va": 279826640,
+        "basis": "Engine heap release helper. Its body passes the pointer to allocator slot 2."
+      },
+      "_static_range_a17e04": {
+        "va": 288456196,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7ae0f0 passes callback RVA 0x7b3ca0 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "d953f2df40e0c798d7275b12f5efe3e266571595eb20da490524bc125b6d7e16",
+      "inputs_sha256": "3bea6bc7601ea60e1397f797e1c89d6a961f2096e92b13953375445de9d50792"
+    }
+  },
+  {
+    "id": "cleanup-range-7b3ce0",
+    "inputs": [
+      "src/campaign_static_range.c"
+    ],
+    "offset": 8076512,
+    "size": 49,
+    "rebuilt_symbol": "_cleanup_range_7b3ce0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_range.obj src/campaign_static_range.c",
+    "link_bindings": {
+      "_release_engine_buffer": {
+        "va": 279826640,
+        "basis": "Engine heap release helper. Its body passes the pointer to allocator slot 2."
+      },
+      "_static_range_a17e68": {
+        "va": 288456296,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7ae110 passes callback RVA 0x7b3ce0 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "180ab3b2f5361debccac1877e3041a92160e295f6c2cd88bb64040dcf01a0590",
+      "inputs_sha256": "36bab3df20886d18268c05ac25aee109dff1c0cad03bf030e685880862e3a078"
+    }
+  },
+  {
+    "id": "cleanup-range-7b3d20",
+    "inputs": [
+      "src/campaign_static_range.c"
+    ],
+    "offset": 8076576,
+    "size": 49,
+    "rebuilt_symbol": "_cleanup_range_7b3d20",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_range.obj src/campaign_static_range.c",
+    "link_bindings": {
+      "_release_engine_buffer": {
+        "va": 279826640,
+        "basis": "Engine heap release helper. Its body passes the pointer to allocator slot 2."
+      },
+      "_static_range_a17ea4": {
+        "va": 288456356,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7ae120 passes callback RVA 0x7b3d20 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "b29c8a272f86f4c09490eedb3398804c0b80faa0e16ede01017a2b16cb772496",
+      "inputs_sha256": "7d760061bed8339263f8cb5ed83c4148d4a6ea3f3f332691b12a2e6fd196f0dc"
+    }
+  },
+  {
+    "id": "cleanup-range-7b3d60",
+    "inputs": [
+      "src/campaign_static_range.c"
+    ],
+    "offset": 8076640,
+    "size": 49,
+    "rebuilt_symbol": "_cleanup_range_7b3d60",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_range.obj src/campaign_static_range.c",
+    "link_bindings": {
+      "_release_engine_buffer": {
+        "va": 279826640,
+        "basis": "Engine heap release helper. Its body passes the pointer to allocator slot 2."
+      },
+      "_static_range_a17eb8": {
+        "va": 288456376,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7ae130 passes callback RVA 0x7b3d60 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "eca2056dc7486653ab2fe1d70728d57ec71d0842957cc6a5a871b9db3403a8b2",
+      "inputs_sha256": "0c4be63ae72b28d368c6da9dd9363a83c5abe2dccf0b1c271623727d918f5286"
+    }
+  },
+  {
+    "id": "cleanup-range-7b3da0",
+    "inputs": [
+      "src/campaign_static_range.c"
+    ],
+    "offset": 8076704,
+    "size": 49,
+    "rebuilt_symbol": "_cleanup_range_7b3da0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_range.obj src/campaign_static_range.c",
+    "link_bindings": {
+      "_release_engine_buffer": {
+        "va": 279826640,
+        "basis": "Engine heap release helper. Its body passes the pointer to allocator slot 2."
+      },
+      "_static_range_a17ecc": {
+        "va": 288456396,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7ae140 passes callback RVA 0x7b3da0 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "b5454ff0597a0977b1fd8e0cc47dfd1007e54ef56198243a55e5382880fa38c0",
+      "inputs_sha256": "37d3954909787d9da2ca568f7015bfadf08d7c29bf3afc27aac3aa559d353584"
+    }
+  },
+  {
+    "id": "cleanup-range-7b3de0",
+    "inputs": [
+      "src/campaign_static_range.c"
+    ],
+    "offset": 8076768,
+    "size": 49,
+    "rebuilt_symbol": "_cleanup_range_7b3de0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_range.obj src/campaign_static_range.c",
+    "link_bindings": {
+      "_release_engine_buffer": {
+        "va": 279826640,
+        "basis": "Engine heap release helper. Its body passes the pointer to allocator slot 2."
+      },
+      "_static_range_a17ee0": {
+        "va": 288456416,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7ae150 passes callback RVA 0x7b3de0 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "63d2d705ba96890191fb0504367b3e6b205b699f25d0796b62380be031b8af99",
+      "inputs_sha256": "de697c0717bf9cadf16de71207d6f4bad1aa3bdd8d0c141a36639c30ac6431b5"
+    }
+  },
+  {
+    "id": "cleanup-range-7b3e20",
+    "inputs": [
+      "src/campaign_static_range.c"
+    ],
+    "offset": 8076832,
+    "size": 49,
+    "rebuilt_symbol": "_cleanup_range_7b3e20",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_range.obj src/campaign_static_range.c",
+    "link_bindings": {
+      "_release_engine_buffer": {
+        "va": 279826640,
+        "basis": "Engine heap release helper. Its body passes the pointer to allocator slot 2."
+      },
+      "_static_range_a17ef4": {
+        "va": 288456436,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7ae160 passes callback RVA 0x7b3e20 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "34da7030fee90945429b1c188577fccae6b9291478f8a7412e0051b3c674e5a7",
+      "inputs_sha256": "f92deeaf2b90b945228c606347bfb5008dd52d070e3b2179a4f7f9abe56a5d05"
+    }
+  },
+  {
+    "id": "cleanup-short-string-7b3e60",
+    "inputs": [
+      "src/campaign_static_short_string.c",
+      "src/static_short_string_cleanup.h"
+    ],
+    "offset": 8076896,
+    "size": 46,
+    "rebuilt_symbol": "_cleanup_short_string_7b3e60",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_short_string.obj src/campaign_static_short_string.c",
+    "link_bindings": {
+      "_release_engine_buffer": {
+        "va": 279826640,
+        "basis": "Engine allocator release through slot 2; called when this string uses heap storage."
+      },
+      "_static_short_string_a17f84": {
+        "va": 288456580,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x456b0a passes callback RVA 0x7b3e60 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "ba880b861e2fa871dfbf188abbbc5ce5ee0d06d75ceda28af1cae34c5c387935",
+      "inputs_sha256": "f5df1b2ebfba83cbd6797e6e5bcc662568a1e592101548621008cd452a097074"
+    }
+  },
+  {
+    "id": "cleanup-short-string-7b3e90",
+    "inputs": [
+      "src/campaign_static_short_string.c",
+      "src/static_short_string_cleanup.h"
+    ],
+    "offset": 8076944,
+    "size": 46,
+    "rebuilt_symbol": "_cleanup_short_string_7b3e90",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_short_string.obj src/campaign_static_short_string.c",
+    "link_bindings": {
+      "_release_engine_buffer": {
+        "va": 279826640,
+        "basis": "Engine allocator release through slot 2; called when this string uses heap storage."
+      },
+      "_static_short_string_a17fa0": {
+        "va": 288456608,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x456ab8 passes callback RVA 0x7b3e90 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "267f334de7d3f943c9d3f63546d9ecadfa9378fc468c99d3ed28871d8f55fd9f",
+      "inputs_sha256": "09d460ef818b9929ce65320d00e8a155a2ccff6169b5d6ac7ec511f28231fea1"
+    }
+  },
+  {
+    "id": "cleanup-range-7b3ec0",
+    "inputs": [
+      "src/campaign_static_range.c"
+    ],
+    "offset": 8076992,
+    "size": 49,
+    "rebuilt_symbol": "_cleanup_range_7b3ec0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_range.obj src/campaign_static_range.c",
+    "link_bindings": {
+      "_release_engine_buffer": {
+        "va": 279826640,
+        "basis": "Engine heap release helper. Its body passes the pointer to allocator slot 2."
+      },
+      "_static_range_a17fe8": {
+        "va": 288456680,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7ae170 passes callback RVA 0x7b3ec0 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "eacb5734d2e589f018c673cd51f9adb75916f9f70ac40a57adddc93315524167",
+      "inputs_sha256": "6b8288a8cd92aed44b3d1eaa42f5d4575f0047431b65a4155fe3370fe00d4cd9"
+    }
+  },
+  {
+    "id": "cleanup-range-7b3f00",
+    "inputs": [
+      "src/campaign_static_range.c"
+    ],
+    "offset": 8077056,
+    "size": 49,
+    "rebuilt_symbol": "_cleanup_range_7b3f00",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_range.obj src/campaign_static_range.c",
+    "link_bindings": {
+      "_release_engine_buffer": {
+        "va": 279826640,
+        "basis": "Engine heap release helper. Its body passes the pointer to allocator slot 2."
+      },
+      "_static_range_a18024": {
+        "va": 288456740,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7ae180 passes callback RVA 0x7b3f00 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "2d6fd3ad4b578d36d6141492345523e5ef988f67b122b8a187342c7dd9b747b7",
+      "inputs_sha256": "b60ae09ee14f058ba3d308644c0e830f924d8897889933e50c3495aae5ae12d4"
+    }
+  },
+  {
+    "id": "cleanup-range-7b3f40",
+    "inputs": [
+      "src/campaign_static_range.c"
+    ],
+    "offset": 8077120,
+    "size": 49,
+    "rebuilt_symbol": "_cleanup_range_7b3f40",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_range.obj src/campaign_static_range.c",
+    "link_bindings": {
+      "_release_engine_buffer": {
+        "va": 279826640,
+        "basis": "Engine heap release helper. Its body passes the pointer to allocator slot 2."
+      },
+      "_static_range_a1a0b4": {
+        "va": 288465076,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7ae190 passes callback RVA 0x7b3f40 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "581276fdf2108b2d5619c8bb2e12b81b98459f2573586055fbcbc86ad6efbaa3",
+      "inputs_sha256": "ba3b336bd1fc9851341e1228cec99870db46a89f2917c9076c17bf8a1f7a6d5c"
+    }
+  },
+  {
+    "id": "cleanup-range-7b3f80",
+    "inputs": [
+      "src/campaign_static_range.c"
+    ],
+    "offset": 8077184,
+    "size": 49,
+    "rebuilt_symbol": "_cleanup_range_7b3f80",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_range.obj src/campaign_static_range.c",
+    "link_bindings": {
+      "_release_engine_buffer": {
+        "va": 279826640,
+        "basis": "Engine heap release helper. Its body passes the pointer to allocator slot 2."
+      },
+      "_static_range_a1a0f0": {
+        "va": 288465136,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7ae1a0 passes callback RVA 0x7b3f80 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "3f365749bbaa48cacedbf2609313d70bf6ed1295940759fb5226fb6a068483c5",
+      "inputs_sha256": "3d5d40a5c06ec6f30c126de70d5029b31157edff4cf1c3f1e7cc6be4b167e5ac"
+    }
+  },
+  {
+    "id": "cleanup-range-7b3fc0",
+    "inputs": [
+      "src/campaign_static_range.c"
+    ],
+    "offset": 8077248,
+    "size": 49,
+    "rebuilt_symbol": "_cleanup_range_7b3fc0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_range.obj src/campaign_static_range.c",
+    "link_bindings": {
+      "_release_engine_buffer": {
+        "va": 279826640,
+        "basis": "Engine heap release helper. Its body passes the pointer to allocator slot 2."
+      },
+      "_static_range_a1a12c": {
+        "va": 288465196,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7ae1b0 passes callback RVA 0x7b3fc0 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "711ba40b506d8966a23b80fe4b9b82509a387db367851cc8be44b63622f37fd2",
+      "inputs_sha256": "dd1f3a17de694ede10dd3b1e307ddb084623ba4476e3959458fc11806c3ffd6d"
+    }
+  },
+  {
+    "id": "cleanup-range-7b4000",
+    "inputs": [
+      "src/campaign_static_range.c"
+    ],
+    "offset": 8077312,
+    "size": 49,
+    "rebuilt_symbol": "_cleanup_range_7b4000",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_range.obj src/campaign_static_range.c",
+    "link_bindings": {
+      "_release_engine_buffer": {
+        "va": 279826640,
+        "basis": "Engine heap release helper. Its body passes the pointer to allocator slot 2."
+      },
+      "_static_range_a1a16c": {
+        "va": 288465260,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7ae1c0 passes callback RVA 0x7b4000 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "4e1de6b0fca87c69960424833362acdf27049a79b60fdce9329050f677a8844d",
+      "inputs_sha256": "b365da68af4b67bc1888b3c73b6ade2eb77bdf9f1abfd0886745155eadb4e7ed"
+    }
+  },
+  {
+    "id": "cleanup-range-7b4040",
+    "inputs": [
+      "src/campaign_static_range.c"
+    ],
+    "offset": 8077376,
+    "size": 49,
+    "rebuilt_symbol": "_cleanup_range_7b4040",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_range.obj src/campaign_static_range.c",
+    "link_bindings": {
+      "_release_engine_buffer": {
+        "va": 279826640,
+        "basis": "Engine heap release helper. Its body passes the pointer to allocator slot 2."
+      },
+      "_static_range_a1a1a8": {
+        "va": 288465320,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7ae1d0 passes callback RVA 0x7b4040 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "46004d6b76b09f6a6a02f65d4fe368b1ba8dbb8e77d3ad478dd5dc4d8d34625c",
+      "inputs_sha256": "2332a5050c721d27ba4feb79993e14a870f97608199bc35474daa896e74fd2eb"
+    }
+  },
+  {
+    "id": "cleanup-range-7b4080",
+    "inputs": [
+      "src/campaign_static_range.c"
+    ],
+    "offset": 8077440,
+    "size": 49,
+    "rebuilt_symbol": "_cleanup_range_7b4080",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_range.obj src/campaign_static_range.c",
+    "link_bindings": {
+      "_release_engine_buffer": {
+        "va": 279826640,
+        "basis": "Engine heap release helper. Its body passes the pointer to allocator slot 2."
+      },
+      "_static_range_a1a1e4": {
+        "va": 288465380,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7ae1e0 passes callback RVA 0x7b4080 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "2dfab21813475ba1d42c0a2d87498329efb380131798c59f754497fca8b43ef0",
+      "inputs_sha256": "181b69cf797cf53147170a42cc039ab4a9f213db765249c4b9c07fade179e3ec"
+    }
+  },
+  {
+    "id": "cleanup-range-7b40c0",
+    "inputs": [
+      "src/campaign_static_range.c"
+    ],
+    "offset": 8077504,
+    "size": 49,
+    "rebuilt_symbol": "_cleanup_range_7b40c0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_range.obj src/campaign_static_range.c",
+    "link_bindings": {
+      "_release_engine_buffer": {
+        "va": 279826640,
+        "basis": "Engine heap release helper. Its body passes the pointer to allocator slot 2."
+      },
+      "_static_range_a1a220": {
+        "va": 288465440,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7ae1f0 passes callback RVA 0x7b40c0 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "f8cf6d9af892a51baa2d21d20f8eee5e17147f9cb309a146c4dc2948db585337",
+      "inputs_sha256": "54e47e7a01bbb596615e698ef78652bd5aeabd098003228922b4ee7876ae7a46"
+    }
+  },
+  {
+    "id": "cleanup-range-7b4100",
+    "inputs": [
+      "src/campaign_static_range.c"
+    ],
+    "offset": 8077568,
+    "size": 49,
+    "rebuilt_symbol": "_cleanup_range_7b4100",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_range.obj src/campaign_static_range.c",
+    "link_bindings": {
+      "_release_engine_buffer": {
+        "va": 279826640,
+        "basis": "Engine heap release helper. Its body passes the pointer to allocator slot 2."
+      },
+      "_static_range_a1a25c": {
+        "va": 288465500,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7ae200 passes callback RVA 0x7b4100 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "122d67d5dcecdb11346836a9e2b5bb374d334e96ae57d2e04d23007bd78c578a",
+      "inputs_sha256": "2b7bf3918fe524d8de6c4095791eb9201ba717b05a318bb318d778d47f5e76cc"
+    }
+  },
+  {
+    "id": "cleanup-range-7b4140",
+    "inputs": [
+      "src/campaign_static_range.c"
+    ],
+    "offset": 8077632,
+    "size": 49,
+    "rebuilt_symbol": "_cleanup_range_7b4140",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_range.obj src/campaign_static_range.c",
+    "link_bindings": {
+      "_release_engine_buffer": {
+        "va": 279826640,
+        "basis": "Engine heap release helper. Its body passes the pointer to allocator slot 2."
+      },
+      "_static_range_a1a298": {
+        "va": 288465560,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7ae210 passes callback RVA 0x7b4140 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "48448e5b78cd1ee9f3a6f4a92a8dea34b2d4cac0d7749485ca44fe4af3e772a0",
+      "inputs_sha256": "065bfef5c18fce47751dea83bcd6c8e4d7617d575fad43a6c995d31f3f7dd7fa"
+    }
+  },
+  {
+    "id": "cleanup-range-7b4180",
+    "inputs": [
+      "src/campaign_static_range.c"
+    ],
+    "offset": 8077696,
+    "size": 49,
+    "rebuilt_symbol": "_cleanup_range_7b4180",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_range.obj src/campaign_static_range.c",
+    "link_bindings": {
+      "_release_engine_buffer": {
+        "va": 279826640,
+        "basis": "Engine heap release helper. Its body passes the pointer to allocator slot 2."
+      },
+      "_static_range_a1a2d4": {
+        "va": 288465620,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7ae220 passes callback RVA 0x7b4180 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "90bae518a822a35da0046829d2ff2a0cf525e6ed90d04cf9158c94afce38f5e6",
+      "inputs_sha256": "3b6129ba5446781b64be0820e4f3860b5398f0c95165aa69af7677109d947ea7"
+    }
+  },
+  {
+    "id": "cleanup-range-7b41c0",
+    "inputs": [
+      "src/campaign_static_range.c"
+    ],
+    "offset": 8077760,
+    "size": 49,
+    "rebuilt_symbol": "_cleanup_range_7b41c0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_range.obj src/campaign_static_range.c",
+    "link_bindings": {
+      "_release_engine_buffer": {
+        "va": 279826640,
+        "basis": "Engine heap release helper. Its body passes the pointer to allocator slot 2."
+      },
+      "_static_range_a1a310": {
+        "va": 288465680,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7ae230 passes callback RVA 0x7b41c0 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "9367f43ba4b3abe93b15440e48fce041d320e8eb60e1ba648b21f725be75378d",
+      "inputs_sha256": "2fca78b93eb4557855268410e6e567ca4a7d50e6beb013eee1695c5048baad77"
+    }
+  },
+  {
+    "id": "cleanup-range-7b4200",
+    "inputs": [
+      "src/campaign_static_range.c"
+    ],
+    "offset": 8077824,
+    "size": 49,
+    "rebuilt_symbol": "_cleanup_range_7b4200",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_range.obj src/campaign_static_range.c",
+    "link_bindings": {
+      "_release_engine_buffer": {
+        "va": 279826640,
+        "basis": "Engine heap release helper. Its body passes the pointer to allocator slot 2."
+      },
+      "_static_range_a17e04": {
+        "va": 288456196,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7ae240 passes callback RVA 0x7b4200 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "64687bbe13e380855a1c203441100001685ca0e25f9cc5aa765ae1a332b5f3da",
+      "inputs_sha256": "a3c4adf29fcdf969d56f4006274fd403a63e6875814a6428ac8e9002ce4a333f"
+    }
+  },
+  {
+    "id": "cleanup-range-7b4240",
+    "inputs": [
+      "src/campaign_static_range.c"
+    ],
+    "offset": 8077888,
+    "size": 49,
+    "rebuilt_symbol": "_cleanup_range_7b4240",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_range.obj src/campaign_static_range.c",
+    "link_bindings": {
+      "_release_engine_buffer": {
+        "va": 279826640,
+        "basis": "Engine heap release helper. Its body passes the pointer to allocator slot 2."
+      },
+      "_static_range_a1a34c": {
+        "va": 288465740,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7ae250 passes callback RVA 0x7b4240 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "f244874068b00066872f8b4323ce08d80d5db3ec77eb9921398bc3b4bb9870a9",
+      "inputs_sha256": "1a80a632dc1b607c230b1f7c11458eaa3e745efb58843f87ddc73e04ed39f3ec"
+    }
+  },
+  {
+    "id": "cleanup-range-7b4280",
+    "inputs": [
+      "src/campaign_static_range.c"
+    ],
+    "offset": 8077952,
+    "size": 49,
+    "rebuilt_symbol": "_cleanup_range_7b4280",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_range.obj src/campaign_static_range.c",
+    "link_bindings": {
+      "_release_engine_buffer": {
+        "va": 279826640,
+        "basis": "Engine heap release helper. Its body passes the pointer to allocator slot 2."
+      },
+      "_static_range_a1a388": {
+        "va": 288465800,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7ae260 passes callback RVA 0x7b4280 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "b5a25a5bd75227940184c21ed50602e518cca73f5b5be0eb80cdc11697f6e54c",
+      "inputs_sha256": "45b29e332dedec3ed31e26d3ba4b7cd18529a4b1b89c9242019310a3f9cce2fe"
+    }
+  },
+  {
+    "id": "cleanup-range-7b42c0",
+    "inputs": [
+      "src/campaign_static_range.c"
+    ],
+    "offset": 8078016,
+    "size": 49,
+    "rebuilt_symbol": "_cleanup_range_7b42c0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_range.obj src/campaign_static_range.c",
+    "link_bindings": {
+      "_release_engine_buffer": {
+        "va": 279826640,
+        "basis": "Engine heap release helper. Its body passes the pointer to allocator slot 2."
+      },
+      "_static_range_a1a3c4": {
+        "va": 288465860,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7ae270 passes callback RVA 0x7b42c0 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "d9a5842f02b3dc8610b168918e38de6e3b7e0a86a91c7ce675b760677c6ce440",
+      "inputs_sha256": "62e2292b85c8a356440c858b27d4f7db6aa60a11926ce0b4227830821ff3ce0c"
+    }
+  },
+  {
+    "id": "cleanup-range-7b4300",
+    "inputs": [
+      "src/campaign_static_range.c"
+    ],
+    "offset": 8078080,
+    "size": 49,
+    "rebuilt_symbol": "_cleanup_range_7b4300",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_range.obj src/campaign_static_range.c",
+    "link_bindings": {
+      "_release_engine_buffer": {
+        "va": 279826640,
+        "basis": "Engine heap release helper. Its body passes the pointer to allocator slot 2."
+      },
+      "_static_range_a1a400": {
+        "va": 288465920,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7ae280 passes callback RVA 0x7b4300 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "4434f79a90357a9573b1cea4fc01e4dc707a81254416e3c3b3e828752407600c",
+      "inputs_sha256": "3fa9a8d706faa96820d25443d6bf1bdbd4e5d9cb6a7c24c16e26c0e4cf8016d9"
+    }
+  },
+  {
+    "id": "cleanup-range-7b4340",
+    "inputs": [
+      "src/campaign_static_range.c"
+    ],
+    "offset": 8078144,
+    "size": 49,
+    "rebuilt_symbol": "_cleanup_range_7b4340",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_range.obj src/campaign_static_range.c",
+    "link_bindings": {
+      "_release_engine_buffer": {
+        "va": 279826640,
+        "basis": "Engine heap release helper. Its body passes the pointer to allocator slot 2."
+      },
+      "_static_range_a1a48c": {
+        "va": 288466060,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7ae290 passes callback RVA 0x7b4340 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "e282ccf49b5b4cc54dfc6a5f6f97053f96a116c4a008d7a85735cb33d5675f76",
+      "inputs_sha256": "d2a428db9498d6f22548b9605e8cee85f03d3b547fc52ed5bd15081a6345461b"
+    }
+  },
+  {
+    "id": "cleanup-range-7b4380",
+    "inputs": [
+      "src/campaign_static_range.c"
+    ],
+    "offset": 8078208,
+    "size": 49,
+    "rebuilt_symbol": "_cleanup_range_7b4380",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_range.obj src/campaign_static_range.c",
+    "link_bindings": {
+      "_release_engine_buffer": {
+        "va": 279826640,
+        "basis": "Engine heap release helper. Its body passes the pointer to allocator slot 2."
+      },
+      "_static_range_a1a4c8": {
+        "va": 288466120,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7ae2a0 passes callback RVA 0x7b4380 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "51a1ae0f58e8517d9b54d1530027bd7e110ac8054ca3503e87096a7986cb2322",
+      "inputs_sha256": "c096f194a4e97042b33c43025a9f612a6aa9f204015968308c3b80d7ef492cfa"
+    }
+  },
+  {
+    "id": "cleanup-range-7b43c0",
+    "inputs": [
+      "src/campaign_static_range.c"
+    ],
+    "offset": 8078272,
+    "size": 49,
+    "rebuilt_symbol": "_cleanup_range_7b43c0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_range.obj src/campaign_static_range.c",
+    "link_bindings": {
+      "_release_engine_buffer": {
+        "va": 279826640,
+        "basis": "Engine heap release helper. Its body passes the pointer to allocator slot 2."
+      },
+      "_static_range_a1a504": {
+        "va": 288466180,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7ae2b0 passes callback RVA 0x7b43c0 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "c93228c1afc81a7ab08360124ba009ffc4ffe9d66fc67aa9c4ef80abcf26ffad",
+      "inputs_sha256": "79bf2f564cbc741b92058fd2c15d42312ed6306cb49187d96370810590bd60cf"
+    }
+  },
+  {
+    "id": "cleanup-range-7b4400",
+    "inputs": [
+      "src/campaign_static_range.c"
+    ],
+    "offset": 8078336,
+    "size": 49,
+    "rebuilt_symbol": "_cleanup_range_7b4400",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_range.obj src/campaign_static_range.c",
+    "link_bindings": {
+      "_release_engine_buffer": {
+        "va": 279826640,
+        "basis": "Engine heap release helper. Its body passes the pointer to allocator slot 2."
+      },
+      "_static_range_a17e04": {
+        "va": 288456196,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7ae2c0 passes callback RVA 0x7b4400 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "750ca8a6d4cd8d0b633346c67d39254f55ef56a807d03216a46c9a40e22b2755",
+      "inputs_sha256": "8e993b9c2c5b117d1bf85442a0d0785b0a76313b54b61e9b807ac601509e5583"
     }
   },
   {
@@ -7583,6 +9517,33 @@
     "match": {
       "bytes_sha256": "6aafe492f69aedd138bc9cfe1b8859bca32fb37d17c1ae0c0d0e6e7b81771b00",
       "inputs_sha256": "c3c10abf93e8bf580af5db2a68c8d0124f4fc22dcc4ef9db616d8dad49aa616f"
+    }
+  },
+  {
+    "id": "cleanup-install-7b4f70",
+    "inputs": [
+      "src/campaign_static_install.c",
+      "src/static_methods_reset.h"
+    ],
+    "offset": 8081264,
+    "size": 11,
+    "rebuilt_symbol": "_cleanup_install_7b4f70",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_install.obj src/campaign_static_install.c",
+    "link_bindings": {
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Read-only methods table with an executable first slot."
+      },
+      "_static_install_8cf408": {
+        "va": 287110152,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7af070 passes callback RVA 0x7b4f70 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "e14a01babe7c60c3e135b0b65c6df4a38e15b219a3a4374c18575fbdd3608164",
+      "inputs_sha256": "9f77076c8ec8c5f225867846cc7595824ec6145a6148c02eb52667b119621668"
     }
   },
   {

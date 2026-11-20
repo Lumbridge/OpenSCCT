@@ -26,6 +26,58 @@
     }
   },
   {
+    "id": "cleanup-stack-object-2dc6d0",
+    "inputs": [
+      "src/versus_static_stack_object.c"
+    ],
+    "offset": 3000016,
+    "size": 11,
+    "rebuilt_symbol": "_cleanup_stack_object_2dc6d0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_static_stack_object.obj src/versus_static_stack_object.c",
+    "link_bindings": {
+      "_finalize_static_17bf30@4": {
+        "va": 279428912,
+        "basis": "Direct finalizer for this writable object, using the original argument and stack layout."
+      },
+      "_static_stack_object_3c9e74": {
+        "va": 281845364,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x2d86ca passes callback RVA 0x2dc6d0 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "61999cbd52d4f93cc98846f7d4c205dc01ddf167e9b0eadcd332ffbdb79197a8",
+      "inputs_sha256": "aeba301c2d9f6b9219e6403c475be54387136cd7ef6e00b665423ebc9f2afa6b"
+    }
+  },
+  {
+    "id": "cleanup-stack-object-2dc6e0",
+    "inputs": [
+      "src/versus_static_stack_object.c"
+    ],
+    "offset": 3000032,
+    "size": 11,
+    "rebuilt_symbol": "_cleanup_stack_object_2dc6e0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_static_stack_object.obj src/versus_static_stack_object.c",
+    "link_bindings": {
+      "_finalize_static_17bf30@4": {
+        "va": 279428912,
+        "basis": "Direct finalizer for this writable object, using the original argument and stack layout."
+      },
+      "_static_stack_object_3c9e80": {
+        "va": 281845376,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x2d86ea passes callback RVA 0x2dc6e0 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "d27aee640e92ecb617bfde4bec3cca667f6902457253b533c26fc1301f13c28c",
+      "inputs_sha256": "69dc7dadfb91605dd5dc8ee170145931197244c62dfcd811ba9ff70207142cb7"
+    }
+  },
+  {
     "id": "finalize-record-r2dc6f0",
     "size": 10,
     "offset": 3000048,
@@ -49,6 +101,136 @@
     "match": {
       "bytes_sha256": "ec944ffa5e586e4c239e004d99b9c5b733b650f561985c687e1766a39bc5b9c4",
       "inputs_sha256": "ec4d203f9f35a52990b6b1ab501528f535975a5c1d228e7ba2c093f2357f2440"
+    }
+  },
+  {
+    "id": "cleanup-stack-object-2dc700",
+    "inputs": [
+      "src/versus_static_stack_object.c"
+    ],
+    "offset": 3000064,
+    "size": 11,
+    "rebuilt_symbol": "_cleanup_stack_object_2dc700",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_static_stack_object.obj src/versus_static_stack_object.c",
+    "link_bindings": {
+      "_finalize_static_17bf30@4": {
+        "va": 279428912,
+        "basis": "Direct finalizer for this writable object, using the original argument and stack layout."
+      },
+      "_static_stack_object_3c9e98": {
+        "va": 281845400,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x2d872a passes callback RVA 0x2dc700 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "9cc55384b3b33d21ce2e4dfd38777ce41c3527a1ce0e6850ca7c23cdc324434a",
+      "inputs_sha256": "e35109856a232ade970c5dc714e6251bf7828a63cf187b8bc87415dd655805c6"
+    }
+  },
+  {
+    "id": "cleanup-stack-object-2dc710",
+    "inputs": [
+      "src/versus_static_stack_object.c"
+    ],
+    "offset": 3000080,
+    "size": 11,
+    "rebuilt_symbol": "_cleanup_stack_object_2dc710",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_static_stack_object.obj src/versus_static_stack_object.c",
+    "link_bindings": {
+      "_finalize_static_17bf30@4": {
+        "va": 279428912,
+        "basis": "Direct finalizer for this writable object, using the original argument and stack layout."
+      },
+      "_static_stack_object_3c9ea4": {
+        "va": 281845412,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x2d874a passes callback RVA 0x2dc710 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "bda67118caa476637d3ab0ecbe5a5be2db67bb76a59c9dc5eec873e1f007d797",
+      "inputs_sha256": "ceb1f1de6a309f0e9a281bbf447ba7790ac08d23f906b132107750536a877384"
+    }
+  },
+  {
+    "id": "cleanup-stack-object-2dc720",
+    "inputs": [
+      "src/versus_static_stack_object.c"
+    ],
+    "offset": 3000096,
+    "size": 11,
+    "rebuilt_symbol": "_cleanup_stack_object_2dc720",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_static_stack_object.obj src/versus_static_stack_object.c",
+    "link_bindings": {
+      "_finalize_static_01f040@4": {
+        "va": 277999680,
+        "basis": "Direct finalizer for this writable object, using the original argument and stack layout."
+      },
+      "_static_stack_object_3c9eb0": {
+        "va": 281845424,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x2d876a passes callback RVA 0x2dc720 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "5be1a817e5da35bb99e9ed3d0d820bf8792345ebe0dcc25b66bcb4210b8b2980",
+      "inputs_sha256": "da1316ca6029996e47d2effed3acc14a2410bf73c6a570a0965398635e6d8917"
+    }
+  },
+  {
+    "id": "cleanup-stack-object-2dc730",
+    "inputs": [
+      "src/versus_static_stack_object.c"
+    ],
+    "offset": 3000112,
+    "size": 11,
+    "rebuilt_symbol": "_cleanup_stack_object_2dc730",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_static_stack_object.obj src/versus_static_stack_object.c",
+    "link_bindings": {
+      "_finalize_static_01f0f0@4": {
+        "va": 277999856,
+        "basis": "Direct finalizer for this writable object, using the original argument and stack layout."
+      },
+      "_static_stack_object_3c9ebc": {
+        "va": 281845436,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x2d878a passes callback RVA 0x2dc730 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "34f2ef38fe85f7c22131b9903faef19917586a12e6d96a2a91b86a6a80f6c726",
+      "inputs_sha256": "53415581257a69e81c4b0d2a732d30c808c7cbba46ec86a5e10264a3314fabdb"
+    }
+  },
+  {
+    "id": "cleanup-stack-object-2dc740",
+    "inputs": [
+      "src/versus_static_stack_object.c"
+    ],
+    "offset": 3000128,
+    "size": 11,
+    "rebuilt_symbol": "_cleanup_stack_object_2dc740",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_static_stack_object.obj src/versus_static_stack_object.c",
+    "link_bindings": {
+      "_finalize_static_17bf30@4": {
+        "va": 279428912,
+        "basis": "Direct finalizer for this writable object, using the original argument and stack layout."
+      },
+      "_static_stack_object_3c9ec8": {
+        "va": 281845448,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x2d87aa passes callback RVA 0x2dc740 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "d97dd5dd2ff4e8db9844d2f740e7db8b26cbf2a55cb107cc18bbb190f9259778",
+      "inputs_sha256": "babba2e334f44ad57aa1ec7c12b44e0dac0c6250772e214508d06abbb5546d6d"
     }
   },
   {
@@ -335,6 +517,32 @@
     "match": {
       "bytes_sha256": "12d72c64c222427b0fc9877f0701392cea1ab369cf875584275161508f322508",
       "inputs_sha256": "404c3a42baf948a4fde9576c04abd79f74f7f24eb3d2c1f82dfa064cd5a8bdb0"
+    }
+  },
+  {
+    "id": "cleanup-stack-object-2dc800",
+    "inputs": [
+      "src/versus_static_stack_object.c"
+    ],
+    "offset": 3000320,
+    "size": 11,
+    "rebuilt_symbol": "_cleanup_stack_object_2dc800",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_static_stack_object.obj src/versus_static_stack_object.c",
+    "link_bindings": {
+      "_finalize_static_17bf30@4": {
+        "va": 279428912,
+        "basis": "Direct finalizer for this writable object, using the original argument and stack layout."
+      },
+      "_static_stack_object_3c9e5c": {
+        "va": 281845340,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x2d892a passes callback RVA 0x2dc800 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "c4e8b496a08c256bd27db0c71bff1ffc0db85cde13ac238d347398dc03e18ff8",
+      "inputs_sha256": "e397a5602f12e6434ee3a2cff9a97298d5767e2df876bb6ea8071598b9b2b1e9"
     }
   },
   {
@@ -4264,6 +4472,58 @@
     }
   },
   {
+    "id": "cleanup-stack-object-2dd180",
+    "inputs": [
+      "src/versus_static_stack_object.c"
+    ],
+    "offset": 3002752,
+    "size": 11,
+    "rebuilt_symbol": "_cleanup_stack_object_2dd180",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_static_stack_object.obj src/versus_static_stack_object.c",
+    "link_bindings": {
+      "_finalize_static_1edf20@4": {
+        "va": 279895840,
+        "basis": "Direct finalizer for this writable object, using the original argument and stack layout."
+      },
+      "_static_stack_object_3bfd4c": {
+        "va": 281804108,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x2d9d1a passes callback RVA 0x2dd180 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "64ae5dd55e3077d94394e88f335203e4080798efb929fcd80b4552fe58d092de",
+      "inputs_sha256": "42b50c46af4db02360301b3a87b8c020da02b449d3fb575fdd99a45700878080"
+    }
+  },
+  {
+    "id": "cleanup-stack-object-2dd190",
+    "inputs": [
+      "src/versus_static_stack_object.c"
+    ],
+    "offset": 3002768,
+    "size": 11,
+    "rebuilt_symbol": "_cleanup_stack_object_2dd190",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_static_stack_object.obj src/versus_static_stack_object.c",
+    "link_bindings": {
+      "_finalize_static_0cdcc0@4": {
+        "va": 278715584,
+        "basis": "Direct finalizer for this writable object, using the original argument and stack layout."
+      },
+      "_static_stack_object_3bf650": {
+        "va": 281802320,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x2d9d3a passes callback RVA 0x2dd190 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "ec0015873a026ce8db735650962d31fba0fc36d628af2c3f34edac34723a617d",
+      "inputs_sha256": "6d47d38aed624b214fd6f2651155a493e4e2701d6e05d1e9e23a27c7218dfe73"
+    }
+  },
+  {
     "id": "finalize-record-r2dd1a0",
     "size": 10,
     "offset": 3002784,
@@ -4573,6 +4833,84 @@
     "match": {
       "bytes_sha256": "b0445136577dbc3489ec4c59ff8f1e3201a20811016bfecc29e124ab40bafa61",
       "inputs_sha256": "b992d2f4c6036ebbfff1e777d618a053b20e84ce4137f0ff92a34bf1fdd4d15b"
+    }
+  },
+  {
+    "id": "cleanup-frame-2dd270",
+    "inputs": [
+      "src/versus_static_frame.c"
+    ],
+    "offset": 3002992,
+    "size": 15,
+    "rebuilt_symbol": "_cleanup_frame_2dd270",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Od /Gy /c /Folocal/versus_static_frame.obj src/versus_static_frame.c",
+    "link_bindings": {
+      "@finalize_static_00ceb0@4": {
+        "va": 277925552,
+        "basis": "Direct finalizer for this writable object, using the original argument and stack layout."
+      },
+      "_static_frame_3be700": {
+        "va": 281798400,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x2d9edf passes callback RVA 0x2dd270 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "19464e0a12a88fd474cabfab5cdae74dcededa9e9c7f4f9564bb0e297503761c",
+      "inputs_sha256": "5f0f327ca882c4b911f2493f7308a95c9f10a28eb819555ea83f2e3b3387ca8c"
+    }
+  },
+  {
+    "id": "cleanup-frame-2dd280",
+    "inputs": [
+      "src/versus_static_frame.c"
+    ],
+    "offset": 3003008,
+    "size": 15,
+    "rebuilt_symbol": "_cleanup_frame_2dd280",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Od /Gy /c /Folocal/versus_static_frame.obj src/versus_static_frame.c",
+    "link_bindings": {
+      "@finalize_static_00ceb0@4": {
+        "va": 277925552,
+        "basis": "Direct finalizer for this writable object, using the original argument and stack layout."
+      },
+      "_static_frame_3be818": {
+        "va": 281798680,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x2d9eff passes callback RVA 0x2dd280 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "f1b5ac653f847e67af85bec5157ccfdacc0e4b14d9fe42b1d3557077ce5dca09",
+      "inputs_sha256": "1eb5ec1e72f5cfe39855148c02c1d70172b44d579707cdff39c1692308415a8f"
+    }
+  },
+  {
+    "id": "cleanup-frame-2dd290",
+    "inputs": [
+      "src/versus_static_frame.c"
+    ],
+    "offset": 3003024,
+    "size": 15,
+    "rebuilt_symbol": "_cleanup_frame_2dd290",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Od /Gy /c /Folocal/versus_static_frame.obj src/versus_static_frame.c",
+    "link_bindings": {
+      "@finalize_static_00ceb0@4": {
+        "va": 277925552,
+        "basis": "Direct finalizer for this writable object, using the original argument and stack layout."
+      },
+      "_static_frame_3be930": {
+        "va": 281798960,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x2d9f1f passes callback RVA 0x2dd290 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "03ef99f093697d7efa7193ddbf685643fe3018dee00d2292e9a484cbbf3472b9",
+      "inputs_sha256": "92ea5110e97737dc36fad4d2194f0a653d06778b7d87e18b7dbb2ea37aaf2b72"
     }
   },
   {
@@ -5252,6 +5590,32 @@
     }
   },
   {
+    "id": "cleanup-stack-object-2dd440",
+    "inputs": [
+      "src/versus_static_stack_object.c"
+    ],
+    "offset": 3003456,
+    "size": 11,
+    "rebuilt_symbol": "_cleanup_stack_object_2dd440",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_static_stack_object.obj src/versus_static_stack_object.c",
+    "link_bindings": {
+      "_finalize_static_10a7e0@4": {
+        "va": 278964192,
+        "basis": "Direct finalizer for this writable object, using the original argument and stack layout."
+      },
+      "_static_stack_object_3bca48": {
+        "va": 281791048,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x2da27a passes callback RVA 0x2dd440 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "f4e538343420769d54dbc10ee554ff646deffe0f0e907475457627ab9cc08900",
+      "inputs_sha256": "e0a7bb727b92597b0e5ada731131d9cdec1727882fa47d847e4015550e385ec1"
+    }
+  },
+  {
     "id": "finalize-class-umatchmakingsubsystem",
     "size": 10,
     "offset": 3003472,
@@ -5353,6 +5717,32 @@
     "match": {
       "bytes_sha256": "97bb5cf96112290d6ed25e1d60903d818c07ed2a9cb008708c50bc8cee0ba516",
       "inputs_sha256": "34096bc33cf198868cb468388f4ab385af649e9621a89381dddfc8e79b51a513"
+    }
+  },
+  {
+    "id": "cleanup-stack-object-2dd490",
+    "inputs": [
+      "src/versus_static_stack_object.c"
+    ],
+    "offset": 3003536,
+    "size": 11,
+    "rebuilt_symbol": "_cleanup_stack_object_2dd490",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_static_stack_object.obj src/versus_static_stack_object.c",
+    "link_bindings": {
+      "_finalize_static_17bf30@4": {
+        "va": 279428912,
+        "basis": "Direct finalizer for this writable object, using the original argument and stack layout."
+      },
+      "_static_stack_object_3bc5dc": {
+        "va": 281789916,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x2da31a passes callback RVA 0x2dd490 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "1c25380c3b07be65aba634ddd3284a9312f7316749d2508a06603dec5658781d",
+      "inputs_sha256": "accc596b9d65d1f3be6b54e1ed5dcd1156c0ba469a11c7686d4562a7f75edcc3"
     }
   },
   {
@@ -5512,6 +5902,32 @@
     }
   },
   {
+    "id": "cleanup-stack-object-2dd500",
+    "inputs": [
+      "src/versus_static_stack_object.c"
+    ],
+    "offset": 3003648,
+    "size": 11,
+    "rebuilt_symbol": "_cleanup_stack_object_2dd500",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_static_stack_object.obj src/versus_static_stack_object.c",
+    "link_bindings": {
+      "_finalize_static_057780@4": {
+        "va": 278230912,
+        "basis": "Direct finalizer for this writable object, using the original argument and stack layout."
+      },
+      "_static_stack_object_373cac": {
+        "va": 281492652,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x2da3f0 passes callback RVA 0x2dd500 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "8ddc4666b38fdc7c27bba1a4a66cc0b4d06e20988e2e5906547c27c85a3e45b5",
+      "inputs_sha256": "6a62363f70b74d10b08430418ca521a0acf60221925b889fb1cf4aeac5759208"
+    }
+  },
+  {
     "id": "finalize-record-r2dd520",
     "size": 10,
     "offset": 3003680,
@@ -5535,6 +5951,32 @@
     "match": {
       "bytes_sha256": "f145022e32b088062863b0fc517aceeddc616d29753e9c8fca07fcd19bdbe2da",
       "inputs_sha256": "20d22c918133d6dd3f346c3ea0d7ddb5f2a44a34a83f3e3628cc71145b4e12fc"
+    }
+  },
+  {
+    "id": "cleanup-stack-object-2dd530",
+    "inputs": [
+      "src/versus_static_stack_object.c"
+    ],
+    "offset": 3003696,
+    "size": 11,
+    "rebuilt_symbol": "_cleanup_stack_object_2dd530",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_static_stack_object.obj src/versus_static_stack_object.c",
+    "link_bindings": {
+      "_finalize_static_14e510@4": {
+        "va": 279242000,
+        "basis": "Direct finalizer for this writable object, using the original argument and stack layout."
+      },
+      "_static_stack_object_3b7848": {
+        "va": 281770056,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x2da45a passes callback RVA 0x2dd530 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "a9eb4d8d8ad1b77805083cf11df96d7aef6a58ca640ae739502308df1d720901",
+      "inputs_sha256": "cfb628e9ab062761c682bce4e649dff39f3839c8c5a57b05eff1ecc22eb4815c"
     }
   },
   {
@@ -9646,6 +10088,32 @@
     }
   },
   {
+    "id": "cleanup-stack-object-2ddf50",
+    "inputs": [
+      "src/versus_static_stack_object.c"
+    ],
+    "offset": 3006288,
+    "size": 11,
+    "rebuilt_symbol": "_cleanup_stack_object_2ddf50",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_static_stack_object.obj src/versus_static_stack_object.c",
+    "link_bindings": {
+      "_finalize_static_1b4120@4": {
+        "va": 279658784,
+        "basis": "Direct finalizer for this writable object, using the original argument and stack layout."
+      },
+      "_static_stack_object_39cf4c": {
+        "va": 281661260,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x2dbb5a passes callback RVA 0x2ddf50 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "05ccf344ee240f74c9ce654ce56139b22722d59bb86877e0a10a352ef778d070",
+      "inputs_sha256": "0d6deab62ee031719e556cad07d8d28f3e5d35aeea7af8aac0a56b008a82f970"
+    }
+  },
+  {
     "id": "finalize-class-asminepoison",
     "size": 10,
     "offset": 3006304,
@@ -11518,6 +11986,32 @@
     }
   },
   {
+    "id": "cleanup-stack-object-2de3e0",
+    "inputs": [
+      "src/versus_static_stack_object.c"
+    ],
+    "offset": 3007456,
+    "size": 11,
+    "rebuilt_symbol": "_cleanup_stack_object_2de3e0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_static_stack_object.obj src/versus_static_stack_object.c",
+    "link_bindings": {
+      "_finalize_static_208590@4": {
+        "va": 280003984,
+        "basis": "Direct finalizer for this writable object, using the original argument and stack layout."
+      },
+      "_static_stack_object_397bf0": {
+        "va": 281639920,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x2dc47a passes callback RVA 0x2de3e0 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "751fb9fc2e53f7174599a7bd93c399d0d91789c5bb095aa8583376dc1a396d0b",
+      "inputs_sha256": "aaf71ba7e353752a5e8957e633952bdd30674e295b851b5d8e33f58882402879"
+    }
+  },
+  {
     "id": "finalize-class-uuniaudiosubsystem",
     "size": 10,
     "offset": 3007472,
@@ -11619,6 +12113,84 @@
     "match": {
       "bytes_sha256": "a632c75a548407f963d17b0cb9203973bbdb87fafae8abfb6f3205a46d821745",
       "inputs_sha256": "f759115b1cd6fa66c527a1c8766d04f689d2d5e6491abc867f79a82239db8f35"
+    }
+  },
+  {
+    "id": "cleanup-stack-object-2de430",
+    "inputs": [
+      "src/versus_static_stack_object.c"
+    ],
+    "offset": 3007536,
+    "size": 11,
+    "rebuilt_symbol": "_cleanup_stack_object_2de430",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_static_stack_object.obj src/versus_static_stack_object.c",
+    "link_bindings": {
+      "_finalize_static_17bf30@4": {
+        "va": 279428912,
+        "basis": "Direct finalizer for this writable object, using the original argument and stack layout."
+      },
+      "_static_stack_object_39776c": {
+        "va": 281638764,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x2dc51a passes callback RVA 0x2de430 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "cefae6337351b8974e631a25d4266bf7392c5a807649c0720a1f53e092506d01",
+      "inputs_sha256": "529155431fcaa575307068dcf5a425e2d6a3f002f4b1a36e128efb6e3def2eb8"
+    }
+  },
+  {
+    "id": "cleanup-stack-object-2de440",
+    "inputs": [
+      "src/versus_static_stack_object.c"
+    ],
+    "offset": 3007552,
+    "size": 11,
+    "rebuilt_symbol": "_cleanup_stack_object_2de440",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_static_stack_object.obj src/versus_static_stack_object.c",
+    "link_bindings": {
+      "_finalize_static_17bf30@4": {
+        "va": 279428912,
+        "basis": "Direct finalizer for this writable object, using the original argument and stack layout."
+      },
+      "_static_stack_object_397778": {
+        "va": 281638776,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x2dc53a passes callback RVA 0x2de440 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "e722d85cccc6483cce38f66a1f5800d77cc0ffa846706f8c71b26f0d4794bf53",
+      "inputs_sha256": "29568dffaa63e95b50eadce105c555a6dec2a75c4793a53ee1cfcb4bf4b8c674"
+    }
+  },
+  {
+    "id": "cleanup-stack-object-2de450",
+    "inputs": [
+      "src/versus_static_stack_object.c"
+    ],
+    "offset": 3007568,
+    "size": 11,
+    "rebuilt_symbol": "_cleanup_stack_object_2de450",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_static_stack_object.obj src/versus_static_stack_object.c",
+    "link_bindings": {
+      "_finalize_static_17bf30@4": {
+        "va": 279428912,
+        "basis": "Direct finalizer for this writable object, using the original argument and stack layout."
+      },
+      "_static_stack_object_397784": {
+        "va": 281638788,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x2dc55a passes callback RVA 0x2de450 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "de2b3764de44a5e6139162134a90e3b56658c40bf4160a30c47305bfc7617a12",
+      "inputs_sha256": "108e5faeb5f88163e163f0fa334073bb2ea7c2c6f6890c2dca34c12465f4b42d"
     }
   },
   {
@@ -11749,6 +12321,87 @@
     "match": {
       "bytes_sha256": "32535459bd013fb01f759ae47e9b6dd4eb19be3683a6eaf515b952dd7ca99cc5",
       "inputs_sha256": "8b4a7abd3c3d62b3b65de365dc4559dab9c355400f474abeff5f02b17f26d36b"
+    }
+  },
+  {
+    "id": "cleanup-install-2de4b4",
+    "inputs": [
+      "src/versus_static_install.c",
+      "src/static_methods_reset.h"
+    ],
+    "offset": 3007668,
+    "size": 11,
+    "rebuilt_symbol": "_cleanup_install_2de4b4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_static_install.obj src/versus_static_install.c",
+    "link_bindings": {
+      "_methods_2e4f34": {
+        "va": 280907572,
+        "basis": "Read-only methods table with an executable first slot."
+      },
+      "_static_install_37509c": {
+        "va": 281497756,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x2dc63d passes callback RVA 0x2de4b4 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "a2beb6b0da58981d6012634072d562dc503f04bd0ed2225b13fd942bf2fff59d",
+      "inputs_sha256": "5f46cb7e6af6a93ab77e7475957c5bdda9af7ccb1a30994ad317606a8aeeec71"
+    }
+  },
+  {
+    "id": "cleanup-short-string-2de4c0",
+    "inputs": [
+      "src/versus_static_short_string.c",
+      "src/static_short_string_cleanup.h"
+    ],
+    "offset": 3007680,
+    "size": 46,
+    "rebuilt_symbol": "_cleanup_short_string_2de4c0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_static_short_string.obj src/versus_static_short_string.c",
+    "link_bindings": {
+      "_release_engine_buffer": {
+        "va": 279251072,
+        "basis": "Engine allocator release through slot 2; called when this string uses heap storage."
+      },
+      "_static_short_string_3762c0": {
+        "va": 281502400,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x2b86bf passes callback RVA 0x2de4c0 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "189ef27ea050865b88b4c7b54bc79f1ca3415910b17939ccba8543f7f39c2976",
+      "inputs_sha256": "3c0857f8d70db5d481c7fe1db64cfe7015303f2a4a07e1398ea8cfb9b88fbf12"
+    }
+  },
+  {
+    "id": "cleanup-short-string-2de4f0",
+    "inputs": [
+      "src/versus_static_short_string.c",
+      "src/static_short_string_cleanup.h"
+    ],
+    "offset": 3007728,
+    "size": 46,
+    "rebuilt_symbol": "_cleanup_short_string_2de4f0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_static_short_string.obj src/versus_static_short_string.c",
+    "link_bindings": {
+      "_release_engine_buffer": {
+        "va": 279251072,
+        "basis": "Engine allocator release through slot 2; called when this string uses heap storage."
+      },
+      "_static_short_string_3762dc": {
+        "va": 281502428,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x2b865a passes callback RVA 0x2de4f0 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "04f227b9ff139c80a1395c664ba320e1a7c8438e050648a52058ebc43be945d6",
+      "inputs_sha256": "bf656d6a4cd9ccd009ddba61b9a49ff8070e6ef30b0c714e572c002145acee10"
     }
   }
 ]
