@@ -7007,6 +7007,61 @@
     }
   },
   {
+    "id": "class-registration-cell-8f4a0",
+    "size": 264,
+    "offset": 586912,
+    "inputs": [
+      "src/campaign_class_registration_additional.c",
+      "src/campaign_class_registration.h"
+    ],
+    "rebuilt_symbol": "_register_Descriptor_08F4A0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_class_registration_additional.obj src/campaign_class_registration_additional.c",
+    "link_bindings": {
+      "_class_UObject": {
+        "va": 288432204,
+        "basis": "Class global or accessor dependency identified by prior matched class registrations."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 package name."
+      },
+      "_create_UObject": {
+        "va": 281908032,
+        "basis": "Class global or accessor dependency identified by prior matched class registrations."
+      },
+      "_register_UObject": {
+        "va": 281901984,
+        "basis": "Class global or accessor dependency identified by prior matched class registrations."
+      },
+      "_class_Descriptor_08F4A0": {
+        "va": 287271072,
+        "basis": "Writable owner cell used for all three class links."
+      },
+      "_class_UClass": {
+        "va": 288432364,
+        "basis": "Class global or accessor dependency identified by prior matched class registrations."
+      },
+      "_create_UClass": {
+        "va": 281961920,
+        "basis": "Class global or accessor dependency identified by prior matched class registrations."
+      },
+      "_register_UClass": {
+        "va": 281963952,
+        "basis": "Class global or accessor dependency identified by prior matched class registrations."
+      },
+      "_object_system_initialized": {
+        "va": 281898912,
+        "basis": "Shared object-system initialization query."
+      }
+    },
+    "identification": "Class registration at RVA 0x8f4a0, owner cell VA 0x111f68a0. Assigns UObject as the superclass, UObject as within and UClass as object class. The owner name is unresolved.",
+    "match": {
+      "bytes_sha256": "f062b10477fe5797a5af52ef356c0ecbb6ae8047827bc9a4b56c505a8c726413",
+      "inputs_sha256": "1306d7721bdfb27b60806fe925b1f872b628becbbfe94e1d4f471b1ca3ea1d5c"
+    }
+  },
+  {
     "id": "class-registration-ureachspec",
     "offset": 587184,
     "size": 264,

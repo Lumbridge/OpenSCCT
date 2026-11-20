@@ -1243,6 +1243,77 @@
     }
   },
   {
+    "id": "class-registration-cell-c6390",
+    "size": 264,
+    "offset": 811920,
+    "inputs": [
+      "src/campaign_class_registration_additional.c",
+      "src/campaign_class_registration.h"
+    ],
+    "rebuilt_symbol": "_register_Descriptor_0C6390",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_class_registration_additional.obj src/campaign_class_registration_additional.c",
+    "link_bindings": {
+      "_class_ACollisionMeshActor": {
+        "va": 287271424,
+        "basis": "Class global or accessor dependency identified by prior matched class registrations."
+      },
+      "_package_Engine": {
+        "va": 285964612,
+        "basis": "Retail UTF-16 package name."
+      },
+      "_create_ACollisionMeshActor": {
+        "va": 278678896,
+        "basis": "Class global or accessor dependency identified by prior matched class registrations."
+      },
+      "_register_ACollisionMeshActor": {
+        "va": 278684224,
+        "basis": "Class global or accessor dependency identified by prior matched class registrations."
+      },
+      "_class_Descriptor_0C6390": {
+        "va": 287271428,
+        "basis": "Writable owner cell used for all three class links."
+      },
+      "_class_UObject": {
+        "va": 288432204,
+        "basis": "Class global or accessor dependency identified by prior matched class registrations."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 package name."
+      },
+      "_create_UObject": {
+        "va": 281908032,
+        "basis": "Class global or accessor dependency identified by prior matched class registrations."
+      },
+      "_register_UObject": {
+        "va": 281901984,
+        "basis": "Class global or accessor dependency identified by prior matched class registrations."
+      },
+      "_class_UClass": {
+        "va": 288432364,
+        "basis": "Class global or accessor dependency identified by prior matched class registrations."
+      },
+      "_create_UClass": {
+        "va": 281961920,
+        "basis": "Class global or accessor dependency identified by prior matched class registrations."
+      },
+      "_register_UClass": {
+        "va": 281963952,
+        "basis": "Class global or accessor dependency identified by prior matched class registrations."
+      },
+      "_object_system_initialized": {
+        "va": 281898912,
+        "basis": "Shared object-system initialization query."
+      }
+    },
+    "identification": "Class registration at RVA 0xc6390, owner cell VA 0x111f6a04. Assigns ACollisionMeshActor as the superclass, UObject as within and UClass as object class. The owner name is unresolved.",
+    "match": {
+      "bytes_sha256": "8e47bb8129e19499ddff5525dc3a3abd891f8ec4ade93acb35635fcb4691545a",
+      "inputs_sha256": "d58926f6409303590b1df2f34f92a0f38634888bf88fadbfd2ada1a63ef25bd1"
+    }
+  },
+  {
     "id": "delete-record-0c64e0",
     "offset": 812256,
     "size": 33,

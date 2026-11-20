@@ -2641,6 +2641,77 @@
     }
   },
   {
+    "id": "class-registration-cell-16e710",
+    "size": 264,
+    "offset": 1500944,
+    "inputs": [
+      "src/campaign_class_registration_additional.c",
+      "src/campaign_class_registration.h"
+    ],
+    "rebuilt_symbol": "_register_Descriptor_16E710",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_class_registration_additional.obj src/campaign_class_registration_additional.c",
+    "link_bindings": {
+      "_class_UShader": {
+        "va": 287268708,
+        "basis": "Class global or accessor dependency identified by prior matched class registrations."
+      },
+      "_package_Engine": {
+        "va": 285964612,
+        "basis": "Retail UTF-16 package name."
+      },
+      "_create_UShader": {
+        "va": 278315872,
+        "basis": "Class global or accessor dependency identified by prior matched class registrations."
+      },
+      "_register_UShader": {
+        "va": 278319488,
+        "basis": "Class global or accessor dependency identified by prior matched class registrations."
+      },
+      "_class_Descriptor_16E710": {
+        "va": 287286524,
+        "basis": "Writable owner cell used for all three class links."
+      },
+      "_class_UObject": {
+        "va": 288432204,
+        "basis": "Class global or accessor dependency identified by prior matched class registrations."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 package name."
+      },
+      "_create_UObject": {
+        "va": 281908032,
+        "basis": "Class global or accessor dependency identified by prior matched class registrations."
+      },
+      "_register_UObject": {
+        "va": 281901984,
+        "basis": "Class global or accessor dependency identified by prior matched class registrations."
+      },
+      "_class_UClass": {
+        "va": 288432364,
+        "basis": "Class global or accessor dependency identified by prior matched class registrations."
+      },
+      "_create_UClass": {
+        "va": 281961920,
+        "basis": "Class global or accessor dependency identified by prior matched class registrations."
+      },
+      "_register_UClass": {
+        "va": 281963952,
+        "basis": "Class global or accessor dependency identified by prior matched class registrations."
+      },
+      "_object_system_initialized": {
+        "va": 281898912,
+        "basis": "Shared object-system initialization query."
+      }
+    },
+    "identification": "Class registration at RVA 0x16e710, owner cell VA 0x111fa4fc. Assigns UShader as the superclass, UObject as within and UClass as object class. The owner name is unresolved.",
+    "match": {
+      "bytes_sha256": "f9984565ee5700f0167c682edb4e64c1685228b8cd5b6722014b220d11475a33",
+      "inputs_sha256": "159bf439dd083e6a88e62751ee571b90985839168761e3708bb7cea5a4cb428d"
+    }
+  },
+  {
     "id": "class-registration-aterraininfo",
     "offset": 1501264,
     "size": 264,

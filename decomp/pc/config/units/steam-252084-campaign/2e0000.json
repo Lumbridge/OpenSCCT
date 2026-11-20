@@ -4585,6 +4585,77 @@
     }
   },
   {
+    "id": "class-registration-cell-2eee50",
+    "size": 264,
+    "offset": 3075664,
+    "inputs": [
+      "src/campaign_class_registration_additional.c",
+      "src/campaign_class_registration.h"
+    ],
+    "rebuilt_symbol": "_register_Descriptor_2EEE50",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_class_registration_additional.obj src/campaign_class_registration_additional.c",
+    "link_bindings": {
+      "_class_AEGameplayObject": {
+        "va": 287502160,
+        "basis": "Class global or accessor dependency identified by prior matched class registrations."
+      },
+      "_package_Echelon": {
+        "va": 285964944,
+        "basis": "Retail UTF-16 package name."
+      },
+      "_create_AEGameplayObject": {
+        "va": 280947472,
+        "basis": "Class global or accessor dependency identified by prior matched class registrations."
+      },
+      "_register_AEGameplayObject": {
+        "va": 280928560,
+        "basis": "Class global or accessor dependency identified by prior matched class registrations."
+      },
+      "_class_Descriptor_2EEE50": {
+        "va": 287502172,
+        "basis": "Writable owner cell used for all three class links."
+      },
+      "_class_UObject": {
+        "va": 288432204,
+        "basis": "Class global or accessor dependency identified by prior matched class registrations."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 package name."
+      },
+      "_create_UObject": {
+        "va": 281908032,
+        "basis": "Class global or accessor dependency identified by prior matched class registrations."
+      },
+      "_register_UObject": {
+        "va": 281901984,
+        "basis": "Class global or accessor dependency identified by prior matched class registrations."
+      },
+      "_class_UClass": {
+        "va": 288432364,
+        "basis": "Class global or accessor dependency identified by prior matched class registrations."
+      },
+      "_create_UClass": {
+        "va": 281961920,
+        "basis": "Class global or accessor dependency identified by prior matched class registrations."
+      },
+      "_register_UClass": {
+        "va": 281963952,
+        "basis": "Class global or accessor dependency identified by prior matched class registrations."
+      },
+      "_object_system_initialized": {
+        "va": 281898912,
+        "basis": "Shared object-system initialization query."
+      }
+    },
+    "identification": "Class registration at RVA 0x2eee50, owner cell VA 0x1122ef5c. Assigns AEGameplayObject as the superclass, UObject as within and UClass as object class. The owner name is unresolved.",
+    "match": {
+      "bytes_sha256": "c8f4c0606c47a99a4912aabf3574407e9b3b4d79b59485a992ffde20f3353d05",
+      "inputs_sha256": "d164431d479d7ff5cb37b30a83e409a882b5754e3e5ae84fff883d7483538772"
+    }
+  },
+  {
     "id": "class-registration-aeaccessory",
     "offset": 3076848,
     "size": 264,

@@ -7245,6 +7245,148 @@
     }
   },
   {
+    "id": "class-registration-cell-97fb0",
+    "size": 264,
+    "offset": 622512,
+    "inputs": [
+      "src/campaign_class_registration_additional.c",
+      "src/campaign_class_registration.h"
+    ],
+    "rebuilt_symbol": "_register_Descriptor_097FB0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_class_registration_additional.obj src/campaign_class_registration_additional.c",
+    "link_bindings": {
+      "_class_AKeypoint": {
+        "va": 287271112,
+        "basis": "Class global or accessor dependency identified by prior matched class registrations."
+      },
+      "_package_Engine": {
+        "va": 285964612,
+        "basis": "Retail UTF-16 package name."
+      },
+      "_create_AKeypoint": {
+        "va": 278489904,
+        "basis": "Class global or accessor dependency identified by prior matched class registrations."
+      },
+      "_register_AKeypoint": {
+        "va": 278492800,
+        "basis": "Class global or accessor dependency identified by prior matched class registrations."
+      },
+      "_class_Descriptor_097FB0": {
+        "va": 287271052,
+        "basis": "Writable owner cell used for all three class links."
+      },
+      "_class_UObject": {
+        "va": 288432204,
+        "basis": "Class global or accessor dependency identified by prior matched class registrations."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 package name."
+      },
+      "_create_UObject": {
+        "va": 281908032,
+        "basis": "Class global or accessor dependency identified by prior matched class registrations."
+      },
+      "_register_UObject": {
+        "va": 281901984,
+        "basis": "Class global or accessor dependency identified by prior matched class registrations."
+      },
+      "_class_UClass": {
+        "va": 288432364,
+        "basis": "Class global or accessor dependency identified by prior matched class registrations."
+      },
+      "_create_UClass": {
+        "va": 281961920,
+        "basis": "Class global or accessor dependency identified by prior matched class registrations."
+      },
+      "_register_UClass": {
+        "va": 281963952,
+        "basis": "Class global or accessor dependency identified by prior matched class registrations."
+      },
+      "_object_system_initialized": {
+        "va": 281898912,
+        "basis": "Shared object-system initialization query."
+      }
+    },
+    "identification": "Class registration at RVA 0x97fb0, owner cell VA 0x111f688c. Assigns AKeypoint as the superclass, UObject as within and UClass as object class. The owner name is unresolved.",
+    "match": {
+      "bytes_sha256": "2515be6fb404f9dd873fa789eed05a3b7ed7ad9e0de34f3a1d5fc28467abac5a",
+      "inputs_sha256": "01cec9d01a87f7bdea579e44084ef3f8dfd9ffc5ca35d4efa2dc3d453a60880f"
+    }
+  },
+  {
+    "id": "class-registration-cell-980c0",
+    "size": 264,
+    "offset": 622784,
+    "inputs": [
+      "src/campaign_class_registration_additional.c",
+      "src/campaign_class_registration.h"
+    ],
+    "rebuilt_symbol": "_register_Descriptor_0980C0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_class_registration_additional.obj src/campaign_class_registration_additional.c",
+    "link_bindings": {
+      "_class_AKeypoint": {
+        "va": 287271112,
+        "basis": "Class global or accessor dependency identified by prior matched class registrations."
+      },
+      "_package_Engine": {
+        "va": 285964612,
+        "basis": "Retail UTF-16 package name."
+      },
+      "_create_AKeypoint": {
+        "va": 278489904,
+        "basis": "Class global or accessor dependency identified by prior matched class registrations."
+      },
+      "_register_AKeypoint": {
+        "va": 278492800,
+        "basis": "Class global or accessor dependency identified by prior matched class registrations."
+      },
+      "_class_Descriptor_0980C0": {
+        "va": 287271056,
+        "basis": "Writable owner cell used for all three class links."
+      },
+      "_class_UObject": {
+        "va": 288432204,
+        "basis": "Class global or accessor dependency identified by prior matched class registrations."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 package name."
+      },
+      "_create_UObject": {
+        "va": 281908032,
+        "basis": "Class global or accessor dependency identified by prior matched class registrations."
+      },
+      "_register_UObject": {
+        "va": 281901984,
+        "basis": "Class global or accessor dependency identified by prior matched class registrations."
+      },
+      "_class_UClass": {
+        "va": 288432364,
+        "basis": "Class global or accessor dependency identified by prior matched class registrations."
+      },
+      "_create_UClass": {
+        "va": 281961920,
+        "basis": "Class global or accessor dependency identified by prior matched class registrations."
+      },
+      "_register_UClass": {
+        "va": 281963952,
+        "basis": "Class global or accessor dependency identified by prior matched class registrations."
+      },
+      "_object_system_initialized": {
+        "va": 281898912,
+        "basis": "Shared object-system initialization query."
+      }
+    },
+    "identification": "Class registration at RVA 0x980c0, owner cell VA 0x111f6890. Assigns AKeypoint as the superclass, UObject as within and UClass as object class. The owner name is unresolved.",
+    "match": {
+      "bytes_sha256": "01ffce4fa34cd18cfbedf4619309853810ff337230d49802c00e190af60e1bbd",
+      "inputs_sha256": "c864fd118971e85e20d87c33d2b55469134ab90b9d5022a4eb92054fc0655a73"
+    }
+  },
+  {
     "id": "class-registration-areflectionreferinfo",
     "offset": 623056,
     "size": 264,
