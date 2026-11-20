@@ -959,6 +959,36 @@
     }
   },
   {
+    "id": "static-array-clear-7b0740",
+    "size": 72,
+    "offset": 8062784,
+    "inputs": [
+      "src/campaign_static_array_cleanup.c"
+    ],
+    "rebuilt_symbol": "_clear_1",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_array_cleanup.obj src/campaign_static_array_cleanup.c",
+    "link_bindings": {
+      "_storage": {
+        "va": 287270912,
+        "basis": "Static array whose count, storage pointer and capacity are cleared."
+      },
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator."
+      },
+      "@remove_range@16": {
+        "va": 278290960,
+        "basis": "Campaign array removal helper; receives zero start, current count and element width."
+      }
+    },
+    "identification": "Complete static array cleanup at RVA 0x7b0740; removes the full 1-byte element range and releases any remaining storage through the engine allocator.",
+    "match": {
+      "bytes_sha256": "305986b97ccbc3cccfdb2003e460f5c2b83d70ff77f7aa67c260c78b64fad502",
+      "inputs_sha256": "2e1ac70531bd03daf1889f7f9f55d984576519763e0be4a934baf75c1ffbf0cc"
+    }
+  },
+  {
     "id": "cleanup-array-7b0790",
     "inputs": [
       "src/campaign_static_array.c",
@@ -987,6 +1017,456 @@
     "match": {
       "bytes_sha256": "8052a526acd34cc824999ee6bc61ce482bb8db76aea526b5e3b9b194e96c4055",
       "inputs_sha256": "1937ce71a0a22c7add78351baa7eca8dee73b5ed687ce4e2903c9565aaf5b36b"
+    }
+  },
+  {
+    "id": "static-array-clear-7b07e0",
+    "size": 72,
+    "offset": 8062944,
+    "inputs": [
+      "src/campaign_static_array_cleanup.c"
+    ],
+    "rebuilt_symbol": "_clear_4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_array_cleanup.obj src/campaign_static_array_cleanup.c",
+    "link_bindings": {
+      "_storage": {
+        "va": 287271220,
+        "basis": "Static array whose count, storage pointer and capacity are cleared."
+      },
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator."
+      },
+      "@remove_range@16": {
+        "va": 278040944,
+        "basis": "Campaign array removal helper; receives zero start, current count and element width."
+      }
+    },
+    "identification": "Complete static array cleanup at RVA 0x7b07e0; removes the full 4-byte element range and releases any remaining storage through the engine allocator.",
+    "match": {
+      "bytes_sha256": "17ac82a0e143de6c9363f4eadb370117c605eeac554878328e5578594ca353b0",
+      "inputs_sha256": "b81c6acec3cc2622ae4dc060d12b914be60f52bb7ce25c74b6f8ff6cb39dfe8c"
+    }
+  },
+  {
+    "id": "static-array-clear-7b0830",
+    "size": 72,
+    "offset": 8063024,
+    "inputs": [
+      "src/campaign_static_array_cleanup.c"
+    ],
+    "rebuilt_symbol": "_clear_4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_array_cleanup.obj src/campaign_static_array_cleanup.c",
+    "link_bindings": {
+      "_storage": {
+        "va": 287271188,
+        "basis": "Static array whose count, storage pointer and capacity are cleared."
+      },
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator."
+      },
+      "@remove_range@16": {
+        "va": 278040944,
+        "basis": "Campaign array removal helper; receives zero start, current count and element width."
+      }
+    },
+    "identification": "Complete static array cleanup at RVA 0x7b0830; removes the full 4-byte element range and releases any remaining storage through the engine allocator.",
+    "match": {
+      "bytes_sha256": "75b7451ec32a0cda49ea70fce8c29863f8928fd315c747f37a64d2a83c29657c",
+      "inputs_sha256": "027b697df7bbd7847171e960fee93035e25d3f7f8223ee13c981b251695b4569"
+    }
+  },
+  {
+    "id": "static-array-clear-7b0880",
+    "size": 72,
+    "offset": 8063104,
+    "inputs": [
+      "src/campaign_static_array_cleanup.c"
+    ],
+    "rebuilt_symbol": "_clear_4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_array_cleanup.obj src/campaign_static_array_cleanup.c",
+    "link_bindings": {
+      "_storage": {
+        "va": 287271204,
+        "basis": "Static array whose count, storage pointer and capacity are cleared."
+      },
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator."
+      },
+      "@remove_range@16": {
+        "va": 278040944,
+        "basis": "Campaign array removal helper; receives zero start, current count and element width."
+      }
+    },
+    "identification": "Complete static array cleanup at RVA 0x7b0880; removes the full 4-byte element range and releases any remaining storage through the engine allocator.",
+    "match": {
+      "bytes_sha256": "4fb62b189a34141ee45de02a57ed9532f2c3cd07d9f28e553b0daf2e7a5d6fbf",
+      "inputs_sha256": "8e387e5e7a7451151a4edd48b3e8fe733b76d0f770fbabe241b81689af10d5a3"
+    }
+  },
+  {
+    "id": "static-array-clear-7b08d0",
+    "size": 72,
+    "offset": 8063184,
+    "inputs": [
+      "src/campaign_static_array_cleanup.c"
+    ],
+    "rebuilt_symbol": "_clear_12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_array_cleanup.obj src/campaign_static_array_cleanup.c",
+    "link_bindings": {
+      "_storage": {
+        "va": 287281568,
+        "basis": "Static array whose count, storage pointer and capacity are cleared."
+      },
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator."
+      },
+      "@remove_range@16": {
+        "va": 278041184,
+        "basis": "Campaign array removal helper; receives zero start, current count and element width."
+      }
+    },
+    "identification": "Complete static array cleanup at RVA 0x7b08d0; removes the full 12-byte element range and releases any remaining storage through the engine allocator.",
+    "match": {
+      "bytes_sha256": "73cc5c1d727de8a45721d28e7cbd9dce18ac8a88a3d0719cbda206b7f889b6b5",
+      "inputs_sha256": "7fcd6f6119b0bdbf45e35eff0b46aec98aa5c985832f6a5e24193a39c185f295"
+    }
+  },
+  {
+    "id": "static-array-clear-7b0920",
+    "size": 72,
+    "offset": 8063264,
+    "inputs": [
+      "src/campaign_static_array_cleanup.c"
+    ],
+    "rebuilt_symbol": "_clear_4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_array_cleanup.obj src/campaign_static_array_cleanup.c",
+    "link_bindings": {
+      "_storage": {
+        "va": 287281480,
+        "basis": "Static array whose count, storage pointer and capacity are cleared."
+      },
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator."
+      },
+      "@remove_range@16": {
+        "va": 278040944,
+        "basis": "Campaign array removal helper; receives zero start, current count and element width."
+      }
+    },
+    "identification": "Complete static array cleanup at RVA 0x7b0920; removes the full 4-byte element range and releases any remaining storage through the engine allocator.",
+    "match": {
+      "bytes_sha256": "231a809d612644c9d53a8d7f96dbb39720519bcb3e1ff2261bb5a430c29b3b5d",
+      "inputs_sha256": "211f2d7254031671096e2e7f5e36ecda5c0d5b838049069700c199e0b24896be"
+    }
+  },
+  {
+    "id": "static-array-clear-7b0970",
+    "size": 72,
+    "offset": 8063344,
+    "inputs": [
+      "src/campaign_static_array_cleanup.c"
+    ],
+    "rebuilt_symbol": "_clear_1",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_array_cleanup.obj src/campaign_static_array_cleanup.c",
+    "link_bindings": {
+      "_storage": {
+        "va": 287281500,
+        "basis": "Static array whose count, storage pointer and capacity are cleared."
+      },
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator."
+      },
+      "@remove_range@16": {
+        "va": 278290960,
+        "basis": "Campaign array removal helper; receives zero start, current count and element width."
+      }
+    },
+    "identification": "Complete static array cleanup at RVA 0x7b0970; removes the full 1-byte element range and releases any remaining storage through the engine allocator.",
+    "match": {
+      "bytes_sha256": "c2d1a365d50cd177fd73c1ef8ffcd88cb541c1285f0b39cad5d5390242c64057",
+      "inputs_sha256": "7df21e85c2593604b6320da7282f1aae6bfd6b4ea96933db01eba1891a8aef35"
+    }
+  },
+  {
+    "id": "static-array-clear-7b09c0",
+    "size": 72,
+    "offset": 8063424,
+    "inputs": [
+      "src/campaign_static_array_cleanup.c"
+    ],
+    "rebuilt_symbol": "_clear_12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_array_cleanup.obj src/campaign_static_array_cleanup.c",
+    "link_bindings": {
+      "_storage": {
+        "va": 287281380,
+        "basis": "Static array whose count, storage pointer and capacity are cleared."
+      },
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator."
+      },
+      "@remove_range@16": {
+        "va": 278041184,
+        "basis": "Campaign array removal helper; receives zero start, current count and element width."
+      }
+    },
+    "identification": "Complete static array cleanup at RVA 0x7b09c0; removes the full 12-byte element range and releases any remaining storage through the engine allocator.",
+    "match": {
+      "bytes_sha256": "599059941be4b10233c39af91c1c4594e57b8bb7da8d03bca98e8e7229b535f8",
+      "inputs_sha256": "996ff53f13ea545ceab697721665e808895e8dddb0d7c610f16e3830f2a8e41d"
+    }
+  },
+  {
+    "id": "static-array-clear-7b0a10",
+    "size": 72,
+    "offset": 8063504,
+    "inputs": [
+      "src/campaign_static_array_cleanup.c"
+    ],
+    "rebuilt_symbol": "_clear_12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_array_cleanup.obj src/campaign_static_array_cleanup.c",
+    "link_bindings": {
+      "_storage": {
+        "va": 287281392,
+        "basis": "Static array whose count, storage pointer and capacity are cleared."
+      },
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator."
+      },
+      "@remove_range@16": {
+        "va": 278041184,
+        "basis": "Campaign array removal helper; receives zero start, current count and element width."
+      }
+    },
+    "identification": "Complete static array cleanup at RVA 0x7b0a10; removes the full 12-byte element range and releases any remaining storage through the engine allocator.",
+    "match": {
+      "bytes_sha256": "bb569cbcefc6bcfaa5394f2090a65818bfd1e98e0433e3fd6674b69b60aab8a8",
+      "inputs_sha256": "93c19739287e91b1914c85796fa3bb8e95f65c25f4afb01d71dce43c282c44d9"
+    }
+  },
+  {
+    "id": "static-array-clear-7b0a60",
+    "size": 72,
+    "offset": 8063584,
+    "inputs": [
+      "src/campaign_static_array_cleanup.c"
+    ],
+    "rebuilt_symbol": "_clear_12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_array_cleanup.obj src/campaign_static_array_cleanup.c",
+    "link_bindings": {
+      "_storage": {
+        "va": 287281404,
+        "basis": "Static array whose count, storage pointer and capacity are cleared."
+      },
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator."
+      },
+      "@remove_range@16": {
+        "va": 278041184,
+        "basis": "Campaign array removal helper; receives zero start, current count and element width."
+      }
+    },
+    "identification": "Complete static array cleanup at RVA 0x7b0a60; removes the full 12-byte element range and releases any remaining storage through the engine allocator.",
+    "match": {
+      "bytes_sha256": "08b781320a532dd1eb6f637952b09a122a24f5a2e72d2e2d3ca61fa5024b0093",
+      "inputs_sha256": "dd95f4b4108593bdcedd585e0d7145ecf95c2d34715ac6c82cd89c851465b2e7"
+    }
+  },
+  {
+    "id": "static-array-clear-7b0b50",
+    "size": 72,
+    "offset": 8063824,
+    "inputs": [
+      "src/campaign_static_array_cleanup.c"
+    ],
+    "rebuilt_symbol": "_clear_16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_array_cleanup.obj src/campaign_static_array_cleanup.c",
+    "link_bindings": {
+      "_storage": {
+        "va": 287281448,
+        "basis": "Static array whose count, storage pointer and capacity are cleared."
+      },
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator."
+      },
+      "@remove_range@16": {
+        "va": 278556720,
+        "basis": "Campaign array removal helper; receives zero start, current count and element width."
+      }
+    },
+    "identification": "Complete static array cleanup at RVA 0x7b0b50; removes the full 16-byte element range and releases any remaining storage through the engine allocator.",
+    "match": {
+      "bytes_sha256": "796b8b4234514787a7cfe4331f07ee13017b292874c277a08a47aa3f6b529ca4",
+      "inputs_sha256": "18b4c3e1387a2d7729c61016106719893d05644032cbc5bb375f6074a59fbc6f"
+    }
+  },
+  {
+    "id": "static-array-clear-7b0ba0",
+    "size": 72,
+    "offset": 8063904,
+    "inputs": [
+      "src/campaign_static_array_cleanup.c"
+    ],
+    "rebuilt_symbol": "_clear_64",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_array_cleanup.obj src/campaign_static_array_cleanup.c",
+    "link_bindings": {
+      "_storage": {
+        "va": 287281460,
+        "basis": "Static array whose count, storage pointer and capacity are cleared."
+      },
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator."
+      },
+      "@remove_range@16": {
+        "va": 278783312,
+        "basis": "Campaign array removal helper; receives zero start, current count and element width."
+      }
+    },
+    "identification": "Complete static array cleanup at RVA 0x7b0ba0; removes the full 64-byte element range and releases any remaining storage through the engine allocator.",
+    "match": {
+      "bytes_sha256": "faf858f9a75b5e0ec5748cf44a1c7761994e1d97b07fa12a9acec039a85aadb3",
+      "inputs_sha256": "ab6cb184dad11c9ff56338abdf47edca58723c1c8ef5af8ae433399ae4c1613b"
+    }
+  },
+  {
+    "id": "static-array-clear-7b0bf0",
+    "size": 72,
+    "offset": 8063984,
+    "inputs": [
+      "src/campaign_static_array_cleanup.c"
+    ],
+    "rebuilt_symbol": "_clear_40",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_array_cleanup.obj src/campaign_static_array_cleanup.c",
+    "link_bindings": {
+      "_storage": {
+        "va": 287281512,
+        "basis": "Static array whose count, storage pointer and capacity are cleared."
+      },
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator."
+      },
+      "@remove_range@16": {
+        "va": 278783456,
+        "basis": "Campaign array removal helper; receives zero start, current count and element width."
+      }
+    },
+    "identification": "Complete static array cleanup at RVA 0x7b0bf0; removes the full 40-byte element range and releases any remaining storage through the engine allocator.",
+    "match": {
+      "bytes_sha256": "e9073bbf811943eefff7ec9ebf8148ecc87ee5cf777a40df585a3332cab39d8f",
+      "inputs_sha256": "fc8a8727fec334cc5fb69e156dc903f8a281842fb045e60d559bc472acc2d025"
+    }
+  },
+  {
+    "id": "static-array-clear-7b0c40",
+    "size": 72,
+    "offset": 8064064,
+    "inputs": [
+      "src/campaign_static_array_cleanup.c"
+    ],
+    "rebuilt_symbol": "_clear_48",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_array_cleanup.obj src/campaign_static_array_cleanup.c",
+    "link_bindings": {
+      "_storage": {
+        "va": 287281524,
+        "basis": "Static array whose count, storage pointer and capacity are cleared."
+      },
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator."
+      },
+      "@remove_range@16": {
+        "va": 278790416,
+        "basis": "Campaign array removal helper; receives zero start, current count and element width."
+      }
+    },
+    "identification": "Complete static array cleanup at RVA 0x7b0c40; removes the full 48-byte element range and releases any remaining storage through the engine allocator.",
+    "match": {
+      "bytes_sha256": "8456e9d3271f75f167569c5480db3b8ea60d4d704c3f753b41356907539394e9",
+      "inputs_sha256": "7a29c7e5708f021628c79d3a26d8d725e5226f31e7565aebbeea2eb13958f204"
+    }
+  },
+  {
+    "id": "static-array-clear-7b0c90",
+    "size": 72,
+    "offset": 8064144,
+    "inputs": [
+      "src/campaign_static_array_cleanup.c"
+    ],
+    "rebuilt_symbol": "_clear_48",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_array_cleanup.obj src/campaign_static_array_cleanup.c",
+    "link_bindings": {
+      "_storage": {
+        "va": 287281552,
+        "basis": "Static array whose count, storage pointer and capacity are cleared."
+      },
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator."
+      },
+      "@remove_range@16": {
+        "va": 278790416,
+        "basis": "Campaign array removal helper; receives zero start, current count and element width."
+      }
+    },
+    "identification": "Complete static array cleanup at RVA 0x7b0c90; removes the full 48-byte element range and releases any remaining storage through the engine allocator.",
+    "match": {
+      "bytes_sha256": "6db37055e9c9e0df628e7e185008f297150f247ca015af6b23a1de66134d5ac1",
+      "inputs_sha256": "3f609925b541ffa636ded5a7d5c81cb246fecc6f32930f62cfef2a12a4c34c60"
+    }
+  },
+  {
+    "id": "static-array-clear-7b0ce0",
+    "size": 72,
+    "offset": 8064224,
+    "inputs": [
+      "src/campaign_static_array_cleanup.c"
+    ],
+    "rebuilt_symbol": "_clear_4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_array_cleanup.obj src/campaign_static_array_cleanup.c",
+    "link_bindings": {
+      "_storage": {
+        "va": 287285036,
+        "basis": "Static array whose count, storage pointer and capacity are cleared."
+      },
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator."
+      },
+      "@remove_range@16": {
+        "va": 278043136,
+        "basis": "Campaign array removal helper; receives zero start, current count and element width."
+      }
+    },
+    "identification": "Complete static array cleanup at RVA 0x7b0ce0; removes the full 4-byte element range and releases any remaining storage through the engine allocator.",
+    "match": {
+      "bytes_sha256": "d3c3ead32cf5a572aebc475a248aa5d738f1a4de96a75e8b374b73832050d5a1",
+      "inputs_sha256": "bc643d55b83382e1d5711c26b2ec8c6e3d1c0ded1502c59c3854b375f396c4d4"
     }
   },
   {
@@ -1658,6 +2138,96 @@
     }
   },
   {
+    "id": "static-array-clear-7b1370",
+    "size": 72,
+    "offset": 8065904,
+    "inputs": [
+      "src/campaign_static_array_cleanup.c"
+    ],
+    "rebuilt_symbol": "_clear_4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_array_cleanup.obj src/campaign_static_array_cleanup.c",
+    "link_bindings": {
+      "_storage": {
+        "va": 287455348,
+        "basis": "Static array whose count, storage pointer and capacity are cleared."
+      },
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator."
+      },
+      "@remove_range@16": {
+        "va": 278040944,
+        "basis": "Campaign array removal helper; receives zero start, current count and element width."
+      }
+    },
+    "identification": "Complete static array cleanup at RVA 0x7b1370; removes the full 4-byte element range and releases any remaining storage through the engine allocator.",
+    "match": {
+      "bytes_sha256": "e0909ee79082b14561bf55eefbd192a005651a7bb821db0b22b79be45d426e38",
+      "inputs_sha256": "0006c1490d4c68a2acae403cbfdcb6d79cfc615832cfb379d088f970d6fde730"
+    }
+  },
+  {
+    "id": "static-array-clear-7b13c0",
+    "size": 72,
+    "offset": 8065984,
+    "inputs": [
+      "src/campaign_static_array_cleanup.c"
+    ],
+    "rebuilt_symbol": "_clear_4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_array_cleanup.obj src/campaign_static_array_cleanup.c",
+    "link_bindings": {
+      "_storage": {
+        "va": 287455364,
+        "basis": "Static array whose count, storage pointer and capacity are cleared."
+      },
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator."
+      },
+      "@remove_range@16": {
+        "va": 278040944,
+        "basis": "Campaign array removal helper; receives zero start, current count and element width."
+      }
+    },
+    "identification": "Complete static array cleanup at RVA 0x7b13c0; removes the full 4-byte element range and releases any remaining storage through the engine allocator.",
+    "match": {
+      "bytes_sha256": "23cdf7a9fc4cab38733e90afa44f5e7ee0954b7a8e72a052cc14cb657effaa89",
+      "inputs_sha256": "852dcfaa475c04fc3f3d792d9db7fc9fa32016014022871c46bb121227003444"
+    }
+  },
+  {
+    "id": "static-array-clear-7b1410",
+    "size": 72,
+    "offset": 8066064,
+    "inputs": [
+      "src/campaign_static_array_cleanup.c"
+    ],
+    "rebuilt_symbol": "_clear_4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_array_cleanup.obj src/campaign_static_array_cleanup.c",
+    "link_bindings": {
+      "_storage": {
+        "va": 287455376,
+        "basis": "Static array whose count, storage pointer and capacity are cleared."
+      },
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator."
+      },
+      "@remove_range@16": {
+        "va": 278040944,
+        "basis": "Campaign array removal helper; receives zero start, current count and element width."
+      }
+    },
+    "identification": "Complete static array cleanup at RVA 0x7b1410; removes the full 4-byte element range and releases any remaining storage through the engine allocator.",
+    "match": {
+      "bytes_sha256": "36ba0b063c3a4612a589505c59f63ba0454a0e336c0eaed4f8687c729a2f73a4",
+      "inputs_sha256": "e07a000e474553d371f0deed627ef94da9e77372a5dcc009b3bbdb60800ccac6"
+    }
+  },
+  {
     "id": "destroy-engine-lock",
     "size": 12,
     "offset": 8066144,
@@ -1681,6 +2251,66 @@
     "match": {
       "bytes_sha256": "758b880c4814bcc9e2cb7548488a39c64a0d864728eddf462be169bb73ecfa63",
       "inputs_sha256": "084e9355ec86d455e15c77b25076520c2ec61212ea8cf1310f392b85db525521"
+    }
+  },
+  {
+    "id": "static-array-clear-7b1470",
+    "size": 72,
+    "offset": 8066160,
+    "inputs": [
+      "src/campaign_static_array_cleanup.c"
+    ],
+    "rebuilt_symbol": "_clear_1",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_array_cleanup.obj src/campaign_static_array_cleanup.c",
+    "link_bindings": {
+      "_storage": {
+        "va": 287455440,
+        "basis": "Static array whose count, storage pointer and capacity are cleared."
+      },
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator."
+      },
+      "@remove_range@16": {
+        "va": 278290960,
+        "basis": "Campaign array removal helper; receives zero start, current count and element width."
+      }
+    },
+    "identification": "Complete static array cleanup at RVA 0x7b1470; removes the full 1-byte element range and releases any remaining storage through the engine allocator.",
+    "match": {
+      "bytes_sha256": "bb5ab48d18af06a4b73a8d35718ec796a17ea267f6cfef3529c8066b38724c9c",
+      "inputs_sha256": "c68b3358bea22cfddba6fc238b6e8cc600ac037f960c142cac0bcb03aff1d4b2"
+    }
+  },
+  {
+    "id": "static-array-clear-7b14c0",
+    "size": 72,
+    "offset": 8066240,
+    "inputs": [
+      "src/campaign_static_array_cleanup.c"
+    ],
+    "rebuilt_symbol": "_clear_4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_array_cleanup.obj src/campaign_static_array_cleanup.c",
+    "link_bindings": {
+      "_storage": {
+        "va": 287455452,
+        "basis": "Static array whose count, storage pointer and capacity are cleared."
+      },
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator."
+      },
+      "@remove_range@16": {
+        "va": 278095504,
+        "basis": "Campaign array removal helper; receives zero start, current count and element width."
+      }
+    },
+    "identification": "Complete static array cleanup at RVA 0x7b14c0; removes the full 4-byte element range and releases any remaining storage through the engine allocator.",
+    "match": {
+      "bytes_sha256": "dd5e0d3541df406f1f64d8083d99d45c56db28c7d07d5c0590f840ce0a810517",
+      "inputs_sha256": "06e8d7a60dc16588bf1728056946805aa69cbb69a027a220dd5e9b19187248fc"
     }
   },
   {
@@ -8526,6 +9156,36 @@
     "match": {
       "bytes_sha256": "d7e8f83ec6404e49b24ac854e0fd2af7068ce96b8d034a68e2029e7e9366062b",
       "inputs_sha256": "f027a18c1b8bd42300a66908d611cc11298bf286665de4e2909db599065990ee"
+    }
+  },
+  {
+    "id": "static-array-clear-7b3500",
+    "size": 72,
+    "offset": 8074496,
+    "inputs": [
+      "src/campaign_static_array_cleanup.c"
+    ],
+    "rebuilt_symbol": "_clear_1",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_array_cleanup.obj src/campaign_static_array_cleanup.c",
+    "link_bindings": {
+      "_storage": {
+        "va": 287507280,
+        "basis": "Static array whose count, storage pointer and capacity are cleared."
+      },
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator."
+      },
+      "@remove_range@16": {
+        "va": 278290960,
+        "basis": "Campaign array removal helper; receives zero start, current count and element width."
+      }
+    },
+    "identification": "Complete static array cleanup at RVA 0x7b3500; removes the full 1-byte element range and releases any remaining storage through the engine allocator.",
+    "match": {
+      "bytes_sha256": "6b2b5d27d13e953ac8ffe39063d940d6aa3dd7ad438f09080782e6690ccedda5",
+      "inputs_sha256": "90cc5f9d86c7270b7bdcc5c7e032da3aeedf2fed00203ba99c50e27633048b78"
     }
   },
   {
