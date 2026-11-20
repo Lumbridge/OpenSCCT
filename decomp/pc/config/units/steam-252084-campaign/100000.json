@@ -1873,6 +1873,28 @@
     }
   },
   {
+    "id": "physics-array-reserve-108b20",
+    "size": 39,
+    "offset": 1084192,
+    "inputs": [
+      "src/campaign_physics_array_reserve.c"
+    ],
+    "rebuilt_symbol": "@reserve_108b20@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_physics_array_reserve.obj src/campaign_physics_array_reserve.c",
+    "link_bindings": {
+      "_grow": {
+        "va": 283100096,
+        "basis": "Indexed physics array reallocation helper allocates by element size, copies live elements and releases owned storage."
+      }
+    },
+    "identification": "Aligned entry bounded by a previous return and INT3 padding. Grows capacity to the greater of the requested count and double the current capacity, using 4-byte elements.",
+    "match": {
+      "bytes_sha256": "f0141459e53743a7599cf8b0a42d5dc9de4c2fcbd01a79b0e849ef0a8d2b73c0",
+      "inputs_sha256": "c5392f9380909e7a63505fa23b552ed933e0c011b691aed7b265fe521984f6dd"
+    }
+  },
+  {
     "id": "physics-buffer-release-108b50",
     "size": 30,
     "offset": 1084240,

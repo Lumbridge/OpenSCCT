@@ -1044,6 +1044,50 @@
     }
   },
   {
+    "id": "physics-array-reserve-1b81c0",
+    "size": 39,
+    "offset": 1802688,
+    "inputs": [
+      "src/campaign_physics_array_reserve.c"
+    ],
+    "rebuilt_symbol": "@reserve_1b81c0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_physics_array_reserve.obj src/campaign_physics_array_reserve.c",
+    "link_bindings": {
+      "_grow": {
+        "va": 283100096,
+        "basis": "Indexed physics array reallocation helper allocates by element size, copies live elements and releases owned storage."
+      }
+    },
+    "identification": "Aligned entry bounded by a previous return and INT3 padding. Grows capacity to the greater of the requested count and double the current capacity, using 16-byte elements.",
+    "match": {
+      "bytes_sha256": "058ccab4ca59336ac637d12bea2703b166944b6abbb1570910585d062a3f7f4b",
+      "inputs_sha256": "687c1aca16ec5aeccde64dd707b48efe0535e4830560923b879f090c3d3b8db2"
+    }
+  },
+  {
+    "id": "physics-array-reserve-1b81f0",
+    "size": 39,
+    "offset": 1802736,
+    "inputs": [
+      "src/campaign_physics_array_reserve.c"
+    ],
+    "rebuilt_symbol": "@reserve_1b81f0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_physics_array_reserve.obj src/campaign_physics_array_reserve.c",
+    "link_bindings": {
+      "_grow": {
+        "va": 283100096,
+        "basis": "Indexed physics array reallocation helper allocates by element size, copies live elements and releases owned storage."
+      }
+    },
+    "identification": "Aligned entry bounded by a previous return and INT3 padding. Grows capacity to the greater of the requested count and double the current capacity, using 16-byte elements.",
+    "match": {
+      "bytes_sha256": "82f27d256e0ad0eaca5af7ac39c9daed3fcac174152ed8b6bec13336bb3bcf83",
+      "inputs_sha256": "44cc3e012c62f7773311b7eed9cb298e6cb235a82ac84c68619e163c1873158d"
+    }
+  },
+  {
     "id": "physics-buffer-release-1b8220",
     "size": 30,
     "offset": 1802784,

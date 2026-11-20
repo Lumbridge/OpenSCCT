@@ -136,6 +136,28 @@
     }
   },
   {
+    "id": "physics-array-reserve-512e30",
+    "size": 39,
+    "offset": 5320240,
+    "inputs": [
+      "src/campaign_physics_array_reserve.c"
+    ],
+    "rebuilt_symbol": "@reserve_512e30@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_physics_array_reserve.obj src/campaign_physics_array_reserve.c",
+    "link_bindings": {
+      "_grow": {
+        "va": 283100096,
+        "basis": "Indexed physics array reallocation helper allocates by element size, copies live elements and releases owned storage."
+      }
+    },
+    "identification": "Aligned entry bounded by a previous return and INT3 padding. Grows capacity to the greater of the requested count and double the current capacity, using 48-byte elements.",
+    "match": {
+      "bytes_sha256": "9a907a8b4ed243ad8646f4e8813e559bbf80d2e0dd46b8c1e5bc3c12cfc3075e",
+      "inputs_sha256": "e9db81a020cbe254d7f1091c7dd1f5e13ce89458878158c57177d3034523f786"
+    }
+  },
+  {
     "id": "physics-object-release-512e60",
     "size": 38,
     "offset": 5320288,
@@ -1227,6 +1249,28 @@
     "match": {
       "bytes_sha256": "1992f361eee7f6db8a31fecb770b6fafd3ae9acc835b1f20897eb5094cbe3de0",
       "inputs_sha256": "0bf6e728eb8cec468617014f2f5d5dde59244f1ff12edb640a9e1ef1f1a4db34"
+    }
+  },
+  {
+    "id": "physics-array-reserve-5175b0",
+    "size": 39,
+    "offset": 5338544,
+    "inputs": [
+      "src/campaign_physics_array_reserve.c"
+    ],
+    "rebuilt_symbol": "@reserve_5175b0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_physics_array_reserve.obj src/campaign_physics_array_reserve.c",
+    "link_bindings": {
+      "_grow": {
+        "va": 283100096,
+        "basis": "Indexed physics array reallocation helper allocates by element size, copies live elements and releases owned storage."
+      }
+    },
+    "identification": "Aligned entry bounded by a previous return and INT3 padding. Grows capacity to the greater of the requested count and double the current capacity, using 4-byte elements.",
+    "match": {
+      "bytes_sha256": "451d0660ec721beec601cc3259772abcfdf5d08a668f30374a8d858fed65ed2c",
+      "inputs_sha256": "7ed35491c9c63fe914d7c95e92e7266f97efe69691ab211f772dd80921cf14c8"
     }
   },
   {

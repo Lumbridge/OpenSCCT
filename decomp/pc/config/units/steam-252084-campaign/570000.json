@@ -140,6 +140,28 @@
     }
   },
   {
+    "id": "physics-array-reserve-570f90",
+    "size": 39,
+    "offset": 5705616,
+    "inputs": [
+      "src/campaign_physics_array_reserve.c"
+    ],
+    "rebuilt_symbol": "@reserve_570f90@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_physics_array_reserve.obj src/campaign_physics_array_reserve.c",
+    "link_bindings": {
+      "_grow": {
+        "va": 283100096,
+        "basis": "Indexed physics array reallocation helper allocates by element size, copies live elements and releases owned storage."
+      }
+    },
+    "identification": "Aligned entry bounded by a previous return and INT3 padding. Grows capacity to the greater of the requested count and double the current capacity, using 8-byte elements.",
+    "match": {
+      "bytes_sha256": "8489dfa724c640f1584cc7b1089f292f56c372b8c42520882ca066a076e99c2f",
+      "inputs_sha256": "c7135eea461818b0257c2deb1715c46dc3161dedf29cb6c8bf6affbc557e8777"
+    }
+  },
+  {
     "id": "physics-buffer-release-570fc0",
     "size": 30,
     "offset": 5705664,
@@ -207,6 +229,28 @@
     "match": {
       "bytes_sha256": "c2e6e11b171f0c03e97fd3901487ef50ed8b83a17f7f7db312057f7f7d1973dd",
       "inputs_sha256": "bb86ea3d88f044f4ed36e71c0c6d151ff00d171a52119a81f00540f86ca94012"
+    }
+  },
+  {
+    "id": "physics-array-reserve-573320",
+    "size": 39,
+    "offset": 5714720,
+    "inputs": [
+      "src/campaign_physics_array_reserve.c"
+    ],
+    "rebuilt_symbol": "@reserve_573320@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_physics_array_reserve.obj src/campaign_physics_array_reserve.c",
+    "link_bindings": {
+      "_grow": {
+        "va": 283100096,
+        "basis": "Indexed physics array reallocation helper allocates by element size, copies live elements and releases owned storage."
+      }
+    },
+    "identification": "Aligned entry bounded by a previous return and INT3 padding. Grows capacity to the greater of the requested count and double the current capacity, using 4-byte elements.",
+    "match": {
+      "bytes_sha256": "368e158761edab1e3f03a66e83825afb39d6a8058ce4d1697d73287538e67734",
+      "inputs_sha256": "57c0ab56b3d84c8c3d69cc2d404c47639bde198029c87a3cd7cf39ea4a997f58"
     }
   },
   {
@@ -1126,6 +1170,28 @@
     }
   },
   {
+    "id": "physics-array-reserve-579a50",
+    "size": 39,
+    "offset": 5741136,
+    "inputs": [
+      "src/campaign_physics_array_reserve.c"
+    ],
+    "rebuilt_symbol": "@reserve_579a50@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_physics_array_reserve.obj src/campaign_physics_array_reserve.c",
+    "link_bindings": {
+      "_grow": {
+        "va": 283100096,
+        "basis": "Indexed physics array reallocation helper allocates by element size, copies live elements and releases owned storage."
+      }
+    },
+    "identification": "Aligned entry bounded by a previous return and INT3 padding. Grows capacity to the greater of the requested count and double the current capacity, using 12-byte elements.",
+    "match": {
+      "bytes_sha256": "a848698f99b24c4f34d906e36b028953c77d5abe70f3a02c350b05aa776e4698",
+      "inputs_sha256": "08dae522578c8e506ec9f88f251ff8bab3c3d009a751f8ad052deb0ddbbd18f0"
+    }
+  },
+  {
     "id": "physics-scaled-release-579a80",
     "size": 33,
     "offset": 5741184,
@@ -1293,6 +1359,72 @@
     "match": {
       "bytes_sha256": "90ede1337ffcd18dbe214a858bcf9718ebd7fa5b00d1deaf1d2309cd275b0566",
       "inputs_sha256": "e0a154f4f8bd5a869e8cf36976eebce77edfddd3eb28a51718d2e6dbf4e1ed71"
+    }
+  },
+  {
+    "id": "physics-array-reserve-57b2f0",
+    "size": 39,
+    "offset": 5747440,
+    "inputs": [
+      "src/campaign_physics_array_reserve.c"
+    ],
+    "rebuilt_symbol": "@reserve_57b2f0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_physics_array_reserve.obj src/campaign_physics_array_reserve.c",
+    "link_bindings": {
+      "_grow": {
+        "va": 283100096,
+        "basis": "Indexed physics array reallocation helper allocates by element size, copies live elements and releases owned storage."
+      }
+    },
+    "identification": "Aligned entry bounded by a previous return and INT3 padding. Grows capacity to the greater of the requested count and double the current capacity, using 64-byte elements.",
+    "match": {
+      "bytes_sha256": "7a9091f8e09527ca7f6965e13ec834e065eaf9089354020fc807eaee0f8b925b",
+      "inputs_sha256": "3c56cf27b620a61eb4f557e47bd176062e6a6a2a0e4751c02c2cf3f785bd2632"
+    }
+  },
+  {
+    "id": "physics-array-reserve-57b320",
+    "size": 39,
+    "offset": 5747488,
+    "inputs": [
+      "src/campaign_physics_array_reserve.c"
+    ],
+    "rebuilt_symbol": "@reserve_57b320@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_physics_array_reserve.obj src/campaign_physics_array_reserve.c",
+    "link_bindings": {
+      "_grow": {
+        "va": 283100096,
+        "basis": "Indexed physics array reallocation helper allocates by element size, copies live elements and releases owned storage."
+      }
+    },
+    "identification": "Aligned entry bounded by a previous return and INT3 padding. Grows capacity to the greater of the requested count and double the current capacity, using 4-byte elements.",
+    "match": {
+      "bytes_sha256": "ea01ba0c8d444f326a34c7cd2335193dde607e48e820284971c75d8927b7e037",
+      "inputs_sha256": "ac6f05e29c27211a994605baf90fd17b2764a51106be33e1e7b60691183d19a5"
+    }
+  },
+  {
+    "id": "physics-array-reserve-57b350",
+    "size": 39,
+    "offset": 5747536,
+    "inputs": [
+      "src/campaign_physics_array_reserve.c"
+    ],
+    "rebuilt_symbol": "@reserve_57b350@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_physics_array_reserve.obj src/campaign_physics_array_reserve.c",
+    "link_bindings": {
+      "_grow": {
+        "va": 283100096,
+        "basis": "Indexed physics array reallocation helper allocates by element size, copies live elements and releases owned storage."
+      }
+    },
+    "identification": "Aligned entry bounded by a previous return and INT3 padding. Grows capacity to the greater of the requested count and double the current capacity, using 80-byte elements.",
+    "match": {
+      "bytes_sha256": "7d897ed05c05137991551453f4d5a891497c75e76d0c50ef096bb7603b430469",
+      "inputs_sha256": "21fa756fc5846c7f8ed4fc2a334696f69c3c5ca88bf645b060660a822c7d3d42"
     }
   },
   {
