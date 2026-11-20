@@ -107,6 +107,52 @@
     }
   },
   {
+    "id": "tree-previous-indexed-29e7b0",
+    "size": 81,
+    "offset": 2746288,
+    "inputs": [
+      "src/ordered_tree_iterators.c"
+    ],
+    "rebuilt_symbol": "@tree_previous@4",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/ordered_tree_iterators.obj src/ordered_tree_iterators.c",
+    "identification": "Complete indexed tree previous function at RVA 0x29e7b0.",
+    "link_bindings": {
+      "_nil": {
+        "va": 281500920,
+        "basis": "Retail tree sentinel referenced by this traversal or rotation."
+      }
+    },
+    "coff_alignment": 16,
+    "match": {
+      "bytes_sha256": "9de061339c7f4208db71a9cc3dda7d733631c03da837546e72e0b88d01ca8624",
+      "inputs_sha256": "ca9ebb55ca53c65f95cdad366ad555fe18c2390c85bdd26cea8037612fe44246"
+    }
+  },
+  {
+    "id": "tree-next-indexed-29e810",
+    "size": 67,
+    "offset": 2746384,
+    "inputs": [
+      "src/ordered_tree_iterators.c"
+    ],
+    "rebuilt_symbol": "@tree_next@4",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/ordered_tree_iterators.obj src/ordered_tree_iterators.c",
+    "identification": "Complete indexed tree next function at RVA 0x29e810.",
+    "link_bindings": {
+      "_nil": {
+        "va": 281500920,
+        "basis": "Retail tree sentinel referenced by this traversal or rotation."
+      }
+    },
+    "coff_alignment": 16,
+    "match": {
+      "bytes_sha256": "8dacce08c597d6f6c426030a4493550c136709c20c9307ab770d3ff6a9c34577",
+      "inputs_sha256": "a3c332fe70ae40610c319c6cc6e10d2290c8c6dc39736568738ddeb91c072144"
+    }
+  },
+  {
     "id": "copy-word-indexed-29e860",
     "size": 35,
     "offset": 2746464,
