@@ -460,6 +460,28 @@
     }
   },
   {
+    "id": "iterator-backward-dispatch-431820",
+    "size": 29,
+    "offset": 4397088,
+    "inputs": [
+      "src/campaign_iterator_dispatch.c"
+    ],
+    "rebuilt_symbol": "_dispatch_backward",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_iterator_dispatch.obj src/campaign_iterator_dispatch.c",
+    "link_bindings": {
+      "_copy_backward": {
+        "va": 282269280,
+        "basis": "Direct call to indexed backward range loop at RVA 0x431660."
+      }
+    },
+    "identification": "Aligned backward iterator wrapper at RVA 0x431820 forwards the three stack arguments and appends the empty category object. The target contains the element loop.",
+    "match": {
+      "bytes_sha256": "8a97954b3ece625c594a8f6da74b155bbbbd2e5f561e512745d2695a7ce4bb2e",
+      "inputs_sha256": "52bcbc1078040d45c10248705f895ebfe834f7c06c70e9bf6b82d658968d8075"
+    }
+  },
+  {
     "id": "vector-init-4-431930",
     "size": 76,
     "offset": 4397360,
@@ -531,6 +553,28 @@
     "match": {
       "bytes_sha256": "8915d122aeac9c19eda9ef33d9e9e6d6bf2259e47d5deb17cc53c2b3bf28ff5c",
       "inputs_sha256": "3cf7c6b492d4fa05ac06d8bdfb4ba51074e5c101543f0315f152729aa641f746"
+    }
+  },
+  {
+    "id": "iterator-destroy-dispatch-432370",
+    "size": 29,
+    "offset": 4399984,
+    "inputs": [
+      "src/campaign_iterator_dispatch.c"
+    ],
+    "rebuilt_symbol": "_dispatch_destroy",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_iterator_dispatch.obj src/campaign_iterator_dispatch.c",
+    "link_bindings": {
+      "_destroy_range": {
+        "va": 282271360,
+        "basis": "Direct call to indexed destroy range loop at RVA 0x431e80."
+      }
+    },
+    "identification": "Aligned destroy iterator wrapper at RVA 0x432370 forwards the three stack arguments and appends the empty category object. The target contains the element loop.",
+    "match": {
+      "bytes_sha256": "a139dd594889e87f486599144e3613654579257f199b16c7ef9384592b05514b",
+      "inputs_sha256": "d55bd3439b137b7dd55021483954381811de795ab59a52504a119dceba4adf9c"
     }
   },
   {
@@ -714,6 +758,28 @@
     }
   },
   {
+    "id": "iterator-backward-dispatch-433370",
+    "size": 29,
+    "offset": 4404080,
+    "inputs": [
+      "src/campaign_iterator_dispatch.c"
+    ],
+    "rebuilt_symbol": "_dispatch_backward",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_iterator_dispatch.obj src/campaign_iterator_dispatch.c",
+    "link_bindings": {
+      "_copy_backward": {
+        "va": 282276384,
+        "basis": "Direct call to indexed backward range loop at RVA 0x433220."
+      }
+    },
+    "identification": "Aligned backward iterator wrapper at RVA 0x433370 forwards the three stack arguments and appends the empty category object. The target contains the element loop.",
+    "match": {
+      "bytes_sha256": "d876a8d5e657d5e038e25575ebbc9283644e5a0a769b823037f2cbfeb99ccaad",
+      "inputs_sha256": "0acc9361ed18c4651b64599958b9228871fa8b1fb94cd81699b853e54a93fe1f"
+    }
+  },
+  {
     "id": "vector-init-4-433460",
     "size": 76,
     "offset": 4404320,
@@ -785,6 +851,28 @@
     "match": {
       "bytes_sha256": "7d900ac086b480911cd465043ad1606a6de14c72d9b72937f7fc0c2b716595fd",
       "inputs_sha256": "9c27d453c166bc18064c2b78f1c0058f8d3f73064d1ef9fcd16657a19f537a23"
+    }
+  },
+  {
+    "id": "iterator-destroy-dispatch-433a00",
+    "size": 29,
+    "offset": 4405760,
+    "inputs": [
+      "src/campaign_iterator_dispatch.c"
+    ],
+    "rebuilt_symbol": "_dispatch_destroy",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_iterator_dispatch.obj src/campaign_iterator_dispatch.c",
+    "link_bindings": {
+      "_destroy_range": {
+        "va": 282277472,
+        "basis": "Direct call to indexed destroy range loop at RVA 0x433660."
+      }
+    },
+    "identification": "Aligned destroy iterator wrapper at RVA 0x433a00 forwards the three stack arguments and appends the empty category object. The target contains the element loop.",
+    "match": {
+      "bytes_sha256": "434caafea9d20a46078af1f5c82586d5d5f87ad2931241feb97ee1478e1dd3cb",
+      "inputs_sha256": "465f7308fb541e37e3073445882255cdeefc939951a47c125a5d80aeeb471f0b"
     }
   },
   {
@@ -1234,6 +1322,28 @@
     }
   },
   {
+    "id": "iterator-backward-dispatch-436290",
+    "size": 29,
+    "offset": 4416144,
+    "inputs": [
+      "src/campaign_iterator_dispatch.c"
+    ],
+    "rebuilt_symbol": "_dispatch_backward",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_iterator_dispatch.obj src/campaign_iterator_dispatch.c",
+    "link_bindings": {
+      "_copy_backward": {
+        "va": 282287808,
+        "basis": "Direct call to indexed backward range loop at RVA 0x435ec0."
+      }
+    },
+    "identification": "Aligned backward iterator wrapper at RVA 0x436290 forwards the three stack arguments and appends the empty category object. The target contains the element loop.",
+    "match": {
+      "bytes_sha256": "810f5dbb1184b0b1944e258f5bec480488b7c76399231afdf09de841c4f80871",
+      "inputs_sha256": "c2307d3a37591a7d0d53e5e191e4d382453efb6bedf7bd5fe9a896829fed763d"
+    }
+  },
+  {
     "id": "construct-range-4363d0",
     "size": 37,
     "offset": 4416464,
@@ -1487,6 +1597,28 @@
     "match": {
       "bytes_sha256": "b149cd2e70a0170a447706bff486a7b35fe60e163e36ac469dfc22edde6ec106",
       "inputs_sha256": "11153ac267907d254b5c54398271ff1360b698b49b48664065f58de8dfaa317e"
+    }
+  },
+  {
+    "id": "iterator-destroy-dispatch-436e70",
+    "size": 29,
+    "offset": 4419184,
+    "inputs": [
+      "src/campaign_iterator_dispatch.c"
+    ],
+    "rebuilt_symbol": "_dispatch_destroy",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_iterator_dispatch.obj src/campaign_iterator_dispatch.c",
+    "link_bindings": {
+      "_destroy_range": {
+        "va": 282290672,
+        "basis": "Direct call to indexed destroy range loop at RVA 0x4369f0."
+      }
+    },
+    "identification": "Aligned destroy iterator wrapper at RVA 0x436e70 forwards the three stack arguments and appends the empty category object. The target contains the element loop.",
+    "match": {
+      "bytes_sha256": "b23cef86989623f1ca98a61220f7ce48bcff37a39b61324a384b52a0c59783c4",
+      "inputs_sha256": "1855370d73dd847d133ca16740d55c0f0c01efb394ded7d84d2cae4d501989df"
     }
   },
   {
@@ -2649,6 +2781,50 @@
     "match": {
       "bytes_sha256": "7de6d23eceae7841f4b21a27b9ab8f16fdbe8e7297128d2a7be59a19f42d9f9b",
       "inputs_sha256": "2319209bd1d8b2e8cb12ebf3d512dd6c26ed22a803155a3c5d71e23a52820e16"
+    }
+  },
+  {
+    "id": "iterator-forward-dispatch-43ae70",
+    "size": 29,
+    "offset": 4435568,
+    "inputs": [
+      "src/campaign_iterator_dispatch.c"
+    ],
+    "rebuilt_symbol": "_dispatch_forward",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_iterator_dispatch.obj src/campaign_iterator_dispatch.c",
+    "link_bindings": {
+      "_copy_forward": {
+        "va": 282307968,
+        "basis": "Direct call to indexed forward range loop at RVA 0x43ad80."
+      }
+    },
+    "identification": "Aligned forward iterator wrapper at RVA 0x43ae70 forwards the three stack arguments and appends the empty category object. The target contains the element loop.",
+    "match": {
+      "bytes_sha256": "325c4be0d089842265149c49689f0d2a2294f4a372ae3c81ebfa21c767ebca40",
+      "inputs_sha256": "5948e5649d91e9bad1d2859da4437a030d94c1d1d6935a2d127fa989dc50d9f1"
+    }
+  },
+  {
+    "id": "iterator-backward-dispatch-43aee0",
+    "size": 29,
+    "offset": 4435680,
+    "inputs": [
+      "src/campaign_iterator_dispatch.c"
+    ],
+    "rebuilt_symbol": "_dispatch_backward",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_iterator_dispatch.obj src/campaign_iterator_dispatch.c",
+    "link_bindings": {
+      "_copy_backward": {
+        "va": 282308064,
+        "basis": "Direct call to indexed backward range loop at RVA 0x43ade0."
+      }
+    },
+    "identification": "Aligned backward iterator wrapper at RVA 0x43aee0 forwards the three stack arguments and appends the empty category object. The target contains the element loop.",
+    "match": {
+      "bytes_sha256": "2fcc8930a77a8671ef4c7a6e3b6d2a3667216e19aa14e6daa16a8a72721cb65f",
+      "inputs_sha256": "955e310e1742b9281440ddd6d91d003742123c8b4734fbe9a84da3ac362a9424"
     }
   },
   {

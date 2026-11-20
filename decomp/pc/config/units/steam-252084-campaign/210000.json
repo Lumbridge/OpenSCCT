@@ -1304,6 +1304,116 @@
     }
   },
   {
+    "id": "iterator-backward-dispatch-21cfd0",
+    "size": 29,
+    "offset": 2215888,
+    "inputs": [
+      "src/campaign_iterator_dispatch.c"
+    ],
+    "rebuilt_symbol": "_dispatch_backward",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_iterator_dispatch.obj src/campaign_iterator_dispatch.c",
+    "link_bindings": {
+      "_copy_backward": {
+        "va": 280087792,
+        "basis": "Direct call to indexed backward range loop at RVA 0x21ccf0."
+      }
+    },
+    "identification": "Aligned backward iterator wrapper at RVA 0x21cfd0 forwards the three stack arguments and appends the empty category object. The target contains the element loop.",
+    "match": {
+      "bytes_sha256": "a49649cc379db7526cd839b9938d2ed8f07350407df0f5b14b826215fe4cc688",
+      "inputs_sha256": "37a667164b6b970b69eb4910745544b6ff05043d0cf89c7d858bf0efc97fb391"
+    }
+  },
+  {
+    "id": "iterator-backward-dispatch-21cff0",
+    "size": 29,
+    "offset": 2215920,
+    "inputs": [
+      "src/campaign_iterator_dispatch.c"
+    ],
+    "rebuilt_symbol": "_dispatch_backward",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_iterator_dispatch.obj src/campaign_iterator_dispatch.c",
+    "link_bindings": {
+      "_copy_backward": {
+        "va": 280087856,
+        "basis": "Direct call to indexed backward range loop at RVA 0x21cd30."
+      }
+    },
+    "identification": "Aligned backward iterator wrapper at RVA 0x21cff0 forwards the three stack arguments and appends the empty category object. The target contains the element loop.",
+    "match": {
+      "bytes_sha256": "8f13837d1936176ba0897cf29b30cf9fe2b81fcded0dab484b91cc30c38f0575",
+      "inputs_sha256": "93decfa834f9462e11d99f278cff5fb61a54d29db455a1786c30bce0389525cb"
+    }
+  },
+  {
+    "id": "iterator-backward-dispatch-21d010",
+    "size": 29,
+    "offset": 2215952,
+    "inputs": [
+      "src/campaign_iterator_dispatch.c"
+    ],
+    "rebuilt_symbol": "_dispatch_backward",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_iterator_dispatch.obj src/campaign_iterator_dispatch.c",
+    "link_bindings": {
+      "_copy_backward": {
+        "va": 280087920,
+        "basis": "Direct call to indexed backward range loop at RVA 0x21cd70."
+      }
+    },
+    "identification": "Aligned backward iterator wrapper at RVA 0x21d010 forwards the three stack arguments and appends the empty category object. The target contains the element loop.",
+    "match": {
+      "bytes_sha256": "80f5c624a625a788a0d644e4f9a8e6fe3b7b8cb6c8c74818f52c2512d394e721",
+      "inputs_sha256": "6b5ecf960cf6786657b125a1eee27789924a8f8d75fdc49e38f88cd032873424"
+    }
+  },
+  {
+    "id": "iterator-backward-dispatch-21d030",
+    "size": 29,
+    "offset": 2215984,
+    "inputs": [
+      "src/campaign_iterator_dispatch.c"
+    ],
+    "rebuilt_symbol": "_dispatch_backward",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_iterator_dispatch.obj src/campaign_iterator_dispatch.c",
+    "link_bindings": {
+      "_copy_backward": {
+        "va": 280087984,
+        "basis": "Direct call to indexed backward range loop at RVA 0x21cdb0."
+      }
+    },
+    "identification": "Aligned backward iterator wrapper at RVA 0x21d030 forwards the three stack arguments and appends the empty category object. The target contains the element loop.",
+    "match": {
+      "bytes_sha256": "9af3d86959ecc4b9d4b846638216d550195aea68b4392f30d089f5f400005dda",
+      "inputs_sha256": "fe77414e927a654133b3f0efc416626c23a32dc5c6cf47191bcb9d1fa936b971"
+    }
+  },
+  {
+    "id": "iterator-backward-dispatch-21d050",
+    "size": 29,
+    "offset": 2216016,
+    "inputs": [
+      "src/campaign_iterator_dispatch.c"
+    ],
+    "rebuilt_symbol": "_dispatch_backward",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_iterator_dispatch.obj src/campaign_iterator_dispatch.c",
+    "link_bindings": {
+      "_copy_backward": {
+        "va": 280088048,
+        "basis": "Direct call to indexed backward range loop at RVA 0x21cdf0."
+      }
+    },
+    "identification": "Aligned backward iterator wrapper at RVA 0x21d050 forwards the three stack arguments and appends the empty category object. The target contains the element loop.",
+    "match": {
+      "bytes_sha256": "9e419bef2d9deb2fddabcc416a2954c08c66122ba807879f398d33c41d6eefa8",
+      "inputs_sha256": "ce33eb0a2d3765f1437df7c10eca8e90b070edda8c7e3b16e183f53ba5260816"
+    }
+  },
+  {
     "id": "placement-copy-21d080",
     "size": 37,
     "offset": 2216064,

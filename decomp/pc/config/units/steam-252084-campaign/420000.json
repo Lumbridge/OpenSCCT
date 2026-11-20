@@ -531,6 +531,28 @@
     }
   },
   {
+    "id": "iterator-destroy-dispatch-422080",
+    "size": 29,
+    "offset": 4333696,
+    "inputs": [
+      "src/campaign_iterator_dispatch.c"
+    ],
+    "rebuilt_symbol": "_dispatch_destroy",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_iterator_dispatch.obj src/campaign_iterator_dispatch.c",
+    "link_bindings": {
+      "_destroy_range": {
+        "va": 282205728,
+        "basis": "Direct call to indexed destroy range loop at RVA 0x421e20."
+      }
+    },
+    "identification": "Aligned destroy iterator wrapper at RVA 0x422080 forwards the three stack arguments and appends the empty category object. The target contains the element loop.",
+    "match": {
+      "bytes_sha256": "9e419bef2d9deb2fddabcc416a2954c08c66122ba807879f398d33c41d6eefa8",
+      "inputs_sha256": "8527555603d47016b00edd7ffcd41867a31031649bf26be50406c00835383bdb"
+    }
+  },
+  {
     "id": "vector-insert-one-4223d0",
     "size": 70,
     "offset": 4334544,
@@ -2220,6 +2242,28 @@
     }
   },
   {
+    "id": "wide-record-destroy-records-42b400",
+    "size": 60,
+    "offset": 4371456,
+    "inputs": [
+      "src/campaign_wide_record_ranges.c"
+    ],
+    "rebuilt_symbol": "_destroy_records",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_wide_record_ranges.obj src/campaign_wide_record_ranges.c",
+    "link_bindings": {
+      "_free_buffer": {
+        "va": 279826640,
+        "basis": "Shared Campaign buffer release."
+      }
+    },
+    "identification": "Indexed 32-byte record range routine at RVA 0x42b400, identified by the wide string operation, record stride and full return boundary.",
+    "match": {
+      "bytes_sha256": "e378c06fa4b3bdec3f909484d8917472e683b96faea7f12dc210ca36dccee03c",
+      "inputs_sha256": "cf5677046355a5a2a480c6d6895f15984404bc74b546df9c4cae99a2edff094d"
+    }
+  },
+  {
     "id": "clear-owned-storage-42be20",
     "size": 42,
     "offset": 4374048,
@@ -2264,6 +2308,50 @@
     }
   },
   {
+    "id": "iterator-destroy-dispatch-42bf00",
+    "size": 29,
+    "offset": 4374272,
+    "inputs": [
+      "src/campaign_iterator_dispatch.c"
+    ],
+    "rebuilt_symbol": "_dispatch_destroy",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_iterator_dispatch.obj src/campaign_iterator_dispatch.c",
+    "link_bindings": {
+      "_destroy_range": {
+        "va": 282244096,
+        "basis": "Direct call to indexed destroy range loop at RVA 0x42b400."
+      }
+    },
+    "identification": "Aligned destroy iterator wrapper at RVA 0x42bf00 forwards the three stack arguments and appends the empty category object. The target contains the element loop.",
+    "match": {
+      "bytes_sha256": "1ab5ff6654a3c61b43d810188dfbe1836a4f49892df851cde4e843062224c407",
+      "inputs_sha256": "2821ad1b09339df166d64c1b66f19c2860bbb621c59239a98ce2a5de71860139"
+    }
+  },
+  {
+    "id": "wide-record-copy-records-42bf40",
+    "size": 60,
+    "offset": 4374336,
+    "inputs": [
+      "src/campaign_wide_record_ranges.c"
+    ],
+    "rebuilt_symbol": "_copy_records",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_wide_record_ranges.obj src/campaign_wide_record_ranges.c",
+    "link_bindings": {
+      "@copy_text@16": {
+        "va": 279806096,
+        "basis": "Shared Campaign wide-string range assignment."
+      }
+    },
+    "identification": "Indexed 32-byte record range routine at RVA 0x42bf40, identified by the wide string operation, record stride and full return boundary.",
+    "match": {
+      "bytes_sha256": "8e3d33725f4e6ee31bad506625d04e2dc30585ff6199df92f6b756d1e943f37f",
+      "inputs_sha256": "39af42dca2d876f0f08ec5230f97723c7791b5e904febe13cc82ab7c9f1463a5"
+    }
+  },
+  {
     "id": "range-copy-dispatch-42bf80",
     "size": 34,
     "offset": 4374400,
@@ -2283,6 +2371,28 @@
     "match": {
       "bytes_sha256": "9396c439ef359408857415a843b1205b9cf06187635ddeba4872bcfba5ceb706",
       "inputs_sha256": "b5a3eb5aed2e7f0bb2209b8c0caa5251855a07e8daf90508b2fa389a867bbd11"
+    }
+  },
+  {
+    "id": "wide-record-copy-backward-42bfb0",
+    "size": 60,
+    "offset": 4374448,
+    "inputs": [
+      "src/campaign_wide_record_ranges.c"
+    ],
+    "rebuilt_symbol": "_copy_backward",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_wide_record_ranges.obj src/campaign_wide_record_ranges.c",
+    "link_bindings": {
+      "@copy_text@16": {
+        "va": 279806096,
+        "basis": "Shared Campaign wide-string range assignment."
+      }
+    },
+    "identification": "Indexed 32-byte record range routine at RVA 0x42bfb0, identified by the wide string operation, record stride and full return boundary.",
+    "match": {
+      "bytes_sha256": "1d091d69aae1f4374bfd0b9889cfa079f77d4ddfb3f2f89a3e71b1d73e5a9f0d",
+      "inputs_sha256": "3d0b7842e190808d239349e8a85b82fb68cea38d443edd809031f466b4ef41b4"
     }
   },
   {
@@ -2330,6 +2440,28 @@
     }
   },
   {
+    "id": "iterator-forward-dispatch-42c210",
+    "size": 29,
+    "offset": 4375056,
+    "inputs": [
+      "src/campaign_iterator_dispatch.c"
+    ],
+    "rebuilt_symbol": "_dispatch_forward",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_iterator_dispatch.obj src/campaign_iterator_dispatch.c",
+    "link_bindings": {
+      "_copy_forward": {
+        "va": 282246976,
+        "basis": "Direct call to indexed forward range loop at RVA 0x42bf40."
+      }
+    },
+    "identification": "Aligned forward iterator wrapper at RVA 0x42c210 forwards the three stack arguments and appends the empty category object. The target contains the element loop.",
+    "match": {
+      "bytes_sha256": "3a6c0a84189caf584e7e9a79b9f217ee01c83efaf1d89d28dc3c51ef95126c00",
+      "inputs_sha256": "c64e17a6676c989bde4185537900eaf0ae21025f08347aff418772079b0ec10b"
+    }
+  },
+  {
     "id": "range-copy-dispatch-42c230",
     "offset": 4375088,
     "size": 32,
@@ -2349,6 +2481,28 @@
     "match": {
       "bytes_sha256": "328301e0769bd93146e5fc86f21289112c2fd1962337be1a85f68f7561dc8fc8",
       "inputs_sha256": "2ac57b1800fe1bb269033ec9c98b934f58852e093fb2089fe4732d2c4442e48a"
+    }
+  },
+  {
+    "id": "iterator-backward-dispatch-42c280",
+    "size": 29,
+    "offset": 4375168,
+    "inputs": [
+      "src/campaign_iterator_dispatch.c"
+    ],
+    "rebuilt_symbol": "_dispatch_backward",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_iterator_dispatch.obj src/campaign_iterator_dispatch.c",
+    "link_bindings": {
+      "_copy_backward": {
+        "va": 282247088,
+        "basis": "Direct call to indexed backward range loop at RVA 0x42bfb0."
+      }
+    },
+    "identification": "Aligned backward iterator wrapper at RVA 0x42c280 forwards the three stack arguments and appends the empty category object. The target contains the element loop.",
+    "match": {
+      "bytes_sha256": "3a6c0a84189caf584e7e9a79b9f217ee01c83efaf1d89d28dc3c51ef95126c00",
+      "inputs_sha256": "e7b205b4463a4cc0fd3d89bde394967f8a0298c9e7aea09481ec158373193dbe"
     }
   },
   {
@@ -2401,6 +2555,50 @@
     }
   },
   {
+    "id": "iterator-forward-dispatch-42d460",
+    "size": 29,
+    "offset": 4379744,
+    "inputs": [
+      "src/campaign_iterator_dispatch.c"
+    ],
+    "rebuilt_symbol": "_dispatch_forward",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_iterator_dispatch.obj src/campaign_iterator_dispatch.c",
+    "link_bindings": {
+      "_copy_forward": {
+        "va": 282250208,
+        "basis": "Direct call to indexed forward range loop at RVA 0x42cbe0."
+      }
+    },
+    "identification": "Aligned forward iterator wrapper at RVA 0x42d460 forwards the three stack arguments and appends the empty category object. The target contains the element loop.",
+    "match": {
+      "bytes_sha256": "438996b5141b51200d9e15016a50c4599e32dbe9690854b07e0d507516164635",
+      "inputs_sha256": "5d0a6337bfed1b8f0ae4a0f4002d0f3a05da8121fa75e676d6c541ff477fac13"
+    }
+  },
+  {
+    "id": "iterator-backward-dispatch-42d4e0",
+    "size": 29,
+    "offset": 4379872,
+    "inputs": [
+      "src/campaign_iterator_dispatch.c"
+    ],
+    "rebuilt_symbol": "_dispatch_backward",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_iterator_dispatch.obj src/campaign_iterator_dispatch.c",
+    "link_bindings": {
+      "_copy_backward": {
+        "va": 282250304,
+        "basis": "Direct call to indexed backward range loop at RVA 0x42cc40."
+      }
+    },
+    "identification": "Aligned backward iterator wrapper at RVA 0x42d4e0 forwards the three stack arguments and appends the empty category object. The target contains the element loop.",
+    "match": {
+      "bytes_sha256": "4f51a314f88bbdd8000ae38c216d2b6f72c04503bbdf4a4ed501fb519a7b0ed1",
+      "inputs_sha256": "5db8f4717257f3e0d5331250cf206a0ca75b12292393c862d4be79d4e0dfe2a7"
+    }
+  },
+  {
     "id": "range-copy-dispatch-42d5f0",
     "size": 34,
     "offset": 4380144,
@@ -2420,6 +2618,28 @@
     "match": {
       "bytes_sha256": "7fa81a70cd1c57ad18877ee90fbb400a2800d1468a801c373fa8c9402309caa3",
       "inputs_sha256": "31896d5704d9cdb58b0fa361eebd6349266612334fe5afa2f9eeb464b2c29fb4"
+    }
+  },
+  {
+    "id": "iterator-destroy-dispatch-42dd10",
+    "size": 29,
+    "offset": 4381968,
+    "inputs": [
+      "src/campaign_iterator_dispatch.c"
+    ],
+    "rebuilt_symbol": "_dispatch_destroy",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_iterator_dispatch.obj src/campaign_iterator_dispatch.c",
+    "link_bindings": {
+      "_destroy_range": {
+        "va": 282252544,
+        "basis": "Direct call to indexed destroy range loop at RVA 0x42d500."
+      }
+    },
+    "identification": "Aligned destroy iterator wrapper at RVA 0x42dd10 forwards the three stack arguments and appends the empty category object. The target contains the element loop.",
+    "match": {
+      "bytes_sha256": "fc2adaee31dcb4efb312b4a8fdbd93ba2a6d701ab7d51453e889921bc653edf4",
+      "inputs_sha256": "7ef940137cf38e071d32ee252ad8827b56a2cd29a72915645516be1afd8f26ad"
     }
   },
   {

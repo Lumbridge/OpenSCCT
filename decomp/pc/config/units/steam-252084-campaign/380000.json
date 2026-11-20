@@ -358,6 +358,28 @@
     }
   },
   {
+    "id": "iterator-backward-dispatch-383740",
+    "size": 29,
+    "offset": 3684160,
+    "inputs": [
+      "src/campaign_iterator_dispatch.c"
+    ],
+    "rebuilt_symbol": "_dispatch_backward",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_iterator_dispatch.obj src/campaign_iterator_dispatch.c",
+    "link_bindings": {
+      "_copy_backward": {
+        "va": 281545104,
+        "basis": "Direct call to indexed backward range loop at RVA 0x380990."
+      }
+    },
+    "identification": "Aligned backward iterator wrapper at RVA 0x383740 forwards the three stack arguments and appends the empty category object. The target contains the element loop.",
+    "match": {
+      "bytes_sha256": "ef1267779f50774ed904f2a3d8fc76f730713b23c32a6ccd8265ce857d2af1b9",
+      "inputs_sha256": "fadf3af5f69923bd4038f03c98ac7456b9cf442429bca55b685d849feab9e2d5"
+    }
+  },
+  {
     "id": "array-resize-383940",
     "size": 37,
     "offset": 3684672,
