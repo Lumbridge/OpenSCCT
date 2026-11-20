@@ -466,6 +466,58 @@
     }
   },
   {
+    "id": "managed-release-487b90",
+    "size": 22,
+    "offset": 4750224,
+    "inputs": [
+      "src/campaign_managed_release.c"
+    ],
+    "rebuilt_symbol": "_release_managed_487b90",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_managed_release.obj src/campaign_managed_release.c",
+    "link_bindings": {
+      "_get_manager": {
+        "va": 282637408,
+        "basis": "Loads the allocation manager singleton."
+      },
+      "_release_allocation": {
+        "va": 282637648,
+        "basis": "Releases storage through the allocation header and invokes manager callbacks."
+      }
+    },
+    "identification": "Direct call at RVA 0x5b9c0 in the independently delineated function at RVA 0x5b9b0. Default Ghidra extent. Loads the allocation manager at RVA 0x48b460 then calls the release routine at RVA 0x48b550 with category 3.",
+    "match": {
+      "bytes_sha256": "c95445c9233fdbf7c8852a07eb32233dbb86a9a3f21fb1a765cbead0891f20a9",
+      "inputs_sha256": "f83d447bf084dc3b4eeb215b26d7550849439ad6ff50cc6dc29a3cb3c1e2f82a"
+    }
+  },
+  {
+    "id": "managed-release-487bb0",
+    "size": 22,
+    "offset": 4750256,
+    "inputs": [
+      "src/campaign_managed_release.c"
+    ],
+    "rebuilt_symbol": "_release_managed_487bb0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_managed_release.obj src/campaign_managed_release.c",
+    "link_bindings": {
+      "_get_manager": {
+        "va": 282637408,
+        "basis": "Loads the allocation manager singleton."
+      },
+      "_release_allocation": {
+        "va": 282637648,
+        "basis": "Releases storage through the allocation header and invokes manager callbacks."
+      }
+    },
+    "identification": "Direct call at RVA 0x4e5aa1 in the independently delineated function at RVA 0x4e5a70. Default Ghidra extent. Loads the allocation manager at RVA 0x48b460 then calls the release routine at RVA 0x48b550 with category 4.",
+    "match": {
+      "bytes_sha256": "e528f7b0b332846c251508f0b4fa829c3c666522dd9ee77a754e53e1c002d200",
+      "inputs_sha256": "bbb12cdadb3dab45e6f04478a98e6b03068c4b3a13b3faf94deb9b18f3f6af81"
+    }
+  },
+  {
     "id": "delete-record-487fa0",
     "offset": 4751264,
     "size": 36,
