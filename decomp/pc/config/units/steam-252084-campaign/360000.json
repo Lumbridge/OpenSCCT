@@ -2117,6 +2117,33 @@
     }
   },
   {
+    "id": "script-frame-restoreview",
+    "offset": 3567840,
+    "size": 66,
+    "rebuilt_symbol": "@script_frame_RestoreView@8",
+    "inputs": [
+      "src/campaign_script_frames.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_frames.obj src/campaign_script_frames.c",
+    "link_bindings": {
+      "_name_RestoreView": {
+        "va": 287503936,
+        "basis": "FName initialized with retail UTF-16 RestoreView (VA 0x110fa6b4). The FName constructor call at RVA 0x335ff0 precedes the store to this slot at RVA 0x336002."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail RestoreView event wrapper at RVA 0x3670e0, including the return. The name initialization and script lookup link the wrapper to its event. Matching package declaration: Echelon.u declares EPlayerController.RestoreView at serial offset 0x81bfb.",
+    "match": {
+      "bytes_sha256": "f424dde0ce30dfde7aee6b99980ce46ea3974779b0d015dd744ea538d8af7ec1",
+      "inputs_sha256": "f4229ec1e7aa7a9b1ea660f10765f443c34e5a35e49f94a6dd32acfdfd97c3e4"
+    }
+  },
+  {
     "id": "class-registration-aehackinginteraction",
     "offset": 3567936,
     "size": 264,

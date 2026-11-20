@@ -1,5 +1,53 @@
 [
   {
+    "id": "game-engine-keyboardmanager-setconsolemask",
+    "offset": 1114240,
+    "size": 44,
+    "rebuilt_symbol": "@exec_Engine_KeyboardManager_SetConsoleMask@16",
+    "inputs": [
+      "src/campaign_vm_game_callbacks.c",
+      "src/campaign_game_callback.h",
+      "src/campaign_vm_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_game_callbacks.obj src/campaign_vm_game_callbacks.c",
+    "identification": "Stock campaign script callback Engine_KeyboardManager_SetConsoleMask at RVA 0x110080; callback cell and name are evidenced by the verified register-native-engine-keyboardmanager-setconsolemask CRT entry at RVA 0x7a3ac0. Consumes the argument terminator and optional debug token. This body has no further game action. Every exit through the final return precedes INT3 alignment.",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Shared stock campaign VM dispatch table. Debug-info opcode 0x42 is implemented at RVA 0x3f7780."
+      }
+    },
+    "match": {
+      "bytes_sha256": "5d6ee1dc9a9ee302224a2c36ece0f4f7b5077bb4ba2bc92112520e8b10286e2a",
+      "inputs_sha256": "4091c6f4d4350ea72d1d5e917a0aea2a5c2909838cbde5a7cdfd18a76a5410c6"
+    }
+  },
+  {
+    "id": "game-engine-keyboardmanager-clearmask",
+    "offset": 1114288,
+    "size": 44,
+    "rebuilt_symbol": "@exec_Engine_KeyboardManager_ClearMask@16",
+    "inputs": [
+      "src/campaign_vm_game_callbacks.c",
+      "src/campaign_game_callback.h",
+      "src/campaign_vm_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_game_callbacks.obj src/campaign_vm_game_callbacks.c",
+    "identification": "Stock campaign script callback Engine_KeyboardManager_ClearMask at RVA 0x1100b0; callback cell and name are evidenced by the verified register-native-engine-keyboardmanager-clearmask CRT entry at RVA 0x7a3aa0. Consumes the argument terminator and optional debug token. This body has no further game action. Every exit through the final return precedes INT3 alignment.",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Shared stock campaign VM dispatch table. Debug-info opcode 0x42 is implemented at RVA 0x3f7780."
+      }
+    },
+    "match": {
+      "bytes_sha256": "5d6ee1dc9a9ee302224a2c36ece0f4f7b5077bb4ba2bc92112520e8b10286e2a",
+      "inputs_sha256": "82ffef743f2d7148c1c4feafb39b72a62b05186463e96dc54f3aa34ec5487c13"
+    }
+  },
+  {
     "id": "placement-ukeyboardmanager",
     "offset": 1114336,
     "size": 24,
@@ -4035,6 +4083,99 @@
     "match": {
       "bytes_sha256": "ce0a4d549f0f9e4a59c7cc471b82cd51e69c84f58eae15fa5df12fa611c78fc3",
       "inputs_sha256": "6854dac6a174d45f7b0f9c6af127e0e3e473f1b9d32ac85cb834bccd98d4d8b2"
+    }
+  },
+  {
+    "id": "array-remove-11ef40",
+    "size": 138,
+    "offset": 1175360,
+    "rebuilt_symbol": "@array_remove_r11ef40@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x11ef40, including RET. Incoming transfer decoded within analyzed function code at RVA 0x11f31b, 0x11f3db, 0x11f5f4. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "dbab3a9c39fd411788c42855717c4ae93ac4b560e5fa7db4bd0caaa198cbeac5",
+      "inputs_sha256": "3cd4fcc5b3fe96b6b4655a88722480c3b57cf70b11798ba99c5ab2a45e88edf8"
+    }
+  },
+  {
+    "id": "array-remove-11efd0",
+    "size": 138,
+    "offset": 1175504,
+    "rebuilt_symbol": "@array_remove_r11efd0@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x11efd0, including RET. Incoming transfer decoded within analyzed function code at RVA 0x11f35b, 0x11f41b, 0x11f5b8. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "3816ae295d90448928a34b530942ef8685dff029f72dc8b39ef6353b4ca2c1c4",
+      "inputs_sha256": "d19784c663a700bd56c535a621e3c2aa634b23b82e151d596d8a5aee79d6c033"
+    }
+  },
+  {
+    "id": "array-remove-11f060",
+    "size": 138,
+    "offset": 1175648,
+    "rebuilt_symbol": "@array_remove_r11f060@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x11f060, including RET. Incoming transfer decoded within analyzed function code at RVA 0x11f39e, 0x11f45e, 0x11f587. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "e6b53d5c4e54c109a978f62100971f621c271240659a13373d33b4c0b4f73124",
+      "inputs_sha256": "de0049c9253c0211364a5967ee8161e2aac93539e5d9da7f30123c4fa147a7b3"
     }
   },
   {

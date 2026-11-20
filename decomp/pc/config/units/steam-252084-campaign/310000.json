@@ -372,6 +372,37 @@
     }
   },
   {
+    "id": "array-remove-3116b0",
+    "size": 138,
+    "offset": 3217072,
+    "rebuilt_symbol": "@array_remove_r3116b0@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x3116b0, including RET. Incoming transfer decoded within analyzed function code at RVA 0x31182b, 0x31186b. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "06b387d74a1f91ad41456b5ce0d88f8eb31924d31eb3aa585c73de451216dc34",
+      "inputs_sha256": "dac248602812ab7ff526ed4636e7d72068b7cb0db3b6dc203a345159db3410df"
+    }
+  },
+  {
     "id": "delete-aezoneinfo",
     "offset": 3217632,
     "size": 57,
@@ -644,6 +675,414 @@
     }
   },
   {
+    "id": "array-remove-312c70",
+    "size": 138,
+    "offset": 3222640,
+    "rebuilt_symbol": "@array_remove_r312c70@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x312c70, including RET. Incoming transfer decoded within analyzed function code at RVA 0x3136eb, 0x31489f. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "f21ecdac0bd191ff721c7664acd71ccd5594645654f5fa1ade1f662f7f2837ce",
+      "inputs_sha256": "7d160e071d489c766891d0385d5a983b1c833efe6c33c2e045752a03e683de6d"
+    }
+  },
+  {
+    "id": "array-remove-312d50",
+    "size": 138,
+    "offset": 3222864,
+    "rebuilt_symbol": "@array_remove_r312d50@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x312d50, including RET. Incoming transfer decoded within analyzed function code at RVA 0x3168f2. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "212bf3587b787729e3e3c4e5fd3a3af2708f69ec7f50687e50a1cd24bfd152f2",
+      "inputs_sha256": "c68ac2fbe397d801e21f0f4e43df4631598fa229490cf2c341d7ef2583e074e5"
+    }
+  },
+  {
+    "id": "array-remove-312de0",
+    "size": 138,
+    "offset": 3223008,
+    "rebuilt_symbol": "@array_remove_r312de0@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x312de0, including RET. Incoming transfer decoded within analyzed function code at RVA 0x3139cb, 0x314b4b, 0x316c6d. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "59f4b3caec0fd9452d21c737d76c131271c94042b4d5cc655cad02a1ad53061d",
+      "inputs_sha256": "67f322917e637cae22736dc9fcfc62ae4468472fa1dace31aed3cda5feeecc43"
+    }
+  },
+  {
+    "id": "array-remove-312e70",
+    "size": 138,
+    "offset": 3223152,
+    "rebuilt_symbol": "@array_remove_r312e70@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x312e70, including RET. Incoming transfer decoded within analyzed function code at RVA 0x315e2d. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "37451b5be7468e8d672bcee4dd101cc31c309a13c577ad18bdd5b6a21b992d8a",
+      "inputs_sha256": "12d0db1e5e3f3bc480027440e868ac6e284d578a328633a7fa6af438a3aa9bff"
+    }
+  },
+  {
+    "id": "array-remove-312f00",
+    "size": 138,
+    "offset": 3223296,
+    "rebuilt_symbol": "@array_remove_r312f00@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x312f00, including RET. Incoming transfer decoded within analyzed function code at RVA 0x313a0b, 0x314b8b, 0x316b7a. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "dd4a1fa5ab0f0a2aa0c3b11656b27ae76450ebe74c363f4169cc20109d5cbb2c",
+      "inputs_sha256": "128c37de585ba3edfcfc4f59ab4135245d22b4333ad267d68a1f50dddfc3f961"
+    }
+  },
+  {
+    "id": "array-remove-312f90",
+    "size": 138,
+    "offset": 3223440,
+    "rebuilt_symbol": "@array_remove_r312f90@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x312f90, including RET. Incoming transfer decoded within analyzed function code at RVA 0x313a4b, 0x314bcb, 0x316b49. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "03c4e50d342aaf04844a05d5d884ef1f275472d487c2322cfa5c4c0fddef3541",
+      "inputs_sha256": "8e6cded893303f7a35c960047f6e6b7d3213bbd0520d8c66854be262b4be9d10"
+    }
+  },
+  {
+    "id": "array-remove-313020",
+    "size": 138,
+    "offset": 3223584,
+    "rebuilt_symbol": "@array_remove_r313020@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x313020, including RET. Incoming transfer decoded within analyzed function code at RVA 0x313a8b, 0x314c0b, 0x316b18. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "4b11a835bb2c851098e6e54577b94799ab5f585b408934b2cdd0e147ea02093a",
+      "inputs_sha256": "a65e93bda40d8f2c730c783d26f6d432331bae76205b7c18c9f615f337180d01"
+    }
+  },
+  {
+    "id": "array-remove-3130b0",
+    "size": 138,
+    "offset": 3223728,
+    "rebuilt_symbol": "@array_remove_r3130b0@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x3130b0, including RET. Incoming transfer decoded within analyzed function code at RVA 0x313acb, 0x314c4b, 0x316ab6. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "afd4a977790f6d40e8e7586ee636886dc374e5048514b335019e457ae3dd9a1c",
+      "inputs_sha256": "4e4829bc00c6c7edc4a0da1a5fee92c3bcbcf5f49c6e8be87abb901811ae64bb"
+    }
+  },
+  {
+    "id": "array-remove-313140",
+    "size": 138,
+    "offset": 3223872,
+    "rebuilt_symbol": "@array_remove_r313140@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x313140, including RET. Incoming transfer decoded within analyzed function code at RVA 0x313b0b, 0x314c8b, 0x316a54. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "0c8bbc5bb0c3715bca0b17ea7c3c3c1df0114a4cc959a4d107cf9ab22cc645e7",
+      "inputs_sha256": "9471c532d7882dce27c5407fd2c33541b4d564db70bc4fe99bb62803a693ab34"
+    }
+  },
+  {
+    "id": "script-result-getgamevariablevaluestrings",
+    "offset": 3225568,
+    "size": 149,
+    "rebuilt_symbol": "@event_result_GetGameVariableValueStrings@8",
+    "inputs": [
+      "src/campaign_script_return_values.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_return_values.obj src/campaign_script_return_values.c",
+    "link_bindings": {
+      "_name_GetGameVariableValueStrings": {
+        "va": 287285296,
+        "basis": "FName initialized with retail UTF-16 GetGameVariableValueStrings (VA 0x110d56f0). The FName constructor call at RVA 0x13bbca precedes the store to this slot at RVA 0x13bbdc."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      },
+      "@copy_wide_string@8": {
+        "va": 277920160,
+        "basis": "FString copy constructor that allocates UTF-16 storage from the element count and copies its contents."
+      },
+      "@remove_wide_elements@16": {
+        "va": 277903120,
+        "basis": "Wide-element FArray removal called from the cleanup of the local string."
+      },
+      "_word_array_tag": {
+        "va": 285964504,
+        "basis": "Retail UTF-16 FArray::_WORD allocator tag used when emptying a wide string."
+      },
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Global engine allocator used to resize or release a wide buffer."
+      }
+    },
+    "identification": "Retail GetGameVariableValueStrings event wrapper at RVA 0x3137e0, including the return. The name initialization and script lookup link the wrapper to its event. Matching result declaration in EchelonPattern.u, VGame.GetGameVariableValueStrings, serial offset 0x9f9fd.",
+    "match": {
+      "bytes_sha256": "ab9ab6aa83faf381f595b93696f65d1693e2168c9dda37c7b8d67dc5ce8d7a6d",
+      "inputs_sha256": "c77f91d09272169de78754d5986ec0d34bc75f54ada6faa5778d4ef9e39cd9ee"
+    }
+  },
+  {
+    "id": "script-result-getlevelvariablevaluestrings",
+    "offset": 3225728,
+    "size": 149,
+    "rebuilt_symbol": "@event_result_GetLevelVariableValueStrings@8",
+    "inputs": [
+      "src/campaign_script_return_values.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_return_values.obj src/campaign_script_return_values.c",
+    "link_bindings": {
+      "_name_GetLevelVariableValueStrings": {
+        "va": 287285304,
+        "basis": "FName initialized with retail UTF-16 GetLevelVariableValueStrings (VA 0x110d5698). The FName constructor call at RVA 0x13bbf9 precedes the store to this slot at RVA 0x13bc0b."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      },
+      "@copy_wide_string@8": {
+        "va": 277920160,
+        "basis": "FString copy constructor that allocates UTF-16 storage from the element count and copies its contents."
+      },
+      "@remove_wide_elements@16": {
+        "va": 277903120,
+        "basis": "Wide-element FArray removal called from the cleanup of the local string."
+      },
+      "_word_array_tag": {
+        "va": 285964504,
+        "basis": "Retail UTF-16 FArray::_WORD allocator tag used when emptying a wide string."
+      },
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Global engine allocator used to resize or release a wide buffer."
+      }
+    },
+    "identification": "Retail GetLevelVariableValueStrings event wrapper at RVA 0x313880, including the return. The name initialization and script lookup link the wrapper to its event. Matching result declaration in EchelonPattern.u, V07_UNhq.GetLevelVariableValueStrings, serial offset 0x90ae2.",
+    "match": {
+      "bytes_sha256": "9294214f857fb0e22a3035b87e70a9ad7ded4d87670862402a5fdefbb7704b31",
+      "inputs_sha256": "1cd915ec48f4cf99f48593594d038869ad0d2a1fa9174bc240bf870f3aa622f0"
+    }
+  },
+  {
+    "id": "script-result-getvariablevaluestrings",
+    "offset": 3225888,
+    "size": 149,
+    "rebuilt_symbol": "@event_result_GetVariableValueStrings@8",
+    "inputs": [
+      "src/campaign_script_return_values.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_return_values.obj src/campaign_script_return_values.c",
+    "link_bindings": {
+      "_name_GetVariableValueStrings": {
+        "va": 287503564,
+        "basis": "FName initialized with retail UTF-16 GetVariableValueStrings (VA 0x110fb1e4). The FName constructor call at RVA 0x335757 precedes the store to this slot at RVA 0x335769."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      },
+      "@copy_wide_string@8": {
+        "va": 277920160,
+        "basis": "FString copy constructor that allocates UTF-16 storage from the element count and copies its contents."
+      },
+      "@remove_wide_elements@16": {
+        "va": 277903120,
+        "basis": "Wide-element FArray removal called from the cleanup of the local string."
+      },
+      "_word_array_tag": {
+        "va": 285964504,
+        "basis": "Retail UTF-16 FArray::_WORD allocator tag used when emptying a wide string."
+      },
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Global engine allocator used to resize or release a wide buffer."
+      }
+    },
+    "identification": "Retail GetVariableValueStrings event wrapper at RVA 0x313920, including the return. The name initialization and script lookup link the wrapper to its event. Matching result declaration in Echelon.u, EPattern.GetVariableValueStrings, serial offset 0xc5a14.",
+    "match": {
+      "bytes_sha256": "768ec45dd0a3cc36b8e487e5ac04921655c74eb41ad33c26c6fb78e8439c4752",
+      "inputs_sha256": "31d03c1d6ac42697876e1c5c2363d3cdcd9baed74b888abc66b94893aefc30d3"
+    }
+  },
+  {
     "id": "delete-aechelonlevelinfo",
     "offset": 3238400,
     "size": 33,
@@ -806,6 +1245,37 @@
     "match": {
       "bytes_sha256": "e784eea31eec84fa98032dc2038cd420341c48f1a2a00fbf1b5ad234a6a6ab0b",
       "inputs_sha256": "add86214d27e2c802c37f6d4a64e5ac7da94027a6d5db085b5cf6cb9429e9c8a"
+    }
+  },
+  {
+    "id": "array-remove-317590",
+    "size": 138,
+    "offset": 3241360,
+    "rebuilt_symbol": "@array_remove_r317590@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x317590, including RET. Incoming transfer decoded within analyzed function code at RVA 0x317fab, 0x31806b, 0x3180d2. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "ad6de649cde2dbf5a4c4f353213d40d1c94d42f9a21e129b159639c0ce5ddef3",
+      "inputs_sha256": "84ffdfb6e41b0cdd3918464c54974aae7348ac8fda2d8bf8c7eb4304fcfd3c85"
     }
   },
   {
@@ -1528,6 +1998,68 @@
     "match": {
       "bytes_sha256": "6c22db32d1b29b0fa00cca4388a6563856b00b2a4aa3d062667c2a22c3cbc0b2",
       "inputs_sha256": "055121f6f65eea80c842a6a3c7489b0aa5597b99586961f3ef8a53db8c45ca7b"
+    }
+  },
+  {
+    "id": "array-remove-31ed90",
+    "size": 138,
+    "offset": 3272080,
+    "rebuilt_symbol": "@array_remove_r31ed90@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x31ed90, including RET. Incoming transfer decoded within analyzed function code at RVA 0x31f11b, 0x31f33b, 0x32023b. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "9fc1ef451b020004c0a07b0a2487cc71562722c8355e01bdd4cdff395271543d",
+      "inputs_sha256": "f79689fca8b9ad64120c1083f325f34366d990af2fd02ea40357533e079982af"
+    }
+  },
+  {
+    "id": "array-remove-31ee20",
+    "size": 138,
+    "offset": 3272224,
+    "rebuilt_symbol": "@array_remove_r31ee20@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x31ee20, including RET. Incoming transfer decoded within analyzed function code at RVA 0x31f76b. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "f4dd3366f6ad5883d34a3a57dba0524acde24e9274248804230f2eedcbbcf52e",
+      "inputs_sha256": "2cc1a351296b204a15d8425d72eb0f52c8af11f61b35ebcc27e77b966e908cf3"
     }
   }
 ]

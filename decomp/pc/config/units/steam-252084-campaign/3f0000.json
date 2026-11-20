@@ -207,6 +207,206 @@
     }
   },
   {
+    "id": "vm-object-multiply-equal-int-float",
+    "offset": 4130112,
+    "size": 155,
+    "rebuilt_symbol": "@execMultiplyEqual_IntFloat@16",
+    "inputs": [
+      "src/campaign_vm_mutations.c",
+      "src/campaign_vm_frame.h",
+      "src/campaign_vm_property.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_mutations.obj src/campaign_vm_mutations.c",
+    "identification": "Stock campaign wide-name entry intUObjectexecMultiplyEqual_IntFloat identifies callback VA 0x10cf0540. The CRT initializer at RVA 0x7ac8c0 passes native slot 159 and callback cell 0x111c9834. The entire reachable body ends before RVA 0x3f05db. After consuming operands the campaign handler conditionally dispatches debug-info opcode 0x42.",
+    "link_bindings": {
+      "_campaign_property_address": {
+        "va": 287507776,
+        "basis": "Global resolved property address written during campaign VM variable evaluation and cleared before the left operand is evaluated."
+      },
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign VM dispatch table filled at RVA 0x3ee250; index 0x42 runs debug info."
+      },
+      "__ftol2": {
+        "va": 284366420,
+        "basis": "Campaign MSVC x87 conversion helper invoked by FloatToInt and FloatToByte."
+      }
+    },
+    "match": {
+      "bytes_sha256": "a69a04f3cae2f8b31509a839d613b3bdc19ff1f3f147c83d74329960d03f0d9b",
+      "inputs_sha256": "4a898b1f1a45bbea9b95157e436804744b74b5c33e013f2c01174ea4d82fc0f7"
+    }
+  },
+  {
+    "id": "vm-object-add-equal-int-int",
+    "offset": 4130464,
+    "size": 154,
+    "rebuilt_symbol": "@execAddEqual_IntInt@16",
+    "inputs": [
+      "src/campaign_vm_mutations.c",
+      "src/campaign_vm_frame.h",
+      "src/campaign_vm_property.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_mutations.obj src/campaign_vm_mutations.c",
+    "identification": "Stock campaign wide-name entry intUObjectexecAddEqual_IntInt identifies callback VA 0x10cf06a0. The CRT initializer at RVA 0x7ac900 passes native slot 161 and callback cell 0x111c983c. The entire reachable body ends before RVA 0x3f073a. After consuming operands the campaign handler conditionally dispatches debug-info opcode 0x42.",
+    "link_bindings": {
+      "_campaign_property_address": {
+        "va": 287507776,
+        "basis": "Global resolved property address written during campaign VM variable evaluation and cleared before the left operand is evaluated."
+      },
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign VM dispatch table filled at RVA 0x3ee250; index 0x42 runs debug info."
+      }
+    },
+    "match": {
+      "bytes_sha256": "5c7319994999c5a5a5c6e69d24044123b92b07be628109d70901059d75a9c375",
+      "inputs_sha256": "eee805a93721c4832e1750b4992c32b3ebf070946b2a15b324aa7ea603fb99f0"
+    }
+  },
+  {
+    "id": "vm-object-subtract-equal-int-int",
+    "offset": 4130624,
+    "size": 154,
+    "rebuilt_symbol": "@execSubtractEqual_IntInt@16",
+    "inputs": [
+      "src/campaign_vm_mutations.c",
+      "src/campaign_vm_frame.h",
+      "src/campaign_vm_property.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_mutations.obj src/campaign_vm_mutations.c",
+    "identification": "Stock campaign wide-name entry intUObjectexecSubtractEqual_IntInt identifies callback VA 0x10cf0740. The CRT initializer at RVA 0x7ac920 passes native slot 162 and callback cell 0x111c9840. The entire reachable body ends before RVA 0x3f07da. After consuming operands the campaign handler conditionally dispatches debug-info opcode 0x42.",
+    "link_bindings": {
+      "_campaign_property_address": {
+        "va": 287507776,
+        "basis": "Global resolved property address written during campaign VM variable evaluation and cleared before the left operand is evaluated."
+      },
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign VM dispatch table filled at RVA 0x3ee250; index 0x42 runs debug info."
+      }
+    },
+    "match": {
+      "bytes_sha256": "5507d9def426ada4499e9b1205d50d8da54f545c1c50e2c89eafc9b1aa9527b7",
+      "inputs_sha256": "3a4b686dc95474a6dba6f6b2d8a16efee2be8aea8c4419b2043aa7d21664c312"
+    }
+  },
+  {
+    "id": "vm-object-add-add-pre-int",
+    "offset": 4130784,
+    "size": 115,
+    "rebuilt_symbol": "@execAddAdd_PreInt@16",
+    "inputs": [
+      "src/campaign_vm_mutations.c",
+      "src/campaign_vm_frame.h",
+      "src/campaign_vm_property.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_mutations.obj src/campaign_vm_mutations.c",
+    "identification": "Stock campaign wide-name entry intUObjectexecAddAdd_PreInt identifies callback VA 0x10cf07e0. The CRT initializer at RVA 0x7ac940 passes native slot 163 and callback cell 0x111c9844. The entire reachable body ends before RVA 0x3f0853. After consuming operands the campaign handler conditionally dispatches debug-info opcode 0x42.",
+    "link_bindings": {
+      "_campaign_property_address": {
+        "va": 287507776,
+        "basis": "Global resolved property address written during campaign VM variable evaluation and cleared before the left operand is evaluated."
+      },
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign VM dispatch table filled at RVA 0x3ee250; index 0x42 runs debug info."
+      }
+    },
+    "match": {
+      "bytes_sha256": "eff12ebffcb05792711b286bc5d3f68954e683c9e1248b4894664e0a008244f4",
+      "inputs_sha256": "33f32831eb25d94ca38c5d1a4292e28de6a74e80445cd7193a6bbbe8ac4b4fb2"
+    }
+  },
+  {
+    "id": "vm-object-subtract-subtract-pre-int",
+    "offset": 4130912,
+    "size": 115,
+    "rebuilt_symbol": "@execSubtractSubtract_PreInt@16",
+    "inputs": [
+      "src/campaign_vm_mutations.c",
+      "src/campaign_vm_frame.h",
+      "src/campaign_vm_property.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_mutations.obj src/campaign_vm_mutations.c",
+    "identification": "Stock campaign wide-name entry intUObjectexecSubtractSubtract_PreInt identifies callback VA 0x10cf0860. The CRT initializer at RVA 0x7ac960 passes native slot 164 and callback cell 0x111c9848. The entire reachable body ends before RVA 0x3f08d3. After consuming operands the campaign handler conditionally dispatches debug-info opcode 0x42.",
+    "link_bindings": {
+      "_campaign_property_address": {
+        "va": 287507776,
+        "basis": "Global resolved property address written during campaign VM variable evaluation and cleared before the left operand is evaluated."
+      },
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign VM dispatch table filled at RVA 0x3ee250; index 0x42 runs debug info."
+      }
+    },
+    "match": {
+      "bytes_sha256": "4bf4e118dc557fc62dee83ac66702a94e355524a97393b081ee40e4b8921ee36",
+      "inputs_sha256": "7795610f6058c2cbeefb28cd08afe11e13072f5bb5f57bd69e7ee0a9a1118c37"
+    }
+  },
+  {
+    "id": "vm-object-add-add-int",
+    "offset": 4131040,
+    "size": 112,
+    "rebuilt_symbol": "@execAddAdd_Int@16",
+    "inputs": [
+      "src/campaign_vm_mutations.c",
+      "src/campaign_vm_frame.h",
+      "src/campaign_vm_property.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_mutations.obj src/campaign_vm_mutations.c",
+    "identification": "Stock campaign wide-name entry intUObjectexecAddAdd_Int identifies callback VA 0x10cf08e0. The CRT initializer at RVA 0x7ac980 passes native slot 165 and callback cell 0x111c984c. The entire reachable body ends before RVA 0x3f0950. After consuming operands the campaign handler conditionally dispatches debug-info opcode 0x42.",
+    "link_bindings": {
+      "_campaign_property_address": {
+        "va": 287507776,
+        "basis": "Global resolved property address written during campaign VM variable evaluation and cleared before the left operand is evaluated."
+      },
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign VM dispatch table filled at RVA 0x3ee250; index 0x42 runs debug info."
+      }
+    },
+    "match": {
+      "bytes_sha256": "1a21eba196322e5ff2b2dfb2cf7ec133bd8d5e7cf505a9ab70924b6f1cca473e",
+      "inputs_sha256": "0ebd2555b353d34747cb8091c39ff6bd01eb14bbbbfcc1eca1bb35f3c2decb3b"
+    }
+  },
+  {
+    "id": "vm-object-subtract-subtract-int",
+    "offset": 4131152,
+    "size": 112,
+    "rebuilt_symbol": "@execSubtractSubtract_Int@16",
+    "inputs": [
+      "src/campaign_vm_mutations.c",
+      "src/campaign_vm_frame.h",
+      "src/campaign_vm_property.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_mutations.obj src/campaign_vm_mutations.c",
+    "identification": "Stock campaign wide-name entry intUObjectexecSubtractSubtract_Int identifies callback VA 0x10cf0950. The CRT initializer at RVA 0x7ac9a0 passes native slot 166 and callback cell 0x111c9850. The entire reachable body ends before RVA 0x3f09c0. After consuming operands the campaign handler conditionally dispatches debug-info opcode 0x42.",
+    "link_bindings": {
+      "_campaign_property_address": {
+        "va": 287507776,
+        "basis": "Global resolved property address written during campaign VM variable evaluation and cleared before the left operand is evaluated."
+      },
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign VM dispatch table filled at RVA 0x3ee250; index 0x42 runs debug info."
+      }
+    },
+    "match": {
+      "bytes_sha256": "74d20836e3529c6e5ee0ab6ffdf18a3e9ff236a2190e7e346f591729aad0f8c4",
+      "inputs_sha256": "a7cd0d77c0ef861d16e96090b3ba97929e7d842aec9a29f347c0f82bbbc5dafb"
+    }
+  },
+  {
     "id": "vm-object-min",
     "offset": 4131376,
     "size": 137,
@@ -434,6 +634,90 @@
     "match": {
       "bytes_sha256": "c38e6c48d8f4ab49406318c411d566ede06fbd7804041ff8a075763359355549",
       "inputs_sha256": "ccc3a695709bf0b6762891f6a44490e2e8630efcd188a2a088d592cffd978e94"
+    }
+  },
+  {
+    "id": "vm-object-multiply-equal-float-float",
+    "offset": 4133920,
+    "size": 150,
+    "rebuilt_symbol": "@execMultiplyEqual_FloatFloat@16",
+    "inputs": [
+      "src/campaign_vm_mutations.c",
+      "src/campaign_vm_frame.h",
+      "src/campaign_vm_property.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_mutations.obj src/campaign_vm_mutations.c",
+    "identification": "Stock campaign wide-name entry intUObjectexecMultiplyEqual_FloatFloat identifies callback VA 0x10cf1420. The CRT initializer at RVA 0x7acc00 passes native slot 182 and callback cell 0x111c989c. The entire reachable body ends before RVA 0x3f14b6. After consuming operands the campaign handler conditionally dispatches debug-info opcode 0x42.",
+    "link_bindings": {
+      "_campaign_property_address": {
+        "va": 287507776,
+        "basis": "Global resolved property address written during campaign VM variable evaluation and cleared before the left operand is evaluated."
+      },
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign VM dispatch table filled at RVA 0x3ee250; index 0x42 runs debug info."
+      }
+    },
+    "match": {
+      "bytes_sha256": "0ce7ec4f6c3d0730be734b3a41180bfd793ac6efabc89f0d97cfb96495f3897f",
+      "inputs_sha256": "a457aa2714710d609524de69e4216f089d15f78bfde5585ab74e8d316cb2d0dd"
+    }
+  },
+  {
+    "id": "vm-object-add-equal-float-float",
+    "offset": 4134272,
+    "size": 150,
+    "rebuilt_symbol": "@execAddEqual_FloatFloat@16",
+    "inputs": [
+      "src/campaign_vm_mutations.c",
+      "src/campaign_vm_frame.h",
+      "src/campaign_vm_property.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_mutations.obj src/campaign_vm_mutations.c",
+    "identification": "Stock campaign wide-name entry intUObjectexecAddEqual_FloatFloat identifies callback VA 0x10cf1580. The CRT initializer at RVA 0x7acc40 passes native slot 184 and callback cell 0x111c98a4. The entire reachable body ends before RVA 0x3f1616. After consuming operands the campaign handler conditionally dispatches debug-info opcode 0x42.",
+    "link_bindings": {
+      "_campaign_property_address": {
+        "va": 287507776,
+        "basis": "Global resolved property address written during campaign VM variable evaluation and cleared before the left operand is evaluated."
+      },
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign VM dispatch table filled at RVA 0x3ee250; index 0x42 runs debug info."
+      }
+    },
+    "match": {
+      "bytes_sha256": "eac50c8e9d11e0d1b0af43d4e6360c2a8c219bc5d0c486aae162b0908a57b15b",
+      "inputs_sha256": "32f0f2eedca5014350b030f0dfc83b4075f41bb0b3fe99b95b5490d30ee334c9"
+    }
+  },
+  {
+    "id": "vm-object-subtract-equal-float-float",
+    "offset": 4134432,
+    "size": 150,
+    "rebuilt_symbol": "@execSubtractEqual_FloatFloat@16",
+    "inputs": [
+      "src/campaign_vm_mutations.c",
+      "src/campaign_vm_frame.h",
+      "src/campaign_vm_property.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_mutations.obj src/campaign_vm_mutations.c",
+    "identification": "Stock campaign wide-name entry intUObjectexecSubtractEqual_FloatFloat identifies callback VA 0x10cf1620. The CRT initializer at RVA 0x7acc60 passes native slot 185 and callback cell 0x111c98a8. The entire reachable body ends before RVA 0x3f16b6. After consuming operands the campaign handler conditionally dispatches debug-info opcode 0x42.",
+    "link_bindings": {
+      "_campaign_property_address": {
+        "va": 287507776,
+        "basis": "Global resolved property address written during campaign VM variable evaluation and cleared before the left operand is evaluated."
+      },
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign VM dispatch table filled at RVA 0x3ee250; index 0x42 runs debug info."
+      }
+    },
+    "match": {
+      "bytes_sha256": "3b25c1a9c0b8d9ce0ee8eb37a2aa4c5b714634c9a6eb6b649c9c8defb9ddc8bf",
+      "inputs_sha256": "a88b44a48adf89cd551ffeec8a0f9b8f795df91530fbafb613c7149a7ec95317"
     }
   },
   {
@@ -969,6 +1253,118 @@
     }
   },
   {
+    "id": "vm-object-multiply-equal-vector-float",
+    "offset": 4140576,
+    "size": 177,
+    "rebuilt_symbol": "@execMultiplyEqual_VectorFloat@16",
+    "inputs": [
+      "src/campaign_vm_compound_vectors.c",
+      "src/campaign_vm_frame.h",
+      "src/campaign_vm_property.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_compound_vectors.obj src/campaign_vm_compound_vectors.c",
+    "identification": "Stock campaign wide-name entry intUObjectexecMultiplyEqual_VectorFloat identifies callback VA 0x10cf2e20. The CRT initializer at RVA 0x7ad520 passes native slot 221 and callback cell 0x111c9960. The entire reachable body ends before RVA 0x3f2ed1. After consuming operands the campaign handler conditionally dispatches debug-info opcode 0x42.",
+    "link_bindings": {
+      "_campaign_property_address": {
+        "va": 287507776,
+        "basis": "Global resolved property address written during campaign VM variable evaluation and cleared before the left operand is evaluated."
+      },
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign VM dispatch table filled at RVA 0x3ee250; index 0x42 runs debug info."
+      }
+    },
+    "match": {
+      "bytes_sha256": "9af4a3051cb36b6d52e4c30b8dccdcf0c65b0198f1710e45a63cc15ae5d8aec3",
+      "inputs_sha256": "93b61468a946398956d1149b4aa9b51c96f1f705e1b1c2b95c2bb6b88a7cc5a4"
+    }
+  },
+  {
+    "id": "vm-object-multiply-equal-vector-vector",
+    "offset": 4140768,
+    "size": 171,
+    "rebuilt_symbol": "@execMultiplyEqual_VectorVector@16",
+    "inputs": [
+      "src/campaign_vm_compound_vectors.c",
+      "src/campaign_vm_frame.h",
+      "src/campaign_vm_property.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_compound_vectors.obj src/campaign_vm_compound_vectors.c",
+    "identification": "Stock campaign wide-name entry intUObjectexecMultiplyEqual_VectorVector identifies callback VA 0x10cf2ee0. The CRT initializer at RVA 0x7ad540 passes native slot 297 and callback cell 0x111c9964. The entire reachable body ends before RVA 0x3f2f8b. After consuming operands the campaign handler conditionally dispatches debug-info opcode 0x42.",
+    "link_bindings": {
+      "_campaign_property_address": {
+        "va": 287507776,
+        "basis": "Global resolved property address written during campaign VM variable evaluation and cleared before the left operand is evaluated."
+      },
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign VM dispatch table filled at RVA 0x3ee250; index 0x42 runs debug info."
+      }
+    },
+    "match": {
+      "bytes_sha256": "ea0bf7cbc3884dd3bc3c0038fa08f6e0acfd929f5cbbf311a3ffcb80843d24e4",
+      "inputs_sha256": "6763a9bc53d43b481e27ee4c8b7831587b4929f3f4732277b781abda5da51c37"
+    }
+  },
+  {
+    "id": "vm-object-add-equal-vector-vector",
+    "offset": 4141200,
+    "size": 171,
+    "rebuilt_symbol": "@execAddEqual_VectorVector@16",
+    "inputs": [
+      "src/campaign_vm_compound_vectors.c",
+      "src/campaign_vm_frame.h",
+      "src/campaign_vm_property.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_compound_vectors.obj src/campaign_vm_compound_vectors.c",
+    "identification": "Stock campaign wide-name entry intUObjectexecAddEqual_VectorVector identifies callback VA 0x10cf3090. The CRT initializer at RVA 0x7ad580 passes native slot 223 and callback cell 0x111c996c. The entire reachable body ends before RVA 0x3f313b. After consuming operands the campaign handler conditionally dispatches debug-info opcode 0x42.",
+    "link_bindings": {
+      "_campaign_property_address": {
+        "va": 287507776,
+        "basis": "Global resolved property address written during campaign VM variable evaluation and cleared before the left operand is evaluated."
+      },
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign VM dispatch table filled at RVA 0x3ee250; index 0x42 runs debug info."
+      }
+    },
+    "match": {
+      "bytes_sha256": "61312c70b0c12320d10ddaf454e91963e3e18c95c1f4f96bac33f29378b3e211",
+      "inputs_sha256": "0579f2ce360bca555564b65a76d5f3cde6fc40a47754346f0d6dddbc0758edb9"
+    }
+  },
+  {
+    "id": "vm-object-subtract-equal-vector-vector",
+    "offset": 4141424,
+    "size": 171,
+    "rebuilt_symbol": "@execSubtractEqual_VectorVector@16",
+    "inputs": [
+      "src/campaign_vm_compound_vectors.c",
+      "src/campaign_vm_frame.h",
+      "src/campaign_vm_property.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_compound_vectors.obj src/campaign_vm_compound_vectors.c",
+    "identification": "Stock campaign wide-name entry intUObjectexecSubtractEqual_VectorVector identifies callback VA 0x10cf3170. The CRT initializer at RVA 0x7ad5a0 passes native slot 224 and callback cell 0x111c9970. The entire reachable body ends before RVA 0x3f321b. After consuming operands the campaign handler conditionally dispatches debug-info opcode 0x42.",
+    "link_bindings": {
+      "_campaign_property_address": {
+        "va": 287507776,
+        "basis": "Global resolved property address written during campaign VM variable evaluation and cleared before the left operand is evaluated."
+      },
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign VM dispatch table filled at RVA 0x3ee250; index 0x42 runs debug info."
+      }
+    },
+    "match": {
+      "bytes_sha256": "eda933f90bfc6b583ac4c89c64636a1f1c3b5c049734cac3e59636255c122748",
+      "inputs_sha256": "0992029ef24b4c4e66a7fc332cceeeebf87d333fb1d67844c405fe1e3e602df8"
+    }
+  },
+  {
     "id": "vm-object-vsize",
     "offset": 4141600,
     "size": 119,
@@ -1069,6 +1465,38 @@
     }
   },
   {
+    "id": "vm-object-multiply-equal-rotator-float",
+    "offset": 4143760,
+    "size": 196,
+    "rebuilt_symbol": "@execMultiplyEqual_RotatorFloat@16",
+    "inputs": [
+      "src/campaign_vm_compound_vectors.c",
+      "src/campaign_vm_frame.h",
+      "src/campaign_vm_property.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_compound_vectors.obj src/campaign_vm_compound_vectors.c",
+    "identification": "Stock campaign wide-name entry intUObjectexecMultiplyEqual_RotatorFloat identifies callback VA 0x10cf3a90. The CRT initializer at RVA 0x7ad740 passes native slot 290 and callback cell 0x111c99a4. The entire reachable body ends before RVA 0x3f3b54. After consuming operands the campaign handler conditionally dispatches debug-info opcode 0x42.",
+    "link_bindings": {
+      "_campaign_property_address": {
+        "va": 287507776,
+        "basis": "Global resolved property address written during campaign VM variable evaluation and cleared before the left operand is evaluated."
+      },
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign VM dispatch table filled at RVA 0x3ee250; index 0x42 runs debug info."
+      },
+      "__ftol2": {
+        "va": 284366420,
+        "basis": "Campaign MSVC x87 conversion helper invoked by FloatToInt and FloatToByte."
+      }
+    },
+    "match": {
+      "bytes_sha256": "0f6075d0b4662e3e7f86f5011c98ee8d26b9303ded68899fb3a75de7ea8f6f2b",
+      "inputs_sha256": "9eecfb46af3b8c3cf4125cd056e1bdbb92bf7614e2325caacb626afc17b026b2"
+    }
+  },
+  {
     "id": "vm-object-add-rotator-rotator",
     "offset": 4144224,
     "size": 139,
@@ -1112,6 +1540,62 @@
     "match": {
       "bytes_sha256": "4e4abf1a4718bb0294a3db8a8551e08b552b99dde83450c30461b58df1c3115a",
       "inputs_sha256": "0cefe6d3397d1a9b85984ed552b2af7d5deb1ac1f96184d721c05c9987a2fe70"
+    }
+  },
+  {
+    "id": "vm-object-add-equal-rotator-rotator",
+    "offset": 4144512,
+    "size": 177,
+    "rebuilt_symbol": "@execAddEqual_RotatorRotator@16",
+    "inputs": [
+      "src/campaign_vm_compound_vectors.c",
+      "src/campaign_vm_frame.h",
+      "src/campaign_vm_property.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_compound_vectors.obj src/campaign_vm_compound_vectors.c",
+    "identification": "Stock campaign wide-name entry intUObjectexecAddEqual_RotatorRotator identifies callback VA 0x10cf3d80. The CRT initializer at RVA 0x7ad7c0 passes native slot 318 and callback cell 0x111c99b4. The entire reachable body ends before RVA 0x3f3e31. After consuming operands the campaign handler conditionally dispatches debug-info opcode 0x42.",
+    "link_bindings": {
+      "_campaign_property_address": {
+        "va": 287507776,
+        "basis": "Global resolved property address written during campaign VM variable evaluation and cleared before the left operand is evaluated."
+      },
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign VM dispatch table filled at RVA 0x3ee250; index 0x42 runs debug info."
+      }
+    },
+    "match": {
+      "bytes_sha256": "1c4be76a9004de55650fe87d2b5dbc1958173377863d1e8eb8786ea70ab2ec18",
+      "inputs_sha256": "e14354ae74ca03b7ab28a351e5688cbeba3e8066efb5adf7993a40ce0159d14a"
+    }
+  },
+  {
+    "id": "vm-object-subtract-equal-rotator-rotator",
+    "offset": 4144704,
+    "size": 177,
+    "rebuilt_symbol": "@execSubtractEqual_RotatorRotator@16",
+    "inputs": [
+      "src/campaign_vm_compound_vectors.c",
+      "src/campaign_vm_frame.h",
+      "src/campaign_vm_property.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_compound_vectors.obj src/campaign_vm_compound_vectors.c",
+    "identification": "Stock campaign wide-name entry intUObjectexecSubtractEqual_RotatorRotator identifies callback VA 0x10cf3e40. The CRT initializer at RVA 0x7ad7e0 passes native slot 319 and callback cell 0x111c99b8. The entire reachable body ends before RVA 0x3f3ef1. After consuming operands the campaign handler conditionally dispatches debug-info opcode 0x42.",
+    "link_bindings": {
+      "_campaign_property_address": {
+        "va": 287507776,
+        "basis": "Global resolved property address written during campaign VM variable evaluation and cleared before the left operand is evaluated."
+      },
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign VM dispatch table filled at RVA 0x3ee250; index 0x42 runs debug info."
+      }
+    },
+    "match": {
+      "bytes_sha256": "373dad2ac30d3f306cc080ccb3f31b54566d71e4d08092d2289339eb0b7c864d",
+      "inputs_sha256": "99bf3efb19db3347ea8aba8cac07c2ee142bd38e94fe469979034405527e7abc"
     }
   },
   {

@@ -211,6 +211,65 @@
     }
   },
   {
+    "id": "game-uscmagmainteractionpregame-staticinit",
+    "offset": 2231040,
+    "size": 40,
+    "rebuilt_symbol": "@exec_USCMagmaInteractionPREGame_StaticInit@16",
+    "inputs": [
+      "src/campaign_vm_game_callbacks.c",
+      "src/campaign_game_callback.h",
+      "src/campaign_vm_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_game_callbacks.obj src/campaign_vm_game_callbacks.c",
+    "identification": "Stock campaign script callback USCMagmaInteractionPREGame_StaticInit at RVA 0x220b00; callback cell and name are evidenced by the verified register-native-uscmagmainteractionpregame-staticinit CRT entry at RVA 0x7a6190. Invokes the shared Magma game-mode initialization. Every exit through the final return precedes INT3 alignment.",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Shared stock campaign VM dispatch table. Debug-info opcode 0x42 is implemented at RVA 0x3f7780."
+      },
+      "_magma_static_init": {
+        "va": 280106080,
+        "basis": "Shared native static initialization called by the three campaign Magma game-mode script callbacks."
+      }
+    },
+    "match": {
+      "bytes_sha256": "5fe5c04957a3301e586ea0a207dfba027cddf7eb2b3d5c5a6d267432fe1b00eb",
+      "inputs_sha256": "32cc95820a8456b6a1864c5c85a44f65e6cee9be672a629724525c7aa6b7b670"
+    }
+  },
+  {
+    "id": "array-remove-220b70",
+    "size": 138,
+    "offset": 2231152,
+    "rebuilt_symbol": "@array_remove_r220b70@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x220b70, including RET. Incoming transfer decoded within analyzed function code at RVA 0x220ccf. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "3ad5afb06e84c0bcbb1cb2e49d3bae2298fec2fcdc95fa2e0ef36ba54ca2cffb",
+      "inputs_sha256": "c45bd35252923002a9d4690162e48995dcde40ea388b62e05159c3eb4c9b731a"
+    }
+  },
+  {
     "id": "delete-uscmagmainteractionpregame",
     "offset": 2231744,
     "size": 57,
@@ -314,6 +373,34 @@
     "match": {
       "bytes_sha256": "c04f1a12487eb68fea9ac98f16a4a6a2f660aaebb112d97028e7cccbb41170ed",
       "inputs_sha256": "f9f103b306b0bbbc605e5d8725d13ebb195308225811cb2f1fca89fbc0333ce9"
+    }
+  },
+  {
+    "id": "game-uscmagmainteractionspgame-staticinit",
+    "offset": 2232032,
+    "size": 40,
+    "rebuilt_symbol": "@exec_USCMagmaInteractionSPGame_StaticInit@16",
+    "inputs": [
+      "src/campaign_vm_game_callbacks.c",
+      "src/campaign_game_callback.h",
+      "src/campaign_vm_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_game_callbacks.obj src/campaign_vm_game_callbacks.c",
+    "identification": "Stock campaign script callback USCMagmaInteractionSPGame_StaticInit at RVA 0x220ee0; callback cell and name are evidenced by the verified register-native-uscmagmainteractionspgame-staticinit CRT entry at RVA 0x7a6170. Invokes the shared Magma game-mode initialization. Every exit through the final return precedes INT3 alignment.",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Shared stock campaign VM dispatch table. Debug-info opcode 0x42 is implemented at RVA 0x3f7780."
+      },
+      "_magma_static_init": {
+        "va": 280106080,
+        "basis": "Shared native static initialization called by the three campaign Magma game-mode script callbacks."
+      }
+    },
+    "match": {
+      "bytes_sha256": "df7f4f7e110d7260ba592b5d410004bb60bc03f888595963ff13d4678577db3b",
+      "inputs_sha256": "653ef3546cbe977bd7bb9832eb15db72ff2965942726500c4adaacd10dc856be"
     }
   },
   {
@@ -541,6 +628,33 @@
     "match": {
       "bytes_sha256": "3295ff206905083a2aff4c953d82bc8719a35280cb6b3047f9b9217d2a09a4a6",
       "inputs_sha256": "075cd99359f891305ba1f7a75902c0d5741d83b45b15d7c67eea5397d0aa97e7"
+    }
+  },
+  {
+    "id": "script-frame-isactiveview",
+    "offset": 2234832,
+    "size": 66,
+    "rebuilt_symbol": "@script_frame_IsActiveView@8",
+    "inputs": [
+      "src/campaign_script_frames.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_frames.obj src/campaign_script_frames.c",
+    "link_bindings": {
+      "_name_IsActiveView": {
+        "va": 287503640,
+        "basis": "FName initialized with retail UTF-16 IsActiveView (VA 0x110fb010). The FName constructor call at RVA 0x335919 precedes the store to this slot at RVA 0x33592b."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail IsActiveView event wrapper at RVA 0x2219d0, including the return. The name initialization and script lookup link the wrapper to its event. Matching package declaration: Echelon.u declares EPlayerController.IsActiveView at serial offset 0x75fcd.",
+    "match": {
+      "bytes_sha256": "8eafe84a805ed0cb0926eee878fcb1c87faff155fc870f28bd2b3e75c71afe43",
+      "inputs_sha256": "48dabdffb7ed31314bc688ee866553708a71762a310f40c63b977b82cefd187b"
     }
   },
   {
@@ -826,6 +940,99 @@
     "match": {
       "bytes_sha256": "9368bac6eb352e9787dd3d360613e63d0add9061ef73add8078fb335f4034c89",
       "inputs_sha256": "2d284fe4a7c47db812d1f0c96e1452263d206b760f6dd77faf7ea1e4a861288f"
+    }
+  },
+  {
+    "id": "array-remove-22d680",
+    "size": 138,
+    "offset": 2283136,
+    "rebuilt_symbol": "@array_remove_r22d680@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x22d680, including RET. Incoming transfer decoded within analyzed function code at RVA 0x22e7e2. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "eb6dc51348b899002cecad58d34a23f154d3698c479c7af9bfacbcefb4aa029a",
+      "inputs_sha256": "d9006d55b0e8c27aff3e5392f27131481f02895e732e223a9b4547d62720ba85"
+    }
+  },
+  {
+    "id": "array-remove-22d710",
+    "size": 138,
+    "offset": 2283280,
+    "rebuilt_symbol": "@array_remove_r22d710@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x22d710, including RET. Incoming transfer decoded within analyzed function code at RVA 0x22e96a. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "bafe7ab2b69219ead9d78f14a321c018f484c74927d6036ea5e2703694ac74ec",
+      "inputs_sha256": "fdd994d4861990fcf48ebf37dc465f0125ab0335999f198957184b0df2077a30"
+    }
+  },
+  {
+    "id": "array-remove-22d7a0",
+    "size": 138,
+    "offset": 2283424,
+    "rebuilt_symbol": "@array_remove_r22d7a0@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x22d7a0, including RET. Incoming transfer decoded within analyzed function code at RVA 0x22eab6. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "2013e7cafe13f785af6a1d8da210e9fb44a65921bd60172d07b17abc94eddc00",
+      "inputs_sha256": "4c41226d01e1497264090ede2db3e08ca6c66180f5a87782e7d5c831c17aa729"
     }
   }
 ]

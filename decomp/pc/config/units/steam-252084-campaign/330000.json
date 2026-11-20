@@ -1,5 +1,36 @@
 [
   {
+    "id": "array-remove-330f40",
+    "size": 138,
+    "offset": 3346240,
+    "rebuilt_symbol": "@array_remove_r330f40@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x330f40, including RET. Incoming transfer decoded within analyzed function code at RVA 0x33168b, 0x331f1b. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "05a0974c5de03b00e3377d9ed4a9bb390dcf31861e74e43a0ecac9ebe910ef31",
+      "inputs_sha256": "99d9f6d29fbe591ff8aedcd36fb78841b9fc1f8758d2b135556f5769e6cf876c"
+    }
+  },
+  {
     "id": "delete-uetransitioncontroller",
     "offset": 3350464,
     "size": 54,
@@ -276,6 +307,37 @@
     "match": {
       "bytes_sha256": "277de0bac77e4187a5ae59d38a36d2937ad60b52489dc0b50474aa32178b14a3",
       "inputs_sha256": "0e00757308152c4f35163c9b8d7c15e57a24a35cf6d8f211c0b4c67faa0c9c60"
+    }
+  },
+  {
+    "id": "array-remove-333080",
+    "size": 138,
+    "offset": 3354752,
+    "rebuilt_symbol": "@array_remove_r333080@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x333080, including RET. Incoming transfer decoded within analyzed function code at RVA 0x3334e1, 0x334524. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "99fdb96e893f47a7d10ca9c05177ee83866f19b6da2aad625e8e2366e9bcb596",
+      "inputs_sha256": "7a7038f4ef70e4dae55ed15633f1b26999f31df836be2ecbfff456e3acb94b3b"
     }
   },
   {
@@ -1121,6 +1183,37 @@
     "match": {
       "bytes_sha256": "b2cd0deeb9f16b2934932934f43349781d9c94da931d33f8dafcb9ab0d8e6c8e",
       "inputs_sha256": "045219ebd0ba2159d2d0655e70f674957870c37ba5543dbce5fb2f9a4b6e6602"
+    }
+  },
+  {
+    "id": "array-remove-33a520",
+    "size": 138,
+    "offset": 3384608,
+    "rebuilt_symbol": "@array_remove_r33a520@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x33a520, including RET. Incoming transfer decoded within analyzed function code at RVA 0x33a5db, 0x33a61b. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "bc750ef6bb09fa0972d6a6c4d9183f9f3a9ac7a1795b00f31f8e1b9abe3b3071",
+      "inputs_sha256": "5af505285f0fe22333afb60bfa7f2e20ffb1dc9351ac78f19558fc26e4816764"
     }
   },
   {
@@ -2223,6 +2316,37 @@
     }
   },
   {
+    "id": "array-remove-33b830",
+    "size": 138,
+    "offset": 3389488,
+    "rebuilt_symbol": "@array_remove_r33b830@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x33b830, including RET. Incoming transfer decoded within analyzed function code at RVA 0x33b8eb, 0x33b92b, 0x33b9f4. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "cc3a25a920299bfa49b1fb2ba02b1a99d0a401bf9ad9f0ff5ab3dc703679a4d5",
+      "inputs_sha256": "a0c82e5f6fe5d03739e2aab6bff1d99f1faf0cf224f2911d59173f0ae8e69106"
+    }
+  },
+  {
     "id": "delete-aeanimatedobject",
     "offset": 3389856,
     "size": 33,
@@ -3209,6 +3333,37 @@
     }
   },
   {
+    "id": "array-remove-33e3f0",
+    "size": 138,
+    "offset": 3400688,
+    "rebuilt_symbol": "@array_remove_r33e3f0@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x33e3f0, including RET. Incoming transfer decoded within analyzed function code at RVA 0x33e7ab, 0x33eaab, 0x33edd5. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "7a2121abb7b4b0b8f3f14ff2a4e03fca1b3a2285e79996c137e4d09ec6f94eb2",
+      "inputs_sha256": "13483a91cb3a3b6a0c56ef85566c4e4720f848fc11927b00639e8ad53c9b57de"
+    }
+  },
+  {
     "id": "delete-aecar",
     "offset": 3403088,
     "size": 33,
@@ -3633,6 +3788,99 @@
     "match": {
       "bytes_sha256": "e48d137e9d2b48f826a34cc8a79365f41cb08cfdbc5a10b3298abaeb5ea6d47c",
       "inputs_sha256": "87214c39153080b5da2e33536eaac968736d6a0957d202fa34df1ce967fb5fe1"
+    }
+  },
+  {
+    "id": "array-remove-33fe10",
+    "size": 138,
+    "offset": 3407376,
+    "rebuilt_symbol": "@array_remove_r33fe10@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x33fe10, including RET. Incoming transfer decoded within analyzed function code at RVA 0x3405fb, 0x340c0b, 0x341797. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "c6f73b93c9818a2b017eec8a034404a293263f3981b61da2bf65263ac7b082d3",
+      "inputs_sha256": "4fd8d63c265e47eeb8792c07c581fb606bf03c74a1c58e1c137c683fa02d490b"
+    }
+  },
+  {
+    "id": "array-remove-33fea0",
+    "size": 138,
+    "offset": 3407520,
+    "rebuilt_symbol": "@array_remove_r33fea0@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x33fea0, including RET. Incoming transfer decoded within analyzed function code at RVA 0x34063b, 0x340c4b, 0x341704. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "4ab0ccfd67abcc5cd8ad2667d0d81e78809891f0cd22ef8350890d2a785f7c77",
+      "inputs_sha256": "02251c78a89f55c77c35a673d7a8b9e30a60265ab9cd08e32dc11e617e63a4c5"
+    }
+  },
+  {
+    "id": "array-remove-33ff30",
+    "size": 138,
+    "offset": 3407664,
+    "rebuilt_symbol": "@array_remove_r33ff30@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x33ff30, including RET. Incoming transfer decoded within analyzed function code at RVA 0x34067b, 0x340d4b. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "0d5d7f70b0db284cbc7e32a79872bbb5f795479c877c0318db841bdf852b545a",
+      "inputs_sha256": "aecb84d2f893338aed30650998049fabfaa8afaa206c450f7b516a8639849d97"
     }
   }
 ]
