@@ -1568,5 +1568,37 @@
       "bytes_sha256": "1e21db3bf7b48d3c4df699a3a5ee35e6a42f936c49c0b3a6e0a497095d949bb3",
       "inputs_sha256": "7a3d7f928c9db8c4799f77f5e0dbb6a5a7e71eaeafbe2b29b34edb1cfc1b2b8c"
     }
+  },
+  {
+    "id": "record-initializer-28d144",
+    "size": 16,
+    "offset": 2675012,
+    "inputs": [
+      "src/versus_record_initializers.c"
+    ],
+    "rebuilt_symbol": "@clear_4_words@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_record_initializers.obj src/versus_record_initializers.c",
+    "identification": "Indexed complete Versus record initializer at RVA 0x28d144. Sets 4 word fields and returns the record address.",
+    "match": {
+      "bytes_sha256": "585eb39d0eb0963eb6c38bed4169fd672f7a11cb3c682b0f69e817c5bda8416b",
+      "inputs_sha256": "dff640d184d16fb39343fa63a9fd37855cc4f5f327e46066ccc69a863958907f"
+    }
+  },
+  {
+    "id": "record-initializer-28d204",
+    "size": 19,
+    "offset": 2675204,
+    "inputs": [
+      "src/versus_record_initializers.c"
+    ],
+    "rebuilt_symbol": "@clear_5_words@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_record_initializers.obj src/versus_record_initializers.c",
+    "identification": "Indexed complete Versus record initializer at RVA 0x28d204. Sets 5 word fields and returns the record address.",
+    "match": {
+      "bytes_sha256": "df085915f81692d40fd97e34a69afbbdb1d8bfe37edbd265a3a3d570a33898d7",
+      "inputs_sha256": "02f6e8dbc57a36055d2d9d6dd367db3c08eaa68fd87007b0469ce618b06a61fd"
+    }
   }
 ]

@@ -126,5 +126,21 @@
       "bytes_sha256": "0fd9587c78cd88eac534aad7b9b063264880da018b81660e0e5dc172c3252020",
       "inputs_sha256": "272099fcf8e2016a4253b6ae4b1d47d298e2057b9b044d8c73d16f606a7591c8"
     }
+  },
+  {
+    "id": "record-initializer-1183b0",
+    "size": 16,
+    "offset": 1147824,
+    "inputs": [
+      "src/versus_record_initializers.c"
+    ],
+    "rebuilt_symbol": "@clear_4_words@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_record_initializers.obj src/versus_record_initializers.c",
+    "identification": "Indexed complete Versus record initializer at RVA 0x1183b0. Sets 4 word fields and returns the record address.",
+    "match": {
+      "bytes_sha256": "585eb39d0eb0963eb6c38bed4169fd672f7a11cb3c682b0f69e817c5bda8416b",
+      "inputs_sha256": "404e65a04c803e9e997ade1e80f1cf8aa8e65dc2fe606835ad055a6ae4d5250f"
+    }
   }
 ]
