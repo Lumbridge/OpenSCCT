@@ -269,6 +269,94 @@
     }
   },
   {
+    "id": "init-list-4a1be0",
+    "size": 22,
+    "offset": 4856800,
+    "inputs": [
+      "src/campaign_list_initializers.c"
+    ],
+    "rebuilt_symbol": "@init_list_4a1be0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_list_initializers.obj src/campaign_list_initializers.c",
+    "link_bindings": {
+      "@make_head_4a1350@4": {
+        "va": 282727248,
+        "basis": "Direct retail call returns a sentinel whose next and previous pointers both point to itself."
+      }
+    },
+    "identification": "Default Ghidra function extent. Calls the sentinel constructor at RVA 0x4a1350, stores the returned head at receiver offset four, and zeros the count at offset eight.",
+    "match": {
+      "bytes_sha256": "9e077cb3a3efc715bd9a6bb6a4a5d1eb800890c1b1384625dd582407e4ca970c",
+      "inputs_sha256": "b900f572b40fec6233477b85b6ff812d880e7f3fc79b853185e4ddfc76c41280"
+    }
+  },
+  {
+    "id": "init-list-4a1c00",
+    "size": 22,
+    "offset": 4856832,
+    "inputs": [
+      "src/campaign_list_initializers.c"
+    ],
+    "rebuilt_symbol": "@init_list_4a1c00@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_list_initializers.obj src/campaign_list_initializers.c",
+    "link_bindings": {
+      "@make_head_4a13f0@4": {
+        "va": 282727408,
+        "basis": "Direct retail call returns a sentinel whose next and previous pointers both point to itself."
+      }
+    },
+    "identification": "Default Ghidra function extent. Calls the sentinel constructor at RVA 0x4a13f0, stores the returned head at receiver offset four, and zeros the count at offset eight.",
+    "match": {
+      "bytes_sha256": "d5120c0816a621afbc531e1a73f594ffcd5aec42cb5b8740ef0382472cd08503",
+      "inputs_sha256": "8f807f36cc3b7212ed03acf46064906126123c4e4767edf13ae15bb25713df25"
+    }
+  },
+  {
+    "id": "init-list-4a1c20",
+    "size": 22,
+    "offset": 4856864,
+    "inputs": [
+      "src/campaign_list_initializers.c"
+    ],
+    "rebuilt_symbol": "@init_list_4a1c20@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_list_initializers.obj src/campaign_list_initializers.c",
+    "link_bindings": {
+      "@make_head_4a1350@4": {
+        "va": 282727248,
+        "basis": "Direct retail call returns a sentinel whose next and previous pointers both point to itself."
+      }
+    },
+    "identification": "Default Ghidra function extent. Calls the sentinel constructor at RVA 0x4a1350, stores the returned head at receiver offset four, and zeros the count at offset eight.",
+    "match": {
+      "bytes_sha256": "506cb6a8df3dadb96638c8504ac9371a52946907924c68045dba40e9e736ea42",
+      "inputs_sha256": "a568fc374b4b8958204353879d4d72df0cea2452032327fc57c6cc3b42cf1054"
+    }
+  },
+  {
+    "id": "init-list-4a1c40",
+    "size": 22,
+    "offset": 4856896,
+    "inputs": [
+      "src/campaign_list_initializers.c"
+    ],
+    "rebuilt_symbol": "@init_list_4a1c40@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_list_initializers.obj src/campaign_list_initializers.c",
+    "link_bindings": {
+      "@make_head_4a13f0@4": {
+        "va": 282727408,
+        "basis": "Direct retail call returns a sentinel whose next and previous pointers both point to itself."
+      }
+    },
+    "identification": "Default Ghidra function extent. Calls the sentinel constructor at RVA 0x4a13f0, stores the returned head at receiver offset four, and zeros the count at offset eight.",
+    "match": {
+      "bytes_sha256": "37c21f8e51c024a1051db20ac786d75401e15e0e8f0f1771ae5a9257d1bbbfc9",
+      "inputs_sha256": "affd81d4db409e8484910e0bab96e90dc88980d6a67c54734e2a39c4735bb844"
+    }
+  },
+  {
     "id": "read-word-4a2350",
     "offset": 4858704,
     "size": 4,
@@ -1059,6 +1147,50 @@
     "match": {
       "bytes_sha256": "7563478d56a59c2a21e70de4e636dd6a522eeebea9e239276131ea9be58cdd60",
       "inputs_sha256": "4914eacf61ec70f32f4f4815eda322523832a37bb192757222925028b21230a5"
+    }
+  },
+  {
+    "id": "init-list-4a9380",
+    "size": 22,
+    "offset": 4887424,
+    "inputs": [
+      "src/campaign_list_initializers.c"
+    ],
+    "rebuilt_symbol": "@init_list_4a9380@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_list_initializers.obj src/campaign_list_initializers.c",
+    "link_bindings": {
+      "@make_head_4a7ef0@4": {
+        "va": 282754800,
+        "basis": "Direct retail call returns a sentinel whose next and previous pointers both point to itself."
+      }
+    },
+    "identification": "Default Ghidra function extent. Calls the sentinel constructor at RVA 0x4a7ef0, stores the returned head at receiver offset four, and zeros the count at offset eight.",
+    "match": {
+      "bytes_sha256": "2c01ac3502090463be3efba7850ce55200240f30ca9a7ffe6cee78c481c4c154",
+      "inputs_sha256": "c1358833132d3add9efe4186539934eae9dc306b8a173d3b23dab486bc5ee4dc"
+    }
+  },
+  {
+    "id": "init-list-4a9bf0",
+    "size": 22,
+    "offset": 4889584,
+    "inputs": [
+      "src/campaign_list_initializers.c"
+    ],
+    "rebuilt_symbol": "@init_list_4a9bf0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_list_initializers.obj src/campaign_list_initializers.c",
+    "link_bindings": {
+      "@make_head_4a7ef0@4": {
+        "va": 282754800,
+        "basis": "Direct retail call returns a sentinel whose next and previous pointers both point to itself."
+      }
+    },
+    "identification": "Default Ghidra function extent. Calls the sentinel constructor at RVA 0x4a7ef0, stores the returned head at receiver offset four, and zeros the count at offset eight.",
+    "match": {
+      "bytes_sha256": "75e96272d221f74d97aa82f04ce3ff1a44538e4641d2c746f9894f9daff63803",
+      "inputs_sha256": "0bbbd5b934e5ae62b33f176083fd2075cc0297bc17017a21f9bdfa27f9df8a68"
     }
   },
   {

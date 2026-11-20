@@ -635,6 +635,28 @@
     }
   },
   {
+    "id": "init-list-4f8230",
+    "size": 22,
+    "offset": 5210672,
+    "inputs": [
+      "src/campaign_list_initializers.c"
+    ],
+    "rebuilt_symbol": "@init_list_4f8230@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_list_initializers.obj src/campaign_list_initializers.c",
+    "link_bindings": {
+      "@make_head_4f7830@4": {
+        "va": 283080752,
+        "basis": "Direct retail call returns a sentinel whose next and previous pointers both point to itself."
+      }
+    },
+    "identification": "Default Ghidra function extent. Calls the sentinel constructor at RVA 0x4f7830, stores the returned head at receiver offset four, and zeros the count at offset eight.",
+    "match": {
+      "bytes_sha256": "d1cab85b8417721e32bb3bccac07cac4ebcdaf40e62003f01efcbccde07d680b",
+      "inputs_sha256": "2a1037540634bd52c7f2cdab82aae2a6c64bcebcf57b3e337dbcebd494121b92"
+    }
+  },
+  {
     "id": "delete-record-4f8250",
     "offset": 5210704,
     "size": 30,
@@ -659,6 +681,28 @@
     "match": {
       "bytes_sha256": "f06da6073b0237cb3277634e216168b31d55dd05a2cd437b9e056ac4f1284508",
       "inputs_sha256": "56cebacc2ae5d28d609a54fd18f90b02a2398bb49ec2d3687ce03a8b2f256935"
+    }
+  },
+  {
+    "id": "init-list-4f8270",
+    "size": 22,
+    "offset": 5210736,
+    "inputs": [
+      "src/campaign_list_initializers.c"
+    ],
+    "rebuilt_symbol": "@init_list_4f8270@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_list_initializers.obj src/campaign_list_initializers.c",
+    "link_bindings": {
+      "@make_head_4f7830@4": {
+        "va": 283080752,
+        "basis": "Direct retail call returns a sentinel whose next and previous pointers both point to itself."
+      }
+    },
+    "identification": "Default Ghidra function extent. Calls the sentinel constructor at RVA 0x4f7830, stores the returned head at receiver offset four, and zeros the count at offset eight.",
+    "match": {
+      "bytes_sha256": "c087dfe50d3e97921bb96b0f085366eea18d9e5f8e70be1af779967932f61500",
+      "inputs_sha256": "48ba5bdeb78f570b3980b0b5c76b43aeba230b8912928d7b81e1046276793fa2"
     }
   },
   {

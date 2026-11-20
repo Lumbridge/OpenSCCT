@@ -307,6 +307,50 @@
     }
   },
   {
+    "id": "init-list-4c3020",
+    "size": 22,
+    "offset": 4993056,
+    "inputs": [
+      "src/campaign_list_initializers.c"
+    ],
+    "rebuilt_symbol": "@init_list_4c3020@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_list_initializers.obj src/campaign_list_initializers.c",
+    "link_bindings": {
+      "@make_head_4c2a10@4": {
+        "va": 282864144,
+        "basis": "Direct retail call returns a sentinel whose next and previous pointers both point to itself."
+      }
+    },
+    "identification": "Default Ghidra function extent. Calls the sentinel constructor at RVA 0x4c2a10, stores the returned head at receiver offset four, and zeros the count at offset eight.",
+    "match": {
+      "bytes_sha256": "0a8d932db6cfe3e291a57ed4a55502606f3eec256dc24d12ec2d7c280dc81e9a",
+      "inputs_sha256": "b28228a897fda5693db9528fe9cdc90eaddaa0ba354e6d47ae2152ad336d3f67"
+    }
+  },
+  {
+    "id": "init-list-4c3040",
+    "size": 22,
+    "offset": 4993088,
+    "inputs": [
+      "src/campaign_list_initializers.c"
+    ],
+    "rebuilt_symbol": "@init_list_4c3040@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_list_initializers.obj src/campaign_list_initializers.c",
+    "link_bindings": {
+      "@make_head_4c2a10@4": {
+        "va": 282864144,
+        "basis": "Direct retail call returns a sentinel whose next and previous pointers both point to itself."
+      }
+    },
+    "identification": "Default Ghidra function extent. Calls the sentinel constructor at RVA 0x4c2a10, stores the returned head at receiver offset four, and zeros the count at offset eight.",
+    "match": {
+      "bytes_sha256": "4f483fe21c8d73d304aa528ccd5e025509b9acd695d08803900479cb3c56e32a",
+      "inputs_sha256": "f7e3b0ef8d6d3a1ddbcdcfef2ecf7b54fbed7bceec2033362fc10878e35fd4d9"
+    }
+  },
+  {
     "id": "delete-record-4c3150",
     "offset": 4993360,
     "size": 30,
@@ -854,6 +898,50 @@
     }
   },
   {
+    "id": "init-list-4c5d20",
+    "size": 22,
+    "offset": 5004576,
+    "inputs": [
+      "src/campaign_list_initializers.c"
+    ],
+    "rebuilt_symbol": "@init_list_4c5d20@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_list_initializers.obj src/campaign_list_initializers.c",
+    "link_bindings": {
+      "@make_head_4c56a0@4": {
+        "va": 282875552,
+        "basis": "Direct retail call returns a sentinel whose next and previous pointers both point to itself."
+      }
+    },
+    "identification": "Default Ghidra function extent. Calls the sentinel constructor at RVA 0x4c56a0, stores the returned head at receiver offset four, and zeros the count at offset eight.",
+    "match": {
+      "bytes_sha256": "99739f996e73ffdb532c7926c0e7912b7e754884c327027886721f8333a54e0c",
+      "inputs_sha256": "079349b209cf1e369cd32f1fee64191dd1c510870b053b0c5f71272d2e1b6cee"
+    }
+  },
+  {
+    "id": "init-list-4c5d70",
+    "size": 22,
+    "offset": 5004656,
+    "inputs": [
+      "src/campaign_list_initializers.c"
+    ],
+    "rebuilt_symbol": "@init_list_4c5d70@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_list_initializers.obj src/campaign_list_initializers.c",
+    "link_bindings": {
+      "@make_head_4c56a0@4": {
+        "va": 282875552,
+        "basis": "Direct retail call returns a sentinel whose next and previous pointers both point to itself."
+      }
+    },
+    "identification": "Default Ghidra function extent. Calls the sentinel constructor at RVA 0x4c56a0, stores the returned head at receiver offset four, and zeros the count at offset eight.",
+    "match": {
+      "bytes_sha256": "fca7e0b2430b56984800cfd3c1a50235e1a3c0c00b8d042acf3ba5965bb16242",
+      "inputs_sha256": "c32746622d238a0719986eb88bc067e4a2a6ab575a337f024d29641cdc206c6d"
+    }
+  },
+  {
     "id": "clear-record-4c6df0",
     "offset": 5008880,
     "size": 37,
@@ -941,6 +1029,50 @@
     "match": {
       "bytes_sha256": "457e61aec2e92c143b3ce01c0ce2d236140b169c020a779b25970ac7d2c1029d",
       "inputs_sha256": "90fdab2237da11dcea49717a740a4425063a902cf0a9d9bd81bb66f7072109d1"
+    }
+  },
+  {
+    "id": "init-list-4c7020",
+    "size": 22,
+    "offset": 5009440,
+    "inputs": [
+      "src/campaign_list_initializers.c"
+    ],
+    "rebuilt_symbol": "@init_list_4c7020@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_list_initializers.obj src/campaign_list_initializers.c",
+    "link_bindings": {
+      "@make_head_4c6b90@4": {
+        "va": 282880912,
+        "basis": "Direct retail call returns a sentinel whose next and previous pointers both point to itself."
+      }
+    },
+    "identification": "Default Ghidra function extent. Calls the sentinel constructor at RVA 0x4c6b90, stores the returned head at receiver offset four, and zeros the count at offset eight.",
+    "match": {
+      "bytes_sha256": "5f24e56f72e18f4777ae35b720f1d38ac7907bb7d174288fd7ea53ef7a95c38a",
+      "inputs_sha256": "617a6eea7d5fec55fcb7312c8d8b5cbec04c309e2154993ddf4ece4e6c445c3b"
+    }
+  },
+  {
+    "id": "init-list-4c7040",
+    "size": 22,
+    "offset": 5009472,
+    "inputs": [
+      "src/campaign_list_initializers.c"
+    ],
+    "rebuilt_symbol": "@init_list_4c7040@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_list_initializers.obj src/campaign_list_initializers.c",
+    "link_bindings": {
+      "@make_head_4c6b90@4": {
+        "va": 282880912,
+        "basis": "Direct retail call returns a sentinel whose next and previous pointers both point to itself."
+      }
+    },
+    "identification": "Default Ghidra function extent. Calls the sentinel constructor at RVA 0x4c6b90, stores the returned head at receiver offset four, and zeros the count at offset eight.",
+    "match": {
+      "bytes_sha256": "29f174ce307c55c85a9bd0db58b6c3fccf5aeda0bc27ff6a1ec0bb1373be3f27",
+      "inputs_sha256": "7ffc45d2c8d10a28f3a1074d987f063d8728c649a05a1eb4717e4aa71a3d516b"
     }
   },
   {
@@ -1672,6 +1804,50 @@
     }
   },
   {
+    "id": "init-list-4cd650",
+    "size": 22,
+    "offset": 5035600,
+    "inputs": [
+      "src/campaign_list_initializers.c"
+    ],
+    "rebuilt_symbol": "@init_list_4cd650@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_list_initializers.obj src/campaign_list_initializers.c",
+    "link_bindings": {
+      "@make_head_4cd270@4": {
+        "va": 282907248,
+        "basis": "Direct retail call returns a sentinel whose next and previous pointers both point to itself."
+      }
+    },
+    "identification": "Default Ghidra function extent. Calls the sentinel constructor at RVA 0x4cd270, stores the returned head at receiver offset four, and zeros the count at offset eight.",
+    "match": {
+      "bytes_sha256": "57e5281a5f26cf00b8181f52b2c3f84b3b0c48b99beaeeae60f7d74c11a9f6e9",
+      "inputs_sha256": "edd597eab9dea25f05f4f7c39221a7ed2e634b115ff74c93da049048acdd0492"
+    }
+  },
+  {
+    "id": "init-list-4cd670",
+    "size": 22,
+    "offset": 5035632,
+    "inputs": [
+      "src/campaign_list_initializers.c"
+    ],
+    "rebuilt_symbol": "@init_list_4cd670@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_list_initializers.obj src/campaign_list_initializers.c",
+    "link_bindings": {
+      "@make_head_4cd270@4": {
+        "va": 282907248,
+        "basis": "Direct retail call returns a sentinel whose next and previous pointers both point to itself."
+      }
+    },
+    "identification": "Default Ghidra function extent. Calls the sentinel constructor at RVA 0x4cd270, stores the returned head at receiver offset four, and zeros the count at offset eight.",
+    "match": {
+      "bytes_sha256": "66dd07390fe6d0875b24b670a797b23d7f926ba92607ac3b140650d274821de8",
+      "inputs_sha256": "67d111f51ca67621eb364e8bb3f043aafdbeb915414a15e2d23c07f328d65964"
+    }
+  },
+  {
     "id": "delete-record-4cd760",
     "offset": 5035872,
     "size": 30,
@@ -1909,6 +2085,50 @@
     "match": {
       "bytes_sha256": "3fa60b840f789bc59c85b281ec70ea0a0d2b664581f1fac688d77143d2aafbae",
       "inputs_sha256": "5b40dae661ed665a225e50716f102ba80f971bd30143ec7272041e268baa44b8"
+    }
+  },
+  {
+    "id": "init-list-4cfe40",
+    "size": 22,
+    "offset": 5045824,
+    "inputs": [
+      "src/campaign_list_initializers.c"
+    ],
+    "rebuilt_symbol": "@init_list_4cfe40@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_list_initializers.obj src/campaign_list_initializers.c",
+    "link_bindings": {
+      "@make_head_4cf200@4": {
+        "va": 282915328,
+        "basis": "Direct retail call returns a sentinel whose next and previous pointers both point to itself."
+      }
+    },
+    "identification": "Default Ghidra function extent. Calls the sentinel constructor at RVA 0x4cf200, stores the returned head at receiver offset four, and zeros the count at offset eight.",
+    "match": {
+      "bytes_sha256": "a069da1cb29cb8e62dec0ff79d9f6539e4f6b1945b06963e56969903898932f5",
+      "inputs_sha256": "ca1f58b34d636de76221c2701e3680aacefea83491236e9be0895881ce86571a"
+    }
+  },
+  {
+    "id": "init-list-4cfed0",
+    "size": 22,
+    "offset": 5045968,
+    "inputs": [
+      "src/campaign_list_initializers.c"
+    ],
+    "rebuilt_symbol": "@init_list_4cfed0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_list_initializers.obj src/campaign_list_initializers.c",
+    "link_bindings": {
+      "@make_head_4cf200@4": {
+        "va": 282915328,
+        "basis": "Direct retail call returns a sentinel whose next and previous pointers both point to itself."
+      }
+    },
+    "identification": "Default Ghidra function extent. Calls the sentinel constructor at RVA 0x4cf200, stores the returned head at receiver offset four, and zeros the count at offset eight.",
+    "match": {
+      "bytes_sha256": "919145d9803cfac30c7e49c4f6ba58d1aa99b14518b6c121d30b6b1ddda7ff46",
+      "inputs_sha256": "dd54706971fb0dfcc48c50de56870ebed8b9d64061a2e195bb193d70223ae1ab"
     }
   }
 ]
