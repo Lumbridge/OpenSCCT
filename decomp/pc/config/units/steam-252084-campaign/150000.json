@@ -1,5 +1,33 @@
 [
   {
+    "id": "aligned-array-reset-150490",
+    "size": 52,
+    "offset": 1377424,
+    "inputs": [
+      "src/campaign_aligned_array_reset.c",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@reset_150490@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_aligned_array_reset.obj src/campaign_aligned_array_reset.c",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Engine allocation manager referenced by the resize call."
+      },
+      "_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Read-only UTF-16 allocation label FArray."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs following a previous return. Resets the count and resizes the array with caller-supplied element size and the retail allocation label FArray.",
+    "match": {
+      "bytes_sha256": "c92ec39039b40cef4edbe972b1e3cf4255142b9709fb68d13f6698d040a02a68",
+      "inputs_sha256": "fd314b55e91b87e4a059a65097e2cb90819f1267bf37bf3dfbf45647162d4216"
+    }
+  },
+  {
     "id": "aligned-array-growth-1504d0",
     "size": 75,
     "offset": 1377488,
@@ -25,6 +53,34 @@
     "match": {
       "bytes_sha256": "98ee88503043dca8091fc80c0452408b76162318d7f3ea2193f195bbb6f42591",
       "inputs_sha256": "06836365c4cfb40c61b24ca7e8636360ea6e4a32c00c694a508bfcbf19aa3152"
+    }
+  },
+  {
+    "id": "aligned-array-reset-150520",
+    "size": 52,
+    "offset": 1377568,
+    "inputs": [
+      "src/campaign_aligned_array_reset.c",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@reset_150520@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_aligned_array_reset.obj src/campaign_aligned_array_reset.c",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Engine allocation manager referenced by the resize call."
+      },
+      "_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Read-only UTF-16 allocation label FArray."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs following a previous return. Resets the count and resizes the array with caller-supplied element size and the retail allocation label FArray.",
+    "match": {
+      "bytes_sha256": "c92ec39039b40cef4edbe972b1e3cf4255142b9709fb68d13f6698d040a02a68",
+      "inputs_sha256": "2c9b4ab73b80f1f7d0069dd343b3f5857e5a492e22d1e213c45c44160468373b"
     }
   },
   {
@@ -56,6 +112,34 @@
     }
   },
   {
+    "id": "aligned-array-reset-1505b0",
+    "size": 52,
+    "offset": 1377712,
+    "inputs": [
+      "src/campaign_aligned_array_reset.c",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@reset_1505b0@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_aligned_array_reset.obj src/campaign_aligned_array_reset.c",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Engine allocation manager referenced by the resize call."
+      },
+      "_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Read-only UTF-16 allocation label FArray."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs following a previous return. Resets the count and resizes the array with caller-supplied element size and the retail allocation label FArray.",
+    "match": {
+      "bytes_sha256": "c92ec39039b40cef4edbe972b1e3cf4255142b9709fb68d13f6698d040a02a68",
+      "inputs_sha256": "a4144db6d1202986245e98922a462e3ebf6c51724a0fa63c386d912321725229"
+    }
+  },
+  {
     "id": "aligned-array-growth-1505f0",
     "size": 75,
     "offset": 1377776,
@@ -81,6 +165,34 @@
     "match": {
       "bytes_sha256": "98ee88503043dca8091fc80c0452408b76162318d7f3ea2193f195bbb6f42591",
       "inputs_sha256": "c21d1a4b3740d07fee32bd5733448b7af6670a99ece8c6d20ded81d9095ae756"
+    }
+  },
+  {
+    "id": "aligned-array-reset-150640",
+    "size": 52,
+    "offset": 1377856,
+    "inputs": [
+      "src/campaign_aligned_array_reset.c",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@reset_150640@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_aligned_array_reset.obj src/campaign_aligned_array_reset.c",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Engine allocation manager referenced by the resize call."
+      },
+      "_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Read-only UTF-16 allocation label FArray."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs following a previous return. Resets the count and resizes the array with caller-supplied element size and the retail allocation label FArray.",
+    "match": {
+      "bytes_sha256": "c92ec39039b40cef4edbe972b1e3cf4255142b9709fb68d13f6698d040a02a68",
+      "inputs_sha256": "9753fb4e3b7a10bec4c0cf1ec5d5823229ba4de77a4dfcbc0700cd154c7e87b5"
     }
   },
   {
@@ -112,6 +224,34 @@
     }
   },
   {
+    "id": "aligned-array-reset-1506d0",
+    "size": 52,
+    "offset": 1378000,
+    "inputs": [
+      "src/campaign_aligned_array_reset.c",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@reset_1506d0@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_aligned_array_reset.obj src/campaign_aligned_array_reset.c",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Engine allocation manager referenced by the resize call."
+      },
+      "_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Read-only UTF-16 allocation label FArray."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs following a previous return. Resets the count and resizes the array with caller-supplied element size and the retail allocation label FArray.",
+    "match": {
+      "bytes_sha256": "c92ec39039b40cef4edbe972b1e3cf4255142b9709fb68d13f6698d040a02a68",
+      "inputs_sha256": "c582981341116c4915b2ec4790773320edf0ddb45c9974019c3600e800f65c85"
+    }
+  },
+  {
     "id": "aligned-array-growth-150710",
     "size": 75,
     "offset": 1378064,
@@ -140,6 +280,34 @@
     }
   },
   {
+    "id": "aligned-array-reset-150760",
+    "size": 52,
+    "offset": 1378144,
+    "inputs": [
+      "src/campaign_aligned_array_reset.c",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@reset_150760@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_aligned_array_reset.obj src/campaign_aligned_array_reset.c",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Engine allocation manager referenced by the resize call."
+      },
+      "_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Read-only UTF-16 allocation label FArray."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs following a previous return. Resets the count and resizes the array with caller-supplied element size and the retail allocation label FArray.",
+    "match": {
+      "bytes_sha256": "c92ec39039b40cef4edbe972b1e3cf4255142b9709fb68d13f6698d040a02a68",
+      "inputs_sha256": "064210e3ce8978f4b27fc47d32536b9b6276093fe99432562acacaa27af1d600"
+    }
+  },
+  {
     "id": "aligned-array-growth-1507a0",
     "size": 75,
     "offset": 1378208,
@@ -165,6 +333,34 @@
     "match": {
       "bytes_sha256": "98ee88503043dca8091fc80c0452408b76162318d7f3ea2193f195bbb6f42591",
       "inputs_sha256": "35369700e2b9ee7bfd1bc2e6753031cc8c4c4c8d86f2151e23933d66d78e3a47"
+    }
+  },
+  {
+    "id": "aligned-array-reset-1507f0",
+    "size": 52,
+    "offset": 1378288,
+    "inputs": [
+      "src/campaign_aligned_array_reset.c",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@reset_1507f0@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_aligned_array_reset.obj src/campaign_aligned_array_reset.c",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Engine allocation manager referenced by the resize call."
+      },
+      "_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Read-only UTF-16 allocation label FArray."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs following a previous return. Resets the count and resizes the array with caller-supplied element size and the retail allocation label FArray.",
+    "match": {
+      "bytes_sha256": "c92ec39039b40cef4edbe972b1e3cf4255142b9709fb68d13f6698d040a02a68",
+      "inputs_sha256": "f1e9768f2f2a3af0b308fb98b8cb5810109935e9cf0fe55f4b10fe43b7b7445c"
     }
   },
   {
@@ -1442,6 +1638,34 @@
     }
   },
   {
+    "id": "aligned-array-reset-154a00",
+    "size": 52,
+    "offset": 1395200,
+    "inputs": [
+      "src/campaign_aligned_array_reset.c",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@reset_154a00@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_aligned_array_reset.obj src/campaign_aligned_array_reset.c",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Engine allocation manager referenced by the resize call."
+      },
+      "_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Read-only UTF-16 allocation label FArray."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs following a previous return. Resets the count and resizes the array with caller-supplied element size and the retail allocation label FArray.",
+    "match": {
+      "bytes_sha256": "c92ec39039b40cef4edbe972b1e3cf4255142b9709fb68d13f6698d040a02a68",
+      "inputs_sha256": "d120c56f2042561a57810d39115bf1840e8180b2c25086975144b9d5c1147ba3"
+    }
+  },
+  {
     "id": "array-remove-154a40",
     "size": 138,
     "offset": 1395264,
@@ -2265,6 +2489,34 @@
     }
   },
   {
+    "id": "aligned-array-reset-15b640",
+    "size": 52,
+    "offset": 1422912,
+    "inputs": [
+      "src/campaign_aligned_array_reset.c",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@reset_15b640@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_aligned_array_reset.obj src/campaign_aligned_array_reset.c",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Engine allocation manager referenced by the resize call."
+      },
+      "_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Read-only UTF-16 allocation label FArray."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs following a previous return. Resets the count and resizes the array with caller-supplied element size and the retail allocation label FArray.",
+    "match": {
+      "bytes_sha256": "c92ec39039b40cef4edbe972b1e3cf4255142b9709fb68d13f6698d040a02a68",
+      "inputs_sha256": "fc84a4c777f4db552d686937682539d3f889fadb62a7130b98686b6fbfe3e4c9"
+    }
+  },
+  {
     "id": "aligned-array-growth-15b740",
     "size": 75,
     "offset": 1423168,
@@ -2377,6 +2629,34 @@
     }
   },
   {
+    "id": "aligned-array-reset-15b880",
+    "size": 52,
+    "offset": 1423488,
+    "inputs": [
+      "src/campaign_aligned_array_reset.c",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@reset_15b880@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_aligned_array_reset.obj src/campaign_aligned_array_reset.c",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Engine allocation manager referenced by the resize call."
+      },
+      "_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Read-only UTF-16 allocation label FArray."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs following a previous return. Resets the count and resizes the array with caller-supplied element size and the retail allocation label FArray.",
+    "match": {
+      "bytes_sha256": "c92ec39039b40cef4edbe972b1e3cf4255142b9709fb68d13f6698d040a02a68",
+      "inputs_sha256": "a094a74fc9ecd26bf92799de15d79d14dd0f1da7457f39cfe0d63e6224505cd5"
+    }
+  },
+  {
     "id": "aligned-array-growth-15b8c0",
     "size": 75,
     "offset": 1423552,
@@ -2433,6 +2713,34 @@
     }
   },
   {
+    "id": "aligned-array-reset-15b960",
+    "size": 52,
+    "offset": 1423712,
+    "inputs": [
+      "src/campaign_aligned_array_reset.c",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@reset_15b960@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_aligned_array_reset.obj src/campaign_aligned_array_reset.c",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Engine allocation manager referenced by the resize call."
+      },
+      "_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Read-only UTF-16 allocation label FArray."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs following a previous return. Resets the count and resizes the array with caller-supplied element size and the retail allocation label FArray.",
+    "match": {
+      "bytes_sha256": "c92ec39039b40cef4edbe972b1e3cf4255142b9709fb68d13f6698d040a02a68",
+      "inputs_sha256": "b5d6bdedcc5a4eb3f129272e088411a2f823c3fef1b801eacb607cc8d98da7da"
+    }
+  },
+  {
     "id": "aligned-array-growth-15b9a0",
     "size": 75,
     "offset": 1423776,
@@ -2461,6 +2769,34 @@
     }
   },
   {
+    "id": "aligned-array-reset-15b9f0",
+    "size": 52,
+    "offset": 1423856,
+    "inputs": [
+      "src/campaign_aligned_array_reset.c",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@reset_15b9f0@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_aligned_array_reset.obj src/campaign_aligned_array_reset.c",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Engine allocation manager referenced by the resize call."
+      },
+      "_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Read-only UTF-16 allocation label FArray."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs following a previous return. Resets the count and resizes the array with caller-supplied element size and the retail allocation label FArray.",
+    "match": {
+      "bytes_sha256": "c92ec39039b40cef4edbe972b1e3cf4255142b9709fb68d13f6698d040a02a68",
+      "inputs_sha256": "a010335a25ea6b0804260cac746fc1233643122bd7d08219e4e583ed34f7db48"
+    }
+  },
+  {
     "id": "aligned-array-growth-15ba30",
     "size": 75,
     "offset": 1423920,
@@ -2486,6 +2822,34 @@
     "match": {
       "bytes_sha256": "98ee88503043dca8091fc80c0452408b76162318d7f3ea2193f195bbb6f42591",
       "inputs_sha256": "d42532c24fc12915a744120a73152496267890fc8873b3b970a533626dbe2980"
+    }
+  },
+  {
+    "id": "aligned-array-reset-15ba80",
+    "size": 52,
+    "offset": 1424000,
+    "inputs": [
+      "src/campaign_aligned_array_reset.c",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@reset_15ba80@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_aligned_array_reset.obj src/campaign_aligned_array_reset.c",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Engine allocation manager referenced by the resize call."
+      },
+      "_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Read-only UTF-16 allocation label FArray."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs following a previous return. Resets the count and resizes the array with caller-supplied element size and the retail allocation label FArray.",
+    "match": {
+      "bytes_sha256": "c92ec39039b40cef4edbe972b1e3cf4255142b9709fb68d13f6698d040a02a68",
+      "inputs_sha256": "94c61974d1127f4780d9dc2c00eed6fe1b2dc7d736e666e7b5764c9d5fbbd908"
     }
   },
   {
@@ -2971,6 +3335,34 @@
     "match": {
       "bytes_sha256": "bb9cd75b677ee50fa6a9bbbca565cff0d50caac67f6b9e1847a49f843ecccf16",
       "inputs_sha256": "53b55eb36d58b7f1b97401b8ae1666c57b312cfb13ae09d26977a3ecdd79fe01"
+    }
+  },
+  {
+    "id": "aligned-array-reset-15f0d0",
+    "size": 46,
+    "offset": 1437904,
+    "inputs": [
+      "src/campaign_aligned_array_reset.c",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@reset_15f0d0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_aligned_array_reset.obj src/campaign_aligned_array_reset.c",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Engine allocation manager referenced by the resize call."
+      },
+      "_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Read-only UTF-16 allocation label FArray."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs following a previous return. Resets the count and resizes the array with 4-byte elements and the retail allocation label FArray.",
+    "match": {
+      "bytes_sha256": "17414bca608bc286f70f28bbc104c6629f3724178cea9a1ee1e15d9b6e8bd8a2",
+      "inputs_sha256": "00099a84e456f5943b38e832476fcf2861bc2079fc58be6c0276c1065c28dcbc"
     }
   },
   {

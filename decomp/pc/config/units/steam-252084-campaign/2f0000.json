@@ -1428,6 +1428,34 @@
     }
   },
   {
+    "id": "aligned-array-reset-2f3da0",
+    "size": 52,
+    "offset": 3095968,
+    "inputs": [
+      "src/campaign_aligned_array_reset.c",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@reset_2f3da0@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_aligned_array_reset.obj src/campaign_aligned_array_reset.c",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Engine allocation manager referenced by the resize call."
+      },
+      "_tag_7cddbc": {
+        "va": 286055868,
+        "basis": "Read-only UTF-16 allocation label FArray::DWORD."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs following a previous return. Resets the count and resizes the array with caller-supplied element size and the retail allocation label FArray::DWORD.",
+    "match": {
+      "bytes_sha256": "f74df32205460d1c9b070d9256c5d42f8aadc652d32242c29076f572ba544fd5",
+      "inputs_sha256": "d2f68ac7e76f164ba23a8b40cad89faf960d817278f25af1194e92798da7686d"
+    }
+  },
+  {
     "id": "array-resize-2f3de0",
     "size": 37,
     "offset": 3096032,
@@ -1565,6 +1593,34 @@
     "match": {
       "bytes_sha256": "98ee88503043dca8091fc80c0452408b76162318d7f3ea2193f195bbb6f42591",
       "inputs_sha256": "4ca607d45fc8436f760085a0ad803318b8283945952ee8cada4b3a0d5d8d619e"
+    }
+  },
+  {
+    "id": "aligned-array-reset-2f4170",
+    "size": 52,
+    "offset": 3096944,
+    "inputs": [
+      "src/campaign_aligned_array_reset.c",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@reset_2f4170@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_aligned_array_reset.obj src/campaign_aligned_array_reset.c",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Engine allocation manager referenced by the resize call."
+      },
+      "_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Read-only UTF-16 allocation label FArray."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs following a previous return. Resets the count and resizes the array with caller-supplied element size and the retail allocation label FArray.",
+    "match": {
+      "bytes_sha256": "c92ec39039b40cef4edbe972b1e3cf4255142b9709fb68d13f6698d040a02a68",
+      "inputs_sha256": "713aa1ed817a2ca1293ceeab1cdd2a5e61adcdb766cd7052fc2fb90516a51b3e"
     }
   },
   {
@@ -1714,6 +1770,34 @@
     "match": {
       "bytes_sha256": "d851d2bbd617956f00bc5808b7e80e2f760af0a01b747d4c7ca6ba5a593f73d5",
       "inputs_sha256": "e958d95f56fa91ef344e1e057ffa011e80d397768fa0e802669a98e6566004de"
+    }
+  },
+  {
+    "id": "aligned-array-reset-2f4590",
+    "size": 46,
+    "offset": 3098000,
+    "inputs": [
+      "src/campaign_aligned_array_reset.c",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@reset_2f4590@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_aligned_array_reset.obj src/campaign_aligned_array_reset.c",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Engine allocation manager referenced by the resize call."
+      },
+      "_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Read-only UTF-16 allocation label FArray."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs following a previous return. Resets the count and resizes the array with 4-byte elements and the retail allocation label FArray.",
+    "match": {
+      "bytes_sha256": "17414bca608bc286f70f28bbc104c6629f3724178cea9a1ee1e15d9b6e8bd8a2",
+      "inputs_sha256": "99fede0bcc8169b29f2c568bb894a6f86c54d5135cab4f2ea2304fe148a25474"
     }
   },
   {

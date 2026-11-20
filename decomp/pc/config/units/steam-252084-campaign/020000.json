@@ -3392,6 +3392,62 @@
     }
   },
   {
+    "id": "aligned-array-reset-02efe0",
+    "size": 52,
+    "offset": 192480,
+    "inputs": [
+      "src/campaign_aligned_array_reset.c",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@reset_02efe0@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_aligned_array_reset.obj src/campaign_aligned_array_reset.c",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Engine allocation manager referenced by the resize call."
+      },
+      "_tag_7bc158": {
+        "va": 285983064,
+        "basis": "Read-only UTF-16 allocation label FArray::INT."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs following a previous return. Resets the count and resizes the array with caller-supplied element size and the retail allocation label FArray::INT.",
+    "match": {
+      "bytes_sha256": "f9d07a4530bfe1975e2f8e3174cf68272eafa295c0d0bb0c86a0f6b4e36380fa",
+      "inputs_sha256": "989b24edba8515b5b789f701788151a9ae37eccf6f18b15068be043bfddbf5c6"
+    }
+  },
+  {
+    "id": "aligned-array-reset-02f030",
+    "size": 52,
+    "offset": 192560,
+    "inputs": [
+      "src/campaign_aligned_array_reset.c",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@reset_02f030@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_aligned_array_reset.obj src/campaign_aligned_array_reset.c",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Engine allocation manager referenced by the resize call."
+      },
+      "_tag_7bc180": {
+        "va": 285983104,
+        "basis": "Read-only UTF-16 allocation label FArray::FVector."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs following a previous return. Resets the count and resizes the array with caller-supplied element size and the retail allocation label FArray::FVector.",
+    "match": {
+      "bytes_sha256": "1dcb6a2ce0ac320fbf03d1e8a3e23f7fc92087d57c1d33d828360b487f43131b",
+      "inputs_sha256": "babdaf8b590cc2764c7f52448783024d764b5d1a470c61f5ab635ab5c9f372d8"
+    }
+  },
+  {
     "id": "class-registration-abasecivilian",
     "offset": 193232,
     "size": 264,
