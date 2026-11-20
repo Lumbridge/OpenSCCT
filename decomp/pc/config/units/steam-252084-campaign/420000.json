@@ -1,5 +1,39 @@
 [
   {
+    "id": "tree-rightmost-421020",
+    "size": 29,
+    "offset": 4329504,
+    "inputs": [
+      "src/campaign_tree_extremes.c",
+      "src/tree_extreme.h"
+    ],
+    "rebuilt_symbol": "_tree_rightmost_421020",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_extremes.obj src/campaign_tree_extremes.c",
+    "identification": "Direct call at retail VA 0x10d2252d. The rightmost node search follows right children until the sentinel flag at offset 45 is set.",
+    "match": {
+      "bytes_sha256": "7dedfcb3e0f159a246c5f75760c9f2fb411bab5f2ba7c22edd02de9ccddc64a3",
+      "inputs_sha256": "8530af74a6e8c6b6c2e0e8b511f0f2a18b2de4933f7f7dc346129de4fb1da8e3"
+    }
+  },
+  {
+    "id": "tree-leftmost-421040",
+    "size": 28,
+    "offset": 4329536,
+    "inputs": [
+      "src/campaign_tree_extremes.c",
+      "src/tree_extreme.h"
+    ],
+    "rebuilt_symbol": "_tree_leftmost_421040",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_extremes.obj src/campaign_tree_extremes.c",
+    "identification": "Direct call at retail VA 0x10d22508. The leftmost node search follows left children until the sentinel flag at offset 45 is set.",
+    "match": {
+      "bytes_sha256": "6655218551a77fce2c2423177422b889249f1d81d3c645cc6f9bb92ef72d952c",
+      "inputs_sha256": "82e9ee9ddd1c48eeaf5cd49ded1a0f2bb584ef046eb2a31347bf5fa824433d82"
+    }
+  },
+  {
     "id": "assign-range-4210d0",
     "size": 30,
     "offset": 4329680,

@@ -17,6 +17,40 @@
     }
   },
   {
+    "id": "tree-rightmost-2a0360",
+    "size": 29,
+    "offset": 2753376,
+    "inputs": [
+      "src/versus_tree_extremes.c",
+      "src/tree_extreme.h"
+    ],
+    "rebuilt_symbol": "_tree_rightmost_2a0360",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_tree_extremes.obj src/versus_tree_extremes.c",
+    "identification": "Direct call at retail VA 0x10ba09b8. The rightmost node search follows right children until the sentinel flag at offset 21 is set.",
+    "match": {
+      "bytes_sha256": "969b1c4c46a52adcaacf57630834e20394f96914d2d3193700a8dd5669544605",
+      "inputs_sha256": "4286cb95ae92769bea1f1bd0202d2c672308aa0831ee5f1fc7c31d384fe08f64"
+    }
+  },
+  {
+    "id": "tree-leftmost-2a0380",
+    "size": 28,
+    "offset": 2753408,
+    "inputs": [
+      "src/versus_tree_extremes.c",
+      "src/tree_extreme.h"
+    ],
+    "rebuilt_symbol": "_tree_leftmost_2a0380",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_tree_extremes.obj src/versus_tree_extremes.c",
+    "identification": "Direct call at retail VA 0x10ba0993. The leftmost node search follows left children until the sentinel flag at offset 21 is set.",
+    "match": {
+      "bytes_sha256": "72b0ff377dc23aa7b3ebe4d4d9420c019493b26403080ff16f4f5edfe4838d99",
+      "inputs_sha256": "e38089e2025afa434b27afa3bc82bf0c0d9786cc7c85a51157c0f99a1ca1ef63"
+    }
+  },
+  {
     "id": "rotate-right-2a03a0",
     "size": 89,
     "offset": 2753440,

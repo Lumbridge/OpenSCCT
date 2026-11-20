@@ -331,6 +331,40 @@
     }
   },
   {
+    "id": "tree-rightmost-4a3080",
+    "size": 29,
+    "offset": 4862080,
+    "inputs": [
+      "src/campaign_tree_extremes.c",
+      "src/tree_extreme.h"
+    ],
+    "rebuilt_symbol": "_tree_rightmost_4a3080",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_extremes.obj src/campaign_tree_extremes.c",
+    "identification": "Direct call at retail VA 0x10da3c15. The rightmost node search follows right children until the sentinel flag at offset 21 is set.",
+    "match": {
+      "bytes_sha256": "969b1c4c46a52adcaacf57630834e20394f96914d2d3193700a8dd5669544605",
+      "inputs_sha256": "99d090d9cf2ca911d22de33488379055bdea7a31b7fd00278cd27587f17ce455"
+    }
+  },
+  {
+    "id": "tree-leftmost-4a30a0",
+    "size": 28,
+    "offset": 4862112,
+    "inputs": [
+      "src/campaign_tree_extremes.c",
+      "src/tree_extreme.h"
+    ],
+    "rebuilt_symbol": "_tree_leftmost_4a30a0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_extremes.obj src/campaign_tree_extremes.c",
+    "identification": "Direct call at retail VA 0x10da3bf0. The leftmost node search follows left children until the sentinel flag at offset 21 is set.",
+    "match": {
+      "bytes_sha256": "72b0ff377dc23aa7b3ebe4d4d9420c019493b26403080ff16f4f5edfe4838d99",
+      "inputs_sha256": "45ebb3674e64f36e8bd53086e439a5b91d149d9ebe04c49b96636775d8d17993"
+    }
+  },
+  {
     "id": "rotate-left-4a32c0",
     "size": 85,
     "offset": 4862656,
@@ -455,6 +489,40 @@
     "match": {
       "bytes_sha256": "3a2beaafa101f6f0a39877314e46c6973fb0aaa2607412811941dd2375a04b4b",
       "inputs_sha256": "4fd85ceb0e4d2a6adc5fa4cd4d896be8aca491ca73ddc1ff668eaafd6d952b0f"
+    }
+  },
+  {
+    "id": "tree-rightmost-4a5680",
+    "size": 29,
+    "offset": 4871808,
+    "inputs": [
+      "src/campaign_tree_extremes.c",
+      "src/tree_extreme.h"
+    ],
+    "rebuilt_symbol": "_tree_rightmost_4a5680",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_extremes.obj src/campaign_tree_extremes.c",
+    "identification": "Direct call at retail VA 0x10da66e5. The rightmost node search follows right children until the sentinel flag at offset 21 is set.",
+    "match": {
+      "bytes_sha256": "969b1c4c46a52adcaacf57630834e20394f96914d2d3193700a8dd5669544605",
+      "inputs_sha256": "6a8aa69416d882dcd1202f28df11d9de42a0c7222cef6165056d6843f9e1f47f"
+    }
+  },
+  {
+    "id": "tree-leftmost-4a56a0",
+    "size": 28,
+    "offset": 4871840,
+    "inputs": [
+      "src/campaign_tree_extremes.c",
+      "src/tree_extreme.h"
+    ],
+    "rebuilt_symbol": "_tree_leftmost_4a56a0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_extremes.obj src/campaign_tree_extremes.c",
+    "identification": "Direct call at retail VA 0x10da66c0. The leftmost node search follows left children until the sentinel flag at offset 21 is set.",
+    "match": {
+      "bytes_sha256": "72b0ff377dc23aa7b3ebe4d4d9420c019493b26403080ff16f4f5edfe4838d99",
+      "inputs_sha256": "a3247a4d426f8c809b772db6c494fd3057f67a4dd69a260f1a121b0cbe1ba138"
     }
   },
   {
@@ -609,6 +677,40 @@
     }
   },
   {
+    "id": "tree-rightmost-4ab960",
+    "size": 29,
+    "offset": 4897120,
+    "inputs": [
+      "src/campaign_tree_extremes.c",
+      "src/tree_extreme.h"
+    ],
+    "rebuilt_symbol": "_tree_rightmost_4ab960",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_extremes.obj src/campaign_tree_extremes.c",
+    "identification": "Direct call at retail VA 0x10dac555. The rightmost node search follows right children until the sentinel flag at offset 33 is set.",
+    "match": {
+      "bytes_sha256": "6c7f094d1a25dfaf63642c517615e454aeb69d331bc2245f75ac8d31edaca119",
+      "inputs_sha256": "569858ffbf6442429b8be37bca40944ec9507b06d7ad91a0252cb76153a60dfe"
+    }
+  },
+  {
+    "id": "tree-leftmost-4ab980",
+    "size": 28,
+    "offset": 4897152,
+    "inputs": [
+      "src/campaign_tree_extremes.c",
+      "src/tree_extreme.h"
+    ],
+    "rebuilt_symbol": "_tree_leftmost_4ab980",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_extremes.obj src/campaign_tree_extremes.c",
+    "identification": "Direct call at retail VA 0x10dac530. The leftmost node search follows left children until the sentinel flag at offset 33 is set.",
+    "match": {
+      "bytes_sha256": "17da68566f1fd99b164a61448349ef953543262d6e3c5ab12a60f60ad108d3ba",
+      "inputs_sha256": "6f5e268c5cb2dd2d51e4a0ed42fa3b546d31f3b1a6c076578adcacdf61f860be"
+    }
+  },
+  {
     "id": "rotate-right-4ab9c0",
     "size": 89,
     "offset": 4897216,
@@ -643,6 +745,40 @@
     }
   },
   {
+    "id": "tree-rightmost-4ae5b0",
+    "size": 29,
+    "offset": 4908464,
+    "inputs": [
+      "src/campaign_tree_extremes.c",
+      "src/tree_extreme.h"
+    ],
+    "rebuilt_symbol": "_tree_rightmost_4ae5b0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_extremes.obj src/campaign_tree_extremes.c",
+    "identification": "Direct call at retail VA 0x10dafd85. The rightmost node search follows right children until the sentinel flag at offset 21 is set.",
+    "match": {
+      "bytes_sha256": "969b1c4c46a52adcaacf57630834e20394f96914d2d3193700a8dd5669544605",
+      "inputs_sha256": "d71128aac6a42fd5f351bb3de71e320957fba12e443446ade387b3aac7004ff4"
+    }
+  },
+  {
+    "id": "tree-leftmost-4ae5d0",
+    "size": 28,
+    "offset": 4908496,
+    "inputs": [
+      "src/campaign_tree_extremes.c",
+      "src/tree_extreme.h"
+    ],
+    "rebuilt_symbol": "_tree_leftmost_4ae5d0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_extremes.obj src/campaign_tree_extremes.c",
+    "identification": "Direct call at retail VA 0x10dafd60. The leftmost node search follows left children until the sentinel flag at offset 21 is set.",
+    "match": {
+      "bytes_sha256": "72b0ff377dc23aa7b3ebe4d4d9420c019493b26403080ff16f4f5edfe4838d99",
+      "inputs_sha256": "2b509cd674df0fc05d0139508e35c463a581cce2bc29b726f37ced97b1792c24"
+    }
+  },
+  {
     "id": "rotate-right-4ae610",
     "size": 89,
     "offset": 4908560,
@@ -674,6 +810,40 @@
     "match": {
       "bytes_sha256": "8b839078e9ee3f923c456a0284acd9ecb2410a748c26a29c9b7825364d832d91",
       "inputs_sha256": "f8f31e774974416ab999c162df4600a13cb55ca9bd0811465cbfe4ca34d87faf"
+    }
+  },
+  {
+    "id": "tree-rightmost-4ae9a0",
+    "size": 29,
+    "offset": 4909472,
+    "inputs": [
+      "src/campaign_tree_extremes.c",
+      "src/tree_extreme.h"
+    ],
+    "rebuilt_symbol": "_tree_rightmost_4ae9a0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_extremes.obj src/campaign_tree_extremes.c",
+    "identification": "Direct call at retail VA 0x10db04f2. The rightmost node search follows right children until the sentinel flag at offset 33 is set.",
+    "match": {
+      "bytes_sha256": "6c7f094d1a25dfaf63642c517615e454aeb69d331bc2245f75ac8d31edaca119",
+      "inputs_sha256": "de3ab5378dfd41a62b0a8f0f840321bbf071314609f3facb322dff43dd4d8c2f"
+    }
+  },
+  {
+    "id": "tree-leftmost-4ae9c0",
+    "size": 28,
+    "offset": 4909504,
+    "inputs": [
+      "src/campaign_tree_extremes.c",
+      "src/tree_extreme.h"
+    ],
+    "rebuilt_symbol": "_tree_leftmost_4ae9c0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_extremes.obj src/campaign_tree_extremes.c",
+    "identification": "Direct call at retail VA 0x10db04cd. The leftmost node search follows left children until the sentinel flag at offset 33 is set.",
+    "match": {
+      "bytes_sha256": "17da68566f1fd99b164a61448349ef953543262d6e3c5ab12a60f60ad108d3ba",
+      "inputs_sha256": "11ff8f5a8c348ef553bce490f42ca114dce2d14498f4b18b12a56b5690915690"
     }
   },
   {

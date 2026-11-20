@@ -234,6 +234,40 @@
     }
   },
   {
+    "id": "tree-rightmost-4965a0",
+    "size": 29,
+    "offset": 4810144,
+    "inputs": [
+      "src/campaign_tree_extremes.c",
+      "src/tree_extreme.h"
+    ],
+    "rebuilt_symbol": "_tree_rightmost_4965a0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_extremes.obj src/campaign_tree_extremes.c",
+    "identification": "Direct call at retail VA 0x10d96e85. The rightmost node search follows right children until the sentinel flag at offset 21 is set.",
+    "match": {
+      "bytes_sha256": "969b1c4c46a52adcaacf57630834e20394f96914d2d3193700a8dd5669544605",
+      "inputs_sha256": "47a1583ecdd3ab0e026865a457a9f426158e0f3bc9b4d5b13c12d1aa00ac5c88"
+    }
+  },
+  {
+    "id": "tree-leftmost-4965c0",
+    "size": 28,
+    "offset": 4810176,
+    "inputs": [
+      "src/campaign_tree_extremes.c",
+      "src/tree_extreme.h"
+    ],
+    "rebuilt_symbol": "_tree_leftmost_4965c0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_extremes.obj src/campaign_tree_extremes.c",
+    "identification": "Direct call at retail VA 0x10d96e60. The leftmost node search follows left children until the sentinel flag at offset 21 is set.",
+    "match": {
+      "bytes_sha256": "72b0ff377dc23aa7b3ebe4d4d9420c019493b26403080ff16f4f5edfe4838d99",
+      "inputs_sha256": "c24ea388ca9673820eb9a62baf7b3473fe5584235c088c60da5689adf40234c3"
+    }
+  },
+  {
     "id": "rotate-right-496600",
     "size": 89,
     "offset": 4810240,
@@ -447,6 +481,23 @@
     "match": {
       "bytes_sha256": "6cb88af48e3700f1bfc7a0ef572be727d5c80bff21de2b0870a99fc3eb11fac9",
       "inputs_sha256": "37bc541033bd4ebb288fcb8b5f1ee5ef9ab2a0f5ceb07d6f21468f7e4bc03293"
+    }
+  },
+  {
+    "id": "tree-rightmost-499050",
+    "size": 29,
+    "offset": 4821072,
+    "inputs": [
+      "src/campaign_tree_extremes.c",
+      "src/tree_extreme.h"
+    ],
+    "rebuilt_symbol": "_tree_rightmost_499050",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_extremes.obj src/campaign_tree_extremes.c",
+    "identification": "Direct call at retail VA 0x10d99ba5. The rightmost node search follows right children until the sentinel flag at offset 21 is set.",
+    "match": {
+      "bytes_sha256": "969b1c4c46a52adcaacf57630834e20394f96914d2d3193700a8dd5669544605",
+      "inputs_sha256": "585c02b133fc1f9f20394985e2ed6a208e455b6c68e591f6a2f00a5c19e9ccab"
     }
   },
   {
@@ -745,6 +796,40 @@
     "match": {
       "bytes_sha256": "d9e29b08799890ecae46a7ca8123baaf339d1616c6f244368bacacc52a3cc996",
       "inputs_sha256": "2999dcb8939f4a69ac14a6c0be4ecd8f94a7eed5f109b66c7f53142e0dbe101a"
+    }
+  },
+  {
+    "id": "tree-rightmost-49f260",
+    "size": 29,
+    "offset": 4846176,
+    "inputs": [
+      "src/campaign_tree_extremes.c",
+      "src/tree_extreme.h"
+    ],
+    "rebuilt_symbol": "_tree_rightmost_49f260",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_extremes.obj src/campaign_tree_extremes.c",
+    "identification": "Direct call at retail VA 0x10d9fee5. The rightmost node search follows right children until the sentinel flag at offset 21 is set.",
+    "match": {
+      "bytes_sha256": "969b1c4c46a52adcaacf57630834e20394f96914d2d3193700a8dd5669544605",
+      "inputs_sha256": "271e3110df60360aa8005480ed2e58f6cb25c3a2b29c0b31e5155cd4e4d0bf6c"
+    }
+  },
+  {
+    "id": "tree-leftmost-49f280",
+    "size": 28,
+    "offset": 4846208,
+    "inputs": [
+      "src/campaign_tree_extremes.c",
+      "src/tree_extreme.h"
+    ],
+    "rebuilt_symbol": "_tree_leftmost_49f280",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_extremes.obj src/campaign_tree_extremes.c",
+    "identification": "Direct call at retail VA 0x10d9fec0. The leftmost node search follows left children until the sentinel flag at offset 21 is set.",
+    "match": {
+      "bytes_sha256": "72b0ff377dc23aa7b3ebe4d4d9420c019493b26403080ff16f4f5edfe4838d99",
+      "inputs_sha256": "655a510c8471059b12d6bd8b45772315536cb1699a11fd83ee4724fdeb01c37e"
     }
   },
   {

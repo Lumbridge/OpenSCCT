@@ -1,5 +1,39 @@
 [
   {
+    "id": "tree-rightmost-3806c0",
+    "size": 29,
+    "offset": 3671744,
+    "inputs": [
+      "src/campaign_tree_extremes.c",
+      "src/tree_extreme.h"
+    ],
+    "rebuilt_symbol": "_tree_rightmost_3806c0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_extremes.obj src/campaign_tree_extremes.c",
+    "identification": "Direct call at retail VA 0x10c8a0b5. The rightmost node search follows right children until the sentinel flag at offset 17 is set.",
+    "match": {
+      "bytes_sha256": "118a7aadf34689e6bb472d67a25fa69966de55405a4881a506bd130158bfe5a3",
+      "inputs_sha256": "96be958c18bea5d64a10c897ad3c1b4ee5668b11499105a335627c43bbbc0969"
+    }
+  },
+  {
+    "id": "tree-leftmost-3806e0",
+    "size": 28,
+    "offset": 3671776,
+    "inputs": [
+      "src/campaign_tree_extremes.c",
+      "src/tree_extreme.h"
+    ],
+    "rebuilt_symbol": "_tree_leftmost_3806e0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_extremes.obj src/campaign_tree_extremes.c",
+    "identification": "Direct call at retail VA 0x10c8a090. The leftmost node search follows left children until the sentinel flag at offset 17 is set.",
+    "match": {
+      "bytes_sha256": "1f044e8070d75b1c4133f92cf26c0737b3a7c5def98bb79ed3d637d4ebe173d0",
+      "inputs_sha256": "454c3eaa1d91abe02aa35c37da1e90bfcc7b513f2d54a8f5ffcbc4b8555ae023"
+    }
+  },
+  {
     "id": "class-registration-ud3drenderdevice",
     "offset": 3675008,
     "size": 264,
