@@ -400,6 +400,58 @@
     }
   },
   {
+    "id": "construct-actor-aesra",
+    "offset": 370720,
+    "size": 48,
+    "rebuilt_symbol": "@construct_AESRA@4",
+    "inputs": [
+      "src/campaign_actor_constructors.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_actor_constructors.obj src/campaign_actor_constructors.c",
+    "link_bindings": {
+      "@construct_object_base@4": {
+        "va": 281901360,
+        "basis": "Shared base constructor at RVA 0x3d7930 installs the base methods pointer and returns the receiver."
+      },
+      "_vtable_AESRA": {
+        "va": 285988472,
+        "basis": "The named AESRA reflection factory at RVA 0x30fc90 supplies placement callback RVA 0x30fc50, which installs this identical methods table at RVA 0x30fc88."
+      }
+    },
+    "identification": "Stock AESRA constructor at RVA 0x5a820. Its complete default-analysis extent agrees with the C contribution. It calls the shared base constructor, initializes four actor fields and installs the same vtable as the class's independently registered placement callback.",
+    "match": {
+      "bytes_sha256": "7ce48b090cca243bf4ca33e42ed71d3c1140e702d00c2467c836da4977a9a178",
+      "inputs_sha256": "230e1c2449d021d56d0e0b806bbd2191165441c03a572aef1d78ba225fe0b7b8"
+    }
+  },
+  {
+    "id": "construct-actor-aesraelectrostatic",
+    "offset": 370768,
+    "size": 48,
+    "rebuilt_symbol": "@construct_AESRAElectrostatic@4",
+    "inputs": [
+      "src/campaign_actor_constructors.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_actor_constructors.obj src/campaign_actor_constructors.c",
+    "link_bindings": {
+      "@construct_object_base@4": {
+        "va": 281901360,
+        "basis": "Shared base constructor at RVA 0x3d7930 installs the base methods pointer and returns the receiver."
+      },
+      "_vtable_AESRAElectrostatic": {
+        "va": 285989160,
+        "basis": "The named AESRAElectrostatic reflection factory at RVA 0x5a8f0 supplies placement callback RVA 0x5a8b0, which installs this identical methods table at RVA 0x5a8e8."
+      }
+    },
+    "identification": "Stock AESRAElectrostatic constructor at RVA 0x5a850. Its complete default-analysis extent agrees with the C contribution. It calls the shared base constructor, initializes four actor fields and installs the same vtable as the class's independently registered placement callback.",
+    "match": {
+      "bytes_sha256": "863946a76e43cc9ece4b01720ec61f0ae65350623a183993f842451f0924d937",
+      "inputs_sha256": "3465aa80f344adc0c9f2955f83d1268088441d36329bc1972b01d701670e58bc"
+    }
+  },
+  {
     "id": "delete-aesraelectrostatic",
     "offset": 370816,
     "size": 46,
@@ -573,6 +625,32 @@
     }
   },
   {
+    "id": "construct-actor-aesrakickable",
+    "offset": 372176,
+    "size": 48,
+    "rebuilt_symbol": "@construct_AESRAKickable@4",
+    "inputs": [
+      "src/campaign_actor_constructors.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_actor_constructors.obj src/campaign_actor_constructors.c",
+    "link_bindings": {
+      "@construct_object_base@4": {
+        "va": 281901360,
+        "basis": "Shared base constructor at RVA 0x3d7930 installs the base methods pointer and returns the receiver."
+      },
+      "_vtable_AESRAKickable": {
+        "va": 285989888,
+        "basis": "The named AESRAKickable reflection factory at RVA 0x5ae70 supplies placement callback RVA 0x5ae30, which installs this identical methods table at RVA 0x5ae68."
+      }
+    },
+    "identification": "Stock AESRAKickable constructor at RVA 0x5add0. Its complete default-analysis extent agrees with the C contribution. It calls the shared base constructor, initializes four actor fields and installs the same vtable as the class's independently registered placement callback.",
+    "match": {
+      "bytes_sha256": "10e98e73b831f12f7df6044ed63ccdf9e7ddab12b6d6d1344753f9b370f7fbaf",
+      "inputs_sha256": "68c01ca058d42fe1036c12a4b63bd085544f6b4ae6586ef5aa7de9674d0b46d5"
+    }
+  },
+  {
     "id": "delete-aesrakickable",
     "offset": 372224,
     "size": 46,
@@ -743,6 +821,32 @@
     "match": {
       "bytes_sha256": "9649442a86409075767273053e721c9adc53d31111d3355ffd04bfcd59bd6f8b",
       "inputs_sha256": "a6b5c02fb71f70d2a4966dd7423333648ad5e14dc8020e7e64429eb5278370af"
+    }
+  },
+  {
+    "id": "construct-actor-aesrapickable",
+    "offset": 373472,
+    "size": 48,
+    "rebuilt_symbol": "@construct_AESRAPickable@4",
+    "inputs": [
+      "src/campaign_actor_constructors.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_actor_constructors.obj src/campaign_actor_constructors.c",
+    "link_bindings": {
+      "@construct_object_base@4": {
+        "va": 281901360,
+        "basis": "Shared base constructor at RVA 0x3d7930 installs the base methods pointer and returns the receiver."
+      },
+      "_vtable_AESRAPickable": {
+        "va": 285990616,
+        "basis": "The named AESRAPickable reflection factory at RVA 0x5b380 supplies placement callback RVA 0x5b340, which installs this identical methods table at RVA 0x5b378."
+      }
+    },
+    "identification": "Stock AESRAPickable constructor at RVA 0x5b2e0. Its complete default-analysis extent agrees with the C contribution. It calls the shared base constructor, initializes four actor fields and installs the same vtable as the class's independently registered placement callback.",
+    "match": {
+      "bytes_sha256": "4722ee328089c8eedf9a2f768a440e5b00c6b89c62c1cd872ab6d734bec7d50e",
+      "inputs_sha256": "46a9b3817d6055680db8f03b3cf0dabb50672f6d193d000fcf08fb9b7d4a9033"
     }
   },
   {

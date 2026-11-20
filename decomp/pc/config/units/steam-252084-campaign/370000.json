@@ -1,5 +1,31 @@
 [
   {
+    "id": "construct-actor-aeuavdrone",
+    "offset": 3606864,
+    "size": 48,
+    "rebuilt_symbol": "@construct_AEUAVDrone@4",
+    "inputs": [
+      "src/campaign_actor_constructors.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_actor_constructors.obj src/campaign_actor_constructors.c",
+    "link_bindings": {
+      "@construct_object_base@4": {
+        "va": 281901360,
+        "basis": "Shared base constructor at RVA 0x3d7930 installs the base methods pointer and returns the receiver."
+      },
+      "_vtable_AEUAVDrone": {
+        "va": 286324240,
+        "basis": "The named AEUAVDrone reflection factory at RVA 0x370a10 supplies placement callback RVA 0x3709d0, which installs this identical methods table at RVA 0x370a08."
+      }
+    },
+    "identification": "Stock AEUAVDrone constructor at RVA 0x370950. Its complete default-analysis extent agrees with the C contribution. It calls the shared base constructor, initializes four actor fields and installs the same vtable as the class's independently registered placement callback.",
+    "match": {
+      "bytes_sha256": "e135425eaaf7864fe9e88d1d4a09bcb9810b5a1ab827604e9efa1695222f9358",
+      "inputs_sha256": "270e7f72d56763b4433fba44413c1d24bfacc6792d8367ea4b74d8ed3c17afa6"
+    }
+  },
+  {
     "id": "delete-aeuavdrone",
     "offset": 3606944,
     "size": 46,

@@ -860,6 +860,32 @@
     }
   },
   {
+    "id": "construct-actor-aecoopblockingvolume",
+    "offset": 2602544,
+    "size": 48,
+    "rebuilt_symbol": "@construct_AECoopBlockingVolume@4",
+    "inputs": [
+      "src/campaign_actor_constructors.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_actor_constructors.obj src/campaign_actor_constructors.c",
+    "link_bindings": {
+      "@construct_object_base@4": {
+        "va": 281901360,
+        "basis": "Shared base constructor at RVA 0x3d7930 installs the base methods pointer and returns the receiver."
+      },
+      "_vtable_AECoopBlockingVolume": {
+        "va": 286161248,
+        "basis": "The named AECoopBlockingVolume reflection factory at RVA 0x27ba00 supplies placement callback RVA 0x27b7b0, which installs this identical methods table at RVA 0x27b7e8."
+      }
+    },
+    "identification": "Stock AECoopBlockingVolume constructor at RVA 0x27b630. Its complete default-analysis extent agrees with the C contribution. It calls the shared base constructor, initializes four actor fields and installs the same vtable as the class's independently registered placement callback.",
+    "match": {
+      "bytes_sha256": "8230e304b2b21f27e76f81fd98d02d8c8249c0a204975f49edc6d56e6fe0582f",
+      "inputs_sha256": "1b3eec1c55f5382cb0ebf739ded8bbb9aabac4d74a2e7d8e75e99032f8877988"
+    }
+  },
+  {
     "id": "delete-aecoopblockingvolume",
     "offset": 2602592,
     "size": 46,
@@ -891,6 +917,32 @@
     "match": {
       "bytes_sha256": "5104ded364b74091c303cc804261e867b23335246ab99cc13b031d4774640847",
       "inputs_sha256": "767de897ece38fc40abccc7bbc37e5702268700b99cc8f9975ee0dfcbec1496f"
+    }
+  },
+  {
+    "id": "construct-actor-aecoopinteractvolume",
+    "offset": 2602640,
+    "size": 48,
+    "rebuilt_symbol": "@construct_AECoopInteractVolume@4",
+    "inputs": [
+      "src/campaign_actor_constructors.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_actor_constructors.obj src/campaign_actor_constructors.c",
+    "link_bindings": {
+      "@construct_object_base@4": {
+        "va": 281901360,
+        "basis": "Shared base constructor at RVA 0x3d7930 installs the base methods pointer and returns the receiver."
+      },
+      "_vtable_AECoopInteractVolume": {
+        "va": 286161920,
+        "basis": "The named AECoopInteractVolume reflection factory at RVA 0x27b920 supplies placement callback RVA 0x27b7f0, which installs this identical methods table at RVA 0x27b828."
+      }
+    },
+    "identification": "Stock AECoopInteractVolume constructor at RVA 0x27b690. Its complete default-analysis extent agrees with the C contribution. It calls the shared base constructor, initializes four actor fields and installs the same vtable as the class's independently registered placement callback.",
+    "match": {
+      "bytes_sha256": "cf674dc291378635dcdf00382ae6e019a4f6af26b13cb74aa7ddaf26785e8a4a",
+      "inputs_sha256": "112c2dbe2dd5a735de8c9de809cb24360fc5bd7d77ec815cdc74f74b72163867"
     }
   },
   {
@@ -928,6 +980,32 @@
     }
   },
   {
+    "id": "construct-actor-aecoopsuccessvolume",
+    "offset": 2602736,
+    "size": 48,
+    "rebuilt_symbol": "@construct_AECoopSuccessVolume@4",
+    "inputs": [
+      "src/campaign_actor_constructors.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_actor_constructors.obj src/campaign_actor_constructors.c",
+    "link_bindings": {
+      "@construct_object_base@4": {
+        "va": 281901360,
+        "basis": "Shared base constructor at RVA 0x3d7930 installs the base methods pointer and returns the receiver."
+      },
+      "_vtable_AECoopSuccessVolume": {
+        "va": 286162592,
+        "basis": "The named AECoopSuccessVolume reflection factory at RVA 0x27b990 supplies placement callback RVA 0x27b830, which installs this identical methods table at RVA 0x27b868."
+      }
+    },
+    "identification": "Stock AECoopSuccessVolume constructor at RVA 0x27b6f0. Its complete default-analysis extent agrees with the C contribution. It calls the shared base constructor, initializes four actor fields and installs the same vtable as the class's independently registered placement callback.",
+    "match": {
+      "bytes_sha256": "9cbd7035e370403a113fae7f0c036d263c6ca992d1f2344adbe6473fe5e9531c",
+      "inputs_sha256": "32a629e5d5614133bcfa9e3ec77a9d84fb178f35e649a0a6e01e2686a1ee9346"
+    }
+  },
+  {
     "id": "delete-aecoopsuccessvolume",
     "offset": 2602784,
     "size": 46,
@@ -959,6 +1037,32 @@
     "match": {
       "bytes_sha256": "c1fe73e2d7f0e425b6639b07616df5537ffa44365fe1617fb5cbebc4d91cd573",
       "inputs_sha256": "7fb6af5917499af4858e593870c1ef520d9c010dd8009a7d3f6fa2f5258a58de"
+    }
+  },
+  {
+    "id": "construct-actor-aevolume",
+    "offset": 2602832,
+    "size": 48,
+    "rebuilt_symbol": "@construct_AEVolume@4",
+    "inputs": [
+      "src/campaign_actor_constructors.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_actor_constructors.obj src/campaign_actor_constructors.c",
+    "link_bindings": {
+      "@construct_object_base@4": {
+        "va": 281901360,
+        "basis": "Shared base constructor at RVA 0x3d7930 installs the base methods pointer and returns the receiver."
+      },
+      "_vtable_AEVolume": {
+        "va": 286163264,
+        "basis": "The named AEVolume reflection factory at RVA 0x27b8b0 supplies placement callback RVA 0x27b870, which installs this identical methods table at RVA 0x27b8a8."
+      }
+    },
+    "identification": "Stock AEVolume constructor at RVA 0x27b750. Its complete default-analysis extent agrees with the C contribution. It calls the shared base constructor, initializes four actor fields and installs the same vtable as the class's independently registered placement callback.",
+    "match": {
+      "bytes_sha256": "f552623df8172143028bb31fbd0ac38f348663924eb972ef9bab4d8f2a3e05c5",
+      "inputs_sha256": "340db56959e369044e7e67458d32f6eda1f2ee2ef6f3e44ff7132d27301c2e11"
     }
   },
   {

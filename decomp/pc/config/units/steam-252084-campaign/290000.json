@@ -176,6 +176,32 @@
     }
   },
   {
+    "id": "construct-actor-aelasermicvolume",
+    "offset": 2724064,
+    "size": 48,
+    "rebuilt_symbol": "@construct_AELaserMicVolume@4",
+    "inputs": [
+      "src/campaign_actor_constructors.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_actor_constructors.obj src/campaign_actor_constructors.c",
+    "link_bindings": {
+      "@construct_object_base@4": {
+        "va": 281901360,
+        "basis": "Shared base constructor at RVA 0x3d7930 installs the base methods pointer and returns the receiver."
+      },
+      "_vtable_AELaserMicVolume": {
+        "va": 286167008,
+        "basis": "The named AELaserMicVolume reflection factory at RVA 0x299e20 supplies placement callback RVA 0x299d30, which installs this identical methods table at RVA 0x299d68."
+      }
+    },
+    "identification": "Stock AELaserMicVolume constructor at RVA 0x2990e0. Its complete default-analysis extent agrees with the C contribution. It calls the shared base constructor, initializes four actor fields and installs the same vtable as the class's independently registered placement callback.",
+    "match": {
+      "bytes_sha256": "3b4fd2766060ca26eb47a7a7841860b5d607efa8c798a00069daf112547ed883",
+      "inputs_sha256": "13070bf71407f416fb47a95f8adbb330e6c68af7e80281225c20c841a1d1163f"
+    }
+  },
+  {
     "id": "delete-aelasermicvolume",
     "offset": 2724112,
     "size": 57,
@@ -211,6 +237,32 @@
     "match": {
       "bytes_sha256": "0f0b4e57d18752211502c024bf07434147b2782592db68710960f14cada2b1d5",
       "inputs_sha256": "3c605ea0733ebf523a0bad586a02f7fc902c4ff991b2709f7efd6213ffad7470"
+    }
+  },
+  {
+    "id": "construct-actor-aepattern",
+    "offset": 2724176,
+    "size": 48,
+    "rebuilt_symbol": "@construct_AEPattern@4",
+    "inputs": [
+      "src/campaign_actor_constructors.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_actor_constructors.obj src/campaign_actor_constructors.c",
+    "link_bindings": {
+      "@construct_object_base@4": {
+        "va": 281901360,
+        "basis": "Shared base constructor at RVA 0x3d7930 installs the base methods pointer and returns the receiver."
+      },
+      "_vtable_AEPattern": {
+        "va": 285983832,
+        "basis": "The named AEPattern reflection factory at RVA 0x299db0 supplies placement callback RVA 0x299d70, which installs this identical methods table at RVA 0x299da8."
+      }
+    },
+    "identification": "Stock AEPattern constructor at RVA 0x299150. Its complete default-analysis extent agrees with the C contribution. It calls the shared base constructor, initializes four actor fields and installs the same vtable as the class's independently registered placement callback.",
+    "match": {
+      "bytes_sha256": "b4e4c46213ccb98516c96ada28ff697fc7dbdfe819e15c0bbe92182c38e1f619",
+      "inputs_sha256": "277d209ec4e9bdb6920fe8d5576b466080b600e70b88da211e4d9eae2eacdbb7"
     }
   },
   {

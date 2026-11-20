@@ -72,6 +72,32 @@
     }
   },
   {
+    "id": "construct-actor-aebasedoor",
+    "offset": 3085248,
+    "size": 48,
+    "rebuilt_symbol": "@construct_AEBaseDoor@4",
+    "inputs": [
+      "src/campaign_actor_constructors.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_actor_constructors.obj src/campaign_actor_constructors.c",
+    "link_bindings": {
+      "@construct_object_base@4": {
+        "va": 281901360,
+        "basis": "Shared base constructor at RVA 0x3d7930 installs the base methods pointer and returns the receiver."
+      },
+      "_vtable_AEBaseDoor": {
+        "va": 286189488,
+        "basis": "The named AEBaseDoor reflection factory at RVA 0x2f1580 supplies placement callback RVA 0x2f1520, which installs this identical methods table at RVA 0x2f1558."
+      }
+    },
+    "identification": "Stock AEBaseDoor constructor at RVA 0x2f13c0. Its complete default-analysis extent agrees with the C contribution. It calls the shared base constructor, initializes four actor fields and installs the same vtable as the class's independently registered placement callback.",
+    "match": {
+      "bytes_sha256": "b76cd81a2665739d890b6f97e32a978dcaf12fb535fa6d470901c9667bb811db",
+      "inputs_sha256": "5e0a822bed3c9a71df457a09dc2fcb68c604a06f4197988977bf2e562e8312dc"
+    }
+  },
+  {
     "id": "delete-aebasedoor",
     "offset": 3085344,
     "size": 33,
@@ -339,6 +365,32 @@
     }
   },
   {
+    "id": "construct-actor-aedooropener",
+    "offset": 3086912,
+    "size": 48,
+    "rebuilt_symbol": "@construct_AEDoorOpener@4",
+    "inputs": [
+      "src/campaign_actor_constructors.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_actor_constructors.obj src/campaign_actor_constructors.c",
+    "link_bindings": {
+      "@construct_object_base@4": {
+        "va": 281901360,
+        "basis": "Shared base constructor at RVA 0x3d7930 installs the base methods pointer and returns the receiver."
+      },
+      "_vtable_AEDoorOpener": {
+        "va": 286190992,
+        "basis": "The named AEDoorOpener reflection factory at RVA 0x2f1b70 supplies placement callback RVA 0x2f1b30, which installs this identical methods table at RVA 0x2f1b68."
+      }
+    },
+    "identification": "Stock AEDoorOpener constructor at RVA 0x2f1a40. Its complete default-analysis extent agrees with the C contribution. It calls the shared base constructor, initializes four actor fields and installs the same vtable as the class's independently registered placement callback.",
+    "match": {
+      "bytes_sha256": "a58d14d170880d4bb383b9f316dea46ec424e29ad5aa94eafbf9e5ec807ae90d",
+      "inputs_sha256": "b371d04ae6213d12c33996230d96e40f39c370abcd128728c407dd3c3d4b0f46"
+    }
+  },
+  {
     "id": "delete-aedooropener",
     "offset": 3086976,
     "size": 33,
@@ -535,6 +587,32 @@
     "match": {
       "bytes_sha256": "151a1108439c9697fcd4a88e79e2de92a43a39a946006e057124d6d436e75649",
       "inputs_sha256": "36bc07c267bca0a3d266c0e9f62c63a6c881f85f2c7980400662607a34dde3f0"
+    }
+  },
+  {
+    "id": "construct-actor-aeflashlight",
+    "offset": 3090416,
+    "size": 48,
+    "rebuilt_symbol": "@construct_AEFlashLight@4",
+    "inputs": [
+      "src/campaign_actor_constructors.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_actor_constructors.obj src/campaign_actor_constructors.c",
+    "link_bindings": {
+      "@construct_object_base@4": {
+        "va": 281901360,
+        "basis": "Shared base constructor at RVA 0x3d7930 installs the base methods pointer and returns the receiver."
+      },
+      "_vtable_AEFlashLight": {
+        "va": 286191752,
+        "basis": "The named AEFlashLight reflection factory at RVA 0x2f2890 supplies placement callback RVA 0x2f2850, which installs this identical methods table at RVA 0x2f2888."
+      }
+    },
+    "identification": "Stock AEFlashLight constructor at RVA 0x2f27f0. Its complete default-analysis extent agrees with the C contribution. It calls the shared base constructor, initializes four actor fields and installs the same vtable as the class's independently registered placement callback.",
+    "match": {
+      "bytes_sha256": "d848418399aca1786393c048d8babab05d4a4dad7b539fb851739fd171ee79a4",
+      "inputs_sha256": "c6ff8012eb2794d35451dfb065911c518f3c6c4d0d097b1854719a9971253ecc"
     }
   },
   {
@@ -793,6 +871,32 @@
     "match": {
       "bytes_sha256": "0202b7395be0d5bc149f539ed6d70fff568994d674473c9765640076259b645c",
       "inputs_sha256": "bf2ce1abc27eb3651a4a52049fe02b0275c162ec730a2c330da191ef053e1a14"
+    }
+  },
+  {
+    "id": "construct-actor-aegameplayobjectlight",
+    "offset": 3093504,
+    "size": 48,
+    "rebuilt_symbol": "@construct_AEGameplayObjectLight@4",
+    "inputs": [
+      "src/campaign_actor_constructors.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_actor_constructors.obj src/campaign_actor_constructors.c",
+    "link_bindings": {
+      "@construct_object_base@4": {
+        "va": 281901360,
+        "basis": "Shared base constructor at RVA 0x3d7930 installs the base methods pointer and returns the receiver."
+      },
+      "_vtable_AEGameplayObjectLight": {
+        "va": 286192520,
+        "basis": "The named AEGameplayObjectLight reflection factory at RVA 0x2f3590 supplies placement callback RVA 0x2f3550, which installs this identical methods table at RVA 0x2f3588."
+      }
+    },
+    "identification": "Stock AEGameplayObjectLight constructor at RVA 0x2f3400. Its complete default-analysis extent agrees with the C contribution. It calls the shared base constructor, initializes four actor fields and installs the same vtable as the class's independently registered placement callback.",
+    "match": {
+      "bytes_sha256": "fc46c58664d060f7c9061c84618c103417eb71bc151c9c2cda2c5f5277b6b486",
+      "inputs_sha256": "7943bbc95e6c0e83d7e7d17a59842b74c2abd28ddeae4ae7caec11512bd8da1d"
     }
   },
   {
@@ -1120,6 +1224,32 @@
     }
   },
   {
+    "id": "construct-actor-aehackinggameplay",
+    "offset": 3104464,
+    "size": 48,
+    "rebuilt_symbol": "@construct_AEHackingGameplay@4",
+    "inputs": [
+      "src/campaign_actor_constructors.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_actor_constructors.obj src/campaign_actor_constructors.c",
+    "link_bindings": {
+      "@construct_object_base@4": {
+        "va": 281901360,
+        "basis": "Shared base constructor at RVA 0x3d7930 installs the base methods pointer and returns the receiver."
+      },
+      "_vtable_AEHackingGameplay": {
+        "va": 286193328,
+        "basis": "The named AEHackingGameplay reflection factory at RVA 0x2f60c0 supplies placement callback RVA 0x2f6080, which installs this identical methods table at RVA 0x2f60b8."
+      }
+    },
+    "identification": "Stock AEHackingGameplay constructor at RVA 0x2f5ed0. Its complete default-analysis extent agrees with the C contribution. It calls the shared base constructor, initializes four actor fields and installs the same vtable as the class's independently registered placement callback.",
+    "match": {
+      "bytes_sha256": "4736c90a3d23901b492c41c029e80aced71910b8b8f2093d9cceb13b61b2faad",
+      "inputs_sha256": "9b8f1e3ca96b5208bbc193479e1446c23f9632dce4e447eeeaff68e942e81604"
+    }
+  },
+  {
     "id": "delete-aehackinggameplay",
     "offset": 3104512,
     "size": 33,
@@ -1282,6 +1412,32 @@
     "match": {
       "bytes_sha256": "c84b111c2f3798912404d0028f890158d138de6975d0a587f94e0bb65cf84cdb",
       "inputs_sha256": "f1f188badd496ae3123290db61861266046bd166c2db9e66eaefe59e39a484a5"
+    }
+  },
+  {
+    "id": "construct-actor-aeinventoryitem",
+    "offset": 3105472,
+    "size": 48,
+    "rebuilt_symbol": "@construct_AEInventoryItem@4",
+    "inputs": [
+      "src/campaign_actor_constructors.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_actor_constructors.obj src/campaign_actor_constructors.c",
+    "link_bindings": {
+      "@construct_object_base@4": {
+        "va": 281901360,
+        "basis": "Shared base constructor at RVA 0x3d7930 installs the base methods pointer and returns the receiver."
+      },
+      "_vtable_AEInventoryItem": {
+        "va": 286194088,
+        "basis": "The named AEInventoryItem reflection factory at RVA 0x2f6370 supplies placement callback RVA 0x2f6330, which installs this identical methods table at RVA 0x2f6368."
+      }
+    },
+    "identification": "Stock AEInventoryItem constructor at RVA 0x2f62c0. Its complete default-analysis extent agrees with the C contribution. It calls the shared base constructor, initializes four actor fields and installs the same vtable as the class's independently registered placement callback.",
+    "match": {
+      "bytes_sha256": "6d99a69725b88cfcf9592a153f8c56a9a73a7c0155b7ea21048cf094445d31f3",
+      "inputs_sha256": "44e7a65b8b10d22b4d150a4bde73e2995370d90a2891ef61e6b045139b371f88"
     }
   },
   {
@@ -1819,6 +1975,32 @@
     }
   },
   {
+    "id": "construct-actor-aesecondaryammo",
+    "offset": 3111952,
+    "size": 48,
+    "rebuilt_symbol": "@construct_AESecondaryAmmo@4",
+    "inputs": [
+      "src/campaign_actor_constructors.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_actor_constructors.obj src/campaign_actor_constructors.c",
+    "link_bindings": {
+      "@construct_object_base@4": {
+        "va": 281901360,
+        "basis": "Shared base constructor at RVA 0x3d7930 installs the base methods pointer and returns the receiver."
+      },
+      "_vtable_AESecondaryAmmo": {
+        "va": 286194904,
+        "basis": "The named AESecondaryAmmo reflection factory at RVA 0x2f7f30 supplies placement callback RVA 0x2f7e40, which installs this identical methods table at RVA 0x2f7e78."
+      }
+    },
+    "identification": "Stock AESecondaryAmmo constructor at RVA 0x2f7c10. Its complete default-analysis extent agrees with the C contribution. It calls the shared base constructor, initializes four actor fields and installs the same vtable as the class's independently registered placement callback.",
+    "match": {
+      "bytes_sha256": "56f5229cc4ae6e06c427f161460686126f7fc52e657892b8f70434966c576f12",
+      "inputs_sha256": "fc3bd04adafc74fb4342f9095e27fc839ea41d7a758efb196e6dba680c8056ff"
+    }
+  },
+  {
     "id": "delete-aesecondaryammo",
     "offset": 3112000,
     "size": 46,
@@ -1879,6 +2061,58 @@
     }
   },
   {
+    "id": "construct-actor-aeweapon",
+    "offset": 3112224,
+    "size": 48,
+    "rebuilt_symbol": "@construct_AEWeapon@4",
+    "inputs": [
+      "src/campaign_actor_constructors.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_actor_constructors.obj src/campaign_actor_constructors.c",
+    "link_bindings": {
+      "@construct_object_base@4": {
+        "va": 281901360,
+        "basis": "Shared base constructor at RVA 0x3d7930 installs the base methods pointer and returns the receiver."
+      },
+      "_vtable_AEWeapon": {
+        "va": 286195632,
+        "basis": "The named AEWeapon reflection factory at RVA 0x2fa010 supplies placement callback RVA 0x2f9f50, which installs this identical methods table at RVA 0x2f9f88."
+      }
+    },
+    "identification": "Stock AEWeapon constructor at RVA 0x2f7d20. Its complete default-analysis extent agrees with the C contribution. It calls the shared base constructor, initializes four actor fields and installs the same vtable as the class's independently registered placement callback.",
+    "match": {
+      "bytes_sha256": "3dfa0f95cc38e091330e59b0bf3ee326fde8dc2b20b808a5960daf7d6a547bbd",
+      "inputs_sha256": "1f58f0e9ff6f33f100d86ce96209304fed23d031b5a755a96e1419a8a775fdbd"
+    }
+  },
+  {
+    "id": "construct-actor-aetwohandedweapon",
+    "offset": 3112304,
+    "size": 48,
+    "rebuilt_symbol": "@construct_AETwoHandedWeapon@4",
+    "inputs": [
+      "src/campaign_actor_constructors.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_actor_constructors.obj src/campaign_actor_constructors.c",
+    "link_bindings": {
+      "@construct_object_base@4": {
+        "va": 281901360,
+        "basis": "Shared base constructor at RVA 0x3d7930 installs the base methods pointer and returns the receiver."
+      },
+      "_vtable_AETwoHandedWeapon": {
+        "va": 286196400,
+        "basis": "The named AETwoHandedWeapon reflection factory at RVA 0x2fa0f0 supplies placement callback RVA 0x2f9fd0, which installs this identical methods table at RVA 0x2fa008."
+      }
+    },
+    "identification": "Stock AETwoHandedWeapon constructor at RVA 0x2f7d70. Its complete default-analysis extent agrees with the C contribution. It calls the shared base constructor, initializes four actor fields and installs the same vtable as the class's independently registered placement callback.",
+    "match": {
+      "bytes_sha256": "8757d9b4a648e4476c25631d360d794fdb545d1f4e6e2eac7e5ae496f61f9d7a",
+      "inputs_sha256": "dfbc2d157217c210d5f992085397c4a16d66baea41ba64fdc75dc46bf6eb8f4c"
+    }
+  },
+  {
     "id": "delete-aetwohandedweapon",
     "offset": 3112352,
     "size": 46,
@@ -1910,6 +2144,32 @@
     "match": {
       "bytes_sha256": "01271dc499921300e4e0b5a0d9f47ac6922b01cb17f9e4c843e799443115ff82",
       "inputs_sha256": "71d925ee42e01ab324443d08331cc981f3df6d05ff0cf6b002805be0d13a185a"
+    }
+  },
+  {
+    "id": "construct-actor-aemaingun",
+    "offset": 3112400,
+    "size": 48,
+    "rebuilt_symbol": "@construct_AEMainGun@4",
+    "inputs": [
+      "src/campaign_actor_constructors.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_actor_constructors.obj src/campaign_actor_constructors.c",
+    "link_bindings": {
+      "@construct_object_base@4": {
+        "va": 281901360,
+        "basis": "Shared base constructor at RVA 0x3d7930 installs the base methods pointer and returns the receiver."
+      },
+      "_vtable_AEMainGun": {
+        "va": 286197168,
+        "basis": "The named AEMainGun reflection factory at RVA 0x2f7ec0 supplies placement callback RVA 0x2f7e80, which installs this identical methods table at RVA 0x2f7eb8."
+      }
+    },
+    "identification": "Stock AEMainGun constructor at RVA 0x2f7dd0. Its complete default-analysis extent agrees with the C contribution. It calls the shared base constructor, initializes four actor fields and installs the same vtable as the class's independently registered placement callback.",
+    "match": {
+      "bytes_sha256": "2522a74fdcfde2e6fbea2007885361573cd7fd0e7c98e0b91551bc07525b1f41",
+      "inputs_sha256": "f596dbf5cf54489f6fa3dc60c8240e4856ac2f6bda3be55dbdd6093f7e32c4ae"
     }
   },
   {
@@ -2386,6 +2646,32 @@
     }
   },
   {
+    "id": "construct-actor-aeonehandedweapon",
+    "offset": 3120880,
+    "size": 48,
+    "rebuilt_symbol": "@construct_AEOneHandedWeapon@4",
+    "inputs": [
+      "src/campaign_actor_constructors.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_actor_constructors.obj src/campaign_actor_constructors.c",
+    "link_bindings": {
+      "@construct_object_base@4": {
+        "va": 281901360,
+        "basis": "Shared base constructor at RVA 0x3d7930 installs the base methods pointer and returns the receiver."
+      },
+      "_vtable_AEOneHandedWeapon": {
+        "va": 286198000,
+        "basis": "The named AEOneHandedWeapon reflection factory at RVA 0x2fa080 supplies placement callback RVA 0x2f9f90, which installs this identical methods table at RVA 0x2f9fc8."
+      }
+    },
+    "identification": "Stock AEOneHandedWeapon constructor at RVA 0x2f9ef0. Its complete default-analysis extent agrees with the C contribution. It calls the shared base constructor, initializes four actor fields and installs the same vtable as the class's independently registered placement callback.",
+    "match": {
+      "bytes_sha256": "0aa6641ea0688382cadbf0b18db7dfe86eaf303c5845396a58c4f3581f6e60f9",
+      "inputs_sha256": "68f820eb7545810ca083c3a8088e932a2c69054d6a3c0a94dfdae6f4690ae327"
+    }
+  },
+  {
     "id": "delete-aeonehandedweapon",
     "offset": 3120928,
     "size": 46,
@@ -2837,6 +3123,32 @@
     }
   },
   {
+    "id": "construct-actor-aemachinery",
+    "offset": 3122720,
+    "size": 48,
+    "rebuilt_symbol": "@construct_AEMachinery@4",
+    "inputs": [
+      "src/campaign_actor_constructors.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_actor_constructors.obj src/campaign_actor_constructors.c",
+    "link_bindings": {
+      "@construct_object_base@4": {
+        "va": 281901360,
+        "basis": "Shared base constructor at RVA 0x3d7930 installs the base methods pointer and returns the receiver."
+      },
+      "_vtable_AEMachinery": {
+        "va": 286198856,
+        "basis": "The named AEMachinery reflection factory at RVA 0x2fa6c0 supplies placement callback RVA 0x2fa680, which installs this identical methods table at RVA 0x2fa6b8."
+      }
+    },
+    "identification": "Stock AEMachinery constructor at RVA 0x2fa620. Its complete default-analysis extent agrees with the C contribution. It calls the shared base constructor, initializes four actor fields and installs the same vtable as the class's independently registered placement callback.",
+    "match": {
+      "bytes_sha256": "1a76cf95e9a54c440631c1b46ca0ff7b7af37eaa259acb83871fe9db582e0f0c",
+      "inputs_sha256": "5cd09b8b08925fb40e32831a2b5712fa907de352a518fe3000ef048c8161e8e5"
+    }
+  },
+  {
     "id": "delete-aemachinery",
     "offset": 3122768,
     "size": 46,
@@ -3064,6 +3376,32 @@
     }
   },
   {
+    "id": "construct-actor-aehandgun",
+    "offset": 3125520,
+    "size": 48,
+    "rebuilt_symbol": "@construct_AEHandGun@4",
+    "inputs": [
+      "src/campaign_actor_constructors.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_actor_constructors.obj src/campaign_actor_constructors.c",
+    "link_bindings": {
+      "@construct_object_base@4": {
+        "va": 281901360,
+        "basis": "Shared base constructor at RVA 0x3d7930 installs the base methods pointer and returns the receiver."
+      },
+      "_vtable_AEHandGun": {
+        "va": 286199648,
+        "basis": "The named AEHandGun reflection factory at RVA 0x2fb1b0 supplies placement callback RVA 0x2fb170, which installs this identical methods table at RVA 0x2fb1a8."
+      }
+    },
+    "identification": "Stock AEHandGun constructor at RVA 0x2fb110. Its complete default-analysis extent agrees with the C contribution. It calls the shared base constructor, initializes four actor fields and installs the same vtable as the class's independently registered placement callback.",
+    "match": {
+      "bytes_sha256": "4ce69e548652bb67bc830d34891f5f69f1c6ffa1fdc0ac4f14b111e4f1633978",
+      "inputs_sha256": "ac5d1b2ee7c5e2538f0fcbb0e0f375db7e1779e6b1c3084b0167d2195ca5fc16"
+    }
+  },
+  {
     "id": "delete-aehandgun",
     "offset": 3125568,
     "size": 46,
@@ -3234,6 +3572,32 @@
     "match": {
       "bytes_sha256": "e02b242bea89b598b53ce7b4c79676eee630da164f90755d2d03d61819c3d17c",
       "inputs_sha256": "fa60188c30e292bf7ce6f737c18f9d595c487c8d1fac4eadcbbc35a0c00b085d"
+    }
+  },
+  {
+    "id": "construct-actor-aepowerbox",
+    "offset": 3126416,
+    "size": 48,
+    "rebuilt_symbol": "@construct_AEPowerBox@4",
+    "inputs": [
+      "src/campaign_actor_constructors.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_actor_constructors.obj src/campaign_actor_constructors.c",
+    "link_bindings": {
+      "@construct_object_base@4": {
+        "va": 281901360,
+        "basis": "Shared base constructor at RVA 0x3d7930 installs the base methods pointer and returns the receiver."
+      },
+      "_vtable_AEPowerBox": {
+        "va": 286200432,
+        "basis": "The named AEPowerBox reflection factory at RVA 0x2fb540 supplies placement callback RVA 0x2fb500, which installs this identical methods table at RVA 0x2fb538."
+      }
+    },
+    "identification": "Stock AEPowerBox constructor at RVA 0x2fb490. Its complete default-analysis extent agrees with the C contribution. It calls the shared base constructor, initializes four actor fields and installs the same vtable as the class's independently registered placement callback.",
+    "match": {
+      "bytes_sha256": "a12532f7b90e9e1c9177ce1a9dce575e8a5e0e78623495326e5d60e41222c25e",
+      "inputs_sha256": "6d3a20953604a91a9139c56b61e4213390530d1a44310f8835a366e9aec19402"
     }
   },
   {
@@ -3618,6 +3982,58 @@
     }
   },
   {
+    "id": "construct-actor-aeweaponattachment",
+    "offset": 3134720,
+    "size": 48,
+    "rebuilt_symbol": "@construct_AEWeaponAttachment@4",
+    "inputs": [
+      "src/campaign_actor_constructors.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_actor_constructors.obj src/campaign_actor_constructors.c",
+    "link_bindings": {
+      "@construct_object_base@4": {
+        "va": 281901360,
+        "basis": "Shared base constructor at RVA 0x3d7930 installs the base methods pointer and returns the receiver."
+      },
+      "_vtable_AEWeaponAttachment": {
+        "va": 286201280,
+        "basis": "The named AEWeaponAttachment reflection factory at RVA 0x2fd9d0 supplies placement callback RVA 0x2fd810, which installs this identical methods table at RVA 0x2fd848."
+      }
+    },
+    "identification": "Stock AEWeaponAttachment constructor at RVA 0x2fd500. Its complete default-analysis extent agrees with the C contribution. It calls the shared base constructor, initializes four actor fields and installs the same vtable as the class's independently registered placement callback.",
+    "match": {
+      "bytes_sha256": "7b3631b703cd13281c2d185cbf8bdb1b73d2e568f056880dda4917f45713b3b6",
+      "inputs_sha256": "c80259f837643f981e76e6adbd7b4871a5729a417fa315d83b861deef518a26b"
+    }
+  },
+  {
+    "id": "construct-actor-aeforegripattach",
+    "offset": 3134768,
+    "size": 48,
+    "rebuilt_symbol": "@construct_AEForegripAttach@4",
+    "inputs": [
+      "src/campaign_actor_constructors.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_actor_constructors.obj src/campaign_actor_constructors.c",
+    "link_bindings": {
+      "@construct_object_base@4": {
+        "va": 281901360,
+        "basis": "Shared base constructor at RVA 0x3d7930 installs the base methods pointer and returns the receiver."
+      },
+      "_vtable_AEForegripAttach": {
+        "va": 286202016,
+        "basis": "The named AEForegripAttach reflection factory at RVA 0x2fdb90 supplies placement callback RVA 0x2fd850, which installs this identical methods table at RVA 0x2fd888."
+      }
+    },
+    "identification": "Stock AEForegripAttach constructor at RVA 0x2fd530. Its complete default-analysis extent agrees with the C contribution. It calls the shared base constructor, initializes four actor fields and installs the same vtable as the class's independently registered placement callback.",
+    "match": {
+      "bytes_sha256": "6aa7a1c9c32820f59e9ac12c0f1ed4ea890afb43daef6fe66cc3ec6215356170",
+      "inputs_sha256": "a04800bc710a18ab12cd360934526f6661070e069e672da02cdefc974b5515f7"
+    }
+  },
+  {
     "id": "delete-aeforegripattach",
     "offset": 3134816,
     "size": 46,
@@ -3649,6 +4065,32 @@
     "match": {
       "bytes_sha256": "cad72ff996472ef170bf72f1075d86cdfca6473673c41d9607a3989b8ad24d46",
       "inputs_sha256": "d0ffc46229a19af5af3b783006b7fc1447fc5c1372db7e13d3244274821e86c8"
+    }
+  },
+  {
+    "id": "construct-actor-aelauncherattach",
+    "offset": 3134864,
+    "size": 48,
+    "rebuilt_symbol": "@construct_AELauncherAttach@4",
+    "inputs": [
+      "src/campaign_actor_constructors.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_actor_constructors.obj src/campaign_actor_constructors.c",
+    "link_bindings": {
+      "@construct_object_base@4": {
+        "va": 281901360,
+        "basis": "Shared base constructor at RVA 0x3d7930 installs the base methods pointer and returns the receiver."
+      },
+      "_vtable_AELauncherAttach": {
+        "va": 286202752,
+        "basis": "The named AELauncherAttach reflection factory at RVA 0x2fdc70 supplies placement callback RVA 0x2fd890, which installs this identical methods table at RVA 0x2fd8c8."
+      }
+    },
+    "identification": "Stock AELauncherAttach constructor at RVA 0x2fd590. Its complete default-analysis extent agrees with the C contribution. It calls the shared base constructor, initializes four actor fields and installs the same vtable as the class's independently registered placement callback.",
+    "match": {
+      "bytes_sha256": "94df63195200af98b906d5eed761073dfc7eedd950c2c8d42abe7e4f6414e807",
+      "inputs_sha256": "93f355f12b94c26a6dfb833c826a6361d7ef0b73f70300ff0d0a15298c1b4331"
     }
   },
   {
@@ -3712,6 +4154,58 @@
     }
   },
   {
+    "id": "construct-actor-aescopeattachment",
+    "offset": 3135168,
+    "size": 48,
+    "rebuilt_symbol": "@construct_AEScopeAttachment@4",
+    "inputs": [
+      "src/campaign_actor_constructors.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_actor_constructors.obj src/campaign_actor_constructors.c",
+    "link_bindings": {
+      "@construct_object_base@4": {
+        "va": 281901360,
+        "basis": "Shared base constructor at RVA 0x3d7930 installs the base methods pointer and returns the receiver."
+      },
+      "_vtable_AEScopeAttachment": {
+        "va": 286203488,
+        "basis": "The named AEScopeAttachment reflection factory at RVA 0x2fda40 supplies placement callback RVA 0x2fd8d0, which installs this identical methods table at RVA 0x2fd908."
+      }
+    },
+    "identification": "Stock AEScopeAttachment constructor at RVA 0x2fd6c0. Its complete default-analysis extent agrees with the C contribution. It calls the shared base constructor, initializes four actor fields and installs the same vtable as the class's independently registered placement callback.",
+    "match": {
+      "bytes_sha256": "7107d0207c3ebe37fa8855bd2feaec88a8abb76aef4c324a154803016da809a3",
+      "inputs_sha256": "46fe3d6440549feacf1ab61b174f5c92a80fba3c2ce504961fd602df4ce3759f"
+    }
+  },
+  {
+    "id": "construct-actor-aereflexsightattach",
+    "offset": 3135216,
+    "size": 48,
+    "rebuilt_symbol": "@construct_AEReflexSightAttach@4",
+    "inputs": [
+      "src/campaign_actor_constructors.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_actor_constructors.obj src/campaign_actor_constructors.c",
+    "link_bindings": {
+      "@construct_object_base@4": {
+        "va": 281901360,
+        "basis": "Shared base constructor at RVA 0x3d7930 installs the base methods pointer and returns the receiver."
+      },
+      "_vtable_AEReflexSightAttach": {
+        "va": 286204232,
+        "basis": "The named AEReflexSightAttach reflection factory at RVA 0x2fdab0 supplies placement callback RVA 0x2fd910, which installs this identical methods table at RVA 0x2fd948."
+      }
+    },
+    "identification": "Stock AEReflexSightAttach constructor at RVA 0x2fd6f0. Its complete default-analysis extent agrees with the C contribution. It calls the shared base constructor, initializes four actor fields and installs the same vtable as the class's independently registered placement callback.",
+    "match": {
+      "bytes_sha256": "7efbc671121151f8d5c3bba5513f5829d787c392e12d314d4f2a6df8023683f1",
+      "inputs_sha256": "5553f41973f2dccbb8b694f12cd50f562d351938534cd83fefbdbceddf87688b"
+    }
+  },
+  {
     "id": "delete-aereflexsightattach",
     "offset": 3135264,
     "size": 46,
@@ -3746,6 +4240,32 @@
     }
   },
   {
+    "id": "construct-actor-aesniperattach",
+    "offset": 3135312,
+    "size": 48,
+    "rebuilt_symbol": "@construct_AESniperAttach@4",
+    "inputs": [
+      "src/campaign_actor_constructors.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_actor_constructors.obj src/campaign_actor_constructors.c",
+    "link_bindings": {
+      "@construct_object_base@4": {
+        "va": 281901360,
+        "basis": "Shared base constructor at RVA 0x3d7930 installs the base methods pointer and returns the receiver."
+      },
+      "_vtable_AESniperAttach": {
+        "va": 286204976,
+        "basis": "The named AESniperAttach reflection factory at RVA 0x2fdb20 supplies placement callback RVA 0x2fd950, which installs this identical methods table at RVA 0x2fd988."
+      }
+    },
+    "identification": "Stock AESniperAttach constructor at RVA 0x2fd750. Its complete default-analysis extent agrees with the C contribution. It calls the shared base constructor, initializes four actor fields and installs the same vtable as the class's independently registered placement callback.",
+    "match": {
+      "bytes_sha256": "5f8fd3eee75eff5b9e9f044d209e1d23cde167a94692e033017ee80749af9fa8",
+      "inputs_sha256": "1922391fe93a87bf6c9f52655f8138c3da3ce0cd28026eada81f11d7b8d41b0d"
+    }
+  },
+  {
     "id": "delete-aesniperattach",
     "offset": 3135360,
     "size": 46,
@@ -3777,6 +4297,32 @@
     "match": {
       "bytes_sha256": "01a6a94228732e61d4d649f791e64d77a414f2b178237a094908e716e1b14db1",
       "inputs_sha256": "6d5d19f5e2737ee32af2bb65c332cb7a3575c92d554446633fa2619f3ca45830"
+    }
+  },
+  {
+    "id": "construct-actor-aeshotgunattach",
+    "offset": 3135408,
+    "size": 48,
+    "rebuilt_symbol": "@construct_AEShotgunAttach@4",
+    "inputs": [
+      "src/campaign_actor_constructors.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_actor_constructors.obj src/campaign_actor_constructors.c",
+    "link_bindings": {
+      "@construct_object_base@4": {
+        "va": 281901360,
+        "basis": "Shared base constructor at RVA 0x3d7930 installs the base methods pointer and returns the receiver."
+      },
+      "_vtable_AEShotgunAttach": {
+        "va": 286205720,
+        "basis": "The named AEShotgunAttach reflection factory at RVA 0x2fdc00 supplies placement callback RVA 0x2fd990, which installs this identical methods table at RVA 0x2fd9c8."
+      }
+    },
+    "identification": "Stock AEShotgunAttach constructor at RVA 0x2fd7b0. Its complete default-analysis extent agrees with the C contribution. It calls the shared base constructor, initializes four actor fields and installs the same vtable as the class's independently registered placement callback.",
+    "match": {
+      "bytes_sha256": "d5d86ec84744049ae1c94812454d166182ebebed0f4be3b9130bb922e53f5363",
+      "inputs_sha256": "e02447d92153e94547f9d3c7eeab9ad0a2637c3b2fddb79f28da153bfdb39820"
     }
   },
   {
@@ -4872,6 +5418,32 @@
     "match": {
       "bytes_sha256": "4d2490fc9c6f7ba1281a6b33c3c5aa5adcda50aa253fd0662bfa21ee479d8ec5",
       "inputs_sha256": "b3076f15973590a57f307a0da8a6bdf79bd09b0262e545e69855eaa774a78e7b"
+    }
+  },
+  {
+    "id": "construct-actor-aegoggle",
+    "offset": 3140288,
+    "size": 48,
+    "rebuilt_symbol": "@construct_AEGoggle@4",
+    "inputs": [
+      "src/campaign_actor_constructors.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_actor_constructors.obj src/campaign_actor_constructors.c",
+    "link_bindings": {
+      "@construct_object_base@4": {
+        "va": 281901360,
+        "basis": "Shared base constructor at RVA 0x3d7930 installs the base methods pointer and returns the receiver."
+      },
+      "_vtable_AEGoggle": {
+        "va": 286206712,
+        "basis": "The named AEGoggle reflection factory at RVA 0x2feb70 supplies placement callback RVA 0x2feb30, which installs this identical methods table at RVA 0x2feb68."
+      }
+    },
+    "identification": "Stock AEGoggle constructor at RVA 0x2feac0. Its complete default-analysis extent agrees with the C contribution. It calls the shared base constructor, initializes four actor fields and installs the same vtable as the class's independently registered placement callback.",
+    "match": {
+      "bytes_sha256": "2fccaa78b5d44a0e97a5fd6e0784e2b9854acb4a36506dc45fc8d1e74c5bbfc9",
+      "inputs_sha256": "2f546ac16945bbeecbfaea2032412eb6419b6e763d349ad8f8244f14fd6e99f6"
     }
   },
   {

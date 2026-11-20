@@ -27,6 +27,32 @@
     }
   },
   {
+    "id": "construct-actor-astaticmeshactor",
+    "offset": 803200,
+    "size": 48,
+    "rebuilt_symbol": "@construct_AStaticMeshActor@4",
+    "inputs": [
+      "src/campaign_actor_constructors.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_actor_constructors.obj src/campaign_actor_constructors.c",
+    "link_bindings": {
+      "@construct_object_base@4": {
+        "va": 281901360,
+        "basis": "Shared base constructor at RVA 0x3d7930 installs the base methods pointer and returns the receiver."
+      },
+      "_vtable_AStaticMeshActor": {
+        "va": 286057384,
+        "basis": "The named AStaticMeshActor reflection factory at RVA 0xc4d00 supplies placement callback RVA 0xc4a70, which installs this identical methods table at RVA 0xc4aa8."
+      }
+    },
+    "identification": "Stock AStaticMeshActor constructor at RVA 0xc4180. Its complete default-analysis extent agrees with the C contribution. It calls the shared base constructor, initializes four actor fields and installs the same vtable as the class's independently registered placement callback.",
+    "match": {
+      "bytes_sha256": "e516a5014f9410112829f2a1858c047615b03a0275b94e0025bf26ba4031c1ab",
+      "inputs_sha256": "7330a143b337265ef99fde2e484b11e0fdcc70d4b4cf987a7ecc305131553bba"
+    }
+  },
+  {
     "id": "delete-astaticmeshactor",
     "offset": 803248,
     "size": 46,
@@ -58,6 +84,32 @@
     "match": {
       "bytes_sha256": "9d91fddebb33e79ffd327139d5460a433f4a50326bb1a962a6864564b1623012",
       "inputs_sha256": "870e70b039bce1952ce129704e41b61f69d1b0ed71be1e1b9b6c24185eca15c5"
+    }
+  },
+  {
+    "id": "construct-actor-acollisionmeshactor",
+    "offset": 803344,
+    "size": 48,
+    "rebuilt_symbol": "@construct_ACollisionMeshActor@4",
+    "inputs": [
+      "src/campaign_actor_constructors.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_actor_constructors.obj src/campaign_actor_constructors.c",
+    "link_bindings": {
+      "@construct_object_base@4": {
+        "va": 281901360,
+        "basis": "Shared base constructor at RVA 0x3d7930 installs the base methods pointer and returns the receiver."
+      },
+      "_vtable_ACollisionMeshActor": {
+        "va": 286058048,
+        "basis": "The named ACollisionMeshActor reflection factory at RVA 0xc4d70 supplies placement callback RVA 0xc4ab0, which installs this identical methods table at RVA 0xc4ae8."
+      }
+    },
+    "identification": "Stock ACollisionMeshActor constructor at RVA 0xc4210. Its complete default-analysis extent agrees with the C contribution. It calls the shared base constructor, initializes four actor fields and installs the same vtable as the class's independently registered placement callback.",
+    "match": {
+      "bytes_sha256": "357476a8b3d7cbecb89d1644f76d022485fecc4041667ae7f31d652a83a2364c",
+      "inputs_sha256": "37f9be3969977842cb5d3a206285d8575b2fd1699d61f3bb46d54643c328014f"
     }
   },
   {
@@ -504,6 +556,32 @@
     "match": {
       "bytes_sha256": "14b6987b5eb7f1cd9addd6cb3d10356f8277fd1c02a2e8df1d688ace1294db54",
       "inputs_sha256": "c60da0908009ad67eb5bc6e28a87dbe324c428cdc7bff771ecf33a93506e887d"
+    }
+  },
+  {
+    "id": "construct-actor-anavmeshactor",
+    "offset": 815280,
+    "size": 48,
+    "rebuilt_symbol": "@construct_ANavMeshActor@4",
+    "inputs": [
+      "src/campaign_actor_constructors.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_actor_constructors.obj src/campaign_actor_constructors.c",
+    "link_bindings": {
+      "@construct_object_base@4": {
+        "va": 281901360,
+        "basis": "Shared base constructor at RVA 0x3d7930 installs the base methods pointer and returns the receiver."
+      },
+      "_vtable_ANavMeshActor": {
+        "va": 286060024,
+        "basis": "The named ANavMeshActor reflection factory at RVA 0xc7320 supplies placement callback RVA 0xc72b0, which installs this identical methods table at RVA 0xc72e8."
+      }
+    },
+    "identification": "Stock ANavMeshActor constructor at RVA 0xc70b0. Its complete default-analysis extent agrees with the C contribution. It calls the shared base constructor, initializes four actor fields and installs the same vtable as the class's independently registered placement callback.",
+    "match": {
+      "bytes_sha256": "059afac7fb1b5288f97c5324b78c1697f62991d38b3556900293f8af1ef0c946",
+      "inputs_sha256": "177298f9a53dae2a7fcaa71a80cf7bbbc40a60fb0713a1279b1a455aecaa37e6"
     }
   },
   {
