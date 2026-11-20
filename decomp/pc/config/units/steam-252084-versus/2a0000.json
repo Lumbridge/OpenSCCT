@@ -236,6 +236,114 @@
     }
   },
   {
+    "id": "ui-service-state-2a2d70",
+    "size": 3,
+    "offset": 2764144,
+    "inputs": [
+      "src/versus_ui_service_state.c"
+    ],
+    "rebuilt_symbol": "@pop_record@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_ui_service_state.obj src/versus_ui_service_state.c",
+    "identification": "Complete indexed Versus UI service routine at RVA 0x2a2d70. Pops one state record.",
+    "match": {
+      "bytes_sha256": "78231e8a13a855429077678683bc08ba2767d079ac6b4826e8405ad020b737d2",
+      "inputs_sha256": "635cd3afdb21bf0035be97070da596ccc7b989cdc88564406aec0785b9521791"
+    }
+  },
+  {
+    "id": "ui-service-state-2a2d80",
+    "size": 53,
+    "offset": 2764160,
+    "inputs": [
+      "src/versus_ui_service_state.c"
+    ],
+    "rebuilt_symbol": "@prepare_record@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_ui_service_state.obj src/versus_ui_service_state.c",
+    "identification": "Complete indexed Versus UI service routine at RVA 0x2a2d80. Applies an input record and, when present, the current parent record.",
+    "match": {
+      "bytes_sha256": "3db825d62ac64495e8adcf845834544d40b3c8c732aecd9de84545f62a399752",
+      "inputs_sha256": "442af466ffc89cbb7537aa2811bfb15511496ea4727313c5130be58afea3fcc9"
+    }
+  },
+  {
+    "id": "ui-service-state-2a2dc0",
+    "size": 160,
+    "offset": 2764224,
+    "inputs": [
+      "src/versus_ui_service_state.c"
+    ],
+    "rebuilt_symbol": "@push_channel@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_ui_service_state.obj src/versus_ui_service_state.c",
+    "identification": "Complete indexed Versus UI service routine at RVA 0x2a2dc0. Saves state, scales the adjustment and advances the channel stack.",
+    "link_bindings": {
+      "_channel_scale": {
+        "va": 280956432,
+        "basis": "Shared read-only channel scale multiplied on push and divided on pop."
+      }
+    },
+    "match": {
+      "bytes_sha256": "fb17382bd7500a90e6d84176500e81aaa2c3dae4bf4b1802ea1fd96b973f42af",
+      "inputs_sha256": "4adf22d6842203f28e8987347eb694d5cbf6f107e820bd4237b7ff2bd49c4cba"
+    }
+  },
+  {
+    "id": "ui-service-state-2a2e60",
+    "size": 105,
+    "offset": 2764384,
+    "inputs": [
+      "src/versus_ui_service_state.c"
+    ],
+    "rebuilt_symbol": "@pop_channel@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_ui_service_state.obj src/versus_ui_service_state.c",
+    "identification": "Complete indexed Versus UI service routine at RVA 0x2a2e60. Restores the previous channel and reverses its adjustment scaling.",
+    "link_bindings": {
+      "_channel_scale": {
+        "va": 280956432,
+        "basis": "Shared read-only channel scale multiplied on push and divided on pop."
+      }
+    },
+    "match": {
+      "bytes_sha256": "7f1e076e651e6cabd5437bb05c0a9af2b955bc8d56326c8c2898c86669037c00",
+      "inputs_sha256": "1e7d98fcf1ac5e6939053eff35ad91b0aed140902de8b279045906cf0ad4e813"
+    }
+  },
+  {
+    "id": "ui-service-state-2a2ed0",
+    "size": 99,
+    "offset": 2764496,
+    "inputs": [
+      "src/versus_ui_service_state.c"
+    ],
+    "rebuilt_symbol": "@set_channel_state@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_ui_service_state.obj src/versus_ui_service_state.c",
+    "identification": "Complete indexed Versus UI service routine at RVA 0x2a2ed0. Tracks the old and new channel states and updates the active value on entry to state 1.",
+    "match": {
+      "bytes_sha256": "868780fa7f22e69a4780b68bf54bc32de89105d847c735f667c15d3062e7f61e",
+      "inputs_sha256": "02a64d6604907711607dbfe87aa4d7858d2e8ace9d6b3bdfd316b34d7b501b4b"
+    }
+  },
+  {
+    "id": "ui-service-state-2a3110",
+    "size": 39,
+    "offset": 2765072,
+    "inputs": [
+      "src/versus_ui_service_state.c"
+    ],
+    "rebuilt_symbol": "@push_record@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_ui_service_state.obj src/versus_ui_service_state.c",
+    "identification": "Complete indexed Versus UI service routine at RVA 0x2a3110. Copies three payload fields into the current state record and increases the depth.",
+    "match": {
+      "bytes_sha256": "ac0b91455609a09549178c9b0745514ec0b93bca2c1b6c75568dcc35d99941cd",
+      "inputs_sha256": "ab5b2e58374fd5aaf8657a5606a967877e3b322b7d65820b680c3561da406dc1"
+    }
+  },
+  {
     "id": "component-child-update-2a4980",
     "size": 43,
     "offset": 2771328,
