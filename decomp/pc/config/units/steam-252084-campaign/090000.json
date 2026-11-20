@@ -1,5 +1,21 @@
 [
   {
+    "id": "word-array-search-090be0",
+    "size": 59,
+    "offset": 592864,
+    "inputs": [
+      "src/campaign_word_array_search.c"
+    ],
+    "rebuilt_symbol": "@find_word_090be0@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_word_array_search.obj src/campaign_word_array_search.c",
+    "identification": "Indexed whole function. Scans four-byte elements, compares each to the supplied word, and updates the output index.",
+    "match": {
+      "bytes_sha256": "1810b7c3f669b5a0bbcae244161956000f339f1c763e88468201e3cf76131edb",
+      "inputs_sha256": "81a6d047ba1aa3ba318f990691a7d79837f6257a0043234716c922fd4c71f9ca"
+    }
+  },
+  {
     "id": "cast-uviewport",
     "offset": 592960,
     "size": 85,

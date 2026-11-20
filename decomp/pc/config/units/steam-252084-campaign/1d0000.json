@@ -3283,6 +3283,22 @@
     }
   },
   {
+    "id": "word-array-search-1dfb30",
+    "size": 59,
+    "offset": 1964848,
+    "inputs": [
+      "src/campaign_word_array_search.c"
+    ],
+    "rebuilt_symbol": "@find_word_1dfb30@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_word_array_search.obj src/campaign_word_array_search.c",
+    "identification": "Indexed whole function. Scans four-byte elements, compares each to the supplied word, and updates the output index.",
+    "match": {
+      "bytes_sha256": "1810b7c3f669b5a0bbcae244161956000f339f1c763e88468201e3cf76131edb",
+      "inputs_sha256": "5cdfc2e52f61f886356253e4cbf34abc341fd60039308c5419d7a5a863d0240d"
+    }
+  },
+  {
     "id": "array-resize-1dfc50",
     "size": 37,
     "offset": 1965136,

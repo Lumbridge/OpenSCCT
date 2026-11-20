@@ -416,6 +416,38 @@
     }
   },
   {
+    "id": "word-array-search-0d7480",
+    "size": 59,
+    "offset": 881792,
+    "inputs": [
+      "src/campaign_word_array_search.c"
+    ],
+    "rebuilt_symbol": "@find_word_0d7480@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_word_array_search.obj src/campaign_word_array_search.c",
+    "identification": "Indexed whole function. Scans four-byte elements, compares each to the supplied word, and updates the output index.",
+    "match": {
+      "bytes_sha256": "1810b7c3f669b5a0bbcae244161956000f339f1c763e88468201e3cf76131edb",
+      "inputs_sha256": "9f3126c0fbc9b740c22ed9fc855f5373888668a63ded4d395047c2528669655c"
+    }
+  },
+  {
+    "id": "animation-find-group",
+    "size": 59,
+    "offset": 881856,
+    "inputs": [
+      "src/campaign_sequence_groups.c"
+    ],
+    "rebuilt_symbol": "@find_group@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_sequence_groups.obj src/campaign_sequence_groups.c",
+    "identification": "Indexed whole function on the Campaign animation group membership call path. Searches the group name array and writes the position as it walks.",
+    "match": {
+      "bytes_sha256": "1810b7c3f669b5a0bbcae244161956000f339f1c763e88468201e3cf76131edb",
+      "inputs_sha256": "41915b9cac30fc0ed9f16aad248ffc2208c5a0bf173f0ae0a1c1ae19fa286637"
+    }
+  },
+  {
     "id": "append-fsarray-word-0d7750",
     "size": 38,
     "offset": 882512,
@@ -3595,6 +3627,28 @@
     "match": {
       "bytes_sha256": "aa03288325ac5b9699031f6620510d9287173511ffe8e3e677a69941c0ed637c",
       "inputs_sha256": "235db17dba19c5cf9507c3f40c385ba159322e0301f9debd2d9464771de548cb"
+    }
+  },
+  {
+    "id": "animation-has-sequence-group",
+    "size": 43,
+    "offset": 896352,
+    "inputs": [
+      "src/campaign_sequence_groups.c"
+    ],
+    "rebuilt_symbol": "@has_sequence_group@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_sequence_groups.obj src/campaign_sequence_groups.c",
+    "link_bindings": {
+      "@find_group@12": {
+        "va": 278754496,
+        "basis": "Stock operand for @find group@12."
+      }
+    },
+    "identification": "Indexed whole function on the Campaign animation group membership call path. Tests sequence group membership by calling the index search on the embedded group list.",
+    "match": {
+      "bytes_sha256": "54c05e6672e0d41dc79b1e191e406e3f335e9f6c85f749e115fca44bc0e9f835",
+      "inputs_sha256": "f34e44b280b5c027817507742465c24352a0d58a01dd9d3a2850af9586d9a98b"
     }
   },
   {
