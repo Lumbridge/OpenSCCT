@@ -460,6 +460,406 @@
     }
   },
   {
+    "id": "cleanup-empty-array-7b0e50",
+    "inputs": [
+      "src/campaign_static_empty_array.c",
+      "src/campaign_array_storage.h",
+      "src/campaign_array_resize_abi.h"
+    ],
+    "offset": 8064592,
+    "size": 104,
+    "rebuilt_symbol": "_cleanup_empty_array_7b0e50",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_empty_array.obj src/campaign_static_empty_array.c",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Engine heap performing zero-size resize."
+      },
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine heap used for both the zero-size resize and the release."
+      },
+      "_array_tag_7b78d8": {
+        "va": 285964504,
+        "basis": "Stock read-only UTF-16 FArray allocation label."
+      },
+      "@remove_range_007710@16": {
+        "va": 277903120,
+        "basis": "Complete array-remove function independently reproduced for the same build."
+      },
+      "_static_empty_array_90a9e4": {
+        "va": 287353316,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7a5fb0 passes callback RVA 0x7b0e50 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "532cc77aa7ab972f73ceb3243c37151e471581ae68475a12fb29c11836dac8b5",
+      "inputs_sha256": "18d5d2c2c216323d82b2ba839215ad6a8d58732736f86ad65240ddff08a2c5a0"
+    }
+  },
+  {
+    "id": "cleanup-empty-array-7b0ec0",
+    "inputs": [
+      "src/campaign_static_empty_array.c",
+      "src/campaign_array_storage.h",
+      "src/campaign_array_resize_abi.h"
+    ],
+    "offset": 8064704,
+    "size": 104,
+    "rebuilt_symbol": "_cleanup_empty_array_7b0ec0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_empty_array.obj src/campaign_static_empty_array.c",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Engine heap performing zero-size resize."
+      },
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine heap used for both the zero-size resize and the release."
+      },
+      "_array_tag_7b78d8": {
+        "va": 285964504,
+        "basis": "Stock read-only UTF-16 FArray allocation label."
+      },
+      "@remove_range_007710@16": {
+        "va": 277903120,
+        "basis": "Complete array-remove function independently reproduced for the same build."
+      },
+      "_static_empty_array_90a9f0": {
+        "va": 287353328,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7a5fc0 passes callback RVA 0x7b0ec0 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "da387013e408cebef8af794e68fc538555c4fa8c47a24ceb50fe38988f1d274b",
+      "inputs_sha256": "f132aef7964d25bb2552ebb6ef1490af504f074a903fa2f778ccd5174819bfc0"
+    }
+  },
+  {
+    "id": "cleanup-empty-array-7b0f30",
+    "inputs": [
+      "src/campaign_static_empty_array.c",
+      "src/campaign_array_storage.h",
+      "src/campaign_array_resize_abi.h"
+    ],
+    "offset": 8064816,
+    "size": 104,
+    "rebuilt_symbol": "_cleanup_empty_array_7b0f30",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_empty_array.obj src/campaign_static_empty_array.c",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Engine heap performing zero-size resize."
+      },
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine heap used for both the zero-size resize and the release."
+      },
+      "_array_tag_7b78d8": {
+        "va": 285964504,
+        "basis": "Stock read-only UTF-16 FArray allocation label."
+      },
+      "@remove_range_007710@16": {
+        "va": 277903120,
+        "basis": "Complete array-remove function independently reproduced for the same build."
+      },
+      "_static_empty_array_90a9fc": {
+        "va": 287353340,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7a5fd0 passes callback RVA 0x7b0f30 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "cf69186c5dd274422f646fd073f8ad2e53837cd20d14efed0bb43829b8fe7a42",
+      "inputs_sha256": "239288fd0a20ec47ed7a561153d15a63b2aa2dfbc66167c44173d3f3a12fb459"
+    }
+  },
+  {
+    "id": "cleanup-empty-array-7b0fa0",
+    "inputs": [
+      "src/campaign_static_empty_array.c",
+      "src/campaign_array_storage.h",
+      "src/campaign_array_resize_abi.h"
+    ],
+    "offset": 8064928,
+    "size": 104,
+    "rebuilt_symbol": "_cleanup_empty_array_7b0fa0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_empty_array.obj src/campaign_static_empty_array.c",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Engine heap performing zero-size resize."
+      },
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine heap used for both the zero-size resize and the release."
+      },
+      "_array_tag_7b78d8": {
+        "va": 285964504,
+        "basis": "Stock read-only UTF-16 FArray allocation label."
+      },
+      "@remove_range_007710@16": {
+        "va": 277903120,
+        "basis": "Complete array-remove function independently reproduced for the same build."
+      },
+      "_static_empty_array_90aa08": {
+        "va": 287353352,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7a5fe0 passes callback RVA 0x7b0fa0 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "d765227e630ce6ae71037792e38c3166e3fd3c3f57be68bdc8873964c7a0ae1a",
+      "inputs_sha256": "db0135c1557753e3e420230615136323bea5bebfbdc80f42ebd1993787adebfa"
+    }
+  },
+  {
+    "id": "cleanup-empty-array-7b1010",
+    "inputs": [
+      "src/campaign_static_empty_array.c",
+      "src/campaign_array_storage.h",
+      "src/campaign_array_resize_abi.h"
+    ],
+    "offset": 8065040,
+    "size": 104,
+    "rebuilt_symbol": "_cleanup_empty_array_7b1010",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_empty_array.obj src/campaign_static_empty_array.c",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Engine heap performing zero-size resize."
+      },
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine heap used for both the zero-size resize and the release."
+      },
+      "_array_tag_7b78d8": {
+        "va": 285964504,
+        "basis": "Stock read-only UTF-16 FArray allocation label."
+      },
+      "@remove_range_007710@16": {
+        "va": 277903120,
+        "basis": "Complete array-remove function independently reproduced for the same build."
+      },
+      "_static_empty_array_90aa14": {
+        "va": 287353364,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7a5ff0 passes callback RVA 0x7b1010 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "3155af7a89335ea8068c6a47715734c6b9832bf2ba2cc5d40c59bddc981ae759",
+      "inputs_sha256": "62edfc62d74cd14e0352c54c797c0d73a602569b61f80267e25f9d3c5d6c47bc"
+    }
+  },
+  {
+    "id": "cleanup-empty-array-7b1080",
+    "inputs": [
+      "src/campaign_static_empty_array.c",
+      "src/campaign_array_storage.h",
+      "src/campaign_array_resize_abi.h"
+    ],
+    "offset": 8065152,
+    "size": 104,
+    "rebuilt_symbol": "_cleanup_empty_array_7b1080",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_empty_array.obj src/campaign_static_empty_array.c",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Engine heap performing zero-size resize."
+      },
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine heap used for both the zero-size resize and the release."
+      },
+      "_array_tag_7b78d8": {
+        "va": 285964504,
+        "basis": "Stock read-only UTF-16 FArray allocation label."
+      },
+      "@remove_range_007710@16": {
+        "va": 277903120,
+        "basis": "Complete array-remove function independently reproduced for the same build."
+      },
+      "_static_empty_array_90aa20": {
+        "va": 287353376,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7a6000 passes callback RVA 0x7b1080 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "93854571e40081664f9975327badcacda2c7c24fd589ab0ca563e9a277bae8c4",
+      "inputs_sha256": "0130bfe0aab468a8dd6c23e7156071bbff16c30bcfc0b96e434a02f07fc67792"
+    }
+  },
+  {
+    "id": "cleanup-empty-array-7b10f0",
+    "inputs": [
+      "src/campaign_static_empty_array.c",
+      "src/campaign_array_storage.h",
+      "src/campaign_array_resize_abi.h"
+    ],
+    "offset": 8065264,
+    "size": 104,
+    "rebuilt_symbol": "_cleanup_empty_array_7b10f0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_empty_array.obj src/campaign_static_empty_array.c",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Engine heap performing zero-size resize."
+      },
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine heap used for both the zero-size resize and the release."
+      },
+      "_array_tag_7b78d8": {
+        "va": 285964504,
+        "basis": "Stock read-only UTF-16 FArray allocation label."
+      },
+      "@remove_range_007710@16": {
+        "va": 277903120,
+        "basis": "Complete array-remove function independently reproduced for the same build."
+      },
+      "_static_empty_array_90aa2c": {
+        "va": 287353388,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7a6010 passes callback RVA 0x7b10f0 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "4896a3d16af60f90a61da134e373d41b8cd8d10b9415448fad37ae670ecba56a",
+      "inputs_sha256": "de4cb714b50ba1d2b85ae9fab72d301af9fa854bc3f761a00b9a77fda18cf845"
+    }
+  },
+  {
+    "id": "cleanup-empty-array-7b1160",
+    "inputs": [
+      "src/campaign_static_empty_array.c",
+      "src/campaign_array_storage.h",
+      "src/campaign_array_resize_abi.h"
+    ],
+    "offset": 8065376,
+    "size": 104,
+    "rebuilt_symbol": "_cleanup_empty_array_7b1160",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_empty_array.obj src/campaign_static_empty_array.c",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Engine heap performing zero-size resize."
+      },
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine heap used for both the zero-size resize and the release."
+      },
+      "_array_tag_7b78d8": {
+        "va": 285964504,
+        "basis": "Stock read-only UTF-16 FArray allocation label."
+      },
+      "@remove_range_007710@16": {
+        "va": 277903120,
+        "basis": "Complete array-remove function independently reproduced for the same build."
+      },
+      "_static_empty_array_90aa38": {
+        "va": 287353400,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7a6020 passes callback RVA 0x7b1160 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "67726c8fc682da79171805c331fc7fae3fe471239c8c2c3de0ee5daa0d2f9ada",
+      "inputs_sha256": "3878bfe48601d77e3ab517652a2f8fa8d7cad4905ac72be917bf28e06ed73a59"
+    }
+  },
+  {
+    "id": "cleanup-empty-array-7b11d0",
+    "inputs": [
+      "src/campaign_static_empty_array.c",
+      "src/campaign_array_storage.h",
+      "src/campaign_array_resize_abi.h"
+    ],
+    "offset": 8065488,
+    "size": 104,
+    "rebuilt_symbol": "_cleanup_empty_array_7b11d0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_empty_array.obj src/campaign_static_empty_array.c",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Engine heap performing zero-size resize."
+      },
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine heap used for both the zero-size resize and the release."
+      },
+      "_array_tag_7b78d8": {
+        "va": 285964504,
+        "basis": "Stock read-only UTF-16 FArray allocation label."
+      },
+      "@remove_range_007710@16": {
+        "va": 277903120,
+        "basis": "Complete array-remove function independently reproduced for the same build."
+      },
+      "_static_empty_array_90aa44": {
+        "va": 287353412,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7a6030 passes callback RVA 0x7b11d0 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "2bdd9d009ad2b58cd5765c2196376c7eefd0b10774c9e7cd798b676a4d2b95f7",
+      "inputs_sha256": "9aeecf300d0e39e8a4bed9b9c8ad5b467b86c0f45a67dd1c9ffe3d56f0627cd2"
+    }
+  },
+  {
+    "id": "cleanup-empty-array-7b1240",
+    "inputs": [
+      "src/campaign_static_empty_array.c",
+      "src/campaign_array_storage.h",
+      "src/campaign_array_resize_abi.h"
+    ],
+    "offset": 8065600,
+    "size": 104,
+    "rebuilt_symbol": "_cleanup_empty_array_7b1240",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_empty_array.obj src/campaign_static_empty_array.c",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Engine heap performing zero-size resize."
+      },
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine heap used for both the zero-size resize and the release."
+      },
+      "_array_tag_7b78d8": {
+        "va": 285964504,
+        "basis": "Stock read-only UTF-16 FArray allocation label."
+      },
+      "@remove_range_007710@16": {
+        "va": 277903120,
+        "basis": "Complete array-remove function independently reproduced for the same build."
+      },
+      "_static_empty_array_90aa50": {
+        "va": 287353424,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7a6040 passes callback RVA 0x7b1240 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "756e674c08dd77b28d94f5116397cdbd52e6f22defdf795f1712b07cf91d3eb7",
+      "inputs_sha256": "9dd258fec4317df61d0d2f095a93dcfe4c63696e131a101923962eb36da1d769"
+    }
+  },
+  {
     "id": "empty-exit-r7b12b0",
     "size": 1,
     "offset": 8065712,
@@ -1067,6 +1467,166 @@
     "match": {
       "bytes_sha256": "ae3f4619b0413d70d3004b9131c3752153074e45725be13b9a148978895e359e",
       "inputs_sha256": "ac3f508824875a40571ade82a1dfef2f178acaecbcd4388250c9238eef46e02a"
+    }
+  },
+  {
+    "id": "cleanup-empty-array-7b17a0",
+    "inputs": [
+      "src/campaign_static_empty_array.c",
+      "src/campaign_array_storage.h",
+      "src/campaign_array_resize_abi.h"
+    ],
+    "offset": 8066976,
+    "size": 104,
+    "rebuilt_symbol": "_cleanup_empty_array_7b17a0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_empty_array.obj src/campaign_static_empty_array.c",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Engine heap performing zero-size resize."
+      },
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine heap used for both the zero-size resize and the release."
+      },
+      "_array_tag_7b78d8": {
+        "va": 285964504,
+        "basis": "Stock read-only UTF-16 FArray allocation label."
+      },
+      "@remove_range_007710@16": {
+        "va": 277903120,
+        "basis": "Complete array-remove function independently reproduced for the same build."
+      },
+      "_static_empty_array_92d614": {
+        "va": 287495700,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x2307d8 passes callback RVA 0x7b17a0 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "590781da130cc24661cea726bb275cf27ab2229bde103d8d778358b0b8353f93",
+      "inputs_sha256": "2114ed3668118f11b271dbba9d95e30a4f484565a655ba4ed6971863ba521d6f"
+    }
+  },
+  {
+    "id": "cleanup-empty-array-7b1810",
+    "inputs": [
+      "src/campaign_static_empty_array.c",
+      "src/campaign_array_storage.h",
+      "src/campaign_array_resize_abi.h"
+    ],
+    "offset": 8067088,
+    "size": 104,
+    "rebuilt_symbol": "_cleanup_empty_array_7b1810",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_empty_array.obj src/campaign_static_empty_array.c",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Engine heap performing zero-size resize."
+      },
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine heap used for both the zero-size resize and the release."
+      },
+      "_array_tag_7b78d8": {
+        "va": 285964504,
+        "basis": "Stock read-only UTF-16 FArray allocation label."
+      },
+      "@remove_range_007710@16": {
+        "va": 277903120,
+        "basis": "Complete array-remove function independently reproduced for the same build."
+      },
+      "_static_empty_array_92d620": {
+        "va": 287495712,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x230788 passes callback RVA 0x7b1810 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "254c54d1605b89be9806d3097f19461d62a0b71c7867b691c372dc1ff1192afc",
+      "inputs_sha256": "d549779c5c873c8b739f00451938a29c3613197a076fead3cc240f5e59ce0455"
+    }
+  },
+  {
+    "id": "cleanup-empty-array-7b1880",
+    "inputs": [
+      "src/campaign_static_empty_array.c",
+      "src/campaign_array_storage.h",
+      "src/campaign_array_resize_abi.h"
+    ],
+    "offset": 8067200,
+    "size": 104,
+    "rebuilt_symbol": "_cleanup_empty_array_7b1880",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_empty_array.obj src/campaign_static_empty_array.c",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Engine heap performing zero-size resize."
+      },
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine heap used for both the zero-size resize and the release."
+      },
+      "_array_tag_7b78d8": {
+        "va": 285964504,
+        "basis": "Stock read-only UTF-16 FArray allocation label."
+      },
+      "@remove_range_007710@16": {
+        "va": 277903120,
+        "basis": "Complete array-remove function independently reproduced for the same build."
+      },
+      "_static_empty_array_92d62c": {
+        "va": 287495724,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x230738 passes callback RVA 0x7b1880 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "48a26e9623cb8c48f4d9e562713f1b257084625b84174862dbb4f3f4f98b58c1",
+      "inputs_sha256": "c42fc7f1e337a4597cae2ca73f73de900e62914d8eaff6f62d75b3f196d7c03e"
+    }
+  },
+  {
+    "id": "cleanup-empty-array-7b18f0",
+    "inputs": [
+      "src/campaign_static_empty_array.c",
+      "src/campaign_array_storage.h",
+      "src/campaign_array_resize_abi.h"
+    ],
+    "offset": 8067312,
+    "size": 104,
+    "rebuilt_symbol": "_cleanup_empty_array_7b18f0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_empty_array.obj src/campaign_static_empty_array.c",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Engine heap performing zero-size resize."
+      },
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine heap used for both the zero-size resize and the release."
+      },
+      "_array_tag_7b78d8": {
+        "va": 285964504,
+        "basis": "Stock read-only UTF-16 FArray allocation label."
+      },
+      "@remove_range_007710@16": {
+        "va": 277903120,
+        "basis": "Complete array-remove function independently reproduced for the same build."
+      },
+      "_static_empty_array_92d638": {
+        "va": 287495736,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x2306e8 passes callback RVA 0x7b18f0 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "9f79f49c988e5904e23149e957802da1a9c43fac40ebf63db0de471d197d0bb2",
+      "inputs_sha256": "4853a9e3d70fd857ec7400a215bc7aa1727e88d204dbfa87ecbb926616f14ce7"
     }
   },
   {
@@ -2526,6 +3086,46 @@
     }
   },
   {
+    "id": "cleanup-empty-array-7b1f10",
+    "inputs": [
+      "src/campaign_static_empty_array.c",
+      "src/campaign_array_storage.h",
+      "src/campaign_array_resize_abi.h"
+    ],
+    "offset": 8068880,
+    "size": 104,
+    "rebuilt_symbol": "_cleanup_empty_array_7b1f10",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_empty_array.obj src/campaign_static_empty_array.c",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Engine heap performing zero-size resize."
+      },
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine heap used for both the zero-size resize and the release."
+      },
+      "_array_tag_7b78d8": {
+        "va": 285964504,
+        "basis": "Stock read-only UTF-16 FArray allocation label."
+      },
+      "@remove_range_007710@16": {
+        "va": 277903120,
+        "basis": "Complete array-remove function independently reproduced for the same build."
+      },
+      "_static_empty_array_92da60": {
+        "va": 287496800,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7a6950 passes callback RVA 0x7b1f10 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "276d0b11d8de03e9acb236fa8db0511d9e4f441b723f6bcc887cbb192a3b3bb1",
+      "inputs_sha256": "b9b8e31a36655cad657d89d896537b91389a53e473f03f3d2d7623ff5cdb6c44"
+    }
+  },
+  {
     "id": "empty-exit-r7b1f80",
     "size": 1,
     "offset": 8068992,
@@ -3147,6 +3747,126 @@
     "match": {
       "bytes_sha256": "ae3f4619b0413d70d3004b9131c3752153074e45725be13b9a148978895e359e",
       "inputs_sha256": "45df772d500a7ed841c37282657e652f7c03921c1bdef495322b65c7d007b045"
+    }
+  },
+  {
+    "id": "cleanup-empty-array-7b21f0",
+    "inputs": [
+      "src/campaign_static_empty_array.c",
+      "src/campaign_array_storage.h",
+      "src/campaign_array_resize_abi.h"
+    ],
+    "offset": 8069616,
+    "size": 104,
+    "rebuilt_symbol": "_cleanup_empty_array_7b21f0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_empty_array.obj src/campaign_static_empty_array.c",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Engine heap performing zero-size resize."
+      },
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine heap used for both the zero-size resize and the release."
+      },
+      "_array_tag_7b78d8": {
+        "va": 285964504,
+        "basis": "Stock read-only UTF-16 FArray allocation label."
+      },
+      "@remove_range_007710@16": {
+        "va": 277903120,
+        "basis": "Complete array-remove function independently reproduced for the same build."
+      },
+      "_static_empty_array_92dba8": {
+        "va": 287497128,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7a6bd0 passes callback RVA 0x7b21f0 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "34f1de7421ed6165951c889c3f457b77b2029979b71274301c658bf3f90c8566",
+      "inputs_sha256": "d5d9c7d6dab0c141af58ecd044f6cedbf52a201de1320648e73965eb0f60dbad"
+    }
+  },
+  {
+    "id": "cleanup-empty-array-7b2260",
+    "inputs": [
+      "src/campaign_static_empty_array.c",
+      "src/campaign_array_storage.h",
+      "src/campaign_array_resize_abi.h"
+    ],
+    "offset": 8069728,
+    "size": 104,
+    "rebuilt_symbol": "_cleanup_empty_array_7b2260",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_empty_array.obj src/campaign_static_empty_array.c",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Engine heap performing zero-size resize."
+      },
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine heap used for both the zero-size resize and the release."
+      },
+      "_array_tag_7b78d8": {
+        "va": 285964504,
+        "basis": "Stock read-only UTF-16 FArray allocation label."
+      },
+      "@remove_range_007710@16": {
+        "va": 277903120,
+        "basis": "Complete array-remove function independently reproduced for the same build."
+      },
+      "_static_empty_array_92dbb4": {
+        "va": 287497140,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7a6be0 passes callback RVA 0x7b2260 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "88bc34c59bbd17ebab24942fa7c3fe52b01e16f930254cc5db4dba7ed15916b3",
+      "inputs_sha256": "e138274b49c22320e38ffa1e0614738950e401b117850bedd2999e197db66fae"
+    }
+  },
+  {
+    "id": "cleanup-empty-array-7b22d0",
+    "inputs": [
+      "src/campaign_static_empty_array.c",
+      "src/campaign_array_storage.h",
+      "src/campaign_array_resize_abi.h"
+    ],
+    "offset": 8069840,
+    "size": 104,
+    "rebuilt_symbol": "_cleanup_empty_array_7b22d0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_empty_array.obj src/campaign_static_empty_array.c",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Engine heap performing zero-size resize."
+      },
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine heap used for both the zero-size resize and the release."
+      },
+      "_array_tag_7b78d8": {
+        "va": 285964504,
+        "basis": "Stock read-only UTF-16 FArray allocation label."
+      },
+      "@remove_range_007710@16": {
+        "va": 277903120,
+        "basis": "Complete array-remove function independently reproduced for the same build."
+      },
+      "_static_empty_array_92dbc0": {
+        "va": 287497152,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7a6bf0 passes callback RVA 0x7b22d0 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "9e7b7eefd6b5499f39337a4948d75dfeb90797bf4c447f81e2443e0d77eed6d0",
+      "inputs_sha256": "f06627bb07c0aed8321320974d11857878764cbf798d1e8879277e28a31f6bc8"
     }
   },
   {
@@ -3979,6 +4699,46 @@
     "match": {
       "bytes_sha256": "ae3f4619b0413d70d3004b9131c3752153074e45725be13b9a148978895e359e",
       "inputs_sha256": "80001a1c9ef99c5b025637d27ffb89fd7b132d115dd9978221ba8fe117664bd9"
+    }
+  },
+  {
+    "id": "cleanup-empty-array-7b2680",
+    "inputs": [
+      "src/campaign_static_empty_array.c",
+      "src/campaign_array_storage.h",
+      "src/campaign_array_resize_abi.h"
+    ],
+    "offset": 8070784,
+    "size": 104,
+    "rebuilt_symbol": "_cleanup_empty_array_7b2680",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_empty_array.obj src/campaign_static_empty_array.c",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Engine heap performing zero-size resize."
+      },
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine heap used for both the zero-size resize and the release."
+      },
+      "_array_tag_7b78d8": {
+        "va": 285964504,
+        "basis": "Stock read-only UTF-16 FArray allocation label."
+      },
+      "@remove_range_007710@16": {
+        "va": 277903120,
+        "basis": "Complete array-remove function independently reproduced for the same build."
+      },
+      "_static_empty_array_92dd64": {
+        "va": 287497572,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x7a6f40 passes callback RVA 0x7b2680 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "caeea240fa76c53b4df001170b4b692057570a586240e52394d14e9de9f8b053",
+      "inputs_sha256": "a3ec627e0374a8dc9dda59baa07285c1905d2dd6168dc578ae2449ae80986632"
     }
   },
   {
@@ -6782,6 +7542,166 @@
     }
   },
   {
+    "id": "cleanup-empty-array-7b31e0",
+    "inputs": [
+      "src/campaign_static_empty_array.c",
+      "src/campaign_array_storage.h",
+      "src/campaign_array_resize_abi.h"
+    ],
+    "offset": 8073696,
+    "size": 104,
+    "rebuilt_symbol": "_cleanup_empty_array_7b31e0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_empty_array.obj src/campaign_static_empty_array.c",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Engine heap performing zero-size resize."
+      },
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine heap used for both the zero-size resize and the release."
+      },
+      "_array_tag_7b78d8": {
+        "va": 285964504,
+        "basis": "Stock read-only UTF-16 FArray allocation label."
+      },
+      "@remove_range_007710@16": {
+        "va": 277903120,
+        "basis": "Complete array-remove function independently reproduced for the same build."
+      },
+      "_static_empty_array_92e5b8": {
+        "va": 287499704,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x26ce19 passes callback RVA 0x7b31e0 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "ef24a3c148c33fa7ec26c3a403b7f681e7e7455951fa03ad64b5d1eda1939b70",
+      "inputs_sha256": "e670ee71902543ad85aaacd924947cd05a6ddb60aeaf87b9364766f5ba26ff65"
+    }
+  },
+  {
+    "id": "cleanup-empty-array-7b3250",
+    "inputs": [
+      "src/campaign_static_empty_array.c",
+      "src/campaign_array_storage.h",
+      "src/campaign_array_resize_abi.h"
+    ],
+    "offset": 8073808,
+    "size": 104,
+    "rebuilt_symbol": "_cleanup_empty_array_7b3250",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_empty_array.obj src/campaign_static_empty_array.c",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Engine heap performing zero-size resize."
+      },
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine heap used for both the zero-size resize and the release."
+      },
+      "_array_tag_7b78d8": {
+        "va": 285964504,
+        "basis": "Stock read-only UTF-16 FArray allocation label."
+      },
+      "@remove_range_007710@16": {
+        "va": 277903120,
+        "basis": "Complete array-remove function independently reproduced for the same build."
+      },
+      "_static_empty_array_92e5c4": {
+        "va": 287499716,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x26cdd0 passes callback RVA 0x7b3250 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "890aa778134cf9a63ba0542a5a3df2bc4d1c8cb02b51f52e15c9fc31fb33c675",
+      "inputs_sha256": "be91cf0b59d52c64eceec87941c0c40dce49f50b448dc6497eefa248ddcb83c5"
+    }
+  },
+  {
+    "id": "cleanup-empty-array-7b32c0",
+    "inputs": [
+      "src/campaign_static_empty_array.c",
+      "src/campaign_array_storage.h",
+      "src/campaign_array_resize_abi.h"
+    ],
+    "offset": 8073920,
+    "size": 104,
+    "rebuilt_symbol": "_cleanup_empty_array_7b32c0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_empty_array.obj src/campaign_static_empty_array.c",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Engine heap performing zero-size resize."
+      },
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine heap used for both the zero-size resize and the release."
+      },
+      "_array_tag_7b78d8": {
+        "va": 285964504,
+        "basis": "Stock read-only UTF-16 FArray allocation label."
+      },
+      "@remove_range_007710@16": {
+        "va": 277903120,
+        "basis": "Complete array-remove function independently reproduced for the same build."
+      },
+      "_static_empty_array_92e5d0": {
+        "va": 287499728,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x26cd80 passes callback RVA 0x7b32c0 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "9d8fb555cc25b5c1ca480a2b7fec6cacb63ce1cb88d9df44f8a9bd549a94899b",
+      "inputs_sha256": "d5c13825a7bcec2209084a0805520c24e58d398b8a50419de37ea67f2e76cc15"
+    }
+  },
+  {
+    "id": "cleanup-empty-array-7b3330",
+    "inputs": [
+      "src/campaign_static_empty_array.c",
+      "src/campaign_array_storage.h",
+      "src/campaign_array_resize_abi.h"
+    ],
+    "offset": 8074032,
+    "size": 104,
+    "rebuilt_symbol": "_cleanup_empty_array_7b3330",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_empty_array.obj src/campaign_static_empty_array.c",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Engine heap performing zero-size resize."
+      },
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine heap used for both the zero-size resize and the release."
+      },
+      "_array_tag_7b78d8": {
+        "va": 285964504,
+        "basis": "Stock read-only UTF-16 FArray allocation label."
+      },
+      "@remove_range_007710@16": {
+        "va": 277903120,
+        "basis": "Complete array-remove function independently reproduced for the same build."
+      },
+      "_static_empty_array_92e5dc": {
+        "va": 287499740,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x26cd30 passes callback RVA 0x7b3330 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "d0166b59a2af5778b5c9d0c1fb48cd6093a564d829ce895c797aa1c9231350b6",
+      "inputs_sha256": "2733fd26297a77054956bbb2cc563997ac56596a48a1db7a508d9e95d789ec2e"
+    }
+  },
+  {
     "id": "cleanup-array-7b33a0",
     "inputs": [
       "src/campaign_static_array.c",
@@ -6810,6 +7730,46 @@
     "match": {
       "bytes_sha256": "63c5a39aa3ec31912e486fab3527dcc41a2c8e520bad12213e1642f6a5a6a09c",
       "inputs_sha256": "9f06da68e1c3d25efc82bd187757a7b6ddbaef2858847e246753547c8e37247d"
+    }
+  },
+  {
+    "id": "cleanup-empty-array-7b3490",
+    "inputs": [
+      "src/campaign_static_empty_array.c",
+      "src/campaign_array_storage.h",
+      "src/campaign_array_resize_abi.h"
+    ],
+    "offset": 8074384,
+    "size": 104,
+    "rebuilt_symbol": "_cleanup_empty_array_7b3490",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_empty_array.obj src/campaign_static_empty_array.c",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Engine heap performing zero-size resize."
+      },
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine heap used for both the zero-size resize and the release."
+      },
+      "_array_tag_7b78d8": {
+        "va": 285964504,
+        "basis": "Stock read-only UTF-16 FArray allocation label."
+      },
+      "@remove_range_007710@16": {
+        "va": 277903120,
+        "basis": "Complete array-remove function independently reproduced for the same build."
+      },
+      "_static_empty_array_92f954": {
+        "va": 287504724,
+        "basis": "Writable static object accessed by the registered exit callback."
+      }
+    },
+    "identification": "Stock exit registration RVA 0x340969 passes callback RVA 0x7b3490 to the independently reproduced atexit. The complete cleanup acts on a writable static object and returns to the CRT.",
+    "match": {
+      "bytes_sha256": "d7e8f83ec6404e49b24ac854e0fd2af7068ce96b8d034a68e2029e7e9366062b",
+      "inputs_sha256": "f027a18c1b8bd42300a66908d611cc11298bf286665de4e2909db599065990ee"
     }
   },
   {
