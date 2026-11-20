@@ -75,9 +75,7 @@ internal sealed class MapsForm : Form
 
         Label title = Theme.Label("Maps", Theme.Heading, Theme.Accent);
         Label intro = Theme.Wrapping(Theme.Label(
-            "Every map from the OpenSCCT-Content repository: stock, original, community, recovered and ported maps, already " +
-            "converted. A downloaded map is ready to play straight away. The game also downloads a map you are missing when " +
-            "you queue for it in the hub. These files are shared with the editor; downloading a map does not create an editable project.",
+            "Download additional maps individually. The original Versus map set is built from your Steam installation.",
             Theme.Small, Theme.Muted));
 
         _search.PlaceholderText = "Search maps";
@@ -197,13 +195,15 @@ internal sealed class MapsForm : Form
         Unlisted,
     }
 
+    private static bool IncludeMap(string code) => !SteamVersusMaps.Contains(code);
+
     private IReadOnlyList<Row> Rows()
     {
-        var packs = _store.Installed().Where(p => !p.IsShared).ToDictionary(p => p.Code, StringComparer.OrdinalIgnoreCase);
+        var packs = _store.Installed().Where(p => !p.IsShared && IncludeMap(p.Code)).ToDictionary(p => p.Code, StringComparer.OrdinalIgnoreCase);
         var rows = new List<Row>();
         if (_index is not null)
         {
-            foreach (ContentMap m in _index.PlayableMaps())
+            foreach (ContentMap m in _index.PlayableMaps().Where(m => IncludeMap(m.Code)))
             {
                 rows.Add(new Row(m, packs.GetValueOrDefault(m.Code)));
                 packs.Remove(m.Code);
@@ -257,7 +257,7 @@ internal sealed class MapsForm : Form
             }
 
             RowState state = StateOf(row);
-            long bytes = row.Map?.Full.Size ?? 0;
+            long bytes = row.Map?.DownloadSize() ?? 0;
             var item = new ListViewItem([row.Name, row.Category, bytes > 0 ? Mb(bytes) : string.Empty, StatusText(row, state)])
             {
                 Tag = row,
@@ -284,7 +284,8 @@ internal sealed class MapsForm : Form
         bool busy = _work is not null;
         List<Row> rows = SelectedRows();
         var states = rows.Select(StateOf).ToList();
-        _download.Text = states.Count > 0 && states.All(s => s == RowState.UpdateAvailable) ? "Update" : "Download";
+        _download.Text = states.Count > 0 && states.All(s => s == RowState.UpdateAvailable) ? "Update"
+            : rows.Any(r => r.Map?.SteamRecipe is not null) ? "Download and build" : "Download";
         _download.Enabled = !busy && states.Any(s => s is RowState.Available or RowState.UpdateAvailable);
         _remove.Enabled = !busy && rows.Any(r => r.Pack is not null);
         _refresh.Enabled = !busy;
@@ -314,7 +315,8 @@ internal sealed class MapsForm : Form
                 lines.Add("Modes: " + string.Join(", ", map.Modes));
             }
 
-            lines.Add($"Download {Mb(map.Full.Size)}");
+            lines.Add(map.SteamRecipe is null ? $"Download {Mb(map.DownloadSize())}"
+                : $"Download {Mb(map.DownloadSize())} and build the map using your Steam installation.");
         }
 
         if (row.Pack is { } pack)
@@ -333,9 +335,9 @@ internal sealed class MapsForm : Form
         {
             _index = await _store.FetchIndexAsync(cancel);
             Fill();
-            int downloaded = _store.Installed().Count(p => !p.IsShared);
+            int downloaded = _store.Installed().Count(p => !p.IsShared && IncludeMap(p.Code));
             string problem = _index.Problem is { } p ? " " + p : string.Empty;
-            SetStatus($"{_index.PlayableMaps().Count()} maps" + (downloaded > 0 ? $", {downloaded} downloaded." : ".") + problem,
+            SetStatus($"{_index.PlayableMaps().Count(m => IncludeMap(m.Code))} maps" + (downloaded > 0 ? $", {downloaded} downloaded." : ".") + problem,
                 _index.Problem is null ? Theme.Muted : Theme.Warning);
         });
     }
@@ -347,21 +349,13 @@ internal sealed class MapsForm : Form
             .Where(r => StateOf(r) is RowState.Available or RowState.UpdateAvailable)
             .Select(r => r.Map!)
             .ToList();
-        if (maps.Count == 0 || _work is not null || _index is not { } index)
+        if (maps.Count == 0 || _work is not null || _index is null)
         {
             return;
         }
 
         await RunAsync("Downloading...", async cancel =>
         {
-            // Every map uses the downloaded shared packs, including installs upgraded from local conversion.
-            foreach (ContentSharedPack pack in index.Shared.Where(p => !_store.HasShared(p)))
-            {
-                EnsureContentFree();
-                string name = pack.Title.Length > 0 ? pack.Title : pack.Id;
-                await _store.InstallSharedAsync(pack, Progress(name), cancel);
-            }
-
             for (int i = 0; i < maps.Count; i++)
             {
                 EnsureContentFree();
@@ -484,7 +478,7 @@ internal sealed class MapsForm : Form
         _status.ForeColor = Theme.Map(color, _palette);
     }
 
-    private const string ContentBusyMessage = "Close OpenSCCT Editor, its command line tools and OpenSCCT Unreal before changing shared content.";
+    private const string ContentBusyMessage = "Close any running OpenSCCT game, editor or editor tools before changing shared map files.";
 
     private bool CanChangeContent()
     {

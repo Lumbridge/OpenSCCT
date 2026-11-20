@@ -19,10 +19,12 @@ internal static class Program
     {
         string? joinServerId = null;
         bool afterUpdate = false;
+        bool openUnreal = false;
         foreach (string arg in args)
         {
             if (arg == AfterUpdateArg && !afterUpdate) afterUpdate = true;
-            else if (joinServerId is null && WebJoinRequest.TryParse(arg, out string? id)) joinServerId = id;
+            else if (!openUnreal && joinServerId is null && string.Equals(arg, "openscct://edition/unreal", StringComparison.OrdinalIgnoreCase)) openUnreal = true;
+            else if (!openUnreal && joinServerId is null && WebJoinRequest.TryParse(arg, out string? id)) joinServerId = id;
             else
             {
                 MessageBox.Show("This OpenSCCT link is invalid. Open the website's Servers page and choose Join again.", "OpenSCCT", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -46,6 +48,8 @@ internal static class Program
         using var single = new Mutex(initiallyOwned: true, @"Local\OpenSCCT.Launcher", out bool first);
         if (!first && !afterUpdate)
         {
+            if (openUnreal)
+                return WebJoinPipe.SendAsync(WebJoinPipe.EditionName, "Unreal").GetAwaiter().GetResult() ? 0 : 1;
             if (joinServerId is not null && !WebJoinPipe.SendAsync(WebJoinPipe.LauncherName, joinServerId).GetAwaiter().GetResult())
             {
                 MessageBox.Show("The running launcher could not receive this Join request. Close it, open the latest launcher, then choose Join again.", "OpenSCCT", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -74,13 +78,15 @@ internal static class Program
         ApplicationConfiguration.Initialize();
         using var form = new MainForm(joinServerId, WebJoinRegistration.Register(ExePath));
         _ = form.Handle;
+        if (openUnreal) form.ShowEdition("Unreal");
         using var lifetime = new CancellationTokenSource();
         Task listener = WebJoinPipe.ListenAsync(form.QueueWebJoin, lifetime.Token);
+        Task editions = WebJoinPipe.ListenAsync(form.ShowEdition, lifetime.Token, WebJoinPipe.EditionName);
         try { Application.Run(form); }
         finally
         {
             lifetime.Cancel();
-            listener.GetAwaiter().GetResult();
+            Task.WhenAll(listener, editions).GetAwaiter().GetResult();
             single.ReleaseMutex();
         }
         return 0;

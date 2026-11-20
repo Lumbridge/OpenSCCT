@@ -2,24 +2,14 @@
 
 [Documentation](README.md)
 
-[OpenSCCT-Content](https://github.com/OpenSCCT/OpenSCCT-Content) holds game content already converted to
-OpenSCCT's own formats, so a player (or a server) can download a map and play it without running the converter.
-It replaces [SCCT-Maps](https://github.com/OpenSCCT/SCCT-Maps) for OpenSCCT only. SCCT-Maps stays as it is for the
-original game and SCCT Map Manager.
+Godot, Unreal and the Editor use retail assets built from an installed Steam copy. The [community catalogue](https://github.com/OpenSCCT/OpenSCCT-Content) supplies optional maps. Public archive downloads identify their authorship, source and exact checksums. Installed maps and player-authored projects remain available locally.
 
-Players download packs through the launcher's **Maps** window, first-run Linux setup, or the missing-map
-prompt in a lobby. Locally converted content takes priority over downloaded packs.
-
-This page is the pack-format and publishing reference. For installation help, use the
-[launcher guide](LAUNCHER.md) or [Linux guide](LINUX.md).
-
-The content repository stores its index and tools in git. Pack archives are GitHub Release assets.
+For setup, see the [launcher guide](LAUNCHER.md) or [Linux guide](LINUX.md). The format below also documents historical shared packs so maintainers can identify existing installations. Current clients request `community.json`. Older clients used `index.json`.
 
 ## The index
 
-`index.json` on the `main` branch, fetched raw:
-[OpenSCCT-Content index](https://raw.githubusercontent.com/OpenSCCT/OpenSCCT-Content/main/index.json). It is the only file a client reads
-from the tree.
+The historical `index.json` on the `main` branch is available at
+[OpenSCCT-Content index](https://raw.githubusercontent.com/OpenSCCT/OpenSCCT-Content/main/index.json).
 
 ```json
 {

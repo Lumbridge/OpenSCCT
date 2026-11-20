@@ -100,12 +100,13 @@ public sealed class LauncherSwapAndSettingsTests
         Assert.False(saved.RootElement.GetProperty("OriginalCheckOnStart").GetBoolean());
         Assert.False(saved.RootElement.GetProperty("UnrealMapModsEnabled").GetBoolean());
         Assert.Equal(JsonValueKind.Null, saved.RootElement.GetProperty("UnrealMapModRoot").ValueKind);
+        Assert.Equal(JsonValueKind.Null, saved.RootElement.GetProperty("GodotSteamFolder").ValueKind);
         Assert.False(saved.RootElement.GetProperty("Retail").GetProperty("UseMod").GetBoolean());
-        Assert.Equal(12, saved.RootElement.EnumerateObject().Count());
+        Assert.Equal(13, saved.RootElement.EnumerateObject().Count());
     }
 
     [Fact]
-    public void PlayUsesDefaultDownloadedPacksAndLeavesLegacyConvertedContentUnused()
+    public void LaunchWithoutAnExplicitContentRootLeavesDiscoveryToTheClient()
     {
         using var dir = new TempDir();
         string oldContent = dir.Combine("content", "shared");

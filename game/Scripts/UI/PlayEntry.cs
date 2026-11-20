@@ -1,3 +1,4 @@
+using SteamVersusMaps = OpenScct.Maps.SteamVersusMaps;
 using System;
 using Godot;
 using OpenScct.Server;
@@ -12,7 +13,7 @@ public sealed record PlayRequest
 {
     public const int DefaultPort = 28888;
 
-    public string Map { get; init; } = "SteeE";
+    public string Map { get; init; } = SteamVersusMaps.DefaultHostMap;
 
     public HudSide Side { get; init; } = HudSide.Spy;
 

@@ -39,7 +39,7 @@ def import_scctpkg(require_class_defaults: bool = False):
     where = Path(scctpkg.__file__).resolve().parent
     if where != (SCCTPKG_ROOT / "scctpkg").resolve():
         raise ImportError(f"scctpkg imported from {where}, expected the vendored copy under {SCCTPKG_ROOT}")
-    if require_class_defaults and not (where / "class_defaults.json").exists():
+    if require_class_defaults and not Path(os.environ.get("SVM_CLASS_DEFAULTS_FILE") or (where / "class_defaults.json")).is_file():
         # An installed builder: made from the content root's shared/classes.json (the classes step).
         from .sources import classdefaults_dump  # noqa: PLC0415
         if not classdefaults_dump.ensure(where, default_out_root()):

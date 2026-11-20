@@ -19,7 +19,7 @@ namespace OpenScct.Launcher.Tests;
 
 public sealed partial class EditorServiceTests
 {
-    private const string Version = "0.2.0";
+    private const string Version = "0.2.54";
     private static readonly SemVersion V = SemVersion.Parse(Version);
 
     private sealed class ReleaseFixture
@@ -84,17 +84,21 @@ public sealed partial class EditorServiceTests
         return output.ToArray();
     }
 
-    private static void Prerequisites(LauncherLayout layout)
+    private static string Prerequisites(LauncherLayout layout)
     {
-        string game = layout.VersionDir("0.8.94");
+        string game = layout.VersionDir("0.8.166");
         Directory.CreateDirectory(game);
         File.WriteAllText(Path.Combine(game, "OpenSCCT.exe"), "game");
-        Directory.CreateDirectory(Path.Combine(layout.Packs, "shared"));
-        File.WriteAllText(Path.Combine(layout.Packs, "shared", "classes.json"), "{}");
-        File.WriteAllText(Path.Combine(layout.Packs, "installed.json"), JsonSerializer.Serialize(new[] { "core", "chars", "audio" }
-            .Select(code => new InstalledContent { Id = "shared/" + code, Code = code }), new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
-        Directory.CreateDirectory(Path.Combine(layout.Packs, "svmap", "Test"));
-        File.WriteAllText(Path.Combine(layout.Packs, "svmap", "Test", "manifest.json"), "{}");
+        string id = Guid.NewGuid().ToString("N");
+        string content = Path.Combine(layout.Content, SteamContentInstall.BuildsDirectory, id);
+        foreach (string name in SteamContentInstall.RequiredFiles())
+        {
+            string file = Path.Combine(content, name);
+            Directory.CreateDirectory(Path.GetDirectoryName(file)!);
+            File.WriteAllText(file, "{}");
+        }
+        File.WriteAllText(Path.Combine(layout.Content, SteamContentInstall.PointerFile), JsonSerializer.Serialize(new { format = SteamContentInstall.Format, build = id }));
+        return content;
     }
 
     [Fact]
@@ -227,11 +231,11 @@ public sealed partial class EditorServiceTests
         var layout = new LauncherLayout(dir.Path, LauncherPlatform.WindowsX64);
         using var http = new HttpClient();
         var service = new EditorService(layout, http);
-        Assert.Contains("0.8.93", service.PrerequisiteProblem());
-        Prerequisites(layout);
+        Assert.Contains("0.8.166", service.PrerequisiteProblem());
+        string root = Prerequisites(layout);
         Assert.Null(service.PrerequisiteProblem());
-        File.Delete(Path.Combine(layout.Packs, "svmap", "Test", "manifest.json"));
-        Assert.Contains("map assets", service.PrerequisiteProblem());
+        File.Delete(Path.Combine(root, "svmap", SteamVersusMaps.DefaultHostMap, "manifest.json"));
+        Assert.Contains("Steam installation", service.PrerequisiteProblem());
     }
 
     [Fact]
@@ -244,7 +248,7 @@ public sealed partial class EditorServiceTests
         EditorService service = await InstalledEditorAsync(dir, layout, http);
         string manifestPath = Path.Combine(layout.Editor, "version.json");
         string newManifest = File.ReadAllText(manifestPath);
-        File.WriteAllText(manifestPath, newManifest.Replace("\"0.2.0\"", "\"0.1.3\"", StringComparison.Ordinal));
+        File.WriteAllText(manifestPath, newManifest.Replace("\"0.2.54\"", "\"0.1.3\"", StringComparison.Ordinal));
 
         bool staged = false;
         service.RunningOverride = _ => staged;
@@ -291,15 +295,15 @@ public sealed partial class EditorServiceTests
     }
 
     [Fact]
-    public void SharedPackRegistryIsRequiredAndActiveSwapBlocksOpening()
+    public void SteamReceiptIsRequiredAndActiveSwapBlocksOpening()
     {
         using var dir = new TempDir();
         var layout = new LauncherLayout(dir.Path, LauncherPlatform.WindowsX64);
         Prerequisites(layout);
-        File.Delete(Path.Combine(layout.Packs, "installed.json"));
+        File.Delete(Path.Combine(layout.Content, SteamContentInstall.PointerFile));
         using var http = new HttpClient();
         var service = new EditorService(layout, http);
-        Assert.Contains("shared game files", service.PrerequisiteProblem());
+        Assert.Contains("Steam installation", service.PrerequisiteProblem());
         Directory.CreateDirectory(Path.Combine(layout.Editor, ".update"));
         using var held = new FileStream(Path.Combine(layout.Editor, ".update", "swap.lock"), FileMode.Create, FileAccess.ReadWrite, FileShare.None);
         Assert.True(service.UpdateInProgress);

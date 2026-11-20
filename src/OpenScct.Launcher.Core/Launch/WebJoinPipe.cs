@@ -11,6 +11,7 @@ namespace OpenScct.Launcher.Launch;
 public static class WebJoinPipe
 {
     public const string LauncherName = "OpenSCCT.WebJoin.Launcher";
+    public const string EditionName = "OpenSCCT.Launcher.Edition";
     public const string GameName = "OpenSCCT.WebJoin.Game";
 
     public static async Task<bool> SendAsync(string pipeName, string serverId)
@@ -39,13 +40,13 @@ public static class WebJoinPipe
         }
     }
 
-    public static async Task ListenAsync(Action<string> receive, CancellationToken cancel)
+    public static async Task ListenAsync(Action<string> receive, CancellationToken cancel, string pipeName = LauncherName)
     {
         while (!cancel.IsCancellationRequested)
         {
             try
             {
-                using var pipe = new NamedPipeServerStream(LauncherName, PipeDirection.InOut, 1, PipeTransmissionMode.Byte,
+                using var pipe = new NamedPipeServerStream(pipeName, PipeDirection.InOut, 1, PipeTransmissionMode.Byte,
                     PipeOptions.Asynchronous | PipeOptions.CurrentUserOnly, 256, 256);
                 await pipe.WaitForConnectionAsync(cancel).ConfigureAwait(false);
                 using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancel);

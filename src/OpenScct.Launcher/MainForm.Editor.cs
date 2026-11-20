@@ -32,7 +32,7 @@ internal sealed partial class MainForm
         Product.Unreal => _settings.UnrealCheckOnStart,
         _ => _settings.CheckOnStart,
     };
-    private readonly LibraryEntry _gameTab = new LibraryEntry("GD", "Legacy Godot client", "Versus");
+    private readonly LibraryEntry _gameTab = new LibraryEntry("GD", "OpenSCCT Godot", "Versus");
     private readonly LibraryEntry _editorTab = new LibraryEntry("ED", "OpenSCCT Editor", "Map authoring");
     private PictureBox _brandLogo = null!;
     private Label _brandSubtitle = null!;
@@ -146,8 +146,8 @@ internal sealed partial class MainForm
             Product.Ps2 => ("Chaos Theory · Original disc · 2005", "Website"),
             Product.Retail => ("Chaos Theory · Original Windows release · 2005", "Website"),
             Product.Editor => ("Map authoring", "Editor website"),
-            Product.Unreal => ("Unreal Engine · Versus", "Unreal releases"),
-            _ => ("Godot · Versus", "Website"),
+            Product.Unreal => ("Modernisations · Unreal Engine · Versus", "Unreal releases"),
+            _ => ("Modernisations · Godot · Versus", "Website"),
         };
     }
 
@@ -157,16 +157,17 @@ internal sealed partial class MainForm
         string? prerequisite = _editor.PrerequisiteProblem();
         bool update = installed is not null && _editorCheck?.Latest is { } latest && latest.Version > installed.Version;
         bool recover = _editor.NeedsRecovery;
+        bool oldEditor = installed is not null && !EditorService.SupportsSteamContent(installed.Version);
         _installedInfo.Text = installed is null ? "Optional map editor · Shares your installed game files" : "Editor " + installed.Version;
         _heading.Text = busy ? VisibleOperationTitle : recover ? "Recover editor update" : installed is null ? "Set up OpenSCCT Editor"
             : prerequisite is not null ? "Finish editor setup" : update ? "Editor update available" : "Ready to create";
         _launchDetail.Text = recover ? "An interrupted editor update needs recovery. Your project files are kept."
             : installed is null
-            ? "Install the editor with the game and shared maps it needs. The game will not start during setup."
+            ? "Install the editor and build its original maps and assets from your copy of Chaos Theory on Steam."
             : prerequisite ?? (update ? $"Editor {_editorCheck!.Latest!.Version} is ready to download." : "Create, edit, and test your maps.");
         _launchDetail.Visible = !busy && VisibleStatus.Kind is not (StatusKind.Warning or StatusKind.Error);
         _main.Text = busy ? (_operationCanCancel ? "Cancel" : "Please wait")
-            : recover ? "Recover Editor" : installed is null || prerequisite is not null ? "Set up Editor"
+            : recover ? "Recover Editor" : NeedsSteamSource ? "Choose Steam folder" : oldEditor ? (update ? "Update Editor" : "Check for updates") : installed is null || prerequisite is not null ? "Set up Editor"
             : _editorSetupFailed ? "Retry update" : update ? "Update Editor" : "Open Editor";
         _main.Enabled = !busy || _operationCanCancel;
         Theme.SetButtonEmphasis(_main, !busy, Palette);
@@ -266,6 +267,10 @@ internal sealed partial class MainForm
             });
             return;
         }
+        if (NeedsSteamSource) { ChooseSteamSource(); return; }
+        if (_editor.Installed() is { } legacy && !EditorService.SupportsSteamContent(legacy.Version)
+            && !EditorService.SupportsSteamContent(_editorCheck?.Latest?.Version))
+        { await RunAsync(CheckSelectedAsync); return; }
         if (!_editorSetupFailed && _editor.Installed() is not null && _editor.PrerequisiteProblem() is null
             && !(_editorCheck?.Latest is { } latest && latest.Version > _editor.Installed()!.Version))
         { OpenEditor(); return; }
@@ -324,11 +329,11 @@ internal sealed partial class MainForm
     {
         if (_editor.IsRunning) throw new InvalidOperationException("Save your work and close the editor and its command-line tools before setup or updating.");
         await CheckEditorAsync(cancel);
-        if (_editor.Installed() is null && _editorCheck?.Latest is null)
+        if (!EditorService.SupportsSteamContent(_editor.Installed()?.Version) && !EditorService.SupportsSteamContent(_editorCheck?.Latest?.Version))
             throw new InvalidOperationException("No launcher-compatible editor package is available. Try checking for updates later.");
         if (_editor.PrerequisiteProblem() is not null)
         {
-            await EnsureEditorPrerequisitesAsync(cancel);
+            await EnsureSteamContentAsync(cancel, _editor.Installed()?.MinimumGameVersion);
         }
         if (_editorCheck?.Latest is { } offer && (_editor.Installed() is not { } installed || offer.Version > installed.Version))
         {
@@ -350,33 +355,12 @@ internal sealed partial class MainForm
         _operationCanCancel = true;
         RefreshLocal();
         if (_closeAfterWork) return;
-        if (_editor.PrerequisiteProblem() is not null) await EnsureEditorPrerequisitesAsync(cancel);
+        if (_editor.PrerequisiteProblem() is not null) await EnsureSteamContentAsync(cancel, _editor.Installed()?.MinimumGameVersion);
+        if (_editor.PrerequisiteProblem() is { } problem) throw new InvalidOperationException(problem);
         SetStatus("Editor is ready. Choose Open Editor to start creating.", Theme.Accent);
     }
 
-    private async Task EnsureEditorPrerequisitesAsync(CancellationToken cancel)
-    {
-        await CheckAsync(cancel);
-        await UpdateGameAsync(cancel);
-        if (_store.Current() is null) throw new InvalidOperationException("The required game release could not be installed. Check your connection and try again.");
-        // Resume the first-install map selection if its asset library was removed while shared packs remained.
-        if (_editor.PrerequisiteProblem() is not null) await DownloadEditorContentAsync(cancel);
-        if (_editor.PrerequisiteProblem() is { } problem) throw new InvalidOperationException(problem);
-    }
-
     private bool EditorUsesSharedContent() => _editor.SharedContentInUse(EditorLiveBridge.IsLiveMcpProcess);
-
-    private async Task DownloadEditorContentAsync(CancellationToken cancel)
-    {
-        if (EditorUsesSharedContent()) throw new InvalidOperationException("Close the editor before changing shared content.");
-        SetOperation("Downloading editor map assets");
-        var index = await _packs.FetchIndexAsync(cancel);
-        _packIndex = index;
-        foreach (var map in Content.PackedContent.MapsToFetch(index, _packs, firstDownload: true))
-            await _packs.InstallMapAsync(map, Maps.ContentKind.Full, PackReporter(map.DisplayTitle), cancel);
-        foreach (var pack in Content.PackedContent.SharedToFetch(index, _packs))
-            await _packs.InstallSharedAsync(pack, PackReporter(pack.Title), cancel);
-    }
 
     private async Task UninstallEditorAsync(CancellationToken cancel)
     {

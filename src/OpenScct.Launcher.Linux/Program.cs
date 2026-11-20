@@ -117,7 +117,7 @@ internal sealed class LauncherApp : Application
                 PooledConnectionLifetime = TimeSpan.FromMinutes(5),
             }) { Timeout = TimeSpan.FromSeconds(60) };
             var layout = new LauncherLayout(Program.SmokeRoot ?? LauncherLayout.GetDefaultRoot(LauncherPlatform.LinuxX64), LauncherPlatform.LinuxX64);
-            _controller = new LauncherController(layout, _http, Program.Executable);
+            _controller = new LauncherController(layout, _http, Program.Executable, discoverSteam: !Program.SmokeUi);
             var window = new MainWindow(_controller, Program.SmokeUi);
             desktop.MainWindow = window;
             if (Program.Join is { } join) _controller.QueueJoin(join);

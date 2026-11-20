@@ -19,7 +19,7 @@ using OpenScct.Maps;
 
 namespace OpenScct.Launcher.Linux;
 
-internal enum LauncherAction { Install, Update, FinishInstall, Play, Cancel, Waiting }
+internal enum LauncherAction { ChooseSteam, Install, Update, FinishInstall, Play, Cancel, Waiting }
 
 /// <summary>The Linux UI uses exactly the same release, download, content and install services as Windows.</summary>
 internal sealed class LauncherController : IDisposable
@@ -28,13 +28,13 @@ internal sealed class LauncherController : IDisposable
     private readonly IGameProcessProbe _games;
     private readonly UpdateService _updates;
     private readonly LauncherSwap? _swap;
+    private readonly GodotSteamContent _steamContent;
     private CancellationTokenSource? _work;
     private Task _activeWork = Task.CompletedTask;
-    private ContentIndex? _index;
     private bool _disposed;
 
     public LauncherController(LauncherLayout layout, HttpClient http, string? executable,
-        IGameProcessProbe? games = null)
+        IGameProcessProbe? games = null, bool discoverSteam = true)
     {
         Layout = layout;
         _http = http;
@@ -42,6 +42,8 @@ internal sealed class LauncherController : IDisposable
         Store = new VersionStore(layout);
         Packs = new ContentStore(layout.Packs, http);
         Settings = LauncherSettings.Load(layout.Settings);
+        _steamContent = new GodotSteamContent(layout);
+        SteamSource = discoverSteam ? GodotSteamContent.FindSource(Settings.GodotSteamFolder) : null;
         _updates = new UpdateService(layout, Store, new GitHubReleaseClient(http, ReleaseSource.Official, layout.Cache), http, _games);
         Executable = executable;
         if (executable is not null) _swap = new LauncherSwap(executable, layout.Platform);
@@ -55,11 +57,12 @@ internal sealed class LauncherController : IDisposable
     public LauncherLayout Layout { get; }
     public VersionStore Store { get; }
     public ContentStore Packs { get; }
+    public string? SteamSource { get; private set; }
     public LauncherSettings Settings { get; private set; }
     public SemVersion? LauncherVersion { get; }
     public string? Executable { get; }
     public UpdateCheck? Check { get; private set; }
-    public string Status { get; private set; } = "Install OpenSCCT and its game files in one step.";
+    public string Status { get; private set; } = string.Empty;
     public bool IsError { get; private set; }
     public string Operation { get; private set; } = string.Empty;
     public double? Progress { get; private set; }
@@ -68,15 +71,16 @@ internal sealed class LauncherController : IDisposable
     public bool HasLauncherUpdate => _swap?.HasStaged == true || Check?.LauncherUpdateAvailable == true;
     public bool LauncherStaged => _swap?.HasStaged == true;
     public bool CanUpdateLauncher => _swap?.CanWriteFolder() == true;
-    public bool ContentReady => PackedContent.Installed(Packs);
-    public bool ContentUpdate => _index is not null &&
-        (PackedContent.SharedToFetch(_index, Packs).Count > 0 || PackedContent.MapsToFetch(_index, Packs, false).Count > 0);
-    public bool Playable => Store.Current() is not null && ContentReady;
+    public bool ContentReady => _steamContent.ActiveRoot() is not null;
+    public bool ClientUpdateRequired => Store.Current() is { } current && !GodotSteamContent.SupportsClient(current);
+    public bool Playable => GodotSteamContent.SupportsClient(Store.Current()) && ContentReady;
     public string? PendingJoin { get; private set; }
     public LauncherAction Next => Busy ? LauncherAction.Cancel
         : Store.Pending() is not null ? LauncherAction.Waiting
+        : ClientUpdateRequired ? LauncherAction.Update
+        : !ContentReady && SteamSource is null ? LauncherAction.ChooseSteam
         : Store.Current() is null ? LauncherAction.Install
-        : Check?.GameUpdateAvailable == true || ContentUpdate ? LauncherAction.Update
+        : Check?.GameUpdateAvailable == true ? LauncherAction.Update
         : !ContentReady ? LauncherAction.FinishInstall : LauncherAction.Play;
 
     public void Report(string message, bool error = false)
@@ -112,8 +116,8 @@ internal sealed class LauncherController : IDisposable
         Progress = null;
         Notify();
         try { await work(cancel.Token); }
-        catch (OperationCanceledException) { Report("Stopped. Completed downloads are kept; you can continue later."); }
-        catch (Exception ex) when (ex is IOException or HttpRequestException or UnauthorizedAccessException
+        catch (OperationCanceledException) { Report("Stopped. You can continue setup when you are ready."); }
+        catch (Exception ex) when (ex is IOException or InvalidDataException or HttpRequestException or UnauthorizedAccessException
             or InvalidOperationException or UpdateRejectedException or Win32Exception or System.Text.Json.JsonException)
         { Report(ex.Message, true); }
         finally
@@ -130,8 +134,6 @@ internal sealed class LauncherController : IDisposable
         using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancel);
         timeout.CancelAfter(TimeSpan.FromSeconds(30));
         Check = await _updates.CheckAsync(Settings.IncludePrereleases, LauncherVersion, timeout.Token);
-        try { _index = await Packs.FetchIndexAsync(timeout.Token); }
-        catch (Exception ex) when (ex is IOException or HttpRequestException) { /* Installed content remains playable offline. */ }
         Notify();
         if (Check.LauncherUpdateAvailable && _swap is { HasStaged: false } && _swap.CanWriteFolder())
         {
@@ -142,15 +144,20 @@ internal sealed class LauncherController : IDisposable
         if (Check.Feed.Problem is { } problem) Report(problem);
         else if (Check.Latest is null && Store.Current() is null)
             Report("A native Linux game build has not been published on the selected release channel yet. Check again after the Linux release is available.");
-        else if (Check.GameUpdateAvailable || ContentUpdate) Report("An update is available.");
+        else if (Check.GameUpdateAvailable) Report("An update is available.");
         else Report(Store.Current() is null ? "Ready to install." : "Your installation is up to date.");
     }
 
     public async Task InstallAsync(CancellationToken cancel)
     {
-        if (Check is null || Store.Current() is null && !Check.GameUpdateAvailable) await CheckAsync(cancel);
+        bool updatingOlderClient = ClientUpdateRequired;
+        if (!updatingOlderClient && !ContentReady && SteamSource is null)
+            throw new InvalidOperationException("Choose your Steam installation before installing OpenSCCT Godot.");
+        if (Check is null || (Store.Current() is null || updatingOlderClient) && !Check.GameUpdateAvailable) await CheckAsync(cancel);
         if (Check is { GameUpdateAvailable: true, Latest: { } latest } && Store.Pending() is null)
         {
+            if (!GodotSteamContent.SupportsClient(latest.Version))
+                throw new InvalidOperationException("This release predates Steam content builds. Check for a newer Linux release.");
             Operation = "Downloading OpenSCCT " + latest.Version;
             Notify();
             InstallOutcome outcome = await _updates.InstallAsync(latest, DownloadReporter(), cancel);
@@ -163,34 +170,44 @@ internal sealed class LauncherController : IDisposable
         }
         if (Store.Current() is null)
             throw new InvalidOperationException("No native Linux game build is available on this release channel yet. No Windows build was downloaded.");
-        if (GameRunning && (!ContentReady || ContentUpdate))
-        {
-            Report("Close OpenSCCT before updating shared game files, then choose Update.");
-            return;
-        }
-        await InstallContentAsync(cancel);
+        if (ClientUpdateRequired) throw new InvalidOperationException("This client predates Steam content builds. Connect to the release channel and update Godot.");
+        if (!ContentReady && SteamSource is null) Report("Choose your Steam installation to build the game content.");
+        else if (!ContentReady) await InstallContentAsync(cancel);
+        else Report("OpenSCCT Godot is ready to play.");
+    }
+
+    public void SelectSteam(string folder)
+    {
+        if (Busy || GameRunning) throw new InvalidOperationException("Finish the current operation and close Godot before changing its Steam source.");
+        string source = GodotSteamContent.FindSource(folder) ?? throw new ArgumentException("Choose the stock Chaos Theory installation from Steam (app 13570).");
+        SaveSettings(settings => settings.GodotSteamFolder = source);
+        SteamSource = source;
+        Report("Steam installation selected.");
     }
 
     public async Task InstallContentAsync(CancellationToken cancel)
     {
-        if (GameRunning) throw new InvalidOperationException("Close OpenSCCT before changing its game files.");
-        Operation = "Downloading game files";
-        _index = await Packs.FetchIndexAsync(cancel);
-        if (_index.Shared.Count == 0) throw new IOException(_index.Problem ?? "The game file catalogue contains no shared packs.");
-        var shared = PackedContent.SharedToFetch(_index, Packs);
-        var maps = PackedContent.MapsToFetch(_index, Packs, !ContentReady);
-        int total = shared.Count + maps.Count, n = 0;
-        // Shared packs are the completion marker; downloading them last keeps interrupted first installs resumable.
-        foreach (ContentMap map in maps)
-            await Packs.InstallMapAsync(map, ContentKind.Full, PackReporter($"{map.DisplayTitle} ({++n}/{total})"), cancel);
-        foreach (ContentSharedPack pack in shared)
-            await Packs.InstallSharedAsync(pack, PackReporter($"{pack.Title} ({++n}/{total})"), cancel);
-        Report("All set. Press PLAY.");
+        if (GameRunning) throw new InvalidOperationException("Close Godot before building its game content.");
+        string source = SteamSource ?? throw new InvalidOperationException("Choose the installed Steam copy of Chaos Theory first.");
+        SemVersion current = Store.Current() ?? throw new InvalidOperationException("Install the Godot client before building Steam content.");
+        if (!GodotSteamContent.SupportsClient(current)) throw new InvalidOperationException("Update Godot before building content from Steam.");
+        Operation = "Building Steam content";
+        Progress = null;
+        Notify();
+        var progress = new Progress<ContentProgress>(p =>
+        {
+            if (!Busy || cancel.IsCancellationRequested) return;
+            Progress = p.Total > 0 ? (double)p.Done / p.Total : null;
+            Report(p.Line);
+        });
+        await _steamContent.BuildAsync(Layout.VersionDir(current.ToString()), source, progress, cancel);
+        Report("Steam content built. OpenSCCT Godot is ready to play.");
     }
 
     public async Task PlayAsync(bool skipUpdateCheck, Func<UpdateCheck, Task<PlayUpdateChoice>> choose, CancellationToken cancel)
     {
-        if (!Playable) throw new InvalidOperationException("Choose Finish install to download the required game files first.");
+        string contentRoot = _steamContent.ActiveRoot() ?? throw new InvalidOperationException("Build game content from Steam first.");
+        if (!GodotSteamContent.SupportsClient(Store.Current())) throw new InvalidOperationException("Install or update Godot before playing with Steam content.");
         if (!skipUpdateCheck)
         {
             UpdateCheck? check = null;
@@ -228,7 +245,7 @@ internal sealed class LauncherController : IDisposable
             throw new InvalidOperationException("Update OpenSCCT before using website Join links.");
         cancel.ThrowIfCancellationRequested();
         using Process? process = Process.Start(GameStart.Create(Store.ExePath(current),
-            join is null ? null : [WebJoinRequest.GameArgumentPrefix + join]));
+            join is null ? null : [WebJoinRequest.GameArgumentPrefix + join], contentRoot: contentRoot));
         if (process is null) throw new IOException("The game could not be started.");
         PendingJoin = null;
         Report("Started OpenSCCT " + current + ".");
@@ -308,7 +325,6 @@ internal sealed class LauncherController : IDisposable
         if (Busy || GameRunning) throw new InvalidOperationException("Close OpenSCCT and finish downloads before resetting the installation.");
         IReadOnlyList<string> failed = InstallReset.Run(Layout, Executable);
         Check = null;
-        _index = null;
         Report(failed.Count == 0 ? "Installation reset. Game settings and saves were kept."
             : "Some files could not be removed: " + string.Join(", ", failed), failed.Count != 0);
     }
@@ -322,26 +338,27 @@ internal sealed class LauncherController : IDisposable
 
     public async Task<ContentIndex> LoadMapsAsync(CancellationToken cancel)
     {
-        _index = await Packs.FetchIndexAsync(cancel);
-        if (_index.Problem is { } problem) Report(problem);
-        return _index;
+        ContentIndex index = await Packs.FetchIndexAsync(cancel);
+        if (index.Problem is { } problem) Report(problem);
+        return index;
     }
 
     public async Task DownloadMapsAsync(IEnumerable<ContentMap> maps, CancellationToken cancel)
     {
         if (GameRunning) throw new InvalidOperationException("Close OpenSCCT before changing its downloaded maps.");
-        _index ??= await Packs.FetchIndexAsync(cancel);
-        foreach (ContentSharedPack pack in PackedContent.SharedToFetch(_index, Packs))
-            await Packs.InstallSharedAsync(pack, PackReporter(pack.Title), cancel);
         foreach (ContentMap map in maps)
+        {
+            if (SteamVersusMaps.Contains(map.Code)) throw new InvalidOperationException("Build original maps from your Steam installation.");
             await Packs.InstallMapAsync(map, ContentKind.Full, PackReporter(map.DisplayTitle), cancel);
-        Report("Selected maps are ready to play.");
+        }
+        Report("Selected maps installed.");
     }
 
     public void RemoveMaps(IEnumerable<string> codes)
     {
         if (Busy || GameRunning) throw new InvalidOperationException("Close OpenSCCT and finish downloads before removing maps.");
-        foreach (string code in codes) Packs.RemoveMap(code);
+        foreach (string code in codes)
+            if (!SteamVersusMaps.Contains(code)) Packs.RemoveMap(code);
         Report("Selected maps removed.");
     }
 

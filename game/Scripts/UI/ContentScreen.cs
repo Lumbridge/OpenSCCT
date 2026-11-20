@@ -11,7 +11,7 @@ using OpenScctGame.Online;
 namespace OpenScctGame.UI;
 
 /// <summary>
-/// Content (OpenSCCT's own, docs/CONTENT-PACKS.md): the maps and shared packs of OpenSCCT-Content, with what this
+/// Content (OpenSCCT's own, docs/CONTENT-PACKS.md): the optional maps in OpenSCCT-Content, with what this
 /// computer has. Download, Update, Stop and Remove work as the launcher's Maps window does, through
 /// <see cref="ContentPacks"/>, so a download started here is the same one the lobby and the hub show.
 /// </summary>
@@ -22,7 +22,6 @@ public partial class ContentScreen : MenuPage
     protected override Vector2 ResponsiveReference => new(1600f, 900f);
 
     private VBoxContainer? _maps;
-    private VBoxContainer? _shared;
     private Label? _where;
     private Label? _status;
     private LineEdit? _search;
@@ -38,7 +37,7 @@ public partial class ContentScreen : MenuPage
         UiStyle.MenuButton("Maps & Content", () => FrontEnd.ShowContent(from.GetTree()), "Content");
 
     /// <summary>One row's live parts: what it was built with, and the bits a running download updates.</summary>
-    private sealed record RowView(string Key, bool Shared, string? BuiltWith, Label Status, UiProgress Bar, BoxContainer Row);
+    private sealed record RowView(string Key, string? BuiltWith, Label Status, UiProgress Bar, BoxContainer Row);
 
     private bool CompactRows => Math.Min(PreferredBodyWidth, AvailableBodyWidth) < 900f;
 
@@ -60,7 +59,7 @@ public partial class ContentScreen : MenuPage
 
         VBoxContainer where = CareerPanels.Card(Body, "Where", "Your library");
         CareerPanels.Text(where, "Help", OperatingSystem.IsBrowser() ? "Download maps to explore or join a session." :
-            "Download maps and keep your shared game content up to date.", dim: true, size: 14);
+            "Install extra maps alongside the maps built from your Steam game.", dim: true, size: 14);
         _where = new Label { Name = "WhereText", AutowrapMode = TextServer.AutowrapMode.WordSmart, Modulate = UiStyle.Dim };
         _where.AddThemeFontSizeOverride("font_size", 13);
         where.AddChild(_where);
@@ -88,13 +87,6 @@ public partial class ContentScreen : MenuPage
         mapScroll.FollowFocus = true;
         mapScroll.AddChild(_maps);
 
-        VBoxContainer shared = CareerPanels.Card(Body, "Shared", "Shared content");
-        CareerPanels.Text(shared, "Help", OperatingSystem.IsBrowser() ? "Shared gameplay data arrives with browser game updates." :
-            "Characters, sounds and common files used across maps. Required packs download with each map.", dim: true, size: 14);
-        shared.GetNode<Label>("Caption").AutowrapMode = TextServer.AutowrapMode.WordSmart;
-        _shared = new VBoxContainer { Name = "SharedRows", SizeFlagsHorizontal = SizeFlags.ExpandFill };
-        _shared.AddThemeConstantOverride("separation", 8);
-        shared.AddChild(_shared);
         if (!OperatingSystem.IsBrowser()) AnimationPacks();
 
         _status = new Label { Name = "Status", Modulate = UiStyle.MenuFocus, AutowrapMode = TextServer.AutowrapMode.WordSmart };
@@ -158,7 +150,7 @@ public partial class ContentScreen : MenuPage
     // ---- the rows --------------------------------------------------------------------------------------------------
 
     private static ContentPacks.DownloadJob? JobOf(RowView view) =>
-        view.Shared ? ContentPacks.SharedJob(view.Key) : ContentPacks.Job(view.Key);
+        ContentPacks.Job(view.Key);
 
     /// <summary>A download started, finished or failed since the rows were built (here, in the lobby or the hub).</summary>
     private bool RowChanged()
@@ -179,7 +171,7 @@ public partial class ContentScreen : MenuPage
 
     private void Fill()
     {
-        if (_maps is null || _shared is null)
+        if (_maps is null)
         {
             return;
         }
@@ -189,14 +181,12 @@ public partial class ContentScreen : MenuPage
         _generation = ContentPacks.Generation;
         _views.Clear();
         Clear(_maps);
-        Clear(_shared);
         ShowWhere();
 
         ContentStore store = ContentPacks.Store;
         IReadOnlyList<InstalledContent> installed = store.Installed();
         FillCategories(_shownIndex);
         FillMaps(store, installed);
-        FillShared(store, installed);
 
         if (_shownIndex is null)
         {
@@ -207,9 +197,9 @@ public partial class ContentScreen : MenuPage
         else if (_status?.Text.StartsWith("Loading", StringComparison.Ordinal) == true || _status?.Text.Length == 0 ||
             _status?.Text.StartsWith("Downloading", StringComparison.Ordinal) == true && _views.All(v => JobOf(v)?.Running != true))
         {
-            int count = _shownIndex.PlayableMaps().Count();
-            int have = installed.Count(c => !c.IsShared);
-            ShowStatus($"{count} maps on OpenSCCT-Content, {have} downloaded." + (_shownIndex.Problem is { } p ? " " + p : string.Empty));
+            int count = _shownIndex.PlayableMaps().Count(m => ContentPacks.CanDownloadMap(m.Code));
+            int have = installed.Count(c => !c.IsShared && ContentPacks.CanDownloadMap(c.Code));
+            ShowStatus($"{count} downloadable maps, {have} downloaded." + (_shownIndex.Problem is { } p ? " " + p : string.Empty));
         }
     }
 
@@ -235,12 +225,7 @@ public partial class ContentScreen : MenuPage
             return;
         }
 
-        string own = ContentPaths.Root is { } root
-            ? "Converted from your game: " + root
-            : ContentPacks.UsesOwnSharedContent
-                ? "Converted from your game: this checkout's .content"
-                : "No converted game files: the shared packs below supply what maps need.";
-        _where.Text = own + "\nDownloads: " + ContentPaths.PacksFolder;
+        _where.Text = $"Game files: {ContentPaths.Root}\nOptional maps: {ContentPaths.PacksFolder}";
     }
 
     private void FillCategories(ContentIndex? index)
@@ -250,7 +235,7 @@ public partial class ContentScreen : MenuPage
             return;
         }
 
-        foreach (string c in index.PlayableMaps().Select(m => m.Category).Where(c => c.Length > 0).Distinct()
+        foreach (string c in index.PlayableMaps().Where(m => ContentPacks.CanDownloadMap(m.Code)).Select(m => m.Category).Where(c => c.Length > 0).Distinct()
             .OrderBy(ContentIndex.CategoryRank).ThenBy(c => c, StringComparer.Ordinal))
         {
             _category.AddItem(c);
@@ -259,11 +244,11 @@ public partial class ContentScreen : MenuPage
 
     private void FillMaps(ContentStore store, IReadOnlyList<InstalledContent> installed)
     {
-        var packs = installed.Where(p => !p.IsShared).ToDictionary(p => p.Code, StringComparer.OrdinalIgnoreCase);
+        var packs = installed.Where(p => !p.IsShared && ContentPacks.CanDownloadMap(p.Code)).ToDictionary(p => p.Code, StringComparer.OrdinalIgnoreCase);
         var rows = new List<(ContentMap? Map, InstalledContent? Pack)>();
         if (_shownIndex is not null)
         {
-            foreach (ContentMap m in _shownIndex.PlayableMaps().OrderBy(m => ContentIndex.CategoryRank(m.Category))
+            foreach (ContentMap m in _shownIndex.PlayableMaps().Where(m => ContentPacks.CanDownloadMap(m.Code)).OrderBy(m => ContentIndex.CategoryRank(m.Category))
                 .ThenBy(m => m.DisplayTitle, StringComparer.OrdinalIgnoreCase))
             {
                 rows.Add((m, packs.GetValueOrDefault(m.Code)));
@@ -364,7 +349,7 @@ public partial class ContentScreen : MenuPage
         details.AddChild(new Label { Text = category, CustomMinimumSize = new Vector2(110f, 0f), Modulate = UiStyle.Dim, AutowrapMode = TextServer.AutowrapMode.WordSmart });
         details.AddChild(new Label
         {
-            Text = map is null ? string.Empty : Mb(map.Full.Size), CustomMinimumSize = new Vector2(80f, 0f),
+            Text = map is null ? string.Empty : Mb(map.DownloadSize()), CustomMinimumSize = new Vector2(80f, 0f),
             HorizontalAlignment = HorizontalAlignment.Right, Modulate = UiStyle.Dim,
         });
 
@@ -401,11 +386,11 @@ public partial class ContentScreen : MenuPage
         }
         else
         {
-            if (map is not null && (state is MapState.Available or MapState.UpdateAvailable ||
+            if (map is not null && !ContentPacks.NeedsNativeLauncher(map) && (state is MapState.Available or MapState.UpdateAvailable ||
                 OperatingSystem.IsBrowser() && (state == MapState.InGame || job?.Error is not null)))
             {
                 buttons.AddChild(SmallButton(job?.Error is not null ? "Retry" : state == MapState.UpdateAvailable ? "Update" :
-                    state == MapState.InGame ? "Reinstall" : "Download", () =>
+                    state == MapState.InGame ? "Reinstall" : ContentPacks.InstallAction(map), () =>
                 {
                     ContentPacks.Download(map);
                     ShowStatus($"Downloading {title}...");
@@ -421,7 +406,7 @@ public partial class ContentScreen : MenuPage
 
         var bar = new UiProgress { Name = "Progress", Visible = job is { Running: true }, Value = (float)(job?.Fraction ?? 0) };
         column.AddChild(bar);
-        _views.Add(new RowView(code, false, JobState(job), status, bar, row));
+        _views.Add(new RowView(code, JobState(job), status, bar, row));
         return RowFrame(column);
     }
 
@@ -431,105 +416,8 @@ public partial class ContentScreen : MenuPage
         MapState.UpdateAvailable => "Update available" + Version(map!.Version),
         MapState.InGame => "In your converted game files",
         MapState.Unlisted => "Downloaded (no longer listed)",
-        _ => "Not downloaded",
+        _ => map is not null && ContentPacks.NeedsNativeLauncher(map) ? "Build from Steam in the native launcher" : "Not downloaded",
     };
-
-    private void FillShared(ContentStore store, IReadOnlyList<InstalledContent> installed)
-    {
-        bool own = ContentPacks.UsesOwnSharedContent;
-        if (_shownIndex is null || _shownIndex.Shared.Count == 0)
-        {
-            int have = installed.Count(c => c.IsShared);
-            _shared!.AddChild(new Label
-            {
-                Text = OperatingSystem.IsBrowser() ? "Shared gameplay data is included with this browser build." :
-                    (have > 0 ? $"{have} shared packs downloaded." : "No shared packs downloaded.") +
-                    (own ? " Your converted game files supply the shared content." : string.Empty),
-                Modulate = UiStyle.Dim, AutowrapMode = TextServer.AutowrapMode.WordSmart,
-            });
-            return;
-        }
-
-        foreach (ContentSharedPack pack in _shownIndex.Shared)
-        {
-            _shared!.AddChild(SharedRow(store, installed, pack, own));
-        }
-    }
-
-    private Control SharedRow(ContentStore store, IReadOnlyList<InstalledContent> installed, ContentSharedPack pack, bool own)
-    {
-        var column = new VBoxContainer { Name = "Pack" };
-        column.AddThemeConstantOverride("separation", 2);
-        var row = new BoxContainer { Vertical = CompactRows };
-        row.AddThemeConstantOverride("separation", 12);
-        column.AddChild(row);
-        var summary = new VBoxContainer { Name = "Summary", SizeFlagsHorizontal = SizeFlags.ExpandFill };
-        var details = new HBoxContainer { Name = "Details", SizeFlagsVertical = SizeFlags.ShrinkCenter };
-        details.AddThemeConstantOverride("separation", 12);
-        row.AddChild(summary);
-        row.AddChild(details);
-
-        string title = pack.Title.Length > 0 ? pack.Title : pack.Id;
-        bool has = store.HasShared(pack);
-        bool older = !has && installed.Any(c => c.IsShared && string.Equals(c.Code, pack.Id, StringComparison.OrdinalIgnoreCase));
-        summary.AddChild(new Label
-        {
-            Name = "PackTitle", Text = title, SizeFlagsHorizontal = SizeFlags.ExpandFill,
-            AutowrapMode = TextServer.AutowrapMode.WordSmart, MouseFilter = MouseFilterEnum.Pass,
-            TooltipText = pack.Contents.Count > 0 ? "Holds " + string.Join(", ", pack.Contents) : pack.Id,
-        });
-        details.AddChild(new Label
-        {
-            Text = Mb(pack.Download.Size), CustomMinimumSize = new Vector2(80f, 0f), HorizontalAlignment = HorizontalAlignment.Right,
-            Modulate = UiStyle.Dim,
-        });
-
-        ContentPacks.DownloadJob? job = ContentPacks.SharedJob(pack.Id);
-        var status = new Label
-        {
-            SizeFlagsHorizontal = SizeFlags.ExpandFill, AutowrapMode = TextServer.AutowrapMode.WordSmart,
-            Text = has ? "Downloaded" + Version(pack.Version)
-                : older ? "Update available" + Version(pack.Version)
-                : own ? "Not needed"
-                : "Not downloaded",
-            Modulate = has ? UiStyle.MenuFocus : older ? Colors.Orange : UiStyle.Dim,
-        };
-        if (!has && !older)
-        {
-            status.TooltipText = own ? "Your converted game files have it." : "Maps download it when they need it.";
-            status.MouseFilter = MouseFilterEnum.Pass;
-        }
-        if (job is { Running: false, Error: { } error })
-        {
-            status.Text = error == "stopped" ? "Stopped" : "Failed: " + error;
-            status.TooltipText = error;
-            status.MouseFilter = MouseFilterEnum.Pass;
-            status.Modulate = Colors.Orange;
-        }
-
-        summary.AddChild(status);
-        var buttons = new HBoxContainer { CustomMinimumSize = new Vector2(190f, 0f), Alignment = BoxContainer.AlignmentMode.End };
-        details.AddChild(new Control { SizeFlagsHorizontal = SizeFlags.ExpandFill });
-        details.AddChild(buttons);
-        if (job is { Running: true } running)
-        {
-            buttons.AddChild(SmallButton("Stop", running.Cancel));
-        }
-        else if (!has)
-        {
-            buttons.AddChild(SmallButton(older ? "Update" : "Download", () =>
-            {
-                ContentPacks.DownloadShared(pack);
-                ShowStatus($"Downloading {title}...");
-                Fill();
-            }));
-        }
-
-        var bar = new UiProgress { Name = "Progress", Visible = job is { Running: true }, Value = (float)(job?.Fraction ?? 0) };
-        column.AddChild(bar);
-        _views.Add(new RowView(pack.Id, true, JobState(job), status, bar, row));
-        return RowFrame(column);
-    }
 
     // ---- actions ---------------------------------------------------------------------------------------------------
 
@@ -580,7 +468,7 @@ public partial class ContentScreen : MenuPage
         frame.AddThemeStyleboxOverride("panel", style);
         frame.AddChild(column);
         foreach (Node node in column.FindChildren("*", nameof(Label), true, false))
-            if (node is Label label) label.AddThemeFontSizeOverride("font_size", label.Name.ToString() is "MapTitle" or "PackTitle" ? 16 : 14);
+            if (node is Label label) label.AddThemeFontSizeOverride("font_size", label.Name.ToString() == "MapTitle" ? 16 : 14);
         return frame;
     }
 

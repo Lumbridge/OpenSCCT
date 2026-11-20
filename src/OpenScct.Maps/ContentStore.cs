@@ -51,11 +51,11 @@ public readonly record struct PackProgress(long Received, long Total, bool Extra
 /// is checked against the index's size and SHA-256, every extracted file against the map's manifest, and a map
 /// replaces its old folder only once it is complete. Thread-safe; one install per code at a time.
 /// </summary>
-public sealed class ContentStore
+public sealed partial class ContentStore
 {
     public const string Owner = "OpenSCCT";
     public const string Repo = "OpenSCCT-Content";
-    public const string IndexUrl = $"https://raw.githubusercontent.com/{Owner}/{Repo}/main/index.json";
+    public const string IndexUrl = $"https://raw.githubusercontent.com/{Owner}/{Repo}/main/community.json";
     public const string WebUrl = $"https://github.com/{Owner}/{Repo}";
 
     /// <summary>Largest index accepted.</summary>
@@ -92,7 +92,7 @@ public sealed class ContentStore
     /// <summary>Browser mirror paths may resolve against Source; normal desktop indexes require absolute HTTPS URLs.</summary>
     public bool AllowRelativeDownloads { get; init; }
 
-    private ContentIndex ReadIndex(string json) => ContentIndex.Parse(json, AllowRelativeDownloads ? new Uri(Source) : null);
+    private ContentIndex ReadIndex(string json) => ContentIndex.Parse(json, AllowRelativeDownloads ? new Uri(Source) : null).PublicDownloads();
 
     /// <summary>The installed packs.</summary>
     public IReadOnlyList<InstalledContent> Installed()
@@ -123,10 +123,10 @@ public sealed class ContentStore
     {
         ArgumentNullException.ThrowIfNull(map);
         if (InstalledMap(map.Code) is not { } c || c.Kind != ContentKind.Full && kind == ContentKind.Full) return false;
-        if (string.Equals(c.Sha256, map.Full.Sha256, StringComparison.OrdinalIgnoreCase)) return true;
+        if (string.Equals(c.Sha256, map.FullInstallHash, StringComparison.OrdinalIgnoreCase)) return true;
         // Gameplay compatibility does not imply current visuals/audio: a full pack can change without changing
         // the multiplayer ContentHash. Only a simulation-only request may reuse that compatible older install.
-        return kind == ContentKind.Sim && (string.Equals(c.Sha256, map.Sim.Sha256, StringComparison.OrdinalIgnoreCase) ||
+        return kind == ContentKind.Sim && (string.Equals(c.Sha256, map.Sim?.Sha256, StringComparison.OrdinalIgnoreCase) ||
             c.ContentHash.Length > 0 && string.Equals(c.ContentHash, map.ContentHash, StringComparison.OrdinalIgnoreCase));
     }
 
@@ -137,8 +137,8 @@ public sealed class ContentStore
     public async Task<ContentIndex> FetchIndexAsync(CancellationToken cancel)
     {
         string cacheDir = Path.Combine(Root, "cache");
-        string cacheFile = Path.Combine(cacheDir, "index.json");
-        string etagFile = Path.Combine(cacheDir, "index.etag");
+        string cacheFile = Path.Combine(cacheDir, "community.json");
+        string etagFile = Path.Combine(cacheDir, "community.etag");
         using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancel);
         timeout.CancelAfter(TimeSpan.FromSeconds(20));
         try
@@ -198,6 +198,9 @@ public sealed class ContentStore
             throw new InvalidDataException($"The map code {map.Code} is not a valid folder name.");
         }
 
+        if (!map.CanDistribute)
+            throw new InvalidDataException("This map archive has no matching community distribution record.");
+
         SemaphoreSlim busy = Busy(map.Code);
         await busy.WaitAsync(cancel).ConfigureAwait(false);
         try
@@ -207,91 +210,54 @@ public sealed class ContentStore
                 return already;
             }
 
-            ContentDownload download = kind == ContentKind.Sim ? map.Sim : map.Full;
-            bool full = kind == ContentKind.Full || ReferenceEquals(map.Sim, map.Full);
-            string archive = await DownloadAsync(download, progress, cancel).ConfigureAwait(false);
-            string incoming = Staging("map-" + map.Code);
+            CheckLocalMap(map.Code);
+            string stage = Staging("map-" + map.Code);
             try
             {
-                progress?.Report(new PackProgress(download.Size, download.Size, true));
-                Extract(archive, incoming);
-                VerifyMap(incoming, requireAll: full);
-                Replace(incoming, Path.Combine(SvMapRoot, map.Code), Staging("old-" + map.Code));
-            }
-            finally
-            {
-                TryDeleteDirectory(incoming);
-                TryDelete(archive);
-            }
-
-            var entry = new InstalledContent
-            {
-                Id = map.Id, Code = map.Code, Version = map.Version, Sha256 = download.Sha256,
-                Kind = full ? ContentKind.Full : ContentKind.Sim, ContentHash = map.ContentHash, InstalledAt = DateTimeOffset.UtcNow,
-            };
-            Record(entry);
-            return entry;
-        }
-        finally
-        {
-            busy.Release();
-        }
-    }
-
-    /// <summary>Downloads and installs a shared pack: each of its contents replaces the same name under shared/.</summary>
-    public async Task<InstalledContent> InstallSharedAsync(ContentSharedPack pack, IProgress<PackProgress>? progress, CancellationToken cancel)
-    {
-        ArgumentNullException.ThrowIfNull(pack);
-        if (!ContentIndex.IsSafeCode(pack.Id))
-        {
-            throw new InvalidDataException($"The shared pack id {pack.Id} is not valid.");
-        }
-
-        SemaphoreSlim busy = Busy("shared/" + pack.Id);
-        await busy.WaitAsync(cancel).ConfigureAwait(false);
-        try
-        {
-            string archive = await DownloadAsync(pack.Download, progress, cancel).ConfigureAwait(false);
-            string incoming = Staging("shared-" + pack.Id);
-            try
-            {
-                progress?.Report(new PackProgress(pack.Download.Size, pack.Download.Size, true));
-                Extract(archive, incoming);
-                Directory.CreateDirectory(SharedRoot);
-                foreach (string name in pack.Contents.Count > 0 ? pack.Contents : Directory.EnumerateFileSystemEntries(incoming).Select(Path.GetFileName).OfType<string>())
+                string incoming;
+                bool full;
+                string identity;
+                if (map.SteamRecipe is { } recipe)
                 {
-                    MapPaths.ValidateRelative(name);
-                    string from = Path.Combine(incoming, name);
-                    string to = Path.Combine(SharedRoot, name);
-                    if (Directory.Exists(from))
-                    {
-                        Replace(from, to, Staging("old-shared-" + name));
-                    }
-                    else if (File.Exists(from))
-                    {
-                        File.Move(from, to, overwrite: true);
-                    }
+                    incoming = await BuildCommunityMapAsync(map, recipe, stage, progress, cancel).ConfigureAwait(false);
+                    full = true;
+                    identity = recipe.Fingerprint;
                 }
+                else
+                {
+                    var download = (kind == ContentKind.Sim ? map.Sim : map.Full)!;
+                    string archive = await DownloadAsync(download, progress, cancel).ConfigureAwait(false);
+                    try
+                    {
+                        progress?.Report(new PackProgress(download.Size, download.Size, true));
+                        incoming = Path.Combine(stage, "map");
+                        Extract(archive, incoming);
+                    }
+                    finally { TryDelete(archive); }
+                    full = kind == ContentKind.Full || ReferenceEquals(map.Sim, map.Full);
+                    identity = download.Sha256;
+                }
+                VerifyMap(incoming, requireAll: full);
+                cancel.ThrowIfCancellationRequested();
+                var entry = new InstalledContent
+                {
+                    Id = map.Id, Code = map.Code, Version = map.Version, Sha256 = identity,
+                    Kind = full ? ContentKind.Full : ContentKind.Sim, ContentHash = map.ContentHash, InstalledAt = DateTimeOffset.UtcNow,
+                };
+                PublishMap(incoming, entry);
+                return entry;
             }
-            finally
-            {
-                TryDeleteDirectory(incoming);
-                TryDelete(archive);
-            }
-
-            var entry = new InstalledContent
-            {
-                Id = "shared/" + pack.Id, Code = pack.Id, Version = pack.Version, Sha256 = pack.Download.Sha256,
-                Kind = ContentKind.Full, InstalledAt = DateTimeOffset.UtcNow,
-            };
-            Record(entry);
-            return entry;
+            finally { TryDeleteDirectory(stage); }
         }
         finally
         {
             busy.Release();
         }
     }
+
+    /// <summary>Older callers receive the migration guidance before making a network request.</summary>
+    public Task<InstalledContent> InstallSharedAsync(ContentSharedPack pack, IProgress<PackProgress>? progress, CancellationToken cancel) =>
+        Task.FromException<InstalledContent>(new InvalidDataException("Build shared game assets from your installed copy of Chaos Theory."));
 
     /// <summary>Navigation is shared by matching converted and downloaded maps and survives map pack updates.</summary>
     public static string? BotNavigationPath(string root, string simHash, int formatVersion) =>
@@ -305,7 +271,8 @@ public sealed class ContentStore
         ArgumentNullException.ThrowIfNull(matches);
         string path = BotNavigationPath(Root, nav.SimHash, nav.FormatVersion)
             ?? throw new InvalidDataException("Invalid bot navigation identity.");
-        if (!ContentIndex.IsSha256(nav.Download.Sha256)) throw new InvalidDataException("Invalid bot navigation checksum.");
+        if (!ContentDistribution.Matches(nav.ApprovedSha256, nav.Download.Sha256))
+            throw new InvalidDataException("This navigation archive has no matching community distribution record.");
 
         SemaphoreSlim busy = Busy(path);
         await busy.WaitAsync(cancel).ConfigureAwait(false);
@@ -345,6 +312,7 @@ public sealed class ContentStore
             return;
         }
 
+        using var lease = LockLibrary();
         TryDeleteDirectory(Path.Combine(SvMapRoot, code));
         lock (_gate)
         {
@@ -509,36 +477,44 @@ public sealed class ContentStore
         return Path.Combine(dir, what + "-" + Guid.NewGuid().ToString("N")[..8]);
     }
 
-    /// <summary>Puts <paramref name="from"/> at <paramref name="to"/>, moving any old folder to <paramref name="aside"/> first and deleting it after.</summary>
-    private static void Replace(string from, string to, string aside)
+    // Installs can be initiated by the launcher, game or editor. Keep the short metadata commit
+    // and directory swap together, preserving the previous map if publication fails.
+    private FileStream LockLibrary()
     {
-        Directory.CreateDirectory(Path.GetDirectoryName(to)!);
-        string? old = null;
+        Directory.CreateDirectory(Root);
+        return new FileStream(Path.Combine(Root, ".install.lock"), FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
+    }
+
+    private void CheckLocalMap(string code)
+    {
+        if (Directory.Exists(Path.Combine(SvMapRoot, code)) && InstalledMap(code) is null)
+            throw new InvalidOperationException($"A local map already uses {code}. Move or rename your copy before installing a community version.");
+    }
+
+    private void PublishMap(string from, InstalledContent entry)
+    {
+        using var lease = LockLibrary();
+        CheckLocalMap(entry.Code);
+        string to = Path.Combine(SvMapRoot, entry.Code);
+        Directory.CreateDirectory(SvMapRoot);
+        string? aside = null;
         if (Directory.Exists(to))
         {
-            old = aside;
-            Directory.Move(to, old);
+            aside = Staging("old-" + entry.Code);
+            Directory.Move(to, aside);
         }
-
         try
         {
             Directory.Move(from, to);
+            try { Record(entry); }
+            catch { Directory.Move(to, from); throw; }
         }
         catch
         {
-            if (old is not null && !Directory.Exists(to))
-            {
-                Directory.Move(old, to);
-                old = null;
-            }
-
+            if (aside is not null) Directory.Move(aside, to);
             throw;
         }
-
-        if (old is not null)
-        {
-            TryDeleteDirectory(old);
-        }
+        if (aside is not null) TryDeleteDirectory(aside);
     }
 
     private void Record(InstalledContent entry)

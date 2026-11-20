@@ -15,6 +15,10 @@ public sealed partial class MapCatalog
             lock (_gate)
             {
                 if (_gadgetMeshes is not null) return _gadgetMeshes;
+                if (ContentPaths.LocalBaseOnly)
+                {
+                    return _gadgetMeshes = LoadConfiguredMeshes();
+                }
                 foreach (string root in _roots)
                 {
                     foreach (string shared in new[] { Path.Combine(root, "..", "shared"), Path.Combine(root, "..") })
@@ -23,14 +27,15 @@ public sealed partial class MapCatalog
                         if (File.Exists(path)) return _gadgetMeshes = GadgetCollision.Load(path);
                     }
                 }
-                if (ContentPaths.Shared is { } content)
-                {
-                    string path = Path.Combine(content, "render", "gameplay", "collision.json");
-                    if (File.Exists(path)) return _gadgetMeshes = GadgetCollision.Load(path);
-                }
-                // A catalog can be used before the shared pack finishes downloading.
-                return null;
+                return _gadgetMeshes = LoadConfiguredMeshes();
             }
         }
     }
+
+    private static GadgetCollision? LoadConfiguredMeshes()
+    {
+        string? file = ContentPaths.Shared is { } shared ? Path.Combine(shared, "render", "gameplay", "collision.json") : null;
+        return File.Exists(file) ? GadgetCollision.Load(file) : null;
+    }
+
 }

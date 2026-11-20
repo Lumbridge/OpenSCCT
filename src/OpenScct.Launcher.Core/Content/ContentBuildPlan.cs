@@ -78,13 +78,14 @@ public static class ContentBuildPlan
     /// The arguments after python.exe. <paramref name="addons"/> is the downloaded maps folder
     /// (<see cref="OpenScct.Maps.MapLibrary.GameFolder"/>), or null.
     /// </summary>
-    public static IReadOnlyList<string> Arguments(string gamePath, string contentRoot, int jobs, string language = DefaultLanguage, string? addons = null)
+    public static IReadOnlyList<string> Arguments(string gamePath, string contentRoot, int jobs, string language = DefaultLanguage,
+        string? addons = null, IReadOnlyList<string>? maps = null)
     {
         ArgumentException.ThrowIfNullOrEmpty(gamePath);
         ArgumentException.ThrowIfNullOrEmpty(contentRoot);
         var args = new List<string> { "-u", "-m", "svmbuild" };
         args.AddRange(Steps);
-        args.AddRange(["--maps", "all", "--game", gamePath, "--out", contentRoot, "--jobs", Math.Max(1, jobs).ToString(CultureInfo.InvariantCulture),
+        args.AddRange(["--maps", maps is null ? "all" : string.Join(',', maps), "--game", gamePath, "--out", contentRoot, "--jobs", Math.Max(1, jobs).ToString(CultureInfo.InvariantCulture),
             "--report", Path.Combine(contentRoot, "build-report.json")]);
         if (!string.IsNullOrEmpty(addons))
         {
@@ -224,7 +225,7 @@ public static class ContentBuilder
     /// <param name="downloadedMaps">Their fingerprint, kept in <see cref="ContentState.DownloadedMaps"/>.</param>
     public static async Task<ContentState> RunAsync(string python, string version, string gamePath, string contentRoot, int jobs,
         IProgress<ContentProgress>? progress, Action<string>? log, CancellationToken cancel, string language = ContentBuildPlan.DefaultLanguage,
-        string? addons = null, string? downloadedMaps = null)
+        string? addons = null, string? downloadedMaps = null, bool steamBase = false, string? toolDirectory = null)
     {
         language = ContentBuildPlan.NormaliseLanguage(language);
         ArgumentException.ThrowIfNullOrEmpty(python);
@@ -232,17 +233,23 @@ public static class ContentBuilder
         var counter = new UnitCounter();
         void OnLine(string line)
         {
-            log?.Invoke(line);
-            if (counter.Read(line))
+            // stdout and stderr callbacks may arrive on different threads.
+            lock (counter)
             {
-                progress?.Report(new ContentProgress(counter.Done, counter.Total, line.Trim(), counter.RunningNames()));
+                log?.Invoke(line);
+                if (counter.Read(line))
+                    progress?.Report(new ContentProgress(counter.Done, counter.Total, line.Trim(), counter.RunningNames()));
             }
         }
 
         bool hadPlayable = ContentState.Load(contentRoot)?.PlayableFor(version) == true;
         // Arguments() starts with "-u -m svmbuild", which the shared runner adds itself.
-        int exitCode = await new OpenScct.Maps.BuilderTool(python, contentRoot)
-            .RunAsync(ContentBuildPlan.Arguments(gamePath, contentRoot, jobs, language, addons).Skip(3), contentRoot, OnLine, cancel)
+        var args = ContentBuildPlan.Arguments(gamePath, contentRoot, jobs, language, addons,
+            steamBase ? OpenScct.Maps.SteamVersusMaps.All : null);
+        IEnumerable<string> workerArgs = args.Skip(3);
+        if (steamBase) workerArgs = workerArgs.Append("--no-cache");
+        int exitCode = await new OpenScct.Maps.BuilderTool(python, toolDirectory ?? contentRoot)
+            .RunAsync(workerArgs, contentRoot, OnLine, cancel, steamBase)
             .ConfigureAwait(false);
         var state = new ContentState
         {

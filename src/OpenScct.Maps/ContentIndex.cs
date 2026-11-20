@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 
 namespace OpenScct.Maps;
@@ -10,7 +11,18 @@ namespace OpenScct.Maps;
 public sealed record ContentDownload(string Url, long Size, string Sha256);
 
 /// <summary>Optional Spy and Merc navigation for one simulation revision and the map's initial activation mask.</summary>
-public sealed record ContentBotNavigation(string SimHash, int FormatVersion, byte ActivationMask, ContentDownload Download);
+public sealed record ContentBotNavigation(string SimHash, int FormatVersion, byte ActivationMask, ContentDownload Download)
+{
+    internal string? ApprovedSha256 { get; init; }
+}
+
+/// <summary>The catalogue publisher's redistribution review for the exact community archives.</summary>
+public sealed record ContentDistribution(string Kind, string Credits, string License, string Evidence, string FullSha256,
+    string SimSha256, string NavigationSha256 = "")
+{
+    internal static bool Matches(string? approved, string actual) =>
+        ContentIndex.IsSha256(actual) && string.Equals(approved, actual, StringComparison.OrdinalIgnoreCase);
+}
 
 /// <summary>A shared pack (core, chars, audio): what converted maps need from outside their own folder.</summary>
 public sealed record ContentSharedPack
@@ -63,12 +75,29 @@ public sealed record ContentMap
     public IReadOnlyList<ContentRequirement> Requires { get; init; } = [];
 
     /// <summary>Everything the game needs.</summary>
-    public required ContentDownload Full { get; init; }
+    public ContentDownload? Full { get; init; }
 
     /// <summary>manifest.json and sim/ only (servers); the full archive when the index has none.</summary>
-    public required ContentDownload Sim { get; init; }
+    public ContentDownload? Sim { get; init; }
 
     public ContentBotNavigation? BotNavigation { get; init; }
+
+    public ContentDistribution? Distribution { get; init; }
+
+    public SteamMapRecipe? SteamRecipe { get; init; }
+
+    public bool CanDistribute => !SteamVersusMaps.Contains(Code) && !string.Equals(SourceKind, "install", StringComparison.OrdinalIgnoreCase) &&
+        (SteamRecipe is { } recipe
+            ? recipe.Code == Code && Full is null && Sim is null && ContentHash.Length == 16 && ContentHash.All(char.IsAsciiHexDigit)
+            : Full is not null && Sim is not null && Distribution is { Kind: "community-authored" } review &&
+              !string.IsNullOrWhiteSpace(review.Credits) && !string.IsNullOrWhiteSpace(review.License) &&
+              Uri.TryCreate(review.Evidence, UriKind.Absolute, out var evidence) && evidence.Scheme == Uri.UriSchemeHttps &&
+              ContentDistribution.Matches(review.FullSha256, Full.Sha256) && ContentDistribution.Matches(review.SimSha256, Sim.Sha256));
+
+    public long DownloadSize(ContentKind kind = ContentKind.Full) =>
+        SteamRecipe?.DownloadSize ?? (kind == ContentKind.Sim ? Sim : Full)?.Size ?? 0;
+
+    public string FullInstallHash => SteamRecipe?.Fingerprint ?? Full?.Sha256 ?? string.Empty;
 
     public string DisplayTitle => Title.Length > 0 ? Title : Code;
 }
@@ -102,6 +131,17 @@ public sealed record ContentIndex
     public string? Problem { get; init; }
 
     public static ContentIndex Empty { get; } = new();
+
+    /// <summary>The reviewed public map feed. Historical shared packs and unreviewed archives are local-use only.</summary>
+    public ContentIndex PublicDownloads() => this with
+    {
+        Shared = [],
+        Maps = Maps.Where(map => map.CanDistribute).Select(map => map with
+        {
+            BotNavigation = map.SteamRecipe is null && map.BotNavigation is { } nav && ContentDistribution.Matches(map.Distribution?.NavigationSha256, nav.Download.Sha256)
+                ? nav with { ApprovedSha256 = nav.Download.Sha256 } : null,
+        }).ToArray(),
+    };
 
     /// <summary>
     /// The map of <paramref name="code"/> (case-insensitive), or null. Two categories may hold the same code (a
@@ -241,10 +281,19 @@ public sealed record ContentIndex
             {
                 foreach (JsonElement m in Array(root, "maps"))
                 {
-                    if (Str(m, "code") is not { Length: > 0 } code || !IsSafeCode(code) || Download(m, "full", downloadOrigin) is not { } full)
+                    if (Str(m, "code") is not { Length: > 0 } code || !IsSafeCode(code))
                     {
                         continue;
                     }
+
+                    var full = Download(m, "full", downloadOrigin);
+                    SteamMapRecipe? recipe = null;
+                    if (m.TryGetProperty("steamRecipe", out var recipeData))
+                    {
+                        recipe = SteamMapRecipe.Read(recipeData, code, Str(m, "contentHash").ToLowerInvariant());
+                        if (recipe is null || m.TryGetProperty("full", out _) || m.TryGetProperty("sim", out _)) continue;
+                    }
+                    else if (full is null) continue;
 
                     var requires = new List<ContentRequirement>();
                     foreach (JsonElement r in Array(m, "requires"))
@@ -268,9 +317,13 @@ public sealed record ContentIndex
                         ContentHash = contentHash,
                         ManifestSha256 = Str(m, "manifestSha256").ToLowerInvariant(),
                         Requires = requires,
+                        SteamRecipe = recipe,
                         Full = full,
                         Sim = Download(m, "sim", downloadOrigin) ?? full,
                         BotNavigation = ReadBotNavigation(m, contentHash, downloadOrigin),
+                        Distribution = m.TryGetProperty("distribution", out var d) && d.ValueKind == JsonValueKind.Object
+                            ? new ContentDistribution(Str(d, "kind"), Str(d, "credits"), Str(d, "license"), Str(d, "evidence"),
+                                Str(d, "fullSha256"), Str(d, "simSha256"), Str(d, "navigationSha256")) : null,
                     });
                 }
             }
@@ -354,7 +407,7 @@ public sealed record ContentIndex
     private static IEnumerable<JsonElement> Array(JsonElement e, string name) =>
         e.TryGetProperty(name, out JsonElement a) && a.ValueKind == JsonValueKind.Array ? a.EnumerateArray() : [];
 
-    private static string Str(JsonElement e, string name) =>
+    internal static string Str(JsonElement e, string name) =>
         e.ValueKind == JsonValueKind.Object && e.TryGetProperty(name, out JsonElement v) && v.ValueKind == JsonValueKind.String ? v.GetString() ?? string.Empty : string.Empty;
 
     private static List<string> Strings(JsonElement e, string name)

@@ -1,3 +1,4 @@
+using OpenScct.Maps;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -32,29 +33,29 @@ public sealed class UnrealServiceTests
     {
         using var dir = new TempDir();
         var github = new FakeGitHub();
-        github.AddVersion("0.1.0", Zip("0.1.0"));
+        github.AddVersion("0.1.10", Zip("0.1.10"));
         // The root has a space in it: the content argument must be quoted after the '='.
         (UnrealService service, LauncherLayout layout) = Create(dir, github, "Open SCCT");
         var cancel = TestContext.Current.CancellationToken;
 
         UnrealCheck check = await service.CheckAsync(false, cancel);
         Assert.Null(check.Feed.Problem);
-        Assert.Equal("0.1.0", check.Latest!.Version.ToString());
+        Assert.Equal("0.1.10", check.Latest!.Version.ToString());
         Assert.True(check.UpdateAvailable);
         Assert.Null(check.Installed);
 
         var phases = new List<UnrealProgress>();
         UnrealInstallResult result = await service.InstallAsync(check.Latest, new SyncProgress<UnrealProgress>(phases.Add), cancel);
         Assert.Equal(UnrealInstallOutcome.Installed, result.Outcome);
-        Assert.Equal(github.Payloads["OpenSCCT-Unreal-0.1.0-win-x64.zip"].Length, result.DownloadedBytes);
+        Assert.Equal(github.Payloads["OpenSCCT-Unreal-0.1.10-win-x64.zip"].Length, result.DownloadedBytes);
         Assert.Null(result.BuildBytes);
         Assert.Contains(phases, p => p.Phase == "Downloading OpenSCCT Unreal");
         Assert.Equal("OpenSCCT Unreal installed", phases[^1].Phase);
         Assert.False(phases[^1].CanCancel);
 
         UnrealInstallation installed = service.Installed()!;
-        Assert.Equal("0.1.0", installed.Version.ToString());
-        Assert.Equal(Path.Combine(layout.Unreal, "versions", "0.1.0"), installed.Folder);
+        Assert.Equal("0.1.10", installed.Version.ToString());
+        Assert.Equal(Path.Combine(layout.Unreal, "versions", "0.1.10"), installed.Folder);
         Assert.Equal("0.8.161", installed.OpenscctVersion);
         Assert.Equal("abc123", installed.OpenscctCommit);
         Assert.True(File.Exists(Path.Combine(installed.Folder, Shipping)));
@@ -65,12 +66,12 @@ public sealed class UnrealServiceTests
         Assert.Equal(UnrealInstallOutcome.AlreadyCurrent, (await service.InstallAsync(check.Latest, null, cancel)).Outcome);
         Assert.False((await service.CheckAsync(false, cancel)).UpdateAvailable);
 
-        Packs(layout);
+        string content = SteamFiles(layout);
         ProcessStartInfo start = service.StartInfo();
         Assert.Equal(Path.Combine(installed.Folder, UnrealService.StarterExe), start.FileName);
         Assert.Equal(installed.Folder, start.WorkingDirectory);
         Assert.False(start.UseShellExecute);
-        Assert.Equal("-ScctContent=\"" + layout.Packs + "\"", start.Arguments);
+        Assert.Equal("-ScctContent=\"" + content + "\"", start.Arguments);
         Assert.Contains(' ', layout.Packs);
         Assert.Empty(start.ArgumentList);
         Assert.False(start.Environment.ContainsKey("SVM_CONTENT"));
@@ -82,11 +83,11 @@ public sealed class UnrealServiceTests
     {
         using var dir = new TempDir();
         var github = new FakeGitHub();
-        github.AddVersion("0.1.0", Zip("0.1.0"));
+        github.AddVersion("0.1.10", Zip("0.1.10"));
         (UnrealService service, LauncherLayout layout) = Create(dir, github);
         var cancel = TestContext.Current.CancellationToken;
         await service.InstallAsync((await service.CheckAsync(false, cancel)).Latest!, null, cancel);
-        Packs(layout);
+        string content = SteamFiles(layout);
         string root = dir.Combine("User maps; nightly");
         string map = Path.Combine(root, "Training");
         Directory.CreateDirectory(Path.Combine(map, "render"));
@@ -103,7 +104,7 @@ public sealed class UnrealServiceTests
         settings.Save(layout.Settings);
         Assert.EndsWith(" --svm-maps=\"" + root.Replace('\\', '/') + "\"", service.StartInfo().Arguments);
 
-        string stock = Path.Combine(layout.Packs, "svmap", "Training");
+        string stock = Path.Combine(content, "svmap", "Training");
         Directory.CreateDirectory(stock);
         File.WriteAllText(Path.Combine(stock, "manifest.json"), "{}");
         Assert.Contains("already installed", Assert.Throws<InvalidOperationException>(service.StartInfo).Message);
@@ -388,7 +389,7 @@ public sealed class UnrealServiceTests
         var github = new FakeGitHub();
         github.AddVersion("0.1.0", Zip("0.1.0"));
         (UnrealService service, LauncherLayout layout) = Create(dir, github);
-        Packs(layout);
+        SteamFiles(layout);
         var cancel = TestContext.Current.CancellationToken;
         await service.InstallAsync((await service.CheckAsync(false, cancel)).Latest!, null, cancel);
 
@@ -418,15 +419,20 @@ public sealed class UnrealServiceTests
     {
         using var dir = new TempDir();
         var github = new FakeGitHub();
-        github.AddVersion("0.1.0", Zip("0.1.0"));
+        github.AddVersion("0.1.10", Zip("0.1.10"));
         (UnrealService service, LauncherLayout layout) = Create(dir, github);
         Assert.Contains("Install OpenSCCT Unreal first", Assert.Throws<InvalidOperationException>(() => service.StartInfo()).Message, StringComparison.Ordinal);
 
         var cancel = TestContext.Current.CancellationToken;
         await service.InstallAsync((await service.CheckAsync(false, cancel)).Latest!, null, cancel);
-        Assert.Contains("Get shared files", service.PrerequisiteProblem(), StringComparison.Ordinal);
-        Assert.Contains("Get shared files", Assert.Throws<InvalidOperationException>(() => service.StartInfo()).Message, StringComparison.Ordinal);
-        Packs(layout);
+        // Old launcher installations can still have a complete shared pack catalogue.
+        Directory.CreateDirectory(Path.Combine(layout.Packs, "shared"));
+        Directory.CreateDirectory(Path.Combine(layout.Packs, "svmap", "AquaE"));
+        File.WriteAllText(Path.Combine(layout.Packs, "shared", "classes.json"), "{}");
+        File.WriteAllText(Path.Combine(layout.Packs, "svmap", "AquaE", "manifest.json"), "{}");
+        Assert.Contains("Steam installation", service.PrerequisiteProblem(), StringComparison.Ordinal);
+        Assert.Contains("Steam installation", Assert.Throws<InvalidOperationException>(() => service.StartInfo()).Message, StringComparison.Ordinal);
+        SteamFiles(layout);
         Assert.Null(service.PrerequisiteProblem());
 
         Assert.Equal(@"-ScctContent=""C:\Users\A B\AppData\Local\OpenSCCT\packs""", UnrealService.ContentArgument(@"C:\Users\A B\AppData\Local\OpenSCCT\packs"));
@@ -506,7 +512,7 @@ public sealed class UnrealServiceTests
         (UnrealService service, LauncherLayout layout) = Create(dir, github);
         var cancel = TestContext.Current.CancellationToken;
         await service.InstallAsync((await service.CheckAsync(false, cancel)).Latest!, null, cancel);
-        Packs(layout);
+        SteamFiles(layout);
         string[] kept = [layout.Packs, layout.Editor, layout.VersionDir("0.9.0"), layout.Cache];
         foreach (string folder in kept)
         {
@@ -652,12 +658,18 @@ public sealed class UnrealServiceTests
     }
 
     /// <summary>The OpenSCCT content the Game tab downloads, as far as the Unreal build needs it.</summary>
-    private static void Packs(LauncherLayout layout)
+    private static string SteamFiles(LauncherLayout layout)
     {
-        Directory.CreateDirectory(Path.Combine(layout.Packs, "shared"));
-        File.WriteAllText(Path.Combine(layout.Packs, "shared", "classes.json"), "{}");
-        Directory.CreateDirectory(Path.Combine(layout.Packs, "svmap", "MAP01"));
-        File.WriteAllText(Path.Combine(layout.Packs, "svmap", "MAP01", "manifest.json"), "{}");
+        string id = Guid.NewGuid().ToString("N");
+        string root = Path.Combine(layout.Content, SteamContentInstall.BuildsDirectory, id);
+        foreach (string relative in SteamContentInstall.RequiredFiles())
+        {
+            string path = Path.Combine(root, relative);
+            Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+            File.WriteAllText(path, "{}");
+        }
+        File.WriteAllText(Path.Combine(layout.Content, SteamContentInstall.PointerFile), JsonSerializer.Serialize(new { format = 1, build = id }));
+        return root;
     }
 
     private static byte[] Bytes(string text) => Encoding.UTF8.GetBytes(text);

@@ -197,7 +197,7 @@ public sealed partial class MapCatalog
         var roots = new List<string>(ContentPaths.MapRoots) { Path.Combine(AppContext.BaseDirectory, "maps") };
         if (FindRepoRoot(AppContext.BaseDirectory) is { } repo)
         {
-            roots.Add(Path.Combine(repo, ".content", "svmap"));
+            if (!ContentPaths.LocalBaseOnly) roots.Add(Path.Combine(repo, ".content", "svmap"));
             roots.Add(Path.Combine(repo, "fixtures"));
         }
 
@@ -226,6 +226,11 @@ public sealed partial class MapCatalog
     /// </summary>
     public string? FindCharacterContent()
     {
+        if (ContentPaths.LocalBaseOnly)
+        {
+            string? chars = ContentPaths.Shared is { } shared ? Path.Combine(shared, "chars") : null;
+            return chars is not null && Directory.Exists(Path.Combine(chars, "SPerso")) ? chars : null;
+        }
         foreach (string root in _roots)
         {
             foreach (string candidate in new[] { Path.Combine(root, "..", "shared", "chars"), Path.Combine(root, "..", "chars") })

@@ -4,7 +4,7 @@
 
 OpenSCCT is a community project for **Tom Clancy’s Splinter Cell Chaos Theory**.
 Play the original PS2 or PC release from your own copy, study how each version
-works, or play our modern Unreal Engine edition of Spies vs. Mercenaries.
+works, or play a modernisation of Spies vs. Mercenaries in Godot or Unreal Engine.
 
 [![CI](https://github.com/OpenSCCT/OpenSCCT/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/OpenSCCT/OpenSCCT/actions/workflows/ci.yml)
 [![Linux export](https://github.com/OpenSCCT/OpenSCCT/actions/workflows/linux-export.yml/badge.svg?branch=main)](https://github.com/OpenSCCT/OpenSCCT/actions/workflows/linux-export.yml)
@@ -20,25 +20,32 @@ works, or play our modern Unreal Engine edition of Spies vs. Mercenaries.
 
 ## Play
 
+### Originals
+
 | Edition | What you play | What you bring | Mods |
 |---|---|---|---|
 | **PlayStation 2** | The original game from disc, through PCSX2 | A Chaos Theory ISO, PCSX2 and your own PS2 BIOS | Select a separately patched ISO and keep the original available |
 | **PC / Steam** | The original campaign, co-op and Versus | An installed PC copy or the Steam game | Use a separate Enhanced / Reloaded Versus install alongside stock |
-| **OpenSCCT Unreal** | Our modern Windows version of Spies vs. Mercenaries | The Unreal client and its shared OpenSCCT content | Add maps built with OpenSCCT Editor |
+
+### Modernisations
+
+The modernisations rebuild Versus with new engines, graphics and features.
+
+| Edition | What you play | Map setup |
+|---|---|---|
+| **OpenSCCT Godot** | Godot 4 and C# with modern controls, bots, replays and map editing | Build the original Versus content locally from your Steam installation of Chaos Theory. The 11 retail multiplayer maps form the starting roster. Download other maps through **Maps**. |
+| **OpenSCCT Unreal** | Shared Versus simulation with Unreal Engine 5 rendering on Windows | Build retail maps and shared assets locally from the Steam game. Enable additional maps built with OpenSCCT Editor. |
 
 [Launcher setup](docs/LAUNCHER.md) · [Repositories and tools](docs/PROJECTS.md) ·
 [Original executable progress](decomp/README.md) · [Unreal releases](https://github.com/OpenSCCT/OpenSCCT-Unreal/releases)
 
-### Existing Godot client
-
-The original OpenSCCT rewrite in Godot and C# remains available. To install that client on **Windows**:
+### Install OpenSCCT Godot
 
 1. Download **OpenSCCT.Launcher.exe** from the [latest release](https://github.com/OpenSCCT/OpenSCCT/releases/latest) into a writable folder.
-2. Run it and press **Install**. The launcher downloads OpenSCCT and its game files.
-3. Click **PLAY**. By default, the launcher checks for updates each time it starts.
+2. Under **Modernisations**, select **OpenSCCT Godot**. Install the client and let the launcher find Chaos Theory in Steam, or point it at your Steam installation.
+3. Build the game content and choose **Play** when setup finishes. The original game files stay in place.
 
-The Godot client uses downloadable shared content and stock maps. **Maps** manages additional downloads. See the
-[launcher guide](docs/LAUNCHER.md) for setup, storage and troubleshooting.
+The [launcher guide](docs/LAUNCHER.md) covers setup, storage, optional map downloads and troubleshooting.
 
 | Platform | Status |
 |---|---|
@@ -142,4 +149,4 @@ OpenSCCT is a fan project, not affiliated with or endorsed by Ubisoft. Splinter 
 Chaos Theory are trademarks of Ubisoft Entertainment. This repository contains project
 code, tools, original art and attributed third-party components.
 
-[Service terms](docs/legal/TERMS.md) · [Privacy](docs/legal/PRIVACY.md)
+[Project notice](https://master.lumbridge.co.uk/legal) · [Service terms](docs/legal/TERMS.md) · [Privacy](docs/legal/PRIVACY.md)

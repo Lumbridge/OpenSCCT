@@ -33,6 +33,7 @@ command=openscct
 shared=network;ipc;
 sockets=x11;wayland;pulseaudio;
 devices=all;
+filesystems=xdg-data/OpenSCCT/content:ro;xdg-data/OpenSCCT/packs/svmap:ro;
 
 [Environment]
 DOTNET_EnableDiagnostics=0

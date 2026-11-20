@@ -33,6 +33,9 @@ internal sealed partial class MainWindow : Window
     private readonly TextBlock _launcherText = Ui.Text(string.Empty, 14);
     private readonly ProgressBar _progress = new() { Minimum = 0, Maximum = 100, Height = 5, IsVisible = false };
     private readonly Button _main = Ui.Button("Install", primary: true);
+    private readonly Button _rebuildSteam = Ui.Button("Rebuild from Steam");
+    private readonly Button _chooseSteam = Ui.Button("Choose Steam folder");
+    private readonly TextBlock _sourcePath = Ui.Text(string.Empty, 13, Ui.Muted);
     private readonly Button _playCurrent = Ui.Button("Play current version");
     private readonly Button _check = Ui.Button("Check for updates");
     private readonly Button _maps = Ui.Button("Maps");
@@ -57,6 +60,10 @@ internal sealed partial class MainWindow : Window
         using (Stream? icon = Assembly.GetExecutingAssembly().GetManifestResourceStream("OpenScct.Launcher.icon.ico"))
             if (icon is not null) Icon = new WindowIcon(icon);
 
+        using (Stream? stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("OpenScct.Launcher.operation.jpg"))
+            if (stream is not null) _artwork = new Bitmap(stream);
+        Closed += (_, _) => _artwork?.Dispose();
+
         _main.MinWidth = 150;
         _main.MinHeight = 46;
         _main.FontSize = 17;
@@ -72,8 +79,12 @@ internal sealed partial class MainWindow : Window
         var changelog = Ui.Button("Full changelog");
         changelog.Click += async (_, _) => await ShowNotesAsync();
         var release = Ui.Panel(Ui.Stack(Ui.Columns(_notesTitle, changelog), _notes));
-        _legacyPage = Ui.Stack(Ui.Text("OpenSCCT Classic", 26), launch, release, ButtonRow(_maps, _check));
-        _legacyPage.Spacing = 14;
+        _chooseSteam.Click += async (_, _) => await ChooseSteamAsync();
+        _rebuildSteam.Click += async (_, _) => await model.RunAsync("Rebuilding Steam content", model.InstallContentAsync);
+        var source = Card("Steam installation", "Godot builds its game assets and original Versus maps from your installed copy of Chaos Theory.",
+            _sourcePath, ButtonRow(_chooseSteam, _rebuildSteam));
+        _godotPage = Ui.Stack(Hero("Modernisations", "OpenSCCT Godot"), launch, source, release, ButtonRow(_maps, _check));
+        _godotPage.Spacing = 14;
         InitializeLibrary();
 
         _main.Click += async (_, _) => await DoNextAsync();
@@ -135,8 +146,9 @@ internal sealed partial class MainWindow : Window
         string? current = _model.Store.Current()?.ToString();
         _heading.Text = _model.Busy ? _model.Operation : next switch
         {
-            LauncherAction.Install => "Install OpenSCCT",
-            LauncherAction.Update => "An update is available",
+            LauncherAction.ChooseSteam => "Locate Chaos Theory",
+            LauncherAction.Install => "Install OpenSCCT Godot",
+            LauncherAction.Update => _model.ClientUpdateRequired ? "Update OpenSCCT Godot" : "An update is available",
             LauncherAction.FinishInstall => "Finish setting up",
             LauncherAction.Waiting => "Update ready to finish",
             _ => "Ready to play",
@@ -144,23 +156,33 @@ internal sealed partial class MainWindow : Window
         _installed.Text = current is null ? "Native Linux · 64-bit" : "Installed version " + current;
         _detail.Text = next switch
         {
-            LauncherAction.Install => "Download the game and its required files. No original installation is needed.",
-            LauncherAction.Update => "Only changed game files are downloaded. Your settings and saves are kept.",
-            LauncherAction.FinishInstall => "Download the remaining game files to start playing.",
+            LauncherAction.ChooseSteam => "Install Chaos Theory in Steam, then choose its installation folder.",
+            LauncherAction.Install => "Install the native client and build its content from your Steam installation.",
+            LauncherAction.Update => _model.ClientUpdateRequired ? "Update the client to enable Steam content builds."
+                : "Only changed game files are downloaded. Your settings and saves are kept.",
+            LauncherAction.FinishInstall => "Build the original Versus maps and game assets from your Steam installation.",
             LauncherAction.Waiting => "Close the running game to activate the new build.",
             LauncherAction.Play => _model.PendingJoin is null ? "Your installation is ready. You can also play offline." : "A website Join request is waiting.",
             _ => "You can stop and continue later. Completed downloads are kept.",
         };
         _main.Content = next switch
         {
+            LauncherAction.ChooseSteam => "Choose Steam folder",
             LauncherAction.Install => "Install",
             LauncherAction.Update => "Update",
-            LauncherAction.FinishInstall => "Finish install",
+            LauncherAction.FinishInstall => "Build from Steam",
             LauncherAction.Cancel => "Stop",
             LauncherAction.Waiting => "Waiting for game",
             _ => _model.PendingJoin is null ? "PLAY" : "JOIN SESSION",
         };
         _main.IsEnabled = next != LauncherAction.Waiting;
+        _sourcePath.Text = _model.SteamSource ?? "Steam installation not found.";
+        _chooseSteam.IsEnabled = !_model.Busy && !_model.GameRunning;
+        _chooseSteam.IsVisible = next != LauncherAction.ChooseSteam;
+        _rebuildSteam.IsVisible = _model.Playable && _model.SteamSource is not null;
+        _rebuildSteam.IsEnabled = !_model.Busy && !_model.GameRunning;
+        if (_editionButtons.TryGetValue("Game", out Button? godotButton))
+            ((TextBlock)((StackPanel)godotButton.Content!).Children[1]).Text = GodotStatus();
         _status.Text = _model.Status;
         _status.Foreground = _model.IsError ? Ui.Error : Ui.Muted;
         _status.IsVisible = !string.IsNullOrWhiteSpace(_model.Status);
@@ -189,12 +211,22 @@ internal sealed partial class MainWindow : Window
     {
         switch (_model.Next)
         {
+            case LauncherAction.ChooseSteam: await ChooseSteamAsync(); break;
             case LauncherAction.Cancel: _model.Cancel(); break;
             case LauncherAction.Install:
             case LauncherAction.Update: await _model.RunAsync("Installing OpenSCCT", _model.InstallAsync); break;
-            case LauncherAction.FinishInstall: await _model.RunAsync("Downloading game files", _model.InstallContentAsync); break;
+            case LauncherAction.FinishInstall: await _model.RunAsync("Building Steam content", _model.InstallContentAsync); break;
             case LauncherAction.Play: await PlayAsync(false); break;
         }
+    }
+
+    private async Task ChooseSteamAsync()
+    {
+        string? folder = await PickFolder("Choose Splinter Cell Chaos Theory from your Steam library");
+        if (folder is null) return;
+        try { _model.SelectSteam(folder); }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException or InvalidOperationException)
+        { _model.Report(ex.Message, true); }
     }
 
     private Task PlayAsync(bool current) => _model.RunAsync("Starting OpenSCCT", cancel => _model.PlayAsync(current, ChooseUpdateAsync, cancel));
@@ -222,9 +254,9 @@ internal sealed partial class MainWindow : Window
         rollback.IsEnabled = _model.Store.Previous() is not null && !_model.GameRunning;
         var reset = Ui.Button("Reset installation…");
         reset.IsEnabled = !_model.GameRunning;
-        var content = Ui.Stack(Ui.Text("Classic updates", 20), startup, previews, Ui.Text("Classic files", 20),
+        var content = Ui.Stack(Ui.Text("Godot updates", 20), startup, previews, Ui.Text("Godot files", 20),
             Ui.Text(_model.Layout.Root, 12, Ui.Muted), data, saves, rollback, reset,
-            Ui.Text("Reset removes installed builds and downloaded content. Game settings, bindings and saves are kept.", 13, Ui.Muted));
+            Ui.Text("Reset removes installed builds, built content and downloaded maps. Game settings, bindings and saves are kept.", 13, Ui.Muted));
 
         rollback.Click += async (_, _) =>
         {
@@ -234,7 +266,7 @@ internal sealed partial class MainWindow : Window
         };
         reset.Click += async (_, _) =>
         {
-            if (await Ui.ChooseAsync(this, "Reset installation", "Remove downloaded game builds, maps and packs? You will need to download them again.", "Reset installation", "Cancel") != 0) return;
+            if (await Ui.ChooseAsync(this, "Reset installation", "Remove installed Godot builds, built content and downloaded maps? You can rebuild the original maps from Steam.", "Reset installation", "Cancel") != 0) return;
             try { _model.Reset(); ShowPage("Games", "Game"); }
             catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidOperationException)
             { _model.Report(ex.Message, true); }
@@ -333,7 +365,7 @@ internal sealed partial class MainWindow : Window
         void RefreshState()
         {
             if (closed) return;
-            var maps = index?.PlayableMaps().ToList() ?? [];
+            var maps = index?.PlayableMaps().Where(m => !SteamVersusMaps.Contains(m.Code)).ToList() ?? [];
             description.Text = _model.Status;
             description.Foreground = _model.IsError ? Ui.Error : Ui.Muted;
             bool mutable = !_model.Busy && !_model.GameRunning;
@@ -348,13 +380,14 @@ internal sealed partial class MainWindow : Window
             if (closed) return;
             rows.Children.Clear();
             string query = search.Text?.Trim() ?? string.Empty;
-            var installed = _model.Packs.Installed().Where(p => !p.IsShared).ToDictionary(p => p.Code, StringComparer.OrdinalIgnoreCase);
-            var maps = index?.PlayableMaps().ToList() ?? [];
+            var installed = _model.Packs.Installed().Where(p => !p.IsShared && !SteamVersusMaps.Contains(p.Code)).ToDictionary(p => p.Code, StringComparer.OrdinalIgnoreCase);
+            var maps = index?.PlayableMaps().Where(m => !SteamVersusMaps.Contains(m.Code)).ToList() ?? [];
             foreach (ContentMap map in maps)
             {
                 installed.Remove(map.Code);
                 if (query.Length > 0 && !(map.DisplayTitle + " " + map.Category + " " + map.Code).Contains(query, StringComparison.OrdinalIgnoreCase)) continue;
-                string state = _model.Packs.Has(map) ? "Downloaded" : _model.Packs.InstalledMap(map.Code) is null ? LauncherController.Size(map.Full.Size) : "Update available";
+                string state = _model.Packs.Has(map) ? "Installed" : _model.Packs.InstalledMap(map.Code) is null ? LauncherController.Size(map.DownloadSize()) : "Update available";
+                if (map.SteamRecipe is not null && !_model.Packs.Has(map)) state += " (build from Steam)";
                 AddRow(map.Code, map.DisplayTitle + "  ·  " + map.Category + "  ·  " + state);
             }
             foreach (InstalledContent pack in installed.Values)
@@ -378,7 +411,8 @@ internal sealed partial class MainWindow : Window
         {
             if (_smoke)
             {
-                index = new ContentIndex { Maps = [SmokeMap("AquaE", "Aquarius", "stock"), SmokeMap("Community", "Community map", "community")] };
+                index = new ContentIndex { Maps = [SmokeMap("AQU03", "Aquarius", "stock"),
+                    SmokeMap("Community", "Community map", "community")] }.PublicDownloads();
                 _model.Report("Select maps to download, update or remove.");
                 Fill();
             }
@@ -386,7 +420,7 @@ internal sealed partial class MainWindow : Window
         };
         download.Click += async (_, _) =>
         {
-            ContentMap[] maps = index?.PlayableMaps().Where(m => selected.Contains(m.Code) && !_model.Packs.Has(m)).ToArray() ?? [];
+            ContentMap[] maps = index?.PlayableMaps().Where(m => !SteamVersusMaps.Contains(m.Code) && selected.Contains(m.Code) && !_model.Packs.Has(m)).ToArray() ?? [];
             await _model.RunAsync("Downloading maps", cancel => _model.DownloadMapsAsync(maps, cancel));
             Fill();
         };
@@ -423,6 +457,8 @@ internal sealed partial class MainWindow : Window
         {
             await Task.Delay(200);
             RequirePage("Games", "Ps2");
+            if (!_sidebar.Children.OfType<TextBlock>().Select(label => label.Text).SequenceEqual(["Originals", "Modernisations"]))
+                throw new InvalidOperationException("The edition library did not show both groups in order.");
             SaveSmokeImage("launcher-ps2");
             _mods.RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(Button.ClickEvent));
             RequirePage("Mods", "Ps2");
@@ -439,12 +475,15 @@ internal sealed partial class MainWindow : Window
             RequirePage("Games", "Game");
             await Task.Delay(100);
             SaveSmokeImage("launcher-install");
+            _mods.RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(Button.ClickEvent));
+            RequirePage("Mods", "Game");
+            _games.RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(Button.ClickEvent));
             Width = 560;
             Height = 430;
-            _model.Report("A native Linux game build has not been published on the selected release channel yet. Check again after the Linux release is available.");
+            _model.Report("Choose your Steam installation to build the original Versus maps.");
             await Task.Delay(200);
-            if (_main.Bounds.Width <= 0 || _main.Bounds.Height <= 0 || _main.Content?.ToString() != "Install")
-                throw new InvalidOperationException("The install action was not laid out.");
+            if (_main.Bounds.Width <= 0 || _main.Bounds.Height <= 0 || _main.Content?.ToString() != "Choose Steam folder")
+                throw new InvalidOperationException("The Steam setup action was not laid out.");
             SaveSmokeImage("launcher-compact");
             _settings.RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(Button.ClickEvent));
             RequirePage("Settings", "Game");
@@ -464,7 +503,7 @@ internal sealed partial class MainWindow : Window
             SaveSmokeImage("launcher-progress");
             _model.Cancel();
             await busy;
-            Console.WriteLine("Linux launcher UI smoke passed: edition navigation, PS2 and PC mod views, Windows Unreal availability, Classic installation, compact layout, settings, maps and progress controls.");
+            Console.WriteLine("Linux launcher UI smoke passed: edition navigation, PS2 and PC mod views, Windows Unreal availability, Godot Steam setup, compact layout, settings, maps and progress controls.");
             (Application.Current?.ApplicationLifetime as Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime)?.Shutdown(0);
         }
         catch (Exception ex)
@@ -477,7 +516,9 @@ internal sealed partial class MainWindow : Window
     private static ContentMap SmokeMap(string code, string title, string category)
     {
         var download = new ContentDownload("https://fixture.invalid/map", 64 * 1024 * 1024, new string('0', 64));
-        return new ContentMap { Id = category + "/" + code, Code = code, Title = title, Category = category, Modes = ["Deathmatch"], Full = download, Sim = download };
+        return new ContentMap { Id = category + "/" + code, Code = code, Title = title, Category = category,
+            Modes = ["Deathmatch"], Full = download, Sim = download, Distribution = new ContentDistribution(
+                "community-authored", "Fixture", "CC0-1.0", "https://example.test/fixture", download.Sha256, download.Sha256) };
     }
 
     private void SaveSmokeImage(string name, Window? window = null)

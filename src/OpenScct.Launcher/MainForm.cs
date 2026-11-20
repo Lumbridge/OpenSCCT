@@ -49,7 +49,8 @@ internal sealed partial class MainForm : Form
         Check,
         Install,
         Update,
-        DownloadFiles,
+        ChooseSource,
+        BuildFiles,
         Play,
         Cancel,
     }
@@ -57,7 +58,6 @@ internal sealed partial class MainForm : Form
     private readonly LauncherLayout _layout;
     private readonly bool _discoverRetail;
     private readonly VersionStore _store;
-    private readonly ContentStore _packs;
     private readonly IGameProcessProbe _games = new GameProcessProbe();
     private readonly LauncherSwap? _swap;
     private readonly SemVersion? _launcherVersion;
@@ -65,8 +65,9 @@ internal sealed partial class MainForm : Form
     private UpdateService _service;
     private UpdateCheck? _lastCheck;
     private CancellationTokenSource? _work;
-    private bool _downloadingContent;
-    private ContentIndex? _packIndex;
+    private readonly GodotSteamContent _steamContent;
+    private Lazy<string?> _steamSource;
+    private string? _steamContentRoot;
     private NextAction _next;
     private string _notesTitle = "What's new";
     private string _notesText = "Checking for releases...";
@@ -122,8 +123,10 @@ internal sealed partial class MainForm : Form
         _pendingWebJoin = joinServerId;
         _protocolProblem = protocolProblem;
         _store = new VersionStore(_layout);
-        _packs = new ContentStore(_layout.Packs, Http);
         _settings = LauncherSettings.Load(_layout.Settings);
+        _steamContent = new GodotSteamContent(_layout);
+        _steamSource = new Lazy<string?>(() => discoverRetail || _settings.GodotSteamFolder is not null
+            ? GodotSteamContent.FindSource(_settings.GodotSteamFolder) : null);
         _service = CreateService();
         _editor = new OpenScct.Launcher.Editor.EditorService(_layout, Http);
         _unreal = new UnrealService(_layout, Http, _settings.UnrealRepository);
@@ -462,6 +465,7 @@ internal sealed partial class MainForm : Form
         SemVersion? current = _store.Current();
         bool busy = _work is not null;
 
+        _steamContentRoot = _steamContent.ActiveRoot();
         RenderProductStatus();
         _retailSecondary.Visible = false;
         switch (_selected)
@@ -493,27 +497,38 @@ internal sealed partial class MainForm : Form
     private void RefreshLaunchPanel(SemVersion? current, bool busy)
     {
         _launchDetail.Visible = !busy && (_status.Text.Length == 0 || (VisibleStatus.Kind is not (StatusKind.Warning or StatusKind.Error)));
-        bool playable = DownloadedFilesPlayable(current);
+        bool compatible = GodotSteamContent.SupportsClient(current);
+        bool playable = compatible && _steamContentRoot is not null;
         SemVersion? pending = _store.Pending();
         VersionedRelease? latest = _lastCheck?.Latest;
-        bool update = current is not null && (PackUpdateAvailable || (pending is null
-            && _lastCheck is { GameUpdateAvailable: true } && latest is not null && latest.Version > current));
+        bool update = GodotUpdateAvailable(current);
         bool checkedOnline = _lastCheck is { Feed.Source: ReleaseFeedSource.Network or ReleaseFeedSource.NotModified };
-        int maps = playable ? _packs.Installed().Count(p => !p.IsShared) : 0;
         _installedInfo.Text = current is not null
-            ? $"Version {current}" + (playable ? $"  ·  {maps} " + (maps == 1 ? "map installed" : "maps installed") : " installed")
-            : latest is not null ? $"Latest version {latest.Version}" : "Game and required files in one installation";
+            ? $"Version {current}" + (playable ? "  ·  Steam game files ready" : " installed")
+            : latest is not null ? $"Latest version {latest.Version}" : "Godot client and locally built game files";
 
         if (busy)
         {
             _heading.Text = VisibleOperationTitle;
         }
+        else if (current is not null && !compatible)
+        {
+            _heading.Text = pending is null ? "Godot client update required" : "Update ready";
+            _launchDetail.Text = pending is null
+                ? "Update the Godot client to build and play files from your Steam installation."
+                : $"Close the running game to activate version {pending}.";
+        }
+        else if (_steamContentRoot is null && _steamSource.Value is null)
+        {
+            _heading.Text = "Locate Chaos Theory on Steam";
+            _launchDetail.Text = "Choose the Steam installation to build the original Versus maps, characters and sounds for Godot.";
+        }
         else if (current is null)
         {
-            _heading.Text = "Install OpenSCCT";
+            _heading.Text = "Install OpenSCCT Godot";
             _launchDetail.Text = _lastCheck is { Latest: null }
                 ? "No download found. Check your connection and try again."
-                : "Download the game, maps, characters and sounds. Everything you need to play.";
+                : "Download the Godot client and build the game files from your Steam installation.";
         }
         else if (pending is not null)
         {
@@ -523,17 +538,12 @@ internal sealed partial class MainForm : Form
         else if (update)
         {
             _heading.Text = "Update available";
-            _launchDetail.Text = _lastCheck is { GameUpdateAvailable: true } && latest is not null && latest.Version > current
-                ? $"Version {latest.Version} is ready to download."
-                : "New game files are ready to download.";
+            _launchDetail.Text = $"Version {latest!.Version} is ready to download.";
         }
         else if (!playable)
         {
-            _heading.Text = "Finish your installation";
-            string size = _packIndex is { } index
-                ? " (about " + Gb(PackedContent.DownloadSize(PackedContent.SharedToFetch(index, _packs), PackedContent.MapsToFetch(index, _packs, firstDownload: true))) + ")"
-                : string.Empty;
-            _launchDetail.Text = "Download the required maps, characters and sounds" + size + ".";
+            _heading.Text = "Steam files needed";
+            _launchDetail.Text = "Build the original Versus maps and assets from Steam. Find additional maps under Mods.";
         }
         else
         {
@@ -549,34 +559,28 @@ internal sealed partial class MainForm : Form
         if (_work is not null) _heading.Text = VisibleOperationTitle;
     }
 
-    /// <summary>The downloaded game files are installed and, when the index is known, none has a newer copy.</summary>
-    private bool PacksCurrent() =>
-        PackedContent.Installed(_packs)
-        && (_packIndex is not { } index
-            || (PackedContent.SharedToFetch(index, _packs).Count == 0 && PackedContent.MapsToFetch(index, _packs, firstDownload: false).Count == 0));
+    private bool GodotUpdateAvailable(SemVersion? current) => current is not null && _store.Pending() is null
+        && _lastCheck is { GameUpdateAvailable: true, Latest: { } latest } && latest.Version > current
+        && GodotSteamContent.SupportsClient(latest.Version);
 
-    private bool PackUpdateAvailable => PackedContent.Installed(_packs) && !PacksCurrent();
-
-    /// <summary>The game is installed and its downloaded files have no known updates.</summary>
-    private bool FilesReady(SemVersion? current) => current is not null && PacksCurrent();
-
-    /// <summary>Installed downloaded files remain playable when newer packs are offered.</summary>
-    private bool DownloadedFilesPlayable(SemVersion? current) => current is not null && PackedContent.Installed(_packs);
-
-    /// <summary>The big button: the next thing to do, or PLAY.</summary>
     private void RefreshMainButton(SemVersion? current, bool busy)
     {
-        bool update = current is not null && (PackUpdateAvailable || (_store.Pending() is null
-            && _lastCheck is { GameUpdateAvailable: true, Latest: { } latest } && latest.Version > current));
-        bool playable = DownloadedFilesPlayable(current);
+        bool update = GodotUpdateAvailable(current);
+        bool compatible = GodotSteamContent.SupportsClient(current);
+        bool playable = compatible && _steamContentRoot is not null;
         (NextAction next, string text, bool enabled) = busy
-            ? (NextAction.Cancel, _downloadingContent ? "Stop" : "Cancel", true)
+            ? (NextAction.Cancel, "Cancel", true)
+            : current is not null && !compatible
+                ? _store.Pending() is not null ? (NextAction.Check, "Waiting for game to close", false)
+                    : update ? (NextAction.Update, "Update", true) : (NextAction.Check, "Check for updates", true)
+            : _steamContentRoot is null && _steamSource.Value is null
+                ? (NextAction.ChooseSource, "Choose Steam folder", true)
             : current is null
                 ? (NextAction.Install, "Install", true)
                 : update
                     ? (NextAction.Update, "Update", true)
                     : !playable
-                        ? (NextAction.DownloadFiles, "Finish install", true)
+                        ? (NextAction.BuildFiles, "Build game files", true)
                         : (NextAction.Play, "PLAY", true);
         if (!busy && _pendingWebJoin is not null && current is not null)
         {
@@ -591,7 +595,7 @@ internal sealed partial class MainForm : Form
         _playCurrent.Text = _pendingWebJoin is null ? "Play current version" : "Join with current version";
         _check.Visible = true;
         Theme.SetButtonEmphasis(_main, !busy, Palette);
-        _tips.SetToolTip(_main, busy ? "Stop now and continue later. Completed downloads are kept." : null);
+        _tips.SetToolTip(_main, busy && _operationCanCancel ? "Cancel this operation." : null);
         _main.Text = text;
         _main.Enabled = enabled && (!busy || _operationCanCancel);
         if (busy && !_operationCanCancel) _main.Text = "Please wait";
@@ -626,8 +630,11 @@ internal sealed partial class MainForm : Form
             case NextAction.Update:
                 await RunAsync(UpdateGameAsync);
                 break;
-            case NextAction.DownloadFiles:
-                await RunAsync(DownloadContentAsync);
+            case NextAction.ChooseSource:
+                ChooseSteamSource();
+                break;
+            case NextAction.BuildFiles:
+                await RunAsync(BuildSteamContentAsync);
                 break;
             case NextAction.Play:
                 await PlayOrJoinAsync();
@@ -776,7 +783,7 @@ internal sealed partial class MainForm : Form
         }
     }
 
-    /// <summary>The Maps window manages downloaded maps that are ready to play immediately.</summary>
+    /// <summary>The Maps window offers additional downloads for the selected product.</summary>
     private void OpenMaps()
     {
         if (_work is not null)
@@ -784,81 +791,12 @@ internal sealed partial class MainForm : Form
             return;
         }
 
-        using var dialog = new MapsForm(Http, _layout.Packs, Palette, () => EditorUsesSharedContent() || _unreal.IsRunning);
+        using var dialog = new MapsForm(Http, _layout.Packs, Palette, () => EditorUsesSharedContent() || _unreal.IsRunning || _games.Running().Count > 0);
         dialog.ShowDialog(this);
         RefreshLocal();
     }
 
     // ---- the work ----------------------------------------------------------------------------------------------
-
-    /// <summary>
-    /// Downloads the game files from OpenSCCT-Content: the shared packs, and the stock
-    /// maps the first time (later only newer copies of maps already downloaded). The store resumes a stopped download
-    /// and checks every archive and file.
-    /// </summary>
-    private Task DownloadContentAsync(CancellationToken cancel) => DownloadContentAsync(cancel, null, sharedOnly: false);
-
-    private async Task DownloadContentAsync(CancellationToken cancel, ContentIndex? checkedIndex, bool sharedOnly)
-    {
-        _downloadingContent = true;
-        SetOperation("Downloading game files");
-        RefreshLocal();
-        try
-        {
-            SetStatus("Loading the list of game files...", Theme.Muted);
-            ContentIndex index = checkedIndex ?? await _packs.FetchIndexAsync(cancel);
-            if (index.Problem is { } problem && index.Shared.Count == 0)
-            {
-                throw new IOException(problem);
-            }
-
-            _packIndex = index;
-            bool first = !PackedContent.Installed(_packs);
-            IReadOnlyList<ContentSharedPack> shared = PackedContent.SharedToFetch(index, _packs);
-            IReadOnlyList<ContentMap> maps = sharedOnly ? [] : PackedContent.MapsToFetch(index, _packs, first);
-            int total = shared.Count + maps.Count;
-            if (total > 0 && EditorUsesSharedContent())
-                throw new InvalidOperationException("Save your work and close the editor and its command-line tools before changing shared content.");
-            // OpenSCCT Unreal reads these files (-ScctContent) while it runs.
-            if (total > 0 && _unreal.IsRunning)
-                throw new InvalidOperationException("Close OpenSCCT Unreal, which uses the game files, before changing shared content.");
-            int n = 0;
-            // Keep the first download incomplete until its stock maps are installed, so a restart continues
-            // fetching missing maps instead of treating an interrupted setup as a later shared-pack update.
-            foreach (ContentMap map in maps)
-            {
-                n++;
-                await _packs.InstallMapAsync(map, ContentKind.Full, PackReporter($"{map.DisplayTitle} ({n} of {total})"), cancel);
-            }
-
-            foreach (ContentSharedPack pack in shared)
-            {
-                n++;
-                string name = pack.Title.Length > 0 ? pack.Title : pack.Id;
-                await _packs.InstallSharedAsync(pack, PackReporter($"{name} ({n} of {total})"), cancel);
-            }
-
-            SetStatus(_operationProduct == Product.Game ? "All set. Press PLAY." : "Shared content is ready.", Theme.Accent);
-        }
-        finally
-        {
-            _downloadingContent = false;
-        }
-    }
-
-    /// <summary>The content index, fetched or cached, so the launch panel can show available game file updates.</summary>
-    private async Task RefreshPackIndexAsync(CancellationToken cancel)
-    {
-        try
-        {
-            _packIndex = await _packs.FetchIndexAsync(cancel);
-        }
-        catch (Exception ex) when (ex is IOException or HttpRequestException)
-        {
-            // Offline with no cached index: readiness only checks the packs are there.
-            _packIndex = null;
-        }
-    }
 
     private void ShowReleaseCheck(UpdateCheck check)
     {
@@ -896,7 +834,6 @@ internal sealed partial class MainForm : Form
     private async Task CheckAsync(CancellationToken cancel)
     {
         SetOperation("Checking for updates");
-        await RefreshPackIndexAsync(cancel);
 
         SetStatus("Looking for updates...", Theme.Muted);
         using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancel);
@@ -926,7 +863,7 @@ internal sealed partial class MainForm : Form
         }
         else
         {
-            SetStatus((check.GameUpdateAvailable || PackUpdateAvailable) && _store.Current() is not null
+            SetStatus(check.GameUpdateAvailable && _store.Current() is not null
                 ? "An update is available."
                 : string.Empty, Theme.Muted);
         }
@@ -934,9 +871,16 @@ internal sealed partial class MainForm : Form
 
     private async Task UpdateGameAsync(CancellationToken cancel)
     {
+        if (_lastCheck?.Latest is { } candidate && !GodotSteamContent.SupportsClient(candidate.Version))
+            throw new InvalidOperationException("A newer Godot client is required to build game files from Steam. Check for updates again.");
+        await UpdateGameBinaryAsync(cancel);
+        if (GodotSteamContent.SupportsClient(_store.Current()) && _steamContent.ActiveRoot() is null && _steamSource.Value is not null)
+            await BuildSteamContentAsync(cancel);
+    }
+
+    private async Task UpdateGameBinaryAsync(CancellationToken cancel)
+    {
         SemVersion? current = _store.Current();
-        // The main Update button also handles newer game files without a newer game build (or release data).
-        // Never reinstall an older release when only the downloaded files need updating.
         if (_lastCheck is { GameUpdateAvailable: true, Latest: { } latest } && _store.Pending() is null
             && (current is null || latest.Version > current))
         {
@@ -950,13 +894,6 @@ internal sealed partial class MainForm : Form
                 _ => $"OpenSCCT {latest.Version} is already installed.",
             }, Theme.Accent);
             await CheckAsync(cancel);
-        }
-
-        // Continue through the game files after installing, or update those files on their own.
-        current = _store.Current();
-        if (current is not null && !FilesReady(current))
-        {
-            await DownloadContentAsync(cancel);
         }
     }
 
@@ -1072,9 +1009,15 @@ internal sealed partial class MainForm : Form
             return false;
         }
 
-        if (!DownloadedFilesPlayable(current))
+        if (!GodotSteamContent.SupportsClient(current))
         {
-            SetStatus("Choose Finish install to download the required game files first.", Theme.Warning);
+            SetStatus("Update the Godot client to play with your Steam game files.", Theme.Warning);
+            return false;
+        }
+        string? contentRoot = _steamContent.ActiveRoot();
+        if (contentRoot is null)
+        {
+            SetStatus("Build the Godot game files from your Steam installation first.", Theme.Warning);
             return false;
         }
 
@@ -1083,7 +1026,7 @@ internal sealed partial class MainForm : Form
         {
             using Process? process = Process.Start(GameStart.Create(exe,
                 extraUserArgs: joinServerId is null ? null : [WebJoinRequest.GameArgumentPrefix + joinServerId],
-                graphicsDriver: GameRendererSettings.Load(LauncherLayout.GameUserData)));
+                graphicsDriver: GameRendererSettings.Load(LauncherLayout.GameUserData), contentRoot: contentRoot));
             if (process is null) throw new IOException("The game process did not start.");
             SetStatus(joinServerId is null ? $"Started OpenSCCT {current}." : "Started OpenSCCT with your Join request. Continue in the game.", Theme.Accent);
             WindowState = FormWindowState.Minimized;
@@ -1217,7 +1160,7 @@ internal sealed partial class MainForm : Form
             try
             {
                 await InstallReset.ForceCloseProcessesAsync(_layout);
-                // OpenSCCT Unreal reads the shared packs (-ScctContent), so it is closed too.
+                // Unreal can hold the Steam generation open while it runs.
                 await _unreal.ForceCloseAsync(cancel);
                 RemoveGameFiles(forceCloseAttempted: true);
             }
@@ -1234,7 +1177,7 @@ internal sealed partial class MainForm : Form
     /// </summary>
     private void RemoveGameFiles(bool forceCloseAttempted = false)
     {
-        // OpenSCCT Unreal runs from the shared packs (-ScctContent), like the game and the editor.
+        // Unreal and the editor both read these generated files.
         if (_editor.IsRunning || _games.Running().Count > 0 || _unreal.IsRunning)
         {
             string warning = _editor.UpdateInProgress
@@ -1247,10 +1190,9 @@ internal sealed partial class MainForm : Form
         }
 
         IReadOnlyList<string> failed = InstallReset.Run(_layout, Program.ExePath);
-        _packIndex = null;
         SetStatus(
             failed.Count == 0
-                ? "Game and shared files removed. Choose Install to download them again."
+                ? "Game and shared files removed. Choose Install to set up Godot again."
                 : "Some game files are in use and were kept: " + string.Join(", ", failed),
             failed.Count == 0 ? Theme.Accent : Theme.Warning);
     }
@@ -1292,25 +1234,6 @@ internal sealed partial class MainForm : Form
         });
     }
 
-    private Progress<PackProgress> PackReporter(string prefix)
-    {
-        _progress.Fraction = 0;
-        _progress.Visible = true;
-        _progressText.Visible = true;
-        return new Progress<PackProgress>(p =>
-        {
-            SetOperation(p.Extracting ? "Installing game files" : "Downloading game files");
-            _progress.Visible = p.Total > 0 && !p.Extracting;
-            _progress.Fraction = p.Total > 0 ? (double)p.Received / p.Total : 0;
-            _progressText.Text = p.Extracting ? $"{prefix}: installing..." : $"{prefix}: {Mb(p.Received)} of {Mb(p.Total)}";
-        });
-    }
-
-    private static string Gb(long bytes) =>
-        bytes >= 1L << 30
-            ? (bytes / (double)(1L << 30)).ToString("0.0", CultureInfo.CurrentCulture) + " GB"
-            : Mb(bytes);
-
     private static string Mb(double bytes) => (bytes / (1024 * 1024)).ToString("0.0", CultureInfo.CurrentCulture) + " MB";
 
     private async Task RunAsync(Func<CancellationToken, Task> work)
@@ -1341,9 +1264,9 @@ internal sealed partial class MainForm : Form
         {
             SetStatus(ex.Message, Theme.Error);
         }
-        catch (Exception ex) when (ex is HttpRequestException or IOException or UnauthorizedAccessException or InvalidDataException or InvalidOperationException)
+        catch (Exception ex) when (ex is HttpRequestException or IOException or UnauthorizedAccessException or InvalidDataException or InvalidOperationException or Win32Exception)
         {
-            SetStatus(ex.Message + " Press the button to try again; downloads carry on where they stopped.", Theme.Error);
+            SetStatus(ex.Message + " Press the button to try again.", Theme.Error);
         }
         finally
         {

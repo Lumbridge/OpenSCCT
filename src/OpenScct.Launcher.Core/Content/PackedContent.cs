@@ -82,5 +82,5 @@ public static class PackedContent
 
     /// <summary>Bytes the fetch would download.</summary>
     public static long DownloadSize(IEnumerable<ContentSharedPack> shared, IEnumerable<ContentMap> maps) =>
-        shared.Sum(p => p.Download.Size) + maps.Sum(m => m.Full.Size);
+        shared.Sum(p => p.Download.Size) + maps.Sum(m => m.DownloadSize());
 }

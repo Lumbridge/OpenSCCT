@@ -10,6 +10,53 @@ namespace OpenScct.Integration.Tests;
 public sealed class ContentTextFallbackTests
 {
     [Fact]
+    public void OlderEditorUsesActiveSteamBaseAndRetainsTheAddonLibrary()
+    {
+        string install = Path.Combine(Path.GetTempPath(), "openscct-editor-" + Guid.NewGuid());
+        string packs = Path.Combine(install, "packs");
+        string content = Path.Combine(install, "content");
+        string id = Guid.NewGuid().ToString("N");
+        string generation = Path.Combine(content, "steam-builds", id);
+        string exe = Path.Combine(install, "versions", "0.8.165");
+        string? oldRoot = ContentPaths.Root;
+        string oldPacks = ContentPaths.PacksFolder;
+        try
+        {
+            Directory.CreateDirectory(Path.Combine(packs, "shared", "chars", "SPerso"));
+            Directory.CreateDirectory(Path.Combine(packs, "svmap", "OptionalMap"));
+            ContentPaths.ConfigureDesktop(packs, exe);
+            Assert.Null(ContentPaths.Root);
+            Assert.Null(ContentPaths.Shared);
+            Assert.False(ContentPaths.SteamBaseReady);
+            var catalog = new MapCatalog(Path.Combine(packs, "svmap"));
+            Assert.Null(catalog.FindCharacterContent());
+
+            foreach (string required in OpenScct.Maps.SteamContentInstall.RequiredFiles())
+            {
+                string path = Path.Combine(generation, required);
+                Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+                File.WriteAllText(path, "{}");
+            }
+            File.WriteAllText(Path.Combine(content, "steam-current.json"), $$"""{"format":1,"build":"{{id}}"}""");
+            ContentPaths.ConfigureDesktop(packs, exe);
+            Assert.True(ContentPaths.SteamBaseReady);
+            Assert.Equal(generation, ContentPaths.Root);
+            Assert.Equal(Path.Combine(generation, "svmap"), ContentPaths.MapRoots[0]);
+            Assert.Equal(Path.Combine(packs, "svmap"), ContentPaths.MapRoots[1]);
+            Assert.Equal(Path.Combine(generation, "shared", "chars"), catalog.FindCharacterContent());
+
+            // Directly starting the exported game recovers the same base without launcher arguments.
+            ContentPaths.ConfigureDesktop(null, exe);
+            Assert.Equal(generation, ContentPaths.Root);
+        }
+        finally
+        {
+            ContentPaths.Configure(oldRoot, null, oldPacks);
+            Directory.Delete(install, true);
+        }
+    }
+
+    [Fact]
     public void MapOnlyRootUsesPackTextAndExplicitTextStillWins()
     {
         string folder = Path.Combine(Path.GetTempPath(), "openscct-text-" + Guid.NewGuid());

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using OpenScct.Core;
+using OpenScct.Maps;
 
 namespace OpenScct.Server;
 
@@ -12,9 +13,8 @@ public sealed partial class MapCatalog
     public const string CommunityMapsFilter = "Community maps";
     public const string ThreeVsThreeMapsFilter = "3v3 optimised maps";
 
-    // The eleven versus maps shipped at launch in 2005. Reloaded's Classic playlist also includes the later
-    // Polar Base and Steel Squat downloads; OriginalOrder is the installed file list, not the launch roster.
-    private static readonly HashSet<string> StockMapIds = new(StringComparer.OrdinalIgnoreCase)
+    // Reloaded uses different package names for its copies of the launch maps.
+    private static readonly HashSet<string> ReloadedClassicIds = new(StringComparer.OrdinalIgnoreCase)
     {
         "AquaD", "BankD", "ClubD", "DeftD", "FactD", "MissD", "MuseD", "OrphD", "RiveD", "StatD", "WareD",
     };
@@ -26,6 +26,10 @@ public sealed partial class MapCatalog
     public IReadOnlyList<MapPlaylist> GetMapFilters()
     {
         IReadOnlyList<MapCatalogEntry> host = GetHostMaps();
+        bool hasSteamRoster = host.Any(map => SteamVersusMaps.IsHostMap(map.Id));
+        bool IsStock(MapCatalogEntry map) => hasSteamRoster
+            ? SteamVersusMaps.IsHostMap(map.Id)
+            : ReloadedClassicIds.Contains(map.Id);
         MapPlaylist Group(string name, string description, Func<MapCatalogEntry, bool> include) =>
             new(name, description, EGameMode.GM_Multi, host.Where(include).Select(map => map.Id).ToArray(), []);
 
@@ -33,14 +37,14 @@ public sealed partial class MapCatalog
         [
             Group(AllMapsPlaylist, "Every installed map.", _ => true),
             Group(EnhancedMapsFilter, "Enhanced versions of maps, excluding 3v3 variants.", map => IsEnhancedMap(map) && !IsThreeVsThreeMap(map)),
-            Group(StockMapsFilter, "The eleven versus maps shipped with the original 2005 game.", map => StockMapIds.Contains(map.Id)),
-            Group(CommunityMapsFilter, "Maps outside the Stock and Enhanced families, including community 3v3 maps.", map => !StockMapIds.Contains(map.Id) && !IsEnhancedMap(map)),
+            Group(StockMapsFilter, "The eleven versus maps shipped with the original 2005 game.", IsStock),
+            Group(CommunityMapsFilter, "Maps outside the Stock and Enhanced families, including community 3v3 maps.", map => !IsStock(map) && !IsEnhancedMap(map)),
             Group(ThreeVsThreeMapsFilter, "Maps made for three spies versus three mercenaries.", IsThreeVsThreeMap),
         ];
     }
 
     private static bool IsEnhancedMap(MapCatalogEntry map) =>
-        !StockMapIds.Contains(map.Id) && (HasEnhancedPrefix(map.Name) || map.SettingsName is { } settings && HasEnhancedPrefix(settings));
+        !SteamVersusMaps.IsHostMap(map.Id) && !ReloadedClassicIds.Contains(map.Id) && (HasEnhancedPrefix(map.Name) || map.SettingsName is { } settings && HasEnhancedPrefix(settings));
 
     private static bool HasEnhancedPrefix(string name)
     {

@@ -1,3 +1,4 @@
+using SteamVersusMaps = OpenScct.Maps.SteamVersusMaps;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -67,7 +68,7 @@ public sealed record PlayConfig
         PlayHostMode host = options.PlayHost == "inline" ? PlayHostMode.Inline : PlayHostMode.Thread;
         var settings = new PlaySettings
         {
-            Map = options.PlayMap ?? "SteeE",
+            Map = options.PlayMap ?? SteamVersusMaps.DefaultHostMap,
             Side = side,
             Mode = options.PlayMode,
             Rules = rules,

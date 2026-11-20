@@ -16,6 +16,7 @@ using OpenScct.Launcher.GitHub;
 using OpenScct.Launcher.Install;
 using OpenScct.Launcher.Launch;
 using OpenScct.Launcher.Settings;
+using OpenScct.Launcher.Content;
 using OpenScct.Launcher.Update;
 using OpenScct.Launcher.Versioning;
 
@@ -26,8 +27,7 @@ namespace OpenScct.Launcher.Unreal;
 /// tagged v&lt;version&gt;. It has its own install root (<see cref="LauncherLayout.Unreal"/>), laid out like the game's:
 /// install.json, versions\&lt;v&gt;\, downloads\ and cache\. Updates go through the game's <see cref="UpdateService"/>
 /// and <see cref="DeltaInstaller"/> (changed files and binary patches from the shared <see cref="StoreTag"/> release,
-/// the whole ZIP as the fallback, a pending switch while the game runs). The game reads the OpenSCCT content the Game
-/// tab downloads (<see cref="LauncherLayout.Packs"/>); it downloads its own map packs and signs in by itself.
+/// the whole ZIP as the fallback, a pending switch while the game runs). The game uses the active local Steam conversion for base assets and can load optional maps.
 /// Windows only.
 /// </summary>
 public sealed class UnrealService
@@ -54,6 +54,10 @@ public sealed class UnrealService
     private const string VcRuntimeKey = @"SOFTWARE\Microsoft\VisualStudio\14.0\VC\Runtimes\X64";
     private const string VcRuntimeKeyWow = @"SOFTWARE\WOW6432Node\Microsoft\VisualStudio\14.0\VC\Runtimes\X64";
 
+    public static readonly SemVersion MinimumSteamVersion = SemVersion.Parse("0.1.10");
+    public static bool SupportsSteamContent(SemVersion? version) => version >= MinimumSteamVersion;
+
+    private readonly GodotSteamContent _content;
     private readonly LauncherLayout _layout;
     private readonly LauncherLayout _install;
     private readonly HttpClient _http;
@@ -69,6 +73,7 @@ public sealed class UnrealService
         ArgumentNullException.ThrowIfNull(layout);
         ArgumentNullException.ThrowIfNull(http);
         _layout = layout;
+        _content = new GodotSteamContent(layout);
         _http = http;
         Repository = IsValidRepository(repository) ? repository!.Trim() : DefaultRepository;
         string[] parts = Repository.Split('/');
@@ -168,23 +173,9 @@ public sealed class UnrealService
     public bool IsRunning => RunningGames().Count > 0;
 
     /// <summary>Null when the OpenSCCT content the game needs is there, else a sentence for the player.</summary>
-    public string? PrerequisiteProblem()
-    {
-        const string problem = "OpenSCCT Unreal needs the shared maps and game files. Choose Get shared files to download them.";
-        try
-        {
-            string maps = Path.Combine(_layout.Packs, "svmap");
-            return File.Exists(Path.Combine(_layout.Packs, "shared", "classes.json"))
-                && Directory.Exists(maps)
-                && Directory.EnumerateDirectories(maps).Any(d => File.Exists(Path.Combine(d, "manifest.json")))
-                ? null
-                : problem;
-        }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
-        {
-            return problem;
-        }
-    }
+    public string? PrerequisiteProblem() => _content.ActiveRoot() is null
+        ? "Build the original maps and assets from your Steam installation."
+        : null;
 
     /// <summary>
     /// The newest compatible release: a version tag with a launcher.json and the build's ZIP or file list, without
@@ -379,18 +370,13 @@ public sealed class UnrealService
 
     /// <summary>
     /// How to start the current version: its starter exe, given the OpenSCCT content folder as
-    /// <c>-ScctContent="&lt;packs&gt;"</c> (quoted after the '=', which Unreal's parser needs for a path with spaces).
+    /// <c>-ScctContent="&lt;Steam build&gt;"</c> (quoted after the '=', which Unreal's parser needs for a path with spaces).
     /// A pending version is made current first. Throws <see cref="InvalidOperationException"/> with a sentence for the
     /// player when it cannot start.
     /// </summary>
     public ProcessStartInfo StartInfo()
     {
         UnrealInstallation installed = Installed() ?? throw new InvalidOperationException("Install OpenSCCT Unreal first.");
-        if (PrerequisiteProblem() is { } problem)
-        {
-            throw new InvalidOperationException(problem);
-        }
-
         if (Pending is not null)
         {
             if (IsRunning)
@@ -404,7 +390,9 @@ public sealed class UnrealService
             }
         }
 
-        string content = Path.TrimEndingDirectorySeparator(_layout.Packs);
+        if (!SupportsSteamContent(installed.Version))
+            throw new InvalidOperationException($"Update OpenSCCT Unreal to {MinimumSteamVersion} or later to use your Steam game files.");
+        string content = _content.ActiveRoot() ?? throw new InvalidOperationException("Build the original maps and assets from your Steam installation.");
         string arguments = ContentArgument(content);
         LauncherSettings settings = LauncherSettings.Load(_layout.Settings);
         if (settings.UnrealMapModsEnabled)

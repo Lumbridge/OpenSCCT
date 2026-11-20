@@ -23,7 +23,7 @@ from pathlib import Path
 from . import gamefiles
 from .graph import Cache, Context, Graph
 from .hashing import FileHasher
-from .paths import SCCTPKG_ROOT, default_game_root, default_out_root, is_within
+from .paths import REPO_ROOT, SCCTPKG_ROOT, default_game_root, default_out_root, is_within
 from .sources import classdefaults_dump
 from .steps import all_steps
 
@@ -48,6 +48,20 @@ def _resolve_maps(game: Path, spec: str | None) -> list[str]:
 
 
 def main(argv: list[str] | None = None) -> int:
+    # Spawned workers inherit the current job. Restore the caller's environment for in-process CLI users.
+    keys = (gamefiles.ADDONS_ENV, "SVM_CONTENT", "SVM_CLASS_DEFAULTS_FILE", "SVM_LANGUAGE")
+    previous = {key: os.environ.get(key) for key in keys}
+    try:
+        return _run(argv)
+    finally:
+        for key, value in previous.items():
+            if value is None:
+                os.environ.pop(key, None)
+            else:
+                os.environ[key] = value
+
+
+def _run(argv: list[str] | None) -> int:
     graph = Graph(all_steps())
     ap = argparse.ArgumentParser(prog="python -m svmbuild", description="SVM content pipeline.",
                                  formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -106,12 +120,17 @@ def main(argv: list[str] | None = None) -> int:
     if any(s.needs_game and not s.stub for s in plan) and not (game / "Packages").is_dir():
         print(f"no Packages folder under {game} (set --game or SVM_GAME_ROOT)", file=sys.stderr)
         return 2
-    maps = _resolve_maps(game, args.maps) if needs_maps else []
+    map_spec = args.maps
+    steam_base = os.environ.get("SVM_STEAM_BASE") == "1"
+    if steam_base and (map_spec is None or map_spec.strip().lower() == "all"):
+        map_spec = ",".join((REPO_ROOT / "shared/SteamVersusMaps.txt").read_text(encoding="ascii").splitlines())
+    maps = _resolve_maps(game, map_spec) if needs_maps or steam_base else []
 
     out.mkdir(parents=True, exist_ok=True)
     # Worker processes and scctpkg's class defaults find the content root through SVM_CONTENT; an installed builder
     # has no class_defaults.json, so it is made from the classes already built (before any cache key reads it).
     os.environ["SVM_CONTENT"] = str(out)
+    os.environ["SVM_CLASS_DEFAULTS_FILE"] = str(out / "cache" / "class_defaults.json")
     # The text language (scctformats.classdefaults.language) reaches the worker processes the same way.
     language = (args.language or os.environ.get("SVM_LANGUAGE") or "int").strip().lower()
     from .sources.env import import_formats  # noqa: PLC0415

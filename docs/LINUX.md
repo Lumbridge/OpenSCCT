@@ -2,15 +2,15 @@
 
 [Documentation](README.md)
 
-The native x86-64 launcher manages your Chaos Theory editions and installs OpenSCCT Classic on Linux.
-It includes its own .NET runtime. Classic shares the Windows launcher's verified downloads, delta updates,
-content packs, optional maps, cancellation and resume, offline play and launcher self-update. See [Launcher](LAUNCHER.md).
+The native x86-64 launcher manages your Chaos Theory editions and installs OpenSCCT Godot on Linux.
+The launcher builds the Godot game's assets and original Versus maps from your installed Steam copy of Chaos Theory.
+It includes its own .NET runtime and supports optional map downloads, offline play, delta updates and launcher self-update. See [Launcher](LAUNCHER.md).
 
 Use a [release](https://github.com/OpenSCCT/OpenSCCT/releases) containing
 `OpenSCCT.Launcher-linux-x64` and a matching Linux game file list. Older Windows-only releases do not
 contain these assets. A source build or CI artifact does not mean a Linux release has been published.
 
-The alternative Flatpak starts the game directly and downloads content during first-run setup. Its
+The alternative Flatpak starts the game directly and reads the content built by the native launcher. Its
 application updates require installing another bundle; the native launcher manages game updates itself.
 
 Linux gameplay and Steam Deck support remain experimental. Steam Deck hardware validation is still pending.
@@ -43,23 +43,23 @@ The archive contains dependency notices. Checksums accompany both the binary and
 
 ### Editions
 
-Choose an edition in **Games**. At smaller window widths, the edition selector moves above the page.
+Choose an edition in **Games**. **Originals** contains the PS2 and PC releases. **Modernisations** groups the Godot and Unreal versions, which bring new graphics and features to Versus. At smaller window widths, the edition selector moves above the page.
 **Mods** follows the selected edition.
 
 | Edition | Setup and play | Mods |
 | --- | --- | --- |
 | PlayStation 2 | Choose your original Chaos Theory ISO and an executable PCSX2 binary or AppImage. Set up your BIOS in PCSX2. **Play with PCSX2** starts the selected image. | Select a separately patched ISO for the same disc serial. **Use original disc** switches back. |
 | PC / Steam | The launcher checks Steam libraries for Chaos Theory (app 13570). You can also select a stock game folder. Start campaign and co-op in Steam for a detected Steam installation, or through Wine for a manual copy. **Play Versus with Wine** starts the selected Versus executable. | Under **Mods**, choose a separately modded PC installation. A Versus-only copy such as Enhanced or Reloaded uses the stock campaign and co-op. A campaign-only copy uses stock Versus. Switch back to the stock installation at any time. |
-| OpenSCCT Unreal | The release targets Windows x64. The Linux launcher links to the published builds. | Manage Unreal maps from the Windows launcher. |
-| OpenSCCT Classic | Under **Tools & legacy**, choose **Install** to download the native Godot game and its required content. Choose **PLAY** when ready. Website Join links open this edition. | **Maps** and the Classic **Mods** view open the downloadable map catalogue. |
+| OpenSCCT Godot | Under **Modernisations**, select your Chaos Theory Steam installation if prompted. **Install** downloads the native client and builds the game assets and original Versus maps from Steam. Existing installs can use **Build from Steam**. **PLAY** and website Join links use the local build. | **Maps** and the **Mods** view offer community maps. Reviewed map archives install directly. Source mods download their original mod files, then build locally using your Steam assets. |
+| OpenSCCT Unreal | Under **Modernisations**, the Linux launcher links to the Windows x64 releases. | Manage Unreal maps from the Windows launcher. |
 
 The PC executable launch actions require a working `wine` command on your path. They inherit your Wine environment,
 including `WINEPREFIX`. The Steam action opens the installed Steam client and uses its compatibility settings.
 PCSX2 manages its own controller, graphics, memory cards and save states.
 
-**Settings** controls Classic preview releases and startup update checks. **Play current version**
-defers a Classic update, and installed play works when release checks are offline. **Stop** cancels
-an operation while retaining completed downloads. A running Classic game keeps its version until it exits.
+**Settings** controls Godot preview releases and startup update checks. **Play current version**
+defers a Godot update, and installed play works when release checks are offline. **Stop** cancels
+an operation while retaining completed downloads. A running Godot game keeps its version until it exits.
 
 Launcher updates are verified and staged beside the executable. Choose **Restart to finish** to apply one.
 Keep the executable in a user-writable directory so it can replace itself without root. Package-manager
@@ -73,7 +73,7 @@ On Fedora 45, install `openssl3-libs` (`sudo dnf install openssl3-libs`); its de
 does not provide the OpenSSL 3 libraries used by the bundled .NET runtime.
 
 Launcher data is `${XDG_DATA_HOME:-~/.local/share}/OpenSCCT/`, including `versions/`, `downloads/`,
-`cache/` and `packs/`. Game settings remain separately under
+`cache/`, `content/` (Steam builds) and `packs/` (downloaded maps). Game settings remain separately under
 `${XDG_DATA_HOME:-~/.local/share}/godot/app_userdata/OpenSCCT/`. Resetting the launcher installation
 does not delete game settings. Flatpak data lives under its own sandbox path and is not moved automatically.
 
@@ -92,21 +92,18 @@ Proton and a system .NET installation are not required. This local bundle is uns
 update remote: install a newer bundle to update it. If an older local installation reports a missing origin,
 uninstall the application normally and reinstall the bundle; omit `--delete-data` to retain maps and settings.
 
-On first launch select **Download and play**. The starter download fetches the shared packs and Steel Squat
-(`SteeE`), approximately 490 MiB compressed. Allow about 2 GiB free for extraction and installation. All stock
-maps are optional; more maps are available later under **Content**. Archives use the existing size/SHA-256 and
-map-manifest verification. Completed packs survive cancellation; an interrupted archive restarts on retry.
-Downloaded game content is not bundled in the Flatpak or committed to the repository.
-
-If setup reports an incomplete selected content folder, correct the `--svm-content` argument or `SVM_CONTENT`
-environment variable. Remove both overrides to use downloaded packs. Setup does not modify a supplied converted
-content folder, and downloading packs elsewhere cannot repair it.
+Before starting the Flatpak, use the native launcher to build Godot content from your Steam installation.
+The Flatpak reads the native launcher's current Steam build under
+`${XDG_DATA_HOME:-~/.local/share}/OpenSCCT/content`. It also reads maps installed with the native launcher under
+`OpenSCCT/packs/svmap`, including community mods built from Steam. Its own downloads and saves stay in the
+Flatpak's own storage. An upgrade retains existing saves and previously downloaded optional maps.
+If the game asks for Steam content, finish **Build from Steam** in the native launcher, then restart the Flatpak.
 
 Use **Create a Session** and **Bots: Fill Slots** for a solo match. For local play, turn public listing and UPnP
-off and leave the master URL empty. After downloading content, direct offline practice also works:
+off and leave the master URL empty. After building content, direct offline practice also works:
 
 ```sh
-flatpak run io.github.Lumbridge.OpenSCCT -- --svm-play=SteeE --bots=3
+flatpak run io.github.Lumbridge.OpenSCCT -- --svm-play=AQU03 --bots=3
 ```
 
 ## Steam and controllers
@@ -139,8 +136,8 @@ The Flatpak startup script replaces missing or unreadable inherited `SSL_CERT_FI
 Readable custom CA files/directories, including colon-separated directory lists, are preserved. Certificate
 verification remains enabled. The script reports replacement paths on stderr.
 
-The sandbox allows network, IPC, X11/Wayland, audio/microphone and devices (GPU/controllers), with no home-directory
-access. The Windows-only Python content converter is omitted; this package uses downloaded content packs.
+The sandbox allows network, IPC, X11/Wayland, audio/microphone and devices (GPU/controllers). Its host filesystem
+grants provide read-only access to the native launcher's content and installed map folders.
 The Flatpak does not use the native launcher's self-update mechanism. Discord Rich Presence is disabled on Linux.
 
 ## Build
@@ -218,10 +215,9 @@ The package smoke requires `xvfb-run`, `xauth`, `desktop-file-validate` and the 
 network. `--smoke-ui` opens temporary test windows and exits; set `OPENSCCT_LAUNCHER_SMOKE_OUTPUT` to
 save screenshots. These checks do not replace a complete graphical desktop/gameplay test with live releases.
 
-`tools/linux/smoke.sh` runs boot and TestBox checks against the exported executable, covering the bundled runtime,
-simulation and loopback networking. `OPENSCCT_NETWORK_TEST=1 tools/linux/smoke.sh` additionally runs `linux-setup`
-with separate XDG directories. That opt-in test fetches real content and requires shared packs, SteeE and a
-transition to the main menu. Its timeout is 600 seconds; it is excluded from the ordinary smoke-suite list.
+`tools/linux/smoke.sh` checks boot, TestBox and help feedback against the exported executable. It also starts
+`linux-setup` with an empty data directory to check the first-run instructions for building from Steam.
+These tests cover the bundled runtime, simulation and loopback networking and can run offline.
 
 To validate an installed bundle, run the same smoke flags through `flatpak run io.github.Lumbridge.OpenSCCT`.
 Some nested containers block Flatpak's user namespaces; testing native files there does not validate a complete

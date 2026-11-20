@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Godot;
 using OpenScct.Core;
 using OpenScct.Provenance;
+using SteamVersusMaps = OpenScct.Maps.SteamVersusMaps;
 using OpenScct.Server;
 using OpenScctGame.Hud;
 using OpenScctGame.Play.Session;
@@ -11,7 +12,7 @@ using OpenScctGame.Tutorials;
 namespace OpenScctGame.UI;
 
 /// <summary>
-/// Visit a Map (GUI.Visit_Map_Set): pick a map (the host list's maps that play Story and are installed, AquaE first
+/// Visit a Map (GUI.Visit_Map_Set): pick a map (the host list's maps that play Story and are installed, Aquarius first
 /// selected as the page does) and a side (Switch Team, with the side's picture), then Launch: the map alone with the
 /// help paths shown (the profile's in-game help on), the offline launch rules, no bots.
 /// </summary>
@@ -19,8 +20,7 @@ public partial class VisitMapScreen : MenuPage
 {
     private const string Section = "Visit_Map_Set";
 
-    [Provenance(ProvenanceKind.Decoded, "GUI.Visit_Map_Set.InitComponent: SetWithMapName(\"AquaE\")")]
-    private const string FirstMap = "AquaE";
+    private const string FirstMap = SteamVersusMaps.DefaultHostMap;
 
     private static string? _lastMap;
     private static PlaySide _lastSide = PlaySide.Spy;

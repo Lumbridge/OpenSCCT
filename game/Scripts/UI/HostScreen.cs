@@ -1,3 +1,4 @@
+using SteamVersusMaps = OpenScct.Maps.SteamVersusMaps;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -285,7 +286,7 @@ public partial class HostScreen : MenuPage
             }
         }
 
-        string map = maps.FindMap("SteeE") is not null ? "SteeE" : list.Count > 0 ? list[0].Id : MapCatalog.TestBox;
+        string map = maps.FindMap(SteamVersusMaps.DefaultHostMap) is not null ? SteamVersusMaps.DefaultHostMap : list.Count > 0 ? list[0].Id : MapCatalog.TestBox;
         return LobbySetup.ForMap(map, EGameMode.GM_Multi, maps.GetMapSettings(map), Players(map));
     }
 

@@ -20,12 +20,13 @@ namespace OpenScct.Launcher.Linux;
 
 internal sealed partial class MainWindow
 {
-    private static readonly (string Id, string Title)[] Editions =
+    private static readonly (string Id, string Title, string Group)[] Editions =
     [
-        ("Ps2", "PlayStation 2"), ("Retail", "PC / Steam"), ("Unreal", "OpenSCCT Unreal"), ("Game", "OpenSCCT Classic"),
+        ("Ps2", "PlayStation 2", "Originals"), ("Retail", "PC / Steam", "Originals"),
+        ("Game", "OpenSCCT Godot", "Modernisations"), ("Unreal", "OpenSCCT Unreal", "Modernisations"),
     ];
 
-    private readonly StackPanel _legacyPage;
+    private readonly StackPanel _godotPage;
     private readonly ContentControl _page = new() { HorizontalContentAlignment = HorizontalAlignment.Stretch };
     private readonly TextBlock _feedback = Ui.Text(string.Empty, 14);
     private readonly StackPanel _sidebar = new() { Spacing = 8, Width = 185 };
@@ -49,10 +50,6 @@ internal sealed partial class MainWindow
             _edition = Editions.Any(e => e.Id == saved) ? saved : "Game";
         }
         _model.Settings.SelectedProduct = _edition;
-        using (Stream? stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("OpenScct.Launcher.operation.jpg"))
-            if (stream is not null) _artwork = new Bitmap(stream);
-        Closed += (_, _) => _artwork?.Dispose();
-
         var title = Ui.Text("OPENSCCT", 24, Ui.Accent);
         title.FontWeight = FontWeight.Bold;
         var brand = Ui.Stack(title, Ui.Text("Launcher " + (_model.LauncherVersion?.ToString() ?? "dev") + "  ·  Linux", 13, Ui.Muted));
@@ -64,9 +61,14 @@ internal sealed partial class MainWindow
         _mods.Click += (_, _) => ShowPage("Mods", _edition);
         _settings.Click += (_, _) => ShowPage("Settings", _edition);
 
-        foreach ((string id, string label) in Editions)
+        string? previousGroup = null;
+        foreach ((string id, string label, string group) in Editions)
         {
-            if (id == "Game") _sidebar.Children.Add(Ui.Text("Tools & legacy", 14, Ui.Muted));
+            if (group != previousGroup)
+            {
+                _sidebar.Children.Add(Ui.Text(group, 14, Ui.Muted));
+                previousGroup = group;
+            }
             var button = Ui.Button(label);
             button.Content = Ui.Stack(Ui.Text(label, 15), Ui.Text(string.Empty, 13));
             button.HorizontalAlignment = HorizontalAlignment.Stretch;
@@ -76,7 +78,7 @@ internal sealed partial class MainWindow
             _sidebar.Children.Add(button);
         }
         _sidebar.Children.Add(ButtonRow(Link("Website", ProjectLinks.Website), help));
-        _compactEditions.ItemsSource = Editions.Select(e => e.Title).ToArray();
+        _compactEditions.ItemsSource = Editions.Select(e => e.Group + " · " + e.Title).ToArray();
         _compactEditions.SelectionChanged += (_, _) =>
         {
             int index = _compactEditions.SelectedIndex;
@@ -227,7 +229,7 @@ internal sealed partial class MainWindow
 
     private Control UnrealPage(bool mods) => Ui.Stack(Hero("OpenSCCT Unreal", mods ? "Unreal mods" : "Modern Unreal edition"),
         Card(mods ? "Community maps" : "Windows x64 release",
-            mods ? "Use the Windows launcher to manage maps for the Unreal edition." : "The published Unreal build uses Windows x64. The native Linux build is available under OpenSCCT Classic.",
+            mods ? "Use the Windows launcher to manage maps for the Unreal edition." : "The published Unreal build uses Windows x64. OpenSCCT Godot is available natively on Linux.",
             Link("Unreal releases", "https://github.com/OpenSCCT/OpenSCCT-Unreal/releases")));
 
     private async Task<string?> PickFile(string title, string? pattern = null)
@@ -310,6 +312,11 @@ internal sealed partial class MainWindow
             throw new InvalidOperationException($"The {edition} {section} page did not open.");
     }
 
+    private string GodotStatus() => _model.ClientUpdateRequired ? "Update Godot"
+        : _model.Playable ? "Ready to play"
+        : _model.SteamSource is null ? "Steam folder needed"
+        : _model.Store.Current() is null ? "Ready to install" : "Build Steam content";
+
     private void SelectEdition(string id)
     {
         ShowPage(_section == "Mods" ? "Mods" : "Games", id);
@@ -340,7 +347,7 @@ internal sealed partial class MainWindow
                 "Ps2" => _ps2.Status,
                 "Retail" => RetailGame.Base(_model.Settings.Retail, _steam) is null ? "Locate installation" : "Installed",
                 "Unreal" => "Windows x64",
-                _ => _model.Playable ? "Ready to play" : _model.Store.Current() is null ? "Install available" : "Finish setup",
+                _ => GodotStatus(),
             };
         }
         Highlight(_games, section == "Games");
@@ -352,8 +359,8 @@ internal sealed partial class MainWindow
             "Ps2" => Ps2Page(section == "Mods"),
             "Retail" => RetailPage(section == "Mods"),
             "Unreal" => UnrealPage(section == "Mods"),
-            _ => section == "Games" ? _legacyPage : Ui.Stack(Ui.Text("OpenSCCT Classic mods", 26),
-                Card("Map catalogue", "Browse, download and remove community and stock maps for the native Linux game.",
+            _ => section == "Games" ? _godotPage : Ui.Stack(Ui.Text("OpenSCCT Godot mods", 26),
+                Card("Additional maps", "Build original maps from Steam. Download community-created maps here.",
                     ActionButton("Manage maps", ShowMapsAsync, true))),
         };
     }

@@ -53,6 +53,10 @@ if ! has_readable_cert_dir "${SSL_CERT_DIR:-}"; then
     export SSL_CERT_DIR=/etc/ssl/certs
     printf 'OpenSCCT TLS: using runtime CA directory %s\n' "$SSL_CERT_DIR" >&2
 fi
+# The native launcher publishes the player's converted Steam assets here.
+# The sandbox can read completed base and map builds. Its private saves and local downloads stay writable.
+export OPENSCCT_GODOT_CONTENT_DIR="${HOST_XDG_DATA_HOME:-$HOME/.local/share}/OpenSCCT/content"
+export OPENSCCT_GODOT_OPTIONAL_MAPS="${HOST_XDG_DATA_HOME:-$HOME/.local/share}/OpenSCCT/packs/svmap"
 # All writable state stays inside Flatpak's per-app XDG directories.
 # /var/tmp maps to this app's cache/tmp and is shared by its sandbox instances.
 # .NET named pipes use TMPDIR; private /tmp would hide a running game's Join channel.

@@ -28,7 +28,7 @@ internal sealed partial class MainForm
     private LibraryBanner _banner = null!;
     private Control _launchCard = null!;
     private Bitmap? _heroImage;
-    private static readonly Product[] LibraryOrder = [Product.Ps2, Product.Retail, Product.Unreal, Product.Game, Product.Editor];
+    private static readonly Product[] LibraryOrder = [Product.Ps2, Product.Retail, Product.Game, Product.Unreal, Product.Editor];
 
     private static string EditionName(Product product) => product switch
     {
@@ -36,7 +36,14 @@ internal sealed partial class MainForm
         Product.Retail => "PC / Steam",
         Product.Unreal => "OpenSCCT Unreal",
         Product.Editor => "OpenSCCT Editor",
-        _ => "Legacy Godot client",
+        _ => "OpenSCCT Godot",
+    };
+
+    private static string LibrarySection(Product product) => product switch
+    {
+        Product.Ps2 or Product.Retail => "Originals",
+        Product.Game or Product.Unreal => "Modernisations",
+        _ => "Tools",
     };
 
     private void BuildLibraryShell(Control launch, Control preview, FlowLayoutPanel tools)
@@ -72,13 +79,13 @@ internal sealed partial class MainForm
         var rail = Theme.Grid(Theme.Fill);
         rail.Name = "EditionLibrary";
         rail.Padding = new Padding(0, 0, 14, 0);
-        var railButtons = new[] { _ps2Tab, _retailTab, _unrealTab, _gameTab, _editorTab };
+        var railButtons = new[] { _ps2Tab, _retailTab, _gameTab, _unrealTab, _editorTab };
         for (int index = 0; index < LibraryOrder.Length; index++)
         {
             Product product = LibraryOrder[index];
-            if (index == 0 || product == Product.Game)
+            if (product is Product.Ps2 or Product.Game or Product.Editor)
             {
-                var section = Theme.Label(index == 0 ? "Game library" : "Tools & legacy", Theme.Heading, Theme.Muted);
+                var section = Theme.Label(LibrarySection(product), Theme.Heading, Theme.Muted);
                 section.UseMnemonic = false;
                 section.Margin = new Padding(6, index == 0 ? 4 : 18, 0, 9);
                 Theme.AddRow(rail, section);
@@ -89,7 +96,7 @@ internal sealed partial class MainForm
             button.Anchor = AnchorStyles.Left | AnchorStyles.Right;
             button.Click += (_, _) => SelectProduct(product);
             Theme.AddRow(rail, button);
-            _compactPicker.Items.Add(EditionName(product));
+            _compactPicker.Items.Add(LibrarySection(product) + "  /  " + EditionName(product));
         }
 
         _compactPicker.Name = "EditionSelector";
@@ -218,7 +225,8 @@ internal sealed partial class MainForm
         {
             Product.Ps2 => Ps2Status + "/" + Ps2.DiscPath + "/" + Ps2.EmulatorPath + "/" + Ps2.ModPath,
             Product.Retail => _page == LibraryPage.Mods ? "" : RetailStatus + "/" + _settings.Retail.InstallFolder,
-            Product.Unreal => _settings.UnrealMapModRoot + "/" + _settings.UnrealMapModsEnabled,
+            Product.Unreal => _settings.UnrealMapModRoot + "/" + _settings.UnrealMapModsEnabled + "/" + _steamSource.Value + "/" + _steamContentRoot,
+            Product.Game or Product.Editor => _steamSource.Value + "/" + _steamContentRoot + "/" + _store.Current(),
             _ => "",
         });
         if (key == _detailsKey) return;
@@ -235,7 +243,8 @@ internal sealed partial class MainForm
                 Product.Ps2 => BuildPs2Mods(),
                 Product.Retail => BuildRetailMods(),
                 Product.Unreal => BuildUnrealMods(),
-                _ => LibraryCard("Community maps", "Install or update maps from the OpenSCCT collection.", ActionButton("Manage maps", OpenMaps)),
+                _ => LibraryCard("Additional maps", "The original map set is built from Steam. Download other maps individually.",
+                    ActionButton("Browse maps", OpenMaps)),
             },
             LibraryPage.Games when _selected == Product.Ps2 => LibraryCard("Disc and emulator",
                 "Original disc   ·   " + (File.Exists(Ps2.DiscPath) ? Path.GetFileName(Ps2.DiscPath) : "Choose your ISO")
@@ -269,11 +278,12 @@ internal sealed partial class MainForm
         bool retailReady = RetailReady;
         _retailTab.SetStatus(retailReady ? (_settings.Retail.UseMod ? "Modded game ready" : "Ready to play") : "Setup needed", retailReady);
         var unreal = _unreal.Installed();
-        bool unrealReady = unreal is not null && _unreal.PrerequisiteProblem() is null;
+        bool unrealReady = UnrealService.SupportsSteamContent(unreal?.Version) && _unreal.PrerequisiteProblem() is null;
         _unrealTab.SetStatus(unreal is null ? "Not installed" : unrealReady ? "Ready to play" : "Setup needed", unrealReady);
         var game = _store.Current();
-        bool gameReady = DownloadedFilesPlayable(game);
-        _gameTab.SetStatus(game is null ? "Not installed" : gameReady ? "Ready to play" : "Setup needed", gameReady);
+        bool gameReady = Content.GodotSteamContent.SupportsClient(game) && _steamContentRoot is not null;
+        _gameTab.SetStatus(game is null ? "Not installed" : !Content.GodotSteamContent.SupportsClient(game) ? "Update needed"
+            : gameReady ? "Ready to play" : "Setup needed", gameReady);
         bool hasEditor = _editor.Installed() is not null;
         bool editorReady = hasEditor && _editor.PrerequisiteProblem() is null && !_editor.NeedsRecovery;
         _editorTab.SetStatus(!hasEditor ? "Not installed" : editorReady ? "Ready to create" : "Setup needed", editorReady);
@@ -282,8 +292,16 @@ internal sealed partial class MainForm
     private Control BuildEditionSettings()
     {
         if (!IsOriginalEdition)
-            return LibraryCard(EditionName(_selected) + " settings", "Manage updates, installation folders and preferences.",
-                ActionButton("Open settings", OpenSettings));
+        {
+            Button rebuild = ActionButton("Rebuild game files", () =>
+            {
+                SelectPage(LibraryPage.Games);
+                _ = RunAsync(BuildSteamContentAsync);
+            });
+            rebuild.Enabled = Content.GodotSteamContent.SupportsClient(_store.Current()) && _steamSource.Value is not null;
+            return LibraryCard("Steam installation", _steamSource.Value ?? "Choose the folder where Steam installed Chaos Theory.",
+                ActionButton("Choose Steam folder", ChooseSteamSource), rebuild, ActionButton("Open settings", OpenSettings));
+        }
 
         var grid = Theme.Grid(Theme.Fill);
         Control setup = _selected == Product.Ps2 ? BuildPs2Setup() : LibraryCard("Retail installation", RetailBase?.Folder ?? RetailStatus,
@@ -328,7 +346,7 @@ internal sealed partial class MainForm
             SaveUnrealMod(folder, !_settings.UnrealMapModsEnabled));
         toggle.Enabled = !string.IsNullOrEmpty(folder);
         return LibraryCard("Custom maps", folder is null ? "Choose a collection of compiled SVMap folders to load when Unreal starts."
-            : (_settings.UnrealMapModsEnabled ? "Enabled · " : "Disabled · ") + folder, choose, toggle);
+            : (_settings.UnrealMapModsEnabled ? "Enabled · " : "Disabled · ") + folder, ActionButton("Browse maps", OpenMaps), choose, toggle);
     }
 
     private void SaveUnrealMod(string? root, bool enabled)

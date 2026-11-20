@@ -19,6 +19,8 @@ public static class SharedContent
     public static string? FindRoot(string mapFolder)
     {
         ArgumentException.ThrowIfNullOrEmpty(mapFolder);
+        if (ContentPaths.LocalBaseOnly) return ContentPaths.Shared;
+
         // A downloaded map can sit beside older shared packs. Keep using the content selected
         // for this game (including a checkout's new weapons), rather than that incidental copy.
         if (ContentPaths.Root is { } root && Directory.Exists(Path.Combine(root, "shared")))

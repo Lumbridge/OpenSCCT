@@ -12,14 +12,14 @@ public sealed class LinuxSetupContentTests : IDisposable
     public LinuxSetupContentTests() => Directory.CreateDirectory(_root);
 
     [Fact]
-    public void FreshInstallCanDownloadWithoutAnOverride()
+    public void FreshInstallNeedsSetupWithoutAnOverride()
     {
         Assert.Null(LinuxSetupContent.OverrideProblem(null));
         Assert.False(LinuxSetupContent.SharedReady(null));
     }
 
     [Fact]
-    public void IncompleteOverrideExplainsHowToRecoverBeforeDownloading()
+    public void IncompleteOverrideExplainsHowToRebuild()
     {
         Directory.CreateDirectory(Path.Combine(_root, "shared"));
         string problem = Assert.IsType<string>(LinuxSetupContent.OverrideProblem(_root));

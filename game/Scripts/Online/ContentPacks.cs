@@ -10,10 +10,7 @@ using OpenScct.Server;
 namespace OpenScctGame.Online;
 
 /// <summary>
-/// The game's downloads from OpenSCCT-Content (docs/CONTENT-PACKS.md): the content index, read in the background and
-/// kept for ten minutes, and one download job per map, which first fetches the shared packs when the player has no
-/// content of his own (no converted install). Godot-free and thread-safe; screens poll <see cref="Job"/> and
-/// <see cref="Generation"/> each frame, and refresh their map catalogs when the generation moves on.
+/// Downloads optional map packs and tracks active jobs so the lobby, hub and content screen share progress.
 /// </summary>
 public static class ContentPacks
 {
@@ -41,7 +38,7 @@ public static class ContentPacks
 
     private static Task Run(Func<Task> action) => OperatingSystem.IsBrowser() ? action() : Task.Run(action);
 
-    /// <summary>One map's (or shared pack's) download as a screen shows it.</summary>
+    /// <summary>One map's download as a screen shows it.</summary>
     public sealed class DownloadJob
     {
         internal DownloadJob(ContentMap map)
@@ -50,24 +47,15 @@ public static class ContentPacks
             Title = map.DisplayTitle;
         }
 
-        internal DownloadJob(ContentSharedPack pack)
-        {
-            Shared = pack;
-            Title = pack.Title.Length > 0 ? pack.Title : pack.Id;
-        }
-
         internal DownloadJob(string title) => Title = title;
 
-        /// <summary>The map being downloaded, or null for a shared pack.</summary>
+        /// <summary>The map being downloaded, or null for standalone navigation.</summary>
         public ContentMap? Map { get; }
 
-        /// <summary>The shared pack being downloaded, or null for a map.</summary>
-        public ContentSharedPack? Shared { get; }
-
-        /// <summary>The map's title, or the shared pack's.</summary>
+        /// <summary>The download title.</summary>
         public string Title { get; }
 
-        /// <summary>What is being fetched: the shared packs, then the map.</summary>
+        /// <summary>What is being fetched: the map or its bot navigation.</summary>
         public string Step { get; internal set; } = "Starting";
 
         public long Received { get; internal set; }
@@ -98,7 +86,7 @@ public static class ContentPacks
             Step;
 
         /// <summary>Describe() for the job's own row, which already shows the title: "Downloading 12.3 / 31.0 MB".
-        /// A step that fetches a shared pack first keeps that pack's name.</summary>
+        /// </summary>
         public string DescribeBrief()
         {
             string step = Step == $"Downloading {Title}" ? "Downloading" : Step == $"Installing {Title}" ? "Installing" : Step;
@@ -119,7 +107,7 @@ public static class ContentPacks
         }
     }
 
-    /// <summary>Moves on each time a map or shared pack finished installing (screens then refresh their catalogs).</summary>
+    /// <summary>Moves on each time a map finished installing (screens then refresh their catalogs).</summary>
     public static int Generation => Volatile.Read(ref _generation);
 
     /// <summary>The index once read, else null (still loading, or it failed: <see cref="IndexError"/>).</summary>
@@ -187,36 +175,17 @@ public static class ContentPacks
         }
     }
 
-    /// <summary>The map of the index for a code, else null.</summary>
-    public static ContentMap? Find(string code) => Index?.FindMap(code);
+    public static bool CanDownloadMap(string code) => !SteamVersusMaps.Contains(code);
 
-    /// <summary>The download of a shared pack, running or finished, else null.</summary>
-    public static DownloadJob? SharedJob(string id) => Job(SharedKey(id));
+    public static bool NeedsNativeLauncher(ContentMap map) => map.SteamRecipe is not null &&
+        (OperatingSystem.IsBrowser() || !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("FLATPAK_ID")));
 
-    private static string SharedKey(string id) => "shared:" + id;
+    public static string InstallAction(ContentMap map) => map.SteamRecipe is not null ? "Download and build from Steam" : "Download";
 
-    /// <summary>
-    /// Downloads a shared pack (core, chars, audio) on its own, as the Content page's Download does; a running one
-    /// is returned as it is.
-    /// </summary>
-    public static DownloadJob DownloadShared(ContentSharedPack pack)
-    {
-        ArgumentNullException.ThrowIfNull(pack);
-        DownloadJob job;
-        lock (Gate)
-        {
-            if (Jobs.TryGetValue(SharedKey(pack.Id), out DownloadJob? running) && running.Running)
-            {
-                return running;
-            }
+    public static string SteamMapSetup(string code) =>
+        $"Build {code} from your installed Steam game in the OpenSCCT launcher.";
 
-            job = new DownloadJob(pack);
-            Jobs[SharedKey(pack.Id)] = job;
-        }
-
-        _ = Run(() => RunSharedAsync(job, pack));
-        return job;
-    }
+    public static ContentMap? Find(string code) => CanDownloadMap(code) ? Index?.FindMap(code) : null;
 
     /// <summary>
     /// Removes a downloaded map (its folder under packs\svmap and its entry) and forgets its finished download, so
@@ -224,6 +193,7 @@ public static class ContentPacks
     /// </summary>
     public static void Remove(string code)
     {
+        if (!CanDownloadMap(code)) return;
         lock (Gate)
         {
             if (Jobs.TryGetValue(code, out DownloadJob? job))
@@ -241,17 +211,12 @@ public static class ContentPacks
         Interlocked.Increment(ref _generation);
     }
 
-    /// <summary>The player has converted shared content of their own (so the downloaded shared packs go unused).</summary>
-    public static bool UsesOwnSharedContent => HasOwnSharedContent();
-
-    /// <summary>
-    /// Downloads a map (once; a failed one may be started again). The shared packs come first when the player has
-    /// no content of his own, or when the index's are newer than the ones downloaded before.
-    /// </summary>
+    /// <summary>Downloads an optional map, sharing concurrent jobs for the same map.</summary>
     public static DownloadJob Download(ContentMap map)
     {
         ArgumentNullException.ThrowIfNull(map);
-        ContentIndex? index = Index;
+        if (!CanDownloadMap(map.Code)) return new DownloadJob(map) { Error = SteamMapSetup(map.Code) };
+        if (NeedsNativeLauncher(map)) return new DownloadJob(map) { Error = "Use the native OpenSCCT launcher to build this map from Steam." };
         DownloadJob job;
         lock (Gate)
         {
@@ -265,7 +230,7 @@ public static class ContentPacks
             Jobs[map.Code] = job;
         }
 
-        _ = Run(() => RunAsync(job, index));
+        _ = Run(() => RunAsync(job));
         return job;
     }
 
@@ -286,7 +251,7 @@ public static class ContentPacks
             {
                 job.Error = "stopped";
             }
-            catch (Exception e) when (e is HttpRequestException or System.IO.IOException or System.IO.InvalidDataException or UnauthorizedAccessException or TaskCanceledException)
+            catch (Exception e) when (e is HttpRequestException or System.IO.IOException or System.IO.InvalidDataException or InvalidOperationException or UnauthorizedAccessException or TaskCanceledException)
             {
                 NetworkDiagnostics.Report("bot navigation download: " + map, e);
                 job.Error = e is TaskCanceledException ? "the download timed out" : NetworkDiagnostics.Describe(e);
@@ -295,25 +260,11 @@ public static class ContentPacks
         return job;
     }
 
-    private static async Task RunAsync(DownloadJob job, ContentIndex? index)
+    private static async Task RunAsync(DownloadJob job)
     {
         ContentStore store = Store;
         try
         {
-            // Without a converted install the game has no shared content: the downloaded packs supply it.
-            if (index is not null && !HasOwnSharedContent())
-            {
-                foreach (ContentSharedPack pack in index.Shared)
-                {
-                    if (!store.HasShared(pack))
-                    {
-                        job.Step = $"Downloading {(pack.Title.Length > 0 ? pack.Title : pack.Id)}";
-                        await store.InstallSharedAsync(pack, Progress(job), job.Stop.Token).ConfigureAwait(false);
-                        Interlocked.Increment(ref _generation);
-                    }
-                }
-            }
-
             job.Step = $"Downloading {job.Title}";
             await store.InstallMapAsync(job.Map!, ContentKind.Full, Progress(job), job.Stop.Token).ConfigureAwait(false);
             if (OperatingSystem.IsBrowser() && job.Map?.BotNavigation is { } nav && nav.FormatVersion == OpenScct.Game.AI.NavGraph.FormatVersion)
@@ -330,43 +281,11 @@ public static class ContentPacks
         {
             job.Error = "stopped";
         }
-        catch (Exception e) when (e is HttpRequestException or System.IO.IOException or System.IO.InvalidDataException or UnauthorizedAccessException or TaskCanceledException)
+        catch (Exception e) when (e is HttpRequestException or System.IO.IOException or System.IO.InvalidDataException or InvalidOperationException or UnauthorizedAccessException or TaskCanceledException)
         {
             NetworkDiagnostics.Report("content download: " + job.Title, e);
             job.Error = e is TaskCanceledException ? "the download timed out" : NetworkDiagnostics.Describe(e);
         }
-    }
-
-    private static async Task RunSharedAsync(DownloadJob job, ContentSharedPack pack)
-    {
-        try
-        {
-            job.Step = $"Downloading {job.Title}";
-            await Store.InstallSharedAsync(pack, Progress(job), job.Stop.Token).ConfigureAwait(false);
-            job.Done = true;
-            Interlocked.Increment(ref _generation);
-        }
-        catch (OperationCanceledException) when (job.Stop.IsCancellationRequested)
-        {
-            job.Error = "stopped";
-        }
-        catch (Exception e) when (e is HttpRequestException or System.IO.IOException or System.IO.InvalidDataException or UnauthorizedAccessException or TaskCanceledException)
-        {
-            NetworkDiagnostics.Report("content download: " + job.Title, e);
-            job.Error = e is TaskCanceledException ? "the download timed out" : NetworkDiagnostics.Describe(e);
-        }
-    }
-
-    /// <summary>The player converted an install (the launcher's content, or a checkout's .content): its shared folder is used.</summary>
-    private static bool HasOwnSharedContent()
-    {
-        if (ContentPaths.Root is { } root && System.IO.Directory.Exists(System.IO.Path.Combine(root, "shared")))
-        {
-            return true;
-        }
-
-        return MapCatalog.FindRepoRoot(AppContext.BaseDirectory) is { } repo &&
-            System.IO.Directory.Exists(System.IO.Path.Combine(repo, ".content", "shared"));
     }
 
     private static Progress<PackProgress> Progress(DownloadJob job) => new(p =>

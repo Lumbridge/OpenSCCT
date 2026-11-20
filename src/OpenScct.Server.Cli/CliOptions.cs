@@ -14,7 +14,7 @@ internal sealed record CliOptions
 
         Online server (lobby, rotation, master listing, admin console; docs/ONLINE.md):
           --config <file>   run the online server described by this JSON file
-          --online          run the online server with the default settings (SteeE Story on port 28888)
+          --online          run the online server with the default settings (AQU03 Story on port 28888)
           --write-config <file>  write an example config file and exit
           --name <text>     with --online: the server's name
           --master <url>    with --online: list on this master (never the original's or Reloaded's)
@@ -50,7 +50,7 @@ internal sealed record CliOptions
           --maps <dir>      also look for SVMap folders here (before the default places)
           --lanplay         LAN tick cap (35 Hz) for the frequency gate, LAN net speed rows
           --loopback-only   listen on 127.0.0.1 and ::1 only
-          --game <options>  run the SBase game rules with these URL options; "story" is SteeE Story
+          --game <options>  run the SBase game rules with these URL options; "story" selects the Story mode settings
                             (?GameMode=5?TimeLimit=10?LivesATT=4?TimesRespawnsATT=10?LivesDEF=3)
           --start <n>       with --game: players that must be in before the match starts (default 2)
           --update-gate <g> frequency gate of the replication pass: guarded (default), decoded,

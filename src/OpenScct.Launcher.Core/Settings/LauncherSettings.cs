@@ -15,10 +15,13 @@ public sealed class LauncherSettings
     private Retail.RetailProfiles _retail = new();
     public Retail.RetailProfiles Retail { get => _retail; set => _retail = value ?? new(); }
 
+    /// <summary>A manually located Steam installation used to build Godot's stock content.</summary>
+    public string? GodotSteamFolder { get; set; }
+
     /// <summary>The editor has its own release channel, independent of the game.</summary>
     public bool EditorIncludePrereleases { get; set; }
 
-    /// <summary>Last selected edition or tool: Ps2, Retail, Unreal, Game (legacy client), or Editor.</summary>
+    /// <summary>Last selected edition or tool: Ps2, Retail, Unreal, Game (Godot), or Editor.</summary>
     public string SelectedProduct { get; set; } = "Game";
 
     /// <summary>Check for game updates when its launcher tab opens.</summary>

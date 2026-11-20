@@ -32,5 +32,7 @@ Path('local/linux/openscct-build.json').write_text(json.dumps({
     'built':datetime.datetime.now(datetime.timezone.utc).isoformat(),
 },indent=2)+'\n')
 PY
+echo 'Bundling the offline Steam content builder'
+python3 tools/release/pack_content_tools.py local/linux/contenttools linux-x64
 echo 'Packaging the Flatpak'
 time "$repo_root/tools/linux/package-flatpak.sh" local/linux

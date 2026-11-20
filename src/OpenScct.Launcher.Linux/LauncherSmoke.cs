@@ -31,20 +31,39 @@ internal static class LauncherSmoke
             using var server = new FixtureServer();
             using var http = new HttpClient(server);
             var games = new GameProbe();
-            using var model = new LauncherController(new LauncherLayout(root, LauncherPlatform.LinuxX64), http, null, games);
-            Require(model.Next == LauncherAction.Install, "Fresh installs must offer Install.");
+            using var model = new LauncherController(new LauncherLayout(root, LauncherPlatform.LinuxX64), http, null, games, discoverSteam: false);
+            Require(model.Next == LauncherAction.ChooseSteam, "Fresh installs must require an original Steam installation.");
+            await model.RunAsync("Testing missing Steam installation", model.InstallAsync);
+            Require(model.IsError && server.Requests == 0, "Missing Steam media must stop setup before any download.");
+            if (OperatingSystem.IsLinux())
+            {
+                string game = MakeSteamInstall(root);
+                model.SelectSteam(game);
+                Require(model.SteamSource == Path.Combine(game, "Versus") &&
+                    LauncherSettings.Load(model.Layout.Settings).GodotSteamFolder == model.SteamSource,
+                    "Choosing a Steam game must save its Versus source.");
+            }
+            else
+            {
+                SeedSteamBuild(model.Layout.Content);
+            }
+            Require(model.Next == LauncherAction.Install, "Steam setup must allow native client installation.");
             await model.RunAsync("Installing fixture", model.InstallAsync);
             Require(!model.IsError, model.Status);
-            Require(model.Next == LauncherAction.Play, "A verified game and its shared packs must enable Play.");
+            Require(model.Next == LauncherAction.Play, "A verified game and its Steam-built content must enable Play.");
             Require(model.Store.Current()?.ToString() == "1.0.0", "The downloaded Linux game must become current.");
             Require(Path.GetFileName(model.Store.ExePath(model.Store.Current()!)) == "OpenSCCT.x86_64", "Linux must never launch the Windows executable.");
-            Require(model.Packs.Installed().Count(p => p.IsShared) == 3, "Install must fetch every required shared pack.");
-            Require(model.Packs.InstalledMap("SmokeStock") is not null, "First install must include stock maps.");
+            Require(model.Packs.Installed().Count == 0 && server.CatalogueRequests == 0, "Installing the Godot client must never fetch shared content or stock maps.");
             Require(model.Packs.InstalledMap("SmokeExtra") is null, "Optional maps must not be downloaded on first install.");
             ContentIndex catalogue = await model.LoadMapsAsync(CancellationToken.None);
             ContentMap extra = catalogue.FindMap("SmokeExtra")!;
             await model.RunAsync("Downloading optional map", cancel => model.DownloadMapsAsync([extra], cancel));
-            Require(model.Packs.Has(extra), "Selected maps must download and verify successfully.");
+            Require(model.Packs.Has(extra) && model.Packs.Installed().Count == 1, "Downloading an additional map must install only that map.");
+            Require(catalogue.FindMap("AQU03") is null && catalogue.FindMap("Unreviewed") is null && catalogue.Shared.Count == 0,
+                "The public catalogue must exclude Steam originals, shared packs and unreviewed maps.");
+            ContentMap original = extra with { Code = "AQU03" };
+            await model.RunAsync("Testing original map", cancel => model.DownloadMapsAsync([original], cancel));
+            Require(model.IsError && model.Packs.InstalledMap("AQU03") is null, "Steam originals must never be downloaded as extras.");
             model.RemoveMaps([extra.Code]);
             Require(model.Packs.InstalledMap(extra.Code) is null && !Directory.Exists(Path.Combine(model.Packs.SvMapRoot, extra.Code)),
                 "Removing a map must remove both its files and installation record.");
@@ -57,7 +76,7 @@ internal static class LauncherSmoke
             LauncherSettings saved = LauncherSettings.Load(model.Layout.Settings);
             Require(!saved.CheckOnStart && saved.IncludePrereleases, "Settings must survive a launcher restart.");
             Require(saved.SelectedProduct == "Retail" && saved.Retail.ModFolder == model.Settings.Retail.ModFolder,
-                "Changing Classic preferences must preserve edition and mod selections.");
+                "Changing Godot preferences must preserve edition and mod selections.");
             model.QueueJoin("test_server-42");
             Require(model.PendingJoin == "test_server-42", "Join requests must survive setup operations.");
 
@@ -93,10 +112,19 @@ internal static class LauncherSmoke
             server.Offline = true;
             await model.RunAsync("Offline update check", model.CheckAsync);
             Require(model.Playable, "Failed network checks must preserve installed offline play.");
+            var oldClient = SemVersion.Parse("0.8.165");
+            string oldExe = model.Store.ExePath(oldClient);
+            Directory.CreateDirectory(Path.GetDirectoryName(oldExe)!);
+            File.WriteAllText(oldExe, "pre-Steam client");
+            model.Store.Activate(oldClient);
+            Require(model.Next == LauncherAction.Update && !model.Playable, "A client from before Steam conversion must require an update.");
+            await model.RunAsync("Starting an old client", cancel => model.PlayAsync(true, _ => Task.FromResult(PlayUpdateChoice.PlayCurrent), cancel));
+            Require(model.IsError && model.PendingJoin == "test_server-42", "An old game client must not consume a website Join.");
             model.Reset();
-            Require(model.Next == LauncherAction.Install, "Reset must return to Install.");
+            Require(!model.ContentReady && model.Next == (model.SteamSource is null ? LauncherAction.ChooseSteam : LauncherAction.Install),
+                "Reset must remove converted content and keep the Steam folder selection.");
             Require(File.Exists(model.Layout.Settings), "Reset must retain launcher preferences.");
-            Console.WriteLine("Linux launcher smoke passed: verified game/content install, stock and optional maps, native executable permissions, update, running-game deferral, rollback, cancellation, offline readiness, settings and reset.");
+            Console.WriteLine("Linux launcher smoke passed: Steam source requirement, Godot client install, isolated additional map downloads, native executable permissions, update, running-game deferral, rollback, cancellation, offline readiness, settings and reset.");
             return 0;
         }
         catch (Exception ex)
@@ -105,6 +133,39 @@ internal static class LauncherSmoke
             return 1;
         }
         finally { if (Directory.Exists(root)) Directory.Delete(root, true); }
+    }
+
+    private static void SeedSteamBuild(string content)
+    {
+        string build = Guid.NewGuid().ToString("N");
+        string output = Path.Combine(content, SteamContentInstall.BuildsDirectory, build);
+        PopulateContent(output);
+        File.WriteAllText(Path.Combine(content, SteamContentInstall.PointerFile), JsonSerializer.Serialize(new { format = SteamContentInstall.Format, build }));
+    }
+
+    private static string MakeSteamInstall(string root)
+    {
+        string apps = Path.Combine(root, "Steam library", "steamapps");
+        string game = Path.Combine(apps, "common", "Chaos Theory");
+        string versus = Path.Combine(game, "Versus");
+        Directory.CreateDirectory(Path.Combine(versus, "System"));
+        File.WriteAllText(Path.Combine(versus, "System", "SCCT_Versus.exe"), "fixture");
+        string maps = Path.Combine(versus, "Packages", "Maps");
+        Directory.CreateDirectory(maps);
+        foreach (string code in SteamVersusMaps.All) File.WriteAllText(Path.Combine(maps, code + ".sdc"), "fixture");
+        File.WriteAllText(Path.Combine(apps, "appmanifest_13570.acf"), "\"installdir\" \"Chaos Theory\"");
+        PopulateContent(Path.Combine(versus, "converted"));
+        return game;
+    }
+
+    private static void PopulateContent(string output)
+    {
+        foreach (string relative in SteamContentInstall.RequiredFiles())
+        {
+            string path = Path.Combine(output, relative);
+            Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+            File.WriteAllText(path, "synthetic converted content");
+        }
     }
 
     private static void Require(bool condition, string message)
@@ -120,20 +181,42 @@ internal static class LauncherSmoke
 
     private sealed class FixtureServer : HttpMessageHandler
     {
-        private readonly byte[] _game = Zip("OpenSCCT.x86_64", "fixture game executable");
+        private readonly byte[] _game = Zip(
+            ("OpenSCCT.x86_64", "fixture game executable"),
+            ("contenttools/steam-builder-v1", "linux-x64"),
+            ("contenttools/repo/content/svmbuild/__main__.py", ""),
+            ("contenttools/python/bin/python3", """
+                #!/bin/sh
+                set -eu
+                while [ "$#" -gt 0 ]; do
+                    case "$1" in
+                        --out) shift; out=$1 ;;
+                        --game) shift; game=$1 ;;
+                    esac
+                    shift
+                done
+                test "$SVM_STEAM_BASE" = 1
+                cp -R "$game/converted/." "$out/"
+                """));
         private readonly byte[] _map = MapZip();
         private readonly Dictionary<string, byte[]> _packs = new[] { "core", "chars", "audio" }
-            .ToDictionary(id => id, id => Zip(id + ".txt", "verified fixture " + id));
+            .ToDictionary(id => id, id => Zip((id + ".txt", "verified fixture " + id)));
         public string Version { get; set; } = "1.0.0";
         public bool Offline { get; set; }
+        public int Requests { get; private set; }
+        public int CatalogueRequests { get; private set; }
 
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancel)
         {
             cancel.ThrowIfCancellationRequested();
+            Requests++;
             if (Offline) throw new HttpRequestException("Offline smoke fixture");
             string url = request.RequestUri!.AbsoluteUri;
             if (url == ContentStore.IndexUrl)
             {
+                CatalogueRequests++;
+                var review = new { kind = "community-authored", credits = "Fixture", license = "CC0-1.0",
+                    evidence = "https://example.test/fixture-provenance", fullSha256 = Hash(_map), simSha256 = Hash(_map) };
                 string index = JsonSerializer.Serialize(new
                 {
                     format = "openscct.content", formatVersion = 1, svmapFormat = "1.0",
@@ -142,10 +225,11 @@ internal static class LauncherSmoke
                         id = p.Key, title = p.Key, version = "1", contents = new[] { p.Key + ".txt" },
                         download = new { url = "https://fixture.invalid/pack/" + p.Key, size = p.Value.Length, sha256 = Hash(p.Value) },
                     }),
-                    maps = new[] { (Code: "SmokeStock", Category: "stock"), (Code: "SmokeExtra", Category: "community") }.Select(map => new
+                    maps = new[] { (Code: "AQU03", Category: "stock"), (Code: "SmokeExtra", Category: "community"), (Code: "Unreviewed", Category: "community") }.Select(map => new
                     {
                         id = map.Category + "/" + map.Code, code = map.Code, category = map.Category, title = map.Code,
                         version = "1", modes = new[] { "Deathmatch" }, contentHash = Hash(_map),
+                        distribution = map.Code == "Unreviewed" ? null : review,
                         full = new { url = "https://fixture.invalid/map", size = _map.Length, sha256 = Hash(_map) },
                     }),
                 });
@@ -167,19 +251,24 @@ internal static class LauncherSmoke
             if (url == "https://fixture.invalid/game") return Task.FromResult(Bytes(_game));
             if (url == "https://fixture.invalid/map") return Task.FromResult(Bytes(_map));
             if (url == "https://fixture.invalid/sums") return Task.FromResult(Text(Hash(_game) + "  OpenSCCT-" + Version + "-linux-x64.zip\n"));
-            if (url.StartsWith("https://fixture.invalid/pack/", StringComparison.Ordinal))
-                return Task.FromResult(Bytes(_packs[request.RequestUri.Segments[^1]]));
+
             throw new InvalidOperationException("Unexpected smoke HTTP request: " + url);
         }
 
         private static HttpResponseMessage Text(string value) => new(HttpStatusCode.OK) { Content = new StringContent(value) };
         private static HttpResponseMessage Bytes(byte[] value) => new(HttpStatusCode.OK) { Content = new ByteArrayContent(value) };
         private static string Hash(byte[] value) => Convert.ToHexStringLower(SHA256.HashData(value));
-        private static byte[] Zip(string name, string contents)
+        private static byte[] Zip(params (string Name, string Contents)[] files)
         {
             using var buffer = new MemoryStream();
             using (var zip = new ZipArchive(buffer, ZipArchiveMode.Create, true))
-            using (var writer = new StreamWriter(zip.CreateEntry(name).Open(), Encoding.UTF8)) writer.Write(contents);
+            {
+                foreach (var file in files)
+                {
+                    using var entry = zip.CreateEntry(file.Name).Open();
+                    entry.Write(Encoding.UTF8.GetBytes(file.Contents.ReplaceLineEndings("\n")));
+                }
+            }
             return buffer.ToArray();
         }
 

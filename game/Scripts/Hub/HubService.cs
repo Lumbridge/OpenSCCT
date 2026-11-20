@@ -110,6 +110,12 @@ public partial class HubService : Node
             return;
         }
 
+        if (!ContentPacks.CanDownloadMap(pad.Map))
+        {
+            DownloadNote = ContentPacks.SteamMapSetup(pad.Map);
+            return;
+        }
+
         if (ContentPacks.Job(pad.Map) is not { } job)
         {
             if (ContentPacks.Find(pad.Map) is { } map)

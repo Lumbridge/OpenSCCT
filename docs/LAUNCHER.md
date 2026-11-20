@@ -13,14 +13,16 @@ Windows-only releases do not include a Linux download.
 
 Download **OpenSCCT.Launcher.exe** on Windows or **OpenSCCT.Launcher-linux-x64**
 on Linux from the [latest release](https://github.com/OpenSCCT/OpenSCCT/releases/latest).
-Put it in a writable folder and open **Games**. Pick an edition from the library.
+Put it in a writable folder and open **Games**. **Originals** contains PlayStation 2 and PC / Steam.
+**Modernisations** contains OpenSCCT Godot and OpenSCCT Unreal, which rebuild Versus with new engines, graphics and features.
 **Mods** shows the choices for the selected edition and **Settings** opens its configuration.
 
 | Choose | Set up and play | Switch mods |
 |---|---|---|
 | **PlayStation 2** | Select a local Chaos Theory PS2 ISO and the PCSX2 executable. Configure your BIOS in PCSX2. **Play in PCSX2** starts the disc. | Choose a separately patched ISO of the same disc release. **Use original disc** restores the base selection. |
 | **PC / Steam** | The launcher looks for Steam app 13570. You can also choose an installed game folder. **Play campaign / co-op** starts the main game. **Play Versus** starts the multiplayer executable. | Choose a separate modded copy under **Mods**. A Versus-only profile such as Enhanced or Reloaded keeps the base campaign available. A full-game profile can supply a modified campaign. Select the base installation again to play stock. |
-| **OpenSCCT Unreal** | On Windows, install the modern Versus client and its required shared content. The launch panel shows its next install, update or play action. | Select a parent folder containing compiled community SVMap directories. Enable or disable those maps before starting the client. |
+| **OpenSCCT Godot** | Install the Godot client. The launcher finds the original game in Steam or lets you select its folder. Build the Versus content from that installation, then choose **Play**. | **Maps** offers additional maps, from the community catalogue. |
+| **OpenSCCT Unreal** | On Windows, install the modern Versus client and build its required content from your Steam game. The launch panel shows its next install, update or play action. | Select a parent folder containing compiled community SVMap directories. Enable or disable those maps before starting the client. |
 
 Enhanced and Reloaded apply to original PC Versus. Enhanced includes Reloaded.
 See the [Enhanced releases](https://github.com/Joshhhuaaa/EnhancedSCCTVersus/releases)
@@ -29,24 +31,33 @@ See the [PS2 setup guide](editions/ps2.md) for disc compatibility and PCSX2 setu
 [Unreal map mods](UNREAL-MAP-MODS.md) for the required folder layout, and the
 [Linux guide](LINUX.md) for Steam, Wine and edition support.
 
-### Godot client and editor
+### Godot setup
 
-The **Tools & legacy** section keeps the Godot Versus client and, on Windows, the
-map editor accessible. Select the legacy client and press **Install** to download
-the client and required game files. **Play** becomes available after setup.
-**Maps** manages additional downloads. **Stop** or **Cancel** interrupts a
-download and keeps completed files so setup can resume.
+Select **OpenSCCT Godot** under **Modernisations**. Install Chaos Theory in
+Steam, including its Versus files. The launcher checks the source folder and
+builds OpenSCCT's maps, characters, sounds and shared assets in its own data
+folder. It reads the stock game in place. Keep a separate Enhanced or Reloaded
+copy for playing modded original PC Versus.
+
+The Steam depot includes 11 multiplayer maps and eight training maps. The two
+menu packages are also part of the source. Once the build completes, **Play**
+starts Godot using those local files. **Maps** offers additional downloads.
+See the [stock map list](../shared/SteamVersusMaps.txt) for the package IDs.
+
+If you played an earlier Godot build that downloaded shared packs, select the
+Steam installation and complete the local build once. Your saved settings and
+optional maps stay available. A completed local build is selected only after
+the converter has produced and checked its output.
 
 Managed products show their release information, update progress and available
 actions for the selected product. **Full changelog** opens its release notes.
 
 ## Optional Windows editor
 
-Select **OpenSCCT Editor** under **Tools & legacy**. Its blue theme
+Select **OpenSCCT Editor** under **Tools**. Its blue theme
 identifies the editor, and **Set up Editor** starts its optional installation.
 
-**Set up Editor** installs missing game and shared-content prerequisites, then the editor, without
-starting the game. The editor uses the same downloaded packs and converted maps. **Open Editor** starts
+**Set up Editor** installs the editor and checks the local Steam content build. The editor reads the same stock maps and assets as the modern clients. **Open Editor** starts
 it when setup is ready; **Use current version** remains available when an optional update exists or
 an update fails. **Retry update** remains available after a failure. Game and editor versions and
 preview preferences are independent.
@@ -57,7 +68,7 @@ the editor and its command-line tools before updating from the launcher. Cancell
 during staging; once replacement starts, the helper finishes or recovers before the launcher closes.
 
 You can change tabs during a download: progress and cancellation continue to refer to the operation
-that started it. Website Join links select the legacy Godot client and wait for an active operation. Launcher self-updates
+that started it. Website Join links select OpenSCCT Godot and wait for an active operation. Launcher self-updates
 remain available on every tab. Editor Help and release links go to the editor project.
 
 **Settings** belongs to the selected tab. Each tab has its own startup update check, preview
@@ -65,26 +76,23 @@ preference, folder shortcuts and installation actions. Existing installations in
 startup-check choice for every product; changing it in one tab then leaves the others unchanged.
 
 In **Game settings**, **Import from Enhanced SCCT Versus** queues an import of the player's Enhanced settings
-for the game's next start. **Choose Enhanced folderâ€¦** takes any folder of the install (everything: sensitivities,
+for the game's next start. **Choose Enhanced folder…** takes any folder of the install (everything: sensitivities,
 key bindings, display, HUD, voice, volumes, gear); **Bindings only (no install)** takes just the profile and key
 layouts the original keeps in ProgramData. Saving writes `enhanced_import.request` (the folder, or empty) into the
 game's user data (`EnhancedImportRequest`); the game carries it out once at start, saves the result and removes the
 file (`EnhancedImportStartup`), and its Options note says what was imported. The same import is in the game's
 Options as **Import from Enhanced** ([MENUS.md](MENUS.md)), staged there until Apply.
 
-In **Editor settings**, **Uninstall editorâ€¦** removes the launcher-managed editor application and keeps
+In **Editor settings**, **Uninstall editor…** removes the launcher-managed editor application and keeps
 projects, editor settings/autosaves, the game and shared assets. Close the editor and its command-line tools
 first; finish any interrupted update before uninstalling. Extra or modified files inside the installation
 are kept in a separate folder, linked in the completion message. **Set up Editor** can install it again.
 Independently downloaded editor installations are not adopted or removed.
 
-In **Game settings**, **Remove game and shared filesâ€¦** removes all installed game versions and downloaded
-assets/maps, keeping settings and saves. It keeps the editor application and projects, but the editor's shared
-game prerequisites must be downloaded again. It also keeps the Unreal build, which needs the game files
-downloaded again before it can start. OpenSCCT Unreal reads those files while it runs, so the removal is refused
-while it runs, and **Force close allâ€¦** closes it too. This action is not shown in Editor or Unreal settings.
-**Maps** manages shared downloaded content in either tab. Close the editor and OpenSCCT Unreal before changing
-that content.
+In **Game settings**, **Remove game and shared files…** removes all installed game versions and downloaded
+assets/maps, keeping settings and saves. The Editor application, its projects and the Unreal application have independent installations. If you remove their local base content, run Steam setup before opening them again. Close active clients before changing shared content.
+**Maps** manages optional community downloads.
+
 See the [Linux guide](LINUX.md) for the controls available on Linux.
 
 Integration requires an editor package advertising launcher protocol 1 with its
@@ -139,8 +147,7 @@ named `OpenSCCTUnreal` or `OpenSCCTUnreal-Win64-Shipping` started from `unreal\`
 previous versions. The launcher never updates itself from these releases.
 
 **What it passes to the game.** The launcher starts `versions\<version>\OpenSCCTUnreal.exe` from its own folder,
-with `-ScctContent="<launcher folder>\packs"`. Choose **Get shared files** in the
-Unreal entry if the required files are missing. With custom maps enabled, the
+with the completed local Steam build as its content root. If the required files are missing, select Chaos Theory's Steam folder and build again. With custom maps enabled, the
 launcher also supplies the selected map root. Paths containing spaces are quoted
 and paths containing a double quote are rejected. The launcher removes the
 `SVM_CONTENT` and `SVM_GAME_ROOT` environment variables from the child process.
@@ -149,10 +156,7 @@ of the installer it carries. When the runtime is missing or older (an old 2015-2
 launcher can run that installer (`Prerequisites\vc_redist.x64.exe /install /passive /norestart`). While an
 update waits for the running game to close, the tab shows **Waiting for game to close** instead of **Play**.
 
-**What it does not do.** The launcher does not download Unreal map packs: the game downloads them into
-`%LOCALAPPDATA%\OpenSCCT\unreal-packs\` itself. The launcher does not sign in or handle account tokens: the game
-signs in by itself. Website Join links still go to the legacy Godot entry, and **Maps** manages the OpenSCCT content
-packs only.
+The game handles its own account sign-in. Website Join links open the Godot entry. **Maps** offers additional community maps.
 
 **Uninstall.** In **Unreal settings**, uninstalling deletes `unreal\` and, if you choose, `unreal-packs\`. It is
 refused while the game runs. It keeps the Godot game, the content packs, the editor, `launcher.json` and the
@@ -176,7 +180,7 @@ The launcher gets updates from the public `OpenSCCT/OpenSCCT` repository without
 
 ### Monitor
 
-In the Windows launcher's **Legacy Godot client** entry, **Settings > Monitor** chooses the screen the game opens on. It is the
+In the Windows launcher's **OpenSCCT Godot** entry, **Settings > Monitor** chooses the screen the game opens on. It is the
 same setting as **Options > Display > Monitor** in the game: monitor 1 is the Windows primary screen and the
 others follow from left to right. Use it when the game opens on a screen you cannot see. Close the game
 before changing it.
@@ -228,7 +232,7 @@ The launcher stores its files under `%LOCALAPPDATA%\OpenSCCT` on Windows and
 | `unreal-packs/` | Map packs the Unreal build downloads by itself |
 | `downloads/` | Completed and partial release downloads |
 | `cache/` | Cached release list and rate-limit state |
-| `content/` | Legacy converted content and logs, no longer used by the launcher |
+| `content/` | Locally converted Steam builds and the marker selecting the completed build |
 | `packs/` | Downloaded [content packs](CONTENT-PACKS.md) |
 | `maps/` | Original-format maps downloaded by older launchers |
 
@@ -239,19 +243,11 @@ Deleting the launcher data folder removes installed builds and content; use it o
 
 ## Game content
 
-The launcher downloads the required shared packs and maps from
-[OpenSCCT-Content](https://github.com/OpenSCCT/OpenSCCT-Content). See [Content packs](CONTENT-PACKS.md)
-for their format, checksums and installation paths.
-
-The first setup downloads the shared packs and stock maps. **Maps** downloads, updates and removes
-additional ready-to-play map packs. Missing maps can also be downloaded in game when joining a lobby.
-
-Existing installations that used local conversion now download the required packs before playing.
-The launcher starts the game using its downloaded packs, without legacy content overrides or inherited
-original-install paths. Existing game settings, bindings and saves
-are kept. Legacy converted files remain on disk until an installation reset or manual cleanup.
-
-Local conversion remains a developer workflow; see [Content tools](../content/README.md).
+Godot, Unreal and the Editor read their base assets and stock maps from the local build. Optional map packs
+use the [content repository](https://github.com/OpenSCCT/OpenSCCT-Content).
+See
+[Content packs](CONTENT-PACKS.md) for their archive format and
+[the content converter](../content/README.md) for build details.
 
 ## Build and publish
 

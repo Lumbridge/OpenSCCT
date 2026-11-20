@@ -141,16 +141,16 @@ public partial class WebsiteJoinService : Node
             }
             return;
         }
-        if (!LinuxSetupContent.SharedReady(ContentPaths.Shared))
+        if (!OperatingSystem.IsBrowser() && !ContentPaths.SteamBaseReady)
         {
             if (!_contentShown)
             {
                 _contentShown = true;
                 ConfirmBox.Open(tree.CurrentScene, new ConfirmBox
                 {
-                    Name = "WebsiteJoinContent", Question = "Install the shared game files before joining. Open Content, finish the downloads, then return to the main menu to continue.",
-                    YesCaption = "Open Content", NoCaption = "Cancel join",
-                    Yes = () => FrontEnd.ShowContent(tree), No = CancelPending,
+                    Name = "WebsiteJoinContent", Question = "Build the game files from your Steam installation in the OpenSCCT launcher, then open the website join link again.",
+                    YesCaption = "Set up Godot", NoCaption = "Cancel join",
+                    Yes = () => FrontEnd.Show(tree, new LinuxSetupScreen()), No = CancelPending,
                 });
             }
             return;

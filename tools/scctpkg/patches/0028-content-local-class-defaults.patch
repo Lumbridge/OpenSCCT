@@ -1,0 +1,12 @@
+--- a/level.py
++++ b/level.py
+@@ -28,7 +28,8 @@
+ # game's class default objects. A map only stores a property when it differs from the class default, so these decide
+ # whether a placed actor is drawn (DrawType 8 = DT_StaticMesh) and hidden: SGamePlayObject, Mover, SLift default to
+ # DT_Sprite, path guides and triggers default to bHidden.
+-with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "class_defaults.json"), encoding="utf-8") as _f:
++_defaults_path = os.environ.get("SVM_CLASS_DEFAULTS_FILE") or os.path.join(os.path.dirname(__file__), "class_defaults.json")
++with open(_defaults_path, encoding="utf-8") as _f:
+     CLASS_DEFAULTS: Dict[str, dict] = json.load(_f)
+ # "trigger_" is not a helper word: trigger_hack, trigger_urgence, trigger_scan and Trigger_Vert are the hack panels,
+ # emergency buttons and scanners the game draws. A sprite SInterrupteur (trigger_standard) is hidden by its DrawType.

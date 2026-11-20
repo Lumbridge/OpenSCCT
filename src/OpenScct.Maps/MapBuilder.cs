@@ -41,7 +41,8 @@ public sealed record BuilderTool(string Python, string? WorkingDirectory)
     /// Runs the builder with <paramref name="arguments"/> (after <c>-u -m svmbuild</c>), no window; every output line
     /// goes to <paramref name="onLine"/>. Cancelling stops it and its workers. Returns the exit code.
     /// </summary>
-    public async Task<int> RunAsync(IEnumerable<string> arguments, string fallbackDirectory, Action<string>? onLine, CancellationToken cancel)
+    public async Task<int> RunAsync(IEnumerable<string> arguments, string fallbackDirectory, Action<string>? onLine, CancellationToken cancel,
+        bool steamBase = false, bool cleanEnvironment = false)
     {
         var info = new ProcessStartInfo(Python)
         {
@@ -51,7 +52,7 @@ public sealed record BuilderTool(string Python, string? WorkingDirectory)
             RedirectStandardError = true,
             WorkingDirectory = WorkingDirectory ?? fallbackDirectory,
         };
-        foreach (string arg in new[] { "-u", "-m", "svmbuild" }.Concat(arguments))
+        foreach (string arg in new[] { "-B", "-u", "-m", "svmbuild" }.Concat(arguments))
         {
             info.ArgumentList.Add(arg);
         }
@@ -60,6 +61,15 @@ public sealed record BuilderTool(string Python, string? WorkingDirectory)
         info.Environment["PYTHONIOENCODING"] = "utf-8";
         // "start <step> <unit>" lines as each unit begins real work (older builders ignore it).
         info.Environment["SVM_PROGRESS"] = "1";
+        if (steamBase || cleanEnvironment)
+        {
+            // Release conversions take each input root from the command line.
+            foreach (string key in new[] { "SVM_ADDONS", "SVM_CONTENT", "SVM_GAME_ROOT", "SVM_LANGUAGE", "SVM_MESH_OVERRIDES", "SVM_CLASS_DEFAULTS_FILE", "SVM_STEAM_BASE", "PYTHONHOME", "PYTHONPATH" })
+                info.Environment.Remove(key);
+            info.Environment["PYTHONNOUSERSITE"] = "1";
+            info.Environment["PYTHONDONTWRITEBYTECODE"] = "1";
+            if (steamBase) info.Environment["SVM_STEAM_BASE"] = "1";
+        }
         Directory.CreateDirectory(info.WorkingDirectory);
 
         using var process = new Process { StartInfo = info, EnableRaisingEvents = true };

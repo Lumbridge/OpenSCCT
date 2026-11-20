@@ -269,7 +269,11 @@ public sealed class BotPreparationTests
             using var http = new HttpClient(handler);
             var store = new ContentStore(Path.Combine(root, "packs"), http);
             var download = new ContentDownload("https://example.test/bot-nav.zip", bytes.Length, Convert.ToHexStringLower(SHA256.HashData(bytes)));
-            var asset = new ContentBotNavigation(map.SimHash, NavGraph.FormatVersion, map.Gameplay.GEActivationMask, download);
+            var reviewedMap = new ContentMap { Id = "community/TestBox", Code = "TestBox", Full = download, Sim = download,
+                Distribution = new ContentDistribution("community-authored", "OpenSCCT", "fixture", "https://example.test/source",
+                    download.Sha256, download.Sha256, download.Sha256),
+                BotNavigation = new ContentBotNavigation(map.SimHash, NavGraph.FormatVersion, map.Gameplay.GEActivationMask, download) };
+            var asset = new ContentIndex { Maps = [reviewedMap] }.PublicDownloads().Maps.Single().BotNavigation!;
             string installed = ContentStore.BotNavigationPath(store.Root, map.SimHash, asset.FormatVersion)!;
             var cancel = TestContext.Current.CancellationToken;
             bool Matches(string path) => AiNavCache.PackMatches(path, map.Id, asset.SimHash, asset.ActivationMask);
@@ -281,7 +285,7 @@ public sealed class BotPreparationTests
             Assert.False(File.Exists(installed));
             await store.InstallBotNavigationAsync(asset, Matches, null, cancel);
             await store.InstallBotNavigationAsync(asset, Matches, null, cancel);
-            Assert.Equal(3, handler.Requests);
+            Assert.Equal(2, handler.Requests);
             Assert.True(Matches(installed));
             Assert.False(Directory.Exists(store.SvMapRoot));
 

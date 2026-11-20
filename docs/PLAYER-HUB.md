@@ -11,6 +11,9 @@ This is the website. The in-game social space is covered in the [social hub guid
 
 | Page | What you can do |
 | --- | --- |
+| Projects | Find the two original editions and the Godot and Unreal modernisations. |
+| Progress | Read the per-executable matching report and contributor guides. |
+| Legal | Read the project notice and see which original files each edition needs. |
 | Download | Compare Windows, native Linux and Flatpak downloads side by side, with platform setup instructions. |
 | Servers | Find listed games and hubs by map, mode, region and free space; join the installed game. |
 | Players | Find a player and view rank, stats, achievements, unlocks and recorded rounds. |

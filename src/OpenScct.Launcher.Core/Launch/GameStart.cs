@@ -7,13 +7,12 @@ using OpenScct.Launcher.Settings;
 namespace OpenScct.Launcher.Launch;
 
 /// <summary>
-/// Starts the game using its default downloaded packs. Legacy original-install and converted-content environment
-/// settings are excluded from the child process, so an old developer setup cannot replace the downloaded game
-/// files. Godot reads optional user arguments (such as a website Join request) after "--".
+/// Starts Godot with the selected local content generation. User arguments (including website Join) follow "--".
 /// </summary>
 public static class GameStart
 {
-    public static ProcessStartInfo Create(string exePath, IEnumerable<string>? extraUserArgs = null, string? graphicsDriver = null)
+    public static ProcessStartInfo Create(string exePath, IEnumerable<string>? extraUserArgs = null, string? graphicsDriver = null,
+        string? contentRoot = null)
     {
         ArgumentException.ThrowIfNullOrEmpty(exePath);
         var info = new ProcessStartInfo(exePath)
@@ -32,6 +31,9 @@ public static class GameStart
         }
 
         var user = new List<string>();
+
+        if (contentRoot is not null)
+            user.Add("--svm-content=" + Path.GetFullPath(contentRoot));
 
         if (extraUserArgs is not null)
         {

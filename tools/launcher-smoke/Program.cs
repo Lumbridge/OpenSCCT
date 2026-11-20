@@ -30,11 +30,11 @@ internal static class Program
     // the current source or the launcher installed on this computer.
     private static readonly Type MainType = (Environment.GetEnvironmentVariable("OPENSCCT_SMOKE_LAUNCHER_DLL") is { Length: > 0 } prior
         ? Assembly.LoadFrom(Path.GetFullPath(prior)) : Assembly.Load("OpenSCCT.Launcher")).GetType("OpenScct.Launcher.App.MainForm", true)!;
-    private static readonly SemVersion InstalledVersion = SemVersion.Parse("0.8.80");
-    private static readonly SemVersion LatestVersion = SemVersion.Parse("0.8.81");
-    private static readonly SemVersion EditorGameVersion = SemVersion.Parse("0.8.93");
-    private static readonly SemVersion EditorVersion = SemVersion.Parse("0.1.0");
-    private static readonly SemVersion UnrealVersion = SemVersion.Parse("0.1.0");
+    private static readonly SemVersion InstalledVersion = SemVersion.Parse("0.8.166");
+    private static readonly SemVersion LatestVersion = SemVersion.Parse("0.8.167");
+    private static readonly SemVersion EditorGameVersion = SemVersion.Parse("0.8.166");
+    private static readonly SemVersion EditorVersion = SemVersion.Parse("0.2.54");
+    private static readonly SemVersion UnrealVersion = SemVersion.Parse("0.1.10");
     private static readonly SemVersion UnrealLatestVersion = SemVersion.Parse("0.2.0");
     private const string SmokeUnrealRepository = "smoke-owner/smoke-unreal";
     // Published v0.1.1 highlights, captured from its release on 2026-11-05. These are deliberately
@@ -114,15 +114,17 @@ internal static class Program
         {
             new("fresh-no-feed", false, false, "Install"),
             new("fresh", false, false, "Install"),
-            new("incomplete", true, false, "Finish install"),
+            new("steam-missing", false, false, "Choose Steam folder"),
+            new("incomplete", true, false, "Build game files"),
             new("ready", true, true, "PLAY"),
             new("remove-blocked", true, true, "PLAY"),
             new("game-update", true, true, "Update"),
-            new("content-update", true, true, "Update"),
-            new("downloading", true, true, "Stop"),
+            new("legacy-packs", true, true, "Build game files"),
+            new("old-client", true, true, "Update"),
+            new("building", true, false, "Cancel"),
             new("game-downloading", true, true, "Cancel"),
-            new("stopped", true, false, "Finish install"),
-            new("error", true, false, "Finish install"),
+            new("stopped", true, false, "Build game files"),
+            new("error", true, false, "Build game files"),
             new("offline", true, true, "PLAY"),
             new("join", true, true, "JOIN SESSION"),
             new("launcher-restart", true, true, "PLAY"),
@@ -139,8 +141,9 @@ internal static class Program
             new("editor-error", true, true, "Open Editor"),
             new("editor-launcher-restart", true, true, "Open Editor"),
             new("unreal-absent", true, true, "Install Unreal"),
-            new("unreal-prerequisite", false, false, "Get shared files"),
+            new("unreal-prerequisite", false, false, "Build game files"),
             new("unreal-update", true, true, "Update Unreal"),
+            new("unreal-steam-update", true, true, "Update Steam files"),
             new("unreal-ready", true, true, "Play"),
             new("unreal-pending", true, true, "Waiting for game to close"),
             new("unreal-busy", true, true, "Cancel"),
@@ -193,6 +196,7 @@ internal static class Program
         if (!File.Exists(fixture.Layout.Settings)) new LauncherSettings { SelectedProduct = "Game", CheckOnStart = false }.Save(fixture.Layout.Settings);
         var form = (Form)Activator.CreateInstance(MainType, Hidden, null,
             new object?[] { fixture.Layout, scenario.Name == "join" ? "smoke-session" : null, null, fixture.LauncherPath }, null)!;
+        Set(form, "_steamSource", new Lazy<string?>(() => scenario.Name == "steam-missing" ? null : fixture.Layout.Root));
         if (!_reportedDpi) Console.WriteLine($"Before handle: DeviceDpi={form.DeviceDpi}, AutoScaleDimensions={form.AutoScaleDimensions}, CurrentAutoScaleDimensions={form.CurrentAutoScaleDimensions}, Font={form.Font.SizeInPoints}pt.");
         _ = form.Handle;
         if (!_reportedDpi)
@@ -201,7 +205,7 @@ internal static class Program
             _reportedDpi = true;
         }
         ReleaseFeedSource source = scenario.Name == "offline" ? ReleaseFeedSource.Cache : ReleaseFeedSource.Network;
-        SemVersion version = scenario.Name is "fresh" or "game-update" or "game-downloading" ? LatestVersion : InstalledVersion;
+        SemVersion version = scenario.Name is "fresh" or "game-update" or "game-downloading" or "old-client" ? LatestVersion : InstalledVersion;
         var release = new ReleaseInfo
         {
             TagName = "v" + version,
@@ -212,17 +216,17 @@ internal static class Program
 
                 - Fixed a movement-action queue issue after quick action sequences, keeping Spy stance transitions and interaction responsive.
                 - Improved focus recovery after switching windows, with safer mouse capture when returning to play.
-                - Simplified launcher setup around downloading OpenSCCT and ready-to-play content packs, with a clearer path to playing.
+                - Build the original Versus maps from the installed Steam copy of Chaos Theory and download additional maps under Mods.
                 - Additional changes are available in the full changelog.
                 """,
         };
         var check = new UpdateCheck(new ReleaseFeed([release], source, null, scenario.Name == "offline" ? "Offline. Showing cached release information." : null),
             new VersionedRelease(version, release), scenario.Game ? InstalledVersion : null,
-            scenario.Name is "fresh" or "game-update" or "game-downloading", false);
+            scenario.Name is "fresh" or "game-update" or "game-downloading" or "old-client", false);
         if (scenario.Name != "fresh-no-feed") Call(form, "ShowReleaseCheck", check);
         if (scenario.Editor)
         {
-            SemVersion editorLatest = scenario.Name == "editor-update" ? SemVersion.Parse("0.1.1") : EditorVersion;
+            SemVersion editorLatest = scenario.Name == "editor-update" ? SemVersion.Parse("0.2.55") : EditorVersion;
             var editorRelease = new ReleaseInfo
             {
                 TagName = "v" + editorLatest, Name = "OpenSCCT Editor " + editorLatest,
@@ -256,18 +260,10 @@ internal static class Program
                 latest, unreal.Installed(), scenario.Name == "unreal-update"));
             Call(form, "SelectProduct", Product("Unreal"));
         }
-        if (scenario.Name == "content-update")
-        {
-            Set(form, "_packIndex", new ContentIndex
-            {
-                Shared = [new ContentSharedPack { Id = "core", Title = "Core game files", Download = new("https://example.invalid/core.zip", 1024, "new-content") }],
-            });
-        }
-        if (scenario.Name is "downloading" or "game-downloading" or "editor-busy" or "editor-busy-game" or "editor-applying" or "unreal-busy")
+        if (scenario.Name is "building" or "game-downloading" or "editor-busy" or "editor-busy-game" or "editor-applying" or "unreal-busy")
         {
             fixture.Work = new CancellationTokenSource();
             Set(form, "_work", fixture.Work);
-            Set(form, "_downloadingContent", scenario.Name == "downloading");
             Set(form, "_operationProduct", Product(scenario.Unreal ? "Unreal" : scenario.Editor ? "Editor" : "Game"));
             Set(form, "_operationCanCancel", scenario.Name != "editor-applying");
         }
@@ -279,13 +275,13 @@ internal static class Program
                 typeof(EditorService).GetProperty("RunningOverride", Hidden)!.SetValue(editor, (Func<string, bool>)(_ => true));
                 Call(form, "RemoveGameFiles", false);
                 break;
-            case "downloading":
+            case "building":
             case "game-downloading":
-                Call(form, "SetOperation", scenario.Name == "downloading" ? "Downloading game files" : "Downloading OpenSCCT");
-                SetStatus(form, scenario.Name == "downloading" ? "Downloading maps, characters and sounds…" : "Downloading OpenSCCT 0.8.81…", Color.FromArgb(127, 149, 133));
+                Call(form, "SetOperation", scenario.Name == "building" ? "Building Steam game files" : "Downloading OpenSCCT");
+                SetStatus(form, scenario.Name == "building" ? "Reading the Steam installation." : $"Downloading OpenSCCT {LatestVersion}…", Color.FromArgb(127, 149, 133));
                 Field<Control>(form, "_progress").Visible = true;
                 Field<Control>(form, "_progress").GetType().GetProperty("Fraction")!.SetValue(Field<Control>(form, "_progress"), 0.42);
-                Field<Label>(form, "_progressText").Text = scenario.Name == "downloading" ? "AquaE (4 of 12): 128.0 MB of 304.0 MB" : "128.0 MB of 304.0 MB  12.0 MB/s";
+                Field<Label>(form, "_progressText").Text = scenario.Name == "building" ? "4 of 21  ·  Building map geometry" : "128.0 MB of 304.0 MB  12.0 MB/s";
                 Field<Label>(form, "_progressText").Visible = true;
                 break;
             case "editor-busy":
@@ -320,7 +316,7 @@ internal static class Program
                 SetStatus(form, "Stopped. Press the button to carry on.", Color.FromArgb(127, 149, 133));
                 break;
             case "error":
-                SetStatus(form, "The connection was interrupted while downloading required game files. Press the button to try again; downloads carry on where they stopped.", Color.FromArgb(255, 110, 100));
+                SetStatus(form, "Could not read a required Steam file. Verify the Steam installation, then build the game files again.", Color.FromArgb(255, 110, 100));
                 break;
             case "offline":
                 SetStatus(form, "Offline. Showing cached release information. You can still play your installed version.", Color.FromArgb(255, 196, 92));
@@ -396,9 +392,10 @@ internal static class Program
             string expected = scenario.Name switch
             {
                 "unreal-absent" => "Set up OpenSCCT Unreal",
-                "unreal-prerequisite" => "Shared game files needed",
+                "unreal-prerequisite" => "Steam files needed",
                 "unreal-update" => "Unreal update available",
                 "unreal-ready" => "Ready to play",
+                "unreal-steam-update" => "Steam content update",
                 "unreal-pending" => "Update ready",
                 "unreal-busy" => "Installing OpenSCCT Unreal",
                 _ => "Not released yet",
@@ -409,9 +406,9 @@ internal static class Program
             else
                 Check(Field<Label>(form, "_launchDetail").Visible && Field<Label>(form, "_launchDetail").Text.Length > 0, label + " Unreal detail explains the state");
         }
-        if (scenario.Name is "downloading" or "game-downloading")
+        if (scenario.Name is "building" or "game-downloading")
         {
-            Check(Field<Label>(form, "_heading").Text == (scenario.Name == "downloading" ? "Downloading game files" : "Downloading OpenSCCT"), label + " operation phase is shown");
+            Check(Field<Label>(form, "_heading").Text == (scenario.Name == "building" ? "Building Steam game files" : "Downloading OpenSCCT"), label + " operation phase is shown");
             Check(Field<Control>(form, "_progress").Visible && Field<Label>(form, "_progressText").Visible, label + " progress and transfer details are visible");
             Check(!Field<Button>(form, "_playCurrent").Visible, label + " update deferral stays hidden while busy");
         }
@@ -438,7 +435,9 @@ internal static class Program
         Check(IsInClient(host, main), label + " primary action is visible inside client area");
         Check(IsInClient(host, help), label + " Help is visible inside client area");
         Check(host.SelectNextControl(null, true, true, true, false), label + " keyboard traversal enters launcher controls");
-        if (scenario.Name is "game-update" or "content-update" or "editor-update" or "unreal-update")
+        if (scenario.Name == "old-client")
+            Check(!Field<Button>(form, "_playCurrent").Visible, label + " old clients cannot launch even when Steam-built files exist");
+        if (scenario.Name is "game-update" or "editor-update" or "unreal-update" or "unreal-steam-update")
         {
             Button defer = Field<Button>(form, "_playCurrent");
             Check(defer.Visible && defer.Enabled && IsInClient(host, defer), label + " update deferral remains available");
@@ -494,12 +493,12 @@ internal static class Program
         host.Hide();
     }
 
-    private static SemVersion GameVersionFor(Scenario scenario) => scenario.Editor ? EditorGameVersion : InstalledVersion;
+    private static SemVersion GameVersionFor(Scenario scenario) => scenario.Name == "old-client" ? SemVersion.Parse("0.8.165") : scenario.Editor ? EditorGameVersion : InstalledVersion;
     private static string VersionFor(Scenario scenario) => scenario.Unreal
         ? (scenario.Name is "unreal-update" or "unreal-pending" or "unreal-busy" ? UnrealLatestVersion : UnrealVersion).ToString()
         : scenario.Editor && scenario.Name != "editor-busy-game"
-        ? scenario.Name == "editor-update" ? "0.1.1" : EditorVersion.ToString()
-        : scenario.Name is "fresh" or "game-update" or "game-downloading" ? LatestVersion.ToString() : InstalledVersion.ToString();
+        ? scenario.Name == "editor-update" ? "0.2.55" : EditorVersion.ToString()
+        : scenario.Name is "fresh" or "game-update" or "game-downloading" or "old-client" ? LatestVersion.ToString() : InstalledVersion.ToString();
     private static void CaptureDialogs(Fixture fixture, float scale, string output, bool settingsOnly = false)
     {
         Assembly assembly = MainType.Assembly;
@@ -571,10 +570,16 @@ internal static class Program
                             scrolling |= parent is ScrollableControl { AutoScroll: true };
                         if (!scrolling) Check(IsInClient(host, button), label + " fixed action is visible: " + button.Text);
                     }
+                    if (dialog.Type == "MapsForm")
+                    {
+                        MethodInfo include = type.GetMethod("IncludeMap", BindingFlags.Static | BindingFlags.NonPublic)!;
+                        Check(!(bool)include.Invoke(null, [SteamVersusMaps.DefaultHostMap])! && (bool)include.Invoke(form, ["AquaE"])!,
+                            label + " only additional maps are offered");
+                    }
                     if (dialog.Editor && dialog.Type == "MapsForm")
                     {
                         type.GetMethod("RemoveSelected", Hidden)!.Invoke(form, null);
-                        Check(Walk(host).OfType<Label>().Any(c => c.Text.Contains("Close OpenSCCT Editor", StringComparison.Ordinal)), label + " shared-content changes are guarded");
+                        Check(Walk(host).OfType<Label>().Any(c => c.Text.Contains("Close any running OpenSCCT", StringComparison.Ordinal)), label + " shared-content changes are guarded");
                     }
                     if (!dialog.Editor && dialog.Type == "HelpForm")
                     {
@@ -806,7 +811,11 @@ internal static class Program
             Settle(form);
             Save(form, output, "library-ps2-games");
             Check(Field<Button>(form, "_main").Text == "Choose disc image", "Owned-disc setup action");
-            foreach (string edition in new[] { "Ps2", "Retail", "Unreal" })
+            ComboBox editions = Field<ComboBox>(form, "_compactPicker");
+            Check(editions.Items.Cast<string>().SequenceEqual(new[] { "Originals  /  PlayStation 2", "Originals  /  PC / Steam",
+                "Modernisations  /  OpenSCCT Godot", "Modernisations  /  OpenSCCT Unreal", "Tools  /  OpenSCCT Editor" }),
+                "The library groups the originals, both modernisations and the editor.");
+            foreach (string edition in new[] { "Ps2", "Retail", "Game", "Unreal" })
             {
                 Call(form, "SelectProduct", Product(edition));
                 foreach (string page in new[] { "_modsPage", "_settingsButton", "_gamesPage" })
@@ -955,7 +964,6 @@ internal static class Program
             Set(form, "_editor", new EditorService(fixture.Layout, fixture.Http));
             Set(form, "_service", new UpdateService(fixture.Layout, new VersionStore(fixture.Layout),
                 new GitHubReleaseClient(fixture.Http, ReleaseSource.Official, fixture.Layout.Cache), fixture.Http, Field<IGameProcessProbe>(form, "_games")));
-            Set(form, "_packs", new ContentStore(fixture.Layout.Packs, fixture.Http));
             var unreal = new UnrealService(fixture.Layout, fixture.Http);
             typeof(UnrealService).GetProperty("RunningOverride", Hidden)!.SetValue(unreal, (Func<bool>)(() => false));
             Set(form, "_unreal", unreal);
@@ -994,7 +1002,6 @@ internal static class Program
                 Set(form, "_editor", new EditorService(fixture.Layout, http));
                 Set(form, "_service", new UpdateService(fixture.Layout, new VersionStore(fixture.Layout),
                     new GitHubReleaseClient(http, ReleaseSource.Official, fixture.Layout.Cache), http, Field<IGameProcessProbe>(form, "_games")));
-                Set(form, "_packs", new ContentStore(fixture.Layout.Packs, http));
                 int attempts = _networkAttempts;
                 _ = form.Handle;
                 Call(form, "OnShown", EventArgs.Empty);
@@ -1366,6 +1373,19 @@ internal static class Program
             }
             if (scenario.Content)
             {
+                if (scenario.Name != "legacy-packs")
+                {
+                    string generation = Guid.NewGuid().ToString("N");
+                    foreach (string name in SteamContentInstall.RequiredFiles())
+                    {
+                        string path = Path.Combine(Layout.Content, "steam-builds", generation, name);
+                        Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+                        File.WriteAllText(path, "{}");
+                    }
+                    string root = Path.Combine(Layout.Content, "steam-builds", generation);
+                    File.WriteAllText(Path.Combine(root, "content-build.json"), JsonSerializer.Serialize(new { version = scenario.Name == "unreal-steam-update" ? "0.8.165" : InstalledVersion.ToString(), ok = true }));
+                    File.WriteAllText(Path.Combine(Layout.Content, "steam-current.json"), JsonSerializer.Serialize(new { format = 1, build = generation }));
+                }
                 Directory.CreateDirectory(Layout.Packs);
                 var packs = new List<InstalledContent>();
                 foreach (string id in new[] { "core", "chars", "audio" })

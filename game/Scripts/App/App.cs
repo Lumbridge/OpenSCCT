@@ -129,17 +129,9 @@ public partial class App : Node
         ProcessTuning.Apply(Options.Priority, Options.Affinity);
 
         // Where an installed build finds the content the launcher built and the maps shipped beside the exe.
-        OpenScct.Server.ContentPaths.Configure(Options.ContentRoot, System.IO.Path.GetDirectoryName(OS.GetExecutablePath()));
-        // Editor runs must use the assets built for this checkout, even when an older release's
-        // downloaded packs are installed. Explicit --svm-content / SVM_CONTENT still wins.
-        if (!OS.HasFeature("template") && OpenScct.Server.ContentPaths.Root is null &&
-            string.IsNullOrWhiteSpace(Options.ContentRoot) &&
-            string.IsNullOrWhiteSpace(System.Environment.GetEnvironmentVariable(OpenScct.Server.ContentPaths.EnvironmentVariable)))
-        {
-            string localContent = System.IO.Path.GetFullPath(System.IO.Path.Combine(ProjectSettings.GlobalizePath("res://"), "..", ".content"));
-            if (System.IO.Directory.Exists(System.IO.Path.Combine(localContent, "shared")))
-                OpenScct.Server.ContentPaths.Configure(localContent, System.IO.Path.GetDirectoryName(OS.GetExecutablePath()));
-        }
+        string? checkoutContent = OS.HasFeature("template") ? null :
+            System.IO.Path.GetFullPath(System.IO.Path.Combine(ProjectSettings.GlobalizePath("res://"), "..", ".content"));
+        OpenScct.Server.ContentPaths.ConfigureDesktop(Options.ContentRoot, System.IO.Path.GetDirectoryName(OS.GetExecutablePath()), checkoutContent);
         // Maps downloaded from SCCT-Maps: where they are, so lobbies can tell and fetch them.
         OpenScctGame.Online.MapDownloads.Configure(Options);
         foreach (string arg in Options.Unknown)

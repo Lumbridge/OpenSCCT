@@ -1,6 +1,6 @@
 [Desktop Entry]
 Type=Application
-Name=OpenSCCT
+Name=OpenSCCT Godot
 Comment=Spies versus mercenaries
 Exec=openscct %u
 MimeType=x-scheme-handler/openscct;

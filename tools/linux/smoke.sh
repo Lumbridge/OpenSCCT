@@ -9,10 +9,9 @@ for smoke in boot testbox help-feedback; do
         > "local/verification/$smoke.log" 2>&1
     rg "SVM_SMOKE $smoke OK" "local/verification/$smoke.log"
 done
-if [[ ${OPENSCCT_NETWORK_TEST:-0} == 1 ]]; then
-    mkdir -p local/setup-test/data local/setup-test/config
-    XDG_DATA_HOME="$repo_root/local/setup-test/data" XDG_CONFIG_HOME="$repo_root/local/setup-test/config" \
-        "$exe" --headless -- --svm-smoke=linux-setup --svm-smoke-timeout=600 \
-        > local/verification/linux-setup.log 2>&1
-    rg 'SVM_SMOKE linux-setup OK' local/verification/linux-setup.log
-fi
+setup_dir=$(mktemp -d)
+trap 'rm -rf -- "$setup_dir"' EXIT
+XDG_DATA_HOME="$setup_dir/data" XDG_CONFIG_HOME="$setup_dir/config" OPENSCCT_GODOT_CONTENT_DIR="$setup_dir/content" \
+    "$exe" --headless -- --svm-content="$setup_dir/content" --svm-smoke=linux-setup --svm-smoke-timeout=180 \
+    > local/verification/linux-setup.log 2>&1
+rg 'SVM_SMOKE linux-setup OK' local/verification/linux-setup.log

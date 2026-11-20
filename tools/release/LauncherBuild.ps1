@@ -23,7 +23,7 @@ function Resolve-LauncherExe {
     if ($launcherVersion -notmatch $semver) { throw "LauncherVersion '$launcherVersion' is not MAJOR.MINOR.PATCH[-PRERELEASE]." }
     $linux = $Platform -eq 'linux-x64'
     $projectDir = if ($linux) { 'src/OpenScct.Launcher.Linux' } else { 'src/OpenScct.Launcher' }
-    $sources = $projectDir, 'src/OpenScct.Launcher.Core', 'src/OpenScct.Maps', 'game/branding/icon.ico', 'shared/ProjectLinks.cs'
+    $sources = $projectDir, 'src/OpenScct.Launcher.Core', 'src/OpenScct.Maps', 'game/branding/icon.ico', 'shared/ProjectLinks.cs', 'shared/SteamVersusMaps.txt'
     if ($linux) { $sources += 'Directory.Packages.props', 'src/OpenScct.Launcher/branding/operation.jpg' }
     $fingerprint = if ($LauncherExe) { '' } else { ($sources | ForEach-Object { (& git -C $RepoRoot rev-parse "${Commit}:$_").Trim() }) -join ' ' }
     # Kept locally (and its checksum published) under the versioned name; released under the plain name.

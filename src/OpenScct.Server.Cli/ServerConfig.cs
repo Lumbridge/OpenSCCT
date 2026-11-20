@@ -4,6 +4,7 @@ using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using OpenScct.Core;
+using OpenScct.Maps;
 using OpenScct.Net.Discovery;
 using OpenScct.Server.Online;
 
@@ -12,7 +13,7 @@ namespace OpenScct.Server.Cli;
 /// <summary>One match of the rotation: a map and mode, with optional changes to the map's own settings.</summary>
 internal sealed record RotationEntry
 {
-    public string Map { get; init; } = "SteeE";
+    public string Map { get; init; } = SteamVersusMaps.DefaultHostMap;
 
     /// <summary>Story, DiskHunt, Deathmatch or MercDeathmatch.</summary>
     public string Mode { get; init; } = "Story";
@@ -330,8 +331,8 @@ internal sealed record ServerConfig
         Motd = "Welcome. Be nice.",
         Rotation =
         [
-            new RotationEntry { Map = "SteeE", Mode = "Story" },
-            new RotationEntry { Map = "SteeE", Mode = "Story", Revenge = true },
+            new RotationEntry { Map = SteamVersusMaps.DefaultHostMap, Mode = "Story" },
+            new RotationEntry { Map = SteamVersusMaps.DefaultHostMap, Mode = "Story", Revenge = true },
         ],
         Master = new MasterConfig { Url = "https://master.example.org", InviteKey = "the-invite-key" },
         RequireAccounts = true,

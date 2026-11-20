@@ -10,7 +10,7 @@ using OpenScctGame.Play.Session;
 namespace OpenScctGame.Smoke;
 
 /// <summary>
-/// <c>--svm-smoke=play-inspect</c>: SteeE as the spy with three bots, set up as the launcher does (Play Level rules,
+/// <c>--svm-smoke=play-inspect</c>: the map selected with <c>--svm-play</c> (SteeE by default) as the spy with three bots, set up as the launcher does (Play Level rules,
 /// host thread, wall clock, HUD). Once the spy is drawn, <see cref="KeyPilot"/> plays about 40 s at the keys (walk,
 /// look around, run, back and sideways, crouch and crouched walk, stand, jumps, Escape) with every
 /// <see cref="PlayInspector"/> check on. Passes only when nothing was found; otherwise every issue is printed on its own
@@ -55,7 +55,7 @@ public sealed class PlayInspectSmoke : SmokeTest
     /// --difficulty=normal</c> starts one (host thread, wall clock, HUD), added to the tree.
     /// </summary>
     public static PlayRoot StartPlay(SmokeContext context, int bots = BotCount, string difficulty = "normal",
-        OpenScct.Net.SimLinkProfile? link = null, OpenScct.Net.NetProfile? profile = null)
+        OpenScct.Net.SimLinkProfile? link = null, OpenScct.Net.NetProfile? profile = null, string map = "SteeE")
     {
         ArgumentNullException.ThrowIfNull(context);
         PlayConfig launcher = PlayConfig.FromOptions(context.App.Options);
@@ -63,7 +63,7 @@ public sealed class PlayInspectSmoke : SmokeTest
         {
             Settings = launcher.Settings with
             {
-                Map = "SteeE",
+                Map = map,
                 Side = PlaySide.Spy,
                 Mode = "Story",
                 Rules = PlayRules.PlayLevel,
@@ -93,7 +93,7 @@ public sealed class PlayInspectSmoke : SmokeTest
 
         if (_root is null)
         {
-            _root = StartPlay(context);
+            _root = StartPlay(context, map: context.App.Options.PlayMap ?? "SteeE");
             return SmokeResult.Running;
         }
 
@@ -182,7 +182,7 @@ public sealed class PlayInspectSmoke : SmokeTest
             return SmokeResult.Running;
         }
 
-        if (context.ElapsedSeconds > SpawnTimeoutSeconds)
+        if (_inspector!.Seconds > SpawnTimeoutSeconds)
         {
             return Finish(SmokeResult.Fail(string.Create(CultureInfo.InvariantCulture,
                 $"the spy was not drawn in a walking state after {SpawnTimeoutSeconds:F0} s (controller {pc?.GetStateName()}, pawn {pawn?.Location}, drawn {drawn})")));

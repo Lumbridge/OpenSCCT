@@ -1,3 +1,4 @@
+using SteamVersusMaps = OpenScct.Maps.SteamVersusMaps;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -71,7 +72,7 @@ public sealed record PlaySettings
     /// <summary>Local player progression bound to the authoritative controller before its first spawn.</summary>
     public OpenScct.Game.Equipment.WeaponCareer? LocalWeaponCareer { get; init; }
     /// <summary>The SVMap folder name (<c>.content/svmap/&lt;Map&gt;</c>).</summary>
-    public string Map { get; init; } = "SteeE";
+    public string Map { get; init; } = SteamVersusMaps.DefaultHostMap;
 
     public PlaySide Side { get; init; } = PlaySide.Spy;
 

@@ -270,7 +270,7 @@ public sealed class OnlineLobby : IOnlineLobbySession
             {
                 string verb = State.Local.Map == MapState.Missing ? "You don't have" : "Your copy differs from the host's for";
                 return new LobbyMapFetch(
-                    string.Create(CultureInfo.InvariantCulture, $"{verb} {pack!.DisplayTitle}. Download it ({pack.Full.Size / 1048576.0:0} MB) to play."),
+                    string.Create(CultureInfo.InvariantCulture, $"{verb} {pack!.DisplayTitle}. {ContentPacks.InstallAction(pack)} ({pack.DownloadSize() / 1048576.0:0} MB) to play."),
                     true, false, 0, false);
             }
 
@@ -289,6 +289,11 @@ public sealed class OnlineLobby : IOnlineLobbySession
         pack = null;
         why = null;
         string map = State.Setup.Map;
+        if (!ContentPacks.CanDownloadMap(map))
+        {
+            why = ContentPacks.SteamMapSetup(map) + " All players need matching map versions.";
+            return false;
+        }
         string? hostHash = State.SetupContentHash != 0
             ? State.SetupContentHash.ToString("x16", CultureInfo.InvariantCulture)
             : null;
@@ -307,6 +312,11 @@ public sealed class OnlineLobby : IOnlineLobbySession
             return false;
         }
 
+        if (ContentPacks.NeedsNativeLauncher(found))
+        {
+            why = $"Build {found.DisplayTitle} from Steam in the native OpenSCCT launcher.";
+            return false;
+        }
         if (hostHash is not null && !string.Equals(found.ContentHash, hostHash, StringComparison.OrdinalIgnoreCase))
         {
             why = $"The host's {found.DisplayTitle} is a different version from OpenSCCT-Content's. Ask the host to share theirs.";

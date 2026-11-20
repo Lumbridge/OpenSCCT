@@ -31,7 +31,7 @@ public sealed partial class EditorServiceTests
         var layout = new LauncherLayout(dir.Combine("install"), LauncherPlatform.WindowsX64);
         using var http = new HttpClient();
         EditorService service = await InstalledEditorAsync(dir, layout, http);
-        Prerequisites(layout);
+        string content = Prerequisites(layout);
         Directory.CreateDirectory(layout.Maps);
         File.WriteAllText(Path.Combine(layout.Maps, "my-map.sdc"), "map");
         File.WriteAllText(layout.Settings, "launcher preferences");
@@ -48,8 +48,8 @@ public sealed partial class EditorServiceTests
         Assert.Empty(result.Failures);
         Assert.Equal("launcher preferences", File.ReadAllText(layout.Settings));
         Assert.Equal("game installation", File.ReadAllText(layout.Manifest));
-        Assert.Equal("game", File.ReadAllText(Path.Combine(layout.VersionDir("0.8.94"), "OpenSCCT.exe")));
-        Assert.True(File.Exists(Path.Combine(layout.Packs, "shared", "classes.json")));
+        Assert.Equal("game", File.ReadAllText(Path.Combine(layout.VersionDir("0.8.166"), "OpenSCCT.exe")));
+        Assert.True(File.Exists(Path.Combine(content, "shared", "classes.json")));
         Assert.Equal("map", File.ReadAllText(Path.Combine(layout.Maps, "my-map.sdc")));
         Assert.Equal("cache", File.ReadAllText(Path.Combine(layout.EditorCache, "cache.json")));
         Assert.False(phases.Single(p => p.Phase == "Uninstalling editor").CanCancel);

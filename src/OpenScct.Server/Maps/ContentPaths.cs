@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using OpenScct.Maps;
 
 namespace OpenScct.Server;
 
@@ -17,6 +18,12 @@ public static class ContentPaths
 
     /// <summary>The content folder (with shared/ and svmap/), or null when none is set or it does not exist.</summary>
     public static string? Root { get; private set; }
+
+    /// <summary>The desktop modernisations read base assets only from the selected local conversion.</summary>
+    public static bool LocalBaseOnly { get; private set; }
+
+    /// <summary>A complete local base was available when the desktop game was configured.</summary>
+    public static bool SteamBaseReady { get; private set; }
 
     /// <summary>
     /// The language of the game's texts, as a BCP 47 primary tag: the one the player's content was built in (the
@@ -43,7 +50,8 @@ public static class ContentPaths
     /// The shared folder: the content's (converted from the player's install), else the downloaded packs', or null.
     /// </summary>
     public static string? Shared =>
-        Existing(Root is null ? null : Path.Combine(Root, "shared")) ?? Existing(Packs is null ? null : Path.Combine(Packs, "shared"));
+        Existing(Root is null ? null : Path.Combine(Root, "shared")) ??
+        (LocalBaseOnly ? null : Existing(Path.Combine(PacksFolder, "shared")));
 
     /// <summary>The content's converted maps, or null.</summary>
     public static string? SvMap => Existing(Root is null ? null : Path.Combine(Root, "svmap"));
@@ -61,6 +69,9 @@ public static class ContentPaths
 
             // Listed even before the first download, so a catalog made now finds maps downloaded later.
             roots.Add(Path.Combine(PacksFolder, "svmap"));
+            // Flatpak keeps its own writable packs and can read maps installed by the host launcher.
+            if (LocalBaseOnly && Existing(Environment.GetEnvironmentVariable("OPENSCCT_GODOT_OPTIONAL_MAPS")) is { } hostMaps &&
+                !roots.Contains(hostMaps)) roots.Add(hostMaps);
 
             roots.AddRange(BuiltInMapRoots);
             return roots;
@@ -73,9 +84,53 @@ public static class ContentPaths
     /// </summary>
     public static void Configure(string? root, string? exeDir, string? packs = null)
     {
-        PacksFolder = string.IsNullOrWhiteSpace(packs) ? DefaultPacksFolder : Path.GetFullPath(packs);
         string? chosen = string.IsNullOrWhiteSpace(root) ? Environment.GetEnvironmentVariable(EnvironmentVariable) : root;
-        Root = Existing(string.IsNullOrWhiteSpace(chosen) ? null : Path.GetFullPath(chosen));
+        SetPaths(chosen, exeDir, packs ?? DefaultPacksFolder, localOnly: false);
+    }
+
+    /// <summary>Resolve the launcher-managed Steam conversion, including when an older Editor passes its packs folder.</summary>
+    public static void ConfigureDesktop(string? root, string? exeDir, string? checkoutContent = null, string? packs = null)
+    {
+        string packRoot = Path.GetFullPath(packs ?? DefaultPacksFolder);
+        string? chosen = string.IsNullOrWhiteSpace(root) ? Environment.GetEnvironmentVariable(EnvironmentVariable) : root;
+        string? managed = Environment.GetEnvironmentVariable("OPENSCCT_GODOT_CONTENT_DIR");
+        // Portable installs can live anywhere. The released game and launcher share the same local data layout.
+        if (string.IsNullOrWhiteSpace(managed) && exeDir is not null &&
+            Directory.GetParent(exeDir) is { Name: "versions", Parent: { } install })
+        {
+            managed = Path.Combine(install.FullName, "content");
+            packRoot = packs ?? Path.Combine(install.FullName, "packs");
+        }
+        managed = string.IsNullOrWhiteSpace(managed) ? Path.Combine(packRoot, "..", "content") : managed;
+        if (!string.IsNullOrWhiteSpace(chosen))
+        {
+            var folder = new DirectoryInfo(chosen);
+            if (string.Equals(folder.Name, "packs", StringComparison.OrdinalIgnoreCase) && folder.Parent is { } parent)
+            {
+                // A shipped Editor or older launcher requests its legacy downloaded base.
+                packRoot = packs ?? folder.FullName;
+                chosen = SteamContentInstall.ActiveRoot(Path.Combine(parent.FullName, "content"));
+            }
+            else if (folder.Parent is { Name: SteamContentInstall.BuildsDirectory, Parent: { } container })
+            {
+                chosen = SteamContentInstall.ActiveRoot(container.FullName);
+                if (container.Parent is { } launcher) packRoot = packs ?? Path.Combine(launcher.FullName, "packs");
+            }
+        }
+        else
+        {
+            chosen = checkoutContent is not null && Directory.Exists(Path.Combine(checkoutContent, "shared"))
+                ? checkoutContent : SteamContentInstall.ActiveRoot(managed);
+        }
+        SetPaths(chosen, exeDir, packRoot, localOnly: true);
+    }
+
+    private static void SetPaths(string? chosen, string? exeDir, string packs, bool localOnly)
+    {
+        PacksFolder = string.IsNullOrWhiteSpace(packs) ? DefaultPacksFolder : Path.GetFullPath(packs);
+        Root = Existing(string.IsNullOrWhiteSpace(chosen) ? null : chosen);
+        LocalBaseOnly = localOnly;
+        SteamBaseReady = localOnly && Root is not null && SteamContentInstall.IsComplete(Root);
         BuiltInMapRoots = Existing(string.IsNullOrWhiteSpace(exeDir) ? null : Path.Combine(exeDir, "maps")) is { } maps ? [maps] : [];
         Language = Root is null ? "en" : OpenScct.Maps.ContentBuildFile.LanguageTag(OpenScct.Maps.ContentBuildFile.Language(Root));
 
@@ -85,7 +140,7 @@ public static class ContentPaths
         {
             OpenScct.Core.Uc.UcText.Use(Path.Combine(Root, OpenScct.Core.Uc.UcText.RelativePath));
         }
-        else if (Packs is { } downloaded && File.Exists(Path.Combine(downloaded, OpenScct.Core.Uc.UcText.RelativePath)))
+        else if (!localOnly && Packs is { } downloaded && File.Exists(Path.Combine(downloaded, OpenScct.Core.Uc.UcText.RelativePath)))
         {
             OpenScct.Core.Uc.UcText.Use(Path.Combine(downloaded, OpenScct.Core.Uc.UcText.RelativePath));
         }

@@ -244,6 +244,11 @@ public sealed partial class MapCatalog
     /// <summary>The map catalog data folder (<c>shared/maps</c> beside an SVMap root), or null.</summary>
     public string? FindCatalogFolder()
     {
+        if (ContentPaths.LocalBaseOnly)
+        {
+            string? folder = ContentPaths.Shared is { } shared ? Path.Combine(shared, "maps") : null;
+            return folder is not null && File.Exists(Path.Combine(folder, MapCatalogData.FileName)) ? folder : null;
+        }
         foreach (string root in _roots)
         {
             string candidate = Path.Combine(root, "..", "shared", "maps");

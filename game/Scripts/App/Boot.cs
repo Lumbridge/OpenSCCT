@@ -34,6 +34,12 @@ public partial class Boot : Node
             return;
         }
 
+        if (!app.IsSmokeRun && !System.OperatingSystem.IsBrowser() && UI.LinuxSetupScreen.Needed)
+        {
+            Callable.From(() => UI.FrontEnd.Show(GetTree(), new UI.LinuxSetupScreen())).CallDeferred();
+            return;
+        }
+
         if (!app.IsSmokeRun && DisplayServer.GetName() != "headless")
             Callable.From(() => Online.ClientPresenceService.Get(GetTree())).CallDeferred();
         if (!app.IsSmokeRun && app.Options.DemoFile is { } demo)
@@ -55,17 +61,7 @@ public partial class Boot : Node
         }
         else if (!app.IsSmokeRun)
         {
-            Callable.From(() =>
-            {
-                if (System.OperatingSystem.IsLinux() && UI.LinuxSetupScreen.Needed)
-                {
-                    UI.FrontEnd.Show(GetTree(), new UI.LinuxSetupScreen());
-                }
-                else
-                {
-                    UI.FrontEnd.ShowMainMenu(GetTree());
-                }
-            }).CallDeferred();
+            Callable.From(() => UI.FrontEnd.ShowMainMenu(GetTree())).CallDeferred();
         }
     }
 }

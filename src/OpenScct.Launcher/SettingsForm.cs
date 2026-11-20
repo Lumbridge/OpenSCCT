@@ -187,7 +187,7 @@ internal sealed class SettingsForm : Form
             remove.Name = "RemoveGameFiles";
             remove.Click += (_, _) => ConfirmRemoveGameFiles();
             Row(Theme.Label("Game installation", Theme.Heading, Theme.Accent), 18);
-            Row(Theme.Wrapping(Theme.Label("Remove all installed game versions and downloaded assets/maps. Keeps settings and saves. The editor application is kept, but its shared assets will need downloading again.", Theme.Small, Theme.Muted)), 6);
+            Row(Theme.Wrapping(Theme.Label("Remove installed Godot versions, built game files, shared assets and downloaded maps. Keeps settings and saves. Unreal and the editor will need the Steam files built again.", Theme.Small, Theme.Muted)), 6);
             Row(remove);
         }
         scroll.Controls.Add(root);
@@ -266,7 +266,7 @@ internal sealed class SettingsForm : Form
     {
         DialogResult answer = MessageBox.Show(
             this,
-            "Remove all downloaded game versions, shared game files and maps?\n\nThe editor and OpenSCCT Unreal will need the shared files installed again. The editor application, OpenSCCT Unreal, projects, settings, saves and launcher preferences are kept.",
+            "Remove all Godot versions, built game files, shared assets and downloaded maps?\n\nThe editor and OpenSCCT Unreal will need the Steam files built again. The editor application, OpenSCCT Unreal, projects, settings, saves and launcher preferences are kept.",
             "Remove game and shared files",
             MessageBoxButtons.OKCancel,
             MessageBoxIcon.Warning,

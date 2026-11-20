@@ -24,7 +24,9 @@ public sealed partial class EditorService
     public const string ExeName = "OpenSCCT Editor.exe";
     public const string ManagedMarker = ".launcher-managed";
     public const string ReleasesPage = "https://github.com/OpenSCCT/OpenSCCT-Editor/releases";
-    public static readonly SemVersion MinimumGameVersion = SemVersion.Parse("0.8.93");
+    public static readonly SemVersion MinimumGameVersion = GodotSteamContent.MinimumGameVersion;
+    public static readonly SemVersion MinimumSteamEditorVersion = SemVersion.Parse("0.2.54");
+    public static bool SupportsSteamContent(SemVersion? version) => version >= MinimumSteamEditorVersion;
     private readonly LauncherLayout _layout;
     private readonly HttpClient _http;
     private readonly GitHubReleaseClient _github;
@@ -79,15 +81,13 @@ public sealed partial class EditorService
     /// <summary>Missing prerequisites only; optional updates do not prevent offline use.</summary>
     public string? PrerequisiteProblem()
     {
-        SemVersion minimum = Installed()?.MinimumGameVersion ?? MinimumGameVersion;
+        var installed = Installed();
+        if (installed is not null && !SupportsSteamContent(installed.Version))
+            return $"Update the Editor to {MinimumSteamEditorVersion} or later to use content built from Steam.";
+        SemVersion minimum = installed?.MinimumGameVersion > MinimumGameVersion ? installed.MinimumGameVersion : MinimumGameVersion;
         SemVersion? game = new VersionStore(_layout).Current();
-        if (game is null || game < minimum) return $"Editor needs OpenSCCT {minimum} or later. Set up Editor to install the game and its shared files.";
-        if (!PackedContent.Installed(new ContentStore(_layout.Packs, _http)) || !File.Exists(Path.Combine(_layout.Packs, "shared", "classes.json")))
-            return "Editor needs shared game files. Set up Editor to download them.";
-        string maps = Path.Combine(_layout.Packs, "svmap");
-        if (!Directory.Exists(maps) || !Directory.EnumerateDirectories(maps).Any(d => File.Exists(Path.Combine(d, "manifest.json"))))
-            return "Editor needs downloaded map assets. Set up Editor to download the stock maps.";
-        return null;
+        if (game is null || game < minimum) return $"Editor needs OpenSCCT {minimum} or later. Set up Editor to install the game.";
+        return SteamContentInstall.ActiveRoot(_layout.Content) is null ? "Build the Editor's stock game files from your Steam installation." : null;
     }
 
     public bool IsRunning => (RunningOverride?.Invoke(_layout.Editor) ?? RunningIn(_layout.Editor)) || UpdateInProgress;

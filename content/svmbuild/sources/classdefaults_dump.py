@@ -1,6 +1,6 @@
 """scctpkg's class_defaults.json, made from the player's own install.
 
-scctpkg.level reads tools/scctpkg/scctpkg/class_defaults.json at import: DrawType, bHidden, bHideInNormalVision and
+scctpkg.level reads class_defaults.json at import: DrawType, bHidden, bHideInNormalVision and
 StaticMesh of the actor classes its upstream dump covered. That file is game-derived and not tracked, so an installed
 content builder (the launcher's, docs/LAUNCHER.md "Game content") has none. The values are in the classes step's
 shared/classes.json (the class default objects of System/_PC_/*.u), so the file is written from there for exactly the
@@ -85,14 +85,17 @@ def derive(classes_doc: dict) -> dict:
 
 
 def ensure(scctpkg_dir: Path, content_root: Path) -> bool:
-    """Writes scctpkg_dir/class_defaults.json from content_root/shared/classes.json when it is missing. True when
-    the file is there afterwards."""
-    target = Path(scctpkg_dir) / "class_defaults.json"
-    if target.exists():
-        return True
+    """Refresh the active build's class defaults from its shared/classes.json.
+
+    A standalone scctpkg caller can still store defaults alongside the reader.
+    """
+    target = Path(os.environ.get("SVM_CLASS_DEFAULTS_FILE") or (Path(scctpkg_dir) / "class_defaults.json"))
     source = Path(content_root) / "shared" / "classes.json"
+    if target.is_file() and (not source.is_file() or target.stat().st_mtime_ns >= source.stat().st_mtime_ns):
+        return True
     if not source.exists():
         return False
+    target.parent.mkdir(parents=True, exist_ok=True)
     doc = json.loads(source.read_text(encoding="utf-8"))
     # Builds sharing one scctpkg folder may write it at the same moment: each writes its own temp file, and on
     # Windows a rename onto the file another build just wrote (and may hold open) fails, leaving the same content.

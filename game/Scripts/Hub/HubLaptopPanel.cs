@@ -186,9 +186,9 @@ public partial class HubLaptopPanel : Control
         _indexListed = true;
         foreach (ContentMap map in index.PlayableMaps())
         {
-            if (_maps?.FindMap(map.Code) is null && !_list.Exists(e => string.Equals(e.Id, map.Code, StringComparison.OrdinalIgnoreCase)))
+            if (ContentPacks.CanDownloadMap(map.Code) && !ContentPacks.NeedsNativeLauncher(map) && _maps?.FindMap(map.Code) is null && !_list.Exists(e => string.Equals(e.Id, map.Code, StringComparison.OrdinalIgnoreCase)))
             {
-                _list.Add((map.Code, $"{map.DisplayTitle} - download {Megabytes(map.Full.Size)}"));
+                _list.Add((map.Code, $"{map.DisplayTitle} - download {Megabytes(map.DownloadSize())}"));
             }
         }
 
@@ -242,6 +242,13 @@ public partial class HubLaptopPanel : Control
             return;
         }
 
+        if (!ContentPacks.CanDownloadMap(code))
+        {
+            _mapNote.Text = ContentPacks.SteamMapSetup(code);
+            _download.Visible = false;
+            return;
+        }
+
         if (ContentPacks.Job(code) is { } job && job.Error is null)
         {
             _mapNote.Text = job.Describe();
@@ -253,8 +260,9 @@ public partial class HubLaptopPanel : Control
         {
             string modes = map.Modes.Count > 0 ? " Modes: " + string.Join(", ", map.Modes) + "." : string.Empty;
             string failed = ContentPacks.Job(code)?.Error is { } error ? $" Last try failed: {error}." : string.Empty;
-            _mapNote.Text = $"You do not have {map.DisplayTitle} ({Megabytes(map.Full.Size)}). Download it to play it; the hub gets its own copy.{modes}{failed}";
-            _download.Visible = true;
+            _mapNote.Text = $"You do not have {map.DisplayTitle} ({Megabytes(map.DownloadSize())}). {ContentPacks.InstallAction(map)} to play.{modes}{failed}";
+            _download.Visible = !ContentPacks.NeedsNativeLauncher(map);
+            if (!_download.Visible) _mapNote.Text = $"Build {map.DisplayTitle} from Steam in the native OpenSCCT launcher.";
             return;
         }
 

@@ -8,6 +8,7 @@ Without Reloaded.Core.dll the catalog has no playlists and no Reloaded names (th
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
 from .. import canonical
@@ -36,13 +37,20 @@ class MapsCatalogStep(Step):
 
     def _map_files(self, ctx: Context) -> list[Path]:
         # The install's maps and the downloaded ones.
-        return sorted((p for p in gamefiles.files(ctx.game, "Packages/Maps") if p.suffix.lower().startswith(".sd")),
-                      key=lambda p: p.name.upper())
+        selected = {name.casefold() for name in ctx.maps} if os.environ.get("SVM_STEAM_BASE") == "1" else None
+        return sorted((p for p in gamefiles.files(ctx.game, "Packages/Maps") if p.suffix.lower().startswith(".sd")
+                       and (selected is None or p.stem.casefold() in selected)), key=lambda p: p.name.upper())
 
     def _info_packages(self, ctx: Context) -> list[Path]:
-        return sorted(gamefiles.files(ctx.game, "Packages/Textures", "*-i.utc"), key=lambda p: p.name.upper())
+        files = gamefiles.files(ctx.game, "Packages/Textures", "*-i.utc")
+        if os.environ.get("SVM_STEAM_BASE") == "1":
+            selected = {name.casefold() for name in ctx.maps}
+            files = [p for p in files if p.stem[:-2].casefold() in selected]
+        return sorted(files, key=lambda p: p.name.upper())
 
-    def _reloaded(self, ctx: Context) -> Path:
+    def _reloaded(self, ctx: Context) -> Path | None:
+        if os.environ.get("SVM_STEAM_BASE") == "1":
+            return None
         return ctx.game / "System" / "Reloaded.Core.dll"
 
     def options(self, ctx: Context, unit: str | None) -> dict:
@@ -56,7 +64,7 @@ class MapsCatalogStep(Step):
         for p in self._info_packages(ctx):
             out[ctx.game_path(p)] = ctx.hasher.sha256(p)
         dll = self._reloaded(ctx)
-        out["game:System/Reloaded.Core.dll"] = ctx.hasher.sha256(dll) if dll.is_file() else None
+        out["game:System/Reloaded.Core.dll"] = ctx.hasher.sha256(dll) if dll is not None and dll.is_file() else None
         return out
 
     def output_dir(self, ctx: Context, unit: str | None) -> Path | None:
@@ -80,12 +88,12 @@ class MapsCatalogStep(Step):
         }
         warnings: list[str] = []
         dll = self._reloaded(ctx)
-        if dll.is_file():
+        if dll is not None and dll.is_file():
             defaults = mapcatalog.read_reloaded_defaults(dll.read_bytes())
             doc["playlists"] = defaults.playlists
             doc["names"] = dict(sorted(defaults.names.items()))
             doc["variantWords"] = defaults.variant_words
-        else:
+        elif dll is not None:
             warnings.append("System/Reloaded.Core.dll not found: no playlists or Reloaded names")
         for pkg in self._info_packages(ctx):
             code = pkg.name[: -len("-i.utc")]

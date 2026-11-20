@@ -4,4 +4,7 @@
   <PropertyGroup>
     <RootNamespace>OpenScct.Maps</RootNamespace>
   </PropertyGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="../../shared/SteamVersusMaps.txt" LogicalName="SteamVersusMaps.txt" />
+  </ItemGroup>
 </Project>

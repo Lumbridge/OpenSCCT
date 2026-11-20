@@ -10,7 +10,7 @@
   "minPlayersToLaunch": 2,
   "launchCountdownSeconds": 5,
   "motd": "Player-configurable lobby: choose a map and match settings, pick sides, then ready up. Supports 1v1 through 12v12; no need to fill all 24 slots.",
-  "rotation": [{ "map": "SteeE", "mode": "Story" }],
+  "rotation": [{ "map": "AQU03", "mode": "Story" }],
   "bansFile": "bans-1.json",
   "matchLog": "matches-1.jsonl",
   "master": {

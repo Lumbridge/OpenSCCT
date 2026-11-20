@@ -38,7 +38,7 @@
 .EXAMPLE
     pwsh tools/release/New-Release.ps1 -Version 0.8.85 -Platform linux-x64 -BuildDir local/linux -LauncherExe local/dist/OpenSCCT.Launcher-linux-x64
     Prepares native Linux assets beside the Windows preparation. Run both generated publish scripts before
-    publishing the shared draft. Linux excludes the Windows content converter and uses downloaded packs.
+    publishing the shared draft. Both platforms include the offline Steam content converter.
 #>
 #Requires -Version 7
 [CmdletBinding()]
@@ -174,7 +174,9 @@ New-Item -ItemType Directory -Force $staging | Out-Null
 Get-ChildItem -LiteralPath $BuildDir -Recurse -File | ForEach-Object {
     if ($excludeNames -contains $_.Name -or $_.Extension -in @('.log', '.cmd', '.bat')) { return }
     $relative = $_.FullName.Substring($BuildDir.Length + 1)
-    if ($linux -and ($relative -split '[/\\]')[0] -eq 'maps') { return }
+    $top = ($relative -split '[/\\]')[0]
+    if ($linux -and $top -eq 'maps') { return }
+    if ($SkipContentTools -and $top -eq 'contenttools') { return }
     $dest = Join-Path $staging $relative
     New-Item -ItemType Directory -Force (Split-Path $dest) | Out-Null
     Copy-Item -LiteralPath $_.FullName -Destination $dest
@@ -239,8 +241,20 @@ foreach ($map in @('hub', 'hubmap', 'testbox')) {
 }
 
 # The content builder the launcher runs on the player's install (Build-ContentTools.ps1).
-if (-not $SkipContentTools -and -not $linux) {
-    & (Join-Path $PSScriptRoot 'Build-ContentTools.ps1') -OutDir (Join-Path $staging 'contenttools')
+if (-not $SkipContentTools) {
+    $toolsPath = Join-Path $staging 'contenttools'
+    if (-not (Test-Path -LiteralPath $toolsPath)) {
+        & (Join-Path $PSScriptRoot 'Build-ContentTools.ps1') -OutDir $toolsPath -Platform $Platform
+    }
+    $pythonExe = if ($linux) { 'python/bin/python3' } else { 'python/python.exe' }
+    $marker = Join-Path $toolsPath 'steam-builder-v1'
+    if (-not (Test-Path -LiteralPath $marker -PathType Leaf) -or
+        (Get-Content -LiteralPath $marker -Raw).Trim() -ne $Platform -or
+        -not (Test-Path -LiteralPath (Join-Path $toolsPath $pythonExe) -PathType Leaf) -or
+        -not (Test-Path -LiteralPath (Join-Path $toolsPath 'repo/content/svmbuild/__main__.py') -PathType Leaf) -or
+        (Test-Path -LiteralPath (Join-Path $toolsPath 'repo/tools/scctpkg/scctpkg/class_defaults.json'))) {
+        throw "Invalid $Platform Steam content builder in the game export. Rebuild contenttools before release."
+    }
 }
 
 [ordered]@{

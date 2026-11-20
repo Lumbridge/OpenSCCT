@@ -56,7 +56,7 @@ internal sealed partial class MainForm
             SemVersion? current = _store.Current();
             if (current is null)
             {
-                SetStatus("Your Join request is saved for this launcher session. Choose Install to download OpenSCCT and its game files.", Theme.Warning);
+                SetStatus("Your Join request is saved for this launcher session. Set up Godot from your Steam installation.", Theme.Warning);
                 return;
             }
             if (current < WebJoinRequest.MinimumGameVersion)
@@ -64,9 +64,14 @@ internal sealed partial class MainForm
                 SetStatus($"Website Join needs OpenSCCT {WebJoinRequest.MinimumGameVersion} or later. Check for updates and update the game; your Join request will wait here.", Theme.Warning);
                 return;
             }
-            if (!DownloadedFilesPlayable(current))
+            if (!Content.GodotSteamContent.SupportsClient(current))
             {
-                SetStatus("Choose Finish install to download the required game files. Your Join request will continue when they are ready.", Theme.Warning);
+                SetStatus("Update the Godot client to play from Steam. Your Join request will continue when setup is complete.", Theme.Warning);
+                return;
+            }
+            if (_steamContent.ActiveRoot() is null)
+            {
+                SetStatus("Build the Godot game files from your Steam installation. Your Join request will continue when they are ready.", Theme.Warning);
                 return;
             }
             if (_pendingWebJoin != serverId) return;

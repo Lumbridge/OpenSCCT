@@ -88,7 +88,7 @@ public sealed class ContentVisualUpdateTests
                 Full = new("https://example.invalid/full.zip", 1, "new-visuals"), Sim = new("https://example.invalid/sim.zip", 1, "sim") };
             Assert.False(store.Has(updated));
             Assert.True(store.Has(updated, ContentKind.Sim));
-            Assert.True(store.Has(updated with { Full = updated.Full with { Sha256 = "old-visuals" } }));
+            Assert.True(store.Has(updated with { Full = updated.Full! with { Sha256 = "old-visuals" } }));
         }
         finally
         {

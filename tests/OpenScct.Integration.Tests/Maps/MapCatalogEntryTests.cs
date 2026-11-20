@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using OpenScct.Core;
+using OpenScct.Maps;
 using OpenScct.Server;
 using Xunit;
 
@@ -200,6 +201,28 @@ public sealed class MapCatalogEntryTests : IDisposable
         Assert.Equal(stock.Order(StringComparer.OrdinalIgnoreCase),
             filters.Single(p => p.Name == MapCatalog.StockMapsFilter).Maps.Order(StringComparer.OrdinalIgnoreCase));
         Assert.Equal(["PolaD", "SteeD"], filters.Single(p => p.Name == MapCatalog.CommunityMapsFilter).Maps);
+    }
+
+    [Fact]
+    public void Steam_install_lists_the_eleven_shipped_versus_maps_separately_from_optional_downloads_and_tutorials()
+    {
+        string svmap = Path.Combine(_root, "steam", "svmap");
+        string[] versus = ["AQU03", "BNK11", "CLU04", "DTK09", "FAC05", "GAR01", "Map12", "MIS02", "MUS08", "ORP06", "WAR10"];
+        string[] training = ["TME30", "TME32", "TME33", "TSP20", "TSP21", "TSP22", "TSP23", "TSP29"];
+        Assert.Equal(versus.Concat(training).Concat(["Entry", "Lobby"]).Order(StringComparer.OrdinalIgnoreCase),
+            SteamVersusMaps.All.Order(StringComparer.OrdinalIgnoreCase));
+        Assert.Equal("AQU03", SteamVersusMaps.DefaultHostMap);
+        Assert.True(SteamVersusMaps.Contains("map12"));
+        Assert.False(SteamVersusMaps.IsHostMap("tsp20"));
+        foreach (string id in SteamVersusMaps.All.Concat(["AquaD", "AquaE", "SteeE"]))
+            WriteMap(svmap, id, id.EndsWith('E') ? "Enhanced " + id : id, null, converted: true);
+        IReadOnlyList<MapPlaylist> filters = new MapCatalog(svmap).GetMapFilters();
+        var stock = filters.Single(p => p.Name == MapCatalog.StockMapsFilter);
+        Assert.Equal(versus.Order(StringComparer.OrdinalIgnoreCase), stock.Maps.Order(StringComparer.OrdinalIgnoreCase));
+        var playable = filters.Single(p => p.Name == MapCatalog.AllMapsPlaylist);
+        Assert.Contains("AquaD", playable.Maps);
+        Assert.Contains("SteeE", playable.Maps);
+        Assert.DoesNotContain(playable.Maps, m => training.Contains(m) || m is "Entry" or "Lobby");
     }
 
     [Fact]

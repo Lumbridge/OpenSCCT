@@ -9,9 +9,10 @@ body:
       options:
         - PlayStation 2
         - Original PC / Steam
+        - OpenSCCT Godot
         - OpenSCCT Unreal
         - Shared launcher or website
-        - Godot client or shared simulation
+        - Shared simulation
         - Editor, content or other tools
   - type: textarea
     id: environment

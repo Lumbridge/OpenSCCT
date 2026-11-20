@@ -731,7 +731,7 @@ The old single-map flags (`--map`, `--game`, `--bots`) still run a bare `ServerH
 | `motd` | none | shown to each player joining |
 | `netRate` / `lanPlay` | 20 / false | replication rate; the original's -lanplay |
 | `maps` | none | extra SVMap folder (searched before `maps/` next to the executable) |
-| `rotation` | `[{ "map": "SteeE", "mode": "Story" }]` | each `{ map, mode, timeLimit, spyLives, mercLives, respawn, killLimit, disks, disksToWin, revenge, gamesInARow }`; unset values come from the map's own settings |
+| `rotation` | `[{ "map": "AQU03", "mode": "Story" }]` | each `{ map, mode, timeLimit, spyLives, mercLives, respawn, killLimit, disks, disksToWin, revenge, gamesInARow }`; unset values come from the map's own settings |
 | `autoBalance` | false | joiners asking for the bigger side go to the smaller one; no switch that leaves a side two people ahead |
 | `alternate` | none (off) | Alternate Mode for every match: `{ on, spyThermalVision, spyNightVision, spyGrab, spyElbow, spyLethalDrop, mercEmfVision, mercMotionTracking, mercElbow, mercLethalDrop, mercTorch, mercLaser, mercBerserk, mercCharge, cinematicCamera, spyGadgets, spySlots, mercGadgets, mercSlots }`; abilities left out keep the stock value, gadgets are the side's gear numbers 1 to 8 allowed (left out: all), slots 0 to 4 |
 | `minPlayersToLaunch` | 2 | the lobby launches when this many are ready |
@@ -952,7 +952,7 @@ player waits at most a tenth of a second longer for the first answer.
 6. **Dedicated server config** `/opt/svm/server/svm-server.json` (from `svm-server --write-config`):
    ```json
    { "name": "SVM VPS", "port": 28888, "lanPort": 0, "maxPlayers": 4,
-     "rotation": [ { "map": "SteeE", "mode": "Story" } ],
+     "rotation": [ { "map": "AQU03", "mode": "Story" } ],
      "adminPassword": "<another random string>",
      "master": { "url": "https://master.example.org", "inviteKey": "<the invite key>" } }
    ```

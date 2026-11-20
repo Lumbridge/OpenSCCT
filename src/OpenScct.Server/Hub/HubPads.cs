@@ -373,7 +373,7 @@ public sealed class HubPads
 
         Task<OpenScct.Maps.InstalledContent> task = store.InstallMapAsync(map, _hub.Settings.ContentKind, null, System.Threading.CancellationToken.None);
         _fetches.Add(new PendingFetch(pad, player, setup, map.DisplayTitle, task));
-        _hub.LogLine($"{player.Slot.Name} picked {map.Code} for {pad.Config.Id}: downloading it ({(_hub.Settings.ContentKind == OpenScct.Maps.ContentKind.Sim ? map.Sim : map.Full).Size / 1024} KiB)");
+        _hub.LogLine($"{player.Slot.Name} picked {map.Code} for {pad.Config.Id}: downloading it ({map.DownloadSize(_hub.Settings.ContentKind) / 1024} KiB)");
         return $"The hub is downloading {map.DisplayTitle} for {PadName(pad)}; the pad switches to it once it is in.";
     }
 
