@@ -1,0 +1,112 @@
+[
+  {
+    "id": "append-word-4fd440",
+    "offset": 5231680,
+    "size": 50,
+    "rebuilt_symbol": "@append_word_r4fd440@8",
+    "inputs": [
+      "src/campaign_word_array_append.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_word_array_append.obj src/campaign_word_array_append.c",
+    "link_bindings": {
+      "_reserve_words": {
+        "va": 283100208,
+        "basis": "Shared reserve routine at RVA 0x4fc430. The code tests the current count and chooses one element for an empty array or twice the count; it multiplies this by the caller-supplied element size."
+      }
+    },
+    "identification": "Contiguous stock function at RVA 0x4fd440. It masks the capacity flag, calls the common reserve function when full, appends the four-byte input and advances the count. The independently analyzed start and RET bound the complete C function.",
+    "match": {
+      "bytes_sha256": "8bf701d7653ddf3246b68932a85a549f0e7ba457e82241de70d462f89901e7b6",
+      "inputs_sha256": "29f176b6c5bc050a8f70a7348443c2e1f142a22bab055f519678ddfca74bfba1"
+    }
+  },
+  {
+    "id": "append-word-4ff4c0",
+    "offset": 5240000,
+    "size": 50,
+    "rebuilt_symbol": "@append_word_r4ff4c0@8",
+    "inputs": [
+      "src/campaign_word_array_append.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_word_array_append.obj src/campaign_word_array_append.c",
+    "link_bindings": {
+      "_reserve_words": {
+        "va": 283100208,
+        "basis": "Shared reserve routine at RVA 0x4fc430. The code tests the current count and chooses one element for an empty array or twice the count; it multiplies this by the caller-supplied element size."
+      }
+    },
+    "identification": "Contiguous stock function at RVA 0x4ff4c0. It masks the capacity flag, calls the common reserve function when full, appends the four-byte input and advances the count. The independently analyzed start and RET bound the complete C function.",
+    "match": {
+      "bytes_sha256": "81544e3e033f97fb5dd798ca73dc92e0905427fe5095bd864f9f7d29af00f8aa",
+      "inputs_sha256": "e7c4e59f40b7b19ab75ee4dea919948e833aa225e00eb1614ac27f82ac93c47d"
+    }
+  },
+  {
+    "id": "append-word-4ff500",
+    "offset": 5240064,
+    "size": 50,
+    "rebuilt_symbol": "@append_word_r4ff500@8",
+    "inputs": [
+      "src/campaign_word_array_append.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_word_array_append.obj src/campaign_word_array_append.c",
+    "link_bindings": {
+      "_reserve_words": {
+        "va": 283100208,
+        "basis": "Shared reserve routine at RVA 0x4fc430. The code tests the current count and chooses one element for an empty array or twice the count; it multiplies this by the caller-supplied element size."
+      }
+    },
+    "identification": "Contiguous stock function at RVA 0x4ff500. It masks the capacity flag, calls the common reserve function when full, appends the four-byte input and advances the count. The independently analyzed start and RET bound the complete C function.",
+    "match": {
+      "bytes_sha256": "93f41a8ec91f1ffb1beb5580345e22a1f16565935dbb95a5ca04b51f7fc0c7ad",
+      "inputs_sha256": "9c1a6ac6c5265cdd4d5823082d3fcb432b49b5235af7424721c3d4d7f667cf6c"
+    }
+  },
+  {
+    "id": "append-word-4ff540",
+    "offset": 5240128,
+    "size": 50,
+    "rebuilt_symbol": "@append_word_r4ff540@8",
+    "inputs": [
+      "src/campaign_word_array_append.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_word_array_append.obj src/campaign_word_array_append.c",
+    "link_bindings": {
+      "_reserve_words": {
+        "va": 283100208,
+        "basis": "Shared reserve routine at RVA 0x4fc430. The code tests the current count and chooses one element for an empty array or twice the count; it multiplies this by the caller-supplied element size."
+      }
+    },
+    "identification": "Contiguous stock function at RVA 0x4ff540. It masks the capacity flag, calls the common reserve function when full, appends the four-byte input and advances the count. The independently analyzed start and RET bound the complete C function.",
+    "match": {
+      "bytes_sha256": "c02ade626a69f0d7c1ce528a4bae483ba29d8640f902513c4dc95687fcb12f41",
+      "inputs_sha256": "2101361a77df892315070c2231006b2414fa0af874f34a7857e1288210cb1c46"
+    }
+  },
+  {
+    "id": "append-word-4ff580",
+    "offset": 5240192,
+    "size": 50,
+    "rebuilt_symbol": "@append_word_r4ff580@8",
+    "inputs": [
+      "src/campaign_word_array_append.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_word_array_append.obj src/campaign_word_array_append.c",
+    "link_bindings": {
+      "_reserve_words": {
+        "va": 283100208,
+        "basis": "Shared reserve routine at RVA 0x4fc430. The code tests the current count and chooses one element for an empty array or twice the count; it multiplies this by the caller-supplied element size."
+      }
+    },
+    "identification": "Contiguous stock function at RVA 0x4ff580. It masks the capacity flag, calls the common reserve function when full, appends the four-byte input and advances the count. The independently analyzed start and RET bound the complete C function.",
+    "match": {
+      "bytes_sha256": "d285d10f0f874559792e6a856acef88f1e7f2af77cfedb99766992f1dcfbcd5f",
+      "inputs_sha256": "22e565308a6e988de38c356f67859913fd77aeb831160036a56edbe1745cb935"
+    }
+  }
+]

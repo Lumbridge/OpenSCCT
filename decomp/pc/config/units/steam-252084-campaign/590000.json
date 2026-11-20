@@ -1,0 +1,46 @@
+[
+  {
+    "id": "append-word-593b90",
+    "offset": 5847952,
+    "size": 50,
+    "rebuilt_symbol": "@append_word_r593b90@8",
+    "inputs": [
+      "src/campaign_word_array_append.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_word_array_append.obj src/campaign_word_array_append.c",
+    "link_bindings": {
+      "_reserve_words": {
+        "va": 283100208,
+        "basis": "Shared reserve routine at RVA 0x4fc430. The code tests the current count and chooses one element for an empty array or twice the count; it multiplies this by the caller-supplied element size."
+      }
+    },
+    "identification": "Contiguous stock function at RVA 0x593b90. It masks the capacity flag, calls the common reserve function when full, appends the four-byte input and advances the count. The independently analyzed start and RET bound the complete C function.",
+    "match": {
+      "bytes_sha256": "b04c4fa1a416efe43d493e28eb6962bc3b987f2d6dfecd02dc4a351df414e11e",
+      "inputs_sha256": "3de17b31dd1b630204117ab7593c08a135b8951fb054f75f5457f1a070db310b"
+    }
+  },
+  {
+    "id": "append-word-593cc0",
+    "offset": 5848256,
+    "size": 50,
+    "rebuilt_symbol": "@append_word_r593cc0@8",
+    "inputs": [
+      "src/campaign_word_array_append.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_word_array_append.obj src/campaign_word_array_append.c",
+    "link_bindings": {
+      "_reserve_words": {
+        "va": 283100208,
+        "basis": "Shared reserve routine at RVA 0x4fc430. The code tests the current count and chooses one element for an empty array or twice the count; it multiplies this by the caller-supplied element size."
+      }
+    },
+    "identification": "Contiguous stock function at RVA 0x593cc0. It masks the capacity flag, calls the common reserve function when full, appends the four-byte input and advances the count. The independently analyzed start and RET bound the complete C function.",
+    "match": {
+      "bytes_sha256": "fd63403a75c0113b42257b63d269e06193b190bd68ef78a5412f28227f42e47d",
+      "inputs_sha256": "db70cef3be4e4364484902a054eb42037e7bf5bba69adf5d57ef49d1e2ced282"
+    }
+  }
+]
