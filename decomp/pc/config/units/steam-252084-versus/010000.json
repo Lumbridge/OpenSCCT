@@ -82,7 +82,7 @@
     },
     "match": {
       "bytes_sha256": "4976713081c3203033d6cf5011bf33466cf7bb2c34492a6d61a234a11b4530fc",
-      "inputs_sha256": "70d08f310b132bab243c217f20c7f63ac465869220c4ce4192210a9dad7ff80a"
+      "inputs_sha256": "292494a55e4f0d3f4d63a0cd73cbeac97298e922ac13d0275c366d8ef2da8cec"
     }
   },
   {
@@ -108,7 +108,33 @@
     },
     "match": {
       "bytes_sha256": "fa8cbaf21ed652b38789f7831d0975f729efbdec62184fb4325991fe7637a751",
-      "inputs_sha256": "04473058e3a1cd5b39cb6dbf14776c8219c3c1cd485de3eafda4fbfdb8a3c093"
+      "inputs_sha256": "b755bb29428447b777787c98965e3967b71090f8cd1a3429c39fdff6451f118b"
+    }
+  },
+  {
+    "id": "delete-utextbufferfactory",
+    "size": 33,
+    "offset": 89200,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_UTextBufferFactory@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Conditional free passes the original receiver to slot 2 of the shared engine allocator."
+      },
+      "@destroy_UTextBufferFactory@4": {
+        "va": 277961728,
+        "basis": "Direct call to the class destructor before testing the deletion flag, at RVA 0x15c73."
+      }
+    },
+    "identification": "Stock UTextBufferFactory vtable at RVA 0x30d128, slot 3, points to entry RVA 0x15c70. Registration at RVA 0x3f995 passes placement callback RVA 0x3f500, which installs the table at RVA 0x3f525. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
+    "match": {
+      "bytes_sha256": "4976713081c3203033d6cf5011bf33466cf7bb2c34492a6d61a234a11b4530fc",
+      "inputs_sha256": "b1095a9c64b4aec28054a255b00564173f40e123ed8c7e58d396e157cad5abc0"
     }
   },
   {

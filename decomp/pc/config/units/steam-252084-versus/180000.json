@@ -1,5 +1,31 @@
 [
   {
+    "id": "delete-utcpipconnection",
+    "size": 33,
+    "offset": 1574416,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_UTcpipConnection@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Conditional free passes the original receiver to slot 2 of the shared engine allocator."
+      },
+      "@destroy_UTcpipConnection@4": {
+        "va": 279446928,
+        "basis": "Direct call to the class destructor before testing the deletion flag, at RVA 0x180613."
+      }
+    },
+    "identification": "Stock UTcpipConnection vtable at RVA 0x2ff3c8, slot 3, points to entry RVA 0x180610. Registration at RVA 0x1837aa passes placement callback RVA 0x183540, which installs the table at RVA 0x183571. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
+    "match": {
+      "bytes_sha256": "fa8cbaf21ed652b38789f7831d0975f729efbdec62184fb4325991fe7637a751",
+      "inputs_sha256": "2c098bbb0dd6aaf82bc05e77bb2c5ba3dcbd1d658b4d4da8cdd3b1d615c513a2"
+    }
+  },
+  {
     "id": "versus-is-data-pending",
     "offset": 1579488,
     "size": 29,
@@ -14,6 +40,58 @@
     "match": {
       "bytes_sha256": "341ea21868a888aafa4b939048819014ff7014aa476248583b3660d199937a37",
       "inputs_sha256": "51b24a7a4cc4f585915ae60e57ccdbfc64ba132db00e56ce718a45b6b8a48ded"
+    }
+  },
+  {
+    "id": "delete-atcplink",
+    "size": 33,
+    "offset": 1581632,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ATcpLink@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Conditional free passes the original receiver to slot 2 of the shared engine allocator."
+      },
+      "@destroy_ATcpLink@4": {
+        "va": 279454144,
+        "basis": "Direct call to the class destructor before testing the deletion flag, at RVA 0x182243."
+      }
+    },
+    "identification": "Stock ATcpLink vtable at RVA 0x2ff280, slot 3, points to entry RVA 0x182240. Registration at RVA 0x183751 passes placement callback RVA 0x1834f0, which installs the table at RVA 0x183521. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
+    "match": {
+      "bytes_sha256": "fa8cbaf21ed652b38789f7831d0975f729efbdec62184fb4325991fe7637a751",
+      "inputs_sha256": "e0ee8f92dd23cbcb3cd284acdbedf8b2b0ea558ab9e4293235292ba1ee81bba4"
+    }
+  },
+  {
+    "id": "delete-utcpnetdriver",
+    "size": 33,
+    "offset": 1586800,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_UTcpNetDriver@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Conditional free passes the original receiver to slot 2 of the shared engine allocator."
+      },
+      "@destroy_UTcpNetDriver@4": {
+        "va": 279459232,
+        "basis": "Direct call to the class destructor before testing the deletion flag, at RVA 0x183673."
+      }
+    },
+    "identification": "Stock UTcpNetDriver vtable at RVA 0x2ff208, slot 3, points to entry RVA 0x183670. Registration at RVA 0x183803 passes placement callback RVA 0x183620, which installs the table at RVA 0x183651. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
+    "match": {
+      "bytes_sha256": "6bdaa31558a5f26dbf13bd8b16e9b843640cd7e34c8b145a10b766b2cf0bdf1a",
+      "inputs_sha256": "d437ab5596c1f28b244e5c15cd44e7c801f8cbfec0594261c8d8be06a3db5045"
     }
   },
   {

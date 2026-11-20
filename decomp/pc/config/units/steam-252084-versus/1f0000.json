@@ -48,7 +48,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "2330ca8f61dbcd3d648772efda78c47c492267ef57059289dd33c7fa03322ccf"
+      "inputs_sha256": "d715478b74fd8f46dee9478c5df842774082c20e307e6df7215457074f3e2ebb"
     }
   },
   {
@@ -78,6 +78,58 @@
     }
   },
   {
+    "id": "delete-asprojgrenade",
+    "size": 33,
+    "offset": 2031936,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASProjGrenade@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Conditional free passes the original receiver to slot 2 of the shared engine allocator."
+      },
+      "@destroy_ASProjGrenade@4": {
+        "va": 279904624,
+        "basis": "Direct call to the class destructor before testing the deletion flag, at RVA 0x1f0143."
+      }
+    },
+    "identification": "Stock ASProjGrenade vtable at RVA 0x2fb0b0, slot 3, points to entry RVA 0x1f0140. Registration at RVA 0x1eccbe passes placement callback RVA 0x1f0410, which installs the table at RVA 0x1f041d. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "7834be0c1c7448b753abf38c4cc5a43e00b597ee906178874fc4f987d2b12dd1"
+    }
+  },
+  {
+    "id": "delete-asprojsmoke",
+    "size": 33,
+    "offset": 2032096,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASProjSmoke@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Conditional free passes the original receiver to slot 2 of the shared engine allocator."
+      },
+      "@destroy_ASProjSmoke@4": {
+        "va": 279904784,
+        "basis": "Direct call to the class destructor before testing the deletion flag, at RVA 0x1f01e3."
+      }
+    },
+    "identification": "Stock ASProjSmoke vtable at RVA 0x2faf68, slot 3, points to entry RVA 0x1f01e0. Registration at RVA 0x1ecdc6 passes placement callback RVA 0x1f0120, which installs the table at RVA 0x1f012d. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "21c32ce4f5b5b6420ade4e1e77c40960b933155e64097b1737aff379bbfd8799"
+    }
+  },
+  {
     "id": "place-asprojphospho",
     "offset": 2032256,
     "size": 20,
@@ -104,6 +156,32 @@
     }
   },
   {
+    "id": "delete-asprojphospho",
+    "size": 33,
+    "offset": 2032288,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASProjPhospho@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Conditional free passes the original receiver to slot 2 of the shared engine allocator."
+      },
+      "@destroy_ASProjPhospho@4": {
+        "va": 279904976,
+        "basis": "Direct call to the class destructor before testing the deletion flag, at RVA 0x1f02a3."
+      }
+    },
+    "identification": "Stock ASProjPhospho vtable at RVA 0x2fae20, slot 3, points to entry RVA 0x1f02a0. Registration at RVA 0x1ecd6e passes placement callback RVA 0x1f0280, which installs the table at RVA 0x1f028d. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "425a81f0c0bdffd2722a4509b8eb6e45e4920aae15b858a1d1c2aa268216e59c"
+    }
+  },
+  {
     "id": "place-asprojmarqueurspy",
     "offset": 2032448,
     "size": 20,
@@ -127,6 +205,32 @@
     "match": {
       "bytes_sha256": "1a4f5cfd4e635ef86df9f4c8a84a3c9a58a43c7194c5481a2e6e94bca16e36bc",
       "inputs_sha256": "1a53ec6a6f8f91cc7425aa4cedf82e8b9e7dec2a3f357413c24e5d555b6adfe6"
+    }
+  },
+  {
+    "id": "delete-asprojmarqueurspy",
+    "size": 33,
+    "offset": 2032480,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASProjMarqueurSpy@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Conditional free passes the original receiver to slot 2 of the shared engine allocator."
+      },
+      "@destroy_ASProjMarqueurSpy@4": {
+        "va": 279905168,
+        "basis": "Direct call to the class destructor before testing the deletion flag, at RVA 0x1f0363."
+      }
+    },
+    "identification": "Stock ASProjMarqueurSpy vtable at RVA 0x2face8, slot 3, points to entry RVA 0x1f0360. Registration at RVA 0x1ecd16 passes placement callback RVA 0x1f0340, which installs the table at RVA 0x1f034d. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "ae49831132b60ab8dc00236cc3248596db96061483c8a8cb106ef05adb0e8728"
     }
   },
   {
@@ -182,6 +286,32 @@
     }
   },
   {
+    "id": "delete-asprojfrag",
+    "size": 33,
+    "offset": 2032720,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASProjFrag@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Conditional free passes the original receiver to slot 2 of the shared engine allocator."
+      },
+      "@destroy_ASProjFrag@4": {
+        "va": 279905408,
+        "basis": "Direct call to the class destructor before testing the deletion flag, at RVA 0x1f0453."
+      }
+    },
+    "identification": "Stock ASProjFrag vtable at RVA 0x2faba0, slot 3, points to entry RVA 0x1f0450. Registration at RVA 0x1ecc62 passes placement callback RVA 0x1f0430, which installs the table at RVA 0x1f043d. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "a04faf935671318df2a4e78aabccf378d563f8682a9d72c02d0678a8c4e0c320"
+    }
+  },
+  {
     "id": "place-asprojflashbang",
     "offset": 2032880,
     "size": 20,
@@ -205,6 +335,32 @@
     "match": {
       "bytes_sha256": "3502bcbd69487dc581946ac5a7b32a1ae6c43d49b90caabcbff0f3af89184343",
       "inputs_sha256": "88f3449f36faf7ae337a517d50864665158841618aa3de01abb863417088af0e"
+    }
+  },
+  {
+    "id": "delete-asprojflashbang",
+    "size": 33,
+    "offset": 2032912,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASProjFlashBang@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Conditional free passes the original receiver to slot 2 of the shared engine allocator."
+      },
+      "@destroy_ASProjFlashBang@4": {
+        "va": 279905600,
+        "basis": "Direct call to the class destructor before testing the deletion flag, at RVA 0x1f0513."
+      }
+    },
+    "identification": "Stock ASProjFlashBang vtable at RVA 0x2faa58, slot 3, points to entry RVA 0x1f0510. Registration at RVA 0x1ecc0a passes placement callback RVA 0x1f04f0, which installs the table at RVA 0x1f04fd. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "d0226ec6148546bf466c38da202d4eb6bfde0434870f72ad4006f5ca7eb73d1e"
     }
   },
   {
@@ -234,6 +390,32 @@
     }
   },
   {
+    "id": "delete-asprojflare",
+    "size": 33,
+    "offset": 2033104,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASProjFlare@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Conditional free passes the original receiver to slot 2 of the shared engine allocator."
+      },
+      "@destroy_ASProjFlare@4": {
+        "va": 279905792,
+        "basis": "Direct call to the class destructor before testing the deletion flag, at RVA 0x1f05d3."
+      }
+    },
+    "identification": "Stock ASProjFlare vtable at RVA 0x2fa910, slot 3, points to entry RVA 0x1f05d0. Registration at RVA 0x1ecbb2 passes placement callback RVA 0x1f05b0, which installs the table at RVA 0x1f05bd. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "a390bbe5de499a1608036c24b5620fb0c4f6fc0858bd1844535dcaf82e2ad4d6"
+    }
+  },
+  {
     "id": "place-asprojchaffe",
     "offset": 2033264,
     "size": 20,
@@ -260,6 +442,32 @@
     }
   },
   {
+    "id": "delete-asprojchaffe",
+    "size": 33,
+    "offset": 2033296,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASProjChaffe@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Conditional free passes the original receiver to slot 2 of the shared engine allocator."
+      },
+      "@destroy_ASProjChaffe@4": {
+        "va": 279905984,
+        "basis": "Direct call to the class destructor before testing the deletion flag, at RVA 0x1f0693."
+      }
+    },
+    "identification": "Stock ASProjChaffe vtable at RVA 0x2fa7c8, slot 3, points to entry RVA 0x1f0690. Registration at RVA 0x1ecb5a passes placement callback RVA 0x1f0670, which installs the table at RVA 0x1f067d. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "0237f46d961fa48f66195c94778740c5cbfdee47d2ff3d02eee0cd497473fe17"
+    }
+  },
+  {
     "id": "delete-asplayercontroller",
     "offset": 2033536,
     "size": 33,
@@ -282,7 +490,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "d7430c864d5e9d370bce0a250185e4bebb007f7e28ac0fcab7ccaf9b6cf7851d"
+      "inputs_sha256": "c2c4721e9dd5c49b65255475f07173629bbde4e02480c4f268d2860acdc649c0"
     }
   },
   {
@@ -334,7 +542,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "398c77d3c89abf264c68288b20691e74a46f1c31e8830799d51e7ff2050c34b7"
+      "inputs_sha256": "adb62a374bf17e8a85d62540fccd830ed9ee9ca5d81706dbe0fa321e6f3336b6"
     }
   },
   {
@@ -386,7 +594,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "e3f607af9e4e4fa1b5adf1b41ac6f41f73d92a5c63bb74e5c59d9b2a95d9d8e1"
+      "inputs_sha256": "542e0e72e60a463759d2e7e8567b0c6e42302cc93a6fae0a2b5462cbce7e2395"
     }
   },
   {
@@ -416,6 +624,32 @@
     }
   },
   {
+    "id": "delete-asphosphoemitter",
+    "size": 33,
+    "offset": 2034496,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASPhosphoEmitter@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Conditional free passes the original receiver to slot 2 of the shared engine allocator."
+      },
+      "@destroy_ASPhosphoEmitter@4": {
+        "va": 279907184,
+        "basis": "Direct call to the class destructor before testing the deletion flag, at RVA 0x1f0b43."
+      }
+    },
+    "identification": "Stock ASPhosphoEmitter vtable at RVA 0x2fa2b8, slot 3, points to entry RVA 0x1f0b40. Registration at RVA 0x1ec9f2 passes placement callback RVA 0x1f0b10, which installs the table at RVA 0x1f0b31. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "989050617c408556bba13a15a8d1895c8faa485ae82aaef992d86041924956b6"
+    }
+  },
+  {
     "id": "place-aspawndefense",
     "offset": 2034656,
     "size": 20,
@@ -439,6 +673,58 @@
     "match": {
       "bytes_sha256": "22f17cee57deabbb0480e543fb15f3aeb65be6d83b58c3b26fa4b85c522ff4b4",
       "inputs_sha256": "d50d8e82ace94b2a8b60ad40cec86f0c5881b4eddc0cca53020ec976a5cc0bd0"
+    }
+  },
+  {
+    "id": "delete-asbasepawn",
+    "size": 33,
+    "offset": 2034688,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASBasePawn@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Conditional free passes the original receiver to slot 2 of the shared engine allocator."
+      },
+      "@destroy_ASBasePawn@4": {
+        "va": 279907376,
+        "basis": "Direct call to the class destructor before testing the deletion flag, at RVA 0x1f0c03."
+      }
+    },
+    "identification": "Stock ASBasePawn vtable at RVA 0x2fa168, slot 3, points to entry RVA 0x1f0c00. Registration at RVA 0x1eb730 passes placement callback RVA 0x1f3920, which installs the table at RVA 0x1f392d. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "a71d1f3d5f65656551a416fc9485aaacd5f49e9a68fb27e3185b3e0ce59fb74d"
+    }
+  },
+  {
+    "id": "delete-aspawndefense",
+    "size": 33,
+    "offset": 2034864,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASPAWNDEFENSE@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Conditional free passes the original receiver to slot 2 of the shared engine allocator."
+      },
+      "@destroy_ASPAWNDEFENSE@4": {
+        "va": 279907552,
+        "basis": "Direct call to the class destructor before testing the deletion flag, at RVA 0x1f0cb3."
+      }
+    },
+    "identification": "Stock ASPAWNDEFENSE vtable at RVA 0x2fa018, slot 3, points to entry RVA 0x1f0cb0. Registration at RVA 0x1ec996 passes placement callback RVA 0x1f0be0, which installs the table at RVA 0x1f0bed. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "58ff86253e008c0abd06c079da4cb0e171894af965ffdaa0bc41ccbb1cc0d1fd"
     }
   },
   {
@@ -490,7 +776,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "f46c19e3747464773d06ab005a93b01de6c6f232d4d98c0340e0fe60f507af5b"
+      "inputs_sha256": "86bff5d8d6cd4ab3e11bab4cab28f88aa93604d34e589adb97115919ed629a89"
     }
   },
   {
@@ -594,7 +880,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "716a5cd36e361cca9d33a2ad45852f743f58e8c7cd8d9574f6d0eea19c9933c3"
+      "inputs_sha256": "6675799f9c2dd1539130b929097edef9e11d18b499579aa0255d474fef8903dd"
     }
   },
   {
@@ -624,6 +910,32 @@
     }
   },
   {
+    "id": "delete-asnoiseemitter",
+    "size": 33,
+    "offset": 2035584,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASNoiseEmitter@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Conditional free passes the original receiver to slot 2 of the shared engine allocator."
+      },
+      "@destroy_ASNoiseEmitter@4": {
+        "va": 279908272,
+        "basis": "Direct call to the class destructor before testing the deletion flag, at RVA 0x1f0f83."
+      }
+    },
+    "identification": "Stock ASNoiseEmitter vtable at RVA 0x2f9c50, slot 3, points to entry RVA 0x1f0f80. Registration at RVA 0x1ec7ca passes placement callback RVA 0x1f0f60, which installs the table at RVA 0x1f0f6d. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "2252cb90fabda1f3e9755d00cb81b1dd6170b519d08ead2f67ae336ca612a541"
+    }
+  },
+  {
     "id": "place-asmuzzlesticky",
     "offset": 2035744,
     "size": 20,
@@ -647,6 +959,58 @@
     "match": {
       "bytes_sha256": "db98e79842d271d34ca4f8f9deb5ccba17655bf420f87be7e204cf4ae22257bf",
       "inputs_sha256": "168683d4a3459ca58bc6927a0da0566dbd48440644ea48e6c93e200f3c77a239"
+    }
+  },
+  {
+    "id": "delete-asmuzzleflash",
+    "size": 33,
+    "offset": 2035776,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASMuzzleFlash@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Conditional free passes the original receiver to slot 2 of the shared engine allocator."
+      },
+      "@destroy_ASMuzzleFlash@4": {
+        "va": 279908464,
+        "basis": "Direct call to the class destructor before testing the deletion flag, at RVA 0x1f1043."
+      }
+    },
+    "identification": "Stock ASMuzzleFlash vtable at RVA 0x2f9b18, slot 3, points to entry RVA 0x1f1040. Registration at RVA 0x1ec71a passes placement callback RVA 0x1f1180, which installs the table at RVA 0x1f118d. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "b02a838881b50c28b27b1c3d0b21ad3f90e74e8afdd8164ef9eba94cb9953101"
+    }
+  },
+  {
+    "id": "delete-asmuzzlesticky",
+    "size": 33,
+    "offset": 2035936,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASMuzzleSticky@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Conditional free passes the original receiver to slot 2 of the shared engine allocator."
+      },
+      "@destroy_ASMuzzleSticky@4": {
+        "va": 279908624,
+        "basis": "Direct call to the class destructor before testing the deletion flag, at RVA 0x1f10e3."
+      }
+    },
+    "identification": "Stock ASMuzzleSticky vtable at RVA 0x2f99e0, slot 3, points to entry RVA 0x1f10e0. Registration at RVA 0x1ec772 passes placement callback RVA 0x1f1020, which installs the table at RVA 0x1f102d. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "ed11051996610cf56d85ba55fc4244dc440b9440f2505548a082fa84ea79e8b2"
     }
   },
   {
@@ -702,6 +1066,32 @@
     }
   },
   {
+    "id": "delete-asmotiontrackingvision",
+    "size": 33,
+    "offset": 2036160,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASMotionTrackingVision@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Conditional free passes the original receiver to slot 2 of the shared engine allocator."
+      },
+      "@destroy_ASMotionTrackingVision@4": {
+        "va": 279908848,
+        "basis": "Direct call to the class destructor before testing the deletion flag, at RVA 0x1f11c3."
+      }
+    },
+    "identification": "Stock ASMotionTrackingVision vtable at RVA 0x2f98a8, slot 3, points to entry RVA 0x1f11c0. Registration at RVA 0x1ec6c2 passes placement callback RVA 0x1f11a0, which installs the table at RVA 0x1f11ad. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "7918048a919845dc1bde31f3a172eedf13c034f9856466e7194162ae0f7c98d0"
+    }
+  },
+  {
     "id": "place-asmission",
     "offset": 2036320,
     "size": 20,
@@ -750,7 +1140,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "2876c53490f21385dca77acf369cb086846b9d5a9b763d4d6b58f0fc541c21bd"
+      "inputs_sha256": "7eda66f51784ffee3fb1d0be822684fb09f95a8fe41060931044130a20a61a67"
     }
   },
   {
@@ -806,6 +1196,32 @@
     }
   },
   {
+    "id": "delete-asmineprox",
+    "size": 33,
+    "offset": 2036592,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASMineProx@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Conditional free passes the original receiver to slot 2 of the shared engine allocator."
+      },
+      "@destroy_ASMineProx@4": {
+        "va": 279909280,
+        "basis": "Direct call to the class destructor before testing the deletion flag, at RVA 0x1f1373."
+      }
+    },
+    "identification": "Stock ASMineProx vtable at RVA 0x2f9630, slot 3, points to entry RVA 0x1f1370. Registration at RVA 0x1ec5b1 passes placement callback RVA 0x1f1350, which installs the table at RVA 0x1f135d. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "8252ef76ef80e7b933536c3292c070650328c2e8f8985a30c29fcc71888b951e"
+    }
+  },
+  {
     "id": "place-asminelaser",
     "offset": 2036752,
     "size": 20,
@@ -829,6 +1245,32 @@
     "match": {
       "bytes_sha256": "d2b667efd002614e3eeb371f59db6a36fe68a96d4b3b22ae305f2a336842d6d2",
       "inputs_sha256": "d8404560ff4966e16de0df702da58a6d6a1e0ed8585dc2cd1d35f422b3bd3cfd"
+    }
+  },
+  {
+    "id": "delete-asminelaser",
+    "size": 33,
+    "offset": 2036784,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASMineLaser@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Conditional free passes the original receiver to slot 2 of the shared engine allocator."
+      },
+      "@destroy_ASMineLaser@4": {
+        "va": 279909472,
+        "basis": "Direct call to the class destructor before testing the deletion flag, at RVA 0x1f1433."
+      }
+    },
+    "identification": "Stock ASMineLaser vtable at RVA 0x2f94f8, slot 3, points to entry RVA 0x1f1430. Registration at RVA 0x1ec555 passes placement callback RVA 0x1f1410, which installs the table at RVA 0x1f141d. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "23805e88e027418a3eb5aee703307a903673eca36804ddd5a94c03ece9a3947a"
     }
   },
   {
@@ -876,7 +1318,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "bba45728325832e5b40a8b327ff80bfc62a32f94ac1b322c51fe8c3571bcceba"
+      "inputs_sha256": "9561f4bbe1181d3a87e0dda1cf3cd32353e3ca7b68752aa262fb03cf96476a67"
     }
   },
   {
@@ -928,7 +1370,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "818fe06389049d61d563acc5e241037ac4a009390aea363f8889225f3a8db694"
+      "inputs_sha256": "e6606bfa44aab2425cceb988c4fd3cc2cea4f91f6b32eba4ef18da06ecc616e3"
     }
   },
   {
@@ -980,7 +1422,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "6135f52293aeb1b97245cef8f009482bf51d1484d50d0152a20f05f70e2397db"
+      "inputs_sha256": "fbd8f21084a29ed01be647eb3708f315870f1984b1d75de88eed6e5c440cbf5f"
     }
   },
   {
@@ -1007,6 +1449,32 @@
     "match": {
       "bytes_sha256": "ce3036c523d0077e7608b581774eb91aff8c3d44476671b44fd9b13f842ed79b",
       "inputs_sha256": "99cd53eb6e50ac1fff59606e814b1cb579be6bbe7f367c117e0e5df15f65f9fb"
+    }
+  },
+  {
+    "id": "delete-aslaserprojector",
+    "size": 33,
+    "offset": 2037552,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASLaserProjector@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Conditional free passes the original receiver to slot 2 of the shared engine allocator."
+      },
+      "@destroy_ASLaserProjector@4": {
+        "va": 279910240,
+        "basis": "Direct call to the class destructor before testing the deletion flag, at RVA 0x1f1733."
+      }
+    },
+    "identification": "Stock ASLaserProjector vtable at RVA 0x2f90d8, slot 3, points to entry RVA 0x1f1730. Registration at RVA 0x1ec3ed passes placement callback RVA 0x1f1700, which installs the table at RVA 0x1f1721. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "f999a257f381ff5032b7b5984ed88afc248e5edc88512c9db58ffea495178de6"
     }
   },
   {
@@ -1058,7 +1526,33 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "32b6e88d304293b810f7d5111151aa143cb4ab84701aa50d8caa8cf49fa38507"
+      "inputs_sha256": "fcef2ecdcf65c4cb92e53d5091f1b3f2f1475c2394657bd0652f7c33fd7b66fb"
+    }
+  },
+  {
+    "id": "delete-aslaserbeam-minelaser",
+    "size": 33,
+    "offset": 2037904,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASLaserBeam_MineLaser@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Conditional free passes the original receiver to slot 2 of the shared engine allocator."
+      },
+      "@destroy_ASLaserBeam_MineLaser@4": {
+        "va": 279910592,
+        "basis": "Direct call to the class destructor before testing the deletion flag, at RVA 0x1f1893."
+      }
+    },
+    "identification": "Stock ASLaserBeam_MineLaser vtable at RVA 0x2f8e68, slot 3, points to entry RVA 0x1f1890. Registration at RVA 0x1ec395 passes placement callback RVA 0x1f17d0, which installs the table at RVA 0x1f17dd. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "75a8dde8c7d23222c485e63e9e55f11ec6b97be49b1ec9ee055260f5c14d2c3f"
     }
   },
   {
@@ -1085,6 +1579,58 @@
     "match": {
       "bytes_sha256": "a54074c9a1c7fd6b841ffde5be3c11230da68dcaf4481105c972564f3006a9c2",
       "inputs_sha256": "2ec4272970be52d1b767ef5ced3589a241173f453b57fd7fc8a7576272bfd4c5"
+    }
+  },
+  {
+    "id": "delete-aslanserverlink",
+    "size": 33,
+    "offset": 2038176,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASLANServerLink@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Conditional free passes the original receiver to slot 2 of the shared engine allocator."
+      },
+      "@destroy_ASLANServerLink@4": {
+        "va": 279910864,
+        "basis": "Direct call to the class destructor before testing the deletion flag, at RVA 0x1f19a3."
+      }
+    },
+    "identification": "Stock ASLANServerLink vtable at RVA 0x2f8d30, slot 3, points to entry RVA 0x1f19a0. Registration at RVA 0x1ec2dd passes placement callback RVA 0x1f1950, which installs the table at RVA 0x1f1981. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "9e3e493048c82e85b797b6473329975510c6b0b54c9f258cf52eba34c44984af"
+    }
+  },
+  {
+    "id": "delete-aslanclientlink",
+    "size": 33,
+    "offset": 2038464,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASLANClientLink@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Conditional free passes the original receiver to slot 2 of the shared engine allocator."
+      },
+      "@destroy_ASLANClientLink@4": {
+        "va": 279911152,
+        "basis": "Direct call to the class destructor before testing the deletion flag, at RVA 0x1f1ac3."
+      }
+    },
+    "identification": "Stock ASLANClientLink vtable at RVA 0x2f8bf8, slot 3, points to entry RVA 0x1f1ac0. Registration at RVA 0x1ec284 passes placement callback RVA 0x1f1a70, which installs the table at RVA 0x1f1aa1. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "07a4d16b17977db18d0f012a16e0604a5b8ada1c64958a7b95ff558944a9629d"
     }
   },
   {
@@ -1136,7 +1682,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "d3ae002e13b05ed4088da701ed4e7b55a29594e3be9a48b7f03d131462331a6d"
+      "inputs_sha256": "5a6d4d998dd9d65319819df8a271c0c538aaac552c94e7826ce5aed4cb0c6415"
     }
   },
   {
@@ -1214,7 +1760,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "9ff81ed7b76efd8e1f509243b65630ae432f222d99d7f83b6088fd7801b1ff44"
+      "inputs_sha256": "33a0c314e5ef5b3d045e8b3fdea67066ea2c78982a74200cd55d8311c7c455bb"
     }
   },
   {
@@ -1240,7 +1786,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "94475bf27fd54b122e87081fd11506e4e305c1cff9ff28792805b7477a750357"
+      "inputs_sha256": "658b783ac00f702c2012ea765a65a413fa444b86616ca75d90be9713f8488028"
     }
   },
   {
@@ -1270,6 +1816,32 @@
     }
   },
   {
+    "id": "delete-asgrenadeexplosion",
+    "size": 33,
+    "offset": 2040176,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASGrenadeExplosion@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Conditional free passes the original receiver to slot 2 of the shared engine allocator."
+      },
+      "@destroy_ASGrenadeExplosion@4": {
+        "va": 279912864,
+        "basis": "Direct call to the class destructor before testing the deletion flag, at RVA 0x1f2173."
+      }
+    },
+    "identification": "Stock ASGrenadeExplosion vtable at RVA 0x2f8708, slot 3, points to entry RVA 0x1f2170. Registration at RVA 0x1ec0be passes placement callback RVA 0x1f2140, which installs the table at RVA 0x1f2161. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "62db4a0c530d164d84202f5fdd9efdb8bec8d2ff1195898f6412985ebb39a3c0"
+    }
+  },
+  {
     "id": "place-asgpocontrol",
     "offset": 2040336,
     "size": 20,
@@ -1293,6 +1865,32 @@
     "match": {
       "bytes_sha256": "40ffbff55c5a1909a7eb74ada44e39f5dadfee087cad8875fac2432e31d2e374",
       "inputs_sha256": "1bd9dcbb22eda635eb102b7f8283d36d939cd7f342958c2e718ee3b4b6eefdfb"
+    }
+  },
+  {
+    "id": "delete-asgpocontrol",
+    "size": 33,
+    "offset": 2040368,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASGPOControl@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Conditional free passes the original receiver to slot 2 of the shared engine allocator."
+      },
+      "@destroy_ASGPOControl@4": {
+        "va": 279913056,
+        "basis": "Direct call to the class destructor before testing the deletion flag, at RVA 0x1f2233."
+      }
+    },
+    "identification": "Stock ASGPOControl vtable at RVA 0x2f85d0, slot 3, points to entry RVA 0x1f2230. Registration at RVA 0x1ec066 passes placement callback RVA 0x1f2210, which installs the table at RVA 0x1f221d. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "d34647e655b01dfaabd55b4f6950b01c106efbb2c2f985c8d72f928541d09ed2"
     }
   },
   {
@@ -1344,7 +1942,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "2d9e6d3dc461bdeb14b48ae672d37d524136d6fadc013844515b1785a19f660d"
+      "inputs_sha256": "88fd6593f0cd35ad552298302dface56f62dbe0e157f2b17989de8ccb39965f0"
     }
   },
   {
@@ -1426,6 +2024,32 @@
     }
   },
   {
+    "id": "delete-asgamemessages",
+    "size": 33,
+    "offset": 2040832,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASGameMessages@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Conditional free passes the original receiver to slot 2 of the shared engine allocator."
+      },
+      "@destroy_ASGameMessages@4": {
+        "va": 279913520,
+        "basis": "Direct call to the class destructor before testing the deletion flag, at RVA 0x1f2403."
+      }
+    },
+    "identification": "Stock ASGameMessages vtable at RVA 0x2f8360, slot 3, points to entry RVA 0x1f2400. Registration at RVA 0x1ebef6 passes placement callback RVA 0x1f23e0, which installs the table at RVA 0x1f23ed. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "aefa0c916a83188425b8b5a8df83fb77478ecc8a351f6c55100f1740af6d2eda"
+    }
+  },
+  {
     "id": "delete-asgameinfo",
     "offset": 2041824,
     "size": 33,
@@ -1448,7 +2072,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "cbc408026f23272e8bf3fc00a8040fd041496b48f0139398084c3c0316841a06"
+      "inputs_sha256": "c98368255b03701eac3f37eab57303501234c1e623722ee87e074f6408c567c2"
     }
   },
   {
@@ -1478,6 +2102,32 @@
     }
   },
   {
+    "id": "delete-asgadtorchelaser",
+    "size": 33,
+    "offset": 2042032,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASGadTorcheLaser@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Conditional free passes the original receiver to slot 2 of the shared engine allocator."
+      },
+      "@destroy_ASGadTorcheLaser@4": {
+        "va": 279914720,
+        "basis": "Direct call to the class destructor before testing the deletion flag, at RVA 0x1f28b3."
+      }
+    },
+    "identification": "Stock ASGadTorcheLaser vtable at RVA 0x2f80f0, slot 3, points to entry RVA 0x1f28b0. Registration at RVA 0x1ebe45 passes placement callback RVA 0x1f2890, which installs the table at RVA 0x1f289d. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "8ff5c3ec719207a9304b668ea5d5cc22472fd3031e69ddeefe1a7d8970336412"
+    }
+  },
+  {
     "id": "place-asgadtorche",
     "offset": 2042224,
     "size": 20,
@@ -1501,6 +2151,32 @@
     "match": {
       "bytes_sha256": "4eeb1a19b2df3fbcaf8efaeeb748ea6b0360fb9c69686c6154f1c00326340ef0",
       "inputs_sha256": "194ddf1f4dba637e1108e2e53b107a73dd7b324abc500c2accbc1668fc5c647e"
+    }
+  },
+  {
+    "id": "delete-asgadtorche",
+    "size": 33,
+    "offset": 2042256,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASGadTorche@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Conditional free passes the original receiver to slot 2 of the shared engine allocator."
+      },
+      "@destroy_ASGadTorche@4": {
+        "va": 279914944,
+        "basis": "Direct call to the class destructor before testing the deletion flag, at RVA 0x1f2993."
+      }
+    },
+    "identification": "Stock ASGadTorche vtable at RVA 0x2f7fb8, slot 3, points to entry RVA 0x1f2990. Registration at RVA 0x1ebde9 passes placement callback RVA 0x1f2970, which installs the table at RVA 0x1f297d. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "d9c49fa8705c6d2c1653a4899ffbf2aa7ec537a8644a4bf2a1492af2bc813971"
     }
   },
   {
@@ -1530,6 +2206,32 @@
     }
   },
   {
+    "id": "delete-asgadtazerlauncher",
+    "size": 33,
+    "offset": 2042480,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASGadTazerLauncher@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Conditional free passes the original receiver to slot 2 of the shared engine allocator."
+      },
+      "@destroy_ASGadTazerLauncher@4": {
+        "va": 279915168,
+        "basis": "Direct call to the class destructor before testing the deletion flag, at RVA 0x1f2a73."
+      }
+    },
+    "identification": "Stock ASGadTazerLauncher vtable at RVA 0x2f7e80, slot 3, points to entry RVA 0x1f2a70. Registration at RVA 0x1ebd8d passes placement callback RVA 0x1f2a50, which installs the table at RVA 0x1f2a5d. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "9bef045313cc7559399233a5bc24ea139048614bfac34e1f6c057b54bbeaded1"
+    }
+  },
+  {
     "id": "delete-asgadstickycam",
     "offset": 2042800,
     "size": 33,
@@ -1552,7 +2254,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "488756c3fb9fa91aed358e7083d03466ee00bf1a21b0542c773b47eb41bed4dd"
+      "inputs_sha256": "036779f1ab294bb443bef9a97339d3461e0c0d931316e4a43a0230f6af12217a"
     }
   },
   {
@@ -1582,6 +2284,32 @@
     }
   },
   {
+    "id": "delete-asgadnoiseemitter",
+    "size": 33,
+    "offset": 2043024,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASGadNoiseEmitter@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Conditional free passes the original receiver to slot 2 of the shared engine allocator."
+      },
+      "@destroy_ASGadNoiseEmitter@4": {
+        "va": 279915712,
+        "basis": "Direct call to the class destructor before testing the deletion flag, at RVA 0x1f2c93."
+      }
+    },
+    "identification": "Stock ASGadNoiseEmitter vtable at RVA 0x2f7c10, slot 3, points to entry RVA 0x1f2c90. Registration at RVA 0x1ebcdb passes placement callback RVA 0x1f2c70, which installs the table at RVA 0x1f2c7d. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "a0e075bab09db9d471af50224f1ec915c88d6be2d1d0275b1c24d9214433d263"
+    }
+  },
+  {
     "id": "place-asgadgrenlauncher",
     "offset": 2043632,
     "size": 20,
@@ -1605,6 +2333,32 @@
     "match": {
       "bytes_sha256": "3c0b37aeb6bb735cac8d112b451a95dff94ebf09684d03f4f45aa87c6334eb9c",
       "inputs_sha256": "82b1923946003a2cab695325a2d29c743d7f72e4d764fb2a2c20dedab60178b9"
+    }
+  },
+  {
+    "id": "delete-asgadgrenlauncher",
+    "size": 33,
+    "offset": 2043664,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASGadGrenLauncher@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Conditional free passes the original receiver to slot 2 of the shared engine allocator."
+      },
+      "@destroy_ASGadGrenLauncher@4": {
+        "va": 279916352,
+        "basis": "Direct call to the class destructor before testing the deletion flag, at RVA 0x1f2f13."
+      }
+    },
+    "identification": "Stock ASGadGrenLauncher vtable at RVA 0x2f79a0, slot 3, points to entry RVA 0x1f2f10. Registration at RVA 0x1ebc26 passes placement callback RVA 0x1f2ef0, which installs the table at RVA 0x1f2efd. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "753be6f6cbd5b4d0731b2d3f8357eb8c7ca8f98a5897d5947de020f3f3800ee5"
     }
   },
   {
@@ -1682,7 +2436,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "ee8b1b11914b44350aa296c711107e6629a48d03a69427ee0f87472c0252cc33"
+      "inputs_sha256": "c711bb31aca1f4e171d9453fa68b16199282216a13d7d72b825901e624630668"
     }
   },
   {
@@ -1712,6 +2466,32 @@
     }
   },
   {
+    "id": "delete-asfraglaunchemitter",
+    "size": 33,
+    "offset": 2044096,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASFragLaunchEmitter@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Conditional free passes the original receiver to slot 2 of the shared engine allocator."
+      },
+      "@destroy_ASFragLaunchEmitter@4": {
+        "va": 279916784,
+        "basis": "Direct call to the class destructor before testing the deletion flag, at RVA 0x1f30c3."
+      }
+    },
+    "identification": "Stock ASFragLaunchEmitter vtable at RVA 0x2f7720, slot 3, points to entry RVA 0x1f30c0. Registration at RVA 0x1ebb18 passes placement callback RVA 0x1f3090, which installs the table at RVA 0x1f30b1. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "3d65e141cbd19c6be9022a6dc51e36f13ae1f223a43aa1dceed53e39ef5801c3"
+    }
+  },
+  {
     "id": "place-asflashbang",
     "offset": 2044256,
     "size": 40,
@@ -1735,6 +2515,32 @@
     "match": {
       "bytes_sha256": "05f60c8d8e28dfdcefb2b845ec2a01f47ba391285133f2a927970d3b487600c2",
       "inputs_sha256": "3d29bf77ac7417d5d6034a360579ae277e4fea24d4c50d9cff3ba35dc78c4439"
+    }
+  },
+  {
+    "id": "delete-asflashbang",
+    "size": 33,
+    "offset": 2044304,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASFlashBang@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Conditional free passes the original receiver to slot 2 of the shared engine allocator."
+      },
+      "@destroy_ASFlashBang@4": {
+        "va": 279916992,
+        "basis": "Direct call to the class destructor before testing the deletion flag, at RVA 0x1f3193."
+      }
+    },
+    "identification": "Stock ASFlashBang vtable at RVA 0x2f75d8, slot 3, points to entry RVA 0x1f3190. Registration at RVA 0x1ebac0 passes placement callback RVA 0x1f3160, which installs the table at RVA 0x1f3181. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "28903be54f9bbd92959653650aa4cd245208ff5b91b63944b37977b11bb4f06e"
     }
   },
   {
@@ -1786,7 +2592,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "0c1e3397a07f43907a4488b70b3622fb46f68e4e6511dacaaba765e5f5686ebc"
+      "inputs_sha256": "c86c7e0f2502697de9f521ca73f98438c838061fc375ed88241c0cf35cce607e"
     }
   },
   {
@@ -1838,7 +2644,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "a1fe1938b2fa74f2ece8ce7c16924c30618ee04820d965634f33a203444d8d4e"
+      "inputs_sha256": "e856636a61c15f89a2e09a7c17bc2078eb453e2c3445201203bd9a5d6a59b5d4"
     }
   },
   {
@@ -1865,6 +2671,32 @@
     "match": {
       "bytes_sha256": "ca1401d2d547d0e4cdf362b245d589ae4ed526bae9007cdde96665f7cc55d508",
       "inputs_sha256": "869bfcf4a28c1f5c405bd17a4ff7b2091eae9bee32fe0dbc15406f2371d7191d"
+    }
+  },
+  {
+    "id": "delete-asfiretrace",
+    "size": 33,
+    "offset": 2044880,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASFireTrace@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Conditional free passes the original receiver to slot 2 of the shared engine allocator."
+      },
+      "@destroy_ASFireTrace@4": {
+        "va": 279917568,
+        "basis": "Direct call to the class destructor before testing the deletion flag, at RVA 0x1f33d3."
+      }
+    },
+    "identification": "Stock ASFireTrace vtable at RVA 0x2f7220, slot 3, points to entry RVA 0x1f33d0. Registration at RVA 0x1eb9b0 passes placement callback RVA 0x1f33b0, which installs the table at RVA 0x1f33bd. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "d88b211cd145de4dea41558aea4421a41b90ac8be8033a0a0265e22cb6624063"
     }
   },
   {
@@ -1916,7 +2748,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "a9cc6e3730c1b9ef10d26428794dc54d124b4cfb9cd1703e7be2dea1a1fb399c"
+      "inputs_sha256": "610612be220894256f387bd8c93da745d30d6724b298a4577788dc54e9656161"
     }
   },
   {
@@ -1968,7 +2800,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "8811821b0b7d8f12cbc6b57b27bc0529018d1ad8f689baebe670be81c5088086"
+      "inputs_sha256": "8ba3dc5a557fa02150f3ccd7e5d1f9392ea6f5eb39791990040fb965a0700225"
     }
   },
   {
@@ -1998,6 +2830,32 @@
     }
   },
   {
+    "id": "delete-aschaffeemitter",
+    "size": 33,
+    "offset": 2045488,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASChaffeEmitter@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Conditional free passes the original receiver to slot 2 of the shared engine allocator."
+      },
+      "@destroy_ASChaffeEmitter@4": {
+        "va": 279918176,
+        "basis": "Direct call to the class destructor before testing the deletion flag, at RVA 0x1f3633."
+      }
+    },
+    "identification": "Stock ASChaffeEmitter vtable at RVA 0x2f6e58, slot 3, points to entry RVA 0x1f3630. Registration at RVA 0x1eb89c passes placement callback RVA 0x1f3600, which installs the table at RVA 0x1f3621. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "ed3ad8e7703434eb02b05fed66db7bbf0c8b70b199273ac5d573be100eca76b5"
+    }
+  },
+  {
     "id": "place-ascamera",
     "offset": 2045648,
     "size": 20,
@@ -2021,6 +2879,32 @@
     "match": {
       "bytes_sha256": "720cf66f0d5c510ee6c4c00c646c2b84ec9d312ce73ff05713f3c52bc4d993f3",
       "inputs_sha256": "82347081706e62718cdb813b23f27d3478a60c822d6cbac7b72aa942e4f49861"
+    }
+  },
+  {
+    "id": "delete-ascamera",
+    "size": 33,
+    "offset": 2045680,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASCamera@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Conditional free passes the original receiver to slot 2 of the shared engine allocator."
+      },
+      "@destroy_ASCamera@4": {
+        "va": 279918368,
+        "basis": "Direct call to the class destructor before testing the deletion flag, at RVA 0x1f36f3."
+      }
+    },
+    "identification": "Stock ASCamera vtable at RVA 0x2f6d20, slot 3, points to entry RVA 0x1f36f0. Registration at RVA 0x1eb844 passes placement callback RVA 0x1f36d0, which installs the table at RVA 0x1f36dd. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "8b61918a6b020d1b3e290e56631b8a42a3163a8439b717a3576714ea31e8a6a7"
     }
   },
   {
@@ -2072,7 +2956,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "508c86b9960a04f0b3fdf8b4e5e076ef2774af06ab2a8fc717d9e73c505d15b7"
+      "inputs_sha256": "09be99598816b8751e19054f81d82d857bdcfb3ff98db13000ca8da76dde8ea1"
     }
   },
   {
@@ -2099,6 +2983,32 @@
     "match": {
       "bytes_sha256": "2ef800e9b8b2454cf2fb1c3cc96b7a5d7a47a6cacc5c862c3432c2f2f8b75aca",
       "inputs_sha256": "8f7153fdccd7043fb39733e240dbe017ef51c8a67319fb3bb7afea6d4a7d5323"
+    }
+  },
+  {
+    "id": "delete-asbloodsplat",
+    "size": 33,
+    "offset": 2046080,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASBloodSplat@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Conditional free passes the original receiver to slot 2 of the shared engine allocator."
+      },
+      "@destroy_ASBloodSplat@4": {
+        "va": 279918768,
+        "basis": "Direct call to the class destructor before testing the deletion flag, at RVA 0x1f3883."
+      }
+    },
+    "identification": "Stock ASBloodSplat vtable at RVA 0x2f6a90, slot 3, points to entry RVA 0x1f3880. Registration at RVA 0x1eb78c passes placement callback RVA 0x1f3850, which installs the table at RVA 0x1f3871. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "0a0651e68916765716fbec45037d80f82b37d3e21a60ef7725770f9b4c6a998b"
     }
   },
   {
@@ -2176,7 +3086,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "b2e266620b2c717d9a8c0ccb7827afbbb8a457630f090fa91aae69b1f86ee715"
+      "inputs_sha256": "ad2664c09147cd35999fcd0f0b7d159f3b19e08f3847c305d5278fc0b51024ee"
     }
   },
   {
@@ -2228,7 +3138,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "5de1f1d3d282d508ca12300785dd6938c3800a661eb1c675274f5268e158145c"
+      "inputs_sha256": "61059f8908f29965cf6c55d20ba10d22ab64a2f4dc7edf6c6abda0536a901506"
     }
   },
   {
@@ -2280,7 +3190,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "dcf2699a2e9090e0402efd138be4d22549c675612347384e1f8b2ecc898f04a2"
+      "inputs_sha256": "97feeb50f17853161defc1de1883679edc55212f071262aec118a24021c563ab"
     }
   },
   {
@@ -2332,7 +3242,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "8071b7ad63b5f319d6b5f645200d46a760b6da7524da120513880f6bafdf53e9"
+      "inputs_sha256": "5c3cd6f66cc46c0170ec91ef5cc9874fad2e72031cb06363e74202f45dde1ed1"
     }
   },
   {
@@ -2362,6 +3272,32 @@
     }
   },
   {
+    "id": "delete-asflareemitter",
+    "size": 33,
+    "offset": 2047248,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASFlareEmitter@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Conditional free passes the original receiver to slot 2 of the shared engine allocator."
+      },
+      "@destroy_ASFlareEmitter@4": {
+        "va": 279919936,
+        "basis": "Direct call to the class destructor before testing the deletion flag, at RVA 0x1f3d13."
+      }
+    },
+    "identification": "Stock ASFlareEmitter vtable at RVA 0x2f6468, slot 3, points to entry RVA 0x1f3d10. Registration at RVA 0x1eb568 passes placement callback RVA 0x1f3ce0, which installs the table at RVA 0x1f3d01. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "e6d56d0a1c557e992695f039216c51400ef5fafc13b9bcd0fba96905494af440"
+    }
+  },
+  {
     "id": "place-asflarecourseemitter",
     "offset": 2047408,
     "size": 40,
@@ -2385,6 +3321,32 @@
     "match": {
       "bytes_sha256": "cd3837827ffcf5c3ebf205c323bfd576d28b1db4f0bdf4d6f83bf6f681037c32",
       "inputs_sha256": "691f9be90b76400a8cafe703c3252b10438bb891947f4c217123bd0fbe93a7a6"
+    }
+  },
+  {
+    "id": "delete-asflarecourseemitter",
+    "size": 33,
+    "offset": 2047456,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASFlareCourseEmitter@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Conditional free passes the original receiver to slot 2 of the shared engine allocator."
+      },
+      "@destroy_ASFlareCourseEmitter@4": {
+        "va": 279920144,
+        "basis": "Direct call to the class destructor before testing the deletion flag, at RVA 0x1f3de3."
+      }
+    },
+    "identification": "Stock ASFlareCourseEmitter vtable at RVA 0x2f6320, slot 3, points to entry RVA 0x1f3de0. Registration at RVA 0x1eb510 passes placement callback RVA 0x1f3db0, which installs the table at RVA 0x1f3dd1. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "0dac3e22a0f86c11c90b11aa8cd43a1420545ec8d1f6ce47fe0fd58a548baf67"
     }
   },
   {
@@ -2414,6 +3376,32 @@
     }
   },
   {
+    "id": "delete-asextincteuremitter",
+    "size": 33,
+    "offset": 2047664,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASExtincteurEmitter@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Conditional free passes the original receiver to slot 2 of the shared engine allocator."
+      },
+      "@destroy_ASExtincteurEmitter@4": {
+        "va": 279920352,
+        "basis": "Direct call to the class destructor before testing the deletion flag, at RVA 0x1f3eb3."
+      }
+    },
+    "identification": "Stock ASExtincteurEmitter vtable at RVA 0x2f61d8, slot 3, points to entry RVA 0x1f3eb0. Registration at RVA 0x1eb4b8 passes placement callback RVA 0x1f3e80, which installs the table at RVA 0x1f3ea1. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "ab11bb02374264bf0a9a206795f1bf4686b6bf07c2ef37467a707be0b2ff6314"
+    }
+  },
+  {
     "id": "place-asflashlight",
     "offset": 2047824,
     "size": 20,
@@ -2437,6 +3425,32 @@
     "match": {
       "bytes_sha256": "5b72726caad38c4c70f36c691adcfb69f8844099810921be2ab082091ca56bf4",
       "inputs_sha256": "3249ebd116259914183031246975c205d0038904771f950c24bb484e23545c1c"
+    }
+  },
+  {
+    "id": "delete-asflashlight",
+    "size": 33,
+    "offset": 2047856,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASFlashLight@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Conditional free passes the original receiver to slot 2 of the shared engine allocator."
+      },
+      "@destroy_ASFlashLight@4": {
+        "va": 279920544,
+        "basis": "Direct call to the class destructor before testing the deletion flag, at RVA 0x1f3f73."
+      }
+    },
+    "identification": "Stock ASFlashLight vtable at RVA 0x2f60a0, slot 3, points to entry RVA 0x1f3f70. Registration at RVA 0x1eb460 passes placement callback RVA 0x1f3f50, which installs the table at RVA 0x1f3f5d. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "ea55c931c1f9258badbc9bf715ee9abad3de96f5679d343d9a05582a5dc11070"
     }
   },
   {
@@ -2466,6 +3480,32 @@
     }
   },
   {
+    "id": "delete-asflashlight-fraggrenade",
+    "size": 33,
+    "offset": 2048048,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASFlashLight_FragGrenade@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Conditional free passes the original receiver to slot 2 of the shared engine allocator."
+      },
+      "@destroy_ASFlashLight_FragGrenade@4": {
+        "va": 279920736,
+        "basis": "Direct call to the class destructor before testing the deletion flag, at RVA 0x1f4033."
+      }
+    },
+    "identification": "Stock ASFlashLight_FragGrenade vtable at RVA 0x2f5f68, slot 3, points to entry RVA 0x1f4030. Registration at RVA 0x1eb408 passes placement callback RVA 0x1f4010, which installs the table at RVA 0x1f401d. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "942da6e4098ebaee9a1db1d1da6ef80f7b68ddc97d39659258b554bf45098b8a"
+    }
+  },
+  {
     "id": "place-asdouilleemitter",
     "offset": 2048208,
     "size": 40,
@@ -2489,6 +3529,32 @@
     "match": {
       "bytes_sha256": "391a65a0f9b3221291d36f1bad7c54c5748eb48c518b64296ccff4074c256e5b",
       "inputs_sha256": "6c8fd798905664c9eb87db81471753afb2d24a7d05719397407e9d3153084b94"
+    }
+  },
+  {
+    "id": "delete-asdouilleemitter",
+    "size": 33,
+    "offset": 2048256,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASDouilleEmitter@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Conditional free passes the original receiver to slot 2 of the shared engine allocator."
+      },
+      "@destroy_ASDouilleEmitter@4": {
+        "va": 279920944,
+        "basis": "Direct call to the class destructor before testing the deletion flag, at RVA 0x1f4103."
+      }
+    },
+    "identification": "Stock ASDouilleEmitter vtable at RVA 0x2f5e20, slot 3, points to entry RVA 0x1f4100. Registration at RVA 0x1eb3b0 passes placement callback RVA 0x1f40d0, which installs the table at RVA 0x1f40f1. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "cc82068ab1ae2bae28e191602fed905042089552b5d6d74a5c85a7f624812138"
     }
   },
   {
@@ -2518,6 +3584,32 @@
     }
   },
   {
+    "id": "delete-astazeremitter",
+    "size": 33,
+    "offset": 2048448,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASTazerEmitter@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Conditional free passes the original receiver to slot 2 of the shared engine allocator."
+      },
+      "@destroy_ASTazerEmitter@4": {
+        "va": 279921136,
+        "basis": "Direct call to the class destructor before testing the deletion flag, at RVA 0x1f41c3."
+      }
+    },
+    "identification": "Stock ASTazerEmitter vtable at RVA 0x2f5ce8, slot 3, points to entry RVA 0x1f41c0. Registration at RVA 0x1eb358 passes placement callback RVA 0x1f41a0, which installs the table at RVA 0x1f41ad. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "9748eafcc888545cdedeab175d5c9ad1548d276ccd7ef71ad9a9dbca2566da79"
+    }
+  },
+  {
     "id": "place-asminepiegespy",
     "offset": 2048608,
     "size": 20,
@@ -2541,6 +3633,32 @@
     "match": {
       "bytes_sha256": "922028fa90ae095329851b8aa765200015bf8e0bd572de411cc0bcecb04de769",
       "inputs_sha256": "b364328c60c3232cc2d1121d4e4ae3d60f55d22163b142709c021880512002b3"
+    }
+  },
+  {
+    "id": "delete-asminepiegespy",
+    "size": 33,
+    "offset": 2048640,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASMinePiegeSpy@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Conditional free passes the original receiver to slot 2 of the shared engine allocator."
+      },
+      "@destroy_ASMinePiegeSpy@4": {
+        "va": 279921328,
+        "basis": "Direct call to the class destructor before testing the deletion flag, at RVA 0x1f4283."
+      }
+    },
+    "identification": "Stock ASMinePiegeSpy vtable at RVA 0x2f5bb0, slot 3, points to entry RVA 0x1f4280. Registration at RVA 0x1eb2fc passes placement callback RVA 0x1f4260, which installs the table at RVA 0x1f426d. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "616e5e378202cb752d8dd4660f13f592dc1677ccf878cc80c0a35caebfececd7"
     }
   },
   {
@@ -2592,7 +3710,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "6dacd3b2740b99113b20707f84cd95ca6da2c0f6438b8aa37f474639feb116be"
+      "inputs_sha256": "271a5c19a82d9aff8e73f28046c6834f71a31a4e5480ed2129309625d41b18d9"
     }
   },
   {
@@ -2622,6 +3740,32 @@
     }
   },
   {
+    "id": "delete-asmineproxinteraction",
+    "size": 33,
+    "offset": 2049024,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASMineProxInteraction@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Conditional free passes the original receiver to slot 2 of the shared engine allocator."
+      },
+      "@destroy_ASMineProxInteraction@4": {
+        "va": 279921712,
+        "basis": "Direct call to the class destructor before testing the deletion flag, at RVA 0x1f4403."
+      }
+    },
+    "identification": "Stock ASMineProxInteraction vtable at RVA 0x2f5930, slot 3, points to entry RVA 0x1f4400. Registration at RVA 0x1eb248 passes placement callback RVA 0x1f43e0, which installs the table at RVA 0x1f43ed. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "447d8152778cf609eefc539235d5f59d4404c9edf76e87b59bbe4d22589e6c1f"
+    }
+  },
+  {
     "id": "place-asextincteur",
     "offset": 2049184,
     "size": 20,
@@ -2645,6 +3789,32 @@
     "match": {
       "bytes_sha256": "846b502bdf516582fb4fd506475a844398e71abab95862d5e70d8b399daebebd",
       "inputs_sha256": "a0e2d125f8990524e0531a4c3c3b698a2b61aa4e59c44c2c2cd0a22a200a16d8"
+    }
+  },
+  {
+    "id": "delete-asextincteur",
+    "size": 33,
+    "offset": 2049216,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASExtincteur@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Conditional free passes the original receiver to slot 2 of the shared engine allocator."
+      },
+      "@destroy_ASExtincteur@4": {
+        "va": 279921904,
+        "basis": "Direct call to the class destructor before testing the deletion flag, at RVA 0x1f44c3."
+      }
+    },
+    "identification": "Stock ASExtincteur vtable at RVA 0x2f57f8, slot 3, points to entry RVA 0x1f44c0. Registration at RVA 0x1eb1f0 passes placement callback RVA 0x1f44a0, which installs the table at RVA 0x1f44ad. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "f09804a88501382616b302107b9d4951d783e602ba819ba9a15614458c62509f"
     }
   },
   {
@@ -2696,7 +3866,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "5cbbd4a4a8f1dc6a2fd706aa5da135f18f9aa824b5e5c89ef2c196ff8a240d50"
+      "inputs_sha256": "f5c0c9a87c3341ed4b28c843dcf5e55f72ad87c39d02e305468a49e4d53299dd"
     }
   },
   {
@@ -2748,7 +3918,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "9a6eb1a09fb6854de793497607b1eeff8026ba694e2a39f6a284b650ee5b050f"
+      "inputs_sha256": "d89b666626cd973e9c3d5ae3113bb4cbf23b62396a981564a51d399f958ff48f"
     }
   },
   {
@@ -2778,6 +3948,32 @@
     }
   },
   {
+    "id": "delete-asgadphospholauncher",
+    "size": 33,
+    "offset": 2049824,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASGadPhosphoLauncher@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Conditional free passes the original receiver to slot 2 of the shared engine allocator."
+      },
+      "@destroy_ASGadPhosphoLauncher@4": {
+        "va": 279922512,
+        "basis": "Direct call to the class destructor before testing the deletion flag, at RVA 0x1f4723."
+      }
+    },
+    "identification": "Stock ASGadPhosphoLauncher vtable at RVA 0x2f5448, slot 3, points to entry RVA 0x1f4720. Registration at RVA 0x1eb0e3 passes placement callback RVA 0x1f4700, which installs the table at RVA 0x1f470d. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "cbfcebafccd94414e25fc42ee297f0af461e07003fcaa8687a25ad9b0e3a07bb"
+    }
+  },
+  {
     "id": "place-asgadfraggrenade",
     "offset": 2049984,
     "size": 20,
@@ -2804,6 +4000,32 @@
     }
   },
   {
+    "id": "delete-asgadfraggrenade",
+    "size": 33,
+    "offset": 2050016,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASGadFragGrenade@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Conditional free passes the original receiver to slot 2 of the shared engine allocator."
+      },
+      "@destroy_ASGadFragGrenade@4": {
+        "va": 279922704,
+        "basis": "Direct call to the class destructor before testing the deletion flag, at RVA 0x1f47e3."
+      }
+    },
+    "identification": "Stock ASGadFragGrenade vtable at RVA 0x2f5310, slot 3, points to entry RVA 0x1f47e0. Registration at RVA 0x1eb08a passes placement callback RVA 0x1f47c0, which installs the table at RVA 0x1f47cd. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "ca6446ff1bf03f08913603249bb2dce0e814e78b929d2a6920c314e11f0ffe40"
+    }
+  },
+  {
     "id": "place-asgadflarelauncher",
     "offset": 2050176,
     "size": 20,
@@ -2827,6 +4049,32 @@
     "match": {
       "bytes_sha256": "f9c95bb5b283a58b426ef91fb2a23cbd34f39cc25c794cde98ab013d992d8971",
       "inputs_sha256": "4a0a3d40251743086359f351581a1de46a6b6724b1210c40975d26aa3a61efaf"
+    }
+  },
+  {
+    "id": "delete-asgadflarelauncher",
+    "size": 33,
+    "offset": 2050208,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASGadFlareLauncher@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Conditional free passes the original receiver to slot 2 of the shared engine allocator."
+      },
+      "@destroy_ASGadFlareLauncher@4": {
+        "va": 279922896,
+        "basis": "Direct call to the class destructor before testing the deletion flag, at RVA 0x1f48a3."
+      }
+    },
+    "identification": "Stock ASGadFlareLauncher vtable at RVA 0x2f51d8, slot 3, points to entry RVA 0x1f48a0. Registration at RVA 0x1eb031 passes placement callback RVA 0x1f4880, which installs the table at RVA 0x1f488d. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "2c4a5f3281332cba7ce2ea3c15ee96514dbab6250c1137ad2d8bd1c0770a2618"
     }
   },
   {
@@ -2878,7 +4126,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "2f35920a69f64ddcd7c2d73177f7f0352cebafd5f1d83d0596844a2e50b47680"
+      "inputs_sha256": "ba36e068628913ba39fcc703ff83add15888d24abaf478c5d2d2e149b8d34764"
     }
   },
   {
@@ -2908,6 +4156,32 @@
     }
   },
   {
+    "id": "delete-asgadflashbang",
+    "size": 33,
+    "offset": 2050592,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASGadFlashBang@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Conditional free passes the original receiver to slot 2 of the shared engine allocator."
+      },
+      "@destroy_ASGadFlashBang@4": {
+        "va": 279923280,
+        "basis": "Direct call to the class destructor before testing the deletion flag, at RVA 0x1f4a23."
+      }
+    },
+    "identification": "Stock ASGadFlashBang vtable at RVA 0x2f4f68, slot 3, points to entry RVA 0x1f4a20. Registration at RVA 0x1eaf7f passes placement callback RVA 0x1f4a00, which installs the table at RVA 0x1f4a0d. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "29e68c2528a4238e81c22d2e9e6bc1295d9fe3767c99a87cfd8928872f039744"
+    }
+  },
+  {
     "id": "place-asgadcamnetwork",
     "offset": 2050752,
     "size": 20,
@@ -2931,6 +4205,32 @@
     "match": {
       "bytes_sha256": "c0303c3f16ab588cdb4c26cf69b9eaa1a74c6eaea77772632a812d7e6858ef0a",
       "inputs_sha256": "49b7603aa01311172ee929480f8af680ccfb6d984a7f6d1a321dc49b06978b5b"
+    }
+  },
+  {
+    "id": "delete-asgadcamnetwork",
+    "size": 33,
+    "offset": 2050784,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASGadCamNetwork@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Conditional free passes the original receiver to slot 2 of the shared engine allocator."
+      },
+      "@destroy_ASGadCamNetwork@4": {
+        "va": 279923472,
+        "basis": "Direct call to the class destructor before testing the deletion flag, at RVA 0x1f4ae3."
+      }
+    },
+    "identification": "Stock ASGadCamNetwork vtable at RVA 0x2f4e30, slot 3, points to entry RVA 0x1f4ae0. Registration at RVA 0x1eaf26 passes placement callback RVA 0x1f4ac0, which installs the table at RVA 0x1f4acd. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "b75429d9e357eeecc4d6f0c6ef4575e60077b3ce1b8cb28da6747124779ec6f5"
     }
   },
   {
@@ -2960,6 +4260,32 @@
     }
   },
   {
+    "id": "delete-asstickycam",
+    "size": 33,
+    "offset": 2050976,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASStickyCam@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Conditional free passes the original receiver to slot 2 of the shared engine allocator."
+      },
+      "@destroy_ASStickyCam@4": {
+        "va": 279923664,
+        "basis": "Direct call to the class destructor before testing the deletion flag, at RVA 0x1f4ba3."
+      }
+    },
+    "identification": "Stock ASStickyCam vtable at RVA 0x2f4cf8, slot 3, points to entry RVA 0x1f4ba0. Registration at RVA 0x1eae71 passes placement callback RVA 0x1f4d00, which installs the table at RVA 0x1f4d0d. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "53d3a42e70d026c921ed932e088b620e165e2d1349e9447c912e40ddccb21f4f"
+    }
+  },
+  {
     "id": "delete-ascamnetwork",
     "offset": 2051136,
     "size": 33,
@@ -2982,7 +4308,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "7458cb59a3a8fa0fb5bb5baa2693b1f1d5b413ba23d5306432aca2fb6784a57b"
+      "inputs_sha256": "647c7205ffd356e0e1102de640be184ae51a1067b1e73cc04d560ee6d1d5ec18"
     }
   },
   {
@@ -3038,6 +4364,32 @@
     }
   },
   {
+    "id": "delete-asweapondefense-shotgun",
+    "size": 33,
+    "offset": 2051392,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASWeaponDefense_Shotgun@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Conditional free passes the original receiver to slot 2 of the shared engine allocator."
+      },
+      "@destroy_ASWeaponDefense_Shotgun@4": {
+        "va": 279924080,
+        "basis": "Direct call to the class destructor before testing the deletion flag, at RVA 0x1f4d43."
+      }
+    },
+    "identification": "Stock ASWeaponDefense_Shotgun vtable at RVA 0x2f4a88, slot 3, points to entry RVA 0x1f4d40. Registration at RVA 0x1eae15 passes placement callback RVA 0x1f4d20, which installs the table at RVA 0x1f4d2d. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "c9d62e0cce13243d788b6f3292aeb1b99e7462971eabd1d887fc94e211bc67b7"
+    }
+  },
+  {
     "id": "place-asimpacteffectshockermetal",
     "offset": 2051552,
     "size": 20,
@@ -3061,6 +4413,32 @@
     "match": {
       "bytes_sha256": "35e64a69bdcea0b64e9099cadc554c8f7e896aeeb3649b8d7126ee18b3e8eb82",
       "inputs_sha256": "53b60544a5171f6455229e26ab9058b1ab30e06d315edf8c9a2fe26d4bc20c25"
+    }
+  },
+  {
+    "id": "delete-asimpacteffectshockermetal",
+    "size": 33,
+    "offset": 2051584,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASImpactEffectShockerMetal@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Conditional free passes the original receiver to slot 2 of the shared engine allocator."
+      },
+      "@destroy_ASImpactEffectShockerMetal@4": {
+        "va": 279924272,
+        "basis": "Direct call to the class destructor before testing the deletion flag, at RVA 0x1f4e03."
+      }
+    },
+    "identification": "Stock ASImpactEffectShockerMetal vtable at RVA 0x2f4950, slot 3, points to entry RVA 0x1f4e00. Registration at RVA 0x1eadbc passes placement callback RVA 0x1f4de0, which installs the table at RVA 0x1f4ded. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "75726cbf258f20bd941e313a89cb4aed4fc9920ce2abf0454c0d735a2b94c82f"
     }
   },
   {
@@ -3090,6 +4468,32 @@
     }
   },
   {
+    "id": "delete-asimpacteffectshocker",
+    "size": 33,
+    "offset": 2051776,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASImpactEffectShocker@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Conditional free passes the original receiver to slot 2 of the shared engine allocator."
+      },
+      "@destroy_ASImpactEffectShocker@4": {
+        "va": 279924464,
+        "basis": "Direct call to the class destructor before testing the deletion flag, at RVA 0x1f4ec3."
+      }
+    },
+    "identification": "Stock ASImpactEffectShocker vtable at RVA 0x2f4818, slot 3, points to entry RVA 0x1f4ec0. Registration at RVA 0x1ead64 passes placement callback RVA 0x1f4ea0, which installs the table at RVA 0x1f4ead. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "5d356ce8494f3ee13d08a34d830a22c3c4a59781c4d8a40c11e1218beb9326be"
+    }
+  },
+  {
     "id": "place-asminepoison",
     "offset": 2051936,
     "size": 20,
@@ -3113,6 +4517,32 @@
     "match": {
       "bytes_sha256": "f9c8ef184db1f9ee97707fadb74777f61cae87be366723ee48955d6d7c670a91",
       "inputs_sha256": "779eac7ef1e2610c8bbd736c5c66d25dac0c462789d819661c527f13c76a3c84"
+    }
+  },
+  {
+    "id": "delete-asminepoison",
+    "size": 33,
+    "offset": 2051968,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASMinePoison@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Conditional free passes the original receiver to slot 2 of the shared engine allocator."
+      },
+      "@destroy_ASMinePoison@4": {
+        "va": 279924656,
+        "basis": "Direct call to the class destructor before testing the deletion flag, at RVA 0x1f4f83."
+      }
+    },
+    "identification": "Stock ASMinePoison vtable at RVA 0x2f46e0, slot 3, points to entry RVA 0x1f4f80. Registration at RVA 0x1ead0c passes placement callback RVA 0x1f4f60, which installs the table at RVA 0x1f4f6d. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "6aaabbe5ce853edff13f2d37ec025c5fcf0e223b9251c2c476fa5f6458a4a1d4"
     }
   },
   {
@@ -3142,6 +4572,32 @@
     }
   },
   {
+    "id": "delete-asgadgasmask",
+    "size": 33,
+    "offset": 2052160,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASGadGasMask@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Conditional free passes the original receiver to slot 2 of the shared engine allocator."
+      },
+      "@destroy_ASGadGasMask@4": {
+        "va": 279924848,
+        "basis": "Direct call to the class destructor before testing the deletion flag, at RVA 0x1f5043."
+      }
+    },
+    "identification": "Stock ASGadGasMask vtable at RVA 0x2f45a8, slot 3, points to entry RVA 0x1f5040. Registration at RVA 0x1eacb4 passes placement callback RVA 0x1f5020, which installs the table at RVA 0x1f502d. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "98ec5639dc9ac7b8d4a37d9445b14f7b2b2760b3d3b888a907a608e26bb2c765"
+    }
+  },
+  {
     "id": "place-asgadbackpack",
     "offset": 2052336,
     "size": 20,
@@ -3168,6 +4624,32 @@
     }
   },
   {
+    "id": "delete-asgadbackpack",
+    "size": 33,
+    "offset": 2052368,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASGadBackPack@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Conditional free passes the original receiver to slot 2 of the shared engine allocator."
+      },
+      "@destroy_ASGadBackPack@4": {
+        "va": 279925056,
+        "basis": "Direct call to the class destructor before testing the deletion flag, at RVA 0x1f5113."
+      }
+    },
+    "identification": "Stock ASGadBackPack vtable at RVA 0x2f4470, slot 3, points to entry RVA 0x1f5110. Registration at RVA 0x1eac5b passes placement callback RVA 0x1f50f0, which installs the table at RVA 0x1f50fd. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "54b1031b0c9903998dfc943fe55d54e83bd78fc3cb538e0d8a91821e73d8d034"
+    }
+  },
+  {
     "id": "place-asmateinteraction",
     "offset": 2052544,
     "size": 20,
@@ -3191,6 +4673,32 @@
     "match": {
       "bytes_sha256": "643db63a5c61c9e930acee5da31cab5b4d9902a2a7f98801397c55d8091dc362",
       "inputs_sha256": "7d177891f9d5dcd74c347f3d2fd45664f0cf4fb6d496d83494073813ab70bd04"
+    }
+  },
+  {
+    "id": "delete-asmateinteraction",
+    "size": 33,
+    "offset": 2052576,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASMateInteraction@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Conditional free passes the original receiver to slot 2 of the shared engine allocator."
+      },
+      "@destroy_ASMateInteraction@4": {
+        "va": 279925264,
+        "basis": "Direct call to the class destructor before testing the deletion flag, at RVA 0x1f51e3."
+      }
+    },
+    "identification": "Stock ASMateInteraction vtable at RVA 0x2f4330, slot 3, points to entry RVA 0x1f51e0. Registration at RVA 0x1eac02 passes placement callback RVA 0x1f51c0, which installs the table at RVA 0x1f51cd. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "6b77085b33e511e3d1c6152d6d01763894e3a2c87dd033e84987f5136aa70025"
     }
   },
   {
@@ -3242,7 +4750,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "7153a468ebe93433afeed493540471b80f9aae3c2d665b728c1924b46fade994"
+      "inputs_sha256": "65b50cba34dc3a70de23784e560a0cd3e39078fe361b8c1e6b1c17eeafb92e8c"
     }
   },
   {
@@ -3294,7 +4802,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "733a84e305888f894f0d90489c5a38e98b9a356d76798d371e0782023288f0ec"
+      "inputs_sha256": "a4fe8135e4b5449e79bbf0709e112925526c970701096677fdea45b95c8e47e1"
     }
   },
   {
@@ -3346,7 +4854,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "29dd453d5a1b038a0ebf6dd903533d119ec7ef1b45d6871bd1082ada2ff71d21"
+      "inputs_sha256": "4a53a8d171fd41176c947c8933b5021d8d35129514320a4b6ff5090ad256dd97"
     }
   },
   {
@@ -3376,6 +4884,32 @@
     }
   },
   {
+    "id": "delete-asweapondefense-uzi",
+    "size": 33,
+    "offset": 2053344,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASWeaponDefense_Uzi@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Conditional free passes the original receiver to slot 2 of the shared engine allocator."
+      },
+      "@destroy_ASWeaponDefense_Uzi@4": {
+        "va": 279926032,
+        "basis": "Direct call to the class destructor before testing the deletion flag, at RVA 0x1f54e3."
+      }
+    },
+    "identification": "Stock ASWeaponDefense_Uzi vtable at RVA 0x2f3e38, slot 3, points to entry RVA 0x1f54e0. Registration at RVA 0x1eaa9e passes placement callback RVA 0x1f54c0, which installs the table at RVA 0x1f54cd. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "d92053adb213607858974e05778ca9f85af92cf31be5ab4f762c848b83583159"
+    }
+  },
+  {
     "id": "place-asweapondefensedummy-shotgun",
     "offset": 2053504,
     "size": 20,
@@ -3399,6 +4933,32 @@
     "match": {
       "bytes_sha256": "86662dca1aefaacca0f631642002128fa9915aa821e5ff2633226eb13ed20595",
       "inputs_sha256": "0aea6613eef519f1ecd064596604d0513e18e597c61c0d327005bb66ffd015ee"
+    }
+  },
+  {
+    "id": "delete-asweapondefensedummy-shotgun",
+    "size": 33,
+    "offset": 2053536,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASWeaponDefenseDummy_Shotgun@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Conditional free passes the original receiver to slot 2 of the shared engine allocator."
+      },
+      "@destroy_ASWeaponDefenseDummy_Shotgun@4": {
+        "va": 279926224,
+        "basis": "Direct call to the class destructor before testing the deletion flag, at RVA 0x1f55a3."
+      }
+    },
+    "identification": "Stock ASWeaponDefenseDummy_Shotgun vtable at RVA 0x2f3d00, slot 3, points to entry RVA 0x1f55a0. Registration at RVA 0x1eaa45 passes placement callback RVA 0x1f5580, which installs the table at RVA 0x1f558d. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "d89ded147b15c5ca27b1ecb4a3197656e5ad52d9743699d623f3ded9107726ad"
     }
   },
   {
@@ -3428,6 +4988,58 @@
     }
   },
   {
+    "id": "delete-asweapondefensedummy-uzi",
+    "size": 33,
+    "offset": 2053728,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASWeaponDefenseDummy_Uzi@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Conditional free passes the original receiver to slot 2 of the shared engine allocator."
+      },
+      "@destroy_ASWeaponDefenseDummy_Uzi@4": {
+        "va": 279926416,
+        "basis": "Direct call to the class destructor before testing the deletion flag, at RVA 0x1f5663."
+      }
+    },
+    "identification": "Stock ASWeaponDefenseDummy_Uzi vtable at RVA 0x2f3bc8, slot 3, points to entry RVA 0x1f5660. Registration at RVA 0x1ea9e9 passes placement callback RVA 0x1f5640, which installs the table at RVA 0x1f564d. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "69c83d36cd7d9bcfb21a247943485c0c3e2e1215e7eee323a0f57c80a3d84c01"
+    }
+  },
+  {
+    "id": "delete-asgadmultipresdetectorlauncher",
+    "size": 33,
+    "offset": 2053968,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASGadMultiPresDetectorLauncher@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Conditional free passes the original receiver to slot 2 of the shared engine allocator."
+      },
+      "@destroy_ASGadMultiPresDetectorLauncher@4": {
+        "va": 279926656,
+        "basis": "Direct call to the class destructor before testing the deletion flag, at RVA 0x1f5753."
+      }
+    },
+    "identification": "Stock ASGadMultiPresDetectorLauncher vtable at RVA 0x2f3a90, slot 3, points to entry RVA 0x1f5750. Registration at RVA 0x1ea991 passes placement callback RVA 0x1f5700, which installs the table at RVA 0x1f5731. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "ea9ca627ca0fec7e6138a01198225c22523b0a60e86e018aba316dc4130cbdc1"
+    }
+  },
+  {
     "id": "place-aspoisonemitter",
     "offset": 2054128,
     "size": 40,
@@ -3451,6 +5063,32 @@
     "match": {
       "bytes_sha256": "8e3dacd7156b55b0759fcd63e323999bab08a14aaff517750bdc983d701924c5",
       "inputs_sha256": "28bcd32e4d8b75ac10eb21dc3ed55337cb9ed1fb60dce8dab0a4265411a5845a"
+    }
+  },
+  {
+    "id": "delete-aspoisonemitter",
+    "size": 33,
+    "offset": 2054176,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASPoisonEmitter@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Conditional free passes the original receiver to slot 2 of the shared engine allocator."
+      },
+      "@destroy_ASPoisonEmitter@4": {
+        "va": 279926864,
+        "basis": "Direct call to the class destructor before testing the deletion flag, at RVA 0x1f5823."
+      }
+    },
+    "identification": "Stock ASPoisonEmitter vtable at RVA 0x2f3948, slot 3, points to entry RVA 0x1f5820. Registration at RVA 0x1ea938 passes placement callback RVA 0x1f57f0, which installs the table at RVA 0x1f5811. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "fe7ceec2ec203adc7073a90e9870656af08a4a779237af8aff3efe2077dcd7dc"
     }
   },
   {
@@ -3502,7 +5140,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "a90f0ca41bcf106ed030f944eb18961ef0e3cb6aa3cc39bfacd2dd39ea1c3fb3"
+      "inputs_sha256": "e26a2244f53c1e05166163b9b63eb7c2fb0d9cccd5971c371ba62df06b0c8bcc"
     }
   },
   {
@@ -3532,6 +5170,32 @@
     }
   },
   {
+    "id": "delete-ascoronalight",
+    "size": 33,
+    "offset": 2054560,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASCoronaLight@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Conditional free passes the original receiver to slot 2 of the shared engine allocator."
+      },
+      "@destroy_ASCoronaLight@4": {
+        "va": 279927248,
+        "basis": "Direct call to the class destructor before testing the deletion flag, at RVA 0x1f59a3."
+      }
+    },
+    "identification": "Stock ASCoronaLight vtable at RVA 0x2f36d8, slot 3, points to entry RVA 0x1f59a0. Registration at RVA 0x1ea887 passes placement callback RVA 0x1f5980, which installs the table at RVA 0x1f598d. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "06f440925ebd6152ccb2042a94baeda88a059ddfde664a0d1feaa8ba463e023e"
+    }
+  },
+  {
     "id": "place-asstickycaminteraction",
     "offset": 2054720,
     "size": 20,
@@ -3555,6 +5219,32 @@
     "match": {
       "bytes_sha256": "dc67d5f160e1c37f462f5e80d21ca1e21124245e933378dc2ed621d14889403b",
       "inputs_sha256": "0186be0ddd8ce4e4357b9c15c81172f88289e5e58f4c11bf26960b898c40fa60"
+    }
+  },
+  {
+    "id": "delete-asstickycaminteraction",
+    "size": 33,
+    "offset": 2054752,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASStickyCamInteraction@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Conditional free passes the original receiver to slot 2 of the shared engine allocator."
+      },
+      "@destroy_ASStickyCamInteraction@4": {
+        "va": 279927440,
+        "basis": "Direct call to the class destructor before testing the deletion flag, at RVA 0x1f5a63."
+      }
+    },
+    "identification": "Stock ASStickyCamInteraction vtable at RVA 0x2f3598, slot 3, points to entry RVA 0x1f5a60. Registration at RVA 0x1ea82f passes placement callback RVA 0x1f5a40, which installs the table at RVA 0x1f5a4d. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "2b52bbf00e698cabfba9f34ea6f17b2fb936a8842e7f8f8da92f3ddb474fac00"
     }
   },
   {
@@ -3606,7 +5296,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "4ee3519d900e644c75219558969a76c2d053442f6125b9c2801d21353e240005"
+      "inputs_sha256": "4c4f75e949f10f0a2e1c569d75b2b86a3aeb4f3a50cb4f83ae3965db9df57a96"
     }
   },
   {
@@ -3624,6 +5314,32 @@
     "match": {
       "bytes_sha256": "a848d309004b6ddf9985a7322336b37568a4fd681b9455dc92f7a55e859a4ae3",
       "inputs_sha256": "61964ac8166bc6e25c7e07fef1e43f0575d2eb5703bec71dda53ee8c841b5472"
+    }
+  },
+  {
+    "id": "delete-uesbrope",
+    "size": 33,
+    "offset": 2086304,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_UESBRope@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Conditional free passes the original receiver to slot 2 of the shared engine allocator."
+      },
+      "@destroy_UESBRope@4": {
+        "va": 279958992,
+        "basis": "Direct call to the class destructor before testing the deletion flag, at RVA 0x1fd5a3."
+      }
+    },
+    "identification": "Stock UESBRope vtable at RVA 0x2f3350, slot 3, points to entry RVA 0x1fd5a0. Registration at RVA 0x1fe087 passes placement callback RVA 0x1fe130, which installs the table at RVA 0x1fe147. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "b7995e79c1224b3925713c6513a3bbab1e20f79999fccff9cd2d469ebc75d28d"
     }
   },
   {
@@ -3675,7 +5391,33 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "c36ddb57037045dc89fb5c71750d4232cf523ecd55d1a3cd0c6db27abccbf4c7"
+      "inputs_sha256": "f223bac5edae786e5bb0e6c180b1ef9611857dfa10a010d4eef08c1303726bad"
+    }
+  },
+  {
+    "id": "delete-aesbstripdooractor",
+    "size": 33,
+    "offset": 2089616,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_AESBStripDoorActor@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Conditional free passes the original receiver to slot 2 of the shared engine allocator."
+      },
+      "@destroy_AESBStripDoorActor@4": {
+        "va": 279962304,
+        "basis": "Direct call to the class destructor before testing the deletion flag, at RVA 0x1fe293."
+      }
+    },
+    "identification": "Stock AESBStripDoorActor vtable at RVA 0x2f30d0, slot 3, points to entry RVA 0x1fe290. Registration at RVA 0x1fdf7f passes placement callback RVA 0x1fe1d0, which installs the table at RVA 0x1fe1e4. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "0323c2b045ebe0f3acb37604ec83570fe7a9be6a093b533136f72a858b3c6e07"
     }
   },
   {
@@ -3702,6 +5444,32 @@
     "match": {
       "bytes_sha256": "6af68d517fad238b67447900015259990a96f92969f499b25d10c8a9c2fbc4ba",
       "inputs_sha256": "69f976be35c3cb5980c8bc6c75cda528d72ccb3e2a8398312458cdfa6712b758"
+    }
+  },
+  {
+    "id": "delete-aesbropeactor",
+    "size": 33,
+    "offset": 2089808,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_AESBRopeActor@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Conditional free passes the original receiver to slot 2 of the shared engine allocator."
+      },
+      "@destroy_AESBRopeActor@4": {
+        "va": 279962496,
+        "basis": "Direct call to the class destructor before testing the deletion flag, at RVA 0x1fe353."
+      }
+    },
+    "identification": "Stock AESBRopeActor vtable at RVA 0x2f2f90, slot 3, points to entry RVA 0x1fe350. Registration at RVA 0x1fdf27 passes placement callback RVA 0x1fe330, which installs the table at RVA 0x1fe33d. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "caf3ec9dcf6964157576cfb79fb5ee1b19131c4b7e140964408e2bf5994ffdd1"
     }
   },
   {
@@ -3754,6 +5522,32 @@
     "match": {
       "bytes_sha256": "4db1acc29aae91c3a6b651355f7151999e783015ef56c3d7b6f5c26c511a5435",
       "inputs_sha256": "274534bec0504d37f855e3b4ff4a103bf94b8aebf45937a1b833b6efd0e6ed64"
+    }
+  },
+  {
+    "id": "delete-aesbchainactor",
+    "size": 33,
+    "offset": 2090032,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_AESBChainActor@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Conditional free passes the original receiver to slot 2 of the shared engine allocator."
+      },
+      "@destroy_AESBChainActor@4": {
+        "va": 279962720,
+        "basis": "Direct call to the class destructor before testing the deletion flag, at RVA 0x1fe433."
+      }
+    },
+    "identification": "Stock AESBChainActor vtable at RVA 0x2f2e50, slot 3, points to entry RVA 0x1fe430. Registration at RVA 0x1fde77 passes placement callback RVA 0x1fe410, which installs the table at RVA 0x1fe424. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "22a79de6c9aec4a64fec1035373b86e79ca20142d45c790467c5ea4369e6938b"
     }
   }
 ]

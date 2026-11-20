@@ -1,5 +1,57 @@
 [
   {
+    "id": "delete-uactorchannel",
+    "size": 33,
+    "offset": 924768,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_UActorChannel@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Conditional free passes the original receiver to slot 2 of the shared engine allocator."
+      },
+      "@destroy_UActorChannel@4": {
+        "va": 278797456,
+        "basis": "Direct call to the class destructor before testing the deletion flag, at RVA 0xe1c63."
+      }
+    },
+    "identification": "Stock UActorChannel vtable at RVA 0x304630, slot 3, points to entry RVA 0xe1c60. Registration at RVA 0x9fcc0 passes placement callback RVA 0xabd30, which installs the table at RVA 0xabd3a. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "9b61743acfa4dac3961954e6f93a68c8000b4640057c2a8de5d217eb5d167b54"
+    }
+  },
+  {
+    "id": "delete-ucontrolchannel",
+    "size": 33,
+    "offset": 924976,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_UControlChannel@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Conditional free passes the original receiver to slot 2 of the shared engine allocator."
+      },
+      "@destroy_UControlChannel@4": {
+        "va": 278797664,
+        "basis": "Direct call to the class destructor before testing the deletion flag, at RVA 0xe1d33."
+      }
+    },
+    "identification": "Stock UControlChannel vtable at RVA 0x3045b8, slot 3, points to entry RVA 0xe1d30. Registration at RVA 0x9fc67 passes placement callback RVA 0xabda0, which installs the table at RVA 0xabdaf. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "479037bb8645a99af402b199ec749a7cb95b5ec76582eaddbd476e7ea80c32e2"
+    }
+  },
+  {
     "id": "delete-ugameengine",
     "offset": 975376,
     "size": 33,
@@ -22,7 +74,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "2ee1fd5b5e29d44a180d55b9482ed4e11eaf32b4cb04200dffb4af1e88a9d2a3"
+      "inputs_sha256": "09da4fb96fa17e400ae8fab79d3dc3741b27a684b149a2761354d61a7f6ec623"
     }
   },
   {
