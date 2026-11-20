@@ -156,6 +156,96 @@
     }
   },
   {
+    "id": "physics-array-release-5130b0",
+    "size": 83,
+    "offset": 5320880,
+    "inputs": [
+      "src/campaign_physics_array_release.c"
+    ],
+    "rebuilt_symbol": "@release_5130b0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_physics_array_release.obj src/campaign_physics_array_release.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Shared physics allocation manager."
+      },
+      "_methods_84aa90": {
+        "va": 286567056,
+        "basis": "Read-only receiver method table installed during destruction."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Read-only receiver method table installed during destruction."
+      }
+    },
+    "identification": "Read-only method pointer at RVA 0x84aa90. Releases owned storage at member offset 12 for 12-byte elements before checking the deletion flag.",
+    "match": {
+      "bytes_sha256": "0fde202d5d75c57f4532e19c25a2bedf813107fa3cef1609ec5064d4d6845f05",
+      "inputs_sha256": "83369c884d8bc8d3dc976d83fb5b07cf22fd62c19c717c223f5a792575999278"
+    }
+  },
+  {
+    "id": "physics-array-release-5133b0",
+    "size": 83,
+    "offset": 5321648,
+    "inputs": [
+      "src/campaign_physics_array_release.c"
+    ],
+    "rebuilt_symbol": "@release_5133b0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_physics_array_release.obj src/campaign_physics_array_release.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Shared physics allocation manager."
+      },
+      "_methods_84aa90": {
+        "va": 286567056,
+        "basis": "Read-only receiver method table installed during destruction."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Read-only receiver method table installed during destruction."
+      }
+    },
+    "identification": "Read-only method pointer at RVA 0x84aad0. Releases owned storage at member offset 12 for 12-byte elements before checking the deletion flag.",
+    "match": {
+      "bytes_sha256": "0fde202d5d75c57f4532e19c25a2bedf813107fa3cef1609ec5064d4d6845f05",
+      "inputs_sha256": "7fc0847e07c67209e1530095c9049e0758e0625a715826dbf09f8c29a4ec4a71"
+    }
+  },
+  {
+    "id": "physics-array-release-5135f0",
+    "size": 83,
+    "offset": 5322224,
+    "inputs": [
+      "src/campaign_physics_array_release.c"
+    ],
+    "rebuilt_symbol": "@release_5135f0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_physics_array_release.obj src/campaign_physics_array_release.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Shared physics allocation manager."
+      },
+      "_methods_84aa90": {
+        "va": 286567056,
+        "basis": "Read-only receiver method table installed during destruction."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Read-only receiver method table installed during destruction."
+      }
+    },
+    "identification": "Read-only method pointer at RVA 0x84aab0. Releases owned storage at member offset 12 for 12-byte elements before checking the deletion flag.",
+    "match": {
+      "bytes_sha256": "0fde202d5d75c57f4532e19c25a2bedf813107fa3cef1609ec5064d4d6845f05",
+      "inputs_sha256": "5558be009f62f2264e06e591f8fbf0919bd7b4c75a7b31796a3babfaa60918b8"
+    }
+  },
+  {
     "id": "delete-pool-513e50",
     "size": 40,
     "offset": 5324368,
@@ -182,6 +272,66 @@
     }
   },
   {
+    "id": "physics-array-release-514800",
+    "size": 83,
+    "offset": 5326848,
+    "inputs": [
+      "src/campaign_physics_array_release.c"
+    ],
+    "rebuilt_symbol": "@release_514800@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_physics_array_release.obj src/campaign_physics_array_release.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Shared physics allocation manager."
+      },
+      "_methods_84aa90": {
+        "va": 286567056,
+        "basis": "Read-only receiver method table installed during destruction."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Read-only receiver method table installed during destruction."
+      }
+    },
+    "identification": "Read-only method pointer at RVA 0x84ab34. Releases owned storage at member offset 12 for 12-byte elements before checking the deletion flag.",
+    "match": {
+      "bytes_sha256": "0fde202d5d75c57f4532e19c25a2bedf813107fa3cef1609ec5064d4d6845f05",
+      "inputs_sha256": "21553cbc5b6f20cc2ab63ab45c10df172ed8c3858caa5d9fdacb388eca828990"
+    }
+  },
+  {
+    "id": "physics-array-release-514a40",
+    "size": 83,
+    "offset": 5327424,
+    "inputs": [
+      "src/campaign_physics_array_release.c"
+    ],
+    "rebuilt_symbol": "@release_514a40@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_physics_array_release.obj src/campaign_physics_array_release.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Shared physics allocation manager."
+      },
+      "_methods_84aa90": {
+        "va": 286567056,
+        "basis": "Read-only receiver method table installed during destruction."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Read-only receiver method table installed during destruction."
+      }
+    },
+    "identification": "Read-only method pointer at RVA 0x84ab14. Releases owned storage at member offset 12 for 12-byte elements before checking the deletion flag.",
+    "match": {
+      "bytes_sha256": "0fde202d5d75c57f4532e19c25a2bedf813107fa3cef1609ec5064d4d6845f05",
+      "inputs_sha256": "0c8e97f6aeb6f61abb578eef4a0739541dac7d569d9e3f690759e6ecfb4bc3a2"
+    }
+  },
+  {
     "id": "delete-pool-514c40",
     "size": 40,
     "offset": 5327936,
@@ -205,6 +355,66 @@
     "match": {
       "bytes_sha256": "4bf5706bbaaf9878588aee8bb15f78d2fd091638c07a557c6e99cb9db8336d90",
       "inputs_sha256": "9783b9845aa28676daaa0aedd98b7bf724c18aa55d04c33d2ca482da5f1559cd"
+    }
+  },
+  {
+    "id": "physics-array-release-516220",
+    "size": 83,
+    "offset": 5333536,
+    "inputs": [
+      "src/campaign_physics_array_release.c"
+    ],
+    "rebuilt_symbol": "@release_516220@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_physics_array_release.obj src/campaign_physics_array_release.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Shared physics allocation manager."
+      },
+      "_methods_84aa90": {
+        "va": 286567056,
+        "basis": "Read-only receiver method table installed during destruction."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Read-only receiver method table installed during destruction."
+      }
+    },
+    "identification": "Read-only method pointer at RVA 0x84ab98. Releases owned storage at member offset 12 for 12-byte elements before checking the deletion flag.",
+    "match": {
+      "bytes_sha256": "0fde202d5d75c57f4532e19c25a2bedf813107fa3cef1609ec5064d4d6845f05",
+      "inputs_sha256": "5ed0e51dde11f3297791e1704fb5c26be82a8cf6f6d1d7928ff55c57f1514679"
+    }
+  },
+  {
+    "id": "physics-array-release-5164a0",
+    "size": 83,
+    "offset": 5334176,
+    "inputs": [
+      "src/campaign_physics_array_release.c"
+    ],
+    "rebuilt_symbol": "@release_5164a0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_physics_array_release.obj src/campaign_physics_array_release.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Shared physics allocation manager."
+      },
+      "_methods_84aa90": {
+        "va": 286567056,
+        "basis": "Read-only receiver method table installed during destruction."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Read-only receiver method table installed during destruction."
+      }
+    },
+    "identification": "Read-only method pointer at RVA 0x84ab78. Releases owned storage at member offset 12 for 12-byte elements before checking the deletion flag.",
+    "match": {
+      "bytes_sha256": "0fde202d5d75c57f4532e19c25a2bedf813107fa3cef1609ec5064d4d6845f05",
+      "inputs_sha256": "cbc90fbc2efe95085ef45c20433391086f8d66e21409e7bda01ed43cda0f56e5"
     }
   },
   {
@@ -335,6 +545,58 @@
     "match": {
       "bytes_sha256": "6211f0c07e105445eaff8ac0d5e777cdf09ac64d4ed6d9d59893968a8187bc8d",
       "inputs_sha256": "f263b0a3f03f803d3d59e78c5954311f37120342ab5550944f1968fd5c639d3d"
+    }
+  },
+  {
+    "id": "physics-array-release-518520",
+    "size": 74,
+    "offset": 5342496,
+    "inputs": [
+      "src/campaign_physics_array_release.c"
+    ],
+    "rebuilt_symbol": "@release_518520@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_physics_array_release.obj src/campaign_physics_array_release.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Shared physics allocation manager."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Read-only receiver method table installed during destruction."
+      }
+    },
+    "identification": "Read-only method pointer at RVA 0x84ac5c. Releases owned storage at member offset 12 for 4-byte elements before checking the deletion flag.",
+    "match": {
+      "bytes_sha256": "e2f24e301655b6f269e87d52323630d817a0b12199387a4f0a4a832d705bf81a",
+      "inputs_sha256": "10f3c2aeac3e32559900e4f76661951f464312fc2db1740ed2e15103517ecc5f"
+    }
+  },
+  {
+    "id": "physics-array-release-518570",
+    "size": 74,
+    "offset": 5342576,
+    "inputs": [
+      "src/campaign_physics_array_release.c"
+    ],
+    "rebuilt_symbol": "@release_518570@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_physics_array_release.obj src/campaign_physics_array_release.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Shared physics allocation manager."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Read-only receiver method table installed during destruction."
+      }
+    },
+    "identification": "Read-only method pointer at RVA 0x84ac3c. Releases owned storage at member offset 12 for 4-byte elements before checking the deletion flag.",
+    "match": {
+      "bytes_sha256": "e2f24e301655b6f269e87d52323630d817a0b12199387a4f0a4a832d705bf81a",
+      "inputs_sha256": "19f07b426132198ec8105afe2361cff86eca8a41e1eb27fb712495bec1657bb5"
     }
   },
   {
