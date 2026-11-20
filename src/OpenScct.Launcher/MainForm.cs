@@ -158,14 +158,14 @@ internal sealed partial class MainForm : Form
         Icon = Theme.LoadIcon(32);
         AutoScaleMode = AutoScaleMode.Dpi;
         AutoScaleDimensions = new SizeF(96f, 96f);
-        ClientSize = new Size(1060, 670);
+        ClientSize = new Size(1200, 782);
         MinimumSize = new Size(600, 420);
         FormBorderStyle = FormBorderStyle.Sizable;
         StartPosition = FormStartPosition.CenterScreen;
         BackColor = Theme.Background;
         ForeColor = Theme.Text;
         Font = Theme.Body;
-        Padding = new Padding(16, 12, 16, 12);
+        Padding = new Padding(14, 10, 20, 12);
 
         _launcherBanner.Name = "LauncherUpdate";
         _launcherBanner.BackColor = Theme.Panel;
@@ -177,11 +177,17 @@ internal sealed partial class MainForm : Form
         Theme.AddRow(_launcherBanner, Theme.Wrapping(_launcherInfo), _launcherButton);
 
         _heading.Name = "LaunchHeading";
+        _heading.Font = Theme.Heading;
         _heading.Margin = new Padding(0);
         _installedInfo.Name = "InstalledVersion";
         _installedInfo.Margin = new Padding(0, 6, 0, 0);
         _launchDetail.Margin = new Padding(0, 8, 0, 0);
         TableLayoutPanel summary = Theme.Grid(Theme.Fill);
+        _brandSubtitle = Theme.Wrapping(Theme.Label("", Theme.Mono, Theme.Accent));
+        _brandSubtitle.Margin = new Padding(0, 0, 0, 4);
+        _editionTitle.Margin = new Padding(0, 0, 0, 10);
+        Theme.AddRow(summary, _brandSubtitle);
+        Theme.AddRow(summary, _editionTitle);
         Theme.AddRow(summary, _heading);
         Theme.AddRow(summary, _installedInfo);
         Theme.AddRow(summary, _launchDetail);
@@ -196,7 +202,12 @@ internal sealed partial class MainForm : Form
         _playCurrent.Margin = new Padding(0, 4, 0, 0);
         _playCurrent.Visible = false;
         TableLayoutPanel actions = Theme.Grid(Theme.Auto);
-        Theme.AddRow(actions, _main);
+        _moreActions.Name = "EditionActions";
+        _moreActions.AccessibleName = "More edition actions";
+        _moreActions.Click += (_, _) => OpenEditionActions();
+        _moreActions.Margin = new Padding(6, 0, 0, 0);
+        _tips.SetToolTip(_moreActions, _moreActions.AccessibleName);
+        Theme.AddRow(actions, Theme.Flow(false, _main, _moreActions));
         Theme.AddRow(actions, _playCurrent);
         Theme.AddRow(actions, _retailSecondary);
         actions.Anchor = AnchorStyles.Right | AnchorStyles.Top;
@@ -228,10 +239,7 @@ internal sealed partial class MainForm : Form
         _progressText.Margin = new Padding(0, 6, 0, 0);
         _progressText.Visible = false;
 
-        TableLayoutPanel launch = Theme.Grid(Theme.Fill, Theme.Auto);
-        launch.Name = "LaunchPanel";
-        launch.BackColor = Theme.Panel;
-        launch.Padding = new Padding(20, 18, 20, 18);
+        var launch = _banner = new LibraryBanner { Name = "EditionBanner" };
         launch.TabIndex = 0;
         Theme.AddRow(launch, summary, actions);
         foreach (Control row in new Control[] { _status, _forceClose, _progress, _progressText })
@@ -239,6 +247,13 @@ internal sealed partial class MainForm : Form
             Theme.AddRow(launch, row);
             launch.SetColumnSpan(row, 2);
         }
+        _milestones.Name = "SetupMilestones";
+        _milestones.WrapContents = true;
+        _milestones.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+        _milestones.Margin = new Padding(0, 18, 0, 0);
+        foreach (Label step in _setupSteps) _milestones.Controls.Add(step);
+        Theme.AddRow(launch, _milestones);
+        launch.SetColumnSpan(_milestones, 2);
 
         _whatsNew.Name = "FullChangelog";
         _whatsNew.Anchor = AnchorStyles.Top | AnchorStyles.Right;
@@ -277,7 +292,7 @@ internal sealed partial class MainForm : Form
 
         FlowLayoutPanel more = Theme.Flow(false, _check, _mapsButton);
         more.Name = "LauncherTools";
-        more.Dock = DockStyle.Bottom;
+        more.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
         more.WrapContents = true;
         more.Padding = new Padding(0, 10, 0, 0);
         more.TabIndex = 1;
@@ -784,17 +799,7 @@ internal sealed partial class MainForm : Form
     }
 
     /// <summary>The Maps window offers additional downloads for the selected product.</summary>
-    private void OpenMaps()
-    {
-        if (_work is not null)
-        {
-            return;
-        }
-
-        using var dialog = new MapsForm(Http, _layout.Packs, Palette, () => EditorUsesSharedContent() || _unreal.IsRunning || _games.Running().Count > 0);
-        dialog.ShowDialog(this);
-        RefreshLocal();
-    }
+    private void OpenMaps() => ShowMapBrowser();
 
     // ---- the work ----------------------------------------------------------------------------------------------
 
@@ -1340,7 +1345,7 @@ internal sealed partial class MainForm : Form
                 logo.Image = null;
                 image?.Dispose();
             }
-            _heroImage?.Dispose();
+            foreach (Image image in _artwork.Values) image.Dispose();
             _work?.Dispose();
         }
 

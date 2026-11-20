@@ -34,6 +34,7 @@
   <ItemGroup>
     <EmbeddedResource Include="..\..\game\branding\icon.ico" LogicalName="OpenScct.Launcher.icon.ico" Link="branding\icon.ico" />
     <EmbeddedResource Include="branding\operation.jpg" LogicalName="OpenScct.Launcher.operation.jpg" />
+    <EmbeddedResource Include="branding\library-*.jpg" LogicalName="OpenScct.Launcher.%(Filename)%(Extension)" />
     <EmbeddedResource Include="branding\editor.ico" LogicalName="OpenScct.Launcher.editor.ico" />
   </ItemGroup>
 

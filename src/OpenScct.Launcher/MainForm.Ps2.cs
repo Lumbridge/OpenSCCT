@@ -2,6 +2,7 @@ using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 using OpenScct.Launcher.Ps2;
 
@@ -73,9 +74,29 @@ internal sealed partial class MainForm
 
     private void PickPs2Emulator() => PickPs2File("Choose PCSX2", Ps2.WithEmulator, "PCSX2 executable (*.exe)|*.exe");
 
-    private void PickPs2File(string title, Func<string, Ps2Edition> select, string filter = "PlayStation 2 disc image (*.iso)|*.iso")
+    private void ChooseDiscFolder()
     {
-        using var picker = new OpenFileDialog { Title = title, Filter = filter, CheckFileExists = true, RestoreDirectory = true };
+        using var picker = new FolderBrowserDialog { Description = "Choose the folder with your PlayStation 2 ISO files",
+            UseDescriptionForTitle = true, ShowNewFolderButton = false, InitialDirectory = Path.GetDirectoryName(Ps2.DiscPath) ?? "" };
+        if (picker.ShowDialog(this) != DialogResult.OK) return;
+        string folder = picker.SelectedPath;
+        RunPs2Action(() =>
+        {
+            var matches = Directory.EnumerateFiles(folder, "*.iso").Where(path =>
+            {
+                try { Ps2Disc.ReadSerial(path); return true; }
+                catch (Exception e) when (e is InvalidDataException or IOException or UnauthorizedAccessException) { return false; }
+            }).Take(2).ToArray();
+            if (matches.Length == 1) SavePs2(Ps2.WithDisc(matches[0]));
+            else if (matches.Length > 1) PickPs2File("Choose your Chaos Theory disc", Ps2.WithDisc, initialDirectory: folder);
+            else SetStatus("No supported Chaos Theory ISO was found in this folder. Choose another folder or disc image.", Theme.Warning);
+        });
+    }
+
+    private void PickPs2File(string title, Func<string, Ps2Edition> select, string filter = "PlayStation 2 disc image (*.iso)|*.iso", string? initialDirectory = null)
+    {
+        using var picker = new OpenFileDialog { Title = title, Filter = filter, CheckFileExists = true, RestoreDirectory = true,
+            InitialDirectory = initialDirectory ?? "" };
         if (picker.ShowDialog(this) == DialogResult.OK)
             RunPs2Action(() => SavePs2(select(picker.FileName)));
     }

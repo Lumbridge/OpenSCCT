@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
@@ -27,7 +28,15 @@ internal sealed partial class MainForm
     private bool _compact;
     private LibraryBanner _banner = null!;
     private Control _launchCard = null!;
-    private Bitmap? _heroImage;
+    private readonly Dictionary<Product, Bitmap> _artwork = new();
+    private readonly Button _moreActions = Theme.Button("⋯");
+    private readonly FlowLayoutPanel _milestones = Theme.Flow();
+    private readonly Label[] _setupSteps = [Theme.Label(""), Theme.Label(""), Theme.Label("")];
+    private static readonly Font CardHeading = new("Segoe UI Semibold", 14.5f);
+    private readonly Label _sourceHeading = Theme.Wrapping(Theme.Label("", CardHeading));
+    private readonly Label _sourceDetail = Theme.Wrapping(Theme.Label("", Theme.Body, Theme.Muted));
+    private readonly Button _sourcePick = Theme.Button("");
+    private Control _sourceCard = null!;
     private static readonly Product[] LibraryOrder = [Product.Ps2, Product.Retail, Product.Game, Product.Unreal, Product.Editor];
 
     private static string EditionName(Product product) => product switch
@@ -55,7 +64,13 @@ internal sealed partial class MainForm
         _modsPage.Click += (_, _) => SelectPage(LibraryPage.Mods);
         FlowLayoutPanel pages = Theme.Flow(false, _gamesPage, _modsPage, _settingsButton);
         pages.Anchor = AnchorStyles.Left;
-        foreach (Button button in pages.Controls) button.Margin = new Padding(0, 0, 5, 0);
+        foreach (Button button in pages.Controls) button.Margin = new Padding(0, 0, 6, 0);
+        SetGlyph(_gamesPage, "games");
+        SetGlyph(_modsPage, "mods");
+        SetGlyph(_settingsButton, "settings");
+        SetGlyph(_website, "website");
+        SetGlyph(_help, "help");
+        foreach (Button button in pages.Controls) LibraryVisuals.Round(button, 7);
 
         using Icon mark = Theme.LoadIcon(48);
         _brandLogo = new PictureBox
@@ -78,7 +93,7 @@ internal sealed partial class MainForm
 
         var rail = Theme.Grid(Theme.Fill);
         rail.Name = "EditionLibrary";
-        rail.Padding = new Padding(0, 0, 14, 0);
+        rail.Padding = new Padding(0, 0, 18, 0);
         var railButtons = new[] { _ps2Tab, _retailTab, _gameTab, _unrealTab, _editorTab };
         for (int index = 0; index < LibraryOrder.Length; index++)
         {
@@ -91,6 +106,12 @@ internal sealed partial class MainForm
                 Theme.AddRow(rail, section);
             }
             Button button = railButtons[index];
+            string asset = product switch { Product.Ps2 => "ps2", Product.Retail => "pc", Product.Game => "godot", Product.Unreal => "unreal", _ => "editor" };
+            using var stream = typeof(MainForm).Assembly.GetManifestResourceStream($"OpenScct.Launcher.library-{asset}.jpg")
+                ?? throw new InvalidOperationException($"Missing {asset} library artwork.");
+            using var original = new Bitmap(stream);
+            _artwork[product] = new Bitmap(original);
+            ((LibraryEntry)button).Artwork = _artwork[product];
             button.Name = product + "Tab";
             button.AccessibleName = EditionName(product);
             button.Anchor = AnchorStyles.Left | AnchorStyles.Right;
@@ -111,37 +132,31 @@ internal sealed partial class MainForm
                 SelectProduct(LibraryOrder[_compactPicker.SelectedIndex]);
         };
 
-        _brandSubtitle = Theme.Wrapping(Theme.Label("", Theme.Mono, Theme.Accent));
-        _brandSubtitle.Margin = new Padding(0, 6, 0, 0);
-        _editionTitle.Margin = new Padding(0);
-        using Stream image = typeof(MainForm).Assembly.GetManifestResourceStream("OpenScct.Launcher.operation.jpg")!;
-        using var decoded = new Bitmap(image);
-        _heroImage = new Bitmap(decoded);
-        var hero = _banner = new LibraryBanner(_heroImage) { Name = "EditionBanner" };
-        Theme.AddRow(hero, _editionTitle);
-        Theme.AddRow(hero, _brandSubtitle);
+        _sourceCard = BuildSourceCard();
         _launchCard = launch;
         launch.Margin = new Padding(0, 0, 0, 12);
         _details.Name = "EditionDetails";
         _details.Margin = new Padding(0);
-        preview.Margin = new Padding(0, 0, 0, 0);
+        preview.Margin = new Padding(0, 0, 0, 10);
+        preview.Dock = DockStyle.Top;
         var content = new TableLayoutPanel
         {
             Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 0, Margin = new Padding(0),
             BackColor = Color.Transparent, AutoScroll = true,
         };
         content.ColumnStyles.Add(Theme.Fill);
-        foreach (Control row in new Control[] { _compactPicker, _launcherBanner, hero, launch, _details, preview })
+        foreach (Control row in new Control[] { _compactPicker, _launcherBanner, _sourceCard, launch, _details, tools, preview })
         {
             int r = content.RowCount++;
-            content.RowStyles.Add(new RowStyle(row == preview ? SizeType.Percent : SizeType.AutoSize, row == preview ? 100 : 0));
+            content.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             content.Controls.Add(row, 0, r);
         }
+        content.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
+        content.RowCount++;
         var detailPane = new Panel { Dock = DockStyle.Fill, Margin = new Padding(0) };
         detailPane.Controls.Add(content);
-        detailPane.Controls.Add(tools);
         var body = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 2, RowCount = 1, Margin = new Padding(0) };
-        body.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 226));
+        body.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 250));
         body.ColumnStyles.Add(Theme.Fill);
         body.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
         body.Controls.Add(rail, 0, 0);
@@ -161,12 +176,15 @@ internal sealed partial class MainForm
             _compact = compact;
             rail.Visible = !compact;
             _compactPicker.Visible = compact;
-            body.ColumnStyles[0].Width = compact ? 0 : (int)Math.Ceiling(226 * scale);
+            body.ColumnStyles[0].Width = compact ? 0 : (int)Math.Ceiling(Math.Clamp(shell.ClientSize.Width * .21f, 218 * scale, 298 * scale));
             version.Visible = !compact;
             _brandLogo.Visible = !compact;
             _website.Visible = !compact;
-            hero.Compact = compact;
-            hero.Visible = !compact || _page != LibraryPage.Games;
+            _banner.Compact = compact;
+            _editionTitle.Font = compact ? Theme.Heading : LibraryBanner.TitleFont;
+            _sourceCard.Visible = !compact && _page == LibraryPage.Games;
+            _milestones.Visible = !compact && _page == LibraryPage.Games;
+            _moreActions.Visible = true;
         }
         shell.ClientSizeChanged += (_, _) => AdaptWidth();
         Controls.Add(shell);
@@ -188,7 +206,7 @@ internal sealed partial class MainForm
             : (ps2 ? Ps2.NextAction == OpenScct.Launcher.Ps2.Ps2Action.Play : RetailReady) ? "Ready to play"
             : ps2 ? "Disc setup" : "Game installation";
         _installedInfo.Text = ps2 ? Ps2Status : RetailStatus;
-        _launchDetail.Text = ps2 ? "Play from your Chaos Theory disc image with PCSX2."
+        _launchDetail.Text = ps2 ? "Play the original campaign, co-op and Versus through PCSX2."
             : "Campaign, co-op and Versus use your own installation.";
         _launchDetail.Visible = !busy && VisibleStatus.Kind is not (StatusKind.Warning or StatusKind.Error);
         _main.Text = busy ? (_operationCanCancel ? "Cancel" : "Please wait") : ps2 ? Ps2ActionText : RetailActionText;
@@ -206,21 +224,30 @@ internal sealed partial class MainForm
         if (_mainLayout is null) return;
         _compactPicker.SelectedIndex = Array.IndexOf(LibraryOrder, _selected);
         bool games = _page == LibraryPage.Games;
-        _banner.Visible = !_compact || !games;
         RefreshLibraryBadges();
-        _editionTitle.Text = games ? EditionName(_selected) : _page + " · " + EditionName(_selected);
+        _editionTitle.Text = _selected is Product.Ps2 or Product.Retail ? "Splinter Cell: Chaos Theory" : EditionName(_selected);
+        _banner.Artwork = _artwork[_selected];
+        _sourceCard.Visible = games && !_compact;
+        _milestones.Visible = games && !_compact;
+        _moreActions.Enabled = !busy;
+        _heading.Visible = !IsOriginalEdition || busy;
+        _installedInfo.Visible = !IsOriginalEdition || busy;
+        _sourcePick.Enabled = !busy;
+        RefreshSourceAndSteps();
         Theme.SetButtonEmphasis(_gamesPage, games, Palette);
         Theme.SetButtonEmphasis(_modsPage, _page == LibraryPage.Mods, Palette);
         Theme.SetButtonEmphasis(_settingsButton, _page == LibraryPage.Settings, Palette);
         _launchCard.Visible = games || busy;
-        _releasePreview!.Visible = games && !IsOriginalEdition;
+        _releasePreview!.Visible = games && !IsOriginalEdition && SelectedRelease != null;
+        _releasePreview.Height = Math.Max(LogicalToDeviceUnits(76), _releaseNotes!.GetPreferredSize(
+            new Size(Math.Max(300, _mainLayout.ClientSize.Width - _releasePreview.Padding.Horizontal), 0)).Height + _releasePreview.Padding.Vertical);
         _mapsButton.Visible = games && !IsOriginalEdition;
         _check.Visible = games;
         _check.Text = IsOriginalEdition ? "Check launcher updates" : "Check for updates";
         _settingsButton.Enabled = !busy;
         _modsPage.Enabled = !busy;
         _details.Enabled = !busy;
-        _tools!.Visible = games;
+        _tools!.Visible = false;
         string key = _selected + "/" + _page + "/" + (_selected switch
         {
             Product.Ps2 => Ps2Status + "/" + Ps2.DiscPath + "/" + Ps2.EmulatorPath + "/" + Ps2.ModPath,
@@ -246,23 +273,22 @@ internal sealed partial class MainForm
                 _ => LibraryCard("Additional maps", "The original map set is built from Steam. Download other maps individually.",
                     ActionButton("Browse maps", OpenMaps)),
             },
-            LibraryPage.Games when _selected == Product.Ps2 => LibraryCard("Disc and emulator",
-                "Original disc   ·   " + (File.Exists(Ps2.DiscPath) ? Path.GetFileName(Ps2.DiscPath) : "Choose your ISO")
-                + Environment.NewLine + "PCSX2   ·   " + (File.Exists(Ps2.EmulatorPath) ? Path.GetFileName(Ps2.EmulatorPath) : "Choose your emulator"),
-                ActionButton("Manage setup", () => SelectPage(LibraryPage.Settings))),
-            LibraryPage.Games when _selected == Product.Retail => LibraryCard("PC mods",
-                _settings.Retail.UseMod ? "Your separate modded installation is selected." : "Enhanced and Reloaded are optional mods for Versus.",
-                ActionButton("Manage mods", () => SelectPage(LibraryPage.Mods))),
-            _ => null,
+            _ => BuildGameDetails(),
         };
         if (contents is not null)
         {
+            if (!games)
+            {
+                var pageTitle = Theme.Wrapping(Theme.Label(_page + "  /  " + EditionName(_selected), CardHeading));
+                pageTitle.Margin = new Padding(0, 8, 0, 13);
+                Theme.AddRow(_details, pageTitle);
+            }
             contents.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             contents.Margin = new Padding(0, 0, 0, 10);
             Theme.AddRow(_details, contents);
             Theme.Apply(_details, Palette);
         }
-        if (contents is { BackColor.A: 0 })
+        if (!games && contents is { BackColor.A: 0 })
         {
             contents.BackColor = Palette.Panel;
             contents.Padding = new Padding(18, 16, 18, 16);
@@ -380,26 +406,45 @@ internal sealed partial class MainForm
 
     private static Control LibraryCard(string title, string description, params Button[] buttons)
     {
-        var card = Theme.Grid(Theme.Fill);
+        var card = Theme.Grid(Theme.Fill, Theme.Auto);
         card.BackColor = Theme.Panel;
         card.Padding = new Padding(18, 16, 18, 16);
-        Theme.AddRow(card, Theme.Label(title, Theme.Heading));
+        var heading = Theme.Wrapping(Theme.Label(title, CardHeading));
+        heading.UseMnemonic = false;
+        heading.Margin = new Padding(0, 0, 12, 2);
         var text = Theme.Wrapping(Theme.Label(description, Theme.Body, Theme.Muted));
         text.UseMnemonic = false;
-        text.Margin = new Padding(0, 6, 0, 12);
-        Theme.AddRow(card, text);
+        text.Margin = new Padding(0, 6, 0, 0);
         var actions = Theme.Flow(false, buttons);
         actions.WrapContents = true;
-        actions.Anchor = AnchorStyles.Left | AnchorStyles.Right;
-        Theme.AddRow(card, actions);
+        if (buttons.Length <= 2)
+        {
+            actions.Anchor = AnchorStyles.Right;
+            Theme.AddRow(card, heading, actions);
+        }
+        else
+        {
+            Theme.AddRow(card, heading);
+            actions.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+        }
+        Theme.AddRow(card, text);
+        card.SetColumnSpan(text, 2);
+        if (buttons.Length > 2)
+        {
+            actions.Margin = new Padding(0, 10, 0, 0);
+            Theme.AddRow(card, actions);
+            card.SetColumnSpan(actions, 2);
+        }
+        LibraryVisuals.Round(card, 10);
         return card;
     }
 }
 
-/// <summary>Library navigation with a platform monogram and an accessible native button.</summary>
+/// <summary>A keyboard-accessible library row with edition artwork and local setup status.</summary>
 internal sealed class LibraryEntry : Button
 {
-    private readonly string _monogram;
+    [System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)]
+    internal Image? Artwork { get; set; }
     private string _detail;
     private bool _ready;
     public void SetStatus(string status, bool ready)
@@ -416,7 +461,6 @@ internal sealed class LibraryEntry : Button
 
     public LibraryEntry(string monogram, string name, string detail)
     {
-        _monogram = monogram;
         _detail = detail;
         Text = name;
         AccessibleName = name;
@@ -424,8 +468,8 @@ internal sealed class LibraryEntry : Button
         FlatStyle = FlatStyle.Flat;
         UseVisualStyleBackColor = false;
         SetStyle(ControlStyles.UserPaint | ControlStyles.OptimizedDoubleBuffer, true);
-        Size = new Size(196, 61);
-        Margin = new Padding(0, 0, 0, 5);
+        Size = new Size(196, 70);
+        Margin = new Padding(0, 0, 0, 4);
         Font = Theme.Body;
     }
 
@@ -435,17 +479,31 @@ internal sealed class LibraryEntry : Button
     {
         Color palette = Palette.Accent;
         bool selected = BackColor == palette;
-        Color surface = selected ? ControlPaint.Dark(palette, 0.76f) : BackColor;
+        bool hover = ClientRectangle.Contains(PointToClient(Cursor.Position));
+        Color surface = selected ? Color.FromArgb(30, 55, 38) : hover ? Theme.Panel : Theme.Background;
+        e.Graphics.Clear(Palette.Background);
         using var background = new SolidBrush(surface);
-        e.Graphics.FillRectangle(background, ClientRectangle);
-        int diameter = LogicalToDeviceUnits(39);
+        using var selection = new GraphicsPath();
+        selection.AddRoundedRectangle(ClientRectangle, new Size(8, 8));
+        e.Graphics.FillPath(background, selection);
+        int diameter = Math.Min(Height - LogicalToDeviceUnits(10), LogicalToDeviceUnits(52));
         int x = LogicalToDeviceUnits(9);
         var badge = new Rectangle(x, (Height - diameter) / 2, diameter, diameter);
-        using var border = new Pen(selected ? palette : Palette.Muted);
         e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+        if (Artwork is { } art)
+        {
+            var clip = e.Graphics.Save();
+            using var shape = new GraphicsPath();
+            shape.AddEllipse(badge);
+            e.Graphics.SetClip(shape);
+            int side = Math.Min(art.Width, art.Height);
+            int cropX = (int)Math.Clamp(art.Width * .62f - side / 2f, 0, art.Width - side);
+            e.Graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+            e.Graphics.DrawImage(art, badge, new Rectangle(cropX, (art.Height - side) / 2, side, side), GraphicsUnit.Pixel);
+            e.Graphics.Restore(clip);
+        }
+        using var border = new Pen(selected ? palette : Theme.Border);
         e.Graphics.DrawEllipse(border, badge);
-        var centered = TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix | TextFormatFlags.SingleLine;
-        TextRenderer.DrawText(e.Graphics, _monogram, Theme.Mono, badge, selected ? palette : Palette.Text, centered);
         x = badge.Right + LogicalToDeviceUnits(9);
         var name = new Rectangle(x, LogicalToDeviceUnits(7), Width - x - 3, Height / 2 - LogicalToDeviceUnits(3));
         var detail = new Rectangle(x, Height / 2, name.Width, Height / 2 - LogicalToDeviceUnits(5));
@@ -463,37 +521,49 @@ internal sealed class LibraryEntry : Button
 
 internal sealed class LibraryBanner : TableLayoutPanel
 {
-    // The project’s night-vision capture from docs/images/website/showcase-bots.webp,
-    // encoded as a JPEG so the Windows and Linux launchers can decode the same packaged artwork.
-    private readonly Image _image;
-    public LibraryBanner(Image image)
+    internal static readonly Font TitleFont = new("Segoe UI", 25f, FontStyle.Bold);
+    private Image? _image;
+    [System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)]
+    internal Image? Artwork
     {
-        _image = image;
+        set { if (_image != value) { _image = value; Invalidate(true); } }
+    }
+
+    public LibraryBanner()
+    {
         DoubleBuffered = true;
         AutoSize = true;
         AutoSizeMode = AutoSizeMode.GrowAndShrink;
         Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-        ColumnCount = 1;
+        ColumnCount = 2;
         ColumnStyles.Add(Theme.Fill);
+        ColumnStyles.Add(Theme.Auto);
         Margin = new Padding(0, 0, 0, 12);
         BackColor = Theme.Panel;
+        LibraryVisuals.Round(this, 18);
         Compact = false;
     }
 
     [System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)]
     public bool Compact
     {
-        set => Padding = value ? new Padding(16, 7, 16, 7) : new Padding(24, 30, 24, 30);
+        set
+        {
+            Padding = value ? new Padding(12, 8, 12, 8) : new Padding(24, 23, 24, 20);
+            MinimumSize = value ? Size.Empty : new Size(0, LogicalToDeviceUnits(245));
+        }
     }
 
     protected override void OnPaintBackground(PaintEventArgs e)
     {
         base.OnPaintBackground(e);
-        if (Width < 1 || Height < 1) return;
+        if (Width < 1 || Height < 1 || _image is null) return;
         float scale = Math.Max((float)Width / _image.Width, (float)Height / _image.Height);
         float imageHeight = _image.Height * scale;
         e.Graphics.DrawImage(_image, (Width - _image.Width * scale) / 2, (Height - imageHeight) * .43f, _image.Width * scale, imageHeight);
-        using var tint = new LinearGradientBrush(ClientRectangle, Color.FromArgb(239, 12, 21, 18), Color.FromArgb(116, 12, 21, 18), 0f);
+        using var tint = new LinearGradientBrush(ClientRectangle, Color.FromArgb(229, 10, 17, 14), Color.FromArgb(45, 10, 17, 14), 0f);
         e.Graphics.FillRectangle(tint, ClientRectangle);
+        using var shade = new LinearGradientBrush(ClientRectangle, Color.Transparent, Color.FromArgb(170, 8, 12, 10), 90f);
+        e.Graphics.FillRectangle(shade, ClientRectangle);
     }
 }

@@ -143,8 +143,8 @@ internal sealed partial class MainForm
     {
         (_brandSubtitle.Text, _website.Text) = product switch
         {
-            Product.Ps2 => ("Chaos Theory · Original disc · 2005", "Website"),
-            Product.Retail => ("Chaos Theory · Original Windows release · 2005", "Website"),
+            Product.Ps2 => ("PlayStation 2  /  2005", "Website"),
+            Product.Retail => ("Windows PC  /  2005", "Website"),
             Product.Editor => ("Map authoring", "Editor website"),
             Product.Unreal => ("Modernisations · Unreal Engine · Versus", "Unreal releases"),
             _ => ("Modernisations · Godot · Versus", "Website"),
