@@ -892,6 +892,38 @@
     }
   },
   {
+    "id": "word-index-d7500",
+    "size": 37,
+    "offset": 881920,
+    "inputs": [
+      "src/campaign_word_index.c"
+    ],
+    "rebuilt_symbol": "@find_word@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_word_index.obj src/campaign_word_index.c",
+    "identification": "Aligned complete array search at RVA 0xd7500. Compares four-byte values and returns the first matching index or -1.",
+    "match": {
+      "bytes_sha256": "7d8d833b43c305c42140db0772cde78939910d895d58dfb3d473f32e44a33b39",
+      "inputs_sha256": "f88212a7c4e16dfd942e95b4cddf022c316056094c05f6f0af39c310927543c5"
+    }
+  },
+  {
+    "id": "word-index-d76f0",
+    "size": 37,
+    "offset": 882416,
+    "inputs": [
+      "src/campaign_word_index.c"
+    ],
+    "rebuilt_symbol": "@find_word@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_word_index.obj src/campaign_word_index.c",
+    "identification": "Aligned complete array search at RVA 0xd76f0. Compares four-byte values and returns the first matching index or -1.",
+    "match": {
+      "bytes_sha256": "7d8d833b43c305c42140db0772cde78939910d895d58dfb3d473f32e44a33b39",
+      "inputs_sha256": "3fae9c0c915c260a8b07f9a20c1221e474cc762e0f6339c2f6f78db3339f8472"
+    }
+  },
+  {
     "id": "append-fsarray-word-0d7750",
     "size": 38,
     "offset": 882512,

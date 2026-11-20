@@ -3264,6 +3264,50 @@
     }
   },
   {
+    "id": "physics-member-array-append-4ff7f0",
+    "size": 49,
+    "offset": 5240816,
+    "inputs": [
+      "src/campaign_member_array_append.c"
+    ],
+    "rebuilt_symbol": "@append_40@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_member_array_append.obj src/campaign_member_array_append.c",
+    "link_bindings": {
+      "_grow_array": {
+        "va": 283100208,
+        "basis": "Shared Campaign physics array growth helper; the caller supplies the array and element size."
+      }
+    },
+    "identification": "Complete append method at RVA 0x4ff7f0. Checks the capacity of the embedded array at offset 0x28, grows it if full and appends a four-byte element.",
+    "match": {
+      "bytes_sha256": "7c9a26bea5ec8a4012494a179f057ca64f3fdcb29f8c1e22fef4d989a88232b5",
+      "inputs_sha256": "8444d3c8bb53203ed916f7ee42a3f5acd5a4f5835bd8a78749741bef84d4cc37"
+    }
+  },
+  {
+    "id": "physics-member-array-append-4ff830",
+    "size": 49,
+    "offset": 5240880,
+    "inputs": [
+      "src/campaign_member_array_append.c"
+    ],
+    "rebuilt_symbol": "@append_52@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_member_array_append.obj src/campaign_member_array_append.c",
+    "link_bindings": {
+      "_grow_array": {
+        "va": 283100208,
+        "basis": "Shared Campaign physics array growth helper; the caller supplies the array and element size."
+      }
+    },
+    "identification": "Complete append method at RVA 0x4ff830. Checks the capacity of the embedded array at offset 0x34, grows it if full and appends a four-byte element.",
+    "match": {
+      "bytes_sha256": "be33a2dfaba06ac38fd6508e8d5a3d62940a640aa263e7b9d1b6a845c05c556f",
+      "inputs_sha256": "68a3a618163a625293f936137c59f5d0018bd2d84f173a1b1e6b0af6d39babf6"
+    }
+  },
+  {
     "id": "owned-array-storage-4ff870",
     "size": 37,
     "offset": 5240944,

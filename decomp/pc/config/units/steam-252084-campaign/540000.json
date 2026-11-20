@@ -446,6 +446,22 @@
     }
   },
   {
+    "id": "word-index-54fad0",
+    "size": 37,
+    "offset": 5569232,
+    "inputs": [
+      "src/campaign_word_index.c"
+    ],
+    "rebuilt_symbol": "@find_word@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_word_index.obj src/campaign_word_index.c",
+    "identification": "Aligned complete array search at RVA 0x54fad0. Compares four-byte values and returns the first matching index or -1.",
+    "match": {
+      "bytes_sha256": "7d8d833b43c305c42140db0772cde78939910d895d58dfb3d473f32e44a33b39",
+      "inputs_sha256": "7b5b350986f88b4583dc99a92b2d5287433bb8515d8ba11451b1308f31a2bd43"
+    }
+  },
+  {
     "id": "empty-physics-array-54fb00",
     "size": 23,
     "offset": 5569280,
@@ -459,6 +475,22 @@
     "match": {
       "bytes_sha256": "82830a7097035643fa51b56e948587147e0e537510d4c0e154c0e73ec5871934",
       "inputs_sha256": "b5f9a831dd7ac33c15b13a56d3595132131b04dae2efe416dc4190e6b825adcc"
+    }
+  },
+  {
+    "id": "word-index-54fb20",
+    "size": 37,
+    "offset": 5569312,
+    "inputs": [
+      "src/campaign_word_index.c"
+    ],
+    "rebuilt_symbol": "@find_word@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_word_index.obj src/campaign_word_index.c",
+    "identification": "Aligned complete array search at RVA 0x54fb20. Compares four-byte values and returns the first matching index or -1.",
+    "match": {
+      "bytes_sha256": "7d8d833b43c305c42140db0772cde78939910d895d58dfb3d473f32e44a33b39",
+      "inputs_sha256": "8318fa907224f01e85b3afcf97b864d4d742ae81e7683203d44ad1f59aff1b2c"
     }
   },
   {
@@ -478,6 +510,22 @@
     }
   },
   {
+    "id": "word-index-54fb70",
+    "size": 37,
+    "offset": 5569392,
+    "inputs": [
+      "src/campaign_word_index.c"
+    ],
+    "rebuilt_symbol": "@find_word@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_word_index.obj src/campaign_word_index.c",
+    "identification": "Aligned complete array search at RVA 0x54fb70. Compares four-byte values and returns the first matching index or -1.",
+    "match": {
+      "bytes_sha256": "7d8d833b43c305c42140db0772cde78939910d895d58dfb3d473f32e44a33b39",
+      "inputs_sha256": "05703a4a44381feb9321830591a716ee10444c2d2c902b9e11936bbc6e4a9906"
+    }
+  },
+  {
     "id": "empty-physics-array-54fba0",
     "size": 23,
     "offset": 5569440,
@@ -491,6 +539,38 @@
     "match": {
       "bytes_sha256": "82830a7097035643fa51b56e948587147e0e537510d4c0e154c0e73ec5871934",
       "inputs_sha256": "a5e4067fd12e2116e5dda6d17e7bbf468502edfc6424d6360b1483dfb6b19508"
+    }
+  },
+  {
+    "id": "word-index-54fbd0",
+    "size": 37,
+    "offset": 5569488,
+    "inputs": [
+      "src/campaign_word_index.c"
+    ],
+    "rebuilt_symbol": "@find_word@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_word_index.obj src/campaign_word_index.c",
+    "identification": "Aligned complete array search at RVA 0x54fbd0. Compares four-byte values and returns the first matching index or -1.",
+    "match": {
+      "bytes_sha256": "7d8d833b43c305c42140db0772cde78939910d895d58dfb3d473f32e44a33b39",
+      "inputs_sha256": "65879f344035a6ba805b88635f534aad064d0092ce071bee9637003f1631824c"
+    }
+  },
+  {
+    "id": "word-index-54fc10",
+    "size": 37,
+    "offset": 5569552,
+    "inputs": [
+      "src/campaign_word_index.c"
+    ],
+    "rebuilt_symbol": "@find_word@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_word_index.obj src/campaign_word_index.c",
+    "identification": "Aligned complete array search at RVA 0x54fc10. Compares four-byte values and returns the first matching index or -1.",
+    "match": {
+      "bytes_sha256": "7d8d833b43c305c42140db0772cde78939910d895d58dfb3d473f32e44a33b39",
+      "inputs_sha256": "8761add92f00f9c15a7676595ac9ad53d5f115db58ec9573c4fd51bcbe3f0627"
     }
   },
   {

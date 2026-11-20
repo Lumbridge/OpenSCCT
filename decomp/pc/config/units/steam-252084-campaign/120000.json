@@ -4624,6 +4624,22 @@
     }
   },
   {
+    "id": "word-index-12cce0",
+    "size": 37,
+    "offset": 1232096,
+    "inputs": [
+      "src/campaign_word_index.c"
+    ],
+    "rebuilt_symbol": "@find_word@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_word_index.obj src/campaign_word_index.c",
+    "identification": "Aligned complete array search at RVA 0x12cce0. Compares four-byte values and returns the first matching index or -1.",
+    "match": {
+      "bytes_sha256": "7d8d833b43c305c42140db0772cde78939910d895d58dfb3d473f32e44a33b39",
+      "inputs_sha256": "bfbdc727689a561042a9e3b7e96c1b23cb15705bab0410efc33ff75d0ab4c695"
+    }
+  },
+  {
     "id": "array-resize-12cd50",
     "size": 37,
     "offset": 1232208,

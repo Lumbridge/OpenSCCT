@@ -1998,6 +1998,22 @@
     }
   },
   {
+    "id": "word-index-2e83f0",
+    "size": 37,
+    "offset": 3048432,
+    "inputs": [
+      "src/campaign_word_index.c"
+    ],
+    "rebuilt_symbol": "@find_word@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_word_index.obj src/campaign_word_index.c",
+    "identification": "Aligned complete array search at RVA 0x2e83f0. Compares four-byte values and returns the first matching index or -1.",
+    "match": {
+      "bytes_sha256": "7d8d833b43c305c42140db0772cde78939910d895d58dfb3d473f32e44a33b39",
+      "inputs_sha256": "6fb8bdf211a7e12d592b2a702f7750de004fed3293dc89e9473b929c5a1b71c9"
+    }
+  },
+  {
     "id": "array-resize-2e8430",
     "size": 37,
     "offset": 3048496,

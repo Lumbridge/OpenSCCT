@@ -532,6 +532,28 @@
     }
   },
   {
+    "id": "physics-member-array-append-583290",
+    "size": 49,
+    "offset": 5780112,
+    "inputs": [
+      "src/campaign_member_array_append.c"
+    ],
+    "rebuilt_symbol": "@append_8@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_member_array_append.obj src/campaign_member_array_append.c",
+    "link_bindings": {
+      "_grow_array": {
+        "va": 283100208,
+        "basis": "Shared Campaign physics array growth helper; the caller supplies the array and element size."
+      }
+    },
+    "identification": "Complete append method at RVA 0x583290. Checks the capacity of the embedded array at offset 0x8, grows it if full and appends a four-byte element.",
+    "match": {
+      "bytes_sha256": "e0f38d5d494e1cc29b5174994e99a0966a1178ddf6fb3f4b1d8af79b1e64fd03",
+      "inputs_sha256": "db5c815f389fb9964476280cf9bf6f190a7f77a39106edfcddd74f72a433ec18"
+    }
+  },
+  {
     "id": "physics-sized-release-5832e0",
     "size": 41,
     "offset": 5780192,
@@ -1026,6 +1048,28 @@
     }
   },
   {
+    "id": "physics-member-array-append-583d80",
+    "size": 55,
+    "offset": 5782912,
+    "inputs": [
+      "src/campaign_member_array_append.c"
+    ],
+    "rebuilt_symbol": "@append_228@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_member_array_append.obj src/campaign_member_array_append.c",
+    "link_bindings": {
+      "_grow_array": {
+        "va": 283100208,
+        "basis": "Shared Campaign physics array growth helper; the caller supplies the array and element size."
+      }
+    },
+    "identification": "Complete append method at RVA 0x583d80. Checks the capacity of the embedded array at offset 0xe4, grows it if full and appends a four-byte element.",
+    "match": {
+      "bytes_sha256": "d0a76843b85d78ad26a996dc9c549eeda566e00bbacedcb8db87b3939a3c58cd",
+      "inputs_sha256": "a5ad0cd02e1971b107a35acf18ce31727438bb3753e63e350175ef4bfc1f6a94"
+    }
+  },
+  {
     "id": "owned-array-storage-5840d0",
     "size": 37,
     "offset": 5783760,
@@ -1175,6 +1219,28 @@
     "match": {
       "bytes_sha256": "d47cb30c172d601f64754ebab20ad1587ff1b99aac997e5f21183d6b1d24d0a2",
       "inputs_sha256": "1614bd573481fd19518a51dff60746129b02cdc40dee29d5cbd029d4a3ccf351"
+    }
+  },
+  {
+    "id": "physics-member-array-append-584440",
+    "size": 55,
+    "offset": 5784640,
+    "inputs": [
+      "src/campaign_member_array_append.c"
+    ],
+    "rebuilt_symbol": "@append_228@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_member_array_append.obj src/campaign_member_array_append.c",
+    "link_bindings": {
+      "_grow_array": {
+        "va": 283100208,
+        "basis": "Shared Campaign physics array growth helper; the caller supplies the array and element size."
+      }
+    },
+    "identification": "Complete append method at RVA 0x584440. Checks the capacity of the embedded array at offset 0xe4, grows it if full and appends a four-byte element.",
+    "match": {
+      "bytes_sha256": "e2df6948767878e5ba2dbe6171b5573c57799bffba76b4663612591f92e815e8",
+      "inputs_sha256": "6515cc452af6dc13912e2c60e388becc1c1aed8339dd306eaea686fb92c822ef"
     }
   },
   {
@@ -1528,6 +1594,28 @@
     }
   },
   {
+    "id": "physics-member-array-append-586a60",
+    "size": 55,
+    "offset": 5794400,
+    "inputs": [
+      "src/campaign_member_array_append.c"
+    ],
+    "rebuilt_symbol": "@append_228@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_member_array_append.obj src/campaign_member_array_append.c",
+    "link_bindings": {
+      "_grow_array": {
+        "va": 283100208,
+        "basis": "Shared Campaign physics array growth helper; the caller supplies the array and element size."
+      }
+    },
+    "identification": "Complete append method at RVA 0x586a60. Checks the capacity of the embedded array at offset 0xe4, grows it if full and appends a four-byte element.",
+    "match": {
+      "bytes_sha256": "9acec0af7b0393dbdfac4d9ea670d27acc4be6e9c96d4c3f35db591c24d1d323",
+      "inputs_sha256": "11978676da06c8f737d70156d8ea4491431594e84fcebd70fdcb17ca17451cdf"
+    }
+  },
+  {
     "id": "delete-pool-586cb0",
     "size": 40,
     "offset": 5794992,
@@ -1843,6 +1931,28 @@
     "match": {
       "bytes_sha256": "d47cb30c172d601f64754ebab20ad1587ff1b99aac997e5f21183d6b1d24d0a2",
       "inputs_sha256": "7898dc49fd6997d1d07de4a3e02b166eb3be4f17e984aef176b6bae24e9352ad"
+    }
+  },
+  {
+    "id": "physics-member-array-append-588660",
+    "size": 49,
+    "offset": 5801568,
+    "inputs": [
+      "src/campaign_member_array_append.c"
+    ],
+    "rebuilt_symbol": "@append_8@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_member_array_append.obj src/campaign_member_array_append.c",
+    "link_bindings": {
+      "_grow_array": {
+        "va": 283100208,
+        "basis": "Shared Campaign physics array growth helper; the caller supplies the array and element size."
+      }
+    },
+    "identification": "Complete append method at RVA 0x588660. Checks the capacity of the embedded array at offset 0x8, grows it if full and appends a four-byte element.",
+    "match": {
+      "bytes_sha256": "29435f9b2304e73f5a961b3ade131eba7bcb3785b2551833784826bcd6771571",
+      "inputs_sha256": "965959142de2bb9bc87180f31ae994abbfd4b012496c0c11960d35a923774c11"
     }
   },
   {
@@ -2489,6 +2599,28 @@
     "match": {
       "bytes_sha256": "8c0c06879e5e00b7a8d95f482f4b8df499d04bc307d19ffd65133598651d7255",
       "inputs_sha256": "26efb02194be42e32f504717af00ce9c9f0c73622e924a36256255f821befb43"
+    }
+  },
+  {
+    "id": "physics-member-array-append-5892f0",
+    "size": 49,
+    "offset": 5804784,
+    "inputs": [
+      "src/campaign_member_array_append.c"
+    ],
+    "rebuilt_symbol": "@append_8@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_member_array_append.obj src/campaign_member_array_append.c",
+    "link_bindings": {
+      "_grow_array": {
+        "va": 283100208,
+        "basis": "Shared Campaign physics array growth helper; the caller supplies the array and element size."
+      }
+    },
+    "identification": "Complete append method at RVA 0x5892f0. Checks the capacity of the embedded array at offset 0x8, grows it if full and appends a four-byte element.",
+    "match": {
+      "bytes_sha256": "709940d71325a324d871dd85184a21dd8f4f94de7573ccebfb0260d81e0f467f",
+      "inputs_sha256": "2956cecf3646eed6509e2eb47da5794a3b184a356f8c7a802466e4415f4824a4"
     }
   },
   {

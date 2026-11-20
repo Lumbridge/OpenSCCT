@@ -199,6 +199,22 @@
     }
   },
   {
+    "id": "word-index-310c00",
+    "size": 37,
+    "offset": 3214336,
+    "inputs": [
+      "src/campaign_word_index.c"
+    ],
+    "rebuilt_symbol": "@find_word@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_word_index.obj src/campaign_word_index.c",
+    "identification": "Aligned complete array search at RVA 0x310c00. Compares four-byte values and returns the first matching index or -1.",
+    "match": {
+      "bytes_sha256": "7d8d833b43c305c42140db0772cde78939910d895d58dfb3d473f32e44a33b39",
+      "inputs_sha256": "db143e236710b38c893d32e1bb963acf196cf012db1c791af9fbab4d41df191d"
+    }
+  },
+  {
     "id": "construct-actor-aechelongameinfo",
     "offset": 3215520,
     "size": 48,

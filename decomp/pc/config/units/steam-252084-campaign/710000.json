@@ -444,6 +444,22 @@
     }
   },
   {
+    "id": "word-index-71c180",
+    "size": 37,
+    "offset": 7455104,
+    "inputs": [
+      "src/campaign_word_index.c"
+    ],
+    "rebuilt_symbol": "@find_word@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_word_index.obj src/campaign_word_index.c",
+    "identification": "Aligned complete array search at RVA 0x71c180. Compares four-byte values and returns the first matching index or -1.",
+    "match": {
+      "bytes_sha256": "7d8d833b43c305c42140db0772cde78939910d895d58dfb3d473f32e44a33b39",
+      "inputs_sha256": "ed2c8e2219ebd3dec2821a8f6602fc0e00d41ed8566bb060adb401e14f2f8b06"
+    }
+  },
+  {
     "id": "physics-buffer-release-71c1d0",
     "size": 30,
     "offset": 7455184,
@@ -514,6 +530,22 @@
     }
   },
   {
+    "id": "word-index-71cc20",
+    "size": 37,
+    "offset": 7457824,
+    "inputs": [
+      "src/campaign_word_index.c"
+    ],
+    "rebuilt_symbol": "@find_word@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_word_index.obj src/campaign_word_index.c",
+    "identification": "Aligned complete array search at RVA 0x71cc20. Compares four-byte values and returns the first matching index or -1.",
+    "match": {
+      "bytes_sha256": "7d8d833b43c305c42140db0772cde78939910d895d58dfb3d473f32e44a33b39",
+      "inputs_sha256": "90b8b8f507d7b4b424bc0a9371b12664049a101d978e3b00d7364351ff1a6492"
+    }
+  },
+  {
     "id": "append-word-71ceb0",
     "offset": 7458480,
     "size": 50,
@@ -533,6 +565,50 @@
     "match": {
       "bytes_sha256": "90bbaec7e89d97c62653a807f7e38ddf5299fcf27525667b95fbc4034d80b542",
       "inputs_sha256": "142e2731ad6b29c3605e012b826634111b3df38a97c72652f441a82136f6acb4"
+    }
+  },
+  {
+    "id": "physics-member-array-append-71cef0",
+    "size": 49,
+    "offset": 7458544,
+    "inputs": [
+      "src/campaign_member_array_append.c"
+    ],
+    "rebuilt_symbol": "@append_72@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_member_array_append.obj src/campaign_member_array_append.c",
+    "link_bindings": {
+      "_grow_array": {
+        "va": 283100208,
+        "basis": "Shared Campaign physics array growth helper; the caller supplies the array and element size."
+      }
+    },
+    "identification": "Complete append method at RVA 0x71cef0. Checks the capacity of the embedded array at offset 0x48, grows it if full and appends a four-byte element.",
+    "match": {
+      "bytes_sha256": "748c0163044f4b5d37633369ecf2dbeb609376db5cfa2083fb5d1fb2c98f18ed",
+      "inputs_sha256": "f3282d9fc8953831f85cfff8d9661bba5bd734e6231a2919340bf6c1ade882a8"
+    }
+  },
+  {
+    "id": "physics-member-array-append-71cf30",
+    "size": 49,
+    "offset": 7458608,
+    "inputs": [
+      "src/campaign_member_array_append.c"
+    ],
+    "rebuilt_symbol": "@append_60@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_member_array_append.obj src/campaign_member_array_append.c",
+    "link_bindings": {
+      "_grow_array": {
+        "va": 283100208,
+        "basis": "Shared Campaign physics array growth helper; the caller supplies the array and element size."
+      }
+    },
+    "identification": "Complete append method at RVA 0x71cf30. Checks the capacity of the embedded array at offset 0x3c, grows it if full and appends a four-byte element.",
+    "match": {
+      "bytes_sha256": "fcbf02d970ca72e577369cf1f83efe9aeea61e1d81e431503dfd421c9d8be6ee",
+      "inputs_sha256": "2635bf19ce3d49c4278a0805297fba06cb6ebcdaac253c3d04a6336d196aaffa"
     }
   },
   {
