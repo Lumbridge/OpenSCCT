@@ -52,6 +52,7 @@ internal static class WebHtml
             html.Append($"<link rel=\"stylesheet\" href=\"{H(AssetUrl("/web/assets/community.css"))}\">");
         if (active is "home" or "projects" or "mods" or "progress" or "tools" or "legal" or "search")
             html.Append($"<link rel=\"stylesheet\" href=\"{H(AssetUrl("/web/assets/projects.css"))}\">");
+        if (active == "mods") html.Append($"<link rel=\"stylesheet\" href=\"{H(AssetUrl("/web/assets/mods.css"))}\">");
         if (active == "wiki") html.Append($"<link rel=\"stylesheet\" href=\"{H(AssetUrl("/web/assets/wiki.css"))}\">");
         if (active is "home" or "help" or "wiki" or "improvements")
             html.Append("<meta name=\"description\" content=\"").Append(H(active switch

@@ -43,6 +43,7 @@ internal sealed partial class PlayerPortal(MasterOptions options, AccountStore s
         Get(app, "/projects/{edition}/decomp", ReconstructionGuide);
         Get(app, "/legal", Legal);
         Get(app, "/mods", Mods);
+        Get(app, "/mods/maps/{code}", ModMap);
         Get(app, "/tools", Tools);
         Get(app, "/progress", ProjectProgress);
         Get(app, "/download", Download);

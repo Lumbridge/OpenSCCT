@@ -1,0 +1,514 @@
+{
+  "format": "openscct.content",
+  "formatVersion": 1,
+  "updated": "2026-11-20T00:00:00Z",
+  "svmapFormat": "1.1",
+  "shared": [],
+  "maps": [
+    {
+      "id": "community/apar01",
+      "code": "apar01",
+      "category": "community",
+      "title": "Executive Suites Beta",
+      "version": "1.0.0",
+      "modes": [
+        "Story"
+      ],
+      "contentHash": "0420dc3fea443682",
+      "steamRecipe": {
+        "commit": "a3c948c4bf6250cf471c3edee6e03ef62e63932c",
+        "credits": "Executive Suites Beta community map authors (original credits retained in the map)",
+        "evidence": "https://github.com/OpenSCCT/SCCT-Maps/blob/a3c948c4bf6250cf471c3edee6e03ef62e63932c/community/Executive%20Suites%20Beta/README.md",
+        "steamFiles": [
+          "Packages/Animations/AQU_anm.ukx",
+          "Packages/Animations/CLU_anims.ukx",
+          "Packages/Sounds/Amb_Aqua.uax",
+          "Packages/Sounds/Amb_Dep.uax",
+          "Packages/Sounds/Amb_Gare.uax",
+          "Packages/Sounds/Amb_Museum.uax",
+          "Packages/Sounds/Armes_impacts.uax",
+          "Packages/StaticMeshes/Aquarium_STM.usx",
+          "Packages/StaticMeshes/BNK_STM.usx",
+          "Packages/StaticMeshes/CLU04_STM.usx",
+          "Packages/StaticMeshes/DTK_STATICMESHS_TC.usx",
+          "Packages/StaticMeshes/SGameplayObjects.usx",
+          "Packages/StaticMeshes/STM_MALL.usx",
+          "Packages/StaticMeshes/TestMapStaticM.usx",
+          "Packages/StaticMeshes/chantier_poc.usx",
+          "Packages/StaticMeshes/chantier_poc_stm.usx",
+          "Packages/StaticMeshes/stm_war.usx",
+          "Packages/Textures/Aquarium_TXT.utx",
+          "Packages/Textures/CLU04_TXT.utx",
+          "Packages/Textures/TXT_BNK.utx",
+          "Packages/Textures/TXT_MAL.utx",
+          "Packages/Textures/drpoc_chantier.utx",
+          "Packages/Textures/txt_war.utx",
+          "System/_PC_/Core.u",
+          "System/_PC_/Editor.u",
+          "System/_PC_/Engine.u",
+          "System/_PC_/SBase.u",
+          "System/_PC_/SoftBody.u"
+        ],
+        "files": [
+          {
+            "path": "community/Executive Suites Beta/Packages/Maps/apar01.sdc",
+            "destination": "Packages/Maps/apar01.sdc",
+            "size": 511518,
+            "sha256": "36e72e75942b4bfa6d48367c4d1fa1fdbb1b9bbb7c657e4b2eec542aaf22b04a"
+          },
+          {
+            "path": "community/Executive Suites Beta/Packages/Textures/apar01-i.utc",
+            "destination": "Packages/Textures/apar01-i.utc",
+            "size": 489,
+            "sha256": "a5b8264849b116c3151ada6b31ac8ae32b0347829a255bcbc13b058707000781"
+          },
+          {
+            "path": "community/Executive Suites Beta/Packages/StaticMeshes/APA02_sm.usx",
+            "destination": "Packages/StaticMeshes/APA02_sm.usx",
+            "size": 2075971,
+            "sha256": "0f3318a85bc7a4cada23326514b38ff712cd6cd8bb4a59cd3fa6ed80f03806b7"
+          },
+          {
+            "path": "community/Executive Suites Beta/Packages/Textures/apa02_txt.utx",
+            "destination": "Packages/Textures/apa02_txt.utx",
+            "size": 7500245,
+            "sha256": "3a04c5d15d0a48257bcfc77cb8eb0bcf3c7e2001cb77a399b0171143fb2e4a4b"
+          }
+        ]
+      }
+    },
+    {
+      "id": "community/BuddhistTemple",
+      "code": "BuddhistTemple",
+      "category": "community",
+      "title": "Buddhist Temple 0.5",
+      "version": "1.0.0",
+      "modes": [
+        "Deathmatch",
+        "DiskHunt",
+        "Story"
+      ],
+      "contentHash": "77b1acbd68535137",
+      "steamRecipe": {
+        "commit": "a3c948c4bf6250cf471c3edee6e03ef62e63932c",
+        "credits": "Buddhist Temple 0.5 community map authors (original credits retained in the map)",
+        "evidence": "https://github.com/OpenSCCT/SCCT-Maps/blob/a3c948c4bf6250cf471c3edee6e03ef62e63932c/community/Buddhist%20Temple%200.5/README.md",
+        "steamFiles": [
+          "Packages/Sounds/Amb_Club.uax",
+          "Packages/Sounds/Amb_Gare.uax",
+          "Packages/StaticMeshes/Aquarium_STM.usx",
+          "Packages/StaticMeshes/CLU04_STM.usx",
+          "Packages/StaticMeshes/Mall_tibu_stc.usx",
+          "Packages/StaticMeshes/SGameplayObjects.usx",
+          "Packages/StaticMeshes/STM_MALL.usx",
+          "Packages/StaticMeshes/chantier_poc.usx",
+          "Packages/Textures/Bunker.utx",
+          "Packages/Textures/CLU04_TXT.utx",
+          "Packages/Textures/GAR_TXT.utx",
+          "Packages/Textures/Mall_tibu.utx",
+          "Packages/Textures/sfx.utx",
+          "System/_PC_/Core.u",
+          "System/_PC_/Engine.u",
+          "System/_PC_/SBase.u",
+          "System/_PC_/SoftBody.u"
+        ],
+        "files": [
+          {
+            "path": "community/Buddhist Temple 0.5/Packages/Maps/BuddhistTemple.sdc",
+            "destination": "Packages/Maps/BuddhistTemple.sdc",
+            "size": 556543,
+            "sha256": "d1aa385d56bd1980076f5f4d2a63f777db97e5e60cfb673ab16a7851c3003a4b"
+          },
+          {
+            "path": "community/Buddhist Temple 0.5/Packages/Textures/BuddhistTemple-i.utc",
+            "destination": "Packages/Textures/BuddhistTemple-i.utc",
+            "size": 729,
+            "sha256": "8f1e7a4f11f57a28f7b29ab1b77fa37ad6cde70f1330e2447405d00e18883409"
+          },
+          {
+            "path": "community/Buddhist Temple 0.5/Packages/StaticMeshes/uc.usx",
+            "destination": "Packages/StaticMeshes/uc.usx",
+            "size": 55239,
+            "sha256": "1fb7e13f39c8d577adf8772a9ab44341f0771e8dceabe9e8e865cacdaea140d7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "community/DIM01",
+      "code": "DIM01",
+      "category": "community",
+      "title": "DimmyKron Estate",
+      "version": "1.0.0",
+      "modes": [
+        "Story"
+      ],
+      "contentHash": "8b6503655fa31177",
+      "steamRecipe": {
+        "commit": "a3c948c4bf6250cf471c3edee6e03ef62e63932c",
+        "credits": "DimmyKron Estate community map authors (original credits retained in the map)",
+        "evidence": "https://github.com/OpenSCCT/SCCT-Maps/blob/a3c948c4bf6250cf471c3edee6e03ef62e63932c/community/DimmyKron%20Estate/README.md",
+        "steamFiles": [
+          "Packages/StaticMeshes/Aquarium_STM.usx",
+          "Packages/StaticMeshes/BNK_STM.usx",
+          "Packages/StaticMeshes/CLU04_STM.usx",
+          "Packages/StaticMeshes/DTK_STATICMESHS_TC.usx",
+          "Packages/StaticMeshes/stm_war.usx",
+          "Packages/Textures/CLU04_TXT.utx",
+          "Packages/Textures/drpoc_chantier.utx",
+          "System/_PC_/Core.u",
+          "System/_PC_/Engine.u",
+          "System/_PC_/SBase.u"
+        ],
+        "files": [
+          {
+            "path": "community/DimmyKron Estate/Packages/Maps/DIM01.sdc",
+            "destination": "Packages/Maps/DIM01.sdc",
+            "size": 155665,
+            "sha256": "ebc90f1ff6d7be15ca96f3d993d94c27117b35d41681014544ae8682d7a03439"
+          },
+          {
+            "path": "community/DimmyKron Estate/Packages/Textures/DIM01-i.utc",
+            "destination": "Packages/Textures/DIM01-i.utc",
+            "size": 977,
+            "sha256": "0cc67278c3115332a0ced1662a91f002384822c5776a7ec0c9e95c48da310281"
+          },
+          {
+            "path": "community/DimmyKron Estate/Packages/StaticMeshes/Dimmy_SM.usx",
+            "destination": "Packages/StaticMeshes/Dimmy_SM.usx",
+            "size": 1688519,
+            "sha256": "1e813c27cbde3d388ca3216701a47a050672d96c8be36a60c6d9fc3cd38d31bb"
+          },
+          {
+            "path": "community/DimmyKron Estate/Packages/Textures/Dimmy_tex.utx",
+            "destination": "Packages/Textures/Dimmy_tex.utx",
+            "size": 1222384,
+            "sha256": "48a46045e6f564726ba3994c060f72708ca845d8c43db938c7ad8359ce2686a6"
+          }
+        ]
+      }
+    },
+    {
+      "id": "community/dm_contain",
+      "code": "dm_contain",
+      "category": "community",
+      "title": "DM Contain Beta",
+      "version": "1.0.0",
+      "modes": [
+        "Deathmatch",
+        "Story"
+      ],
+      "contentHash": "802f836308e9e1f5",
+      "steamRecipe": {
+        "commit": "a3c948c4bf6250cf471c3edee6e03ef62e63932c",
+        "credits": "DM Contain Beta community map authors (original credits retained in the map)",
+        "evidence": "https://github.com/OpenSCCT/SCCT-Maps/blob/a3c948c4bf6250cf471c3edee6e03ef62e63932c/community/DM%20Contain%20Beta/README.md",
+        "steamFiles": [
+          "Packages/Animations/AQU_anm.ukx",
+          "Packages/Sounds/Amb_Aqua.uax",
+          "Packages/Sounds/Amb_Club.uax",
+          "Packages/Sounds/Amb_Dep.uax",
+          "Packages/Sounds/Armes_impacts.uax",
+          "Packages/Sounds/amb_Bank.uax",
+          "Packages/Sounds/amb_Belew.uax",
+          "Packages/StaticMeshes/Aquarium_STM.usx",
+          "Packages/StaticMeshes/BNK_STM.usx",
+          "Packages/StaticMeshes/CLU04_STM.usx",
+          "Packages/StaticMeshes/DTK_SPECIFIC_MESH.usx",
+          "Packages/StaticMeshes/DTK_STATICMESHS_TC.usx",
+          "Packages/StaticMeshes/FAC_STM.usx",
+          "Packages/StaticMeshes/GAR_STM.usx",
+          "Packages/StaticMeshes/SGameplayObjects.usx",
+          "Packages/StaticMeshes/STM_MALL.usx",
+          "Packages/StaticMeshes/chantier_poc.usx",
+          "Packages/StaticMeshes/stm_war.usx",
+          "Packages/Textures/Bunker.utx",
+          "Packages/Textures/CLU04_TXT.utx",
+          "Packages/Textures/DTK_TEXTURES_TC.utx",
+          "Packages/Textures/GAR_TXT.utx",
+          "Packages/Textures/TXT_BNK.utx",
+          "Packages/Textures/drpoc_chantier.utx",
+          "Packages/Textures/drpoc_chantier_XBOX.utx",
+          "Packages/Textures/sfx.utx",
+          "Packages/Textures/txt_war.utx",
+          "System/_PC_/Engine.u",
+          "System/_PC_/SBase.u",
+          "System/_PC_/SoftBody.u"
+        ],
+        "files": [
+          {
+            "path": "community/DM Contain Beta/Packages/Maps/dm_contain.sdc",
+            "destination": "Packages/Maps/dm_contain.sdc",
+            "size": 524750,
+            "sha256": "ed4b0a8c3ab7541f2279de3828742cd927ff050ef137a478c5b11df54c2d601f"
+          },
+          {
+            "path": "community/DM Contain Beta/Packages/Textures/dm_contain-i.utc",
+            "destination": "Packages/Textures/dm_contain-i.utc",
+            "size": 100536,
+            "sha256": "ba83ab7069d34076b06b0372e8142b4b56270ffd6b5ecaa51701c07125605c6a"
+          },
+          {
+            "path": "community/DM Contain Beta/Packages/StaticMeshes/dm_warehouse.usx",
+            "destination": "Packages/StaticMeshes/dm_warehouse.usx",
+            "size": 486786,
+            "sha256": "b5eee1e5888a69ee8301951d78a0adbff86ca846fc405dcb3f42a9f9238edfcc"
+          }
+        ]
+      }
+    },
+    {
+      "id": "community/STH02",
+      "code": "STH02",
+      "category": "community",
+      "title": "Stockhouse",
+      "version": "1.0.0",
+      "modes": [
+        "Deathmatch",
+        "DiskHunt",
+        "Story"
+      ],
+      "contentHash": "fd13fd7c326d88a0",
+      "steamRecipe": {
+        "commit": "a3c948c4bf6250cf471c3edee6e03ef62e63932c",
+        "credits": "Stockhouse community map authors (original credits retained in the map)",
+        "evidence": "https://github.com/OpenSCCT/SCCT-Maps/blob/a3c948c4bf6250cf471c3edee6e03ef62e63932c/community/Stockhouse/README.md",
+        "steamFiles": [
+          "Packages/Animations/AQU_anm.ukx",
+          "Packages/Animations/CLU_anims.ukx",
+          "Packages/Animations/MAL_anm.ukx",
+          "Packages/Sounds/Amb_Aqua.uax",
+          "Packages/Sounds/Amb_Club.uax",
+          "Packages/Sounds/Amb_Dep.uax",
+          "Packages/Sounds/Amb_Gare.uax",
+          "Packages/Sounds/Amb_Museum.uax",
+          "Packages/Sounds/Amb_Orph.uax",
+          "Packages/Sounds/Amb_Tme.uax",
+          "Packages/Sounds/Amb_Tsp.uax",
+          "Packages/Sounds/Amb_factory.uax",
+          "Packages/StaticMeshes/Aquarium_STM.usx",
+          "Packages/StaticMeshes/BNK_STM.usx",
+          "Packages/StaticMeshes/CLU04_STM.usx",
+          "Packages/StaticMeshes/DTK_STATICMESHS_TC.usx",
+          "Packages/StaticMeshes/FAC_STM.usx",
+          "Packages/StaticMeshes/GAR_STM.usx",
+          "Packages/StaticMeshes/Mall_tibu_stc.usx",
+          "Packages/StaticMeshes/Missile.usx",
+          "Packages/StaticMeshes/SGameplayObjects.usx",
+          "Packages/StaticMeshes/STM_MALL.usx",
+          "Packages/StaticMeshes/STM_ORP.usx",
+          "Packages/StaticMeshes/STM_Poc_AquaTest.usx",
+          "Packages/StaticMeshes/TME01_STM.usx",
+          "Packages/StaticMeshes/TSP01_STM.usx",
+          "Packages/StaticMeshes/TestMapStaticM.usx",
+          "Packages/StaticMeshes/chantier_poc.usx",
+          "Packages/StaticMeshes/chantier_poc_stm.usx",
+          "Packages/StaticMeshes/stm_war.usx",
+          "Packages/Textures/Aquarium_TXT.utx",
+          "Packages/Textures/Bunker.utx",
+          "Packages/Textures/CLU04_TXT.utx",
+          "Packages/Textures/DTK_TEXTURES_TC.utx",
+          "Packages/Textures/DTK_XBOX.utx",
+          "Packages/Textures/Echelon.utx",
+          "Packages/Textures/GAR_TXT.utx",
+          "Packages/Textures/Mall_tibu.utx",
+          "Packages/Textures/SGameplayObjectsTex.utx",
+          "Packages/Textures/TSP01_TXT.utx",
+          "Packages/Textures/TXT_BNK.utx",
+          "Packages/Textures/TXT_MAL.utx",
+          "Packages/Textures/TXT_ORP.utx",
+          "Packages/Textures/Tutorials_PC.utx",
+          "Packages/Textures/drpoc_chantier.utx",
+          "Packages/Textures/drpoc_chantier_XBOX.utx",
+          "Packages/Textures/sfx.utx",
+          "Packages/Textures/txt_war.utx",
+          "System/_PC_/Engine.u",
+          "System/_PC_/SBase.u",
+          "System/_PC_/SoftBody.u"
+        ],
+        "files": [
+          {
+            "path": "community/Stockhouse/Packages/Maps/STH02.sdc",
+            "destination": "Packages/Maps/STH02.sdc",
+            "size": 519192,
+            "sha256": "8ef06502d0e6e222c140ab7d821e0c11536e3c3fcede9799315763b67b191e8f"
+          },
+          {
+            "path": "community/Stockhouse/Packages/Textures/STH02-i.utc",
+            "destination": "Packages/Textures/STH02-i.utc",
+            "size": 130588,
+            "sha256": "800bba784f59455d6b8e3f3512f79f8b55511ad499f836339cec286056b6e0fa"
+          },
+          {
+            "path": "community/Stockhouse/Packages/StaticMeshes/littwarehouse.usx",
+            "destination": "Packages/StaticMeshes/littwarehouse.usx",
+            "size": 769890,
+            "sha256": "22dc18bd6df4457ba773765171d39f55d4e1572cecc868f3d934fa9c35c7673f"
+          },
+          {
+            "path": "community/Stockhouse/Packages/Textures/LWA88.utx",
+            "destination": "Packages/Textures/LWA88.utx",
+            "size": 5958225,
+            "sha256": "470ba900eb0a74dd1a18ac5069baf62b77653ac8a565aa6cf8f989166f1591b8"
+          },
+          {
+            "path": "community/Stockhouse/Packages/Textures/stockhouseart.utx",
+            "destination": "Packages/Textures/stockhouseart.utx",
+            "size": 2884654,
+            "sha256": "8f3cb6240e02ea1d3ad8e9d2fedf76f8b8153992902de4521fdd3625d4ccec63"
+          }
+        ]
+      }
+    },
+    {
+      "id": "community/sub18",
+      "code": "sub18",
+      "category": "community",
+      "title": "SubLabs",
+      "version": "1.0.0",
+      "modes": [
+        "Deathmatch",
+        "DiskHunt",
+        "Story"
+      ],
+      "contentHash": "733036c3a5b28dd1",
+      "steamRecipe": {
+        "commit": "a3c948c4bf6250cf471c3edee6e03ef62e63932c",
+        "credits": ".red aka Red_SoN, credited by the original LevelInfo",
+        "evidence": "https://github.com/OpenSCCT/SCCT-Maps/blob/a3c948c4bf6250cf471c3edee6e03ef62e63932c/community/SubLabs/README.md",
+        "steamFiles": [
+          "Packages/Animations/AQU_anm.ukx",
+          "Packages/Animations/TME01_anm.ukx",
+          "Packages/Sounds/Amb_Aqua.uax",
+          "Packages/Sounds/Amb_Gare.uax",
+          "Packages/Sounds/Amb_Tme.uax",
+          "Packages/Sounds/Amb_Tsp.uax",
+          "Packages/Sounds/Amb_factory.uax",
+          "Packages/Sounds/Armes_impacts.uax",
+          "Packages/Sounds/amb_Belew.uax",
+          "Packages/StaticMeshes/Aquarium_STM.usx",
+          "Packages/StaticMeshes/BNK_STM.usx",
+          "Packages/StaticMeshes/CLU04_STM.usx",
+          "Packages/StaticMeshes/DTK_SPECIFIC_MESH.usx",
+          "Packages/StaticMeshes/DTK_STATICMESHS_TC.usx",
+          "Packages/StaticMeshes/FAC_STM.usx",
+          "Packages/StaticMeshes/GAR_STM.usx",
+          "Packages/StaticMeshes/Missile.usx",
+          "Packages/StaticMeshes/SGameplayObjects.usx",
+          "Packages/StaticMeshes/STM_MALL.usx",
+          "Packages/StaticMeshes/TME01_STM.usx",
+          "Packages/StaticMeshes/TestMapStaticM.usx",
+          "Packages/StaticMeshes/chantier_poc.usx",
+          "Packages/StaticMeshes/stm_war.usx",
+          "Packages/Textures/Aquarium_TXT.utx",
+          "Packages/Textures/Bunker.utx",
+          "Packages/Textures/CLU04_TXT.utx",
+          "Packages/Textures/DTK_TEXTURES_TC.utx",
+          "Packages/Textures/Echelon.utx",
+          "Packages/Textures/EditorTex.utx",
+          "Packages/Textures/FAC_TXT.utx",
+          "Packages/Textures/GAR_TXT.utx",
+          "Packages/Textures/SGameplayObjectsTex.utx",
+          "Packages/Textures/SWeaponTex.utx",
+          "Packages/Textures/TME01_TXT.utx",
+          "Packages/Textures/TXT_BNK.utx",
+          "Packages/Textures/TXT_MAL.utx",
+          "Packages/Textures/TXT_ORP.utx",
+          "Packages/Textures/drpoc_chantier_XBOX.utx",
+          "Packages/Textures/help_path.utx",
+          "Packages/Textures/sfx.utx",
+          "Packages/Textures/txt_war.utx",
+          "System/_PC_/Core.u",
+          "System/_PC_/Engine.u",
+          "System/_PC_/SBase.u",
+          "System/_PC_/SoftBody.u"
+        ],
+        "files": [
+          {
+            "path": "community/SubLabs/Packages/Maps/sub18.sdc",
+            "destination": "Packages/Maps/sub18.sdc",
+            "size": 973914,
+            "sha256": "f0f1331b7875b2eddf1dc4caac11c51d29e251075de63e175f48a73a772c0c76"
+          },
+          {
+            "path": "community/SubLabs/Packages/Textures/sub18-i.utc",
+            "destination": "Packages/Textures/sub18-i.utc",
+            "size": 136082,
+            "sha256": "c5d4e549ee95a95d1fba869e5a26f1f639a82f4484b7e3cc693294e18deb8c85"
+          },
+          {
+            "path": "community/SubLabs/Packages/StaticMeshes/sub18_sm.usx",
+            "destination": "Packages/StaticMeshes/sub18_sm.usx",
+            "size": 1142010,
+            "sha256": "26a417dadd9606d88cc98fb836708fc0f08f53ff4ad30fa621e1ab5bc89c447a"
+          },
+          {
+            "path": "community/SubLabs/Packages/Textures/sub18_t.utx",
+            "destination": "Packages/Textures/sub18_t.utx",
+            "size": 1833580,
+            "sha256": "d8f7592b051cfa29d6b466a1c1f6d35eb7c521dc2c7932886f740dab788fb9c5"
+          }
+        ]
+      }
+    },
+    {
+      "id": "community/USDOJO",
+      "code": "USDOJO",
+      "category": "community",
+      "title": "Suspect Dojo v.7",
+      "version": "1.0.0",
+      "modes": [
+        "Deathmatch",
+        "DiskHunt",
+        "Story"
+      ],
+      "contentHash": "f256c5f332a9c647",
+      "steamRecipe": {
+        "commit": "a3c948c4bf6250cf471c3edee6e03ef62e63932c",
+        "credits": "Suspect Dojo v.7 community map authors (original credits retained in the map)",
+        "evidence": "https://github.com/OpenSCCT/SCCT-Maps/blob/a3c948c4bf6250cf471c3edee6e03ef62e63932c/community/Suspect%20Dojo%20v.7/README.md",
+        "steamFiles": [
+          "Packages/Sounds/Amb_Dep.uax",
+          "Packages/Sounds/Amb_Orph.uax",
+          "Packages/StaticMeshes/Aquarium_STM.usx",
+          "Packages/StaticMeshes/CLU04_STM.usx",
+          "Packages/StaticMeshes/SGameplayObjects.usx",
+          "Packages/StaticMeshes/STM_MALL.usx",
+          "Packages/StaticMeshes/stm_war.usx",
+          "Packages/Textures/CLU04_TXT.utx",
+          "Packages/Textures/txt_war.utx",
+          "System/_PC_/Core.u",
+          "System/_PC_/Editor.u",
+          "System/_PC_/Engine.u",
+          "System/_PC_/SBase.u"
+        ],
+        "files": [
+          {
+            "path": "community/Suspect Dojo v.7/Packages/Maps/USDOJO.sdc",
+            "destination": "Packages/Maps/USDOJO.sdc",
+            "size": 146847,
+            "sha256": "c759fa054b467f40abf335f5787a96be471e3efe299b2114bf72a951d96de8d5"
+          },
+          {
+            "path": "community/Suspect Dojo v.7/Packages/Textures/USDOJO-i.utc",
+            "destination": "Packages/Textures/USDOJO-i.utc",
+            "size": 66346,
+            "sha256": "71ed0768eaf1326bf25129404b9ea55287408a764b212ed489c7ebba803e622b"
+          },
+          {
+            "path": "community/Suspect Dojo v.7/Packages/StaticMeshes/USDOJO54.usx",
+            "destination": "Packages/StaticMeshes/USDOJO54.usx",
+            "size": 35780,
+            "sha256": "896c1ea9bdb8c5c699d685629e3cb0f83cbcd5f3ca75a16e4db1a11077b601bf"
+          },
+          {
+            "path": "community/Suspect Dojo v.7/Packages/Textures/USDOJO23.utx",
+            "destination": "Packages/Textures/USDOJO23.utx",
+            "size": 1557870,
+            "sha256": "a323d20334498771a7f8c3b9f7dbe0339395d8460b9c6fb36e332e2b29f87085"
+          }
+        ]
+      }
+    }
+  ]
+}

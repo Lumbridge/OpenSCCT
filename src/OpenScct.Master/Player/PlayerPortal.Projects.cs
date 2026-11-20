@@ -138,7 +138,7 @@ internal sealed partial class PlayerPortal
         }
         body.Append("<div class=\"edition-details\"><section><h2>Getting started</h2><p>").Append(H(setup))
             .Append("</p><div class=\"hub-actions\">").Append(Link("/download", "Download launcher", "hub-primary"))
-            .Append(Link("/mods#" + edition.Id, "Mods for this edition", "hub-secondary")).Append("</div></section>")
+            .Append(Link("/mods?edition=" + edition.Id, "Mods for this edition", "hub-secondary")).Append("</div></section>")
             .Append("<section><h2>Project scope</h2><p>").Append(H(scope)).Append("</p><div class=\"hub-link-row\">")
             .Append(Link(source, "Project source")).Append(Link("/progress#" + edition.Id, "Progress report")).Append("</div></section></div>");
         if (edition.Group == "Originals")
@@ -146,27 +146,6 @@ internal sealed partial class PlayerPortal
         if (edition.Id == "ps2")
             body.Append("<p class=\"hub-note\">").Append(Link(HubSource + "/blob/main/docs/editions/ps2.md", "Disc setup and supported serials")).Append("</p>");
         return Show(c, edition.Name, "projects", body.Append("</div>").ToString());
-    }
-
-    private IResult Mods(HttpContext c)
-    {
-        string body = ProjectHeading("Community", "Mods", "Choose a mod for the edition you play. Each edition uses its own format and setup.")
-            + "<section class=\"hub-section\"><header class=\"hub-heading\"><h2>Originals</h2></header>"
-            + GuideSection("ps2", "PS2 original", "Patched disc images",
-                "Apply the mod author’s patch to a copy of your own disc image. Select the patched ISO in the launcher. Its disc serial must match your original. Switch back to the original image to play stock.",
-                Link("/projects/ps2", "PS2 setup"))
-            + GuideSection("pc", "PC / Steam", "Modded PC installations",
-                "Choose a separate modded installation for campaign and co-op, Versus or the full PC game. Switch back to your base installation in Mods. For Versus, Enhanced updates maps and game balance, and Reloaded adds widescreen, input, controller and online improvements.",
-                Link(EnhancedSource, "Enhanced SCCT Versus") + Link(ReloadedFeatures, "Reloaded features"))
-            + "</section><section class=\"hub-section\"><header class=\"hub-heading\"><h2>Modernisations</h2></header>"
-            + GuideSection("godot", "OpenSCCT Godot", "Additional Versus maps",
-                "Start with the maps built from your installed Steam copy. Use Maps to add Enhanced variants or community maps to your collection.",
-                Link("/projects/godot", "Godot setup") + Link("/wiki/maps", "Map guide"))
-            + GuideSection("unreal", "OpenSCCT Unreal", "Custom map collections",
-                "Build maps in OpenSCCT Editor. In the Windows launcher, enable the folder containing your compiled maps before starting Unreal. Give each map a unique ID.",
-                Link("/wiki/editor", "OpenSCCT Editor guide") + Link(HubSource + "/blob/main/docs/UNREAL-MAP-MODS.md", "Map mod guide"))
-            + "</section>";
-        return Show(c, "Mods", "mods", "<div class=\"project-site\">" + body + "</div>");
     }
 
     private static string GuideSection(string id, string eyebrow, string title, string description, string links) =>
